@@ -1,0 +1,51 @@
+package me.Straiker123.Events;
+
+import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+
+public class DamageGodPlayerEvent extends Event implements Cancellable {
+	Player s;
+	public DamageGodPlayerEvent(Player p,double dam, DamageCause cau) {
+		s=p;
+		damage=dam;
+		cause=cau;
+	}
+	@Override
+	public boolean isCancelled() {
+		return cancel;
+	}
+	private static final HandlerList handler = new HandlerList();
+	boolean cancel=true;
+	@Override
+	public void setCancelled(boolean cancel) {
+		this.cancel=cancel;
+	}
+	double damage;
+	public double getDamage() {
+		return damage;
+	}
+	
+	public void setDamage(double value) {
+		damage=value;
+	}
+	DamageCause cause;
+	public DamageCause getDamageCause() {
+		return cause;
+	}
+	
+	public Player getPlayer() {
+		return s;
+	}
+
+	@Override
+	public HandlerList getHandlers() {
+		return handler;
+	}
+	
+	public static HandlerList getHandlerList() {
+		return handler;
+	}
+}

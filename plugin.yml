@@ -1,0 +1,23 @@
+author: Straiker123
+api-version: 1.13
+website: https://www.spigotmc.org/resources/theapi.72679/
+name: TheAPI
+version: 3.3
+main: me.Straiker123.LoaderClass
+softdepend: [PlaceholderAPI]
+commands:
+  TheAPI:
+    usage: /<command>
+    description: Reload configs
+permissions:
+  TheAPI.*:
+    default: op
+    children:
+      TheAPI.Command.*: true
+  TheAPI.Command.*:
+    default: false
+    children:
+      TheAPI.Command.Info: true
+      TheAPI.Command.Reload: true
+      TheAPI.Command.ClearCache: true
+      TheAPI.Command.WorldsManager: true
