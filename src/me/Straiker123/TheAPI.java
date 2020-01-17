@@ -26,7 +26,6 @@ import me.Straiker123.Utils.Error;
 import me.Straiker123.Utils.Packets;
 import net.glowstone.entity.GlowPlayer;
 
-
 public class TheAPI {
 	/**
 	 * Colorize string with colors
