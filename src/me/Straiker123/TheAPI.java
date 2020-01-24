@@ -38,6 +38,14 @@ public class TheAPI {
 	}
 
 	/**
+	 * Get all blocks in radius 20 blocks
+	 * @return BlocksAPI
+	 */
+	public static BlocksAPI getBlocksAPI() {
+		return new BlocksAPI();
+	}
+
+	/**
 	 * Create or delete config
 	 * @param localization
 	 * @param name

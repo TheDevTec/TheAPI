@@ -17,13 +17,19 @@ import me.Straiker123.Utils.voidGenerator;
 import me.Straiker123.Utils.voidGenerator_1_8;
 
 public class WorldsManager {
+	/**
+	 * @return boolean if world exists
+	 **/
+	public boolean existsWorld(String world) {
+		return Bukkit.getWorld(world) != null;
+	}
 	
 	/**
 	 * This method ReCreate world, working as Import world commmand in Multiverse
 	 * @param world
 	 * @param generator
 	 * @param type
-	 * @return
+	 * @return boolean if world was loaded
 	 */
 	public boolean load(String world, Environment generator, WorldType type) {
 		if(Bukkit.getWorld(world)!=null)return false;

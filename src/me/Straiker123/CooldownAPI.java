@@ -1,11 +1,12 @@
 package me.Straiker123;
 
+import org.bukkit.entity.Player;
+
 public class CooldownAPI {
 	String c;
 	public CooldownAPI(String cooldownname) {
 		c=cooldownname;
 	}
-	
 	
 	public void createCooldown(String player, double length) {
 		LoaderClass.data.getConfig().set("cooldown."+c+"."+player+".start", System.currentTimeMillis());
@@ -37,8 +38,6 @@ public class CooldownAPI {
 		return -1;
 		
 	}
-	
-
 	/**
 	 * 
 	 * @return double
@@ -52,5 +51,45 @@ public class CooldownAPI {
 	public void removeCooldown(String player) {
 		LoaderClass.data.getConfig().set("cooldown."+c+"."+player, null);
 		LoaderClass.data.save();
+	} 
+	
+	//Player method
+	
+	public void createCooldown(Player player, double length) {
+		createCooldown(player.getName(), length);
+	}
+	
+	public boolean expired(Player player) {
+		return expired(player.getName());
+	}
+	/**
+	 * 
+	 * @return long
+	 * If return is -1, it mean cooldown isn't exist
+	 */
+	public long getStart(Player player) {
+		return getStart(player.getName());
+	}
+
+	/**
+	 * 
+	 * @return long
+	 * If return is -1, it mean cooldown isn't exist
+	 */
+	public long getTimeToExpire(Player player) {
+		return getTimeToExpire(player.getName());
+		
+	}
+	/**
+	 * 
+	 * @return double
+	 * If return is -1, it mean cooldown isn't exist
+	 */
+	public double getCooldown(Player player) {
+		return getCooldown(player.getName());
+	}
+
+	public void removeCooldown(Player player) {
+		removeCooldown(player.getName());
 	} 
 }

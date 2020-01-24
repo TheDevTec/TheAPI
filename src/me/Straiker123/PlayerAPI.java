@@ -1,15 +1,16 @@
 package me.Straiker123;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.Scoreboard;
 
+import me.Straiker123.BlocksAPI.Shape;
 import me.Straiker123.Utils.Error;
 
 public class PlayerAPI {
@@ -47,71 +48,35 @@ public class PlayerAPI {
 	}
 
 	public void safeTeleport(Location loc) {
-		if(loc.getBlock().getType().name().contains("AIR")||loc.getBlock().getType().name().contains("LAVA")) {
+		if(loc.getBlock().getType().name().contains("AIR")||loc.getBlock().getType().name().contains("LAVA")||loc.getBlock().getType().name().contains("WATER")) {
 			teleport(searchLocation(loc));
 		}else
 			teleport(loc); //is safe
 	}
 	public void safeTeleport(Location loc, TeleportCause cause) {
-		if(loc.getBlock().getType().name().contains("AIR")||loc.getBlock().getType().name().contains("LAVA")) {
+		if(loc.getBlock().getType().name().contains("AIR")||loc.getBlock().getType().name().contains("LAVA")||loc.getBlock().getType().name().contains("WATER")) {
 			teleport(searchLocation(loc),cause);
 		}else
 			teleport(loc,cause); //is safe
 	}
 	
 	private Location searchLocation(Location loc) {
-		return new Location(loc.getWorld(),getX(loc),getY(loc),getZ(loc));
-	}
-	
-	private int getY(Location b) {
-				int a=b.getBlockY();
-				for(int i = 1; i>0; ++i) {
-					 Location l = new Location(b.getWorld(),b.getBlockX(),b.getBlockY()-i,b.getBlockZ());
-					 if(!l.getBlock().getType().name().contains("AIR")
-							 &&!l.getBlock().getType().name().contains("LAVA")) {
-						 a=i;
-						 break;
-					 }
+		List<Location> w = TheAPI.getBlocksAPI().getBlocksLocation(Shape.Sphere, loc, 20);
+		int i = 0;
+		for(Location b : w) {
+			if(b.getBlock().getType().isSolid()) {
+				if(!b.getBlock().getType().name().contains("AIR")||!b.getBlock().getType().name().contains("LAVA")||!b.getBlock().getType().name().contains("WATER")){
+					if(w.get(i).add(0, 1, 0).getBlock().getType()==Material.AIR &&w.get(i).add(0, 2, 0).getBlock().getType()==Material.AIR) {
+						loc=b;
+						break;
+					}
 				}
-				return a;
-	}
-	
-	private int getZ(Location b) {
-				int a=b.getBlockZ();
-				boolean random = Boolean.getBoolean(TheAPI.getRandomFromList(Arrays.asList(true,false)).toString());
-				for(int i = 1; i>0; ++i) {
-					int x = b.getBlockY();
-					if(random)x=x+i;
-					else
-						x=x-i;
-					 Location l = new Location(b.getWorld(),b.getBlockX(),b.getBlockY(),x);
-					 if(!l.getBlock().getType().name().contains("AIR")
-							 &&!l.getBlock().getType().name().contains("LAVA")) {
-						 a=i;
-						 break;
-					 }
-				}
-				return a;
-	}
-	
-	private int getX(Location b) {
-		int a=b.getBlockX();
-		boolean random = Boolean.getBoolean(TheAPI.getRandomFromList(Arrays.asList(true,false)).toString());
-		for(int i = 1; i>0; ++i) {
-			int x = b.getBlockX();
-			if(random)x=x+i;
-			else
-				x=x-i;
-			 Location l = new Location(b.getWorld(),x,b.getBlockY(),b.getBlockZ());
-			 if(!l.getBlock().getType().name().contains("AIR")
-					 &&!l.getBlock().getType().name().contains("LAVA")) {
-				 a=i;
-				 break;
-			 }
+			}
+			++i;
 		}
-		return a;
+		return loc;
 	}
-
+	
 	public void setFreeze(boolean freeze) {
 		LoaderClass.data.getConfig().set("data."+s.getName()+".freeze",true);
 		LoaderClass.data.save();

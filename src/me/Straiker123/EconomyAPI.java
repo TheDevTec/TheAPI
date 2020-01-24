@@ -3,6 +3,8 @@ package me.Straiker123;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.entity.Player;
+
 import net.milkbowl.vault.economy.Economy;
 
 public class EconomyAPI {
@@ -45,6 +47,13 @@ public class EconomyAPI {
 		return false;
 	}
 
+	public boolean hasAccount(Player player) {
+		return hasAccount(player.getName());
+	}
+	public boolean hasAccount(Player player, String world) {
+		return hasAccount(player.getName(),world);
+	}
+	
 	public List<String> getBanks() {
 		if(e!=null && LoaderClass.plugin.e&& hasBankSupport())
 			return e.getBanks();
@@ -150,4 +159,35 @@ public class EconomyAPI {
 			return e.format(money);
 		return ""+money;
 	}
+	
+	
+	public void depositPlayer(Player player, double money) {
+		depositPlayer(player.getName(), money);
+	}
+	public void depositPlayer(Player player, String world, double money) {
+		depositPlayer(player.getName(),world, money);
+	}
+	public void withdrawPlayer(Player player, double money) {
+		withdrawPlayer(player.getName(), money);
+	}
+	public void withdrawPlayer(Player player, String world, double money) {
+		withdrawPlayer(player.getName(),world, money);
+	}
+	public double getBalance(Player player) {
+		return getBalance(player.getName());
+	}
+	public double getBalance(Player player, String world) {
+		return getBalance(player.getName(),world);
+	}
+	public boolean has(Player player, double money) {
+		return has(player.getName(),money);
+	}
+	public boolean has(Player player, String world, double money) {
+		return has(player.getName(), world,money);
+	}
+	public boolean createAccount(Player player) {
+		return createAccount(player.getName());
+	}
+	
+	
 }

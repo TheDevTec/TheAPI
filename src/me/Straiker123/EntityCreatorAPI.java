@@ -4,10 +4,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Location;
+import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Horse;
+import org.bukkit.entity.Horse.Color;
+import org.bukkit.entity.Horse.Variant;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.Villager.Profession;
@@ -21,6 +26,7 @@ import org.bukkit.util.EulerAngle;
 
 import me.Straiker123.Utils.Error;
 
+@SuppressWarnings("deprecation")
 public class EntityCreatorAPI {
 	EntityType t;
 	public EntityCreatorAPI(EntityType type) {
@@ -30,9 +36,7 @@ public class EntityCreatorAPI {
 		MINIMAL,
 		MAXIMAL
 	}
-	double min;
-	double max;
-	double set;
+	double min, max,set,jump;
 	
 	/**
 	 * This method rewrite whole attack damage
@@ -84,15 +88,12 @@ public class EntityCreatorAPI {
 	public void setGravity(boolean setGravity) {
 		gravity=setGravity;
 	}
-	boolean glow;
 	public void setGlowing(boolean setGlow) {
 		glow=setGlow;
 	}
-	boolean isGod;
 	public void setGod(boolean setGod) {
 		setGod=isGod;
 	}
-	int god;
 	public void setGodOnTime(int time) {
 		god=time;
 	}
@@ -100,7 +101,6 @@ public class EntityCreatorAPI {
 	public void setPassenger(Entity passenger) {
 		entity=passenger;
 	}
-	boolean silent;
 	public void setSilent(boolean setSilent) {
 		silent=setSilent;
 	}
@@ -123,24 +123,12 @@ public class EntityCreatorAPI {
 		ItemInHand //ItemStack
 	}
 
-	boolean arms;
 	boolean base = true;
-	boolean small;
-	boolean marker;
+	boolean small, marker,arms,isGod,glow,silent,v_breed,v_locage,v_baby,v_adult,chest,tamed;
 	boolean visible_armor = true;
-	EulerAngle body;
-	EulerAngle head;
-
-	EulerAngle l_leg;
-	EulerAngle l_arm;
-	EulerAngle r_leg;
-	EulerAngle r_arm;
+	EulerAngle body,head,l_leg, l_arm,r_leg,r_arm;
 	
-	ItemStack helmet;
-	ItemStack chestplate;
-	ItemStack leggings;
-	ItemStack boots;
-	ItemStack item;
+	ItemStack helmet,chestplate,leggings,boots,item;
 	
 	public static enum VillagerOptions{
 		Adult, //boolean
@@ -157,23 +145,68 @@ public class EntityCreatorAPI {
 		Seed //long
 	}
 	long v_seed;
-	int v_level;
-	int v_exp;
-	int v_age;
+	int v_level,god,v_exp,v_age,d,m_d;
 	Type v_type;
 	Profession v_pro;
 	List<MerchantRecipe> v_rec;
 	LootTable v_loot;
-	boolean v_breed;
-	boolean v_locage;
-	boolean v_baby;
-	boolean v_adult;
 
+	public static enum HorseOptions{
+		CarryingChest, //boolean
+		Tamed, //boolean
+		Color, //Color
+		Domestication, //int
+		MaxDomestication, //int
+		Jump, //double
+		Owner, //AnimalTamer
+		Variant //Variant
+	}
 	public static enum TNTOptions{
 		IsIncendiary, //boolean
 		FuseTicks, //int
 		Yield //long
 	}
+	Variant v; //horse variant
+	Color c; //horse color
+	AnimalTamer owner; //horse owner
+	public void setHorseOptions(HashMap<HorseOptions, Object> w) {
+		for(HorseOptions a : w.keySet()) {
+			switch(a) {
+			case CarryingChest:
+				chest=Boolean.getBoolean(w.get(a).toString());
+				break;
+			case Tamed:
+				tamed=Boolean.getBoolean(w.get(a).toString());
+				break;
+			case Color:
+				try {
+				c=(Color)w.get(a);
+				}catch(Exception erro) {
+					c=Color.WHITE;
+				}
+				break;
+			case Domestication:
+				d=Integer.parseInt(w.get(a).toString());
+				break;
+			case MaxDomestication:
+				m_d=Integer.parseInt(w.get(a).toString());
+				break;
+			case Jump:
+				jump=Double.parseDouble(w.get(a).toString());
+				break;
+			case Owner:
+				owner=w.get(a) instanceof Player ? (AnimalTamer)w.get(a): (AnimalTamer)w.get(a);
+				break;
+			case Variant:
+				try {
+				v=(Variant)w.get(a);
+				}catch(Exception erro) {
+					v=Variant.HORSE;
+				}
+				break;
+			}
+		}}
+	
 	public void setTNTOptions(HashMap<TNTOptions, Object> w) {
 		for(TNTOptions a : w.keySet()) {
 			switch(a) {
@@ -312,7 +345,6 @@ public class EntityCreatorAPI {
 	boolean tnt_inc; //this is ?
 	long tnt_yield = -1;
 	
-	@SuppressWarnings("deprecation")
 	public void summonEntity(Location l) {
 		try {
 		LivingEntity e = (LivingEntity) l.getWorld().spawnEntity(l, t);
@@ -390,7 +422,28 @@ public class EntityCreatorAPI {
 		a.setIsIncendiary(tnt_inc);
 		if(tnt_yield!=-1)
 		a.setYield(tnt_yield);
-		} //Straiker123 is bored ? :( 4:30 AM
+		}
+		if(e.getType()==EntityType.HORSE ||e.getType()==EntityType.DONKEY||e.getType()==EntityType.MULE||e.getType()==EntityType.ZOMBIE_HORSE) {
+			Horse h = (Horse)e;
+			try {
+			h.setCarryingChest(chest);
+			if(c !=null)
+			h.setColor(c);
+			if(d > 0)
+			h.setDomestication(d);
+			if(jump > 0)
+			h.setJumpStrength(jump);
+			if(m_d > 0)
+			h.setMaxDomestication(m_d);
+			if(owner !=null)
+			h.setOwner(owner); //AnimalTamer
+			if(v!=null)
+			h.setVariant(v);
+			h.setTamed(tamed);
+			}catch(Exception err) {
+				
+			}
+		}
 		e.setCustomNameVisible(visible);
 		
 		e.setCustomName(name);
