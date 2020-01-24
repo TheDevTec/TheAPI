@@ -110,7 +110,7 @@ public class TheAPI {
 	 * @param list
 	 * @return Object
 	 */
-	public static Object getRandomFromList(List<Object> list) {
+	public static Object getRandomFromList(List<?> list) {
 		if(list.isEmpty()||list==null)return null;
 		int r = new Random().nextInt(list.size());
 		if(r<=0) {
