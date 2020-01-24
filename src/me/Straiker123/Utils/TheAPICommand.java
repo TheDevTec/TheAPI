@@ -61,7 +61,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager"));
 			if(s.hasPermission("TheAPI.Command.ClearCache"))
 			s.sendMessage(TheAPI.colorize("&6/TheAPI ClearCache"));
-			s.sendMessage(TheAPI.colorize("&6Credits: TheAPI created by Straiker123"));
+			s.sendMessage(TheAPI.colorize("&6Credits: TheAPI created by DevTec"));
 			s.sendMessage(TheAPI.colorize("&7-----------------"));
 			return true;
 		}

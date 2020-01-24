@@ -1,14 +1,14 @@
-author: Straiker123
-api-version: 1.13
-website: https://www.spigotmc.org/resources/theapi.72679/
 name: TheAPI
-version: 3.3
 main: me.Straiker123.LoaderClass
-softdepend: [PlaceholderAPI]
+author: DevTec
+website: https://www.spigotmc.org/resources/theapi.72679/
+version: 3.4
+api-version: 1.13
+softdepend: [Vault,PlaceholderAPI]
 commands:
   TheAPI:
     usage: /<command>
-    description: Reload configs
+    description: Main command
 permissions:
   TheAPI.*:
     default: op
