@@ -66,17 +66,11 @@ public class Events implements Listener {
 		 s.setDisplayName(a.getItemMeta().getDisplayName());
 		 if(a.getItemMeta().hasLore())s.setLore(a.getItemMeta().getLore());
 		 if(TheAPI.isNewVersion()
-				 &&!TheAPI.getServerVersion().equals("v1_13_R1")
-				 &&!TheAPI.getServerVersion().equals("v1_13_R2"))
+				 &&!TheAPI.getServerVersion().contains("v1_13"))
 		if(a.getItemMeta().hasCustomModelData()) s.setCustomModelData(a.getItemMeta().getCustomModelData());
-		 if(!TheAPI.getServerVersion().equals("v1_8_R3")
-					&& !TheAPI.getServerVersion().equals("v1_8_R1")
-					&& !TheAPI.getServerVersion().equals("v1_8_R2")
-				 &&!TheAPI.getServerVersion().equals("v1_9_R1")  
-				 &&!TheAPI.getServerVersion().equals("v1_9_R2") 
-				 &&!TheAPI.getServerVersion().equals("v1_9_R3")
-				 &&!TheAPI.getServerVersion().equals("v1_10_R1")
-				 &&!TheAPI.getServerVersion().equals("v1_10_R2"))
+		 if(!TheAPI.getServerVersion().contains("v1_8")
+				 &&!TheAPI.getServerVersion().contains("v1_9")  
+				 &&!TheAPI.getServerVersion().contains("v1_10"))
 		 s.setUnbreakable(a.getItemMeta().isUnbreakable());
 		 return s.create();
 	}
@@ -87,17 +81,11 @@ public class Events implements Listener {
 		 s.setDisplayName(a.getItemMeta().getDisplayName());
 		 if(a.getItemMeta().hasLore())s.setLore(a.getItemMeta().getLore());
 		 if(TheAPI.isNewVersion()
-				 &&!TheAPI.getServerVersion().equals("v1_13_R1")
-				 &&!TheAPI.getServerVersion().equals("v1_13_R2"))
+				 &&!TheAPI.getServerVersion().contains("v1_13"))
 		if(a.getItemMeta().hasCustomModelData()) s.setCustomModelData(a.getItemMeta().getCustomModelData());
-		 if(!TheAPI.getServerVersion().equals("v1_8_R3")
-					&& !TheAPI.getServerVersion().equals("v1_8_R1")
-					&& !TheAPI.getServerVersion().equals("v1_8_R2")
-				 &&!TheAPI.getServerVersion().equals("v1_9_R1")  
-				 &&!TheAPI.getServerVersion().equals("v1_9_R2") 
-				 &&!TheAPI.getServerVersion().equals("v1_9_R3")
-				 &&!TheAPI.getServerVersion().equals("v1_10_R1")
-				 &&!TheAPI.getServerVersion().equals("v1_10_R2"))
+		 if(!TheAPI.getServerVersion().contains("v1_8")
+				 &&!TheAPI.getServerVersion().contains("v1_9")  
+				 &&!TheAPI.getServerVersion().contains("v1_10"))
 		 s.setUnbreakable(a.getItemMeta().isUnbreakable());
 		 return s.create();
 	}

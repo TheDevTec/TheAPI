@@ -172,17 +172,11 @@ public class ItemCreatorAPI {
 		if(name!=null)
 			m.setDisplayName(name);
 			if(model != -1 && TheAPI.isNewVersion() //1.14+
-					 &&!TheAPI.getServerVersion().equals("v1_13_R1")
-					 &&!TheAPI.getServerVersion().equals("v1_13_R2"))
+					 &&!TheAPI.getServerVersion().contains("v1_13"))
 			m.setCustomModelData(model);
-			 if(!TheAPI.getServerVersion().equals("v1_8_R3") //1.8+
-						&& !TheAPI.getServerVersion().equals("v1_8_R1")
-						&& !TheAPI.getServerVersion().equals("v1_8_R2")
-					 &&!TheAPI.getServerVersion().equals("v1_9_R1")  
-					 &&!TheAPI.getServerVersion().equals("v1_9_R2") 
-					 &&!TheAPI.getServerVersion().equals("v1_9_R3")
-					 &&!TheAPI.getServerVersion().equals("v1_10_R1")
-					 &&!TheAPI.getServerVersion().equals("v1_10_R2"))
+			 if(!TheAPI.getServerVersion().contains("v1_8")
+					 &&!TheAPI.getServerVersion().contains("v1_9")  
+					 &&!TheAPI.getServerVersion().contains("v1_10"))
 			m.setUnbreakable(unb);
 			 else {
 				 addLore("");
@@ -213,17 +207,11 @@ public class ItemCreatorAPI {
 			if(name!=null)
 				m.setDisplayName(name);
 				if(model != -1 && TheAPI.isNewVersion() //1.14+
-						 &&!TheAPI.getServerVersion().equals("v1_13_R1")
-						 &&!TheAPI.getServerVersion().equals("v1_13_R2"))
+						 &&!TheAPI.getServerVersion().contains("v1_13"))
 				m.setCustomModelData(model);
-				 if(!TheAPI.getServerVersion().equals("v1_8_R3") //1.8+
-							&& !TheAPI.getServerVersion().equals("v1_8_R1")
-							&& !TheAPI.getServerVersion().equals("v1_8_R2")
-						 &&!TheAPI.getServerVersion().equals("v1_9_R1")  
-						 &&!TheAPI.getServerVersion().equals("v1_9_R2") 
-						 &&!TheAPI.getServerVersion().equals("v1_9_R3")
-						 &&!TheAPI.getServerVersion().equals("v1_10_R1")
-						 &&!TheAPI.getServerVersion().equals("v1_10_R2"))
+				 if(!TheAPI.getServerVersion().contains("v1_8")
+						 &&!TheAPI.getServerVersion().contains("v1_9")  
+						 &&!TheAPI.getServerVersion().contains("v1_10"))
 				m.setUnbreakable(unb);
 				 else {
 					 addLore("");
@@ -246,17 +234,11 @@ public class ItemCreatorAPI {
 					if(name!=null)
 					m.setDisplayName(name);
 					if(model != -1 && TheAPI.isNewVersion()
-							 &&!TheAPI.getServerVersion().equals("v1_13_R1")
-							 &&!TheAPI.getServerVersion().equals("v1_13_R2"))
+							 &&!TheAPI.getServerVersion().contains("v1_13"))
 					m.setCustomModelData(model);
-					 if(!TheAPI.getServerVersion().equals("v1_8_R3")
-								&& !TheAPI.getServerVersion().equals("v1_8_R1")
-								&& !TheAPI.getServerVersion().equals("v1_8_R2")
-							 &&!TheAPI.getServerVersion().equals("v1_9_R1")  
-							 &&!TheAPI.getServerVersion().equals("v1_9_R2") 
-							 &&!TheAPI.getServerVersion().equals("v1_9_R3")
-							 &&!TheAPI.getServerVersion().equals("v1_10_R1")
-							 &&!TheAPI.getServerVersion().equals("v1_10_R2"))
+					 if(!TheAPI.getServerVersion().contains("v1_8")
+							 &&!TheAPI.getServerVersion().contains("v1_9")  
+							 &&!TheAPI.getServerVersion().contains("v1_10"))
 					m.setUnbreakable(unb);
 					 else {
 						 addLore("");
@@ -281,17 +263,11 @@ public class ItemCreatorAPI {
 				if(name!=null)
 				m.setDisplayName(name);
 				if(model != -1 && TheAPI.isNewVersion() //1.14+
-						 &&!TheAPI.getServerVersion().equals("v1_13_R1")
-						 &&!TheAPI.getServerVersion().equals("v1_13_R2"))
+						 &&!TheAPI.getServerVersion().contains("v1_13"))
 				m.setCustomModelData(model);
-				 if(!TheAPI.getServerVersion().equals("v1_8_R3") //1.8+
-							&& !TheAPI.getServerVersion().equals("v1_8_R1")
-							&& !TheAPI.getServerVersion().equals("v1_8_R2")
-						 &&!TheAPI.getServerVersion().equals("v1_9_R1")  
-						 &&!TheAPI.getServerVersion().equals("v1_9_R2") 
-						 &&!TheAPI.getServerVersion().equals("v1_9_R3")
-						 &&!TheAPI.getServerVersion().equals("v1_10_R1")
-						 &&!TheAPI.getServerVersion().equals("v1_10_R2"))
+				 if(!TheAPI.getServerVersion().contains("v1_8")
+						 &&!TheAPI.getServerVersion().contains("v1_9")  
+						 &&!TheAPI.getServerVersion().contains("v1_10"))
 				m.setUnbreakable(unb);
 				 else {
 					 addLore("");
