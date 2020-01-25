@@ -51,13 +51,13 @@ public class PlayerAPI {
 		if(loc.getBlock().getType().name().contains("AIR")||loc.getBlock().getType().name().contains("LAVA")||loc.getBlock().getType().name().contains("WATER")) {
 			teleport(searchLocation(loc));
 		}else
-			teleport(loc); //is safe
+			teleport(loc.add(0,1,0)); //is safe
 	}
 	public void safeTeleport(Location loc, TeleportCause cause) {
 		if(loc.getBlock().getType().name().contains("AIR")||loc.getBlock().getType().name().contains("LAVA")||loc.getBlock().getType().name().contains("WATER")) {
 			teleport(searchLocation(loc),cause);
 		}else
-			teleport(loc,cause); //is safe
+			teleport(loc.add(0,1,0),cause); //is safe
 	}
 	
 	private Location searchLocation(Location loc) {
