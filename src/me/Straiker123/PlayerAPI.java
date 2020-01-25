@@ -48,23 +48,48 @@ public class PlayerAPI {
 	}
 
 	public void safeTeleport(Location loc) {
-		if(loc.getBlock().getType().name().contains("AIR")||loc.getBlock().getType().name().contains("LAVA")||loc.getBlock().getType().name().contains("WATER")) {
+		if(loc.getBlock().getType().name().contains("AIR")||loc.getBlock().getType().name().contains("LAVA")) {
 			teleport(searchLocation(loc));
 		}else
 			teleport(loc.add(0,1,0)); //is safe
 	}
 	public void safeTeleport(Location loc, TeleportCause cause) {
-		if(loc.getBlock().getType().name().contains("AIR")||loc.getBlock().getType().name().contains("LAVA")||loc.getBlock().getType().name().contains("WATER")) {
+		if(loc.getBlock().getType().name().contains("AIR")||loc.getBlock().getType().name().contains("LAVA")) {
 			teleport(searchLocation(loc),cause);
 		}else
 			teleport(loc.add(0,1,0),cause); //is safe
 	}
 	
 	private Location searchLocation(Location loc) {
-		List<Location> w = TheAPI.getBlocksAPI().getBlocksLocation(Shape.Sphere, loc, 20);
+		List<Location> w = TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 2);
 		for(Location b : w) {
 			if(b.getBlock().getType().isSolid()) {
-				if(b.add(0, 1, 0).getBlock().getType()==Material.AIR &&b.add(0, 2, 0).getBlock().getType()==Material.AIR) {	
+				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
+						b.add(0, 1, 0).getBlock().getType()==Material.AIR &&b.add(0, 2, 0).getBlock().getType()==Material.AIR) {	
+					b.add(0, 1, 0);
+					loc=b;
+						break;
+					}
+			}
+		}
+		if(loc!=null)return loc;
+		List<Location> ww = TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 5);
+		for(Location b : ww) {
+			if(b.getBlock().getType().isSolid()) {
+				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
+						b.add(0, 1, 0).getBlock().getType()==Material.AIR &&b.add(0, 2, 0).getBlock().getType()==Material.AIR) {	
+					b.add(0, 1, 0);
+					loc=b;
+						break;
+					}
+			}
+		}
+		if(loc!=null)return loc;
+		List<Location> www = TheAPI.getBlocksAPI().getBlocksLocation(Shape.Sphere, loc, 8);
+		for(Location b : www) {
+			if(b.getBlock().getType().isSolid()) {
+				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
+						b.add(0, 1, 0).getBlock().getType()==Material.AIR &&b.add(0, 2, 0).getBlock().getType()==Material.AIR) {	
 					b.add(0, 1, 0);
 					loc=b;
 						break;
