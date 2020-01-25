@@ -66,8 +66,8 @@ public class PlayerAPI {
 		for(Location b : w) {
 			if(b.getBlock().getType().isSolid()) {
 				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
-						b.add(0, 1, 0).getBlock().getType()==Material.AIR &&b.add(0, 2, 0).getBlock().getType()==Material.AIR) {	
-					b.add(0, 1, 0);
+						b.add(0, 1, 0).getBlock().getType().name().equals("AIR") &&b.add(0, 2, 0).getBlock().getType().name().equals("AIR")) {
+					b=b.add(0, 1, 0);
 					l=b;
 						break;
 					}
@@ -78,8 +78,8 @@ public class PlayerAPI {
 		for(Location b : w) {
 			if(b.getBlock().getType().isSolid()) {
 				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
-						b.add(0, 1, 0).getBlock().getType()==Material.AIR &&b.add(0, 2, 0).getBlock().getType()==Material.AIR) {	
-					b.add(0, 1, 0);
+						b.add(0, 1, 0).getBlock().getType().name().equals("AIR") &&b.add(0, 2, 0).getBlock().getType().name().equals("AIR")) {
+					b=b.add(0, 1, 0);
 					l=b;
 						break;
 					}
@@ -90,8 +90,8 @@ public class PlayerAPI {
 		for(Location b : w) {
 			if(b.getBlock().getType().isSolid()) {
 				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
-						b.add(0, 1, 0).getBlock().getType()==Material.AIR &&b.add(0, 2, 0).getBlock().getType()==Material.AIR) {	
-					b.add(0, 1, 0);
+						b.add(0, 1, 0).getBlock().getType().name().equals("AIR") &&b.add(0, 2, 0).getBlock().getType().name().equals("AIR")) {	
+					b=b.add(0, 1, 0);
 					l=b;
 						break;
 					}
