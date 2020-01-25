@@ -15,7 +15,6 @@ import org.bukkit.entity.Ocelot;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
-import org.bukkit.entity.Villager;
 import org.bukkit.entity.Wolf;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -157,12 +156,16 @@ public class Events implements Listener {
 				list.put(e.getPlayer(), l);
 			}
 		}
-		if(e.getRightClicked().getType()==EntityType.OCELOT) {
+		if(e.getRightClicked().getType().name().equals("OCELOT")||e.getRightClicked().getType().name().equals("CAT")) {
 			Ocelot c = (Ocelot)e.getRightClicked();
-			if(c.canBreed() && e.getPlayer().getItemInHand().getType().name().equals("RAW_FISH")) {
+			if(c.canBreed()) {
+				if(e.getPlayer().getItemInHand().getType().name().equals("RAW_FISH")
+						|| e.getPlayer().getItemInHand().getType().name().equals("COD")
+						|| e.getPlayer().getItemInHand().getType().name().equals("SALMON")) {
 				List<Entity> l = list.get(e.getPlayer());
 				l.add(e.getRightClicked());
 				list.put(e.getPlayer(), l);
+				}
 			}
 		}
 	}
@@ -313,12 +316,12 @@ public class Events implements Listener {
 					}
 				}
 			}
-			if(e.getEntity().getType()==EntityType.OCELOT) {
+			if(e.getEntity().getType().name().equals("OCELOT")||e.getEntity().getType().name().equals("CAT")) {
 				Ocelot c = (Ocelot)e.getEntity();
 				if(!c.isAdult()) {
 					List<Entity> entity = new ArrayList<Entity>();
 					for(Entity d : c.getWorld().getNearbyEntities(c.getLocation(), 20, 20, 20)) {
-						if(d.getType()==EntityType.OCELOT) {
+						if(d.getType().name().equals("OCELOT")||d.getType().name().equals("CAT")) {
 							entity.add(d);
 						}
 					}
@@ -335,14 +338,6 @@ public class Events implements Listener {
 							}
 						}
 					}
-				}
-			}
-			if(e.getEntity().getType()==EntityType.VILLAGER) {
-				Villager c = (Villager)e.getEntity();
-				if(!c.isAdult()) {
-				EntityBreedEvent event = new EntityBreedEvent(null,e.getLocation(),e.getEntity());
-				Bukkit.getPluginManager().callEvent(event);
-				if(event.isCancelled())e.setCancelled(true);
 				}
 			}
 		}

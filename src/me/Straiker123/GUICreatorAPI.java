@@ -24,18 +24,24 @@ public class GUICreatorAPI {
 		if(title!=null)
 		t=title;
 	}
-	public int size(int o) {
+	private int getRealSize(int o) {
 	switch(o) {
+	case 8:
 	case 9:
 	return 9;
+	case 17:
 	case 18:
 	return 18;
+	case 26:
 	case 27:
 	return 27;
+	case 35:
 	case 36:
 	return 36;
+	case 47:
 	case 48:
 	return 48;
+	case 53:
 	case 54:
 	return 54;
 	default:
@@ -49,7 +55,7 @@ public class GUICreatorAPI {
 	
 	int f = 9;
 	public void setSize(int size) {
-		f = size(size);
+		f = getRealSize(size);
 	}
 	public String getID() {
 		return id.getID();
@@ -88,7 +94,7 @@ public class GUICreatorAPI {
 		SENDCOMMANDS_MIDDLE_CLICK,
 	}
 	
-	HashMap<Integer,ItemStack> map = new HashMap<Integer,ItemStack>();
+	private HashMap<Integer,ItemStack> map = new HashMap<Integer,ItemStack>();
 	
 	private ItemStack createWrittenBook(ItemStack a) {
 		Material ms = Material.matchMaterial("WRITABLE_BOOK");
@@ -246,8 +252,10 @@ public class GUICreatorAPI {
 		if(getFirstEmpty()!=-1)
 		setItem(getFirstEmpty(), item);
 	}
-		
-	Inventory inv;
+	public boolean isOpened() {
+		return p.getOpenInventory().getTopInventory() != null && inv != null;
+	}
+	private Inventory inv;
 	/**
 	 *
 	 * @return opened gui
@@ -340,4 +348,11 @@ public class GUICreatorAPI {
 		}else
 		id.clear();
 	}
+	
+	public void close() {
+		id.clear();
+		inv=null;
+		p.getOpenInventory().close();
+	}
+	
 }

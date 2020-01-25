@@ -36,52 +36,32 @@ public class PlayerAPI {
 	}
 	public void teleport(Entity entity,TeleportCause cause) {
 		if(entity!=null) {
-			if(cause!=null)
-		s.teleport(entity,cause);
-			else {
-				Error.err("teleporting "+s.getName(), "TeleportCause is null");
-			}
+			teleport(entity.getLocation(),cause);
 		}else {
 			Error.err("teleporting "+s.getName(), "Entity is null");
 		}
 	}
 
 	public void safeTeleport(Location loc) {
-		if(loc.getBlock().getType().name().contains("AIR")||loc.getBlock().getType().name().contains("LAVA")) {
-			teleport(searchLocation(loc));
-		}else
-			teleport(loc.add(0,1,0)); //is safe
+		safeTeleport(loc,TeleportCause.PLUGIN);
 	}
 	public void safeTeleport(Location loc, TeleportCause cause) {
 		if(loc.getBlock().getType().name().contains("AIR")||loc.getBlock().getType().name().contains("LAVA")) {
 			teleport(searchLocation(loc),cause);
 		}else
-			teleport(loc.add(0,1,0),cause); //is safe
+			teleport(loc,cause); //is safe
 	}
 	
 	private Location searchLocation(Location loc) {
 		Location l = null;
-		List<Location> w = TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 1);
+		List<Location> w = TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 2);
 		for(Location b : w) {
 			if(b.getBlock().getType().isSolid()) {
 				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
 						b.add(0, 1, 0).getBlock().getType().name().equals("AIR") &&b.add(0, 2, 0).getBlock().getType().name().equals("AIR")) {
-					b=b.add(0, 1, 0);
-					l=b;
-						break;
-					}
-			}
-		}
-		if(l!=null)return l;
-		w = TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 2);
-		for(Location b : w) {
-			if(b.getBlock().getType().isSolid()) {
-				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
-						b.add(0, 1, 0).getBlock().getType().name().equals("AIR") &&b.add(0, 2, 0).getBlock().getType().name().equals("AIR")) {
-					b=b.add(0, 1, 0);
-					l=b;
-						break;
-					}
+					l=b.add(0, 1, 0);
+					break;
+				}
 			}
 		}
 		if(l!=null)return l;
@@ -90,9 +70,8 @@ public class PlayerAPI {
 			if(b.getBlock().getType().isSolid()) {
 				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
 						b.add(0, 1, 0).getBlock().getType().name().equals("AIR") &&b.add(0, 2, 0).getBlock().getType().name().equals("AIR")) {	
-					b=b.add(0, 1, 0);
-					l=b;
-						break;
+					l=b.add(0, 1, 0);
+					break;
 					}
 			}
 		}
@@ -102,9 +81,8 @@ public class PlayerAPI {
 			if(b.getBlock().getType().isSolid()) {
 				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
 						b.add(0, 1, 0).getBlock().getType().name().equals("AIR") &&b.add(0, 2, 0).getBlock().getType().name().equals("AIR")) {	
-					b=b.add(0, 1, 0);
-					l=b;
-						break;
+					l=b.add(0, 1, 0);
+					break;
 					}
 			}
 		}
@@ -114,9 +92,8 @@ public class PlayerAPI {
 			if(b.getBlock().getType().isSolid()) {
 				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
 						b.add(0, 1, 0).getBlock().getType().name().equals("AIR") &&b.add(0, 2, 0).getBlock().getType().name().equals("AIR")) {	
-					b=b.add(0, 1, 0);
-					l=b;
-						break;
+					l=b.add(0, 1, 0);
+					break;
 					}
 			}
 		}
@@ -201,13 +178,16 @@ public class PlayerAPI {
 	public boolean allowedFly() {
 		return LoaderClass.data.getConfig().getBoolean("data."+s.getName()+".fly");
 	}
+	public void giveExp(int exp) {
+		s.setTotalExperience((int)s.getTotalExperience()+exp);
+	}
 
 	public void takeExp(int exp) {
-		int take = (int)s.getExp();
+		int take = (int)s.getTotalExperience();
 		if(take-exp < 0) {
-			s.setExp(take);
+			s.setTotalExperience(take);
 		}else
-			s.setExp(take-exp);
+			s.setTotalExperience(take-exp);
 	}
 	
 	@SuppressWarnings("deprecation")
