@@ -65,12 +65,10 @@ public class PlayerAPI {
 		int i = 0;
 		for(Location b : w) {
 			if(b.getBlock().getType().isSolid()) {
-				if(!b.getBlock().getType().name().contains("AIR")||!b.getBlock().getType().name().contains("LAVA")||!b.getBlock().getType().name().contains("WATER")){
-					if(w.get(i).add(0, 1, 0).getBlock().getType()==Material.AIR &&w.get(i).add(0, 2, 0).getBlock().getType()==Material.AIR) {
+				if(w.get(i).add(0, 1, 0).getBlock().getType()==Material.AIR &&w.get(i).add(0, 2, 0).getBlock().getType()==Material.AIR) {
 						loc=w.get(i).add(0, 1, 0);
 						break;
 					}
-				}
 			}
 			++i;
 		}
