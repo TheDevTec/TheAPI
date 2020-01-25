@@ -61,41 +61,43 @@ public class PlayerAPI {
 	}
 	
 	private Location searchLocation(Location loc) {
+		Location l = null;
 		List<Location> w = TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 2);
 		for(Location b : w) {
 			if(b.getBlock().getType().isSolid()) {
 				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
 						b.add(0, 1, 0).getBlock().getType()==Material.AIR &&b.add(0, 2, 0).getBlock().getType()==Material.AIR) {	
 					b.add(0, 1, 0);
-					loc=b;
+					l=b;
 						break;
 					}
 			}
 		}
-		if(loc!=null)return loc;
-		List<Location> ww = TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 5);
-		for(Location b : ww) {
+		if(l!=null)return l;
+		w = TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 5);
+		for(Location b : w) {
 			if(b.getBlock().getType().isSolid()) {
 				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
 						b.add(0, 1, 0).getBlock().getType()==Material.AIR &&b.add(0, 2, 0).getBlock().getType()==Material.AIR) {	
 					b.add(0, 1, 0);
-					loc=b;
+					l=b;
 						break;
 					}
 			}
 		}
-		if(loc!=null)return loc;
-		List<Location> www = TheAPI.getBlocksAPI().getBlocksLocation(Shape.Sphere, loc, 8);
-		for(Location b : www) {
+		if(l!=null)return l;
+		w= TheAPI.getBlocksAPI().getBlocksLocation(Shape.Sphere, loc, 8);
+		for(Location b : w) {
 			if(b.getBlock().getType().isSolid()) {
 				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
 						b.add(0, 1, 0).getBlock().getType()==Material.AIR &&b.add(0, 2, 0).getBlock().getType()==Material.AIR) {	
 					b.add(0, 1, 0);
-					loc=b;
+					l=b;
 						break;
 					}
 			}
 		}
+		if(l!=null)return l;
 		return loc;
 	}
 	
