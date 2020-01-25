@@ -62,15 +62,14 @@ public class PlayerAPI {
 	
 	private Location searchLocation(Location loc) {
 		List<Location> w = TheAPI.getBlocksAPI().getBlocksLocation(Shape.Sphere, loc, 20);
-		int i = 0;
 		for(Location b : w) {
 			if(b.getBlock().getType().isSolid()) {
-				if(w.get(i).add(0, 1, 0).getBlock().getType()==Material.AIR &&w.get(i).add(0, 2, 0).getBlock().getType()==Material.AIR) {
-						loc=w.get(i).add(0, 1, 0);
+				if(b.add(0, 1, 0).getBlock().getType()==Material.AIR &&b.add(0, 2, 0).getBlock().getType()==Material.AIR) {	
+					b.add(0, 1, 0);
+					loc=b;
 						break;
 					}
 			}
-			++i;
 		}
 		return loc;
 	}
