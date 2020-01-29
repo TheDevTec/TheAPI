@@ -60,11 +60,11 @@ public class TheAPI {
 	 */
 	public static boolean isNewVersion() {
 		return !getServerVersion().equalsIgnoreCase("glowstone") 
-				&& !getServerVersion().contains("v1_8")
-				&& !getServerVersion().contains("v1_9")
-				&& !getServerVersion().contains("v1_10")
-				&& !getServerVersion().contains("v1_11")
-				&& !getServerVersion().contains("v1_12");
+				&& !getServerVersion().startsWith("v1_8")
+				&& !getServerVersion().startsWith("v1_9")
+				&& !getServerVersion().startsWith("v1_10")
+				&& !getServerVersion().startsWith("v1_11")
+				&& !getServerVersion().startsWith("v1_12");
 	}
 
 	/**

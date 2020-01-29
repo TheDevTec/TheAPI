@@ -67,20 +67,21 @@ public class LoaderClass extends JavaPlugin {
 				if(times==30) {
 					Bukkit.getScheduler().cancelTask(vaulthook);
 					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
-					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cPlugin not found Vault Economy, EconomyAPI is disabled."));
-					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cYou can enabled EconomyAPI by set custom Economy in EconomyAPI."));
-					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &c *TheAPI will still normally work without problems*"));
+					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cPlugin not found Vault Economy, disabling EconomyAPI.."));
+					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cYou can enable EconomyAPI by set Economy in EconomyAPI."));
+					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &c *TheAPI still works normally without any problems*"));
 					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
 					return;
 				}
 			}
-		}, 20, 20);
+		}, 20, 40);
 	}
 	
 	public void runnable() {
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			@Override
 			public void run() {
+				if(!config.getConfig().getBoolean("Options.EntityMoveEvent.Enabled"))return;
 				for(World w: Bukkit.getWorlds()) {
 					for(Entity e :w.getEntities()) {
 						if(e.getType()==EntityType.PLAYER)continue;
@@ -97,7 +98,7 @@ public class LoaderClass extends JavaPlugin {
 					}
 				}
 			}
-		}, 3, config.getConfig().getInt("Options.Reflesh-EntityMoveEvent"));
+		}, 3, config.getConfig().getInt("Options.EntityMoveEvent.Reflesh"));
 	}
 	private boolean move(Entity e,Location a) {
 		if((Location)data.getConfig().get("entities."+e)==a) {
@@ -159,7 +160,8 @@ public class LoaderClass extends JavaPlugin {
 	private void createConfig() {
 		config = TheAPI.getConfig("TheAPI", "Config");
 		config.addDefault("Options.HideErrors", false);
-		config.addDefault("Options.Reflesh-EntityMoveEvent", 3);
+		config.addDefault("Options.EntityMoveEvent.Reflesh", 3);
+		config.addDefault("Options.EntityMoveEvent.Enabled", true); //set false to disable this event
 		config.addDefault("Options.FakeEconomyAPI.Symbol", "$");
 		config.addDefault("Options.FakeEconomyAPI.Format", "$%money%");
 		config.addDefault("Words.Second", "s");
