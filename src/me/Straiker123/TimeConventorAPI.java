@@ -72,32 +72,42 @@ public class TimeConventorAPI {
 			switch(a) {
 			case Second:
 				sec=string;
+				LoaderClass.config.getConfig().set("Words.Second", string);
 				break;
 			case Minute:
 				min=string;
+				LoaderClass.config.getConfig().set("Words.Minute", string);
 				break;
 			case Hour:
 				h=string;
+				LoaderClass.config.getConfig().set("Words.Hour", string);
 				break;
 			case Day:
 				d=string;
+				LoaderClass.config.getConfig().set("Words.Day", string);
 				break;
 			case Week:
 				w=string;
+				LoaderClass.config.getConfig().set("Words.Week", string);
 				break;
 			case Month:
 				mon=string;
+				LoaderClass.config.getConfig().set("Words.Month", string);
 				break;
 			case Year:
 				y=string;
+				LoaderClass.config.getConfig().set("Words.Year", string);
 				break;
 			case Century:
 				c=string;
+				LoaderClass.config.getConfig().set("Words.Century", string);
 				break;
 			case Millenium:
 				mil=string;
+				LoaderClass.config.getConfig().set("Words.Millenium", string);
 				break;
 			}
+			LoaderClass.config.save();
 		}
 	}
 	/**

@@ -270,13 +270,6 @@ public class LoaderClass extends JavaPlugin {
 			p.getOpenInventory().close();
 			gui.get(p).clear();
 		}
-		try {
-		if(EndWords.values() != null)
-		for(EndWords s : EndWords.values())
-			config.getConfig().set("Words."+s.name(), TheAPI.getTimeConventorAPI().getEndWord(s));
-		}catch(Exception e) {
-			
-		}
 		data.getConfig().set("guis", null);
 		data.getConfig().set("entities", null);
 		for(ConfigAPI s:list) {
