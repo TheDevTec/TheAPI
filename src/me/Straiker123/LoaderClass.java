@@ -143,7 +143,16 @@ public class LoaderClass extends JavaPlugin {
 			}
 			
 		}, 200);
+		if(config.getConfig().getBoolean("Options.EntityMoveEvent.Enabled"))
 		runnable();
+		else {
+			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
+			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6EntityMoveEvent is disabled."));
+			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6You can enable EntityMoveEvent in Config.yml"));
+			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6 *TheAPI will still normally work without problems*"));
+			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
+
+		}
 	}
 	
 	public static Economy economy;
