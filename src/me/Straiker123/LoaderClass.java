@@ -116,6 +116,8 @@ public class LoaderClass extends JavaPlugin {
 		new TheAPI();
 		new TimeConventorAPI();
 		Bukkit.getPluginManager().registerEvents(new Events(), this);
+		if(TheAPI.getServerVersion().startsWith("v1_8"))
+		Bukkit.getPluginManager().registerEvents(new BreedEvent(), this);
 		Bukkit.getPluginCommand("TheAPI").setExecutor(new TheAPICommand());
 		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
 		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6Action: &aEnabling plugin, creating config and registering economy.."));
