@@ -65,19 +65,12 @@ public class NameTagAPI {
 	    		t.setPrefix(TheAPI.colorize(prefix));
 			}
 		}
-    		if (isNew())
+    		if (TheAPI.isNewVersion())
     			t.setColor(fromPrefix(prefix));
 		}
 		t.addPlayer(p);
 	}
-	
-	private boolean isNew() {
-		return !TheAPI.getServerVersion().contains("1_8")
-				&& !TheAPI.getServerVersion().contains("1_9")
-				&& !TheAPI.getServerVersion().contains("1_10")
-				&& !TheAPI.getServerVersion().contains("1_11")
-				&& !TheAPI.getServerVersion().contains("1_12");
-	}
+
 	/**
 	 * Reset player name tag to default
 	 */
