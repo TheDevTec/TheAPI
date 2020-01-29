@@ -32,7 +32,7 @@ public class ScoreboardAPI {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public void create() {
+	private void prepare() {
 		Objective d = s.getObjective("a");
 		 if(d!=null)
 			 d.unregister();
@@ -42,7 +42,7 @@ public class ScoreboardAPI {
 		if(map.isEmpty()==false && map!=null)
 		  for(Integer w:map.keySet()) {
 			  String s = map.get(w);
-      		String tes = s;
+    		String tes = s;
 			  try {
 	        	if(tes.length()>64)tes=tes.substring(0,63);
 	        	d.getScore(tes).setScore(w);
@@ -56,6 +56,10 @@ public class ScoreboardAPI {
 	        		}
 	        	}
 			}
+	}
+
+	public void create() {
+		prepare();
 		p.setScoreboard(s);
 	}
 }
