@@ -7,6 +7,8 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+import me.Straiker123.LoaderClass;
+
 public class EntityMoveEvent extends Event implements Cancellable {
 	Entity s;
 	public EntityMoveEvent(Entity p,Location from, Location to) {
@@ -23,6 +25,10 @@ public class EntityMoveEvent extends Event implements Cancellable {
 	}
 	public Location getFrom() {
 		return f;
+	}
+	
+	public boolean isEventDisabled() {
+		return !LoaderClass.config.getConfig().getBoolean("Options.EntityMoveEvent.Enabled");
 	}
 	
 	public EntityType getEntityType() {
