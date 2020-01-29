@@ -5,13 +5,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-/**
- * 
- * @author Special thank to Firestone82
- *
- */
+
+import me.Straiker123.Utils.Error;
+
 public class SQLAPI {
 	   private Connection connection;
 	    private String host, database, username, password;
@@ -30,17 +26,28 @@ public class SQLAPI {
 	            openConnection();
 	             statement = connection.createStatement();
 	        } catch (ClassNotFoundException e) {
-	            e.printStackTrace();
-	        } catch (SQLException e) {
-	            e.printStackTrace();
+	        	if(LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
+	        		Error.err("closing SQL connection", "Uknown");
+	        	}else {
+	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cA corrupt error when connecting to the :"));
+	        	e.printStackTrace();
+	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cEnd of error"));
 	        }
+	        } catch (SQLException e) {
+	        	if(LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
+	        		Error.err("closing SQL connection", "Uknown");
+	        	}else {
+	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cA corrupt error when connecting to the SQL:"));
+	        	e.printStackTrace();
+	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cEnd of error"));
+	        }}
 	    }
 	 
-		public boolean isClosed() {
-			boolean i = true;
+		public boolean isConnected() {
+			boolean i = false;
 			if(statement!=null) {
 			try {
-				i=statement.isClosed();
+				i=!statement.isClosed();
 			} catch (SQLException e) {
 			}
 			}
@@ -52,171 +59,61 @@ public class SQLAPI {
 			try {
 				connection.close();
 			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+				if(LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
+	        		Error.err("closing SQL connection", "Uknown");
+	        	}else {
+	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cA corrupt error when closing SQL connection:"));
+	        	e.printStackTrace();
+	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cEnd of error"));
+	        }}
 			connection=null;
 		    }
 		}
-		/**
-		 * 
-		 * @param column ColumnName
-		 * @param table Table
-		 * @param index SearchIndex
-		 * @param value SearchValue
-		 * @return String
-		 */
-		public List<Object> getValues(String column, String table, String index, String value) {
-			List<Object> s = new ArrayList<Object>();
-			try {
-				ResultSet result = statement.executeQuery("SELECT "+column+" FROM "+table+" WHERE "+index+" = "+value+";");
-				int i = 0;
-				while(result.next()) {
-				s.add(result.getObject(i));
-				++i;
-				}
-			} catch (SQLException e) {
-			}
-			return s;
-		}
+	    public void reconnect() {
+	        close();
+	        connect();
+	    }
+	    
+	    public boolean update(String command) {
+	        if (command == null) {
+	            return false;
+	        }
+	        boolean result = false;
+	        try {
+	        	statement.executeUpdate(command);
+	        	statement.close();
+	            result = true;
+	        }
+	        catch (Exception e) {
+	        	if(LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
+	        		Error.err("processing SQL update, command: "+command, (isConnected() ? "Uknown command" : "SQL isn't connected"));
+	        	
+	        	}else {
+	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cA corrupt error when processing SQL update, command: "+command+", Result: "+(isConnected() ? "Uknown command:" : "SQL isn't connected:")));
+	        	e.printStackTrace();
+	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cEnd of error"));
+	        }}
+	        return result;
+	    }
 
-		/**
-		 * 
-		 * @param column ColumnName
-		 * @param table Table
-		 * @param index Index To Remove
-		 */
-		public void removeIndex(String column, String table, String index) {
-			try {
-			statement.executeQuery("DELETE FROM "+table+" WHERE "+column+" = "+index+";");
-			} catch (SQLException e) {
-			}
-		}
-
-		/**
-		 * 
-		 * @param column ColumnName
-		 * @param table Table
-		 * @param index Index To Remove
-		 */
-		public void removeColumn(String column, String table) {
-			try {
-			statement.executeQuery("UPDATE "+table+" SET "+column+" = \"\";");
-			} catch (SQLException e) {
-			}
-		}
-
-		/**
-		 * 
-		 * @param table Table
-		 * @return List<String>
-		 */
-		public List<String> getTabs(String table) {
-			List<String> add = new ArrayList<String>();
-		try {
-			ResultSet result = statement.executeQuery("DESCRIBE "+table+";");
-			int i = 0;
-			while(result.next()) {
-				add.add(result.getString(i));
-			++i;
-			}
-		} catch (SQLException e) {
-		}
-		return add;
-	}
-		/**
-		 * 
-		 * @param column Column
-		 * @param table Table
-		 * @return List<String>
-		 */
-		public List<String> getKeys(String column, String table) {
-			List<String> add = new ArrayList<String>();
-		try {
-			ResultSet result = statement.executeQuery("SELECT "+column+" FROM "+table+";");
-			int i = 0;
-			while(result.next()) {
-				add.add(result.getString(i));
-			++i;
-			}
-		} catch (SQLException e) {
-		}
-		return add;
-	}
-		/**
-		 * 
-		 * @param column Column Name
-		 * @param table Table
-		 * @param index Search Index
-		 * @param value Search Value
-		 * @return int
-		 */
-		public List<String> getStrings(String column, String table, String index, String value) {
-			List<String> list = new ArrayList<String>();
-			for(Object a : getValues(column, table, index, value)) {
-				list.add(a.toString());
-			}
-			return list;
-		}
-		/**
-		 * 
-		 * @param column Column Name
-		 * @param table Table
-		 * @param index Search Index
-		 * @param value Search Value
-		 * @return int
-		 */
-		public List<Integer> getInts(String column, String table, String index, String value) {
-			List<Integer> list = new ArrayList<Integer>();
-			for(Object a : getValues(column, table, index, value)) {
-				list.add(TheAPI.getNumbersAPI(a.toString()).getInt());
-			}
-			return list;
-		}
-		/**
-		 * 
-		 * @param column Column Name
-		 * @param table Table
-		 * @param index Search Index
-		 * @param value Search Value
-		 * @return double
-		 */
-		public List<Double> getDoubles(String column, String table, String index, String value) {
-			List<Double> list = new ArrayList<Double>();
-			for(Object a : getValues(column, table, index, value)) {
-				list.add(TheAPI.getNumbersAPI(a.toString()).getDouble());
-			}
-			return list;
-		}
-		/**
-		 * 
-		 * @param column Column Name
-		 * @param table Table
-		 * @param index Search Index
-		 * @param value Search Value
-		 * @return long
-		 */
-		public List<Long> getLongs(String column, String table, String index, String value) {
-			List<Long> list = new ArrayList<Long>();
-			for(Object a : getValues(column, table, index, value)) {
-				list.add(TheAPI.getNumbersAPI(a.toString()).getLong());
-			}
-			return list;
-		}
-
-		/**
-		 * 
-		 * @param column Column Name
-		 * @param table Table
-		 * @param index Search Index
-		 * @param value Search Value
-		 * @param set Value To Set
-		 */
-		public void add(String column, String table, String index, String value, Object set) {
-			try {
-				statement.executeQuery("UPDATE "+table+" SET "+column+" = "+set+" WHERE "+value+" = "+value+";");
-			} catch (SQLException e) {
-			}
-		}
+	    public ResultSet query(String command) {
+	        if (command == null) {
+	            return null;
+	        }
+	        ResultSet rs = null;
+	        try {
+	            rs = statement.executeQuery(command);
+	        }
+	        catch (Exception e) {
+	        	if(LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
+	        		Error.err("processing SQL query, command: "+command, (isConnected() ? "Uknown command" : "SQL isn't connected"));
+	        	}else {
+	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cA corrupt error when processing SQL query, command: "+command+", Result: "+(isConnected() ? "Uknown command:" : "SQL isn't connected:")));
+	        	e.printStackTrace();
+	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cEnd of error"));
+	        }}
+	        return rs;
+	    }
 		
 	    private void openConnection() throws SQLException, ClassNotFoundException {
 	    if (connection != null && !connection.isClosed()) {
