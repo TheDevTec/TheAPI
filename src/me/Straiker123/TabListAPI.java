@@ -49,7 +49,14 @@ public class TabListAPI {
 			bField.set(packet, tabFooter);
 			Packets.sendPacket(p,packet);
 			} catch (Exception e) {
-				Error.err("sending header/footer to "+p.getName(), "Header/Footer is null");
+				Error.err("sending header/footer to "+p.getName(), w(header,footer));
 			}
+	}
+	
+	private String w(String s, String d) {
+		//0 = header, 1 = footer, 2 = uknown
+		if(s == null)return "Header is null";
+		if(d==null)return "Footer is null";
+		return "Uknown packets";
 	}
 }
