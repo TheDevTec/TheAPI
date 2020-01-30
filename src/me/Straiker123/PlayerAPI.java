@@ -1,22 +1,86 @@
 package me.Straiker123;
 
 import java.util.List;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
 
 import me.Straiker123.BlocksAPI.Shape;
 import me.Straiker123.Utils.Error;
 
+@SuppressWarnings("deprecation")
 public class PlayerAPI {
 	Player s;
+	String name;
+	UUID uuid;
 	public PlayerAPI(Player a) {
 		s=a;
+		name=a.getName();
+		uuid=a.getUniqueId();
 	}
+	
+	public Player getPlayer() {
+		return s;
+	}
+
+	public boolean isOnline() {
+		return Bukkit.getPlayer(name) != null && Bukkit.getPlayer(name).getName().equals(name);
+	}
+	
+	public UUID getUUID() {
+		return uuid;
+	}
+	public UUID getUniqueId() {
+		return uuid;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void addPotionEffect(PotionEffect e) {
+		if(s == null) {
+			Error.err("when adding PotionEffect", "Player is null");
+			return;
+		}
+		try {
+		s.addPotionEffect(e);
+		}catch(Exception re) {
+			Error.err("when adding PotionEffect to player "+getName(), "PotionEffect is null");
+		}
+	}
+	public void addPotionEffect(PotionEffectType type, int duration) {
+		try {
+		addPotionEffect(new PotionEffect(type, duration, 1, false));
+		}catch(Exception re) {
+			Error.err("when creating PotionEffect", "PotionEffectType is null");
+		}
+	}
+	public void addPotionEffect(PotionEffectType type, int duration, int amplifier) {
+		try {
+		addPotionEffect(new PotionEffect(type, duration, amplifier, false));
+	}catch(Exception re) {
+		Error.err("when creating PotionEffect", "PotionEffectType is null");
+	}
+	}
+	public void addPotionEffect(PotionEffectType type, int duration, int amplifier, boolean hideParticles) {
+		try {
+		addPotionEffect(new PotionEffect(type, duration, amplifier, hideParticles));
+	}catch(Exception re) {
+		Error.err("when creating PotionEffect", "PotionEffectType is null");
+	}
+	}
+
 	public void teleport(Location loc) {
 		teleport(loc,TeleportCause.PLUGIN);
 	}
@@ -149,7 +213,7 @@ public class PlayerAPI {
 			Error.err("sending message to "+s.getName(), "Message is null");
 		}
 	}
-	@SuppressWarnings("deprecation")
+	
 	public void setHealth(double health) {
 		try {
 		if(0<health) {
@@ -197,19 +261,17 @@ public class PlayerAPI {
 			s.setTotalExperience(take-exp);
 	}
 	
-	@SuppressWarnings("deprecation")
 	public void resetMaxHealth() {
 		s.setMaxHealth(20);
 	}
 
 	public void resetExp() {
-		s.setExp(0);
+		s.setTotalExperience(0);
 	}
 	public void resetLevel() {
 		s.setLevel(0);
 	}
 	
-	@SuppressWarnings("deprecation")
 	public void sendTitle(String firstLine, String nextLine) {
 		try {
 		s.sendTitle(TheAPI.colorize(firstLine), TheAPI.colorize(nextLine));
@@ -218,12 +280,16 @@ public class PlayerAPI {
 		}
 	}
 	
+	public boolean hasOpenGUI() {
+		return LoaderClass.gui.containsKey(s);
+	}
+	
 	public void giveLevel(int level) {
 		s.setLevel(s.getLevel()+level);
 	}
 	
-	public List<Entity> getNearbyEntities(double x, double y, double z){
-		return s.getNearbyEntities(x, y, z);
+	public List<Block> getNearbyBlocks(int range){
+		return TheAPI.getBlocksAPI().getBlocks(Shape.Sphere, s.getLocation(), range);
 	}
 
 	public void closeOpenInventory() {
@@ -274,12 +340,73 @@ public class PlayerAPI {
 	public void setAir(int air) {
 		 s.setRemainingAir(air);
 	}
+	//1.5+
 	public void setGodOnTime(int time) {
+		if(time <= 0)time=1;
+		try {
+			
 		 s.setNoDamageTicks(time*20);
+		}catch(Exception ea) {
+			setGod(true);
+			Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
+
+				@Override
+				public void run() {
+					setGod(false);
+				}
+			}, 20*time);
+		}
 	}
-	@SuppressWarnings("deprecation")
+
+	public void setItemInHand(ItemStack i) {
+		if(i==null)i=new ItemStack(Material.AIR);
+		s.setItemInHand(i);
+	}
+	public void setHelmet(ItemStack i) {
+		if(i==null)i=new ItemStack(Material.AIR);
+		s.getEquipment().setHelmet(i);
+	}
+	public void setChestplate(ItemStack i) {
+		if(i==null)i=new ItemStack(Material.AIR);
+		s.getEquipment().setChestplate(i);
+	}
+	public void setLeggings(ItemStack i) {
+		if(i==null)i=new ItemStack(Material.AIR);
+		s.getEquipment().setLeggings(i);
+	}
+	public void setBoots(ItemStack i) {
+		if(i==null)i=new ItemStack(Material.AIR);
+		s.getEquipment().setBoots(i);
+	}
+	public void setItemInOffHand(ItemStack i) {
+		if(i==null)i=new ItemStack(Material.AIR);
+		try {
+		s.getEquipment().setItemInOffHand(i);
+		}catch(Exception er) {
+			
+		}
+	}
 	public ItemStack getItemInHand() {
 		return s.getItemInHand();
+	}
+	public ItemStack getHelmet() {
+		return s.getEquipment().getHelmet();
+	}
+	public ItemStack getChestplate() {
+		return s.getEquipment().getChestplate();
+	}
+	public ItemStack getLeggings() {
+		return s.getEquipment().getLeggings();
+	}
+	public ItemStack getBoots() {
+		return s.getEquipment().getBoots();
+	}
+	public ItemStack getItemInOffHand() {
+		try {
+		return s.getEquipment().getItemInOffHand();
+		}catch(Exception err) {
+			return null;
+		}
 	}
 	/**
 	 * Kick player from serveer with reason
