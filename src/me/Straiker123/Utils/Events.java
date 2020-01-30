@@ -392,8 +392,11 @@ public class Events implements Listener {
 			return;
 		}
 		String title = e.getView().getTitle();
-		GUIID a = LoaderClass.gui.get(p);
-		if(a!=null) {
+		
+		GUIID as = LoaderClass.gui.get(p);
+	
+		if(as!=null) {
+			String a = as.getID();
 			GUICloseEvent event = new GUICloseEvent(p,e.getInventory(),title);
 			Bukkit.getPluginManager().callEvent(event);
 					if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+".SENDMESSAGES_ON_INV_CLOSE")!=null)
@@ -402,8 +405,8 @@ public class Events implements Listener {
 			if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+".SENDCOMMANDS_ON_INV_CLOSE")!=null)
 				for(String s: LoaderClass.data.getConfig().getStringList("guis."+playersname+"."+a+".SENDCOMMANDS_ON_INV_CLOSE"))
 					TheAPI.sudoConsole(SudoType.COMMAND, s);
-		    	a.runRunnable(GRunnable.RUNNABLE_ON_INV_CLOSE,0);
-		    a.clear();
+		    	as.runRunnable(GRunnable.RUNNABLE_ON_INV_CLOSE,0);
+		    as.clear();
 		}
 	}
 
