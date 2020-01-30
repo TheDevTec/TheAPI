@@ -1,5 +1,6 @@
 package me.Straiker123;
 
+import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import me.Straiker123.BlocksAPI.Shape;
 import me.Straiker123.Utils.Error;
+import me.Straiker123.Utils.Packets;
 
 @SuppressWarnings("deprecation")
 public class PlayerAPI {
@@ -271,13 +273,46 @@ public class PlayerAPI {
 	public void resetLevel() {
 		s.setLevel(0);
 	}
-	
+
 	public void sendTitle(String firstLine, String nextLine) {
 		try {
-		s.sendTitle(TheAPI.colorize(firstLine), TheAPI.colorize(nextLine));
-		}catch(Exception e) {
+            
+    	    Class<?> PacketPlayOutTitleClass = Packets.getNMSClass("PacketPlayOutTitle");
+    	    Class<?> IChatBaseComponentClass = Packets.getNMSClass("IChatBaseComponent");
+    	               
+    	    Constructor<?> PacketPlayOutTitleConstructor = PacketPlayOutTitleClass.getConstructor(PacketPlayOutTitleClass.getDeclaredClasses()[0], IChatBaseComponentClass, int.class, int.class, int.class);
+    	               
+    	    Object titleComponent = IChatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "{\"text\":\"" + TheAPI.colorize(firstLine)+ "\"}");
+    	    Object subTitleComponent = IChatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "{\"text\":\"" + TheAPI.colorize(nextLine) + "\"}");
+    	               
+    	    Object titlePacket = PacketPlayOutTitleConstructor.newInstance(PacketPlayOutTitleClass.getDeclaredClasses()[0].getField("TITLE").get(null), titleComponent, 20, 60, 20);
+    	    Object subTitlePacket = PacketPlayOutTitleConstructor.newInstance(PacketPlayOutTitleClass.getDeclaredClasses()[0].getField("SUBTITLE").get(null), subTitleComponent, 20, 60, 20);
+    	               
+    	    Packets.sendPacket(s, titlePacket);
+    	    Packets.sendPacket(s, subTitlePacket);
+    	} catch (Exception e) {
 			Error.err("sending title to "+s.getName(), "Line is null");
-		}
+    	}
+	}
+	public void sendTitle(String firstLine, String nextLine, int fadeIn, int stay, int fadeOut) {
+		try {
+            
+    	    Class<?> PacketPlayOutTitleClass = Packets.getNMSClass("PacketPlayOutTitle");
+    	    Class<?> IChatBaseComponentClass = Packets.getNMSClass("IChatBaseComponent");
+    	               
+    	    Constructor<?> PacketPlayOutTitleConstructor = PacketPlayOutTitleClass.getConstructor(PacketPlayOutTitleClass.getDeclaredClasses()[0], IChatBaseComponentClass, int.class, int.class, int.class);
+    	               
+    	    Object titleComponent = IChatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "{\"text\":\"" + TheAPI.colorize(firstLine)+ "\"}");
+    	    Object subTitleComponent = IChatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "{\"text\":\"" + TheAPI.colorize(nextLine) + "\"}");
+    	               
+    	    Object titlePacket = PacketPlayOutTitleConstructor.newInstance(PacketPlayOutTitleClass.getDeclaredClasses()[0].getField("TITLE").get(null), titleComponent, fadeIn, stay, fadeOut);
+    	    Object subTitlePacket = PacketPlayOutTitleConstructor.newInstance(PacketPlayOutTitleClass.getDeclaredClasses()[0].getField("SUBTITLE").get(null), subTitleComponent, fadeIn, stay, fadeOut);
+    	               
+    	    Packets.sendPacket(s, titlePacket);
+    	    Packets.sendPacket(s, subTitlePacket);
+    	} catch (Exception e) {
+			Error.err("sending title to "+s.getName(), "Line is null");
+    	}
 	}
 	
 	public boolean hasOpenGUI() {

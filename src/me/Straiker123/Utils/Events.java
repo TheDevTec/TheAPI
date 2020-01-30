@@ -52,6 +52,9 @@ public class Events implements Listener {
 		if(a.getItemMeta().hasCustomModelData()) s.setCustomModelData(a.getItemMeta().getCustomModelData());
 		 if(!TheAPI.getServerVersion().contains("v1_8")
 				 &&!TheAPI.getServerVersion().contains("v1_9")  
+				 &&!TheAPI.getServerVersion().contains("v1_5")
+				 &&!TheAPI.getServerVersion().contains("v1_6")
+				 &&!TheAPI.getServerVersion().contains("v1_7")
 				 &&!TheAPI.getServerVersion().contains("v1_10"))
 		 s.setUnbreakable(a.getItemMeta().isUnbreakable());
 		 return s.create();
@@ -66,7 +69,10 @@ public class Events implements Listener {
 				 &&!TheAPI.getServerVersion().contains("v1_13"))
 		if(a.getItemMeta().hasCustomModelData()) s.setCustomModelData(a.getItemMeta().getCustomModelData());
 		 if(!TheAPI.getServerVersion().contains("v1_8")
-				 &&!TheAPI.getServerVersion().contains("v1_9")  
+				 &&!TheAPI.getServerVersion().contains("v1_9")
+				 &&!TheAPI.getServerVersion().contains("v1_5")
+				 &&!TheAPI.getServerVersion().contains("v1_6")
+				 &&!TheAPI.getServerVersion().contains("v1_7")  
 				 &&!TheAPI.getServerVersion().contains("v1_10"))
 		 s.setUnbreakable(a.getItemMeta().isUnbreakable());
 		 return s.create();
@@ -277,7 +283,7 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onDamage(EntityDamageEvent e) {
 		if(e.getEntity()instanceof Player) {
-		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(e.getEntity().getName())) {
+		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(((Player)e.getEntity()).getName())) {
 		e.setCancelled(true);
 		}
 		if(TheAPI.getPlayerAPI((Player)e.getEntity()).allowedGod()) {
@@ -346,7 +352,7 @@ public class Events implements Listener {
 				.replace("%%player%%", e.getPlayer().getName())
 				.replace("%%playername%%", e.getPlayer().getDisplayName())
 				.replace("%%playercustom%%", e.getPlayer().getCustomName())
-				.replace("%%hp%%", e.getPlayer().getHealth()+"")
+				.replace("%%hp%%", e.getPlayer().getHealthScale()+"")
 				.replace("%%food%%", e.getPlayer().getFoodLevel()+"")
 				.replace("%%world%%", e.getPlayer().getWorld().getName()+"")
 				.replace("%%x%%", e.getPlayer().getLocation().getBlockX()+"")

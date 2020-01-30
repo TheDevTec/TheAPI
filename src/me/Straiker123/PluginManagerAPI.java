@@ -69,7 +69,6 @@ public class PluginManagerAPI {
 		 if(p !=null && p.isEnabled() && p.getDescription().getAPIVersion() != null)
 			 return p.getDescription().getAPIVersion();
 		}catch(Exception e) {
-			
 		}
 		 return null;
 	}

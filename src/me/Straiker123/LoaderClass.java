@@ -115,8 +115,6 @@ public class LoaderClass extends JavaPlugin {
 		new TheAPI();
 		new TimeConventorAPI();
 		Bukkit.getPluginManager().registerEvents(new Events(), this);
-		if(TheAPI.getServerVersion().startsWith("v1_8"))
-		Bukkit.getPluginManager().registerEvents(new BreedEvent(), this);
 		Bukkit.getPluginCommand("TheAPI").setExecutor(new TheAPICommand());
 		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
 		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6Action: &aEnabling plugin, creating config and registering economy.."));
@@ -153,6 +151,21 @@ public class LoaderClass extends JavaPlugin {
 			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6 *TheAPI will still normally work without problems*"));
 			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
 
+		}
+		if(!TheAPI.isNewVersion() && !TheAPI.getServerVersion().startsWith("v1_12")
+				&& !TheAPI.getServerVersion().startsWith("v1_11")
+				&& !TheAPI.getServerVersion().startsWith("v1_10")
+				&& !TheAPI.getServerVersion().startsWith("v1_9")
+				&& !TheAPI.getServerVersion().startsWith("v1_8")
+				&& !TheAPI.getServerVersion().equals("v1_7_R4")) {
+			Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+
+				@Override
+				public void run() {
+		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
+		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6Info: &cYour server version isn't supported!"));
+		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
+	}}, 20, 20*60*3600);
 		}
 	}
 	

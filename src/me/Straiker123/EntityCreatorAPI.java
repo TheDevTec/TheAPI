@@ -294,28 +294,52 @@ public class EntityCreatorAPI {
 				visible_armor=Boolean.getBoolean(w.get(a).toString());
 				break;
 			case BodyPose:
+				try {
 				if((EulerAngle)w.get(a)!=null)
 				body=(EulerAngle)w.get(a);
+				}catch(Exception err) {
+					
+				}
 				break;
 			case HeadPose:
+				try {
 				if((EulerAngle)w.get(a)!=null)
 				head=(EulerAngle)w.get(a);
+				}catch(Exception err) {
+					
+				}
 				break;
 			case LeftArmPose:
+				try {
 				if((EulerAngle)w.get(a)!=null)
 				l_arm=(EulerAngle)w.get(a);
+				}catch(Exception err) {
+					
+				}
 				break;
 			case LeftLegPose:
+				try {
 				if((EulerAngle)w.get(a)!=null)
 				l_leg=(EulerAngle)w.get(a);
+				}catch(Exception err) {
+					
+				}
 				break;
 			case RightArmPose:
+				try {
 				if((EulerAngle)w.get(a)!=null)
 				r_arm=(EulerAngle)w.get(a);
+				}catch(Exception err) {
+					
+				}
 				break;
 			case RightLegPose:
+				try {
 				if((EulerAngle)w.get(a)!=null)
 				r_leg=(EulerAngle)w.get(a);
+				}catch(Exception err) {
+					
+				}
 				break;
 			case Helmet:
 				if((ItemStack)w.get(a)!=null)
@@ -352,6 +376,7 @@ public class EntityCreatorAPI {
 		e.setMaxHealth(hp);
 		e.setHealth(hp);
 		}
+		try {
 		if(e.getType()==EntityType.ARMOR_STAND) {
 			ArmorStand a = (ArmorStand)e;
 			a.setArms(arms);
@@ -381,6 +406,9 @@ public class EntityCreatorAPI {
 			a.setRightLegPose(r_leg);
 			a.setSmall(small);
 			a.setVisible(visible_armor);
+		}
+		}catch(Exception err) {
+			
 		}
 		if(e.getType()==EntityType.VILLAGER) {
 			Villager v = (Villager)e;
@@ -423,7 +451,9 @@ public class EntityCreatorAPI {
 		if(tnt_yield!=-1)
 		a.setYield(tnt_yield);
 		}
-		if(e.getType()==EntityType.HORSE ||e.getType()==EntityType.DONKEY||e.getType()==EntityType.MULE||e.getType()==EntityType.ZOMBIE_HORSE) {
+		if(e.getType().getName().equals("HORSE") ||e.getType().getName().equals("DONKEY")
+				||e.getType().getName().equals("MULE")
+				||e.getType().getName().equals("ZOMBIE_HORSE")||e.getType().getName().equals("SKELETON_HORSE")) {
 			Horse h = (Horse)e;
 			try {
 			h.setCarryingChest(chest);

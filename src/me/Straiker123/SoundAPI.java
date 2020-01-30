@@ -94,8 +94,12 @@ public class SoundAPI {
 				if(s.name().toLowerCase().contains(sound.toLowerCase()))c=s.name();
 			}
 		if(a==null && c!=null)a=c;
-		if(Sound.valueOf(a) != null)
-		return Sound.valueOf(a);
+		try {
+		if(Sound.valueOf(a.toUpperCase()) != null)
+		return Sound.valueOf(a.toUpperCase());
+		}catch(Exception find) {
+			
+		}
 		return null;
 	}
 }
