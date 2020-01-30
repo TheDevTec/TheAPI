@@ -114,6 +114,7 @@ public class Events implements Listener {
 			if(event.isCancelled())
 				e.setCancelled(true);
 		}
+		try {
 		if(TheAPI.getWorldBorder(e.getTo().getWorld()).isOutside(e.getTo())) {
 			if(LoaderClass.data.getConfig().getString("WorldBorder."+e.getTo().getWorld().getName()+".CancelMoveOutside")!=null) {
 				e.setCancelled(TheAPI.getWorldBorder(e.getTo().getWorld()).isCancellledMoveOutside());
@@ -144,14 +145,21 @@ public class Events implements Listener {
 			}
 			}
 		}
+		}catch(Exception er) {
+			
+		}
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onChunkLoad(ChunkLoadEvent e) {
+		try {
 			if (TheAPI.getWorldBorder(e.getWorld()).isOutside(e.getChunk().getBlock(15, 0, 15).getLocation()) || 
 					TheAPI.getWorldBorder(e.getWorld()).isOutside(e.getChunk().getBlock(0, 0, 0).getLocation()))
 			if(!TheAPI.getWorldBorder(e.getWorld()).getLoadChunksOutside())
 			e.getChunk().unload(true);
+	}catch(Exception er) {
+		
+	}
 		}
 	
 	@EventHandler(priority = EventPriority.LOWEST)
