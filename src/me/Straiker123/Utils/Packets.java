@@ -9,6 +9,14 @@ public class Packets {
 	       return p.getClass().getMethod("getHandle", new Class[0]).invoke(p, new Object[0]);
 	}
 
+	public static Class<?> getBukkitClass(String name) {
+	     try {
+	         return Class.forName("org.bukkit.craftbukkit." + TheAPI.getServerVersion() + "." + name);
+	     } catch (ClassNotFoundException e) {
+				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &4Error when finding class 'org.bukkit.craftbukkit."+TheAPI.getServerVersion() + "." + name+"', server version: "+TheAPI.getServerVersion()));
+		         return null;
+	     }
+	}
 	public static Class<?> getNMSClass(String name) {
 	     try {
 	         return Class.forName("net.minecraft.server." + TheAPI.getServerVersion() + "." + name);

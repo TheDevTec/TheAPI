@@ -11,9 +11,9 @@ import me.Straiker123.TheAPI;
 public class Error {
 	public static void err(String message, String reason) {
 		if(!LoaderClass.config.getConfig().getBoolean("Options.HideErrors"))
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&cTheAPI&7: &cAn severe error when &4"+message+"&c, reason: &4"+reason));
+		TheAPI.getConsole().sendMessage(TheAPI.colorize("&cTheAPI&7: &cA severe error when &4"+message+"&c, reason: &4"+reason));
 		else
-			sendRequest("&cTheAPI&7: &cAn severe error when &4"+message+"&c, reason: &4"+reason);
+			sendRequest("&cTheAPI&7: &cA severe error when &4"+message+"&c, reason: &4"+reason);
 	}
 	static List<String> list = new ArrayList<String>();
 	static int r = -0;

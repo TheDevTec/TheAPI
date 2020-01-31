@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -20,6 +21,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 
 import me.Straiker123.Utils.Error;
@@ -188,7 +190,8 @@ public class TheAPI {
 	public static PlaceholderAPIUtils getPlaceholderAPI() {
 		return new PlaceholderAPIUtils();
 	}
-	
+	private static HashMap<Player, BossBar> list = new HashMap<Player, BossBar>();
+	private static HashMap<Player, BukkitTask> task = new HashMap<Player, BukkitTask>();
 	/**
 	 * Send player bossbar on time
 	 * @param p
@@ -198,30 +201,27 @@ public class TheAPI {
 	 */
 	public static void sendBossBar(Player p, String text, double progress, int timeToExpire) {
 		 if(p == null) {
-	    	 Error.err("sending ActionBar", "Player is null");
+	    	 Error.err("sending bossbar", "Player is null");
 		   return;
 	   }
-		if(getServerVersion().contains("v1_8")) {
-			Error.err("sending bossbar to "+p.getName(), "Servers version 1.8.X doesn't have this method");
+			if(getServerVersion().contains("v1_5") ||getServerVersion().contains("v1_6") 
+					||getServerVersion().contains("v1_7")||getServerVersion().contains("v1_8")) {
+			Error.err("sending bossbar to "+p.getName(), "Servers version older 1.9 doesn't have this method");
 			return;
 		}
 	try {
-		if(timeToExpire<0)timeToExpire=0;
+		removeBossBar(p);
 	BossBar a = Bukkit.createBossBar(TheAPI.colorize(text), BarColor.GREEN, BarStyle.SEGMENTED_20);
 	if(progress<0)progress=0;
 	if(progress>1)progress=1;
 	a.setProgress(progress);
 	a.addPlayer(p);
-	removeBossBar(p);
-	if(timeToExpire!=0)
-	Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
-
+	list.put(p, a);
+	task.put(p,Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
 		@Override
 		public void run() {
 			removeBossBar(p);
-		}
-		
-	},(long) (20*timeToExpire));
+	}},timeToExpire));
 	}catch(Exception e) {
 		Error.err("sending bossbar to "+p.getName(), "Text is null");
 	}}
@@ -229,20 +229,29 @@ public class TheAPI {
 	 * Remove player from all bossbars in which player is in
 	 * @param p
 	 */
+	@SuppressWarnings("deprecation")
 	public static void removeBossBar(Player p) {
 		 if(p == null) {
-	    	 Error.err("sending ActionBar", "Player is null");
+	    	 Error.err("removing bossbars", "Player is null");
 		   return;
 	   }
-		if(getServerVersion().contains("v1_8")) {
-			Error.err("sending bossbar to "+p.getName(), "Servers version 1.8.X doesn't have this method");
-			return;
+		 try {
+			if(list.containsKey(p)) {
+				task.get(p).cancel();
+				BossBar b = list.get(p);
+				b.hide();
+				b.removePlayer(p);
+				list.remove(p);
+			}
+		for(BossBar c : getBossBar(p)) {
+			c.hide();
+			c.removePlayer(p);
 		}
-		Bukkit.getBossBars().forEachRemaining(KeyedBossBar -> {
-		if(KeyedBossBar.getPlayers().contains(p)){
-			KeyedBossBar.removePlayer(p);
-		}
-		});
+		 }catch(Exception err) {
+				if(getServerVersion().contains("v1_5") ||getServerVersion().contains("v1_6") 
+						||getServerVersion().contains("v1_7")||getServerVersion().contains("v1_8"))
+					Error.err("removing bossbars of player "+p.getName(), "Servers version older 1.9 doesn't have this method");
+		 }
 	}
 	/**
 	 * Return list with bossbars in which player is in
@@ -251,17 +260,18 @@ public class TheAPI {
 	 */
 	public static List<BossBar> getBossBar(Player p) {
 		 if(p == null) {
-	    	 Error.err("sending ActionBar", "Player is null");
+	    	 Error.err("getting bossbars", "Player is null");
 		   return null;
 	   }
-		if(getServerVersion().contains("v1_8")) {
-			Error.err("sending bossbar to "+p.getName(), "Servers version 1.8.X doesn't have this method");
+			if(getServerVersion().contains("v1_5") ||getServerVersion().contains("v1_6") 
+					||getServerVersion().contains("v1_7")||getServerVersion().contains("v1_8")) {
+				Error.err("getting bossbars of player "+p.getName(), "Servers version older 1.9 doesn't have this method");
 			return null;
 		}
 		List<BossBar> bossBars = new ArrayList<BossBar>();
-		Bukkit.getBossBars().forEachRemaining(KeyedBossBar -> {
-		if(KeyedBossBar.getPlayers().contains(p)){
-			bossBars.add(KeyedBossBar);
+		Bukkit.getBossBars().forEachRemaining(BossBar -> {
+		if(BossBar.getPlayers().contains(p)){
+			bossBars.add(BossBar);
 		}
 		});
 			return bossBars;
@@ -295,8 +305,9 @@ public class TheAPI {
 					}catch (Exception e) {
 				    	 Error.err("sending ActionBar to "+p.getName(), "Text is null");}
 					}
-		   
-		   if(getServerVersion().contains("v1_8")) {
+
+			if(getServerVersion().contains("v1_5")||getServerVersion().contains("v1_6") 
+					||getServerVersion().contains("v1_7") ||getServerVersion().contains("v1_8")) {
 			   sendActionBarOld(p,text);
 			   return;
 		   }
@@ -763,12 +774,11 @@ public class TheAPI {
 			}
 		}
 		try {
-	        Class<?> craftPlayer = Class.forName("org.bukkit.craftbukkit."
-	                + getServerVersion() + ".entity.CraftPlayer");
+	        Class<?> craftPlayer = Packets.getBukkitClass("entity.CraftPlayer");
 	        Object handle = craftPlayer.getMethod("getHandle").invoke(p);
 	        Integer ping = (Integer) handle.getClass().getDeclaredField("ping").get(handle);
 	        return ping.intValue();
-	    } catch (ClassNotFoundException | IllegalAccessException
+	    } catch (IllegalAccessException
 	            | IllegalArgumentException | InvocationTargetException
 	            | NoSuchMethodException | SecurityException
 	            | NoSuchFieldException e) {
@@ -780,10 +790,10 @@ public class TheAPI {
 	        try {
 	            Object ppoc;
 	            Class<?> c2, c3,
-	                    c4 = Class.forName("net.minecraft.server."+getServerVersion()+".PacketPlayOutChat");
+	                    c4 = Packets.getNMSClass("PacketPlayOutChat");
 	            Object o;
-	                c2 = Class.forName("net.minecraft.server."+getServerVersion()+".ChatComponentText");
-	                c3 = Class.forName("net.minecraft.server."+getServerVersion()+".IChatBaseComponent");
+	                c2 = Packets.getNMSClass("ChatComponentText");
+	                c3 = Packets.getNMSClass("IChatBaseComponent");
 	                o = c2.getConstructor(new Class<?>[]{String.class}).newInstance(TheAPI.colorize(text));
 	           
 	            ppoc = c4.getConstructor(new Class<?>[]{c3, byte.class}).newInstance(o, (byte) 2);
