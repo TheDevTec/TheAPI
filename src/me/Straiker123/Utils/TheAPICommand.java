@@ -11,6 +11,7 @@ import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
 import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -37,7 +38,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 	private boolean eq(int i, String s) {
 		return args[i].equalsIgnoreCase(s);
 	}
-	public static boolean r;
+	boolean r;
 	CommandSender s;
 	private boolean perm(String p) {
 		if(s.hasPermission("TheAPI.Command."+p))return true;
@@ -52,6 +53,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 	private void unregWorld(String w) {
 		LoaderClass.config.getConfig().set("WorldsSetting."+w, null);
 	}
+	
 	//Info, Reload, ClearCache, WorldsManager
 	@Override
 	public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
@@ -124,7 +126,10 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				List<BlockSave> save = new ArrayList<BlockSave>();
 				for(Block b : d) {
 					save.add(a.getBlockSave(b));
-					b.getWorld().getBlockAt(b.getLocation()).setType(Material.DIAMOND_BLOCK);
+					if(b.getType().name().contains("CHEST"))
+						((Chest)b.getState()).getBlockInventory().clear();
+					b.setType(Material.DIAMOND_BLOCK);
+					TheAPI.getBlocksAPI().setBlock(b.getLocation(), Material.DIAMOND_BLOCK);
 				}
 				d.clear();
 				Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() { // undo command ?
