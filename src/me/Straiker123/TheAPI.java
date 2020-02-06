@@ -47,10 +47,6 @@ public class TheAPI {
 		return new BlocksAPI();
 	}
 
-	public static BungeeCordAPI getBungeeCordAPI() {
-		return new BungeeCordAPI();
-	}
-
 	/**
 	 * Create or delete config
 	 * @param localization
