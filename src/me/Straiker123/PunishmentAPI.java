@@ -217,9 +217,9 @@ public class PunishmentAPI {
 		for(String s : findPlayerByIP(ip)) {
 			Player p = Bukkit.getPlayer(s);
 			if(p!=null)
-				p.kickPlayer(LoaderClass.config.getConfig().getString("Format.TempBanIP")
+				p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.TempBanIP")
 						.replace("%player%", ip)
-						.replace("%reason%", reason).replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(time)));
+						.replace("%reason%", reason).replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(time))));
 		}
 		if(!silent) {
 			TheAPI.broadcastMessage(LoaderClass.config.getConfig().getString("Format.Broadcast.TempBanIP")
