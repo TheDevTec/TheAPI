@@ -213,7 +213,14 @@ public class PunishmentAPI {
 		LoaderClass.data.getConfig().set("bans."+ip+".tempbanip.time", time);
 		LoaderClass.data.getConfig().set("bans."+ip+".tempbanip.start", System.currentTimeMillis());
 		LoaderClass.data.getConfig().set("bans."+ip+".tempbanip.reason", reason);
-		LoaderClass.data.save(); 
+		LoaderClass.data.save();
+		for(String s : findPlayerByIP(ip)) {
+			Player p = Bukkit.getPlayer(s);
+			if(p!=null)
+				p.kickPlayer(LoaderClass.config.getConfig().getString("Format.TempBanIP")
+						.replace("%player%", ip)
+						.replace("%reason%", reason).replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(time)));
+		}
 		if(!silent) {
 			TheAPI.broadcastMessage(LoaderClass.config.getConfig().getString("Format.Broadcast.TempBanIP")
 					.replace("%target%", ip)
