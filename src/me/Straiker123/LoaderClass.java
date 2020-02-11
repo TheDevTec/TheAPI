@@ -206,8 +206,8 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Format.Broadcast.TempMute", "&6Player &c%player% &6muted for &c%reason% &6on &c%time%");
 		config.addDefault("Format.Broadcast.Ban", "&6Player &c%player% &6banned for &c%reason%");
 		config.addDefault("Format.Broadcast.TempBan", "&6Player &c%player% &6banned for &c%reason% &6on &c%time%");
-		config.addDefault("Format.Broadcast.BanIP", "&6Player &c%player% &6ip-banned for &c%reason%");
-		config.addDefault("Format.Broadcast.TempBanIP", "&6Player &c%player% &6temp ip-banned for &c%reason% &6on &c%time%");
+		config.addDefault("Format.Broadcast.BanIP", "&6Player &c%target% &6ip-banned for &c%reason%");
+		config.addDefault("Format.Broadcast.TempBanIP", "&6Player &c%target% &6temp ip-banned for &c%reason% &6on &c%time%");
 		config.addDefault("Format.Broadcast.Mute-Permission", "TheAPI.Mute");
 		config.addDefault("Format.Broadcast.TempMute-Permission", "TheAPI.TempMute");
 		config.addDefault("Format.Broadcast.Ban-Permission", "TheAPI.Ban");
