@@ -185,7 +185,7 @@ public class Events implements Listener {
 		if(a.hasBanIP(s)) {
 			e.disallow(Result.KICK_BANNED, TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.BanIP")
 					.replace("%player%", s)
-					.replace("%reason%",a.getBanReason(s))));
+					.replace("%reason%",a.getBanIPReason(s))));
 			return;
 		}
 		if(a.hasTempBanIP(s)) {
@@ -250,7 +250,7 @@ public class Events implements Listener {
 			Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() { @Override public void run() {
 			e.getPlayer().kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.BanIP")
 					.replace("%player%", s)
-					.replace("%reason%",a.getBanReason(s))));
+					.replace("%reason%",a.getBanIPReason(s))));
 			return;
 		}},25);}
 		if(a.hasTempBanIP(s)) {
