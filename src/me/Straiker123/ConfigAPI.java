@@ -40,21 +40,21 @@ public class ConfigAPI {
 	}
 	String end = "yml";
 	File f;
-	
+
 	public boolean existFile() {
-		return f!=null;
+		return getFile() != null;
 	}
 	
 	public File getFile() {
-		if(!existFile()) {
+		if(f==null) {
 			File ff = new File("plugins/"+loc+"/"+name+"."+end);
 			try {
-			return ff;
-			
-		} catch (Exception es) {
+			if(ff.exists()) { //file exists
+				f=ff;
+			}else {
 			try {
 			ff.createNewFile();
-			return ff;
+			f= ff;
 		} catch (IOException e) {
 			if(LoaderClass.config.getConfig() == null || LoaderClass.config.getConfig() != null && !LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
 				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cError when getting file of "+name+"."+end+" config:"));
@@ -63,7 +63,20 @@ public class ConfigAPI {
 				}else
 					Error.sendRequest("&bTheAPI&7: &cError when getting file of "+name+"."+end+" config");
 		}
-		return ff;
+		f= ff;
+		}
+		}catch(Exception er) {
+			try {
+				ff.createNewFile();
+				f= ff;
+			} catch (IOException e) {
+				if(LoaderClass.config.getConfig() == null || LoaderClass.config.getConfig() != null && !LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
+					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cError when getting file of "+name+"."+end+" config:"));
+					e.printStackTrace();
+					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cEnd of error."));
+					}else
+						Error.sendRequest("&bTheAPI&7: &cError when getting file of "+name+"."+end+" config");
+			}
 		}
 		}
 		return f;
@@ -78,6 +91,25 @@ public class ConfigAPI {
 	public void setCustomEnd(String customEnd) {
 		if(customEnd != null)
 		end=customEnd;
+	}
+
+	public boolean removePath(String path) {
+		if(a!=null) {
+			if(a.getString(path) != null) {
+				a.set(path, null);
+				return true;
+			}
+		}
+		return false;
+	}
+	public boolean createPath(String path) {
+		if(a!=null) {
+			if(a.getString(path) == null) {
+				a.createSection(path);
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private boolean check() {
