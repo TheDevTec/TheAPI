@@ -23,11 +23,19 @@ public class NameTagAPI {
 	public void setNameTag(String teamName, Scoreboard sb) {
 		if(teamName==null)teamName="z";
 		if(sb==null)sb=p.getScoreboard();
-		
+        if (teamName.length() > 16) {
+        	teamName = teamName.substring(0, 15);
+        }
 		if(sb.getTeam(teamName)==null)sb.registerNewTeam(teamName);
 		Team t = sb.getTeam(teamName);
 		
 		if(suffix !=null) {
+			if(TheAPI.getServerVersion().contains("V1_8")) {
+	            if (suffix.length() > 16) {
+	            	suffix = suffix.substring(0, 15);
+	            }
+	    		t.setSuffix(TheAPI.colorize(suffix));
+			}else {
 			try {
 	            if (suffix.length() > 64) {
 	                suffix = suffix.substring(0, 63);
@@ -46,8 +54,14 @@ public class NameTagAPI {
 	    		t.setSuffix(TheAPI.colorize(suffix));
 			}
 		}
-		}
+		}}
 		if(prefix !=null) {
+			if(TheAPI.getServerVersion().contains("V1_8")) {
+	            if (prefix.length() > 16) {
+	            	prefix = suffix.substring(0, 15);
+	            }
+	    		t.setPrefix(TheAPI.colorize(prefix));
+			}else {
 			try {
 	            if (prefix.length() > 64) {
 	            	prefix = prefix.substring(0, 63);
@@ -65,7 +79,7 @@ public class NameTagAPI {
 	            }
 	    		t.setPrefix(TheAPI.colorize(prefix));
 			}
-		}
+		}}
     		if (TheAPI.isNewVersion())
     			t.setColor(fromPrefix(prefix));
 		}
