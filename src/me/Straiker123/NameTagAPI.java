@@ -23,6 +23,7 @@ public class NameTagAPI {
 	public void setNameTag(String teamName, Scoreboard sb) {
 		if(teamName==null)teamName="z";
 		if(sb==null)sb=p.getScoreboard();
+		
 		if(sb.getTeam(teamName)==null)sb.registerNewTeam(teamName);
 		Team t = sb.getTeam(teamName);
 		

@@ -219,7 +219,7 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onMotd(ServerListPingEvent e) {
 		if(LoaderClass.plugin.motd!=null)
-		e.setMotd(LoaderClass.plugin.motd);
+		e.setMotd(TheAPI.getPlaceholderAPI().setPlaceholders(null, LoaderClass.plugin.motd));
 		if(LoaderClass.plugin.max>0)
 		e.setMaxPlayers(LoaderClass.plugin.max);
 	}
