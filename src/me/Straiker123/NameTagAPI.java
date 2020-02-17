@@ -53,8 +53,8 @@ public class NameTagAPI {
 	            ff.set(profile, name);
 	        }
 	            for (Player p : Bukkit.getOnlinePlayers()) {
-	                p.hidePlayer(p);
-	                p.showPlayer(p);
+	                p.hidePlayer(this.p);
+	                p.showPlayer(this.p);
 	        }
 	    } catch (Exception e) {
 	    }
