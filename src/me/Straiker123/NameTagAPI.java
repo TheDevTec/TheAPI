@@ -1,5 +1,9 @@
 package me.Straiker123;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
@@ -13,6 +17,63 @@ public class NameTagAPI {
 		this.p=p;
 		this.prefix=prefix;
 		this.suffix=suffix;
+	}
+	
+	/**
+	 * Warning, this method change whole player name, plugins these checking UUID will kick/ban you from server, for ex.: UUIDSpoof Fix
+	 * @param name
+	 * New player name
+	 */
+	@SuppressWarnings("deprecation")
+	public void setPlayerName(String name) {
+	    try {
+	        Method getHandle = p.getClass().getMethod("getHandle");
+	        Object entityPlayer = getHandle.invoke(p);
+	        boolean gameProfileExists = false;
+	        try {
+	            Class.forName("net.minecraft.util.com.mojang.authlib.GameProfile");
+	            gameProfileExists = true;
+	        }catch(Exception e) {
+	        	
+	        }
+	        try {
+	            Class.forName("com.mojang.authlib.GameProfile");
+	            gameProfileExists = true;
+	        }catch(Exception e) {
+	        	
+	        }
+	        if (!gameProfileExists) {
+	            Field nameField = entityPlayer.getClass().getSuperclass().getDeclaredField("name");
+	            nameField.setAccessible(true);
+	            nameField.set(entityPlayer, name);
+	        } else {
+	            Object profile = entityPlayer.getClass().getMethod("getProfile").invoke(entityPlayer);
+	            Field ff = profile.getClass().getDeclaredField("name");
+	            ff.setAccessible(true);
+	            ff.set(profile, name);
+	        }
+	            for (Player p : Bukkit.getOnlinePlayers()) {
+	                p.hidePlayer(p);
+	                p.showPlayer(p);
+	        }
+	    } catch (Exception e) {
+	    }
+	}
+	/**
+	 * Set player name tag
+	 * @param teamName
+	 * By teamName you can sort players in tablist -> create sorted tablist
+	 */
+	public void setNameTag(Team team) {
+		setNameTag(team.getName(), p.getScoreboard());
+	}
+	/**
+	 * Set player name tag
+	 * @param teamName
+	 * By teamName you can sort players in tablist -> create sorted tablist
+	 */
+	public void setNameTag(String team) {
+		setNameTag(team, p.getScoreboard());
 	}
 	/**
 	 * Set player name tag

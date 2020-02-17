@@ -86,11 +86,24 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			s.sendMessage(TheAPI.colorize("&6/TheAPI Test TabList"));
 			s.sendMessage(TheAPI.colorize("&6/TheAPI Test Scoreboard"));
 			s.sendMessage(TheAPI.colorize("&6/TheAPI Test BlocksAPI"));
+			s.sendMessage(TheAPI.colorize("&6/TheAPI Test PlayerName"));
 			s.sendMessage(TheAPI.colorize("&7-----------------"));
 			return true;
 			}
 			if(eq(1,"bossbar")) {
 				TheAPI.sendBossBar(p, "&eTheAPI v"+TheAPI.getPluginsManagerAPI().getVersion("TheAPI"), 0.5, 40);
+				return true;
+			}
+			if(eq(1,"PlayerName")) {
+				String old = p.getName();
+				s.sendMessage(TheAPI.colorize("&eYour nickname changed to &nTheAPI"));
+				TheAPI.getNameTagAPI(p, "", "").setPlayerName("TheAPI");
+				Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
+					@Override
+					public void run() {
+						TheAPI.getNameTagAPI(p, "", "").setPlayerName(old);
+					}
+				}, 40);
 				return true;
 			}
 			if(eq(1,"ActionBar")) {
@@ -485,7 +498,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		}
 		if(args[0].equalsIgnoreCase("Test") && s.isOp()) {
 			if(args.length==2) {
-				c.addAll(StringUtil.copyPartialMatches(args[1], Arrays.asList("TabList","Scoreboard","Title","Actionbar","Bossbar","BlocksAPI"), new ArrayList<>()));
+				c.addAll(StringUtil.copyPartialMatches(args[1], Arrays.asList("TabList","Scoreboard","Title","Actionbar","Bossbar","BlocksAPI","PlayerName"), new ArrayList<>()));
 				}
 		}
 		if(args[0].equalsIgnoreCase("WorldsManager") && s.hasPermission("TheAPI.Command.WorldsManager")) {
