@@ -4,48 +4,84 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReportSystem {
-	public void sendReport(String sender, String reported, String message) {
-		List<String> list = new ArrayList<String>();
-		if(LoaderClass.data.getConfig().getString("data."+sender+".reports."+reported)!=null)
-			list=LoaderClass.data.getConfig().getStringList("data."+sender+".reports."+reported);
-		LoaderClass.data.getConfig().set("data."+sender+".reports."+reported, list.add(message));
+
+	public void sendReport(String sender, String reported, String reason, String message) {
+		int s = getID(sender);
+		LoaderClass.data.getConfig().set("report."+sender+"."+s+".player",reported);
+		LoaderClass.data.getConfig().set("report."+sender+"."+s+".reason",reason);
+		LoaderClass.data.getConfig().set("report."+sender+"."+s+".time",System.currentTimeMillis());
+		LoaderClass.data.getConfig().set("report."+sender+"."+s+".message",message);
 		LoaderClass.data.save();
-		TheAPI.broadcast(LoaderClass.config.getConfig().getString("Format.Report").replace("%sender%", sender).replace("%target%", reported)
-				.replace("%target%", reported).replace("%message%", message), LoaderClass.config.getConfig().getString("Format.Report-Permission"));
 	}
 	
-	public boolean isReported(String player) {
-	boolean report=false;
-		if(LoaderClass.data.getConfig().getString("data")!=null)
-		for(String s:LoaderClass.data.getConfig().getConfigurationSection("data").getKeys(false)) {
-			if(LoaderClass.data.getConfig().getString("data."+s+".reports")!=null)
-			for(String d:LoaderClass.data.getConfig().getConfigurationSection("data."+s+".reports").getKeys(false)) {
-				if(d.equals(player))report=true;
-			}
+	public List<Report> getReports(String player){
+		List<Report> a = new ArrayList<Report>();
+		if(LoaderClass.data.getConfig().getString("report."+player) != null)
+		for(String s : LoaderClass.data.getConfig().getConfigurationSection("report."+player).getKeys(false)) {
+			//sender, reported, reason, message
+			a.add(new Report(
+					s
+					,player
+					,LoaderClass.data.getConfig().getString("report."+player+"."+s+".player")
+					,LoaderClass.data.getConfig().getString("report."+player+"."+s+".reason")
+					,LoaderClass.data.getConfig().getString("report."+player+"."+s+".message")
+					,LoaderClass.data.getConfig().getLong("report."+player+"."+s+".time")));
 		}
-		return report;
+		return a;
 	}
 
-	/**
-	 * List of messages of 'player' that reported 'target'
-	 * @return List<String>
-	 */
-	public List<String> getReportsMessages(String player, String target) {
+	public List<String> getPlayers(){
 		List<String> a = new ArrayList<String>();
-		if(LoaderClass.data.getConfig().getString("data."+player+".reports."+target)!=null)
-			a=LoaderClass.data.getConfig().getStringList("data."+player+".reports."+target);
-			return a;
+		if(LoaderClass.data.getConfig().getString("report") != null)
+		for(String s : LoaderClass.data.getConfig().getConfigurationSection("report").getKeys(false))
+			if(LoaderClass.data.getConfig().getString("report."+s) != null)a.add(s);
+		return a;
 	}
-	/**
-	 * List of players that 'player' reported
-	 * @return List<String>
-	 */
-	public List<String> getReported(String player) {
-		List<String> a = new ArrayList<String>();
-		if(LoaderClass.data.getConfig().getString("data."+player+".reports")!=null)
-			for(String s:LoaderClass.data.getConfig().getConfigurationSection("data."+player+".reports").getKeys(false))
-			a.add(s);
-			return a;
+	public void removePlayer(String player){
+		LoaderClass.data.getConfig().set("report."+player,null);
+		LoaderClass.data.save();
+	}
+	public boolean hasPlayer(String player){
+		return LoaderClass.data.getConfig().getString("report."+player) != null;
 	}
 	
+	public Report getReport(String player, int s) {
+		if(hasReport(player,s))
+		return new Report(s+"", player,LoaderClass.data.getConfig().getString("report."+player+"."+s+".player")
+				,LoaderClass.data.getConfig().getString("report."+player+"."+s+".reason")
+				,LoaderClass.data.getConfig().getString("report."+player+"."+s+".message")
+				,LoaderClass.data.getConfig().getLong("report."+player+"."+s+".time"));
+		return null;
+	}
+	
+	public List<String> getReportIDs(String player) {
+		List<String> a = new ArrayList<String>();
+		if(LoaderClass.data.getConfig().getString("report."+player) != null)
+		for(String s : LoaderClass.data.getConfig().getConfigurationSection("report."+player).getKeys(false))a.add(s);
+		return a;
+	}
+
+	public void removeReport(String player, int s) {
+		getReport(player,s).remove();
+	}
+	public void setSolved(String player, int s, boolean solved) {
+		getReport(player,s).setSolved(solved);
+	}
+	public boolean isSolved(String player, int s) {
+		return getReport(player,s).isSolved();
+	}
+	public boolean hasReport(String player, int s) {
+		return LoaderClass.data.getConfig().getString("report."+player+"."+s) != null;
+	}
+	
+	private int getID(String s){
+		int d = 1;
+		for(int i = 1; i > 0; ++i) {
+			if(LoaderClass.data.getConfig().getString("report."+s+"."+i)==null) {
+				d=i;
+				break;
+			}
+		}
+		return d;
+	}
 }
