@@ -37,6 +37,7 @@ public class LoaderClass extends JavaPlugin {
 	public static ConfigAPI gameapi;
 	
 	public void onLoad() {
+		plugin=this;
 		createConfig();
 		new TheAPI();
 		new TimeConventorAPI();
@@ -110,7 +111,6 @@ public class LoaderClass extends JavaPlugin {
 	public String motd;
 	public int max;
 	public void onEnable() {
-		plugin=this;
 		createConfig();
 		new TheAPI();
 		new TimeConventorAPI();
