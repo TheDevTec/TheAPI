@@ -63,14 +63,13 @@ public class GUIClickEvent extends Event implements Cancellable {
 		this.cancel=cancel;
 	}
 
-	private static final HandlerList handler = new HandlerList();
 	@Override
 	public HandlerList getHandlers() {
-		return handler;
+		return new HandlerList();
 	}
 	
 	public static HandlerList getHandlerList() {
-		return handler;
+		return new HandlerList();
 	}
 	/**
 	 * 

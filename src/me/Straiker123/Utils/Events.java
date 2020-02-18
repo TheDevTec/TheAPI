@@ -230,6 +230,9 @@ public class Events implements Listener {
 				e.getPlayer().hidePlayer(p);
 			}
 		}
+		if(TheAPI.isVanished(e.getPlayer())) {
+			TheAPI.vanish(e.getPlayer(), LoaderClass.data.getConfig().getString("data."+e.getPlayer().getName()+".vanish"), true);
+		}
 		String s = e.getPlayer().getName();
 		PunishmentAPI a = TheAPI.getPunishmentAPI();
 		try {

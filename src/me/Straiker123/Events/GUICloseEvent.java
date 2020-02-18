@@ -18,14 +18,13 @@ public class GUICloseEvent extends Event {
 	Player s;
 	String t;
 
-	private static final HandlerList handler = new HandlerList();
 	@Override
 	public HandlerList getHandlers() {
-		return handler;
+		return new HandlerList();
 	}
 	
 	public static HandlerList getHandlerList() {
-		return handler;
+		return new HandlerList();
 	}
 	
 	/**

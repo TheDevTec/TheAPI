@@ -16,7 +16,6 @@ public class EntityMoveEvent extends Event implements Cancellable {
 		f=from;
 		t=to;
 	}
-	private static final HandlerList handler = new HandlerList();
 	Location t;
 	Location f;
 	
@@ -50,9 +49,9 @@ public class EntityMoveEvent extends Event implements Cancellable {
 
 	@Override
 	public HandlerList getHandlers() {
-		return handler;
+		return new HandlerList();
 	}
 	
 	public static HandlerList getHandlerList() {
-		return handler;
+		return new HandlerList();
 	}}

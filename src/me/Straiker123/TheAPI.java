@@ -23,6 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 
+import me.Straiker123.Events.PlayerVanishEvent;
 import me.Straiker123.Utils.Error;
 import me.Straiker123.Utils.Packets;
 import net.glowstone.entity.GlowPlayer;
@@ -557,20 +558,27 @@ public class TheAPI {
 		}
 	}
 	private static void v(Player p, boolean vanish, String perm) {
-		if(vanish) {
-		if(perm!=null)
-			LoaderClass.data.getConfig().set("data."+p.getName()+".vanish", perm);
-		List<String> v= LoaderClass.data.getConfig().getStringList("vanished");
-		v.add(p.getName());
-			LoaderClass.data.getConfig().set("vanished", v);
-		}else {
-			LoaderClass.data.getConfig().set("data."+p.getName()+".vanish", null);
-			List<String> v= LoaderClass.data.getConfig().getStringList("vanished");
-			v.remove(p.getName());
-				LoaderClass.data.getConfig().set("vanished", v);
+		
+		PlayerVanishEvent d = new PlayerVanishEvent(p,(perm == null ? null : perm),true,(perm== null ? false: true));
+		Bukkit.getPluginManager().callEvent(d);
+		if(!d.isCancelled()){
+			vanish=d.vanish();
+			perm=d.getPermission();
+			if(vanish) {
+				if(perm!=null)
+					LoaderClass.data.getConfig().set("data."+p.getName()+".vanish", perm);
+				List<String> v= LoaderClass.data.getConfig().getStringList("vanished");
+				v.add(p.getName());
+					LoaderClass.data.getConfig().set("vanished", v);
+				}else {
+					LoaderClass.data.getConfig().set("data."+p.getName()+".vanish", null);
+					List<String> v= LoaderClass.data.getConfig().getStringList("vanished");
+					v.remove(p.getName());
+						LoaderClass.data.getConfig().set("vanished", v);
+				}
+			LoaderClass.data.save();
+			hide(p);
 		}
-		LoaderClass.data.save();
-		hide(p);
 	}
 	
 	/**

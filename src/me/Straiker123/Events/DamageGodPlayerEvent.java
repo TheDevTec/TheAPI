@@ -17,7 +17,6 @@ public class DamageGodPlayerEvent extends Event implements Cancellable {
 	public boolean isCancelled() {
 		return cancel;
 	}
-	private static final HandlerList handler = new HandlerList();
 	boolean cancel=true;
 	@Override
 	public void setCancelled(boolean cancel) {
@@ -42,10 +41,10 @@ public class DamageGodPlayerEvent extends Event implements Cancellable {
 
 	@Override
 	public HandlerList getHandlers() {
-		return handler;
+		return new HandlerList();
 	}
 	
 	public static HandlerList getHandlerList() {
-		return handler;
+		return new HandlerList();
 	}
 }

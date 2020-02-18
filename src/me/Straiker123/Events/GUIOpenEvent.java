@@ -19,8 +19,6 @@ public class GUIOpenEvent extends Event implements Cancellable {
 	String t;
 	Player s;
 	Inventory gui;
-
-	private static final HandlerList handler = new HandlerList();
 	/**
 	 * @return is GUI open event cancelled
 	 */
@@ -72,11 +70,11 @@ public class GUIOpenEvent extends Event implements Cancellable {
 	
 	@Override
 	public HandlerList getHandlers() {
-		return handler;
+		return new HandlerList();
 	}
 	
 	public static HandlerList getHandlerList() {
-		return handler;
+		return new HandlerList();
 	}
 	
 }

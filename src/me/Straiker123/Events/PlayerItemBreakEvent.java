@@ -13,7 +13,6 @@ public class PlayerItemBreakEvent extends Event implements Cancellable {
 	}
 	Player s;
 	ItemStack i;
-	private static final HandlerList handler = new HandlerList();
 	
 	public ItemStack getItem() {
 		return i;
@@ -35,11 +34,11 @@ public class PlayerItemBreakEvent extends Event implements Cancellable {
 
 	@Override
 	public HandlerList getHandlers() {
-		return handler;
+		return new HandlerList();
 	}
 	
 	public static HandlerList getHandlerList() {
-		return handler;
+		return new HandlerList();
 	}
 
 }
