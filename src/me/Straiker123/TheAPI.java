@@ -3,7 +3,6 @@ package me.Straiker123;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -778,10 +777,7 @@ public class TheAPI {
 	        Object handle = craftPlayer.getMethod("getHandle").invoke(p);
 	        Integer ping = (Integer) handle.getClass().getDeclaredField("ping").get(handle);
 	        return ping.intValue();
-	    } catch (IllegalAccessException
-	            | IllegalArgumentException | InvocationTargetException
-	            | NoSuchMethodException | SecurityException
-	            | NoSuchFieldException e) {
+	    } catch (Exception e) {
 	        return -1;
 	    }
 	}
