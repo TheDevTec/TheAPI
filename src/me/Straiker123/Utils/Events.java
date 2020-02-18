@@ -225,6 +225,11 @@ public class Events implements Listener {
 	}
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
+		for(Player p : Bukkit.getOnlinePlayers()) {
+			if(TheAPI.isVanished(p) && !e.getPlayer().hasPermission(LoaderClass.data.getConfig().getString("data."+p.getName()+".vanish"))) {
+				e.getPlayer().hidePlayer(p);
+			}
+		}
 		String s = e.getPlayer().getName();
 		PunishmentAPI a = TheAPI.getPunishmentAPI();
 		try {
