@@ -21,7 +21,7 @@ public class Error {
 	list.add(s);
 	if(r==-0)run();
 	}
-	
+	 
 	private static void run() {
 		r=Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, new Runnable() {
 
