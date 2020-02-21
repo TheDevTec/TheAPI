@@ -112,9 +112,10 @@ public class PlayerAPI {
 		safeTeleport(loc,TeleportCause.PLUGIN);
 	}
 	public void safeTeleport(Location loc, TeleportCause cause) {
-		if(!loc.getBlock().getType().name().contains("AIR") &&
-				!loc.getBlock().getType().name().contains("LAVA")
-				&&loc.add(0,1,0).getBlock().getType().name().contains("AIR")&&loc.add(0,2,0).getBlock().getType().name().contains("AIR"))
+		Location loc2 = loc.add(0,1,0);
+		if(!loc2.getBlock().getType().name().contains("AIR") &&
+				!loc2.getBlock().getType().name().contains("LAVA")
+				&&loc2.add(0,1,0).getBlock().getType().name().contains("AIR")&&loc2.add(0,2,0).getBlock().getType().name().contains("AIR"))
 			teleport(loc,cause);
 			else {
 			Location l = simpleLocation(loc);
