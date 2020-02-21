@@ -4,38 +4,29 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.WorldType;
 import org.bukkit.World.Environment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
+import org.bukkit.WorldType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.Straiker123.Events.EntityMoveEvent;
-import me.Straiker123.Utils.TheAPICommand;
 import me.Straiker123.Utils.Events;
 import me.Straiker123.Utils.GUIID;
+import me.Straiker123.Utils.Tasks;
+import me.Straiker123.Utils.TheAPICommand;
 import net.milkbowl.vault.economy.Economy;
 
 public class LoaderClass extends JavaPlugin {
 	public static LoaderClass plugin;
 	public static List<ConfigAPI> list = new ArrayList<ConfigAPI>();
-
 	public static HashMap<Player, GUIID> gui = new HashMap<Player, GUIID>();
-	//arena, int - runnable
 	public static HashMap<String, Integer> GameAPI_Arenas = new HashMap<String, Integer>();
 	public static HashMap<String, Integer> gameapi_timer = new HashMap<String, Integer>();
 	public static HashMap<String, Runnable> win_rewards = new HashMap<String, Runnable>();
-
 	public static ConfigAPI data;
 	public static ConfigAPI config;
 	public static ConfigAPI gameapi;
-	
 	public void onLoad() {
 		plugin=this;
 		createConfig();
@@ -77,43 +68,12 @@ public class LoaderClass extends JavaPlugin {
 		}, 20, 40);
 	}
 	
-	public void runnable() {
-		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-			@Override
-			public void run() {
-				if(!config.getConfig().getBoolean("Options.EntityMoveEvent.Enabled"))return;
-				for(World w: Bukkit.getWorlds()) {
-					for(Entity e :w.getEntities()) {
-						if(e.getType()==EntityType.PLAYER)continue;
-						if(data.getConfig().getString("entities."+e)!=null) {
-							Location old = (Location)data.getConfig().get("entities."+e);
-							if(move(e,e.getLocation())) {
-								EntityMoveEvent event = new EntityMoveEvent(e,old,e.getLocation());
-								Bukkit.getPluginManager().callEvent(event);
-								if(event.isCancelled())
-									e.teleport(old);
-							}
-					}else
-						data.getConfig().set("entities."+e,e.getLocation());
-					}
-				}
-			}
-		}, 3, config.getConfig().getInt("Options.EntityMoveEvent.Reflesh"));
-	}
-	private boolean move(Entity e,Location a) {
-		if((Location)data.getConfig().get("entities."+e)==a) {
-			return false;
-		}
-		data.getConfig().set("entities."+e,a);
-			return true;
-	}
 	public boolean e;
 	public String motd;
 	public int max;
 	public void onEnable() {
 		createConfig();
-		new TheAPI();
-		new TimeConventorAPI();
+		Tasks.load();
 		Bukkit.getPluginManager().registerEvents(new Events(), this);
 		Bukkit.getPluginCommand("TheAPI").setExecutor(new TheAPICommand());
 		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
@@ -140,33 +100,8 @@ public class LoaderClass extends JavaPlugin {
 				if(TheAPI.getCountingAPI().getPluginsUsingTheAPI().size() !=1)end="s";
 				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &aTheAPI using "+TheAPI.getCountingAPI().getPluginsUsingTheAPI().size()+" plugin"+end));
 			}
-			
 		}, 200);
-		if(config.getConfig().getBoolean("Options.EntityMoveEvent.Enabled"))
-		runnable();
-		else {
-			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
-			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6EntityMoveEvent is disabled."));
-			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6You can enable EntityMoveEvent in Config.yml"));
-			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6 *TheAPI will still normally work without problems*"));
-			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
-
-		}
-		if(!TheAPI.isNewVersion() && !TheAPI.getServerVersion().startsWith("v1_12")
-				&& !TheAPI.getServerVersion().startsWith("v1_11")
-				&& !TheAPI.getServerVersion().startsWith("v1_10")
-				&& !TheAPI.getServerVersion().startsWith("v1_9")
-				&& !TheAPI.getServerVersion().startsWith("v1_8")
-				&& !TheAPI.getServerVersion().equals("v1_7_R4")) {
-			Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-
-				@Override
-				public void run() {
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6Info: &cYour server version isn't supported!"));
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
-	}}, 20, 20*60*3600);
-		}
+		
 	}
 	
 	public static Economy economy;
@@ -182,7 +117,16 @@ public class LoaderClass extends JavaPlugin {
 	public static HashMap<Player, String> chatformat = new HashMap<Player, String>();
 	private void createConfig() {
 		config = TheAPI.getConfig("TheAPI", "Config");
+		config.setHeader("ChunkMobLimit -> OnLimitExceeded types: KILL/WARN");
 		config.addDefault("Options.HideErrors", false);
+		config.addDefault("Options.LagChecker.Enabled", false);
+		config.addDefault("Options.LagChecker.Log", true);
+		config.addDefault("Options.LagChecker.ChunkMobLimit.Use", true);
+		config.addDefault("Options.LagChecker.ChunkMobLimit.Limit", 20);
+		config.addDefault("Options.LagChecker.ChunkMobLimit.OnLimitExceeded", "KILL");
+		config.addDefault("Options.LagChecker.ChunkMobLimit.Bypass", Arrays.asList("BEE","ITEM_FRAME","ARMOR_STAND","VILLAGER","TAMED_WOLF","TAMED_CAT","OCELOT","PARROT","DROPPED_ITEM"));
+		config.addDefault("Options.LagChecker.ClearMemIfPercentIsFree", 25);
+		config.addDefault("Options.LagChecker.Reflesh", 100); //100÷20 = 5 -> reflesh every 5s
 		config.addDefault("Options.EntityMoveEvent.Reflesh", 3);
 		config.addDefault("Options.EntityMoveEvent.Enabled", true); //set false to disable this event
 		config.addDefault("Options.FakeEconomyAPI.Symbol", "$");
@@ -241,10 +185,10 @@ public class LoaderClass extends JavaPlugin {
 							,"End","The_Void","Void","Empty","Flat")) {
 						if(config.getConfig().getString("WorldsSetting."+s)!=null) {
 					if(config.getConfig().getString("WorldsSetting."+s+".Generator").equalsIgnoreCase(w)) {
-						if(w.equals("Flat"))type="Flat";
-						if(w.equals("Nether"))type="Nether";
-						if(w.equals("The_End")||w.equals("End"))type="The_End";
-						if(w.equals("The_Void")||w.equals("Void")||w.equals("Empty"))type="The_Void";
+						if(w.equalsIgnoreCase("Flat"))type="Flat";
+						if(w.equalsIgnoreCase("Nether"))type="Nether";
+						if(w.equalsIgnoreCase("The_End")||w.equalsIgnoreCase("End"))type="The_End";
+						if(w.equalsIgnoreCase("The_Void")||w.equalsIgnoreCase("Void")||w.equalsIgnoreCase("Empty"))type="The_Void";
 						break;
 					}}else
 					break;
@@ -279,12 +223,13 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6Action: &cDisabling plugin and saving configs.."));
 		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
 		for(Player p : gui.keySet()) {
-			p.getOpenInventory().close();
-			gui.get(p).clear();
+			gui.get(p).closeAndClear();
 		}
 		data.getConfig().set("guis", null);
 		data.getConfig().set("entities", null);
+		data.save();
 		for(ConfigAPI s:list) {
+			if(s==null)continue;
 			s.save();
 		}
 	}

@@ -69,11 +69,18 @@ public class GUIID {
 		}else
 		if(run.containsKey(r) && run.get(r).containsKey(slot))run.get(r).get(slot).run();
 	}
-	
+
 	public void clear() {
 		run.clear();
 		close=null;
 		LoaderClass.data.getConfig().set("guis."+p.getName()+"."+id, null);
 		LoaderClass.data.save();
+	}
+	public void closeAndClear() {
+		clear();
+		p.getOpenInventory().close();
+	}
+	public void close() {
+		p.getOpenInventory().close();
 	}
 }

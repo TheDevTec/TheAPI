@@ -162,11 +162,9 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			if(perm("ClearCache")) {
 				s.sendMessage(TheAPI.colorize("&7-----------------"));
 				s.sendMessage(TheAPI.colorize("&6Clearing cache.."));
-				for(Player p : Bukkit.getOnlinePlayers()) {
-					if( p.getOpenInventory()!=null) {
-						if(LoaderClass.gui.get(p)!=null)
-							p.getOpenInventory().close();
-				}}
+				for(Player id : LoaderClass.gui.keySet()) {
+					LoaderClass.gui.get(id).close();
+				}
 				LoaderClass.data.getConfig().set("guis", null);
 				LoaderClass.data.getConfig().set("entities", null);
 				LoaderClass.data.save();
@@ -182,8 +180,11 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			s.sendMessage(TheAPI.colorize("&7-----------------"));
 			s.sendMessage(TheAPI.colorize("&6Reloading configs.."));
 			for(ConfigAPI a : LoaderClass.list) {
+				if(a==null)continue;
 				a.reload();
 			}
+			Tasks.unload();
+			Tasks.load();
 			s.sendMessage(TheAPI.colorize("&6Configs reloaded."));
 			s.sendMessage(TheAPI.colorize("&7-----------------"));
 			
