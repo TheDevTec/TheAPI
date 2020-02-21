@@ -112,10 +112,12 @@ public class PlayerAPI {
 		safeTeleport(loc,TeleportCause.PLUGIN);
 	}
 	public void safeTeleport(Location loc, TeleportCause cause) {
-		Location loc2 = loc.add(0,1,0);
-		if(!loc2.getBlock().getType().name().contains("AIR") &&
-				!loc2.getBlock().getType().name().contains("LAVA")
-				&&loc2.add(0,1,0).getBlock().getType().name().contains("AIR")&&loc2.add(0,2,0).getBlock().getType().name().contains("AIR"))
+		Bukkit.broadcast("2: "+loc, "");
+		Bukkit.broadcast("+1: "+loc.add(0,1,0), "");
+		Bukkit.broadcast("+2: "+loc.add(0,2,0), "");
+		if(!loc.getBlock().getType().name().contains("AIR") &&
+				!loc.getBlock().getType().name().contains("LAVA")
+				&&loc.add(0,1,0).getBlock().getType().name().contains("AIR")&&loc.add(0,2,0).getBlock().getType().name().contains("AIR"))
 			teleport(loc,cause);
 			else {
 			Location l = simpleLocation(loc);
@@ -123,7 +125,20 @@ public class PlayerAPI {
 			teleport(l,cause);
 		}
 	}
-	
+	public void safeTeleportToSpawn(Location loc, TeleportCause cause) {
+		Location block = loc.add(0,0,0);
+		Location loc1 = loc.add(0,1,0);
+		Location loc2 = loc.add(0,2,0);
+		if(!block.getBlock().getType().name().contains("AIR") &&
+				!block.getBlock().getType().name().contains("LAVA")
+				&&loc1.getBlock().getType().name().contains("AIR")&&loc2.getBlock().getType().name().contains("AIR"))
+			teleport(loc1,cause);
+			else {
+			Location l = simpleLocation(loc);
+			if(l==null)l=searchLocation(loc);
+			teleport(l,cause);
+		}
+	}
 	private Location simpleLocation(Location loc) {
 		if(loc==null)return null;
 		Location l = null;
