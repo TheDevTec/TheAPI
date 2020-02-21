@@ -22,6 +22,7 @@ public class Tasks {
 	private static List<Integer> s = new ArrayList<Integer>();
 	private static boolean con(Entity s) {
 		boolean c = false;
+		if(s.getType()!=EntityType.PLAYER) {
 		for(String d: LoaderClass.config.getConfig().getStringList("Options.LagChecker.ChunkMobLimit.Bypass"))
 			if(d.toLowerCase().startsWith("tamed_")) {
 					if(s instanceof LivingEntity && s instanceof Tameable) {
@@ -36,6 +37,7 @@ public class Tasks {
 				c=true;
 				break;
 			}
+		}else c=true;
 		return c;
 	}
 	public static void load() {
