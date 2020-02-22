@@ -265,22 +265,39 @@ public class PlayerAPI {
 		return LoaderClass.data.getConfig().getBoolean("data."+s.getName()+".fly");
 	}
 	public void giveExp(int exp) {
-		s.setTotalExperience((int)s.getTotalExperience()+exp);
+			s.giveExp(exp);
 	}
 
 	public void takeExp(int exp) {
-		int take = (int)s.getTotalExperience();
-		if(take-exp < 0) {
-			s.setTotalExperience(take);
+		s.giveExp(-exp);
+	}
+	
+	public int getExp() {
+		return s.getTotalExperience();
+	}
+	
+	public void setExp(int exp) {
+		if(getExp() < exp) {
+			exp=getExp()-exp;
+			giveExp(exp);
 		}else
-			s.setTotalExperience(take-exp);
+			if(getExp() > exp) {
+				exp=exp-getExp();
+				giveExp(exp);
+			}
+			
 	}
 	
 	public void resetMaxHealth() {
 		s.setMaxHealth(20);
 	}
+	public void resetTotalExp() {
+		resetExp();
+		resetLevel();
+	}
 
 	public void resetExp() {
+		s.setExp(0);
 		s.setTotalExperience(0);
 	}
 	public void resetLevel() {
@@ -331,9 +348,14 @@ public class PlayerAPI {
 	public boolean hasOpenGUI() {
 		return LoaderClass.gui.containsKey(s);
 	}
-	
+
 	public void giveLevel(int level) {
 		s.setLevel(s.getLevel()+level);
+	}
+	public void takeLevel(int level) {
+		if(s.getLevel() <=level)level=0;
+		else level=s.getLevel()-level;
+		s.setLevel(level);
 	}
 	
 	public List<Block> getNearbyBlocks(int range){
