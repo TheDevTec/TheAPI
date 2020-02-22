@@ -144,6 +144,8 @@ public class ConfigAPI {
 	
 	public boolean reload() {
 		try {
+			f=null;
+			a=null;
 			f=getFile();
 			a = YamlConfiguration.loadConfiguration(f);
 			if(h!=null)a.options().header(h);
@@ -168,7 +170,9 @@ public class ConfigAPI {
 	
 	public boolean create() {
 		try {
+			if(f==null)
 		f=getFile();
+			if(a==null)
 		a = YamlConfiguration.loadConfiguration(f);
 		if(h!=null)a.options().header(h);
 		if(c!=null && !c.isEmpty()) {

@@ -43,10 +43,19 @@ public class TheAPI {
 	 * Get all blocks in radius 20 blocks
 	 * @return BlocksAPI
 	 */
+	
+	public static Player getOnlinePlayer(int i) {
+		return (getCountingAPI().getOnlinePlayers().size() > i && getCountingAPI().getOnlinePlayers().size() != i) ?  getCountingAPI().getOnlinePlayers().get(i) : null;
+	}
+	
 	public static BlocksAPI getBlocksAPI() {
 		return new BlocksAPI();
 	}
 
+	public static RankingAPI getRankingAPI(HashMap<Object, Double> map) {
+		return new RankingAPI(map);
+	}
+	
 	/**
 	 * Create or delete config
 	 * @param localization

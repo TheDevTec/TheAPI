@@ -24,9 +24,9 @@ public class LoaderClass extends JavaPlugin {
 	public static HashMap<String, Integer> GameAPI_Arenas = new HashMap<String, Integer>();
 	public static HashMap<String, Integer> gameapi_timer = new HashMap<String, Integer>();
 	public static HashMap<String, Runnable> win_rewards = new HashMap<String, Runnable>();
-	public static ConfigAPI data;
-	public static ConfigAPI config;
-	public static ConfigAPI gameapi;
+	public static ConfigAPI data= TheAPI.getConfig("TheAPI", "Data");
+	public static ConfigAPI config=TheAPI.getConfig("TheAPI", "Config");
+	public static ConfigAPI gameapi=TheAPI.getConfig("TheAPI", "GameAPI");
 	public void onLoad() {
 		plugin=this;
 		createConfig();
@@ -116,17 +116,16 @@ public class LoaderClass extends JavaPlugin {
 	
 	public static HashMap<Player, String> chatformat = new HashMap<Player, String>();
 	private void createConfig() {
-		config = TheAPI.getConfig("TheAPI", "Config");
 		config.setHeader("ChunkMobLimit -> OnLimitExceeded types: KILL/WARN");
 		config.addDefault("Options.HideErrors", false);
 		config.addDefault("Options.LagChecker.Enabled", false);
 		config.addDefault("Options.LagChecker.Log", true);
 		config.addDefault("Options.LagChecker.ChunkMobLimit.Use", true);
-		config.addDefault("Options.LagChecker.ChunkMobLimit.Limit", 20);
-		config.addDefault("Options.LagChecker.ChunkMobLimit.OnLimitExceeded", "KILL");
+		config.addDefault("Options.LagChecker.ChunkMobLimit.Limit", 120);
+		config.addDefault("Options.LagChecker.ChunkMobLimit.OnLimitExceeded", "WARN");
 		config.addDefault("Options.LagChecker.ChunkMobLimit.Bypass", Arrays.asList("BEE","ITEM_FRAME","ARMOR_STAND","VILLAGER","TAMED_WOLF","TAMED_CAT","OCELOT","PARROT","DROPPED_ITEM"));
 		config.addDefault("Options.LagChecker.ClearMemIfPercentIsFree", 25);
-		config.addDefault("Options.LagChecker.Reflesh", 100); //100÷20 = 5 -> reflesh every 5s
+		config.addDefault("Options.LagChecker.Reflesh", "5min"); //100÷20 = 5 -> reflesh every 5s
 		config.addDefault("Options.EntityMoveEvent.Reflesh", 3);
 		config.addDefault("Options.EntityMoveEvent.Enabled", true); //set false to disable this event
 		config.addDefault("Options.FakeEconomyAPI.Symbol", "$");
@@ -165,10 +164,8 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("GameAPI.StartingIn", "&aStarting in %time%s");
 		config.addDefault("GameAPI.Start", "&aStart");
 		config.create();
-		gameapi=TheAPI.getConfig("TheAPI", "GameAPI");
 		gameapi.setCustomEnd("dat");
 		gameapi.create();
-		data = TheAPI.getConfig("TheAPI", "Data");
 		data.setCustomEnd("dat");
 		data.create();
 	}

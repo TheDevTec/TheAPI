@@ -46,18 +46,17 @@ public class Tasks {
 		load=true;
 		if(LoaderClass.config.getConfig().getBoolean("Options.LagChecker.Enabled"))
 		s.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, new Runnable() {
-			int w=0;
+			int next = 0;
 			public void run() {
-				if(Bukkit.getWorlds().size() == w)w=0;
-				if(TheAPI.getMemoryAPI().getFreeMemory(true) >= LoaderClass.config.getConfig().getInt("Options.LagChecker.ClearMemIfPercentIsFree")) {
+				if(Bukkit.getWorlds().size() <= next)next=0;
+				if(TheAPI.getMemoryAPI().getFreeMemory(true) <= LoaderClass.config.getConfig().getDouble("Options.LagChecker.ClearMemIfPercentIsFree")) {
 					String sd = TheAPI.getMemoryAPI().clearMemory();
 					if(LoaderClass.config.getConfig().getBoolean("Options.Options.LagChecker.Log"))
 					TheAPI.getConsole().sendMessage(TheAPI.colorize("&f[&bTheAPI - LagChecker&f] Cleared "+sd+" memory"));
 				}
 				if(LoaderClass.config.getConfig().getBoolean("Options.LagChecker.ChunkMobLimit.Use")) {
 					HashMap<Location,List<Entity>> ent = new HashMap<Location,List<Entity>>();
-					synchronized(this) {
-					for(Chunk d : Bukkit.getWorlds().get(w).getLoadedChunks()) {
+					for(Chunk d :Bukkit.getWorlds().get(next).getLoadedChunks()) {
 						if(d.getEntities().length < LoaderClass.config.getConfig().getInt("Options.LagChecker.ChunkMobLimit.Limit"))continue;
 						List<Entity> es = new ArrayList<Entity>();
 						for(Entity awd : d.getEntities()) {
@@ -76,14 +75,14 @@ public class Tasks {
 									e.remove();
 								}
 							}else
-								TheAPI.getConsole().sendMessage(TheAPI.colorize("&f[&bTheAPI - LagChecker&f] Too many entities ("+ent.size()+") in chunk X:"+loc.getBlockX()+", Z:"+loc.getBlockZ()+" in the world "+Bukkit.getWorlds().get(w).getName()));
+								TheAPI.getConsole().sendMessage(TheAPI.colorize("&f[&bTheAPI - LagChecker&f] Too many entities ("+ent.size()+") in chunk X:"+loc.getBlockX()+", Z:"+loc.getBlockZ()+" in the world "+loc.getWorld().getName()));
 							
 							}
 						ent.clear();
-				}}
-				++w;
 				}
-			},20,20*LoaderClass.config.getConfig().getInt("Options.LagChecker.Reflesh")));
+				++next;
+				}
+			},20,20*TheAPI.getTimeConventorAPI().getTimeFromString(LoaderClass.config.getConfig().getString("Options.LagChecker.Reflesh"))));
 		if(!TheAPI.isNewVersion() && !TheAPI.getServerVersion().startsWith("v1_12")
 				&& !TheAPI.getServerVersion().startsWith("v1_11")
 				&& !TheAPI.getServerVersion().startsWith("v1_10")
