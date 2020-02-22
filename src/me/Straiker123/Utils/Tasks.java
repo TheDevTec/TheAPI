@@ -1,6 +1,7 @@
 package me.Straiker123.Utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,35 +46,44 @@ public class Tasks {
 		load=true;
 		if(LoaderClass.config.getConfig().getBoolean("Options.LagChecker.Enabled"))
 		s.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, new Runnable() {
+			int w=0;
 			public void run() {
+				if(Bukkit.getWorlds().size() == w)w=0;
 				if(TheAPI.getMemoryAPI().getFreeMemory(true) >= LoaderClass.config.getConfig().getInt("Options.LagChecker.ClearMemIfPercentIsFree")) {
 					String sd = TheAPI.getMemoryAPI().clearMemory();
 					if(LoaderClass.config.getConfig().getBoolean("Options.Options.LagChecker.Log"))
 					TheAPI.getConsole().sendMessage(TheAPI.colorize("&f[&bTheAPI - LagChecker&f] Cleared "+sd+" memory"));
 				}
-				if(LoaderClass.config.getConfig().getBoolean("Options.LagChecker.ChunkMobLimit.Use"))
-				for(World s : Bukkit.getWorlds()) {
-					for(Chunk d : s.getLoadedChunks()) {
-						List<Entity> ent = new ArrayList<Entity>();
+				if(LoaderClass.config.getConfig().getBoolean("Options.LagChecker.ChunkMobLimit.Use")) {
+					HashMap<Location,List<Entity>> ent = new HashMap<Location,List<Entity>>();
+					synchronized(this) {
+					for(Chunk d : Bukkit.getWorlds().get(w).getLoadedChunks()) {
+						if(d.getEntities().length < LoaderClass.config.getConfig().getInt("Options.LagChecker.ChunkMobLimit.Limit"))continue;
+						List<Entity> es = new ArrayList<Entity>();
 						for(Entity awd : d.getEntities()) {
 							if(!con(awd))
-							ent.add(awd);
+								es.add(awd);
 						}
-						
-						if(ent.size() >= LoaderClass.config.getConfig().getInt("Options.LagChecker.ChunkMobLimit.Limit")) {
+						if(es.isEmpty()==false)ent.put(d.getBlock(0, 0, 0).getLocation(), es);
+					}
+					for(Location loc : ent.keySet()) {
+						if(ent.get(loc).size() < LoaderClass.config.getConfig().getInt("Options.LagChecker.ChunkMobLimit.Limit"))continue;
 							if(LoaderClass.config.getConfig().getString("Options.LagChecker.ChunkMobLimit.OnLimitExceeded").equalsIgnoreCase("kill")
 									||LoaderClass.config.getConfig().getString("Options.LagChecker.ChunkMobLimit.OnLimitExceeded").equalsIgnoreCase("remove")) {
 								if(LoaderClass.config.getConfig().getBoolean("Options.LagChecker.Log"))
 								TheAPI.getConsole().sendMessage(TheAPI.colorize("&f[&bTheAPI - LagChecker&f] Killed ("+ent.size()+") entities"));
-								for(Entity e : ent)e.remove();
+								for(Entity e : ent.get(loc)) {
+									e.remove();
+								}
+							}else
+								TheAPI.getConsole().sendMessage(TheAPI.colorize("&f[&bTheAPI - LagChecker&f] Too many entities ("+ent.size()+") in chunk X:"+loc.getBlockX()+", Z:"+loc.getBlockZ()+" in the world "+Bukkit.getWorlds().get(w).getName()));
+							
 							}
-								else
-							TheAPI.getConsole().sendMessage(TheAPI.colorize("&f[&bTheAPI - LagChecker&f] Too many entities ("+ent.size()+") in chunk X:"+d.getBlock(0, 0, 0).getX()+", Z:"+d.getBlock(0, 0, 0).getZ()+" in the world "+s.getName()));
-							}
-						}
-					}
+						ent.clear();
+				}}
+				++w;
 				}
-			},LoaderClass.config.getConfig().getInt("Options.LagChecker.Reflesh"),LoaderClass.config.getConfig().getInt("Options.LagChecker.Reflesh")));
+			},20,20*LoaderClass.config.getConfig().getInt("Options.LagChecker.Reflesh")));
 		if(!TheAPI.isNewVersion() && !TheAPI.getServerVersion().startsWith("v1_12")
 				&& !TheAPI.getServerVersion().startsWith("v1_11")
 				&& !TheAPI.getServerVersion().startsWith("v1_10")
@@ -108,7 +118,7 @@ public class Tasks {
 					}}
 				}
 			}
-		}, LoaderClass.config.getConfig().getInt("Options.EntityMoveEvent.Reflesh"), LoaderClass.config.getConfig().getInt("Options.EntityMoveEvent.Reflesh")));
+		}, 20, LoaderClass.config.getConfig().getInt("Options.EntityMoveEvent.Reflesh")));
 		else {
 			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
 			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6EntityMoveEvent is disabled."));
