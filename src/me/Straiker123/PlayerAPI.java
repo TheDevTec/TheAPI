@@ -112,9 +112,6 @@ public class PlayerAPI {
 		safeTeleport(loc,TeleportCause.PLUGIN);
 	}
 	public void safeTeleport(Location loc, TeleportCause cause) {
-		Bukkit.broadcast("2: "+loc, "");
-		Bukkit.broadcast("+1: "+loc.add(0,1,0), "");
-		Bukkit.broadcast("+2: "+loc.add(0,2,0), "");
 		if(!loc.getBlock().getType().name().contains("AIR") &&
 				!loc.getBlock().getType().name().contains("LAVA")
 				&&loc.add(0,1,0).getBlock().getType().name().contains("AIR")&&loc.add(0,2,0).getBlock().getType().name().contains("AIR"))
