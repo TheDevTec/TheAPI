@@ -90,7 +90,7 @@ public class PlayerAPI {
 		teleport(entity,TeleportCause.PLUGIN);
 	}
 	public void teleport(Location loc,TeleportCause cause) {
-		if(loc.getWorld()!=null && loc!=null) {
+		if(loc != null && loc.getWorld()!=null) {
 			if(cause!=null)
 		s.teleport(loc,cause);
 			else {
@@ -112,24 +112,12 @@ public class PlayerAPI {
 		safeTeleport(loc,TeleportCause.PLUGIN);
 	}
 	public void safeTeleport(Location loc, TeleportCause cause) {
-		if(!loc.getBlock().getType().name().contains("AIR") &&
-				!loc.getBlock().getType().name().contains("LAVA")
-				&&loc.add(0,1,0).getBlock().getType().name().contains("AIR")&&loc.add(0,2,0).getBlock().getType().name().contains("AIR"))
+		String c = loc.getBlock().getType().name();
+		String c1 = loc.add(0,1,0).getBlock().getType().name();
+		String c2 = loc.add(0,2,0).getBlock().getType().name();
+	if(!c.contains("AIR") && !c.contains("LAVA") &&
+			c1.contains("AIR") &&c2.contains("AIR"))
 			teleport(loc,cause);
-			else {
-			Location l = simpleLocation(loc);
-			if(l==null)l=searchLocation(loc);
-			teleport(l,cause);
-		}
-	}
-	public void safeTeleportToSpawn(Location loc, TeleportCause cause) {
-		Location block = loc.add(0,0,0);
-		Location loc1 = loc.add(0,1,0);
-		Location loc2 = loc.add(0,2,0);
-		if(!block.getBlock().getType().name().contains("AIR") &&
-				!block.getBlock().getType().name().contains("LAVA")
-				&&loc1.getBlock().getType().name().contains("AIR")&&loc2.getBlock().getType().name().contains("AIR"))
-			teleport(loc1,cause);
 			else {
 			Location l = simpleLocation(loc);
 			if(l==null)l=searchLocation(loc);
@@ -140,12 +128,15 @@ public class PlayerAPI {
 		if(loc==null)return null;
 		Location l = null;
 		for(Location b : TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 2)) {
-		if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
-				b.add(0, 1, 0).getBlock().getType().name().equals("AIR") &&b.add(0, 2, 0).getBlock().getType().name().equals("AIR")) {
+			String c = loc.getBlock().getType().name();
+			String c1 = loc.add(0,1,0).getBlock().getType().name();
+			String c2 = loc.add(0,2,0).getBlock().getType().name();
+		if(!c.contains("AIR") && !c.contains("LAVA") &&
+				c1.contains("AIR") &&c2.contains("AIR")) {
 			l=b;
 			break;
 		}}
-		return l;
+		return (l != null ? l.add(0.5,0,0.5) : null);
 	}
 	
 	private Location searchLocation(Location loc) {
@@ -153,37 +144,40 @@ public class PlayerAPI {
 		Location l = null;
 		List<Location> w= TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 4);
 		for(Location b : w) {
-			if(b.getBlock().getType().isSolid()) {
-				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
-						b.add(0, 1, 0).getBlock().getType().name().equals("AIR") &&b.add(0, 2, 0).getBlock().getType().name().equals("AIR")) {	
+			String c = loc.getBlock().getType().name();
+			String c1 = loc.add(0,1,0).getBlock().getType().name();
+			String c2 = loc.add(0,2,0).getBlock().getType().name();
+		if(!c.contains("AIR") && !c.contains("LAVA") &&
+				c1.contains("AIR") &&c2.contains("AIR")) {
 					l=b;
 					break;
-					}
 			}
 		}
-		if(l!=null)return l;
+		if(l!=null)return (l != null ? l.add(0.5,0,0.5) : null);
 		w= TheAPI.getBlocksAPI().getBlocksLocation(Shape.Sphere, loc, 6);
 		for(Location b : w) {
-			if(b.getBlock().getType().isSolid()) {
-				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
-						b.add(0, 1, 0).getBlock().getType().name().equals("AIR") &&b.add(0, 2, 0).getBlock().getType().name().equals("AIR")) {	
+			String c = loc.getBlock().getType().name();
+			String c1 = loc.add(0,1,0).getBlock().getType().name();
+			String c2 = loc.add(0,2,0).getBlock().getType().name();
+		if(!c.contains("AIR") && !c.contains("LAVA") &&
+				c1.contains("AIR") &&c2.contains("AIR")) {
 					l=b;
 					break;
-					}
 			}
 		}
-		if(l!=null)return l;
+		if(l!=null)return (l != null ? l.add(0.5,0,0.5) : null);
 		w= TheAPI.getBlocksAPI().getBlocksLocation(Shape.Sphere, loc, 8);
 		for(Location b : w) {
-			if(b.getBlock().getType().isSolid()) {
-				if(!b.getBlock().getType().name().contains("AIR") && !b.getBlock().getType().name().contains("LAVA") &&
-						b.add(0, 1, 0).getBlock().getType().name().equals("AIR") &&b.add(0, 2, 0).getBlock().getType().name().equals("AIR")) {	
+			Block c = loc.getBlock();
+			Block c1 = loc.add(0,1,0).getBlock();
+			Block c2 = loc.add(0,2,0).getBlock();
+		if(!c.getType().name().contains("AIR") && !c.getType().name().contains("LAVA") &&
+				c1.getType().name().contains("AIR") &&c2.getType().name().contains("AIR")) {
 					l=b;
 					break;
 					}
-			}
 		}
-		if(l!=null)return l;
+		if(l!=null)return (l != null ? l.add(0.5,0,0.5) : null);
 		return loc;
 	}
 	
