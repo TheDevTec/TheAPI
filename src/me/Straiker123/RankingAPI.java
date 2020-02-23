@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class RankingAPI {
-	HashMap<Object, Double> s;
-	public RankingAPI(HashMap<Object, Double> map) {
+	HashMap<?, Double> s;
+	public RankingAPI(HashMap<?, Double> map) {
 		s=map.entrySet().stream().sorted(comparingByValue()).collect(toMap(e -> e.getKey(),
 				e -> e.getValue(), (e1, e2) -> e2,LinkedHashMap::new));
 	}
