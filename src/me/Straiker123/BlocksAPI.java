@@ -101,22 +101,18 @@ public class BlocksAPI {
 			  List<Location> blocks = new ArrayList<Location>();
 			  switch(form) {
 			  case Square:
-			     for(double x = where.getX() - radius; x <= where.getX() + radius; x++){
-			       for(double y = where.getY() - radius; y <= where.getY() + radius; y++){
-			         for(double z = where.getZ() - radius; z <= where.getZ() + radius; z++){
+			     for(double x = where.getX() - radius; x <= where.getX() + radius; x++)
+			       for(double y = where.getY() - radius; y <= where.getY() + radius; y++)
+			         for(double z = where.getZ() - radius; z <= where.getZ() + radius; z++)
 			           blocks.add(new Location(where.getWorld(), x, y, z));
-			      }
-			      }
-			     }
 			     break;
 			  case Sphere:
 				for (int Y = -radius; Y < radius; Y++)
 					for (int X = -radius; X < radius; X++)
 					   for (int Z = -radius; Z < radius; Z++)
-					    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+					    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) 
 					     blocks.add(new Location(where.getWorld(),X + where.getBlockX(), Y + where.getBlockY(), Z + where.getBlockZ()));
-					 }
-			  }
+				}
 			     return blocks;
 			     }
 	   
@@ -166,22 +162,18 @@ public class BlocksAPI {
 			  List<Block> blocks = new ArrayList<Block>();
 			  switch(form) {
 			  case Square:
-			     for(double x = where.getX() - radius; x <= where.getX() + radius; x++){
-			       for(double y = where.getY() - radius; y <= where.getY() + radius; y++){
-			         for(double z = where.getZ() - radius; z <= where.getZ() + radius; z++){
-			           blocks.add(new Location(where.getWorld(), x, y, z).getBlock());
-			      }
-			      }
-			     }
+			     for(int x = where.getBlockX() - radius; x <= where.getBlockX() + radius; x++)
+			       for(int y = where.getBlockY() - radius; y <= where.getBlockY() + radius; y++)
+			         for(int z = where.getBlockZ() - radius; z <= where.getBlockZ() + radius; z++)
+			           blocks.add(where.getWorld().getBlockAt(x, y, z));
 			     break;
 			  case Sphere:
 				for (int Y = -radius; Y < radius; Y++)
 					for (int X = -radius; X < radius; X++)
 					   for (int Z = -radius; Z < radius; Z++)
-					    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+					    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) 
 					     blocks.add(where.getWorld().getBlockAt(X + where.getBlockX(), Y + where.getBlockY(), Z + where.getBlockZ()));
-					 }
-			  }
+			 }
 			     return blocks;
 			     }
 

@@ -111,74 +111,80 @@ public class PlayerAPI {
 	public void safeTeleport(Location loc) {
 		safeTeleport(loc,TeleportCause.PLUGIN);
 	}
-	public void safeTeleport(Location loc, TeleportCause cause) {
-		String c = loc.getBlock().getType().name();
-		String c1 = loc.add(0,1,0).getBlock().getType().name();
-		String c2 = loc.add(0,2,0).getBlock().getType().name();
-	if(!c.contains("AIR") && !c.contains("LAVA") &&
-			c1.contains("AIR") &&c2.contains("AIR"))
-			teleport(loc,cause);
-			else {
-			Location l = simpleLocation(loc);
-			if(l==null)l=searchLocation(loc);
-			teleport(l,cause);
+	public void safeTeleport(Location b, TeleportCause cause) {
+		if(b==null || b!=null && b.getWorld()==null) {
+			Error.err("teleporting "+s.getName(), "Location is null");
+			return;
 		}
+		String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
+		String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
+		String c2 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
+	if(!c.contains("AIR") && !c.contains("LAVA") &&
+			c1.contains("AIR") &&c2.contains("AIR")) {
+		teleport(new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ(),b.getYaw(),b.getPitch()),cause);
+	}else {
+					Location l = simpleLocation(new Location(b.getWorld(),b.getX(),b.getY()+1,b.getZ()));
+					if(l==null)l=searchLocation(new Location(b.getWorld(),b.getX(),b.getY()+1,b.getZ()));
+					if(l==null)l=new Location(b.getWorld(),b.getX(),b.getY(),b.getZ());
+					 c = new Location(l.getWorld(),l.getX(),l.getY(),l.getZ()).getBlock().getType().name();
+						if(!c.contains("AIR") && !c.contains("LAVA")) {
+							teleport(new Location(l.getWorld(),l.getX(),l.getY()-1,l.getZ(),b.getYaw(),b.getPitch()),cause);
+						}else
+							teleport(new Location(l.getWorld(),l.getX(),l.getY()-1,l.getZ(),b.getYaw(),b.getPitch()),cause);
+	}
 	}
 	private Location simpleLocation(Location loc) {
-		if(loc==null)return null;
 		Location l = null;
 		for(Location b : TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 2)) {
-			String c = loc.getBlock().getType().name();
-			String c1 = loc.add(0,1,0).getBlock().getType().name();
-			String c2 = loc.add(0,2,0).getBlock().getType().name();
+			String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
+			String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
+			String c2 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
 		if(!c.contains("AIR") && !c.contains("LAVA") &&
 				c1.contains("AIR") &&c2.contains("AIR")) {
 			l=b;
 			break;
 		}}
-		return (l != null ? l.add(0.5,0,0.5) : null);
+		return l;
 	}
 	
-	private Location searchLocation(Location loc) {
-		if(loc==null)return null;
+	private Location searchLocation(Location d) {
+		Location loc = new Location(d.getWorld(),d.getX(),d.getY(),d.getZ());
+		TheAPI.broadcastMessage("start:"+loc);
 		Location l = null;
-		List<Location> w= TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 4);
-		for(Location b : w) {
-			String c = loc.getBlock().getType().name();
-			String c1 = loc.add(0,1,0).getBlock().getType().name();
-			String c2 = loc.add(0,2,0).getBlock().getType().name();
+		for(Location b : TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 4)) {
+			String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
+			String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
+			String c2 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
 		if(!c.contains("AIR") && !c.contains("LAVA") &&
 				c1.contains("AIR") &&c2.contains("AIR")) {
 					l=b;
 					break;
 			}
 		}
-		if(l!=null)return (l != null ? l.add(0.5,0,0.5) : null);
-		w= TheAPI.getBlocksAPI().getBlocksLocation(Shape.Sphere, loc, 6);
-		for(Location b : w) {
-			String c = loc.getBlock().getType().name();
-			String c1 = loc.add(0,1,0).getBlock().getType().name();
-			String c2 = loc.add(0,2,0).getBlock().getType().name();
+		if(l!=null)return l;
+		for(Location b :TheAPI.getBlocksAPI().getBlocksLocation(Shape.Sphere, loc, 6)) {
+			String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
+			String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
+			String c2 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
 		if(!c.contains("AIR") && !c.contains("LAVA") &&
 				c1.contains("AIR") &&c2.contains("AIR")) {
 					l=b;
 					break;
 			}
 		}
-		if(l!=null)return (l != null ? l.add(0.5,0,0.5) : null);
-		w= TheAPI.getBlocksAPI().getBlocksLocation(Shape.Sphere, loc, 8);
-		for(Location b : w) {
-			Block c = loc.getBlock();
-			Block c1 = loc.add(0,1,0).getBlock();
-			Block c2 = loc.add(0,2,0).getBlock();
-		if(!c.getType().name().contains("AIR") && !c.getType().name().contains("LAVA") &&
-				c1.getType().name().contains("AIR") &&c2.getType().name().contains("AIR")) {
+		if(l!=null)return l;
+		for(Location b : TheAPI.getBlocksAPI().getBlocksLocation(Shape.Sphere, loc, 8)) {
+			String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
+			String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
+			String c2 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
+			if(!c.contains("AIR") && !c.contains("LAVA") &&
+					c1.contains("AIR") &&c2.contains("AIR")) {
 					l=b;
 					break;
 					}
 		}
-		if(l!=null)return (l != null ? l.add(0.5,0,0.5) : null);
-		return loc;
+		if(l!=null)return l;
+		return d;
 	}
 	
 	public void setFreeze(boolean freeze) {
