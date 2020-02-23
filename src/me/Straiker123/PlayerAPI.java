@@ -119,28 +119,55 @@ public class PlayerAPI {
 		String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
 		String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
 		String c2 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
-	if(!c.contains("AIR") && !c.contains("LAVA") &&
-			c1.contains("AIR") &&c2.contains("AIR")) {
+		if(acc(1,c) && acc(2,c1) && acc(3,c2)) {
 		teleport(new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ(),b.getYaw(),b.getPitch()),cause);
 	}else {
-					Location l = simpleLocation(new Location(b.getWorld(),b.getX(),b.getY()+1,b.getZ()));
-					if(l==null)l=searchLocation(new Location(b.getWorld(),b.getX(),b.getY()+1,b.getZ()));
-					if(l==null)l=new Location(b.getWorld(),b.getX(),b.getY(),b.getZ());
-					 c = new Location(l.getWorld(),l.getX(),l.getY(),l.getZ()).getBlock().getType().name();
-						if(!c.contains("AIR") && !c.contains("LAVA")) {
-							teleport(new Location(l.getWorld(),l.getX(),l.getY()-1,l.getZ(),b.getYaw(),b.getPitch()),cause);
-						}else
-							teleport(new Location(l.getWorld(),l.getX(),l.getY()-1,l.getZ(),b.getYaw(),b.getPitch()),cause);
+		 c = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
+		 c1 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
+		 c2 = new Location(b.getWorld(),b.getX(),b.getY()+1,b.getZ()).getBlock().getType().name();
+			if(acc(1,c) && acc(2,c1) && acc(3,c2)) {
+		teleport(new Location(b.getWorld(),b.getX(),b.getY(),b.getZ(),b.getYaw(),b.getPitch()),cause);
+	}else {
+		 c = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
+		 c1 = new Location(b.getWorld(),b.getX(),b.getY()+1,b.getZ()).getBlock().getType().name();
+		 c2 = new Location(b.getWorld(),b.getX(),b.getY()+2,b.getZ()).getBlock().getType().name();
+			if(acc(1,c) && acc(2,c1) && acc(3,c2)) {
+		teleport(new Location(b.getWorld(),b.getX(),b.getY()+1,b.getZ(),b.getYaw(),b.getPitch()),cause);
+	}else {
+		Location l = simpleLocation(new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()));
+		if(l==null)l=searchLocation(new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()));
+		if(l==null)l=new Location(b.getWorld(),b.getX(),b.getY(),b.getZ());
+		 c = new Location(l.getWorld(),l.getX(),l.getY()-2,l.getZ()).getBlock().getType().name();
+		 c1 = new Location(l.getWorld(),l.getX(),l.getY()-1,l.getZ()).getBlock().getType().name();
+		 c2 = new Location(l.getWorld(),l.getX(),l.getY(),l.getZ()).getBlock().getType().name();
+			if(acc(1,c) && acc(2,c1) && acc(3,c2)) {
+		teleport(new Location(l.getWorld(),l.getX(),l.getY()-1,l.getZ(),b.getYaw(),b.getPitch()),cause);
+	}else {
+		 c = new Location(l.getWorld(),l.getX(),l.getY()-1,l.getZ()).getBlock().getType().name();
+		 c1 = new Location(l.getWorld(),l.getX(),l.getY(),l.getZ()).getBlock().getType().name();
+		 c2 = new Location(l.getWorld(),l.getX(),l.getY()+1,l.getZ()).getBlock().getType().name();
+			if(acc(1,c) && acc(2,c1) && acc(3,c2)) {
+		teleport(new Location(l.getWorld(),l.getX(),l.getY()-1,l.getZ(),b.getYaw(),b.getPitch()),cause);
+	}else {
+		 c = new Location(l.getWorld(),l.getX(),l.getY(),l.getZ()).getBlock().getType().name();
+		 c1 = new Location(l.getWorld(),l.getX(),l.getY()+1,l.getZ()).getBlock().getType().name();
+		 c2 = new Location(l.getWorld(),l.getX(),l.getY()+2,l.getZ()).getBlock().getType().name();
+			if(acc(1,c) && acc(2,c1) && acc(3,c2)) {
+		teleport(new Location(l.getWorld(),l.getX(),l.getY(),l.getZ(),b.getYaw(),b.getPitch()),cause);
+	}else
+				teleport(new Location(l.getWorld(),l.getX(),l.getY(),l.getZ(),b.getYaw(),b.getPitch()),cause);
+
 	}
 	}
+	}}
+	}}
 	private Location simpleLocation(Location loc) {
 		Location l = null;
 		for(Location b : TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 2)) {
 			String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
 			String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
 			String c2 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
-		if(!c.contains("AIR") && !c.contains("LAVA") &&
-				c1.contains("AIR") &&c2.contains("AIR")) {
+			if(acc(1,c) && acc(2,c1) && acc(3,c2)) {
 			l=b;
 			break;
 		}}
@@ -155,8 +182,7 @@ public class PlayerAPI {
 			String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
 			String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
 			String c2 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
-		if(!c.contains("AIR") && !c.contains("LAVA") &&
-				c1.contains("AIR") &&c2.contains("AIR")) {
+			if(acc(1,c) && acc(2,c1) && acc(3,c2)) {
 					l=b;
 					break;
 			}
@@ -166,8 +192,7 @@ public class PlayerAPI {
 			String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
 			String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
 			String c2 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
-		if(!c.contains("AIR") && !c.contains("LAVA") &&
-				c1.contains("AIR") &&c2.contains("AIR")) {
+			if(acc(1,c) && acc(2,c1) && acc(3,c2)) {
 					l=b;
 					break;
 			}
@@ -177,13 +202,38 @@ public class PlayerAPI {
 			String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
 			String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
 			String c2 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
-			if(!c.contains("AIR") && !c.contains("LAVA") &&
-					c1.contains("AIR") &&c2.contains("AIR")) {
+			if(acc(1,c) && acc(2,c1) && acc(3,c2)) {
 					l=b;
 					break;
 					}
 		}
 		if(l!=null)return l;
+		return d;
+	}
+	
+	private boolean acc(int i, String c) {
+		boolean d = false;
+		switch(i) {
+		case 1:
+			if(!c.contains("AIR") && !c.contains("LAVA")&& !c.contains("BUTTON")
+					&& !c.contains("DOOR")
+			 && !c.contains("SIGN")
+			 && !c.contains("TORCH")
+			 && !c.contains("MUSHROOM") && Material.matchMaterial(c).isBlock())d=true;
+			break;
+		case 2:
+			if(c.contains("AIR") || c.contains("BUTTON") || c.contains("DOOR")
+					||c.contains("SIGN")
+					||c.contains("TORCH")
+					||c.contains("MUSHROOM") || c.contains("WATER"))d=true;
+			break;
+		case 3:
+			if(c.contains("AIR") || c.contains("BUTTON") || c.contains("DOOR")
+					||c.contains("SIGN")
+					||c.contains("TORCH")
+					||c.contains("MUSHROOM") || c.contains("WATER"))d=true;
+			break;
+		}
 		return d;
 	}
 	
