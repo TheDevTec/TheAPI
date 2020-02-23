@@ -20,6 +20,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 
@@ -530,15 +531,31 @@ public class TheAPI {
 	public static void vanish(Player p, String permission, boolean vanish) {
 		v(p,vanish,permission);
 	}
+	private static boolean isV(Player player) {
+		if(player.hasMetadata("vanished"))
+        for (MetadataValue meta : player.getMetadata("vanished")) {
+            if (meta.asBoolean()) return true;
+        }
+        return false;
+}
 	/**
 	 * Return is player in vanish mode
 	 * @param p
 	 * @return boolean
 	 */
 	public static boolean isVanished(Player p) {
+		if(isV(p))return true;
 		return LoaderClass.data.getConfig().getString("data."+p.getName()+".vanish")!=null;
 	}
-	
+	/**
+	 * Return is player in vanish mode
+	 * @param p
+	 * @return boolean
+	 */
+	public static boolean isVanished(String p) {
+		return LoaderClass.data.getConfig().getString("data."+p+".vanish")!=null;
+	}
+
 	/**
 	 * Hide or show player to players on server
 	 * @param p
@@ -546,6 +563,15 @@ public class TheAPI {
 	 */
 	public static void vanish(Player p, boolean vanish) {
 		v(p,vanish,null);
+	}
+	/**
+	 * Hide or show player to players on server
+	 * @param p
+	 * @param vanish
+	 */
+	public static void vanish(String p, boolean vanish) {
+		LoaderClass.data.getConfig().set("data."+p+".vanish", (vanish ? true : null));
+		LoaderClass.data.save();
 	}
 	private static boolean has(Player s, Player d) {
 		if(LoaderClass.data.getConfig().getString("data."+d.getName()+".vanish")!=null)
