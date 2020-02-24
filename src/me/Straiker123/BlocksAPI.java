@@ -10,6 +10,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.CommandBlock;
+import org.bukkit.block.ShulkerBox;
+import org.bukkit.block.Sign;
 
 public class BlocksAPI {
 	
@@ -17,7 +19,7 @@ public class BlocksAPI {
 		Sphere,
 		Square
 	}
-	
+
 	public BlockSave getBlockSave(Block b) {
 		return new BlockSave(b);
 	}
@@ -177,33 +179,69 @@ public class BlocksAPI {
 			     return blocks;
 			     }
 
-	public void setBlock(Location loc, Material material) {
-		  if(!material.isBlock())return;
-		  BlockState s = loc.getBlock().getState();
-		  s.setType(material);
-		  s.update();
-	  }
+			public void setBlock(Location loc, Material material) {
+				  if(!material.isBlock())return;
+				  BlockState s = loc.getBlock().getState();
+				  s.setType(material);
+				  s.update();
+			  }
+			public void setBlock(Block loc, Material material) {
+				  if(!material.isBlock())return;
+				  BlockState s = loc.getState();
+				  s.setType(material);
+				  s.update();
+			  }
 	  
 	  public void setBlockSave(BlockSave s) {
 		  Block b = s.getWorld().getBlockAt(s.getLocation());
-		  b.setType(s.getMaterial());
-		  b.setBlockData(s.getBlockData());
-		  b.getState().setData(s.getMaterialData());
-		  if(b.getState().getType().name().contains("CHEST")) {
-			  Chest f = (Chest)b.getState();
-			  f.getBlockInventory().setContents(s.getBlockInventory());
-			  f.update();
-		  }
-		  if(b.getType().name().contains("COMMAND")) {
-			  CommandBlock f = (CommandBlock)b.getState();
-			  f.setCommand(s.getCommand());
-			  f.update();
-		  }
+		  BlockState state = b.getState();
+		  state.setType(s.getMaterial());
+		  state.setBlockData(s.getBlockData());
+		  state.setData(s.getMaterialData());
+			if(b.getType().name().contains("SIGN")) {
+				Sign w = (Sign)b.getState();
+				int i = 0;
+				if(s.getSignLines() != null && s.getSignLines().length > 0)
+				for(String line : s.getSignLines()) {
+				w.setLine(i, line);
+				++i;
+				}
+				try {
+					if(s.getColor()!=null)
+					w.setColor(s.getColor());
+				}catch(Exception er) {
+					//old version
+				}
+			}
+			if(b.getType().name().contains("CHEST")) {
+				Chest w = (Chest)b.getState();
+				if(s.getBlockInventory() != null)
+				w.getBlockInventory().setContents(s.getBlockInventory());
+			}
+			if(b.getType().name().contains("SHULKERBOX")) {
+				ShulkerBox w = (ShulkerBox)b.getState();
+				if(s.getBlockInventory() != null)
+				w.getInventory().setContents(s.getBlockInventory());
+			}
+			if(b.getType().name().contains("COMMAND")) {
+				CommandBlock w = (CommandBlock)b.getState();
+				if(s.getCommand() != null)
+				w.setCommand(s.getCommand());
+				if(s.getCommandBlockName() != null)
+				w.setName(s.getCommandBlockName());
+			}
+			state.update(true, true);
 	  }
 	  public void setBlockSaves(List<BlockSave> list) { //like //undo command
 		  for(BlockSave s : list) {
 			  setBlockSave(s);
 		  }
+	  }
+	  public void loadBlockSaves(List<BlockSave> list) { //like //undo command
+		  loadBlockSaves(list);
+	  }
+	  public void loadBlockSave(BlockSave save) { //like //undo command
+		  setBlockSave(save);
 	  }
 	  
 	  public List<Block> getBlocks(Shape form,Location where, int radius, Material ignore){
