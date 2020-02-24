@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -29,9 +30,6 @@ public class LoaderClass extends JavaPlugin {
 	public static ConfigAPI gameapi=TheAPI.getConfig("TheAPI", "GameAPI");
 	public void onLoad() {
 		plugin=this;
-		createConfig();
-		new TheAPI();
-		new TimeConventorAPI();
 		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
 		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6Action: &6Loading plugin.."));
 		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
@@ -71,6 +69,15 @@ public class LoaderClass extends JavaPlugin {
 	public boolean e;
 	public String motd;
 	public int max;
+	
+	public List<Plugin> getTheAPIsPlugins(){
+		List<Plugin> a = new ArrayList<Plugin>();
+		for(Plugin all : TheAPI.getPluginsManagerAPI().getPlugins())
+		 if(TheAPI.getPluginsManagerAPI().getDepend(all.getName()).contains("TheAPI")
+				 ||TheAPI.getPluginsManagerAPI().getSoftDepend(all.getName()).contains("TheAPI"))a.add(all);
+		 return a;
+	}
+	
 	public void onEnable() {
 		createConfig();
 		Tasks.load();
@@ -95,10 +102,11 @@ public class LoaderClass extends JavaPlugin {
 
 			@Override
 			public void run() {
-				if(TheAPI.getCountingAPI().getPluginsUsingTheAPI().size()==0)return;
+				
+				if(getTheAPIsPlugins().size()==0)return;
 				String end = "";
-				if(TheAPI.getCountingAPI().getPluginsUsingTheAPI().size() !=1)end="s";
-				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &aTheAPI using "+TheAPI.getCountingAPI().getPluginsUsingTheAPI().size()+" plugin"+end));
+				if(getTheAPIsPlugins().size() !=1)end="s";
+				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &aTheAPI using "+getTheAPIsPlugins().size()+" plugin"+end));
 			}
 		}, 200);
 		

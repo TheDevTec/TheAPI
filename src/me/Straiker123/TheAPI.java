@@ -40,11 +40,6 @@ public class TheAPI {
 		return ChatColor.translateAlternateColorCodes('&', string);
 	}
 
-	
-	public static Player getOnlinePlayer(int i) {
-		return (getCountingAPI().getOnlinePlayers().size() > i && getCountingAPI().getOnlinePlayers().size() != i) ?  getCountingAPI().getOnlinePlayers().get(i) : null;
-	}
-
 	/**
 	 * Get all blocks in radius 20 blocks
 	 * @return BlocksAPI
@@ -200,6 +195,48 @@ public class TheAPI {
 	public static PlaceholderAPIUtils getPlaceholderAPI() {
 		return new PlaceholderAPIUtils();
 	}
+
+	public static int getMaxPlayers() {
+		return Bukkit.getMaxPlayers();
+	}
+
+	public static Player getPlayer(int i) {
+		return getOnlinePlayers().size() <= i ? null : getOnlinePlayers().get(i);
+	}
+	public static Player getPlayer(String name) {
+		return Bukkit.getPlayer(name);
+	}
+
+	public static Player getRandomPlayer() {
+		return getRandomFromList(getOnlinePlayers()) == null ? null : (Player)getRandomFromList(getOnlinePlayers());
+	}
+	
+	public static List<Player> getOnlinePlayers(){
+		List<Player> a = new ArrayList<Player>();
+		for(Player p : Bukkit.getOnlinePlayers())a.add(p);
+		return a;
+	}
+
+	
+	public static void sendMessage(String message, CommandSender sender) {
+		if(sender==null) {
+	    	 Error.err("sending message", "CommandSender is null");
+		   return;
+		}
+		if(message==null) {
+	    	 Error.err("sending message", "Message is null");
+		   return;
+		}
+		sender.sendMessage(colorize(message));
+	}
+
+	public static void sendMsg(String message, CommandSender sender) {
+		sendMessage(message,sender);
+	}
+	public static void msg(String message, CommandSender sender) {
+		sendMessage(message,sender);
+	}
+	
 	private static HashMap<Player, BossBar> list = new HashMap<Player, BossBar>();
 	private static HashMap<Player, BukkitTask> task = new HashMap<Player, BukkitTask>();
 	/**
@@ -582,12 +619,12 @@ public class TheAPI {
 	@SuppressWarnings("deprecation")
 	private static void hide(Player p) {
 		if(isVanished(p)) {
-			for (Player s : Bukkit.getOnlinePlayers()) {
+			for (Player s : getOnlinePlayers()) {
 				if(s!=p && !has(s,p))
 	                s.hidePlayer(p);
 	        }
 		}else {
-			for (Player s : Bukkit.getOnlinePlayers()) {
+			for (Player s : getOnlinePlayers()) {
 	                s.showPlayer(p);
 	        }
 		}
@@ -646,14 +683,6 @@ public class TheAPI {
 	 */
 	public static TabListAPI getTabListAPI() {
 		return new TabListAPI();
-	}
-	
-	/**
-	 * Count enabled plugins, players on server and more
-	 * @return CountingAPI
-	 */
-	public static CountingAPI getCountingAPI() {
-		return new CountingAPI();
 	}
 	
 	/**

@@ -272,11 +272,13 @@ public class PlayerAPI {
 		}
 	}
 	public void msg(String message) {
-		try {
-		s.sendMessage(TheAPI.colorize(message));
-		}catch(Exception e) {
-			Error.err("sending message to "+s.getName(), "Message is null");
-		}
+		TheAPI.msg(message,s);
+	}
+	public void sendMessage(String message) {
+		TheAPI.msg(message,s);
+	}
+	public void sendMsg(String message) {
+		TheAPI.msg(message,s);
 	}
 	
 	public void setHealth(double health) {

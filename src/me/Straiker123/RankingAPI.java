@@ -17,7 +17,7 @@ public class RankingAPI {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Object getObject(int position) { //1, 2, 3... 1501, 1578..
 		try {
-		return new ArrayList(s.keySet()).get(position-1);
+		return new ArrayList(s.keySet()).get((s.keySet().size()-1)-(position-1));
 		}catch(Exception e) {
 			//out
 			return null;
@@ -41,6 +41,6 @@ public class RankingAPI {
 				break;
 			}
 		}
-		return result;
+		return result-1;
 	}
 }

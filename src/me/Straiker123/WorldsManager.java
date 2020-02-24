@@ -133,7 +133,7 @@ public class WorldsManager {
 		List<World> w = Bukkit.getWorlds();
 		w.remove(Bukkit.getWorld(name));
 		if(w.isEmpty()==false) {
-		for(Player p : TheAPI.getCountingAPI().getOnlinePlayers())
+		for(Player p : TheAPI.getOnlinePlayers())
 			if(p.getWorld().getName().equals(name)) {
 				TheAPI.getPlayerAPI(p).setGodOnTime(30);
 				TheAPI.getPlayerAPI(p).teleport(w.get(0).getSpawnLocation());

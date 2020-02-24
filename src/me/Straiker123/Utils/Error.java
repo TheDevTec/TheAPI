@@ -11,7 +11,7 @@ import me.Straiker123.TheAPI;
 public class Error {
 	public static void err(String message, String reason) {
 		if(!LoaderClass.config.getConfig().getBoolean("Options.HideErrors"))
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&cTheAPI&7: &cA severe error when &4"+message+"&c, reason: &4"+reason));
+		TheAPI.msg("&cTheAPI&7: &cA severe error when &4"+message+"&c, reason: &4"+reason, TheAPI.getConsole());
 		else
 			sendRequest("&cTheAPI&7: &cA severe error when &4"+message+"&c, reason: &4"+reason);
 	}
@@ -27,8 +27,8 @@ public class Error {
 
 			@Override
 			public void run() {
-				if(list.isEmpty()==false) {
-					TheAPI.getConsole().sendMessage(TheAPI.colorize(list.get(0)));
+				if(!list.isEmpty()) {
+					TheAPI.msg(list.get(0),TheAPI.getConsole());
 				}else {
 					Bukkit.getScheduler().cancelTask(r);
 					r=-0;

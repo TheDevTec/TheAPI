@@ -33,7 +33,29 @@ public class PluginManagerAPI {
 		}
 		return false;
 	}
+
+	public List<Plugin> getEnabledPlugins(){
+		List<Plugin> a = new ArrayList<Plugin>();
+		 for(Plugin p : Bukkit.getPluginManager().getPlugins()) {
+			 if(p.isEnabled())a.add(p);
+		 }
+		 return a;
+	}
+	public List<Plugin> getDisabledPlugins(){
+		 List<Plugin> a = new ArrayList<Plugin>();
+		 for(Plugin p : Bukkit.getPluginManager().getPlugins()) {
+			 if(!p.isEnabled())a.add(p);
+		 }
+		 return a;
+	}
 	
+	public List<Plugin> getPlugins(){
+		List<Plugin> a = new ArrayList<Plugin>();
+		 for(Plugin p : Bukkit.getPluginManager().getPlugins()) {
+			a.add(p);
+		 }
+		 return a;
+	}
 	public Plugin getPlugin(String plugin) {
 		Plugin p = null;
 		for(Plugin s:manager.getPlugins()) {

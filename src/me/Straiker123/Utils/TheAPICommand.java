@@ -42,7 +42,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 	CommandSender s;
 	private boolean perm(String p) {
 		if(s.hasPermission("TheAPI.Command."+p))return true;
-		s.sendMessage(TheAPI.colorize("&cYou do not have permission '&4TheAPI.Command."+p+"&c' to do that!"));
+		TheAPI.msg("&cYou do not have permission '&4TheAPI.Command."+p+"&c' to do that!",s);
 		return false;
 	}
 
@@ -60,34 +60,34 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		this.args=args;
 		this.s=s;
 		if(args.length==0) {
-			s.sendMessage(TheAPI.colorize("&7-----------------"));
+			TheAPI.msg("&7-----------------",s);
 			if(s.hasPermission("TheAPI.Command.Info"))
-			s.sendMessage(TheAPI.colorize("&6/TheAPI Info"));
+				TheAPI.msg("&6/TheAPI Info",s);
 			if(s.hasPermission("TheAPI.Command.Reload"))
-			s.sendMessage(TheAPI.colorize("&6/TheAPI Reload"));
+				TheAPI.msg("&6/TheAPI Reload",s);
 			if(s.hasPermission("TheAPI.Command.WorldsManager"))
-			s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager"));
+				TheAPI.msg("&6/TheAPI WorldsManager",s);
 			if(s.hasPermission("TheAPI.Command.ClearCache"))
-			s.sendMessage(TheAPI.colorize("&6/TheAPI ClearCache"));
+				TheAPI.msg("&6/TheAPI ClearCache",s);
 			if(s.isOp())
-			s.sendMessage(TheAPI.colorize("&6/TheAPI Test"));
-			s.sendMessage(TheAPI.colorize("&6Credits: TheAPI created by DevTec"));
-			s.sendMessage(TheAPI.colorize("&7-----------------"));
+				TheAPI.msg("&6/TheAPI Test",s);
+						TheAPI.msg("&6Credits: TheAPI created by DevTec",s);
+			TheAPI.msg("&7-----------------",s);
 			return true;
 		}
 		if(eq(0,"test")) {
 			if(!s.isOp() || !(s instanceof Player))return true;
 			Player p = (Player)s;
 			if(args.length==1) {
-			s.sendMessage(TheAPI.colorize("&7-----------------"));
-			s.sendMessage(TheAPI.colorize("&6/TheAPI Test BossBar"));
-			s.sendMessage(TheAPI.colorize("&6/TheAPI Test ActionBar"));
-			s.sendMessage(TheAPI.colorize("&6/TheAPI Test Title"));
-			s.sendMessage(TheAPI.colorize("&6/TheAPI Test TabList"));
-			s.sendMessage(TheAPI.colorize("&6/TheAPI Test Scoreboard"));
-			s.sendMessage(TheAPI.colorize("&6/TheAPI Test BlocksAPI"));
-			s.sendMessage(TheAPI.colorize("&6/TheAPI Test PlayerName"));
-			s.sendMessage(TheAPI.colorize("&7-----------------"));
+				TheAPI.msg("&7-----------------",s);
+			TheAPI.msg("&6/TheAPI Test BossBar",s);
+			TheAPI.msg("&6/TheAPI Test ActionBar",s);
+			TheAPI.msg("&6/TheAPI Test Title",s);
+			TheAPI.msg("&6/TheAPI Test TabList",s);
+			TheAPI.msg("&6/TheAPI Test Scoreboard",s);
+			TheAPI.msg("&6/TheAPI Test BlocksAPI",s);
+			TheAPI.msg("&6/TheAPI Test PlayerName",s);
+			TheAPI.msg("&7-----------------",s);
 			return true;
 			}
 			if(eq(1,"bossbar")) {
@@ -96,7 +96,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			}
 			if(eq(1,"PlayerName")) {
 				String old = p.getName();
-				s.sendMessage(TheAPI.colorize("&eYour nickname changed to &nTheAPI"));
+				TheAPI.msg("&eYour nickname changed to &nTheAPI",s);
 				TheAPI.getNameTagAPI(p, "", "").setPlayerName("TheAPI");
 				Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
 					@Override
@@ -160,8 +160,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		}
 		if(eq(0,"cc")||eq(0,"clear")||eq(0,"clearcache")) {
 			if(perm("ClearCache")) {
-				s.sendMessage(TheAPI.colorize("&7-----------------"));
-				s.sendMessage(TheAPI.colorize("&6Clearing cache.."));
+				TheAPI.msg("&7-----------------",s);
+				TheAPI.msg("&6Clearing cache..",s);
 				for(Player id : LoaderClass.gui.keySet()) {
 					LoaderClass.gui.get(id).close();
 				}
@@ -169,24 +169,24 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				LoaderClass.data.getConfig().set("entities", null);
 				LoaderClass.data.save();
 				LoaderClass.gui.clear();
-				s.sendMessage(TheAPI.colorize("&6Cache cleared."));
-				s.sendMessage(TheAPI.colorize("&7-----------------"));
+				TheAPI.msg("&6Cache cleared.",s);
+				TheAPI.msg("&7-----------------",s);
 				return true;
 			}
 			return true;
 		}
 		if(eq(0,"reload")||eq(0,"rl")) {
 		if(perm("Reload")) {
-			s.sendMessage(TheAPI.colorize("&7-----------------"));
-			s.sendMessage(TheAPI.colorize("&6Reloading configs.."));
+			TheAPI.msg("&7-----------------",s);
+			TheAPI.msg("&6Reloading configs..",s);
 			for(ConfigAPI a : LoaderClass.list) {
 				if(a==null)continue;
 				a.reload();
 			}
 			Tasks.unload();
 			Tasks.load();
-			s.sendMessage(TheAPI.colorize("&6Configs reloaded."));
-			s.sendMessage(TheAPI.colorize("&7-----------------"));
+			TheAPI.msg("&6Configs reloaded.",s);
+			TheAPI.msg("&7-----------------",s);
 			
 			return true;
 			}
@@ -194,116 +194,116 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		}
 		if(eq(0,"inf")||eq(0,"info")) {
 			if(perm("Info")) {
-				s.sendMessage(TheAPI.colorize("&7-----------------"));
-				s.sendMessage(TheAPI.colorize("&6Version: &cv"+LoaderClass.plugin.getDescription().getVersion()));
-				if(TheAPI.getCountingAPI().getPluginsUsingTheAPI().size()!=0) {
-				s.sendMessage(TheAPI.colorize("&6Plugins using TheAPI:"));
-				for(Plugin a: TheAPI.getCountingAPI().getPluginsUsingTheAPI())
-				s.sendMessage(TheAPI.colorize("&7 - "+getPlugin(a)));
+				TheAPI.msg("&7-----------------",s);
+				TheAPI.msg("&6Version: &cv"+LoaderClass.plugin.getDescription().getVersion(),s);
+				if(LoaderClass.plugin.getTheAPIsPlugins().size()!=0) {
+				TheAPI.msg("&6Plugins using TheAPI:",s);
+				for(Plugin a: LoaderClass.plugin.getTheAPIsPlugins())
+				TheAPI.msg("&7 - "+getPlugin(a),s);
 				}
-				s.sendMessage(TheAPI.colorize("&7-----------------"));
+				TheAPI.msg("&7-----------------",s);
 				return true;
 				}return true;
 		}
 		if(eq(0,"worldsmanager")||eq(0,"world")||eq(0,"worlds")||eq(0,"wm")||eq(0,"worldmanager")) {
 			if(perm("WorldsManager")) {
 				if(args.length==1) {
-				s.sendMessage(TheAPI.colorize("&7-----------------"));
-				s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Create <world> <generator>"));
-				s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Delete <world>"));
-				s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Unload <world>"));
-				s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Load <world> <generator>"));
-				s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Save <world>"));
-				s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager SaveAll"));
-				s.sendMessage(TheAPI.colorize("&6Worlds:"));
+				TheAPI.msg("&7-----------------",s);
+				TheAPI.msg("&6/TheAPI WorldsManager Create <world> <generator>",s);
+				TheAPI.msg("&6/TheAPI WorldsManager Delete <world>",s);
+				TheAPI.msg("&6/TheAPI WorldsManager Unload <world>",s);
+				TheAPI.msg("&6/TheAPI WorldsManager Load <world> <generator>",s);
+				TheAPI.msg("&6/TheAPI WorldsManager Save <world>",s);
+				TheAPI.msg("&6/TheAPI WorldsManager SaveAll",s);
+				TheAPI.msg("&6Worlds:",s);
 				for(World w : Bukkit.getWorlds())
-				s.sendMessage(TheAPI.colorize("&7 - &a"+w.getName()));
-				s.sendMessage(TheAPI.colorize("&7-----------------"));
+				TheAPI.msg("&7 - &a"+w.getName(),s);
+				TheAPI.msg("&7-----------------",s);
 				return true;
 				}
 				if(eq(1,"saveall")) {
-					s.sendMessage(TheAPI.colorize("&7-----------------"));
-					s.sendMessage(TheAPI.colorize("&6TheAPI WorldsManager saving all worlds.."));
+					TheAPI.msg("&7-----------------",s);
+					TheAPI.msg("&6TheAPI WorldsManager saving all worlds..",s);
 					for(World w:Bukkit.getWorlds())w.save();
-					s.sendMessage(TheAPI.colorize("&6All worlds saved."));
-					s.sendMessage(TheAPI.colorize("&7-----------------"));
+					TheAPI.msg("&6All worlds saved.",s);
+					TheAPI.msg("&7-----------------",s);
 					return true;
 				}
 				if(eq(1,"save")) {
 					if(args.length==2) {
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
-						s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Save <world>"));
-						s.sendMessage(TheAPI.colorize("&6Worlds:"));
+						TheAPI.msg("&7-----------------",s);
+						TheAPI.msg("&6/TheAPI WorldsManager Save <world>",s);
+						TheAPI.msg("&6Worlds:",s);
 						for(World w : Bukkit.getWorlds())
-						s.sendMessage(TheAPI.colorize("&7 - &a"+w.getName()));
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
+						TheAPI.msg("&7 - &a"+w.getName(),s);
+						TheAPI.msg("&7-----------------",s);
 						return true;
 					}
 					
 					if(Bukkit.getWorld(args[2])==null) {
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
-						s.sendMessage(TheAPI.colorize("&6World with name '"+args[2]+"' doesn't exists."));
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
+						TheAPI.msg("&7-----------------",s);
+						TheAPI.msg("&6World with name '"+args[2]+"' doesn't exists.",s);
+						TheAPI.msg("&7-----------------",s);
 						return true;
 					}
 					
-					s.sendMessage(TheAPI.colorize("&7-----------------"));
-					s.sendMessage(TheAPI.colorize("&6TheAPI WorldsManager saving world with name '"+args[2]+"'.."));
+					TheAPI.msg("&7-----------------",s);
+					TheAPI.msg("&6TheAPI WorldsManager saving world with name '"+args[2]+"'..",s);
 					Bukkit.getWorld(args[2]).save();
-					s.sendMessage(TheAPI.colorize("&6World with name '"+args[2]+"' saved."));
-					s.sendMessage(TheAPI.colorize("&7-----------------"));
+					TheAPI.msg("&6World with name '"+args[2]+"' saved.",s);
+					TheAPI.msg("&7-----------------",s);
 					return true;
 				}
 				if(eq(1,"unload")) {
 					if(args.length==2) {
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
-						s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Unload <world>"));
-						s.sendMessage(TheAPI.colorize("&6Worlds:"));
+						TheAPI.msg("&7-----------------",s);
+						TheAPI.msg("&6/TheAPI WorldsManager Unload <world>",s);
+						TheAPI.msg("&6Worlds:",s);
 						for(World w : Bukkit.getWorlds())
-						s.sendMessage(TheAPI.colorize("&7 - &a"+w.getName()));
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
+						TheAPI.msg("&7 - &a"+w.getName(),s);
+						TheAPI.msg("&7-----------------",s);
 						return true;
 					}
 					if(Bukkit.getWorld(args[2])==null) {
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
-						s.sendMessage(TheAPI.colorize("&6World with name '"+args[2]+"' doesn't exists."));
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
+						TheAPI.msg("&7-----------------",s);
+						TheAPI.msg("&6World with name '"+args[2]+"' doesn't exists.",s);
+						TheAPI.msg("&7-----------------",s);
 						return true;
 					}
-					s.sendMessage(TheAPI.colorize("&7-----------------"));
-					s.sendMessage(TheAPI.colorize("&6TheAPI WorldsManager unloading world with name '"+args[2]+"'.."));
+					TheAPI.msg("&7-----------------",s);
+					TheAPI.msg("&6TheAPI WorldsManager unloading world with name '"+args[2]+"'..",s);
 					TheAPI.getWorldsManager().unloadWorld(args[2], true);
 
 					List<String> a = LoaderClass.config.getConfig().getStringList("Worlds");
 					a.remove(args[2]);
 					LoaderClass.config.getConfig().set("Worlds", a);
-					s.sendMessage(TheAPI.colorize("&6World with name '"+args[2]+"' unloaded."));
-					s.sendMessage(TheAPI.colorize("&7-----------------"));
+					TheAPI.msg("&6World with name '"+args[2]+"' unloaded.",s);
+					TheAPI.msg("&7-----------------",s);
 					return true;
 				}
 				if(eq(1,"load")) {
 					if(args.length==2) {
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
-						s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Load <world> <generator>"));
-						s.sendMessage(TheAPI.colorize("&6Generators:"));
+						TheAPI.msg("&7-----------------",s);
+						TheAPI.msg("&6/TheAPI WorldsManager Load <world> <generator>",s);
+						TheAPI.msg("&6Generators:",s);
 						for(String w:Arrays.asList("Default","Nether","The_End","The_Void"))
-						s.sendMessage(TheAPI.colorize("&7 - &a"+w));
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
+						TheAPI.msg("&7 - &a"+w,s);
+						TheAPI.msg("&7-----------------",s);
 						return true;
 					}
 					if(Bukkit.getWorld(args[2])!=null) {
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
-						s.sendMessage(TheAPI.colorize("&6World with name '"+args[2]+"' already exists."));
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
+						TheAPI.msg("&7-----------------",s);
+						TheAPI.msg("&6World with name '"+args[2]+"' already exists.",s);
+						TheAPI.msg("&7-----------------",s);
 						return true;
 					}
 					if(args.length==3) {
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
-						s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Load <world> <generator>"));
-						s.sendMessage(TheAPI.colorize("&6Generators:"));
+						TheAPI.msg("&7-----------------",s);
+						TheAPI.msg("&6/TheAPI WorldsManager Load <world> <generator>",s);
+						TheAPI.msg("&6Generators:",s);
 						for(String w:Arrays.asList("Default","Nether","The_End","The_Void"))
-						s.sendMessage(TheAPI.colorize("&7 - &a"+w));
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
+						TheAPI.msg("&7 - &a"+w,s);
+						TheAPI.msg("&7-----------------",s);
 						return true;
 					}
 					String generator = args[3];
@@ -322,8 +322,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					}
 					if(i) {
 						if(new File(Bukkit.getWorldContainer().getPath()+"/"+args[2]+"/session.lock").exists()) {
-					s.sendMessage(TheAPI.colorize("&7-----------------"));
-					s.sendMessage(TheAPI.colorize("&6TheAPI WorldsManager loading world with name '"+args[2]+"'.."));
+					TheAPI.msg("&7-----------------",s);
+					TheAPI.msg("&6TheAPI WorldsManager loading world with name '"+args[2]+"'..",s);
 					Environment env = Environment.NORMAL;
 					WorldType wt= WorldType.NORMAL;
 
@@ -342,74 +342,74 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					a.add(args[2]);
 					LoaderClass.config.getConfig().set("Worlds", a);
 					regWorld(args[2],type);
-					s.sendMessage(TheAPI.colorize("&6World with name '"+args[2]+"' loaded."));
-					s.sendMessage(TheAPI.colorize("&7-----------------"));
+					TheAPI.msg("&6World with name '"+args[2]+"' loaded.",s);
+					TheAPI.msg("&7-----------------",s);
 					return true;
 						}
-							s.sendMessage(TheAPI.colorize("&7-----------------"));
-							s.sendMessage(TheAPI.colorize("&6World with name '"+args[2]+"' doesn't exists."));
-							s.sendMessage(TheAPI.colorize("&7-----------------"));
+							TheAPI.msg("&7-----------------",s);
+							TheAPI.msg("&6World with name '"+args[2]+"' doesn't exists.",s);
+							TheAPI.msg("&7-----------------",s);
 							return true;
 					}
-					s.sendMessage(TheAPI.colorize("&7-----------------"));
-					s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Load "+args[2]+" <generator>"));
-					s.sendMessage(TheAPI.colorize("&6Generators:"));
+					TheAPI.msg("&7-----------------",s);
+					TheAPI.msg("&6/TheAPI WorldsManager Load "+args[2]+" <generator>",s);
+					TheAPI.msg("&6Generators:",s);
 					for(String w:Arrays.asList("Default","Nether","The_End","The_Void"))
-					s.sendMessage(TheAPI.colorize("&7 - &a"+w));
-					s.sendMessage(TheAPI.colorize("&7-----------------"));
+					TheAPI.msg("&7 - &a"+w,s);
+					TheAPI.msg("&7-----------------",s);
 					return true;
 				}
 				if(eq(1,"delete")) {
 					if(args.length==2) {
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
-						s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Delete <world>"));
-						s.sendMessage(TheAPI.colorize("&6Worlds:"));
+						TheAPI.msg("&7-----------------",s);
+						TheAPI.msg("&6/TheAPI WorldsManager Delete <world>",s);
+						TheAPI.msg("&6Worlds:",s);
 						for(World w : Bukkit.getWorlds())
-						s.sendMessage(TheAPI.colorize("&7 - &a"+w.getName()));
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
+						TheAPI.msg("&7 - &a"+w.getName(),s);
+						TheAPI.msg("&7-----------------",s);
 						return true;
 					}
 					if(Bukkit.getWorld(args[2])==null) {
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
-						s.sendMessage(TheAPI.colorize("&6World with name '"+args[2]+"' doesn't exists."));
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
+						TheAPI.msg("&7-----------------",s);
+						TheAPI.msg("&6World with name '"+args[2]+"' doesn't exists.",s);
+						TheAPI.msg("&7-----------------",s);
 						return true;
 					}
-					s.sendMessage(TheAPI.colorize("&7-----------------"));
-					s.sendMessage(TheAPI.colorize("&6TheAPI WorldsManager deleting world with name '"+args[2]+"'.."));
+					TheAPI.msg("&7-----------------",s);
+					TheAPI.msg("&6TheAPI WorldsManager deleting world with name '"+args[2]+"'..",s);
 					TheAPI.getWorldsManager().delete(Bukkit.getWorld(args[2]), true);
 					List<String> a = LoaderClass.config.getConfig().getStringList("Worlds");
 					a.remove(args[2]);
 					LoaderClass.config.getConfig().set("Worlds", a);
 					unregWorld(args[2]);
-					s.sendMessage(TheAPI.colorize("&6World with name '"+args[2]+"' deleted."));
-					s.sendMessage(TheAPI.colorize("&7-----------------"));
+					TheAPI.msg("&6World with name '"+args[2]+"' deleted.",s);
+					TheAPI.msg("&7-----------------",s);
 					return true;
 				}
 				if(eq(1,"create")) {
 					if(args.length==2) {
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
-						s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Create <world> <generator>"));
-						s.sendMessage(TheAPI.colorize("&6Generators:"));
+						TheAPI.msg("&7-----------------",s);
+						TheAPI.msg("&6/TheAPI WorldsManager Create <world> <generator>",s);
+						TheAPI.msg("&6Generators:",s);
 						for(String w:Arrays.asList("Default","Nether","The_End","The_Void"))
-						s.sendMessage(TheAPI.colorize("&7 - &a"+w));
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
+						TheAPI.msg("&7 - &a"+w,s);
+						TheAPI.msg("&7-----------------",s);
 						return true;
 					}
 					if(Bukkit.getWorld(args[2])!=null) {
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
-						s.sendMessage(TheAPI.colorize("&6World with name '"+args[2]+"' already exists."));
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
+						TheAPI.msg("&7-----------------",s);
+						TheAPI.msg("&6World with name '"+args[2]+"' already exists.",s);
+						TheAPI.msg("&7-----------------",s);
 						return true;
 					}
 					
 					if(args.length==3) {
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
-						s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Create "+args[2]+" <generator>"));
-						s.sendMessage(TheAPI.colorize("&6Generators:"));
+						TheAPI.msg("&7-----------------",s);
+						TheAPI.msg("&6/TheAPI WorldsManager Create "+args[2]+" <generator>",s);
+						TheAPI.msg("&6Generators:",s);
 						for(String w:Arrays.asList("Default","Nether","The_End","The_Void","Flat"))
-						s.sendMessage(TheAPI.colorize("&7 - &a"+w));
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
+						TheAPI.msg("&7 - &a"+w,s);
+						TheAPI.msg("&7-----------------",s);
 						return true;
 					}
 					String generator = args[3];
@@ -427,8 +427,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					}
 					}
 					if(i) {
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
-						s.sendMessage(TheAPI.colorize("&6TheAPI WorldsManager creating new world with name '"+args[2]+"' using generator '"+type+"'.."));
+						TheAPI.msg("&7-----------------",s);
+						TheAPI.msg("&6TheAPI WorldsManager creating new world with name '"+args[2]+"' using generator '"+type+"'..",s);
 						Environment env = Environment.NORMAL;
 						WorldType wt= WorldType.NORMAL;
 
@@ -448,29 +448,29 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						a.add(args[2]);
 						LoaderClass.config.getConfig().set("Worlds", a);
 						regWorld(args[2],type);
-						s.sendMessage(TheAPI.colorize("&6World with name '"+args[2]+"' created."));
-						s.sendMessage(TheAPI.colorize("&7-----------------"));
+						TheAPI.msg("&6World with name '"+args[2]+"' created.",s);
+						TheAPI.msg("&7-----------------",s);
 						return true;
 					}
-					s.sendMessage(TheAPI.colorize("&7-----------------"));
-					s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Create "+args[2]+" <generator>"));
-					s.sendMessage(TheAPI.colorize("&6Generators:"));
+					TheAPI.msg("&7-----------------",s);
+					TheAPI.msg("&6/TheAPI WorldsManager Create "+args[2]+" <generator>",s);
+					TheAPI.msg("&6Generators:",s);
 					for(String w:Arrays.asList("Default","Nether","The_End","The_Void","Flat"))
-					s.sendMessage(TheAPI.colorize("&7 - &a"+w));
-					s.sendMessage(TheAPI.colorize("&7-----------------"));
+					TheAPI.msg("&7 - &a"+w,s);
+					TheAPI.msg("&7-----------------",s);
 					return true;
 				}
-				s.sendMessage(TheAPI.colorize("&7-----------------"));
-				s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Create <world> <generator>"));
-				s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Delete <world>"));
-				s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Unload <world>"));
-				s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Load <world> <generator>"));
-				s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager Save <world>"));
-				s.sendMessage(TheAPI.colorize("&6/TheAPI WorldsManager SaveAll"));
-				s.sendMessage(TheAPI.colorize("&6Worlds:"));
+				TheAPI.msg("&7-----------------",s);
+				TheAPI.msg("&6/TheAPI WorldsManager Create <world> <generator>",s);
+				TheAPI.msg("&6/TheAPI WorldsManager Delete <world>",s);
+				TheAPI.msg("&6/TheAPI WorldsManager Unload <world>",s);
+				TheAPI.msg("&6/TheAPI WorldsManager Load <world> <generator>",s);
+				TheAPI.msg("&6/TheAPI WorldsManager Save <world>",s);
+				TheAPI.msg("&6/TheAPI WorldsManager SaveAll",s);
+				TheAPI.msg("&6Worlds:",s);
 				for(World w : Bukkit.getWorlds())
-				s.sendMessage(TheAPI.colorize("&7 - &a"+w.getName()));
-				s.sendMessage(TheAPI.colorize("&7-----------------"));
+				TheAPI.msg("&7 - &a"+w.getName(),s);
+				TheAPI.msg("&7-----------------",s);
 				return true;
 				
 				}return true;
