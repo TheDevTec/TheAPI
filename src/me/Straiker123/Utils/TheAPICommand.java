@@ -165,9 +165,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				for(Player id : LoaderClass.gui.keySet()) {
 					LoaderClass.gui.get(id).close();
 				}
-				LoaderClass.data.getConfig().set("guis", null);
-				LoaderClass.data.getConfig().set("entities", null);
-				LoaderClass.data.save();
 				LoaderClass.gui.clear();
 				TheAPI.msg("&6Cache cleared.",s);
 				TheAPI.msg("&7-----------------",s);

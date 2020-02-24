@@ -103,17 +103,44 @@ public class Tasks {
 					for(Entity d :w.getEntities()) {
 						if(d.getType()==EntityType.DROPPED_ITEM)continue;
 						if(d instanceof LivingEntity) {
+							Location a = d.getLocation();
 						LivingEntity e = (LivingEntity)d;
-						if(LoaderClass.data.getConfig().getString("entities."+e.getUniqueId())!=null) {
-							Location old = (Location)LoaderClass.data.getConfig().get("entities."+e.getUniqueId());
-							if(move(e.getUniqueId(),e.getLocation())) {
-								EntityMoveEvent event = new EntityMoveEvent(e,old,e.getLocation());
+						if(LoaderClass.unused.getConfig().getString("entities."+e.getUniqueId())!=null) {
+							String[] l = LoaderClass.unused.getConfig().getString("entities."+e.getUniqueId()).split(",");
+							if(Bukkit.getWorld(l[0])!=null) {
+							Location old = new Location(Bukkit.getWorld(l[0]),TheAPI.getNumbersAPI(l[1].replace("_", ".")).getDouble()
+									,TheAPI.getNumbersAPI(l[2].replace("_", ".")).getDouble(),TheAPI.getNumbersAPI(l[3].replace("_", ".")).getDouble()
+									,TheAPI.getNumbersAPI(l[4].replace("_", ".")).getLong(),TheAPI.getNumbersAPI(l[5].replace("_", ".")).getLong());
+							if(move(e.getUniqueId(),a)) {
+								EntityMoveEvent event = new EntityMoveEvent(e,old,a);
 								Bukkit.getPluginManager().callEvent(event);
 								if(event.isCancelled())
 									e.teleport(old);
 							}
-					}else
-						LoaderClass.data.getConfig().set("entities."+e.getUniqueId(),e.getLocation());
+							}else{
+								LoaderClass.unused.getConfig().set("entities."+e,a.getWorld().getName()
+										+","+
+										String.valueOf(a.getX()).replace(".", "_")
+										+","+
+										String.valueOf(a.getY()).replace(".", "_")
+										+","+
+										String.valueOf(a.getZ()).replace(".", "_")
+										+","+
+										String.valueOf(a.getYaw()).replace(".", "_")
+										+","+
+										String.valueOf(a.getPitch()).replace(".", "_"));
+							}}else 
+								LoaderClass.unused.getConfig().set("entities."+e,a.getWorld().getName()
+										+","+
+										String.valueOf(a.getX()).replace(".", "_")
+										+","+
+										String.valueOf(a.getY()).replace(".", "_")
+										+","+
+										String.valueOf(a.getZ()).replace(".", "_")
+										+","+
+										String.valueOf(a.getYaw()).replace(".", "_")
+										+","+
+										String.valueOf(a.getPitch()).replace(".", "_"));
 					}}
 				}
 			}
@@ -129,10 +156,37 @@ public class Tasks {
 	}
 
 	private static boolean move(UUID e,Location a) {
-		if((Location)LoaderClass.data.getConfig().get("entities."+e)==a) {
+		String[] l = LoaderClass.unused.getConfig().getString("entities."+e).split(",");
+		if(Bukkit.getWorld(l[0])!=null) {
+			LoaderClass.unused.getConfig().set("entities."+e,a.getWorld().getName()
+					+","+
+					String.valueOf(a.getX()).replace(".", "_")
+					+","+
+					String.valueOf(a.getY()).replace(".", "_")
+					+","+
+					String.valueOf(a.getZ()).replace(".", "_")
+					+","+
+					String.valueOf(a.getYaw()).replace(".", "_")
+					+","+
+					String.valueOf(a.getPitch()).replace(".", "_"));
 			return false;
 		}
-		LoaderClass.data.getConfig().set("entities."+e,a);
+		if(new Location(Bukkit.getWorld(l[0]),TheAPI.getNumbersAPI(l[1].replace("_", ".")).getDouble()
+				,TheAPI.getNumbersAPI(l[2].replace("_", ".")).getDouble(),TheAPI.getNumbersAPI(l[3].replace("_", ".")).getDouble()
+				,TheAPI.getNumbersAPI(l[4].replace("_", ".")).getLong(),TheAPI.getNumbersAPI(l[5].replace("_", ".")).getLong())==a) {
+			return false;
+		}
+		LoaderClass.unused.getConfig().set("entities."+e,a.getWorld().getName()
+				+","+
+				String.valueOf(a.getX()).replace(".", "_")
+				+","+
+				String.valueOf(a.getY()).replace(".", "_")
+				+","+
+				String.valueOf(a.getZ()).replace(".", "_")
+				+","+
+				String.valueOf(a.getYaw()).replace(".", "_")
+				+","+
+				String.valueOf(a.getPitch()).replace(".", "_"));
 		return true;
 	}
 	

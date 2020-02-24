@@ -148,19 +148,19 @@ public class GUICreatorAPI {
 		for(Options a:options.keySet()) {
 			switch(a) {
 			case CANT_PUT_ITEM:
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+".CANT_PUT_ITEM", options.get(a));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+".CANT_PUT_ITEM", options.get(a));
 				break;
 			case CANT_BE_TAKEN:
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".CANT_BE_TAKEN", options.get(a));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".CANT_BE_TAKEN", options.get(a));
 				break;
 			case RUNNABLE:
 					id.setRunnable(GRunnable.RUNNABLE, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES:
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES", options.get(a));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES", options.get(a));
 				break;
 			case SENDCOMMANDS:
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS", options.get(a));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS", options.get(a));
 				break;
 				
 
@@ -168,73 +168,73 @@ public class GUICreatorAPI {
 				id.setRunnable(GRunnable.RUNNABLE_ON_INV_CLOSE, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_ON_INV_CLOSE:
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+".SENDMESSAGES_ON_INV_CLOSE", options.get(a));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+".SENDMESSAGES_ON_INV_CLOSE", options.get(a));
 				break;
 			case SENDCOMMANDS_ON_INV_CLOSE:
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+".SENDCOMMANDS_ON_INV_CLOSE", options.get(a));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+".SENDCOMMANDS_ON_INV_CLOSE", options.get(a));
 				break;
 
 			case RUNNABLE_LEFT_CLICK:
 				id.setRunnable(GRunnable.RUNNABLE_LEFT_CLICK, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_LEFT_CLICK:
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES_LEFT_CLICK", options.get(a));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES_LEFT_CLICK", options.get(a));
 				break;
 			case SENDCOMMANDS_LEFT_CLICK:
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS_LEFT_CLICK", options.get(a));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS_LEFT_CLICK", options.get(a));
 				break;
 
 			case RUNNABLE_RIGHT_CLICK:
 				id.setRunnable(GRunnable.RUNNABLE_RIGHT_CLICK, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_RIGHT_CLICK:
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES_RIGHT_CLICK", options.get(a));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES_RIGHT_CLICK", options.get(a));
 				break;
 			case SENDCOMMANDS_RIGHT_CLICK:
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS_RIGHT_CLICK", options.get(a));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS_RIGHT_CLICK", options.get(a));
 				break;
 
 			case RUNNABLE_MIDDLE_CLICK:
 				id.setRunnable(GRunnable.RUNNABLE_MIDDLE_CLICK, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_MIDDLE_CLICK:
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES_MIDDLE_CLICK", options.get(a));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES_MIDDLE_CLICK", options.get(a));
 				break;
 			case SENDCOMMANDS_MIDDLE_CLICK:
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS_MIDDLE_CLICK", options.get(a));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS_MIDDLE_CLICK", options.get(a));
 				break;
 
 			case RUNNABLE_SHIFT_WITH_LEFT_CLICK:
 				id.setRunnable(GRunnable.RUNNABLE_SHIFT_WITH_LEFT_CLICK, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_SHIFT_WITH_LEFT_CLICK:
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES_SHIFT_WITH_LEFT_CLICK", options.get(a));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES_SHIFT_WITH_LEFT_CLICK", options.get(a));
 				break;
 			case SENDCOMMANDS_SHIFT_WITH_LEFT_CLICK:
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS_SHIFT_WITH_LEFT_CLICK", options.get(a));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS_SHIFT_WITH_LEFT_CLICK", options.get(a));
 				break;
 
 			case RUNNABLE_SHIFT_WITH_RIGHT_CLICK:
 				id.setRunnable(GRunnable.RUNNABLE_SHIFT_WITH_RIGHT_CLICK, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_SHIFT_WITH_RIGHT_CLICK:
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES_SHIFT_WITH_RIGHT_CLICK", options.get(a));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES_SHIFT_WITH_RIGHT_CLICK", options.get(a));
 				break;
 			case SENDCOMMANDS_SHIFT_WITH_RIGHT_CLICK:
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS_SHIFT_WITH_RIGHT_CLICK", options.get(a));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS_SHIFT_WITH_RIGHT_CLICK", options.get(a));
 				break;
 				
 			}
 		}
 		if(item.getType().name().equals("WRITTEN_BOOK")||item.getType().name().equals("BOOK_AND_QUILL"))
-			LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", createWrittenBook(item));
+			LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", createWrittenBook(item));
 		else
 			if(item.getType().name().equals("LEGACY_SKULL_ITEM")||
 					item.getType().name().equals("SKULL_ITEM")
 					||item.getType().name().equals("PLAYER_HEAD"))
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", createHead(item));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", createHead(item));
 			else
-		LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", item);
+		LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", item);
 	}
 
 	/**
@@ -311,14 +311,14 @@ public class GUICreatorAPI {
 		else
 			map.replace(position,item);
 		if(item.getType().name().equals("WRITTEN_BOOK")||item.getType().name().equals("BOOK_AND_QUILL"))
-			LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", createWrittenBook(item));
+			LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", createWrittenBook(item));
 		else
 			if(item.getType().name().equals("LEGACY_SKULL_ITEM")||
 					item.getType().name().equals("SKULL_ITEM")
 					||item.getType().name().equals("PLAYER_HEAD"))
-				LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", createHead(item));
+				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", createHead(item));
 			else
-		LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", item);
+		LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", item);
 	}
 
 	/**
@@ -330,8 +330,8 @@ public class GUICreatorAPI {
 		for(Integer a : map.keySet()) {
 			i.setItem(a, map.get(a));
 		}
-		LoaderClass.data.getConfig().set("guis."+p.getName()+"."+getID()+".title", t);
-		LoaderClass.data.save();
+		LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+".title", t);
+		LoaderClass.unused.save();
 		GUIOpenEvent e = new GUIOpenEvent(p,i,TheAPI.colorize(t));
 		Bukkit.getPluginManager().callEvent(e);
 		if(!e.isCancelled()) {

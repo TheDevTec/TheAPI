@@ -26,6 +26,7 @@ public class LoaderClass extends JavaPlugin {
 	public static HashMap<String, Integer> gameapi_timer = new HashMap<String, Integer>();
 	public static HashMap<String, Runnable> win_rewards = new HashMap<String, Runnable>();
 	public static ConfigAPI data= TheAPI.getConfig("TheAPI", "Data");
+	public static ConfigAPI unused= TheAPI.getConfig("TheAPI", "UnusedData");
 	public static ConfigAPI config=TheAPI.getConfig("TheAPI", "Config");
 	public static ConfigAPI gameapi=TheAPI.getConfig("TheAPI", "GameAPI");
 	public void onLoad() {
@@ -176,6 +177,8 @@ public class LoaderClass extends JavaPlugin {
 		gameapi.create();
 		data.setCustomEnd("dat");
 		data.create();
+		unused.setCustomEnd("dat");
+		unused.create();
 	}
 	
 	public void loadWorlds() {
@@ -230,9 +233,7 @@ public class LoaderClass extends JavaPlugin {
 		for(Player p : gui.keySet()) {
 			gui.get(p).closeAndClear();
 		}
-		data.getConfig().set("guis", null);
-		data.getConfig().set("entities", null);
-		data.save();
+		unused.delete();
 		for(ConfigAPI s:list) {
 			if(s==null)continue;
 			s.save();

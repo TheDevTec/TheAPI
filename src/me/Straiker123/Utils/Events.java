@@ -396,7 +396,7 @@ public class Events implements Listener {
 	public void onClose(InventoryCloseEvent e) {
 		Player p = (Player)e.getPlayer();
 		String playersname = p.getName();
-		if(LoaderClass.data.getConfig().getString("guis."+playersname)==null) {
+		if(LoaderClass.unused.getConfig().getString("guis."+playersname)==null) {
 			return;
 		}
 		String title = e.getView().getTitle();
@@ -407,11 +407,11 @@ public class Events implements Listener {
 			String a = as.getID();
 			GUICloseEvent event = new GUICloseEvent(p,e.getInventory(),title);
 			Bukkit.getPluginManager().callEvent(event);
-					if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+".SENDMESSAGES_ON_INV_CLOSE")!=null)
-				for(String s: LoaderClass.data.getConfig().getStringList("guis."+playersname+"."+a+".SENDMESSAGES_ON_INV_CLOSE"))
+					if(LoaderClass.unused.getConfig().getString("guis."+playersname+"."+a+".SENDMESSAGES_ON_INV_CLOSE")!=null)
+				for(String s: LoaderClass.unused.getConfig().getStringList("guis."+playersname+"."+a+".SENDMESSAGES_ON_INV_CLOSE"))
 					TheAPI.broadcastMessage(s);
-			if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+".SENDCOMMANDS_ON_INV_CLOSE")!=null)
-				for(String s: LoaderClass.data.getConfig().getStringList("guis."+playersname+"."+a+".SENDCOMMANDS_ON_INV_CLOSE"))
+			if(LoaderClass.unused.getConfig().getString("guis."+playersname+"."+a+".SENDCOMMANDS_ON_INV_CLOSE")!=null)
+				for(String s: LoaderClass.unused.getConfig().getStringList("guis."+playersname+"."+a+".SENDCOMMANDS_ON_INV_CLOSE"))
 					TheAPI.sudoConsole(SudoType.COMMAND, s);
 		    	as.runRunnable(GRunnable.RUNNABLE_ON_INV_CLOSE,0);
 		    as.clear();
@@ -434,8 +434,8 @@ public class Events implements Listener {
 			
 		if(i != null) {
 			if(e.getClickedInventory().getType()==InventoryType.PLAYER) {
-				if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+".CANT_PUT_ITEM")!=null)
-			e.setCancelled(LoaderClass.data.getConfig().getBoolean("guis."+playersname+"."+a+".CANT_PUT_ITEM"));
+				if(LoaderClass.unused.getConfig().getString("guis."+playersname+"."+a+".CANT_PUT_ITEM")!=null)
+			e.setCancelled(LoaderClass.unused.getConfig().getBoolean("guis."+playersname+"."+a+".CANT_PUT_ITEM"));
 			return;
 			}
 			if(i.getType().name().equals("WRITTEN_BOOK")||i.getType().name().equals("BOOK_AND_QUILL"))i=createWrittenBook(i);
@@ -444,64 +444,64 @@ public class Events implements Listener {
 					i.getType().name().equals("SKULL_ITEM")
 					||i.getType().name().equals("PLAYER_HEAD"))
 				i=createHead(i);
-				e.setCancelled(LoaderClass.data.getConfig().getBoolean("guis."+playersname+"."+a+"."+slot+".CANT_BE_TAKEN"));
+				e.setCancelled(LoaderClass.unused.getConfig().getBoolean("guis."+playersname+"."+a+"."+slot+".CANT_BE_TAKEN"));
 				
-				if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES")!=null)
-					for(String s: LoaderClass.data.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES"))
+				if(LoaderClass.unused.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES")!=null)
+					for(String s: LoaderClass.unused.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES"))
 						TheAPI.broadcastMessage(s);
 
-				if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_LEFT_CLICK")!=null)
+				if(LoaderClass.unused.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_LEFT_CLICK")!=null)
 					if(e.getClick().isLeftClick()&& !e.getClick().isShiftClick())
-					for(String s: LoaderClass.data.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_LEFT_CLICK"))
+					for(String s: LoaderClass.unused.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_LEFT_CLICK"))
 						TheAPI.broadcastMessage(s);
 
-					if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_RIGHT_CLICK")!=null)
+					if(LoaderClass.unused.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_RIGHT_CLICK")!=null)
 					if(e.getClick().isRightClick()&& !e.getClick().isShiftClick())
-					for(String s: LoaderClass.data.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_RIGHT_CLICK"))
+					for(String s: LoaderClass.unused.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_RIGHT_CLICK"))
 						TheAPI.broadcastMessage(s);
 
-					if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_MIDDLE_CLICK")!=null)
+					if(LoaderClass.unused.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_MIDDLE_CLICK")!=null)
 					if(e.getClick().isCreativeAction())
-					for(String s: LoaderClass.data.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_MIDDLE_CLICK"))
+					for(String s: LoaderClass.unused.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_MIDDLE_CLICK"))
 						TheAPI.broadcastMessage(s);
 
-					if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_SHIFT_WITH_LEFT_CLICK")!=null)
+					if(LoaderClass.unused.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_SHIFT_WITH_LEFT_CLICK")!=null)
 					if(e.getClick().isLeftClick() && e.getClick().isShiftClick())
-					for(String s: LoaderClass.data.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_SHIFT_WITH_LEFT_CLICK"))
+					for(String s: LoaderClass.unused.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_SHIFT_WITH_LEFT_CLICK"))
 						TheAPI.broadcastMessage(s);
 
-					if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_SHIFT_WITH_RIGHT_CLICK")!=null)
+					if(LoaderClass.unused.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_SHIFT_WITH_RIGHT_CLICK")!=null)
 					if(e.getClick().isRightClick() && e.getClick().isShiftClick())
-					for(String s: LoaderClass.data.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_SHIFT_WITH_RIGHT_CLICK"))
+					for(String s: LoaderClass.unused.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDMESSAGES_SHIFT_WITH_RIGHT_CLICK"))
 						TheAPI.broadcastMessage(s);
 				
-				if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS")!=null)
-					for(String s: LoaderClass.data.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS"))
+				if(LoaderClass.unused.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS")!=null)
+					for(String s: LoaderClass.unused.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
 
-				if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_LEFT_CLICK")!=null)
+				if(LoaderClass.unused.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_LEFT_CLICK")!=null)
 					if(e.getClick().isLeftClick()&& !e.getClick().isShiftClick())
-					for(String s: LoaderClass.data.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_LEFT_CLICK"))
+					for(String s: LoaderClass.unused.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_LEFT_CLICK"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
 
-				if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_RIGHT_CLICK")!=null)
+				if(LoaderClass.unused.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_RIGHT_CLICK")!=null)
 					if(e.getClick().isRightClick()&& !e.getClick().isShiftClick())
-					for(String s: LoaderClass.data.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_RIGHT_CLICK"))
+					for(String s: LoaderClass.unused.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_RIGHT_CLICK"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
 
-				if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_SHIFT_WITH_LEFT_CLICK")!=null)
+				if(LoaderClass.unused.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_SHIFT_WITH_LEFT_CLICK")!=null)
 					if(e.getClick().isLeftClick() && e.getClick().isShiftClick())
-					for(String s: LoaderClass.data.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_SHIFT_WITH_LEFT_CLICK"))
+					for(String s: LoaderClass.unused.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_SHIFT_WITH_LEFT_CLICK"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
 
-				if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_SHIFT_WITH_RIGHT_CLICK")!=null)
+				if(LoaderClass.unused.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_SHIFT_WITH_RIGHT_CLICK")!=null)
 					if(e.getClick().isRightClick() && e.getClick().isShiftClick())
-					for(String s: LoaderClass.data.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_SHIFT_WITH_RIGHT_CLICK"))
+					for(String s: LoaderClass.unused.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_SHIFT_WITH_RIGHT_CLICK"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
 
-				if(LoaderClass.data.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_MIDDLE_CLICK")!=null)
+				if(LoaderClass.unused.getConfig().getString("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_MIDDLE_CLICK")!=null)
 					if(e.getClick().isCreativeAction())
-					for(String s: LoaderClass.data.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_MIDDLE_CLICK"))
+					for(String s: LoaderClass.unused.getConfig().getStringList("guis."+playersname+"."+a+"."+slot+".SENDCOMMANDS_MIDDLE_CLICK"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
 				d.runRunnable(GRunnable.RUNNABLE,slot);
 				if(e.getClick().isLeftClick()&& !e.getClick().isShiftClick())

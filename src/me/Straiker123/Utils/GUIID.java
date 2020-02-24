@@ -73,8 +73,8 @@ public class GUIID {
 	public void clear() {
 		run.clear();
 		close=null;
-		LoaderClass.data.getConfig().set("guis."+p.getName()+"."+id, null);
-		LoaderClass.data.save();
+		LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+id, null);
+		LoaderClass.unused.save();
 	}
 	public void closeAndClear() {
 		clear();
