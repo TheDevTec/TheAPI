@@ -12,7 +12,7 @@ public class GUIID {
 	public GUIID(Player s) {
 		p=s;
 		for(int i = 0; i > -1; ++i) {
-			if(LoaderClass.data.getConfig().getString("guis."+s.getName()+"."+i)==null) {
+			if(LoaderClass.unused.getConfig().getString("guis."+s.getName()+"."+i)==null) {
 				id=i+"";
 			break;
 			}

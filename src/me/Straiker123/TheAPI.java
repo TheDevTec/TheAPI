@@ -3,7 +3,10 @@ package me.Straiker123;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -31,7 +34,7 @@ import net.glowstone.entity.GlowPlayer;
 
 public class TheAPI {
 	/**
-	 * Colorize string with colors
+	 * @see see Colorize string with colors
 	 * @param string
 	 * @return String
 	 */
@@ -41,19 +44,31 @@ public class TheAPI {
 	}
 
 	/**
-	 * Get all blocks in radius 20 blocks
+	 * @see see Get all blocks in radius 20 blocks
 	 * @return BlocksAPI
 	 */
 	public static BlocksAPI getBlocksAPI() {
 		return new BlocksAPI();
 	}
 
+	/**
+	 * @see see Using this API you can sort HashMap
+	 * @return RankingAPI
+	 */
 	public static RankingAPI getRankingAPI(HashMap<?, Double> map) {
 		return new RankingAPI(map);
 	}
 	
 	/**
-	 * Create or delete config
+	 * @see see Only for 1.8.X and older
+	 * @return ParticleEffectAPI
+	 */
+	public static ParticleEffectAPI getParticleEffectAPI() {
+		 return new ParticleEffectAPI();
+	}
+	
+	/**
+	 * @see see Create or delete config
 	 * @param localization
 	 * @param name
 	 * @return ConfigAPI
@@ -62,30 +77,37 @@ public class TheAPI {
 		return new ConfigAPI(name,localization);
 	}
 	/**
-	 * Return is server version 1.13+
+	 * @see see Return is server version 1.13+
 	 * @return boolean
 	 */
 	public static boolean isNewVersion() {
 		return !getServerVersion().equalsIgnoreCase("glowstone") 
-				&& !getServerVersion().startsWith("v1_5")
-				&& !getServerVersion().startsWith("v1_6")
-				&& !getServerVersion().startsWith("v1_7")
-				&& !getServerVersion().startsWith("v1_8")
+				&& !isOlder1_9()
 				&& !getServerVersion().startsWith("v1_9")
 				&& !getServerVersion().startsWith("v1_10")
 				&& !getServerVersion().startsWith("v1_11")
 				&& !getServerVersion().startsWith("v1_12");
 	}
+	/**
+	 * @see see Return is server version older than 1.9 ? (1.5 up to 1.8.9)
+	 * @return boolean
+	 */
+	public static boolean isOlder1_9() {
+		return getServerVersion().startsWith("v1_5")
+				|| getServerVersion().startsWith("v1_6")
+				|| getServerVersion().startsWith("v1_7")
+				|| getServerVersion().startsWith("v1_8");
+	}
 
 	/**
-	 * Return time in which server start
+	 * @see see Return time in which server start
 	 * @return long
 	 */
 	public static long getServerStartTime() {
 		return ManagementFactory.getRuntimeMXBean().getStartTime();
 	}
 	/**
-	 * Build string from String[]
+	 * @see see Build string from String[]
 	 * @param args
 	 * @return String
 	 * 
@@ -108,7 +130,7 @@ public class TheAPI {
 	}
 	
 	/**
-	 * Create your own entity with damage, health and more
+	 * @see see Create your own entity with damage, health and more
 	 * @param type
 	 * @return EntityCreatorAPI
 	 */
@@ -116,7 +138,7 @@ public class TheAPI {
 		return new EntityCreatorAPI(type);
 	}
 	/**
-	 * Return random object from list
+	 * @see see Return random object from list
 	 * @param list
 	 * @return Object
 	 */
@@ -132,7 +154,7 @@ public class TheAPI {
 		return list.get(r);
 	}
 	/**
-	 * Set world border size, center and more
+	 * @see see Set world border size, center and more
 	 * @param world
 	 * @return WorldBorderAPI
 	 */
@@ -141,7 +163,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * Generate random int with limit
+	 * @see see Generate random int with limit
 	 * @param maxInt
 	 * @return int
 	 */
@@ -159,7 +181,7 @@ public class TheAPI {
 		return i;
 	}
 	/**
-	 * Generate random double with limit
+	 * @see see Generate random double with limit
 	 * @param maxDouble
 	 * @return double
 	 */
@@ -179,7 +201,7 @@ public class TheAPI {
 		return i;
 	}
 	/**
-	 * Return GameAPI in which you can create your own minigame
+	 * @see see GameAPI in which you can create your own minigame
 	 * @param MiniGameName
 	 * @return GameAPI
 	 */
@@ -187,33 +209,69 @@ public class TheAPI {
 		return new GameAPI(MiniGameName);
 	}
 
+	/**
+	 * @see see Server up time in long
+	 * @return long
+	 */
 	public static long getServerUpTime() {
 		return ManagementFactory.getRuntimeMXBean().getUptime();
 	}
 	
-	
+	/**
+	 * @see see Replace in String/List<String> placeholders from PlaceholderAPI without depend
+	 * @return PlaceholderAPIUtils
+	 */
 	public static PlaceholderAPIUtils getPlaceholderAPI() {
 		return new PlaceholderAPIUtils();
 	}
 
+	/**
+	 * @see see int of maximmum players on the server
+	 * @return int
+	 */
 	public static int getMaxPlayers() {
 		return Bukkit.getMaxPlayers();
 	}
 
+	/**
+	 * @see see Get player from List<Player>
+	 * @return Player
+	 */
 	public static Player getPlayer(int i) {
 		return getOnlinePlayers().size() <= i ? null : getOnlinePlayers().get(i);
 	}
+	/**
+	 * @see see Get player by name
+	 * @return Player
+	 */
 	public static Player getPlayer(String name) {
 		return Bukkit.getPlayer(name);
 	}
 
+	/**
+	 * @see see Get random player from List<Player>
+	 * @return Player
+	 */
 	public static Player getRandomPlayer() {
 		return getRandomFromList(getOnlinePlayers()) == null ? null : (Player)getRandomFromList(getOnlinePlayers());
 	}
-	
+
+	/**
+	 * @see see Get random player from List<Player>
+	 * @return List<Player>
+	 */
+	@SuppressWarnings("unchecked")
 	public static List<Player> getOnlinePlayers(){
 		List<Player> a = new ArrayList<Player>();
-		for(Player p : Bukkit.getOnlinePlayers())a.add(p);
+		try {
+			Method m = Bukkit.class.getDeclaredMethod("getOnlinePlayers");
+			Object o = m.invoke(null);
+			if (o instanceof Collection) {
+				for(Player p : (Collection<Player>) o)a.add(p);
+			}else
+			for(Player p : Arrays.asList((Player[]) o))a.add(p);
+			} catch (Exception ex) {
+			} 
 		return a;
 	}
 

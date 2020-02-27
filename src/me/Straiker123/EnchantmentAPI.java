@@ -52,21 +52,28 @@ public class EnchantmentAPI {
 		return getByName(string);
 	}
 	
-	
-	public List<String> getEnchantments(ItemStack item) {
+
+	public List<Enchantment> getEnchantments(ItemStack item) {
+		List<Enchantment> list = new ArrayList<Enchantment>();
+		list.addAll(item.getEnchantments().keySet());
+		return list;
+	}
+	@SuppressWarnings("deprecation")
+	public List<String> getEnchantmentsInString(ItemStack item) {
 		List<String> list = new ArrayList<String>();
+		for(Enchantment e : item.getEnchantments().keySet())list.add(e.getName());
 		return list;
 	}
 	
 	public boolean registerEnchantment(Enchantment e) {
-		   boolean registered = true;
+		   boolean registered = false;
 		    try {
 		        Field f = Enchantment.class.getDeclaredField("acceptingNew");
 		        f.setAccessible(true);
 		        f.set(null, true);
 		        Enchantment.registerEnchantment(e);
+		        registered = true;
 		    } catch (Exception ea) {
-		        registered = false;
 		    }
 		    return registered;
 	}

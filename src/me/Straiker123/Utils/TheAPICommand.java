@@ -11,7 +11,6 @@ import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -139,9 +138,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				List<BlockSave> save = new ArrayList<BlockSave>();
 				for(Block b : d) {
 					save.add(a.getBlockSave(b));
-					if(b.getType().name().contains("CHEST"))
-						((Chest)b.getState()).getBlockInventory().clear();
-					b.setType(Material.DIAMOND_BLOCK);
 					TheAPI.getBlocksAPI().setBlock(b.getLocation(), Material.DIAMOND_BLOCK);
 				}
 				d.clear();

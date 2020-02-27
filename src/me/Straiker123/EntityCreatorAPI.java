@@ -39,7 +39,7 @@ public class EntityCreatorAPI {
 	double min, max,set,jump;
 	
 	/**
-	 * This method rewrite whole attack damage
+	 * @see see This method rewrite whole attack damage.
 	 *  but will not register additional damage to the sword, bow, etc.
 	 */
 	public void setAttackDamage(double amount) {
@@ -517,11 +517,11 @@ public class EntityCreatorAPI {
 		}
 		}catch(Exception es) {
 			if(!LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
-				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cError when spawning entity using EnttiyCreatorAPI:"));
+				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cError when spawning entity using EntityCreatorAPI:"));
 				es.printStackTrace();
 				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cEnd of error."));
 				}else
-					Error.sendRequest("&bTheAPI&7: &cError when spawning entity using EnttiyCreatorAPI");
+					Error.sendRequest("&bTheAPI&7: &cError when spawning entity using EntityCreatorAPI");
 		}
 	}
 }

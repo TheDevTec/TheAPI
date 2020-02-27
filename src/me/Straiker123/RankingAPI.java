@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 public class RankingAPI {
 	HashMap<?, Double> s;
 	public RankingAPI(HashMap<?, Double> map) {
+		if(map!=null)
 		s=map.entrySet().stream().sorted(comparingByValue()).collect(toMap(e -> e.getKey(),
 				e -> e.getValue(), (e1, e2) -> e2,LinkedHashMap::new));
 	}
@@ -22,6 +23,10 @@ public class RankingAPI {
 			//out
 			return null;
 		}
+	}
+	
+	public HashMap<?, Double> getHashMap(){
+		return s;
 	}
 	
 	public double getValue(Object o) {

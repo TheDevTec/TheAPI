@@ -20,6 +20,8 @@ import org.bukkit.material.MaterialData;
 
 import com.google.common.collect.Multimap;
 
+import me.Straiker123.Utils.Error;
+
 @SuppressWarnings("deprecation")
 public class ItemCreatorAPI {
 	ItemStack a;
@@ -35,10 +37,9 @@ public class ItemCreatorAPI {
 	
 	public void setMaterial(String byName) {
 		try {
-		if(Material.matchMaterial(byName)!=null)a=new ItemStack(Material.matchMaterial(byName));
-		if(a==null)a=new ItemStack(Material.STONE);
+		a=new ItemStack(Material.matchMaterial(byName));
 		}catch(Exception e) {
-			a=new ItemStack(Material.STONE);
+			Error.err("set material in ItemCreatorAPI", "Uknown Material");
 		}
 	}
 	String name;
@@ -156,6 +157,7 @@ public class ItemCreatorAPI {
 	public ItemStack create() {
 		
 		ItemStack i = a;
+		try {
 		if(type!=null) {
 			a.setDurability((short)type.ordinal());
 		}else {
@@ -282,6 +284,9 @@ public class ItemCreatorAPI {
 				m.setAttributeModifiers((Multimap<Attribute, AttributeModifier>) w);
 				i.setItemMeta(m);
 			}
+		}catch(Exception err) {
+			Error.err("creating ItemStack in ItemCreatorAPI", "Uknown Material/ItemStack");
+		}
 		return i;
 	}
 	

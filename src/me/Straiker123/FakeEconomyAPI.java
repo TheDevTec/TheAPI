@@ -3,35 +3,61 @@ package me.Straiker123;
 import org.bukkit.entity.Player;
 
 public class FakeEconomyAPI {
+	String w;
+	public FakeEconomyAPI(String economyStore) {
+		w=economyStore;
+	}
 	public boolean hasAccount(Player player) {
 		return hasAccount(player.getName());
 	}
-	public void depositPlayer(Player player, double money) {
-		depositPlayer(player.getName(), money);
+	public void add(Player player, double money) {
+		add(player.getName(), money);
 	}
-	public void withdrawPlayer(Player player, double money) {
-		withdrawPlayer(player.getName(), money);
+	public void take(Player player, double money) {
+		take(player.getName(), money);
 	}
 	
 	public boolean hasAccount(String player) {
-		return LoaderClass.data.getConfig().getString("data."+player+".economy")!=null;
+		return LoaderClass.data.getConfig().getString("data."+player+".economy."+w)!=null;
 	}
-	public void depositPlayer(String player, double money) {
-		LoaderClass.data.getConfig().set("data."+player+".economy",getBalance(player)+money);
-		LoaderClass.data.save();
+
+	public void despositPlayer(String player, double money) {
+		add(player,money);
+	}
+	public void despositPlayer(Player player, double money) {
+		add(player.getName(),money);
+	}
+	public void withdrawPlayer(Player player, double money) {
+		take(player.getName(),money);
 	}
 	public void withdrawPlayer(String player, double money) {
-		LoaderClass.data.getConfig().set("data."+player+".economy",getBalance(player)-money);
+		take(player,money);
+	}
+	
+	public void add(String player, double money) {
+		LoaderClass.data.getConfig().set("data."+player+".economy."+w,balance(player)+money);
 		LoaderClass.data.save();
 	}
+	public void take(String player, double money) {
+		LoaderClass.data.getConfig().set("data."+player+".economy."+w,balance(player)-money);
+		LoaderClass.data.save();
+	}
+
 	public double getBalance(String player) {
-		return LoaderClass.data.getConfig().getDouble("data."+player+".economy");
+		return balance(player);
 	}
 	public double getBalance(Player player) {
-		return getBalance(player.getName());
+		return balance(player.getName());
+	}
+	
+	public double balance(String player) {
+		return LoaderClass.data.getConfig().getDouble("data."+player+".economy."+w);
+	}
+	public double balance(Player player) {
+		return balance(player.getName());
 	}
 	public boolean has(String player, double money) {
-		return getBalance(player) >= money;
+		return balance(player) >= money;
 	}
 	public boolean has(Player player, double money) {
 		return has(player.getName(),money);
@@ -42,7 +68,7 @@ public class FakeEconomyAPI {
 	
 	public boolean createAccount(String player) {
 		if(!hasAccount(player)) {
-			LoaderClass.data.getConfig().set("data."+player+".economy",0.0);
+			LoaderClass.data.getConfig().set("data."+player+".economy."+w,0.0);
 			LoaderClass.data.save();
 			return true;
 		}

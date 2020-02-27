@@ -176,7 +176,6 @@ public class PlayerAPI {
 	
 	private Location searchLocation(Location d) {
 		Location loc = new Location(d.getWorld(),d.getX(),d.getY(),d.getZ());
-		TheAPI.broadcastMessage("start:"+loc);
 		Location l = null;
 		for(Location b : TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 4)) {
 			String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();

@@ -1,8 +1,15 @@
 package me.Straiker123.Utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.block.Block;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -10,6 +17,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -24,8 +32,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
+
 import me.Straiker123.ItemCreatorAPI;
 import me.Straiker123.LoaderClass;
+import me.Straiker123.ParticleEffect;
 import me.Straiker123.PunishmentAPI;
 import me.Straiker123.TheAPI;
 import me.Straiker123.TheAPI.SudoType;
@@ -88,6 +98,43 @@ public class Events implements Listener {
 			}
 		}
 		return is;
+	}
+	
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onExploe(EntityExplodeEvent e) {
+		if(LoaderClass.config.getConfig().getBoolean("Options.LagChecker.Enabled") &&
+				LoaderClass.config.getConfig().getBoolean("Options.LagChecker.TNT.Use")) {
+			e.setCancelled(true);
+			synchronized(this) {
+			if(!LoaderClass.config.getConfig().getBoolean("Options.LagChecker.TNT.DisableParticles")) {
+				if(TheAPI.isOlder1_9())TheAPI.getParticleEffectAPI().spawnParticle(ParticleEffect.EXPLOSION_NORMAL, e.getLocation(), 1);
+				else
+					e.getLocation().getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, e.getLocation(),1);
+			}
+				
+				List<ItemStack> a = new ArrayList<ItemStack>();
+			for(Block b : e.blockList()) {
+				if(b.getType()==Material.AIR)continue;
+				if(!LoaderClass.config.getConfig().getBoolean("Options.LagChecker.TNT.DisableIgniteCollidingTNT")) {
+				if(b.getType()==Material.TNT) {
+					b.setType(Material.AIR);
+					TNTPrimed tnt = (TNTPrimed)b.getWorld().spawnEntity(b.getLocation(), EntityType.PRIMED_TNT);
+					 tnt.setFuseTicks(LoaderClass.config.getConfig().getInt("Options.LagChecker.TNT.TimeIgniteCollidingTNT"));
+				}else {
+					if(!LoaderClass.config.getConfig().getBoolean("Options.LagChecker.TNT.DisableAllDrops"))
+					a.addAll(b.getDrops());
+					b.setType(Material.AIR);
+				}
+			}else {
+				if(!LoaderClass.config.getConfig().getBoolean("Options.LagChecker.TNT.DisableAllDrops"))
+				a.addAll(b.getDrops());
+				b.setType(Material.AIR);
+			}
+			}
+			for(ItemStack w : a)
+				e.getLocation().getWorld().dropItem(e.getLocation(), w);
+			a.clear();
+		}}
 	}
 	
 	@EventHandler(priority = EventPriority.LOWEST)

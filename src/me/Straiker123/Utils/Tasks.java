@@ -50,9 +50,11 @@ public class Tasks {
 			public void run() {
 				if(Bukkit.getWorlds().size() <= next)next=0;
 				if(TheAPI.getMemoryAPI().getFreeMemory(true) <= LoaderClass.config.getConfig().getDouble("Options.LagChecker.ClearMemIfPercentIsFree")) {
+					synchronized(this) {
 					String sd = TheAPI.getMemoryAPI().clearMemory();
 					if(LoaderClass.config.getConfig().getBoolean("Options.Options.LagChecker.Log"))
 					TheAPI.getConsole().sendMessage(TheAPI.colorize("&f[&bTheAPI - LagChecker&f] Cleared "+sd+" memory"));
+					}
 				}
 				if(LoaderClass.config.getConfig().getBoolean("Options.LagChecker.ChunkMobLimit.Use")) {
 					HashMap<Location,List<Entity>> ent = new HashMap<Location,List<Entity>>();

@@ -129,6 +129,14 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.HideErrors", false);
 		config.addDefault("Options.LagChecker.Enabled", false);
 		config.addDefault("Options.LagChecker.Log", true);
+		
+		config.addDefault("Options.LagChecker.TNT.Use", true);
+		config.addDefault("Options.LagChecker.TNT.DisableParticles", true);
+		config.addDefault("Options.LagChecker.TNT.TeleportDropsToOnePlace", true);
+		config.addDefault("Options.LagChecker.TNT.DisableAllDrops", false);
+		config.addDefault("Options.LagChecker.TNT.DisableIgniteCollidingTNT", false);
+		config.addDefault("Options.LagChecker.TNT.TimeIgniteCollidingTNT", 10); //in ticks
+		
 		config.addDefault("Options.LagChecker.ChunkMobLimit.Use", true);
 		config.addDefault("Options.LagChecker.ChunkMobLimit.Limit", 120);
 		config.addDefault("Options.LagChecker.ChunkMobLimit.OnLimitExceeded", "WARN");

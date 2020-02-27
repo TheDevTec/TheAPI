@@ -20,13 +20,23 @@ public class EconomyAPI {
 		}
 	}
 	/**
-	 * Warning, this FakeEconomyAPI return Economy stored in config.
+	 * @see see Warning, this FakeEconomyAPI return Economy stored in config.
 	 * Isn't connect to the Vault plugin.
 	 * Working if is EconomyAPI disabled too.
 	 * @return FakeEconomyAPI
 	 */
+	public FakeEconomyAPI getFakeEconomyAPI(String economyName){
+		return new FakeEconomyAPI(economyName);
+	}
+	/**
+	 * @see see Warning, this FakeEconomyAPI return Economy stored in config.
+	 * Isn't connect to the Vault plugin.
+	 * Working if is EconomyAPI disabled too.
+	 * @return FakeEconomyAPI
+	 */
+	@Deprecated
 	public FakeEconomyAPI getFakeEconomyAPI(){
-		return new FakeEconomyAPI();
+		return new FakeEconomyAPI("Default");
 	}
 
 	public boolean hasBankSupport() {
