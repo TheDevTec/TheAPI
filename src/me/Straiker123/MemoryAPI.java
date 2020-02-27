@@ -1,5 +1,9 @@
 package me.Straiker123;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.World;
+
 public class MemoryAPI {
 	private static double mb = 1024*1024;
 	private static double max = Runtime.getRuntime().maxMemory() /mb;
@@ -7,7 +11,11 @@ public class MemoryAPI {
 	public String clearMemory() {
 		double mem = getRawUsedMemory(false);
 		synchronized(this) {
-        Runtime.getRuntime().gc();
+			for(World w:Bukkit.getWorlds()) {
+				for(Chunk c : w.getLoadedChunks()) {
+				c.unload(true);
+			}}
+        System.gc();
 		}
         return String.format("%2.02f", mem - getRawUsedMemory(false));
 	}
