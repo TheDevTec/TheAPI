@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -17,6 +18,7 @@ public class GUICreatorAPI {
 	public GUICreatorAPI(Player s) {
 		p=s;
 		id=new GUIID(p);
+		g =LoaderClass.unused.getConfig();
 	}
 	GUIID id;
 	String t = "TheAPI - Missing name of GUI";
@@ -106,11 +108,8 @@ public class GUICreatorAPI {
 		 if(TheAPI.isNewVersion()
 				 &&!TheAPI.getServerVersion().contains("v1_13"))
 		if(a.getItemMeta().hasCustomModelData()) s.setCustomModelData(a.getItemMeta().getCustomModelData());
-		 if(!TheAPI.getServerVersion().contains("v1_8")
-				 &&!TheAPI.getServerVersion().contains("v1_9")  
-				 &&!TheAPI.getServerVersion().contains("v1_5")
-				 &&!TheAPI.getServerVersion().contains("v1_6")
-				 &&!TheAPI.getServerVersion().contains("v1_7")
+		 if(TheAPI.isOlder1_9()
+				 &&!TheAPI.getServerVersion().contains("v1_9")
 				 &&!TheAPI.getServerVersion().contains("v1_10"))
 		 s.setUnbreakable(a.getItemMeta().isUnbreakable());
 		 return s.create();
@@ -124,43 +123,41 @@ public class GUICreatorAPI {
 		 if(TheAPI.isNewVersion()
 				 &&!TheAPI.getServerVersion().contains("v1_13"))
 		if(a.getItemMeta().hasCustomModelData()) s.setCustomModelData(a.getItemMeta().getCustomModelData());
-		 if(!TheAPI.getServerVersion().contains("v1_8")
-				 &&!TheAPI.getServerVersion().contains("v1_9")  
-				 &&!TheAPI.getServerVersion().contains("v1_5")
-				 &&!TheAPI.getServerVersion().contains("v1_6")
-				 &&!TheAPI.getServerVersion().contains("v1_7")
+		 if(TheAPI.isOlder1_9()
+				 &&!TheAPI.getServerVersion().contains("v1_9")
 				 &&!TheAPI.getServerVersion().contains("v1_10"))
 		 s.setUnbreakable(a.getItemMeta().isUnbreakable());
 		 return s.create();
 	}
+	FileConfiguration g;
 	/**
-	 * Set item on position to the gui with options
+	 * @see see Set item on position to the gui with options
 	 * @param options
-	 * CANT_PUT_ITEM - Global, can player put to the gui item from his inventory (true/false)
-	 * CANT_BE_TAKEN - Can player take item from gui (true/false)
+	 * CANT_PUT_ITEM - Global, can player put to the gui item from his inventory (true/false).
+	 * CANT_BE_TAKEN - Can player take item from gui (true/false).
 	 * 
-	 * RUNNABLE - Ignoring click type, run everything in runnable (Runnable)
-	 * SENDMESSAGES - Ignoring click type, send list of messages to the player (List<String>)
-	 * SENDCOMMANDS - Ignoring click type, send list of commands as console (List<String>)
+	 * RUNNABLE - Ignoring click type, run everything in runnable (Runnable).
+	 * SENDMESSAGES - Ignoring click type, send list of messages to the player (List<String>).
+	 * SENDCOMMANDS - Ignoring click type, send list of commands as console (List<String>).
 	 */
 	public void setItem(int position, ItemStack item, HashMap<Options, Object> options) {
 		map.put(position,item);
 		for(Options a:options.keySet()) {
 			switch(a) {
 			case CANT_PUT_ITEM:
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+".CANT_PUT_ITEM", options.get(a));
+				g.set("guis."+p.getName()+"."+getID()+".PUT", options.get(a));
 				break;
 			case CANT_BE_TAKEN:
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".CANT_BE_TAKEN", options.get(a));
+				g.set("guis."+p.getName()+"."+getID()+"."+position+".TAKE", options.get(a));
 				break;
 			case RUNNABLE:
 					id.setRunnable(GRunnable.RUNNABLE, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES:
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES", options.get(a));
+				g.set("guis."+p.getName()+"."+getID()+"."+position+".MSG", options.get(a));
 				break;
 			case SENDCOMMANDS:
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS", options.get(a));
+				g.set("guis."+p.getName()+"."+getID()+"."+position+".CMD", options.get(a));
 				break;
 				
 
@@ -168,73 +165,73 @@ public class GUICreatorAPI {
 				id.setRunnable(GRunnable.RUNNABLE_ON_INV_CLOSE, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_ON_INV_CLOSE:
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+".SENDMESSAGES_ON_INV_CLOSE", options.get(a));
+				g.set("guis."+p.getName()+"."+getID()+".MSGCLOSE", options.get(a));
 				break;
 			case SENDCOMMANDS_ON_INV_CLOSE:
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+".SENDCOMMANDS_ON_INV_CLOSE", options.get(a));
+				g.set("guis."+p.getName()+"."+getID()+".CMDCLOSE", options.get(a));
 				break;
 
 			case RUNNABLE_LEFT_CLICK:
 				id.setRunnable(GRunnable.RUNNABLE_LEFT_CLICK, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_LEFT_CLICK:
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES_LEFT_CLICK", options.get(a));
+				g.set("guis."+p.getName()+"."+getID()+"."+position+".MSGLC", options.get(a));
 				break;
 			case SENDCOMMANDS_LEFT_CLICK:
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS_LEFT_CLICK", options.get(a));
+				g.set("guis."+p.getName()+"."+getID()+"."+position+".CMDLC", options.get(a));
 				break;
 
 			case RUNNABLE_RIGHT_CLICK:
 				id.setRunnable(GRunnable.RUNNABLE_RIGHT_CLICK, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_RIGHT_CLICK:
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES_RIGHT_CLICK", options.get(a));
+				g.set("guis."+p.getName()+"."+getID()+"."+position+".MSGRC", options.get(a));
 				break;
 			case SENDCOMMANDS_RIGHT_CLICK:
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS_RIGHT_CLICK", options.get(a));
+				g.set("guis."+p.getName()+"."+getID()+"."+position+".CMDRC", options.get(a));
 				break;
 
 			case RUNNABLE_MIDDLE_CLICK:
 				id.setRunnable(GRunnable.RUNNABLE_MIDDLE_CLICK, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_MIDDLE_CLICK:
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES_MIDDLE_CLICK", options.get(a));
+				g.set("guis."+p.getName()+"."+getID()+"."+position+".MSGMC", options.get(a));
 				break;
 			case SENDCOMMANDS_MIDDLE_CLICK:
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS_MIDDLE_CLICK", options.get(a));
+				g.set("guis."+p.getName()+"."+getID()+"."+position+".CMDMC", options.get(a));
 				break;
 
 			case RUNNABLE_SHIFT_WITH_LEFT_CLICK:
 				id.setRunnable(GRunnable.RUNNABLE_SHIFT_WITH_LEFT_CLICK, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_SHIFT_WITH_LEFT_CLICK:
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES_SHIFT_WITH_LEFT_CLICK", options.get(a));
+				g.set("guis."+p.getName()+"."+getID()+"."+position+".MSGSLC", options.get(a));
 				break;
 			case SENDCOMMANDS_SHIFT_WITH_LEFT_CLICK:
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS_SHIFT_WITH_LEFT_CLICK", options.get(a));
+				g.set("guis."+p.getName()+"."+getID()+"."+position+".CMDSLC", options.get(a));
 				break;
 
 			case RUNNABLE_SHIFT_WITH_RIGHT_CLICK:
 				id.setRunnable(GRunnable.RUNNABLE_SHIFT_WITH_RIGHT_CLICK, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_SHIFT_WITH_RIGHT_CLICK:
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDMESSAGES_SHIFT_WITH_RIGHT_CLICK", options.get(a));
+				g.set("guis."+p.getName()+"."+getID()+"."+position+".MSGWRC", options.get(a));
 				break;
 			case SENDCOMMANDS_SHIFT_WITH_RIGHT_CLICK:
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".SENDCOMMANDS_SHIFT_WITH_RIGHT_CLICK", options.get(a));
+				g.set("guis."+p.getName()+"."+getID()+"."+position+".CMDWRC", options.get(a));
 				break;
 				
 			}
 		}
 		if(item.getType().name().equals("WRITTEN_BOOK")||item.getType().name().equals("BOOK_AND_QUILL"))
-			LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", createWrittenBook(item));
+			g.set("guis."+p.getName()+"."+getID()+"."+position+".i", createWrittenBook(item));
 		else
 			if(item.getType().name().equals("LEGACY_SKULL_ITEM")||
 					item.getType().name().equals("SKULL_ITEM")
 					||item.getType().name().equals("PLAYER_HEAD"))
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", createHead(item));
+				g.set("guis."+p.getName()+"."+getID()+"."+position+".i", createHead(item));
 			else
-		LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", item);
+		g.set("guis."+p.getName()+"."+getID()+"."+position+".i", item);
 	}
 
 	/**
@@ -311,14 +308,14 @@ public class GUICreatorAPI {
 		else
 			map.replace(position,item);
 		if(item.getType().name().equals("WRITTEN_BOOK")||item.getType().name().equals("BOOK_AND_QUILL"))
-			LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", createWrittenBook(item));
+		g.set("guis."+p.getName()+"."+getID()+"."+position+".i", createWrittenBook(item));
 		else
 			if(item.getType().name().equals("LEGACY_SKULL_ITEM")||
 					item.getType().name().equals("SKULL_ITEM")
 					||item.getType().name().equals("PLAYER_HEAD"))
-				LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", createHead(item));
+			g.set("guis."+p.getName()+"."+getID()+"."+position+".i", createHead(item));
 			else
-		LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+"."+position+".item", item);
+		g.set("guis."+p.getName()+"."+getID()+"."+position+".i", item);
 	}
 
 	/**
@@ -330,7 +327,7 @@ public class GUICreatorAPI {
 		for(Integer a : map.keySet()) {
 			i.setItem(a, map.get(a));
 		}
-		LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+getID()+".title", t);
+		g.set("guis."+p.getName()+"."+getID()+".t", t);
 		LoaderClass.unused.save();
 		GUIOpenEvent e = new GUIOpenEvent(p,i,TheAPI.colorize(t));
 		Bukkit.getPluginManager().callEvent(e);

@@ -287,10 +287,20 @@ public class PunishmentAPI {
 		long time = getTempBanStart(player)/1000 - System.currentTimeMillis()/1000 + getTempBanTime(player);
 		return time > 0;
 		}
-	public int getTempBan_ExpireTime(String player) {
+	public long getTempBanExpireTime(String player) {
 		if(player==null)return -0;
 		long time = getTempBanStart(player)/1000 - System.currentTimeMillis()/1000 + getTempBanTime(player);
-		return (int)time;
+		return time;
+	}
+	public long getTempMuteExpireTime(String player) {
+		if(player==null)return -0;
+		long time = getTempMuteStart(player)/1000 - System.currentTimeMillis()/1000 + getTempMuteTime(player);
+		return time;
+	}
+	public long getTempBanIPExpireTime(String playerOrIP) {
+		if(playerOrIP==null)return -0;
+		long time = getTempBanIPStart(playerOrIP)/1000 - System.currentTimeMillis()/1000 + getTempBanIPTime(playerOrIP);
+		return time;
 	}
 	public String getBanReason(String player) {
 		if(player==null)return null;

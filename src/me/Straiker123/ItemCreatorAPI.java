@@ -176,8 +176,8 @@ public class ItemCreatorAPI {
 			if(model != -1 && TheAPI.isNewVersion() //1.14+
 					 &&!TheAPI.getServerVersion().contains("v1_13"))
 			m.setCustomModelData(model);
-			 if(!TheAPI.getServerVersion().contains("v1_8")
-					 &&!TheAPI.getServerVersion().contains("v1_9")  
+			if(TheAPI.isOlder1_9()
+					 &&!TheAPI.getServerVersion().contains("v1_9")
 					 &&!TheAPI.getServerVersion().contains("v1_10"))
 			m.setUnbreakable(unb);
 			 else {
@@ -211,8 +211,8 @@ public class ItemCreatorAPI {
 				if(model != -1 && TheAPI.isNewVersion() //1.14+
 						 &&!TheAPI.getServerVersion().contains("v1_13"))
 				m.setCustomModelData(model);
-				 if(!TheAPI.getServerVersion().contains("v1_8")
-						 &&!TheAPI.getServerVersion().contains("v1_9")  
+				if(TheAPI.isOlder1_9()
+						 &&!TheAPI.getServerVersion().contains("v1_9")
 						 &&!TheAPI.getServerVersion().contains("v1_10"))
 				m.setUnbreakable(unb);
 				 else {
@@ -238,8 +238,8 @@ public class ItemCreatorAPI {
 					if(model != -1 && TheAPI.isNewVersion()
 							 &&!TheAPI.getServerVersion().contains("v1_13"))
 					m.setCustomModelData(model);
-					 if(!TheAPI.getServerVersion().contains("v1_8")
-							 &&!TheAPI.getServerVersion().contains("v1_9")  
+					if(TheAPI.isOlder1_9()
+							 &&!TheAPI.getServerVersion().contains("v1_9")
 							 &&!TheAPI.getServerVersion().contains("v1_10"))
 					m.setUnbreakable(unb);
 					 else {
@@ -267,8 +267,8 @@ public class ItemCreatorAPI {
 				if(model != -1 && TheAPI.isNewVersion() //1.14+
 						 &&!TheAPI.getServerVersion().contains("v1_13"))
 				m.setCustomModelData(model);
-				 if(!TheAPI.getServerVersion().contains("v1_8")
-						 &&!TheAPI.getServerVersion().contains("v1_9")  
+				if(TheAPI.isOlder1_9()
+						 &&!TheAPI.getServerVersion().contains("v1_9")
 						 &&!TheAPI.getServerVersion().contains("v1_10"))
 				m.setUnbreakable(unb);
 				 else {
