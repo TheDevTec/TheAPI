@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
@@ -23,11 +24,11 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
@@ -96,12 +97,12 @@ public class Events implements Listener {
 	}
 	
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onExploe(EntityExplodeEvent e) {
-		if(LoaderClass.config.getConfig().getBoolean("Options.LagChecker.Enabled") &&
-				LoaderClass.config.getConfig().getBoolean("Options.LagChecker.TNT.Use")) {
+	public void onExplode(EntityExplodeEvent e) {
+		if(f.getBoolean("Options.LagChecker.Enabled") &&
+				f.getBoolean("Options.LagChecker.TNT.Use")) {
 			e.setCancelled(true);
 			synchronized(this) {
-			if(!LoaderClass.config.getConfig().getBoolean("Options.LagChecker.TNT.DisableParticles")) {
+			if(!f.getBoolean("Options.LagChecker.TNT.DisableParticles")) {
 				if(TheAPI.isOlder1_9())TheAPI.getParticleEffectAPI().spawnParticle(ParticleEffect.EXPLOSION_NORMAL, e.getLocation(), 1);
 				else
 					e.getLocation().getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, e.getLocation(),1);
@@ -110,18 +111,18 @@ public class Events implements Listener {
 				List<ItemStack> a = new ArrayList<ItemStack>();
 			for(Block b : e.blockList()) {
 				if(b.getType()==Material.AIR)continue;
-				if(!LoaderClass.config.getConfig().getBoolean("Options.LagChecker.TNT.DisableIgniteCollidingTNT")) {
+				if(!f.getBoolean("Options.LagChecker.TNT.DisableIgniteCollidingTNT")) {
 				if(b.getType()==Material.TNT) {
 					b.setType(Material.AIR);
 					TNTPrimed tnt = (TNTPrimed)b.getWorld().spawnEntity(b.getLocation(), EntityType.PRIMED_TNT);
-					 tnt.setFuseTicks(LoaderClass.config.getConfig().getInt("Options.LagChecker.TNT.TimeIgniteCollidingTNT"));
+					 tnt.setFuseTicks(f.getInt("Options.LagChecker.TNT.TimeIgniteCollidingTNT"));
 				}else {
-					if(!LoaderClass.config.getConfig().getBoolean("Options.LagChecker.TNT.DisableAllDrops"))
+					if(!f.getBoolean("Options.LagChecker.TNT.DisableAllDrops"))
 					a.addAll(b.getDrops());
 					b.setType(Material.AIR);
 				}
 			}else {
-				if(!LoaderClass.config.getConfig().getBoolean("Options.LagChecker.TNT.DisableAllDrops"))
+				if(!f.getBoolean("Options.LagChecker.TNT.DisableAllDrops"))
 				a.addAll(b.getDrops());
 				b.setType(Material.AIR);
 			}
@@ -157,14 +158,15 @@ public class Events implements Listener {
 				e.setCancelled(true);
 		}
 		try {
-		if(TheAPI.getWorldBorder(e.getTo().getWorld()).isOutside(e.getTo())) {
-			if(LoaderClass.data.getConfig().getString("WorldBorder."+e.getTo().getWorld().getName()+".CancelMoveOutside")!=null) {
-				e.setCancelled(TheAPI.getWorldBorder(e.getTo().getWorld()).isCancellledMoveOutside());
+			World w = e.getTo().getWorld();
+		if(TheAPI.getWorldBorder(w).isOutside(e.getTo())) {
+			if(d.getString("WorldBorder."+w.getName()+".CancelMoveOutside")!=null) {
+				e.setCancelled(TheAPI.getWorldBorder(w).isCancellledMoveOutside());
 			}
-				if(LoaderClass.data.getConfig().getString("WorldBorder."+e.getTo().getWorld().getName()+".Type")!=null) {
+				if(d.getString("WorldBorder."+w.getName()+".Type")!=null) {
 			WarningMessageType t = WarningMessageType.valueOf(
-					LoaderClass.data.getConfig().getString("WorldBorder."+e.getTo().getWorld().getName()+".Type"));
-			String msg = LoaderClass.data.getConfig().getString("WorldBorder."+e.getTo().getWorld().getName()+".Message");
+					d.getString("WorldBorder."+w.getName()+".Type"));
+			String msg = d.getString("WorldBorder."+w.getName()+".Message");
 			if(msg==null)return;
 			switch(t) {
 			case ACTIONBAR:
@@ -203,54 +205,54 @@ public class Events implements Listener {
 		
 	}
 		}
-	
+	FileConfiguration f = LoaderClass.config.getConfig();
+	FileConfiguration d = LoaderClass.data.getConfig();
+	PunishmentAPI a = TheAPI.getPunishmentAPI();
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onLogin(PlayerLoginEvent e) {
-		String s = e.getPlayer().getName();
-		LoaderClass.data.getConfig().set("data."+s+".ip", e.getRealAddress().toString().replace(".", "_"));
-		LoaderClass.data.save();
-		PunishmentAPI a = TheAPI.getPunishmentAPI();
+	public void onLogin(AsyncPlayerPreLoginEvent e) {
+		String s = e.getName();
+		LoaderClass.data.getConfig().set("data."+s+".ip", e.getAddress().toString().replace(".", "_"));
 		try {
 		if(a.hasBan(s)) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.Ban")
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.Ban")
 					.replace("%player%", s)
 					.replace("%reason%", a.getBanReason(s))));
 			return;
 		}
 		if(a.hasTempBan(s)) {
-				e.disallow(Result.KICK_BANNED, TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.TempBan")
+				e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.TempBan")
 						.replace("%player%", s)
 						.replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(a.getTempBanExpireTime(s)))
 						.replace("%reason%", a.getTempBanReason(s))));
 				return;
 		}
 		if(a.hasBanIP(s)) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.BanIP")
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.BanIP")
 					.replace("%player%", s)
 					.replace("%reason%",a.getBanIPReason(s))));
 			return;
 		}
 		if(a.hasTempBanIP(s)) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.TempBanIP")
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.TempBanIP")
 					.replace("%player%", s)
-					.replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(a.getTempBanIP_ExpireTime(s)))
+					.replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(a.getTempBanIPExpireTime(s)))
 					.replace("%reason%", a.getTempBanIPReason(s))));
 			return;
 		}
 		}catch(Exception ad) {
-			if(LoaderClass.config.getConfig() == null || LoaderClass.config.getConfig() != null && !LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
+			if(!f.getBoolean("Options.HideErrors")) {
 				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cError when processing PunishmentAPI:"));
 				ad.printStackTrace();
 				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cEnd of error."));
 				}else
 					Error.sendRequest("&bTheAPI&7: &cError when processing PunishmentAPI");
 		}
+		LoaderClass.data.save();
 	}
 
 	@EventHandler
 	public void onLeave(PlayerQuitEvent e) {
 		String s = e.getPlayer().getName();
-		PunishmentAPI a = TheAPI.getPunishmentAPI();
 		if(a.hasBan(s)||
 				a.hasBanIP(s)||
 				a.hasTempBanIP(s)||
@@ -267,60 +269,14 @@ public class Events implements Listener {
 	}
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
+		String s = e.getPlayer().getName();
 		for(Player p : Bukkit.getOnlinePlayers()) {
-			if(TheAPI.isVanished(p) && !e.getPlayer().hasPermission(LoaderClass.data.getConfig().getString("data."+p.getName()+".vanish"))) {
+			if(TheAPI.isVanished(p) && !e.getPlayer().hasPermission(d.getString("data."+p.getName()+".vanish"))) {
 				e.getPlayer().hidePlayer(p);
 			}
 		}
 		if(TheAPI.isVanished(e.getPlayer())) {
-			TheAPI.vanish(e.getPlayer(), LoaderClass.data.getConfig().getString("data."+e.getPlayer().getName()+".vanish"), true);
-		}
-		String s = e.getPlayer().getName();
-		PunishmentAPI a = TheAPI.getPunishmentAPI();
-		try {
-		if(a.hasBan(s)) {
-			e.setJoinMessage(null);
-			Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() { @Override public void run() {
-			e.getPlayer().kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.Ban")
-					.replace("%player%", s)
-					.replace("%reason%", a.getBanReason(s))));
-			return;
-		}},25);}
-		if(a.hasTempBan(s)) {
-			e.setJoinMessage(null);
-			Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() { @Override public void run() {
-					e.getPlayer().kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.TempBan")
-							.replace("%player%", s)
-							.replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(a.getTempBanExpireTime(s)))
-							.replace("%reason%", a.getTempBanReason(s))));
-				return;
-		}},25);}
-		if(a.hasBanIP(s)) {
-			e.setJoinMessage(null);
-			Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() { @Override public void run() {
-			e.getPlayer().kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.BanIP")
-					.replace("%player%", s)
-					.replace("%reason%",a.getBanIPReason(s))));
-			return;
-		}},25);}
-		if(a.hasTempBanIP(s)) {
-			e.setJoinMessage(null);
-			Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() { @Override public void run() {
-		
-			e.getPlayer().kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.TempBanIP")
-					.replace("%player%", s)
-					.replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(a.getTempBanIP_ExpireTime(s)))));
-		}},25);}
-		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(e.getPlayer().getName())) {
-			TheAPI.getPlayerAPI(e.getPlayer()).teleport(TheAPI.getPunishmentAPI().getJailAPI().getJailLocation(TheAPI.getPunishmentAPI().getJailAPI().getJailOfPlayer(e.getPlayer().getName())));
-		}
-		}catch(Exception ad) {
-			if(LoaderClass.config.getConfig() == null || LoaderClass.config.getConfig() != null && !LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
-				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cError when processing PunishmentAPI:"));
-				ad.printStackTrace();
-				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cEnd of error."));
-				}else
-					Error.sendRequest("&bTheAPI&7: &cError when processing PunishmentAPI");
+			TheAPI.vanish(e.getPlayer(), d.getString("data."+s+".vanish"), true);
 		}
 	}
 	
@@ -341,11 +297,12 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onDamage(EntityDamageEvent e) {
 		if(e.getEntity()instanceof Player) {
-		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(((Player)e.getEntity()).getName())) {
+			Player d = (Player)e.getEntity();
+		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(d.getName())) {
 		e.setCancelled(true);
 		}
-		if(TheAPI.getPlayerAPI((Player)e.getEntity()).allowedGod()) {
-			DamageGodPlayerEvent event = new DamageGodPlayerEvent((Player)e.getEntity(),e.getDamage(),e.getCause());
+		if(TheAPI.getPlayerAPI(d).allowedGod()) {
+			DamageGodPlayerEvent event = new DamageGodPlayerEvent(d,e.getDamage(),e.getCause());
 			Bukkit.getPluginManager().callEvent(event);
 			if(event.isCancelled())
 				e.setCancelled(true);
@@ -365,8 +322,9 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onDamage(EntityDamageByEntityEvent e) {
 		if(e.getEntity() instanceof Player) {
-			if(TheAPI.getPlayerAPI((Player)e.getEntity()).allowedGod()) {
-				DamageGodPlayerByEntityEvent event = new DamageGodPlayerByEntityEvent((Player)e.getEntity(),e.getDamager(),e.getDamage(),e.getCause());
+			Player d = (Player)e.getEntity();
+			if(TheAPI.getPlayerAPI(d).allowedGod()) {
+				DamageGodPlayerByEntityEvent event = new DamageGodPlayerByEntityEvent(d,e.getDamager(),e.getDamage(),e.getCause());
 				Bukkit.getPluginManager().callEvent(event);
 				if(event.isCancelled())
 					e.setCancelled(true);
@@ -405,29 +363,23 @@ public class Events implements Listener {
 	
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onChat(PlayerChatEvent e) {
-		if(LoaderClass.chatformat.get(e.getPlayer()) != null)
-		e.setFormat(LoaderClass.chatformat.get(e.getPlayer()).replace("%", "%%")
-				.replace("%%player%%", e.getPlayer().getName())
-				.replace("%%playername%%", e.getPlayer().getDisplayName())
-				.replace("%%playercustom%%", e.getPlayer().getCustomName())
-				.replace("%%hp%%", e.getPlayer().getHealthScale()+"")
-				.replace("%%food%%", e.getPlayer().getFoodLevel()+"")
-				.replace("%%world%%", e.getPlayer().getWorld().getName()+"")
-				.replace("%%x%%", e.getPlayer().getLocation().getBlockX()+"")
-				.replace("%%y%%", e.getPlayer().getLocation().getBlockY()+"")
-				.replace("%%z%%", e.getPlayer().getLocation().getBlockZ()+"").replace("%%message%%", e.getMessage().replace("%", "%%")));
-		String s = e.getPlayer().getName();
-		PunishmentAPI a= TheAPI.getPunishmentAPI();
+		Player p = e.getPlayer();
+		String s = p.getName();
+		if(LoaderClass.chatformat.containsKey(p))
+		e.setFormat(LoaderClass.chatformat.get(p).replace("%", "%%")
+				.replace("%%player%%", s)
+				.replace("%%playername%%", p.getDisplayName())
+				.replace("%%playercustom%%", p.getCustomName()).replace("%%message%%", e.getMessage().replace("%", "%%")));
 		if(a.hasTempMute(s)) {
 				e.setCancelled(true);
-				e.getPlayer().sendMessage(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.TempMute")
+				e.getPlayer().sendMessage(TheAPI.colorize(f.getString("Format.TempMute")
 								.replace("%player%", s)
 								.replace("%reason%", a.getTempMuteReason(s))
 						.replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(a.getTempMuteExpireTime(s)))));
 		}
 		if(a.hasMute(s)) {
 			e.setCancelled(true);
-			e.getPlayer().sendMessage(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.Mute")
+			e.getPlayer().sendMessage(TheAPI.colorize(f.getString("Format.Mute")
 					.replace("%player%", s)
 					.replace("%reason%", a.getMuteReason(s))));
 		}
