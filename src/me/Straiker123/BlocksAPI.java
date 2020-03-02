@@ -6,12 +6,16 @@ import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.CommandBlock;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Entity;
+
+import me.Straiker123.Utils.Error;
 
 public class BlocksAPI {
 	
@@ -20,6 +24,62 @@ public class BlocksAPI {
 		Square
 	}
 
+    public List<Entity> getNearbyEntities(Location l, int radius){
+    	if(radius > 256) {
+    		Error.err("getting nearby entities", "The radius cannot be greater than 256");
+    		return new ArrayList<Entity>();
+    	}
+        int chunkRadius = radius < 16 ? 1 : (radius - (radius % 16))/16;
+        List<Entity> radiusEntities = new ArrayList<Entity>();
+            for (int chX = 0 -chunkRadius; chX <= chunkRadius; chX ++){
+                for (int chZ = 0 -chunkRadius; chZ <= chunkRadius; chZ++){
+                    int x=(int) l.getX(),y=(int) l.getY(),z=(int) l.getZ();
+                    for (Entity e : new Location(l.getWorld(),x+(chX*16),y,z+(chZ*16)).getChunk().getEntities()){
+                        if (e.getLocation().distance(l) <= radius && e.getLocation().getBlock() != l.getBlock()) radiusEntities.add(e);
+                    }
+                }
+            }
+        return radiusEntities;
+    }
+
+    public List<Entity> getNearbyEntities(Entity ed, int radius){
+    	if(radius > 256) {
+    		Error.err("getting nearby entities", "The radius cannot be greater than 256");
+    		return new ArrayList<Entity>();
+    	}
+    	Location l = ed.getLocation();
+        int chunkRadius = radius < 16 ? 1 : (radius - (radius % 16))/16;
+        List<Entity> radiusEntities = new ArrayList<Entity>();
+            for (int chX = 0 -chunkRadius; chX <= chunkRadius; chX ++){
+                for (int chZ = 0 -chunkRadius; chZ <= chunkRadius; chZ++){
+                    int x=(int) l.getX(),y=(int) l.getY(),z=(int) l.getZ();
+                    for (Entity e : new Location(l.getWorld(),x+(chX*16),y,z+(chZ*16)).getChunk().getEntities()){
+                        if (e.getLocation().distance(l) <= radius && e.getLocation().getBlock() != l.getBlock()) radiusEntities.add(e);
+                    }
+                }
+            }
+        return radiusEntities;
+    }
+
+    public List<Entity> getNearbyEntities(World world, double x, double y, double z, int radius){
+    	if(radius > 256) {
+    		Error.err("getting nearby entities", "The radius cannot be greater than 256");
+    		return new ArrayList<Entity>();
+    	}
+    	Location l = new Location(world,x,y,z);
+        int chunkRadius = radius < 16 ? 1 : (radius - (radius % 16))/16;
+        List<Entity> radiusEntities = new ArrayList<Entity>();
+            for (int chX = 0 -chunkRadius; chX <= chunkRadius; chX ++){
+                for (int chZ = 0 -chunkRadius; chZ <= chunkRadius; chZ++){
+                    int xs=(int) l.getX(),ys=(int) l.getY(),zs=(int) l.getZ();
+                    for (Entity e : new Location(l.getWorld(),xs+(chX*16),ys,zs+(chZ*16)).getChunk().getEntities()){
+                        if (e.getLocation().distance(l) <= radius && e.getLocation().getBlock() != l.getBlock()) radiusEntities.add(e);
+                    }
+                }
+            }
+        return radiusEntities;
+    }
+	
 	public BlockSave getBlockSave(Block b) {
 		return new BlockSave(b);
 	}
@@ -183,20 +243,25 @@ public class BlocksAPI {
 				  if(!material.isBlock())return;
 				  BlockState s = loc.getBlock().getState();
 				  s.setType(material);
-				  s.update();
+				  s.update(true,true);
 			  }
 			public void setBlock(Block loc, Material material) {
 				  if(!material.isBlock())return;
 				  BlockState s = loc.getState();
 				  s.setType(material);
-				  s.update();
+				  s.update(true,true);
 			  }
 	  
 	  public void setBlockSave(BlockSave s) {
 		  Block b = s.getWorld().getBlockAt(s.getLocation());
 		  BlockState state = b.getState();
 		  state.setType(s.getMaterial());
+
+			try {
 		  state.setBlockData(s.getBlockData());
+			}catch(Exception|NoSuchMethodError|NoSuchFieldError er) {
+				//old version
+			}
 		  state.setData(s.getMaterialData());
 			if(b.getType().name().contains("SIGN")) {
 				Sign w = (Sign)b.getState();
@@ -218,11 +283,16 @@ public class BlocksAPI {
 				if(s.getBlockInventory() != null)
 				w.getBlockInventory().setContents(s.getBlockInventory());
 			}
-			if(b.getType().name().contains("SHULKERBOX")) {
+			try {
+			if(b.getType().name().contains("SHULKER_BOX")) {
 				ShulkerBox w = (ShulkerBox)b.getState();
 				if(s.getBlockInventory() != null)
 				w.getInventory().setContents(s.getBlockInventory());
 			}
+
+			  }catch(Exception |NoSuchFieldError e) {
+				  
+			  }
 			if(b.getType().name().contains("COMMAND")) {
 				CommandBlock w = (CommandBlock)b.getState();
 				if(s.getCommand() != null)

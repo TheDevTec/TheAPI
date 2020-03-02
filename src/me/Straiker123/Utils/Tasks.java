@@ -85,16 +85,11 @@ public class Tasks {
 				++next;
 				}
 			},20,20*TheAPI.getTimeConventorAPI().getTimeFromString(LoaderClass.config.getConfig().getString("Options.LagChecker.Reflesh"))));
-		if(!TheAPI.isNewVersion() && !TheAPI.getServerVersion().startsWith("v1_12")
-				&& !TheAPI.getServerVersion().startsWith("v1_11")
-				&& !TheAPI.getServerVersion().startsWith("v1_10")
-				&& !TheAPI.getServerVersion().startsWith("v1_9")
-				&& !TheAPI.getServerVersion().startsWith("v1_8")
-				&& !TheAPI.getServerVersion().equals("v1_7_R4")) 
+		if(TheAPI.isOlder1_9() && !TheAPI.getServerVersion().equals("v1_7_R4")&& !TheAPI.getServerVersion().startsWith("v1_8")) 
 			s.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, new Runnable() {
 				public void run() {
 		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6Info: &cYour server version isn't supported!"));
+		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6Info: &cYour server version isn't supported! ("+TheAPI.getServerVersion()+")"));
 		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
 	}}, 20, 20*60*3600));
 		if(LoaderClass.config.getConfig().getBoolean("Options.EntityMoveEvent.Enabled"))
@@ -193,6 +188,8 @@ public class Tasks {
 	}
 	
 	public static void unload() {
+		 Events.f = LoaderClass.config.getConfig();
+		 Events.d = LoaderClass.data.getConfig();
 		load=false;
 		for(int i : s) Bukkit.getScheduler().cancelTask(i);
 		s.clear();

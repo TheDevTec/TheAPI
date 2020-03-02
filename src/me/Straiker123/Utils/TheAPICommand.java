@@ -22,7 +22,6 @@ import org.bukkit.util.StringUtil;
 import me.Straiker123.BlockSave;
 import me.Straiker123.BlocksAPI;
 import me.Straiker123.BlocksAPI.Shape;
-import me.Straiker123.ConfigAPI;
 import me.Straiker123.LoaderClass;
 import me.Straiker123.ScoreboardAPI;
 import me.Straiker123.TheAPI;
@@ -172,10 +171,10 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		if(perm("Reload")) {
 			TheAPI.msg("&7-----------------",s);
 			TheAPI.msg("&6Reloading configs..",s);
-			for(ConfigAPI a : LoaderClass.list) {
-				if(a==null)continue;
-				a.reload();
-			}
+			LoaderClass.data.reload();
+			LoaderClass.config.reload();
+			LoaderClass.gameapi.reload();
+			LoaderClass.unused.reload();
 			Tasks.unload();
 			Tasks.load();
 			TheAPI.msg("&6Configs reloaded.",s);

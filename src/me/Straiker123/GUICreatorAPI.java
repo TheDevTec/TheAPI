@@ -108,7 +108,7 @@ public class GUICreatorAPI {
 		 if(TheAPI.isNewVersion()
 				 &&!TheAPI.getServerVersion().contains("v1_13"))
 		if(a.getItemMeta().hasCustomModelData()) s.setCustomModelData(a.getItemMeta().getCustomModelData());
-		 if(TheAPI.isOlder1_9()
+		 if(!TheAPI.isOlder1_9()
 				 &&!TheAPI.getServerVersion().contains("v1_9")
 				 &&!TheAPI.getServerVersion().contains("v1_10"))
 		 s.setUnbreakable(a.getItemMeta().isUnbreakable());
@@ -123,7 +123,7 @@ public class GUICreatorAPI {
 		 if(TheAPI.isNewVersion()
 				 &&!TheAPI.getServerVersion().contains("v1_13"))
 		if(a.getItemMeta().hasCustomModelData()) s.setCustomModelData(a.getItemMeta().getCustomModelData());
-		 if(TheAPI.isOlder1_9()
+		 if(!TheAPI.isOlder1_9()
 				 &&!TheAPI.getServerVersion().contains("v1_9")
 				 &&!TheAPI.getServerVersion().contains("v1_10"))
 		 s.setUnbreakable(a.getItemMeta().isUnbreakable());

@@ -171,7 +171,7 @@ public class PlayerAPI {
 			l=b;
 			break;
 		}}
-		return l;
+		return l.add(0.5, 0.5, 0.5);
 	}
 	
 	private Location searchLocation(Location d) {
@@ -186,7 +186,7 @@ public class PlayerAPI {
 					break;
 			}
 		}
-		if(l!=null)return l;
+		if(l!=null)return l.add(0.5, 0.5, 0.5);
 		for(Location b :TheAPI.getBlocksAPI().getBlocksLocation(Shape.Sphere, loc, 6)) {
 			String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
 			String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
@@ -196,7 +196,7 @@ public class PlayerAPI {
 					break;
 			}
 		}
-		if(l!=null)return l;
+		if(l!=null)return l.add(0.5, 0.5, 0.5);
 		for(Location b : TheAPI.getBlocksAPI().getBlocksLocation(Shape.Sphere, loc, 8)) {
 			String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
 			String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
@@ -206,7 +206,7 @@ public class PlayerAPI {
 					break;
 					}
 		}
-		if(l!=null)return l;
+		if(l!=null)return l.add(0.5, 0.5, 0.5);
 		return d;
 	}
 	

@@ -126,16 +126,26 @@ public class LoaderClass extends JavaPlugin {
 	public static HashMap<Player, String> chatformat = new HashMap<Player, String>();
 	private void createConfig() {
 		config.setHeader("ChunkMobLimit -> OnLimitExceeded types: KILL/WARN");
+		config.setHeader("TNT -> Action -> LowMememory types: WAIT/DROP");
+		config.setHeader("TNT -> Action -> LowTPS types: WAIT/DROP");
 		config.addDefault("Options.HideErrors", false);
-		config.addDefault("Options.LagChecker.Enabled", false);
-		config.addDefault("Options.LagChecker.Log", true);
+		config.addDefault("Options.LagChecker.Enabled", true);
+		config.addDefault("Options.LagChecker.Log", false);
 		
 		config.addDefault("Options.LagChecker.TNT.Use", true);
-		config.addDefault("Options.LagChecker.TNT.DisableParticles", true);
-		config.addDefault("Options.LagChecker.TNT.TeleportDropsToOnePlace", true);
-		config.addDefault("Options.LagChecker.TNT.DisableAllDrops", false);
-		config.addDefault("Options.LagChecker.TNT.DisableIgniteCollidingTNT", false);
-		config.addDefault("Options.LagChecker.TNT.TimeIgniteCollidingTNT", 10); //in ticks
+		
+		config.addDefault("Options.LagChecker.TNT.Particles.Disable", true);
+		config.addDefault("Options.LagChecker.TNT.Particles.Type", "EXPLOSION_LARGE");
+
+		config.addDefault("Options.LagChecker.TNT.Drops.Allowed", true);
+		config.addDefault("Options.LagChecker.TNT.Drops.InSingleLocation", true);
+		config.addDefault("Options.LagChecker.TNT.Drops.InFirstTNTLocation", false);
+
+		config.addDefault("Options.LagChecker.TNT.CollidingTNT.Disabled", false);
+		config.addDefault("Options.LagChecker.TNT.Action.LowMememory", "WAIT");
+		config.addDefault("Options.LagChecker.TNT.Action.LowTPS", "WAIT");
+		config.addDefault("Options.LagChecker.TNT.CollidingTNT.IgniteTime", 5); //0 is ultra fast, but with ultra lag
+		config.addDefault("Options.LagChecker.TNT.SpawnTNT", false); //more friendly to server
 		
 		config.addDefault("Options.LagChecker.ChunkMobLimit.Use", true);
 		config.addDefault("Options.LagChecker.ChunkMobLimit.Limit", 120);

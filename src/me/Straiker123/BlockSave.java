@@ -35,11 +35,12 @@ public class BlockSave {
 	String cmd,cmdname;
 	DyeColor color;
 	public BlockSave(Block b) {
-		  if(b.getState() instanceof Chest) {
+		  if(b.getType().name().contains("CHEST")) {
 			  Chest c = (Chest) b.getState();
 			  inv = c.getBlockInventory().getContents();
 		  }
-		  if(b.getState() instanceof ShulkerBox) {
+		  try {
+		  if(b.getType().name().contains("SHULKER_BOX")) {
 			  ShulkerBox c = (ShulkerBox) b.getState();
 			  inv = c.getInventory().getContents();
 			  try {
@@ -47,6 +48,9 @@ public class BlockSave {
 			  }catch(Exception e) {
 				  
 			  }
+		  }
+		  }catch(Exception |NoSuchFieldError e) {
+			  
 		  }
 		  if(b.getType().name().contains("SIGN")) {
 			  Sign c = (Sign) b.getState();
@@ -63,7 +67,11 @@ public class BlockSave {
 			  cmdname=c.getName();
 		  }
 		data=b.getState().getData();
+		try {
 		blockdata=b.getBlockData();
+	}catch(Exception|NoSuchMethodError|NoSuchFieldError er) {
+		//old version
+	}
 		biom=b.getBiome();
 		mat=b.getType();
 		loc=b.getLocation();
@@ -215,7 +223,7 @@ public class BlockSave {
 				w.getBlockInventory().setContents(getBlockInventoryFromString(inv));
 				w.update(true, true);
 			}
-			if(b.getType().name().contains("SHULKERBOX")) {
+			if(b.getType().name().contains("SHULKER_BOX")) {
 				ShulkerBox w = (ShulkerBox)b.getState();
 				if(inv != null && getBlockInventoryFromString(inv) != null)
 				w.getInventory().setContents(getBlockInventoryFromString(inv));

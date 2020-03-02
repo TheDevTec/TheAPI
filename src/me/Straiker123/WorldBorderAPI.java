@@ -13,21 +13,21 @@ public class WorldBorderAPI {
 	public void setCenter(double x, double z) {
 		try {
 		w.getWorldBorder().setCenter(x, z);
-		}catch(Exception err) {
+		}catch(Exception | NoSuchMethodError err) {
 			//this is not available
 		}
 	}
 	public void set(double size, long time) {
 		try {
 		w.getWorldBorder().setSize(size, time);
-	}catch(Exception err) {
+	}catch(Exception | NoSuchMethodError err) {
 		//this is not available
 	}
 	}
 	public void add(double size, long time) {
 		try {
 		w.getWorldBorder().setSize(w.getWorldBorder().getSize()+size, time);
-	}catch(Exception err) {
+	}catch(Exception | NoSuchMethodError err) {
 		//this is not available
 	}
 	}
@@ -40,7 +40,7 @@ public class WorldBorderAPI {
 		else {
 			Error.err("set world border size of world "+w.getName()+" to "+remove, "Size to remove can't be more than world border size");
 		}
-	}catch(Exception err) {
+	}catch(Exception | NoSuchMethodError err) {
 		//this is not available
 	}
 	}
@@ -55,7 +55,7 @@ public class WorldBorderAPI {
 		else {
 			Error.err("set world border damage of world "+w.getName()+" to "+amount, "Damage must be less than 0");
 		}
-	}catch(Exception err) {
+	}catch(Exception | NoSuchMethodError err) {
 		//this is not available
 	}
 	}
@@ -66,7 +66,7 @@ public class WorldBorderAPI {
 		else {
 			Error.err("set world border buffer of world "+w.getName()+" to "+amount, "Buffer must be less than 0");
 		}
-	}catch(Exception err) {
+	}catch(Exception | NoSuchMethodError err) {
 		//this is not available
 	}
 	}
@@ -78,7 +78,7 @@ public class WorldBorderAPI {
 			else {
 				Error.err("set world border warning distance of world "+w.getName()+" to "+distance, "Distance must be less than 0");
 			}
-	}catch(Exception err) {
+	}catch(Exception | NoSuchMethodError err) {
 		//this is not available
 	}
 	}
@@ -90,7 +90,7 @@ public class WorldBorderAPI {
 			else {
 				Error.err("set world border warning time of world "+w.getName()+" to "+time, "Time must be less than 0");
 			}
-	}catch(Exception err) {
+	}catch(Exception | NoSuchMethodError err) {
 		//this is not available
 	}
 	}
@@ -98,7 +98,7 @@ public class WorldBorderAPI {
 	public int getWarningTime() {
 		try {
 		return w.getWorldBorder().getWarningTime();
-	}catch(Exception err) {
+	}catch(Exception | NoSuchMethodError err) {
 		return 0;
 		//this is not available
 	}
@@ -106,7 +106,7 @@ public class WorldBorderAPI {
 	public double getWarningDistance() {
 		try {
 		return w.getWorldBorder().getWarningDistance();
-	}catch(Exception err) {
+	}catch(Exception | NoSuchMethodError err) {
 		return 0.0;
 		//this is not available
 	}
@@ -170,7 +170,7 @@ public class WorldBorderAPI {
 	public double getDamageBuffer() {
 		try {
 		return w.getWorldBorder().getDamageBuffer();
-	}catch(Exception err) {
+	}catch(Exception | NoSuchMethodError err) {
 		//this is not available
 		return 0.0;
 	}
@@ -178,7 +178,7 @@ public class WorldBorderAPI {
 	public double getDamageAmount() {
 		try {
 		return w.getWorldBorder().getDamageAmount();
-	}catch(Exception err) {
+	}catch(Exception | NoSuchMethodError err) {
 		//this is not available
 		return 0.0;
 	}
@@ -186,7 +186,7 @@ public class WorldBorderAPI {
 	public Location getCenter() {
 		try {
 		return w.getWorldBorder().getCenter();
-	}catch(Exception err) {
+	}catch(Exception | NoSuchMethodError err) {
 		//this is not available
 		return null;
 	}
@@ -194,7 +194,7 @@ public class WorldBorderAPI {
 	public double getSize() {
 		try {
 		return w.getWorldBorder().getSize();
-	}catch(Exception err) {
+	}catch(Exception | NoSuchMethodError err) {
 		//this is not available
 		return 0.0;
 	}

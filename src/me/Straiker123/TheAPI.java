@@ -52,6 +52,14 @@ public class TheAPI {
 	}
 
 	/**
+	 * @see see StringUtils (Get int/double/long from String, convertLong to String time or visa verse and more
+	 * @return StringUtils
+	 */
+	public static StringUtils getStringUtils() {
+		return new StringUtils();
+	}
+
+	/**
 	 * @see see Using this API you can sort HashMap
 	 * @return RankingAPI
 	 */

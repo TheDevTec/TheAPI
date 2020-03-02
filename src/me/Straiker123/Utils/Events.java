@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
@@ -33,8 +36,10 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.Straiker123.BlocksAPI.Shape;
 import me.Straiker123.ItemCreatorAPI;
 import me.Straiker123.LoaderClass;
 import me.Straiker123.ParticleEffect;
@@ -47,11 +52,12 @@ import me.Straiker123.Events.DamageGodPlayerEvent;
 import me.Straiker123.Events.GUIClickEvent;
 import me.Straiker123.Events.GUICloseEvent;
 import me.Straiker123.Events.PlayerJumpEvent;
+import me.Straiker123.Events.TNTExplosionEvent;
 import me.Straiker123.Utils.GUIID.GRunnable;
 
 @SuppressWarnings("deprecation")
 public class Events implements Listener {
-	
+
 	private ItemStack createWrittenBook(ItemStack a) {
 		Material ms = Material.matchMaterial("WRITABLE_BOOK");
 		if(ms==null)ms=Material.matchMaterial("BOOK_AND_QUILL");
@@ -62,7 +68,7 @@ public class Events implements Listener {
 		 if(TheAPI.isNewVersion()
 				 &&!TheAPI.getServerVersion().contains("v1_13"))
 		if(a.getItemMeta().hasCustomModelData()) s.setCustomModelData(a.getItemMeta().getCustomModelData());
-		 if(TheAPI.isOlder1_9()
+		 if(!TheAPI.isOlder1_9()
 				 &&!TheAPI.getServerVersion().contains("v1_9")
 				 &&!TheAPI.getServerVersion().contains("v1_10"))
 		 s.setUnbreakable(a.getItemMeta().isUnbreakable());
@@ -77,7 +83,7 @@ public class Events implements Listener {
 		 if(TheAPI.isNewVersion()
 				 &&!TheAPI.getServerVersion().contains("v1_13"))
 		if(a.getItemMeta().hasCustomModelData()) s.setCustomModelData(a.getItemMeta().getCustomModelData());
-		 if(TheAPI.isOlder1_9()
+		 if(!TheAPI.isOlder1_9()
 				 &&!TheAPI.getServerVersion().contains("v1_9")
 				 &&!TheAPI.getServerVersion().contains("v1_10"))
 		 s.setUnbreakable(a.getItemMeta().isUnbreakable());
@@ -102,37 +108,231 @@ public class Events implements Listener {
 				f.getBoolean("Options.LagChecker.TNT.Use")) {
 			e.setCancelled(true);
 			synchronized(this) {
-			if(!f.getBoolean("Options.LagChecker.TNT.DisableParticles")) {
-				if(TheAPI.isOlder1_9())TheAPI.getParticleEffectAPI().spawnParticle(ParticleEffect.EXPLOSION_NORMAL, e.getLocation(), 1);
-				else
-					e.getLocation().getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, e.getLocation(),1);
-			}
-				
-				List<ItemStack> a = new ArrayList<ItemStack>();
-			for(Block b : e.blockList()) {
-				if(b.getType()==Material.AIR)continue;
-				if(!f.getBoolean("Options.LagChecker.TNT.DisableIgniteCollidingTNT")) {
-				if(b.getType()==Material.TNT) {
-					b.setType(Material.AIR);
-					TNTPrimed tnt = (TNTPrimed)b.getWorld().spawnEntity(b.getLocation(), EntityType.PRIMED_TNT);
-					 tnt.setFuseTicks(f.getInt("Options.LagChecker.TNT.TimeIgniteCollidingTNT"));
-				}else {
-					if(!f.getBoolean("Options.LagChecker.TNT.DisableAllDrops"))
-					a.addAll(b.getDrops());
-					b.setType(Material.AIR);
-				}
+			if(!f.getBoolean("Options.LagChecker.TNT.Drops.InFirstTNTLocation"))
+				get(e.getLocation(),e.getLocation(),true);
+			else
+				get(e.getLocation(),e.getLocation(),false);
+		}}}
+    public static boolean around(Location b){
+    	return new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name().contains("WATER")
+    			&& new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name().contains("LAVA");
+    }
+    @EventHandler
+    public void onTnt(TNTExplosionEvent e) {
+    	e.setPower(10);
+    }
+   public static void get(Location reals, Location c, boolean toReal) {
+	   TNTExplosionEvent event = new TNTExplosionEvent(c);
+    	Bukkit.getPluginManager().callEvent(event);
+    	if(event.isCancelled()) {
+    		return;
+    	}
+    	if(event.isSynchronized()) {
+			new Task(reals,TheAPI.getBlocksAPI().getBlocks(Shape.Sphere, c, event.getPower(), blocks(event.isNuclearBomb() && event.canNuclearDestroyLiquid())),event).start();
+		return;	
+    	}
+		if(!f.getBoolean("Options.LagChecker.TNT.Particles.Disable")) {
+			if(TheAPI.isOlder1_9()) {
+				ParticleEffect e = ParticleEffect.EXPLOSION_LARGE;
+				if(ParticleEffect.valueOf(f.getString("Options.LagChecker.TNT.Particles.Type"))!=null)
+					e=ParticleEffect.valueOf(f.getString("Options.LagChecker.TNT.Particles.Type"));
+				TheAPI.getParticleEffectAPI().spawnParticle(e, c, 1);
 			}else {
-				if(!f.getBoolean("Options.LagChecker.TNT.DisableAllDrops"))
-				a.addAll(b.getDrops());
-				b.setType(Material.AIR);
+				Particle e = Particle.EXPLOSION_LARGE;
+				if(Particle.valueOf(f.getString("Options.LagChecker.TNT.Particles.Type"))!=null)
+					e=Particle.valueOf(f.getString("Options.LagChecker.TNT.Particles.Type"));
+				c.getWorld().spawnParticle(e, c,1);
 			}
+		}
+    	if(event.canHitEntities())
+		for(Entity e : TheAPI.getBlocksAPI().getNearbyEntities(c,(int) (event.getPower()*1.25))) {
+			if(e instanceof LivingEntity) {
+				((LivingEntity)e).damage(event.getPower()*1.5);
+			}else
+				e.remove();
+		}
+		if(event.canTNTInLiquidCancelEvent() && !around(c)||!event.canTNTInLiquidCancelEvent())
+    	if(event.canDestroyBlocks())
+		for(Block b : TheAPI.getBlocksAPI().getBlocks(Shape.Sphere, c, event.getPower(), blocks(event.isNuclearBomb() && event.canNuclearDestroyLiquid()))) {
+			if(b.getType()==Material.TNT) {
+					if(!f.getBoolean("Options.LagChecker.TNT.CollidingTNT.Disabled")) {
+					b.setType(Material.AIR);
+					if(!f.getBoolean("Options.LagChecker.TNT.SpawnTNT")) {
+						Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
+							@Override
+							public void run() {
+								get(reals,b.getLocation(),toReal);
+							}
+						}, (f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime") <= 0 ? 1: f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime")));
+						}else {
+							TNTPrimed tnt = (TNTPrimed)b.getWorld().spawnEntity(b.getLocation(), EntityType.PRIMED_TNT);
+							tnt.setFuseTicks((f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime") <= 0 ? 1: f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime")));
+						}
+				}else {
+					add(b.getLocation(),(toReal ? reals : b.getLocation()),false,new ArrayList<Inventory>(),(List<ItemStack>) b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
+					b.setType(Material.AIR);
+					b.getDrops().clear();
+				}}else {
+
+					add(b.getLocation(),(toReal ? reals : b.getLocation()),false,new ArrayList<Inventory>(),(List<ItemStack>) b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
+					b.setType(Material.AIR);
+					b.getDrops().clear();
+				}
 			}
-			for(ItemStack w : a)
-				e.getLocation().getWorld().dropItem(e.getLocation(), w);
-			a.clear();
-		}}
 	}
-	
+
+	public static List<Material> blocks(boolean b){
+    	List<Material> m = new ArrayList<Material>();
+    	m.add(Material.AIR);
+    	try {
+    	m.add(Material.BARRIER);
+    	 }catch(Exception |NoSuchFieldError e) {
+    			
+    		}
+    	m.add(Material.BEDROCK);
+    	m.add(Material.ENDER_CHEST);
+    	try {
+    	m.add(Material.END_PORTAL_FRAME);
+    }catch(Exception |NoSuchFieldError e) {
+		
+	}
+    	try {
+    	m.add(Material.STRUCTURE_BLOCK);
+    	m.add(Material.JIGSAW);
+    	 }catch(Exception |NoSuchFieldError e) {
+    			
+    		}
+    	m.add(Material.OBSIDIAN);
+    	try {
+    	m.add(Material.END_GATEWAY);
+    }catch(Exception |NoSuchFieldError e) {
+		
+   	}
+    	try {
+    	m.add(Material.END_PORTAL);
+ }catch(Exception |NoSuchFieldError e) {
+		
+   	}
+    	try {
+    	m.add(Material.COMMAND_BLOCK);
+    	m.add(Material.matchMaterial("REPEATING_COMMAND_BLOCK"));
+    	m.add(Material.matchMaterial("CHAIN_COMMAND_BLOCK"));
+    }catch(Exception |NoSuchFieldError e) {
+    	m.add(Material.matchMaterial("COMMAND"));
+   	}
+    	if(!b) {
+    	m.add(Material.LAVA);
+    	m.add(Material.matchMaterial("STATIONARY_LAVA"));
+    	m.add(Material.WATER);
+    	m.add(Material.matchMaterial("STATIONARY_WATER"));
+    	}
+    	try {
+    	m.add(Material.matchMaterial("ENCHANTING_TABLE"));
+    	}catch(Exception |NoSuchFieldError e) {
+        	m.add(Material.matchMaterial("ENCHANTMENT_TABLE"));
+       	}
+    	m.add(Material.ANVIL);
+    	try {
+    	m.add(Material.CHIPPED_ANVIL);
+    	m.add(Material.DAMAGED_ANVIL);
+    	 }catch(Exception |NoSuchFieldError e) {
+    			
+    		}
+    	try {
+    	m.add(Material.matchMaterial("netherite_block"));
+    	m.add(Material.matchMaterial("crying_obsidian"));
+    	m.add(Material.matchMaterial("ancient_debris"));
+    	}catch(Exception |NoSuchFieldError e) {
+    		
+    	}
+    	return m;
+    }
+    
+	public static List<Inventory> add(Location block, Location real, boolean t,List<Inventory> r, List<ItemStack> drops) {
+		List<Inventory> q = r;
+		if(f.getBoolean("Options.LagChecker.TNT.Drops.Allowed"))
+		if(!t) {
+		if(f.getBoolean("Options.LagChecker.TNT.Drops.InSingleLocation")){
+			Inventory a = Bukkit.createInventory(null, 54);
+			if(q.isEmpty()==false) {
+				for(Inventory i : q) {
+					if(i.firstEmpty()!=-1) {
+						a=i;
+						break;
+					}
+				}
+			}
+			if(q.contains(a))
+			q.remove(a);
+			for(ItemStack i : drops) {
+				if(a.firstEmpty()!=-1)
+				if(i!=null&&i.getType()!=Material.AIR)a.addItem(i);
+				else {
+					q.add(a);
+					a = Bukkit.createInventory(null, 54);
+					a.addItem(i);
+				}
+			}
+			q.add(a);
+		}else {
+			List<Inventory> qd = new ArrayList<Inventory>();
+			Inventory a = Bukkit.createInventory(null, 54);
+			if(qd.isEmpty()==false) {
+				for(Inventory i : qd) {
+					if(i.firstEmpty()!=-1) {
+						a=i;
+						break;
+					}
+				}
+			}
+			if(qd.contains(a))
+			qd.remove(a);
+			for(ItemStack i :drops) {
+				if(a.firstEmpty()!=-1)
+				if(i!=null&&i.getType()!=Material.AIR)a.addItem(i);
+				else {
+					qd.add(a);
+					a = Bukkit.createInventory(null, 54);
+					a.addItem(i);
+				}
+			}
+			qd.add(a);
+			if(qd.isEmpty()==false)
+				for(Inventory f : qd)
+					for(ItemStack i : f.getContents())
+					if(i!=null&&i.getType()!=Material.AIR)block.getWorld().dropItemNaturally(block, i);
+		}
+		}else {
+			List<Inventory> qd = new ArrayList<Inventory>();
+			Inventory a = Bukkit.createInventory(null, 54);
+			if(qd.isEmpty()==false) {
+				for(Inventory i : qd) {
+					if(i.firstEmpty()!=-1) {
+						a=i;
+						break;
+					}
+				}
+			}
+			if(qd.contains(a))
+			qd.remove(a);
+			for(ItemStack i :drops) {
+				if(a.firstEmpty()!=-1)
+				if(i!=null&&i.getType()!=Material.AIR)a.addItem(i);
+				else {
+					qd.add(a);
+					a = Bukkit.createInventory(null, 54);
+					a.addItem(i);
+				}
+			}
+			qd.add(a);
+			if(qd.isEmpty()==false)
+				for(Inventory f : qd)
+					for(ItemStack i : f.getContents())
+					if(i!=null&&i.getType()!=Material.AIR)real.getWorld().dropItemNaturally(real, i);
+		}
+		return r;
+	}
+
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onItemDestroy(PlayerItemBreakEvent e) {
 		me.Straiker123.Events.PlayerItemBreakEvent event = new me.Straiker123.Events.PlayerItemBreakEvent(e.getPlayer(),e.getBrokenItem());
@@ -205,9 +405,9 @@ public class Events implements Listener {
 		
 	}
 		}
-	FileConfiguration f = LoaderClass.config.getConfig();
-	FileConfiguration d = LoaderClass.data.getConfig();
-	PunishmentAPI a = TheAPI.getPunishmentAPI();
+	public static FileConfiguration f = LoaderClass.config.getConfig();
+	public static FileConfiguration d = LoaderClass.data.getConfig();
+	public static PunishmentAPI a = TheAPI.getPunishmentAPI();
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onLogin(AsyncPlayerPreLoginEvent e) {
 		String s = e.getName();
