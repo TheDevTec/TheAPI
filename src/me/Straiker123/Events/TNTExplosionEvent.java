@@ -7,7 +7,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 public class TNTExplosionEvent extends Event implements Cancellable {
-	boolean b,nuclear,sync,e,d,n,col;
+	boolean b,nuclear,e,d,n,col;
 	int power;
 	Location l;
 	public TNTExplosionEvent(Location loc) {
@@ -15,7 +15,6 @@ public class TNTExplosionEvent extends Event implements Cancellable {
 		power=4;
 		d=true;
 		e=true;
-		sync=true;
 		col=true;
 	}
 	@Override
@@ -42,9 +41,6 @@ public class TNTExplosionEvent extends Event implements Cancellable {
 	public int getPower() {
 		return power;
 	}
-	public void setSynchronized(boolean synchronize) {
-		sync=synchronize;
-	}
 
 	public void setDestroyBlocks(boolean destroy) {
 		d=destroy;
@@ -60,10 +56,6 @@ public class TNTExplosionEvent extends Event implements Cancellable {
 	
 	public boolean canHitEntities() {
 		return e;
-	}
-	
-	public boolean isSynchronized() {
-		return sync;
 	}
 	
 	public Location getLocation() {

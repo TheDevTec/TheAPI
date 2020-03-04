@@ -23,6 +23,7 @@ import me.Straiker123.BlockSave;
 import me.Straiker123.BlocksAPI;
 import me.Straiker123.BlocksAPI.Shape;
 import me.Straiker123.LoaderClass;
+import me.Straiker123.MultiMap;
 import me.Straiker123.ScoreboardAPI;
 import me.Straiker123.TheAPI;
 
@@ -74,7 +75,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			return true;
 		}
 		if(eq(0,"test")) {
-			if(!s.isOp() || !(s instanceof Player))return true;
+			if(!s.isOp() || !(s instanceof Player))return true; //sender must be player & has op
 			Player p = (Player)s;
 			if(args.length==1) {
 				TheAPI.msg("&7-----------------",s);
@@ -85,9 +86,21 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			TheAPI.msg("&6/TheAPI Test Scoreboard",s);
 			TheAPI.msg("&6/TheAPI Test BlocksAPI",s);
 			TheAPI.msg("&6/TheAPI Test PlayerName",s);
+			TheAPI.msg("&6/TheAPI Test MultiMap",s);
 			TheAPI.msg("&7-----------------",s);
 			return true;
 			}
+			if(eq(1,"multimap")) {
+				MultiMap map = TheAPI.getMultiMap();
+				//Key, Values
+				TheAPI.msg("&eInput: &6TheAPI, DevTec, Top, 1", s);
+				map.put("Straiker123", "TheAPI", "DevTec","Top",1);
+				for(Object o : map.getValues("Straiker123")) {
+					TheAPI.msg("&eResult: &6"+o, s);
+				}
+				return true;
+			}
+			
 			if(eq(1,"bossbar")) {
 				TheAPI.sendBossBar(p, "&eTheAPI v"+TheAPI.getPluginsManagerAPI().getVersion("TheAPI"), 0.5, 40);
 				return true;
@@ -491,7 +504,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		}
 		if(args[0].equalsIgnoreCase("Test") && s.isOp()) {
 			if(args.length==2) {
-				c.addAll(StringUtil.copyPartialMatches(args[1], Arrays.asList("TabList","Scoreboard","Title","Actionbar","Bossbar","BlocksAPI","PlayerName"), new ArrayList<>()));
+				c.addAll(StringUtil.copyPartialMatches(args[1], Arrays.asList("TabList","Scoreboard","Title","Actionbar","Bossbar","BlocksAPI","PlayerName","MultiMap"), new ArrayList<>()));
 				}
 		}
 		if(args[0].equalsIgnoreCase("WorldsManager") && s.hasPermission("TheAPI.Command.WorldsManager")) {

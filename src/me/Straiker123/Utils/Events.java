@@ -6,15 +6,10 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -38,11 +33,9 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-
 import me.Straiker123.BlocksAPI.Shape;
 import me.Straiker123.ItemCreatorAPI;
 import me.Straiker123.LoaderClass;
-import me.Straiker123.ParticleEffect;
 import me.Straiker123.PunishmentAPI;
 import me.Straiker123.TheAPI;
 import me.Straiker123.TheAPI.SudoType;
@@ -107,78 +100,25 @@ public class Events implements Listener {
 		if(f.getBoolean("Options.LagChecker.Enabled") &&
 				f.getBoolean("Options.LagChecker.TNT.Use")) {
 			e.setCancelled(true);
-			synchronized(this) {
-			if(!f.getBoolean("Options.LagChecker.TNT.Drops.InFirstTNTLocation"))
-				get(e.getLocation(),e.getLocation(),true);
-			else
-				get(e.getLocation(),e.getLocation(),false);
-		}}}
+			get((e.getEntity().hasMetadata("real") ? TheAPI.getBlocksAPI().getLocationFromString(e.getEntity().getMetadata("real").get(0).asString()) : e.getLocation()),e.getLocation());
+		}}
     public static boolean around(Location b){
-    	return new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name().contains("WATER")
-    			&& new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name().contains("LAVA");
+    	boolean s = false;
+    for(Block f : TheAPI.getBlocksAPI().getBlocks(Shape.Sphere, b, 1)) {
+    	if(f.getType().name().contains("WATER")||f.getType().name().contains("LAVA")) {
+    		s=true;
+    		break;
+    	}
     }
-    @EventHandler
-    public void onTnt(TNTExplosionEvent e) {
-    	e.setPower(10);
+    return s;
     }
-   public static void get(Location reals, Location c, boolean toReal) {
+   public static void get(Location reals, Location c) {
 	   TNTExplosionEvent event = new TNTExplosionEvent(c);
     	Bukkit.getPluginManager().callEvent(event);
     	if(event.isCancelled()) {
     		return;
     	}
-    	if(event.isSynchronized()) {
 			new Task(reals,TheAPI.getBlocksAPI().getBlocks(Shape.Sphere, c, event.getPower(), blocks(event.isNuclearBomb() && event.canNuclearDestroyLiquid())),event).start();
-		return;	
-    	}
-		if(!f.getBoolean("Options.LagChecker.TNT.Particles.Disable")) {
-			if(TheAPI.isOlder1_9()) {
-				ParticleEffect e = ParticleEffect.EXPLOSION_LARGE;
-				if(ParticleEffect.valueOf(f.getString("Options.LagChecker.TNT.Particles.Type"))!=null)
-					e=ParticleEffect.valueOf(f.getString("Options.LagChecker.TNT.Particles.Type"));
-				TheAPI.getParticleEffectAPI().spawnParticle(e, c, 1);
-			}else {
-				Particle e = Particle.EXPLOSION_LARGE;
-				if(Particle.valueOf(f.getString("Options.LagChecker.TNT.Particles.Type"))!=null)
-					e=Particle.valueOf(f.getString("Options.LagChecker.TNT.Particles.Type"));
-				c.getWorld().spawnParticle(e, c,1);
-			}
-		}
-    	if(event.canHitEntities())
-		for(Entity e : TheAPI.getBlocksAPI().getNearbyEntities(c,(int) (event.getPower()*1.25))) {
-			if(e instanceof LivingEntity) {
-				((LivingEntity)e).damage(event.getPower()*1.5);
-			}else
-				e.remove();
-		}
-		if(event.canTNTInLiquidCancelEvent() && !around(c)||!event.canTNTInLiquidCancelEvent())
-    	if(event.canDestroyBlocks())
-		for(Block b : TheAPI.getBlocksAPI().getBlocks(Shape.Sphere, c, event.getPower(), blocks(event.isNuclearBomb() && event.canNuclearDestroyLiquid()))) {
-			if(b.getType()==Material.TNT) {
-					if(!f.getBoolean("Options.LagChecker.TNT.CollidingTNT.Disabled")) {
-					b.setType(Material.AIR);
-					if(!f.getBoolean("Options.LagChecker.TNT.SpawnTNT")) {
-						Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
-							@Override
-							public void run() {
-								get(reals,b.getLocation(),toReal);
-							}
-						}, (f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime") <= 0 ? 1: f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime")));
-						}else {
-							TNTPrimed tnt = (TNTPrimed)b.getWorld().spawnEntity(b.getLocation(), EntityType.PRIMED_TNT);
-							tnt.setFuseTicks((f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime") <= 0 ? 1: f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime")));
-						}
-				}else {
-					add(b.getLocation(),(toReal ? reals : b.getLocation()),false,new ArrayList<Inventory>(),(List<ItemStack>) b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
-					b.setType(Material.AIR);
-					b.getDrops().clear();
-				}}else {
-
-					add(b.getLocation(),(toReal ? reals : b.getLocation()),false,new ArrayList<Inventory>(),(List<ItemStack>) b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
-					b.setType(Material.AIR);
-					b.getDrops().clear();
-				}
-			}
 	}
 
 	public static List<Material> blocks(boolean b){

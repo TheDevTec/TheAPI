@@ -143,12 +143,11 @@ public class BlockSave {
 	}
 	
 	public String getLocationAsString() {
-		return getWorld().getName()+","+loc.getBlockX()+","+loc.getBlockY()+","+loc.getBlockZ();
+		return TheAPI.getBlocksAPI().getLocationAsString(loc);
 	}
 	
 	public static Location getLocationFromString(String d) {
-		String[] s = d.split(",");
-		return new Location(Bukkit.getWorld(s[0]),TheAPI.getNumbersAPI(s[1]).getInt(), TheAPI.getNumbersAPI(s[2]).getInt(), TheAPI.getNumbersAPI(s[3]).getInt());
+		return TheAPI.getBlocksAPI().getLocationFromString(d);
 	}
 	
 	public World getWorld() {

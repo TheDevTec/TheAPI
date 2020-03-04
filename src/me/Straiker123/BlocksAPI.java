@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -23,7 +24,19 @@ public class BlocksAPI {
 		Sphere,
 		Square
 	}
-
+	public String getLocationAsString(Location loc) {
+		if(loc==null)return null;
+		return loc.getWorld().getName()+","+loc.getBlockX()+","+loc.getBlockY()+","+loc.getBlockZ();
+	}
+	
+	public Location getLocationFromString(String saved) {
+		try {
+		String[] s = saved.split(",");
+		return new Location(Bukkit.getWorld(s[0]),TheAPI.getNumbersAPI(s[1]).getInt(), TheAPI.getNumbersAPI(s[2]).getInt(), TheAPI.getNumbersAPI(s[3]).getInt());
+		}catch(Exception er) {
+			return null;
+		}
+		}
     public List<Entity> getNearbyEntities(Location l, int radius){
     	if(radius > 256) {
     		Error.err("getting nearby entities", "The radius cannot be greater than 256");

@@ -4,8 +4,10 @@ import static java.util.Map.Entry.comparingByValue;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 public class RankingAPI {
 	HashMap<?, Double> s;
@@ -23,6 +25,14 @@ public class RankingAPI {
 			//out
 			return null;
 		}
+	}
+	
+	public int size() {
+		return s.keySet().size();
+	}
+	
+	public List<Object> getKeySet(){
+		return Arrays.asList(s.keySet());
 	}
 	
 	public HashMap<?, Double> getHashMap(){

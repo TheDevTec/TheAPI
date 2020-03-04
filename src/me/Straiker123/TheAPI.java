@@ -50,6 +50,10 @@ public class TheAPI {
 	public static BlocksAPI getBlocksAPI() {
 		return new BlocksAPI();
 	}
+	
+	public static MultiMap getMultiMap() {
+		return new MultiMap();
+	}
 
 	/**
 	 * @see see StringUtils (Get int/double/long from String, convertLong to String time or visa verse and more

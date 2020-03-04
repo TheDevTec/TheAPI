@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
 import org.bukkit.attribute.Attribute;
@@ -15,8 +16,11 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.BookMeta.Generation;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.material.MaterialData;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import com.google.common.collect.Multimap;
 
@@ -42,6 +46,20 @@ public class ItemCreatorAPI {
 			Error.err("set material in ItemCreatorAPI", "Uknown Material");
 		}
 	}
+	MultiMap ef = TheAPI.getMultiMap();
+	public void addPotionEffect(PotionEffectType potionEffect, int duration, int amlifier) {
+		if(potionEffect!=null)
+		ef.put(potionEffect, duration,amlifier);
+	}
+	public void addPotionEffect(String potionEffect, int duration, int amlifier) {
+		addPotionEffect(PotionEffectType.getByName(potionEffect),duration,amlifier);
+	}
+	Color c;
+	public void setPotionColor(Color color) {
+		if(color != null)
+		c=color;
+	}
+	
 	String name;
 	public void setDisplayName(String newName) {
 		if(newName!=null)
@@ -228,6 +246,17 @@ public class ItemCreatorAPI {
 				m.setAttributeModifiers((Multimap<Attribute, AttributeModifier>) w);
 				i.setItemMeta(m);
 		}else
+			if(i.getType().name().startsWith("LINGERING_POTION_OF_")||i.getType().name().startsWith("SPLASH_POTION_OF_")||i.getType().name().startsWith("POTION_OF_")) {
+				PotionMeta meta = (PotionMeta)i.getItemMeta();
+				meta.setColor(c);
+				for(Object o : ef.getKeySet()) {
+					Object[] f = ef.getValues(o).toArray();
+					PotionEffectType t = PotionEffectType.getByName(o.toString());
+					int dur = TheAPI.getNumbersAPI(f[0].toString()).getInt();
+					int amp = TheAPI.getNumbersAPI(f[1].toString()).getInt();
+					meta.addCustomEffect(new PotionEffect(t, dur, amp), true);
+				}
+			}else
 			if(type!=null) {
 				SkullMeta m=(SkullMeta)i.getItemMeta();
 				if(data != null)
