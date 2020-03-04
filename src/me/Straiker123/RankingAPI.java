@@ -31,6 +31,10 @@ public class RankingAPI {
 		return s.keySet().size();
 	}
 	
+	public void clear() {
+		s.clear();
+	}
+	
 	public List<Object> getKeySet(){
 		return Arrays.asList(s.keySet());
 	}
