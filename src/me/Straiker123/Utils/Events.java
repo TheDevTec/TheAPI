@@ -362,7 +362,7 @@ public class Events implements Listener {
 		if(a.hasTempBan(s)) {
 				e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.TempBan")
 						.replace("%player%", s)
-						.replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(a.getTempBanExpireTime(s)))
+						.replace("%time%", TheAPI.getStringUtils().setTimeToString(a.getTempBanExpireTime(s)))
 						.replace("%reason%", a.getTempBanReason(s))));
 				return;
 		}
@@ -375,7 +375,7 @@ public class Events implements Listener {
 		if(a.hasTempBanIP(s)) {
 			e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.TempBanIP")
 					.replace("%player%", s)
-					.replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(a.getTempBanIPExpireTime(s)))
+					.replace("%time%", TheAPI.getStringUtils().setTimeToString(a.getTempBanIPExpireTime(s)))
 					.replace("%reason%", a.getTempBanIPReason(s))));
 			return;
 		}
@@ -515,7 +515,7 @@ public class Events implements Listener {
 				e.getPlayer().sendMessage(TheAPI.colorize(f.getString("Format.TempMute")
 								.replace("%player%", s)
 								.replace("%reason%", a.getTempMuteReason(s))
-						.replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(a.getTempMuteExpireTime(s)))));
+						.replace("%time%", TheAPI.getStringUtils().setTimeToString(a.getTempMuteExpireTime(s)))));
 		}
 		if(a.hasMute(s)) {
 			e.setCancelled(true);

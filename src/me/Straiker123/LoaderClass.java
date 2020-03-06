@@ -31,36 +31,36 @@ public class LoaderClass extends JavaPlugin {
 	public static ConfigAPI gameapi=TheAPI.getConfig("TheAPI", "GameAPI");
 	public void onLoad() {
 		plugin=this;
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6Action: &6Loading plugin.."));
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
+		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &6Action: &6Loading plugin..",TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 	}
 	boolean hooked;
 	int vaulthook;
 	int times;
 	public void vaultHooking() {
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6Action: &6Looking for Vault Economy.."));
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
+		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &6Action: &6Looking for Vault Economy..",TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 		vaulthook=Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			@Override
 			public void run() {
 				if(getVaultEconomy()) {
 					e=true;
 					Bukkit.getScheduler().cancelTask(vaulthook);
-					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
-					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6Found Vault Economy"));
-					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
+					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &6Found Vault Economy",TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 					return;
 				}
 				++times;
 				if(times==30) {
 					Bukkit.getScheduler().cancelTask(vaulthook);
-					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
-					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cPlugin not found Vault Economy, disabling EconomyAPI.."));
-					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cYou can enable EconomyAPI by set Economy in EconomyAPI."));
-					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &c *TheAPI still works normally without any problems*"));
-					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
+					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &cPlugin not found Vault Economy, disabling EconomyAPI..",TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &cYou can enable EconomyAPI by set Economy in EconomyAPI.",TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &c *TheAPI still works normally without any problems*",TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 					return;
 				}
 			}
@@ -84,30 +84,28 @@ public class LoaderClass extends JavaPlugin {
 		Tasks.load();
 		Bukkit.getPluginManager().registerEvents(new Events(), this);
 		Bukkit.getPluginCommand("TheAPI").setExecutor(new TheAPICommand());
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6Action: &aEnabling plugin, creating config and registering economy.."));
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
+		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &6Action: &aEnabling plugin, creating config and registering economy..",TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 		
 		if(TheAPI.getPluginsManagerAPI().getPlugin("Vault") == null) {
-			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
-			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cPlugin not found Vault, EconomyAPI is disabled."));
-			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cYou can enabled EconomyAPI by set custom Economy in EconomyAPI."));
-			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &c *TheAPI will still normally work without problems*"));
-			TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
+			TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+			TheAPI.msg("&bTheAPI&7: &cPlugin not found Vault, EconomyAPI is disabled.",TheAPI.getConsole());
+			TheAPI.msg("&bTheAPI&7: &cYou can enabled EconomyAPI by set custom Economy in EconomyAPI.",TheAPI.getConsole());
+			TheAPI.msg("&bTheAPI&7: &c *TheAPI will still normally work without problems*",TheAPI.getConsole());
+			TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 			e=false;
 		}else {
 			vaultHooking();
 		}
 		new EconomyAPI();
 		Bukkit.getScheduler().runTaskLater(this, new Runnable() {
-
 			@Override
 			public void run() {
-				
 				if(getTheAPIsPlugins().size()==0)return;
 				String end = "";
 				if(getTheAPIsPlugins().size() !=1)end="s";
-				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &aTheAPI using "+getTheAPIsPlugins().size()+" plugin"+end));
+				TheAPI.msg("&bTheAPI&7: &aTheAPI using "+getTheAPIsPlugins().size()+" plugin"+end,TheAPI.getConsole());
 			}
 		}, 200);
 		
@@ -235,19 +233,19 @@ public class LoaderClass extends JavaPlugin {
 					if(config.getConfig().getString("WorldsSetting."+s+".GenerateStructures")!=null)
 						f=config.getConfig().getBoolean("WorldsSetting."+s+".GenerateStructures");
 
-					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6Loading world with name '"+s+"'.."));
+					TheAPI.msg("&bTheAPI&7: &6Loading world with name '"+s+"'..",TheAPI.getConsole());
 					TheAPI.getWorldsManager().create(s, env, wt,f,0);
-					TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6World with name '"+s+"' loaded."));
+					TheAPI.msg("&bTheAPI&7: &6World with name '"+s+"' loaded.",TheAPI.getConsole());
 				}
-				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6All worlds loaded."));
+				TheAPI.msg("&bTheAPI&7: &6All worlds loaded.",TheAPI.getConsole());
 			}
 		}
 	}
 	
 	public void onDisable() {
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6Action: &cDisabling plugin and saving configs.."));
-		TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
+		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &6Action: &cDisabling plugin and saving configs..",TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 		for(Player p : gui.keySet()) {
 			gui.get(p).closeAndClear();
 		}

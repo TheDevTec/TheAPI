@@ -42,6 +42,22 @@ public class TheAPI {
 	}
 
 	/**
+	 * @see see API where you can create repeating runnable more easier than before
+	 * @return TheRunnable
+	 */
+	public static TheRunnable getTheRunnable() {
+		return new TheRunnable();
+	}
+
+	/**
+	 * @see see API where you can create repeating runnable more easier than before
+	 * @return TheRunnable
+	 */
+	public static TheRunnable getRunnable() {
+		return getTheRunnable();
+	}
+
+	/**
 	 * @see see Get all blocks in radius 20 blocks
 	 * @return BlocksAPI
 	 */

@@ -31,17 +31,17 @@ public class SQLAPI {
 	        	if(LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
 	        		Error.err("opening SQL connection", "Uknown");
 	        	}else {
-	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cA corrupt error when connecting to the SQL:"));
+	        	TheAPI.msg("&cA corrupt error when connecting to the SQL:",TheAPI.getConsole());
 	        	e.printStackTrace();
-	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cEnd of error"));
+	        	TheAPI.msg("&cEnd of error",TheAPI.getConsole());
 	        }
 	        } catch (SQLException e) {
 	        	if(LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
 	        		Error.err("opening SQL connection", "Uknown");
 	        	}else {
-	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cA corrupt error when connecting to the SQL:"));
+	        	TheAPI.msg("&cA corrupt error when connecting to the SQL:",TheAPI.getConsole());
 	        	e.printStackTrace();
-	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cEnd of error"));
+	        	TheAPI.msg("&cEnd of error",TheAPI.getConsole());
 	        }}
 	    }
 	 
@@ -64,9 +64,9 @@ public class SQLAPI {
 				if(LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
 	        		Error.err("closing SQL connection", "Uknown");
 	        	}else {
-	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cA corrupt error when closing SQL connection:"));
+	        	TheAPI.msg("&cA corrupt error when closing SQL connection:",TheAPI.getConsole());
 	        	e.printStackTrace();
-	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cEnd of error"));
+	        	TheAPI.msg("&cEnd of error",TheAPI.getConsole());
 	        }}
 			connection=null;
 			connected=false;
@@ -94,9 +94,9 @@ public class SQLAPI {
 	        		Error.err("processing SQL update, command: "+command, (isConnected() ? "Uknown command" : "SQL isn't connected"));
 	        	
 	        	}else {
-	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cA corrupt error when processing SQL update, command: "+command+", Result: "+(isConnected() ? "Uknown command:" : "SQL isn't connected:")));
+	        	TheAPI.msg("&cA corrupt error when processing SQL update, command: "+command+", Result: "+(isConnected() ? "Uknown command:" : "SQL isn't connected:"),TheAPI.getConsole());
 	        	e.printStackTrace();
-	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cEnd of error"));
+	        	TheAPI.msg("&cEnd of error",TheAPI.getConsole());
 	        }}
 	        return result;
 	    }
@@ -116,9 +116,9 @@ public class SQLAPI {
 	        	if(LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
 	        		Error.err("processing SQL query, command: "+command, (isConnected() ? "Uknown command" : "SQL isn't connected"));
 	        	}else {
-	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cA corrupt error when processing SQL query, command: "+command+", Result: "+(isConnected() ? "Uknown command:" : "SQL isn't connected:")));
+	        	TheAPI.msg("&cA corrupt error when processing SQL query, command: "+command+", Result: "+(isConnected() ? "Uknown command:" : "SQL isn't connected:"),TheAPI.getConsole());
 	        	e.printStackTrace();
-	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cEnd of error"));
+	        	TheAPI.msg("&cEnd of error",TheAPI.getConsole());
 	        }}
 	        return rs;
 	    }
@@ -137,9 +137,9 @@ public class SQLAPI {
 	        	if(LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
 	        		Error.err("processing SQL execute, command: "+command, (isConnected() ? "Uknown command" : "SQL isn't connected"));
 	        	}else {
-	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cA corrupt error when processing SQL query, command: "+command+", Result: "+(isConnected() ? "Uknown command:" : "SQL isn't connected:")));
+	        	TheAPI.msg("&cA corrupt error when processing SQL query, command: "+command+", Result: "+(isConnected() ? "Uknown command:" : "SQL isn't connected:"),TheAPI.getConsole());
 	        	e.printStackTrace();
-	        	TheAPI.getConsole().sendMessage(TheAPI.colorize("&cEnd of error"));
+	        	TheAPI.msg("&cEnd of error",TheAPI.getConsole());
 	        }
 	        }
 	        return rs;

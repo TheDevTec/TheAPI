@@ -2,10 +2,9 @@ package me.Straiker123.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
-
 import me.Straiker123.LoaderClass;
 import me.Straiker123.TheAPI;
+import me.Straiker123.TheRunnable;
 
 public class Error {
 	public static void err(String message, String reason) {
@@ -15,25 +14,23 @@ public class Error {
 			sendRequest("&cTheAPI&7: &cA severe error when &4"+message+"&c, reason: &4"+reason);
 	}
 	static List<String> list = new ArrayList<String>();
-	static int r = -0;
 	public static void sendRequest(String s) {
 	list.add(s);
-	if(r==-0)run();
+	if(!run)run();
 	}
-	 
+	static boolean run;
 	private static void run() {
-		r=Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, new Runnable() {
-
+		run=true;
+		TheRunnable r = TheAPI.getTheRunnable();
+		r.runRepeating( new Runnable() {
 			@Override
 			public void run() {
 				if(!list.isEmpty()) {
 					TheAPI.msg(list.get(0),TheAPI.getConsole());
 				}else {
-					Bukkit.getScheduler().cancelTask(r);
-					r=-0;
+					r.cancel();
 					}
 			}
-					
-		}, 200, 200);
+		}, 200);
 	}
 }

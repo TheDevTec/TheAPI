@@ -23,6 +23,7 @@ import org.bukkit.util.Vector;
 import me.Straiker123.LoaderClass;
 import me.Straiker123.ParticleEffect;
 import me.Straiker123.TheAPI;
+import me.Straiker123.TheRunnable;
 import me.Straiker123.Events.TNTExplosionEvent;
 
 public class Task {
@@ -103,13 +104,14 @@ public class Task {
     				e.remove();
     		}}
 		}}}}
-		task=Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, new Runnable() {
+		TheRunnable task = TheAPI.getTheRunnable();
+		task.runRepeating(new Runnable() {
 			@Override
 			public void run() {
 				if(action().equalsIgnoreCase("wait")) {
 				for(int i = (event.isNuclearBomb() ? 2000 : 200); i > 0; --i) {
 					if(a.isEmpty()) {
-						Bukkit.getScheduler().cancelTask(task);
+						task.cancel();
 						break;
 					}
 					int p=TheAPI.generateRandomInt(7);
@@ -172,9 +174,9 @@ public class Task {
 					}
 				}else {
 					a.clear();
-					Bukkit.getScheduler().cancelTask(task);
+					task.cancel();
 				}
 			}
-		}, 10,10);
+		}, 10);
 	}
 }

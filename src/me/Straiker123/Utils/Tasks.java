@@ -17,12 +17,13 @@ import org.bukkit.entity.Tameable;
 import me.Straiker123.LoaderClass;
 import me.Straiker123.StringUtils;
 import me.Straiker123.TheAPI;
+import me.Straiker123.TheRunnable;
 import me.Straiker123.Events.EntityMoveEvent;
 
 public class Tasks {
 	private static StringUtils f;
 	private static boolean load;
-	private static List<Integer> s = new ArrayList<Integer>();
+	private static List<TheRunnable> s = new ArrayList<TheRunnable>();
 	private static boolean con(Entity s) {
 		boolean c = false;
 		if(s.getType()!=EntityType.PLAYER) {
@@ -49,8 +50,47 @@ public class Tasks {
 		FileConfiguration v= LoaderClass.unused.getConfig();
 		if(load)return;
 		load=true;
+		if(TheAPI.isOlder1_9() && !TheAPI.getServerVersion().equals("v1_7_R4")&& !TheAPI.getServerVersion().startsWith("v1_8")) 
+			s.add(TheAPI.getRunnable().runRepeating(new Runnable() {
+				public void run() {
+		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &6Info: &cYour server version isn't supported! ("+TheAPI.getServerVersion()+")",TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+	}}, 20*60*3600));
+		if(c.getBoolean("Options.EntityMoveEvent.Enabled"))
+			s.add(TheAPI.getRunnable().runRepeating(new Runnable() {
+			@Override
+			public void run() {
+				for(World w: Bukkit.getWorlds()) {
+					for(Entity d :w.getEntities()) {
+						if(d.getType()==EntityType.DROPPED_ITEM)continue;
+						if(d instanceof LivingEntity) {
+							Location a = d.getLocation();
+						LivingEntity e = (LivingEntity)d;
+							Location old = (v.getString("entities."+e.getUniqueId()) != null ? 
+									f.getLocationFromString(v.getString("entities."+e.getUniqueId())):a);
+							if(v.getString("entities."+e.getUniqueId()) != null &&f.getLocationFromString(v.getString("entities."+e.getUniqueId()))!=a) {
+							EntityMoveEvent event = new EntityMoveEvent(e,old,a);
+							Bukkit.getPluginManager().callEvent(event);
+							if(event.isCancelled())
+								e.teleport(old);
+							else
+							LoaderClass.unused.getConfig().set("entities."+e.getUniqueId(),f.getLocationAsString(a));
+							}
+					}}
+				}
+			}
+		}, c.getInt("Options.EntityMoveEvent.Reflesh")));
+		else {
+			TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+			TheAPI.msg("&bTheAPI&7: &6EntityMoveEvent is disabled.",TheAPI.getConsole());
+			TheAPI.msg("&bTheAPI&7: &6You can enable EntityMoveEvent in Config.yml",TheAPI.getConsole());
+			TheAPI.msg("&bTheAPI&7: &6 *TheAPI will still normally work without problems*",TheAPI.getConsole());
+			TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+
+		}
 		if(LoaderClass.config.getConfig().getBoolean("Options.LagChecker.Enabled"))
-		s.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, new Runnable() {
+		s.add(TheAPI.getRunnable().runRepeating(new Runnable() {
 			int next = 0;
 			public void run() {
 				if(Bukkit.getWorlds().size() <= next)next=0;
@@ -89,53 +129,14 @@ public class Tasks {
 				}
 				++next;
 				}
-			},20,20*f.getTimeFromString(c.getString("Options.LagChecker.Reflesh"))));
-		if(TheAPI.isOlder1_9() && !TheAPI.getServerVersion().equals("v1_7_R4")&& !TheAPI.getServerVersion().startsWith("v1_8")) 
-			s.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, new Runnable() {
-				public void run() {
-		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &6Info: &cYour server version isn't supported! ("+TheAPI.getServerVersion()+")",TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-	}}, 20, 20*60*3600));
-		if(c.getBoolean("Options.EntityMoveEvent.Enabled"))
-			s.add(Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, new Runnable() {
-			@Override
-			public void run() {
-				for(World w: Bukkit.getWorlds()) {
-					for(Entity d :w.getEntities()) {
-						if(d.getType()==EntityType.DROPPED_ITEM)continue;
-						if(d instanceof LivingEntity) {
-							Location a = d.getLocation();
-						LivingEntity e = (LivingEntity)d;
-							Location old = (v.getString("entities."+e.getUniqueId()) != null ? 
-									f.getLocationFromString(v.getString("entities."+e.getUniqueId())):a);
-							if(v.getString("entities."+e.getUniqueId()) != null &&f.getLocationFromString(v.getString("entities."+e.getUniqueId()))!=a) {
-							EntityMoveEvent event = new EntityMoveEvent(e,old,a);
-							Bukkit.getPluginManager().callEvent(event);
-							if(event.isCancelled())
-								e.teleport(old);
-							else
-							LoaderClass.unused.getConfig().set("entities."+e.getUniqueId(),f.getLocationAsString(a));
-							}
-					}}
-				}
-			}
-		}, 20, c.getInt("Options.EntityMoveEvent.Reflesh")));
-		else {
-			TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-			TheAPI.msg("&bTheAPI&7: &6EntityMoveEvent is disabled.",TheAPI.getConsole());
-			TheAPI.msg("&bTheAPI&7: &6You can enable EntityMoveEvent in Config.yml",TheAPI.getConsole());
-			TheAPI.msg("&bTheAPI&7: &6 *TheAPI will still normally work without problems*",TheAPI.getConsole());
-			TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-
-		}
+			},20*f.getTimeFromString(c.getString("Options.LagChecker.Reflesh"))));
 	}
 	
 	public static void unload() {
 		 Events.f = LoaderClass.config.getConfig();
 		 Events.d = LoaderClass.data.getConfig();
 		load=false;
-		for(int i : s) Bukkit.getScheduler().cancelTask(i);
+		for(TheRunnable i : s) i.cancel();
 		s.clear();
 	}
 }
