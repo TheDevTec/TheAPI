@@ -40,14 +40,16 @@ public class HoverMessage {
 	HoverType sel;
 	ClickAction c;
 	String h,d,s;
-	public void setHover(HoverType type, String hover) {
+	public HoverMessage setHover(HoverType type, String hover) {
 		sel=type;
 		h=TheAPI.colorize(hover);
+		return this;
 	}
 
-	public void setClick(ClickAction type, String value) {
+	public HoverMessage setClick(ClickAction type, String value) {
 		c=type;
 		d=TheAPI.colorize(value);
+		return this;
 	}
 	
 	public String getJson() {

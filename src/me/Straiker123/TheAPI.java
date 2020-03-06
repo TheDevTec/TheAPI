@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -39,8 +38,7 @@ public class TheAPI {
 	 * @return String
 	 */
 	public static String colorize(String string) {
-		if(string == null)return null;
-		return ChatColor.translateAlternateColorCodes('&', string);
+		return getStringUtils().colorize(string);
 	}
 
 	/**
@@ -125,15 +123,7 @@ public class TheAPI {
 	 * 
 	 */
 	public static String buildString(String[] args) {
-		if(args.length>0) {
-		String msg = "";
-		for (String string : args) {
-			msg=msg+" "+string;
-		}
-		msg = msg.replaceFirst(" ",	"");
-		return msg;
-	}
-	return null;
+		return getStringUtils().buildString(args);
 	}
 	
 	
@@ -155,15 +145,7 @@ public class TheAPI {
 	 * @return Object
 	 */
 	public static Object getRandomFromList(List<?> list) {
-		if(list.isEmpty()||list==null)return null;
-		int r = new Random().nextInt(list.size());
-		if(r<=0) {
-			if(list.get(0)!=null) {
-				return list.get(0);
-			}
-			return null;
-		}else
-		return list.get(r);
+		return getStringUtils().getRandomFromList(list);
 	}
 	/**
 	 * @see see Set world border size, center and more
@@ -310,7 +292,7 @@ public class TheAPI {
 	private static HashMap<Player, BossBar> list = new HashMap<Player, BossBar>();
 	private static HashMap<Player, BukkitTask> task = new HashMap<Player, BukkitTask>();
 	/**
-	 * Send player bossbar on time
+	 * @see see Send player bossbar on time
 	 * @param p
 	 * @param text
 	 * @param progress
@@ -343,7 +325,7 @@ public class TheAPI {
 		Error.err("sending bossbar to "+p.getName(), "Text is null");
 	}}
 	/**
-	 * Remove player from all bossbars in which player is in
+	 * @see see Remove player from all bossbars in which player is in
 	 * @param p
 	 */
 	@SuppressWarnings("deprecation")
@@ -371,7 +353,7 @@ public class TheAPI {
 		 }
 	}
 	/**
-	 * Return list with bossbars in which player is in
+	 * @see see Return list with bossbars in which player is in
 	 * @param p
 	 * @return List<BossBar>
 	 */
@@ -395,7 +377,7 @@ public class TheAPI {
 		
 	}
 	/**
-	 * Remove player action bar instanceof sendActionBar(player, "")
+	 * @see see Remove player action bar instanceof sendActionBar(player, "")
 	 * @param p
 	 */
 	public static void removeActionBar(Player p) {
@@ -406,7 +388,7 @@ public class TheAPI {
 		 sendActionBar(p,"");
 	}
 	/**
-	 * Send player action bar
+	 * @see see Send player action bar
 	 * @param p
 	 * @param text
 	 */
@@ -458,15 +440,16 @@ public class TheAPI {
 		}
 	   }
 	/**
-	 * Get int, double or calculate string
+	 * @see see Get int, double or calculate string
 	 * @param string
 	 * @return NumbersAPI
 	 */
+	@Deprecated
 	public static NumbersAPI getNumbersAPI(String string) {
 		return new NumbersAPI(string);
 	}
 	/**
-	 * Set player max health, air, teleport to location and more
+	 * @see see Set player max health, air, teleport to location and more
 	 * @param p
 	 * @return PlayerAPI
 	 */
@@ -478,7 +461,7 @@ public class TheAPI {
 		COMMAND
 	}
 	/**
-	 * Send value as player
+	 * @see see Send value as player
 	 * @param target
 	 * @param type
 	 * @param value
@@ -495,7 +478,7 @@ public class TheAPI {
 	}
 	
 	/**
-	 * Send value as console
+	 * @see see Send value as console
 	 * @param type
 	 * @param value
 	 */
@@ -528,7 +511,16 @@ public class TheAPI {
 		}
 	}
 	/**
-	 * If player have full inventory, item will be dropped on ground or item will be added to player inventory
+	 * @see see If player have full inventory, item will be dropped on ground or item will be added to player inventory
+	 * @param p
+	 * @param item
+	 */
+	public static void giveItem(Player p, List<ItemStack> item) {
+		for(ItemStack i:item)
+		giveItems(p,i);
+	}
+	/**
+	 * @see see If player have full inventory, item will be dropped on ground or item will be added to player inventory
 	 * @param p
 	 * @param item
 	 */
@@ -537,7 +529,7 @@ public class TheAPI {
 		giveItems(p,i);
 	}
 	/**
-	 * If player have full inventory, item will be dropped on ground or item will be added to player inventory
+	 * @see see If player have full inventory, item will be dropped on ground or item will be added to player inventory
 	 * @param p
 	 * @param item
 	 * @param amount
@@ -547,7 +539,7 @@ public class TheAPI {
 	}
 	
 	/**
-	 * Send player title
+	 * @see see Send player title
 	 * @param p
 	 * @param firstLine
 	 * @param nextLine
@@ -561,7 +553,7 @@ public class TheAPI {
 	}
 	
 	/**
-	 * Set player chat format
+	 * @see see Set player chat format
 	 * @param format
 	 * Set to null to reset chat format
 	 */
@@ -572,7 +564,7 @@ public class TheAPI {
 			LoaderClass.chatformat.remove(p);
 	}
 	/**
-	 * Send message to all online players
+	 * @see see Send message to all online players
 	 * @param message
 	 */
 	public static void broadcastMessage(String message) {
@@ -582,7 +574,7 @@ public class TheAPI {
 		getConsole().sendMessage(colorize(message));
 	}
 	/**
-	 * Send message to all online players with specified permission
+	 * @see see Send message to all online players with specified permission
 	 * @param message
 	 * @param permission
 	 */
@@ -594,21 +586,21 @@ public class TheAPI {
 		getConsole().sendMessage(colorize(message));
 	}
 	/**
-	 * Ban, Ban-Ip or mute player with reason and more
+	 * @see see Ban, Ban-Ip or mute player with reason and more
 	 * @return PunishmentAPI
 	 */
 	public static PunishmentAPI getPunishmentAPI() {
 		return new PunishmentAPI();
 	}
 	/**
-	 * Set server motd in server list
+	 * @see see Set server motd in server list
 	 * @param motd
 	 */
 	public static void setServerMotd(String motd) {
 		LoaderClass.plugin.motd=colorize(motd);
 	}
 	/**
-	 * Set server motd in server list
+	 * @see see Set server motd in server list
 	 * @param firstLine
 	 * @param secondLine
 	 */
@@ -616,21 +608,21 @@ public class TheAPI {
 		LoaderClass.plugin.motd=colorize(firstLine+"\n"+secondLine);
 	}
 	/**
-	 * Constructor for own report system
+	 * @see see Constructor for own report system
 	 * @return ReportSystem
 	 */
 	public static ReportSystem getReportSystem() {
 		return new ReportSystem();
 	}
 	/**
-	 * Set max players on server
+	 * @see see Set max players on server
 	 * @param int
 	 */
 	public static void setMaxPlayers(int max) {
 		LoaderClass.plugin.max=max;
 	}
 	/**
-	 * Hide or show player to players on server
+	 * @see see Hide or show player to players on server
 	 * @param p
 	 * @param permission To see player
 	 * @param vanish
@@ -646,7 +638,7 @@ public class TheAPI {
         return false;
 }
 	/**
-	 * Return is player in vanish mode
+	 * @see see Return is player in vanish mode
 	 * @param p
 	 * @return boolean
 	 */
@@ -655,7 +647,7 @@ public class TheAPI {
 		return LoaderClass.data.getConfig().getString("data."+p.getName()+".vanish")!=null;
 	}
 	/**
-	 * Return is player in vanish mode
+	 * @see see Return is player in vanish mode
 	 * @param p
 	 * @return boolean
 	 */
@@ -664,7 +656,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * Hide or show player to players on server
+	 * @see see Hide or show player to players on server
 	 * @param p
 	 * @param vanish
 	 */
@@ -672,7 +664,7 @@ public class TheAPI {
 		v(p,vanish,null);
 	}
 	/**
-	 * Hide or show player to players on server
+	 * @see see Hide or show player to players on server
 	 * @param p
 	 * @param vanish
 	 */
@@ -724,7 +716,7 @@ public class TheAPI {
 	}
 	
 	/**
-	 * Return console 
+	 * @see see Return console 
 	 * @return CommandSender
 	 */
 	public static CommandSender getConsole() {
@@ -732,7 +724,7 @@ public class TheAPI {
 	}
 	
 	/**
-	 * Create, delete, unload or load world
+	 * @see see Create, delete, unload or load world
 	 * @return WorldsManager
 	 */
 	public static WorldsManager getWorldsManager() {
@@ -740,7 +732,7 @@ public class TheAPI {
 	}
 	
 	/**
-	 * Deposit, withdraw from player money and more
+	 * @see see With VaultAPI deposit, withdraw from player money and more
 	 * @return EconomyAPI
 	 */
 	public static EconomyAPI getEconomyAPI() {
@@ -748,7 +740,7 @@ public class TheAPI {
 	}
 	
 	/**
-	 * Set player Header and Footer in tablist
+	 * @see see Set player Header and Footer in tablist
 	 * @return TabListAPI
 	 */
 	public static TabListAPI getTabListAPI() {
@@ -756,7 +748,7 @@ public class TheAPI {
 	}
 	
 	/**
-	 * Send formated message to all online players with specified permission
+	 * @see see Send formated message to all online players with specified permission
 	 * @param s
 	 * @param message
 	 */
@@ -770,7 +762,7 @@ public class TheAPI {
 	}
 	
 	/**
-	 * Set player name tag
+	 * @see see Set player name tag
 	 * @param p
 	 * @param prefix
 	 * @param suffix
@@ -781,7 +773,7 @@ public class TheAPI {
 	}
 	
 	/**
-	 * Create cooldown or delete cooldown
+	 * @see see Create cooldown or delete cooldown
 	 * @param cooldown
 	 * @return CooldownAPI
 	 */
@@ -790,28 +782,28 @@ public class TheAPI {
 	}
 	
 	/**
-	 * Get used memory, free memory and max memory
+	 * @see see Get used memory, free memory and max memory
 	 * @return MemoryAPI
 	 */
 	public static MemoryAPI getMemoryAPI() {
 		return new MemoryAPI();
 	}
 	/**
-	 * Load, unload, enable or disable plugins
+	 * @see see Load, unload, enable or disable plugins
 	 * @return PluginManagerAPI
 	 */
 	public static PluginManagerAPI getPluginsManagerAPI() {
 		return new PluginManagerAPI();
 	}
 	/**
-	 * Get bukkit name of enchantment from string for ex. Sharpness -> DAMAGE_ALL
+	 * @see see Get bukkit name of enchantment from string for ex. Sharpness -> DAMAGE_ALL
 	 * @return EnchantmentAPI
 	 */
 	public static EnchantmentAPI getEnchantmentAPI() {
 		return new EnchantmentAPI();
 	}
 	/**
-	 * Send player scoreboard with per player scoreboard function
+	 * @see see Send player scoreboard with per player scoreboard function
 	 * @param p
 	 * @param board
 	 * @return ScoreboardAPI
@@ -820,7 +812,7 @@ public class TheAPI {
 		return new ScoreboardAPI(p,board);
 	}
 	/**
-	 * Send player scoreboard with per player scoreboard function
+	 * @see see Send player scoreboard with per player scoreboard function
 	 * @param p
 	 * @return ScoreboardAPI
 	 */
@@ -828,21 +820,22 @@ public class TheAPI {
 		return new ScoreboardAPI(p,p.getServer().getScoreboardManager().getNewScoreboard());
 	}
 	/**
-	 * Send player sound or get sound name from String
+	 * @see see Send player sound or get sound name from String
 	 * @return SoundAPI
 	 */
 	public static SoundAPI getSoundAPI() {
 		return new SoundAPI();
 	}
 	/**
-	 * Convert long to String time or String time to long
+	 * @see see Convert long to String time or String time to long
 	 * @return TimeConventorAPI
 	 */
+	@Deprecated
 	public static TimeConventorAPI getTimeConventorAPI() {
 		return new TimeConventorAPI();
 	}
 	/**
-	 * Create GUI without events
+	 * @see see Create GUI without events
 	 * @param p
 	 * @return GUICreatorAPI
 	 */
@@ -850,7 +843,7 @@ public class TheAPI {
 		return new GUICreatorAPI(p);
 	}
 	/**
-	 * Create ItemStack with custom lore, model, displayname and more
+	 * @see see Create ItemStack with custom lore, model, displayname and more
 	 * @param material
 	 * @return ItemCreatorAPI
 	 */
@@ -858,7 +851,7 @@ public class TheAPI {
 		return new ItemCreatorAPI(new ItemStack(material));
 	}
 	/**
-	 * Create ItemStack with custom lore, model, displayname and more
+	 * @see see Create ItemStack with custom lore, model, displayname and more
 	 * @param itemstack
 	 * @return ItemCreatorAPI
 	 */
@@ -866,7 +859,7 @@ public class TheAPI {
 		return new ItemCreatorAPI(itemstack);
 	}
 	/**
-	 * Return server version, for ex. v1_14_R1
+	 * @see see Return server version, for ex. v1_14_R1
 	 * @return String
 	 */
 	public static String getServerVersion() {
@@ -879,7 +872,7 @@ public class TheAPI {
 		return serverVer;
 	}
 	/**
-	 * Return server TPS
+	 * @see see Return server TPS
 	 * @return double
 	 */
 	public static double getServerTPS() {
@@ -902,7 +895,7 @@ public class TheAPI {
 	    	}
 	}
 	/**
-	 * Return player ping
+	 * @see see Return player ping
 	 * @param p
 	 * @return int
 	 */

@@ -100,7 +100,7 @@ public class ScoreboardAPI {
 						  h=this.s.registerNewTeam(""+isf);
 						  else
 							  h=this.s.getTeam(""+isf);
-					  a.setDisplayName(s);
+					  h.setDisplayName(s);
 				  }
 				  if(isf==8) {
 					  if(this.s.getTeam(""+isf) == null)

@@ -71,17 +71,17 @@ public class PunishmentAPI {
 		p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.TempBan")
 				.replace("%player%", player)
 				.replace("%reason%", reason)
-				.replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(time)))); 
+				.replace("%time%", TheAPI.getStringUtils().setTimeToString(time)))); 
 		if(!silent) {
 			TheAPI.broadcastMessage(LoaderClass.config.getConfig().getString("Format.Broadcast.TempBan")
 					.replace("%player%", player)
 					.replace("%reason%", reason)
-					.replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(time)));
+					.replace("%time%", TheAPI.getStringUtils().setTimeToString(time)));
 		}else {
 			TheAPI.broadcast(LoaderClass.config.getConfig().getString("Format.Broadcast.TempBan")
 					.replace("%player%", player)
 					.replace("%reason%", reason)
-					.replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(time)),LoaderClass.config.getConfig().getString("Format.Broadcast-TempBan-Permission"));
+					.replace("%time%", TheAPI.getStringUtils().setTimeToString(time)),LoaderClass.config.getConfig().getString("Format.Broadcast-TempBan-Permission"));
 		}
 	}
 	private boolean isIP(String text) {
@@ -185,11 +185,11 @@ public class PunishmentAPI {
 		if(!silent) {
 			TheAPI.broadcastMessage(LoaderClass.config.getConfig().getString("Format.Broadcast.TempMute")
 					.replace("%player%", player)
-					.replace("%reason%", reason).replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(time)));
+					.replace("%reason%", reason).replace("%time%", TheAPI.getStringUtils().setTimeToString(time)));
 			}else {
 			TheAPI.broadcast(LoaderClass.config.getConfig().getString("Format.Broadcast.TempMute")
 					.replace("%player%", player)
-					.replace("%reason%", reason).replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(time))
+					.replace("%reason%", reason).replace("%time%", TheAPI.getStringUtils().setTimeToString(time))
 					,LoaderClass.config.getConfig().getString("Format.Broadcast.TempMute-Permission"));
 		}
 	}
@@ -219,16 +219,16 @@ public class PunishmentAPI {
 			if(p!=null)
 				p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.TempBanIP")
 						.replace("%player%", ip)
-						.replace("%reason%", reason).replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(time))));
+						.replace("%reason%", reason).replace("%time%", TheAPI.getStringUtils().setTimeToString(time))));
 		}
 		if(!silent) {
 			TheAPI.broadcastMessage(LoaderClass.config.getConfig().getString("Format.Broadcast.TempBanIP")
 					.replace("%target%", ip)
-					.replace("%reason%", reason).replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(time)));
+					.replace("%reason%", reason).replace("%time%", TheAPI.getStringUtils().setTimeToString(time)));
 			}else {
 			TheAPI.broadcast(LoaderClass.config.getConfig().getString("Format.Broadcast.TempBanIP")
 					.replace("%target%", ip)
-					.replace("%reason%", reason).replace("%time%", TheAPI.getTimeConventorAPI().setTimeToString(time))
+					.replace("%reason%", reason).replace("%time%", TheAPI.getStringUtils().setTimeToString(time))
 					,LoaderClass.config.getConfig().getString("Format.Broadcast.TempBanIP-Permission"));
 		}
 	}

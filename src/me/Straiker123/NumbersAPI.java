@@ -1,9 +1,5 @@
 package me.Straiker123;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-
 public class NumbersAPI {
 	String fromString;
 	public NumbersAPI(String string) {
@@ -11,121 +7,52 @@ public class NumbersAPI {
 		fromString = string;
 	}
 	/**
-	 * Calculate string
+	 * @see see Calculate string
 	 * @return double
 	 */
 	public double calculate() {
-		ScriptEngineManager mgr = new ScriptEngineManager();
-        ScriptEngine engine = mgr.getEngineByName("JavaScript");
-        try {
-			return getDouble(engine.eval(fromString).toString());
-		} catch (ScriptException e) {
-		}
-		return 0;
+		return TheAPI.getStringUtils().calculate(fromString);
 	}
 	/**
-	 * Get double from string
+	 * @see see Get double from string
 	 * @return double
 	 */
 	public double getDouble() {
-		String a=fromString.replaceAll("[a-zA-Z]+", "").replace(",", ".");
-		if (isDouble(a)) {
-		return Double.parseDouble(a);
-		}else {
-		return 0.0;
-	}}
-
-	private double getDouble(String s) {
-		 String aa =s.replaceAll("[a-zA-Z]+", "").replace(",", ".");
-		if (isDouble(aa)) {
-			return Double.parseDouble(aa);
-			}
-			else {
-			return 0.0;
+		return TheAPI.getStringUtils().getDouble(fromString);
 		}
-	}
-	private boolean isDouble(String a) {
-		try {
-			Double.parseDouble(a);
-		} catch (NumberFormatException e) {
-		return false;
-		}
-		return true;
-	}
 	/**
-	 * Is string, double
+	 * @see see Is string, double ?
 	 * @return boolean
 	 */
 	public boolean isDouble() {
-		try {
-			Double.parseDouble(fromString);
-		} catch (NumberFormatException e) {
-		return false;
-		}
-		return true;
+		return TheAPI.getStringUtils().isDouble(fromString);
 	}
 	/**
-	 * Get long from string
+	 * @see see Get long from string
 	 * @return long
 	 */
 	public long getLong() {
-		String a=fromString.replaceAll("[a-zA-Z]+", "");
-		if (isLong(a)) {
-		return Long.parseLong(a);
+		return TheAPI.getStringUtils().getLong(fromString);
 		}
-		else {
-		return 0;
-	}}
 	/**
-	 * Is string, long
+	 * @see see Is string, long ?
 	 * @return
 	 */
 	public boolean isLong() {
-		try {
-		Long.parseLong(fromString);
-		} catch (NumberFormatException e) {
-		return false;
-		}
-		return true;
-	}
-	private boolean isLong(String a) {
-		try {
-		Long.parseLong(a);
-		} catch (NumberFormatException e) {
-		return false;
-		}
-		return true;
+		return TheAPI.getStringUtils().isLong(fromString);
 	}
 	/**
-	 * Get int from string
+	 * @see see Get int from string
 	 * @return int
 	 */
 	public int getInt() {
-		String a=fromString.replaceAll("[a-zA-Z]+", "");
-		if (isInt(a)) {
-		return Integer.parseInt(a);
+		return TheAPI.getStringUtils().getInt(fromString);
 		}
-		else {
-		return 0;
-	}}
 	/**
-	 * Is string, int
+	 * @see see Is string, int ?
 	 * @return boolean
 	 */
-	private boolean isInt(String a) {
-		try {
-		Integer.parseInt(a);
-		} catch (NumberFormatException e) {
-		return false;
-		}
-		return true;
-	}
 	public boolean isInt() {
-		try {
-		Integer.parseInt(fromString);
-		} catch (NumberFormatException e) {
-		return false;
-		}
-		return true;
+		return TheAPI.getStringUtils().isInt(fromString);
 	}
 }

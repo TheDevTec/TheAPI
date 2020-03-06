@@ -41,7 +41,7 @@ public class Report {
 	}
 	
 	public int getID() {
-		return TheAPI.getNumbersAPI(id).getInt();
+		return TheAPI.getStringUtils().getInt(id);
 	}
 	
 	public boolean isSolved() {

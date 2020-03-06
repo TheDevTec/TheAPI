@@ -85,14 +85,14 @@ public class Task {
     				String xd = TheAPI.getRandomFromList(Arrays.asList(0.1*total,0.15*total,0.2*total)).toString();
     				String yd = TheAPI.getRandomFromList(Arrays.asList(0.1*total,0.15*total,0.2*total)).toString();
     				String zd = TheAPI.getRandomFromList(Arrays.asList(0.1*total,0.15*total,0.2*total)).toString();
-    				e.setVelocity(new Vector(TheAPI.getNumbersAPI(xd).getDouble(),TheAPI.getNumbersAPI(yd).getDouble(),TheAPI.getNumbersAPI(zd).getDouble()));		
+    				e.setVelocity(new Vector(TheAPI.getStringUtils().getDouble(xd),TheAPI.getStringUtils().getDouble(yd),TheAPI.getStringUtils().getDouble(zd)));		
     		
     			}else {
     			if(e instanceof LivingEntity) {
     				String xd = TheAPI.getRandomFromList(Arrays.asList(0.1*total,0.2*total,0.3*total)).toString();
     				String yd = TheAPI.getRandomFromList(Arrays.asList(0.2*total,0.3*total,0.4*total)).toString();
     				String zd = TheAPI.getRandomFromList(Arrays.asList(0.1*total,0.2*total,0.3*total)).toString();
-    				e.setVelocity(new Vector(TheAPI.getNumbersAPI(xd).getDouble(),TheAPI.getNumbersAPI(yd).getDouble(),TheAPI.getNumbersAPI(zd).getDouble()));	
+    				e.setVelocity(new Vector(TheAPI.getStringUtils().getDouble(xd),TheAPI.getStringUtils().getDouble(yd),TheAPI.getStringUtils().getDouble(zd)));	
     				LivingEntity a = (LivingEntity)e;
     				if(a.getAttribute(Attribute.GENERIC_ARMOR) != null && 
     						a.getAttribute(Attribute.GENERIC_ARMOR).getValue() > 0)
