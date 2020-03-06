@@ -1,14 +1,17 @@
 package me.Straiker123;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -23,6 +26,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import com.google.common.collect.Multimap;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 
 import me.Straiker123.Utils.Error;
 
@@ -37,6 +42,16 @@ public class ItemCreatorAPI {
 	
 	public Material getMaterial() {
 		return a.getType();
+	}
+
+	public void setOwnerFromWeb(String web) {
+		if(web!=null)
+			this.url=web;
+	}
+	
+	public void setOwnerFromValues(String values) {
+		if(values!=null)
+		text=values;
 	}
 	
 	public void setMaterial(String byName) {
@@ -60,7 +75,7 @@ public class ItemCreatorAPI {
 		c=color;
 	}
 	
-	String name;
+	String name,owner,url,text;
 	public void setDisplayName(String newName) {
 		if(newName!=null)
 		name=TheAPI.colorize(newName);
@@ -72,7 +87,6 @@ public class ItemCreatorAPI {
 		lore.add(TheAPI.colorize(line));
 	}
 	
-	String owner;
 	public void setOwner(String owner) {
 		if(owner!=null)
 			this.owner=owner;
@@ -283,8 +297,21 @@ public class ItemCreatorAPI {
 							&& TheAPI.isNewVersion()
 							 &&!TheAPI.getServerVersion().equals("v1_13_R1"))
 					m.setAttributeModifiers((Multimap<Attribute, AttributeModifier>) w);	
-					if(owner!=null)
-					m.setOwner(owner);
+					if(owner!=null) {
+						m.setOwner(owner);
+					}else if (url != null || url ==null && text != null){
+						GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+			        byte[] encodedData = Base64.encodeBase64(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
+			        profile.getProperties().put("textures", new Property("textures",url == null && text != null ? text :  new String(encodedData)));
+			        Field profileField = null;
+			        try {
+			            profileField = m.getClass().getDeclaredField("profile");
+			            profileField.setAccessible(true);
+			            profileField.set(m, profile);
+			        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) {
+			            e1.printStackTrace();
+			        }
+					}
 					i.setItemMeta(m);
 			}else{
 			ItemMeta m=i.getItemMeta();
