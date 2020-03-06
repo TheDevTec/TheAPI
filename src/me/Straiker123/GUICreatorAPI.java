@@ -40,9 +40,9 @@ public class GUICreatorAPI {
 	case 35:
 	case 36:
 	return 36;
-	case 47:
-	case 48:
-	return 48;
+	case 44:
+	case 45:
+	return 45;
 	case 53:
 	case 54:
 	return 54;

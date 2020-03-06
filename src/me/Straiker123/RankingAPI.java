@@ -1,26 +1,54 @@
 package me.Straiker123;
 
-import static java.util.Map.Entry.comparingByValue;
-import static java.util.stream.Collectors.toMap;
-
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
 public class RankingAPI {
-	HashMap<?, Double> s;
+	HashMap<Object, Double> s;
 	public RankingAPI(HashMap<?, Double> map) {
-		if(map!=null)
-		s=map.entrySet().stream().sorted(comparingByValue()).collect(toMap(e -> e.getKey(),
-				e -> e.getValue(), (e1, e2) -> e2,LinkedHashMap::new));
+		if(map!=null) {
+		HashMap<Object, Double> fixed = new HashMap<Object,Double>();
+		for(Object o : map.keySet())fixed.put(o, map.get(o));
+		s=sort(fixed);
+		}
 	}
+	
+	private static HashMap<Object, Double> sort(HashMap<Object, Double> map){
+        List<Entry<Object, Double>> list = new LinkedList<Entry<Object, Double>>(map.entrySet());
+        // Sorting the list based on values
+        Collections.sort(list, new Comparator<Entry<Object, Double>>(){
+         public int compare(Entry<Object, Double> o1,
+                    Entry<Object, Double> o2){
+        	 return o2.getValue().compareTo(o1.getValue());
+                //if (true)
+               // {
+                    //return o1.getValue().compareTo(o2.getValue());
+               // }
+               /** else
+                {
+                    
+
+                }**/}});
+        HashMap<Object, Double> sortedMap = new LinkedHashMap<Object, Double>();
+        for (Entry<Object, Double> entry : list)
+        {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+        return sortedMap;
+    }
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Object getObject(int position) { //1, 2, 3... 1501, 1578..
+		if(position==0)position=1;
 		try {
-		return new ArrayList(s.keySet()).get((s.keySet().size()-1)-(position-1));
+			position=s.keySet().size()-position;
+		return new ArrayList(s.keySet()).get((s.keySet().size()-1)-(position));
 		}catch(Exception e) {
 			//out
 			return null;
@@ -36,7 +64,9 @@ public class RankingAPI {
 	}
 	
 	public List<Object> getKeySet(){
-		return Arrays.asList(s.keySet());
+		List<Object> o = new ArrayList<Object>();
+		for(Object a : s.keySet())o.add(a);
+		return o;
 	}
 	
 	public HashMap<?, Double> getHashMap(){
@@ -48,18 +78,11 @@ public class RankingAPI {
 		if(s.containsKey(o))d=s.get(o);
 		return d;
 	}
-	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public int getPosition(Object o) {
 		int i = 0;
-		int result = -1;
 		if(s.containsKey(o))
-		for(Object get : s.keySet()) {
-			++i;
-			if(get.equals(o)) {
-				result= i;
-				break;
-			}
-		}
-		return result-1;
+			return new ArrayList(s.keySet()).indexOf(o)+1;
+		return i;
 	}
 }
