@@ -196,6 +196,31 @@ public class ItemCreatorAPI {
 			if(dur!=-1)
 			a.setDurability((short)dur);
 		}
+		ItemMeta mf=i.getItemMeta();
+		if(data != null)
+			i.setData(data);
+			if(enchs != null && !enchs.isEmpty())i.addUnsafeEnchantments(enchs);
+			if(name!=null)
+			mf.setDisplayName(name);
+			if(model != -1 && TheAPI.isNewVersion() //1.14+
+					 &&!TheAPI.getServerVersion().contains("v1_13"))
+			mf.setCustomModelData(model);
+			if(!TheAPI.isOlder1_9()
+					 &&!TheAPI.getServerVersion().contains("v1_9")
+					 &&!TheAPI.getServerVersion().contains("v1_10"))
+			mf.setUnbreakable(unb);
+			 else {
+				 addLore("");
+				 addLore("&9UNBREAKABLE");
+			 }
+				if(lore!=null && !lore.isEmpty())mf.setLore(lore);
+			if(map != null && !map.isEmpty())
+			for(ItemFlag f: map)
+			mf.addItemFlags(f);
+			if(w!=null && !w.isEmpty() && TheAPI.isNewVersion()
+					 &&!TheAPI.getServerVersion().equals("v1_13_R1"))//1.13.2+
+			mf.setAttributeModifiers((Multimap<Attribute, AttributeModifier>) w);
+			i.setItemMeta(mf);
 		if(i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
 		EnchantmentStorageMeta m = (EnchantmentStorageMeta) i.getItemMeta();
 		if(data != null)
@@ -266,10 +291,15 @@ public class ItemCreatorAPI {
 				for(Object o : ef.getKeySet()) {
 					Object[] f = ef.getValues(o).toArray();
 					PotionEffectType t = PotionEffectType.getByName(o.toString());
-					int dur = TheAPI.getNumbersAPI(f[0].toString()).getInt();
-					int amp = TheAPI.getNumbersAPI(f[1].toString()).getInt();
-					meta.addCustomEffect(new PotionEffect(t, dur, amp), true);
+					if(t==null) {
+						Error.err("creating ItemStack in ItemCreatorAPI", "Uknown PotionEffectType "+o.toString());
+						continue;
+					}
+					int dur = TheAPI.getStringUtils().getInt(f[0].toString());
+					int amp = TheAPI.getStringUtils().getInt(f[1].toString());
+					meta.addCustomEffect(new PotionEffect(t, dur, (amp <= 0 ? 1 : amp)), true);
 				}
+				i.setItemMeta(meta);
 			}else
 			if(type!=null) {
 				SkullMeta m=(SkullMeta)i.getItemMeta();
@@ -313,32 +343,6 @@ public class ItemCreatorAPI {
 			        }
 					}
 					i.setItemMeta(m);
-			}else{
-			ItemMeta m=i.getItemMeta();
-			if(data != null)
-				i.setData(data);
-				if(enchs != null && !enchs.isEmpty())i.addUnsafeEnchantments(enchs);
-				if(name!=null)
-				m.setDisplayName(name);
-				if(model != -1 && TheAPI.isNewVersion() //1.14+
-						 &&!TheAPI.getServerVersion().contains("v1_13"))
-				m.setCustomModelData(model);
-				if(!TheAPI.isOlder1_9()
-						 &&!TheAPI.getServerVersion().contains("v1_9")
-						 &&!TheAPI.getServerVersion().contains("v1_10"))
-				m.setUnbreakable(unb);
-				 else {
-					 addLore("");
-					 addLore("&9UNBREAKABLE");
-				 }
-					if(lore!=null && !lore.isEmpty())m.setLore(lore);
-				if(map != null && !map.isEmpty())
-				for(ItemFlag f: map)
-				m.addItemFlags(f);
-				if(w!=null && !w.isEmpty() && TheAPI.isNewVersion()
-						 &&!TheAPI.getServerVersion().equals("v1_13_R1"))//1.13.2+
-				m.setAttributeModifiers((Multimap<Attribute, AttributeModifier>) w);
-				i.setItemMeta(m);
 			}
 		}catch(Exception err) {
 			Error.err("creating ItemStack in ItemCreatorAPI", "Uknown Material/ItemStack");
