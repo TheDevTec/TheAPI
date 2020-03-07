@@ -557,6 +557,7 @@ public class Events implements Listener {
 		if(g.getString("guis."+playersname)==null)return;
 		int slot = e.getSlot();
 		GUIID d = LoaderClass.gui.get(p);
+		if(d==null)return;
 		String a = d.getID();
 			ItemStack i = e.getCurrentItem();
 			GUIClickEvent event = new GUIClickEvent(p, e.getClickedInventory(), e.getView().getTitle(), slot, i);
