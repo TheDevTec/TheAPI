@@ -7,6 +7,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
+import org.bukkit.scoreboard.Team.Option;
+import org.bukkit.scoreboard.Team.OptionStatus;
 
 public class NameTagAPI {
 	String prefix;
@@ -19,7 +21,7 @@ public class NameTagAPI {
 	}
 	
 	/**
-	 * Warning, this method change whole player name, plugins these checking UUID will kick/ban you from server, for ex.: UUIDSpoof Fix
+	 * @see see Warning, this method change whole player name, plugins these checking UUID will kick/ban you from server, for ex.: UUIDSpoof Fix
 	 * @param name
 	 * New player name
 	 */
@@ -59,7 +61,7 @@ public class NameTagAPI {
 	    }
 	}
 	/**
-	 * Set player name tag
+	 * @see see Set player name tag
 	 * @param teamName
 	 * By teamName you can sort players in tablist -> create sorted tablist
 	 */
@@ -74,8 +76,9 @@ public class NameTagAPI {
 	public void setNameTag(String team) {
 		setNameTag(team, p.getScoreboard());
 	}
+	
 	/**
-	 * Set player name tag
+	 * @see see Set player name tag
 	 * @param teamName
 	 * By teamName you can sort players in tablist -> create sorted tablist
 	 */
@@ -88,7 +91,7 @@ public class NameTagAPI {
         }
 		if(sb.getTeam(teamName)==null)sb.registerNewTeam(teamName);
 		Team t = sb.getTeam(teamName);
-		
+		t.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.ALWAYS);
 		if(suffix !=null) {
 			if(TheAPI.getServerVersion().contains("v1_8")) {
 	            if (suffix.length() > 16) {
@@ -143,15 +146,14 @@ public class NameTagAPI {
     		if (TheAPI.isNewVersion())
     			t.setColor(fromPrefix(prefix));
 		}
+		if(!t.hasPlayer(p))
 		t.addPlayer(p);
 	}
-
 	/**
-	 * Reset player name tag to default
+	 * @see see Reset player name tag to default
 	 */
 	public void resetNameTag() {
 		for(Team t : p.getScoreboard().getTeams())t.unregister();
-		p.setScoreboard(p.getServer().getScoreboardManager().getNewScoreboard());
 	}
 	
 	private ChatColor fromPrefix(String prefix) {

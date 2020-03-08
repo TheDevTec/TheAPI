@@ -1,7 +1,6 @@
 package me.Straiker123;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -9,12 +8,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
 
 
 public class ScoreboardAPIV2 {
     private Scoreboard v;
-    private HashMap<Integer,Team> a=new HashMap<Integer, Team>();
+    private HashMap<Integer,String> a=new HashMap<Integer, String>();
     private String title = "TheAPI";
     private Player ss;
     private Objective dd;
@@ -57,19 +55,15 @@ public class ScoreboardAPIV2 {
     
     boolean send = false;
 	public void create() {
-		if(!send || ss.getScoreboard() != v && ss.getScoreboard().getObjectives().isEmpty()) {
+		if(!send || send && ss.getScoreboard() != v && ss.getScoreboard().getObjectives().isEmpty()||ss.getScoreboard()==null) {
 			send=true;
 	    	ss.setScoreboard(v);
 		}
 		dd.setDisplayName(title);
-		List<String> items = Arrays.asList("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p");
 		int i = 15;
 		for(String s : this.s) {
 			if(i!=0) {
-				Team b= v.getTeam(items.get(i));
-				if(b==null)b=v.registerNewTeam(items.get(i));
-				b.setDisplayName(s);
-				a.put(i, b);
+				a.put(i, s);
 				--i;
 			}
 		}
@@ -77,13 +71,13 @@ public class ScoreboardAPIV2 {
 		List<String> entry = new ArrayList<String>();
 		for(String s : v.getEntries())entry.add(s);
 		for(String aa : entry) {
-			if(!a.get(i).getDisplayName().equals(aa))
+			if(!a.get(i).equals(aa))
 			v.resetScores(aa);
 			--i;
 			}
 			for(Integer o : a.keySet()) {
-				if(entry.size() < o || entry.size() > o && !entry.get(o).equals(a.get(o).getDisplayName()))
-				dd.getScore(a.get(o).getDisplayName()).setScore(o);
+				if(entry.size() < o || entry.size() > o && !entry.get(o).equals(a.get(o)))
+				dd.getScore(a.get(o)).setScore(o);
 			}
 			this.s=new ArrayList<String>();
 	}
