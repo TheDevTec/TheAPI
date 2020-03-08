@@ -584,7 +584,7 @@ public class TheAPI {
 	 * @param message
 	 */
 	public static void broadcastMessage(String message) {
-		for(Player p:Bukkit.getOnlinePlayers()) {
+		for(Player p:TheAPI.getOnlinePlayers()) {
 			p.sendMessage(colorize(message));
 		}
 		getConsole().sendMessage(colorize(message));
@@ -595,7 +595,7 @@ public class TheAPI {
 	 * @param permission
 	 */
 	public static void broadcast(String message, String permission) {
-		for(Player p:Bukkit.getOnlinePlayers()) {
+		for(Player p:TheAPI.getOnlinePlayers()) {
 			if(p.hasPermission(permission))
 			p.sendMessage(colorize(message));
 		}
@@ -834,6 +834,15 @@ public class TheAPI {
 	 */
 	public static ScoreboardAPI getScoreboardAPI(Player p) {
 		return new ScoreboardAPI(p,p.getServer().getScoreboardManager().getNewScoreboard());
+	}
+
+	/**
+	 * @see see Send player scoreboard with per player scoreboard function
+	 * @param p
+	 * @return ScoreboardAPI
+	 */
+	public static ScoreboardAPIV2 getScoreboardAPIV2(Player p) {
+		return new ScoreboardAPIV2(p);
 	}
 	/**
 	 * @see see Send player sound or get sound name from String

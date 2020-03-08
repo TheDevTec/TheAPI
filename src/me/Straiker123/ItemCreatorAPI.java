@@ -35,9 +35,7 @@ import me.Straiker123.Utils.Error;
 public class ItemCreatorAPI {
 	ItemStack a;
 	public ItemCreatorAPI(ItemStack icon) {
-		if(icon==null)a=new ItemStack(Material.STONE);
-		else
-		a=icon;
+		a=icon != null ? icon : new ItemStack(Material.AIR);
 	}
 	
 	public Material getMaterial() {

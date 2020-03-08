@@ -3,6 +3,7 @@ package me.Straiker123.Utils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -24,8 +25,11 @@ import me.Straiker123.BlocksAPI;
 import me.Straiker123.BlocksAPI.Shape;
 import me.Straiker123.LoaderClass;
 import me.Straiker123.MultiMap;
+import me.Straiker123.RankingAPI;
 import me.Straiker123.ScoreboardAPI;
+import me.Straiker123.ScoreboardAPIV2;
 import me.Straiker123.TheAPI;
+import me.Straiker123.TheRunnable;
 
 public class TheAPICommand implements CommandExecutor, TabCompleter {
 	
@@ -79,16 +83,58 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			Player p = (Player)s;
 			if(args.length==1) {
 				TheAPI.msg("&7-----------------",s);
-			TheAPI.msg("&6/TheAPI Test BossBar",s);
-			TheAPI.msg("&6/TheAPI Test ActionBar",s);
-			TheAPI.msg("&6/TheAPI Test Title",s);
-			TheAPI.msg("&6/TheAPI Test TabList",s);
-			TheAPI.msg("&6/TheAPI Test Scoreboard",s);
+				TheAPI.msg("&6/TheAPI Test ActionBar",s);
 			TheAPI.msg("&6/TheAPI Test BlocksAPI",s);
-			TheAPI.msg("&6/TheAPI Test PlayerName",s);
+			TheAPI.msg("&6/TheAPI Test BossBar",s);
 			TheAPI.msg("&6/TheAPI Test MultiMap",s);
+			TheAPI.msg("&6/TheAPI Test PlayerName",s);
+			TheAPI.msg("&6/TheAPI Test RankingAPI",s);//new
+			TheAPI.msg("&6/TheAPI Test Scoreboard",s);
+			TheAPI.msg("&6/TheAPI Test ScoreboardV2",s); //new
+			TheAPI.msg("&6/TheAPI Test TabList",s);
+			TheAPI.msg("&6/TheAPI Test Title",s);
 			TheAPI.msg("&7-----------------",s);
 			return true;
+			}
+			if(eq(1,"RankingAPI")) {
+				HashMap<String, Double> tops = new HashMap<String, Double>();
+				TheAPI.msg("&eInput:", s);
+				TheAPI.msg("&6- Straiker123, 50.0", s);
+				TheAPI.msg("&6- TheAPI, 5431.6", s);
+				TheAPI.msg("&6- SCR, 886.5", s);
+				TheAPI.msg("&6- Houska02, 53.11", s);
+				tops.put("Straiker123", 50.0);
+				tops.put("TheAPI", 5431.6);
+				tops.put("SCR", 886.5);
+				tops.put("Houska02", 53.11);
+				RankingAPI map = TheAPI.getRankingAPI(tops);
+				TheAPI.msg("&eResult:", s);
+				for(int i = 1; i < map.size(); ++i) { //1 2 3 4
+					TheAPI.msg("&6"+map.getPosition(map.getObject(i))+". "+map.getObject(i)+" with "+map.getValue(map.getObject(i))+" points", s);
+				}
+				return true;
+			}
+			if(eq(1,"ScoreboardV2")) {
+				ScoreboardAPIV2 a = TheAPI.getScoreboardAPIV2(p);
+				a.setTitle("&eTheAPI v"+TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
+				a.send();
+				TheRunnable r = TheAPI.getRunnable();
+				r.runRepeating(new Runnable() {
+					int times=0;
+					public void run() {
+						if(times == 10) {
+							r.cancel();
+						p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+							return;
+						}
+						a.addLine("&aBy DevTec");
+						a.addLine("&eRandom numbers:");
+						a.addLine("&6"+TheAPI.generateRandomDouble(200));
+						a.update();
+						++times;
+					}
+				}, 10); 
+				return true;
 			}
 			if(eq(1,"multimap")) {
 				MultiMap map = TheAPI.getMultiMap();
@@ -504,7 +550,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		}
 		if(args[0].equalsIgnoreCase("Test") && s.isOp()) {
 			if(args.length==2) {
-				c.addAll(StringUtil.copyPartialMatches(args[1], Arrays.asList("TabList","Scoreboard","Title","Actionbar","Bossbar","BlocksAPI","PlayerName","MultiMap"), new ArrayList<>()));
+				c.addAll(StringUtil.copyPartialMatches(args[1], Arrays.asList("ActionBar","BlocksAPI","BossBar","MultiMap","PlayerName","RankingAPI","Scoreboard","ScoreboardV2","TabList","Title"), new ArrayList<>()));
 				}
 		}
 		if(args[0].equalsIgnoreCase("WorldsManager") && s.hasPermission("TheAPI.Command.WorldsManager")) {

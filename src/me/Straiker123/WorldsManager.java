@@ -25,7 +25,7 @@ public class WorldsManager {
 	}
 	
 	/**
-	 * This method ReCreate world, working as Import world commmand in Multiverse
+	 * @see see This method ReCreate world, working as Import world commmand in Multiverse
 	 * @param world
 	 * @param generator
 	 * @param type
@@ -36,7 +36,7 @@ public class WorldsManager {
 		return TheAPI.getWorldsManager().create(world, generator, type, true, 0);
 		}
 	/**
-	 * Create new world, return boolean if world was created
+	 * @see see Create new world, return boolean if world was created
 	 * @param name Name of world (Required)
 	 * @param generator World generator type (Required)
 	 * @param type set null to create Void world
@@ -46,7 +46,7 @@ public class WorldsManager {
 		return create(name,generator,type,true,0);
 	}
 	/**
-	 * Create new world, return boolean if world was created
+	 * @see see Create new world, return boolean if world was created
 	 * @param name Name of world (Required)
 	 * @param generator World generator type (Required)
 	 * @param type set null to create Void world
@@ -136,7 +136,7 @@ public class WorldsManager {
 		for(Player p : TheAPI.getOnlinePlayers())
 			if(p.getWorld().getName().equals(name)) {
 				TheAPI.getPlayerAPI(p).setGodOnTime(30);
-				TheAPI.getPlayerAPI(p).teleport(w.get(0).getSpawnLocation());
+				TheAPI.getPlayerAPI(p).safeTeleport(w.get(0).getSpawnLocation());
 			}
 		Bukkit.unloadWorld(name, saveWorld);
 		return true;

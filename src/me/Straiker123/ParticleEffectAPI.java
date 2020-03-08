@@ -1,6 +1,5 @@
 package me.Straiker123;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -1079,7 +1078,7 @@ public static final class ParticlePacket {
 		}
 		String worldName = center.getWorld().getName();
 		double squared = range * range;
-		for (Player player : Bukkit.getOnlinePlayers()) {
+		for (Player player : TheAPI.getOnlinePlayers()) {
 			if (!player.getWorld().getName().equals(worldName) || player.getLocation().distanceSquared(center) > squared) {
 				continue;
 			}

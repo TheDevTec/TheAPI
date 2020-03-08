@@ -3,7 +3,6 @@ package me.Straiker123;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
@@ -52,7 +51,7 @@ public class NameTagAPI {
 	            ff.setAccessible(true);
 	            ff.set(profile, name);
 	        }
-	            for (Player p : Bukkit.getOnlinePlayers()) {
+	            for (Player p : TheAPI.getOnlinePlayers()) {
 	                p.hidePlayer(this.p);
 	                p.showPlayer(this.p);
 	        }
@@ -91,7 +90,7 @@ public class NameTagAPI {
 		Team t = sb.getTeam(teamName);
 		
 		if(suffix !=null) {
-			if(TheAPI.getServerVersion().contains("V1_8")) {
+			if(TheAPI.getServerVersion().contains("v1_8")) {
 	            if (suffix.length() > 16) {
 	            	suffix = suffix.substring(0, 15);
 	            }
@@ -117,7 +116,7 @@ public class NameTagAPI {
 		}
 		}}
 		if(prefix !=null) {
-			if(TheAPI.getServerVersion().contains("V1_8")) {
+			if(TheAPI.getServerVersion().contains("v1_8")) {
 	            if (prefix.length() > 16) {
 	            	prefix = suffix.substring(0, 15);
 	            }
