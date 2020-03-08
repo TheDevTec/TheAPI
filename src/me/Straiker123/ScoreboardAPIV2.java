@@ -39,16 +39,28 @@ public class ScoreboardAPIV2 {
     	s.add(TheAPI.colorize(line));
     }
     
+    public Scoreboard getScoreboard() {
+    	return v;
+    }
+    
+    public Objective getObjective() {
+    	return dd;
+    }
+    
+    public Player getPlayer() {
+    	return ss;
+    }
+    
     public void setLines(List<String> lines) {
     	for(String d : lines)addLine(d);
     }
     
-    public void send() {
-    	update();
-    	ss.setScoreboard(v);
-    }
-    
-	public void update() {
+    boolean send = false;
+	public void create() {
+		if(!send || ss.getScoreboard() != v && ss.getScoreboard().getObjectives().isEmpty()) {
+			send=true;
+	    	ss.setScoreboard(v);
+		}
 		dd.setDisplayName(title);
 		List<String> items = Arrays.asList("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p");
 		int i = 15;

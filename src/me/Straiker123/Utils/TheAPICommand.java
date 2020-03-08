@@ -117,7 +117,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			if(eq(1,"ScoreboardV2")) {
 				ScoreboardAPIV2 a = TheAPI.getScoreboardAPIV2(p);
 				a.setTitle("&eTheAPI v"+TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
-				a.send();
 				TheRunnable r = TheAPI.getRunnable();
 				r.runRepeating(new Runnable() {
 					int times=0;
@@ -130,7 +129,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						a.addLine("&aBy DevTec");
 						a.addLine("&eRandom numbers:");
 						a.addLine("&6"+TheAPI.generateRandomDouble(200));
-						a.update();
+						a.create();
 						++times;
 					}
 				}, 10); 
