@@ -2,8 +2,10 @@ package me.Straiker123;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Color;
@@ -32,16 +34,51 @@ import com.mojang.authlib.properties.Property;
 import me.Straiker123.Utils.Error;
 
 @SuppressWarnings("deprecation")
-public class ItemCreatorAPI {
+public class ItemCreatorAPI implements Cloneable {
 	ItemStack a;
 	public ItemCreatorAPI(ItemStack icon) {
 		a=icon != null ? icon : new ItemStack(Material.AIR);
+		unb=isUnbreakable();
+		for(PotionEffect e : getPotionEffects()) {
+			addPotionEffect(e.getType(), e.getDuration(),e.getAmplifier());
+		}
+		c=getPotionColor();
+		name=getDisplayName();
+		owner=getOwner();
+		lore=getLore();
+		enchs=getEnchantments();
+		s=getAmount();
+		model=getCustomModelData();
+		type=getSkullType();
+		map=getItemFlags();
+		data=getMaterialData();
+		dur=getDurability();
+		w=getAttributeModifiers();
+		if(hasBookAuthor())
+		author=getBookAuthor();
+		pages=getBookPages();
+		if(hasBookTitle())
+		title=getBookTitle();
+		if(hasBookGeneration())
+		gen=getBookGeneration();
 	}
 	
 	public Material getMaterial() {
 		return a.getType();
 	}
 
+	public boolean isItem(boolean canBeLegacy) {
+		String s = a.getType().name();
+		return !s.contains("WALL_")&&!s.contains("AIR")&&!s.contains("VOID")
+				&&!s.contains("_STEM")&&!s.contains("POTTED_")&&(canBeLegacy ? true : !s.contains("LEGACY_"))
+				&&!s.equals("END_PORTAL")&&!s.equals("END_GATEWAY")&&!s.equals("NETHER_PORTAL")
+				|| a.getType().isBlock() && a.getType().isOccluding();
+	}
+	
+	public boolean isBlock() {
+		return a.getType().isBlock();
+	}
+	
 	public void setOwnerFromWeb(String web) {
 		if(web!=null)
 			this.url=web;
@@ -54,10 +91,36 @@ public class ItemCreatorAPI {
 	
 	public void setMaterial(String byName) {
 		try {
-		a=new ItemStack(Material.matchMaterial(byName));
+			a.setType(Material.matchMaterial(byName));
 		}catch(Exception e) {
 			Error.err("set material in ItemCreatorAPI", "Uknown Material");
 		}
+	}
+
+	public List<PotionEffect> getPotionEffects() {
+		if(a.getItemMeta() instanceof PotionMeta)
+	 return ((PotionMeta)a.getItemMeta()).getCustomEffects();
+		return new ArrayList<PotionEffect>();
+	}
+	
+	public ItemMeta getItemMeta() {
+		return a.getItemMeta();
+	}
+
+	public boolean hasPotionEffects() {
+		if(a.getItemMeta() instanceof PotionMeta)
+	 return ((PotionMeta)a.getItemMeta()).hasCustomEffects();
+		return false;
+	}
+	public boolean hasPotionEffect(PotionEffectType type) {
+		if(a.getItemMeta() instanceof PotionMeta)
+	 return ((PotionMeta)a.getItemMeta()).hasCustomEffect(type);
+		return false;
+	}
+	public boolean hasPotionColor() {
+		if(a.getItemMeta() instanceof PotionMeta)
+	 return ((PotionMeta)a.getItemMeta()).hasColor();
+		return false;
 	}
 	MultiMap ef = TheAPI.getMultiMap();
 	public void addPotionEffect(PotionEffectType potionEffect, int duration, int amlifier) {
@@ -66,6 +129,12 @@ public class ItemCreatorAPI {
 	}
 	public void addPotionEffect(String potionEffect, int duration, int amlifier) {
 		addPotionEffect(PotionEffectType.getByName(potionEffect),duration,amlifier);
+	}
+
+	public Color getPotionColor() {
+		if(a.getItemMeta() instanceof PotionMeta)
+	 return ((PotionMeta)a.getItemMeta()).getColor();
+		return null;
 	}
 	Color c;
 	public void setPotionColor(Color color) {
@@ -79,17 +148,36 @@ public class ItemCreatorAPI {
 		name=TheAPI.colorize(newName);
 	}
 	
+	public String getDisplayName() {
+		return a.getItemMeta().getDisplayName();
+	}
+	
 	List<String> lore = new ArrayList<String>();
 	public void addLore(String line) {
 		if(line!=null)
 		lore.add(TheAPI.colorize(line));
 	}
-	
+
+	public List<String> getLore() {
+		return a.getItemMeta().getLore();
+	}
+
+	public String getOwner() {
+		if(a.getItemMeta() instanceof SkullMeta)
+		return ((SkullMeta)a.getItemMeta()).getOwner();
+		return null;
+	}
 	public void setOwner(String owner) {
 		if(owner!=null)
 			this.owner=owner;
 	}
-	
+
+	public HashMap<Enchantment, Integer> getEnchantments() {
+		HashMap<Enchantment, Integer> e= new HashMap<Enchantment, Integer>();
+		Map<Enchantment, Integer> map = a.getItemMeta().getEnchants();
+		for(Enchantment a : map.keySet())e.put(a,map.get(a));
+		return e;
+	}
 	HashMap<Enchantment, Integer> enchs = new HashMap<Enchantment, Integer>();
 	public void addEnchantment(Enchantment e, int level) {
 		if(e!= null)enchs.put(e, level);
@@ -97,6 +185,11 @@ public class ItemCreatorAPI {
 	public void addEnchantment(String e, int level) {
 		if(e!= null)enchs.put(TheAPI.getEnchantmentAPI().getByName(e), level);
 	}
+	
+	public int getAmount() {
+		return a.getAmount();
+	}
+	
 	int s = 1;
 	public void setAmount(int amount) {
 		if(amount > 64)amount=64;
@@ -109,36 +202,97 @@ public class ItemCreatorAPI {
 				addLore(s);
 	}
 	
+	public int getCustomModelData() {
+		try {
+			return a.getItemMeta().getCustomModelData();
+		}catch(Exception er) {
+			return -1;
+		}
+	}
+	
 	int model = -1;
 	public void setCustomModelData(int i) {
 		model=i;
 	}
+	
+	public boolean isUnbreakable() {
+		try {
+		return a.getItemMeta().isUnbreakable();
+		}catch(Exception er) {
+			return hasLore() && getLore().contains("") && getLore().contains("&9UNBREAKABLE");
+		}
+	}
+	
 	boolean unb;
 	public void setUnbreakable(boolean unbreakable) {
 		unb=unbreakable;
 	}
-	SkullType type = null;
+	private List<SkullType> wd = Arrays.asList(SkullType.CREEPER,SkullType.DRAGON,SkullType.PLAYER,SkullType.SKELETON,SkullType.WITHER,SkullType.ZOMBIE);
+	public SkullType getSkullType() {
+		if(a.getItemMeta() instanceof SkullMeta) {
+			return wd.get((int)a.getDurability());
+		}
+		return null;
+	}
+	
+	SkullType type;
 	public void setSkullType(SkullType t) {
 		if(t!=null)
 			type=t;
 	}
 	private List<ItemFlag> map = new ArrayList<ItemFlag>();
+	
+	public List<ItemFlag> getItemFlags(){
+		
+		List<ItemFlag> items = new ArrayList<ItemFlag>();
+		for(ItemFlag f : a.getItemMeta().getItemFlags())items.add(f);
+		return items;
+	}
+	
 	public void addItemFlag(ItemFlag itemflag) {
 		if(itemflag!=null)
 		map.add(itemflag);
 	}
+	
+	@SuppressWarnings("unchecked")
+	public HashMap<Attribute, AttributeModifier> getAttributeModifiers(){
+		HashMap<Attribute, AttributeModifier> h = new HashMap<Attribute, AttributeModifier>();
+		try {
+			if(hasAttributeModifiers()) {
+			HashMap<Attribute, AttributeModifier> map = (HashMap<Attribute, AttributeModifier>) a.getItemMeta().getAttributeModifiers();
+			for(Attribute a : map.keySet())h.put(a, map.get(a));
+			}
+		return h;
+		}catch(Exception er) {
+			return h;
+		}
+	}
+	
 	HashMap<Attribute, AttributeModifier> w = new HashMap<Attribute, AttributeModifier>();
-	public void addAttrubuteModifier(Attribute a, AttributeModifier s) {
+	public void addAttributeModifier(Attribute a, AttributeModifier s) {
 		if(TheAPI.isNewVersion()&&!TheAPI.getServerVersion().equals("v1_13_R1") && a != null && s!=null)
 		w.put(a, s);
 	}
-	public void addAttrubuteModifiers(HashMap<Attribute, AttributeModifier> s) {
+	public void addAttributeModifiers(HashMap<Attribute, AttributeModifier> s) {
 		if(TheAPI.isNewVersion()&&!TheAPI.getServerVersion().equals("v1_13_R1") && s!=null)
 		w=s;
 	}
+	
+	public short getDurability() {
+		return a.getDurability();
+	}
+	
 	int dur=-1;
 	public void setDurability(int amount) {
 		dur=amount;
+	}
+	
+	public MaterialData getMaterialData() {
+		try {
+			return a.getData();
+		}catch(Exception er) {
+			return null;
+		}
 	}
 	
 	MaterialData data = null;
@@ -148,15 +302,90 @@ public class ItemCreatorAPI {
 	
 	String author = "";
 	List<String> pages = new ArrayList<String>();
-	String title = "UKNOWN";
+	String title = "";
 
+	public boolean hasDisplayName() {
+		return a.getItemMeta().hasDisplayName();
+	}
+	public boolean hasLore() {
+		return a.getItemMeta().hasLore();
+	}
+	public boolean hasEnchants() {
+		return a.getItemMeta().hasEnchants();
+	}
+	public boolean hasCustomModelData() {
+		return a.getItemMeta().hasCustomModelData();
+	}
+	public boolean hasAttributeModifiers() {
+		try {
+		return a.getItemMeta().hasAttributeModifiers();
+		}catch(Exception err) {
+			return false;
+		}
+	}
+	public boolean hasItemFlag(ItemFlag flag) {
+		return a.getItemMeta().hasItemFlag(flag);
+	}
+	public boolean hasConflictingEnchant(Enchantment ench) {
+		return a.getItemMeta().hasConflictingEnchant(ench);
+	}
+	public boolean hasEnchant(Enchantment ench) {
+		return a.getItemMeta().hasEnchant(ench);
+	}
+
+	public String getBookAuthor() {
+		if(a.getItemMeta() instanceof BookMeta) {
+		return ((BookMeta)a.getItemMeta()).getAuthor();	
+		}
+		return null;
+	}
+
+	public boolean hasBookAuthor() {
+		if(a.getItemMeta() instanceof BookMeta) {
+		return ((BookMeta)a.getItemMeta()).hasAuthor();	
+		}
+		return false;
+	}
+	
 	public void setBookAuthor(String author) {
 		if(author!=null)
 		this.author=TheAPI.colorize(author);
 	}
+
+	public boolean hasBookTitle() {
+		if(a.getItemMeta() instanceof BookMeta) {
+		return ((BookMeta)a.getItemMeta()).hasTitle();	
+		}
+		return false;
+	}
+	public String getBookTitle() {
+		if(a.getItemMeta() instanceof BookMeta) {
+		return ((BookMeta)a.getItemMeta()).getTitle();	
+		}
+		return null;
+	}
+	
 	public void setBookTitle(String title) {
 		if(title!=null)
 		this.title=TheAPI.colorize(title);
+	}
+	public List<String> getBookPages() {
+		if(a.getItemMeta() instanceof BookMeta) {
+		return ((BookMeta)a.getItemMeta()).getPages();	
+		}
+		return new ArrayList<String>();
+	}
+	public String getBookPage(int page) {
+		if(a.getItemMeta() instanceof BookMeta) {
+		return ((BookMeta)a.getItemMeta()).getPage(page);	
+		}
+		return null;
+	}
+	public int getBookPageCount() {
+		if(a.getItemMeta() instanceof BookMeta) {
+		return ((BookMeta)a.getItemMeta()).getPageCount();	
+		}
+		return 0;
 	}
 	public void addBookPage(String lines) {
 		if(lines==null)lines="";
@@ -172,6 +401,18 @@ public class ItemCreatorAPI {
 		if(lines!=null)
 		for(String s : lines)
 		addBookPage(s);
+	}
+	public boolean hasBookGeneration() {
+		if(a.getItemMeta() instanceof BookMeta) {
+		return ((BookMeta)a.getItemMeta()).hasGeneration();	
+		}
+		return false;
+	}
+	public Generation getBookGeneration() {
+		if(a.getItemMeta() instanceof BookMeta) {
+		return ((BookMeta)a.getItemMeta()).getGeneration();	
+		}
+		return null;
 	}
 	Generation gen = Generation.ORIGINAL;
 	public void setBookGeneration(Generation generation) {
@@ -197,10 +438,12 @@ public class ItemCreatorAPI {
 		ItemMeta mf=i.getItemMeta();
 		if(data != null)
 			i.setData(data);
+		if(!i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
 			if(enchs != null && !enchs.isEmpty())i.addUnsafeEnchantments(enchs);
+		}
 			if(name!=null)
 			mf.setDisplayName(name);
-			if(model != -1 && TheAPI.isNewVersion() //1.14+
+			if(model != -1 && TheAPI.isNewVersion() //1.13+
 					 &&!TheAPI.getServerVersion().contains("v1_13"))
 			mf.setCustomModelData(model);
 			if(!TheAPI.isOlder1_9()
@@ -216,37 +459,16 @@ public class ItemCreatorAPI {
 			for(ItemFlag f: map)
 			mf.addItemFlags(f);
 			if(w!=null && !w.isEmpty() && TheAPI.isNewVersion()
-					 &&!TheAPI.getServerVersion().equals("v1_13_R1"))//1.13.2+
+					 &&!TheAPI.getServerVersion().equals("v1_13_R1"))//1.13+
 			mf.setAttributeModifiers((Multimap<Attribute, AttributeModifier>) w);
 			i.setItemMeta(mf);
 		if(i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
 		EnchantmentStorageMeta m = (EnchantmentStorageMeta) i.getItemMeta();
-		if(data != null)
-			i.setData(data);
 		if(enchs != null && !enchs.isEmpty())
 			for(Enchantment e : enchs.keySet())
 			m.addStoredEnchant(e, enchs.get(e), true);
-		if(name!=null)
-			m.setDisplayName(name);
-			if(model != -1 && TheAPI.isNewVersion() //1.14+
-					 &&!TheAPI.getServerVersion().contains("v1_13"))
-			m.setCustomModelData(model);
-			if(!TheAPI.isOlder1_9()
-					 &&!TheAPI.getServerVersion().contains("v1_9")
-					 &&!TheAPI.getServerVersion().contains("v1_10"))
-			m.setUnbreakable(unb);
-			 else {
-				 addLore("");
-				 addLore("&9UNBREAKABLE");
-			 }
-				if(lore!=null && !lore.isEmpty())m.setLore(lore);
-			if(map != null && !map.isEmpty())
-			for(ItemFlag f: map)
-			m.addItemFlags(f);
-			if(w!=null && !w.isEmpty() && TheAPI.isNewVersion()
-					 &&!TheAPI.getServerVersion().equals("v1_13_R1"))//1.13.2+
-			m.setAttributeModifiers((Multimap<Attribute, AttributeModifier>) w);
 		i.setItemMeta(m);
+		a=i;
 		}else
 		if(i.getType().name().equalsIgnoreCase("WRITABLE_BOOK")||i.getType().name().equalsIgnoreCase("BOOK_AND_QUILL")) {
 			BookMeta m = (BookMeta)i.getItemMeta();
@@ -255,33 +477,8 @@ public class ItemCreatorAPI {
 			m.setTitle(title);
 			try {
 			m.setGeneration(gen);
-			}catch(Exception e) {
-				
-			}
-			if(data != null)
-				i.setData(data);
-			if(enchs != null && !enchs.isEmpty())i.addUnsafeEnchantments(enchs);
-			if(name!=null)
-				m.setDisplayName(name);
-				if(model != -1 && TheAPI.isNewVersion() //1.14+
-						 &&!TheAPI.getServerVersion().contains("v1_13"))
-				m.setCustomModelData(model);
-				if(!TheAPI.isOlder1_9()
-						 &&!TheAPI.getServerVersion().contains("v1_9")
-						 &&!TheAPI.getServerVersion().contains("v1_10"))
-				m.setUnbreakable(unb);
-				 else {
-					 addLore("");
-					 addLore("&9UNBREAKABLE");
-				 }
-					if(lore!=null && !lore.isEmpty())m.setLore(lore);
-				if(map != null && !map.isEmpty())
-				for(ItemFlag f: map)
-				m.addItemFlags(f);
-				if(w!=null && !w.isEmpty() && TheAPI.isNewVersion()
-						 &&!TheAPI.getServerVersion().equals("v1_13_R1"))//1.13.2+
-				m.setAttributeModifiers((Multimap<Attribute, AttributeModifier>) w);
-				i.setItemMeta(m);
+			}catch(Exception e) {}
+			i.setItemMeta(m);
 		}else
 			if(i.getType().name().startsWith("LINGERING_POTION_OF_")||i.getType().name().startsWith("SPLASH_POTION_OF_")||i.getType().name().startsWith("POTION_OF_")) {
 				PotionMeta meta = (PotionMeta)i.getItemMeta();
@@ -300,31 +497,7 @@ public class ItemCreatorAPI {
 				i.setItemMeta(meta);
 			}else
 			if(type!=null) {
-				SkullMeta m=(SkullMeta)i.getItemMeta();
-				if(data != null)
-					i.setData(data);
-					if(enchs != null && !enchs.isEmpty())i.addUnsafeEnchantments(enchs);
-					if(name!=null)
-					m.setDisplayName(name);
-					if(model != -1 && TheAPI.isNewVersion()
-							 &&!TheAPI.getServerVersion().contains("v1_13"))
-					m.setCustomModelData(model);
-					if(!TheAPI.isOlder1_9()
-							 &&!TheAPI.getServerVersion().contains("v1_9")
-							 &&!TheAPI.getServerVersion().contains("v1_10"))
-					m.setUnbreakable(unb);
-					 else {
-						 addLore("");
-						 addLore("&9UNBREAKABLE");
-					 }
-						if(lore!=null && !lore.isEmpty())m.setLore(lore);
-					if(map != null && !map.isEmpty())
-					for(ItemFlag f: map)
-					m.addItemFlags(f);
-					if(w!=null && !w.isEmpty() 
-							&& TheAPI.isNewVersion()
-							 &&!TheAPI.getServerVersion().equals("v1_13_R1"))
-					m.setAttributeModifiers((Multimap<Attribute, AttributeModifier>) w);	
+				SkullMeta m=(SkullMeta)i.getItemMeta();	
 					if(owner!=null) {
 						m.setOwner(owner);
 					}else if (url != null || url ==null && text != null){
@@ -337,7 +510,6 @@ public class ItemCreatorAPI {
 			            profileField.setAccessible(true);
 			            profileField.set(m, profile);
 			        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) {
-			            e1.printStackTrace();
 			        }
 					}
 					i.setItemMeta(m);
@@ -345,7 +517,8 @@ public class ItemCreatorAPI {
 		}catch(Exception err) {
 			Error.err("creating ItemStack in ItemCreatorAPI", "Uknown Material/ItemStack");
 		}
-		return i;
+		a=i;
+		return a;
 	}
 	
 }
