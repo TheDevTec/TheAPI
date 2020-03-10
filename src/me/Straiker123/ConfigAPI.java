@@ -47,6 +47,9 @@ public class ConfigAPI {
 	
 	public File getFile() {
 		if(f==null) {
+			File d = new File("plugins/"+loc);
+			if(!d.mkdir())
+			d.mkdirs();
 			File ff = new File("plugins/"+loc+"/"+name+"."+end);
 			try {
 			if(ff.exists()) { //file exists

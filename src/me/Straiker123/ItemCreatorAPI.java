@@ -35,7 +35,15 @@ import me.Straiker123.Utils.Error;
 
 @SuppressWarnings("deprecation")
 public class ItemCreatorAPI implements Cloneable {
-	ItemStack a;
+	private ItemStack a;
+	private String author = "", title = "",name,owner,url,text;
+	private Color c;
+	private boolean unb;
+	private SkullType type;
+	private List<SkullType> wd = Arrays.asList(SkullType.CREEPER,SkullType.DRAGON,SkullType.PLAYER,SkullType.SKELETON,SkullType.WITHER,SkullType.ZOMBIE);
+	private int s = 1,model = -1, dur=-1;
+	private MultiMap ef = TheAPI.getMultiMap(),enchs = TheAPI.getMultiMap(),w = TheAPI.getMultiMap();
+	private List<Object> pages = new ArrayList<Object>(),lore = new ArrayList<Object>(),map = new ArrayList<Object>();
 	public ItemCreatorAPI(ItemStack icon) {
 		a=icon != null ? icon : new ItemStack(Material.AIR);
 		unb=isUnbreakable();
@@ -45,18 +53,27 @@ public class ItemCreatorAPI implements Cloneable {
 		c=getPotionColor();
 		name=getDisplayName();
 		owner=getOwner();
-		lore=getLore();
-		enchs=getEnchantments();
+		for(String s : getLore()) {
+			addLore(s);
+		}
+		for(Enchantment e : getEnchantments().keySet())
+		enchs.put(e, getEnchantments().get(e));
 		s=getAmount();
 		model=getCustomModelData();
 		type=getSkullType();
-		map=getItemFlags();
+		for(ItemFlag s : getItemFlags()) {
+			map.add(s);
+		}
 		data=getMaterialData();
 		dur=getDurability();
-		w=getAttributeModifiers();
+		for(Attribute s : getAttributeModifiers().keySet()) {
+			addAttributeModifier(s, getAttributeModifiers().get(s));
+		}
 		if(hasBookAuthor())
 		author=getBookAuthor();
-		pages=getBookPages();
+		for(String s : getBookPages()) {
+			addBookPage(s);
+		}
 		if(hasBookTitle())
 		title=getBookTitle();
 		if(hasBookGeneration())
@@ -66,7 +83,6 @@ public class ItemCreatorAPI implements Cloneable {
 	public Material getMaterial() {
 		return a.getType();
 	}
-
 	public boolean isItem(boolean canBeLegacy) {
 		String s = a.getType().name();
 		return !s.contains("WALL_")&&!s.contains("AIR")&&!s.contains("VOID")
@@ -74,21 +90,17 @@ public class ItemCreatorAPI implements Cloneable {
 				&&!s.equals("END_PORTAL")&&!s.equals("END_GATEWAY")&&!s.equals("NETHER_PORTAL")
 				|| a.getType().isBlock() && a.getType().isOccluding();
 	}
-	
 	public boolean isBlock() {
 		return a.getType().isBlock();
 	}
-	
 	public void setOwnerFromWeb(String web) {
 		if(web!=null)
 			this.url=web;
 	}
-	
 	public void setOwnerFromValues(String values) {
 		if(values!=null)
 		text=values;
 	}
-	
 	public void setMaterial(String byName) {
 		try {
 			a.setType(Material.matchMaterial(byName));
@@ -96,17 +108,14 @@ public class ItemCreatorAPI implements Cloneable {
 			Error.err("set material in ItemCreatorAPI", "Uknown Material");
 		}
 	}
-
 	public List<PotionEffect> getPotionEffects() {
 		if(a.getItemMeta() instanceof PotionMeta)
 	 return ((PotionMeta)a.getItemMeta()).getCustomEffects();
 		return new ArrayList<PotionEffect>();
 	}
-	
 	public ItemMeta getItemMeta() {
 		return a.getItemMeta();
 	}
-
 	public boolean hasPotionEffects() {
 		if(a.getItemMeta() instanceof PotionMeta)
 	 return ((PotionMeta)a.getItemMeta()).hasCustomEffects();
@@ -122,7 +131,6 @@ public class ItemCreatorAPI implements Cloneable {
 	 return ((PotionMeta)a.getItemMeta()).hasColor();
 		return false;
 	}
-	MultiMap ef = TheAPI.getMultiMap();
 	public void addPotionEffect(PotionEffectType potionEffect, int duration, int amlifier) {
 		if(potionEffect!=null)
 		ef.put(potionEffect, duration,amlifier);
@@ -130,38 +138,29 @@ public class ItemCreatorAPI implements Cloneable {
 	public void addPotionEffect(String potionEffect, int duration, int amlifier) {
 		addPotionEffect(PotionEffectType.getByName(potionEffect),duration,amlifier);
 	}
-
 	public Color getPotionColor() {
 		if(a.getItemMeta() instanceof PotionMeta)
 	 return ((PotionMeta)a.getItemMeta()).getColor();
 		return null;
 	}
-	Color c;
 	public void setPotionColor(Color color) {
 		if(color != null)
 		c=color;
 	}
-	
-	String name,owner,url,text;
 	public void setDisplayName(String newName) {
 		if(newName!=null)
 		name=TheAPI.colorize(newName);
 	}
-	
 	public String getDisplayName() {
 		return a.getItemMeta().getDisplayName();
 	}
-	
-	List<String> lore = new ArrayList<String>();
 	public void addLore(String line) {
 		if(line!=null)
 		lore.add(TheAPI.colorize(line));
 	}
-
 	public List<String> getLore() {
 		return a.getItemMeta().getLore();
 	}
-
 	public String getOwner() {
 		if(a.getItemMeta() instanceof SkullMeta)
 		return ((SkullMeta)a.getItemMeta()).getOwner();
@@ -171,37 +170,30 @@ public class ItemCreatorAPI implements Cloneable {
 		if(owner!=null)
 			this.owner=owner;
 	}
-
 	public HashMap<Enchantment, Integer> getEnchantments() {
 		HashMap<Enchantment, Integer> e= new HashMap<Enchantment, Integer>();
 		Map<Enchantment, Integer> map = a.getItemMeta().getEnchants();
 		for(Enchantment a : map.keySet())e.put(a,map.get(a));
 		return e;
 	}
-	HashMap<Enchantment, Integer> enchs = new HashMap<Enchantment, Integer>();
 	public void addEnchantment(Enchantment e, int level) {
 		if(e!= null)enchs.put(e, level);
 	}
 	public void addEnchantment(String e, int level) {
 		if(e!= null)enchs.put(TheAPI.getEnchantmentAPI().getByName(e), level);
 	}
-	
 	public int getAmount() {
 		return a.getAmount();
 	}
-	
-	int s = 1;
 	public void setAmount(int amount) {
 		if(amount > 64)amount=64;
 		s=amount;
 	}
-	
 	public void setLore(List<String> lore) {
 		if(lore!=null && lore.isEmpty()==false)
 			for(String s:lore)
 				addLore(s);
 	}
-	
 	public int getCustomModelData() {
 		try {
 			return a.getItemMeta().getCustomModelData();
@@ -209,12 +201,9 @@ public class ItemCreatorAPI implements Cloneable {
 			return -1;
 		}
 	}
-	
-	int model = -1;
 	public void setCustomModelData(int i) {
 		model=i;
 	}
-	
 	public boolean isUnbreakable() {
 		try {
 		return a.getItemMeta().isUnbreakable();
@@ -222,38 +211,28 @@ public class ItemCreatorAPI implements Cloneable {
 			return hasLore() && getLore().contains("") && getLore().contains("&9UNBREAKABLE");
 		}
 	}
-	
-	boolean unb;
 	public void setUnbreakable(boolean unbreakable) {
 		unb=unbreakable;
 	}
-	private List<SkullType> wd = Arrays.asList(SkullType.CREEPER,SkullType.DRAGON,SkullType.PLAYER,SkullType.SKELETON,SkullType.WITHER,SkullType.ZOMBIE);
 	public SkullType getSkullType() {
 		if(a.getItemMeta() instanceof SkullMeta) {
 			return wd.get((int)a.getDurability());
 		}
 		return null;
 	}
-	
-	SkullType type;
 	public void setSkullType(SkullType t) {
 		if(t!=null)
 			type=t;
 	}
-	private List<ItemFlag> map = new ArrayList<ItemFlag>();
-	
 	public List<ItemFlag> getItemFlags(){
-		
 		List<ItemFlag> items = new ArrayList<ItemFlag>();
 		for(ItemFlag f : a.getItemMeta().getItemFlags())items.add(f);
 		return items;
 	}
-	
 	public void addItemFlag(ItemFlag itemflag) {
 		if(itemflag!=null)
 		map.add(itemflag);
 	}
-	
 	@SuppressWarnings("unchecked")
 	public HashMap<Attribute, AttributeModifier> getAttributeModifiers(){
 		HashMap<Attribute, AttributeModifier> h = new HashMap<Attribute, AttributeModifier>();
@@ -267,22 +246,21 @@ public class ItemCreatorAPI implements Cloneable {
 			return h;
 		}
 	}
-	
-	HashMap<Attribute, AttributeModifier> w = new HashMap<Attribute, AttributeModifier>();
 	public void addAttributeModifier(Attribute a, AttributeModifier s) {
 		if(TheAPI.isNewVersion()&&!TheAPI.getServerVersion().equals("v1_13_R1") && a != null && s!=null)
 		w.put(a, s);
 	}
 	public void addAttributeModifiers(HashMap<Attribute, AttributeModifier> s) {
 		if(TheAPI.isNewVersion()&&!TheAPI.getServerVersion().equals("v1_13_R1") && s!=null)
-		w=s;
+		for(Attribute r : s.keySet()) {
+			addAttributeModifier(r,s.get(r));
+		}
 	}
 	
 	public short getDurability() {
 		return a.getDurability();
 	}
 	
-	int dur=-1;
 	public void setDurability(int amount) {
 		dur=amount;
 	}
@@ -295,15 +273,11 @@ public class ItemCreatorAPI implements Cloneable {
 		}
 	}
 	
-	MaterialData data = null;
+	private MaterialData data = null;
 	public void setMaterialData(MaterialData data) {
 		this.data=data;
 	}
 	
-	String author = "";
-	List<String> pages = new ArrayList<String>();
-	String title = "";
-
 	public boolean hasDisplayName() {
 		return a.getItemMeta().hasDisplayName();
 	}
@@ -397,7 +371,6 @@ public class ItemCreatorAPI implements Cloneable {
 		pages.set(page,TheAPI.colorize(lines));
 	}
 	public void setBookPages(List<String> lines) {
-		pages=new ArrayList<String>();
 		if(lines!=null)
 		for(String s : lines)
 		addBookPage(s);
@@ -426,7 +399,6 @@ public class ItemCreatorAPI implements Cloneable {
 	
 	@SuppressWarnings("unchecked")
 	public ItemStack create() {
-		
 		ItemStack i = a;
 		try {
 		if(type!=null) {
@@ -435,11 +407,13 @@ public class ItemCreatorAPI implements Cloneable {
 			if(dur!=-1)
 			a.setDurability((short)dur);
 		}
+		i.setAmount(s);
 		ItemMeta mf=i.getItemMeta();
 		if(data != null)
 			i.setData(data);
 		if(!i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
-			if(enchs != null && !enchs.isEmpty())i.addUnsafeEnchantments(enchs);
+			if(enchs != null && enchs.getKeySet().isEmpty())
+				for(Object t : enchs.getKeySet())i.addUnsafeEnchantment((Enchantment)t,TheAPI.getStringUtils().getInt(enchs.getValues(t).get(0).toString()));
 		}
 			if(name!=null)
 			mf.setDisplayName(name);
@@ -454,26 +428,36 @@ public class ItemCreatorAPI implements Cloneable {
 				 addLore("");
 				 addLore("&9UNBREAKABLE");
 			 }
-				if(lore!=null && !lore.isEmpty())mf.setLore(lore);
+				if(lore!=null && !lore.isEmpty()) {
+					List<String> lor = new ArrayList<String>();
+					for(Object o : lore)lor.add(o.toString());
+					mf.setLore(lor);
+				}
 			if(map != null && !map.isEmpty())
-			for(ItemFlag f: map)
-			mf.addItemFlags(f);
-			if(w!=null && !w.isEmpty() && TheAPI.isNewVersion()
-					 &&!TheAPI.getServerVersion().equals("v1_13_R1"))//1.13+
-			mf.setAttributeModifiers((Multimap<Attribute, AttributeModifier>) w);
+			for(Object f: map)
+			mf.addItemFlags((ItemFlag)f);
+			if(w!=null && !w.getKeySet().isEmpty() && TheAPI.isNewVersion()//(Multimap<Attribute, AttributeModifier>) 
+					 &&!TheAPI.getServerVersion().equals("v1_13_R1")) {//1.13+
+				HashMap<Attribute, AttributeModifier> v = new HashMap<Attribute, AttributeModifier>();
+				for(Object o : w.getKeySet())
+				v.put((Attribute)o, (AttributeModifier)w.getValues(o).get(0));
+			mf.setAttributeModifiers((Multimap<Attribute, AttributeModifier>) v);
+			}
 			i.setItemMeta(mf);
 		if(i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
 		EnchantmentStorageMeta m = (EnchantmentStorageMeta) i.getItemMeta();
-		if(enchs != null && !enchs.isEmpty())
-			for(Enchantment e : enchs.keySet())
-			m.addStoredEnchant(e, enchs.get(e), true);
+		if(enchs != null && !enchs.getKeySet().isEmpty())
+			for(Object e : enchs.getKeySet())
+			m.addStoredEnchant((Enchantment)e, TheAPI.getStringUtils().getInt(enchs.getValues(e).get(0).toString()), true);
 		i.setItemMeta(m);
 		a=i;
 		}else
 		if(i.getType().name().equalsIgnoreCase("WRITABLE_BOOK")||i.getType().name().equalsIgnoreCase("BOOK_AND_QUILL")) {
 			BookMeta m = (BookMeta)i.getItemMeta();
 			m.setAuthor(author);
-			m.setPages(pages);
+			List<String> page = new ArrayList<String>();
+			for(Object o : pages)page.add(o.toString());
+			m.setPages(page);
 			m.setTitle(title);
 			try {
 			m.setGeneration(gen);
@@ -510,8 +494,7 @@ public class ItemCreatorAPI implements Cloneable {
 			            profileField.setAccessible(true);
 			            profileField.set(m, profile);
 			        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) {
-			        }
-					}
+			        }}
 					i.setItemMeta(m);
 			}
 		}catch(Exception err) {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -12,14 +13,14 @@ import org.bukkit.scoreboard.Scoreboard;
 
 public class ScoreboardAPIV2 {
     private Scoreboard v;
-    private HashMap<Integer,String> a=new HashMap<Integer, String>();
-    private String title = "TheAPI";
+    private String name,title = "TheAPI";
     private Player ss;
     private Objective dd;
     private List<String> s = new ArrayList<String>();
     @SuppressWarnings("deprecation")
 	public ScoreboardAPIV2(Player p) {
     	this.ss=p;
+    	name=p.getName();
     	v=p.getServer().getScoreboardManager().getNewScoreboard();
     	if(v.getObjective("a")==null) {
     		dd=v.registerNewObjective("a", "dummy");
@@ -52,14 +53,17 @@ public class ScoreboardAPIV2 {
     public void setLines(List<String> lines) {
     	for(String d : lines)addLine(d);
     }
-    
+
     boolean send = false;
 	public void create() {
+		if(Bukkit.getPlayer(name) ==null)return;
 		if(!send || send && ss.getScoreboard() != v && ss.getScoreboard().getObjectives().isEmpty()||ss.getScoreboard()==null) {
 			send=true;
 	    	ss.setScoreboard(v);
 		}
+		if(!v.getObjective("a").getDisplayName().equals(title))
 		dd.setDisplayName(title);
+	    HashMap<Integer,String> a=new HashMap<Integer, String>();
 		int i = 15;
 		for(String s : this.s) {
 			if(i!=0) {
@@ -67,17 +71,21 @@ public class ScoreboardAPIV2 {
 				--i;
 			}
 		}
-		i=15;
-		List<String> entry = new ArrayList<String>();
-		for(String s : v.getEntries())entry.add(s);
-		for(String aa : entry) {
-			if(!a.get(i).equals(aa))
-			v.resetScores(aa);
-			--i;
+	    HashMap<Integer,String> entry=new HashMap<Integer,String>();
+		for(String df: v.getEntries()) {
+			entry.put(v.getObjective("a").getScore(df).getScore(),df);
+		}
+		for(Integer aa : a.keySet()) {
+			try {
+			if(entry.get(aa) != null && !a.get(aa).equals(entry.get(aa))) {
+			v.resetScores(entry.get(aa));
+			entry.remove((int)aa);
+			}}catch(Exception our) {}
 			}
 			for(Integer o : a.keySet()) {
-				if(entry.size() < o || entry.size() > o && !entry.get(o).equals(a.get(o)))
+				if(entry.containsKey(o)==false) {
 				dd.getScore(a.get(o)).setScore(o);
+				}
 			}
 			this.s=new ArrayList<String>();
 	}

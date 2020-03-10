@@ -175,6 +175,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				return true;
 			}
 			if(eq(1,"Scoreboard")) {
+				@SuppressWarnings("deprecation")
 				ScoreboardAPI a = TheAPI.getScoreboardAPI(p);
 				a.setTitle("&eTheAPI v"+TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
 				a.addLine("&aBy DevTec", 0);

@@ -819,25 +819,27 @@ public class TheAPI {
 		return new EnchantmentAPI();
 	}
 	/**
-	 * @see see Send player scoreboard with per player scoreboard function
+	 * @see see Send player scoreboard with per player scoreboard function (Flashing, but overide other scoreboards)
 	 * @param p
 	 * @param board
 	 * @return ScoreboardAPI
 	 */
+	@Deprecated
 	public static ScoreboardAPI getScoreboardAPI(Player p, Scoreboard board) {
 		return new ScoreboardAPI(p,board);
 	}
 	/**
-	 * @see see Send player scoreboard with per player scoreboard function
+	 * @see see Send player scoreboard with per player scoreboard function (Flashing)
 	 * @param p
 	 * @return ScoreboardAPI
 	 */
+	@Deprecated
 	public static ScoreboardAPI getScoreboardAPI(Player p) {
 		return new ScoreboardAPI(p,p.getServer().getScoreboardManager().getNewScoreboard());
 	}
 
 	/**
-	 * @see see Send player scoreboard with per player scoreboard function
+	 * @see see Send player scoreboard with per player scoreboard function (Non-flashing)
 	 * @param p
 	 * @return ScoreboardAPI
 	 */
