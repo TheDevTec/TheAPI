@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -56,7 +55,7 @@ public class ScoreboardAPIV2 {
 
     boolean send = false;
 	public void create() {
-		if(Bukkit.getPlayer(name) ==null)return;
+		if(TheAPI.getPlayer(name) ==null)return;
 		if(!send || send && ss.getScoreboard() != v && ss.getScoreboard().getObjectives().isEmpty()||ss.getScoreboard()==null) {
 			send=true;
 	    	ss.setScoreboard(v);

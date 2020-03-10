@@ -36,7 +36,7 @@ public class PlayerAPI {
 	}
 
 	public boolean isOnline() {
-		return Bukkit.getPlayer(name) != null && Bukkit.getPlayer(name).getName().equals(name);
+		return TheAPI.getPlayer(name) != null && TheAPI.getPlayer(name).getName().equals(name);
 	}
 	
 	public UUID getUUID() {

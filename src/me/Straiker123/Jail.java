@@ -100,8 +100,8 @@ public class Jail {
 		list.add(player);
 		LoaderClass.data.getConfig().set("Jails."+id+".Players", list);
 		if(loc==null) {
-			if(Bukkit.getPlayer(player)!=null)
-			loc=Bukkit.getPlayer(player).getLocation();
+			if(TheAPI.getPlayer(player)!=null)
+			loc=TheAPI.getPlayer(player).getLocation();
 			else {
 				if(LoaderClass.data.getConfig().getString("data."+player+".LeaveLocation")!=null)
 				loc=(Location)LoaderClass.data.getConfig().get("data."+player+".LeaveLocation");
@@ -114,8 +114,8 @@ public class Jail {
 		LoaderClass.data.getConfig().set("data."+player+".TeleportBack", true);
 		LoaderClass.data.getConfig().set("data."+player+".Jail", id);
 		LoaderClass.data.save();
-		if(Bukkit.getPlayer(player)!=null)
-		TheAPI.getPlayerAPI(Bukkit.getPlayer(player)).teleport(getJailLocation(id));
+		if(TheAPI.getPlayer(player)!=null)
+		TheAPI.getPlayerAPI(TheAPI.getPlayer(player)).teleport(getJailLocation(id));
 	}
 	public Location getJailLocation(String id) {
 		if(LoaderClass.data.getConfig().getString("Jails."+id+".Location")!=null) {
@@ -153,8 +153,8 @@ public class Jail {
 		LoaderClass.data.getConfig().set("Jails."+id+".Players", list);
 		LoaderClass.data.save();
 		}
-		if(Bukkit.getPlayer(player)!=null) {
-		TheAPI.getPlayerAPI(Bukkit.getPlayer(player)).teleport((Location)LoaderClass.data.getConfig().get("data."+player+".JailedOn"));
+		if(TheAPI.getPlayer(player)!=null) {
+		TheAPI.getPlayerAPI(TheAPI.getPlayer(player)).teleport((Location)LoaderClass.data.getConfig().get("data."+player+".JailedOn"));
 		LoaderClass.data.getConfig().set("data."+player+".JailedOn", null);
 		LoaderClass.data.getConfig().set("data."+player+".Jail", null);
 		LoaderClass.data.getConfig().set("data."+player+".TeleportBack", null);

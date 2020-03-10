@@ -101,11 +101,11 @@ public class GameAPI {
 		List<Player> i= new ArrayList<Player>();
 		if(w.getString(s+".Arenas."+arena+".Teams."+team)!=null) {
 		for(String s :w.getStringList(s+".Arenas."+arena+".Teams."+team)) {
-			if(Bukkit.getPlayer(s)==null) {
+			if(TheAPI.getPlayer(s)==null) {
 				removePlayer(arena, team, s);
 				continue;
 			}else
-				i.add(Bukkit.getPlayer(s));
+				i.add(TheAPI.getPlayer(s));
 		}
 	}
 		return i;
@@ -220,7 +220,7 @@ public class GameAPI {
 
 				for(String s:w.getConfigurationSection(s+".Arenas."+arena+".Teams").getKeys(false))
 					for(String d:w.getStringList(s+".Arenas."+arena+".Teams."+s)) {
-						if(Bukkit.getPlayer(d)==null) {
+						if(TheAPI.getPlayer(d)==null) {
 							List<String> list = w.getStringList(s+".Arenas."+arena+".Teams."+s);
 							list.remove(d);
 							w.set(s+".Arenas."+arena+".Teams."+s, list);

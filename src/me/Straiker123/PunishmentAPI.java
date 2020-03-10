@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import me.Straiker123.Utils.Error;
@@ -33,7 +32,7 @@ public class PunishmentAPI {
 		LoaderClass.data.getConfig().set("bans."+player+".tempban", null);
 		LoaderClass.data.getConfig().set("bans."+player+".ban", reason);
 		LoaderClass.data.save();
-		Player p = Bukkit.getPlayer(player);
+		Player p = TheAPI.getPlayer(player);
 		if(p!=null)
 			p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.Ban")
 				.replace("%player%", player)
@@ -66,7 +65,7 @@ public class PunishmentAPI {
 		LoaderClass.data.getConfig().set("bans."+player+".tempban.start", System.currentTimeMillis());
 		LoaderClass.data.getConfig().set("bans."+player+".tempban.time", time);
 		LoaderClass.data.save();
-		Player p = Bukkit.getPlayer(player);
+		Player p = TheAPI.getPlayer(player);
 		if(p!=null)
 		p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.TempBan")
 				.replace("%player%", player)
@@ -110,7 +109,7 @@ public class PunishmentAPI {
 		LoaderClass.data.getConfig().set("bans."+ip+".banip", reason);
 		LoaderClass.data.save();
 		for(String s : findPlayerByIP(ip)) {
-		Player p = Bukkit.getPlayer(s);
+		Player p = TheAPI.getPlayer(s);
 		if(p!=null)
 			p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.BanIP")
 					.replace("%player%", s)
@@ -215,7 +214,7 @@ public class PunishmentAPI {
 		LoaderClass.data.getConfig().set("bans."+ip+".tempbanip.reason", reason);
 		LoaderClass.data.save();
 		for(String s : findPlayerByIP(ip)) {
-			Player p = Bukkit.getPlayer(s);
+			Player p = TheAPI.getPlayer(s);
 			if(p!=null)
 				p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.TempBanIP")
 						.replace("%player%", ip)
