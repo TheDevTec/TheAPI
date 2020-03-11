@@ -1,5 +1,6 @@
 package me.Straiker123;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -31,6 +32,26 @@ public class StringUtils {
 	 * @return HoverMessage
 	 */
 	public String join(List<?> toJoin, String split) {
+		String r= null;
+		for(Object s : toJoin)r=r+split+s.toString();
+		r=r.replaceFirst(split, "");
+		return r;
+	}
+	/**
+	 * @see see Transfer ArrayList to String
+	 * @return HoverMessage
+	 */
+	public String join(ArrayList<?> toJoin, String split) {
+		String r= null;
+		for(Object s : toJoin)r=r+split+s.toString();
+		r=r.replaceFirst(split, "");
+		return r;
+	}
+	/**
+	 * @see see Transfer Object[] to String
+	 * @return HoverMessage
+	 */
+	public String join(Object[] toJoin, String split) {
 		String r= null;
 		for(Object s : toJoin)r=r+split+s.toString();
 		r=r.replaceFirst(split, "");

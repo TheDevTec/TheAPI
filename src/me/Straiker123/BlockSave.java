@@ -3,7 +3,6 @@ package me.Straiker123;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
@@ -132,7 +131,7 @@ public class BlockSave {
 	}
 
 	public String getSignLinesAsString() {
-		return StringUtils.join(lines, " ");
+		return new StringUtils().join(lines, " ");
 	}
 	public String[] getSignLinesFromString(String s) {
 		return s.split(" ");
