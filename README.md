@@ -1,5 +1,5 @@
 # TheAPI
-Current version of TheAPI on this GitHub is v3.9.6
+Current version of TheAPI on this GitHub is v4.0
 
 ## Download TheAPI:
 * Spigot (https://www.spigotmc.org/resources/theapi.72679/)
