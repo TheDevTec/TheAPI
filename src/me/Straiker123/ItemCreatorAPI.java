@@ -27,6 +27,7 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
@@ -40,32 +41,42 @@ public class ItemCreatorAPI implements Cloneable {
 	private Color c;
 	private boolean unb;
 	private SkullType type;
+	Multimap<Attribute, AttributeModifier> w = HashMultimap.create();
 	private List<SkullType> wd = Arrays.asList(SkullType.CREEPER,SkullType.DRAGON,SkullType.PLAYER,SkullType.SKELETON,SkullType.WITHER,SkullType.ZOMBIE);
 	private int s = 1,model = -1, dur=-1;
-	private MultiMap ef = TheAPI.getMultiMap(),enchs = TheAPI.getMultiMap(),w = TheAPI.getMultiMap();
+	private MultiMap ef = TheAPI.getMultiMap(),enchs = TheAPI.getMultiMap();
 	private List<Object> pages = new ArrayList<Object>(),lore = new ArrayList<Object>(),map = new ArrayList<Object>();
 	public ItemCreatorAPI(ItemStack icon) {
 		a=icon != null ? icon : new ItemStack(Material.AIR);
 		unb=isUnbreakable();
+		if(hasPotionEffects())
 		for(PotionEffect e : getPotionEffects()) {
 			addPotionEffect(e.getType(), e.getDuration(),e.getAmplifier());
 		}
+		if(hasPotionColor())
 		c=getPotionColor();
+		if(hasDisplayName())
 		name=getDisplayName();
 		owner=getOwner();
+		if(hasLore())
 		for(String s : getLore()) {
 			addLore(s);
 		}
+		if(hasEnchants())
 		for(Enchantment e : getEnchantments().keySet())
 		enchs.put(e, getEnchantments().get(e));
 		s=getAmount();
+		if(hasCustomModelData())
 		model=getCustomModelData();
 		type=getSkullType();
 		for(ItemFlag s : getItemFlags()) {
 			map.add(s);
 		}
+		try {
 		data=getMaterialData();
+		}catch(Exception er) {}
 		dur=getDurability();
+		if(hasAttributeModifiers())
 		for(Attribute s : getAttributeModifiers().keySet()) {
 			addAttributeModifier(s, getAttributeModifiers().get(s));
 		}
@@ -397,7 +408,6 @@ public class ItemCreatorAPI implements Cloneable {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	public ItemStack create() {
 		ItemStack i = a;
 		try {
@@ -436,12 +446,9 @@ public class ItemCreatorAPI implements Cloneable {
 			if(map != null && !map.isEmpty())
 			for(Object f: map)
 			mf.addItemFlags((ItemFlag)f);
-			if(w!=null && !w.getKeySet().isEmpty() && TheAPI.isNewVersion()//(Multimap<Attribute, AttributeModifier>) 
-					 &&!TheAPI.getServerVersion().equals("v1_13_R1")) {//1.13+
-				HashMap<Attribute, AttributeModifier> v = new HashMap<Attribute, AttributeModifier>();
-				for(Object o : w.getKeySet())
-				v.put((Attribute)o, (AttributeModifier)w.getValues(o).get(0));
-			mf.setAttributeModifiers((Multimap<Attribute, AttributeModifier>) v);
+			if(w!=null && !w.isEmpty() && TheAPI.isNewVersion()
+					 &&!TheAPI.getServerVersion().equals("v1_13_R1")) {//1.14+
+			mf.setAttributeModifiers(w);
 			}
 			i.setItemMeta(mf);
 		if(i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {

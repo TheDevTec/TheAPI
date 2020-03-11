@@ -1,5 +1,6 @@
 package me.Straiker123;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -12,6 +13,30 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 public class StringUtils {
+	
+
+	/**
+	 * @see see Transfer Collection to String
+	 * @return HoverMessage
+	 */
+	public String join(Collection<?> toJoin, String split) {
+		String r= null;
+		for(Object s : toJoin)r=r+split+s.toString();
+		r=r.replaceFirst(split, "");
+		return r;
+	}
+
+	/**
+	 * @see see Transfer List to String
+	 * @return HoverMessage
+	 */
+	public String join(List<?> toJoin, String split) {
+		String r= null;
+		for(Object s : toJoin)r=r+split+s.toString();
+		r=r.replaceFirst(split, "");
+		return r;
+	}
+	
 	/**
 	 * @see see Create clickable message
 	 * @return HoverMessage
