@@ -5,7 +5,7 @@ import org.bukkit.Chunk;
 import org.bukkit.World;
 
 public class MemoryAPI {
-	private static double mb = 1024*1024;
+	private static double mb = 1048576;
 	private static double max = Runtime.getRuntime().maxMemory() /mb;
 	
 	public String clearMemory() {
@@ -40,7 +40,7 @@ public class MemoryAPI {
 	
 	public double getRawUsedMemory(boolean inPercentage) {
 		if(!inPercentage)
-			return (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) /mb;
+			return (getMaxMemory() - Runtime.getRuntime().freeMemory()) /mb;
 			else
 			return (getRawUsedMemory(false)/ getMaxMemory())*100;
 	}
