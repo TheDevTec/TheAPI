@@ -21,7 +21,7 @@ public class StringUtils {
 	 * @return HoverMessage
 	 */
 	public String join(Collection<?> toJoin, String split) {
-		String r= null;
+		String r= "";
 		for(Object s : toJoin)r=r+split+s.toString();
 		r=r.replaceFirst(split, "");
 		return r;
@@ -32,7 +32,7 @@ public class StringUtils {
 	 * @return HoverMessage
 	 */
 	public String join(List<?> toJoin, String split) {
-		String r= null;
+		String r= "";
 		for(Object s : toJoin)r=r+split+s.toString();
 		r=r.replaceFirst(split, "");
 		return r;
@@ -42,7 +42,7 @@ public class StringUtils {
 	 * @return HoverMessage
 	 */
 	public String join(ArrayList<?> toJoin, String split) {
-		String r= null;
+		String r= "";
 		for(Object s : toJoin)r=r+split+s.toString();
 		r=r.replaceFirst(split, "");
 		return r;
@@ -52,7 +52,7 @@ public class StringUtils {
 	 * @return HoverMessage
 	 */
 	public String join(Object[] toJoin, String split) {
-		String r= null;
+		String r= "";
 		for(Object s : toJoin)r=r+split+s.toString();
 		r=r.replaceFirst(split, "");
 		return r;
