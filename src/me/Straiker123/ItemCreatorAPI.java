@@ -422,8 +422,8 @@ public class ItemCreatorAPI implements Cloneable {
 		if(data != null)
 			i.setData(data);
 		if(!i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
-			if(enchs != null && enchs.getKeySet().isEmpty())
-				for(Object t : enchs.getKeySet())i.addUnsafeEnchantment((Enchantment)t,TheAPI.getStringUtils().getInt(enchs.getValues(t).get(0).toString()));
+			if(enchs != null && !enchs.getKeySet().isEmpty())
+				for(Object t : enchs.getKeySet())mf.addEnchant((Enchantment)t,TheAPI.getStringUtils().getInt(enchs.getValues(t).get(0).toString()),true);
 		}
 			if(name!=null)
 			mf.setDisplayName(name);
@@ -474,6 +474,7 @@ public class ItemCreatorAPI implements Cloneable {
 			if(i.getType().name().startsWith("LINGERING_POTION_OF_")||i.getType().name().startsWith("SPLASH_POTION_OF_")||i.getType().name().startsWith("POTION_OF_")) {
 				PotionMeta meta = (PotionMeta)i.getItemMeta();
 				meta.setColor(c);
+				if(!ef.getKeySet().isEmpty())
 				for(Object o : ef.getKeySet()) {
 					Object[] f = ef.getValues(o).toArray();
 					PotionEffectType t = PotionEffectType.getByName(o.toString());
