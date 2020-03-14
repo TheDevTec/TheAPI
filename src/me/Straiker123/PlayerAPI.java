@@ -171,7 +171,7 @@ public class PlayerAPI {
 			l=b;
 			break;
 		}}
-		return l.add(0.5, 0.5, 0.5);
+		return l != null ? l.add(0.5, 0.5, 0.5):null;
 	}
 	
 	private Location searchLocation(Location d) {
