@@ -91,7 +91,9 @@ public class NameTagAPI {
         }
 		if(sb.getTeam(teamName)==null)sb.registerNewTeam(teamName);
 		Team t = sb.getTeam(teamName);
+		try {
 		t.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.ALWAYS);
+		}catch(Exception | NoSuchMethodError nope) {}
 		if(suffix !=null) {
 			if(TheAPI.getServerVersion().contains("v1_8")) {
 	            if (suffix.length() > 16) {

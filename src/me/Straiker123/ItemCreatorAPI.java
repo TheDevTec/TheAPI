@@ -49,7 +49,12 @@ public class ItemCreatorAPI implements Cloneable {
 	public ItemCreatorAPI(ItemStack icon) {
 		author = "";
 		title = "";
-		wd = Arrays.asList(SkullType.CREEPER,SkullType.DRAGON,SkullType.PLAYER,SkullType.SKELETON,SkullType.WITHER,SkullType.ZOMBIE);
+		wd=new ArrayList<SkullType>();
+		wd.add(SkullType.CREEPER);
+		try {
+			wd.add(SkullType.DRAGON);
+		}catch(Exception | NoSuchMethodError er) {}
+		for(SkullType t:Arrays.asList(SkullType.PLAYER,SkullType.SKELETON,SkullType.WITHER,SkullType.ZOMBIE))wd.add(t);
 		pages = new ArrayList<Object>();
 		lore = new ArrayList<Object>();
 		map = new ArrayList<Object>();
@@ -57,7 +62,9 @@ public class ItemCreatorAPI implements Cloneable {
 		model = -1;
 		dur=-1;
 		ef = TheAPI.getMultiMap();
-		w = HashMultimap.create();
+		try {
+		w = HashMultimap.create();}catch(Exception | NoSuchMethodError er) {
+		}
 		enchs = TheAPI.getMultiMap();
 		a=icon != null ? icon : new ItemStack(Material.AIR);
 		unb=isUnbreakable();
@@ -81,17 +88,22 @@ public class ItemCreatorAPI implements Cloneable {
 		if(hasCustomModelData())
 		model=getCustomModelData();
 		type=getSkullType();
+		try {
 		for(ItemFlag s : getItemFlags()) {
 			map.add(s);
+		}}catch(Exception | NoSuchMethodError er) {
 		}
 		try {
 		data=getMaterialData();
 		}catch(Exception er) {}
 		dur=getDurability();
+		try {
 		if(hasAttributeModifiers())
 		for(Attribute s : getAttributeModifiers().keySet()) {
 			addAttributeModifier(s, getAttributeModifiers().get(s));
 		}
+	}catch(Exception | NoSuchMethodError er) {
+	}
 		if(hasBookAuthor())
 		author=getBookAuthor();
 		for(String s : getBookPages()) {
@@ -99,8 +111,11 @@ public class ItemCreatorAPI implements Cloneable {
 		}
 		if(hasBookTitle())
 		title=getBookTitle();
+		try {
 		if(hasBookGeneration())
 		gen=getBookGeneration();
+		}catch(Exception | NoSuchMethodError er) {
+		}
 	}
 	
 	public Material getMaterial() {
@@ -150,9 +165,12 @@ public class ItemCreatorAPI implements Cloneable {
 		return false;
 	}
 	public boolean hasPotionColor() {
+		try {
 		if(a.getItemMeta() instanceof PotionMeta)
 	 return ((PotionMeta)a.getItemMeta()).hasColor();
-		return false;
+		return false;}catch(Exception | NoSuchMethodError er) {
+			return false;
+		}
 	}
 	public void addPotionEffect(PotionEffectType potionEffect, int duration, int amlifier) {
 		if(potionEffect!=null)
@@ -162,9 +180,13 @@ public class ItemCreatorAPI implements Cloneable {
 		addPotionEffect(PotionEffectType.getByName(potionEffect),duration,amlifier);
 	}
 	public Color getPotionColor() {
+		try {
 		if(a.getItemMeta() instanceof PotionMeta)
 	 return ((PotionMeta)a.getItemMeta()).getColor();
 		return null;
+		}catch(Exception | NoSuchMethodError er) {
+			return null;
+		}
 	}
 	public void setPotionColor(Color color) {
 		if(color != null)
@@ -219,7 +241,7 @@ public class ItemCreatorAPI implements Cloneable {
 	public int getCustomModelData() {
 		try {
 			return a.getItemMeta().getCustomModelData();
-		}catch(Exception er) {
+		}catch(Exception | NoSuchMethodError er) {
 			return -1;
 		}
 	}
@@ -229,7 +251,7 @@ public class ItemCreatorAPI implements Cloneable {
 	public boolean isUnbreakable() {
 		try {
 		return a.getItemMeta().isUnbreakable();
-		}catch(Exception er) {
+		}catch(Exception | NoSuchMethodError er) {
 			return hasLore() && getLore().contains("") && getLore().contains("&9UNBREAKABLE");
 		}
 	}
@@ -247,9 +269,13 @@ public class ItemCreatorAPI implements Cloneable {
 			type=t;
 	}
 	public List<ItemFlag> getItemFlags(){
+		try {
 		List<ItemFlag> items = new ArrayList<ItemFlag>();
 		for(ItemFlag f : a.getItemMeta().getItemFlags())items.add(f);
 		return items;
+		}catch(Exception | NoSuchMethodError er) {
+			return null;
+		}
 	}
 	public void addItemFlag(ItemFlag itemflag) {
 		if(itemflag!=null)
@@ -257,6 +283,7 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 	@SuppressWarnings("unchecked")
 	public HashMap<Attribute, AttributeModifier> getAttributeModifiers(){
+try {
 		HashMap<Attribute, AttributeModifier> h = new HashMap<Attribute, AttributeModifier>();
 		try {
 			if(hasAttributeModifiers()) {
@@ -264,13 +291,19 @@ public class ItemCreatorAPI implements Cloneable {
 			for(Attribute a : map.keySet())h.put(a, map.get(a));
 			}
 		return h;
-		}catch(Exception er) {
+		}catch(Exception | NoSuchMethodError er) {
 			return h;
 		}
+}catch(Exception | NoSuchMethodError er) {
+	return null;
+}
 	}
 	public void addAttributeModifier(Attribute a, AttributeModifier s) {
+		try {
 		if(TheAPI.isNewVersion()&&!TheAPI.getServerVersion().equals("v1_13_R1") && a != null && s!=null)
 		w.put(a, s);
+		}catch(Exception | NoSuchMethodError er) {
+		}
 	}
 	public void addAttributeModifiers(HashMap<Attribute, AttributeModifier> s) {
 		if(TheAPI.isNewVersion()&&!TheAPI.getServerVersion().equals("v1_13_R1") && s!=null)
@@ -310,17 +343,25 @@ public class ItemCreatorAPI implements Cloneable {
 		return a.getItemMeta().hasEnchants();
 	}
 	public boolean hasCustomModelData() {
+		try {
 		return a.getItemMeta().hasCustomModelData();
+		}catch(Exception | NoSuchMethodError er) {
+			return false;
+		}
 	}
 	public boolean hasAttributeModifiers() {
 		try {
 		return a.getItemMeta().hasAttributeModifiers();
-		}catch(Exception err) {
+		}catch(Exception | NoSuchMethodError err) {
 			return false;
 		}
 	}
 	public boolean hasItemFlag(ItemFlag flag) {
+		try {
 		return a.getItemMeta().hasItemFlag(flag);
+		}catch(Exception | NoSuchMethodError e) {
+			return false;
+		}
 	}
 	public boolean hasConflictingEnchant(Enchantment ench) {
 		return a.getItemMeta().hasConflictingEnchant(ench);
@@ -398,23 +439,31 @@ public class ItemCreatorAPI implements Cloneable {
 		addBookPage(s);
 	}
 	public boolean hasBookGeneration() {
+		try {
 		if(a.getItemMeta() instanceof BookMeta) {
 		return ((BookMeta)a.getItemMeta()).hasGeneration();	
 		}
 		return false;
+	}catch(Exception | NoSuchMethodError er) {
+		return false;
+	}
 	}
 	public Generation getBookGeneration() {
+		try {
 		if(a.getItemMeta() instanceof BookMeta) {
 		return ((BookMeta)a.getItemMeta()).getGeneration();	
 		}
 		return null;
+		}catch(Exception | NoSuchMethodError er) {
+			return null;
+		}
 	}
 	Generation gen = Generation.ORIGINAL;
 	public void setBookGeneration(Generation generation) {
 		try {
 		if(generation!=null)
 			gen=generation;
-		}catch(Exception e) {
+		}catch(Exception | NoSuchMethodError e) {
 			
 		}
 	}
@@ -451,13 +500,14 @@ public class ItemCreatorAPI implements Cloneable {
 					for(Object o : lore)lor.add(o.toString());
 					mf.setLore(lor);
 				}
+				try {
 			if(map != null && !map.isEmpty())
 			for(Object f: map)
 			mf.addItemFlags((ItemFlag)f);
 			if(w!=null && !w.isEmpty() && TheAPI.isNewVersion()
 					 &&!TheAPI.getServerVersion().equals("v1_13_R1")) {//1.14+
 			mf.setAttributeModifiers(w);
-			}
+			}}catch(Exception | NoSuchMethodError er) {}
 			i.setItemMeta(mf);
 			if(!i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
 				if(enchs != null && !enchs.getKeySet().isEmpty()) 
@@ -487,7 +537,9 @@ public class ItemCreatorAPI implements Cloneable {
 		}else
 			if(i.getType().name().startsWith("LINGERING_POTION_OF_")||i.getType().name().startsWith("SPLASH_POTION_OF_")||i.getType().name().startsWith("POTION_OF_")) {
 				PotionMeta meta = (PotionMeta)i.getItemMeta();
+				try {
 				meta.setColor(c);
+				}catch(Exception | NoSuchMethodError er) {}
 				if(!ef.getKeySet().isEmpty())
 				for(PotionEffectType t : ef.getKeySet()) {
 					Object[] f = ef.getValues(t).toArray();
@@ -506,6 +558,7 @@ public class ItemCreatorAPI implements Cloneable {
 					if(owner!=null) {
 						m.setOwner(owner);
 					}else if (url != null || url ==null && text != null){
+						try {
 						GameProfile profile = new GameProfile(UUID.randomUUID(), null);
 			        byte[] encodedData = Base64.encodeBase64(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
 			        profile.getProperties().put("textures", new Property("textures",url == null && text != null ? text :  new String(encodedData)));
@@ -514,11 +567,13 @@ public class ItemCreatorAPI implements Cloneable {
 			            profileField = m.getClass().getDeclaredField("profile");
 			            profileField.setAccessible(true);
 			            profileField.set(m, profile);
-			        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e1) {
-			        }}
+			        } catch (Exception | NoSuchMethodError e1) {
+			        }
+			        }catch(Exception  | NoSuchMethodError e) {}
+			        }
 					i.setItemMeta(m);
 			}
-		}catch(Exception err) {
+		}catch(Exception | NoSuchMethodError err) {
 			Error.err("creating ItemStack in ItemCreatorAPI", "Uknown Material/ItemStack");
 			err.printStackTrace();
 		}

@@ -15,7 +15,6 @@ import org.bukkit.block.CommandBlock;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -56,7 +55,7 @@ public class BlockSave {
 			  lines = c.getLines();
 			  try {
 				  color=c.getColor();
-			  }catch(Exception e) {
+			  }catch(Exception | NoSuchMethodError e) {
 				  
 			  }
 		  }
@@ -76,7 +75,6 @@ public class BlockSave {
 		loc=b.getLocation();
 	}
 
-	@Nullable
 	public ItemStack[] getBlockInventory() { //shulkerbox & chest
 		return inv;
 	}
@@ -110,22 +108,18 @@ public class BlockSave {
 		}
 	}
 	
-	@Nullable
 	public String getCommand() {
 		return cmd;
 	}
 
-	@Nullable
 	public String getCommandBlockName() {
 		return cmdname;
 	}
 
-	@Nullable
 	public DyeColor getColor() { //shulkerbox & sign
 		return color;
 	}
 
-	@Nullable
 	public String[] getSignLines() { //sign
 		return lines;
 	}

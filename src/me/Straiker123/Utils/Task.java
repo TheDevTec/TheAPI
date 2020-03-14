@@ -95,11 +95,14 @@ public class Task {
     				String zd = TheAPI.getRandomFromList(Arrays.asList(0.1*total,0.2*total,0.3*total)).toString();
     				e.setVelocity(new Vector(TheAPI.getStringUtils().getDouble(xd),TheAPI.getStringUtils().getDouble(yd),TheAPI.getStringUtils().getDouble(zd)));	
     				LivingEntity a = (LivingEntity)e;
+    				try {
     				if(a.getAttribute(Attribute.GENERIC_ARMOR) != null && 
     						a.getAttribute(Attribute.GENERIC_ARMOR).getValue() > 0)
     					damage=r/(a.getAttribute(Attribute.GENERIC_ARMOR).getValue()/8);
     				a.damage(damage);
-    				
+    				}catch(Exception  | NoSuchMethodError err) {
+        				a.damage(damage);
+    				}
     			}else
     				e.remove();
     		}}
