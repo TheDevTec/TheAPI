@@ -1,22 +1,25 @@
 package me.Straiker123;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
-public class MultiMap {
-	HashMap<Object,List<Object>> map = new HashMap<Object, List<Object>>();
+public class MultiMap<T> {
+	private HashMap<T,List<Object>> map = new HashMap<T, List<Object>>();
 	
-	public void put(Object key, Object... value) {
+	public void put(T key, Object... value) {
 		if(map.containsKey(key))map.remove(key);
-		map.put(key, Arrays.asList(value));
+		List<Object> l = new ArrayList<Object>();
+		for(Object o : value)l.add(o);
+		map.put(key, l);
 	}
 	
-	public void remove(Object key) {
+	public void remove(T key) {
 		map.remove(key);
 	}
 	
-	public void remove(Object key, Object value) {
+	public void remove(T key, Object value) {
 		if(containsKey(key)) {
 			List<Object> o = map.get(key);
 			o.remove(value);
@@ -32,13 +35,22 @@ public class MultiMap {
 		return getKeySet().size();
 	}
 	
-	public boolean containsKey(Object key) {
+	public boolean containsKey(T key) {
 		return map.containsKey(key);
+	}
+	public List<T> getKeysTheyContain(Object value) {
+		List<T> c = new ArrayList<T>();
+		for(T key : keySet()) {
+			if(map.get(key).contains(value)) {
+				c.add(key);
+			}
+		}
+		return c;
 	}
 	
 	public boolean containsValue(Object value) {
 		boolean c = false;
-		for(Object key : getKeySet()) {
+		for(T key : keySet()) {
 			if(map.get(key).contains(value)) {
 				c=true;
 				break;
@@ -46,11 +58,16 @@ public class MultiMap {
 		}
 		return c;
 	}
-	public List<Object> getValues(Object key){
+	public List<Object> getValues(T key){
 		return map.get(key);
 	}
-	
-	public List<Object> getKeySet(){
-		return Arrays.asList(map.keySet());
+
+	public Set<T> keySet(){
+		return map.keySet();
+	}
+	public List<T> getKeySet(){
+		List<T> keys = new ArrayList<T>();
+		for(T t: keySet())keys.add(t);
+		return keys;
 	}
 }

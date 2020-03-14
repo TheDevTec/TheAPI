@@ -136,7 +136,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				return true;
 			}
 			if(eq(1,"multimap")) {
-				MultiMap map = TheAPI.getMultiMap();
+				MultiMap<String> map = TheAPI.getMultiMap();
 				//Key, Values
 				TheAPI.msg("&eInput: &6TheAPI, DevTec, Top, 1", s);
 				map.put("Straiker123", "TheAPI", "DevTec","Top",1);

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Color;
@@ -37,16 +36,29 @@ import me.Straiker123.Utils.Error;
 @SuppressWarnings("deprecation")
 public class ItemCreatorAPI implements Cloneable {
 	private ItemStack a;
-	private String author = "", title = "",name,owner,url,text;
+	private String author, title,name,owner,url,text;
 	private Color c;
 	private boolean unb;
 	private SkullType type;
-	Multimap<Attribute, AttributeModifier> w = HashMultimap.create();
-	private List<SkullType> wd = Arrays.asList(SkullType.CREEPER,SkullType.DRAGON,SkullType.PLAYER,SkullType.SKELETON,SkullType.WITHER,SkullType.ZOMBIE);
-	private int s = 1,model = -1, dur=-1;
-	private MultiMap ef = TheAPI.getMultiMap(),enchs = TheAPI.getMultiMap();
-	private List<Object> pages = new ArrayList<Object>(),lore = new ArrayList<Object>(),map = new ArrayList<Object>();
+	Multimap<Attribute, AttributeModifier> w;
+	private List<SkullType> wd;
+	private int s,model, dur;
+	private MultiMap<PotionEffectType> ef;
+	private MultiMap<Enchantment> enchs;
+	private List<Object> pages,lore,map;
 	public ItemCreatorAPI(ItemStack icon) {
+		author = "";
+		title = "";
+		wd = Arrays.asList(SkullType.CREEPER,SkullType.DRAGON,SkullType.PLAYER,SkullType.SKELETON,SkullType.WITHER,SkullType.ZOMBIE);
+		pages = new ArrayList<Object>();
+		lore = new ArrayList<Object>();
+		map = new ArrayList<Object>();
+		s = 1;
+		model = -1;
+		dur=-1;
+		ef = TheAPI.getMultiMap();
+		w = HashMultimap.create();
+		enchs = TheAPI.getMultiMap();
 		a=icon != null ? icon : new ItemStack(Material.AIR);
 		unb=isUnbreakable();
 		if(hasPotionEffects())
@@ -63,8 +75,8 @@ public class ItemCreatorAPI implements Cloneable {
 			addLore(s);
 		}
 		if(hasEnchants())
-		for(Enchantment e : getEnchantments().keySet())
-		enchs.put(e, getEnchantments().get(e));
+		for(String e : getEnchantments().keySet())
+			addEnchantment(e, getEnchantments().get(e));
 		s=getAmount();
 		if(hasCustomModelData())
 		model=getCustomModelData();
@@ -181,17 +193,16 @@ public class ItemCreatorAPI implements Cloneable {
 		if(owner!=null)
 			this.owner=owner;
 	}
-	public HashMap<Enchantment, Integer> getEnchantments() {
-		HashMap<Enchantment, Integer> e= new HashMap<Enchantment, Integer>();
-		Map<Enchantment, Integer> map = a.getItemMeta().getEnchants();
-		for(Enchantment a : map.keySet())e.put(a,map.get(a));
+	public HashMap<String, Integer> getEnchantments() {
+		HashMap<String, Integer> e= new HashMap<String, Integer>();
+		for(Enchantment d :a.getEnchantments().keySet())e.put(d.getName(),a.getEnchantments().get(d).intValue());
 		return e;
 	}
 	public void addEnchantment(Enchantment e, int level) {
-		if(e!= null)enchs.put(e, level);
+		if(e!= null)enchs.put(e, level+"");
 	}
 	public void addEnchantment(String e, int level) {
-		if(e!= null)enchs.put(TheAPI.getEnchantmentAPI().getByName(e), level);
+		if(e!= null && TheAPI.getEnchantmentAPI().isEnchantment(e))enchs.put(TheAPI.getEnchantmentAPI().getByName(e), level+"");
 	}
 	public int getAmount() {
 		return a.getAmount();
@@ -421,10 +432,7 @@ public class ItemCreatorAPI implements Cloneable {
 		ItemMeta mf=i.getItemMeta();
 		if(data != null)
 			i.setData(data);
-		if(!i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
-			if(enchs != null && !enchs.getKeySet().isEmpty())
-				for(Object t : enchs.getKeySet())mf.addEnchant((Enchantment)t,TheAPI.getStringUtils().getInt(enchs.getValues(t).get(0).toString()),true);
-		}
+		
 			if(name!=null)
 			mf.setDisplayName(name);
 			if(model != -1 && TheAPI.isNewVersion() //1.13+
@@ -451,12 +459,18 @@ public class ItemCreatorAPI implements Cloneable {
 			mf.setAttributeModifiers(w);
 			}
 			i.setItemMeta(mf);
+			if(!i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
+				if(enchs != null && !enchs.getKeySet().isEmpty()) 
+					for(Enchantment t : enchs.getKeySet()) {
+						i.addUnsafeEnchantment(t,TheAPI.getStringUtils().getInt(enchs.getValues(t).get(0).toString()));
+			}}
 		if(i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
 		EnchantmentStorageMeta m = (EnchantmentStorageMeta) i.getItemMeta();
 		if(enchs != null && !enchs.getKeySet().isEmpty())
-			for(Object e : enchs.getKeySet())
-			m.addStoredEnchant((Enchantment)e, TheAPI.getStringUtils().getInt(enchs.getValues(e).get(0).toString()), true);
+			for(Enchantment e : enchs.getKeySet())
+			m.addStoredEnchant(e, TheAPI.getStringUtils().getInt(enchs.getValues(e).get(0).toString()), true);
 		i.setItemMeta(m);
+		
 		a=i;
 		}else
 		if(i.getType().name().equalsIgnoreCase("WRITABLE_BOOK")||i.getType().name().equalsIgnoreCase("BOOK_AND_QUILL")) {
@@ -475,11 +489,10 @@ public class ItemCreatorAPI implements Cloneable {
 				PotionMeta meta = (PotionMeta)i.getItemMeta();
 				meta.setColor(c);
 				if(!ef.getKeySet().isEmpty())
-				for(Object o : ef.getKeySet()) {
-					Object[] f = ef.getValues(o).toArray();
-					PotionEffectType t = PotionEffectType.getByName(o.toString());
+				for(PotionEffectType t : ef.getKeySet()) {
+					Object[] f = ef.getValues(t).toArray();
 					if(t==null) {
-						Error.err("creating ItemStack in ItemCreatorAPI", "Uknown PotionEffectType "+o.toString());
+						Error.err("creating ItemStack in ItemCreatorAPI", "Uknown PotionEffectType");
 						continue;
 					}
 					int dur = TheAPI.getStringUtils().getInt(f[0].toString());
@@ -507,6 +520,7 @@ public class ItemCreatorAPI implements Cloneable {
 			}
 		}catch(Exception err) {
 			Error.err("creating ItemStack in ItemCreatorAPI", "Uknown Material/ItemStack");
+			err.printStackTrace();
 		}
 		a=i;
 		return a;

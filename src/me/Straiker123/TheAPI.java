@@ -65,8 +65,8 @@ public class TheAPI {
 		return new BlocksAPI();
 	}
 	
-	public static MultiMap getMultiMap() {
-		return new MultiMap();
+	public static <T> MultiMap<T> getMultiMap() {
+		return new MultiMap<T>();
 	}
 
 	/**
