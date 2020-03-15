@@ -40,7 +40,7 @@ public class MemoryAPI {
 	
 	public double getRawUsedMemory(boolean inPercentage) {
 		if(!inPercentage)
-			return (getMaxMemory() - Runtime.getRuntime().freeMemory()) /mb;
+			return (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) /mb;
 			else
 			return (getRawUsedMemory(false)/ getMaxMemory())*100;
 	}
