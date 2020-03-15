@@ -60,7 +60,7 @@ public class ScoreboardAPIV2 {
 			send=true;
 	    	ss.setScoreboard(v);
 		}
-		if(!v.getObjective("a").getDisplayName().equals(title))
+		if(!dd.getDisplayName().equals(title))
 		dd.setDisplayName(title);
 	    HashMap<Integer,String> a=new HashMap<Integer, String>();
 		int i = 15;
@@ -72,7 +72,7 @@ public class ScoreboardAPIV2 {
 		}
 	    HashMap<Integer,String> entry=new HashMap<Integer,String>();
 		for(String df: v.getEntries()) {
-			entry.put(v.getObjective("a").getScore(df).getScore(),df);
+			entry.put(dd.getScore(df).getScore(),df);
 		}
 		for(Integer aa : a.keySet()) {
 			try {
