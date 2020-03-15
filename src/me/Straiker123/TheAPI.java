@@ -685,7 +685,26 @@ public class TheAPI {
 	 * @param vanish
 	 */
 	public static void vanish(String p, boolean vanish) {
-		LoaderClass.data.getConfig().set("data."+p+".vanish", (vanish ? true : null));
+		vanish(p,vanish,null);
+	}
+	/**
+	 * @see see Hide or show player to players on server
+	 * @param p
+	 * @param vanish
+	 */
+	public static void vanish(String p, boolean vanish, String perm) {
+		if(vanish) {
+			if(perm!=null)
+				LoaderClass.data.getConfig().set("data."+p+".vanish", perm);
+			List<String> v= LoaderClass.data.getConfig().getStringList("vanished");
+			v.add(p);
+				LoaderClass.data.getConfig().set("vanished", v);
+			}else {
+				LoaderClass.data.getConfig().set("data."+p+".vanish", null);
+				List<String> v= LoaderClass.data.getConfig().getStringList("vanished");
+				v.remove(p);
+					LoaderClass.data.getConfig().set("vanished", v);
+			}
 		LoaderClass.data.save();
 	}
 	private static boolean has(Player s, Player d) {
