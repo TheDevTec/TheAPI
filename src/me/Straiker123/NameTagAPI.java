@@ -3,7 +3,6 @@ package me.Straiker123;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -146,7 +145,7 @@ public class NameTagAPI {
 			}
 		}}
     		if (TheAPI.isNewVersion())
-    			t.setColor(fromPrefix(prefix));
+    			t.setColor(TheAPI.getStringUtils().getColor(prefix));
 		}
 		if(!t.hasPlayer(p))
 		t.addPlayer(p);
@@ -156,18 +155,6 @@ public class NameTagAPI {
 	 */
 	public void resetNameTag() {
 		for(Team t : p.getScoreboard().getTeams())t.unregister();
-	}
-	
-	private ChatColor fromPrefix(String prefix) {
-		char colour = '\u0000';
-		char[] chars = prefix.toCharArray();
-		for (int i = 0; i < chars.length; ++i) {
-    char code;
-    char at = chars[i];
-    if (at != '\u00a7' && at != '&' || i + 1 >= chars.length || ChatColor.getByChar((char)(code = chars[i + 1])) == null) continue;
-    colour = code;
-		}
-		return colour == '\u0000' ? ChatColor.RESET : ChatColor.getByChar((char)colour);
 	}
 
 }

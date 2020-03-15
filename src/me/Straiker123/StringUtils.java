@@ -14,8 +14,22 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 public class StringUtils {
-	
 
+	/**
+	 * @see see Get Color from String
+	 * @return ChatColor
+	 */
+	public ChatColor getColor(String fromString) {
+		char colour = '\u0000';
+		char[] chars = fromString.toCharArray();
+		for (int i = 0; i < chars.length; ++i) {
+    char code;
+    char at = chars[i];
+    if (at != '\u00a7' && at != '&' || i + 1 >= chars.length || ChatColor.getByChar((char)(code = chars[i + 1])) == null) continue;
+    colour = code;
+		}
+		return colour == '\u0000' ? ChatColor.RESET : ChatColor.getByChar((char)colour);
+	}
 	/**
 	 * @see see Transfer Collection to String
 	 * @return HoverMessage
