@@ -126,15 +126,23 @@ public class StringUtils {
 		 y =LoaderClass.config.getConfig().getString("Words.Year");
 		 c = LoaderClass.config.getConfig().getString("Words.Century");
 		 mil =LoaderClass.config.getConfig().getString("Words.Millenium");
-		int a = getInt(s);
-		if(s.endsWith(min))a=a*60;
-		if(s.endsWith(h))a=a*3600;
-		if(s.endsWith(d))a=(a*3600)*24;
-		if(s.endsWith(w))a=((a*3600)*24)*4;
-		if(s.endsWith(mon))a=(((a*3600)*24)*7)*4;
-		if(s.endsWith(y))a=((((a*3600)*24)*7)*4)*12;
-		if(s.endsWith(c))a=(((((a*3600)*24)*7)*4)*12)*100;
-		if(s.endsWith(mil))a=((((((a*3600)*24)*7)*4)*12)*100)*1000;
+		long a = getInt(s);
+		long t_min = a*60;
+		long t_h = t_min*60;
+		long t_d = t_h*24;
+		long t_w = t_d*7;
+		long t_mon = t_w*31;
+		long t_y = t_mon*12;
+		long t_c = t_y*100;
+		long t_mil = t_c*1000;
+		if(s.endsWith(min))a=t_min;
+		if(s.endsWith(h))a=t_h;
+		if(s.endsWith(d))a=t_d;
+		if(s.endsWith(w))a=t_w;
+		if(s.endsWith(mon))a=t_mon;
+		if(s.endsWith(y))a=t_y;
+		if(s.endsWith(c))a=t_c;
+		if(s.endsWith(mil))a=t_mil;
 		return a;
 	}
 	/**
