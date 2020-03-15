@@ -336,8 +336,7 @@ public class StringUtils {
 		String a=fromString.replaceAll("[a-zA-Z]+", "");
 		if (isInt(a)) {
 		return Integer.parseInt(a);
-		}
-		else {
+		}else {
 		return 0;
 	}}
 	/**
