@@ -1,6 +1,7 @@
 package me.Straiker123.Utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -188,7 +189,7 @@ public class Events implements Listener {
     	return m;
     }
     
-	public static List<Inventory> add(Location block, Location real, boolean t,List<Inventory> r, List<ItemStack> drops) {
+	public static List<Inventory> add(Location block, Location real, boolean t,List<Inventory> r, Collection<ItemStack> collection) {
 		List<Inventory> q = r;
 		if(f.getBoolean("Options.LagChecker.TNT.Drops.Allowed"))
 		if(!t) {
@@ -204,7 +205,7 @@ public class Events implements Listener {
 			}
 			if(q.contains(a))
 			q.remove(a);
-			for(ItemStack i : drops) {
+			for(ItemStack i : collection) {
 				if(a.firstEmpty()!=-1)
 				if(i!=null&&i.getType()!=Material.AIR)a.addItem(i);
 				else {
@@ -227,7 +228,7 @@ public class Events implements Listener {
 			}
 			if(qd.contains(a))
 			qd.remove(a);
-			for(ItemStack i :drops) {
+			for(ItemStack i :collection) {
 				if(a.firstEmpty()!=-1)
 				if(i!=null&&i.getType()!=Material.AIR)a.addItem(i);
 				else {
@@ -255,7 +256,7 @@ public class Events implements Listener {
 			}
 			if(qd.contains(a))
 			qd.remove(a);
-			for(ItemStack i :drops) {
+			for(ItemStack i :collection) {
 				if(a.firstEmpty()!=-1)
 				if(i!=null&&i.getType()!=Material.AIR)a.addItem(i);
 				else {

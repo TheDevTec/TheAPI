@@ -77,6 +77,12 @@ public class Task {
                 for (int chZ = 0 -chunkRadius; chZ <= chunkRadius; chZ++){
                     int x=(int) l.getX(),y=(int) l.getY(),z=(int) l.getZ();
                     for (Entity e : new Location(l.getWorld(),x+(chX*16),y,z+(chZ*16)).getChunk().getEntities()){
+                    	if(e.getType()==EntityType.CREEPER) {
+                    		e.setFireTicks(11);
+                    	}
+                    	if(e.getType()==EntityType.MINECART_TNT) {
+                    		e.setFireTicks(11);
+                    	}
                         if (e.getLocation().distance(l) <= r && e.getLocation().getBlock() != l.getBlock()) {
 
             				double rd = (r-e.getLocation().distance(l));
@@ -99,9 +105,9 @@ public class Task {
     				if(a.getAttribute(Attribute.GENERIC_ARMOR) != null && 
     						a.getAttribute(Attribute.GENERIC_ARMOR).getValue() > 0)
     					damage=r/(a.getAttribute(Attribute.GENERIC_ARMOR).getValue()/8);
-    				a.damage(damage);
+    				a.damage(damage/7);
     				}catch(Exception  | NoSuchMethodError err) {
-        				a.damage(damage);
+        				a.damage(damage/7);
     				}
     			}else
     				e.remove();
@@ -140,13 +146,13 @@ public class Task {
 									tnt.setFuseTicks((f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime") <= 0 ? 1: f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime")));
 								}
 						}else {
-							Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,new ArrayList<Inventory>(),(List<ItemStack>) b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
+							Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,new ArrayList<Inventory>(), b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
 							b.setType(Material.AIR);
 							b.getDrops().clear();
 							if(p==4) {
 								for(Entity e: TheAPI.getBlocksAPI().getNearbyEntities(b.getLocation(), 2)) {
 									if(e instanceof LivingEntity) {
-										e.setFireTicks(100);
+										e.setFireTicks(80);
 									}
 								}
 								if(TheAPI.isOlder1_9()) {

@@ -33,7 +33,7 @@ public class PunishmentAPI {
 		LoaderClass.data.getConfig().set("bans."+player+".ban", reason);
 		LoaderClass.data.save();
 		Player p = TheAPI.getPlayer(player);
-		if(p!=null)
+		if(p!=null&&p.getName().equals(player))
 			p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.Ban")
 				.replace("%player%", player)
 				.replace("%reason%", reason)));
@@ -66,7 +66,7 @@ public class PunishmentAPI {
 		LoaderClass.data.getConfig().set("bans."+player+".tempban.time", time);
 		LoaderClass.data.save();
 		Player p = TheAPI.getPlayer(player);
-		if(p!=null)
+		if(p!=null&&p.getName().equals(player))
 		p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.TempBan")
 				.replace("%player%", player)
 				.replace("%reason%", reason)
@@ -110,7 +110,7 @@ public class PunishmentAPI {
 		LoaderClass.data.save();
 		for(String s : findPlayerByIP(ip)) {
 		Player p = TheAPI.getPlayer(s);
-		if(p!=null)
+		if(p!=null&&p.getName().equals(s))
 			p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.BanIP")
 					.replace("%player%", s)
 					.replace("%reason%", reason))); 
@@ -215,7 +215,7 @@ public class PunishmentAPI {
 		LoaderClass.data.save();
 		for(String s : findPlayerByIP(ip)) {
 			Player p = TheAPI.getPlayer(s);
-			if(p!=null)
+			if(p!=null&&p.getName().equals(s))
 				p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.TempBanIP")
 						.replace("%player%", ip)
 						.replace("%reason%", reason).replace("%time%", TheAPI.getStringUtils().setTimeToString(time))));
