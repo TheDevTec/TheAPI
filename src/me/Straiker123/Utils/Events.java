@@ -105,6 +105,7 @@ public class Events implements Listener {
 	
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onExplode(EntityExplodeEvent e) {
+		if(e.isCancelled())return;
 		if(f.getBoolean("Options.LagChecker.Enabled") &&
 				f.getBoolean("Options.LagChecker.TNT.Use")) {
 			e.setCancelled(true);
@@ -255,7 +256,11 @@ public class Events implements Listener {
 	}
 
 	@EventHandler
-	public void onEntityDeath(BlockBreakEvent e) {
+	public void onBreak(BlockBreakEvent e) {
+
+		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(e.getPlayer().getName())) {
+		e.setCancelled(true);
+		}
 		if(e.isCancelled())return;
 		Storage r= new Storage();
 		boolean added = false;
@@ -316,6 +321,7 @@ public class Events implements Listener {
 	}
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onMove(PlayerMoveEvent e) {
+		if(e.isCancelled())return;
 		if(TheAPI.getPlayerAPI(e.getPlayer()).isFreezen()) {
 			e.setCancelled(true);
 			return;
@@ -452,13 +458,8 @@ public class Events implements Listener {
 	
 	
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onBreak(BlockBreakEvent e) {
-		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(e.getPlayer().getName())) {
-		e.setCancelled(true);
-		}
-	}
-	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlace(BlockPlaceEvent e) {
+		if(e.isCancelled())return;
 		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(e.getPlayer().getName())) {
 		e.setCancelled(true);
 		}
@@ -466,6 +467,7 @@ public class Events implements Listener {
 	
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onDamage(EntityDamageEvent e) {
+		if(e.isCancelled())return;
 		if(e.getEntity()instanceof Player) {
 			Player d = (Player)e.getEntity();
 		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(d.getName())) {
@@ -483,6 +485,7 @@ public class Events implements Listener {
 	}
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onFood(FoodLevelChangeEvent e) {
+		if(e.isCancelled())return;
 		if(e.getEntity() instanceof Player)
 			if(TheAPI.getPlayerAPI((Player)e.getEntity()).allowedGod()) {
 				e.setCancelled(true);
@@ -491,6 +494,7 @@ public class Events implements Listener {
 	
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onDamage(EntityDamageByEntityEvent e) {
+		if(e.isCancelled())return;
 		if(e.getEntity() instanceof Player) {
 			Player d = (Player)e.getEntity();
 			if(TheAPI.getPlayerAPI(d).allowedGod()) {
@@ -533,6 +537,7 @@ public class Events implements Listener {
 	
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onChat(PlayerChatEvent e) {
+		if(e.isCancelled())return;
 		Player p = e.getPlayer();
 		String s = p.getName();
 		if(LoaderClass.chatformat.containsKey(p))
@@ -582,6 +587,7 @@ public class Events implements Listener {
 	FileConfiguration g =LoaderClass.unused.getConfig();
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onClick(InventoryClickEvent e) {
+		if(e.isCancelled())return;
 		Player p = (Player)e.getWhoClicked();
 		String playersname = p.getName();
 		if(g.getString("guis."+playersname)==null)return;
