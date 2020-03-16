@@ -10,6 +10,9 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -18,6 +21,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -34,10 +38,12 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+
 import me.Straiker123.BlocksAPI.Shape;
 import me.Straiker123.ItemCreatorAPI;
 import me.Straiker123.LoaderClass;
 import me.Straiker123.PunishmentAPI;
+import me.Straiker123.Storage;
 import me.Straiker123.TheAPI;
 import me.Straiker123.TheAPI.SudoType;
 import me.Straiker123.WorldBorderAPI.WarningMessageType;
@@ -189,57 +195,20 @@ public class Events implements Listener {
     	return m;
     }
     
-	public static List<Inventory> add(Location block, Location real, boolean t,List<Inventory> q, Collection<ItemStack> collection) {
+	public static Storage add(Location block, Location real, boolean t,Storage st, Collection<ItemStack> collection) {
 		if(f.getBoolean("Options.LagChecker.TNT.Drops.Allowed"))
 		if(!t) {
 		if(f.getBoolean("Options.LagChecker.TNT.Drops.InSingleLocation")){
-			Inventory a = Bukkit.createInventory(null, 54);
-			if(q.isEmpty()==false) {
-				for(Inventory i : q) {
-					if(i.firstEmpty()!=-1) {
-						a=i;
-						break;
-					}
-				}
-			}
-			if(q.contains(a))
-			q.remove(a);
 			for(ItemStack i : collection) {
-				if(a.firstEmpty()!=-1)
-				if(i!=null&&i.getType()!=Material.AIR)a.addItem(i);
-				else {
-					q.add(a);
-					a = Bukkit.createInventory(null, 54);
-					a.addItem(i);
-				}
+				if(i!=null&&i.getType()!=Material.AIR)st.add(i);
 			}
-			q.add(a);
 		}else {
-			List<Inventory> qd = new ArrayList<Inventory>();
-			Inventory a = Bukkit.createInventory(null, 54);
-			if(qd.isEmpty()==false) {
-				for(Inventory i : qd) {
-					if(i.firstEmpty()!=-1) {
-						a=i;
-						break;
-					}
-				}
-			}
-			if(qd.contains(a))
-			qd.remove(a);
+			Storage qd = new Storage();
 			for(ItemStack i :collection) {
-				if(a.firstEmpty()!=-1)
-				if(i!=null&&i.getType()!=Material.AIR)a.addItem(i);
-				else {
-					qd.add(a);
-					a = Bukkit.createInventory(null, 54);
-					a.addItem(i);
-				}
+				if(i!=null&&i.getType()!=Material.AIR)qd.add(i);
 			}
-			qd.add(a);
 			if(qd.isEmpty()==false)
-				for(Inventory f : qd)
-					for(ItemStack i : f.getContents())
+					for(ItemStack i : qd.getItems())
 					if(i!=null&&i.getType()!=Material.AIR)block.getWorld().dropItemNaturally(block, i);
 		}
 		}else {
@@ -270,7 +239,7 @@ public class Events implements Listener {
 					for(ItemStack i : f.getContents())
 					if(i!=null&&i.getType()!=Material.AIR)real.getWorld().dropItemNaturally(real, i);
 		}
-		return q;
+		return st;
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -283,7 +252,48 @@ public class Events implements Listener {
 		TheAPI.giveItem(e.getPlayer(), a);
 		}
 	}
-	
+
+	@EventHandler
+	public void onEntityDeath(BlockBreakEvent e) {
+		if(e.isCancelled())return;
+		Storage r= new Storage();
+		for(ItemStack d : e.getBlock().getDrops(e.getPlayer().getEquipment().getItemInMainHand()))
+			r.add(d);
+		int exp = e.getExpToDrop();
+		e.setDropItems(false);
+		e.setExpToDrop(0);
+		TheAPI.getRunnable().runLater(new Runnable() {
+			@Override
+			public void run() {
+				for(ItemStack i : r.getItems()) {
+					try {
+						if(i!=null && i.getType()!=Material.AIR) {
+							Location a = e.getBlock().getLocation();
+							Item o = (Item) e.getBlock().getWorld().spawnEntity(new Location(a.getWorld(),a.getX()+0.5,a.getY(),a.getZ()+0.5), EntityType.DROPPED_ITEM);
+							o.setItemStack(i);
+						}}catch(Exception hide) {}}
+				if(exp != 0) {
+				ExperienceOrb o = (ExperienceOrb) e.getBlock().getWorld().spawnEntity(e.getBlock().getLocation(), EntityType.EXPERIENCE_ORB);
+				o.setExperience(exp);}
+			}
+		}, 2);
+	}
+	@EventHandler
+	public void onEntityDeath(EntityDeathEvent e) {
+		Storage r= new Storage();
+		for(ItemStack d : e.getDrops())
+			r.add(d);
+			for(ItemStack i : r.getItems()) {
+			try {
+				if(i!=null && i.getType()!=Material.AIR)
+			e.getEntity().getLocation().getWorld().dropItem(e.getEntity().getLocation(), i);
+			}catch(Exception hide) {}}
+		if(e.getDroppedExp()!=0) {
+		ExperienceOrb o = (ExperienceOrb) e.getEntity().getLocation().getWorld().spawnEntity(e.getEntity().getLocation(), EntityType.EXPERIENCE_ORB);
+		o.setExperience(e.getDroppedExp());}
+		e.setDroppedExp(0);
+		e.getDrops().clear();
+	}
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onMove(PlayerMoveEvent e) {
 		if(TheAPI.getPlayerAPI(e.getPlayer()).isFreezen()) {

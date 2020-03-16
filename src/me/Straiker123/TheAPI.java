@@ -50,6 +50,14 @@ public class TheAPI {
 	}
 
 	/**
+	 * @see see Create Inventory that can be used as Storage for Items or Sorter
+	 * @return TheRunnable
+	 */
+	public static Storage getStorage() {
+		return new Storage();
+	}
+
+	/**
 	 * @see see API where you can create repeating runnable more easier than before
 	 * @return TheRunnable
 	 */

@@ -1,6 +1,5 @@
 package me.Straiker123.Utils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,13 +14,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.TNTPrimed;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
 import me.Straiker123.LoaderClass;
 import me.Straiker123.ParticleEffect;
+import me.Straiker123.Storage;
 import me.Straiker123.TheAPI;
 import me.Straiker123.TheRunnable;
 import me.Straiker123.Events.TNTExplosionEvent;
@@ -51,8 +50,8 @@ public class Task {
 		}
 		return "none";
 	}
-	
 	public void start() {
+		Storage st = new Storage();
 		if(event.canTNTInLiquidCancelEvent() && Events.around(event.getLocation())) {
 			return;
 		}
@@ -115,19 +114,16 @@ public class Task {
 		}}}}
 		TheRunnable task = TheAPI.getTheRunnable();
 		task.runRepeating(new Runnable() {
-			List<Inventory> drops = new ArrayList<Inventory>();
 			@Override
 			public void run() {
 				if(action().equalsIgnoreCase("none")) {
 				for(int i = (event.isNuclearBomb() ? 2000 : 200); i > 0; --i) {
 					if(a.isEmpty()) {
-						for(Inventory d:drops) {
-							for(ItemStack id : d.getContents()) {
+						for(ItemStack d:st.getItems()) {
 								try {
-									event.getLocation().getWorld().dropItem(event.getLocation(), id);
+									event.getLocation().getWorld().dropItem(event.getLocation(), d);
 								}catch(Exception err) {}
 							}
-						}
 						task.cancel();
 						break;
 					}
@@ -155,7 +151,7 @@ public class Task {
 								}
 						}else {
 							if(event.isDropItems())
-							Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,drops, b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
+							Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,st, b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
 							b.setType(Material.AIR);
 							b.getDrops().clear();
 							if(p==4) {
@@ -172,7 +168,7 @@ public class Task {
 						}
 						}}else {
 							if(event.isDropItems())
-								Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,drops,b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
+								Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,st,b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
 							b.setType(Material.AIR);
 							b.getDrops().clear();
 							if(p==4) {
@@ -191,13 +187,12 @@ public class Task {
 				a.remove(a.size()-1);
 					}
 				}else if(action().equalsIgnoreCase("drop")) {
-					for(Inventory d:drops) {
-						for(ItemStack id : d.getContents()) {
+						for(ItemStack id :st.getItems()) {
 							try {
 								event.getLocation().getWorld().dropItem(event.getLocation(), id);
 							}catch(Exception err) {}
 						}
-					}
+					
 					a.clear();
 					task.cancel();
 				}
