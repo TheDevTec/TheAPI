@@ -189,8 +189,7 @@ public class Events implements Listener {
     	return m;
     }
     
-	public static List<Inventory> add(Location block, Location real, boolean t,List<Inventory> r, Collection<ItemStack> collection) {
-		List<Inventory> q = r;
+	public static List<Inventory> add(Location block, Location real, boolean t,List<Inventory> q, Collection<ItemStack> collection) {
 		if(f.getBoolean("Options.LagChecker.TNT.Drops.Allowed"))
 		if(!t) {
 		if(f.getBoolean("Options.LagChecker.TNT.Drops.InSingleLocation")){
@@ -271,7 +270,7 @@ public class Events implements Listener {
 					for(ItemStack i : f.getContents())
 					if(i!=null&&i.getType()!=Material.AIR)real.getWorld().dropItemNaturally(real, i);
 		}
-		return r;
+		return q;
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)

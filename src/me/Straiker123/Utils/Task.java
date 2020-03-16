@@ -155,7 +155,7 @@ public class Task {
 								}
 						}else {
 							if(event.isDropItems())
-							drops.addAll(Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,new ArrayList<Inventory>(), b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE))));
+							Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,drops, b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
 							b.setType(Material.AIR);
 							b.getDrops().clear();
 							if(p==4) {
@@ -172,8 +172,7 @@ public class Task {
 						}
 						}}else {
 							if(event.isDropItems())
-								for(Inventory inv : Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,new ArrayList<Inventory>(),b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE))))
-								drops.add(inv);
+								Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,drops,b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
 							b.setType(Material.AIR);
 							b.getDrops().clear();
 							if(p==4) {
