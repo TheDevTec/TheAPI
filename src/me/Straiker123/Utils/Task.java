@@ -49,7 +49,7 @@ public class Task {
 		if(TheAPI.getServerTPS() < 15) {
 			return f.getString("Options.LagChecker.TNT.Action.LowTPS");
 		}
-		return "wait";
+		return "none";
 	}
 	
 	public void start() {
@@ -115,11 +115,19 @@ public class Task {
 		}}}}
 		TheRunnable task = TheAPI.getTheRunnable();
 		task.runRepeating(new Runnable() {
+			List<Inventory> drops = new ArrayList<Inventory>();
 			@Override
 			public void run() {
-				if(action().equalsIgnoreCase("wait")) {
+				if(action().equalsIgnoreCase("none")) {
 				for(int i = (event.isNuclearBomb() ? 2000 : 200); i > 0; --i) {
-					if(a.isEmpty()) {
+					if(!a.isEmpty()) {
+						for(Inventory d:drops) {
+							for(ItemStack id : d.getContents()) {
+								try {
+									event.getLocation().getWorld().dropItem(event.getLocation(), id);
+								}catch(Exception err) {}
+							}
+						}
 						task.cancel();
 						break;
 					}
@@ -146,7 +154,8 @@ public class Task {
 									tnt.setFuseTicks((f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime") <= 0 ? 1: f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime")));
 								}
 						}else {
-							Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,new ArrayList<Inventory>(), b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
+							if(event.isDropItems())
+							drops.addAll(Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,new ArrayList<Inventory>(), b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE))));
 							b.setType(Material.AIR);
 							b.getDrops().clear();
 							if(p==4) {
@@ -162,14 +171,14 @@ public class Task {
 								}
 						}
 						}}else {
-
-							Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,new ArrayList<Inventory>(),(List<ItemStack>) b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
+							if(event.isDropItems())
+								drops.addAll(Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,new ArrayList<Inventory>(),b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE))));
 							b.setType(Material.AIR);
 							b.getDrops().clear();
 							if(p==4) {
 								for(Entity e: TheAPI.getBlocksAPI().getNearbyEntities(b.getLocation(), 2)) {
 									if(e instanceof LivingEntity) {
-										e.setFireTicks(100);
+										e.setFireTicks(80);
 									}
 								}
 									if(TheAPI.isOlder1_9()) {
@@ -181,7 +190,7 @@ public class Task {
 						}
 				a.remove(a.size()-1);
 					}
-				}else {
+				}else if(action().equalsIgnoreCase("drop")) {
 					a.clear();
 					task.cancel();
 				}
