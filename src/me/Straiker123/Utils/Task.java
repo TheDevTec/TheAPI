@@ -120,7 +120,7 @@ public class Task {
 			public void run() {
 				if(action().equalsIgnoreCase("none")) {
 				for(int i = (event.isNuclearBomb() ? 2000 : 200); i > 0; --i) {
-					if(!a.isEmpty()) {
+					if(a.isEmpty()) {
 						for(Inventory d:drops) {
 							for(ItemStack id : d.getContents()) {
 								try {
@@ -172,7 +172,8 @@ public class Task {
 						}
 						}}else {
 							if(event.isDropItems())
-								drops.addAll(Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,new ArrayList<Inventory>(),b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE))));
+								for(Inventory inv : Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,new ArrayList<Inventory>(),b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE))))
+								drops.add(inv);
 							b.setType(Material.AIR);
 							b.getDrops().clear();
 							if(p==4) {
@@ -191,6 +192,13 @@ public class Task {
 				a.remove(a.size()-1);
 					}
 				}else if(action().equalsIgnoreCase("drop")) {
+					for(Inventory d:drops) {
+						for(ItemStack id : d.getContents()) {
+							try {
+								event.getLocation().getWorld().dropItem(event.getLocation(), id);
+							}catch(Exception err) {}
+						}
+					}
 					a.clear();
 					task.cancel();
 				}
