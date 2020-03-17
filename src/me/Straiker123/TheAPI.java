@@ -40,7 +40,7 @@ public class TheAPI {
 	public static String colorize(String string) {
 		return getStringUtils().colorize(string);
 	}
-
+ 
 	/**
 	 * @see see API where you can create repeating runnable more easier than before
 	 * @return TheRunnable
