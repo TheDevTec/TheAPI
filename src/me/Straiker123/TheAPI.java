@@ -727,7 +727,7 @@ public class TheAPI {
 		}
 	}
 	private static void v(Player p, boolean vanish, String perm) {
-		
+		 
 		PlayerVanishEvent d = new PlayerVanishEvent(p,(perm == null ? null : perm),vanish,(perm== null ? false: true));
 		Bukkit.getPluginManager().callEvent(d);
 		if(!d.isCancelled()){
