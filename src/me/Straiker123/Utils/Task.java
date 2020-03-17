@@ -1,6 +1,5 @@
 package me.Straiker123.Utils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,13 +14,13 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.TNTPrimed;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
 import me.Straiker123.LoaderClass;
 import me.Straiker123.ParticleEffect;
+import me.Straiker123.Storage;
 import me.Straiker123.TheAPI;
 import me.Straiker123.TheRunnable;
 import me.Straiker123.Events.TNTExplosionEvent;
@@ -49,10 +48,10 @@ public class Task {
 		if(TheAPI.getServerTPS() < 15) {
 			return f.getString("Options.LagChecker.TNT.Action.LowTPS");
 		}
-		return "wait";
+		return "none";
 	}
-	
 	public void start() {
+		Storage st = new Storage();
 		if(event.canTNTInLiquidCancelEvent() && Events.around(event.getLocation())) {
 			return;
 		}
@@ -115,11 +114,20 @@ public class Task {
 		}}}}
 		TheRunnable task = TheAPI.getTheRunnable();
 		task.runRepeating(new Runnable() {
+			int ignite = f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime") <= 0 ? 5 : f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime");
+			boolean igniteUsed = !f.getBoolean("Options.LagChecker.TNT.CollidingTNT.Disabled");
+			boolean fakeTnt = !f.getBoolean("Options.LagChecker.TNT.SpawnTNT");
+			String location = TheAPI.getBlocksAPI().getLocationAsString(reals);
 			@Override
 			public void run() {
-				if(action().equalsIgnoreCase("wait")) {
+				if(action().equalsIgnoreCase("none")) {
 				for(int i = (event.isNuclearBomb() ? 2000 : 200); i > 0; --i) {
 					if(a.isEmpty()) {
+						for(ItemStack d:st.getItems()) {
+								try {
+									event.getLocation().getWorld().dropItem(event.getLocation(), d);
+								}catch(Exception err) {}
+							}
 						task.cancel();
 						break;
 					}
@@ -131,22 +139,23 @@ public class Task {
 				}
 		    	if(event.canDestroyBlocks())
 				if(b.getType()==Material.TNT) {
-							if(!f.getBoolean("Options.LagChecker.TNT.CollidingTNT.Disabled")) {
+							if(igniteUsed) {
 							b.setType(Material.AIR);
-							if(!f.getBoolean("Options.LagChecker.TNT.SpawnTNT")) {
+							if(!fakeTnt) {
 								Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
 									@Override
 									public void run() {
 										Events.get(reals,b.getLocation());
 									}
-								}, (f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime") <= 0 ? 1: f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime")));
+								}, ignite);
 								}else {
 									TNTPrimed tnt = (TNTPrimed)b.getWorld().spawnEntity(b.getLocation(), EntityType.PRIMED_TNT);
-									tnt.setMetadata("real", new FixedMetadataValue(LoaderClass.plugin, TheAPI.getBlocksAPI().getLocationAsString(reals)));
-									tnt.setFuseTicks((f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime") <= 0 ? 1: f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime")));
+									tnt.setMetadata("real", new FixedMetadataValue(LoaderClass.plugin, location));
+									tnt.setFuseTicks(ignite);
 								}
 						}else {
-							Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,new ArrayList<Inventory>(), b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
+							if(event.isDropItems())
+							Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,st, b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
 							b.setType(Material.AIR);
 							b.getDrops().clear();
 							if(p==4) {
@@ -162,14 +171,14 @@ public class Task {
 								}
 						}
 						}}else {
-
-							Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,new ArrayList<Inventory>(),(List<ItemStack>) b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
+							if(event.isDropItems())
+								Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,st,b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
 							b.setType(Material.AIR);
 							b.getDrops().clear();
 							if(p==4) {
 								for(Entity e: TheAPI.getBlocksAPI().getNearbyEntities(b.getLocation(), 2)) {
 									if(e instanceof LivingEntity) {
-										e.setFireTicks(100);
+										e.setFireTicks(80);
 									}
 								}
 									if(TheAPI.isOlder1_9()) {
@@ -181,7 +190,13 @@ public class Task {
 						}
 				a.remove(a.size()-1);
 					}
-				}else {
+				}else if(action().equalsIgnoreCase("drop")) {
+						for(ItemStack id :st.getItems()) {
+							try {
+								event.getLocation().getWorld().dropItem(event.getLocation(), id);
+							}catch(Exception err) {}
+						}
+					
 					a.clear();
 					task.cancel();
 				}

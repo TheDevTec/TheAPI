@@ -7,7 +7,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 public class TNTExplosionEvent extends Event implements Cancellable {
-	boolean b,nuclear,e,d,n,col;
+	boolean b,nuclear,e,d,n,col,dr;
 	int power;
 	Location l;
 	public TNTExplosionEvent(Location loc) {
@@ -16,12 +16,19 @@ public class TNTExplosionEvent extends Event implements Cancellable {
 		d=true;
 		e=true;
 		col=true;
+		dr=true;
 	}
 	@Override
 	public boolean isCancelled() {
 		return b;
 	}
-	
+
+	public void setDropItems(boolean cancel) {
+		dr=cancel;
+	}
+	public boolean isDropItems() {
+		return dr;
+	}
 	public void setTNTInLiquidCancelEvent(boolean cancel) {
 		col=cancel;
 	}
