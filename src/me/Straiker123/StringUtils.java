@@ -14,7 +14,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 public class StringUtils {
-
 	/**
 	 * @see see Get Color from String
 	 * @return ChatColor

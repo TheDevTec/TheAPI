@@ -264,8 +264,10 @@ public class Events implements Listener {
 		if(e.isCancelled())return;
 		Storage r= new Storage();
 		boolean added = false;
+		if(e.getBlock().getType().name().endsWith("BED")) {
+			r.add(new ItemStack(e.getBlock().getType()));
+		}else
 		for(ItemStack d : e.getBlock().getDrops(e.getPlayer().getEquipment().getItemInMainHand())) {
-			
 				if(e.getPlayer().getGameMode()==GameMode.CREATIVE) {
 					if(e.getBlock().getType().name().contains("SHULKER_BOX")||e.getBlock().getType().name().contains("BEE_NEST")
 							||e.getBlock().getType().name().contains("BEEHIDE")||e.getBlock().getType().name().contains("CHEST")

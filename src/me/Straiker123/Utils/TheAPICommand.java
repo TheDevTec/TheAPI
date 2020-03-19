@@ -17,12 +17,16 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.StringUtil;
 
 import me.Straiker123.BlockSave;
 import me.Straiker123.BlocksAPI;
 import me.Straiker123.BlocksAPI.Shape;
+import me.Straiker123.GUICreatorAPI;
+import me.Straiker123.GUICreatorAPI.Options;
+import me.Straiker123.ItemCreatorAPI;
 import me.Straiker123.LoaderClass;
 import me.Straiker123.MultiMap;
 import me.Straiker123.RankingAPI;
@@ -93,8 +97,73 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			TheAPI.msg("&6/TheAPI Test ScoreboardV2",s); //new
 			TheAPI.msg("&6/TheAPI Test TabList",s);
 			TheAPI.msg("&6/TheAPI Test Title",s);
+			TheAPI.msg("&6/TheAPI Test GUICreatorAPI",s);
 			TheAPI.msg("&7-----------------",s);
 			return true;
+			}
+			if(eq(1,"GUICreatorAPI")) {
+				TheAPI.msg("&eThis maybe help you with creating gui: https://i.imgur.com/f43qxux.png", p);
+				GUICreatorAPI a = TheAPI.getGUICreatorAPI(p);
+				//REQUIRED
+				a.setSize(54);
+				a.setTitle("&eTheAPI v"+TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
+				
+				//Frame
+				ItemCreatorAPI iCreator = TheAPI.getItemCreatorAPI(Material.BLACK_STAINED_GLASS_PANE);
+				iCreator.setDisplayName(" ");
+				ItemStack item = iCreator.create();
+				HashMap<Options, Object> setting = new HashMap<Options, Object>();
+				setting.put(Options.CANT_BE_TAKEN, true);
+				setting.put(Options.CANT_PUT_ITEM, true);
+				for(int i = 0; i<10; ++i)
+				a.setItem(i, item,setting);
+				a.setItem(17, item,setting);
+				a.setItem(18, item,setting);
+				a.setItem(26, item,setting);
+				a.setItem(27, item,setting);
+				a.setItem(35, item,setting);
+				a.setItem(36, item,setting);
+				for(int i = 44; i<54; ++i)
+				a.setItem(i, item,setting);
+				
+				//Items
+				iCreator = TheAPI.getItemCreatorAPI(Material.DIAMOND);
+				iCreator.setDisplayName("&eCreator of plugin");
+				iCreator.addLore("");
+				iCreator.addLore("&cPlugin is created by Straiker123");
+				item=iCreator.create();
+				a.setItem(20, item,setting);
+
+				iCreator = TheAPI.getItemCreatorAPI(Material.EMERALD);
+				iCreator.setDisplayName("&eVersion of plugin");
+				iCreator.addLore("");
+				iCreator.addLore("&cTheAPI v"+TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
+				item=iCreator.create();
+				a.setItem(22, item,setting);
+				
+				iCreator = TheAPI.getItemCreatorAPI(Material.GOLD_INGOT);
+				iCreator.setDisplayName("&ePlugins using TheAPI");
+				iCreator.addLore("");
+				iCreator.addLore("&7---------");
+				for(Plugin d : LoaderClass.plugin.getTheAPIsPlugins()) //add plugins to lore
+				iCreator.addLore("&c"+d.getName()+" v"+TheAPI.getPluginsManagerAPI().getVersion(d.getName())); //get version of plugin
+				iCreator.addLore("&7---------");
+				item=iCreator.create();
+				a.setItem(24, item,setting);
+				
+				iCreator = TheAPI.getItemCreatorAPI(Material.BARRIER);
+				iCreator.setDisplayName("&cClose");
+				item=iCreator.create();
+				setting.put(Options.RUNNABLE, new Runnable() { //Apply this runnable on item
+					public void run() {
+						a.close();
+					}
+				});
+				a.setItem(49, item,setting);
+				
+				//REQUIRED
+				a.open();
+				return true;
 			}
 			if(eq(1,"RankingAPI")) {
 				HashMap<String, Double> tops = new HashMap<String, Double>();
@@ -550,7 +619,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		}
 		if(args[0].equalsIgnoreCase("Test") && s.isOp()) {
 			if(args.length==2) {
-				c.addAll(StringUtil.copyPartialMatches(args[1], Arrays.asList("ActionBar","BlocksAPI","BossBar","MultiMap","PlayerName","RankingAPI","Scoreboard","ScoreboardV2","TabList","Title"), new ArrayList<>()));
+				c.addAll(StringUtil.copyPartialMatches(args[1], Arrays.asList("ActionBar","BlocksAPI","BossBar","MultiMap","PlayerName","RankingAPI","Scoreboard","ScoreboardV2","TabList","Title","GUICreatorAPI"), new ArrayList<>()));
 				}
 		}
 		if(args[0].equalsIgnoreCase("WorldsManager") && s.hasPermission("TheAPI.Command.WorldsManager")) {
