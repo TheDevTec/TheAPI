@@ -429,12 +429,6 @@ public class Events implements Listener {
 	@EventHandler
 	public void onLeave(PlayerQuitEvent e) {
 		LoaderClass.a.remove(e.getPlayer());
-		String s = e.getPlayer().getName();
-		if(a.hasBan(s)||
-				a.hasBanIP(s)||
-				a.hasTempBanIP(s)||
-				a.hasTempBan(s))
-			e.setQuitMessage(null);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
