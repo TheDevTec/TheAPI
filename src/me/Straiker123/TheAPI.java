@@ -3,10 +3,7 @@ package me.Straiker123;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -278,19 +275,8 @@ public class TheAPI {
 	 * @see see Get random player from List<Player>
 	 * @return List<Player>
 	 */
-	@SuppressWarnings("unchecked")
 	public static List<Player> getOnlinePlayers(){
-		List<Player> a = new ArrayList<Player>();
-		try {
-			Method m = Bukkit.class.getDeclaredMethod("getOnlinePlayers");
-			Object o = m.invoke(null);
-			if (o instanceof Collection) {
-				for(Player p : (Collection<Player>) o)a.add(p);
-			}else
-			for(Player p : Arrays.asList((Player[]) o))a.add(p);
-			} catch (Exception ex) {
-			} 
-		return a;
+		return LoaderClass.getOnline();
 	}
 
 	

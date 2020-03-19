@@ -1,7 +1,9 @@
 package me.Straiker123;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -80,6 +82,7 @@ public class LoaderClass extends JavaPlugin {
 		 return a;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void onEnable() {
 		createConfig();
 		Tasks.load();
@@ -109,6 +112,13 @@ public class LoaderClass extends JavaPlugin {
 				TheAPI.msg("&bTheAPI&7: &aTheAPI using "+getTheAPIsPlugins().size()+" plugin"+end,TheAPI.getConsole());
 			}
 		}, 200);
+
+		try {
+			Method m = Bukkit.class.getDeclaredMethod("getOnlinePlayers");
+			Object o = m.invoke(null);
+				for(Player p : o instanceof Collection ? (Collection<Player>) o : Arrays.asList((Player[]) o))a.add(p);
+			} catch (Exception ex) {
+			}
 		
 	}
 	
@@ -255,5 +265,10 @@ public class LoaderClass extends JavaPlugin {
 			if(s==null)continue;
 			s.save();
 		}
+	}
+	public static List<Player> a = new ArrayList<Player>();
+
+	public static List<Player> getOnline() {
+		return a;
 	}
 }

@@ -428,6 +428,7 @@ public class Events implements Listener {
 
 	@EventHandler
 	public void onLeave(PlayerQuitEvent e) {
+		LoaderClass.a.remove(e.getPlayer());
 		String s = e.getPlayer().getName();
 		if(a.hasBan(s)||
 				a.hasBanIP(s)||
@@ -446,6 +447,7 @@ public class Events implements Listener {
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
 		String s = e.getPlayer().getName();
+		LoaderClass.a.add(e.getPlayer());
 		for(Player p : TheAPI.getOnlinePlayers()) {
 			if(TheAPI.isVanished(p) && (d.getString("data."+p.getName()+".vanish") != null ? !e.getPlayer().hasPermission(d.getString("data."+p.getName()+".vanish")) : true)) {
 				e.getPlayer().hidePlayer(p);
