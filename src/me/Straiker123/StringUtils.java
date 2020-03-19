@@ -239,7 +239,7 @@ public class StringUtils {
 	 */
 	public String getLocationAsString(Location loc) {
 		if(loc == null)return null;
-		return (loc.getWorld()+","+loc.getX()+","+loc.getY()+","+loc.getBlockZ()+","+loc.getYaw()+","+loc.getPitch()).replace(".", "_");
+		return (loc.getWorld().getName()+","+loc.getX()+","+loc.getY()+","+loc.getBlockZ()+","+loc.getYaw()+","+loc.getPitch()).replace(".", "_");
 	}
 
 	/**
