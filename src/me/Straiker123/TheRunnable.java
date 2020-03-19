@@ -22,11 +22,11 @@ public class TheRunnable {
     }
 
 	public TheRunnable runRepeating(Runnable r,long period) {
-		runRepeating(r,0,period);
+		runRepeating(r,period,period);
 		return this;
     }
 	public TheRunnable runRepeatingFor(Runnable r, Runnable onEnd,long periodAndRepeatTime) {
-		return runRepeatingFor(r,onEnd,0,periodAndRepeatTime);
+		return runRepeatingFor(r,onEnd,periodAndRepeatTime,periodAndRepeatTime);
     }
 	public TheRunnable runRepeatingFor(Runnable r, Runnable onEnd, long delay,long periodAndRepeatTime) {
 		if(id_repeatfor != -0 || id_repeatfor_run!=-0) {
