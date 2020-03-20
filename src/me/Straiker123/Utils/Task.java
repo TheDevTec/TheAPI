@@ -141,7 +141,7 @@ public class Task {
 				if(b.getType()==Material.TNT) {
 							if(igniteUsed) {
 							b.setType(Material.AIR);
-							if(!fakeTnt) {
+							if(fakeTnt) {
 								Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
 									@Override
 									public void run() {
