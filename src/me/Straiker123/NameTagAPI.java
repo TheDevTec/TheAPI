@@ -20,7 +20,7 @@ public class NameTagAPI {
 	}
 	
 	/**
-	 * @see see Warning, this method change whole player name, plugins these checking UUID will kick/ban you from server, for ex.: UUIDSpoof Fix
+	 * @see see Warning, this method change whole player name, plugins these checking UUID will kick/ban you from server, for ex.: UUIDSpoofFix
 	 * @param name
 	 * New player name
 	 */
@@ -90,6 +90,7 @@ public class NameTagAPI {
         }
 		if(sb.getTeam(teamName)==null)sb.registerNewTeam(teamName);
 		Team t = sb.getTeam(teamName);
+		
 		try {
 		t.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.ALWAYS);
 		}catch(Exception | NoSuchMethodError nope) {}
@@ -98,12 +99,14 @@ public class NameTagAPI {
 	            if (suffix.length() > 16) {
 	            	suffix = suffix.substring(0, 15);
 	            }
+	            if(!t.getSuffix().equals(TheAPI.colorize(suffix)))
 	    		t.setSuffix(TheAPI.colorize(suffix));
 			}else {
 			try {
 	            if (suffix.length() > 64) {
 	                suffix = suffix.substring(0, 63);
 	            }
+	            if(!t.getSuffix().equals(TheAPI.colorize(suffix)))
 		t.setSuffix(TheAPI.colorize(suffix));
 		}catch(Exception e) {
 			try {
@@ -115,6 +118,7 @@ public class NameTagAPI {
 	            if (suffix.length() > 16) {
 	                suffix = suffix.substring(0, 15);
 	            }
+	            if(!t.getSuffix().equals(TheAPI.colorize(suffix)))
 	    		t.setSuffix(TheAPI.colorize(suffix));
 			}
 		}
@@ -124,23 +128,27 @@ public class NameTagAPI {
 	            if (prefix.length() > 16) {
 	            	prefix = suffix.substring(0, 15);
 	            }
+	            if(!t.getPrefix().equals(TheAPI.colorize(prefix)))
 	    		t.setPrefix(TheAPI.colorize(prefix));
 			}else {
 			try {
 	            if (prefix.length() > 64) {
 	            	prefix = prefix.substring(0, 63);
 	            }
+	            if(!t.getPrefix().equals(TheAPI.colorize(prefix)))
 	    		t.setPrefix(TheAPI.colorize(prefix));
 		}catch(Exception e) {
 			try {
             if (prefix.length() > 32) {
             	prefix = prefix.substring(0, 31);
             }
+            if(!t.getPrefix().equals(TheAPI.colorize(prefix)))
     		t.setPrefix(TheAPI.colorize(prefix));
 			}catch(Exception es) {
 	            if (prefix.length() > 16) {
 	            	prefix = suffix.substring(0, 15);
 	            }
+	            if(!t.getPrefix().equals(TheAPI.colorize(prefix)))
 	    		t.setPrefix(TheAPI.colorize(prefix));
 			}
 		}}
