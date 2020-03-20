@@ -41,7 +41,7 @@ public class Tasks {
 				c=true;
 				break;
 			}
-		}else c=true;
+		}
 		return c;
 	}
 	public static void load() {
