@@ -17,7 +17,7 @@ public class ConfigAPI {
 	FileConfiguration a;
 	Map<String, Object> c=new HashMap<String, Object>();
 	
-	public ConfigAPI(String configName, String localization) {
+	public ConfigAPI(String localization, String configName) {
 	name=configName;	
 	loc=localization;
 	}

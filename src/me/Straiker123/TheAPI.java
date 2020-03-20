@@ -105,7 +105,7 @@ public class TheAPI {
 	 * @return ConfigAPI
 	 */
 	public static ConfigAPI getConfig(String localization,  String name) {
-		return new ConfigAPI(name,localization);
+		return new ConfigAPI(localization,name);
 	}
 	/**
 	 * @see see Return is server version 1.13+
