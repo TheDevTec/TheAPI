@@ -56,7 +56,8 @@ public class ScoreboardAPIV2 {
     boolean send = false;
 	public void create() {
 		if(TheAPI.getPlayer(name) ==null)return;
-		if(!send || send && ss.getScoreboard() != v && ss.getScoreboard().getObjectives().isEmpty()||ss.getScoreboard()==null) {
+		Scoreboard b = ss.getScoreboard();
+		if(!send || send && b != v && b.getObjectives().isEmpty()||b==null) {
 			send=true;
 	    	ss.setScoreboard(v);
 		}
@@ -71,6 +72,7 @@ public class ScoreboardAPIV2 {
 			}
 		}
 	    HashMap<Integer,String> entry=new HashMap<Integer,String>();
+	   List<String> added=new ArrayList<String>();
 		for(String df: v.getEntries()) {
 			entry.put(dd.getScore(df).getScore(),df);
 		}
@@ -79,10 +81,12 @@ public class ScoreboardAPIV2 {
 			if(entry.get(aa) != null && !a.get(aa).equals(entry.get(aa))) {
 			v.resetScores(entry.get(aa));
 			entry.remove((int)aa);
+			dd.getScore(a.get(aa)).setScore(aa);
+			added.add(a.get(aa));
 			}}catch(Exception our) {}
 			}
 			for(Integer o : a.keySet()) {
-				if(entry.containsKey(o)==false) {
+				if(entry.containsKey(o)==false && !added.contains(a.get(o))) {
 				dd.getScore(a.get(o)).setScore(o);
 				}
 			}
