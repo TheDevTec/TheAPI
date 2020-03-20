@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -13,7 +12,6 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -260,50 +258,6 @@ public class Events implements Listener {
 		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(e.getPlayer().getName())) {
 		e.setCancelled(true);
 		}
-		if(e.isCancelled())return;
-		e.setCancelled(true);
-		Storage r= new Storage();
-		boolean added = false;
-		ItemStack i = e.getPlayer().getEquipment().getItemInMainHand();
-		for(ItemStack d : i != null && e.getPlayer()!=null && Bukkit.getPlayer(e.getPlayer().getName())!=null
-		? e.getBlock().getDrops(i) : e.getBlock().getDrops()) {
-				if(e.getPlayer().getGameMode()==GameMode.CREATIVE) {
-					if(e.getBlock().getType().name().contains("SHULKER_BOX")||e.getBlock().getType().name().contains("BEE_NEST")
-							||e.getBlock().getType().name().contains("BEEHIDE")||e.getBlock().getType().name().contains("CHEST")
-							||e.getBlock().getType().name().contains("LECTERN")||e.getBlock().getType().name().contains("DISPENSER")
-							||e.getBlock().getType().name().contains("DROPPER")||e.getBlock().getType().name().contains("HOPPER")
-							||e.getBlock().getType().name().contains("FURNACE")||e.getBlock().getType().name().contains("BARREL")
-							||e.getBlock().getType().name().contains("LOOM")||e.getBlock().getType().name().contains("SMOKER"))
-				if(e.getBlock().getType().name().contains(d.getType().name())) {
-						if(!added) {
-					added=true;
-						}else {
-							r.add(d);
-						}
-				}
-			}else
-				r.add(d);
-		}
-		int exp = e.getExpToDrop();
-		e.setDropItems(false);
-		e.setExpToDrop(0);
-		TheAPI.getRunnable().runLater(new Runnable() {
-			@Override
-			public void run() {
-				for(ItemStack i : r.getItems()) {
-					try {
-						if(i!=null && i.getType()!=Material.AIR) {
-							Location a = e.getBlock().getLocation();
-						
-							Item o = (Item) e.getBlock().getWorld().spawnEntity(new Location(a.getWorld(),a.getX()+0.5,a.getY()+0.5,a.getZ()+0.5), EntityType.DROPPED_ITEM);
-							o.setItemStack(i);
-						}}catch(Exception hide) {}}
-				if(exp != 0) {
-				ExperienceOrb o = (ExperienceOrb) e.getBlock().getWorld().spawnEntity(e.getBlock().getLocation(), EntityType.EXPERIENCE_ORB);
-				o.setExperience(exp);}
-			}
-		}, 4);
-		e.getBlock().setType(Material.AIR);
 	}
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent e) {
