@@ -257,17 +257,16 @@ public class Events implements Listener {
 
 	@EventHandler
 	public void onBreak(BlockBreakEvent e) {
-
 		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(e.getPlayer().getName())) {
 		e.setCancelled(true);
 		}
 		if(e.isCancelled())return;
+		e.setCancelled(true);
 		Storage r= new Storage();
 		boolean added = false;
-		if(e.getBlock().getType().name().endsWith("BED")) {
-			r.add(new ItemStack(e.getBlock().getType()));
-		}else
-		for(ItemStack d : e.getBlock().getDrops(e.getPlayer().getEquipment().getItemInMainHand())) {
+		ItemStack i = e.getPlayer().getEquipment().getItemInMainHand();
+		for(ItemStack d : i != null && e.getPlayer()!=null && Bukkit.getPlayer(e.getPlayer().getName())!=null
+		? e.getBlock().getDrops(i) : e.getBlock().getDrops()) {
 				if(e.getPlayer().getGameMode()==GameMode.CREATIVE) {
 					if(e.getBlock().getType().name().contains("SHULKER_BOX")||e.getBlock().getType().name().contains("BEE_NEST")
 							||e.getBlock().getType().name().contains("BEEHIDE")||e.getBlock().getType().name().contains("CHEST")
@@ -304,6 +303,7 @@ public class Events implements Listener {
 				o.setExperience(exp);}
 			}
 		}, 4);
+		e.getBlock().setType(Material.AIR);
 	}
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent e) {
