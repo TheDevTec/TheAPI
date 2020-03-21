@@ -58,7 +58,7 @@ public class ConfigAPI {
 			try {
 			ff.createNewFile();
 			f= ff;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			if(LoaderClass.config.getConfig() == null || LoaderClass.config.getConfig() != null && !LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
 				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cError when getting file of "+name+"."+end+" config:"));
 				e.printStackTrace();
@@ -175,8 +175,12 @@ public class ConfigAPI {
 		try {
 			if(f==null)
 		f=getFile();
+			try {
 			if(a==null)
-		a = YamlConfiguration.loadConfiguration(f);
+				a = YamlConfiguration.loadConfiguration(f);
+			}catch(Exception repeat) {
+				a = YamlConfiguration.loadConfiguration(f);
+			}
 		if(h!=null)a.options().header(h);
 		if(c!=null && !c.isEmpty()) {
 		a.addDefaults(c);

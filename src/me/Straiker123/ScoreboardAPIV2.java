@@ -15,7 +15,7 @@ public class ScoreboardAPIV2 {
     private String name,title = "TheAPI";
     private Player ss;
     private Objective dd;
-    private List<String> s = new ArrayList<String>();
+    private HashMap<Integer,String> a=new HashMap<Integer, String>();
     @SuppressWarnings("deprecation")
 	public ScoreboardAPIV2(Player p) {
     	this.ss=p;
@@ -32,9 +32,10 @@ public class ScoreboardAPIV2 {
     	if(title!=null)
     	this.title=TheAPI.colorize(title);
     }
-    
+    private int cu;
     public void addLine(String line) {
-    	s.add(TheAPI.colorize(line));
+    	a.put(15-cu,TheAPI.colorize(line));
+    	++cu;
     }
     
     public Scoreboard getScoreboard() {
@@ -63,14 +64,6 @@ public class ScoreboardAPIV2 {
 		}
 		if(!dd.getDisplayName().equals(title))
 		dd.setDisplayName(title);
-	    HashMap<Integer,String> a=new HashMap<Integer, String>();
-		int i = 15;
-		for(String s : this.s) {
-			if(i!=0) {
-				a.put(i, s);
-				--i;
-			}
-		}
 	    HashMap<Integer,String> entry=new HashMap<Integer,String>();
 	   List<String> added=new ArrayList<String>();
 		for(String df: v.getEntries()) {
@@ -80,9 +73,11 @@ public class ScoreboardAPIV2 {
 			try {
 			if(entry.get(aa) != null && !a.get(aa).equals(entry.get(aa))) {
 			v.resetScores(entry.get(aa));
-			entry.remove((int)aa);
+			try {
 			dd.getScore(a.get(aa)).setScore(aa);
 			added.add(a.get(aa));
+			}catch(Exception e) {}
+			entry.remove(aa);
 			}}catch(Exception our) {}
 			}
 			for(Integer o : a.keySet()) {
@@ -90,6 +85,6 @@ public class ScoreboardAPIV2 {
 				dd.getScore(a.get(o)).setScore(o);
 				}
 			}
-			this.s=new ArrayList<String>();
+			a.clear();
 	}
 }
