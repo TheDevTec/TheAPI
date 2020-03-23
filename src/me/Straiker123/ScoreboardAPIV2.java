@@ -11,14 +11,17 @@ import org.bukkit.scoreboard.Scoreboard;
 
 public class ScoreboardAPIV2 {
     private Scoreboard v;
-    private String name,title = "TheAPI";
+    private String title;
     private Player ss;
     private Objective dd;
-    private HashMap<Integer,String> a=new HashMap<Integer, String>();
+    private HashMap<Integer,String> a=new HashMap<Integer, String>(),entry=new HashMap<Integer,String>();
+    private boolean send;
+    private int cu;
     @SuppressWarnings("deprecation")
 	public ScoreboardAPIV2(Player p) {
     	this.ss=p;
-    	name=p.getName();
+    	title = "TheAPI";
+    	send=false;
     	v=p.getServer().getScoreboardManager().getNewScoreboard();
     	if(v.getObjective("a")==null) {
     		dd=v.registerNewObjective("a", "dummy");
@@ -31,7 +34,6 @@ public class ScoreboardAPIV2 {
     	if(title!=null && !title.equals(""))
     	this.title=TheAPI.colorize(title);
     }
-    private int cu;
     public void addLine(String line) {
     	a.put(15-cu,TheAPI.colorize(line));
     	++cu;
@@ -53,10 +55,8 @@ public class ScoreboardAPIV2 {
     	for(String d : lines)addLine(d);
     }
 
-    boolean send = false;
 	public void create() {
 		cu=0;
-		if(TheAPI.getPlayer(name) ==null)return;
 		Scoreboard b = ss.getScoreboard();
 		if(!send || send && b != v && b.getObjectives().isEmpty()||b==null) {
 			send=true;
@@ -64,19 +64,18 @@ public class ScoreboardAPIV2 {
 		}
 		if(!dd.getDisplayName().equals(title))
 		dd.setDisplayName(title);
-	    HashMap<Integer,String> entry=new HashMap<Integer,String>();
-		for(String df: v.getEntries()) {
-			entry.put(dd.getScore(df).getScore(),df);
+		for(Integer i : a.keySet()) {
+			String ne = a.get(i);
+			if(entry.containsKey(i)) {
+				String old = entry.get(i);
+			if(!ne.equals(old)) {
+				v.resetScores(old);
+				dd.getScore(ne).setScore(i);
+			}}else
+				if(!entry.containsKey(i))
+					dd.getScore(ne).setScore(i);
 		}
-		for(Integer aa : a.keySet()) {
-			if(entry.containsKey(aa)) {
-			if(!a.get(aa).equals(entry.get(aa))) {
-			v.resetScores(entry.get(aa));
-			dd.getScore(a.get(aa)).setScore(aa);
-			}
-			}else
-				dd.getScore(a.get(aa)).setScore(aa);
-			}
-			a.clear();
+		entry=a;
+		a=new HashMap<Integer,String>();
 	}
 }
