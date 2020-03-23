@@ -1,16 +1,23 @@
 package me.Straiker123;
 
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 public class CooldownAPI {
-	String c;
+	private String c;
+	private FileConfiguration f;
 	public CooldownAPI(String cooldownname) {
 		c=cooldownname;
+		f=LoaderClass.data.getConfig();
+	}
+	
+	public String getCooldownName() {
+		return c;
 	}
 	
 	public void createCooldown(String player, double length) {
-		LoaderClass.data.getConfig().set("cooldown."+c+"."+player+".start", System.currentTimeMillis());
-		LoaderClass.data.getConfig().set("cooldown."+c+"."+player+".time", length);
+		f.set("cooldown."+c+"."+player+".start", System.currentTimeMillis());
+		f.set("cooldown."+c+"."+player+".time", length);
 		LoaderClass.data.save();
 	}
 	
@@ -23,8 +30,7 @@ public class CooldownAPI {
 	 * If return is -1, it mean cooldown isn't exist
 	 */
 	public long getStart(String player) {
-		if(LoaderClass.data.getConfig().getString("cooldown."+c+"."+player+".start")!=null)return LoaderClass.data.getConfig().getLong("cooldown."+c+"."+player+".start");
-		return -1;
+		return f.getString("cooldown."+c+"."+player+".start")!=null? f.getLong("cooldown."+c+"."+player+".start"):-1;
 	}
 
 	/**
@@ -33,9 +39,7 @@ public class CooldownAPI {
 	 * If return is -1, it mean cooldown isn't exist
 	 */
 	public long getTimeToExpire(String player) {
-		if(getStart(player)!=-1)
-		return (getStart(player)/1000-System.currentTimeMillis()/1000)+(long)getCooldown(player);
-		return -1;
+		return getStart(player)!=-1 ? (getStart(player)/1000-System.currentTimeMillis()/1000)+(long)getCooldown(player):-1;
 		
 	}
 	/**
@@ -44,12 +48,11 @@ public class CooldownAPI {
 	 * If return is -1, it mean cooldown isn't exist
 	 */
 	public double getCooldown(String player) {
-		if(LoaderClass.data.getConfig().getString("cooldown."+c+"."+player+".time")!=null)return LoaderClass.data.getConfig().getDouble("cooldown."+c+"."+player+".time");
-		return -1;
+		return f.getString("cooldown."+c+"."+player+".time")!=null?f.getDouble("cooldown."+c+"."+player+".time"):-1;
 	}
 
 	public void removeCooldown(String player) {
-		LoaderClass.data.getConfig().set("cooldown."+c+"."+player, null);
+		f.set("cooldown."+c+"."+player, null);
 		LoaderClass.data.save();
 	} 
 	

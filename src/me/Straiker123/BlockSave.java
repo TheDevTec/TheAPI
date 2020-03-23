@@ -3,7 +3,6 @@ package me.Straiker123;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -160,77 +159,27 @@ public class BlockSave {
 		return mat;
 	}
 	
-	public String getAsString() {
-		return getLocationAsString()+"#"//0
-				+mat.name()+"-"+biom.name()+"-"+blockdata.getAsString()+"-"+getColor()+"#"
-				+getBlockInventoryAsString()+"#"+cmd+"#"+cmdname+"#"
-				+getSignLinesAsString();
+	public static BlockSave getBlockSaveFromString(String s) {
+		try {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(s));
+            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+            BlockSave items =(BlockSave) dataInput.readObject();
+            dataInput.close();
+            return items;
+        } catch (Exception e) {
+        	return null;
+        }
 	}
 	
-	public static BlockSave createBlockSave(String s) {
-		BlockSave d = null;
-		if(s != null) {
-			String[] f = s.split("#");
-			String[] a2 = f[1].split("-");
-			String inv = f[2];
-			if(inv.equals("null"))inv=null;
-			String cmd = f[3];
-			if(cmd.equals("null"))cmd=null;
-			String cmdname = f[4];
-			if(cmdname.equals("null"))cmdname=null;
-			String[] set = f[5].split(" ");
-			if(set[0].equals("null"))set=null;
-
-			String mat = a2[0];
-			String bi = a2[1];
-			if(bi.equals("null"))bi=null;
-			String da = a2[2];
-			if(da.equals("null"))da=null;
-			Block b = getLocationFromString(f[0]).getBlock();
-			if(bi!=null)
-			b.setBiome(Biome.valueOf(bi));
-			if(mat==null)mat="STONE";	
-			b.setType(Material.matchMaterial(mat));
-			if(da!=null && Bukkit.createBlockData(da)!=null)
-			b.setBlockData(Bukkit.createBlockData(da));
-			if(b.getType().name().contains("SIGN")) {
-				Sign w = (Sign)b.getState();
-				int i = 0;
-				if(set != null && set.length > 0)
-				for(String line : set) {
-				w.setLine(i, line);
-				++i;
-				}
-				try {
-					if(a2[3]!=null && DyeColor.valueOf(a2[3])!=null)
-					w.setColor(DyeColor.valueOf(a2[3]));
-				}catch(Exception er) {
-					//old version
-				}
-				w.update(true, true);
-			}
-			if(b.getType().name().contains("CHEST")) {
-				Chest w = (Chest)b.getState();
-				if(inv != null && getBlockInventoryFromString(inv) != null)
-				w.getBlockInventory().setContents(getBlockInventoryFromString(inv));
-				w.update(true, true);
-			}
-			if(b.getType().name().contains("SHULKER_BOX")) {
-				ShulkerBox w = (ShulkerBox)b.getState();
-				if(inv != null && getBlockInventoryFromString(inv) != null)
-				w.getInventory().setContents(getBlockInventoryFromString(inv));
-				w.update(true, true);
-			}
-			if(b.getType().name().contains("COMMAND")) {
-				CommandBlock w = (CommandBlock)b.getState();
-				if(cmd != null)
-				w.setCommand(cmd);
-				if(cmdname != null)
-				w.setName(cmdname);
-				w.update(true, true);
-			}
-			d=new BlockSave(b);
+	public String getBlockSaveAsString() {
+		try {
+		 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+         BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+         dataOutput.writeObject(this);
+         dataOutput.close();
+         return Base64Coder.encodeLines(outputStream.toByteArray());
+		}catch(Exception err) {
+			return null;
 		}
-		return d;
 	}
 }
