@@ -42,7 +42,7 @@ public class ItemGUI {
 	/**
 	 * @see see Apply this item with options on preparing GUI
 	 */
-	public void apply(int position, GUICreatorAPI a) {
+	public void apply(GUICreatorAPI a, int position) {
 		a.setItem(position, i, ops);
 	}
 	

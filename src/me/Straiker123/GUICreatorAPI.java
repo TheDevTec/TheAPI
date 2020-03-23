@@ -56,7 +56,7 @@ public class GUICreatorAPI {
 	}
 	
 	public void applyItemGUI(ItemGUI toApply, int position) {
-		toApply.apply(position, this);
+		toApply.apply(this,position);
 	}
 	
 	public Player getPlayer() {
