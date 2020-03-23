@@ -14,14 +14,14 @@ import me.Straiker123.Utils.GUIID;
 import me.Straiker123.Utils.GUIID.GRunnable;
 
 public class GUICreatorAPI {
-	Player p;
+	private Player p;
 	public GUICreatorAPI(Player s) {
 		p=s;
 		id=new GUIID(p);
 		g =LoaderClass.unused.getConfig();
 	}
-	GUIID id;
-	String t = "TheAPI - Missing name of GUI";
+	private GUIID id;
+	private String t = "TheAPI - Missing name of GUI";
 	public void setTitle(String title) {
 		if(title!=null)
 		t=title;
@@ -51,11 +51,19 @@ public class GUICreatorAPI {
 	}
 	}
 	
+	public ItemGUI createItemGUI(ItemStack item) {
+		return new ItemGUI(item);
+	}
+	
+	public void applyItemGUI(ItemGUI toApply, int position) {
+		toApply.apply(position, this);
+	}
+	
 	public Player getPlayer() {
 		return p;
 	}
 	
-	int f = 9;
+	private int f = 9;
 	public void setSize(int size) {
 		f = getRealSize(size);
 	}
@@ -129,7 +137,7 @@ public class GUICreatorAPI {
 		 s.setUnbreakable(a.getItemMeta().isUnbreakable());
 		 return s.create();
 	}
-	FileConfiguration g;
+	private FileConfiguration g;
 	/**
 	 * @see see Set item on position to the gui with options
 	 * @param options
@@ -235,7 +243,7 @@ public class GUICreatorAPI {
 	}
 
 	/**
-	 * Add item to the first empty slot in gui
+	 * @see see Add item to the first empty slot in gui
 	 * @param item
 	 * Item in gui, you can use instance geItemCreatorAPI to create item
 	 */
@@ -264,7 +272,7 @@ public class GUICreatorAPI {
 	}
 	
 	/**
-	 * return -1 mean in menu isn't empty slot
+	 * @see see return -1 mean in menu isn't empty slot
 	 * @return int where is empty slot (if available)
 	 */
 	public int getFirstEmpty() {
@@ -280,7 +288,7 @@ public class GUICreatorAPI {
 		return i;
 	}
 	/**
-	 * Add item to the first empty slot in gui with options
+	 * @see see Add item to the first empty slot in gui with options
 	 * @param options
 	 * CANT_PUT_ITEM - Global, can player put to the gui item from his inventory (true/false)
 	 * CANT_BE_TAKEN - Can player take item from gui (true/false)
@@ -296,7 +304,7 @@ public class GUICreatorAPI {
 	
 
 	/**
-	 * Set item on position to the gui
+	 * @see see Set item on position to the gui
 	 * @param position
 	 * Position in gui
 	 * @param item
@@ -319,7 +327,7 @@ public class GUICreatorAPI {
 	}
 
 	/**
-	 * Open gui
+	 * @see see Open GUI menu
 	 * 
 	 */
 	public void open() {
@@ -339,7 +347,11 @@ public class GUICreatorAPI {
 		}else
 		id.clear();
 	}
-	
+
+	/**
+	 * @see see Close opened gui
+	 * 
+	 */
 	public void close() {
 		id.clear();
 		inv=null;

@@ -123,13 +123,21 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 	public boolean isItem(boolean canBeLegacy) {
 		String s = a.getType().name();
-		return !s.contains("WALL_")&&!s.contains("AIR")&&!s.contains("VOID")
+		return !s.contains("WALL_")&&!isAir()
 				&&!s.contains("_STEM")&&!s.contains("POTTED_")&&(canBeLegacy ? true : !s.contains("LEGACY_"))
-				&&!s.equals("END_PORTAL")&&!s.equals("END_GATEWAY")&&!s.equals("NETHER_PORTAL")
-				|| a.getType().isBlock() && a.getType().isOccluding();
+				&&!s.equals("END_PORTAL")&&!s.equals("END_GATEWAY")&&!s.equals("NETHER_PORTAL") || isVisibleBlock();
 	}
+	
+	public boolean isAir() {
+		return a.getType().name().equals("AIR")||a.getType().name().equals("VOID_AIR")||a.getType().name().equals("STRUCTURE_VOID");
+	}
+	
 	public boolean isBlock() {
 		return a.getType().isBlock();
+	}
+	
+	public boolean isVisibleBlock() {
+		return isBlock() && a.getType().isOccluding();
 	}
 	public void setOwnerFromWeb(String web) {
 		if(web!=null)
@@ -473,6 +481,8 @@ try {
 		try {
 		if(type!=null) {
 			a.setDurability((short)type.ordinal());
+		}else if(owner!=null) {
+			a.setDurability((short)SkullType.PLAYER.ordinal());
 		}else {
 			if(dur!=-1)
 			a.setDurability((short)dur);
