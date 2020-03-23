@@ -1,6 +1,5 @@
 package me.Straiker123;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -29,7 +28,7 @@ public class ScoreboardAPIV2 {
     }
     
     public void setTitle(String title) {
-    	if(title!=null)
+    	if(title!=null && !title.equals(""))
     	this.title=TheAPI.colorize(title);
     }
     private int cu;
@@ -56,6 +55,7 @@ public class ScoreboardAPIV2 {
 
     boolean send = false;
 	public void create() {
+		cu=0;
 		if(TheAPI.getPlayer(name) ==null)return;
 		Scoreboard b = ss.getScoreboard();
 		if(!send || send && b != v && b.getObjectives().isEmpty()||b==null) {
@@ -65,25 +65,17 @@ public class ScoreboardAPIV2 {
 		if(!dd.getDisplayName().equals(title))
 		dd.setDisplayName(title);
 	    HashMap<Integer,String> entry=new HashMap<Integer,String>();
-	   List<String> added=new ArrayList<String>();
 		for(String df: v.getEntries()) {
 			entry.put(dd.getScore(df).getScore(),df);
 		}
 		for(Integer aa : a.keySet()) {
-			try {
-			if(entry.get(aa) != null && !a.get(aa).equals(entry.get(aa))) {
+			if(entry.containsKey(aa)) {
+			if(!a.get(aa).equals(entry.get(aa))) {
 			v.resetScores(entry.get(aa));
-			try {
 			dd.getScore(a.get(aa)).setScore(aa);
-			added.add(a.get(aa));
-			}catch(Exception e) {}
-			entry.remove(aa);
-			}}catch(Exception our) {}
 			}
-			for(Integer o : a.keySet()) {
-				if(entry.containsKey(o)==false && !added.contains(a.get(o))) {
-				dd.getScore(a.get(o)).setScore(o);
-				}
+			}else
+				dd.getScore(a.get(aa)).setScore(aa);
 			}
 			a.clear();
 	}
