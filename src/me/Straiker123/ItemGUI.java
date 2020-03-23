@@ -28,6 +28,14 @@ public class ItemGUI {
 		return ops;
 	}
 	
+	public boolean hasOption(Options o) {
+		return ops.containsKey(o);
+	}
+	
+	public void removeOption(Options o) {
+		ops.remove(o);
+	}
+	
 	public void addOption(Options o, Object a) {
 		ops.put(o,a);
 	}
