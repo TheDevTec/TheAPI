@@ -1,5 +1,6 @@
 package me.Straiker123;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -35,7 +36,9 @@ public class ScoreboardAPIV2 {
     	this.title=TheAPI.colorize(title);
     }
     public void addLine(String line) {
-    	a.put(15-cu,TheAPI.colorize(line));
+    	int s = 15-cu;
+    	if(s < 0)return;
+    	a.put(s,TheAPI.colorize(line));
     	++cu;
     }
     
@@ -64,18 +67,26 @@ public class ScoreboardAPIV2 {
 		}
 		if(!dd.getDisplayName().equals(title))
 		dd.setDisplayName(title);
-		for(Integer i : a.keySet()) {
-			String ne = a.get(i);
-			if(entry.containsKey(i)) {
-				String old = entry.get(i);
-			if(!ne.equals(old)) {
-				v.resetScores(old);
-				dd.getScore(ne).setScore(i);
-			}}else
-				if(!entry.containsKey(i))
+		List<Integer> added = new ArrayList<Integer>();
+		for(Integer i : entry.keySet()) {
+			String o = entry.get(i);
+			if(!a.containsKey(i)) { //remove old
+				v.resetScores(o);
+			}else { //update
+				added.add(i);
+				String ne = a.get(i);
+				if(!ne.equals(o)) {
+					v.resetScores(o);
 					dd.getScore(ne).setScore(i);
+				}
+			}
+		}
+		for(Integer i : a.keySet()) { //add
+			if(!added.contains(i)) {
+				dd.getScore(a.get(i)).setScore(i);
+			}
 		}
 		entry=a;
-		a=new HashMap<Integer,String>();
+		a=new HashMap<Integer, String>();
 	}
 }
