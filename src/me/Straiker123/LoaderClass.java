@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
@@ -134,9 +133,9 @@ public class LoaderClass extends JavaPlugin {
 	
 	public static HashMap<Player, String> chatformat = new HashMap<Player, String>();
 	private void createConfig() {
-		config.setHeader("ChunkMobLimit -> OnLimitExceeded types: KILL/WARN");
-		config.setHeader("TNT -> Action -> LowMememory types: WAIT/DROP");
-		config.setHeader("TNT -> Action -> LowTPS types: WAIT/DROP");
+		config.setHeader("ChunkMobLimit -> OnLimitExceeded types: KILL/WARN\n"
+				+ "TNT -> Action -> LowMememory types: WAIT/DROP\n"
+				+ "TNT -> Action -> LowTPS types: WAIT/DROP");
 		config.addDefault("Options.HideErrors", false);
 		config.addDefault("Options.LagChecker.Enabled", true);
 		config.addDefault("Options.LagChecker.Log", false);

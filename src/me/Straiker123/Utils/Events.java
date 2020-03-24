@@ -253,13 +253,13 @@ public class Events implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void onBreak(BlockBreakEvent e) {
 		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(e.getPlayer().getName())) {
 		e.setCancelled(true);
 		}
 	}
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void onEntityDeath(EntityDeathEvent e) {
 		Storage r= new Storage();
 		for(ItemStack d : e.getDrops())
@@ -340,8 +340,12 @@ public class Events implements Listener {
 	public static FileConfiguration f = LoaderClass.config.getConfig();
 	public static FileConfiguration d = LoaderClass.data.getConfig();
 	public static PunishmentAPI a = TheAPI.getPunishmentAPI();
+
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onLogin(AsyncPlayerPreLoginEvent e) {
+		if(!AntiBot.hasAccess(e.getUniqueId())) {
+			e.disallow(Result.KICK_OTHER, null);
+		}
 		String s = e.getName();
 		LoaderClass.data.getConfig().set("data."+s+".ip", e.getAddress().toString().replace(".", "_"));
 		try {
