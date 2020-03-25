@@ -10,8 +10,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -20,7 +18,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -258,22 +255,6 @@ public class Events implements Listener {
 		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(e.getPlayer().getName())) {
 		e.setCancelled(true);
 		}
-	}
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onEntityDeath(EntityDeathEvent e) {
-		Storage r= new Storage();
-		for(ItemStack d : e.getDrops())
-			r.add(d);
-			for(ItemStack i : r.getItems()) {
-			try {
-				if(i!=null && i.getType()!=Material.AIR)
-			e.getEntity().getLocation().getWorld().dropItem(e.getEntity().getLocation(), i);
-			}catch(Exception hide) {}}
-		if(e.getDroppedExp()!=0) {
-		ExperienceOrb o = (ExperienceOrb) e.getEntity().getLocation().getWorld().spawnEntity(e.getEntity().getLocation(), EntityType.EXPERIENCE_ORB);
-		o.setExperience(e.getDroppedExp());}
-		e.setDroppedExp(0);
-		e.getDrops().clear();
 	}
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onMove(PlayerMoveEvent e) {
