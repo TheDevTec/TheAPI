@@ -95,7 +95,7 @@ public class NameTagAPI {
 		t.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.ALWAYS);
 		}catch(Exception | NoSuchMethodError nope) {}
 		if(suffix !=null) {
-			if(TheAPI.getServerVersion().contains("v1_8")) {
+			if(TheAPI.isOlder1_9()) {
 	            if (suffix.length() > 16) {
 	            	suffix = suffix.substring(0, 15);
 	            }
@@ -103,28 +103,15 @@ public class NameTagAPI {
 	    		t.setSuffix(TheAPI.colorize(suffix));
 			}else {
 			try {
-	            if (suffix.length() > 64) {
-	                suffix = suffix.substring(0, 63);
+	            if (suffix.length() > 32) {
+	                suffix = suffix.substring(0, 31);
 	            }
 	            if(!t.getSuffix().equals(TheAPI.colorize(suffix)))
 		t.setSuffix(TheAPI.colorize(suffix));
-		}catch(Exception e) {
-			try {
-            if (suffix.length() > 32) {
-                suffix = suffix.substring(0, 31);
-            }
-    		t.setSuffix(TheAPI.colorize(suffix));
-			}catch(Exception es) {
-	            if (suffix.length() > 16) {
-	                suffix = suffix.substring(0, 15);
-	            }
-	            if(!t.getSuffix().equals(TheAPI.colorize(suffix)))
-	    		t.setSuffix(TheAPI.colorize(suffix));
-			}
-		}
+		}catch(Exception e) {}
 		}}
 		if(prefix !=null) {
-			if(TheAPI.getServerVersion().contains("v1_8")) {
+			if(TheAPI.isOlder1_9()) {
 	            if (prefix.length() > 16) {
 	            	prefix = suffix.substring(0, 15);
 	            }
@@ -132,26 +119,12 @@ public class NameTagAPI {
 	    		t.setPrefix(TheAPI.colorize(prefix));
 			}else {
 			try {
-	            if (prefix.length() > 64) {
-	            	prefix = prefix.substring(0, 63);
-	            }
-	            if(!t.getPrefix().equals(TheAPI.colorize(prefix)))
-	    		t.setPrefix(TheAPI.colorize(prefix));
-		}catch(Exception e) {
-			try {
             if (prefix.length() > 32) {
             	prefix = prefix.substring(0, 31);
             }
             if(!t.getPrefix().equals(TheAPI.colorize(prefix)))
     		t.setPrefix(TheAPI.colorize(prefix));
-			}catch(Exception es) {
-	            if (prefix.length() > 16) {
-	            	prefix = suffix.substring(0, 15);
-	            }
-	            if(!t.getPrefix().equals(TheAPI.colorize(prefix)))
-	    		t.setPrefix(TheAPI.colorize(prefix));
-			}
-		}}
+		}catch(Exception e) {}}
     		if (TheAPI.isNewVersion())
     			t.setColor(TheAPI.getStringUtils().getColor(prefix));
 		}

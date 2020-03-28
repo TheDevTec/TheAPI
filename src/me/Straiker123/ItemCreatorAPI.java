@@ -2,7 +2,6 @@ package me.Straiker123;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -40,21 +39,19 @@ public class ItemCreatorAPI implements Cloneable {
 	private Color c;
 	private boolean unb;
 	private SkullType type;
-	Multimap<Attribute, AttributeModifier> w;
-	private List<SkullType> wd;
+	private Multimap<Attribute, AttributeModifier> w;
 	private int s,model, dur;
 	private MultiMap<PotionEffectType> ef;
 	private MultiMap<Enchantment> enchs;
 	private List<Object> pages,lore,map;
+	
+	private int getSkullInt(String w) {
+		return SkullType.valueOf(w).ordinal();
+	}
+	
 	public ItemCreatorAPI(ItemStack icon) {
 		author = "";
 		title = "";
-		wd=new ArrayList<SkullType>();
-		wd.add(SkullType.CREEPER);
-		try {
-			wd.add(SkullType.DRAGON);
-		}catch(Exception | NoSuchMethodError er) {}
-		for(SkullType t:Arrays.asList(SkullType.PLAYER,SkullType.SKELETON,SkullType.WITHER,SkullType.ZOMBIE))wd.add(t);
 		pages = new ArrayList<Object>();
 		lore = new ArrayList<Object>();
 		map = new ArrayList<Object>();
@@ -268,13 +265,27 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 	public SkullType getSkullType() {
 		if(a.getItemMeta() instanceof SkullMeta) {
-			return wd.get((int)a.getDurability());
+			return getSkullFromInt((int)a.getDurability());
 		}
 		return null;
 	}
+	private SkullType getSkullFromInt(int i) {
+		return SkullType.values()[i];
+	}
+
 	public void setSkullType(SkullType t) {
 		if(t!=null)
 			type=t;
+	}
+
+	public void setSkullType(int t) {
+		if(getSkullFromInt(t)!=null)
+			type=getSkullFromInt(t);
+	}
+
+	public void setSkullType(String t) {
+		if(getSkullFromInt(getSkullInt(t))!=null)
+			type=getSkullFromInt(getSkullInt(t));
 	}
 	public List<ItemFlag> getItemFlags(){
 		try {
@@ -452,7 +463,7 @@ try {
 		return ((BookMeta)a.getItemMeta()).hasGeneration();	
 		}
 		return false;
-	}catch(Exception | NoSuchMethodError er) {
+	}catch(Exception | NoClassDefFoundError er) {
 		return false;
 	}
 	}
@@ -462,11 +473,11 @@ try {
 		return ((BookMeta)a.getItemMeta()).getGeneration();	
 		}
 		return null;
-		}catch(Exception | NoSuchMethodError er) {
+		}catch(Exception | NoClassDefFoundError er) {
 			return null;
 		}
 	}
-	Generation gen = Generation.ORIGINAL;
+	Generation gen;
 	public void setBookGeneration(Generation generation) {
 		try {
 		if(generation!=null)
@@ -542,7 +553,7 @@ try {
 			m.setTitle(title);
 			try {
 			m.setGeneration(gen);
-			}catch(Exception e) {}
+			}catch(Exception | NoSuchMethodError e) {}
 			i.setItemMeta(m);
 		}else
 			if(i.getType().name().startsWith("LINGERING_POTION_OF_")||i.getType().name().startsWith("SPLASH_POTION_OF_")||i.getType().name().startsWith("POTION_OF_")) {
@@ -573,18 +584,15 @@ try {
 			        byte[] encodedData = Base64.encodeBase64(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
 			        profile.getProperties().put("textures", new Property("textures",url == null && text != null ? text :  new String(encodedData)));
 			        Field profileField = null;
-			        try {
 			            profileField = m.getClass().getDeclaredField("profile");
 			            profileField.setAccessible(true);
 			            profileField.set(m, profile);
-			        } catch (Exception | NoSuchMethodError e1) {
-			        }
 			        }catch(Exception  | NoSuchMethodError e) {}
 			        }
 					i.setItemMeta(m);
 			}
 		}catch(Exception | NoSuchMethodError err) {
-			Error.err("creating ItemStack in ItemCreatorAPI", "Uknown Material/ItemStack");
+			Error.err("creating ItemStack in ItemCreatorAPI", "Uknown error");
 			err.printStackTrace();
 		}
 		a=i;
