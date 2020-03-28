@@ -73,9 +73,9 @@ public class NameTagAPI {
 	 * By teamName you can sort players in tablist -> create sorted tablist
 	 */
 	public void setNameTag(String team) {
+		for(Player p : TheAPI.getOnlinePlayers())
 		setNameTag(team, p.getScoreboard());
 	}
-	
 	/**
 	 * @see see Set player name tag
 	 * @param teamName
@@ -130,6 +130,7 @@ public class NameTagAPI {
 		}
 		if(!t.hasPlayer(p))
 		t.addPlayer(p);
+		
 	}
 	/**
 	 * @see see Reset player name tag to default
