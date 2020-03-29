@@ -27,6 +27,7 @@ public class LoaderClass extends JavaPlugin {
 	public static HashMap<String, Integer> GameAPI_Arenas = new HashMap<String, Integer>();
 	public static HashMap<String, Integer> gameapi_timer = new HashMap<String, Integer>();
 	public static HashMap<String, Runnable> win_rewards = new HashMap<String, Runnable>();
+	public static List<Integer> tasks = new ArrayList<Integer>();
 	public static ConfigAPI data= TheAPI.getConfig("TheAPI", "Data");
 	public static ConfigAPI unused= TheAPI.getConfig("TheAPI", "UnusedData");
 	public static ConfigAPI config=TheAPI.getConfig("TheAPI", "Config");
@@ -267,6 +268,7 @@ public class LoaderClass extends JavaPlugin {
 		}
 	}
 	public static List<Player> a = new ArrayList<Player>();
+	public static int task = 1;
 
 	public static List<Player> getOnline() {
 		return a;

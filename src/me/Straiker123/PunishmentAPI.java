@@ -33,18 +33,20 @@ public class PunishmentAPI {
 		LoaderClass.data.getConfig().set("bans."+player+".ban", reason);
 		LoaderClass.data.save();
 		Player p = TheAPI.getPlayer(player);
-		if(p!=null&&p.getName().equals(player))
-			p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.Ban")
-				.replace("%player%", player)
+		if(p!=null&&p.getName().equals(player)) {
+			String build = LoaderClass.config.getConfig().getString("Format.Ban").replace("\\n", "\n");
+			p.kickPlayer(TheAPI.colorize(build.replace("%player%", player)
 				.replace("%reason%", reason)));
+		}
 			if(!silent) {
-				TheAPI.broadcastMessage(LoaderClass.config.getConfig().getString("Format.Broadcast.Ban")
-						.replace("%player%", player)
-						.replace("%reason%", reason));
+				for(String s: LoaderClass.config.getConfig().getString("Format.Broadcast.Ban").split("\n")) {
+				TheAPI.broadcastMessage(s.replace("%player%", player).replace("%reason%", reason));
+				}
 			}else {
-			TheAPI.broadcast(LoaderClass.config.getConfig().getString("Format.Broadcast.Ban")
-					.replace("%player%", player)
-					.replace("%reason%", reason),LoaderClass.config.getConfig().getString("Format.Broadcast-Ban-Permission"));
+				for(String s: LoaderClass.config.getConfig().getString("Format.Broadcast.Ban").split("\n")) {
+					TheAPI.broadcast(s.replace("%player%", player).replace("%reason%", reason)
+							,LoaderClass.config.getConfig().getString("Format.Broadcast-Ban-Permission"));
+					}
 			}
 		}
 	public static boolean silent;
@@ -66,21 +68,23 @@ public class PunishmentAPI {
 		LoaderClass.data.getConfig().set("bans."+player+".tempban.time", time);
 		LoaderClass.data.save();
 		Player p = TheAPI.getPlayer(player);
-		if(p!=null&&p.getName().equals(player))
-		p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.TempBan")
-				.replace("%player%", player)
+		if(p!=null&&p.getName().equals(player)) {
+			String build = LoaderClass.config.getConfig().getString("Format.TempBan").replace("\\n", "\n");
+		p.kickPlayer(TheAPI.colorize(build.replace("%player%", player)
 				.replace("%reason%", reason)
 				.replace("%time%", TheAPI.getStringUtils().setTimeToString(time)))); 
+		}
 		if(!silent) {
-			TheAPI.broadcastMessage(LoaderClass.config.getConfig().getString("Format.Broadcast.TempBan")
-					.replace("%player%", player)
-					.replace("%reason%", reason)
+			for(String s: LoaderClass.config.getConfig().getString("Format.Broadcast.TempBan").split("\n")) {
+			TheAPI.broadcastMessage(s.replace("%player%", player).replace("%reason%", reason)
 					.replace("%time%", TheAPI.getStringUtils().setTimeToString(time)));
+			}
 		}else {
-			TheAPI.broadcast(LoaderClass.config.getConfig().getString("Format.Broadcast.TempBan")
-					.replace("%player%", player)
-					.replace("%reason%", reason)
-					.replace("%time%", TheAPI.getStringUtils().setTimeToString(time)),LoaderClass.config.getConfig().getString("Format.Broadcast-TempBan-Permission"));
+			for(String s: LoaderClass.config.getConfig().getString("Format.Broadcast.TempBan").split("\n")) {
+				TheAPI.broadcast(s.replace("%player%", player).replace("%reason%", reason)
+						.replace("%time%", TheAPI.getStringUtils().setTimeToString(time))
+						,LoaderClass.config.getConfig().getString("Format.Broadcast-TempBan-Permission"));
+				}
 		}
 	}
 	private boolean isIP(String text) {
@@ -111,19 +115,21 @@ public class PunishmentAPI {
 		for(String s : findPlayerByIP(ip)) {
 		Player p = TheAPI.getPlayer(s);
 		if(p!=null&&p.getName().equals(s))
-			p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.BanIP")
+			p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.BanIP").replace("\\n", "\n")
 					.replace("%player%", s)
 					.replace("%reason%", reason))); 
 		}
 		if(!silent) {
-			TheAPI.broadcastMessage(LoaderClass.config.getConfig().getString("Format.Broadcast.BanIP")
-					.replace("%target%", ip)
-					.replace("%reason%", reason));
+			for(String s: LoaderClass.config.getConfig().getString("Format.Broadcast.BanIP").split("\n")) {
+			TheAPI.broadcastMessage(s.replace("%target%", ip).replace("%reason%", reason));
+			}
 		}else {
-			TheAPI.broadcast(LoaderClass.config.getConfig().getString("Format.Broadcast.BanIP")
-					.replace("%target%", ip)
-					.replace("%reason%", reason),LoaderClass.config.getConfig().getString("Format.Broadcast.BanIP-Permission"));
+			for(String s: LoaderClass.config.getConfig().getString("Format.Broadcast.BanIP").split("\n")) {
+				TheAPI.broadcast(s.replace("%target%", ip).replace("%reason%", reason)
+						,LoaderClass.config.getConfig().getString("Format.Broadcast-BanIP-Permission"));
+				}
 		}
+		
 	}
 	public List<String> findPlayerByIP(String ip) {
 		if(ip==null) {
@@ -161,13 +167,14 @@ public class PunishmentAPI {
 		LoaderClass.data.getConfig().set("bans."+player+".mute", reason);
 		LoaderClass.data.save(); 
 		if(!silent) {
-			TheAPI.broadcastMessage(LoaderClass.config.getConfig().getString("Format.Broadcast.Mute")
-					.replace("%player%", player)
-					.replace("%reason%", reason));
+			for(String s: LoaderClass.config.getConfig().getString("Format.Broadcast.Mute").split("\n")) {
+			TheAPI.broadcastMessage(s.replace("%player%", player).replace("%reason%", reason));
+			}
 		}else {
-			TheAPI.broadcast(LoaderClass.config.getConfig().getString("Format.Broadcast.Mute")
-					.replace("%player%", player)
-					.replace("%reason%", reason),LoaderClass.config.getConfig().getString("Format.Broadcast.Mute-Permission"));
+			for(String s: LoaderClass.config.getConfig().getString("Format.Broadcast.Mute").split("\n")) {
+				TheAPI.broadcast(s.replace("%player%", player).replace("%reason%", reason)
+						,LoaderClass.config.getConfig().getString("Format.Broadcast-Mute-Permission"));
+				}
 		}
 	}
 	public void setTempMute(String player, String reason, long time) {
@@ -182,14 +189,16 @@ public class PunishmentAPI {
 		LoaderClass.data.getConfig().set("bans."+player+".tempmute.reason", reason);
 		LoaderClass.data.save(); 
 		if(!silent) {
-			TheAPI.broadcastMessage(LoaderClass.config.getConfig().getString("Format.Broadcast.TempMute")
-					.replace("%player%", player)
-					.replace("%reason%", reason).replace("%time%", TheAPI.getStringUtils().setTimeToString(time)));
-			}else {
-			TheAPI.broadcast(LoaderClass.config.getConfig().getString("Format.Broadcast.TempMute")
-					.replace("%player%", player)
-					.replace("%reason%", reason).replace("%time%", TheAPI.getStringUtils().setTimeToString(time))
-					,LoaderClass.config.getConfig().getString("Format.Broadcast.TempMute-Permission"));
+			for(String s: LoaderClass.config.getConfig().getString("Format.Broadcast.TempMute").split("\n")) {
+			TheAPI.broadcastMessage(s.replace("%player%", player).replace("%reason%", reason)
+					.replace("%time%", TheAPI.getStringUtils().setTimeToString(time)));
+			}
+		}else {
+			for(String s: LoaderClass.config.getConfig().getString("Format.Broadcast.TempMute").split("\n")) {
+				TheAPI.broadcast(s.replace("%player%", player).replace("%reason%", reason)
+						.replace("%time%", TheAPI.getStringUtils().setTimeToString(time))
+						,LoaderClass.config.getConfig().getString("Format.Broadcast-TempMute-Permission"));
+				}
 		}
 	}
 	public void setTempBanIP(String playerOrIP, String reason, long time) {
@@ -216,19 +225,21 @@ public class PunishmentAPI {
 		for(String s : findPlayerByIP(ip)) {
 			Player p = TheAPI.getPlayer(s);
 			if(p!=null&&p.getName().equals(s))
-				p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.TempBanIP")
+				p.kickPlayer(TheAPI.colorize(LoaderClass.config.getConfig().getString("Format.TempBanIP").replace("\\n", "\n")
 						.replace("%player%", ip)
 						.replace("%reason%", reason).replace("%time%", TheAPI.getStringUtils().setTimeToString(time))));
 		}
 		if(!silent) {
-			TheAPI.broadcastMessage(LoaderClass.config.getConfig().getString("Format.Broadcast.TempBanIP")
-					.replace("%target%", ip)
-					.replace("%reason%", reason).replace("%time%", TheAPI.getStringUtils().setTimeToString(time)));
-			}else {
-			TheAPI.broadcast(LoaderClass.config.getConfig().getString("Format.Broadcast.TempBanIP")
-					.replace("%target%", ip)
-					.replace("%reason%", reason).replace("%time%", TheAPI.getStringUtils().setTimeToString(time))
-					,LoaderClass.config.getConfig().getString("Format.Broadcast.TempBanIP-Permission"));
+			for(String s: LoaderClass.config.getConfig().getString("Format.Broadcast.TempBanIP").split("\n")) {
+			TheAPI.broadcastMessage(s.replace("%target%", ip).replace("%reason%", reason)
+					.replace("%time%", TheAPI.getStringUtils().setTimeToString(time)));
+			}
+		}else {
+			for(String s: LoaderClass.config.getConfig().getString("Format.Broadcast.TempBanIP").split("\n")) {
+				TheAPI.broadcast(s.replace("%target%", ip).replace("%reason%", reason)
+						.replace("%time%", TheAPI.getStringUtils().setTimeToString(time))
+						,LoaderClass.config.getConfig().getString("Format.Broadcast-TempBanIP-Permission"));
+				}
 		}
 	}
 	public boolean hasBan(String player) {

@@ -2,11 +2,15 @@ package me.Straiker123;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import com.google.common.io.Files;
 
 import me.Straiker123.Utils.Error;
 
@@ -150,7 +154,8 @@ public class ConfigAPI {
 			f=null;
 			a=null;
 			f=getFile();
-			a = YamlConfiguration.loadConfiguration(f);
+			Reader reader = new InputStreamReader(Files.asByteSource(f).openStream(), "UTF-8");
+			a=YamlConfiguration.loadConfiguration(reader);
 			if(h!=null)a.options().header(h);
 			if(c!=null && !c.isEmpty()) {
 			a.addDefaults(c);
@@ -170,14 +175,16 @@ public class ConfigAPI {
 			return false;
 		}
 	}
-	
+
 	public boolean create() {
 		try {
 			if(f==null)
 		f=getFile();
 			try {
-			if(a==null)
-				a = YamlConfiguration.loadConfiguration(f);
+			if(a==null) {
+				Reader reader = new InputStreamReader(Files.asByteSource(f).openStream(), "UTF-8");
+				a=YamlConfiguration.loadConfiguration(reader);
+			}
 			}catch(Exception repeat) {
 				a = YamlConfiguration.loadConfiguration(f);
 			}
@@ -205,7 +212,8 @@ public class ConfigAPI {
 	}
 	
 	public boolean delete() {
-		File f = getFile();
+		if(f==null)
+		f = getFile();
 		if(f.exists()) {
 		f.delete();
 		c.clear();

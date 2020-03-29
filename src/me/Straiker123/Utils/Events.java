@@ -39,7 +39,6 @@ import org.bukkit.inventory.ItemStack;
 import me.Straiker123.BlocksAPI.Shape;
 import me.Straiker123.LoaderClass;
 import me.Straiker123.PunishmentAPI;
-import me.Straiker123.SerializableRunnable;
 import me.Straiker123.SignAPI.SignAction;
 import me.Straiker123.Storage;
 import me.Straiker123.TheAPI;
@@ -83,9 +82,6 @@ public class Events implements Listener {
 						for(String s:((List<String>)as.get(a))) {
 							TheAPI.msg(s.replace("%player%", e.getPlayer().getName()).replace("%playername%", e.getPlayer().getDisplayName()), e.getPlayer());
 						}
-						break;
-					case RUNNABLE:
-						((SerializableRunnable)as.get(a)).run();
 						break;
 					}
 				}
@@ -339,26 +335,26 @@ public class Events implements Listener {
 		LoaderClass.data.getConfig().set("data."+s+".ip", e.getAddress().toString().replace(".", "_"));
 		try {
 		if(a.hasBan(s)) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.Ban")
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.Ban").replace("\\n", "\n")
 					.replace("%player%", s)
 					.replace("%reason%", a.getBanReason(s))));
 			return;
 		}
 		if(a.hasTempBan(s)) {
-				e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.TempBan")
+				e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.TempBan").replace("\\n", "\n")
 						.replace("%player%", s)
 						.replace("%time%", TheAPI.getStringUtils().setTimeToString(a.getTempBanExpireTime(s)))
 						.replace("%reason%", a.getTempBanReason(s))));
 				return;
 		}
 		if(a.hasBanIP(s)) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.BanIP")
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.BanIP").replace("\\n", "\n")
 					.replace("%player%", s)
 					.replace("%reason%",a.getBanIPReason(s))));
 			return;
 		}
 		if(a.hasTempBanIP(s)) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.TempBanIP")
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.TempBanIP").replace("\\n", "\n")
 					.replace("%player%", s)
 					.replace("%time%", TheAPI.getStringUtils().setTimeToString(a.getTempBanIPExpireTime(s)))
 					.replace("%reason%", a.getTempBanIPReason(s))));

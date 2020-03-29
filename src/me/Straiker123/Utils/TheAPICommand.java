@@ -60,7 +60,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 	private void unregWorld(String w) {
 		LoaderClass.config.getConfig().set("WorldsSetting."+w, null);
 	}
-	
 	//Info, Reload, ClearCache, WorldsManager
 	@Override
 	public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
@@ -98,8 +97,12 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			TheAPI.msg("&6/TheAPI Test TabList",s);
 			TheAPI.msg("&6/TheAPI Test Title",s);
 			TheAPI.msg("&6/TheAPI Test GUICreatorAPI",s);
+			TheAPI.msg("&6/TheAPI Test Other - DevTec currently testing",s);
 			TheAPI.msg("&7-----------------",s);
 			return true;
+			}
+			if(eq(1,"Other")) {
+				return true;
 			}
 			if(eq(1,"GUICreatorAPI")) {
 				TheAPI.msg("&eThis maybe help you with creating gui: https://i.imgur.com/f43qxux.png", p);
