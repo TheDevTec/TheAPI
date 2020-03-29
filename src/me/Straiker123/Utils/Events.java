@@ -84,6 +84,8 @@ public class Events implements Listener {
 						}
 						break;
 					case RUNNABLE:
+
+						TheAPI.broadcastMessage(((Runnable)as.get(a)).toString());
 						((Runnable)as.get(a)).run();
 						break;
 					}

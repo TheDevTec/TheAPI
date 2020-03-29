@@ -55,13 +55,30 @@ public class TheCoder {
         } catch (Exception e) {}
 		return r;
 	}
+	
+
+	/**
+	 * @see see Convert Object to String
+	 * @return String
+	 */
+	public String toString(Object object) {
+		String r = null;
+		try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+            dataOutput.writeObject(object);
+            dataOutput.close();
+            r=Base64Coder.encodeLines(outputStream.toByteArray());
+        } catch (Exception e) {}
+		return r;
+	}
 
 	/**
 	 * @see see Convert Objects from String to List<T>
 	 * @return List<T>
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> List<T> fromString(String savedObjects) {
+	public <T> List<T> getObjectsFromString(String savedObjects) {
 		List<T> r = new ArrayList<T>();
 		try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(savedObjects));
@@ -72,6 +89,22 @@ public class TheCoder {
             	r.add((T)dataInput.readObject());
             }
             } catch (Exception e) {}
+            dataInput.close();
+        } catch (Exception e) {}
+		return r;
+	}
+
+	/**
+	 * @see see Convert Objects from String to List<T>
+	 * @return List<T>
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T getObjectFromString(String savedObject) {
+		T r = null;
+		try {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(savedObject));
+            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+            	r=(T)dataInput.readObject();
             dataInput.close();
         } catch (Exception e) {}
 		return r;

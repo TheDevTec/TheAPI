@@ -10,7 +10,10 @@ import org.bukkit.block.Sign;
 import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 
 public class SignAPI {
-	
+	public SignAPI() {
+		r = TheAPI.getStringUtils().getTheCoder();
+		f = LoaderClass.data;
+	}
 	private TheCoder r = TheAPI.getStringUtils().getTheCoder();
 	private ConfigAPI f = LoaderClass.data;
 	
@@ -54,24 +57,29 @@ public class SignAPI {
 	@SuppressWarnings("unchecked")
 	public void setActions(Sign state, HashMap<SignAction, Object> options) {
 		String l = TheAPI.getStringUtils().getLocationAsString(state.getLocation());
-		for(SignAction s : options.keySet())
+		for(SignAction s : options.keySet()) {
 		switch(s) {
 		case CONSOLE_COMMANDS:
+			if(options.get(s) instanceof List)
 			f.getConfig().set("Sign."+l+".CONSOLE_COMMANDS",(List<String>)options.get(s));
 			break;
 		case PLAYER_COMMANDS:
+			if(options.get(s) instanceof List)
 			f.getConfig().set("Sign."+l+".PLAYER_COMMANDS",(List<String>)options.get(s));
 			break;
 		case MESSAGES:
+			if(options.get(s) instanceof List)
 			f.getConfig().set("Sign."+l+".MESSAGES",(List<String>)options.get(s));
 			break;
 		case BROADCAST:
+			if(options.get(s) instanceof List)
 			f.getConfig().set("Sign."+l+".BROADCAST",(List<String>)options.get(s));
 			break;
 		case RUNNABLE:
+			if(options.get(s) instanceof Runnable)
 			f.getConfig().set("Sign."+l+".RUNNABLE",r.toString(options.get(s)));
 			break;
-		}
+		}}
 		f.save();
 	}
 	
@@ -82,7 +90,7 @@ public class SignAPI {
 		if(getRegistredSigns().contains(l)) {
 			for(String s:f.getConfig().getConfigurationSection("Sign."+ff).getKeys(false)) {
 				if(s.equalsIgnoreCase("RUNNABLE"))
-					a.put(SignAction.valueOf(s),(Runnable)r.fromString(f.getConfig().getString("Sign."+ff+"."+s)).get(0));
+					a.put(SignAction.valueOf(s),(Runnable)r.getObjectFromString(f.getConfig().getString("Sign."+ff+"."+s)));
 				else
 				a.put(SignAction.valueOf(s), f.getConfig().getStringList("Sign."+ff+"."+s));
 			}
