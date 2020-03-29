@@ -39,6 +39,7 @@ import org.bukkit.inventory.ItemStack;
 import me.Straiker123.BlocksAPI.Shape;
 import me.Straiker123.LoaderClass;
 import me.Straiker123.PunishmentAPI;
+import me.Straiker123.SerializableRunnable;
 import me.Straiker123.SignAPI.SignAction;
 import me.Straiker123.Storage;
 import me.Straiker123.TheAPI;
@@ -84,9 +85,7 @@ public class Events implements Listener {
 						}
 						break;
 					case RUNNABLE:
-
-						TheAPI.broadcastMessage(((Runnable)as.get(a)).toString());
-						((Runnable)as.get(a)).run();
+						((SerializableRunnable)as.get(a)).run();
 						break;
 					}
 				}
