@@ -260,6 +260,10 @@ public class Events implements Listener {
 	public void onBreak(BlockBreakEvent e) {
 		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(e.getPlayer().getName())) {
 		e.setCancelled(true);
+		}else {
+			if(e.getBlock().getType().name().contains("SIGN") && !e.isCancelled()) {
+				TheAPI.getSignAPI().removeSign(e.getBlock().getLocation());
+			}
 		}
 	}
 	@EventHandler(priority = EventPriority.LOWEST)
