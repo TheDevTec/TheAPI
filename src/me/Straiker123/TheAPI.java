@@ -32,14 +32,30 @@ public class TheAPI {
 	/**
 	 * @see see Colorize string with colors
 	 * @param string
-	 * @return String
+	 * @return Colored String
 	 */
 	public static String colorize(String string) {
 		return getStringUtils().colorize(string);
 	}
- 
+
 	/**
-	 * @see see API where you can create repeating runnable more easier than before
+	 * @see see Create sign on location with actions on click
+	 * @return SignAPI
+	 */
+	public static SignAPI getSignAPI() {
+		return new SignAPI();
+	}
+
+	/**
+	 * @see see Create Inventory that can be used as Storage for Items or Sorter
+	 * @return Storage
+	 */
+	public static Storage getStorage() {
+		return new Storage();
+	}
+	
+	/**
+	 * @see see Create repeating runnable more easier than before
 	 * @return TheRunnable
 	 */
 	public static TheRunnable getTheRunnable() {
@@ -47,15 +63,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Create Inventory that can be used as Storage for Items or Sorter
-	 * @return TheRunnable
-	 */
-	public static Storage getStorage() {
-		return new Storage();
-	}
-
-	/**
-	 * @see see API where you can create repeating runnable more easier than before
+	 * @see see Create repeating runnable more easier than before
 	 * @return TheRunnable
 	 */
 	public static TheRunnable getRunnable() {
@@ -69,7 +77,11 @@ public class TheAPI {
 	public static BlocksAPI getBlocksAPI() {
 		return new BlocksAPI();
 	}
-	
+
+	/**
+	 * @see see This is HashMap with easier manupulation
+	 * @return MultiMap<T>
+	 */
 	public static <T> MultiMap<T> getMultiMap() {
 		return new MultiMap<T>();
 	}

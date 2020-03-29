@@ -9,11 +9,19 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 public class StringUtils {
+
+	/**
+	 * @see see Transfer Runnable to String and back by Base64
+	 * @return TheCoder
+	 */
+	public TheCoder getTheCoder() {
+		return new TheCoder();
+	}
+	
 	/**
 	 * @see see Get Color from String
 	 * @return ChatColor
@@ -237,8 +245,7 @@ public class StringUtils {
 	 * @return String
 	 */
 	public String getLocationAsString(Location loc) {
-		if(loc == null)return null;
-		return (loc.getWorld().getName()+","+loc.getX()+","+loc.getY()+","+loc.getBlockZ()+","+loc.getYaw()+","+loc.getPitch()).replace(".", "_");
+		return getTheCoder().locationToString(loc);
 	}
 
 	/**
@@ -246,13 +253,7 @@ public class StringUtils {
 	 * @return Location
 	 */
 	public Location getLocationFromString(String savedLocation) {
-		if(savedLocation == null)return null;
-		try {
-			String[] s = savedLocation.replace("_", ".").split(",");
-			return new Location(Bukkit.getWorld(s[0]),getDouble(s[1]), getDouble(s[2]), getDouble(s[3]),getFloat(s[4]),getFloat(s[5]));
-			}catch(Exception er) {
-				return null;
-			}
+		return getTheCoder().locationFromString(savedLocation);
 	}
 	
 	/**
