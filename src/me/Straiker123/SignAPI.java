@@ -11,14 +11,11 @@ import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 
 public class SignAPI {
 	public SignAPI() {
-		r = TheAPI.getStringUtils().getTheCoder();
 		f = LoaderClass.data;
 	}
-	private TheCoder r = TheAPI.getStringUtils().getTheCoder();
 	private ConfigAPI f = LoaderClass.data;
 	
 	public static enum SignAction {
-		RUNNABLE, //new Runnable() {..
 		CONSOLE_COMMANDS, //List<String> commands = Arrays.asList("command.here","next.command");
 		PLAYER_COMMANDS, //List<String> commands = Arrays.asList("command.here","next.command");
 		BROADCAST, //List<String> messages = Arrays.asList("message.here","next.message"); These messages
@@ -75,10 +72,6 @@ public class SignAPI {
 			if(options.get(s) instanceof List)
 			f.getConfig().set("Sign."+l+".BROADCAST",(List<String>)options.get(s));
 			break;
-		case RUNNABLE:
-			if(options.get(s) instanceof SerializableRunnable)
-			f.getConfig().set("Sign."+l+".RUNNABLE",r.toString(options.get(s)));
-			break;
 		}}
 		f.save();
 	}
@@ -89,9 +82,6 @@ public class SignAPI {
 		String ff = TheAPI.getStringUtils().getLocationAsString(l);
 		if(getRegistredSigns().contains(l)) {
 			for(String s:f.getConfig().getConfigurationSection("Sign."+ff).getKeys(false)) {
-				if(s.equalsIgnoreCase("RUNNABLE"))
-					a.put(SignAction.valueOf(s),(SerializableRunnable)r.getObjectFromString(f.getConfig().getString("Sign."+ff+"."+s)));
-				else
 				a.put(SignAction.valueOf(s), f.getConfig().getStringList("Sign."+ff+"."+s));
 			}
 		}
