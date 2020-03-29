@@ -57,19 +57,19 @@ public class SignAPI {
 		for(SignAction s : options.keySet())
 		switch(s) {
 		case CONSOLE_COMMANDS:
-			f.getConfig().set("Sign."+l+".CC",(List<String>)options.get(s));
+			f.getConfig().set("Sign."+l+".CONSOLE_COMMANDS",(List<String>)options.get(s));
 			break;
 		case PLAYER_COMMANDS:
-			f.getConfig().set("Sign."+l+".PC",(List<String>)options.get(s));
+			f.getConfig().set("Sign."+l+".PLAYER_COMMANDS",(List<String>)options.get(s));
 			break;
 		case MESSAGES:
-			f.getConfig().set("Sign."+l+".M",(List<String>)options.get(s));
+			f.getConfig().set("Sign."+l+".MESSAGES",(List<String>)options.get(s));
 			break;
 		case BROADCAST:
-			f.getConfig().set("Sign."+l+".B",(List<String>)options.get(s));
+			f.getConfig().set("Sign."+l+".BROADCAST",(List<String>)options.get(s));
 			break;
 		case RUNNABLE:
-			f.getConfig().set("Sign."+l+".R",r.toString(options.get(s)));
+			f.getConfig().set("Sign."+l+".RUNNABLE",r.toString(options.get(s)));
 			break;
 		}
 		f.save();
@@ -81,7 +81,7 @@ public class SignAPI {
 		String ff = TheAPI.getStringUtils().getLocationAsString(l);
 		if(getRegistredSigns().contains(l)) {
 			for(String s:f.getConfig().getConfigurationSection("Sign."+ff).getKeys(false)) {
-				if(s.equalsIgnoreCase("R"))
+				if(s.equalsIgnoreCase("RUNNABLE"))
 					a.put(SignAction.valueOf(s),(Runnable)r.fromString(f.getConfig().getString("Sign."+ff+"."+s)).get(0));
 				else
 				a.put(SignAction.valueOf(s), f.getConfig().getStringList("Sign."+ff+"."+s));
