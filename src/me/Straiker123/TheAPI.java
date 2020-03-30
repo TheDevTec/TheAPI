@@ -136,10 +136,7 @@ public class TheAPI {
 	 * @return boolean
 	 */
 	public static boolean isOlder1_9() {
-		return getServerVersion().startsWith("v1_1") // XDD
-				||getServerVersion().startsWith("v1_2")
-				||getServerVersion().startsWith("v1_3")
-				||getServerVersion().startsWith("v1_4")
+		return getServerVersion().startsWith("v1_4")
 				||getServerVersion().startsWith("v1_5")
 				|| getServerVersion().startsWith("v1_6")
 				|| getServerVersion().startsWith("v1_7")
