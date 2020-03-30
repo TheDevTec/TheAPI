@@ -124,7 +124,7 @@ public class TheAPI {
 	 * @return boolean
 	 */
 	public static boolean isNewVersion() {
-		return !getServerVersion().equalsIgnoreCase("glowstone") 
+		return !getServerVersion().equalsIgnoreCase("glowstone") //can be 1.10, 1.11 and 1.12
 				&& !isOlder1_9()
 				&& !getServerVersion().startsWith("v1_9")
 				&& !getServerVersion().startsWith("v1_10")
@@ -136,7 +136,11 @@ public class TheAPI {
 	 * @return boolean
 	 */
 	public static boolean isOlder1_9() {
-		return getServerVersion().startsWith("v1_5")
+		return getServerVersion().startsWith("v1_1") // XDD
+				||getServerVersion().startsWith("v1_2")
+				||getServerVersion().startsWith("v1_3")
+				||getServerVersion().startsWith("v1_4")
+				||getServerVersion().startsWith("v1_5")
 				|| getServerVersion().startsWith("v1_6")
 				|| getServerVersion().startsWith("v1_7")
 				|| getServerVersion().startsWith("v1_8");
@@ -291,6 +295,14 @@ public class TheAPI {
 		return LoaderClass.getOnline();
 	}
 
+	/**
+	 * @see see Get random player from List<Player>
+	 * @return List<Player>
+	 */
+	public static List<Player> getPlayers(){
+		return LoaderClass.getOnline();
+	}
+
 	
 	public static void sendMessage(String message, CommandSender sender) {
 		if(sender==null) {
@@ -301,7 +313,9 @@ public class TheAPI {
 	    	 Error.err("sending message", "Message is null");
 		   return;
 		}
-		sender.sendMessage(colorize(message));
+		for(String s : message.replace("\\n", "\n").split("\n")) {
+		sender.sendMessage(colorize(s));
+		}
 	}
 
 	public static void sendMsg(String message, CommandSender sender) {
@@ -591,9 +605,13 @@ public class TheAPI {
 	 */
 	public static void broadcastMessage(String message) {
 		for(Player p:TheAPI.getOnlinePlayers()) {
-			p.sendMessage(colorize(message));
+			for(String s : message.replace("\\n", "\n").split("\n")) {
+			p.sendMessage(colorize(s));
+			}
 		}
-		getConsole().sendMessage(colorize(message));
+		for(String s : message.replace("\\n", "\n").split("\n")) {
+		getConsole().sendMessage(colorize(s));
+		}
 	}
 	/**
 	 * @see see Send message to all online players with specified permission
@@ -603,9 +621,13 @@ public class TheAPI {
 	public static void broadcast(String message, String permission) {
 		for(Player p:TheAPI.getOnlinePlayers()) {
 			if(p.hasPermission(permission))
-			p.sendMessage(colorize(message));
+				for(String s : message.replace("\\n", "\n").split("\n")) {
+			p.sendMessage(colorize(s));
+				}
 		}
-		getConsole().sendMessage(colorize(message));
+			for(String s : message.replace("\\n", "\n").split("\n")) {
+		getConsole().sendMessage(colorize(s));
+			}
 	}
 	/**
 	 * @see see Ban, Ban-Ip or mute player with reason and more
@@ -794,12 +816,15 @@ public class TheAPI {
 	 * @param message
 	 */
 	public static void sendHelpOp(CommandSender s, String message) {
+		for(String ss : message.replace("\\n", "\n").split("\n")) {
 		broadcast(LoaderClass.config.getConfig().getString("Format.HelpOp")
-					.replace("%message%", message).replace("%sender%", s.getName()),LoaderClass.config.getConfig().getString("Format.HelpOp-Permission"));
-		
+					.replace("%message%", ss).replace("%sender%", s.getName()),LoaderClass.config.getConfig().getString("Format.HelpOp-Permission"));
+		}
 		if(!s.hasPermission(LoaderClass.config.getConfig().getString("Format.HelpOp-Permission")))
+			for(String ss : message.replace("\\n", "\n").split("\n")) {
 			s.sendMessage(colorize(LoaderClass.config.getConfig().getString("Format.HelpOp")
-				.replace("%message%", message).replace("%sender%", s.getName())));
+				.replace("%message%", ss).replace("%sender%", s.getName())));
+			}
 	}
 	
 	/**
@@ -984,6 +1009,5 @@ public class TheAPI {
 	        } catch (Exception ex) {
 		    	 Error.err("sending ActionBar to "+ps.getName(), "Text is null");
 	        }
-	    }
-	
+	}
 }
