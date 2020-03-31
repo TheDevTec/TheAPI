@@ -4,6 +4,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -596,6 +597,37 @@ public class TheAPI {
 		else
 			LoaderClass.chatformat.remove(p);
 	}
+
+	/**
+	 * @see see Send message to all online players with interval
+	 * @param message
+	 * @param time
+	 */
+	public void slowBroadcast(List<String> messages,long interval) {
+		SlowLoop<String> t = new SlowLoop<String>() {
+			void toRun(String t) {
+				broadcastMessage(t);
+			}
+		};
+		t.addToLoop(messages);
+		t.start(interval);
+	}
+
+	/**
+	 * @see see Send message to all online players with interval
+	 * @param message
+	 * @param time
+	 */
+	public void slowBroadcast(Collection<String> messages,long interval) {
+		SlowLoop<String> t = new SlowLoop<String>() {
+			void toRun(String t) {
+				broadcastMessage(t);
+			}
+		};
+		t.addToLoop(messages);
+		t.start(interval);
+	}
+	
 	/**
 	 * @see see Send message to all online players
 	 * @param message
