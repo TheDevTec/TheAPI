@@ -7,8 +7,6 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 
-import me.Straiker123.Utils.Packets;
-
 public class HoverMessage {
 	
     public enum ClickAction {
@@ -82,7 +80,7 @@ public class HoverMessage {
             Constructor<?> p = getNMSClass("PacketPlayOutChat").getConstructor(getNMSClass("IChatBaseComponent"), byte.class);
             Object messageComponent = getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, toString());
             Object packet = p.newInstance(messageComponent, (byte)1);
-            Packets.sendPacket(s, packet);
+            sendPacket(s, packet);
         } catch (Exception ex) {
             try {
         	Constructor<?> p = getNMSClass("PacketPlayOutChat").getConstructor(getNMSClass("IChatBaseComponent"));
