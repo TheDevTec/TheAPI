@@ -125,23 +125,15 @@ public class TheAPI {
 	 * @return boolean
 	 */
 	public static boolean isNewVersion() {
-		return !getServerVersion().equalsIgnoreCase("glowstone") //can be 1.10, 1.11 and 1.12
-				&& !isOlder1_9()
-				&& !getServerVersion().startsWith("v1_9")
-				&& !getServerVersion().startsWith("v1_10")
-				&& !getServerVersion().startsWith("v1_11")
-				&& !getServerVersion().startsWith("v1_12");
+		if(getServerVersion().equalsIgnoreCase("glowstone"))return false;
+		return getStringUtils().getInt(getServerVersion().split("_")[1])>12;
 	}
 	/**
 	 * @see see Return is server version older than 1.9 ? (1.5 up to 1.8.9)
 	 * @return boolean
 	 */
 	public static boolean isOlder1_9() {
-		return getServerVersion().startsWith("v1_4")
-				||getServerVersion().startsWith("v1_5")
-				|| getServerVersion().startsWith("v1_6")
-				|| getServerVersion().startsWith("v1_7")
-				|| getServerVersion().startsWith("v1_8");
+		return getStringUtils().getInt(getServerVersion().split("_")[1])<9;
 	}
 
 	/**
