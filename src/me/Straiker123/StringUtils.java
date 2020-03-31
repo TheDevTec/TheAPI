@@ -84,6 +84,21 @@ public class StringUtils {
 	 * @return HoverMessage
 	 */
 	public HoverMessage getHoverMessage(String... message) {
+		/**
+		 * Example:
+		 * 
+		 * TheAPI.getStringUtils().getHoverMessage("&cClick on me!")
+		.setHoverEvent("&aDo it :-)")
+		.setClickEvent(ClickAction.RUN_COMMAND, "suicide")
+		
+		.addText("&7, &cother text here")
+		.setHoverEvent("&aThis is clicable too!")
+		.setClickEvent(ClickAction.OPEN_URL, "https://www.spigotmc.org/resources/theapi-1-7-10-up-to-1-15-2.72679/")
+		
+		.send(TheAPI.getOnlinePlayers());
+		
+		 * 
+		 */
 		return new HoverMessage(message);
 	}
 	

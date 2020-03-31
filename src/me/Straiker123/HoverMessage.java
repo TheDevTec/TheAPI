@@ -2,6 +2,7 @@ package me.Straiker123;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -71,22 +72,30 @@ public class HoverMessage {
         return text;
     }
     
-	public void send(Player... s) {
-		for(Player p:s)send(p);
+	public void send(List<Player> players) {
+		for(Player p:players)send(p);
+	}
+	
+	public void send(Collection<? extends Player> players) {
+		for(Player p:players)send(p);
 	}
     
-	public void send(Player s) {
+	public void send(Player... players) {
+		for(Player p:players)send(p);
+	}
+    
+	public void send(Player player) {
         try {
             Constructor<?> p = getNMSClass("PacketPlayOutChat").getConstructor(getNMSClass("IChatBaseComponent"), byte.class);
             Object messageComponent = getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, toString());
             Object packet = p.newInstance(messageComponent, (byte)1);
-            sendPacket(s, packet);
+            sendPacket(player, packet);
         } catch (Exception ex) {
             try {
         	Constructor<?> p = getNMSClass("PacketPlayOutChat").getConstructor(getNMSClass("IChatBaseComponent"));
             Object messageComponent = getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, toString());
             Object packet = p.newInstance(messageComponent);
-            sendPacket(s, packet);
+            sendPacket(player, packet);
             } catch (Exception exs) {}
         }
 	}
@@ -107,6 +116,4 @@ public class HoverMessage {
 	    	 
 		 }
 	}
-	
-
 }
