@@ -23,7 +23,6 @@ import org.bukkit.loot.LootTable;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.util.EulerAngle;
-
 import me.Straiker123.Utils.Error;
 
 @SuppressWarnings("deprecation")
@@ -32,6 +31,7 @@ public class EntityCreatorAPI {
 	public EntityCreatorAPI(EntityType type) {
 		t=type;
 	}
+	
 	public static enum AttackDamageType{
 		MINIMAL,
 		MAXIMAL
