@@ -79,18 +79,36 @@ public class HoverMessage {
     
 	public void send(Player s) {
         try {
-            Constructor<?> p = Packets.getNMSClass("PacketPlayOutChat").getConstructor(Packets.getNMSClass("IChatBaseComponent"), byte.class);
-            Object messageComponent = Packets.getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, toString());
+            Constructor<?> p = getNMSClass("PacketPlayOutChat").getConstructor(getNMSClass("IChatBaseComponent"), byte.class);
+            Object messageComponent = getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, toString());
             Object packet = p.newInstance(messageComponent, (byte)1);
             Packets.sendPacket(s, packet);
         } catch (Exception ex) {
             try {
-        	Constructor<?> p = Packets.getNMSClass("PacketPlayOutChat").getConstructor(Packets.getNMSClass("IChatBaseComponent"));
-            Object messageComponent = Packets.getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, toString());
+        	Constructor<?> p = getNMSClass("PacketPlayOutChat").getConstructor(getNMSClass("IChatBaseComponent"));
+            Object messageComponent = getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, toString());
             Object packet = p.newInstance(messageComponent);
-            Packets.sendPacket(s, packet);
+            sendPacket(s, packet);
             } catch (Exception exs) {}
         }
 	}
+	
+	private Class<?> getNMSClass(String name) {
+	     try {
+	         return Class.forName("net.minecraft.server." + TheAPI.getServerVersion() + "." + name);
+	     } catch (ClassNotFoundException e) {
+			return null;
+	     }
+	}
+	
+	private void sendPacket(Player p, Object packet) {
+	     try {
+	    	 Object c = p.getClass().getMethod("getHandle", new Class[0]).invoke(p, new Object[0]).getClass().getField("playerConnection").get(p.getClass().getMethod("getHandle", new Class[0]).invoke(p, new Object[0]));
+	    	 c.getClass().getMethod("sendPacket", new Class[] { getNMSClass("Packet") }).invoke(c, new Object[] { packet });
+	     } catch (Exception e) {
+	    	 
+		 }
+	}
+	
 
 }
