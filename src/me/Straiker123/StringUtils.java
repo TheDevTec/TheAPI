@@ -83,7 +83,7 @@ public class StringUtils {
 	 * @see see Create clickable message
 	 * @return HoverMessage
 	 */
-	public HoverMessage createHoverMessage(String message) {
+	public HoverMessage getHoverMessage(String... message) {
 		return new HoverMessage(message);
 	}
 	
