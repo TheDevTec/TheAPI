@@ -18,8 +18,23 @@ public class NameTagAPI {
 		this.prefix=prefix;
 		this.suffix=suffix;
 	}
+
 	/**
-	 * @see see Change prefix of player above head
+	 * @see see Get prefix above player's head
+	 */
+	public String getPrefix() {
+		return prefix;
+	}
+
+	/**
+	 * @see see Get suffix above player's head
+	 */
+	public String getSuffix() {
+		return suffix;
+	}
+	
+	/**
+	 * @see see Change player's prefix above head
 	 * @param name
 	 * New prefix
 	 */
@@ -28,7 +43,7 @@ public class NameTagAPI {
 	}
 	
 	/**
-	 * @see see Change suffix of player above head
+	 * @see see Change player's suffix above head
 	 * @param name
 	 * New suffix
 	 */
