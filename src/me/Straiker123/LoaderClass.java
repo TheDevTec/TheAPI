@@ -38,36 +38,29 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&bTheAPI&7: &6Action: &6Loading plugin..",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 	}
-	boolean hooked;
-	int vaulthook;
-	int times;
 	public void vaultHooking() {
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &6Action: &6Looking for Vault Economy..",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-		vaulthook=Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-			@Override
+		TheRunnable r = TheAPI.getRunnable();
+		r.runRepeatingFor(new Runnable() {
 			public void run() {
 				if(getVaultEconomy()) {
 					e=true;
-					Bukkit.getScheduler().cancelTask(vaulthook);
+					r.cancel();
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &6Found Vault Economy",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-					return;
-				}
-				++times;
-				if(times==30) {
-					Bukkit.getScheduler().cancelTask(vaulthook);
+				}}
+		}, new Runnable() {
+				public void run() {
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &cPlugin not found Vault Economy, disabling EconomyAPI..",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &cYou can enable EconomyAPI by set Economy in EconomyAPI.",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &c *TheAPI still works normally without any problems*",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-					return;
 				}
-			}
-		}, 20, 40);
+		},20, 30);
 	}
 	
 	public boolean e;
@@ -104,8 +97,7 @@ public class LoaderClass extends JavaPlugin {
 			vaultHooking();
 		}
 		new EconomyAPI();
-		Bukkit.getScheduler().runTaskLater(this, new Runnable() {
-			@Override
+		TheAPI.getRunnable().runLater(new Runnable() {
 			public void run() {
 				if(getTheAPIsPlugins().size()==0)return;
 				String end = "";
