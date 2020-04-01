@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -19,15 +18,11 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.util.Vector;
-
 import me.Straiker123.Events.PlayerVanishEvent;
 import me.Straiker123.Utils.Error;
 import me.Straiker123.Utils.Packets;
@@ -50,26 +45,6 @@ public class TheAPI {
 	public static SignAPI getSignAPI() {
 		return new SignAPI();
 	}
-	
-	/**
-	 * @see see Make entity move to the location
-	 */
-	public void walkToLocation(LivingEntity entity, Location location, double speed) {
-        new BukkitRunnable() {
-            public void run() {
-                if(entity.getLocation().distance(location) > 0.3) {
-                    float yaw = (float) (Math.atan2(location.getZ() - entity.getLocation().getZ(), location.getX() - entity.getLocation().getX()) * 180.0 / 3.141592653589793) - 90.0f;
-                    Vector direction = new Vector(-Math.sin(yaw * 3.1415927F / 180.0F) * (float) 1 * 0.5F, 0, Math.cos(yaw * 3.1415927F / 180.0F) * (float) 1 * 0.5F).multiply(speed);
-                    if(entity.getLocation().getY() - location.getY() > 0 && entity.isOnGround()) {
-                        direction.setY(Math.min(0.42, entity.getLocation().getY() - location.getY()));
-                    }
-                    entity.setVelocity(direction);
-                } else {
-                    this.cancel();
-                }
-            }
-        }.runTaskTimer(LoaderClass.plugin, 0L, 1L);
-    }
 
 	/**
 	 * @see see Create Inventory that can be used as Storage for Items or Sorter
