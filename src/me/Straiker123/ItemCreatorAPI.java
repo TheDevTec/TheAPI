@@ -152,6 +152,7 @@ public class ItemCreatorAPI implements Cloneable {
 		}
 	}
 	public List<PotionEffect> getPotionEffects() {
+		if(a.hasItemMeta())
 		if(a.getItemMeta() instanceof PotionMeta)
 	 return ((PotionMeta)a.getItemMeta()).getCustomEffects();
 		return new ArrayList<PotionEffect>();
@@ -160,17 +161,20 @@ public class ItemCreatorAPI implements Cloneable {
 		return a.getItemMeta();
 	}
 	public boolean hasPotionEffects() {
+		if(a.hasItemMeta())
 		if(a.getItemMeta() instanceof PotionMeta)
 	 return ((PotionMeta)a.getItemMeta()).hasCustomEffects();
 		return false;
 	}
 	public boolean hasPotionEffect(PotionEffectType type) {
+		if(a.hasItemMeta())
 		if(a.getItemMeta() instanceof PotionMeta)
 	 return ((PotionMeta)a.getItemMeta()).hasCustomEffect(type);
 		return false;
 	}
 	public boolean hasPotionColor() {
 		try {
+			if(a.hasItemMeta())
 		if(a.getItemMeta() instanceof PotionMeta)
 	 return ((PotionMeta)a.getItemMeta()).hasColor();
 		return false;}catch(Exception | NoSuchMethodError er) {
@@ -186,6 +190,7 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 	public Color getPotionColor() {
 		try {
+			if(a.hasItemMeta())
 		if(a.getItemMeta() instanceof PotionMeta)
 	 return ((PotionMeta)a.getItemMeta()).getColor();
 		return null;
@@ -202,16 +207,21 @@ public class ItemCreatorAPI implements Cloneable {
 		name=TheAPI.colorize(newName);
 	}
 	public String getDisplayName() {
+		if(a.hasItemMeta())
 		return a.getItemMeta().getDisplayName();
+		return null;
 	}
 	public void addLore(String line) {
 		if(line!=null)
 		lore.add(TheAPI.colorize(line));
 	}
 	public List<String> getLore() {
+		if(a.hasItemMeta())
 		return a.getItemMeta().getLore();
+		return new ArrayList<String>();
 	}
 	public String getOwner() {
+		if(a.hasItemMeta())
 		if(a.getItemMeta() instanceof SkullMeta)
 		return ((SkullMeta)a.getItemMeta()).getOwner();
 		return null;
@@ -290,6 +300,7 @@ public class ItemCreatorAPI implements Cloneable {
 	public List<ItemFlag> getItemFlags(){
 		try {
 		List<ItemFlag> items = new ArrayList<ItemFlag>();
+		if(a.hasItemMeta())
 		for(ItemFlag f : a.getItemMeta().getItemFlags())items.add(f);
 		return items;
 		}catch(Exception | NoSuchMethodError er) {
@@ -353,13 +364,19 @@ try {
 	}
 	
 	public boolean hasDisplayName() {
+		if(a.hasItemMeta())
 		return a.getItemMeta().hasDisplayName();
+		return false;
 	}
 	public boolean hasLore() {
+		if(a.hasItemMeta())
 		return a.getItemMeta().hasLore();
+		return false;
 	}
 	public boolean hasEnchants() {
+		if(a.hasItemMeta())
 		return a.getItemMeta().hasEnchants();
+		return false;
 	}
 	public boolean hasCustomModelData() {
 		try {
@@ -383,13 +400,18 @@ try {
 		}
 	}
 	public boolean hasConflictingEnchant(Enchantment ench) {
+		if(a.hasItemMeta())
 		return a.getItemMeta().hasConflictingEnchant(ench);
+		return false;
 	}
 	public boolean hasEnchant(Enchantment ench) {
+		if(a.hasItemMeta())
 		return a.getItemMeta().hasEnchant(ench);
+		return false;
 	}
 
 	public String getBookAuthor() {
+		if(a.hasItemMeta())
 		if(a.getItemMeta() instanceof BookMeta) {
 		return ((BookMeta)a.getItemMeta()).getAuthor();	
 		}
@@ -397,6 +419,7 @@ try {
 	}
 
 	public boolean hasBookAuthor() {
+		if(a.hasItemMeta())
 		if(a.getItemMeta() instanceof BookMeta) {
 		return ((BookMeta)a.getItemMeta()).hasAuthor();	
 		}
@@ -409,12 +432,14 @@ try {
 	}
 
 	public boolean hasBookTitle() {
+		if(a.hasItemMeta())
 		if(a.getItemMeta() instanceof BookMeta) {
 		return ((BookMeta)a.getItemMeta()).hasTitle();	
 		}
 		return false;
 	}
 	public String getBookTitle() {
+		if(a.hasItemMeta())
 		if(a.getItemMeta() instanceof BookMeta) {
 		return ((BookMeta)a.getItemMeta()).getTitle();	
 		}
@@ -426,18 +451,21 @@ try {
 		this.title=TheAPI.colorize(title);
 	}
 	public List<String> getBookPages() {
+		if(a.hasItemMeta())
 		if(a.getItemMeta() instanceof BookMeta) {
 		return ((BookMeta)a.getItemMeta()).getPages();	
 		}
 		return new ArrayList<String>();
 	}
 	public String getBookPage(int page) {
+		if(a.hasItemMeta())
 		if(a.getItemMeta() instanceof BookMeta) {
 		return ((BookMeta)a.getItemMeta()).getPage(page);	
 		}
 		return null;
 	}
 	public int getBookPageCount() {
+		if(a.hasItemMeta())
 		if(a.getItemMeta() instanceof BookMeta) {
 		return ((BookMeta)a.getItemMeta()).getPageCount();	
 		}
@@ -459,6 +487,7 @@ try {
 	}
 	public boolean hasBookGeneration() {
 		try {
+			if(a.hasItemMeta())
 		if(a.getItemMeta() instanceof BookMeta) {
 		return ((BookMeta)a.getItemMeta()).hasGeneration();	
 		}
@@ -469,6 +498,7 @@ try {
 	}
 	public Generation getBookGeneration() {
 		try {
+			if(a.hasItemMeta())
 		if(a.getItemMeta() instanceof BookMeta) {
 		return ((BookMeta)a.getItemMeta()).getGeneration();	
 		}
