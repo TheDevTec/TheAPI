@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -302,8 +303,10 @@ public class TheAPI {
 	    	 Error.err("sending message", "Message is null");
 		   return;
 		}
+		ChatColor old = ChatColor.RESET;
 		for(String s : message.replace("\\n", "\n").split("\n")) {
-		sender.sendMessage(colorize(s));
+		sender.sendMessage(old+colorize(s));
+		old=getStringUtils().getColor(s);
 		}
 	}
 
@@ -642,11 +645,13 @@ public class TheAPI {
 		for(Player p:TheAPI.getOnlinePlayers()) {
 			if(p.hasPermission(permission))
 				for(String s : message.replace("\\n", "\n").split("\n")) {
-			p.sendMessage(colorize(s));
+			msg(s,p);
 				}
 		}
+		ChatColor old = ChatColor.RESET;
 			for(String s : message.replace("\\n", "\n").split("\n")) {
-		getConsole().sendMessage(colorize(s));
+		getConsole().sendMessage(old+colorize(s));
+		old=getStringUtils().getColor(s);
 			}
 	}
 	/**
