@@ -72,8 +72,7 @@ public class GUICreatorAPI implements Listener {
 			}
 			if(i.getType().name().equals("WRITTEN_BOOK")||i.getType().name().equals("BOOK_AND_QUILL"))i=createWrittenBook(i);
 
-			if(i.getType().name().equals("LEGACY_SKULL_ITEM")||
-					i.getType().name().equals("SKULL_ITEM")
+			if(i.getType().name().contains("SKULL_ITEM")
 					||i.getType().name().equals("PLAYER_HEAD"))
 				i=createHead(i);
 			if(g.getBoolean("guis."+playersname+"."+a+"."+slot+".TAKE"))
@@ -81,7 +80,7 @@ public class GUICreatorAPI implements Listener {
 				
 				if(g.getString("guis."+playersname+"."+a+"."+slot+".MSG")!=null)
 					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSG"))
-						TheAPI.broadcastMessage(s);
+						TheAPI.msg(s, p);
 				if(g.getString("guis."+playersname+"."+a+"."+slot+".CMD")!=null)
 					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMD"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
@@ -90,7 +89,7 @@ public class GUICreatorAPI implements Listener {
 				if(e.getClick().isLeftClick()&& !e.getClick().isShiftClick()) {
 				if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGLC")!=null)
 					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGLC"))
-						TheAPI.broadcastMessage(s);
+						TheAPI.msg(s, p);
 				if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDLC")!=null)
 					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDLC"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
@@ -99,7 +98,7 @@ public class GUICreatorAPI implements Listener {
 				if(e.getClick().isRightClick()&& !e.getClick().isShiftClick()) {
 					if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGRC")!=null)
 					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGRC"))
-						TheAPI.broadcastMessage(s);
+						TheAPI.msg(s, p);
 					if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDRC")!=null)
 						for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDRC"))
 							TheAPI.sudoConsole(SudoType.COMMAND, s);
@@ -108,7 +107,7 @@ public class GUICreatorAPI implements Listener {
 				if(e.getClick().isCreativeAction()) {
 					if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGMC")!=null)
 					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGMC"))
-						TheAPI.broadcastMessage(s);
+						TheAPI.msg(s, p);
 					if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDMC")!=null)
 					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDMC"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
@@ -117,7 +116,7 @@ public class GUICreatorAPI implements Listener {
 				if(e.getClick().isLeftClick() && e.getClick().isShiftClick()) {
 					if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGWLC")!=null)
 					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGWLC"))
-						TheAPI.broadcastMessage(s);
+						TheAPI.msg(s, p);
 					if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDWLC")!=null)
 						for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDWLC"))
 							TheAPI.sudoConsole(SudoType.COMMAND, s);
@@ -126,7 +125,7 @@ public class GUICreatorAPI implements Listener {
 				if(e.getClick().isRightClick()&& e.getClick().isShiftClick()) {
 					if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGWRC")!=null)
 					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGWRC"))
-						TheAPI.broadcastMessage(s);
+						TheAPI.msg(s, p);
 				if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDWLC")!=null)
 					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDWRC"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
