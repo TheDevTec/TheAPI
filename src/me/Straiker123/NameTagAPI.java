@@ -18,6 +18,23 @@ public class NameTagAPI {
 		this.prefix=prefix;
 		this.suffix=suffix;
 	}
+	/**
+	 * @see see Change prefix of player above head
+	 * @param name
+	 * New prefix
+	 */
+	public void setPrefix(String name) {
+		prefix=name;
+	}
+	
+	/**
+	 * @see see Change suffix of player above head
+	 * @param name
+	 * New suffix
+	 */
+	public void setSuffix(String name) {
+		suffix=name;
+	}
 	
 	/**
 	 * @see see Warning, this method change whole player name, plugins these checking UUID will kick/ban you from server, for ex.: UUIDSpoofFix
@@ -90,7 +107,6 @@ public class NameTagAPI {
         }
 		if(sb.getTeam(teamName)==null)sb.registerNewTeam(teamName);
 		Team t = sb.getTeam(teamName);
-		
 		try {
 		t.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.ALWAYS);
 		}catch(Exception | NoSuchMethodError nope) {}
