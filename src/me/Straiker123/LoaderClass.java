@@ -45,7 +45,7 @@ public class LoaderClass extends JavaPlugin {
 		TheRunnable r = TheAPI.getRunnable();
 		r.runRepeatingFor(new Runnable() {
 			public void run() {
-				if(getVaultEconomy()) {
+				if(!e && getVaultEconomy()) {
 					e=true;
 					r.cancel();
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
@@ -54,6 +54,7 @@ public class LoaderClass extends JavaPlugin {
 				}}
 		}, new Runnable() {
 				public void run() {
+					if(e)return;
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &cPlugin not found Vault Economy, disabling EconomyAPI..",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &cYou can enable EconomyAPI by set Economy in EconomyAPI.",TheAPI.getConsole());
