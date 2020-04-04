@@ -73,6 +73,7 @@ public class ConfigAPI {
 		f= ff;
 		}
 		}catch(Exception er) {
+			ff = new File("plugins/"+loc+"/"+name+"-fixed."+end);
 			try {
 				ff.createNewFile();
 				f= ff;
