@@ -22,15 +22,15 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 @SuppressWarnings("deprecation")
 public class BlockSave {
-	BlockData blockdata;
-	Biome biom;
-	Material mat;
-	Location loc;
-	MaterialData data;
-	String[] lines;
-	ItemStack[] inv;
-	String cmd,cmdname;
-	DyeColor color;
+	private BlockData blockdata;
+	private Biome biom;
+	private Material mat;
+	private Location loc;
+	private MaterialData data;
+	private String[] lines;
+	private ItemStack[] inv;
+	private String cmd,cmdname;
+	private DyeColor color;
 	public BlockSave(Block b) {
 		  if(b.getType().name().contains("CHEST")) {
 			  Chest c = (Chest) b.getState();

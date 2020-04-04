@@ -6,7 +6,7 @@ import org.bukkit.World;
 
 public class MemoryAPI {
 	private static double mb = 1048576;
-	private static double max = Runtime.getRuntime().maxMemory() /mb;
+	private static double max = Runtime.getRuntime().maxMemory() /1048576;
 	
 	public String clearMemory() {
 		double mem = getRawUsedMemory(false);

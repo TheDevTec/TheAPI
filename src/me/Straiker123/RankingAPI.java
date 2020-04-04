@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 public class RankingAPI {
-	HashMap<Object, Double> s;
+	private HashMap<Object, Double> s;
 	public RankingAPI(HashMap<?, Double> map) {
 		if(map!=null) {
 		HashMap<Object, Double> fixed = new HashMap<Object,Double>();
@@ -26,15 +26,8 @@ public class RankingAPI {
          public int compare(Entry<Object, Double> o1,
                     Entry<Object, Double> o2){
         	 return o2.getValue().compareTo(o1.getValue());
-                //if (true)
-               // {
-                    //return o1.getValue().compareTo(o2.getValue());
-               // }
-               /** else
-                {
-                    
-
-                }**/}});
+             //return o1.getValue().compareTo(o2.getValue());
+         }});
         HashMap<Object, Double> sortedMap = new LinkedHashMap<Object, Double>();
         for (Entry<Object, Double> entry : list)
         {
@@ -50,7 +43,6 @@ public class RankingAPI {
 			position=s.keySet().size()-position;
 		return new ArrayList(s.keySet()).get((s.keySet().size()-1)-(position));
 		}catch(Exception e) {
-			//out
 			return null;
 		}
 	}

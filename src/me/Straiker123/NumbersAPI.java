@@ -1,11 +1,20 @@
 package me.Straiker123;
 
 public class NumbersAPI {
-	String fromString;
+	private String fromString;
 	public NumbersAPI(String string) {
 		if(string!=null)
 		fromString = string;
 	}
+
+	/**
+	 * @see see Return input String
+	 * @return String
+	 */
+	public String getString() {
+		return fromString;
+	}
+	
 	/**
 	 * @see see Calculate string
 	 * @return double

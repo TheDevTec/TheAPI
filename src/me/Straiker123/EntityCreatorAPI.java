@@ -27,9 +27,13 @@ import me.Straiker123.Utils.Error;
 
 @SuppressWarnings("deprecation")
 public class EntityCreatorAPI {
-	EntityType t;
+	private EntityType t;
 	public EntityCreatorAPI(EntityType type) {
 		t=type;
+	}
+	
+	public EntityType getEntityType() {
+		return t;
 	}
 	
 	public static enum AttackDamageType{

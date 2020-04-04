@@ -1,8 +1,8 @@
 package me.Straiker123;
 
 public class Report {
-	String s,p,r,m, id;
-	long l;
+	private String s,p,r,m, id;
+	private long l;
 	public Report(String id, String sender, String reported, String reason, String message, long time) {
 		s=sender;
 		this.id=id;

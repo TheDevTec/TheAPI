@@ -6,10 +6,15 @@ import org.bukkit.World;
 import me.Straiker123.Utils.Error;
 
 public class WorldBorderAPI {
-	World w;
+	private World w;
 	public WorldBorderAPI(World world) {
 		w=world;
 	}
+	
+	public World getWorld() {
+		return w;
+	}
+	
 	public void setCenter(double x, double z) {
 		try {
 		w.getWorldBorder().setCenter(x, z);

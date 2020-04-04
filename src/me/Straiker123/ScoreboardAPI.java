@@ -9,11 +9,11 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 public class ScoreboardAPI {
-	Player p;
-	HashMap<Integer,String> map = new HashMap<Integer, String>();
-	String title = "&bTheAPI";
-	Scoreboard s;
-	Team a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,q;
+	private Player p;
+	private HashMap<Integer,String> map = new HashMap<Integer, String>();
+	private String title = "&bTheAPI";
+	private Scoreboard s;
+	private Team a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,q; //HORRIBLE
 	public ScoreboardAPI(Player p, Scoreboard sb) {
 		this.p=p;
 		if(sb==null)s=p.getServer().getScoreboardManager().getNewScoreboard();

@@ -3,12 +3,13 @@ package me.Straiker123;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Player;
 
 import net.milkbowl.vault.economy.Economy;
 
 public class EconomyAPI {
-	Economy e = LoaderClass.economy;
+	private Economy e = LoaderClass.economy;
 	public void setEconomy(Economy a) {
 		if(a!=null) {
 		e=a;
@@ -19,6 +20,11 @@ public class EconomyAPI {
 			LoaderClass.plugin.e=false;
 		}
 	}
+	@Nullable
+	public Economy getEconomy() {
+		return e;
+	}
+	
 	/**
 	 * @see see Warning, this FakeEconomyAPI return Economy stored in config.
 	 * Isn't connect to the Vault plugin.

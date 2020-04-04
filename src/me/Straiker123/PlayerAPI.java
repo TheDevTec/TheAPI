@@ -22,9 +22,9 @@ import me.Straiker123.Utils.Packets;
 
 @SuppressWarnings("deprecation")
 public class PlayerAPI {
-	Player s;
-	String name;
-	UUID uuid;
+	private Player s;
+	private String name;
+	private UUID uuid;
 	public PlayerAPI(Player a) {
 		s=a;
 		name=a.getName();

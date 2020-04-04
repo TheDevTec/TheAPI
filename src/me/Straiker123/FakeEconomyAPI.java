@@ -3,10 +3,15 @@ package me.Straiker123;
 import org.bukkit.entity.Player;
 
 public class FakeEconomyAPI {
-	String w;
+	private String w;
 	public FakeEconomyAPI(String economyStore) {
 		w=economyStore;
 	}
+	
+	public String getName() {
+		return w;
+	}
+	
 	public boolean hasAccount(Player player) {
 		return hasAccount(player.getName());
 	}

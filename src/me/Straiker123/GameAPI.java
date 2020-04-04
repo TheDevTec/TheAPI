@@ -10,11 +10,16 @@ import org.bukkit.entity.Player;
 
 public class GameAPI {
 	private FileConfiguration w;
-	String s;
+	private String s;
 	public GameAPI(String name) {
 		s= name;
 		w=LoaderClass.gameapi.getConfig();
 	}
+	
+	public String getName() {
+		return s;
+	}
+	
 	public void createArena(String arena, String arenaName) {
 		w.set(s+".Arenas."+arena+".Name", arenaName);
 		LoaderClass.gameapi.save();

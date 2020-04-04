@@ -10,13 +10,20 @@ import org.bukkit.scoreboard.Team.Option;
 import org.bukkit.scoreboard.Team.OptionStatus;
 
 public class NameTagAPI {
-	String prefix;
-	String suffix;
-	Player p;
+	private String prefix, suffix;
+	private Player p;
 	public NameTagAPI(Player p, String prefix, String suffix) {
 		this.p=p;
 		this.prefix=prefix;
 		this.suffix=suffix;
+	}
+
+	/**
+	 * @see see Return input Player
+	 * @return Player
+	 */
+	public Player getPlayer() {
+		return p;
 	}
 
 	/**

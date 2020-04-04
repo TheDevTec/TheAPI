@@ -7,10 +7,10 @@ import java.util.List;
 import org.bukkit.Bukkit;
 
 public abstract class SlowLoop <T> {
-	List<T> to = new ArrayList<T>();
-	boolean s = false;
-	int task=0;
-	long old;
+	private List<T> to = new ArrayList<T>();
+	private boolean s = false;
+	private int task=0;
+	private long old;
 	public void addToLoop(List<T> toLoop) {
 		for(T t: toLoop)to.add(t);
 	}

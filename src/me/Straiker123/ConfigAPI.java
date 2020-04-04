@@ -15,11 +15,10 @@ import com.google.common.io.Files;
 import me.Straiker123.Utils.Error;
 
 public class ConfigAPI {
-	String name;
-	String h;
-	String loc;
-	FileConfiguration a;
-	Map<String, Object> c=new HashMap<String, Object>();
+	private String name,h, loc,end="yml";
+	private FileConfiguration a;
+	private File f;
+	private Map<String, Object> c=new HashMap<String, Object>();
 	
 	public ConfigAPI(String localization, String configName) {
 	name=configName;	
@@ -42,8 +41,6 @@ public class ConfigAPI {
 	public void addDefaults(Map<String, Object> defaults){
 		c=defaults;
 	}
-	String end = "yml";
-	File f;
 
 	public boolean existFile() {
 		return getFile() != null;
