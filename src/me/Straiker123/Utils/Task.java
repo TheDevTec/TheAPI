@@ -131,7 +131,6 @@ public class Task {
 						task.cancel();
 						break;
 					}
-					int p=TheAPI.generateRandomInt(7);
 				Block b = a.get(a.size()-1);
 				Location c = b.getLocation();
 				if(event.canTNTInLiquidCancelEvent() && Events.around(c)) {
@@ -158,7 +157,7 @@ public class Task {
 							Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,st, b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
 							b.setType(Material.AIR);
 							b.getDrops().clear();
-							if(p==4) {
+								if(TheAPI.generateRandomInt(25)==25) {
 								for(Entity e: TheAPI.getBlocksAPI().getNearbyEntities(b.getLocation(), 2)) {
 									if(e instanceof LivingEntity) {
 										e.setFireTicks(80);
@@ -168,14 +167,13 @@ public class Task {
 									TheAPI.getParticleEffectAPI().spawnParticle(ParticleEffect.FLAME, c, 1);
 								}else {
 									event.getLocation().getWorld().spawnParticle(Particle.FLAME, c,1);
-								}
-						}
+								}}
 						}}else {
 							if(event.isDropItems())
 								Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,st,b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
 							b.setType(Material.AIR);
 							b.getDrops().clear();
-							if(p==4) {
+							if(TheAPI.generateRandomInt(25)==25) {
 								for(Entity e: TheAPI.getBlocksAPI().getNearbyEntities(b.getLocation(), 2)) {
 									if(e instanceof LivingEntity) {
 										e.setFireTicks(80);

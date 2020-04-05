@@ -16,6 +16,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -34,6 +36,7 @@ import me.Straiker123.ScoreboardAPI;
 import me.Straiker123.ScoreboardAPIV2;
 import me.Straiker123.TheAPI;
 import me.Straiker123.TheRunnable;
+import me.Straiker123.TheRunnable.RunnableType;
 
 public class TheAPICommand implements CommandExecutor, TabCompleter {
 	
@@ -60,7 +63,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 	private void unregWorld(String w) {
 		LoaderClass.config.getConfig().set("WorldsSetting."+w, null);
 	}
-	//Info, Reload, ClearCache, WorldsManager
+	
+	@SuppressWarnings({ "deprecation" })
 	@Override
 	public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
 		this.args=args;
@@ -97,11 +101,40 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			TheAPI.msg("&6/TheAPI Test TabList",s);
 			TheAPI.msg("&6/TheAPI Test Title",s);
 			TheAPI.msg("&6/TheAPI Test GUICreatorAPI",s);
+			TheAPI.msg("&6/TheAPI Test hideShowEntity",s);
 			TheAPI.msg("&6/TheAPI Test Other - DevTec currently testing",s);
 			TheAPI.msg("&7-----------------",s);
 			return true;
 			}
 			if(eq(1,"Other")) {
+				return true;
+			}
+			if(eq(1,"hideShowEntity")) {
+				Pig pig = (Pig)p.getWorld().spawnEntity(p.getLocation(), EntityType.PIG);
+				pig.setCollidable(false);
+				pig.setBaby();
+				pig.setCustomNameVisible(true);
+				pig.setSilent(true);
+				TheRunnable a = TheAPI.getRunnable();
+				a.runRepeatingFor(new Runnable() {
+					public void run() {
+						pig.setCustomName(TheAPI.colorize("&4Become invisible in "+(5-a.getRunningTime(RunnableType.REPEATING_FOR))));
+					}
+				}, new Runnable() {
+					public void run() {
+						for(Player all : TheAPI.getOnlinePlayers())
+						TheAPI.hideEntity(all, pig);
+						pig.setCustomName(TheAPI.colorize("&4Repeat visible!"));
+						a.runLater(new Runnable() {
+							public void run() {
+								for(Player all : TheAPI.getOnlinePlayers())
+								TheAPI.showEntity(all, pig);
+								a.runLater(new Runnable() {
+									public void run() {
+										pig.remove();
+									}},100);
+							}},100);
+					}}, 20,5);
 				return true;
 			}
 			if(eq(1,"GUICreatorAPI")) {
@@ -247,7 +280,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				return true;
 			}
 			if(eq(1,"Scoreboard")) {
-				@SuppressWarnings("deprecation")
 				ScoreboardAPI a = TheAPI.getScoreboardAPI(p);
 				a.setTitle("&eTheAPI v"+TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
 				a.addLine("&aBy DevTec", 0);
@@ -600,6 +632,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		}
 		return false;
 	}
+
 	List<String> getWorlds(){
 		List<String> list = new ArrayList<String>();
 		for(World w :Bukkit.getWorlds())list.add(w.getName());
@@ -622,7 +655,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		}
 		if(args[0].equalsIgnoreCase("Test") && s.isOp()) {
 			if(args.length==2) {
-				c.addAll(StringUtil.copyPartialMatches(args[1], Arrays.asList("ActionBar","BlocksAPI","BossBar","MultiMap","PlayerName","RankingAPI","Scoreboard","ScoreboardV2","TabList","Title","GUICreatorAPI"), new ArrayList<>()));
+				c.addAll(StringUtil.copyPartialMatches(args[1], Arrays.asList("ActionBar","hideShowEntity","BlocksAPI","BossBar","MultiMap","PlayerName","RankingAPI","Scoreboard","ScoreboardV2","TabList","Title","GUICreatorAPI"), new ArrayList<>()));
 				}
 		}
 		if(args[0].equalsIgnoreCase("WorldsManager") && s.hasPermission("TheAPI.Command.WorldsManager")) {

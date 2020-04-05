@@ -6,7 +6,17 @@ import me.Straiker123.Utils.Error;
 
 public class TheRunnable {
 	private int id = -0, id_repeatfor = -0, id_repeatfor_run = -0;
-    
+    private long start,start1;
+	public static enum RunnableType{
+		REPEATING,
+		REPEATING_FOR
+	}
+	
+	public int getRunningTime(RunnableType type) {
+		return (int)(System.currentTimeMillis()/1000-(type==RunnableType.REPEATING?start==0?System.currentTimeMillis()/1000:start :start1
+				==0?System.currentTimeMillis()/1000:start1)); //whoa, psycho
+	}
+	
 	public TheRunnable runLater(Runnable r,long delay) {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(LoaderClass.plugin, r, delay);
 		return this;
@@ -17,6 +27,7 @@ public class TheRunnable {
 			Error.err("sending repeating task", "On this thread is already running task");
 			return this;
 		}
+		start=System.currentTimeMillis()/1000;
 		id= Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, r,delay,period);
 		return this;
     }
@@ -25,28 +36,29 @@ public class TheRunnable {
 		runRepeating(r,period,period);
 		return this;
     }
-	public TheRunnable runRepeatingFor(Runnable r, Runnable onEnd,long periodAndRepeatTime) {
-		return runRepeatingFor(r,onEnd,periodAndRepeatTime,periodAndRepeatTime);
+	public TheRunnable runRepeatingFor(Runnable r, Runnable onEnd,long period) {
+		return runRepeatingFor(r,onEnd,period,1);
     }
-	public TheRunnable runRepeatingFor(Runnable r, Runnable onEnd, long delay,long periodAndRepeatTime) {
+	public TheRunnable runRepeatingFor(Runnable r, Runnable onEnd, long period,int times) {
 		if(id_repeatfor != -0 || id_repeatfor_run!=-0) {
-			Error.err("sending repeating task for "+periodAndRepeatTime, "On this thread is already running task");
+			Error.err("sending repeating task for "+period, "On this thread is already running task");
 			return this;
 		}
-		id_repeatfor= Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, r,delay,periodAndRepeatTime);
+		start1=System.currentTimeMillis()/1000;
+		id_repeatfor= Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, r,period,period);
 		id_repeatfor_run= Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, new Runnable() {
-			int times =0;
+			int t = times;
 			public void run() {
-				if(times==periodAndRepeatTime) {
+				if(t==0) {
 					Bukkit.getScheduler().cancelTask(id_repeatfor);
 					id_repeatfor = -0;
 					Bukkit.getScheduler().cancelTask(id_repeatfor_run);
 					id_repeatfor_run = -0;
 					onEnd.run();
 				}
-				++times;
+				--t;
 			}
-		},delay,periodAndRepeatTime);
+		},period,period);
 		return this;
     }
 	

@@ -2,12 +2,12 @@ package me.Straiker123;
 
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -18,12 +18,14 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
+
 import me.Straiker123.Events.PlayerVanishEvent;
 import me.Straiker123.Utils.Error;
 import me.Straiker123.Utils.Packets;
@@ -439,25 +441,24 @@ public class TheAPI {
 			   return;
 		   }
 		   
-		     Class<?> PACKET_PLAYER_CHAT_CLASS = null, ICHATCOMP = null, CHATMESSAGE = null,
+		     Class<?> PACKET_PLAYER_CHAT_CLASS = Packets.getNMSClass("PacketPlayOutChat"), ICHATCOMP = Packets.getNMSClass("IChatBaseComponent")
+		    		 , CHATMESSAGE = null,
 	       CHAT_MESSAGE_TYPE_CLASS = null;
 	     Constructor<?> PACKET_PLAYER_CHAT_CONSTRUCTOR = null, CHATMESSAGE_CONSTRUCTOR = null;
 	     Object CHAT_MESSAGE_TYPE_ENUM_OBJECT = null;
 		     try {
-		       PACKET_PLAYER_CHAT_CLASS = Packets.getNMSClass("PacketPlayOutChat");
-		       ICHATCOMP = Packets.getNMSClass("IChatBaseComponent");
-		       try {
 		         CHAT_MESSAGE_TYPE_CLASS = Packets.getNMSClass("ChatMessageType");
 		         CHAT_MESSAGE_TYPE_ENUM_OBJECT = CHAT_MESSAGE_TYPE_CLASS.getEnumConstants()[2];
 		 
 		         PACKET_PLAYER_CHAT_CONSTRUCTOR = PACKET_PLAYER_CHAT_CLASS.getConstructor(ICHATCOMP,
 		             CHAT_MESSAGE_TYPE_CLASS);
-		       } catch (NoSuchMethodException e) {
+		       } catch (Exception e) {
 		       }
+		       try {
 		       CHATMESSAGE = Packets.getNMSClass("ChatMessage");
-		       CHATMESSAGE_CONSTRUCTOR = CHATMESSAGE.getConstructor(String.class, Object[].class);
-		     } catch (Exception e) {
-		     }
+				CHATMESSAGE_CONSTRUCTOR = CHATMESSAGE.getConstructor(String.class, Object[].class);
+			} catch (Exception e1) {
+			}
 		   
 	     try {
 	       Object icb = CHATMESSAGE_CONSTRUCTOR.newInstance(TheAPI.colorize(text), new Object[0]);
@@ -465,7 +466,7 @@ public class TheAPI {
 	       Packets.sendPacket(p, packet);
 	     } catch (Exception e) {
 	    	 Error.err("sending ActionBar to "+p.getName(), "Text is null");
-		}
+	     }
 	   }
 	/**
 	 * @see see Get int, double or calculate string
@@ -974,28 +975,37 @@ public class TheAPI {
 		return serverVer;
 	}
 	/**
-	 * @see see Return server TPS
+	 * @see see Return current server TPS
 	 * @return double
 	 */
 	public static double getServerTPS() {
+		return getServerTPS(TPSType.ONE_MINUTE);
+	}
+
+	public static enum TPSType {
+		ONE_MINUTE,
+		FIVE_MINUTES,
+		FIFTEEN_MINUTES
+	}
+	
+	/**
+	 * @see see Return server TPS from 1, 5 or 15 minutes
+	 * @return double
+	 */
+	public static double getServerTPS(TPSType type) {
 		try {
-	    	Object minecraftServer = null;
-	    	Field recentTps = null;
-	            Server server = LoaderClass.plugin.getServer();
-	            Field consoleField = server.getClass().getDeclaredField("console");
-	            consoleField.setAccessible(true);
-	            minecraftServer = consoleField.get(server);
-	     
-	            recentTps = minecraftServer.getClass().getSuperclass().getDeclaredField("recentTps");
-	            recentTps.setAccessible(true);
-	        
-	        double tps = ((double[]) recentTps.get(minecraftServer))[0];
+	        Server server = Bukkit.getServer();
+	        Object minecraftServer = Packets.getField(server.getClass(),"console").get(server);
+	        Object recentTps = Packets.getField(minecraftServer.getClass().getSuperclass(),"recentTps").get(minecraftServer);
+	        double tps = ((double[]) recentTps)
+	        		[type==TPSType.ONE_MINUTE ? 0 : type==TPSType.FIVE_MINUTES ? 1 : 2];
 	        if(tps>20)tps=20;
-			return getNumbersAPI(String.format("%2.02f", tps)).getDouble();
-	    	}catch(Throwable e) {
+			return getStringUtils().getDouble(String.format("%2.02f", tps));
+	    	}catch(Exception e) {
 	    		return 20.0;
 	    	}
 	}
+	
 	/**
 	 * @see see Return player ping
 	 * @param p
@@ -1010,15 +1020,57 @@ public class TheAPI {
 			}
 		}
 		try {
-	        Class<?> craftPlayer = Packets.getBukkitClass("entity.CraftPlayer");
-	        Object handle = craftPlayer.getMethod("getHandle").invoke(p);
-	        Integer ping = (Integer) handle.getClass().getDeclaredField("ping").get(handle);
-	        return ping.intValue();
+	        return (int)Packets.getEntityPlayerValue(p, "ping");
 	    } catch (Exception e) {
 	        return -1;
 	    }
 	}
+	//UUID.fromString(String) returns UUID
+	public static void showEntity(Player to, UUID uuid) {
+		if(LoaderClass.data.getConfig().getString("hiden."+uuid.toString())==null)return; //not hiden or isn't in config
+		LoaderClass.data.getConfig().set("hiden."+uuid.toString(), null);
+		LoaderClass.data.save();
+		 try {
+			 Entity entity = Bukkit.getEntity(uuid);
+			 if(entity==null)return;
+			 Object craft = Packets.getMethod(Packets.getBukkitClass("entity.CraftEntity"),"getHandle").invoke(entity);
+			 Object living = Packets.getNMSClass("Entity").cast(craft);
+			 Packets.sendPacket(to,Packets.getConstructor(Packets.getNMSClass("PacketPlayOutSpawnEntity"),Packets.getNMSClass("Entity")).newInstance(living));
+         } catch (Exception e) {e.printStackTrace();}
+	}
+	
 
+	public static void showEntity(Player to, Entity entity) {
+		if(LoaderClass.data.getConfig().getString("hiden."+entity.getUniqueId().toString())!=null) {
+		LoaderClass.data.getConfig().set("hiden."+entity.getUniqueId().toString(), null);
+		LoaderClass.data.save();
+		}
+		 try {
+             Object craft = Packets.getMethod(Packets.getBukkitClass("entity.CraftEntity"),"getHandle").invoke(entity);
+			 Object living = Packets.getNMSClass("Entity").cast(craft);
+			 Packets.sendPacket(to,Packets.getConstructor(Packets.getNMSClass("PacketPlayOutSpawnEntity"),Packets.getNMSClass("Entity")).newInstance(living));
+         } catch (Exception e) {e.printStackTrace();}
+	}
+	
+	public static void hideEntity(Player from, UUID uuid) {
+		 try {
+			 Entity entity = Bukkit.getEntity(uuid);
+			 if(entity==null)return; //not exists
+			 Packets.sendPacket(from,Packets.getConstructor(Packets.getNMSClass("PacketPlayOutEntityDestroy"),int[].class).newInstance(new int[] {entity.getEntityId()}));
+	       LoaderClass.data.getConfig().set("hiden."+uuid.toString(), true);
+	       LoaderClass.data.save();
+	     } catch(Exception e) {}
+	}
+
+	public static void hideEntity(Player from, Entity es) {
+		 try {
+	       Object destroy = Packets.getConstructor(Packets.getNMSClass("PacketPlayOutEntityDestroy"),int[].class).newInstance(new int[] {es.getEntityId()});
+	       Packets.sendPacket(from, destroy);
+	       LoaderClass.data.getConfig().set("hiden."+es.getUniqueId().toString(), true);
+	       LoaderClass.data.save();
+	     } catch(Exception e) {}
+	}
+	
 	private static void sendActionBarOld(Player ps, String text) {
 	        try {
 	            Object ppoc;

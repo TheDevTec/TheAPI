@@ -14,12 +14,12 @@ public class SignAPI {
 		f = LoaderClass.data;
 	}
 	private ConfigAPI f = LoaderClass.data;
-	
+	//List<String> commands = Arrays.asList("string.here","next.string");
 	public static enum SignAction {
-		CONSOLE_COMMANDS, //List<String> commands = Arrays.asList("command.here","next.command");
-		PLAYER_COMMANDS, //List<String> commands = Arrays.asList("command.here","next.command");
-		BROADCAST, //List<String> messages = Arrays.asList("message.here","next.message"); These messages
-		MESSAGES //List<String> messages = Arrays.asList("message.here","next.message");
+		CONSOLE_COMMANDS,
+		PLAYER_COMMANDS,
+		BROADCAST,
+		MESSAGES
 	}
 	
 	public void removeSign(Location loc) {
@@ -51,33 +51,32 @@ public class SignAPI {
 		return s;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public void setActions(Sign state, HashMap<SignAction, Object> options) {
+	public void setActions(Sign state, HashMap<SignAction, List<String>> options) {
 		String l = TheAPI.getStringUtils().getLocationAsString(state.getLocation());
 		for(SignAction s : options.keySet()) {
 		switch(s) {
 		case CONSOLE_COMMANDS:
 			if(options.get(s) instanceof List)
-			f.getConfig().set("Sign."+l+".CONSOLE_COMMANDS",(List<String>)options.get(s));
+			f.getConfig().set("Sign."+l+".CONSOLE_COMMANDS",options.get(s));
 			break;
 		case PLAYER_COMMANDS:
 			if(options.get(s) instanceof List)
-			f.getConfig().set("Sign."+l+".PLAYER_COMMANDS",(List<String>)options.get(s));
+			f.getConfig().set("Sign."+l+".PLAYER_COMMANDS",options.get(s));
 			break;
 		case MESSAGES:
 			if(options.get(s) instanceof List)
-			f.getConfig().set("Sign."+l+".MESSAGES",(List<String>)options.get(s));
+			f.getConfig().set("Sign."+l+".MESSAGES",options.get(s));
 			break;
 		case BROADCAST:
 			if(options.get(s) instanceof List)
-			f.getConfig().set("Sign."+l+".BROADCAST",(List<String>)options.get(s));
+			f.getConfig().set("Sign."+l+".BROADCAST",options.get(s));
 			break;
 		}}
 		f.save();
 	}
 	
-	public HashMap<SignAction, Object> getSignActions(Sign state) {
-		HashMap<SignAction, Object> a = new HashMap<SignAction, Object>();
+	public HashMap<SignAction, List<String>> getSignActions(Sign state) {
+		HashMap<SignAction, List<String>> a = new HashMap<SignAction, List<String>>();
 		Location l = state.getLocation();
 		String ff = TheAPI.getStringUtils().getLocationAsString(l);
 		if(getRegistredSigns().contains(l)) {

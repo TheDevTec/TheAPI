@@ -9,7 +9,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -55,31 +54,30 @@ public class Events implements Listener {
 	public static FileConfiguration d = LoaderClass.data.getConfig();
 	public static PunishmentAPI a = TheAPI.getPunishmentAPI();
 	
-	@SuppressWarnings("unchecked")
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onClick(PlayerInteractEvent e) {
 		if(e.getAction()==Action.RIGHT_CLICK_BLOCK && e.getClickedBlock().getType().name().contains("SIGN")) {
 			if(TheAPI.getSignAPI().getRegistredSigns().contains(e.getClickedBlock().getLocation())) {
-				HashMap<SignAction, Object> as= TheAPI.getSignAPI().getSignActions((Sign)e.getClickedBlock().getState());
+				HashMap<SignAction, List<String>> as= TheAPI.getSignAPI().getSignActions((Sign)e.getClickedBlock().getState());
 				for(SignAction a : as.keySet()) {
 					switch(a) {
 					case PLAYER_COMMANDS:
-						for(String s:((List<String>)as.get(a))) {
+						for(String s:as.get(a)) {
 							TheAPI.sudo(e.getPlayer(), SudoType.COMMAND, s.replace("%player%", e.getPlayer().getName()).replace("%playername%", e.getPlayer().getDisplayName()));
 						}
 						break;
 					case CONSOLE_COMMANDS:
-						for(String s:((List<String>)as.get(a))) {
+						for(String s:as.get(a)) {
 							TheAPI.sudoConsole(SudoType.COMMAND, s.replace("%player%", e.getPlayer().getName()).replace("%playername%", e.getPlayer().getDisplayName()));
 							}
 						break;
 					case BROADCAST:
-						for(String s:((List<String>)as.get(a))) {
+						for(String s:as.get(a)) {
 							TheAPI.broadcastMessage(s.replace("%player%", e.getPlayer().getName()).replace("%playername%", e.getPlayer().getDisplayName()));
 						}
 						break;
 					case MESSAGES:
-						for(String s:((List<String>)as.get(a))) {
+						for(String s:as.get(a)) {
 							TheAPI.msg(s.replace("%player%", e.getPlayer().getName()).replace("%playername%", e.getPlayer().getDisplayName()), e.getPlayer());
 						}
 						break;
@@ -111,12 +109,10 @@ public class Events implements Listener {
 		}}
     public static boolean around(Location b){
     	boolean s = false;
-    for(Block f : TheAPI.getBlocksAPI().getBlocks(Shape.Sphere, b, 1)) {
-    	if(f.getType().name().contains("WATER")||f.getType().name().contains("LAVA")) {
+    String f = b.getBlock().getType().name();
+    	if(f.contains("WATER")||f.contains("LAVA")) {
     		s=true;
-    		break;
     	}
-    }
     return s;
     }
    public static void get(Location reals, Location c) {
