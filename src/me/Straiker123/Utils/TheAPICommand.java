@@ -113,28 +113,31 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				Pig pig = (Pig)p.getWorld().spawnEntity(p.getLocation(), EntityType.PIG);
 				pig.setCollidable(false);
 				pig.setBaby();
-				pig.setCustomNameVisible(true);
+				try {
+				pig.setAI(false);
+				}catch(Exception | NoSuchMethodError e) {}
 				pig.setSilent(true);
 				TheRunnable a = TheAPI.getRunnable();
 				a.runRepeatingFor(new Runnable() {
 					public void run() {
 						pig.setCustomName(TheAPI.colorize("&4Become invisible in "+(5-a.getRunningTime(RunnableType.REPEATING_FOR))));
+						pig.setCustomNameVisible(true);
 					}
 				}, new Runnable() {
 					public void run() {
 						for(Player all : TheAPI.getOnlinePlayers())
 						TheAPI.hideEntity(all, pig);
 						pig.setCustomName(TheAPI.colorize("&4Repeat visible!"));
-						a.runLater(new Runnable() {
+						TheAPI.getRunnable().runLater(new Runnable() {
 							public void run() {
-								for(Player all : TheAPI.getOnlinePlayers())
-								TheAPI.showEntity(all, pig);
-								a.runLater(new Runnable() {
+								TheAPI.getRunnable().runLater(new Runnable() {
 									public void run() {
 										pig.remove();
 									}},100);
+								for(Player all : TheAPI.getOnlinePlayers())
+								TheAPI.showEntity(all, pig);
 							}},100);
-					}}, 20,5);
+					}}, 20,1);
 				return true;
 			}
 			if(eq(1,"GUICreatorAPI")) {

@@ -9,11 +9,18 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Player;
 
 public class HoverMessage {
-	
+
     public enum ClickAction {
         RUN_COMMAND,
         SUGGEST_COMMAND,
         OPEN_URL
+    }
+
+    public enum HoverAction {
+    	SHOW_ITEM,
+    	SHOW_ACHIEVEMENT,
+    	SHOW_ENTITY,
+    	SHOW_TEXT
     }
  
     private List<String> extras = new ArrayList<String>();
@@ -27,7 +34,7 @@ public class HoverMessage {
            String regex = "[&§]{1}([a-fA-Fl-oL-O0-9]){1}";
            text = text.replaceAll(regex, "§$1");
            if(!Pattern.compile(regex).matcher(text).find()) {
-        	   extras.add("{text:\"" + text + "\"}");
+        	   extras.add("{\"text\":\"" + text + "\"}");
               return this;
            }
            String[] words = text.split(regex);
@@ -36,7 +43,7 @@ public class HoverMessage {
            for(String word : words) {
                try {
                    if(index != words[0].length())
-                	   extras.add("{text:\"" + word + "\""+","+"§"+text.charAt(index - 1)+"}");
+                	   extras.add("{\"text\":\"§"+text.charAt(index-1)+word+"\"}");
                } catch(Exception e){}
                index += word.length() + 2;
            }
@@ -45,9 +52,16 @@ public class HoverMessage {
  
     public HoverMessage setClickEvent(ClickAction action, String value) {
     	String lastText = extras.get(extras.size() - 1);
+        lastText = lastText.substring(0, lastText.length() - 1)+ ",\"clickEvent\":{\"action\":\"" + action.toString().toLowerCase()
+                + "\",\"value\":\"" + value + "\"}"+"}";
+        extras.remove(extras.size() - 1);
+        extras.add(lastText);
+        return this;
+    }
+    public HoverMessage setHoverEvent(HoverAction action, String value) {
+    	String lastText = extras.get(extras.size() - 1);
         lastText = lastText.substring(0, lastText.length() - 1)
-                + ","+"clickEvent:{action:" + action.toString().toLowerCase()
-                + ",value:\"" + value + "\"}"+"}";
+                + ",\"hoverEvent\":{\"action\":\""+action.toString().toLowerCase()+"\",\"value\":\"" + value + "\"}"+"}";
         extras.remove(extras.size() - 1);
         extras.add(lastText);
         return this;
@@ -56,14 +70,14 @@ public class HoverMessage {
     public HoverMessage setHoverEvent(String value) {
     	String lastText = extras.get(extras.size() - 1);
         lastText = lastText.substring(0, lastText.length() - 1)
-                + ","+"hoverEvent:{action:show_text,value:\"" + value + "\"}"+"}";
+                + ",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"" + value + "\"}"+"}";
         extras.remove(extras.size() - 1);
         extras.add(lastText);
         return this;
     }
     
     public String getJson() {
-        if(extras.size() <= 1) return extras.size() == 0 ? "{text:\"\"}" : extras.get(0);
+        if(extras.size() <= 1) return extras.size() == 0 ? "{\"text\":\"\"}" : extras.get(0);
         String text = extras.get(0).substring(0, extras.get(0).length() - 1) + ",extra:[";
         extras.remove(0);;
         for (String extra : extras)
@@ -76,27 +90,23 @@ public class HoverMessage {
 		for(Player p:players)send(p);
 	}
 	
-	public void send(Collection<? extends Player> players) {
-		for(Player p:players)send(p);
-	}
-    
-	public void send(Player... players) {
+	public void send(Collection<Player> players) {
 		for(Player p:players)send(p);
 	}
     
 	public void send(Player player) {
         try {
-            Constructor<?> p = getNMSClass("PacketPlayOutChat").getConstructor(getNMSClass("IChatBaseComponent"), byte.class);
-            Object messageComponent = getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, toString());
+        	Constructor<?> p = getNMSClass("PacketPlayOutChat").getConstructor(getNMSClass("IChatBaseComponent"), byte.class);
+            Object messageComponent = getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, getJson());
             Object packet = p.newInstance(messageComponent, (byte)1);
             sendPacket(player, packet);
         } catch (Exception ex) {
             try {
         	Constructor<?> p = getNMSClass("PacketPlayOutChat").getConstructor(getNMSClass("IChatBaseComponent"));
-            Object messageComponent = getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, toString());
+            Object messageComponent = getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, getJson());
             Object packet = p.newInstance(messageComponent);
             sendPacket(player, packet);
-            } catch (Exception exs) {}
+            } catch (Exception exs) {exs.printStackTrace();}
         }
 	}
 	

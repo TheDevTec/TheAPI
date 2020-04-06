@@ -20,6 +20,7 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
@@ -1033,22 +1034,22 @@ public class TheAPI {
 		 try {
 			 Entity entity = Bukkit.getEntity(uuid);
 			 if(entity==null)return;
-			 Object craft = Packets.getMethod(Packets.getBukkitClass("entity.CraftEntity"),"getHandle").invoke(entity);
-			 Object living = Packets.getNMSClass("Entity").cast(craft);
-			 Packets.sendPacket(to,Packets.getConstructor(Packets.getNMSClass("PacketPlayOutSpawnEntity"),Packets.getNMSClass("Entity")).newInstance(living));
+			 Object craft = Packets.getMethod(Packets.getBukkitClass("entity.CraftLivingEntity"),"getHandle").invoke(entity);
+			 Object living = Packets.getNMSClass("EntityLiving").cast(craft);
+			 Packets.sendPacket(to,Packets.getConstructor(Packets.getNMSClass("PacketPlayOutSpawnEntityLiving"),Packets.getNMSClass("EntityLiving")).newInstance(living));
          } catch (Exception e) {e.printStackTrace();}
 	}
 	
 
-	public static void showEntity(Player to, Entity entity) {
+	public static void showEntity(Player to, LivingEntity entity) {
 		if(LoaderClass.data.getConfig().getString("hiden."+entity.getUniqueId().toString())!=null) {
 		LoaderClass.data.getConfig().set("hiden."+entity.getUniqueId().toString(), null);
 		LoaderClass.data.save();
 		}
 		 try {
-             Object craft = Packets.getMethod(Packets.getBukkitClass("entity.CraftEntity"),"getHandle").invoke(entity);
-			 Object living = Packets.getNMSClass("Entity").cast(craft);
-			 Packets.sendPacket(to,Packets.getConstructor(Packets.getNMSClass("PacketPlayOutSpawnEntity"),Packets.getNMSClass("Entity")).newInstance(living));
+			 Object craft = Packets.getMethod(Packets.getBukkitClass("entity.CraftLivingEntity"),"getHandle").invoke(entity);
+			 Object living = Packets.getNMSClass("EntityLiving").cast(craft);
+			 Packets.sendPacket(to,Packets.getNMSClass("PacketPlayOutSpawnEntityLiving").getConstructor(Packets.getNMSClass("EntityLiving")).newInstance(living));
          } catch (Exception e) {e.printStackTrace();}
 	}
 	
@@ -1062,7 +1063,7 @@ public class TheAPI {
 	     } catch(Exception e) {}
 	}
 
-	public static void hideEntity(Player from, Entity es) {
+	public static void hideEntity(Player from, LivingEntity es) {
 		 try {
 	       Object destroy = Packets.getConstructor(Packets.getNMSClass("PacketPlayOutEntityDestroy"),int[].class).newInstance(new int[] {es.getEntityId()});
 	       Packets.sendPacket(from, destroy);

@@ -44,27 +44,42 @@ public class TheRunnable {
 			Error.err("sending repeating task for "+period, "On this thread is already running task");
 			return this;
 		}
+		if(times <= 0) {
+			Error.err("sending repeating task for "+period, "Repeat times must be more than 0");
+			return this;
+		}
 		start1=System.currentTimeMillis()/1000;
 		id_repeatfor= Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, r,period,period);
 		id_repeatfor_run= Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, new Runnable() {
-			int t = times;
+			int tr = 0;
 			public void run() {
-				if(t==0) {
+				if(times==tr) {
 					Bukkit.getScheduler().cancelTask(id_repeatfor);
 					id_repeatfor = -0;
 					Bukkit.getScheduler().cancelTask(id_repeatfor_run);
 					id_repeatfor_run = -0;
 					onEnd.run();
+					return;
 				}
-				--t;
+				++tr;
 			}
 		},period,period);
 		return this;
     }
 	
 	public void cancel() {
+		if(id!=-0)
 		Bukkit.getScheduler().cancelTask(id);
 		id = -0;
+	}
+	
+	public void cancelRepeatingFor() {
+		if(id_repeatfor!=-0)
+		Bukkit.getScheduler().cancelTask(id_repeatfor);
+		id_repeatfor = -0;
+		if(id_repeatfor_run!=-0)
+		Bukkit.getScheduler().cancelTask(id_repeatfor_run);
+		id_repeatfor_run = -0;
 	}
 	
 }
