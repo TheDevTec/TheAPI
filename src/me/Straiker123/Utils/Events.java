@@ -22,6 +22,10 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.event.player.PlayerChatEvent;
@@ -36,15 +40,19 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import me.Straiker123.BlocksAPI.Shape;
+import me.Straiker123.ItemCreatorAPI;
 import me.Straiker123.LoaderClass;
 import me.Straiker123.PunishmentAPI;
 import me.Straiker123.SignAPI.SignAction;
 import me.Straiker123.Storage;
 import me.Straiker123.TheAPI;
 import me.Straiker123.TheAPI.SudoType;
+import me.Straiker123.Utils.GUIID.GRunnable;
 import me.Straiker123.WorldBorderAPI.WarningMessageType;
 import me.Straiker123.Events.DamageGodPlayerByEntityEvent;
 import me.Straiker123.Events.DamageGodPlayerEvent;
+import me.Straiker123.Events.GUIClickEvent;
+import me.Straiker123.Events.GUICloseEvent;
 import me.Straiker123.Events.PlayerJumpEvent;
 import me.Straiker123.Events.TNTExplosionEvent;
 
@@ -52,8 +60,146 @@ import me.Straiker123.Events.TNTExplosionEvent;
 public class Events implements Listener {
 	public static FileConfiguration f = LoaderClass.config.getConfig();
 	public static FileConfiguration d = LoaderClass.data.getConfig();
+	public static FileConfiguration g = LoaderClass.unused.getConfig();
 	public static PunishmentAPI a = TheAPI.getPunishmentAPI();
+	@EventHandler(priority = EventPriority.LOWEST)
+	private static void onClose(InventoryCloseEvent e) {
+		Player p = (Player)e.getPlayer();
+		String playersname = p.getName();
+		if(g.getString("guis."+playersname)==null)return;
+		String title = e.getView().getTitle();
+		
+		GUIID as = LoaderClass.gui.get(p);
 	
+		if(as!=null) {
+			String a = as.getID();
+			GUICloseEvent event = new GUICloseEvent(p,e.getInventory(),title);
+			Bukkit.getPluginManager().callEvent(event);
+					if(g.getString("guis."+playersname+"."+a+".MSGCLOSE")!=null)
+				for(String s: g.getStringList("guis."+playersname+"."+a+".MSGCLOSE"))
+					TheAPI.broadcastMessage(s);
+			if(g.getString("guis."+playersname+"."+a+".CMDCLOSE")!=null)
+				for(String s: g.getStringList("guis."+playersname+"."+a+".CMDCLOSE"))
+					TheAPI.sudoConsole(SudoType.COMMAND, s);
+		    	as.runRunnable(GRunnable.RUNNABLE_ON_INV_CLOSE,0);
+		    as.clear();
+		}
+	}
+	private static ItemStack createWrittenBook(ItemStack a) {
+		Material ms = Material.matchMaterial("WRITABLE_BOOK");
+		if(ms==null)ms=Material.matchMaterial("BOOK_AND_QUILL");
+		ItemCreatorAPI s = TheAPI.getItemCreatorAPI(ms);
+		 if(a.getItemMeta().hasDisplayName())
+		 s.setDisplayName(a.getItemMeta().getDisplayName());
+		 if(a.getItemMeta().hasLore())s.setLore(a.getItemMeta().getLore());
+		 if(TheAPI.isNewVersion()
+				 &&!TheAPI.getServerVersion().contains("v1_13"))
+		if(a.getItemMeta().hasCustomModelData()) s.setCustomModelData(a.getItemMeta().getCustomModelData());
+		 if(!TheAPI.isOlder1_9()
+				 &&!TheAPI.getServerVersion().contains("v1_9")
+				 &&!TheAPI.getServerVersion().contains("v1_10"))
+		 s.setUnbreakable(a.getItemMeta().isUnbreakable());
+		 return s.create();
+	}
+	
+	private static ItemStack createHead(ItemStack a) {
+		ItemCreatorAPI s = TheAPI.getItemCreatorAPI(Material.matchMaterial("PLAYER_HEAD"));
+		 if(a.getItemMeta().hasDisplayName())
+		 s.setDisplayName(a.getItemMeta().getDisplayName());
+		 if(a.getItemMeta().hasLore())s.setLore(a.getItemMeta().getLore());
+		 if(TheAPI.isNewVersion()
+				 &&!TheAPI.getServerVersion().contains("v1_13"))
+		if(a.getItemMeta().hasCustomModelData()) s.setCustomModelData(a.getItemMeta().getCustomModelData());
+		 if(!TheAPI.isOlder1_9()
+				 &&!TheAPI.getServerVersion().contains("v1_9")
+				 &&!TheAPI.getServerVersion().contains("v1_10"))
+		 s.setUnbreakable(a.getItemMeta().isUnbreakable());
+		 return s.create();
+	}
+	@EventHandler(priority = EventPriority.LOWEST)
+	private static void onClick(InventoryClickEvent e) {
+		if(e.isCancelled())return;
+		Player p = (Player)e.getWhoClicked();
+		String playersname = p.getName();
+		if(g.getString("guis."+playersname)==null)return;
+		int slot = e.getSlot();
+		GUIID d = LoaderClass.gui.get(p);
+		if(d==null)return;
+		String a = d.getID();
+			ItemStack i = e.getCurrentItem();
+			GUIClickEvent event = new GUIClickEvent(p, e.getClickedInventory(), e.getView().getTitle(), slot, i);
+			Bukkit.getPluginManager().callEvent(event);
+			if(event.isCancelled())
+			e.setCancelled(true);
+			
+		if(i != null) {
+			if(e.getClickedInventory().getType()==InventoryType.PLAYER) {
+				if(g.getString("guis."+playersname+"."+a+".PUT")!=null)
+			e.setCancelled(g.getBoolean("guis."+playersname+"."+a+".PUT"));
+			return;
+			}
+			if(i.getType().name().equals("WRITTEN_BOOK")||i.getType().name().equals("BOOK_AND_QUILL"))i=createWrittenBook(i);
+
+			if(i.getType().name().contains("SKULL_ITEM")
+					||i.getType().name().equals("PLAYER_HEAD"))
+				i=createHead(i);
+			ClickType t = e.getClick();
+			if(g.getBoolean("guis."+playersname+"."+a+"."+slot+".TAKE"))
+				e.setCancelled(g.getBoolean("guis."+playersname+"."+a+"."+slot+".TAKE"));
+				
+				if(g.getString("guis."+playersname+"."+a+"."+slot+".MSG")!=null)
+					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSG"))
+						TheAPI.msg(s, p);
+				if(g.getString("guis."+playersname+"."+a+"."+slot+".CMD")!=null)
+					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMD"))
+						TheAPI.sudoConsole(SudoType.COMMAND, s);
+				d.runRunnable(GRunnable.RUNNABLE,slot);
+
+				if(t.isLeftClick()&& !t.isShiftClick()) {
+				if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGLC")!=null)
+					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGLC"))
+						TheAPI.msg(s, p);
+				if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDLC")!=null)
+					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDLC"))
+						TheAPI.sudoConsole(SudoType.COMMAND, s);
+				d.runRunnable(GRunnable.RUNNABLE_LEFT_CLICK,slot);
+				}
+				if(t.isRightClick()&& !t.isShiftClick()) {
+					if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGRC")!=null)
+					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGRC"))
+						TheAPI.msg(s, p);
+					if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDRC")!=null)
+						for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDRC"))
+							TheAPI.sudoConsole(SudoType.COMMAND, s);
+					d.runRunnable(GRunnable.RUNNABLE_RIGHT_CLICK,slot);
+				}
+				if(t.isCreativeAction()) {
+					if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGMC")!=null)
+					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGMC"))
+						TheAPI.msg(s, p);
+					if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDMC")!=null)
+					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDMC"))
+						TheAPI.sudoConsole(SudoType.COMMAND, s);
+					d.runRunnable(GRunnable.RUNNABLE_MIDDLE_CLICK,slot);
+				}
+				if(t.isLeftClick() && t.isShiftClick()) {
+					if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGWLC")!=null)
+					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGWLC"))
+						TheAPI.msg(s, p);
+					if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDWLC")!=null)
+						for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDWLC"))
+							TheAPI.sudoConsole(SudoType.COMMAND, s);
+					d.runRunnable(GRunnable.RUNNABLE_SHIFT_WITH_LEFT_CLICK,slot);
+				}
+				if(t.isRightClick()&& t.isShiftClick()) {
+					if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGWRC")!=null)
+					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGWRC"))
+						TheAPI.msg(s, p);
+				if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDWLC")!=null)
+					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDWRC"))
+						TheAPI.sudoConsole(SudoType.COMMAND, s);
+					d.runRunnable(GRunnable.RUNNABLE_SHIFT_WITH_RIGHT_CLICK,slot);
+		}}}
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onClick(PlayerInteractEvent e) {
 		if(e.getAction()==Action.RIGHT_CLICK_BLOCK && e.getClickedBlock().getType().name().contains("SIGN")) {

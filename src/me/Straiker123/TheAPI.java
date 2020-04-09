@@ -830,6 +830,14 @@ public class TheAPI {
 	}
 	
 	/**
+	 * @see see With TheVault deposit, withdraw from player money and more (This is not VAULT Economy!)
+	 * @return TheEconomyAPI
+	 */
+	public static TheEconomyAPI getTheEconomyAPI() {
+		return new TheEconomyAPI();
+	}
+	
+	/**
 	 * @see see Set player Header and Footer in tablist
 	 * @return TabListAPI
 	 */

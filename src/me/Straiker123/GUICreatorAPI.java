@@ -6,131 +6,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import me.Straiker123.Events.GUIClickEvent;
-import me.Straiker123.Events.GUICloseEvent;
 import me.Straiker123.Events.GUIOpenEvent;
-import me.Straiker123.TheAPI.SudoType;
 import me.Straiker123.Utils.GUIID;
 import me.Straiker123.Utils.GUIID.GRunnable;
 
-public class GUICreatorAPI implements Listener {
-	
-	@EventHandler(priority = EventPriority.LOWEST)
-	private static void onClose(InventoryCloseEvent e) {
-		Player p = (Player)e.getPlayer();
-		String playersname = p.getName();
-		if(g.getString("guis."+playersname)==null)return;
-		String title = e.getView().getTitle();
-		
-		GUIID as = LoaderClass.gui.get(p);
-	
-		if(as!=null) {
-			String a = as.getID();
-			GUICloseEvent event = new GUICloseEvent(p,e.getInventory(),title);
-			Bukkit.getPluginManager().callEvent(event);
-					if(g.getString("guis."+playersname+"."+a+".MSGCLOSE")!=null)
-				for(String s: g.getStringList("guis."+playersname+"."+a+".MSGCLOSE"))
-					TheAPI.broadcastMessage(s);
-			if(g.getString("guis."+playersname+"."+a+".CMDCLOSE")!=null)
-				for(String s: g.getStringList("guis."+playersname+"."+a+".CMDCLOSE"))
-					TheAPI.sudoConsole(SudoType.COMMAND, s);
-		    	as.runRunnable(GRunnable.RUNNABLE_ON_INV_CLOSE,0);
-		    as.clear();
-		}
-	}
-
-	@EventHandler(priority = EventPriority.LOWEST)
-	private static void onClick(InventoryClickEvent e) {
-		if(e.isCancelled())return;
-		Player p = (Player)e.getWhoClicked();
-		String playersname = p.getName();
-		if(g.getString("guis."+playersname)==null)return;
-		int slot = e.getSlot();
-		GUIID d = LoaderClass.gui.get(p);
-		if(d==null)return;
-		String a = d.getID();
-			ItemStack i = e.getCurrentItem();
-			GUIClickEvent event = new GUIClickEvent(p, e.getClickedInventory(), e.getView().getTitle(), slot, i);
-			Bukkit.getPluginManager().callEvent(event);
-			if(event.isCancelled())
-			e.setCancelled(true);
-			
-		if(i != null) {
-			if(e.getClickedInventory().getType()==InventoryType.PLAYER) {
-				if(g.getString("guis."+playersname+"."+a+".PUT")!=null)
-			e.setCancelled(g.getBoolean("guis."+playersname+"."+a+".PUT"));
-			return;
-			}
-			if(i.getType().name().equals("WRITTEN_BOOK")||i.getType().name().equals("BOOK_AND_QUILL"))i=createWrittenBook(i);
-
-			if(i.getType().name().contains("SKULL_ITEM")
-					||i.getType().name().equals("PLAYER_HEAD"))
-				i=createHead(i);
-			if(g.getBoolean("guis."+playersname+"."+a+"."+slot+".TAKE"))
-				e.setCancelled(g.getBoolean("guis."+playersname+"."+a+"."+slot+".TAKE"));
-				
-				if(g.getString("guis."+playersname+"."+a+"."+slot+".MSG")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSG"))
-						TheAPI.msg(s, p);
-				if(g.getString("guis."+playersname+"."+a+"."+slot+".CMD")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMD"))
-						TheAPI.sudoConsole(SudoType.COMMAND, s);
-				d.runRunnable(GRunnable.RUNNABLE,slot);
-
-				if(e.getClick().isLeftClick()&& !e.getClick().isShiftClick()) {
-				if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGLC")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGLC"))
-						TheAPI.msg(s, p);
-				if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDLC")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDLC"))
-						TheAPI.sudoConsole(SudoType.COMMAND, s);
-				d.runRunnable(GRunnable.RUNNABLE_LEFT_CLICK,slot);
-				}
-				if(e.getClick().isRightClick()&& !e.getClick().isShiftClick()) {
-					if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGRC")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGRC"))
-						TheAPI.msg(s, p);
-					if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDRC")!=null)
-						for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDRC"))
-							TheAPI.sudoConsole(SudoType.COMMAND, s);
-					d.runRunnable(GRunnable.RUNNABLE_RIGHT_CLICK,slot);
-				}
-				if(e.getClick().isCreativeAction()) {
-					if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGMC")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGMC"))
-						TheAPI.msg(s, p);
-					if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDMC")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDMC"))
-						TheAPI.sudoConsole(SudoType.COMMAND, s);
-					d.runRunnable(GRunnable.RUNNABLE_MIDDLE_CLICK,slot);
-				}
-				if(e.getClick().isLeftClick() && e.getClick().isShiftClick()) {
-					if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGWLC")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGWLC"))
-						TheAPI.msg(s, p);
-					if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDWLC")!=null)
-						for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDWLC"))
-							TheAPI.sudoConsole(SudoType.COMMAND, s);
-					d.runRunnable(GRunnable.RUNNABLE_SHIFT_WITH_LEFT_CLICK,slot);
-				}
-				if(e.getClick().isRightClick()&& e.getClick().isShiftClick()) {
-					if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGWRC")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGWRC"))
-						TheAPI.msg(s, p);
-				if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDWLC")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDWRC"))
-						TheAPI.sudoConsole(SudoType.COMMAND, s);
-					d.runRunnable(GRunnable.RUNNABLE_SHIFT_WITH_RIGHT_CLICK,slot);
-		}}}
+public class GUICreatorAPI {
 	
 	private Player p;
 	public GUICreatorAPI(Player s) {

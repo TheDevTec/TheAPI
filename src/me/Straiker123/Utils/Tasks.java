@@ -135,6 +135,7 @@ public class Tasks {
 	public static void unload() {
 		 Events.f = LoaderClass.config.getConfig();
 		 Events.d = LoaderClass.data.getConfig();
+		 Events.g = LoaderClass.unused.getConfig();
 		load=false;
 		for(TheRunnable i : s) i.cancel();
 		s.clear();

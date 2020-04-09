@@ -273,7 +273,7 @@ public class StringUtils {
 	
 	/**
 	 * @see see Get boolean from string
-	 * @return double
+	 * @return boolean
 	 */
 	public boolean getBoolean(String fromString) {
 		try {

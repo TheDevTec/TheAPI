@@ -14,6 +14,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import me.DevTec.TheVault.TheVault;
 import me.Straiker123.Utils.Events;
 import me.Straiker123.Utils.GUIID;
 import me.Straiker123.Utils.Tasks;
@@ -63,8 +64,33 @@ public class LoaderClass extends JavaPlugin {
 				}
 		},20, 30);
 	}
+	public void theVaultHooking() {
+		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &6Action: &6Looking for TheVault Economy..",TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+		TheRunnable r = TheAPI.getRunnable();
+		r.runRepeatingFor(new Runnable() {
+			public void run() {
+				if(!tve && TheVault.getEconomy() != null) {
+					tveeconomy=TheVault.getEconomy();
+					tve=true;
+					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &6Found TheVault Economy",TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+				}}
+		}, new Runnable() {
+				public void run() {
+					if(tve)return;
+					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &cPlugin not found TheVault Economy, disabling TheEconomyAPI..",TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &cYou can enable TheEconomyAPI by set Economy in TheEconomyAPI.",TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &c *TheAPI still works normally without any problems*",TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+				}
+		},20, 30);
+	}
 	
-	public boolean e;
+	public boolean e,tve;
 	public String motd;
 	public int max;
 	
@@ -81,7 +107,6 @@ public class LoaderClass extends JavaPlugin {
 		createConfig();
 		Tasks.load();
 		Bukkit.getPluginManager().registerEvents(new Events(), this);
-		Bukkit.getPluginManager().registerEvents(new GUICreatorAPI(null), this);
 		Bukkit.getPluginCommand("TheAPI").setExecutor(new TheAPICommand());
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &6Action: &aEnabling plugin, creating config and registering economy..",TheAPI.getConsole());
@@ -115,15 +140,20 @@ public class LoaderClass extends JavaPlugin {
 			}
 		
 	}
-	
+
 	public static Economy economy;
+	public static me.DevTec.TheVault.Economy tveeconomy;
 	private boolean getVaultEconomy() {
+		try {
 		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
 	    if (economyProvider != null) {
 	    	economy = economyProvider.getProvider();
 	    	
 	    }
 		return economy != null;
+		}catch(Exception e) {
+			return false;
+		}
 	}
 	
 	public static HashMap<Player, String> chatformat = new HashMap<Player, String>();
