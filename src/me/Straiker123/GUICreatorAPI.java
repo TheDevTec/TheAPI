@@ -339,16 +339,17 @@ public class GUICreatorAPI {
 			i.setItem(a, map.get(a));
 		}
 		g.set("guis."+p.getName()+"."+getID()+".t", t);
-		LoaderClass.unused.save();
 		GUIOpenEvent e = new GUIOpenEvent(p,i,TheAPI.colorize(t));
 		Bukkit.getPluginManager().callEvent(e);
 		if(!e.isCancelled()) {
-		p.openInventory(i);
-		inv=i;
-		id.setInv(i);
-		LoaderClass.gui.put(p, id);
-		}else
+			inv=i;
+			id.setInv(i);
+			p.openInventory(i);
+			LoaderClass.gui.put(p, id);
+		}else {
+		g.set("guis."+p.getName()+"."+getID(), null);
 		id.clear();
+		}
 	}
 
 	/**

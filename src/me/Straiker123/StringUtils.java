@@ -287,8 +287,7 @@ public class StringUtils {
 	 * @return double
 	 */
 	public double calculate(String fromString) {
-		ScriptEngineManager mgr = new ScriptEngineManager();
-        ScriptEngine engine = mgr.getEngineByName("JavaScript");
+        ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
         try {
 			return getDouble(engine.eval(fromString).toString());
 		} catch (ScriptException e) {

@@ -8,11 +8,13 @@ import org.bukkit.inventory.Inventory;
 import me.Straiker123.LoaderClass;
 
 public class GUIID {
-	Inventory i;
+	private Inventory i;
+	private Player p;
+	private String id;
 	public GUIID(Player s) {
 		p=s;
 		for(int i = 0; i > -1; ++i) {
-			if(LoaderClass.unused.getConfig().getString("guis."+s.getName()+"."+i)==null) {
+			if(LoaderClass.unused.getConfig().getString("guis."+p.getName()+"."+i)==null) {
 				id=i+"";
 			break;
 			}
@@ -21,24 +23,25 @@ public class GUIID {
 	public void setInv(Inventory iv) {
 		i=iv;
 	}
-	
-	Player p;
+	public Inventory getInventory() {
+		return i;
+	}
 	public Player getPlayer() {
 		return p;
 	}
-	String id = "1";
 	public String getID() {
 		return id;
 	}
 	public static enum GRunnable{
-		RUNNABLE_ON_INV_CLOSE,
 		RUNNABLE,
-		RUNNABLE_RIGHT_CLICK,
 		RUNNABLE_LEFT_CLICK,
-		RUNNABLE_SHIFT_WITH_RIGHT_CLICK,
+		RUNNABLE_RIGHT_CLICK,
 		RUNNABLE_SHIFT_WITH_LEFT_CLICK,
-		RUNNABLE_MIDDLE_CLICK;
+		RUNNABLE_SHIFT_WITH_RIGHT_CLICK,
+		RUNNABLE_MIDDLE_CLICK,
+		RUNNABLE_ON_INV_CLOSE;
 	}
+	
 	public void setRunnable(GRunnable r, int slot, Runnable e) {
 		if(GRunnable.RUNNABLE_ON_INV_CLOSE == r) {
 			close=e;
@@ -52,7 +55,7 @@ public class GUIID {
 			run.put(r, d);
 	}}
 
-	HashMap<GRunnable, HashMap<Integer,Runnable>> run = new HashMap<GRunnable, HashMap<Integer,Runnable>>();
+	private HashMap<GRunnable, HashMap<Integer,Runnable>> run = new HashMap<GRunnable, HashMap<Integer,Runnable>>();
 	Runnable close;
 	public Runnable getRunnable(GRunnable r, int slot) {
 		if(GRunnable.RUNNABLE_ON_INV_CLOSE == r)
@@ -74,7 +77,6 @@ public class GUIID {
 		run.clear();
 		close=null;
 		LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+id, null);
-		LoaderClass.unused.save();
 	}
 	public void closeAndClear() {
 		clear();

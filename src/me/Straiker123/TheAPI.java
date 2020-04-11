@@ -155,10 +155,14 @@ public class TheAPI {
 	public static String buildString(String[] args) {
 		return getStringUtils().buildString(args);
 	}
-	
-	
+
 	public static SQLAPI getSQLAPI(String host, String database, String username, String password, int port) {
-		return new SQLAPI(host,database, username, password, port);
+		return new SQLAPI(host,database, username, password,port);
+	}
+	
+
+	public static SQLAPI getSQLAPI(String host, String database, String username, String password) {
+		return getSQLAPI(host,database, username, password,3306); //3306 is default.
 	}
 	
 	/**

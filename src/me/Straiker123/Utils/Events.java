@@ -63,7 +63,7 @@ public class Events implements Listener {
 	public static FileConfiguration g = LoaderClass.unused.getConfig();
 	public static PunishmentAPI a = TheAPI.getPunishmentAPI();
 	@EventHandler(priority = EventPriority.LOWEST)
-	private static void onClose(InventoryCloseEvent e) {
+	private void onClose(InventoryCloseEvent e) {
 		Player p = (Player)e.getPlayer();
 		String playersname = p.getName();
 		if(g.getString("guis."+playersname)==null)return;
@@ -85,7 +85,7 @@ public class Events implements Listener {
 		    as.clear();
 		}
 	}
-	private static ItemStack createWrittenBook(ItemStack a) {
+	private ItemStack createWrittenBook(ItemStack a) {
 		Material ms = Material.matchMaterial("WRITABLE_BOOK");
 		if(ms==null)ms=Material.matchMaterial("BOOK_AND_QUILL");
 		ItemCreatorAPI s = TheAPI.getItemCreatorAPI(ms);
@@ -102,7 +102,7 @@ public class Events implements Listener {
 		 return s.create();
 	}
 	
-	private static ItemStack createHead(ItemStack a) {
+	private ItemStack createHead(ItemStack a) {
 		ItemCreatorAPI s = TheAPI.getItemCreatorAPI(Material.matchMaterial("PLAYER_HEAD"));
 		 if(a.getItemMeta().hasDisplayName())
 		 s.setDisplayName(a.getItemMeta().getDisplayName());
@@ -117,7 +117,7 @@ public class Events implements Listener {
 		 return s.create();
 	}
 	@EventHandler(priority = EventPriority.LOWEST)
-	private static void onClick(InventoryClickEvent e) {
+	private void onClick(InventoryClickEvent e) {
 		if(e.isCancelled())return;
 		Player p = (Player)e.getWhoClicked();
 		String playersname = p.getName();
@@ -139,7 +139,6 @@ public class Events implements Listener {
 			return;
 			}
 			if(i.getType().name().equals("WRITTEN_BOOK")||i.getType().name().equals("BOOK_AND_QUILL"))i=createWrittenBook(i);
-
 			if(i.getType().name().contains("SKULL_ITEM")
 					||i.getType().name().equals("PLAYER_HEAD"))
 				i=createHead(i);
