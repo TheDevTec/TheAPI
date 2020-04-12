@@ -19,12 +19,12 @@ public class AntiBot {
 		return s;
 	}
 	private static PunishmentAPI a = TheAPI.getPunishmentAPI();
-	public static boolean isDissalowed(String uuid) {
+	public static boolean isDisallowed(String uuid) {
 		String p = Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
 		return c.contains(uuid)||a.hasBan(p)||a.hasBanIP(p)||a.hasTempBan(p)||a.hasTempBanIP(p);
 	}
 	@SuppressWarnings("deprecation")
-	public static boolean containsDissalowed(String string) {
+	public static boolean containsDisallowed(String string) {
 		boolean f=false;
 		for(String s : c) {
 			if(string.contains(s)) {
@@ -34,7 +34,6 @@ public class AntiBot {
 		}
 		if(!f)
 		for(String s : a.getBanList().getBannedPlayers()) {
-			
 			if(string.contains(Bukkit.getOfflinePlayer(s).getUniqueId().toString())) {
 				f=true;
 				break;
