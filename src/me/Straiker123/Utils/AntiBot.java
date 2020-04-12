@@ -13,7 +13,7 @@ public class AntiBot {
 	private static long last;
 	private static List<String> c = new ArrayList<String>();
 	public static boolean hasAccess(UUID e) {
-		boolean s = a(e);
+		boolean s = canJoin();
 		if(!s)c.add(e.toString());
 		last=System.currentTimeMillis()/1000;
 		return s;
@@ -41,10 +41,8 @@ public class AntiBot {
 		}
 		return f;
 	}
-	private static boolean a(UUID e) {
-		if(Bukkit.getOfflinePlayer(e).hasPlayedBefore()) {
-			return last-System.currentTimeMillis()/1000 + 2 <0;
-		}
-		return last-System.currentTimeMillis()/1000 + 5 <0;
+	
+	public static boolean canJoin() {
+		return last-System.currentTimeMillis()/1000+3 < 0;
 	}
 }

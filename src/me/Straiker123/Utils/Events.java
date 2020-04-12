@@ -509,7 +509,6 @@ public class Events implements Listener {
 				}else
 					Error.sendRequest("&bTheAPI&7: &cError when processing PunishmentAPI");
 		}
-		LoaderClass.data.save();
 	}
 
 	@EventHandler
