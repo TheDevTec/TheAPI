@@ -127,7 +127,7 @@ public class GUICreatorAPI {
 	}
 	
 	private static ItemStack createHead(ItemStack a) {
-		ItemCreatorAPI s = TheAPI.getItemCreatorAPI(Material.matchMaterial("PLAYER_HEAD"));
+		ItemCreatorAPI s = TheAPI.getItemCreatorAPI(Material.matchMaterial("LEGACY_SKULL_ITEM") != null ? Material.matchMaterial("LEGACY_SKULL_ITEM") : Material.matchMaterial("SKULL_ITEM"));
 		 if(a.getItemMeta().hasDisplayName())
 		 s.setDisplayName(a.getItemMeta().getDisplayName());
 		 if(a.getItemMeta().hasLore())s.setLore(a.getItemMeta().getLore());

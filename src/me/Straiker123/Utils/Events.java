@@ -103,8 +103,8 @@ public class Events implements Listener {
 	}
 	
 	private ItemStack createHead(ItemStack a) {
-		ItemCreatorAPI s = TheAPI.getItemCreatorAPI(Material.matchMaterial("PLAYER_HEAD"));
-		 if(a.getItemMeta().hasDisplayName())
+		ItemCreatorAPI s = TheAPI.getItemCreatorAPI(Material.matchMaterial("LEGACY_SKULL_ITEM") != null ? Material.matchMaterial("LEGACY_SKULL_ITEM") : Material.matchMaterial("SKULL_ITEM"));
+		  if(a.getItemMeta().hasDisplayName())
 		 s.setDisplayName(a.getItemMeta().getDisplayName());
 		 if(a.getItemMeta().hasLore())s.setLore(a.getItemMeta().getLore());
 		 if(TheAPI.isNewVersion()
