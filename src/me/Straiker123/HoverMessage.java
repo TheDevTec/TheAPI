@@ -8,6 +8,9 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 
+import me.Straiker123.Utils.Error;
+import me.Straiker123.Utils.Packets;
+
 public class HoverMessage {
 
     public enum ClickAction {
@@ -29,31 +32,32 @@ public class HoverMessage {
         for(String extra : text)
             addText(extra);
     }
- 
     public HoverMessage addText(String text) {
-           String regex = "[&§]{1}([a-fA-Fl-oL-O0-9]){1}";
-           text = text.replaceAll(regex, "§$1");
-           if(!Pattern.compile(regex).matcher(text).find()) {
-        	   extras.add("{\"text\":\"" + text + "\"}");
-              return this;
-           }
-           String[] words = text.split(regex);
- 
-           int index = words[0].length();
-           for(String word : words) {
-               try {
-                   if(index != words[0].length())
-                	   extras.add("{\"text\":\"§"+text.charAt(index-1)+word+"\"}");
-               } catch(Exception e){}
-               index += word.length() + 2;
-           }
+        	extras.add("{\"text\":\"" + replaceColor(text) + "\"}");
            return this;
+    }
+    
+    private String replaceColor(String text) {
+    	 String regex = "[&§]{1}([a-fA-Fl-oL-O0-9]){1}";
+         text = text.replaceAll(regex, "§$1");
+         if(!Pattern.compile(regex).matcher(text).find()) {
+         }
+         String[] words = text.split(regex);
+         int index = words[0].length();
+         for(String word : words) {
+             try {
+                 if(index != words[0].length())
+                	 text="§"+text.charAt(index-1)+word;
+             } catch(Exception e){}
+             index += word.length() + 2;
+         }
+         return text;
     }
  
     public HoverMessage setClickEvent(ClickAction action, String value) {
     	String lastText = extras.get(extras.size() - 1);
         lastText = lastText.substring(0, lastText.length() - 1)+ ",\"clickEvent\":{\"action\":\"" + action.toString().toLowerCase()
-                + "\",\"value\":\"" + value + "\"}"+"}";
+                + "\",\"value\":\"" + replaceColor(value) + "\"}"+"}";
         extras.remove(extras.size() - 1);
         extras.add(lastText);
         return this;
@@ -61,7 +65,7 @@ public class HoverMessage {
     public HoverMessage setHoverEvent(HoverAction action, String value) {
     	String lastText = extras.get(extras.size() - 1);
         lastText = lastText.substring(0, lastText.length() - 1)
-                + ",\"hoverEvent\":{\"action\":\""+action.toString().toLowerCase()+"\",\"value\":\"" + value + "\"}"+"}";
+                + ",\"hoverEvent\":{\"action\":\""+action.toString().toLowerCase()+"\",\"value\":\"" + replaceColor(value) + "\"}"+"}";
         extras.remove(extras.size() - 1);
         extras.add(lastText);
         return this;
@@ -70,15 +74,16 @@ public class HoverMessage {
     public HoverMessage setHoverEvent(String value) {
     	String lastText = extras.get(extras.size() - 1);
         lastText = lastText.substring(0, lastText.length() - 1)
-                + ",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"" + value + "\"}"+"}";
+                + ",\"hoverEvent\":{\"action\":\"show_text\",\"value\":\"" + replaceColor(value) + "\"}"+"}";
         extras.remove(extras.size() - 1);
         extras.add(lastText);
         return this;
     }
     
     public String getJson() {
+    	
         if(extras.size() <= 1) return extras.size() == 0 ? "{\"text\":\"\"}" : extras.get(0);
-        String text = extras.get(0).substring(0, extras.get(0).length() - 1) + ",extra:[";
+        String text = extras.get(0).substring(0, extras.get(0).length() - 1) + ",\"extra\":[";
         extras.remove(0);;
         for (String extra : extras)
             text = text + extra + ",";
@@ -95,35 +100,19 @@ public class HoverMessage {
 	}
     
 	public void send(Player player) {
+		String json = getJson();
         try {
-        	Constructor<?> p = getNMSClass("PacketPlayOutChat").getConstructor(getNMSClass("IChatBaseComponent"), byte.class);
-            Object messageComponent = getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, getJson());
+        	Constructor<?> p = Packets.getNMSClass("PacketPlayOutChat").getConstructor(Packets.getNMSClass("IChatBaseComponent"), byte.class);
+            Object messageComponent = Packets.getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, json);
             Object packet = p.newInstance(messageComponent, (byte)1);
-            sendPacket(player, packet);
+            Packets.sendPacket(player, packet);
         } catch (Exception ex) {
             try {
-        	Constructor<?> p = getNMSClass("PacketPlayOutChat").getConstructor(getNMSClass("IChatBaseComponent"));
-            Object messageComponent = getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, getJson());
+        	Constructor<?> p = Packets.getNMSClass("PacketPlayOutChat").getConstructor(Packets.getNMSClass("IChatBaseComponent"));
+            Object messageComponent = Packets.getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, json);
             Object packet = p.newInstance(messageComponent);
-            sendPacket(player, packet);
-            } catch (Exception exs) {exs.printStackTrace();}
+            Packets.sendPacket(player, packet);
+            } catch (Exception exs) {Error.err("sending HoverMessage", "Json error: "+json);exs.printStackTrace();}
         }
-	}
-	
-	private Class<?> getNMSClass(String name) {
-	     try {
-	         return Class.forName("net.minecraft.server." + TheAPI.getServerVersion() + "." + name);
-	     } catch (ClassNotFoundException e) {
-			return null;
-	     }
-	}
-	
-	private void sendPacket(Player p, Object packet) {
-	     try {
-	    	 Object c = p.getClass().getMethod("getHandle", new Class[0]).invoke(p, new Object[0]).getClass().getField("playerConnection").get(p.getClass().getMethod("getHandle", new Class[0]).invoke(p, new Object[0]));
-	    	 c.getClass().getMethod("sendPacket", new Class[] { getNMSClass("Packet") }).invoke(c, new Object[] { packet });
-	     } catch (Exception e) {
-	    	 
-		 }
 	}
 }

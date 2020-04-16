@@ -471,9 +471,10 @@ public class Events implements Listener {
 	public void onLogin(AsyncPlayerPreLoginEvent e) {
 		if(!AntiBot.hasAccess(e.getUniqueId())) {
 			e.disallow(Result.KICK_OTHER, null);
+			return;
 		}
 		String s = e.getName();
-		LoaderClass.data.getConfig().set("data."+s+".ip", e.getAddress().toString().replace(".", "_"));
+		LoaderClass.data.getConfig().set("data."+s+".ip", (e.getAddress().toString()).replace(".", "_"));
 		try {
 		if(a.hasBan(s)) {
 			e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.Ban").replace("\\n", "\n")
