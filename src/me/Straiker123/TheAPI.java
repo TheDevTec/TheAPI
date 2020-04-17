@@ -18,6 +18,7 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -33,13 +34,68 @@ import me.Straiker123.Utils.Packets;
 import net.glowstone.entity.GlowPlayer;
 
 public class TheAPI {
+	private static StringUtils utils;
+	private static SignAPI sign;
+	private static BlocksAPI blocks;
+	private static PlaceholderAPIUtils plac;
+	private static ParticleEffectAPI particles;
+	private static ConsoleCommandSender console;
+	private static PunishmentAPI push;
+	private static ReportSystem report;
+	private static boolean loaded,isNew,isOld;
+	private static HashMap<Player, BossBar> list = new HashMap<Player, BossBar>();
+	private static HashMap<Player, BukkitTask> task = new HashMap<Player, BukkitTask>();
+	private static int max;
+	private static WorldsManager worlds;
+	private static EconomyAPI eco;
+	private static TheEconomyAPI theeco;
+	private static TabListAPI tab;
+	private static MemoryAPI mem;
+	private static PluginManagerAPI plugins;
+	private static SoundAPI sound;
+	private static EnchantmentAPI enchs;
+	private static TimeConventorAPI time;
+	private static String version;
+	public TheAPI() {
+		if(loaded)return;
+		loaded=true;
+		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &6Action: &6Creating classes in TheAPI class..",TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+		try {
+			 version= Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+	 }catch(Exception e) {
+		 version=Bukkit.getServer().getClass().getPackage().getName().split("\\.")[1];
+	 }
+		console=Bukkit.getConsoleSender();
+		utils= new StringUtils();
+		sign=new SignAPI();
+		blocks=new BlocksAPI();
+		particles= new ParticleEffectAPI();
+		isNew=!getServerVersion().equalsIgnoreCase("glowstone") && utils.getInt(getServerVersion().split("_")[1])>12;
+		isOld=utils.getInt(getServerVersion().split("_")[1])<9;
+		plac=new PlaceholderAPIUtils();
+		max=Bukkit.getMaxPlayers();
+		push=new PunishmentAPI();
+		report=new ReportSystem();
+		worlds=new WorldsManager();
+		eco = new EconomyAPI();
+		theeco = new TheEconomyAPI();
+		tab=new TabListAPI();
+		mem = new MemoryAPI();
+		time=new TimeConventorAPI();
+		enchs=new EnchantmentAPI();
+		sound= new SoundAPI();
+		plugins=new PluginManagerAPI();
+	}
+	
 	/**
 	 * @see see Colorize string with colors
 	 * @param string
 	 * @return Colored String
 	 */
 	public static String colorize(String string) {
-		return getStringUtils().colorize(string);
+		return utils.colorize(string);
 	}
 
 	/**
@@ -47,7 +103,7 @@ public class TheAPI {
 	 * @return SignAPI
 	 */
 	public static SignAPI getSignAPI() {
-		return new SignAPI();
+		return sign;
 	}
 
 	/**
@@ -79,7 +135,7 @@ public class TheAPI {
 	 * @return BlocksAPI
 	 */
 	public static BlocksAPI getBlocksAPI() {
-		return new BlocksAPI();
+		return blocks;
 	}
 
 	/**
@@ -95,7 +151,7 @@ public class TheAPI {
 	 * @return StringUtils
 	 */
 	public static StringUtils getStringUtils() {
-		return new StringUtils();
+		return utils;
 	}
 
 	/**
@@ -111,7 +167,7 @@ public class TheAPI {
 	 * @return ParticleEffectAPI
 	 */
 	public static ParticleEffectAPI getParticleEffectAPI() {
-		 return new ParticleEffectAPI();
+		 return particles;
 	}
 	
 	/**
@@ -128,15 +184,14 @@ public class TheAPI {
 	 * @return boolean
 	 */
 	public static boolean isNewVersion() {
-		if(getServerVersion().equalsIgnoreCase("glowstone"))return false;
-		return getStringUtils().getInt(getServerVersion().split("_")[1])>12;
+		return isNew;
 	}
 	/**
 	 * @see see Return is server version older than 1.9 ? (1.5 up to 1.8.9)
 	 * @return boolean
 	 */
 	public static boolean isOlder1_9() {
-		return getStringUtils().getInt(getServerVersion().split("_")[1])<9;
+		return isOld;
 	}
 
 	/**
@@ -153,7 +208,7 @@ public class TheAPI {
 	 * 
 	 */
 	public static String buildString(String[] args) {
-		return getStringUtils().buildString(args);
+		return utils.buildString(args);
 	}
 
 	public static SQLAPI getSQLAPI(String host, String database, String username, String password, int port) {
@@ -179,7 +234,7 @@ public class TheAPI {
 	 * @return Object
 	 */
 	public static Object getRandomFromList(List<?> list) {
-		return getStringUtils().getRandomFromList(list);
+		return utils.getRandomFromList(list);
 	}
 	/**
 	 * @see see Set world border size, center and more
@@ -250,7 +305,7 @@ public class TheAPI {
 	 * @return PlaceholderAPIUtils
 	 */
 	public static PlaceholderAPIUtils getPlaceholderAPI() {
-		return new PlaceholderAPIUtils();
+		return plac;
 	}
 
 	/**
@@ -258,7 +313,7 @@ public class TheAPI {
 	 * @return int
 	 */
 	public static int getMaxPlayers() {
-		return Bukkit.getMaxPlayers();
+		return max;
 	}
 
 	/**
@@ -281,7 +336,8 @@ public class TheAPI {
 	 * @return Player
 	 */
 	public static Player getRandomPlayer() {
-		return getRandomFromList(getOnlinePlayers()) == null ? null : (Player)getRandomFromList(getOnlinePlayers());
+		Player r = (Player)getRandomFromList(getOnlinePlayers());
+		return r == null ? null : r;
 	}
 
 	/**
@@ -320,12 +376,11 @@ public class TheAPI {
 	public static void sendMsg(String message, CommandSender sender) {
 		sendMessage(message,sender);
 	}
+	
 	public static void msg(String message, CommandSender sender) {
 		sendMessage(message,sender);
 	}
 	
-	private static HashMap<Player, BossBar> list = new HashMap<Player, BossBar>();
-	private static HashMap<Player, BukkitTask> task = new HashMap<Player, BukkitTask>();
 	/**
 	 * @see see Send player bossbar on time
 	 * @param p
@@ -665,7 +720,7 @@ public class TheAPI {
 	 * @return PunishmentAPI
 	 */
 	public static PunishmentAPI getPunishmentAPI() {
-		return new PunishmentAPI();
+		return push;
 	}
 	/**
 	 * @see see Set server motd in server list
@@ -687,7 +742,7 @@ public class TheAPI {
 	 * @return ReportSystem
 	 */
 	public static ReportSystem getReportSystem() {
-		return new ReportSystem();
+		return report;
 	}
 	/**
 	 * @see see Set max players on server
@@ -814,7 +869,7 @@ public class TheAPI {
 	 * @return CommandSender
 	 */
 	public static CommandSender getConsole() {
-		return Bukkit.getConsoleSender();
+		return console;
 	}
 	
 	/**
@@ -822,7 +877,7 @@ public class TheAPI {
 	 * @return WorldsManager
 	 */
 	public static WorldsManager getWorldsManager() {
-		return new WorldsManager();
+		return worlds;
 	}
 	
 	/**
@@ -830,7 +885,7 @@ public class TheAPI {
 	 * @return EconomyAPI
 	 */
 	public static EconomyAPI getEconomyAPI() {
-		return new EconomyAPI();
+		return eco;
 	}
 	
 	/**
@@ -838,7 +893,7 @@ public class TheAPI {
 	 * @return TheEconomyAPI
 	 */
 	public static TheEconomyAPI getTheEconomyAPI() {
-		return new TheEconomyAPI();
+		return theeco;
 	}
 	
 	/**
@@ -846,7 +901,7 @@ public class TheAPI {
 	 * @return TabListAPI
 	 */
 	public static TabListAPI getTabListAPI() {
-		return new TabListAPI();
+		return tab;
 	}
 	
 	/**
@@ -891,21 +946,21 @@ public class TheAPI {
 	 * @return MemoryAPI
 	 */
 	public static MemoryAPI getMemoryAPI() {
-		return new MemoryAPI();
+		return mem;
 	}
 	/**
 	 * @see see Load, unload, enable or disable plugins
 	 * @return PluginManagerAPI
 	 */
 	public static PluginManagerAPI getPluginsManagerAPI() {
-		return new PluginManagerAPI();
+		return plugins;
 	}
 	/**
 	 * @see see Get bukkit name of enchantment from string for ex. Sharpness -> DAMAGE_ALL
 	 * @return EnchantmentAPI
 	 */
 	public static EnchantmentAPI getEnchantmentAPI() {
-		return new EnchantmentAPI();
+		return enchs;
 	}
 	/**
 	 * @see see Send player scoreboard with per player scoreboard function (Flashing, but overide other scoreboards)
@@ -940,7 +995,7 @@ public class TheAPI {
 	 * @return SoundAPI
 	 */
 	public static SoundAPI getSoundAPI() {
-		return new SoundAPI();
+		return sound;
 	}
 	/**
 	 * @see see Convert long to String time or String time to long
@@ -948,7 +1003,7 @@ public class TheAPI {
 	 */
 	@Deprecated
 	public static TimeConventorAPI getTimeConventorAPI() {
-		return new TimeConventorAPI();
+		return time;
 	}
 	/**
 	 * @see see Create GUI without events
@@ -979,13 +1034,7 @@ public class TheAPI {
 	 * @return String
 	 */
 	public static String getServerVersion() {
-		String serverVer = null;
-		try {
-			 serverVer= Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-	 }catch(Exception e) {
-			 serverVer=Bukkit.getServer().getClass().getPackage().getName().split("\\.")[1];
-	 }
-		return serverVer;
+	return version;
 	}
 	/**
 	 * @see see Return current server TPS

@@ -49,10 +49,10 @@ public class LoaderClass extends JavaPlugin {
 			public void run() {
 				if(!e && getVaultEconomy()) {
 					e=true;
-					r.cancel();
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &6Found Vault Economy",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+					r.cancelRepeatingFor();
 				}}
 		}, new Runnable() {
 				public void run() {
@@ -78,6 +78,7 @@ public class LoaderClass extends JavaPlugin {
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &6Found TheVault Economy",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+					r.cancelRepeatingFor();
 				}}
 		}, new Runnable() {
 				public void run() {
