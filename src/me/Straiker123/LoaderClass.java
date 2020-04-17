@@ -36,6 +36,7 @@ public class LoaderClass extends JavaPlugin {
 	public static ConfigAPI gameapi=TheAPI.getConfig("TheAPI", "GameAPI");
 	public void onLoad() {
 		plugin=this;
+		new TheAPI();
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &6Action: &6Loading plugin..",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
