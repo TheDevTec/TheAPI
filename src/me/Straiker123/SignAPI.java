@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 
@@ -21,13 +20,10 @@ public class SignAPI {
 		BROADCAST,
 		MESSAGES
 	}
-	
+
 	public void removeSign(Location loc) {
 		f.getConfig().set("Sign."+TheAPI.getStringUtils().getLocationAsString(loc),null);
 		f.save();
-		if(loc.getBlock().getType().name().contains("SIGN")) {
-			loc.getBlock().setType(Material.AIR);
-		}
 	}
 	
 	public List<Location> getRegistredSigns(){

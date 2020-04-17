@@ -203,6 +203,7 @@ public class Events implements Listener {
 	public void onClick(PlayerInteractEvent e) {
 		if(e.getAction()==Action.RIGHT_CLICK_BLOCK && e.getClickedBlock().getType().name().contains("SIGN")) {
 			if(TheAPI.getSignAPI().getRegistredSigns().contains(e.getClickedBlock().getLocation())) {
+				e.setCancelled(true);
 				HashMap<SignAction, List<String>> as= TheAPI.getSignAPI().getSignActions((Sign)e.getClickedBlock().getState());
 				for(SignAction a : as.keySet()) {
 					switch(a) {
