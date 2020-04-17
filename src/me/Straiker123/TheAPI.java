@@ -59,21 +59,18 @@ public class TheAPI {
 	public TheAPI() {
 		if(loaded)return;
 		loaded=true;
-		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &6Action: &6Creating classes in TheAPI class..",TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+		console=Bukkit.getConsoleSender();
 		try {
 			 version= Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 	 }catch(Exception e) {
 		 version=Bukkit.getServer().getClass().getPackage().getName().split("\\.")[1];
 	 }
-		console=Bukkit.getConsoleSender();
 		utils= new StringUtils();
 		sign=new SignAPI();
 		blocks=new BlocksAPI();
 		particles= new ParticleEffectAPI();
-		isNew=!getServerVersion().equalsIgnoreCase("glowstone") && utils.getInt(getServerVersion().split("_")[1])>12;
-		isOld=utils.getInt(getServerVersion().split("_")[1])<9;
+		isNew=!version.equalsIgnoreCase("glowstone") && utils.getInt(version.split("_")[1])>12;
+		isOld=utils.getInt(version.split("_")[1])<9;
 		plac=new PlaceholderAPIUtils();
 		max=Bukkit.getMaxPlayers();
 		push=new PunishmentAPI();

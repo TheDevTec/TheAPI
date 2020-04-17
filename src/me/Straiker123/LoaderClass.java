@@ -37,7 +37,6 @@ public class LoaderClass extends JavaPlugin {
 	public void onLoad() {
 		plugin=this;
 		new TheAPI();
-		createConfig();
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &6Action: &6Loading plugin..",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
@@ -108,6 +107,7 @@ public class LoaderClass extends JavaPlugin {
 	
 	@SuppressWarnings("unchecked")
 	public void onEnable() {
+		createConfig();
 		Tasks.load();
 		Bukkit.getPluginManager().registerEvents(new Events(), this);
 		Bukkit.getPluginCommand("TheAPI").setExecutor(new TheAPICommand());
