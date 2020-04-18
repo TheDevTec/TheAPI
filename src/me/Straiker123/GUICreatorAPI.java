@@ -271,7 +271,7 @@ public class GUICreatorAPI {
 	 * @return boolean is gui full
 	 */
 	public boolean isFull() {
-		return getFirstEmpty()!=-1;
+		return getFirstEmpty()==-1;
 	}
 	
 	/**
