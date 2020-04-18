@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.lang.math.IntRange;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -631,5 +632,15 @@ public class BlocksAPI {
 	 			 if(ignore==c.getType())continue;
 				  c.setType((Material)TheAPI.getRandomFromList(s));
 			  }}
-		  
+
+			//square
+			public boolean isInside(Entity entity, Location a, Location b){
+				return isInside(entity.getLocation(),a,b);
+			}
+			//square
+			public boolean isInside(Location location, Location a, Location b){
+		        return new IntRange(a.getX(), b.getX()).containsDouble(location.getX())
+		                && new IntRange(a.getY(), b.getY()).containsDouble(location.getY())
+		                &&  new IntRange(a.getZ(), b.getZ()).containsDouble(location.getZ());
+		    }
 }
