@@ -42,7 +42,7 @@ public class TheAPI {
 	private static ConsoleCommandSender console;
 	private static PunishmentAPI push;
 	private static ReportSystem report;
-	private static boolean loaded,isNew,isOld;
+	private static boolean isNew,isOld;
 	private static HashMap<Player, BossBar> list = new HashMap<Player, BossBar>();
 	private static HashMap<Player, BukkitTask> task = new HashMap<Player, BukkitTask>();
 	private static int max;
@@ -57,8 +57,6 @@ public class TheAPI {
 	private static TimeConventorAPI time;
 	private static String version;
 	public TheAPI() {
-		if(loaded)return;
-		loaded=true;
 		console=Bukkit.getConsoleSender();
 		try {
 			 version= Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
