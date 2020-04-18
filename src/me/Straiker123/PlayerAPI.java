@@ -302,12 +302,10 @@ public class PlayerAPI {
 	public void setFly(boolean allowFlying, boolean enableFlying) {
 		if(allowFlying) {
 			LoaderClass.data.getConfig().set("data."+s.getName()+".fly",true);
-			LoaderClass.data.save();
 		s.setAllowFlight(true);
 		s.setFlying(enableFlying);
 		}else {
 			LoaderClass.data.getConfig().set("data."+s.getName()+".fly",false);
-			LoaderClass.data.save();
 			s.setFlying(enableFlying);
 			s.setAllowFlight(false);
 		}
@@ -539,7 +537,6 @@ public class PlayerAPI {
 	
 	public void setGod(boolean enable) {
 			LoaderClass.data.getConfig().set("data."+s.getName()+".god",enable);
-			LoaderClass.data.save();
 	}
 	public boolean allowedGod() {
 		return LoaderClass.data.getConfig().getBoolean("data."+s.getName()+".god");
