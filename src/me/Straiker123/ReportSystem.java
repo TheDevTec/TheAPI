@@ -11,7 +11,6 @@ public class ReportSystem {
 		LoaderClass.data.getConfig().set("report."+sender+"."+s+".reason",reason);
 		LoaderClass.data.getConfig().set("report."+sender+"."+s+".time",System.currentTimeMillis());
 		LoaderClass.data.getConfig().set("report."+sender+"."+s+".message",message);
-		LoaderClass.data.save();
 	}
 	
 	public List<Report> getReports(String player){
@@ -39,7 +38,6 @@ public class ReportSystem {
 	}
 	public void removePlayer(String player){
 		LoaderClass.data.getConfig().set("report."+player,null);
-		LoaderClass.data.save();
 	}
 	public boolean hasPlayer(String player){
 		return LoaderClass.data.getConfig().getString("report."+player) != null;

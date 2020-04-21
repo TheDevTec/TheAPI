@@ -814,7 +814,6 @@ public class TheAPI {
 				v.remove(p);
 					LoaderClass.data.getConfig().set("vanished", v);
 			}
-		LoaderClass.data.save();
 	}
 	private static boolean has(Player s, Player d) {
 		if(LoaderClass.data.getConfig().getString("data."+d.getName()+".vanish")!=null)
@@ -854,7 +853,6 @@ public class TheAPI {
 					v.remove(p.getName());
 						LoaderClass.data.getConfig().set("vanished", v);
 				}
-			LoaderClass.data.save();
 			hide(p);
 		}
 	}
@@ -1086,7 +1084,6 @@ public class TheAPI {
 	public static void showEntity(Player to, UUID uuid) {
 		if(LoaderClass.data.getConfig().getString("hiden."+uuid.toString())==null)return; //not hiden or isn't in config
 		LoaderClass.data.getConfig().set("hiden."+uuid.toString(), null);
-		LoaderClass.data.save();
 		 try {
 			 Entity entity = Bukkit.getEntity(uuid);
 			 if(entity==null)return;
@@ -1100,7 +1097,6 @@ public class TheAPI {
 	public static void showEntity(Player to, LivingEntity entity) {
 		if(LoaderClass.data.getConfig().getString("hiden."+entity.getUniqueId().toString())!=null) {
 		LoaderClass.data.getConfig().set("hiden."+entity.getUniqueId().toString(), null);
-		LoaderClass.data.save();
 		}
 		 try {
 			 Object craft = Packets.getMethod(Packets.getBukkitClass("entity.CraftLivingEntity"),"getHandle").invoke(entity);
@@ -1115,7 +1111,6 @@ public class TheAPI {
 			 if(entity==null)return; //not exists
 			 Packets.sendPacket(from,Packets.getConstructor(Packets.getNMSClass("PacketPlayOutEntityDestroy"),int[].class).newInstance(new int[] {entity.getEntityId()}));
 	       LoaderClass.data.getConfig().set("hiden."+uuid.toString(), true);
-	       LoaderClass.data.save();
 	     } catch(Exception e) {}
 	}
 
@@ -1124,7 +1119,6 @@ public class TheAPI {
 	       Object destroy = Packets.getConstructor(Packets.getNMSClass("PacketPlayOutEntityDestroy"),int[].class).newInstance(new int[] {es.getEntityId()});
 	       Packets.sendPacket(from, destroy);
 	       LoaderClass.data.getConfig().set("hiden."+es.getUniqueId().toString(), true);
-	       LoaderClass.data.save();
 	     } catch(Exception e) {}
 	}
 	

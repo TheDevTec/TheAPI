@@ -41,11 +41,17 @@ public class FakeEconomyAPI {
 	
 	public void add(String player, double money) {
 		LoaderClass.data.getConfig().set("data."+player+".economy."+w,balance(player)+money);
-		LoaderClass.data.save();
 	}
 	public void take(String player, double money) {
 		LoaderClass.data.getConfig().set("data."+player+".economy."+w,balance(player)-money);
-		LoaderClass.data.save();
+	}
+	
+	public void set(Player player, double money) {
+		set(player.getName(),money);
+	}
+	
+	public void set(String player, double money) {
+		LoaderClass.data.getConfig().set("data."+player+".economy."+w,money);
 	}
 
 	public double getBalance(String player) {
@@ -74,7 +80,6 @@ public class FakeEconomyAPI {
 	public boolean createAccount(String player) {
 		if(!hasAccount(player)) {
 			LoaderClass.data.getConfig().set("data."+player+".economy."+w,0.0);
-			LoaderClass.data.save();
 			return true;
 		}
 		return false;
@@ -82,7 +87,6 @@ public class FakeEconomyAPI {
 	
 	public void setSymbol(String symbol) {
 		LoaderClass.config.getConfig().set("FakeEconomyAPI.Symbol", symbol);
-		LoaderClass.config.save();
 	}
 	
 	public String getSymbol() {
@@ -96,8 +100,6 @@ public class FakeEconomyAPI {
 	 */
 	public void setFormat(String s) {
 		LoaderClass.config.getConfig().set("FakeEconomyAPI.Format", s);
-		LoaderClass.config.save();
-		
 	}
 	
 	public String format(double money) {

@@ -127,7 +127,6 @@ public class LoaderClass extends JavaPlugin {
 		}else {
 			vaultHooking();
 		}
-		new EconomyAPI();
 		TheAPI.getRunnable().runLater(new Runnable() {
 			public void run() {
 				if(getTheAPIsPlugins().size()==0)return;
@@ -290,10 +289,9 @@ public class LoaderClass extends JavaPlugin {
 			gui.get(p).closeAndClear();
 		}
 		unused.delete();
-		for(ConfigAPI s:list) {
-			if(s==null)continue;
-			s.save();
-		}
+		data.save();
+		config.save();
+		gameapi.save();
 	}
 	public static List<Player> a = new ArrayList<Player>();
 	public static int task = 1;

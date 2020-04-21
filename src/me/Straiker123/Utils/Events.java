@@ -467,12 +467,6 @@ public class Events implements Listener {
 		
 	}
 		}
-
-	private void saveIP(String name, String ip) {
-		d.set("data."+name+".ip",ip);
-		LoaderClass.data.save();
-	}
-	
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onLogin(AsyncPlayerPreLoginEvent e) {
 		if(!AntiBot.hasAccess(e.getUniqueId())) {
@@ -480,7 +474,7 @@ public class Events implements Listener {
 			return;
 		}
 		String s = e.getName();
-		saveIP(s,(e.getAddress().toString()).replace(".", "_"));
+		d.set("data."+s+".ip",(e.getAddress().toString()).replace(".", "_"));
 		try {
 		if(a.hasBan(s)) {
 			e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.Ban").replace("\\n", "\n")

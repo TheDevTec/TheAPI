@@ -18,7 +18,6 @@ public class CooldownAPI {
 	public void createCooldown(String player, double length) {
 		f.set("cooldown."+c+"."+player+".start", System.currentTimeMillis());
 		f.set("cooldown."+c+"."+player+".time", length);
-		LoaderClass.data.save();
 	}
 	
 	public boolean expired(String player) {
@@ -53,7 +52,6 @@ public class CooldownAPI {
 
 	public void removeCooldown(String player) {
 		f.set("cooldown."+c+"."+player, null);
-		LoaderClass.data.save();
 	} 
 	
 	//Player method

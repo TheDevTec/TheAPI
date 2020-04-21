@@ -23,7 +23,6 @@ public class SignAPI {
 
 	public void removeSign(Location loc) {
 		f.getConfig().set("Sign."+TheAPI.getStringUtils().getLocationAsString(loc),null);
-		f.save();
 	}
 	
 	public List<Location> getRegistredSigns(){
@@ -68,7 +67,6 @@ public class SignAPI {
 			f.getConfig().set("Sign."+l+".BROADCAST",options.get(s));
 			break;
 		}}
-		f.save();
 	}
 	
 	public HashMap<SignAction, List<String>> getSignActions(Sign state) {

@@ -238,7 +238,6 @@ public class PlayerAPI {
 	
 	public void setFreeze(boolean freeze) {
 		LoaderClass.data.getConfig().set("data."+s.getName()+".freeze",true);
-		LoaderClass.data.save();
 	}
 	public boolean isFreezen() {
 		return LoaderClass.data.getConfig().getBoolean("data."+s.getName()+".freeze");

@@ -33,7 +33,6 @@ public class Jail {
 			return;
 		}
 		LoaderClass.data.getConfig().set("Jails."+getName()+".Location", location);
-		LoaderClass.data.save();
 	}
 	
 	public boolean existJail(String id) {
@@ -46,7 +45,6 @@ public class Jail {
 		}
 		unJailAll(id);
 		LoaderClass.data.getConfig().set("Jails."+id, null);
-		LoaderClass.data.save();
 	}
 	
 	public void unJailAll(String id) {
@@ -93,7 +91,6 @@ public class Jail {
 				list.remove(player);
 				LoaderClass.data.getConfig().set("Jails."+s+".Players", list);
 				loc=(Location)LoaderClass.data.getConfig().get("data."+player+".JailedOn");
-				LoaderClass.data.save();
 			}
 		}
 		List<String> list = LoaderClass.data.getConfig().getStringList("Jails."+id+".Players");
@@ -113,7 +110,6 @@ public class Jail {
 		LoaderClass.data.getConfig().set("data."+player+".JailedOn", loc);
 		LoaderClass.data.getConfig().set("data."+player+".TeleportBack", true);
 		LoaderClass.data.getConfig().set("data."+player+".Jail", id);
-		LoaderClass.data.save();
 		if(TheAPI.getPlayer(player)!=null)
 		TheAPI.getPlayerAPI(TheAPI.getPlayer(player)).teleport(getJailLocation(id));
 	}
@@ -151,7 +147,6 @@ public class Jail {
 		List<String> list = LoaderClass.data.getConfig().getStringList("Jails."+id+".Players");
 		list.remove(player);
 		LoaderClass.data.getConfig().set("Jails."+id+".Players", list);
-		LoaderClass.data.save();
 		}
 		if(TheAPI.getPlayer(player)!=null) {
 		TheAPI.getPlayerAPI(TheAPI.getPlayer(player)).teleport((Location)LoaderClass.data.getConfig().get("data."+player+".JailedOn"));

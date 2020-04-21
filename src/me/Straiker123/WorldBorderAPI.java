@@ -118,7 +118,6 @@ public class WorldBorderAPI {
 	}
 	public void setWarningMessage(String message) {
 		LoaderClass.data.getConfig().set("WorldBorder."+w.getName()+".Message", message);
-		LoaderClass.data.save();
 	}
 	public static enum WarningMessageType {
 		ACTIONBAR,
@@ -159,11 +158,9 @@ public class WorldBorderAPI {
 	
 	public void setWarningMessageType(WarningMessageType type) {
 		LoaderClass.data.getConfig().set("WorldBorder."+w.getName()+".Type", type);
-		LoaderClass.data.save();
 	}
 	public void loadChunksOutside(boolean set) {
 		LoaderClass.data.getConfig().set("WorldBorder."+w.getName()+".Outside", set);
-		LoaderClass.data.save();
 	}
 	
 	public boolean getLoadChunksOutside() {
