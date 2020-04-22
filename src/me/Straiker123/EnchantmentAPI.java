@@ -69,10 +69,13 @@ public class EnchantmentAPI {
 	public boolean registerEnchantment(Enchantment e) {
 		   boolean registered = false;
 		    try {
-		        Field f = Enchantment.class.getDeclaredField("acceptingNew");
-		        f.setAccessible(true);
-		        f.set(null, true);
-		        Enchantment.registerEnchantment(e);
+				Field f = Enchantment.class.getDeclaredField("acceptingNew");
+				f.setAccessible(true);
+				f.set(null, true);
+		    } catch (Exception ea) {
+		    }
+		    try {
+				Enchantment.registerEnchantment(e);
 		        registered = true;
 		    } catch (Exception ea) {
 		    }
