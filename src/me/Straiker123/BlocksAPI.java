@@ -12,6 +12,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.CommandBlock;
+import org.bukkit.block.Dispenser;
+import org.bukkit.block.Dropper;
+import org.bukkit.block.Hopper;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Entity;
@@ -261,17 +264,12 @@ public class BlocksAPI {
 	  
 	  public void setBlockSave(BlockSave s) {
 		  Block b = s.getWorld().getBlockAt(s.getLocation());
+		  String n = b.getType().name();
 		  BlockState state = b.getState();
 		  state.setType(s.getMaterial());
-
-			try {
-		  state.setBlockData(s.getBlockData());
-			}catch(Exception|NoSuchMethodError|NoSuchFieldError er) {
-				//old version
-			}
 		  state.setData(s.getMaterialData());
-			if(b.getType().name().contains("SIGN")) {
-				Sign w = (Sign)b.getState();
+			if(n.contains("SIGN")) {
+				Sign w = (Sign)state;
 				int i = 0;
 				if(s.getSignLines() != null && s.getSignLines().length > 0)
 				for(String line : s.getSignLines()) {
@@ -281,27 +279,37 @@ public class BlocksAPI {
 				try {
 					if(s.getColor()!=null)
 					w.setColor(s.getColor());
-				}catch(Exception er) {
+				}catch(Exception|NoSuchFieldError er) {
 					//old version
 				}
 			}
-			if(b.getType().name().contains("CHEST")) {
-				Chest w = (Chest)b.getState();
+			if(n.contains("CHEST")) {
+				Chest w = (Chest)state;
 				if(s.getBlockInventory() != null)
 				w.getBlockInventory().setContents(s.getBlockInventory());
 			}
-			try {
-			if(b.getType().name().contains("SHULKER_BOX")) {
-				ShulkerBox w = (ShulkerBox)b.getState();
+			  if(n.equals("DROPPER")) {
+				  Dropper w = (Dropper)state;
+					if(s.getBlockInventory() != null)
+					w.getInventory().setContents(s.getBlockInventory());
+			  }
+			  if(n.equals("DISPENSER")) {
+				  Dispenser w = (Dispenser)state;
+					if(s.getBlockInventory() != null)
+					w.getInventory().setContents(s.getBlockInventory());
+			  }
+			  if(n.equals("HOPPER")) {
+				  Hopper w = (Hopper)state;
+					if(s.getBlockInventory() != null)
+					w.getInventory().setContents(s.getBlockInventory());
+			  }
+			if(n.contains("SHULKER_BOX")) {
+				ShulkerBox w = (ShulkerBox)state;
 				if(s.getBlockInventory() != null)
 				w.getInventory().setContents(s.getBlockInventory());
 			}
-
-			  }catch(Exception |NoSuchFieldError e) {
-				  
-			  }
-			if(b.getType().name().contains("COMMAND")) {
-				CommandBlock w = (CommandBlock)b.getState();
+			if(n.contains("COMMAND")) {
+				CommandBlock w = (CommandBlock)state;
 				if(s.getCommand() != null)
 				w.setCommand(s.getCommand());
 				if(s.getCommandBlockName() != null)

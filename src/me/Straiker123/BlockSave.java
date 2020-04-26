@@ -9,11 +9,14 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.block.CommandBlock;
+import org.bukkit.block.Dispenser;
+import org.bukkit.block.Dropper;
+import org.bukkit.block.Hopper;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.Sign;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -22,7 +25,6 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 @SuppressWarnings("deprecation")
 public class BlockSave {
-	private BlockData blockdata;
 	private Biome biom;
 	private Material mat;
 	private Location loc;
@@ -31,23 +33,23 @@ public class BlockSave {
 	private ItemStack[] inv;
 	private String cmd,cmdname;
 	private DyeColor color;
+	private BlockFace f;
 	public BlockSave(Block b) {
+			f=b.getFace(b);
 		  if(b.getType().name().contains("CHEST")) {
-			  Chest c = (Chest) b.getState();
-			  inv = c.getBlockInventory().getContents();
+			  inv = ((Chest) b.getState()).getBlockInventory().getContents();
 		  }
-		  try {
 		  if(b.getType().name().contains("SHULKER_BOX")) {
-			  ShulkerBox c = (ShulkerBox) b.getState();
-			  inv = c.getInventory().getContents();
-			  try {
-				  color=c.getColor();
-			  }catch(Exception e) {
-				  
-			  }
+			  inv = ((ShulkerBox) b.getState()).getInventory().getContents();
 		  }
-		  }catch(Exception |NoSuchFieldError e) {
-			  
+		  if(b.getType().name().equals("DROPPER")) {
+			  inv = ((Dropper) b.getState()).getInventory().getContents();
+		  }
+		  if(b.getType().name().equals("DISPENSER")) {
+			  inv = ((Dispenser) b.getState()).getInventory().getContents();
+		  }
+		  if(b.getType().name().equals("HOPPER")) {
+			  inv = ((Hopper) b.getState()).getInventory().getContents();
 		  }
 		  if(b.getType().name().contains("SIGN")) {
 			  Sign c = (Sign) b.getState();
@@ -64,17 +66,15 @@ public class BlockSave {
 			  cmdname=c.getName();
 		  }
 		data=b.getState().getData();
-		try {
-		blockdata=b.getBlockData();
-	}catch(Exception|NoSuchMethodError|NoSuchFieldError er) {
-		//old version
-	}
 		biom=b.getBiome();
 		mat=b.getType();
 		loc=b.getLocation();
 	}
 
-	public ItemStack[] getBlockInventory() { //shulkerbox & chest
+	public BlockFace getFace() {
+		return f;
+	}
+	public ItemStack[] getBlockInventory() { //shulkerbox, chest..
 		return inv;
 	}
 	public static ItemStack[] getBlockInventoryFromString(String s) {
@@ -144,10 +144,6 @@ public class BlockSave {
 	
 	public World getWorld() {
 		return loc.getWorld();
-	}
-
-	public BlockData getBlockData() {
-		return blockdata;
 	}
 	public MaterialData getMaterialData() {
 		return data;
