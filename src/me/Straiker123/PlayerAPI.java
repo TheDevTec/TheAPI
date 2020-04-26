@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -238,6 +237,11 @@ public class PlayerAPI {
 	
 	public void setFreeze(boolean freeze) {
 		LoaderClass.data.getConfig().set("data."+s.getName()+".freeze",true);
+		TheAPI.getRunnable().runLater(new Runnable() {
+			public void run() {
+				LoaderClass.data.save();
+			}
+		}, 1);
 	}
 	public boolean isFreezen() {
 		return LoaderClass.data.getConfig().getBoolean("data."+s.getName()+".freeze");
@@ -308,6 +312,11 @@ public class PlayerAPI {
 			s.setFlying(enableFlying);
 			s.setAllowFlight(false);
 		}
+		TheAPI.getRunnable().runLater(new Runnable() {
+			public void run() {
+				LoaderClass.data.save();
+			}
+		}, 1);
 	}
 	public boolean allowedFly() {
 		return LoaderClass.data.getConfig().getBoolean("data."+s.getName()+".fly");
@@ -372,6 +381,7 @@ public class PlayerAPI {
 			Error.err("sending title to "+s.getName(), "Line is null");
     	}
 	}
+	
 	public void sendTitle(String firstLine, String nextLine, int fadeIn, int stay, int fadeOut) {
 		try {
             
@@ -400,6 +410,7 @@ public class PlayerAPI {
 	public void giveLevel(int level) {
 		s.setLevel(s.getLevel()+level);
 	}
+	
 	public void takeLevel(int level) {
 		if(s.getLevel() <=level)level=0;
 		else level=s.getLevel()-level;
@@ -408,6 +419,10 @@ public class PlayerAPI {
 	
 	public List<Block> getNearbyBlocks(int range){
 		return TheAPI.getBlocksAPI().getBlocks(Shape.Sphere, s.getLocation(), range);
+	}
+	
+	public List<Entity> getNearbyEntities(int range){
+		return TheAPI.getBlocksAPI().getNearbyEntities(s.getLocation(), range);
 	}
 
 	public void closeOpenInventory() {
@@ -466,9 +481,7 @@ public class PlayerAPI {
 		 s.setNoDamageTicks(time*20);
 		}catch(Exception ea) {
 			setGod(true);
-			Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
-
-				@Override
+			TheAPI.getRunnable().runLater(new Runnable() {
 				public void run() {
 					setGod(false);
 				}
@@ -536,6 +549,11 @@ public class PlayerAPI {
 	
 	public void setGod(boolean enable) {
 			LoaderClass.data.getConfig().set("data."+s.getName()+".god",enable);
+			TheAPI.getRunnable().runLater(new Runnable() {
+				public void run() {
+					LoaderClass.data.save();
+				}
+			}, 1);
 	}
 	public boolean allowedGod() {
 		return LoaderClass.data.getConfig().getBoolean("data."+s.getName()+".god");
