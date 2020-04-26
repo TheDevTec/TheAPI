@@ -40,7 +40,7 @@ public class ConfigAPI {
 	
 	public File getFolder() {
 		if(folder==null)
-		folder=new File(loc);
+		folder=new File("plugins/"+loc);
 		if(!folder.exists())
 		folder.mkdir();
 		return folder;
