@@ -15,6 +15,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import me.DevTec.TheVault.Bank;
 import me.DevTec.TheVault.TheVault;
 import me.Straiker123.Utils.Events;
 import me.Straiker123.Utils.GUIID;
@@ -48,7 +49,7 @@ public class LoaderClass extends JavaPlugin {
 		TheRunnable r = TheAPI.getRunnable();
 		r.runRepeatingFor(new Runnable() {
 			public void run() {
-				if(!e && getVaultEconomy()) {
+				if(getVaultEconomy()) {
 					e=true;
 					new TheAPI();
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
@@ -56,46 +57,42 @@ public class LoaderClass extends JavaPlugin {
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 					r.cancelRepeatingFor();
 				}}
-		}, new Runnable() {
-				public void run() {
-					if(e)return;
-					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &cPlugin not found Vault Economy, disabling EconomyAPI..",TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &cYou can enable EconomyAPI by set Economy in EconomyAPI.",TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &c *TheAPI still works normally without any problems*",TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-				}
-		},20, 30);
+		}, null,20, 30);
 	}
-	public void theVaultHooking() {
+	private boolean as= false,b=false;
+	public void TheVaultHooking() {
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &6Action: &6Looking for TheVault Economy..",TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &6Action: &6Looking for TheVault Economy and Bank system..",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 		TheRunnable r = TheAPI.getRunnable();
-		r.runRepeatingFor(new Runnable() {
+		r.runRepeatingFor(
+				new Runnable() {
 			public void run() {
-				if(!tve && TheVault.getEconomy() != null) {
+				if(TheVault.getEconomy()!=null && !as) {
+					as=true;
 					tveeconomy=TheVault.getEconomy();
 					tve=true;
 					new TheAPI();
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &6Found TheVault Economy",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-					r.cancelRepeatingFor();
-				}}
-		}, new Runnable() {
-				public void run() {
-					if(tve)return;
+				}
+			if(TheVault.getBank()!=null && !b) {
+				b=true;
+					bank=TheVault.getBank();
+					tbank=true;
+					new TheAPI();
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &cPlugin not found TheVault Economy, disabling TheEconomyAPI..",TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &cYou can enable TheEconomyAPI by set Economy in TheEconomyAPI.",TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &c *TheAPI still works normally without any problems*",TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &6Found TheVault Bank system",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 				}
-		},20, 30);
+			if(as && b)
+				r.cancelRepeatingFor();
+			}
+		}, null,20, 30);
 	}
 	
-	public boolean e,tve;
+	public boolean e,tve,tbank;
 	public String motd;
 	public int max;
 	
@@ -116,14 +113,13 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &6Action: &aEnabling plugin, creating config and registering economy..",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-		
+		if(TheAPI.getPluginsManagerAPI().getPlugin("TheVault") != null)TheVaultHooking();
 		if(TheAPI.getPluginsManagerAPI().getPlugin("Vault") == null) {
 			TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 			TheAPI.msg("&bTheAPI&7: &cPlugin not found Vault, EconomyAPI is disabled.",TheAPI.getConsole());
 			TheAPI.msg("&bTheAPI&7: &cYou can enabled EconomyAPI by set custom Economy in EconomyAPI.",TheAPI.getConsole());
 			TheAPI.msg("&bTheAPI&7: &c *TheAPI will still normally work without problems*",TheAPI.getConsole());
 			TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-			e=false;
 		}else {
 			vaultHooking();
 		}
@@ -141,12 +137,13 @@ public class LoaderClass extends JavaPlugin {
 			Object o = m.invoke(null);
 				for(Player p : o instanceof Collection ? (Collection<Player>) o : Arrays.asList((Player[]) o))a.add(p);
 			} catch (Exception ex) {
-			}
+		}
 		
 	}
 
 	public static Economy economy;
 	public static me.DevTec.TheVault.Economy tveeconomy;
+	public static Bank bank;
 	private boolean getVaultEconomy() {
 		try {
 		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);

@@ -48,7 +48,6 @@ public class TheAPI {
 	private static int max;
 	private static WorldsManager worlds;
 	private static EconomyAPI eco;
-	private static TheEconomyAPI theeco;
 	private static TabListAPI tab;
 	private static MemoryAPI mem;
 	private static PluginManagerAPI plugins;
@@ -75,7 +74,6 @@ public class TheAPI {
 		report=new ReportSystem();
 		worlds=new WorldsManager();
 		eco = new EconomyAPI();
-		theeco = new TheEconomyAPI();
 		tab=new TabListAPI();
 		mem = new MemoryAPI();
 		time=new TimeConventorAPI();
@@ -879,14 +877,6 @@ public class TheAPI {
 	 */
 	public static EconomyAPI getEconomyAPI() {
 		return eco;
-	}
-	
-	/**
-	 * @see see With TheVault deposit, withdraw from player money and more (This is not VAULT Economy!)
-	 * @return TheEconomyAPI
-	 */
-	public static TheEconomyAPI getTheEconomyAPI() {
-		return theeco;
 	}
 	
 	/**

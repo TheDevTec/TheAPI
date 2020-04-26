@@ -58,6 +58,7 @@ public class TheRunnable {
 					id_repeatfor = -0;
 					Bukkit.getScheduler().cancelTask(id_repeatfor_run);
 					id_repeatfor_run = -0;
+					if(onEnd!=null)
 					onEnd.run();
 					return;
 				}
