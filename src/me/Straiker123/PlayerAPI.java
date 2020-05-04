@@ -235,10 +235,10 @@ public class PlayerAPI {
 	}
 	
 	public void setFreeze(boolean freeze) {
-		TheAPI.getUser(s).setAndSave("freeze",true);
+		TheAPI.getUser(s).setAndSave("Freeze",true);
 	}
 	public boolean isFreezen() {
-		return TheAPI.getUser(s).getBoolean("freeze");
+		return TheAPI.getUser(s).getBoolean("Freeze");
 	}
 	
 	public static enum InvseeType {
@@ -298,17 +298,17 @@ public class PlayerAPI {
 
 	public void setFly(boolean allowFlying, boolean enableFlying) {
 		if(allowFlying) {
-			TheAPI.getUser(s).setAndSave("fly",true);
+			TheAPI.getUser(s).setAndSave("Fly",true);
 		s.setAllowFlight(true);
 		s.setFlying(enableFlying);
 		}else {
-			TheAPI.getUser(s).setAndSave("fly",false);
+			TheAPI.getUser(s).setAndSave("Fly",false);
 			s.setFlying(enableFlying);
 			s.setAllowFlight(false);
 		}
 	}
 	public boolean allowedFly() {
-		return TheAPI.getUser(s).getBoolean("fly");
+		return TheAPI.getUser(s).getBoolean("Fly");
 	}
 	public void giveExp(int exp) {
 			s.giveExp(exp);
@@ -505,10 +505,10 @@ public class PlayerAPI {
 	}
 	
 	public void setGod(boolean enable) {
-		TheAPI.getUser(s).setAndSave("god",enable);
+		TheAPI.getUser(s).setAndSave("God",enable);
 	}
 	public boolean allowedGod() {
-		return TheAPI.getUser(s).getBoolean("god");
+		return TheAPI.getUser(s).getBoolean("God");
 	}
 	
 }
