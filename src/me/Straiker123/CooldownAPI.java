@@ -1,14 +1,11 @@
 package me.Straiker123;
 
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 public class CooldownAPI {
 	private String c;
-	private FileConfiguration f;
 	public CooldownAPI(String cooldownname) {
 		c=cooldownname;
-		f=LoaderClass.data.getConfig();
 	}
 	
 	public String getCooldownName() {
@@ -16,8 +13,10 @@ public class CooldownAPI {
 	}
 	
 	public void createCooldown(String player, double length) {
-		f.set("cooldown."+c+"."+player+".start", System.currentTimeMillis());
-		f.set("cooldown."+c+"."+player+".time", length);
+		User s = TheAPI.getUser(player);
+		s.set("cooldown."+c+"."+player+".start", System.currentTimeMillis()/1000);
+		s.set("cooldown."+c+"."+player+".time", length);
+		s.save();
 	}
 	
 	public boolean expired(String player) {
@@ -29,7 +28,8 @@ public class CooldownAPI {
 	 * If return is -1, it mean cooldown isn't exist
 	 */
 	public long getStart(String player) {
-		return f.getString("cooldown."+c+"."+player+".start")!=null? f.getLong("cooldown."+c+"."+player+".start"):-1;
+		User s = TheAPI.getUser(player);
+		return s.getString("cooldown."+c+"."+player+".start")!=null? s.getLong("cooldown."+c+"."+player+".start"):-1;
 	}
 
 	/**
@@ -38,7 +38,7 @@ public class CooldownAPI {
 	 * If return is -1, it mean cooldown isn't exist
 	 */
 	public long getTimeToExpire(String player) {
-		return getStart(player)!=-1 ? (getStart(player)/1000-System.currentTimeMillis()/1000)+(long)getCooldown(player):-1;
+		return getStart(player)!=-1 ? (getStart(player)-System.currentTimeMillis()/1000)+(long)getCooldown(player):-1;
 		
 	}
 	/**
@@ -47,11 +47,12 @@ public class CooldownAPI {
 	 * If return is -1, it mean cooldown isn't exist
 	 */
 	public double getCooldown(String player) {
-		return f.getString("cooldown."+c+"."+player+".time")!=null?f.getDouble("cooldown."+c+"."+player+".time"):-1;
+		User s = TheAPI.getUser(player);
+		return s.getString("cooldown."+c+"."+player+".time")!=null?s.getDouble("cooldown."+c+"."+player+".time"):-1;
 	}
 
 	public void removeCooldown(String player) {
-		f.set("cooldown."+c+"."+player, null);
+		TheAPI.getUser(player).setAndSave("cooldown."+c+"."+player, null);
 	} 
 	
 	//Player method

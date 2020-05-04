@@ -2,6 +2,7 @@ package me.Straiker123;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -11,7 +12,6 @@ import org.bukkit.Material;
 import org.bukkit.SkullType;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Base64;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -611,7 +611,7 @@ try {
 					}else if (url != null || url ==null && text != null){
 						try {
 						GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-			        byte[] encodedData = Base64.encodeBase64(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
+			        byte[] encodedData = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
 			        profile.getProperties().put("textures", new Property("textures",url == null && text != null ? text :  new String(encodedData)));
 			        Field profileField = null;
 			            profileField = m.getClass().getDeclaredField("profile");

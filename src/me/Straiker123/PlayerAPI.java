@@ -1,6 +1,5 @@
 package me.Straiker123;
 
-import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,8 +15,8 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
 
 import me.Straiker123.BlocksAPI.Shape;
+import me.Straiker123.NMSAPI.TitleAction;
 import me.Straiker123.Utils.Error;
-import me.Straiker123.Utils.Packets;
 
 @SuppressWarnings("deprecation")
 public class PlayerAPI {
@@ -236,15 +235,10 @@ public class PlayerAPI {
 	}
 	
 	public void setFreeze(boolean freeze) {
-		LoaderClass.data.getConfig().set("data."+s.getName()+".freeze",true);
-		TheAPI.getRunnable().runLater(new Runnable() {
-			public void run() {
-				LoaderClass.data.save();
-			}
-		}, 1);
+		TheAPI.getUser(s).setAndSave("freeze",true);
 	}
 	public boolean isFreezen() {
-		return LoaderClass.data.getConfig().getBoolean("data."+s.getName()+".freeze");
+		return TheAPI.getUser(s).getBoolean("freeze");
 	}
 	
 	public static enum InvseeType {
@@ -304,22 +298,17 @@ public class PlayerAPI {
 
 	public void setFly(boolean allowFlying, boolean enableFlying) {
 		if(allowFlying) {
-			LoaderClass.data.getConfig().set("data."+s.getName()+".fly",true);
+			TheAPI.getUser(s).setAndSave("fly",true);
 		s.setAllowFlight(true);
 		s.setFlying(enableFlying);
 		}else {
-			LoaderClass.data.getConfig().set("data."+s.getName()+".fly",false);
+			TheAPI.getUser(s).setAndSave("fly",false);
 			s.setFlying(enableFlying);
 			s.setAllowFlight(false);
 		}
-		TheAPI.getRunnable().runLater(new Runnable() {
-			public void run() {
-				LoaderClass.data.save();
-			}
-		}, 1);
 	}
 	public boolean allowedFly() {
-		return LoaderClass.data.getConfig().getBoolean("data."+s.getName()+".fly");
+		return TheAPI.getUser(s).getBoolean("fly");
 	}
 	public void giveExp(int exp) {
 			s.giveExp(exp);
@@ -361,46 +350,14 @@ public class PlayerAPI {
 		s.setLevel(0);
 	}
 
-	public void sendTitle(String firstLine, String nextLine) {
-		try {
-            
-    	    Class<?> PacketPlayOutTitleClass = Packets.getNMSClass("PacketPlayOutTitle");
-    	    Class<?> IChatBaseComponentClass = Packets.getNMSClass("IChatBaseComponent");
-    	               
-    	    Constructor<?> PacketPlayOutTitleConstructor = PacketPlayOutTitleClass.getConstructor(PacketPlayOutTitleClass.getDeclaredClasses()[0], IChatBaseComponentClass, int.class, int.class, int.class);
-    	               
-    	    Object titleComponent = IChatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "{\"text\":\"" + TheAPI.colorize(firstLine)+ "\"}");
-    	    Object subTitleComponent = IChatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "{\"text\":\"" + TheAPI.colorize(nextLine) + "\"}");
-    	               
-    	    Object titlePacket = PacketPlayOutTitleConstructor.newInstance(PacketPlayOutTitleClass.getDeclaredClasses()[0].getField("TITLE").get(null), titleComponent, 20, 60, 20);
-    	    Object subTitlePacket = PacketPlayOutTitleConstructor.newInstance(PacketPlayOutTitleClass.getDeclaredClasses()[0].getField("SUBTITLE").get(null), subTitleComponent, 20, 60, 20);
-    	               
-    	    Packets.sendPacket(s, titlePacket);
-    	    Packets.sendPacket(s, subTitlePacket);
-    	} catch (Exception e) {
-			Error.err("sending title to "+s.getName(), "Line is null");
-    	}
+	public void sendTitle(String text, String text2) {
+		TheAPI.getNMSAPI().sendPacket(s, TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.TITLE, text));
+		TheAPI.getNMSAPI().sendPacket(s, TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.SUBTITLE, text2));
 	}
 	
-	public void sendTitle(String firstLine, String nextLine, int fadeIn, int stay, int fadeOut) {
-		try {
-            
-    	    Class<?> PacketPlayOutTitleClass = Packets.getNMSClass("PacketPlayOutTitle");
-    	    Class<?> IChatBaseComponentClass = Packets.getNMSClass("IChatBaseComponent");
-    	               
-    	    Constructor<?> PacketPlayOutTitleConstructor = PacketPlayOutTitleClass.getConstructor(PacketPlayOutTitleClass.getDeclaredClasses()[0], IChatBaseComponentClass, int.class, int.class, int.class);
-    	               
-    	    Object titleComponent = IChatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "{\"text\":\"" + TheAPI.colorize(firstLine)+ "\"}");
-    	    Object subTitleComponent = IChatBaseComponentClass.getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "{\"text\":\"" + TheAPI.colorize(nextLine) + "\"}");
-    	               
-    	    Object titlePacket = PacketPlayOutTitleConstructor.newInstance(PacketPlayOutTitleClass.getDeclaredClasses()[0].getField("TITLE").get(null), titleComponent, fadeIn, stay, fadeOut);
-    	    Object subTitlePacket = PacketPlayOutTitleConstructor.newInstance(PacketPlayOutTitleClass.getDeclaredClasses()[0].getField("SUBTITLE").get(null), subTitleComponent, fadeIn, stay, fadeOut);
-    	               
-    	    Packets.sendPacket(s, titlePacket);
-    	    Packets.sendPacket(s, subTitlePacket);
-    	} catch (Exception e) {
-			Error.err("sending title to "+s.getName(), "Line is null");
-    	}
+	public void sendTitle(String text, String text2, int fadeIn, int stay, int fadeOut) {
+		TheAPI.getNMSAPI().sendPacket(s, TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.TITLE, text,fadeIn,stay,fadeOut));
+		TheAPI.getNMSAPI().sendPacket(s, TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.SUBTITLE, text2,fadeIn,stay,fadeOut));
 	}
 	
 	public boolean hasOpenGUI() {
@@ -548,15 +505,10 @@ public class PlayerAPI {
 	}
 	
 	public void setGod(boolean enable) {
-			LoaderClass.data.getConfig().set("data."+s.getName()+".god",enable);
-			TheAPI.getRunnable().runLater(new Runnable() {
-				public void run() {
-					LoaderClass.data.save();
-				}
-			}, 1);
+		TheAPI.getUser(s).setAndSave("god",enable);
 	}
 	public boolean allowedGod() {
-		return LoaderClass.data.getConfig().getBoolean("data."+s.getName()+".god");
+		return TheAPI.getUser(s).getBoolean("god");
 	}
 	
 }

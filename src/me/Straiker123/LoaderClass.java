@@ -31,10 +31,10 @@ public class LoaderClass extends JavaPlugin {
 	public static HashMap<String, Integer> gameapi_timer = new HashMap<String, Integer>();
 	public static HashMap<String, Runnable> win_rewards = new HashMap<String, Runnable>();
 	public static List<Integer> tasks = new ArrayList<Integer>();
-	public static ConfigAPI data= TheAPI.getConfig("TheAPI", "Data");
 	public static ConfigAPI unused= TheAPI.getConfig("TheAPI", "UnusedData");
 	public static ConfigAPI config=TheAPI.getConfig("TheAPI", "Config");
 	public static ConfigAPI gameapi=TheAPI.getConfig("TheAPI", "GameAPI");
+	public static ConfigAPI data=TheAPI.getConfig("TheAPI", "Data");
 	public void onLoad() {
 		plugin=this;
 		new TheAPI();
@@ -159,6 +159,7 @@ public class LoaderClass extends JavaPlugin {
 	
 	public static HashMap<Player, String> chatformat = new HashMap<Player, String>();
 	private void createConfig() {
+		data.create();
 		config.setHeader("ChunkMobLimit -> OnLimitExceeded types: KILL/WARN\n"
 				+ "TNT -> Action -> LowMememory types: WAIT/DROP\n"
 				+ "TNT -> Action -> LowTPS types: WAIT/DROP");
@@ -227,8 +228,6 @@ public class LoaderClass extends JavaPlugin {
 		config.create();
 		gameapi.setCustomEnd("dat");
 		gameapi.create();
-		data.setCustomEnd("dat");
-		data.create();
 		unused.setCustomEnd("dat");
 		unused.create();
 	}
@@ -286,12 +285,13 @@ public class LoaderClass extends JavaPlugin {
 			gui.get(p).closeAndClear();
 		}
 		unused.delete();
-		data.save();
-		config.save();
-		gameapi.save();
+		data.reload();
+		config.reload();
+		gameapi.reload();
 	}
 	public static List<Player> a = new ArrayList<Player>();
 	public static int task = 1;
+	public static ConfigAPI storage = new ConfigAPI("TheAPI","Storage");
 
 	public static List<Player> getOnline() {
 		return a;

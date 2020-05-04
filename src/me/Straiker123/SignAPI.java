@@ -22,13 +22,14 @@ public class SignAPI {
 	}
 
 	public void removeSign(Location loc) {
-		f.getConfig().set("Sign."+TheAPI.getStringUtils().getLocationAsString(loc),null);
+		f.set("Sign."+TheAPI.getStringUtils().getLocationAsString(loc),null);
+		f.save();
 	}
 	
 	public List<Location> getRegistredSigns(){
 		List<Location> l = new ArrayList<Location>();
-		if(f.getConfig().getString("Sign")!=null)
-		for(String s : f.getConfig().getConfigurationSection("Sign").getKeys(false)) {
+		if(f.getString("Sign")!=null)
+		for(String s : f.getConfigurationSection("Sign",false)) {
 			Location d = TheAPI.getStringUtils().getLocationFromString(s);
 			if(d.getBlock().getType().name().contains("SIGN"))
 			l.add(d);
@@ -52,21 +53,22 @@ public class SignAPI {
 		switch(s) {
 		case CONSOLE_COMMANDS:
 			if(options.get(s) instanceof List)
-			f.getConfig().set("Sign."+l+".CONSOLE_COMMANDS",options.get(s));
+			f.set("Sign."+l+".CONSOLE_COMMANDS",options.get(s));
 			break;
 		case PLAYER_COMMANDS:
 			if(options.get(s) instanceof List)
-			f.getConfig().set("Sign."+l+".PLAYER_COMMANDS",options.get(s));
+			f.set("Sign."+l+".PLAYER_COMMANDS",options.get(s));
 			break;
 		case MESSAGES:
 			if(options.get(s) instanceof List)
-			f.getConfig().set("Sign."+l+".MESSAGES",options.get(s));
+			f.set("Sign."+l+".MESSAGES",options.get(s));
 			break;
 		case BROADCAST:
 			if(options.get(s) instanceof List)
-			f.getConfig().set("Sign."+l+".BROADCAST",options.get(s));
+			f.set("Sign."+l+".BROADCAST",options.get(s));
 			break;
 		}}
+		f.save();
 	}
 	
 	public HashMap<SignAction, List<String>> getSignActions(Sign state) {
@@ -74,8 +76,8 @@ public class SignAPI {
 		Location l = state.getLocation();
 		String ff = TheAPI.getStringUtils().getLocationAsString(l);
 		if(getRegistredSigns().contains(l)) {
-			for(String s:f.getConfig().getConfigurationSection("Sign."+ff).getKeys(false)) {
-				a.put(SignAction.valueOf(s), f.getConfig().getStringList("Sign."+ff+"."+s));
+			for(String s:f.getConfigurationSection("Sign."+ff,false)) {
+				a.put(SignAction.valueOf(s), f.getStringList("Sign."+ff+"."+s));
 			}
 		}
 		return a;

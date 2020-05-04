@@ -9,7 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
+import java.util.Base64;
 
 public class TheCoder {
 
@@ -51,7 +51,7 @@ public class TheCoder {
             for(Object o : objects)
             dataOutput.writeObject(o);
             dataOutput.close();
-            r=Base64Coder.encodeLines(outputStream.toByteArray());
+            r=Base64.getEncoder().encodeToString(outputStream.toByteArray());
         } catch (Exception e) {}
 		return r;
 	}
@@ -68,7 +68,7 @@ public class TheCoder {
             BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
             dataOutput.writeObject(object);
             dataOutput.close();
-            r=Base64Coder.encodeLines(outputStream.toByteArray());
+            r=Base64.getEncoder().encodeToString(outputStream.toByteArray());
         } catch (Exception e) {}
 		return r;
 	}
@@ -81,7 +81,7 @@ public class TheCoder {
 	public <T> List<T> getObjectsFromString(String savedObjects) {
 		List<T> r = new ArrayList<T>();
 		try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(savedObjects));
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(savedObjects));
             BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
             int a = dataInput.readInt();
             try {
@@ -102,7 +102,7 @@ public class TheCoder {
 	public <T> T getObjectFromString(String savedObject) {
 		T r = null;
 		try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(savedObject));
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(savedObject));
             BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
             	r=(T)dataInput.readObject();
             dataInput.close();

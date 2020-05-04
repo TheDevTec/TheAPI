@@ -22,9 +22,11 @@ public class GameAPI {
 	
 	public void createArena(String arena, String arenaName) {
 		w.set(s+".Arenas."+arena+".Name", arenaName);
+		LoaderClass.gameapi.save();
 	}
 	public void deleteArena(String arena) {
 		w.set(s+".Arenas."+arena,null);
+		LoaderClass.gameapi.save();
 	}
 	
 	public boolean inGamePlayer(Player player) {
@@ -42,21 +44,25 @@ public class GameAPI {
 	
 	public void setArenaInGame(String arena, boolean set) {
 		w.set(s+".Arenas."+arena+".InGame", set);
+		LoaderClass.gameapi.save();
 	}
 
 	public void addPlayer(String arena, String team, String player) {
 		List<String> list = w.getStringList(s+".Arenas."+arena+".Teams."+team);
 		list.add(player);
 		w.set(s+".Arenas."+arena+".Teams."+team, list);
+		LoaderClass.gameapi.save();
 	}
 	public void removePlayer(String arena, String team, String player) {
 		List<String> list = w.getStringList(s+".Arenas."+arena+".Teams."+team);
 		list.remove(player);
 		w.set(s+".Arenas."+arena+".Teams."+team, list);
+		LoaderClass.gameapi.save();
 	}
 	
 	public void kickAllPlayers(String arena) {
 		w.set(s+".Arenas."+arena+".Teams", null);
+		LoaderClass.gameapi.save();
 	}
 	
 	public static enum Setting {
@@ -75,6 +81,7 @@ public class GameAPI {
 			return;
 		}
 		w.set(s+".Arenas."+arena+".Setting."+ss.toString(), value);
+		LoaderClass.gameapi.save();
 	}
 	
 	public List<Player> getPlayersInGame(String arena) {
@@ -156,10 +163,12 @@ public class GameAPI {
 	}
 	public void removeLocationArena(String arena, String team, String id) {
 		w.set(s+".Arenas."+arena+".Teams-Locations."+team+"."+id,null);
+		LoaderClass.gameapi.save();
 	}
 	public void removeAllLocationsArena(String arena, String team, boolean confirm) {
 		if(confirm) {
 		w.set(s+".Arenas."+arena+".Teams-Locations."+team,null);
+		LoaderClass.gameapi.save();
 		}
 	}
 	
@@ -241,7 +250,7 @@ public class GameAPI {
 		}
 		w.set(s+".Arenas."+arena+".Players", null);
 		w.set(s+".Arenas."+arena+".Teams", null);
-		
+		LoaderClass.gameapi.save();
 	}
 	
 }

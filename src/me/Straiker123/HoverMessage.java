@@ -1,15 +1,11 @@
 package me.Straiker123;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
-
-import me.Straiker123.Utils.Error;
-import me.Straiker123.Utils.Packets;
 
 public class HoverMessage {
 
@@ -81,11 +77,12 @@ public class HoverMessage {
     }
     
     public String getJson() {
-    	
         if(extras.size() <= 1) return extras.size() == 0 ? "{\"text\":\"\"}" : extras.get(0);
-        String text = extras.get(0).substring(0, extras.get(0).length() - 1) + ",\"extra\":[";
-        extras.remove(0);;
-        for (String extra : extras)
+        List<String> original = new ArrayList<String>();
+        for(String s : extras)original.add(s);
+        String text = original.get(0).substring(0, original.get(0).length() - 1) + ",\"extra\":[";
+        original.remove(0);
+        for (String extra : original)
             text = text + extra + ",";
         text = text.substring(0, text.length() - 1) + "]}";
         return text;
@@ -100,19 +97,6 @@ public class HoverMessage {
 	}
     
 	public void send(Player player) {
-		String json = getJson();
-        try {
-        	Constructor<?> p = Packets.getNMSClass("PacketPlayOutChat").getConstructor(Packets.getNMSClass("IChatBaseComponent"), byte.class);
-            Object messageComponent = Packets.getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, json);
-            Object packet = p.newInstance(messageComponent, (byte)1);
-            Packets.sendPacket(player, packet);
-        } catch (Exception ex) {
-            try {
-        	Constructor<?> p = Packets.getNMSClass("PacketPlayOutChat").getConstructor(Packets.getNMSClass("IChatBaseComponent"));
-            Object messageComponent = Packets.getNMSClass("IChatBaseComponent$ChatSerializer").getMethod("a", String.class).invoke(null, json);
-            Object packet = p.newInstance(messageComponent);
-            Packets.sendPacket(player, packet);
-            } catch (Exception exs) {Error.err("sending HoverMessage", "Json error: "+json);exs.printStackTrace();}
-        }
+		TheAPI.getNMSAPI().sendPacket(player, TheAPI.getNMSAPI().getIChatBaseComponentJson(getJson()));
 	}
 }

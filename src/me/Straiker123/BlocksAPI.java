@@ -101,11 +101,11 @@ public class BlocksAPI {
 	        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
 	        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
 	        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
-	 
+	        World w = from.getWorld();
 	        for(int x = bottomBlockX; x <= topBlockX; x++){
 	            for(int z = bottomBlockZ; z <= topBlockZ; z++){
 	                for(int y = bottomBlockY; y <= topBlockY; y++){
-	                   blocks.add(from.getWorld().getBlockAt(x, y, z));
+	                   blocks.add(w.getBlockAt(x, y, z));
 	                }
 	            }
 	        }
@@ -119,11 +119,11 @@ public class BlocksAPI {
 	        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
 	        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
 	        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
-	 
+	        World w = from.getWorld();
 	        for(int x = bottomBlockX; x <= topBlockX; x++){
 	            for(int z = bottomBlockZ; z <= topBlockZ; z++){
 	                for(int y = bottomBlockY; y <= topBlockY; y++){
-	                   blocks.add(new Location(from.getWorld(),x, y, z));
+	                   blocks.add(new Location(w,x, y, z));
 	                }
 	            }
 	        }
@@ -137,12 +137,12 @@ public class BlocksAPI {
 	        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
 	        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
 	        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
-	 
+	        World w = from.getWorld();
 	        for(int x = bottomBlockX; x <= topBlockX; x++){
 	            for(int z = bottomBlockZ; z <= topBlockZ; z++){
 	                for(int y = bottomBlockY; y <= topBlockY; y++){
 	                	if(new Location(from.getWorld(),x, y, z).getBlock().getType()!=ignore)
-	                   blocks.add(new Location(from.getWorld(),x, y, z));
+	                   blocks.add(new Location(w,x, y, z));
 	                }
 	            }
 	        }
@@ -156,12 +156,12 @@ public class BlocksAPI {
 	        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
 	        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
 	        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
-	 
+	        World w = from.getWorld();
 	        for(int x = bottomBlockX; x <= topBlockX; x++){
 	            for(int z = bottomBlockZ; z <= topBlockZ; z++){
 	                for(int y = bottomBlockY; y <= topBlockY; y++){
-	                	if(!ignore.contains(new Location(from.getWorld(),x, y, z).getBlock().getType()))
-	                   blocks.add(new Location(from.getWorld(),x, y, z));
+	                	if(!ignore.contains(new Location(w,x, y, z).getBlock().getType()))
+	                   blocks.add(new Location(w,x, y, z));
 	                }
 	            }
 	        }
@@ -169,26 +169,31 @@ public class BlocksAPI {
 	    }
 	
 	//return List<Block>
+		  public List<Location> getBlocksLocation(Shape form,Location where, int radius){
+			  return getBlockLocations(form, where, radius);
+		  }
 		  public List<Location> getBlockLocations(Shape form,Location where, int radius){
 			  List<Location> blocks = new ArrayList<Location>();
+		        World w = where.getWorld();
+		        int Xx = where.getBlockX();
+		        int Yy = where.getBlockY();
+		        int Zz = where.getBlockZ();
 			  switch(form) {
 			  case Square:
-			     for(double x = where.getX() - radius; x <= where.getX() + radius; x++)
-			       for(double y = where.getY() - radius; y <= where.getY() + radius; y++)
-			         for(double z = where.getZ() - radius; z <= where.getZ() + radius; z++)
-			           blocks.add(new Location(where.getWorld(), x, y, z));
+			     for(int x =Xx - radius; x <= Xx + radius; x++)
+			       for(int y = Yy - radius; y <= Yy + radius; y++)
+			         for(int z = Zz - radius; z <= Zz + radius; z++)
+			           blocks.add(new Location(w, x, y, z));
 			     break;
 			  case Sphere:
 				for (int Y = -radius; Y < radius; Y++)
 					for (int X = -radius; X < radius; X++)
 					   for (int Z = -radius; Z < radius; Z++)
 					    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) 
-					     blocks.add(new Location(where.getWorld(),X + where.getBlockX(), Y + where.getBlockY(), Z + where.getBlockZ()));
+					     blocks.add(new Location(w,X +Xx, Y +Yy, Z + Zz));
 				}
 			     return blocks;
-			     }
-	   
-	   
+			 }
 	   
 	public List<Block> getBlocks(Location from, Location to, Material ignore){
 		List<Block> blocks = new ArrayList<Block>();
@@ -198,12 +203,12 @@ public class BlocksAPI {
         int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
         int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
         int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
- 
+        World w = from.getWorld();
         for(int x = bottomBlockX; x <= topBlockX; x++){
             for(int z = bottomBlockZ; z <= topBlockZ; z++){
                 for(int y = bottomBlockY; y <= topBlockY; y++){
-    	        	if(ignore != from.getWorld().getBlockAt(x, y, z).getType())
-                   blocks.add(from.getWorld().getBlockAt(x, y, z));
+    	        	if(ignore != w.getBlockAt(x, y, z).getType())
+                   blocks.add(w.getBlockAt(x, y, z));
                 }
             }
         }
@@ -217,12 +222,12 @@ public class BlocksAPI {
 		        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
 		        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
 		        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
-		 
+		        World w = from.getWorld();
 		        for(int x = bottomBlockX; x <= topBlockX; x++){
 		            for(int z = bottomBlockZ; z <= topBlockZ; z++){
 		                for(int y = bottomBlockY; y <= topBlockY; y++){
-		    	        	if(!ignore.contains(from.getWorld().getBlockAt(x, y, z).getType()))
-				                   blocks.add(from.getWorld().getBlockAt(x, y, z));
+		    	        	if(!ignore.contains(w.getBlockAt(x, y, z).getType()))
+				                   blocks.add(w.getBlockAt(x, y, z));
 		                }
 		            }
 		        }
@@ -232,34 +237,34 @@ public class BlocksAPI {
 	//return List<Block>
 		  public List<Block> getBlocks(Shape form,Location where, int radius){
 			  List<Block> blocks = new ArrayList<Block>();
+		        World w = where.getWorld();
+		        int Xx = where.getBlockX();
+		        int Yy = where.getBlockY();
+		        int Zz = where.getBlockZ();
 			  switch(form) {
 			  case Square:
-			     for(int x = where.getBlockX() - radius; x <= where.getBlockX() + radius; x++)
-			       for(int y = where.getBlockY() - radius; y <= where.getBlockY() + radius; y++)
-			         for(int z = where.getBlockZ() - radius; z <= where.getBlockZ() + radius; z++)
-			           blocks.add(where.getWorld().getBlockAt(x, y, z));
+			     for(int x =Xx - radius; x <= Xx + radius; x++)
+			       for(int y = Yy - radius; y <= Yy + radius; y++)
+			         for(int z = Zz - radius; z <= Zz + radius; z++)
+			           blocks.add(w.getBlockAt(x, y, z));
 			     break;
 			  case Sphere:
 				for (int Y = -radius; Y < radius; Y++)
 					for (int X = -radius; X < radius; X++)
 					   for (int Z = -radius; Z < radius; Z++)
 					    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) 
-					     blocks.add(where.getWorld().getBlockAt(X + where.getBlockX(), Y + where.getBlockY(), Z + where.getBlockZ()));
-			 }
+					     blocks.add(w.getBlockAt(X +Xx, Y +Yy, Z + Zz));
+				}
 			     return blocks;
-			     }
+			 }
 
 			public void setBlock(Location loc, Material material) {
 				  if(!material.isBlock())return;
-				  BlockState s = loc.getBlock().getState();
-				  s.setType(material);
-				  s.update(true,true);
+				  TheAPI.getNMSAPI().setBlock(loc, material, 0, true);
 			  }
 			public void setBlock(Block loc, Material material) {
 				  if(!material.isBlock())return;
-				  BlockState s = loc.getState();
-				  s.setType(material);
-				  s.update(true,true);
+				  TheAPI.getNMSAPI().setBlock(loc.getLocation(), material, 0, true);
 			  }
 	  
 	  public void setBlockSave(BlockSave s) {
@@ -543,31 +548,6 @@ public class BlocksAPI {
 	  
 
 	  //locations
-	  
-		  public List<Location> getBlocksLocation(Shape form,Location where, int radius){
-			  List<Location> blocks = new ArrayList<Location>();
-			  switch(form) {
-			  case Square:
-			     for(double x = where.getX() - radius; x <= where.getX() + radius; x++){
-			       for(double y = where.getY() - radius; y <= where.getY() + radius; y++){
-			         for(double z = where.getZ() - radius; z <= where.getZ() + radius; z++){
-			           blocks.add(new Location(where.getWorld(), x, y, z));
-			      }
-			      }
-			     }
-			     break;
-			  case Sphere:
-				for (int Y = -radius; Y < radius; Y++)
-					for (int X = -radius; X < radius; X++)
-					   for (int Z = -radius; Z < radius; Z++)
-					    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
-					     blocks.add(new Location (where.getWorld(),X + where.getBlockX(), Y + where.getBlockY(), Z + where.getBlockZ()));
-					 }
-			  }
-			     return blocks;
-			     }
-		  
-		  
 		  public void set(Location from,Location to, Material block){
 			  for(Block c : getBlocks(from,to))
 				  c.setType(block);

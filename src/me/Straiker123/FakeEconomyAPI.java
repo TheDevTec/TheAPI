@@ -23,7 +23,7 @@ public class FakeEconomyAPI {
 	}
 	
 	public boolean hasAccount(String player) {
-		return LoaderClass.data.getConfig().getString("data."+player+".economy."+w)!=null;
+		return TheAPI.getUser(player).getString("economy."+w)!=null;
 	}
 
 	public void despositPlayer(String player, double money) {
@@ -40,10 +40,10 @@ public class FakeEconomyAPI {
 	}
 	
 	public void add(String player, double money) {
-		LoaderClass.data.getConfig().set("data."+player+".economy."+w,balance(player)+money);
+		TheAPI.getUser(player).setAndSave("economy."+w,balance(player)+money);
 	}
 	public void take(String player, double money) {
-		LoaderClass.data.getConfig().set("data."+player+".economy."+w,balance(player)-money);
+		TheAPI.getUser(player).setAndSave("economy."+w,balance(player)-money);
 	}
 	
 	public void set(Player player, double money) {
@@ -51,7 +51,7 @@ public class FakeEconomyAPI {
 	}
 	
 	public void set(String player, double money) {
-		LoaderClass.data.getConfig().set("data."+player+".economy."+w,money);
+		TheAPI.getUser(player).setAndSave("economy."+w,money);
 	}
 
 	public double getBalance(String player) {
@@ -62,7 +62,7 @@ public class FakeEconomyAPI {
 	}
 	
 	public double balance(String player) {
-		return LoaderClass.data.getConfig().getDouble("data."+player+".economy."+w);
+		return TheAPI.getUser(player).getDouble("economy."+w);
 	}
 	public double balance(Player player) {
 		return balance(player.getName());
@@ -79,7 +79,7 @@ public class FakeEconomyAPI {
 	
 	public boolean createAccount(String player) {
 		if(!hasAccount(player)) {
-			LoaderClass.data.getConfig().set("data."+player+".economy."+w,0.0);
+			TheAPI.getUser(player).setAndSave("economy."+w,0.0);
 			return true;
 		}
 		return false;

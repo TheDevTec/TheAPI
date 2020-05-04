@@ -6,20 +6,20 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
 import me.Straiker123.LoaderClass;
-import me.Straiker123.ParticleEffect;
+import me.Straiker123.Particle;
 import me.Straiker123.Storage;
 import me.Straiker123.TheAPI;
 import me.Straiker123.TheRunnable;
@@ -57,17 +57,13 @@ public class Task {
 		}
 		if(!f.getBoolean("Options.LagChecker.TNT.Particles.Disable")) {
 			if(TheAPI.isOlder1_9()) {
-				ParticleEffect e = ParticleEffect.EXPLOSION_LARGE;
-				if(ParticleEffect.valueOf(f.getString("Options.LagChecker.TNT.Particles.Type"))!=null)
-					e=ParticleEffect.valueOf(f.getString("Options.LagChecker.TNT.Particles.Type"));
-				TheAPI.getParticleEffectAPI().spawnParticle(e, event.getLocation(), 1);
-			}else {
 				Particle e = Particle.EXPLOSION_LARGE;
 				if(Particle.valueOf(f.getString("Options.LagChecker.TNT.Particles.Type"))!=null)
 					e=Particle.valueOf(f.getString("Options.LagChecker.TNT.Particles.Type"));
-				event.getLocation().getWorld().spawnParticle(e, event.getLocation(),1);
-			}
-		}
+				for(Entity ds: TheAPI.getBlocksAPI().getNearbyEntities(event.getLocation(), 15))
+					if(ds.getType()==EntityType.PLAYER)
+				TheAPI.getNMSAPI().sendPacket((Player)ds, TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(e, event.getLocation()));
+		}}
 		if(event.canHitEntities()) {
 			Location l = event.getLocation();
 			int r = (int) (event.getPower()*1.25);
@@ -163,11 +159,11 @@ public class Task {
 										e.setFireTicks(80);
 									}
 								}
-								if(TheAPI.isOlder1_9()) {
-									TheAPI.getParticleEffectAPI().spawnParticle(ParticleEffect.FLAME, c, 1);
-								}else {
-									event.getLocation().getWorld().spawnParticle(Particle.FLAME, c,1);
-								}}
+								for(Entity ds: TheAPI.getBlocksAPI().getNearbyEntities(event.getLocation(), 15))
+									if(ds.getType()==EntityType.PLAYER)
+								TheAPI.getNMSAPI().sendPacket((Player)ds, TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(Particle.FLAME, event.getLocation()));
+						
+								}
 						}}else {
 							if(event.isDropItems())
 								Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,st,b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
@@ -179,11 +175,10 @@ public class Task {
 										e.setFireTicks(80);
 									}
 								}
-									if(TheAPI.isOlder1_9()) {
-										TheAPI.getParticleEffectAPI().spawnParticle(ParticleEffect.FLAME, c, 1);
-									}else {
-										event.getLocation().getWorld().spawnParticle(Particle.FLAME, c,1);
-									}
+								for(Entity ds: TheAPI.getBlocksAPI().getNearbyEntities(event.getLocation(), 15))
+									if(ds.getType()==EntityType.PLAYER)
+								TheAPI.getNMSAPI().sendPacket((Player)ds, TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(Particle.FLAME, event.getLocation()));
+						
 							}
 						}
 				a.remove(a.size()-1);
@@ -200,5 +195,4 @@ public class Task {
 				}
 			}
 		}, 10);
-	}
-}
+	}}

@@ -108,6 +108,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			return true;
 			}
 			if(eq(1,"Other")) {
+				double[] tps = TheAPI.getNMSAPI().getServerTPS();
+				s.sendMessage("TPS: "+tps[0]+" 1min, "+tps[1]+" 5min, "+tps[2]+" 15min");
 				return true;
 			}
 			if(eq(1,"hideShowEntity")) {
@@ -338,6 +340,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		if(perm("Reload")) {
 			TheAPI.msg("&7-----------------",s);
 			TheAPI.msg("&6Reloading configs..",s);
+			for(Player p : TheAPI.getOnlinePlayers())TheAPI.getUser(p).config().reload();
 			LoaderClass.data.reload();
 			LoaderClass.config.reload();
 			LoaderClass.gameapi.reload();

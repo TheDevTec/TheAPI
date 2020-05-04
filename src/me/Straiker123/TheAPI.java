@@ -1,7 +1,7 @@
 package me.Straiker123;
 
+import java.io.File;
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -12,7 +12,6 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -28,17 +27,15 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 
+import me.Straiker123.NMSAPI.TitleAction;
 import me.Straiker123.Events.PlayerVanishEvent;
 import me.Straiker123.Utils.Error;
-import me.Straiker123.Utils.Packets;
 import net.glowstone.entity.GlowPlayer;
 
 public class TheAPI {
 	private static StringUtils utils;
 	private static SignAPI sign;
 	private static BlocksAPI blocks;
-	private static PlaceholderAPIUtils plac;
-	private static ParticleEffectAPI particles;
 	private static ConsoleCommandSender console;
 	private static PunishmentAPI push;
 	private static ReportSystem report;
@@ -54,21 +51,16 @@ public class TheAPI {
 	private static SoundAPI sound;
 	private static EnchantmentAPI enchs;
 	private static TimeConventorAPI time;
-	private static String version;
+	private static NMSAPI nms;
+	private static PlaceholderAPIUtils plac;
 	public TheAPI() {
+		nms=new NMSAPI();
 		console=Bukkit.getConsoleSender();
-		try {
-			 version= Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-	 }catch(Exception e) {
-		 version=Bukkit.getServer().getClass().getPackage().getName().split("\\.")[1];
-	 }
 		utils= new StringUtils();
 		sign=new SignAPI();
 		blocks=new BlocksAPI();
-		particles= new ParticleEffectAPI();
-		isNew=!version.equalsIgnoreCase("glowstone") && utils.getInt(version.split("_")[1])>12;
-		isOld=utils.getInt(version.split("_")[1])<9;
-		plac=new PlaceholderAPIUtils();
+		isNew=!getServerVersion().equalsIgnoreCase("glowstone") && utils.getInt(getServerVersion().split("_")[1])>12;
+		isOld=utils.getInt(getServerVersion().split("_")[1])<9;
 		max=Bukkit.getMaxPlayers();
 		push=new PunishmentAPI();
 		report=new ReportSystem();
@@ -80,6 +72,11 @@ public class TheAPI {
 		enchs=new EnchantmentAPI();
 		sound= new SoundAPI();
 		plugins=new PluginManagerAPI();
+		plac=new PlaceholderAPIUtils();
+	}
+	
+	public static NMSAPI getNMSAPI() {
+		return nms;
 	}
 	
 	/**
@@ -156,13 +153,10 @@ public class TheAPI {
 	}
 	
 	/**
-	 * @see see Only for 1.8.X and older
-	 * @return ParticleEffectAPI
-	 */
-	public static ParticleEffectAPI getParticleEffectAPI() {
-		 return particles;
-	}
+	method getParticleEffectAPI() removed.
 	
+	Please use NMSAPI.
+	**/
 	/**
 	 * @see see Create or delete config
 	 * @param localization
@@ -256,6 +250,15 @@ public class TheAPI {
 		if(inMinus)maxInt=-1*maxInt;
 		return i;
 	}
+	
+	/**
+	 * @see see Replace in String/List<String> placeholders from PlaceholderAPI without depend
+	 * @return PlaceholderAPIUtils
+	 */
+	public static PlaceholderAPIUtils getPlaceholderAPI() {
+		return plac;
+	}
+	
 	/**
 	 * @see see Generate random double with limit
 	 * @param maxDouble
@@ -291,14 +294,6 @@ public class TheAPI {
 	 */
 	public static long getServerUpTime() {
 		return ManagementFactory.getRuntimeMXBean().getUptime();
-	}
-	
-	/**
-	 * @see see Replace in String/List<String> placeholders from PlaceholderAPI without depend
-	 * @return PlaceholderAPIUtils
-	 */
-	public static PlaceholderAPIUtils getPlaceholderAPI() {
-		return plac;
 	}
 
 	/**
@@ -487,39 +482,7 @@ public class TheAPI {
 					}catch (Exception e) {
 				    	 Error.err("sending ActionBar to "+p.getName(), "Text is null");}
 					}
-
-			if(getServerVersion().contains("v1_5")||getServerVersion().contains("v1_6") 
-					||getServerVersion().contains("v1_7") ||getServerVersion().contains("v1_8")) {
-			   sendActionBarOld(p,text);
-			   return;
-		   }
-		   
-		     Class<?> PACKET_PLAYER_CHAT_CLASS = Packets.getNMSClass("PacketPlayOutChat"), ICHATCOMP = Packets.getNMSClass("IChatBaseComponent")
-		    		 , CHATMESSAGE = null,
-	       CHAT_MESSAGE_TYPE_CLASS = null;
-	     Constructor<?> PACKET_PLAYER_CHAT_CONSTRUCTOR = null, CHATMESSAGE_CONSTRUCTOR = null;
-	     Object CHAT_MESSAGE_TYPE_ENUM_OBJECT = null;
-		     try {
-		         CHAT_MESSAGE_TYPE_CLASS = Packets.getNMSClass("ChatMessageType");
-		         CHAT_MESSAGE_TYPE_ENUM_OBJECT = CHAT_MESSAGE_TYPE_CLASS.getEnumConstants()[2];
-		 
-		         PACKET_PLAYER_CHAT_CONSTRUCTOR = PACKET_PLAYER_CHAT_CLASS.getConstructor(ICHATCOMP,
-		             CHAT_MESSAGE_TYPE_CLASS);
-		       } catch (Exception e) {
-		       }
-		       try {
-		       CHATMESSAGE = Packets.getNMSClass("ChatMessage");
-				CHATMESSAGE_CONSTRUCTOR = CHATMESSAGE.getConstructor(String.class, Object[].class);
-			} catch (Exception e1) {
-			}
-		   
-	     try {
-	       Object icb = CHATMESSAGE_CONSTRUCTOR.newInstance(TheAPI.colorize(text), new Object[0]);
-	       Object packet = PACKET_PLAYER_CHAT_CONSTRUCTOR.newInstance(icb, CHAT_MESSAGE_TYPE_ENUM_OBJECT);
-	       Packets.sendPacket(p, packet);
-	     } catch (Exception e) {
-	    	 Error.err("sending ActionBar to "+p.getName(), "Text is null");
-	     }
+		   getNMSAPI().sendPacket(p, getNMSAPI().getPacketPlayOutTitle(TitleAction.ACTIONBAR, colorize(text)));
 	   }
 	/**
 	 * @see see Get int, double or calculate string
@@ -767,7 +730,7 @@ public class TheAPI {
 	 */
 	public static boolean isVanished(Player p) {
 		if(isV(p))return true;
-		return LoaderClass.data.getConfig().getString("data."+p.getName()+".vanish")!=null;
+		return getUser(p).getString("vanish")!=null;
 	}
 	/**
 	 * @see see Return is player in vanish mode
@@ -775,7 +738,7 @@ public class TheAPI {
 	 * @return boolean
 	 */
 	public static boolean isVanished(String p) {
-		return LoaderClass.data.getConfig().getString("data."+p+".vanish")!=null;
+		return getUser(p).getString("vanish")!=null;
 	}
 
 	/**
@@ -802,20 +765,21 @@ public class TheAPI {
 	public static void vanish(String p, boolean vanish, String perm) {
 		if(vanish) {
 			if(perm!=null)
-				LoaderClass.data.getConfig().set("data."+p+".vanish", perm);
+				getUser(p).setAndSave("vanish", perm);
 			List<String> v= LoaderClass.data.getConfig().getStringList("vanished");
 			v.add(p);
 				LoaderClass.data.getConfig().set("vanished", v);
 			}else {
-				LoaderClass.data.getConfig().set("data."+p+".vanish", null);
+				getUser(p).setAndSave("vanish", null);
 				List<String> v= LoaderClass.data.getConfig().getStringList("vanished");
 				v.remove(p);
 					LoaderClass.data.getConfig().set("vanished", v);
 			}
+		LoaderClass.data.save();
 	}
 	private static boolean has(Player s, Player d) {
-		if(LoaderClass.data.getConfig().getString("data."+d.getName()+".vanish")!=null)
-			return s.hasPermission(LoaderClass.data.getConfig().getString("data."+d.getName()+".vanish"));
+		if(getUser(d).getString("data."+d.getName()+".vanish")!=null)
+			return s.hasPermission(getUser(d).getString("data."+d.getName()+".vanish"));
 		else
 		return false;
 	}
@@ -841,16 +805,17 @@ public class TheAPI {
 			perm=d.getPermission();
 			if(vanish) {
 				if(perm!=null)
-					LoaderClass.data.getConfig().set("data."+p.getName()+".vanish", perm);
+					getUser(p).setAndSave("vanish", perm);
 				List<String> v= LoaderClass.data.getConfig().getStringList("vanished");
 				v.add(p.getName());
 					LoaderClass.data.getConfig().set("vanished", v);
 				}else {
-					LoaderClass.data.getConfig().set("data."+p.getName()+".vanish", null);
+					getUser(p).setAndSave("vanish", null);
 					List<String> v= LoaderClass.data.getConfig().getStringList("vanished");
 					v.remove(p.getName());
 						LoaderClass.data.getConfig().set("vanished", v);
 				}
+			LoaderClass.data.save();
 			hide(p);
 		}
 	}
@@ -1017,7 +982,15 @@ public class TheAPI {
 	 * @return String
 	 */
 	public static String getServerVersion() {
-	return version;
+		String version = null;
+		try {
+			 version= Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+	 }catch(Exception e) {
+			try {
+		 version=Bukkit.getServer().getClass().getPackage().getName().split("\\.")[1];
+			 }catch(Exception ss) {}
+	 }
+		return version;
 	}
 	/**
 	 * @see see Return current server TPS
@@ -1039,10 +1012,7 @@ public class TheAPI {
 	 */
 	public static double getServerTPS(TPSType type) {
 		try {
-	        Server server = Bukkit.getServer();
-	        Object minecraftServer = Packets.getField(server.getClass(),"console").get(server);
-	        Object recentTps = Packets.getField(minecraftServer.getClass().getSuperclass(),"recentTps").get(minecraftServer);
-	        double tps = ((double[]) recentTps)
+	        double tps = ((double[]) getNMSAPI().getServerTPS())
 	        		[type==TPSType.ONE_MINUTE ? 0 : type==TPSType.FIVE_MINUTES ? 1 : 2];
 	        if(tps>20)tps=20;
 			return getStringUtils().getDouble(String.format("%2.02f", tps));
@@ -1065,7 +1035,7 @@ public class TheAPI {
 			}
 		}
 		try {
-	        return (int)Packets.getEntityPlayerValue(p, "ping");
+	        return getNMSAPI().getNMSPlayerAPI(p).getPing();
 	    } catch (Exception e) {
 	        return -1;
 	    }
@@ -1077,55 +1047,112 @@ public class TheAPI {
 		 try {
 			 Entity entity = Bukkit.getEntity(uuid);
 			 if(entity==null)return;
-			 Object craft = Packets.getMethod(Packets.getBukkitClass("entity.CraftLivingEntity"),"getHandle").invoke(entity);
-			 Object living = Packets.getNMSClass("EntityLiving").cast(craft);
-			 Packets.sendPacket(to,Packets.getConstructor(Packets.getNMSClass("PacketPlayOutSpawnEntityLiving"),Packets.getNMSClass("EntityLiving")).newInstance(living));
-         } catch (Exception e) {e.printStackTrace();}
+			 if(entity instanceof LivingEntity)
+				 getNMSAPI().sendPacket(to,getNMSAPI().getPacketPlayOutSpawnEntityLiving(getNMSAPI().getEntityLiving((LivingEntity)entity)));
+			 else
+				 getNMSAPI().sendPacket(to,getNMSAPI().getPacketPlayOutSpawnEntity(getNMSAPI().getEntity(entity),0));
+		} catch (Exception e) {e.printStackTrace();}
 	}
-	
 
 	public static void showEntity(Player to, LivingEntity entity) {
 		if(LoaderClass.data.getConfig().getString("hiden."+entity.getUniqueId().toString())!=null) {
 		LoaderClass.data.getConfig().set("hiden."+entity.getUniqueId().toString(), null);
 		}
 		 try {
-			 Object craft = Packets.getMethod(Packets.getBukkitClass("entity.CraftLivingEntity"),"getHandle").invoke(entity);
-			 Object living = Packets.getNMSClass("EntityLiving").cast(craft);
-			 Packets.sendPacket(to,Packets.getNMSClass("PacketPlayOutSpawnEntityLiving").getConstructor(Packets.getNMSClass("EntityLiving")).newInstance(living));
-         } catch (Exception e) {e.printStackTrace();}
+			 getNMSAPI().sendPacket(to,getNMSAPI().getPacketPlayOutSpawnEntityLiving(getNMSAPI().getEntityLiving(entity)));
+			 } catch (Exception e) {e.printStackTrace();}
+	}
+
+	public static void showEntity(Player to, Entity entity) {
+		if(LoaderClass.data.getConfig().getString("hiden."+entity.getUniqueId().toString())!=null) {
+		LoaderClass.data.getConfig().set("hiden."+entity.getUniqueId().toString(), null);
+		}
+		 try {
+			 if(entity instanceof LivingEntity)
+				 getNMSAPI().sendPacket(to,getNMSAPI().getPacketPlayOutSpawnEntityLiving(getNMSAPI().getEntityLiving((LivingEntity)entity)));
+			 else
+				 getNMSAPI().sendPacket(to,getNMSAPI().getPacketPlayOutSpawnEntity(getNMSAPI().getEntity(entity),0));
+			 } catch (Exception e) {e.printStackTrace();}
 	}
 	
 	public static void hideEntity(Player from, UUID uuid) {
 		 try {
 			 Entity entity = Bukkit.getEntity(uuid);
 			 if(entity==null)return; //not exists
-			 Packets.sendPacket(from,Packets.getConstructor(Packets.getNMSClass("PacketPlayOutEntityDestroy"),int[].class).newInstance(new int[] {entity.getEntityId()}));
-	       LoaderClass.data.getConfig().set("hiden."+uuid.toString(), true);
+			 getNMSAPI().sendPacket(from,getNMSAPI().getPacketPlayOutEntityDestroy(entity.getEntityId()));
+			 LoaderClass.data.getConfig().set("hiden."+uuid.toString(), true);
 	     } catch(Exception e) {}
 	}
 
-	public static void hideEntity(Player from, LivingEntity es) {
+	public static void hideEntity(Player from, LivingEntity entity) {
 		 try {
-	       Object destroy = Packets.getConstructor(Packets.getNMSClass("PacketPlayOutEntityDestroy"),int[].class).newInstance(new int[] {es.getEntityId()});
-	       Packets.sendPacket(from, destroy);
-	       LoaderClass.data.getConfig().set("hiden."+es.getUniqueId().toString(), true);
+			 getNMSAPI().sendPacket(from,getNMSAPI().getPacketPlayOutEntityDestroy(entity.getEntityId()));
+	       LoaderClass.data.getConfig().set("hiden."+entity.getUniqueId().toString(), true);
+	     } catch(Exception e) {}
+	}
+
+	public static void hideEntity(Player from, Entity entity) {
+		 try {
+			 getNMSAPI().sendPacket(from,getNMSAPI().getPacketPlayOutEntityDestroy(entity.getEntityId()));
+	       LoaderClass.data.getConfig().set("hiden."+entity.getUniqueId().toString(), true);
 	     } catch(Exception e) {}
 	}
 	
-	private static void sendActionBarOld(Player ps, String text) {
-	        try {
-	            Object ppoc;
-	            Class<?> c2, c3,
-	                    c4 = Packets.getNMSClass("PacketPlayOutChat");
-	            Object o;
-	                c2 = Packets.getNMSClass("ChatComponentText");
-	                c3 = Packets.getNMSClass("IChatBaseComponent");
-	                o = c2.getConstructor(new Class<?>[]{String.class}).newInstance(TheAPI.colorize(text));
-	           
-	            ppoc = c4.getConstructor(new Class<?>[]{c3, byte.class}).newInstance(o, (byte) 2);
-	            Packets.sendPacket(ps, ppoc);
-	        } catch (Exception ex) {
-		    	 Error.err("sending ActionBar to "+ps.getName(), "Text is null");
-	        }
+	@SuppressWarnings("deprecation")
+	public static boolean existsUser(String name) {
+		String s = null;
+		try {
+			s=UUID.fromString(name).toString();
+		}catch(Exception e) {
+			s=Bukkit.getOfflinePlayer(name).getUniqueId().toString();
+		}
+		return new File("plugins/TheAPI/User/"+s+".yml").exists();
+	}
+	public static boolean existsUser(UUID uuid) {
+		return new File("plugins/TheAPI/User/"+uuid.toString()+".yml").exists();
+	}
+	public static boolean existsUser(Player player) {
+		return new File("plugins/TheAPI/User/"+player.getUniqueId().toString()+".yml").exists();
+	}
+	
+	/**
+	 * @see see Return List of users
+	 * @return List<UUID>
+	 */
+	public static List<UUID> getUsers(){
+		List<UUID> a = new ArrayList<UUID>();
+		for(File f : new File("plugins/TheAPI/User").listFiles()) {
+			try {
+			a.add(UUID.fromString(f.getName().replaceFirst(".yml", "")));
+			}catch(Exception e) {
+				//hide error.
+			}
+		}
+		return a;
+	}
+	/**
+	 * @see see If the user doesn't exist, his data file is created automatically.
+	 * @param nameOrUUID Name of player or UUID in String
+	 * @return User
+	 */
+	public static User getUser(String nameOrUUID) {
+		return new User(nameOrUUID);
+	}
+	/**
+	 * @see see If the user doesn't exist, his data file is created automatically.
+	 * @param player Player
+	 * @return User
+	 */
+	public static User getUser(Player player) {
+		return new User(player);
+	}
+
+	/**
+	 * @see see If the user doesn't exist, his data file is created automatically.
+	 * @param uuid UUID of player
+	 * @return User
+	 */
+	public static User getUser(UUID uuid) {
+		return new User(uuid);
 	}
 }
