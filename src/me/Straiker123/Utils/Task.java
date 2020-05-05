@@ -101,7 +101,7 @@ public class Task {
     						a.getAttribute(Attribute.GENERIC_ARMOR).getValue() > 0)
     					damage=r/(a.getAttribute(Attribute.GENERIC_ARMOR).getValue()/8);
     				a.damage(damage/7);
-    				}catch(Exception  | NoSuchMethodError err) {
+    				}catch(Exception | NoClassDefFoundError | NoSuchMethodError err) {
         				a.damage(damage/7);
     				}
     			}else
