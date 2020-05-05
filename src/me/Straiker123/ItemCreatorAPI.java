@@ -267,7 +267,7 @@ public class ItemCreatorAPI implements Cloneable {
 		try {
 		return a.getItemMeta().isUnbreakable();
 		}catch(Exception | NoSuchMethodError er) {
-			return hasLore() && getLore().contains("") && getLore().contains("&9UNBREAKABLE");
+			return hasLore() && getLore().contains(TheAPI.colorize("&9UNBREAKABLE"));
 		}
 	}
 	public void setUnbreakable(boolean unbreakable) {
@@ -538,12 +538,12 @@ try {
 			if(model != -1 && TheAPI.isNewVersion() //1.13+
 					 &&!TheAPI.getServerVersion().contains("v1_13"))
 			mf.setCustomModelData(model);
+			if(unb) {
 			if(!TheAPI.isOlder1_9()
 					 &&!TheAPI.getServerVersion().contains("v1_9")
 					 &&!TheAPI.getServerVersion().contains("v1_10"))
 			mf.setUnbreakable(unb);
-			 else {
-				 addLore("");
+			}else {
 				 addLore("&9UNBREAKABLE");
 			 }
 				if(lore!=null && !lore.isEmpty()) {
