@@ -543,9 +543,11 @@ try {
 					 &&!TheAPI.getServerVersion().contains("v1_9")
 					 &&!TheAPI.getServerVersion().contains("v1_10"))
 			mf.setUnbreakable(unb);
-			}else {
+			else {
+				 addLore(" ");
 				 addLore("&9UNBREAKABLE");
-			 }
+			}
+			}
 				if(lore!=null && !lore.isEmpty()) {
 					List<String> lor = new ArrayList<String>();
 					for(Object o : lore)lor.add(o.toString());
