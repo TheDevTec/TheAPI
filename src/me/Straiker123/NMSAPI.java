@@ -27,16 +27,20 @@ public class NMSAPI {
 	private Constructor<?> pDestroy,pTitle,pOutChat,pTab,pBlock,blockPos,pChunk,ChunkSection,chunkc
 	,particle,pSpawn,pNSpawn,pLSpawn;
 	private Method getmat,getb,getc,gett,WorldHandle,PlayerHandle,sendPacket,ichatcon,getser,plist,block,IBlockData
-	,worldset,Chunk,getblocks,setblock,setblockb,itemstack,entityM,livingentity;
+	,worldset,Chunk,getblocks,setblock,setblockb,itemstack,entityM,livingentity,oldichatser;
 	private Field pCon,tps;
 	public NMSAPI() {
 		if(Reflections.existNMSClass("PacketPlayOutWorldParticles"))
 			particle=Reflections.getNMSClass("PacketPlayOutWorldParticles").getConstructors()[1];
 		else
 			particle=Reflections.getNMSClass("Packet63WorldParticles").getConstructors()[1];
-		
+
+		try {
 		ichatser=ichat.getDeclaredClasses()[0];
 		enumTitle=Reflections.getNMSClass("PacketPlayOutTitle").getDeclaredClasses()[0];
+		}catch(Exception oldversion) {
+			oldichatser=Reflections.getMethod(Reflections.getNMSClass("ChatSerializer"),"a", String.class);
+		}
 		try {
 			pDestroy=Reflections.getNMSClass("PacketPlayOutEntityDestroy").getConstructor(int[].class);
 		} catch (Exception e3) {
@@ -140,12 +144,16 @@ public class NMSAPI {
 		try {
 			pTitle=Reflections.getNMSClass("PacketPlayOutTitle").getConstructor(enumTitle,ichat,int.class,int.class,int.class);
 		} catch (Exception e) {
-			e.printStackTrace();
+			
 		}
 		try {
 			pOutChat=Reflections.getNMSClass("PacketPlayOutChat").getConstructor(ichat,enumChat);
 		} catch (Exception e) {
-			e.printStackTrace();
+			try {
+				pOutChat=Reflections.getNMSClass("PacketPlayOutChat").getConstructor(ichat,int.class);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 		}
 		try {
 			pTab=Reflections.getNMSClass("PacketPlayOutPlayerListHeaderFooter").getConstructor(new Class[0]);
@@ -605,8 +613,12 @@ public class NMSAPI {
 		try {
 			return pOutChat.newInstance(IChatBaseComponent,enumChat.getField(type.name()).get(null));
 		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			try {
+				return pOutChat.newInstance(IChatBaseComponent,2); //only actionbar, 1.7.10
+			} catch (Exception e1) {
+				e1.printStackTrace();
+				return null;
+			}
 		}
 	}
 	
@@ -823,16 +835,13 @@ public class NMSAPI {
 	}
 	
 	public Object getIChatBaseComponentText(String text) {
-		try {
-			return ichatcon.invoke(null, "{\"text\":\"" + text+ "\"}");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		return getIChatBaseComponentJson("{\"text\":\"" + text+ "\"}");
 	}
 	
 	public Object getIChatBaseComponentJson(String json) {
 		try {
+			if(oldichatser!=null)
+				return oldichatser.invoke(null, json);
 			return ichatcon.invoke(null, json);
 		} catch (Exception e) {
 			e.printStackTrace();

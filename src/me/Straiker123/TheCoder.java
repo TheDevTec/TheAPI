@@ -23,7 +23,7 @@ public class TheCoder {
 		if(savedLocation == null)return null;
 		try {
 			String[] s = savedLocation.replace("_", ".").split(",");
-			return new Location(Bukkit.getWorld(s[0]),g.getDouble(s[1]), g.getDouble(s[2]), g.getDouble(s[3]),g.getFloat(s[4]),g.getFloat(s[5]));
+			return new Location(Bukkit.getWorld(s[0].replace(":", "_")),g.getDouble(s[1]), g.getDouble(s[2]), g.getDouble(s[3]),g.getFloat(s[4]),g.getFloat(s[5]));
 			}catch(Exception er) {
 				return null;
 		}
@@ -35,7 +35,7 @@ public class TheCoder {
 	 */
 	public String locationToString(Location loc) {
 		if(loc == null)return null;
-		return (loc.getWorld().getName()+","+loc.getX()+","+loc.getY()+","+loc.getBlockZ()+","+loc.getYaw()+","+loc.getPitch()).replace(".", "_");
+		return (loc.getWorld().getName().replace("_", ":")+","+loc.getX()+","+loc.getY()+","+loc.getBlockZ()+","+loc.getYaw()+","+loc.getPitch()).replace(".", "_");
 	}
 
 	/**
