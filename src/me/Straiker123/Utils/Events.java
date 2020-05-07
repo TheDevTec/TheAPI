@@ -528,15 +528,14 @@ public class Events implements Listener {
 	}
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
-		String s = e.getPlayer().getName();
 		LoaderClass.a.add(e.getPlayer());
 		for(Player p : TheAPI.getOnlinePlayers()) {
-			if(TheAPI.isVanished(p) && (d.getString("data."+p.getName()+".vanish") != null ? !e.getPlayer().hasPermission(d.getString("data."+p.getName()+".vanish")) : true)) {
+			if(TheAPI.isVanished(p) && (TheAPI.getUser(p).exist("vanish") ? !e.getPlayer().hasPermission(TheAPI.getUser(p).getString("vanish")) : true)) {
 				e.getPlayer().hidePlayer(p);
 			}
 		}
 		if(TheAPI.isVanished(e.getPlayer())) {
-			TheAPI.vanish(e.getPlayer(), d.getString("data."+s+".vanish"), true);
+			TheAPI.vanish(e.getPlayer(), TheAPI.getUser(e.getPlayer()).getString("vanish"), true);
 		}
 	}
 	
