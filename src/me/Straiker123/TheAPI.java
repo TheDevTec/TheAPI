@@ -931,12 +931,30 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send player scoreboard with per player scoreboard function (Non-flashing)
+	 * @see see Send player scoreboard with per player scoreboard function (Little bit flashing)
 	 * @param p
 	 * @return ScoreboardAPI
 	 */
 	public static ScoreboardAPIV2 getScoreboardAPIV2(Player p) {
 		return new ScoreboardAPIV2(p);
+	}
+
+	/**
+	 * @see see Send player scoreboard with per player scoreboard function (Non-flashing, Using NMS -> 48 symbols access)
+	 * @param p
+	 * @return ScoreboardAPI
+	 */
+	public static ScoreboardAPIV3 getScoreboardAPIV3(Player p, String objective) {
+		return new ScoreboardAPIV3(p,objective);
+	}
+
+	/**
+	 * @see see Send player scoreboard with per player scoreboard function (Non-flashing, Using NMS -> 48 symbols access)
+	 * @param p
+	 * @return ScoreboardAPI
+	 */
+	public static ScoreboardAPIV3 getScoreboardAPIV3(Player p) {
+		return new ScoreboardAPIV3(p);
 	}
 	/**
 	 * @see see Send player sound or get sound name from String

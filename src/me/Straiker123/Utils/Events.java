@@ -201,6 +201,7 @@ public class Events implements Listener {
 		}}}
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onClick(PlayerInteractEvent e) {
+		if(e.isCancelled())return;
 		if(e.getAction()==Action.RIGHT_CLICK_BLOCK && e.getClickedBlock().getType().name().contains("SIGN")) {
 			if(TheAPI.getSignAPI().getRegistredSigns().contains(e.getClickedBlock().getLocation())) {
 				e.setCancelled(true);
@@ -397,6 +398,7 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onBreak(BlockBreakEvent e) {
+		if(e.isCancelled())return;
 		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(e.getPlayer().getName())) {
 		e.setCancelled(true);
 		}else {
