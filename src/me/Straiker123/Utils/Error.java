@@ -8,7 +8,7 @@ import me.Straiker123.TheRunnable;
 
 public class Error {
 	public static void err(String message, String reason) {
-		if(!LoaderClass.config.getConfig().getBoolean("Options.HideErrors"))
+		if(!LoaderClass.config.getBoolean("Options.HideErrors"))
 		TheAPI.msg("&cTheAPI&7: &cA severe error when &4"+message+"&c, reason: &4"+reason, TheAPI.getConsole());
 		else
 			sendRequest("&cTheAPI&7: &cA severe error when &4"+message+"&c, reason: &4"+reason);

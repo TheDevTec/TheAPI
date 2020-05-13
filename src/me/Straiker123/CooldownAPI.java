@@ -3,20 +3,23 @@ package me.Straiker123;
 import org.bukkit.entity.Player;
 
 public class CooldownAPI {
-	private String c;
-	public CooldownAPI(String cooldownname) {
-		c=cooldownname;
+	private final User c;
+	public CooldownAPI(User player) {
+		c=player;
 	}
 	
-	public String getCooldownName() {
+	public User getUser() {
 		return c;
 	}
 	
-	public void createCooldown(String player, double length) {
-		User s = TheAPI.getUser(player);
-		s.set("cooldown."+c+"."+player+".start", System.currentTimeMillis()/1000);
-		s.set("cooldown."+c+"."+player+".time", length);
-		s.save();
+	public void createCooldown(String cooldown, double length) {
+		c.set("cooldown."+cooldown+".start", System.currentTimeMillis()/1000);
+		c.setAndSave("cooldown."+cooldown+".time", length);
+	}
+	
+	public void createCooldown(String cooldown, int length) {
+		c.set("cooldown."+cooldown+".start", System.currentTimeMillis()/1000);
+		c.setAndSave("cooldown."+cooldown+".time", length);
 	}
 	
 	public boolean expired(String player) {
@@ -27,9 +30,8 @@ public class CooldownAPI {
 	 * @return long
 	 * If return is -1, it mean cooldown isn't exist
 	 */
-	public long getStart(String player) {
-		User s = TheAPI.getUser(player);
-		return s.getString("cooldown."+c+"."+player+".start")!=null? s.getLong("cooldown."+c+"."+player+".start"):-1;
+	public long getStart(String cooldown) {
+		return c.exist("cooldown."+cooldown+".start")?c.getLong("cooldown."+cooldown+".start"):-1;
 	}
 
 	/**
@@ -37,8 +39,8 @@ public class CooldownAPI {
 	 * @return long
 	 * If return is -1, it mean cooldown isn't exist
 	 */
-	public long getTimeToExpire(String player) {
-		return getStart(player)!=-1 ? (getStart(player)-System.currentTimeMillis()/1000)+(long)getCooldown(player):-1;
+	public long getTimeToExpire(String cooldown) {
+		return getStart(cooldown)!=-1 ? (getStart(cooldown)-System.currentTimeMillis()/1000)+(long)getCooldown(cooldown):-1;
 		
 	}
 	/**
@@ -46,18 +48,21 @@ public class CooldownAPI {
 	 * @return double
 	 * If return is -1, it mean cooldown isn't exist
 	 */
-	public double getCooldown(String player) {
-		User s = TheAPI.getUser(player);
-		return s.getString("cooldown."+c+"."+player+".time")!=null?s.getDouble("cooldown."+c+"."+player+".time"):-1;
+	public double getCooldown(String cooldown) {
+		return c.exist("cooldown."+cooldown+".time")?c.getDouble("cooldown."+cooldown+".time"):-1;
 	}
 
-	public void removeCooldown(String player) {
-		TheAPI.getUser(player).setAndSave("cooldown."+c+"."+player, null);
+	public void removeCooldown(String cooldown) {
+		c.setAndSave("cooldown."+cooldown, null);
 	} 
 	
 	//Player method
 	
 	public void createCooldown(Player player, double length) {
+		createCooldown(player.getName(), length);
+	}
+	
+	public void createCooldown(Player player, int length) {
 		createCooldown(player.getName(), length);
 	}
 	

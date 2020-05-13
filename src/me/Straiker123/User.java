@@ -50,6 +50,10 @@ public class User {
 		return a;
 	}
 	
+	public ConfigAPI getConfig() {
+		return a;
+	}
+	
 	public void set(String key, Object o) {
 		a.set(key, o);
 	}
@@ -93,6 +97,26 @@ public class User {
 	
 	public boolean getBoolean(String key) {
 		return a.getBoolean(key);
+	}
+	
+	public boolean isString(String key) {
+		return a.isString(key);
+	}
+	
+	public boolean isDouble(String key) {
+		return a.isDouble(key);
+	}
+	
+	public boolean isInt(String key) {
+		return a.isInt(key);
+	}
+	
+	public boolean isLong(String key) {
+		return a.isLong(key);
+	}
+	
+	public boolean isConfigurationSection(String key) {
+		return a.isConfigurationSection(key);
 	}
 	
 	public String getString(String key) {

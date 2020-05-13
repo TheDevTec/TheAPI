@@ -15,29 +15,32 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import me.DevTec.TheVault.Bank;
 import me.DevTec.TheVault.TheVault;
 import me.Straiker123.Utils.Events;
 import me.Straiker123.Utils.GUIID;
+import me.Straiker123.Utils.PacketReader;
 import me.Straiker123.Utils.Tasks;
 import me.Straiker123.Utils.TheAPICommand;
 import net.milkbowl.vault.economy.Economy;
 
 public class LoaderClass extends JavaPlugin {
 	public static LoaderClass plugin;
-	public static List<ConfigAPI> list = new ArrayList<ConfigAPI>();
-	public static HashMap<Player, GUIID> gui = new HashMap<Player, GUIID>();
-	public static HashMap<String, Integer> GameAPI_Arenas = new HashMap<String, Integer>();
-	public static HashMap<String, Integer> gameapi_timer = new HashMap<String, Integer>();
-	public static HashMap<String, Runnable> win_rewards = new HashMap<String, Runnable>();
-	public static List<Integer> tasks = new ArrayList<Integer>();
-	public static ConfigAPI unused= TheAPI.getConfig("TheAPI", "UnusedData");
-	public static ConfigAPI config=TheAPI.getConfig("TheAPI", "Config");
-	public static ConfigAPI gameapi=TheAPI.getConfig("TheAPI", "GameAPI");
-	public static ConfigAPI data=TheAPI.getConfig("TheAPI", "Data");
+	public static ArrayList<ConfigAPI> list = Lists.newArrayList();
+	public static HashMap<Player, GUIID> gui = Maps.newHashMap();
+	public static HashMap<String, Integer> GameAPI_Arenas = Maps.newHashMap();
+	public static HashMap<String, Integer> gameapi_timer = Maps.newHashMap();
+	public static HashMap<String, Runnable> win_rewards = Maps.newHashMap();
+	public static ArrayList<Integer> tasks = Lists.newArrayList();
+	public static ConfigAPI unused= new ConfigAPI("TheAPI", "UnusedData");
+	public static ConfigAPI config= new ConfigAPI("TheAPI", "Config");
+	public static ConfigAPI gameapi= new ConfigAPI("TheAPI", "GameAPI");
+	public static ConfigAPI data= new ConfigAPI("TheAPI", "Data");
 	public void onLoad() {
 		plugin=this;
-		new TheAPI();
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &6Action: &6Loading plugin..",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
@@ -72,7 +75,6 @@ public class LoaderClass extends JavaPlugin {
 					as=true;
 					tveeconomy=TheVault.getEconomy();
 					tve=true;
-					new TheAPI();
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &6Found TheVault Economy",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
@@ -81,7 +83,6 @@ public class LoaderClass extends JavaPlugin {
 				b=true;
 					bank=TheVault.getBank();
 					tbank=true;
-					new TheAPI();
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &6Found TheVault Bank system",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
@@ -109,6 +110,7 @@ public class LoaderClass extends JavaPlugin {
 		createConfig();
 		Tasks.load();
 		Bukkit.getPluginManager().registerEvents(new Events(), this);
+		Bukkit.getPluginManager().registerEvents(new PacketReader(), this);
 		Bukkit.getPluginCommand("TheAPI").setExecutor(new TheAPICommand());
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &6Action: &aEnabling plugin, creating config and registering economy..",TheAPI.getConsole());
@@ -120,9 +122,7 @@ public class LoaderClass extends JavaPlugin {
 			TheAPI.msg("&bTheAPI&7: &cYou can enabled EconomyAPI by set custom Economy in EconomyAPI.",TheAPI.getConsole());
 			TheAPI.msg("&bTheAPI&7: &c *TheAPI will still normally work without problems*",TheAPI.getConsole());
 			TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-		}else {
-			vaultHooking();
-		}
+		}else vaultHooking();
 		TheAPI.getRunnable().runLater(new Runnable() {
 			public void run() {
 				if(getTheAPIsPlugins().size()==0)return;
@@ -164,6 +164,9 @@ public class LoaderClass extends JavaPlugin {
 				+ "TNT -> Action -> LowMememory types: WAIT/DROP\n"
 				+ "TNT -> Action -> LowTPS types: WAIT/DROP");
 		config.addDefault("Options.HideErrors", false);
+		config.addDefault("Options.Options.AntiBot.Use", true);
+		config.addDefault("Options.Options.AntiBot.TimeBetweenPlayer", 3);
+		
 		config.addDefault("Options.LagChecker.Enabled", true);
 		config.addDefault("Options.LagChecker.Log", false);
 		

@@ -17,7 +17,6 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -27,56 +26,22 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import me.Straiker123.NMSAPI.TitleAction;
 import me.Straiker123.Events.PlayerVanishEvent;
 import me.Straiker123.Utils.Error;
 import net.glowstone.entity.GlowPlayer;
 
 public class TheAPI {
-	private static StringUtils utils;
-	private static SignAPI sign;
-	private static BlocksAPI blocks;
-	private static ConsoleCommandSender console;
-	private static PunishmentAPI push;
-	private static ReportSystem report;
-	private static boolean isNew,isOld;
-	private static HashMap<Player, BossBar> list = new HashMap<Player, BossBar>();
-	private static HashMap<Player, BukkitTask> task = new HashMap<Player, BukkitTask>();
-	private static int max;
-	private static WorldsManager worlds;
-	private static EconomyAPI eco;
-	private static TabListAPI tab;
-	private static MemoryAPI mem;
-	private static PluginManagerAPI plugins;
-	private static SoundAPI sound;
-	private static EnchantmentAPI enchs;
-	private static TimeConventorAPI time;
-	private static NMSAPI nms;
-	private static PlaceholderAPIUtils plac;
-	public TheAPI() {
-		nms=new NMSAPI();
-		console=Bukkit.getConsoleSender();
-		utils= new StringUtils();
-		sign=new SignAPI();
-		blocks=new BlocksAPI();
-		isNew=!getServerVersion().equalsIgnoreCase("glowstone") && utils.getInt(getServerVersion().split("_")[1])>12;
-		isOld=utils.getInt(getServerVersion().split("_")[1])<9;
-		max=Bukkit.getMaxPlayers();
-		push=new PunishmentAPI();
-		report=new ReportSystem();
-		worlds=new WorldsManager();
-		eco = new EconomyAPI();
-		tab=new TabListAPI();
-		mem = new MemoryAPI();
-		time=new TimeConventorAPI();
-		enchs=new EnchantmentAPI();
-		sound= new SoundAPI();
-		plugins=new PluginManagerAPI();
-		plac=new PlaceholderAPIUtils();
+	private static HashMap<Player, BossBar> list = Maps.newHashMap();
+	private static HashMap<Player, BukkitTask> task = Maps.newHashMap();
+	static {
 	}
 	
 	public static NMSAPI getNMSAPI() {
-		return nms;
+		return new NMSAPI();
 	}
 	
 	/**
@@ -85,7 +50,7 @@ public class TheAPI {
 	 * @return Colored String
 	 */
 	public static String colorize(String string) {
-		return utils.colorize(string);
+		return getStringUtils().colorize(string);
 	}
 
 	/**
@@ -93,7 +58,7 @@ public class TheAPI {
 	 * @return SignAPI
 	 */
 	public static SignAPI getSignAPI() {
-		return sign;
+		return new SignAPI();
 	}
 
 	/**
@@ -125,7 +90,7 @@ public class TheAPI {
 	 * @return BlocksAPI
 	 */
 	public static BlocksAPI getBlocksAPI() {
-		return blocks;
+		return new BlocksAPI();
 	}
 
 	/**
@@ -141,7 +106,7 @@ public class TheAPI {
 	 * @return StringUtils
 	 */
 	public static StringUtils getStringUtils() {
-		return utils;
+		return new StringUtils();
 	}
 
 	/**
@@ -171,14 +136,14 @@ public class TheAPI {
 	 * @return boolean
 	 */
 	public static boolean isNewVersion() {
-		return isNew;
+		return !getServerVersion().equalsIgnoreCase("glowstone") && getStringUtils().getInt(getServerVersion().split("_")[1])>12;
 	}
 	/**
 	 * @see see Return is server version older than 1.9 ? (1.5 up to 1.8.9)
 	 * @return boolean
 	 */
 	public static boolean isOlder1_9() {
-		return isOld;
+		return getStringUtils().getInt(getServerVersion().split("_")[1])<9;
 	}
 
 	/**
@@ -195,7 +160,7 @@ public class TheAPI {
 	 * 
 	 */
 	public static String buildString(String[] args) {
-		return utils.buildString(args);
+		return getStringUtils().buildString(args);
 	}
 
 	public static SQLAPI getSQLAPI(String host, String database, String username, String password, int port) {
@@ -221,7 +186,7 @@ public class TheAPI {
 	 * @return Object
 	 */
 	public static Object getRandomFromList(List<?> list) {
-		return utils.getRandomFromList(list);
+		return getStringUtils().getRandomFromList(list);
 	}
 	/**
 	 * @see see Set world border size, center and more
@@ -256,7 +221,7 @@ public class TheAPI {
 	 * @return PlaceholderAPIUtils
 	 */
 	public static PlaceholderAPIUtils getPlaceholderAPI() {
-		return plac;
+		return new PlaceholderAPIUtils();
 	}
 	
 	/**
@@ -301,7 +266,7 @@ public class TheAPI {
 	 * @return int
 	 */
 	public static int getMaxPlayers() {
-		return max;
+		return Bukkit.getMaxPlayers();
 	}
 
 	/**
@@ -676,7 +641,7 @@ public class TheAPI {
 	 * @return PunishmentAPI
 	 */
 	public static PunishmentAPI getPunishmentAPI() {
-		return push;
+		return new PunishmentAPI();
 	}
 	/**
 	 * @see see Set server motd in server list
@@ -698,7 +663,7 @@ public class TheAPI {
 	 * @return ReportSystem
 	 */
 	public static ReportSystem getReportSystem() {
-		return report;
+		return new ReportSystem();
 	}
 	/**
 	 * @see see Set max players on server
@@ -825,7 +790,7 @@ public class TheAPI {
 	 * @return CommandSender
 	 */
 	public static CommandSender getConsole() {
-		return console;
+		return Bukkit.getConsoleSender();
 	}
 	
 	/**
@@ -833,7 +798,7 @@ public class TheAPI {
 	 * @return WorldsManager
 	 */
 	public static WorldsManager getWorldsManager() {
-		return worlds;
+		return new WorldsManager();
 	}
 	
 	/**
@@ -841,7 +806,7 @@ public class TheAPI {
 	 * @return EconomyAPI
 	 */
 	public static EconomyAPI getEconomyAPI() {
-		return eco;
+		return new EconomyAPI();
 	}
 	
 	/**
@@ -849,7 +814,7 @@ public class TheAPI {
 	 * @return TabListAPI
 	 */
 	public static TabListAPI getTabListAPI() {
-		return tab;
+		return new TabListAPI();
 	}
 	
 	/**
@@ -881,12 +846,30 @@ public class TheAPI {
 	}
 	
 	/**
-	 * @see see Create cooldown or delete cooldown
+	 * @see see Manager of player's cooldowns
 	 * @param cooldown
 	 * @return CooldownAPI
 	 */
-	public static CooldownAPI getCooldownAPI(String cooldown) {
-		return new CooldownAPI(cooldown);
+	public static CooldownAPI getCooldownAPI(String player) {
+		return getCooldownAPI(getUser(player));
+	}
+	
+	/**
+	 * @see see Manager of player's cooldowns
+	 * @param cooldown
+	 * @return CooldownAPI
+	 */
+	public static CooldownAPI getCooldownAPI(UUID player) {
+		return getCooldownAPI(getUser(player));
+	}
+	
+	/**
+	 * @see see Manager of player's cooldowns
+	 * @param cooldown
+	 * @return CooldownAPI
+	 */
+	public static CooldownAPI getCooldownAPI(User player) {
+		return new CooldownAPI(player);
 	}
 	
 	/**
@@ -894,21 +877,21 @@ public class TheAPI {
 	 * @return MemoryAPI
 	 */
 	public static MemoryAPI getMemoryAPI() {
-		return mem;
+		return new MemoryAPI();
 	}
 	/**
 	 * @see see Load, unload, enable or disable plugins
 	 * @return PluginManagerAPI
 	 */
 	public static PluginManagerAPI getPluginsManagerAPI() {
-		return plugins;
+		return new PluginManagerAPI();
 	}
 	/**
 	 * @see see Get bukkit name of enchantment from string for ex. Sharpness -> DAMAGE_ALL
 	 * @return EnchantmentAPI
 	 */
 	public static EnchantmentAPI getEnchantmentAPI() {
-		return enchs;
+		return new EnchantmentAPI();
 	}
 	/**
 	 * @see see Send player scoreboard with per player scoreboard function (Flashing, but overide other scoreboards)
@@ -938,30 +921,20 @@ public class TheAPI {
 	public static ScoreboardAPIV2 getScoreboardAPIV2(Player p) {
 		return new ScoreboardAPIV2(p);
 	}
-
 	/**
 	 * @see see Send player scoreboard with per player scoreboard function (Non-flashing, Using NMS -> 48 symbols access)
 	 * @param p
 	 * @return ScoreboardAPI
 	 */
-	public static ScoreboardAPIV3 getScoreboardAPIV3(Player p, String objective) {
-		return new ScoreboardAPIV3(p,objective);
-	}
-
-	/**
-	 * @see see Send player scoreboard with per player scoreboard function (Non-flashing, Using NMS -> 48 symbols access)
-	 * @param p
-	 * @return ScoreboardAPI
-	 */
-	public static ScoreboardAPIV3 getScoreboardAPIV3(Player p) {
-		return new ScoreboardAPIV3(p);
+	public static ScoreboardAPIV3 getScoreboardAPIV3(Player p, String displayname) {
+		return new ScoreboardAPIV3(p, colorize(displayname));
 	}
 	/**
 	 * @see see Send player sound or get sound name from String
 	 * @return SoundAPI
 	 */
 	public static SoundAPI getSoundAPI() {
-		return sound;
+		return new SoundAPI();
 	}
 	/**
 	 * @see see Convert long to String time or String time to long
@@ -969,7 +942,7 @@ public class TheAPI {
 	 */
 	@Deprecated
 	public static TimeConventorAPI getTimeConventorAPI() {
-		return time;
+		return new TimeConventorAPI();
 	}
 	/**
 	 * @see see Create GUI without events
@@ -1058,7 +1031,7 @@ public class TheAPI {
 	        return -1;
 	    }
 	}
-	//UUID.fromString(String) returns UUID
+	
 	public static void showEntity(Player to, UUID uuid) {
 		if(LoaderClass.data.getConfig().getString("hiden."+uuid.toString())==null)return; //not hiden or isn't in config
 		LoaderClass.data.getConfig().set("hiden."+uuid.toString(), null);
@@ -1116,6 +1089,10 @@ public class TheAPI {
 	     } catch(Exception e) {}
 	}
 	
+	/**
+	 * @see see Return boolean exists User's file
+	 * @return boolean
+	 */
 	@SuppressWarnings("deprecation")
 	public static boolean existsUser(String name) {
 		String s = null;
@@ -1126,22 +1103,48 @@ public class TheAPI {
 		}
 		return new File("plugins/TheAPI/User/"+s+".yml").exists();
 	}
+
+	/**
+	 * @see see Return boolean exists User's file
+	 * @return boolean
+	 */
 	public static boolean existsUser(UUID uuid) {
 		return new File("plugins/TheAPI/User/"+uuid.toString()+".yml").exists();
 	}
+	
+	/**
+	 * @see see Return boolean exists User's file
+	 * @return boolean
+	 */
 	public static boolean existsUser(Player player) {
 		return new File("plugins/TheAPI/User/"+player.getUniqueId().toString()+".yml").exists();
 	}
 	
 	/**
-	 * @see see Return List of users
+	 * @see see Return List of users (For ex. e74d98f0-a807-3b3d-b53f-93ea27908936)
 	 * @return List<UUID>
 	 */
 	public static List<UUID> getUsers(){
-		List<UUID> a = new ArrayList<UUID>();
+		List<UUID> a = Lists.newArrayList();
 		for(File f : new File("plugins/TheAPI/User").listFiles()) {
 			try {
 			a.add(UUID.fromString(f.getName().replaceFirst(".yml", "")));
+			}catch(Exception e) {
+				//hide error.
+			}
+		}
+		return a;
+	}
+	
+	/**
+	 * @see see Return List of users names (For ex. Straikerina)
+	 * @return List<String>
+	 */
+	public static List<String> getUsersNames(){
+		List<String> a = Lists.newArrayList();
+		for(File f : new File("plugins/TheAPI/User").listFiles()) {
+			try {
+			a.add(Bukkit.getOfflinePlayer(UUID.fromString(f.getName().replaceFirst(".yml", ""))).getName()); 
 			}catch(Exception e) {
 				//hide error.
 			}

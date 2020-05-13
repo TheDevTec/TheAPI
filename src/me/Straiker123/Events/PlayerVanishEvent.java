@@ -51,12 +51,14 @@ public class PlayerVanishEvent extends Event implements Cancellable {
 		cancel=c;
 	}
 	
+	private static final HandlerList c = new HandlerList();
 	@Override
 	public HandlerList getHandlers() {
-		return new HandlerList();
+		return c;
 	}
+	
 	public static HandlerList getHandlerList() {
-		return new HandlerList();
+		return c;
 	}
 
 

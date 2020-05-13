@@ -5,16 +5,18 @@ import java.util.HashMap;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import me.Straiker123.LoaderClass;
+import me.Straiker123.ConfigAPI;
 
 public class GUIID {
 	private Inventory i;
 	private Player p;
+	private ConfigAPI d;
 	private String id;
-	public GUIID(Player s) {
+	public GUIID(Player s, ConfigAPI g) {
 		p=s;
+		this.d=g;
 		for(int i = 0; i > -1; ++i) {
-			if(LoaderClass.unused.getConfig().getString("guis."+p.getName()+"."+i)==null) {
+			if(!g.existPath("guis."+s.getName()+"."+i)) {
 				id=i+"";
 			break;
 			}
@@ -76,7 +78,8 @@ public class GUIID {
 	public void clear() {
 		run.clear();
 		close=null;
-		LoaderClass.unused.getConfig().set("guis."+p.getName()+"."+id, null);
+		d.set("guis."+p.getName()+"."+id, null);
+		d.save();
 	}
 	public void closeAndClear() {
 		clear();

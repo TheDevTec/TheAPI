@@ -22,29 +22,39 @@ public class NMSAPI {
 			,world=Reflections.getNMSClass("World"),enumChat = Reflections.getNMSClass("ChatMessageType")
 			,bWorld=Reflections.getBukkitClass("CraftWorld"),bPlayer=Reflections.getBukkitClass("entity.CraftPlayer")
 			,EntityPlayer=Reflections.getNMSClass("EntityPlayer"),server=Reflections.getNMSClass("MinecraftServer"),b=Reflections.getNMSClass("Block")
-			,cChunk=Reflections.getBukkitClass("CraftChunk"),cs=Reflections.getNMSClass("ChunkSection"),enumTitle
+			,cChunk=Reflections.getBukkitClass("CraftChunk"),cs=Reflections.getNMSClass("ChunkSection"),enumTitle,Containers=Reflections.getNMSClass("Containers")
 			,particleEnum = Reflections.existNMSClass("EnumParticle") ? Reflections.getNMSClass("EnumParticle") : Reflections.getNMSClass("Particles");
 	private Constructor<?> pDestroy,pTitle,pOutChat,pTab,pBlock,blockPos,pChunk,ChunkSection,chunkc
-	,particle,pSpawn,pNSpawn,pLSpawn;
+	,particle,pSpawn,pNSpawn,pLSpawn,pWindow;
 	private Method getmat,getb,getc,gett,WorldHandle,PlayerHandle,sendPacket,ichatcon,getser,plist,block,IBlockData
 	,worldset,Chunk,getblocks,setblock,setblockb,itemstack,entityM,livingentity,oldichatser;
 	private Field pCon,tps;
 	public NMSAPI() {
-		if(Reflections.existNMSClass("PacketPlayOutWorldParticles"))
+		try {
 			particle=Reflections.getNMSClass("PacketPlayOutWorldParticles").getConstructors()[1];
-		else
+		}catch(Exception e) {
 			particle=Reflections.getNMSClass("Packet63WorldParticles").getConstructors()[1];
-
+		}
 		try {
 		ichatser=ichat.getDeclaredClasses()[0];
 		enumTitle=Reflections.getNMSClass("PacketPlayOutTitle").getDeclaredClasses()[0];
 		}catch(Exception oldversion) {
 			oldichatser=Reflections.getMethod(Reflections.getNMSClass("ChatSerializer"),"a", String.class);
 		}
+		
 		try {
 			pDestroy=Reflections.getNMSClass("PacketPlayOutEntityDestroy").getConstructor(int[].class);
 		} catch (Exception e3) {
 			e3.printStackTrace();
+		}
+		try {
+			pWindow=Reflections.getNMSClass("PacketPlayOutOpenWindow").getConstructor(int.class, String.class, ichat);
+		} catch (Exception e) {
+			try {
+				pWindow=Reflections.getNMSClass("PacketPlayOutOpenWindow").getConstructor(int.class, Containers, ichat);
+			} catch (Exception e3) {
+				e3.printStackTrace();
+			}
 		}
 		try {
 		pSpawn = Reflections.getNMSClass("PacketPlayOutSpawnEntity").getConstructor(Reflections.getNMSClass("Entity"),int.class);
@@ -548,6 +558,24 @@ public class NMSAPI {
 
 	public Object getPacketPlayOutTitle(TitleAction action, Object IChatBaseComponent) {
 		return getPacketPlayOutTitle(action, IChatBaseComponent,10,20,10);
+	}
+	
+	public Object getPacketPlayOutOpenWindow(int id, String container, String text) {
+		return getPacketPlayOutOpenWindow(id,container,getIChatBaseComponentText(text));
+	}
+
+	public Object getPacketPlayOutOpenWindow(int id, String container, Object IChatBaseComponent) {
+		
+		try {
+			return pWindow.newInstance(id,container,IChatBaseComponent);
+		} catch (Exception es) {
+			try {
+				return pWindow.newInstance(id,Containers.getField(container).get(null),IChatBaseComponent);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
 	}
 
 	public Object getPacketPlayOutTitle(TitleAction action, Object IChatBaseComponent, int fadeIn, int stay, int fadeOut) {

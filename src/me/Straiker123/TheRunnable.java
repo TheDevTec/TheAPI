@@ -21,6 +21,23 @@ public class TheRunnable {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(LoaderClass.plugin, r, delay);
 		return this;
     }
+	
+	@SuppressWarnings("deprecation")
+	public TheRunnable runAsyncLater(Runnable r,long delay) {
+		Bukkit.getScheduler().scheduleAsyncDelayedTask(LoaderClass.plugin, r, delay);
+		return this;
+    }
+    
+	@SuppressWarnings("deprecation")
+	public TheRunnable runAsyncRepeating(Runnable r,long delay,long period) {
+		if(id != -0) {
+			Error.err("sending repeating task", "On this thread is already running task");
+			return this;
+		}
+		start=System.currentTimeMillis()/1000;
+		id= Bukkit.getScheduler().scheduleAsyncRepeatingTask(LoaderClass.plugin, r,delay,period);
+		return this;
+    }
     
 	public TheRunnable runRepeating(Runnable r,long delay,long period) {
 		if(id != -0) {
@@ -32,8 +49,45 @@ public class TheRunnable {
 		return this;
     }
 
+	public TheRunnable runAsyncRepeating(Runnable r,long period) {
+		runAsyncRepeating(r,period,period);
+		return this;
+    }
+
 	public TheRunnable runRepeating(Runnable r,long period) {
 		runRepeating(r,period,period);
+		return this;
+    }
+	public TheRunnable runAsyncRepeatingFor(Runnable r, Runnable onEnd,long period) {
+		return runAsyncRepeatingFor(r,onEnd,period,1);
+    }
+	@SuppressWarnings("deprecation")
+	public TheRunnable runAsyncRepeatingFor(Runnable r, Runnable onEnd, long period,int times) {
+		if(id_repeatfor != -0 || id_repeatfor_run!=-0) {
+			Error.err("sending repeating task for "+period, "On this thread is already running task");
+			return this;
+		}
+		if(times <= 0) {
+			Error.err("sending repeating task for "+period, "Repeat times must be more than 0");
+			return this;
+		}
+		start1=System.currentTimeMillis()/1000;
+		id_repeatfor= Bukkit.getScheduler().scheduleAsyncRepeatingTask(LoaderClass.plugin, r,period,period);
+		id_repeatfor_run= Bukkit.getScheduler().scheduleAsyncRepeatingTask(LoaderClass.plugin, new Runnable() {
+			int tr = 0;
+			public void run() {
+				if(times==tr) {
+					Bukkit.getScheduler().cancelTask(id_repeatfor);
+					id_repeatfor = -0;
+					Bukkit.getScheduler().cancelTask(id_repeatfor_run);
+					id_repeatfor_run = -0;
+					if(onEnd!=null)
+					onEnd.run();
+					return;
+				}
+				++tr;
+			}
+		},period,period);
 		return this;
     }
 	public TheRunnable runRepeatingFor(Runnable r, Runnable onEnd,long period) {

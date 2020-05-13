@@ -39,12 +39,13 @@ public class DamageGodPlayerEvent extends Event implements Cancellable {
 		return s;
 	}
 
+	private static final HandlerList cs = new HandlerList();
 	@Override
 	public HandlerList getHandlers() {
-		return new HandlerList();
+		return cs;
 	}
 	
 	public static HandlerList getHandlerList() {
-		return new HandlerList();
+		return cs;
 	}
 }

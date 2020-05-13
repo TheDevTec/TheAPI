@@ -92,7 +92,7 @@ public class TNTExplosionEvent extends Event implements Cancellable {
 	public void setCancelled(boolean cancel) {
 		b=cancel;
 	}
-	static HandlerList c = new HandlerList();
+	private static final HandlerList c = new HandlerList();
 	@Override
 	public HandlerList getHandlers() {
 		return c;

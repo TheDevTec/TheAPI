@@ -38,8 +38,10 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import me.Straiker123.BlocksAPI.Shape;
+import me.Straiker123.ConfigAPI;
 import me.Straiker123.ItemCreatorAPI;
 import me.Straiker123.LoaderClass;
 import me.Straiker123.PunishmentAPI;
@@ -47,7 +49,6 @@ import me.Straiker123.SignAPI.SignAction;
 import me.Straiker123.Storage;
 import me.Straiker123.TheAPI;
 import me.Straiker123.TheAPI.SudoType;
-import me.Straiker123.Utils.GUIID.GRunnable;
 import me.Straiker123.WorldBorderAPI.WarningMessageType;
 import me.Straiker123.Events.DamageGodPlayerByEntityEvent;
 import me.Straiker123.Events.DamageGodPlayerEvent;
@@ -55,35 +56,31 @@ import me.Straiker123.Events.GUIClickEvent;
 import me.Straiker123.Events.GUICloseEvent;
 import me.Straiker123.Events.PlayerJumpEvent;
 import me.Straiker123.Events.TNTExplosionEvent;
+import me.Straiker123.Utils.GUIID.GRunnable;
 
 @SuppressWarnings("deprecation")
 public class Events implements Listener {
 	public static FileConfiguration f = LoaderClass.config.getConfig();
 	public static FileConfiguration d = LoaderClass.data.getConfig();
-	public static FileConfiguration g = LoaderClass.unused.getConfig();
+	public static ConfigAPI g = LoaderClass.unused;
 	public static PunishmentAPI a = TheAPI.getPunishmentAPI();
 	@EventHandler(priority = EventPriority.LOWEST)
-	private void onClose(InventoryCloseEvent e) {
+	private synchronized void onClose(InventoryCloseEvent e) {
 		Player p = (Player)e.getPlayer();
-		String playersname = p.getName();
-		if(g.getString("guis."+playersname)==null)return;
 		String title = e.getView().getTitle();
-		
-		GUIID as = LoaderClass.gui.get(p);
-	
-		if(as!=null) {
-			String a = as.getID();
-			GUICloseEvent event = new GUICloseEvent(p,e.getInventory(),title);
-			Bukkit.getPluginManager().callEvent(event);
-					if(g.getString("guis."+playersname+"."+a+".MSGCLOSE")!=null)
-				for(String s: g.getStringList("guis."+playersname+"."+a+".MSGCLOSE"))
-					TheAPI.broadcastMessage(s);
-			if(g.getString("guis."+playersname+"."+a+".CMDCLOSE")!=null)
-				for(String s: g.getStringList("guis."+playersname+"."+a+".CMDCLOSE"))
-					TheAPI.sudoConsole(SudoType.COMMAND, s);
-		    	as.runRunnable(GRunnable.RUNNABLE_ON_INV_CLOSE,0);
-		    as.clear();
-		}
+		GUIID d = LoaderClass.gui.containsKey(p)?LoaderClass.gui.get(p):null;
+		if(d==null)return;
+			String a = p.getName()+"."+d.getID();
+					GUICloseEvent event = new GUICloseEvent(p,e.getInventory(),title);
+					Bukkit.getPluginManager().callEvent(event);
+							if(g.getString("guis."+a+".MSGCLOSE")!=null)
+						for(String s: g.getStringList("guis."+a+".MSGCLOSE"))
+							TheAPI.broadcastMessage(s);
+					if(g.getString("guis."+a+".CMDCLOSE")!=null)
+						for(String s: g.getStringList("guis."+a+".CMDCLOSE"))
+							TheAPI.sudoConsole(SudoType.COMMAND, s);
+				    	d.runRunnable(GRunnable.RUNNABLE_ON_INV_CLOSE,0);
+				    d.clear();
 	}
 	private ItemStack createWrittenBook(ItemStack a) {
 		Material ms = Material.matchMaterial("WRITABLE_BOOK");
@@ -116,26 +113,24 @@ public class Events implements Listener {
 		 s.setUnbreakable(a.getItemMeta().isUnbreakable());
 		 return s.create();
 	}
+	
 	@EventHandler(priority = EventPriority.LOWEST)
-	private void onClick(InventoryClickEvent e) {
+	private synchronized void onClick(InventoryClickEvent e) {
 		if(e.isCancelled())return;
 		Player p = (Player)e.getWhoClicked();
-		String playersname = p.getName();
-		if(g.getString("guis."+playersname)==null)return;
 		int slot = e.getSlot();
-		GUIID d = LoaderClass.gui.get(p);
+		GUIID d = LoaderClass.gui.containsKey(p)?LoaderClass.gui.get(p):null;
 		if(d==null)return;
-		String a = d.getID();
-			ItemStack i = e.getCurrentItem();
+			String a = p.getName()+"."+d.getID();
+					ItemStack i = e.getCurrentItem();
+					if(i==null)return;
 			GUIClickEvent event = new GUIClickEvent(p, e.getClickedInventory(), e.getView().getTitle(), slot, i);
 			Bukkit.getPluginManager().callEvent(event);
 			if(event.isCancelled())
 			e.setCancelled(true);
-			
-		if(i != null) {
 			if(e.getClickedInventory().getType()==InventoryType.PLAYER) {
-				if(g.getString("guis."+playersname+"."+a+".PUT")!=null)
-			e.setCancelled(g.getBoolean("guis."+playersname+"."+a+".PUT"));
+				if(g.existPath("guis."+a+".PUT"))
+			e.setCancelled(g.getBoolean("guis."+a+".PUT"));
 			return;
 			}
 			if(i.getType().name().equals("WRITTEN_BOOK")||i.getType().name().equals("BOOK_AND_QUILL"))i=createWrittenBook(i);
@@ -143,62 +138,88 @@ public class Events implements Listener {
 					||i.getType().name().equals("PLAYER_HEAD"))
 				i=createHead(i);
 			ClickType t = e.getClick();
-			if(g.getBoolean("guis."+playersname+"."+a+"."+slot+".TAKE"))
-				e.setCancelled(g.getBoolean("guis."+playersname+"."+a+"."+slot+".TAKE"));
-				
-				if(g.getString("guis."+playersname+"."+a+"."+slot+".MSG")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSG"))
+			if(g.existPath("guis."+a+"."+slot+".TAKE"))
+				e.setCancelled(g.getBoolean("guis."+a+"."+slot+".TAKE"));
+				new BukkitRunnable() {
+					public void run() {
+				if(g.getString("guis."+a+"."+slot+".MSG")!=null)
+					for(String s: g.getStringList("guis."+a+"."+slot+".MSG"))
 						TheAPI.msg(s, p);
-				if(g.getString("guis."+playersname+"."+a+"."+slot+".CMD")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMD"))
+				if(g.getString("guis."+a+"."+slot+".CMD")!=null)
+					for(String s: g.getStringList("guis."+a+"."+slot+".CMD"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
-				d.runRunnable(GRunnable.RUNNABLE,slot);
+				new BukkitRunnable() {
+					public void run() {
+						d.runRunnable(GRunnable.RUNNABLE,slot);
+					}
+				}.runTask(LoaderClass.plugin);
 
 				if(t.isLeftClick()&& !t.isShiftClick()) {
-				if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGLC")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGLC"))
+				if(g.getString("guis."+a+"."+slot+".MSGLC")!=null)
+					for(String s: g.getStringList("guis."+a+"."+slot+".MSGLC"))
 						TheAPI.msg(s, p);
-				if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDLC")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDLC"))
+				if(g.getString("guis."+a+"."+slot+".CMDLC")!=null)
+					for(String s: g.getStringList("guis."+a+"."+slot+".CMDLC"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
-				d.runRunnable(GRunnable.RUNNABLE_LEFT_CLICK,slot);
+				new BukkitRunnable() {
+					public void run() {
+						d.runRunnable(GRunnable.RUNNABLE_LEFT_CLICK,slot);
+					}
+				}.runTask(LoaderClass.plugin);
 				}
 				if(t.isRightClick()&& !t.isShiftClick()) {
-					if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGRC")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGRC"))
+					if(g.getString("guis."+a+"."+slot+".MSGRC")!=null)
+					for(String s: g.getStringList("guis."+a+"."+slot+".MSGRC"))
 						TheAPI.msg(s, p);
-					if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDRC")!=null)
-						for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDRC"))
+					if(g.getString("guis."+a+"."+slot+".CMDRC")!=null)
+						for(String s: g.getStringList("guis."+a+"."+slot+".CMDRC"))
 							TheAPI.sudoConsole(SudoType.COMMAND, s);
-					d.runRunnable(GRunnable.RUNNABLE_RIGHT_CLICK,slot);
+					new BukkitRunnable() {
+						public void run() {
+							d.runRunnable(GRunnable.RUNNABLE_RIGHT_CLICK,slot);
+						}
+					}.runTask(LoaderClass.plugin);
 				}
 				if(t.isCreativeAction()) {
-					if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGMC")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGMC"))
+					if(g.getString("guis."+a+"."+slot+".MSGMC")!=null)
+					for(String s: g.getStringList("guis."+a+"."+slot+".MSGMC"))
 						TheAPI.msg(s, p);
-					if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDMC")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDMC"))
+					if(g.getString("guis."+a+"."+slot+".CMDMC")!=null)
+					for(String s: g.getStringList("guis."+a+"."+slot+".CMDMC"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
-					d.runRunnable(GRunnable.RUNNABLE_MIDDLE_CLICK,slot);
+					new BukkitRunnable() {
+						public void run() {
+							d.runRunnable(GRunnable.RUNNABLE_MIDDLE_CLICK,slot);
+						}
+					}.runTask(LoaderClass.plugin);
 				}
 				if(t.isLeftClick() && t.isShiftClick()) {
-					if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGWLC")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGWLC"))
+					if(g.getString("guis."+a+"."+slot+".MSGWLC")!=null)
+					for(String s: g.getStringList("guis."+a+"."+slot+".MSGWLC"))
 						TheAPI.msg(s, p);
-					if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDWLC")!=null)
-						for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDWLC"))
+					if(g.getString("guis."+a+"."+slot+".CMDWLC")!=null)
+						for(String s: g.getStringList("guis."+a+"."+slot+".CMDWLC"))
 							TheAPI.sudoConsole(SudoType.COMMAND, s);
-					d.runRunnable(GRunnable.RUNNABLE_SHIFT_WITH_LEFT_CLICK,slot);
+					new BukkitRunnable() {
+						public void run() {
+							d.runRunnable(GRunnable.RUNNABLE_SHIFT_WITH_LEFT_CLICK,slot);
+						}
+					}.runTask(LoaderClass.plugin);
 				}
 				if(t.isRightClick()&& t.isShiftClick()) {
-					if(g.getString("guis."+playersname+"."+a+"."+slot+".MSGWRC")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".MSGWRC"))
+					if(g.getString("guis."+a+"."+slot+".MSGWRC")!=null)
+					for(String s: g.getStringList("guis."+a+"."+slot+".MSGWRC"))
 						TheAPI.msg(s, p);
-				if(g.getString("guis."+playersname+"."+a+"."+slot+".CMDWLC")!=null)
-					for(String s: g.getStringList("guis."+playersname+"."+a+"."+slot+".CMDWRC"))
+				if(g.getString("guis."+a+"."+slot+".CMDWLC")!=null)
+					for(String s: g.getStringList("guis."+a+"."+slot+".CMDWRC"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
-					d.runRunnable(GRunnable.RUNNABLE_SHIFT_WITH_RIGHT_CLICK,slot);
-		}}}
+					new BukkitRunnable() {
+						public void run() {
+							d.runRunnable(GRunnable.RUNNABLE_SHIFT_WITH_RIGHT_CLICK,slot);
+						}
+					}.runTask(LoaderClass.plugin);
+				}}}.runTaskAsynchronously(LoaderClass.plugin);
+		}
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onClick(PlayerInteractEvent e) {
 		if(e.isCancelled())return;

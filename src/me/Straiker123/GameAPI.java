@@ -176,6 +176,7 @@ public class GameAPI {
 		return w.getBoolean(s+".Arenas."+arena+".InGame");
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void startArena(String arena) {
 		if(w.getString(s+".Arenas."+arena+".Setting.min_players")!=null) {
 		int mis = getPlayersInGame(arena).size()-w.getInt(s+".Arenas."+arena+".Setting.min_players");
@@ -193,7 +194,7 @@ public class GameAPI {
 			TheAPI.getConsole().sendMessage(TheAPI.colorize("&2TheGameAPI &b> &6Arena "+arena+" required minimal "+w.getInt(s+".Arenas."+arena+".Setting.min_teams")+" teams"));
 			return;
 		}}
-		LoaderClass.gameapi_timer.put(arena,Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, new Runnable() {
+		LoaderClass.gameapi_timer.put(arena,Bukkit.getScheduler().scheduleAsyncRepeatingTask(LoaderClass.plugin, new Runnable() {
 			int time = 0;
 			@Override
 			public void run() {
@@ -216,7 +217,7 @@ public class GameAPI {
 		
 		setArenaInGame(arena, true);
 		
-		LoaderClass.GameAPI_Arenas.put(arena, Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, new Runnable() {
+		LoaderClass.GameAPI_Arenas.put(arena, Bukkit.getScheduler().scheduleAsyncRepeatingTask(LoaderClass.plugin, new Runnable() {
 			int time = 0;
 			@Override
 			public void run() {

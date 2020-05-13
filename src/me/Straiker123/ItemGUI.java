@@ -18,6 +18,11 @@ public class ItemGUI {
 		return i;
 	}
 	
+	public void setItem(ItemStack item) {
+		if(item!=null)
+		i=item;
+	}
+	
 	public HashMap<Options, Object> getOptions() {
 		return ops;
 	}

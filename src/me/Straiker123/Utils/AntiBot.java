@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 
+import me.Straiker123.LoaderClass;
 import me.Straiker123.PunishmentAPI;
 import me.Straiker123.TheAPI;
 
@@ -43,6 +44,7 @@ public class AntiBot {
 	}
 	
 	public static boolean canJoin() {
-		return last-System.currentTimeMillis()/1000+3 < 0;
+		if(!LoaderClass.config.getBoolean("Options.AntiBot.Use"))return true;
+		return last-System.currentTimeMillis()/1000+LoaderClass.config.getLong("Options.AntiBot.TimeBetweenPlayer") < 0;
 	}
 }

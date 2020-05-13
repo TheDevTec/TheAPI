@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -17,14 +16,12 @@ public class GUICreatorAPI {
 	
 	private Player p;
 	public GUICreatorAPI(Player s) {
-		if(s!=null) {
 		p=s;
-		id=new GUIID(p);
-		}
-		g =LoaderClass.unused.getConfig();
+		g =LoaderClass.unused;
+		id=new GUIID(p,g);
 	}
 	private GUIID id;
-	private String t = "TheAPI - Missing name of GUI";
+	private String t = "Missing name of GUI";
 	public void setTitle(String title) {
 		if(title!=null)
 		t=title;
@@ -140,7 +137,7 @@ public class GUICreatorAPI {
 		 s.setUnbreakable(a.getItemMeta().isUnbreakable());
 		 return s.create();
 	}
-	private static FileConfiguration g;
+	private static ConfigAPI g;
 	/**
 	 * @see see Set item on position to the gui with options
 	 * @param options
@@ -152,6 +149,9 @@ public class GUICreatorAPI {
 	 * SENDCOMMANDS - Ignoring click type, send list of commands as console (List<String>).
 	 */
 	public void setItem(int position, ItemStack item, HashMap<Options, Object> options) {
+		if(isOpened())
+			inv.setItem(position, item);
+		else
 		map.put(position,item);
 		for(Options a:options.keySet()) {
 			switch(a) {
@@ -279,6 +279,7 @@ public class GUICreatorAPI {
 	 * @return int where is empty slot (if available)
 	 */
 	public int getFirstEmpty() {
+		if(isOpened())return inv.firstEmpty();
 		int i = -1;
 		boolean find=false;
 		for(int a=0; a<f; ++a) {
@@ -314,10 +315,10 @@ public class GUICreatorAPI {
 	 * Item in gui, you can use instance ItemCreatorAPI to create item
 	 */
 	public void setItem(int position, ItemStack item) {
-		if(map.get(position)==null)
-		map.put(position,item);
+		if(isOpened())
+			inv.setItem(position, item);
 		else
-			map.replace(position,item);
+		map.put(position,item);
 		if(item.getType().name().equals("WRITTEN_BOOK")||item.getType().name().equals("BOOK_AND_QUILL"))
 		g.set("guis."+p.getName()+"."+getID()+"."+position+".i", createWrittenBook(item));
 		else
