@@ -15,6 +15,7 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import me.Straiker123.BlocksAPI.Shape;
 import me.Straiker123.NMSAPI.TitleAction;
+import me.Straiker123.Scheduler.Tasker;
 import me.Straiker123.Utils.Error;
 
 @SuppressWarnings("deprecation")
@@ -458,11 +459,11 @@ public class PlayerAPI {
 		 s.setNoDamageTicks(time*20);
 		}catch(Exception ea) {
 			setGod(true);
-			TheAPI.getRunnable().runLater(new Runnable() {
+			new Tasker() {
 				public void run() {
 					setGod(false);
 				}
-			}, 20*time);
+			}.laterAsync(20*time);
 		}
 	}
 

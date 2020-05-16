@@ -14,6 +14,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 
 import com.google.common.io.Files;
 
@@ -28,6 +29,11 @@ public class ConfigAPI {
 	public ConfigAPI(String localization, String configName) {
 	name=configName;	
 	loc=localization;
+	}
+	
+	public ConfigAPI(Plugin plugin, String configName) {
+	name=configName;	
+	loc=plugin.getName();
 	}
 	
 	public String getName() {
@@ -51,19 +57,19 @@ public class ConfigAPI {
 	}
 	
 	public boolean exists(String string) {
-		return existPath(string);
+		return existsPath(string);
 	}
 	
 	public boolean exist(String string) {
-		return existPath(string);
+		return existsPath(string);
 	}
 	
 	public boolean isNull(String string) {
-		return !existPath(string);
+		return !existsPath(string);
 	}
 	
 	public boolean existPath(String string) {
-		return existPath(string);
+		return existsPath(string);
 	}
 	
 	public void addDefault(String path, Object value) {

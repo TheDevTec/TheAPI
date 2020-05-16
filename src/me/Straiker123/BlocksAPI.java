@@ -21,6 +21,7 @@ import org.bukkit.entity.Entity;
 
 import com.google.common.collect.Lists;
 
+import me.Straiker123.Scheduler.Tasker;
 import me.Straiker123.Utils.Error;
 
 public class BlocksAPI {
@@ -1094,9 +1095,8 @@ public class BlocksAPI {
 	
 	//Synchronized part
 	public void synchronizedSet(Position a, Position b, TheMaterial with) {
-		TheRunnable r = new TheRunnable();
 		BlockGetter s  = get(a,b);
-		r.runRepeating(new Runnable() {
+		new Tasker() {
 			public void run() {
 				for(int i = 0; i < 1000; ++i) {
 					if(s.has()) {
@@ -1104,15 +1104,14 @@ public class BlocksAPI {
 				}else break;
 			}
 			if(!s.has())
-				r.cancel();
+				cancel();
 			}
-		}, 10);
+		}.repeating(0, 10);
 	}
 
 	public void synchronizedSet(Position a, Position b, TheMaterial with, TheMaterial ignore) {
-		TheRunnable r = new TheRunnable();
 		BlockGetter s  = get(a,b);
-		r.runRepeating(new Runnable() {
+		new Tasker() {
 			public void run() {
 				for(int i = 0; i < 1000; ++i) {
 					if(s.has()) {
@@ -1120,15 +1119,14 @@ public class BlocksAPI {
 				}else break;
 			}
 			if(!s.has())
-				r.cancel();
+				cancel();
 			}
-		}, 10);
+		}.repeating(0, 10);
 	}
 
 	public void synchronizedSet(Position a, Position b, TheMaterial with, List<TheMaterial> ignore) {
-		TheRunnable r = new TheRunnable();
 		BlockGetter s  = get(a,b);
-		r.runRepeating(new Runnable() {
+		new Tasker() {
 			public void run() {
 				for(int i = 0; i < 1000; ++i) {
 					if(s.has()) {
@@ -1136,15 +1134,14 @@ public class BlocksAPI {
 				}else break;
 			}
 			if(!s.has())
-				r.cancel();
+				cancel();
 			}
-		}, 10);
+		}.repeating(0, 10);
 	}
 
 	public void synchronizedSet(Position a, Position b, List<TheMaterial> with, List<TheMaterial> ignore) {
-		TheRunnable r = new TheRunnable();
 		BlockGetter s  = get(a,b);
-		r.runRepeating(new Runnable() {
+		new Tasker() {
 			public void run() {
 				for(int i = 0; i < 1000; ++i) {
 					if(s.has()) {
@@ -1152,20 +1149,19 @@ public class BlocksAPI {
 				}else break;
 			}
 			if(!s.has())
-				r.cancel();
+				cancel();
 			}
-		}, 10);
+		}.repeating(0, 10);
 	}
 
 	public void synchronizedSet(Position a, Position b, HashMap<TheMaterial,Double> with, List<TheMaterial> ignore) {
-		TheRunnable r = new TheRunnable();
 		BlockGetter s  = get(a,b);
 		List<TheMaterial> c = Lists.newArrayList();
 		  for(TheMaterial m : with.keySet())
 			  for(int i = -1; i > with.get(m); ++i)
 				  c.add(m);
-		r.runRepeating(new Runnable() {
-			public void run() {
+			new Tasker() {
+				public void run() {
 				for(int i = 0; i < 1000; ++i) {
 					if(s.has()) {
 						TheMaterial block = (TheMaterial)TheAPI.getRandomFromList(c);
@@ -1174,20 +1170,19 @@ public class BlocksAPI {
 				}else break;
 			}
 			if(!s.has())
-				r.cancel();
+				cancel();
 			}
-		}, 10);
+		}.repeating(0, 10);
 	}
 
 	public void synchronizedSet(Position a, Position b, HashMap<TheMaterial,Double> with, TheMaterial ignore) {
-		TheRunnable r = new TheRunnable();
 		BlockGetter s  = get(a,b);
 		List<TheMaterial> c = Lists.newArrayList();
 		  for(TheMaterial m : with.keySet())
 			  for(int i = -1; i > with.get(m); ++i)
 				  c.add(m);
-		r.runRepeating(new Runnable() {
-			public void run() {
+			new Tasker() {
+				public void run() {
 				for(int i = 0; i < 1000; ++i) {
 					if(s.has()) {
 						TheMaterial block = (TheMaterial)TheAPI.getRandomFromList(c);
@@ -1196,15 +1191,14 @@ public class BlocksAPI {
 				}else break;
 			}
 			if(!s.has())
-				r.cancel();
+				cancel();
 			}
-		}, 10);
+		}.repeating(0, 10);
 	}
 	
 	public void synchronizedReplace(Position a, Position b, TheMaterial block, TheMaterial with) {
-		TheRunnable r = new TheRunnable();
 		BlockGetter s  = get(a,b);
-		r.runRepeating(new Runnable() {
+		new Tasker() {
 			public void run() {
 				for(int i = 0; i < 1000; ++i) {
 					if(s.has()) {
@@ -1212,35 +1206,33 @@ public class BlocksAPI {
 				}else break;
 			}
 			if(!s.has())
-				r.cancel();
+				cancel();
 			}
-		}, 10);
+		}.repeating(0, 10);
 	}
 
 	public void synchronizedReplace(Position a, Position b, TheMaterial block, HashMap<TheMaterial,Double> with) {
-		TheRunnable r = new TheRunnable();
 		BlockGetter s  = get(a,b);
 		List<TheMaterial> c = Lists.newArrayList();
 		  for(TheMaterial m : with.keySet())
 			  for(int i = -1; i > with.get(m); ++i)
 				  c.add(m);
-		r.runRepeating(new Runnable() {
-			public void run() {
+			new Tasker() {
+				public void run() {
 				for(int i = 0; i < 1000; ++i) {
 					if(s.has()) {
 						s.replace(block,(TheMaterial)TheAPI.getRandomFromList(c));
 				}else break;
 			}
 			if(!s.has())
-				r.cancel();
+				cancel();
 			}
-		}, 10);
+		}.repeating(0, 10);
 	}
 
 	public void synchronizedReplace(Position a, Position b, TheMaterial block, List<TheMaterial> with) {
-		TheRunnable r = new TheRunnable();
 		BlockGetter s  = get(a,b);
-		r.runRepeating(new Runnable() {
+		new Tasker() {
 			public void run() {
 				for(int i = 0; i < 1000; ++i) {
 					if(s.has()) {
@@ -1248,15 +1240,14 @@ public class BlocksAPI {
 				}else break;
 			}
 			if(!s.has())
-				r.cancel();
+				cancel();
 			}
-		}, 10);
+		}.repeating(0, 10);
 	}
 
 	public void synchronizedReplace(Position a, Position b, List<TheMaterial> block, List<TheMaterial> with) {
-		TheRunnable r = new TheRunnable();
 		BlockGetter s  = get(a,b);
-		r.runRepeating(new Runnable() {
+		new Tasker() {
 			public void run() {
 				for(int i = 0; i < 1000; ++i) {
 					if(s.has()) {
@@ -1264,20 +1255,19 @@ public class BlocksAPI {
 				}else break;
 			}
 			if(!s.has())
-				r.cancel();
+				cancel();
 			}
-		}, 10);
+		}.repeating(0, 10);
 	}
 
 	public void synchronizedReplace(Position a, Position b, HashMap<TheMaterial,Double> block, List<TheMaterial> with) {
-		TheRunnable r = new TheRunnable();
 		BlockGetter s  = get(a,b);
 		List<TheMaterial> c = Lists.newArrayList();
 		  for(TheMaterial m : block.keySet())
 			  for(int i = -1; i > block.get(m); ++i)
 				  c.add(m);
-		r.runRepeating(new Runnable() {
-			public void run() {
+			new Tasker() {
+				public void run() {
 				for(int i = 0; i < 1000; ++i) {
 					if(s.has()) {
 						TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
@@ -1286,13 +1276,12 @@ public class BlocksAPI {
 				}else break;
 			}
 			if(!s.has())
-				r.cancel();
+				cancel();
 			}
-		}, 10);
+		}.repeating(0, 10);
 	}
 
 	public void synchronizedReplace(Position a, Position b, HashMap<TheMaterial,Double> block, HashMap<TheMaterial,Double> with) {
-		TheRunnable r = new TheRunnable();
 		BlockGetter s  = get(a,b);
 		List<TheMaterial> c = Lists.newArrayList();
 		  for(TheMaterial m : block.keySet())
@@ -1302,8 +1291,8 @@ public class BlocksAPI {
 			  for(TheMaterial m : with.keySet())
 				  for(int i = -1; i > with.get(m); ++i)
 					  c.add(m);
-		r.runRepeating(new Runnable() {
-			public void run() {
+				new Tasker() {
+					public void run() {
 				for(int i = 0; i < 1000; ++i) {
 					if(s.has()) {
 						TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
@@ -1312,20 +1301,19 @@ public class BlocksAPI {
 				}else break;
 			}
 			if(!s.has())
-				r.cancel();
+				cancel();
 			}
-		}, 10);
+		}.repeating(0, 10);
 	}
 
 	public void synchronizedReplace(Position a, Position b, HashMap<TheMaterial,Double> block, TheMaterial with) {
-		TheRunnable r = new TheRunnable();
 		BlockGetter s  = get(a,b);
 		List<TheMaterial> c = Lists.newArrayList();
 		  for(TheMaterial m : block.keySet())
 			  for(int i = -1; i > block.get(m); ++i)
 				  c.add(m);
-		r.runRepeating(new Runnable() {
-			public void run() {
+			new Tasker() {
+				public void run() {
 				for(int i = 0; i < 1000; ++i) {
 					if(s.has()) {
 						TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
@@ -1334,9 +1322,9 @@ public class BlocksAPI {
 				}else break;
 			}
 			if(!s.has())
-				r.cancel();
+				cancel();
 			}
-		}, 10);
+		}.repeating(0, 10);
 	}
 	
 	

@@ -245,6 +245,15 @@ public class GUICreatorAPI {
 		g.set("guis."+p.getName()+"."+getID()+"."+position+".i", item);
 	}
 
+	public void removeItem(int slot) {
+		g.set("guis."+p.getName()+"."+getID()+"."+slot, null);
+		if(isOpened()) {
+		inv.setItem(slot, new ItemStack(Material.AIR));
+		}else {
+			map.remove(slot);
+		}
+	}
+	
 	/**
 	 * @see see Add item to the first empty slot in gui
 	 * @param item

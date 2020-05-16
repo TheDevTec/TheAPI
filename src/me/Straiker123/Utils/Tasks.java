@@ -17,13 +17,14 @@ import org.bukkit.entity.Tameable;
 import me.Straiker123.LoaderClass;
 import me.Straiker123.StringUtils;
 import me.Straiker123.TheAPI;
-import me.Straiker123.TheRunnable;
 import me.Straiker123.Events.EntityMoveEvent;
+import me.Straiker123.Scheduler.Scheduler;
+import me.Straiker123.Scheduler.Tasker;
 
 public class Tasks {
 	private static StringUtils f;
 	private static boolean load;
-	private static List<TheRunnable> s = new ArrayList<TheRunnable>();
+	private static List<Integer> s = new ArrayList<Integer>();
 	private static boolean con(Entity s) {
 		boolean c = false;
 		if(s.getType()!=EntityType.PLAYER) {
@@ -51,16 +52,16 @@ public class Tasks {
 		if(load)return;
 		load=true;
 		if(TheAPI.isOlder1_9() && !TheAPI.getServerVersion().equals("v1_7_R4")&& !TheAPI.getServerVersion().startsWith("v1_8")) 
-			s.add(TheAPI.getRunnable().runRepeating(new Runnable() {
+			s.add(new Tasker() {
 				public void run() {
-		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &6Info: &cYour server version isn't supported! ("+TheAPI.getServerVersion()+")",TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-	}}, 20*60*3600));
+					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &6Info: &cYour server version isn't supported! ("+TheAPI.getServerVersion()+")",TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+				}
+			}.repeating(20,20*60*3600));
 		if(c.getBoolean("Options.EntityMoveEvent.Enabled"))
-			s.add(TheAPI.getRunnable().runRepeating(new Runnable() {
-			@Override
-			public void run() {
+			s.add(new Tasker() {
+				public void run() {
 				for(World w: Bukkit.getWorlds()) {
 					for(Entity d :w.getEntities()) {
 						if(d.getType()==EntityType.DROPPED_ITEM)continue;
@@ -80,7 +81,7 @@ public class Tasks {
 					}}
 				}
 			}
-		}, c.getInt("Options.EntityMoveEvent.Reflesh")));
+		}.repeating(20,c.getInt("Options.EntityMoveEvent.Reflesh")));
 		else {
 			TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 			TheAPI.msg("&bTheAPI&7: &6EntityMoveEvent is disabled.",TheAPI.getConsole());
@@ -90,7 +91,7 @@ public class Tasks {
 
 		}
 		if(LoaderClass.config.getConfig().getBoolean("Options.LagChecker.Enabled"))
-		s.add(TheAPI.getRunnable().runRepeating(new Runnable() {
+		s.add(new Tasker() {
 			int next = 0;
 			public void run() {
 				if(Bukkit.getWorlds().size() <= next)next=0;
@@ -129,14 +130,14 @@ public class Tasks {
 				}
 				++next;
 				}
-			},20*f.getTimeFromString(c.getString("Options.LagChecker.Reflesh"))));
+			}.repeating(20,20*f.getTimeFromString(c.getString("Options.LagChecker.Reflesh"))));
 	}
 	
 	public static void unload() {
 		 Events.f = LoaderClass.config.getConfig();
 		 Events.d = LoaderClass.data.getConfig();
 		load=false;
-		for(TheRunnable i : s) i.cancel();
+		for(Integer i : s) Scheduler.cancelTask(i);
 		s.clear();
 	}
 }

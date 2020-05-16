@@ -20,6 +20,8 @@ import com.google.common.collect.Maps;
 
 import me.DevTec.TheVault.Bank;
 import me.DevTec.TheVault.TheVault;
+import me.Straiker123.Scheduler.Scheduler;
+import me.Straiker123.Scheduler.Tasker;
 import me.Straiker123.Utils.Events;
 import me.Straiker123.Utils.GUIID;
 import me.Straiker123.Utils.PacketReader;
@@ -35,12 +37,17 @@ public class LoaderClass extends JavaPlugin {
 	public static HashMap<String, Integer> gameapi_timer = Maps.newHashMap();
 	public static HashMap<String, Runnable> win_rewards = Maps.newHashMap();
 	public static ArrayList<Integer> tasks = Lists.newArrayList();
-	public static ConfigAPI unused= new ConfigAPI("TheAPI", "UnusedData");
-	public static ConfigAPI config= new ConfigAPI("TheAPI", "Config");
-	public static ConfigAPI gameapi= new ConfigAPI("TheAPI", "GameAPI");
-	public static ConfigAPI data= new ConfigAPI("TheAPI", "Data");
+	public static ConfigAPI unused;
+	public static ConfigAPI config;
+	public static ConfigAPI gameapi;
+	public static ConfigAPI data;
 	public void onLoad() {
+		unused= new ConfigAPI(this, "UnusedData");
+		config= new ConfigAPI(this, "Config");
+		gameapi= new ConfigAPI(this, "GameAPI");
+		data= new ConfigAPI(this, "Data");
 		plugin=this;
+		createConfig();
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &6Action: &6Loading plugin..",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
@@ -49,27 +56,23 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &6Action: &6Looking for Vault Economy..",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-		TheRunnable r = TheAPI.getRunnable();
-		r.runRepeatingFor(new Runnable() {
+		new Tasker() {
 			public void run() {
 				if(getVaultEconomy()) {
 					e=true;
-					new TheAPI();
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &6Found Vault Economy",TheAPI.getConsole());
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-					r.cancelRepeatingFor();
+					cancel();
 				}}
-		}, null,20, 30);
+		}.repeatingTimesAsync(0, 20,30);
 	}
 	private boolean as= false,b=false;
 	public void TheVaultHooking() {
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &6Action: &6Looking for TheVault Economy and Bank system..",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-		TheRunnable r = TheAPI.getRunnable();
-		r.runRepeatingFor(
-				new Runnable() {
+		new Tasker() {
 			public void run() {
 				if(TheVault.getEconomy()!=null && !as) {
 					as=true;
@@ -88,9 +91,9 @@ public class LoaderClass extends JavaPlugin {
 					TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 				}
 			if(as && b)
-				r.cancelRepeatingFor();
+				cancel();
 			}
-		}, null,20, 30);
+		}.repeatingTimesAsync(0, 20,30);
 	}
 	
 	public boolean e,tve,tbank;
@@ -107,7 +110,6 @@ public class LoaderClass extends JavaPlugin {
 	
 	@SuppressWarnings("unchecked")
 	public void onEnable() {
-		createConfig();
 		Tasks.load();
 		Bukkit.getPluginManager().registerEvents(new Events(), this);
 		Bukkit.getPluginManager().registerEvents(new PacketReader(), this);
@@ -123,15 +125,14 @@ public class LoaderClass extends JavaPlugin {
 			TheAPI.msg("&bTheAPI&7: &c *TheAPI will still normally work without problems*",TheAPI.getConsole());
 			TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
 		}else vaultHooking();
-		TheAPI.getRunnable().runLater(new Runnable() {
+		new Tasker() {
 			public void run() {
 				if(getTheAPIsPlugins().size()==0)return;
 				String end = "";
 				if(getTheAPIsPlugins().size() !=1)end="s";
 				TheAPI.msg("&bTheAPI&7: &aTheAPI using "+getTheAPIsPlugins().size()+" plugin"+end,TheAPI.getConsole());
 			}
-		}, 200);
-
+		}.laterAsync(200);
 		try {
 			Method m = Bukkit.class.getDeclaredMethod("getOnlinePlayers");
 			Object o = m.invoke(null);
@@ -282,8 +283,9 @@ public class LoaderClass extends JavaPlugin {
 	
 	public void onDisable() {
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &6Action: &cDisabling plugin and saving configs..",TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &6Action: &cDisabling plugin, saving configs and stopping runnables..",TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+		Scheduler.cancelAll();
 		for(Player p : gui.keySet()) {
 			gui.get(p).closeAndClear();
 		}

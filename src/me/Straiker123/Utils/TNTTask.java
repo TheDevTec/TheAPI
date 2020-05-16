@@ -22,15 +22,15 @@ import me.Straiker123.Particle;
 import me.Straiker123.Position;
 import me.Straiker123.Storage;
 import me.Straiker123.TheAPI;
-import me.Straiker123.TheRunnable;
 import me.Straiker123.Events.TNTExplosionEvent;
+import me.Straiker123.Scheduler.Tasker;
 
-public class Task {
+public class TNTTask {
 	List<Position> a;
 	TNTExplosionEvent event;
 	Position reals;
 	boolean toReal;
-	public Task(Position reals2,List<Position> list, TNTExplosionEvent result) {
+	public TNTTask(Position reals2,List<Position> list, TNTExplosionEvent result) {
 		a=list;
 		event=result;
 		reals=reals2;
@@ -108,89 +108,87 @@ public class Task {
     				e.remove();
     		}}
 		}}}}
-		TheRunnable task = TheAPI.getTheRunnable();
-		task.runRepeating(new Runnable() {
+		new Tasker() {
 			int ignite = f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime") <= 0 ? 5 : f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime");
 			boolean igniteUsed = !f.getBoolean("Options.LagChecker.TNT.CollidingTNT.Disabled");
 			boolean fakeTnt = !f.getBoolean("Options.LagChecker.TNT.SpawnTNT");
 			String location = reals.toString();
-			@Override
 			public void run() {
-				if(action().equalsIgnoreCase("none")) {
-				for(int i = (event.isNuclearBomb() ? 2000 : 200); i > 0; --i) {
-					if(a.isEmpty()) {
-						for(ItemStack d:st.getItems()) {
+					if(action().equalsIgnoreCase("none")) {
+					for(int i = (event.isNuclearBomb() ? 2000 : 200); i > 0; --i) {
+						if(a.isEmpty()) {
+							for(ItemStack d:st.getItems()) {
+									try {
+										event.getLocation().getWorld().dropItem(event.getLocation().toLocation(), d);
+									}catch(Exception err) {}
+								}
+							cancel();
+							break;
+						}
+					Position b = a.get(a.size()-1);
+					if(event.canTNTInLiquidCancelEvent() && Events.around(b))
+						return;
+			    	if(event.canDestroyBlocks())
+					if(b.getBukkitType()==Material.TNT) {
+								if(igniteUsed) {
+								b.setType(Material.AIR);
+								if(fakeTnt) {
+									Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
+										@Override
+										public void run() {
+											Events.get(reals,b);
+										}
+									}, ignite);
+									}else {
+										TNTPrimed tnt = (TNTPrimed)b.getWorld().spawnEntity(b.toLocation(), EntityType.PRIMED_TNT);
+										tnt.setMetadata("real", new FixedMetadataValue(LoaderClass.plugin, location));
+										tnt.setFuseTicks(ignite);
+									}
+							}else {
+								if(event.isDropItems())
+								Events.add(b,(toReal ? reals : b),toReal,st, b.getBlock().getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
+								b.setType(Material.AIR);
+								b.getBlock().getDrops().clear();
+									if(TheAPI.generateRandomInt(25)==25) {
+									for(Entity e: TheAPI.getBlocksAPI().getNearbyEntities(b, 2)) {
+										if(e instanceof LivingEntity) {
+											e.setFireTicks(80);
+										}
+									}
+									for(Entity ds: TheAPI.getBlocksAPI().getNearbyEntities(event.getLocation(), 15))
+										if(ds.getType()==EntityType.PLAYER)
+									TheAPI.getNMSAPI().sendPacket((Player)ds, TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(Particle.FLAME, event.getLocation().toLocation()));
+							
+									}
+							}}else {
+								if(event.isDropItems())
+									Events.add(b,(toReal ? reals : b),toReal,st,b.getBlock().getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
+								b.setType(Material.AIR);
+								b.getBlock().getDrops().clear();
+								if(TheAPI.generateRandomInt(25)==25) {
+									for(Entity e: TheAPI.getBlocksAPI().getNearbyEntities(b, 2)) {
+										if(e instanceof LivingEntity) {
+											e.setFireTicks(80);
+										}
+									}
+									for(Entity ds: TheAPI.getBlocksAPI().getNearbyEntities(event.getLocation(), 15))
+										if(ds.getType()==EntityType.PLAYER)
+									TheAPI.getNMSAPI().sendPacket((Player)ds, TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(Particle.FLAME, event.getLocation().toLocation()));
+							
+								}
+							}
+					a.remove(a.size()-1);
+						}
+					}else if(action().equalsIgnoreCase("drop")) {
+							for(ItemStack id :st.getItems()) {
 								try {
-									event.getLocation().getWorld().dropItem(event.getLocation().toLocation(), d);
+									event.getLocation().getWorld().dropItem(event.getLocation().toLocation(), id);
 								}catch(Exception err) {}
 							}
-						task.cancel();
-						break;
-					}
-				Position b = a.get(a.size()-1);
-				if(event.canTNTInLiquidCancelEvent() && Events.around(b))
-					return;
-		    	if(event.canDestroyBlocks())
-				if(b.getBukkitType()==Material.TNT) {
-							if(igniteUsed) {
-							b.setType(Material.AIR);
-							if(fakeTnt) {
-								Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
-									@Override
-									public void run() {
-										Events.get(reals,b);
-									}
-								}, ignite);
-								}else {
-									TNTPrimed tnt = (TNTPrimed)b.getWorld().spawnEntity(b.toLocation(), EntityType.PRIMED_TNT);
-									tnt.setMetadata("real", new FixedMetadataValue(LoaderClass.plugin, location));
-									tnt.setFuseTicks(ignite);
-								}
-						}else {
-							if(event.isDropItems())
-							Events.add(b,(toReal ? reals : b),toReal,st, b.getBlock().getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
-							b.setType(Material.AIR);
-							b.getBlock().getDrops().clear();
-								if(TheAPI.generateRandomInt(25)==25) {
-								for(Entity e: TheAPI.getBlocksAPI().getNearbyEntities(b, 2)) {
-									if(e instanceof LivingEntity) {
-										e.setFireTicks(80);
-									}
-								}
-								for(Entity ds: TheAPI.getBlocksAPI().getNearbyEntities(event.getLocation(), 15))
-									if(ds.getType()==EntityType.PLAYER)
-								TheAPI.getNMSAPI().sendPacket((Player)ds, TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(Particle.FLAME, event.getLocation().toLocation()));
 						
-								}
-						}}else {
-							if(event.isDropItems())
-								Events.add(b,(toReal ? reals : b),toReal,st,b.getBlock().getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
-							b.setType(Material.AIR);
-							b.getBlock().getDrops().clear();
-							if(TheAPI.generateRandomInt(25)==25) {
-								for(Entity e: TheAPI.getBlocksAPI().getNearbyEntities(b, 2)) {
-									if(e instanceof LivingEntity) {
-										e.setFireTicks(80);
-									}
-								}
-								for(Entity ds: TheAPI.getBlocksAPI().getNearbyEntities(event.getLocation(), 15))
-									if(ds.getType()==EntityType.PLAYER)
-								TheAPI.getNMSAPI().sendPacket((Player)ds, TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(Particle.FLAME, event.getLocation().toLocation()));
-						
-							}
-						}
-				a.remove(a.size()-1);
+						a.clear();
+						cancel();
 					}
-				}else if(action().equalsIgnoreCase("drop")) {
-						for(ItemStack id :st.getItems()) {
-							try {
-								event.getLocation().getWorld().dropItem(event.getLocation().toLocation(), id);
-							}catch(Exception err) {}
-						}
-					
-					a.clear();
-					task.cancel();
-				}
 			}
-		}, 10);
+		}.repeating(0,10);
 	}}

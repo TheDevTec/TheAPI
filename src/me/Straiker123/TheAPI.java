@@ -23,6 +23,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scoreboard.Scoreboard;
 
 import com.google.common.collect.Lists;
@@ -30,12 +31,13 @@ import com.google.common.collect.Maps;
 
 import me.Straiker123.NMSAPI.TitleAction;
 import me.Straiker123.Events.PlayerVanishEvent;
+import me.Straiker123.Scheduler.Tasker;
 import me.Straiker123.Utils.Error;
 import net.glowstone.entity.GlowPlayer;
 
 public class TheAPI {
 	private static final HashMap<String, BossBar> list = Maps.newHashMap();
-	private static final HashMap<String, TheRunnable> task = Maps.newHashMap();
+	private static final HashMap<String, Integer> task = Maps.newHashMap();
 	static {
 	}
 	
@@ -71,22 +73,6 @@ public class TheAPI {
 	public static Storage getStorage() {
 		return new Storage();
 	}
-	
-	/**
-	 * @see see Create repeating runnable more easier than before
-	 * @return TheRunnable
-	 */
-	public static TheRunnable getTheRunnable() {
-		return new TheRunnable();
-	}
-
-	/**
-	 * @see see Create repeating runnable more easier than before
-	 * @return TheRunnable
-	 */
-	public static TheRunnable getRunnable() {
-		return getTheRunnable();
-	}
 
 	/**
 	 * @see see Get all blocks in radius 20 blocks
@@ -121,11 +107,6 @@ public class TheAPI {
 	}
 	
 	/**
-	method getParticleEffectAPI() removed.
-	
-	Please use NMSAPI.
-	**/
-	/**
 	 * @see see Create or delete config
 	 * @param localization
 	 * @param name
@@ -133,6 +114,16 @@ public class TheAPI {
 	 */
 	public static ConfigAPI getConfig(String localization,  String name) {
 		return new ConfigAPI(localization,name);
+	}
+	
+	/**
+	 * @see see Create or delete config
+	 * @param plugin
+	 * @param name
+	 * @return ConfigAPI
+	 */
+	public static ConfigAPI getConfig(Plugin plugin,  String name) {
+		return new ConfigAPI(plugin.getName(),name);
 	}
 	/**
 	 * @see see Return is server version 1.13+
@@ -391,10 +382,11 @@ public class TheAPI {
 	a.setProgress(progress);
 	a.addPlayer(p);
 	list.put(p.getName(), a);
-	task.put(p.getName(),getRunnable().runAsyncLater(new Runnable() {
+	task.put(p.getName(),new Tasker() {
 		public void run() {
-			removeBossBar(p);
-	}},timeToExpire));
+		removeBossBar(p);
+		}
+	}.laterAsync(timeToExpire));
 	}catch(Exception e) {
 		Error.err("sending bossbar to "+p.getName(), "Text is null");
 	}}
@@ -410,7 +402,7 @@ public class TheAPI {
 	   }
 		 try {
 			if(list.containsKey(p.getName())) {
-				task.get(p.getName()).cancel();
+				Tasker.cancelTask(task.get(p.getName()));
 				BossBar b = list.get(p.getName());
 				b.hide();
 				b.removePlayer(p);

@@ -37,8 +37,7 @@ import me.Straiker123.ScoreboardAPI;
 import me.Straiker123.ScoreboardAPIV2;
 import me.Straiker123.TheAPI;
 import me.Straiker123.TheMaterial;
-import me.Straiker123.TheRunnable;
-import me.Straiker123.TheRunnable.RunnableType;
+import me.Straiker123.Scheduler.Tasker;
 
 public class TheAPICommand implements CommandExecutor, TabCompleter {
 	
@@ -121,27 +120,27 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				pig.setAI(false);
 				}catch(Exception | NoSuchMethodError e) {}
 				pig.setSilent(true);
-				TheRunnable a = TheAPI.getRunnable();
-				a.runRepeatingFor(new Runnable() {
+				new Tasker() {
 					public void run() {
-						pig.setCustomName(TheAPI.colorize("&4Become invisible in "+(5-a.getRunningTime(RunnableType.REPEATING_FOR))));
+						pig.setCustomName(TheAPI.colorize("&4Become invisible in "+(5-runTimes())));
 						pig.setCustomNameVisible(true);
-					}
-				}, new Runnable() {
-					public void run() {
-						for(Player all : TheAPI.getOnlinePlayers())
-						TheAPI.hideEntity(all, pig);
-						pig.setCustomName(TheAPI.colorize("&4Repeat visible!"));
-						TheAPI.getRunnable().runLater(new Runnable() {
+						if(runTimes()==5) {
+							for(Player all : TheAPI.getOnlinePlayers())
+								TheAPI.hideEntity(all, pig);
+								pig.setCustomName(TheAPI.colorize("&4Repeat visible!"));
+						new Tasker() {
 							public void run() {
-								TheAPI.getRunnable().runLater(new Runnable() {
-									public void run() {
-										pig.remove();
-									}},100);
 								for(Player all : TheAPI.getOnlinePlayers())
 								TheAPI.showEntity(all, pig);
-							}},100);
-					}}, 20,1);
+								new Tasker() {
+									public void run() {
+										pig.remove();
+									}
+								}.later(100);
+							}
+						}.later(100);
+						}
+					}}.repeatingTimes(0, 20, 5);
 				return true;
 			}
 			if(eq(1,"GUICreatorAPI")) {
@@ -229,22 +228,18 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			if(eq(1,"ScoreboardV2")) {
 				ScoreboardAPIV2 a = TheAPI.getScoreboardAPIV2(p);
 				a.setTitle("&eTheAPI v"+TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
-				TheRunnable r = TheAPI.getRunnable();
-				r.runRepeating(new Runnable() {
-					int times=0;
+				new Tasker() {
 					public void run() {
-						if(times == 10) {
-							r.cancel();
+						if(runTimes() == 10) {
 						p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
-							return;
+						return;
 						}
 						a.addLine("&aBy DevTec");
 						a.addLine("&eRandom numbers:");
 						a.addLine("&6"+TheAPI.generateRandomDouble(200));
 						a.create();
-						++times;
 					}
-				}, 10); 
+				}.repeatingTimes(0, 20, 10);
 				return true;
 			}
 			if(eq(1,"multimap")) {

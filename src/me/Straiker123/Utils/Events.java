@@ -294,7 +294,7 @@ public class Events implements Listener {
     	if(event.isCancelled()) {
     		return;
     	}
-			new Task(reals,TheAPI.getBlocksAPI().get(Shape.Sphere, c, event.getPower(), blocks(event.isNuclearBomb() && event.canNuclearDestroyLiquid())),event).start();
+			new TNTTask(reals,TheAPI.getBlocksAPI().get(Shape.Sphere, c, event.getPower(), blocks(event.isNuclearBomb() && event.canNuclearDestroyLiquid())),event).start();
 	}
 
 	public static List<TheMaterial> blocks(boolean b){

@@ -28,9 +28,18 @@ public class NMSAPI {
 	private Constructor<?> pDestroy,pTitle,pOutChat,pTab,pBlock,blockPos,pChunk,ChunkSection,chunkc
 	,particle,pSpawn,pNSpawn,pLSpawn,pWindow;
 	private Method getmat,getb,getc,gett,WorldHandle,PlayerHandle,sendPacket,ichatcon,getser,plist,block,IBlockData
-	,worldset,Chunk,getblocks,setblock,setblockb,itemstack,entityM,livingentity,oldichatser;
+	,worldset,Chunk,getblocks,setblock,setblockb,itemstack,entityM,livingentity,oldichatser,post;
 	private Field pCon,tps;
 	public NMSAPI() {
+		try {
+			post=Reflections.getNMSClass("MinecraftServer").getMethod("postToMainThread", Runnable.class);
+		} catch (Exception e4) {
+			try {
+				post=Reflections.getNMSClass("MinecraftServer").getDeclaredMethod("postToMainThread", Runnable.class);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		try {
 			particle=Reflections.getNMSClass("PacketPlayOutWorldParticles").getConstructors()[1];
 		}catch(Exception e) {
@@ -264,6 +273,14 @@ public class NMSAPI {
 	public void setChunkSectionsBlocks(Object chunksection,int x,int y,int z,Object IBlockData) {
 		try {
 			setblock.invoke(chunksection,x, y, z, IBlockData);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void postToMainThread(Runnable runnable) {
+		try {
+			post.invoke(getServer(),runnable);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -895,6 +912,20 @@ public class NMSAPI {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
+		}
+	}
+
+	public Thread getServerThread() {
+		//primaryThread : serverThread
+		try {
+			return (Thread)Reflections.getNMSClass("MinecraftServer").getField("primaryThread").get(getServer());
+		}catch(Exception e1) {
+			try {
+			return (Thread)Reflections.getNMSClass("MinecraftServer").getField("serverThread").get(getServer());
+			}catch(Exception e) {
+				e.printStackTrace();
+				return null;
+			}
 		}
 	}
 

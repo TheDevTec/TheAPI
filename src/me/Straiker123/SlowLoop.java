@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.bukkit.Bukkit;
+import me.Straiker123.Scheduler.Tasker;
 
 public abstract class SlowLoop <T> {
 	private List<T> to = new ArrayList<T>();
 	private boolean s = false;
-	private int task=0;
 	private long old;
 	public void addToLoop(List<T> toLoop) {
 		for(T t: toLoop)to.add(t);
@@ -35,8 +34,8 @@ public abstract class SlowLoop <T> {
 	
 	public void start(long update) {
 		old=System.currentTimeMillis();
-		task=Bukkit.getScheduler().scheduleSyncRepeatingTask(LoaderClass.plugin, new Runnable() {
-
+		new Tasker() {
+			
 			@Override
 			public void run() {
 				if(to.isEmpty()==false) {
@@ -44,11 +43,10 @@ public abstract class SlowLoop <T> {
 					toRun(t);
 					to.remove(t);
 				}else if(!s)
-					Bukkit.getScheduler().cancelTask(task);
+					cancel();
 				
 			}
-			
-		}, update, update);
+		}.repeating(0, update);
 	}
 
 	abstract void toRun(T t);

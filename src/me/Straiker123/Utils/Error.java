@@ -4,7 +4,7 @@ import java.util.List;
 
 import me.Straiker123.LoaderClass;
 import me.Straiker123.TheAPI;
-import me.Straiker123.TheRunnable;
+import me.Straiker123.Scheduler.Tasker;
 
 public class Error {
 	public static void err(String message, String reason) {
@@ -21,16 +21,14 @@ public class Error {
 	static boolean run;
 	private static void run() {
 		run=true;
-		TheRunnable r = TheAPI.getTheRunnable();
-		r.runRepeating( new Runnable() {
-			@Override
+		new Tasker() {
 			public void run() {
 				if(!list.isEmpty()) {
 					TheAPI.msg(list.get(0),TheAPI.getConsole());
 				}else {
-					r.cancel();
+					cancel();
 					}
 			}
-		}, 200);
+		}.repeating(0,200);
 	}
 }
