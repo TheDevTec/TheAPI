@@ -23,7 +23,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.Scoreboard;
 
 import com.google.common.collect.Lists;
@@ -35,13 +34,13 @@ import me.Straiker123.Utils.Error;
 import net.glowstone.entity.GlowPlayer;
 
 public class TheAPI {
-	private static HashMap<Player, BossBar> list = Maps.newHashMap();
-	private static HashMap<Player, BukkitTask> task = Maps.newHashMap();
+	private static final HashMap<String, BossBar> list = Maps.newHashMap();
+	private static final HashMap<String, TheRunnable> task = Maps.newHashMap();
 	static {
 	}
 	
 	public static boolean generateChance(double chance) {
-		return generateRandomDouble(100) >= chance;
+		return generateRandomDouble(100) <= chance;
 	}
 	
 	public static NMSAPI getNMSAPI() {
@@ -339,6 +338,35 @@ public class TheAPI {
 	}
 	
 	/**
+	 * @see see Send player bossbar
+	 * @param p
+	 * @param text
+	 * @param progress
+	 * @param timeToExpire
+	 */
+	public static void sendBossBar(Player p, String text, double progress) {
+		if(p == null) {
+	    	 Error.err("sending bossbar", "Player is null");
+		   return;
+	   }
+			if(getServerVersion().contains("v1_5") ||getServerVersion().contains("v1_6") 
+					||getServerVersion().contains("v1_7")||getServerVersion().contains("v1_8")) {
+			Error.err("sending bossbar to "+p.getName(), "Servers version older 1.9 doesn't have this method");
+			return;
+		}
+	try {
+		removeBossBar(p);
+	BossBar a = Bukkit.createBossBar(TheAPI.colorize(text), BarColor.GREEN, BarStyle.SEGMENTED_20);
+	if(progress<0)progress=0;
+	if(progress>1)progress=1;
+	a.setProgress(progress);
+	a.addPlayer(p);
+	list.put(p.getName(), a);
+	}catch(Exception e) {
+		Error.err("sending bossbar to "+p.getName(), "Text is null");
+	}}
+	
+	/**
 	 * @see see Send player bossbar on time
 	 * @param p
 	 * @param text
@@ -362,9 +390,8 @@ public class TheAPI {
 	if(progress>1)progress=1;
 	a.setProgress(progress);
 	a.addPlayer(p);
-	list.put(p, a);
-	task.put(p,Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
-		@Override
+	list.put(p.getName(), a);
+	task.put(p.getName(),getRunnable().runAsyncLater(new Runnable() {
 		public void run() {
 			removeBossBar(p);
 	}},timeToExpire));
@@ -382,12 +409,12 @@ public class TheAPI {
 		   return;
 	   }
 		 try {
-			if(list.containsKey(p)) {
-				task.get(p).cancel();
-				BossBar b = list.get(p);
+			if(list.containsKey(p.getName())) {
+				task.get(p.getName()).cancel();
+				BossBar b = list.get(p.getName());
 				b.hide();
 				b.removePlayer(p);
-				list.remove(p);
+				list.remove(p.getName());
 			}
 		for(BossBar c : getBossBar(p)) {
 			c.hide();
@@ -452,6 +479,25 @@ public class TheAPI {
 				    	 Error.err("sending ActionBar to "+p.getName(), "Text is null");}
 					}
 		   getNMSAPI().sendPacket(p, getNMSAPI().getPacketPlayOutTitle(TitleAction.ACTIONBAR, colorize(text)));
+	   }
+	/**
+	 * @see see Send player action bar
+	 * @param p
+	 * @param text
+	 */
+	public static void sendActionBar(Player p, String text, int fadeIn, int stay, int fadeOut) {
+		   if(p == null) {
+		    	 Error.err("sending ActionBar", "Player is null");
+			   return;
+		   }
+		   if(TheAPI.getServerVersion().equals("glowstone")) {
+				try {
+					   ((GlowPlayer) p).sendActionBar(TheAPI.colorize(text));
+						return;
+					}catch (Exception e) {
+				    	 Error.err("sending ActionBar to "+p.getName(), "Text is null");}
+					}
+		   getNMSAPI().sendPacket(p, getNMSAPI().getPacketPlayOutTitle(TitleAction.ACTIONBAR, colorize(text),fadeIn,stay,fadeOut));
 	   }
 	/**
 	 * @see see Get int, double or calculate string

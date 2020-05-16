@@ -29,6 +29,7 @@ public class BlocksAPI {
 		Sphere,
 		Square
 	}
+	
 	public String getLocationAsString(Location loc) {
 		return TheAPI.getStringUtils().getLocationAsString(loc);
 	}
@@ -36,7 +37,9 @@ public class BlocksAPI {
 	public Location getLocationFromString(String saved) {
 		return TheAPI.getStringUtils().getLocationFromString(saved);
 		}
-    public List<Entity> getNearbyEntities(Location l, int radius){
+    
+	
+	public List<Entity> getNearbyEntities(Location l, int radius){
     	return getNearbyEntities(new Position(l),radius);
     }
 
@@ -68,6 +71,10 @@ public class BlocksAPI {
 	
 	public BlockSave getBlockSave(Position b) {
 		return new BlockSave(b);
+	}
+	
+	public BlockGetter get(Position from, Position to) {
+		return new BlockGetter(from, to);
 	}
 	
 	public List<Position> get(Position from, Position to, TheMaterial ignore){
@@ -399,8 +406,11 @@ public class BlocksAPI {
 		       for(int y = Yy - radius; y <= Yy + radius; y++)
 		         for(int z = Zz - radius; z <= Zz + radius; z++) {
 		        	 Position s = new Position(w,x,y,z);
-		        	 if(block.containsKey(s.getType()) && TheAPI.generateChance(block.get(s.getType())))
-		        		 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+		        	 if(block.containsKey(s.getType())){
+		             		TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+		 					if(TheAPI.generateChance(block.get(b)))
+		 		            s.setType(b);
+			    }
 		         }
 		     break;
 		  case Sphere:
@@ -409,8 +419,11 @@ public class BlocksAPI {
 				   for (int Z = -radius; Z < radius; Z++)
 				    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
 			        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
-			        	 if(block.containsKey(s.getType()) && TheAPI.generateChance(block.get(s.getType())))
-			        		 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+			        	 if(block.containsKey(s.getType())){
+			             		TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+			 					if(TheAPI.generateChance(block.get(b)))
+			 		            s.setType(b);
+				    }
 				    }
 			}
 	  }
@@ -431,8 +444,11 @@ public class BlocksAPI {
 	            for(int z = bottomBlockZ; z <= topBlockZ; z++){
 	                for(int y = bottomBlockY; y <= topBlockY; y++){
 	                	Position s = new Position(w,x,y,z);
-			        	 if(block.containsKey(s.getType()) && TheAPI.generateChance(block.get(s.getType())))
-			                s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+			        	 if(block.containsKey(s.getType())){
+			             		TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+			 					if(TheAPI.generateChance(block.get(b)))
+			 		            s.setType(b);
+				    }
 	                }
 	            }
 	        }
@@ -457,8 +473,11 @@ public class BlocksAPI {
 		       for(int y = Yy - radius; y <= Yy + radius; y++)
 		         for(int z = Zz - radius; z <= Zz + radius; z++) {
 		        	 Position s = new Position(w,x,y,z);
-		        	 if(block.containsKey(s.getType()) && TheAPI.generateChance(block.get(s.getType())))
-		        		 s.setType((TheMaterial)TheAPI.getRandomFromList(d));
+		        	 if(block.containsKey(s.getType())){
+		             		TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+		 					if(TheAPI.generateChance(block.get(b)))
+		 		            s.setType(b);
+			    }
 		         }
 		     break;
 		  case Sphere:
@@ -467,8 +486,11 @@ public class BlocksAPI {
 				   for (int Z = -radius; Z < radius; Z++)
 				    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
 			        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
-			        	 if(block.containsKey(s.getType()) && TheAPI.generateChance(block.get(s.getType())))
-			        		 s.setType((TheMaterial)TheAPI.getRandomFromList(d));
+			        	 if(block.containsKey(s.getType())){
+			             		TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+			 					if(TheAPI.generateChance(block.get(b)))
+			 		            s.setType(b);
+				    }
 				    }
 			}
 	  }
@@ -493,8 +515,11 @@ public class BlocksAPI {
 	            for(int z = bottomBlockZ; z <= topBlockZ; z++){
 	                for(int y = bottomBlockY; y <= topBlockY; y++){
 	                	Position s = new Position(w,x,y,z);
-			        	 if(block.containsKey(s.getType()) && TheAPI.generateChance(block.get(s.getType())))
-			                s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+			        	 if(block.containsKey(s.getType())){
+			             		TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+			 					if(TheAPI.generateChance(block.get(b)))
+			 		            s.setType(b);
+				    }
 	                }
 	            }
 	        }
@@ -750,7 +775,7 @@ public class BlocksAPI {
 		}
 	}
 	  
-	public void set(Shape form,Position where, int radius, HashMap<TheMaterial, Integer> block){
+	public void set(Shape form,Position where, int radius, HashMap<TheMaterial, Double> block){
 		List<TheMaterial> c = Lists.newArrayList();
 		  for(TheMaterial m : block.keySet())
 			  for(int i = -1; i > block.get(m); ++i)
@@ -765,7 +790,10 @@ public class BlocksAPI {
 		       for(int y = Yy - radius; y <= Yy + radius; y++)
 		         for(int z = Zz - radius; z <= Zz + radius; z++) {
 		        	 Position s = new Position(w,x,y,z);
-		        	 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+		             		TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+		 					if(TheAPI.generateChance(block.get(b)))
+		 		            s.setType(b);
+			    
 		         }
 		     break;
 		  case Sphere:
@@ -774,12 +802,15 @@ public class BlocksAPI {
 				   for (int Z = -radius; Z < radius; Z++)
 				    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
 			        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
-			        	 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+			             		TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+			 					if(TheAPI.generateChance(block.get(b)))
+			 		            s.setType(b);
+				    
 				    }
 			}
 	}
 	  
-	public void set(Shape form,Position where, int radius, HashMap<TheMaterial, Integer> block, List<TheMaterial> ignore){
+	public void set(Shape form,Position where, int radius, HashMap<TheMaterial, Double> block, List<TheMaterial> ignore){
 		List<TheMaterial> c = Lists.newArrayList();
 		  for(TheMaterial m : block.keySet())
 			  for(int i = -1; i > block.get(m); ++i)
@@ -794,8 +825,11 @@ public class BlocksAPI {
 		       for(int y = Yy - radius; y <= Yy + radius; y++)
 		         for(int z = Zz - radius; z <= Zz + radius; z++) {
 		        	 Position s = new Position(w,x,y,z);
-		        	 if(!ignore.contains(s.getType()))
-		        	 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+		        	 if(!ignore.contains(s.getType())){
+		             		TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+		 					if(TheAPI.generateChance(block.get(b)))
+		 		            s.setType(b);
+			    }
 		         }
 		     break;
 		  case Sphere:
@@ -804,13 +838,16 @@ public class BlocksAPI {
 				   for (int Z = -radius; Z < radius; Z++)
 				    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
 			        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
-			        	 if(!ignore.contains(s.getType()))
-			        	 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+			        	 if(!ignore.contains(s.getType())){
+			             		TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+			 					if(TheAPI.generateChance(block.get(b)))
+			 		            s.setType(b);
+				    }
 				    }
 			}
 	}
 	  
-	public void set(Shape form,Position where, int radius, HashMap<TheMaterial, Integer> block, TheMaterial ignore){
+	public void set(Shape form,Position where, int radius, HashMap<TheMaterial, Double> block, TheMaterial ignore){
 		List<TheMaterial> c = Lists.newArrayList();
 		  for(TheMaterial m : block.keySet())
 			  for(int i = -1; i > block.get(m); ++i)
@@ -825,8 +862,11 @@ public class BlocksAPI {
 		       for(int y = Yy - radius; y <= Yy + radius; y++)
 		         for(int z = Zz - radius; z <= Zz + radius; z++) {
 		        	 Position s = new Position(w,x,y,z);
-		        	 if(ignore!=s.getType())
-		        	 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+		        	 if(ignore!=s.getType()){
+		             		TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+		 					if(TheAPI.generateChance(block.get(b)))
+		 		            s.setType(b);
+			    }
 		         }
 		     break;
 		  case Sphere:
@@ -835,9 +875,11 @@ public class BlocksAPI {
 				   for (int Z = -radius; Z < radius; Z++)
 				    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
 			        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
-			        	 if(ignore!=s.getType())
-			        	 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
-				    }
+			        	 if(ignore!=s.getType()){
+			             		TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+			 					if(TheAPI.generateChance(block.get(b)))
+			 		            s.setType(b);
+				    }}
 			}
 	}
 	
@@ -969,13 +1011,15 @@ public class BlocksAPI {
             for(int z = bottomBlockZ; z <= topBlockZ; z++){
                 for(int y = bottomBlockY; y <= topBlockY; y++){
                 	Position s = new Position(w,x,y,z);
-		            s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+             		TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+ 					if(TheAPI.generateChance(block.get(b)))
+ 		            s.setType(b);
                 }
             }
         }
 	}
 		  
-	public void set(Position from,Position to, HashMap<TheMaterial, Integer> block, List<TheMaterial> ignore){
+	public void set(Position from,Position to, HashMap<TheMaterial, Double> block, List<TheMaterial> ignore){
 		List<TheMaterial> c = Lists.newArrayList();
 		  for(TheMaterial m : block.keySet())
 			  for(int i = -1; i > block.get(m); ++i)
@@ -991,14 +1035,17 @@ public class BlocksAPI {
             for(int z = bottomBlockZ; z <= topBlockZ; z++){
                 for(int y = bottomBlockY; y <= topBlockY; y++){
                 	Position s = new Position(w,x,y,z);
-                	if(!ignore.contains(s.getType()))
-		            s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+                	if(!ignore.contains(s.getType())) {
+                		TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+					if(TheAPI.generateChance(block.get(b)))
+		            s.setType(b);
+                	}
                 }
             }
         }
 	}
 
-	public void set(Position from,Position to, HashMap<TheMaterial, Integer> block, TheMaterial ignore){
+	public void set(Position from,Position to, HashMap<TheMaterial, Double> block, TheMaterial ignore){
 		List<TheMaterial> c = Lists.newArrayList();
 		  for(TheMaterial m : block.keySet())
 			  for(int i = -1; i > block.get(m); ++i)
@@ -1014,9 +1061,11 @@ public class BlocksAPI {
           for(int z = bottomBlockZ; z <= topBlockZ; z++){
               for(int y = bottomBlockY; y <= topBlockY; y++){
               	Position s = new Position(w,x,y,z);
-              	if(ignore!=s.getType())
-		            s.setType((TheMaterial)TheAPI.getRandomFromList(c));
-              }
+              	if(ignore!=s.getType()) {
+					TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+					if(TheAPI.generateChance(block.get(b)))
+		            s.setType(b);
+              }}
           }
       }
 	}
@@ -1042,4 +1091,309 @@ public class BlocksAPI {
 		     && new IntRange(a.getY(), b.getY()).containsDouble(location.getY())
 		     &&  new IntRange(a.getZ(), b.getZ()).containsDouble(location.getZ());
 	}
+	
+	//Synchronized part
+	public void synchronizedSet(Position a, Position b, TheMaterial with) {
+		TheRunnable r = new TheRunnable();
+		BlockGetter s  = get(a,b);
+		r.runRepeating(new Runnable() {
+			public void run() {
+				for(int i = 0; i < 1000; ++i) {
+					if(s.has()) {
+						s.set(with);
+				}else break;
+			}
+			if(!s.has())
+				r.cancel();
+			}
+		}, 10);
+	}
+
+	public void synchronizedSet(Position a, Position b, TheMaterial with, TheMaterial ignore) {
+		TheRunnable r = new TheRunnable();
+		BlockGetter s  = get(a,b);
+		r.runRepeating(new Runnable() {
+			public void run() {
+				for(int i = 0; i < 1000; ++i) {
+					if(s.has()) {
+						s.set(with,ignore);
+				}else break;
+			}
+			if(!s.has())
+				r.cancel();
+			}
+		}, 10);
+	}
+
+	public void synchronizedSet(Position a, Position b, TheMaterial with, List<TheMaterial> ignore) {
+		TheRunnable r = new TheRunnable();
+		BlockGetter s  = get(a,b);
+		r.runRepeating(new Runnable() {
+			public void run() {
+				for(int i = 0; i < 1000; ++i) {
+					if(s.has()) {
+						s.set(with,ignore);
+				}else break;
+			}
+			if(!s.has())
+				r.cancel();
+			}
+		}, 10);
+	}
+
+	public void synchronizedSet(Position a, Position b, List<TheMaterial> with, List<TheMaterial> ignore) {
+		TheRunnable r = new TheRunnable();
+		BlockGetter s  = get(a,b);
+		r.runRepeating(new Runnable() {
+			public void run() {
+				for(int i = 0; i < 1000; ++i) {
+					if(s.has()) {
+						s.set((TheMaterial)TheAPI.getRandomFromList(with),ignore);
+				}else break;
+			}
+			if(!s.has())
+				r.cancel();
+			}
+		}, 10);
+	}
+
+	public void synchronizedSet(Position a, Position b, HashMap<TheMaterial,Double> with, List<TheMaterial> ignore) {
+		TheRunnable r = new TheRunnable();
+		BlockGetter s  = get(a,b);
+		List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : with.keySet())
+			  for(int i = -1; i > with.get(m); ++i)
+				  c.add(m);
+		r.runRepeating(new Runnable() {
+			public void run() {
+				for(int i = 0; i < 1000; ++i) {
+					if(s.has()) {
+						TheMaterial block = (TheMaterial)TheAPI.getRandomFromList(c);
+						if(TheAPI.generateChance(with.get(block)))
+						s.set(block,ignore);
+				}else break;
+			}
+			if(!s.has())
+				r.cancel();
+			}
+		}, 10);
+	}
+
+	public void synchronizedSet(Position a, Position b, HashMap<TheMaterial,Double> with, TheMaterial ignore) {
+		TheRunnable r = new TheRunnable();
+		BlockGetter s  = get(a,b);
+		List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : with.keySet())
+			  for(int i = -1; i > with.get(m); ++i)
+				  c.add(m);
+		r.runRepeating(new Runnable() {
+			public void run() {
+				for(int i = 0; i < 1000; ++i) {
+					if(s.has()) {
+						TheMaterial block = (TheMaterial)TheAPI.getRandomFromList(c);
+						if(TheAPI.generateChance(with.get(block)))
+						s.set(block,ignore);
+				}else break;
+			}
+			if(!s.has())
+				r.cancel();
+			}
+		}, 10);
+	}
+	
+	public void synchronizedReplace(Position a, Position b, TheMaterial block, TheMaterial with) {
+		TheRunnable r = new TheRunnable();
+		BlockGetter s  = get(a,b);
+		r.runRepeating(new Runnable() {
+			public void run() {
+				for(int i = 0; i < 1000; ++i) {
+					if(s.has()) {
+						s.replace(block,with);
+				}else break;
+			}
+			if(!s.has())
+				r.cancel();
+			}
+		}, 10);
+	}
+
+	public void synchronizedReplace(Position a, Position b, TheMaterial block, HashMap<TheMaterial,Double> with) {
+		TheRunnable r = new TheRunnable();
+		BlockGetter s  = get(a,b);
+		List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : with.keySet())
+			  for(int i = -1; i > with.get(m); ++i)
+				  c.add(m);
+		r.runRepeating(new Runnable() {
+			public void run() {
+				for(int i = 0; i < 1000; ++i) {
+					if(s.has()) {
+						s.replace(block,(TheMaterial)TheAPI.getRandomFromList(c));
+				}else break;
+			}
+			if(!s.has())
+				r.cancel();
+			}
+		}, 10);
+	}
+
+	public void synchronizedReplace(Position a, Position b, TheMaterial block, List<TheMaterial> with) {
+		TheRunnable r = new TheRunnable();
+		BlockGetter s  = get(a,b);
+		r.runRepeating(new Runnable() {
+			public void run() {
+				for(int i = 0; i < 1000; ++i) {
+					if(s.has()) {
+						s.replace(block,(TheMaterial)TheAPI.getRandomFromList(with));
+				}else break;
+			}
+			if(!s.has())
+				r.cancel();
+			}
+		}, 10);
+	}
+
+	public void synchronizedReplace(Position a, Position b, List<TheMaterial> block, List<TheMaterial> with) {
+		TheRunnable r = new TheRunnable();
+		BlockGetter s  = get(a,b);
+		r.runRepeating(new Runnable() {
+			public void run() {
+				for(int i = 0; i < 1000; ++i) {
+					if(s.has()) {
+						s.replace(block,(TheMaterial)TheAPI.getRandomFromList(with));
+				}else break;
+			}
+			if(!s.has())
+				r.cancel();
+			}
+		}, 10);
+	}
+
+	public void synchronizedReplace(Position a, Position b, HashMap<TheMaterial,Double> block, List<TheMaterial> with) {
+		TheRunnable r = new TheRunnable();
+		BlockGetter s  = get(a,b);
+		List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : block.keySet())
+			  for(int i = -1; i > block.get(m); ++i)
+				  c.add(m);
+		r.runRepeating(new Runnable() {
+			public void run() {
+				for(int i = 0; i < 1000; ++i) {
+					if(s.has()) {
+						TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+						if(TheAPI.generateChance(block.get(b)))
+						s.replace(b,(TheMaterial)TheAPI.getRandomFromList(with));
+				}else break;
+			}
+			if(!s.has())
+				r.cancel();
+			}
+		}, 10);
+	}
+
+	public void synchronizedReplace(Position a, Position b, HashMap<TheMaterial,Double> block, HashMap<TheMaterial,Double> with) {
+		TheRunnable r = new TheRunnable();
+		BlockGetter s  = get(a,b);
+		List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : block.keySet())
+			  for(int i = -1; i > block.get(m); ++i)
+				  c.add(m);
+			List<TheMaterial> d = Lists.newArrayList();
+			  for(TheMaterial m : with.keySet())
+				  for(int i = -1; i > with.get(m); ++i)
+					  c.add(m);
+		r.runRepeating(new Runnable() {
+			public void run() {
+				for(int i = 0; i < 1000; ++i) {
+					if(s.has()) {
+						TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+						if(TheAPI.generateChance(block.get(b)))
+						s.replace(b,(TheMaterial)TheAPI.getRandomFromList(d));
+				}else break;
+			}
+			if(!s.has())
+				r.cancel();
+			}
+		}, 10);
+	}
+
+	public void synchronizedReplace(Position a, Position b, HashMap<TheMaterial,Double> block, TheMaterial with) {
+		TheRunnable r = new TheRunnable();
+		BlockGetter s  = get(a,b);
+		List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : block.keySet())
+			  for(int i = -1; i > block.get(m); ++i)
+				  c.add(m);
+		r.runRepeating(new Runnable() {
+			public void run() {
+				for(int i = 0; i < 1000; ++i) {
+					if(s.has()) {
+						TheMaterial b = (TheMaterial)TheAPI.getRandomFromList(c);
+						if(TheAPI.generateChance(block.get(b)))
+						s.replace(b,with);
+				}else break;
+			}
+			if(!s.has())
+				r.cancel();
+			}
+		}, 10);
+	}
+	
+	
+}
+class BlockGetter {
+    private final int sizeZ,sizeY,sizeX,baseZ,baseX,baseY;
+    private int x, y, z;
+    private final World w;
+
+    public BlockGetter(Position a, Position b){
+    	w=a.getWorld();
+        baseX = Math.min(a.getBlockX(),b.getBlockX());
+        baseY = Math.min(a.getBlockY(),b.getBlockY());
+        baseZ = Math.min(a.getBlockZ(),b.getBlockZ());
+        sizeX = Math.abs(Math.max(a.getBlockX(),b.getBlockX())-baseX)+1;
+        sizeY = Math.abs(Math.max(a.getBlockY(),b.getBlockY())-baseY)+1;
+        sizeZ = Math.abs(Math.max(a.getBlockZ(),b.getBlockZ())-baseZ)+1;
+    }
+
+    public void replace(List<TheMaterial> block, TheMaterial with) {
+    	Position b = get();
+    	if(block.contains(b.getType()))b.setType(with);
+	}
+
+	public void replace(TheMaterial material, TheMaterial with) {
+    	Position b = get();
+    	if(b.getType()==material)b.setType(with);
+	}
+
+	public boolean has() {
+        return x < sizeX && y < sizeY && z < sizeZ;
+    }
+
+    public Position get() {
+    	Position b = new Position(w,baseX + x, baseY + y, baseZ + z);
+        if (++x >= sizeX) {
+            x = 0;
+            if (++y >= sizeY) {
+                y = 0;
+                ++z;
+            }
+        }
+        return b;
+    }
+
+    
+    public void set(TheMaterial material, TheMaterial ignore) {
+    	Position b = get();
+    	if(b.getType()!=ignore)b.setType(material);
+    }
+    
+    public void set(TheMaterial material, List<TheMaterial> ignore) {
+    	Position b = get();
+    	if(!ignore.contains(b.getType()) && b.getType()!=material)b.setType(material);
+    }
+
+    public void set(TheMaterial material) {
+    	get().setType(material);
+    }
 }
