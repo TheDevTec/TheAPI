@@ -12,7 +12,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -32,10 +31,12 @@ import me.Straiker123.GUICreatorAPI.Options;
 import me.Straiker123.ItemCreatorAPI;
 import me.Straiker123.LoaderClass;
 import me.Straiker123.MultiMap;
+import me.Straiker123.Position;
 import me.Straiker123.RankingAPI;
 import me.Straiker123.ScoreboardAPI;
 import me.Straiker123.ScoreboardAPIV2;
 import me.Straiker123.TheAPI;
+import me.Straiker123.TheMaterial;
 import me.Straiker123.TheRunnable;
 import me.Straiker123.TheRunnable.RunnableType;
 
@@ -302,18 +303,18 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				if(!r) {
 					r=true;
 				BlocksAPI a = TheAPI.getBlocksAPI();
-				List<Block> d =a.getBlocks(Shape.Sphere, p.getLocation(), 5,Material.AIR);
+				List<Position> d =a.get(Shape.Sphere, new Position(p.getLocation()), 5,new TheMaterial("AIR"));
 				List<BlockSave> save = new ArrayList<BlockSave>();
-				for(Block b : d) {
+				for(Position b : d) {
 					save.add(a.getBlockSave(b));
-					TheAPI.getBlocksAPI().setBlock(b.getLocation(), Material.DIAMOND_BLOCK);
+					TheAPI.getBlocksAPI().set(b, Material.DIAMOND_BLOCK);
 				}
 				d.clear();
 				Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() { // undo command ?
 					@Override
 					public void run() {
 						if(save.isEmpty()==false)
-						a.setBlockSaves(save);
+						a.loadBlockSaves(save);
 						r=false;
 					}
 				}, 40);

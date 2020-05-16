@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
@@ -80,13 +79,31 @@ public class PlayerAPI {
 		Error.err("when creating PotionEffect", "PotionEffectType is null");
 	}
 	}
+	
+	public void teleport(Position loc) {
+		teleport(loc,TeleportCause.PLUGIN);
+	}
 
 	public void teleport(Location loc) {
 		teleport(loc,TeleportCause.PLUGIN);
 	}
+	
 	public void teleport(Entity entity) {
 		teleport(entity,TeleportCause.PLUGIN);
 	}
+	
+	public void teleport(Position loc,TeleportCause cause) {
+		if(loc != null && loc.getWorld()!=null) {
+			if(cause!=null)
+		s.teleport(loc.toLocation(),cause);
+			else {
+				Error.err("teleporting "+s.getName(), "TeleportCause is null");
+			}
+		}else {
+			Error.err("teleporting "+s.getName(), "Location is null");
+		}
+	}
+	
 	public void teleport(Location loc,TeleportCause cause) {
 		if(loc != null && loc.getWorld()!=null) {
 			if(cause!=null)
@@ -98,6 +115,7 @@ public class PlayerAPI {
 			Error.err("teleporting "+s.getName(), "Location is null");
 		}
 	}
+	
 	public void teleport(Entity entity,TeleportCause cause) {
 		if(entity!=null) {
 			teleport(entity.getLocation(),cause);
@@ -114,54 +132,56 @@ public class PlayerAPI {
 			Error.err("teleporting "+s.getName(), "Location is null");
 			return;
 		}
-		String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
-		String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
-		String c2 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
+		
+		String c = new Position(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
+		String c1 = new Position(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
+		String c2 = new Position(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
 		if(acc(1,c) && acc(2,c1) && acc(3,c2)) {
-		teleport(new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ(),b.getYaw(),b.getPitch()),cause);
+		teleport(new Position(b.getWorld(),b.getX(),b.getY()-1,b.getZ(),b.getYaw(),b.getPitch()),cause);
 	}else {
-		 c = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
-		 c1 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
-		 c2 = new Location(b.getWorld(),b.getX(),b.getY()+1,b.getZ()).getBlock().getType().name();
+		 c = new Position(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
+		 c1 = new Position(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
+		 c2 = new Position(b.getWorld(),b.getX(),b.getY()+1,b.getZ()).getBlock().getType().name();
 			if(acc(1,c) && acc(2,c1) && acc(3,c2)) {
-		teleport(new Location(b.getWorld(),b.getX(),b.getY(),b.getZ(),b.getYaw(),b.getPitch()),cause);
+		teleport(new Position(b.getWorld(),b.getX(),b.getY(),b.getZ(),b.getYaw(),b.getPitch()),cause);
 	}else {
-		 c = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
-		 c1 = new Location(b.getWorld(),b.getX(),b.getY()+1,b.getZ()).getBlock().getType().name();
-		 c2 = new Location(b.getWorld(),b.getX(),b.getY()+2,b.getZ()).getBlock().getType().name();
+		 c = new Position(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
+		 c1 = new Position(b.getWorld(),b.getX(),b.getY()+1,b.getZ()).getBlock().getType().name();
+		 c2 = new Position(b.getWorld(),b.getX(),b.getY()+2,b.getZ()).getBlock().getType().name();
 			if(acc(1,c) && acc(2,c1) && acc(3,c2)) {
-		teleport(new Location(b.getWorld(),b.getX(),b.getY()+1,b.getZ(),b.getYaw(),b.getPitch()),cause);
+		teleport(new Position(b.getWorld(),b.getX(),b.getY()+1,b.getZ(),b.getYaw(),b.getPitch()),cause);
 	}else {
-		Location l = simpleLocation(new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()));
-		if(l==null)l=searchLocation(new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()));
-		if(l==null)l=new Location(b.getWorld(),b.getX(),b.getY(),b.getZ());
-		 c = new Location(l.getWorld(),l.getX(),l.getY()-2,l.getZ()).getBlock().getType().name();
-		 c1 = new Location(l.getWorld(),l.getX(),l.getY()-1,l.getZ()).getBlock().getType().name();
-		 c2 = new Location(l.getWorld(),l.getX(),l.getY(),l.getZ()).getBlock().getType().name();
+		Position l = simpleLocation(new Position(b.getWorld(),b.getX(),b.getY(),b.getZ()));
+		if(l==null)l=searchLocation(new Position(b.getWorld(),b.getX(),b.getY(),b.getZ()));
+		if(l==null)l=new Position(b.getWorld(),b.getX(),b.getY(),b.getZ());
+		 c = new Position(l.getWorld(),l.getX(),l.getY()-2,l.getZ()).getBlock().getType().name();
+		 c1 = new Position(l.getWorld(),l.getX(),l.getY()-1,l.getZ()).getBlock().getType().name();
+		 c2 = new Position(l.getWorld(),l.getX(),l.getY(),l.getZ()).getBlock().getType().name();
 			if(acc(1,c) && acc(2,c1) && acc(3,c2)) {
-		teleport(new Location(l.getWorld(),l.getX(),l.getY()-1,l.getZ(),b.getYaw(),b.getPitch()),cause);
+		teleport(new Position(l.getWorld(),l.getX(),l.getY()-1,l.getZ(),b.getYaw(),b.getPitch()),cause);
 	}else {
-		 c = new Location(l.getWorld(),l.getX(),l.getY()-1,l.getZ()).getBlock().getType().name();
-		 c1 = new Location(l.getWorld(),l.getX(),l.getY(),l.getZ()).getBlock().getType().name();
-		 c2 = new Location(l.getWorld(),l.getX(),l.getY()+1,l.getZ()).getBlock().getType().name();
+		 c = new Position(l.getWorld(),l.getX(),l.getY()-1,l.getZ()).getBlock().getType().name();
+		 c1 = new Position(l.getWorld(),l.getX(),l.getY(),l.getZ()).getBlock().getType().name();
+		 c2 = new Position(l.getWorld(),l.getX(),l.getY()+1,l.getZ()).getBlock().getType().name();
 			if(acc(1,c) && acc(2,c1) && acc(3,c2)) {
-		teleport(new Location(l.getWorld(),l.getX(),l.getY()-1,l.getZ(),b.getYaw(),b.getPitch()),cause);
+		teleport(new Position(l.getWorld(),l.getX(),l.getY()-1,l.getZ(),b.getYaw(),b.getPitch()),cause);
 	}else {
-		 c = new Location(l.getWorld(),l.getX(),l.getY(),l.getZ()).getBlock().getType().name();
-		 c1 = new Location(l.getWorld(),l.getX(),l.getY()+1,l.getZ()).getBlock().getType().name();
-		 c2 = new Location(l.getWorld(),l.getX(),l.getY()+2,l.getZ()).getBlock().getType().name();
+		 c = new Position(l.getWorld(),l.getX(),l.getY(),l.getZ()).getBlock().getType().name();
+		 c1 = new Position(l.getWorld(),l.getX(),l.getY()+1,l.getZ()).getBlock().getType().name();
+		 c2 = new Position(l.getWorld(),l.getX(),l.getY()+2,l.getZ()).getBlock().getType().name();
 			if(acc(1,c) && acc(2,c1) && acc(3,c2)) {
-		teleport(new Location(l.getWorld(),l.getX(),l.getY(),l.getZ(),b.getYaw(),b.getPitch()),cause);
+		teleport(new Position(l.getWorld(),l.getX(),l.getY(),l.getZ(),b.getYaw(),b.getPitch()),cause);
 	}else
-				teleport(new Location(l.getWorld(),l.getX(),l.getY(),l.getZ(),b.getYaw(),b.getPitch()),cause);
+				teleport(new Position(l.getWorld(),l.getX(),l.getY(),l.getZ(),b.getYaw(),b.getPitch()),cause);
 
 	}
 	}
 	}}
 	}}
-	private Location simpleLocation(Location loc) {
-		Location l = null;
-		for(Location b : TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 2)) {
+
+	private Position simpleLocation(Position position) {
+		Position l = null;
+		for(Position b : TheAPI.getBlocksAPI().get(Shape.Square, position, 2)) {
 			String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
 			String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
 			String c2 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
@@ -172,10 +192,10 @@ public class PlayerAPI {
 		return l != null ? l.add(0.5, 0.5, 0.5):null;
 	}
 	
-	private Location searchLocation(Location d) {
-		Location loc = new Location(d.getWorld(),d.getX(),d.getY(),d.getZ());
-		Location l = null;
-		for(Location b : TheAPI.getBlocksAPI().getBlocksLocation(Shape.Square, loc, 4)) {
+	private Position searchLocation(Position d) {
+		Position loc = new Position(d.getWorld(),d.getX(),d.getY(),d.getZ());
+		Position l = null;
+		for(Position b : TheAPI.getBlocksAPI().get(Shape.Square, loc, 4)) {
 			String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
 			String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
 			String c2 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
@@ -185,7 +205,7 @@ public class PlayerAPI {
 			}
 		}
 		if(l!=null)return l.add(0.5, 0.5, 0.5);
-		for(Location b :TheAPI.getBlocksAPI().getBlocksLocation(Shape.Sphere, loc, 6)) {
+		for(Position b :TheAPI.getBlocksAPI().get(Shape.Sphere, loc, 6)) {
 			String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
 			String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
 			String c2 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
@@ -195,7 +215,7 @@ public class PlayerAPI {
 			}
 		}
 		if(l!=null)return l.add(0.5, 0.5, 0.5);
-		for(Location b : TheAPI.getBlocksAPI().getBlocksLocation(Shape.Sphere, loc, 8)) {
+		for(Position b : TheAPI.getBlocksAPI().get(Shape.Sphere, loc, 8)) {
 			String c = new Location(b.getWorld(),b.getX(),b.getY()-2,b.getZ()).getBlock().getType().name();
 			String c1 = new Location(b.getWorld(),b.getX(),b.getY()-1,b.getZ()).getBlock().getType().name();
 			String c2 = new Location(b.getWorld(),b.getX(),b.getY(),b.getZ()).getBlock().getType().name();
@@ -374,8 +394,8 @@ public class PlayerAPI {
 		s.setLevel(level);
 	}
 	
-	public List<Block> getNearbyBlocks(int range){
-		return TheAPI.getBlocksAPI().getBlocks(Shape.Sphere, s.getLocation(), range);
+	public List<Position> getNearbyBlocks(int range){
+		return TheAPI.getBlocksAPI().get(Shape.Sphere, new Position(s.getLocation()), range);
 	}
 	
 	public List<Entity> getNearbyEntities(int range){

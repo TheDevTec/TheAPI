@@ -40,6 +40,10 @@ public class TheAPI {
 	static {
 	}
 	
+	public static boolean generateChance(double chance) {
+		return generateRandomDouble(100) >= chance;
+	}
+	
 	public static NMSAPI getNMSAPI() {
 		return new NMSAPI();
 	}
@@ -922,12 +926,12 @@ public class TheAPI {
 		return new ScoreboardAPIV2(p);
 	}
 	/**
-	 * @see see Send player scoreboard with per player scoreboard function (Non-flashing, Using NMS -> 48 symbols access)
+	 * @see see Send player scoreboard with per player scoreboard function (Non-flashing)
 	 * @param p
 	 * @return ScoreboardAPI
 	 */
-	public static ScoreboardAPIV3 getScoreboardAPIV3(Player p, String displayname) {
-		return new ScoreboardAPIV3(p, colorize(displayname));
+	public static ScoreboardAPIV3 getScoreboardAPIV3(Player p) {
+		return new ScoreboardAPIV3(p);
 	}
 	/**
 	 * @see see Send player sound or get sound name from String

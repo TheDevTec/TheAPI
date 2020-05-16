@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -20,20 +19,21 @@ import org.bukkit.util.Vector;
 
 import me.Straiker123.LoaderClass;
 import me.Straiker123.Particle;
+import me.Straiker123.Position;
 import me.Straiker123.Storage;
 import me.Straiker123.TheAPI;
 import me.Straiker123.TheRunnable;
 import me.Straiker123.Events.TNTExplosionEvent;
 
 public class Task {
-	List<Block> a;
+	List<Position> a;
 	TNTExplosionEvent event;
-	Location reals;
+	Position reals;
 	boolean toReal;
-	public Task(Location real,List<Block> blocks, TNTExplosionEvent result) {
-		a=blocks;
+	public Task(Position reals2,List<Position> list, TNTExplosionEvent result) {
+		a=list;
 		event=result;
-		reals=real;
+		reals=reals2;
 		f=LoaderClass.config.getConfig();
 		toReal=f.getBoolean("Options.LagChecker.TNT.Drops.InFirstTNTLocation");
 	}
@@ -62,10 +62,10 @@ public class Task {
 					e=Particle.valueOf(f.getString("Options.LagChecker.TNT.Particles.Type"));
 				for(Entity ds: TheAPI.getBlocksAPI().getNearbyEntities(event.getLocation(), 15))
 					if(ds.getType()==EntityType.PLAYER)
-				TheAPI.getNMSAPI().sendPacket((Player)ds, TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(e, event.getLocation()));
+				TheAPI.getNMSAPI().sendPacket((Player)ds, TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(e, event.getLocation().toLocation()));
 		}}
 		if(event.canHitEntities()) {
-			Location l = event.getLocation();
+			Position l = event.getLocation();
 			int r = (int) (event.getPower()*1.25);
 	        int chunkRadius = r < 16 ? 1 : (r - (r % 16))/16;
 			for (int chX = 0 -chunkRadius; chX <= chunkRadius; chX ++){
@@ -78,9 +78,9 @@ public class Task {
                     	if(e.getType()==EntityType.MINECART_TNT) {
                     		e.setFireTicks(11);
                     	}
-                        if (e.getLocation().distance(l) <= r && e.getLocation().getBlock() != l.getBlock()) {
+                        if (l.distance(e.getLocation()) <= r && e.getLocation().getBlock() != l.getBlock()) {
 
-            				double rd = (r-e.getLocation().distance(l));
+            				double rd = (r-l.distance(e.getLocation()));
             				double damage = r*rd/9;
             				double total = damage/3;
     			if(e.getType()==EntityType.PRIMED_TNT) {
@@ -113,7 +113,7 @@ public class Task {
 			int ignite = f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime") <= 0 ? 5 : f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime");
 			boolean igniteUsed = !f.getBoolean("Options.LagChecker.TNT.CollidingTNT.Disabled");
 			boolean fakeTnt = !f.getBoolean("Options.LagChecker.TNT.SpawnTNT");
-			String location = TheAPI.getBlocksAPI().getLocationAsString(reals);
+			String location = reals.toString();
 			@Override
 			public void run() {
 				if(action().equalsIgnoreCase("none")) {
@@ -121,63 +121,61 @@ public class Task {
 					if(a.isEmpty()) {
 						for(ItemStack d:st.getItems()) {
 								try {
-									event.getLocation().getWorld().dropItem(event.getLocation(), d);
+									event.getLocation().getWorld().dropItem(event.getLocation().toLocation(), d);
 								}catch(Exception err) {}
 							}
 						task.cancel();
 						break;
 					}
-				Block b = a.get(a.size()-1);
-				Location c = b.getLocation();
-				if(event.canTNTInLiquidCancelEvent() && Events.around(c)) {
+				Position b = a.get(a.size()-1);
+				if(event.canTNTInLiquidCancelEvent() && Events.around(b))
 					return;
-				}
 		    	if(event.canDestroyBlocks())
-				if(b.getType()==Material.TNT) {
+				if(b.getBukkitType()==Material.TNT) {
 							if(igniteUsed) {
 							b.setType(Material.AIR);
 							if(fakeTnt) {
 								Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
 									@Override
 									public void run() {
-										Events.get(reals,b.getLocation());
+										Events.get(reals,b);
 									}
 								}, ignite);
 								}else {
-									TNTPrimed tnt = (TNTPrimed)b.getWorld().spawnEntity(b.getLocation(), EntityType.PRIMED_TNT);
+									TNTPrimed tnt = (TNTPrimed)b.getWorld().spawnEntity(b.toLocation(), EntityType.PRIMED_TNT);
 									tnt.setMetadata("real", new FixedMetadataValue(LoaderClass.plugin, location));
 									tnt.setFuseTicks(ignite);
 								}
 						}else {
 							if(event.isDropItems())
-							Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,st, b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
+							Events.add(b,(toReal ? reals : b),toReal,st, b.getBlock().getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
 							b.setType(Material.AIR);
-							b.getDrops().clear();
+							b.getBlock().getDrops().clear();
 								if(TheAPI.generateRandomInt(25)==25) {
-								for(Entity e: TheAPI.getBlocksAPI().getNearbyEntities(b.getLocation(), 2)) {
+								for(Entity e: TheAPI.getBlocksAPI().getNearbyEntities(b, 2)) {
 									if(e instanceof LivingEntity) {
 										e.setFireTicks(80);
 									}
 								}
 								for(Entity ds: TheAPI.getBlocksAPI().getNearbyEntities(event.getLocation(), 15))
 									if(ds.getType()==EntityType.PLAYER)
-								TheAPI.getNMSAPI().sendPacket((Player)ds, TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(Particle.FLAME, event.getLocation()));
+								TheAPI.getNMSAPI().sendPacket((Player)ds, TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(Particle.FLAME, event.getLocation().toLocation()));
 						
 								}
 						}}else {
 							if(event.isDropItems())
-								Events.add(b.getLocation(),(toReal ? reals : b.getLocation()),toReal,st,b.getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
+								Events.add(b,(toReal ? reals : b),toReal,st,b.getBlock().getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
 							b.setType(Material.AIR);
-							b.getDrops().clear();
+							b.getBlock().getDrops().clear();
 							if(TheAPI.generateRandomInt(25)==25) {
-								for(Entity e: TheAPI.getBlocksAPI().getNearbyEntities(b.getLocation(), 2)) {
+								for(Entity e: TheAPI.getBlocksAPI().getNearbyEntities(b, 2)) {
 									if(e instanceof LivingEntity) {
 										e.setFireTicks(80);
 									}
 								}
 								for(Entity ds: TheAPI.getBlocksAPI().getNearbyEntities(event.getLocation(), 15))
 									if(ds.getType()==EntityType.PLAYER)
-								TheAPI.getNMSAPI().sendPacket((Player)ds, TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(Particle.FLAME, event.getLocation()));
+								TheAPI.getNMSAPI().sendPacket((Player)ds, TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(Particle.FLAME, event.getLocation().toLocation()));
 						
 							}
 						}
@@ -186,7 +184,7 @@ public class Task {
 				}else if(action().equalsIgnoreCase("drop")) {
 						for(ItemStack id :st.getItems()) {
 							try {
-								event.getLocation().getWorld().dropItem(event.getLocation(), id);
+								event.getLocation().getWorld().dropItem(event.getLocation().toLocation(), id);
 							}catch(Exception err) {}
 						}
 					

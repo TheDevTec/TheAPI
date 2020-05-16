@@ -4,8 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.bukkit.DyeColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -18,40 +16,45 @@ import org.bukkit.block.Hopper;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.Sign;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
-@SuppressWarnings("deprecation")
 public class BlockSave {
-	private Biome biom;
-	private Material mat;
-	private Location loc;
-	private MaterialData data;
+	private boolean isSign, isInvBlock, isShulker,isCmd;
+	private Position loc;
 	private String[] lines;
 	private ItemStack[] inv;
 	private String cmd,cmdname;
+	private TheMaterial type;
 	private DyeColor color;
+	private Biome b;
 	private BlockFace f;
-	public BlockSave(Block b) {
-			f=b.getFace(b);
+	public BlockSave(Position pos) {
+		Block b = pos.getBlock();
+			f=b.getFace(b); 
 		  if(b.getType().name().contains("CHEST")) {
+			  isInvBlock=true;
 			  inv = ((Chest) b.getState()).getBlockInventory().getContents();
 		  }
 		  if(b.getType().name().contains("SHULKER_BOX")) {
+			  isShulker=true;
 			  inv = ((ShulkerBox) b.getState()).getInventory().getContents();
 		  }
 		  if(b.getType().name().equals("DROPPER")) {
+			  isInvBlock=true;
 			  inv = ((Dropper) b.getState()).getInventory().getContents();
 		  }
 		  if(b.getType().name().equals("DISPENSER")) {
+			  isInvBlock=true;
 			  inv = ((Dispenser) b.getState()).getInventory().getContents();
 		  }
 		  if(b.getType().name().equals("HOPPER")) {
+			  isInvBlock=true;
 			  inv = ((Hopper) b.getState()).getInventory().getContents();
 		  }
 		  if(b.getType().name().contains("SIGN")) {
+			  isSign=true;
 			  Sign c = (Sign) b.getState();
 			  lines = c.getLines();
 			  try {
@@ -61,14 +64,58 @@ public class BlockSave {
 			  }
 		  }
 		  if(b.getType().name().contains("COMMAND")) {
+			  isCmd=true;
 			  CommandBlock c = (CommandBlock)b.getState();
 			  cmd =c.getCommand();
 			  cmdname=c.getName();
 		  }
-		data=b.getState().getData();
-		biom=b.getBiome();
-		mat=b.getType();
-		loc=b.getLocation();
+		loc=pos;
+		this.b=pos.getBiome();
+		type=loc.getType();
+	}
+	//sign
+	public BlockSave(Position pos, Biome biome, BlockFace face, TheMaterial material, DyeColor color, String[] lines) {
+		loc=pos;
+		this.b=biome;
+		f=face;
+		type=material;
+		this.lines=lines;
+		this.color=color;
+		isSign=true;
+	}
+	//shulker
+	public BlockSave(Position pos, Biome biome, BlockFace face, TheMaterial material, DyeColor color, ItemStack[] inv) {
+		loc=pos;
+		this.b=biome;
+		f=face;
+		type=material;
+		this.color=color;
+		this.inv=inv;
+		isShulker=true;
+	}
+	//other
+	public BlockSave(Position pos, Biome biome, BlockFace face, TheMaterial material, ItemStack[] inv) {
+		loc=pos;
+		this.b=biome;
+		f=face;
+		type=material;
+		this.inv=inv;
+		isInvBlock=true;
+	}
+	//cmd
+	public BlockSave(Position pos, Biome biome, BlockFace face, TheMaterial material, String cmd, String cmdname) {
+		loc=pos;
+		this.b=biome;
+		f=face;
+		type=material;
+		isCmd=true;
+	}
+	//normal
+	public BlockSave(Position pos, Biome biome, BlockFace face, TheMaterial material) {
+		loc=pos;
+		this.b=biome;
+		f=face;
+		type=material;
 	}
 
 	public BlockFace getFace() {
@@ -126,56 +173,66 @@ public class BlockSave {
 	public String getSignLinesAsString() {
 		return new StringUtils().join(lines, " ");
 	}
-	public String[] getSignLinesFromString(String s) {
+	public static String[] getSignLinesFromString(String s) {
 		return s.split(" ");
 	}
 	
-	public Location getLocation() {
+	public Position getLocation() {
 		return loc;
-	}
-	
-	public String getLocationAsString() {
-		return TheAPI.getBlocksAPI().getLocationAsString(loc);
-	}
-	
-	public static Location getLocationFromString(String d) {
-		return TheAPI.getBlocksAPI().getLocationFromString(d);
 	}
 	
 	public World getWorld() {
 		return loc.getWorld();
 	}
-	public MaterialData getMaterialData() {
-		return data;
-	}
+	
 	public Biome getBiome() {
-		return biom;
+		return b;
 	}
-	public Material getMaterial() {
-		return mat;
-	}
-	
-	public static BlockSave getBlockSaveFromString(String s) {
-		try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(s));
-            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-            BlockSave items =(BlockSave) dataInput.readObject();
-            dataInput.close();
-            return items;
-        } catch (Exception e) {
-        	return null;
-        }
+
+	public TheMaterial getMaterial() {
+		return type;
 	}
 	
-	public String getBlockSaveAsString() {
-		try {
-		 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-         BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-         dataOutput.writeObject(this);
-         dataOutput.close();
-         return Base64Coder.encodeLines(outputStream.toByteArray());
-		}catch(Exception err) {
+	public static BlockSave fromString(String stored) {
+		if(stored.startsWith("[BlockSave:")) {
+			if(stored.startsWith("[BlockSave:Sign/!/")) {
+				stored=stored.replaceFirst("[BlockSave:Sign/!/", "").substring(0,stored.length()-1);
+				String[] s = stored.split("/!/");
+				return new BlockSave(Position.fromString(s[0]),Biome.valueOf(s[1]),BlockFace.valueOf(s[2]),TheMaterial.fromString(s[3]),DyeColor.valueOf(s[4]),getSignLinesFromString(s[5]));
+			}
+			if(stored.startsWith("[BlockSave:ShulkerBox/!/")) {
+				stored=stored.replaceFirst("[BlockSave:ShulkerBox/!/", "").substring(0,stored.length()-1);
+				String[] s = stored.split("/!/");
+				return new BlockSave(Position.fromString(s[0]),Biome.valueOf(s[1]),BlockFace.valueOf(s[2]),TheMaterial.fromString(s[3]),DyeColor.valueOf(s[4]),getBlockInventoryFromString(s[5]));
+			}
+			if(stored.startsWith("[BlockSave:InventoryBlock/!/")) {
+				stored=stored.replaceFirst("[BlockSave:InventoryBlock/!/", "").substring(0,stored.length()-1);
+				String[] s = stored.split("/!/");
+				return new BlockSave(Position.fromString(s[0]),Biome.valueOf(s[1]),BlockFace.valueOf(s[2]),TheMaterial.fromString(s[3]),getBlockInventoryFromString(s[4]));
+			}
+			if(stored.startsWith("[BlockSave:CommandBlock/!/")) {
+				stored=stored.replaceFirst("[BlockSave:CommandBlock/!/", "").substring(0,stored.length()-1);
+				String[] s = stored.split("/!/");
+				return new BlockSave(Position.fromString(s[0]),Biome.valueOf(s[1]),BlockFace.valueOf(s[2]),TheMaterial.fromString(s[3]),s[4],s[5]);
+			}
+			if(stored.startsWith("[BlockSave:Block/!/")) {
+				stored=stored.replaceFirst("[BlockSave:Block/!/", "").substring(0,stored.length()-1);
+				String[] s = stored.split("/!/");
+				return new BlockSave(Position.fromString(s[0]),Biome.valueOf(s[1]),BlockFace.valueOf(s[2]),TheMaterial.fromString(s[3]));
+			}
 			return null;
 		}
+		return null;
+	}
+	public String toString() {
+		if(isSign)
+		return "[BlockSave:Sign/!/"+loc.toString()+getBiome().name()+"/!/"+f.name()+"/!/"+type.toString()+"/!/"+color.name()+"/!/"+getSignLinesAsString()+"]";//Position/Biome/BlockFace/Material/Color/SignLines
+		if(isShulker)
+		return "[BlockSave:ShulkerBox/!/"+loc.toString()+getBiome().name()+"/!/"+f.name()+"/!/"+type.toString()+"/!/"+color.name()+"/!/"+getBlockInventoryAsString()+"]"; //Position/Biome/BlockFace/Material/Color/Inventory
+		if(isInvBlock)
+		return "[BlockSave:InventoryBlock/!/"+loc.toString()+getBiome().name()+"/!/"+f.name()+"/!/"+type.toString()+"/!/"+getBlockInventoryAsString()+"]"; //Position/Biome/BlockFace/Material/Inventory
+		if(isCmd)
+			return "[BlockSave:CommandBlock/!/"+loc.toString()+getBiome().name()+"/!/"+f.name()+"/!/"+type.toString()+"/!/"+cmd+"/!/"+cmdname+"]"; //Position/Biome/BlockFace/Material/Command/CmdBlockName
+		return "[BlockSave:Block/!/"+loc.toString()+"/!/"+getBiome().name()+"/!/"+f.name()+"/!/"+type.toString()+"]"; //Position/Biome/BlockFace/Material
 	}
 }

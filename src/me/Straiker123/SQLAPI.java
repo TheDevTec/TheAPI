@@ -22,7 +22,10 @@ public class SQLAPI {
 			this.password=password;
 			this.port=port;
 		}
-	    private boolean connected;
+	    public SQLAPI(String host, String database, String username, String password) {
+			this(host, database, username, password, 3306);
+		}
+		private boolean connected;
 	    private Statement statement;
 		public void connect() {
 	        try {

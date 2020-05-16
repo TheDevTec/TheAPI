@@ -23,11 +23,13 @@ public class Report {
 	}
 
 	public void setMessage(String newMessage) {
-		LoaderClass.data.getConfig().set("report."+s+"."+id+".message",newMessage);
+		LoaderClass.data.set("report."+s+"."+id+".message",newMessage);
+		LoaderClass.data.save();
 		m=newMessage;
 	}
 	public void setReason(String newReason) {
-		LoaderClass.data.getConfig().set("report."+s+"."+id+".reason",newReason);
+		LoaderClass.data.set("report."+s+"."+id+".reason",newReason);
+		LoaderClass.data.save();
 		r=newReason;
 	}
 	
@@ -43,14 +45,16 @@ public class Report {
 	}
 	
 	public boolean isSolved() {
-		return LoaderClass.data.getConfig().getBoolean("report."+s+"."+id+".solved");
+		return LoaderClass.data.getBoolean("report."+s+"."+id+".solved");
 	}
 	
 	public void remove() {
-		LoaderClass.data.getConfig().set("report."+s+"."+id, null);
+		LoaderClass.data.set("report."+s+"."+id, null);
+		LoaderClass.data.save();
 	}
 	
 	public void setSolved(boolean solved) {
-		LoaderClass.data.getConfig().set("report."+s+"."+id+".solved", solved);
+		LoaderClass.data.set("report."+s+"."+id+".solved", solved);
+		LoaderClass.data.save();
 	}
 }

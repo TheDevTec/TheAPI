@@ -1,17 +1,18 @@
 package me.Straiker123.Events;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+import me.Straiker123.Position;
+
 public class TNTExplosionEvent extends Event implements Cancellable {
 	boolean b,nuclear,e,d,n,col,dr;
 	int power;
-	Location l;
-	public TNTExplosionEvent(Location loc) {
-		l=loc;
+	Position l;
+	public TNTExplosionEvent(Position c2) {
+		l=c2;
 		power=4;
 		d=true;
 		e=true;
@@ -65,7 +66,7 @@ public class TNTExplosionEvent extends Event implements Cancellable {
 		return e;
 	}
 	
-	public Location getLocation() {
+	public Position getLocation() {
 		return l;
 	}
 	

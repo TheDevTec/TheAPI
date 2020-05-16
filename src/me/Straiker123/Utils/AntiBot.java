@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 
 import me.Straiker123.LoaderClass;
+import me.Straiker123.PlayerBanList;
 import me.Straiker123.PunishmentAPI;
 import me.Straiker123.TheAPI;
 
@@ -22,7 +23,8 @@ public class AntiBot {
 	private static PunishmentAPI a = TheAPI.getPunishmentAPI();
 	public static boolean isDisallowed(String uuid) {
 		String p = Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
-		return c.contains(uuid)||a.hasBan(p)||a.hasBanIP(p)||a.hasTempBan(p)||a.hasTempBanIP(p);
+		PlayerBanList a = TheAPI.getPunishmentAPI().getBanList(p);
+		return c.contains(uuid)||a.isBanned()||a.isTempBanned()||a.isIPBanned()||a.isTempIPBanned();
 	}
 	@SuppressWarnings("deprecation")
 	public static boolean containsDisallowed(String string) {
@@ -34,7 +36,7 @@ public class AntiBot {
 			}
 		}
 		if(!f)
-		for(String s : a.getBanList().getBannedPlayers()) {
+		for(String s : a.getBanList().getBanned()) {
 			if(string.contains(Bukkit.getOfflinePlayer(s).getUniqueId().toString())) {
 				f=true;
 				break;

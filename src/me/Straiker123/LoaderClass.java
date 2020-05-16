@@ -164,8 +164,8 @@ public class LoaderClass extends JavaPlugin {
 				+ "TNT -> Action -> LowMememory types: WAIT/DROP\n"
 				+ "TNT -> Action -> LowTPS types: WAIT/DROP");
 		config.addDefault("Options.HideErrors", false);
-		config.addDefault("Options.Options.AntiBot.Use", true);
-		config.addDefault("Options.Options.AntiBot.TimeBetweenPlayer", 3);
+		config.addDefault("Options.AntiBot.Use", true);
+		config.addDefault("Options.AntiBot.TimeBetweenPlayer", 3);
 		
 		config.addDefault("Options.LagChecker.Enabled", true);
 		config.addDefault("Options.LagChecker.Log", false);
@@ -294,7 +294,6 @@ public class LoaderClass extends JavaPlugin {
 	}
 	public static List<Player> a = new ArrayList<Player>();
 	public static int task = 1;
-	public static ConfigAPI storage = new ConfigAPI("TheAPI","Storage");
 
 	public static List<Player> getOnline() {
 		return a;

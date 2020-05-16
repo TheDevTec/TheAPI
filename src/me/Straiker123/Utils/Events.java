@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
@@ -40,15 +39,21 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.google.common.collect.Lists;
+
 import me.Straiker123.BlocksAPI.Shape;
 import me.Straiker123.ConfigAPI;
 import me.Straiker123.ItemCreatorAPI;
 import me.Straiker123.LoaderClass;
+import me.Straiker123.PlayerBanList;
+import me.Straiker123.PlayerBanList.PunishmentType;
+import me.Straiker123.Position;
 import me.Straiker123.PunishmentAPI;
 import me.Straiker123.SignAPI.SignAction;
 import me.Straiker123.Storage;
 import me.Straiker123.TheAPI;
 import me.Straiker123.TheAPI.SudoType;
+import me.Straiker123.TheMaterial;
 import me.Straiker123.WorldBorderAPI.WarningMessageType;
 import me.Straiker123.Events.DamageGodPlayerByEntityEvent;
 import me.Straiker123.Events.DamageGodPlayerEvent;
@@ -273,93 +278,93 @@ public class Events implements Listener {
 		if(f.getBoolean("Options.LagChecker.Enabled") &&
 				f.getBoolean("Options.LagChecker.TNT.Use")) {
 			e.setCancelled(true);
-			get((e.getEntity().hasMetadata("real") ? TheAPI.getBlocksAPI().getLocationFromString(e.getEntity().getMetadata("real").get(0).asString()) : e.getLocation()),e.getLocation());
+			get((e.getEntity().hasMetadata("real") ? new Position(TheAPI.getBlocksAPI().getLocationFromString(e.getEntity().getMetadata("real").get(0).asString())) : new Position(e.getLocation())),new Position(e.getLocation()));
 		}}
-    public static boolean around(Location b){
+    public static boolean around(Position position){
     	boolean s = false;
-    String f = b.getBlock().getType().name();
+    String f = position.getBukkitType().name();
     	if(f.contains("WATER")||f.contains("LAVA")) {
     		s=true;
     	}
     return s;
     }
-   public static void get(Location reals, Location c) {
+   public static void get(Position reals, Position c) {
 	   TNTExplosionEvent event = new TNTExplosionEvent(c);
     	Bukkit.getPluginManager().callEvent(event);
     	if(event.isCancelled()) {
     		return;
     	}
-			new Task(reals,TheAPI.getBlocksAPI().getBlocks(Shape.Sphere, c, event.getPower(), blocks(event.isNuclearBomb() && event.canNuclearDestroyLiquid())),event).start();
+			new Task(reals,TheAPI.getBlocksAPI().get(Shape.Sphere, c, event.getPower(), blocks(event.isNuclearBomb() && event.canNuclearDestroyLiquid())),event).start();
 	}
 
-	public static List<Material> blocks(boolean b){
-    	List<Material> m = new ArrayList<Material>();
-    	m.add(Material.AIR);
+	public static List<TheMaterial> blocks(boolean b){
+    	ArrayList<TheMaterial> m = Lists.newArrayList();
+    	m.add(new TheMaterial("AIR"));
     	try {
-    	m.add(Material.BARRIER);
+    	m.add(new TheMaterial("BARRIER"));
     	 }catch(Exception |NoSuchFieldError e) {
     			
     		}
-    	m.add(Material.BEDROCK);
-    	m.add(Material.ENDER_CHEST);
+    	m.add(new TheMaterial("BEDROCK"));
+    	m.add(new TheMaterial("ENDER_CHEST"));
     	try {
-    	m.add(Material.END_PORTAL_FRAME);
+        	m.add(new TheMaterial("END_PORTAL_FRAME"));
     }catch(Exception |NoSuchFieldError e) {
 		
 	}
     	try {
-    	m.add(Material.STRUCTURE_BLOCK);
-    	m.add(Material.JIGSAW);
+        	m.add(new TheMaterial("STRUCTURE_BLOCK"));
+        	m.add(new TheMaterial("JIGSAW"));
     	 }catch(Exception |NoSuchFieldError e) {
     			
     		}
-    	m.add(Material.OBSIDIAN);
+    	m.add(new TheMaterial("OBSIDIAN"));
     	try {
-    	m.add(Material.END_GATEWAY);
+        	m.add(new TheMaterial("END_GATEWAY"));
     }catch(Exception |NoSuchFieldError e) {
 		
    	}
     	try {
-    	m.add(Material.END_PORTAL);
+        	m.add(new TheMaterial("END_PORTAL"));
  }catch(Exception |NoSuchFieldError e) {
 		
    	}
     	try {
-    	m.add(Material.COMMAND_BLOCK);
-    	m.add(Material.matchMaterial("REPEATING_COMMAND_BLOCK"));
-    	m.add(Material.matchMaterial("CHAIN_COMMAND_BLOCK"));
+        	m.add(new TheMaterial("COMMAND_BLOCK"));
+        	m.add(new TheMaterial("REPEATING_COMMAND_BLOCK"));
+        	m.add(new TheMaterial("CHAIN_COMMAND_BLOCK"));
     }catch(Exception |NoSuchFieldError e) {
-    	m.add(Material.matchMaterial("COMMAND"));
+    	m.add(new TheMaterial("COMMAND"));
    	}
     	if(!b) {
-    	m.add(Material.LAVA);
-    	m.add(Material.matchMaterial("STATIONARY_LAVA"));
-    	m.add(Material.WATER);
-    	m.add(Material.matchMaterial("STATIONARY_WATER"));
+        	m.add(new TheMaterial("LAVA"));
+        	m.add(new TheMaterial("STATIONARY_LAVA"));
+        	m.add(new TheMaterial("WATER"));
+        	m.add(new TheMaterial("STATIONARY_WATER"));
     	}
     	try {
-    	m.add(Material.matchMaterial("ENCHANTING_TABLE"));
+        	m.add(new TheMaterial("ENCHANTING_TABLE"));
     	}catch(Exception |NoSuchFieldError e) {
-        	m.add(Material.matchMaterial("ENCHANTMENT_TABLE"));
+        	m.add(new TheMaterial("ENCHANTMENT_TABLE"));
        	}
-    	m.add(Material.ANVIL);
+    	m.add(new TheMaterial("ANVIL"));
     	try {
-    	m.add(Material.CHIPPED_ANVIL);
-    	m.add(Material.DAMAGED_ANVIL);
+        	m.add(new TheMaterial("CHIPPED_ANVIL"));
+        	m.add(new TheMaterial("DAMAGED_ANVIL"));
     	 }catch(Exception |NoSuchFieldError e) {
     			
     		}
     	try {
-    	m.add(Material.matchMaterial("netherite_block"));
-    	m.add(Material.matchMaterial("crying_obsidian"));
-    	m.add(Material.matchMaterial("ancient_debris"));
+        	m.add(new TheMaterial("NETHERITE_BLOCK"));
+        	m.add(new TheMaterial("CRYING_OBSIDIAN"));
+        	m.add(new TheMaterial("ANCIENT_DEBRIS"));
     	}catch(Exception |NoSuchFieldError e) {
     		
     	}
     	return m;
     }
     
-	public static Storage add(Location block, Location real, boolean t,Storage st, Collection<ItemStack> collection) {
+	public static Storage add(Position block, Position real, boolean t,Storage st, Collection<ItemStack> collection) {
 		if(f.getBoolean("Options.LagChecker.TNT.Drops.Allowed"))
 		if(!t) {
 		if(f.getBoolean("Options.LagChecker.TNT.Drops.InSingleLocation")){
@@ -373,7 +378,7 @@ public class Events implements Listener {
 			}
 			if(qd.isEmpty()==false)
 					for(ItemStack i : qd.getItems())
-					if(i!=null&&i.getType()!=Material.AIR)block.getWorld().dropItemNaturally(block, i);
+					if(i!=null&&i.getType()!=Material.AIR)block.getWorld().dropItemNaturally(block.toLocation(), i);
 		}
 		}else {
 			List<Inventory> qd = new ArrayList<Inventory>();
@@ -401,7 +406,7 @@ public class Events implements Listener {
 			if(qd.isEmpty()==false)
 				for(Inventory f : qd)
 					for(ItemStack i : f.getContents())
-					if(i!=null&&i.getType()!=Material.AIR)real.getWorld().dropItemNaturally(real, i);
+					if(i!=null&&i.getType()!=Material.AIR)real.getWorld().dropItemNaturally(real.toLocation(), i);
 		}
 		return st;
 	}
@@ -420,7 +425,7 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onBreak(BlockBreakEvent e) {
 		if(e.isCancelled())return;
-		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(e.getPlayer().getName())) {
+		if(TheAPI.getPunishmentAPI().getBanList(e.getPlayer().getName()).isJailed()) {
 		e.setCancelled(true);
 		}else {
 			if(e.getBlock().getType().name().contains("SIGN") && !e.isCancelled()) {
@@ -496,33 +501,31 @@ public class Events implements Listener {
 			e.disallow(Result.KICK_OTHER, null);
 			return;
 		}
-		String s = e.getName();
-		d.set("data."+s+".ip",(e.getAddress().toString()).replace(".", "_"));
+		String s = TheAPI.getUser(e.getUniqueId()).getName();
+		TheAPI.getUser(e.getUniqueId()).setAndSave("ip", (e.getAddress().toString()).replace(".", "_"));
+		PlayerBanList a = Events.a.getBanList(s);
 		try {
-		if(a.hasBan(s)) {
+		if(a.isBanned()) {
 			e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.Ban").replace("\\n", "\n")
 					.replace("%player%", s)
-					.replace("%reason%", a.getBanReason(s))));
+					.replace("%reason%", a.getReason(PunishmentType.BAN))));
 			return;
 		}
-		if(a.hasTempBan(s)) {
-				e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.TempBan").replace("\\n", "\n")
+		if(a.isTempBanned()) {
+				e.disallow(Result.KICK_BANNED, a.getReason(PunishmentType.TEMPBAN).replace("\\n", "\n")
 						.replace("%player%", s)
-						.replace("%time%", TheAPI.getStringUtils().setTimeToString(a.getTempBanExpireTime(s)))
-						.replace("%reason%", a.getTempBanReason(s))));
+						.replace("%time%", TheAPI.getStringUtils().setTimeToString(a.getExpire(PunishmentType.TEMPBAN))));
 				return;
 		}
-		if(a.hasBanIP(s)) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.BanIP").replace("\\n", "\n")
-					.replace("%player%", s)
-					.replace("%reason%",a.getBanIPReason(s))));
+		if(a.isIPBanned()) {
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.BANIP).replace("\\n", "\n")
+					.replace("%player%", s)));
 			return;
 		}
-		if(a.hasTempBanIP(s)) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.TempBanIP").replace("\\n", "\n")
+		if(a.isTempIPBanned()) {
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.TEMPBANIP).replace("\\n", "\n")
 					.replace("%player%", s)
-					.replace("%time%", TheAPI.getStringUtils().setTimeToString(a.getTempBanIPExpireTime(s)))
-					.replace("%reason%", a.getTempBanIPReason(s))));
+					.replace("%time%", TheAPI.getStringUtils().setTimeToString(a.getExpire(PunishmentType.TEMPBANIP)))));
 			return;
 		}
 		}catch(Exception ad) {
@@ -564,7 +567,7 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlace(BlockPlaceEvent e) {
 		if(e.isCancelled())return;
-		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(e.getPlayer().getName())) {
+		if(TheAPI.getPunishmentAPI().getBanList(e.getPlayer().getName()).isJailed()||TheAPI.getPunishmentAPI().getBanList(e.getPlayer().getName()).isTempJailed()) {
 		e.setCancelled(true);
 		}
 	}
@@ -574,7 +577,7 @@ public class Events implements Listener {
 		if(e.isCancelled())return;
 		if(e.getEntity()instanceof Player) {
 			Player d = (Player)e.getEntity();
-		if(TheAPI.getPunishmentAPI().getJailAPI().isJailed(d.getName())) {
+		if(TheAPI.getPunishmentAPI().getBanList(d.getName()).isJailed()||TheAPI.getPunishmentAPI().getBanList(d.getName()).isTempJailed()) {
 		e.setCancelled(true);
 		}
 		if(TheAPI.getPlayerAPI(d).allowedGod()) {
@@ -643,24 +646,22 @@ public class Events implements Listener {
 	public void onChat(PlayerChatEvent e) {
 		if(e.isCancelled())return;
 		Player p = e.getPlayer();
-		String s = p.getName();
+		PlayerBanList b = a.getBanList(p.getName());
+		if(b.isTempMuted()) {
+				e.setCancelled(true);
+				TheAPI.msg(b.getReason(PunishmentType.TEMPMUTE)
+						.replace("%time%", TheAPI.getStringUtils().setTimeToString(b.getExpire(PunishmentType.TEMPMUTE))), e.getPlayer());
+				return;
+		}
+		if(b.isMuted()) {
+			e.setCancelled(true);
+			TheAPI.msg(b.getReason(PunishmentType.MUTE),e.getPlayer());
+			return;
+		}
 		if(LoaderClass.chatformat.containsKey(p))
 		e.setFormat(LoaderClass.chatformat.get(p).replace("%", "%%")
-				.replace("%%player%%", s)
+				.replace("%%player%%", p.getName())
 				.replace("%%playername%%", p.getDisplayName())
 				.replace("%%playercustom%%", p.getCustomName()).replace("%%message%%", e.getMessage().replace("%", "%%")));
-		if(a.hasTempMute(s)) {
-				e.setCancelled(true);
-				e.getPlayer().sendMessage(TheAPI.colorize(f.getString("Format.TempMute")
-								.replace("%player%", s)
-								.replace("%reason%", a.getTempMuteReason(s))
-						.replace("%time%", TheAPI.getStringUtils().setTimeToString(a.getTempMuteExpireTime(s)))));
-		}
-		if(a.hasMute(s)) {
-			e.setCancelled(true);
-			e.getPlayer().sendMessage(TheAPI.colorize(f.getString("Format.Mute")
-					.replace("%player%", s)
-					.replace("%reason%", a.getMuteReason(s))));
-		}
 	}
 }

@@ -383,7 +383,7 @@ public class StringUtils {
 	 */
 	public float getFloat(String fromString) {
 		String a=fromString.replaceAll("[a-zA-Z]+", "");
-		if (isInt(a)) {
+		if (isFloat(a)) {
 		return Float.parseFloat(a);
 		}
 		else {

@@ -27,6 +27,19 @@ public class Reflections {
 		}
 	}
 	
+	public static Method getMethod(Class<?> main, String name, Class<?>... bricks) {
+		try {
+			return main.getMethod(name,bricks);
+		}catch(Exception e) {
+			try {
+				return main.getDeclaredMethod(name,bricks);
+			}catch(Exception e1) {
+				e1.printStackTrace();
+				return null;
+			}	
+		}
+	}
+	
 	public static Method getMethod(Class<?> main, String name) {
 		try {
 			return main.getMethod(name);
@@ -176,6 +189,14 @@ public class Reflections {
 			return true;
 		}catch (ClassNotFoundException e) {
 			return false;
+		}
+	}
+
+	public static Object invoke(Object object, Method method, Object... items) {
+		try {
+			return method.invoke(object, items);
+		}catch(Exception error) {
+			return null;
 		}
 	}
 }

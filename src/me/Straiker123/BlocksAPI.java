@@ -19,6 +19,8 @@ import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Entity;
 
+import com.google.common.collect.Lists;
+
 import me.Straiker123.Utils.Error;
 
 public class BlocksAPI {
@@ -35,6 +37,10 @@ public class BlocksAPI {
 		return TheAPI.getStringUtils().getLocationFromString(saved);
 		}
     public List<Entity> getNearbyEntities(Location l, int radius){
+    	return getNearbyEntities(new Position(l),radius);
+    }
+
+    public List<Entity> getNearbyEntities(Position l, int radius){
     	if(radius > 256) {
     		Error.err("getting nearby entities", "The radius cannot be greater than 256");
     		return new ArrayList<Entity>();
@@ -45,7 +51,7 @@ public class BlocksAPI {
                 for (int chZ = 0 -chunkRadius; chZ <= chunkRadius; chZ++){
                     int x=(int) l.getX(),y=(int) l.getY(),z=(int) l.getZ();
                     for (Entity e : new Location(l.getWorld(),x+(chX*16),y,z+(chZ*16)).getChunk().getEntities()){
-                        if (e.getLocation().distance(l) <= radius && e.getLocation().getBlock() != l.getBlock()) radiusEntities.add(e);
+                        if (l.distance(e.getLocation()) <= radius && e.getLocation().getBlock() != l.getBlock()) radiusEntities.add(e);
                     }
                 }
             }
@@ -53,150 +59,19 @@ public class BlocksAPI {
     }
 
     public List<Entity> getNearbyEntities(Entity ed, int radius){
-    	if(radius > 256) {
-    		Error.err("getting nearby entities", "The radius cannot be greater than 256");
-    		return new ArrayList<Entity>();
-    	}
-    	Location l = ed.getLocation();
-        int chunkRadius = radius < 16 ? 1 : (radius - (radius % 16))/16;
-        List<Entity> radiusEntities = new ArrayList<Entity>();
-            for (int chX = 0 -chunkRadius; chX <= chunkRadius; chX ++){
-                for (int chZ = 0 -chunkRadius; chZ <= chunkRadius; chZ++){
-                    int x=(int) l.getX(),y=(int) l.getY(),z=(int) l.getZ();
-                    for (Entity e : new Location(l.getWorld(),x+(chX*16),y,z+(chZ*16)).getChunk().getEntities()){
-                        if (e.getLocation().distance(l) <= radius && e.getLocation().getBlock() != l.getBlock()) radiusEntities.add(e);
-                    }
-                }
-            }
-        return radiusEntities;
+    	return getNearbyEntities(ed.getLocation(),radius);
     }
 
     public List<Entity> getNearbyEntities(World world, double x, double y, double z, int radius){
-    	if(radius > 256) {
-    		Error.err("getting nearby entities", "The radius cannot be greater than 256");
-    		return new ArrayList<Entity>();
-    	}
-    	Location l = new Location(world,x,y,z);
-        int chunkRadius = radius < 16 ? 1 : (radius - (radius % 16))/16;
-        List<Entity> radiusEntities = new ArrayList<Entity>();
-            for (int chX = 0 -chunkRadius; chX <= chunkRadius; chX ++){
-                for (int chZ = 0 -chunkRadius; chZ <= chunkRadius; chZ++){
-                    int xs=(int) l.getX(),ys=(int) l.getY(),zs=(int) l.getZ();
-                    for (Entity e : new Location(l.getWorld(),xs+(chX*16),ys,zs+(chZ*16)).getChunk().getEntities()){
-                        if (e.getLocation().distance(l) <= radius && e.getLocation().getBlock() != l.getBlock()) radiusEntities.add(e);
-                    }
-                }
-            }
-        return radiusEntities;
+    	return getNearbyEntities(new Location(world,x,y,z),radius);
     }
 	
-	public BlockSave getBlockSave(Block b) {
+	public BlockSave getBlockSave(Position b) {
 		return new BlockSave(b);
 	}
-	   public List<Block> getBlocks(Location from, Location to){
-	        List<Block> blocks = new ArrayList<Block>();
-	        int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
-	        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
-	        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
-	        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
-	        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
-	        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
-	        World w = from.getWorld();
-	        for(int x = bottomBlockX; x <= topBlockX; x++){
-	            for(int z = bottomBlockZ; z <= topBlockZ; z++){
-	                for(int y = bottomBlockY; y <= topBlockY; y++){
-	                   blocks.add(w.getBlockAt(x, y, z));
-	                }
-	            }
-	        }
-	        return blocks;
-	    }
-	   public List<Location> getBlockLocations(Location from, Location to){
-	        List<Location> blocks = new ArrayList<Location>();
-	        int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
-	        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
-	        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
-	        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
-	        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
-	        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
-	        World w = from.getWorld();
-	        for(int x = bottomBlockX; x <= topBlockX; x++){
-	            for(int z = bottomBlockZ; z <= topBlockZ; z++){
-	                for(int y = bottomBlockY; y <= topBlockY; y++){
-	                   blocks.add(new Location(w,x, y, z));
-	                }
-	            }
-	        }
-	        return blocks;
-	    }
-		public List<Location> getBlockLocations(Location from, Location to, Material ignore){
-			List<Location> blocks = new ArrayList<Location>();
-	        int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
-	        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
-	        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
-	        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
-	        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
-	        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
-	        World w = from.getWorld();
-	        for(int x = bottomBlockX; x <= topBlockX; x++){
-	            for(int z = bottomBlockZ; z <= topBlockZ; z++){
-	                for(int y = bottomBlockY; y <= topBlockY; y++){
-	                	if(new Location(from.getWorld(),x, y, z).getBlock().getType()!=ignore)
-	                   blocks.add(new Location(w,x, y, z));
-	                }
-	            }
-	        }
-	        return blocks;
-	    }
-	   public List<Location> getBlockLocations(Location from, Location to, List<Material> ignore){
-		   List<Location> blocks = new ArrayList<Location>();
-	        int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
-	        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
-	        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
-	        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
-	        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
-	        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
-	        World w = from.getWorld();
-	        for(int x = bottomBlockX; x <= topBlockX; x++){
-	            for(int z = bottomBlockZ; z <= topBlockZ; z++){
-	                for(int y = bottomBlockY; y <= topBlockY; y++){
-	                	if(!ignore.contains(new Location(w,x, y, z).getBlock().getType()))
-	                   blocks.add(new Location(w,x, y, z));
-	                }
-	            }
-	        }
-	        return blocks;
-	    }
 	
-	//return List<Block>
-		  public List<Location> getBlocksLocation(Shape form,Location where, int radius){
-			  return getBlockLocations(form, where, radius);
-		  }
-		  public List<Location> getBlockLocations(Shape form,Location where, int radius){
-			  List<Location> blocks = new ArrayList<Location>();
-		        World w = where.getWorld();
-		        int Xx = where.getBlockX();
-		        int Yy = where.getBlockY();
-		        int Zz = where.getBlockZ();
-			  switch(form) {
-			  case Square:
-			     for(int x =Xx - radius; x <= Xx + radius; x++)
-			       for(int y = Yy - radius; y <= Yy + radius; y++)
-			         for(int z = Zz - radius; z <= Zz + radius; z++)
-			           blocks.add(new Location(w, x, y, z));
-			     break;
-			  case Sphere:
-				for (int Y = -radius; Y < radius; Y++)
-					for (int X = -radius; X < radius; X++)
-					   for (int Z = -radius; Z < radius; Z++)
-					    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) 
-					     blocks.add(new Location(w,X +Xx, Y +Yy, Z + Zz));
-				}
-			     return blocks;
-			 }
-	   
-	public List<Block> getBlocks(Location from, Location to, Material ignore){
-		List<Block> blocks = new ArrayList<Block>();
+	public List<Position> get(Position from, Position to, TheMaterial ignore){
+		List<Position> blocks = new ArrayList<Position>();
         int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
         int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
         int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
@@ -207,15 +82,17 @@ public class BlocksAPI {
         for(int x = bottomBlockX; x <= topBlockX; x++){
             for(int z = bottomBlockZ; z <= topBlockZ; z++){
                 for(int y = bottomBlockY; y <= topBlockY; y++){
-    	        	if(ignore != w.getBlockAt(x, y, z).getType())
-                   blocks.add(w.getBlockAt(x, y, z));
+                	Position s = new Position(w,x,y,z);
+    	        	if(ignore != s.getType())
+                   blocks.add(s);
                 }
             }
         }
         return blocks;
 	    }
-	   public List<Block> getBlocks(Location from, Location to, List<Material> ignore){
-	        	List<Block> blocks = new ArrayList<Block>();
+	   
+	public List<Position> get(Position from, Position to, List<TheMaterial> ignore){
+	        	List<Position> blocks = new ArrayList<Position>();
 		        int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
 		        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
 		        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
@@ -226,17 +103,17 @@ public class BlocksAPI {
 		        for(int x = bottomBlockX; x <= topBlockX; x++){
 		            for(int z = bottomBlockZ; z <= topBlockZ; z++){
 		                for(int y = bottomBlockY; y <= topBlockY; y++){
-		    	        	if(!ignore.contains(w.getBlockAt(x, y, z).getType()))
-				                   blocks.add(w.getBlockAt(x, y, z));
+		                	Position s = new Position(w,x,y,z);
+		    	        	if(!ignore.contains(s.getType()))
+				                   blocks.add(s);
 		                }
 		            }
 		        }
 		        return blocks;
 	    }
 	
-	//return List<Block>
-		  public List<Block> getBlocks(Shape form,Location where, int radius){
-			  List<Block> blocks = new ArrayList<Block>();
+	public List<Position> get(Shape form,Position where, int radius){
+			  List<Position> blocks = new ArrayList<Position>();
 		        World w = where.getWorld();
 		        int Xx = where.getBlockX();
 		        int Yy = where.getBlockY();
@@ -246,33 +123,40 @@ public class BlocksAPI {
 			     for(int x =Xx - radius; x <= Xx + radius; x++)
 			       for(int y = Yy - radius; y <= Yy + radius; y++)
 			         for(int z = Zz - radius; z <= Zz + radius; z++)
-			           blocks.add(w.getBlockAt(x, y, z));
+			           blocks.add(new Position(w,x,y,z));
 			     break;
 			  case Sphere:
 				for (int Y = -radius; Y < radius; Y++)
 					for (int X = -radius; X < radius; X++)
 					   for (int Z = -radius; Z < radius; Z++)
 					    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) 
-					     blocks.add(w.getBlockAt(X +Xx, Y +Yy, Z + Zz));
+					     blocks.add(new Position(w,X +Xx, Y +Yy, Z + Zz));
 				}
 			     return blocks;
 			 }
 
-			public void setBlock(Location loc, Material material) {
-				  if(!material.isBlock())return;
-				  TheAPI.getNMSAPI().setBlock(loc, material, 0, true);
-			  }
-			public void setBlock(Block loc, Material material) {
-				  if(!material.isBlock())return;
-				  TheAPI.getNMSAPI().setBlock(loc.getLocation(), material, 0, true);
-			  }
+	public void set(Position loc, Material material) {
+		if(!material.isBlock())return;
+		TheAPI.getNMSAPI().setBlock(loc.toLocation(), material, 0, true);
+	}
+
+	public void set(Block loc, Material material) {
+		if(!material.isBlock())return;
+		TheAPI.getNMSAPI().setBlock(loc.getLocation(), material, 0, true);
+	}
+
+	public void loadBlockSaves(List<BlockSave> list) { //like //undo command
+		  loadBlockSaves(list);
+
+	  }
 	  
-	  public void setBlockSave(BlockSave s) {
-		  Block b = s.getWorld().getBlockAt(s.getLocation());
+	@SuppressWarnings("deprecation")
+	public void loadBlockSave(BlockSave s) { //like //undo command
+		Block b = s.getWorld().getBlockAt(s.getLocation().toLocation());
 		  String n = b.getType().name();
 		  BlockState state = b.getState();
-		  state.setType(s.getMaterial());
-		  state.setData(s.getMaterialData());
+		  state.setType(s.getMaterial().getType());
+		  state.setRawData((byte)s.getMaterial().getData());
 			if(n.contains("SIGN")) {
 				Sign w = (Sign)state;
 				int i = 0;
@@ -321,314 +205,841 @@ public class BlocksAPI {
 				w.setName(s.getCommandBlockName());
 			}
 			state.update(true, true);
-	  }
-	  public void setBlockSaves(List<BlockSave> list) { //like //undo command
-		  for(BlockSave s : list) {
-			  setBlockSave(s);
-		  }
-	  }
-	  public void loadBlockSaves(List<BlockSave> list) { //like //undo command
-		  loadBlockSaves(list);
-	  }
-	  public void loadBlockSave(BlockSave save) { //like //undo command
-		  setBlockSave(save);
-	  }
+	}
 	  
-	  public List<Block> getBlocks(Shape form,Location where, int radius, Material ignore){
-		  if(!ignore.isBlock())return new ArrayList<Block>();
-		  List<Block> blocks = new ArrayList<Block>();
-		  for(Block b : getBlocks(form, where, radius)) {
-			  if(b.getType()!=ignore)blocks.add(b);
-		  }
-		  return blocks;
-	  }
-	  public List<Block> getBlocks(Shape form,Location where, int radius, List<Material> ignore){
-		  List<Block> blocks = new ArrayList<Block>();
-		  for(Block b : getBlocks(form, where, radius)) {
-			  if(!ignore.contains(b.getType()))blocks.add(b);
-		  }
-		  return blocks;
-	  }
-
-	  public void replace(Location from,Location to, Material block, Material with) {
-		  for(Block c : getBlocks(from,to))
-			  if(c.getType()==block)
-			  c.setType(with);
-	  }
-	  public void replace(Shape form,Location where, int radius, Material block, Material with) {
-		  for(Block c : getBlocks(form,where,radius))
-			  if(c.getType()==block)
-			  c.setType(with);
-	  }
-
-	  public void replace(Location from,Location to, Material block, List<Material> with) {
-		  for(Block c : getBlocks(from,to))
-			  if(c.getType()==block)
-			  c.setType((Material)TheAPI.getRandomFromList(with));
-	  }
-	  public void replace(Shape form,Location where, int radius, Material block, List<Material> with) {
-		  for(Block c : getBlocks(form,where,radius))
-			  if(c.getType()==block)
-			  c.setType((Material)TheAPI.getRandomFromList(with));
-	  }
-	  public void replace(Location from,Location to, Material block, HashMap<Material, Integer> with) {
-		  List<Material> c = new ArrayList<Material>();
-		  for(Material m : with.keySet()) {
-			  for(int i = -1; i > with.get(m); ++i) {
-				  c.add(m);
-			  }
-		  }
-		  for(Block cs : getBlocks(from,to))
-			  if(cs.getType()==block)
-			  cs.setType((Material)TheAPI.getRandomFromList(c));
-	  }
-
-	  public void replace(Shape form,Location where, int radius, Material block, HashMap<Material, Integer> with) {
-		  List<Material> c = new ArrayList<Material>();
-		  for(Material m : with.keySet()) {
-			  for(int i = -1; i > with.get(m); ++i) {
-				  c.add(m);
-			  }
-		  }
-		  for(Block cs : getBlocks(form,where,radius))
-			  if(cs.getType()==block)
-			  cs.setType((Material)TheAPI.getRandomFromList(c));
-	  }
-	  public void replace(Shape form,Location where, int radius, HashMap<Material, Integer> block, Material with) {
-		  List<Material> c = new ArrayList<Material>();
-		  for(Material m : block.keySet()) {
-			  for(int i = -1; i > block.get(m); ++i) {
-				  c.add(m);
-			  }
-		  }
-		  for(Block cs : getBlocks(form,where,radius))
-			  if(c.contains(cs.getType()))
-			  cs.setType((Material)TheAPI.getRandomFromList(c));
-	  }
-	  public void replace(Location from,Location to, HashMap<Material, Integer> block, Material with) {
-		  List<Material> c = new ArrayList<Material>();
-		  for(Material m : block.keySet()) {
-			  for(int i = -1; i > block.get(m); ++i) {
-				  c.add(m);
-			  }
-		  }
-		  for(Block cs : getBlocks(from,to))
-			  if(c.contains(cs.getType()))
-			  cs.setType((Material)TheAPI.getRandomFromList(c));
-	  }
-	  public void replace(Shape form,Location where, int radius, HashMap<Material, Integer> block, HashMap<Material, Integer> with) {
-		  List<Material> c = new ArrayList<Material>();
-		  for(Material m : block.keySet()) {
-			  for(int i = -1; i > block.get(m); ++i) {
-				  c.add(m);
-			  }
-		  }
-		  List<Material> d = new ArrayList<Material>();
-		  for(Material m : with.keySet()) {
-			  for(int i = -1; i > with.get(m); ++i) {
-				  d.add(m);
-			  }
-		  }
-		  for(Block cs : getBlocks(form,where,radius))
-			  if(c.contains(cs.getType()))
-			  cs.setType((Material)TheAPI.getRandomFromList(d));
-	  }
-	  public void replace(Location from,Location to, HashMap<Material, Integer> block, HashMap<Material, Integer> with) {
-		  List<Material> c = new ArrayList<Material>();
-		  for(Material m : block.keySet()) {
-			  for(int i = -1; i > block.get(m); ++i) {
-				  c.add(m);
-			  }
-		  }
-		  List<Material> d = new ArrayList<Material>();
-		  for(Material m : with.keySet()) {
-			  for(int i = -1; i > with.get(m); ++i) {
-				  d.add(m);
-			  }
-		  }
-		  for(Block cs : getBlocks(from,to))
-			  if(c.contains(cs.getType()))
-			  cs.setType((Material)TheAPI.getRandomFromList(d));
-	  }
-
-	  public void replace(Shape form,Location where, int radius, List<Material> block,Material with) {
-		  for(Block c : getBlocks(form,where,radius))
-			  if(block.contains(c.getType()))
-			  c.setType(with);
-	  }
-	  public void replace(Shape form,Location where, int radius, List<Material> block, List<Material> with) {
-		  for(Block c : getBlocks(form,where,radius))
-			  if(block.contains(c.getType()))
-			  c.setType((Material)TheAPI.getRandomFromList(with));
-	  }
-	  
-	  public void replace(Location from,Location to, List<Material> block,Material with) {
-		  for(Block c : getBlocks(from,to))
-			  if(block.contains(c.getType()))
-			  c.setType(with);
-	  }
-	  public void replace(Location from,Location to, List<Material> block, List<Material> with) {
-		  for(Block c : getBlocks(from,to))
-			  if(block.contains(c.getType()))
-			  c.setType((Material)TheAPI.getRandomFromList(with));
-	  }
-	  
-	  public void set(Shape form,Location where, int radius, Material block){
-		  for(Block c : getBlocks(form,where,radius))
-			  c.setType(block);
-	     }
-	  //Material
-	  public void set(Shape form,Location where, int radius, Material block, List<Material> ignore){
-		  for(Block c : getBlocks(form,where,radius)) {
-			  if(ignore.contains(c.getType()))continue;
-			  c.setType(block);
-		  }}
-	  //Material
-	  public void set(Shape form,Location where, int radius, Material block, Material ignore){
-		  for(Block c : getBlocks(form,where,radius)) {
-			  if(ignore==c.getType())continue;
-			  c.setType(block);
-		  }}
-	  //List<Material>
-	  public void set(Shape form,Location where, int radius, List<Material> block){
-	     	 List<Object> s = new ArrayList<Object>();
-	     	 for(Material d : block)s.add(d);
-		  for(Block c : getBlocks(form,where,radius)) {
-			  c.setType((Material)TheAPI.getRandomFromList(s));
-		  }}
-	  //List<Material>
-	  public void set(Shape form,Location where, int radius, List<Material> block, List<Material> ignore){
-		  List<Object> s = new ArrayList<Object>();
-	     	 for(Material d : block)s.add(d);
-		  for(Block c : getBlocks(form,where,radius)) {
-			  if(ignore.contains(c.getType()))continue;
-			  c.setType((Material)TheAPI.getRandomFromList(s));
-		  }}
-	  //List<Material>
-	  public void set(Shape form,Location where, int radius, List<Material> block, Material ignore){
-		  List<Object> s = new ArrayList<Object>();
-	     	 for(Material d : block)s.add(d);
-		  for(Block c : getBlocks(form,where,radius)) {
-			  if(ignore==c.getType())continue;
-			  c.setType((Material)TheAPI.getRandomFromList(s));
-		  }}
-	  //HashMap<Material, ChanceToSet>
-	  public void set(Shape form,Location where, int radius, HashMap<Material, Integer> block){
-     	 List<Object> s = new ArrayList<Object>();
-     	 for(Material d : block.keySet())if(s.contains(d) == false) {
-     		 for(int i = 0; i < block.get(d); ++i)
-     		 s.add(d);
-     	 }
-     		 for(Block c : getBlocks(form,where,radius)) {
-   			  c.setType((Material)TheAPI.getRandomFromList(s));
-   		  }}
-	  //HashMap<Material, ChanceToSet>, List<Material> (List with blocks these ignore - do not replace these blocks)
-	  public void set(Shape form,Location where, int radius, HashMap<Material, Integer> block, List<Material> ignore){
-     	 List<Object> s = new ArrayList<Object>();
-     	 for(Material d : block.keySet())if(s.contains(d) == false) {
-     		 for(int i = 0; i < block.get(d); ++i)
-     		 s.add(d);
-     	 }
- 		 for(Block c : getBlocks(form,where,radius)) {
- 			 if(ignore.contains(c.getType()))continue;
-			  c.setType((Material)TheAPI.getRandomFromList(s));
-		  }}
-
-	  //HashMap<Material, ChanceToSet>, List<Material> (List with blocks these ignore - do not replace these blocks)
-	  public void set(Shape form,Location where, int radius, HashMap<Material, Integer> block, Material ignore){
-     	 List<Object> s = new ArrayList<Object>();
-     	 for(Material d : block.keySet())if(s.contains(d) == false) {
-     		 for(int i = 0; i < block.get(d); ++i)
-     		 s.add(d);
-     	 }
- 		 for(Block c : getBlocks(form,where,radius)) {
- 			 if(ignore==c.getType())continue;
-			  c.setType((Material)TheAPI.getRandomFromList(s));
-		  }}
-	  
-
-	  //locations
-		  public void set(Location from,Location to, Material block){
-			  for(Block c : getBlocks(from,to))
-				  c.setType(block);
-		     }
-		  //Material
-		  public void set(Location from,Location to, Material block, List<Material> ignore){
-			  for(Block c : getBlocks(from,to)) {
-				  if(ignore.contains(c.getType()))continue;
-				  c.setType(block);
-			  }}
-		  //Material
-		  public void set(Location from,Location to, Material block, Material ignore){
-			  for(Block c : getBlocks(from,to)) {
-				  if(ignore==c.getType())continue;
-				  c.setType(block);
-			  }}
-		  //List<Material>
-		  public void set(Location from,Location to, List<Material> block){
-		     	 List<Object> s = new ArrayList<Object>();
-		     	 for(Material d : block)s.add(d);
-			  for(Block c : getBlocks(from,to)) {
-				  c.setType((Material)TheAPI.getRandomFromList(s));
-			  }}
-		  //List<Material>
-		  public void set(Location from,Location to, List<Material> block, List<Material> ignore){
-			  List<Object> s = new ArrayList<Object>();
-		     	 for(Material d : block)s.add(d);
-			  for(Block c : getBlocks(from,to)) {
-				  if(ignore.contains(c.getType()))continue;
-				  c.setType((Material)TheAPI.getRandomFromList(s));
-			  }}
-		  //List<Material>
-		  public void set(Location from,Location to, List<Material> block, Material ignore){
-			  List<Object> s = new ArrayList<Object>();
-		     	 for(Material d : block)s.add(d);
-			  for(Block c : getBlocks(from,to)) {
-				  if(ignore==c.getType())continue;
-				  c.setType((Material)TheAPI.getRandomFromList(s));
-			  }}
-		  //HashMap<Material, ChanceToSet>
-		  public void set(Location from,Location to, HashMap<Material, Integer> block){
-	     	 List<Object> s = new ArrayList<Object>();
-	     	 for(Material d : block.keySet())if(s.contains(d) == false) {
-	     		 for(int i = 0; i < block.get(d); ++i)
-	     		 s.add(d);
-	     	 }
-	     		 for(Block c : getBlocks(from,to)) {
-	   			  c.setType((Material)TheAPI.getRandomFromList(s));
-	   		  }}
-		  //HashMap<Material, ChanceToSet>, List<Material> (List with blocks these ignore - do not replace these blocks)
-		  public void set(Location from,Location to, HashMap<Material, Integer> block, List<Material> ignore){
-	     	 List<Object> s = new ArrayList<Object>();
-	     	 for(Material d : block.keySet())if(s.contains(d) == false) {
-	     		 for(int i = 0; i < block.get(d); ++i)
-	     		 s.add(d);
-	     	 }
-	 		 for(Block c : getBlocks(from,to)) {
-	 			 if(ignore.contains(c.getType()))continue;
-				  c.setType((Material)TheAPI.getRandomFromList(s));
-			  }}
-
-		  //HashMap<Material, ChanceToSet>, List<Material> (List with blocks these ignore - do not replace these blocks)
-		  public void set(Location from,Location to, HashMap<Material, Integer> block, Material ignore){
-	     	 List<Object> s = new ArrayList<Object>();
-	     	 for(Material d : block.keySet())if(s.contains(d) == false) {
-	     		 for(int i = 0; i < block.get(d); ++i)
-	     		 s.add(d);
-	     	 }
-	 		 for(Block c : getBlocks(from,to)) {
-	 			 if(ignore==c.getType())continue;
-				  c.setType((Material)TheAPI.getRandomFromList(s));
-			  }}
-
-			//square
-			public boolean isInside(Entity entity, Location a, Location b){
-				return isInside(entity.getLocation(),a,b);
+	public List<Position> get(Shape form,Position where, int radius, TheMaterial ignore){
+		  List<Position> blocks = new ArrayList<Position>();
+	        World w = where.getWorld();
+	        int Xx = where.getBlockX();
+	        int Yy = where.getBlockY();
+	        int Zz = where.getBlockZ();
+		  switch(form) {
+		  case Square:
+		     for(int x =Xx - radius; x <= Xx + radius; x++)
+		       for(int y = Yy - radius; y <= Yy + radius; y++)
+		         for(int z = Zz - radius; z <= Zz + radius; z++) {
+		        	 Position s = new Position(w,x,y,z);
+		        	 if(ignore!=s.getType())
+		           blocks.add(s);
+		         }
+		     break;
+		  case Sphere:
+			for (int Y = -radius; Y < radius; Y++)
+				for (int X = -radius; X < radius; X++)
+				   for (int Z = -radius; Z < radius; Z++)
+				    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+			        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+			        	 if(ignore!=s.getType())
+				     blocks.add(s);
+				    }
 			}
-			//square
-			public boolean isInside(Location location, Location a, Location b){
-		        return new IntRange(a.getX(), b.getX()).containsDouble(location.getX())
-		                && new IntRange(a.getY(), b.getY()).containsDouble(location.getY())
-		                &&  new IntRange(a.getZ(), b.getZ()).containsDouble(location.getZ());
-		    }
+		     return blocks;
+	  }
+	
+	public List<Position> get(Shape form,Position where, int radius, List<TheMaterial> ignore){
+		  List<Position> blocks = new ArrayList<Position>();
+	        World w = where.getWorld();
+	        int Xx = where.getBlockX();
+	        int Yy = where.getBlockY();
+	        int Zz = where.getBlockZ();
+		  switch(form) {
+		  case Square:
+		     for(int x =Xx - radius; x <= Xx + radius; x++)
+		       for(int y = Yy - radius; y <= Yy + radius; y++)
+		         for(int z = Zz - radius; z <= Zz + radius; z++) {
+		        	 Position s = new Position(w,x,y,z);
+		        	 if(!ignore.contains(s.getType()))
+		           blocks.add(s);
+		         }
+		     break;
+		  case Sphere:
+			for (int Y = -radius; Y < radius; Y++)
+				for (int X = -radius; X < radius; X++)
+				   for (int Z = -radius; Z < radius; Z++)
+				    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+			        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+			        	 if(!ignore.contains(s.getType()))
+				     blocks.add(s);
+				    }
+			}
+		     return blocks;
+	  }
+
+	public void replace(Position from,Position to, TheMaterial block, TheMaterial with) {
+	        int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+	        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+	        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+	        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+	        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+	        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+	        World w = from.getWorld();
+	        for(int x = bottomBlockX; x <= topBlockX; x++){
+	            for(int z = bottomBlockZ; z <= topBlockZ; z++){
+	                for(int y = bottomBlockY; y <= topBlockY; y++){
+	                	Position s = new Position(w,x,y,z);
+	    	        	if(s.getType()==block)
+			                s.setType(with);
+	                }
+	            }
+	        }
+	  }
+	  
+	public void replace(Shape form,Position where, int radius, TheMaterial block, TheMaterial with) {
+		  World w = where.getWorld();
+	        int Xx = where.getBlockX();
+	        int Yy = where.getBlockY();
+	        int Zz = where.getBlockZ();
+		  switch(form) {
+		  case Square:
+		     for(int x =Xx - radius; x <= Xx + radius; x++)
+		       for(int y = Yy - radius; y <= Yy + radius; y++)
+		         for(int z = Zz - radius; z <= Zz + radius; z++) {
+		        	 Position s = new Position(w,x,y,z);
+		        	 if(block==s.getType())
+		        		 s.setType(with);
+		         }
+		     break;
+		  case Sphere:
+			for (int Y = -radius; Y < radius; Y++)
+				for (int X = -radius; X < radius; X++)
+				   for (int Z = -radius; Z < radius; Z++)
+				    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+			        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+			        	 if(block==s.getType())
+			        		 s.setType(with);
+				    }
+			}
+	  }
+
+	public void replace(Position from,Position to, TheMaterial block, List<TheMaterial> with) {
+		  int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+	        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+	        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+	        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+	        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+	        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+	        World w = from.getWorld();
+	        for(int x = bottomBlockX; x <= topBlockX; x++){
+	            for(int z = bottomBlockZ; z <= topBlockZ; z++){
+	                for(int y = bottomBlockY; y <= topBlockY; y++){
+	                	Position s = new Position(w,x,y,z);
+	    	        	if(s.getType()==block)
+			                s.setType((TheMaterial)TheAPI.getRandomFromList(with));
+	                }
+	            }
+	        }
+	  }
+	
+	public void replace(Position from,Position to, TheMaterial block, HashMap<TheMaterial, Double> with) {
+		  List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : with.keySet())
+			  for(int i = -1; i > with.get(m); ++i)
+				  c.add(m);
+		  	int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+	        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+	        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+	        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+	        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+	        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+	        World w = from.getWorld();
+	        for(int x = bottomBlockX; x <= topBlockX; x++){
+	            for(int z = bottomBlockZ; z <= topBlockZ; z++){
+	                for(int y = bottomBlockY; y <= topBlockY; y++){
+	                	Position s = new Position(w,x,y,z);
+	    	        	if(s.getType()==block)
+			                s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+	                }
+	            }
+	        }
+	  }
+
+	public void replace(Shape form,Position where, int radius, TheMaterial block, HashMap<TheMaterial, Double> with) {
+		  List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : with.keySet())
+			  for(int i = -1; i > with.get(m); ++i)
+				  c.add(m);
+		  World w = where.getWorld();
+	        int Xx = where.getBlockX();
+	        int Yy = where.getBlockY();
+	        int Zz = where.getBlockZ();
+		  switch(form) {
+		  case Square:
+		     for(int x =Xx - radius; x <= Xx + radius; x++)
+		       for(int y = Yy - radius; y <= Yy + radius; y++)
+		         for(int z = Zz - radius; z <= Zz + radius; z++) {
+		        	 Position s = new Position(w,x,y,z);
+		        	 if(block==s.getType())
+		        		 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+		         }
+		     break;
+		  case Sphere:
+			for (int Y = -radius; Y < radius; Y++)
+				for (int X = -radius; X < radius; X++)
+				   for (int Z = -radius; Z < radius; Z++)
+				    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+			        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+			        	 if(block==s.getType())
+			        		 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+				    }
+			}
+	  }
+	  
+	public void replace(Shape form,Position where, int radius, HashMap<TheMaterial, Double> block, TheMaterial with) {
+		  List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : block.keySet())
+			  for(int i = -1; i > block.get(m); ++i)
+				  c.add(m);
+		  World w = where.getWorld();
+	        int Xx = where.getBlockX();
+	        int Yy = where.getBlockY();
+	        int Zz = where.getBlockZ();
+		  switch(form) {
+		  case Square:
+		     for(int x =Xx - radius; x <= Xx + radius; x++)
+		       for(int y = Yy - radius; y <= Yy + radius; y++)
+		         for(int z = Zz - radius; z <= Zz + radius; z++) {
+		        	 Position s = new Position(w,x,y,z);
+		        	 if(block.containsKey(s.getType()) && TheAPI.generateChance(block.get(s.getType())))
+		        		 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+		         }
+		     break;
+		  case Sphere:
+			for (int Y = -radius; Y < radius; Y++)
+				for (int X = -radius; X < radius; X++)
+				   for (int Z = -radius; Z < radius; Z++)
+				    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+			        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+			        	 if(block.containsKey(s.getType()) && TheAPI.generateChance(block.get(s.getType())))
+			        		 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+				    }
+			}
+	  }
+	 
+    public void replace(Position from,Position to, HashMap<TheMaterial, Double> block, TheMaterial with) {
+		  List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : block.keySet())
+			  for(int i = -1; i > block.get(m); ++i)
+				  c.add(m);
+		  	int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+	        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+	        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+	        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+	        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+	        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+	        World w = from.getWorld();
+	        for(int x = bottomBlockX; x <= topBlockX; x++){
+	            for(int z = bottomBlockZ; z <= topBlockZ; z++){
+	                for(int y = bottomBlockY; y <= topBlockY; y++){
+	                	Position s = new Position(w,x,y,z);
+			        	 if(block.containsKey(s.getType()) && TheAPI.generateChance(block.get(s.getType())))
+			                s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+	                }
+	            }
+	        }
+	  }
+	  
+    public void replace(Shape form,Position where, int radius, HashMap<TheMaterial, Double> block, HashMap<TheMaterial, Double> with) {
+		  List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : block.keySet())
+			  for(int i = -1; i > block.get(m); ++i)
+				  c.add(m);
+		  List<TheMaterial> d = Lists.newArrayList();
+		  for(TheMaterial m : with.keySet())
+			  for(int i = -1; i > with.get(m); ++i)
+				  d.add(m);
+		  World w = where.getWorld();
+	        int Xx = where.getBlockX();
+	        int Yy = where.getBlockY();
+	        int Zz = where.getBlockZ();
+		  switch(form) {
+		  case Square:
+		     for(int x =Xx - radius; x <= Xx + radius; x++)
+		       for(int y = Yy - radius; y <= Yy + radius; y++)
+		         for(int z = Zz - radius; z <= Zz + radius; z++) {
+		        	 Position s = new Position(w,x,y,z);
+		        	 if(block.containsKey(s.getType()) && TheAPI.generateChance(block.get(s.getType())))
+		        		 s.setType((TheMaterial)TheAPI.getRandomFromList(d));
+		         }
+		     break;
+		  case Sphere:
+			for (int Y = -radius; Y < radius; Y++)
+				for (int X = -radius; X < radius; X++)
+				   for (int Z = -radius; Z < radius; Z++)
+				    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+			        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+			        	 if(block.containsKey(s.getType()) && TheAPI.generateChance(block.get(s.getType())))
+			        		 s.setType((TheMaterial)TheAPI.getRandomFromList(d));
+				    }
+			}
+	  }
+	  
+    public void replace(Position from,Position to, HashMap<TheMaterial, Double> block, HashMap<TheMaterial, Double> with) {
+   	 List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : block.keySet())
+			  for(int i = -1; i > block.get(m); ++i)
+				  c.add(m);
+	    	 List<TheMaterial> d = Lists.newArrayList();
+			  for(TheMaterial m : with.keySet())
+				  for(int i = -1; i > with.get(m); ++i)
+					  d.add(m);
+		  	int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+	        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+	        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+	        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+	        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+	        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+	        World w = from.getWorld();
+	        for(int x = bottomBlockX; x <= topBlockX; x++){
+	            for(int z = bottomBlockZ; z <= topBlockZ; z++){
+	                for(int y = bottomBlockY; y <= topBlockY; y++){
+	                	Position s = new Position(w,x,y,z);
+			        	 if(block.containsKey(s.getType()) && TheAPI.generateChance(block.get(s.getType())))
+			                s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+	                }
+	            }
+	        }
+	  }
+  
+    public void replace(Shape form,Position where, int radius, List<TheMaterial> block,TheMaterial with) {
+    	World w = where.getWorld();
+        int Xx = where.getBlockX();
+        int Yy = where.getBlockY();
+        int Zz = where.getBlockZ();
+	  switch(form) {
+	  case Square:
+	     for(int x =Xx - radius; x <= Xx + radius; x++)
+	       for(int y = Yy - radius; y <= Yy + radius; y++)
+	         for(int z = Zz - radius; z <= Zz + radius; z++) {
+	        	 Position s = new Position(w,x,y,z);
+	        	 if(block.contains(s.getType()))
+	        		 s.setType(with);
+	         }
+	     break;
+	  case Sphere:
+		for (int Y = -radius; Y < radius; Y++)
+			for (int X = -radius; X < radius; X++)
+			   for (int Z = -radius; Z < radius; Z++)
+			    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+		        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+		        	 if(block.contains(s.getType()))
+		        		 s.setType(with);
+			    }
+		}
+	}
+	  
+    public void replace(Shape form,Position where, int radius, List<TheMaterial> block, List<TheMaterial> with) {
+    	World w = where.getWorld();
+        int Xx = where.getBlockX();
+        int Yy = where.getBlockY();
+        int Zz = where.getBlockZ();
+	  switch(form) {
+	  case Square:
+	     for(int x =Xx - radius; x <= Xx + radius; x++)
+	       for(int y = Yy - radius; y <= Yy + radius; y++)
+	         for(int z = Zz - radius; z <= Zz + radius; z++) {
+	        	 Position s = new Position(w,x,y,z);
+	        	 if(block.contains(s.getType()))
+	        		 s.setType((TheMaterial)TheAPI.getRandomFromList(with));
+	         }
+	     break;
+	  case Sphere:
+		for (int Y = -radius; Y < radius; Y++)
+			for (int X = -radius; X < radius; X++)
+			   for (int Z = -radius; Z < radius; Z++)
+			    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+		        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+		        	 if(block.contains(s.getType()))
+		        		 s.setType((TheMaterial)TheAPI.getRandomFromList(with));
+			    }
+		}
+	}
+	  
+	public void replace(Position from,Position to, List<TheMaterial> block,TheMaterial with) {
+		int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        World w = from.getWorld();
+        for(int x = bottomBlockX; x <= topBlockX; x++){
+            for(int z = bottomBlockZ; z <= topBlockZ; z++){
+                for(int y = bottomBlockY; y <= topBlockY; y++){
+                	Position s = new Position(w,x,y,z);
+		        	 if(block.contains(s.getType()))
+		                s.setType(with);
+                }
+            }
+        }
+	}
+	  
+	public void replace(Position from,Position to, List<TheMaterial> block, List<TheMaterial> with) {
+		int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        World w = from.getWorld();
+        for(int x = bottomBlockX; x <= topBlockX; x++){
+            for(int z = bottomBlockZ; z <= topBlockZ; z++){
+                for(int y = bottomBlockY; y <= topBlockY; y++){
+                	Position s = new Position(w,x,y,z);
+		        	 if(block.contains(s.getType()))
+		                s.setType((TheMaterial)TheAPI.getRandomFromList(with));
+                }
+            }
+        }
+	}
+	  
+	public void set(Shape form,Position where, int radius, TheMaterial block){
+		World w = where.getWorld();
+        int Xx = where.getBlockX();
+        int Yy = where.getBlockY();
+        int Zz = where.getBlockZ();
+	  switch(form) {
+	  case Square:
+	     for(int x =Xx - radius; x <= Xx + radius; x++)
+	       for(int y = Yy - radius; y <= Yy + radius; y++)
+	         for(int z = Zz - radius; z <= Zz + radius; z++) {
+	        	 Position s = new Position(w,x,y,z);
+	        		 s.setType(block);
+	         }
+	     break;
+	  case Sphere:
+		for (int Y = -radius; Y < radius; Y++)
+			for (int X = -radius; X < radius; X++)
+			   for (int Z = -radius; Z < radius; Z++)
+			    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+		        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+		        		 s.setType(block);
+			    }
+		}
+	 }
+	  
+	public void set(Shape form,Position where, int radius, TheMaterial block, List<TheMaterial> ignore){
+		World w = where.getWorld();
+        int Xx = where.getBlockX();
+        int Yy = where.getBlockY();
+        int Zz = where.getBlockZ();
+	  switch(form) {
+	  case Square:
+	     for(int x =Xx - radius; x <= Xx + radius; x++)
+	       for(int y = Yy - radius; y <= Yy + radius; y++)
+	         for(int z = Zz - radius; z <= Zz + radius; z++) {
+	        	 Position s = new Position(w,x,y,z);
+	        	 if(!ignore.contains(s.getType()))
+	        		 s.setType(block);
+	         }
+	     break;
+	  case Sphere:
+		for (int Y = -radius; Y < radius; Y++)
+			for (int X = -radius; X < radius; X++)
+			   for (int Z = -radius; Z < radius; Z++)
+			    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+		        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+		        	 if(!ignore.contains(s.getType()))
+		        		 s.setType(block);
+			    }
+		}
+	}
+	  
+	public void set(Shape form,Position where, int radius, TheMaterial block, TheMaterial ignore){
+		World w = where.getWorld();
+        int Xx = where.getBlockX();
+        int Yy = where.getBlockY();
+        int Zz = where.getBlockZ();
+	  switch(form) {
+	  case Square:
+	     for(int x =Xx - radius; x <= Xx + radius; x++)
+	       for(int y = Yy - radius; y <= Yy + radius; y++)
+	         for(int z = Zz - radius; z <= Zz + radius; z++) {
+	        	 Position s = new Position(w,x,y,z);
+	        	 if(ignore!=s.getType())
+	        		 s.setType(block);
+	         }
+	     break;
+	  case Sphere:
+		for (int Y = -radius; Y < radius; Y++)
+			for (int X = -radius; X < radius; X++)
+			   for (int Z = -radius; Z < radius; Z++)
+			    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+		        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+		        	 if(ignore!=s.getType())
+		        		 s.setType(block);
+			    }
+		}
+	}
+	  
+	public void set(Shape form,Position where, int radius, List<TheMaterial> block){
+		World w = where.getWorld();
+        int Xx = where.getBlockX();
+        int Yy = where.getBlockY();
+        int Zz = where.getBlockZ();
+	  switch(form) {
+	  case Square:
+	     for(int x =Xx - radius; x <= Xx + radius; x++)
+	       for(int y = Yy - radius; y <= Yy + radius; y++)
+	         for(int z = Zz - radius; z <= Zz + radius; z++) {
+	        	 Position s = new Position(w,x,y,z);
+	        	 s.setType((TheMaterial)TheAPI.getRandomFromList(block));
+	         }
+	     break;
+	  case Sphere:
+		for (int Y = -radius; Y < radius; Y++)
+			for (int X = -radius; X < radius; X++)
+			   for (int Z = -radius; Z < radius; Z++)
+			    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+		        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+		        	 s.setType((TheMaterial)TheAPI.getRandomFromList(block));
+			    }
+		}
+	}
+	  
+	public void set(Shape form,Position where, int radius, List<TheMaterial> block, List<TheMaterial> ignore){
+		World w = where.getWorld();
+        int Xx = where.getBlockX();
+        int Yy = where.getBlockY();
+        int Zz = where.getBlockZ();
+	  switch(form) {
+	  case Square:
+	     for(int x =Xx - radius; x <= Xx + radius; x++)
+	       for(int y = Yy - radius; y <= Yy + radius; y++)
+	         for(int z = Zz - radius; z <= Zz + radius; z++) {
+	        	 Position s = new Position(w,x,y,z);
+	        	 if(!ignore.contains(s.getType()))
+	        		 s.setType((TheMaterial)TheAPI.getRandomFromList(block));
+	         }
+	     break;
+	  case Sphere:
+		for (int Y = -radius; Y < radius; Y++)
+			for (int X = -radius; X < radius; X++)
+			   for (int Z = -radius; Z < radius; Z++)
+			    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+		        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+		        	 if(!ignore.contains(s.getType()))
+		        		 s.setType((TheMaterial)TheAPI.getRandomFromList(block));
+			    }
+		}
+	}
+	  
+	public void set(Shape form,Position where, int radius, List<TheMaterial> block, TheMaterial ignore){
+		World w = where.getWorld();
+        int Xx = where.getBlockX();
+        int Yy = where.getBlockY();
+        int Zz = where.getBlockZ();
+	  switch(form) {
+	  case Square:
+	     for(int x =Xx - radius; x <= Xx + radius; x++)
+	       for(int y = Yy - radius; y <= Yy + radius; y++)
+	         for(int z = Zz - radius; z <= Zz + radius; z++) {
+	        	 Position s = new Position(w,x,y,z);
+	        	 if(ignore!=s.getType())
+	        		 s.setType((TheMaterial)TheAPI.getRandomFromList(block));
+	         }
+	     break;
+	  case Sphere:
+		for (int Y = -radius; Y < radius; Y++)
+			for (int X = -radius; X < radius; X++)
+			   for (int Z = -radius; Z < radius; Z++)
+			    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+		        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+		        	 if(ignore!=s.getType())
+		        		 s.setType((TheMaterial)TheAPI.getRandomFromList(block));
+			    }
+		}
+	}
+	  
+	public void set(Shape form,Position where, int radius, HashMap<TheMaterial, Integer> block){
+		List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : block.keySet())
+			  for(int i = -1; i > block.get(m); ++i)
+				  c.add(m);
+		  World w = where.getWorld();
+	        int Xx = where.getBlockX();
+	        int Yy = where.getBlockY();
+	        int Zz = where.getBlockZ();
+		  switch(form) {
+		  case Square:
+		     for(int x =Xx - radius; x <= Xx + radius; x++)
+		       for(int y = Yy - radius; y <= Yy + radius; y++)
+		         for(int z = Zz - radius; z <= Zz + radius; z++) {
+		        	 Position s = new Position(w,x,y,z);
+		        	 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+		         }
+		     break;
+		  case Sphere:
+			for (int Y = -radius; Y < radius; Y++)
+				for (int X = -radius; X < radius; X++)
+				   for (int Z = -radius; Z < radius; Z++)
+				    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+			        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+			        	 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+				    }
+			}
+	}
+	  
+	public void set(Shape form,Position where, int radius, HashMap<TheMaterial, Integer> block, List<TheMaterial> ignore){
+		List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : block.keySet())
+			  for(int i = -1; i > block.get(m); ++i)
+				  c.add(m);
+		  World w = where.getWorld();
+	        int Xx = where.getBlockX();
+	        int Yy = where.getBlockY();
+	        int Zz = where.getBlockZ();
+		  switch(form) {
+		  case Square:
+		     for(int x =Xx - radius; x <= Xx + radius; x++)
+		       for(int y = Yy - radius; y <= Yy + radius; y++)
+		         for(int z = Zz - radius; z <= Zz + radius; z++) {
+		        	 Position s = new Position(w,x,y,z);
+		        	 if(!ignore.contains(s.getType()))
+		        	 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+		         }
+		     break;
+		  case Sphere:
+			for (int Y = -radius; Y < radius; Y++)
+				for (int X = -radius; X < radius; X++)
+				   for (int Z = -radius; Z < radius; Z++)
+				    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+			        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+			        	 if(!ignore.contains(s.getType()))
+			        	 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+				    }
+			}
+	}
+	  
+	public void set(Shape form,Position where, int radius, HashMap<TheMaterial, Integer> block, TheMaterial ignore){
+		List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : block.keySet())
+			  for(int i = -1; i > block.get(m); ++i)
+				  c.add(m);
+		  World w = where.getWorld();
+	        int Xx = where.getBlockX();
+	        int Yy = where.getBlockY();
+	        int Zz = where.getBlockZ();
+		  switch(form) {
+		  case Square:
+		     for(int x =Xx - radius; x <= Xx + radius; x++)
+		       for(int y = Yy - radius; y <= Yy + radius; y++)
+		         for(int z = Zz - radius; z <= Zz + radius; z++) {
+		        	 Position s = new Position(w,x,y,z);
+		        	 if(ignore!=s.getType())
+		        	 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+		         }
+		     break;
+		  case Sphere:
+			for (int Y = -radius; Y < radius; Y++)
+				for (int X = -radius; X < radius; X++)
+				   for (int Z = -radius; Z < radius; Z++)
+				    if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
+			        	 Position s = new Position(w,X +Xx, Y +Yy, Z + Zz);
+			        	 if(ignore!=s.getType())
+			        	 s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+				    }
+			}
+	}
+	
+	public void set(Position from,Position to, TheMaterial block){
+		int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        World w = from.getWorld();
+        for(int x = bottomBlockX; x <= topBlockX; x++){
+            for(int z = bottomBlockZ; z <= topBlockZ; z++){
+                for(int y = bottomBlockY; y <= topBlockY; y++){
+                	Position s = new Position(w,x,y,z);
+		                s.setType(block);
+                }
+            }
+        }
+	}
+		  
+	public void set(Position from,Position to, TheMaterial block, List<TheMaterial> ignore){
+		int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        World w = from.getWorld();
+        for(int x = bottomBlockX; x <= topBlockX; x++){
+            for(int z = bottomBlockZ; z <= topBlockZ; z++){
+                for(int y = bottomBlockY; y <= topBlockY; y++){
+                	Position s = new Position(w,x,y,z);
+                	if(!ignore.contains(s.getType()))
+		                s.setType(block);
+                }
+            }
+        }
+	}
+		  
+	public void set(Position from,Position to, TheMaterial block, TheMaterial ignore){
+		int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        World w = from.getWorld();
+        for(int x = bottomBlockX; x <= topBlockX; x++){
+            for(int z = bottomBlockZ; z <= topBlockZ; z++){
+                for(int y = bottomBlockY; y <= topBlockY; y++){
+                	Position s = new Position(w,x,y,z);
+                	if(ignore!=s.getType())
+		                s.setType(block);
+                }
+            }
+        }
+	}
+	
+	public void set(Position from,Position to, List<TheMaterial> block){
+		int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        World w = from.getWorld();
+        for(int x = bottomBlockX; x <= topBlockX; x++){
+            for(int z = bottomBlockZ; z <= topBlockZ; z++){
+                for(int y = bottomBlockY; y <= topBlockY; y++){
+                	Position s = new Position(w,x,y,z);
+		            s.setType((TheMaterial)TheAPI.getRandomFromList(block));
+                }
+            }
+        }
+	}
+		  
+	public void set(Position from,Position to, List<TheMaterial> block, List<TheMaterial> ignore){
+		int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        World w = from.getWorld();
+        for(int x = bottomBlockX; x <= topBlockX; x++){
+            for(int z = bottomBlockZ; z <= topBlockZ; z++){
+                for(int y = bottomBlockY; y <= topBlockY; y++){
+                	Position s = new Position(w,x,y,z);
+                	if(!ignore.contains(s.getType()))
+		            s.setType((TheMaterial)TheAPI.getRandomFromList(block));
+                }
+            }
+        }
+	}
+		  
+	public void set(Position from,Position to, List<TheMaterial> block, TheMaterial ignore){
+		int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        World w = from.getWorld();
+        for(int x = bottomBlockX; x <= topBlockX; x++){
+            for(int z = bottomBlockZ; z <= topBlockZ; z++){
+                for(int y = bottomBlockY; y <= topBlockY; y++){
+                	Position s = new Position(w,x,y,z);
+                	if(ignore!=s.getType())
+		            s.setType((TheMaterial)TheAPI.getRandomFromList(block));
+                }
+            }
+        }
+	}
+		  
+	public void set(Position from,Position to, HashMap<TheMaterial, Integer> block){
+		List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : block.keySet())
+			  for(int i = -1; i > block.get(m); ++i)
+				  c.add(m);
+		int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        World w = from.getWorld();
+        for(int x = bottomBlockX; x <= topBlockX; x++){
+            for(int z = bottomBlockZ; z <= topBlockZ; z++){
+                for(int y = bottomBlockY; y <= topBlockY; y++){
+                	Position s = new Position(w,x,y,z);
+		            s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+                }
+            }
+        }
+	}
+		  
+	public void set(Position from,Position to, HashMap<TheMaterial, Integer> block, List<TheMaterial> ignore){
+		List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : block.keySet())
+			  for(int i = -1; i > block.get(m); ++i)
+				  c.add(m);
+		int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+        int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+        int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+        World w = from.getWorld();
+        for(int x = bottomBlockX; x <= topBlockX; x++){
+            for(int z = bottomBlockZ; z <= topBlockZ; z++){
+                for(int y = bottomBlockY; y <= topBlockY; y++){
+                	Position s = new Position(w,x,y,z);
+                	if(!ignore.contains(s.getType()))
+		            s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+                }
+            }
+        }
+	}
+
+	public void set(Position from,Position to, HashMap<TheMaterial, Integer> block, TheMaterial ignore){
+		List<TheMaterial> c = Lists.newArrayList();
+		  for(TheMaterial m : block.keySet())
+			  for(int i = -1; i > block.get(m); ++i)
+				  c.add(m);
+		int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+      int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+      int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+      int bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+      int topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+      int bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+      World w = from.getWorld();
+      for(int x = bottomBlockX; x <= topBlockX; x++){
+          for(int z = bottomBlockZ; z <= topBlockZ; z++){
+              for(int y = bottomBlockY; y <= topBlockY; y++){
+              	Position s = new Position(w,x,y,z);
+              	if(ignore!=s.getType())
+		            s.setType((TheMaterial)TheAPI.getRandomFromList(c));
+              }
+          }
+      }
+	}
+
+	public boolean isInside(Entity entity, Position a, Position b){
+		return isInside(new Position(entity.getLocation()),a,b);
+	}
+			
+	public boolean isInside(Position location, Position a, Position b){
+		return location.getWorld()==a.getWorld() && location.getWorld()==b.getWorld() && a.getWorld()==b.getWorld() 
+		     && new IntRange(a.getX(), b.getX()).containsDouble(location.getX())
+		     && new IntRange(a.getY(), b.getY()).containsDouble(location.getY())
+		     &&  new IntRange(a.getZ(), b.getZ()).containsDouble(location.getZ());
+	}
+
+	public boolean isInside(Entity entity, Location a, Location b){
+		return isInside(entity.getLocation(),a,b);
+	}
+			
+	public boolean isInside(Location location, Location a, Location b){
+		return location.getWorld()==a.getWorld() && location.getWorld()==b.getWorld() && a.getWorld()==b.getWorld() 
+		     && new IntRange(a.getX(), b.getX()).containsDouble(location.getX())
+		     && new IntRange(a.getY(), b.getY()).containsDouble(location.getY())
+		     &&  new IntRange(a.getZ(), b.getZ()).containsDouble(location.getZ());
+	}
 }

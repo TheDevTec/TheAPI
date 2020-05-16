@@ -46,8 +46,24 @@ public class ConfigAPI {
 		return folder;
 	}
 	
-	public boolean existPath(String string) {
+	public boolean existsPath(String string) {
 		return getString(string) != null;
+	}
+	
+	public boolean exists(String string) {
+		return existPath(string);
+	}
+	
+	public boolean exist(String string) {
+		return existPath(string);
+	}
+	
+	public boolean isNull(String string) {
+		return !existPath(string);
+	}
+	
+	public boolean existPath(String string) {
+		return existPath(string);
 	}
 	
 	public void addDefault(String path, Object value) {
@@ -116,6 +132,10 @@ public class ConfigAPI {
 	public void setCustomEnd(String customEnd) {
 		if(customEnd != null)
 		end=customEnd;
+	}
+
+	public boolean remove(String path) {
+		return removePath(path);
 	}
 
 	public boolean removePath(String path) {
@@ -244,6 +264,10 @@ public class ConfigAPI {
 		if(a==null)
 		return YamlConfiguration.loadConfiguration(getFile()).getKeys(keys);
 		return a.getKeys(keys);
+	}
+	
+	public Set<String> getKeys(String key) {
+		return getConfigurationSection(key,false);
 	}
 	
 	public Set<String> getConfigurationSection(String path, boolean keys) {

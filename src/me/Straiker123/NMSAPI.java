@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -637,6 +638,10 @@ public class NMSAPI {
 		}}
 	}
 	
+	public void refleshBlock(World w, Object blockposition, Object oldBlock, Object newBlock) {
+		Reflections.invoke(getWorld(w),Reflections.getMethod(world, "notify", pos,iblockdata,iblockdata,int.class), blockposition,oldBlock,newBlock,3);
+	}
+	
 	public Object getPacketPlayOutChat(ChatType type, Object IChatBaseComponent) {
 		try {
 			return pOutChat.newInstance(IChatBaseComponent,enumChat.getField(type.name()).get(null));
@@ -653,34 +658,50 @@ public class NMSAPI {
 	public Object getPacketPlayOutChat(ChatType type, String text) {
 		return getPacketPlayOutChat(type,getIChatBaseComponentText(text));
 	}
+	
+	public Object getType(World w, int x, int y, int z) {
+		return Reflections.invoke(getWorld(w), Reflections.getMethod(world, "getType",pos),getBlockPosition(x, y, z));
+	}
 
 	public int[] setBlock(World world, int x, int y, int z, Material material, int data, boolean applyPsychics) {
+		Object old = null;
     	try {
+    		old=getType(world,x,y,z);
     		worldset.invoke(getWorld(world), getBlockPosition(x, y, z), getIBlockData(material, data),applyPsychics ?3 : 2);
     	} catch (Exception e) {
 			e.printStackTrace();
 		}
+    	refleshBlock(world, getBlockPosition(x, y, z), old, getIBlockData(material, data));
 		return new int[] {x >> 4, z >> 4};
+	}
+	
+	public int[] setBlock(World world, int x, int y, int z, Material material, boolean applyPsychics) {
+		return setBlock(world, x, y, z, material, 0, applyPsychics);
 	}
 
 	public int[] setBlock(Location loc, Material material, int data, boolean applyPsychics) {
     	return setBlock(loc.getWorld(),loc.getBlockX(),loc.getBlockY(),loc.getBlockZ(),material,data,applyPsychics);
 	}
 	
-	@SuppressWarnings("deprecation")
-	public Object getIBlockData(Material material, int data) {
-		return getIBlockData(material.getId(),data);
+	public Object getIBlockData(Material material) {
+		return getIBlockData(material,0);
 	}
 	
-	public Object getIBlockData(int materialId, int data) {
+	@SuppressWarnings("deprecation")
+	public Object getIBlockData(Material material, int data) {
+		try {
+			//1.13+ only
+			Object o =Reflections.getNMSClass("block.data.CraftBlockData").cast(Bukkit.createBlockData(material));
+			return o.getClass().getMethod("getState").invoke(o);
+		}catch(Exception erera) {
 		try{
-			return IBlockData.invoke(block.invoke(null, materialId), data);
+			return IBlockData.invoke(block.invoke(null, material.getId()), data);
 		}catch(Exception e) {
 			try{
-			return IBlockData.invoke(null,materialId + (data << 12));
+			return IBlockData.invoke(null,material.getId() + (data << 12));
 		}catch(Exception e1) {
 			return null;
-		}}
+		}}}
 	}
 
 	public Object getPacketPlayOutEntityDestroy(int... id) {
