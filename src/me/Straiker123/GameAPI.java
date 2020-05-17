@@ -3,17 +3,17 @@ package me.Straiker123;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
+import me.Straiker123.Scheduler.Tasker;
+
 public class GameAPI {
-	private FileConfiguration w;
+	private ConfigAPI w;
 	private String s;
 	public GameAPI(String name) {
 		s= name;
-		w=LoaderClass.gameapi.getConfig();
+		w=LoaderClass.gameapi;
 	}
 	
 	public String getName() {
@@ -176,7 +176,6 @@ public class GameAPI {
 		return w.getBoolean(s+".Arenas."+arena+".InGame");
 	}
 	
-	@SuppressWarnings("deprecation")
 	public void startArena(String arena) {
 		if(w.getString(s+".Arenas."+arena+".Setting.min_players")!=null) {
 		int mis = getPlayersInGame(arena).size()-w.getInt(s+".Arenas."+arena+".Setting.min_players");
@@ -194,16 +193,15 @@ public class GameAPI {
 			TheAPI.getConsole().sendMessage(TheAPI.colorize("&2TheGameAPI &b> &6Arena "+arena+" required minimal "+w.getInt(s+".Arenas."+arena+".Setting.min_teams")+" teams"));
 			return;
 		}}
-		LoaderClass.gameapi_timer.put(arena,Bukkit.getScheduler().scheduleAsyncRepeatingTask(LoaderClass.plugin, new Runnable() {
+		new Tasker() {
 			int time = 0;
-			@Override
 			public void run() {
 				++time;
 				String timer = -1*(w.getInt(s+".Arenas."+arena+".Setting.start_time")-time)+"";
 				for(Player s : getPlayersInGame(arena)) {
 				TheAPI.sendActionBar(s,LoaderClass.config.getConfig().getString("GameAPI.StartingIn").replace("%time%", timer).replace("%arena%", arena));
 				if(time>=w.getInt(s+".Arenas."+arena+".Setting.start_time")) {
-					Bukkit.getScheduler().cancelTask(LoaderClass.gameapi_timer.get(arena));
+					cancel();
 					TheAPI.sendActionBar(s,LoaderClass.config.getConfig().getString("GameAPI.Start").replace("%arena%", arena));
 					
 						List<Object> l = new ArrayList<Object>();
@@ -213,11 +211,11 @@ public class GameAPI {
 						return;
 					}
 				}
-			}}, 20,20));
+			}}.repeating(20,20);
 		
 		setArenaInGame(arena, true);
 		
-		LoaderClass.GameAPI_Arenas.put(arena, Bukkit.getScheduler().scheduleAsyncRepeatingTask(LoaderClass.plugin, new Runnable() {
+		LoaderClass.GameAPI_Arenas.put(arena, new Tasker() {
 			int time = 0;
 			@Override
 			public void run() {
@@ -236,12 +234,12 @@ public class GameAPI {
 					stopArena(arena,true);
 					return;
 				}
-			}}, 20,20));
+			}}.repeating(20,20));
 	}
 	
 	public void stopArena(String arena, boolean runnable_on_end) {
 		w.set(s+".Arenas."+arena+".InGame", false);
-		Bukkit.getScheduler().cancelTask(LoaderClass.GameAPI_Arenas.get(arena));
+		Tasker.cancelTask(LoaderClass.GameAPI_Arenas.get(arena));
 		if(runnable_on_end) {
 			try {
 			LoaderClass.win_rewards.get(s+":"+arena).run();

@@ -46,6 +46,10 @@ public abstract class Tasker implements Runnable {
 			return set(Scheduler.repeatingTimesAsync(this, delay, period,times));
 		  }
 		  
+		  public synchronized Task getTask() {
+			  return task;
+		  }
+		  
 		  private int set(Task t) {
 			  if(t!=null) {
 			  task=t;

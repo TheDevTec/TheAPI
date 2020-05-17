@@ -3,7 +3,6 @@ package me.Straiker123.Utils;
 import java.util.Arrays;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -133,12 +132,11 @@ public class TNTTask {
 								if(igniteUsed) {
 								b.setType(Material.AIR);
 								if(fakeTnt) {
-									Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
-										@Override
+									new Tasker() {
 										public void run() {
 											Events.get(reals,b);
 										}
-									}, ignite);
+									}.later(ignite);
 									}else {
 										TNTPrimed tnt = (TNTPrimed)b.getWorld().spawnEntity(b.toLocation(), EntityType.PRIMED_TNT);
 										tnt.setMetadata("real", new FixedMetadataValue(LoaderClass.plugin, location));

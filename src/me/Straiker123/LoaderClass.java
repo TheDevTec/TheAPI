@@ -34,7 +34,6 @@ public class LoaderClass extends JavaPlugin {
 	public static ArrayList<ConfigAPI> list = Lists.newArrayList();
 	public static HashMap<Player, GUIID> gui = Maps.newHashMap();
 	public static HashMap<String, Integer> GameAPI_Arenas = Maps.newHashMap();
-	public static HashMap<String, Integer> gameapi_timer = Maps.newHashMap();
 	public static HashMap<String, Runnable> win_rewards = Maps.newHashMap();
 	public static ArrayList<Integer> tasks = Lists.newArrayList();
 	public static ConfigAPI unused;

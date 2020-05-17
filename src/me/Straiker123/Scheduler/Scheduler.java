@@ -38,11 +38,15 @@ public class Scheduler {
 	}
 
 	public static Task run(Runnable task) {
-		return run(task,false,false);
+		Task t = run(task,false,false);
+		t.run();
+		return t;
 	}
 
 	public static Task runAsync(Runnable task) {
-		return run(task,true,false);
+		Task t = run(task,true,false);
+		t.run();
+		return t;
 	}
 
 	public static Task later(Runnable task, long delay) {

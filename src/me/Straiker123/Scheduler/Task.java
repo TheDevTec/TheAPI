@@ -4,9 +4,8 @@ import me.Straiker123.TheAPI;
 
 public class Task implements Runnable {
 	private Runnable run;
-	private final boolean s,removeOnRun;
+	private final boolean s,repeat;
 	private final int id;
-	private final TheThread t;
 	private int r;
 	private boolean c;
 	
@@ -14,11 +13,7 @@ public class Task implements Runnable {
 		run=runnable;
 		s=sync;
 		this.id=id;
-		removeOnRun=!multipleTimes;
-		if(!sync) {
-			t = new TheThread("Task-"+id);
-		}else
-			t=null;
+		repeat=multipleTimes;
 	}
 
 	public int getId() {
@@ -28,21 +23,15 @@ public class Task implements Runnable {
 	public void run() {
 			if(isCancelled())return;
 			++r;
-			if(s)
+			if(s) {
 				TheAPI.getNMSAPI().postToMainThread(run);
-			else
-			t.postRunnable(run);
-			if(removeOnRun) {
-				cancel();
-				if(t!=null)
-				t.interrupt();
-				run=null;
-				r=0;
+			}else {
+				run.run();
 			}
 	}
 
 	public boolean isRepeating() {
-		return !removeOnRun;
+		return repeat;
 	}
 	
 	public boolean isSync() {

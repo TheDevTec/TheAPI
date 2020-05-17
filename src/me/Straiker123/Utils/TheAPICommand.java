@@ -261,12 +261,11 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				String old = p.getName();
 				TheAPI.msg("&eYour nickname changed to &nTheAPI",s);
 				TheAPI.getNameTagAPI(p, "", "").setPlayerName("TheAPI");
-				Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
-					@Override
+				new Tasker() {
 					public void run() {
 						TheAPI.getNameTagAPI(p, "", "").setPlayerName(old);
 					}
-				}, 40);
+				}.later(40);
 				return true;
 			}
 			if(eq(1,"ActionBar")) {
@@ -286,12 +285,11 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				a.setTitle("&eTheAPI v"+TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
 				a.addLine("&aBy DevTec", 0);
 				a.create();
-				Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() {
-					@Override
+				new Tasker() {
 					public void run() {
 						p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
 					}
-				}, 40);
+				}.later(40);
 				return true;
 			}
 			if(eq(1,"BlocksAPI")) {
@@ -305,14 +303,13 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.getBlocksAPI().set(b, Material.DIAMOND_BLOCK);
 				}
 				d.clear();
-				Bukkit.getScheduler().runTaskLater(LoaderClass.plugin, new Runnable() { // undo command ?
-					@Override
+				new Tasker() {
 					public void run() {
 						if(save.isEmpty()==false)
 						a.loadBlockSaves(save);
 						r=false;
 					}
-				}, 40);
+				}.later(40);
 				return true;
 				}
 				return true;

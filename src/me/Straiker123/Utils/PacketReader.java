@@ -4,22 +4,21 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
-import me.Straiker123.LoaderClass;
 import me.Straiker123.TheAPI;
 import me.Straiker123.Events.PlayerReadPacketEvent;
 import me.Straiker123.Events.PlayerReceivePacketEvent;
+import me.Straiker123.Scheduler.Tasker;
 
 public class PacketReader implements Listener {
     @EventHandler
     public synchronized void onjoin(PlayerJoinEvent e){
-    	new BukkitRunnable() {
+    	new Tasker() {
 			public void run() {
     	        ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
     	            @Override
@@ -41,18 +40,18 @@ public class PacketReader implements Listener {
     	        ChannelPipeline pipeline =TheAPI.getNMSAPI().getNMSPlayerAPI(e.getPlayer()).getPlayerConnection().getNetworkManager().getChannel().pipeline();
     	        pipeline.addBefore("packet_handler", e.getPlayer().getName(), channelDuplexHandler);
 			}
-		}.runTaskAsynchronously(LoaderClass.plugin);
+		}.runAsync();
     		}
 
     @EventHandler
     public synchronized void onleave(PlayerQuitEvent e){
-    	new BukkitRunnable() {
+    	new Tasker() {
 			public void run() {
     	    	Channel channel =TheAPI.getNMSAPI().getNMSPlayerAPI(e.getPlayer()).getPlayerConnection().getNetworkManager().getChannel();
     	        channel.eventLoop().submit(() -> {
     	            channel.pipeline().remove(e.getPlayer().getName());
     	            return null;
     	        });
-			}}.runTaskAsynchronously(LoaderClass.plugin);
+			}}.runAsync();
     }
 }

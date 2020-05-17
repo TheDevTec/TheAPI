@@ -37,7 +37,6 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import com.google.common.collect.Lists;
 
@@ -61,6 +60,7 @@ import me.Straiker123.Events.GUIClickEvent;
 import me.Straiker123.Events.GUICloseEvent;
 import me.Straiker123.Events.PlayerJumpEvent;
 import me.Straiker123.Events.TNTExplosionEvent;
+import me.Straiker123.Scheduler.Tasker;
 import me.Straiker123.Utils.GUIID.GRunnable;
 
 @SuppressWarnings("deprecation")
@@ -145,7 +145,7 @@ public class Events implements Listener {
 			ClickType t = e.getClick();
 			if(g.existPath("guis."+a+"."+slot+".TAKE"))
 				e.setCancelled(g.getBoolean("guis."+a+"."+slot+".TAKE"));
-				new BukkitRunnable() {
+				new Tasker() {
 					public void run() {
 				if(g.getString("guis."+a+"."+slot+".MSG")!=null)
 					for(String s: g.getStringList("guis."+a+"."+slot+".MSG"))
@@ -153,12 +153,7 @@ public class Events implements Listener {
 				if(g.getString("guis."+a+"."+slot+".CMD")!=null)
 					for(String s: g.getStringList("guis."+a+"."+slot+".CMD"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
-				new BukkitRunnable() {
-					public void run() {
-						d.runRunnable(GRunnable.RUNNABLE,slot);
-					}
-				}.runTask(LoaderClass.plugin);
-
+				TheAPI.getNMSAPI().postToMainThread(d.getRunnable(GRunnable.RUNNABLE,slot));
 				if(t.isLeftClick()&& !t.isShiftClick()) {
 				if(g.getString("guis."+a+"."+slot+".MSGLC")!=null)
 					for(String s: g.getStringList("guis."+a+"."+slot+".MSGLC"))
@@ -166,11 +161,7 @@ public class Events implements Listener {
 				if(g.getString("guis."+a+"."+slot+".CMDLC")!=null)
 					for(String s: g.getStringList("guis."+a+"."+slot+".CMDLC"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
-				new BukkitRunnable() {
-					public void run() {
-						d.runRunnable(GRunnable.RUNNABLE_LEFT_CLICK,slot);
-					}
-				}.runTask(LoaderClass.plugin);
+				TheAPI.getNMSAPI().postToMainThread(d.getRunnable(GRunnable.RUNNABLE_LEFT_CLICK,slot));
 				}
 				if(t.isRightClick()&& !t.isShiftClick()) {
 					if(g.getString("guis."+a+"."+slot+".MSGRC")!=null)
@@ -179,11 +170,7 @@ public class Events implements Listener {
 					if(g.getString("guis."+a+"."+slot+".CMDRC")!=null)
 						for(String s: g.getStringList("guis."+a+"."+slot+".CMDRC"))
 							TheAPI.sudoConsole(SudoType.COMMAND, s);
-					new BukkitRunnable() {
-						public void run() {
-							d.runRunnable(GRunnable.RUNNABLE_RIGHT_CLICK,slot);
-						}
-					}.runTask(LoaderClass.plugin);
+					TheAPI.getNMSAPI().postToMainThread(d.getRunnable(GRunnable.RUNNABLE_RIGHT_CLICK,slot));
 				}
 				if(t.isCreativeAction()) {
 					if(g.getString("guis."+a+"."+slot+".MSGMC")!=null)
@@ -192,11 +179,7 @@ public class Events implements Listener {
 					if(g.getString("guis."+a+"."+slot+".CMDMC")!=null)
 					for(String s: g.getStringList("guis."+a+"."+slot+".CMDMC"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
-					new BukkitRunnable() {
-						public void run() {
-							d.runRunnable(GRunnable.RUNNABLE_MIDDLE_CLICK,slot);
-						}
-					}.runTask(LoaderClass.plugin);
+					TheAPI.getNMSAPI().postToMainThread(d.getRunnable(GRunnable.RUNNABLE_MIDDLE_CLICK,slot));
 				}
 				if(t.isLeftClick() && t.isShiftClick()) {
 					if(g.getString("guis."+a+"."+slot+".MSGWLC")!=null)
@@ -205,11 +188,7 @@ public class Events implements Listener {
 					if(g.getString("guis."+a+"."+slot+".CMDWLC")!=null)
 						for(String s: g.getStringList("guis."+a+"."+slot+".CMDWLC"))
 							TheAPI.sudoConsole(SudoType.COMMAND, s);
-					new BukkitRunnable() {
-						public void run() {
-							d.runRunnable(GRunnable.RUNNABLE_SHIFT_WITH_LEFT_CLICK,slot);
-						}
-					}.runTask(LoaderClass.plugin);
+					TheAPI.getNMSAPI().postToMainThread(d.getRunnable(GRunnable.RUNNABLE_SHIFT_WITH_LEFT_CLICK,slot));
 				}
 				if(t.isRightClick()&& t.isShiftClick()) {
 					if(g.getString("guis."+a+"."+slot+".MSGWRC")!=null)
@@ -218,12 +197,8 @@ public class Events implements Listener {
 				if(g.getString("guis."+a+"."+slot+".CMDWLC")!=null)
 					for(String s: g.getStringList("guis."+a+"."+slot+".CMDWRC"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
-					new BukkitRunnable() {
-						public void run() {
-							d.runRunnable(GRunnable.RUNNABLE_SHIFT_WITH_RIGHT_CLICK,slot);
-						}
-					}.runTask(LoaderClass.plugin);
-				}}}.runTaskAsynchronously(LoaderClass.plugin);
+				TheAPI.getNMSAPI().postToMainThread(d.getRunnable(GRunnable.RUNNABLE_SHIFT_WITH_RIGHT_CLICK,slot));
+				}}}.runAsync();
 		}
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onClick(PlayerInteractEvent e) {
