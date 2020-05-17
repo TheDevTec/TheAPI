@@ -1,3 +1,4 @@
+
 package me.Straiker123;
 
 
@@ -710,7 +711,7 @@ public class NMSAPI {
 			//1.13+ only
 			Object o =Reflections.getNMSClass("block.data.CraftBlockData").cast(Bukkit.createBlockData(material));
 			return o.getClass().getMethod("getState").invoke(o);
-		}catch(Exception erera) {
+		}catch(Exception | NoSuchMethodError erera) {
 		try{
 			return IBlockData.invoke(block.invoke(null, material.getId()), data);
 		}catch(Exception e) {
