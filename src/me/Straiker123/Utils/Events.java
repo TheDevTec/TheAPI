@@ -506,27 +506,22 @@ public class Events implements Listener {
 		PlayerBanList a = Events.a.getBanList(s);
 		try {
 		if(a.isBanned()) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(f.getString("Format.Ban").replace("\\n", "\n")
-					.replace("%player%", s)
-					.replace("%reason%", a.getReason(PunishmentType.BAN))));
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.BAN).replace("\\n", "\n")));
 			return;
 		}
 		if(a.isTempBanned()) {
-				e.disallow(Result.KICK_BANNED, a.getReason(PunishmentType.TEMPBAN).replace("\\n", "\n")
-						.replace("%player%", s)
-						.replace("%time%", TheAPI.getStringUtils().setTimeToString(a.getExpire(PunishmentType.TEMPBAN))));
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.TEMPBAN).replace("\\n", "\n"))
+					.replace("%time%", TheAPI.getStringUtils().setTimeToString(a.getExpire(PunishmentType.TEMPBAN))));
 				return;
 		}
 		if(a.isIPBanned()) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.BANIP).replace("\\n", "\n")
-					.replace("%player%", s)));
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.BANIP).replace("\\n", "\n")));
 			return;
 		}
 		if(a.isTempIPBanned()) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.TEMPBANIP).replace("\\n", "\n")
-					.replace("%player%", s)
-					.replace("%time%", TheAPI.getStringUtils().setTimeToString(a.getExpire(PunishmentType.TEMPBANIP)))));
-			return;
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.TEMPBANIP).replace("\\n", "\n"))
+					.replace("%time%", TheAPI.getStringUtils().setTimeToString(a.getExpire(PunishmentType.TEMPBANIP))));
+				return;
 		}
 		}catch(Exception ad) {
 			if(!f.getBoolean("Options.HideErrors")) {
