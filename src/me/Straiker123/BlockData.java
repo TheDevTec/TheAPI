@@ -8,4 +8,5 @@ public class BlockData extends ParticleData {
 		if (!material.isBlock()) {
 			throw new IllegalArgumentException("The material is not a block");
 		}
-	}}
+	}
+}

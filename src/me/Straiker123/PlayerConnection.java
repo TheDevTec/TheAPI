@@ -4,13 +4,14 @@ import org.bukkit.Location;
 
 public class PlayerConnection {
 	private Object a;
-	private Class<?>c = Reflections.getNMSClass("PlayerConnection");
+	private Class<?> c = Reflections.getNMSClass("PlayerConnection");
+
 	public PlayerConnection(Object object) {
-		a=object;
+		a = object;
 	}
 
 	public void sendPacket(Object packet) {
-		Reflections.processMethod(c,"sendPacket", packet);
+		Reflections.processMethod(c, "sendPacket", packet);
 	}
 
 	public boolean processedDisconnect() {

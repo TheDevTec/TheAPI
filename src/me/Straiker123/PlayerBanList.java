@@ -5,12 +5,13 @@ import me.Straiker123.Abstract.AbstractPunishmentAPI;
 public class PlayerBanList {
 	private static final ConfigAPI c = LoaderClass.data;
 	private String s;
+
 	public PlayerBanList(String player) {
-		if(AbstractPunishmentAPI.isIP(player))
+		if (AbstractPunishmentAPI.isIP(player))
 			new Exception("PlayerBanList error, String must be player, not IP.");
-		s=player;
+		s = player;
 	}
-	
+
 	public boolean isTempBanned() {
 		return getExpire(PunishmentType.TEMPBAN) > 0;
 	}
@@ -42,40 +43,42 @@ public class PlayerBanList {
 	public boolean isJailed() {
 		return getExpire(PunishmentType.JAIL) > 0;
 	}
-	
+
 	public long getExpire(PunishmentType type) {
-		if(type==PunishmentType.BAN||type==PunishmentType.BANIP||type==PunishmentType.JAIL||type==PunishmentType.MUTE)
+		if (type == PunishmentType.BAN || type == PunishmentType.BANIP || type == PunishmentType.JAIL
+				|| type == PunishmentType.MUTE)
 			return 0;
-		if(getStartTime(type)<=0||getTime(type)<=0)return 0;
-		return getStartTime(type)-System.currentTimeMillis()/1000+getTime(type);
+		if (getStartTime(type) <= 0 || getTime(type) <= 0)
+			return 0;
+		return getStartTime(type) - System.currentTimeMillis() / 1000 + getTime(type);
 	}
 
 	public String getReason(PunishmentType type) {
 		String r = null;
-		switch(type) {
+		switch (type) {
 		case BAN:
-			r=c.getString("ban."+s+".reason");
+			r = c.getString("ban." + s + ".reason");
 			break;
 		case BANIP:
-			r=c.getString("banip."+TheAPI.getPunishmentAPI().getIP(s).replace(".", "_")+".reason");
+			r = c.getString("banip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".reason");
 			break;
 		case TEMPBAN:
-			r=c.getString("tempban."+s+".reason");
+			r = c.getString("tempban." + s + ".reason");
 			break;
 		case TEMPBANIP:
-			r=c.getString("tempbanip."+TheAPI.getPunishmentAPI().getIP(s).replace(".", "_")+".reason");
+			r = c.getString("tempbanip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".reason");
 			break;
 		case JAIL:
-			r=c.getString("jail."+s+".reason");
+			r = c.getString("jail." + s + ".reason");
 			break;
 		case TEMPJAIL:
-			r=c.getString("tempjail."+s+".reason");
+			r = c.getString("tempjail." + s + ".reason");
 			break;
 		case MUTE:
-			r=c.getString("mute."+s+".reason");
+			r = c.getString("mute." + s + ".reason");
 			break;
 		case TEMPMUTE:
-			r=c.getString("tempmute."+s+".reason");
+			r = c.getString("tempmute." + s + ".reason");
 			break;
 		}
 		return r;
@@ -83,38 +86,38 @@ public class PlayerBanList {
 
 	public long getStartTime(PunishmentType type) {
 		long r = 0;
-		switch(type) {
+		switch (type) {
 		case BAN:
-			if(c.exist("ban."+s+".start"))
-			r=c.getLong("ban."+s+".start");
+			if (c.exist("ban." + s + ".start"))
+				r = c.getLong("ban." + s + ".start");
 			break;
 		case BANIP:
-			if(c.exist("banip."+TheAPI.getPunishmentAPI().getIP(s).replace(".", "_")+".start"))
-			r=c.getLong("banip."+TheAPI.getPunishmentAPI().getIP(s).replace(".", "_")+".start");
+			if (c.exist("banip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".start"))
+				r = c.getLong("banip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".start");
 			break;
 		case TEMPBAN:
-			if(c.exist("tempban."+s+".start"))
-			r=c.getLong("tempban."+s+".start");
+			if (c.exist("tempban." + s + ".start"))
+				r = c.getLong("tempban." + s + ".start");
 			break;
 		case TEMPBANIP:
-			if(c.exist("tempbanip."+TheAPI.getPunishmentAPI().getIP(s).replace(".", "_")+".start"))
-			r=c.getLong("tempbanip."+TheAPI.getPunishmentAPI().getIP(s).replace(".", "_")+".start");
+			if (c.exist("tempbanip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".start"))
+				r = c.getLong("tempbanip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".start");
 			break;
 		case JAIL:
-			if(c.exist("jail."+s+".start"))
-			r=c.getLong("jail."+s+".start");
+			if (c.exist("jail." + s + ".start"))
+				r = c.getLong("jail." + s + ".start");
 			break;
 		case TEMPJAIL:
-			if(c.exist("tempjail."+s+".start"))
-			r=c.getLong("tempjail."+s+".start");
+			if (c.exist("tempjail." + s + ".start"))
+				r = c.getLong("tempjail." + s + ".start");
 			break;
 		case MUTE:
-			if(c.exist("mute."+s+".start"))
-			r=c.getLong("mute."+s+".start");
+			if (c.exist("mute." + s + ".start"))
+				r = c.getLong("mute." + s + ".start");
 			break;
 		case TEMPMUTE:
-			if(c.exist("tempmute."+s+".start"))
-			r=c.getLong("tempmute."+s+".start");
+			if (c.exist("tempmute." + s + ".start"))
+				r = c.getLong("tempmute." + s + ".start");
 			break;
 		}
 		return r;
@@ -122,22 +125,22 @@ public class PlayerBanList {
 
 	public long getTime(PunishmentType type) {
 		long r = 0;
-		switch(type) {
+		switch (type) {
 		case TEMPBANIP:
-			if(c.exist("tempbanip."+TheAPI.getPunishmentAPI().getIP(s).replace(".", "_")+".time"))
-			r=c.getLong("tempbanip."+TheAPI.getPunishmentAPI().getIP(s).replace(".", "_")+".time");
+			if (c.exist("tempbanip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".time"))
+				r = c.getLong("tempbanip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".time");
 			break;
 		case TEMPJAIL:
-			if(c.exist("tempjail."+s+".time"))
-			r=c.getLong("tempjail."+s+".time");
+			if (c.exist("tempjail." + s + ".time"))
+				r = c.getLong("tempjail." + s + ".time");
 			break;
 		case TEMPMUTE:
-			if(c.exist("tempmute."+s+".time"))
-			r=c.getLong("tempmute."+s+".time");
+			if (c.exist("tempmute." + s + ".time"))
+				r = c.getLong("tempmute." + s + ".time");
 			break;
 		case TEMPBAN:
-			if(c.exist("tempban."+s+".time"))
-			r=c.getLong("tempban."+s+".time");
+			if (c.exist("tempban." + s + ".time"))
+				r = c.getLong("tempban." + s + ".time");
 			break;
 		default:
 			break;
@@ -146,14 +149,7 @@ public class PlayerBanList {
 	}
 
 	public static enum PunishmentType {
-		MUTE,
-		TEMPMUTE,
-		BAN,
-		TEMPBAN,
-		BANIP,
-		TEMPBANIP,
-		JAIL,
-		TEMPJAIL
+		MUTE, TEMPMUTE, BAN, TEMPBAN, BANIP, TEMPBANIP, JAIL, TEMPJAIL
 	}
-	
+
 }

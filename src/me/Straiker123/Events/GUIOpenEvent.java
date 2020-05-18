@@ -10,15 +10,16 @@ import me.Straiker123.LoaderClass;
 
 public class GUIOpenEvent extends Event implements Cancellable {
 	public GUIOpenEvent(Player player, Inventory gui, String title) {
-		t=title;
-		s=player;
-		this.gui=gui;
+		t = title;
+		s = player;
+		this.gui = gui;
 	}
-	
+
 	boolean c;
 	String t;
 	Player s;
 	Inventory gui;
+
 	/**
 	 * @return is GUI open event cancelled
 	 */
@@ -26,14 +27,15 @@ public class GUIOpenEvent extends Event implements Cancellable {
 	public boolean isCancelled() {
 		return c;
 	}
+
 	/**
 	 * Cancel GUI open event
 	 */
 	@Override
 	public void setCancelled(boolean cancel) {
-		c=cancel;
+		c = cancel;
 	}
-	
+
 	/**
 	 * 
 	 * @return Title of GUI
@@ -49,17 +51,17 @@ public class GUIOpenEvent extends Event implements Cancellable {
 	public Player getPlayer() {
 		return s;
 	}
-	
+
 	/**
 	 * 
 	 * @return ID of GUI
 	 */
 	public String getID() {
-		if(LoaderClass.gui.get(s)!=null)
-		return LoaderClass.gui.get(s).getID();
+		if (LoaderClass.gui.get(s) != null)
+			return LoaderClass.gui.get(s).getID();
 		return null;
 	}
-	
+
 	/**
 	 * 
 	 * @return Opening GUI
@@ -67,13 +69,14 @@ public class GUIOpenEvent extends Event implements Cancellable {
 	public Inventory getGUI() {
 		return gui;
 	}
-	
+
 	private static final HandlerList cs = new HandlerList();
+
 	@Override
 	public HandlerList getHandlers() {
 		return cs;
 	}
-	
+
 	public static HandlerList getHandlerList() {
 		return cs;
 	}

@@ -10,6 +10,7 @@ public class TimeConventorAPI {
 	public long getTimeFromString(String s) {
 		return TheAPI.getStringUtils().getTimeFromString(s);
 	}
+
 	/**
 	 * @see see Set long to string
 	 * @param l

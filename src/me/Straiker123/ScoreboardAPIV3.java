@@ -13,39 +13,44 @@ public class ScoreboardAPIV3 {
 	private TreeMap<Integer, String> lines = new TreeMap<Integer, String>();
 	private Scoreboard sb;
 	private Objective a;
-	
+
 	@SuppressWarnings("deprecation")
 	public ScoreboardAPIV3(Player player) {
-		sb=player.getServer().getScoreboardManager().getNewScoreboard();
-		a=sb.getObjective("a");
-		if(a==null)a=sb.registerNewObjective("a", "dummy");
+		sb = player.getServer().getScoreboardManager().getNewScoreboard();
+		a = sb.getObjective("a");
+		if (a == null)
+			a = sb.registerNewObjective("a", "dummy");
 		a.setDisplaySlot(DisplaySlot.SIDEBAR);
 		player.setScoreboard(sb);
 	}
-	
+
 	public void setName(String name) {
-		if(name!=null)
-		a.setDisplayName(TheAPI.colorize(name));
+		if (name != null)
+			a.setDisplayName(TheAPI.colorize(name));
 	}
-	
+
 	public void setDisplayName(String name) {
-		if(name!=null)
-		a.setDisplayName(TheAPI.colorize(name));
+		if (name != null)
+			a.setDisplayName(TheAPI.colorize(name));
 	}
 
 	public void removeLine(int line) {
-		if(!lines.containsKey(line))return;
+		if (!lines.containsKey(line))
+			return;
 		String team = lines.get(line);
-		if(team==null)return;
+		if (team == null)
+			return;
 		lines.remove(line);
 		sb.resetScores(team);
 	}
-	
+
 	public void setLine(int line, String value) {
-		if(value==null)return;
-		value=TheAPI.colorize(value);
-		String team = lines.containsKey(line) ? lines.get(line):lines.put(line,null);
-		if(team!=null && team.equals(value))return;
+		if (value == null)
+			return;
+		value = TheAPI.colorize(value);
+		String team = lines.containsKey(line) ? lines.get(line) : lines.put(line, null);
+		if (team != null && team.equals(value))
+			return;
 		if (team != null)
 			sb.resetScores(team);
 		lines.put(line, value);

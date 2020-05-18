@@ -9,10 +9,11 @@ import io.netty.channel.Channel;
 
 public class NetworkManager {
 	private Object a;
+
 	public NetworkManager(Object object) {
-		a=object;
+		a = object;
 	}
-	
+
 	public boolean isPreparing() {
 		return (boolean) Reflections.get(a, "preparing");
 	}
@@ -28,17 +29,19 @@ public class NetworkManager {
 	public Channel getChannel() {
 		return (Channel) Reflections.get(a, "channel");
 	}
-	//YOUR RISK
+
+	// YOUR RISK
 	public void setChannel(Channel channel) {
-		Reflections.setField(a, "channel",channel);
+		Reflections.setField(a, "channel", channel);
 	}
-	
+
 	public SocketAddress getSocketAddress() {
 		return (SocketAddress) Reflections.get(a, "socketAddress");
 	}
-	//YOUR RISK
+
+	// YOUR RISK
 	public void setSocketAddress(SocketAddress channel) {
-		Reflections.setField(a, "socketAddress",channel);
+		Reflections.setField(a, "socketAddress", channel);
 	}
 
 }

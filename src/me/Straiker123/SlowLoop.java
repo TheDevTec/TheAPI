@@ -6,22 +6,27 @@ import java.util.List;
 
 import me.Straiker123.Scheduler.Tasker;
 
-public abstract class SlowLoop <T> {
+public abstract class SlowLoop<T> {
 	private List<T> to = new ArrayList<T>();
 	private boolean s = false;
 	private long old;
+
 	public void addToLoop(List<T> toLoop) {
-		for(T t: toLoop)to.add(t);
+		for (T t : toLoop)
+			to.add(t);
 	}
+
 	public void addToLoop(Collection<T> toLoop) {
-		for(T t: toLoop)to.add(t);
+		for (T t : toLoop)
+			to.add(t);
 	}
+
 	public void addToLoop(T toLoop) {
 		to.add(toLoop);
 	}
-	
+
 	public void setInfinityTask(boolean set) {
-		s=set;
+		s = set;
 	}
 
 	public boolean isInfinityTask() {
@@ -29,22 +34,22 @@ public abstract class SlowLoop <T> {
 	}
 
 	public long getTimeRunning() {
-		return old/1000-System.currentTimeMillis()/1000;
+		return old / 1000 - System.currentTimeMillis() / 1000;
 	}
-	
+
 	public void start(long update) {
-		old=System.currentTimeMillis();
+		old = System.currentTimeMillis();
 		new Tasker() {
-			
+
 			@Override
 			public void run() {
-				if(to.isEmpty()==false) {
-					T t = to.get(to.size()-1);
+				if (to.isEmpty() == false) {
+					T t = to.get(to.size() - 1);
 					toRun(t);
 					to.remove(t);
-				}else if(!s)
+				} else if (!s)
 					cancel();
-				
+
 			}
 		}.repeating(0, update);
 	}

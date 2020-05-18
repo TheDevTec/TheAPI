@@ -10,14 +10,13 @@ import me.Straiker123.BanList;
 import me.Straiker123.PlayerBanList;
 
 public interface AbstractPunishmentAPI {
-	
-	//IP
+
+	// IP
 	public String getIP(String player);
-	
+
 	public List<String> getPlayersOnIP(String ip);
-	
-	
-	//Ban
+
+	// Ban
 	public void ban(String playerOrIP, String reason);
 
 	public void banIP(String playerOrIP, String reason);
@@ -25,29 +24,28 @@ public interface AbstractPunishmentAPI {
 	public void tempban(String playerOrIP, String reason, long time);
 
 	public void tempbanIP(String playerOrIP, String reason, long time);
-	
-	
-	//Other
+
+	// Other
 	public void kick(String playerOrIP, String reason);
-	
-	public void warn(String playerOrIP, String reason); //Use \n in reason for multiple lines
-	
-	//Jail
-	public void jail(String playerOrIP, String reason); //Random jail
+
+	public void warn(String playerOrIP, String reason); // Use \n in reason for multiple lines
+
+	// Jail
+	public void jail(String playerOrIP, String reason); // Random jail
 
 	public void jail(String playerOrIP, String reason, String jail);
 
-	public void tempjail(String playerOrIP, String reason, long time); //Random jail
+	public void tempjail(String playerOrIP, String reason, long time); // Random jail
 
 	public void tempjail(String playerOrIP, String reason, long time, String jail);
-	
+
 	public void setjail(Location location, String name);
-	
+
 	public void deljail(String name);
-	
+
 	public List<String> getjails();
-	
-	//Pardon
+
+	// Pardon
 	public void unban(String playerOrIP);
 
 	public void unbanIP(String playerOrIP);
@@ -55,25 +53,23 @@ public interface AbstractPunishmentAPI {
 	public void unjail(String playerOrIP);
 
 	public void unmute(String playerOrIP);
-	
-	
-	//Mute
+
+	// Mute
 	public void mute(String playerOrIP, String reason);
 
 	public void tempmute(String playerOrIP, String reason, long time);
-	
-	
-	//BanList
-	public BanList getBanList(); //everyting
-	
+
+	// BanList
+	public BanList getBanList(); // everyting
+
 	public PlayerBanList getBanList(String player);
-	
-	
-	//Utils
+
+	// Utils
 	public static boolean isIP(String text) {
-		text=text.replaceFirst("/", "");
-	    Pattern p = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
-	    Matcher m = p.matcher(text);
-	    return m.find();
+		text = text.replaceFirst("/", "");
+		Pattern p = Pattern.compile(
+				"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+		Matcher m = p.matcher(text);
+		return m.find();
 	}
 }

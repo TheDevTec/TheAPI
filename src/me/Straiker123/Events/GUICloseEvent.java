@@ -9,25 +9,26 @@ import me.Straiker123.LoaderClass;
 
 public class GUICloseEvent extends Event {
 	public GUICloseEvent(Player player, Inventory gui, String title) {
-		s=player;
-		this.gui=gui;
-		t=title;
+		s = player;
+		this.gui = gui;
+		t = title;
 	}
-	
+
 	Inventory gui;
 	Player s;
 	String t;
 
 	private static final HandlerList cs = new HandlerList();
+
 	@Override
 	public HandlerList getHandlers() {
 		return cs;
 	}
-	
+
 	public static HandlerList getHandlerList() {
 		return cs;
 	}
-	
+
 	/**
 	 * 
 	 * @return Closing GUI
@@ -35,7 +36,7 @@ public class GUICloseEvent extends Event {
 	public Inventory getGUI() {
 		return gui;
 	}
-	
+
 	/**
 	 * 
 	 * @return Title of GUI
@@ -51,14 +52,14 @@ public class GUICloseEvent extends Event {
 	public Player getPlayer() {
 		return s;
 	}
-	
+
 	/**
 	 * 
 	 * @return ID of GUI
 	 */
 	public String getID() {
-		if(LoaderClass.gui.get(s)!=null)
-		return LoaderClass.gui.get(s).getID();
+		if (LoaderClass.gui.get(s) != null)
+			return LoaderClass.gui.get(s).getID();
 		return null;
 	}
 

@@ -9,25 +9,26 @@ public class PlayerReadPacketEvent extends Event implements Cancellable {
 	private Player s;
 	private Object o;
 	private boolean c;
+
 	public PlayerReadPacketEvent(Player player, Object packet) {
-		s=player;
-		o=packet;
+		s = player;
+		o = packet;
 	}
-	
+
 	public Object getPacket() {
 		return o;
 	}
-	
+
 	public void setPacket(Object o) {
-		if(o!=null)
-		this.o=o;
+		if (o != null)
+			this.o = o;
 	}
-	
+
 	public Player getPlayer() {
 		return s;
 	}
-	
-	//Packet name
+
+	// Packet name
 	public String getName() {
 		return o.toString();
 	}
@@ -39,15 +40,16 @@ public class PlayerReadPacketEvent extends Event implements Cancellable {
 
 	@Override
 	public void setCancelled(boolean cancel) {
-		c=cancel;
+		c = cancel;
 	}
 
 	private static final HandlerList cs = new HandlerList();
+
 	@Override
 	public HandlerList getHandlers() {
 		return cs;
 	}
-	
+
 	public static HandlerList getHandlerList() {
 		return cs;
 	}

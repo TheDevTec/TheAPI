@@ -21,7 +21,7 @@ public class StringUtils {
 	public TheCoder getTheCoder() {
 		return new TheCoder();
 	}
-	
+
 	/**
 	 * @see see Get Color from String
 	 * @return ChatColor
@@ -30,21 +30,25 @@ public class StringUtils {
 		char colour = '\u0000';
 		char[] chars = fromString.toCharArray();
 		for (int i = 0; i < chars.length; ++i) {
-    char code;
-    char at = chars[i];
-    if (at != '\u00a7' && at != '&' || i + 1 >= chars.length || ChatColor.getByChar((char)(code = chars[i + 1])) == null) continue;
-    colour = code;
+			char code;
+			char at = chars[i];
+			if (at != '\u00a7' && at != '&' || i + 1 >= chars.length
+					|| ChatColor.getByChar(code = chars[i + 1]) == null)
+				continue;
+			colour = code;
 		}
-		return colour == '\u0000' ? ChatColor.RESET : ChatColor.getByChar((char)colour);
+		return colour == '\u0000' ? ChatColor.RESET : ChatColor.getByChar(colour);
 	}
+
 	/**
 	 * @see see Transfer Collection to String
 	 * @return HoverMessage
 	 */
 	public String join(Collection<?> toJoin, String split) {
-		String r= "";
-		for(Object s : toJoin)r=r+split+s.toString();
-		r=r.replaceFirst(split, "");
+		String r = "";
+		for (Object s : toJoin)
+			r = r + split + s.toString();
+		r = r.replaceFirst(split, "");
 		return r;
 	}
 
@@ -53,32 +57,37 @@ public class StringUtils {
 	 * @return HoverMessage
 	 */
 	public String join(List<?> toJoin, String split) {
-		String r= "";
-		for(Object s : toJoin)r=r+split+s.toString();
-		r=r.replaceFirst(split, "");
+		String r = "";
+		for (Object s : toJoin)
+			r = r + split + s.toString();
+		r = r.replaceFirst(split, "");
 		return r;
 	}
+
 	/**
 	 * @see see Transfer ArrayList to String
 	 * @return HoverMessage
 	 */
 	public String join(ArrayList<?> toJoin, String split) {
-		String r= "";
-		for(Object s : toJoin)r=r+split+s.toString();
-		r=r.replaceFirst(split, "");
+		String r = "";
+		for (Object s : toJoin)
+			r = r + split + s.toString();
+		r = r.replaceFirst(split, "");
 		return r;
 	}
+
 	/**
 	 * @see see Transfer Object[] to String
 	 * @return HoverMessage
 	 */
 	public String join(Object[] toJoin, String split) {
-		String r= "";
-		for(Object s : toJoin)r=r+split+s.toString();
-		r=r.replaceFirst(split, "");
+		String r = "";
+		for (Object s : toJoin)
+			r = r + split + s.toString();
+		r = r.replaceFirst(split, "");
 		return r;
 	}
-	
+
 	/**
 	 * @see see Create clickable message
 	 * @return HoverMessage
@@ -88,30 +97,31 @@ public class StringUtils {
 		 * Example:
 		 * 
 		 * TheAPI.getStringUtils().getHoverMessage("&cClick on me!")
-		.setHoverEvent("&aDo it :-)")
-		.setClickEvent(ClickAction.RUN_COMMAND, "suicide")
-		
-		.addText("&7, &cother text here")
-		.setHoverEvent("&aThis is clicable too!")
-		.setClickEvent(ClickAction.OPEN_URL, "https://www.spigotmc.org/resources/theapi-1-7-10-up-to-1-15-2.72679/")
-		
-		.send(TheAPI.getOnlinePlayers());
-		
+		 * .setHoverEvent("&aDo it :-)") .setClickEvent(ClickAction.RUN_COMMAND,
+		 * "suicide")
+		 * 
+		 * .addText("&7, &cother text here") .setHoverEvent("&aThis is clicable too!")
+		 * .setClickEvent(ClickAction.OPEN_URL,
+		 * "https://www.spigotmc.org/resources/theapi-1-7-10-up-to-1-15-2.72679/")
+		 * 
+		 * .send(TheAPI.getOnlinePlayers());
+		 * 
 		 * 
 		 */
 		return new HoverMessage(message);
 	}
-	
+
 	/**
 	 * @see see Colorize string with colors
 	 * @param string
 	 * @return String
 	 */
 	public String colorize(String string) {
-		if(string == null)return null;
+		if (string == null)
+			return null;
 		return ChatColor.translateAlternateColorCodes('&', string);
 	}
-	
+
 	/**
 	 * @see see Build string from String[]
 	 * @param args
@@ -119,140 +129,152 @@ public class StringUtils {
 	 * 
 	 */
 	public String buildString(String[] args) {
-		if(args.length>0) {
-		String msg = "";
-		for (String string : args) {
-			msg=msg+" "+string;
+		if (args.length > 0) {
+			String msg = "";
+			for (String string : args) {
+				msg = msg + " " + string;
+			}
+			msg = msg.replaceFirst(" ", "");
+			return msg;
 		}
-		msg = msg.replaceFirst(" ",	"");
-		return msg;
+		return null;
 	}
-	return null;
-	}
+
 	/**
 	 * @see see Return random object from list
 	 * @param list
 	 * @return Object
 	 */
 	public Object getRandomFromList(List<?> list) {
-		if(list.isEmpty()||list==null)return null;
+		if (list.isEmpty() || list == null)
+			return null;
 		int r = new Random().nextInt(list.size());
-		if(r<=0) {
-			if(list.get(0)!=null) {
+		if (r <= 0) {
+			if (list.get(0) != null) {
 				return list.get(0);
 			}
 			return null;
-		}else
-		return list.get(r);
+		} else
+			return list.get(r);
 	}
-	
-	private String sec,min,h,d,w,mon,y,c,mil;
+
+	private String sec, min, h, d, w, mon, y, c, mil;
+
 	/**
 	 * @see see Get long from string
 	 * @param s String
 	 * @return long
 	 */
 	public long getTimeFromString(String s) {
-		 sec =LoaderClass.config.getConfig().getString("Words.Second");
-		 min =LoaderClass.config.getConfig().getString("Words.Minute");
-		 h =LoaderClass.config.getConfig().getString("Words.Hour");
-		 d =LoaderClass.config.getConfig().getString("Words.Day");
-		 w =LoaderClass.config.getConfig().getString("Words.Week");
-		 mon = LoaderClass.config.getConfig().getString("Words.Month");
-		 y =LoaderClass.config.getConfig().getString("Words.Year");
-		 c = LoaderClass.config.getConfig().getString("Words.Century");
-		 mil =LoaderClass.config.getConfig().getString("Words.Millenium");
+		sec = LoaderClass.config.getConfig().getString("Words.Second");
+		min = LoaderClass.config.getConfig().getString("Words.Minute");
+		h = LoaderClass.config.getConfig().getString("Words.Hour");
+		d = LoaderClass.config.getConfig().getString("Words.Day");
+		w = LoaderClass.config.getConfig().getString("Words.Week");
+		mon = LoaderClass.config.getConfig().getString("Words.Month");
+		y = LoaderClass.config.getConfig().getString("Words.Year");
+		c = LoaderClass.config.getConfig().getString("Words.Century");
+		mil = LoaderClass.config.getConfig().getString("Words.Millenium");
 		long a = getInt(s);
-		long t_min = a*60;
-		long t_h = t_min*60;
-		long t_d = t_h*24;
-		long t_w = t_d*7;
-		long t_mon = t_w*31;
-		long t_y = t_mon*12;
-		long t_c = t_y*100;
-		long t_mil = t_c*1000;
-		if(s.endsWith(min))a=t_min;
-		if(s.endsWith(h))a=t_h;
-		if(s.endsWith(d))a=t_d;
-		if(s.endsWith(w))a=t_w;
-		if(s.endsWith(mon))a=t_mon;
-		if(s.endsWith(y))a=t_y;
-		if(s.endsWith(c))a=t_c;
-		if(s.endsWith(mil))a=t_mil;
+		long t_min = a * 60;
+		long t_h = t_min * 60;
+		long t_d = t_h * 24;
+		long t_w = t_d * 7;
+		long t_mon = t_w * 31;
+		long t_y = t_mon * 12;
+		long t_c = t_y * 100;
+		long t_mil = t_c * 1000;
+		if (s.endsWith(min))
+			a = t_min;
+		if (s.endsWith(h))
+			a = t_h;
+		if (s.endsWith(d))
+			a = t_d;
+		if (s.endsWith(w))
+			a = t_w;
+		if (s.endsWith(mon))
+			a = t_mon;
+		if (s.endsWith(y))
+			a = t_y;
+		if (s.endsWith(c))
+			a = t_c;
+		if (s.endsWith(mil))
+			a = t_mil;
 		return a;
 	}
+
 	/**
 	 * @see see Set long to string
 	 * @param l long
 	 * @return String
 	 */
 	public String setTimeToString(long l) {
-		 sec =LoaderClass.config.getConfig().getString("Words.Second");
-		 min =LoaderClass.config.getConfig().getString("Words.Minute");
-		 h =LoaderClass.config.getConfig().getString("Words.Hour");
-		 d =LoaderClass.config.getConfig().getString("Words.Day");
-		 w =LoaderClass.config.getConfig().getString("Words.Week");
-		 mon = LoaderClass.config.getConfig().getString("Words.Month");
-		 y =LoaderClass.config.getConfig().getString("Words.Year");
-		 c = LoaderClass.config.getConfig().getString("Words.Century");
-		 mil =LoaderClass.config.getConfig().getString("Words.Millenium");
-		long seconds = l%60;
-		long minutes = l/60;
-		long hours = minutes/60;
-		long days = hours/24;
-		long weeks = days/7;
-		long months = weeks/4;
-		long years = months/12;
-		long centuries = years/100;
-		long millenniums = centuries/1000;
-		if(minutes>=60)minutes = minutes%60;
-		if(hours>=24)hours = hours%24;
-		if(days>=7)days = days%7;
-		if(weeks>=4)weeks = weeks%4;
-		if(months>=12)months = months%12;
-		if(years>=100)years = years%100;
-		if(centuries>=1000)centuries = centuries%1000;
-		    String s = sec;
+		sec = LoaderClass.config.getConfig().getString("Words.Second");
+		min = LoaderClass.config.getConfig().getString("Words.Minute");
+		h = LoaderClass.config.getConfig().getString("Words.Hour");
+		d = LoaderClass.config.getConfig().getString("Words.Day");
+		w = LoaderClass.config.getConfig().getString("Words.Week");
+		mon = LoaderClass.config.getConfig().getString("Words.Month");
+		y = LoaderClass.config.getConfig().getString("Words.Year");
+		c = LoaderClass.config.getConfig().getString("Words.Century");
+		mil = LoaderClass.config.getConfig().getString("Words.Millenium");
+		long seconds = l % 60;
+		long minutes = l / 60;
+		long hours = minutes / 60;
+		long days = hours / 24;
+		long weeks = days / 7;
+		long months = weeks / 4;
+		long years = months / 12;
+		long centuries = years / 100;
+		long millenniums = centuries / 1000;
+		if (minutes >= 60)
+			minutes = minutes % 60;
+		if (hours >= 24)
+			hours = hours % 24;
+		if (days >= 7)
+			days = days % 7;
+		if (weeks >= 4)
+			weeks = weeks % 4;
+		if (months >= 12)
+			months = months % 12;
+		if (years >= 100)
+			years = years % 100;
+		if (centuries >= 1000)
+			centuries = centuries % 1000;
+		String s = sec;
 
-			if(millenniums > 0) {
-			s = millenniums+mil+" "+centuries+c+" "+ years +y;
-			} else
-			if(centuries > 0) {
-			s = centuries+c+" "+ years +y+" "+ months+mon;
-			} else
-			if(years > 0) {
-			s = years +y+" "+ months+mon+" "+ weeks+w+" "+days +d;
-			} else
-			if(months > 0) {
-			s = months+mon+" "+ weeks+w+" "+days + d+" " +hours + h+" " +minutes +min;
-			} else
-			if(weeks > 0) {
-				if(minutes != 0)
-					s = weeks+w+" "+days + d+" " +hours + h+" " +minutes +min;
-				else
-				s = weeks+w+" "+days + d+" " +hours +h;
-			} else
-			if(days > 0) {
-				if(minutes != 0)
-			s = days+d+" " +hours +h+" " +minutes +min;
-				else
-					s = days+d+" " +hours +h;
-			} else
-		    if(hours > 0) {
-				if(seconds != 0)
-			s = hours + h+" " +minutes+min+" " +seconds+s;
+		if (millenniums > 0) {
+			s = millenniums + mil + " " + centuries + c + " " + years + y;
+		} else if (centuries > 0) {
+			s = centuries + c + " " + years + y + " " + months + mon;
+		} else if (years > 0) {
+			s = years + y + " " + months + mon + " " + weeks + w + " " + days + d;
+		} else if (months > 0) {
+			s = months + mon + " " + weeks + w + " " + days + d + " " + hours + h + " " + minutes + min;
+		} else if (weeks > 0) {
+			if (minutes != 0)
+				s = weeks + w + " " + days + d + " " + hours + h + " " + minutes + min;
 			else
-				s = hours + h+" " +minutes+min;
-			} else
-			if(minutes > 0) {
-				if(seconds != 0)
-				      s = minutes+min+" " + seconds+s;
-				else
-			      s = minutes+min;
-			 } else {
-			s = seconds+s;
-		    }
-		    return s;
+				s = weeks + w + " " + days + d + " " + hours + h;
+		} else if (days > 0) {
+			if (minutes != 0)
+				s = days + d + " " + hours + h + " " + minutes + min;
+			else
+				s = days + d + " " + hours + h;
+		} else if (hours > 0) {
+			if (seconds != 0)
+				s = hours + h + " " + minutes + min + " " + seconds + s;
+			else
+				s = hours + h + " " + minutes + min;
+		} else if (minutes > 0) {
+			if (seconds != 0)
+				s = minutes + min + " " + seconds + s;
+			else
+				s = minutes + min;
+		} else {
+			s = seconds + s;
+		}
+		return s;
 	}
 
 	/**
@@ -270,41 +292,44 @@ public class StringUtils {
 	public Location getLocationFromString(String savedLocation) {
 		return getTheCoder().locationFromString(savedLocation);
 	}
-	
+
 	/**
 	 * @see see Get boolean from string
 	 * @return boolean
 	 */
 	public boolean getBoolean(String fromString) {
 		try {
-		return Boolean.parseBoolean(fromString);
-		}catch(Exception er) {
+			return Boolean.parseBoolean(fromString);
+		} catch (Exception er) {
 			return false;
 		}
 	}
+
 	/**
 	 * @see see Convert String to Math and Calculate exempt
 	 * @return double
 	 */
 	public double calculate(String fromString) {
-        ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
-        try {
+		ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
+		try {
 			return getDouble(engine.eval(fromString).toString());
 		} catch (ScriptException e) {
 		}
 		return 0;
 	}
+
 	/**
 	 * @see see Get double from string
 	 * @return double
 	 */
 	public double getDouble(String fromString) {
-		String a=fromString.replaceAll("[a-zA-Z]+", "").replace(",", ".");
+		String a = fromString.replaceAll("[a-zA-Z]+", "").replace(",", ".");
 		if (isDouble(a)) {
-		return Double.parseDouble(a);
-		}else {
-		return 0.0;
-	}}
+			return Double.parseDouble(a);
+		} else {
+			return 0.0;
+		}
+	}
 
 	/**
 	 * @see see Is string, double ?
@@ -314,57 +339,63 @@ public class StringUtils {
 		try {
 			Double.parseDouble(fromString);
 		} catch (NumberFormatException e) {
-		return false;
+			return false;
 		}
 		return true;
 	}
+
 	/**
 	 * @see see Get long from string
 	 * @return long
 	 */
 	public long getLong(String fromString) {
-		String a=fromString.replaceAll("[a-zA-Z]+", "");
+		String a = fromString.replaceAll("[a-zA-Z]+", "");
 		if (isLong(a)) {
-		return Long.parseLong(a);
+			return Long.parseLong(a);
+		} else {
+			return 0;
 		}
-		else {
-		return 0;
-	}}
+	}
+
 	/**
 	 * @see see Is string, long ?
 	 * @return
 	 */
 	public boolean isLong(String fromString) {
 		try {
-		Long.parseLong(fromString);
+			Long.parseLong(fromString);
 		} catch (NumberFormatException e) {
-		return false;
+			return false;
 		}
 		return true;
 	}
+
 	/**
 	 * @see see Get int from string
 	 * @return int
 	 */
 	public int getInt(String fromString) {
-		String a=fromString.replaceAll("[a-zA-Z]+", "");
+		String a = fromString.replaceAll("[a-zA-Z]+", "");
 		if (isInt(a)) {
-		return Integer.parseInt(a);
-		}else {
-		return 0;
-	}}
+			return Integer.parseInt(a);
+		} else {
+			return 0;
+		}
+	}
+
 	/**
 	 * @see see Is string, int ?
 	 * @return boolean
 	 */
 	public boolean isInt(String fromString) {
 		try {
-		Integer.parseInt(fromString);
+			Integer.parseInt(fromString);
 		} catch (NumberFormatException e) {
-		return false;
+			return false;
 		}
 		return true;
 	}
+
 	/**
 	 * @see see Is string, float ?
 	 * @return boolean
@@ -372,21 +403,22 @@ public class StringUtils {
 	public boolean isFloat(String fromString) {
 		try {
 			Float.parseFloat(fromString);
-			} catch (NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			return false;
-			}
-			return true;
 		}
+		return true;
+	}
+
 	/**
 	 * @see see Get float from string
 	 * @return float
 	 */
 	public float getFloat(String fromString) {
-		String a=fromString.replaceAll("[a-zA-Z]+", "");
+		String a = fromString.replaceAll("[a-zA-Z]+", "");
 		if (isFloat(a)) {
-		return Float.parseFloat(a);
+			return Float.parseFloat(a);
+		} else {
+			return 0;
 		}
-		else {
-		return 0;
-	}}
+	}
 }
