@@ -179,7 +179,20 @@ public class Position {
 	}
 
 	public void setType(Material with, int data) {
-		TheAPI.getNMSAPI().setBlock(getWorld(), getBlockX(), getBlockY(), getBlockZ(), with, data, true);
+		setType(with,data,true);
+	}
+
+
+	public Object[] setType(Material with, boolean update) {
+		return setType(with, 0, update);
+	}
+
+	public Object[] setType(TheMaterial with, boolean update) {
+		return setType(with.getType(), with.getData(), update);
+	}
+
+	public Object[] setType(Material with, int data, boolean update) {
+		return TheAPI.getNMSAPI().setBlock(getWorld(), getBlockX(), getBlockY(), getBlockZ(), with, data, true, update);
 	}
 
 	@Override

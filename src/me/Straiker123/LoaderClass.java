@@ -32,15 +32,11 @@ import net.milkbowl.vault.economy.Economy;
 public class LoaderClass extends JavaPlugin {
 	public static LoaderClass plugin;
 	public HashMap<Integer, Task> scheduler = Maps.newHashMap();
-	public static ArrayList<ConfigAPI> list = Lists.newArrayList();
-	public static HashMap<Player, GUIID> gui = Maps.newHashMap();
-	public static HashMap<String, Integer> GameAPI_Arenas = Maps.newHashMap();
-	public static HashMap<String, Runnable> win_rewards = Maps.newHashMap();
-	public static ArrayList<Integer> tasks = Lists.newArrayList();
-	public static ConfigAPI unused;
-	public static ConfigAPI config;
-	public static ConfigAPI gameapi;
-	public static ConfigAPI data;
+	public HashMap<Player, GUIID> gui = Maps.newHashMap();
+	public HashMap<String, Integer> GameAPI_Arenas = Maps.newHashMap();
+	public HashMap<String, Runnable> win_rewards = Maps.newHashMap();
+	public ArrayList<Integer> tasks = Lists.newArrayList();
+	public static ConfigAPI unused,config,gameapi,data;
 
 	@Override
 	public void onLoad() {
@@ -120,13 +116,38 @@ public class LoaderClass extends JavaPlugin {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onEnable() {
-		Tasks.load();
-		Bukkit.getPluginManager().registerEvents(new Events(), this);
-		Bukkit.getPluginCommand("TheAPI").setExecutor(new TheAPICommand());
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &6Action: &aEnabling plugin, creating config and registering economy..",
 				TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+		for(String s : config.getStringList("Worlds")) {
+			Environment env = Environment.NORMAL;
+			WorldType wt = WorldType.NORMAL;
+		switch (config.getInt("WorldsSetting."+s+".Generator")) {
+		case 1:
+			wt = WorldType.FLAT;
+			break;
+		case 2:
+			env = Environment.NETHER;
+			break;
+		case 3:
+			try {
+				env = Environment.valueOf("THE_END");
+			} catch (Exception e) {
+				env = Environment.valueOf("END");
+			}
+			break;
+		case 4:
+			wt = null;
+			break;
+		}
+		if(!TheAPI.getWorldsManager().create(s, env, wt,config.getBoolean("WorldsSetting."+s+".GenerateStructures"),0)) {
+			TheAPI.msg("&cError when loading world '"+s+"' with settings GenerateStructures:"+config.getBoolean("WorldsSetting."+s+".GenerateStructures")+", Generator:"+config.getInt("WorldsSetting."+s+".Generator")+".", TheAPI.getConsole());
+		}
+		}
+		Tasks.load();
+		Bukkit.getPluginManager().registerEvents(new Events(), this);
+		Bukkit.getPluginCommand("TheAPI").setExecutor(new TheAPICommand());
 		if (TheAPI.getPluginsManagerAPI().getPlugin("TheVault") != null)
 			TheVaultHooking();
 		if (TheAPI.getPluginsManagerAPI().getPlugin("Vault") == null) {
@@ -207,14 +228,6 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.LagChecker.TNT.Action.LowTPS", "WAIT");
 		config.addDefault("Options.LagChecker.TNT.CollidingTNT.IgniteTime", 5); // 0 is ultra fast, but with ultra lag
 		config.addDefault("Options.LagChecker.TNT.SpawnTNT", false); // more friendly to server
-
-		config.addDefault("Options.LagChecker.ChunkMobLimit.Use", true);
-		config.addDefault("Options.LagChecker.ChunkMobLimit.Limit", 120);
-		config.addDefault("Options.LagChecker.ChunkMobLimit.OnLimitExceeded", "WARN");
-		config.addDefault("Options.LagChecker.ChunkMobLimit.Bypass", Arrays.asList("BEE", "ITEM_FRAME", "ARMOR_STAND",
-				"VILLAGER", "TAMED_WOLF", "TAMED_CAT", "OCELOT", "PARROT", "DROPPED_ITEM"));
-		config.addDefault("Options.LagChecker.ClearMemIfPercentIsFree", 25);
-		config.addDefault("Options.LagChecker.Reflesh", "5min"); // 100÷20 = 5 -> reflesh every 5s
 		config.addDefault("Options.EntityMoveEvent.Reflesh", 3);
 		config.addDefault("Options.EntityMoveEvent.Enabled", true); // set false to disable this event
 		config.addDefault("Options.FakeEconomyAPI.Symbol", "$");

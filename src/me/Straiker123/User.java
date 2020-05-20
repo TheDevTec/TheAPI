@@ -17,6 +17,8 @@ public class User {
 
 	@SuppressWarnings("deprecation")
 	public User(String name) {
+		if(name==null)
+			new Exception("String cannot be null.").printStackTrace();
 		try {
 			s = UUID.fromString(name);
 			name = Bukkit.getOfflinePlayer(s).getName();
@@ -29,17 +31,21 @@ public class User {
 	}
 
 	public User(Player player) {
+		if(player==null)
+			new Exception("Player cannot be null.").printStackTrace();
 		s = player.getUniqueId();
+		name = player.getName();
 		a = new ConfigAPI("TheAPI/User", s.toString());
 		a.create();
-		name = player.getName();
 	}
 
 	public User(UUID player) {
+		if(player==null)
+			new Exception("UUID cannot be null.").printStackTrace();
 		s = player;
+		name = Bukkit.getOfflinePlayer(s).getName();
 		a = new ConfigAPI("TheAPI/User", s.toString());
 		a.create();
-		name = Bukkit.getOfflinePlayer(s).getName();
 	}
 
 	public void delete() {

@@ -55,7 +55,7 @@ public class GUICreatorAPI {
 		}
 	}
 
-	public ItemGUI createItemGUI(ItemStack item) {
+	public static ItemGUI createItemGUI(ItemStack item) {
 		return new ItemGUI(item);
 	}
 
@@ -351,7 +351,7 @@ public class GUICreatorAPI {
 			inv = i;
 			id.setInv(i);
 			p.openInventory(i);
-			LoaderClass.gui.put(p, id);
+			LoaderClass.plugin.gui.put(p, id);
 		} else {
 			g.set("guis." + p.getName() + "." + getID(), null);
 			id.clear();

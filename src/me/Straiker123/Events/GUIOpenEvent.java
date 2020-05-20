@@ -57,8 +57,8 @@ public class GUIOpenEvent extends Event implements Cancellable {
 	 * @return ID of GUI
 	 */
 	public String getID() {
-		if (LoaderClass.gui.get(s) != null)
-			return LoaderClass.gui.get(s).getID();
+		if (LoaderClass.plugin.gui.get(s) != null)
+			return LoaderClass.plugin.gui.get(s).getID();
 		return null;
 	}
 

@@ -409,7 +409,7 @@ public class PlayerAPI {
 	}
 
 	public boolean hasOpenGUI() {
-		return LoaderClass.gui.containsKey(s);
+		return LoaderClass.plugin.gui.containsKey(s);
 	}
 
 	public void giveLevel(int level) {

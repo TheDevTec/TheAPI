@@ -74,7 +74,7 @@ public class GameAPI {
 
 	public void arenaSetting(String arena, Setting ss, Object value) {
 		if (ss == Setting.runnable_on_end) {
-			LoaderClass.win_rewards.put(s + ":" + arena, (Runnable) value);
+			LoaderClass.plugin.win_rewards.put(s + ":" + arena, (Runnable) value);
 			w.set(s + ".Arenas." + arena + ".Setting.win_rewards", true);
 			return;
 		}
@@ -236,7 +236,7 @@ public class GameAPI {
 
 		setArenaInGame(arena, true);
 
-		LoaderClass.GameAPI_Arenas.put(arena, new Tasker() {
+		LoaderClass.plugin.GameAPI_Arenas.put(arena, new Tasker() {
 			int time = 0;
 
 			@Override
@@ -263,10 +263,10 @@ public class GameAPI {
 
 	public void stopArena(String arena, boolean runnable_on_end) {
 		w.set(s + ".Arenas." + arena + ".InGame", false);
-		Tasker.cancelTask(LoaderClass.GameAPI_Arenas.get(arena));
+		Tasker.cancelTask(LoaderClass.plugin.GameAPI_Arenas.get(arena));
 		if (runnable_on_end) {
 			try {
-				LoaderClass.win_rewards.get(s + ":" + arena).run();
+				LoaderClass.plugin.win_rewards.get(s + ":" + arena).run();
 			} catch (Exception e) {
 
 			}

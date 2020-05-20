@@ -1,7 +1,5 @@
 package me.Straiker123.Scheduler;
 
-import java.util.concurrent.Executors;
-
 import me.Straiker123.TheAPI;
 
 public class Task implements Runnable {
@@ -30,7 +28,7 @@ public class Task implements Runnable {
 		if (s) {
 			TheAPI.getNMSAPI().postToMainThread(run);
 		} else {
-			Executors.newSingleThreadExecutor().execute(run);
+			run.run();
 		}
 		if (!repeat) {
 			c = true;

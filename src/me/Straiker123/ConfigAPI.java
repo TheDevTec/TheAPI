@@ -220,8 +220,6 @@ public class ConfigAPI {
 			}
 			a.options().copyDefaults(true).copyHeader(true);
 			save();
-			if (!LoaderClass.list.contains(this))
-				LoaderClass.list.add(this);
 			return true;
 		} catch (Exception e) {
 			if (LoaderClass.config.getConfig() == null || LoaderClass.config.getConfig() != null
@@ -419,8 +417,6 @@ public class ConfigAPI {
 			}
 			a.options().copyDefaults(true).copyHeader(true);
 			save();
-			if (!LoaderClass.list.contains(this))
-				LoaderClass.list.add(this);
 			return true;
 		} catch (Exception e) {
 			if (LoaderClass.config.getConfig() == null || LoaderClass.config.getConfig() != null
@@ -445,8 +441,6 @@ public class ConfigAPI {
 		if (f.exists()) {
 			f.delete();
 			c.clear();
-			if (LoaderClass.list.contains(this))
-				LoaderClass.list.remove(this);
 			return true;
 		}
 		return false;

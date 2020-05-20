@@ -15,8 +15,9 @@ public class PunishmentAPI implements AbstractPunishmentAPI {
 
 	@Override
 	public String getIP(String player) {
+		if(player==null)return null;
 		if (AbstractPunishmentAPI.isIP(player))
-			new Exception("PunishmentAPI error, String must be player, not IP.");
+			new Exception("PunishmentAPI error, String must be player, not IP.").printStackTrace();
 		return TheAPI.getUser(player).getString("ip").replace("_", ".");
 	}
 

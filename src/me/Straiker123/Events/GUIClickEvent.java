@@ -91,8 +91,8 @@ public class GUIClickEvent extends Event implements Cancellable {
 	 * @return ID of GUI
 	 */
 	public String getID() {
-		if (LoaderClass.gui.get(player) != null)
-			return LoaderClass.gui.get(player).getID();
+		if (LoaderClass.plugin.gui.get(player) != null)
+			return LoaderClass.plugin.gui.get(player).getID();
 		return null;
 	}
 

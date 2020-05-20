@@ -58,6 +58,7 @@ import me.Straiker123.Storage;
 import me.Straiker123.TheAPI;
 import me.Straiker123.TheAPI.SudoType;
 import me.Straiker123.TheMaterial;
+import me.Straiker123.User;
 import me.Straiker123.WorldBorderAPI.WarningMessageType;
 import me.Straiker123.Events.DamageGodPlayerByEntityEvent;
 import me.Straiker123.Events.DamageGodPlayerEvent;
@@ -81,7 +82,7 @@ public class Events implements Listener {
 	private synchronized void onClose(InventoryCloseEvent e) {
 		Player p = (Player) e.getPlayer();
 		String title = e.getView().getTitle();
-		GUIID d = LoaderClass.gui.containsKey(p) ? LoaderClass.gui.get(p) : null;
+		GUIID d = LoaderClass.plugin.gui.containsKey(p) ? LoaderClass.plugin.gui.get(p) : null;
 		if (d == null)
 			return;
 		String a = p.getName() + "." + d.getID();
@@ -138,7 +139,7 @@ public class Events implements Listener {
 			return;
 		Player p = (Player) e.getWhoClicked();
 		int slot = e.getSlot();
-		GUIID d = LoaderClass.gui.containsKey(p) ? LoaderClass.gui.get(p) : null;
+		GUIID d = LoaderClass.plugin.gui.containsKey(p) ? LoaderClass.plugin.gui.get(p) : null;
 		if (d == null)
 			return;
 		String a = p.getName() + "." + d.getID();
@@ -521,9 +522,9 @@ public class Events implements Listener {
 			e.disallow(Result.KICK_OTHER, null);
 			return;
 		}
-		String s = TheAPI.getUser(e.getUniqueId()).getName();
-		TheAPI.getUser(e.getUniqueId()).setAndSave("ip", (e.getAddress().toString()).replace(".", "_"));
-		PlayerBanList a = Events.a.getBanList(s);
+		User s = TheAPI.getUser(e.getUniqueId());
+		s.setAndSave("ip", (e.getAddress().toString()).replace(".", "_"));
+		PlayerBanList a = Events.a.getBanList(s.getName());
 		try {
 			if (a.isBanned()) {
 				e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.BAN).replace("\\n", "\n")));

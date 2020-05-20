@@ -1,9 +1,7 @@
 package me.Straiker123.Scheduler;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import me.Straiker123.LoaderClass;
+import me.Straiker123.TheAPI;
 
 public class Scheduler {
 	public static Task getTask(int id) {
@@ -37,13 +35,25 @@ public class Scheduler {
 
 	public static Task run(Runnable task) {
 		Task t = run(task, false, false);
-		run(t);
+		new Thread(new Runnable() {
+			public void run() {
+				if(!t.isCancelled())
+				TheAPI.getNMSAPI().postToMainThread(t);
+				Thread.interrupted();
+			}
+		}).start();
 		return t;
 	}
 
 	public static Task runAsync(Runnable task) {
 		Task t = run(task, true, false);
-		run(t);
+		new Thread(new Runnable() {
+			public void run() {
+				if(!t.isCancelled())
+				t.run();
+				Thread.interrupted();
+			}
+		}).start();
 		return t;
 	}
 
@@ -78,26 +88,24 @@ public class Scheduler {
 		return LoaderClass.plugin.scheduler.get(id);
 	}
 
-	private static void run(Task t) {
-		SchedulerController.prepare(t);
-	}
-
 	private static Task later(Runnable task, long delay, boolean async) {
 		if (delay < 0) {
 			new Exception("Error when starting a later task, delay cannot be negative.").printStackTrace();
 			return null;
 		}
 		Task t = run(task, async, false);
-		new Timer().schedule(new TimerTask() {
-			@Override
+		new Thread(new Runnable() {
 			public void run() {
-				if (t.isCancelled()) {
-					cancel();
-					return;
+				if(delay>0)
+				try {
+					Thread.sleep(50*delay);
+				} catch (InterruptedException e) {
 				}
-				Scheduler.run(t);
+				if(!t.isCancelled())
+				t.run();
+				Thread.interrupted();
 			}
-		}, delay * 50);
+		}).start();
 		return t;
 	}
 
@@ -111,16 +119,25 @@ public class Scheduler {
 			return null;
 		}
 		Task t = run(task, async, true);
-		new Timer().scheduleAtFixedRate(new TimerTask() {
-			@Override
+		new Thread(new Runnable() {
 			public void run() {
-				if (t.isCancelled()) {
-					cancel();
-					return;
+				if(delay>0)
+				try {
+					Thread.sleep(50*delay);
+				} catch (InterruptedException e) {
 				}
-				Scheduler.run(t);
+				while(!t.isCancelled()) {
+				t.run();
+				if(period > 0)
+				try {
+					Thread.sleep(50*period);
+				} catch (InterruptedException e) {
+				}
+				}
+				if(t.isCancelled())
+					Thread.interrupted();
 			}
-		}, delay * 50, period * 50);
+		}).start();
 		return t;
 	}
 
@@ -139,20 +156,27 @@ public class Scheduler {
 			return null;
 		}
 		Task t = run(task, async, true);
-		new Timer().scheduleAtFixedRate(new TimerTask() {
-			long repeat = 0;
-
-			@Override
+		new Thread(new Runnable() {
 			public void run() {
-				if (repeat == times || t.isCancelled()) {
-					t.cancel();
-					cancel();
-					return;
+				if(delay>0)
+				try {
+					Thread.sleep(50*delay);
+				} catch (InterruptedException e) {
 				}
-				++repeat;
-				Scheduler.run(t);
+				while(!t.isCancelled()) {
+					if(t.runTimes()>=times) {
+						t.cancel();
+						break;
+					}
+				t.run();
+				if(period > 0)
+				try {
+					Thread.sleep(50*period);
+				} catch (InterruptedException e) {
+				}
+				}
 			}
-		}, delay * 50, period * 50);
+		}).start();
 		return t;
 	}
 }

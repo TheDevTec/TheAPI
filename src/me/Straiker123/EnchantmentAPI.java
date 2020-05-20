@@ -2,6 +2,7 @@ package me.Straiker123;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.enchantments.Enchantment;
@@ -17,6 +18,20 @@ public class EnchantmentAPI {
 		for (Enchantment e : Enchantment.values())
 			a.add(e);
 		return a;
+	}
+	
+	public List<String> getNames(){
+		return Arrays.asList("SHARPNESS", "DAMAGE_ALL","FIRE", "ARROW_FIRE",
+				"BANEOFARTHROPODS", "DAMAGE_ARTHROPODS","LUCK", "LUCK_OF_SEA","LUCKOFSEA"
+		,"INFINITY", "ARROW_INFINITE","FIREASPECT", "FIRE_ASPECT"
+		,"RESPIRATION", "OXYGEN","LOOTING","FORTUNE","UNBREAKING", "DURABILITY"
+		,"AQUA_AFFINITY", "WATER_WORKER","PROTECTION", "PROTECTION_ENVIRONMENTAL"
+		,"BLAST_PROTECTION", "PROTECTION_EXPLOSIONS","FEATHER_FALLING", "PROTECTION_FALL"
+		,"FIRE_PROTECTION", "PROTECTION_FIRE","PROJECTILE_PROTECTION", "PROTECTION_PROJECTILE"
+		,"CURSE_OF_VANISHING", "VANISHING_CURSE","CURSE_OF_BINDING", "BINDING_CURSE"
+		,"SMITE", "DAMAGE_UNDEAD","POWER", "ARROW_DAMAGE","ALLDAMAGE","DAMAGEALL"
+		,"BANE_OF_ARTHROPODS","EFFICIENCY", "DIG_SPEED","PUNCH", "ARROW_KNOCKBACK"
+		,"LOOTMOBS", "LOOT_BONUS_MOBS","LOOTBLOCKS", "LOOT_BONUS_BLOCKS");
 	}
 
 	private String replace(String s) {

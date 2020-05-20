@@ -66,6 +66,7 @@ public interface AbstractPunishmentAPI {
 
 	// Utils
 	public static boolean isIP(String text) {
+		if(text==null)return false;
 		text = text.replaceFirst("/", "");
 		Pattern p = Pattern.compile(
 				"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");

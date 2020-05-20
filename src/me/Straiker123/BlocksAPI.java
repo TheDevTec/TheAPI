@@ -119,6 +119,12 @@ public class BlocksAPI {
 		}
 		return blocks;
 	}
+	
+	public List<BlockSave> getBlockSaves(List<Position> a){
+		List<BlockSave> b = new ArrayList<BlockSave>();
+		for(Position s : a)b.add(getBlockSave(s));
+		return b;
+	}
 
 	public List<Position> get(Shape form, Position where, int radius) {
 		List<Position> blocks = new ArrayList<Position>();
@@ -1106,12 +1112,16 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
+				List<Object[]> update = new ArrayList<Object[]>();
 				for (int i = 0; i < 1000; ++i) {
 					if (s.has()) {
-						s.set(with);
+						update.add(s.set(with,false));
 					} else
 						break;
 				}
+				for(Object[] o : update)
+					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
+				update.clear();
 				if (!s.has())
 					cancel();
 			}
@@ -1123,12 +1133,16 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
+				List<Object[]> update = new ArrayList<Object[]>();
 				for (int i = 0; i < 1000; ++i) {
 					if (s.has()) {
-						s.set(with, ignore);
+						update.add(s.set(with, ignore,false));
 					} else
 						break;
 				}
+				for(Object[] o : update)
+					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
+				update.clear();
 				if (!s.has())
 					cancel();
 			}
@@ -1140,12 +1154,16 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
+				List<Object[]> update = new ArrayList<Object[]>();
 				for (int i = 0; i < 1000; ++i) {
 					if (s.has()) {
-						s.set(with, ignore);
+						update.add(s.set(with, ignore,false));
 					} else
 						break;
 				}
+				for(Object[] o : update)
+					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
+				update.clear();
 				if (!s.has())
 					cancel();
 			}
@@ -1157,12 +1175,16 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
+				List<Object[]> update = new ArrayList<Object[]>();
 				for (int i = 0; i < 1000; ++i) {
 					if (s.has()) {
-						s.set((TheMaterial) TheAPI.getRandomFromList(with), ignore);
+						update.add(s.set((TheMaterial) TheAPI.getRandomFromList(with), ignore,false));
 					} else
 						break;
 				}
+				for(Object[] o : update)
+					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
+				update.clear();
 				if (!s.has())
 					cancel();
 			}
@@ -1174,29 +1196,16 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
+				List<Object[]> update = new ArrayList<Object[]>();
 				for (int i = 0; i < 1000; ++i) {
 					if (s.has())
-						s.set((TheMaterial) TheAPI.getRandomFromList(with));
+						update.add(s.set((TheMaterial) TheAPI.getRandomFromList(with),false));
 					else
 						break;
 				}
-				if (!s.has())
-					cancel();
-			}
-		}.repeating(0, 10);
-	}
-
-	public void synchronizedReplace(Position a, Position b, List<TheMaterial> block, TheMaterial with) {
-		BlockGetter s = get(a, b);
-		new Tasker() {
-			@Override
-			public void run() {
-				for (int i = 0; i < 1000; ++i) {
-					if (s.has())
-						s.replace(block, with);
-					else
-						break;
-				}
+				for(Object[] o : update)
+					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
+				update.clear();
 				if (!s.has())
 					cancel();
 			}
@@ -1212,14 +1221,18 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
+				List<Object[]> update = new ArrayList<Object[]>();
 				for (int i = 0; i < 1000; ++i) {
 					if (s.has()) {
 						TheMaterial block = (TheMaterial) TheAPI.getRandomFromList(c);
 						if (TheAPI.generateChance(with.get(block)))
-							s.set(block, ignore);
+							update.add(s.set(block, ignore,false));
 					} else
 						break;
 				}
+				for(Object[] o : update)
+					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
+				update.clear();
 				if (!s.has())
 					cancel();
 			}
@@ -1235,14 +1248,39 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
+				List<Object[]> update = new ArrayList<Object[]>();
 				for (int i = 0; i < 1000; ++i) {
 					if (s.has()) {
 						TheMaterial block = (TheMaterial) TheAPI.getRandomFromList(c);
 						if (TheAPI.generateChance(with.get(block)))
-							s.set(block, ignore);
+							update.add(s.set(block, ignore,false));
 					} else
 						break;
 				}
+				for(Object[] o : update)
+					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
+				update.clear();
+				if (!s.has())
+					cancel();
+			}
+		}.repeating(0, 10);
+	}
+
+	public void synchronizedReplace(Position a, Position b, List<TheMaterial> block, TheMaterial with) {
+		BlockGetter s = get(a, b);
+		new Tasker() {
+			@Override
+			public void run() {
+				List<Object[]> update = new ArrayList<Object[]>();
+				for (int i = 0; i < 1000; ++i) {
+					if (s.has())
+						update.add(s.replace(block, with,false));
+					else
+						break;
+				}
+				for(Object[] o : update)
+					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
+				update.clear();
 				if (!s.has())
 					cancel();
 			}
@@ -1254,12 +1292,16 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
+				List<Object[]> update = new ArrayList<Object[]>();
 				for (int i = 0; i < 1000; ++i) {
 					if (s.has()) {
-						s.replace(block, with);
+						update.add(s.replace(block, with,false));
 					} else
 						break;
 				}
+				for(Object[] o : update)
+					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
+				update.clear();
 				if (!s.has())
 					cancel();
 			}
@@ -1275,12 +1317,16 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
+				List<Object[]> update = new ArrayList<Object[]>();
 				for (int i = 0; i < 1000; ++i) {
 					if (s.has()) {
-						s.replace(block, (TheMaterial) TheAPI.getRandomFromList(c));
+						update.add(s.replace(block, (TheMaterial) TheAPI.getRandomFromList(c),false));
 					} else
 						break;
 				}
+				for(Object[] o : update)
+					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
+				update.clear();
 				if (!s.has())
 					cancel();
 			}
@@ -1292,12 +1338,16 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
+				List<Object[]> update = new ArrayList<Object[]>();
 				for (int i = 0; i < 1000; ++i) {
 					if (s.has()) {
-						s.replace(block, (TheMaterial) TheAPI.getRandomFromList(with));
+						update.add(s.replace(block, (TheMaterial) TheAPI.getRandomFromList(with),false));
 					} else
 						break;
 				}
+				for(Object[] o : update)
+					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
+				update.clear();
 				if (!s.has())
 					cancel();
 			}
@@ -1309,12 +1359,16 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
+				List<Object[]> update = new ArrayList<Object[]>();
 				for (int i = 0; i < 1000; ++i) {
 					if (s.has()) {
-						s.replace(block, (TheMaterial) TheAPI.getRandomFromList(with));
+						update.add(s.replace(block, (TheMaterial) TheAPI.getRandomFromList(with),false));
 					} else
 						break;
 				}
+				for(Object[] o : update)
+					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
+				update.clear();
 				if (!s.has())
 					cancel();
 			}
@@ -1331,14 +1385,18 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
+				List<Object[]> update = new ArrayList<Object[]>();
 				for (int i = 0; i < 1000; ++i) {
 					if (s.has()) {
 						TheMaterial b = (TheMaterial) TheAPI.getRandomFromList(c);
 						if (TheAPI.generateChance(block.get(b)))
-							s.replace(b, (TheMaterial) TheAPI.getRandomFromList(with));
+							update.add(s.replace(b, (TheMaterial) TheAPI.getRandomFromList(with),false));
 					} else
 						break;
 				}
+				for(Object[] o : update)
+					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
+				update.clear();
 				if (!s.has())
 					cancel();
 			}
@@ -1359,14 +1417,18 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
+				List<Object[]> update = new ArrayList<Object[]>();
 				for (int i = 0; i < 1000; ++i) {
 					if (s.has()) {
 						TheMaterial b = (TheMaterial) TheAPI.getRandomFromList(c);
 						if (TheAPI.generateChance(block.get(b)))
-							s.replace(b, (TheMaterial) TheAPI.getRandomFromList(d));
+							update.add(s.replace(b, (TheMaterial) TheAPI.getRandomFromList(d),false));
 					} else
 						break;
 				}
+				for(Object[] o : update)
+					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
+				update.clear();
 				if (!s.has())
 					cancel();
 			}
@@ -1382,14 +1444,18 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
+				List<Object[]> update = new ArrayList<Object[]>();
 				for (int i = 0; i < 1000; ++i) {
 					if (s.has()) {
 						TheMaterial b = (TheMaterial) TheAPI.getRandomFromList(c);
 						if (TheAPI.generateChance(block.get(b)))
-							s.replace(b, with);
+							update.add(s.replace(b, with,false));
 					} else
 						break;
 				}
+				for(Object[] o : update)
+					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
+				update.clear();
 				if (!s.has())
 					cancel();
 			}
@@ -1424,6 +1490,20 @@ class BlockGetter {
 		if (b.getType() == material)
 			b.setType(with);
 	}
+	
+	public Object[] replace(List<TheMaterial> block, TheMaterial with, boolean update) {
+		Position b = get();
+		if (block.contains(b.getType()))
+			return b.setType(with,update);
+		return null;
+	}
+
+	public Object[] replace(TheMaterial material, TheMaterial with, boolean update) {
+		Position b = get();
+		if (b.getType() == material)
+			return b.setType(with,update);
+		return null;
+	}
 
 	public boolean has() {
 		return x < sizeX && y < sizeY && z < sizeZ;
@@ -1449,11 +1529,31 @@ class BlockGetter {
 
 	public void set(TheMaterial material, List<TheMaterial> ignore) {
 		Position b = get();
-		if (!ignore.contains(b.getType()) && b.getType() != material)
+		TheMaterial type = b.getType();
+		if (!ignore.contains(type) && type != material)
 			b.setType(material);
 	}
 
 	public void set(TheMaterial material) {
 		get().setType(material);
+	}
+
+	public Object[] set(TheMaterial material, TheMaterial ignore, boolean update) {
+		Position b = get();
+		if (b.getType() != ignore)
+			return b.setType(material,update);
+		return null;
+	}
+
+	public Object[] set(TheMaterial material, List<TheMaterial> ignore, boolean update) {
+		Position b = get();
+		TheMaterial type = b.getType();
+		if (!ignore.contains(type) && type != material)
+			return b.setType(material,update);
+		return null;
+	}
+
+	public Object[] set(TheMaterial material, boolean update) {
+		return get().setType(material,update);
 	}
 }

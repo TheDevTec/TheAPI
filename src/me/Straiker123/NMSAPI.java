@@ -685,8 +685,7 @@ public class NMSAPI {
 	}
 
 	public void refleshBlock(Object world, Object blockposition, Object oldBlock, Object newBlock) {
-		Reflections.invoke(world, Reflections.getMethod(this.world, "notify", pos, iblockdata, iblockdata, int.class),
-				blockposition, oldBlock, newBlock, 3);
+		Reflections.invoke(world, Reflections.getMethod(this.world, "notify", pos, iblockdata, iblockdata, int.class),blockposition, oldBlock, newBlock, 3);
 	}
 
 	public Object getPacketPlayOutChat(ChatType type, Object IChatBaseComponent) {
@@ -710,7 +709,7 @@ public class NMSAPI {
 		return Reflections.invoke(getWorld(w), Reflections.getMethod(world, "getType", pos), getBlockPosition(x, y, z));
 	}
 
-	public int[] setBlock(World world, int x, int y, int z, Material material, int data, boolean applyPsychics) {
+	public Object[] setBlock(World world, int x, int y, int z, Material material, int data, boolean applyPsychics, boolean update) {
 		Object old = null;
 		Object b = getIBlockData(material, data), f = getBlockPosition(x, y, z), xx = getWorld(world);
 		try {
@@ -719,17 +718,27 @@ public class NMSAPI {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		if(update)
 		refleshBlock(xx, f, old, b);
-		return new int[] { x >> 4, z >> 4 };
+		return new Object[] {xx, f, old, b};
 	}
 
-	public int[] setBlock(World world, int x, int y, int z, Material material, boolean applyPsychics) {
-		return setBlock(world, x, y, z, material, 0, applyPsychics);
+	public Object[] setBlock(World world, int x, int y, int z, Material material, boolean applyPsychics) {
+		return setBlock(world, x, y, z, material, 0, applyPsychics,true);
 	}
 
-	public int[] setBlock(Location loc, Material material, int data, boolean applyPsychics) {
+	public Object[] setBlock(Location loc, Material material, int data, boolean applyPsychics) {
 		return setBlock(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), material, data,
-				applyPsychics);
+				applyPsychics,true);
+	}
+
+	public Object[] setBlock(World world, int x, int y, int z, Material material, boolean applyPsychics, boolean update) {
+		return setBlock(world, x, y, z, material, 0, applyPsychics,update);
+	}
+
+	public Object[] setBlock(Location loc, Material material, int data, boolean applyPsychics, boolean update) {
+		return setBlock(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), material, data,
+				applyPsychics,update);
 	}
 
 	public Object getIBlockData(Material material) {
