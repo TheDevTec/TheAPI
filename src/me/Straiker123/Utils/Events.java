@@ -37,6 +37,7 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
 
 import com.google.common.collect.Lists;
 
@@ -459,8 +460,8 @@ public class Events implements Listener {
 			e.setCancelled(true);
 			return;
 		}
-		int jump = (int) (e.getFrom().getY() - e.getTo().getY());
-		if (jump > 0) {
+		double jump = e.getTo().getY()-e.getFrom().getY();
+		if (jump > 0 && !e.getPlayer().isFlying() && !e.getPlayer().hasPotionEffect(PotionEffectType.LEVITATION)) {
 			PlayerJumpEvent event = new PlayerJumpEvent(e.getPlayer(), e.getFrom(), e.getTo(), jump);
 			Bukkit.getPluginManager().callEvent(event);
 			if (event.isCancelled())

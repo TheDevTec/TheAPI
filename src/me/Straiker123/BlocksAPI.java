@@ -1113,7 +1113,7 @@ public class BlocksAPI {
 			@Override
 			public void run() {
 				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < 1000; ++i) {
+				for (int i = 0; i < 200; ++i) {
 					if (s.has()) {
 						update.add(s.set(with,false));
 					} else
@@ -1134,7 +1134,7 @@ public class BlocksAPI {
 			@Override
 			public void run() {
 				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < 1000; ++i) {
+				for (int i = 0; i < 200; ++i) {
 					if (s.has()) {
 						update.add(s.set(with, ignore,false));
 					} else
@@ -1155,7 +1155,7 @@ public class BlocksAPI {
 			@Override
 			public void run() {
 				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < 1000; ++i) {
+				for (int i = 0; i < 200; ++i) {
 					if (s.has()) {
 						update.add(s.set(with, ignore,false));
 					} else
@@ -1176,7 +1176,7 @@ public class BlocksAPI {
 			@Override
 			public void run() {
 				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < 1000; ++i) {
+				for (int i = 0; i < 200; ++i) {
 					if (s.has()) {
 						update.add(s.set((TheMaterial) TheAPI.getRandomFromList(with), ignore,false));
 					} else
@@ -1197,7 +1197,7 @@ public class BlocksAPI {
 			@Override
 			public void run() {
 				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < 1000; ++i) {
+				for (int i = 0; i < 200; ++i) {
 					if (s.has())
 						update.add(s.set((TheMaterial) TheAPI.getRandomFromList(with),false));
 					else
@@ -1222,7 +1222,7 @@ public class BlocksAPI {
 			@Override
 			public void run() {
 				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < 1000; ++i) {
+				for (int i = 0; i < 200; ++i) {
 					if (s.has()) {
 						TheMaterial block = (TheMaterial) TheAPI.getRandomFromList(c);
 						if (TheAPI.generateChance(with.get(block)))
@@ -1249,7 +1249,7 @@ public class BlocksAPI {
 			@Override
 			public void run() {
 				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < 1000; ++i) {
+				for (int i = 0; i < 200; ++i) {
 					if (s.has()) {
 						TheMaterial block = (TheMaterial) TheAPI.getRandomFromList(c);
 						if (TheAPI.generateChance(with.get(block)))
@@ -1272,7 +1272,7 @@ public class BlocksAPI {
 			@Override
 			public void run() {
 				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < 1000; ++i) {
+				for (int i = 0; i < 200; ++i) {
 					if (s.has())
 						update.add(s.replace(block, with,false));
 					else
@@ -1293,7 +1293,7 @@ public class BlocksAPI {
 			@Override
 			public void run() {
 				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < 1000; ++i) {
+				for (int i = 0; i < 200; ++i) {
 					if (s.has()) {
 						update.add(s.replace(block, with,false));
 					} else
@@ -1318,7 +1318,7 @@ public class BlocksAPI {
 			@Override
 			public void run() {
 				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < 1000; ++i) {
+				for (int i = 0; i < 200; ++i) {
 					if (s.has()) {
 						update.add(s.replace(block, (TheMaterial) TheAPI.getRandomFromList(c),false));
 					} else
@@ -1339,7 +1339,7 @@ public class BlocksAPI {
 			@Override
 			public void run() {
 				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < 1000; ++i) {
+				for (int i = 0; i < 200; ++i) {
 					if (s.has()) {
 						update.add(s.replace(block, (TheMaterial) TheAPI.getRandomFromList(with),false));
 					} else
@@ -1360,7 +1360,7 @@ public class BlocksAPI {
 			@Override
 			public void run() {
 				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < 1000; ++i) {
+				for (int i = 0; i < 200; ++i) {
 					if (s.has()) {
 						update.add(s.replace(block, (TheMaterial) TheAPI.getRandomFromList(with),false));
 					} else
@@ -1386,7 +1386,7 @@ public class BlocksAPI {
 			@Override
 			public void run() {
 				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < 1000; ++i) {
+				for (int i = 0; i < 200; ++i) {
 					if (s.has()) {
 						TheMaterial b = (TheMaterial) TheAPI.getRandomFromList(c);
 						if (TheAPI.generateChance(block.get(b)))
@@ -1418,7 +1418,7 @@ public class BlocksAPI {
 			@Override
 			public void run() {
 				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < 1000; ++i) {
+				for (int i = 0; i < 200; ++i) {
 					if (s.has()) {
 						TheMaterial b = (TheMaterial) TheAPI.getRandomFromList(c);
 						if (TheAPI.generateChance(block.get(b)))
@@ -1445,7 +1445,7 @@ public class BlocksAPI {
 			@Override
 			public void run() {
 				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < 1000; ++i) {
+				for (int i = 0; i < 200; ++i) {
 					if (s.has()) {
 						TheMaterial b = (TheMaterial) TheAPI.getRandomFromList(c);
 						if (TheAPI.generateChance(block.get(b)))

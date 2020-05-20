@@ -9,18 +9,18 @@ import org.bukkit.event.HandlerList;
 public class PlayerJumpEvent extends Event implements Cancellable {
 	Player s;
 
-	public PlayerJumpEvent(Player p, Location from, Location to, int jump) {
+	public PlayerJumpEvent(Player p, Location from, Location to, double jump) {
 		s = p;
 		f = from;
 		t = to;
 		i = jump;
 	}
 
-	int i;
+	double i;
 	Location t;
 	Location f;
 
-	public int getJump() {
+	public double getJump() {
 		return i;
 	}
 
@@ -28,7 +28,7 @@ public class PlayerJumpEvent extends Event implements Cancellable {
 		return t;
 	}
 
-	public Location getToFrom() {
+	public Location getFrom() {
 		return f;
 	}
 
