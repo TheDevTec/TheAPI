@@ -441,7 +441,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				}
 				if (eq(1, "saveall")) {
 						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6TheAPI WorldsManager saving " + (Bukkit.getWorlds().size()-1) + " worlds..", s);
+						TheAPI.msg("&6TheAPI WorldsManager saving " + (Bukkit.getWorlds().size()) + " world(s)..", s);
 						for (World w : Bukkit.getWorlds())
 							w.save();
 						TheAPI.msg("&6Worlds saved..", s);
