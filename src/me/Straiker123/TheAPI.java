@@ -994,10 +994,10 @@ public class TheAPI {
 	/**
 	 * @see see Get bukkit name of enchantment from string for ex. Sharpness ->
 	 *      DAMAGE_ALL
-	 * @return EnchantmentAPI
+	 * @return Enchantment
 	 */
-	public static EnchantmentAPI getEnchantmentAPI() {
-		return new EnchantmentAPI();
+	public static EnchantmentAPI getEnchantmentAPI(String enchantment) {
+		return EnchantmentAPI.byName(enchantment);
 	}
 
 	/**

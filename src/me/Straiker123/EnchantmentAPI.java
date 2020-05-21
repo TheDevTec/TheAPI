@@ -1,101 +1,175 @@
 package me.Straiker123;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
-public class EnchantmentAPI {
-	public Enchantment[] values() {
-		return Enchantment.values();
-	}
+public enum EnchantmentAPI {
+	SHARPNESS("DAMAGE_ALL"),
+	DAMAGEALL("DAMAGE_ALL"),
+	ALLDAMAGE("DAMAGE_ALL"),
+	DAMAGE_ALL("DAMAGE_ALL"),
+	
+	DAMAGE_ARTHROPODS("DAMAGE_ARTHROPODS"),
+	ARTHROPODS("DAMAGE_ARTHROPODS"),
+	BANEOFARTHROPODS("DAMAGE_ARTHROPODS"),
 
-	public List<Enchantment> valuesInList() {
-		List<Enchantment> a = new ArrayList<Enchantment>();
-		for (Enchantment e : Enchantment.values())
-			a.add(e);
-		return a;
+	EFFICIENCY("DIG_SPEED"),
+	DIG_SPEED("DIG_SPEED"),
+	DIGSPEED("DIG_SPEED"),
+	SPEEDDIG("DIG_SPEED"),
+	
+	CHANNELING("CHANNELING",13),
+	DEPTH_STRIDER("DEPTH_STRIDER",8),
+	
+	FROST_WALKER("FROST_WALKER",9),
+	
+	KNOCKBACK("KNOCKBACK"),
+	
+	MULTISHOT("MULTISHOT",14),
+	
+	PIERCING("PIERCING",13),
+	
+	LOYALTY("LOYALTY",13),
+	
+	RIPTIDE("RIPTIDE",13),
+
+	QUICK_CHARGE("QUICK_CHARGE",14),
+
+	THORNS("THORNS",4),
+
+	SILK_TOUCH("SILK_TOUCH"),
+
+	SWEEPING_EDGE("SWEEPING_EDGE",11),
+
+	MENDING("MENDING",9),
+	REPEAIRING("MENDING",9),
+	
+	ARROW_FIRE("ARROW_FIRE",1),
+	FIRE("ARROW_FIRE",1),
+	
+	FIREASPECT("FIRE_ASPECT"),
+	FIRE_ASPECT("FIRE_ASPECT"),
+	
+	INFINITY("ARROW_INFINITE",11),
+	ARROW_INFINITE("ARROW_INFINITE",11),
+	
+	IMPALING("IMPALING",13),
+	
+	LURE("LURE",7),
+	
+	LUCK("LUCK",7),
+	LUCK_OF_SEA("LUCK",7),
+	LUCKOFSEA("LUCK",7),
+	
+	FORTUNE("LOOT_BONUS_BLOCKS"),
+	LOOTBLOCKS("LOOT_BONUS_BLOCKS"),
+	LOOT_BONUS_BLOCKS("LOOT_BONUS_BLOCKS"),
+	
+	RESPIRATION("OXYGEN"),
+	OXYGEN("OXYGEN"),
+	
+	UNBREAKING("DURABILITY"),
+	DURABILITY("DURABILITY"),
+	
+	AQUA_AFFINITY("WATER_WORKER"),
+	WATER_WORKER("WATER_WORKER"),
+	
+	PROTECTION("PROTECTION_ENVIRONMENTAL"),
+	PROTECTION_ENVIRONMENTAL("PROTECTION_ENVIRONMENTAL"),
+	
+	BLAST_PROTECTION("PROTECTION_EXPLOSIONS"),
+	PROTECTION_EXPLOSIONS("PROTECTION_EXPLOSIONS"),
+
+	FEATHER_FALLING("PROTECTION_FALL"),
+	PROTECTION_FALL("PROTECTION_FALL"),
+
+	FIRE_PROTECTION("PROTECTION_FIRE"),
+	PROTECTION_FIRE("PROTECTION_FIRE"),
+
+	PROJECTILE_PROTECTION("PROTECTION_PROJECTILE"),
+	PROTECTION_PROJECTILE("PROTECTION_PROJECTILE"),
+
+	CURSE_OF_VANISHING("VANISHING_CURSE",11),
+	VANISHING_CURSE("VANISHING_CURSE",11),
+
+	CURSE_OF_BINDING("BINDING_CURSE",11),
+	BINDING_CURSE("BINDING_CURSE",11),
+
+	DAMAGE_UNDEAD("DAMAGE_UNDEAD"),
+	SMITE("DAMAGE_UNDEAD"),
+
+	POWER("ARROW_DAMAGE",1),
+	ARROW_DAMAGE("ARROW_DAMAGE",1),
+
+	PUNCH("ARROW_KNOCKBACK",1),
+	ARROW_KNOCKBACK("ARROW_KNOCKBACK",1),
+	
+	LOOTMOBS("LOOT_BONUS_MOBS"),
+	LOOTBONUSMOBS("LOOT_BONUS_MOBS"),
+	LOOT_BONUS_MOBS("LOOT_BONUS_MOBS"),
+	LOOTING("LOOT_BONUS_MOBS");
+	private final String s;
+	private final int v;
+	private static Method getByName = Reflections.getMethod(org.bukkit.enchantments.Enchantment.class,"getByName", String.class);
+	EnchantmentAPI(String real){
+		s=real;
+		v=0;
 	}
 	
-	public List<String> getNames(){
-		return Arrays.asList("SHARPNESS", "DAMAGE_ALL","FIRE", "ARROW_FIRE",
-				"BANEOFARTHROPODS", "DAMAGE_ARTHROPODS","LUCK", "LUCK_OF_SEA","LUCKOFSEA"
-		,"INFINITY", "ARROW_INFINITE","FIREASPECT", "FIRE_ASPECT"
-		,"RESPIRATION", "OXYGEN","LOOTING","FORTUNE","UNBREAKING", "DURABILITY"
-		,"AQUA_AFFINITY", "WATER_WORKER","PROTECTION", "PROTECTION_ENVIRONMENTAL"
-		,"BLAST_PROTECTION", "PROTECTION_EXPLOSIONS","FEATHER_FALLING", "PROTECTION_FALL"
-		,"FIRE_PROTECTION", "PROTECTION_FIRE","PROJECTILE_PROTECTION", "PROTECTION_PROJECTILE"
-		,"CURSE_OF_VANISHING", "VANISHING_CURSE","CURSE_OF_BINDING", "BINDING_CURSE"
-		,"SMITE", "DAMAGE_UNDEAD","POWER", "ARROW_DAMAGE","ALLDAMAGE","DAMAGEALL"
-		,"BANE_OF_ARTHROPODS","EFFICIENCY", "DIG_SPEED","PUNCH", "ARROW_KNOCKBACK"
-		,"LOOTMOBS", "LOOT_BONUS_MOBS","LOOTBLOCKS", "LOOT_BONUS_BLOCKS");
+	EnchantmentAPI(String real,int version){
+		s=real;
+		v=version;
 	}
-
-	private String replace(String s) {
-		return s.replace("%SHARPNESS%", "DAMAGE_ALL").replace("%FIRE%", "ARROW_FIRE")
-				.replace("%BANEOFARTHROPODS%", "DAMAGE_ARTHROPODS").replace("%LUCK%", "LUCK_OF_SEA")
-				.replace("%LUCKOFSEA%", "LUCK_OF_SEA").replace("%LUCK_OF_SEA%", "LUCK_OF_SEA")
-				.replace("%INFINITY%", "ARROW_INFINITE").replace("%FIREASPECT%", "FIRE_ASPECT")
-				.replace("%RESPIRATION%", "OXYGEN").replace("%LOOTING%", "LOOT_BONUS_MOBS")
-				.replace("%FORTUNE%", "LOOT_BONUS_BLOCKS").replace("%UNBREAKING%", "DURABILITY")
-				.replace("%AQUA_AFFINITY%", "WATER_WORKER").replace("%PROTECTION%", "PROTECTION_ENVIRONMENTAL")
-				.replace("%BLAST_PROTECTION%", "PROTECTION_EXPLOSIONS").replace("%FEATHER_FALLING%", "PROTECTION_FALL")
-				.replace("%FIRE_PROTECTION%", "PROTECTION_FIRE")
-				.replace("%PROJECTILE_PROTECTION%", "PROTECTION_PROJECTILE")
-				.replace("%CURSE_OF_VANISHING%", "VANISHING_CURSE").replace("%CURSE_OF_BINDING%", "BINDING_CURSE")
-				.replace("%SMITE%", "DAMAGE_UNDEAD").replace("%POWER%", "ARROW_DAMAGE")
-				.replace("%ALLDAMAGE%", "DAMAGE_ALL").replace("%DAMAGEALL%", "DAMAGE_ALL")
-				.replace("%BANE_OF_ARTHROPODS%", "DAMAGE_ARTHROPODS").replace("%EFFICIENCY%", "DIG_SPEED")
-				.replace("%ALL_DAMAGE%", "DAMAGE_ALL").replace("%PUNCH%", "ARROW_KNOCKBACK")
-				.replace("%LOOTMOBS%", "LOOT_BONUS_MOBS").replace("%LOOTBLOCKS%", "LOOT_BONUS_BLOCKS");
+	
+	public void enchant(ItemStack to, int level) { //1_15_1R0 -> 15
+		if(TheAPI.getStringUtils().getInt(TheAPI.getServerVersion().split("_")[1]) >= v)
+		to.addUnsafeEnchantment(getEnchantment(), level);
 	}
-
-	public boolean isEnchantment(String string) {
-		return getByName(string) != null;
-	}
-
-	@SuppressWarnings("deprecation")
-	public Enchantment getByName(String enchant) {
+	
+	public org.bukkit.enchantments.Enchantment getEnchantment(){
+		if(TheAPI.getStringUtils().getInt(TheAPI.getServerVersion().split("_")[1]) >= v) {
+		Object o = Reflections.invoke(null,getByName,s);
 		try {
-			if (Enchantment.getByName(enchant.toUpperCase()) == null)
-				return Enchantment.getByName(replace("%" + enchant.toUpperCase() + "%"));
-			return Enchantment.getByName(enchant.toUpperCase());
+			if (o == null) {
+				o = Reflections.invoke(null,getByName,s);
+				return o==null ? null : (org.bukkit.enchantments.Enchantment)o;
+			}
+			return (org.bukkit.enchantments.Enchantment)o;
 		} catch (Exception e) {
 			return null;
-		}
+		}}
+		return null;
+	}
+	
+	/**
+	 * @see see Return enchantment real name
+	 * @return String
+	 */
+	public String getName() {
+		return s;
+	}
+	
+	public static EnchantmentAPI byName(String name) {
+		return valueOf(name.toUpperCase());
+	}
+	
+	public static EnchantmentAPI fromEnchant(org.bukkit.enchantments.Enchantment enchant){
+		return byName(enchant.toString());
 	}
 
-	public Enchantment valueOf(String string) {
-		return getByName(string);
-	}
-
-	public List<Enchantment> getEnchantments(ItemStack item) {
-		List<Enchantment> list = new ArrayList<Enchantment>();
-		list.addAll(item.getEnchantments().keySet());
+	public static List<org.bukkit.enchantments.Enchantment> getEnchantments(ItemStack item) {
+		List<org.bukkit.enchantments.Enchantment> list = new ArrayList<org.bukkit.enchantments.Enchantment>(item.getEnchantments().keySet());
 		return list;
 	}
-
-	@SuppressWarnings("deprecation")
-	public List<String> getEnchantmentsInString(ItemStack item) {
-		List<String> list = new ArrayList<String>();
-		for (Enchantment e : item.getEnchantments().keySet())
-			list.add(e.getName());
-		return list;
-	}
-
-	public boolean registerEnchantment(Enchantment e) {
+	
+	public static boolean registerEnchantment(org.bukkit.enchantments.Enchantment e) {
 		boolean registered = false;
+		Reflections.setFieldWithNull(org.bukkit.enchantments.Enchantment.class, "acceptingNew", true);
 		try {
-			Field f = Enchantment.class.getDeclaredField("acceptingNew");
-			f.setAccessible(true);
-			f.set(null, true);
-		} catch (Exception ea) {
-		}
-		try {
-			Enchantment.registerEnchantment(e);
+			org.bukkit.enchantments.Enchantment.registerEnchantment(e);
 			registered = true;
 		} catch (Exception ea) {
 		}

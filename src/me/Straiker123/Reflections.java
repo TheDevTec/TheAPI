@@ -116,6 +116,15 @@ public class Reflections {
 		}
 	}
 
+	public static void setFieldWithNull(Class<?> main, String field, Object value) {
+		Field f = getField(main, field);
+		try {
+			f.set(null, value);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static Field getField(Class<?> main, String name) {
 		try {
 			Field f = main.getField(name);

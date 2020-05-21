@@ -268,8 +268,8 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public void addEnchantment(String e, int level) {
-		if (e != null && TheAPI.getEnchantmentAPI().isEnchantment(e))
-			enchs.put(TheAPI.getEnchantmentAPI().getByName(e), level + "");
+		if (e != null && me.Straiker123.EnchantmentAPI.byName(e) != null)
+			enchs.put(me.Straiker123.EnchantmentAPI.byName(e).getEnchantment(), level + "");
 	}
 
 	public int getAmount() {
