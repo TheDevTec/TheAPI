@@ -133,7 +133,9 @@ public class User {
 	}
 
 	public Set<String> getKeys(String key) {
+		if(a.exist(key))
 		return a.getConfigurationSection(key, false);
+		return null;
 	}
 
 	public Set<String> getKeys() {
@@ -191,6 +193,10 @@ public class User {
 
 	public boolean isInt(String key) {
 		return a.isInt(key);
+	}
+
+	public boolean isList(String key) {
+		return a.isList(key);
 	}
 
 	public boolean isLong(String key) {

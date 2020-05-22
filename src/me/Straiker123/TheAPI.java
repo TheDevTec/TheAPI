@@ -24,7 +24,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scoreboard.Scoreboard;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -1001,46 +1000,13 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send player scoreboard with per player scoreboard function
-	 *      (Flashing, but overide other scoreboards)
+	 * @see see Send player scoreboard (Fuctions: Per player scoreboard, Non-Flashing)
 	 * @param p
 	 * @param board
 	 * @return ScoreboardAPI
 	 */
-	@Deprecated
-	public static ScoreboardAPI getScoreboardAPI(Player p, Scoreboard board) {
-		return new ScoreboardAPI(p, board);
-	}
-
-	/**
-	 * @see see Send player scoreboard with per player scoreboard function
-	 *      (Flashing)
-	 * @param p
-	 * @return ScoreboardAPI
-	 */
-	@Deprecated
 	public static ScoreboardAPI getScoreboardAPI(Player p) {
-		return new ScoreboardAPI(p, p.getServer().getScoreboardManager().getNewScoreboard());
-	}
-
-	/**
-	 * @see see Send player scoreboard with per player scoreboard function (Little
-	 *      bit flashing)
-	 * @param p
-	 * @return ScoreboardAPI
-	 */
-	public static ScoreboardAPIV2 getScoreboardAPIV2(Player p) {
-		return new ScoreboardAPIV2(p);
-	}
-
-	/**
-	 * @see see Send player scoreboard with per player scoreboard function
-	 *      (Non-flashing)
-	 * @param p
-	 * @return ScoreboardAPI
-	 */
-	public static ScoreboardAPIV3 getScoreboardAPIV3(Player p) {
-		return new ScoreboardAPIV3(p);
+		return new ScoreboardAPI(p);
 	}
 
 	/**

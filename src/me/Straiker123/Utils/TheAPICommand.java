@@ -33,7 +33,6 @@ import me.Straiker123.MultiMap;
 import me.Straiker123.Position;
 import me.Straiker123.RankingAPI;
 import me.Straiker123.ScoreboardAPI;
-import me.Straiker123.ScoreboardAPIV2;
 import me.Straiker123.TheAPI;
 import me.Straiker123.TheMaterial;
 import me.Straiker123.Scheduler.Tasker;
@@ -73,7 +72,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		LoaderClass.config.save();
 	}
 
-	@SuppressWarnings({ "deprecation" })
 	@Override
 	public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
 		this.args = args;
@@ -244,25 +242,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				}
 				return true;
 			}
-			//ScoreboardV3 is similiar.
-			if (eq(1, "ScoreboardV2")) {
-				ScoreboardAPIV2 a = TheAPI.getScoreboardAPIV2(p);
-				a.setTitle("&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
-				new Tasker() {
-					@Override
-					public void run() {
-						if (runTimes() == 10) {
-							p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
-							return;
-						}
-						a.addLine("&aBy DevTec");
-						a.addLine("&eRandom numbers:");
-						a.addLine("&6" + TheAPI.generateRandomDouble(200));
-						a.create();
-					}
-				}.repeatingTimes(0, 20, 10);
-				return true;
-			}
 			if (eq(1, "multimap")) {
 				MultiMap<String> map = TheAPI.getMultiMap();
 				// Key, Values
@@ -306,12 +285,17 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			}
 			if (eq(1, "Scoreboard")) {
 				ScoreboardAPI a = TheAPI.getScoreboardAPI(p);
-				a.setTitle("&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
-				a.addLine("&aBy DevTec", 0);
-				a.create();
+				a.setDisplayName("&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
+				int task = new Tasker() {
+					public void run() {
+						a.setLine(1, "&7Random: &c"+TheAPI.generateRandomInt(10));
+					}
+				}.repeating(1, 1);
+				a.setLine(0, "&aBy DevTec");
 				new Tasker() {
 					@Override
 					public void run() {
+						Tasker.cancelTask(task);
 						p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
 					}
 				}.later(40);

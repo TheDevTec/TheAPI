@@ -326,6 +326,14 @@ public class ConfigAPI {
 		return a.isLong(path);
 	}
 
+	public boolean isList(String path) {
+		if (!existFile())
+			return false;
+		if (a == null)
+			return YamlConfiguration.loadConfiguration(getFile()).isList(path);
+		return a.isList(path);
+	}
+
 	public boolean isDouble(String path) {
 		if (!existFile())
 			return false;
