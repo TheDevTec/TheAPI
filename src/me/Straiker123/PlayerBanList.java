@@ -4,7 +4,7 @@ import me.Straiker123.Abstract.AbstractPunishmentAPI;
 
 public class PlayerBanList {
 	private static final ConfigAPI c = LoaderClass.data;
-	private String s;
+	private final String s;
 
 	public PlayerBanList(String player) {
 		if (AbstractPunishmentAPI.isIP(player))
@@ -60,12 +60,14 @@ public class PlayerBanList {
 			r = c.getString("ban." + s + ".reason");
 			break;
 		case BANIP:
+			if(TheAPI.getPunishmentAPI().getIP(s)!=null)
 			r = c.getString("banip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".reason");
 			break;
 		case TEMPBAN:
 			r = c.getString("tempban." + s + ".reason");
 			break;
 		case TEMPBANIP:
+			if(TheAPI.getPunishmentAPI().getIP(s)!=null)
 			r = c.getString("tempbanip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".reason");
 			break;
 		case JAIL:
@@ -92,6 +94,7 @@ public class PlayerBanList {
 				r = c.getLong("ban." + s + ".start");
 			break;
 		case BANIP:
+			if(TheAPI.getPunishmentAPI().getIP(s)!=null)
 			if (c.exist("banip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".start"))
 				r = c.getLong("banip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".start");
 			break;
@@ -100,6 +103,7 @@ public class PlayerBanList {
 				r = c.getLong("tempban." + s + ".start");
 			break;
 		case TEMPBANIP:
+			if(TheAPI.getPunishmentAPI().getIP(s)!=null)
 			if (c.exist("tempbanip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".start"))
 				r = c.getLong("tempbanip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".start");
 			break;
