@@ -36,12 +36,6 @@ public class NetworkManager {
 	}
 
 	public SocketAddress getSocketAddress() {
-		return (SocketAddress) Reflections.get(Reflections.getField(Reflections.getNMSClass("NetworkManager"), "socketAddress"),a);
+		return (SocketAddress) Reflections.invoke(a,Reflections.getMethod(Reflections.getNMSClass("NetworkManager"), "getSocketAddress"));
 	}
-
-	// YOUR RISK
-	public void setSocketAddress(SocketAddress channel) {
-		Reflections.setField(a, "socketAddress", channel);
-	}
-
 }

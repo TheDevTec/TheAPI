@@ -551,9 +551,10 @@ public class Events implements Listener {
 	@EventHandler
 	public void onLeave(PlayerQuitEvent e) {
 		LoaderClass.a.remove(e.getPlayer());
+		if (LoaderClass.config.getBoolean("Options.PacketListener"))
 		if (LoaderClass.config.getBoolean("Options.PacketsEnabled.Read")
 				|| LoaderClass.config.getBoolean("Options.PacketsEnabled.Receive")) {
-			Channel channel = TheAPI.getNMSAPI().getNMSPlayerAPI(e.getPlayer()).getPlayerConnection()
+			Channel channel = new me.Straiker123.Player(e.getPlayer()).getPlayerConnection()
 					.getNetworkManager().getChannel();
 			channel.eventLoop().submit(() -> {
 				channel.pipeline().remove(e.getPlayer().getName());
@@ -572,41 +573,41 @@ public class Events implements Listener {
 
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
+		if (LoaderClass.config.getBoolean("Options.PacketListener")) {
 		ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
 			@Override
 			public void channelRead(ChannelHandlerContext channelHandlerContext, Object packet) {
 				PlayerReadPacketEvent es = new PlayerReadPacketEvent(e.getPlayer(), packet);
+				boolean cancel = false;
 				if (LoaderClass.config.getBoolean("Options.PacketsEnabled.Read")) {
 					Bukkit.getPluginManager().callEvent(es);
-					if (es.isCancelled())
-						return;
+					cancel=es.isCancelled();
 				}
+				if(cancel)return;
 				try {
 					super.channelRead(channelHandlerContext, es.getPacket());
 				} catch (Exception e1) {
-					e1.printStackTrace();
 				}
 			}
-
 			@Override
 			public void write(ChannelHandlerContext channelHandlerContext, Object packet, ChannelPromise channelPromise) {
 				PlayerReceivePacketEvent es = new PlayerReceivePacketEvent(e.getPlayer(), packet);
+				boolean cancel = false;
 				if (LoaderClass.config.getBoolean("Options.PacketsEnabled.Receive")) {
 					Bukkit.getPluginManager().callEvent(es);
-					if (es.isCancelled())
-						return;
+					cancel=es.isCancelled();
 				}
+				if(cancel)return;
 				try {
 					super.write(channelHandlerContext, es.getPacket(), channelPromise);
 				} catch (Exception e1) {
-					e1.printStackTrace();
 				}
 			}
-
 		};
-		ChannelPipeline pipeline = TheAPI.getNMSAPI().getNMSPlayerAPI(e.getPlayer()).getPlayerConnection()
+		ChannelPipeline pipeline = new me.Straiker123.Player(e.getPlayer()).getPlayerConnection()
 				.getNetworkManager().getChannel().pipeline();
 		pipeline.addBefore("packet_handler", e.getPlayer().getName(), channelDuplexHandler);
+		}
 		LoaderClass.a.add(e.getPlayer());
 		for (Player p : TheAPI.getOnlinePlayers()) {
 			if (TheAPI.isVanished(p) && (TheAPI.getUser(p).exist("vanish")

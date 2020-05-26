@@ -17,7 +17,6 @@ public class PlayerConnection {
 	}
 
 	public boolean processedDisconnect() {
-		
 		return (boolean) Reflections.get(Reflections.getField(Reflections.getNMSClass("PlayerConnection"), "processedDisconnect"),a);
 	}
 

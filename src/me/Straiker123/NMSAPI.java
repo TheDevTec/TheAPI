@@ -23,14 +23,14 @@ public class NMSAPI {
 			iblockdata = Reflections.getNMSClass("IBlockData"), pos = Reflections.getNMSClass("BlockPosition"),
 			world = Reflections.getNMSClass("World"), enumChat = Reflections.getNMSClass("ChatMessageType"),
 			bWorld = Reflections.getBukkitClass("CraftWorld"),
-			bPlayer = Reflections.getBukkitClass("entity.CraftPlayer"),
+					bPlayer = Reflections.getBukkitClass("entity.CraftPlayer"),entity = Reflections.getNMSClass("Entity"),
 			EntityPlayer = Reflections.getNMSClass("EntityPlayer"), server = Reflections.getNMSClass("MinecraftServer"),
 			b = Reflections.getNMSClass("Block"), cChunk = Reflections.getBukkitClass("CraftChunk"),
 			cs = Reflections.getNMSClass("ChunkSection"), enumTitle, Containers = Reflections.getNMSClass("Containers"),
 			particleEnum = Reflections.existNMSClass("EnumParticle") ? Reflections.getNMSClass("EnumParticle")
 					: Reflections.getNMSClass("Particles");
 	private static Constructor<?> pDestroy, pTitle, pOutChat, pTab, pBlock, blockPos, pChunk, ChunkSection, chunkc, particle,
-			pSpawn, pNSpawn, pLSpawn, pWindow,score,sbobj,sbdisplayobj,sbteam;
+			pSpawn, pNSpawn, pLSpawn, pWindow,score,sbobj,sbdisplayobj,sbteam,pSign,pTeleport;
 	private static Method getmat, getb, getc, gett, WorldHandle, PlayerHandle, ichatcon, getser, plist, block,
 			IBlockData, worldset, Chunk, getblocks, setblock, setblockb, itemstack, entityM, livingentity, oldichatser,
 			post;
@@ -38,6 +38,8 @@ public class NMSAPI {
 	private static Object sbremove, sbinteger, sbchange,sbhearts;
 
 	static {
+		pTeleport=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutEntityTeleport"), entity);
+		pSign=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutOpenSignEditor"), pos);
 		getser=Reflections.getMethod(server, "getServer");
 		sbteam=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutScoreboardTeam"));
 		sbdisplayobj=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutScoreboardDisplayObjective"));
@@ -129,6 +131,14 @@ public class NMSAPI {
 	
 	public Object getPacketPlayOutScoreboardDisplayObjective() {
 		return Reflections.c(sbdisplayobj);
+	}
+	
+	public Object getPacketPlayOutOpenSignEditor(Object position) {
+		return Reflections.c(pSign, position);
+	}
+	
+	public Object getPacketPlayOutEntityTeleport(Object entity) {
+		return Reflections.c(pTeleport, entity);
 	}
 	
 	public Object getPacketPlayOutScoreboardScore(Action action, String player, String line, int score) {

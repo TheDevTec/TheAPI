@@ -67,7 +67,7 @@ public class LoaderClass extends JavaPlugin {
 					cancel();
 				}
 			}
-		}.repeatingTimesAsync(0, 20, 30);
+		}.repeatingTimesAsync(0, 20, 15);
 	}
 
 	private boolean as = false, b = false;
@@ -98,7 +98,7 @@ public class LoaderClass extends JavaPlugin {
 				if (as && b)
 					cancel();
 			}
-		}.repeatingTimesAsync(0, 20, 30);
+		}.repeatingTimesAsync(0, 20, 15);
 	}
 
 	public boolean e, tve, tbank;
@@ -206,6 +206,7 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.HideErrors", false); //hide only TheAPI errors
 		config.addDefault("Options.AntiBot.Use", true);
 		config.addDefault("Options.AntiBot.TimeBetweenPlayer", 20); //20 milis
+		config.addDefault("Options.PacketListener", true);
 		config.addDefault("Options.PacketsEnabled.Read", true);
 		config.addDefault("Options.PacketsEnabled.Receive", true);
 		config.addDefault("Options.Optimize.TNT.Use", true);

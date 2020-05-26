@@ -84,8 +84,8 @@ public class TheAPI {
 	 * @see see This is HashMap with easier manupulation
 	 * @return MultiMap<T>
 	 */
-	public static <T> MultiMap<T> getMultiMap() {
-		return new MultiMap<T>();
+	public static <K, T, V> MultiMap<K, T, V> getMultiMap() {
+		return new MultiMap<K, T, V>();
 	}
 
 	/**

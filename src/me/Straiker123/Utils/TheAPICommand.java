@@ -29,7 +29,6 @@ import me.Straiker123.GUICreatorAPI;
 import me.Straiker123.GUICreatorAPI.Options;
 import me.Straiker123.ItemCreatorAPI;
 import me.Straiker123.LoaderClass;
-import me.Straiker123.MultiMap;
 import me.Straiker123.Position;
 import me.Straiker123.RankingAPI;
 import me.Straiker123.ScoreboardAPI;
@@ -101,7 +100,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				TheAPI.msg("&6/TheAPI Test ActionBar", s);
 				TheAPI.msg("&6/TheAPI Test BlocksAPI", s);
 				TheAPI.msg("&6/TheAPI Test BossBar", s);
-				TheAPI.msg("&6/TheAPI Test MultiMap", s);
 				TheAPI.msg("&6/TheAPI Test PlayerName", s);
 				TheAPI.msg("&6/TheAPI Test RankingAPI", s);
 				TheAPI.msg("&6/TheAPI Test Scoreboard", s);
@@ -238,16 +236,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				for (int i = 1; i < map.size(); ++i) { // 1 2 3 4
 					TheAPI.msg("&6" + map.getPosition(map.getObject(i)) + ". " + map.getObject(i) + " with "
 							+ map.getValue(map.getObject(i)) + " points", s);
-				}
-				return true;
-			}
-			if (eq(1, "multimap")) {
-				MultiMap<String> map = TheAPI.getMultiMap();
-				// Key, Values
-				TheAPI.msg("&eInput: &6TheAPI, DevTec, Top, 1", s);
-				map.put("Straiker123", "TheAPI", "DevTec", "Top", 1);
-				for (Object o : map.getValues("Straiker123")) {
-					TheAPI.msg("&eResult: &6" + o, s);
 				}
 				return true;
 			}
@@ -700,8 +688,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		if (args[0].equalsIgnoreCase("Test") && s.isOp()) {
 			if (args.length == 2) {
 				c.addAll(StringUtil.copyPartialMatches(args[1],
-						Arrays.asList("ActionBar", "hideShowEntity", "BlocksAPI", "BossBar", "MultiMap", "PlayerName",
-								"RankingAPI", "Scoreboard", "ScoreboardV2", "TabList", "Title", "GUICreatorAPI"),
+						Arrays.asList("ActionBar", "hideShowEntity", "BlocksAPI", "BossBar", "PlayerName",
+								"RankingAPI", "Scoreboard", "TabList", "Title", "GUICreatorAPI"),
 						new ArrayList<>()));
 			}
 		}

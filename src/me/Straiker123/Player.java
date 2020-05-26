@@ -204,14 +204,14 @@ public class Player {
 	}
 
 	private final Object a;
-	private final Class<?> c = Reflections.getNMSClass("EntityPlayer");
+	private static final Class<?> c = Reflections.getNMSClass("EntityPlayer");
 
 	public Player(Object nmsPlayer) {
 		a = nmsPlayer;
 	}
 
-	public Player(Player bukkitPlayer) {
-		a = TheAPI.getNMSAPI().getPlayer(bukkitPlayer);
+	public Player(org.bukkit.entity.Player bukkitPlayer) {
+		this(TheAPI.getNMSAPI().getPlayer(bukkitPlayer));
 	}
 
 	public void kill() {

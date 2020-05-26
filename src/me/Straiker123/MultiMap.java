@@ -2,78 +2,61 @@ package me.Straiker123;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
 
-public class MultiMap<T> {
-	private HashMap<T, List<Object>> map = new HashMap<T, List<Object>>();
+import com.google.common.collect.Maps;
 
-	public void put(T key, Object... value) {
-		if (map.containsKey(key))
-			map.remove(key);
-		List<Object> l = new ArrayList<Object>();
-		for (Object o : value)
-			l.add(o);
-		map.put(key, l);
+import me.Straiker123.Abstract.MultiHashtable;
+
+public class MultiMap<K, T, V> implements MultiHashtable<K, T, V> {
+	private HashMap<K, T> threads = Maps.newHashMap();
+	private HashMap<T, V> values = Maps.newHashMap();
+
+	@Override
+	public ArrayList<K> keySet() {
+		return new ArrayList<K>(threads.keySet());
 	}
 
-	public void remove(T key) {
-		map.remove(key);
+	@Override
+	public T getThread(K key) {
+		return threads.get(key);
 	}
 
-	public void remove(T key, Object value) {
-		if (containsKey(key)) {
-			List<Object> o = map.get(key);
-			o.remove(value);
-			map.replace(key, o);
-		}
+	@Override
+	public V getValue(T thread) {
+		return values.get(thread);
 	}
 
-	public void clear() {
-		map.clear();
+	@Override
+	public V put(K key, T thread, V value) {
+		threads.put(key, thread);
+		values.put(thread,value);
+		return value;
 	}
 
-	public int size() {
-		return getKeySet().size();
+	@Override
+	public void removeKey(K key) {
+		values.remove(getThread(key));
+		threads.remove(key);
 	}
 
-	public boolean containsKey(T key) {
-		return map.containsKey(key);
+	@Override
+	public void removeThread(T thread) {
+		values.remove(thread);
 	}
 
-	public List<T> getKeysTheyContain(Object value) {
-		List<T> c = new ArrayList<T>();
-		for (T key : keySet()) {
-			if (map.get(key).contains(value)) {
-				c.add(key);
-			}
-		}
-		return c;
+	@Override
+	public ArrayList<T> getThreads() {
+		return new ArrayList<T>(values.keySet());
 	}
 
-	public boolean containsValue(Object value) {
-		boolean c = false;
-		for (T key : keySet()) {
-			if (map.get(key).contains(value)) {
-				c = true;
-				break;
-			}
-		}
-		return c;
+	@Override
+	public ArrayList<V> getValues() {
+		return new ArrayList<V>(values.values());
 	}
 
-	public List<Object> getValues(T key) {
-		return map.get(key);
+	@Override
+	public Object[] getArray(K key) {
+		return new Object[] {getThread(key), getValue(getThread(key))};
 	}
 
-	public Set<T> keySet() {
-		return map.keySet();
-	}
-
-	public List<T> getKeySet() {
-		List<T> keys = new ArrayList<T>();
-		for (T t : keySet())
-			keys.add(t);
-		return keys;
-	}
 }

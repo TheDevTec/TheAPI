@@ -41,8 +41,8 @@ public class ItemCreatorAPI implements Cloneable {
 	private SkullType type;
 	private Multimap<Attribute, AttributeModifier> w;
 	private int s, model, dur;
-	private MultiMap<PotionEffectType> ef;
-	private MultiMap<Enchantment> enchs;
+	private MultiMap<PotionEffectType, Integer, Integer> ef = new MultiMap<PotionEffectType, Integer, Integer>();
+	private HashMap<Enchantment, Integer> enchs=new HashMap<Enchantment, Integer>();
 	private List<Object> pages, lore, map;
 
 	private int getSkullInt(String w) {
@@ -58,12 +58,10 @@ public class ItemCreatorAPI implements Cloneable {
 		s = 1;
 		model = -1;
 		dur = -1;
-		ef = TheAPI.getMultiMap();
 		try {
 			w = HashMultimap.create();
 		} catch (Exception | NoSuchMethodError er) {
 		}
-		enchs = TheAPI.getMultiMap();
 		a = icon != null ? icon : new ItemStack(Material.AIR);
 		unb = isUnbreakable();
 		if (hasPotionEffects())
@@ -264,12 +262,12 @@ public class ItemCreatorAPI implements Cloneable {
 
 	public void addEnchantment(Enchantment e, int level) {
 		if (e != null)
-			enchs.put(e, level + "");
+			enchs.put(e, level);
 	}
 
 	public void addEnchantment(String e, int level) {
 		if (e != null && me.Straiker123.EnchantmentAPI.byName(e) != null)
-			enchs.put(me.Straiker123.EnchantmentAPI.byName(e).getEnchantment(), level + "");
+			enchs.put(me.Straiker123.EnchantmentAPI.byName(e).getEnchantment(), level);
 	}
 
 	public int getAmount() {
@@ -634,17 +632,16 @@ public class ItemCreatorAPI implements Cloneable {
 			}
 			i.setItemMeta(mf);
 			if (!i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
-				if (enchs != null && !enchs.getKeySet().isEmpty())
-					for (Enchantment t : enchs.getKeySet()) {
-						i.addUnsafeEnchantment(t, TheAPI.getStringUtils().getInt(enchs.getValues(t).get(0).toString()));
+				if (enchs != null && !enchs.keySet().isEmpty())
+					for (Enchantment t : enchs.keySet()) {
+						i.addUnsafeEnchantment(t, enchs.get(t));
 					}
 			}
 			if (i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
 				EnchantmentStorageMeta m = (EnchantmentStorageMeta) i.getItemMeta();
-				if (enchs != null && !enchs.getKeySet().isEmpty())
-					for (Enchantment e : enchs.getKeySet())
-						m.addStoredEnchant(e, TheAPI.getStringUtils().getInt(enchs.getValues(e).get(0).toString()),
-								true);
+				if (enchs != null && !enchs.keySet().isEmpty())
+					for (Enchantment e : enchs.keySet())
+						m.addStoredEnchant(e, enchs.get(e),true);
 				i.setItemMeta(m);
 
 				a = i;
@@ -670,15 +667,14 @@ public class ItemCreatorAPI implements Cloneable {
 					meta.setColor(c);
 				} catch (Exception | NoSuchMethodError er) {
 				}
-				if (!ef.getKeySet().isEmpty())
-					for (PotionEffectType t : ef.getKeySet()) {
-						Object[] f = ef.getValues(t).toArray();
+				if (!ef.keySet().isEmpty())
+					for (PotionEffectType t : ef.keySet()) {
 						if (t == null) {
 							Error.err("creating ItemStack in ItemCreatorAPI", "Uknown PotionEffectType");
 							continue;
 						}
-						int dur = TheAPI.getStringUtils().getInt(f[0].toString());
-						int amp = TheAPI.getStringUtils().getInt(f[1].toString());
+						int dur = ef.getThread(t);
+						int amp = ef.getValue(ef.getThread(t));
 						meta.addCustomEffect(new PotionEffect(t, dur, (amp <= 0 ? 1 : amp)), true);
 					}
 				i.setItemMeta(meta);
