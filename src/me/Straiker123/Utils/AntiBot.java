@@ -19,7 +19,7 @@ public class AntiBot {
 		boolean s = canJoin();
 		if (!s)
 			c.add(e.toString());
-		last = System.currentTimeMillis() / 1000;
+		last = System.currentTimeMillis() / 100;
 		return s;
 	}
 
@@ -53,7 +53,7 @@ public class AntiBot {
 	public static boolean canJoin() {
 		if (!LoaderClass.config.getBoolean("Options.AntiBot.Use"))
 			return true;
-		return last - System.currentTimeMillis() / 1000
+		return last - System.currentTimeMillis() / 100
 				+ LoaderClass.config.getLong("Options.AntiBot.TimeBetweenPlayer") < 0;
 	}
 }

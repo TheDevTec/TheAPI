@@ -58,8 +58,6 @@ public class Tasks {
 	}
 
 	public static void unload() {
-		Events.f = LoaderClass.config.getConfig();
-		Events.d = LoaderClass.data.getConfig();
 		load = false;
 		Scheduler.cancelTask(task);
 	}

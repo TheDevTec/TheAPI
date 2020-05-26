@@ -5,7 +5,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.inventory.PlayerInventory;
 
-import me.Straiker123.TheAPI;
 import me.Straiker123.NMSAPI.TitleAction;
 
 public class Player {
@@ -204,36 +203,32 @@ public class Player {
 		ENTITY_ZOMBIE_VILLAGER_HURT, ENTITY_ZOMBIE_VILLAGER_STEP;
 	}
 
-	private Object a;
-	private Class<?> c = Reflections.getNMSClass("EntityPlayer");
+	private final Object a;
+	private final Class<?> c = Reflections.getNMSClass("EntityPlayer");
 
-	public Player(Object player) {
-		a = player;
+	public Player(Object nmsPlayer) {
+		a = nmsPlayer;
+	}
+
+	public Player(Player bukkitPlayer) {
+		a = TheAPI.getNMSAPI().getPlayer(bukkitPlayer);
 	}
 
 	public void kill() {
-		try {
-			Reflections.getMethod(c, "killEntity").invoke(a);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		Reflections.invoke(a,Reflections.getMethod(c, "killEntity"));
 	}
 
 	public void sendActionBar(String text) {
-		getPlayerConnection()
-				.sendPacket(TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.ACTIONBAR, TheAPI.colorize(text)));
+		sendPacket(TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.ACTIONBAR, TheAPI.colorize(text)));
 	}
 
 	public void setTabList(String header, String footer) {
-		getPlayerConnection().sendPacket(TheAPI.getNMSAPI()
-				.getPacketPlayOutPlayerListHeaderFooter(TheAPI.colorize(header), TheAPI.colorize(footer)));
+		sendPacket(TheAPI.getNMSAPI().getPacketPlayOutPlayerListHeaderFooter(TheAPI.colorize(header), TheAPI.colorize(footer)));
 	}
 
 	public void sendTitle(String title, String subtitle) {
-		getPlayerConnection()
-				.sendPacket(TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.TITLE, TheAPI.colorize(title)));
-		getPlayerConnection()
-				.sendPacket(TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.SUBTITLE, TheAPI.colorize(subtitle)));
+		sendPacket(TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.TITLE, TheAPI.colorize(title)));
+		sendPacket(TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.SUBTITLE, TheAPI.colorize(subtitle)));
 	}
 
 	public void hurt(double damage) {
@@ -246,18 +241,16 @@ public class Player {
 	}
 
 	public void playSound(Sound sound, float pitch, float yaw) {
-		Reflections.processMethod(a, "a", Reflections.getField(Reflections.getNMSClass("SoundEffects"), sound.name()),
-				pitch, yaw);
+		Reflections.processMethod(a, "a", Reflections.getField(Reflections.getNMSClass("SoundEffects"), sound.name()),pitch, yaw);
 	}
 
 	public PlayerConnection getPlayerConnection() {
-		return new PlayerConnection(Reflections.get(a, "playerConnection"));
+		return new PlayerConnection(getField("playerConnection"));
 	}
 
 	public PlayerInventory getInventory() {
-		return (PlayerInventory) Reflections
-				.c(Reflections.getConstructor(Reflections.getBukkitClass("inventory.CraftInventoryPlayer"),
-						Reflections.getNMSClass("PlayerInventory")), Reflections.get(a, "inventory"));
+		return (PlayerInventory) Reflections.c(Reflections.getConstructor(Reflections.getBukkitClass("inventory.CraftInventoryPlayer"),
+						Reflections.getNMSClass("PlayerInventory")), Reflections.get(Reflections.getField(c, "inventory"),a));
 	}
 
 	public void setInventory(PlayerInventory a) {
@@ -282,7 +275,7 @@ public class Player {
 	}
 
 	public int getMaxAir() {
-		return (int) Reflections.get(a, "maxAirTicks");
+		return (int) getField("maxAirTicks");
 	}
 
 	public void setMaxAir(int value) {
@@ -290,7 +283,7 @@ public class Player {
 	}
 
 	public int getPing() {
-		return (int) Reflections.get(a, "ping");
+		return (int) getField("ping");
 	}
 
 	// PLEASE DO NOT DO THIS
@@ -299,7 +292,7 @@ public class Player {
 	}
 
 	public int getPortalCooldown() {
-		return (int) Reflections.get(a, "portalCooldown");
+		return (int) getField("portalCooldown");
 	}
 
 	public void setPortalCooldown(int value) {
@@ -307,7 +300,7 @@ public class Player {
 	}
 
 	public double getMaxHealth() {
-		return (double) Reflections.get(a, "maxHealthCache");
+		return (double) getField("maxHealthCache");
 	}
 
 	public void setMaxHealth(double value) {
@@ -315,7 +308,7 @@ public class Player {
 	}
 
 	public boolean isSneaking() {
-		return (boolean) Reflections.get(a, "isSneaking");
+		return (boolean) getField("isSneaking");
 	}
 
 	public void setSneaking(boolean value) {
@@ -323,7 +316,7 @@ public class Player {
 	}
 
 	public int getNoDamage() {
-		return (int) Reflections.get(a, "invulnerableTicks");
+		return (int) getField("invulnerableTicks");
 	}
 
 	public void setNoDamage(int tics) {
@@ -335,39 +328,39 @@ public class Player {
 	}
 
 	public boolean isInvulnerable() {
-		return (boolean) Reflections.get(a, "isSnisInvulnerableeaking");
+		return (boolean) getField("isInvulnerable");
 	}
 
 	public Chunk getChunk() {
-		return getWorld().getChunkAt((int) Reflections.get(a, "chunkX"), (int) Reflections.get(a, "chunkZ"));
+		return getWorld().getChunkAt((int) getField("chunkX"), (int) getField("chunkZ"));
 	}
 
 	public World getWorld() {
-		return (World) Reflections.get(Reflections.get(a, "world"), "getWorld");
+		return (World) getField(getField("world"), "getWorld");
 	}
 
 	public float getFallDistance() {
-		return (float) Reflections.get(a, "fallDistance");
+		return (float) getField("fallDistance");
 	}
 
 	public double getX() {
-		return (double) Reflections.get(a, "locX");
+		return (double) getField("locX");
 	}
 
 	public double getY() {
-		return (double) Reflections.get(a, "locY");
+		return (double) getField("locY");
 	}
 
 	public double getZ() {
-		return (double) Reflections.get(a, "locZ");
+		return (double) getField("locZ");
 	}
 
 	public float getPitch() {
-		return (float) Reflections.get(a, "pitch");
+		return (float) getField("pitch");
 	}
 
 	public float getYaw() {
-		return (float) Reflections.get(a, "yaw");
+		return (float) getField("yaw");
 	}
 
 	public Location getLocation() {
@@ -375,15 +368,16 @@ public class Player {
 	}
 
 	public org.bukkit.entity.Player getPlayer() {
-		return (org.bukkit.entity.Player) Reflections.get(a, "getBukkitPlayer");
+		return (org.bukkit.entity.Player) getField("getBukkitPlayer");
 	}
 
 	public String getName() {
-		return Reflections.get(a, "getName").toString();
+		return Reflections.invoke(a, Reflections.getMethod(c, "getName")).toString();
 	}
 
 	public String getCustomName() {
-		return Reflections.get(Reflections.getMethod(c, "getCustomName"), "getText").toString();
+		Object o = Reflections.invoke(a, Reflections.getMethod(c, "getCustomName"));
+		return (String)(Reflections.invoke(o, Reflections.getMethod(Reflections.getNMSClass("IChatBaseComponent"), "getText")));
 	}
 
 	public void setCustomName(String name) {
@@ -391,7 +385,7 @@ public class Player {
 	}
 
 	public boolean getTabListName() {
-		return (boolean) Reflections.get(a, "listName");
+		return (boolean) getField("listName");
 	}
 
 	public void setTabListName(String name) {
@@ -399,7 +393,7 @@ public class Player {
 	}
 
 	public boolean getCustomNameVisible() {
-		return (boolean) Reflections.get(a, "getCustomNameVisible");
+		return (boolean) getField("getCustomNameVisible");
 	}
 
 	public void setCustomNameVisible(boolean value) {
@@ -407,7 +401,7 @@ public class Player {
 	}
 
 	public boolean isGlowing() {
-		return (boolean) Reflections.get(a, "glowing");
+		return (boolean) getField("glowing");
 	}
 
 	public void setGlowing(boolean value) {
@@ -415,7 +409,8 @@ public class Player {
 	}
 
 	public String getDisplayName() {
-		return Reflections.get(a, "displayName").toString();
+		Object o = getField("displayName");
+		return o instanceof String ? (String)o : (String)(Reflections.invoke(o, Reflections.getMethod(Reflections.getNMSClass("IChatBaseComponent"), "getText")));
 	}
 
 	public void setDisplayName(String name) {
@@ -423,7 +418,7 @@ public class Player {
 	}
 
 	public float getExp() {
-		return (float) Reflections.get(a, "exp");
+		return (float) getField("exp");
 	}
 
 	public void setExp(float exps) {
@@ -431,11 +426,11 @@ public class Player {
 	}
 
 	public boolean isDead() {
-		return (boolean) Reflections.get(a, "dead");
+		return (boolean) getField("dead");
 	}
 
 	public boolean canPickUpLoot() {
-		return (boolean) Reflections.get(a, "canPickUpLoot");
+		return (boolean) getField("canPickUpLoot");
 	}
 
 	public void setCanPickUpLoot(boolean value) {
@@ -443,15 +438,15 @@ public class Player {
 	}
 
 	public boolean isColliding() {
-		return (boolean) Reflections.get(a, "collides");
+		return (boolean) getField("collides");
 	}
 
 	public void setColliding(boolean value) {
 		Reflections.setField(a, "collides", value);
 	}
 
-	public double getHealth() {
-		return (double) Reflections.get(a, "H");
+	public float getHealth() {
+		return (float) getField(Reflections.invoke(a, Reflections.getMethod(c, "getBukkitEntity")),"health");
 	}
 
 	public void setHealth(double health) {
@@ -459,7 +454,7 @@ public class Player {
 	}
 
 	public int getFood() {
-		return (int) Reflections.get(Reflections.get(a, "getFoodData"), "foodLevel");
+		return (int) getField(Reflections.invoke(a, Reflections.getMethod(c, "getFoodData")), "foodLevel");
 	}
 
 	public void setFood(int food) {
@@ -471,7 +466,7 @@ public class Player {
 	}
 
 	public int getFire() {
-		return (int) Reflections.get(a, "fireTicks");
+		return (int) getField("fireTicks");
 	}
 
 	public void setFire(int fire) {
@@ -479,11 +474,23 @@ public class Player {
 	}
 
 	public double getAir() {
-		return (float) Reflections.get(a, "getAirTicks");
+		return (float) getField("getAirTicks");
 	}
 
 	public void setAir(int air) {
 		Reflections.processMethod(a, "setAirTicks", air);
+	}
+
+	public void sendPacket(Object packet) {
+		getPlayerConnection().sendPacket(packet);
+	}
+	
+	public Object getField(String name) {
+		return Reflections.get(Reflections.getField(c, name),a);
+	}
+	
+	public Object getField(Object c, String name) {
+		return Reflections.get(Reflections.getField(c.getClass(), name),c);
 	}
 
 }

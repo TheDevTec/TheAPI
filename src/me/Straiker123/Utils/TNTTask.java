@@ -6,7 +6,6 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -16,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
+import me.Straiker123.ConfigAPI;
 import me.Straiker123.LoaderClass;
 import me.Straiker123.Particle;
 import me.Straiker123.Position;
@@ -25,29 +25,29 @@ import me.Straiker123.Events.TNTExplosionEvent;
 import me.Straiker123.Scheduler.Tasker;
 
 public class TNTTask {
-	List<Position> a;
-	TNTExplosionEvent event;
-	Position reals;
-	boolean toReal;
+	private final List<Position> a;
+	private final Particle e;
+	private final TNTExplosionEvent event;
+	private final Position reals;
+	private final ConfigAPI f = LoaderClass.config;
+	private final boolean toReal= f.getBoolean("Options.Optimize.TNT.Drops.InFirstTNTLocation");
 
 	public TNTTask(Position reals2, List<Position> list, TNTExplosionEvent result) {
 		a = list;
 		event = result;
 		reals = reals2;
-		f = LoaderClass.config.getConfig();
-		toReal = f.getBoolean("Options.LagChecker.TNT.Drops.InFirstTNTLocation");
+		if (Particle.valueOf(f.getString("Options.Optimize.TNT.Particles.Type")) != null)
+			e = Particle.valueOf(f.getString("Options.Optimize.TNT.Particles.Type"));
+		else e = Particle.EXPLOSION_LARGE;
 	}
-
-	int task;
-	FileConfiguration f;
 
 	private String action() {
 		if (TheAPI.getMemoryAPI().getFreeMemory(true) < 30) {
 			TheAPI.getMemoryAPI().clearMemory();
-			return f.getString("Options.LagChecker.TNT.Action.LowMememory");
+			return f.getString("Options.Optimize.TNT.Action.LowMememory");
 		}
 		if (TheAPI.getServerTPS() < 15) {
-			return f.getString("Options.LagChecker.TNT.Action.LowTPS");
+			return f.getString("Options.Optimize.TNT.Action.LowTPS");
 		}
 		return "none";
 	}
@@ -57,16 +57,11 @@ public class TNTTask {
 		if (event.canTNTInLiquidCancelEvent() && Events.around(event.getLocation())) {
 			return;
 		}
-		if (!f.getBoolean("Options.LagChecker.TNT.Particles.Disable")) {
-			if (TheAPI.isOlder1_9()) {
-				Particle e = Particle.EXPLOSION_LARGE;
-				if (Particle.valueOf(f.getString("Options.LagChecker.TNT.Particles.Type")) != null)
-					e = Particle.valueOf(f.getString("Options.LagChecker.TNT.Particles.Type"));
+		if (f.getBoolean("Options.Optimize.TNT.Particles.Use")) {
 				for (Entity ds : TheAPI.getBlocksAPI().getNearbyEntities(event.getLocation(), 15))
 					if (ds.getType() == EntityType.PLAYER)
 						TheAPI.getNMSAPI().sendPacket((Player) ds,
 								TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(e, event.getLocation().toLocation()));
-			}
 		}
 		if (event.canHitEntities()) {
 			Position l = event.getLocation();
@@ -88,30 +83,20 @@ public class TNTTask {
 							double rd = (r - l.distance(e.getLocation()));
 							double damage = r * rd / 9;
 							double total = damage / 3;
+							String xd = TheAPI
+									.getRandomFromList(Arrays.asList(0.1 * total, 0.2 * total, 0.3 * total))
+									.toString();
+							String yd = TheAPI
+									.getRandomFromList(Arrays.asList(0.2 * total, 0.3 * total, 0.4 * total))
+									.toString();
+							String zd = TheAPI
+									.getRandomFromList(Arrays.asList(0.1 * total, 0.2 * total, 0.3 * total))
+									.toString();
 							if (e.getType() == EntityType.PRIMED_TNT) {
-								String xd = TheAPI
-										.getRandomFromList(Arrays.asList(0.1 * total, 0.15 * total, 0.2 * total))
-										.toString();
-								String yd = TheAPI
-										.getRandomFromList(Arrays.asList(0.1 * total, 0.15 * total, 0.2 * total))
-										.toString();
-								String zd = TheAPI
-										.getRandomFromList(Arrays.asList(0.1 * total, 0.15 * total, 0.2 * total))
-										.toString();
 								e.setVelocity(new Vector(TheAPI.getStringUtils().getDouble(xd),
 										TheAPI.getStringUtils().getDouble(yd), TheAPI.getStringUtils().getDouble(zd)));
-
 							} else {
 								if (e instanceof LivingEntity) {
-									String xd = TheAPI
-											.getRandomFromList(Arrays.asList(0.1 * total, 0.2 * total, 0.3 * total))
-											.toString();
-									String yd = TheAPI
-											.getRandomFromList(Arrays.asList(0.2 * total, 0.3 * total, 0.4 * total))
-											.toString();
-									String zd = TheAPI
-											.getRandomFromList(Arrays.asList(0.1 * total, 0.2 * total, 0.3 * total))
-											.toString();
 									e.setVelocity(new Vector(TheAPI.getStringUtils().getDouble(xd),
 											TheAPI.getStringUtils().getDouble(yd),
 											TheAPI.getStringUtils().getDouble(zd)));
@@ -133,10 +118,10 @@ public class TNTTask {
 			}
 		}
 		new Tasker() {
-			int ignite = f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime") <= 0 ? 5
-					: f.getInt("Options.LagChecker.TNT.CollidingTNT.IgniteTime");
-			boolean igniteUsed = !f.getBoolean("Options.LagChecker.TNT.CollidingTNT.Disabled");
-			boolean fakeTnt = !f.getBoolean("Options.LagChecker.TNT.SpawnTNT");
+			int ignite = f.getInt("Options.Optimize.TNT.CollidingTNT.IgniteTime") <= 0 ? 5
+					: f.getInt("Options.Optimize.TNT.CollidingTNT.IgniteTime");
+			boolean igniteUsed = !f.getBoolean("Options.Optimize.TNT.CollidingTNT.Disabled");
+			boolean fakeTnt = !f.getBoolean("Options.Optimize.TNT.SpawnTNT");
 			String location = reals.toString();
 
 			@Override
@@ -223,7 +208,6 @@ public class TNTTask {
 						} catch (Exception err) {
 						}
 					}
-
 					a.clear();
 					cancel();
 				}

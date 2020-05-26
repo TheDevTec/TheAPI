@@ -22,18 +22,11 @@ public class Task implements Runnable {
 
 	@Override
 	public void run() {
-		if (isCancelled())
-			return;
 		++r;
-		if (s) {
+		if (s)
 			TheAPI.getNMSAPI().postToMainThread(run);
-		} else {
+		else 
 			run.run();
-		}
-		if (!repeat) {
-			c = true;
-			Scheduler.cancelTask(id);
-		}
 	}
 
 	public boolean isRepeating() {

@@ -10,21 +10,7 @@ public class Reflections {
 		try {
 			return object.cast(toCast);
 		} catch (Exception e) {
-			e.printStackTrace();
 			return null;
-		}
-	}
-
-	public static Method getMethod(Class<?> main, String name, Class<?> parameter) {
-		try {
-			return main.getMethod(name, parameter);
-		} catch (Exception e) {
-			try {
-				return main.getDeclaredMethod(name, parameter);
-			} catch (Exception e1) {
-				e1.printStackTrace();
-				return null;
-			}
 		}
 	}
 
@@ -35,7 +21,6 @@ public class Reflections {
 			try {
 				return main.getDeclaredMethod(name, bricks);
 			} catch (Exception e1) {
-				e1.printStackTrace();
 				return null;
 			}
 		}
@@ -48,7 +33,6 @@ public class Reflections {
 			try {
 				return main.getDeclaredMethod(name);
 			} catch (Exception e1) {
-				e1.printStackTrace();
 				return null;
 			}
 		}
@@ -67,7 +51,6 @@ public class Reflections {
 		try {
 			return main.getConstructor(bricks);
 		} catch (Exception e) {
-			e.printStackTrace();
 			return null;
 		}
 	}
@@ -78,7 +61,6 @@ public class Reflections {
 			main.getClass().getMethod(method, value.getClass(), value2.getClass(), value3.getClass(), value4.getClass())
 					.invoke(main, value, value2, value3, value4);
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -87,7 +69,6 @@ public class Reflections {
 			main.getClass().getMethod(method, value.getClass(), value2.getClass(), value3.getClass()).invoke(main,
 					value, value2, value3);
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -95,7 +76,6 @@ public class Reflections {
 		try {
 			main.getClass().getMethod(method, value.getClass(), value2.getClass()).invoke(main, value, value2);
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -103,7 +83,6 @@ public class Reflections {
 		try {
 			main.getClass().getMethod(method, value.getClass()).invoke(main, value);
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -112,7 +91,13 @@ public class Reflections {
 		try {
 			f.set(main, value);
 		} catch (Exception e) {
-			e.printStackTrace();
+		}
+	}
+
+	public static void setField(Object main, Field field, Object value) {
+		try {
+			field.set(main, value);
+		} catch (Exception e) {
 		}
 	}
 
@@ -121,7 +106,13 @@ public class Reflections {
 		try {
 			f.set(null, value);
 		} catch (Exception e) {
-			e.printStackTrace();
+		}
+	}
+
+	public static void setFieldWithNull(Field field, Object value) {
+		try {
+			field.set(null, value);
+		} catch (Exception e) {
 		}
 	}
 
@@ -136,28 +127,15 @@ public class Reflections {
 				f.setAccessible(true);
 				return f;
 			} catch (Exception e1) {
-				e1.printStackTrace();
 				return null;
 			}
 		}
 	}
 
-	public static Object get(Object main, String field) {
+	public static Object get(Field field, Object item) {
 		try {
-			Field f = getField(main.getClass(), field);
-			if (f != null) {
-				f.setAccessible(true);
-				return f.get(main);
-			} else {
-				Method m = main.getClass().getMethod(field);
-				if (m == null)
-					m = main.getClass().getDeclaredMethod(field);
-				if (m != null)
-					return m.invoke(main);
-				return null;
-			}
+			return field.get(item);
 		} catch (Exception e) {
-			e.printStackTrace();
 			return null;
 		}
 	}
@@ -209,6 +187,14 @@ public class Reflections {
 	public static Object invoke(Object object, Method method, Object... items) {
 		try {
 			return method.invoke(object, items);
+		} catch (Exception error) {
+			return null;
+		}
+	}
+
+	public static Constructor<?>[] getConstructors(Class<?> nmsClass) {
+		try {
+			return nmsClass.getConstructors();
 		} catch (Exception error) {
 			return null;
 		}

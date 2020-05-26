@@ -18,12 +18,11 @@ public class GUICreatorAPI {
 
 	public GUICreatorAPI(Player s) {
 		p = s;
-		g = LoaderClass.unused;
 		id = new GUIID(p, g);
 	}
 
 	private GUIID id;
-	private String t = "Missing name of GUI";
+	private String t = "TheAPI";
 
 	public void setTitle(String title) {
 		if (title != null)
@@ -132,7 +131,22 @@ public class GUICreatorAPI {
 		return s.create();
 	}
 
-	private static ConfigAPI g;
+	private ConfigAPI g= LoaderClass.unused;
+
+	/**
+	 * @see see Set item on position to the gui with options
+	 * @param options CANT_PUT_ITEM - Global, can player put to the gui item from
+	 *                his inventory (true/false). CANT_BE_TAKEN - Can player take
+	 *                item from gui (true/false).
+	 * 
+	 *                RUNNABLE - Ignoring click type, run everything in runnable
+	 *                (Runnable). SENDMESSAGES - Ignoring click type, send list of
+	 *                messages to the player (List<String>). SENDCOMMANDS - Ignoring
+	 *                click type, send list of commands as console (List<String>).
+	 */
+	public void setItem(int position, ItemCreatorAPI item, HashMap<Options, Object> options) {
+		setItem(position,item.create(),options);
+	}
 
 	/**
 	 * @see see Set item on position to the gui with options
@@ -333,6 +347,10 @@ public class GUICreatorAPI {
 			g.set("guis." + p.getName() + "." + getID() + "." + position + ".i", createHead(item));
 		else
 			g.set("guis." + p.getName() + "." + getID() + "." + position + ".i", item);
+	}
+	
+	public void setItem(int position, ItemCreatorAPI item) {
+		setItem(position,item.create());
 	}
 
 	/**

@@ -137,7 +137,7 @@ public class NameTagAPI {
 		Team t = sb.getTeam(teamName);
 		try {
 			t.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.ALWAYS);
-		} catch (Exception | NoSuchMethodError nope) {
+		} catch (Exception | NoSuchMethodError | NoSuchFieldError nope) {
 		}
 		if (suffix != null) {
 			if (TheAPI.isOlder1_9()) {

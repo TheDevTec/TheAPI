@@ -103,9 +103,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				TheAPI.msg("&6/TheAPI Test BossBar", s);
 				TheAPI.msg("&6/TheAPI Test MultiMap", s);
 				TheAPI.msg("&6/TheAPI Test PlayerName", s);
-				TheAPI.msg("&6/TheAPI Test RankingAPI", s);// new
+				TheAPI.msg("&6/TheAPI Test RankingAPI", s);
 				TheAPI.msg("&6/TheAPI Test Scoreboard", s);
-				TheAPI.msg("&6/TheAPI Test ScoreboardV2", s); // new
 				TheAPI.msg("&6/TheAPI Test TabList", s);
 				TheAPI.msg("&6/TheAPI Test Title", s);
 				TheAPI.msg("&6/TheAPI Test GUICreatorAPI", s);
@@ -286,17 +285,12 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			if (eq(1, "Scoreboard")) {
 				ScoreboardAPI a = TheAPI.getScoreboardAPI(p);
 				a.setDisplayName("&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
-				int task = new Tasker() {
-					public void run() {
-						a.setLine(1, "&7Random: &c"+TheAPI.generateRandomInt(10));
-					}
-				}.repeating(1, 1);
+				a.setLine(1, "&7Random: &c"+TheAPI.generateRandomInt(10));
 				a.setLine(0, "&aBy DevTec");
 				new Tasker() {
 					@Override
 					public void run() {
-						Tasker.cancelTask(task);
-						p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+						a.destroy();
 					}
 				}.later(40);
 				return true;

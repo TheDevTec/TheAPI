@@ -9,7 +9,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -25,13 +24,13 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerPreLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -69,14 +68,11 @@ import me.Straiker123.Events.PlayerJumpEvent;
 import me.Straiker123.Events.PlayerReadPacketEvent;
 import me.Straiker123.Events.PlayerReceivePacketEvent;
 import me.Straiker123.Events.TNTExplosionEvent;
-import me.Straiker123.Scheduler.Tasker;
 import me.Straiker123.Utils.GUIID.GRunnable;
 
 @SuppressWarnings("deprecation")
 public class Events implements Listener {
-	public static FileConfiguration f = LoaderClass.config.getConfig();
-	public static FileConfiguration d = LoaderClass.data.getConfig();
-	public static ConfigAPI g = LoaderClass.unused;
+	public static ConfigAPI f = LoaderClass.config,d = LoaderClass.data,g = LoaderClass.unused;
 	public static PunishmentAPI a = TheAPI.getPunishmentAPI();
 
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -163,16 +159,13 @@ public class Events implements Listener {
 		ClickType t = e.getClick();
 		if (g.existPath("guis." + a + "." + slot + ".TAKE"))
 			e.setCancelled(g.getBoolean("guis." + a + "." + slot + ".TAKE"));
-		new Tasker() {
-			@Override
-			public void run() {
 				if (g.getString("guis." + a + "." + slot + ".MSG") != null)
 					for (String s : g.getStringList("guis." + a + "." + slot + ".MSG"))
 						TheAPI.msg(s, p);
 				if (g.getString("guis." + a + "." + slot + ".CMD") != null)
 					for (String s : g.getStringList("guis." + a + "." + slot + ".CMD"))
 						TheAPI.sudoConsole(SudoType.COMMAND, s);
-				TheAPI.getNMSAPI().postToMainThread(d.getRunnable(GRunnable.RUNNABLE, slot));
+				d.runRunnable(GRunnable.RUNNABLE, slot);
 				if (t.isLeftClick() && !t.isShiftClick()) {
 					if (g.getString("guis." + a + "." + slot + ".MSGLC") != null)
 						for (String s : g.getStringList("guis." + a + "." + slot + ".MSGLC"))
@@ -180,7 +173,7 @@ public class Events implements Listener {
 					if (g.getString("guis." + a + "." + slot + ".CMDLC") != null)
 						for (String s : g.getStringList("guis." + a + "." + slot + ".CMDLC"))
 							TheAPI.sudoConsole(SudoType.COMMAND, s);
-					TheAPI.getNMSAPI().postToMainThread(d.getRunnable(GRunnable.RUNNABLE_LEFT_CLICK, slot));
+					d.runRunnable(GRunnable.RUNNABLE_LEFT_CLICK, slot);
 				}
 				if (t.isRightClick() && !t.isShiftClick()) {
 					if (g.getString("guis." + a + "." + slot + ".MSGRC") != null)
@@ -189,7 +182,7 @@ public class Events implements Listener {
 					if (g.getString("guis." + a + "." + slot + ".CMDRC") != null)
 						for (String s : g.getStringList("guis." + a + "." + slot + ".CMDRC"))
 							TheAPI.sudoConsole(SudoType.COMMAND, s);
-					TheAPI.getNMSAPI().postToMainThread(d.getRunnable(GRunnable.RUNNABLE_RIGHT_CLICK, slot));
+					d.runRunnable(GRunnable.RUNNABLE_RIGHT_CLICK, slot);
 				}
 				if (t.isCreativeAction()) {
 					if (g.getString("guis." + a + "." + slot + ".MSGMC") != null)
@@ -198,7 +191,7 @@ public class Events implements Listener {
 					if (g.getString("guis." + a + "." + slot + ".CMDMC") != null)
 						for (String s : g.getStringList("guis." + a + "." + slot + ".CMDMC"))
 							TheAPI.sudoConsole(SudoType.COMMAND, s);
-					TheAPI.getNMSAPI().postToMainThread(d.getRunnable(GRunnable.RUNNABLE_MIDDLE_CLICK, slot));
+					d.runRunnable(GRunnable.RUNNABLE_MIDDLE_CLICK, slot);
 				}
 				if (t.isLeftClick() && t.isShiftClick()) {
 					if (g.getString("guis." + a + "." + slot + ".MSGWLC") != null)
@@ -207,7 +200,7 @@ public class Events implements Listener {
 					if (g.getString("guis." + a + "." + slot + ".CMDWLC") != null)
 						for (String s : g.getStringList("guis." + a + "." + slot + ".CMDWLC"))
 							TheAPI.sudoConsole(SudoType.COMMAND, s);
-					TheAPI.getNMSAPI().postToMainThread(d.getRunnable(GRunnable.RUNNABLE_SHIFT_WITH_LEFT_CLICK, slot));
+					d.runRunnable(GRunnable.RUNNABLE_SHIFT_WITH_LEFT_CLICK, slot);
 				}
 				if (t.isRightClick() && t.isShiftClick()) {
 					if (g.getString("guis." + a + "." + slot + ".MSGWRC") != null)
@@ -216,11 +209,9 @@ public class Events implements Listener {
 					if (g.getString("guis." + a + "." + slot + ".CMDWLC") != null)
 						for (String s : g.getStringList("guis." + a + "." + slot + ".CMDWRC"))
 							TheAPI.sudoConsole(SudoType.COMMAND, s);
-					TheAPI.getNMSAPI().postToMainThread(d.getRunnable(GRunnable.RUNNABLE_SHIFT_WITH_RIGHT_CLICK, slot));
+					d.runRunnable(GRunnable.RUNNABLE_SHIFT_WITH_RIGHT_CLICK, slot);
 				}
-			}
-		}.runAsync();
-	}
+		}
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onClick(PlayerInteractEvent e) {
@@ -376,9 +367,9 @@ public class Events implements Listener {
 	}
 
 	public static Storage add(Position block, Position real, boolean t, Storage st, Collection<ItemStack> collection) {
-		if (f.getBoolean("Options.LagChecker.TNT.Drops.Allowed"))
+		if (f.getBoolean("Options.Optimize.TNT.Drops.Allowed"))
 			if (!t) {
-				if (f.getBoolean("Options.LagChecker.TNT.Drops.InSingleLocation")) {
+				if (f.getBoolean("Options.Optimize.TNT.Drops.InSingleLocation")) {
 					for (ItemStack i : collection) {
 						if (i != null && i.getType() != Material.AIR)
 							st.add(i);
@@ -518,13 +509,13 @@ public class Events implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onLogin(AsyncPlayerPreLoginEvent e) {
+	public void onLogin(PlayerPreLoginEvent e) {
 		if (!AntiBot.hasAccess(e.getUniqueId())) {
 			e.disallow(Result.KICK_OTHER, null);
 			return;
 		}
 		User s = TheAPI.getUser(e.getUniqueId());
-		s.setAndSave("ip", (e.getAddress().toString()).replace(".", "_"));
+		s.setAndSave("ip", (e.getAddress()+"").replace("/", "").replace(".", "_"));
 		PlayerBanList a = Events.a.getBanList(s.getName());
 		try {
 			if (a.isBanned()) {
@@ -583,26 +574,33 @@ public class Events implements Listener {
 	public void onJoin(PlayerJoinEvent e) {
 		ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
 			@Override
-			public void channelRead(ChannelHandlerContext channelHandlerContext, Object packet) throws Exception {
+			public void channelRead(ChannelHandlerContext channelHandlerContext, Object packet) {
 				PlayerReadPacketEvent es = new PlayerReadPacketEvent(e.getPlayer(), packet);
 				if (LoaderClass.config.getBoolean("Options.PacketsEnabled.Read")) {
 					Bukkit.getPluginManager().callEvent(es);
 					if (es.isCancelled())
 						return;
 				}
-				super.channelRead(channelHandlerContext, es.getPacket());
+				try {
+					super.channelRead(channelHandlerContext, es.getPacket());
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 			}
 
 			@Override
-			public void write(ChannelHandlerContext channelHandlerContext, Object packet, ChannelPromise channelPromise)
-					throws Exception {
+			public void write(ChannelHandlerContext channelHandlerContext, Object packet, ChannelPromise channelPromise) {
 				PlayerReceivePacketEvent es = new PlayerReceivePacketEvent(e.getPlayer(), packet);
 				if (LoaderClass.config.getBoolean("Options.PacketsEnabled.Receive")) {
 					Bukkit.getPluginManager().callEvent(es);
 					if (es.isCancelled())
 						return;
 				}
-				super.write(channelHandlerContext, es.getPacket(), channelPromise);
+				try {
+					super.write(channelHandlerContext, es.getPacket(), channelPromise);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 			}
 
 		};
@@ -716,8 +714,7 @@ public class Events implements Listener {
 	public void onChat(PlayerChatEvent e) {
 		if (e.isCancelled())
 			return;
-		Player p = e.getPlayer();
-		PlayerBanList b = a.getBanList(p.getName());
+		PlayerBanList b = a.getBanList(e.getPlayer().getName());
 		if (b.isTempMuted()) {
 			e.setCancelled(true);
 			TheAPI.msg(
@@ -731,9 +728,5 @@ public class Events implements Listener {
 			TheAPI.msg(b.getReason(PunishmentType.MUTE), e.getPlayer());
 			return;
 		}
-		if (LoaderClass.chatformat.containsKey(p))
-			e.setFormat(LoaderClass.chatformat.get(p).replace("%", "%%").replace("%%player%%", p.getName())
-					.replace("%%playername%%", p.getDisplayName()).replace("%%playercustom%%", p.getCustomName())
-					.replace("%%message%%", e.getMessage().replace("%", "%%")));
 	}
 }

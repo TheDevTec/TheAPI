@@ -15,19 +15,19 @@ public class NetworkManager {
 	}
 
 	public boolean isPreparing() {
-		return (boolean) Reflections.get(a, "preparing");
+		return (boolean) Reflections.get(Reflections.getField(Reflections.getNMSClass("NetworkManager"), "preparing"),a);
 	}
 
 	public Property[] getProfile() {
-		return (Property[]) Reflections.get(a, "spoofedProfile");
+		return (Property[]) Reflections.get(Reflections.getField(Reflections.getNMSClass("NetworkManager"), "spoofedProfile"),a);
 	}
 
 	public UUID getUUID() {
-		return (UUID) Reflections.get(a, "spoofedUUID");
+		return (UUID) Reflections.get(Reflections.getField(Reflections.getNMSClass("NetworkManager"), "spoofedUUID"),a);
 	}
 
 	public Channel getChannel() {
-		return (Channel) Reflections.get(a, "channel");
+		return (Channel) Reflections.get(Reflections.getField(Reflections.getNMSClass("NetworkManager"), "channel"),a);
 	}
 
 	// YOUR RISK
@@ -36,7 +36,7 @@ public class NetworkManager {
 	}
 
 	public SocketAddress getSocketAddress() {
-		return (SocketAddress) Reflections.get(a, "socketAddress");
+		return (SocketAddress) Reflections.get(Reflections.getField(Reflections.getNMSClass("NetworkManager"), "socketAddress"),a);
 	}
 
 	// YOUR RISK

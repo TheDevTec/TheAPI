@@ -30,14 +30,15 @@ import me.Straiker123.Utils.TheAPICommand;
 import net.milkbowl.vault.economy.Economy;
 
 public class LoaderClass extends JavaPlugin {
+	public static HashMap<String, ScoreboardAPI> scoreboard = Maps.newHashMap();
 	public static LoaderClass plugin;
 	public HashMap<Integer, Task> scheduler = Maps.newHashMap();
 	public HashMap<Player, GUIID> gui = Maps.newHashMap();
 	public HashMap<String, Integer> GameAPI_Arenas = Maps.newHashMap();
 	public HashMap<String, Runnable> win_rewards = Maps.newHashMap();
-	public ArrayList<Integer> tasks = Lists.newArrayList();
+	public List<Integer> tasks = Lists.newArrayList();
 	public static ConfigAPI unused,config,gameapi,data;
-
+	
 	@Override
 	public void onLoad() {
 		unused = new ConfigAPI(this, "UnusedData");
@@ -199,35 +200,25 @@ public class LoaderClass extends JavaPlugin {
 		}
 	}
 
-	public static HashMap<Player, String> chatformat = new HashMap<Player, String>();
-
 	private void createConfig() {
 		data.create();
-		config.setHeader("ChunkMobLimit -> OnLimitExceeded types: KILL/WARN\n"
-				+ "TNT -> Action -> LowMememory types: WAIT/DROP\n" + "TNT -> Action -> LowTPS types: WAIT/DROP");
-		config.addDefault("Options.HideErrors", false);
+		config.setHeader("TNT, Action types: WAIT/DROP");
+		config.addDefault("Options.HideErrors", false); //hide only TheAPI errors
 		config.addDefault("Options.AntiBot.Use", true);
-		config.addDefault("Options.AntiBot.TimeBetweenPlayer", 3);
-
+		config.addDefault("Options.AntiBot.TimeBetweenPlayer", 20); //20 milis
 		config.addDefault("Options.PacketsEnabled.Read", true);
 		config.addDefault("Options.PacketsEnabled.Receive", true);
-		config.addDefault("Options.LagChecker.Enabled", true);
-		config.addDefault("Options.LagChecker.Log", false);
-
-		config.addDefault("Options.LagChecker.TNT.Use", true);
-
-		config.addDefault("Options.LagChecker.TNT.Particles.Disable", true);
-		config.addDefault("Options.LagChecker.TNT.Particles.Type", "EXPLOSION_LARGE");
-
-		config.addDefault("Options.LagChecker.TNT.Drops.Allowed", true);
-		config.addDefault("Options.LagChecker.TNT.Drops.InSingleLocation", true);
-		config.addDefault("Options.LagChecker.TNT.Drops.InFirstTNTLocation", false);
-
-		config.addDefault("Options.LagChecker.TNT.CollidingTNT.Disabled", false);
-		config.addDefault("Options.LagChecker.TNT.Action.LowMememory", "WAIT");
-		config.addDefault("Options.LagChecker.TNT.Action.LowTPS", "WAIT");
-		config.addDefault("Options.LagChecker.TNT.CollidingTNT.IgniteTime", 5); // 0 is ultra fast, but with ultra lag
-		config.addDefault("Options.LagChecker.TNT.SpawnTNT", false); // more friendly to server
+		config.addDefault("Options.Optimize.TNT.Use", true);
+		config.addDefault("Options.Optimize.TNT.Particles.Use", false);
+		config.addDefault("Options.Optimize.TNT.Particles.Type", "EXPLOSION_LARGE");
+		config.addDefault("Options.Optimize.TNT.Drops.Allowed", true);
+		config.addDefault("Options.Optimize.TNT.Drops.InSingleLocation", true);
+		config.addDefault("Options.Optimize.TNT.Drops.InFirstTNTLocation", false);
+		config.addDefault("Options.Optimize.TNT.CollidingTNT.Disabled", false);
+		config.addDefault("Options.Optimize.TNT.Action.LowMememory", "WAIT");
+		config.addDefault("Options.Optimize.TNT.Action.LowTPS", "WAIT");
+		config.addDefault("Options.Optimize.TNT.CollidingTNT.IgniteTime", 3); // 0 is ultra fast, but with ultra lag
+		config.addDefault("Options.Optimize.TNT.SpawnTNT", false); //defaulty false, more friendly to server
 		config.addDefault("Options.EntityMoveEvent.Reflesh", 3);
 		config.addDefault("Options.EntityMoveEvent.Enabled", true); // set false to disable this event
 		config.addDefault("Options.FakeEconomyAPI.Symbol", "$");

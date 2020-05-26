@@ -1,5 +1,8 @@
 package me.Straiker123.Scheduler;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import me.Straiker123.LoaderClass;
 import me.Straiker123.TheAPI;
 
@@ -8,6 +11,19 @@ public class Scheduler {
 		if (LoaderClass.plugin.scheduler.containsKey(id))
 			return LoaderClass.plugin.scheduler.get(id);
 		return null;
+	}
+
+	public static void cancelTask(int id) {
+		if (LoaderClass.plugin.scheduler.containsKey(id)) {
+			LoaderClass.plugin.scheduler.get(id).cancel();
+			LoaderClass.plugin.scheduler.remove(id);
+		}
+	}
+
+	public static void cancelTask(Task id) {
+		id.cancel();
+		if (LoaderClass.plugin.scheduler.containsKey(id.getId()))
+			LoaderClass.plugin.scheduler.remove(id.getId());
 	}
 
 	public static void cancelAll() {
@@ -37,8 +53,8 @@ public class Scheduler {
 		Task t = run(task, false, false);
 		new Thread(new Runnable() {
 			public void run() {
-				if(!t.isCancelled())
-				TheAPI.getNMSAPI().postToMainThread(t);
+				TheAPI.getNMSAPI().postToMainThread(task);
+				cancelTask(t);
 				Thread.interrupted();
 			}
 		}).start();
@@ -49,8 +65,8 @@ public class Scheduler {
 		Task t = run(task, true, false);
 		new Thread(new Runnable() {
 			public void run() {
-				if(!t.isCancelled())
 				t.run();
+				cancelTask(t);
 				Thread.interrupted();
 			}
 		}).start();
@@ -63,13 +79,6 @@ public class Scheduler {
 
 	public static Task laterAsync(Runnable task, long delay) {
 		return later(task, delay, true);
-	}
-
-	public static void cancelTask(int id) {
-		if (LoaderClass.plugin.scheduler.containsKey(id)) {
-			LoaderClass.plugin.scheduler.get(id).cancel();
-			LoaderClass.plugin.scheduler.remove(id);
-		}
 	}
 
 	private static Task run(Runnable task, boolean async, boolean multipleTimes) {
@@ -94,18 +103,14 @@ public class Scheduler {
 			return null;
 		}
 		Task t = run(task, async, false);
-		new Thread(new Runnable() {
+		new Timer().scheduleAtFixedRate(new TimerTask() {
 			public void run() {
-				if(delay>0)
-				try {
-					Thread.sleep(50*delay);
-				} catch (InterruptedException e) {
-				}
-				if(!t.isCancelled())
-				t.run();
-				Thread.interrupted();
+					t.run();
+					cancel();
+					cancelTask(t);
+					Thread.interrupted();
 			}
-		}).start();
+		}, delay*50,1);
 		return t;
 	}
 
@@ -119,25 +124,16 @@ public class Scheduler {
 			return null;
 		}
 		Task t = run(task, async, true);
-		new Thread(new Runnable() {
+		new Timer().scheduleAtFixedRate(new TimerTask() {
 			public void run() {
-				if(delay>0)
-				try {
-					Thread.sleep(50*delay);
-				} catch (InterruptedException e) {
-				}
-				while(!t.isCancelled()) {
-				t.run();
-				if(period > 0)
-				try {
-					Thread.sleep(50*period);
-				} catch (InterruptedException e) {
-				}
-				}
-				if(t.isCancelled())
+					t.run();
+					if(t.isCancelled()) {
+					cancel();
+					cancelTask(t);
 					Thread.interrupted();
+					}
 			}
-		}).start();
+		}, delay*50, period*50);
 		return t;
 	}
 
@@ -156,27 +152,16 @@ public class Scheduler {
 			return null;
 		}
 		Task t = run(task, async, true);
-		new Thread(new Runnable() {
+		new Timer().scheduleAtFixedRate(new TimerTask() {
 			public void run() {
-				if(delay>0)
-				try {
-					Thread.sleep(50*delay);
-				} catch (InterruptedException e) {
-				}
-				while(!t.isCancelled()) {
-					if(t.runTimes()>=times) {
-						t.cancel();
-						break;
+					t.run();
+					if(t.isCancelled()||t.runTimes()>=times) {
+					cancel();
+					cancelTask(t);
+					Thread.interrupted();
 					}
-				t.run();
-				if(period > 0)
-				try {
-					Thread.sleep(50*period);
-				} catch (InterruptedException e) {
-				}
-				}
 			}
-		}).start();
+		}, delay*50, period*50);
 		return t;
 	}
 }

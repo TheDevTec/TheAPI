@@ -37,8 +37,7 @@ import net.glowstone.entity.GlowPlayer;
 public class TheAPI {
 	private static final HashMap<String, BossBar> list = Maps.newHashMap();
 	private static final HashMap<String, Integer> task = Maps.newHashMap();
-	static {
-	}
+	private static final HashMap<UUID, User> cache = Maps.newHashMap();
 
 	public static boolean generateChance(double chance) {
 		return generateRandomDouble(100) <= chance;
@@ -641,24 +640,13 @@ public class TheAPI {
 		}
 		getPlayerAPI(p).sendTitle(firstLine, nextLine);
 	}
-
-	/**
-	 * @see see Set player chat format
-	 * @param format Set to null to reset chat format
-	 */
-	public void setChatFormat(Player p, String format) {
-		if (format != null)
-			LoaderClass.chatformat.put(p, format);
-		else
-			LoaderClass.chatformat.remove(p);
-	}
-
+	
 	/**
 	 * @see see Send message to all online players with interval
 	 * @param message
 	 * @param time
 	 */
-	public void slowBroadcast(List<String> messages, long interval) {
+	public static void slowBroadcast(List<String> messages, long interval) {
 		SlowLoop<String> t = new SlowLoop<String>() {
 			@Override
 			void toRun(String t) {
@@ -674,7 +662,7 @@ public class TheAPI {
 	 * @param message
 	 * @param time
 	 */
-	public void slowBroadcast(Collection<String> messages, long interval) {
+	public static void slowBroadcast(Collection<String> messages, long interval) {
 		SlowLoop<String> t = new SlowLoop<String>() {
 			@Override
 			void toRun(String t) {
@@ -1258,8 +1246,15 @@ public class TheAPI {
 	 * @param nameOrUUID Name of player or UUID in String
 	 * @return User
 	 */
+	@SuppressWarnings("deprecation")
 	public static User getUser(String nameOrUUID) {
-		return new User(nameOrUUID);
+		UUID s = null;
+		try {
+			s = UUID.fromString(nameOrUUID);
+		} catch (Exception e) {
+			s = Bukkit.getOfflinePlayer(nameOrUUID).getUniqueId();
+		}
+		return getUser(s);
 	}
 
 	/**
@@ -1268,7 +1263,7 @@ public class TheAPI {
 	 * @return User
 	 */
 	public static User getUser(Player player) {
-		return new User(player);
+		return getUser(player.getUniqueId());
 	}
 
 	/**
@@ -1277,6 +1272,11 @@ public class TheAPI {
 	 * @return User
 	 */
 	public static User getUser(UUID uuid) {
-		return new User(uuid);
+		User c = cache.containsKey(uuid) ? cache.get(uuid) : null;
+		if(c==null) {
+			c=new User(uuid);
+			cache.put(uuid, c);
+		}
+		return c;
 	}
 }

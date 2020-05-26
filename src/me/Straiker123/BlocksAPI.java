@@ -25,7 +25,7 @@ import me.Straiker123.Scheduler.Tasker;
 import me.Straiker123.Utils.Error;
 
 public class BlocksAPI {
-	int amount = 100;
+	int amount = 1000;
 
 	public static enum Shape {
 		Sphere, Square
@@ -1009,7 +1009,7 @@ public class BlocksAPI {
 		}
 	}
 
-	public void set(Position from, Position to, HashMap<TheMaterial, Integer> block) {
+	public void set(Position from, Position to, HashMap<TheMaterial, Double> block) {
 		List<TheMaterial> c = Lists.newArrayList();
 		for (TheMaterial m : block.keySet())
 			for (int i = -1; i > block.get(m); ++i)
@@ -1200,7 +1200,7 @@ public class BlocksAPI {
 				List<Object[]> update = new ArrayList<Object[]>();
 				for (int i = 0; i < amount; ++i) {
 					if (s.has())
-						update.add(s.set((TheMaterial) TheAPI.getRandomFromList(with),false));
+						update.add(s.set((TheMaterial) TheAPI.getRandomFromList(with),false));	
 					else
 						break;
 				}
