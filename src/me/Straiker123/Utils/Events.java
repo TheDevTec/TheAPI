@@ -59,14 +59,13 @@ import me.Straiker123.TheAPI;
 import me.Straiker123.TheAPI.SudoType;
 import me.Straiker123.TheMaterial;
 import me.Straiker123.User;
-import me.Straiker123.Blocks.BlocksAPI.Shape;
 import me.Straiker123.WorldBorderAPI.WarningMessageType;
+import me.Straiker123.Blocks.BlocksAPI.Shape;
 import me.Straiker123.Events.DamageGodPlayerByEntityEvent;
 import me.Straiker123.Events.DamageGodPlayerEvent;
 import me.Straiker123.Events.GUIClickEvent;
 import me.Straiker123.Events.GUICloseEvent;
 import me.Straiker123.Events.PlayerJumpEvent;
-import me.Straiker123.Events.PlayerReadPacketEvent;
 import me.Straiker123.Events.PlayerReceivePacketEvent;
 import me.Straiker123.Events.TNTExplosionEvent;
 import me.Straiker123.Utils.GUIID.GRunnable;
@@ -583,29 +582,33 @@ public class Events implements Listener {
 		ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
 			@Override
 			public void channelRead(ChannelHandlerContext channelHandlerContext, Object packet) {
-				PlayerReadPacketEvent es = new PlayerReadPacketEvent(e.getPlayer(), packet);
-				boolean cancel = false;
 				if (LoaderClass.config.getBoolean("Options.PacketsEnabled.Read")) {
-					TheAPI.getNMSAPI().postToMainThread(new Runnable() {public void run() {Bukkit.getPluginManager().callEvent(es);}});
-					cancel=es.isCancelled();
+					PlayerReceivePacketEvent es = new PlayerReceivePacketEvent(e.getPlayer(), packet);
+					Bukkit.getPluginManager().callEvent(es);
+					if(es.isCancelled())return;
+					try {
+						super.channelRead(channelHandlerContext, es.getPacket());
+					} catch (Exception e1) {
+					}
 				}
-				if(cancel)return;
 				try {
-					super.channelRead(channelHandlerContext, es.getPacket());
+					super.channelRead(channelHandlerContext, packet);
 				} catch (Exception e1) {
 				}
 			}
 			@Override
 			public void write(ChannelHandlerContext channelHandlerContext, Object packet, ChannelPromise channelPromise) {
-				PlayerReceivePacketEvent es = new PlayerReceivePacketEvent(e.getPlayer(), packet);
-				boolean cancel = false;
 				if (LoaderClass.config.getBoolean("Options.PacketsEnabled.Receive")) {
-					TheAPI.getNMSAPI().postToMainThread(new Runnable() {public void run() {Bukkit.getPluginManager().callEvent(es);}});
-					cancel=es.isCancelled();
+					PlayerReceivePacketEvent es = new PlayerReceivePacketEvent(e.getPlayer(), packet);
+					Bukkit.getPluginManager().callEvent(es);
+					if(es.isCancelled())return;
+					try {
+						super.channelRead(channelHandlerContext, es.getPacket());
+					} catch (Exception e1) {
+					}
 				}
-				if(cancel)return;
 				try {
-					super.write(channelHandlerContext, es.getPacket(), channelPromise);
+					super.write(channelHandlerContext, packet, channelPromise);
 				} catch (Exception e1) {
 				}
 			}
