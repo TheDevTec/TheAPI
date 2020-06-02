@@ -367,14 +367,14 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				TheAPI.msg("&7-----------------", s);
 				TheAPI.msg("&7Memory:", s);
 				TheAPI.msg("  &7Max: &e"+TheAPI.getMemoryAPI().getMaxMemory(), s);
-				TheAPI.msg("  &7Used: &e"+TheAPI.getMemoryAPI().getUsedMemory(false)+" &7("+TheAPI.getMemoryAPI().getUsedMemory(true)+"%)", s);
-				TheAPI.msg("  &7Free: &e"+TheAPI.getMemoryAPI().getFreeMemory(false)+" &7("+TheAPI.getMemoryAPI().getFreeMemory(true)+"%)", s);
+				TheAPI.msg("  &7Used: &e"+TheAPI.getMemoryAPI().getUsedMemory(false)+" &7(&e"+TheAPI.getMemoryAPI().getUsedMemory(true)+"%&7)", s);
+				TheAPI.msg("  &7Free: &e"+TheAPI.getMemoryAPI().getFreeMemory(false)+" &7(&e"+TheAPI.getMemoryAPI().getFreeMemory(true)+"%&7)", s);
 				TheAPI.msg("&7Worlds:", s);
 				for(World w : Bukkit.getWorlds())
 					TheAPI.msg(" &7- &e"+w.getName()+" &7(Ent:&e"+w.getEntities().size()+"&7, Players:&e"+w.getPlayers().size()+"&7, Chunks:&e"+w.getLoadedChunks().length+"&7)", s);
 				TheAPI.msg("&7Players:", s);
 				TheAPI.msg("  &7Max: &e"+TheAPI.getMaxPlayers(), s);
-				TheAPI.msg("  &7Online: &e"+TheAPI.getOnlinePlayers().size()+" &7("+(TheAPI.getOnlinePlayers().size()/((double)TheAPI.getMaxPlayers()/100))+"%)", s);
+				TheAPI.msg("  &7Online: &e"+TheAPI.getOnlinePlayers().size()+" &7(&e"+(TheAPI.getOnlinePlayers().size()/((double)TheAPI.getMaxPlayers()/100))+"%&7)", s);
 				TheAPI.msg("&7TPS: &e"+TheAPI.getServerTPS(TPSType.ONE_MINUTE)+", "+TheAPI.getServerTPS(TPSType.FIVE_MINUTES)+", "+TheAPI.getServerTPS(TPSType.FIFTEEN_MINUTES), s);
 				OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
 				TheAPI.msg("&7System:", s);
