@@ -364,7 +364,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		}
 		if (eq(0, "inf") || eq(0, "info")) {
 			if (perm("Info")) {
-				TheAPI.msg("&7-----------------", s);
+				TheAPI.msg("&7-----------------------------", s);
 				TheAPI.msg("&7Memory:", s);
 				TheAPI.msg("  &7Max: &e"+TheAPI.getMemoryAPI().getMaxMemory(), s);
 				TheAPI.msg("  &7Used: &e"+TheAPI.getMemoryAPI().getUsedMemory(false)+" &7(&e"+TheAPI.getMemoryAPI().getUsedMemory(true)+"%&7)", s);
@@ -387,7 +387,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					for (Plugin a : LoaderClass.plugin.getTheAPIsPlugins())
 						TheAPI.msg("&7 - " + getPlugin(a), s);
 				}
-				TheAPI.msg("&7-----------------", s);
+				TheAPI.msg("&7-----------------------------", s);
 				return true;
 			}
 			return true;
