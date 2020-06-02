@@ -363,31 +363,31 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			return true;
 		}
 		if (eq(0, "inf") || eq(0, "info")) {
-			if (perm("Info")) {
-				TheAPI.msg("&7-----------------------------", s);
-				TheAPI.msg("&7Memory:", s);
-				TheAPI.msg("  &7Max: &e"+TheAPI.getMemoryAPI().getMaxMemory(), s);
-				TheAPI.msg("  &7Used: &e"+TheAPI.getMemoryAPI().getUsedMemory(false)+" &7(&e"+TheAPI.getMemoryAPI().getUsedMemory(true)+"%&7)", s);
-				TheAPI.msg("  &7Free: &e"+TheAPI.getMemoryAPI().getFreeMemory(false)+" &7(&e"+TheAPI.getMemoryAPI().getFreeMemory(true)+"%&7)", s);
-				TheAPI.msg("&7Worlds:", s);
+			if (perm("Info")) { //═
+				TheAPI.msg("&7╔══════════════════", s);
+				TheAPI.msg("&7║ Memory:", s);
+				TheAPI.msg("&7║  Max: &e"+TheAPI.getMemoryAPI().getMaxMemory(), s);
+				TheAPI.msg("&7║  Used: &e"+TheAPI.getMemoryAPI().getUsedMemory(false)+" &7(&e"+TheAPI.getMemoryAPI().getUsedMemory(true)+"%&7)", s);
+				TheAPI.msg("&7║  Free: &e"+TheAPI.getMemoryAPI().getFreeMemory(false)+" &7(&e"+TheAPI.getMemoryAPI().getFreeMemory(true)+"%&7)", s);
+				TheAPI.msg("&7║ Worlds:", s);
 				for(World w : Bukkit.getWorlds())
-					TheAPI.msg(" &7- &e"+w.getName()+" &7(Ent:&e"+w.getEntities().size()+"&7, Players:&e"+w.getPlayers().size()+"&7, Chunks:&e"+w.getLoadedChunks().length+"&7)", s);
-				TheAPI.msg("&7Players:", s);
-				TheAPI.msg("  &7Max: &e"+TheAPI.getMaxPlayers(), s);
-				TheAPI.msg("  &7Online: &e"+TheAPI.getOnlinePlayers().size()+" &7(&e"+(TheAPI.getOnlinePlayers().size()/((double)TheAPI.getMaxPlayers()/100))+"%&7)", s);
-				TheAPI.msg("&7TPS: &e"+TheAPI.getServerTPS(TPSType.ONE_MINUTE)+", "+TheAPI.getServerTPS(TPSType.FIVE_MINUTES)+", "+TheAPI.getServerTPS(TPSType.FIFTEEN_MINUTES), s);
+					TheAPI.msg("&7║  - &e"+w.getName()+" &7(Ent:&e"+w.getEntities().size()+"&7, Players:&e"+w.getPlayers().size()+"&7, Chunks:&e"+w.getLoadedChunks().length+"&7)", s);
+				TheAPI.msg("&7║ Players:", s);
+				TheAPI.msg("&7║  Max: &e"+TheAPI.getMaxPlayers(), s);
+				TheAPI.msg("&7║  Online: &e"+TheAPI.getOnlinePlayers().size()+" &7(&e"+(TheAPI.getOnlinePlayers().size()/((double)TheAPI.getMaxPlayers()/100))+"%&7)", s);
 				OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
-				TheAPI.msg("&7System:", s);
-				TheAPI.msg(" &7CPU: &e"+getProcessCpuLoad()+"%", s);
-				TheAPI.msg(" &7Name: &e"+osBean.getName(), s);
-				TheAPI.msg(" &7Procesors: &e"+osBean.getAvailableProcessors(), s);
-				TheAPI.msg("&7Version: &ev" + LoaderClass.plugin.getDescription().getVersion(), s);
+				TheAPI.msg("&7║ System:", s);
+				TheAPI.msg("&7║  CPU: &e"+getProcessCpuLoad()+"%", s);
+				TheAPI.msg("&7║  Name: &e"+osBean.getName(), s);
+				TheAPI.msg("&7║  Procesors: &e"+osBean.getAvailableProcessors(), s);
+				TheAPI.msg("&7║ TPS: &e"+TheAPI.getServerTPS(TPSType.ONE_MINUTE)+", "+TheAPI.getServerTPS(TPSType.FIVE_MINUTES)+", "+TheAPI.getServerTPS(TPSType.FIFTEEN_MINUTES), s);
+				TheAPI.msg("&7║ Version: &ev" + LoaderClass.plugin.getDescription().getVersion(), s);
 				if (LoaderClass.plugin.getTheAPIsPlugins().size() != 0) {
-					TheAPI.msg("&7Plugins using TheAPI:", s);
+					TheAPI.msg("&7║ Plugins using TheAPI:", s);
 					for (Plugin a : LoaderClass.plugin.getTheAPIsPlugins())
-						TheAPI.msg("&7 - " + getPlugin(a), s);
+						TheAPI.msg("&7║  - " + getPlugin(a), s);
 				}
-				TheAPI.msg("&7-----------------------------", s);
+				TheAPI.msg("&7╚══════════════════", s);
 				return true;
 			}
 			return true;
