@@ -25,6 +25,10 @@ public class TheMaterial {
 		this(Material.matchMaterial(name), 0);
 	}
 
+	public TheMaterial(Material material) {
+		this(material,0);
+	}
+
 	private Material m;
 	private int data;
 
@@ -51,7 +55,7 @@ public class TheMaterial {
 
 	public static TheMaterial fromString(String stored) {
 		if (stored.startsWith("[TheMaterial:")) {
-			stored = stored.replaceFirst("[TheMaterial:", "").substring(0, stored.length() - 1);
+			stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[TheMaterial:", "");
 			String[] s = stored.split("/");
 			return new TheMaterial(s[0], s[1]);
 		}

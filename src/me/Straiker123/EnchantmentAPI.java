@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 public enum EnchantmentAPI {
@@ -113,7 +114,7 @@ public enum EnchantmentAPI {
 	LOOTING("LOOT_BONUS_MOBS");
 	private final String s;
 	private final int v;
-	private static Method getByName = Reflections.getMethod(org.bukkit.enchantments.Enchantment.class,"getByName", String.class);
+	private static Method getByName = Reflections.getMethod(Enchantment.class,"getByName", String.class);
 	EnchantmentAPI(String real){
 		s=real;
 		v=0;
@@ -129,15 +130,15 @@ public enum EnchantmentAPI {
 		to.addUnsafeEnchantment(getEnchantment(), level);
 	}
 	
-	public org.bukkit.enchantments.Enchantment getEnchantment(){
+	public Enchantment getEnchantment(){
 		if(TheAPI.getStringUtils().getInt(TheAPI.getServerVersion().split("_")[1]) >= v) {
 		Object o = Reflections.invoke(null,getByName,s);
 		try {
 			if (o == null) {
 				o = Reflections.invoke(null,getByName,s);
-				return o==null ? null : (org.bukkit.enchantments.Enchantment)o;
+				return o==null ? null : (Enchantment)o;
 			}
-			return (org.bukkit.enchantments.Enchantment)o;
+			return (Enchantment)o;
 		} catch (Exception e) {
 			return null;
 		}}
@@ -156,20 +157,20 @@ public enum EnchantmentAPI {
 		return valueOf(name.toUpperCase());
 	}
 	
-	public static EnchantmentAPI fromEnchant(org.bukkit.enchantments.Enchantment enchant){
+	public static EnchantmentAPI fromEnchant(Enchantment enchant){
 		return byName(enchant.toString());
 	}
 
-	public static List<org.bukkit.enchantments.Enchantment> getEnchantments(ItemStack item) {
-		List<org.bukkit.enchantments.Enchantment> list = new ArrayList<org.bukkit.enchantments.Enchantment>(item.getEnchantments().keySet());
+	public static List<Enchantment> getEnchantments(ItemStack item) {
+		List<Enchantment> list = new ArrayList<Enchantment>(item.getEnchantments().keySet());
 		return list;
 	}
 	
 	public static boolean registerEnchantment(org.bukkit.enchantments.Enchantment e) {
 		boolean registered = false;
-		Reflections.setFieldWithNull(org.bukkit.enchantments.Enchantment.class, "acceptingNew", true);
+		Reflections.setFieldWithNull(Reflections.getField(Enchantment.class, "acceptingNew"), true);
 		try {
-			org.bukkit.enchantments.Enchantment.registerEnchantment(e);
+			Enchantment.registerEnchantment(e);
 			registered = true;
 		} catch (Exception ea) {
 		}

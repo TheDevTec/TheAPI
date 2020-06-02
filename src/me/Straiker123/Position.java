@@ -8,9 +8,15 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 
-public class Position {
-	public Position() {
-		this(null, 0, 0, 0, 0, 0);
+public class Position implements Cloneable {
+	public Position() {}
+
+	public Position(World world) {
+		w = world.getName();
+	}
+
+	public Position(String world) {
+		w = world;
 	}
 
 	public Position(World world, double x, double y, double z) {
@@ -19,6 +25,19 @@ public class Position {
 
 	public Position(World world, double x, double y, double z, float yaw, float pitch) {
 		w = world.getName();
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.yaw = yaw;
+		this.pitch = pitch;
+	}
+
+	public Position(String world, double x, double y, double z) {
+		this(world, x, y, z, 0, 0);
+	}
+
+	public Position(String world, double x, double y, double z, float yaw, float pitch) {
+		w = world;
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -45,7 +64,7 @@ public class Position {
 
 	@Override
 	public String toString() {
-		return "[Position:" + w + "/" + x + "/" + y + "/" + z + "/" + yaw + "/" + pitch + "]".replace(".", ":");
+		return ("[Position:" + w + "/" + x + "/" + y + "/" + z + "/" + yaw + "/" + pitch + "]").replace(".", ":");
 	}
 
 	public Biome getBiome() {
@@ -58,11 +77,25 @@ public class Position {
 
 	@SuppressWarnings("deprecation")
 	public TheMaterial getType() {
-		return new TheMaterial(getBlock().getType(), getBlock().getData());
+		Block b = getBlock();
+		return new TheMaterial(b.getType(), b.getData());
 	}
 
 	public Position subtract(double x, double y, double z) {
-		return new Position(Bukkit.getWorld(w), this.x - x, this.y - y, this.z - z, yaw, pitch);
+		this.x-= x; this.y-= y; this.z-= z;
+		return this;
+	}
+
+	public Position subtract(Position position) {
+		this.x-=position.getX(); this.y-=position.getY(); this.z-=position.getZ();
+		yaw-=position.getYaw(); pitch-=position.getPitch();
+		return this;
+	}
+
+	public Position subtract(Location location) {
+		this.x-=location.getX(); this.y-=location.getY(); this.z-=location.getZ();
+		yaw-=location.getYaw(); pitch-=location.getPitch();
+		return this;
 	}
 
 	public void setWorld(World world) {
@@ -91,7 +124,7 @@ public class Position {
 
 	public static Position fromString(String stored) {
 		if (stored.startsWith("[Position:")) {
-			stored = stored.replaceFirst("[Position:", "").substring(0, stored.length() - 1);
+			stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[Position:", "");
 			String[] part = stored.replace(":", ".").split("/");
 			StringUtils s = TheAPI.getStringUtils();
 			return new Position(Bukkit.getWorld(part[0]), s.getDouble(part[1]), s.getDouble(part[2]),
@@ -101,11 +134,41 @@ public class Position {
 	}
 
 	public double distance(Location location) {
-		return location.distance(toLocation());
+		return Math.sqrt(distanceSquared(location));
 	}
 
+	public double distance(Position position) {
+		return Math.sqrt(distanceSquared(position));
+	}
+	
+	public Position multiply(double m) {
+		x *= m;
+		y *= m;
+		z *= m;
+	return this;
+	}
+		  
+	 public Position zero() {
+		this.x = 0;
+		this.y = 0;
+		this.z = 0;
+		return this;
+	}
+	
+	public double length() {
+		return Math.sqrt(lengthSquared());
+	}
+		  
+	public double lengthSquared() {
+		return x*x + y*y + z*z;
+	}
+	  
 	public double distanceSquared(Location location) {
-		return location.distanceSquared(toLocation());
+		return (x - location.getX()*x - location.getX()) + (y - location.getY()*y - location.getY()) + (z - location.getZ()*z - location.getZ());
+	}
+
+	public double distanceSquared(Position position) {
+		return (x - position.getX()*x - position.getX()) + (y - position.getY()*y - position.getY()) + (z - position.getZ()*z - position.getZ());
 	}
 
 	public Chunk getChunk() {
@@ -127,8 +190,19 @@ public class Position {
 		return this;
 	}
 
+	public Position add(Position position) {
+		this.x += position.getX();
+		this.y += position.getY();
+		this.z += position.getZ();
+		this.yaw += position.getYaw();
+		this.pitch += position.getPitch();
+		return this;
+	}
+
 	public Position add(Location location) {
-		add(location.getX(), location.getY(), location.getZ());
+		this.x += location.getX();
+		this.y += location.getY();
+		this.z += location.getZ();
 		this.yaw += location.getYaw();
 		this.pitch += location.getPitch();
 		return this;
@@ -171,11 +245,11 @@ public class Position {
 	}
 
 	public void setType(Material with) {
-		setType(with, 0);
+		setType(with, 0, true);
 	}
 
 	public void setType(TheMaterial with) {
-		setType(with.getType(), with.getData());
+		setType(with.getType(), with.getData(), true);
 	}
 
 	public void setType(Material with, int data) {
@@ -183,16 +257,16 @@ public class Position {
 	}
 
 
-	public Object[] setType(Material with, boolean update) {
-		return setType(with, 0, update);
+	public void setType(Material with, boolean psyhics) {
+		setType(with, 0, psyhics);
 	}
 
-	public Object[] setType(TheMaterial with, boolean update) {
-		return setType(with.getType(), with.getData(), update);
+	public void setType(TheMaterial with, boolean psyhics) {
+		setType(with.getType(), with.getData(), psyhics);
 	}
 
-	public Object[] setType(Material with, int data, boolean update) {
-		return TheAPI.getNMSAPI().setBlock(getWorld(), getBlockX(), getBlockY(), getBlockZ(), with, data, true, update);
+	public void setType(Material with, int data, boolean psyhics) {
+		TheAPI.getNMSAPI().setBlock(getWorld(), getBlockX(), getBlockY(), getBlockZ(), with, data, psyhics);
 	}
 
 	@Override
@@ -208,5 +282,14 @@ public class Position {
 					&& s.getPitch() == pitch && s.getYaw() == yaw;
 		}
 		return false;
+	}
+	
+	public Position clone() {
+		try {
+			return (Position)super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

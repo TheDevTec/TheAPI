@@ -429,6 +429,7 @@ public class SQLAPI {
 				connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + at,
 						username, password);
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 	}

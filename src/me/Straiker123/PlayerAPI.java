@@ -13,7 +13,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
 
-import me.Straiker123.BlocksAPI.Shape;
+import me.Straiker123.Blocks.BlocksAPI.Shape;
 import me.Straiker123.NMSAPI.TitleAction;
 import me.Straiker123.Scheduler.Tasker;
 import me.Straiker123.Utils.Error;

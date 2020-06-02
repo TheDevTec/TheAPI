@@ -5,7 +5,7 @@ public abstract class Tasker implements Runnable {
 
 	public synchronized void cancel() {
 		if (task != null)
-			Scheduler.cancelTask(task.getId());
+			Scheduler.cancelTask(task);
 	}
 
 	public synchronized int runTimes() {

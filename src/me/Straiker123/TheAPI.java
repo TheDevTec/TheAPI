@@ -2,7 +2,6 @@ package me.Straiker123;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +28,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import me.Straiker123.NMSAPI.TitleAction;
+import me.Straiker123.Blocks.BlocksAPI;
 import me.Straiker123.Events.PlayerVanishEvent;
 import me.Straiker123.Scheduler.Tasker;
 import me.Straiker123.Utils.Error;
@@ -420,15 +420,12 @@ public class TheAPI {
 		}
 		try {
 			if (list.containsKey(p.getName())) {
+				if(task.containsKey(p.getName()))
 				Tasker.cancelTask(task.get(p.getName()));
 				BossBar b = list.get(p.getName());
 				b.hide();
 				b.removePlayer(p);
 				list.remove(p.getName());
-			}
-			for (BossBar c : getBossBar(p)) {
-				c.hide();
-				c.removePlayer(p);
 			}
 		} catch (Exception err) {
 			if (getServerVersion().contains("v1_5") || getServerVersion().contains("v1_6")
@@ -441,9 +438,9 @@ public class TheAPI {
 	/**
 	 * @see see Return list with bossbars in which player is in
 	 * @param p
-	 * @return List<BossBar>
+	 * @return BossBar
 	 */
-	public static List<BossBar> getBossBar(Player p) {
+	public static BossBar getBossBar(Player p) {
 		if (p == null) {
 			Error.err("getting bossbars", "Player is null");
 			return null;
@@ -454,13 +451,7 @@ public class TheAPI {
 					"Servers version older 1.9 doesn't have this method");
 			return null;
 		}
-		List<BossBar> bossBars = new ArrayList<BossBar>();
-		Bukkit.getBossBars().forEachRemaining(BossBar -> {
-			if (BossBar.getPlayers().contains(p)) {
-				bossBars.add(BossBar);
-			}
-		});
-		return bossBars;
+		return list.containsKey(p.getName()) ? list.get(p.getName()) : null;
 
 	}
 
@@ -1248,6 +1239,7 @@ public class TheAPI {
 	 */
 	@SuppressWarnings("deprecation")
 	public static User getUser(String nameOrUUID) {
+		if(nameOrUUID==null)return null;
 		UUID s = null;
 		try {
 			s = UUID.fromString(nameOrUUID);
@@ -1263,6 +1255,7 @@ public class TheAPI {
 	 * @return User
 	 */
 	public static User getUser(Player player) {
+		if(player==null)return null;
 		return getUser(player.getUniqueId());
 	}
 
@@ -1272,6 +1265,7 @@ public class TheAPI {
 	 * @return User
 	 */
 	public static User getUser(UUID uuid) {
+		if(uuid==null)return null;
 		User c = cache.containsKey(uuid) ? cache.get(uuid) : null;
 		if(c==null) {
 			c=new User(uuid);

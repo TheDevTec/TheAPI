@@ -1,34 +1,32 @@
-package me.Straiker123;
+package me.Straiker123.Blocks;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.lang.math.IntRange;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Chest;
-import org.bukkit.block.CommandBlock;
-import org.bukkit.block.Dispenser;
-import org.bukkit.block.Dropper;
-import org.bukkit.block.Hopper;
-import org.bukkit.block.ShulkerBox;
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Entity;
 
 import com.google.common.collect.Lists;
 
+import me.Straiker123.Position;
+import me.Straiker123.TheAPI;
+import me.Straiker123.TheMaterial;
 import me.Straiker123.Scheduler.Tasker;
 import me.Straiker123.Utils.Error;
 
 public class BlocksAPI {
-	int amount = 1000;
+	public static int amount = 1000; //1000 blocks per 10 ticks, Can be changed: BlocksAPI.amount = <new value in int>
 
 	public static enum Shape {
 		Sphere, Square
+	}
+	
+	public Schemate getSchemate(String name) {
+		return new Schemate(name);
 	}
 
 	public String getLocationAsString(Location loc) {
@@ -46,10 +44,10 @@ public class BlocksAPI {
 	public List<Entity> getNearbyEntities(Position l, int radius) {
 		if (radius > 256) {
 			Error.err("getting nearby entities", "The radius cannot be greater than 256");
-			return new ArrayList<Entity>();
+			return Lists.newArrayList();
 		}
 		int chunkRadius = radius < 16 ? 1 : (radius - (radius % 16)) / 16;
-		List<Entity> radiusEntities = new ArrayList<Entity>();
+		List<Entity> radiusEntities = Lists.newArrayList();
 		for (int chX = 0 - chunkRadius; chX <= chunkRadius; chX++) {
 			for (int chZ = 0 - chunkRadius; chZ <= chunkRadius; chZ++) {
 				int x = (int) l.getX(), y = (int) l.getY(), z = (int) l.getZ();
@@ -64,23 +62,53 @@ public class BlocksAPI {
 	}
 
 	public List<Entity> getNearbyEntities(Entity ed, int radius) {
-		return getNearbyEntities(ed.getLocation(), radius);
+		return getNearbyEntities(new Position(ed.getLocation()), radius);
 	}
 
 	public List<Entity> getNearbyEntities(World world, double x, double y, double z, int radius) {
-		return getNearbyEntities(new Location(world, x, y, z), radius);
+		return getNearbyEntities(new Position(world, x, y, z), radius);
 	}
 
 	public BlockSave getBlockSave(Position b) {
 		return new BlockSave(b);
 	}
 
+	public BlockGetter get(Location from, Location to) {
+		return new BlockGetter(new Position(from), new Position(to));
+	}
+
 	public BlockGetter get(Position from, Position to) {
 		return new BlockGetter(from, to);
 	}
 
+	public float count(Location from, Location to) {
+		long topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+		long bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+		long topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+		long bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+		long topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+		long bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+		BigDecimal math =new BigDecimal(""+((topBlockX-bottomBlockX)+1))
+				.multiply(new BigDecimal(""+((topBlockZ-bottomBlockZ)+1)))
+				.multiply(new BigDecimal(""+((topBlockY-bottomBlockY)+1)));
+		return math.floatValue();
+	}
+
+	public float count(Position from, Position to) {
+		long topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
+		long bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
+		long topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
+		long bottomBlockY = (from.getBlockY() > to.getBlockY() ? to.getBlockY() : from.getBlockY());
+		long topBlockZ = (from.getBlockZ() < to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+		long bottomBlockZ = (from.getBlockZ() > to.getBlockZ() ? to.getBlockZ() : from.getBlockZ());
+		BigDecimal math =new BigDecimal(""+((topBlockX-bottomBlockX)+1))
+				.multiply(new BigDecimal(""+((topBlockZ-bottomBlockZ)+1)))
+				.multiply(new BigDecimal(""+((topBlockY-bottomBlockY)+1)));
+		return math.floatValue();
+	}
+
 	public List<Position> get(Position from, Position to, TheMaterial ignore) {
-		List<Position> blocks = new ArrayList<Position>();
+		List<Position> blocks = Lists.newArrayList();
 		int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
 		int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
 		int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
@@ -101,7 +129,7 @@ public class BlocksAPI {
 	}
 
 	public List<Position> get(Position from, Position to, List<TheMaterial> ignore) {
-		List<Position> blocks = new ArrayList<Position>();
+		List<Position> blocks = Lists.newArrayList();
 		int topBlockX = (from.getBlockX() < to.getBlockX() ? to.getBlockX() : from.getBlockX());
 		int bottomBlockX = (from.getBlockX() > to.getBlockX() ? to.getBlockX() : from.getBlockX());
 		int topBlockY = (from.getBlockY() < to.getBlockY() ? to.getBlockY() : from.getBlockY());
@@ -122,13 +150,13 @@ public class BlocksAPI {
 	}
 	
 	public List<BlockSave> getBlockSaves(List<Position> a){
-		List<BlockSave> b = new ArrayList<BlockSave>();
+		List<BlockSave> b = Lists.newArrayList();
 		for(Position s : a)b.add(getBlockSave(s));
 		return b;
 	}
 
 	public List<Position> get(Shape form, Position where, int radius) {
-		List<Position> blocks = new ArrayList<Position>();
+		List<Position> blocks = Lists.newArrayList();
 		World w = where.getWorld();
 		int Xx = where.getBlockX();
 		int Yy = where.getBlockY();
@@ -151,81 +179,56 @@ public class BlocksAPI {
 	}
 
 	public void set(Position loc, Material material) {
-		if (!material.isBlock())
-			return;
-		TheAPI.getNMSAPI().setBlock(loc.toLocation(), material, 0, true);
+		if (!material.isBlock())return;
+		set(loc,new TheMaterial(material));
 	}
 
 	public void set(Block loc, Material material) {
-		if (!material.isBlock())
-			return;
-		TheAPI.getNMSAPI().setBlock(loc.getLocation(), material, 0, true);
+		if (!material.isBlock())return;
+		set(loc,new TheMaterial(material));
 	}
 
-	public void loadBlockSaves(List<BlockSave> list) { // like //undo command
-		loadBlockSaves(list);
 
+	public void set(Position loc, TheMaterial material) {
+		if (!material.getType().isBlock())return;
+		loc.setType(material);
 	}
 
-	@SuppressWarnings("deprecation")
-	public void loadBlockSave(BlockSave s) { // like //undo command
-		Block b = s.getWorld().getBlockAt(s.getLocation().toLocation());
-		String n = b.getType().name();
-		BlockState state = b.getState();
-		state.setType(s.getMaterial().getType());
-		state.setRawData((byte) s.getMaterial().getData());
-		if (n.contains("SIGN")) {
-			Sign w = (Sign) state;
-			int i = 0;
-			if (s.getSignLines() != null && s.getSignLines().length > 0)
-				for (String line : s.getSignLines()) {
-					w.setLine(i, line);
-					++i;
-				}
-			try {
-				if (s.getColor() != null)
-					w.setColor(s.getColor());
-			} catch (Exception | NoSuchFieldError er) {
-				// old version
-			}
-		}
-		if (n.contains("CHEST")) {
-			Chest w = (Chest) state;
-			if (s.getBlockInventory() != null)
-				w.getBlockInventory().setContents(s.getBlockInventory());
-		}
-		if (n.equals("DROPPER")) {
-			Dropper w = (Dropper) state;
-			if (s.getBlockInventory() != null)
-				w.getInventory().setContents(s.getBlockInventory());
-		}
-		if (n.equals("DISPENSER")) {
-			Dispenser w = (Dispenser) state;
-			if (s.getBlockInventory() != null)
-				w.getInventory().setContents(s.getBlockInventory());
-		}
-		if (n.equals("HOPPER")) {
-			Hopper w = (Hopper) state;
-			if (s.getBlockInventory() != null)
-				w.getInventory().setContents(s.getBlockInventory());
-		}
-		if (n.contains("SHULKER_BOX")) {
-			ShulkerBox w = (ShulkerBox) state;
-			if (s.getBlockInventory() != null)
-				w.getInventory().setContents(s.getBlockInventory());
-		}
-		if (n.contains("COMMAND")) {
-			CommandBlock w = (CommandBlock) state;
-			if (s.getCommand() != null)
-				w.setCommand(s.getCommand());
-			if (s.getCommandBlockName() != null)
-				w.setName(s.getCommandBlockName());
-		}
-		state.update(true, true);
+	public void set(Block loc, TheMaterial material) {
+		if (!material.getType().isBlock())return;
+		new Position(loc).setType(material);
+	}
+
+	public void set(Position loc, List<TheMaterial> material) {
+		set(loc, (TheMaterial)TheAPI.getRandomFromList(material));
+	}
+
+	public void set(Block loc, List<TheMaterial> material) {
+		set(loc, (TheMaterial)TheAPI.getRandomFromList(material));
+	}
+
+	public void set(Position loc, HashMap<TheMaterial,Double> material) {
+		List<TheMaterial> a = Lists.newArrayList();
+		for (TheMaterial m : material.keySet())
+			for (int i = -1; i > material.get(m); ++i)
+				a.add(m);
+		set(loc, (TheMaterial)TheAPI.getRandomFromList(a));
+	}
+
+	public void set(Block loc, HashMap<TheMaterial,Double> material) {
+		List<TheMaterial> a = Lists.newArrayList();
+		for (TheMaterial m : material.keySet())
+			for (int i = -1; i > material.get(m); ++i)
+				a.add(m);
+		set(loc, (TheMaterial)TheAPI.getRandomFromList(a));
+	}
+
+	public void loadBlockSave(Position pos, BlockSave s) { // like //undo command
+		s.load(pos);
 	}
 
 	public List<Position> get(Shape form, Position where, int radius, TheMaterial ignore) {
-		List<Position> blocks = new ArrayList<Position>();
+		List<Position> blocks = Lists.newArrayList();
 		World w = where.getWorld();
 		int Xx = where.getBlockX();
 		int Yy = where.getBlockY();
@@ -254,7 +257,7 @@ public class BlocksAPI {
 	}
 
 	public List<Position> get(Shape form, Position where, int radius, List<TheMaterial> ignore) {
-		List<Position> blocks = new ArrayList<Position>();
+		List<Position> blocks = Lists.newArrayList();
 		World w = where.getWorld();
 		int Xx = where.getBlockX();
 		int Yy = where.getBlockY();
@@ -1089,227 +1092,194 @@ public class BlocksAPI {
 		return isInside(new Position(entity.getLocation()), a, b);
 	}
 
-	public boolean isInside(Position location, Position a, Position b) {
-		return location.getWorld() == a.getWorld() && location.getWorld() == b.getWorld()
-				&& a.getWorld() == b.getWorld() && new IntRange(a.getX(), b.getX()).containsDouble(location.getX())
-				&& new IntRange(a.getY(), b.getY()).containsDouble(location.getY())
-				&& new IntRange(a.getZ(), b.getZ()).containsDouble(location.getZ());
+	public boolean isInside(Position loc, Position a, Position b) {
+		int xMin = Math.min(a.getBlockX(), b.getBlockX());
+		 int yMin = Math.min(a.getBlockY(), b.getBlockY());
+		 int zMin = Math.min(a.getBlockZ(), b.getBlockZ());
+			int xMax = Math.max(a.getBlockX(), b.getBlockX());
+			 int yMax = Math.max(a.getBlockY(), b.getBlockY());
+			 int zMax = Math.max(a.getBlockZ(), b.getBlockZ());
+			 return loc.getWorld() == a.getWorld() && loc.getBlockX() >= xMin && loc.getBlockX() <= xMax && loc.getBlockY() >= yMin && loc.getBlockY() <= yMax && loc
+		                .getBlockZ() >= zMin && loc.getBlockZ() <= zMax;
 	}
 
 	public boolean isInside(Entity entity, Location a, Location b) {
 		return isInside(entity.getLocation(), a, b);
 	}
 
-	public boolean isInside(Location location, Location a, Location b) {
-		return location.getWorld() == a.getWorld() && location.getWorld() == b.getWorld()
-				&& a.getWorld() == b.getWorld() && new IntRange(a.getX(), b.getX()).containsDouble(location.getX())
-				&& new IntRange(a.getY(), b.getY()).containsDouble(location.getY())
-				&& new IntRange(a.getZ(), b.getZ()).containsDouble(location.getZ());
+	public boolean isInside(Location loc, Location a, Location b) {
+		int xMin = Math.min(a.getBlockX(), b.getBlockX());
+		 int yMin = Math.min(a.getBlockY(), b.getBlockY());
+		 int zMin = Math.min(a.getBlockZ(), b.getBlockZ());
+			int xMax = Math.max(a.getBlockX(), b.getBlockX());
+			 int yMax = Math.max(a.getBlockY(), b.getBlockY());
+			 int zMax = Math.max(a.getBlockZ(), b.getBlockZ());
+			 return loc.getWorld() == a.getWorld() && loc.getBlockX() >= xMin && loc.getBlockX() <= xMax && loc.getBlockY() >= yMin && loc.getBlockY() <= yMax && loc
+		                .getBlockZ() >= zMin && loc.getBlockZ() <= zMax;
 	}
 
 	// Synchronized part
 	public void synchronizedSet(Position a, Position b, TheMaterial with) {
-		BlockGetter s = get(a, b);
-		new Tasker() {
-			@Override
-			public void run() {
-				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < amount; ++i) {
-					if (s.has()) {
-						update.add(s.set(with,false));
-					} else
-						break;
-				}
-				for(Object[] o : update)
-					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
-				update.clear();
-				if (!s.has())
-					cancel();
-			}
-		}.repeating(0, 10);
+		synchronizedSet(a, b, new Runnable() {public void run() {}}, with);
 	}
 
 	public void synchronizedSet(Position a, Position b, TheMaterial with, TheMaterial ignore) {
-		BlockGetter s = get(a, b);
-		new Tasker() {
-			@Override
-			public void run() {
-				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < amount; ++i) {
-					if (s.has()) {
-						update.add(s.set(with, ignore,false));
-					} else
-						break;
-				}
-				for(Object[] o : update)
-					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
-				update.clear();
-				if (!s.has())
-					cancel();
-			}
-		}.repeating(0, 10);
+		synchronizedSet(a, b, new Runnable() {public void run() {}}, with, ignore);
 	}
 
 	public void synchronizedSet(Position a, Position b, TheMaterial with, List<TheMaterial> ignore) {
-		BlockGetter s = get(a, b);
-		new Tasker() {
-			@Override
-			public void run() {
-				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < amount; ++i) {
-					if (s.has()) {
-						update.add(s.set(with, ignore,false));
-					} else
-						break;
-				}
-				for(Object[] o : update)
-					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
-				update.clear();
-				if (!s.has())
-					cancel();
-			}
-		}.repeating(0, 10);
+		synchronizedSet(a, b, new Runnable() {public void run() {}}, with, ignore);
 	}
 
 	public void synchronizedSet(Position a, Position b, List<TheMaterial> with, List<TheMaterial> ignore) {
-		BlockGetter s = get(a, b);
-		new Tasker() {
-			@Override
-			public void run() {
-				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < amount; ++i) {
-					if (s.has()) {
-						update.add(s.set((TheMaterial) TheAPI.getRandomFromList(with), ignore,false));
-					} else
-						break;
-				}
-				for(Object[] o : update)
-					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
-				update.clear();
-				if (!s.has())
-					cancel();
-			}
-		}.repeating(0, 10);
+		synchronizedSet(a, b, new Runnable() {public void run() {}}, with, ignore);
 	}
 
 	public void synchronizedSet(Position a, Position b, List<TheMaterial> with) {
-		BlockGetter s = get(a, b);
-		new Tasker() {
-			@Override
-			public void run() {
-				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < amount; ++i) {
-					if (s.has())
-						update.add(s.set((TheMaterial) TheAPI.getRandomFromList(with),false));	
-					else
-						break;
-				}
-				for(Object[] o : update)
-					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
-				update.clear();
-				if (!s.has())
-					cancel();
-			}
-		}.repeating(0, 10);
+		synchronizedSet(a, b, new Runnable() {public void run() {}}, with);
 	}
 
 	public void synchronizedSet(Position a, Position b, HashMap<TheMaterial, Double> with, List<TheMaterial> ignore) {
-		BlockGetter s = get(a, b);
-		List<TheMaterial> c = Lists.newArrayList();
-		for (TheMaterial m : with.keySet())
-			for (int i = -1; i > with.get(m); ++i)
-				c.add(m);
-		new Tasker() {
-			@Override
-			public void run() {
-				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < amount; ++i) {
-					if (s.has()) {
-						TheMaterial block = (TheMaterial) TheAPI.getRandomFromList(c);
-						if (TheAPI.generateChance(with.get(block)))
-							update.add(s.set(block, ignore,false));
-					} else
-						break;
-				}
-				for(Object[] o : update)
-					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
-				update.clear();
-				if (!s.has())
-					cancel();
-			}
-		}.repeating(0, 10);
+		synchronizedSet(a, b, new Runnable() {public void run() {}}, with, ignore);
 	}
 
 	public void synchronizedSet(Position a, Position b, HashMap<TheMaterial, Double> with, TheMaterial ignore) {
-		BlockGetter s = get(a, b);
-		List<TheMaterial> c = Lists.newArrayList();
-		for (TheMaterial m : with.keySet())
-			for (int i = -1; i > with.get(m); ++i)
-				c.add(m);
-		new Tasker() {
-			@Override
-			public void run() {
-				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < amount; ++i) {
-					if (s.has()) {
-						TheMaterial block = (TheMaterial) TheAPI.getRandomFromList(c);
-						if (TheAPI.generateChance(with.get(block)))
-							update.add(s.set(block, ignore,false));
-					} else
-						break;
-				}
-				for(Object[] o : update)
-					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
-				update.clear();
-				if (!s.has())
-					cancel();
-			}
-		}.repeating(0, 10);
+		synchronizedSet(a, b, new Runnable() {public void run() {}}, with, ignore);
 	}
 
 	public void synchronizedReplace(Position a, Position b, List<TheMaterial> block, TheMaterial with) {
-		BlockGetter s = get(a, b);
-		new Tasker() {
-			@Override
-			public void run() {
-				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < amount; ++i) {
-					if (s.has())
-						update.add(s.replace(block, with,false));
-					else
-						break;
-				}
-				for(Object[] o : update)
-					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
-				update.clear();
-				if (!s.has())
-					cancel();
-			}
-		}.repeating(0, 10);
+		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
 	}
 
 	public void synchronizedReplace(Position a, Position b, TheMaterial block, TheMaterial with) {
+		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
+	}
+
+	public void synchronizedReplace(Position a, Position b, TheMaterial block, HashMap<TheMaterial, Double> with) {
+		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
+	}
+
+	public void synchronizedReplace(Position a, Position b, TheMaterial block, List<TheMaterial> with) {
+		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
+	}
+
+	public void synchronizedReplace(Position a, Position b, List<TheMaterial> block, List<TheMaterial> with) {
+		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
+	}
+
+	public void synchronizedReplace(Position a, Position b, HashMap<TheMaterial, Double> block,
+			List<TheMaterial> with) {
+		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
+	}
+
+	public void synchronizedReplace(Position a, Position b, HashMap<TheMaterial, Double> block,
+			HashMap<TheMaterial, Double> with) {
+		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
+	}
+
+	public void synchronizedReplace(Position a, Position b, HashMap<TheMaterial, Double> block, TheMaterial with) {
+		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
+	}
+
+	//Synchronized & Runnable on finish part
+	public void synchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with) {
 		BlockGetter s = get(a, b);
 		new Tasker() {
 			@Override
 			public void run() {
-				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < amount; ++i) {
+				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
-						update.add(s.replace(block, with,false));
+						s.set(with,false);
 					} else
 						break;
 				}
-				for(Object[] o : update)
-					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
-				update.clear();
-				if (!s.has())
+				if (!s.has()) {
 					cancel();
+					if(onFinish!=null)
+					onFinish.run();
+				}
 			}
-		}.repeating(0, 10);
+		}.repeating(0, 5);
 	}
 
-	public void synchronizedReplace(Position a, Position b, TheMaterial block, HashMap<TheMaterial, Double> with) {
+	public void synchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with, TheMaterial ignore) {
+		BlockGetter s = get(a, b);
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						s.set(with, ignore,false);
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					if(onFinish!=null)
+					onFinish.run();}
+			}
+		}.repeating(0, 5);
+	}
+
+	public void synchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with, List<TheMaterial> ignore) {
+		BlockGetter s = get(a, b);
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						s.set(with, ignore,false);
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					if(onFinish!=null)
+					onFinish.run();}
+			}
+		}.repeating(0, 5);
+	}
+
+	public void synchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with, List<TheMaterial> ignore) {
+		BlockGetter s = get(a, b);
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						s.set((TheMaterial) TheAPI.getRandomFromList(with), ignore,false);
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					if(onFinish!=null)
+					onFinish.run();
+					}
+			}
+		}.repeating(0, 5);
+	}
+
+	public void synchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with) {
+		BlockGetter s = get(a, b);
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						s.set((TheMaterial) TheAPI.getRandomFromList(with),false);
+					}else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					if(onFinish!=null)
+					onFinish.run();}
+			}
+		}.repeating(0, 5);
+	}
+
+	public void synchronizedSet(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> with, List<TheMaterial> ignore) {
 		BlockGetter s = get(a, b);
 		List<TheMaterial> c = Lists.newArrayList();
 		for (TheMaterial m : with.keySet())
@@ -1318,65 +1288,138 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
-				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < amount; ++i) {
+				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
-						update.add(s.replace(block, (TheMaterial) TheAPI.getRandomFromList(c),false));
+						TheMaterial block = (TheMaterial) TheAPI.getRandomFromList(c);
+						if (TheAPI.generateChance(with.get(block))) {
+							s.set(block, ignore,false);
+						}
 					} else
 						break;
 				}
-				for(Object[] o : update)
-					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
-				update.clear();
-				if (!s.has())
+				if (!s.has()) {
 					cancel();
+					if(onFinish!=null)
+					onFinish.run();}
 			}
-		}.repeating(0, 10);
+		}.repeating(0, 5);
 	}
 
-	public void synchronizedReplace(Position a, Position b, TheMaterial block, List<TheMaterial> with) {
+	public void synchronizedSet(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> with, TheMaterial ignore) {
+		BlockGetter s = get(a, b);
+		List<TheMaterial> c = Lists.newArrayList();
+		for (TheMaterial m : with.keySet())
+			for (int i = -1; i > with.get(m); ++i)
+				c.add(m);
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						TheMaterial block = (TheMaterial) TheAPI.getRandomFromList(c);
+						if (TheAPI.generateChance(with.get(block))) {
+							s.set(block, ignore,false);
+						}
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					if(onFinish!=null)
+					onFinish.run();}
+			}
+		}.repeating(0, 5);
+	}
+
+	public void synchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block, TheMaterial with) {
 		BlockGetter s = get(a, b);
 		new Tasker() {
 			@Override
 			public void run() {
-				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < amount; ++i) {
-					if (s.has()) {
-						update.add(s.replace(block, (TheMaterial) TheAPI.getRandomFromList(with),false));
-					} else
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()){
+						s.replace(block, with,false);
+					}else
 						break;
 				}
-				for(Object[] o : update)
-					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
-				update.clear();
-				if (!s.has())
+				if (!s.has()) {
 					cancel();
+					if(onFinish!=null)
+					onFinish.run();
+				}
 			}
-		}.repeating(0, 10);
+		}.repeating(0, 5);
 	}
 
-	public void synchronizedReplace(Position a, Position b, List<TheMaterial> block, List<TheMaterial> with) {
+	public void synchronizedReplace(Position a, Position b, Runnable onFinish, TheMaterial block, TheMaterial with) {
 		BlockGetter s = get(a, b);
 		new Tasker() {
 			@Override
 			public void run() {
-				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < amount; ++i) {
+				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
-						update.add(s.replace(block, (TheMaterial) TheAPI.getRandomFromList(with),false));
+						s.replace(block, with,false);
 					} else
 						break;
 				}
-				for(Object[] o : update)
-					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
-				update.clear();
-				if (!s.has())
+				if (!s.has()) {
 					cancel();
+					if(onFinish!=null)
+					onFinish.run();
+				}
 			}
-		}.repeating(0, 10);
+		}.repeating(0, 5);
 	}
 
-	public void synchronizedReplace(Position a, Position b, HashMap<TheMaterial, Double> block,
+	public void synchronizedReplace(Position a, Position b, Runnable onFinish, TheMaterial block, HashMap<TheMaterial, Double> with) {
+		List<TheMaterial> c = Lists.newArrayList();
+		for (TheMaterial m : with.keySet())
+			for (int i = -1; i > with.get(m); ++i)
+				c.add(m);
+		synchronizedReplace(a,b,onFinish,block,c);
+	}
+
+	public void synchronizedReplace(Position a, Position b, Runnable onFinish, TheMaterial block, List<TheMaterial> with) {
+		BlockGetter s = get(a, b);
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						s.replace(block, (TheMaterial) TheAPI.getRandomFromList(with),false);
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeating(0, 5);
+	}
+
+	public void synchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block, List<TheMaterial> with) {
+		BlockGetter s = get(a, b);
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						s.replace(block, (TheMaterial) TheAPI.getRandomFromList(with),false);
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeating(0, 5);
+	}
+
+	public void synchronizedReplace(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> block,
 			List<TheMaterial> with) {
 		BlockGetter s = get(a, b);
 		List<TheMaterial> c = Lists.newArrayList();
@@ -1386,57 +1429,34 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
-				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < amount; ++i) {
+				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
 						TheMaterial b = (TheMaterial) TheAPI.getRandomFromList(c);
-						if (TheAPI.generateChance(block.get(b)))
-							update.add(s.replace(b, (TheMaterial) TheAPI.getRandomFromList(with),false));
+						if (TheAPI.generateChance(block.get(b))) {
+							s.replace(b, (TheMaterial) TheAPI.getRandomFromList(with),false);
+						}
 					} else
 						break;
 				}
-				for(Object[] o : update)
-					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
-				update.clear();
-				if (!s.has())
+				if (!s.has()) {
 					cancel();
+					if(onFinish!=null)
+					onFinish.run();
+				}
 			}
-		}.repeating(0, 10);
+		}.repeating(0, 5);
 	}
 
-	public void synchronizedReplace(Position a, Position b, HashMap<TheMaterial, Double> block,
+	public void synchronizedReplace(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> block,
 			HashMap<TheMaterial, Double> with) {
-		BlockGetter s = get(a, b);
-		List<TheMaterial> c = Lists.newArrayList();
-		for (TheMaterial m : block.keySet())
-			for (int i = -1; i > block.get(m); ++i)
-				c.add(m);
 		List<TheMaterial> d = Lists.newArrayList();
 		for (TheMaterial m : with.keySet())
 			for (int i = -1; i > with.get(m); ++i)
-				c.add(m);
-		new Tasker() {
-			@Override
-			public void run() {
-				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < amount; ++i) {
-					if (s.has()) {
-						TheMaterial b = (TheMaterial) TheAPI.getRandomFromList(c);
-						if (TheAPI.generateChance(block.get(b)))
-							update.add(s.replace(b, (TheMaterial) TheAPI.getRandomFromList(d),false));
-					} else
-						break;
-				}
-				for(Object[] o : update)
-					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
-				update.clear();
-				if (!s.has())
-					cancel();
-			}
-		}.repeating(0, 10);
+				d.add(m);
+		synchronizedReplace(a,b,onFinish,block,d);
 	}
 
-	public void synchronizedReplace(Position a, Position b, HashMap<TheMaterial, Double> block, TheMaterial with) {
+	public void synchronizedReplace(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> block, TheMaterial with) {
 		BlockGetter s = get(a, b);
 		List<TheMaterial> c = Lists.newArrayList();
 		for (TheMaterial m : block.keySet())
@@ -1445,116 +1465,21 @@ public class BlocksAPI {
 		new Tasker() {
 			@Override
 			public void run() {
-				List<Object[]> update = new ArrayList<Object[]>();
-				for (int i = 0; i < amount; ++i) {
+				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
 						TheMaterial b = (TheMaterial) TheAPI.getRandomFromList(c);
-						if (TheAPI.generateChance(block.get(b)))
-							update.add(s.replace(b, with,false));
+						if (TheAPI.generateChance(block.get(b))) {
+							s.replace(b, with,false);
+						}
 					} else
 						break;
 				}
-				for(Object[] o : update)
-					TheAPI.getNMSAPI().refleshBlock(o[0], o[1], o[2], o[3]);
-				update.clear();
-				if (!s.has())
+				if (!s.has()) {
 					cancel();
+					if(onFinish!=null)
+					onFinish.run();
+				}
 			}
-		}.repeating(0, 10);
-	}
-
-}
-
-class BlockGetter {
-	private final int sizeZ, sizeY, sizeX, baseZ, baseX, baseY;
-	private int x, y, z;
-	private final World w;
-
-	public BlockGetter(Position a, Position b) {
-		w = a.getWorld();
-		baseX = Math.min(a.getBlockX(), b.getBlockX());
-		baseY = Math.min(a.getBlockY(), b.getBlockY());
-		baseZ = Math.min(a.getBlockZ(), b.getBlockZ());
-		sizeX = Math.abs(Math.max(a.getBlockX(), b.getBlockX()) - baseX) + 1;
-		sizeY = Math.abs(Math.max(a.getBlockY(), b.getBlockY()) - baseY) + 1;
-		sizeZ = Math.abs(Math.max(a.getBlockZ(), b.getBlockZ()) - baseZ) + 1;
-	}
-
-	public void replace(List<TheMaterial> block, TheMaterial with) {
-		Position b = get();
-		if (block.contains(b.getType()))
-			b.setType(with);
-	}
-
-	public void replace(TheMaterial material, TheMaterial with) {
-		Position b = get();
-		if (b.getType() == material)
-			b.setType(with);
-	}
-	
-	public Object[] replace(List<TheMaterial> block, TheMaterial with, boolean update) {
-		Position b = get();
-		if (block.contains(b.getType()))
-			return b.setType(with,update);
-		return null;
-	}
-
-	public Object[] replace(TheMaterial material, TheMaterial with, boolean update) {
-		Position b = get();
-		if (b.getType() == material)
-			return b.setType(with,update);
-		return null;
-	}
-	
-	public boolean has() {
-		return x < sizeX && y < sizeY && z < sizeZ;
-	}
-
-	public Position get() {
-		Position b = new Position(w, baseX + x, baseY + y, baseZ + z);
-		if (++x >= sizeX) {
-			x = 0;
-			if (++y >= sizeY) {
-				y = 0;
-				++z;
-			}
-		}
-		return b;
-	}
-
-	public void set(TheMaterial material, TheMaterial ignore) {
-		Position b = get();
-		if (b.getType() != ignore)
-			b.setType(material);
-	}
-
-	public void set(TheMaterial material, List<TheMaterial> ignore) {
-		Position b = get();
-		TheMaterial type = b.getType();
-		if (!ignore.contains(type) && type != material)
-			b.setType(material);
-	}
-
-	public void set(TheMaterial material) {
-		get().setType(material);
-	}
-
-	public Object[] set(TheMaterial material, TheMaterial ignore, boolean update) {
-		Position b = get();
-		if (b.getType() != ignore)
-			return b.setType(material,update);
-		return null;
-	}
-
-	public Object[] set(TheMaterial material, List<TheMaterial> ignore, boolean update) {
-		Position b = get();
-		TheMaterial type = b.getType();
-		if (!ignore.contains(type) && type != material)
-			return b.setType(material,update);
-		return null;
-	}
-
-	public Object[] set(TheMaterial material, boolean update) {
-		return get().setType(material,update);
+		}.repeating(0, 5);
 	}
 }

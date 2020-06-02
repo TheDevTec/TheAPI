@@ -34,10 +34,25 @@ public class NMSAPI {
 	private static Method getmat, getb, getc, gett, WorldHandle, PlayerHandle, ichatcon, getser, plist, block,
 			IBlockData, worldset, Chunk, getblocks, setblock, setblockb, itemstack, entityM, livingentity, oldichatser,
 			post;
-	private static Field tps;
+	private static Field tps,scoreb,scorec,scored;
 	private static Object sbremove, sbinteger, sbchange,sbhearts;
-
+	private static Field[] part= new Field[11];
 	static {
+		Class<?> c = Reflections.getNMSClass("PacketPlayOutWorldParticles")!=null?Reflections.getNMSClass("PacketPlayOutWorldParticles"):Reflections.getNMSClass("Packet63WorldParticles");
+		part[0]=Reflections.getField(c, "a");
+		part[1]=Reflections.getField(c, "j");
+		part[2]=Reflections.getField(c, "k");
+		part[3]=Reflections.getField(c, "b");
+		part[4]=Reflections.getField(c, "c");
+		part[5]=Reflections.getField(c, "d");
+		part[6]=Reflections.getField(c, "e");
+		part[7]=Reflections.getField(c, "f");
+		part[8]=Reflections.getField(c, "g");
+		part[9]=Reflections.getField(c, "h");
+		part[10]=Reflections.getField(c, "i");
+		scoreb=Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardScore"),"b");
+		scorec=Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardScore"),"c");
+		scored=Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardScore"),"d");
 		pTeleport=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutEntityTeleport"), entity);
 		pSign=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutOpenSignEditor"), pos);
 		getser=Reflections.getMethod(server, "getServer");
@@ -58,9 +73,7 @@ public class NMSAPI {
 		sbhearts=Reflections.get(Reflections.getField(Reflections.getNMSClass("IScoreboardCriteria$EnumScoreboardHealthDisplay"),"HEARTS"),null);
 		post=Reflections.getMethod(Reflections.getNMSClass("MinecraftServer"),"postToMainThread", Runnable.class);
 		if(post==null)post=Reflections.getMethod(Reflections.getNMSClass("MinecraftServer"),"executeSync", Runnable.class);
-		if(Reflections.existNMSClass("PacketPlayOutWorldParticles"))
-		particle = Reflections.getConstructors(Reflections.getNMSClass("PacketPlayOutWorldParticles"))[1];
-		if(particle==null)particle = Reflections.getConstructors(Reflections.getNMSClass("Packet63WorldParticles"))[1];
+		particle = Reflections.getConstructor(c);
 		if(Reflections.existNMSClass("PacketPlayOutTitle"))
 		enumTitle = Reflections.getNMSClass("PacketPlayOutTitle").getDeclaredClasses()[0];
 		try {
@@ -140,13 +153,12 @@ public class NMSAPI {
 	public Object getPacketPlayOutEntityTeleport(Object entity) {
 		return Reflections.c(pTeleport, entity);
 	}
-	
 	public Object getPacketPlayOutScoreboardScore(Action action, String player, String line, int score) {
 		Object o = Reflections.c(NMSAPI.score,line);
 		if(o!=null) {
-			Reflections.setField(o, "b", player);
-			Reflections.setField(o, "c", score);
-			Reflections.setField(o, "d", getScoreboardAction(action));
+			Reflections.setField(o, scoreb, player);
+			Reflections.setField(o, scorec, score);
+			Reflections.setField(o, scored, getScoreboardAction(action));
 			return o;
 		}
 		return Reflections.c(NMSAPI.score,getScoreboardAction(action),player, line, score);
@@ -191,12 +203,12 @@ public class NMSAPI {
 		return o != null ? o : Reflections.c(ChunkSection, y, true);
 	}
 
-	public me.Straiker123.Player getNMSPlayerAPI(Player p) {
-		return new me.Straiker123.Player(getPlayer(p));
+	public NMSPlayer getNMSPlayerAPI(Player p) {
+		return new NMSPlayer(getPlayer(p));
 	}
 
-	public me.Straiker123.Player getNMSPlayerAPI(Object entityPlayer) {
-		return new me.Straiker123.Player(entityPlayer);
+	public NMSPlayer getNMSPlayerAPI(Object entityPlayer) {
+		return new NMSPlayer(entityPlayer);
 	}
 
 	public Object getChunk(Chunk chunk) {
@@ -330,33 +342,32 @@ public class NMSAPI {
 			throw new IllegalArgumentException("The amount is lower than 0");
 		return create(effect, x, y, z, speed, amount, data, 0, 0, 0);
 	}
-
 	private Object create(Particle effect, float x, float y, float z, float speed, int amount, ParticleData data,
 			float floatx, float floaty, float floatz) {
-			Object packet = Reflections.c(particle, particleEnum);
+			Object packet = Reflections.c(particle);
 			if (TheAPI.getStringUtils().getInt(TheAPI.getServerVersion().split("_")[1]) < 8) {
 				String name = effect.name();
 				if (data != null) {
 					name += data.getPacketDataString();
 				}
-				Reflections.setField(packet, "a", name);
+				Reflections.setField(packet, part[0], name);
 			} else {
-				Reflections.setField(packet, "a", Reflections.get(Reflections.getField(particleEnum, effect.name()),null));
-				Reflections.setField(packet, "j", false);
+				Reflections.setField(packet, part[0], Reflections.get(Reflections.getField(particleEnum, effect.name()),null));
+				Reflections.setField(packet, part[1], false);
 				if (data != null) {
 					int[] packetData = data.getPacketData();
-					Reflections.setField(packet, "k", effect == Particle.ITEM_CRACK ? packetData
+					Reflections.setField(packet, part[2], effect == Particle.ITEM_CRACK ? packetData
 							: new int[] { packetData[0] | (packetData[1] << 12) });
 				}
 			}
-			Reflections.setField(packet, "b", x);
-			Reflections.setField(packet, "c", y);
-			Reflections.setField(packet, "d", z);
-			Reflections.setField(packet, "e", floatx);
-			Reflections.setField(packet, "f", floaty);
-			Reflections.setField(packet, "g", floatz);
-			Reflections.setField(packet, "h", speed);
-			Reflections.setField(packet, "i", amount);
+			Reflections.setField(packet, part[3], x);
+			Reflections.setField(packet, part[4], y);
+			Reflections.setField(packet, part[5], z);
+			Reflections.setField(packet, part[6], floatx);
+			Reflections.setField(packet, part[7], floaty);
+			Reflections.setField(packet, part[8], floatz);
+			Reflections.setField(packet, part[9], speed);
+			Reflections.setField(packet, part[10], amount);
 			return packet;
 	}
 
@@ -453,31 +464,19 @@ public class NMSAPI {
 		return Reflections.invoke(getWorld(w), Reflections.getMethod(world, "getType", pos), getBlockPosition(x, y, z));
 	}
 
-	public Object[] setBlock(World world, int x, int y, int z, Material material, int data, boolean applyPsychics, boolean update) {
-		Object old = getType(world, x, y, z);
+	public void setBlock(World world, int x, int y, int z, Material material, int data, boolean applyPsychics) {
+		world.getBlockAt(x, y, z).getDrops().clear();
 		Object newIblock = getIBlockData(material, data), position = getBlockPosition(x, y, z), World = getWorld(world);
-		Reflections.invoke(World, worldset, position, b, applyPsychics ? 3 : 2);
-		if(update)
-		refleshBlock(World, position, old, newIblock);
-		return new Object[] {World, position, old, newIblock};
+		Reflections.invoke(World, worldset, position, newIblock, applyPsychics ? 3 : 2);
 	}
 
-	public Object[] setBlock(World world, int x, int y, int z, Material material, boolean applyPsychics) {
-		return setBlock(world, x, y, z, material, 0, applyPsychics,true);
+	public void setBlock(World world, int x, int y, int z, Material material, boolean applyPsychics) {
+		setBlock(world, x, y, z, material, 0, applyPsychics);
 	}
 
-	public Object[] setBlock(Location loc, Material material, int data, boolean applyPsychics) {
-		return setBlock(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), material, data,
-				applyPsychics,true);
-	}
-
-	public Object[] setBlock(World world, int x, int y, int z, Material material, boolean applyPsychics, boolean update) {
-		return setBlock(world, x, y, z, material, 0, applyPsychics,update);
-	}
-
-	public Object[] setBlock(Location loc, Material material, int data, boolean applyPsychics, boolean update) {
-		return setBlock(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), material, data,
-				applyPsychics,update);
+	public void setBlock(Location loc, Material material, int data, boolean applyPsychics) {
+		setBlock(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), material, data,
+				applyPsychics);
 	}
 
 	public Object getIBlockData(Material material) {

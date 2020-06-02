@@ -1,10 +1,17 @@
 package me.Straiker123.Utils;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.management.Attribute;
+import javax.management.AttributeList;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -23,8 +30,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.StringUtil;
 
-import me.Straiker123.BlockSave;
-import me.Straiker123.BlocksAPI.Shape;
+import com.google.common.collect.Maps;
+
 import me.Straiker123.GUICreatorAPI;
 import me.Straiker123.GUICreatorAPI.Options;
 import me.Straiker123.ItemCreatorAPI;
@@ -34,6 +41,8 @@ import me.Straiker123.RankingAPI;
 import me.Straiker123.ScoreboardAPI;
 import me.Straiker123.TheAPI;
 import me.Straiker123.TheMaterial;
+import me.Straiker123.Blocks.BlockSave;
+import me.Straiker123.Blocks.BlocksAPI.Shape;
 import me.Straiker123.Scheduler.Tasker;
 
 public class TheAPICommand implements CommandExecutor, TabCompleter {
@@ -70,7 +79,25 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		LoaderClass.config.set("WorldsSetting." + w, null);
 		LoaderClass.config.save();
 	}
+	public static double getProcessCpuLoad() {
+		try {
+	    MBeanServer mbs    = ManagementFactory.getPlatformMBeanServer();
+	    ObjectName name    = ObjectName.getInstance("java.lang:type=OperatingSystem");
+	    AttributeList list = mbs.getAttributes(name, new String[]{ "ProcessCpuLoad" });
 
+	    if (list.isEmpty())     return Double.NaN;
+
+	    Attribute att = (Attribute)list.get(0);
+	    Double value  = (Double)att.getValue();
+
+	    // usually takes a couple of seconds before we get real values
+	    if (value == -1.0)      return 0;
+	    // returns a percentage value with 1 decimal point precision
+	    return ((int)(value * 1000) / 10.0);
+		}catch(Exception e) {
+			return 0;
+		}
+	}
 	@Override
 	public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
 		this.args = args;
@@ -78,16 +105,16 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		if (args.length == 0) {
 			TheAPI.msg("&7-----------------", s);
 			if (s.hasPermission("TheAPI.Command.Info"))
-				TheAPI.msg("&6/TheAPI Info", s);
+				TheAPI.msg("&e/TheAPI Info", s);
 			if (s.hasPermission("TheAPI.Command.Reload"))
-				TheAPI.msg("&6/TheAPI Reload", s);
+				TheAPI.msg("&e/TheAPI Reload", s);
 			if (s.hasPermission("TheAPI.Command.WorldsManager"))
-				TheAPI.msg("&6/TheAPI WorldsManager", s);
+				TheAPI.msg("&e/TheAPI WorldsManager", s);
 			if (s.hasPermission("TheAPI.Command.ClearCache"))
-				TheAPI.msg("&6/TheAPI ClearCache", s);
+				TheAPI.msg("&e/TheAPI ClearCache", s);
 			if (s.isOp())
-				TheAPI.msg("&6/TheAPI Test", s);
-			TheAPI.msg("&6Credits: TheAPI created by DevTec", s);
+				TheAPI.msg("&e/TheAPI Test", s);
+			TheAPI.msg("&7*Credits; &eCreated by DevTec*", s);
 			TheAPI.msg("&7-----------------", s);
 			return true;
 		}
@@ -97,23 +124,21 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			Player p = (Player) s;
 			if (args.length == 1) {
 				TheAPI.msg("&7-----------------", s);
-				TheAPI.msg("&6/TheAPI Test ActionBar", s);
-				TheAPI.msg("&6/TheAPI Test BlocksAPI", s);
-				TheAPI.msg("&6/TheAPI Test BossBar", s);
-				TheAPI.msg("&6/TheAPI Test PlayerName", s);
-				TheAPI.msg("&6/TheAPI Test RankingAPI", s);
-				TheAPI.msg("&6/TheAPI Test Scoreboard", s);
-				TheAPI.msg("&6/TheAPI Test TabList", s);
-				TheAPI.msg("&6/TheAPI Test Title", s);
-				TheAPI.msg("&6/TheAPI Test GUICreatorAPI", s);
-				TheAPI.msg("&6/TheAPI Test hideShowEntity", s);
-				TheAPI.msg("&6/TheAPI Test Other - DevTec currently testing", s);
+				TheAPI.msg("&e/TheAPI Test ActionBar", s);
+				TheAPI.msg("&e/TheAPI Test BlocksAPI", s);
+				TheAPI.msg("&e/TheAPI Test BossBar", s);
+				TheAPI.msg("&e/TheAPI Test PlayerName", s);
+				TheAPI.msg("&e/TheAPI Test RankingAPI", s);
+				TheAPI.msg("&e/TheAPI Test Scoreboard", s);
+				TheAPI.msg("&e/TheAPI Test TabList", s);
+				TheAPI.msg("&e/TheAPI Test Title", s);
+				TheAPI.msg("&e/TheAPI Test GUICreatorAPI", s);
+				TheAPI.msg("&e/TheAPI Test hideShowEntity", s);
+				TheAPI.msg("&e/TheAPI Test Other - DevTec currently testing", s);
 				TheAPI.msg("&7-----------------", s);
 				return true;
 			}
 			if (eq(1, "Other")) {
-				double[] tps = TheAPI.getNMSAPI().getServerTPS();
-				s.sendMessage("TPS: " + tps[0] + " 1min, " + tps[1] + " 5min, " + tps[2] + " 15min");
 				return true;
 			}
 			if (eq(1, "hideShowEntity")) {
@@ -286,12 +311,15 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			if (eq(1, "BlocksAPI")) {
 				if (!r) {
 					r = true;
-					List<BlockSave> save = TheAPI.getBlocksAPI().getBlockSaves(TheAPI.getBlocksAPI().get(Shape.Sphere, new Position(p.getLocation()), 5,new TheMaterial("AIR")));
+					HashMap<Position,BlockSave> save = Maps.newHashMap();
+					for(Position pos : TheAPI.getBlocksAPI().get(Shape.Sphere, new Position(p.getLocation()), 5,new TheMaterial("AIR"))) {
+						save.put(pos, new BlockSave(pos));
+					}
 					TheAPI.getBlocksAPI().set(Shape.Sphere, new Position(p.getLocation()), 5, new TheMaterial("DIAMOND_BLOCK"),new TheMaterial("AIR"));
 					new Tasker() {
 						@Override
 						public void run() {
-							TheAPI.getBlocksAPI().loadBlockSaves(save);
+							for(Position s : save.keySet())save.get(s).load(s);
 							save.clear();
 							r = false;
 						}
@@ -317,7 +345,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		if (eq(0, "reload") || eq(0, "rl")) {
 			if (perm("Reload")) {
 				TheAPI.msg("&7-----------------", s);
-				TheAPI.msg("&6Reloading configs..", s);
+				TheAPI.msg("&eReloading configs..", s);
 				for (Player p : TheAPI.getOnlinePlayers())
 					TheAPI.getUser(p).config().reload();
 				LoaderClass.data.reload();
@@ -326,7 +354,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				LoaderClass.unused.reload();
 				Tasks.unload();
 				Tasks.load();
-				TheAPI.msg("&6Configs reloaded.", s);
+				TheAPI.msg("&eConfigs reloaded.", s);
 				TheAPI.msg("&7-----------------", s);
 
 				return true;
@@ -336,9 +364,22 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		if (eq(0, "inf") || eq(0, "info")) {
 			if (perm("Info")) {
 				TheAPI.msg("&7-----------------", s);
-				TheAPI.msg("&6Version: &cv" + LoaderClass.plugin.getDescription().getVersion(), s);
+				TheAPI.msg("&7Memory:", s);
+				TheAPI.msg("  &7Max: &e"+TheAPI.getMemoryAPI().getMaxMemory(), s);
+				TheAPI.msg("  &7Used: &e"+TheAPI.getMemoryAPI().getUsedMemory(false)+" &7("+TheAPI.getMemoryAPI().getUsedMemory(true)+"%)", s);
+				TheAPI.msg("  &7Free: &e"+TheAPI.getMemoryAPI().getFreeMemory(false)+" &7("+TheAPI.getMemoryAPI().getFreeMemory(true)+"%)", s);
+				TheAPI.msg("&7Players:", s);
+				TheAPI.msg("  &7Max: &e"+TheAPI.getMaxPlayers(), s);
+				TheAPI.msg("  &7Online: &e"+TheAPI.getOnlinePlayers().size()+" &7("+(TheAPI.getOnlinePlayers().size()/((double)TheAPI.getMaxPlayers()/100))+"%)", s);
+				TheAPI.msg("&7CPU:", s);
+				OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
+				TheAPI.msg("&7System:", s);
+				TheAPI.msg(" &7CPU: &e"+getProcessCpuLoad()+"%", s);
+				TheAPI.msg(" &7Name: &e"+osBean.getName(), s);
+				TheAPI.msg(" &7Procesors: &e"+osBean.getAvailableProcessors(), s);
+				TheAPI.msg("&7Version: &ev" + LoaderClass.plugin.getDescription().getVersion(), s);
 				if (LoaderClass.plugin.getTheAPIsPlugins().size() != 0) {
-					TheAPI.msg("&6Plugins using TheAPI:", s);
+					TheAPI.msg("&7Plugins using TheAPI:", s);
 					for (Plugin a : LoaderClass.plugin.getTheAPIsPlugins())
 						TheAPI.msg("&7 - " + getPlugin(a), s);
 				}
@@ -351,33 +392,33 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			if (perm("WorldsManager")) {
 				if (args.length == 1) {
 					TheAPI.msg("&7-----------------", s);
-					TheAPI.msg("&6/TheAPI WorldsManager Create <world> <generator>", s);
-					TheAPI.msg("&6/TheAPI WorldsManager Delete <world>", s);
-					TheAPI.msg("&6/TheAPI WorldsManager Unload <world>", s);
-					TheAPI.msg("&6/TheAPI WorldsManager Load <world> <generator>", s);
-					TheAPI.msg("&6/TheAPI WorldsManager Teleport <world> [player]", s);
-					TheAPI.msg("&6/TheAPI WorldsManager Save <world>", s);
-					TheAPI.msg("&6/TheAPI WorldsManager SaveAll", s);
-					TheAPI.msg("&6Worlds:", s);
+					TheAPI.msg("&e/TheAPI WorldsManager Create <world> <generator>", s);
+					TheAPI.msg("&e/TheAPI WorldsManager Delete <world>", s);
+					TheAPI.msg("&e/TheAPI WorldsManager Unload <world>", s);
+					TheAPI.msg("&e/TheAPI WorldsManager Load <world> <generator>", s);
+					TheAPI.msg("&e/TheAPI WorldsManager Teleport <world> [player]", s);
+					TheAPI.msg("&e/TheAPI WorldsManager Save <world>", s);
+					TheAPI.msg("&e/TheAPI WorldsManager SaveAll", s);
+					TheAPI.msg("&7Worlds:", s);
 					for (World w : Bukkit.getWorlds())
-						TheAPI.msg("&7 - &a" + w.getName(), s);
+						TheAPI.msg("&7 - &e" + w.getName(), s);
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
 				if (eq(1, "Teleport") || eq(1, "tp")) {
 					if (args.length == 2) {
 						if (s instanceof Player)
-							TheAPI.msg("&6/TheAPI WorldsManager Teleport <world> [player]", s);
+							TheAPI.msg("&e/TheAPI WorldsManager Teleport <world> [player]", s);
 						else
-							TheAPI.msg("&6/TheAPI WorldsManager Teleport <world> <player>", s);
-						TheAPI.msg("&6Worlds:", s);
+							TheAPI.msg("&e/TheAPI WorldsManager Teleport <world> <player>", s);
+						TheAPI.msg("&7Worlds:", s);
 						for (World w : Bukkit.getWorlds())
-							TheAPI.msg("&7 - &a" + w.getName(), s);
+							TheAPI.msg("&7 - &e" + w.getName(), s);
 						return true;
 					}
 					if (Bukkit.getWorld(args[2]) == null) {
 						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6World with name '" + args[2] + "' doesn't exists.", s);
+						TheAPI.msg("&7World with name '" + args[2] + "' doesn't exists.", s);
 						TheAPI.msg("&7-----------------", s);
 						return true;
 					}
@@ -388,112 +429,112 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 							} catch (Exception e) {
 								((Player) s).teleport(new Location(Bukkit.getWorld(args[2]), 60, 60, 60));
 							}
-							TheAPI.msg("&6Teleporting to the world " + args[2] + "..", s);
+							TheAPI.msg("&eTeleporting to the world " + args[2] + "..", s);
 							return true;
 						} else
-							TheAPI.msg("&6/TheAPI WorldsManager Teleport <world> <player>", s);
+							TheAPI.msg("&e/TheAPI WorldsManager Teleport <world> <player>", s);
 						return true;
 					}
 					if (args.length == 4) {
 						Player p = Bukkit.getPlayer(args[3]);
 						if (p == null) {
-							TheAPI.msg("&6Player " + args[3] + " isn't online", p);
+							TheAPI.msg("&ePlayer " + args[3] + " isn't online", p);
 							return true;
 						}
-						TheAPI.msg("&6Teleporting to the world " + args[2] + "..", p);
-						TheAPI.msg("&6Teleporting player " + p.getName() + " to the world " + args[2] + "..", s);
+						TheAPI.msg("&eTeleporting to the world " + args[2] + "..", p);
+						TheAPI.msg("&eTeleporting player " + p.getName() + " to the world " + args[2] + "..", s);
 						return true;
 					}
 				}
 				if (eq(1, "saveall")) {
 						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6TheAPI WorldsManager saving " + (Bukkit.getWorlds().size()) + " world(s)..", s);
+						TheAPI.msg("&eTheAPI WorldsManager saving " + (Bukkit.getWorlds().size()) + " world(s)..", s);
 						for (World w : Bukkit.getWorlds())
 							w.save();
-						TheAPI.msg("&6Worlds saved..", s);
+						TheAPI.msg("&eWorlds saved..", s);
 						TheAPI.msg("&7-----------------", s);
 					return true;
 				}
 				if (eq(1, "save")) {
 					if (args.length == 2) {
 						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6/TheAPI WorldsManager Save <world>", s);
-						TheAPI.msg("&6Worlds:", s);
+						TheAPI.msg("&e/TheAPI WorldsManager Save <world>", s);
+						TheAPI.msg("&7Worlds:", s);
 						for (World w : Bukkit.getWorlds())
-							TheAPI.msg("&7 - &a" + w.getName(), s);
+							TheAPI.msg("&7 - &e" + w.getName(), s);
 						TheAPI.msg("&7-----------------", s);
 						return true;
 					}
 
 					if (Bukkit.getWorld(args[2]) == null) {
 						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6World with name '" + args[2] + "' doesn't exists.", s);
+						TheAPI.msg("&eWorld with name '" + args[2] + "' doesn't exists.", s);
 						TheAPI.msg("&7-----------------", s);
 						return true;
 					}
 
 					TheAPI.msg("&7-----------------", s);
-					TheAPI.msg("&6TheAPI WorldsManager saving world with name '" + args[2] + "'..", s);
+					TheAPI.msg("&eTheAPI WorldsManager saving world with name '" + args[2] + "'..", s);
 					Bukkit.getWorld(args[2]).save();
-					TheAPI.msg("&6World with name '" + args[2] + "' saved.", s);
+					TheAPI.msg("&eWorld with name '" + args[2] + "' saved.", s);
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
 				if (eq(1, "unload")) {
 					if (args.length == 2) {
 						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6/TheAPI WorldsManager Unload <world>", s);
-						TheAPI.msg("&6Worlds:", s);
+						TheAPI.msg("&e/TheAPI WorldsManager Unload <world>", s);
+						TheAPI.msg("&7Worlds:", s);
 						for (World w : Bukkit.getWorlds())
-							TheAPI.msg("&7 - &a" + w.getName(), s);
+							TheAPI.msg("&7 - &e" + w.getName(), s);
 						TheAPI.msg("&7-----------------", s);
 						return true;
 					}
 					if (Bukkit.getWorld(args[2]) == null) {
 						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6World with name '" + args[2] + "' doesn't exists.", s);
+						TheAPI.msg("&eWorld with name '" + args[2] + "' doesn't exists.", s);
 						TheAPI.msg("&7-----------------", s);
 						return true;
 					}
 					TheAPI.msg("&7-----------------", s);
-					TheAPI.msg("&6TheAPI WorldsManager unloading world with name '" + args[2] + "'..", s);
+					TheAPI.msg("&eTheAPI WorldsManager unloading world with name '" + args[2] + "'..", s);
 					TheAPI.getWorldsManager().unloadWorld(args[2], true);
 
 					List<String> a = LoaderClass.config.getConfig().getStringList("Worlds");
 					a.remove(args[2]);
 					LoaderClass.config.getConfig().set("Worlds", a);
-					TheAPI.msg("&6World with name '" + args[2] + "' unloaded.", s);
+					TheAPI.msg("&eWorld with name '" + args[2] + "' unloaded.", s);
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
 				if (eq(1, "load")) {
 					if (args.length == 2) {
 						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6/TheAPI WorldsManager Load <world> <generator>", s);
-						TheAPI.msg("&6Generators:", s);
+						TheAPI.msg("&e/TheAPI WorldsManager Load <world> <generator>", s);
+						TheAPI.msg("&7Generators:", s);
 						for (String w : Arrays.asList("Default", "Nether", "The_End", "The_Void"))
-							TheAPI.msg("&7 - &a" + w, s);
+							TheAPI.msg("&7 - &e" + w, s);
 						TheAPI.msg("&7-----------------", s);
 						return true;
 					}
 					if (Bukkit.getWorld(args[2]) != null) {
 						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6World with name '" + args[2] + "' already exists.", s);
+						TheAPI.msg("&eWorld with name '" + args[2] + "' already exists.", s);
 						TheAPI.msg("&7-----------------", s);
 						return true;
 					}
 					if (args.length == 3) {
 						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6/TheAPI WorldsManager Load <world> <generator>", s);
-						TheAPI.msg("&6Generators:", s);
+						TheAPI.msg("&e/TheAPI WorldsManager Load <world> <generator>", s);
+						TheAPI.msg("&7Generators:", s);
 						for (String w : Arrays.asList("Default", "Nether", "The_End", "The_Void"))
-							TheAPI.msg("&7 - &a" + w, s);
+							TheAPI.msg("&7 - &e" + w, s);
 						TheAPI.msg("&7-----------------", s);
 						return true;
 					}
 					if (new File(Bukkit.getWorldContainer().getPath() + "/" + args[2] + "/session.lock").exists()) {
 						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6TheAPI WorldsManager loading world with name '" + args[2] + "'..", s);
+						TheAPI.msg("&eTheAPI WorldsManager loading world with name '" + args[2] + "'..", s);
 						int generator = 0;
 						if (args[3].equalsIgnoreCase("Flat"))
 							generator = 1;
@@ -504,9 +545,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						if (args[3].equalsIgnoreCase("The_Void") || args[3].equalsIgnoreCase("Void")
 								|| args[3].equalsIgnoreCase("Empty"))
 							generator = 4;
-						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6TheAPI WorldsManager creating new world with name '" + args[2]
-								+ "' using generator '" + args[3] + "'..", s);
 						Environment env = Environment.NORMAL;
 						WorldType wt = WorldType.NORMAL;
 						switch (generator) {
@@ -533,33 +571,33 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						LoaderClass.config.set("Worlds", a);
 						LoaderClass.config.save();
 						regWorld(args[2], generator);
-						TheAPI.msg("&6World with name '" + args[2] + "' loaded.", s);
+						TheAPI.msg("&eWorld with name '" + args[2] + "' loaded.", s);
 						TheAPI.msg("&7-----------------", s);
 						return true;
 					}
 					TheAPI.msg("&7-----------------", s);
-					TheAPI.msg("&6World with name '" + args[2] + "' doesn't exists.", s);
+					TheAPI.msg("&eWorld with name '" + args[2] + "' doesn't exists.", s);
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
 				if (eq(1, "delete")) {
 					if (args.length == 2) {
 						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6/TheAPI WorldsManager Delete <world>", s);
-						TheAPI.msg("&6Worlds:", s);
+						TheAPI.msg("&e/TheAPI WorldsManager Delete <world>", s);
+						TheAPI.msg("&7Worlds:", s);
 						for (World w : Bukkit.getWorlds())
-							TheAPI.msg("&7 - &a" + w.getName(), s);
+							TheAPI.msg("&7 - &e" + w.getName(), s);
 						TheAPI.msg("&7-----------------", s);
 						return true;
 					}
 					if (Bukkit.getWorld(args[2]) == null) {
 						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6World with name '" + args[2] + "' doesn't exists.", s);
+						TheAPI.msg("&eWorld with name '" + args[2] + "' doesn't exists.", s);
 						TheAPI.msg("&7-----------------", s);
 						return true;
 					}
 					TheAPI.msg("&7-----------------", s);
-					TheAPI.msg("&6TheAPI WorldsManager deleting world with name '" + args[2] + "'..", s);
+					TheAPI.msg("&eTheAPI WorldsManager deleting world with name '" + args[2] + "'..", s);
 					TheAPI.getWorldsManager().delete(Bukkit.getWorld(args[2]), true);
 					List<String> a = LoaderClass.config.getConfig().getStringList("Worlds");
 					if(a.contains(args[2])) {
@@ -568,33 +606,33 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					LoaderClass.config.save();
 					}
 					unregWorld(args[2]);
-					TheAPI.msg("&6World with name '" + args[2] + "' deleted.", s);
+					TheAPI.msg("&eWorld with name '" + args[2] + "' deleted.", s);
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
 				if (eq(1, "create")) {
 					if (args.length == 2) {
 						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6/TheAPI WorldsManager Create <world> <generator>", s);
-						TheAPI.msg("&6Generators:", s);
+						TheAPI.msg("&e/TheAPI WorldsManager Create <world> <generator>", s);
+						TheAPI.msg("&7Generators:", s);
 						for (String w : Arrays.asList("Default", "Nether", "The_End", "The_Void"))
-							TheAPI.msg("&7 - &a" + w, s);
+							TheAPI.msg("&7 - &e" + w, s);
 						TheAPI.msg("&7-----------------", s);
 						return true;
 					}
 					if (Bukkit.getWorld(args[2]) != null) {
 						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6World with name '" + args[2] + "' already exists.", s);
+						TheAPI.msg("&eWorld with name '" + args[2] + "' already exists.", s);
 						TheAPI.msg("&7-----------------", s);
 						return true;
 					}
 
 					if (args.length == 3) {
 						TheAPI.msg("&7-----------------", s);
-						TheAPI.msg("&6/TheAPI WorldsManager Create " + args[2] + " <generator>", s);
-						TheAPI.msg("&6Generators:", s);
+						TheAPI.msg("&e/TheAPI WorldsManager Create " + args[2] + " <generator>", s);
+						TheAPI.msg("&7Generators:", s);
 						for (String w : Arrays.asList("Default", "Nether", "The_End", "The_Void", "Flat"))
-							TheAPI.msg("&7 - &a" + w, s);
+							TheAPI.msg("&7 - &e" + w, s);
 						TheAPI.msg("&7-----------------", s);
 						return true;
 					}
@@ -609,7 +647,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 							|| args[3].equalsIgnoreCase("Empty"))
 						generator = 4;
 					TheAPI.msg("&7-----------------", s);
-					TheAPI.msg("&6TheAPI WorldsManager creating new world with name '" + args[2] + "' using generator '"
+					TheAPI.msg("&eTheAPI WorldsManager creating new world with name '" + args[2] + "' using generator '"
 							+ args[3] + "'..", s);
 					Environment env = Environment.NORMAL;
 					WorldType wt = WorldType.NORMAL;
@@ -639,21 +677,21 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				    }
 					regWorld(args[2], generator);
 					TheAPI.getWorldsManager().create(args[2], env, wt, true, 0);
-					TheAPI.msg("&6World with name '" + args[2] + "' created.", s);
+					TheAPI.msg("&eWorld with name '" + args[2] + "' created.", s);
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
 				TheAPI.msg("&7-----------------", s);
-				TheAPI.msg("&6/TheAPI WorldsManager Create <world> <generator>", s);
-				TheAPI.msg("&6/TheAPI WorldsManager Delete <world>", s);
-				TheAPI.msg("&6/TheAPI WorldsManager Unload <world>", s);
-				TheAPI.msg("&6/TheAPI WorldsManager Load <world> <generator>", s);
-				TheAPI.msg("&6/TheAPI WorldsManager Teleport <world> [player]", s);
-				TheAPI.msg("&6/TheAPI WorldsManager Save <world>", s);
-				TheAPI.msg("&6/TheAPI WorldsManager SaveAll", s);
-				TheAPI.msg("&6Worlds:", s);
+				TheAPI.msg("&e/TheAPI WorldsManager Create <world> <generator>", s);
+				TheAPI.msg("&e/TheAPI WorldsManager Delete <world>", s);
+				TheAPI.msg("&e/TheAPI WorldsManager Unload <world>", s);
+				TheAPI.msg("&e/TheAPI WorldsManager Load <world> <generator>", s);
+				TheAPI.msg("&e/TheAPI WorldsManager Teleport <world> [player]", s);
+				TheAPI.msg("&e/TheAPI WorldsManager Save <world>", s);
+				TheAPI.msg("&e/TheAPI WorldsManager SaveAll", s);
+				TheAPI.msg("&7Worlds:", s);
 				for (World w : Bukkit.getWorlds())
-					TheAPI.msg("&7 - &a" + w.getName(), s);
+					TheAPI.msg("&7 - &e" + w.getName(), s);
 				TheAPI.msg("&7-----------------", s);
 				return true;
 

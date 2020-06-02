@@ -24,8 +24,8 @@ public class PlayerConnection {
 		return (boolean) Reflections.get(Reflections.getField(Reflections.getNMSClass("PlayerConnection"), "isDisconnected"),a);
 	}
 
-	public Player getPlayer() {
-		return new Player(Reflections.get(Reflections.getField(Reflections.getNMSClass("PlayerConnection"), "player"),a));
+	public NMSPlayer getPlayer() {
+		return new NMSPlayer(Reflections.get(Reflections.getField(Reflections.getNMSClass("PlayerConnection"), "player"),a));
 	}
 
 	public void teleport(Location destination) {

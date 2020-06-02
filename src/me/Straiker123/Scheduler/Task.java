@@ -22,6 +22,7 @@ public class Task implements Runnable {
 
 	@Override
 	public void run() {
+		if(c)return;
 		++r;
 		if (s)
 			TheAPI.getNMSAPI().postToMainThread(run);

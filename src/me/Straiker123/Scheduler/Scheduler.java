@@ -106,8 +106,8 @@ public class Scheduler {
 		new Timer().scheduleAtFixedRate(new TimerTask() {
 			public void run() {
 					t.run();
-					cancel();
 					cancelTask(t);
+					cancel();
 					Thread.interrupted();
 			}
 		}, delay*50,1);
@@ -128,8 +128,8 @@ public class Scheduler {
 			public void run() {
 					t.run();
 					if(t.isCancelled()) {
-					cancel();
 					cancelTask(t);
+					cancel();
 					Thread.interrupted();
 					}
 			}
@@ -156,8 +156,8 @@ public class Scheduler {
 			public void run() {
 					t.run();
 					if(t.isCancelled()||t.runTimes()>=times) {
-					cancel();
 					cancelTask(t);
+					cancel();
 					Thread.interrupted();
 					}
 			}

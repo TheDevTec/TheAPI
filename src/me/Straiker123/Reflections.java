@@ -51,60 +51,16 @@ public class Reflections {
 		try {
 			return main.getConstructor(bricks);
 		} catch (Exception e) {
-			return null;
+			try {
+				return main.getDeclaredConstructor(bricks);
+			} catch (Exception e2) {
+				return null;
+			}
 		}
 	}
-
-	public static void processMethod(Object main, String method, Object value, Object value2, Object value3,
-			Object value4) {
-		try {
-			main.getClass().getMethod(method, value.getClass(), value2.getClass(), value3.getClass(), value4.getClass())
-					.invoke(main, value, value2, value3, value4);
-		} catch (Exception e) {
-		}
-	}
-
-	public static void processMethod(Object main, String method, Object value, Object value2, Object value3) {
-		try {
-			main.getClass().getMethod(method, value.getClass(), value2.getClass(), value3.getClass()).invoke(main,
-					value, value2, value3);
-		} catch (Exception e) {
-		}
-	}
-
-	public static void processMethod(Object main, String method, Object value, Object value2) {
-		try {
-			main.getClass().getMethod(method, value.getClass(), value2.getClass()).invoke(main, value, value2);
-		} catch (Exception e) {
-		}
-	}
-
-	public static void processMethod(Object main, String method, Object value) {
-		try {
-			main.getClass().getMethod(method, value.getClass()).invoke(main, value);
-		} catch (Exception e) {
-		}
-	}
-
-	public static void setField(Object main, String field, Object value) {
-		Field f = getField(main.getClass(), field);
-		try {
-			f.set(main, value);
-		} catch (Exception e) {
-		}
-	}
-
 	public static void setField(Object main, Field field, Object value) {
 		try {
 			field.set(main, value);
-		} catch (Exception e) {
-		}
-	}
-
-	public static void setFieldWithNull(Class<?> main, String field, Object value) {
-		Field f = getField(main, field);
-		try {
-			f.set(null, value);
 		} catch (Exception e) {
 		}
 	}
@@ -197,6 +153,13 @@ public class Reflections {
 			return nmsClass.getConstructors();
 		} catch (Exception error) {
 			return null;
+		}
+	}
+
+	public static void setField(Object packet, String field, Object value) {
+		try {
+			getField(packet.getClass(), field).set(packet, value);
+		} catch (Exception e) {
 		}
 	}
 }

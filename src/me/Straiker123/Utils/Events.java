@@ -24,13 +24,13 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerPreLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -45,10 +45,10 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
-import me.Straiker123.BlocksAPI.Shape;
 import me.Straiker123.ConfigAPI;
 import me.Straiker123.ItemCreatorAPI;
 import me.Straiker123.LoaderClass;
+import me.Straiker123.NMSPlayer;
 import me.Straiker123.PlayerBanList;
 import me.Straiker123.PlayerBanList.PunishmentType;
 import me.Straiker123.Position;
@@ -59,6 +59,7 @@ import me.Straiker123.TheAPI;
 import me.Straiker123.TheAPI.SudoType;
 import me.Straiker123.TheMaterial;
 import me.Straiker123.User;
+import me.Straiker123.Blocks.BlocksAPI.Shape;
 import me.Straiker123.WorldBorderAPI.WarningMessageType;
 import me.Straiker123.Events.DamageGodPlayerByEntityEvent;
 import me.Straiker123.Events.DamageGodPlayerEvent;
@@ -452,7 +453,12 @@ public class Events implements Listener {
 			return;
 		}
 		double jump = e.getTo().getY()-e.getFrom().getY();
-		if (jump > 0 && !e.getPlayer().isFlying() && !e.getPlayer().hasPotionEffect(PotionEffectType.LEVITATION)) {
+		boolean has = true;
+		try {
+			has=!e.getPlayer().hasPotionEffect(PotionEffectType.LEVITATION);
+		}catch(NoSuchFieldError es) {
+		}
+		if (jump > 0 && !e.getPlayer().isFlying() && has) {
 			PlayerJumpEvent event = new PlayerJumpEvent(e.getPlayer(), e.getFrom(), e.getTo(), jump);
 			Bukkit.getPluginManager().callEvent(event);
 			if (event.isCancelled())
@@ -509,9 +515,9 @@ public class Events implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onLogin(PlayerPreLoginEvent e) {
+	public void onLogin(AsyncPlayerPreLoginEvent e) {
 		if (!AntiBot.hasAccess(e.getUniqueId())) {
-			e.disallow(Result.KICK_OTHER, null);
+			e.disallow(Result.KICK_OTHER, "");
 			return;
 		}
 		User s = TheAPI.getUser(e.getUniqueId());
@@ -554,7 +560,7 @@ public class Events implements Listener {
 		if (LoaderClass.config.getBoolean("Options.PacketListener"))
 		if (LoaderClass.config.getBoolean("Options.PacketsEnabled.Read")
 				|| LoaderClass.config.getBoolean("Options.PacketsEnabled.Receive")) {
-			Channel channel = new me.Straiker123.Player(e.getPlayer()).getPlayerConnection()
+			Channel channel = new NMSPlayer(e.getPlayer()).getPlayerConnection()
 					.getNetworkManager().getChannel();
 			channel.eventLoop().submit(() -> {
 				channel.pipeline().remove(e.getPlayer().getName());
@@ -580,7 +586,7 @@ public class Events implements Listener {
 				PlayerReadPacketEvent es = new PlayerReadPacketEvent(e.getPlayer(), packet);
 				boolean cancel = false;
 				if (LoaderClass.config.getBoolean("Options.PacketsEnabled.Read")) {
-					Bukkit.getPluginManager().callEvent(es);
+					TheAPI.getNMSAPI().postToMainThread(new Runnable() {public void run() {Bukkit.getPluginManager().callEvent(es);}});
 					cancel=es.isCancelled();
 				}
 				if(cancel)return;
@@ -594,7 +600,7 @@ public class Events implements Listener {
 				PlayerReceivePacketEvent es = new PlayerReceivePacketEvent(e.getPlayer(), packet);
 				boolean cancel = false;
 				if (LoaderClass.config.getBoolean("Options.PacketsEnabled.Receive")) {
-					Bukkit.getPluginManager().callEvent(es);
+					TheAPI.getNMSAPI().postToMainThread(new Runnable() {public void run() {Bukkit.getPluginManager().callEvent(es);}});
 					cancel=es.isCancelled();
 				}
 				if(cancel)return;
@@ -604,7 +610,7 @@ public class Events implements Listener {
 				}
 			}
 		};
-		ChannelPipeline pipeline = new me.Straiker123.Player(e.getPlayer()).getPlayerConnection()
+		ChannelPipeline pipeline = new NMSPlayer(e.getPlayer()).getPlayerConnection()
 				.getNetworkManager().getChannel().pipeline();
 		pipeline.addBefore("packet_handler", e.getPlayer().getName(), channelDuplexHandler);
 		}

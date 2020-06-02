@@ -20,7 +20,7 @@ import me.Straiker123.NMSAPI.DisplayType;
  */
 public class ScoreboardAPI {
 	private final LinkedHashMap<Integer, Team> map = Maps.newLinkedHashMap();
-	private final me.Straiker123.Player p;
+	private final NMSPlayer p;
 	private String name="TheAPI";
 
 	public ScoreboardAPI(Player player) {
@@ -29,24 +29,18 @@ public class ScoreboardAPI {
 	}
 	
 	private void create() {
-		if(LoaderClass.scoreboard.get(p.getName()) != this) {
-		if(LoaderClass.scoreboard.containsKey(p.getName()))
-			LoaderClass.scoreboard.get(p.getName()).destroy();
-		LoaderClass.scoreboard.put(p.getName(), this);
 		p.sendPacket(createObjectivePacket(0, name));
 		Object packet =TheAPI.getNMSAPI().getPacketPlayOutScoreboardDisplayObjective();
 		Reflections.setField(packet, "a", 1);
 		Reflections.setField(packet, "b", p.getName());
 		p.sendPacket(packet);
-	}}
+	}
 
 	public void remove() {
 		destroy();
 	}
 	
 	public void destroy() {
-		if(LoaderClass.scoreboard.containsKey(p.getName()))
-			LoaderClass.scoreboard.remove(p.getName());
 		p.sendPacket(createObjectivePacket(1, null));
 		for (Team team : map.values())
 			p.sendPacket(team.remove());
@@ -58,13 +52,11 @@ public class ScoreboardAPI {
 	}
 
 	public void setDisplayName(String name) {
-		create();
 		this.name = TheAPI.colorize(name);
 		p.sendPacket(createObjectivePacket(2, this.name));
 	}
 
 	public void setLine(int line, String value) {
-		create();
 		value=TheAPI.colorize(value);
 		if(map.containsKey(line) && map.get(line).getValue().equals(value))return;
 		Team team = getTeam(line);
@@ -76,7 +68,6 @@ public class ScoreboardAPI {
 	}
 
 	public void removeLine(int line) {
-		create();
 		if(!map.containsKey(line))return;
 		Team team = getTeam(line);
 		String old = team.getCurrentPlayer();

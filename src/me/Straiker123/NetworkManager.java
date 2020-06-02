@@ -32,7 +32,7 @@ public class NetworkManager {
 
 	// YOUR RISK
 	public void setChannel(Channel channel) {
-		Reflections.setField(a, "channel", channel);
+		Reflections.setField(a, Reflections.getField(Reflections.getNMSClass("NetworkManager"), "channel"), channel);
 	}
 
 	public SocketAddress getSocketAddress() {

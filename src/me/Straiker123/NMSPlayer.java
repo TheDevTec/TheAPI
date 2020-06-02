@@ -1,5 +1,7 @@
 package me.Straiker123;
 
+import java.lang.reflect.Method;
+
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -7,7 +9,7 @@ import org.bukkit.inventory.PlayerInventory;
 
 import me.Straiker123.NMSAPI.TitleAction;
 
-public class Player {
+public class NMSPlayer {
 
 	public static enum Sound {
 		AMBIENT_CAVE, AMBIENT_UNDERWATER_ENTER, AMBIENT_UNDERWATER_EXIT, AMBIENT_UNDERWATER_LOOP,
@@ -206,11 +208,11 @@ public class Player {
 	private final Object a;
 	private static final Class<?> c = Reflections.getNMSClass("EntityPlayer");
 
-	public Player(Object nmsPlayer) {
+	public NMSPlayer(Object nmsPlayer) {
 		a = nmsPlayer;
 	}
 
-	public Player(org.bukkit.entity.Player bukkitPlayer) {
+	public NMSPlayer(org.bukkit.entity.Player bukkitPlayer) {
 		this(TheAPI.getNMSAPI().getPlayer(bukkitPlayer));
 	}
 
@@ -231,17 +233,18 @@ public class Player {
 		sendPacket(TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.SUBTITLE, TheAPI.colorize(subtitle)));
 	}
 
-	public void hurt(double damage) {
+	public void hurt(float damage) {
 		damage(damage);
 	}
 
-	public void damage(double damage) {
-		Reflections.processMethod(a, "damageEntity",
-				Reflections.getField(Reflections.getNMSClass("DamageSource"), "GENERIC"), damage);
+	public void damage(float damage) {
+		Object generic = getFieldWithNull(Reflections.getNMSClass("DamageSource"), "GENERIC");
+		Reflections.invoke(a, getMethod("damageEntity",Reflections.getNMSClass("DamageSource"), float.class),generic, damage);
 	}
 
 	public void playSound(Sound sound, float pitch, float yaw) {
-		Reflections.processMethod(a, "a", Reflections.getField(Reflections.getNMSClass("SoundEffects"), sound.name()),pitch, yaw);
+		Object s = Reflections.getField(Reflections.getNMSClass("SoundEffects"), sound.name());
+		Reflections.invoke(a, getMethod("a", Reflections.getNMSClass("SoundEffects")),s,pitch, yaw);
 	}
 
 	public PlayerConnection getPlayerConnection() {
@@ -254,7 +257,7 @@ public class Player {
 	}
 
 	public void setInventory(PlayerInventory a) {
-		Reflections.setField(a, "inventory", Reflections.cast(Reflections.getNMSClass("PlayerInventory"),
+		Reflections.setField(a, Reflections.getField(c,"inventory"), Reflections.cast(Reflections.getNMSClass("PlayerInventory"),
 				Reflections.cast(Reflections.getBukkitClass("inventory.CraftInventoryPlayer"), a)));
 	}
 
@@ -267,11 +270,11 @@ public class Player {
 	}
 
 	public void sendMessageJson(String message) {
-		Reflections.processMethod(a, "sendMessage", TheAPI.getNMSAPI().getIChatBaseComponentJson(message));
+		Reflections.invoke(a, getMethod("sendMessage", TheAPI.getNMSAPI().getIChatBaseComponentJson(message).getClass()),TheAPI.getNMSAPI().getIChatBaseComponentJson(message));
 	}
 
 	public void sendMessage(String message) {
-		Reflections.processMethod(a, "sendMessage", TheAPI.getNMSAPI().getIChatBaseComponentText(message));
+		Reflections.invoke(a, getMethod("sendMessage", TheAPI.getNMSAPI().getIChatBaseComponentText(message).getClass()),TheAPI.getNMSAPI().getIChatBaseComponentText(message));
 	}
 
 	public int getMaxAir() {
@@ -279,7 +282,7 @@ public class Player {
 	}
 
 	public void setMaxAir(int value) {
-		Reflections.processMethod(a, "maxAirTicks", value);
+		Reflections.setField(a, Reflections.getField(c, "maxAirTicks"), value);
 	}
 
 	public int getPing() {
@@ -288,7 +291,7 @@ public class Player {
 
 	// PLEASE DO NOT DO THIS
 	public void setPing(int value) {
-		Reflections.processMethod(a, "ping", value);
+		Reflections.setField(a, Reflections.getField(c, "ping"), value);
 	}
 
 	public int getPortalCooldown() {
@@ -296,7 +299,7 @@ public class Player {
 	}
 
 	public void setPortalCooldown(int value) {
-		Reflections.processMethod(a, "portalCooldown", value);
+		Reflections.setField(a, Reflections.getField(c, "portalCooldown"), value);
 	}
 
 	public double getMaxHealth() {
@@ -304,7 +307,7 @@ public class Player {
 	}
 
 	public void setMaxHealth(double value) {
-		Reflections.processMethod(a, "maxHealthCache", value);
+		Reflections.setField(a, Reflections.getField(c, "maxHealthCache"), value);
 	}
 
 	public boolean isSneaking() {
@@ -312,19 +315,19 @@ public class Player {
 	}
 
 	public void setSneaking(boolean value) {
-		Reflections.processMethod(a, "setSneaking", value);
+		Reflections.invoke(a, getMethod("setSneaking"), value);
 	}
 
 	public int getNoDamage() {
 		return (int) getField("invulnerableTicks");
 	}
 
-	public void setNoDamage(int tics) {
-		Reflections.setField(a, "invulnerableTicks", tics);
+	public void setNoDamage(int ticks) {
+		Reflections.setField(a, Reflections.getField(c, "invulnerableTicks"), ticks);
 	}
 
 	public void setInvulnerable(boolean value) {
-		Reflections.processMethod(a, "setInvulnerable", a);
+		Reflections.invoke(a, getMethod("setInvulnerable"), value);
 	}
 
 	public boolean isInvulnerable() {
@@ -336,7 +339,7 @@ public class Player {
 	}
 
 	public World getWorld() {
-		return (World) getField(getField("world"), "getWorld");
+		return (World) getField(getField("world"),getField("world").getClass(), "getWorld");
 	}
 
 	public float getFallDistance() {
@@ -381,7 +384,7 @@ public class Player {
 	}
 
 	public void setCustomName(String name) {
-		Reflections.processMethod(a, "setCustomName", TheAPI.getNMSAPI().getIChatBaseComponentText(name));
+		Reflections.invoke(a, getMethod("setCustomName"), TheAPI.getNMSAPI().getIChatBaseComponentText(name));
 	}
 
 	public boolean getTabListName() {
@@ -389,7 +392,7 @@ public class Player {
 	}
 
 	public void setTabListName(String name) {
-		Reflections.setField(a, "listName", TheAPI.getNMSAPI().getIChatBaseComponentText(name));
+		Reflections.setField(a, Reflections.getField(c, "listName"), TheAPI.getNMSAPI().getIChatBaseComponentText(name));
 	}
 
 	public boolean getCustomNameVisible() {
@@ -397,7 +400,7 @@ public class Player {
 	}
 
 	public void setCustomNameVisible(boolean value) {
-		Reflections.processMethod(a, "setCustomNameVisible", value);
+		Reflections.invoke(a, getMethod("setCustomNameVisible"), value);
 	}
 
 	public boolean isGlowing() {
@@ -405,7 +408,7 @@ public class Player {
 	}
 
 	public void setGlowing(boolean value) {
-		Reflections.setField(a, "glowing", value);
+		Reflections.setField(a, Reflections.getField(c, "glowing"), value);
 	}
 
 	public String getDisplayName() {
@@ -414,7 +417,7 @@ public class Player {
 	}
 
 	public void setDisplayName(String name) {
-		Reflections.setField(a, "displayName", name);
+		Reflections.setField(a, Reflections.getField(c, "displayName"), name);
 	}
 
 	public float getExp() {
@@ -422,7 +425,7 @@ public class Player {
 	}
 
 	public void setExp(float exps) {
-		Reflections.setField(a, "exp", exps);
+		Reflections.setField(a, Reflections.getField(c, "exp"), exps);
 	}
 
 	public boolean isDead() {
@@ -434,7 +437,7 @@ public class Player {
 	}
 
 	public void setCanPickUpLoot(boolean value) {
-		Reflections.setField(a, "canPickUpLoot", value);
+		Reflections.setField(a, Reflections.getField(c, "canPickUpLoot"), value);
 	}
 
 	public boolean isColliding() {
@@ -442,27 +445,26 @@ public class Player {
 	}
 
 	public void setColliding(boolean value) {
-		Reflections.setField(a, "collides", value);
+		Reflections.setField(a, Reflections.getField(c, "collides"), value);
 	}
 
 	public float getHealth() {
-		return (float) getField(Reflections.invoke(a, Reflections.getMethod(c, "getBukkitEntity")),"health");
+		Object o = Reflections.invoke(a, Reflections.getMethod(c, "getBukkitEntity"));
+		return (float) getField(o,o.getClass(),"health");
 	}
 
-	public void setHealth(double health) {
-		Reflections.setField(a, "H", ((float) health));
+	public void setHealth(float health) {
+		Reflections.invoke(a, getMethod("setHealth"), health);
 	}
 
 	public int getFood() {
-		return (int) getField(Reflections.invoke(a, Reflections.getMethod(c, "getFoodData")), "foodLevel");
+		Object o = Reflections.invoke(a, Reflections.getMethod(c, "getFoodData"));
+		return (int) getField(o,o.getClass(), "foodLevel");
 	}
 
 	public void setFood(int food) {
-		try {
-			Reflections.setField(c.getMethod("getFoodData").invoke(a), "foodLevel", food);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		Object o = Reflections.invoke(a, Reflections.getMethod(c, "getFoodData"));
+		Reflections.setField(o, Reflections.getField(o.getClass(), "foodLevel"), food);
 	}
 
 	public int getFire() {
@@ -470,7 +472,7 @@ public class Player {
 	}
 
 	public void setFire(int fire) {
-		Reflections.setField(a, "fireTicks", fire);
+		Reflections.setField(a, Reflections.getField(c,"fireTicks"), fire);
 	}
 
 	public double getAir() {
@@ -478,7 +480,7 @@ public class Player {
 	}
 
 	public void setAir(int air) {
-		Reflections.processMethod(a, "setAirTicks", air);
+		Reflections.invoke(a, getMethod("setAirTicks"), air);
 	}
 
 	public void sendPacket(Object packet) {
@@ -489,8 +491,20 @@ public class Player {
 		return Reflections.get(Reflections.getField(c, name),a);
 	}
 	
-	public Object getField(Object c, String name) {
-		return Reflections.get(Reflections.getField(c.getClass(), name),c);
+	public Object getField(Object o, Class<?> in, String name) {
+		return Reflections.get(Reflections.getField(in, name),o);
+	}
+	
+	public Object getFieldWithNull(String name) {
+		return Reflections.get(Reflections.getField(c, name),null);
+	}
+	
+	public Object getFieldWithNull(Class<?> in, String name) {
+		return Reflections.get(Reflections.getField(in, name),null);
+	}
+	
+	public Method getMethod(String name, Class<?>... a) {
+		return Reflections.getMethod(c, name, a);
 	}
 
 }
