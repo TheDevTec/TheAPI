@@ -371,7 +371,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				TheAPI.msg("  &7Free: &e"+TheAPI.getMemoryAPI().getFreeMemory(false)+" &7("+TheAPI.getMemoryAPI().getFreeMemory(true)+"%)", s);
 				TheAPI.msg("&7Worlds:", s);
 				for(World w : Bukkit.getWorlds())
-					TheAPI.msg(" &7- &e"+w.getName()+" &7(Ent:"+w.getEntities().size()+",Players:"+w.getPlayers().size()+",Chunks:"+w.getLoadedChunks()+")", s);
+					TheAPI.msg(" &7- &e"+w.getName()+" &7(Ent:"+w.getEntities().size()+",Players:"+w.getPlayers().size()+",Chunks:"+w.getLoadedChunks().length+")", s);
 				TheAPI.msg("&7Players:", s);
 				TheAPI.msg("  &7Max: &e"+TheAPI.getMaxPlayers(), s);
 				TheAPI.msg("  &7Online: &e"+TheAPI.getOnlinePlayers().size()+" &7("+(TheAPI.getOnlinePlayers().size()/((double)TheAPI.getMaxPlayers()/100))+"%)", s);
