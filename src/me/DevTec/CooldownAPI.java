@@ -1,7 +1,5 @@
 package me.DevTec;
 
-import org.bukkit.entity.Player;
-
 import me.DevTec.Other.User;
 
 public class CooldownAPI {
@@ -25,8 +23,8 @@ public class CooldownAPI {
 		c.setAndSave("cooldown." + cooldown + ".time", length);
 	}
 
-	public boolean expired(String player) {
-		return getTimeToExpire(player) < 0;
+	public boolean expired(String cooldown) {
+		return getTimeToExpire(cooldown) < 0;
 	}
 
 	/**
@@ -58,48 +56,5 @@ public class CooldownAPI {
 
 	public void removeCooldown(String cooldown) {
 		c.setAndSave("cooldown." + cooldown, null);
-	}
-
-	// Player method
-
-	public void createCooldown(Player player, double length) {
-		createCooldown(player.getName(), length);
-	}
-
-	public void createCooldown(Player player, int length) {
-		createCooldown(player.getName(), length);
-	}
-
-	public boolean expired(Player player) {
-		return expired(player.getName());
-	}
-
-	/**
-	 * 
-	 * @return long If return is -1, it mean cooldown isn't exist
-	 */
-	public long getStart(Player player) {
-		return getStart(player.getName());
-	}
-
-	/**
-	 * 
-	 * @return long If return is -1, it mean cooldown isn't exist
-	 */
-	public long getTimeToExpire(Player player) {
-		return getTimeToExpire(player.getName());
-
-	}
-
-	/**
-	 * 
-	 * @return double If return is -1, it mean cooldown isn't exist
-	 */
-	public double getCooldown(Player player) {
-		return getCooldown(player.getName());
-	}
-
-	public void removeCooldown(Player player) {
-		removeCooldown(player.getName());
 	}
 }

@@ -472,7 +472,7 @@ public class NMSAPI {
 		Object old = getIBlockData(world, x,y,z);
 		Object newIblock = getIBlockData(material, data), position = getBlockPosition(x, y, z), World = getWorld(world);
 		Reflections.invoke(World, worldset, position, newIblock, applyPsychics ? 3 : 2);
-		LoaderClass.refleshing.add(new Object[] {getWorld(world),getBlockPosition(x, y, z),old,newIblock});
+		LoaderClass.plugin.refleshing.add(new Object[] {getWorld(world),getBlockPosition(x, y, z),old,newIblock});
 	}
 
 	public void setBlock(World world, int x, int y, int z, Material material, boolean applyPsychics) {

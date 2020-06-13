@@ -8,6 +8,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.google.common.collect.Maps;
+
 import me.DevTec.ConfigAPI;
 import me.DevTec.ItemCreatorAPI;
 import me.DevTec.TheAPI;
@@ -16,12 +18,12 @@ import me.DevTec.GUI.GUIID.GRunnable;
 import me.DevTec.Other.LoaderClass;
 
 public class GUICreatorAPI {
-
-	private Player p;
+	private final Player p;
+	private final HashMap<Integer, ItemGUI> actions = Maps.newHashMap();
 
 	public GUICreatorAPI(Player s) {
 		p = s;
-		id = new GUIID(p, g);
+		id = new GUIID(this, g);
 	}
 
 	private GUIID id;
@@ -57,12 +59,9 @@ public class GUICreatorAPI {
 		}
 	}
 
-	public static ItemGUI createItemGUI(ItemStack item) {
-		return new ItemGUI(item);
-	}
-
 	public void applyItemGUI(ItemGUI toApply, int position) {
-		toApply.apply(this, position);
+		actions.put(position, toApply);
+		setItem(position, toApply.getItem(), toApply.getOptions());
 	}
 
 	public Player getPlayer() {
@@ -377,6 +376,10 @@ public class GUICreatorAPI {
 			g.set("guis." + p.getName() + "." + getID(), null);
 			id.clear();
 		}
+	}
+	
+	public HashMap<Integer, ItemGUI> getItemGUIs(){
+		return actions;
 	}
 
 	/**

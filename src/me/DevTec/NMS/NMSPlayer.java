@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 
 import me.DevTec.TheAPI;
@@ -371,8 +372,9 @@ public class NMSPlayer {
 		return new Location(getWorld(), getX(), getY(), getZ());
 	}
 
-	public org.bukkit.entity.Player getPlayer() {
-		return (org.bukkit.entity.Player) getField("getBukkitPlayer");
+	public Player getPlayer() {
+		Player s = TheAPI.getPlayer(getName());
+		return s.getName().equals(getName()) ? s : null;
 	}
 
 	public String getName() {

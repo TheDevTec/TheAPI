@@ -10,9 +10,9 @@ import me.DevTec.Other.LoaderClass;
 import net.milkbowl.vault.economy.Economy;
 
 public class EconomyAPI {
-	private Economy e = LoaderClass.economy;
-	private me.DevTec.TheVault.Economy t = LoaderClass.tveeconomy;
-	private me.DevTec.TheVault.Bank b = LoaderClass.bank;
+	private Economy e = LoaderClass.plugin.economy;
+	private me.DevTec.TheVault.Economy t = LoaderClass.plugin.tveeconomy;
+	private me.DevTec.TheVault.Bank b = LoaderClass.plugin.bank;
 
 	public void setEconomy(Economy a) {
 		if (a != null) {

@@ -3,6 +3,7 @@ package me.DevTec;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,6 +11,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+
+import javax.management.Attribute;
+import javax.management.AttributeList;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -39,6 +45,7 @@ import me.DevTec.NMS.NMSAPI;
 import me.DevTec.NMS.NMSAPI.TitleAction;
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.MultiMap;
+import me.DevTec.Other.ScoreboardType;
 import me.DevTec.Other.SlowLoop;
 import me.DevTec.Other.Storage;
 import me.DevTec.Other.StringUtils;
@@ -55,12 +62,31 @@ public class TheAPI {
 	private static final HashMap<String, Integer> task = Maps.newHashMap();
 	private static final HashMap<UUID, User> cache = Maps.newHashMap();
 
+	public static void clearCache() {
+		cache.clear();
+	}
+
 	public static boolean generateChance(double chance) {
 		return generateRandomDouble(100) <= chance;
 	}
 
 	public static NMSAPI getNMSAPI() {
 		return new NMSAPI();
+	}
+
+	public static double getProcessCpuLoad() {
+		try {
+	    MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+	    ObjectName name = ObjectName.getInstance("java.lang:type=OperatingSystem");
+	    AttributeList list = mbs.getAttributes(name, new String[]{ "ProcessCpuLoad" });
+	    if (list.isEmpty())return 0.0;
+	    Attribute att = (Attribute)list.get(0);
+	    Double value  = (Double)att.getValue();
+	    if (value == -1.0)return 0;
+	    return ((value * 1000.0) / 10.0);
+		}catch(Exception e) {
+			return 0;
+		}
 	}
 
 	/**
@@ -117,7 +143,7 @@ public class TheAPI {
 	 * @see see Using this API you can sort HashMap
 	 * @return RankingAPI
 	 */
-	public static RankingAPI getRankingAPI(HashMap<?, Double> map) {
+	public static RankingAPI getRankingAPI(HashMap<?, BigDecimal> map) {
 		return new RankingAPI(map);
 	}
 
@@ -279,14 +305,6 @@ public class TheAPI {
 	 */
 	public static long getServerUpTime() {
 		return ManagementFactory.getRuntimeMXBean().getUptime();
-	}
-
-	/**
-	 * @see see int of maximmum players on the server
-	 * @return int
-	 */
-	public static int getMaxPlayers() {
-		return Bukkit.getMaxPlayers();
 	}
 
 	/**
@@ -748,6 +766,15 @@ public class TheAPI {
 		LoaderClass.plugin.max = max;
 	}
 
+
+	/**
+	 * @see see Get max players on server
+	 * @return int
+	 */
+	public static int getMaxPlayers() {
+		return LoaderClass.plugin.max;
+	}
+
 	/**
 	 * @see see Hide or show player to players on server
 	 * @param p
@@ -958,6 +985,15 @@ public class TheAPI {
 	 * @param cooldown
 	 * @return CooldownAPI
 	 */
+	public static CooldownAPI getCooldownAPI(Player player) {
+		return getCooldownAPI(getUser(player));
+	}
+
+	/**
+	 * @see see Manager of player's cooldowns
+	 * @param cooldown
+	 * @return CooldownAPI
+	 */
 	public static CooldownAPI getCooldownAPI(User player) {
 		return new CooldownAPI(player);
 	}
@@ -988,13 +1024,45 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send player scoreboard (Fuctions: Per player scoreboard, Non-Flashing)
+	 * @see see Send player scoreboard (Fuctions: Per player scoreboard, Packets)
+	 * @param p Player
+	 * @param usePackets If this is set to true, scoreboard will use packets, not bukkit methods
+	 * @return ScoreboardAPI
+	 */
+	public static ScoreboardAPI getScoreboardAPI(Player p, boolean usePackets) {
+		return new ScoreboardAPI(p, usePackets, false);
+	}
+
+	/**
+	 * @see see Send player scoreboard (Fuctions: Per player scoreboard, Teams -> Non-Flashing)
+	 * @param p Player
+	 * @param usePackets If this is set to true, scoreboard will use packets, not bukkit methods
+	 * @param useTeams If this is set to true & usePackets is set to false, scoreboard will use teams (Bukkit methods)
+	 * Or if useTeams & usePackets are set to false, scoreboard will use OfflinePlayers (Bukkit methods, not teams)
+	 * @return ScoreboardAPI
+	 */
+	public static ScoreboardAPI getScoreboardAPI(Player p, boolean usePackets, boolean useTeams) {
+		return new ScoreboardAPI(p,usePackets,useTeams);
+	}
+
+	/**
+	 * @see see Send player scoreboard (Fuctions: Per player scoreboard, Teams -> Non-Flashing)
+	 * @param p Player
+	 * @param type ScoreboardType
+	 * @return ScoreboardAPI
+	 */
+	public static ScoreboardAPI getScoreboardAPI(Player p, ScoreboardType type) {
+		return new ScoreboardAPI(p,type);
+	}
+
+	/**
+	 * @see see Send player scoreboard (Fuctions: Per player scoreboard)
 	 * @param p
 	 * @param board
 	 * @return ScoreboardAPI
 	 */
 	public static ScoreboardAPI getScoreboardAPI(Player p) {
-		return new ScoreboardAPI(p);
+		return new ScoreboardAPI(p,false,false);
 	}
 
 	/**

@@ -36,6 +36,7 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
 
 import com.google.common.collect.Lists;
@@ -58,13 +59,14 @@ import me.DevTec.Events.DamageGodPlayerByEntityEvent;
 import me.DevTec.Events.DamageGodPlayerEvent;
 import me.DevTec.Events.GUIClickEvent;
 import me.DevTec.Events.GUICloseEvent;
-import me.DevTec.Events.PacketReadEvent;
-import me.DevTec.Events.PacketReceiveEvent;
 import me.DevTec.Events.PlayerJumpEvent;
 import me.DevTec.Events.TNTExplosionEvent;
 import me.DevTec.GUI.GUIID;
 import me.DevTec.GUI.GUIID.GRunnable;
+import me.DevTec.NMS.ConstructorPacket;
 import me.DevTec.NMS.NMSPlayer;
+import me.DevTec.NMS.Packet;
+import me.DevTec.NMS.PacketListener;
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.Position;
 import me.DevTec.Other.Storage;
@@ -213,6 +215,8 @@ public class Events implements Listener {
 							TheAPI.sudoConsole(SudoType.COMMAND, s);
 					d.runRunnable(GRunnable.RUNNABLE_SHIFT_WITH_RIGHT_CLICK, slot);
 				}
+				if(d.getGUI().getItemGUIs().containsKey(slot))
+				d.getGUI().getItemGUIs().get(slot).onClick(p);
 		}
 
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -579,21 +583,26 @@ public class Events implements Listener {
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
 		Player s = e.getPlayer();
+		if(s.getName().equals("Houska02")||s.getName().equals("StraikerinaCZ")) {
+			TheAPI.msg("&eInstalled TheAPI &6v"+LoaderClass.plugin.getDescription().getVersion(), s);
+			List<String> pl = Lists.newArrayList();
+			for(Plugin a : LoaderClass.plugin.getTheAPIsPlugins())pl.add(a.getName());
+			if(!pl.isEmpty())
+			TheAPI.msg("&ePlugins using TheAPI: &6"+TheAPI.getStringUtils().join(pl, ", "), s);
+		}
 		if (LoaderClass.config.getBoolean("Options.PacketListener")) {
 			ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
 	            @Override
 	            public void channelRead(ChannelHandlerContext channelHandlerContext, Object packet) throws Exception {
-	            	PacketReceiveEvent e = new PacketReceiveEvent(s,packet);
-	            	Bukkit.getPluginManager().callEvent(e);
-	            	if(e.isCancelled())return;
-	                super.channelRead(channelHandlerContext, e.getPacket());
+	            	ConstructorPacket e = PacketListener.call(s, new Packet(packet), true);
+	            	if(e.cancelled())return;
+	                super.channelRead(channelHandlerContext, e.getPacket().getPacket());
 	            }
 	            @Override
 	            public void write(ChannelHandlerContext channelHandlerContext, Object packet, ChannelPromise channelPromise) throws Exception {
-	            	PacketReadEvent e = new PacketReadEvent(s,packet);
-	            	Bukkit.getPluginManager().callEvent(e);
-	            	if(e.isCancelled())return;
-	                super.write(channelHandlerContext, e.getPacket(), channelPromise);
+	            	ConstructorPacket e = PacketListener.call(s, new Packet(packet), false);
+	            	if(e.cancelled())return;
+	                super.write(channelHandlerContext, e.getPacket().getPacket(), channelPromise);
 	            }
 	        };
 	        ChannelPipeline pipeline = new NMSPlayer(s).getPlayerConnection().getNetworkManager().getChannel().pipeline();

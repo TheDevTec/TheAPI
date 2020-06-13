@@ -136,6 +136,8 @@ public class Position implements Cloneable {
 			return new Position(Bukkit.getWorld(part[0]), s.getDouble(part[1]), s.getDouble(part[2]),
 					s.getDouble(part[3]), s.getFloat(part[4]), s.getFloat(part[5]));
 		}
+		Location loc = TheAPI.getStringUtils().getLocationFromString(stored);
+		if(loc!=null)return new Position(loc);
 		return null;
 	}
 

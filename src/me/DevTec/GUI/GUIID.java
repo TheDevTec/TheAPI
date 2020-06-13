@@ -9,15 +9,15 @@ import me.DevTec.ConfigAPI;
 
 public class GUIID {
 	private Inventory i;
-	private Player p;
+	private GUICreatorAPI p;
 	private ConfigAPI d;
 	private String id;
 
-	public GUIID(Player s, ConfigAPI g) {
+	public GUIID(GUICreatorAPI s, ConfigAPI g) {
 		p = s;
 		this.d = g;
 		for (int i = 0; i > -1; ++i) {
-			if (!g.existPath("guis." + s.getName() + "." + i)) {
+			if (!g.existPath("guis." + getPlayer().getName() + "." + i)) {
 				id = i + "";
 				break;
 			}
@@ -33,7 +33,7 @@ public class GUIID {
 	}
 
 	public Player getPlayer() {
-		return p;
+		return p.getPlayer();
 	}
 
 	public String getID() {
@@ -82,16 +82,20 @@ public class GUIID {
 	public void clear() {
 		run.clear();
 		close = null;
-		d.set("guis." + p.getName() + "." + id, null);
+		d.set("guis." + getPlayer().getName() + "." + id, null);
 		d.save();
 	}
 
 	public void closeAndClear() {
 		clear();
-		p.getOpenInventory().close();
+		p.close();
 	}
 
 	public void close() {
-		p.getOpenInventory().close();
+		p.close();
+	}
+
+	public GUICreatorAPI getGUI() {
+		return p;
 	}
 }

@@ -25,12 +25,12 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
 import me.DevTec.ConfigAPI;
 import me.DevTec.ScoreboardAPI;
-import me.DevTec.ScoreboardAPI.Team;
 import me.DevTec.TheAPI;
-import me.DevTec.Events.PacketReadEvent;
-import me.DevTec.Events.PacketReceiveEvent;
 import me.DevTec.GUI.GUIID;
+import me.DevTec.NMS.ConstructorPacket;
 import me.DevTec.NMS.NMSPlayer;
+import me.DevTec.NMS.Packet;
+import me.DevTec.NMS.PacketListener;
 import me.DevTec.Scheduler.Scheduler;
 import me.DevTec.Scheduler.Task;
 import me.DevTec.Scheduler.Tasker;
@@ -42,25 +42,36 @@ import me.DevTec.Utils.TheAPICommand;
 import net.milkbowl.vault.economy.Economy;
 
 public class LoaderClass extends JavaPlugin {
-	public static final HashMap<String, ScoreboardAPI> scoreboard = Maps.newHashMap();
-	public static LoaderClass plugin;
-	public static final LinkedBlockingQueue<Object[]> refleshing = Queues.newLinkedBlockingQueue();
-	public static final MultiMap<String, Integer, Team> map = new MultiMap<String, Integer, Team>();
+	//Scoreboards
+	public final HashMap<Integer, ScoreboardAPI> scoreboard = Maps.newHashMap();
+	public final HashMap<String, Integer> sbCurrent = Maps.newHashMap();
+	public final List<Integer> ids = Lists.newArrayList();
+	public final MultiMap<Integer, Integer, Object> map = new MultiMap<Integer, Integer, Object>();
+	//Queue for updating blocks of BlocksAPI
+	public final LinkedBlockingQueue<Object[]> refleshing = Queues.newLinkedBlockingQueue();
+	//Scheduler
 	public final HashMap<Integer, Task> scheduler = Maps.newHashMap();
+	//GUIs
 	public final HashMap<Player, GUIID> gui = Maps.newHashMap();
+	//GameAPI
 	public final HashMap<String, Integer> GameAPI_Arenas = Maps.newHashMap();
 	public final HashMap<String, Runnable> win_rewards = Maps.newHashMap();
-	public final List<Integer> tasks = Lists.newArrayList();
-	public static ConfigAPI unused,config,gameapi,data;
-	public static boolean online = true;
-	public static int task = 1;
-	//public static boolean created;
+	//TheAPI
+	public static LoaderClass plugin;
+	public static ConfigAPI unused= new ConfigAPI("TheAPI", "UnusedData"),
+			config= new ConfigAPI("TheAPI", "Config"),gameapi= new ConfigAPI("TheAPI", "GameAPI")
+			,data= new ConfigAPI("TheAPI", "Data");
+	protected static boolean online = true;
+	public String motd;
+	public int max=Bukkit.getMaxPlayers();
+	//EconomyAPI
+	public boolean e, tve, tbank;
+	public Economy economy;
+	public me.DevTec.TheVault.Economy tveeconomy;
+	public Bank bank;
+	
 	@Override
 	public void onLoad() {
-		unused = new ConfigAPI(this, "UnusedData");
-		config = new ConfigAPI(this, "Config");
-		gameapi = new ConfigAPI(this, "GameAPI");
-		data = new ConfigAPI(this, "Data");
 		plugin = this;
 		createConfig();
 		new Thread(new Runnable() {
@@ -74,68 +85,6 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &6Action: &6Loading plugin..", TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-	}
-
-	public void vaultHooking() {
-		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &6Action: &6Looking for Vault Economy..", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-		new Tasker() {
-			@Override
-			public void run() {
-				if (getVaultEconomy()) {
-					e = true;
-					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &6Found Vault Economy", TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-					cancel();
-				}
-			}
-		}.repeatingTimesAsync(0, 20, 15);
-	}
-
-	private boolean as = false, b = false;
-
-	public void TheVaultHooking() {
-		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &6Action: &6Looking for TheVault Economy and Bank system..", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-		new Tasker() {
-			@Override
-			public void run() {
-				if (TheVault.getEconomy() != null && !as) {
-					as = true;
-					tveeconomy = TheVault.getEconomy();
-					tve = true;
-					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &6Found TheVault Economy", TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-				}
-				if (TheVault.getBank() != null && !b) {
-					b = true;
-					bank = TheVault.getBank();
-					tbank = true;
-					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &6Found TheVault Bank system", TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-				}
-				if (as && b)
-					cancel();
-			}
-		}.repeatingTimesAsync(0, 20, 15);
-	}
-
-	public boolean e, tve, tbank;
-	public String motd;
-	public int max;
-
-	public List<Plugin> getTheAPIsPlugins() {
-		List<Plugin> a = new ArrayList<Plugin>();
-		for (Plugin all : TheAPI.getPluginsManagerAPI().getPlugins())
-			if (TheAPI.getPluginsManagerAPI().getDepend(all.getName()).contains("TheAPI")
-					|| TheAPI.getPluginsManagerAPI().getSoftDepend(all.getName()).contains("TheAPI"))
-				a.add(all);
-		return a;
 	}
 
 	@Override
@@ -200,17 +149,15 @@ public class LoaderClass extends JavaPlugin {
 				ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
 		            @Override
 		            public void channelRead(ChannelHandlerContext channelHandlerContext, Object packet) throws Exception {
-		            	PacketReceiveEvent e = new PacketReceiveEvent(s,packet);
-		            	Bukkit.getPluginManager().callEvent(e);
-		            	if(e.isCancelled())return;
-		                super.channelRead(channelHandlerContext, e.getPacket());
+		            	ConstructorPacket c = PacketListener.call(s, new Packet(packet), true);
+		            	if(c.cancelled())return;
+		                super.channelRead(channelHandlerContext, c.getPacket().getPacket());
 		            }
 		            @Override
 		            public void write(ChannelHandlerContext channelHandlerContext, Object packet, ChannelPromise channelPromise) throws Exception {
-		            	PacketReadEvent e = new PacketReadEvent(s,packet);
-		            	Bukkit.getPluginManager().callEvent(e);
-		            	if(e.isCancelled())return;
-		                super.write(channelHandlerContext, e.getPacket(), channelPromise);
+		            	ConstructorPacket c = PacketListener.call(s, new Packet(packet), false);
+		            	if(c.cancelled())return;
+		                super.write(channelHandlerContext, c.getPacket().getPacket(), channelPromise);
 		            }
 		        };
 		        ChannelPipeline pipeline = new NMSPlayer(s).getPlayerConnection().getNetworkManager().getChannel().pipeline();
@@ -219,24 +166,42 @@ public class LoaderClass extends JavaPlugin {
 		}
 	}
 
-	public static Economy economy;
-	public static me.DevTec.TheVault.Economy tveeconomy;
-	public static Bank bank;
-
-	private boolean getVaultEconomy() {
-		try {
-			RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager()
-					.getRegistration(net.milkbowl.vault.economy.Economy.class);
-			if (economyProvider != null) {
-				economy = economyProvider.getProvider();
-
+	@Override
+	public void onDisable() {
+		for(Player s : TheAPI.getOnlinePlayers()) {
+			if (LoaderClass.config.getBoolean("Options.PacketListener")) {
+				Channel channel = new NMSPlayer(s).getPlayerConnection()
+						.getNetworkManager().getChannel();
+				channel.eventLoop().submit(() -> {
+					channel.pipeline().remove(s.getName());
+					return null;
+				});
 			}
-			return economy != null;
-		} catch (Exception e) {
-			return false;
 		}
+		online=false;
+		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &6Action: &cDisabling plugin, saving configs and stopping runnables..",
+				TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+		Scheduler.cancelAll();
+		for (Player p : gui.keySet()) {
+			gui.get(p).closeAndClear();
+		}
+		unused.delete();
+		data.reload();
+		config.reload();
+		gameapi.reload();
 	}
 
+	public List<Plugin> getTheAPIsPlugins() {
+		List<Plugin> a = new ArrayList<Plugin>();
+		for (Plugin all : TheAPI.getPluginsManagerAPI().getPlugins())
+			if (TheAPI.getPluginsManagerAPI().getDepend(all.getName()).contains("TheAPI")
+					|| TheAPI.getPluginsManagerAPI().getSoftDepend(all.getName()).contains("TheAPI"))
+				a.add(all);
+		return a;
+	}
+	
 	private void createConfig() {
 		data.create();
 		config.setHeader("TNT, Action types: WAIT/DROP");
@@ -261,38 +226,8 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.EntityMoveEvent.Enabled", true); // set false to disable this event
 		config.addDefault("Options.FakeEconomyAPI.Symbol", "$");
 		config.addDefault("Options.FakeEconomyAPI.Format", "$%money%");
-		config.addDefault("Words.Second", "s");
-		config.addDefault("Words.Minute", "min");
-		config.addDefault("Words.Hour", "h");
-		config.addDefault("Words.Day", "d");
-		config.addDefault("Words.Week", "w");
-		config.addDefault("Words.Month", "mon");
-		config.addDefault("Words.Year", "y");
-		config.addDefault("Words.Century", "cen");
-		config.addDefault("Words.Millenium", "mil");
-		config.addDefault("Format.Mute", "&6You are muted for &c%reason%");
-		config.addDefault("Format.TempMute", "&6You are muted for &c%reason% &6on &c%time%");
-		config.addDefault("Format.Ban", "&6You are banned for &c%reason%");
-		config.addDefault("Format.TempBan", "&6You are banned for &c%reason% &6on &c%time%");
-		config.addDefault("Format.BanIP", "&6You are ip-banned for &c%reason%");
-		config.addDefault("Format.TempBanIP", "&6You are temp ip-banned for &c%reason% &6on &c%time%");
-		config.addDefault("Format.Broadcast.Mute", "&6Player &c%player% &6muted for &c%reason%");
-		config.addDefault("Format.Broadcast.TempMute", "&6Player &c%player% &6muted for &c%reason% &6on &c%time%");
-		config.addDefault("Format.Broadcast.Ban", "&6Player &c%player% &6banned for &c%reason%");
-		config.addDefault("Format.Broadcast.TempBan", "&6Player &c%player% &6banned for &c%reason% &6on &c%time%");
-		config.addDefault("Format.Broadcast.BanIP", "&6Player &c%target% &6ip-banned for &c%reason%");
-		config.addDefault("Format.Broadcast.TempBanIP",
-				"&6Player &c%target% &6temp ip-banned for &c%reason% &6on &c%time%");
-		config.addDefault("Format.Broadcast.Mute-Permission", "TheAPI.Mute");
-		config.addDefault("Format.Broadcast.TempMute-Permission", "TheAPI.TempMute");
-		config.addDefault("Format.Broadcast.Ban-Permission", "TheAPI.Ban");
-		config.addDefault("Format.Broadcast.TempBan-Permission", "TheAPI.TempBan");
-		config.addDefault("Format.Broadcast.BanIP-Permission", "TheAPI.BanIP");
-		config.addDefault("Format.Broadcast.TempBanIP-Permission", "TheAPI.TempBanIP");
 		config.addDefault("Format.HelpOp", "&0[&4HelpOp&0] &c%sender%&8: &c%message%");
 		config.addDefault("Format.HelpOp-Permission", "TheAPI.HelpOp");
-		config.addDefault("Format.Report", "&0[&4Report&0] &c%sender% &6reported &c%reported% &6for &c%message%");
-		config.addDefault("Format.Report-Permission", "TheAPI.Report");
 		config.addDefault("GameAPI.StartingIn", "&aStarting in %time%s");
 		config.addDefault("GameAPI.Start", "&aStart");
 		config.create();
@@ -356,30 +291,64 @@ public class LoaderClass extends JavaPlugin {
 		}
 	}
 
-	@Override
-	public void onDisable() {
-		for(Player s : TheAPI.getOnlinePlayers()) {
-			if (LoaderClass.config.getBoolean("Options.PacketListener")) {
-				Channel channel = new NMSPlayer(s).getPlayerConnection()
-						.getNetworkManager().getChannel();
-				channel.eventLoop().submit(() -> {
-					channel.pipeline().remove(s.getName());
-					return null;
-				});
+	private boolean getVaultEconomy() {
+		try {
+			RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager()
+					.getRegistration(net.milkbowl.vault.economy.Economy.class);
+			if (economyProvider != null) {
+				economy = economyProvider.getProvider();
+
 			}
+			return economy != null;
+		} catch (Exception e) {
+			return false;
 		}
-		online=false;
+	}
+	
+	public void vaultHooking() {
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &6Action: &cDisabling plugin, saving configs and stopping runnables..",
-				TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &6Action: &6Looking for Vault Economy..", TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-		Scheduler.cancelAll();
-		for (Player p : gui.keySet()) {
-			gui.get(p).closeAndClear();
-		}
-		unused.delete();
-		data.reload();
-		config.reload();
-		gameapi.reload();
+		new Tasker() {
+			@Override
+			public void run() {
+				if (getVaultEconomy()) {
+					e = true;
+					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &6Found Vault Economy", TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+					cancel();
+				}
+			}
+		}.repeatingTimesAsync(0, 20, 15);
+	}
+
+	public void TheVaultHooking() {
+		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &6Action: &6Looking for TheVault Economy and Bank system..", TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+		new Tasker() {
+			boolean as = false, b = false;
+			public void run() {
+				if (TheVault.getEconomy() != null && !as) {
+					as = true;
+					tveeconomy = TheVault.getEconomy();
+					tve = true;
+					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &6Found TheVault Economy", TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+				}
+				if (TheVault.getBank() != null && !b) {
+					b = true;
+					bank = TheVault.getBank();
+					tbank = true;
+					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &6Found TheVault Bank system", TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+				}
+				if (as && b)
+					cancel();
+			}
+		}.repeatingTimesAsync(0, 20, 15);
 	}
 }

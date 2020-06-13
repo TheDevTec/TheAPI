@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
@@ -119,6 +120,33 @@ public class TheCoder {
 		} catch (Exception e) {
 		}
 		return r;
+	}
+	
+	public String toColor(int ints) {
+		String s = ""+ints;
+		return s.replace("0", ChatColor.AQUA+"")
+				.replace("1", ChatColor.BLACK+"")
+				.replace("2", ChatColor.BLUE+"")
+				.replace("3", ChatColor.GOLD+"")
+				.replace("4", ChatColor.GRAY+"")
+				.replace("5", ChatColor.GREEN+"")
+				.replace("6", ChatColor.RED+"")
+				.replace("7", ChatColor.YELLOW+"")
+				.replace("8", ChatColor.WHITE+"")
+				.replace("9", ChatColor.DARK_RED+"");
+	}
+	
+	public String fromColor(String c) {
+		return c.replace(ChatColor.AQUA+"","0")
+				.replace(ChatColor.BLACK+"","1")
+				.replace(ChatColor.BLUE+"","2")
+				.replace(ChatColor.GOLD+"","3")
+				.replace(ChatColor.GRAY+"","4")
+				.replace(ChatColor.GREEN+"","5")
+				.replace(ChatColor.RED+"","6")
+				.replace(ChatColor.YELLOW+"","7")
+				.replace(ChatColor.WHITE+"","8")
+				.replace(ChatColor.DARK_RED+"","9");
 	}
 
 }

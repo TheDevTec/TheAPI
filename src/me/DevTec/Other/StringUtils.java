@@ -1,9 +1,15 @@
 package me.DevTec.Other;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -158,23 +164,50 @@ public class StringUtils {
 			return list.get(r);
 	}
 
-	private String sec, min, h, d, w, mon, y, c, mil;
+	private static final Pattern periodPattern = Pattern.compile("([0-9]+)([sminhdwmony])");
 
+	public static Long parsePeriod(String period){ //1d5h22s
+	    if(period == null) return null;
+	    period = period.toLowerCase(Locale.ENGLISH);
+	    Matcher matcher = periodPattern.matcher(period);
+	    Instant instant=Instant.EPOCH;
+	    while(matcher.find()){
+	        int num = Integer.parseInt(matcher.group(1));
+	        String typ = matcher.group(2);
+	        switch (typ) {
+        	case "s":
+        		instant=instant.plus(Duration.ofHours(num));
+        		break;
+	        	case "min":
+	        		instant=instant.plus(Duration.ofHours(num));
+	        		break;
+	            case "h":
+	                instant=instant.plus(Duration.ofHours(num));
+	                break;
+	            case "d":
+	                instant=instant.plus(Duration.ofDays(num));
+	                break;
+	            case "w":
+	                instant=instant.plus(Period.ofWeeks(num));
+	                break;
+	            case "mon":
+	                instant=instant.plus(Period.ofMonths(num));
+	                break;
+	            case "y":
+	                instant=instant.plus(Period.ofYears(num));
+	                break;
+	        }
+	    }
+	    return instant.toEpochMilli();
+	}
+	
 	/**
 	 * @see see Get long from string
 	 * @param s String
 	 * @return long
 	 */
 	public long getTimeFromString(String s) {
-		sec = LoaderClass.config.getConfig().getString("Words.Second");
-		min = LoaderClass.config.getConfig().getString("Words.Minute");
-		h = LoaderClass.config.getConfig().getString("Words.Hour");
-		d = LoaderClass.config.getConfig().getString("Words.Day");
-		w = LoaderClass.config.getConfig().getString("Words.Week");
-		mon = LoaderClass.config.getConfig().getString("Words.Month");
-		y = LoaderClass.config.getConfig().getString("Words.Year");
-		c = LoaderClass.config.getConfig().getString("Words.Century");
-		mil = LoaderClass.config.getConfig().getString("Words.Millenium");
+		//String[] items = s.split("[A-Za-z]+"); //split all chars
 		long a = getInt(s);
 		long t_min = a * 60;
 		long t_h = t_min * 60;
@@ -184,21 +217,21 @@ public class StringUtils {
 		long t_y = t_mon * 12;
 		long t_c = t_y * 100;
 		long t_mil = t_c * 1000;
-		if (s.endsWith(min))
+		if (s.endsWith("min"))
 			a = t_min;
-		if (s.endsWith(h))
+		if (s.endsWith("h"))
 			a = t_h;
-		if (s.endsWith(d))
+		if (s.endsWith("d"))
 			a = t_d;
-		if (s.endsWith(w))
+		if (s.endsWith("w"))
 			a = t_w;
-		if (s.endsWith(mon))
+		if (s.endsWith("mon"))
 			a = t_mon;
-		if (s.endsWith(y))
+		if (s.endsWith("y"))
 			a = t_y;
-		if (s.endsWith(c))
+		if (s.endsWith("cen"))
 			a = t_c;
-		if (s.endsWith(mil))
+		if (s.endsWith("mil"))
 			a = t_mil;
 		return a;
 	}
@@ -209,15 +242,6 @@ public class StringUtils {
 	 * @return String
 	 */
 	public String setTimeToString(long l) {
-		sec = LoaderClass.config.getConfig().getString("Words.Second");
-		min = LoaderClass.config.getConfig().getString("Words.Minute");
-		h = LoaderClass.config.getConfig().getString("Words.Hour");
-		d = LoaderClass.config.getConfig().getString("Words.Day");
-		w = LoaderClass.config.getConfig().getString("Words.Week");
-		mon = LoaderClass.config.getConfig().getString("Words.Month");
-		y = LoaderClass.config.getConfig().getString("Words.Year");
-		c = LoaderClass.config.getConfig().getString("Words.Century");
-		mil = LoaderClass.config.getConfig().getString("Words.Millenium");
 		long seconds = l % 60;
 		long minutes = l / 60;
 		long hours = minutes / 60;
@@ -241,36 +265,36 @@ public class StringUtils {
 			years = years % 100;
 		if (centuries >= 1000)
 			centuries = centuries % 1000;
-		String s = sec;
+		String s = "s";
 
 		if (millenniums > 0) {
-			s = millenniums + mil + " " + centuries + c + " " + years + y;
+			s = millenniums + "mil " + centuries + "cen " + years + "y";
 		} else if (centuries > 0) {
-			s = centuries + c + " " + years + y + " " + months + mon;
+			s = centuries + "cen " + years + "y " + months + "mon";
 		} else if (years > 0) {
-			s = years + y + " " + months + mon + " " + weeks + w + " " + days + d;
+			s = years +  " y" + months + "mon " + weeks +  "w " + days + "d";
 		} else if (months > 0) {
-			s = months + mon + " " + weeks + w + " " + days + d + " " + hours + h + " " + minutes + min;
+			s = months + "mon " + weeks + "w " + days +  "d " + hours + "h " + minutes + "min";
 		} else if (weeks > 0) {
 			if (minutes != 0)
-				s = weeks + w + " " + days + d + " " + hours + h + " " + minutes + min;
+				s = weeks +  "w " + days + "d " + hours +  "h " + minutes + "min";
 			else
-				s = weeks + w + " " + days + d + " " + hours + h;
+				s = weeks +  "w " + days + "d " + hours + "h";
 		} else if (days > 0) {
 			if (minutes != 0)
-				s = days + d + " " + hours + h + " " + minutes + min;
+				s = days +  "d " + hours + "h " + minutes + "min";
 			else
-				s = days + d + " " + hours + h;
+				s = days +  "d " + hours + "h";
 		} else if (hours > 0) {
 			if (seconds != 0)
-				s = hours + h + " " + minutes + min + " " + seconds + s;
+				s = hours +  "h " + minutes +  "min " + seconds + s;
 			else
-				s = hours + h + " " + minutes + min;
+				s = hours +  "h " + minutes + "min";
 		} else if (minutes > 0) {
 			if (seconds != 0)
-				s = minutes + min + " " + seconds + s;
+				s = minutes + "min " + seconds + s;
 			else
-				s = minutes + min;
+				s = minutes + "min";
 		} else {
 			s = seconds + s;
 		}

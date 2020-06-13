@@ -3,17 +3,14 @@ package me.DevTec.Utils;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.management.Attribute;
-import javax.management.AttributeList;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -50,6 +47,7 @@ import me.DevTec.Other.TheMaterial;
 import me.DevTec.Scheduler.Tasker;
 
 public class TheAPICommand implements CommandExecutor, TabCompleter {
+	private static boolean r;
 
 	private String getPlugin(Plugin a) {
 		if (a.isEnabled())
@@ -57,50 +55,16 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		return "&c" + a.getName();
 	}
 
-	String[] args;
-
-	private boolean eq(int i, String s) {
-		return args[i].equalsIgnoreCase(s);
-	}
-
-	boolean r;
-	CommandSender s;
-
-	private boolean perm(String p) {
+	private boolean perm(CommandSender s, String p) {
 		if (s.hasPermission("TheAPI.Command." + p))
 			return true;
 		TheAPI.msg("&6You do not have permission '&eTheAPI.Command." + p + "&6' to do that!", s);
 		return false;
 	}
-
-	private void regWorld(String w, int type) {
-		LoaderClass.config.set("WorldsSetting." + w + ".Generator", type);
-		LoaderClass.config.set("WorldsSetting." + w + ".GenerateStructures", true);
-		LoaderClass.config.save();
-	}
-
-	private void unregWorld(String w) {
-		LoaderClass.config.set("WorldsSetting." + w, null);
-		LoaderClass.config.save();
-	}
-	public static double getProcessCpuLoad() {
-		try {
-	    MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-	    ObjectName name = ObjectName.getInstance("java.lang:type=OperatingSystem");
-	    AttributeList list = mbs.getAttributes(name, new String[]{ "ProcessCpuLoad" });
-	    if (list.isEmpty())return 0.0;
-	    Attribute att = (Attribute)list.get(0);
-	    Double value  = (Double)att.getValue();
-	    if (value == -1.0)return 0;
-	    return ((value * 1000.0) / 10.0);
-		}catch(Exception e) {
-			return 0;
-		}
-	}
+	
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
-		this.args = args;
-		this.s = s;
 		if (args.length == 0) {
 			TheAPI.msg("&7-----------------", s);
 			if (s.hasPermission("TheAPI.Command.Info"))
@@ -121,7 +85,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			TheAPI.msg("&7-----------------", s);
 			return true;
 		}
-		if (eq(0, "test")) {
+		if (args[0].equalsIgnoreCase("test")) {
 			if (!s.isOp())
 				return true; // sender must be player & has op
 			if (args.length == 1) {
@@ -140,12 +104,12 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				TheAPI.msg("&7-----------------", s);
 				return true;
 			}
-			if (eq(1, "Other")) {
+			if (args[1].equalsIgnoreCase("Other")) {
 					return true;
 			}
 			if(s instanceof Player) {
 			Player p = (Player) s;
-			if (eq(1, "hideShowEntity")) {
+			if (args[1].equalsIgnoreCase("hideShowEntity")) {
 				Pig pig = (Pig) p.getWorld().spawnEntity(p.getLocation(), EntityType.PIG);
 				pig.setCollidable(false);
 				pig.setBaby();
@@ -181,15 +145,18 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				}.repeatingTimes(0, 20, 5);
 				return true;
 			}
-			if (eq(1, "GUICreatorAPI")) {
+			if (args[1].equalsIgnoreCase("GUICreatorAPI")) {
 				TheAPI.msg("&eThis maybe help you with creating gui: https://i.imgur.com/f43qxux.png", p);
 				GUICreatorAPI a = TheAPI.getGUICreatorAPI(p);
 				// REQUIRED
 				a.setSize(54);
 				a.setTitle("&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
-
+				a.open();
 				// Frame
-				ItemCreatorAPI iCreator = TheAPI.getItemCreatorAPI(Material.BLACK_STAINED_GLASS_PANE);
+				ItemStack m = new ItemStack(Material.GLASS);
+				if(Material.matchMaterial("BLACK_STAINED_GLASS_PANE")!=null)m=new ItemStack(Material.matchMaterial("BLACK_STAINED_GLASS_PANE"));
+				else if(Material.matchMaterial("STAINED_GLASS_PANE")!=null)m = new ItemStack(Material.matchMaterial("STAINED_GLASS_PANE"), 1, (byte)15);
+				ItemCreatorAPI iCreator = TheAPI.getItemCreatorAPI(m);
 				iCreator.setDisplayName(" ");
 				ItemStack item = iCreator.create();
 				HashMap<Options, Object> setting = new HashMap<Options, Object>();
@@ -244,36 +211,33 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					}
 				});
 				a.setItem(49, item, setting);
-
-				// REQUIRED
-				a.open();
 				return true;
 			}
-			if (eq(1, "RankingAPI")) {
-				HashMap<String, Double> tops = new HashMap<String, Double>();
+			if (args[1].equalsIgnoreCase("RankingAPI")) {
+				HashMap<String, BigDecimal> tops = new HashMap<String, BigDecimal>();
 				TheAPI.msg("&eInput:", s);
 				TheAPI.msg("&6- Straiker123, 50.0", s);
 				TheAPI.msg("&6- TheAPI, 5431.6", s);
 				TheAPI.msg("&6- SCR, 886.5", s);
 				TheAPI.msg("&6- Houska02, 53.11", s);
-				tops.put("Straiker123", 50.0);
-				tops.put("TheAPI", 5431.6);
-				tops.put("SCR", 886.5);
-				tops.put("Houska02", 53.11);
+				tops.put("Straiker123", new BigDecimal(50.0));
+				tops.put("TheAPI", new BigDecimal(5431.6));
+				tops.put("SCR", new BigDecimal(886.5));
+				tops.put("Houska02", new BigDecimal(53.11));
 				RankingAPI map = TheAPI.getRankingAPI(tops);
 				TheAPI.msg("&eResult:", s);
 				for (int i = 1; i < map.size(); ++i) { // 1 2 3 4
 					TheAPI.msg("&6" + map.getPosition(map.getObject(i)) + ". " + map.getObject(i) + " with "
-							+ map.getValue(map.getObject(i)) + " points", s);
+							+ map.getValue(map.getObject(i)).toString() + " points", s);
 				}
 				return true;
 			}
 
-			if (eq(1, "bossbar")) {
+			if (args[1].equalsIgnoreCase("bossbar")) {
 				TheAPI.sendBossBar(p, "&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"), 0.5, 40);
 				return true;
 			}
-			if (eq(1, "PlayerName")) {
+			if (args[1].equalsIgnoreCase("PlayerName")) {
 				String old = p.getName();
 				TheAPI.msg("&eYour nickname changed to &nTheAPI", s);
 				TheAPI.getNameTagAPI(p, "", "").setPlayerName("TheAPI");
@@ -285,34 +249,36 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				}.later(40);
 				return true;
 			}
-			if (eq(1, "ActionBar")) {
+			if (args[1].equalsIgnoreCase("ActionBar")) {
 				TheAPI.sendActionBar(p, "&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
 				return true;
 			}
-			if (eq(1, "Title")) {
+			if (args[1].equalsIgnoreCase("Title")) {
 				TheAPI.sendTitle(p, "&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"), "");
 				return true;
 			}
-			if (eq(1, "TabList")) {
+			if (args[1].equalsIgnoreCase("TabList")) {
 				TheAPI.getTabListAPI().setHeaderFooter(p,
 						"&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"),
 						"&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
 				return true;
 			}
-			if (eq(1, "Scoreboard")) {
-				ScoreboardAPI a = TheAPI.getScoreboardAPI(p);
+			if (args[1].equalsIgnoreCase("Scoreboard")) {
+				ScoreboardAPI a = TheAPI.getScoreboardAPI(p, false, true);
 				a.setDisplayName("&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
 				a.setLine(0, "&aBy DevTec");
 				new Tasker() {
 					@Override
 					public void run() {
-							if(runTimes()==5)a.destroy();
-						else
+							if(runTimes()==50)a.destroy();
+						else {
+							a.setDisplayName("&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI")+" &7: "+TheAPI.generateRandomInt(10));
 							a.setLine(1, "&7Random: &c"+TheAPI.generateRandomInt(10));
-					}}.repeatingTimesAsync(0, 20, 5);
+						}
+					}}.repeatingTimes(0, 2, 50);
 				return true;
 			}
-			if (eq(1, "BlocksAPI")) {
+			if (args[1].equalsIgnoreCase("BlocksAPI")) {
 				if (!r) {
 					r = true;
 					HashMap<Position,BlockSave> save = Maps.newHashMap();
@@ -333,8 +299,9 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				return true;
 			}
 		}}
-		if (eq(0, "PluginManager") || eq(0, "pm") || eq(0, "plugin") ||eq(0, "pluginm")||eq(0, "pmanager")) {
-			if (perm("PluginManager")) {
+		if (args[0].equalsIgnoreCase("PluginManager") || args[0].equalsIgnoreCase("pm") 
+				|| args[0].equalsIgnoreCase("plugin") ||args[0].equalsIgnoreCase("pluginm")||args[0].equalsIgnoreCase("pmanager")) {
+			if (perm(s,"PluginManager")) {
 				if (args.length == 1) {
 					TheAPI.msg("&7-----------------", s);
 					TheAPI.msg("&e/TheAPI PluginManager Enable <plugin>", s);
@@ -359,7 +326,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
-				if (eq(1, "Files")||eq(1, "notloaded")||eq(1, "toload")||eq(1, "unloaded")) {
+				if (args[1].equalsIgnoreCase("Files")||args[1].equalsIgnoreCase("notloaded")||args[1].equalsIgnoreCase( "toload")||args[1].equalsIgnoreCase( "unloaded")) {
 					HashMap<String, String> d = TheAPI.getPluginsManagerAPI().getPluginsToLoadWithNames();
 					if(d.isEmpty()) {
 						TheAPI.msg("&eNo plugin to load.", s);
@@ -372,7 +339,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					}
 					return true;
 				}
-				if (eq(1, "EnableAll")) {
+				if (args[1].equalsIgnoreCase("EnableAll")) {
 					List<Plugin> ad = TheAPI.getPluginsManagerAPI().getPlugins();
 					ad.remove(TheAPI.getPluginsManagerAPI().getPlugin(LoaderClass.plugin.getName()));
 					if(ad.isEmpty()) {
@@ -388,7 +355,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
-				if (eq(1, "DisableAll")) {
+				if (args[1].equalsIgnoreCase("DisableAll")) {
 					List<Plugin> ad = TheAPI.getPluginsManagerAPI().getPlugins();
 					ad.remove(TheAPI.getPluginsManagerAPI().getPlugin(LoaderClass.plugin.getName()));
 					if(ad.isEmpty()) {
@@ -404,7 +371,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
-				if (eq(1, "ReloadAll")) {
+				if (args[1].equalsIgnoreCase("ReloadAll")) {
 					if(TheAPI.getPluginsManagerAPI().getPlugins().isEmpty()) {
 						TheAPI.msg("&eNo plugin to reload.", s);
 						return true;
@@ -418,7 +385,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
-				if (eq(1, "LoadAll")) {
+				if (args[1].equalsIgnoreCase("LoadAll")) {
 					if(TheAPI.getPluginsManagerAPI().getPluginsToLoad().isEmpty()) {
 						TheAPI.msg("&eNo plugin to load.", s);
 						return true;
@@ -433,7 +400,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
-				if (eq(1, "UnloadAll")) {
+				if (args[1].equalsIgnoreCase("UnloadAll")) {
 					List<Plugin> ad = TheAPI.getPluginsManagerAPI().getPlugins();
 					ad.remove(TheAPI.getPluginsManagerAPI().getPlugin(LoaderClass.plugin.getName()));
 					if(ad.isEmpty()) {
@@ -449,7 +416,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
-				if (eq(1, "Enable")) {
+				if (args[1].equalsIgnoreCase("Enable")) {
 					if (args.length == 2) {
 						TheAPI.msg("&e/TheAPI PluginManager Enable <plugin>", s);
 						return true;
@@ -480,7 +447,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
-				if (eq(1, "Disable")) {
+				if (args[1].equalsIgnoreCase("Disable")) {
 					if (args.length == 2) {
 						TheAPI.msg("&e/TheAPI PluginManager Disable <plugin>", s);
 						return true;
@@ -511,7 +478,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
-				if (eq(1, "Load")) {
+				if (args[1].equalsIgnoreCase("Load")) {
 					if (args.length == 2) {
 						TheAPI.msg("&e/TheAPI PluginManager Load <plugin>", s);
 						return true;
@@ -554,7 +521,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7Plugin "+pluginName+" not found.", s);
 					return true;
 				}
-				if (eq(1, "Unload")) {
+				if (args[1].equalsIgnoreCase("Unload")) {
 					if (args.length == 2) {
 						TheAPI.msg("&e/TheAPI PluginManager Unload <plugin>", s);
 						return true;
@@ -581,7 +548,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
-				if (eq(1, "Reload")) {
+				if (args[1].equalsIgnoreCase("Reload")) {
 					if (args.length == 2) {
 						TheAPI.msg("&e/TheAPI PluginManager Reload <plugin>", s);
 						return true;
@@ -604,7 +571,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
-				if (eq(1, "Info")||eq(1, "information")||eq(1, "informations")) {
+				if (args[1].equalsIgnoreCase("Info")||args[1].equalsIgnoreCase("information")||args[1].equalsIgnoreCase("informations")) {
 					if (args.length == 2) {
 						TheAPI.msg("&e/TheAPI PluginManager Info <plugin>", s);
 						return true;
@@ -678,20 +645,23 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			}
 			return true;
 		}
-		if (eq(0, "cc") || eq(0, "clear") || eq(0, "clearcache")) {
-			if (perm("ClearCache")) {
+		if (args[0].equalsIgnoreCase("cc") || args[0].equalsIgnoreCase("clear") || args[0].equalsIgnoreCase("clearcache")) {
+			if (perm(s,"ClearCache")) {
 				TheAPI.msg("&7-----------------", s);
 				TheAPI.msg("&eClearing cache..", s);
 				for (Player id : LoaderClass.plugin.gui.keySet())
 					LoaderClass.plugin.gui.get(id).close();
 				LoaderClass.plugin.gui.clear();
+				TheAPI.clearCache();
+				for(World w : Bukkit.getWorlds())
+					for(Chunk c: w.getLoadedChunks())c.unload(true);
 				TheAPI.msg("&eCache cleared.", s);
 				TheAPI.msg("&7-----------------", s);
 				return true;
 			}
 			return true;
 		}
-		if (eq(0, "invsee")) {
+		if (args[0].equalsIgnoreCase("invsee")) {
 			if (!s.hasPermission("TheAPI.Command.Invsee"))return true;
 			if(args.length==1) {
 				TheAPI.msg("&e/TheAPI Invsee <player>", s);
@@ -704,8 +674,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			}
 			return true;
 		}
-		if (eq(0, "reload") || eq(0, "rl")) {
-			if (perm("Reload")) {
+		if (args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("rl")) {
+			if (perm(s,"Reload")) {
 				TheAPI.msg("&7-----------------", s);
 				TheAPI.msg("&eReloading configs..", s);
 				for (Player p : TheAPI.getOnlinePlayers())
@@ -722,8 +692,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			}
 			return true;
 		}
-		if (eq(0, "informations") || eq(0, "info")) {
-			if (perm("Info")) {
+		if (args[0].equalsIgnoreCase("informations") || args[0].equalsIgnoreCase("info")) {
+			if (perm(s,"Info")) {
 				new Tasker() {
 					public void run() {
 						TheAPI.msg("&7╔═════════════════════════════", s);
@@ -739,7 +709,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						TheAPI.msg("&7║  Online: &e"+TheAPI.getOnlinePlayers().size()+" &7(&e"+(TheAPI.getOnlinePlayers().size()/((double)TheAPI.getMaxPlayers()/100))+"%&7)", s);
 						OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
 						TheAPI.msg("&7║ System:", s);
-						TheAPI.msg("&7║  CPU: &e"+String.format("%2.02f",getProcessCpuLoad()).replaceFirst(",", ".").replaceFirst("\\.00", "")+"%", s);
+						TheAPI.msg("&7║  CPU: &e"+String.format("%2.02f",TheAPI.getProcessCpuLoad()).replaceFirst(",", ".").replaceFirst("\\.00", "")+"%", s);
 						TheAPI.msg("&7║  Name: &e"+osBean.getName(), s);
 						TheAPI.msg("&7║  Procesors: &e"+osBean.getAvailableProcessors(), s);
 						TheAPI.msg("&7║ TPS: &e"+TheAPI.getServerTPS(TPSType.ONE_MINUTE)+", "+TheAPI.getServerTPS(TPSType.FIVE_MINUTES)+", "+TheAPI.getServerTPS(TPSType.FIFTEEN_MINUTES), s);
@@ -756,8 +726,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			}
 			return true;
 		}
-		if (eq(0, "worldsmanager") || eq(0, "world") || eq(0, "worlds") || eq(0, "wm") || eq(0, "mw") /** "multiworld" **/ || eq(0, "worldmanager")) {
-			if (perm("WorldsManager")) {
+		if (args[0].equalsIgnoreCase("worldsmanager") || args[0].equalsIgnoreCase("world") || args[0].equalsIgnoreCase("worlds") || args[0].equalsIgnoreCase("wm") || args[0].equalsIgnoreCase( "mw") || args[0].equalsIgnoreCase( "worldmanager")) {
+			if (perm(s,"WorldsManager")) {
 				if (args.length == 1) {
 					TheAPI.msg("&7-----------------", s);
 					TheAPI.msg("&e/TheAPI WorldsManager Create <world> <generator>", s);
@@ -773,7 +743,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
-				if (eq(1, "Teleport") || eq(1, "tp")) {
+				if (args[1].equalsIgnoreCase("Teleport") || args[1].equalsIgnoreCase("tp")) {
 					if (args.length == 2) {
 						if (s instanceof Player)
 							TheAPI.msg("&e/TheAPI WorldsManager Teleport <world> [player]", s);
@@ -814,7 +784,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						return true;
 					}
 				}
-				if (eq(1, "saveall")) {
+				if (args[1].equalsIgnoreCase("saveall")) {
 						TheAPI.msg("&7-----------------", s);
 						TheAPI.msg("&eTheAPI WorldsManager saving " + (Bukkit.getWorlds().size()) + " world(s)..", s);
 						for (World w : Bukkit.getWorlds())
@@ -823,7 +793,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						TheAPI.msg("&7-----------------", s);
 					return true;
 				}
-				if (eq(1, "save")) {
+				if (args[1].equalsIgnoreCase("save")) {
 					if (args.length == 2) {
 						TheAPI.msg("&7-----------------", s);
 						TheAPI.msg("&e/TheAPI WorldsManager Save <world>", s);
@@ -848,7 +818,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
-				if (eq(1, "unload")) {
+				if (args[1].equalsIgnoreCase("unload")) {
 					if (args.length == 2) {
 						TheAPI.msg("&7-----------------", s);
 						TheAPI.msg("&e/TheAPI WorldsManager Unload <world>", s);
@@ -875,7 +845,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
-				if (eq(1, "load")) {
+				if (args[1].equalsIgnoreCase("load")) {
 					if (args.length == 2) {
 						TheAPI.msg("&7-----------------", s);
 						TheAPI.msg("&e/TheAPI WorldsManager Load <world> <generator>", s);
@@ -937,8 +907,9 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						List<String> a = LoaderClass.config.getStringList("Worlds");
 						a.add(args[2]);
 						LoaderClass.config.set("Worlds", a);
+						LoaderClass.config.set("WorldsSetting." + args[2] + ".Generator", generator);
+						LoaderClass.config.set("WorldsSetting." + args[2] + ".GenerateStructures", true);
 						LoaderClass.config.save();
-						regWorld(args[2], generator);
 						TheAPI.msg("&eWorld with name '" + args[2] + "' loaded.", s);
 						TheAPI.msg("&7-----------------", s);
 						return true;
@@ -948,7 +919,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
-				if (eq(1, "delete")) {
+				if (args[1].equalsIgnoreCase("delete")) {
 					if (args.length == 2) {
 						TheAPI.msg("&7-----------------", s);
 						TheAPI.msg("&e/TheAPI WorldsManager Delete <world>", s);
@@ -971,14 +942,14 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					if(a.contains(args[2])) {
 					a.remove(args[2]);
 					LoaderClass.config.set("Worlds", a);
-					LoaderClass.config.save();
 					}
-					unregWorld(args[2]);
+					LoaderClass.config.set("WorldsSetting." + args[2], null);
+					LoaderClass.config.save();
 					TheAPI.msg("&eWorld with name '" + args[2] + "' deleted.", s);
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
-				if (eq(1, "create")) {
+				if (args[1].equalsIgnoreCase("create")) {
 					if (args.length == 2) {
 						TheAPI.msg("&7-----------------", s);
 						TheAPI.msg("&e/TheAPI WorldsManager Create <world> <generator>", s);
@@ -1041,9 +1012,10 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					if(!a.contains(args[2])) {
 					a.add(args[2]);
 					LoaderClass.config.set("Worlds", a);
-					LoaderClass.config.save();
 				    }
-					regWorld(args[2], generator);
+					LoaderClass.config.set("WorldsSetting." + args[2] + ".Generator", generator);
+					LoaderClass.config.set("WorldsSetting." + args[2] + ".GenerateStructures", true);
+					LoaderClass.config.save();
 					TheAPI.getWorldsManager().create(args[2], env, wt, true, 0);
 					TheAPI.msg("&eWorld with name '" + args[2] + "' created.", s);
 					TheAPI.msg("&7-----------------", s);

@@ -1,5 +1,6 @@
 package me.DevTec;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -10,29 +11,29 @@ import java.util.List;
 import java.util.Map.Entry;
 
 public class RankingAPI {
-	private HashMap<Object, Double> s;
+	private HashMap<Object, BigDecimal> s;
 
-	public RankingAPI(HashMap<?, Double> map) {
+	public RankingAPI(HashMap<?, BigDecimal> map) {
 		if (map != null) {
-			HashMap<Object, Double> fixed = new HashMap<Object, Double>();
+			HashMap<Object, BigDecimal> fixed = new HashMap<Object, BigDecimal>();
 			for (Object o : map.keySet())
 				fixed.put(o, map.get(o));
 			s = sort(fixed);
 		}
 	}
 
-	private static HashMap<Object, Double> sort(HashMap<Object, Double> map) {
-		List<Entry<Object, Double>> list = new LinkedList<Entry<Object, Double>>(map.entrySet());
+	private static HashMap<Object, BigDecimal> sort(HashMap<Object, BigDecimal> map) {
+		List<Entry<Object, BigDecimal>> list = new LinkedList<Entry<Object, BigDecimal>>(map.entrySet());
 		// Sorting the list based on values
-		Collections.sort(list, new Comparator<Entry<Object, Double>>() {
+		Collections.sort(list, new Comparator<Entry<Object, BigDecimal>>() {
 			@Override
-			public int compare(Entry<Object, Double> o1, Entry<Object, Double> o2) {
+			public int compare(Entry<Object, BigDecimal> o1, Entry<Object, BigDecimal> o2) {
 				return o2.getValue().compareTo(o1.getValue());
 				// return o1.getValue().compareTo(o2.getValue());
 			}
 		});
-		HashMap<Object, Double> sortedMap = new LinkedHashMap<Object, Double>();
-		for (Entry<Object, Double> entry : list) {
+		HashMap<Object, BigDecimal> sortedMap = new LinkedHashMap<Object, BigDecimal>();
+		for (Entry<Object, BigDecimal> entry : list) {
 			sortedMap.put(entry.getKey(), entry.getValue());
 		}
 		return sortedMap;
@@ -65,15 +66,18 @@ public class RankingAPI {
 		return o;
 	}
 
-	public HashMap<?, Double> getHashMap() {
+	public HashMap<Object, BigDecimal> getHashMap() {
 		return s;
 	}
+	
+	public boolean containsKey(Object o) {
+		return s.containsKey(o);
+	}
 
-	public double getValue(Object o) {
-		double d = -1;
-		if (s.containsKey(o))
-			d = s.get(o);
-		return d;
+	public BigDecimal getValue(Object o) {
+		if (containsKey(o))
+			return s.get(o);
+		return new BigDecimal(-1);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
