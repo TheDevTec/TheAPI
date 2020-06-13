@@ -1,8 +1,8 @@
 name: TheAPI
-main: me.Straiker123.LoaderClass
+main: me.DevTec.Other.LoaderClass
 author: DevTec
 website: https://www.spigotmc.org/resources/theapi.72679/
-version: 4.1.5
+version: 4.2
 api-version: 1.13
 loadbefore: [Residence]
 softdepend: [TheVault,Vault,PlaceholderAPI]
@@ -22,3 +22,5 @@ permissions:
       TheAPI.Command.Reload: true
       TheAPI.Command.ClearCache: true
       TheAPI.Command.WorldsManager: true
+      TheAPI.Command.PluginManager: true
+      TheAPI.Command.Invsee: true
