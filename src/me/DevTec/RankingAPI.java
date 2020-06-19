@@ -12,7 +12,7 @@ import java.util.Map.Entry;
 
 public class RankingAPI {
 	private HashMap<Object, BigDecimal> s;
-
+ 
 	public RankingAPI(HashMap<?, BigDecimal> map) {
 		if (map != null) {
 			HashMap<Object, BigDecimal> fixed = new HashMap<Object, BigDecimal>();
