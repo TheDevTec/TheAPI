@@ -3,7 +3,6 @@ package me.DevTec;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -137,14 +136,6 @@ public class TheAPI {
 	 */
 	public static StringUtils getStringUtils() {
 		return new StringUtils();
-	}
-
-	/**
-	 * @see see Using this API you can sort HashMap
-	 * @return RankingAPI
-	 */
-	public static RankingAPI getRankingAPI(HashMap<?, BigDecimal> map) {
-		return new RankingAPI(map);
 	}
 
 	/**

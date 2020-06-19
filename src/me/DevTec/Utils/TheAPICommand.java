@@ -62,7 +62,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		return false;
 	}
 	
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "deprecation" })
 	@Override
 	public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
 		if (args.length == 0) {
@@ -224,11 +224,11 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				tops.put("TheAPI", new BigDecimal(5431.6));
 				tops.put("SCR", new BigDecimal(886.5));
 				tops.put("Houska02", new BigDecimal(53.11));
-				RankingAPI map = TheAPI.getRankingAPI(tops);
+				RankingAPI<String> map = new RankingAPI<String>(tops);
 				TheAPI.msg("&eResult:", s);
 				for (int i = 1; i < map.size(); ++i) { // 1 2 3 4
 					TheAPI.msg("&6" + map.getPosition(map.getObject(i)) + ". " + map.getObject(i) + " with "
-							+ map.getValue(map.getObject(i)).toString() + " points", s);
+							+ map.getValue(map.getObject(i)) + " points", s);
 				}
 				return true;
 			}
