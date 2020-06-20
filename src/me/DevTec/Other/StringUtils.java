@@ -164,10 +164,15 @@ public class StringUtils {
 			return list.get(r);
 	}
 
-	private static final Pattern periodPattern = Pattern.compile("([0-9]+)([sminhdwmony])");
-
-	public static Long parsePeriod(String period){ //1d5h22s
-	    if(period == null) return null;
+	private static final Pattern periodPattern = Pattern.compile("([0-9]+)((mon)|(min)|([ywhs]))"); //jak na to udìlat regex :_( na s, mon, min, y, w, d
+	// Jakoze jestli ten string je neco z toho? 
+	/**
+	 * @see see Get long from string
+	 * @param s String
+	 * @return long
+	 */
+	public long getTimeFromString(String period){
+	    if(period == null) return 0;
 	    period = period.toLowerCase(Locale.ENGLISH);
 	    Matcher matcher = periodPattern.matcher(period);
 	    Instant instant=Instant.EPOCH;
@@ -175,11 +180,11 @@ public class StringUtils {
 	        int num = Integer.parseInt(matcher.group(1));
 	        String typ = matcher.group(2);
 	        switch (typ) {
-        	case "s":
-        		instant=instant.plus(Duration.ofHours(num));
-        		break;
+        		case "s":
+        			instant=instant.plus(Duration.ofSeconds(num));
+        			break;
 	        	case "min":
-	        		instant=instant.plus(Duration.ofHours(num));
+	        		instant=instant.plus(Duration.ofMinutes(num));
 	        		break;
 	            case "h":
 	                instant=instant.plus(Duration.ofHours(num));
@@ -198,44 +203,9 @@ public class StringUtils {
 	                break;
 	        }
 	    }
-	    return instant.toEpochMilli();
+	    return instant.toEpochMilli()/1000;
 	}
 	
-	/**
-	 * @see see Get long from string
-	 * @param s String
-	 * @return long
-	 */
-	public long getTimeFromString(String s) {
-		//String[] items = s.split("[A-Za-z]+"); //split all chars
-		long a = getInt(s);
-		long t_min = a * 60;
-		long t_h = t_min * 60;
-		long t_d = t_h * 24;
-		long t_w = t_d * 7;
-		long t_mon = t_w * 31;
-		long t_y = t_mon * 12;
-		long t_c = t_y * 100;
-		long t_mil = t_c * 1000;
-		if (s.endsWith("min"))
-			a = t_min;
-		if (s.endsWith("h"))
-			a = t_h;
-		if (s.endsWith("d"))
-			a = t_d;
-		if (s.endsWith("w"))
-			a = t_w;
-		if (s.endsWith("mon"))
-			a = t_mon;
-		if (s.endsWith("y"))
-			a = t_y;
-		if (s.endsWith("cen"))
-			a = t_c;
-		if (s.endsWith("mil"))
-			a = t_mil;
-		return a;
-	}
-
 	/**
 	 * @see see Set long to string
 	 * @param l long
@@ -272,7 +242,7 @@ public class StringUtils {
 		} else if (centuries > 0) {
 			s = centuries + "cen " + years + "y " + months + "mon";
 		} else if (years > 0) {
-			s = years +  " y" + months + "mon " + weeks +  "w " + days + "d";
+			s = years +  "y " + months + "mon " + weeks +  "w " + days + "d";
 		} else if (months > 0) {
 			s = months + "mon " + weeks + "w " + days +  "d " + hours + "h " + minutes + "min";
 		} else if (weeks > 0) {
