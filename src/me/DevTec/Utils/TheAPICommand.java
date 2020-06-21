@@ -41,6 +41,7 @@ import me.DevTec.Blocks.BlockSave;
 import me.DevTec.Blocks.BlocksAPI.Shape;
 import me.DevTec.GUI.GUICreatorAPI;
 import me.DevTec.GUI.GUICreatorAPI.Options;
+import me.DevTec.GUI.GUIID;
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.Position;
 import me.DevTec.Other.TheMaterial;
@@ -147,11 +148,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			}
 			if (args[1].equalsIgnoreCase("GUICreatorAPI")) {
 				TheAPI.msg("&eThis maybe help you with creating gui: https://i.imgur.com/f43qxux.png", p);
-				GUICreatorAPI a = TheAPI.getGUICreatorAPI(p);
-				// REQUIRED
-				a.setSize(54);
-				a.setTitle("&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
-				a.open();
+				GUICreatorAPI a = TheAPI.getGUICreatorAPI("&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"),54,p);
 				// Frame
 				ItemStack m = new ItemStack(Material.GLASS);
 				if(Material.matchMaterial("BLACK_STAINED_GLASS_PANE")!=null)m=new ItemStack(Material.matchMaterial("BLACK_STAINED_GLASS_PANE"));
@@ -649,8 +646,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			if (perm(s,"ClearCache")) {
 				TheAPI.msg("&7-----------------", s);
 				TheAPI.msg("&eClearing cache..", s);
-				for (Player id : LoaderClass.plugin.gui.keySet())
-					LoaderClass.plugin.gui.get(id).close();
+				for (GUIID id : LoaderClass.plugin.gui)
+					id.closeAndClear();
 				LoaderClass.plugin.gui.clear();
 				TheAPI.clearCache();
 				for(World w : Bukkit.getWorlds())

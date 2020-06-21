@@ -8,6 +8,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.DevTec.GUI.GUIID;
 import me.DevTec.Other.LoaderClass;
 
 public class GUIClickEvent extends Event implements Cancellable {
@@ -20,12 +21,12 @@ public class GUIClickEvent extends Event implements Cancellable {
 		this.item = item;
 	}
 
-	ItemStack item;
-	int slot;
-	String title;
-	Player player;
-	Inventory inv;
-	boolean cancel;
+	private ItemStack item;
+	private int slot;
+	private String title;
+	private Player player;
+	private Inventory inv;
+	private boolean cancel;
 
 	/**
 	 * 
@@ -91,9 +92,13 @@ public class GUIClickEvent extends Event implements Cancellable {
 	 * @return ID of GUI
 	 */
 	public String getID() {
-		if (LoaderClass.plugin.gui.get(player) != null)
-			return LoaderClass.plugin.gui.get(player).getID();
-		return null;
+		String id = null;
+	for(GUIID d : LoaderClass.plugin.gui)
+		if(d.getPlayers().contains(player)) {
+			id=d.getID();
+			break;
+		}
+		return id;
 	}
 
 	public boolean isPlayerInventory() {

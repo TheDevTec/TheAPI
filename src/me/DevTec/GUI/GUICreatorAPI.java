@@ -1,6 +1,7 @@
 package me.DevTec.GUI;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -8,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import me.DevTec.ConfigAPI;
@@ -18,20 +20,33 @@ import me.DevTec.GUI.GUIID.GRunnable;
 import me.DevTec.Other.LoaderClass;
 
 public class GUICreatorAPI {
-	private final Player p;
+	private final GUIID id;
+	private final String title;
 	private final HashMap<Integer, ItemGUI> actions = Maps.newHashMap();
-
-	public GUICreatorAPI(Player s) {
-		p = s;
+	private final List<Player> opened = Lists.newArrayList();
+	private final Inventory inv;
+	
+	public GUICreatorAPI(String title, int size, Player... p) {
 		id = new GUIID(this, g);
-	}
-
-	private GUIID id;
-	private String t = "TheAPI";
-
-	public void setTitle(String title) {
-		if (title != null)
-			t = title;
+		LoaderClass.plugin.gui.add(id);
+		g.set("guis." +  getID() + ".t", title);
+		this.title = TheAPI.colorize(title);
+		inv = Bukkit.createInventory(null, getRealSize(size), this.title);
+		id.setInv(inv);
+		for(Player s : p) {
+		GUIOpenEvent e = new GUIOpenEvent(s, inv, this.title);
+		Bukkit.getPluginManager().callEvent(e);
+		if (!e.isCancelled()) {
+			if(g.exist("pgui."+s.getName())) {
+				for(GUIID d : LoaderClass.plugin.gui) {
+					if(d.getID().equals(g.getString("pgui."+s.getName())))
+						d.getGUI().close(s);
+				}
+			}
+			g.set("pgui." +  s.getName(), getID());
+			s.openInventory(inv);
+			opened.add(s);
+		}}
 	}
 
 	private int getRealSize(int o) {
@@ -64,14 +79,8 @@ public class GUICreatorAPI {
 		setItem(position, toApply.getItem(), toApply.getOptions());
 	}
 
-	public Player getPlayer() {
-		return p;
-	}
-
-	private int f = 9;
-
-	public void setSize(int size) {
-		f = getRealSize(size);
+	public List<Player> getPlayers() {
+		return opened;
 	}
 
 	public String getID() {
@@ -95,8 +104,6 @@ public class GUICreatorAPI {
 
 		RUNNABLE_MIDDLE_CLICK, SENDMESSAGES_MIDDLE_CLICK, SENDCOMMANDS_MIDDLE_CLICK,
 	}
-
-	private HashMap<Integer, ItemStack> map = new HashMap<Integer, ItemStack>();
 
 	private static ItemStack createWrittenBook(ItemStack a) {
 		Material ms = Material.matchMaterial("WRITABLE_BOOK");
@@ -162,106 +169,99 @@ public class GUICreatorAPI {
 	 *                click type, send list of commands as console (List<String>).
 	 */
 	public void setItem(int position, ItemStack item, HashMap<Options, Object> options) {
-		if (isOpened())
-			inv.setItem(position, item);
-		else
-			map.put(position, item);
+		inv.setItem(position, item);
 		for (Options a : options.keySet()) {
 			switch (a) {
 			case CANT_PUT_ITEM:
-				g.set("guis." + p.getName() + "." + getID() + ".PUT", options.get(a));
+				g.set("guis." + getID() + ".PUT", options.get(a));
 				break;
 			case CANT_BE_TAKEN:
-				g.set("guis." + p.getName() + "." + getID() + "." + position + ".TAKE", options.get(a));
+				g.set("guis." + getID() + "." + position + ".TAKE", options.get(a));
 				break;
 			case RUNNABLE:
 				id.setRunnable(GRunnable.RUNNABLE, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES:
-				g.set("guis." + p.getName() + "." + getID() + "." + position + ".MSG", options.get(a));
+				g.set("guis." + getID() + "." + position + ".MSG", options.get(a));
 				break;
 			case SENDCOMMANDS:
-				g.set("guis." + p.getName() + "." + getID() + "." + position + ".CMD", options.get(a));
+				g.set("guis." + getID() + "." + position + ".CMD", options.get(a));
 				break;
 
 			case RUNNABLE_ON_INV_CLOSE:
 				id.setRunnable(GRunnable.RUNNABLE_ON_INV_CLOSE, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_ON_INV_CLOSE:
-				g.set("guis." + p.getName() + "." + getID() + ".MSGCLOSE", options.get(a));
+				g.set("guis." +  getID() + ".MSGCLOSE", options.get(a));
 				break;
 			case SENDCOMMANDS_ON_INV_CLOSE:
-				g.set("guis." + p.getName() + "." + getID() + ".CMDCLOSE", options.get(a));
+				g.set("guis." +  getID() + ".CMDCLOSE", options.get(a));
 				break;
 
 			case RUNNABLE_LEFT_CLICK:
 				id.setRunnable(GRunnable.RUNNABLE_LEFT_CLICK, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_LEFT_CLICK:
-				g.set("guis." + p.getName() + "." + getID() + "." + position + ".MSGLC", options.get(a));
+				g.set("guis." +  getID() + "." + position + ".MSGLC", options.get(a));
 				break;
 			case SENDCOMMANDS_LEFT_CLICK:
-				g.set("guis." + p.getName() + "." + getID() + "." + position + ".CMDLC", options.get(a));
+				g.set("guis." +  getID() + "." + position + ".CMDLC", options.get(a));
 				break;
 
 			case RUNNABLE_RIGHT_CLICK:
 				id.setRunnable(GRunnable.RUNNABLE_RIGHT_CLICK, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_RIGHT_CLICK:
-				g.set("guis." + p.getName() + "." + getID() + "." + position + ".MSGRC", options.get(a));
+				g.set("guis." +  getID() + "." + position + ".MSGRC", options.get(a));
 				break;
 			case SENDCOMMANDS_RIGHT_CLICK:
-				g.set("guis." + p.getName() + "." + getID() + "." + position + ".CMDRC", options.get(a));
+				g.set("guis." +  getID() + "." + position + ".CMDRC", options.get(a));
 				break;
 
 			case RUNNABLE_MIDDLE_CLICK:
 				id.setRunnable(GRunnable.RUNNABLE_MIDDLE_CLICK, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_MIDDLE_CLICK:
-				g.set("guis." + p.getName() + "." + getID() + "." + position + ".MSGMC", options.get(a));
+				g.set("guis." +  getID() + "." + position + ".MSGMC", options.get(a));
 				break;
 			case SENDCOMMANDS_MIDDLE_CLICK:
-				g.set("guis." + p.getName() + "." + getID() + "." + position + ".CMDMC", options.get(a));
+				g.set("guis." +  getID() + "." + position + ".CMDMC", options.get(a));
 				break;
 
 			case RUNNABLE_SHIFT_WITH_LEFT_CLICK:
 				id.setRunnable(GRunnable.RUNNABLE_SHIFT_WITH_LEFT_CLICK, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_SHIFT_WITH_LEFT_CLICK:
-				g.set("guis." + p.getName() + "." + getID() + "." + position + ".MSGSLC", options.get(a));
+				g.set("guis." +  getID() + "." + position + ".MSGSLC", options.get(a));
 				break;
 			case SENDCOMMANDS_SHIFT_WITH_LEFT_CLICK:
-				g.set("guis." + p.getName() + "." + getID() + "." + position + ".CMDSLC", options.get(a));
+				g.set("guis." +  getID() + "." + position + ".CMDSLC", options.get(a));
 				break;
 
 			case RUNNABLE_SHIFT_WITH_RIGHT_CLICK:
 				id.setRunnable(GRunnable.RUNNABLE_SHIFT_WITH_RIGHT_CLICK, position, (Runnable) options.get(a));
 				break;
 			case SENDMESSAGES_SHIFT_WITH_RIGHT_CLICK:
-				g.set("guis." + p.getName() + "." + getID() + "." + position + ".MSGWRC", options.get(a));
+				g.set("guis." +  getID() + "." + position + ".MSGWRC", options.get(a));
 				break;
 			case SENDCOMMANDS_SHIFT_WITH_RIGHT_CLICK:
-				g.set("guis." + p.getName() + "." + getID() + "." + position + ".CMDWRC", options.get(a));
+				g.set("guis." +  getID() + "." + position + ".CMDWRC", options.get(a));
 				break;
 
 			}
 		}
 		if (item.getType().name().equals("WRITTEN_BOOK") || item.getType().name().equals("BOOK_AND_QUILL"))
-			g.set("guis." + p.getName() + "." + getID() + "." + position + ".i", createWrittenBook(item));
+			g.set("guis." +  getID() + "." + position + ".i", createWrittenBook(item));
 		else if (item.getType().name().equals("LEGACY_SKULL_ITEM") || item.getType().name().equals("SKULL_ITEM")
 				|| item.getType().name().equals("PLAYER_HEAD"))
-			g.set("guis." + p.getName() + "." + getID() + "." + position + ".i", createHead(item));
+			g.set("guis." +  getID() + "." + position + ".i", createHead(item));
 		else
-			g.set("guis." + p.getName() + "." + getID() + "." + position + ".i", item);
+			g.set("guis." +  getID() + "." + position + ".i", item);
 	}
 
 	public void removeItem(int slot) {
-		g.set("guis." + p.getName() + "." + getID() + "." + slot, null);
-		if (isOpened()) {
-			inv.setItem(slot, new ItemStack(Material.AIR));
-		} else {
-			map.remove(slot);
-		}
+		g.set("guis." +  getID() + "." + slot, null);
+		inv.setItem(slot, new ItemStack(Material.AIR));
 	}
 
 	/**
@@ -272,12 +272,6 @@ public class GUICreatorAPI {
 		if (getFirstEmpty() != -1)
 			setItem(getFirstEmpty(), item);
 	}
-
-	public boolean isOpened() {
-		return p.getOpenInventory().getTopInventory() != null && inv != null;
-	}
-
-	private Inventory inv;
 
 	/**
 	 *
@@ -300,19 +294,7 @@ public class GUICreatorAPI {
 	 * @return int where is empty slot (if available)
 	 */
 	public int getFirstEmpty() {
-		if (isOpened())
-			return inv.firstEmpty();
-		int i = -1;
-		boolean find = false;
-		for (int a = 0; a < f; ++a) {
-			if (find)
-				break;
-			if (map.get(a) == null) {
-				i = a;
-				find = true;
-			}
-		}
-		return i;
+		return inv.firstEmpty();
 	}
 
 	/**
@@ -338,17 +320,14 @@ public class GUICreatorAPI {
 	 *                 item
 	 */
 	public void setItem(int position, ItemStack item) {
-		if (isOpened())
-			inv.setItem(position, item);
-		else
-			map.put(position, item);
+		inv.setItem(position, item);
 		if (item.getType().name().equals("WRITTEN_BOOK") || item.getType().name().equals("BOOK_AND_QUILL"))
-			g.set("guis." + p.getName() + "." + getID() + "." + position + ".i", createWrittenBook(item));
+			g.set("guis." +  getID() + "." + position + ".i", createWrittenBook(item));
 		else if (item.getType().name().equals("LEGACY_SKULL_ITEM") || item.getType().name().equals("SKULL_ITEM")
 				|| item.getType().name().equals("PLAYER_HEAD"))
-			g.set("guis." + p.getName() + "." + getID() + "." + position + ".i", createHead(item));
+			g.set("guis." +  getID() + "." + position + ".i", createHead(item));
 		else
-			g.set("guis." + p.getName() + "." + getID() + "." + position + ".i", item);
+			g.set("guis." +  getID() + "." + position + ".i", item);
 	}
 	
 	public void setItem(int position, ItemCreatorAPI item) {
@@ -356,26 +335,16 @@ public class GUICreatorAPI {
 	}
 
 	/**
-	 * @see see Open GUI menu
+	 * @see see Open GUI menu to another player
 	 * 
 	 */
-	public void open() {
-		Inventory i = Bukkit.createInventory(p, f, TheAPI.colorize(t));
-		for (Integer a : map.keySet()) {
-			i.setItem(a, map.get(a));
-		}
-		g.set("guis." + p.getName() + "." + getID() + ".t", t);
-		GUIOpenEvent e = new GUIOpenEvent(p, i, TheAPI.colorize(t));
-		Bukkit.getPluginManager().callEvent(e);
-		if (!e.isCancelled()) {
-			inv = i;
-			id.setInv(i);
-			p.openInventory(i);
-			LoaderClass.plugin.gui.put(p, id);
-		} else {
-			g.set("guis." + p.getName() + "." + getID(), null);
-			id.clear();
-		}
+	public void open(Player player) {
+	GUIOpenEvent e = new GUIOpenEvent(player, inv, TheAPI.colorize(title));
+	Bukkit.getPluginManager().callEvent(e);
+	if (!e.isCancelled()) {
+		player.openInventory(inv);
+		opened.add(player);
+	}
 	}
 	
 	public HashMap<Integer, ItemGUI> getItemGUIs(){
@@ -383,13 +352,24 @@ public class GUICreatorAPI {
 	}
 
 	/**
-	 * @see see Close opened gui
+	 * @see see Close opened gui for all players
 	 * 
 	 */
 	public void close() {
-		id.clear();
-		inv = null;
-		p.getOpenInventory().close();
+		for(Player s : opened)
+			if(s.getOpenInventory()==inv)
+		s.getOpenInventory().close();
+		opened.clear();
+	}
+	
+	/**
+	 * @see see Close opened gui for specified player
+	 * 
+	 */
+	public void close(Player player) {
+			if(player.getOpenInventory()==inv)
+				player.getOpenInventory().close();
+			opened.remove(player);
 	}
 
 }

@@ -31,19 +31,19 @@ public abstract class ItemGUI {
 		return ops;
 	}
 
-	public boolean hasOption(Options o) {
+	public boolean has(Options o) {
 		return ops.containsKey(o);
 	}
 
-	public void removeOption(Options o) {
+	public void remove(Options o) {
 		ops.remove(o);
 	}
 
-	public void addOption(Options o, Object a) {
+	public void add(Options o, Object a) {
 		ops.put(o, a);
 	}
 
-	public void setOption(Options o, Object a) {
+	public void set(Options o, Object a) {
 		ops.put(o, a);
 	}
 

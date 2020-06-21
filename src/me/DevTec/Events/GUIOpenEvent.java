@@ -6,6 +6,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.Inventory;
 
+import me.DevTec.GUI.GUIID;
 import me.DevTec.Other.LoaderClass;
 
 public class GUIOpenEvent extends Event implements Cancellable {
@@ -15,10 +16,10 @@ public class GUIOpenEvent extends Event implements Cancellable {
 		this.gui = gui;
 	}
 
-	boolean c;
-	String t;
-	Player s;
-	Inventory gui;
+	private boolean c;
+	private String t;
+	private Player s;
+	private Inventory gui;
 
 	/**
 	 * @return is GUI open event cancelled
@@ -57,9 +58,13 @@ public class GUIOpenEvent extends Event implements Cancellable {
 	 * @return ID of GUI
 	 */
 	public String getID() {
-		if (LoaderClass.plugin.gui.get(s) != null)
-			return LoaderClass.plugin.gui.get(s).getID();
-		return null;
+		String id = null;
+	for(GUIID d : LoaderClass.plugin.gui)
+		if(d.getPlayers().contains(s)) {
+			id=d.getID();
+			break;
+		}
+		return id;
 	}
 
 	/**

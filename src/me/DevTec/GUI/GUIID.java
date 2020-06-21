@@ -1,9 +1,12 @@
 package me.DevTec.GUI;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+
+import com.google.common.collect.Maps;
 
 import me.DevTec.ConfigAPI;
 
@@ -17,7 +20,7 @@ public class GUIID {
 		p = s;
 		this.d = g;
 		for (int i = 0; i > -1; ++i) {
-			if (!g.existPath("guis." + getPlayer().getName() + "." + i)) {
+			if (!g.existPath("guis." + i)) {
 				id = i + "";
 				break;
 			}
@@ -32,8 +35,8 @@ public class GUIID {
 		return i;
 	}
 
-	public Player getPlayer() {
-		return p.getPlayer();
+	public List<Player> getPlayers() {
+		return p.getPlayers();
 	}
 
 	public String getID() {
@@ -49,14 +52,9 @@ public class GUIID {
 		if (GRunnable.RUNNABLE_ON_INV_CLOSE == r) {
 			close = e;
 		} else {
-			HashMap<Integer, Runnable> d = run.get(r);
-			if (d == null)
-				d = new HashMap<Integer, Runnable>();
+			HashMap<Integer, Runnable> d = run.containsKey(r)?run.get(r):Maps.newHashMap();
 			d.put(slot, e);
-			if (run.get(r) != null)
-				run.replace(r, d);
-			else
-				run.put(r, d);
+			run.put(r, d);
 		}
 	}
 
@@ -82,7 +80,7 @@ public class GUIID {
 	public void clear() {
 		run.clear();
 		close = null;
-		d.set("guis." + getPlayer().getName() + "." + id, null);
+		d.set("guis." + id, null);
 		d.save();
 	}
 

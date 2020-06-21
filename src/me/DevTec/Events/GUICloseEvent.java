@@ -5,6 +5,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.Inventory;
 
+import me.DevTec.GUI.GUIID;
 import me.DevTec.Other.LoaderClass;
 
 public class GUICloseEvent extends Event {
@@ -14,9 +15,9 @@ public class GUICloseEvent extends Event {
 		t = title;
 	}
 
-	Inventory gui;
-	Player s;
-	String t;
+	private Inventory gui;
+	private Player s;
+	private String t;
 
 	private static final HandlerList cs = new HandlerList();
 
@@ -52,15 +53,19 @@ public class GUICloseEvent extends Event {
 	public Player getPlayer() {
 		return s;
 	}
-
+	
 	/**
 	 * 
 	 * @return ID of GUI
 	 */
 	public String getID() {
-		if (LoaderClass.plugin.gui.get(s) != null)
-			return LoaderClass.plugin.gui.get(s).getID();
-		return null;
+		String id = null;
+	for(GUIID d : LoaderClass.plugin.gui)
+		if(d.getPlayers().contains(s)) {
+			id=d.getID();
+			break;
+		}
+		return id;
 	}
 
 }

@@ -83,7 +83,13 @@ public class Events implements Listener {
 	private synchronized void onClose(InventoryCloseEvent e) {
 		Player p = (Player) e.getPlayer();
 		String title = e.getView().getTitle();
-		GUIID d = LoaderClass.plugin.gui.containsKey(p) ? LoaderClass.plugin.gui.get(p) : null;
+		GUIID d = null;
+		for(GUIID f : LoaderClass.plugin.gui) {
+			if(f.getInventory().equals(e.getInventory())) {
+				d=f;
+				break;
+			}
+		}
 		if (d == null)
 			return;
 		String a = p.getName() + "." + d.getID();
@@ -97,6 +103,7 @@ public class Events implements Listener {
 				TheAPI.sudoConsole(SudoType.COMMAND, s);
 		d.runRunnable(GRunnable.RUNNABLE_ON_INV_CLOSE, 0);
 		d.clear();
+		g.set("pgui." +  p.getName(), null);
 	}
 
 	private ItemStack createWrittenBook(ItemStack a) {
@@ -140,10 +147,16 @@ public class Events implements Listener {
 			return;
 		Player p = (Player) e.getWhoClicked();
 		int slot = e.getSlot();
-		GUIID d = LoaderClass.plugin.gui.containsKey(p) ? LoaderClass.plugin.gui.get(p) : null;
+		GUIID d = null;
+		for(GUIID f : LoaderClass.plugin.gui) {
+			if(f.getInventory().equals(e.getInventory())) {
+				d=f;
+				break;
+			}
+		}
 		if (d == null)
 			return;
-		String a = p.getName() + "." + d.getID();
+		String a = d.getID();
 		ItemStack i = e.getCurrentItem();
 		if (i == null)
 			return;

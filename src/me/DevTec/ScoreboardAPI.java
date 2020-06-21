@@ -48,8 +48,8 @@ public class ScoreboardAPI {
 		teams=useTeams;
 		int sel = 0;
 		for(int i = 1; i > 0; ++i) { //search first empty id
-			if(!LoaderClass.plugin.ids.contains(i)) {
-				LoaderClass.plugin.ids.add(i);
+			if(!LoaderClass.unused.exist("sb."+i)) {
+				LoaderClass.unused.set("sb."+i,player.getName());
 				sel=i;
 				break;
 			}
@@ -76,13 +76,13 @@ public class ScoreboardAPI {
 	}
 	
 	private void create() {
-		if(LoaderClass.plugin.sbCurrent.containsKey(p.getName())) {
-		if(LoaderClass.plugin.sbCurrent.get(p.getName())==id)return;
+		if(LoaderClass.unused.exist("sbc."+p.getName())) {
+		if(LoaderClass.unused.getInt("sbc."+p.getName())==id)return;
 		else
-			if(LoaderClass.plugin.scoreboard.containsKey(LoaderClass.plugin.sbCurrent.get(p.getName())))
-			LoaderClass.plugin.scoreboard.get(LoaderClass.plugin.sbCurrent.get(p.getName())).destroy();
+			if(LoaderClass.plugin.scoreboard.containsKey(LoaderClass.unused.getInt("sbc."+p.getName())))
+			LoaderClass.plugin.scoreboard.get(LoaderClass.unused.getInt("sbc."+p.getName())).destroy();
 		}
-		LoaderClass.plugin.sbCurrent.put(p.getName(),id);
+		LoaderClass.unused.set("sbc."+p.getName(),id);
 		LoaderClass.plugin.scoreboard.put(id,this);
 		if(packets) {
 		p.sendPacket(createObjectivePacket(0, name));
@@ -105,9 +105,9 @@ public class ScoreboardAPI {
 	}
 	
 	public void destroy() { //you can destroy scoreboard, but scoreboard still "exists" -> you can recreate it by update line / displayName
-		if(LoaderClass.plugin.sbCurrent.containsKey(p.getName())) {
-		if(LoaderClass.plugin.sbCurrent.get(p.getName())==id)
-			LoaderClass.plugin.sbCurrent.remove(p.getName());
+		if(LoaderClass.unused.exist("sbc."+p.getName())) {
+		if(LoaderClass.unused.getInt("sbc."+p.getName())==id)
+			LoaderClass.unused.set("sbc."+p.getName(),null);
 		}
 		if(packets) {
 		p.sendPacket(createObjectivePacket(1, null));
@@ -262,7 +262,7 @@ public class ScoreboardAPI {
 	}
 	
 	public static void destroyScoreboard(int id) {
-		if(LoaderClass.plugin.ids.contains(id)) {
+		if(LoaderClass.unused.exist("sb."+id)) {
 			if(LoaderClass.plugin.scoreboard.containsKey(id))
 				LoaderClass.plugin.scoreboard.get(id).destroy();
 		}

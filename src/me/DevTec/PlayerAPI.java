@@ -14,6 +14,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
 
 import me.DevTec.Blocks.BlocksAPI.Shape;
+import me.DevTec.GUI.GUIID;
 import me.DevTec.NMS.NMSAPI.TitleAction;
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.Position;
@@ -411,7 +412,13 @@ public class PlayerAPI {
 	}
 
 	public boolean hasOpenGUI() {
-		return LoaderClass.plugin.gui.containsKey(s);
+		boolean has = false;
+		for(GUIID d : LoaderClass.plugin.gui)
+			if(d.getInventory()==s.getOpenInventory()) {
+				has=true;
+				break;
+			}
+		return has;
 	}
 
 	public void giveLevel(int level) {

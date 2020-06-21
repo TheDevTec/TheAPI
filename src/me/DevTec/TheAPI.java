@@ -1078,8 +1078,8 @@ public class TheAPI {
 	 * @param p
 	 * @return GUICreatorAPI
 	 */
-	public static GUICreatorAPI getGUICreatorAPI(Player p) {
-		return new GUICreatorAPI(p);
+	public static GUICreatorAPI getGUICreatorAPI(String title, int size, Player... p) {
+		return new GUICreatorAPI(title, size, p);
 	}
 
 	/**

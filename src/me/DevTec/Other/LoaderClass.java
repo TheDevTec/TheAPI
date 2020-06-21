@@ -44,15 +44,13 @@ import net.milkbowl.vault.economy.Economy;
 public class LoaderClass extends JavaPlugin {
 	//Scoreboards
 	public final HashMap<Integer, ScoreboardAPI> scoreboard = Maps.newHashMap();
-	public final HashMap<String, Integer> sbCurrent = Maps.newHashMap();
-	public final List<Integer> ids = Lists.newArrayList();
 	public final MultiMap<Integer, Integer, Object> map = new MultiMap<Integer, Integer, Object>();
 	//Queue for updating blocks of BlocksAPI
 	public final LinkedBlockingQueue<Object[]> refleshing = Queues.newLinkedBlockingQueue();
 	//Scheduler
 	public final HashMap<Integer, Task> scheduler = Maps.newHashMap();
 	//GUIs
-	public final HashMap<Player, GUIID> gui = Maps.newHashMap();
+	public final List<GUIID> gui = Lists.newArrayList();
 	//GameAPI
 	public final HashMap<String, Integer> GameAPI_Arenas = Maps.newHashMap();
 	public final HashMap<String, Runnable> win_rewards = Maps.newHashMap();
@@ -62,7 +60,7 @@ public class LoaderClass extends JavaPlugin {
 			config= new ConfigAPI("TheAPI", "Config"),gameapi= new ConfigAPI("TheAPI", "GameAPI")
 			,data= new ConfigAPI("TheAPI", "Data");
 	protected static boolean online = true;
-	public String motd;
+	public String motd=Bukkit.getMotd();
 	public int max=Bukkit.getMaxPlayers();
 	//EconomyAPI
 	public boolean e, tve, tbank;
@@ -80,7 +78,8 @@ public class LoaderClass extends JavaPlugin {
 					if(refleshing.isEmpty())return;
 					Object[] a = refleshing.poll();
 					TheAPI.getNMSAPI().refleshBlock(a[0], a[1], a[2], a[3]);
-			}}
+				}
+			}
 		}).start();
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &6Action: &6Loading plugin..", TheAPI.getConsole());
@@ -94,6 +93,7 @@ public class LoaderClass extends JavaPlugin {
 				TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
 		for(String s : config.getStringList("Worlds")) {
+			if(Bukkit.getWorld(s)!=null)continue;
 			Environment env = Environment.NORMAL;
 			WorldType wt = WorldType.NORMAL;
 		switch (config.getInt("WorldsSetting."+s+".Generator")) {
@@ -184,9 +184,10 @@ public class LoaderClass extends JavaPlugin {
 				TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
 		Scheduler.cancelAll();
-		for (Player p : gui.keySet()) {
-			gui.get(p).closeAndClear();
+		for (GUIID p : gui) {
+			p.closeAndClear();
 		}
+		gui.clear();
 		unused.delete();
 		data.reload();
 		config.reload();
