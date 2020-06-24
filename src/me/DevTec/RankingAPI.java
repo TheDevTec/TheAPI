@@ -14,6 +14,10 @@ public class RankingAPI<T> {
 	private HashMap<T, BigDecimal> s;
 	private boolean startFromZero;
 	public RankingAPI(HashMap<T, BigDecimal> map) {
+		setHashMap(map);
+	}
+	
+	public void setHashMap(HashMap<T, BigDecimal> map) {
 		if (map == null)return;
 		List<Entry<T, BigDecimal>> list = Lists.newLinkedList(map.entrySet());
 		Collections.sort(list, new Comparator<Entry<T, BigDecimal>>() {

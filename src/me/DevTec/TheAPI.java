@@ -50,6 +50,7 @@ import me.DevTec.Other.Storage;
 import me.DevTec.Other.StringUtils;
 import me.DevTec.Other.User;
 import me.DevTec.Placeholders.PlaceholderAPIUtils;
+import me.DevTec.Placeholders.ThePlaceholderAPI;
 import me.DevTec.Scheduler.Tasker;
 import me.DevTec.Utils.Error;
 import me.DevTec.WorldsManager.WorldBorderAPI;
@@ -255,6 +256,14 @@ public class TheAPI {
 	 */
 	public static PlaceholderAPIUtils getPlaceholderAPI() {
 		return new PlaceholderAPIUtils();
+	}
+
+	/**
+	 * @see see Replace in String/List<String> placeholders from TheAPI
+	 * @return ThePlaceholderAPI
+	 */
+	public static ThePlaceholderAPI getThePlaceholderAPI() {
+		return new ThePlaceholderAPI();
 	}
 
 	/**

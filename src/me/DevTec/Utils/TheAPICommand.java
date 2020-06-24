@@ -87,8 +87,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			return true;
 		}
 		if (args[0].equalsIgnoreCase("test")) {
-			if (!s.isOp())
-				return true; // sender must be player & has op
+			if (!s.hasPermission("theapi.command.test"))
+				return true;
 			if (args.length == 1) {
 				TheAPI.msg("&7-----------------", s);
 				TheAPI.msg("&e/TheAPI Test ActionBar", s);
@@ -106,7 +106,16 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				return true;
 			}
 			if (args[1].equalsIgnoreCase("Other")) {
-					return true;
+			TheAPI.msg("&eThePlaceholderAPI:", s);
+			TheAPI.msg("&6- %player_health% -> "+TheAPI.getThePlaceholderAPI().setPlaceholders((Player)s, "%player_health%"), s);
+			TheAPI.msg("&6- %player_statistic_kills% -> "+TheAPI.getThePlaceholderAPI().setPlaceholders((Player)s, "%player_statistic_kills%"), s);
+			TheAPI.msg("&6- %server_time% -> "+TheAPI.getThePlaceholderAPI().setPlaceholders((Player)s, "%server_time%"), s);
+			TheAPI.msg("&6- %server_online% -> "+TheAPI.getThePlaceholderAPI().setPlaceholders((Player)s, "%server_online%"), s);
+			TheAPI.msg(" &eMath:", s);
+			TheAPI.msg("&6- %math{5*4+6}% -> "+TheAPI.getThePlaceholderAPI().setPlaceholders((Player)s, "%math{5*4+6}%"), s);
+			TheAPI.msg("&6- %math{5.9*4.4+6.448}% -> "+TheAPI.getThePlaceholderAPI().setPlaceholders((Player)s, "%math{5.9*4.4+6.448}%"), s);
+			TheAPI.msg("&6- %math{3*%math{2*4}%+1}% -> "+TheAPI.getThePlaceholderAPI().setPlaceholders((Player)s, "%math{3*%math{2*4}%+1}%"), s);
+			return true;
 			}
 			if(s instanceof Player) {
 			Player p = (Player) s;

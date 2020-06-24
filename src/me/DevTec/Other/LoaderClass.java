@@ -1,12 +1,15 @@
 package me.DevTec.Other;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Statistic;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
 import org.bukkit.entity.Player;
@@ -31,6 +34,7 @@ import me.DevTec.NMS.ConstructorPacket;
 import me.DevTec.NMS.NMSPlayer;
 import me.DevTec.NMS.Packet;
 import me.DevTec.NMS.PacketListener;
+import me.DevTec.Placeholders.ThePlaceholder;
 import me.DevTec.Scheduler.Scheduler;
 import me.DevTec.Scheduler.Task;
 import me.DevTec.Scheduler.Tasker;
@@ -92,32 +96,8 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&bTheAPI&7: &6Action: &aEnabling plugin, creating config and registering economy..",
 				TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-		for(String s : config.getStringList("Worlds")) {
-			if(Bukkit.getWorld(s)!=null)continue;
-			Environment env = Environment.NORMAL;
-			WorldType wt = WorldType.NORMAL;
-		switch (config.getInt("WorldsSetting."+s+".Generator")) {
-		case 1:
-			wt = WorldType.FLAT;
-			break;
-		case 2:
-			env = Environment.NETHER;
-			break;
-		case 3:
-			try {
-				env = Environment.valueOf("THE_END");
-			} catch (Exception e) {
-				env = Environment.valueOf("END");
-			}
-			break;
-		case 4:
-			wt = null;
-			break;
-		}
-		if(!TheAPI.getWorldsManager().create(s, env, wt,config.getBoolean("WorldsSetting."+s+".GenerateStructures"),0)) {
-			TheAPI.msg("&cError when loading world '"+s+"' with settings GenerateStructures:"+config.getBoolean("WorldsSetting."+s+".GenerateStructures")+", Generator:"+config.getInt("WorldsSetting."+s+".Generator")+".", TheAPI.getConsole());
-		}
-		}
+		loadWorlds();
+		loadPlaceholders();
 		Tasks.load();
 		Bukkit.getPluginManager().registerEvents(new Events(), this);
 		Bukkit.getPluginCommand("TheAPI").setExecutor(new TheAPICommand());
@@ -192,6 +172,7 @@ public class LoaderClass extends JavaPlugin {
 		data.reload();
 		config.reload();
 		gameapi.reload();
+		TheAPI.getThePlaceholderAPI().unregister(main);
 	}
 
 	public List<Plugin> getTheAPIsPlugins() {
@@ -237,19 +218,94 @@ public class LoaderClass extends JavaPlugin {
 		unused.setCustomEnd("dat");
 		unused.create();
 	}
+	
+	private static ThePlaceholder main;
+	public void loadPlaceholders() {
+		main= new ThePlaceholder("TheAPI") {
+			@SuppressWarnings("deprecation")
+			@Override
+			public String onRequest(Player player, String placeholder) {
+				if(placeholder.equalsIgnoreCase("player_money"))
+					return ""+TheAPI.getEconomyAPI().getBalance(player);
+				if(placeholder.equalsIgnoreCase("player_formated_money"))
+					return TheAPI.getEconomyAPI().format(TheAPI.getEconomyAPI().getBalance(player));
+				if(placeholder.equalsIgnoreCase("player_displayname"))
+					return player.getDisplayName();
+				if(placeholder.equalsIgnoreCase("player_customname"))
+					return player.getCustomName();
+				if(placeholder.equalsIgnoreCase("player_name"))
+					return player.getName();
+				if(placeholder.equalsIgnoreCase("player_gamemode"))
+					return player.getGameMode().name();
+				if(placeholder.equalsIgnoreCase("player_uuid"))
+					return player.getUniqueId().toString();
+				if(placeholder.equalsIgnoreCase("player_health"))
+					return ""+player.getHealthScale();
+				if(placeholder.equalsIgnoreCase("player_food"))
+					return ""+player.getFoodLevel();
+				if(placeholder.equalsIgnoreCase("player_exp"))
+					return ""+player.getExp();
+				if(placeholder.equalsIgnoreCase("player_ping"))
+					return ""+TheAPI.getPlayerPing(player);
+				if(placeholder.equalsIgnoreCase("player_level"))
+					return ""+player.getLevel();
+				if(placeholder.equalsIgnoreCase("player_maxhealth"))
+					return ""+player.getMaxHealth();
+				if(placeholder.equalsIgnoreCase("player_world"))
+					return ""+player.getWorld().getName();
+				if(placeholder.equalsIgnoreCase("player_air"))
+					return ""+player.getRemainingAir();
+				if(placeholder.equalsIgnoreCase("player_statistic_play_one_minue"))
+					return ""+player.getStatistic(Statistic.PLAY_ONE_MINUTE);
+				if(placeholder.equalsIgnoreCase("player_statistic_kills"))
+					return ""+player.getStatistic(Statistic.PLAYER_KILLS);
+				if(placeholder.equalsIgnoreCase("player_statistic_deaths"))
+					return ""+player.getStatistic(Statistic.DEATHS);
+				if(placeholder.equalsIgnoreCase("player_statistic_jump"))
+					return ""+player.getStatistic(Statistic.JUMP);
+				if(placeholder.equalsIgnoreCase("player_statistic_entity_kill"))
+					return ""+player.getStatistic(Statistic.KILL_ENTITY);
+				if(placeholder.equalsIgnoreCase("player_statistic_sneak_time"))
+					return ""+player.getStatistic(Statistic.SNEAK_TIME);
+
+				if(placeholder.equalsIgnoreCase("server_time"))
+					return ""+new SimpleDateFormat("HH:mm:ss").format(new Date());
+				if(placeholder.equalsIgnoreCase("server_date"))
+					return ""+new SimpleDateFormat("dd.MM.yyyy").format(new Date());
+				if(placeholder.equalsIgnoreCase("server_online"))
+					return ""+TheAPI.getOnlinePlayers().size();
+				if(placeholder.equalsIgnoreCase("server_maxonline"))
+					return ""+TheAPI.getMaxPlayers();
+				if(placeholder.equalsIgnoreCase("server_motd"))
+					return motd!=null?motd:"";
+				if(placeholder.equalsIgnoreCase("server_worlds"))
+					return ""+Bukkit.getWorlds().size();
+				if(placeholder.equalsIgnoreCase("server_tps"))
+					return ""+TheAPI.getServerTPS();
+				if(placeholder.equalsIgnoreCase("server_memory_max"))
+					return ""+TheAPI.getMemoryAPI().getMaxMemory();
+				if(placeholder.equalsIgnoreCase("server_memory_used"))
+					return ""+TheAPI.getMemoryAPI().getUsedMemory(false);
+				if(placeholder.equalsIgnoreCase("server_memory_free"))
+					return ""+TheAPI.getMemoryAPI().getFreeMemory(false);
+				return null;
+			}
+		};
+		TheAPI.getThePlaceholderAPI().register(main);
+	}
 
 	public void loadWorlds() {
-		if (config.getConfig().getString("Worlds") != null) {
-			if (config.getConfig().getStringList("Worlds").isEmpty() == false) {
-				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
-				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &6Action: &6Loading worlds.."));
-				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &8********************"));
-				for (String s : config.getConfig().getStringList("Worlds")) {
+		if (config.exist("Worlds")) {
+			if (!config.getStringList("Worlds").isEmpty()) {
+				TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+				TheAPI.msg("&bTheAPI&7: &6Action: &6Loading worlds..",TheAPI.getConsole());
+				TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+				for (String s : config.getStringList("Worlds")) {
 					String type = "Default";
 					for (String w : Arrays.asList("Default", "Normal", "Nether", "The_End", "End", "The_Void", "Void",
 							"Empty", "Flat")) {
-						if (config.getConfig().getString("WorldsSetting." + s) != null) {
-							if (config.getConfig().getString("WorldsSetting." + s + ".Generator").equalsIgnoreCase(w)) {
+						if (config.exist("WorldsSetting." + s)) {
+							if (config.getString("WorldsSetting." + s + ".Generator").equalsIgnoreCase(w)) {
 								if (w.equalsIgnoreCase("Flat"))
 									type = "Flat";
 								if (w.equalsIgnoreCase("Nether"))
@@ -280,8 +336,8 @@ public class LoaderClass extends JavaPlugin {
 					if (type.equals("Nether"))
 						env = Environment.NETHER;
 					boolean f = true;
-					if (config.getConfig().getString("WorldsSetting." + s + ".GenerateStructures") != null)
-						f = config.getConfig().getBoolean("WorldsSetting." + s + ".GenerateStructures");
+					if (config.exist("WorldsSetting." + s + ".GenerateStructures"))
+						f = config.getBoolean("WorldsSetting." + s + ".GenerateStructures");
 
 					TheAPI.msg("&bTheAPI&7: &6Loading world with name '" + s + "'..", TheAPI.getConsole());
 					TheAPI.getWorldsManager().create(s, env, wt, f, 0);

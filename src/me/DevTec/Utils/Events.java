@@ -102,7 +102,6 @@ public class Events implements Listener {
 			for (String s : g.getStringList("guis." + a + ".CMDCLOSE"))
 				TheAPI.sudoConsole(SudoType.COMMAND, s);
 		d.runRunnable(GRunnable.RUNNABLE_ON_INV_CLOSE, 0);
-		d.clear();
 		g.set("pgui." +  p.getName(), null);
 	}
 

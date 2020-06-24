@@ -26,6 +26,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.mojang.authlib.GameProfile;
@@ -36,15 +37,15 @@ import me.DevTec.Utils.Error;
 @SuppressWarnings("deprecation")
 public class ItemCreatorAPI implements Cloneable {
 	private ItemStack a;
-	private String author, title, name, owner, url, text;
+	private String author= "", title= "", name, owner, url, text;
 	private Color c;
 	private boolean unb;
 	private SkullType type;
 	private Multimap<Attribute, AttributeModifier> w;
-	private int s, model, dur;
+	private int s= 1, model= -1, dur= -1;
 	private HashMap<PotionEffectType, String> ef = Maps.newHashMap();
-	private HashMap<Enchantment, Integer> enchs=Maps.newHashMap();
-	private List<Object> pages, lore, map;
+	private HashMap<Enchantment, Integer> enchs = Maps.newHashMap();
+	private List<Object> pages=Lists.newArrayList(), lore=Lists.newArrayList(), map=Lists.newArrayList();
 	private MaterialData data = null;
 	private Generation gen;
 
@@ -53,14 +54,6 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public ItemCreatorAPI(ItemStack icon) {
-		author = "";
-		title = "";
-		pages = new ArrayList<Object>();
-		lore = new ArrayList<Object>();
-		map = new ArrayList<Object>();
-		s = 1;
-		model = -1;
-		dur = -1;
 		try {
 			w = HashMultimap.create();
 		} catch (Exception | NoSuchMethodError er) {

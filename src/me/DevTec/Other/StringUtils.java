@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -48,7 +49,7 @@ public class StringUtils {
 
 	/**
 	 * @see see Transfer Collection to String
-	 * @return HoverMessage
+	 * @return String
 	 */
 	public String join(Collection<?> toJoin, String split) {
 		String r = "";
@@ -60,7 +61,7 @@ public class StringUtils {
 
 	/**
 	 * @see see Transfer List to String
-	 * @return HoverMessage
+	 * @return String
 	 */
 	public String join(List<?> toJoin, String split) {
 		String r = "";
@@ -72,7 +73,7 @@ public class StringUtils {
 
 	/**
 	 * @see see Transfer ArrayList to String
-	 * @return HoverMessage
+	 * @return String
 	 */
 	public String join(ArrayList<?> toJoin, String split) {
 		String r = "";
@@ -84,11 +85,23 @@ public class StringUtils {
 
 	/**
 	 * @see see Transfer Object[] to String
-	 * @return HoverMessage
+	 * @return String
 	 */
 	public String join(Object[] toJoin, String split) {
 		String r = "";
 		for (Object s : toJoin)
+			r = r + split + s.toString();
+		r = r.replaceFirst(split, "");
+		return r;
+	}
+
+	/**
+	 * @see see Transfer Iterator<?> to String
+	 * @return String
+	 */
+	public String join(Iterator<?> toJoin, String split) {
+		String r = "";
+		for (Object s = toJoin.next(); toJoin.hasNext();)
 			r = r + split + s.toString();
 		r = r.replaceFirst(split, "");
 		return r;
@@ -164,14 +177,24 @@ public class StringUtils {
 			return list.get(r);
 	}
 
-	private static final Pattern periodPattern = Pattern.compile("([0-9]+)((mon)|(min)|([ywhs]))"); //jak na to udìlat regex :_( na s, mon, min, y, w, d
-	// Jakoze jestli ten string je neco z toho? 
+	private static final Pattern periodPattern = Pattern.compile("([0-9]+)((mon)|(min)|([ywhs]))");
+	
+
 	/**
 	 * @see see Get long from string
 	 * @param s String
 	 * @return long
 	 */
 	public long getTimeFromString(String period){
+		return timeFromString(period);
+	}
+	
+	/**
+	 * @see see Get long from string
+	 * @param s String
+	 * @return long
+	 */
+	public long timeFromString(String period){ //New shorter name of method
 	    if(period == null) return 0;
 	    period = period.toLowerCase(Locale.ENGLISH);
 	    Matcher matcher = periodPattern.matcher(period);
@@ -205,13 +228,22 @@ public class StringUtils {
 	    }
 	    return instant.toEpochMilli()/1000;
 	}
+
+	/**
+	 * @see see Set long to string
+	 * @param l long
+	 * @return String
+	 */
+	public String setTimeToString(long period){
+		return timeToString(period);
+	}
 	
 	/**
 	 * @see see Set long to string
 	 * @param l long
 	 * @return String
 	 */
-	public String setTimeToString(long l) {
+	public String timeToString(long l) { //New shorter name of method
 		long seconds = l % 60;
 		long minutes = l / 60;
 		long hours = minutes / 60;
@@ -219,8 +251,7 @@ public class StringUtils {
 		long weeks = days / 7;
 		long months = weeks / 4;
 		long years = months / 12;
-		long centuries = years / 100;
-		long millenniums = centuries / 1000;
+		long millenniums = years / 100000;
 		if (minutes >= 60)
 			minutes = minutes % 60;
 		if (hours >= 24)
@@ -233,14 +264,10 @@ public class StringUtils {
 			months = months % 12;
 		if (years >= 100)
 			years = years % 100;
-		if (centuries >= 1000)
-			centuries = centuries % 1000;
 		String s = "s";
 
 		if (millenniums > 0) {
-			s = millenniums + "mil " + centuries + "cen " + years + "y";
-		} else if (centuries > 0) {
-			s = centuries + "cen " + years + "y " + months + "mon";
+			s = millenniums + "mil "  + years + "y";
 		} else if (years > 0) {
 			s = years +  "y " + months + "mon " + weeks +  "w " + days + "d";
 		} else if (months > 0) {
@@ -276,6 +303,14 @@ public class StringUtils {
 	 * @return String
 	 */
 	public String getLocationAsString(Location loc) {
+		return locationAsString(loc);
+	}
+
+	/**
+	 * @see see Convert Location to String
+	 * @return String
+	 */
+	public String locationAsString(Location loc) { //New shorter name of method
 		return getTheCoder().locationToString(loc);
 	}
 
@@ -284,6 +319,14 @@ public class StringUtils {
 	 * @return Location
 	 */
 	public Location getLocationFromString(String savedLocation) {
+		return locationFromString(savedLocation);
+	}
+
+	/**
+	 * @see see Create Location from String
+	 * @return Location
+	 */
+	public Location locationFromString(String savedLocation) { //New shorter name of method
 		return getTheCoder().locationFromString(savedLocation);
 	}
 

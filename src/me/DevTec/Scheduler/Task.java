@@ -8,6 +8,7 @@ public class Task implements Runnable {
 	private final int id;
 	private int r;
 	private boolean c;
+	private boolean error;
 
 	public Task(boolean sync, Runnable runnable, int id, boolean multipleTimes) {
 		run = runnable;
@@ -22,12 +23,17 @@ public class Task implements Runnable {
 
 	@Override
 	public void run() {
-		if(c)return;
+		if(c||error)return;
 		++r;
+		try {
 		if (s)
 			TheAPI.getNMSAPI().postToMainThread(run);
 		else 
 			run.run();
+		}catch(Exception er) {
+			error=true;
+			er.printStackTrace();
+		}
 	}
 
 	public boolean isRepeating() {
