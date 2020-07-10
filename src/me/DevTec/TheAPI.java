@@ -20,9 +20,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -38,6 +35,7 @@ import com.google.common.collect.Maps;
 import me.DevTec.Bans.PunishmentAPI;
 import me.DevTec.Bans.ReportSystem;
 import me.DevTec.Blocks.BlocksAPI;
+import me.DevTec.BossBar.Bar;
 import me.DevTec.Events.PlayerVanishEvent;
 import me.DevTec.GUI.GUICreatorAPI;
 import me.DevTec.NMS.NMSAPI;
@@ -58,7 +56,7 @@ import me.DevTec.WorldsManager.WorldsManager;
 import net.glowstone.entity.GlowPlayer;
 
 public class TheAPI {
-	private static final HashMap<String, BossBar> list = Maps.newHashMap();
+	private static final HashMap<String, Bar> bars = Maps.newHashMap();
 	private static final HashMap<String, Integer> task = Maps.newHashMap();
 	private static final HashMap<UUID, User> cache = Maps.newHashMap();
 
@@ -388,28 +386,26 @@ public class TheAPI {
 	 * @param progress
 	 * @param timeToExpire
 	 */
-	public static void sendBossBar(Player p, String text, double progress) {
+	public static Bar sendBossBar(Player p, String text, double progress) {
 		if (p == null) {
 			Error.err("sending bossbar", "Player is null");
-			return;
+			return null;
 		}
-		if (isOlder1_9()) {
-			Error.err("sending bossbar to " + p.getName(), "Servers version older 1.9 doesn't have this method");
-			return;
+		if(task.containsKey(p.getName())) {
+			Tasker.cancelTask(task.get(p.getName()));
+			task.remove(p.getName());
 		}
-		try {
-			removeBossBar(p);
-			BossBar a = Bukkit.createBossBar(TheAPI.colorize(text), BarColor.GREEN, BarStyle.SEGMENTED_20);
-			if (progress < 0)
-				progress = 0;
-			if (progress > 1)
-				progress = 1;
-			a.setProgress(progress);
-			a.addPlayer(p);
-			list.put(p.getName(), a);
-		} catch (Exception e) {
-			Error.err("sending bossbar to " + p.getName(), "Text is null");
-		}
+		Bar a = bars.containsKey(p.getName())?bars.get(p.getName()) : new Bar(p);
+		if (progress < 0)
+			progress = 0;
+		if (progress > 1)
+			progress = 1;
+		a.setProgress(progress);
+		a.setName(colorize(text));
+		if(a.hidden())a.show();
+		if(!bars.containsKey(p.getName()))
+		bars.put(p.getName(), a);
+		return a;
 	}
 
 	/**
@@ -424,55 +420,29 @@ public class TheAPI {
 			Error.err("sending bossbar", "Player is null");
 			return;
 		}
-		if (isOlder1_9()) {
-			Error.err("sending bossbar to " + p.getName(), "Servers version older 1.9 doesn't have this method");
-			return;
-		}
-		try {
-			removeBossBar(p);
-			BossBar a = Bukkit.createBossBar(TheAPI.colorize(text), BarColor.GREEN, BarStyle.SEGMENTED_20);
-			if (progress < 0)
-				progress = 0;
-			if (progress > 1)
-				progress = 1;
-			a.setProgress(progress);
-			a.addPlayer(p);
-			list.put(p.getName(), a);
-			task.put(p.getName(), new Tasker() {
-				@Override
-				public void run() {
-					removeBossBar(p);
-				}
-			}.laterAsync(timeToExpire));
-		} catch (Exception e) {
-			Error.err("sending bossbar to " + p.getName(), "Text is null");
-		}
+		Bar a = sendBossBar(p, text, progress);
+		task.put(p.getName(), new Tasker() {
+			@Override
+			public void run() {
+				a.hide();
+			}
+		}.laterAsync(timeToExpire));
 	}
 
 	/**
 	 * @see see Remove player from all bossbars in which player is in
 	 * @param p
 	 */
-	@SuppressWarnings("deprecation")
 	public static void removeBossBar(Player p) {
 		if (p == null) {
 			Error.err("removing bossbars", "Player is null");
 			return;
 		}
-		try {
-			if (list.containsKey(p.getName())) {
-				if(task.containsKey(p.getName()))
-				Tasker.cancelTask(task.get(p.getName()));
-				BossBar b = list.get(p.getName());
-				b.hide();
-				b.removePlayer(p);
-				list.remove(p.getName());
-			}
-		} catch (Exception err) {
-			if (isOlder1_9())
-				Error.err("removing bossbars of player " + p.getName(),
-						"Servers version older 1.9 doesn't have this method");
+		if(task.containsKey(p.getName())) {
+		Tasker.cancelTask(task.get(p.getName()));
+		task.remove(p.getName());
 		}
+		if(bars.containsKey(p.getName()))bars.get(p.getName()).hide();
 	}
 
 	/**
@@ -480,17 +450,12 @@ public class TheAPI {
 	 * @param p
 	 * @return BossBar
 	 */
-	public static BossBar getBossBar(Player p) {
+	public static Bar getBossBar(Player p) {
 		if (p == null) {
 			Error.err("getting bossbars", "Player is null");
 			return null;
 		}
-		if (isOlder1_9()) {
-			Error.err("getting bossbars of player " + p.getName(),
-					"Servers version older 1.9 doesn't have this method");
-			return null;
-		}
-		return list.containsKey(p.getName()) ? list.get(p.getName()) : null;
+		return bars.containsKey(p.getName()) ? bars.get(p.getName()) : null;
 
 	}
 

@@ -6,13 +6,8 @@ import java.io.IOException;
 
 public class Writer {
 	private File a;
-	private FileWriter r;
 	public Writer(File f) {
 		a=f;
-		try {
-		r=new FileWriter(f);
-		} catch (IOException e) {
-		}
 	}
 	
 	public File getFile() {
@@ -20,14 +15,39 @@ public class Writer {
 	}
 	
 	public void write(String text) {
+		FileWriter r = null;
+		try {
+		r=new FileWriter(a);
+		} catch (IOException e) {
+		}
 		try {
 			r.write(text);
+			r.close();
 		} catch (IOException e) {
 		}
 	}
 	
-	public void close() {
+	public void append(char text) {
+		FileWriter r = null;
 		try {
+		r=new FileWriter(a);
+		} catch (IOException e) {
+		}
+		try {
+			r.append(text);
+			r.close();
+		} catch (IOException e) {
+		}
+	}
+	
+	public void flush() {
+		FileWriter r = null;
+		try {
+		r=new FileWriter(a);
+		} catch (IOException e) {
+		}
+		try {
+			r.flush();
 			r.close();
 		} catch (IOException e) {
 		}

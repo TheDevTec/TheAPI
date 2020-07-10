@@ -85,6 +85,18 @@ public class LoaderClass extends JavaPlugin {
 				}
 			}
 		}).start();
+		new Thread(new Runnable() {
+			public void run() {
+				while(online){
+			        for(Player s : TheAPI.getPlayers())
+			            if(TheAPI.getBossBar(s)!=null) TheAPI.getBossBar(s).teleport();
+			        try {
+			            Thread.sleep(1000);
+			        } catch (InterruptedException e) {
+			        }
+				}
+			}
+		}).start();		
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &6Action: &6Loading plugin..", TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());

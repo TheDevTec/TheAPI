@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Utils.Error;
@@ -29,12 +28,10 @@ public class SQLAPI {
 	}
 
 	private boolean connected;
-	private Statement statement;
 
 	public void connect() {
 		try {
 			openConnection();
-			statement = connection.createStatement();
 			connected = true;
 		} catch (ClassNotFoundException | SQLException e) {
 			if (LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
@@ -49,9 +46,9 @@ public class SQLAPI {
 
 	public boolean isConnected() {
 		boolean i = false;
-		if (statement != null && connected) {
+		if (connected) {
 			try {
-				i = !statement.isClosed();
+				i = !connection.isClosed();
 			} catch (Exception e) {
 			}
 		}
@@ -91,7 +88,7 @@ public class SQLAPI {
 		}
 		boolean result = false;
 		try {
-			statement.executeUpdate(command);
+			connection.prepareStatement(command).executeUpdate(command);
 			result = true;
 		} catch (Exception e) {
 			if (LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
@@ -117,7 +114,7 @@ public class SQLAPI {
 		}
 		boolean result = false;
 		try {
-			statement.executeLargeUpdate(command);
+			connection.prepareStatement(command).executeLargeUpdate(command);
 			result = true;
 		} catch (Exception e) {
 			if (LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
@@ -143,7 +140,7 @@ public class SQLAPI {
 		}
 		ResultSet rs = null;
 		try {
-			rs = statement.executeQuery(command);
+			rs = connection.prepareStatement(command).executeQuery(command);
 		} catch (Exception e) {
 			if (LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
 				Error.err("processing SQL query, command: " + command,
@@ -404,7 +401,7 @@ public class SQLAPI {
 			return false;
 		}
 		try {
-			statement.execute(command);
+			connection.prepareStatement(command).execute(command);
 			return true;
 		} catch (Exception e) {
 			if (LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
