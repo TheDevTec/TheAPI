@@ -23,7 +23,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.StringUtil;
@@ -40,8 +40,7 @@ import me.DevTec.TheAPI.TPSType;
 import me.DevTec.Blocks.BlockSave;
 import me.DevTec.Blocks.BlocksAPI.Shape;
 import me.DevTec.GUI.GUICreatorAPI;
-import me.DevTec.GUI.GUICreatorAPI.Options;
-import me.DevTec.GUI.GUIID;
+import me.DevTec.GUI.ItemGUI;
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.Position;
 import me.DevTec.Other.TheMaterial;
@@ -63,7 +62,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		return false;
 	}
 	
-	@SuppressWarnings({ "deprecation" })
 	@Override
 	public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
 		if (args.length == 0) {
@@ -82,7 +80,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				TheAPI.msg("&e/TheAPI PluginManager", s);
 			if (s.isOp())
 				TheAPI.msg("&e/TheAPI Test", s);
-			TheAPI.msg("&7*Credits; &eCreated by DevTec*", s);
+			TheAPI.msg("&0[&cTheAPI&0] &7&eCreated by DevTec, StraikerinaCZ", s);
 			TheAPI.msg("&7-----------------", s);
 			return true;
 		}
@@ -156,67 +154,74 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				return true;
 			}
 			if (args[1].equalsIgnoreCase("GUICreatorAPI")) {
-				TheAPI.msg("&eThis maybe help you with creating gui: https://i.imgur.com/f43qxux.png", p);
-				GUICreatorAPI a = TheAPI.getGUICreatorAPI("&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"),54,p);
-				// Frame
-				ItemStack m = new ItemStack(Material.GLASS);
-				if(Material.matchMaterial("BLACK_STAINED_GLASS_PANE")!=null)m=new ItemStack(Material.matchMaterial("BLACK_STAINED_GLASS_PANE"));
-				else if(Material.matchMaterial("STAINED_GLASS_PANE")!=null)m = new ItemStack(Material.matchMaterial("STAINED_GLASS_PANE"), 1, (byte)15);
-				ItemCreatorAPI iCreator = TheAPI.getItemCreatorAPI(m);
-				iCreator.setDisplayName(" ");
-				ItemStack item = iCreator.create();
-				HashMap<Options, Object> setting = new HashMap<Options, Object>();
-				setting.put(Options.CANT_BE_TAKEN, true);
-				setting.put(Options.CANT_PUT_ITEM, true);
-				for (int i = 0; i < 10; ++i)
-					a.setItem(i, item, setting);
-				a.setItem(17, item, setting);
-				a.setItem(18, item, setting);
-				a.setItem(26, item, setting);
-				a.setItem(27, item, setting);
-				a.setItem(35, item, setting);
-				a.setItem(36, item, setting);
-				for (int i = 44; i < 54; ++i)
-					a.setItem(i, item, setting);
-
-				// Items
-				iCreator = TheAPI.getItemCreatorAPI(Material.DIAMOND);
-				iCreator.setDisplayName("&eCreator of plugin");
-				iCreator.addLore("");
-				iCreator.addLore("&cPlugin is created by Straiker123");
-				item = iCreator.create();
-				a.setItem(20, item, setting);
-
-				iCreator = TheAPI.getItemCreatorAPI(Material.EMERALD);
-				iCreator.setDisplayName("&eVersion of plugin");
-				iCreator.addLore("");
-				iCreator.addLore("&cTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
-				item = iCreator.create();
-				a.setItem(22, item, setting);
-
-				iCreator = TheAPI.getItemCreatorAPI(Material.GOLD_INGOT);
-				iCreator.setDisplayName("&ePlugins using TheAPI");
-				iCreator.addLore("");
-				iCreator.addLore("&7---------");
-				for (Plugin d : LoaderClass.plugin.getTheAPIsPlugins()) // add plugins to lore
-					iCreator.addLore("&c" + d.getName() + " v" + TheAPI.getPluginsManagerAPI().getVersion(d.getName())); // get
-																															// version
-																															// of
-																															// plugin
-				iCreator.addLore("&7---------");
-				item = iCreator.create();
-				a.setItem(24, item, setting);
-
-				iCreator = TheAPI.getItemCreatorAPI(Material.BARRIER);
-				iCreator.setDisplayName("&cClose");
-				item = iCreator.create();
-				setting.put(Options.RUNNABLE, new Runnable() { // Apply this runnable on item
-					@Override
-					public void run() {
-						a.close();
-					}
-				});
-				a.setItem(49, item, setting);
+			GUICreatorAPI gui = new GUICreatorAPI("&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"), 54, p) {
+			
+				@Override
+				public void onClose(Player player) {
+					TheAPI.msg("&0[&cTheAPI&0] &eClosed example gui!", player);
+				}
+				
+			};
+			Material a = Material.matchMaterial("BLACK_STAINED_GLASS_PANE")!=null?Material.matchMaterial("BLACK_STAINED_GLASS_PANE"):Material.matchMaterial("STAINED_GLASS_PANE");
+			ItemGUI item = new ItemGUI(a.name().equals("BLACK_STAINED_GLASS_PANE")?ItemCreatorAPI.create(a, 1, "&7"):ItemCreatorAPI.create(a, 1, "&7", 15)) {
+				
+				@Override
+				public void onClick(Player player, GUICreatorAPI gui, ClickType click) {
+					
+				}
+			};
+			for (int i = 0; i < 10; ++i)
+				gui.setItem(i, item);
+			gui.setItem(17, item);
+			gui.setItem(18, item);
+			gui.setItem(26, item);
+			gui.setItem(27, item);
+			gui.setItem(35, item);
+			gui.setItem(36, item);
+			for (int i = 44; i < 54; ++i)
+				gui.setItem(i, item);
+			
+			gui.setItem(20, new ItemGUI(ItemCreatorAPI.create(Material.DIAMOND, 1, "&eWho created TheAPI?", 
+					Arrays.asList("", "  &e» &7Creator of TheAPI is StraikerinaCZ", "  &e» &7Owner of TheAPI is DevTec"))) {
+				
+				@Override
+				public void onClick(Player player, GUICreatorAPI gui, ClickType click) {
+					TheAPI.msg("&0[&cTheAPI&0] &eWho created TheAPI?", player);
+					TheAPI.msg("  &e» &7Creator of TheAPI is StraikerinaCZ", player);
+					TheAPI.msg("  &e» &7Owner of TheAPI is DevTec", player);
+				}
+			});
+			
+			gui.setItem(22, new ItemGUI(ItemCreatorAPI.create(Material.EMERALD, 1, "&eWhere report bug?", 
+					Arrays.asList("", "  &e» &7On our discord or github", "  &e» &7Discord: https://discord.gg/z4kK66g", "  &e» &7Github: https://github.com/TheDevTec/TheAPI"))) {
+				
+				@Override
+				public void onClick(Player player, GUICreatorAPI gui, ClickType click) {
+					TheAPI.msg("&0[&cTheAPI&0] &eWhere report bug?", player);
+					TheAPI.msg("  &e» &7On our discord or github", player);
+					TheAPI.msg("  &e» &7Discord: https://discord.gg/z4kK66g", player);
+					TheAPI.msg("  &e» &7Github: https://github.com/TheDevTec/TheAPI", player);
+				}
+			});
+			
+			gui.setItem(24, new ItemGUI(ItemCreatorAPI.create(Material.GOLD_INGOT, 1, "&eAre somewhere examples of GUIs?", 
+					Arrays.asList("", "  &e» &7GUI Slots: https://i.imgur.com/f43qxux.png", "  &e» &7GUI #1: https://pastebin.com/PGPwKxRz"))) {
+				
+				@Override
+				public void onClick(Player player, GUICreatorAPI gui, ClickType click) {
+					TheAPI.msg("&0[&cTheAPI&0] &eAre somewhere examples of GUIs?", player);
+					TheAPI.msg("  &e» &7GUI Slots: https://i.imgur.com/f43qxux.png", player);
+					TheAPI.msg("  &e» &7GUI #1: https://pastebin.com/PGPwKxRz", player);
+				}
+			});
+			
+			gui.setItem(49, new ItemGUI(ItemCreatorAPI.create(Material.BARRIER, 1, "&cClose")) {
+				
+				@Override
+				public void onClick(Player player, GUICreatorAPI gui, ClickType click) {
+					gui.close(player);
+				}
+			});
 				return true;
 			}
 			if (args[1].equalsIgnoreCase("RankingAPI")) {
@@ -655,8 +660,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			if (perm(s,"ClearCache")) {
 				TheAPI.msg("&7-----------------", s);
 				TheAPI.msg("&eClearing cache..", s);
-				for (GUIID id : LoaderClass.plugin.gui)
-					id.closeAndClear();
+				for (String p : LoaderClass.plugin.gui.keySet())
+					LoaderClass.plugin.gui.get(p).clear();
 				LoaderClass.plugin.gui.clear();
 				TheAPI.clearCache();
 				for(World w : Bukkit.getWorlds())
@@ -1070,14 +1075,14 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("Invsee"), Lists.newArrayList()));
 			if (s.hasPermission("TheAPI.Command.PluginManager"))
 				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("PluginManager"), Lists.newArrayList()));
-			if (s.isOp())
+			if (s.hasPermission("theapi.command.test"))
 				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("Test"), Lists.newArrayList()));
 		}
-		if (args[0].equalsIgnoreCase("Test") && s.isOp()) {
+		if (args[0].equalsIgnoreCase("Test") && s.hasPermission("theapi.command.test")) {
 			if (args.length == 2) {
 				c.addAll(StringUtil.copyPartialMatches(args[1],
 						Arrays.asList("ActionBar", "hideShowEntity", "BlocksAPI", "BossBar", "PlayerName",
-								"RankingAPI", "Scoreboard", "TabList", "Title", "GUICreatorAPI"),
+								"RankingAPI", "Scoreboard", "TabList", "Title", "GUICreatorAPI", "Other"),
 						Lists.newArrayList()));
 			}
 		}

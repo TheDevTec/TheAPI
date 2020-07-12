@@ -36,6 +36,229 @@ import me.DevTec.Utils.Error;
 
 @SuppressWarnings("deprecation")
 public class ItemCreatorAPI implements Cloneable {
+	
+	//Simple creation
+	
+	public static ItemStack create(Material material, int amount, String displayName) {
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
+		a.setDisplayName(displayName);
+		return a.create();
+	}
+	
+	public static ItemStack create(Material material, int amount, String displayName, List<String> lore) {
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
+		a.setDisplayName(displayName);
+		a.setLore(lore);
+		return a.create();
+	}
+	
+	public static ItemStack create(Material material, int amount, String displayName, int data) {
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
+		a.setDisplayName(displayName);
+		a.setDurability(data);
+		return a.create();
+	}
+	
+	public static ItemStack create(Material material, int amount, String displayName, List<String> lore, int data) {
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
+		a.setDisplayName(displayName);
+		a.setLore(lore);
+		a.setDurability(data);
+		return a.create();
+	}
+	
+	public static ItemStack createPotion(Material material, int amount, String displayName, PotionEffect... effects) {
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
+		a.setDisplayName(displayName);
+		for(PotionEffect effect : effects)
+		a.addPotionEffect(effect);
+		return a.create();
+	}
+	
+	public static ItemStack createPotion(Material material, int amount, String displayName, List<String> lore, PotionEffect... effects) {
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
+		a.setDisplayName(displayName);
+		a.setLore(lore);
+		for(PotionEffect effect : effects)
+		a.addPotionEffect(effect);
+		return a.create();
+	}
+	
+	public static ItemStack createPotion(Material material, int amount, String displayName, Color color, PotionEffect... effects) {
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
+		a.setDisplayName(displayName);
+		for(PotionEffect effect : effects)
+		a.addPotionEffect(effect);
+		a.setPotionColor(color);
+		return a.create();
+	}
+	
+	public static ItemStack createPotion(Material material, int amount, String displayName, List<String> lore, Color color, PotionEffect... effects) {
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
+		a.setDisplayName(displayName);
+		a.setLore(lore);
+		for(PotionEffect effect : effects)
+		a.addPotionEffect(effect);
+		a.setPotionColor(color);
+		return a.create();
+	}
+	
+	public static ItemStack createBook(Material material, int amount, String displayName, String author, String title, List<String> pages) {
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
+		a.setDisplayName(displayName);
+		a.setBookAuthor(author);
+		a.setBookTitle(title);
+		a.setBookPages(pages);
+		return a.create();
+	}
+	
+	public static ItemStack createBook(Material material, int amount, String displayName, List<String> lore, String author, String title, List<String> pages) {
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
+		a.setDisplayName(displayName);
+		a.setLore(lore);
+		a.setBookAuthor(author);
+		a.setBookTitle(title);
+		a.setBookPages(pages);
+		return a.create();
+	}
+	
+	//Only for newer minecraft versions
+	public static ItemStack createBook(Material material, int amount, String displayName, String author, String title, List<String> pages, Generation gen) {
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
+		a.setDisplayName(displayName);
+		a.setBookAuthor(author);
+		a.setBookTitle(title);
+		a.setBookPages(pages);
+		a.setBookGeneration(gen);
+		return a.create();
+	}
+
+	//Only for newer minecraft versions
+	public static ItemStack createBook(Material material, int amount, String displayName, List<String> lore, String author, String title, List<String> pages, Generation gen) {
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
+		a.setDisplayName(displayName);
+		a.setLore(lore);
+		a.setBookAuthor(author);
+		a.setBookTitle(title);
+		a.setBookPages(pages);
+		a.setBookGeneration(gen);
+		return a.create();
+	}
+	
+	public static ItemStack createHead(int amount, String displayName, String owner) {
+		Material mat = null;
+		try{
+			mat=Material.LEGACY_SKULL_ITEM;
+		}catch(Exception e) {
+			mat=Material.matchMaterial("SKULL_ITEM");
+		}
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
+		a.setDisplayName(displayName);
+		a.setOwner(owner);
+		a.setSkullType("PLAYER");
+		return a.create();
+	}
+	
+	public static ItemStack createHead(int amount, String displayName, String owner, List<String> lore) {
+		Material mat = null;
+		try{
+			mat=Material.LEGACY_SKULL_ITEM;
+		}catch(Exception e) {
+			mat=Material.matchMaterial("SKULL_ITEM");
+		}
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
+		a.setDisplayName(displayName);
+		a.setLore(lore);
+		a.setOwner(owner);
+		a.setSkullType("PLAYER");
+		return a.create();
+	}
+	
+	public static ItemStack createHead(int amount, String displayName, SkullType type) {
+		Material mat = null;
+		try{
+			mat=Material.LEGACY_SKULL_ITEM;
+		}catch(Exception e) {
+			mat=Material.matchMaterial("SKULL_ITEM");
+		}
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
+		a.setDisplayName(displayName);
+		a.setSkullType(type);
+		return a.create();
+	}
+	
+	public static ItemStack createHead(int amount, String displayName, List<String> lore, SkullType type) {
+		Material mat = null;
+		try{
+			mat=Material.LEGACY_SKULL_ITEM;
+		}catch(Exception e) {
+			mat=Material.matchMaterial("SKULL_ITEM");
+		}
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
+		a.setDisplayName(displayName);
+		a.setLore(lore);
+		a.setSkullType(type);
+		return a.create();
+	}
+	
+	public static ItemStack createHeadByValues(int amount, String displayName, String ownerValues) {
+		Material mat = null;
+		try{
+			mat=Material.LEGACY_SKULL_ITEM;
+		}catch(Exception e) {
+			mat=Material.matchMaterial("SKULL_ITEM");
+		}
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
+		a.setDisplayName(displayName);
+		a.setOwnerFromValues(ownerValues);
+		a.setSkullType("PLAYER");
+		return a.create();
+	}
+	
+	public static ItemStack createHeadByValues(int amount, String displayName, List<String> lore, String ownerValues) {
+		Material mat = null;
+		try{
+			mat=Material.LEGACY_SKULL_ITEM;
+		}catch(Exception e) {
+			mat=Material.matchMaterial("SKULL_ITEM");
+		}
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
+		a.setDisplayName(displayName);
+		a.setLore(lore);
+		a.setSkullType("PLAYER");
+		a.setOwnerFromValues(ownerValues);
+		return a.create();
+	}
+	
+	public static ItemStack createHeadByWeb(int amount, String displayName, String ownerLink) {
+		Material mat = null;
+		try{
+			mat=Material.LEGACY_SKULL_ITEM;
+		}catch(Exception e) {
+			mat=Material.matchMaterial("SKULL_ITEM");
+		}
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
+		a.setDisplayName(displayName);
+		a.setSkullType("PLAYER");
+		a.setOwnerFromWeb(ownerLink);
+		return a.create();
+	}
+	
+	public static ItemStack createHeadByWeb(int amount, String displayName, List<String> lore, String ownerLink) {
+		Material mat = null;
+		try{
+			mat=Material.LEGACY_SKULL_ITEM;
+		}catch(Exception e) {
+			mat=Material.matchMaterial("SKULL_ITEM");
+		}
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
+		a.setDisplayName(displayName);
+		a.setLore(lore);
+		a.setSkullType("PLAYER");
+		a.setOwnerFromWeb(ownerLink);
+		return a.create();
+	}
+	
 	private ItemStack a;
 	private String author= "", title= "", name, owner, url, text;
 	private Color c;
@@ -74,7 +297,7 @@ public class ItemCreatorAPI implements Cloneable {
 				addLore(s);
 			}
 		if (hasEnchants())
-			for (String e : getEnchantments().keySet())
+			for (Enchantment e : getEnchantments().keySet())
 				addEnchantment(e, getEnchantments().get(e));
 		s = getAmount();
 		if (hasCustomModelData())
@@ -190,6 +413,16 @@ public class ItemCreatorAPI implements Cloneable {
 		}
 	}
 
+	public void addPotionEffect(PotionEffect effect) {
+		if (effect != null) {
+			addPotionEffect(effect.getType(), effect.getDuration(), effect.getAmplifier());
+			try {
+				setPotionColor(effect.getColor());
+			}catch(Exception | NoSuchFieldError | NoSuchMethodError e) {
+			}
+		}
+	}
+
 	public void addPotionEffect(PotionEffectType potionEffect, int duration, int amlifier) {
 		if (potionEffect != null)
 			ef.put(potionEffect, duration+":"+amlifier);
@@ -249,10 +482,10 @@ public class ItemCreatorAPI implements Cloneable {
 			this.owner = owner;
 	}
 
-	public HashMap<String, Integer> getEnchantments() {
-		HashMap<String, Integer> e = new HashMap<String, Integer>();
+	public HashMap<Enchantment, Integer> getEnchantments() {
+		HashMap<Enchantment, Integer> e = Maps.newHashMap();
 		for (Enchantment d : a.getEnchantments().keySet())
-			e.put(d.getName(), a.getEnchantments().get(d).intValue());
+			e.put(d, a.getEnchantments().get(d).intValue());
 		return e;
 	}
 
@@ -344,9 +577,10 @@ public class ItemCreatorAPI implements Cloneable {
 		}
 	}
 
-	public void addItemFlag(ItemFlag itemflag) {
+	public void addItemFlag(ItemFlag... itemflag) {
 		if (itemflag != null)
-			map.add(itemflag);
+			for(ItemFlag f : itemflag)
+			map.add(f);
 	}
 
 	@SuppressWarnings("unchecked")

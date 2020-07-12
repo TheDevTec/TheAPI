@@ -18,10 +18,10 @@ public class NumbersAPI {
 
 	/**
 	 * @see see Calculate string
-	 * @return double
+	 * @return float
 	 */
-	public double calculate() {
-		return TheAPI.getStringUtils().calculate(fromString);
+	public float calculate() {
+		return TheAPI.getStringUtils().calculate(fromString).floatValue();
 	}
 
 	/**

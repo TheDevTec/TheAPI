@@ -13,7 +13,7 @@ import me.DevTec.TheAPI;
 
 public class ThePlaceholderAPI {
 	private final static Pattern finder = Pattern.compile("\\%([^A-Za-z0-9]|[A-Za-z0-9])+\\%"),
-			math = Pattern.compile("\\%math(\\{(?:\\{??[^A-Za-z\\{][0-9+*/^%()~.-]*?\\}))\\%");
+			math = Pattern.compile("\\%math(\\{(?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*?\\}))\\%");
 	private final static List<ThePlaceholder> reg = Lists.newArrayList();
 	
 	public void register(ThePlaceholder e) {
@@ -47,31 +47,34 @@ public class ThePlaceholderAPI {
 	}
 	
 	public String setPlaceholders(Player player, String text) {
-		text=replaceMath(text);
+		while(true) {
+			Matcher m = math.matcher(text);
+			int v = 0;
+			while(m.find()) {
+				++v;
+				String w = m.group();
+				text=text.replace(w, (""+TheAPI.getStringUtils().calculate(w.substring(6,w.length()-2))));
+			}
+			if(v!=0)continue;
+			else
+			break;
+		}
 		Matcher found = finder.matcher(text);
 		while(found.find()) {
 			String g = found.group();
 		String find = g.substring(1,g.length()-1);
+		int v = 0;
 		for(Iterator<ThePlaceholder> r = reg.iterator(); r.hasNext();) {
+			++v;
 			ThePlaceholder get = r.next();
 			String toReplace = get.onPlaceholderRequest(player, find);
 			if(toReplace!=null)
 			text=toReplace;
-			}
 		}
-		return text;
-	}
-	
-	private String replaceMath(String text) {
-		Matcher m = math.matcher(text);
-		int v = 0;
-		while(m.find()) {
-			++v;
-			String w = m.group();
-			text=text.replace(w, (""+TheAPI.getStringUtils().calculate(w.substring(6,w.length()-2))).replaceAll("\\.0", ""));
+		if(v!=0)continue;
+		else
+		break;
 		}
-		if(v!=0)
-		return replaceMath(text);
 		return text;
 	}
 }

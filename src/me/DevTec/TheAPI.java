@@ -35,9 +35,10 @@ import com.google.common.collect.Maps;
 import me.DevTec.Bans.PunishmentAPI;
 import me.DevTec.Bans.ReportSystem;
 import me.DevTec.Blocks.BlocksAPI;
-import me.DevTec.BossBar.Bar;
+import me.DevTec.BossBar.BarColor;
+import me.DevTec.BossBar.BarStyle;
+import me.DevTec.BossBar.BossBar;
 import me.DevTec.Events.PlayerVanishEvent;
-import me.DevTec.GUI.GUICreatorAPI;
 import me.DevTec.NMS.NMSAPI;
 import me.DevTec.NMS.NMSAPI.TitleAction;
 import me.DevTec.Other.LoaderClass;
@@ -56,7 +57,7 @@ import me.DevTec.WorldsManager.WorldsManager;
 import net.glowstone.entity.GlowPlayer;
 
 public class TheAPI {
-	private static final HashMap<String, Bar> bars = Maps.newHashMap();
+	private static final HashMap<String, BossBar> bars = Maps.newHashMap();
 	private static final HashMap<String, Integer> task = Maps.newHashMap();
 	private static final HashMap<UUID, User> cache = Maps.newHashMap();
 
@@ -386,7 +387,7 @@ public class TheAPI {
 	 * @param progress
 	 * @param timeToExpire
 	 */
-	public static Bar sendBossBar(Player p, String text, double progress) {
+	public static BossBar sendBossBar(Player p, String text, double progress) {
 		if (p == null) {
 			Error.err("sending bossbar", "Player is null");
 			return null;
@@ -395,14 +396,14 @@ public class TheAPI {
 			Tasker.cancelTask(task.get(p.getName()));
 			task.remove(p.getName());
 		}
-		Bar a = bars.containsKey(p.getName())?bars.get(p.getName()) : new Bar(p);
+		BossBar a = bars.containsKey(p.getName())?bars.get(p.getName()) : new BossBar(p, text, progress, BarColor.GREEN, BarStyle.PROGRESS);
 		if (progress < 0)
 			progress = 0;
 		if (progress > 1)
 			progress = 1;
 		a.setProgress(progress);
-		a.setName(colorize(text));
-		if(a.hidden())a.show();
+		a.setTitle(colorize(text));
+		if(a.isHidden())a.show();
 		if(!bars.containsKey(p.getName()))
 		bars.put(p.getName(), a);
 		return a;
@@ -420,7 +421,7 @@ public class TheAPI {
 			Error.err("sending bossbar", "Player is null");
 			return;
 		}
-		Bar a = sendBossBar(p, text, progress);
+		BossBar a = sendBossBar(p, text, progress);
 		task.put(p.getName(), new Tasker() {
 			@Override
 			public void run() {
@@ -450,7 +451,7 @@ public class TheAPI {
 	 * @param p
 	 * @return BossBar
 	 */
-	public static Bar getBossBar(Player p) {
+	public static BossBar getBossBar(Player p) {
 		if (p == null) {
 			Error.err("getting bossbars", "Player is null");
 			return null;
@@ -1045,15 +1046,6 @@ public class TheAPI {
 	@Deprecated
 	public static TimeConventorAPI getTimeConventorAPI() {
 		return new TimeConventorAPI();
-	}
-
-	/**
-	 * @see see Create GUI without events
-	 * @param p
-	 * @return GUICreatorAPI
-	 */
-	public static GUICreatorAPI getGUICreatorAPI(String title, int size, Player... p) {
-		return new GUICreatorAPI(title, size, p);
 	}
 
 	/**

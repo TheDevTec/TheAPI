@@ -29,11 +29,13 @@ import io.netty.channel.ChannelPromise;
 import me.DevTec.ConfigAPI;
 import me.DevTec.ScoreboardAPI;
 import me.DevTec.TheAPI;
-import me.DevTec.GUI.GUIID;
+import me.DevTec.BossBar.BossBar;
+import me.DevTec.GUI.GUICreatorAPI;
 import me.DevTec.NMS.ConstructorPacket;
 import me.DevTec.NMS.NMSPlayer;
 import me.DevTec.NMS.Packet;
 import me.DevTec.NMS.PacketListener;
+import me.DevTec.NMS.Reflections;
 import me.DevTec.Placeholders.ThePlaceholder;
 import me.DevTec.Scheduler.Scheduler;
 import me.DevTec.Scheduler.Task;
@@ -54,7 +56,9 @@ public class LoaderClass extends JavaPlugin {
 	//Scheduler
 	public final HashMap<Integer, Task> scheduler = Maps.newHashMap();
 	//GUIs
-	public final List<GUIID> gui = Lists.newArrayList();
+	public final HashMap<String, GUICreatorAPI> gui = Maps.newHashMap();
+	//BossBars
+	public final List<BossBar> bars = Lists.newArrayList();
 	//GameAPI
 	public final HashMap<String, Integer> GameAPI_Arenas = Maps.newHashMap();
 	public final HashMap<String, Runnable> win_rewards = Maps.newHashMap();
@@ -85,11 +89,12 @@ public class LoaderClass extends JavaPlugin {
 				}
 			}
 		}).start();
+		if(TheAPI.isOlder1_9())
 		new Thread(new Runnable() {
 			public void run() {
 				while(online){
-			        for(Player s : TheAPI.getPlayers())
-			            if(TheAPI.getBossBar(s)!=null) TheAPI.getBossBar(s).teleport();
+			        for(BossBar s : bars)
+			        	Reflections.invoke(s, Reflections.getMethod(s.getClass(), "move"));
 			        try {
 			            Thread.sleep(1000);
 			        } catch (InterruptedException e) {
@@ -176,9 +181,8 @@ public class LoaderClass extends JavaPlugin {
 				TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
 		Scheduler.cancelAll();
-		for (GUIID p : gui) {
-			p.closeAndClear();
-		}
+		for (String p : gui.keySet())
+			gui.get(p).clear();
 		gui.clear();
 		unused.delete();
 		data.reload();

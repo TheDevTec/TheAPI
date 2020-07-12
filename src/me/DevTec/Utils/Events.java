@@ -20,7 +20,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -47,7 +46,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
 import me.DevTec.ConfigAPI;
-import me.DevTec.ItemCreatorAPI;
 import me.DevTec.SignAPI.SignAction;
 import me.DevTec.TheAPI;
 import me.DevTec.TheAPI.SudoType;
@@ -57,12 +55,10 @@ import me.DevTec.Bans.PunishmentAPI;
 import me.DevTec.Blocks.BlocksAPI.Shape;
 import me.DevTec.Events.DamageGodPlayerByEntityEvent;
 import me.DevTec.Events.DamageGodPlayerEvent;
-import me.DevTec.Events.GUIClickEvent;
-import me.DevTec.Events.GUICloseEvent;
 import me.DevTec.Events.PlayerJumpEvent;
 import me.DevTec.Events.TNTExplosionEvent;
-import me.DevTec.GUI.GUIID;
-import me.DevTec.GUI.GUIID.GRunnable;
+import me.DevTec.GUI.GUICreatorAPI;
+import me.DevTec.GUI.ItemGUI;
 import me.DevTec.NMS.ConstructorPacket;
 import me.DevTec.NMS.NMSPlayer;
 import me.DevTec.NMS.Packet;
@@ -76,160 +72,37 @@ import me.DevTec.WorldsManager.WorldBorderAPI.WarningMessageType;
 
 @SuppressWarnings("deprecation")
 public class Events implements Listener {
-	public static ConfigAPI f = LoaderClass.config,d = LoaderClass.data,g = LoaderClass.unused;
+	public static ConfigAPI f = LoaderClass.config,d = LoaderClass.data;
 	public static PunishmentAPI a = TheAPI.getPunishmentAPI();
 
 	@EventHandler(priority = EventPriority.LOWEST)
-	private synchronized void onClose(InventoryCloseEvent e) {
+	public synchronized void onClose(InventoryCloseEvent e) {
 		Player p = (Player) e.getPlayer();
-		String title = e.getView().getTitle();
-		GUIID d = null;
-		for(GUIID f : LoaderClass.plugin.gui) {
-			if(f.getInventory().equals(e.getInventory())) {
-				d=f;
-				break;
-			}
-		}
-		if (d == null)
-			return;
-		String a = p.getName() + "." + d.getID();
-		GUICloseEvent event = new GUICloseEvent(p, e.getInventory(), title);
-		Bukkit.getPluginManager().callEvent(event);
-		if (g.getString("guis." + a + ".MSGCLOSE") != null)
-			for (String s : g.getStringList("guis." + a + ".MSGCLOSE"))
-				TheAPI.broadcastMessage(s);
-		if (g.getString("guis." + a + ".CMDCLOSE") != null)
-			for (String s : g.getStringList("guis." + a + ".CMDCLOSE"))
-				TheAPI.sudoConsole(SudoType.COMMAND, s);
-		d.runRunnable(GRunnable.RUNNABLE_ON_INV_CLOSE, 0);
-		g.set("pgui." +  p.getName(), null);
-	}
-
-	private ItemStack createWrittenBook(ItemStack a) {
-		Material ms = Material.matchMaterial("WRITABLE_BOOK");
-		if (ms == null)
-			ms = Material.matchMaterial("BOOK_AND_QUILL");
-		ItemCreatorAPI s = TheAPI.getItemCreatorAPI(ms);
-		if (a.getItemMeta().hasDisplayName())
-			s.setDisplayName(a.getItemMeta().getDisplayName());
-		if (a.getItemMeta().hasLore())
-			s.setLore(a.getItemMeta().getLore());
-		if (TheAPI.isNewVersion() && !TheAPI.getServerVersion().contains("v1_13"))
-			if (a.getItemMeta().hasCustomModelData())
-				s.setCustomModelData(a.getItemMeta().getCustomModelData());
-		if (!TheAPI.isOlder1_9() && !TheAPI.getServerVersion().contains("v1_9")
-				&& !TheAPI.getServerVersion().contains("v1_10"))
-			s.setUnbreakable(a.getItemMeta().isUnbreakable());
-		return s.create();
-	}
-
-	private ItemStack createHead(ItemStack a) {
-		ItemCreatorAPI s = TheAPI.getItemCreatorAPI(
-				Material.matchMaterial("LEGACY_SKULL_ITEM") != null ? Material.matchMaterial("LEGACY_SKULL_ITEM")
-						: Material.matchMaterial("SKULL_ITEM"));
-		if (a.getItemMeta().hasDisplayName())
-			s.setDisplayName(a.getItemMeta().getDisplayName());
-		if (a.getItemMeta().hasLore())
-			s.setLore(a.getItemMeta().getLore());
-		if (TheAPI.isNewVersion() && !TheAPI.getServerVersion().contains("v1_13"))
-			if (a.getItemMeta().hasCustomModelData())
-				s.setCustomModelData(a.getItemMeta().getCustomModelData());
-		if (!TheAPI.isOlder1_9() && !TheAPI.getServerVersion().contains("v1_9")
-				&& !TheAPI.getServerVersion().contains("v1_10"))
-			s.setUnbreakable(a.getItemMeta().isUnbreakable());
-		return s.create();
+		GUICreatorAPI d = LoaderClass.plugin.gui.containsKey(p.getName())?LoaderClass.plugin.gui.get(p.getName()):null;
+		if (d == null)return;
+		LoaderClass.plugin.gui.remove(p.getName());
+		d.getPlayers().remove(p);
+		d.onClose(p);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
-	private synchronized void onClick(InventoryClickEvent e) {
-		if (e.isCancelled())
-			return;
-		Player p = (Player) e.getWhoClicked();
-		int slot = e.getSlot();
-		GUIID d = null;
-		for(GUIID f : LoaderClass.plugin.gui) {
-			if(f.getInventory().equals(e.getInventory())) {
-				d=f;
-				break;
-			}
-		}
-		if (d == null)
-			return;
-		String a = d.getID();
+	public synchronized void onClick(InventoryClickEvent e) {
 		ItemStack i = e.getCurrentItem();
-		if (i == null)
-			return;
-		GUIClickEvent event = new GUIClickEvent(p, e.getClickedInventory(), e.getView().getTitle(), slot, i);
-		Bukkit.getPluginManager().callEvent(event);
-		if (event.isCancelled())
-			e.setCancelled(true);
+		if (i == null)return;
+		Player p = (Player) e.getWhoClicked();
+		GUICreatorAPI d = LoaderClass.plugin.gui.containsKey(p.getName())?LoaderClass.plugin.gui.get(p.getName()):null;
+		if (d == null)return;
 		if (e.getClickedInventory().getType() == InventoryType.PLAYER) {
-			if (g.existPath("guis." + a + ".PUT"))
-				e.setCancelled(g.getBoolean("guis." + a + ".PUT"));
+			if (!d.isInsertable())
+				e.setCancelled(true);
 			return;
 		}
-		if (i.getType().name().equals("WRITTEN_BOOK") || i.getType().name().equals("BOOK_AND_QUILL"))
-			i = createWrittenBook(i);
-		if (i.getType().name().contains("SKULL_ITEM") || i.getType().name().equals("PLAYER_HEAD"))
-			i = createHead(i);
-		ClickType t = e.getClick();
-		if (g.existPath("guis." + a + "." + slot + ".TAKE"))
-			e.setCancelled(g.getBoolean("guis." + a + "." + slot + ".TAKE"));
-				if (g.getString("guis." + a + "." + slot + ".MSG") != null)
-					for (String s : g.getStringList("guis." + a + "." + slot + ".MSG"))
-						TheAPI.msg(s, p);
-				if (g.getString("guis." + a + "." + slot + ".CMD") != null)
-					for (String s : g.getStringList("guis." + a + "." + slot + ".CMD"))
-						TheAPI.sudoConsole(SudoType.COMMAND, s);
-				d.runRunnable(GRunnable.RUNNABLE, slot);
-				if (t.isLeftClick() && !t.isShiftClick()) {
-					if (g.getString("guis." + a + "." + slot + ".MSGLC") != null)
-						for (String s : g.getStringList("guis." + a + "." + slot + ".MSGLC"))
-							TheAPI.msg(s, p);
-					if (g.getString("guis." + a + "." + slot + ".CMDLC") != null)
-						for (String s : g.getStringList("guis." + a + "." + slot + ".CMDLC"))
-							TheAPI.sudoConsole(SudoType.COMMAND, s);
-					d.runRunnable(GRunnable.RUNNABLE_LEFT_CLICK, slot);
-				}
-				if (t.isRightClick() && !t.isShiftClick()) {
-					if (g.getString("guis." + a + "." + slot + ".MSGRC") != null)
-						for (String s : g.getStringList("guis." + a + "." + slot + ".MSGRC"))
-							TheAPI.msg(s, p);
-					if (g.getString("guis." + a + "." + slot + ".CMDRC") != null)
-						for (String s : g.getStringList("guis." + a + "." + slot + ".CMDRC"))
-							TheAPI.sudoConsole(SudoType.COMMAND, s);
-					d.runRunnable(GRunnable.RUNNABLE_RIGHT_CLICK, slot);
-				}
-				if (t.isCreativeAction()) {
-					if (g.getString("guis." + a + "." + slot + ".MSGMC") != null)
-						for (String s : g.getStringList("guis." + a + "." + slot + ".MSGMC"))
-							TheAPI.msg(s, p);
-					if (g.getString("guis." + a + "." + slot + ".CMDMC") != null)
-						for (String s : g.getStringList("guis." + a + "." + slot + ".CMDMC"))
-							TheAPI.sudoConsole(SudoType.COMMAND, s);
-					d.runRunnable(GRunnable.RUNNABLE_MIDDLE_CLICK, slot);
-				}
-				if (t.isLeftClick() && t.isShiftClick()) {
-					if (g.getString("guis." + a + "." + slot + ".MSGWLC") != null)
-						for (String s : g.getStringList("guis." + a + "." + slot + ".MSGWLC"))
-							TheAPI.msg(s, p);
-					if (g.getString("guis." + a + "." + slot + ".CMDWLC") != null)
-						for (String s : g.getStringList("guis." + a + "." + slot + ".CMDWLC"))
-							TheAPI.sudoConsole(SudoType.COMMAND, s);
-					d.runRunnable(GRunnable.RUNNABLE_SHIFT_WITH_LEFT_CLICK, slot);
-				}
-				if (t.isRightClick() && t.isShiftClick()) {
-					if (g.getString("guis." + a + "." + slot + ".MSGWRC") != null)
-						for (String s : g.getStringList("guis." + a + "." + slot + ".MSGWRC"))
-							TheAPI.msg(s, p);
-					if (g.getString("guis." + a + "." + slot + ".CMDWLC") != null)
-						for (String s : g.getStringList("guis." + a + "." + slot + ".CMDWRC"))
-							TheAPI.sudoConsole(SudoType.COMMAND, s);
-					d.runRunnable(GRunnable.RUNNABLE_SHIFT_WITH_RIGHT_CLICK, slot);
-				}
-				if(d.getGUI().getItemGUIs().containsKey(slot))
-				d.getGUI().getItemGUIs().get(slot).onClick(p);
+		if(d.getItemGUIs().containsKey(e.getSlot())) {
+			ItemGUI a = d.getItemGUIs().get(e.getSlot());
+		if(a.isUnstealable())e.setCancelled(true);
+			a.onClick(p, d, e.getClick());
 		}
+	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onClick(PlayerInteractEvent e) {
@@ -574,6 +447,8 @@ public class Events implements Listener {
 	@EventHandler
 	public void onLeave(PlayerQuitEvent e) {
 		Player s = e.getPlayer();
+		if(TheAPI.getBossBar(s)!=null)
+		TheAPI.getBossBar(s).remove();
 		if (LoaderClass.config.getBoolean("Options.PacketListener")){
 			Channel channel = new NMSPlayer(s).getPlayerConnection()
 					.getNetworkManager().getChannel();

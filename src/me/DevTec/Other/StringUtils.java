@@ -1,5 +1,6 @@
 package me.DevTec.Other;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
@@ -12,7 +13,6 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
@@ -346,13 +346,17 @@ public class StringUtils {
 	 * @see see Convert String to Math and Calculate exempt
 	 * @return double
 	 */
-	public double calculate(String fromString) {
-		ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
+	public BigDecimal calculate(String fromString) {
+		String a = fromString.replaceAll("[A-z]+", "").replace(",", ".");
+		Matcher c = Pattern.compile("[0-9.]+").matcher(a);
+		if(c.find())
+		for(String s = c.group(); c.find();)
+			a=a.replace(s, new BigDecimal(s)+"");
 		try {
-			return getDouble(engine.eval(fromString).toString());
+			return new BigDecimal(new ScriptEngineManager().getEngineByName("JavaScript").eval(a).toString());
 		} catch (ScriptException e) {
 		}
-		return 0;
+		return new BigDecimal(0);
 	}
 
 	/**
