@@ -443,7 +443,7 @@ public class TheAPI {
 		Tasker.cancelTask(task.get(p.getName()));
 		task.remove(p.getName());
 		}
-		if(bars.containsKey(p.getName()))bars.get(p.getName()).hide();
+		if(bars.containsKey(p.getName()))bars.get(p.getName()).remove();
 	}
 
 	/**
