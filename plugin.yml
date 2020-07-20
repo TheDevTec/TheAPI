@@ -2,7 +2,7 @@ name: TheAPI
 main: me.DevTec.Other.LoaderClass
 author: DevTec
 website: https://www.spigotmc.org/resources/theapi.72679/
-version: 4.2
+version: 4.3
 api-version: 1.13
 loadbefore: [Residence]
 softdepend: [TheVault,Vault,PlaceholderAPI]
