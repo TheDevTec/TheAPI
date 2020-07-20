@@ -15,20 +15,24 @@ public abstract class ItemGUI {
 		s=stack;
 	}
 	
-	public void setUnstealable(boolean value) {
+	public final void setUnstealable(boolean value) {
 		unsteal=value;
 	}
 	
-	public boolean isUnstealable() {
+	public final boolean isUnstealable() {
 		return unsteal;
 	}
 	
-	public ItemStack getItem() {
+	public final ItemStack getItem() {
 		return s;
 	}
 	
-	public void setItem(ItemStack stack) {
+	public final void setItem(ItemStack stack) {
 		if(stack!=null)
 		s=stack;
+	}
+	
+	public final String toString() {
+		return "[ItemGUI:"+unsteal+"/"+s.toString()+"]";
 	}
 }

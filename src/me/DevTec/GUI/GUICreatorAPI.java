@@ -15,7 +15,7 @@ import com.google.common.collect.Maps;
 import me.DevTec.TheAPI;
 import me.DevTec.Other.LoaderClass;
 
-public abstract class GUICreatorAPI {
+public class GUICreatorAPI {
 	private final String title;
 	private final LinkedHashMap<Integer, ItemGUI> items = Maps.newLinkedHashMap();
 	private final List<Player> opened = Lists.newArrayList();
@@ -39,35 +39,35 @@ public abstract class GUICreatorAPI {
 		open(p);
 	}
 	
-	public abstract void onClose(Player player);
+	public void onClose(Player player) {}
 	
-	public ItemStack[] getContents() {
+	public final ItemStack[] getContents() {
 		return inv.getContents();
 	}
 	
-	public String getName() {
+	public final String getName() {
 		return title;
 	}
 
-	public List<Player> getPlayers() {
+	public final List<Player> getPlayers() {
 		return opened;
 	}
 	
 	/**
 	 * @see see Set menu insertable for items
 	 */
-	public void setInsertable(boolean value) {
+	public final void setInsertable(boolean value) {
 		put=value;
 	}
 	
-	public boolean isInsertable() {
+	public final boolean isInsertable() {
 		return put;
 	}
 
 	/**
 	 * @see see Set item on position to the gui with options
 	 */
-	public void setItem(int position, ItemGUI item) {
+	public final void setItem(int position, ItemGUI item) {
 		items.put(position, item);
 		inv.setItem(position, item.getItem());
 	}
@@ -75,7 +75,7 @@ public abstract class GUICreatorAPI {
 	/**
 	 * @see see Remove item from position
 	 */
-	public void removeItem(int slot) {
+	public final void removeItem(int slot) {
 		items.remove(slot);
 		inv.setItem(slot, new ItemStack(Material.AIR));
 	}
@@ -83,14 +83,14 @@ public abstract class GUICreatorAPI {
 	/**
 	 * @see see Remove item from position
 	 */
-	public void remove(int slot) {
+	public final void remove(int slot) {
 		removeItem(slot);
 	}
 
 	/**
 	 * @see see Add item to the first empty slot in gui
 	 */
-	public void addItem(ItemGUI item) {
+	public final void addItem(ItemGUI item) {
 		if (getFirstEmpty() != -1)
 			setItem(getFirstEmpty(), item);
 	}
@@ -98,14 +98,14 @@ public abstract class GUICreatorAPI {
 	/**
 	 * @see see Add item to the first empty slot in gui
 	 */
-	public void add(ItemGUI item) {
+	public final void add(ItemGUI item) {
 		addItem(item);
 	}
 
 	/**
 	 * @see see Return ItemStack from position in gui
 	 */
-	public ItemStack getItem(int slot) {
+	public final ItemStack getItem(int slot) {
 		try {
 		return inv.getItem(slot);
 		}catch(Exception e) {
@@ -114,10 +114,21 @@ public abstract class GUICreatorAPI {
 	}
 
 	/**
+	 * @see see Return ItemGUI from position in gui
+	 */
+	public final ItemGUI getItemGUI(int slot) {
+		try {
+		return getItemGUIs().get(slot);
+		}catch(Exception e) {
+			return null;
+		}
+	}
+	
+	/**
 	 *
 	 * @return boolean is gui full
 	 */
-	public boolean isFull() {
+	public final boolean isFull() {
 		return getFirstEmpty() == -1;
 	}
 
@@ -125,7 +136,7 @@ public abstract class GUICreatorAPI {
 	 * @see see -1 mean menu is full
 	 * @return int return first empty slot (if available)
 	 */
-	public int getFirstEmpty() {
+	public final int getFirstEmpty() {
 		return inv.firstEmpty();
 	}
 
@@ -133,7 +144,7 @@ public abstract class GUICreatorAPI {
 	 * @see see Open GUI menu to player
 	 * 
 	 */
-	public void open(Player... players) {
+	public final void open(Player... players) {
 		for(Player player : players) {
 			if(LoaderClass.plugin.gui.containsKey(player.getName())) {
 				GUICreatorAPI a = LoaderClass.plugin.gui.get(player.getName());
@@ -151,7 +162,7 @@ public abstract class GUICreatorAPI {
 	 * @return LinkedHashMap<Slot, Item>
 	 * 
 	 */
-	public LinkedHashMap<Integer, ItemGUI> getItemGUIs(){
+	public final LinkedHashMap<Integer, ItemGUI> getItemGUIs(){
 		return items;
 	}
 
@@ -159,7 +170,7 @@ public abstract class GUICreatorAPI {
 	 * @see see Close opened gui for all players
 	 * 
 	 */
-	public void close() {
+	public final void close() {
 		for(Player a : Lists.newArrayList(opened))
 		close(a);
 	}
@@ -168,26 +179,29 @@ public abstract class GUICreatorAPI {
 	 * @see see Clear all registered informations about gui
 	 * 
 	 */
-	public void clear() {
+	public final void clear() {
 		inv.clear();
 		items.clear();
-		close();
 	}
 	
 	/**
 	 * @see see Close opened gui for specified player
 	 * 
 	 */
-	public void close(Player... players) {
+	public final void close(Player... players) {
 		for(Player player : players)
 			player.getOpenInventory().close();
 	}
 	
-	public String toString() {
-		return "[GUICreatorAPI:"+title+"/"+put+"/"+inv.getSize()+"]";
+	public final String toString() {
+		String items = "";
+		for(Integer g : getItemGUIs().keySet()) {
+			items+="/"+g+":"+getItemGUIs().get(g).toString();
+		}
+		return "[GUICreatorAPI:"+title+"/"+put+"/"+inv.getSize()+items+"]";
 	}
 
-	public boolean equals(Object other) {
+	public final boolean equals(Object other) {
 		if(other instanceof Inventory) {
 			Inventory c = (Inventory)other;
 			return c.equals(inv);
