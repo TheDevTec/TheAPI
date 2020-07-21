@@ -244,7 +244,7 @@ public class TheAPI {
 		}
 		int i = new Random().nextInt(maxInt);
 		if (inMinus)
-			maxInt = -1 * maxInt;
+			i = -1 * i;
 		return i;
 	}
 
@@ -285,7 +285,7 @@ public class TheAPI {
 		if (i > maxDouble)
 			i = maxDouble;
 		if (inMinus)
-			maxDouble = -1 * maxDouble;
+			i = -1 * i;
 		return i;
 	}
 
