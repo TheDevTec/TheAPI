@@ -31,9 +31,7 @@ import me.DevTec.ScoreboardAPI;
 import me.DevTec.TheAPI;
 import me.DevTec.BossBar.BossBar;
 import me.DevTec.GUI.GUICreatorAPI;
-import me.DevTec.NMS.ConstructorPacket;
 import me.DevTec.NMS.NMSPlayer;
-import me.DevTec.NMS.Packet;
 import me.DevTec.NMS.PacketListener;
 import me.DevTec.NMS.Reflections;
 import me.DevTec.Placeholders.ThePlaceholder;
@@ -141,26 +139,25 @@ public class LoaderClass extends JavaPlugin {
 						TheAPI.getConsole());
 			}
 		}.laterAsync(200);
+		if (LoaderClass.config.getBoolean("Options.PacketListener"))
 		for(Player s : TheAPI.getOnlinePlayers()) {
-			if (LoaderClass.config.getBoolean("Options.PacketListener")) {
 				ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
 		            @Override
 		            public void channelRead(ChannelHandlerContext channelHandlerContext, Object packet) throws Exception {
-		            	ConstructorPacket c = PacketListener.call(s, new Packet(packet), true);
-		            	if(c.cancelled())return;
-		                super.channelRead(channelHandlerContext, c.getPacket().getPacket());
+		            	Object c = PacketListener.call(s, packet, true);
+		            	if(c==null)return;
+		                super.channelRead(channelHandlerContext, c);
 		            }
 		            @Override
 		            public void write(ChannelHandlerContext channelHandlerContext, Object packet, ChannelPromise channelPromise) throws Exception {
-		            	ConstructorPacket c = PacketListener.call(s, new Packet(packet), false);
-		            	if(c.cancelled())return;
-		                super.write(channelHandlerContext, c.getPacket().getPacket(), channelPromise);
+		            	Object c = PacketListener.call(s, packet, false);
+		            	if(c==null)return;
+		                super.write(channelHandlerContext, c, channelPromise);
 		            }
 		        };
 		        ChannelPipeline pipeline = new NMSPlayer(s).getPlayerConnection().getNetworkManager().getChannel().pipeline();
 		        pipeline.addBefore("packet_handler", s.getName(), channelDuplexHandler);
 			}
-		}
 	}
 
 	@Override

@@ -199,8 +199,8 @@ public class StringUtils {
 	    period = period.toLowerCase(Locale.ENGLISH);
 	    Matcher matcher = periodPattern.matcher(period);
 	    Instant instant=Instant.EPOCH;
-	    while(matcher.find()){
-	        int num = Integer.parseInt(matcher.group(1));
+	    while(matcher.find()) {
+	        int num = getInt(matcher.group(1));
 	        String typ = matcher.group(2);
 	        switch (typ) {
         		case "s":

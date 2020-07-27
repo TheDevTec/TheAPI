@@ -118,8 +118,7 @@ public enum EnchantmentAPI {
 	private final int v;
 	private static Method getByName = Reflections.getMethod(Enchantment.class,"getByName", String.class);
 	EnchantmentAPI(String real){
-		s=real;
-		v=0;
+		this(real, 0);
 	}
 	
 	EnchantmentAPI(String real,int version){
@@ -135,15 +134,8 @@ public enum EnchantmentAPI {
 	public Enchantment getEnchantment(){
 		if(TheAPI.getStringUtils().getInt(TheAPI.getServerVersion().split("_")[1]) >= v) {
 		Object o = Reflections.invoke(null,getByName,s);
-		try {
-			if (o == null) {
-				o = Reflections.invoke(null,getByName,s);
-				return o==null ? null : (Enchantment)o;
-			}
-			return (Enchantment)o;
-		} catch (Exception e) {
-			return null;
-		}}
+		return o==null ? null : (Enchantment)o;
+		}
 		return null;
 	}
 	
@@ -156,7 +148,11 @@ public enum EnchantmentAPI {
 	}
 	
 	public static EnchantmentAPI byName(String name) {
+		try {
 		return valueOf(name.toUpperCase());
+		}catch(Exception e) {
+			return null;
+		}
 	}
 	
 	public static EnchantmentAPI fromEnchant(Enchantment enchant){

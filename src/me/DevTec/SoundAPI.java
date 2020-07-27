@@ -88,13 +88,12 @@ public class SoundAPI {
 	 * @return Sound
 	 */
 	public Sound getByName(String sound) {
-		String a = null;
-		String c = null;
+		String a = null, c = null;
 		for (Sound s : values()) {
-			if (a != null)
-				break;
-			if (s.name().toLowerCase().equals(sound.toLowerCase()))
+			if (s.name().toLowerCase().equals(sound.toLowerCase())) {
 				a = s.name();
+				break;
+			}
 			else if (s.name().toLowerCase().contains(sound.toLowerCase()))
 				c = s.name();
 		}

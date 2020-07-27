@@ -32,8 +32,8 @@ public class HoverMessage {
 	}
 
 	private String replaceColor(String text) {
-		String regex = "[&ง]{1}([a-fA-Fl-oL-O0-9]){1}";
-		text = text.replaceAll(regex, "ง$1");
+		String regex = "[&ยง]{1}([a-fA-Fl-oL-O0-9]){1}";
+		text = text.replaceAll(regex, "ยง$1");
 		if (!Pattern.compile(regex).matcher(text).find()) {
 		}
 		String[] words = text.split(regex);
@@ -41,7 +41,7 @@ public class HoverMessage {
 		for (String word : words) {
 			try {
 				if (index != words[0].length())
-					text = "ง" + text.charAt(index - 1) + word;
+					text = "ยง" + text.charAt(index - 1) + word;
 			} catch (Exception e) {
 			}
 			index += word.length() + 2;

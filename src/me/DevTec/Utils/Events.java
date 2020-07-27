@@ -59,9 +59,7 @@ import me.DevTec.Events.PlayerJumpEvent;
 import me.DevTec.Events.TNTExplosionEvent;
 import me.DevTec.GUI.GUICreatorAPI;
 import me.DevTec.GUI.ItemGUI;
-import me.DevTec.NMS.ConstructorPacket;
 import me.DevTec.NMS.NMSPlayer;
-import me.DevTec.NMS.Packet;
 import me.DevTec.NMS.PacketListener;
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.Position;
@@ -479,18 +477,18 @@ public class Events implements Listener {
 		}
 		if (LoaderClass.config.getBoolean("Options.PacketListener")) {
 			ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
-	            @Override
-	            public void channelRead(ChannelHandlerContext channelHandlerContext, Object packet) throws Exception {
-	            	ConstructorPacket e = PacketListener.call(s, new Packet(packet), true);
-	            	if(e.cancelled())return;
-	                super.channelRead(channelHandlerContext, e.getPacket().getPacket());
-	            }
-	            @Override
-	            public void write(ChannelHandlerContext channelHandlerContext, Object packet, ChannelPromise channelPromise) throws Exception {
-	            	ConstructorPacket e = PacketListener.call(s, new Packet(packet), false);
-	            	if(e.cancelled())return;
-	                super.write(channelHandlerContext, e.getPacket().getPacket(), channelPromise);
-	            }
+				 @Override
+		            public void channelRead(ChannelHandlerContext channelHandlerContext, Object packet) throws Exception {
+		            	Object c = PacketListener.call(s, packet, true);
+		            	if(c==null)return;
+		                super.channelRead(channelHandlerContext, c);
+		            }
+		            @Override
+		            public void write(ChannelHandlerContext channelHandlerContext, Object packet, ChannelPromise channelPromise) throws Exception {
+		            	Object c = PacketListener.call(s, packet, false);
+		            	if(c==null)return;
+		                super.write(channelHandlerContext, c, channelPromise);
+		            }
 	        };
 	        ChannelPipeline pipeline = new NMSPlayer(s).getPlayerConnection().getNetworkManager().getChannel().pipeline();
 	        pipeline.addBefore("packet_handler", s.getName(), channelDuplexHandler);

@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.DevTec.TheAPI;
+import me.DevTec.NMS.DataWatchers.DataWatcher;
 import me.DevTec.Other.LoaderClass;
 
 public class NMSAPI {
@@ -33,7 +34,8 @@ public class NMSAPI {
 			particleEnum = Reflections.existNMSClass("EnumParticle") ? Reflections.getNMSClass("EnumParticle")
 					: Reflections.getNMSClass("Particles");
 	private static Constructor<?> pDestroy, pTitle, pOutChat, pTab, pBlock, blockPos, pChunk, ChunkSection, chunkc, particle,
-			pSpawn, pNSpawn, pLSpawn, pWindow,score,sbobj,sbdisplayobj,sbteam,pSign,pTeleport;
+			pSpawn, pNSpawn, pLSpawn, pWindow,score,sbobj,sbdisplayobj,sbteam,pSign,pTeleport,
+			 metadata = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutEntityMetadata"), int.class, Reflections.getNMSClass("DataWatcher"), boolean.class);
 	private static Method getmat, getb, getc, gett, WorldHandle, PlayerHandle, ichatcon, getser, plist, block,
 			IBlockData, worldset, Chunk, getblocks, setblock, setblockb, itemstack, entityM, livingentity, oldichatser,
 			post;
@@ -139,6 +141,30 @@ public class NMSAPI {
 	
 	public static enum DisplayType {
 		INTEGER, HEARTS
+	}
+	
+	//Entity
+	public Object getPacketPlayOutEntityMetadata(Entity entity) {
+		Object o = getEntity(entity);
+		return getPacketPlayOutEntityMetadata(entity.getEntityId(), Reflections.invoke(o, Reflections.getMethod(o.getClass(), "getDataWatcher")));
+	}
+	
+	//Entity
+	public Object getPacketPlayOutEntityMetadata(Object entity) {
+		return getPacketPlayOutEntityMetadata((int)Reflections.invoke(entity, Reflections.getMethod(entity.getClass(), "getId")), Reflections.invoke(entity, Reflections.getMethod(entity.getClass(), "getDataWatcher")));
+	}
+	
+	public Object getPacketPlayOutEntityMetadata(Entity entity, DataWatcher dataWatcher) {
+		return Reflections.c(metadata, entity.getEntityId(),dataWatcher.getDataWatcher(),true);
+	}
+	
+	public Object getPacketPlayOutEntityMetadata(int entityId, DataWatcher dataWatcher) {
+		return Reflections.c(metadata, entityId,dataWatcher.getDataWatcher(),true);
+	}
+	
+	//EntityId, DataWatcher
+	public Object getPacketPlayOutEntityMetadata(int entityId, Object dataWatcher) {
+		return Reflections.c(metadata, entityId,dataWatcher,true);
 	}
 
 	public Object getPacketPlayOutScoreboardObjective() {

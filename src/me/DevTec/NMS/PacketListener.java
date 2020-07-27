@@ -12,15 +12,14 @@ import com.google.common.collect.Maps;
 public class PacketListener {
 	private static final HashMap<ListenerPriorite, List<Listener>> map = Maps.newHashMap();
 	
-	public static ConstructorPacket call(Player player, Packet packet, boolean receice) {
-		ConstructorPacket create = new ConstructorPacket(packet);
+	public static Object call(Player player, Object packet, boolean receice) {
 		for(ListenerPriorite a : Arrays.asList(ListenerPriorite.LOWEST,ListenerPriorite.LOW,ListenerPriorite.NORMAL,ListenerPriorite.HIGH,ListenerPriorite.HIGHEST,ListenerPriorite.MONITOR)) {
 			if(!map.containsKey(a))continue;
 			for(Listener listening : map.get(a)) {
-				create.setPacket(listening.call(player, packet, receice));
+				packet=listening.call(player, packet, receice);
 			}
 		}
-		return create;
+		return packet;
 	}
 	
 	public static boolean register(Listener listener, ListenerPriorite priority) {
