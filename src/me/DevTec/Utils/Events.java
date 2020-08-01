@@ -41,10 +41,6 @@ import org.bukkit.potion.PotionEffectType;
 import com.google.common.collect.Lists;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.ChannelPromise;
 import me.DevTec.ConfigAPI;
 import me.DevTec.SignAPI.SignAction;
 import me.DevTec.TheAPI;
@@ -60,7 +56,6 @@ import me.DevTec.Events.TNTExplosionEvent;
 import me.DevTec.GUI.GUICreatorAPI;
 import me.DevTec.GUI.ItemGUI;
 import me.DevTec.NMS.NMSPlayer;
-import me.DevTec.NMS.PacketListener;
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.Position;
 import me.DevTec.Other.Storage;
@@ -464,7 +459,7 @@ public class Events implements Listener {
 		if (LoaderClass.plugin.max > 0)
 			e.setMaxPlayers(LoaderClass.plugin.max);
 	}
-
+	
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
 		Player s = e.getPlayer();
@@ -474,24 +469,6 @@ public class Events implements Listener {
 			for(Plugin a : LoaderClass.plugin.getTheAPIsPlugins())pl.add(a.getName());
 			if(!pl.isEmpty())
 			TheAPI.msg("&ePlugins using TheAPI: &6"+TheAPI.getStringUtils().join(pl, ", "), s);
-		}
-		if (LoaderClass.config.getBoolean("Options.PacketListener")) {
-			ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
-				 @Override
-		            public void channelRead(ChannelHandlerContext channelHandlerContext, Object packet) throws Exception {
-		            	Object c = PacketListener.call(s, packet, true);
-		            	if(c==null)return;
-		                super.channelRead(channelHandlerContext, c);
-		            }
-		            @Override
-		            public void write(ChannelHandlerContext channelHandlerContext, Object packet, ChannelPromise channelPromise) throws Exception {
-		            	Object c = PacketListener.call(s, packet, false);
-		            	if(c==null)return;
-		                super.write(channelHandlerContext, c, channelPromise);
-		            }
-	        };
-	        ChannelPipeline pipeline = new NMSPlayer(s).getPlayerConnection().getNetworkManager().getChannel().pipeline();
-	        pipeline.addBefore("packet_handler", s.getName(), channelDuplexHandler);
 		}
 		for (Player p : TheAPI.getOnlinePlayers()) {
 			if (TheAPI.isVanished(p) && (TheAPI.getUser(p).exist("vanish")

@@ -13,6 +13,10 @@ import org.bukkit.Statistic;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -22,17 +26,11 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.ChannelPromise;
 import me.DevTec.ConfigAPI;
 import me.DevTec.ScoreboardAPI;
 import me.DevTec.TheAPI;
 import me.DevTec.BossBar.BossBar;
 import me.DevTec.GUI.GUICreatorAPI;
-import me.DevTec.NMS.NMSPlayer;
-import me.DevTec.NMS.PacketListener;
 import me.DevTec.NMS.Reflections;
 import me.DevTec.Placeholders.ThePlaceholder;
 import me.DevTec.Scheduler.Scheduler;
@@ -139,38 +137,29 @@ public class LoaderClass extends JavaPlugin {
 						TheAPI.getConsole());
 			}
 		}.laterAsync(200);
+		handler = new me.DevTec.NMS.PacketListeners.PacketHandler();
+		Bukkit.getPluginManager().registerEvents(new Listener() {
+			@EventHandler(priority = EventPriority.LOWEST)
+			public void onPlayerLogin(PlayerLoginEvent e) {
+				Channel channel = handler.getChannel(e.getPlayer());
+				if (!handler.hasInjected(channel))
+					handler.injectPlayer(e.getPlayer());
+			}
+		}, this);
 		if (LoaderClass.config.getBoolean("Options.PacketListener"))
 		for(Player s : TheAPI.getOnlinePlayers()) {
-				ChannelDuplexHandler channelDuplexHandler = new ChannelDuplexHandler() {
-		            @Override
-		            public void channelRead(ChannelHandlerContext channelHandlerContext, Object packet) throws Exception {
-		            	Object c = PacketListener.call(s, packet, true);
-		            	if(c==null)return;
-		                super.channelRead(channelHandlerContext, c);
-		            }
-		            @Override
-		            public void write(ChannelHandlerContext channelHandlerContext, Object packet, ChannelPromise channelPromise) throws Exception {
-		            	Object c = PacketListener.call(s, packet, false);
-		            	if(c==null)return;
-		                super.write(channelHandlerContext, c, channelPromise);
-		            }
-		        };
-		        ChannelPipeline pipeline = new NMSPlayer(s).getPlayerConnection().getNetworkManager().getChannel().pipeline();
-		        pipeline.addBefore("packet_handler", s.getName(), channelDuplexHandler);
-			}
+			if (!handler.hasInjected(handler.getChannel(s)))
+				handler.injectPlayer(s);
+		}
 	}
 
+	
+	private me.DevTec.NMS.PacketListeners.PacketHandler handler;
+	
 	@Override
 	public void onDisable() {
 		for(Player s : TheAPI.getOnlinePlayers()) {
-			if (LoaderClass.config.getBoolean("Options.PacketListener")) {
-				Channel channel = new NMSPlayer(s).getPlayerConnection()
-						.getNetworkManager().getChannel();
-				channel.eventLoop().submit(() -> {
-					channel.pipeline().remove(s.getName());
-					return null;
-				});
-			}
+			handler.uninjectPlayer(s);
 		}
 		online=false;
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
