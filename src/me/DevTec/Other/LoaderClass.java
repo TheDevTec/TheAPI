@@ -130,13 +130,9 @@ public class LoaderClass extends JavaPlugin {
 		new Tasker() {
 			@Override
 			public void run() {
-				if (getTheAPIsPlugins().size() == 0)
-					return;
-				String end = "";
-				if (getTheAPIsPlugins().size() != 1)
-					end = "s";
-				TheAPI.msg("&bTheAPI&7: &aTheAPI using " + getTheAPIsPlugins().size() + " plugin" + end,
-						TheAPI.getConsole());
+				if (getTheAPIsPlugins().size() == 0)return;
+				String end = getTheAPIsPlugins().size() != 1?"s":"";
+				TheAPI.msg("&bTheAPI&7: &aTheAPI using " + getTheAPIsPlugins().size() + " plugin" + end,TheAPI.getConsole());
 			}
 		}.laterAsync(200);
 		handler = new me.DevTec.NMS.PacketListeners.PacketHandler();
@@ -148,7 +144,6 @@ public class LoaderClass extends JavaPlugin {
 					handler.injectPlayer(e.getPlayer());
 			}
 		}, this);
-		if (LoaderClass.config.getBoolean("Options.PacketListener"))
 		for(Player s : TheAPI.getOnlinePlayers()) {
 			if (!handler.hasInjected(handler.getChannel(s)))
 				handler.injectPlayer(s);
@@ -198,8 +193,7 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.ServerList.Motd", "&eTheAPI's server MOTD\n&cServer version &6%server_version%");
 		config.addDefault("Options.HideErrors", false); //hide only TheAPI errors
 		config.addDefault("Options.AntiBot.Use", false);
-		config.addDefault("Options.AntiBot.TimeBetweenPlayer", 20); //20 milis
-		config.addDefault("Options.PacketListener", true);
+		config.addDefault("Options.AntiBot.TimeBetweenPlayer", 10); //20 milis
 		config.addDefault("Options.Optimize.TNT.Use", true);
 		config.addDefault("Options.Optimize.TNT.Particles.Use", false);
 		config.addDefault("Options.Optimize.TNT.Particles.Type", "EXPLOSION_LARGE");
@@ -227,7 +221,7 @@ public class LoaderClass extends JavaPlugin {
 	    fakeOnline=config.getInt("Options.ServerList.FakeOnline");
 		}else {
 			fakeOnline=-1;
-			max=-1;
+			max=Bukkit.getMaxPlayers();
 			onlineText=null;
 			motd=Bukkit.getMotd();
 		}
