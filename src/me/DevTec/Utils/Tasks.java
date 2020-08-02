@@ -25,7 +25,7 @@ public class Tasks {
 	private static StringUtils f;
 	private static boolean load;
 	private static int task;
-	private static me.DevTec.NMS.PacketListeners.Listener l;
+	private static me.DevTec.NMS.PacketListeners.Listener l=null;
 
 	public static void load() {
 		f = TheAPI.getStringUtils();

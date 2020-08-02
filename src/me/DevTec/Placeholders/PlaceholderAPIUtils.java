@@ -18,7 +18,11 @@ public class PlaceholderAPIUtils {
 
 	public String setPlaceholders(Player player, String where) {
 		String edited = where;
-		for(PlaceholderRegister r : reg)edited=r.onRequest(player, edited);
+		for(PlaceholderRegister r : reg) {
+			if(edited==null)break;
+			edited=r.onRequest(player, edited);
+		}
+		if(edited==null)return null;
 		if (isEnabledPlaceholderAPI())
 			edited = (String)Reflections.invoke(null, Reflections.getMethod(Reflections.getClass("me.clip.placeholderapi.PlaceholderAPI"),
 					"setPlaceholders",OfflinePlayer.class,String.class),player, edited);

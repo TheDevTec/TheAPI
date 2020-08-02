@@ -243,6 +243,7 @@ public class LoaderClass extends JavaPlugin {
 			@SuppressWarnings("deprecation")
 			@Override
 			public String onRequest(Player player, String placeholder) {
+				if(player!=null) {
 				if(placeholder.equalsIgnoreCase("player_money"))
 					return ""+TheAPI.getEconomyAPI().getBalance(player);
 				if(placeholder.equalsIgnoreCase("player_formated_money"))
@@ -285,7 +286,7 @@ public class LoaderClass extends JavaPlugin {
 					return ""+player.getStatistic(Statistic.KILL_ENTITY);
 				if(placeholder.equalsIgnoreCase("player_statistic_sneak_time"))
 					return ""+player.getStatistic(Statistic.SNEAK_TIME);
-
+			}
 				if(placeholder.equalsIgnoreCase("server_time"))
 					return ""+new SimpleDateFormat("HH:mm:ss").format(new Date());
 				if(placeholder.equalsIgnoreCase("server_date"))
