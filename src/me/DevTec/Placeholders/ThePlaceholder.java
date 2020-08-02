@@ -15,7 +15,7 @@ public abstract class ThePlaceholder {
 	public abstract String onRequest(Player player, String placeholder);
 
 	public String onPlaceholderRequest(Player player, String placeholder) {
-		if(player==null||placeholder==null)return "";
+		if(placeholder==null||placeholder.trim().isEmpty())return "";
 		return onRequest(player, placeholder);
 	}
 }
