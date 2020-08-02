@@ -18,11 +18,14 @@ public class PlaceholderAPIUtils {
 
 	public String setPlaceholders(Player player, String where) {
 		String edited = where;
+		if (isEnabledPlaceholderAPI()) {
 		for(PlaceholderRegister r : reg) {
 			if(edited==null)break;
 			edited=r.onRequest(player, edited);
-		}
-		if(edited==null)return null;
+		}}
+		if(edited==null)return edited;
+		edited=TheAPI.getThePlaceholderAPI().setPlaceholders(player, edited);
+		if(edited==null)return edited;
 		if (isEnabledPlaceholderAPI())
 			edited = (String)Reflections.invoke(null, Reflections.getMethod(Reflections.getClass("me.clip.placeholderapi.PlaceholderAPI"),
 					"setPlaceholders",OfflinePlayer.class,String.class),player, edited);
@@ -32,13 +35,19 @@ public class PlaceholderAPIUtils {
 	@SuppressWarnings("unchecked")
 	public List<String> setPlaceholders(Player player, List<String> where) {
 		List<String> edited = Lists.newArrayList();
+		if (isEnabledPlaceholderAPI()) {
 		for(String s : where) {
 			for(PlaceholderRegister r : reg)s=r.onRequest(player, s);
 			edited.add(s);
 		}
-		if (isEnabledPlaceholderAPI())
-			edited = (List<String>)Reflections.invoke(null, Reflections.getMethod(Reflections.getClass("me.clip.placeholderapi.PlaceholderAPI"),
-					"setPlaceholders",OfflinePlayer.class,List.class),player, where);
+		edited=TheAPI.getThePlaceholderAPI().setPlaceholders(player, edited);
+		edited = (List<String>)Reflections.invoke(null, Reflections.getMethod(Reflections.getClass("me.clip.placeholderapi.PlaceholderAPI"),
+				"setPlaceholders",OfflinePlayer.class,List.class),player, where);
+		}else {
+			for(String s : where) {
+				edited.add(TheAPI.getThePlaceholderAPI().setPlaceholders(player, s));
+			}	
+		}
 		return edited;
 	}
 	

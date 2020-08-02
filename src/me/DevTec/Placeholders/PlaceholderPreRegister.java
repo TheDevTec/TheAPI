@@ -7,7 +7,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 public abstract class PlaceholderPreRegister extends PlaceholderExpansion {
 	public abstract String onRequest(Player player, String placeholder);
 
-	private String author, prefix, version;
+	private final String author, prefix, version;
 	
 	
 	public PlaceholderPreRegister(String author, String prefix, String version) {

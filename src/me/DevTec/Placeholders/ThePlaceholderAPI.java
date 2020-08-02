@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Player;
 
 import com.google.common.collect.Lists;
@@ -33,20 +34,20 @@ public class ThePlaceholderAPI {
 	public List<ThePlaceholder> getPlaceholders() {
 		return reg;
 	}
-	
-	public List<String> setPlaceholders(Player player, List<String> list) {
+
+	public List<String> setPlaceholders(@Nullable Player player, List<String> list) {
 		List<String> edited = Lists.newArrayList();
 		for(Iterator<String> a = list.iterator(); a.hasNext();)edited.add(setPlaceholders(player, a.next()));
 		return edited;
 	}
 	
-	public Iterator<String> setPlaceholders(Player player, Iterator<String> list) {
+	public Iterator<String> setPlaceholders(@Nullable Player player, Iterator<String> list) {
 		List<String> edited = Lists.newArrayList();
 		while(list.hasNext())edited.add(setPlaceholders(player, list.next()));
 		return edited.iterator();
 	}
 	
-	public String setPlaceholders(Player player, String text) {
+	public String setPlaceholders(@Nullable Player player, String text) {
 		while(true) {
 			Matcher m = math.matcher(text);
 			int v = 0;
