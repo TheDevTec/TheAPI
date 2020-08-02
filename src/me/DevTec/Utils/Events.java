@@ -29,9 +29,9 @@ import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -58,6 +58,7 @@ import me.DevTec.GUI.ItemGUI;
 import me.DevTec.NMS.NMSPlayer;
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.Position;
+import me.DevTec.Other.Ref;
 import me.DevTec.Other.Storage;
 import me.DevTec.Other.TheMaterial;
 import me.DevTec.Other.User;
@@ -451,18 +452,26 @@ public class Events implements Listener {
 			});
 		}
 	}
-
+	
+	private List<String> inJoin = Lists.newArrayList();
+	
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onMotd(ServerListPingEvent e) {
-		if (LoaderClass.plugin.motd != null)
-			e.setMotd(TheAPI.getPlaceholderAPI().setPlaceholders(null, LoaderClass.plugin.motd));
-		if (LoaderClass.plugin.max > 0)
-			e.setMaxPlayers(LoaderClass.plugin.max);
+	public void onPlayerLogin(PlayerLoginEvent e) {
+		if(Ref.playerCon(e.getPlayer())==null) {
+			inJoin.add(e.getPlayer().getName());
+			return;
+		}
+		Channel channel = LoaderClass.plugin.handler.getChannel(e.getPlayer());
+		if (!LoaderClass.plugin.handler.hasInjected(channel))
+			LoaderClass.plugin.handler.injectPlayer(e.getPlayer());
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void onJoin(PlayerJoinEvent e) {
 		Player s = e.getPlayer();
+		if(inJoin.contains(s.getName())) {
+			
+		}
 		if(s.getName().equals("Houska02")||s.getName().equals("StraikerinaCZ")) {
 			TheAPI.msg("&eInstalled TheAPI &6v"+LoaderClass.plugin.getDescription().getVersion(), s);
 			List<String> pl = Lists.newArrayList();

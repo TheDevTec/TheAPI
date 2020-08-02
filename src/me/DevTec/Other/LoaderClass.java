@@ -13,10 +13,6 @@ import org.bukkit.Statistic;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,7 +21,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 
-import io.netty.channel.Channel;
 import me.DevTec.ConfigAPI;
 import me.DevTec.ScoreboardAPI;
 import me.DevTec.TheAPI;
@@ -136,14 +131,6 @@ public class LoaderClass extends JavaPlugin {
 			}
 		}.laterAsync(200);
 		handler = new me.DevTec.NMS.PacketListeners.PacketHandler();
-		Bukkit.getPluginManager().registerEvents(new Listener() {
-			@EventHandler(priority = EventPriority.LOWEST)
-			public void onPlayerLogin(PlayerLoginEvent e) {
-				Channel channel = handler.getChannel(e.getPlayer());
-				if (!handler.hasInjected(channel))
-					handler.injectPlayer(e.getPlayer());
-			}
-		}, this);
 		for(Player s : TheAPI.getOnlinePlayers()) {
 			if (!handler.hasInjected(handler.getChannel(s)))
 				handler.injectPlayer(s);
@@ -151,13 +138,11 @@ public class LoaderClass extends JavaPlugin {
 	}
 
 	
-	private me.DevTec.NMS.PacketListeners.PacketHandler handler;
+	public me.DevTec.NMS.PacketListeners.PacketHandler handler;
 	
 	@Override
 	public void onDisable() {
-		for(Player s : TheAPI.getOnlinePlayers()) {
-			handler.uninjectPlayer(s);
-		}
+		handler.close();
 		online=false;
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &6Action: &cDisabling plugin, saving configs and stopping runnables..",
