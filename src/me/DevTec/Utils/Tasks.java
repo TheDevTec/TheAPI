@@ -34,7 +34,6 @@ public class Tasks {
 		if (load)
 			return;
 		load = true;
-		if(c.getBoolean("Options.ServerList.Enabled")) {
 		if(l==null)
 		l=new me.DevTec.NMS.PacketListeners.Listener() {
 			@Override
@@ -64,7 +63,6 @@ public class Tasks {
 			}
 		};
 		l.register();
-		}else l = null;
 		if (c.getBoolean("Options.EntityMoveEvent.Enabled"))
 			task=new Tasker() {
 				public void run() {
