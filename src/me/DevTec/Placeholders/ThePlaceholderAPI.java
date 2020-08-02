@@ -48,7 +48,7 @@ public class ThePlaceholderAPI {
 	}
 	
 	public String setPlaceholders(@Nullable Player player, String text) {
-		while(true) {
+		while(true) { //math placeholder
 			Matcher m = math.matcher(text);
 			int v = 0;
 			while(m.find()) {
@@ -57,8 +57,7 @@ public class ThePlaceholderAPI {
 				text=text.replace(w, (""+TheAPI.getStringUtils().calculate(w.substring(6,w.length()-2))));
 			}
 			if(v!=0)continue;
-			else
-			break;
+			else break;
 		}
 		Matcher found = finder.matcher(text);
 		while(found.find()) {
@@ -70,7 +69,7 @@ public class ThePlaceholderAPI {
 			ThePlaceholder get = r.next();
 			String toReplace = get.onPlaceholderRequest(player, find);
 			if(toReplace!=null)
-			text=toReplace;
+			text=text.replace("%"+find+"%", toReplace);
 		}
 		if(v!=0)continue;
 		else

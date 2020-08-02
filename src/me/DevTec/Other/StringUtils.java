@@ -195,8 +195,9 @@ public class StringUtils {
 	 * @return long
 	 */
 	public long timeFromString(String period){ //New shorter name of method
-	    if(period == null) return 0;
+	    if(period == null||period.trim().isEmpty()) return 0;
 	    period = period.toLowerCase(Locale.ENGLISH);
+	    if(isInt(period))return getInt(period);
 	    Matcher matcher = periodPattern.matcher(period);
 	    Instant instant=Instant.EPOCH;
 	    while(matcher.find()) {
