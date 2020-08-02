@@ -33,9 +33,7 @@ public abstract class PlaceholderPreRegister extends PlaceholderExpansion {
 
     @Override
     public String onPlaceholderRequest(Player s, String identifier){
-        if(s == null||identifier==null){
-            return "";
-        }
+        if(identifier==null||identifier.trim().isEmpty())return "";
         return onRequest(s, identifier);
     }
 }
