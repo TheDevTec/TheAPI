@@ -700,23 +700,6 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Set server motd in server list
-	 * @param motd
-	 */
-	public static void setServerMotd(String motd) {
-		LoaderClass.plugin.motd = colorize(motd);
-	}
-
-	/**
-	 * @see see Set server motd in server list
-	 * @param firstLine
-	 * @param secondLine
-	 */
-	public static void setServerMotd(String firstLine, String secondLine) {
-		LoaderClass.plugin.motd = colorize(firstLine + "\n" + secondLine);
-	}
-
-	/**
 	 * @see see Constructor for own report system
 	 * @return ReportSystem
 	 */
@@ -732,6 +715,53 @@ public class TheAPI {
 		LoaderClass.plugin.max = max;
 	}
 
+	/**
+	 * @see see Set online players on server
+	 * @param int
+	 */
+	public static void setFakeOnlinePlayers(int online) {
+		LoaderClass.plugin.fakeOnline = online;
+	}
+
+	/**
+	 * @see see Return fake amount of online players on server
+	 * @return int
+	 */
+	public static int getFakeOnlinePlayers() {
+		return LoaderClass.plugin.fakeOnline;
+	}
+
+	/**
+	 * @see see Return server motd
+	 * @return String
+	 */
+	public static String getMotd() {
+		return LoaderClass.plugin.motd;
+	}
+
+	/**
+	 * @see see Set new server motd
+	 * @param neww Motd text
+	 */
+	public static void setMotd(String neww) {
+		LoaderClass.plugin.motd=neww;
+	}
+
+	/**
+	 * @see see Return server list players text
+	 * @return String
+	 */
+	public static List<String> getServerListPlayers() {
+		return LoaderClass.plugin.onlineText;
+	}
+
+	/**
+	 * @see see Set new server list players text
+	 * @param neww List<String>
+	 */
+	public static void setServerListPlayers(List<String> neww) {
+		LoaderClass.plugin.onlineText=neww;
+	}
 
 	/**
 	 * @see see Get max players on server

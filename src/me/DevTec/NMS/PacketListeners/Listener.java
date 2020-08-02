@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 public abstract class Listener {
 	private Priority priority=Priority.NORMAL;
 	
-	public Listener setPriority(Priority prio) {
+	public final Listener setPriority(Priority prio) {
 		if(prio==null)return this;
 		PacketManager.notify(this, priority, prio);
 		priority=prio;
@@ -14,6 +14,10 @@ public abstract class Listener {
 	
 	public final void register() {
 		PacketManager.register(this);
+	}
+	
+	public final void unregister() {
+		PacketManager.unregister(this);
 	}
 	
 	public Priority getPriority() {

@@ -1,5 +1,7 @@
 package me.DevTec.Utils;
 
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -7,10 +9,14 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+
+import com.mojang.authlib.GameProfile;
 
 import me.DevTec.TheAPI;
 import me.DevTec.Events.EntityMoveEvent;
 import me.DevTec.Other.LoaderClass;
+import me.DevTec.Other.Ref;
 import me.DevTec.Other.StringUtils;
 import me.DevTec.Scheduler.Scheduler;
 import me.DevTec.Scheduler.Tasker;
@@ -19,6 +25,7 @@ public class Tasks {
 	private static StringUtils f;
 	private static boolean load;
 	private static int task;
+	private static me.DevTec.NMS.PacketListeners.Listener l;
 
 	public static void load() {
 		f = TheAPI.getStringUtils();
@@ -27,6 +34,37 @@ public class Tasks {
 		if (load)
 			return;
 		load = true;
+		if(c.getBoolean("Options.ServerList.Enabled")) {
+		if(l==null)
+		l=new me.DevTec.NMS.PacketListeners.Listener() {
+			@Override
+			public void PacketPlayOut(Player player, Object packet) {
+				if(packet.toString().contains("PacketStatusOutServerInfo")) {
+					Object w = Ref.invoke(Ref.server(),"getServerPing");
+					Object sd = Ref.newInstance(Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class, int.class), LoaderClass.plugin.max>-1?LoaderClass.plugin.max:Bukkit.getMaxPlayers(),LoaderClass.plugin.fakeOnline>-1?LoaderClass.plugin.fakeOnline:TheAPI.getOnlinePlayers().size());
+					if(LoaderClass.plugin.onlineText!=null && !LoaderClass.plugin.onlineText.isEmpty()) {
+					GameProfile[] texts = new GameProfile[LoaderClass.plugin.onlineText.size()];
+					int i = 0;
+					for(String s : LoaderClass.plugin.onlineText) {
+						texts[i]=new GameProfile(UUID.randomUUID(), TheAPI.colorize(TheAPI.getPlaceholderAPI().setPlaceholders(null, s)));
+						++i;
+					}
+					Ref.set(sd, "c", texts);
+					}
+					Ref.set(w, "b", sd);
+					if(LoaderClass.plugin.motd!=null)
+					Ref.set(w, "a", Ref.IChatBaseComponent(TheAPI.colorize(TheAPI.getPlaceholderAPI().setPlaceholders(null, LoaderClass.plugin.motd))));
+					Ref.set(packet, "b", w);
+				}
+			}
+			
+			@Override
+			public void PacketPlayIn(Player player, Object packet) {
+				
+			}
+		};
+		l.register();
+		}else l = null;
 		if (c.getBoolean("Options.EntityMoveEvent.Enabled"))
 			task=new Tasker() {
 				public void run() {
@@ -59,6 +97,8 @@ public class Tasks {
 
 	public static void unload() {
 		load = false;
+		if(l!=null)
+		l.unregister();
 		Scheduler.cancelTask(task);
 	}
 }

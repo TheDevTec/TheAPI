@@ -57,6 +57,10 @@ public class PacketManager {
 		notify(listener, null, listener.getPriority());
 	}
 	
+	public static void unregister(Listener listener) {
+		notify(listener, null, null);
+	}
+	
 	public static void setPriority(Listener listener, Priority priority) {
 		listener.setPriority(priority);
 	}
@@ -84,10 +88,16 @@ public class PacketManager {
 			edit.remove(listener);
 			listeners.put(old, edit);
 		}
-		if(neww!=null) {
 		List<Listener> edit = listeners.containsKey(neww)?listeners.get(neww):Lists.newArrayList();
-		if(!edit.contains(listener))
+		
+		if(neww!=null) {
+		if(edit.contains(listener))return;
 		edit.add(listener);
 		listeners.put(neww, edit);
-	}}
+		}else{
+		if(!edit.contains(listener))return;
+		edit.remove(listener);
+		listeners.put(neww, edit);
+		}
+	}
 }

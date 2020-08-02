@@ -46,7 +46,7 @@ import net.milkbowl.vault.economy.Economy;
 public class LoaderClass extends JavaPlugin {
 	//Scoreboards
 	public final HashMap<Integer, ScoreboardAPI> scoreboard = Maps.newHashMap();
-	public final MultiMap<Integer, Integer, Object> map = new MultiMap<Integer, Integer, Object>();
+	public final MultiMap<Integer, Integer, Object> map = new MultiMap<>();
 	//Queue for updating blocks of BlocksAPI
 	public final LinkedBlockingQueue<Object[]> refleshing = Queues.newLinkedBlockingQueue();
 	//Scheduler
@@ -64,8 +64,10 @@ public class LoaderClass extends JavaPlugin {
 			config= new ConfigAPI("TheAPI", "Config"),gameapi= new ConfigAPI("TheAPI", "GameAPI")
 			,data= new ConfigAPI("TheAPI", "Data");
 	protected static boolean online = true;
-	public String motd=Bukkit.getMotd();
-	public int max=Bukkit.getMaxPlayers();
+	
+	public String motd;
+	public List<String> onlineText;
+	public int max, fakeOnline;
 	//EconomyAPI
 	public boolean e, tve, tbank;
 	public Economy economy;
@@ -189,12 +191,15 @@ public class LoaderClass extends JavaPlugin {
 	private void createConfig() {
 		data.create();
 		config.setHeader("TNT, Action types: WAIT/DROP");
+		config.addDefault("Options.ServerList.Enabled", false);
+		config.addDefault("Options.ServerList.OnlinePlayersText", Arrays.asList("&eOnline: &6%server_online%","&eMax: &6%server_maxonline%"));
+		config.addDefault("Options.ServerList.FakeOnline", -1);
+		config.addDefault("Options.ServerList.FakeMax", 125);
+		config.addDefault("Options.ServerList.Motd", "&eTheAPI's server MOTD\n&cServer version &6%server_version%");
 		config.addDefault("Options.HideErrors", false); //hide only TheAPI errors
-		config.addDefault("Options.AntiBot.Use", true);
+		config.addDefault("Options.AntiBot.Use", false);
 		config.addDefault("Options.AntiBot.TimeBetweenPlayer", 20); //20 milis
 		config.addDefault("Options.PacketListener", true);
-		config.addDefault("Options.PacketsEnabled.Read", true);
-		config.addDefault("Options.PacketsEnabled.Receive", true);
 		config.addDefault("Options.Optimize.TNT.Use", true);
 		config.addDefault("Options.Optimize.TNT.Particles.Use", false);
 		config.addDefault("Options.Optimize.TNT.Particles.Type", "EXPLOSION_LARGE");
@@ -215,6 +220,17 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("GameAPI.StartingIn", "&aStarting in %time%s");
 		config.addDefault("GameAPI.Start", "&aStart");
 		config.create();
+		if(config.getBoolean("Options.ServerList.Enabled")) {
+		motd=config.getString("Options.ServerList.Motd");
+	    onlineText=config.getStringList("Options.ServerList.OnlinePlayersText");
+	    max=config.getInt("Options.ServerList.FakeMax");
+	    fakeOnline=config.getInt("Options.ServerList.FakeOnline");
+		}else {
+			fakeOnline=-1;
+			max=-1;
+			onlineText=null;
+			motd=Bukkit.getMotd();
+		}
 		gameapi.setCustomEnd("dat");
 		gameapi.create();
 		unused.setCustomEnd("dat");
@@ -278,6 +294,8 @@ public class LoaderClass extends JavaPlugin {
 					return ""+TheAPI.getOnlinePlayers().size();
 				if(placeholder.equalsIgnoreCase("server_maxonline"))
 					return ""+TheAPI.getMaxPlayers();
+				if(placeholder.equalsIgnoreCase("server_version"))
+					return Bukkit.getBukkitVersion();
 				if(placeholder.equalsIgnoreCase("server_motd"))
 					return motd!=null?motd:"";
 				if(placeholder.equalsIgnoreCase("server_worlds"))
