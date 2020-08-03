@@ -20,6 +20,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -81,11 +82,15 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public synchronized void onClick(InventoryClickEvent e) {
-		ItemStack i = e.getCurrentItem();
-		if (i == null)return;
 		Player p = (Player) e.getWhoClicked();
 		GUICreatorAPI d = LoaderClass.plugin.gui.containsKey(p.getName())?LoaderClass.plugin.gui.get(p.getName()):null;
-		if (d == null)return;
+		if(d==null)return;
+		if(e.getClick()==ClickType.NUMBER_KEY) {
+			e.setCancelled(true);
+			return;
+		}
+		ItemStack i = e.getCurrentItem();
+		if (i == null)return;
 		if (e.getClickedInventory().getType() == InventoryType.PLAYER) {
 			if (!d.isInsertable())
 				e.setCancelled(true);
