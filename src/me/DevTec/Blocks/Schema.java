@@ -1,58 +1,125 @@
 package me.DevTec.Blocks;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.spigotmc.AsyncCatcher;
+import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
+
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteStreams;
+
 import me.DevTec.ConfigAPI;
-import me.DevTec.Abstract.AbstractSchemate;
+import me.DevTec.TheAPI;
+import me.DevTec.Blocks.Schemate.SimpleSave;
 import me.DevTec.Other.Position;
+import me.DevTec.Other.Ref;
+import me.DevTec.Other.StringUtils;
+import me.DevTec.Other.TheMaterial;
 import me.DevTec.Scheduler.Tasker;
 
-public class Schema implements AbstractSchemate {
+public class Schema {
 	private final Schemate schem;
 	private final Runnable onFinish;
-	private boolean cancel;
 	public Schema(Runnable onFinish, Schemate schemate) {
 		schem=schemate;
 		this.onFinish=onFinish;
 	}
-	@Override
+	
+	private static final SchemBlock c = new SchemBlock() {
+		
+		@Override
+		public boolean set(Schema schem, Position pos, TheMaterial type, SimpleSave save) {
+			save.load(pos, type);
+			return true;
+		}
+	};
+	
 	public void paste(Position position) {
-		cancel=false;
-		ConfigAPI c = schem.getFile();
-			new Tasker() {
-				int id = 0;
-				boolean done = false;
-				public void run() {
-					if(cancel) {
-						cancel();
-						return;
-					}
-					for(int i = 0; i < 1000; ++i) {
-						if(c.exists(""+id)) {
-					String[] s = c.getString(""+id).split("/!_!/");
-					Position pos = Position.fromString(s[0]);
-					pos.setWorld(position.getWorld());
-					if(schem.isSetStandingPosition())
-					pos.add(position.getX(),position.getY(),position.getZ());
-					BlockSave.fromString(schem.getFile().getString(s[1])).load(pos);
-					}else {
-						done=true;
+		paste(position, null);
+	}
+	
+	public void paste(Position position, SchemBlock task) {
+		if(AsyncCatcher.enabled==true)
+			AsyncCatcher.enabled=false;
+	    new Tasker() {
+			@SuppressWarnings("deprecation")
+			public void run() {
+				ConfigAPI ca = null;
+				for(int iaa = 0; iaa > -1; ++iaa) {
+					if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+						ca = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+						ca.create();
 						break;
 					}
-					}
-					if(done) {
-						cancel();
-						if(onFinish!=null)
-							onFinish.run();
-					}
 				}
-			}.repeatingAsync(0, 5);
-	}
-	@Override
-	public boolean canBeCancelled() {
-		return true; //this is running task, it can be cancelled
-	}
-	@Override
-	public void cancel() {
-		cancel=true;
+				int i = schem.getFile().getInt("info.compression");
+				StringUtils u = TheAPI.getStringUtils();
+				for(String fs : schem.getFile().getSection("c").getKeys()) {
+				ByteArrayDataInput in = ByteStreams.newDataInput(decompress(Base64Coder.decodeLines(schem.getFile().getString("c."+fs)), i));
+				int x=Integer.MIN_VALUE, z=Integer.MIN_VALUE;
+				while(true) {
+					String sd=null;
+					try {
+					sd= in.readUTF();
+					}catch(Exception e) {
+						break;
+					}
+					String[] s = sd.split("/!_!/");
+					String[] pp = s[0].split("/");
+					Position pos = new Position(position.getWorld(),u.getInt(pp[0]),u.getInt(pp[1]),u.getInt(pp[2]));
+					if(schem.isSetStandingPosition())
+						pos.add(position.getBlockX(),position.getBlockY(),position.getBlockZ());
+					SimpleSave save = Schemate.SimpleSave.fromString(s[1]);
+					TheMaterial type = new TheMaterial(Material.getMaterial(fs.replaceAll("[0-9]+", "")), u.getInt(fs));
+					if(task!=null)
+						if(task.set(Schema.this, pos, type, save))
+					save.load(pos, type);
+						else if(c.set(Schema.this, pos, type, save))
+						save.load(pos, type);
+					x=pos.getBlockX();
+					z=pos.getBlockZ();
+				}
+				if(x!=Integer.MIN_VALUE)
+				ca.set(fs+"", x+":"+z);
+				}
+				ca.save();
+				for(String o : ca.getKeys(false)) {
+					String[] cw = ca.getString(o).split(":");
+					Position pos = new Position(position.getWorld(), TheAPI.getStringUtils().getInt(cw[0]),0,TheAPI.getStringUtils().getInt(cw[1]));
+					pos.getWorld().refreshChunk(pos.getBlockX()>>4, pos.getBlockZ()>>4);
+					Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", pos.getNMSChunk(), 65535);
+					if(a==null)a=Ref.newInstanceNms("PacketPlayOutMapChunk", pos.getNMSChunk(), true, 20);
+					for(Player p : Bukkit.getOnlinePlayers())
+						Ref.sendPacket(p, a);
+				}
+				ca.delete();
+				if(onFinish!=null)
+					onFinish.run();
+			}
+		}.runAsync();
 	}
 
+	public static byte[] decompress(byte[] in, long times) {
+		 Inflater decompressor = new Inflater(true);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		for(int isf = 0; isf < times; ++isf) {
+		   decompressor.setInput(in);
+		   byte[] buf = new byte[1024];
+		   while (!decompressor.finished())
+		       try {
+		           bos.write(buf, 0, decompressor.inflate(buf));
+		       } catch (DataFormatException e) {
+		       }
+		   decompressor.reset();
+		  in=bos.toByteArray();
+		  bos.reset();
+		}
+		return in;
+	}
 }

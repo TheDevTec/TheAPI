@@ -135,7 +135,10 @@ public class LoaderClass extends JavaPlugin {
 			if (!handler.hasInjected(handler.getChannel(s)))
 				handler.injectPlayer(s);
 		}
-	}
+		//Config c = new Config(new File("plugins/TheAPI/test.yml"));
+		//c.set("data", "value");
+		//c.save();
+		}
 
 	
 	public me.DevTec.NMS.PacketListeners.PacketHandler handler;
@@ -178,10 +181,14 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.ServerList.Motd", "&eTheAPI's server MOTD\n&cServer version &6%server_version%");
 		config.addDefault("Options.HideErrors", false); //hide only TheAPI errors
 		config.addDefault("Options.AntiBot.Use", false);
-		config.addDefault("Options.AntiBot.TimeBetweenPlayer", 10); //20 milis
+		config.addDefault("Options.AntiBot.TimeBetweenPlayer", 10); //10 milis
 		config.addDefault("Options.Optimize.TNT.Use", true);
 		config.addDefault("Options.Optimize.TNT.Particles.Use", false);
 		config.addDefault("Options.Optimize.TNT.Particles.Type", "EXPLOSION_LARGE");
+		config.addDefault("Options.Optimize.TNT.LiquidCancelExplosion", true);
+		config.addDefault("Options.Optimize.TNT.DestroyBlocks", true);
+		config.addDefault("Options.Optimize.TNT.DamageEntities", true);
+		config.addDefault("Options.Optimize.TNT.Power", 1);
 		config.addDefault("Options.Optimize.TNT.Drops.Allowed", true);
 		config.addDefault("Options.Optimize.TNT.Drops.InSingleLocation", true);
 		config.addDefault("Options.Optimize.TNT.Drops.InFirstTNTLocation", false);

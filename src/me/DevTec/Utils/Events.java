@@ -56,7 +56,6 @@ import me.DevTec.Events.PlayerJumpEvent;
 import me.DevTec.Events.TNTExplosionEvent;
 import me.DevTec.GUI.GUICreatorAPI;
 import me.DevTec.GUI.ItemGUI;
-import me.DevTec.NMS.NMSPlayer;
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.Position;
 import me.DevTec.Other.Ref;
@@ -257,7 +256,6 @@ public class Events implements Listener {
 	}
 
 	public static Storage add(Position block, Position real, boolean t, Storage st, Collection<ItemStack> collection) {
-		if (f.getBoolean("Options.Optimize.TNT.Drops.Allowed"))
 			if (!t) {
 				if (f.getBoolean("Options.Optimize.TNT.Drops.InSingleLocation")) {
 					for (ItemStack i : collection) {
@@ -448,14 +446,7 @@ public class Events implements Listener {
 		Player s = e.getPlayer();
 		if(TheAPI.getBossBar(s)!=null)
 		TheAPI.getBossBar(s).remove();
-		if (LoaderClass.config.getBoolean("Options.PacketListener")){
-			Channel channel = new NMSPlayer(s).getPlayerConnection()
-					.getNetworkManager().getChannel();
-			channel.eventLoop().submit(() -> {
-				channel.pipeline().remove(s.getName());
-				return null;
-			});
-		}
+		LoaderClass.plugin.handler.uninjectPlayer(s);
 	}
 	
 	private List<String> inJoin = Lists.newArrayList();
@@ -475,7 +466,10 @@ public class Events implements Listener {
 	public void onJoin(PlayerJoinEvent e) {
 		Player s = e.getPlayer();
 		if(inJoin.contains(s.getName())) {
-			
+			inJoin.remove(s.getName());
+			Channel channel = LoaderClass.plugin.handler.getChannel(e.getPlayer());
+			if (!LoaderClass.plugin.handler.hasInjected(channel))
+				LoaderClass.plugin.handler.injectPlayer(e.getPlayer());
 		}
 		if(s.getName().equals("Houska02")||s.getName().equals("StraikerinaCZ")) {
 			TheAPI.msg("&eInstalled TheAPI &6v"+LoaderClass.plugin.getDescription().getVersion(), s);

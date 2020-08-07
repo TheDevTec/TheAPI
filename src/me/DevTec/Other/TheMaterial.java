@@ -29,7 +29,7 @@ public class TheMaterial {
 	}
 
 	public TheMaterial(String name) {
-		this(Material.matchMaterial(name), 0,1);
+		this(Material.matchMaterial(name));
 	}
 
 	public TheMaterial(Material material) {

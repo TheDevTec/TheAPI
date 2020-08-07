@@ -90,7 +90,7 @@ public class ConfigAPI {
 	}
 
 	public boolean existFile() {
-		return getFile() != null;
+		return new File(getFolder(), name + "." + end) != null;
 	}
 
 	public File getFile() {

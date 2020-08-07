@@ -144,7 +144,6 @@ public class PacketHandler {
 	}
 
 	private PacketInterceptor injectChannelInternal(Player a,Channel channel) {
-		TheAPI.broadcastMessage(""+(channel==null));
 		try {
 			PacketInterceptor interceptor = (PacketInterceptor) channel.pipeline().get("InjectorTheAPI");
 			if (interceptor == null) {
@@ -173,6 +172,7 @@ public class PacketHandler {
 		channel.eventLoop().execute(new Runnable() {
 			@Override
 			public void run() {
+				if(hasInjected(channel))
 				channel.pipeline().remove("InjectorTheAPI");
 			}
 		});

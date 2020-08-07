@@ -89,7 +89,6 @@ public class PacketManager {
 			listeners.put(old, edit);
 		}
 		List<Listener> edit = listeners.containsKey(neww)?listeners.get(neww):Lists.newArrayList();
-		
 		if(neww!=null) {
 		if(edit.contains(listener))return;
 		edit.add(listener);

@@ -36,6 +36,16 @@ public class Ref {
 		}
 	}
 	
+	public static boolean existsMethod(Class<?> c, String name){
+		boolean a = false;
+		for(Method d : getMethods(c))
+			if(d.getName().equals(name)) {
+				a=true;
+				break;
+			}
+		return a;
+	}
+	
 	public static Object blockPos(double x, double y, double z) {
 		return newInstance(constructor(nms("BlockPosition"), double.class, double.class, double.class), x,y,z);
 	}
@@ -313,6 +323,7 @@ public class Ref {
 			}
 		}
 		}
+		if(a!=null)
 		a.setAccessible(true);
 		return a;
 	}
@@ -353,6 +364,7 @@ public class Ref {
 					break;
 				}
 			}}
+		if(a!=null)
 		a.setAccessible(true);
 		return a;
 	}

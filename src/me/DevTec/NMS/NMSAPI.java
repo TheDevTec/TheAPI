@@ -1,4 +1,3 @@
-
 package me.DevTec.NMS;
 
 import java.lang.reflect.Constructor;
@@ -78,6 +77,7 @@ public class NMSAPI {
 		sbhearts=Reflections.get(Reflections.getField(Reflections.getNMSClass("IScoreboardCriteria$EnumScoreboardHealthDisplay"),"HEARTS"),null);
 		post=Reflections.getMethod(Reflections.getNMSClass("MinecraftServer"),"postToMainThread", Runnable.class);
 		if(post==null)post=Reflections.getMethod(Reflections.getNMSClass("MinecraftServer"),"executeSync", Runnable.class);
+		if(post==null)post=Reflections.getMethod(Reflections.getNMSClass("IAsyncTaskHandler"),"executeSync", Runnable.class);
 		particle = Reflections.getConstructor(c);
 		if(Reflections.existNMSClass("PacketPlayOutTitle"))
 		enumTitle = Reflections.getNMSClass("PacketPlayOutTitle").getDeclaredClasses()[0];
@@ -477,6 +477,9 @@ public class NMSAPI {
 	public void refleshBlock(Object world, Object blockposition, Object oldBlock, Object newBlock) {
 		Reflections.invoke(world, Reflections.getMethod(NMSAPI.world, "notify", pos, iblockdata, iblockdata, int.class),blockposition, oldBlock, newBlock, 3);
 	}
+	
+	//KitPvp se bude rušit
+	
 	/**
 	 * @see see ActionBar if version is 1.7.10
 	 */
@@ -626,7 +629,7 @@ public class NMSAPI {
 	public Object getIChatBaseComponentText(String text) {
 		return getIChatBaseComponentJson("{\"text\":\"" + text + "\"}");
 	}
-
+	
 	public Object getIChatBaseComponentJson(String json) {
 			if (oldichatser != null)
 				return Reflections.invoke(null, oldichatser, json);

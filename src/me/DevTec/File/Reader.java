@@ -5,21 +5,40 @@ import java.util.Scanner;
 
 public class Reader {
 	private File a;
+	private Scanner sc;
 	public Reader(File f) {
 		a=f;
+		try {
+		sc = new Scanner(a);
+		} catch (Exception e) {
+		}
 	}
 	
 	public String read() {
 		StringBuffer buffer = new StringBuffer();
 		try {
-		Scanner sc = new Scanner(a);
-	    while (sc.hasNextLine()) {
-	    	buffer.append(sc.nextLine()+System.lineSeparator());
+	    while (hasLine()) {
+	    	buffer.append(readLine()+System.lineSeparator());
 	    }
-	    sc.close();
+	    reset();
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	    return buffer.toString();
+	}
+	
+	public boolean hasLine() {
+	    return sc.hasNextLine();
+	}
+	
+	public String readLine() {
+	    return sc.nextLine();
+	}
+	
+	public void close() {
+		 sc.close();
+	}
+	
+	public void reset() {
+		 sc.reset();
 	}
 }

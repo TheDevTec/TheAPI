@@ -300,7 +300,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					new Tasker() {
 						@Override
 						public void run() {
-							for(Position s : save.keySet())save.get(s).load(s);
+							for(Position s : save.keySet())save.get(s).load(s,true);
 							save.clear();
 							r = false;
 						}

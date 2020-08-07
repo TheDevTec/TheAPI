@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.bukkit.DyeColor;
+import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -41,25 +42,41 @@ public class BlockSave {
 		if (b.getType().name().contains("CHEST")) {
 			isInvBlock = true;
 			Chest c = ((Chest) b.getState());
+			try {
 			cname=c.getCustomName();
+			}catch(NoSuchMethodError e) {
+				cname=null;
+			}
 			inv = c.getBlockInventory().getContents();
 		}
 		if (b.getType().name().contains("SHULKER_BOX")) {
 			isInvBlock = true;
 			ShulkerBox c = ((ShulkerBox) b.getState());
+			try {
 			cname=c.getCustomName();
+			}catch(NoSuchMethodError e) {
+				cname=null;
+			}
 			inv = c.getInventory().getContents();
 		}
 		if (b.getType().name().equals("DROPPER")) {
 			isInvBlock = true;
 			Dropper c = ((Dropper) b.getState());
+			try {
 			cname=c.getCustomName();
+			}catch(NoSuchMethodError e) {
+				cname=null;
+			}
 			inv = c.getInventory().getContents();
 		}
 		if (b.getType().name().equals("FURNACE")) {
 			isInvBlock = true;
 			Furnace c = ((Furnace) b.getState());
+			try {
 			cname=c.getCustomName();
+			}catch(NoSuchMethodError e) {
+				cname=null;
+			}
 			inv = c.getInventory().getContents();
 		}
 		if (b.getType().name().equals("DISPENSER")) {
@@ -71,7 +88,11 @@ public class BlockSave {
 		if (b.getType().name().equals("HOPPER")) {
 			isInvBlock = true;
 			Hopper c = ((Hopper) b.getState());
+			try {
 			cname=c.getCustomName();
+			}catch(NoSuchMethodError e) {
+				cname=null;
+			}
 			inv = c.getInventory().getContents();
 		}
 		if (b.getType().name().contains("SIGN")) {
@@ -80,7 +101,7 @@ public class BlockSave {
 			lines = c.getLines();
 			try {
 				color = c.getColor();
-			} catch (Exception | NoSuchMethodError e) {
+			} catch (NoSuchMethodError e) {
 
 			}
 		}
@@ -202,8 +223,11 @@ public class BlockSave {
 		return type;
 	}
 	
-	public void load(Position pos) {
-		TheAPI.getNMSAPI().setBlock(pos.toLocation(), type.getType(), type.getData(), false);
+	public long load(Position pos, boolean createBlock) {
+		long k = (pos.getBlockX()>>4 & 0xFFFF0000L) << 16L | (pos.getBlockX()>>4 & 0xFFFFL) << 0L;
+	    k |= (pos.getBlockZ()>>4 & 0xFFFF0000L) << 32L | (pos.getBlockZ()>>4 & 0xFFFFL) << 16L;
+		if(createBlock)
+		pos.setType(type);
 		String n = type.getType().name();
 		if (n.contains("SIGN")) {
 			Sign w = (Sign) pos.getBlock().getState();
@@ -216,36 +240,44 @@ public class BlockSave {
 			try {
 				if (getColor() != null)
 					w.setColor(getColor());
-			} catch (Exception | NoSuchFieldError er) {
+			} catch (NoSuchFieldError er) {
 				// old version
 			}
 			w.update(true, false);
 		}
 		if (n.contains("CHEST")) {
 			Chest w = (Chest) pos.getBlock().getState();
+			try {
 			if(cname!=null && !cname.equals("null"))
 			w.setCustomName(cname);
+			}catch(NoSuchMethodError e) {}
 			if(inv!=null)
 			w.getInventory().setContents(inv);
 		}
 		if (n.equals("DROPPER")) {
 			Dropper w = (Dropper) pos.getBlock().getState();
+			try {
 			if(cname!=null && !cname.equals("null"))
 			w.setCustomName(cname);
+			}catch(NoSuchMethodError e) {}
 			if (inv != null)
 				w.getInventory().setContents(inv);
 		}
 		if (n.equals("DISPENSER")) {
 			Dispenser w = (Dispenser) pos.getBlock().getState();
+			try {
 			if(cname!=null && !cname.equals("null"))
 			w.setCustomName(cname);
+			}catch(NoSuchMethodError e) {}
 			if (inv != null)
 				w.getInventory().setContents(inv);
 		}
 		if (n.equals("HOPPER")) {
 			Hopper w = (Hopper) pos.getBlock().getState();
+			try {
 			if(cname!=null && !cname.equals("null"))
 			w.setCustomName(cname);
+			}catch(NoSuchMethodError e) {}
 			if (inv != null)
 				w.getInventory().setContents(inv);
 		}
@@ -258,8 +290,10 @@ public class BlockSave {
 		}
 		if (n.contains("SHULKER_BOX")) {
 			ShulkerBox w = (ShulkerBox) pos.getBlock().getState();
+			try {
 			if(cname!=null && !cname.equals("null"))
 			w.setCustomName(cname);
+			}catch(NoSuchMethodError e) {}
 			if (inv != null)
 				w.getInventory().setContents(inv);
 		}
@@ -271,13 +305,14 @@ public class BlockSave {
 				w.setName(getCommandBlockName());
 			w.update(true, false);
 		}
+		return k;
 	}
 
 	public static BlockSave fromString(String stored) {
 		if(stored==null)return null;
-		if (stored.startsWith("[BlockSave:")) {
-			if (stored.startsWith("[BlockSave:Sign/!/")) {
-				stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[BlockSave:Sign/!/", "");
+		if (stored.startsWith("[BS:")) {
+			if (stored.startsWith("[BS:S/!/")) {
+				stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[BS:S/!/", "");
 				String[] s = stored.split("/!/");
 				try {
 				return new BlockSave(Biome.values()[TheAPI.getStringUtils().getInt(s[0])], BlockFace.values()[TheAPI.getStringUtils().getInt(s[1])],
@@ -287,23 +322,23 @@ public class BlockSave {
 							TheMaterial.fromString(s[2]), null, getSignLinesFromString(s[4]));
 				}
 			}
-			if (stored.startsWith("[BlockSave:InventoryBlock/!/")) {
-				stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[BlockSave:InventoryBlock/!/", "");
+			if (stored.startsWith("[BS:IB/!/")) {
+				stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[BS:IB/!/", "");
 				String[] s = stored.split("/!/");
 				return new BlockSave(Biome.values()[TheAPI.getStringUtils().getInt(s[0])], BlockFace.values()[TheAPI.getStringUtils().getInt(s[1])],
 						TheMaterial.fromString(s[2]), getBlockInventoryFromString(TheAPI.getStringUtils().getInt(s[3]),s[4]), s[5]);
 			}
-			if (stored.startsWith("[BlockSave:CommandBlock/!/")) {
-				stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[BlockSave:CommandBlock/!/", "");
+			if (stored.startsWith("[BS:CB/!/")) {
+				stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[BS:CB/!/", "");
 				String[] s = stored.split("/!/");
 				return new BlockSave(Biome.values()[TheAPI.getStringUtils().getInt(s[0])], BlockFace.values()[TheAPI.getStringUtils().getInt(s[1])],
 						TheMaterial.fromString(s[2]), s[3], s[4]);
 			}
-			if (stored.startsWith("[BlockSave:Block/!/")) {
-				stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[BlockSave:Block/!/", "");
+			if (stored.startsWith("[BS:B/!/")) {
+				stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[BS:B/!/", "");
 				String[] s = stored.split("/!/");
 				return new BlockSave(Biome.values()[TheAPI.getStringUtils().getInt(s[0])], BlockFace.values()[TheAPI.getStringUtils().getInt(s[1])],
-						TheMaterial.fromString(s[2]));
+						s[2].equals("0")?new TheMaterial("AIR"):TheMaterial.fromString(s[2]));
 			}
 			return null;
 		}
@@ -314,20 +349,20 @@ public class BlockSave {
 	public String toString() {
 		if (isSign) {
 			try {
-			return "[BlockSave:Sign/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/"
+			return "[BS:S/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/"
 					+ type.toString() + "/!/" + color.ordinal() + "/!/" + getSignLinesAsString() + "]";// Biome/BlockFace/Material/Color/SignLines
 			}catch(Exception errer) {
-				return "[BlockSave:Sign/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/"
+				return "[BS:S/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/"
 						+ type.toString() + "/!/" + 0 + "/!/" + getSignLinesAsString() + "]";// Biome/BlockFace/Material/Color/SignLines
 				}
 			}
 					if (isInvBlock)
-			return "[BlockSave:InventoryBlock/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/"
+			return "[BS:IB/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/"
 					+ type.toString() + "/!/" + getBlockInventoryAsString() + "/!/" + cname + "]"; // Biome/BlockFace/Material/Inventory/CustomName
 		if (isCmd)
-			return "[BlockSave:CommandBlock/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/"
+			return "[BS:CB/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/"
 					+ type.toString() + "/!/" + cmd + "/!/" + cmdname + "]"; // Biome/BlockFace/Material/Command/CmdBlockName
-		return "[BlockSave:Block/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/"
-				+ type.toString() + "]"; // Biome/BlockFace/Material
+		return "[BS:B/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/"
+				+ (type.getType()==Material.AIR?"0":type.toString()) + "]"; // Biome/BlockFace/Material
 	}
 }

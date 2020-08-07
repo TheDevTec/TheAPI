@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class PercentageList<T> {
-	private HashMap<T, Double> a = Maps.newHashMap();
+	private final HashMap<T, Double> a = Maps.newHashMap();
 	
 	public boolean add(T t, double percent) {
 		a.put(t, percent);

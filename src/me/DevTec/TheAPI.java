@@ -673,6 +673,23 @@ public class TheAPI {
 	}
 
 	/**
+	 * @see see Send message to all online players
+	 * @param message
+	 */
+	public static void broadcastMessage(Object object) {
+		broadcastMessage(String.valueOf(object));
+	}
+
+	/**
+	 * @see see Send message to all online players with specified permission
+	 * @param message
+	 * @param permission
+	 */
+	public static void broadcast(Object object, String permission) {
+		broadcast(String.valueOf(object), permission);
+	}
+
+	/**
 	 * @see see Send message to all online players with specified permission
 	 * @param message
 	 * @param permission

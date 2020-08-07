@@ -49,6 +49,15 @@ public class Tasks {
 						++i;
 					}
 					Ref.set(sd, "c", texts);
+					}else {
+						GameProfile[] texts = new GameProfile[TheAPI.getPlayers().size()];
+						int i = 0;
+						for(Player s : TheAPI.getPlayers()) {
+							if(!TheAPI.isVanished(s))
+							texts[i]=new GameProfile(UUID.randomUUID(), s.getName());
+							++i;
+						}
+						Ref.set(sd, "c", texts);
 					}
 					Ref.set(w, "b", sd);
 					if(LoaderClass.plugin.motd!=null)
@@ -90,7 +99,7 @@ public class Tasks {
 						}
 					}
 				}
-			}.repeating(20, c.getInt("Options.EntityMoveEvent.Reflesh"));
+			}.repeating(0, c.getInt("Options.EntityMoveEvent.Reflesh"));
 	}
 
 	public static void unload() {

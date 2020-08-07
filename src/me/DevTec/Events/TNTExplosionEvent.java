@@ -5,6 +5,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.Position;
 
 public class TNTExplosionEvent extends Event implements Cancellable {
@@ -14,11 +15,11 @@ public class TNTExplosionEvent extends Event implements Cancellable {
 
 	public TNTExplosionEvent(Position c2) {
 		l = c2;
-		power = 4;
-		d = true;
-		e = true;
-		col = true;
-		dr = true;
+		power = LoaderClass.config.getInt("Options.Optimize.TNT.Power");
+		d = LoaderClass.config.getBoolean("Options.Optimize.TNT.DestroyBlocks");
+		e = LoaderClass.config.getBoolean("Options.Optimize.TNT.DamageEntities");
+		col = LoaderClass.config.getBoolean("Options.Optimize.TNT.LiquidCancelExplosion");
+		dr = LoaderClass.config.getBoolean("Options.Optimize.TNT.Drops.Allowed");
 	}
 
 	@Override

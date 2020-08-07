@@ -1,19 +1,27 @@
 package me.DevTec.Blocks;
 
+import java.io.File;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.spigotmc.AsyncCatcher;
 
 import com.google.common.collect.Lists;
 
+import me.DevTec.ConfigAPI;
 import me.DevTec.TheAPI;
+import me.DevTec.Other.PercentageList;
 import me.DevTec.Other.Position;
+import me.DevTec.Other.Ref;
 import me.DevTec.Other.TheMaterial;
 import me.DevTec.Scheduler.Tasker;
 import me.DevTec.Utils.Error;
@@ -224,7 +232,7 @@ public class BlocksAPI {
 	}
 
 	public void loadBlockSave(Position pos, BlockSave s) { // like //undo command
-		s.load(pos);
+		s.load(pos,true);
 	}
 
 	public List<Position> get(Shape form, Position where, int radius, TheMaterial ignore) {
@@ -1181,305 +1189,1331 @@ public class BlocksAPI {
 		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
 	}
 
+	private final BlockTask state = new BlockTask() {
+		@Override
+		public long set(Position block, TheMaterial toSet) {
+			return block.setType(toSet);
+		}
+		
+		@Override
+		public long replace(Position block, List<TheMaterial> toReplace, TheMaterial toSet) {
+			if(toReplace.contains(get(block)))
+				return block.setType(toSet);
+			return 0;
+		}
+		
+		@Override
+		public long replace(Position block, TheMaterial toReplace, TheMaterial toSet) {
+			if(toReplace.equals(get(block)))
+				return block.setType(toSet);
+			return 0;
+		}
+		
+		@Override
+		public TheMaterial get(Position block) {
+			return block.getType();
+		}
+
+		@Override
+		public long set(Position block, TheMaterial toSet, TheMaterial ignore) {
+			if(!ignore.equals(get(block)))
+				return block.setType(toSet);
+			return 0;
+		}
+
+		@Override
+		public long set(Position block, TheMaterial toSet, List<TheMaterial> ignore) {
+			if(!ignore.contains(get(block)))
+				return block.setType(toSet);
+			return 0;
+		}
+	};
+	
 	//Synchronized & Runnable on finish part
 	public void synchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with) {
 		BlockGetter s = get(a, b);
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
 		new Tasker() {
 			@Override
 			public void run() {
 				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
-						s.set(with,false);
+						Position get = s.get();
+						long key = state.set(get, with);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
 					} else
 						break;
 				}
 				if (!s.has()) {
 					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
 					if(onFinish!=null)
 					onFinish.run();
 				}
 			}
-		}.repeating(0, 5);
+		}.repeating(0, 3);
 	}
 
 	public void synchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with, TheMaterial ignore) {
 		BlockGetter s = get(a, b);
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
 		new Tasker() {
 			@Override
 			public void run() {
 				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
-						s.set(with, ignore,false);
+						Position get = s.get();
+						long key = state.set(get, with, ignore);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
 					} else
 						break;
 				}
 				if (!s.has()) {
 					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
 					if(onFinish!=null)
-					onFinish.run();}
+					onFinish.run();
+				}
 			}
-		}.repeating(0, 5);
+		}.repeating(0, 3);
 	}
 
 	public void synchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with, List<TheMaterial> ignore) {
 		BlockGetter s = get(a, b);
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
 		new Tasker() {
 			@Override
 			public void run() {
 				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
-						s.set(with, ignore,false);
+						Position get = s.get();
+						long key = state.set(get, with, ignore);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
 					} else
 						break;
 				}
 				if (!s.has()) {
 					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
 					if(onFinish!=null)
-					onFinish.run();}
+					onFinish.run();
+				}
 			}
-		}.repeating(0, 5);
+		}.repeating(0, 3);
 	}
 
 	public void synchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with, List<TheMaterial> ignore) {
 		BlockGetter s = get(a, b);
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
 		new Tasker() {
 			@Override
 			public void run() {
 				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
-						s.set((TheMaterial) TheAPI.getRandomFromList(with), ignore,false);
+						Position get = s.get();
+						long key = state.set(get, (TheMaterial)TheAPI.getRandomFromList(with), ignore);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
 					} else
 						break;
 				}
 				if (!s.has()) {
 					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
 					if(onFinish!=null)
 					onFinish.run();
-					}
+				}
 			}
-		}.repeating(0, 5);
+		}.repeating(0, 3);
 	}
 
 	public void synchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with) {
 		BlockGetter s = get(a, b);
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
 		new Tasker() {
 			@Override
 			public void run() {
 				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
-						s.set((TheMaterial) TheAPI.getRandomFromList(with),false);
-					}else
+						Position get = s.get();
+						long key = state.set(get, (TheMaterial)TheAPI.getRandomFromList(with));
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
 						break;
 				}
 				if (!s.has()) {
 					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
 					if(onFinish!=null)
-					onFinish.run();}
+					onFinish.run();
+				}
 			}
-		}.repeating(0, 5);
+		}.repeating(0, 3);
 	}
 
 	public void synchronizedSet(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> with, List<TheMaterial> ignore) {
 		BlockGetter s = get(a, b);
-		List<TheMaterial> c = Lists.newArrayList();
+		PercentageList<TheMaterial> c = new PercentageList<>();
 		for (TheMaterial m : with.keySet())
-			for (int i = -1; i > with.get(m); ++i)
-				c.add(m);
+				c.add(m, with.get(m));
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
 		new Tasker() {
 			@Override
 			public void run() {
 				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
-						TheMaterial block = (TheMaterial) TheAPI.getRandomFromList(c);
-						if (TheAPI.generateChance(with.get(block))) {
-							s.set(block, ignore,false);
-						}
+						Position get = s.get();
+						long key = state.set(get, c.getRandom(), ignore);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
 					} else
 						break;
 				}
 				if (!s.has()) {
 					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
 					if(onFinish!=null)
-					onFinish.run();}
+					onFinish.run();
+				}
 			}
-		}.repeating(0, 5);
+		}.repeating(0, 3);
 	}
 
 	public void synchronizedSet(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> with, TheMaterial ignore) {
 		BlockGetter s = get(a, b);
-		List<TheMaterial> c = Lists.newArrayList();
+		PercentageList<TheMaterial> c = new PercentageList<>();
 		for (TheMaterial m : with.keySet())
-			for (int i = -1; i > with.get(m); ++i)
-				c.add(m);
+				c.add(m, with.get(m));
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
 		new Tasker() {
 			@Override
 			public void run() {
 				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
-						TheMaterial block = (TheMaterial) TheAPI.getRandomFromList(c);
-						if (TheAPI.generateChance(with.get(block))) {
-							s.set(block, ignore,false);
-						}
+						Position get = s.get();
+						long key = state.set(get, c.getRandom(), ignore);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
 					} else
 						break;
 				}
 				if (!s.has()) {
 					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
 					if(onFinish!=null)
-					onFinish.run();}
+					onFinish.run();
+				}
 			}
-		}.repeating(0, 5);
+		}.repeating(0, 3);
 	}
 
 	public void synchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block, TheMaterial with) {
 		BlockGetter s = get(a, b);
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
 		new Tasker() {
 			@Override
 			public void run() {
 				for(int i = 0; i < amount; ++i) {
-					if (s.has()){
-						s.replace(block, with,false);
-					}else
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.replace(get, block, with);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
 						break;
 				}
 				if (!s.has()) {
 					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
 					if(onFinish!=null)
 					onFinish.run();
 				}
 			}
-		}.repeating(0, 5);
+		}.repeating(0, 3);
 	}
 
 	public void synchronizedReplace(Position a, Position b, Runnable onFinish, TheMaterial block, TheMaterial with) {
 		BlockGetter s = get(a, b);
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
 		new Tasker() {
 			@Override
 			public void run() {
 				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
-						s.replace(block, with,false);
+						Position get = s.get();
+						long key = state.replace(get, block, with);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
 					} else
 						break;
 				}
 				if (!s.has()) {
 					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
 					if(onFinish!=null)
 					onFinish.run();
 				}
 			}
-		}.repeating(0, 5);
+		}.repeating(0, 3);
 	}
 
 	public void synchronizedReplace(Position a, Position b, Runnable onFinish, TheMaterial block, HashMap<TheMaterial, Double> with) {
-		List<TheMaterial> c = Lists.newArrayList();
+		BlockGetter s = get(a, b);
+		PercentageList<TheMaterial> c = new PercentageList<>();
 		for (TheMaterial m : with.keySet())
-			for (int i = -1; i > with.get(m); ++i)
-				c.add(m);
-		synchronizedReplace(a,b,onFinish,block,c);
+				c.add(m, with.get(m));
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.replace(get, block, c.getRandom());
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeating(0, 3);
 	}
 
 	public void synchronizedReplace(Position a, Position b, Runnable onFinish, TheMaterial block, List<TheMaterial> with) {
 		BlockGetter s = get(a, b);
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
 		new Tasker() {
 			@Override
 			public void run() {
 				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
-						s.replace(block, (TheMaterial) TheAPI.getRandomFromList(with),false);
+						Position get = s.get();
+						long key = state.replace(get, block, (TheMaterial)TheAPI.getRandomFromList(with));
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
 					} else
 						break;
 				}
 				if (!s.has()) {
 					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
 					if(onFinish!=null)
 					onFinish.run();
 				}
 			}
-		}.repeating(0, 5);
+		}.repeating(0, 3);
 	}
 
 	public void synchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block, List<TheMaterial> with) {
 		BlockGetter s = get(a, b);
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
 		new Tasker() {
 			@Override
 			public void run() {
 				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
-						s.replace(block, (TheMaterial) TheAPI.getRandomFromList(with),false);
+						Position get = s.get();
+						long key = state.replace(get, block, (TheMaterial)TheAPI.getRandomFromList(with));
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
 					} else
 						break;
 				}
 				if (!s.has()) {
 					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
 					if(onFinish!=null)
 					onFinish.run();
 				}
 			}
-		}.repeating(0, 5);
+		}.repeating(0, 3);
 	}
 
-	public void synchronizedReplace(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> block,
-			List<TheMaterial> with) {
-		BlockGetter s = get(a, b);
+	public void synchronizedReplace(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> block, List<TheMaterial> with) {
 		List<TheMaterial> c = Lists.newArrayList();
 		for (TheMaterial m : block.keySet())
 			for (int i = -1; i > block.get(m); ++i)
 				c.add(m);
+		Collections.shuffle(c);
+		BlockGetter s = get(a, b);
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
 		new Tasker() {
 			@Override
 			public void run() {
 				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
-						TheMaterial b = (TheMaterial) TheAPI.getRandomFromList(c);
-						if (TheAPI.generateChance(block.get(b))) {
-							s.replace(b, (TheMaterial) TheAPI.getRandomFromList(with),false);
-						}
+						Position get = s.get();
+						long key = state.replace(get, c, (TheMaterial)TheAPI.getRandomFromList(with));
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
 					} else
 						break;
 				}
 				if (!s.has()) {
 					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
 					if(onFinish!=null)
 					onFinish.run();
 				}
 			}
-		}.repeating(0, 5);
+		}.repeating(0, 3);
 	}
 
-	public void synchronizedReplace(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> block,
-			HashMap<TheMaterial, Double> with) {
-		List<TheMaterial> d = Lists.newArrayList();
+	public void synchronizedReplace(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> block, HashMap<TheMaterial, Double> with) {
+		List<TheMaterial> c = Lists.newArrayList();
+		for (TheMaterial m : block.keySet())
+			for (int i = -1; i > block.get(m); ++i)
+				c.add(m);
+		Collections.shuffle(c);
+		PercentageList<TheMaterial> per = new PercentageList<>();
 		for (TheMaterial m : with.keySet())
-			for (int i = -1; i > with.get(m); ++i)
-				d.add(m);
-		synchronizedReplace(a,b,onFinish,block,d);
+			per.add(m,with.get(m));
+		BlockGetter s = get(a, b);
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.replace(get, c, per.getRandom());
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeating(0, 3);
 	}
 
 	public void synchronizedReplace(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> block, TheMaterial with) {
-		BlockGetter s = get(a, b);
 		List<TheMaterial> c = Lists.newArrayList();
 		for (TheMaterial m : block.keySet())
 			for (int i = -1; i > block.get(m); ++i)
 				c.add(m);
+		Collections.shuffle(c);
+		BlockGetter s = get(a, b);
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
 		new Tasker() {
 			@Override
 			public void run() {
 				for(int i = 0; i < amount; ++i) {
 					if (s.has()) {
-						TheMaterial b = (TheMaterial) TheAPI.getRandomFromList(c);
-						if (TheAPI.generateChance(block.get(b))) {
-							s.replace(b, with,false);
-						}
+						Position get = s.get();
+						long key = state.replace(get, c, with);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
 					} else
 						break;
 				}
 				if (!s.has()) {
 					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
 					if(onFinish!=null)
 					onFinish.run();
 				}
 			}
-		}.repeating(0, 5);
+		}.repeating(0, 3);
+	}
+	// Asynchronized part
+	public void asynchronizedSet(Position a, Position b, TheMaterial with) {
+		asynchronizedSet(a, b, new Runnable() {public void run() {}}, with);
+	}
+
+	public void asynchronizedSet(Position a, Position b, TheMaterial with, TheMaterial ignore) {
+		asynchronizedSet(a, b, new Runnable() {public void run() {}}, with, ignore);
+	}
+
+	public void asynchronizedSet(Position a, Position b, TheMaterial with, List<TheMaterial> ignore) {
+		asynchronizedSet(a, b, new Runnable() {public void run() {}}, with, ignore);
+	}
+
+	public void asynchronizedSet(Position a, Position b, List<TheMaterial> with, List<TheMaterial> ignore) {
+		asynchronizedSet(a, b, new Runnable() {public void run() {}}, with, ignore);
+	}
+
+	public void asynchronizedSet(Position a, Position b, List<TheMaterial> with) {
+		asynchronizedSet(a, b, new Runnable() {public void run() {}}, with);
+	}
+
+	public void asynchronizedSet(Position a, Position b, HashMap<TheMaterial, Double> with, List<TheMaterial> ignore) {
+		asynchronizedSet(a, b, new Runnable() {public void run() {}}, with, ignore);
+	}
+
+	public void asynchronizedSet(Position a, Position b, HashMap<TheMaterial, Double> with, TheMaterial ignore) {
+		asynchronizedSet(a, b, new Runnable() {public void run() {}}, with, ignore);
+	}
+
+	public void asynchronizedReplace(Position a, Position b, List<TheMaterial> block, TheMaterial with) {
+		asynchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
+	}
+
+	public void asynchronizedReplace(Position a, Position b, TheMaterial block, TheMaterial with) {
+		asynchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
+	}
+
+	public void asynchronizedReplace(Position a, Position b, TheMaterial block, HashMap<TheMaterial, Double> with) {
+		asynchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
+	}
+
+	public void asynchronizedReplace(Position a, Position b, TheMaterial block, List<TheMaterial> with) {
+		asynchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
+	}
+
+	public void asynchronizedReplace(Position a, Position b, List<TheMaterial> block, List<TheMaterial> with) {
+		asynchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
+	}
+
+	public void asynchronizedReplace(Position a, Position b, HashMap<TheMaterial, Double> block,
+			List<TheMaterial> with) {
+		asynchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
+	}
+
+	public void asynchronizedReplace(Position a, Position b, HashMap<TheMaterial, Double> block,
+			HashMap<TheMaterial, Double> with) {
+		asynchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
+	}
+
+	public void asynchronizedReplace(Position a, Position b, HashMap<TheMaterial, Double> block, TheMaterial with) {
+		asynchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
+	}
+	
+	//Asynchronized & Runnable on finish part
+	public void asynchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with) {
+		BlockGetter s = get(a, b);
+		if(AsyncCatcher.enabled==true)
+			AsyncCatcher.enabled=false;
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.set(get, with);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeatingAsync(0, 3);
+	}
+
+	public void asynchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with, TheMaterial ignore) {
+		BlockGetter s = get(a, b);
+		if(AsyncCatcher.enabled==true)
+			AsyncCatcher.enabled=false;
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.set(get, with, ignore);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeatingAsync(0, 3);
+	}
+
+	public void asynchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with, List<TheMaterial> ignore) {
+		BlockGetter s = get(a, b);
+		if(AsyncCatcher.enabled==true)
+			AsyncCatcher.enabled=false;
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.set(get, with, ignore);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeatingAsync(0, 3);
+	}
+
+	public void asynchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with, List<TheMaterial> ignore) {
+		BlockGetter s = get(a, b);
+		if(AsyncCatcher.enabled==true)
+			AsyncCatcher.enabled=false;
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.set(get, (TheMaterial)TheAPI.getRandomFromList(with), ignore);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeatingAsync(0, 3);
+	}
+
+	public void asynchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with) {
+		BlockGetter s = get(a, b);
+		if(AsyncCatcher.enabled==true)
+			AsyncCatcher.enabled=false;
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.set(get, (TheMaterial)TheAPI.getRandomFromList(with));
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeatingAsync(0, 3);
+	}
+
+	public void asynchronizedSet(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> with, List<TheMaterial> ignore) {
+		BlockGetter s = get(a, b);
+		if(AsyncCatcher.enabled==true)
+			AsyncCatcher.enabled=false;
+		PercentageList<TheMaterial> c = new PercentageList<>();
+		for (TheMaterial m : with.keySet())
+				c.add(m, with.get(m));
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.set(get, c.getRandom(), ignore);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeatingAsync(0, 3);
+	}
+
+	public void asynchronizedSet(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> with, TheMaterial ignore) {
+		BlockGetter s = get(a, b);
+		if(AsyncCatcher.enabled==true)
+			AsyncCatcher.enabled=false;
+		PercentageList<TheMaterial> c = new PercentageList<>();
+		for (TheMaterial m : with.keySet())
+				c.add(m, with.get(m));
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.set(get, c.getRandom(), ignore);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeatingAsync(0, 3);
+	}
+
+	public void asynchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block, TheMaterial with) {
+		BlockGetter s = get(a, b);
+		if(AsyncCatcher.enabled==true)
+			AsyncCatcher.enabled=false;
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.replace(get, block, with);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeatingAsync(0, 3);
+	}
+
+	public void asynchronizedReplace(Position a, Position b, Runnable onFinish, TheMaterial block, TheMaterial with) {
+		BlockGetter s = get(a, b);
+		if(AsyncCatcher.enabled==true)
+			AsyncCatcher.enabled=false;
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.replace(get, block, with);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeatingAsync(0, 3);
+	}
+
+	public void asynchronizedReplace(Position a, Position b, Runnable onFinish, TheMaterial block, HashMap<TheMaterial, Double> with) {
+		BlockGetter s = get(a, b);
+		if(AsyncCatcher.enabled==true)
+			AsyncCatcher.enabled=false;
+		PercentageList<TheMaterial> c = new PercentageList<>();
+		for (TheMaterial m : with.keySet())
+				c.add(m, with.get(m));
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.replace(get, block, c.getRandom());
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeatingAsync(0, 3);
+	}
+
+	public void asynchronizedReplace(Position a, Position b, Runnable onFinish, TheMaterial block, List<TheMaterial> with) {
+		BlockGetter s = get(a, b);
+		if(AsyncCatcher.enabled==true)
+			AsyncCatcher.enabled=false;
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.replace(get, block, (TheMaterial)TheAPI.getRandomFromList(with));
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeatingAsync(0, 3);
+	}
+
+	public void asynchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block, List<TheMaterial> with) {
+		BlockGetter s = get(a, b);
+		if(AsyncCatcher.enabled==true)
+			AsyncCatcher.enabled=false;
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.replace(get, block, (TheMaterial)TheAPI.getRandomFromList(with));
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeatingAsync(0, 3);
+	}
+
+	public void asynchronizedReplace(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> block, List<TheMaterial> with) {
+		List<TheMaterial> c = Lists.newArrayList();
+		if(AsyncCatcher.enabled==true)
+			AsyncCatcher.enabled=false;
+		for (TheMaterial m : block.keySet())
+			for (int i = -1; i > block.get(m); ++i)
+				c.add(m);
+		Collections.shuffle(c);
+		BlockGetter s = get(a, b);
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.replace(get, c, (TheMaterial)TheAPI.getRandomFromList(with));
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeatingAsync(0, 3);
+	}
+
+	public void asynchronizedReplace(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> block, HashMap<TheMaterial, Double> with) {
+		List<TheMaterial> c = Lists.newArrayList();
+		if(AsyncCatcher.enabled==true)
+			AsyncCatcher.enabled=false;
+		for (TheMaterial m : block.keySet())
+			for (int i = -1; i > block.get(m); ++i)
+				c.add(m);
+		Collections.shuffle(c);
+		PercentageList<TheMaterial> per = new PercentageList<>();
+		for (TheMaterial m : with.keySet())
+			per.add(m,with.get(m));
+		BlockGetter s = get(a, b);
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.replace(get, c, per.getRandom());
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeatingAsync(0, 3);
+	}
+
+	public void asynchronizedReplace(Position a, Position b, Runnable onFinish, HashMap<TheMaterial, Double> block, TheMaterial with) {
+		List<TheMaterial> c = Lists.newArrayList();
+		if(AsyncCatcher.enabled==true)
+			AsyncCatcher.enabled=false;
+		for (TheMaterial m : block.keySet())
+			for (int i = -1; i > block.get(m); ++i)
+				c.add(m);
+		Collections.shuffle(c);
+		BlockGetter s = get(a, b);
+		ConfigAPI caw = null;
+		for(int iaa = 0; iaa > -1; ++iaa) {
+			if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
+				caw = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
+				caw.create();
+				break;
+			}
+		}
+		ConfigAPI ca = caw;
+		new Tasker() {
+			@Override
+			public void run() {
+				for(int i = 0; i < amount; ++i) {
+					if (s.has()) {
+						Position get = s.get();
+						long key = state.replace(get, c, with);
+						ca.set(key+"", new int[] {get.getBlockX()>>4,get.getBlockZ()>>4});
+					} else
+						break;
+				}
+				if (!s.has()) {
+					cancel();
+					Object w = Ref.world(a.getWorld());
+					for(String o : ca.getKeys(false)) {
+						int[] cw = (int[])ca.get(o);
+						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
+						for(Player p : Bukkit.getOnlinePlayers())
+							Ref.sendPacket(p, a);
+					}
+					if(onFinish!=null)
+					onFinish.run();
+				}
+			}
+		}.repeatingAsync(0, 3);
 	}
 }
