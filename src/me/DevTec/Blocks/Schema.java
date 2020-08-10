@@ -31,6 +31,14 @@ public class Schema {
 		this.onFinish=onFinish;
 	}
 	
+	public Schemate getSchemate() {
+		return schem;
+	}
+	
+	public String getName() {
+		return schem.getName();
+	}
+	
 	private static final SchemBlock c = new SchemBlock() {
 		
 		@Override
