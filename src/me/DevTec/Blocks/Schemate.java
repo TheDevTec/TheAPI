@@ -3,7 +3,6 @@ package me.DevTec.Blocks;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.util.HashMap;
 import java.util.zip.Deflater;
 
@@ -37,7 +36,7 @@ public class Schemate {
 	private Schema schem;
 	public Schemate(String name) {
 		s=name;
-		c =new Config(new File("plugins/TheAPI/Schematic/"+s+".schem"));
+		c =new Config("TheAPI/Schematic/"+s+".schem");
 	}
 	
 	public String getName() {
@@ -83,6 +82,7 @@ public class Schemate {
 	private static String split = "/!_!/";
 	public void save(Position fromCopy, Position a, Position b, Runnable onFinish) {
 		for(String key : c.getKeys())c.set(key, null);
+		c.save(); //override old data
 		new Tasker() {
 			public void run() {
 				c.set("info.standing", fromCopy!=null);
@@ -108,7 +108,7 @@ public class Schemate {
 				}
 				for(String key : perChunk.keySet()) {
 					SchemSaving s = perChunk.get(key);
-					c.set("c."+key, (Base64Coder.encodeLines(compress(s.byteStream.toByteArray(),compression))).replace("\\r\\n", "").replace(System.lineSeparator(), ""));
+					c.set("c."+key, (Base64Coder.encodeLines(compress(s.byteStream.toByteArray(),compression))).replace(System.lineSeparator(), ""));
 					try {
 						s.dataStream.close();
 						s.byteStream.close();

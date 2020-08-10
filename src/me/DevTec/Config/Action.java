@@ -2,16 +2,16 @@ package me.DevTec.Config;
 
 public class Action {
 	private Object o;
-	private String ac;
+	private int ac;
 	private Section sec;
 	
-	public Action(Section s, String action, Object a) {
+	public Action(Section s, int action, Object a) {
 		sec=s;
 		ac=action;
 		o=a;
 	}
 	
-	public String action() {
+	public int action() {
 		return ac;
 	}
 	

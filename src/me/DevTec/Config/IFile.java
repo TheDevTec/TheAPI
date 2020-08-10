@@ -59,6 +59,11 @@ public class IFile {
     
     public void open() {
         c=false;
+        f.getParentFile().mkdir();
+        if(!f.exists())
+        try {
+           f.createNewFile();
+        }catch (Exception e) {}
         try {
             w=new FileWriter(f);
         }catch(Exception e) {
