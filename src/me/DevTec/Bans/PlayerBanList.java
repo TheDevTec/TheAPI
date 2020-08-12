@@ -65,7 +65,7 @@ public class PlayerBanList {
 
 	public long getExpire(PunishmentType type) {
 		if (type == PunishmentType.BAN || type == PunishmentType.BANIP || type == PunishmentType.JAIL
-				|| type == PunishmentType.MUTE)
+				|| type == PunishmentType.MUTE||type==PunishmentType.MUTEIP)
 			return getStartTime(type) != 0 ? 1 : 0;
 		if (getStartTime(type) <= 0 || getTime(type) <= 0)
 			return 0;

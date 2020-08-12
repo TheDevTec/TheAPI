@@ -26,7 +26,8 @@ import me.DevTec.Other.TheCoder;
 public class ScoreboardAPI {
 	private static Field teamlist= Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardTeam"), TheAPI.isOlder1_9() ? "g" : "h");
 	private static Object reset=Reflections.get(Reflections.getField(Reflections.getNMSClass("EnumChatFormat"),"RESET"),null);
-	private final NMSPlayer p;
+	private NMSPlayer p;
+	private String player;
 	private final int id;
 	private org.bukkit.scoreboard.Scoreboard sb;
 	private org.bukkit.scoreboard.Objective o;
@@ -44,6 +45,7 @@ public class ScoreboardAPI {
 	@SuppressWarnings("deprecation")
 	public ScoreboardAPI(Player player, boolean usePackets, boolean useTeams) {
 		p=TheAPI.getNMSAPI().getNMSPlayerAPI(player);
+		this.player=player.getName();
 		packets=usePackets;
 		teams=useTeams;
 		int sel = 0;
@@ -76,6 +78,7 @@ public class ScoreboardAPI {
 	}
 	
 	private void create() {
+		updatePlayer();
 		if(LoaderClass.unused.exist("sbc."+p.getName())) {
 		if(LoaderClass.unused.getInt("sbc."+p.getName())==id)return;
 		else
@@ -150,6 +153,12 @@ public class ScoreboardAPI {
 				break;
 			}
 		}
+	}
+	
+	public void updatePlayer() {
+		if(!p.getPlayer().isOnline())
+		if(TheAPI.getPlayer(player).getName().equals(player))
+		p=TheAPI.getNMSAPI().getNMSPlayerAPI(TheAPI.getPlayer(player));
 	}
 
 	public void setLine(int line, String value) {
