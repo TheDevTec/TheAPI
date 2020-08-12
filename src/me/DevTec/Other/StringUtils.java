@@ -150,7 +150,7 @@ public class StringUtils {
 	                StringBuilder magic = new StringBuilder("§x");
 	                char[] c = color.substring(1).toCharArray();
 	                for(int i = 0; i < c.length; ++i) {
-	                    magic.append("&"+c[i]);
+	                    magic.append(("&"+c[i]).toLowerCase());
 	                }
 	                string = string.replace(color, magic.toString() + "");
 	            }
