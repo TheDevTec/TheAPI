@@ -140,22 +140,21 @@ public class StringUtils {
 	 * @return String
 	 */
 	public String colorize(String string) {
-		if (string == null)
-			return null;
-		if (Integer.valueOf(TheAPI.getServerVersion().split("_")[1]) >= 16) {
-            Matcher match = pattern.matcher(string);
-            while (match.find()) {
-                String color = string.substring(match.start(), match.end());
-                Integer.parseInt(color.substring(1), 16);
-                StringBuilder magic = new StringBuilder("§x");
-                char[] var2 = color.substring(1).toCharArray();
-                for(int var4 = 0; var4 < var2.length; ++var4) {
-                    char c = var2[var4];
-                    magic.append(ChatColor.getByChar(c));
-                }
-                string = string.replace(color,  magic.toString() + "");
-            }
-        }
+		if (string == null)return null;
+		if(string.contains("#"))
+			if (Integer.valueOf(TheAPI.getServerVersion().split("_")[1]) >= 16) {
+				string = string.replace("&x", "§x");
+				Matcher match = pattern.matcher(string);
+	            while (match.find()) {
+	                String color = match.group();
+	                StringBuilder magic = new StringBuilder("§x");
+	                char[] c = color.substring(1).toCharArray();
+	                for(int i = 0; i < c.length; ++i) {
+	                    magic.append("&"+c[i]);
+	                }
+	                string = string.replace(color, magic.toString() + "");
+	            }
+	        }
 		return ChatColor.translateAlternateColorCodes('&', string);
 	}
 
