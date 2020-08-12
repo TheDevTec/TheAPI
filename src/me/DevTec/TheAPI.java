@@ -867,8 +867,8 @@ public class TheAPI {
 	}
 
 	private static boolean has(Player s, Player d) {
-		if (getUser(d).getString("data." + d.getName() + ".vanish") != null)
-			return s.hasPermission(getUser(d).getString("data." + d.getName() + ".vanish"));
+		if (getUser(d).getString("vanish") != null)
+			return s.hasPermission(getUser(d).getString("vanish"));
 		else
 			return false;
 	}
@@ -899,11 +899,13 @@ public class TheAPI {
 				if (perm != null)
 					getUser(p).setAndSave("vanish", perm);
 				List<String> v = LoaderClass.data.getConfig().getStringList("vanished");
+				if(!v.contains(p.getName()))
 				v.add(p.getName());
 				LoaderClass.data.getConfig().set("vanished", v);
 			} else {
 				getUser(p).setAndSave("vanish", null);
 				List<String> v = LoaderClass.data.getConfig().getStringList("vanished");
+				if(v.contains(p.getName()))
 				v.remove(p.getName());
 				LoaderClass.data.getConfig().set("vanished", v);
 			}

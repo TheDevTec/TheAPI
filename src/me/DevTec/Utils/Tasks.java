@@ -1,5 +1,6 @@
 package me.DevTec.Utils;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -11,6 +12,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
+import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 
 import me.DevTec.TheAPI;
@@ -50,14 +52,22 @@ public class Tasks {
 					}
 					Ref.set(sd, "c", texts);
 					}else {
-						GameProfile[] texts = new GameProfile[TheAPI.getPlayers().size()];
-						int i = 0;
-						for(Player s : TheAPI.getPlayers()) {
+						int online = LoaderClass.plugin.fakeOnline>-1?LoaderClass.plugin.fakeOnline:TheAPI.getOnlinePlayers().size();
+						
+						List<Player> seen = Lists.newArrayList();
+						for(Player s : TheAPI.getPlayers())
 							if(!TheAPI.isVanished(s))
-							texts[i]=new GameProfile(UUID.randomUUID(), s.getName());
+								seen.add(s);
+						if(online==-1)online=seen.size();
+						sd = Ref.newInstance(Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class, int.class), LoaderClass.plugin.max>-1?LoaderClass.plugin.max:Bukkit.getMaxPlayers(),online);
+						GameProfile[] texts = new GameProfile[seen.size()];
+						int i = 0;
+						for(Player s : seen) {
+							texts[i]=new GameProfile(s.getUniqueId(), s.getName());
 							++i;
 						}
 						Ref.set(sd, "c", texts);
+						
 					}
 					Ref.set(w, "b", sd);
 					if(LoaderClass.plugin.motd!=null)
