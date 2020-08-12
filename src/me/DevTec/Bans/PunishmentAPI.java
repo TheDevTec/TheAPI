@@ -20,15 +20,15 @@ public class PunishmentAPI implements AbstractPunishmentAPI {
 	public String getIP(String player) {
 		if(player==null)return null;
 		if (AbstractPunishmentAPI.isIP(player))
-			new Exception("PunishmentAPI error, String must be player, not IP.").printStackTrace();
-		return TheAPI.getUser(player).getString("ip").replace("_", ".");
+			player=getPlayersOnIP(player).get(0);
+		return TheAPI.getUser(player).exist("ip")?TheAPI.getUser(player).getString("ip").replace("_", "."):null;
 	}
 
 	@Override
 	public List<String> getPlayersOnIP(String ip) {
 		if (!AbstractPunishmentAPI.isIP(ip))
 			new Exception("PunishmentAPI error, String must be IP, not player.");
-		ArrayList<String> list = Lists.newArrayList();
+		List<String> list = Lists.newArrayList();
 		if (c.exist("data"))
 			for (String s : c.getKeys("data")) {
 				if (ip.equals(getIP(s)))

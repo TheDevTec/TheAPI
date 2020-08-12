@@ -19,6 +19,8 @@ import javax.script.ScriptException;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
+import me.DevTec.TheAPI;
+
 public class StringUtils {
 
 	/**
@@ -130,6 +132,8 @@ public class StringUtils {
 		return new HoverMessage(message);
 	}
 
+	private static final Pattern pattern = Pattern.compile("#[a-fA-F0-9]{6}");
+	
 	/**
 	 * @see see Colorize string with colors
 	 * @param string
@@ -138,6 +142,20 @@ public class StringUtils {
 	public String colorize(String string) {
 		if (string == null)
 			return null;
+		if (Integer.valueOf(TheAPI.getServerVersion().split("_")[1]) >= 16) {
+            Matcher match = pattern.matcher(string);
+            while (match.find()) {
+                String color = string.substring(match.start(), match.end());
+                Integer.parseInt(color.substring(1), 16);
+                StringBuilder magic = new StringBuilder("§x");
+                char[] var2 = color.substring(1).toCharArray();
+                for(int var4 = 0; var4 < var2.length; ++var4) {
+                    char c = var2[var4];
+                    magic.append(ChatColor.getByChar(c));
+                }
+                string = string.replace(color,  magic.toString() + "");
+            }
+        }
 		return ChatColor.translateAlternateColorCodes('&', string);
 	}
 
