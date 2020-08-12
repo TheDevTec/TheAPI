@@ -46,9 +46,9 @@ import me.DevTec.ConfigAPI;
 import me.DevTec.SignAPI.SignAction;
 import me.DevTec.TheAPI;
 import me.DevTec.TheAPI.SudoType;
+import me.DevTec.Bans.BanList;
 import me.DevTec.Bans.PlayerBanList;
 import me.DevTec.Bans.PlayerBanList.PunishmentType;
-import me.DevTec.Bans.PunishmentAPI;
 import me.DevTec.Blocks.BlocksAPI.Shape;
 import me.DevTec.Events.DamageGodPlayerByEntityEvent;
 import me.DevTec.Events.DamageGodPlayerEvent;
@@ -67,7 +67,6 @@ import me.DevTec.WorldsManager.WorldBorderAPI.WarningMessageType;
 @SuppressWarnings("deprecation")
 public class Events implements Listener {
 	public static ConfigAPI f = LoaderClass.config,d = LoaderClass.data;
-	public static PunishmentAPI a = TheAPI.getPunishmentAPI();
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public synchronized void onClose(InventoryCloseEvent e) {
@@ -322,9 +321,10 @@ public class Events implements Listener {
 	public void onBreak(BlockBreakEvent e) {
 		if (e.isCancelled())
 			return;
-		if (TheAPI.getPunishmentAPI().getBanList(e.getPlayer().getName()).isJailed()) {
+		PlayerBanList p = banlist.getBanList(e.getPlayer().getName());
+		if (p.isJailed() || p.isTempJailed() || p.isIPJailed() || p.isTempIPJailed())
 			e.setCancelled(true);
-		} else {
+		 else {
 			if (e.getBlock().getType().name().contains("SIGN") && !e.isCancelled()) {
 				TheAPI.getSignAPI().removeSign(new Position(e.getBlock().getLocation()));
 			}
@@ -409,7 +409,7 @@ public class Events implements Listener {
 		}
 		User s = TheAPI.getUser(e.getUniqueId());
 		s.setAndSave("ip", (e.getAddress()+"").replace("/", "").replace(".", "_"));
-		PlayerBanList a = Events.a.getBanList(s.getName());
+		PlayerBanList a = banlist.getBanList(s.getName());
 		try {
 			if (a.isBanned()) {
 				e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.BAN).replace("\\n", "\n")));
@@ -485,19 +485,18 @@ public class Events implements Listener {
 				s.hidePlayer(p);
 			}
 		}
-		if (TheAPI.isVanished(s)) {
+		if (TheAPI.isVanished(s))
 			TheAPI.vanish(s, TheAPI.getUser(s).getString("vanish"), true);
-		}
 	}
 
+	private static final BanList banlist = TheAPI.getPunishmentAPI().getBanList();
+	
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlace(BlockPlaceEvent e) {
-		if (e.isCancelled())
-			return;
-		if (TheAPI.getPunishmentAPI().getBanList(e.getPlayer().getName()).isJailed()
-				|| TheAPI.getPunishmentAPI().getBanList(e.getPlayer().getName()).isTempJailed()) {
+		if (e.isCancelled())return;
+		PlayerBanList p = banlist.getBanList(e.getPlayer().getName());
+		if (p.isJailed() || p.isTempJailed() || p.isIPJailed() || p.isTempIPJailed())
 			e.setCancelled(true);
-		}
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -506,9 +505,10 @@ public class Events implements Listener {
 			return;
 		if (e.getEntity() instanceof Player) {
 			Player d = (Player) e.getEntity();
-			if (TheAPI.getPunishmentAPI().getBanList(d.getName()).isJailed()
-					|| TheAPI.getPunishmentAPI().getBanList(d.getName()).isTempJailed()) {
+			PlayerBanList p = banlist.getBanList(d.getName());
+			if (p.isJailed() || p.isTempJailed() ||p.isIPJailed() || p.isTempIPJailed()) {
 				e.setCancelled(true);
+				return;
 			}
 			if (TheAPI.getPlayerAPI(d).allowedGod()) {
 				DamageGodPlayerEvent event = new DamageGodPlayerEvent(d, e.getDamage(), e.getCause());
@@ -524,18 +524,15 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onFood(FoodLevelChangeEvent e) {
-		if (e.isCancelled())
-			return;
+		if (e.isCancelled()) return;
 		if (e.getEntity() instanceof Player)
-			if (TheAPI.getPlayerAPI((Player) e.getEntity()).allowedGod()) {
+			if (TheAPI.getPlayerAPI((Player) e.getEntity()).allowedGod())
 				e.setCancelled(true);
-			}
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onDamage(EntityDamageByEntityEvent e) {
-		if (e.isCancelled())
-			return;
+		if (e.isCancelled()) return;
 		if (e.getEntity() instanceof Player) {
 			Player d = (Player) e.getEntity();
 			if (TheAPI.getPlayerAPI(d).allowedGod()) {
@@ -584,18 +581,27 @@ public class Events implements Listener {
 	public void onChat(PlayerChatEvent e) {
 		if (e.isCancelled())
 			return;
-		PlayerBanList b = a.getBanList(e.getPlayer().getName());
+		PlayerBanList b = banlist.getBanList(d.getName());
 		if (b.isTempMuted()) {
 			e.setCancelled(true);
-			TheAPI.msg(
-					b.getReason(PunishmentType.TEMPMUTE).replace("%time%",
-							TheAPI.getStringUtils().setTimeToString(b.getExpire(PunishmentType.TEMPMUTE))),
-					e.getPlayer());
+			TheAPI.msg(b.getReason(PunishmentType.TEMPMUTE).replace("%time%",
+							TheAPI.getStringUtils().setTimeToString(b.getExpire(PunishmentType.TEMPMUTE))),e.getPlayer());
 			return;
 		}
 		if (b.isMuted()) {
 			e.setCancelled(true);
 			TheAPI.msg(b.getReason(PunishmentType.MUTE), e.getPlayer());
+			return;
+		}
+		if (b.isTempIPMuted()) {
+			e.setCancelled(true);
+			TheAPI.msg(b.getReason(PunishmentType.TEMPMUTEIP).replace("%time%",
+							TheAPI.getStringUtils().setTimeToString(b.getExpire(PunishmentType.TEMPMUTEIP))),e.getPlayer());
+			return;
+		}
+		if (b.isIPMuted()) {
+			e.setCancelled(true);
+			TheAPI.msg(b.getReason(PunishmentType.MUTEIP), e.getPlayer());
 			return;
 		}
 	}

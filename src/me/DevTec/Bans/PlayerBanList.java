@@ -47,6 +47,22 @@ public class PlayerBanList {
 		return getExpire(PunishmentType.JAIL) > 0;
 	}
 
+	public boolean isTempIPMuted() {
+		return getExpire(PunishmentType.TEMPMUTEIP) > 0;
+	}
+
+	public boolean isIPMuted() {
+		return getExpire(PunishmentType.MUTEIP) > 0;
+	}
+
+	public boolean isTempIPJailed() {
+		return getExpire(PunishmentType.TEMPJAILIP) > 0;
+	}
+
+	public boolean isIPJailed() {
+		return getExpire(PunishmentType.JAILIP) > 0;
+	}
+
 	public long getExpire(PunishmentType type) {
 		if (type == PunishmentType.BAN || type == PunishmentType.BANIP || type == PunishmentType.JAIL
 				|| type == PunishmentType.MUTE)
@@ -63,15 +79,15 @@ public class PlayerBanList {
 			r = c.getString("ban." + s + ".reason");
 			break;
 		case BANIP:
-			if(TheAPI.getPunishmentAPI().getIP(s)!=null)
-			r = c.getString("banip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".reason");
+			if(getIP()!=null)
+			r = c.getString("banip." + getIP().replace(".", "_") + ".reason");
 			break;
 		case TEMPBAN:
 			r = c.getString("tempban." + s + ".reason");
 			break;
 		case TEMPBANIP:
-			if(TheAPI.getPunishmentAPI().getIP(s)!=null)
-			r = c.getString("tempbanip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".reason");
+			if(getIP()!=null)
+			r = c.getString("tempbanip." + getIP().replace(".", "_") + ".reason");
 			break;
 		case JAIL:
 			r = c.getString("jail." + s + ".reason");
@@ -85,6 +101,21 @@ public class PlayerBanList {
 		case TEMPMUTE:
 			r = c.getString("tempmute." + s + ".reason");
 			break;
+		case JAILIP:
+			r = c.getString("mute." + s + ".reason");
+			break;
+		case MUTEIP:
+			if(getIP()!=null)
+			r = c.getString("muteip." + getIP().replace(".", "_") + ".reason");
+			break;
+		case TEMPJAILIP:
+			if(getIP()!=null)
+			r = c.getString("tempjailip." + getIP().replace(".", "_") + ".reason");
+			break;
+		case TEMPMUTEIP:
+			if(getIP()!=null)
+			r = c.getString("tempmuteip." + getIP().replace(".", "_")+ ".reason");
+			break;
 		}
 		return r;
 	}
@@ -97,18 +128,18 @@ public class PlayerBanList {
 				r = c.getLong("ban." + s + ".start");
 			break;
 		case BANIP:
-			if(TheAPI.getPunishmentAPI().getIP(s)!=null)
-			if (c.exist("banip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".start"))
-				r = c.getLong("banip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".start");
+			if(getIP()!=null)
+			if (c.exist("banip." + getIP().replace(".", "_") + ".start"))
+				r = c.getLong("banip." + getIP().replace(".", "_") + ".start");
 			break;
 		case TEMPBAN:
 			if (c.exist("tempban." + s + ".start"))
 				r = c.getLong("tempban." + s + ".start");
 			break;
 		case TEMPBANIP:
-			if(TheAPI.getPunishmentAPI().getIP(s)!=null)
-			if (c.exist("tempbanip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".start"))
-				r = c.getLong("tempbanip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".start");
+			if(getIP()!=null)
+			if (c.exist("tempbanip." + getIP().replace(".", "_") + ".start"))
+				r = c.getLong("tempbanip." + getIP().replace(".", "_") + ".start");
 			break;
 		case JAIL:
 			if (c.exist("jail." + s + ".start"))
@@ -126,6 +157,26 @@ public class PlayerBanList {
 			if (c.exist("tempmute." + s + ".start"))
 				r = c.getLong("tempmute." + s + ".start");
 			break;
+		case JAILIP:
+			if(getIP()!=null)
+			if (c.exist("jailip." +getIP().replace(".", "_") + ".start"))
+				r = c.getLong("jailip." + getIP().replace(".", "_") + ".start");
+			break;
+		case MUTEIP:
+			if(getIP()!=null)
+			if (c.exist("muteip." +getIP().replace(".", "_") + ".start"))
+				r = c.getLong("muteip." + getIP().replace(".", "_") + ".start");
+			break;
+		case TEMPJAILIP:
+			if(getIP()!=null)
+			if (c.exist("tempjailip." +getIP().replace(".", "_") + ".start"))
+				r = c.getLong("tempjailip." + getIP().replace(".", "_") + ".start");
+			break;
+		case TEMPMUTEIP:
+			if(getIP()!=null)
+			if (c.exist("tempmuteip." +getIP().replace(".", "_") + ".start"))
+				r = c.getLong("tempmuteip." + getIP().replace(".", "_") + ".start");
+			break;
 		}
 		return r;
 	}
@@ -134,8 +185,9 @@ public class PlayerBanList {
 		long r = 0;
 		switch (type) {
 		case TEMPBANIP:
-			if (c.exist("tempbanip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".time"))
-				r = c.getLong("tempbanip." + TheAPI.getPunishmentAPI().getIP(s).replace(".", "_") + ".time");
+			if(getIP()!=null)
+			if (c.exist("tempbanip." + getIP().replace(".", "_") + ".time"))
+				r = c.getLong("tempbanip." + getIP().replace(".", "_") + ".time");
 			break;
 		case TEMPJAIL:
 			if (c.exist("tempjail." + s + ".time"))
@@ -149,6 +201,16 @@ public class PlayerBanList {
 			if (c.exist("tempban." + s + ".time"))
 				r = c.getLong("tempban." + s + ".time");
 			break;
+		case TEMPJAILIP:
+			if(getIP()!=null)
+			if (c.exist("tempjailip." +getIP().replace(".", "_") + ".time"))
+				r = c.getLong("tempjailip." + getIP().replace(".", "_") + ".time");
+			break;
+		case TEMPMUTEIP:
+			if(getIP()!=null)
+			if (c.exist("tempmuteip." +getIP().replace(".", "_") + ".time"))
+				r = c.getLong("tempmuteip." + getIP().replace(".", "_") + ".time");
+			break;
 		default:
 			break;
 		}
@@ -156,7 +218,11 @@ public class PlayerBanList {
 	}
 
 	public static enum PunishmentType {
-		MUTE, TEMPMUTE, BAN, TEMPBAN, BANIP, TEMPBANIP, JAIL, TEMPJAIL
+		MUTE, MUTEIP, TEMPMUTE, TEMPMUTEIP, BAN, TEMPBAN, BANIP, TEMPBANIP, JAIL, JAILIP, TEMPJAIL, TEMPJAILIP
+	}
+
+	public String getIP() {
+		return TheAPI.getPunishmentAPI().getIP(s);
 	}
 
 }

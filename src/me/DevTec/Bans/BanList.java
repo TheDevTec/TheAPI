@@ -1,42 +1,59 @@
 package me.DevTec.Bans;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import me.DevTec.ConfigAPI;
 import me.DevTec.Other.LoaderClass;
 
 public class BanList {
-	private static final ConfigAPI c = LoaderClass.data;
+
+	public List<String> getTempIPBanned() {
+		return Lists.newArrayList(LoaderClass.data.getKeys("tempbanip"));
+	}
+
+	public List<String> getTempBanned() {
+		return Lists.newArrayList(LoaderClass.data.getKeys("tempban"));
+	}
 
 	public List<String> getIPBanned() {
-		ArrayList<String> list = Lists.newArrayList();
-		for (String s : c.getKeys("banip"))
-			list.add(s);
-		return list;
+		return Lists.newArrayList(LoaderClass.data.getKeys("banip"));
 	}
 
 	public List<String> getBanned() {
-		ArrayList<String> list = Lists.newArrayList();
-		for (String s : c.getKeys("ban"))
-			list.add(s);
-		return list;
+		return Lists.newArrayList(LoaderClass.data.getKeys("ban"));
+	}
+	
+	public List<String> getTempIPMuted() {
+		return Lists.newArrayList(LoaderClass.data.getKeys("tempmuteip"));
+	}
+	
+	public List<String> getTempMuted() {
+		return Lists.newArrayList(LoaderClass.data.getKeys("tempmute"));
+	}
+	
+	public List<String> getIPMuted() {
+		return Lists.newArrayList(LoaderClass.data.getKeys("muteip"));
+	}
+	
+	public List<String> getMuted() {
+		return Lists.newArrayList(LoaderClass.data.getKeys("mute"));
 	}
 
-	public List<String> getMuted() {
-		ArrayList<String> list = Lists.newArrayList();
-		for (String s : c.getKeys("mute"))
-			list.add(s);
-		return list;
+	public List<String> getTempIPJailed() {
+		return Lists.newArrayList(LoaderClass.data.getKeys("tempjailip"));
+	}
+
+	public List<String> getTempJailed() {
+		return Lists.newArrayList(LoaderClass.data.getKeys("tempjail"));
+	}
+
+	public List<String> getIPJailed() {
+		return Lists.newArrayList(LoaderClass.data.getKeys("jailip"));
 	}
 
 	public List<String> getJailed() {
-		ArrayList<String> list = Lists.newArrayList();
-		for (String s : c.getKeys("jail"))
-			list.add(s);
-		return list;
+		return Lists.newArrayList(LoaderClass.data.getKeys("jail"));
 	}
 
 	public PlayerBanList getBanList(String player) {
