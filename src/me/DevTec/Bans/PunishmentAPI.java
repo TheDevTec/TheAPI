@@ -40,7 +40,7 @@ public class PunishmentAPI implements AbstractPunishmentAPI {
 	@Override
 	public void ban(String playerOrIP, String reason) {
 		if (AbstractPunishmentAPI.isIP(playerOrIP)) {
-			for (String s : getPlayersOnIP(playerOrIP)) // This ban all players on ip
+			for (String s : getPlayersOnIP(playerOrIP))
 				ban(s, reason);
 			return;
 		}
@@ -54,7 +54,7 @@ public class PunishmentAPI implements AbstractPunishmentAPI {
 	public void banIP(String playerOrIP, String reason) {
 		if (!AbstractPunishmentAPI.isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
-		kick(playerOrIP, reason);
+		kickIP(playerOrIP, reason);
 		c.set("banip." + playerOrIP + ".start", System.currentTimeMillis() / 1000);
 		c.set("banip." + playerOrIP + ".reason", reason);
 		c.save();
@@ -63,11 +63,11 @@ public class PunishmentAPI implements AbstractPunishmentAPI {
 	@Override
 	public void tempban(String playerOrIP, String reason, long time) {
 		if (AbstractPunishmentAPI.isIP(playerOrIP)) {
-			for (String s : getPlayersOnIP(playerOrIP)) // This ban all players on ip
-				ban(s, reason);
+			for (String s : getPlayersOnIP(playerOrIP))
+				tempban(s, reason, time);
 			return;
 		}
-		kick(playerOrIP, reason);
+		kick(playerOrIP, reason.replace("%time%", TheAPI.getStringUtils().timeToString(time)));
 		c.set("tempban." + playerOrIP + ".start", System.currentTimeMillis() / 1000);
 		c.set("tempban." + playerOrIP + ".time", time);
 		c.set("tempban." + playerOrIP + ".reason", reason);
@@ -78,7 +78,7 @@ public class PunishmentAPI implements AbstractPunishmentAPI {
 	public void tempbanIP(String playerOrIP, String reason, long time) {
 		if (!AbstractPunishmentAPI.isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
-		kick(playerOrIP, reason);
+		kickIP(playerOrIP, reason.replace("%time%", TheAPI.getStringUtils().timeToString(time)));
 		c.set("tempbanip." + playerOrIP + ".start", System.currentTimeMillis() / 1000);
 		c.set("tempbanip." + playerOrIP + ".time", time);
 		c.set("tempbanip." + playerOrIP + ".reason", reason);
@@ -97,14 +97,24 @@ public class PunishmentAPI implements AbstractPunishmentAPI {
 	}
 
 	@Override
-	public void warn(String playerOrIP, String reason) {
-		if (AbstractPunishmentAPI.isIP(playerOrIP)) {
-			for (String s : getPlayersOnIP(playerOrIP))
+	public void kickIP(String playerOrIP, String reason) {
+		kick(playerOrIP, reason);
+	}
+
+	@Override
+	public void warn(String player, String reason) {
+		if (AbstractPunishmentAPI.isIP(player)) {
+			for (String s : getPlayersOnIP(player))
 				warn(s, reason);
 			return;
 		}
-		if (TheAPI.getPlayer(playerOrIP) != null)
-			TheAPI.msg(reason, TheAPI.getPlayer(playerOrIP));
+		if (TheAPI.getPlayer(player) != null)
+			TheAPI.msg(reason, TheAPI.getPlayer(player));
+	}
+
+	@Override
+	public void warnIP(String playerOrIP, String reason) {
+		warn(playerOrIP, reason);
 	}
 
 	@Override
@@ -118,49 +128,96 @@ public class PunishmentAPI implements AbstractPunishmentAPI {
 	}
 
 	@Override
-	public void jail(String playerOrIP, String reason, String jail) {
-		if (AbstractPunishmentAPI.isIP(playerOrIP)) {
-			for (String s : getPlayersOnIP(playerOrIP))
+	public void jailIP(String playerOrIP, String reason) {
+		if (!AbstractPunishmentAPI.isIP(playerOrIP))
+			playerOrIP=getIP(playerOrIP);
+		jailIP(playerOrIP, reason, TheAPI.getRandomFromList(getjails()).toString());
+	}
+
+	@Override
+	public void jailIP(String playerOrIP, String reason, String jail) {
+		if (!AbstractPunishmentAPI.isIP(playerOrIP))
+			playerOrIP = getIP(playerOrIP);
+		c.set("jailip." + playerOrIP + ".id", jail);
+		c.set("jailip" + playerOrIP + ".reason", reason);
+		c.set("jailip." + playerOrIP + ".start", System.currentTimeMillis() / 1000);
+		c.save();
+		for(String player : getPlayersOnIP(playerOrIP))
+		if (TheAPI.getPlayer(player) != null) {
+			TheAPI.getPlayer(player)
+					.teleport(TheAPI.getStringUtils().getLocationFromString(c.getString("jails." + jail)));
+			TheAPI.msg(reason, TheAPI.getPlayer(player));
+		}
+	}
+	
+	@Override
+	public void jail(String player, String reason, String jail) {
+		if (AbstractPunishmentAPI.isIP(player)) {
+			for (String s : getPlayersOnIP(player))
 				jail(s, reason, jail);
 			return;
 		}
-		c.set("jail." + playerOrIP + ".id", jail);
-		c.set("jail." + playerOrIP + ".reason", reason);
-		c.set("jail." + playerOrIP + ".start", System.currentTimeMillis() / 1000);
+		c.set("jail." + player + ".id", jail);
+		c.set("jail." + player + ".reason", reason);
+		c.set("jail." + player + ".start", System.currentTimeMillis() / 1000);
 		c.save();
-		if (TheAPI.getPlayer(playerOrIP) != null) {
-			TheAPI.getPlayer(playerOrIP)
+		if (TheAPI.getPlayer(player) != null) {
+			TheAPI.getPlayer(player)
 					.teleport(TheAPI.getStringUtils().getLocationFromString(c.getString("jails." + jail)));
-			TheAPI.msg(reason, TheAPI.getPlayer(playerOrIP));
+			TheAPI.msg(reason, TheAPI.getPlayer(player));
 		}
 	}
 
 	@Override
-	public void tempjail(String playerOrIP, String reason, long time) {
-		if (AbstractPunishmentAPI.isIP(playerOrIP)) {
-			for (String s : getPlayersOnIP(playerOrIP))
-				jail(s, reason);
+	public void tempjail(String player, String reason, long time) {
+		if (AbstractPunishmentAPI.isIP(player)) {
+			for (String s : getPlayersOnIP(player))
+				tempjail(s, reason.replace("%time%", TheAPI.getStringUtils().timeToString(time)), time);
 			return;
 		}
-		tempjail(playerOrIP, reason, time, TheAPI.getRandomFromList(getjails()).toString());
+		tempjail(player, reason.replace("%time%", TheAPI.getStringUtils().timeToString(time)), time, TheAPI.getRandomFromList(getjails()).toString());
 	}
 
 	@Override
-	public void tempjail(String playerOrIP, String reason, long time, String jail) {
-		if (AbstractPunishmentAPI.isIP(playerOrIP)) {
-			for (String s : getPlayersOnIP(playerOrIP))
-				jail(s, reason, jail);
+	public void tempjail(String player, String reason, long time, String jail) {
+		if (AbstractPunishmentAPI.isIP(player)) {
+			for (String s : getPlayersOnIP(player))
+				tempjail(s, reason, time, jail);
 			return;
 		}
-		c.set("tempjail." + playerOrIP + ".id", jail);
-		c.set("tempjail.." + playerOrIP + ".time", jail);
-		c.set("tempjail.." + playerOrIP + ".reason", reason);
-		c.set("tempjail.." + playerOrIP + ".start", System.currentTimeMillis() / 1000);
+		c.set("tempjail." + player + ".id", jail);
+		c.set("tempjail." + player + ".time", jail);
+		c.set("tempjail." + player + ".reason", reason);
+		c.set("tempjail." + player + ".start", System.currentTimeMillis() / 1000);
 		c.save();
-		if (TheAPI.getPlayer(playerOrIP) != null) {
-			TheAPI.getPlayer(playerOrIP)
+		if (TheAPI.getPlayer(player) != null) {
+			TheAPI.getPlayer(player)
 					.teleport(TheAPI.getStringUtils().getLocationFromString(c.getString("jails." + jail)));
-			TheAPI.msg(reason, TheAPI.getPlayer(playerOrIP));
+			TheAPI.msg(reason.replace("%time%", TheAPI.getStringUtils().timeToString(time)), TheAPI.getPlayer(player));
+		}
+	}
+
+	@Override
+	public void tempjailIP(String playerOrIP, String reason, long time) {
+		if (!AbstractPunishmentAPI.isIP(playerOrIP))
+			playerOrIP = getIP(playerOrIP);
+		tempjailIP(playerOrIP, reason, time, TheAPI.getRandomFromList(getjails()).toString());
+	}
+
+	@Override
+	public void tempjailIP(String playerOrIP, String reason, long time, String jail) {
+		if (!AbstractPunishmentAPI.isIP(playerOrIP))
+			playerOrIP = getIP(playerOrIP);
+		c.set("tempjailip." + playerOrIP + ".id", jail);
+		c.set("tempjailip." + playerOrIP + ".time", jail);
+		c.set("tempjailip." + playerOrIP + ".reason", reason);
+		c.set("tempjailip." + playerOrIP + ".start", System.currentTimeMillis() / 1000);
+		c.save();
+		for(String player : getPlayersOnIP(playerOrIP))
+		if (TheAPI.getPlayer(player) != null) {
+			TheAPI.getPlayer(player)
+					.teleport(TheAPI.getStringUtils().getLocationFromString(c.getString("jails." + jail)));
+			TheAPI.msg(reason.replace("%time%", TheAPI.getStringUtils().timeToString(time)), TheAPI.getPlayer(player));
 		}
 	}
 
@@ -218,6 +275,15 @@ public class PunishmentAPI implements AbstractPunishmentAPI {
 	}
 
 	@Override
+	public void unjailIP(String playerOrIP) {
+		if (!AbstractPunishmentAPI.isIP(playerOrIP))
+			playerOrIP = getIP(playerOrIP);
+		c.set("jailip." + playerOrIP, null);
+		c.set("tempjailip." + playerOrIP, null);
+		c.save();
+	}
+
+	@Override
 	public void unmute(String playerOrIP) {
 		if (AbstractPunishmentAPI.isIP(playerOrIP)) {
 			for (String s : getPlayersOnIP(playerOrIP))
@@ -226,6 +292,15 @@ public class PunishmentAPI implements AbstractPunishmentAPI {
 		}
 		c.set("mute." + playerOrIP, null);
 		c.set("tempmute." + playerOrIP, null);
+		c.save();
+	}
+
+	@Override
+	public void unmuteIP(String playerOrIP) {
+		if (!AbstractPunishmentAPI.isIP(playerOrIP))
+			playerOrIP = getIP(playerOrIP);
+		c.set("muteip." + playerOrIP, null);
+		c.set("tempmuteip." + playerOrIP, null);
 		c.save();
 	}
 
@@ -255,7 +330,32 @@ public class PunishmentAPI implements AbstractPunishmentAPI {
 		c.set("tempmute." + playerOrIP + ".start", System.currentTimeMillis() / 1000);
 		c.save();
 		if (TheAPI.getPlayer(playerOrIP) != null)
-			TheAPI.msg(reason, TheAPI.getPlayer(playerOrIP));
+			TheAPI.msg(reason.replace("%time%", TheAPI.getStringUtils().timeToString(time)), TheAPI.getPlayer(playerOrIP));
+	}
+
+	@Override
+	public void muteIP(String playerOrIP, String reason) {
+		if (!AbstractPunishmentAPI.isIP(playerOrIP))
+			playerOrIP = getIP(playerOrIP);
+		c.set("muteip." + playerOrIP + ".reason", reason);
+		c.set("muteip." + playerOrIP + ".start", System.currentTimeMillis() / 1000);
+		c.save();
+		for(String player : getPlayersOnIP(playerOrIP))
+		if (TheAPI.getPlayer(player) != null)
+			TheAPI.msg(reason, TheAPI.getPlayer(player));
+	}
+
+	@Override
+	public void tempmuteIP(String playerOrIP, String reason, long time) {
+		if (!AbstractPunishmentAPI.isIP(playerOrIP))
+			playerOrIP = getIP(playerOrIP);
+		c.set("tempmuteip." + playerOrIP + ".reason", reason);
+		c.set("tempmuteip." + playerOrIP + ".time", time);
+		c.set("tempmuteip." + playerOrIP + ".start", System.currentTimeMillis() / 1000);
+		c.save();
+		for(String player : getPlayersOnIP(playerOrIP))
+		if (TheAPI.getPlayer(player) != null)
+			TheAPI.msg(reason.replace("%time%", TheAPI.getStringUtils().timeToString(time)), TheAPI.getPlayer(player));
 	}
 
 	@Override
