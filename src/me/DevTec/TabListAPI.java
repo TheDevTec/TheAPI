@@ -2,16 +2,17 @@ package me.DevTec;
 
 import org.bukkit.entity.Player;
 
+import me.DevTec.NMS.NMSAPI;
 import me.DevTec.Utils.Error;
 import net.glowstone.entity.GlowPlayer;
 
 public class TabListAPI {
 
-	public void setTabListName(Player p, String name) {
+	public static void setTabListName(Player p, String name) {
 		p.setPlayerListName(TheAPI.colorize(name));
 	}
 
-	public void setHeaderFooter(Player p, String header, String footer) {
+	public static void setHeaderFooter(Player p, String header, String footer) {
 		if (p == null) {
 			Error.err("sending header/footer", "Player is null");
 			return;
@@ -24,7 +25,7 @@ public class TabListAPI {
 				Error.err("sending header/footer to " + p.getName(), "Header/Footer is null");
 			}
 		}
-		TheAPI.getNMSAPI().sendPacket(p, TheAPI.getNMSAPI()
+		NMSAPI.sendPacket(p, NMSAPI
 				.getPacketPlayOutPlayerListHeaderFooter(TheAPI.colorize(header), TheAPI.colorize(footer)));
 	}
 }

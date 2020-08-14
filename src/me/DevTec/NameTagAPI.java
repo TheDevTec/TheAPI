@@ -9,6 +9,8 @@ import org.bukkit.scoreboard.Team;
 import org.bukkit.scoreboard.Team.Option;
 import org.bukkit.scoreboard.Team.OptionStatus;
 
+import me.DevTec.Other.StringUtils;
+
 public class NameTagAPI {
 	private String prefix, suffix;
 	private Player p;
@@ -175,7 +177,7 @@ public class NameTagAPI {
 				}
 			}
 			if (TheAPI.isNewVersion())
-				t.setColor(TheAPI.getStringUtils().getColor(prefix));
+				t.setColor(StringUtils.getColor(prefix));
 		}
 		if (!t.hasPlayer(p))
 			t.addPlayer(p);

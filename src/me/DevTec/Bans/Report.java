@@ -1,7 +1,7 @@
 package me.DevTec.Bans;
 
-import me.DevTec.TheAPI;
 import me.DevTec.Other.LoaderClass;
+import me.DevTec.Other.StringUtils;
 
 public class Report {
 	private String s, p, r, m, id;
@@ -49,7 +49,7 @@ public class Report {
 	}
 
 	public int getID() {
-		return TheAPI.getStringUtils().getInt(id);
+		return StringUtils.getInt(id);
 	}
 
 	public boolean isSolved() {

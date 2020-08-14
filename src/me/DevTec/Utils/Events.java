@@ -43,12 +43,13 @@ import com.google.common.collect.Lists;
 
 import io.netty.channel.Channel;
 import me.DevTec.ConfigAPI;
+import me.DevTec.SignAPI;
 import me.DevTec.SignAPI.SignAction;
 import me.DevTec.TheAPI;
 import me.DevTec.TheAPI.SudoType;
-import me.DevTec.Bans.BanList;
 import me.DevTec.Bans.PlayerBanList;
 import me.DevTec.Bans.PlayerBanList.PunishmentType;
+import me.DevTec.Bans.PunishmentAPI;
 import me.DevTec.Blocks.BlocksAPI;
 import me.DevTec.Blocks.BlocksAPI.Shape;
 import me.DevTec.Events.DamageGodPlayerByEntityEvent;
@@ -61,6 +62,7 @@ import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.Position;
 import me.DevTec.Other.Ref;
 import me.DevTec.Other.Storage;
+import me.DevTec.Other.StringUtils;
 import me.DevTec.Other.TheMaterial;
 import me.DevTec.Other.User;
 import me.DevTec.WorldsManager.WorldBorderAPI.WarningMessageType;
@@ -107,10 +109,9 @@ public class Events implements Listener {
 		if (e.isCancelled())
 			return;
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getClickedBlock().getType().name().contains("SIGN")) {
-			if (TheAPI.getSignAPI().getRegistredSigns().contains(new Position(e.getClickedBlock().getLocation()))) {
+			if (SignAPI.getRegistredSigns().contains(new Position(e.getClickedBlock().getLocation()))) {
 				e.setCancelled(true);
-				HashMap<SignAction, List<String>> as = TheAPI.getSignAPI()
-						.getSignActions((Sign) e.getClickedBlock().getState());
+				HashMap<SignAction, List<String>> as = SignAPI.getSignActions((Sign) e.getClickedBlock().getState());
 				for (SignAction a : as.keySet()) {
 					switch (a) {
 					case PLAYER_COMMANDS:
@@ -321,12 +322,12 @@ public class Events implements Listener {
 	public void onBreak(BlockBreakEvent e) {
 		if (e.isCancelled())
 			return;
-		PlayerBanList p = banlist.getBanList(e.getPlayer().getName());
+		PlayerBanList p = PunishmentAPI.getBanList(e.getPlayer().getName());
 		if (p.isJailed() || p.isTempJailed() || p.isIPJailed() || p.isTempIPJailed())
 			e.setCancelled(true);
 		 else {
 			if (e.getBlock().getType().name().contains("SIGN") && !e.isCancelled()) {
-				TheAPI.getSignAPI().removeSign(new Position(e.getBlock().getLocation()));
+				SignAPI.removeSign(new Position(e.getBlock().getLocation()));
 			}
 		}
 	}
@@ -405,7 +406,7 @@ public class Events implements Listener {
 		}
 		User s = TheAPI.getUser(e.getUniqueId());
 		s.setAndSave("ip", (e.getAddress()+"").replace("/", "").replace(".", "_"));
-		PlayerBanList a = banlist.getBanList(s.getName());
+		PlayerBanList a = PunishmentAPI.getBanList(s.getName());
 		try {
 			if (a.isBanned()) {
 				e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.BAN).replace("\\n", "\n")));
@@ -414,7 +415,7 @@ public class Events implements Listener {
 			if (a.isTempBanned()) {
 				e.disallow(Result.KICK_BANNED,
 						TheAPI.colorize(a.getReason(PunishmentType.TEMPBAN).replace("\\n", "\n")).replace("%time%",
-								TheAPI.getStringUtils().setTimeToString(a.getExpire(PunishmentType.TEMPBAN))));
+								StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBAN))));
 				return;
 			}
 			if (a.isIPBanned()) {
@@ -424,7 +425,7 @@ public class Events implements Listener {
 			if (a.isTempIPBanned()) {
 				e.disallow(Result.KICK_BANNED,
 						TheAPI.colorize(a.getReason(PunishmentType.TEMPBANIP).replace("\\n", "\n")).replace("%time%",
-								TheAPI.getStringUtils().setTimeToString(a.getExpire(PunishmentType.TEMPBANIP))));
+								StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBANIP))));
 				return;
 			}
 		} catch (Exception ad) {
@@ -472,7 +473,7 @@ public class Events implements Listener {
 			List<String> pl = Lists.newArrayList();
 			for(Plugin a : LoaderClass.plugin.getTheAPIsPlugins())pl.add(a.getName());
 			if(!pl.isEmpty())
-			TheAPI.msg("&ePlugins using TheAPI: &6"+TheAPI.getStringUtils().join(pl, ", "), s);
+			TheAPI.msg("&ePlugins using TheAPI: &6"+StringUtils.join(pl, ", "), s);
 		}
 		for (Player p : TheAPI.getOnlinePlayers()) {
 			if (TheAPI.isVanished(p) && (TheAPI.getUser(p).exist("vanish")
@@ -484,13 +485,11 @@ public class Events implements Listener {
 		if (TheAPI.isVanished(s))
 			TheAPI.vanish(s, TheAPI.getUser(s).getString("vanish"), true);
 	}
-
-	private static final BanList banlist = TheAPI.getPunishmentAPI().getBanList();
 	
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlace(BlockPlaceEvent e) {
 		if (e.isCancelled())return;
-		PlayerBanList p = banlist.getBanList(e.getPlayer().getName());
+		PlayerBanList p = PunishmentAPI.getBanList(e.getPlayer().getName());
 		if (p.isJailed() || p.isTempJailed() || p.isIPJailed() || p.isTempIPJailed())
 			e.setCancelled(true);
 	}
@@ -501,7 +500,7 @@ public class Events implements Listener {
 			return;
 		if (e.getEntity() instanceof Player) {
 			Player d = (Player) e.getEntity();
-			PlayerBanList p = banlist.getBanList(d.getName());
+			PlayerBanList p = PunishmentAPI.getBanList(d.getName());
 			if (p.isJailed() || p.isTempJailed() ||p.isIPJailed() || p.isTempIPJailed()) {
 				e.setCancelled(true);
 				return;
@@ -577,11 +576,11 @@ public class Events implements Listener {
 	public void onChat(PlayerChatEvent e) {
 		if (e.isCancelled())
 			return;
-		PlayerBanList b = banlist.getBanList(d.getName());
+		PlayerBanList b = PunishmentAPI.getBanList(d.getName());
 		if (b.isTempMuted()) {
 			e.setCancelled(true);
 			TheAPI.msg(b.getReason(PunishmentType.TEMPMUTE).replace("%time%",
-							TheAPI.getStringUtils().setTimeToString(b.getExpire(PunishmentType.TEMPMUTE))),e.getPlayer());
+							StringUtils.setTimeToString(b.getExpire(PunishmentType.TEMPMUTE))),e.getPlayer());
 			return;
 		}
 		if (b.isMuted()) {
@@ -592,7 +591,7 @@ public class Events implements Listener {
 		if (b.isTempIPMuted()) {
 			e.setCancelled(true);
 			TheAPI.msg(b.getReason(PunishmentType.TEMPMUTEIP).replace("%time%",
-							TheAPI.getStringUtils().setTimeToString(b.getExpire(PunishmentType.TEMPMUTEIP))),e.getPlayer());
+							StringUtils.setTimeToString(b.getExpire(PunishmentType.TEMPMUTEIP))),e.getPlayer());
 			return;
 		}
 		if (b.isIPMuted()) {

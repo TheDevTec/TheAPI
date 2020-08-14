@@ -20,17 +20,16 @@ import me.DevTec.Events.EntityMoveEvent;
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.Ref;
 import me.DevTec.Other.StringUtils;
+import me.DevTec.Placeholders.PlaceholderAPI;
 import me.DevTec.Scheduler.Scheduler;
 import me.DevTec.Scheduler.Tasker;
 
 public class Tasks {
-	private static StringUtils f;
 	private static boolean load;
 	private static int task;
 	private static me.DevTec.NMS.PacketListeners.Listener l=null;
 
 	public static void load() {
-		f = TheAPI.getStringUtils();
 		FileConfiguration c = LoaderClass.config.getConfig();
 		FileConfiguration v = LoaderClass.unused.getConfig();
 		if (load)
@@ -47,7 +46,7 @@ public class Tasks {
 					GameProfile[] texts = new GameProfile[LoaderClass.plugin.onlineText.size()];
 					int i = 0;
 					for(String s : LoaderClass.plugin.onlineText) {
-						texts[i]=new GameProfile(UUID.randomUUID(), TheAPI.colorize(TheAPI.getPlaceholderAPI().setPlaceholders(null, s)));
+						texts[i]=new GameProfile(UUID.randomUUID(), TheAPI.colorize(PlaceholderAPI.setPlaceholders(null, s)));
 						++i;
 					}
 					Ref.set(sd, "c", texts);
@@ -71,7 +70,7 @@ public class Tasks {
 					}
 					Ref.set(w, "b", sd);
 					if(LoaderClass.plugin.motd!=null)
-					Ref.set(w, "a", Ref.IChatBaseComponent(TheAPI.colorize(TheAPI.getPlaceholderAPI().setPlaceholders(null, LoaderClass.plugin.motd))));
+					Ref.set(w, "a", Ref.IChatBaseComponent(TheAPI.colorize(PlaceholderAPI.setPlaceholders(null, LoaderClass.plugin.motd))));
 					Ref.set(packet, "b", w);
 				}
 			}
@@ -93,17 +92,17 @@ public class Tasks {
 								Location a = d.getLocation();
 								LivingEntity e = (LivingEntity) d;
 								Location old = (v.getString("entities." + e.getUniqueId()) != null
-										? f.getLocationFromString(v.getString("entities." + e.getUniqueId()))
+										? StringUtils.getLocationFromString(v.getString("entities." + e.getUniqueId()))
 										: a);
 								if (v.getString("entities." + e.getUniqueId()) != null
-										&& f.getLocationFromString(v.getString("entities." + e.getUniqueId())) != a) {
+										&& StringUtils.getLocationFromString(v.getString("entities." + e.getUniqueId())) != a) {
 									EntityMoveEvent event = new EntityMoveEvent(e, old, a);
 									Bukkit.getPluginManager().callEvent(event);
 									if (event.isCancelled())
 										e.teleport(old);
 									else
 										LoaderClass.unused.getConfig().set("entities." + e.getUniqueId(),
-												f.getLocationAsString(a));
+												StringUtils.getLocationAsString(a));
 								}
 							}
 						}

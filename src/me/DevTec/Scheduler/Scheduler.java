@@ -3,7 +3,7 @@ package me.DevTec.Scheduler;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import me.DevTec.TheAPI;
+import me.DevTec.NMS.NMSAPI;
 import me.DevTec.Other.LoaderClass;
 
 public class Scheduler {
@@ -53,7 +53,7 @@ public class Scheduler {
 		Task t = run(task, false, false);
 		new Thread(new Runnable() {
 			public void run() {
-				TheAPI.getNMSAPI().postToMainThread(task);
+				NMSAPI.postToMainThread(task);
 				cancelTask(t);
 				Thread.interrupted();
 			}

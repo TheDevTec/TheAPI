@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import me.DevTec.TheAPI;
 import me.DevTec.NMS.DataWatchers.DataWatcher;
 import me.DevTec.Other.LoaderClass;
+import me.DevTec.Other.StringUtils;
 
 public class NMSAPI {
 	
@@ -144,45 +145,45 @@ public class NMSAPI {
 	}
 	
 	//Entity
-	public Object getPacketPlayOutEntityMetadata(Entity entity) {
+	public static Object getPacketPlayOutEntityMetadata(Entity entity) {
 		Object o = getEntity(entity);
 		return getPacketPlayOutEntityMetadata(entity.getEntityId(), Reflections.invoke(o, Reflections.getMethod(o.getClass(), "getDataWatcher")));
 	}
 	
 	//Entity
-	public Object getPacketPlayOutEntityMetadata(Object entity) {
+	public static Object getPacketPlayOutEntityMetadata(Object entity) {
 		return getPacketPlayOutEntityMetadata((int)Reflections.invoke(entity, Reflections.getMethod(entity.getClass(), "getId")), Reflections.invoke(entity, Reflections.getMethod(entity.getClass(), "getDataWatcher")));
 	}
 	
-	public Object getPacketPlayOutEntityMetadata(Entity entity, DataWatcher dataWatcher) {
+	public static Object getPacketPlayOutEntityMetadata(Entity entity, DataWatcher dataWatcher) {
 		return Reflections.c(metadata, entity.getEntityId(),dataWatcher.getDataWatcher(),true);
 	}
 	
-	public Object getPacketPlayOutEntityMetadata(int entityId, DataWatcher dataWatcher) {
+	public static Object getPacketPlayOutEntityMetadata(int entityId, DataWatcher dataWatcher) {
 		return Reflections.c(metadata, entityId,dataWatcher.getDataWatcher(),true);
 	}
 	
 	//EntityId, DataWatcher
-	public Object getPacketPlayOutEntityMetadata(int entityId, Object dataWatcher) {
+	public static Object getPacketPlayOutEntityMetadata(int entityId, Object dataWatcher) {
 		return Reflections.c(metadata, entityId,dataWatcher,true);
 	}
 
-	public Object getPacketPlayOutScoreboardObjective() {
+	public static Object getPacketPlayOutScoreboardObjective() {
 		return Reflections.c(sbobj);
 	}
 	
-	public Object getPacketPlayOutScoreboardDisplayObjective() {
+	public static Object getPacketPlayOutScoreboardDisplayObjective() {
 		return Reflections.c(sbdisplayobj);
 	}
 	
-	public Object getPacketPlayOutOpenSignEditor(Object position) {
+	public static Object getPacketPlayOutOpenSignEditor(Object position) {
 		return Reflections.c(pSign, position);
 	}
 	
-	public Object getPacketPlayOutEntityTeleport(Object entity) {
+	public static Object getPacketPlayOutEntityTeleport(Object entity) {
 		return Reflections.c(pTeleport, entity);
 	}
-	public Object getPacketPlayOutScoreboardScore(Action action, String player, String line, int score) {
+	public static Object getPacketPlayOutScoreboardScore(Action action, String player, String line, int score) {
 		Object o = Reflections.c(NMSAPI.score,line);
 		if(o!=null) {
 			Reflections.setField(o, scoreb, player);
@@ -193,78 +194,78 @@ public class NMSAPI {
 		return Reflections.c(NMSAPI.score,getScoreboardAction(action),player, line, score);
 	}
 	
-	public Object getScoreboardAction(Action type) {
+	public static Object getScoreboardAction(Action type) {
 		return type == Action.CHANGE ? sbchange : sbremove;
 	}
 	
-	public Object getEnumScoreboardHealthDisplay(DisplayType type) {
+	public static Object getEnumScoreboardHealthDisplay(DisplayType type) {
 		return type == DisplayType.HEARTS ? sbhearts : sbinteger;
 	}
 
-	public Object getPacketPlayOutScoreboardTeam() {
+	public static Object getPacketPlayOutScoreboardTeam() {
 		return Reflections.c(sbteam);
 	}
 	
 	// return DataPaletteBlock<IBlockData>
-	public Object getChunkSectionBlocks(Object ChunkSection) {
+	public static Object getChunkSectionBlocks(Object ChunkSection) {
 		return Reflections.invoke(ChunkSection, getblocks);
 	}
 
-	public void setChunkSectionsBlocks(int chunksection, int x, int y, int z, Object IBlockData) {
+	public static void setChunkSectionsBlocks(int chunksection, int x, int y, int z, Object IBlockData) {
 		setChunkSectionsBlocks(getChunkSection(chunksection), x, y, z, IBlockData);
 	}
 
-	public void setChunkSectionsBlocks(Object chunksection, int x, int y, int z, Object IBlockData) {
+	public static void setChunkSectionsBlocks(Object chunksection, int x, int y, int z, Object IBlockData) {
 		Reflections.invoke(chunksection, setblock, x, y, z, IBlockData);
 	}
 
-	public void postToMainThread(Runnable runnable) {
+	public static void postToMainThread(Runnable runnable) {
 		Reflections.invoke(getServer(), post, runnable);
 	}
 
-	public void setChunkSectionsBlocksByMethodB(Object chunksection, int x, int y, int z, Object IBlockData) {
+	public static void setChunkSectionsBlocksByMethodB(Object chunksection, int x, int y, int z, Object IBlockData) {
 		if(Reflections.invoke(chunksection, setblockb, x, y, z, IBlockData)==null)
 			Reflections.invoke(chunksection, setblock, x, y, z, IBlockData);
 	}
 
-	public Object getChunkSection(int y) {
+	public static Object getChunkSection(int y) {
 		Object o = Reflections.c(ChunkSection, y);
 		return o != null ? o : Reflections.c(ChunkSection, y, true);
 	}
 
-	public NMSPlayer getNMSPlayerAPI(Player p) {
+	public static NMSPlayer getNMSPlayerAPI(Player p) {
 		return new NMSPlayer(getPlayer(p));
 	}
 
-	public NMSPlayer getNMSPlayerAPI(Object entityPlayer) {
+	public static NMSPlayer getNMSPlayerAPI(Object entityPlayer) {
 		return new NMSPlayer(entityPlayer);
 	}
 
-	public Object getChunk(Chunk chunk) {
+	public static Object getChunk(Chunk chunk) {
 		return getChunk(getCraftChunk(chunk));
 	}
 
-	public Object getChunk(Object CraftChunk) {
+	public static Object getChunk(Object CraftChunk) {
 		return Reflections.invoke(CraftChunk, Chunk);
 	}
 
-	public Object getCraftChunk(Chunk chunk) {
+	public static Object getCraftChunk(Chunk chunk) {
 		return Reflections.getBukkitClass("CraftChunk").cast(chunk);
 	}
 
-	public Object getChunkCoordIntPair(int x, int z) {
+	public static Object getChunkCoordIntPair(int x, int z) {
 		return Reflections.c(chunkc, x, z);
 	}
 
-	public Object getChunkCoordIntPair(Chunk chunk) {
+	public static Object getChunkCoordIntPair(Chunk chunk) {
 		return getChunkCoordIntPair(chunk.getX(),chunk.getZ());
 	}
 
-	public Class<?> getMinecraftServer() {
+	public static Class<?> getMinecraftServer() {
 		return server;
 	}
 
-	public ArrayList<String> getOnlinePlayersNames() {
+	public static ArrayList<String> getOnlinePlayersNames() {
 		ArrayList<String> a = new ArrayList<String>();
 		List<?> list = (List<?>) Reflections.get(Reflections.getField(Reflections.getNMSClass("PlayerList"), "players"),getPlayerList());
 		for (Object s : list) {
@@ -273,7 +274,7 @@ public class NMSAPI {
 		return a;
 	}
 
-	public ArrayList<Player> getOnlinePlayers() {
+	public static ArrayList<Player> getOnlinePlayers() {
 		ArrayList<Player> a = new ArrayList<Player>();
 		List<?> list = (List<?>) Reflections.get(Reflections.getField(Reflections.getNMSClass("PlayerList"), "players"),getPlayerList());
 		for (Object s : list) {
@@ -282,15 +283,15 @@ public class NMSAPI {
 		return a;
 	}
 
-	public Object getPlayerList() {
+	public static Object getPlayerList() {
 		return Reflections.invoke(getServer(), plist);
 	}
 
-	public Object getServer() {
+	public static Object getServer() {
 		return Reflections.invoke(server, getser);
 	}
 
-	public double[] getServerTPS() {
+	public static double[] getServerTPS() {
 		return (double[]) Reflections.get(tps, getServer());
 	}
 
@@ -302,36 +303,36 @@ public class NMSAPI {
 		CHAT, GAME_INFO, SYSTEM
 	}
 
-	public Object getMaterial(Object IBlockData) {
+	public static Object getMaterial(Object IBlockData) {
 		return Reflections.invoke(IBlockData, getmat);
 	}
 
-	public Object getBlock(Object IBlockData) {
+	public static Object getBlock(Object IBlockData) {
 		return Reflections.invoke(IBlockData, getb);
 	}
 
-	public Object getItemStack(org.bukkit.inventory.ItemStack stack) {
+	public static Object getItemStack(org.bukkit.inventory.ItemStack stack) {
 		return Reflections.invoke(null, itemstack, stack);
 	}
 
-	public Object getPacketPlayOutWorldParticles(Particle effect, Location loc) {
+	public static Object getPacketPlayOutWorldParticles(Particle effect, Location loc) {
 		return create(effect, (float) loc.getX(), (float) loc.getY(), (float) loc.getZ(), 1, 1, null, 0, 0, 0);
 	}
 
-	public Object getPacketPlayOutWorldParticles(Particle effect, Location loc, ParticleData data) {
+	public static Object getPacketPlayOutWorldParticles(Particle effect, Location loc, ParticleData data) {
 		return create(effect, (float) loc.getX(), (float) loc.getY(), (float) loc.getZ(), 1, 1, data, 0, 0, 0);
 	}
 
-	public Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, int amount,
+	public static Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, int amount,
 			ParticleData data) {
 		return create(effect, x, y, z, 1, amount, data, 0, 0, 0);
 	}
 
-	public Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, ParticleData data) {
+	public static Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, ParticleData data) {
 		return create(effect, x, y, z, 1, 1, data, 0, 0, 0);
 	}
 
-	public Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, float speed, int amount,
+	public static Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, float speed, int amount,
 			ParticleColor color) {
 		if (effect == Particle.REDSTONE && color.getRed() == 0) {
 			return create(effect, x, y, z, speed, amount, null, Float.MIN_NORMAL, color.getValueY(), color.getValueZ());
@@ -339,7 +340,7 @@ public class NMSAPI {
 		return create(effect, x, y, z, speed, amount, null, color.getValueX(), color.getValueY(), color.getValueZ());
 	}
 
-	public Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, float speed,
+	public static Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, float speed,
 			ParticleColor color) {
 		if (effect == Particle.REDSTONE && color.getRed() == 0) {
 			return create(effect, x, y, z, speed, 1, null, Float.MIN_NORMAL, color.getValueY(), color.getValueZ());
@@ -347,14 +348,14 @@ public class NMSAPI {
 		return create(effect, x, y, z, speed, 1, null, color.getValueX(), color.getValueY(), color.getValueZ());
 	}
 
-	public Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, ParticleColor color) {
+	public static Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, ParticleColor color) {
 		if (effect == Particle.REDSTONE && color.getRed() == 0) {
 			return create(effect, x, y, z, 1, 1, null, Float.MIN_NORMAL, color.getValueY(), color.getValueZ());
 		}
 		return create(effect, x, y, z, 1, 1, null, color.getValueX(), color.getValueY(), color.getValueZ());
 	}
 
-	public Object getPacketPlayOutWorldParticles(Particle effect, Location loc, ParticleColor color) {
+	public static Object getPacketPlayOutWorldParticles(Particle effect, Location loc, ParticleColor color) {
 		if (effect == Particle.REDSTONE && color.getRed() == 0) {
 			return create(effect, (float) loc.getX(), (float) loc.getY(), (float) loc.getZ(), 1, 1, null,
 					Float.MIN_NORMAL, color.getValueY(), color.getValueZ());
@@ -363,7 +364,7 @@ public class NMSAPI {
 				color.getValueY(), color.getValueZ());
 	}
 
-	public Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, float speed, int amount,
+	public static Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, float speed, int amount,
 			ParticleData data) {
 		if (speed < 0)
 			throw new IllegalArgumentException("The speed is lower than 0");
@@ -371,10 +372,10 @@ public class NMSAPI {
 			throw new IllegalArgumentException("The amount is lower than 0");
 		return create(effect, x, y, z, speed, amount, data, 0, 0, 0);
 	}
-	private Object create(Particle effect, float x, float y, float z, float speed, int amount, ParticleData data,
+	private static Object create(Particle effect, float x, float y, float z, float speed, int amount, ParticleData data,
 			float floatx, float floaty, float floatz) {
 			Object packet = Reflections.c(particle);
-			if (TheAPI.getStringUtils().getInt(TheAPI.getServerVersion().split("_")[1]) < 8) {
+			if (StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]) < 8) {
 				String name = effect.name();
 				if (data != null) {
 					name += data.getPacketDataString();
@@ -400,81 +401,81 @@ public class NMSAPI {
 			return packet;
 	}
 
-	public Object getChunk(Object World, int x, int z) {
+	public static Object getChunk(Object World, int x, int z) {
 		return Reflections.invoke(World, getc, x,z);
 	}
 
-	public Object getIBlockData(Object World, Object blockPosition) {
+	public static Object getIBlockData(Object World, Object blockPosition) {
 		return Reflections.invoke(World, gett, blockPosition);
 	}
 
-	public Object getIBlockData(Object World, int x, int y, int z) {
+	public static Object getIBlockData(Object World, int x, int y, int z) {
 		return getIBlockData(World, getBlockPosition(x, y, z));
 	}
 
-	public Object getIBlockData(World world, Object blockPosition) {
+	public static Object getIBlockData(World world, Object blockPosition) {
 		return getIBlockData(getWorld(world), blockPosition);
 	}
 
-	public Object getIBlockData(World world, int x, int y, int z) {
+	public static Object getIBlockData(World world, int x, int y, int z) {
 		return getIBlockData(getWorld(world), getBlockPosition(x, y, z));
 	}
 
-	public Object getChunk(World world, int x, int z) {
+	public static Object getChunk(World world, int x, int z) {
 		return getChunk(getWorld(world), x, z);
 	}
 
-	public Object getPacketPlayOutTitle(TitleAction action, Object IChatBaseComponent) {
+	public static Object getPacketPlayOutTitle(TitleAction action, Object IChatBaseComponent) {
 		return getPacketPlayOutTitle(action, IChatBaseComponent, 10, 20, 10);
 	}
 
-	public Object getPacketPlayOutOpenWindow(int id, String container, String text) {
+	public static Object getPacketPlayOutOpenWindow(int id, String container, String text) {
 		return getPacketPlayOutOpenWindow(id, container, getIChatBaseComponentText(text));
 	}
 
-	public Object getPacketPlayOutOpenWindow(int id, String container, Object IChatBaseComponent) {
+	public static Object getPacketPlayOutOpenWindow(int id, String container, Object IChatBaseComponent) {
 		Object o = Reflections.c(pWindow, id, container, IChatBaseComponent);
 		return o!=null ? o : Reflections.c(pWindow, id,  Reflections.get(Reflections.getField(Containers, container),null), IChatBaseComponent);
 	}
 
-	public Object getPacketPlayOutTitle(TitleAction action, Object IChatBaseComponent, int fadeIn, int stay, int fadeOut) {
+	public static Object getPacketPlayOutTitle(TitleAction action, Object IChatBaseComponent, int fadeIn, int stay, int fadeOut) {
 		return Reflections.c(pTitle, Reflections.get(Reflections.getField(enumTitle, action.name()),null), IChatBaseComponent, fadeIn, stay,fadeOut);
 	}
 
-	public Object getPacketPlayOutTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut) {
+	public static Object getPacketPlayOutTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut) {
 		return getPacketPlayOutTitle(action, getIChatBaseComponentText(text), fadeIn, stay, fadeOut);
 	}
 
-	public Object getPacketPlayOutTitle(TitleAction action, String text) {
+	public static Object getPacketPlayOutTitle(TitleAction action, String text) {
 		return getPacketPlayOutTitle(action, getIChatBaseComponentText(text), 10, 20, 10);
 	}
 
-	public Object getPacketPlayOutMapChunk(Object Chunk, int workers) {
+	public static Object getPacketPlayOutMapChunk(Object Chunk, int workers) {
 		return getPacketPlayOutMapChunk(Chunk, true, workers);
 	}
 
-	public Object getPacketPlayOutMapChunk(World world, int x, int z, int workers) {
+	public static Object getPacketPlayOutMapChunk(World world, int x, int z, int workers) {
 		return getPacketPlayOutMapChunk(getChunk(world, x, z), workers);
 	}
 
-	public Object getPacketPlayOutMapChunk(World world, int x, int z, boolean value, int workers) {
+	public static Object getPacketPlayOutMapChunk(World world, int x, int z, boolean value, int workers) {
 		return getPacketPlayOutMapChunk(getChunk(world, x, z), value, workers);
 	}
 
-	public Object getPacketPlayOutMapChunk(Object World, int x, int z, int workers) {
+	public static Object getPacketPlayOutMapChunk(Object World, int x, int z, int workers) {
 		return getPacketPlayOutMapChunk(getChunk(World, x, z), workers);
 	}
 
-	public Object getPacketPlayOutMapChunk(Object World, int x, int z, boolean value, int workers) {
+	public static Object getPacketPlayOutMapChunk(Object World, int x, int z, boolean value, int workers) {
 		return getPacketPlayOutMapChunk(getChunk(World, x, z), value, workers);
 	}
 
-	public Object getPacketPlayOutMapChunk(Object Chunk, boolean value, int workers) {
+	public static Object getPacketPlayOutMapChunk(Object Chunk, boolean value, int workers) {
 		Object o = Reflections.c(pChunk,Chunk, workers);
 		return o != null ? o : Reflections.c(pChunk,Chunk, value, workers);
 	}
 
-	public void refleshBlock(Object world, Object blockposition, Object oldBlock, Object newBlock) {
+	public static void refleshBlock(Object world, Object blockposition, Object oldBlock, Object newBlock) {
 		Reflections.invoke(world, Reflections.getMethod(NMSAPI.world, "notify", pos, iblockdata, iblockdata, int.class),blockposition, oldBlock, newBlock, 3);
 	}
 	
@@ -483,20 +484,20 @@ public class NMSAPI {
 	/**
 	 * @see see ActionBar if version is 1.7.10
 	 */
-	public Object getPacketPlayOutChat(ChatType type, Object IChatBaseComponent) {
+	public static Object getPacketPlayOutChat(ChatType type, Object IChatBaseComponent) {
 		Object o = Reflections.c(pOutChat,IChatBaseComponent, Reflections.get(Reflections.getField(enumChat, type.name()),null));
 		return o != null ? o : Reflections.c(pOutChat,IChatBaseComponent, 2);
 	}
 
-	public Object getPacketPlayOutChat(ChatType type, String text) {
+	public static Object getPacketPlayOutChat(ChatType type, String text) {
 		return getPacketPlayOutChat(type, getIChatBaseComponentText(text));
 	}
 
-	public Object getType(World w, int x, int y, int z) {
+	public static Object getType(World w, int x, int y, int z) {
 		return Reflections.invoke(getWorld(w), Reflections.getMethod(world, "getType", pos), getBlockPosition(x, y, z));
 	}
 
-	public void setBlock(World world, int x, int y, int z, Material material, int data, boolean applyPsychics) {
+	public static void setBlock(World world, int x, int y, int z, Material material, int data, boolean applyPsychics) {
 		world.getBlockAt(x, y, z).getDrops().clear();
 		Object old = getIBlockData(world, x,y,z);
 		Object newIblock = getIBlockData(material, data), position = getBlockPosition(x, y, z), World = getWorld(world);
@@ -504,21 +505,21 @@ public class NMSAPI {
 		LoaderClass.plugin.refleshing.add(new Object[] {getWorld(world),getBlockPosition(x, y, z),old,newIblock});
 	}
 
-	public void setBlock(World world, int x, int y, int z, Material material, boolean applyPsychics) {
+	public static void setBlock(World world, int x, int y, int z, Material material, boolean applyPsychics) {
 		setBlock(world, x, y, z, material, 0, applyPsychics);
 	}
 
-	public void setBlock(Location loc, Material material, int data, boolean applyPsychics) {
+	public static void setBlock(Location loc, Material material, int data, boolean applyPsychics) {
 		setBlock(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), material, data,
 				applyPsychics);
 	}
 
-	public Object getIBlockData(Material material) {
+	public static Object getIBlockData(Material material) {
 		return getIBlockData(material, 0);
 	}
 
 	@SuppressWarnings("deprecation")
-	public Object getIBlockData(Material material, int data) {
+	public static Object getIBlockData(Material material, int data) {
 		try {
 			// 1.13+ only
 			Object o = Reflections.cast(Reflections.getNMSClass("block.data.CraftBlockData"), Bukkit.createBlockData(material));
@@ -533,31 +534,31 @@ public class NMSAPI {
 		}
 	}
 
-	public Object getPacketPlayOutEntityDestroy(int... id) {
+	public static Object getPacketPlayOutEntityDestroy(int... id) {
 		return Reflections.c(pDestroy, id);
 	}
 
-	public Object getEntity(Entity entity) {
+	public static Object getEntity(Entity entity) {
 		return Reflections.invoke(Reflections.cast(Reflections.getBukkitClass("entity.CraftEntity"), entity),entityM);
 	}
 
-	public Object getEntityLiving(LivingEntity entity) {
+	public static Object getEntityLiving(LivingEntity entity) {
 		return Reflections.invoke(Reflections.cast(Reflections.getBukkitClass("entity.CraftLivingEntity"), entity),livingentity);
 	}
 
-	public Object getPacketPlayOutSpawnEntity(Object entity, int id) {
+	public static Object getPacketPlayOutSpawnEntity(Object entity, int id) {
 		return Reflections.c(pSpawn, entity, id);
 	}
 
-	public Object getPacketPlayOutNamedEntitySpawn(Object Player) {
+	public static Object getPacketPlayOutNamedEntitySpawn(Object Player) {
 		return Reflections.c(pNSpawn, Player);
 	}
 
-	public Object getPacketPlayOutSpawnEntityLiving(Object entityLiving) {
+	public static Object getPacketPlayOutSpawnEntityLiving(Object entityLiving) {
 		return Reflections.c(pLSpawn, entityLiving);
 	}
 
-	public Object getPacketPlayOutPlayerListHeaderFooter(Object headerIChatBaseComponent,
+	public static Object getPacketPlayOutPlayerListHeaderFooter(Object headerIChatBaseComponent,
 			Object footerIChatBaseComponent) {
 			Object packet = Reflections.c(pTab);
 			Field aField = null;
@@ -573,70 +574,70 @@ public class NMSAPI {
 			return packet;
 	}
 
-	public Object getPacketPlayOutPlayerListHeaderFooter(String header, String footer) {
+	public static Object getPacketPlayOutPlayerListHeaderFooter(String header, String footer) {
 		return getPacketPlayOutPlayerListHeaderFooter(getIChatBaseComponentText(header),
 				getIChatBaseComponentText(footer));
 	}
 
-	public Object getCraftWorld(World world) {
+	public static Object getCraftWorld(World world) {
 		return bWorld.cast(world);
 	}
 
-	public Object getWorld(World world) {
+	public static Object getWorld(World world) {
 		return getWorld(getCraftWorld(world));
 	}
 
-	public Object getWorld(Object craftWorld) {
+	public static Object getWorld(Object craftWorld) {
 		return Reflections.invoke(craftWorld, WorldHandle);
 	}
 
-	public Object getCraftPlayer(Player player) {
+	public static Object getCraftPlayer(Player player) {
 		return Reflections.cast(bPlayer, player);
 	}
 
-	public Object getPlayer(Player player) {
+	public static Object getPlayer(Player player) {
 		return getPlayer(getCraftPlayer(player));
 	}
 
-	public Object getPlayer(Object CraftPlayer) {
+	public static Object getPlayer(Object CraftPlayer) {
 		return Reflections.invoke(CraftPlayer,PlayerHandle);
 	}
 
-	public void sendPacket(Player player, Object packet) {
+	public static void sendPacket(Player player, Object packet) {
 		getNMSPlayerAPI(player).sendPacket(packet);
 	}
 
-	public Object getPacketPlayOutBlockChange(Object World, int x, int y, int z) {
+	public static Object getPacketPlayOutBlockChange(Object World, int x, int y, int z) {
 		return getPacketPlayOutBlockChange(World, getBlockPosition(x, y, z));
 	}
 
-	public Object getPacketPlayOutBlockChange(World world, Object BlockPosition) {
+	public static Object getPacketPlayOutBlockChange(World world, Object BlockPosition) {
 		return getPacketPlayOutBlockChange(getWorld(world), BlockPosition);
 	}
 
-	public Object getPacketPlayOutBlockChange(World world, int x, int y, int z) {
+	public static Object getPacketPlayOutBlockChange(World world, int x, int y, int z) {
 		return getPacketPlayOutBlockChange(getWorld(world), getBlockPosition(x, y, z));
 	}
 
-	public Object getPacketPlayOutBlockChange(Object World, Object BlockPosition) {
+	public static Object getPacketPlayOutBlockChange(Object World, Object BlockPosition) {
 		return Reflections.c(pBlock, World, BlockPosition);
 	}
 
-	public Object getBlockPosition(int x, int y, int z) {
+	public static Object getBlockPosition(int x, int y, int z) {
 		return Reflections.c(blockPos, x, y, z);
 	}
 
-	public Object getIChatBaseComponentText(String text) {
+	public static Object getIChatBaseComponentText(String text) {
 		return getIChatBaseComponentJson("{\"text\":\"" + text + "\"}");
 	}
 	
-	public Object getIChatBaseComponentJson(String json) {
+	public static Object getIChatBaseComponentJson(String json) {
 			if (oldichatser != null)
 				return Reflections.invoke(null, oldichatser, json);
 			return Reflections.invoke(null, ichatcon, json);
 	}
 
-	public Thread getServerThread() {
+	public static Thread getServerThread() {
 		Object o = Reflections.get(Reflections.getField(Reflections.getNMSClass("MinecraftServer"),"primaryThread"),getServer());
 		return o != null ? (Thread)o : (Thread)Reflections.get(Reflections.getField(Reflections.getNMSClass("MinecraftServer"),"serverThread"),getServer());
 	}

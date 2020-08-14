@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 
-import me.DevTec.TheAPI;
+import me.DevTec.NMS.NMSAPI;
 
 public class HoverMessage {
 
@@ -101,6 +101,6 @@ public class HoverMessage {
 	}
 
 	public void send(Player player) {
-		TheAPI.getNMSAPI().sendPacket(player, TheAPI.getNMSAPI().getIChatBaseComponentJson(getJson()));
+		NMSAPI.sendPacket(player, NMSAPI.getIChatBaseComponentJson(getJson()));
 	}
 }

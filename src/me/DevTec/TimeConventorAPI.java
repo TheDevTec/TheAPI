@@ -1,5 +1,7 @@
 package me.DevTec;
 
+import me.DevTec.Other.StringUtils;
+
 public class TimeConventorAPI {
 
 	/**
@@ -8,7 +10,7 @@ public class TimeConventorAPI {
 	 * @return long
 	 */
 	public long getTimeFromString(String s) {
-		return TheAPI.getStringUtils().getTimeFromString(s);
+		return StringUtils.timeFromString(s);
 	}
 
 	/**
@@ -17,6 +19,6 @@ public class TimeConventorAPI {
 	 * @return String
 	 */
 	public String setTimeToString(long l) {
-		return TheAPI.getStringUtils().setTimeToString(l);
+		return StringUtils.timeToString(l);
 	}
 }

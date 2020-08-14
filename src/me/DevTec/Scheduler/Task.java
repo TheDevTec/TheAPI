@@ -1,6 +1,6 @@
 package me.DevTec.Scheduler;
 
-import me.DevTec.TheAPI;
+import me.DevTec.NMS.NMSAPI;
 
 public class Task implements Runnable {
 	private Runnable run;
@@ -27,7 +27,7 @@ public class Task implements Runnable {
 		++r;
 		try {
 		if (s)
-			TheAPI.getNMSAPI().postToMainThread(run);
+			NMSAPI.postToMainThread(run);
 		else 
 			run.run();
 		}catch(Exception er) {

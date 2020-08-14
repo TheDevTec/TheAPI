@@ -16,13 +16,16 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
 import me.DevTec.ConfigAPI;
+import me.DevTec.MemoryAPI;
 import me.DevTec.TheAPI;
 import me.DevTec.Blocks.BlocksAPI;
 import me.DevTec.Events.TNTExplosionEvent;
+import me.DevTec.NMS.NMSAPI;
 import me.DevTec.NMS.Particle;
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.Position;
 import me.DevTec.Other.Storage;
+import me.DevTec.Other.StringUtils;
 import me.DevTec.Scheduler.Tasker;
 
 public class TNTTask {
@@ -43,8 +46,8 @@ public class TNTTask {
 	}
 
 	private String action() {
-		if (TheAPI.getMemoryAPI().getFreeMemory(true) < 30) {
-			TheAPI.getMemoryAPI().clearMemory();
+		if (MemoryAPI.getFreeMemory(true) < 30) {
+			MemoryAPI.clearMemory();
 			return f.getString("Options.Optimize.TNT.Action.LowMememory");
 		}
 		if (TheAPI.getServerTPS() < 15) {
@@ -61,8 +64,8 @@ public class TNTTask {
 		if (f.getBoolean("Options.Optimize.TNT.Particles.Use")) {
 				for (Entity ds : BlocksAPI.getNearbyEntities(event.getLocation(), 15))
 					if (ds.getType() == EntityType.PLAYER)
-						TheAPI.getNMSAPI().sendPacket((Player) ds,
-								TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(e, event.getLocation().toLocation()));
+						NMSAPI.sendPacket((Player) ds,
+								NMSAPI.getPacketPlayOutWorldParticles(e, event.getLocation().toLocation()));
 		}
 		if (event.canHitEntities()) {
 			Position l = event.getLocation();
@@ -94,13 +97,13 @@ public class TNTTask {
 									.getRandomFromList(Arrays.asList(0.1 * total, 0.2 * total, 0.3 * total))
 									.toString();
 							if (e.getType() == EntityType.PRIMED_TNT) {
-								e.setVelocity(new Vector(TheAPI.getStringUtils().getDouble(xd),
-										TheAPI.getStringUtils().getDouble(yd), TheAPI.getStringUtils().getDouble(zd)));
+								e.setVelocity(new Vector(StringUtils.getDouble(xd),
+										StringUtils.getDouble(yd), StringUtils.getDouble(zd)));
 							} else {
 								if (e instanceof LivingEntity) {
-									e.setVelocity(new Vector(TheAPI.getStringUtils().getDouble(xd),
-											TheAPI.getStringUtils().getDouble(yd),
-											TheAPI.getStringUtils().getDouble(zd)));
+									e.setVelocity(new Vector(StringUtils.getDouble(xd),
+											StringUtils.getDouble(yd),
+											StringUtils.getDouble(zd)));
 									LivingEntity a = (LivingEntity) e;
 									try {
 										if (a.getAttribute(Attribute.GENERIC_ARMOR) != null
@@ -174,8 +177,8 @@ public class TNTTask {
 										for (Entity ds : BlocksAPI.getNearbyEntities(event.getLocation(),
 												15))
 											if (ds.getType() == EntityType.PLAYER)
-												TheAPI.getNMSAPI().sendPacket((Player) ds,
-														TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(
+												NMSAPI.sendPacket((Player) ds,
+														NMSAPI.getPacketPlayOutWorldParticles(
 																Particle.FLAME, event.getLocation().toLocation()));
 
 									}
@@ -194,8 +197,8 @@ public class TNTTask {
 									}
 									for (Entity ds : BlocksAPI.getNearbyEntities(event.getLocation(), 15))
 										if (ds.getType() == EntityType.PLAYER)
-											TheAPI.getNMSAPI().sendPacket((Player) ds,
-													TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(Particle.FLAME,
+											NMSAPI.sendPacket((Player) ds,
+													NMSAPI.getPacketPlayOutWorldParticles(Particle.FLAME,
 															event.getLocation().toLocation()));
 
 								}

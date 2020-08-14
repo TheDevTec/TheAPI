@@ -22,7 +22,6 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import com.google.common.collect.Maps;
 
-import me.DevTec.TheAPI;
 import me.DevTec.Config.Config;
 import me.DevTec.Other.Compression;
 import me.DevTec.Other.Position;
@@ -285,7 +284,7 @@ public class Schemate {
 		}
 
 		public String getSignLinesAsString() {
-			return lines!=null ? new StringUtils().join(lines, " ") : null;
+			return lines!=null ? StringUtils.join(lines, " ") : null;
 		}
 
 		public static String[] getSignLinesFromString(String s) {
@@ -373,19 +372,19 @@ public class Schemate {
 				if (stored.startsWith("S:/")) {
 					stored = stored.replaceFirst("S:/", "");
 					String[] s = stored.split("/!/");
-					return new SimpleSave(BlockFace.values()[TheAPI.getStringUtils().getInt(s[0])], getSignLinesFromString(s[1]));
+					return new SimpleSave(BlockFace.values()[StringUtils.getInt(s[0])], getSignLinesFromString(s[1]));
 				}
 				if (stored.startsWith("I:/")) {
 					stored = stored.replaceFirst("I:/", "");
 					String[] s = stored.split("/!/");
-					return new SimpleSave(BlockFace.values()[TheAPI.getStringUtils().getInt(s[0])], getBlockInventoryFromString(TheAPI.getStringUtils().getInt(s[1]),s[2]), s[3]);
+					return new SimpleSave(BlockFace.values()[StringUtils.getInt(s[0])], getBlockInventoryFromString(StringUtils.getInt(s[1]),s[2]), s[3]);
 				}
 				if (stored.startsWith("C:/")) {
 					stored = stored.replaceFirst("C:/", "");
 					String[] s = stored.split("/!/");
-					return new SimpleSave(BlockFace.values()[TheAPI.getStringUtils().getInt(s[0])], s[1], s[2]);
+					return new SimpleSave(BlockFace.values()[StringUtils.getInt(s[0])], s[1], s[2]);
 				}
-				return new SimpleSave(BlockFace.values()[TheAPI.getStringUtils().getInt(stored)]);
+				return new SimpleSave(BlockFace.values()[StringUtils.getInt(stored)]);
 		}
 
 		@Override

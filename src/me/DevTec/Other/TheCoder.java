@@ -3,6 +3,7 @@ package me.DevTec.Other;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -11,13 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
-import me.DevTec.TheAPI;
-
-import java.util.Base64;
-
 public class TheCoder {
-
-	private StringUtils g = TheAPI.getStringUtils();
 
 	/**
 	 * @see see Create Location from String
@@ -28,8 +23,8 @@ public class TheCoder {
 			return null;
 		try {
 			String[] s = savedLocation.replace("_", ".").split(",");
-			return new Location(Bukkit.getWorld(s[0].replace(":", "_")), g.getDouble(s[1]), g.getDouble(s[2]),
-					g.getDouble(s[3]), g.getFloat(s[4]), g.getFloat(s[5]));
+			return new Location(Bukkit.getWorld(s[0].replace(":", "_")), StringUtils.getDouble(s[1]), StringUtils.getDouble(s[2]),
+					StringUtils.getDouble(s[3]), StringUtils.getFloat(s[4]), StringUtils.getFloat(s[5]));
 		} catch (Exception er) {
 			return null;
 		}

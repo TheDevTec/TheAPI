@@ -12,7 +12,6 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 
 import me.DevTec.ConfigAPI;
-import me.DevTec.TheAPI;
 import me.DevTec.Blocks.Schemate.SimpleSave;
 import me.DevTec.Other.Decompression;
 import me.DevTec.Other.Position;
@@ -64,7 +63,6 @@ public class Schema {
 						break;
 					}
 				}
-				StringUtils u = TheAPI.getStringUtils();
 				for(String fs : schem.getFile().getSection("c").getKeys()) {
 				ByteArrayDataInput in = ByteStreams.newDataInput(Decompression.decompress(Base64Coder.decodeLines(schem.getFile().getString("c."+fs))));
 				int x=Integer.MIN_VALUE, z=Integer.MIN_VALUE;
@@ -77,11 +75,11 @@ public class Schema {
 					}
 					String[] s = sd.split("/!_!/");
 					String[] pp = s[0].split("/");
-					Position pos = new Position(position.getWorld(),u.getInt(pp[0]),u.getInt(pp[1]),u.getInt(pp[2]));
+					Position pos = new Position(position.getWorld(),StringUtils.getInt(pp[0]),StringUtils.getInt(pp[1]),StringUtils.getInt(pp[2]));
 					if(schem.isSetStandingPosition())
 						pos.add(position.getBlockX(),position.getBlockY(),position.getBlockZ());
 					SimpleSave save = Schemate.SimpleSave.fromString(s[1]);
-					TheMaterial type = new TheMaterial(Material.getMaterial(fs.replaceAll("[0-9]+", "")), u.getInt(fs));
+					TheMaterial type = new TheMaterial(Material.getMaterial(fs.replaceAll("[0-9]+", "")), StringUtils.getInt(fs));
 					if(task!=null)
 						if(task.set(Schema.this, pos, type, save))
 					save.load(pos, type);
@@ -96,7 +94,7 @@ public class Schema {
 				ca.save();
 				for(String o : ca.getKeys(false)) {
 					String[] cw = ca.getString(o).split(":");
-					Position pos = new Position(position.getWorld(), TheAPI.getStringUtils().getInt(cw[0]),0,TheAPI.getStringUtils().getInt(cw[1]));
+					Position pos = new Position(position.getWorld(), StringUtils.getInt(cw[0]),0,StringUtils.getInt(cw[1]));
 					pos.getWorld().refreshChunk(pos.getBlockX()>>4, pos.getBlockZ()>>4);
 					Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", pos.getNMSChunk(), 65535);
 					if(a==null)a=Ref.newInstanceNms("PacketPlayOutMapChunk", pos.getNMSChunk(), true, 20);

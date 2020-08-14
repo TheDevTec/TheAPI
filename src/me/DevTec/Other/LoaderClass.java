@@ -22,12 +22,17 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 
 import me.DevTec.ConfigAPI;
+import me.DevTec.EconomyAPI;
+import me.DevTec.MemoryAPI;
+import me.DevTec.PluginManagerAPI;
 import me.DevTec.ScoreboardAPI;
 import me.DevTec.TheAPI;
 import me.DevTec.BossBar.BossBar;
 import me.DevTec.GUI.GUICreatorAPI;
+import me.DevTec.NMS.NMSAPI;
 import me.DevTec.NMS.Reflections;
 import me.DevTec.Placeholders.ThePlaceholder;
+import me.DevTec.Placeholders.ThePlaceholderAPI;
 import me.DevTec.Scheduler.Scheduler;
 import me.DevTec.Scheduler.Task;
 import me.DevTec.Scheduler.Tasker;
@@ -36,6 +41,7 @@ import me.DevTec.TheVault.TheVault;
 import me.DevTec.Utils.Events;
 import me.DevTec.Utils.Tasks;
 import me.DevTec.Utils.TheAPICommand;
+import me.DevTec.WorldsManager.WorldsManager;
 import net.milkbowl.vault.economy.Economy;
 
 public class LoaderClass extends JavaPlugin {
@@ -78,7 +84,7 @@ public class LoaderClass extends JavaPlugin {
 				while(online){
 					if(refleshing.isEmpty())return;
 					Object[] a = refleshing.poll();
-					TheAPI.getNMSAPI().refleshBlock(a[0], a[1], a[2], a[3]);
+					NMSAPI.refleshBlock(a[0], a[1], a[2], a[3]);
 				}
 			}
 		}).start();
@@ -111,9 +117,9 @@ public class LoaderClass extends JavaPlugin {
 		Tasks.load();
 		Bukkit.getPluginManager().registerEvents(new Events(), this);
 		Bukkit.getPluginCommand("TheAPI").setExecutor(new TheAPICommand());
-		if (TheAPI.getPluginsManagerAPI().getPlugin("TheVault") != null)
+		if (PluginManagerAPI.getPlugin("TheVault") != null)
 			TheVaultHooking();
-		if (TheAPI.getPluginsManagerAPI().getPlugin("Vault") == null) {
+		if (PluginManagerAPI.getPlugin("Vault") == null) {
 			TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
 			TheAPI.msg("&bTheAPI&7: &cPlugin not found Vault, EconomyAPI is disabled.", TheAPI.getConsole());
 			TheAPI.msg("&bTheAPI&7: &cYou can enabled EconomyAPI by set custom Economy in EconomyAPI.",
@@ -159,14 +165,14 @@ public class LoaderClass extends JavaPlugin {
 		data.reload();
 		config.reload();
 		gameapi.reload();
-		TheAPI.getThePlaceholderAPI().unregister(main);
+		ThePlaceholderAPI.unregister(main);
 	}
 
 	public List<Plugin> getTheAPIsPlugins() {
 		List<Plugin> a = new ArrayList<Plugin>();
-		for (Plugin all : TheAPI.getPluginsManagerAPI().getPlugins())
-			if (TheAPI.getPluginsManagerAPI().getDepend(all.getName()).contains("TheAPI")
-					|| TheAPI.getPluginsManagerAPI().getSoftDepend(all.getName()).contains("TheAPI"))
+		for (Plugin all : PluginManagerAPI.getPlugins())
+			if (PluginManagerAPI.getDepend(all.getName()).contains("TheAPI")
+					|| PluginManagerAPI.getSoftDepend(all.getName()).contains("TheAPI"))
 				a.add(all);
 		return a;
 	}
@@ -201,8 +207,6 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.EntityMoveEvent.Enabled", true); // set false to disable this event
 		config.addDefault("Options.FakeEconomyAPI.Symbol", "$");
 		config.addDefault("Options.FakeEconomyAPI.Format", "$%money%");
-		config.addDefault("Format.HelpOp", "&0[&4HelpOp&0] &c%sender%&8: &c%message%");
-		config.addDefault("Format.HelpOp-Permission", "TheAPI.HelpOp");
 		config.addDefault("GameAPI.StartingIn", "&aStarting in %time%s");
 		config.addDefault("GameAPI.Start", "&aStart");
 		config.create();
@@ -231,9 +235,9 @@ public class LoaderClass extends JavaPlugin {
 			public String onRequest(Player player, String placeholder) {
 				if(player!=null) {
 				if(placeholder.equalsIgnoreCase("player_money"))
-					return ""+TheAPI.getEconomyAPI().getBalance(player);
+					return ""+EconomyAPI.getBalance(player);
 				if(placeholder.equalsIgnoreCase("player_formated_money"))
-					return TheAPI.getEconomyAPI().format(TheAPI.getEconomyAPI().getBalance(player));
+					return EconomyAPI.format(EconomyAPI.getBalance(player));
 				if(placeholder.equalsIgnoreCase("player_displayname"))
 					return player.getDisplayName();
 				if(placeholder.equalsIgnoreCase("player_customname"))
@@ -290,15 +294,15 @@ public class LoaderClass extends JavaPlugin {
 				if(placeholder.equalsIgnoreCase("server_tps"))
 					return ""+TheAPI.getServerTPS();
 				if(placeholder.equalsIgnoreCase("server_memory_max"))
-					return ""+TheAPI.getMemoryAPI().getMaxMemory();
+					return ""+MemoryAPI.getMaxMemory();
 				if(placeholder.equalsIgnoreCase("server_memory_used"))
-					return ""+TheAPI.getMemoryAPI().getUsedMemory(false);
+					return ""+MemoryAPI.getUsedMemory(false);
 				if(placeholder.equalsIgnoreCase("server_memory_free"))
-					return ""+TheAPI.getMemoryAPI().getFreeMemory(false);
+					return ""+MemoryAPI.getFreeMemory(false);
 				return null;
 			}
 		};
-		TheAPI.getThePlaceholderAPI().register(main);
+		ThePlaceholderAPI.register(main);
 	}
 
 	public void loadWorlds() {
@@ -347,7 +351,7 @@ public class LoaderClass extends JavaPlugin {
 						f = config.getBoolean("WorldsSetting." + s + ".GenerateStructures");
 
 					TheAPI.msg("&bTheAPI&7: &6Loading world with name '" + s + "'..", TheAPI.getConsole());
-					TheAPI.getWorldsManager().create(s, env, wt, f, 0);
+					WorldsManager.create(s, env, wt, f, 0);
 					TheAPI.msg("&bTheAPI&7: &6World with name '" + s + "' loaded.", TheAPI.getConsole());
 				}
 				TheAPI.msg("&bTheAPI&7: &6All worlds loaded.", TheAPI.getConsole());

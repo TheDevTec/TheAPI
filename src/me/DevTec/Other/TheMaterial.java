@@ -3,8 +3,6 @@ package me.DevTec.Other;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import me.DevTec.TheAPI;
-
 public class TheMaterial {
 
 	@SuppressWarnings("deprecation")
@@ -13,7 +11,7 @@ public class TheMaterial {
 	}
 
 	public TheMaterial(String name, String data) {
-		this(Material.matchMaterial(name), TheAPI.getStringUtils().getInt(data),1);
+		this(Material.matchMaterial(name), StringUtils.getInt(data),1);
 	}
 
 	public TheMaterial(String name, int data) {
@@ -25,7 +23,7 @@ public class TheMaterial {
 	}
 
 	public TheMaterial(Material material, String data) {
-		this(material, TheAPI.getStringUtils().getInt(data),1);
+		this(material, StringUtils.getInt(data),1);
 	}
 
 	public TheMaterial(String name) {
@@ -37,7 +35,7 @@ public class TheMaterial {
 	}
 
 	public TheMaterial(String name, String data, int amount) {
-		this(Material.matchMaterial(name), TheAPI.getStringUtils().getInt(data),amount);
+		this(Material.matchMaterial(name), StringUtils.getInt(data),amount);
 	}
 
 	public TheMaterial(String name, int data, int amount) {
@@ -51,11 +49,11 @@ public class TheMaterial {
 	}
 
 	public TheMaterial(Material material, String data, String amount) {
-		this(material, TheAPI.getStringUtils().getInt(data),TheAPI.getStringUtils().getInt(amount));
+		this(material, StringUtils.getInt(data),StringUtils.getInt(amount));
 	}
 	
 	public TheMaterial(String name, String data, String amount) {
-		this(Material.matchMaterial(name), TheAPI.getStringUtils().getInt(data),TheAPI.getStringUtils().getInt(amount));
+		this(Material.matchMaterial(name), StringUtils.getInt(data),StringUtils.getInt(amount));
 	}
 
 	public TheMaterial(String name, int data, String amount) {
@@ -63,11 +61,11 @@ public class TheMaterial {
 	}
 
 	public TheMaterial(Material material, int data, String amount) {
-		this(material,data,TheAPI.getStringUtils().getInt(amount));
+		this(material,data,StringUtils.getInt(amount));
 	}
 
 	public TheMaterial(Material material, String data, int amount) {
-		this(material, TheAPI.getStringUtils().getInt(data),amount);
+		this(material, StringUtils.getInt(data),amount);
 	}
 
 	private Material m;

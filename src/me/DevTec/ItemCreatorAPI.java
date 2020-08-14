@@ -32,6 +32,7 @@ import com.google.common.collect.Multimap;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
+import me.DevTec.Other.StringUtils;
 import me.DevTec.Utils.Error;
 
 @SuppressWarnings("deprecation")
@@ -274,6 +275,10 @@ public class ItemCreatorAPI implements Cloneable {
 
 	private int getSkullInt(String w) {
 		return SkullType.valueOf(w).ordinal();
+	}
+
+	public ItemCreatorAPI(Material icon) {
+		this(new ItemStack(icon));
 	}
 
 	public ItemCreatorAPI(ItemStack icon) {
@@ -899,8 +904,8 @@ public class ItemCreatorAPI implements Cloneable {
 							Error.err("creating ItemStack in ItemCreatorAPI", "Uknown PotionEffectType");
 							continue;
 						}
-						int dur = TheAPI.getStringUtils().getInt(ef.get(t).split(":")[0]);
-						int amp = TheAPI.getStringUtils().getInt(ef.get(t).split(":")[1]);
+						int dur = StringUtils.getInt(ef.get(t).split(":")[0]);
+						int amp = StringUtils.getInt(ef.get(t).split(":")[1]);
 						meta.addCustomEffect(new PotionEffect(t, dur, (amp <= 0 ? 1 : amp)), true);
 						}
 				i.setItemMeta(meta);

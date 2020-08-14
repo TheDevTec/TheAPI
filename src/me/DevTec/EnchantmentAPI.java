@@ -8,6 +8,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import me.DevTec.NMS.Reflections;
+import me.DevTec.Other.StringUtils;
 
 public enum EnchantmentAPI {
 	SHARPNESS("DAMAGE_ALL"),
@@ -127,12 +128,12 @@ public enum EnchantmentAPI {
 	}
 	
 	public void enchant(ItemStack to, int level) { //1_15_1R0 -> 15
-		if(TheAPI.getStringUtils().getInt(TheAPI.getServerVersion().split("_")[1]) >= v)
+		if(StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]) >= v)
 		to.addUnsafeEnchantment(getEnchantment(), level);
 	}
 	
 	public Enchantment getEnchantment(){
-		if(TheAPI.getStringUtils().getInt(TheAPI.getServerVersion().split("_")[1]) >= v) {
+		if(StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]) >= v) {
 		Object o = Reflections.invoke(null,getByName,s);
 		return o==null ? null : (Enchantment)o;
 		}

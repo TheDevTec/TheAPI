@@ -21,7 +21,6 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
-import me.DevTec.TheAPI;
 import me.DevTec.Other.Position;
 import me.DevTec.Other.StringUtils;
 import me.DevTec.Other.TheMaterial;
@@ -208,7 +207,7 @@ public class BlockSave {
 	}
 
 	public String getSignLinesAsString() {
-		return lines!=null ? new StringUtils().join(lines, " ") : null;
+		return lines!=null ? StringUtils.join(lines, " ") : null;
 	}
 
 	public static String[] getSignLinesFromString(String s) {
@@ -315,29 +314,29 @@ public class BlockSave {
 				stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[BS:S/!/", "");
 				String[] s = stored.split("/!/");
 				try {
-				return new BlockSave(Biome.values()[TheAPI.getStringUtils().getInt(s[0])], BlockFace.values()[TheAPI.getStringUtils().getInt(s[1])],
-						TheMaterial.fromString(s[2]), DyeColor.values()[TheAPI.getStringUtils().getInt(s[3])], getSignLinesFromString(s[4]));
+				return new BlockSave(Biome.values()[StringUtils.getInt(s[0])], BlockFace.values()[StringUtils.getInt(s[1])],
+						TheMaterial.fromString(s[2]), DyeColor.values()[StringUtils.getInt(s[3])], getSignLinesFromString(s[4]));
 				}catch(Exception ererr) {
-					return new BlockSave(Biome.values()[TheAPI.getStringUtils().getInt(s[0])], BlockFace.values()[TheAPI.getStringUtils().getInt(s[1])],
+					return new BlockSave(Biome.values()[StringUtils.getInt(s[0])], BlockFace.values()[StringUtils.getInt(s[1])],
 							TheMaterial.fromString(s[2]), null, getSignLinesFromString(s[4]));
 				}
 			}
 			if (stored.startsWith("[BS:IB/!/")) {
 				stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[BS:IB/!/", "");
 				String[] s = stored.split("/!/");
-				return new BlockSave(Biome.values()[TheAPI.getStringUtils().getInt(s[0])], BlockFace.values()[TheAPI.getStringUtils().getInt(s[1])],
-						TheMaterial.fromString(s[2]), getBlockInventoryFromString(TheAPI.getStringUtils().getInt(s[3]),s[4]), s[5]);
+				return new BlockSave(Biome.values()[StringUtils.getInt(s[0])], BlockFace.values()[StringUtils.getInt(s[1])],
+						TheMaterial.fromString(s[2]), getBlockInventoryFromString(StringUtils.getInt(s[3]),s[4]), s[5]);
 			}
 			if (stored.startsWith("[BS:CB/!/")) {
 				stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[BS:CB/!/", "");
 				String[] s = stored.split("/!/");
-				return new BlockSave(Biome.values()[TheAPI.getStringUtils().getInt(s[0])], BlockFace.values()[TheAPI.getStringUtils().getInt(s[1])],
+				return new BlockSave(Biome.values()[StringUtils.getInt(s[0])], BlockFace.values()[StringUtils.getInt(s[1])],
 						TheMaterial.fromString(s[2]), s[3], s[4]);
 			}
 			if (stored.startsWith("[BS:B/!/")) {
 				stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[BS:B/!/", "");
 				String[] s = stored.split("/!/");
-				return new BlockSave(Biome.values()[TheAPI.getStringUtils().getInt(s[0])], BlockFace.values()[TheAPI.getStringUtils().getInt(s[1])],
+				return new BlockSave(Biome.values()[StringUtils.getInt(s[0])], BlockFace.values()[StringUtils.getInt(s[1])],
 						s[2].equals("0")?new TheMaterial("AIR"):TheMaterial.fromString(s[2]));
 			}
 			return null;

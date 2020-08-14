@@ -215,7 +215,7 @@ public class NMSPlayer {
 	}
 
 	public NMSPlayer(org.bukkit.entity.Player bukkitPlayer) {
-		this(TheAPI.getNMSAPI().getPlayer(bukkitPlayer));
+		this(NMSAPI.getPlayer(bukkitPlayer));
 	}
 
 	public void kill() {
@@ -223,16 +223,16 @@ public class NMSPlayer {
 	}
 
 	public void sendActionBar(String text) {
-		sendPacket(TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.ACTIONBAR, TheAPI.colorize(text)));
+		sendPacket(NMSAPI.getPacketPlayOutTitle(TitleAction.ACTIONBAR, TheAPI.colorize(text)));
 	}
 
 	public void setTabList(String header, String footer) {
-		sendPacket(TheAPI.getNMSAPI().getPacketPlayOutPlayerListHeaderFooter(TheAPI.colorize(header), TheAPI.colorize(footer)));
+		sendPacket(NMSAPI.getPacketPlayOutPlayerListHeaderFooter(TheAPI.colorize(header), TheAPI.colorize(footer)));
 	}
 
 	public void sendTitle(String title, String subtitle) {
-		sendPacket(TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.TITLE, TheAPI.colorize(title)));
-		sendPacket(TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.SUBTITLE, TheAPI.colorize(subtitle)));
+		sendPacket(NMSAPI.getPacketPlayOutTitle(TitleAction.TITLE, TheAPI.colorize(title)));
+		sendPacket(NMSAPI.getPacketPlayOutTitle(TitleAction.SUBTITLE, TheAPI.colorize(subtitle)));
 	}
 
 	public void hurt(float damage) {
@@ -272,11 +272,11 @@ public class NMSPlayer {
 	}
 
 	public void sendMessageJson(String message) {
-		Reflections.invoke(a, getMethod("sendMessage", TheAPI.getNMSAPI().getIChatBaseComponentJson(message).getClass()),TheAPI.getNMSAPI().getIChatBaseComponentJson(message));
+		Reflections.invoke(a, getMethod("sendMessage", NMSAPI.getIChatBaseComponentJson(message).getClass()),NMSAPI.getIChatBaseComponentJson(message));
 	}
 
 	public void sendMessage(String message) {
-		Reflections.invoke(a, getMethod("sendMessage", TheAPI.getNMSAPI().getIChatBaseComponentText(message).getClass()),TheAPI.getNMSAPI().getIChatBaseComponentText(message));
+		Reflections.invoke(a, getMethod("sendMessage", NMSAPI.getIChatBaseComponentText(message).getClass()),NMSAPI.getIChatBaseComponentText(message));
 	}
 
 	public int getMaxAir() {
@@ -387,7 +387,7 @@ public class NMSPlayer {
 	}
 
 	public void setCustomName(String name) {
-		Reflections.invoke(a, getMethod("setCustomName"), TheAPI.getNMSAPI().getIChatBaseComponentText(name));
+		Reflections.invoke(a, getMethod("setCustomName"), NMSAPI.getIChatBaseComponentText(name));
 	}
 
 	public boolean getTabListName() {
@@ -395,7 +395,7 @@ public class NMSPlayer {
 	}
 
 	public void setTabListName(String name) {
-		Reflections.setField(a, Reflections.getField(c, "listName"), TheAPI.getNMSAPI().getIChatBaseComponentText(name));
+		Reflections.setField(a, Reflections.getField(c, "listName"), NMSAPI.getIChatBaseComponentText(name));
 	}
 
 	public boolean getCustomNameVisible() {

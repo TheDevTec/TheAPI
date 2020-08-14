@@ -18,7 +18,7 @@ public class WorldsManager {
 	/**
 	 * @return boolean if world exists
 	 **/
-	public boolean existsWorld(String world) {
+	public static boolean existsWorld(String world) {
 		return Bukkit.getWorld(world) != null;
 	}
 
@@ -30,10 +30,10 @@ public class WorldsManager {
 	 * @param type
 	 * @return boolean if world was loaded
 	 */
-	public boolean load(String world, Environment generator, WorldType type) {
+	public static boolean load(String world, Environment generator, WorldType type) {
 		if (Bukkit.getWorld(world) != null)
 			return false;
-		return TheAPI.getWorldsManager().create(world, generator, type, true, 0);
+		return create(world, generator, type, true, 0);
 	}
 
 	/**
@@ -43,7 +43,7 @@ public class WorldsManager {
 	 * @param type      set null to create Void world
 	 * @return boolean if world was created
 	 */
-	public boolean create(String name, Environment generator, WorldType type) {
+	public static boolean create(String name, Environment generator, WorldType type) {
 		return create(name, generator, type, true, 0);
 	}
 
@@ -56,7 +56,7 @@ public class WorldsManager {
 	 * @param seed               set 0 to generate random
 	 * @return boolean if world was created
 	 */
-	public boolean create(String name, Environment generator, WorldType type, boolean generateStructures, long seed) {
+	public static boolean create(String name, Environment generator, WorldType type, boolean generateStructures, long seed) {
 		if (name == null || generator == null)
 			return false;
 
@@ -99,11 +99,11 @@ public class WorldsManager {
 		return (path.delete());
 	}
 
-	public boolean delete(World name, boolean safeUnloadWorld) {
+	public static boolean delete(World name, boolean safeUnloadWorld) {
 		return delete(name, safeUnloadWorld, false);
 	}
 
-	public boolean delete(World name, boolean safeUnloadWorld, boolean keepFolder) {
+	public static boolean delete(World name, boolean safeUnloadWorld, boolean keepFolder) {
 		if (name == null)
 			return false;
 		if (!safeUnloadWorld) {
@@ -133,11 +133,11 @@ public class WorldsManager {
 		}
 	}
 
-	public boolean unloadWorld(String name) {
+	public static boolean unloadWorld(String name) {
 		return unloadWorld(name, true);
 	}
 
-	public boolean unloadWorld(String name, boolean saveWorld) {
+	public static boolean unloadWorld(String name, boolean saveWorld) {
 		if (name == null)
 			return false;
 		if (Bukkit.getWorld(name) != null) {

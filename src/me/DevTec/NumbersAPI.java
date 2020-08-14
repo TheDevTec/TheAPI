@@ -1,5 +1,7 @@
 package me.DevTec;
 
+import me.DevTec.Other.StringUtils;
+
 public class NumbersAPI {
 	private String fromString;
 
@@ -21,7 +23,7 @@ public class NumbersAPI {
 	 * @return float
 	 */
 	public float calculate() {
-		return TheAPI.getStringUtils().calculate(fromString).floatValue();
+		return StringUtils.calculate(fromString).floatValue();
 	}
 
 	/**
@@ -29,7 +31,7 @@ public class NumbersAPI {
 	 * @return double
 	 */
 	public double getDouble() {
-		return TheAPI.getStringUtils().getDouble(fromString);
+		return StringUtils.getDouble(fromString);
 	}
 
 	/**
@@ -37,7 +39,7 @@ public class NumbersAPI {
 	 * @return boolean
 	 */
 	public boolean isDouble() {
-		return TheAPI.getStringUtils().isDouble(fromString);
+		return StringUtils.isDouble(fromString);
 	}
 
 	/**
@@ -45,7 +47,7 @@ public class NumbersAPI {
 	 * @return long
 	 */
 	public long getLong() {
-		return TheAPI.getStringUtils().getLong(fromString);
+		return StringUtils.getLong(fromString);
 	}
 
 	/**
@@ -53,7 +55,7 @@ public class NumbersAPI {
 	 * @return
 	 */
 	public boolean isLong() {
-		return TheAPI.getStringUtils().isLong(fromString);
+		return StringUtils.isLong(fromString);
 	}
 
 	/**
@@ -61,7 +63,7 @@ public class NumbersAPI {
 	 * @return int
 	 */
 	public int getInt() {
-		return TheAPI.getStringUtils().getInt(fromString);
+		return StringUtils.getInt(fromString);
 	}
 
 	/**
@@ -69,6 +71,6 @@ public class NumbersAPI {
 	 * @return boolean
 	 */
 	public boolean isInt() {
-		return TheAPI.getStringUtils().isInt(fromString);
+		return StringUtils.isInt(fromString);
 	}
 }

@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import me.DevTec.TheAPI;
+import me.DevTec.NMS.NMSAPI;
 import me.DevTec.NMS.Reflections;
 import me.DevTec.NMS.DataWatchers.DataWatcher;
 import me.DevTec.Other.LoaderClass;
@@ -36,7 +37,7 @@ public class BossBar {
 	    		int.class, int.class, int.class, byte.class, byte.class, boolean.class), getId(),
 	            (int) loc.getX() * 32, (int) (loc.getY() - 100) * 32, (int) loc.getZ() * 32,
 	            (byte) ((int) loc.getYaw() * 256 / 360), (byte) ((int) loc.getPitch() * 256 / 360), false);
-        TheAPI.getNMSAPI().sendPacket(p, packet);
+        NMSAPI.sendPacket(p, packet);
     }
 
 	public boolean isHidden() {
@@ -64,7 +65,7 @@ public class BossBar {
     		Reflections.invoke(bar, Reflections.getMethod(Reflections.getNMSClass("BossBattleServer"), "setVisible", boolean.class), false);
     		return;
     	}
-    	TheAPI.getNMSAPI().sendPacket(p, TheAPI.getNMSAPI().getPacketPlayOutEntityDestroy(getId()));
+    	NMSAPI.sendPacket(p, NMSAPI.getPacketPlayOutEntityDestroy(getId()));
 	}
 	
 	public void show() {
@@ -95,13 +96,13 @@ public class BossBar {
     			if(color==null)color=BarColor.GREEN;
     			if(style==null)style=BarStyle.NOTCHED_20;
     		bar=Reflections.c(Reflections.getConstructor(Reflections.getNMSClass("BossBattleServer"),Reflections.getNMSClass("IChatBaseComponent"),Reflections.getNMSClass("BossBattle$BarColor"),Reflections.getNMSClass("BossBattle$BarStyle")),
-    				TheAPI.getNMSAPI().getIChatBaseComponentText(title), color.toMojang(), style.toMojang());
+    				NMSAPI.getIChatBaseComponentText(title), color.toMojang(), style.toMojang());
     			Reflections.invoke(bar, Reflections.getMethod(bar.getClass(), "setProgress", float.class), (float)progress!=-1?progress:1);
-    		Reflections.invoke(bar, Reflections.getMethod(Reflections.getNMSClass("BossBattleServer"), "addPlayer", Reflections.getNMSClass("EntityPlayer")), TheAPI.getNMSAPI().getPlayer(p));
+    		Reflections.invoke(bar, Reflections.getMethod(Reflections.getNMSClass("BossBattleServer"), "addPlayer", Reflections.getNMSClass("EntityPlayer")), NMSAPI.getPlayer(p));
     		return;
     		}
     		if(text!=null) {
-    			Reflections.setField(bar, "title", TheAPI.getNMSAPI().getIChatBaseComponentText(title));
+    			Reflections.setField(bar, "title", NMSAPI.getIChatBaseComponentText(title));
     		}
     		if(progress!=-1) {
     			Reflections.invoke(bar, Reflections.getMethod(bar.getClass(), "setProgress", float.class), (float)progress);
@@ -123,11 +124,11 @@ public class BossBar {
         Object packet = null;
         boolean cr = false;
         if(bar==null) {
-        bar = Reflections.c(Reflections.getConstructor(c,Reflections.getNMSClass("World")),TheAPI.getNMSAPI().getWorld(loc.getWorld()));
+        bar = Reflections.c(Reflections.getConstructor(c,Reflections.getNMSClass("World")),NMSAPI.getWorld(loc.getWorld()));
         Reflections.invoke(bar, Reflections.getMethod(c, "setLocation", double.class, double.class, double.class, float.class, float.class)
         		,loc.getX(), loc.getY() - 100, loc.getZ(), 0, 0);
         id=(int)Reflections.invoke(bar, Reflections.getMethod(c, "getId"));
-        packet= TheAPI.getNMSAPI().getPacketPlayOutSpawnEntityLiving(bar);
+        packet= NMSAPI.getPacketPlayOutSpawnEntityLiving(bar);
         cr=true;
         }
         DataWatcher watcher = new DataWatcher(bar);
@@ -144,7 +145,7 @@ public class BossBar {
         		, getId(), watcher.getDataWatcher(), true);
         if(cr)
         Reflections.setField(packet, "l", watcher);
-        TheAPI.getNMSAPI().sendPacket(p, packet);
+        NMSAPI.sendPacket(p, packet);
     }
 
     public void remove() {

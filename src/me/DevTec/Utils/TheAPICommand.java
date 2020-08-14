@@ -20,8 +20,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.permissions.Permission;
@@ -32,8 +30,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import me.DevTec.ItemCreatorAPI;
+import me.DevTec.MemoryAPI;
+import me.DevTec.PluginManagerAPI;
 import me.DevTec.RankingAPI;
 import me.DevTec.ScoreboardAPI;
+import me.DevTec.TabListAPI;
 import me.DevTec.TheAPI;
 import me.DevTec.TheAPI.TPSType;
 import me.DevTec.Blocks.BlockSave;
@@ -43,8 +44,11 @@ import me.DevTec.GUI.GUICreatorAPI;
 import me.DevTec.GUI.ItemGUI;
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.Position;
+import me.DevTec.Other.StringUtils;
 import me.DevTec.Other.TheMaterial;
+import me.DevTec.Placeholders.ThePlaceholderAPI;
 import me.DevTec.Scheduler.Tasker;
+import me.DevTec.WorldsManager.WorldsManager;
 
 public class TheAPICommand implements CommandExecutor, TabCompleter {
 	private static boolean r;
@@ -98,63 +102,26 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				TheAPI.msg("&e/TheAPI Test TabList", s);
 				TheAPI.msg("&e/TheAPI Test Title", s);
 				TheAPI.msg("&e/TheAPI Test GUICreatorAPI", s);
-				TheAPI.msg("&e/TheAPI Test hideShowEntity", s);
 				TheAPI.msg("&e/TheAPI Test Other - DevTec currently testing", s);
 				TheAPI.msg("&7-----------------", s);
 				return true;
 			}
 			if (args[1].equalsIgnoreCase("Other")) {
-			TheAPI.msg("&eThePlaceholderAPI:", s);
-			TheAPI.msg("&6- %player_health% -> "+TheAPI.getThePlaceholderAPI().setPlaceholders((Player)s, "%player_health%"), s);
-			TheAPI.msg("&6- %player_statistic_kills% -> "+TheAPI.getThePlaceholderAPI().setPlaceholders((Player)s, "%player_statistic_kills%"), s);
-			TheAPI.msg("&6- %server_time% -> "+TheAPI.getThePlaceholderAPI().setPlaceholders((Player)s, "%server_time%"), s);
-			TheAPI.msg("&6- %server_online% -> "+TheAPI.getThePlaceholderAPI().setPlaceholders((Player)s, "%server_online%"), s);
+			TheAPI.msg("&eThePlaceholderAPII:", s);
+			TheAPI.msg("&6- %player_health% -> "+ThePlaceholderAPI.setPlaceholders((Player)s, "%player_health%"), s);
+			TheAPI.msg("&6- %player_statistic_kills% -> "+ThePlaceholderAPI.setPlaceholders((Player)s, "%player_statistic_kills%"), s);
+			TheAPI.msg("&6- %server_time% -> "+ThePlaceholderAPI.setPlaceholders((Player)s, "%server_time%"), s);
+			TheAPI.msg("&6- %server_online% -> "+ThePlaceholderAPI.setPlaceholders((Player)s, "%server_online%"), s);
 			TheAPI.msg(" &eMath:", s);
-			TheAPI.msg("&6- %math{5*4+6}% -> "+TheAPI.getThePlaceholderAPI().setPlaceholders((Player)s, "%math{5*4+6}%"), s);
-			TheAPI.msg("&6- %math{5.9*4.4+6.448}% -> "+TheAPI.getThePlaceholderAPI().setPlaceholders((Player)s, "%math{5.9*4.4+6.448}%"), s);
-			TheAPI.msg("&6- %math{3*%math{2*4}%+1}% -> "+TheAPI.getThePlaceholderAPI().setPlaceholders((Player)s, "%math{3*%math{2*4}%+1}%"), s);
+			TheAPI.msg("&6- %math{5*4+6}% -> "+ThePlaceholderAPI.setPlaceholders((Player)s, "%math{5*4+6}%"), s);
+			TheAPI.msg("&6- %math{5.9*4.4+6.448}% -> "+ThePlaceholderAPI.setPlaceholders((Player)s, "%math{5.9*4.4+6.448}%"), s);
+			TheAPI.msg("&6- %math{3*%math{2*4}%+1}% -> "+ThePlaceholderAPI.setPlaceholders((Player)s, "%math{3*%math{2*4}%+1}%"), s);
 			return true;
 			}
 			if(s instanceof Player) {
 			Player p = (Player) s;
-			if (args[1].equalsIgnoreCase("hideShowEntity")) {
-				Pig pig = (Pig) p.getWorld().spawnEntity(p.getLocation(), EntityType.PIG);
-				pig.setCollidable(false);
-				pig.setBaby();
-				try {
-					pig.setAI(false);
-				} catch (Exception | NoSuchMethodError e) {
-				}
-				pig.setSilent(true);
-				new Tasker() {
-					@Override
-					public void run() {
-						pig.setCustomName(TheAPI.colorize("&4Become invisible in " + (5 - runTimes())));
-						pig.setCustomNameVisible(true);
-						if (runTimes() == 5) {
-							for (Player all : TheAPI.getOnlinePlayers())
-								TheAPI.hideEntity(all, pig);
-							pig.setCustomName(TheAPI.colorize("&4Repeat visible!"));
-							new Tasker() {
-								@Override
-								public void run() {
-									for (Player all : TheAPI.getOnlinePlayers())
-										TheAPI.showEntity(all, pig);
-									new Tasker() {
-										@Override
-										public void run() {
-											pig.remove();
-										}
-									}.later(100);
-								}
-							}.later(100);
-						}
-					}
-				}.repeatingTimes(0, 20, 5);
-				return true;
-			}
 			if (args[1].equalsIgnoreCase("GUICreatorAPI")) {
-			GUICreatorAPI gui = new GUICreatorAPI("&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"), 54, p) {
+			GUICreatorAPI gui = new GUICreatorAPI("&eTheAPI v" + PluginManagerAPI.getVersion("TheAPI"), 54, p) {
 			
 				@Override
 				public void onClose(Player player) {
@@ -245,7 +212,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			}
 
 			if (args[1].equalsIgnoreCase("bossbar")) {
-				TheAPI.sendBossBar(p, "&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"), 0.5, 40);
+				TheAPI.sendBossBar(p, "&eTheAPI v" + PluginManagerAPI.getVersion("TheAPI"), 0.5, 40);
 				return true;
 			}
 			if (args[1].equalsIgnoreCase("PlayerName")) {
@@ -261,29 +228,29 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				return true;
 			}
 			if (args[1].equalsIgnoreCase("ActionBar")) {
-				TheAPI.sendActionBar(p, "&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
+				TheAPI.sendActionBar(p, "&eTheAPI v" + PluginManagerAPI.getVersion("TheAPI"));
 				return true;
 			}
 			if (args[1].equalsIgnoreCase("Title")) {
-				TheAPI.sendTitle(p, "&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"), "");
+				TheAPI.sendTitle(p, "&eTheAPI v" + PluginManagerAPI.getVersion("TheAPI"), "");
 				return true;
 			}
 			if (args[1].equalsIgnoreCase("TabList")) {
-				TheAPI.getTabListAPI().setHeaderFooter(p,
-						"&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"),
-						"&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
+				TabListAPI.setHeaderFooter(p,
+						"&eTheAPI v" + PluginManagerAPI.getVersion("TheAPI"),
+						"&eTheAPI v" + PluginManagerAPI.getVersion("TheAPI"));
 				return true;
 			}
 			if (args[1].equalsIgnoreCase("Scoreboard")) {
 				ScoreboardAPI a = TheAPI.getScoreboardAPI(p, false, true);
-				a.setDisplayName("&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI"));
+				a.setDisplayName("&eTheAPI v" + PluginManagerAPI.getVersion("TheAPI"));
 				a.setLine(0, "&aBy DevTec");
 				new Tasker() {
 					@Override
 					public void run() {
 							if(runTimes()==50)a.destroy();
 						else {
-							a.setDisplayName("&eTheAPI v" + TheAPI.getPluginsManagerAPI().getVersion("TheAPI")+" &7: "+TheAPI.generateRandomInt(10));
+							a.setDisplayName("&eTheAPI v" + PluginManagerAPI.getVersion("TheAPI")+" &7: "+TheAPI.generateRandomInt(10));
 							a.setLine(1, "&7Random: &c"+TheAPI.generateRandomInt(10));
 						}
 					}}.repeatingTimes(0, 2, 50);
@@ -328,7 +295,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&e/TheAPI PluginManager ReloadAll", s);
 					TheAPI.msg("&e/TheAPI PluginManager Info <plugin>", s);
 					TheAPI.msg("&e/TheAPI PluginManager Files", s);
-					List<Plugin> pl =  TheAPI.getPluginsManagerAPI().getPlugins();
+					List<Plugin> pl =  PluginManagerAPI.getPlugins();
 					if(!pl.isEmpty()) {
 					TheAPI.msg("&7Plugins:", s);
 					for (Plugin w :pl)
@@ -338,7 +305,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					return true;
 				}
 				if (args[1].equalsIgnoreCase("Files")||args[1].equalsIgnoreCase("notloaded")||args[1].equalsIgnoreCase( "toload")||args[1].equalsIgnoreCase( "unloaded")) {
-					HashMap<String, String> d = TheAPI.getPluginsManagerAPI().getPluginsToLoadWithNames();
+					HashMap<String, String> d = PluginManagerAPI.getPluginsToLoadWithNames();
 					if(d.isEmpty()) {
 						TheAPI.msg("&eNo plugin to load.", s);
 						return true;
@@ -351,8 +318,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					return true;
 				}
 				if (args[1].equalsIgnoreCase("EnableAll")) {
-					List<Plugin> ad = TheAPI.getPluginsManagerAPI().getPlugins();
-					ad.remove(TheAPI.getPluginsManagerAPI().getPlugin(LoaderClass.plugin.getName()));
+					List<Plugin> ad = PluginManagerAPI.getPlugins();
+					ad.remove(PluginManagerAPI.getPlugin(LoaderClass.plugin.getName()));
 					if(ad.isEmpty()) {
 						TheAPI.msg("&eNo plugin to enable.", s);
 						return true;
@@ -360,15 +327,15 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					for(Plugin a : ad) {
 						TheAPI.msg("&eEnabling plugin "+a.getName()+"..", s);
-						TheAPI.getPluginsManagerAPI().enablePlugin(a);
+						PluginManagerAPI.enablePlugin(a);
 						TheAPI.msg("&ePlugin "+a.getName()+" enabled.", s);
 					}
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
 				if (args[1].equalsIgnoreCase("DisableAll")) {
-					List<Plugin> ad = TheAPI.getPluginsManagerAPI().getPlugins();
-					ad.remove(TheAPI.getPluginsManagerAPI().getPlugin(LoaderClass.plugin.getName()));
+					List<Plugin> ad = PluginManagerAPI.getPlugins();
+					ad.remove(PluginManagerAPI.getPlugin(LoaderClass.plugin.getName()));
 					if(ad.isEmpty()) {
 						TheAPI.msg("&eNo plugin to disable.", s);
 						return true;
@@ -376,44 +343,44 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					for(Plugin a : ad) {
 						TheAPI.msg("&eDisabling plugin "+a.getName()+"..", s);
-						TheAPI.getPluginsManagerAPI().disablePlugin(a);
+						PluginManagerAPI.disablePlugin(a);
 						TheAPI.msg("&ePlugin "+a.getName()+" disabled.", s);
 					}
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
 				if (args[1].equalsIgnoreCase("ReloadAll")) {
-					if(TheAPI.getPluginsManagerAPI().getPlugins().isEmpty()) {
+					if(PluginManagerAPI.getPlugins().isEmpty()) {
 						TheAPI.msg("&eNo plugin to reload.", s);
 						return true;
 					}
 					TheAPI.msg("&7-----------------", s);
-					for(Plugin a : TheAPI.getPluginsManagerAPI().getPlugins()) {
+					for(Plugin a : PluginManagerAPI.getPlugins()) {
 						TheAPI.msg("&eReloading plugin "+a.getName()+"..", s);
-						TheAPI.getPluginsManagerAPI().reloadPlugin(a);
+						PluginManagerAPI.reloadPlugin(a);
 						TheAPI.msg("&ePlugin "+a.getName()+" reloaded.", s);
 					}
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
 				if (args[1].equalsIgnoreCase("LoadAll")) {
-					if(TheAPI.getPluginsManagerAPI().getPluginsToLoad().isEmpty()) {
+					if(PluginManagerAPI.getPluginsToLoad().isEmpty()) {
 						TheAPI.msg("&eNo plugin to load.", s);
 						return true;
 					}
 					TheAPI.msg("&7-----------------", s);
-					for(String a : TheAPI.getPluginsManagerAPI().getPluginsToLoad()) {
+					for(String a : PluginManagerAPI.getPluginsToLoad()) {
 						if(a.equals("TheAPI"))continue;
 						TheAPI.msg("&eLoading plugin "+a+"..", s);
-						TheAPI.getPluginsManagerAPI().loadPlugin(a);
+						PluginManagerAPI.loadPlugin(a);
 						TheAPI.msg("&ePlugin "+a+" loaded.", s);
 					}
 					TheAPI.msg("&7-----------------", s);
 					return true;
 				}
 				if (args[1].equalsIgnoreCase("UnloadAll")) {
-					List<Plugin> ad = TheAPI.getPluginsManagerAPI().getPlugins();
-					ad.remove(TheAPI.getPluginsManagerAPI().getPlugin(LoaderClass.plugin.getName()));
+					List<Plugin> ad = PluginManagerAPI.getPlugins();
+					ad.remove(PluginManagerAPI.getPlugin(LoaderClass.plugin.getName()));
 					if(ad.isEmpty()) {
 						TheAPI.msg("&eNo plugin to unload.", s);
 						return true;
@@ -421,7 +388,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7-----------------", s);
 					for(Plugin a : ad) {
 						TheAPI.msg("&eUnloading plugin "+a.getName()+"..", s);
-						TheAPI.getPluginsManagerAPI().unloadPlugin(a);
+						PluginManagerAPI.unloadPlugin(a);
 						TheAPI.msg("&ePlugin "+a.getName()+" unloaded.", s);
 					}
 					TheAPI.msg("&7-----------------", s);
@@ -437,7 +404,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						return true;
 					}
 					int f=0;
-					for(Plugin a : TheAPI.getPluginsManagerAPI().getPlugins())
+					for(Plugin a : PluginManagerAPI.getPlugins())
 						if(a.getName().equals(args[2])) {
 							if(a.isEnabled())f=1;
 							else f = 2;
@@ -453,7 +420,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					}
 					TheAPI.msg("&7-----------------", s);
 					TheAPI.msg("&eEnabling plugin "+args[2]+"..", s);
-					TheAPI.getPluginsManagerAPI().enablePlugin(args[2]);
+					PluginManagerAPI.enablePlugin(args[2]);
 					TheAPI.msg("&ePlugin "+args[2]+" enabled.", s);
 					TheAPI.msg("&7-----------------", s);
 					return true;
@@ -468,7 +435,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						return true;
 					}
 					int f=0;
-					for(Plugin a : TheAPI.getPluginsManagerAPI().getPlugins())
+					for(Plugin a : PluginManagerAPI.getPlugins())
 						if(a.getName().equals(args[2])) {
 							if(a.isEnabled())f=1;
 							else f = 2;
@@ -484,7 +451,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					}
 					TheAPI.msg("&7-----------------", s);
 					TheAPI.msg("&eDisabling plugin "+args[2]+"..", s);
-					TheAPI.getPluginsManagerAPI().disablePlugin(args[2]);
+					PluginManagerAPI.disablePlugin(args[2]);
 					TheAPI.msg("&ePlugin "+args[2]+" disabled.", s);
 					TheAPI.msg("&7-----------------", s);
 					return true;
@@ -495,17 +462,17 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						return true;
 					}
 					String pluginName = args[2];
-					if(TheAPI.getPluginsManagerAPI().getRawPluginsToLoad().contains(pluginName)||TheAPI.getPluginsManagerAPI().getRawPluginsToLoad().contains(pluginName+".jar")
-							||TheAPI.getPluginsManagerAPI().getPluginsToLoad().contains(pluginName)||TheAPI.getPluginsManagerAPI().getPluginsToLoad().contains(pluginName+".jar")) {
+					if(PluginManagerAPI.getRawPluginsToLoad().contains(pluginName)||PluginManagerAPI.getRawPluginsToLoad().contains(pluginName+".jar")
+							||PluginManagerAPI.getPluginsToLoad().contains(pluginName)||PluginManagerAPI.getPluginsToLoad().contains(pluginName+".jar")) {
 					if(pluginName.equals("TheAPI")) {
 						TheAPI.msg("&eYou can't load TheAPI.", s);
 						return true;
 					}
 					int f=0;
 					String real = null;
-					for(Plugin a : TheAPI.getPluginsManagerAPI().getPlugins())
-						if(a.getName().equals(pluginName)||TheAPI.getPluginsManagerAPI().getFileOfPlugin(a).getName().equals(pluginName)
-								||TheAPI.getPluginsManagerAPI().getFileOfPlugin(a).getName().equals(pluginName+".jar")) {
+					for(Plugin a : PluginManagerAPI.getPlugins())
+						if(a.getName().equals(pluginName)||PluginManagerAPI.getFileOfPlugin(a).getName().equals(pluginName)
+								||PluginManagerAPI.getFileOfPlugin(a).getName().equals(pluginName+".jar")) {
 							if(a.isEnabled())f=1;
 							else f = 2;
 							real=a.getName();
@@ -519,10 +486,10 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						TheAPI.msg("&7Plugin "+real+" is already loaded.", s);
 						return true;
 					}
-					real = TheAPI.getPluginsManagerAPI().getPluginNameByFile(pluginName);
+					real = PluginManagerAPI.getPluginNameByFile(pluginName);
 					TheAPI.msg("&7-----------------", s);
 					TheAPI.msg("&eLoading plugin "+real+" ("+pluginName+")..", s);
-					TheAPI.getPluginsManagerAPI().loadPlugin(pluginName);
+					PluginManagerAPI.loadPlugin(pluginName);
 					TheAPI.msg("&ePlugin "+real+" ("+pluginName+") loaded & enabled.", s);
 					TheAPI.msg("&7-----------------", s);
 					return true;
@@ -542,7 +509,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						return true;
 					}
 					int f=0;
-					for(Plugin a : TheAPI.getPluginsManagerAPI().getPlugins()) {
+					for(Plugin a : PluginManagerAPI.getPlugins()) {
 						if(a.getName().equals(args[2])) {
 							if(a.isEnabled())f=1;
 							else f = 2;
@@ -554,7 +521,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					}
 					TheAPI.msg("&7-----------------", s);
 					TheAPI.msg("&eUnloading plugin "+args[2]+"..", s);
-					TheAPI.getPluginsManagerAPI().unloadPlugin(args[2]);
+					PluginManagerAPI.unloadPlugin(args[2]);
 					TheAPI.msg("&ePlugin "+args[2]+" unloaded.", s);
 					TheAPI.msg("&7-----------------", s);
 					return true;
@@ -565,7 +532,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						return true;
 					}
 					int i = 0;
-					for(Plugin a : TheAPI.getPluginsManagerAPI().getPlugins())
+					for(Plugin a : PluginManagerAPI.getPlugins())
 						if(a.getName().equals(args[2])) {
 							if(a.isEnabled())i=1;
 							else i = 2;
@@ -577,7 +544,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					}
 					TheAPI.msg("&7-----------------", s);
 					TheAPI.msg("&eReloading plugin "+args[2]+"..", s);
-					TheAPI.getPluginsManagerAPI().reloadPlugin(args[2]);
+					PluginManagerAPI.reloadPlugin(args[2]);
 					TheAPI.msg("&ePlugin "+args[2]+" reloaded.", s);
 					TheAPI.msg("&7-----------------", s);
 					return true;
@@ -588,7 +555,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						return true;
 					}
 					int i = 0;
-					for(Plugin a : TheAPI.getPluginsManagerAPI().getPlugins())
+					for(Plugin a : PluginManagerAPI.getPlugins())
 						if(a.getName().equals(args[2])) {
 							if(a.isEnabled())i=1;
 							else i = 2;
@@ -601,14 +568,14 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.msg("&7╔═════════════════════════════", s);
 					TheAPI.msg("&7║ Name: &e"+args[2], s);
 					TheAPI.msg("&7║ State: &e"+(i==1?"Enabled":"Disabled"), s);
-					if (TheAPI.getPluginsManagerAPI().getCommands(args[2]).size() != 0) {
+					if (PluginManagerAPI.getCommands(args[2]).size() != 0) {
 						TheAPI.msg("&7║ Commands:", s);
-						for (String a : TheAPI.getPluginsManagerAPI().getCommands(args[2]))
+						for (String a : PluginManagerAPI.getCommands(args[2]))
 							TheAPI.msg("&7║  - &e" + a, s);
 					}
-					if (TheAPI.getPluginsManagerAPI().getPermissions(args[2]).size() != 0) {
+					if (PluginManagerAPI.getPermissions(args[2]).size() != 0) {
 						TheAPI.msg("&7║ Permissions:", s);
-						for (Permission a : TheAPI.getPluginsManagerAPI().getPermissions(args[2])) {
+						for (Permission a : PluginManagerAPI.getPermissions(args[2])) {
 							TheAPI.msg("&7║  » &e" + a.getName()+"&7:", s);
 							Map<String, Boolean> c = a.getChildren();
 							if(c.isEmpty()==false)
@@ -616,18 +583,18 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						TheAPI.msg("&7║    - "+(c.get(d) ? "&a" : "&c") + d, s);
 						}
 					}
-					if (TheAPI.getPluginsManagerAPI().getVersion(args[2]) != null)
-						TheAPI.msg("&7║ Version: &e"+TheAPI.getPluginsManagerAPI().getVersion(args[2]), s);
-					if (TheAPI.getPluginsManagerAPI().getWebsite(args[2]) != null)
-						TheAPI.msg("&7║ Website: &e"+TheAPI.getPluginsManagerAPI().getWebsite(args[2]), s);
-					if (TheAPI.getPluginsManagerAPI().getMainClass(args[2]) != null)
-						TheAPI.msg("&7║ MainClass: &e"+TheAPI.getPluginsManagerAPI().getMainClass(args[2]), s);
-					if (!TheAPI.getPluginsManagerAPI().getAuthor(args[2]).isEmpty())
-						TheAPI.msg("&7║ Author(s): &e"+TheAPI.getStringUtils().join(TheAPI.getPluginsManagerAPI().getAuthor(args[2]),", "), s);
-					if (!TheAPI.getPluginsManagerAPI().getSoftDepend(args[2]).isEmpty())
-						TheAPI.msg("&7║ SoftDepend(s): &e"+TheAPI.getStringUtils().join(TheAPI.getPluginsManagerAPI().getSoftDepend(args[2]),", "), s);
-					if (!TheAPI.getPluginsManagerAPI().getDepend(args[2]).isEmpty())
-						TheAPI.msg("&7║ Depend(s): &e"+TheAPI.getStringUtils().join(TheAPI.getPluginsManagerAPI().getDepend(args[2]),", "), s);
+					if (PluginManagerAPI.getVersion(args[2]) != null)
+						TheAPI.msg("&7║ Version: &e"+PluginManagerAPI.getVersion(args[2]), s);
+					if (PluginManagerAPI.getWebsite(args[2]) != null)
+						TheAPI.msg("&7║ Website: &e"+PluginManagerAPI.getWebsite(args[2]), s);
+					if (PluginManagerAPI.getMainClass(args[2]) != null)
+						TheAPI.msg("&7║ MainClass: &e"+PluginManagerAPI.getMainClass(args[2]), s);
+					if (!PluginManagerAPI.getAuthor(args[2]).isEmpty())
+						TheAPI.msg("&7║ Author(s): &e"+StringUtils.join(PluginManagerAPI.getAuthor(args[2]),", "), s);
+					if (!PluginManagerAPI.getSoftDepend(args[2]).isEmpty())
+						TheAPI.msg("&7║ SoftDepend(s): &e"+StringUtils.join(PluginManagerAPI.getSoftDepend(args[2]),", "), s);
+					if (!PluginManagerAPI.getDepend(args[2]).isEmpty())
+						TheAPI.msg("&7║ Depend(s): &e"+StringUtils.join(PluginManagerAPI.getDepend(args[2]),", "), s);
 					TheAPI.msg("&7╚═════════════════════════════", s);
 					return true;
 				}
@@ -645,7 +612,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				TheAPI.msg("&e/TheAPI PluginManager ReloadAll", s);
 				TheAPI.msg("&e/TheAPI PluginManager Info <plugin>", s);
 				TheAPI.msg("&e/TheAPI PluginManager Files", s);
-				List<Plugin> pl =  TheAPI.getPluginsManagerAPI().getPlugins();
+				List<Plugin> pl =  PluginManagerAPI.getPlugins();
 				if(!pl.isEmpty()) {
 				TheAPI.msg("&7Plugins:", s);
 				for (Plugin w :pl)
@@ -709,9 +676,9 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					public void run() {
 						TheAPI.msg("&7╔═════════════════════════════", s);
 						TheAPI.msg("&7║ Memory:", s);
-						TheAPI.msg("&7║  Max: &e"+TheAPI.getMemoryAPI().getMaxMemory(), s);
-						TheAPI.msg("&7║  Used: &e"+TheAPI.getMemoryAPI().getUsedMemory(false)+" &7(&e"+TheAPI.getMemoryAPI().getUsedMemory(true)+"%&7)", s);
-						TheAPI.msg("&7║  Free: &e"+TheAPI.getMemoryAPI().getFreeMemory(false)+" &7(&e"+TheAPI.getMemoryAPI().getFreeMemory(true)+"%&7)", s);
+						TheAPI.msg("&7║  Max: &e"+MemoryAPI.getMaxMemory(), s);
+						TheAPI.msg("&7║  Used: &e"+MemoryAPI.getUsedMemory(false)+" &7(&e"+MemoryAPI.getUsedMemory(true)+"%&7)", s);
+						TheAPI.msg("&7║  Free: &e"+MemoryAPI.getFreeMemory(false)+" &7(&e"+MemoryAPI.getFreeMemory(true)+"%&7)", s);
 						TheAPI.msg("&7║ Worlds:", s);
 						for(World w : Bukkit.getWorlds())
 							TheAPI.msg("&7║  - &e"+w.getName()+" &7(Ent:&e"+w.getEntities().size()+"&7, Players:&e"+w.getPlayers().size()+"&7, Chunks:&e"+w.getLoadedChunks().length+"&7)", s);
@@ -847,7 +814,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					}
 					TheAPI.msg("&7-----------------", s);
 					TheAPI.msg("&eTheAPI WorldsManager unloading world with name '" + args[2] + "'..", s);
-					TheAPI.getWorldsManager().unloadWorld(args[2], true);
+					WorldsManager.unloadWorld(args[2], true);
 
 					List<String> a = LoaderClass.config.getConfig().getStringList("Worlds");
 					a.remove(args[2]);
@@ -914,7 +881,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 							wt = null;
 							break;
 						}
-						TheAPI.getWorldsManager().load(args[2], env, wt);
+						WorldsManager.load(args[2], env, wt);
 						List<String> a = LoaderClass.config.getStringList("Worlds");
 						a.add(args[2]);
 						LoaderClass.config.set("Worlds", a);
@@ -948,7 +915,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					}
 					TheAPI.msg("&7-----------------", s);
 					TheAPI.msg("&eTheAPI WorldsManager deleting world with name '" + args[2] + "'..", s);
-					TheAPI.getWorldsManager().delete(Bukkit.getWorld(args[2]), true);
+					WorldsManager.delete(Bukkit.getWorld(args[2]), true);
 					List<String> a = LoaderClass.config.getConfig().getStringList("Worlds");
 					if(a.contains(args[2])) {
 					a.remove(args[2]);
@@ -1027,7 +994,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					LoaderClass.config.set("WorldsSetting." + args[2] + ".Generator", generator);
 					LoaderClass.config.set("WorldsSetting." + args[2] + ".GenerateStructures", true);
 					LoaderClass.config.save();
-					TheAPI.getWorldsManager().create(args[2], env, wt, true, 0);
+					WorldsManager.create(args[2], env, wt, true, 0);
 					TheAPI.msg("&eWorld with name '" + args[2] + "' created.", s);
 					TheAPI.msg("&7-----------------", s);
 					return true;
@@ -1100,12 +1067,12 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			if (args.length == 3) {
 				if (args[1].equalsIgnoreCase("Load")) {
 					c.addAll(StringUtil.copyPartialMatches(args[2],
-							TheAPI.getPluginsManagerAPI().getPluginsToLoad(), Lists.newArrayList()));
+							PluginManagerAPI.getPluginsToLoad(), Lists.newArrayList()));
 				}
 				if (args[1].equalsIgnoreCase("Unload")||args[1].equalsIgnoreCase("Enable") || args[1].equalsIgnoreCase("Disable")
 						 || args[1].equalsIgnoreCase("Info") || args[1].equalsIgnoreCase("Reload")) {
 						c.addAll(StringUtil.copyPartialMatches(args[2],
-								TheAPI.getPluginsManagerAPI().getPluginsNames(), Lists.newArrayList()));
+								PluginManagerAPI.getPluginsNames(), Lists.newArrayList()));
 				}
 			}}
 		if (s.hasPermission("TheAPI.Command.WorldsManager"))

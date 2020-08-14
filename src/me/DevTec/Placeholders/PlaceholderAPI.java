@@ -7,16 +7,16 @@ import org.bukkit.entity.Player;
 
 import com.google.common.collect.Lists;
 
-import me.DevTec.TheAPI;
+import me.DevTec.PluginManagerAPI;
 import me.DevTec.NMS.Reflections;
 
-public class PlaceholderAPIUtils {
+public class PlaceholderAPI {
 	private static List<PlaceholderRegister> reg = Lists.newArrayList();
-	public boolean isEnabledPlaceholderAPI() {
-		return TheAPI.getPluginsManagerAPI().isEnabledPlugin("PlaceholderAPI");
+	public static boolean isEnabledPlaceholderAPI() {
+		return PluginManagerAPI.isEnabledPlugin("PlaceholderAPI");
 	}
 
-	public String setPlaceholders(Player player, String where) {
+	public static String setPlaceholders(Player player, String where) {
 		String edited = where;
 		if (isEnabledPlaceholderAPI()) {
 		for(PlaceholderRegister r : reg) {
@@ -24,7 +24,7 @@ public class PlaceholderAPIUtils {
 			edited=r.onRequest(player, edited);
 		}}
 		if(edited==null)return edited;
-		edited=TheAPI.getThePlaceholderAPI().setPlaceholders(player, edited);
+		edited=ThePlaceholderAPI.setPlaceholders(player, edited);
 		if(edited==null)return edited;
 		if (isEnabledPlaceholderAPI())
 			edited = (String)Reflections.invoke(null, Reflections.getMethod(Reflections.getClass("me.clip.placeholderapi.PlaceholderAPI"),
@@ -33,29 +33,29 @@ public class PlaceholderAPIUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<String> setPlaceholders(Player player, List<String> where) {
+	public static List<String> setPlaceholders(Player player, List<String> where) {
 		List<String> edited = Lists.newArrayList();
 		if (isEnabledPlaceholderAPI()) {
 		for(String s : where) {
 			for(PlaceholderRegister r : reg)s=r.onRequest(player, s);
 			edited.add(s);
 		}
-		edited=TheAPI.getThePlaceholderAPI().setPlaceholders(player, edited);
+		edited=ThePlaceholderAPI.setPlaceholders(player, edited);
 		edited = (List<String>)Reflections.invoke(null, Reflections.getMethod(Reflections.getClass("me.clip.placeholderapi.PlaceholderAPI"),
 				"setPlaceholders",OfflinePlayer.class,List.class),player, where);
 		}else {
 			for(String s : where) {
-				edited.add(TheAPI.getThePlaceholderAPI().setPlaceholders(player, s));
+				edited.add(ThePlaceholderAPI.setPlaceholders(player, s));
 			}	
 		}
 		return edited;
 	}
 	
-	public boolean isRegistredPlaceholder(PlaceholderRegister e) {
+	public static boolean isRegistredPlaceholder(PlaceholderRegister e) {
 		return reg.contains(e);
 	}
 	
-	public void registerPlaceholder(PlaceholderRegister e) {
+	public static void registerPlaceholder(PlaceholderRegister e) {
 		if(isRegistredPlaceholder(e))return;
 		reg.add(e);
 		if (isEnabledPlaceholderAPI()) {

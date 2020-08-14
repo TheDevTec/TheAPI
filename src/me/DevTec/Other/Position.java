@@ -135,11 +135,10 @@ public class Position implements Cloneable {
 		if (stored.startsWith("[Position:")) {
 			stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[Position:", "");
 			String[] part = stored.replace(":", ".").split("/");
-			StringUtils s = TheAPI.getStringUtils();
-			return new Position(Bukkit.getWorld(part[0]), s.getDouble(part[1]), s.getDouble(part[2]),
-					s.getDouble(part[3]), s.getFloat(part[4]), s.getFloat(part[5]));
+			return new Position(Bukkit.getWorld(part[0]), StringUtils.getDouble(part[1]), StringUtils.getDouble(part[2]),
+					StringUtils.getDouble(part[3]), StringUtils.getFloat(part[4]), StringUtils.getFloat(part[5]));
 		}
-		Location loc = TheAPI.getStringUtils().getLocationFromString(stored);
+		Location loc = StringUtils.getLocationFromString(stored);
 		if(loc!=null)return new Position(loc);
 		return null;
 	}
@@ -186,7 +185,7 @@ public class Position implements Cloneable {
 		return (Chunk)Ref.cast(Ref.craft("CraftChunk"), Ref.get(getNMSChunk(), "bukkitChunk"));
 	}
 	
-	private static int wf = TheAPI.getStringUtils().getInt(TheAPI.getServerVersion().split("_")[1]);
+	private static int wf = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]);
 	public Object getNMSChunk() {
 		Object w = Ref.world( getWorld());
 		return !(wf>=9)?Ref.invoke(Ref.get(w, "chunkProviderServer"),Ref.method(Ref.get(w, "chunkProviderServer").getClass(),"getOrCreateChunk",int.class,int.class), getBlockX()>>4, getBlockZ()>>4):(wf>=14?Ref.invoke(Ref.cast(Ref.nms("ChunkProviderServer"), Ref.invoke(w, "getChunkProvider")), "getChunkAt", getBlockX()>>4, getBlockZ()>>4, true):Ref.invoke(Ref.cast(Ref.nms("ChunkProviderServer"), Ref.invoke(w, "getChunkProvider")), "getOrLoadChunkAt", getBlockX()>>4, getBlockZ()>>4));
@@ -290,7 +289,7 @@ public class Position implements Cloneable {
 	}
 	
 	public static long set(Position pos, int id, int data) {
-		int w = TheAPI.getStringUtils().getInt(TheAPI.getServerVersion().split("_")[1]);
+		int w = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]);
 		if(w<= 7)setOld(pos, id); else set(pos, w>=9, w>=14, id, data);
 		return pos.getChunkKey();
 	}

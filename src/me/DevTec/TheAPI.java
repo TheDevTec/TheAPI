@@ -21,9 +21,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
@@ -32,9 +30,6 @@ import org.bukkit.plugin.Plugin;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import me.DevTec.Bans.PunishmentAPI;
-import me.DevTec.Bans.ReportSystem;
-import me.DevTec.Blocks.BlocksAPI;
 import me.DevTec.BossBar.BarColor;
 import me.DevTec.BossBar.BarStyle;
 import me.DevTec.BossBar.BossBar;
@@ -45,16 +40,12 @@ import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.MultiMap;
 import me.DevTec.Other.Ref;
 import me.DevTec.Other.ScoreboardType;
-import me.DevTec.Other.SlowLoop;
 import me.DevTec.Other.Storage;
 import me.DevTec.Other.StringUtils;
 import me.DevTec.Other.User;
-import me.DevTec.Placeholders.PlaceholderAPIUtils;
-import me.DevTec.Placeholders.ThePlaceholderAPI;
 import me.DevTec.Scheduler.Tasker;
 import me.DevTec.Utils.Error;
 import me.DevTec.WorldsManager.WorldBorderAPI;
-import me.DevTec.WorldsManager.WorldsManager;
 import net.glowstone.entity.GlowPlayer;
 
 public class TheAPI {
@@ -68,10 +59,6 @@ public class TheAPI {
 
 	public static boolean generateChance(double chance) {
 		return generateRandomDouble(100) <= chance;
-	}
-
-	public static NMSAPI getNMSAPI() {
-		return new NMSAPI();
 	}
 
 	public static double getProcessCpuLoad() {
@@ -95,15 +82,7 @@ public class TheAPI {
 	 * @return Colored String
 	 */
 	public static String colorize(String string) {
-		return getStringUtils().colorize(string);
-	}
-
-	/**
-	 * @see see Create sign on location with actions on click
-	 * @return SignAPI
-	 */
-	public static SignAPI getSignAPI() {
-		return new SignAPI();
+		return StringUtils.colorize(string);
 	}
 
 	/**
@@ -115,28 +94,12 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Get all blocks in radius 20 blocks
-	 * @return BlocksAPI
-	 */
-	public static BlocksAPI getBlocksAPI() {
-		return new BlocksAPI();
-	}
-
-	/**
 	 * @see see This is HashMap with easier manupulation
 	 * @return MultiMap<T>
 	 */
-	public static <K, T, V> MultiMap<K, T, V> getMultiMap() {
-		return new MultiMap<K, T, V>();
-	}
-
-	/**
-	 * @see see StringUtils (Get int/double/long from String, convertLong to String
-	 *      time or visa verse and more
-	 * @return StringUtils
-	 */
-	public static StringUtils getStringUtils() {
-		return new StringUtils();
+	@SuppressWarnings("rawtypes")
+	public static MultiMap getMultiMap() {
+		return new MultiMap();
 	}
 
 	/**
@@ -165,7 +128,7 @@ public class TheAPI {
 	 */
 	public static boolean isNewVersion() {
 		return !getServerVersion().equalsIgnoreCase("glowstone")
-				&& getStringUtils().getInt(getServerVersion().split("_")[1]) > 12;
+				&& StringUtils.getInt(getServerVersion().split("_")[1]) > 12;
 	}
 
 	/**
@@ -173,7 +136,7 @@ public class TheAPI {
 	 * @return boolean
 	 */
 	public static boolean isOlder1_9() {
-		return getStringUtils().getInt(getServerVersion().split("_")[1]) < 9;
+		return StringUtils.getInt(getServerVersion().split("_")[1]) < 9;
 	}
 
 	/**
@@ -191,7 +154,7 @@ public class TheAPI {
 	 * 
 	 */
 	public static String buildString(String[] args) {
-		return getStringUtils().buildString(args);
+		return StringUtils.buildString(args);
 	}
 
 	public static SQLAPI getSQLAPI(String host, String database, String username, String password, int port) {
@@ -216,8 +179,8 @@ public class TheAPI {
 	 * @param list
 	 * @return Object
 	 */
-	public static Object getRandomFromList(List<?> list) {
-		return getStringUtils().getRandomFromList(list);
+	public static <T> T getRandomFromList(List<T> list) {
+		return StringUtils.getRandomFromList(list);
 	}
 
 	/**
@@ -247,23 +210,6 @@ public class TheAPI {
 		if (inMinus)
 			i = -1 * i;
 		return i;
-	}
-
-	/**
-	 * @see see Replace in String/List<String> placeholders from PlaceholderAPI
-	 *      without depend or register placeholders
-	 * @return PlaceholderAPIUtils
-	 */
-	public static PlaceholderAPIUtils getPlaceholderAPI() {
-		return new PlaceholderAPIUtils();
-	}
-
-	/**
-	 * @see see Replace in String/List<String> placeholders from TheAPI
-	 * @return ThePlaceholderAPI
-	 */
-	public static ThePlaceholderAPI getThePlaceholderAPI() {
-		return new ThePlaceholderAPI();
 	}
 
 	/**
@@ -369,7 +315,7 @@ public class TheAPI {
 		ChatColor old = ChatColor.RESET;
 		for (String s : message.replace("\\n", "\n").split("\n")) {
 			sender.sendMessage(old + colorize(s));
-			old = getStringUtils().getColor(s);
+			old = StringUtils.getColor(s);
 		}
 	}
 
@@ -500,8 +446,8 @@ public class TheAPI {
 				Error.err("sending ActionBar to " + p.getName(), "Text is null");
 			}
 		}
-		getNMSAPI().sendPacket(p,
-				getNMSAPI().getPacketPlayOutTitle(TitleAction.ACTIONBAR, colorize(text), fadeIn, stay, fadeOut));
+		NMSAPI.sendPacket(p,
+				NMSAPI.getPacketPlayOutTitle(TitleAction.ACTIONBAR, colorize(text), fadeIn, stay, fadeOut));
 	}
 
 	/**
@@ -614,40 +560,8 @@ public class TheAPI {
 			Error.err("sending Title", "Player is null");
 			return;
 		}
-		TheAPI.getNMSAPI().sendPacket(p, TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.TITLE, Ref.IChatBaseComponent(TheAPI.colorize(firstLine))));
-		TheAPI.getNMSAPI().sendPacket(p, TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.TITLE, Ref.IChatBaseComponent(TheAPI.colorize(nextLine))));
-	}
-	
-	/**
-	 * @see see Send message to all online players with interval
-	 * @param message
-	 * @param time
-	 */
-	public static void slowBroadcast(List<String> messages, long interval) {
-		SlowLoop<String> t = new SlowLoop<String>() {
-			@Override
-			public void toRun(String t) {
-				broadcastMessage(t);
-			}
-		};
-		t.addToLoop(messages);
-		t.start(interval);
-	}
-
-	/**
-	 * @see see Send message to all online players with interval
-	 * @param message
-	 * @param time
-	 */
-	public static void slowBroadcast(Collection<String> messages, long interval) {
-		SlowLoop<String> t = new SlowLoop<String>() {
-			@Override
-			public void toRun(String t) {
-				broadcastMessage(t);
-			}
-		};
-		t.addToLoop(messages);
-		t.start(interval);
+		NMSAPI.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.TITLE, Ref.IChatBaseComponent(TheAPI.colorize(firstLine))));
+		NMSAPI.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.TITLE, Ref.IChatBaseComponent(TheAPI.colorize(nextLine))));
 	}
 
 	/**
@@ -697,24 +611,8 @@ public class TheAPI {
 		ChatColor old = ChatColor.RESET;
 		for (String s : message.replace("\\n", "\n").split("\n")) {
 			getConsole().sendMessage(old + colorize(s));
-			old = getStringUtils().getColor(s);
+			old = StringUtils.getColor(s);
 		}
-	}
-
-	/**
-	 * @see see Ban, Ban-Ip or mute player with reason and more
-	 * @return PunishmentAPI
-	 */
-	public static PunishmentAPI getPunishmentAPI() {
-		return new PunishmentAPI();
-	}
-
-	/**
-	 * @see see Constructor for own report system
-	 * @return ReportSystem
-	 */
-	public static ReportSystem getReportSystem() {
-		return new ReportSystem();
 	}
 
 	/**
@@ -916,50 +814,6 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Create, delete, unload or load world
-	 * @return WorldsManager
-	 */
-	public static WorldsManager getWorldsManager() {
-		return new WorldsManager();
-	}
-
-	/**
-	 * @see see With VaultAPI deposit, withdraw from player money and more
-	 * @return EconomyAPI
-	 */
-	public static EconomyAPI getEconomyAPI() {
-		return new EconomyAPI();
-	}
-
-	/**
-	 * @see see Set player Header and Footer in tablist
-	 * @return TabListAPI
-	 */
-	public static TabListAPI getTabListAPI() {
-		return new TabListAPI();
-	}
-
-	/**
-	 * @see see Send formated message to all online players with specified
-	 *      permission
-	 * @param s
-	 * @param message
-	 */
-	public static void sendHelpOp(CommandSender s, String message) {
-		for (String ss : message.replace("\\n", "\n").split("\n")) {
-			broadcast(
-					LoaderClass.config.getConfig().getString("Format.HelpOp").replace("%message%", ss)
-							.replace("%sender%", s.getName()),
-					LoaderClass.config.getConfig().getString("Format.HelpOp-Permission"));
-		}
-		if (!s.hasPermission(LoaderClass.config.getConfig().getString("Format.HelpOp-Permission")))
-			for (String ss : message.replace("\\n", "\n").split("\n")) {
-				s.sendMessage(colorize(LoaderClass.config.getConfig().getString("Format.HelpOp")
-						.replace("%message%", ss).replace("%sender%", s.getName())));
-			}
-	}
-
-	/**
 	 * @see see Set player name tag
 	 * @param p
 	 * @param prefix
@@ -1004,22 +858,6 @@ public class TheAPI {
 	 */
 	public static CooldownAPI getCooldownAPI(User player) {
 		return new CooldownAPI(player);
-	}
-
-	/**
-	 * @see see Get used memory, free memory and max memory
-	 * @return MemoryAPI
-	 */
-	public static MemoryAPI getMemoryAPI() {
-		return new MemoryAPI();
-	}
-
-	/**
-	 * @see see Load, unload, enable or disable plugins
-	 * @return PluginManagerAPI
-	 */
-	public static PluginManagerAPI getPluginsManagerAPI() {
-		return new PluginManagerAPI();
 	}
 
 	/**
@@ -1074,41 +912,6 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send player sound or get sound name from String
-	 * @return SoundAPI
-	 */
-	public static SoundAPI getSoundAPI() {
-		return new SoundAPI();
-	}
-
-	/**
-	 * @see see Convert long to String time or String time to long
-	 * @return TimeConventorAPI
-	 */
-	@Deprecated
-	public static TimeConventorAPI getTimeConventorAPI() {
-		return new TimeConventorAPI();
-	}
-
-	/**
-	 * @see see Create ItemStack with custom lore, model, displayname and more
-	 * @param material
-	 * @return ItemCreatorAPI
-	 */
-	public static ItemCreatorAPI getItemCreatorAPI(Material material) {
-		return new ItemCreatorAPI(new ItemStack(material));
-	}
-
-	/**
-	 * @see see Create ItemStack with custom lore, model, displayname and more
-	 * @param itemstack
-	 * @return ItemCreatorAPI
-	 */
-	public static ItemCreatorAPI getItemCreatorAPI(ItemStack itemstack) {
-		return new ItemCreatorAPI(itemstack);
-	}
-
-	/**
 	 * @see see Return server version, for ex. v1_14_R1
 	 * @return String
 	 */
@@ -1143,11 +946,11 @@ public class TheAPI {
 	 */
 	public static double getServerTPS(TPSType type) {
 		try {
-			double tps = getNMSAPI().getServerTPS()[type == TPSType.ONE_MINUTE ? 0
+			double tps = NMSAPI.getServerTPS()[type == TPSType.ONE_MINUTE ? 0
 					: type == TPSType.FIVE_MINUTES ? 1 : 2];
 			if (tps > 20)
 				tps = 20;
-			return getStringUtils().getDouble(String.format("%2.02f", tps));
+			return StringUtils.getDouble(String.format("%2.02f", tps));
 		} catch (Exception e) {
 			return 20.0;
 		}
@@ -1167,81 +970,9 @@ public class TheAPI {
 			}
 		}
 		try {
-			return getNMSAPI().getNMSPlayerAPI(p).getPing();
+			return NMSAPI.getNMSPlayerAPI(p).getPing();
 		} catch (Exception e) {
 			return -1;
-		}
-	}
-
-	public static void showEntity(Player to, UUID uuid) {
-		if (LoaderClass.data.getConfig().getString("hiden." + uuid.toString()) == null)
-			return; // not hiden or isn't in config
-		LoaderClass.data.getConfig().set("hiden." + uuid.toString(), null);
-		try {
-			Entity entity = Bukkit.getEntity(uuid);
-			if (entity == null)
-				return;
-			if (entity instanceof LivingEntity)
-				getNMSAPI().sendPacket(to, getNMSAPI()
-						.getPacketPlayOutSpawnEntityLiving(getNMSAPI().getEntityLiving((LivingEntity) entity)));
-			else
-				getNMSAPI().sendPacket(to, getNMSAPI().getPacketPlayOutSpawnEntity(getNMSAPI().getEntity(entity), 0));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void showEntity(Player to, LivingEntity entity) {
-		if (LoaderClass.data.getConfig().getString("hiden." + entity.getUniqueId().toString()) != null) {
-			LoaderClass.data.getConfig().set("hiden." + entity.getUniqueId().toString(), null);
-		}
-		try {
-			getNMSAPI().sendPacket(to,
-					getNMSAPI().getPacketPlayOutSpawnEntityLiving(getNMSAPI().getEntityLiving(entity)));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void showEntity(Player to, Entity entity) {
-		if (LoaderClass.data.getConfig().getString("hiden." + entity.getUniqueId().toString()) != null) {
-			LoaderClass.data.getConfig().set("hiden." + entity.getUniqueId().toString(), null);
-		}
-		try {
-			if (entity instanceof LivingEntity)
-				getNMSAPI().sendPacket(to, getNMSAPI()
-						.getPacketPlayOutSpawnEntityLiving(getNMSAPI().getEntityLiving((LivingEntity) entity)));
-			else
-				getNMSAPI().sendPacket(to, getNMSAPI().getPacketPlayOutSpawnEntity(getNMSAPI().getEntity(entity), 0));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void hideEntity(Player from, UUID uuid) {
-		try {
-			Entity entity = Bukkit.getEntity(uuid);
-			if (entity == null)
-				return; // not exists
-			getNMSAPI().sendPacket(from, getNMSAPI().getPacketPlayOutEntityDestroy(entity.getEntityId()));
-			LoaderClass.data.getConfig().set("hiden." + uuid.toString(), true);
-		} catch (Exception e) {
-		}
-	}
-
-	public static void hideEntity(Player from, LivingEntity entity) {
-		try {
-			getNMSAPI().sendPacket(from, getNMSAPI().getPacketPlayOutEntityDestroy(entity.getEntityId()));
-			LoaderClass.data.getConfig().set("hiden." + entity.getUniqueId().toString(), true);
-		} catch (Exception e) {
-		}
-	}
-
-	public static void hideEntity(Player from, Entity entity) {
-		try {
-			getNMSAPI().sendPacket(from, getNMSAPI().getPacketPlayOutEntityDestroy(entity.getEntityId()));
-			LoaderClass.data.getConfig().set("hiden." + entity.getUniqueId().toString(), true);
-		} catch (Exception e) {
 		}
 	}
 

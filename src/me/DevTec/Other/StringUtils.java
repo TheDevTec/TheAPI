@@ -27,7 +27,7 @@ public class StringUtils {
 	 * @see see Transfer Runnable to String and back by Base64
 	 * @return TheCoder
 	 */
-	public TheCoder getTheCoder() {
+	public static TheCoder getTheCoder() {
 		return new TheCoder();
 	}
 
@@ -35,7 +35,7 @@ public class StringUtils {
 	 * @see see Get Color from String
 	 * @return ChatColor
 	 */
-	public ChatColor getColor(String fromString) {
+	public static ChatColor getColor(String fromString) {
 		char colour = '\u0000';
 		char[] chars = fromString.toCharArray();
 		for (int i = 0; i < chars.length; ++i) {
@@ -53,7 +53,7 @@ public class StringUtils {
 	 * @see see Transfer Collection to String
 	 * @return String
 	 */
-	public String join(Collection<?> toJoin, String split) {
+	public static String join(Collection<?> toJoin, String split) {
 		String r = "";
 		for (Object s : toJoin)
 			r = r + split + s.toString();
@@ -65,7 +65,7 @@ public class StringUtils {
 	 * @see see Transfer List to String
 	 * @return String
 	 */
-	public String join(List<?> toJoin, String split) {
+	public static String join(List<?> toJoin, String split) {
 		String r = "";
 		for (Object s : toJoin)
 			r = r + split + s.toString();
@@ -77,7 +77,7 @@ public class StringUtils {
 	 * @see see Transfer ArrayList to String
 	 * @return String
 	 */
-	public String join(ArrayList<?> toJoin, String split) {
+	public static String join(ArrayList<?> toJoin, String split) {
 		String r = "";
 		for (Object s : toJoin)
 			r = r + split + s.toString();
@@ -89,7 +89,7 @@ public class StringUtils {
 	 * @see see Transfer Object[] to String
 	 * @return String
 	 */
-	public String join(Object[] toJoin, String split) {
+	public static String join(Object[] toJoin, String split) {
 		String r = "";
 		for (Object s : toJoin)
 			r = r + split + s.toString();
@@ -101,7 +101,7 @@ public class StringUtils {
 	 * @see see Transfer Iterator<?> to String
 	 * @return String
 	 */
-	public String join(Iterator<?> toJoin, String split) {
+	public static String join(Iterator<?> toJoin, String split) {
 		String r = "";
 		for (Object s = toJoin.next(); toJoin.hasNext();)
 			r = r + split + s.toString();
@@ -113,11 +113,11 @@ public class StringUtils {
 	 * @see see Create clickable message
 	 * @return HoverMessage
 	 */
-	public HoverMessage getHoverMessage(String... message) {
+	public static HoverMessage getHoverMessage(String... message) {
 		/**
 		 * Example:
 		 * 
-		 * TheAPI.getStringUtils().getHoverMessage("&cClick on me!")
+		 * StringUtils.getHoverMessage("&cClick on me!")
 		 * .setHoverEvent("&aDo it :-)") .setClickEvent(ClickAction.RUN_COMMAND,
 		 * "suicide")
 		 * 
@@ -139,7 +139,7 @@ public class StringUtils {
 	 * @param string
 	 * @return String
 	 */
-	public String colorize(String string) {
+	public static String colorize(String string) {
 		if (string == null)return null;
 		if(string.contains("#"))
 			if (Integer.valueOf(TheAPI.getServerVersion().split("_")[1]) >= 16) {
@@ -164,7 +164,7 @@ public class StringUtils {
 	 * @return String
 	 * 
 	 */
-	public String buildString(String[] args) {
+	public static String buildString(String[] args) {
 		if (args.length > 0) {
 			String msg = "";
 			for (String string : args) {
@@ -179,9 +179,10 @@ public class StringUtils {
 	/**
 	 * @see see Return random object from list
 	 * @param list
+	 * @return 
 	 * @return Object
 	 */
-	public Object getRandomFromList(List<?> list) {
+	public static <T> T getRandomFromList(List<T> list) {
 		if (list.isEmpty() || list == null)
 			return null;
 		int r = new Random().nextInt(list.size());
@@ -202,7 +203,7 @@ public class StringUtils {
 	 * @param s String
 	 * @return long
 	 */
-	public long getTimeFromString(String period){
+	public static long getTimeFromString(String period){
 		return timeFromString(period);
 	}
 	
@@ -211,7 +212,7 @@ public class StringUtils {
 	 * @param s String
 	 * @return long
 	 */
-	public long timeFromString(String period){ //New shorter name of method
+	public static long timeFromString(String period){ //New shorter name of method
 	    if(period == null||period.trim().isEmpty()) return 0;
 	    period = period.toLowerCase(Locale.ENGLISH);
 	    if(isInt(period))return getInt(period);
@@ -252,7 +253,7 @@ public class StringUtils {
 	 * @param l long
 	 * @return String
 	 */
-	public String setTimeToString(long period){
+	public static String setTimeToString(long period){
 		return timeToString(period);
 	}
 	
@@ -261,7 +262,7 @@ public class StringUtils {
 	 * @param l long
 	 * @return String
 	 */
-	public String timeToString(long l) { //New shorter name of method
+	public static String timeToString(long l) { //New shorter name of method
 		long seconds = l % 60;
 		long minutes = l / 60;
 		long hours = minutes / 60;
@@ -320,7 +321,7 @@ public class StringUtils {
 	 * @see see Convert Location to String
 	 * @return String
 	 */
-	public String getLocationAsString(Location loc) {
+	public static String getLocationAsString(Location loc) {
 		return locationAsString(loc);
 	}
 
@@ -328,7 +329,7 @@ public class StringUtils {
 	 * @see see Convert Location to String
 	 * @return String
 	 */
-	public String locationAsString(Location loc) { //New shorter name of method
+	public static String locationAsString(Location loc) { //New shorter name of method
 		return getTheCoder().locationToString(loc);
 	}
 
@@ -336,7 +337,7 @@ public class StringUtils {
 	 * @see see Create Location from String
 	 * @return Location
 	 */
-	public Location getLocationFromString(String savedLocation) {
+	public static Location getLocationFromString(String savedLocation) {
 		return locationFromString(savedLocation);
 	}
 
@@ -344,7 +345,7 @@ public class StringUtils {
 	 * @see see Create Location from String
 	 * @return Location
 	 */
-	public Location locationFromString(String savedLocation) { //New shorter name of method
+	public static Location locationFromString(String savedLocation) { //New shorter name of method
 		return getTheCoder().locationFromString(savedLocation);
 	}
 
@@ -352,7 +353,7 @@ public class StringUtils {
 	 * @see see Get boolean from string
 	 * @return boolean
 	 */
-	public boolean getBoolean(String fromString) {
+	public static boolean getBoolean(String fromString) {
 		try {
 			return Boolean.parseBoolean(fromString);
 		} catch (Exception er) {
@@ -364,7 +365,7 @@ public class StringUtils {
 	 * @see see Convert String to Math and Calculate exempt
 	 * @return double
 	 */
-	public BigDecimal calculate(String fromString) {
+	public static BigDecimal calculate(String fromString) {
 		String a = fromString.replaceAll("[A-z]+", "").replace(",", ".");
 		Matcher c = Pattern.compile("[0-9.]+").matcher(a);
 		if(c.find())
@@ -381,7 +382,7 @@ public class StringUtils {
 	 * @see see Get double from string
 	 * @return double
 	 */
-	public double getDouble(String fromString) {
+	public static double getDouble(String fromString) {
 		String a = fromString.replaceAll("[a-zA-Z]+", "").replace(",", ".");
 		if (isDouble(a)) {
 			return Double.parseDouble(a);
@@ -394,7 +395,7 @@ public class StringUtils {
 	 * @see see Is string, double ?
 	 * @return boolean
 	 */
-	public boolean isDouble(String fromString) {
+	public static boolean isDouble(String fromString) {
 		try {
 			Double.parseDouble(fromString);
 		} catch (NumberFormatException e) {
@@ -407,7 +408,7 @@ public class StringUtils {
 	 * @see see Get long from string
 	 * @return long
 	 */
-	public long getLong(String fromString) {
+	public static long getLong(String fromString) {
 		String a = fromString.replaceAll("[a-zA-Z]+", "");
 		if (isLong(a)) {
 			return Long.parseLong(a);
@@ -420,7 +421,7 @@ public class StringUtils {
 	 * @see see Is string, long ?
 	 * @return
 	 */
-	public boolean isLong(String fromString) {
+	public static boolean isLong(String fromString) {
 		try {
 			Long.parseLong(fromString);
 		} catch (NumberFormatException e) {
@@ -433,7 +434,7 @@ public class StringUtils {
 	 * @see see Get int from string
 	 * @return int
 	 */
-	public int getInt(String fromString) {
+	public static int getInt(String fromString) {
 		String a = fromString.replaceAll("[a-zA-Z]+", "");
 		if (isInt(a)) {
 			return Integer.parseInt(a);
@@ -446,7 +447,7 @@ public class StringUtils {
 	 * @see see Is string, int ?
 	 * @return boolean
 	 */
-	public boolean isInt(String fromString) {
+	public static boolean isInt(String fromString) {
 		try {
 			Integer.parseInt(fromString);
 		} catch (NumberFormatException e) {
@@ -459,7 +460,7 @@ public class StringUtils {
 	 * @see see Is string, float ?
 	 * @return boolean
 	 */
-	public boolean isFloat(String fromString) {
+	public static boolean isFloat(String fromString) {
 		try {
 			Float.parseFloat(fromString);
 		} catch (NumberFormatException e) {
@@ -472,7 +473,7 @@ public class StringUtils {
 	 * @see see Get float from string
 	 * @return float
 	 */
-	public float getFloat(String fromString) {
+	public static float getFloat(String fromString) {
 		String a = fromString.replaceAll("[a-zA-Z]+", "");
 		if (isFloat(a)) {
 			return Float.parseFloat(a);

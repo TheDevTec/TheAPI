@@ -21,6 +21,7 @@ import me.DevTec.TheAPI;
 import me.DevTec.Other.PercentageList;
 import me.DevTec.Other.Position;
 import me.DevTec.Other.Ref;
+import me.DevTec.Other.StringUtils;
 import me.DevTec.Other.TheMaterial;
 import me.DevTec.Scheduler.Tasker;
 import me.DevTec.Utils.Error;
@@ -67,11 +68,11 @@ public class BlocksAPI {
 	}
 
 	public static String getLocationAsString(Location loc) {
-		return TheAPI.getStringUtils().getLocationAsString(loc);
+		return StringUtils.getLocationAsString(loc);
 	}
 
 	public static Location getLocationFromString(String saved) {
-		return TheAPI.getStringUtils().getLocationFromString(saved);
+		return StringUtils.getLocationFromString(saved);
 	}
 
 	public static List<Entity> getNearbyEntities(Location l, int radius) {

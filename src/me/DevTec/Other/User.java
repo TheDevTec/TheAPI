@@ -11,7 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.DevTec.ConfigAPI;
-import me.DevTec.TheAPI;
 
 public class User {
 	private UUID s;
@@ -75,7 +74,7 @@ public class User {
 	public ItemStack getItemStack(String key) {
 		try {
 			String inSet = getString(key);
-			return (ItemStack) TheAPI.getStringUtils().getTheCoder().getObjectFromString(inSet);
+			return (ItemStack) StringUtils.getTheCoder().getObjectFromString(inSet);
 		} catch (Exception e) {
 			return (ItemStack) get(key);
 		}
@@ -87,7 +86,7 @@ public class User {
 		try {
 			List<String> inSet = (List<String>) getList(key);
 			for (String o : inSet) {
-				list.add((ItemStack) TheAPI.getStringUtils().getTheCoder().getObjectFromString(o));
+				list.add((ItemStack) StringUtils.getTheCoder().getObjectFromString(o));
 			}
 		} catch (Exception e) {
 			list = (List<ItemStack>) getList(key);
@@ -101,14 +100,14 @@ public class User {
 
 	public void set(String key, Object o) {
 		if (o instanceof ItemStack) {
-			o = TheAPI.getStringUtils().getTheCoder().toString(o);
+			o = StringUtils.getTheCoder().toString(o);
 		}
 		if (o instanceof List && ((List<?>) o).get(0) instanceof ItemStack) {
 			@SuppressWarnings("unchecked")
 			List<ItemStack> list = (List<ItemStack>) o;
 			List<String> newList = new ArrayList<String>();
 			for (ItemStack os : list)
-				newList.add(TheAPI.getStringUtils().getTheCoder().toString(os));
+				newList.add(StringUtils.getTheCoder().toString(os));
 			o = newList;
 		}
 		a.set(key, o);

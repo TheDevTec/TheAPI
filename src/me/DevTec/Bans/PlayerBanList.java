@@ -1,8 +1,6 @@
 package me.DevTec.Bans;
 
 import me.DevTec.ConfigAPI;
-import me.DevTec.TheAPI;
-import me.DevTec.Abstract.AbstractPunishmentAPI;
 import me.DevTec.Other.LoaderClass;
 
 public class PlayerBanList {
@@ -10,7 +8,7 @@ public class PlayerBanList {
 	private final String s;
 
 	public PlayerBanList(String player) {
-		if (AbstractPunishmentAPI.isIP(player))
+		if (PunishmentAPI.isIP(player))
 			new Exception("PlayerBanList error, String must be player, not IP.");
 		s = player;
 	}
@@ -222,7 +220,7 @@ public class PlayerBanList {
 	}
 
 	public String getIP() {
-		return TheAPI.getPunishmentAPI().getIP(s);
+		return PunishmentAPI.getIP(s);
 	}
 
 }

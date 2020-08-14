@@ -24,9 +24,9 @@ import me.DevTec.Scheduler.Tasker;
 import me.DevTec.Zip.JarReader;
 
 public class PluginManagerAPI {
-	private PluginManager spm = Bukkit.getPluginManager();
+	private static PluginManager spm = Bukkit.getPluginManager();
 
-	public boolean enablePlugin(String plugin) {
+	public static boolean enablePlugin(String plugin) {
 		if (!spm.isPluginEnabled(plugin)) {
 			spm.enablePlugin(getPlugin(plugin));
 			return true;
@@ -34,7 +34,7 @@ public class PluginManagerAPI {
 		return false;
 	}
 
-	public boolean enablePlugin(Plugin plugin) {
+	public static boolean enablePlugin(Plugin plugin) {
 		if (!spm.isPluginEnabled(plugin)) {
 			spm.enablePlugin(plugin);
 			return true;
@@ -42,7 +42,7 @@ public class PluginManagerAPI {
 		return false;
 	}
 
-	public List<Plugin> getEnabledPlugins() {
+	public static List<Plugin> getEnabledPlugins() {
 		List<Plugin> a = new ArrayList<Plugin>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
 			if (p.isEnabled())
@@ -51,7 +51,7 @@ public class PluginManagerAPI {
 		return a;
 	}
 
-	public List<Plugin> getDisabledPlugins() {
+	public static List<Plugin> getDisabledPlugins() {
 		List<Plugin> a = new ArrayList<Plugin>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
 			if (!p.isEnabled())
@@ -60,7 +60,7 @@ public class PluginManagerAPI {
 		return a;
 	}
 
-	public List<String> getEnabledPluginsNames() {
+	public static List<String> getEnabledPluginsNames() {
 		List<String> a = new ArrayList<String>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
 			if (p.isEnabled())
@@ -69,7 +69,7 @@ public class PluginManagerAPI {
 		return a;
 	}
 
-	public List<String> getDisabledPluginsNames() {
+	public static List<String> getDisabledPluginsNames() {
 		List<String> a = new ArrayList<String>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
 			if (!p.isEnabled())
@@ -78,7 +78,7 @@ public class PluginManagerAPI {
 		return a;
 	}
 
-	public List<Plugin> getPlugins() {
+	public static List<Plugin> getPlugins() {
 		List<Plugin> a = new ArrayList<Plugin>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
 			a.add(p);
@@ -86,7 +86,7 @@ public class PluginManagerAPI {
 		return a;
 	}
 
-	public List<String> getPluginsNames() {
+	public static List<String> getPluginsNames() {
 		List<String> a = new ArrayList<String>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
 			a.add(p.getName());
@@ -94,7 +94,7 @@ public class PluginManagerAPI {
 		return a;
 	}
 
-	public Plugin getPlugin(String plugin) {
+	public static Plugin getPlugin(String plugin) {
 		Plugin p = null;
 		for (Plugin s : spm.getPlugins()) {
 			if (s.getName().equalsIgnoreCase(plugin))
@@ -103,7 +103,7 @@ public class PluginManagerAPI {
 		return p;
 	}
 
-	public List<String> getDepend(String plugin) {
+	public static List<String> getDepend(String plugin) {
 		Plugin p = getPlugin(plugin);
 		if (p != null && p.isEnabled())
 			if (p.getDescription().getDepend() != null && p.getDescription().getDepend().isEmpty() == false)
@@ -111,7 +111,7 @@ public class PluginManagerAPI {
 		return new ArrayList<String>();
 	}
 
-	public List<String> getSoftDepend(String plugin) {
+	public static List<String> getSoftDepend(String plugin) {
 		Plugin p = getPlugin(plugin);
 		if (p != null && p.isEnabled())
 			if (p.getDescription().getSoftDepend() != null && p.getDescription().getSoftDepend().isEmpty() == false)
@@ -119,14 +119,14 @@ public class PluginManagerAPI {
 		return new ArrayList<String>();
 	}
 
-	public List<String> getAuthor(String plugin) {
+	public static List<String> getAuthor(String plugin) {
 		Plugin p = getPlugin(plugin);
 		if (p != null && p.isEnabled())
 			return p.getDescription().getAuthors();
 		return new ArrayList<String>();
 	}
 
-	public String getAPIVersion(String plugin) {
+	public static String getAPIVersion(String plugin) {
 		Plugin p = getPlugin(plugin);
 		try {
 			if (p != null && p.isEnabled() && p.getDescription().getAPIVersion() != null)
@@ -136,71 +136,71 @@ public class PluginManagerAPI {
 		return null;
 	}
 
-	public String getVersion(String plugin) {
+	public static String getVersion(String plugin) {
 		Plugin p = getPlugin(plugin);
 		if (p != null && p.isEnabled() && p.getDescription().getVersion() != null)
 			return p.getDescription().getVersion();
 		return null;
 	}
 
-	public String getWebsite(String plugin) {
+	public static String getWebsite(String plugin) {
 		Plugin p = getPlugin(plugin);
 		if (p != null && p.isEnabled() && p.getDescription().getWebsite() != null)
 			return p.getDescription().getWebsite();
 		return null;
 	}
 
-	public String getMainClass(String plugin) {
+	public static String getMainClass(String plugin) {
 		Plugin p = getPlugin(plugin);
 		if (p != null && p.getDescription().getMain() != null)
 			return p.getDescription().getMain();
 		return null;
 	}
 
-	public List<String> getCommands(String plugin) {
+	public static List<String> getCommands(String plugin) {
 		List<String> list = new ArrayList<String>();
 		for (String s : getPlugin(plugin).getDescription().getCommands().keySet())
 			list.add(s);
 		return list;
 	}
 
-	public List<String> getCommands(Plugin plugin) {
+	public static List<String> getCommands(Plugin plugin) {
 		return getCommands(plugin.getName());
 	}
 
-	public List<Permission> getPermissions(String plugin) {
+	public static List<Permission> getPermissions(String plugin) {
 		return getPlugin(plugin).getDescription().getPermissions();
 	}
 
-	public List<Permission> getPermissions(Plugin plugin) {
+	public static List<Permission> getPermissions(Plugin plugin) {
 		return getPermissions(plugin.getName());
 	}
 
-	public boolean isEnabledPlugin(String plugin) {
+	public static boolean isEnabledPlugin(String plugin) {
 		if (plugin == null || getPlugin(plugin) == null)
 			return false;
 		return getPlugin(plugin).isEnabled();
 	}
 
-	public boolean isEnabledPlugin(Plugin plugin) {
+	public static boolean isEnabledPlugin(Plugin plugin) {
 		if (plugin == null)
 			return false;
 		return isEnabledPlugin(plugin.getName());
 	}
 
-	public boolean isDisabledPlugin(String plugin) {
+	public static boolean isDisabledPlugin(String plugin) {
 		if (plugin == null || getPlugin(plugin) == null)
 			return true;
 		return !getPlugin(plugin).isEnabled();
 	}
 
-	public boolean isDisabledPlugin(Plugin plugin) {
+	public static boolean isDisabledPlugin(Plugin plugin) {
 		if (plugin == null)
 			return true;
 		return !isEnabledPlugin(plugin.getName());
 	}
 
-	public List<String> getPluginsToLoad() {
+	public static List<String> getPluginsToLoad() {
 		List<String> list = new ArrayList<String>();
 		if (new File("plugins").isDirectory()) // is folder
 			for (File f : new File("plugins").listFiles()) {
@@ -216,7 +216,7 @@ public class PluginManagerAPI {
 		return list;
 	}
 	
-	public String getPluginFileByName(String pluginName) {
+	public static String getPluginFileByName(String pluginName) {
 		String pl = null;
 		HashMap<String, String> load = getPluginsToLoadWithNames();
 		for(String s : load.keySet()) {
@@ -234,7 +234,7 @@ public class PluginManagerAPI {
 		return pl;
 	}
 	
-	public String getPluginNameByFile(String pluginFile) {
+	public static String getPluginNameByFile(String pluginFile) {
 		String pluginName = null;
 		HashMap<String, String> load = getPluginsToLoadWithNames();
 		for(String s : load.keySet()) {
@@ -250,7 +250,7 @@ public class PluginManagerAPI {
 		return pluginName;
 	}
 	
-	public File getFileOfPlugin(Plugin p) {
+	public static File getFileOfPlugin(Plugin p) {
 		return new File("plugins/"+new File(Reflections.getClass(p.getDescription().getMain()).getProtectionDomain()
 				  .getCodeSource().getLocation().getPath()).getName());
 	}
@@ -258,7 +258,7 @@ public class PluginManagerAPI {
 	/**
 	 * @return HashMap<PluginName, FileName>
 	 */
-	public HashMap<String,String> getPluginsToLoadWithNames() {
+	public static HashMap<String,String> getPluginsToLoadWithNames() {
 		HashMap<String,String> a = Maps.newHashMap();
 		if (new File("plugins").isDirectory()) // is folder
 			for (File f : new File("plugins").listFiles()) {
@@ -288,7 +288,7 @@ public class PluginManagerAPI {
 		return a;
 	}
 
-	public List<String> getRawPluginsToLoad() {
+	public static List<String> getRawPluginsToLoad() {
 		List<String> list = new ArrayList<String>();
 		if (new File("plugins").isDirectory()) // is folder
 			for (File f : new File("plugins").listFiles()) {
@@ -321,11 +321,11 @@ public class PluginManagerAPI {
 		return list;
 	}
 
-	public void reloadPlugin(Plugin plugin) {
+	public static void reloadPlugin(Plugin plugin) {
 		reloadPlugin(plugin.getName());
 	}
 
-	public void reloadPlugin(String plugin) {
+	public static void reloadPlugin(String plugin) {
 		new Tasker() {
 			public void run() {
 				String pl = plugin;
@@ -343,14 +343,14 @@ public class PluginManagerAPI {
 		}.runAsync();
 	}
 
-	public void unloadPlugin(Plugin plugin) {
+	public static void unloadPlugin(Plugin plugin) {
 		if (plugin == null)
 			return;
 		unloadPlugin(plugin.getName());
 	}
 
 	@SuppressWarnings("unchecked")
-	public void unloadPlugin(String pluginName) {
+	public static void unloadPlugin(String pluginName) {
 		if (pluginName == null)
 			return;
 		new Tasker() {
@@ -387,7 +387,7 @@ public class PluginManagerAPI {
 			}}}.runAsync();
 		}
 
-	public void loadPlugin(String n) {
+	public static void loadPlugin(String n) {
 		if (n == null)return;
 		new Tasker() {
 			public void run() {
@@ -404,7 +404,7 @@ public class PluginManagerAPI {
 			}}.runAsync();
 	}
 
-	public boolean disablePlugin(String plugin) {
+	public static boolean disablePlugin(String plugin) {
 		if (plugin == null)
 			return false;
 		if (isEnabledPlugin(plugin)) {
@@ -414,7 +414,7 @@ public class PluginManagerAPI {
 		return false;
 	}
 
-	public boolean disablePlugin(Plugin plugin) {
+	public static boolean disablePlugin(Plugin plugin) {
 		if (plugin == null)
 			return false;
 		return disablePlugin(plugin.getName());
