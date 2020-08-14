@@ -237,15 +237,6 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see GameAPI in which you can create your own minigame
-	 * @param MiniGameName
-	 * @return GameAPI
-	 */
-	public static GameAPI getGameAPI(String MiniGameName) {
-		return new GameAPI(MiniGameName);
-	}
-
-	/**
 	 * @see see Server up time in long
 	 * @return long
 	 */
