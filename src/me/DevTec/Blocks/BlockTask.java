@@ -6,6 +6,7 @@ import me.DevTec.Other.Position;
 import me.DevTec.Other.TheMaterial;
 
 public interface BlockTask {
+	
 	public long set(Position block, TheMaterial toSet);
 	
 	public long set(Position block, TheMaterial toSet, TheMaterial ignore);

@@ -43,6 +43,7 @@ import me.DevTec.NMS.NMSAPI;
 import me.DevTec.NMS.NMSAPI.TitleAction;
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.MultiMap;
+import me.DevTec.Other.Ref;
 import me.DevTec.Other.ScoreboardType;
 import me.DevTec.Other.SlowLoop;
 import me.DevTec.Other.Storage;
@@ -513,15 +514,6 @@ public class TheAPI {
 		return new NumbersAPI(string);
 	}
 
-	/**
-	 * @see see Set player max health, air, teleport to location and more
-	 * @param p
-	 * @return PlayerAPI
-	 */
-	public static PlayerAPI getPlayerAPI(Player p) {
-		return new PlayerAPI(p);
-	}
-
 	public static enum SudoType {
 		CHAT, COMMAND
 	}
@@ -622,7 +614,8 @@ public class TheAPI {
 			Error.err("sending Title", "Player is null");
 			return;
 		}
-		getPlayerAPI(p).sendTitle(firstLine, nextLine);
+		TheAPI.getNMSAPI().sendPacket(p, TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.TITLE, Ref.IChatBaseComponent(TheAPI.colorize(firstLine))));
+		TheAPI.getNMSAPI().sendPacket(p, TheAPI.getNMSAPI().getPacketPlayOutTitle(TitleAction.TITLE, Ref.IChatBaseComponent(TheAPI.colorize(nextLine))));
 	}
 	
 	/**

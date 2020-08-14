@@ -1,5 +1,6 @@
 package me.DevTec.Config;
 import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -141,6 +142,10 @@ public class Config {
            f.createNewFile();
         }catch (Exception e) {}
         this.f=new IFile(f);
+    }
+    
+    public Config(InputStream stream) { //only reading
+        this.f=new IFile(stream);
     }
 
     /**

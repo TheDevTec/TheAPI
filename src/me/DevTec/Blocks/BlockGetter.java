@@ -22,6 +22,7 @@ public class BlockGetter {
 	}
 
 	public Position get() {
+		if(!has())return new Position(w, baseX + x, baseY + y, baseZ + z);
 		Position b = new Position(w, baseX + x, baseY + y, baseZ + z);
 		if (++x >= sizeX) {
 			x = 0;

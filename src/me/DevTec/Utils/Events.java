@@ -49,6 +49,7 @@ import me.DevTec.TheAPI.SudoType;
 import me.DevTec.Bans.BanList;
 import me.DevTec.Bans.PlayerBanList;
 import me.DevTec.Bans.PlayerBanList.PunishmentType;
+import me.DevTec.Blocks.BlocksAPI;
 import me.DevTec.Blocks.BlocksAPI.Shape;
 import me.DevTec.Events.DamageGodPlayerByEntityEvent;
 import me.DevTec.Events.DamageGodPlayerEvent;
@@ -162,8 +163,7 @@ public class Events implements Listener {
 		if (f.getBoolean("Options.LagChecker.Enabled") && f.getBoolean("Options.LagChecker.TNT.Use")) {
 			e.setCancelled(true);
 			get((e.getEntity().hasMetadata("real")
-					? new Position(TheAPI.getBlocksAPI()
-							.getLocationFromString(e.getEntity().getMetadata("real").get(0).asString()))
+					? new Position(BlocksAPI.getLocationFromString(e.getEntity().getMetadata("real").get(0).asString()))
 					: new Position(e.getLocation())), new Position(e.getLocation()));
 		}
 	}
@@ -183,7 +183,7 @@ public class Events implements Listener {
 		if (event.isCancelled()) {
 			return;
 		}
-		new TNTTask(reals, TheAPI.getBlocksAPI().get(Shape.Sphere, c, event.getPower(),
+		new TNTTask(reals, BlocksAPI.get(Shape.Sphere, c, event.getPower(),
 				blocks(event.isNuclearBomb() && event.canNuclearDestroyLiquid())), event).start();
 	}
 
@@ -335,10 +335,6 @@ public class Events implements Listener {
 	public void onMove(PlayerMoveEvent e) {
 		if (e.isCancelled())
 			return;
-		if (TheAPI.getPlayerAPI(e.getPlayer()).isFreezen()) {
-			e.setCancelled(true);
-			return;
-		}
 		double jump = e.getTo().getY()-e.getFrom().getY();
 		boolean has = true;
 		try {
@@ -371,15 +367,15 @@ public class Events implements Listener {
 						TheAPI.sendBossBar(e.getPlayer(), msg, 1, 5);
 						break;
 					case CHAT:
-						TheAPI.getPlayerAPI(e.getPlayer()).msg(msg);
+						TheAPI.msg(msg,e.getPlayer());
 						break;
 					case NONE:
 						break;
 					case SUBTITLE:
-						TheAPI.getPlayerAPI(e.getPlayer()).sendTitle("", msg);
+						TheAPI.sendTitle(e.getPlayer(),"", msg);
 						break;
 					case TITLE:
-						TheAPI.getPlayerAPI(e.getPlayer()).sendTitle(msg, "");
+						TheAPI.sendTitle(e.getPlayer(),msg, "");
 						break;
 					}
 				}
@@ -510,7 +506,7 @@ public class Events implements Listener {
 				e.setCancelled(true);
 				return;
 			}
-			if (TheAPI.getPlayerAPI(d).allowedGod()) {
+			if (TheAPI.getUser(d).getBoolean("God")) {
 				DamageGodPlayerEvent event = new DamageGodPlayerEvent(d, e.getDamage(), e.getCause());
 				Bukkit.getPluginManager().callEvent(event);
 				if (event.isCancelled())
@@ -526,7 +522,7 @@ public class Events implements Listener {
 	public void onFood(FoodLevelChangeEvent e) {
 		if (e.isCancelled()) return;
 		if (e.getEntity() instanceof Player)
-			if (TheAPI.getPlayerAPI((Player) e.getEntity()).allowedGod())
+			if (TheAPI.getUser((Player)e.getEntity()).getBoolean("God"))
 				e.setCancelled(true);
 	}
 
@@ -535,7 +531,7 @@ public class Events implements Listener {
 		if (e.isCancelled()) return;
 		if (e.getEntity() instanceof Player) {
 			Player d = (Player) e.getEntity();
-			if (TheAPI.getPlayerAPI(d).allowedGod()) {
+			if (TheAPI.getUser(d).getBoolean("God")) {
 				DamageGodPlayerByEntityEvent event = new DamageGodPlayerByEntityEvent(d, e.getDamager(), e.getDamage(),
 						e.getCause());
 				Bukkit.getPluginManager().callEvent(event);

@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.util.HashMap;
-import java.util.zip.Deflater;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -25,6 +24,7 @@ import com.google.common.collect.Maps;
 
 import me.DevTec.TheAPI;
 import me.DevTec.Config.Config;
+import me.DevTec.Other.Compression;
 import me.DevTec.Other.Position;
 import me.DevTec.Other.StringUtils;
 import me.DevTec.Other.TheMaterial;
@@ -32,7 +32,7 @@ import me.DevTec.Scheduler.Tasker;
 
 public class Schemate {
 	private final String s;
-	private final Config c;
+	private Config c;
 	private Schema schem;
 	public Schemate(String name) {
 		s=name;
@@ -48,7 +48,9 @@ public class Schemate {
 	}
 	
 	public Schema load(Runnable onFinish) {
-		if(schem==null)schem=new Schema(onFinish,this);
+		if(schem==null) {
+			schem=new Schema(onFinish,this);
+		}
 		return schem;
 	}
 	
@@ -76,8 +78,6 @@ public class Schemate {
 		String[] s= c.getString("info.corners").split("/!/");
 		return new Position[] {Position.fromString(s[0]),Position.fromString(s[1])};
 	}
-
-	public static int compression = 2;
 	
 	private static String split = "/!_!/";
 	public void save(Position fromCopy, Position a, Position b, Runnable onFinish) {
@@ -86,12 +86,11 @@ public class Schemate {
 		new Tasker() {
 			public void run() {
 				c.set("info.standing", fromCopy!=null);
-				c.set("info.compression", compression);
 				if(fromCopy!=null)
 					c.set("info.corners", a.subtract(fromCopy).toString()+"/!/"+b.subtract(fromCopy).toString());
 				else
 					c.set("info.corners", a.toString()+"/!/"+b.toString());
-				c.set("info.blocks", (""+TheAPI.getBlocksAPI().count(a, b)).replaceFirst("\\.0", ""));
+				c.set("info.blocks", (""+BlocksAPI.count(a, b)).replaceFirst("\\.0", ""));
 				HashMap<String, SchemSaving> perChunk = Maps.newHashMap();
 				BlockGetter getter = new BlockGetter(a, b);
 				while(getter.has()) {
@@ -108,7 +107,7 @@ public class Schemate {
 				}
 				for(String key : perChunk.keySet()) {
 					SchemSaving s = perChunk.get(key);
-					c.set("c."+key, (Base64Coder.encodeLines(compress(s.byteStream.toByteArray(),compression))).replace(System.lineSeparator(), ""));
+					c.set("c."+key, (Base64Coder.encodeLines(Compression.compress(s.byteStream.toByteArray()))).replace(System.lineSeparator(), ""));
 					try {
 						s.dataStream.close();
 						s.byteStream.close();
@@ -400,22 +399,6 @@ public class Schemate {
 				return "C:/" +f.ordinal()+ "/!/" + cmd + "/!/" + cmdname;
 			return f.ordinal()+"";
 		}
-	}
-
-	private static byte[] buf = new byte[1024];
-	public static byte[] compress(byte[] in, long times) {
-		Deflater compressor = new Deflater(Deflater.BEST_COMPRESSION, true);
-		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-	    for(int i = 0; i < times; ++i) {
-		  compressor.setInput(in);
-		  compressor.finish();
-		  while (!compressor.finished())
-			  byteStream.write(buf, 0, compressor.deflate(buf));
-		  in=byteStream.toByteArray();
-		  compressor.reset();
-		  byteStream.reset();
-		}
-	    return in;
 	}
 
 	public void delete() {

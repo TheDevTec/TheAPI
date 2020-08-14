@@ -146,8 +146,8 @@ public class WorldsManager {
 			if (w.isEmpty() == false) {
 				for (Player p : TheAPI.getOnlinePlayers())
 					if (p.getWorld().getName().equals(name)) {
-						TheAPI.getPlayerAPI(p).setGodOnTime(30);
-						TheAPI.getPlayerAPI(p).safeTeleport(w.get(0).getSpawnLocation());
+						p.setNoDamageTicks(30);
+						p.teleport(w.get(0).getHighestBlockAt(w.get(0).getSpawnLocation()).getLocation());
 					}
 				Bukkit.unloadWorld(name, saveWorld);
 				return true;

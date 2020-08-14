@@ -32,12 +32,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import me.DevTec.ItemCreatorAPI;
-import me.DevTec.PlayerAPI.InvseeType;
 import me.DevTec.RankingAPI;
 import me.DevTec.ScoreboardAPI;
 import me.DevTec.TheAPI;
 import me.DevTec.TheAPI.TPSType;
 import me.DevTec.Blocks.BlockSave;
+import me.DevTec.Blocks.BlocksAPI;
 import me.DevTec.Blocks.BlocksAPI.Shape;
 import me.DevTec.GUI.GUICreatorAPI;
 import me.DevTec.GUI.ItemGUI;
@@ -293,10 +293,10 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				if (!r) {
 					r = true;
 					HashMap<Position,BlockSave> save = Maps.newHashMap();
-					for(Position pos : TheAPI.getBlocksAPI().get(Shape.Sphere, new Position(p.getLocation()), 5,new TheMaterial("AIR"))) {
+					for(Position pos : BlocksAPI.get(Shape.Sphere, new Position(p.getLocation()), 5,new TheMaterial("AIR"))) {
 						save.put(pos, new BlockSave(pos));
 					}
-					TheAPI.getBlocksAPI().set(Shape.Sphere, new Position(p.getLocation()), 5, new TheMaterial("DIAMOND_BLOCK"),new TheMaterial("AIR"));
+					BlocksAPI.set(Shape.Sphere, new Position(p.getLocation()), 5, new TheMaterial("DIAMOND_BLOCK"),new TheMaterial("AIR"));
 					new Tasker() {
 						@Override
 						public void run() {
@@ -681,7 +681,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			Player p = TheAPI.getPlayer(args[1]);
 			if(p!=null) {
 			TheAPI.msg("&7Opening inventory of player "+p.getName()+"..", s);
-			TheAPI.getPlayerAPI((Player)s).invsee(p, InvseeType.INVENTORY);
+			((Player)s).openInventory(p.getInventory());
 			}
 			return true;
 		}

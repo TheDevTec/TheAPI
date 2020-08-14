@@ -17,6 +17,7 @@ import org.bukkit.util.Vector;
 
 import me.DevTec.ConfigAPI;
 import me.DevTec.TheAPI;
+import me.DevTec.Blocks.BlocksAPI;
 import me.DevTec.Events.TNTExplosionEvent;
 import me.DevTec.NMS.Particle;
 import me.DevTec.Other.LoaderClass;
@@ -58,7 +59,7 @@ public class TNTTask {
 			return;
 		}
 		if (f.getBoolean("Options.Optimize.TNT.Particles.Use")) {
-				for (Entity ds : TheAPI.getBlocksAPI().getNearbyEntities(event.getLocation(), 15))
+				for (Entity ds : BlocksAPI.getNearbyEntities(event.getLocation(), 15))
 					if (ds.getType() == EntityType.PLAYER)
 						TheAPI.getNMSAPI().sendPacket((Player) ds,
 								TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(e, event.getLocation().toLocation()));
@@ -165,12 +166,12 @@ public class TNTTask {
 									b.setType(Material.AIR);
 									b.getBlock().getDrops().clear();
 									if (TheAPI.generateRandomInt(25) == 25) {
-										for (Entity e : TheAPI.getBlocksAPI().getNearbyEntities(b, 2)) {
+										for (Entity e : BlocksAPI.getNearbyEntities(b, 2)) {
 											if (e instanceof LivingEntity) {
 												e.setFireTicks(80);
 											}
 										}
-										for (Entity ds : TheAPI.getBlocksAPI().getNearbyEntities(event.getLocation(),
+										for (Entity ds : BlocksAPI.getNearbyEntities(event.getLocation(),
 												15))
 											if (ds.getType() == EntityType.PLAYER)
 												TheAPI.getNMSAPI().sendPacket((Player) ds,
@@ -186,12 +187,12 @@ public class TNTTask {
 								b.setType(Material.AIR);
 								b.getBlock().getDrops().clear();
 								if (TheAPI.generateRandomInt(25) == 25) {
-									for (Entity e : TheAPI.getBlocksAPI().getNearbyEntities(b, 2)) {
+									for (Entity e : BlocksAPI.getNearbyEntities(b, 2)) {
 										if (e instanceof LivingEntity) {
 											e.setFireTicks(80);
 										}
 									}
-									for (Entity ds : TheAPI.getBlocksAPI().getNearbyEntities(event.getLocation(), 15))
+									for (Entity ds : BlocksAPI.getNearbyEntities(event.getLocation(), 15))
 										if (ds.getType() == EntityType.PLAYER)
 											TheAPI.getNMSAPI().sendPacket((Player) ds,
 													TheAPI.getNMSAPI().getPacketPlayOutWorldParticles(Particle.FLAME,

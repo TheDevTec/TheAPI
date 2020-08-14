@@ -31,12 +31,17 @@ public class PercentageList<T> {
 	}
 	
 	public T getRandom() {
+		List<T> t = toList();
+		return t.get(new Random().nextInt(t.size()));
+	}
+
+	public List<T> toList() {
 		List<T> t = Lists.newArrayList();
 		for(T a : a.keySet()) {
 		for(int i = 0; i < getChance(a); ++i)
 			t.add(a);
 		}
 		Collections.shuffle(t);
-		return t.get(new Random().nextInt(t.size()));
+		return t;
 	}
 }

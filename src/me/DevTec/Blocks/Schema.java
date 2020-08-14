@@ -1,9 +1,6 @@
 package me.DevTec.Blocks;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.zip.DataFormatException;
-import java.util.zip.Inflater;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -17,6 +14,7 @@ import com.google.common.io.ByteStreams;
 import me.DevTec.ConfigAPI;
 import me.DevTec.TheAPI;
 import me.DevTec.Blocks.Schemate.SimpleSave;
+import me.DevTec.Other.Decompression;
 import me.DevTec.Other.Position;
 import me.DevTec.Other.Ref;
 import me.DevTec.Other.StringUtils;
@@ -66,10 +64,9 @@ public class Schema {
 						break;
 					}
 				}
-				int i = schem.getFile().getInt("info.compression");
 				StringUtils u = TheAPI.getStringUtils();
 				for(String fs : schem.getFile().getSection("c").getKeys()) {
-				ByteArrayDataInput in = ByteStreams.newDataInput(decompress(Base64Coder.decodeLines(schem.getFile().getString("c."+fs)), i));
+				ByteArrayDataInput in = ByteStreams.newDataInput(Decompression.decompress(Base64Coder.decodeLines(schem.getFile().getString("c."+fs))));
 				int x=Integer.MIN_VALUE, z=Integer.MIN_VALUE;
 				while(true) {
 					String sd=null;
@@ -111,23 +108,5 @@ public class Schema {
 					onFinish.run();
 			}
 		}.runAsync();
-	}
-
-	public static byte[] decompress(byte[] in, long times) {
-		 Inflater decompressor = new Inflater(true);
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		for(int isf = 0; isf < times; ++isf) {
-		   decompressor.setInput(in);
-		   byte[] buf = new byte[1024];
-		   while (!decompressor.finished())
-		       try {
-		           bos.write(buf, 0, decompressor.inflate(buf));
-		       } catch (DataFormatException e) {
-		       }
-		   decompressor.reset();
-		  in=bos.toByteArray();
-		  bos.reset();
-		}
-		return in;
 	}
 }
