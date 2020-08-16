@@ -171,6 +171,13 @@ public class Config {
     		addComment(s.getName(), s.getComment());
     	}
     }
+
+    /**
+     * @see see Add default to config
+     */
+    public void addDefault(String key, Object value) {
+    	addDefault(new Key(key), value);
+    }
     
     /**
      * @return HashMap<Key, Object>

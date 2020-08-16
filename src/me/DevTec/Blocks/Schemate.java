@@ -231,65 +231,6 @@ public class Schemate {
 		public SimpleSave(BlockFace face) {
 			f = face;
 		}
-		public String getCustomName() {
-			return cname;
-		}
-		
-		public BlockFace getFace() {
-			return f;
-		}
-
-		public ItemStack[] getBlockInventory() { // shulkerbox, chest..
-			return inv;
-		}
-
-		public static ItemStack[] getBlockInventoryFromString(int size, String s) {
-			try {
-				BukkitObjectInputStream dataInput = new BukkitObjectInputStream(new ByteArrayInputStream(Base64Coder.decodeLines(s)));
-				ItemStack[] items = new ItemStack[size];
-				for (int i = 0; i < size; i++) {
-					items[i] = (ItemStack)dataInput.readObject();
-				}
-				dataInput.close();
-				return items;
-			} catch (Exception e) {
-				return null;
-			}
-		}
-
-		public String getBlockInventoryAsString() {
-			try {
-				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-				BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-				for (int i = 0; i < inv.length; i++) {
-					dataOutput.writeObject(inv[i]);
-				}
-				dataOutput.close();
-				return inv.length+"/!/"+Base64Coder.encodeLines(outputStream.toByteArray());
-			} catch (Exception err) {
-				return null;
-			}
-		}
-
-		public String getCommand() {
-			return cmd;
-		}
-
-		public String getCommandBlockName() {
-			return cmdname;
-		}
-
-		public String[] getSignLines() { // sign
-			return lines;
-		}
-
-		public String getSignLinesAsString() {
-			return lines!=null ? StringUtils.join(lines, " ") : null;
-		}
-
-		public static String[] getSignLinesFromString(String s) {
-			return s.split(" ");
-		}
 		
 		public long load(Position pos, TheMaterial type) {
 			pos.setType(type);
@@ -297,8 +238,8 @@ public class Schemate {
 			if (n.contains("SIGN")) {
 				Sign w = (Sign) pos.getBlock().getState();
 				int i = 0;
-				if (getSignLines() != null && getSignLines().length > 0)
-					for (String line : getSignLines()) {
+				if (lines != null && lines.length > 0)
+					for (String line : lines) {
 						w.setLine(i, line);
 						++i;
 					}
@@ -358,10 +299,10 @@ public class Schemate {
 			}
 			if (n.contains("COMMAND")) {
 				CommandBlock w = (CommandBlock) pos.getBlock().getState();
-				if (getCommand() != null)
-					w.setCommand(getCommand());
-				if (getCommandBlockName() != null)
-					w.setName(getCommandBlockName());
+				if (cmd != null && !cmd.equals("null"))
+					w.setCommand(cmd);
+				if (cmdname != null && !cmdname.equals("null"))
+					w.setName(cmdname);
 				w.update(true, false);
 			}
 			return pos.getChunkKey();
@@ -372,12 +313,22 @@ public class Schemate {
 				if (stored.startsWith("S:/")) {
 					stored = stored.replaceFirst("S:/", "");
 					String[] s = stored.split("/!/");
-					return new SimpleSave(BlockFace.values()[StringUtils.getInt(s[0])], getSignLinesFromString(s[1]));
+					return new SimpleSave(BlockFace.values()[StringUtils.getInt(s[0])], s[1].split(" "));
 				}
 				if (stored.startsWith("I:/")) {
 					stored = stored.replaceFirst("I:/", "");
 					String[] s = stored.split("/!/");
-					return new SimpleSave(BlockFace.values()[StringUtils.getInt(s[0])], getBlockInventoryFromString(StringUtils.getInt(s[1]),s[2]), s[3]);
+					try {
+						BukkitObjectInputStream dataInput = new BukkitObjectInputStream(new ByteArrayInputStream(Base64Coder.decodeLines(s[2])));
+						ItemStack[] items = new ItemStack[StringUtils.getInt(s[1])];
+						for (int i = 0; i < StringUtils.getInt(s[1]); i++) {
+							items[i] = (ItemStack)dataInput.readObject();
+						}
+						dataInput.close();
+						return new SimpleSave(BlockFace.values()[StringUtils.getInt(s[0])], items, s[3]);
+					} catch (Exception e) {
+						return new SimpleSave(BlockFace.values()[StringUtils.getInt(s[0])], new ItemStack[1], s[3]);
+					}
 				}
 				if (stored.startsWith("C:/")) {
 					stored = stored.replaceFirst("C:/", "");
@@ -390,10 +341,21 @@ public class Schemate {
 		@Override
 		public String toString() {
 			if (isSign) {
-				return "S:/" + f.ordinal()+"/!/" + getSignLinesAsString();
+				return "S:/" + f.ordinal()+"/!/" + lines!=null ? StringUtils.join(lines, " ") : null;
 				}
-						if (isInvBlock)
-				return "I:/" +f.ordinal()+ "/!/" + getBlockInventoryAsString() + "/!/" + cname;
+						if (isInvBlock) {
+							try {
+								ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+								BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+								for (int i = 0; i < inv.length; i++) {
+									dataOutput.writeObject(inv[i]);
+								}
+								dataOutput.close();
+								return "I:/" +f.ordinal()+ "/!/" + inv.length+"/!/"+Base64Coder.encodeLines(outputStream.toByteArray()) + "/!/" + cname;
+							} catch (Exception err) {
+								return "I:/" +f.ordinal()+ "/!/" + inv.length+"/!/"+Base64Coder.encodeLines(new ByteArrayOutputStream().toByteArray()) + "/!/" + cname;
+							}
+						}
 			if (isCmd)
 				return "C:/" +f.ordinal()+ "/!/" + cmd + "/!/" + cmdname;
 			return f.ordinal()+"";

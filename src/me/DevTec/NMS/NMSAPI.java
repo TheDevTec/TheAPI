@@ -115,7 +115,7 @@ public class NMSAPI {
 		pTitle = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutTitle"),enumTitle, ichat, int.class,int.class, int.class);
 		pOutChat = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutChat"),ichat, enumChat);
 		if(pOutChat==null)
-			pOutChat = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutChat"),ichat, int.class);
+			pOutChat = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutChat"),ichat, byte.class);
 		pTab = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutPlayerListHeaderFooter"));
 		WorldHandle = Reflections.getMethod(bWorld,"getHandle");
 		PlayerHandle = Reflections.getMethod(bPlayer,"getHandle");
@@ -482,11 +482,11 @@ public class NMSAPI {
 	//KitPvp se bude rušit
 	
 	/**
-	 * @see see ActionBar if version is 1.7.10
+	 * @see see ActionBar for old versions
 	 */
 	public static Object getPacketPlayOutChat(ChatType type, Object IChatBaseComponent) {
 		Object o = Reflections.c(pOutChat,IChatBaseComponent, Reflections.get(Reflections.getField(enumChat, type.name()),null));
-		return o != null ? o : Reflections.c(pOutChat,IChatBaseComponent, 2);
+		return o != null ? o : Reflections.c(pOutChat,IChatBaseComponent, (byte)2);
 	}
 
 	public static Object getPacketPlayOutChat(ChatType type, String text) {

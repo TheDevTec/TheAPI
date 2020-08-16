@@ -3,7 +3,6 @@ package me.DevTec;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,6 +34,7 @@ import me.DevTec.BossBar.BarStyle;
 import me.DevTec.BossBar.BossBar;
 import me.DevTec.Events.PlayerVanishEvent;
 import me.DevTec.NMS.NMSAPI;
+import me.DevTec.NMS.NMSAPI.ChatType;
 import me.DevTec.NMS.NMSAPI.TitleAction;
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.MultiMap;
@@ -130,13 +130,21 @@ public class TheAPI {
 		return !getServerVersion().equalsIgnoreCase("glowstone")
 				&& StringUtils.getInt(getServerVersion().split("_")[1]) > 12;
 	}
+	
+	public static boolean isOlderThan(int version) {
+		return StringUtils.getInt(getServerVersion().split("_")[1]) < version;
+	}
+	
+	public static boolean isNewerThan(int version) {
+		return !isOlderThan(version);
+	}
 
 	/**
-	 * @see see Return is server version older than 1.9 ? (1.5 up to 1.8.9)
+	 * @see see Return is server version older than 1.9 ? (1.0 - 1.8.9)
 	 * @return boolean
 	 */
 	public static boolean isOlder1_9() {
-		return StringUtils.getInt(getServerVersion().split("_")[1]) < 9;
+		return isOlderThan(9);
 	}
 
 	/**
@@ -261,13 +269,23 @@ public class TheAPI {
 	}
 
 	/**
+	 * @see see Get player by name (Not matching)
+	 * @return Player
+	 */
+	public static Player getPlayerOrNull(String name) {
+		Player found = Bukkit.getPlayer(name);
+		return found!=null && found.getName().equals(name) ? found : null;
+	}
+
+	/**
 	 * @see see Get random player from List<Player>
 	 * @return Player
 	 */
 	public static Player getRandomPlayer() {
-		Player r = (Player) getRandomFromList(getOnlinePlayers());
-		return r == null ? null : r;
+		return (Player) getRandomFromList(getOnlinePlayers());
 	}
+	
+	private static Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
 
 	/**
 	 * @see see Get random player from List<Player>
@@ -275,9 +293,8 @@ public class TheAPI {
 	 */
 	@SuppressWarnings("unchecked")
 	public static List<Player> getOnlinePlayers() {
-		ArrayList<Player> a = Lists.newArrayList();
+		List<Player> a = Lists.newArrayList();
 		try {
-			Method m = Bukkit.class.getDeclaredMethod("getOnlinePlayers");
 			Object o = m.invoke(null);
 			for (Player p : o instanceof Collection ? (Collection<Player>) o : Arrays.asList((Player[]) o))
 				a.add(p);
@@ -334,7 +351,7 @@ public class TheAPI {
 			Tasker.cancelTask(task.get(p.getName()));
 			task.remove(p.getName());
 		}
-		BossBar a = bars.containsKey(p.getName())?bars.get(p.getName()) : new BossBar(p, text, progress, BarColor.GREEN, BarStyle.PROGRESS);
+		BossBar a = bars.containsKey(p.getName())?bars.get(p.getName()) : new BossBar(p, TheAPI.colorize(text), progress, BarColor.GREEN, BarStyle.PROGRESS);
 		if (progress < 0)
 			progress = 0;
 		if (progress > 1)
@@ -431,14 +448,15 @@ public class TheAPI {
 		}
 		if (TheAPI.getServerVersion().equals("glowstone")) {
 			try {
-				((GlowPlayer) p).sendActionBar(TheAPI.colorize(text));
+				((GlowPlayer) p).sendActionBar(colorize(text));
 				return;
 			} catch (Exception e) {
 				Error.err("sending ActionBar to " + p.getName(), "Text is null");
 			}
 		}
-		NMSAPI.sendPacket(p,
-				NMSAPI.getPacketPlayOutTitle(TitleAction.ACTIONBAR, colorize(text), fadeIn, stay, fadeOut));
+		Object packet = NMSAPI.getPacketPlayOutTitle(TitleAction.ACTIONBAR, colorize(text), fadeIn, stay, fadeOut);
+		if(packet==null)packet=NMSAPI.getPacketPlayOutChat(ChatType.CHAT, colorize(text));
+		NMSAPI.sendPacket(p, packet);
 	}
 
 	/**
@@ -486,6 +504,15 @@ public class TheAPI {
 			Bukkit.dispatchCommand(getConsole(), value);
 			break;
 		}
+	}
+
+	/**
+	 * @see see Send command as console
+	 * @param type
+	 * @param value
+	 */
+	public static void sudoConsole(String value) {
+		Bukkit.dispatchCommand(getConsole(), value);
 	}
 
 	private static void giveItems(Player p, ItemStack item) {
@@ -552,7 +579,7 @@ public class TheAPI {
 			return;
 		}
 		NMSAPI.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.TITLE, Ref.IChatBaseComponent(TheAPI.colorize(firstLine))));
-		NMSAPI.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.TITLE, Ref.IChatBaseComponent(TheAPI.colorize(nextLine))));
+		NMSAPI.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.SUBTITLE, Ref.IChatBaseComponent(TheAPI.colorize(nextLine))));
 	}
 
 	/**

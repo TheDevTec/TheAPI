@@ -117,16 +117,12 @@ public class StringUtils {
 		/**
 		 * Example:
 		 * 
-		 * StringUtils.getHoverMessage("&cClick on me!")
-		 * .setHoverEvent("&aDo it :-)") .setClickEvent(ClickAction.RUN_COMMAND,
-		 * "suicide")
-		 * 
-		 * .addText("&7, &cother text here") .setHoverEvent("&aThis is clicable too!")
-		 * .setClickEvent(ClickAction.OPEN_URL,
-		 * "https://www.spigotmc.org/resources/theapi-1-7-10-up-to-1-15-2.72679/")
-		 * 
-		 * .send(TheAPI.getOnlinePlayers());
-		 * 
+		 * StringUtils.getHoverMessage("&eHello "+player.getName()+" ").setHoverEvent("&cHoooooveeer messaagee")
+		 .addText("&1A").setHoverEvent("&1A").setClickEvent(ClickAction.RUN_COMMAND, "a")
+		 .addText("&2B").setHoverEvent("&2B").setClickEvent(ClickAction.RUN_COMMAND, "b")
+		 .addText("&3C").setHoverEvent("&3C").setClickEvent(ClickAction.RUN_COMMAND, "c")
+		 .addText("&4D").setHoverEvent("&4D").setClickEvent(ClickAction.RUN_COMMAND, "d")
+		 .addText("&5E").setHoverEvent("&5E").setClickEvent(ClickAction.RUN_COMMAND, "e").send(player);
 		 * 
 		 */
 		return new HoverMessage(message);
@@ -142,7 +138,7 @@ public class StringUtils {
 	public static String colorize(String string) {
 		if (string == null)return null;
 		if(string.contains("#"))
-			if (Integer.valueOf(TheAPI.getServerVersion().split("_")[1]) >= 16) {
+			if (TheAPI.isNewerThan(15)) {
 				string = string.replace("&x", "§x");
 				Matcher match = pattern.matcher(string);
 	            while (match.find()) {

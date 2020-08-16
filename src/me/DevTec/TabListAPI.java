@@ -9,7 +9,7 @@ import net.glowstone.entity.GlowPlayer;
 public class TabListAPI {
 
 	public static void setTabListName(Player p, String name) {
-		p.setPlayerListName(TheAPI.colorize(name));
+		NMSAPI.getNMSPlayerAPI(p).setTabListName(TheAPI.colorize(name));
 	}
 
 	public static void setHeaderFooter(Player p, String header, String footer) {
@@ -25,7 +25,6 @@ public class TabListAPI {
 				Error.err("sending header/footer to " + p.getName(), "Header/Footer is null");
 			}
 		}
-		NMSAPI.sendPacket(p, NMSAPI
-				.getPacketPlayOutPlayerListHeaderFooter(TheAPI.colorize(header), TheAPI.colorize(footer)));
+		NMSAPI.getNMSPlayerAPI(p).setTabList(TheAPI.colorize(header), TheAPI.colorize(footer));
 	}
 }
