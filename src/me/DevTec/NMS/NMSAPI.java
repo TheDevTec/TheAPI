@@ -439,6 +439,10 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutTitle(TitleAction action, Object IChatBaseComponent, int fadeIn, int stay, int fadeOut) {
+		if(action==TitleAction.ACTIONBAR) {
+			Object o =Reflections.c(pTitle, Reflections.get(Reflections.getField(enumTitle, action.name()),null), IChatBaseComponent, fadeIn, stay,fadeOut);
+			return o!=null?o:Reflections.c(pOutChat,IChatBaseComponent, (byte)2);
+		}
 		return Reflections.c(pTitle, Reflections.get(Reflections.getField(enumTitle, action.name()),null), IChatBaseComponent, fadeIn, stay,fadeOut);
 	}
 
@@ -479,14 +483,9 @@ public class NMSAPI {
 		Reflections.invoke(world, Reflections.getMethod(NMSAPI.world, "notify", pos, iblockdata, iblockdata, int.class),blockposition, oldBlock, newBlock, 3);
 	}
 	
-	//KitPvp se bude rušit
-	
-	/**
-	 * @see see ActionBar for old versions
-	 */
 	public static Object getPacketPlayOutChat(ChatType type, Object IChatBaseComponent) {
 		Object o = Reflections.c(pOutChat,IChatBaseComponent, Reflections.get(Reflections.getField(enumChat, type.name()),null));
-		return o != null ? o : Reflections.c(pOutChat,IChatBaseComponent, (byte)2);
+		return o != null ? o : Reflections.c(pOutChat,IChatBaseComponent, (byte)1);
 	}
 
 	public static Object getPacketPlayOutChat(ChatType type, String text) {

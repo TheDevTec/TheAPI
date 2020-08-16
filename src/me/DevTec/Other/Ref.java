@@ -285,13 +285,34 @@ public class Ref {
 	public static Method findMethod(Object c, String name, Object... bricks) {
 		return findMethod(c.getClass(), name, bricks);
 	}
+
+	public static Method findMethodByName(Class<?> c, String name) {
+		Method a = null;
+		for(Method m : getMethods(c)) {
+			if(m.getName().equals(name)) {
+				a=m;
+				break;
+			}
+		}
+		if(a==null)
+		for(Method m : getDeclaredMethods(c)) {
+			if(m.getName().equals(name)) {
+				a=m;
+				break;
+			}
+		}
+		if(a!=null)
+		a.setAccessible(true);
+		return a;
+	}
 	
 	public static Method findMethod(Class<?> c, String name, Object... bricks) {
 		Method a = null;
 		Class<?>[] param = new Class<?>[bricks.length];
 		int i = 0;
 		for(Object o : bricks) {
-			param[i]=o.getClass();
+			if(o!=null)
+			param[i]=o instanceof Class ? (Class<?>)o : o.getClass();
 			++i;
 		}
 		if(bricks.length==0) {
@@ -333,7 +354,8 @@ public class Ref {
 		Class<?>[] param = new Class<?>[bricks.length];
 		int i = 0;
 		for(Object o : bricks) {
-			param[i]=o.getClass();
+			if(o!=null)
+			param[i]=o instanceof Class ? (Class<?>)o : o.getClass();
 			++i;
 		}
 		if(bricks.length==0) {

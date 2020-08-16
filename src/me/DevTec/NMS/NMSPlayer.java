@@ -9,7 +9,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 
 import me.DevTec.TheAPI;
+import me.DevTec.NMS.NMSAPI.ChatType;
 import me.DevTec.NMS.NMSAPI.TitleAction;
+import me.DevTec.Other.Ref;
 
 public class NMSPlayer {
 
@@ -241,12 +243,12 @@ public class NMSPlayer {
 
 	public void damage(float damage) {
 		Object generic = getFieldWithNull(Reflections.getNMSClass("DamageSource"), "GENERIC");
-		Reflections.invoke(a, getMethod("damageEntity",Reflections.getNMSClass("DamageSource"), float.class),generic, damage);
+		Reflections.invoke(a, findMethod("damageEntity",generic, damage),generic, damage);
 	}
 
 	public void playSound(Sound sound, float pitch, float yaw) {
 		Object s = Reflections.getField(Reflections.getNMSClass("SoundEffects"), sound.name());
-		Reflections.invoke(a, getMethod("a", Reflections.getNMSClass("SoundEffects")),s,pitch, yaw);
+		Reflections.invoke(a, findMethod("a", s,pitch, yaw),s,pitch, yaw);
 	}
 
 	public PlayerConnection getPlayerConnection() {
@@ -272,11 +274,11 @@ public class NMSPlayer {
 	}
 
 	public void sendMessageJson(String message) {
-		Reflections.invoke(a, getMethod("sendMessage", NMSAPI.getIChatBaseComponentJson(message).getClass()),NMSAPI.getIChatBaseComponentJson(message));
+		sendPacket(NMSAPI.getPacketPlayOutChat(ChatType.SYSTEM, NMSAPI.getIChatBaseComponentJson(message)));
 	}
-
+	
 	public void sendMessage(String message) {
-		Reflections.invoke(a, getMethod("sendMessage", NMSAPI.getIChatBaseComponentText(message).getClass()),NMSAPI.getIChatBaseComponentText(message));
+		sendPacket(NMSAPI.getPacketPlayOutChat(ChatType.SYSTEM, message));
 	}
 
 	public int getMaxAir() {
@@ -317,7 +319,7 @@ public class NMSPlayer {
 	}
 
 	public void setSneaking(boolean value) {
-		Reflections.invoke(a, getMethod("setSneaking"), value);
+		Reflections.invoke(a, findMethod("setSneaking", value), value);
 	}
 
 	public int getNoDamage() {
@@ -329,7 +331,7 @@ public class NMSPlayer {
 	}
 
 	public void setInvulnerable(boolean value) {
-		Reflections.invoke(a, getMethod("setInvulnerable"), value);
+		Reflections.invoke(a, findMethod("setInvulnerable", value), value);
 	}
 
 	public boolean isInvulnerable() {
@@ -387,7 +389,7 @@ public class NMSPlayer {
 	}
 
 	public void setCustomName(String name) {
-		Reflections.invoke(a, getMethod("setCustomName"), NMSAPI.getIChatBaseComponentText(name));
+		Reflections.invoke(a, findMethod("setCustomName", NMSAPI.getIChatBaseComponentText(name)), NMSAPI.getIChatBaseComponentText(name));
 	}
 
 	public boolean getTabListName() {
@@ -403,7 +405,7 @@ public class NMSPlayer {
 	}
 
 	public void setCustomNameVisible(boolean value) {
-		Reflections.invoke(a, getMethod("setCustomNameVisible"), value);
+		Reflections.invoke(a, findMethod("setCustomNameVisible", value), value);
 	}
 
 	public boolean isGlowing() {
@@ -457,7 +459,7 @@ public class NMSPlayer {
 	}
 
 	public void setHealth(float health) {
-		Reflections.invoke(a, getMethod("setHealth"), health);
+		Reflections.invoke(a, findMethod("setHealth", health), health);
 	}
 
 	public int getFood() {
@@ -483,7 +485,7 @@ public class NMSPlayer {
 	}
 
 	public void setAir(int air) {
-		Reflections.invoke(a, getMethod("setAirTicks"), air);
+		Reflections.invoke(a, findMethod("setAirTicks", air), air);
 	}
 
 	public void sendPacket(Object packet) {
@@ -506,8 +508,8 @@ public class NMSPlayer {
 		return Reflections.get(Reflections.getField(in, name),null);
 	}
 	
-	public Method getMethod(String name, Class<?>... a) {
-		return Reflections.getMethod(c, name, a);
+	public Method findMethod(String name, Object... items) {
+		return Ref.findMethod(c, name, items);
 	}
 
 }

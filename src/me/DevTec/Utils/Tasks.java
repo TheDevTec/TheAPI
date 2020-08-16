@@ -41,6 +41,7 @@ public class Tasks {
 			public void PacketPlayOut(Player player, Object packet) {
 				if(packet.toString().contains("PacketStatusOutServerInfo")) {
 					Object w = Ref.invoke(Ref.server(),"getServerPing");
+					if(w==null)w=Ref.invoke(Ref.server(), "aG");
 					Object sd = Ref.newInstance(Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class, int.class), LoaderClass.plugin.max>-1?LoaderClass.plugin.max:Bukkit.getMaxPlayers(),LoaderClass.plugin.fakeOnline>-1?LoaderClass.plugin.fakeOnline:TheAPI.getOnlinePlayers().size());
 					if(LoaderClass.plugin.onlineText!=null && !LoaderClass.plugin.onlineText.isEmpty()) {
 					GameProfile[] texts = new GameProfile[LoaderClass.plugin.onlineText.size()];

@@ -9,7 +9,6 @@ import org.json.simple.JSONObject;
 import me.DevTec.TheAPI;
 import me.DevTec.Json.JsonMaker;
 import me.DevTec.NMS.NMSAPI;
-import me.DevTec.NMS.NMSAPI.ChatType;
 
 public class HoverMessage {
 
@@ -71,6 +70,6 @@ public class HoverMessage {
 	}
 
 	public void send(Player player) {
-		NMSAPI.sendPacket(player, NMSAPI.getPacketPlayOutChat(ChatType.CHAT, NMSAPI.getIChatBaseComponentJson(getJson())));
+		NMSAPI.getNMSPlayerAPI(player).sendMessageJson(getJson());
 	}
 }
