@@ -39,6 +39,7 @@ public class NMSAPI {
 	private static Method getmat, getb, getc, gett, WorldHandle, PlayerHandle, ichatcon, getser, plist, block,
 			IBlockData, worldset, Chunk, getblocks, setblock, setblockb, itemstack, entityM, livingentity, oldichatser,
 			post;
+	private static boolean old;
 	private static Field tps,scoreb,scorec,scored;
 	private static Object sbremove, sbinteger, sbchange,sbhearts;
 	private static Field[] part= new Field[11];
@@ -114,8 +115,10 @@ public class NMSAPI {
 		gett = Reflections.getMethod(world,"getType",pos);
 		pTitle = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutTitle"),enumTitle, ichat, int.class,int.class, int.class);
 		pOutChat = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutChat"),ichat, enumChat);
-		if(pOutChat==null)
+		if(pOutChat==null) {
+			old=true;
 			pOutChat = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutChat"),ichat, byte.class);
+		}
 		pTab = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutPlayerListHeaderFooter"));
 		WorldHandle = Reflections.getMethod(bWorld,"getHandle");
 		PlayerHandle = Reflections.getMethod(bPlayer,"getHandle");
@@ -484,8 +487,8 @@ public class NMSAPI {
 	}
 	
 	public static Object getPacketPlayOutChat(ChatType type, Object IChatBaseComponent) {
-		Object o = Reflections.c(pOutChat,IChatBaseComponent, Reflections.get(Reflections.getField(enumChat, type.name()),null));
-		return o != null ? o : Reflections.c(pOutChat,IChatBaseComponent, (byte)1);
+		Object o = old?Reflections.c(pOutChat,IChatBaseComponent, (byte)1):Reflections.c(pOutChat,IChatBaseComponent, Reflections.get(Reflections.getField(enumChat, type.name()),null));
+		return o;
 	}
 
 	public static Object getPacketPlayOutChat(ChatType type, String text) {
