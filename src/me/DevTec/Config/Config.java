@@ -400,21 +400,23 @@ public class Config {
      */
     public String getString(String path) {
     	String[] d = path.split("\\.");
-        StringBuffer g = new StringBuffer();
+        String g = null;
         int idSekce = 0;
+        String f = "";
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) continue;
-        	if(idSekce!=d.length) {
-            if (s.trim().split(quetos)[0].equals(d[idSekce]))
-                if(++idSekce==d.length)
-                    g.append((s.split(quetos)[1].replaceFirst(space, "")).split(tag)[0]);
-            }
+            if (s.trim().split(":")[0].equals(d[idSekce])) {
+             	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
+                 	f=s.split(":")[0];
+                 if(++idSekce==d.length) {
+                     g=s.split(quetos+" ")[1].split(tag)[0];
+                 break;
+                 }
+             	}
+             }else 
+             	f=s.split(":")[0];
         }
-        try {
-        return g.toString();
-        }catch(Exception e) {
-        	return null;
-        }
+        return g;
     }
 
     /**
@@ -494,15 +496,21 @@ public class Config {
     public List<String> getStringList(String path) {
     	String[] d = path.split("\\.");
         List<String> g = Lists.newArrayList();
+        String f = "";
         int idSekce = 0;
         int foundAll = 0;
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
             	continue;
             if(foundAll==0) {
-            if (s.trim().split(":")[0].equals(d[idSekce]))
+            if (s.trim().split(":")[0].equals(d[idSekce])) {
+            	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
+                	f=s.split(":")[0];
                 if(++idSekce==d.length)
                 	foundAll=1;
+            	}
+            }else 
+            	f=s.split(":")[0];
             }else {
                 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                    g.add(s.split("- ")[1].split(tag)[0]);
@@ -512,6 +520,14 @@ public class Config {
         return g;
     }
 
+    private static int c(String s) {
+    	int i = 0;
+    	for(char c : s.toCharArray())
+    		if(c==' ')++i;
+    		else break;
+    	return i;
+    }
+    
     /**
      * @see see Get List<Integer> from Path
      * @return List<Integer>
@@ -521,13 +537,19 @@ public class Config {
         List<Integer> g = Lists.newArrayList();
         int idSekce = 0;
         int foundAll = 0;
+        String f = "";
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
             	continue;
             if(foundAll==0) {
-            if (s.trim().split(":")[0].equals(d[idSekce]))
-                if(++idSekce==d.length)
-                	foundAll=1;
+            	 if (s.trim().split(":")[0].equals(d[idSekce])) {
+                 	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
+                     	f=s.split(":")[0];
+                     if(++idSekce==d.length)
+                     	foundAll=1;
+                 	}
+                 }else 
+                 	f=s.split(":")[0];
             }else {
                 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
@@ -549,14 +571,20 @@ public class Config {
     	String[] d = path.split("\\.");
         List<Byte> g = Lists.newArrayList();
         int idSekce = 0;
+        String f = "";
         int foundAll = 0;
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
             	continue;
             if(foundAll==0) {
-            if (s.trim().split(":")[0].equals(d[idSekce]))
-                if(++idSekce==d.length)
-                	foundAll=1;
+            	if (s.trim().split(":")[0].equals(d[idSekce])) {
+                	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
+                     	f=s.split(":")[0];
+                     if(++idSekce==d.length)
+                     	foundAll=1;
+                 	}
+                 }else 
+                 	f=s.split(":")[0];
             }else {
                 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
@@ -578,14 +606,20 @@ public class Config {
     	String[] d = path.split("\\.");
         List<Boolean> g = Lists.newArrayList();
         int idSekce = 0;
+        String f= "";
         int foundAll = 0;
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
             	continue;
             if(foundAll==0) {
-            if (s.trim().split(":")[0].equals(d[idSekce]))
-                if(++idSekce==d.length)
-                	foundAll=1;
+            	if (s.trim().split(":")[0].equals(d[idSekce])) {
+                	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
+                     	f=s.split(":")[0];
+                     if(++idSekce==d.length)
+                     	foundAll=1;
+                 	}
+                 }else 
+                 	f=s.split(":")[0];
             }else {
                 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
@@ -608,13 +642,19 @@ public class Config {
         List<Double> g = Lists.newArrayList();
         int idSekce = 0;
         int foundAll = 0;
+        String f="";
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
             	continue;
             if(foundAll==0) {
-            if (s.trim().split(":")[0].equals(d[idSekce]))
-                if(++idSekce==d.length)
-                	foundAll=1;
+            	if (s.trim().split(":")[0].equals(d[idSekce])) {
+                	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
+                     	f=s.split(":")[0];
+                     if(++idSekce==d.length)
+                     	foundAll=1;
+                 	}
+                 }else 
+                 	f=s.split(":")[0];
             }else {
                 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
@@ -637,13 +677,19 @@ public class Config {
         List<Short> g = Lists.newArrayList();
         int idSekce = 0;
         int foundAll = 0;
+        String f= "";
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
             	continue;
             if(foundAll==0) {
-            if (s.trim().split(":")[0].equals(d[idSekce]))
-                if(++idSekce==d.length)
-                	foundAll=1;
+            	if (s.trim().split(":")[0].equals(d[idSekce])) {
+                	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
+                     	f=s.split(":")[0];
+                     if(++idSekce==d.length)
+                     	foundAll=1;
+                 	}
+                 }else 
+                 	f=s.split(":")[0];
             }else {
                 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
@@ -681,14 +727,20 @@ public class Config {
     	String[] d = path.split("\\.");
         List<Float> g = Lists.newArrayList();
         int idSekce = 0;
+        String f = "";
         int foundAll = 0;
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
             	continue;
             if(foundAll==0) {
-            if (s.trim().split(":")[0].equals(d[idSekce]))
-                if(++idSekce==d.length)
-                	foundAll=1;
+            	if (s.trim().split(":")[0].equals(d[idSekce])) {
+                	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
+                     	f=s.split(":")[0];
+                     if(++idSekce==d.length)
+                     	foundAll=1;
+                 	}
+                 }else 
+                 	f=s.split(":")[0];
             }else {
                 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
@@ -710,14 +762,20 @@ public class Config {
     	String[] d = path.split("\\.");
         List<Object> g = Lists.newArrayList();
         int idSekce = 0;
+        String f = "";
         int foundAll = 0;
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
             	continue;
             if(foundAll==0) {
-            if (s.trim().split(":")[0].equals(d[idSekce]))
-                if(++idSekce==d.length)
-                	foundAll=1;
+            	if (s.trim().split(":")[0].equals(d[idSekce])) {
+                	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
+                     	f=s.split(":")[0];
+                     if(++idSekce==d.length)
+                     	foundAll=1;
+                 	}
+                 }else 
+                 	f=s.split(":")[0];
             }else {
                 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	String object = s.split("- ")[1].split(tag)[0];
