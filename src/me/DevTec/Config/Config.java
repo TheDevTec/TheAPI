@@ -1,11 +1,18 @@
 package me.DevTec.Config;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
+import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -13,6 +20,7 @@ import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
  
 public class Config {
+	protected static String quetos = ":", tag = "#", space = " ";
     private static final LinkedBlockingQueue<Action> queue = Queues.newLinkedBlockingQueue();
     private static Action current;
     protected static void notifyQueue() {
@@ -89,8 +97,19 @@ public class Config {
 	                            if(++idSekce == path.length) {
 	                            foundAll=1;
 	                            fs.append(s+System.lineSeparator());
-	                            for(Object sdf : (List<?>)value)
+	                            for(Object sdf : (List<?>)value) {
+	                            	if(sdf instanceof Number || sdf instanceof String || sdf instanceof Boolean)
 		                            fs.append(sc+"- "+sdf+System.lineSeparator());
+	                            	else {
+	                            		try {
+	                            			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+	                        				BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+	                        				dataOutput.writeObject(sdf);
+	                        				dataOutput.close();
+			                            	fs.append(sc+"- "+Base64Coder.encodeLines(outputStream.toByteArray())+System.lineSeparator());
+	                            		}catch(Exception e) {
+	    		                            fs.append(sc+"- "+sdf+System.lineSeparator());
+	                            	}}}
 	                            continue;
 	                            }
 	                    }else if(i==0 && s.contains("-") && s.split("-")[1].startsWith(" "))continue; //list item¨
@@ -110,8 +129,21 @@ public class Config {
 	                        foundAll=1;
 	                        if(value==null)
 	                        removingMode=true;
-	                        if(value!=null)
+	                        if(value!=null) {
+	                        	if(value instanceof Number || value instanceof String || value instanceof Boolean)
+		                            fs.append(s.split(":")[0]+": "+value+System.lineSeparator());
+	                            	else {
+	                            		try {
+	                            			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+	                        				BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+	                        				dataOutput.writeObject(value);
+	                        				dataOutput.close();
+			                            	fs.append(s.split(":")[0]+": "+Base64Coder.encodeLines(outputStream.toByteArray())+System.lineSeparator());
+	                            		}catch(Exception e) {
+	    		                            fs.append(s.split(":")[0]+": "+value+System.lineSeparator());
+	                            	}}
 	                        	fs.append(s.split(":")[0]+": "+value+System.lineSeparator());
+	                        }
 	                        continue;
 	                    }
 	            }else if(removingMode) {
@@ -208,7 +240,6 @@ public class Config {
     	return new Section(this, name);
     }
 
-	protected static String quetos = ":", tag = "#";
     public Set<String> getKeys(String path) {
     	String[] w= path.split("\\.");
     	HashSet<String> fs = Sets.newHashSet();
@@ -268,50 +299,6 @@ public class Config {
     	return found;
     }
     
-    
-    /**
-     * @return String
-     */
-    public String getString(String path) {
-        return getSection(path).getString();
-    }
-    
-    /**
-     * @return double
-     */
-    public double getDouble(String path) {
-        return getSection(path).getDouble();
-    }
-    
-    /**
-     * @return int
-     */
-    public int getInt(String path) {
-        return getSection(path).getInt();
-    }
-    
-    /**
-     * @return long
-     */
-    public long getLong(String path) {
-        return getSection(path).getLong();
-    }
-    
-    /**
-     * @return boolean
-     */
-    public boolean getBoolean(String path) {
-        return getSection(path).getBoolean();
-    }
-    
-    /**
-     * @return float
-     */
-    public float getFloat(String path) {
-        return getSection(path).getFloat();
-    }
-
-    
     /**
      * @see see Return true if section exists
      */
@@ -340,48 +327,421 @@ public class Config {
         }
         return foundAll;
     }
-    
+
     /**
      * @see see Return true if value in section is String
      */
     public boolean isString(String path) {
-        return getSection(path).isString();
+        return getString(path)!=null;
     }
-    
+
     /**
      * @see see Return true if value in section is Double
      */
     public boolean isDouble(String path) {
-        return getSection(path).isDouble();
+        try {
+            Double.parseDouble(getString(path));
+            return true;
+        }catch(Exception e) {
+            return false;
+        }
     }
-    
+
     /**
      * @see see Return true if value in section is Long
      */
     public boolean isLong(String path) {
-    	isDouble(path);
-        return getSection(path).isLong();
+        try {
+            Long.parseLong(getString(path));
+            return true;
+        }catch(Exception e) {
+            return false;
+        }
     }
-    
+
     /**
-     * @see see Return true if value in section is Int
+     * @see see Return true if value in section is Integer
      */
     public boolean isInt(String path) {
-        return getSection(path).isInt();
+        try {
+            Integer.parseInt(getString(path));
+            return true;
+        }catch(Exception e) {
+            return false;
+        }
     }
-    
+
     /**
      * @see see Return true if value in section is Boolean
      */
     public boolean isBoolean(String path) {
-        return getSection(path).isBoolean();
+        try {
+            Boolean.parseBoolean(getString(path));
+            return true;
+        }catch(Exception e) {
+            return false;
+        }
     }
-    
+
     /**
      * @see see Return true if value in section is Float
      */
     public boolean isFloat(String path) {
-        return getSection(path).isFloat();
+        try {
+            Float.parseFloat(getString(path));
+            return true;
+        }catch(Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * @see see Get String from Path
+     * @return String
+     */
+    public String getString(String path) {
+    	String[] d = path.split("\\.");
+        StringBuffer g = new StringBuffer();
+        int idSekce = 0;
+        for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
+            if (s.trim().startsWith(tag) || s.trim().isEmpty()) continue;
+        	if(idSekce!=d.length) {
+            if (s.trim().split(quetos)[0].equals(d[idSekce]))
+                if(++idSekce==d.length)
+                    g.append((s.split(quetos)[1].replaceFirst(space, "")).split(tag)[0]);
+            }
+        }
+        try {
+        return g.toString();
+        }catch(Exception e) {
+        	return null;
+        }
+    }
+
+    /**
+     * @see see Get Int from Path
+     * @return int
+     */
+    public int getInt(String path) {
+        String s = getString(path);
+        if(s==null)return 0;
+        try {
+        return Integer.parseInt(s);
+        }catch(Exception e) {
+            return 0;
+        }
+    }
+    
+    /**
+     * @see see Get Double from Path
+     * @return double
+     */
+    public double getDouble(String path) {
+        String s = getString(path);
+        if(s==null)return 0.0;
+        try {
+        return Double.parseDouble(s);
+        }catch(Exception e) {
+            return 0.0;
+        }
+    }
+
+    /**
+     * @see see Get Long from Path
+     * @return long
+     */
+    public long getLong(String path) {
+        String s = getString(path);
+        if(s==null)return 0;
+        try {
+        return Long.parseLong(s);
+        }catch(Exception e) {
+            return 0L;
+        }
+    }
+
+    /**
+     * @see see Get Float from Path
+     * @return float
+     */
+    public float getFloat(String path) {
+        String s = getString(path);
+        if(s==null)return 0;
+        try {
+        return Float.parseFloat(s);
+        }catch(Exception e) {
+            return 0F;
+        }
+    }
+
+    /**
+     * @see see Get Boolean from Path
+     * @return boolean
+     */
+    public boolean getBoolean(String path) {
+        String s = getString(path);
+        if(s==null)return false;
+        try {
+        return Boolean.parseBoolean(s);
+        }catch(Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * @see see Get List<String> from Path
+     * @return List<String>
+     */
+    public List<String> getStringList(String path) {
+    	String[] d = path.split("\\.");
+        List<String> g = Lists.newArrayList();
+        int idSekce = 0;
+        int foundAll = 0;
+        for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
+            if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
+            	continue;
+            if(foundAll==0) {
+            if (s.trim().split(":")[0].equals(d[idSekce]))
+                if(++idSekce==d.length)
+                	foundAll=1;
+            }else {
+                if(s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
+                   g.add(s.split("- ")[1].split(tag)[0]);
+                }else break;
+            }
+        }
+        return g;
+    }
+
+    /**
+     * @see see Get List<Integer> from Path
+     * @return List<Integer>
+     */
+    public List<Integer> getIntegerList(String path) {
+    	String[] d = path.split("\\.");
+        List<Integer> g = Lists.newArrayList();
+        int idSekce = 0;
+        int foundAll = 0;
+        for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
+            if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
+            	continue;
+            if(foundAll==0) {
+            if (s.trim().split(":")[0].equals(d[idSekce]))
+                if(++idSekce==d.length)
+                	foundAll=1;
+            }else {
+                if(s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
+                	try {
+                   g.add(Integer.parseInt(s.split("- ")[1].split(tag)[0]));
+                	}catch(Exception e) {
+                        g.add(0);
+                	}
+                }else break;
+            }
+        }
+        return g;
+    }
+
+    /**
+     * @see see Get List<Byte> from Path
+     * @return List<Byte>
+     */
+    public List<Byte> getByteList(String path) {
+    	String[] d = path.split("\\.");
+        List<Byte> g = Lists.newArrayList();
+        int idSekce = 0;
+        int foundAll = 0;
+        for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
+            if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
+            	continue;
+            if(foundAll==0) {
+            if (s.trim().split(":")[0].equals(d[idSekce]))
+                if(++idSekce==d.length)
+                	foundAll=1;
+            }else {
+                if(s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
+                	try {
+                   g.add(Byte.parseByte(s.split("- ")[1].split(tag)[0]));
+                	}catch(Exception e) {
+                        g.add((byte)0);
+                	}
+                }else break;
+            }
+        }
+        return g;
+    }
+
+    /**
+     * @see see Get List<Boolean> from Path
+     * @return List<Boolean>
+     */
+    public List<Boolean> getBooleanList(String path) {
+    	String[] d = path.split("\\.");
+        List<Boolean> g = Lists.newArrayList();
+        int idSekce = 0;
+        int foundAll = 0;
+        for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
+            if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
+            	continue;
+            if(foundAll==0) {
+            if (s.trim().split(":")[0].equals(d[idSekce]))
+                if(++idSekce==d.length)
+                	foundAll=1;
+            }else {
+                if(s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
+                	try {
+                   g.add(Boolean.parseBoolean(s.split("- ")[1].split(tag)[0]));
+                	}catch(Exception e) {
+                        g.add(false);
+                	}
+                }else break;
+            }
+        }
+        return g;
+    }
+
+    /**
+     * @see see Get List<Double> from Path
+     * @return List<Double>
+     */
+    public List<Double> getDoubleList(String path) {
+    	String[] d = path.split("\\.");
+        List<Double> g = Lists.newArrayList();
+        int idSekce = 0;
+        int foundAll = 0;
+        for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
+            if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
+            	continue;
+            if(foundAll==0) {
+            if (s.trim().split(":")[0].equals(d[idSekce]))
+                if(++idSekce==d.length)
+                	foundAll=1;
+            }else {
+                if(s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
+                	try {
+                   g.add(Double.parseDouble(s.split("- ")[1].split(tag)[0]));
+                	}catch(Exception e) {
+                        g.add(0D);
+                	}
+                }else break;
+            }
+        }
+        return g;
+    }
+
+    /**
+     * @see see Get List<Short> from Path
+     * @return List<Short>
+     */
+    public List<Short> getShortList(String path) {
+    	String[] d = path.split("\\.");
+        List<Short> g = Lists.newArrayList();
+        int idSekce = 0;
+        int foundAll = 0;
+        for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
+            if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
+            	continue;
+            if(foundAll==0) {
+            if (s.trim().split(":")[0].equals(d[idSekce]))
+                if(++idSekce==d.length)
+                	foundAll=1;
+            }else {
+                if(s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
+                	try {
+                   g.add(Short.parseShort(s.split("- ")[1].split(tag)[0]));
+                	}catch(Exception e) {
+                        g.add((short)0);
+                	}
+                }else break;
+            }
+        }
+        return g;
+    }
+
+    /**
+     * @see see Get List<Map<?,?>> from Path
+     * @return List<Map<?,?>>
+     */
+    public List<Map<?,?>> getMapList(String path) {
+    	List<Map<?,?>> maps = Lists.newArrayList();
+    	for(Object o : getList(path)) {
+    		try {
+    		maps.add((Map<?,?>)o);
+    		}catch(Exception not) {
+    			break;
+    		}
+    	}
+    	return maps;
+    }
+
+    /**
+     * @see see Get List<Float> from Path
+     * @return List<Float>
+     */
+    public List<Float> getFloatList(String path) {
+    	String[] d = path.split("\\.");
+        List<Float> g = Lists.newArrayList();
+        int idSekce = 0;
+        int foundAll = 0;
+        for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
+            if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
+            	continue;
+            if(foundAll==0) {
+            if (s.trim().split(":")[0].equals(d[idSekce]))
+                if(++idSekce==d.length)
+                	foundAll=1;
+            }else {
+                if(s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
+                	try {
+                   g.add(Float.parseFloat(s.split("- ")[1].split(tag)[0]));
+                	}catch(Exception e) {
+                        g.add(0F);
+                	}
+                }else break;
+            }
+        }
+        return g;
+    }
+
+    /**
+     * @see see Get List<Object> from Path
+     * @return List<Object>
+     */
+    public List<Object> getList(String path) {
+    	String[] d = path.split("\\.");
+        List<Object> g = Lists.newArrayList();
+        int idSekce = 0;
+        int foundAll = 0;
+        for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
+            if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
+            	continue;
+            if(foundAll==0) {
+            if (s.trim().split(":")[0].equals(d[idSekce]))
+                if(++idSekce==d.length)
+                	foundAll=1;
+            }else {
+                if(s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
+                	String object = s.split("- ")[1].split(tag)[0];
+                	try {
+            			ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(object));
+            			BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+                	try {
+            			while (true) {
+                        	try {
+            				g.add(dataInput.readObject());
+                        	}catch(Exception reading2) {
+                        		break;
+                        	}
+            			}
+            			dataInput.close();
+                	}catch(Exception reading) {}
+                	}catch(Exception e) {
+                	g.add(object);
+                	}
+                }else break;
+            }
+        }
+        return g;
     }
     
     /**

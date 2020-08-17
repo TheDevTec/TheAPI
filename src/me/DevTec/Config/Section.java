@@ -1,11 +1,9 @@
 package me.DevTec.Config;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
-import com.google.common.collect.Lists;
  
 public class Section {
-	protected static String quetos = ":", tag = "#", space = " ";
     private String[] s;
     private Config c;
     public Section(Config config, String section) {
@@ -38,141 +36,87 @@ public class Section {
     }
 
     public String getString() {
-        StringBuffer g = new StringBuffer();
-        int idSekce = 0;
-        for (String s : c.getFile().getContents().toString().split(System.lineSeparator())) {
-            if (s.trim().startsWith(tag) || s.trim().isEmpty()) continue;
-        	if(idSekce!=this.s.length) {
-            if (s.trim().split(quetos)[0].equals(this.s[idSekce]))
-                if(++idSekce==this.s.length)
-                    g.append((s.split(quetos)[1].replaceFirst(space, "")).split(tag)[0]);
-            }
-        }
-        try {
-        return g.toString();
-        }catch(Exception e) {
-        	return null;
-        }
+        return c.getString(getName());
     }
     
     public int getInt() {
-        String s = getString();
-        if(s==null)return 0;
-        try {
-        return Integer.parseInt(s);
-        }catch(Exception e) {
-            return 0;
-        }
+    	return c.getInt(getName());
     }
     
     public double getDouble() {
-        String s = getString();
-        if(s==null)return 0.0;
-        try {
-        return Double.parseDouble(s);
-        }catch(Exception e) {
-            return 0.0;
-        }
+    	return c.getDouble(getName());
     }
     
     public boolean isString() {
-        return getString()!=null;
+    	return c.isString(getName());
     }
     
     public boolean isDouble() {
-        try {
-            Double.parseDouble(getString());
-            return true;
-        }catch(Exception e) {
-            return false;
-        }
+    	return c.isDouble(getName());
     }
     
     public boolean isLong() {
-        try {
-            Long.parseLong(getString());
-            return true;
-        }catch(Exception e) {
-            return false;
-        }
+    	return c.isLong(getName());
     }
     
     public boolean isInt() {
-        try {
-            Integer.parseInt(getString());
-            return true;
-        }catch(Exception e) {
-            return false;
-        }
+    	return c.isInt(getName());
     }
     
     public boolean isBoolean() {
-        try {
-            Boolean.parseBoolean(getString());
-            return true;
-        }catch(Exception e) {
-            return false;
-        }
+    	return c.isBoolean(getName());
     }
     
     public boolean isFloat() {
-        try {
-            Float.parseFloat(getString());
-            return true;
-        }catch(Exception e) {
-            return false;
-        }
+    	return c.isFloat(getName());
     }
     
     public long getLong() {
-        String s = getString();
-        if(s==null)return 0;
-        try {
-        return Long.parseLong(s);
-        }catch(Exception e) {
-            return 0L;
-        }
+    	return c.getLong(getName());
     }
     
     public float getFloat() {
-        String s = getString();
-        if(s==null)return 0;
-        try {
-        return Float.parseFloat(s);
-        }catch(Exception e) {
-            return 0F;
-        }
+    	return c.getFloat(getName());
     }
     
     public boolean getBoolean() {
-        String s = getString();
-        if(s==null)return false;
-        try {
-        return Boolean.parseBoolean(s);
-        }catch(Exception e) {
-            return false;
-        }
+    	return c.getBoolean(getName());
     }
     
-    public List<String> getList() {
-        List<String> g = Lists.newArrayList();
-        int idSekce = 0;
-        int foundAll = 0;
-        for (String s : c.getFile().getContents().toString().split(System.lineSeparator())) {
-            if (s.trim().startsWith("#") || s.trim().isEmpty()) 
-            	continue;
-            if(foundAll==0) {
-            if (s.trim().split(":")[0].equals(this.s[idSekce]))
-                if(++idSekce==this.s.length)
-                	foundAll=1;
-            }else {
-                if(s.contains("-") && s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
-                    g.add(s.split("- ")[1]);
-                }else break;
-                
-            }
-        }
-        return g;
+    public List<String> getStringList() {
+        return c.getStringList(getName());
+    }
+    
+    public List<Integer> getIntegerList() {
+        return c.getIntegerList(getName());
+    }
+    
+    public List<Byte> getByteList() {
+        return c.getByteList(getName());
+    }
+    
+    public List<Boolean> getBooleanList() {
+        return c.getBooleanList(getName());
+    }
+    
+    public List<Double> getDoubleList() {
+        return c.getDoubleList(getName());
+    }
+    
+    public List<Short> getShortList() {
+        return c.getShortList(getName());
+    }
+    
+    public List<Map<?,?>> getMapList() {
+        return c.getMapList(getName());
+    }
+    
+    public List<Float> getFloatList() {
+        return c.getFloatList(getName());
+    }
+    
+    public List<Object> getList() {
+        return c.getList(getName());
     }
     
     public Section getSection(String name) {
