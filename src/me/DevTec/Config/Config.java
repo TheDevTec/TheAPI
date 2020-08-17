@@ -403,6 +403,7 @@ public class Config {
         String g = null;
         int idSekce = 0;
         String f = "";
+        if(exists(path))
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) continue;
             if (s.trim().split(":")[0].equals(d[idSekce])) {
@@ -410,7 +411,7 @@ public class Config {
                  	f=s.split(":")[0];
                  if(++idSekce==d.length) {
                      g=s.split(quetos+" ")[1].split(tag)[0];
-                 break;
+                     break;
                  }
              	}
              }else 
@@ -499,6 +500,7 @@ public class Config {
         String f = "";
         int idSekce = 0;
         int foundAll = 0;
+        if(exists(path))
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
             	continue;
@@ -538,6 +540,7 @@ public class Config {
         int idSekce = 0;
         int foundAll = 0;
         String f = "";
+        if(exists(path))
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
             	continue;
@@ -573,6 +576,7 @@ public class Config {
         int idSekce = 0;
         String f = "";
         int foundAll = 0;
+        if(exists(path))
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
             	continue;
@@ -608,6 +612,7 @@ public class Config {
         int idSekce = 0;
         String f= "";
         int foundAll = 0;
+        if(exists(path))
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
             	continue;
@@ -643,6 +648,7 @@ public class Config {
         int idSekce = 0;
         int foundAll = 0;
         String f="";
+        if(exists(path))
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
             	continue;
@@ -678,6 +684,7 @@ public class Config {
         int idSekce = 0;
         int foundAll = 0;
         String f= "";
+        if(exists(path))
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
             	continue;
@@ -729,6 +736,7 @@ public class Config {
         int idSekce = 0;
         String f = "";
         int foundAll = 0;
+        if(exists(path))
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
             	continue;
@@ -764,6 +772,7 @@ public class Config {
         int idSekce = 0;
         String f = "";
         int foundAll = 0;
+        if(exists(path))
         for (String s : getFile().getContents().toString().split(System.lineSeparator())) {
             if (s.trim().startsWith(tag) || s.trim().isEmpty()) 
             	continue;
