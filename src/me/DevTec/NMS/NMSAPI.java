@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -39,7 +40,7 @@ public class NMSAPI {
 	private static Method getmat, getb, getc, gett, WorldHandle, PlayerHandle, ichatcon, getser, plist, block,
 			IBlockData, worldset, Chunk, getblocks, setblock, setblockb, itemstack, entityM, livingentity, oldichatser,
 			post;
-	private static boolean old;
+	private static int old;
 	private static Field tps,scoreb,scorec,scored;
 	private static Object sbremove, sbinteger, sbchange,sbhearts;
 	private static Field[] part= new Field[11];
@@ -116,7 +117,11 @@ public class NMSAPI {
 		pTitle = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutTitle"),enumTitle, ichat, int.class,int.class, int.class);
 		pOutChat = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutChat"),ichat, enumChat);
 		if(pOutChat==null) {
-			old=true;
+			old=1;
+			pOutChat = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutChat"),ichat, enumChat, UUID.class);
+		}
+		if(pOutChat==null) {
+			old=2;
 			pOutChat = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutChat"),ichat, byte.class);
 		}
 		pTab = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutPlayerListHeaderFooter"));
@@ -487,7 +492,8 @@ public class NMSAPI {
 	}
 	
 	public static Object getPacketPlayOutChat(ChatType type, Object IChatBaseComponent) {
-		Object o = old?Reflections.c(pOutChat,IChatBaseComponent, (byte)1):Reflections.c(pOutChat,IChatBaseComponent, Reflections.get(Reflections.getField(enumChat, type.name()),null));
+		Object o = old==2?Reflections.c(pOutChat,IChatBaseComponent, (byte)1):
+			(old==0?Reflections.c(pOutChat,IChatBaseComponent, Reflections.get(Reflections.getField(enumChat, type.name()),null)):Reflections.c(pOutChat,IChatBaseComponent, Reflections.get(Reflections.getField(enumChat, type.name()),null), UUID.randomUUID()));
 		return o;
 	}
 

@@ -155,21 +155,24 @@ public class Section {
     }
     
     public List<String> getList() {
-        String[] text = c.getFile().getContents().toString().split(System.lineSeparator());
-        int idSekce = 0;
         List<String> g = Lists.newArrayList();
+        int idSekce = 0;
         String sc = "";
-        for(int i = 0; i < s.length; ++i)sc+=" ";
-        boolean foundAll = false;
-        for (String s : text) {
-            if (s.trim().startsWith("#") || s.trim().isEmpty()) continue;
-            if(!foundAll) {
+        for(int i = 0; i < s.length-1; ++i)sc+=" ";
+        int foundAll = 0;
+        for (String s : c.getFile().getContents().toString().split(System.lineSeparator())) {
+            if (s.trim().startsWith("#") || s.trim().isEmpty()) 
+            	continue;
+            if(foundAll==0) {
             if (s.trim().split(":")[0].equals(this.s[idSekce]))
-                if(++idSekce==this.s.length)foundAll=true;
+                if(++idSekce==this.s.length)
+                	foundAll=1;
             }else {
                 if(s.startsWith(sc+"- ")) {
                     g.add(s.split(sc+"- ")[1]);
-                }else break;
+                }else {
+                	break;
+                }
             }
         }
         return g;

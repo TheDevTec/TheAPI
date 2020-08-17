@@ -29,11 +29,11 @@ public class Config {
 	     sc+=" ";
 	    Object value = current.object();
 	    IFile file = current.section().getConfig().getFile();
-	    if(!current.section().getConfig().exists(current.section().getName()))
+	    if(!current.section().exists())
 	    if(value!=null && action==1 || action==0) {
 	    	if(!current.section().getConfig().exists(path[0])) {
     			file.getContents().append(path[0]+":"+System.lineSeparator());
-    		}
+	    	}
     		while(true) {
             for (String s : file.getContents().toString().split(System.lineSeparator())) {
                 if(foundAll==0) {
@@ -50,8 +50,9 @@ public class Config {
                         }
                         pathd=pathd.replaceFirst("\\.", "")+"."+path[idSekce];
                         String d = ac+path[idSekce]+":";
-                        if(!current.section().getConfig().exists(pathd))
+                        if(!current.section().getConfig().exists(pathd)) {
                             fs.append(d+System.lineSeparator());
+                        }
                         continue;
                 }}
                 fs.append(s+System.lineSeparator());
@@ -60,7 +61,7 @@ public class Config {
             idSekce=0;
             file.setContents(fs);
             fs=new StringBuffer();
-            if(current.section().getConfig().exists(current.section().getName()))break;
+            if(current.section().exists())break;
     		}
 	    }
 	    if(action==0) { //add comment
@@ -76,29 +77,27 @@ public class Config {
 		    }
 	    }
 	    if(action==1) { //set or remove path & value
-	    	if(value!=null) {
-	            if(value instanceof List) {
+	            if(value!=null && value instanceof List) {
+	            	int i = 0;
 	                for (String s : file.getContents().toString().split(System.lineSeparator())) {
 	                    if (s.trim().startsWith("#") || s.trim().isEmpty()) {
 	                        fs.append(s+System.lineSeparator());
 	                        continue;
 	                    }
 	                    if(foundAll==0) {
-	                        if (s.trim().split(":")[0].equals(path[idSekce])) {
+	                        if (s.trim().split(":")[0].equals(path[idSekce]))
 	                            if(++idSekce == path.length) {
 	                            foundAll=1;
-	                            String sg = s+System.lineSeparator();
+	                            fs.append(s+System.lineSeparator());
 	                            for(Object sdf : (List<?>)value)
-	                            sg+=sc+"- "+sdf+System.lineSeparator();
-	                            fs.append(sg);
+		                            fs.append(sc+"- "+sdf+System.lineSeparator());
 	                            continue;
 	                            }
-	                        }
-	                    }else if(s.contains("-") && s.split("-")[1].startsWith(" "))continue; //list item
+	                    }else if(i==0 && s.contains("-") && s.split("-")[1].startsWith(" "))continue; //list item¨
+	                    else i=1;
 	                    fs.append(s+System.lineSeparator());
 	                }
-	            }
-	    	}
+	            }else {
 	        boolean removingMode = false;
 	    	for (String s : file.getContents().toString().split(System.lineSeparator())) {
 	            if (s.trim().startsWith("#") || s.trim().isEmpty()) {
@@ -123,10 +122,7 @@ public class Config {
 	                    if(count >= path.length-1)continue; //Remove path
 	            	}else removingMode=false;
 	            fs.append(s+System.lineSeparator());
-	        }}
-	    if(action==2) { //set comments
-	    	//not finished yet
-	    }
+	    }}}
 	    file.setContents(fs);
 	    current=null;
 	    notifyQueue();
