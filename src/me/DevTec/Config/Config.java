@@ -42,7 +42,9 @@ public class Config {
 	    	if(!current.section().getConfig().exists(path[0])) {
     			file.getContents().append(path[0]+":"+System.lineSeparator());
 	    	}
+	    	if(!current.section().getConfig().exists(current.section().getName()))
     		while(true) {
+            if(current.section().getConfig().exists(current.section().getName()))break;
             for (String s : file.getContents().toString().split(System.lineSeparator())) {
                 if(foundAll==0) {
                     if (s.trim().split(":")[0].equals(path[idSekce])) {
@@ -62,14 +64,13 @@ public class Config {
                             fs.append(d+System.lineSeparator());
                         }
                         continue;
-                }}
+                }}else
                 fs.append(s+System.lineSeparator());
             }
             foundAll=0;
             idSekce=0;
             file.setContents(fs);
             fs=new StringBuffer();
-            if(current.section().exists())break;
     		}
 	    }
 	    if(action==0) { //add comment
@@ -142,7 +143,6 @@ public class Config {
 	                            		}catch(Exception e) {
 	    		                            fs.append(s.split(":")[0]+": "+value+System.lineSeparator());
 	                            	}}
-	                        	fs.append(s.split(":")[0]+": "+value+System.lineSeparator());
 	                        }
 	                        continue;
 	                    }
