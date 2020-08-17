@@ -42,9 +42,7 @@ public class Config {
 	    	if(!current.section().getConfig().exists(path[0])) {
     			file.getContents().append(path[0]+":"+System.lineSeparator());
 	    	}
-	    	if(!current.section().getConfig().exists(current.section().getName()))
     		while(true) {
-            if(current.section().getConfig().exists(current.section().getName()))break;
             for (String s : file.getContents().toString().split(System.lineSeparator())) {
                 if(foundAll==0) {
                     if (s.trim().split(":")[0].equals(path[idSekce])) {
@@ -64,13 +62,14 @@ public class Config {
                             fs.append(d+System.lineSeparator());
                         }
                         continue;
-                }}else
+                }}
                 fs.append(s+System.lineSeparator());
             }
             foundAll=0;
             idSekce=0;
             file.setContents(fs);
             fs=new StringBuffer();
+    	    if(current.section().exists())break;
     		}
 	    }
 	    if(action==0) { //add comment
@@ -505,7 +504,7 @@ public class Config {
                 if(++idSekce==d.length)
                 	foundAll=1;
             }else {
-                if(s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
+                if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                    g.add(s.split("- ")[1].split(tag)[0]);
                 }else break;
             }
@@ -530,7 +529,7 @@ public class Config {
                 if(++idSekce==d.length)
                 	foundAll=1;
             }else {
-                if(s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
+                if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
                    g.add(Integer.parseInt(s.split("- ")[1].split(tag)[0]));
                 	}catch(Exception e) {
@@ -559,7 +558,7 @@ public class Config {
                 if(++idSekce==d.length)
                 	foundAll=1;
             }else {
-                if(s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
+                if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
                    g.add(Byte.parseByte(s.split("- ")[1].split(tag)[0]));
                 	}catch(Exception e) {
@@ -588,7 +587,7 @@ public class Config {
                 if(++idSekce==d.length)
                 	foundAll=1;
             }else {
-                if(s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
+                if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
                    g.add(Boolean.parseBoolean(s.split("- ")[1].split(tag)[0]));
                 	}catch(Exception e) {
@@ -617,7 +616,7 @@ public class Config {
                 if(++idSekce==d.length)
                 	foundAll=1;
             }else {
-                if(s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
+                if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
                    g.add(Double.parseDouble(s.split("- ")[1].split(tag)[0]));
                 	}catch(Exception e) {
@@ -646,7 +645,7 @@ public class Config {
                 if(++idSekce==d.length)
                 	foundAll=1;
             }else {
-                if(s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
+                if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
                    g.add(Short.parseShort(s.split("- ")[1].split(tag)[0]));
                 	}catch(Exception e) {
@@ -691,7 +690,7 @@ public class Config {
                 if(++idSekce==d.length)
                 	foundAll=1;
             }else {
-                if(s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
+                if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
                    g.add(Float.parseFloat(s.split("- ")[1].split(tag)[0]));
                 	}catch(Exception e) {
@@ -720,7 +719,7 @@ public class Config {
                 if(++idSekce==d.length)
                 	foundAll=1;
             }else {
-                if(s.split("-").length>=2 && s.split("-")[1].equals(" ")) {
+                if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	String object = s.split("- ")[1].split(tag)[0];
                 	try {
             			ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(object));
