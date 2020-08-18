@@ -47,7 +47,7 @@ public class Decompression {
 	}
 
 	public static StringBuffer getText(InputStream in)  {
-	    StringBuffer out = new StringBuffer();
+		StringBuffer out = new StringBuffer();
 	    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 	    String line;
 	    try {

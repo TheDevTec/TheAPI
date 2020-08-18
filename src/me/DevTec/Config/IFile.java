@@ -2,23 +2,15 @@ package me.DevTec.Config;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.InputStream;
 import java.util.Scanner;
-
-import me.DevTec.Other.Decompression;
  
 public class IFile {
     private File f;
     private FileWriter w;
-    private StringBuffer sc;
+    private String[] scf;
     private boolean c;
-    private final boolean onlyReading;
-    public IFile(InputStream f) {
-        sc=Decompression.getText(f);
-        onlyReading=true;
-    }
+    
     public IFile(File f) {
-    	onlyReading=false;
         this.f=f;
         c=true;
         StringBuffer buffer = new StringBuffer();
@@ -29,19 +21,15 @@ public class IFile {
         sc.close();
         } catch (Exception e) {
         }
-        sc=buffer;
-    }
-    
-    public boolean onlyReading() {
-    	return onlyReading;
+        setContents(buffer);
     }
     
     public void setContents(StringBuffer neww) {
-    	sc=neww;
+    	scf=neww.toString().split(System.lineSeparator());
     }
     
-    public StringBuffer getContents() {
-    	return sc;
+    public String[] getContents() {
+    	return scf;
     }
     
     public File getFile() {
@@ -63,8 +51,9 @@ public class IFile {
     
     public void save() {
     	try {
-			getWriter().append(sc);
-			getWriter().flush();
+            for(String sc:scf)
+			getWriter().append(sc+System.lineSeparator());
+            getWriter().flush();
 		} catch (Exception e) {
 		}
     	close();
