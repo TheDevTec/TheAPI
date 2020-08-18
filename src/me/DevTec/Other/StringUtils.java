@@ -477,4 +477,77 @@ public class StringUtils {
 			return 0;
 		}
 	}
+
+	/**
+	 * @see see Is string, float ?
+	 * @return boolean
+	 */
+	public static boolean isByte(String fromString) {
+		try {
+			Byte.parseByte(fromString);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * @see see Get float from string
+	 * @return float
+	 */
+	public static byte getByte(String fromString) {
+		String a = fromString.replaceAll("[a-zA-Z]+", "");
+		if (isByte(a)) {
+			return Byte.parseByte(a);
+		} else {
+			return (byte)0;
+		}
+	}
+
+	/**
+	 * @see see Is string, float ?
+	 * @return boolean
+	 */
+	public static boolean isShort(String fromString) {
+		try {
+			Short.parseShort(fromString);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * @see see Get float from string
+	 * @return float
+	 */
+	public static short getShort(String fromString) {
+		String a = fromString.replaceAll("[a-zA-Z]+", "");
+		if (isShort(a)) {
+			return Short.parseShort(a);
+		} else {
+			return (short)0;
+		}
+	}
+
+	/**
+	 * @see see Is string, number ?
+	 * @return boolean
+	 */
+	public static boolean isNumber(String fromString) {
+		return isInt(fromString)||isDouble(fromString)||isLong(fromString)||isByte(fromString)||isShort(fromString)||isFloat(fromString);
+	}
+
+	/**
+	 * @see see Is string, boolean ?
+	 * @return boolean
+	 */
+	public static boolean isBoolean(String fromString) {
+		if(fromString==null)return false;
+		return fromString.equalsIgnoreCase("true")||fromString.equalsIgnoreCase("false");
+	}
+	private static Pattern special = Pattern.compile("[^A-Z-a-z0-9_]+");
+	public static boolean containsSpecial(String value) {
+		return special.matcher(value).find();
+	}
 }

@@ -15,6 +15,8 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
+import me.DevTec.Other.StringUtils;
  
 public class Config {
 	protected static String quetos = ":", tag = "#", space = " ";
@@ -210,12 +212,9 @@ public class Config {
      * @see see Return true if value in section is Boolean
      */
     public boolean isBoolean(String path) {
-        try {
-            Boolean.parseBoolean(getString(path));
-            return true;
-        }catch(Exception e) {
-            return false;
-        }
+    	String a = getString(path);
+    	if(a==null)return false;
+		return a.equalsIgnoreCase("true")||a.equalsIgnoreCase("false");
     }
 
     /**
@@ -245,7 +244,7 @@ public class Config {
              	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
                  	f=s.split(":")[0];
                  if(++idSekce==d.length) {
-                     g=s.split(quetos+" ")[1].split(tag)[0];
+                     g=removeQuetos(s.split(quetos+" ")[1].split(tag)[0]);
                      break;
                  }
              	}
@@ -348,7 +347,7 @@ public class Config {
             	f=s.split(":")[0];
             }else {
                 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
-                   g.add(s.split("- ")[1].split(tag)[0]);
+                   g.add(removeQuetos(s.split("- ")[1].split(tag)[0]));
                 }else break;
             }
         }
@@ -387,7 +386,7 @@ public class Config {
             }else {
                 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
-                   g.add(Integer.parseInt(s.split("- ")[1].split(tag)[0]));
+                   g.add(Integer.parseInt(removeQuetos(s.split("- ")[1].split(tag)[0])));
                 	}catch(Exception e) {
                         g.add(0);
                 	}
@@ -421,7 +420,7 @@ public class Config {
             }else {
                 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
-                   g.add(Byte.parseByte(s.split("- ")[1].split(tag)[0]));
+                   g.add(Byte.parseByte(removeQuetos(s.split("- ")[1].split(tag)[0])));
                 	}catch(Exception e) {
                         g.add((byte)0);
                 	}
@@ -455,7 +454,7 @@ public class Config {
             }else {
                 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
-                   g.add(Boolean.parseBoolean(s.split("- ")[1].split(tag)[0]));
+                   g.add(Boolean.parseBoolean(removeQuetos(s.split("- ")[1].split(tag)[0])));
                 	}catch(Exception e) {
                         g.add(false);
                 	}
@@ -489,7 +488,7 @@ public class Config {
             }else {
                 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
-                   g.add(Double.parseDouble(s.split("- ")[1].split(tag)[0]));
+                   g.add(Double.parseDouble(removeQuetos(s.split("- ")[1].split(tag)[0])));
                 	}catch(Exception e) {
                         g.add(0D);
                 	}
@@ -523,7 +522,7 @@ public class Config {
             }else {
                 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
-                   g.add(Short.parseShort(s.split("- ")[1].split(tag)[0]));
+                   g.add(Short.parseShort(removeQuetos(s.split("- ")[1].split(tag)[0])));
                 	}catch(Exception e) {
                         g.add((short)0);
                 	}
@@ -573,7 +572,7 @@ public class Config {
             }else {
                 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	try {
-                   g.add(Float.parseFloat(s.split("- ")[1].split(tag)[0]));
+                   g.add(Float.parseFloat(removeQuetos(s.split("- ")[1].split(tag)[0])));
                 	}catch(Exception e) {
                         g.add(0F);
                 	}
@@ -608,7 +607,7 @@ public class Config {
                 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
                 	String object = s.split("- ")[1].split(tag)[0];
                 	try {
-            			ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(object));
+            			ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(removeQuetos(object)));
             			BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
                 	try {
             			while (true) {
@@ -743,16 +742,16 @@ public class Config {
 	      	      sc+=" ";
             	  for(Object sdf : (List<?>)o) {
                   	if(sdf instanceof Number || sdf instanceof String || sdf instanceof Boolean)
-                      fs.append(sc+"- "+sdf+System.lineSeparator());
+                      fs.append(sc+"- "+addQuetos(sdf+"")+System.lineSeparator());
                   	else {
                   		try {
                   			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
               				BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
               				dataOutput.writeObject(sdf);
               				dataOutput.close();
-                            fs.append(sc+"- "+Base64Coder.encodeLines(outputStream.toByteArray())+System.lineSeparator());
+                            fs.append(sc+"- "+addQuetos(Base64Coder.encodeLines(outputStream.toByteArray()))+System.lineSeparator());
                   		}catch(Exception e) {
-	                        fs.append(sc+"- "+sdf+System.lineSeparator());
+	                        fs.append(sc+"- "+addQuetos(sdf+System.lineSeparator()));
                   	}}}
 	              continue;
 	            }
@@ -770,7 +769,7 @@ public class Config {
 	         if (s.trim().split(":")[0].equals(d[idSekce]))
 	           if(++idSekce==d.length)
 	        	   if(o instanceof Number || o instanceof String || o instanceof Boolean) {
-	                      fs.append(s.split(":")[0]+": "+o+System.lineSeparator());
+	                      fs.append(s.split(":")[0]+": "+addQuetos(""+o)+System.lineSeparator());
 	    	              continue;
 		              }else {
                   		try {
@@ -778,15 +777,39 @@ public class Config {
               				BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
               				dataOutput.writeObject(o);
               				dataOutput.close();
-                            fs.append(s.split(":")[0]+": "+Base64Coder.encodeLines(outputStream.toByteArray())+System.lineSeparator());
+                            fs.append(s.split(":")[0]+": "+addQuetos(Base64Coder.encodeLines(outputStream.toByteArray()))+System.lineSeparator());
                   		}catch(Exception e) {
-	                        fs.append(s.split(":")[0]+": "+o+System.lineSeparator());
+	                        fs.append(s.split(":")[0]+": "+addQuetos(""+o)+System.lineSeparator());
                   }
 	              continue;
 	            }
 	         fs.append(s+System.lineSeparator());
 	    }
-	    return fs;}
+	    return fs;
+	    }
 	}
+    
+    private String removeQuetos(String value) {
+    	if(value.startsWith("\"")&&value.endsWith("\"")) {
+    		return value.substring(1, value.length()-1);
+    	}
+    	if(value.startsWith("'")&&value.endsWith("'")) {
+    		return value.substring(1, value.length()-1);
+    	}
+    	return value;
+    }
+    
+    private String addQuetos(String value) {
+    	if(!value.startsWith("\"")&&!value.endsWith("\"")&&!value.startsWith("'")&&!value.endsWith("'")) {
+        	if(StringUtils.isNumber(value))
+        		return "'"+value+"'";
+        	if(StringUtils.isBoolean(value))
+        		return value;
+        	if(StringUtils.containsSpecial(value)||value.length()>=16)
+        		return "\""+value+"\"";
+    		return value;
+    	}
+    	return value;
+    }
     
 }
