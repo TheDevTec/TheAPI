@@ -1,134 +1,157 @@
 package me.DevTec.Config;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Scanner;
 
+import org.bukkit.Bukkit;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import me.DevTec.Other.StringUtils;
- 
+
 public class Config {
-	protected static String quetos = ":", tag = "#", space = " ";
-    
-    private final HashMap<Key, Object> defaults = Maps.newHashMap();
-    private final IFile f;
+    private static File f = null;
+    private static FileWriter w;
+    private final String configPath;
+    private static Boolean c;
+    private static String[] text;
+
     public Config(String path) {
-    	File f = new File("plugins/"+path);
-        f.getParentFile().mkdir();
-        if(!f.exists())
+    	configPath=path;
+    	reload();
+    }
+
+    private void close() {
+        c = true;
+
         try {
-           f.createNewFile();
-        }catch (Exception e) {}
-        this.f=new IFile(f);
+            w.close();
+        } catch(Exception e) { /* */ }
     }
 
-    /**
-     * @see see Add default to config
-     */
-    public void addDefault(Key key, Object value) {
-    	defaults.put(key, value);
-    	if(!exists(key.getName())) {
-    		set(key.getName(), value);
-    		for(String c : key.getComment())
-    		addComment(key.getName(), c);
-    	}
-    }
-    
-    /**
-     * @see see Add defaults to config
-     */
-    public void addDefaults(HashMap<Key, Object> values) {
-    	defaults.putAll(values);
-    	for(Key s : values.keySet())
-    	if(!exists(s.getName())) {
-    		set(s.getName(), values.get(s));
-    		for(String c : s.getComment())
-    		addComment(s.getName(), c);
-    	}
+    private void open() {
+        c = false;
+
+        createFile(f);
+
+        try {
+            w = new FileWriter(f);
+        } catch (Exception e) { /* */ }
     }
 
-    /**
-     * @see see Add default to config
-     */
-    public void addDefault(String key, Object value) {
-    	addDefault(new Key(key), value);
-    }
-    
-    /**
-     * @return HashMap<Key, Object>
-     */
-    public HashMap<Key, Object> getDefaults(){
-    	return defaults;
-    }
-
-    /**
-     * @see see Save whole config
-     */
     public void save() {
-    	f.save();
+        try {
+            for (String sc : text) {
+                getWriter().append(sc + System.lineSeparator());
+            }
+
+            getWriter().flush();
+        } catch (Exception e) { /* */ }
+
+        close();
     }
 
-    /**
-     * @return IFile
-     */
-    public IFile getFile() {
+    public void reload() {
+    	File file = new File(configPath);
+        createFile(file);
+        loadFile(file);
+        loadContents();
+    }
+
+    private void createFile(File file) {
+        if (!file.exists()) {
+            file.getParentFile().mkdirs();
+            try {
+				file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+        }
+    }
+
+    private void loadFile(File file) {
+        f = file;
+        c = true;
+    }
+
+    public File getFile() {
         return f;
     }
 
-    /**
-     * @return Section
-     */
-    public Section getSection(String name) {
-    	return new Section(this, name);
+    public String getName() {
+        return f.getName();
     }
 
-    public Set<String> getKeys(String path) {
-    	String[] w= path.split("\\.");
-    	HashSet<String> fs = Sets.newHashSet();
-        int idSekce = 0, foundAll = path.trim().isEmpty()?1:0;
-        for (String s : getFile().getContents()) {
-            if(foundAll==0) {
-            if (s.trim().split(quetos)[0].equals(w[idSekce]))
-                if(++idSekce==w.length)
-                    foundAll=1;
-            }else {
-                int count = 0;
-                for(char c : s.split(quetos)[0].toCharArray())
-                    if(' '==c)++count;
-                    else break;
-                if(count==(path.trim().isEmpty()?0:w.length))
-                	fs.add(s.trim().split(quetos)[0]);
-            }
+    private FileWriter getWriter() {
+        if (c) {
+            open();
         }
-        return fs;
+
+        return w;
     }
 
-    /**
-     * @return Set<String> Keys in config
-     */
-    public Set<String> getKeys() {
-        return getKeys("");
+    private void loadContents() {
+        StringBuffer buffer = new StringBuffer();
+
+        try {
+            Scanner sc = new Scanner(f);
+
+            while (sc.hasNextLine()) {
+                buffer.append(sc.nextLine() + System.lineSeparator());
+            }
+
+            sc.close();
+        } catch (Exception e) { /* */ }
+        Bukkit.broadcastMessage(buffer.toString());
+        setContents(buffer);
     }
-    
-    /**
-     * @see see Set in config to section, value (If section doesn't exist, config create section)
-     */
+
+    private String[] getContents() {
+        return text;
+    }
+
+    private void setContents(StringBuffer content) {
+        text = content.toString().split(System.lineSeparator());
+    }
+
+    public boolean exists(String path) {
+        return exists(getContents(), path.split("\\."));
+    }
+
+	private synchronized Boolean exists(String[] text, String[] sections) {
+	    int id = 0,key_spaces = 0,spaces = 0;
+	    String key = null;
+	    for (String s : text) {
+	        key = s.split(":", 2)[0];
+	        key_spaces = key.replaceAll("[^ ]", "").length();
+	        if (spaces > key_spaces) {
+	          spaces -= 2;
+	        }
+	        if (key.trim().equals(sections[id])) {
+	             if (key_spaces == spaces) {
+	                    id++;
+	                    spaces += 2;
+	                    if (id == sections.length)
+	                        break;
+	                }
+	            }}
+	    return id == sections.length;
+	}
+	
     public void addComment(String paths, String value) {
     	int idSekce = 0,foundAll = 0;
 		String[] path = paths.split("\\.");
 		StringBuffer fs = new StringBuffer();
-        for (String s : getFile().getContents()) {
+        for (String s : getContents()) {
 	        if(foundAll==0)
 	        if (s.trim().split(":")[0].equals(path[idSekce]))
 	            if(++idSekce==path.length) {
@@ -140,7 +163,7 @@ public class Config {
 	            }
             fs.append(s+System.lineSeparator());
 	    }
-        getFile().setContents(fs);
+        setContents(fs);
     }
     
     
@@ -148,9 +171,9 @@ public class Config {
     	String[] w = path.split("\\.");
     	List<String> found = Lists.newArrayList();
     	 int idSekce = 0;
-         for (String s : getFile().getContents()) {
-             if(s.trim().startsWith(tag))found.add(s.split(tag)[1].replaceFirst(" ", ""));
-             if (s.trim().split(quetos)[0].equals(w[idSekce])) {
+         for (String s : getContents()) {
+             if(s.trim().startsWith("#"))found.add(s.split("#")[1].replaceFirst(" ", ""));
+             if (s.trim().split(":")[0].equals(w[idSekce])) {
                  if(++idSekce==w.length)break; //stop finding
              }
              found.clear();
@@ -158,242 +181,47 @@ public class Config {
     	return found;
     }
     
-    /**
-     * @see see Return true if section exists
-     */
-    public boolean exists(String path) {
-    	return exists(f.getContents(),path.split("\\."));
+    public Section getSection(String path) {
+    	return new Section(this,path);
     }
 
-    /**
-     * @see see Return true if value in section is String
-     */
-    public boolean isString(String path) {
-        return getString(path)!=null;
-    }
-
-    /**
-     * @see see Return true if value in section is Double
-     */
-    public boolean isDouble(String path) {
-        try {
-            Double.parseDouble(getString(path));
-            return true;
-        }catch(Exception e) {
-            return false;
-        }
-    }
-
-    /**
-     * @see see Return true if value in section is Long
-     */
-    public boolean isLong(String path) {
-        try {
-            Long.parseLong(getString(path));
-            return true;
-        }catch(Exception e) {
-            return false;
-        }
-    }
-
-    /**
-     * @see see Return true if value in section is Integer
-     */
-    public boolean isInt(String path) {
-        try {
-            Integer.parseInt(getString(path));
-            return true;
-        }catch(Exception e) {
-            return false;
-        }
-    }
-
-    /**
-     * @see see Return true if value in section is Boolean
-     */
-    public boolean isBoolean(String path) {
-    	String a = getString(path);
-    	if(a==null)return false;
-		return a.equalsIgnoreCase("true")||a.equalsIgnoreCase("false");
-    }
-
-    /**
-     * @see see Return true if value in section is Float
-     */
-    public boolean isFloat(String path) {
-        try {
-            Float.parseFloat(getString(path));
-            return true;
-        }catch(Exception e) {
-            return false;
-        }
-    }
-    
-    /**
-     * @see see Get String from Path
-     * @return String
-     */
-    public String getString(String path) {
-    	String[] d = path.split("\\.");
-        String g = null;
-        int idSekce = 0;
-        String f = "";
-        if(exists(path))
-            for (String s : getFile().getContents()) {
-            if (s.trim().split(":")[0].equals(d[idSekce])) {
-             	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
-                 	f=s.split(":")[0];
-                 if(++idSekce==d.length) {
-                     g=removeQuetos(s.split(quetos+" ")[1].split(tag)[0]);
-                     break;
-                 }
-             	}
-             }else 
-             	f=s.split(":")[0];
-        }
-        return g;
-    }
-
-    /**
-     * @see see Get Int from Path
-     * @return int
-     */
-    public int getInt(String path) {
-        String s = getString(path);
-        if(s==null)return 0;
-        try {
-        return Integer.parseInt(s);
-        }catch(Exception e) {
-            return 0;
-        }
-    }
-    
-    /**
-     * @see see Get Double from Path
-     * @return double
-     */
-    public double getDouble(String path) {
-        String s = getString(path);
-        if(s==null)return 0.0;
-        try {
-        return Double.parseDouble(s);
-        }catch(Exception e) {
-            return 0.0;
-        }
-    }
-
-    /**
-     * @see see Get Long from Path
-     * @return long
-     */
-    public long getLong(String path) {
-        String s = getString(path);
-        if(s==null)return 0;
-        try {
-        return Long.parseLong(s);
-        }catch(Exception e) {
-            return 0L;
-        }
-    }
-
-    /**
-     * @see see Get Float from Path
-     * @return float
-     */
-    public float getFloat(String path) {
-        String s = getString(path);
-        if(s==null)return 0;
-        try {
-        return Float.parseFloat(s);
-        }catch(Exception e) {
-            return 0F;
-        }
-    }
-
-    /**
-     * @see see Get Boolean from Path
-     * @return boolean
-     */
-    public boolean getBoolean(String path) {
-        String s = getString(path);
-        if(s==null)return false;
-        try {
-        return Boolean.parseBoolean(s);
-        }catch(Exception e) {
-            return false;
-        }
-    }
-
-    /**
-     * @see see Get List<String> from Path
-     * @return List<String>
-     */
-    public List<String> getStringList(String path) {
-    	String[] d = path.split("\\.");
-        List<String> g = Lists.newArrayList();
-        String f = "";
-        int idSekce = 0;
-        int foundAll = 0;
-        if(exists(path))
-            for (String s : getFile().getContents()) {
-            if(foundAll==0) {
-            if (s.trim().split(":")[0].equals(d[idSekce])) {
-            	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
-                	f=s.split(":")[0];
-                if(++idSekce==d.length)
-                	foundAll=1;
-            	}
-            }else 
-            	f=s.split(":")[0];
-            }else {
-                if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
-                   g.add(removeQuetos(s.split("- ")[1].split(tag)[0]));
-                }else break;
-            }
-        }
-        return g;
-    }
-
-    private static int c(String s) {
-    	int i = 0;
-    	for(char c : s.toCharArray())
-    		if(c==' ')++i;
-    		else break;
-    	return i;
-    }
-    
     /**
      * @see see Get List<Integer> from Path
      * @return List<Integer>
      */
     public List<Integer> getIntegerList(String path) {
-    	String[] d = path.split("\\.");
-        List<Integer> g = Lists.newArrayList();
-        int idSekce = 0;
-        int foundAll = 0;
-        String f = "";
-        if(exists(path))
-            for (String s : getFile().getContents()) {
-            if(foundAll==0) {
-            	 if (s.trim().split(":")[0].equals(d[idSekce])) {
-                 	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
-                     	f=s.split(":")[0];
-                     if(++idSekce==d.length)
-                     	foundAll=1;
-                 	}
-                 }else 
-                 	f=s.split(":")[0];
-            }else {
-                if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
-                	try {
-                   g.add(Integer.parseInt(removeQuetos(s.split("- ")[1].split(tag)[0])));
-                	}catch(Exception e) {
-                        g.add(0);
-                	}
-                }else break;
+    	String[] sections = path.split("\\.");
+        List<Integer> list = Lists.newArrayList();
+        int id = 0,key_spaces = 0,spaces = 0;
+        String key = null;
+        for (String s : getContents()) {
+            key = s.split(":", 2)[0];
+            key_spaces = key.replaceAll("[^ ]", "").length();
+            if (id != sections.length) {
+                if (spaces > key_spaces) {
+                    spaces -= 2;
+                }
+
+                if (key.trim().equals(sections[id])) {
+                    if (key_spaces == spaces) {
+                        id++;
+                        spaces += 2;
+
+                        if (id == sections.length) {
+                        }
+                    }
+                }
+            } else {
+                if (s.trim().startsWith("-")) {
+                    s = s.split("- ")[1];
+
+                    list.add(StringUtils.getInt(removeQuetos(s)));
+                } else {
+                    break;
+                }
             }
         }
-        return g;
+        return list;
     }
 
     /**
@@ -401,33 +229,38 @@ public class Config {
      * @return List<Byte>
      */
     public List<Byte> getByteList(String path) {
-    	String[] d = path.split("\\.");
-        List<Byte> g = Lists.newArrayList();
-        int idSekce = 0;
-        String f = "";
-        int foundAll = 0;
-        if(exists(path))
-            for (String s : getFile().getContents()) {
-            if(foundAll==0) {
-            	if (s.trim().split(":")[0].equals(d[idSekce])) {
-                	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
-                     	f=s.split(":")[0];
-                     if(++idSekce==d.length)
-                     	foundAll=1;
-                 	}
-                 }else 
-                 	f=s.split(":")[0];
-            }else {
-                if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
-                	try {
-                   g.add(Byte.parseByte(removeQuetos(s.split("- ")[1].split(tag)[0])));
-                	}catch(Exception e) {
-                        g.add((byte)0);
-                	}
-                }else break;
+    	String[] sections = path.split("\\.");
+        List<Byte> list = Lists.newArrayList();
+        int id = 0,key_spaces = 0,spaces = 0;
+        String key = null;
+        for (String s : getContents()) {
+            key = s.split(":", 2)[0];
+            key_spaces = key.replaceAll("[^ ]", "").length();
+            if (id != sections.length) {
+                if (spaces > key_spaces) {
+                    spaces -= 2;
+                }
+
+                if (key.trim().equals(sections[id])) {
+                    if (key_spaces == spaces) {
+                        id++;
+                        spaces += 2;
+
+                        if (id == sections.length) {
+                        }
+                    }
+                }
+            } else {
+                if (s.trim().startsWith("-")) {
+                    s = s.split("- ")[1];
+
+                    list.add(StringUtils.getByte(removeQuetos(s)));
+                } else {
+                    break;
+                }
             }
         }
-        return g;
+        return list;
     }
 
     /**
@@ -435,33 +268,38 @@ public class Config {
      * @return List<Boolean>
      */
     public List<Boolean> getBooleanList(String path) {
-    	String[] d = path.split("\\.");
-        List<Boolean> g = Lists.newArrayList();
-        int idSekce = 0;
-        String f= "";
-        int foundAll = 0;
-        if(exists(path))
-            for (String s : getFile().getContents()) {
-            if(foundAll==0) {
-            	if (s.trim().split(":")[0].equals(d[idSekce])) {
-                	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
-                     	f=s.split(":")[0];
-                     if(++idSekce==d.length)
-                     	foundAll=1;
-                 	}
-                 }else 
-                 	f=s.split(":")[0];
-            }else {
-                if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
-                	try {
-                   g.add(Boolean.parseBoolean(removeQuetos(s.split("- ")[1].split(tag)[0])));
-                	}catch(Exception e) {
-                        g.add(false);
-                	}
-                }else break;
+    	String[] sections = path.split("\\.");
+        List<Boolean> list = Lists.newArrayList();
+        int id = 0,key_spaces = 0,spaces = 0;
+        String key = null;
+        for (String s : getContents()) {
+            key = s.split(":", 2)[0];
+            key_spaces = key.replaceAll("[^ ]", "").length();
+            if (id != sections.length) {
+                if (spaces > key_spaces) {
+                    spaces -= 2;
+                }
+
+                if (key.trim().equals(sections[id])) {
+                    if (key_spaces == spaces) {
+                        id++;
+                        spaces += 2;
+
+                        if (id == sections.length) {
+                        }
+                    }
+                }
+            } else {
+                if (s.trim().startsWith("-")) {
+                    s = s.split("- ")[1];
+
+                    list.add(StringUtils.getBoolean(removeQuetos(s)));
+                } else {
+                    break;
+                }
             }
         }
-        return g;
+        return list;
     }
 
     /**
@@ -469,33 +307,38 @@ public class Config {
      * @return List<Double>
      */
     public List<Double> getDoubleList(String path) {
-    	String[] d = path.split("\\.");
-        List<Double> g = Lists.newArrayList();
-        int idSekce = 0;
-        int foundAll = 0;
-        String f="";
-        if(exists(path))
-            for (String s : getFile().getContents()) {
-            if(foundAll==0) {
-            	if (s.trim().split(":")[0].equals(d[idSekce])) {
-                	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
-                     	f=s.split(":")[0];
-                     if(++idSekce==d.length)
-                     	foundAll=1;
-                 	}
-                 }else 
-                 	f=s.split(":")[0];
-            }else {
-                if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
-                	try {
-                   g.add(Double.parseDouble(removeQuetos(s.split("- ")[1].split(tag)[0])));
-                	}catch(Exception e) {
-                        g.add(0D);
-                	}
-                }else break;
+    	String[] sections = path.split("\\.");
+        List<Double> list = Lists.newArrayList();
+        int id = 0,key_spaces = 0,spaces = 0;
+        String key = null;
+        for (String s : getContents()) {
+            key = s.split(":", 2)[0];
+            key_spaces = key.replaceAll("[^ ]", "").length();
+            if (id != sections.length) {
+                if (spaces > key_spaces) {
+                    spaces -= 2;
+                }
+
+                if (key.trim().equals(sections[id])) {
+                    if (key_spaces == spaces) {
+                        id++;
+                        spaces += 2;
+
+                        if (id == sections.length) {
+                        }
+                    }
+                }
+            } else {
+                if (s.trim().startsWith("-")) {
+                    s = s.split("- ")[1];
+
+                    list.add(StringUtils.getDouble(removeQuetos(s)));
+                } else {
+                    break;
+                }
             }
         }
-        return g;
+        return list;
     }
 
     /**
@@ -503,33 +346,38 @@ public class Config {
      * @return List<Short>
      */
     public List<Short> getShortList(String path) {
-    	String[] d = path.split("\\.");
-        List<Short> g = Lists.newArrayList();
-        int idSekce = 0;
-        int foundAll = 0;
-        String f= "";
-        if(exists(path))
-            for (String s : getFile().getContents()) {
-            if(foundAll==0) {
-            	if (s.trim().split(":")[0].equals(d[idSekce])) {
-                	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
-                     	f=s.split(":")[0];
-                     if(++idSekce==d.length)
-                     	foundAll=1;
-                 	}
-                 }else 
-                 	f=s.split(":")[0];
-            }else {
-                if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
-                	try {
-                   g.add(Short.parseShort(removeQuetos(s.split("- ")[1].split(tag)[0])));
-                	}catch(Exception e) {
-                        g.add((short)0);
-                	}
-                }else break;
+    	String[] sections = path.split("\\.");
+        List<Short> list = Lists.newArrayList();
+        int id = 0,key_spaces = 0,spaces = 0;
+        String key = null;
+        for (String s : getContents()) {
+            key = s.split(":", 2)[0];
+            key_spaces = key.replaceAll("[^ ]", "").length();
+            if (id != sections.length) {
+                if (spaces > key_spaces) {
+                    spaces -= 2;
+                }
+
+                if (key.trim().equals(sections[id])) {
+                    if (key_spaces == spaces) {
+                        id++;
+                        spaces += 2;
+
+                        if (id == sections.length) {
+                        }
+                    }
+                }
+            } else {
+                if (s.trim().startsWith("-")) {
+                    s = s.split("- ")[1];
+
+                    list.add(StringUtils.getShort(removeQuetos(s)));
+                } else {
+                    break;
+                }
             }
         }
-        return g;
+        return list;
     }
 
     /**
@@ -553,33 +401,38 @@ public class Config {
      * @return List<Float>
      */
     public List<Float> getFloatList(String path) {
-    	String[] d = path.split("\\.");
-        List<Float> g = Lists.newArrayList();
-        int idSekce = 0;
-        String f = "";
-        int foundAll = 0;
-        if(exists(path))
-            for (String s : getFile().getContents()) {
-            if(foundAll==0) {
-            	if (s.trim().split(":")[0].equals(d[idSekce])) {
-                	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
-                     	f=s.split(":")[0];
-                     if(++idSekce==d.length)
-                     	foundAll=1;
-                 	}
-                 }else 
-                 	f=s.split(":")[0];
-            }else {
-                if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
-                	try {
-                   g.add(Float.parseFloat(removeQuetos(s.split("- ")[1].split(tag)[0])));
-                	}catch(Exception e) {
-                        g.add(0F);
-                	}
-                }else break;
+    	String[] sections = path.split("\\.");
+        List<Float> list = Lists.newArrayList();
+        int id = 0,key_spaces = 0,spaces = 0;
+        String key = null;
+        for (String s : getContents()) {
+            key = s.split(":", 2)[0];
+            key_spaces = key.replaceAll("[^ ]", "").length();
+            if (id != sections.length) {
+                if (spaces > key_spaces) {
+                    spaces -= 2;
+                }
+
+                if (key.trim().equals(sections[id])) {
+                    if (key_spaces == spaces) {
+                        id++;
+                        spaces += 2;
+
+                        if (id == sections.length) {
+                        }
+                    }
+                }
+            } else {
+                if (s.trim().startsWith("-")) {
+                    s = s.split("- ")[1];
+
+                    list.add(StringUtils.getFloat(removeQuetos(s)));
+                } else {
+                    break;
+                }
             }
         }
-        return g;
+        return list;
     }
 
     /**
@@ -587,32 +440,37 @@ public class Config {
      * @return List<Object>
      */
     public List<Object> getList(String path) {
-    	String[] d = path.split("\\.");
-        List<Object> g = Lists.newArrayList();
-        int idSekce = 0;
-        String f = "";
-        int foundAll = 0;
-        if(exists(path))
-            for (String s : getFile().getContents()) {
-            if(foundAll==0) {
-            	if (s.trim().split(":")[0].equals(d[idSekce])) {
-                	if(f.equals("")||f.trim().equals(d[idSekce])||c(f)>=idSekce-1) {
-                     	f=s.split(":")[0];
-                     if(++idSekce==d.length)
-                     	foundAll=1;
-                 	}
-                 }else 
-                 	f=s.split(":")[0];
-            }else {
-                if(s.split("-").length>=2 && s.split("-")[1].startsWith(" ")) {
-                	String object = s.split("- ")[1].split(tag)[0];
+    	String[] sections = path.split("\\.");
+        List<Object> list = Lists.newArrayList();
+        int id = 0,key_spaces = 0,spaces = 0;
+        String key = null;
+        for (String s : getContents()) {
+            key = s.split(":", 2)[0];
+            key_spaces = key.replaceAll("[^ ]", "").length();
+            if (id != sections.length) {
+                if (spaces > key_spaces) {
+                    spaces -= 2;
+                }
+
+                if (key.trim().equals(sections[id])) {
+                    if (key_spaces == spaces) {
+                        id++;
+                        spaces += 2;
+
+                        if (id == sections.length) {
+                        }
+                    }
+                }
+            } else {
+                if (s.trim().startsWith("-")) {
+                    String object = removeQuetos(s.split("- ")[1]);
                 	try {
-            			ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(removeQuetos(object)));
+            			ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(object));
             			BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
                 	try {
             			while (true) {
                         	try {
-            				g.add(dataInput.readObject());
+                        		list.add(dataInput.readObject());
                         	}catch(Exception reading2) {
                         		break;
                         	}
@@ -620,196 +478,482 @@ public class Config {
             			dataInput.close();
                 	}catch(Exception reading) {}
                 	}catch(Exception e) {
-                	g.add(object);
+                		list.add(object);
                 	}
-                }else break;
+                } else {
+                    break;
+                }
             }
         }
-        return g;
-    }
-    
-    /**
-     * @see see Reopen file & restore defaults
-     */
-    public void reload() {
-        f.close();
-        f.open();
-    	for(Key s : defaults.keySet())
-    	if(!exists(s.getName()))
-    		set(s.getName(), defaults.get(s));
+        return list;
     }
 
-    /**
-     * @see see Set in config to section, value (If section doesn't exist, config create section)
-     */
-	public void set(String path, Object object) {
-		if(object==null) {
-			remove(f.getContents(),path.split("\\."));
-			return;
-		}
-		f.setContents(write(path.split("\\."), object));
-	}
-	
-	private synchronized void create(String[] path) {
-		StringBuffer bb = new StringBuffer();
-		for(String s : getFile().getContents())
-			bb.append(s+System.lineSeparator());
-		int first = 0;
-		String paths="";
-		if(!exists(bb.toString().split(System.lineSeparator()),path[0].split("\\.")))
-			bb.append(path[0]+":"+System.lineSeparator());
-		for(String a : path) {
-			paths+="."+a;
-            if(first==0) {
-            	first=1;
-            	paths=paths.substring(1);
+    public List<String> getKeys(String path) {
+    	if(path.trim().isEmpty())return getKeys();
+        String[] sections = path.split("\\.");
+        List<String> list = Lists.newArrayList();
+        int id = 0,key_spaces = 0,spaces = 0;
+        String key = null;
+        for (String s : getContents()) {
+            key = s.split(":", 2)[0];
+            key_spaces = key.replaceAll("[^ ]", "").length();
+
+            if (id != sections.length) {
+                if (spaces > key_spaces) {
+                    spaces -= 2;
+                }
+                if (key.trim().equals(sections[id])) {
+                    if (key_spaces == spaces) {
+                        id++;
+                        spaces += 2;
+
+                        if (id == sections.length) {
+                            continue;
+                        }
+                    }
+                }
+            }else {
+                if (key_spaces == spaces) {
+                    list.add(key.trim());
+                } else {
+                    break;
+                }
             }
-			bb=write(bb.toString().split(System.lineSeparator()),paths.split("\\."));
-		}
-		getFile().setContents(bb);
-	}
-	
-    private synchronized boolean exists(String[] map, String[] d) {
-        int idSekce = 0;
-        synchronized(this) {
-        for (String s:map) {
-        	boolean a = s.trim().split(":")[0].equals(d[idSekce]);
-        	 if(idSekce!=0)
-                 if(idSekce!=0&&!a&&idSekce>c(s))break;
-        	if(a)if(++idSekce == d.length)break;
-        }}
-        return idSekce == d.length;
+        }
+        return list;
     }
-	
-    private synchronized StringBuffer write(String[] map, String[] d) {
-		int idSekce=0;
-		StringBuffer fs=new StringBuffer();
-	    for (String s : map) {
-             fs.append(s+System.lineSeparator());
-             if(idSekce!=d.length) {
-	        if (s.trim().split(":")[0].equals(d[idSekce])) {
-	           if(++idSekce==d.length)
-	              continue;
-	           String ac = "", pathd="";
-               for(int i = 0; i < idSekce; ++i) {
-                   ac+=" ";
-                   pathd+="."+d[i];
-               }
-               pathd=pathd.substring(1)+"."+d[idSekce];
-               if(!exists(map,pathd.split("\\.")))
-                   	fs.append(ac+d[idSekce]+":"+System.lineSeparator());
-        }}}
-	    return fs;
-	}
-    
-    private synchronized void remove(String[] map, String[] d) {
-		int idSekce=0,r=0;
-		StringBuffer fs=new StringBuffer();
-	    for (String s : map) {
-	         if(idSekce!=d.length) {
-	         if (s.trim().split(":")[0].equals(d[idSekce])) {
-	           if(++idSekce==d.length) {
-	              r=1;
-	              continue;
-	            }
-	         }
-	         }else if(r==1) {
-	        	 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" "))continue;
-	        	 else r=0;
-	         }
-	         fs.append(s+System.lineSeparator());
-	    }
-		f.setContents(fs);
-	}
-    
-    private synchronized StringBuffer write(String[] d, Object o) {
-		if(!exists(f.getContents(),d))
-		create(d);
-    	String[] map = f.getContents();
-		int idSekce=0;
-        synchronized(this) {
-		StringBuffer fs=new StringBuffer();
-		if(o instanceof List) {
-			int r=0;
-	    for (String s : map) {
-	         if(idSekce!=d.length) {
-	         if (s.trim().split(":")[0].equals(d[idSekce])) {
-	           if(++idSekce==d.length) {
-	              r=1;
-                  fs.append(s+System.lineSeparator());
-	              String sc = "";
-	      	      for(int i = 1; i < d.length; ++i)
-	      	      sc+=" ";
-            	  for(Object sdf : (List<?>)o) {
-                  	if(sdf instanceof Number || sdf instanceof String || sdf instanceof Boolean)
-                      fs.append(sc+"- "+addQuetos(sdf+"")+System.lineSeparator());
-                  	else {
-                  		try {
-                  			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-              				BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-              				dataOutput.writeObject(sdf);
-              				dataOutput.close();
-                            fs.append(sc+"- "+addQuetos(Base64Coder.encodeLines(outputStream.toByteArray()))+System.lineSeparator());
-                  		}catch(Exception e) {
-	                        fs.append(sc+"- "+addQuetos(sdf+System.lineSeparator()));
-                  	}}}
-	              continue;
-	            }
-	         }
-	         }else if(r==1) {
-	        	 if(s.split("-").length>=2 && s.split("-")[1].startsWith(" "))continue;
-	        	 else r=0;
-	         }
-	         fs.append(s+System.lineSeparator());
-	    }
-	    return fs;
-		}
-		for (String s : map) {
-	         if(idSekce!=d.length)
-	         if (s.trim().split(":")[0].equals(d[idSekce]))
-	           if(++idSekce==d.length)
-	        	   if(o instanceof Number || o instanceof String || o instanceof Boolean) {
-	                      fs.append(s.split(":")[0]+": "+addQuetos(""+o)+System.lineSeparator());
-	    	              continue;
-		              }else {
-                  		try {
-                  			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-              				BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-              				dataOutput.writeObject(o);
-              				dataOutput.close();
-                            fs.append(s.split(":")[0]+": "+addQuetos(Base64Coder.encodeLines(outputStream.toByteArray()))+System.lineSeparator());
-                  		}catch(Exception e) {
-	                        fs.append(s.split(":")[0]+": "+addQuetos(""+o)+System.lineSeparator());
-                  }
-	              continue;
-	            }
-	         fs.append(s+System.lineSeparator());
-	    }
-	    return fs;
-	    }
-	}
-    
-    private String removeQuetos(String value) {
-    	if(value.startsWith("\"")&&value.endsWith("\"")) {
-    		return value.substring(1, value.length()-1);
-    	}
-    	if(value.startsWith("'")&&value.endsWith("'")) {
-    		return value.substring(1, value.length()-1);
-    	}
-    	return value;
+
+    public String getString(String path) {
+        String[] sections = path.split("\\.");
+        int id = 0,key_spaces = 0,spaces = 0;
+        String key = null,value = null;
+        for (String s : getContents()) {
+            key = s.split(":", 2)[0];
+            key_spaces = key.replaceAll("[^ ]", "").length();
+            if (spaces > key_spaces) {
+                spaces -= 2;
+            }
+            if (key.trim().equals(sections[id])) {
+                if (key_spaces == spaces) {
+                    id++;
+                    spaces += 2;
+
+                    if (id == sections.length) {
+                        s = s.split(":", 2)[1].trim();
+                        value= removeQuetos(s);
+                        break;
+                    }
+                }
+            }
+        }
+        return value;
     }
-    
-    private String addQuetos(String value) {
-    	if(!value.startsWith("\"")&&!value.endsWith("\"")&&!value.startsWith("'")&&!value.endsWith("'")) {
-        	if(StringUtils.isNumber(value))
-        		return "'"+value+"'";
-        	if(StringUtils.isBoolean(value))
-        		return value;
-        	if(StringUtils.containsSpecial(value)||value.length()>=16)
-        		return "\""+value+"\"";
-    		return value;
-    	}
-    	return value;
+
+    public List<String> getStringList(String path) {
+        String[] sections = path.split("\\.");
+        List<String> list = Lists.newArrayList();
+        int id = 0,key_spaces = 0,spaces = 0;
+        String key = null;
+        for (String s : getContents()) {
+            key = s.split(":", 2)[0];
+            key_spaces = key.replaceAll("[^ ]", "").length();
+            if (id != sections.length) {
+                if (spaces > key_spaces) {
+                    spaces -= 2;
+                }
+
+                if (key.trim().equals(sections[id])) {
+                    if (key_spaces == spaces) {
+                        id++;
+                        spaces += 2;
+
+                        if (id == sections.length) {
+                        }
+                    }
+                }
+            } else {
+                if (s.trim().startsWith("-")) {
+                    s = s.split("- ")[1];
+
+                    list.add(removeQuetos(s));
+                } else {
+                    break;
+                }
+            }
+        }
+        return list;
     }
-    
+
+    public void set(String path, Object object) {
+        String sections[] = path.split("\\.");
+
+        if (object == null) {
+            remove(getContents(), sections);
+            return;
+        }
+
+        setContents(write(sections, object));
+    }
+
+    private synchronized void create(String[] path) {
+        StringBuffer sb = new StringBuffer();
+        int first = 0;
+        String paths = "";
+        for (String s : getContents()) {
+            sb.append(s + System.lineSeparator());
+        }
+        if (!exists(sb.toString().split(System.lineSeparator()), path[0].split("\\."))) {
+            sb.append(path[0] +":"+ System.lineSeparator());
+        }
+        for (String a : path) {
+            paths += "."+ a;
+
+            if (first == 0) {
+                first = 1;
+                paths = paths.substring(1);
+            }
+
+            sb = write(sb.toString().split(System.lineSeparator()), paths.split("\\."));
+        }
+
+        setContents(sb);
+    }
+
+    private synchronized void remove(String[] text, String[] sections) {
+        StringBuffer sb = new StringBuffer();
+        int id = 0, remove = 0;
+        for (String s : text) {
+            if(id != sections.length) {
+                if (s.trim().split(":")[0].equals(sections[id])) {
+                    id++;
+
+                    if (id == sections.length) {
+                        remove = 0;
+                        continue;
+                    }
+                }
+            } else if (remove==1) {
+                if (s.split("-").length >= 2 && s.split("-")[1].startsWith(" ")) {
+                    continue;
+                } else {
+                    remove = 0;
+                }
+            }
+
+            sb.append(s + System.lineSeparator());
+        }
+        setContents(sb);
+    }
+
+    private synchronized StringBuffer write(String[] text, String[] sections) {
+        StringBuffer sb = new StringBuffer();
+        int id = 0;
+        String ac = "", path = "";
+        for (String s : text) {
+            sb.append(s + System.lineSeparator());
+
+            if (id != sections.length) {
+                if (s.trim().split(":")[0].equals(sections[id])) {
+                    id++;
+
+                    if (id == sections.length) {
+                        continue;
+                    }
+
+                    ac = "";
+                    path = "";
+
+                    for (int i = 0; i < id; ++i) {
+                        ac += "  ";
+                        path += "."+ sections[i];
+                    }
+
+                    path = path.substring(1) +"."+ sections[id];
+
+                    if (!exists(text, path.split("\\."))) {
+                        sb.append(ac + sections[id] +":"+ System.lineSeparator());
+                    }
+                }
+            }
+        }
+
+        return sb;
+    }
+
+    private synchronized StringBuffer write(String[] sections, Object object) {
+        if (!exists(getContents(),sections))
+            create(sections);
+        StringBuffer sb = new StringBuffer();
+        String[] map = getContents();
+        int id = 0, remove = 0;
+        String sc = "";
+            if (object instanceof List) {
+                for (String s : map) {
+                    if(id != sections.length) {
+                        if (s.trim().split(":")[0].equals(sections[id])) {
+                            id++;
+
+                            if(id == sections.length) {
+                                remove = 1;
+                                sc = "";
+                                sb.append(s + System.lineSeparator());
+
+                                for (int i = 1; i < sections.length; ++i) {
+                                    sc += "  ";
+                                }
+
+                                for (Object string : (List<?>)object) {
+                                    if (string instanceof Number || string instanceof String || string instanceof Boolean) {
+                                        sb.append(sc + "  - " + addQuetos(string + "") + System.lineSeparator());
+                                    } else {
+                                        try {
+                                            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                                            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+                                            dataOutput.writeObject(string);
+                                            dataOutput.close();
+                                            sb.append(sc+"  - " +addQuetos(Base64Coder.encodeLines(outputStream.toByteArray())) + System.lineSeparator());
+                                        } catch (Exception e) {
+                                            sb.append(sc +"  - "+ addQuetos(string + System.lineSeparator()));
+                                        }
+                                    }
+                                }
+
+                                continue;
+                            }
+                        }
+                    } else if (remove == 1) {
+                        if (s.split("  -").length >= 2 && s.split("  -")[1].startsWith(" ")) {
+                            continue;
+                        } else {
+                            remove = 0;
+                        }
+                    }
+
+                    sb.append(s+System.lineSeparator());
+                }
+
+                return sb;
+            }
+
+            for (String s : map) {
+                if (id != sections.length) {
+                    if (s.trim().split(":")[0].equals(sections[id])) {
+                        id++;
+
+                        if (id == sections.length) {
+                            if (object instanceof Number || object instanceof String || object instanceof Boolean) {
+                                sb.append(s.split(":")[0] + ": " + addQuetos("" + object) + System.lineSeparator());
+                                continue;
+                            } else {
+                                try {
+                                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                                    BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+
+                                    dataOutput.writeObject(object);
+                                    dataOutput.close();
+
+                                    sb.append(s.split(":")[0] + ": " + addQuetos(Base64Coder.encodeLines(outputStream.toByteArray())) + System.lineSeparator());
+                                } catch (Exception e) {
+                                    sb.append(s.split(":")[0] + ": " + addQuetos("" + object) + System.lineSeparator());
+                                }
+
+                                continue;
+                            }
+                        }
+                    }
+                }
+
+                sb.append(s+System.lineSeparator());
+            }
+
+            return sb;
+    }
+
+    private static String removeQuetos(String value) {
+        if (value.startsWith("\"") && value.endsWith("\"") || value.startsWith("\'") && value.endsWith("\'")) {
+            return value.substring(1, value.length()-1);
+        }
+
+        return value;
+    }
+
+    private static String addQuetos(String value) {
+    	if(value==null)return value;
+        if (!value.startsWith("\"") && !value.endsWith("\"") && !value.startsWith("'") && !value.endsWith("'")) {
+            if (StringUtils.isNumber(value)) {
+                return "'" + value + "'";
+            }
+
+            if (StringUtils.isBoolean(value)) {
+                return value;
+            }
+
+            if (StringUtils.containsSpecial(value) || value.length() >= 16) {
+                return "\"" + value + "\"";
+            }
+
+            return value;
+        }
+
+        return value;
+    }
+
+    public boolean isString(String path) {
+        return getString(path) != null;
+    }
+
+    public boolean isDouble(String path) {
+        try {
+            Double.parseDouble(getString(path));
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean isLong(String path) {
+        try {
+            Long.parseLong(getString(path));
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean isInt(String path) {
+        try {
+            Integer.parseInt(getString(path));
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean isBoolean(String path) {
+        String a = getString(path);
+
+        if (a == null) {
+            return false;
+        }
+
+        return a.equalsIgnoreCase("true") || a.equalsIgnoreCase("false");
+    }
+
+    public boolean isFloat(String path) {
+        try {
+            Float.parseFloat(getString(path));
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean isShort(String fromString) {
+        try {
+            Short.parseShort(fromString);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean isByte(String fromString) {
+        try {
+            Byte.parseByte(fromString);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public int getInt(String path) {
+        String s = getString(path);
+
+        if (s == null) {
+            return 0;
+        }
+
+        try {
+            return Integer.parseInt(s);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public double getDouble(String path) {
+        String s = getString(path);
+
+        if (s == null) {
+            return 0.0;
+        }
+
+        try {
+            return Double.parseDouble(s);
+        } catch (Exception e) {
+            return 0.0;
+        }
+    }
+
+    public long getLong(String path) {
+        String s = getString(path);
+
+        if (s == null) {
+            return 0L;
+        }
+
+        try {
+            return Long.parseLong(s);
+        } catch(Exception e) {
+            return 0L;
+        }
+    }
+
+    public float getFloat(String path) {
+        String s = getString(path);
+
+        if (s == null) {
+            return 0F;
+        }
+
+        try {
+            return Float.parseFloat(s);
+        } catch (Exception e) {
+            return 0F;
+        }
+    }
+
+    public boolean getBoolean(String path) {
+        String s = getString(path);
+
+        if (s == null) {
+            return false;
+        }
+
+        try {
+            return Boolean.parseBoolean(s);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public List<String> getKeys() {
+        List<String> list = Lists.newArrayList();
+        int key_spaces = 0;
+        String key = null;
+        for (String s : getContents()) {
+            key = s.split(":", 2)[0];
+            key_spaces = key.replaceAll("[^ ]", "").length();
+
+            if (key_spaces == 0) {
+                list.add(key.trim());
+            }
+        }
+        return list;
+    }
 }

@@ -1,7 +1,6 @@
 package me.DevTec.Config;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
  
 public class Section {
     private String[] s;
@@ -15,6 +14,10 @@ public class Section {
         return c.exists(getName());
     }
     
+    public boolean exists(String path) {
+        return c.exists(getName()+"."+path);
+    }
+    
     public void addComment(String comment) {
     	c.addComment(getName(), comment);
     }
@@ -23,12 +26,20 @@ public class Section {
     	return c.getComments(getName());
     }
     
-    public Set<String> getKeys() {
+    public List<String> getKeys() {
     	return c.getKeys(getName());
     }
     
     public void set(Object value) {
     	c.set(getName(), value);
+    }
+    
+    public void createSection(String path) {
+       set(getName()+"."+path, "");
+    }
+    
+    public void set(String path,Object value) {
+    	c.set(getName()+"."+path, value);
     }
     
     public void createSection() {
@@ -117,6 +128,90 @@ public class Section {
     
     public List<Object> getList() {
         return c.getList(getName());
+    }
+
+    public String getString(String path) {
+        return c.getString(getName()+"."+path);
+    }
+    
+    public int getInt(String path) {
+    	return c.getInt(getName()+"."+path);
+    }
+    
+    public double getDouble(String path) {
+    	return c.getDouble(getName()+"."+path);
+    }
+    
+    public boolean isString(String path) {
+    	return c.isString(getName()+"."+path);
+    }
+    
+    public boolean isDouble(String path) {
+    	return c.isDouble(getName()+"."+path);
+    }
+    
+    public boolean isLong(String path) {
+    	return c.isLong(getName()+"."+path);
+    }
+    
+    public boolean isInt(String path) {
+    	return c.isInt(getName()+"."+path);
+    }
+    
+    public boolean isBoolean(String path) {
+    	return c.isBoolean(getName()+"."+path);
+    }
+    
+    public boolean isFloat(String path) {
+    	return c.isFloat(getName()+"."+path);
+    }
+    
+    public long getLong(String path) {
+    	return c.getLong(getName()+"."+path);
+    }
+    
+    public float getFloat(String path) {
+    	return c.getFloat(getName()+"."+path);
+    }
+    
+    public boolean getBoolean(String path) {
+    	return c.getBoolean(getName()+"."+path);
+    }
+    
+    public List<String> getStringList(String path) {
+        return c.getStringList(getName()+"."+path);
+    }
+    
+    public List<Integer> getIntegerList(String path) {
+        return c.getIntegerList(getName()+"."+path);
+    }
+    
+    public List<Byte> getByteList(String path) {
+        return c.getByteList(getName()+"."+path);
+    }
+    
+    public List<Boolean> getBooleanList(String path) {
+        return c.getBooleanList(getName()+"."+path);
+    }
+    
+    public List<Double> getDoubleList(String path) {
+        return c.getDoubleList(getName()+"."+path);
+    }
+    
+    public List<Short> getShortList(String path) {
+        return c.getShortList(getName()+"."+path);
+    }
+    
+    public List<Map<?,?>> getMapList(String path) {
+        return c.getMapList(getName()+"."+path);
+    }
+    
+    public List<Float> getFloatList(String path) {
+        return c.getFloatList(getName()+"."+path);
+    }
+    
+    public List<Object> getList(String path) {
+        return c.getList(getName()+"."+path);
     }
     
     public Section getSection(String name) {

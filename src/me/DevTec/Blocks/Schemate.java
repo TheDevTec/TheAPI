@@ -112,7 +112,7 @@ public class Schemate {
 						s.byteStream.close();
 					}catch(Exception e) {}
 				}
-				c.getFile().save();
+				c.save();
 				perChunk.clear();
 				if(onFinish!=null)
 					onFinish.run();
