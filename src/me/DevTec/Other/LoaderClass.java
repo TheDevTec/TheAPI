@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
+import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -19,7 +20,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Queues;
 
 import me.DevTec.ConfigAPI;
 import me.DevTec.EconomyAPI;
@@ -49,7 +49,7 @@ public class LoaderClass extends JavaPlugin {
 	public final HashMap<Integer, ScoreboardAPI> scoreboard = Maps.newHashMap();
 	public final MultiMap<Integer, Integer, Object> map = new MultiMap<>();
 	//Queue for updating blocks of BlocksAPI
-	public final LinkedBlockingQueue<Object[]> refleshing = Queues.newLinkedBlockingQueue();
+	public final LinkedBlockingQueue<Object[]> refleshing = new LinkedBlockingQueue<Object[]>();
 	//Scheduler
 	public final HashMap<Integer, Task> scheduler = Maps.newHashMap();
 	//GUIs
@@ -136,6 +136,7 @@ public class LoaderClass extends JavaPlugin {
 				TheAPI.msg("&bTheAPI&7: &aTheAPI using " + getTheAPIsPlugins().size() + " plugin" + end,TheAPI.getConsole());
 			}
 		}.laterAsync(200);
+		if(TheAPI.isNewerThan(7))
 		handler = new me.DevTec.NMS.PacketListeners.PacketHandler();
 		for(Player s : TheAPI.getOnlinePlayers()) {
 			if (!handler.hasInjected(handler.getChannel(s)))
@@ -249,7 +250,7 @@ public class LoaderClass extends JavaPlugin {
 				if(placeholder.equalsIgnoreCase("player_uuid"))
 					return player.getUniqueId().toString();
 				if(placeholder.equalsIgnoreCase("player_health"))
-					return ""+player.getHealthScale();
+					return ""+((Damageable)player).getHealth();
 				if(placeholder.equalsIgnoreCase("player_food"))
 					return ""+player.getFoodLevel();
 				if(placeholder.equalsIgnoreCase("player_exp"))
@@ -259,11 +260,13 @@ public class LoaderClass extends JavaPlugin {
 				if(placeholder.equalsIgnoreCase("player_level"))
 					return ""+player.getLevel();
 				if(placeholder.equalsIgnoreCase("player_maxhealth"))
-					return ""+player.getMaxHealth();
+					return ""+((Damageable)player).getMaxHealth();
 				if(placeholder.equalsIgnoreCase("player_world"))
 					return ""+player.getWorld().getName();
 				if(placeholder.equalsIgnoreCase("player_air"))
 					return ""+player.getRemainingAir();
+				if(placeholder.equalsIgnoreCase("player_statistic_play_one_tick"))
+					return ""+player.getStatistic(Statistic.PLAY_ONE_TICK);
 				if(placeholder.equalsIgnoreCase("player_statistic_play_one_minue"))
 					return ""+player.getStatistic(Statistic.PLAY_ONE_MINUTE);
 				if(placeholder.equalsIgnoreCase("player_statistic_kills"))

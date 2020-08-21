@@ -35,6 +35,7 @@ public class Tasks {
 		if (load)
 			return;
 		load = true;
+		if(TheAPI.isNewerThan(7)) {
 		if(l==null)
 		l=new me.DevTec.NMS.PacketListeners.Listener() {
 			@Override
@@ -82,6 +83,7 @@ public class Tasks {
 			}
 		};
 		l.register();
+		}
 		if (c.getBoolean("Options.EntityMoveEvent.Enabled"))
 			task=new Tasker() {
 				public void run() {

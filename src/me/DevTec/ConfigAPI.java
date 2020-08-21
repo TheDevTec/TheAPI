@@ -1,6 +1,7 @@
 package me.DevTec;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -17,7 +18,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import com.google.common.collect.Maps;
-import com.google.common.io.Files;
 
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Utils.Error;
@@ -213,7 +213,7 @@ public class ConfigAPI {
 			f = null;
 			a = null;
 			f = getFile();
-			Reader reader = new InputStreamReader(Files.asByteSource(f).openStream(), "UTF-8");
+			Reader reader = new InputStreamReader(new FileInputStream(f), "UTF-8");
 			a = YamlConfiguration.loadConfiguration(reader);
 			if (h != null)
 				a.options().header(h);
@@ -414,7 +414,7 @@ public class ConfigAPI {
 				f = getFile();
 			try {
 				if (a == null) {
-					Reader reader = new InputStreamReader(Files.asByteSource(f).openStream(), "UTF-8");
+					Reader reader = new InputStreamReader(new FileInputStream(f), "UTF-8");
 					a = YamlConfiguration.loadConfiguration(reader);
 				}
 			} catch (Exception repeat) {

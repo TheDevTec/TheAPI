@@ -3,7 +3,6 @@ package me.DevTec;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 import org.bukkit.entity.Player;
 
 import me.DevTec.Other.LoaderClass;
@@ -36,17 +35,14 @@ public class EconomyAPI {
 		}
 	}
 
-	@Nullable
 	public static Economy getEconomy() {
 		return e;
 	}
 
-	@Nullable
 	public static me.DevTec.TheVault.Economy getTheEconomy() {
 		return t;
 	}
 
-	@Nullable
 	public static me.DevTec.TheVault.Bank getTheBank() {
 		return b;
 	}

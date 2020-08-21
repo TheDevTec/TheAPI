@@ -417,8 +417,7 @@ public class EntityCreatorAPI {
 				e.setMaxHealth(hp);
 				e.setHealth(hp);
 			}
-			try {
-				if (e.getType() == EntityType.ARMOR_STAND) {
+				if (e.getType().name().equals("ARMOR_STAND")) {
 					ArmorStand a = (ArmorStand) e;
 					a.setArms(arms);
 					a.setBasePlate(base);
@@ -448,9 +447,6 @@ public class EntityCreatorAPI {
 					a.setSmall(small);
 					a.setVisible(visible_armor);
 				}
-			} catch (Exception err) {
-
-			}
 			if (e.getType() == EntityType.VILLAGER) {
 				Villager v = (Villager) e;
 				if (v_adult)
@@ -536,7 +532,7 @@ public class EntityCreatorAPI {
 			try {
 				e.setAI(ai);
 				e.setCollidable(collidable);
-			} catch (Exception err) {
+			} catch (Exception | NoSuchFieldError | NoSuchMethodError err) {
 
 			}
 			e.setCanPickupItems(items);
@@ -544,7 +540,7 @@ public class EntityCreatorAPI {
 				e.setGravity(gravity);
 				e.setGlowing(glow);
 				e.setInvulnerable(isGod);
-			} catch (Exception err) {
+			} catch (Exception | NoSuchFieldError | NoSuchMethodError err) {
 
 			}
 			if (god > 0)
@@ -553,7 +549,7 @@ public class EntityCreatorAPI {
 				e.setPassenger(entity);
 			try {
 				e.setSilent(silent);
-			} catch (Exception err) {
+			} catch (Exception | NoSuchFieldError | NoSuchMethodError err) {
 
 			}
 		} catch (Exception es) {

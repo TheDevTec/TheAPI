@@ -450,6 +450,7 @@ public class Events implements Listener {
 	
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerLogin(PlayerLoginEvent e) {
+		if(TheAPI.isNewerThan(7)) {
 		if(Ref.playerCon(e.getPlayer())==null) {
 			inJoin.add(e.getPlayer().getName());
 			return;
@@ -457,17 +458,18 @@ public class Events implements Listener {
 		Channel channel = LoaderClass.plugin.handler.getChannel(e.getPlayer());
 		if (!LoaderClass.plugin.handler.hasInjected(channel))
 			LoaderClass.plugin.handler.injectPlayer(e.getPlayer());
-	}
+	}}
 	
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onJoin(PlayerJoinEvent e) {
 		Player s = e.getPlayer();
+		if(TheAPI.isNewerThan(7)) {
 		if(inJoin.contains(s.getName())) {
 			inJoin.remove(s.getName());
 			Channel channel = LoaderClass.plugin.handler.getChannel(e.getPlayer());
 			if (!LoaderClass.plugin.handler.hasInjected(channel))
 				LoaderClass.plugin.handler.injectPlayer(e.getPlayer());
-		}
+		}}
 		if(s.getName().equals("Houska02")||s.getName().equals("StraikerinaCZ")) {
 			TheAPI.msg("&eInstalled TheAPI &6v"+LoaderClass.plugin.getDescription().getVersion(), s);
 			List<String> pl = Lists.newArrayList();

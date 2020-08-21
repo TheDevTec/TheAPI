@@ -182,7 +182,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				}
 			});
 			
-			gui.setItem(49, new ItemGUI(ItemCreatorAPI.create(Material.BARRIER, 1, "&cClose")) {
+			gui.setItem(49, new ItemGUI(ItemCreatorAPI.create(Material.getMaterial("BARRIER")==null?Material.getMaterial("BEDROCK"):Material.getMaterial("BARRIER"), 1, "&cClose")) {
 				
 				@Override
 				public void onClick(Player player, GUICreatorAPI gui, ClickType click) {

@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.block.Sign;
-import org.bukkit.craftbukkit.libs.jline.internal.Nullable;
 
 import me.DevTec.Other.LoaderClass;
 import me.DevTec.Other.Position;
@@ -35,7 +34,6 @@ public class SignAPI {
 		return l;
 	}
 
-	@Nullable
 	public static Sign getSignState(Position loc) {
 		Sign s = null;
 		if (getRegistredSigns().contains(loc))

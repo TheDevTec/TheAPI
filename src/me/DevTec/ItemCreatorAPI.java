@@ -150,7 +150,7 @@ public class ItemCreatorAPI implements Cloneable {
 		Material mat = null;
 		try{
 			mat=Material.LEGACY_SKULL_ITEM;
-		}catch(Exception e) {
+		}catch(Exception | NoSuchFieldError e) {
 			mat=Material.matchMaterial("SKULL_ITEM");
 		}
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
@@ -164,7 +164,7 @@ public class ItemCreatorAPI implements Cloneable {
 		Material mat = null;
 		try{
 			mat=Material.LEGACY_SKULL_ITEM;
-		}catch(Exception e) {
+		}catch(Exception | NoSuchFieldError e) {
 			mat=Material.matchMaterial("SKULL_ITEM");
 		}
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
@@ -179,7 +179,7 @@ public class ItemCreatorAPI implements Cloneable {
 		Material mat = null;
 		try{
 			mat=Material.LEGACY_SKULL_ITEM;
-		}catch(Exception e) {
+		}catch(Exception | NoSuchFieldError e) {
 			mat=Material.matchMaterial("SKULL_ITEM");
 		}
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
@@ -192,7 +192,7 @@ public class ItemCreatorAPI implements Cloneable {
 		Material mat = null;
 		try{
 			mat=Material.LEGACY_SKULL_ITEM;
-		}catch(Exception e) {
+		}catch(Exception | NoSuchFieldError e) {
 			mat=Material.matchMaterial("SKULL_ITEM");
 		}
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
@@ -206,7 +206,7 @@ public class ItemCreatorAPI implements Cloneable {
 		Material mat = null;
 		try{
 			mat=Material.LEGACY_SKULL_ITEM;
-		}catch(Exception e) {
+		}catch(Exception | NoSuchFieldError e) {
 			mat=Material.matchMaterial("SKULL_ITEM");
 		}
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
@@ -220,7 +220,7 @@ public class ItemCreatorAPI implements Cloneable {
 		Material mat = null;
 		try{
 			mat=Material.LEGACY_SKULL_ITEM;
-		}catch(Exception e) {
+		}catch(Exception | NoSuchFieldError e) {
 			mat=Material.matchMaterial("SKULL_ITEM");
 		}
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
@@ -235,7 +235,7 @@ public class ItemCreatorAPI implements Cloneable {
 		Material mat = null;
 		try{
 			mat=Material.LEGACY_SKULL_ITEM;
-		}catch(Exception e) {
+		}catch(Exception | NoSuchFieldError e) {
 			mat=Material.matchMaterial("SKULL_ITEM");
 		}
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
@@ -249,7 +249,7 @@ public class ItemCreatorAPI implements Cloneable {
 		Material mat = null;
 		try{
 			mat=Material.LEGACY_SKULL_ITEM;
-		}catch(Exception e) {
+		}catch(Exception | NoSuchFieldError e) {
 			mat=Material.matchMaterial("SKULL_ITEM");
 		}
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
