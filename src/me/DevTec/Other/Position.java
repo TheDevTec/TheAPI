@@ -107,6 +107,10 @@ public class Position implements Cloneable {
 		return this;
 	}
 
+	public String getWorldName() {
+		return w;
+	}
+
 	public void setWorld(World world) {
 		w = world.getName();
 	}
@@ -188,7 +192,14 @@ public class Position implements Cloneable {
 	private static int wf = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]);
 	public Object getNMSChunk() {
 		Object w = Ref.world( getWorld());
-		return !(wf>=9)?Ref.invoke(Ref.get(w, "chunkProviderServer"),Ref.method(Ref.get(w, "chunkProviderServer").getClass(),"getOrCreateChunk",int.class,int.class), getBlockX()>>4, getBlockZ()>>4):(wf>=14?Ref.invoke(Ref.cast(Ref.nms("ChunkProviderServer"), Ref.invoke(w, "getChunkProvider")), "getChunkAt", getBlockX()>>4, getBlockZ()>>4, true):Ref.invoke(Ref.cast(Ref.nms("ChunkProviderServer"), Ref.invoke(w, "getChunkProvider")), "getOrLoadChunkAt", getBlockX()>>4, getBlockZ()>>4));
+		Object old = !(wf>=9)?Ref.invoke(Ref.get(w, "chunkProviderServer"),
+				Ref.method(Ref.nms("ChunkProviderServer"),"getOrCreateChunk",int.class,int.class), getBlockX()>>4, getBlockZ()>>4):null;
+		if(old==null) {
+			old=(wf>=14?
+	Ref.invoke(Ref.cast(Ref.nms("ChunkProviderServer"), Ref.invoke(w, "getChunkProvider")), Ref.method(Ref.nms("ChunkProviderServer"), "getChunkAt", int.class, int.class, boolean.class), getBlockX()>>4, getBlockZ()>>4, true)
+	:Ref.invoke(Ref.cast(Ref.nms("ChunkProviderServer"), Ref.invoke(w, "getChunkProvider")),Ref.method(Ref.nms("ChunkProviderServer"), "originalGetOrLoadChunkAt", int.class, int.class), getBlockX()>>4, getBlockZ()>>4));
+		}
+		return old;
 	}
 
 	public ChunkSnapshot getChunkSnapshot() {
@@ -268,9 +279,8 @@ public class Position implements Cloneable {
 		return setType(with.getType(), with.getData());
 	}
 
-	@SuppressWarnings("deprecation")
 	public long setType(Material with, int data) {
-		return set(this, with.getId(), data);
+		return set(this, new TheMaterial(with, data));
 	}
 
 	@Override
@@ -288,9 +298,9 @@ public class Position implements Cloneable {
 		return false;
 	}
 	
-	public static long set(Position pos, int id, int data) {
-		int w = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]);
-		if(w<= 7)setOld(pos, id); else set(pos, w>=9, w>=14, id, data);
+	@SuppressWarnings("deprecation")
+	public static long set(Position pos, TheMaterial mat) {
+		if(wf<= 7)setOld(pos, mat.getType().getId()); else set(pos, wf>=9, wf>=14, mat);
 		return pos.getChunkKey();
 	}
 
@@ -301,7 +311,7 @@ public class Position implements Cloneable {
 	}
 	
 	public static long set(Location pos, int id, int data) {
-		return set(new Position(pos), id, data);
+		return set(new Position(pos), new TheMaterial(id, data));
 	}
 	
 	/**
@@ -339,8 +349,9 @@ public class Position implements Cloneable {
 	 * @param data int data of Material
 	 * @return long ChunkKey
 	 */
-	private static synchronized void set(Position pos, boolean palet, boolean neww, int id, int data) { //1.8 - 1.16
-		if(id==31||id==175)++data;
+	@SuppressWarnings("deprecation")
+	private static synchronized void set(Position pos, boolean palet, boolean neww, TheMaterial material) { //1.8 - 1.16
+		if(material.getType().getId()==31||material.getType().getId()==175)material.setData(material.getData()+1);
 		Object c = pos.getNMSChunk();
 		Object sc = ((Object[])Ref.invoke(c, "getSections"))[(pos.getBlockY()<0 && pos.getBlockY()!=0? -1*pos.getBlockY() : pos.getBlockY()) >> 4];
 		if(sc==null) {
@@ -350,7 +361,7 @@ public class Position implements Cloneable {
 				sc=Ref.newInstance(Ref.constructor(Ref.nms("ChunkSection"), int.class,boolean.class), (int)((pos.getBlockY()<0 && pos.getBlockY()!=0? -1*pos.getBlockY() : pos.getBlockY()) >> 4), true); //1.8 - 1.13
 			((Object[])Ref.invoke(c, "getSections"))[(pos.getBlockY()<0 && pos.getBlockY()!=0? -1*pos.getBlockY() : pos.getBlockY()) >> 4]=sc;
 		}
-		Object cr = Ref.invoke(null, Ref.method(Ref.nms("Block"), "getByCombinedId", int.class), id+(data<<12));
+		Object cr = material.getIBlockData();
 		try {
 			HashMap<?,?> aw = ((HashMap<?,?>)Ref.invoke(c, "getTileEntities"));
 			if(aw.containsKey(Ref.blockPos(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ()))) {
@@ -359,9 +370,9 @@ public class Position implements Cloneable {
 				aw.remove(Ref.blockPos(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ()));
 		}}catch(Exception kill) {}
 			if(palet)
-				Ref.invoke(Ref.invoke(sc, "getBlocks"),Ref.method(sc.getClass(), "setBlock", int.class, int.class, int.class, Ref.nms("IBlockData")), pos.getBlockX() & 15, pos.getBlockY() & 15, pos.getBlockZ() & 15, cr);
+				Ref.invoke(Ref.invoke(sc, "getBlocks"),Ref.method(Ref.nms("DataPaletteBlock"), "setBlock", int.class, int.class, int.class, Ref.nms("IBlockData")), pos.getBlockX() & 15, pos.getBlockY() & 15, pos.getBlockZ() & 15, cr);
 			else
-			Ref.invoke(sc, Ref.method(sc.getClass(), "setType", int.class, int.class, int.class, Ref.nms("IBlockData")), pos.getBlockX() & 15, pos.getBlockY() & 15, pos.getBlockZ() & 15, cr);
+			Ref.invoke(sc, Ref.method(Ref.nms("ChunkSection"), "setType", int.class, int.class, int.class, Ref.nms("IBlockData")), pos.getBlockX() & 15, pos.getBlockY() & 15, pos.getBlockZ() & 15, cr);
 			((Object[])Ref.invoke(c, "getSections"))[(pos.getBlockY()<0 && pos.getBlockY()!=0? -1*pos.getBlockY() : pos.getBlockY()) >> 4]=sc;
 	}
 	

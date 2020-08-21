@@ -4,8 +4,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class Compression {
 	public static int COMPRESS=2;
@@ -40,4 +42,126 @@ public class Compression {
 		}catch(Exception e) {}
 		return new File(file.getParent());
 	}
+	
+	public static Compressor getCompressor() {
+		return new Compressor();
+	}
+	
+	public static class Compressor {
+		private ByteArrayOutputStream end = new ByteArrayOutputStream();
+		private GZIPOutputStream compressor;
+		private ObjectOutputStream get;
+		public Compressor() {
+			try {
+				compressor = new GZIPOutputStream(end);
+			    get = new ObjectOutputStream(compressor);
+			}catch(Exception e) {}
+		}
+		
+		public Compressor add(Object o) {
+			try {
+				get.writeObject(o);
+			} catch (Exception e) {
+			}
+			return this;
+		}
+		
+		public Compressor add(String o) {
+			try {
+				get.writeUTF(o);
+			} catch (Exception e) {
+			}
+			return this;
+		}
+		
+		public Compressor add(boolean o) {
+			try {
+				get.writeBoolean(o);
+			} catch (Exception e) {
+			}
+			return this;
+		}
+		
+		public Compressor add(float o) {
+			try {
+				get.writeFloat(o);
+			} catch (Exception e) {
+			}
+			return this;
+		}
+		
+		public Compressor add(int o) {
+			try {
+				get.writeInt(o);
+			} catch (Exception e) {
+			}
+			return this;
+		}
+		
+		public Compressor add(byte o) {
+			try {
+				get.writeByte(o);
+			} catch (Exception e) {
+			}
+			return this;
+		}
+		
+		public Compressor add(double o) {
+			try {
+				get.writeDouble(o);
+			} catch (Exception e) {
+			}
+			return this;
+		}
+		
+		public Compressor add(long o) {
+			try {
+				get.writeLong(o);
+			} catch (Exception e) {
+			}
+			return this;
+		}
+		
+		public Compressor add(short o) {
+			try {
+				get.writeShort(o);
+			} catch (Exception e) {
+			}
+			return this;
+		}
+		
+		public Compressor add(char o) {
+			try {
+				get.writeChar(o);
+			} catch (Exception e) {
+			}
+			return this;
+		}
+		
+		public Compressor flush() {
+			try {
+				get.flush();
+				compressor.flush();
+				compressor.finish();
+				end.flush();
+			} catch (Exception e) {
+			}
+			return this;
+		}
+		
+		public void close() {
+			try {
+			get.close();
+			compressor.close();
+			end.close();
+			} catch (Exception e) {
+			}
+		}
+		
+		public byte[] get() {
+			flush();
+			return end.toByteArray();
+		}
+	}
+	
 }

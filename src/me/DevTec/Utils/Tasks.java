@@ -86,6 +86,7 @@ public class Tasks {
 			task=new Tasker() {
 				public void run() {
 					for (World w : Bukkit.getWorlds()) {
+						try {
 						for (Entity d : w.getEntities()) {
 							if (d.getType() == EntityType.DROPPED_ITEM)
 								continue;
@@ -106,7 +107,7 @@ public class Tasks {
 												StringUtils.getLocationAsString(a));
 								}
 							}
-						}
+						}}catch(Exception error) {}
 					}
 				}
 			}.repeating(0, c.getInt("Options.EntityMoveEvent.Reflesh"));

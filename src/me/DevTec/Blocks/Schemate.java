@@ -2,9 +2,10 @@ package me.DevTec.Blocks;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.util.HashMap;
+import java.io.File;
+import java.util.Map;
 
+import org.bukkit.block.Barrel;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
@@ -22,8 +23,10 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import com.google.common.collect.Maps;
 
-import me.DevTec.Config.Config;
-import me.DevTec.Other.Compression;
+import me.DevTec.File.Reader;
+import me.DevTec.File.Writer;
+import me.DevTec.Other.Compression.Compressor;
+import me.DevTec.Other.Data;
 import me.DevTec.Other.Position;
 import me.DevTec.Other.StringUtils;
 import me.DevTec.Other.TheMaterial;
@@ -31,11 +34,11 @@ import me.DevTec.Scheduler.Tasker;
 
 public class Schemate {
 	private final String s;
-	private Config c;
 	private Schema schem;
+	private File f;
+	private Data cache;
 	public Schemate(String name) {
 		s=name;
-		c =new Config("TheAPI/Schematic/"+s+".schem");
 	}
 	
 	public String getName() {
@@ -57,75 +60,90 @@ public class Schemate {
 		save(fromCopy, a, b,null);
 	}
 	
-	public Config getFile() {
-		return c;
+	public File getFile() {
+		if(f==null)
+		f=new File("plugins/TheAPI/Schematic/"+s+".schem");
+		if(!f.getParentFile().exists())
+		f.getParentFile().mkdir();
+		if(!f.exists())
+			try {
+				f.createNewFile();
+			} catch (Exception e1) {
+			}
+		return f;
+	}
+	
+	public Data getData() {
+		if(cache==null) {
+		cache = new Data();
+		try {
+			Reader r=new Reader(getFile());
+			cache.load(r.read(false));
+			r.close();
+		} catch (Exception e) {}}
+		return cache;
 	}
 	
 	public boolean isSetStandingPosition() {
-		return c.getBoolean("info.standing");
+		return (boolean)get("data.standing");
 	}
 	
 	public float getBlocks() {
-		return (float)c.getLong("info.blocks");
+		return (float)get("data.blocks");
 	}
 	
-	public int getCompression() {
-		return c.getInt("info.compression");
+	public void set(String key, Object object) {
+		getData().set(key, object);
+	}
+	
+	public Object get(String key) {
+		return getData().get(key);
 	}
 	
 	public Position[] getCorners() {
-		String[] s= c.getString("info.corners").split("/!/");
+		String[] s= get("data.corners").toString().split("/!/");
 		return new Position[] {Position.fromString(s[0]),Position.fromString(s[1])};
 	}
 	
-	private static String split = "/!_!/";
 	public void save(Position fromCopy, Position a, Position b, Runnable onFinish) {
-		for(String key : c.getKeys())c.set(key, null);
-		c.save(); //override old data
+		for(String s: getData().getKeys())
+			getData().remove(s);
 		new Tasker() {
 			public void run() {
-				c.set("info.standing", fromCopy!=null);
-				if(fromCopy!=null)
-					c.set("info.corners", a.subtract(fromCopy).toString()+"/!/"+b.subtract(fromCopy).toString());
-				else
-					c.set("info.corners", a.toString()+"/!/"+b.toString());
-				c.set("info.blocks", (""+BlocksAPI.count(a, b)).replaceFirst("\\.0", ""));
-				HashMap<String, SchemSaving> perChunk = Maps.newHashMap();
+				Data data = getData();
+				data.set("data.standing", fromCopy!=null);
+				data.set("data.corners", fromCopy!=null?a.subtract(fromCopy).toString()+"/!/"+b.subtract(fromCopy).toString():a.toString()+"/!/"+b.toString());
+				data.set("data.blocks", BlocksAPI.count(a, b));
+				Map<String, Compressor> perChunk = Maps.newHashMap();
 				BlockGetter getter = new BlockGetter(a, b);
 				while(getter.has()) {
 					Position pos = getter.get();
 					if(fromCopy!=null)
 					pos.add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ());
 					try {
-						SchemSaving s = perChunk.getOrDefault(pos.getType().getType().name()+pos.getType().getData(), null);
-						if(s==null)s=new SchemSaving();
-						s.dataStream.writeUTF(pos.getBlockX()+"/"+pos.getBlockY()+"/"+pos.getBlockZ()+split+new SimpleSave(pos).toString());
-						perChunk.put(pos.getType().getType().name()+pos.getType().getData(), s);
+						Compressor s = perChunk.getOrDefault(pos.getChunkKey()+"."+pos.getType().getType().name()+pos.getType().getData(), null);
+						if(s==null) {
+							s=new Compressor();
+							perChunk.put(pos.getChunkKey()+"."+pos.getType().getType().name()+pos.getType().getData(), s);
+						}
+						s.add(pos.getBlockX()+"/"+pos.getBlockY()+"/"+pos.getBlockZ()+"/!_!/"+new SimpleSave(pos).toString());
 					} catch (Exception e) {
 					}
 				}
 				for(String key : perChunk.keySet()) {
-					SchemSaving s = perChunk.get(key);
-					c.set("c."+key, (Base64Coder.encodeLines(Compression.compress(s.byteStream.toByteArray()))).replace(System.lineSeparator(), ""));
-					try {
-						s.dataStream.close();
-						s.byteStream.close();
-					}catch(Exception e) {}
+					Compressor s = perChunk.get(key);
+					data.set("c."+key, s.get());
+					s.close();
 				}
-				c.save();
 				perChunk.clear();
+				Writer w = new Writer(getFile());
+				w.append(data.toString());
+				w.flush();
+				w.close();
 				if(onFinish!=null)
 					onFinish.run();
 			}
 		}.runAsync();
-	}
-	
-	private class SchemSaving {
-		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-		DataOutputStream dataStream;
-		public SchemSaving() {
-			dataStream = new DataOutputStream(byteStream);
-		}
 	}
 	
 	public static class SimpleSave {
@@ -180,7 +198,21 @@ public class Schemate {
 			if (b.getType().name().equals("DISPENSER")) {
 				isInvBlock = true;
 				Dispenser c = ((Dispenser) b.getState());
+				try {
 				cname=c.getCustomName();
+				}catch(NoSuchMethodError e) {
+					cname=null;
+				}
+				inv = c.getInventory().getContents();
+			}
+			if (b.getType().name().equals("BARREL")) {
+				isInvBlock = true;
+				Barrel c = ((Barrel) b.getState());
+				try {
+				cname=c.getCustomName();
+				}catch(NoSuchMethodError e) {
+					cname=null;
+				}
 				inv = c.getInventory().getContents();
 			}
 			if (b.getType().name().equals("HOPPER")) {
@@ -362,7 +394,4 @@ public class Schemate {
 		}
 	}
 
-	public void delete() {
-		schem=null;
-	}
 }

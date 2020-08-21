@@ -1,12 +1,15 @@
 package me.DevTec.Other;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.util.Enumeration;
 import java.util.zip.DataFormatException;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -57,4 +60,115 @@ public class Decompression {
 	    }
 	    return out;
 	}
+	
+	public static Decompressor getDecompressor(byte[] toDecompress) {
+		return new Decompressor(toDecompress);
+	}
+	
+	public static class Decompressor {
+		private ByteArrayInputStream end;
+		private GZIPInputStream decompressor;
+		private ObjectInputStream get;
+		public Decompressor(byte[] toDecompress) {
+			try {
+				end = new ByteArrayInputStream(toDecompress);
+			    decompressor = new GZIPInputStream(end);
+			    get = new ObjectInputStream(decompressor);
+			}catch(Exception e) {}
+		}
+		
+		public Object readObject() {
+			try {
+				get.readObject();
+			} catch (Exception e) {
+			}
+			return null;
+		}
+		
+		public String readString() {
+			try {
+				get.readUTF();
+			} catch (Exception e) {
+			}
+			return null;
+		}
+		
+		public String readUTF() {
+			return readString();
+		}
+		
+		public boolean readBoolean() {
+			try {
+				return get.readBoolean();
+			} catch (Exception e) {
+			}
+			return false;
+		}
+		
+		public float readFloat() {
+			try {
+				return get.readFloat();
+			} catch (Exception e) {
+			}
+			return 0;
+		}
+		
+		public int readInt() {
+			try {
+				return get.readInt();
+			} catch (Exception e) {
+			}
+			return 0;
+		}
+		
+		public byte readByte() {
+			try {
+				return get.readByte();
+			} catch (Exception e) {
+			}
+			return 0;
+		}
+		
+		public double readDouble() {
+			try {
+				return get.readDouble();
+			} catch (Exception e) {
+			}
+			return 0;
+		}
+		
+		public long readLong() {
+			try {
+				return get.readLong();
+			} catch (Exception e) {
+			}
+			return 0;
+		}
+		
+		public short readShort() {
+			try {
+				return get.readShort();
+			} catch (Exception e) {
+			}
+			return 0;
+		}
+		
+		public char readChar() {
+			try {
+				return get.readChar();
+			} catch (Exception e) {
+			}
+			return 0;
+		}
+		
+		public void close() {
+			try {
+			get.close();
+			decompressor.close();
+			end.close();
+			} catch (Exception e) {
+			}
+		}
+	}
+	
 }

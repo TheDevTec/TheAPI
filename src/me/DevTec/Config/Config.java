@@ -9,24 +9,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.bukkit.Bukkit;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import me.DevTec.Other.StringUtils;
 
 public class Config {
-    private static File f = null;
-    private static FileWriter w;
+    private Map<String, Object> defaults = Maps.newHashMap();
+    private File f = null;
+    private FileWriter w;
     private final String configPath;
-    private static Boolean c;
-    private static String[] text;
+    private boolean c;
+    private String[] text;
 
     public Config(String path) {
-    	configPath=path;
+    	configPath="plugins/"+path;
     	reload();
     }
 
@@ -40,9 +41,7 @@ public class Config {
 
     private void open() {
         c = false;
-
         createFile(f);
-
         try {
             w = new FileWriter(f);
         } catch (Exception e) { /* */ }
@@ -56,8 +55,18 @@ public class Config {
 
             getWriter().flush();
         } catch (Exception e) { /* */ }
-
         close();
+    }
+
+    public void addDefaults(Map<String, Object> values) {
+    	for(String key : values.keySet())
+    		addDefault(key, values.get(key));
+    }
+
+    public void addDefault(String key, Object value) {
+    	defaults.put(key, value);
+        if(!exists(key))
+        	set(key, value);
     }
 
     public void reload() {
@@ -111,7 +120,6 @@ public class Config {
 
             sc.close();
         } catch (Exception e) { /* */ }
-        Bukkit.broadcastMessage(buffer.toString());
         setContents(buffer);
     }
 
@@ -127,11 +135,11 @@ public class Config {
         return exists(getContents(), path.split("\\."));
     }
 
-	private synchronized Boolean exists(String[] text, String[] sections) {
+	private synchronized boolean exists(String[] text, String[] sections) {
 	    int id = 0,key_spaces = 0,spaces = 0;
 	    String key = null;
 	    for (String s : text) {
-	        key = s.split(":", 2)[0];
+	        key = s.split(":")[0];
 	        key_spaces = key.replaceAll("[^ ]", "").length();
 	        if (spaces > key_spaces) {
 	          spaces -= 2;
@@ -165,8 +173,7 @@ public class Config {
 	    }
         setContents(fs);
     }
-    
-    
+     
     public List<String> getComments(String path) {
     	String[] w = path.split("\\.");
     	List<String> found = Lists.newArrayList();
@@ -195,7 +202,7 @@ public class Config {
         int id = 0,key_spaces = 0,spaces = 0;
         String key = null;
         for (String s : getContents()) {
-            key = s.split(":", 2)[0];
+            key = s.split(":")[0];
             key_spaces = key.replaceAll("[^ ]", "").length();
             if (id != sections.length) {
                 if (spaces > key_spaces) {
@@ -212,9 +219,8 @@ public class Config {
                     }
                 }
             } else {
-                if (s.trim().startsWith("-")) {
-                    s = s.split("- ")[1];
-
+                if (s.split("-").length >= 2 && s.split("-")[1].startsWith(" ")) {
+                	s=s.replace(s.split("- ")[0], "").replaceFirst("- ","");
                     list.add(StringUtils.getInt(removeQuetos(s)));
                 } else {
                     break;
@@ -234,7 +240,7 @@ public class Config {
         int id = 0,key_spaces = 0,spaces = 0;
         String key = null;
         for (String s : getContents()) {
-            key = s.split(":", 2)[0];
+            key = s.split(":")[0];
             key_spaces = key.replaceAll("[^ ]", "").length();
             if (id != sections.length) {
                 if (spaces > key_spaces) {
@@ -251,9 +257,8 @@ public class Config {
                     }
                 }
             } else {
-                if (s.trim().startsWith("-")) {
-                    s = s.split("- ")[1];
-
+                if (s.split("-").length >= 2 && s.split("-")[1].startsWith(" ")) {
+                	s=s.replace(s.split("- ")[0], "").replaceFirst("- ","");
                     list.add(StringUtils.getByte(removeQuetos(s)));
                 } else {
                     break;
@@ -273,7 +278,7 @@ public class Config {
         int id = 0,key_spaces = 0,spaces = 0;
         String key = null;
         for (String s : getContents()) {
-            key = s.split(":", 2)[0];
+            key = s.split(":")[0];
             key_spaces = key.replaceAll("[^ ]", "").length();
             if (id != sections.length) {
                 if (spaces > key_spaces) {
@@ -290,9 +295,8 @@ public class Config {
                     }
                 }
             } else {
-                if (s.trim().startsWith("-")) {
-                    s = s.split("- ")[1];
-
+                if (s.split("-").length >= 2 && s.split("-")[1].startsWith(" ")) {
+                	s=s.replace(s.split("- ")[0], "").replaceFirst("- ","");
                     list.add(StringUtils.getBoolean(removeQuetos(s)));
                 } else {
                     break;
@@ -312,7 +316,7 @@ public class Config {
         int id = 0,key_spaces = 0,spaces = 0;
         String key = null;
         for (String s : getContents()) {
-            key = s.split(":", 2)[0];
+            key = s.split(":")[0];
             key_spaces = key.replaceAll("[^ ]", "").length();
             if (id != sections.length) {
                 if (spaces > key_spaces) {
@@ -329,9 +333,8 @@ public class Config {
                     }
                 }
             } else {
-                if (s.trim().startsWith("-")) {
-                    s = s.split("- ")[1];
-
+                if (s.split("-").length >= 2 && s.split("-")[1].startsWith(" ")) {
+                	s=s.replace(s.split("- ")[0], "").replaceFirst("- ","");
                     list.add(StringUtils.getDouble(removeQuetos(s)));
                 } else {
                     break;
@@ -351,7 +354,7 @@ public class Config {
         int id = 0,key_spaces = 0,spaces = 0;
         String key = null;
         for (String s : getContents()) {
-            key = s.split(":", 2)[0];
+            key = s.split(":")[0];
             key_spaces = key.replaceAll("[^ ]", "").length();
             if (id != sections.length) {
                 if (spaces > key_spaces) {
@@ -368,9 +371,8 @@ public class Config {
                     }
                 }
             } else {
-                if (s.trim().startsWith("-")) {
-                    s = s.split("- ")[1];
-
+                if (s.split("-").length >= 2 && s.split("-")[1].startsWith(" ")) {
+                	s=s.replace(s.split("- ")[0], "").replaceFirst("- ", "");
                     list.add(StringUtils.getShort(removeQuetos(s)));
                 } else {
                     break;
@@ -406,7 +408,7 @@ public class Config {
         int id = 0,key_spaces = 0,spaces = 0;
         String key = null;
         for (String s : getContents()) {
-            key = s.split(":", 2)[0];
+            key = s.split(":")[0];
             key_spaces = key.replaceAll("[^ ]", "").length();
             if (id != sections.length) {
                 if (spaces > key_spaces) {
@@ -423,9 +425,8 @@ public class Config {
                     }
                 }
             } else {
-                if (s.trim().startsWith("-")) {
-                    s = s.split("- ")[1];
-
+                if (s.split("-").length >= 2 && s.split("-")[1].startsWith(" ")) {
+                	s=s.replace(s.split("- ")[0], "").replaceFirst("- ", "");
                     list.add(StringUtils.getFloat(removeQuetos(s)));
                 } else {
                     break;
@@ -445,7 +446,7 @@ public class Config {
         int id = 0,key_spaces = 0,spaces = 0;
         String key = null;
         for (String s : getContents()) {
-            key = s.split(":", 2)[0];
+            key = s.split(":")[0];
             key_spaces = key.replaceAll("[^ ]", "").length();
             if (id != sections.length) {
                 if (spaces > key_spaces) {
@@ -462,8 +463,9 @@ public class Config {
                     }
                 }
             } else {
-                if (s.trim().startsWith("-")) {
-                    String object = removeQuetos(s.split("- ")[1]);
+                if (s.split("-").length >= 2 && s.split("-")[1].startsWith(" ")) {
+                	s=s.replace(s.split("- ")[0], "").replaceFirst("- ", "");
+                    String object = removeQuetos(s);
                 	try {
             			ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(object));
             			BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
@@ -495,7 +497,7 @@ public class Config {
         int id = 0,key_spaces = 0,spaces = 0;
         String key = null;
         for (String s : getContents()) {
-            key = s.split(":", 2)[0];
+            key = s.split(":")[0];
             key_spaces = key.replaceAll("[^ ]", "").length();
 
             if (id != sections.length) {
@@ -528,7 +530,7 @@ public class Config {
         int id = 0,key_spaces = 0,spaces = 0;
         String key = null,value = null;
         for (String s : getContents()) {
-            key = s.split(":", 2)[0];
+            key = s.split(":")[0];
             key_spaces = key.replaceAll("[^ ]", "").length();
             if (spaces > key_spaces) {
                 spaces -= 2;
@@ -537,9 +539,8 @@ public class Config {
                 if (key_spaces == spaces) {
                     id++;
                     spaces += 2;
-
                     if (id == sections.length) {
-                        s = s.split(":", 2)[1].trim();
+                    	s=s.replace(s.split(": ")[0], "").replaceFirst(": ", "");
                         value= removeQuetos(s);
                         break;
                     }
@@ -555,7 +556,7 @@ public class Config {
         int id = 0,key_spaces = 0,spaces = 0;
         String key = null;
         for (String s : getContents()) {
-            key = s.split(":", 2)[0];
+            key = s.split(":")[0];
             key_spaces = key.replaceAll("[^ ]", "").length();
             if (id != sections.length) {
                 if (spaces > key_spaces) {
@@ -572,9 +573,8 @@ public class Config {
                     }
                 }
             } else {
-                if (s.trim().startsWith("-")) {
-                    s = s.split("- ")[1];
-
+                if (s.split("-").length >= 2 && s.split("-")[1].startsWith(" ")) {
+                	s=s.replace(s.split("- ")[0], "").replaceFirst("- ", "");
                     list.add(removeQuetos(s));
                 } else {
                     break;
@@ -722,7 +722,7 @@ public class Config {
                             }
                         }
                     } else if (remove == 1) {
-                        if (s.split("  -").length >= 2 && s.split("  -")[1].startsWith(" ")) {
+                        if (s.split("-").length >= 2 && s.split("-")[1].startsWith(" ")) {
                             continue;
                         } else {
                             remove = 0;
@@ -770,7 +770,7 @@ public class Config {
     }
 
     private static String removeQuetos(String value) {
-        if (value.startsWith("\"") && value.endsWith("\"") || value.startsWith("\'") && value.endsWith("\'")) {
+        if (value.startsWith("\"") && value.endsWith("\"") || value.startsWith("'") && value.endsWith("'")) {
             return value.substring(1, value.length()-1);
         }
 
@@ -944,16 +944,31 @@ public class Config {
 
     public List<String> getKeys() {
         List<String> list = Lists.newArrayList();
-        int key_spaces = 0;
-        String key = null;
         for (String s : getContents()) {
-            key = s.split(":", 2)[0];
-            key_spaces = key.replaceAll("[^ ]", "").length();
-
-            if (key_spaces == 0) {
-                list.add(key.trim());
-            }
+        	if(!s.trim().isEmpty())
+        	if (!(s.split("-").length >= 2 && s.split("-")[1].startsWith(" ")) && !s.trim().startsWith("#"))
+            if (c(s)==0)
+                list.add(s.split(":")[0].trim());
         }
         return list;
     }
+    
+    private static int c(String s) {
+    	int a = 0;
+    	for(char c : s.toCharArray())
+    		if(c==' ')++a;
+    		else break;
+    	return a;
+    }
+
+	public String getStringContents() {
+		return getStringContents(true);
+	}
+
+	public String getStringContents(boolean addSplit) {
+		StringBuffer f = new StringBuffer();
+		for(String s : getContents())
+			f.append(s+(addSplit?System.lineSeparator():""));
+		return f.toString();
+	}
 }

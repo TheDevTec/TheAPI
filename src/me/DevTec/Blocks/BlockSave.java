@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.block.Barrel;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -81,7 +82,21 @@ public class BlockSave {
 		if (b.getType().name().equals("DISPENSER")) {
 			isInvBlock = true;
 			Dispenser c = ((Dispenser) b.getState());
+			try {
 			cname=c.getCustomName();
+			}catch(NoSuchMethodError e) {
+				cname=null;
+			}
+			inv = c.getInventory().getContents();
+		}
+		if (b.getType().name().equals("BARREL")) {
+			isInvBlock = true;
+			Barrel c = ((Barrel) b.getState());
+			try {
+			cname=c.getCustomName();
+			}catch(NoSuchMethodError e) {
+				cname=null;
+			}
 			inv = c.getInventory().getContents();
 		}
 		if (b.getType().name().equals("HOPPER")) {

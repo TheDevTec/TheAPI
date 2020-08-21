@@ -2,54 +2,54 @@ package me.DevTec.File;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 
 public class Writer {
 	private File a;
+	private FileWriter w;
 	public Writer(File f) {
 		a=f;
+		try {
+		w=new FileWriter(a);
+		} catch (Exception e) {
+		}
 	}
 	
 	public File getFile() {
 		return a;
 	}
 	
-	public void write(String text) {
-		FileWriter r = null;
+	public void close() {
 		try {
-		r=new FileWriter(a);
-		} catch (IOException e) {
+			w.close();
+		} catch (Exception e) {
 		}
+	}
+	
+	public void write(String text) {
 		try {
-			r.write(text);
-			r.close();
-		} catch (IOException e) {
+			w.write(text);
+		} catch (Exception e) {
 		}
 	}
 	
 	public void append(char text) {
-		FileWriter r = null;
 		try {
-		r=new FileWriter(a);
-		} catch (IOException e) {
-		}
-		try {
-			r.append(text);
-			r.close();
-		} catch (IOException e) {
+			w.append(text);
+		} catch (Exception e) {
 		}
 	}
 	
 	public void flush() {
-		FileWriter r = null;
 		try {
-		r=new FileWriter(a);
-		} catch (IOException e) {
+			w.flush();
+		} catch (Exception e) {
 		}
+	}
+
+	public void append(CharSequence text) {
 		try {
-			r.flush();
-			r.close();
-		} catch (IOException e) {
+			w.append(text);
+		} catch (Exception e) {
 		}
 	}
 }

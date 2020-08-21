@@ -6,6 +6,15 @@ import org.bukkit.inventory.ItemStack;
 public class TheMaterial {
 
 	@SuppressWarnings("deprecation")
+	public TheMaterial(Object IBlockDataOrBlock) {
+		ItemStack stack = (ItemStack)Ref.invoke(Ref.invoke(null, Ref.method(Ref.craft("util.CraftMagicNumbers"),"getMaterial", Ref.nms("IBlockData")), IBlockDataOrBlock), "toItemStack");
+		if(stack==null)stack=(ItemStack)new ItemStack((Material)Ref.invokeNulled(Material.class, "getMaterial", (int)Ref.invoke(null, Ref.method(Ref.craft("util.CraftMagicNumbers"),"getId", Ref.nms("Block")), IBlockDataOrBlock)));
+		m = stack.getType();
+		this.data = stack.getData().getData();
+		this.amount=stack.getAmount();
+	}
+	
+	@SuppressWarnings("deprecation")
 	public TheMaterial(ItemStack stack) {
 		this(stack.getType(), stack.getData().getData(), stack.getAmount());
 	}
@@ -68,6 +77,10 @@ public class TheMaterial {
 		this(material, StringUtils.getInt(data),amount);
 	}
 
+	public TheMaterial(int id, int data) {
+		this(Material.values()[id], data, 1);
+	}
+
 	private Material m;
 	private int data,amount;
 
@@ -85,6 +98,26 @@ public class TheMaterial {
 
 	public Material getType() {
 		return m;
+	}
+	
+	@SuppressWarnings("deprecation")
+	public int getCombinedId() {
+		try {
+		return getType().getId()+(data<<12);
+		}catch(Exception err) {
+			return (int)Ref.invoke(Ref.get(null,Ref.field(Ref.nms("Block"), "REGISTRY_ID")), Ref.method(Ref.nms("RegistryID"), "getId", Ref.nms("IBlockData")), getIBlockData());
+		}
+	}
+	
+	public Object getIBlockData() {
+		@SuppressWarnings("deprecation")
+		Object item = Ref.invoke(null, Ref.method(Ref.nms("Block"), "getByCombinedId", int.class), getType().getId()+(data<<12));
+		Object o = Ref.invoke(null, Ref.method(Ref.craft("util.CraftMagicNumbers"), "getBlock", Material.class), getType());
+		if(item==null)item=Ref.invoke(o, Ref.method(Ref.nms("Block"), "fromLegacyData", byte.class),(byte)data);
+		if(item==null) {
+		o = Ref.invoke(null, Ref.method(Ref.craft("block.data.CraftBlockData"), "newData", Material.class, String.class), getType(), data+"");
+		item=Ref.invoke(o, "getState");}
+		return item;
 	}
 
 	public void setType(Material material) {

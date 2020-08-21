@@ -2,18 +2,14 @@ package me.DevTec.Blocks;
 
 import java.io.File;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.spigotmc.AsyncCatcher;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteStreams;
-
-import me.DevTec.ConfigAPI;
+import me.DevTec.TheAPI;
 import me.DevTec.Blocks.Schemate.SimpleSave;
+import me.DevTec.Config.Config;
 import me.DevTec.Other.Decompression;
+import me.DevTec.Other.Decompression.Decompressor;
 import me.DevTec.Other.Position;
 import me.DevTec.Other.Ref;
 import me.DevTec.Other.StringUtils;
@@ -55,21 +51,22 @@ public class Schema {
 	    new Tasker() {
 			@SuppressWarnings("deprecation")
 			public void run() {
-				ConfigAPI ca = null;
+				Config ca = null;
 				for(int iaa = 0; iaa > -1; ++iaa) {
 					if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
-						ca = new ConfigAPI("TheAPI/ChunkTask", ""+iaa);
-						ca.create();
+						ca = new Config("TheAPI/ChunkTask/"+iaa+".dat");
 						break;
 					}
 				}
-				for(String fs : schem.getFile().getSection("c").getKeys()) {
-				ByteArrayDataInput in = ByteStreams.newDataInput(Decompression.decompress(Base64Coder.decodeLines(schem.getFile().getString("c."+fs))));
-				int x=Integer.MIN_VALUE, z=Integer.MIN_VALUE;
+				for(String fs : schem.getData().getKeys()) {
+				if(!fs.startsWith("c."))continue;
+				try {
+				Decompressor dec = Decompression.getDecompressor(schem.getData().getByteArray(fs));
+				fs=fs.replaceFirst(fs.split("\\.")[0], "");
 				while(true) {
 					String sd=null;
 					try {
-					sd= in.readUTF();
+					sd= dec.readUTF();
 					}catch(Exception e) {
 						break;
 					}
@@ -79,29 +76,30 @@ public class Schema {
 					if(schem.isSetStandingPosition())
 						pos.add(position.getBlockX(),position.getBlockY(),position.getBlockZ());
 					SimpleSave save = Schemate.SimpleSave.fromString(s[1]);
-					TheMaterial type = new TheMaterial(Material.getMaterial(fs.replaceAll("[0-9]+", "")), StringUtils.getInt(fs));
+					TheMaterial type = new TheMaterial(fs.replaceAll("[0-9]+", ""), StringUtils.getInt(fs));
 					if(task!=null)
 						if(task.set(Schema.this, pos, type, save))
 					save.load(pos, type);
 						else if(c.set(Schema.this, pos, type, save))
 						save.load(pos, type);
-					x=pos.getBlockX();
-					z=pos.getBlockZ();
+					ca.set(pos.getChunkKey()+"", pos.getBlockX()+":"+pos.getBlockZ());
 				}
-				if(x!=Integer.MIN_VALUE)
-				ca.set(fs+"", x+":"+z);
-				}
-				ca.save();
-				for(String o : ca.getKeys(false)) {
+				dec.close();
+				}catch(Exception e) {}
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+				}}
+				for(String o : ca.getKeys()) {
 					String[] cw = ca.getString(o).split(":");
 					Position pos = new Position(position.getWorld(), StringUtils.getInt(cw[0]),0,StringUtils.getInt(cw[1]));
 					pos.getWorld().refreshChunk(pos.getBlockX()>>4, pos.getBlockZ()>>4);
-					Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", pos.getNMSChunk(), 65535);
-					if(a==null)a=Ref.newInstanceNms("PacketPlayOutMapChunk", pos.getNMSChunk(), true, 20);
-					for(Player p : Bukkit.getOnlinePlayers())
+					Object a=Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutMapChunk"),Ref.nms("Chunk"), int.class), pos.getNMSChunk(), 65535);
+					if(a==null)a=Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutMapChunk"),Ref.nms("Chunk"), boolean.class, int.class), pos.getNMSChunk(), true, 20);
+					for(Player p : TheAPI.getOnlinePlayers())
 						Ref.sendPacket(p, a);
 				}
-				ca.delete();
+				ca.getFile().delete();
 				if(onFinish!=null)
 					onFinish.run();
 			}

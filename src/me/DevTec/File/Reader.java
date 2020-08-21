@@ -15,10 +15,18 @@ public class Reader {
 	}
 	
 	public String read() {
+		return read(true);
+	}
+	
+	public String read(boolean split) {
 		StringBuffer buffer = new StringBuffer();
+	    reset();
 		try {
 	    while (hasLine()) {
-	    	buffer.append(readLine()+System.lineSeparator());
+	    	if(split)
+		    	buffer.append(readLine()+System.lineSeparator());
+	    	else
+	    	buffer.append(readLine());
 	    }
 	    reset();
 		} catch (Exception e) {
