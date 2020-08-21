@@ -9,7 +9,7 @@ public class TimeConventorAPI {
 	 * @param s
 	 * @return long
 	 */
-	public long getTimeFromString(String s) {
+	public static long getTimeFromString(String s) {
 		return StringUtils.timeFromString(s);
 	}
 
@@ -18,7 +18,7 @@ public class TimeConventorAPI {
 	 * @param l
 	 * @return String
 	 */
-	public String setTimeToString(long l) {
+	public static String setTimeToString(long l) {
 		return StringUtils.timeToString(l);
 	}
 }

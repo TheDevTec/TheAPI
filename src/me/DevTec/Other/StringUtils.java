@@ -326,7 +326,7 @@ public class StringUtils {
 	 * @return String
 	 */
 	public static String locationAsString(Location loc) { //New shorter name of method
-		return getTheCoder().locationToString(loc);
+		return TheCoder.locationToString(loc);
 	}
 
 	/**
@@ -342,7 +342,7 @@ public class StringUtils {
 	 * @return Location
 	 */
 	public static Location locationFromString(String savedLocation) { //New shorter name of method
-		return getTheCoder().locationFromString(savedLocation);
+		return TheCoder.locationFromString(savedLocation);
 	}
 
 	/**

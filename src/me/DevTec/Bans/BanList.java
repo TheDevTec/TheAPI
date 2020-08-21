@@ -8,55 +8,55 @@ import me.DevTec.Other.LoaderClass;
 
 public class BanList {
 
-	public List<String> getTempIPBanned() {
+	public static List<String> getTempIPBanned() {
 		return Lists.newArrayList(LoaderClass.data.getKeys("tempbanip"));
 	}
 
-	public List<String> getTempBanned() {
+	public static List<String> getTempBanned() {
 		return Lists.newArrayList(LoaderClass.data.getKeys("tempban"));
 	}
 
-	public List<String> getIPBanned() {
+	public static List<String> getIPBanned() {
 		return Lists.newArrayList(LoaderClass.data.getKeys("banip"));
 	}
 
-	public List<String> getBanned() {
+	public static List<String> getBanned() {
 		return Lists.newArrayList(LoaderClass.data.getKeys("ban"));
 	}
 	
-	public List<String> getTempIPMuted() {
+	public static List<String> getTempIPMuted() {
 		return Lists.newArrayList(LoaderClass.data.getKeys("tempmuteip"));
 	}
 	
-	public List<String> getTempMuted() {
+	public static List<String> getTempMuted() {
 		return Lists.newArrayList(LoaderClass.data.getKeys("tempmute"));
 	}
 	
-	public List<String> getIPMuted() {
+	public static List<String> getIPMuted() {
 		return Lists.newArrayList(LoaderClass.data.getKeys("muteip"));
 	}
 	
-	public List<String> getMuted() {
+	public static List<String> getMuted() {
 		return Lists.newArrayList(LoaderClass.data.getKeys("mute"));
 	}
 
-	public List<String> getTempIPJailed() {
+	public static List<String> getTempIPJailed() {
 		return Lists.newArrayList(LoaderClass.data.getKeys("tempjailip"));
 	}
 
-	public List<String> getTempJailed() {
+	public static List<String> getTempJailed() {
 		return Lists.newArrayList(LoaderClass.data.getKeys("tempjail"));
 	}
 
-	public List<String> getIPJailed() {
+	public static List<String> getIPJailed() {
 		return Lists.newArrayList(LoaderClass.data.getKeys("jailip"));
 	}
 
-	public List<String> getJailed() {
+	public static List<String> getJailed() {
 		return Lists.newArrayList(LoaderClass.data.getKeys("jail"));
 	}
 
-	public PlayerBanList getBanList(String player) {
+	public static PlayerBanList getBanList(String player) {
 		return new PlayerBanList(player);
 	}
 

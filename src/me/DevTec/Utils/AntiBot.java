@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
-
+import me.DevTec.TheAPI;
+import me.DevTec.Bans.BanList;
 import me.DevTec.Bans.PlayerBanList;
 import me.DevTec.Bans.PunishmentAPI;
 import me.DevTec.Other.LoaderClass;
@@ -23,12 +23,11 @@ public class AntiBot {
 	}
 
 	public static boolean isDisallowed(String uuid) {
-		String p = Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
+		String p = TheAPI.getUser(uuid).getName();
 		PlayerBanList a = PunishmentAPI.getBanList(p);
 		return c.contains(uuid) || a.isBanned() || a.isTempBanned() || a.isIPBanned() || a.isTempIPBanned();
 	}
 
-	@SuppressWarnings("deprecation")
 	public static boolean containsDisallowed(String string) {
 		boolean f = false;
 		for (String s : c) {
@@ -38,8 +37,8 @@ public class AntiBot {
 			}
 		}
 		if (!f)
-			for (String s : PunishmentAPI.getBanList().getBanned()) {
-				if (string.contains(Bukkit.getOfflinePlayer(s).getUniqueId().toString())) {
+			for (String s : BanList.getBanned()) {
+				if (string.contains(TheAPI.getUser(s).getUUID().toString())) {
 					f = true;
 					break;
 				}

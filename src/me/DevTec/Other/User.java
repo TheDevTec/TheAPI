@@ -74,7 +74,7 @@ public class User {
 	public ItemStack getItemStack(String key) {
 		try {
 			String inSet = getString(key);
-			return (ItemStack) StringUtils.getTheCoder().getObjectFromString(inSet);
+			return (ItemStack) TheCoder.fromString(inSet);
 		} catch (Exception e) {
 			return (ItemStack) get(key);
 		}
@@ -86,7 +86,7 @@ public class User {
 		try {
 			List<String> inSet = (List<String>) getList(key);
 			for (String o : inSet) {
-				list.add((ItemStack) StringUtils.getTheCoder().getObjectFromString(o));
+				list.add((ItemStack) TheCoder.fromStringToList(o));
 			}
 		} catch (Exception e) {
 			list = (List<ItemStack>) getList(key);
@@ -100,14 +100,14 @@ public class User {
 
 	public void set(String key, Object o) {
 		if (o instanceof ItemStack) {
-			o = StringUtils.getTheCoder().toString(o);
+			o = TheCoder.toString(o);
 		}
 		if (o instanceof List && ((List<?>) o).get(0) instanceof ItemStack) {
 			@SuppressWarnings("unchecked")
 			List<ItemStack> list = (List<ItemStack>) o;
 			List<String> newList = new ArrayList<String>();
 			for (ItemStack os : list)
-				newList.add(StringUtils.getTheCoder().toString(os));
+				newList.add(TheCoder.toString(os));
 			o = newList;
 		}
 		a.set(key, o);

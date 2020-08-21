@@ -18,7 +18,7 @@ public class TheCoder {
 	 * @see see Create Location from String
 	 * @return Location
 	 */
-	public Location locationFromString(String savedLocation) {
+	public static Location locationFromString(String savedLocation) {
 		if (savedLocation == null)
 			return null;
 		try {
@@ -34,7 +34,7 @@ public class TheCoder {
 	 * @see see Convert Location to String
 	 * @return String
 	 */
-	public String locationToString(Location loc) {
+	public static String locationToString(Location loc) {
 		if (loc == null)
 			return null;
 		return (loc.getWorld().getName().replace("_", ":") + "," + loc.getX() + "," + loc.getY() + "," + loc.getBlockZ()
@@ -45,12 +45,11 @@ public class TheCoder {
 	 * @see see Convert Objects to String
 	 * @return String
 	 */
-	public String toString(Object... objects) {
+	public static String toString(Object... objects) {
 		String r = null;
 		try {
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-			dataOutput.writeInt(objects.length);
 			for (Object o : objects)
 				dataOutput.writeObject(o);
 			dataOutput.close();
@@ -64,7 +63,7 @@ public class TheCoder {
 	 * @see see Convert Object to String
 	 * @return String
 	 */
-	public String toString(Object object) {
+	public static String toString(Object object) {
 		String r = null;
 		try {
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -81,18 +80,26 @@ public class TheCoder {
 	 * @see see Convert Objects from String to List<T>
 	 * @return List<T>
 	 */
+	public static <T> List<T> getObjectsFromString(String savedObjects) {
+		return fromStringToList(savedObjects);
+	}
+
+	/**
+	 * @see see Convert Objects from String to List<T>
+	 * @return List<T>
+	 */
 	@SuppressWarnings("unchecked")
-	public <T> List<T> getObjectsFromString(String savedObjects) {
+	public static <T> List<T> fromStringToList(String savedObjects) {
 		List<T> r = new ArrayList<T>();
 		try {
 			ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(savedObjects));
 			BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-			int a = dataInput.readInt();
+			while (true) {
 			try {
-				for (int i = 0; i > a; ++i) {
 					r.add((T) dataInput.readObject());
-				}
 			} catch (Exception e) {
+				break;
+			}
 			}
 			dataInput.close();
 		} catch (Exception e) {
@@ -101,11 +108,19 @@ public class TheCoder {
 	}
 
 	/**
-	 * @see see Convert Objects from String to List<T>
-	 * @return List<T>
+	 * @see see Convert Object from String to T
+	 * @return T
+	 */
+	public static <T> T getObjectFromString(String savedObject) {
+		return fromString(savedObject);
+	}
+
+	/**
+	 * @see see Convert Object from String to T
+	 * @return T
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T getObjectFromString(String savedObject) {
+	public static <T> T fromString(String savedObject) {
 		T r = null;
 		try {
 			ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(savedObject));
@@ -117,7 +132,7 @@ public class TheCoder {
 		return r;
 	}
 	
-	public String toColor(int ints) {
+	public static String toColor(int ints) {
 		String s = ""+ints;
 		return s.replace("0", ChatColor.AQUA+"")
 				.replace("1", ChatColor.BLACK+"")
@@ -131,7 +146,7 @@ public class TheCoder {
 				.replace("9", ChatColor.DARK_RED+"");
 	}
 	
-	public String fromColor(String c) {
+	public static String fromColor(String c) {
 		return c.replace(ChatColor.AQUA+"","0")
 				.replace(ChatColor.BLACK+"","1")
 				.replace(ChatColor.BLUE+"","2")

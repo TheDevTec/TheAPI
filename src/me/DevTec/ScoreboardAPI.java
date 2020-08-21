@@ -178,7 +178,7 @@ public class ScoreboardAPI {
 			org.bukkit.scoreboard.Team team = sb.getTeam(line+"");
 			if(team==null) {
 				team=sb.registerNewTeam(line+"");
-				team.addEntry(new TheCoder().toColor(line));
+				team.addEntry(TheCoder.toColor(line));
 			}
 			try {
 				if(TheAPI.isNewVersion()) {
@@ -199,7 +199,7 @@ public class ScoreboardAPI {
 			}catch(Exception e) {
 				e.printStackTrace();
 			}
-			o.getScore(new TheCoder().toColor(line)).setScore(line);
+			o.getScore(TheCoder.toColor(line)).setScore(line);
 			LoaderClass.plugin.map.put(id,line, team);
 			}else {
 				String old = LoaderClass.plugin.map.containsThread(id, line) ? LoaderClass.plugin.map.get(id, line).toString() : null;
@@ -226,7 +226,7 @@ public class ScoreboardAPI {
 			org.bukkit.scoreboard.Team team = sb.getTeam(line+"");
 			if(team==null)return;
 			team.unregister();
-			sb.resetScores(new TheCoder().toColor(line));
+			sb.resetScores(TheCoder.toColor(line));
 			}else {
 				String old = LoaderClass.plugin.map.containsThread(id, line) ? LoaderClass.plugin.map.get(id, line).toString() : null;
 				if(old==null)return;
