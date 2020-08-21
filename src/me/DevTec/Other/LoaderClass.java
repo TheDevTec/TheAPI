@@ -266,9 +266,9 @@ public class LoaderClass extends JavaPlugin {
 				if(placeholder.equalsIgnoreCase("player_air"))
 					return ""+player.getRemainingAir();
 				if(placeholder.equalsIgnoreCase("player_statistic_play_one_tick"))
-					return ""+player.getStatistic(Statistic.PLAY_ONE_TICK);
+					return ""+player.getStatistic(Statistic.valueOf("PLAY_ONE_TICK"));
 				if(placeholder.equalsIgnoreCase("player_statistic_play_one_minue"))
-					return ""+player.getStatistic(Statistic.PLAY_ONE_MINUTE);
+					return ""+player.getStatistic(Statistic.valueOf("PLAY_ONE_MINUTE"));
 				if(placeholder.equalsIgnoreCase("player_statistic_kills"))
 					return ""+player.getStatistic(Statistic.PLAYER_KILLS);
 				if(placeholder.equalsIgnoreCase("player_statistic_deaths"))
@@ -278,7 +278,7 @@ public class LoaderClass extends JavaPlugin {
 				if(placeholder.equalsIgnoreCase("player_statistic_entity_kill"))
 					return ""+player.getStatistic(Statistic.KILL_ENTITY);
 				if(placeholder.equalsIgnoreCase("player_statistic_sneak_time"))
-					return ""+player.getStatistic(Statistic.SNEAK_TIME);
+					return ""+player.getStatistic(Statistic.valueOf("SNEAK_TIME"));
 			}
 				if(placeholder.equalsIgnoreCase("server_time"))
 					return ""+new SimpleDateFormat("HH:mm:ss").format(new Date());
