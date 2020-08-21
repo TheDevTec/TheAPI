@@ -1019,8 +1019,10 @@ public class BlocksAPI {
 	}
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with, List<TheMaterial> ignore) {
-		if(!AsyncCatcher.enabled)
-			AsyncCatcher.enabled=false;
+		try {
+			if(!AsyncCatcher.enabled)
+				AsyncCatcher.enabled=false;
+			}catch(Exception | NoSuchFieldError | NoSuchMethodError notEx) {}
 		BlockGetter s = get(a, b);
 		ConfigAPI caw = null;
 		for(int iaa = 0; iaa > -1; ++iaa) {
@@ -1063,8 +1065,10 @@ public class BlocksAPI {
 	}
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> with, List<TheMaterial> ignore) {
+		try {
 		if(!AsyncCatcher.enabled)
 			AsyncCatcher.enabled=false;
+		}catch(Exception | NoSuchFieldError | NoSuchMethodError notEx) {}
 		BlockGetter s = get(a, b);
 		ConfigAPI caw = null;
 		for(int iaa = 0; iaa > -1; ++iaa) {
@@ -1119,8 +1123,10 @@ public class BlocksAPI {
 	}
 	
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block, PercentageList<TheMaterial> with) {
-		if(!AsyncCatcher.enabled)
-			AsyncCatcher.enabled=false;
+		try {
+			if(!AsyncCatcher.enabled)
+				AsyncCatcher.enabled=false;
+			}catch(Exception | NoSuchFieldError | NoSuchMethodError notEx) {}
 		BlockGetter s = get(a, b);
 		ConfigAPI caw = null;
 		for(int iaa = 0; iaa > -1; ++iaa) {
@@ -1163,8 +1169,10 @@ public class BlocksAPI {
 	}
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block, List<TheMaterial> with) {
-		if(!AsyncCatcher.enabled)
-			AsyncCatcher.enabled=false;
+		try {
+			if(!AsyncCatcher.enabled)
+				AsyncCatcher.enabled=false;
+			}catch(Exception | NoSuchFieldError | NoSuchMethodError notEx) {}
 		BlockGetter s = get(a, b);
 		ConfigAPI caw = null;
 		for(int iaa = 0; iaa > -1; ++iaa) {
@@ -1203,8 +1211,10 @@ public class BlocksAPI {
 	}
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> block, List<TheMaterial> with) {
-		if(!AsyncCatcher.enabled)
-			AsyncCatcher.enabled=false;
+		try {
+			if(!AsyncCatcher.enabled)
+				AsyncCatcher.enabled=false;
+			}catch(Exception | NoSuchFieldError | NoSuchMethodError notEx) {}
 		BlockGetter s = get(a, b);
 		ConfigAPI caw = null;
 		for(int iaa = 0; iaa > -1; ++iaa) {
@@ -1244,8 +1254,10 @@ public class BlocksAPI {
 	}
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> block, PercentageList<TheMaterial> with) {
-		if(!AsyncCatcher.enabled)
-			AsyncCatcher.enabled=false;
+		try {
+			if(!AsyncCatcher.enabled)
+				AsyncCatcher.enabled=false;
+			}catch(Exception | NoSuchFieldError | NoSuchMethodError notEx) {}
 		BlockGetter s = get(a, b);
 		ConfigAPI caw = null;
 		for(int iaa = 0; iaa > -1; ++iaa) {
