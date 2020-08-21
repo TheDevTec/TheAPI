@@ -660,8 +660,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					TheAPI.getUser(p).config().reload();
 				LoaderClass.data.reload();
 				LoaderClass.config.reload();
-				LoaderClass.gameapi.reload();
-				LoaderClass.unused.reload();
 				Tasks.unload();
 				Tasks.load();
 				TheAPI.msg("&eConfigs reloaded.", s);

@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="C:/EclipseUtils/TheVault.jar"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/Spigot.jar"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/glowstone.jar"/>
+	<classpathentry kind="lib" path="C:/EclipseUtils/spigot-1.7.10.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -41,7 +41,6 @@ import org.bukkit.potion.PotionEffectType;
 
 import com.google.common.collect.Lists;
 
-import io.netty.channel.Channel;
 import me.DevTec.ConfigAPI;
 import me.DevTec.SignAPI;
 import me.DevTec.SignAPI.SignAction;
@@ -448,6 +447,7 @@ public class Events implements Listener {
 	
 	private List<String> inJoin = Lists.newArrayList();
 	
+	@SuppressWarnings("unchecked")
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerLogin(PlayerLoginEvent e) {
 		if(TheAPI.isNewerThan(7)) {
@@ -455,18 +455,19 @@ public class Events implements Listener {
 			inJoin.add(e.getPlayer().getName());
 			return;
 		}
-		Channel channel = LoaderClass.plugin.handler.getChannel(e.getPlayer());
+		Object channel = LoaderClass.plugin.handler.getChannel(e.getPlayer());
 		if (!LoaderClass.plugin.handler.hasInjected(channel))
 			LoaderClass.plugin.handler.injectPlayer(e.getPlayer());
 	}}
 	
+	@SuppressWarnings("unchecked")
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onJoin(PlayerJoinEvent e) {
 		Player s = e.getPlayer();
 		if(TheAPI.isNewerThan(7)) {
 		if(inJoin.contains(s.getName())) {
 			inJoin.remove(s.getName());
-			Channel channel = LoaderClass.plugin.handler.getChannel(e.getPlayer());
+			Object channel = LoaderClass.plugin.handler.getChannel(e.getPlayer());
 			if (!LoaderClass.plugin.handler.hasInjected(channel))
 				LoaderClass.plugin.handler.injectPlayer(e.getPlayer());
 		}}

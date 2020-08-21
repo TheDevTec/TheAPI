@@ -31,6 +31,9 @@ import me.DevTec.BossBar.BossBar;
 import me.DevTec.GUI.GUICreatorAPI;
 import me.DevTec.NMS.NMSAPI;
 import me.DevTec.NMS.Reflections;
+import me.DevTec.NMS.PacketListeners.PacketHandler;
+import me.DevTec.NMS.PacketListeners.PacketHandler_New;
+import me.DevTec.NMS.PacketListeners.PacketHandler_Old;
 import me.DevTec.Placeholders.ThePlaceholder;
 import me.DevTec.Placeholders.ThePlaceholderAPI;
 import me.DevTec.Scheduler.Scheduler;
@@ -56,13 +59,10 @@ public class LoaderClass extends JavaPlugin {
 	public final HashMap<String, GUICreatorAPI> gui = Maps.newHashMap();
 	//BossBars
 	public final List<BossBar> bars = Lists.newArrayList();
-	//GameAPI
-	public final HashMap<String, Integer> GameAPI_Arenas = Maps.newHashMap();
-	public final HashMap<String, Runnable> win_rewards = Maps.newHashMap();
 	//TheAPI
 	public static LoaderClass plugin;
-	public static ConfigAPI unused= new ConfigAPI("TheAPI", "UnusedData"),
-			config= new ConfigAPI("TheAPI", "Config"),gameapi= new ConfigAPI("TheAPI", "GameAPI")
+	public static ConfigAPI unused= new ConfigAPI("TheAPI", "Cache"),
+			config= new ConfigAPI("TheAPI", "Config")
 			,data= new ConfigAPI("TheAPI", "Data");
 	protected static boolean online = true;
 	
@@ -78,7 +78,6 @@ public class LoaderClass extends JavaPlugin {
 	@Override
 	public void onLoad() {
 		plugin = this;
-		new TheAPI();
 		createConfig();
 		new Thread(new Runnable() {
 			public void run() {
@@ -107,6 +106,7 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onEnable() {
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
@@ -137,19 +137,18 @@ public class LoaderClass extends JavaPlugin {
 				TheAPI.msg("&bTheAPI&7: &aTheAPI using " + getTheAPIsPlugins().size() + " plugin" + end,TheAPI.getConsole());
 			}
 		}.laterAsync(200);
-		if(TheAPI.isNewerThan(7)) {
-		handler = new me.DevTec.NMS.PacketListeners.PacketHandler();
+		if(TheAPI.isNewerThan(7))
+		handler = new PacketHandler_New();
+		else
+			handler = new PacketHandler_Old();
 		for(Player s : TheAPI.getOnlinePlayers()) {
 			if (!handler.hasInjected(handler.getChannel(s)))
 				handler.injectPlayer(s);
-		}}
-		//Config c = new Config(new File("plugins/TheAPI/test.yml"));
-		//c.set("data", "value");
-		//c.save();
+		}
 		}
 
-	
-	public me.DevTec.NMS.PacketListeners.PacketHandler handler;
+	@SuppressWarnings("rawtypes")
+	public PacketHandler handler;
 	
 	@Override
 	public void onDisable() {
@@ -167,7 +166,6 @@ public class LoaderClass extends JavaPlugin {
 		unused.delete();
 		data.reload();
 		config.reload();
-		gameapi.reload();
 		ThePlaceholderAPI.unregister(main);
 	}
 
@@ -224,8 +222,6 @@ public class LoaderClass extends JavaPlugin {
 			onlineText=null;
 			motd=Bukkit.getMotd();
 		}
-		gameapi.setCustomEnd("dat");
-		gameapi.create();
 		unused.setCustomEnd("dat");
 		unused.create();
 	}

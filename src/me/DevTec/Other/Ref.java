@@ -8,8 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import io.netty.channel.Channel;
-
 public class Ref {
 	public static void set(Object main, Field field, Object o){
 		try {
@@ -89,8 +87,8 @@ public class Ref {
 		return get(playercon, "networkManager");
 	}
 	
-	public static Channel channel(Object network) {
-		return (Channel)get(network, "channel");
+	public static Object channel(Object network) {
+		return get(network, "channel");
 	}
 	
 	public static Object world(World a) {
