@@ -50,16 +50,19 @@ public class Ref {
 		return newInstance(constructor(nms("BlockPosition"), double.class, double.class, double.class), x,y,z);
 	}
 	
-	private static Method oldichatser, ichatcon;
+	private static Method ichatcon;
 	static {
+		try {
+		if(nms("IChatBaseComponent")!=null)
 		ichatcon = method(getDeclaredClasses(nms("IChatBaseComponent"))[0],"a", String.class);
 		if(ichatcon==null)
-			oldichatser = method(nms("ChatSerializer"), "a", String.class);
+			ichatcon = method(nms("ChatSerializer"), "a", String.class);
+		}catch(Exception err) {
+			ichatcon = method(nms("ChatSerializer"), "a", String.class);
+		}
 	}
 	
 	public static Object IChatBaseComponent(String text) {
-		if (oldichatser != null)
-			return invoke(null, oldichatser, "{\"text\":\"" + text + "\"}");
 		return invoke(null, ichatcon, "{\"text\":\"" + text + "\"}");
 	}
 	
@@ -134,7 +137,7 @@ public class Ref {
 		try {
 			return main.getClasses();
 		}catch(Exception es) {
-			return null;
+			return new Class<?>[0];
 		}
 	}
 	
@@ -142,7 +145,7 @@ public class Ref {
 		try {
 			return main.getDeclaredClasses();
 		}catch(Exception es) {
-			return null;
+			return new Class<?>[0];
 		}
 	}
 	
@@ -158,7 +161,7 @@ public class Ref {
 		try {
 			return main.getDeclaredFields();
 		}catch(Exception es) {
-			return null;
+			return new Field[0];
 		}
 	}
 	
@@ -166,7 +169,7 @@ public class Ref {
 		try {
 			return main.getMethods();
 		}catch(Exception es) {
-			return null;
+			return new Method[0];
 		}
 	}
 	
@@ -196,12 +199,12 @@ public class Ref {
 	
 	public static Method method(Class<?> main, String name, Class<?>... bricks){
 		try {
-			Method f=main.getMethod(name, bricks);
+			Method f=bricks.length==1?main.getMethod(name):main.getMethod(name, bricks);
 			f.setAccessible(true);
 			return f;
 		}catch(Exception es) {
 			try {
-				Method f=main.getDeclaredMethod(name, bricks);
+				Method f=bricks.length==1?main.getDeclaredMethod(name):main.getDeclaredMethod(name, bricks);
 				f.setAccessible(true);
 				return f;
 			}catch(Exception e) {

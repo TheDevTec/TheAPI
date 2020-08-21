@@ -52,6 +52,10 @@ public class TheAPI {
 	private static final HashMap<String, BossBar> bars = Maps.newHashMap();
 	private static final HashMap<String, Integer> task = Maps.newHashMap();
 	private static final HashMap<UUID, User> cache = Maps.newHashMap();
+	private static Method m;
+	static {
+		m = Ref.method(Bukkit.class, "getOnlinePlayers");
+	}
 
 	public static void clearCache() {
 		cache.clear();
@@ -132,7 +136,7 @@ public class TheAPI {
 	}
 	
 	public static boolean isOlderThan(int version) {
-		return StringUtils.getInt(getServerVersion().split("_")[1]) < version;
+		return StringUtils.getInt(getServerVersion().split("_")[1]) <= version;
 	}
 	
 	public static boolean isNewerThan(int version) {
@@ -284,8 +288,6 @@ public class TheAPI {
 	public static Player getRandomPlayer() {
 		return (Player) getRandomFromList(getOnlinePlayers());
 	}
-	
-	private static Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
 
 	/**
 	 * @see see Get random player from List<Player>

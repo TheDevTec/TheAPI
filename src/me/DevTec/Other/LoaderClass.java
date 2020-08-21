@@ -78,6 +78,7 @@ public class LoaderClass extends JavaPlugin {
 	@Override
 	public void onLoad() {
 		plugin = this;
+		new TheAPI();
 		createConfig();
 		new Thread(new Runnable() {
 			public void run() {
@@ -136,12 +137,12 @@ public class LoaderClass extends JavaPlugin {
 				TheAPI.msg("&bTheAPI&7: &aTheAPI using " + getTheAPIsPlugins().size() + " plugin" + end,TheAPI.getConsole());
 			}
 		}.laterAsync(200);
-		if(TheAPI.isNewerThan(7))
+		if(TheAPI.isNewerThan(7)) {
 		handler = new me.DevTec.NMS.PacketListeners.PacketHandler();
 		for(Player s : TheAPI.getOnlinePlayers()) {
 			if (!handler.hasInjected(handler.getChannel(s)))
 				handler.injectPlayer(s);
-		}
+		}}
 		//Config c = new Config(new File("plugins/TheAPI/test.yml"));
 		//c.set("data", "value");
 		//c.save();
@@ -152,6 +153,7 @@ public class LoaderClass extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
+		if(TheAPI.isNewerThan(7))
 		handler.close();
 		online=false;
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
