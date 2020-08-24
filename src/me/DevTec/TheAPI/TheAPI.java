@@ -63,7 +63,7 @@ public class TheAPI {
 	private static int ver;
 	static {
 		try {
-		ver=StringUtils.getInt(getServerVersion().split("_")[1]);
+			ver=StringUtils.getInt(getServerVersion().split("_")[1]);
 		}catch(Exception e) {
 			ver=12; //glowstone
 		}
@@ -148,7 +148,6 @@ public class TheAPI {
 	}
 
 	public static boolean isOlderThan(int version) {
-		System.out.print(ver+":"+version);
 		return ver < version;
 	}
 
