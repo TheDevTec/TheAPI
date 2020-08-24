@@ -20,6 +20,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Scheduler.Tasker;
+import me.DevTec.TheAPI.Utils.NMS.NMSPlayer;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class PacketHandler_New implements PacketHandler<Channel> {
@@ -157,9 +158,9 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	}
 
 	public Channel getChannel(Player player) {
-		Channel channel = channelLookup.get(player.getName());
+		Channel channel = channelLookup.getOrDefault(player.getName(), null);
 		if (channel == null) {
-			channelLookup.put(player.getName(), channel = (Channel) Ref.channel(Ref.network(Ref.playerCon(player))));
+			channelLookup.put(player.getName(), channel = (Channel)new NMSPlayer(player).getPlayerConnection().getNetworkManager().getChannel());
 		}
 		return channel;
 	}

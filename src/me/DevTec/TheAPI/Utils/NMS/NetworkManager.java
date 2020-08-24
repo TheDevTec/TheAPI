@@ -3,6 +3,7 @@ package me.DevTec.TheAPI.Utils.NMS;
 import java.net.SocketAddress;
 import java.util.UUID;
 
+import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.Reflections.Reflections;
 
 public class NetworkManager {
@@ -25,12 +26,12 @@ public class NetworkManager {
 	}
 
 	public Object getChannel() {
-		return Reflections.get(Reflections.getField(Reflections.getNMSClass("NetworkManager"), "channel"),a);
+		return Reflections.get(Reflections.getField(Reflections.getNMSClass("NetworkManager"), TheAPI.isOlderThan(8)?"m":"channel"),a);
 	}
 
 	// YOUR RISK
 	public void setChannel(Object channel) {
-		Reflections.setField(a, Reflections.getField(Reflections.getNMSClass("NetworkManager"), "channel"), channel);
+		Reflections.setField(a, Reflections.getField(Reflections.getNMSClass("NetworkManager"), TheAPI.isOlderThan(8)?"m":"channel"), channel);
 	}
 
 	public SocketAddress getSocketAddress() {
