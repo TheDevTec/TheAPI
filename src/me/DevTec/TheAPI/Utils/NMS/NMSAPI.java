@@ -126,6 +126,7 @@ public class NMSAPI {
 			old=2;
 			pOutChat = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutChat"),ichat, byte.class);
 		}
+		if(TheAPI.isNewerThan(7))
 		pTab = Ref.findConstructor(Reflections.getNMSClass("PacketPlayOutPlayerListHeaderFooter"));
 		WorldHandle = Reflections.getMethod(bWorld,"getHandle");
 		PlayerHandle = Reflections.getMethod(bPlayer,"getHandle");
