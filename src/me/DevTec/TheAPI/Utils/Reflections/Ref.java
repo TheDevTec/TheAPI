@@ -287,6 +287,14 @@ public class Ref {
 		}
 	}
 
+	public static Object invokeNulled(Method method, Object... bricks){
+		try {
+			return method.invoke(null, bricks);
+		}catch(Exception es) {
+			return null;
+		}
+	}
+
 	public static Method findMethod(Object c, String name, Object... bricks) {
 		return findMethod(c.getClass(), name, bricks);
 	}

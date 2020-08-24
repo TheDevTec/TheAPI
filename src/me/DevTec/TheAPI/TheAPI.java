@@ -59,8 +59,16 @@ public class TheAPI {
 	private static final HashMap<String, BossBar> bars = Maps.newHashMap();
 	private static final HashMap<String, Integer> task = Maps.newHashMap();
 	private static final HashMap<UUID, User> cache = Maps.newHashMap();
-	private static Method m= Ref.method(Bukkit.class, "getOnlinePlayers");
-
+	private static Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
+	private static int ver;
+	static {
+		try {
+		ver=StringUtils.getInt(getServerVersion().split("_")[1]);
+		}catch(Exception e) {
+			ver=12; //glowstone
+		}
+	}
+	
 	public static void clearCache() {
 		cache.clear();
 	}
@@ -71,15 +79,17 @@ public class TheAPI {
 
 	public static double getProcessCpuLoad() {
 		try {
-	    MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-	    ObjectName name = ObjectName.getInstance("java.lang:type=OperatingSystem");
-	    AttributeList list = mbs.getAttributes(name, new String[]{ "ProcessCpuLoad" });
-	    if (list.isEmpty())return 0.0;
-	    Attribute att = (Attribute)list.get(0);
-	    Double value  = (Double)att.getValue();
-	    if (value == -1.0)return 0;
-	    return ((value * 1000.0) / 10.0);
-		}catch(Exception e) {
+			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+			ObjectName name = ObjectName.getInstance("java.lang:type=OperatingSystem");
+			AttributeList list = mbs.getAttributes(name, new String[] { "ProcessCpuLoad" });
+			if (list.isEmpty())
+				return 0.0;
+			Attribute att = (Attribute) list.get(0);
+			Double value = (Double) att.getValue();
+			if (value == -1.0)
+				return 0;
+			return ((value * 1000.0) / 10.0);
+		} catch (Exception e) {
 			return 0;
 		}
 	}
@@ -103,11 +113,10 @@ public class TheAPI {
 
 	/**
 	 * @see see This is HashMap with easier manupulation
-	 * @return MultiMap<T>
+	 * @return MultiMap<K, T, V>
 	 */
-	@SuppressWarnings("rawtypes")
-	public static MultiMap getMultiMap() {
-		return new MultiMap();
+	public static <K, T, V> MultiMap<K, T, V> getMultiMap() {
+		return new MultiMap<K, T, V>();
 	}
 
 	/**
@@ -135,14 +144,14 @@ public class TheAPI {
 	 * @return boolean
 	 */
 	public static boolean isNewVersion() {
-		return !getServerVersion().equalsIgnoreCase("glowstone")
-				&& StringUtils.getInt(getServerVersion().split("_")[1]) > 12;
+		return isNewerThan(12);
 	}
-	
+
 	public static boolean isOlderThan(int version) {
-		return StringUtils.getInt(getServerVersion().split("_")[1]) <= version;
+		System.out.print(ver+":"+version);
+		return ver < version;
 	}
-	
+
 	public static boolean isNewerThan(int version) {
 		return !isOlderThan(version);
 	}
@@ -265,7 +274,7 @@ public class TheAPI {
 	 * @return Player
 	 */
 	public static Player getPlayer(int i) {
-		return getOnlinePlayers().size()-1 <= i ? null : getOnlinePlayers().get(i);
+		return getOnlinePlayers().size() - 1 <= i ? null : getOnlinePlayers().get(i);
 	}
 
 	/**
@@ -282,7 +291,7 @@ public class TheAPI {
 	 */
 	public static Player getPlayerOrNull(String name) {
 		Player found = Bukkit.getPlayer(name);
-		return found!=null && found.getName().equals(name) ? found : null;
+		return found != null && found.getName().equals(name) ? found : null;
 	}
 
 	/**
@@ -300,12 +309,9 @@ public class TheAPI {
 	@SuppressWarnings("unchecked")
 	public static List<Player> getOnlinePlayers() {
 		List<Player> a = Lists.newArrayList();
-		try {
-			Object o = m.invoke(null);
-			for (Player p : o instanceof Collection ? (Collection<Player>) o : Arrays.asList((Player[]) o))
-				a.add(p);
-		} catch (Exception ex) {
-		}
+		Object o = Ref.invokeNulled(m);
+		for (Player p : o instanceof Collection ? (Collection<Player>) o : Arrays.asList((Player[]) o))
+			a.add(p);
 		return a;
 	}
 
@@ -353,20 +359,22 @@ public class TheAPI {
 			Error.err("sending bossbar", "Player is null");
 			return null;
 		}
-		if(task.containsKey(p.getName())) {
+		if (task.containsKey(p.getName())) {
 			Tasker.cancelTask(task.get(p.getName()));
 			task.remove(p.getName());
 		}
-		BossBar a = bars.containsKey(p.getName())?bars.get(p.getName()) : new BossBar(p, TheAPI.colorize(text), progress, BarColor.GREEN, BarStyle.PROGRESS);
+		BossBar a = bars.containsKey(p.getName()) ? bars.get(p.getName())
+				: new BossBar(p, TheAPI.colorize(text), progress, BarColor.GREEN, BarStyle.PROGRESS);
 		if (progress < 0)
 			progress = 0;
 		if (progress > 1)
 			progress = 1;
 		a.setProgress(progress);
 		a.setTitle(colorize(text));
-		if(a.isHidden())a.show();
-		if(!bars.containsKey(p.getName()))
-		bars.put(p.getName(), a);
+		if (a.isHidden())
+			a.show();
+		if (!bars.containsKey(p.getName()))
+			bars.put(p.getName(), a);
 		return a;
 	}
 
@@ -400,11 +408,12 @@ public class TheAPI {
 			Error.err("removing bossbars", "Player is null");
 			return;
 		}
-		if(task.containsKey(p.getName())) {
-		Tasker.cancelTask(task.get(p.getName()));
-		task.remove(p.getName());
+		if (task.containsKey(p.getName())) {
+			Tasker.cancelTask(task.get(p.getName()));
+			task.remove(p.getName());
 		}
-		if(bars.containsKey(p.getName()))bars.get(p.getName()).remove();
+		if (bars.containsKey(p.getName()))
+			bars.get(p.getName()).remove();
 	}
 
 	/**
@@ -439,7 +448,7 @@ public class TheAPI {
 	 * @param text
 	 */
 	public static void sendActionBar(Player p, String text) {
-		sendActionBar(p,text,10,20,10);
+		sendActionBar(p, text, 10, 20, 10);
 	}
 
 	/**
@@ -461,7 +470,8 @@ public class TheAPI {
 			}
 		}
 		Object packet = NMSAPI.getPacketPlayOutTitle(TitleAction.ACTIONBAR, colorize(text), fadeIn, stay, fadeOut);
-		if(packet==null)packet=NMSAPI.getPacketPlayOutChat(ChatType.CHAT, colorize(text));
+		if (packet == null)
+			packet = NMSAPI.getPacketPlayOutChat(ChatType.CHAT, colorize(text));
 		NMSAPI.sendPacket(p, packet);
 	}
 
@@ -574,8 +584,10 @@ public class TheAPI {
 			Error.err("sending Title", "Player is null");
 			return;
 		}
-		NMSAPI.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.TITLE, Ref.IChatBaseComponent(TheAPI.colorize(firstLine))));
-		NMSAPI.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.SUBTITLE, Ref.IChatBaseComponent(TheAPI.colorize(nextLine))));
+		NMSAPI.sendPacket(p,
+				NMSAPI.getPacketPlayOutTitle(TitleAction.TITLE, Ref.IChatBaseComponent(TheAPI.colorize(firstLine))));
+		NMSAPI.sendPacket(p,
+				NMSAPI.getPacketPlayOutTitle(TitleAction.SUBTITLE, Ref.IChatBaseComponent(TheAPI.colorize(nextLine))));
 	}
 
 	/**
@@ -666,7 +678,7 @@ public class TheAPI {
 	 * @param neww Motd text
 	 */
 	public static void setMotd(String neww) {
-		LoaderClass.plugin.motd=neww;
+		LoaderClass.plugin.motd = neww;
 	}
 
 	/**
@@ -682,7 +694,7 @@ public class TheAPI {
 	 * @param neww List<String>
 	 */
 	public static void setServerListPlayers(List<String> neww) {
-		LoaderClass.plugin.onlineText=neww;
+		LoaderClass.plugin.onlineText = neww;
 	}
 
 	/**
@@ -804,14 +816,14 @@ public class TheAPI {
 				if (perm != null)
 					getUser(p).setAndSave("vanish", perm);
 				List<String> v = LoaderClass.data.getConfig().getStringList("vanished");
-				if(!v.contains(p.getName()))
-				v.add(p.getName());
+				if (!v.contains(p.getName()))
+					v.add(p.getName());
 				LoaderClass.data.getConfig().set("vanished", v);
 			} else {
 				getUser(p).setAndSave("vanish", null);
 				List<String> v = LoaderClass.data.getConfig().getStringList("vanished");
-				if(v.contains(p.getName()))
-				v.remove(p.getName());
+				if (v.contains(p.getName()))
+					v.remove(p.getName());
 				LoaderClass.data.getConfig().set("vanished", v);
 			}
 			LoaderClass.data.save();
@@ -885,8 +897,9 @@ public class TheAPI {
 
 	/**
 	 * @see see Send player scoreboard (Fuctions: Per player scoreboard, Packets)
-	 * @param p Player
-	 * @param usePackets If this is set to true, scoreboard will use packets, not bukkit methods
+	 * @param p          Player
+	 * @param usePackets If this is set to true, scoreboard will use packets, not
+	 *                   bukkit methods
 	 * @return ScoreboardAPI
 	 */
 	public static ScoreboardAPI getScoreboardAPI(Player p, boolean usePackets) {
@@ -894,25 +907,30 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send player scoreboard (Fuctions: Per player scoreboard, Teams -> Non-Flashing)
-	 * @param p Player
-	 * @param usePackets If this is set to true, scoreboard will use packets, not bukkit methods
-	 * @param useTeams If this is set to true & usePackets is set to false, scoreboard will use teams (Bukkit methods)
-	 * Or if useTeams & usePackets are set to false, scoreboard will use OfflinePlayers (Bukkit methods, not teams)
+	 * @see see Send player scoreboard (Fuctions: Per player scoreboard, Teams ->
+	 *      Non-Flashing)
+	 * @param p          Player
+	 * @param usePackets If this is set to true, scoreboard will use packets, not
+	 *                   bukkit methods
+	 * @param useTeams   If this is set to true & usePackets is set to false,
+	 *                   scoreboard will use teams (Bukkit methods) Or if useTeams &
+	 *                   usePackets are set to false, scoreboard will use
+	 *                   OfflinePlayers (Bukkit methods, not teams)
 	 * @return ScoreboardAPI
 	 */
 	public static ScoreboardAPI getScoreboardAPI(Player p, boolean usePackets, boolean useTeams) {
-		return new ScoreboardAPI(p,usePackets,useTeams);
+		return new ScoreboardAPI(p, usePackets, useTeams);
 	}
 
 	/**
-	 * @see see Send player scoreboard (Fuctions: Per player scoreboard, Teams -> Non-Flashing)
-	 * @param p Player
+	 * @see see Send player scoreboard (Fuctions: Per player scoreboard, Teams ->
+	 *      Non-Flashing)
+	 * @param p    Player
 	 * @param type ScoreboardType
 	 * @return ScoreboardAPI
 	 */
 	public static ScoreboardAPI getScoreboardAPI(Player p, ScoreboardType type) {
-		return new ScoreboardAPI(p,type);
+		return new ScoreboardAPI(p, type);
 	}
 
 	/**
@@ -922,7 +940,7 @@ public class TheAPI {
 	 * @return ScoreboardAPI
 	 */
 	public static ScoreboardAPI getScoreboardAPI(Player p) {
-		return new ScoreboardAPI(p,false,false);
+		return new ScoreboardAPI(p, false, false);
 	}
 
 	/**
@@ -960,8 +978,7 @@ public class TheAPI {
 	 */
 	public static double getServerTPS(TPSType type) {
 		try {
-			double tps = NMSAPI.getServerTPS()[type == TPSType.ONE_MINUTE ? 0
-					: type == TPSType.FIVE_MINUTES ? 1 : 2];
+			double tps = NMSAPI.getServerTPS()[type == TPSType.ONE_MINUTE ? 0 : type == TPSType.FIVE_MINUTES ? 1 : 2];
 			if (tps > 20)
 				tps = 20;
 			return StringUtils.getDouble(String.format("%2.02f", tps));
@@ -1060,7 +1077,8 @@ public class TheAPI {
 	 */
 	@SuppressWarnings("deprecation")
 	public static User getUser(String nameOrUUID) {
-		if(nameOrUUID==null)return null;
+		if (nameOrUUID == null)
+			return null;
 		UUID s = null;
 		try {
 			s = UUID.fromString(nameOrUUID);
@@ -1076,7 +1094,8 @@ public class TheAPI {
 	 * @return User
 	 */
 	public static User getUser(Player player) {
-		if(player==null)return null;
+		if (player == null)
+			return null;
 		return getUser(player.getUniqueId());
 	}
 
@@ -1086,10 +1105,11 @@ public class TheAPI {
 	 * @return User
 	 */
 	public static User getUser(UUID uuid) {
-		if(uuid==null)return null;
+		if (uuid == null)
+			return null;
 		User c = cache.containsKey(uuid) ? cache.get(uuid) : null;
-		if(c==null) {
-			c=new User(uuid);
+		if (c == null) {
+			c = new User(uuid);
 			cache.put(uuid, c);
 		}
 		return c;
