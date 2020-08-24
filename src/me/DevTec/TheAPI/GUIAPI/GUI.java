@@ -198,7 +198,7 @@ public class GUI {
 		for(Integer g : getItemGUIs().keySet()) {
 			items+="/"+g+":"+getItemGUIs().get(g).toString();
 		}
-		return "[GUICreatorAPI:"+title+"/"+put+"/"+inv.getSize()+items+"]";
+		return "[GUI:"+title+"/"+put+"/"+inv.getSize()+items+"]";
 	}
 
 	public final boolean equals(Object other) {
