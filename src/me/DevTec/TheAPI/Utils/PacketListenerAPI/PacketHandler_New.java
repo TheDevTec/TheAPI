@@ -119,7 +119,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	}
 
 	private void registerPlayers() {
-		for (Player player : Bukkit.getOnlinePlayers())
+		for (Player player : TheAPI.getOnlinePlayers())
 			injectPlayer(player);
 	}
 	
@@ -193,7 +193,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	public final void close() {
 		if (!closed) {
 			closed = true;
-			for (Player player : Bukkit.getOnlinePlayers()) {
+			for (Player player : TheAPI.getOnlinePlayers()) {
 				uninjectPlayer(player);
 			}
 			unregisterChannelHandler();

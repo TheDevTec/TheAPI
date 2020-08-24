@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -23,8 +22,8 @@ import me.DevTec.TheAPI.Utils.PercentageList;
 import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.TheMaterial;
-import me.DevTec.TheAPI.Utils.TheAPIUtils.Error;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
+import me.DevTec.TheAPI.Utils.TheAPIUtils.Error;
 
 public class BlocksAPI {
 	private static interface Blocking {
@@ -713,7 +712,7 @@ public class BlocksAPI {
 					for(String o : ca.getKeys(false)) {
 						int[] cw = (int[])ca.get(o);
 						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
-						for(Player p : Bukkit.getOnlinePlayers())
+						for(Player p : TheAPI.getOnlinePlayers())
 							Ref.sendPacket(p, a);
 					}
 					if(onFinish!=null)
@@ -755,7 +754,7 @@ public class BlocksAPI {
 					for(String o : ca.getKeys(false)) {
 						int[] cw = (int[])ca.get(o);
 						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
-						for(Player p : Bukkit.getOnlinePlayers())
+						for(Player p : TheAPI.getOnlinePlayers())
 							Ref.sendPacket(p, a);
 					}
 					if(onFinish!=null)
@@ -809,7 +808,7 @@ public class BlocksAPI {
 					for(String o : ca.getKeys(false)) {
 						int[] cw = (int[])ca.get(o);
 						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
-						for(Player p : Bukkit.getOnlinePlayers())
+						for(Player p : TheAPI.getOnlinePlayers())
 							Ref.sendPacket(p, a);
 					}
 					if(onFinish!=null)
@@ -851,7 +850,7 @@ public class BlocksAPI {
 					for(String o : ca.getKeys(false)) {
 						int[] cw = (int[])ca.get(o);
 						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
-						for(Player p : Bukkit.getOnlinePlayers())
+						for(Player p : TheAPI.getOnlinePlayers())
 							Ref.sendPacket(p, a);
 					}
 					if(onFinish!=null)
@@ -890,7 +889,7 @@ public class BlocksAPI {
 					for(String o : ca.getKeys(false)) {
 						int[] cw = (int[])ca.get(o);
 						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
-						for(Player p : Bukkit.getOnlinePlayers())
+						for(Player p : TheAPI.getOnlinePlayers())
 							Ref.sendPacket(p, a);
 					}
 					if(onFinish!=null)
@@ -929,7 +928,7 @@ public class BlocksAPI {
 					for(String o : ca.getKeys(false)) {
 						int[] cw = (int[])ca.get(o);
 						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
-						for(Player p : Bukkit.getOnlinePlayers())
+						for(Player p : TheAPI.getOnlinePlayers())
 							Ref.sendPacket(p, a);
 					}
 					if(onFinish!=null)
@@ -1050,7 +1049,7 @@ public class BlocksAPI {
 					for(String o : ca.getKeys(false)) {
 						int[] cw = (int[])ca.get(o);
 						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
-						for(Player p : Bukkit.getOnlinePlayers())
+						for(Player p : TheAPI.getOnlinePlayers())
 							Ref.sendPacket(p, a);
 					}
 					if(onFinish!=null)
@@ -1096,7 +1095,7 @@ public class BlocksAPI {
 					for(String o : ca.getKeys(false)) {
 						int[] cw = (int[])ca.get(o);
 						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
-						for(Player p : Bukkit.getOnlinePlayers())
+						for(Player p : TheAPI.getOnlinePlayers())
 							Ref.sendPacket(p, a);
 					}
 					if(onFinish!=null)
@@ -1154,7 +1153,7 @@ public class BlocksAPI {
 					for(String o : ca.getKeys(false)) {
 						int[] cw = (int[])ca.get(o);
 						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
-						for(Player p : Bukkit.getOnlinePlayers())
+						for(Player p : TheAPI.getOnlinePlayers())
 							Ref.sendPacket(p, a);
 					}
 					if(onFinish!=null)
@@ -1200,7 +1199,7 @@ public class BlocksAPI {
 					for(String o : ca.getKeys(false)) {
 						int[] cw = (int[])ca.get(o);
 						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
-						for(Player p : Bukkit.getOnlinePlayers())
+						for(Player p : TheAPI.getOnlinePlayers())
 							Ref.sendPacket(p, a);
 					}
 					if(onFinish!=null)
@@ -1243,7 +1242,7 @@ public class BlocksAPI {
 					for(String o : ca.getKeys(false)) {
 						int[] cw = (int[])ca.get(o);
 						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
-						for(Player p : Bukkit.getOnlinePlayers())
+						for(Player p : TheAPI.getOnlinePlayers())
 							Ref.sendPacket(p, a);
 					}
 					if(onFinish!=null)
@@ -1286,7 +1285,7 @@ public class BlocksAPI {
 					for(String o : ca.getKeys(false)) {
 						int[] cw = (int[])ca.get(o);
 						Object a=Ref.newInstanceNms("PacketPlayOutMapChunk", Ref.invoke(w, "getChunkAt", cw[0], cw[1]), 65535);
-						for(Player p : Bukkit.getOnlinePlayers())
+						for(Player p : TheAPI.getOnlinePlayers())
 							Ref.sendPacket(p, a);
 					}
 					if(onFinish!=null)
