@@ -570,7 +570,8 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutPlayerListHeaderFooter(Object headerIChatBaseComponent, Object footerIChatBaseComponent) {
-			Object packet = Reflections.c(pTab);
+		if(pTab!=null) {	
+		Object packet = Reflections.c(pTab);
 			Field aField = null;
 			Field bField = null;
 			aField = Reflections.getField(Reflections.getNMSClass("PacketPlayOutPlayerListHeaderFooter"), "header");
@@ -582,6 +583,8 @@ public class NMSAPI {
 			Reflections.setField(packet, aField, headerIChatBaseComponent);
 			Reflections.setField(packet, bField, footerIChatBaseComponent);
 			return packet;
+		}
+		return null;
 	}
 
 	public static Object getPacketPlayOutPlayerListHeaderFooter(String header, String footer) {
