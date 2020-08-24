@@ -152,7 +152,7 @@ public class TheAPI {
 	}
 
 	public static boolean isNewerThan(int version) {
-		return !isOlderThan(version);
+		return ver > version;
 	}
 
 	/**
