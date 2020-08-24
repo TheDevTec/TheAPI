@@ -20,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.NMS.DataWatcher.DataWatcher;
+import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.Utils.Reflections.Reflections;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
@@ -125,7 +126,7 @@ public class NMSAPI {
 			old=2;
 			pOutChat = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutChat"),ichat, byte.class);
 		}
-		pTab = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutPlayerListHeaderFooter"));
+		pTab = Ref.findConstructor(Reflections.getNMSClass("PacketPlayOutPlayerListHeaderFooter"));
 		WorldHandle = Reflections.getMethod(bWorld,"getHandle");
 		PlayerHandle = Reflections.getMethod(bPlayer,"getHandle");
 		pBlock = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutBlockChange"),Reflections.getNMSClass("IBlockAccess"), pos);
@@ -567,8 +568,7 @@ public class NMSAPI {
 		return Reflections.c(pLSpawn, entityLiving);
 	}
 
-	public static Object getPacketPlayOutPlayerListHeaderFooter(Object headerIChatBaseComponent,
-			Object footerIChatBaseComponent) {
+	public static Object getPacketPlayOutPlayerListHeaderFooter(Object headerIChatBaseComponent, Object footerIChatBaseComponent) {
 			Object packet = Reflections.c(pTab);
 			Field aField = null;
 			Field bField = null;

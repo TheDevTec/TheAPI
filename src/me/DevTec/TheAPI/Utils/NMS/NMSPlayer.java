@@ -211,7 +211,7 @@ public class NMSPlayer {
 	}
 
 	private final Object a;
-	private static final Class<?> c = Reflections.getNMSClass("EntityPlayer");
+	private static final Class<?> c = Ref.nms("EntityPlayer");
 
 	public NMSPlayer(Object nmsPlayer) {
 		a = nmsPlayer;
@@ -230,6 +230,7 @@ public class NMSPlayer {
 	}
 
 	public void setTabList(String header, String footer) {
+		if(TheAPI.isNewerThan(7))
 		sendPacket(NMSAPI.getPacketPlayOutPlayerListHeaderFooter(TheAPI.colorize(header), TheAPI.colorize(footer)));
 	}
 
@@ -486,7 +487,7 @@ public class NMSPlayer {
 	}
 
 	public void setAir(int air) {
-		Reflections.invoke(a, findMethod("setAirTicks", air), air);
+		Ref.invoke(a, findMethod("setAirTicks", air), air);
 	}
 
 	public void sendPacket(Object packet) {
@@ -494,19 +495,19 @@ public class NMSPlayer {
 	}
 	
 	public Object getField(String name) {
-		return Reflections.get(Reflections.getField(c, name),a);
+		return Ref.get(a, Ref.field(c, name));
 	}
 	
 	public Object getField(Object o, Class<?> in, String name) {
-		return Reflections.get(Reflections.getField(in, name),o);
+		return Ref.get(o, Ref.field(in, name));
 	}
 	
 	public Object getFieldWithNull(String name) {
-		return Reflections.get(Reflections.getField(c, name),null);
+		return Ref.get(null,Ref.field(c, name));
 	}
 	
 	public Object getFieldWithNull(Class<?> in, String name) {
-		return Reflections.get(Reflections.getField(in, name),null);
+		return Ref.get(null, Ref.field(in, name));
 	}
 	
 	public Method findMethod(String name, Object... items) {
