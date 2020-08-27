@@ -3,13 +3,16 @@ package me.DevTec.TheAPI.Utils.Reflections;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class Ref {
-	private static Constructor<?> blockpos = constructor(nms("BlockPosition"), double.class, double.class, double.class);
+	private static Constructor<?> blockpos = constructor(nms("BlockPosition"), double.class, double.class, double.class),
+			c=Ref.constructor(Ref.getClass("com.mojang.authlib.GameProfile")!=null?Ref.getClass("com.mojang.authlib.GameProfile"):Ref.getClass("net.minecraft.util.com.mojang.authlib.GameProfile"), UUID.class, String.class), 
+			d = Ref.constructor(Ref.getClass("com.mojang.authlib.properties.Property")!=null?Ref.getClass("com.mojang.authlib.properties.Property"):Ref.getClass("net.minecraft.util.com.mojang.authlib.properties.Property"), String.class, String.class);
 	private static Field playerCon = Ref.field(nms("EntityPlayer"), "playerConnection");
 	private static Object server = invoke(handle(cast(craft("CraftServer"),Bukkit.getServer())),"getServer");
 	private static Class<?> craft = craft("entity.CraftPlayer"), world = craft("CraftWorld");
@@ -18,6 +21,16 @@ public class Ref {
 		ichatcon = method(getDeclaredClasses(nms("IChatBaseComponent"))[0],"a", String.class);
 		if(ichatcon==null)
 			ichatcon = method(nms("ChatSerializer"), "a", String.class);
+	}
+	
+	public static Object createGameProfile(UUID id, String name) {
+		if(id==null)id=UUID.randomUUID();
+		return Ref.newInstance(c, id, name);
+	}
+
+	public static Object createProperty(String key, String value) {
+		if(key==null||value==null)return null;
+		return Ref.newInstance(d, key, value);
 	}
 	
 	public static void set(Object main, Field field, Object o){

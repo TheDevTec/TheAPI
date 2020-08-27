@@ -13,7 +13,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import com.google.common.collect.Lists;
-import com.mojang.authlib.GameProfile;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Events.EntityMoveEvent;
@@ -34,7 +33,6 @@ public class Tasks {
 		if (load)
 			return;
 		load = true;
-		if(TheAPI.isNewerThan(7)) {
 		if(l==null)
 		l=new me.DevTec.TheAPI.Utils.PacketListenerAPI.Listener() {
 			@Override
@@ -44,10 +42,10 @@ public class Tasks {
 					if(w==null)w=Ref.invoke(Ref.server(), "aG");
 					Object sd = Ref.newInstance(Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class, int.class), LoaderClass.plugin.max>-1?LoaderClass.plugin.max:Bukkit.getMaxPlayers(),LoaderClass.plugin.fakeOnline>-1?LoaderClass.plugin.fakeOnline:TheAPI.getOnlinePlayers().size());
 					if(LoaderClass.plugin.onlineText!=null && !LoaderClass.plugin.onlineText.isEmpty()) {
-					GameProfile[] texts = new GameProfile[LoaderClass.plugin.onlineText.size()];
+						Object[] texts = new Object[LoaderClass.plugin.onlineText.size()];
 					int i = 0;
 					for(String s : LoaderClass.plugin.onlineText) {
-						texts[i]=new GameProfile(UUID.randomUUID(), TheAPI.colorize(PlaceholderAPI.setPlaceholders(null, s)));
+						texts[i]=Ref.createGameProfile(UUID.randomUUID(), TheAPI.colorize(PlaceholderAPI.setPlaceholders(null, s)));
 						++i;
 					}
 					Ref.set(sd, "c", texts);
@@ -60,10 +58,10 @@ public class Tasks {
 								seen.add(s);
 						if(online==-1)online=seen.size();
 						sd = Ref.newInstance(Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class, int.class), LoaderClass.plugin.max>-1?LoaderClass.plugin.max:Bukkit.getMaxPlayers(),online);
-						GameProfile[] texts = new GameProfile[seen.size()];
+						Object[] texts = new Object[seen.size()];
 						int i = 0;
 						for(Player s : seen) {
-							texts[i]=new GameProfile(s.getUniqueId(), s.getName());
+							texts[i]=Ref.createGameProfile(s.getUniqueId(), s.getName());
 							++i;
 						}
 						Ref.set(sd, "c", texts);
@@ -82,7 +80,6 @@ public class Tasks {
 			}
 		};
 		l.register();
-		}
 		if (c.getBoolean("Options.EntityMoveEvent.Enabled"))
 			task=new Tasker() {
 				public void run() {

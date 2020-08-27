@@ -337,7 +337,7 @@ public class Events implements Listener {
 		double jump = e.getTo().getY()-e.getFrom().getY();
 		boolean has = true;
 		try {
-			has=!e.getPlayer().hasPotionEffect(PotionEffectType.LEVITATION);
+			has=!e.getPlayer().hasPotionEffect(PotionEffectType.getByName("LEVITATION"));
 		}catch(NoSuchFieldError es) {
 		}
 		if (jump > 0 && !e.getPlayer().isFlying() && has) {

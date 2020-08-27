@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -29,11 +28,10 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
+import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Error;
 
 @SuppressWarnings("deprecation")
@@ -916,11 +914,11 @@ public class ItemCreatorAPI implements Cloneable {
 					m.setOwner(owner);
 				} else if (url != null || url == null && text != null) {
 					try {
-						GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+						Object profile = Ref.createGameProfile(null, null);
 						byte[] encodedData = Base64.getEncoder()
 								.encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
-						profile.getProperties().put("textures",
-								new Property("textures", url == null && text != null ? text : new String(encodedData)));
+						Ref.invoke(Ref.invoke(profile,"getProperties"),"put","textures",
+								Ref.createProperty("textures", url == null && text != null ? text : new String(encodedData)));
 						Field profileField = null;
 						profileField = m.getClass().getDeclaredField("profile");
 						profileField.setAccessible(true);

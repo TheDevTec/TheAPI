@@ -11,6 +11,7 @@ import me.DevTec.TheAPI.TheAPI;
 public class voidGenerator extends ChunkGenerator {
 	private static String the_void = TheAPI.isNewVersion()?"THE_VOID":"VOID";
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public ChunkGenerator.ChunkData generateChunkData(World world, Random random, int chunkx, int chunkz,
 			ChunkGenerator.BiomeGrid biome) {
