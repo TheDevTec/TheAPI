@@ -35,7 +35,6 @@ import me.DevTec.TheAPI.APIs.NameTagAPI;
 import me.DevTec.TheAPI.BossBar.BarColor;
 import me.DevTec.TheAPI.BossBar.BarStyle;
 import me.DevTec.TheAPI.BossBar.BossBar;
-import me.DevTec.TheAPI.Utils.TheAPIUtils.Error;
 import me.DevTec.TheAPI.ConfigAPI.ConfigAPI;
 import me.DevTec.TheAPI.CooldownAPI.CooldownAPI;
 import me.DevTec.TheAPI.Events.PlayerVanishEvent;
@@ -51,9 +50,9 @@ import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.ChatType;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.TitleAction;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
+import me.DevTec.TheAPI.Utils.TheAPIUtils.Error;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 import me.DevTec.TheAPI.WorldsAPI.WorldBorderAPI;
-import net.glowstone.entity.GlowPlayer;
 
 public class TheAPI {
 	private static final HashMap<String, BossBar> bars = Maps.newHashMap();
@@ -459,14 +458,6 @@ public class TheAPI {
 		if (p == null) {
 			Error.err("sending ActionBar", "Player is null");
 			return;
-		}
-		if (TheAPI.getServerVersion().equals("glowstone")) {
-			try {
-				((GlowPlayer) p).sendActionBar(colorize(text));
-				return;
-			} catch (Exception e) {
-				me.DevTec.TheAPI.Utils.TheAPIUtils.Error.err("sending ActionBar to " + p.getName(), "Text is null");
-			}
 		}
 		Object packet = NMSAPI.getPacketPlayOutTitle(TitleAction.ACTIONBAR, colorize(text), fadeIn, stay, fadeOut);
 		if (packet == null)
@@ -992,13 +983,6 @@ public class TheAPI {
 	 * @return int
 	 */
 	public static int getPlayerPing(Player p) {
-		if (getServerVersion().equals("glowstone")) {
-			try {
-				return ((GlowPlayer) p).getUserListEntry().getPing();
-			} catch (Exception e) {
-				return -1;
-			}
-		}
 		try {
 			return NMSAPI.getNMSPlayerAPI(p).getPing();
 		} catch (Exception e) {

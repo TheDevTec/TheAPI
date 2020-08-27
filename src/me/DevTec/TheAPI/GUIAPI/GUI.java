@@ -117,11 +117,7 @@ public class GUI {
 	 * @see see Return ItemGUI from position in gui
 	 */
 	public final ItemGUI getItemGUI(int slot) {
-		try {
-		return getItemGUIs().get(slot);
-		}catch(Exception e) {
-			return null;
-		}
+		return getItemGUIs().getOrDefault(slot, null);
 	}
 	
 	/**

@@ -69,20 +69,20 @@ import me.DevTec.TheAPI.WorldsAPI.WorldBorderAPI.WarningMessageType;
 public class Events implements Listener {
 	public static ConfigAPI f = LoaderClass.config,d = LoaderClass.data;
 
-	@EventHandler(priority = EventPriority.LOWEST)
+	@EventHandler
 	public synchronized void onClose(InventoryCloseEvent e) {
 		Player p = (Player) e.getPlayer();
-		GUI d = LoaderClass.plugin.gui.containsKey(p.getName())?LoaderClass.plugin.gui.get(p.getName()):null;
+		GUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(),null);
 		if (d == null)return;
 		LoaderClass.plugin.gui.remove(p.getName());
 		d.getPlayers().remove(p);
 		d.onClose(p);
 	}
 
-	@EventHandler(priority = EventPriority.LOWEST)
+	@EventHandler
 	public synchronized void onClick(InventoryClickEvent e) {
 		Player p = (Player) e.getWhoClicked();
-		GUI d = LoaderClass.plugin.gui.containsKey(p.getName())?LoaderClass.plugin.gui.get(p.getName()):null;
+		GUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(),null);
 		if(d==null)return;
 		if(e.getClick()==ClickType.NUMBER_KEY) {
 			e.setCancelled(true);
@@ -91,15 +91,15 @@ public class Events implements Listener {
 		ItemStack i = e.getCurrentItem();
 		if (i == null)return;
 		if (e.getClickedInventory().getType() == InventoryType.PLAYER) {
-			if (!d.isInsertable())
+			if (!d.isInsertable()) {
 				e.setCancelled(true);
-			return;
+				return;
+			}
 		}
-		if(d.getItemGUIs().containsKey(e.getSlot())) {
-			ItemGUI a = d.getItemGUIs().get(e.getSlot());
+		ItemGUI a = d.getItemGUI(e.getSlot());
+		if(a==null)return;
 		if(a.isUnstealable())e.setCancelled(true);
 			a.onClick(p, d, e.getClick());
-		}
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)

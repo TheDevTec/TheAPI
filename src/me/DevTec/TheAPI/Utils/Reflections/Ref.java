@@ -9,6 +9,17 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class Ref {
+	private static Constructor<?> blockpos = constructor(nms("BlockPosition"), double.class, double.class, double.class);
+	private static Field playerCon = Ref.field(nms("EntityPlayer"), "playerConnection");
+	private static Object server = invoke(handle(cast(craft("CraftServer"),Bukkit.getServer())),"getServer");
+	private static Class<?> craft = craft("entity.CraftPlayer"), world = craft("CraftWorld");
+	private static Method ichatcon, send = Ref.method(nms("PlayerConnection"), "sendPacket", Ref.nms("Packet"));
+	static {
+		ichatcon = method(getDeclaredClasses(nms("IChatBaseComponent"))[0],"a", String.class);
+		if(ichatcon==null)
+			ichatcon = method(nms("ChatSerializer"), "a", String.class);
+	}
+	
 	public static void set(Object main, Field field, Object o){
 		try {
 			field.setAccessible(true);
@@ -45,38 +56,26 @@ public class Ref {
 	}
 	
 	public static Object blockPos(double x, double y, double z) {
-		return newInstance(constructor(nms("BlockPosition"), double.class, double.class, double.class), x,y,z);
-	}
-	
-	private static Method ichatcon;
-	static {
-		try {
-		if(nms("IChatBaseComponent")!=null)
-		ichatcon = method(getDeclaredClasses(nms("IChatBaseComponent"))[0],"a", String.class);
-		if(ichatcon==null)
-			ichatcon = method(nms("ChatSerializer"), "a", String.class);
-		}catch(Exception err) {
-			ichatcon = method(nms("ChatSerializer"), "a", String.class);
-		}
+		return newInstance(blockpos, x,y,z);
 	}
 	
 	public static Object IChatBaseComponent(String text) {
-		return invoke(null, ichatcon, "{\"text\":\"" + text + "\"}");
+		return invokeNulled(ichatcon, "{\"text\":\"" + text + "\"}");
 	}
 	
 	public static void sendPacket(Player to, Object packet) {
 		Object p = Ref.player(to);
-		Object con = Ref.get(p, Ref.field(p.getClass(), "playerConnection"));
-		Ref.invoke(con, Ref.method(con.getClass(), "sendPacket", Ref.nms("Packet")), packet);
+		Object con = Ref.get(p, playerCon);
+		Ref.invoke(con, send, packet);
 		
 	}
 	
 	public static Object server() {
-		return invoke(handle(cast(craft("CraftServer"),Bukkit.getServer())),"getServer");
+		return server;
 	}
 	
 	public static Object player(Player a) {
-		return handle(cast(craft("entity.CraftPlayer"), a));
+		return handle(cast(craft, a));
 	}
 	
 	public static Object playerCon(Player a) {
@@ -92,7 +91,7 @@ public class Ref {
 	}
 	
 	public static Object world(World a) {
-		return handle(cast(craft("CraftWorld"), a));
+		return handle(cast(world, a));
 	}
 
 	public static Object cast(Class<?> c, Object item){

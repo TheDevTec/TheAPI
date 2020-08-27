@@ -75,6 +75,9 @@ public class LoaderClass extends JavaPlugin {
 	
 	@Override
 	public void onLoad() {
+		
+		//PacketPlayInWindowClick
+		
 		plugin = this;
 		createConfig();
 		new Thread(new Runnable() {
