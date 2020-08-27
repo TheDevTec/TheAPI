@@ -1,6 +1,7 @@
 package me.DevTec.TheAPI.ConfigAPI;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
  
 public class Section {
     private String[] s;
@@ -26,29 +27,27 @@ public class Section {
     	c.addComment(getName()+"."+path, comment);
     }
     
-    public void addComments(String... comment) {
-    	for(String comm : comment)
-    	c.addComment(getName(), comm);
+    public void addComments(List<String> comment) {
+    	c.addComments(getName(), comment);
     }
     
-    public void addComments(String path, String... comment) {
-    	for(String comm : comment)
-    	c.addComment(getName()+"."+path, comm);
+    public void addComments(String path, List<String> comment) {
+    	c.addComments(getName()+"."+path, comment);
     }
     
     public List<String> getComments() {
     	return c.getComments(getName());
     }
     
-    public List<String> getKeys() {
-    	return c.getKeys(getName());
-    }
-    
     public List<String> getComments(String path) {
     	return c.getComments(getName()+"."+path);
     }
     
-    public List<String> getKeys(String path) {
+    public Set<String> getKeys() {
+    	return c.getKeys(getName());
+    }
+    
+    public Set<String> getKeys(String path) {
     	return c.getKeys(getName()+"."+path);
     }
     
@@ -251,6 +250,6 @@ public class Section {
     }
     
     public String toString() {
-        return "[Section:"+c.getFile().getName()+"/"+getName()+"]";
+        return "[Section:"+c.toString()+"/"+getName()+"]";
     }
 }

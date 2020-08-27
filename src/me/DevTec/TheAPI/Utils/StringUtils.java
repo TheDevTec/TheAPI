@@ -544,7 +544,7 @@ public class StringUtils {
 	 */
 	public static boolean isBoolean(String fromString) {
 		if(fromString==null)return false;
-		return fromString.equalsIgnoreCase("true")||fromString.equalsIgnoreCase("false");
+		return fromString.equalsIgnoreCase("true")||fromString.equalsIgnoreCase("false")||fromString.equalsIgnoreCase("yes")||fromString.equalsIgnoreCase("no");
 	}
 	private static Pattern special = Pattern.compile("[^A-Z-a-z0-9_]+");
 	public static boolean containsSpecial(String value) {

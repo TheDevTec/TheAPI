@@ -75,12 +75,10 @@ public class Schemate {
 	
 	public Data getData() {
 		if(cache==null) {
-		cache = new Data();
-		try {
 			Reader r=new Reader(getFile());
-			cache.load(r.read(false));
+			cache=Data.load(r.read(false));
 			r.close();
-		} catch (Exception e) {}}
+		}
 		return cache;
 	}
 	

@@ -4,12 +4,18 @@ import java.io.File;
 import java.util.Scanner;
 
 public class Reader {
-	private File a;
+	
+	public static String read(File f, boolean split) {
+		Reader a = new Reader(f);
+		String d = a.read(split);
+		a.close();
+		return d;
+	}
+	
 	private Scanner sc;
 	public Reader(File f) {
-		a=f;
 		try {
-		sc = new Scanner(a);
+		sc = new Scanner(f);
 		} catch (Exception e) {
 		}
 	}

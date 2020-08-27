@@ -1,17 +1,15 @@
 package me.DevTec.TheAPI.BlocksAPI;
 
-import java.io.File;
-
 import org.bukkit.entity.Player;
 import org.spigotmc.AsyncCatcher;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.BlocksAPI.Schemate.SimpleSave;
-import me.DevTec.TheAPI.ConfigAPI.Config;
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.TheMaterial;
+import me.DevTec.TheAPI.Utils.DataKeeper.Data;
 import me.DevTec.TheAPI.Utils.Decompression.Decompression;
 import me.DevTec.TheAPI.Utils.Decompression.Decompression.Decompressor;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
@@ -51,13 +49,7 @@ public class Schema {
 	    new Tasker() {
 			@SuppressWarnings("deprecation")
 			public void run() {
-				Config ca = null;
-				for(int iaa = 0; iaa > -1; ++iaa) {
-					if(!new File("TheAPI/ChunkTask/"+iaa).exists()) {
-						ca = new Config("TheAPI/ChunkTask/"+iaa+".dat");
-						break;
-					}
-				}
+				Data ca = new Data();
 				for(String fs : schem.getData().getKeys()) {
 				if(!fs.startsWith("c."))continue;
 				try {
@@ -99,7 +91,6 @@ public class Schema {
 					for(Player p : TheAPI.getOnlinePlayers())
 						Ref.sendPacket(p, a);
 				}
-				ca.getFile().delete();
 				if(onFinish!=null)
 					onFinish.run();
 			}
