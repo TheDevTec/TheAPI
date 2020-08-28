@@ -5,6 +5,7 @@ import java.sql.Array;
 import java.sql.Connection;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Error;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -34,7 +35,7 @@ public class SQLAPI {
 		try {
 			openConnection();
 			connected = true;
-		} catch (ClassNotFoundException | SQLException e) {
+		} catch (Exception e) {
 			if (LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
 				Error.err("opening SQL connection", "Uknown");
 			} else {
@@ -60,7 +61,7 @@ public class SQLAPI {
 		if (connection != null) {
 			try {
 				connection.close();
-			} catch (SQLException e) {
+			} catch (Exception e) {
 				if (LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
 					Error.err("closing SQL connection", "Uknown");
 				} else {
@@ -79,9 +80,21 @@ public class SQLAPI {
 		connect();
 	}
 
+	public PreparedStatement getPreparedStatement(String command) {
+		try {
+			return connection.prepareStatement(command);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 	public boolean update(String command) {
+		return update(getPreparedStatement(command));
+	}
+	
+	public boolean update(PreparedStatement command) {
 		if (!connected) {
-			Error.err("processing SQL update, command: " + command,
+			Error.err("processing SQL update, statement: " + command,
 					(isConnected() ? "Uknown command" : "SQL isn't connected"));
 		}
 		if (command == null) {
@@ -89,14 +102,14 @@ public class SQLAPI {
 		}
 		boolean result = false;
 		try {
-			connection.prepareStatement(command).executeUpdate(command);
+			command.executeUpdate();
 			result = true;
 		} catch (Exception e) {
 			if (LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
-				Error.err("processing SQL update, command: " + command,
+				Error.err("processing SQL update, statement: " + command,
 						(isConnected() ? "Uknown command" : "SQL isn't connected"));
 			} else {
-				TheAPI.msg("&cA corrupt error when processing SQL update, command: " + command + ", Result: "
+				TheAPI.msg("&cA corrupt error when processing SQL update, statement: " + command + ", Result: "
 						+ (isConnected() ? "Uknown command:" : "SQL isn't connected:"), TheAPI.getConsole());
 				e.printStackTrace();
 				TheAPI.msg("&cEnd of error", TheAPI.getConsole());
@@ -104,10 +117,14 @@ public class SQLAPI {
 		}
 		return result;
 	}
-
+	
 	public boolean largeUpdate(String command) {
+		return largeUpdate(getPreparedStatement(command));
+	}
+	
+	public boolean largeUpdate(PreparedStatement command) {
 		if (!connected) {
-			Error.err("processing SQL largeUpdate, command: " + command,
+			Error.err("processing SQL largeUpdate, statement: " + command,
 					(isConnected() ? "Uknown command" : "SQL isn't connected"));
 		}
 		if (command == null) {
@@ -115,14 +132,14 @@ public class SQLAPI {
 		}
 		boolean result = false;
 		try {
-			connection.prepareStatement(command).executeLargeUpdate(command);
+			command.executeLargeUpdate();
 			result = true;
 		} catch (Exception e) {
 			if (LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
-				Error.err("processing SQL largeUpdate, command: " + command,
+				Error.err("processing SQL largeUpdate, statement: " + command,
 						(isConnected() ? "Uknown command" : "SQL isn't connected"));
 			} else {
-				TheAPI.msg("&cA corrupt error when processing SQL largeUpdate, command: " + command + ", Result: "
+				TheAPI.msg("&cA corrupt error when processing SQL largeUpdate, statement: " + command + ", Result: "
 						+ (isConnected() ? "Uknown command:" : "SQL isn't connected:"), TheAPI.getConsole());
 				e.printStackTrace();
 				TheAPI.msg("&cEnd of error", TheAPI.getConsole());
@@ -132,6 +149,10 @@ public class SQLAPI {
 	}
 
 	public ResultSet query(String command) {
+		return query(getPreparedStatement(command));
+	}
+	
+	public ResultSet query(PreparedStatement command) {
 		if (!connected) {
 			Error.err("processing SQL query, command: " + command,
 					(isConnected() ? "Uknown command" : "SQL isn't connected"));
@@ -141,7 +162,7 @@ public class SQLAPI {
 		}
 		ResultSet rs = null;
 		try {
-			rs = connection.prepareStatement(command).executeQuery(command);
+			rs = command.executeQuery();
 		} catch (Exception e) {
 			if (LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
 				Error.err("processing SQL query, command: " + command,
@@ -391,8 +412,12 @@ public class SQLAPI {
 			return false;
 		}
 	}
-
+	
 	public boolean execute(String command) {
+		return execute(getPreparedStatement(command));
+	}
+	
+	public boolean execute(PreparedStatement command) {
 		if (command == null) {
 			return false;
 		}
@@ -402,7 +427,7 @@ public class SQLAPI {
 			return false;
 		}
 		try {
-			connection.prepareStatement(command).execute(command);
+			command.execute();
 			return true;
 		} catch (Exception e) {
 			if (LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
