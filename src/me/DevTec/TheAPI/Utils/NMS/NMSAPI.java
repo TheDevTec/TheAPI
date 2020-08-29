@@ -74,10 +74,10 @@ public class NMSAPI {
 					Reflections.getNMSClass("ScoreboardServer$Action"),String.class, String.class, int.class);
 		sbremove=Reflections.get(Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardScore$EnumScoreboardAction"),"REMOVE"),null);
 		if(sbremove==null)
-			sbremove=Reflections.get(Reflections.getField(Reflections.getNMSClass("ScoreboardServer$Action"),"CHANGE"),null);
+			sbremove=Reflections.get(Reflections.getField(Reflections.getNMSClass("ScoreboardServer$Action"),"REMOVE"),null);
 		sbchange=Reflections.get(Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardScore$EnumScoreboardAction"),"CHANGE"),null);
 		if(sbchange==null)
-			sbchange=Reflections.get(Reflections.getField(Reflections.getNMSClass("ScoreboardServer$Action"),"REMOVE"),null);
+			sbchange=Reflections.get(Reflections.getField(Reflections.getNMSClass("ScoreboardServer$Action"),"CHANGE"),null);
 		sbinteger=Reflections.get(Reflections.getField(Reflections.getNMSClass("IScoreboardCriteria$EnumScoreboardHealthDisplay"),"INTEGER"),null);
 		sbhearts=Reflections.get(Reflections.getField(Reflections.getNMSClass("IScoreboardCriteria$EnumScoreboardHealthDisplay"),"HEARTS"),null);
 		post=Reflections.getMethod(Reflections.getNMSClass("MinecraftServer"),"postToMainThread", Runnable.class);
@@ -195,14 +195,13 @@ public class NMSAPI {
 		return Reflections.c(pTeleport, entity);
 	}
 	public static Object getPacketPlayOutScoreboardScore(Action action, String player, String line, int score) {
-		Object o = Reflections.c(NMSAPI.score,line);
-		if(o!=null) {
-			Reflections.setField(o, scoreb, player);
-			Reflections.setField(o, scorec, score);
-			Reflections.setField(o, scored, getScoreboardAction(action));
-			return o;
-		}
-		return Reflections.c(NMSAPI.score,getScoreboardAction(action),player, line, score);
+		if(TheAPI.isNewVersion())
+			return Ref.create(NMSAPI.score,getScoreboardAction(action),player, line, score);
+		Object o = Ref.create(NMSAPI.score,line);
+		Reflections.setField(o, scoreb, player);
+		Reflections.setField(o, scorec, score);
+		Reflections.setField(o, scored, getScoreboardAction(action));
+		return o;
 	}
 	
 	public static Object getScoreboardAction(Action type) {
@@ -616,10 +615,6 @@ public class NMSAPI {
 		return Reflections.invoke(CraftPlayer,PlayerHandle);
 	}
 
-	public static void sendPacket(Player player, Object packet) {
-		getNMSPlayerAPI(player).sendPacket(packet);
-	}
-
 	public static Object getPacketPlayOutBlockChange(Object World, int x, int y, int z) {
 		return getPacketPlayOutBlockChange(World, getBlockPosition(x, y, z));
 	}
@@ -653,5 +648,9 @@ public class NMSAPI {
 	public static Thread getServerThread() {
 		Object o = Reflections.get(Reflections.getField(Reflections.getNMSClass("MinecraftServer"),"primaryThread"),getServer());
 		return o != null ? (Thread)o : (Thread)Reflections.get(Reflections.getField(Reflections.getNMSClass("MinecraftServer"),"serverThread"),getServer());
+	}
+
+	public static void sendPacket(Player to, Object packet) {
+		Ref.sendPacket(to, packet);
 	}
 }

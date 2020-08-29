@@ -491,7 +491,7 @@ public class NMSPlayer {
 	}
 
 	public void sendPacket(Object packet) {
-		getPlayerConnection().sendPacket(packet);
+		Ref.sendPacket(getPlayer(), packet);
 	}
 	
 	public Object getField(String name) {

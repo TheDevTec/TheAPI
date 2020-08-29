@@ -7,7 +7,6 @@ import java.util.Base64;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
@@ -132,31 +131,30 @@ public class TheCoder {
 		return r;
 	}
 	
-	public static String toColor(int ints) {
+	public static String toColor(long ints) {
 		String s = ""+ints;
-		return s.replace("0", ChatColor.AQUA+"")
-				.replace("1", ChatColor.BLACK+"")
-				.replace("2", ChatColor.BLUE+"")
-				.replace("3", ChatColor.GOLD+"")
-				.replace("4", ChatColor.GRAY+"")
-				.replace("5", ChatColor.GREEN+"")
-				.replace("6", ChatColor.RED+"")
-				.replace("7", ChatColor.YELLOW+"")
-				.replace("8", ChatColor.WHITE+"")
-				.replace("9", ChatColor.DARK_RED+"");
+		return s.replace("0", "§0")
+				.replace("1", "§1")
+				.replace("2", "§2")
+				.replace("3", "§3")
+				.replace("4", "§4")
+				.replace("5", "§5")
+				.replace("6", "§6")
+				.replace("7", "§7")
+				.replace("8", "§8")
+				.replace("9", "§9");
 	}
 	
 	public static String fromColor(String c) {
-		return c.replace(ChatColor.AQUA+"","0")
-				.replace(ChatColor.BLACK+"","1")
-				.replace(ChatColor.BLUE+"","2")
-				.replace(ChatColor.GOLD+"","3")
-				.replace(ChatColor.GRAY+"","4")
-				.replace(ChatColor.GREEN+"","5")
-				.replace(ChatColor.RED+"","6")
-				.replace(ChatColor.YELLOW+"","7")
-				.replace(ChatColor.WHITE+"","8")
-				.replace(ChatColor.DARK_RED+"","9");
+		return c.replace("§0","0")
+				.replace("§1","1")
+				.replace("§2","2")
+				.replace("§3","3")
+				.replace("§4","4")
+				.replace("§5","5")
+				.replace("§6","6")
+				.replace("§7","7")
+				.replace("§8","8")
+				.replace("§9","9");
 	}
-
 }
