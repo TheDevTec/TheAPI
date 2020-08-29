@@ -587,8 +587,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			if (perm(s,"Reload")) {
 				TheAPI.msg("&7-----------------", s);
 				TheAPI.msg("&eReloading configs..", s);
-				for (Player p : TheAPI.getOnlinePlayers())
-					TheAPI.getUser(p).config().reload();
 				LoaderClass.data.reload();
 				LoaderClass.config.reload();
 				Tasks.unload();

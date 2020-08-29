@@ -1,22 +1,21 @@
 package me.DevTec.TheAPI.Utils.DataKeeper;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import me.DevTec.TheAPI.ConfigAPI.ConfigAPI;
 import me.DevTec.TheAPI.Utils.TheCoder;
 
 public class User {
 	private UUID s;
 	private String name;
-	private ConfigAPI a;
+	private Data a;
 
 	@SuppressWarnings("deprecation")
 	public User(String name) {
@@ -29,8 +28,7 @@ public class User {
 			s = Bukkit.getOfflinePlayer(name).getUniqueId();
 			this.name = name;
 		}
-		a = new ConfigAPI("TheAPI/User", s.toString());
-		a.create();
+		prepareConfig();
 	}
 
 	public User(Player player) {
@@ -38,8 +36,7 @@ public class User {
 			new Exception("Player cannot be null.").printStackTrace();
 		s = player.getUniqueId();
 		name = player.getName();
-		a = new ConfigAPI("TheAPI/User", s.toString());
-		a.create();
+		prepareConfig();
 	}
 
 	public User(UUID player) {
@@ -47,13 +44,25 @@ public class User {
 			new Exception("UUID cannot be null.").printStackTrace();
 		s = player;
 		name = Bukkit.getOfflinePlayer(s).getName();
-		a = new ConfigAPI("TheAPI/User", s.toString());
-		a.create();
+		prepareConfig();
 	}
-
+	
+	private final void prepareConfig() {
+		File file = new File("plugins/TheAPI/User/"+s.toString());
+    	if (!file.exists()) {
+            file.getParentFile().mkdirs();
+            try {
+				file.createNewFile();
+			} catch (Exception e) {
+			}
+        }
+    	a=new Data(file);
+	}
+	
 	public void delete() {
 		s = null;
-		a.delete();
+		a = null;
+		a.getFile().delete();
 	}
 
 	public UUID getUUID() {
@@ -64,7 +73,11 @@ public class User {
 		return name;
 	}
 
-	public ConfigAPI config() {
+	public Data data() {
+		return a;
+	}
+
+	public Data getData() {
 		return a;
 	}
 
@@ -94,11 +107,7 @@ public class User {
 		}
 		return list;
 	}
-
-	public ConfigAPI getConfig() {
-		return a;
-	}
-
+	
 	public void set(String key, Object o) {
 		if (o instanceof ItemStack) {
 			o = TheCoder.toString(o);
@@ -120,29 +129,19 @@ public class User {
 
 	public void setAndSave(String key, Object o) {
 		set(key, o);
-		a.save();
+		a.writeToFile(DataType.DATA);
 	}
 
 	public void save() {
-		a.save();
-	}
-
-	public ConfigurationSection getConfigurationSection(String key) {
-		return a.getConfigurationSection(key);
-	}
-
-	public Set<String> getConfigurationSection(String key, boolean getKeys) {
-		return a.getConfigurationSection(key, getKeys);
+		a.writeToFile(DataType.DATA);
 	}
 
 	public Set<String> getKeys(String key) {
-		if(a.exist(key))
-		return a.getConfigurationSection(key, false);
-		return null;
+		return a.getKeys(key);
 	}
 
 	public Set<String> getKeys() {
-		return a.getKeys(false);
+		return a.getKeys();
 	}
 
 	public List<String> getStringList(String key) {
@@ -187,27 +186,27 @@ public class User {
 	}
 
 	public boolean isString(String key) {
-		return a.isString(key);
+		return a.get(key) instanceof String;
 	}
 
 	public boolean isDouble(String key) {
-		return a.isDouble(key);
+		return a.get(key) instanceof Double;
 	}
 
 	public boolean isInt(String key) {
-		return a.isInt(key);
+		return a.get(key) instanceof Integer;
 	}
 
 	public boolean isList(String key) {
-		return a.isList(key);
+		return a.get(key) instanceof List;
 	}
 
 	public boolean isLong(String key) {
-		return a.isLong(key);
+		return a.get(key) instanceof Long;
 	}
 
-	public boolean isConfigurationSection(String key) {
-		return a.isConfigurationSection(key);
+	public boolean isFloat(String key) {
+		return a.get(key) instanceof Float;
 	}
 
 	public String getString(String key) {
@@ -226,4 +225,7 @@ public class User {
 		return a.getLong(key);
 	}
 
+	public float getFloat(String key) {
+		return a.getFloat(key);
+	}
 }
