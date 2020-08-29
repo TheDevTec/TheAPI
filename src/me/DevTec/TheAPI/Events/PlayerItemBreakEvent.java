@@ -7,13 +7,14 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 
 public class PlayerItemBreakEvent extends Event implements Cancellable {
+
+	private Player s;
+	private ItemStack i;
+	private boolean cancel;
 	public PlayerItemBreakEvent(Player p, ItemStack item) {
 		s = p;
 		i = item;
 	}
-
-	Player s;
-	ItemStack i;
 
 	public ItemStack getItem() {
 		return i;
@@ -23,8 +24,6 @@ public class PlayerItemBreakEvent extends Event implements Cancellable {
 	public boolean isCancelled() {
 		return cancel;
 	}
-
-	boolean cancel;
 
 	@Override
 	public void setCancelled(boolean cancel) {

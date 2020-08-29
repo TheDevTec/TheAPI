@@ -41,6 +41,10 @@ public class GUI {
 	
 	public void onClose(Player player) {}
 	
+	public void onPutItem(Player player, ItemStack item, int slot) {}
+	
+	public void onTakeItem(Player player, ItemStack item, int slot) {}
+	
 	public final ItemStack[] getContents() {
 		return inv.getContents();
 	}
@@ -197,7 +201,7 @@ public class GUI {
 		return "[GUI:"+title+"/"+put+"/"+inv.getSize()+items+"]";
 	}
 
-	public final boolean equals(Object other) {
+	public boolean equals(Object other) {
 		if(other instanceof Inventory) {
 			Inventory c = (Inventory)other;
 			return c.equals(inv);

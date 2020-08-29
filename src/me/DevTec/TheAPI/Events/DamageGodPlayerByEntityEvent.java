@@ -8,7 +8,10 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 public class DamageGodPlayerByEntityEvent extends Event implements Cancellable {
-	Player s;
+	private Player s;
+	private DamageCause cause;
+	private Entity entity;
+	private double damage;
 
 	public DamageGodPlayerByEntityEvent(Player p, Entity en, double dam, DamageCause ed) {
 		s = p;
@@ -16,9 +19,6 @@ public class DamageGodPlayerByEntityEvent extends Event implements Cancellable {
 		entity = en;
 		damage = dam;
 	}
-
-	DamageCause cause;
-	Entity entity;
 
 	public DamageCause getCause() {
 		return cause;
@@ -39,8 +39,6 @@ public class DamageGodPlayerByEntityEvent extends Event implements Cancellable {
 	public void setCancelled(boolean cancel) {
 		this.cancel = cancel;
 	}
-
-	double damage;
 
 	public double getDamage() {
 		return damage;

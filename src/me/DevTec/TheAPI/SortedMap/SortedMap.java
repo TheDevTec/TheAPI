@@ -43,7 +43,7 @@ public class SortedMap {
 	        @SuppressWarnings({ "unchecked", "rawtypes" })
 	        public int compare(Map.Entry<K, V> e1, Map.Entry<K, V> e2) {
 	        	if(e1.getKey() instanceof Comparable)
-	                return ((Comparable)e1.getKey()).compareTo((Comparable)e2.getKey());
+	                return ((Comparable)e1.getKey()).compareTo(e2.getKey());
                 return (e1.getKey()+"").compareTo(e2.getKey()+"");
             }
         });
@@ -59,7 +59,7 @@ public class SortedMap {
 	        @SuppressWarnings({ "unchecked", "rawtypes" })
 			public int compare(Map.Entry<K, V> e1, Map.Entry<K, V> e2) {
 	        	if(e1.getValue() instanceof Comparable)
-	                return ((Comparable)e1.getValue()).compareTo((Comparable)e2.getValue());
+	                return ((Comparable)e1.getValue()).compareTo(e2.getValue());
                 return (e1.getValue()+"").compareTo(e2.getValue()+"");
             }
         });

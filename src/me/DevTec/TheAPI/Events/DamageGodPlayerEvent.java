@@ -7,7 +7,9 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 public class DamageGodPlayerEvent extends Event implements Cancellable {
-	Player s;
+	private Player s;
+	private DamageCause cause;
+	private boolean cancel = true;
 
 	public DamageGodPlayerEvent(Player p, double dam, DamageCause cau) {
 		s = p;
@@ -19,8 +21,6 @@ public class DamageGodPlayerEvent extends Event implements Cancellable {
 	public boolean isCancelled() {
 		return cancel;
 	}
-
-	boolean cancel = true;
 
 	@Override
 	public void setCancelled(boolean cancel) {
@@ -36,8 +36,6 @@ public class DamageGodPlayerEvent extends Event implements Cancellable {
 	public void setDamage(double value) {
 		damage = value;
 	}
-
-	DamageCause cause;
 
 	public DamageCause getDamageCause() {
 		return cause;

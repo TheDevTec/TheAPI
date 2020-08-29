@@ -81,6 +81,7 @@ public class Events implements Listener {
 
 	@EventHandler
 	public synchronized void onClick(InventoryClickEvent e) {
+		if(e.isCancelled()) return;
 		Player p = (Player) e.getWhoClicked();
 		GUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(),null);
 		if(d==null)return;
@@ -97,9 +98,17 @@ public class Events implements Listener {
 			}
 		}
 		ItemGUI a = d.getItemGUI(e.getSlot());
-		if(a==null)return;
+		if(a!=null) {
 		if(a.isUnstealable())e.setCancelled(true);
 			a.onClick(p, d, e.getClick());
+		}
+		if(!e.isCancelled()) {
+			if (e.getClickedInventory().getType() == InventoryType.PLAYER) {
+				d.onPutItem(p, i, e.getSlot());
+			}else {
+			d.onTakeItem(p, i, e.getSlot());
+			}
+		}
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)

@@ -10,16 +10,15 @@ import org.bukkit.event.HandlerList;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class EntityMoveEvent extends Event implements Cancellable {
-	Entity s;
+	private Entity s;
+	private boolean cancel;
+	private Location t,f;
 
 	public EntityMoveEvent(Entity p, Location from, Location to) {
 		s = p;
 		f = from;
 		t = to;
 	}
-
-	Location t;
-	Location f;
 
 	public Location getTo() {
 		return t;
@@ -41,8 +40,6 @@ public class EntityMoveEvent extends Event implements Cancellable {
 	public boolean isCancelled() {
 		return cancel;
 	}
-
-	boolean cancel;
 
 	@Override
 	public void setCancelled(boolean cancel) {

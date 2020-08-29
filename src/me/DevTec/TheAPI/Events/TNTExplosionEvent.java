@@ -9,9 +9,9 @@ import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class TNTExplosionEvent extends Event implements Cancellable {
-	boolean b, nuclear, e, d, n, col, dr;
-	int power;
-	Position l;
+	private boolean b, nuclear, e, d, n, col, dr;
+	private int power;
+	private Position l;
 
 	public TNTExplosionEvent(Position c2) {
 		l = c2;

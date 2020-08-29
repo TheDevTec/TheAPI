@@ -7,7 +7,10 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 public class PlayerJumpEvent extends Event implements Cancellable {
-	Player s;
+	private Player s;
+	private double i;
+	private boolean cancel;
+	private Location t, f;
 
 	public PlayerJumpEvent(Player p, Location from, Location to, double jump) {
 		s = p;
@@ -15,10 +18,6 @@ public class PlayerJumpEvent extends Event implements Cancellable {
 		t = to;
 		i = jump;
 	}
-
-	double i;
-	Location t;
-	Location f;
 
 	public double getJump() {
 		return i;
@@ -36,8 +35,6 @@ public class PlayerJumpEvent extends Event implements Cancellable {
 	public boolean isCancelled() {
 		return cancel;
 	}
-
-	boolean cancel;
 
 	@Override
 	public void setCancelled(boolean cancel) {

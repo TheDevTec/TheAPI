@@ -6,9 +6,9 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 public class PlayerVanishEvent extends Event implements Cancellable {
-	Player p;
-	boolean v, req;
-	String s;
+	private Player p;
+	private boolean v, req, cancel;
+	private String s;
 
 	public PlayerVanishEvent(Player player, String perm, boolean b, boolean req) {
 		p = player;
@@ -45,8 +45,6 @@ public class PlayerVanishEvent extends Event implements Cancellable {
 	public void setVanish(boolean vanish) {
 		v = vanish;
 	}
-
-	boolean cancel;
 
 	@Override
 	public void setCancelled(boolean c) {
