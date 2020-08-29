@@ -209,12 +209,12 @@ public class Ref {
 	
 	public static Method method(Class<?> main, String name, Class<?>... bricks){
 		try {
-			Method f=bricks.length==1?main.getMethod(name):main.getMethod(name, bricks);
+			Method f=main.getMethod(name, bricks);
 			f.setAccessible(true);
 			return f;
 		}catch(Exception es) {
 			try {
-				Method f=bricks.length==1?main.getDeclaredMethod(name):main.getDeclaredMethod(name, bricks);
+				Method f=main.getDeclaredMethod(name, bricks);
 				f.setAccessible(true);
 				return f;
 			}catch(Exception e) {

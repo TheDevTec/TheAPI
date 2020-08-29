@@ -898,6 +898,16 @@ public class BlocksAPI {
 			}
 		}.repeating(0, 3);
 	}
+	
+
+	public static void synchronizedSet(Position a, Position b, PercentageList<TheMaterial> with) {
+		synchronizedSet(a,b, new Runnable() {public void run() {}},with, Arrays.asList());
+	}
+	
+
+	public static void synchronizedSet(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> with) {
+		synchronizedSet(a,b, onFinish,with, Arrays.asList());
+	}
 
 	public static void synchronizedReplace(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> block, PercentageList<TheMaterial> with) {
 		BlockGetter s = get(a, b);
@@ -961,6 +971,10 @@ public class BlocksAPI {
 	public static void asynchronizedSet(Position a, Position b, List<TheMaterial> with) {
 		asynchronizedSet(a, b, new Runnable() {public void run() {}}, with);
 	}
+	
+	public static void asynchronizedSet(Position a, Position b, PercentageList<TheMaterial> with) {
+		asynchronizedSet(a,b, new Runnable() {public void run() {}},with, Arrays.asList());
+	}
 
 	public static void asynchronizedSet(Position a, Position b, PercentageList<TheMaterial> with, List<TheMaterial> ignore) {
 		asynchronizedSet(a, b, new Runnable() {public void run() {}}, with, ignore);
@@ -1019,7 +1033,7 @@ public class BlocksAPI {
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with, List<TheMaterial> ignore) {
 		try {
-			if(!AsyncCatcher.enabled)
+			if(AsyncCatcher.enabled)
 				AsyncCatcher.enabled=false;
 			}catch(Exception | NoSuchFieldError | NoSuchMethodError notEx) {}
 		BlockGetter s = get(a, b);
@@ -1062,10 +1076,14 @@ public class BlocksAPI {
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with) {
 		asynchronizedSet(a,b,onFinish, with, Arrays.asList());
 	}
+	
+	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> with) {
+		asynchronizedSet(a,b,onFinish,with, Arrays.asList());
+	}
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> with, List<TheMaterial> ignore) {
 		try {
-		if(!AsyncCatcher.enabled)
+		if(AsyncCatcher.enabled)
 			AsyncCatcher.enabled=false;
 		}catch(Exception | NoSuchFieldError | NoSuchMethodError notEx) {}
 		BlockGetter s = get(a, b);
@@ -1123,7 +1141,7 @@ public class BlocksAPI {
 	
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block, PercentageList<TheMaterial> with) {
 		try {
-			if(!AsyncCatcher.enabled)
+			if(AsyncCatcher.enabled)
 				AsyncCatcher.enabled=false;
 			}catch(Exception | NoSuchFieldError | NoSuchMethodError notEx) {}
 		BlockGetter s = get(a, b);
@@ -1169,7 +1187,7 @@ public class BlocksAPI {
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block, List<TheMaterial> with) {
 		try {
-			if(!AsyncCatcher.enabled)
+			if(AsyncCatcher.enabled)
 				AsyncCatcher.enabled=false;
 			}catch(Exception | NoSuchFieldError | NoSuchMethodError notEx) {}
 		BlockGetter s = get(a, b);
@@ -1211,7 +1229,7 @@ public class BlocksAPI {
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> block, List<TheMaterial> with) {
 		try {
-			if(!AsyncCatcher.enabled)
+			if(AsyncCatcher.enabled)
 				AsyncCatcher.enabled=false;
 			}catch(Exception | NoSuchFieldError | NoSuchMethodError notEx) {}
 		BlockGetter s = get(a, b);
@@ -1254,7 +1272,7 @@ public class BlocksAPI {
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> block, PercentageList<TheMaterial> with) {
 		try {
-			if(!AsyncCatcher.enabled)
+			if(AsyncCatcher.enabled)
 				AsyncCatcher.enabled=false;
 			}catch(Exception | NoSuchFieldError | NoSuchMethodError notEx) {}
 		BlockGetter s = get(a, b);

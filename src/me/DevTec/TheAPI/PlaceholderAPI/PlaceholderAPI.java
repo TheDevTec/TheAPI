@@ -17,37 +17,22 @@ public class PlaceholderAPI {
 	}
 
 	public static String setPlaceholders(Player player, String where) {
-		String edited = where;
-		if (isEnabledPlaceholderAPI()) {
-		for(PlaceholderRegister r : reg) {
-			if(edited==null)break;
-			edited=r.onRequest(player, edited);
-		}}
-		if(edited==null)return edited;
-		edited=ThePlaceholderAPI.setPlaceholders(player, edited);
-		if(edited==null)return edited;
+		if(where==null)return null;
+		String edited = ThePlaceholderAPI.setPlaceholders(player, where);
 		if (isEnabledPlaceholderAPI())
 			edited = (String)Reflections.invoke(null, Reflections.getMethod(Reflections.getClass("me.clip.placeholderapi.PlaceholderAPI"),
-					"setPlaceholders",OfflinePlayer.class,String.class),player, edited);
+					"setPlaceholders",OfflinePlayer.class,String.class),(OfflinePlayer)player, edited);
 		return edited;
 	}
 
 	@SuppressWarnings("unchecked")
 	public static List<String> setPlaceholders(Player player, List<String> where) {
-		List<String> edited = Lists.newArrayList();
-		if (isEnabledPlaceholderAPI()) {
-		for(String s : where) {
-			for(PlaceholderRegister r : reg)s=r.onRequest(player, s);
-			edited.add(s);
-		}
-		edited=ThePlaceholderAPI.setPlaceholders(player, edited);
-		edited = (List<String>)Reflections.invoke(null, Reflections.getMethod(Reflections.getClass("me.clip.placeholderapi.PlaceholderAPI"),
-				"setPlaceholders",OfflinePlayer.class,List.class),player, where);
-		}else {
-			for(String s : where) {
-				edited.add(ThePlaceholderAPI.setPlaceholders(player, s));
-			}	
-		}
+		if(where==null)return null;
+		if(where.isEmpty())return where;
+		List<String> edited = ThePlaceholderAPI.setPlaceholders(player, where);
+		if (isEnabledPlaceholderAPI())
+		edited=(List<String>)Reflections.invoke(null, Reflections.getMethod(Reflections.getClass("me.clip.placeholderapi.PlaceholderAPI"),
+				"setPlaceholders",OfflinePlayer.class,List.class),(OfflinePlayer)player, edited);
 		return edited;
 	}
 	
@@ -63,7 +48,7 @@ public class PlaceholderAPI {
 					"registerExpansion",Reflections.getClass("me.clip.placeholderapi.expansion.PlaceholderExpansion")),e);
 	}}
 	
-	public void unregisterPlaceholder(PlaceholderRegister e) {
+	public static void unregisterPlaceholder(PlaceholderRegister e) {
 		if(!isRegistredPlaceholder(e))return;
 		reg.remove(e);
 		if (isEnabledPlaceholderAPI()) {
