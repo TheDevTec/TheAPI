@@ -54,7 +54,6 @@ import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.ChatType;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.TitleAction;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
-import me.DevTec.TheAPI.Utils.Reflections.Reflections;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Error;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 import me.DevTec.TheAPI.WorldsAPI.WorldBorderAPI;
@@ -76,11 +75,11 @@ public class TheAPI {
 	}
 	
 	public static PluginCommand createCommand(String name, Plugin plugin) {
-		return (PluginCommand)Reflections.c(constructor, name, plugin);
+		return (PluginCommand)Ref.create(constructor, name, plugin);
 	}
 	
 	public static void registerCommand(PluginCommand command) {
-		((SimpleCommandMap)Reflections.get(commandMapField, Bukkit.getPluginManager()))
+		((SimpleCommandMap)Ref.get(Bukkit.getPluginManager(), commandMapField))
 	 	.register(command.getPlugin().getDescription().getName(), command);
 	}
 	
