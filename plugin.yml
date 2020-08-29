@@ -6,10 +6,6 @@ version: 4.6
 api-version: 1.13
 loadbefore: [Residence]
 softdepend: [TheVault,Vault,PlaceholderAPI]
-commands:
-  TheAPI:
-    usage: /<command>
-    description: Main command
 permissions:
   TheAPI.*:
     default: op

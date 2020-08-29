@@ -1,5 +1,6 @@
 package me.DevTec.TheAPI.Utils.TheAPIUtils;
 
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -73,9 +75,13 @@ public class LoaderClass extends JavaPlugin {
 	public me.DevTec.TheVault.Economy tveeconomy;
 	public Bank bank;
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onLoad() {
 		plugin = this;
+		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &6Action: &6Loading plugin..", TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
 		createConfig();
 		new Thread(new Runnable() {
 			public void run() {
@@ -90,8 +96,9 @@ public class LoaderClass extends JavaPlugin {
 		new Thread(new Runnable() {
 			public void run() {
 				while(online){
+					Method move = Reflections.getMethod(BossBar.class, "move");
 			        for(BossBar s : bars)
-			        	Reflections.invoke(s, Reflections.getMethod(s.getClass(), "move"));
+			        	Reflections.invoke(s, move);
 			        try {
 			            Thread.sleep(1000);
 			        } catch (InterruptedException e) {
@@ -99,12 +106,16 @@ public class LoaderClass extends JavaPlugin {
 				}
 			}
 		}).start();		
-		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &6Action: &6Loading plugin..", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+		if(TheAPI.isNewerThan(7))
+		handler = new PacketHandler_New();
+		else
+			handler = new PacketHandler_Old();
+		for(Player s : TheAPI.getOnlinePlayers()) {
+			if (!handler.hasInjected(handler.getChannel(s)))
+				handler.injectPlayer(s);
+		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onEnable() {
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
@@ -115,7 +126,9 @@ public class LoaderClass extends JavaPlugin {
 		loadPlaceholders();
 		Tasks.load();
 		Bukkit.getPluginManager().registerEvents(new Events(), this);
-		Bukkit.getPluginCommand("TheAPI").setExecutor(new TheAPICommand());
+		PluginCommand cmd = TheAPI.createCommand("TheAPI", this);
+		cmd.setExecutor(new TheAPICommand());
+		TheAPI.registerCommand(cmd);
 		if (PluginManagerAPI.getPlugin("TheVault") != null)
 			TheVaultHooking();
 		if (PluginManagerAPI.getPlugin("Vault") == null) {
@@ -135,14 +148,6 @@ public class LoaderClass extends JavaPlugin {
 				TheAPI.msg("&bTheAPI&7: &aTheAPI using " + getTheAPIsPlugins().size() + " plugin" + end,TheAPI.getConsole());
 			}
 		}.laterAsync(200);
-		if(TheAPI.isNewerThan(7))
-		handler = new PacketHandler_New();
-		else
-			handler = new PacketHandler_Old();
-		for(Player s : TheAPI.getOnlinePlayers()) {
-			if (!handler.hasInjected(handler.getChannel(s)))
-				handler.injectPlayer(s);
-		}
 		}
 
 	@SuppressWarnings("rawtypes")

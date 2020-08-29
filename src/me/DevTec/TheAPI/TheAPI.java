@@ -2,6 +2,8 @@ package me.DevTec.TheAPI;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,6 +22,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -50,6 +54,7 @@ import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.ChatType;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.TitleAction;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
+import me.DevTec.TheAPI.Utils.Reflections.Reflections;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Error;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 import me.DevTec.TheAPI.WorldsAPI.WorldBorderAPI;
@@ -58,14 +63,25 @@ public class TheAPI {
 	private static final HashMap<String, BossBar> bars = Maps.newHashMap();
 	private static final HashMap<String, Integer> task = Maps.newHashMap();
 	private static final HashMap<UUID, User> cache = Maps.newHashMap();
+	private static Constructor<?> constructor = Ref.constructor(PluginCommand.class, String.class, Plugin.class);
+	private static Field commandMapField = Ref.field(Bukkit.getPluginManager().getClass(), "commandMap");
 	private static Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
 	private static int ver;
 	static {
 		try {
 			ver=StringUtils.getInt(getServerVersion().split("_")[1]);
 		}catch(Exception e) {
-			ver=12; //glowstone
+			ver=7;
 		}
+	}
+	
+	public static PluginCommand createCommand(String name, Plugin plugin) {
+		return (PluginCommand)Reflections.c(constructor, name, plugin);
+	}
+	
+	public static void registerCommand(PluginCommand command) {
+		((SimpleCommandMap)Reflections.get(commandMapField, Bukkit.getPluginManager()))
+	 	.register(command.getPlugin().getDescription().getName(), command);
 	}
 	
 	public static void clearCache() {
@@ -75,7 +91,7 @@ public class TheAPI {
 	public static boolean generateChance(double chance) {
 		return generateRandomDouble(100) <= chance;
 	}
-
+	
 	public static double getProcessCpuLoad() {
 		try {
 			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
