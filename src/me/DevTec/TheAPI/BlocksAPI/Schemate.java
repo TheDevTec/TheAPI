@@ -29,7 +29,6 @@ import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.TheMaterial;
 import me.DevTec.TheAPI.Utils.Compression.Compression.Compressor;
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
-import me.DevTec.TheAPI.Utils.File.Reader;
 import me.DevTec.TheAPI.Utils.File.Writer;
 
 public class Schemate {
@@ -75,9 +74,8 @@ public class Schemate {
 	
 	public Data getData() {
 		if(cache==null) {
-			Reader r=new Reader(getFile());
-			cache=Data.load(r.read(false));
-			r.close();
+			cache=new Data();
+			cache.load(getFile(), true);
 		}
 		return cache;
 	}

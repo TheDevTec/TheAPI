@@ -82,7 +82,7 @@ public class NMSAPI {
 		sbhearts=Reflections.get(Reflections.getField(Reflections.getNMSClass("IScoreboardCriteria$EnumScoreboardHealthDisplay"),"HEARTS"),null);
 		post=Reflections.getMethod(Reflections.getNMSClass("MinecraftServer"),"postToMainThread", Runnable.class);
 		if(post==null)post=Reflections.getMethod(Reflections.getNMSClass("MinecraftServer"),"executeSync", Runnable.class);
-		if(post==null)post=Reflections.getMethod(Reflections.getNMSClass("IAsyncTaskHandler"),"executeSync", Runnable.class);
+		if(post==null)post=Reflections.getMethod(Reflections.getNMSClass("DedicatedServer"),"executeSync", Runnable.class);
 		particle = Reflections.getConstructor(c);
 		if(Reflections.existNMSClass("PacketPlayOutTitle"))
 		enumTitle = Reflections.getNMSClass("PacketPlayOutTitle").getDeclaredClasses()[0];

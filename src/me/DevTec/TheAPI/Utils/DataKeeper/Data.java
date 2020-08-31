@@ -3,7 +3,6 @@ package me.DevTec.TheAPI.Utils.DataKeeper;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -22,7 +21,9 @@ import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 
 import me.DevTec.TheAPI.SortedMap.SortedMap;
+import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.File.Reader;
+import me.DevTec.TheAPI.Utils.File.Writer;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class Data {
@@ -62,26 +63,26 @@ public class Data {
 	private File f;
 	public Data(File toRead) {
 		f=toRead;
-		load(this, Reader.read(toRead, true));
+		load(this, f);
 	}
 	
 	private HashMap<String, Dat> map = Maps.newHashMap();
 	private static Gson g = new Gson();
-	private static Pattern p = Pattern.compile("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$");
 	
 	//Whole Config or Byte[] in String
-	public static void load(Data d, String input) {
-		if(p.matcher(input).find()) {
+	@SuppressWarnings("unchecked")
+	public static void load(Data d, File f) {
 		try {
+		try {
+			String input = Reader.read(f, false);
 			ByteArrayInputStream bos = new ByteArrayInputStream(Base64.getDecoder().decode(input));
 			GZIPInputStream zos = new GZIPInputStream(bos);
 			ObjectInputStream ous = new ObjectInputStream(zos);
 			while(true)
 				try {
 					String key = ous.readUTF();
-					Dat df = (Dat)ous.readObject();
-					d.set(key, df.get());
-					d.setComments(key, df.getComments());
+					d.set(key, ous.readObject());
+					d.setComments(key, (List<String>)ous.readObject());
 				}catch(Exception e) {
 				break;
 				}
@@ -89,7 +90,7 @@ public class Data {
 			zos.close();
 			ous.close();
 		}catch(Exception e) {
-		}}else {
+			String input = Reader.read(f, true);
 			String key = "";
 			List<Object> items = Lists.newArrayList();
 			List<String> comments = Lists.newArrayList();
@@ -108,6 +109,12 @@ public class Data {
 						String clas = i.split("\",")[0], json = i.replaceFirst(clas+"\",", "");
 						items.add(g.fromJson(json, Ref.getClass(clas)));
 					} catch (Exception e1) {
+						if(item.replaceAll("[0-9-]+", "").isEmpty())
+							items.add(StringUtils.getFloat(item));
+						else
+						if(item.replaceAll("[0-9.-]+", "").isEmpty())
+							items.add(StringUtils.getDouble(item));
+						else
 						items.add(item);
 					}
 					continue;
@@ -131,13 +138,19 @@ public class Data {
 				last = split.split("  ").length;
 				key+=(key.equals("")?"":".")+split.split(":")[0].trim();
 				if(split.replaceFirst(key+":", "").trim().isEmpty())continue;
-				String item = removeQuetos(split.replaceFirst(split.split(":")[0]+":", "").replaceFirst(" ", ""));
+				String item = removeQuetos(split.replaceFirst(Pattern.quote(split.split(":")[0]+":"), "").replaceFirst(" ", ""));
 				try {
 					String i = item.substring(2, item.length()-1).replaceFirst(Pattern.quote(item.split(",")[0])+",", "");
 					String clas = i.split("\",")[0], json = i.replaceFirst(clas+"\",", "");
 					d.set(key, g.getAdapter(Ref.getClass(clas)).fromJson(json));
 					d.setComments(key, comments);
 				} catch (Exception e1) {
+					if(item.replaceAll("[0-9-]+", "").isEmpty())
+						d.set(key, StringUtils.getFloat(item));
+					else
+					if(item.replaceAll("[0-9.-]+", "").isEmpty())
+						d.set(key, StringUtils.getDouble(item));
+					else
 					d.set(key, item);
 					d.setComments(key, comments);
 				}
@@ -148,89 +161,7 @@ public class Data {
 				d.setComments(key, comments);
 			}
 		}
-	}
-
-	//Whole Config or Byte[] in String
-	public static Data load(String input) {
-		Data d = new Data();
-		if(p.matcher(input).find()) {
-		try {
-			ByteArrayInputStream bos = new ByteArrayInputStream(Base64.getDecoder().decode(input));
-			GZIPInputStream zos = new GZIPInputStream(bos);
-			ObjectInputStream ous = new ObjectInputStream(zos);
-			while(true)
-				try {
-					String key = ous.readUTF();
-					Dat df = (Dat)ous.readObject();
-					d.set(key, df.get());
-					d.setComments(key, df.getComments());
-				}catch(Exception e) {
-				break;
-				}
-			bos.close();
-			zos.close();
-			ous.close();
-		}catch(Exception e) {
-		}}else {
-			String key = "";
-			List<Object> items = Lists.newArrayList();
-			List<String> comments = Lists.newArrayList();
-			int last = 0;
-			for(String split : input.split(System.lineSeparator())) {
-				if(split.startsWith("#")) {
-					comments.add(split.replaceFirst(split.split("#")[0]+"#", ""));
-					continue;
-				}
-				if(split.trim().isEmpty())
-					continue;
-				if(split.contains("- ")) {
-					String item = removeQuetos(split.replaceFirst(split.split("- ")[0]+"- ", "").replaceFirst(" ", ""));
-					try {
-						String i = item.substring(2, item.length()-1).replaceFirst(Pattern.quote(item.split(",")[0])+",", "");
-						String clas = i.split("\",")[0], json = i.replaceFirst(clas+"\",", "");
-						items.add(g.fromJson(json, Ref.getClass(clas)));
-					} catch (Exception e1) {
-						items.add(item);
-					}
-					continue;
-				}
-				if(!items.isEmpty()) {
-					d.set(key, items);
-					d.setComments(key, comments);
-					comments = Lists.newArrayList();
-					items = Lists.newArrayList();
-				}
-				if(split.split("  ").length<last) {
-					if(!split.startsWith(" "))key="";
-					else {
-						for(int i = 0; i < last-split.split("  ").length+1; ++i)
-							key=key.substring(0,key.length()-((key.split("\\.")[key.split("\\.").length-1]).length()+1));
-					}
-				}else
-				if(split.split("  ").length==last) {
-					key=key.substring(0,key.length()-((key.split("\\.")[key.split("\\.").length-1]).length()+1));
-				}
-				last = split.split("  ").length;
-				key+=(key.equals("")?"":".")+split.split(":")[0].trim();
-				if(split.replaceFirst(key+":", "").trim().isEmpty())continue;
-				String item = removeQuetos(split.replaceFirst(split.split(":")[0]+":", "").replaceFirst(" ", ""));
-				try {
-					String i = item.substring(2, item.length()-1).replaceFirst(Pattern.quote(item.split(",")[0])+",", "");
-					String clas = i.split("\",")[0], json = i.replaceFirst(clas+"\",", "");
-					d.set(key, g.getAdapter(Ref.getClass(clas)).fromJson(json));
-					d.setComments(key, comments);
-				} catch (Exception e1) {
-					d.set(key, item);
-					d.setComments(key, comments);
-				}
-				comments = Lists.newArrayList();
-			}
-			if(!items.isEmpty()) {
-				d.set(key, items);
-				d.setComments(key, comments);
-			}
-		}
-		return d;
+		}catch(Exception er) {}
 	}
 	
 	public void setFile(File f) {
@@ -326,15 +257,14 @@ public class Data {
 		try {
 			return (short)get(key);
 		} catch (Exception error) {
-			return 0;
-		}
-	}
+			return (short)getInt(key);
+	}}
 	
 	public byte getByte(String key) {
 		try {
 			return (byte)get(key);
 		} catch (Exception error) {
-			return 0;
+			return (byte)getInt(key);
 		}
 	}
 	
@@ -342,7 +272,11 @@ public class Data {
 		try {
 			return (float)get(key);
 		} catch (Exception error) {
-			return 0;
+			try {
+				return Float.parseFloat(getString(key));
+			} catch (Exception errorr) {
+				return 0;
+			}
 		}
 	}
 	
@@ -350,7 +284,7 @@ public class Data {
 		try {
 			return (long)get(key);
 		} catch (Exception error) {
-			return 0;
+			return (long)getFloat(key);
 		}
 	}
 	
@@ -358,7 +292,7 @@ public class Data {
 		try {
 			return (int)get(key);
 		} catch (Exception error) {
-			return 0;
+			return StringUtils.getInt(key);
 		}
 	}
 	
@@ -366,13 +300,17 @@ public class Data {
 		try {
 			return (double)get(key);
 		} catch (Exception error) {
-			return 0;
+			try {
+				return Double.parseDouble(getString(key));
+			} catch (Exception errorr) {
+				return 0;
+			}
 		}
 	}
 	
 	public String getString(String key) {
 		try {
-			return (String)get(key);
+			return get(key).toString();
 		} catch (Exception error) {
 			return null;
 		}
@@ -424,7 +362,11 @@ public class Data {
 		try {
 			return (boolean)get(key);
 		} catch (Exception error) {
-			return false;
+			try {
+				return Boolean.parseBoolean(get(key).toString());
+			} catch (Exception errorr) {
+				return false;
+			}
 		}
 	}
 	
@@ -443,11 +385,13 @@ public class Data {
 				GZIPOutputStream zos = new GZIPOutputStream(bos);
 				ObjectOutputStream ous = new ObjectOutputStream(zos);
 				for(String key : map.keySet()) {
-					ous.writeUTF(key);
-					ous.writeObject(map.get(key));
+					try {
+						ous.writeUTF(key);
+						ous.writeObject(map.get(key).get());
+						ous.writeObject(map.get(key).getComments());
+					}catch(Exception er) {}
 				}
 				zos.finish();
-				bos.flush();
 				return Base64.getEncoder().encodeToString(bos.toByteArray());
 			}catch(Exception e) {}
 			return Base64.getEncoder().encodeToString(new byte[0]);
@@ -502,22 +446,20 @@ public class Data {
     }
 
 	public void writeToFile(DataType yaml) {
-		if(f!=null)
+		if(f!=null && yaml != null)
 		writeToFile(f, yaml);
 	}
 
 	public void writeToFile(File f, DataType yaml) {
-		try {
-		FileWriter we=new FileWriter(f);
+		Writer we=new Writer(f);
 		we.append(toString(yaml));
 		we.flush();
 		we.close();
-		}catch(Exception e) {}
 	}
 
 	public void load(File file, boolean removeData) {
 		if(removeData)
 			map.clear();
-		load(this, Reader.read(file, true));
+		load(this, file);
 	}
 }

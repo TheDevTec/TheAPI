@@ -48,7 +48,7 @@ public class User {
 	}
 	
 	private final void prepareConfig() {
-		File file = new File("plugins/TheAPI/User/"+s.toString());
+		File file = new File("plugins/TheAPI/User/"+s.toString()+".yml");
     	if (!file.exists()) {
             file.getParentFile().mkdirs();
             try {
@@ -129,7 +129,7 @@ public class User {
 
 	public void setAndSave(String key, Object o) {
 		set(key, o);
-		a.writeToFile(DataType.DATA);
+		save();
 	}
 
 	public void save() {
