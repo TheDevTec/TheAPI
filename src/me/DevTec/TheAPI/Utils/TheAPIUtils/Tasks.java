@@ -40,6 +40,8 @@ public class Tasks {
 				if(packet.toString().contains("PacketStatusOutServerInfo")) {
 					Object w = Ref.invoke(Ref.server(),"getServerPing");
 					if(w==null)w=Ref.invoke(Ref.server(), "aG");
+					if(w==null)w=Ref.invoke(Ref.invoke(Ref.server(),"getServer"), "getServerPing");
+					if(w==null)w=Ref.invoke(Ref.invoke(Ref.server(),"getServer"), "aG");
 					Object sd = Ref.newInstance(Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class, int.class), LoaderClass.plugin.max>-1?LoaderClass.plugin.max:Bukkit.getMaxPlayers(),LoaderClass.plugin.fakeOnline>-1?LoaderClass.plugin.fakeOnline:TheAPI.getOnlinePlayers().size());
 					if(LoaderClass.plugin.onlineText!=null && !LoaderClass.plugin.onlineText.isEmpty()) {
 						Object[] texts = new Object[LoaderClass.plugin.onlineText.size()];
@@ -51,7 +53,6 @@ public class Tasks {
 					Ref.set(sd, "c", texts);
 					}else {
 						int online = LoaderClass.plugin.fakeOnline>-1?LoaderClass.plugin.fakeOnline:TheAPI.getOnlinePlayers().size();
-						
 						List<Player> seen = Lists.newArrayList();
 						for(Player s : TheAPI.getPlayers())
 							if(!TheAPI.isVanished(s))

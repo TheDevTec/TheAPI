@@ -137,8 +137,7 @@ public class StringUtils {
 	 */
 	public static String colorize(String string) {
 		if (string == null)return null;
-		if(string.contains("#"))
-			if (TheAPI.isNewerThan(15)) {
+		if (TheAPI.isNewerThan(15) && string.contains("#")) {
 				string = string.replace("&x", "§x");
 				Matcher match = pattern.matcher(string);
 	            while (match.find()) {

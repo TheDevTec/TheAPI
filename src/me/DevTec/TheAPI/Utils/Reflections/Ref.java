@@ -28,6 +28,14 @@ public class Ref {
 		return Ref.newInstance(c, id, name);
 	}
 
+	public static Object createPlayerInfoData(Object packet, Object profile, int ping, String gamemode, String playerName) {
+		if(Ref.getConstructors(Ref.nms("PacketPlayOutPlayerInfo$PlayerInfoData"))[0].getParameterTypes()[0].getName().contains("Packet"))
+			return Ref.newInstance(Ref.getConstructors(Ref.nms("PacketPlayOutPlayerInfo$PlayerInfoData"))[0], 
+					packet, profile ,ping, Ref.get(null, Ref.field(Ref.nms("EnumGamemode"), gamemode.toUpperCase())), ((Object[])Ref.invokeNulled(Ref.method(Ref.craft("util.CraftChatMessage"), "fromString", String.class), playerName))[0]);
+		return Ref.newInstance(Ref.getConstructors(Ref.nms("PacketPlayOutPlayerInfo$PlayerInfoData"))[0], 
+				profile, ping, Ref.get(null, Ref.field(Ref.nms("EnumGamemode"), gamemode.toUpperCase())), ((Object[])Ref.invokeNulled(Ref.method(Ref.craft("util.CraftChatMessage"), "fromString", String.class), playerName))[0]);
+		}
+	
 	public static Object createProperty(String key, String value) {
 		if(key==null||value==null)return null;
 		return Ref.newInstance(d, key, value);

@@ -722,10 +722,8 @@ public class TheAPI {
 
 	private static boolean isV(Player player) {
 		if (player.hasMetadata("vanished"))
-			for (MetadataValue meta : player.getMetadata("vanished")) {
-				if (meta.asBoolean())
-					return true;
-			}
+			for (MetadataValue meta : player.getMetadata("vanished"))
+					return meta.asBoolean();
 		return false;
 	}
 
@@ -735,9 +733,7 @@ public class TheAPI {
 	 * @return boolean
 	 */
 	public static boolean isVanished(Player p) {
-		if (isV(p))
-			return true;
-		return getUser(p).getString("vanish") != null;
+		return isV(p)||getUser(p).exists("vanish");
 	}
 
 	/**
@@ -746,7 +742,7 @@ public class TheAPI {
 	 * @return boolean
 	 */
 	public static boolean isVanished(String p) {
-		return getUser(p).getString("vanish") != null;
+		return getUser(p).exists("vanish");
 	}
 
 	/**
@@ -787,6 +783,10 @@ public class TheAPI {
 		}
 		LoaderClass.data.save();
 	}
+	
+	public static boolean canSee(Player who, Player target) {
+		return has(who, target) && who.canSee(target);
+	}
 
 	private static boolean has(Player s, Player d) {
 		if (getUser(d).getString("vanish") != null)
@@ -810,7 +810,6 @@ public class TheAPI {
 	}
 
 	private static void v(Player p, boolean vanish, String perm) {
-
 		PlayerVanishEvent d = new PlayerVanishEvent(p, (perm == null ? null : perm), vanish,
 				(perm == null ? false : true));
 		Bukkit.getPluginManager().callEvent(d);

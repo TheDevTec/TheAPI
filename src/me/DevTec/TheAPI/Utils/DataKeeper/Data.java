@@ -15,8 +15,6 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.json.simple.parser.JSONParser;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -70,15 +68,21 @@ public class Data {
 	
 	private HashMap<String, Dat> map = Maps.newHashMap();
 	private static Gson g = new Gson();
-	private static JSONParser parser = new JSONParser();
+	
+	private static String getSpaces(String s) {
+		String space = "";
+		for(char c : s.toCharArray())
+			if(c==' ')
+				space+=" ";
+			else break;
+		return space;
+	}
 	
 	//Whole Config or Byte[] in String
 	@SuppressWarnings("unchecked")
 	public static void load(Data d, File f) {
 		try {
-		try {
-			String input = Reader.read(f, false);
-			ByteArrayInputStream bos = new ByteArrayInputStream(Base64.getDecoder().decode(input));
+			ByteArrayInputStream bos = new ByteArrayInputStream(Base64.getDecoder().decode(Reader.read(f, false)));
 			GZIPInputStream zos = new GZIPInputStream(bos);
 			ObjectInputStream ous = new ObjectInputStream(zos);
 			while(true)
@@ -93,30 +97,26 @@ public class Data {
 			zos.close();
 			ous.close();
 		}catch(Exception e) {
-			String input = Reader.read(f, true);
 			String key = "";
+			StringBuilder b = new StringBuilder();
 			List<Object> items = Lists.newArrayList();
 			List<String> comments = Lists.newArrayList();
-			int last = 0;
-			for(String split : input.split(System.lineSeparator())) {
-				if(split.startsWith("#")) {
-					comments.add(split.replaceFirst(split.split("#")[0]+"#", ""));
+			int last = 0, splitting=0;
+			for(String split : Reader.read(f, true).split(System.lineSeparator())) {
+				if(split.startsWith("# ")) {
+					comments.add(split.replaceFirst(split.split("# ")[0]+"# ", ""));
 					continue;
 				}
 				if(split.trim().isEmpty())
 					continue;
-				if(split.contains("- ")) {
+				if(split.startsWith(getSpaces(split)+"- ")) {
 					String item = removeQuetos(split.replaceFirst(split.split("- ")[0]+"- ", "").replaceFirst(" ", ""));
 					try {
 						String i = item.substring(2, item.length()-1).replaceFirst(Pattern.quote(item.split(",")[0])+",", "");
 						String clas = i.split("\",")[0], json = i.replaceFirst(clas+"\",", "");
 						items.add(g.fromJson(json, Ref.getClass(clas)));
 					} catch (Exception e1) {
-						try {
-							items.add(parser.parse(item));
-						}catch(Exception er) {
-							items.add(item);
-						}
+						items.add(item);
 					}
 					continue;
 				}
@@ -126,41 +126,82 @@ public class Data {
 					comments = Lists.newArrayList();
 					items = Lists.newArrayList();
 				}
+				if(splitting!=0) {
+					if(split.contains(":") && split.replaceFirst(split.split(":")[0], "").startsWith(" ")) {
+					if(splitting==1) {
+					d.set(key, b.toString());
+					b=new StringBuilder();
+					}else {
+						d.set(key, items);
+						items = Lists.newArrayList();
+					}
+					splitting=0;
+					d.setComments(key, comments);
+					comments = Lists.newArrayList();
+					}else {
+						String space = "  ";
+						for(int i = 0; i < last; ++i)
+							space+="  ";
+						if(splitting==2) {
+						try {
+							String item = split.replaceFirst(space, "");
+							String i = item.substring(2, item.length()-1).replaceFirst(Pattern.quote(item.split(",")[0])+",", "");
+							String clas = i.split("\",")[0], json = i.replaceFirst(clas+"\",", "");
+							items.add(g.fromJson(json, Ref.getClass(clas)));
+						} catch (Exception e1) {
+							items.add(split.replaceFirst(space, ""));
+						}}else
+						b.append(split.replaceFirst(space, ""));
+						continue;
+					}
+				}
 				if(split.split("  ").length<last) {
 					if(!split.startsWith(" "))key="";
 					else {
 						for(int i = 0; i < last-split.split("  ").length+1; ++i)
+							try {
 							key=key.substring(0,key.length()-((key.split("\\.")[key.split("\\.").length-1]).length()+1));
+							}catch(Exception er) {
+								key=key.substring(0,key.length()-((key.split("\\.")[key.split("\\.").length-1]).length()));
+								break;
+							}
 					}
 				}else
 				if(split.split("  ").length==last) {
+					try {
 					key=key.substring(0,key.length()-((key.split("\\.")[key.split("\\.").length-1]).length()+1));
+					}catch(Exception er) {
+						key=key.substring(0,key.length()-((key.split("\\.")[key.split("\\.").length-1]).length()));
+					}
 				}
 				last = split.split("  ").length;
+				
 				key+=(key.equals("")?"":".")+split.split(":")[0].trim();
 				if(split.replaceFirst(key+":", "").trim().isEmpty())continue;
-				String item = removeQuetos(split.replaceFirst(Pattern.quote(split.split(":")[0]+":"), "").replaceFirst(" ", ""));
+				String item = removeQuetos(split.replaceFirst(split.split(":")[0]+":", "").replaceFirst(" ", ""));
+				if(item.trim().equals("|")) {
+					splitting=1;
+				}else
+					if(item.trim().equals("|-")) {
+						splitting=2;
+					}
+				else{
 				try {
 					String i = item.substring(2, item.length()-1).replaceFirst(Pattern.quote(item.split(",")[0])+",", "");
 					String clas = i.split("\",")[0], json = i.replaceFirst(clas+"\",", "");
 					d.set(key, g.getAdapter(Ref.getClass(clas)).fromJson(json));
 					d.setComments(key, comments);
 				} catch (Exception e1) {
-					try {
-						d.set(key, parser.parse(item));
-					}catch(Exception er) {
-						d.set(key, item);
-					}
+					d.set(key, item);
 					d.setComments(key, comments);
 				}
 				comments = Lists.newArrayList();
-			}
+			}}
 			if(!items.isEmpty()) {
 				d.set(key, items);
 				d.setComments(key, comments);
 			}
 		}
-		}catch(Exception er) {}
 	}
 	
 	public void setFile(File f) {
@@ -208,12 +249,19 @@ public class Data {
 			if(!d.contains("."))a.add(d);
 		return a;
 	}
-	
+
 	public Set<String> getKeys(String key) {
+		return getKeys(key, false);
+	}
+	
+	public Set<String> getKeys(String key, boolean subkeys) {
 		HashSet<String> a = Sets.newHashSet();
 		for(String d : map.keySet())
-			if(d.contains(key) && d.split(key)[1].startsWith("."))
-				a.add(d);
+			if(d.startsWith(key) && !d.replaceFirst(d.split(key)[0], "").startsWith("."))
+				if(subkeys)
+					a.add(d.replaceFirst(key+"\\.", ""));
+				else
+				a.add((d.replaceFirst(key+"\\.", "")).split("\\.")[0]);
 		return a;
 	}
 	
@@ -256,14 +304,14 @@ public class Data {
 		try {
 			return (short)get(key);
 		} catch (Exception error) {
-			return (short)getInt(key);
+			return StringUtils.getShort(key);
 	}}
 	
 	public byte getByte(String key) {
 		try {
 			return (byte)get(key);
 		} catch (Exception error) {
-			return (byte)getInt(key);
+			return StringUtils.getByte(key);
 		}
 	}
 	
@@ -272,7 +320,7 @@ public class Data {
 			return (float)get(key);
 		} catch (Exception error) {
 			try {
-				return Float.parseFloat(getString(key));
+				return StringUtils.getFloat(getString(key));
 			} catch (Exception errorr) {
 				return 0;
 			}
@@ -283,7 +331,7 @@ public class Data {
 		try {
 			return (long)get(key);
 		} catch (Exception error) {
-			return (long)getFloat(key);
+			return StringUtils.getLong(key);
 		}
 	}
 	
@@ -300,7 +348,7 @@ public class Data {
 			return (double)get(key);
 		} catch (Exception error) {
 			try {
-				return Double.parseDouble(getString(key));
+				return StringUtils.getDouble(getString(key));
 			} catch (Exception errorr) {
 				return 0;
 			}
@@ -309,7 +357,7 @@ public class Data {
 	
 	public String getString(String key) {
 		try {
-			return get(key).toString();
+			return (String)get(key);
 		} catch (Exception error) {
 			return null;
 		}
@@ -351,7 +399,7 @@ public class Data {
 	@SuppressWarnings("unchecked")
 	public List<String> getStringList(String key) {
 		try {
-			return (List<String>)get(key);
+			return get(key) instanceof List<?> ? (List<String>)get(key):Lists.newArrayList();
 		} catch (Exception error) {
 			return Lists.newArrayList();
 		}
@@ -430,10 +478,11 @@ public class Data {
 	}
 	
     private static String removeQuetos(String value) {
+    	try {
         if (value.startsWith("\"") && value.endsWith("\"") || value.startsWith("'") && value.endsWith("'")) {
             return value.substring(1, value.length()-1);
         }
-
+    	}catch(Exception er) {}
         return value;
     }
 

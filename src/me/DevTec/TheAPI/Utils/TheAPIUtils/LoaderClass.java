@@ -190,6 +190,7 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.ServerList.FakeMax", 125);
 		config.addDefault("Options.ServerList.Motd", "&eTheAPI's server MOTD\n&cServer version &6%server_version%");
 		config.addDefault("Options.HideErrors", false); //hide only TheAPI errors
+		config.addDefault("Options.User-SavingType", "YAML");
 		config.addDefault("Options.AntiBot.Use", false);
 		config.addDefault("Options.AntiBot.TimeBetweenPlayer", 10); //10 milis
 		config.addDefault("Options.Optimize.TNT.Use", true);

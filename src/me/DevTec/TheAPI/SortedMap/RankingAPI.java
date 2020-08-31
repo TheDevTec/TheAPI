@@ -1,12 +1,12 @@
 package me.DevTec.TheAPI.SortedMap;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 
 public class RankingAPI<K, V> {
-	private HashMap<K, V> s;
+	private LinkedHashMap<K, V> s;
 	public RankingAPI(HashMap<K, V> map) {
 		setMap(map);
 	}
@@ -14,12 +14,15 @@ public class RankingAPI<K, V> {
 	public K getObject(int position) {
 		if (position == 0)
 			position = 1;
-		try {
-			position = s.keySet().size() - position;
-			return new ArrayList<K>(s.keySet()).get((s.keySet().size() - 1) - position);
-		} catch (Exception e) {
-			return null;
-		}
+			int i = 0;
+			K f = null;
+			for(Entry<K, V> e: s.entrySet()) {
+				if(++i>=position) {
+					f=e.getKey();
+					break;
+				}
+			}
+			return f;
 	}
 
 	public int size() {
@@ -57,9 +60,15 @@ public class RankingAPI<K, V> {
 	}
 
 	public int getPosition(K o) {
-		int i = 0;
+		int i = 0, f=0;
 		if (s.containsKey(o))
-			return new ArrayList<K>(s.keySet()).indexOf(o) + 1;
-		return i;
+			for(Entry<K, V> e: s.entrySet()) {
+				if(e.getKey().equals(o)) {
+					f=1;
+					break;
+				}
+				++i;
+			}
+		return f==0?0:++i;
 	}
 }

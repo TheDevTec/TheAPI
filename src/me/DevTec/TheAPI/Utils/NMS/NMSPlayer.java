@@ -1,6 +1,7 @@
 package me.DevTec.TheAPI.Utils.NMS;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -387,19 +388,35 @@ public class NMSPlayer {
 
 	public String getCustomName() {
 		Object o = Reflections.invoke(a, Reflections.getMethod(c, "getCustomName"));
-		return (String)(Reflections.invoke(o, Reflections.getMethod(Reflections.getNMSClass("IChatBaseComponent"), "getText")));
+		return (String)(Ref.invoke(o, Ref.method(Ref.nms("IChatBaseComponent"), "getText")));
 	}
 
 	public void setCustomName(String name) {
 		Reflections.invoke(a, findMethod("setCustomName", NMSAPI.getIChatBaseComponentText(name)), NMSAPI.getIChatBaseComponentText(name));
 	}
 
-	public boolean getTabListName() {
-		return (boolean) getField("listName");
+	public String getTabListName() {
+		Object o = getField("listName");
+		return o instanceof String ? (String)o : (String)(Ref.invoke(o, Ref.method(Ref.nms("IChatBaseComponent"), "getText")));
 	}
 
+	private static Object update = Ref.get(null, Ref.field(Ref.nms("PacketPlayOutPlayerInfo$EnumPlayerInfoAction"), "UPDATE_DISPLAY_NAME"));
+	@SuppressWarnings("unchecked")
 	public void setTabListName(String name) {
-		Reflections.setField(a, Reflections.getField(c, "listName"), NMSAPI.getIChatBaseComponentText(name));
+		if(Ref.field(c, "listName").getType() == String.class)
+			Reflections.setField(a, "listName", name);
+		else
+			Reflections.setField(a, "listName", ((Object[])Ref.invokeNulled(Ref.method(Ref.craft("util.CraftChatMessage"), "fromString", String.class), name))[0]);
+		Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutPlayerInfo")));
+		Ref.set(packet, "a", update);
+		((List<Object>)Ref.get(packet, "b")).add(Ref.createPlayerInfoData(packet,getProfile(),getPing(),getPlayer().getGameMode().name(),name));
+		for (Player player : TheAPI.getOnlinePlayers())
+		      if (TheAPI.canSee(player, getPlayer()) || player.equals(getPlayer()))
+		    	  Ref.sendPacket(player, packet);
+	}
+	
+	public Object getProfile() {
+		return Ref.invoke(a, "getProfile");
 	}
 
 	public boolean getCustomNameVisible() {

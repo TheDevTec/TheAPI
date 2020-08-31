@@ -636,7 +636,7 @@ public class NMSAPI {
 	}
 
 	public static Object getIChatBaseComponentText(String text) {
-		return getIChatBaseComponentJson("{\"text\":\"" + text + "\"}");
+		return getIChatBaseComponentJson("{\"text\":\""+text+"\"}");
 	}
 	
 	public static Object getIChatBaseComponentJson(String json) {

@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.DevTec.TheAPI.Utils.TheCoder;
+import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class User {
 	private UUID s;
@@ -87,8 +89,7 @@ public class User {
 
 	public ItemStack getItemStack(String key) {
 		try {
-			String inSet = getString(key);
-			return (ItemStack) TheCoder.fromString(inSet);
+			return (ItemStack) TheCoder.fromString(getString(key));
 		} catch (Exception e) {
 			return (ItemStack) get(key);
 		}
@@ -98,7 +99,7 @@ public class User {
 	public List<ItemStack> getItemStacks(String key) {
 		List<ItemStack> list = new ArrayList<ItemStack>();
 		try {
-			List<String> inSet = (List<String>) getList(key);
+			List<String> inSet = a.getStringList(key);
 			for (String o : inSet) {
 				list.add((ItemStack) TheCoder.fromStringToList(o));
 			}
@@ -112,7 +113,7 @@ public class User {
 		if (o instanceof ItemStack) {
 			o = TheCoder.toString(o);
 		}
-		if (o instanceof List && ((List<?>) o).get(0) instanceof ItemStack) {
+		if (o instanceof List && !((List<?>) o).isEmpty() && ((List<?>) o).get(0) instanceof ItemStack) {
 			@SuppressWarnings("unchecked")
 			List<ItemStack> list = (List<ItemStack>) o;
 			List<String> newList = new ArrayList<String>();
@@ -133,7 +134,11 @@ public class User {
 	}
 
 	public void save() {
-		a.writeToFile(DataType.DATA);
+		try {
+			a.writeToFile(DataType.valueOf(LoaderClass.config.getString("Options.User-SavingType")));
+		}catch(Exception r) {
+			a.writeToFile(DataType.YAML);
+		}
 	}
 
 	public Set<String> getKeys(String key) {
@@ -171,6 +176,8 @@ public class User {
 	public boolean exists(String key) {
 		return getString(key) != null;
 	}
+	
+	private static Pattern isD = Pattern.compile("[0-9.-]+"),isN = Pattern.compile("[0-9-]+");
 
 	/**
 	 * @see see getBoolean(key) method
@@ -190,11 +197,11 @@ public class User {
 	}
 
 	public boolean isDouble(String key) {
-		return a.get(key) instanceof Double;
+		return a.get(key) instanceof Double || isD.matcher(getString(key)).find();
 	}
 
 	public boolean isInt(String key) {
-		return a.get(key) instanceof Integer;
+		return a.get(key) instanceof Integer || isN.matcher(getString(key)).find();
 	}
 
 	public boolean isList(String key) {
@@ -202,11 +209,11 @@ public class User {
 	}
 
 	public boolean isLong(String key) {
-		return a.get(key) instanceof Long;
+		return a.get(key) instanceof Long || isN.matcher(getString(key)).find();
 	}
 
 	public boolean isFloat(String key) {
-		return a.get(key) instanceof Float;
+		return a.get(key) instanceof Float || isD.matcher(getString(key)).find();
 	}
 
 	public String getString(String key) {
