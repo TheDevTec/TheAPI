@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.json.simple.parser.JSONParser;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -68,6 +70,7 @@ public class Data {
 	
 	private HashMap<String, Dat> map = Maps.newHashMap();
 	private static Gson g = new Gson();
+	private static JSONParser parser = new JSONParser();
 	
 	//Whole Config or Byte[] in String
 	@SuppressWarnings("unchecked")
@@ -109,13 +112,11 @@ public class Data {
 						String clas = i.split("\",")[0], json = i.replaceFirst(clas+"\",", "");
 						items.add(g.fromJson(json, Ref.getClass(clas)));
 					} catch (Exception e1) {
-						if(item.replaceAll("[0-9-]+", "").isEmpty())
-							items.add(StringUtils.getFloat(item));
-						else
-						if(item.replaceAll("[0-9.-]+", "").isEmpty())
-							items.add(StringUtils.getDouble(item));
-						else
-						items.add(item);
+						try {
+							items.add(parser.parse(item));
+						}catch(Exception er) {
+							items.add(item);
+						}
 					}
 					continue;
 				}
@@ -145,13 +146,11 @@ public class Data {
 					d.set(key, g.getAdapter(Ref.getClass(clas)).fromJson(json));
 					d.setComments(key, comments);
 				} catch (Exception e1) {
-					if(item.replaceAll("[0-9-]+", "").isEmpty())
-						d.set(key, StringUtils.getFloat(item));
-					else
-					if(item.replaceAll("[0-9.-]+", "").isEmpty())
-						d.set(key, StringUtils.getDouble(item));
-					else
-					d.set(key, item);
+					try {
+						d.set(key, parser.parse(item));
+					}catch(Exception er) {
+						d.set(key, item);
+					}
 					d.setComments(key, comments);
 				}
 				comments = Lists.newArrayList();
