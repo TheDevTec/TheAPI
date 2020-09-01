@@ -60,7 +60,7 @@ public class Tasks {
 								seen.add(s);
 						if(online==-1)online=seen.size();
 						sd = Ref.newInstance(Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class, int.class), LoaderClass.plugin.max>-1?LoaderClass.plugin.max:Bukkit.getMaxPlayers(),online);
-						Object[] a = (Object[]) Array.newInstance(Tasks.c, LoaderClass.plugin.onlineText.size());
+						Object[] a = (Object[]) Array.newInstance(Tasks.c, seen.size());
 						int i = 0;
 						for(Player s : seen) {
 							a[i]=Ref.createGameProfile(s.getUniqueId(), s.getName());
