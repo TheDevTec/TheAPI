@@ -1,5 +1,6 @@
 package me.DevTec.TheAPI.Utils.TheAPIUtils;
 
+import java.lang.reflect.Array;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +26,7 @@ import me.DevTec.TheAPI.Utils.Reflections.Ref;
 public class Tasks {
 	private static boolean load;
 	private static int task;
+	private static Class<?> c=Ref.getClass("com.mojang.authlib.GameProfile")!=null?Ref.getClass("com.mojang.authlib.GameProfile"):Ref.getClass("net.minecraft.util.com.mojang.authlib.GameProfile");
 	private static me.DevTec.TheAPI.Utils.PacketListenerAPI.Listener l=null;
 
 	public static void load() {
@@ -41,16 +43,13 @@ public class Tasks {
 					Object w = Ref.invoke(Ref.server(),"getServerPing");
 					if(w==null)w=Ref.invoke(Ref.server(), "aG");
 					if(w==null)w=Ref.invoke(Ref.invoke(Ref.server(),"getServer"), "getServerPing");
-					if(w==null)w=Ref.invoke(Ref.invoke(Ref.server(),"getServer"), "aG");
 					Object sd = Ref.newInstance(Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class, int.class), LoaderClass.plugin.max>-1?LoaderClass.plugin.max:Bukkit.getMaxPlayers(),LoaderClass.plugin.fakeOnline>-1?LoaderClass.plugin.fakeOnline:TheAPI.getOnlinePlayers().size());
 					if(LoaderClass.plugin.onlineText!=null && !LoaderClass.plugin.onlineText.isEmpty()) {
-						Object[] texts = new Object[LoaderClass.plugin.onlineText.size()];
-					int i = 0;
-					for(String s : LoaderClass.plugin.onlineText) {
-						texts[i]=Ref.createGameProfile(UUID.randomUUID(), TheAPI.colorize(PlaceholderAPI.setPlaceholders(null, s)));
-						++i;
-					}
-					Ref.set(sd, "c", texts);
+					Object[] a = (Object[]) Array.newInstance(Tasks.c, LoaderClass.plugin.onlineText.size());
+					int i = -1;
+					for(String s : LoaderClass.plugin.onlineText)
+						a[++i]=Ref.createGameProfile(UUID.randomUUID(), TheAPI.colorize(PlaceholderAPI.setPlaceholders(null, s)));
+					Ref.set(sd,"c", a);
 					}else {
 						int online = LoaderClass.plugin.fakeOnline>-1?LoaderClass.plugin.fakeOnline:TheAPI.getOnlinePlayers().size();
 						List<Player> seen = Lists.newArrayList();
@@ -59,14 +58,11 @@ public class Tasks {
 								seen.add(s);
 						if(online==-1)online=seen.size();
 						sd = Ref.newInstance(Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class, int.class), LoaderClass.plugin.max>-1?LoaderClass.plugin.max:Bukkit.getMaxPlayers(),online);
-						Object[] texts = new Object[seen.size()];
-						int i = 0;
-						for(Player s : seen) {
-							texts[i]=Ref.createGameProfile(s.getUniqueId(), s.getName());
-							++i;
-						}
-						Ref.set(sd, "c", texts);
-						
+						Object[] a = (Object[]) Array.newInstance(Tasks.c, LoaderClass.plugin.onlineText.size());
+						int i = -1;
+						for(Player s : seen)
+							a[++i]=Ref.createGameProfile(s.getUniqueId(), s.getName());
+						Ref.set(sd, "c", a);
 					}
 					Ref.set(w, "b", sd);
 					if(LoaderClass.plugin.motd!=null)
