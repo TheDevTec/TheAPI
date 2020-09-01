@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,30 +17,22 @@ import java.util.zip.GZIPOutputStream;
 import org.json.simple.parser.JSONParser;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import me.DevTec.TheAPI.MultiHashMap.MultiMap;
-import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
 import me.DevTec.TheAPI.Utils.File.Reader;
 import me.DevTec.TheAPI.Utils.File.Writer;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
-public class Data extends MultiMap<Integer, String, DataHolder> {
+public class Data {
 	public static class DataHolder {
-		private String key;
 		private Object o;
 		private List<String> lines = Lists.newArrayList();
-		private int i;
-		public DataHolder(String key, Object object, List<String> unusedLines) {
-			this.key=key;
+		public DataHolder(Object object, List<String> unusedLines) {
 			o=object;
 			lines=unusedLines;
-		}
-		
-		public String getKey() {
-			return key;
 		}
 		
 		public Object getValue() {
@@ -54,7 +47,8 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 			return lines;
 		}
 	}
-	
+
+	private HashMap<String, DataHolder> map = Maps.newHashMap();
 	private List<String> header = Lists.newArrayList(), footer= Lists.newArrayList();
 	private File a;
 	public Data() {
@@ -76,8 +70,7 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 	
 	public boolean exists(String path) {
 		boolean a = false;
-		for(Integer ii : keySet())
-			for(String k : getThreads(ii))
+		for(String k : map.keySet())
 				if(k.startsWith(path)) {
 					a=true;
 					break;
@@ -100,27 +93,14 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 	}
 
 	public DataHolder getData(String key) {
-		DataHolder f = null;
-		for(int i : this.keySet()) {
-			if(getThreads(i).get(0).equals(key)) {
-				f=get(i, key);
-				break;
-			}
-		}
-		return f;
+		return map.getOrDefault(key, null);
 	}
 	
 	public DataHolder getOrCreateData(String key) {
-		DataHolder h = getData(key);
+		DataHolder h = map.getOrDefault(key, null);
 		if(h==null) {
-			h = new DataHolder(key, null, Lists.newArrayList());
-			for(int i = 0; i > -1; ++i) {
-				if(!keySet().contains(i)) {
-					h.i=i;
-					put(i, key, h);
-					break;
-				}
-			}
+			h = new DataHolder(null, Lists.newArrayList());
+			map.put(key, h);
 		}
 		return h;
 	}
@@ -132,16 +112,11 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 		}
 		DataHolder h = getOrCreateData(key);
 		h.setValue(value);
-		put(h.i, key, h);
+		map.replace(key, h);
 	}
 	
 	public void remove(String key) {
-		for(int i : this.keySet()) {
-			if(getThreads(i).get(0).equals(key)) {
-				removeThread(i, key);
-				break;
-			}
-		}
+		map.remove(key);
 	}
 
 	public List<String> getLines(String key) {
@@ -150,11 +125,10 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 	}
 	
 	public void setLines(String key, List<String> value) {
-		if(value==null||key==null)
-			return;
+		if(value==null||key==null)return;
 		DataHolder h = getOrCreateData(key);
 		h.lines=value;
-		put(h.i, key, h);
+		map.replace(key, h);
 	}
 	
 	public void addLine(String key, String value) {
@@ -162,7 +136,7 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 			return;
 		DataHolder h = getOrCreateData(key);
 		h.lines.add(value);
-		put(h.i, key, h);
+		map.replace(key, h);
 	}
 	
 	public void removeLine(String key, String value) {
@@ -170,7 +144,7 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 			return;
 		DataHolder h = getOrCreateData(key);
 		h.lines.remove(value);
-		put(h.i, key, h);
+		map.replace(key, h);
 	}
 	
 	public void removeLine(String key, int line) {
@@ -178,7 +152,7 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 			return;
 		DataHolder h = getOrCreateData(key);
 		h.lines.remove(line);
-		put(h.i, key, h);
+		map.replace(key, h);
 	}
 	
 	public File getFile() {
@@ -203,7 +177,7 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 	
 	@SuppressWarnings("unchecked")
 	public void reload(File a) {
-		clear();
+		map.clear();
 		try {
 			ByteArrayInputStream bos = new ByteArrayInputStream(Base64.getDecoder().decode(Reader.read(a, false)));
 			GZIPInputStream zos = new GZIPInputStream(bos);
@@ -236,10 +210,16 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 		for(String text : input.split(System.lineSeparator())) {
 			if(text.trim().startsWith("#")||c==0 && text.trim().isEmpty()) {
 				if(c!=0) {
-					if(c==1)
+					if(c==1) {
 						set(key, readObject(v.toString()));
-						if(c==2)
-						set(key, items);
+						v=new StringBuffer();
+						}
+						if(c==2) {
+							set(key, items);
+							setLines(key, lines);
+							items=Lists.newArrayList();
+							lines=Lists.newArrayList();
+						}
 						c=0;
 				}
 				if(f==0)
@@ -249,10 +229,18 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 				continue;
 			}
 			if(c!=0 && text.contains(":") && text.matches("([A-Za-z0-9]|[^A-Za-z0-9])+:*")) {
-				if(c==1)
+				if(c==1) {
 				set(key, readObject(v.toString()));
-				if(c==2)
-				set(key, items);
+				setLines(key, lines);
+				lines=Lists.newArrayList();
+				v=new StringBuffer();
+				}
+				if(c==2) {
+					set(key, items);
+					setLines(key, lines);
+					items=Lists.newArrayList();
+					lines=Lists.newArrayList();
+				}
 				c=0;
 			}
 			if(c==2 || text.replaceFirst(cd(c(text)), "").startsWith("- ") && !key.equals("")) {
@@ -260,7 +248,9 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 			}else {
 				if(!items.isEmpty()) {
 					set(key, items);
+					setLines(key, lines);
 					items=Lists.newArrayList();
+					lines=Lists.newArrayList();
 				}
 				if(c==1) {
 					v.append(text.replaceFirst(cd(c(text)),""));
@@ -283,10 +273,6 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 				key+=(key.equals("")?"":".")+text.split(":")[0].trim();
 				f=1;
 				last=c(text.split(":")[0]);
-				if(!lines.isEmpty()) {
-				getOrCreateData(key).lines=lines;
-				lines=Lists.newArrayList();
-				}
 				if(!text.replaceFirst(text.split(":")[0]+":", "").trim().isEmpty()) {
 					if(text.replaceFirst(text.split(":")[0]+": ", "").trim().equals("-")) {
 						c=1;
@@ -297,10 +283,14 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 						continue;
 					}
 					set(key, readObject(text.replaceFirst(text.split(":")[0]+": ", "")));
+					if(!lines.isEmpty()) {
+						setLines(key, lines);
+						lines=Lists.newArrayList();
+					}
 				}
 			}
 		}
-		if(!items.isEmpty()) {
+		if(!items.isEmpty()||c==2) {
 			set(key, items);
 			items=Lists.newArrayList();
 		}
@@ -312,10 +302,7 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 	
 	@SuppressWarnings("unchecked")
 	public <T> T get(String key) {
-		for(int i : keySet())
-			if(getThreads(i).contains(key))
-				return (T)get(i, key).getValue();
-		return null;
+		return getData(key)!=null?(T)getData(key).getValue():null;
 	}
 	
 	public String getString(String key) {
@@ -375,8 +362,7 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 
 	public Set<String> getKeys(boolean subkeys) {
 		HashSet<String> a = Sets.newHashSet();
-		for(Integer ii : keySet())
-			for(String d : getThreads(ii))
+			for(String d : map.keySet())
 				if(subkeys)
 					a.add(d);
 				else
@@ -390,8 +376,7 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 	
 	public Set<String> getKeys(String key, boolean subkeys) {
 		HashSet<String> a = Sets.newHashSet();
-		for(Integer ii : keySet())
-			for(String d : getThreads(ii))
+		for(String d : map.keySet())
 			if(d.startsWith(key) && !d.replaceFirst(d.split(key)[0], "").startsWith("."))
 				if(subkeys)
 					a.add(d.replaceFirst(key+"\\.", ""));
@@ -412,8 +397,7 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 				ObjectOutputStream ous = new ObjectOutputStream(zos);
 				ous.writeObject(header);
 				ous.writeObject(footer);
-				for(Integer ii : keySet())
-					for(String key : getThreads(ii)) {
+				for(String key : map.keySet()) {
 					try {
 						ous.writeUTF(key);
 						ous.writeObject(get(key));
@@ -429,22 +413,20 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 			}catch(Exception e) {}
 			return Base64.getEncoder().encodeToString(new byte[0]);
 		}
-		StringBuilder d = new StringBuilder();
+		StringBuffer d = new StringBuffer();
 		List<String> created = Lists.newArrayList();
 		for(String h : header)
 			d.append(h+System.lineSeparator());
-		for(Integer ii : keySet()) {
+		for(String key : map.keySet()) {
 			String keyr = "";
-			int ir = -1;
-			for(String k : getThreads(ii).get(0).split("\\.")) {
-				++ir;
+			int ir = 0;
+			for(String k : key.split("\\.")) {
 				keyr+=(keyr.equals("")?"":".")+k;
-				if(created.contains(keyr))continue;
+				if(!created.contains(keyr)) {
+				created.add(keyr);
 				if(get(keyr)==null) {
-					created.add(keyr);
 					d.append(cs(ir)+k+":"+System.lineSeparator());
 				}else {
-					created.add(keyr);
 					Object o = get(keyr);
 					for(String h : getLines(keyr))
 						d.append(cs(ir)+h+System.lineSeparator());
@@ -457,6 +439,8 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 						d.append(cs(ir)+k+":"+System.lineSeparator()+f.toString());
 					}
 				}
+				}
+				++ir;
 			}
 		}
 		for(String h : footer)

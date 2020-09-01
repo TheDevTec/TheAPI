@@ -28,7 +28,7 @@ public class Config {
 			} catch (Exception e) {
 			}
         }
-    	f=new Data(file);
+    	f=new Data(file, false);
     	t=type;
     	reload();
     }
