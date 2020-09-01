@@ -266,22 +266,20 @@ public class Data extends MultiMap<Integer, String, DataHolder> {
 					v.append(text.replaceFirst(cd(c(text)),""));
 					continue;
 				}
-				if(c(text.split(":")[0]) < last) {
+				if(c(text.split(":")[0]) <= last) {
 					if(!text.startsWith(" "))key="";
-					else
-					for(int i = 0; i < last-c(text.split(":")[0]); ++i) {
-						String lastr = key.split("\\.")[key.split("\\.").length-1]+1;
-						int remove = key.length()-lastr.length();
-						if(remove < 0)remove=key.length();
-						key=key.substring(0, remove);
-					}
-				}else
 					if(c(text.split(":")[0]) == last) {
 						String lastr = key.split("\\.")[key.split("\\.").length-1]+1;
 						int remove = key.length()-lastr.length();
-						if(remove < 0)remove=key.length();
+						if(remove > 0)
 						key=key.substring(0, remove);
-					}
+					}else {
+					for(int i = 0; i < Math.abs(last-c(text.split(":")[0])); ++i) {
+					String lastr = key.split("\\.")[key.split("\\.").length-1]+1;
+					int remove = key.length()-lastr.length();
+					if(remove < 0)break;
+					key=key.substring(0, remove);
+				}}}
 				key+=(key.equals("")?"":".")+text.split(":")[0].trim();
 				f=1;
 				last=c(text.split(":")[0]);
