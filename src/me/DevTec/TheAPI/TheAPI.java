@@ -1050,6 +1050,10 @@ public class TheAPI {
 		}
 		return a;
 	}
+	
+	public static Collection<User> getCachedUsers() {
+		return cache.values();
+	}
 
 	/**
 	 * @see see Return List of users names (For ex. Straikerina)
