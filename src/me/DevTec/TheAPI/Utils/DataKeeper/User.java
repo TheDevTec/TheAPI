@@ -58,7 +58,7 @@ public class User {
 			} catch (Exception e) {
 			}
         }
-    	a=new Data(file);
+    	a=new Data(file, true);
 	}
 	
 	public void delete() {
@@ -135,9 +135,9 @@ public class User {
 
 	public void save() {
 		try {
-			a.writeToFile(DataType.valueOf(LoaderClass.config.getString("Options.User-SavingType")));
+			a.save(DataType.valueOf(LoaderClass.config.getString("Options.User-SavingType")));
 		}catch(Exception r) {
-			a.writeToFile(DataType.YAML);
+			a.save(DataType.YAML);
 		}
 	}
 
@@ -201,7 +201,7 @@ public class User {
 	}
 
 	public boolean isInt(String key) {
-		return a.get(key) instanceof Integer || isN.matcher(getString(key)).find();
+		return a.get(key) instanceof Long || isN.matcher(getString(key)).find();
 	}
 
 	public boolean isList(String key) {
@@ -213,7 +213,7 @@ public class User {
 	}
 
 	public boolean isFloat(String key) {
-		return a.get(key) instanceof Float || isD.matcher(getString(key)).find();
+		return a.get(key) instanceof Float || a.get(key) instanceof Long || a.get(key) instanceof Double || isD.matcher(getString(key)).find();
 	}
 
 	public String getString(String key) {

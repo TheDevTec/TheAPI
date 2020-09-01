@@ -5,9 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,81 +13,212 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.json.simple.parser.JSONParser;
+
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-import me.DevTec.TheAPI.SortedMap.SortedMap;
-import me.DevTec.TheAPI.Utils.StringUtils;
+import me.DevTec.TheAPI.MultiHashMap.MultiMap;
+import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
 import me.DevTec.TheAPI.Utils.File.Reader;
 import me.DevTec.TheAPI.Utils.File.Writer;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
-public class Data {
-	
-	public static class Dat {
+public class Data extends MultiMap<Integer, String, DataHolder> {
+	public static class DataHolder {
+		private String key;
 		private Object o;
-		private List<String> c = Lists.newArrayList();
-		public Dat(Object item, List<String> c) {
-			o=item;
-			this.c=c;
+		private List<String> lines = Lists.newArrayList();
+		private int i;
+		public DataHolder(String key, Object object, List<String> unusedLines) {
+			this.key=key;
+			o=object;
+			lines=unusedLines;
 		}
 		
-		public Dat() {
+		public String getKey() {
+			return key;
 		}
 		
-		public Dat(Object value) {
-			o=value;
-		}
-
-		public List<String> getComments() {
-			return c;
-		}
-		
-		public Object get() {
+		public Object getValue() {
 			return o;
 		}
 		
-		public void set(Object o) {
+		public void setValue(Object o) {
 			this.o=o;
+		}
+		
+		public List<String> getLines() {
+			return lines;
 		}
 	}
 	
+	private List<String> header = Lists.newArrayList(), footer= Lists.newArrayList();
+	private File a;
 	public Data() {
-		
 	}
 	
-	private File f;
-	public Data(File toRead) {
-		f=toRead;
-		load(this, f);
+	public Data(String filePath, boolean load) {
+		File f = new File(filePath);
+		if(!f.exists()) {
+			f.getParentFile().mkdirs();
+			try {
+				f.createNewFile();
+			} catch (Exception e) {
+			}
+		}
+		a=f;
+		if(load)
+		reload(a);
 	}
 	
-	private HashMap<String, Dat> map = Maps.newHashMap();
-	private static Gson g = new Gson();
-	
-	private static String getSpaces(String s) {
-		String space = "";
-		for(char c : s.toCharArray())
-			if(c==' ')
-				space+=" ";
-			else break;
-		return space;
+	public boolean exists(String path) {
+		boolean a = false;
+		for(Integer ii : keySet())
+			for(String k : getThreads(ii))
+				if(k.startsWith(path)) {
+					a=true;
+					break;
+				}
+		return a;
+	}
+
+	public Data(File f) {
+		this(f,true);
 	}
 	
-	//Whole Config or Byte[] in String
+	public Data(File f, boolean load) {
+		a=f;
+		if(load)
+			reload(a);
+	}
+	
+	public void setFile(File f) {
+		a=f;
+	}
+
+	public DataHolder getData(String key) {
+		DataHolder f = null;
+		for(int i : this.keySet()) {
+			if(getThreads(i).get(0).equals(key)) {
+				f=get(i, key);
+				break;
+			}
+		}
+		return f;
+	}
+	
+	public DataHolder getOrCreateData(String key) {
+		DataHolder h = getData(key);
+		if(h==null) {
+			h = new DataHolder(key, null, Lists.newArrayList());
+			for(int i = 0; i > -1; ++i) {
+				if(!keySet().contains(i)) {
+					h.i=i;
+					put(i, key, h);
+					break;
+				}
+			}
+		}
+		return h;
+	}
+	
+	public void set(String key, Object value) {
+		if(value==null) {
+			remove(key);
+			return;
+		}
+		DataHolder h = getOrCreateData(key);
+		h.setValue(value);
+		put(h.i, key, h);
+	}
+	
+	public void remove(String key) {
+		for(int i : this.keySet()) {
+			if(getThreads(i).get(0).equals(key)) {
+				removeThread(i, key);
+				break;
+			}
+		}
+	}
+
+	public List<String> getLines(String key) {
+		if(key==null)return Lists.newArrayList();
+		return getOrCreateData(key).lines;
+	}
+	
+	public void setLines(String key, List<String> value) {
+		if(value==null||key==null)
+			return;
+		DataHolder h = getOrCreateData(key);
+		h.lines=value;
+		put(h.i, key, h);
+	}
+	
+	public void addLine(String key, String value) {
+		if(value==null||key==null)
+			return;
+		DataHolder h = getOrCreateData(key);
+		h.lines.add(value);
+		put(h.i, key, h);
+	}
+	
+	public void removeLine(String key, String value) {
+		if(value==null||key==null)
+			return;
+		DataHolder h = getOrCreateData(key);
+		h.lines.remove(value);
+		put(h.i, key, h);
+	}
+	
+	public void removeLine(String key, int line) {
+		if(line<=-1||key==null)
+			return;
+		DataHolder h = getOrCreateData(key);
+		h.lines.remove(line);
+		put(h.i, key, h);
+	}
+	
+	public File getFile() {
+		return a;
+	}
+	
+	public void setHeader(List<String> lines) {
+		header=lines;
+	}
+	
+	public void setFooter(List<String> lines) {
+		footer=lines;
+	}
+	
+	public List<String> getHeader() {
+		return header;
+	}
+	
+	public List<String> getFooter() {
+		return footer;
+	}
+	
 	@SuppressWarnings("unchecked")
-	public static void load(Data d, File f) {
+	public void reload(File a) {
+		clear();
 		try {
-			ByteArrayInputStream bos = new ByteArrayInputStream(Base64.getDecoder().decode(Reader.read(f, false)));
+			ByteArrayInputStream bos = new ByteArrayInputStream(Base64.getDecoder().decode(Reader.read(a, false)));
 			GZIPInputStream zos = new GZIPInputStream(bos);
 			ObjectInputStream ous = new ObjectInputStream(zos);
+			try {
+			header=(List<String>)ous.readObject();
+			footer=(List<String>)ous.readObject();
+			}catch(Exception e) {}
 			while(true)
 				try {
 					String key = ous.readUTF();
-					d.set(key, ous.readObject());
-					d.setComments(key, (List<String>)ous.readObject());
+					set(key, ous.readObject());
+					try {
+					setLines(key, (List<String>)ous.readObject());
+					}catch(Exception er) {}
 				}catch(Exception e) {
 				break;
 				}
@@ -97,156 +226,163 @@ public class Data {
 			zos.close();
 			ous.close();
 		}catch(Exception e) {
-			String key = "";
-			StringBuilder b = new StringBuilder();
-			List<Object> items = Lists.newArrayList();
-			List<String> comments = Lists.newArrayList();
-			int last = 0, splitting=0;
-			for(String split : Reader.read(f, true).split(System.lineSeparator())) {
-				if(split.startsWith("# ")) {
-					comments.add(split.replaceFirst(split.split("# ")[0]+"# ", ""));
-					continue;
+		String input = Reader.read(a, true);
+		if(input.trim().isEmpty())return;
+		List<Object> items = Lists.newArrayList();
+		List<String> lines = Lists.newArrayList();
+		String key = "";
+		StringBuffer v = new StringBuffer();
+		int last = 0, f=0, c = 0;
+		for(String text : input.split(System.lineSeparator())) {
+			if(text.trim().startsWith("#")||c==0 && text.trim().isEmpty()) {
+				if(c!=0) {
+					if(c==1)
+						set(key, readObject(v.toString()));
+						if(c==2)
+						set(key, items);
+						c=0;
 				}
-				if(split.trim().isEmpty())
-					continue;
-				if(split.startsWith(getSpaces(split)+"- ")) {
-					String item = removeQuetos(split.replaceFirst(split.split("- ")[0]+"- ", "").replaceFirst(" ", ""));
-					try {
-						String i = item.substring(2, item.length()-1).replaceFirst(Pattern.quote(item.split(",")[0])+",", "");
-						String clas = i.split("\",")[0], json = i.replaceFirst(clas+"\",", "");
-						items.add(g.fromJson(json, Ref.getClass(clas)));
-					} catch (Exception e1) {
-						items.add(item);
-					}
-					continue;
-				}
+				if(f==0)
+					header.add(text.replaceFirst(cd(c(text)), ""));
+				else
+				lines.add(text.replaceFirst(cd(c(text)), ""));
+				continue;
+			}
+			if(c!=0 && text.contains(":") && text.matches("([A-Za-z0-9]|[^A-Za-z0-9])+:*")) {
+				if(c==1)
+				set(key, readObject(v.toString()));
+				if(c==2)
+				set(key, items);
+				c=0;
+			}
+			if(c==2 || text.replaceFirst(cd(c(text)), "").startsWith("- ") && !key.equals("")) {
+				items.add(readObject(c!=2?text.replaceFirst(text.split("- ")[0]+"- ", ""):text.replaceFirst(cd(c(text)),"")));
+			}else {
 				if(!items.isEmpty()) {
-					d.set(key, items);
-					d.setComments(key, comments);
-					comments = Lists.newArrayList();
-					items = Lists.newArrayList();
+					set(key, items);
+					items=Lists.newArrayList();
 				}
-				if(splitting!=0) {
-					if(split.contains(":") && split.replaceFirst(split.split(":")[0], "").startsWith(" ")) {
-					if(splitting==1) {
-					d.set(key, b.toString());
-					b=new StringBuilder();
-					}else {
-						d.set(key, items);
-						items = Lists.newArrayList();
+				if(c==1) {
+					v.append(text.replaceFirst(cd(c(text)),""));
+					continue;
+				}
+				if(c(text.split(":")[0]) < last) {
+					if(!text.startsWith(" "))key="";
+					else
+					for(int i = 0; i < last-c(text.split(":")[0]); ++i) {
+						String lastr = key.split("\\.")[key.split("\\.").length-1]+1;
+						int remove = key.length()-lastr.length();
+						if(remove < 0)remove=key.length();
+						key=key.substring(0, remove);
 					}
-					splitting=0;
-					d.setComments(key, comments);
-					comments = Lists.newArrayList();
-					}else {
-						String space = "  ";
-						for(int i = 0; i < last; ++i)
-							space+="  ";
-						if(splitting==2) {
-						try {
-							String item = split.replaceFirst(space, "");
-							String i = item.substring(2, item.length()-1).replaceFirst(Pattern.quote(item.split(",")[0])+",", "");
-							String clas = i.split("\",")[0], json = i.replaceFirst(clas+"\",", "");
-							items.add(g.fromJson(json, Ref.getClass(clas)));
-						} catch (Exception e1) {
-							items.add(split.replaceFirst(space, ""));
-						}}else
-						b.append(split.replaceFirst(space, ""));
+				}else
+					if(c(text.split(":")[0]) == last) {
+						String lastr = key.split("\\.")[key.split("\\.").length-1]+1;
+						int remove = key.length()-lastr.length();
+						if(remove < 0)remove=key.length();
+						key=key.substring(0, remove);
+					}
+				key+=(key.equals("")?"":".")+text.split(":")[0].trim();
+				f=1;
+				last=c(text.split(":")[0]);
+				if(!lines.isEmpty()) {
+				getOrCreateData(key).lines=lines;
+				lines=Lists.newArrayList();
+				}
+				if(!text.replaceFirst(text.split(":")[0]+":", "").trim().isEmpty()) {
+					if(text.replaceFirst(text.split(":")[0]+": ", "").trim().equals("-")) {
+						c=1;
 						continue;
 					}
-				}
-				if(split.split("  ").length<last) {
-					if(!split.startsWith(" "))key="";
-					else {
-						for(int i = 0; i < last-split.split("  ").length+1; ++i)
-							try {
-							key=key.substring(0,key.length()-((key.split("\\.")[key.split("\\.").length-1]).length()+1));
-							}catch(Exception er) {
-								key=key.substring(0,key.length()-((key.split("\\.")[key.split("\\.").length-1]).length()));
-								break;
-							}
+					if(text.replaceFirst(text.split(":")[0]+": ", "").trim().equals("|-")) {
+						c=2;
+						continue;
 					}
-				}else
-				if(split.split("  ").length==last) {
-					try {
-					key=key.substring(0,key.length()-((key.split("\\.")[key.split("\\.").length-1]).length()+1));
-					}catch(Exception er) {
-						key=key.substring(0,key.length()-((key.split("\\.")[key.split("\\.").length-1]).length()));
-					}
+					set(key, readObject(text.replaceFirst(text.split(":")[0]+": ", "")));
 				}
-				last = split.split("  ").length;
-				
-				key+=(key.equals("")?"":".")+split.split(":")[0].trim();
-				if(split.replaceFirst(key+":", "").trim().isEmpty())continue;
-				String item = removeQuetos(split.replaceFirst(split.split(":")[0]+":", "").replaceFirst(" ", ""));
-				if(item.trim().equals("|")) {
-					splitting=1;
-				}else
-					if(item.trim().equals("|-")) {
-						splitting=2;
-					}
-				else{
-				try {
-					String i = item.substring(2, item.length()-1).replaceFirst(Pattern.quote(item.split(",")[0])+",", "");
-					String clas = i.split("\",")[0], json = i.replaceFirst(clas+"\",", "");
-					d.set(key, g.getAdapter(Ref.getClass(clas)).fromJson(json));
-					d.setComments(key, comments);
-				} catch (Exception e1) {
-					d.set(key, item);
-					d.setComments(key, comments);
-				}
-				comments = Lists.newArrayList();
-			}}
-			if(!items.isEmpty()) {
-				d.set(key, items);
-				d.setComments(key, comments);
 			}
 		}
+		if(!items.isEmpty()) {
+			set(key, items);
+			items=Lists.newArrayList();
+		}
+		if(!lines.isEmpty())
+			footer.addAll(lines);
+		if(c==1)
+			set(key, readObject(v.toString()));
+	}}
+	
+	@SuppressWarnings("unchecked")
+	public <T> T get(String key) {
+		for(int i : keySet())
+			if(getThreads(i).contains(key))
+				return (T)get(i, key).getValue();
+		return null;
 	}
 	
-	public void setFile(File f) {
-		this.f=f;
+	public String getString(String key) {
+		return get(key);
 	}
 	
-	public File getFile() {
-		return f;
+	public int getInt(String key) {
+		return get(key);
 	}
 	
-	public List<String> getComments(String key) {
-		if(key.startsWith("#")||key.trim().isEmpty())return Lists.newArrayList();
-		Dat d = map.getOrDefault(key, new Dat());
-		return d.getComments();
+	public double getDouble(String key) {
+		return get(key);
 	}
 	
-	public void addComment(String key, String comment) {
-		if(key.startsWith("#")||key.trim().isEmpty())return;
-		Dat d = map.getOrDefault(key, new Dat());
-		if(comment!=null)
-			d.getComments().add(comment);
-		map.put(key, d);
+	public long getLong(String key) {
+		return get(key);
 	}
 	
-	public void addComments(String key, List<String> comments) {
-		if(key.startsWith("#")||key.trim().isEmpty())return;
-		Dat d = map.getOrDefault(key, new Dat());
-		if(comments!=null)
-			d.getComments().addAll(comments);
-		map.put(key, d);
+	public float getFloat(String key) {
+		return get(key);
 	}
 	
-	public void setComments(String key, List<String> comments) {
-		if(key.startsWith("#")||key.trim().isEmpty())return;
-		Dat d = map.getOrDefault(key, new Dat());
-		d.getComments().clear();
-		if(comments!=null)
-			d.getComments().addAll(comments);
-		map.put(key, d);
+	public byte getByte(String key) {
+		return get(key);
+	}
+
+	public boolean getBoolean(String key) {
+		return get(key);
+	}
+	
+	public short getShort(String key) {
+		return get(key);
+	}
+	
+	public <T> List<T> getList(String key) {
+		return get(key);
+	}
+	
+	public List<String> getStringList(String key){
+		return get(key);
+	}
+	
+	public void save(DataType type) {
+		Writer w = new Writer(a);
+		w.append(toString(type));
+		w.flush();
+		w.close();
+	}
+	
+	public void save() {
+		save(DataType.YAML);
 	}
 
 	public Set<String> getKeys() {
+		return getKeys(false);
+	}
+
+	public Set<String> getKeys(boolean subkeys) {
 		HashSet<String> a = Sets.newHashSet();
-		for(String d : map.keySet())
-			if(!d.contains("."))a.add(d);
+		for(Integer ii : keySet())
+			for(String d : getThreads(ii))
+				if(subkeys)
+					a.add(d);
+				else
+					a.add(d.split("\\.")[0]);
 		return a;
 	}
 
@@ -256,7 +392,8 @@ public class Data {
 	
 	public Set<String> getKeys(String key, boolean subkeys) {
 		HashSet<String> a = Sets.newHashSet();
-		for(String d : map.keySet())
+		for(Integer ii : keySet())
+			for(String d : getThreads(ii))
 			if(d.startsWith(key) && !d.replaceFirst(d.split(key)[0], "").startsWith("."))
 				if(subkeys)
 					a.add(d.replaceFirst(key+"\\.", ""));
@@ -264,165 +401,9 @@ public class Data {
 				a.add((d.replaceFirst(key+"\\.", "")).split("\\.")[0]);
 		return a;
 	}
-	
-	public Set<String> keySet() {
-		return map.keySet();
-	}
-	
-	public int size() {
-		return map.size();
-	}
-	
-	public void set(String key, Object value) {
-		if(value==null) {
-			remove(key);
-			return;
-		}
-		if(key.startsWith("#")||key.trim().isEmpty())return;
-		Dat d = map.getOrDefault(key, new Dat());
-		d.set(value);
-		map.put(key, d);
-	}
-	
-	public boolean exists(String key) {
-		boolean a = false;
-		for(String d : map.keySet())
-			if(d.contains(key)) {
-				String f = d.replaceFirst(key.replace(".", "\\."), "");
-			if(f.startsWith(".")||f.trim().isEmpty()) {
-				a=true;
-				break;
-			}}
-		return a;
-	}
-	
-	public Object get(String key) {
-		return map.containsKey(key)?map.get(key).get():null;
-	}
-	
-	public short getShort(String key) {
-		try {
-			return (short)get(key);
-		} catch (Exception error) {
-			return StringUtils.getShort(key);
-	}}
-	
-	public byte getByte(String key) {
-		try {
-			return (byte)get(key);
-		} catch (Exception error) {
-			return StringUtils.getByte(key);
-		}
-	}
-	
-	public float getFloat(String key) {
-		try {
-			return (float)get(key);
-		} catch (Exception error) {
-			try {
-				return StringUtils.getFloat(getString(key));
-			} catch (Exception errorr) {
-				return 0;
-			}
-		}
-	}
-	
-	public long getLong(String key) {
-		try {
-			return (long)get(key);
-		} catch (Exception error) {
-			return StringUtils.getLong(key);
-		}
-	}
-	
-	public int getInt(String key) {
-		try {
-			return (int)get(key);
-		} catch (Exception error) {
-			return StringUtils.getInt(key);
-		}
-	}
-	
-	public double getDouble(String key) {
-		try {
-			return (double)get(key);
-		} catch (Exception error) {
-			try {
-				return StringUtils.getDouble(getString(key));
-			} catch (Exception errorr) {
-				return 0;
-			}
-		}
-	}
-	
-	public String getString(String key) {
-		try {
-			return (String)get(key);
-		} catch (Exception error) {
-			return null;
-		}
-	}
-	
-	public double[] getDoubleArray(String key) {
-		try {
-			return (double[])get(key);
-		} catch (Exception error) {
-			return new double[0];
-		}
-	}
-	
-	public byte[] getByteArray(String key) {
-		try {
-			return (byte[])get(key);
-		} catch (Exception error) {
-			return new byte[0];
-		}
-	}
-	
-	public int[] getIntArray(String key) {
-		try {
-			return (int[])get(key);
-		} catch (Exception error) {
-			return new int[0];
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	public <T> List<T> getList(String key) {
-		try {
-			return (List<T>)get(key);
-		} catch (Exception error) {
-			return Lists.newArrayList();
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	public List<String> getStringList(String key) {
-		try {
-			return get(key) instanceof List<?> ? (List<String>)get(key):Lists.newArrayList();
-		} catch (Exception error) {
-			return Lists.newArrayList();
-		}
-	}
-	
-	public boolean getBoolean(String key) {
-		try {
-			return (boolean)get(key);
-		} catch (Exception error) {
-			try {
-				return Boolean.parseBoolean(get(key).toString());
-			} catch (Exception errorr) {
-				return false;
-			}
-		}
-	}
-	
-	public void remove(String key) {
-		map.remove(key);
-	}
-	
+
 	public String toString() {
-		return toString(DataType.DATA);
+		return toString(DataType.YAML);
 	}
 	
 	public String toString(DataType type) {
@@ -431,83 +412,116 @@ public class Data {
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
 				GZIPOutputStream zos = new GZIPOutputStream(bos);
 				ObjectOutputStream ous = new ObjectOutputStream(zos);
-				for(String key : map.keySet()) {
+				ous.writeObject(header);
+				ous.writeObject(footer);
+				for(Integer ii : keySet())
+					for(String key : getThreads(ii)) {
 					try {
 						ous.writeUTF(key);
-						ous.writeObject(map.get(key).get());
-						ous.writeObject(map.get(key).getComments());
+						ous.writeObject(get(key));
+						try {
+							ous.writeObject(getLines(key));
+						}catch(Exception er) {
+							ous.writeObject(Lists.newArrayList());
+						}
 					}catch(Exception er) {}
 				}
 				zos.finish();
 				return Base64.getEncoder().encodeToString(bos.toByteArray());
 			}catch(Exception e) {}
 			return Base64.getEncoder().encodeToString(new byte[0]);
-		}else {
-			StringBuilder f = new StringBuilder();
-			List<String> exists = Lists.newArrayList();
-			if(type==DataType.SORTED_YAML)
-				map=SortedMap.sortByKey(map);
-			for(String entry : map.keySet()) {
-				String sp = "", path="";
-				for(String s : entry.split("\\.")) {
-					path+=(path.equals("")?"":".")+s;
-					if(!exists.contains(path)) {
-						exists.add(path);
-						if(map.containsKey(path))
-						for(String c : map.get(path).c)
-							f.append(sp+"# "+c+System.lineSeparator());
-						Object get = get(path);
-						if(get!=null) {
-							if(get instanceof List) {
-								f.append(sp+s+":"+System.lineSeparator());
-								for(Object o : (List<?>)get) {
-									f.append(sp+"- "+addQuetos(o, true)+System.lineSeparator());
-								}
-							}else {
-								f.append(sp+s+": "+addQuetos(get, true)+System.lineSeparator());
-							}
-						}else
-							f.append(sp+s+":"+System.lineSeparator());
+		}
+		StringBuilder d = new StringBuilder();
+		List<String> created = Lists.newArrayList();
+		for(String h : header)
+			d.append(h+System.lineSeparator());
+		for(Integer ii : keySet()) {
+			String keyr = "";
+			int ir = -1;
+			for(String k : getThreads(ii).get(0).split("\\.")) {
+				++ir;
+				keyr+=(keyr.equals("")?"":".")+k;
+				if(created.contains(keyr))continue;
+				if(get(keyr)==null) {
+					created.add(keyr);
+					d.append(cs(ir)+k+":"+System.lineSeparator());
+				}else {
+					created.add(keyr);
+					Object o = get(keyr);
+					for(String h : getLines(keyr))
+						d.append(cs(ir)+h+System.lineSeparator());
+					if(o instanceof List == false)
+						d.append(cs(ir)+k+": "+addQuetos(o,o instanceof Comparable<?> ? o.toString() : writeObject(o))+System.lineSeparator());
+					else {
+						StringBuffer f = new StringBuffer();
+							for(Object os : (List<?>)o)
+							f.append(cs(ir)+"- "+addQuetos(os,os instanceof Comparable<?> ? os.toString() : writeObject(os))+System.lineSeparator());
+						d.append(cs(ir)+k+":"+System.lineSeparator()+f.toString());
 					}
-					sp+="  ";
 				}
 			}
-			return f.toString();
 		}
-			
+		for(String h : footer)
+			d.append(h+System.lineSeparator());
+		return d.toString();
+	}
+
+	private Object readObject(String o) {
+		String obj = o;
+		if(obj.startsWith("'") && obj.endsWith("'"))
+			obj=obj.substring(1,obj.length()-1);
+		else if(obj.startsWith("\"") && obj.endsWith("\""))
+		obj=obj.substring(1,obj.length()-1); 
+		try {
+		return g.fromJson(obj.replaceFirst(Pattern.quote(obj.split(":")[0])+":", ""), Ref.getClass(obj.split(":")[0]));
+		}catch(Exception er) {
+				try {
+					if(obj.equals("yes")||obj.equals("on"))
+						obj="true";
+					if(obj.equals("no")||obj.equals("off"))
+						obj="false";
+					return parser.parse(obj);
+				} catch (Exception e) {
+				}
+			return obj;
+		}
 	}
 	
-    private static String removeQuetos(String value) {
-    	try {
-        if (value.startsWith("\"") && value.endsWith("\"") || value.startsWith("'") && value.endsWith("'")) {
-            return value.substring(1, value.length()-1);
-        }
-    	}catch(Exception er) {}
-        return value;
-    }
+	private String writeObject(Object obj) {
+		return obj.getClass().getName()+":"+g.toJson(obj);
+	}
+	
+	private String addQuetos(Object s, String text) {
+		if(!(text.startsWith("'") && text.endsWith("'") && text.startsWith("\"") && text.endsWith("\""))) {
+			if(s instanceof String)
+				return "\""+text+"\"";
+			return text;
+		}
+		return text;
+	}
+    
+	private static JSONParser parser = new JSONParser();
+	private static Gson g = new GsonBuilder().create();
 
-    private static String addQuetos(Object value, boolean toJson) {
-    	if(value instanceof Serializable)
-            return "'" + value + "'";
-    	if(toJson)return "[\""+value.getClass().getName()+"\","+g.toJson(value)+"]";
-        return "\"" + value + "\"";
-    }
-
-	public void writeToFile(DataType yaml) {
-		if(f!=null && yaml != null)
-		writeToFile(f, yaml);
+	private static String cs(int s) {
+		String i = "";
+		for(int c = 0; c < s; ++c)
+			i+="  ";
+		return i;
 	}
 
-	public void writeToFile(File f, DataType yaml) {
-		Writer we=new Writer(f);
-		we.append(toString(yaml));
-		we.flush();
-		we.close();
+	private static String cd(int s) {
+		String i = "";
+		for(int c = 0; c < s; ++c)
+			i+=" ";
+		return i;
 	}
-
-	public void load(File file, boolean removeData) {
-		if(removeData)
-			map.clear();
-		load(this, file);
+	
+	private static int c(String s) {
+		int i = 0;
+		for(char c : s.toCharArray())
+			if(c==' ')++i;
+			else break;
+		return i;
 	}
 }

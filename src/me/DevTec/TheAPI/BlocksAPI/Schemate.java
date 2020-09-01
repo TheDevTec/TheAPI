@@ -73,10 +73,8 @@ public class Schemate {
 	}
 	
 	public Data getData() {
-		if(cache==null) {
-			cache=new Data();
-			cache.load(getFile(), true);
-		}
+		if(cache==null)
+			cache=new Data(getFile());
 		return cache;
 	}
 	

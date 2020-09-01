@@ -46,7 +46,7 @@ public class HoverMessage {
 	public HoverMessage setHoverEvent(HoverAction action, Object value) {
 		JSONObject ac = new JSONObject();
 		ac.put("action", action.name().toLowerCase());
-		ac.put("value", value instanceof  String?TheAPI.colorize((String)value):value);
+		ac.put("value", value instanceof  String?TheAPI.colorize(""+value):value);
 		maker.add("hoverEvent", ac);
 		return this;
 	}

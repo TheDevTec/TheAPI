@@ -38,7 +38,7 @@ public class Config {
     }
     
     public void save() {
-        f.writeToFile(t);
+        f.save(t);
     }
 
     public void addDefaults(Map<String, Object> values) {
@@ -65,7 +65,7 @@ public class Config {
 			} catch (Exception e) {
 			}
         }
-    	f.load(file,true);
+    	f.reload(file);
     }
 
     public String getName() {
@@ -77,19 +77,19 @@ public class Config {
     }
 
     public void setComments(String path, List<String> value) {
-    	f.setComments(path, value);
+    	f.setLines(path, value);
     }
     
     public void addComments(String path, List<String> value) {
-    	f.addComments(path, value);
+    	f.getLines(path).addAll(value);
     }
 	
     public void addComment(String path, String value) {
-    	f.addComment(path, value);
+    	f.addLine(path, value);
     }
      
     public List<String> getComments(String path) {
-    	return f.getComments(path);
+    	return f.getLines(path);
     }
     
     public Section getSection(String path) {

@@ -53,7 +53,7 @@ public class Schema {
 				for(String fs : schem.getData().getKeys()) {
 				if(!fs.startsWith("c."))continue;
 				try {
-				Decompressor dec = Decompression.getDecompressor(schem.getData().getByteArray(fs));
+				Decompressor dec = Decompression.getDecompressor((byte[])schem.getData().get(fs));
 				fs=fs.replaceFirst(fs.split("\\.")[0], "");
 				while(true) {
 					String sd=null;
