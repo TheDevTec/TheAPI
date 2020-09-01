@@ -22,6 +22,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.File.Reader;
 import me.DevTec.TheAPI.Utils.File.Writer;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
@@ -306,35 +307,63 @@ public class Data {
 	}
 	
 	public String getString(String key) {
-		return get(key);
+		return get(key)+"";
 	}
 	
 	public int getInt(String key) {
+		try {
 		return get(key);
+		}catch(Exception notNumber) {
+			return StringUtils.getInt(getString(key));
+		}
 	}
 	
 	public double getDouble(String key) {
+		try {
 		return get(key);
+		}catch(Exception notNumber) {
+			return StringUtils.getDouble(getString(key));
+		}
 	}
 	
 	public long getLong(String key) {
+		try {
 		return get(key);
+		}catch(Exception notNumber) {
+			return StringUtils.getLong(getString(key));
+		}
 	}
 	
 	public float getFloat(String key) {
+		try {
 		return get(key);
+		}catch(Exception notNumber) {
+			return StringUtils.getFloat(getString(key));
+		}
 	}
 	
 	public byte getByte(String key) {
+		try {
 		return get(key);
+		}catch(Exception notNumber) {
+			return StringUtils.getByte(getString(key));
+		}
 	}
 
 	public boolean getBoolean(String key) {
+		try {
 		return get(key);
+		}catch(Exception notNumber) {
+			return StringUtils.getBoolean(getString(key));
+		}
 	}
 	
 	public short getShort(String key) {
+		try {
 		return get(key);
+		}catch(Exception notNumber) {
+			return StringUtils.getShort(getString(key));
+		}
 	}
 	
 	public <T> List<T> getList(String key) {
@@ -449,18 +478,18 @@ public class Data {
 	}
 
 	private Object readObject(String o) {
-		String obj = o;
-		if(obj.startsWith("'") && obj.endsWith("'"))
+		String obj = o+"";
+		if(obj.startsWith("'") && obj.endsWith("'") && obj.length()>1)
 			obj=obj.substring(1,obj.length()-1);
-		else if(obj.startsWith("\"") && obj.endsWith("\""))
+		else if(obj.startsWith("\"") && obj.endsWith("\"") && obj.length()>1)
 		obj=obj.substring(1,obj.length()-1); 
 		try {
 		return g.fromJson(obj.replaceFirst(Pattern.quote(obj.split(":")[0])+":", ""), Ref.getClass(obj.split(":")[0]));
 		}catch(Exception er) {
 				try {
-					if(obj.equals("yes")||obj.equals("on"))
+					if(obj.equalsIgnoreCase("yes")||obj.equalsIgnoreCase("on"))
 						obj="true";
-					if(obj.equals("no")||obj.equals("off"))
+					if(obj.equalsIgnoreCase("no")||obj.equalsIgnoreCase("off"))
 						obj="false";
 					return parser.parse(obj);
 				} catch (Exception e) {

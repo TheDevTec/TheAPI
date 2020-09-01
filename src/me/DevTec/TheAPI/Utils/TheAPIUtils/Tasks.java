@@ -46,9 +46,11 @@ public class Tasks {
 					Object sd = Ref.newInstance(Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class, int.class), LoaderClass.plugin.max>-1?LoaderClass.plugin.max:Bukkit.getMaxPlayers(),LoaderClass.plugin.fakeOnline>-1?LoaderClass.plugin.fakeOnline:TheAPI.getOnlinePlayers().size());
 					if(LoaderClass.plugin.onlineText!=null && !LoaderClass.plugin.onlineText.isEmpty()) {
 					Object[] a = (Object[]) Array.newInstance(Tasks.c, LoaderClass.plugin.onlineText.size());
-					int i = -1;
-					for(String s : LoaderClass.plugin.onlineText)
-						a[++i]=Ref.createGameProfile(UUID.randomUUID(), TheAPI.colorize(PlaceholderAPI.setPlaceholders(null, s)));
+					int i = 0;
+					for(String s : LoaderClass.plugin.onlineText) {
+						a[i]=Ref.createGameProfile(UUID.randomUUID(), TheAPI.colorize(PlaceholderAPI.setPlaceholders(null, s)));
+						++i;
+					}
 					Ref.set(sd,"c", a);
 					}else {
 						int online = LoaderClass.plugin.fakeOnline>-1?LoaderClass.plugin.fakeOnline:TheAPI.getOnlinePlayers().size();
@@ -59,9 +61,11 @@ public class Tasks {
 						if(online==-1)online=seen.size();
 						sd = Ref.newInstance(Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class, int.class), LoaderClass.plugin.max>-1?LoaderClass.plugin.max:Bukkit.getMaxPlayers(),online);
 						Object[] a = (Object[]) Array.newInstance(Tasks.c, LoaderClass.plugin.onlineText.size());
-						int i = -1;
-						for(Player s : seen)
-							a[++i]=Ref.createGameProfile(s.getUniqueId(), s.getName());
+						int i = 0;
+						for(Player s : seen) {
+							a[i]=Ref.createGameProfile(s.getUniqueId(), s.getName());
+							++i;
+						}
 						Ref.set(sd, "c", a);
 					}
 					Ref.set(w, "b", sd);

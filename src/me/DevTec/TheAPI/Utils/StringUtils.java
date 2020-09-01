@@ -361,6 +361,7 @@ public class StringUtils {
 	 * @return double
 	 */
 	public static BigDecimal calculate(String fromString) {
+		if(fromString==null)return new BigDecimal(0);
 		String a = fromString.replaceAll("[A-z]+", "").replace(",", ".");
 		Matcher c = Pattern.compile("[0-9.]+").matcher(a);
 		if(c.find())
@@ -378,6 +379,7 @@ public class StringUtils {
 	 * @return double
 	 */
 	public static double getDouble(String fromString) {
+		if(fromString==null)return 0.0;
 		String a = fromString.replaceAll("[a-zA-Z]+", "").replace(",", ".");
 		if (isDouble(a)) {
 			return Double.parseDouble(a);
@@ -404,6 +406,7 @@ public class StringUtils {
 	 * @return long
 	 */
 	public static long getLong(String fromString) {
+		if(fromString==null)return 0;
 		String a = fromString.replaceAll("[a-zA-Z]+", "");
 		if (isLong(a)) {
 			return Long.parseLong(a);
@@ -430,6 +433,7 @@ public class StringUtils {
 	 * @return int
 	 */
 	public static int getInt(String fromString) {
+		if(fromString==null)return 0;
 		String a = fromString.replaceAll("[a-zA-Z]+", "");
 		if (isInt(a)) {
 			return Integer.parseInt(a);
@@ -469,6 +473,7 @@ public class StringUtils {
 	 * @return float
 	 */
 	public static float getFloat(String fromString) {
+		if(fromString==null)return 0;
 		String a = fromString.replaceAll("[a-zA-Z]+", "");
 		if (isFloat(a)) {
 			return Float.parseFloat(a);
@@ -495,6 +500,7 @@ public class StringUtils {
 	 * @return float
 	 */
 	public static byte getByte(String fromString) {
+		if(fromString==null)return 0;
 		String a = fromString.replaceAll("[a-zA-Z]+", "");
 		if (isByte(a)) {
 			return Byte.parseByte(a);
@@ -521,6 +527,7 @@ public class StringUtils {
 	 * @return float
 	 */
 	public static short getShort(String fromString) {
+		if(fromString==null)return 0;
 		String a = fromString.replaceAll("[a-zA-Z]+", "");
 		if (isShort(a)) {
 			return Short.parseShort(a);
