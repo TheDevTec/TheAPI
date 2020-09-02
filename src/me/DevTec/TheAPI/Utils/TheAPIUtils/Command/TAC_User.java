@@ -19,13 +19,20 @@ public class TAC_User {
 		}
 		
 		if(args.length==2) {
-			if(!TheAPI.existsUser(args[1]) && args[1].equals("*")) {
+			if(!TheAPI.existsUser(args[1]) && !args[1].equals("*")) {
 				TheAPI.msg("&eUser &6"+args[1]+" &edoesn't exist.", s);
+				return;
+			}else {
+				TheAPI.msg("&e/TheAPI User <NAME/UUID> Set <key> <value>", s);
+				TheAPI.msg("&e/TheAPI User <NAME/UUID> Get <key>", s);
+				TheAPI.msg("&e/TheAPI User <NAME/UUID> Exists <key>", s);
+				TheAPI.msg("&e/TheAPI User <NAME/UUID> Keys [key]", s);
+				TheAPI.msg("&e/TheAPI User <NAME/UUID> Reload", s);
 				return;
 			}
 		}
 		
-		if(args[3].equalsIgnoreCase("reload")) {
+		if(args[2].equalsIgnoreCase("reload")) {
 			if(args[1].equals("*")) {
 				TheAPI.msg("&eReloading cached users..", s);
 				for(User u : TheAPI.getCachedUsers())
@@ -39,48 +46,52 @@ public class TAC_User {
 			return;
 		}
 		
-		if(args[3].equalsIgnoreCase("exists")) {
+		if(args[2].equalsIgnoreCase("exists")) {
 			if(args[1].equals("*")) {
 				TheAPI.msg("&eThis operation isn't allowed.", s);
+				return;
 			}
-			if(args.length==4)
+			if(args.length==3)
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Exists <key>", s);
 			else
-			TheAPI.msg(TheAPI.getUser(args[1]).exists(args[4])+"", s);
+			TheAPI.msg(TheAPI.getUser(args[1]).exists(args[3])+"", s);
 			return;
 		}
 		
-		if(args[3].equalsIgnoreCase("Get")) {
+		if(args[2].equalsIgnoreCase("Get")) {
 			if(args[1].equals("*")) {
 				TheAPI.msg("&eThis operation isn't allowed.", s);
 			}
-			if(args.length==4)
-				TheAPI.msg("&e/TheAPI User <NAME/UUID> Exists <key>", s);
+			if(args.length==3)
+				TheAPI.msg("&e/TheAPI User <NAME/UUID> Get <key>", s);
 			else
-			TheAPI.msg(TheAPI.getUser(args[1]).get(args[4])+"", s);
+			TheAPI.msg(TheAPI.getUser(args[1]).get(args[3])+"", s);
 			return;
 		}
 		
-		if(args[3].equalsIgnoreCase("Set")) {
+		if(args[2].equalsIgnoreCase("Set")) {
 			if(args[1].equals("*")) {
 				TheAPI.msg("&eThis operation isn't allowed.", s);
+				return;
 			}
-			if(args.length==4||args.length==5)
-				TheAPI.msg("&e/TheAPI User <NAME/UUID> Exists <key>", s);
-			else
-			TheAPI.getUser(args[1]).set(args[4], args[5]);
-			TheAPI.msg("&eIn user data of &6"+args[1]+" &eset value &6"+args[4]+" &eto &6"+args[5], s);
+			if(args.length==3||args.length==4)
+				TheAPI.msg("&e/TheAPI User <NAME/UUID> Set <key> <value>", s);
+			else {
+			TheAPI.getUser(args[1]).set(args[3], args[4]);
+			TheAPI.msg("&eIn user data of &6"+args[1]+" &eset value &6"+args[3]+" &eto &6"+args[4], s);
+			}
 			return;
 		}
 		
-		if(args[3].equalsIgnoreCase("keys")) {
+		if(args[2].equalsIgnoreCase("keys")) {
 			if(args[1].equals("*")) {
 				TheAPI.msg("&eThis operation isn't allowed.", s);
+				return;
 			}
-			if(args.length==4)
+			if(args.length==3)
 				TheAPI.msg("&eUser &6"+args[1]+"&e has these keys: &6"+StringUtils.join(TheAPI.getUser(args[1]).getKeys(), ", "), s);
 			else
-			TheAPI.msg("&eUser &6"+args[1]+"&e has these keys: &6"+StringUtils.join(TheAPI.getUser(args[1]).getKeys(args[4]), ", "), s);
+			TheAPI.msg("&eUser &6"+args[1]+"&e has these keys: &6"+StringUtils.join(TheAPI.getUser(args[1]).getKeys(args[3]), ", "), s);
 			return;
 		}
 	}

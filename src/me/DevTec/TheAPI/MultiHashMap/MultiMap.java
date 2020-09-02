@@ -2,12 +2,13 @@ package me.DevTec.TheAPI.MultiHashMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class MultiMap<K, T, V> implements MultiHashtable<K, T, V> {
-	private HashMap<K, HashMap<T, V>> a = Maps.newHashMap();
+	private HashMap<K, LinkedHashMap<T, V>> a = Maps.newHashMap();
 
 	@Override
 	public boolean containsKey(K key) {
@@ -35,7 +36,7 @@ public class MultiMap<K, T, V> implements MultiHashtable<K, T, V> {
 
 	@Override
 	public V put(K key, T thread, V value) {
-		HashMap<T, V> c = a.containsKey(key) ? a.get(key) : Maps.newHashMap();
+		LinkedHashMap<T, V> c = a.containsKey(key) ? a.get(key) : Maps.newLinkedHashMap();
 		c.put(thread, value);
 		a.put(key,c);
 		return value;

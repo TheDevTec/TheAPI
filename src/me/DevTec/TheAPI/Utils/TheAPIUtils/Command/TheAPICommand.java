@@ -59,20 +59,20 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			return true;
 		}
 		if (args[0].equalsIgnoreCase("user")) {
-			if (perm(s,"User"))
+			if (!perm(s,"User"))
 				return true;
 			new TAC_User(s, args);
 			return true;
 		}
 		if (args[0].equalsIgnoreCase("test")) {
-			if (perm(s,"Test"))
+			if (!perm(s,"Test"))
 				return true;
 			new TAC_Test(s, args);
 			return true;
 		}
 		if (args[0].equalsIgnoreCase("PluginManager") || args[0].equalsIgnoreCase("pm") 
 				|| args[0].equalsIgnoreCase("plugin") ||args[0].equalsIgnoreCase("pluginm")||args[0].equalsIgnoreCase("pmanager")) {
-			if (perm(s,"PluginManager"))return true;
+			if (!perm(s,"PluginManager"))return true;
 			new TAC_PluginManager(s, args);
 			return true;
 		}
@@ -152,7 +152,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			return true;
 		}
 		if (args[0].equalsIgnoreCase("worldsmanager") || args[0].equalsIgnoreCase("world") || args[0].equalsIgnoreCase("worlds") || args[0].equalsIgnoreCase("wm") || args[0].equalsIgnoreCase( "mw") || args[0].equalsIgnoreCase( "worldmanager")) {
-			if (perm(s,"WorldsManager"))
+			if (!perm(s,"WorldsManager"))
 				return true;
 			new TAC_Worlds(s, args);
 		return true;

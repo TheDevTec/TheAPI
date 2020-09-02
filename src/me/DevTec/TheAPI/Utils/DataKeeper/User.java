@@ -110,17 +110,6 @@ public class User {
 	}
 	
 	public void set(String key, Object o) {
-		if (o instanceof ItemStack) {
-			o = TheCoder.toString(o);
-		}
-		if (o instanceof List && !((List<?>) o).isEmpty() && ((List<?>) o).get(0) instanceof ItemStack) {
-			@SuppressWarnings("unchecked")
-			List<ItemStack> list = (List<ItemStack>) o;
-			List<String> newList = new ArrayList<String>();
-			for (ItemStack os : list)
-				newList.add(TheCoder.toString(os));
-			o = newList;
-		}
 		a.set(key, o);
 	}
 
@@ -174,7 +163,7 @@ public class User {
 	}
 
 	public boolean exists(String key) {
-		return getString(key) != null;
+		return a.exists(key);
 	}
 	
 	private static Pattern isD = Pattern.compile("[0-9.-]+"),isN = Pattern.compile("[0-9-]+");

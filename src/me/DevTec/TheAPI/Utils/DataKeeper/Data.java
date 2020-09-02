@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,11 +16,12 @@ import java.util.zip.GZIPOutputStream;
 import org.json.simple.parser.JSONParser;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import me.DevTec.TheAPI.TheAPI;
+import me.DevTec.TheAPI.MultiHashMap.MultiMap;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.File.Reader;
 import me.DevTec.TheAPI.Utils.File.Writer;
@@ -49,7 +49,7 @@ public class Data {
 		}
 	}
 
-	private HashMap<String, DataHolder> map = Maps.newHashMap();
+	private MultiMap<String, String, DataHolder> map = TheAPI.getMultiMap();
 	private List<String> header = Lists.newArrayList(), footer= Lists.newArrayList();
 	private File a;
 	public Data() {
@@ -71,7 +71,8 @@ public class Data {
 	
 	public boolean exists(String path) {
 		boolean a = false;
-		for(String k : map.keySet())
+		for(String dd : map.keySet())
+			for(String k : map.getThreads(dd))
 				if(k.startsWith(path)) {
 					a=true;
 					break;
@@ -94,30 +95,36 @@ public class Data {
 	}
 
 	public DataHolder getData(String key) {
-		return map.getOrDefault(key, null);
+		if(key==null)return null;
+		return map.containsThread(key.split("\\.")[0],key)?map.get(key.split("\\.")[0],key):null;
 	}
 	
 	public DataHolder getOrCreateData(String key) {
-		DataHolder h = map.getOrDefault(key, null);
+		if(key==null)return null;
+		DataHolder h = getData(key);
 		if(h==null) {
 			h = new DataHolder(null, Lists.newArrayList());
-			map.put(key, h);
+			map.put(key.split("\\.")[0], key, h);
 		}
 		return h;
 	}
 	
 	public void set(String key, Object value) {
+		if(key==null)return;
 		if(value==null) {
-			remove(key);
+			if(map.containsThread(key.split("\\.")[0], key))
+			map.removeThread(key.split("\\.")[0], key);
 			return;
 		}
 		DataHolder h = getOrCreateData(key);
-		h.setValue(value);
-		map.replace(key, h);
+		h.setValue(value instanceof String ? ((String)value).replace(System.lineSeparator(), "") : value);
+		map.put(key.split("\\.")[0], key, h);
 	}
 	
 	public void remove(String key) {
-		map.remove(key);
+		if(key==null)return;
+		if(map.containsThread(key.split("\\.")[0], key))
+		map.removeThread(key.split("\\.")[0], key);
 	}
 
 	public List<String> getLines(String key) {
@@ -129,7 +136,7 @@ public class Data {
 		if(value==null||key==null)return;
 		DataHolder h = getOrCreateData(key);
 		h.lines=value;
-		map.replace(key, h);
+		map.put(key.split("\\.")[0], key, h);
 	}
 	
 	public void addLine(String key, String value) {
@@ -137,7 +144,7 @@ public class Data {
 			return;
 		DataHolder h = getOrCreateData(key);
 		h.lines.add(value);
-		map.replace(key, h);
+		map.put(key.split("\\.")[0], key, h);
 	}
 	
 	public void removeLine(String key, String value) {
@@ -145,7 +152,7 @@ public class Data {
 			return;
 		DataHolder h = getOrCreateData(key);
 		h.lines.remove(value);
-		map.replace(key, h);
+		map.put(key.split("\\.")[0], key, h);
 	}
 	
 	public void removeLine(String key, int line) {
@@ -153,7 +160,7 @@ public class Data {
 			return;
 		DataHolder h = getOrCreateData(key);
 		h.lines.remove(line);
-		map.replace(key, h);
+		map.put(key.split("\\.")[0], key, h);
 	}
 	
 	public File getFile() {
@@ -307,7 +314,7 @@ public class Data {
 	}
 	
 	public String getString(String key) {
-		return get(key)+"";
+		return get(key)!=null?get(key)+"":null;
 	}
 	
 	public int getInt(String key) {
@@ -367,11 +374,11 @@ public class Data {
 	}
 	
 	public <T> List<T> getList(String key) {
-		return get(key);
+		return get(key)!=null && get(key) instanceof List<?> ? get(key) : Lists.newArrayList();
 	}
 	
 	public List<String> getStringList(String key){
-		return get(key);
+		return getList(key);
 	}
 	
 	public void save(DataType type) {
@@ -391,7 +398,8 @@ public class Data {
 
 	public Set<String> getKeys(boolean subkeys) {
 		HashSet<String> a = Sets.newHashSet();
-			for(String d : map.keySet())
+		for(String dd : map.keySet())
+			for(String d : map.getThreads(dd))
 				if(subkeys)
 					a.add(d);
 				else
@@ -405,7 +413,8 @@ public class Data {
 	
 	public Set<String> getKeys(String key, boolean subkeys) {
 		HashSet<String> a = Sets.newHashSet();
-		for(String d : map.keySet())
+		for(String dd : map.keySet())
+			for(String d : map.getThreads(dd))
 			if(d.startsWith(key) && !d.replaceFirst(d.split(key)[0], "").startsWith("."))
 				if(subkeys)
 					a.add(d.replaceFirst(key+"\\.", ""));
@@ -446,14 +455,15 @@ public class Data {
 		List<String> created = Lists.newArrayList();
 		for(String h : header)
 			d.append(h+System.lineSeparator());
-		for(String key : map.keySet()) {
+		for(String keyy : map.keySet())
+			for(String key : map.getThreads(keyy)) {
 			String keyr = "";
 			int ir = 0;
 			for(String k : key.split("\\.")) {
 				keyr+=(keyr.equals("")?"":".")+k;
 				if(!created.contains(keyr)) {
 				created.add(keyr);
-				if(get(keyr)==null) {
+				if(!map.containsThread(keyr.split("\\.")[0],keyr) && get(keyr)==null) {
 					d.append(cs(ir)+k+":"+System.lineSeparator());
 				}else {
 					Object o = get(keyr);
@@ -499,6 +509,7 @@ public class Data {
 	}
 	
 	private String writeObject(Object obj) {
+		if(obj==null)return null;
 		return obj.getClass().getName()+":"+g.toJson(obj);
 	}
 	
