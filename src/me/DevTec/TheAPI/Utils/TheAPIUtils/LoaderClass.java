@@ -185,6 +185,9 @@ public class LoaderClass extends JavaPlugin {
 	private void createConfig() {
 		data.create();
 		config.setHeader("TNT, Action types: WAIT/DROP");
+		config.addDefault("Options.ServerList-Players.Enabled", true);
+		config.addDefault("Options.ServerList-Players.Format", "%player%");
+		config.addDefault("Options.ServerList-Players.FormatedWithPAPI", false);
 		config.addDefault("Options.ServerList.Enabled", false);
 		config.addDefault("Options.ServerList.OnlinePlayersText", Arrays.asList("&eOnline: &6%server_online%","&eMax: &6%server_maxonline%"));
 		config.addDefault("Options.ServerList.FakeOnline", -1);

@@ -63,7 +63,17 @@ public class Tasks {
 						Object[] a = (Object[]) Array.newInstance(Tasks.c, seen.size());
 						int i = 0;
 						for(Player s : seen) {
-							a[i]=Ref.createGameProfile(s.getUniqueId(), s.getName());
+							String name = s.getName();
+							if(LoaderClass.config.getBoolean("Options.ServerList-Players.Enabled")) {
+								name=LoaderClass.config.getString("Options.ServerList-Players.Format");
+								name=name.replace("%player%", s.getName()).replace("%playername%", s.getDisplayName()).replace("%customname%", s.getCustomName());
+								if(LoaderClass.config.getBoolean("Options.ServerList-Players.FormatedWithPAPI"))
+									name=PlaceholderAPI.setPlaceholders(s, name);
+								if(name==null) {name = s.getName();
+								name=LoaderClass.config.getString("Options.ServerList-Players.Format");
+								name=name.replace("%player%", s.getName()).replace("%playername%", s.getDisplayName()).replace("%customname%", s.getCustomName());
+								}if(name==null)name = s.getName();}
+							a[i]=Ref.createGameProfile(s.getUniqueId(), name);
 							++i;
 						}
 						Ref.set(sd, "c", a);

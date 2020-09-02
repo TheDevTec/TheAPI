@@ -182,25 +182,136 @@ public class Data {
 	public List<String> getFooter() {
 		return footer;
 	}
-	
-	@SuppressWarnings("unchecked")
-	public void reload(File a) {
+
+	public void reload(String input) {
 		map.clear();
 		try {
-			ByteArrayInputStream bos = new ByteArrayInputStream(Base64.getDecoder().decode(Reader.read(a, false)));
+			byte[] bb = Base64.getDecoder().decode(input);
+			ByteArrayInputStream bos = new ByteArrayInputStream(bb);
 			GZIPInputStream zos = new GZIPInputStream(bos);
 			ObjectInputStream ous = new ObjectInputStream(zos);
-			try {
-			header=(List<String>)ous.readObject();
-			footer=(List<String>)ous.readObject();
-			}catch(Exception e) {}
 			while(true)
 				try {
 					String key = ous.readUTF();
 					set(key, ous.readObject());
-					try {
-					setLines(key, (List<String>)ous.readObject());
-					}catch(Exception er) {}
+				}catch(Exception e) {
+				break;
+				}
+			bos.close();
+			zos.close();
+			ous.close();
+		}catch(Exception e) {
+		if(input.trim().isEmpty())return;
+		List<Object> items = Lists.newArrayList();
+		List<String> lines = Lists.newArrayList();
+		String key = "";
+		StringBuffer v = new StringBuffer();
+		int last = 0, f=0, c = 0;
+		for(String text : input.split(System.lineSeparator())) {
+			if(text.trim().startsWith("#")||c==0 && text.trim().isEmpty()) {
+				if(c!=0) {
+					if(c==1) {
+						set(key, readObject(v.toString()));
+						v=new StringBuffer();
+						}
+						if(c==2) {
+							set(key, items);
+							setLines(key, lines);
+							items=Lists.newArrayList();
+							lines=Lists.newArrayList();
+						}
+						c=0;
+				}
+				if(f==0)
+					header.add(text.replaceFirst(cd(c(text)), ""));
+				else
+				lines.add(text.replaceFirst(cd(c(text)), ""));
+				continue;
+			}
+			if(c!=0 && text.contains(":") && text.matches("([A-Za-z0-9]|[^A-Za-z0-9])+:*")) {
+				if(c==1) {
+				set(key, readObject(v.toString()));
+				setLines(key, lines);
+				lines=Lists.newArrayList();
+				v=new StringBuffer();
+				}
+				if(c==2) {
+					set(key, items);
+					setLines(key, lines);
+					items=Lists.newArrayList();
+					lines=Lists.newArrayList();
+				}
+				c=0;
+			}
+			if(c==2 || text.replaceFirst(cd(c(text)), "").startsWith("- ") && !key.equals("")) {
+				items.add(readObject(c!=2?text.replaceFirst(text.split("- ")[0]+"- ", ""):text.replaceFirst(cd(c(text)),"")));
+			}else {
+				if(!items.isEmpty()) {
+					set(key, items);
+					setLines(key, lines);
+					items=Lists.newArrayList();
+					lines=Lists.newArrayList();
+				}
+				if(c==1) {
+					v.append(text.replaceFirst(cd(c(text)),""));
+					continue;
+				}
+				if(c(text.split(":")[0]) <= last) {
+					if(!text.startsWith(" "))key="";
+					if(c(text.split(":")[0]) == last) {
+						String lastr = key.split("\\.")[key.split("\\.").length-1]+1;
+						int remove = key.length()-lastr.length();
+						if(remove > 0)
+						key=key.substring(0, remove);
+					}else {
+					for(int i = 0; i < Math.abs(last-c(text.split(":")[0])); ++i) {
+					String lastr = key.split("\\.")[key.split("\\.").length-1]+1;
+					int remove = key.length()-lastr.length();
+					if(remove < 0)break;
+					key=key.substring(0, remove);
+				}}}
+				key+=(key.equals("")?"":".")+text.split(":")[0].trim();
+				f=1;
+				last=c(text.split(":")[0]);
+				if(!text.replaceFirst(text.split(":")[0]+":", "").trim().isEmpty()) {
+					if(text.replaceFirst(text.split(":")[0]+": ", "").trim().equals("|")) {
+						c=1;
+						continue;
+					}
+					if(text.replaceFirst(text.split(":")[0]+": ", "").trim().equals("|-")) {
+						c=2;
+						continue;
+					}
+					set(key, readObject(text.replaceFirst(text.split(":")[0]+": ", "")));
+					if(!lines.isEmpty()) {
+						setLines(key, lines);
+						lines=Lists.newArrayList();
+					}
+				}
+			}
+		}
+		if(!items.isEmpty()||c==2) {
+			set(key, items);
+			items=Lists.newArrayList();
+		}
+		if(!lines.isEmpty())
+			footer.addAll(lines);
+		if(c==1)
+			set(key, readObject(v.toString()));
+	}
+	}
+	
+	public void reload(File a) {
+		map.clear();
+		try {
+			byte[] bb = Base64.getDecoder().decode(Reader.read(a, false));
+			ByteArrayInputStream bos = new ByteArrayInputStream(bb);
+			GZIPInputStream zos = new GZIPInputStream(bos);
+			ObjectInputStream ous = new ObjectInputStream(zos);
+			while(true)
+				try {
+					String key = ous.readUTF();
+					set(key, ous.readObject());
 				}catch(Exception e) {
 				break;
 				}
@@ -282,7 +393,7 @@ public class Data {
 				f=1;
 				last=c(text.split(":")[0]);
 				if(!text.replaceFirst(text.split(":")[0]+":", "").trim().isEmpty()) {
-					if(text.replaceFirst(text.split(":")[0]+": ", "").trim().equals("-")) {
+					if(text.replaceFirst(text.split(":")[0]+": ", "").trim().equals("|")) {
 						c=1;
 						continue;
 					}
@@ -433,24 +544,17 @@ public class Data {
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
 				GZIPOutputStream zos = new GZIPOutputStream(bos);
 				ObjectOutputStream ous = new ObjectOutputStream(zos);
-				ous.writeObject(header);
-				ous.writeObject(footer);
 				for(String key : map.keySet()) {
 					try {
 						ous.writeUTF(key);
 						ous.writeObject(get(key));
-						try {
-							ous.writeObject(getLines(key));
-						}catch(Exception er) {
-							ous.writeObject(Lists.newArrayList());
-						}
 					}catch(Exception er) {}
 				}
 				zos.finish();
 				return Base64.getEncoder().encodeToString(bos.toByteArray());
 			}catch(Exception e) {}
 			return Base64.getEncoder().encodeToString(new byte[0]);
-		}
+		}else {
 		StringBuffer d = new StringBuffer();
 		List<String> created = Lists.newArrayList();
 		for(String h : header)
@@ -485,7 +589,7 @@ public class Data {
 		for(String h : footer)
 			d.append(h+System.lineSeparator());
 		return d.toString();
-	}
+	}}
 
 	private Object readObject(String o) {
 		String obj = o+"";
