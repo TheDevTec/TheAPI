@@ -32,7 +32,7 @@ import com.google.common.collect.Multimap;
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
-import me.DevTec.TheAPI.Utils.TheAPIUtils.Error;
+import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
 @SuppressWarnings("deprecation")
 public class ItemCreatorAPI implements Cloneable {
@@ -377,7 +377,7 @@ public class ItemCreatorAPI implements Cloneable {
 		try {
 			a.setType(Material.matchMaterial(byName));
 		} catch (Exception e) {
-			Error.err("set material in ItemCreatorAPI", "Uknown Material");
+			Validator.send("Material doesn't exist", e);
 		}
 	}
 
@@ -900,7 +900,6 @@ public class ItemCreatorAPI implements Cloneable {
 				if (!ef.keySet().isEmpty())
 					for (PotionEffectType t : ef.keySet()) {
 						if (t == null) {
-							Error.err("creating ItemStack in ItemCreatorAPI", "Uknown PotionEffectType");
 							continue;
 						}
 						int dur = StringUtils.getInt(ef.get(t).split(":")[0]);
@@ -929,8 +928,7 @@ public class ItemCreatorAPI implements Cloneable {
 				i.setItemMeta(m);
 			}
 		} catch (Exception | NoSuchMethodError err) {
-			Error.err("creating ItemStack in ItemCreatorAPI", "Uknown error");
-			err.printStackTrace();
+			Validator.send("Creating ItemStack exception", err);
 		}
 		a = i;
 		return a;

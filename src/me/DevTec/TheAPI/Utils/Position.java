@@ -1,5 +1,6 @@
 package me.DevTec.TheAPI.Utils;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
@@ -140,7 +141,7 @@ public class Position implements Cloneable {
 		if (stored.startsWith("[Position:")) {
 			stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[Position:", "");
 			String[] part = stored.replace(":", ".").split("/");
-			return new Position(Bukkit.getWorld(part[0]), StringUtils.getDouble(part[1]), StringUtils.getDouble(part[2]),
+			return new Position(part[0], StringUtils.getDouble(part[1]), StringUtils.getDouble(part[2]),
 					StringUtils.getDouble(part[3]), StringUtils.getFloat(part[4]), StringUtils.getFloat(part[5]));
 		}
 		Location loc = StringUtils.getLocationFromString(stored);
@@ -354,19 +355,19 @@ public class Position implements Cloneable {
 	private static synchronized void set(Position pos, boolean palet, boolean neww, TheMaterial material) { //1.8 - 1.16
 		if(material.getType().getId()==31||material.getType().getId()==175)material.setData(material.getData()+1);
 		Object c = pos.getNMSChunk();
-		Object sc = ((Object[])Ref.invoke(c, "getSections"))[(pos.getBlockY()<0 && pos.getBlockY()!=0? -1*pos.getBlockY() : pos.getBlockY()) >> 4];
+		Object sc = Array.get(Ref.invoke(c, "getSections"),(pos.getBlockY()<0 && pos.getBlockY()!=0? -1*pos.getBlockY() : pos.getBlockY()) >> 4);
 		if(sc==null) {
 			if(neww)
 				sc=Ref.newInstance(Ref.constructor(Ref.nms("ChunkSection"), int.class), (int)((pos.getBlockY()<0 && pos.getBlockY()!=0? -1*pos.getBlockY() : pos.getBlockY()) >> 4)); //1.14+
 			else
 				sc=Ref.newInstance(Ref.constructor(Ref.nms("ChunkSection"), int.class,boolean.class), (int)((pos.getBlockY()<0 && pos.getBlockY()!=0? -1*pos.getBlockY() : pos.getBlockY()) >> 4), true); //1.8 - 1.13
-			((Object[])Ref.invoke(c, "getSections"))[(pos.getBlockY()<0 && pos.getBlockY()!=0? -1*pos.getBlockY() : pos.getBlockY()) >> 4]=sc;
+			Array.set(Ref.invoke(c, "getSections"),(pos.getBlockY()<0 && pos.getBlockY()!=0? -1*pos.getBlockY() : pos.getBlockY()) >> 4,sc);
 		}
 		Object cr = material.getIBlockData();
 		try {
 			HashMap<?,?> aw = ((HashMap<?,?>)Ref.invoke(c, "getTileEntities"));
 			if(aw.containsKey(Ref.blockPos(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ()))) {
-				Ref.invoke(Ref.world(pos.getWorld()), "setTypeAndData", Ref.blockPos(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ()),
+				Ref.invoke(Ref.world(pos.getWorld()), Ref.method(Ref.nms("World"), "setTypeAndData", Ref.nms("BlockPosition"), Ref.nms("IBlockData"), int.class), Ref.blockPos(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ()),
 						Ref.invoke(Ref.get(null, Ref.field(Ref.nms("Block"), "AIR")), "getBlockData"),3);
 				aw.remove(Ref.blockPos(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ()));
 		}}catch(Exception kill) {}
@@ -374,7 +375,6 @@ public class Position implements Cloneable {
 				Ref.invoke(Ref.invoke(sc, "getBlocks"),Ref.method(Ref.nms("DataPaletteBlock"), "setBlock", int.class, int.class, int.class, Ref.nms("IBlockData")), pos.getBlockX() & 15, pos.getBlockY() & 15, pos.getBlockZ() & 15, cr);
 			else
 			Ref.invoke(sc, Ref.method(Ref.nms("ChunkSection"), "setType", int.class, int.class, int.class, Ref.nms("IBlockData")), pos.getBlockX() & 15, pos.getBlockY() & 15, pos.getBlockZ() & 15, cr);
-			((Object[])Ref.invoke(c, "getSections"))[(pos.getBlockY()<0 && pos.getBlockY()!=0? -1*pos.getBlockY() : pos.getBlockY()) >> 4]=sc;
 	}
 	
 	public Position clone() {

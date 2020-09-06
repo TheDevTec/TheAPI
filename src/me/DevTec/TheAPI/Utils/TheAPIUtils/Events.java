@@ -417,34 +417,25 @@ public class Events implements Listener {
 		User s = TheAPI.getUser(e.getUniqueId());
 		s.setAndSave("ip", (e.getAddress()+"").replace("/", "").replace(".", "_"));
 		PlayerBanList a = PunishmentAPI.getBanList(s.getName());
-		try {
-			if (a.isBanned()) {
-				e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.BAN).replace("\\n", "\n")));
-				return;
-			}
-			if (a.isTempBanned()) {
-				e.disallow(Result.KICK_BANNED,
-						TheAPI.colorize(a.getReason(PunishmentType.TEMPBAN).replace("\\n", "\n")).replace("%time%",
-								StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBAN))));
-				return;
-			}
-			if (a.isIPBanned()) {
-				e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.BANIP).replace("\\n", "\n")));
-				return;
-			}
-			if (a.isTempIPBanned()) {
-				e.disallow(Result.KICK_BANNED,
-						TheAPI.colorize(a.getReason(PunishmentType.TEMPBANIP).replace("\\n", "\n")).replace("%time%",
-								StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBANIP))));
-				return;
-			}
-		} catch (Exception ad) {
-			if (!f.getBoolean("Options.HideErrors")) {
-				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cError when processing PunishmentAPI:"));
-				ad.printStackTrace();
-				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cEnd of error."));
-			} else
-				Error.sendRequest("&bTheAPI&7: &cError when processing PunishmentAPI");
+		if (a.isBanned()) {
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.BAN).replace("\\n", "\n")));
+			return;
+		}
+		if (a.isTempBanned()) {
+			e.disallow(Result.KICK_BANNED,
+					TheAPI.colorize(a.getReason(PunishmentType.TEMPBAN).replace("\\n", "\n")).replace("%time%",
+							StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBAN))));
+			return;
+		}
+		if (a.isIPBanned()) {
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.BANIP).replace("\\n", "\n")));
+			return;
+		}
+		if (a.isTempIPBanned()) {
+			e.disallow(Result.KICK_BANNED,
+					TheAPI.colorize(a.getReason(PunishmentType.TEMPBANIP).replace("\\n", "\n")).replace("%time%",
+							StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBANIP))));
+			return;
 		}
 	}
 

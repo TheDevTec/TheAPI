@@ -117,13 +117,13 @@ public class ScoreboardAPI {
 		if(packets) {
 			Ref.sendPacket(p,createObjectivePacket(1, null));
 		if(LoaderClass.plugin.map.containsKey(id))
-		for (Object team : LoaderClass.plugin.map.getValues(id))
+			for (int line : LoaderClass.plugin.map.threadSet(id))
+		for (Object team : LoaderClass.plugin.map.values(id, line))
 			Ref.sendPacket(p,((Team)team).remove());
 		}else {
 			if(LoaderClass.plugin.map.containsKey(id))
-			for (Integer line : LoaderClass.plugin.map.getThreads(id)) {
+			for (int line : LoaderClass.plugin.map.threadSet(id))
 				removeLine(line);
-			}
 			if(p.getPlayer().getScoreboard()==sb)
 			p.getPlayer().setScoreboard(p.getPlayer().getServer().getScoreboardManager().getNewScoreboard());
 		}
@@ -171,7 +171,7 @@ public class ScoreboardAPI {
 			Team team = getTeam(line);
 			String old = team.getCurrentPlayer();
 		if (old != null)
-			Ref.sendPacket(p,NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, null, old, 0));
+			Ref.sendPacket(p,NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", old, 0));
 		team.setValue(value);
 		sendLine(team,line);
 		}else {
@@ -219,7 +219,7 @@ public class ScoreboardAPI {
 		Team team = getTeam(line);
 		String old = team.getCurrentPlayer();
 		if (old != null) {
-			Ref.sendPacket(p,NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, null, old, 0));
+			Ref.sendPacket(p,NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", old, 0));
 			Ref.sendPacket(p,team.remove());
 		}
 		}else {
@@ -234,7 +234,7 @@ public class ScoreboardAPI {
 				sb.resetScores(old);
 			}
 		}
-		LoaderClass.plugin.map.removeThread(id,line);
+		LoaderClass.plugin.map.remove(id,line);
 	}
 
 	public String getLine(int line) {
@@ -245,7 +245,7 @@ public class ScoreboardAPI {
 	}
 
 	public int getLines() {
-		return LoaderClass.plugin.map.getThreads(id).size();
+		return LoaderClass.plugin.map.threadSet(id).size();
 	}
 
 	private void sendLine(Team team,int line) {
@@ -257,7 +257,9 @@ public class ScoreboardAPI {
 	}
 
 	private Team getTeam(int line) {
-		if (!LoaderClass.plugin.map.containsThread(id,line))LoaderClass.plugin.map.put(id,line, new Team(line));
+		if (!LoaderClass.plugin.map.containsThread(id,line)) {
+			LoaderClass.plugin.map.put(id,line, new Team(line));
+		}
 		return (Team) LoaderClass.plugin.map.get(id,line);
 	}
 	

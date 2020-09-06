@@ -20,8 +20,7 @@ import org.bukkit.plugin.Plugin;
 import com.google.common.collect.Maps;
 
 import me.DevTec.TheAPI.TheAPI;
-import me.DevTec.TheAPI.Utils.TheAPIUtils.Error;
-import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
+import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
 public class ConfigAPI {
 	private String name, h, loc, end = "yml";
@@ -105,15 +104,7 @@ public class ConfigAPI {
 						ff.createNewFile();
 						f = ff;
 					} catch (Exception e) {
-						if (LoaderClass.config.getConfig() == null || LoaderClass.config.getConfig() != null
-								&& !LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
-							TheAPI.getConsole().sendMessage(TheAPI.colorize(
-									"&bTheAPI&7: &cError when getting file of " + name + "." + end + " config:"));
-							e.printStackTrace();
-							TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cEnd of error."));
-						} else
-							Error.sendRequest(
-									"&bTheAPI&7: &cError when getting file of " + name + "." + end + " config");
+						Validator.send("Creating file exception", e);
 					}
 					f = ff;
 				}
@@ -123,14 +114,7 @@ public class ConfigAPI {
 					ff.createNewFile();
 					f = ff;
 				} catch (IOException e) {
-					if (LoaderClass.config.getConfig() == null || LoaderClass.config.getConfig() != null
-							&& !LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
-						TheAPI.getConsole().sendMessage(TheAPI
-								.colorize("&bTheAPI&7: &cError when getting file of " + name + "." + end + " config:"));
-						e.printStackTrace();
-						TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cEnd of error."));
-					} else
-						Error.sendRequest("&bTheAPI&7: &cError when getting file of " + name + "." + end + " config");
+					Validator.send("Creating file exception", e);
 				}
 			}
 		}
@@ -197,14 +181,7 @@ public class ConfigAPI {
 			}
 			return false;
 		} catch (Exception e) {
-			if (LoaderClass.config.getConfig() == null || LoaderClass.config.getConfig() != null
-					&& !LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
-				TheAPI.getConsole().sendMessage(
-						TheAPI.colorize("&bTheAPI&7: &cError when saving " + name + "." + end + " config:"));
-				e.printStackTrace();
-				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cEnd of error."));
-			} else
-				Error.sendRequest("&bTheAPI&7: &cError when saving " + name + "." + end + " config");
+			Validator.send("Saving config exception", e);
 			return false;
 		}
 	}
@@ -225,14 +202,7 @@ public class ConfigAPI {
 			save();
 			return true;
 		} catch (Exception e) {
-			if (LoaderClass.config.getConfig() == null || LoaderClass.config.getConfig() != null
-					&& !LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
-				TheAPI.getConsole().sendMessage(
-						TheAPI.colorize("&bTheAPI&7: &cError when reloading " + name + "." + end + " config:"));
-				e.printStackTrace();
-				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cEnd of error."));
-			} else
-				Error.sendRequest("&bTheAPI&7: &cError when reloading " + name + "." + end + " config");
+			Validator.send("Saving file exception", e);
 			return false;
 		}
 	}
@@ -430,14 +400,7 @@ public class ConfigAPI {
 			save();
 			return true;
 		} catch (Exception e) {
-			if (LoaderClass.config.getConfig() == null || LoaderClass.config.getConfig() != null
-					&& !LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
-				TheAPI.getConsole().sendMessage(
-						TheAPI.colorize("&bTheAPI&7: &cError when creating " + name + "." + end + " config:"));
-				e.printStackTrace();
-				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cEnd of error."));
-			} else
-				Error.sendRequest("&bTheAPI&7: &cError when creating " + name + "." + end + " config");
+			Validator.send("Creating config exception", e);
 			return false;
 		}
 	}

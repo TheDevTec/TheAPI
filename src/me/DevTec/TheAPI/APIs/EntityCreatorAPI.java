@@ -26,8 +26,8 @@ import org.bukkit.util.EulerAngle;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.Position;
-import me.DevTec.TheAPI.Utils.TheAPIUtils.Error;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
+import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
 @SuppressWarnings("deprecation")
 public class EntityCreatorAPI {
@@ -554,13 +554,7 @@ public class EntityCreatorAPI {
 
 			}
 		} catch (Exception es) {
-			if (!LoaderClass.config.getConfig().getBoolean("Options.HideErrors")) {
-				TheAPI.getConsole().sendMessage(
-						TheAPI.colorize("&bTheAPI&7: &cError when spawning entity using EntityCreatorAPI:"));
-				es.printStackTrace();
-				TheAPI.getConsole().sendMessage(TheAPI.colorize("&bTheAPI&7: &cEnd of error."));
-			} else
-				Error.sendRequest("&bTheAPI&7: &cError when spawning entity using EntityCreatorAPI");
+			Validator.send("Spawning entity exception", es);
 		}
 	}
 }

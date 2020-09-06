@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
-import me.DevTec.TheAPI.Utils.TheAPIUtils.Error;
+import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
 public class TabListAPI {
 
@@ -13,10 +13,9 @@ public class TabListAPI {
 	}
 
 	public static void setHeaderFooter(Player p, String header, String footer) {
-		if (p == null) {
-			Error.err("sending header/footer", "Player is null");
-			return;
-		}
+		Validator.validate(p == null,"Player is null");
+		Validator.validate(header == null,"Header is null");
+		Validator.validate(footer == null,"Footer is null");
 		NMSAPI.getNMSPlayerAPI(p).setTabList(TheAPI.colorize(header), TheAPI.colorize(footer));
 	}
 }

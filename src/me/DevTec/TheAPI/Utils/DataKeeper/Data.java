@@ -20,9 +20,9 @@ import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import me.DevTec.TheAPI.TheAPI;
-import me.DevTec.TheAPI.MultiHashMap.MultiMap;
 import me.DevTec.TheAPI.Utils.StringUtils;
+import me.DevTec.TheAPI.Utils.DataKeeper.Lists.TheArrays;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap;
 import me.DevTec.TheAPI.Utils.File.Reader;
 import me.DevTec.TheAPI.Utils.File.Writer;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
@@ -49,7 +49,7 @@ public class Data {
 		}
 	}
 
-	private MultiMap<String, String, DataHolder> map = TheAPI.getMultiMap();
+	private MultiMap<String, String, DataHolder> map = TheArrays.newMultiMap();
 	private List<String> header = Lists.newArrayList(), footer= Lists.newArrayList();
 	private File a;
 	public Data() {
@@ -72,7 +72,7 @@ public class Data {
 	public boolean exists(String path) {
 		boolean a = false;
 		for(String dd : map.keySet())
-			for(String k : map.getThreads(dd))
+			for(String k : map.threadSet(dd))
 				if(k.startsWith(path)) {
 					a=true;
 					break;
@@ -113,7 +113,7 @@ public class Data {
 		if(key==null)return;
 		if(value==null) {
 			if(map.containsThread(key.split("\\.")[0], key))
-			map.removeThread(key.split("\\.")[0], key);
+			map.remove(key.split("\\.")[0], key);
 			return;
 		}
 		DataHolder h = getOrCreateData(key);
@@ -124,7 +124,7 @@ public class Data {
 	public void remove(String key) {
 		if(key==null)return;
 		if(map.containsThread(key.split("\\.")[0], key))
-		map.removeThread(key.split("\\.")[0], key);
+		map.remove(key.split("\\.")[0], key);
 	}
 
 	public List<String> getLines(String key) {
@@ -510,7 +510,7 @@ public class Data {
 	public Set<String> getKeys(boolean subkeys) {
 		HashSet<String> a = Sets.newHashSet();
 		for(String dd : map.keySet())
-			for(String d : map.getThreads(dd))
+			for(String d : map.threadSet(dd))
 				if(subkeys)
 					a.add(d);
 				else
@@ -525,7 +525,7 @@ public class Data {
 	public Set<String> getKeys(String key, boolean subkeys) {
 		HashSet<String> a = Sets.newHashSet();
 		for(String dd : map.keySet())
-			for(String d : map.getThreads(dd))
+			for(String d : map.threadSet(dd))
 			if(d.startsWith(key) && !d.replaceFirst(d.split(key)[0], "").startsWith("."))
 				if(subkeys)
 					a.add(d.replaceFirst(key+"\\.", ""));
@@ -560,7 +560,7 @@ public class Data {
 		for(String h : header)
 			d.append(h+System.lineSeparator());
 		for(String keyy : map.keySet())
-			for(String key : map.getThreads(keyy)) {
+			for(String key : map.threadSet(keyy)) {
 			String keyr = "";
 			int ir = 0;
 			for(String k : key.split("\\.")) {

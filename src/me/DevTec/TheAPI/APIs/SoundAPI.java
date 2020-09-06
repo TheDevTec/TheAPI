@@ -7,8 +7,8 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import me.DevTec.TheAPI.Utils.TheAPIUtils.Error;
 import me.DevTec.TheAPI.Utils.Position;
+import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
 public class SoundAPI {
 	public static boolean existSound(String sound) {
@@ -24,13 +24,8 @@ public class SoundAPI {
 	}
 
 	public static void playSound(Position where, String sound, float volume, float pitch) {
-		if (where != null && where.getWorld() != null && getByName(sound) != null)
-			if (where == null || where.getWorld() == null) {
-				Error.err("playing sound", "Location is null");
-			}
-		if (sound == null || getByName(sound) == null) {
-			Error.err("playing sound", "Sound is null");
-		}
+		Validator.validate(where == null || where.getWorld() == null,"Location is null");
+		Validator.validate(sound == null || getByName(sound) == null,"Sound is null");
 		where.getWorld().playSound(where.toLocation(), getByName(sound), volume, pitch);
 	}
 

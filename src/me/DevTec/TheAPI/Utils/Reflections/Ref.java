@@ -85,6 +85,9 @@ public class Ref {
 	}
 	
 	public static void sendPacket(Player to, Object packet) {
+		if(packet==null) {
+			return;
+		}
 		Object p = Ref.player(to);
 		Object con = Ref.get(p, playerCon);
 		Ref.invoke(con, send, packet);

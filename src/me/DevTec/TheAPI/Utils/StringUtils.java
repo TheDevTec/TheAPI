@@ -20,15 +20,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 import me.DevTec.TheAPI.TheAPI;
+import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
+import me.DevTec.TheAPI.Utils.DataKeeper.Lists.TheArrays;
 
 public class StringUtils {
-
-	/**
-	 * @see see Transfer Runnable to String and back by Base64
-	 * @return TheCoder
-	 */
-	public static TheCoder getTheCoder() {
-		return new TheCoder();
+	
+	public static interface ColormaticFactory {
+		public String getColor();
 	}
 
 	/**
@@ -129,7 +127,15 @@ public class StringUtils {
 	}
 
 	private static final Pattern pattern = Pattern.compile("#[a-fA-F0-9]{6}");
-	
+	public static ColormaticFactory color = new ColormaticFactory() {
+		private TheList<Character> list = TheArrays.asList('4','c','6','e','5','d','9','3', 'b','2','a');
+		private int i = 0;
+		@Override
+		public String getColor() {
+			if(i>=list.size())i=0;
+			return "&"+list.get(i++);
+		}
+	};
 	/**
 	 * @see see Colorize string with colors
 	 * @param string
@@ -137,20 +143,51 @@ public class StringUtils {
 	 */
 	public static String colorize(String string) {
 		if (string == null)return null;
+		if(string.contains("&u")||string.contains("&U")) {
+			String recreate = "";
+			int mode = 0;
+			for(char c : string.toCharArray()) {
+				if(c=='&') {
+					if(mode==1) { //&&
+						recreate+="&"+c;
+						mode=0;
+					}else
+					mode=1;
+				}else {
+					if(mode==1) {
+						mode=0;
+						if(Character.toLowerCase(c)=='u') { // &u
+							mode=2;
+						}else { // ...
+							recreate+="&"+c;
+						}
+					}else {
+						if(mode==2) { //&uText..
+							if(c==' ')
+								recreate+=c;
+							else
+							recreate+=color.getColor()+c;
+						}else
+						recreate+=c;
+					}
+				}
+			}
+			string=recreate;
+		}
 		if (TheAPI.isNewerThan(15) && string.contains("#")) {
-				string = string.replace("&x", "§x");
-				Matcher match = pattern.matcher(string);
-	            while (match.find()) {
-	                String color = match.group();
-	                StringBuilder magic = new StringBuilder("§x");
-	                char[] c = color.substring(1).toCharArray();
-	                for(int i = 0; i < c.length; ++i) {
-	                    magic.append(("&"+c[i]).toLowerCase());
-	                }
-	                string = string.replace(color, magic.toString() + "");
-	            }
-	        }
-		return ChatColor.translateAlternateColorCodes('&', string);
+			string = string.replace("&x", "§x");
+			Matcher match = pattern.matcher(string);
+            while (match.find()) {
+                String color = match.group();
+                StringBuilder magic = new StringBuilder("§x");
+                char[] c = color.substring(1).toCharArray();
+                for(int i = 0; i < c.length; ++i) {
+                    magic.append(("&"+c[i]).toLowerCase());
+                }
+                string = string.replace(color, magic.toString() + "");
+            }
+    }
+	return ChatColor.translateAlternateColorCodes('&', string);
 	}
 
 	/**
@@ -178,6 +215,25 @@ public class StringUtils {
 	 * @return Object
 	 */
 	public static <T> T getRandomFromList(List<T> list) {
+		if (list.isEmpty() || list == null)
+			return null;
+		int r = new Random().nextInt(list.size());
+		if (r <= 0) {
+			if (list.get(0) != null) {
+				return list.get(0);
+			}
+			return null;
+		} else
+			return list.get(r);
+	}
+
+	/**
+	 * @see see Return random object from list
+	 * @param list
+	 * @return 
+	 * @return Object
+	 */
+	public static <T> T getRandomFromList(TheList<T> list) {
 		if (list.isEmpty() || list == null)
 			return null;
 		int r = new Random().nextInt(list.size());

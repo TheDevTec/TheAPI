@@ -13,7 +13,8 @@ import me.DevTec.TheAPI.Utils.StringUtils;
 
 public class ThePlaceholderAPI {
 	private final static Pattern finder = Pattern.compile("\\%([^A-Za-z0-9]|[A-Za-z0-9])+\\%"),
-			math = Pattern.compile("\\%math(\\{(?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*?\\}))\\%");
+			math = Pattern.compile("\\%math(\\{(?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*?\\}))\\%"),
+			toggle = Pattern.compile("\\%toggle(\\{[ ]*(?:([tT][rR][uU][eE]|[yY][eE][sS]|[nN][oO]|[oO][nN]|[oO][fF][fF]|[fF][aA][lL][sS][eE])*?[ ]*\\}))\\%");
 	private final static List<ThePlaceholder> reg = Lists.newArrayList();
 	
 	public static void register(ThePlaceholder e) {
@@ -54,6 +55,20 @@ public class ThePlaceholderAPI {
 				++v;
 				String w = m.group();
 				text=text.replace(w, (""+StringUtils.calculate(w.substring(6,w.length()-2))));
+			}
+			if(v!=0)continue;
+			else break;
+		}
+		while(true) { //toggle placeholder
+			Matcher m = toggle.matcher(text);
+			int v = 0;
+			while(m.find()) {
+				++v;
+				String w = m.group();
+				if(w.equalsIgnoreCase("false")||w.equalsIgnoreCase("off")||w.equalsIgnoreCase("no"))
+				text=text.replace(w, "true");
+				if(w.equalsIgnoreCase("true")||w.equalsIgnoreCase("on")||w.equalsIgnoreCase("yes"))
+				text=text.replace(w, "false");
 			}
 			if(v!=0)continue;
 			else break;

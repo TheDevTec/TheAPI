@@ -42,7 +42,6 @@ import me.DevTec.TheAPI.BossBar.BossBar;
 import me.DevTec.TheAPI.ConfigAPI.ConfigAPI;
 import me.DevTec.TheAPI.CooldownAPI.CooldownAPI;
 import me.DevTec.TheAPI.Events.PlayerVanishEvent;
-import me.DevTec.TheAPI.MultiHashMap.MultiMap;
 import me.DevTec.TheAPI.SQLAPI.SQLAPI;
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
@@ -50,12 +49,13 @@ import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardType;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.Storage;
 import me.DevTec.TheAPI.Utils.DataKeeper.User;
+import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.ChatType;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.TitleAction;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
-import me.DevTec.TheAPI.Utils.TheAPIUtils.Error;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
+import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 import me.DevTec.TheAPI.WorldsAPI.WorldBorderAPI;
 
 public class TheAPI {
@@ -123,14 +123,6 @@ public class TheAPI {
 	 */
 	public static Storage getStorage() {
 		return new Storage();
-	}
-
-	/**
-	 * @see see This is HashMap with easier manupulation
-	 * @return MultiMap<K, T, V>
-	 */
-	public static <K, T, V> MultiMap<K, T, V> getMultiMap() {
-		return new MultiMap<K, T, V>();
 	}
 
 	/**
@@ -218,6 +210,15 @@ public class TheAPI {
 	 * @return Object
 	 */
 	public static <T> T getRandomFromList(List<T> list) {
+		return StringUtils.getRandomFromList(list);
+	}
+
+	/**
+	 * @see see Return random object from list
+	 * @param list
+	 * @return Object
+	 */
+	public static <T> T getRandomFromList(TheList<T> list) {
 		return StringUtils.getRandomFromList(list);
 	}
 
@@ -337,14 +338,8 @@ public class TheAPI {
 	}
 
 	public static void sendMessage(String message, CommandSender sender) {
-		if (sender == null) {
-			Error.err("sending message", "CommandSender is null");
-			return;
-		}
-		if (message == null) {
-			Error.err("sending message", "Message is null");
-			return;
-		}
+		Validator.validate(sender==null, "CommandSender is null");
+		Validator.validate(message==null, "Message is null");
 		ChatColor old = ChatColor.RESET;
 		for (String s : message.replace("\\n", "\n").split("\n")) {
 			sender.sendMessage(old + colorize(s));
@@ -368,10 +363,9 @@ public class TheAPI {
 	 * @param timeToExpire
 	 */
 	public static BossBar sendBossBar(Player p, String text, double progress) {
-		if (p == null) {
-			Error.err("sending bossbar", "Player is null");
-			return null;
-		}
+		Validator.validate(p==null, "Player is null");
+		Validator.validate(text==null, "Text is null");
+		Validator.validate(progress<0, "Progress is lower than zero");
 		if (task.containsKey(p.getName())) {
 			Tasker.cancelTask(task.get(p.getName()));
 			task.remove(p.getName());
@@ -399,10 +393,10 @@ public class TheAPI {
 	 * @param timeToExpire
 	 */
 	public static void sendBossBar(Player p, String text, double progress, int timeToExpire) {
-		if (p == null) {
-			Error.err("sending bossbar", "Player is null");
-			return;
-		}
+		Validator.validate(p==null, "Player is null");
+		Validator.validate(text==null, "Text is null");
+		Validator.validate(progress<0, "Progress is lower than zero");
+		Validator.validate(timeToExpire<0, "Time to expire is lower than zero");
 		BossBar a = sendBossBar(p, text, progress);
 		task.put(p.getName(), new Tasker() {
 			@Override
@@ -417,10 +411,7 @@ public class TheAPI {
 	 * @param p
 	 */
 	public static void removeBossBar(Player p) {
-		if (p == null) {
-			Error.err("removing bossbars", "Player is null");
-			return;
-		}
+		Validator.validate(p==null, "Player is null");
 		if (task.containsKey(p.getName())) {
 			Tasker.cancelTask(task.get(p.getName()));
 			task.remove(p.getName());
@@ -435,10 +426,7 @@ public class TheAPI {
 	 * @return BossBar
 	 */
 	public static BossBar getBossBar(Player p) {
-		if (p == null) {
-			Error.err("getting bossbars", "Player is null");
-			return null;
-		}
+		Validator.validate(p==null, "Player is null");
 		return bars.containsKey(p.getName()) ? bars.get(p.getName()) : null;
 
 	}
@@ -448,10 +436,7 @@ public class TheAPI {
 	 * @param p
 	 */
 	public static void removeActionBar(Player p) {
-		if (p == null) {
-			Error.err("sending ActionBar", "Player is null");
-			return;
-		}
+		Validator.validate(p==null, "Player is null");
 		sendActionBar(p, "");
 	}
 
@@ -470,10 +455,11 @@ public class TheAPI {
 	 * @param text
 	 */
 	public static void sendActionBar(Player p, String text, int fadeIn, int stay, int fadeOut) {
-		if (p == null) {
-			Error.err("sending ActionBar", "Player is null");
-			return;
-		}
+		Validator.validate(p==null, "Player is null");
+		Validator.validate(text==null, "Text is null");
+		Validator.validate(fadeIn<0, "FadeIn time is lower than zero");
+		Validator.validate(stay<0, "Stay time is lower than zero");
+		Validator.validate(fadeOut<0, "FadeOut time is lower than zero");
 		Object packet = NMSAPI.getPacketPlayOutTitle(TitleAction.ACTIONBAR, colorize(text), fadeIn, stay, fadeOut);
 		if (packet == null)
 			packet = NMSAPI.getPacketPlayOutChat(ChatType.CHAT, colorize(text));
@@ -527,23 +513,14 @@ public class TheAPI {
 	}
 
 	private static void giveItems(Player p, ItemStack item) {
-		if (p == null) {
-			Error.err("giving Item", "Player is null");
-			return;
+		Validator.validate(p==null, "Player is null");
+		Validator.validate(item==null, "ItemStack is null");
+		if (p.getInventory().firstEmpty() == -1) {
+			p.getWorld().dropItem(p.getLocation(), item);
+		} else {
+			p.getInventory().addItem(item);
 		}
-		try {
-			if (item == null)
-				return;
-			if (p.getInventory().firstEmpty() == -1) {
-				p.getWorld().dropItem(p.getLocation(), item);
-			} else {
-				p.getInventory().addItem(item);
-			}
-		} catch (Exception e) {
-			Error.err("giving Item to player " + p.getName(), "Item is null");
-			return;
-		}
-	}
+}
 
 	/**
 	 * @see see If player have full inventory, item will be dropped on ground or
@@ -552,6 +529,7 @@ public class TheAPI {
 	 * @param item
 	 */
 	public static void giveItem(Player p, List<ItemStack> item) {
+		Validator.validate(item==null, "List of ItemStacks is null");
 		for (ItemStack i : item)
 			giveItems(p, i);
 	}
@@ -563,6 +541,7 @@ public class TheAPI {
 	 * @param item
 	 */
 	public static void giveItem(Player p, ItemStack... item) {
+		Validator.validate(item==null, "ItemStacks are null");
 		for (ItemStack i : item)
 			giveItems(p, i);
 	}
@@ -575,6 +554,9 @@ public class TheAPI {
 	 * @param amount
 	 */
 	public static void giveItem(Player p, Material item, int amount) {
+		Validator.validate(p==null, "Player is null");
+		Validator.validate(item==null, "Material is null");
+		Validator.validate(amount<=0, "Amount of items is lower than one");
 		giveItems(p, new ItemStack(item, amount));
 	}
 
@@ -585,10 +567,9 @@ public class TheAPI {
 	 * @param nextLine
 	 */
 	public static void sendTitle(Player p, String firstLine, String nextLine) {
-		if (p == null) {
-			Error.err("sending Title", "Player is null");
-			return;
-		}
+		Validator.validate(p==null, "Player is null");
+		Validator.validate(firstLine==null, "FirstLine is null");
+		Validator.validate(nextLine==null, "NextLine is null");
 		NMSAPI.sendPacket(p,
 				NMSAPI.getPacketPlayOutTitle(TitleAction.TITLE, Ref.IChatBaseComponent(TheAPI.colorize(firstLine))));
 		NMSAPI.sendPacket(p,
