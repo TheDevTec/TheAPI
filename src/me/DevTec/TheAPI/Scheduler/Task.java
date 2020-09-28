@@ -36,27 +36,27 @@ public class Task implements Runnable {
 		}
 	}
 	
-	public boolean hasException() {
+	public synchronized boolean hasException() {
 		return error;
 	}
 
-	public boolean isRepeating() {
+	public synchronized boolean isRepeating() {
 		return repeat;
 	}
 
-	public boolean isSync() {
+	public synchronized boolean isSync() {
 		return s;
 	}
 
-	public boolean isCancelled() {
+	public synchronized boolean isCancelled() {
 		return c;
 	}
 
-	public void cancel() {
+	public synchronized void cancel() {
 		c = true;
 	}
 
-	public int runTimes() {
+	public synchronized int runTimes() {
 		return r;
 	}
 }

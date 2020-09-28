@@ -1,6 +1,5 @@
 package me.DevTec.TheAPI.APIs;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -891,12 +890,10 @@ public class ItemCreatorAPI implements Cloneable {
 				}
 				if (!ef.keySet().isEmpty())
 					for (PotionEffectType t : ef.keySet()) {
-						if (t == null) {
+						if (t == null)
 							continue;
-						}
-						int dur = StringUtils.getInt(ef.get(t).split(":")[0]);
 						int amp = StringUtils.getInt(ef.get(t).split(":")[1]);
-						meta.addCustomEffect(new PotionEffect(t, dur, (amp <= 0 ? 1 : amp)), true);
+						meta.addCustomEffect(new PotionEffect(t, StringUtils.getInt(ef.get(t).split(":")[0]), (amp <= 0 ? 1 : amp)), true);
 						}
 				i.setItemMeta(meta);
 			} else if (type != null) {
@@ -906,14 +903,9 @@ public class ItemCreatorAPI implements Cloneable {
 				} else if (url != null || url == null && text != null) {
 					try {
 						Object profile = Ref.createGameProfile(null, null);
-						byte[] encodedData = Base64.getEncoder()
-								.encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
-						Ref.invoke(Ref.invoke(profile,"getProperties"),"put","textures",
-								Ref.createProperty("textures", url == null && text != null ? text : new String(encodedData)));
-						Field profileField = null;
-						profileField = m.getClass().getDeclaredField("profile");
-						profileField.setAccessible(true);
-						profileField.set(m, profile);
+						byte[] encodedData = Base64.getEncoder().encode(("{textures:{SKIN:{url:\""+url+"\"}}}").getBytes());
+						Ref.invoke(Ref.invoke(profile,"getProperties"),"put",Ref.createProperty("textures", (String)(url == null && text != null ? text : new String(encodedData))));
+						Ref.set(m, "profile", profile);
 					} catch (Exception | NoSuchMethodError e) {
 					}
 				}

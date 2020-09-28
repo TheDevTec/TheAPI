@@ -211,15 +211,20 @@ public class StringUtils {
 	 * 
 	 */
 	public static String buildString(String[] args) {
-		if (args.length > 0) {
-			String msg = "";
-			for (String string : args) {
-				msg = msg + " " + string;
-			}
-			msg = msg.replaceFirst(" ", "");
-			return msg;
-		}
-		return null;
+		return buildString(0, args);
+	}
+
+	/**
+	 * @see see Build string from String[]
+	 * @param args
+	 * @return String
+	 * 
+	 */
+	public static String buildString(int start, String[] args) {
+		String msg = "";
+		for (int i = start; i < args.length-1; ++i)
+			msg += (msg.equals("")?"":" ") + args[i];
+		return msg;
 	}
 
 	/**

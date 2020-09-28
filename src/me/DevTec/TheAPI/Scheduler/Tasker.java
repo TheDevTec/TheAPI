@@ -51,15 +51,10 @@ public abstract class Tasker implements Runnable {
 	}
 
 	private int set(Task t) {
-		if (t != null) {
-			task = t;
-			return t.getId();
-		}
-		return -1;
+		return (task=t).getId();
 	}
 
 	public static void cancelTask(int id) {
-		if (id > 0)
-			Scheduler.cancelTask(id);
+		Scheduler.cancelTask(id);
 	}
 }

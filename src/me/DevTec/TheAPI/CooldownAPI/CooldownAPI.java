@@ -1,12 +1,25 @@
 package me.DevTec.TheAPI.CooldownAPI;
 
+import java.util.UUID;
+
+import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.DataKeeper.User;
+import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
 public class CooldownAPI {
 	private final User c;
 
 	public CooldownAPI(User player) {
+		Validator.validate(player==null, "User is null");
 		c = player;
+	}
+
+	public CooldownAPI(String player) {
+		this(TheAPI.getUser(player));
+	}
+
+	public CooldownAPI(UUID player) {
+		this(TheAPI.getUser(player));
 	}
 
 	public User getUser() {
@@ -19,8 +32,7 @@ public class CooldownAPI {
 	}
 
 	public void createCooldown(String cooldown, int length) {
-		c.set("cooldown." + cooldown + ".start", System.currentTimeMillis() / 1000);
-		c.setAndSave("cooldown." + cooldown + ".time", length);
+		createCooldown(cooldown, (double)length);
 	}
 
 	public boolean expired(String cooldown) {
@@ -40,9 +52,7 @@ public class CooldownAPI {
 	 * @return long If return is -1, it mean cooldown isn't exist
 	 */
 	public long getTimeToExpire(String cooldown) {
-		return getStart(cooldown) != -1
-				? (getStart(cooldown) - System.currentTimeMillis() / 1000) + (long) getCooldown(cooldown)
-				: -1;
+		return (long) (getStart(cooldown) != -1 ? (getStart(cooldown) - System.currentTimeMillis() / 1000) + getCooldown(cooldown) : -1);
 
 	}
 

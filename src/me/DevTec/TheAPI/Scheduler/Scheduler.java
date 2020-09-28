@@ -15,22 +15,18 @@ public class Scheduler {
 	}
 
 	public static void cancelTask(int id) {
-		if (LoaderClass.plugin.scheduler.containsKey(id)) {
-			LoaderClass.plugin.scheduler.get(id).cancel();
-			LoaderClass.plugin.scheduler.remove(id);
-		}
+		cancelTask(getTask(id));
 	}
 
 	public static void cancelTask(Task id) {
+		Validator.validate(id==null, "Task is null");
 		id.cancel();
-		if (LoaderClass.plugin.scheduler.containsKey(id.getId()))
-			LoaderClass.plugin.scheduler.remove(id.getId());
+		LoaderClass.plugin.scheduler.remove(id.getId());
 	}
 
 	public static void cancelAll() {
-		for (Integer r : LoaderClass.plugin.scheduler.keySet()) {
+		for (Integer r : LoaderClass.plugin.scheduler.keySet())
 			LoaderClass.plugin.scheduler.get(r).cancel();
-		}
 		LoaderClass.plugin.scheduler.clear();
 	}
 
@@ -75,6 +71,7 @@ public class Scheduler {
 		new Thread(new Runnable() {
 			@SuppressWarnings("deprecation")
 			public void run() {
+				if(!t.isCancelled())
 				NMSAPI.postToMainThread(task);
 				cancelTask(t);
 				Thread.currentThread().stop();
@@ -89,6 +86,7 @@ public class Scheduler {
 		new Thread(new Runnable() {
 			@SuppressWarnings("deprecation")
 			public void run() {
+				if(!t.isCancelled())
 				t.run();
 				cancelTask(t);
 				Thread.currentThread().stop();
@@ -140,6 +138,7 @@ public class Scheduler {
 		new Timer().scheduleAtFixedRate(new TimerTask() {
 			@SuppressWarnings("deprecation")
 			public void run() {
+				if(!t.isCancelled())
 					t.run();
 					cancelTask(t);
 					cancel();
@@ -161,6 +160,7 @@ public class Scheduler {
 		new Timer().scheduleAtFixedRate(new TimerTask() {
 			@SuppressWarnings("deprecation")
 			public void run() {
+				if(!t.isCancelled())
 					t.run();
 					if(t.hasException())
 						t.cancel();
@@ -189,6 +189,7 @@ public class Scheduler {
 		new Timer().scheduleAtFixedRate(new TimerTask() {
 			@SuppressWarnings("deprecation")
 			public void run() {
+				if(!t.isCancelled())
 					t.run();
 					if(t.hasException())
 						t.cancel();
