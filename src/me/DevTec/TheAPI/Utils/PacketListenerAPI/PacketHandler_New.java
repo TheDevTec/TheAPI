@@ -1,5 +1,6 @@
 package me.DevTec.TheAPI.Utils.PacketListenerAPI;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,7 +8,6 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 
 import io.netty.channel.Channel;
@@ -27,7 +27,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	private static Class<?> login = Ref.nms("PacketLoginInStart");
 	private Map<String, Channel> channelLookup = new HashMap<>();
 	private List<?> networkManagers;
-	private List<Channel> serverChannels = Lists.newArrayList();
+	private List<Channel> serverChannels = new ArrayList<>();
 	private ChannelInboundHandlerAdapter serverChannelHandler;
 	private ChannelInitializer<Channel> beginInitProtocol, endInitProtocol;
 	protected volatile boolean closed;
@@ -223,7 +223,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 			}
 
 			try {
-				msg = PacketManager.call(player, msg, PacketType.PLAY_IN);
+				msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_IN);
 			} catch (Exception e) {
 			}
 
@@ -245,7 +245,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 				}
 			}
 			try {
-				msg = PacketManager.call(player, msg, PacketType.PLAY_OUT);
+				msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_OUT);
 			} catch (Exception e) {
 			}
 

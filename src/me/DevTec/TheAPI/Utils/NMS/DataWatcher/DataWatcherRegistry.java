@@ -2,8 +2,6 @@ package me.DevTec.TheAPI.Utils.NMS.DataWatcher;
 
 import java.util.HashMap;
 
-import com.google.common.collect.Maps;
-
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.Reflections.Reflections;
 
@@ -154,7 +152,7 @@ public class DataWatcherRegistry {
 		return new DataWatcherObject(Reflections.invoke(o, Reflections.getMethod(o.getClass(), "a", int.class), data));
 	}
 	
-	private static final HashMap<String, Integer> ids = Maps.newHashMap();
+	private static final HashMap<String, Integer> ids = new HashMap<>();
 	static {
 		if(TheAPI.isNewVersion()) {
 		    ids.put("a", 0);

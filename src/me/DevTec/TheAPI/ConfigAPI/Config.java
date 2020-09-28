@@ -1,19 +1,18 @@
 package me.DevTec.TheAPI.ConfigAPI;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.google.common.collect.Maps;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
 import me.DevTec.TheAPI.Utils.DataKeeper.DataType;
 
 public class Config {
-    private Map<String, Object> defaults = Maps.newHashMap();
+    private final Map<String, Object> defaults = new HashMap<>();
+    private final Data f;
     private DataType t;
-    private Data f;
 
     public Config(String path) {
     	this(path, DataType.YAML);
@@ -37,10 +36,62 @@ public class Config {
     	return t;
     }
     
+    public void setType(DataType type) {
+    	t=type;
+    }
+    
     public void save() {
         f.save(t);
     }
 
+    public void setHeader(List<String> texts) {
+    	f.setHeader(texts);
+    }
+
+    public List<String> getHeader() {
+    	return f.getHeader();
+    }
+
+    public void addHeader(String text) {
+    	f.getHeader().add(text);
+    }
+
+    public void setHeader(int position, String text) {
+    	f.getHeader().set(position, text);
+    }
+
+    public void removeHeader(String text) {
+    	f.getHeader().remove(text);
+    }
+
+    public void removeHeader(int position) {
+    	f.getHeader().remove(position);
+    }
+    
+    public void setFooter(List<String> texts) {
+    	f.setFooter(texts);
+    }
+
+    public List<String> getFooter() {
+    	return f.getFooter();
+    }
+
+    public void addFooter(String text) {
+    	f.getFooter().add(text);
+    }
+
+    public void setFooter(int position, String text) {
+    	f.getFooter().set(position, text);
+    }
+
+    public void removeFooter(String text) {
+    	f.getFooter().remove(text);
+    }
+
+    public void removeFooter(int position) {
+    	f.getFooter().remove(position);
+    }
+    
     public void addDefaults(Map<String, Object> values) {
     	for(String key : values.keySet())
     		addDefault(key, values.get(key));
@@ -168,8 +219,16 @@ public class Config {
     	return f.getStringList(path);
     }
 
+    public Set<String> getKeys(boolean subKeys) {
+    	return f.getKeys(subKeys);
+    }
+
     public Set<String> getKeys(String path) {
     	return f.getKeys(path);
+    }
+
+    public Set<String> getKeys(String path, boolean subKeys) {
+    	return f.getKeys(path, subKeys);
     }
 
     public String getString(String path) {

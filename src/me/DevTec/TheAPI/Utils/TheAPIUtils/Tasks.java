@@ -1,97 +1,83 @@
 package me.DevTec.TheAPI.Utils.TheAPIUtils;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-import com.google.common.collect.Lists;
-
 import me.DevTec.TheAPI.TheAPI;
+import me.DevTec.TheAPI.ConfigAPI.ConfigAPI;
 import me.DevTec.TheAPI.Events.EntityMoveEvent;
-import me.DevTec.TheAPI.PlaceholderAPI.PlaceholderAPI;
 import me.DevTec.TheAPI.Scheduler.Scheduler;
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.Utils.StringUtils;
+import me.DevTec.TheAPI.Utils.Listener.Events.ServerListPingEvent;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
+import me.DevTec.TheAPI.Utils.ServerList.PlayerProfile;
 
 public class Tasks {
 	private static boolean load;
 	private static int task;
 	private static Class<?> c=Ref.getClass("com.mojang.authlib.GameProfile")!=null?Ref.getClass("com.mojang.authlib.GameProfile"):Ref.getClass("net.minecraft.util.com.mojang.authlib.GameProfile");
+	private static Constructor<?> cc = Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class, int.class);
 	private static me.DevTec.TheAPI.Utils.PacketListenerAPI.Listener l=null;
 
 	public static void load() {
-		FileConfiguration c = LoaderClass.config.getConfig();
-		FileConfiguration v = LoaderClass.unused.getConfig();
+		ConfigAPI v = LoaderClass.unused;
 		if (load)
 			return;
 		load = true;
 		if(l==null)
 		l=new me.DevTec.TheAPI.Utils.PacketListenerAPI.Listener() {
-			@Override
-			public void PacketPlayOut(Player player, Object packet) {
+			public void PacketPlayOut(Player player, Object packet, Object channel) {
 				if(packet.toString().contains("PacketStatusOutServerInfo")) {
 					Object w = Ref.invoke(Ref.server(),"getServerPing");
 					if(w==null)w=Ref.invoke(Ref.server(), "aG");
 					if(w==null)w=Ref.invoke(Ref.invoke(Ref.server(),"getServer"), "getServerPing");
-					Object sd = Ref.newInstance(Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class, int.class), LoaderClass.plugin.max>-1?LoaderClass.plugin.max:Bukkit.getMaxPlayers(),LoaderClass.plugin.fakeOnline>-1?LoaderClass.plugin.fakeOnline:TheAPI.getOnlinePlayers().size());
-					if(LoaderClass.plugin.onlineText!=null && !LoaderClass.plugin.onlineText.isEmpty()) {
-					Object[] a = (Object[]) Array.newInstance(Tasks.c, LoaderClass.plugin.onlineText.size());
+					List<PlayerProfile> players = new ArrayList<>();
+					for(Player p : TheAPI.getOnlinePlayers())
+						players.add(new PlayerProfile(p.getName(),p.getUniqueId()));
+					ServerListPingEvent event = new ServerListPingEvent(TheAPI.getOnlinePlayers().size(), TheAPI.getMaxPlayers(), players, TheAPI.getMotd(), "server-icon.png", ((InetSocketAddress)Ref.invoke(channel, "localAddress")).getAddress());
+					TheAPI.callEvent(event);
+					if(event.isCancelled()) {
+						Ref.set(packet, "b", null);
+						return;
+					}
+					Object sd = Ref.newInstance(cc, event.getMaxPlayers(),event.getOnlinePlayers());
+					if(event.getPlayersText()!=null) {
+					Object[] a = (Object[]) Array.newInstance(Tasks.c, event.getPlayersText().size());
 					int i = 0;
-					for(String s : LoaderClass.plugin.onlineText) {
-						a[i]=Ref.createGameProfile(UUID.randomUUID(), TheAPI.colorize(PlaceholderAPI.setPlaceholders(null, s)));
-						++i;
-					}
+					for(PlayerProfile s : event.getPlayersText())
+						a[i++]=Ref.createGameProfile(s.uuid, s.name);
 					Ref.set(sd,"c", a);
-					}else {
-						int online = LoaderClass.plugin.fakeOnline>-1?LoaderClass.plugin.fakeOnline:TheAPI.getOnlinePlayers().size();
-						List<Player> seen = Lists.newArrayList();
-						for(Player s : TheAPI.getPlayers())
-							if(!TheAPI.isVanished(s))
-								seen.add(s);
-						if(online==-1)online=seen.size();
-						sd = Ref.newInstance(Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class, int.class), LoaderClass.plugin.max>-1?LoaderClass.plugin.max:Bukkit.getMaxPlayers(),online);
-						Object[] a = (Object[]) Array.newInstance(Tasks.c, seen.size());
-						int i = 0;
-						for(Player s : seen) {
-							String name = s.getName();
-							if(LoaderClass.config.getBoolean("Options.ServerList-Players.Enabled")) {
-								name=LoaderClass.config.getString("Options.ServerList-Players.Format");
-								name=name.replace("%player%", s.getName()).replace("%playername%", s.getDisplayName()).replace("%customname%", s.getCustomName());
-								if(LoaderClass.config.getBoolean("Options.ServerList-Players.FormatedWithPAPI"))
-									name=PlaceholderAPI.setPlaceholders(s, name);
-								if(name==null) {name = s.getName();
-								name=LoaderClass.config.getString("Options.ServerList-Players.Format");
-								name=name.replace("%player%", s.getName()).replace("%playername%", s.getDisplayName()).replace("%customname%", s.getCustomName());
-								}if(name==null)name = s.getName();}
-							a[i]=Ref.createGameProfile(s.getUniqueId(), name);
-							++i;
-						}
-						Ref.set(sd, "c", a);
-					}
+					}else
+						Ref.set(sd,"c", (Object[]) Array.newInstance(Tasks.c, 0));
 					Ref.set(w, "b", sd);
-					if(LoaderClass.plugin.motd!=null)
-					Ref.set(w, "a", Ref.IChatBaseComponent(TheAPI.colorize(PlaceholderAPI.setPlaceholders(null, LoaderClass.plugin.motd))));
+					
+					if(event.getMotd()!=null)
+						Ref.set(w, "a", Ref.IChatBaseComponent(event.getMotd()));
+					else
+						Ref.set(w, "a", Ref.IChatBaseComponent(""));
 					Ref.set(packet, "b", w);
+					Ref.set(packet, "d", event.getFalvicon());
 				}
 			}
-			
+
 			@Override
-			public void PacketPlayIn(Player player, Object packet) {
-				
+			public void PacketPlayIn(Player player, Object packet, Object channel) {
 			}
 		};
 		l.register();
-		if (c.getBoolean("Options.EntityMoveEvent.Enabled"))
+		if (LoaderClass.config.getBoolean("Options.EntityMoveEvent.Enabled"))
 			task=new Tasker() {
 				public void run() {
 					for (World w : Bukkit.getWorlds()) {
@@ -119,7 +105,7 @@ public class Tasks {
 						}}catch(Exception error) {}
 					}
 				}
-			}.repeating(0, c.getInt("Options.EntityMoveEvent.Reflesh"));
+			}.repeating(0, LoaderClass.config.getInt("Options.EntityMoveEvent.Reflesh"));
 	}
 
 	public static void unload() {

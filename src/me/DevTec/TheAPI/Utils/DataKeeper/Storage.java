@@ -1,15 +1,15 @@
 package me.DevTec.TheAPI.Utils.DataKeeper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import com.google.common.collect.Lists;
-
-public class Storage {
-	private List<Inventory> invs = Lists.newArrayList();
+public class Storage implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
+	private static final long serialVersionUID = 1L;
+	private List<Inventory> invs = new ArrayList<>();
 	private Inventory inv = Bukkit.createInventory(null, 54);
 
 	public void add(ItemStack item) {
@@ -34,7 +34,7 @@ public class Storage {
 	}
 
 	public List<ItemStack> getItems() {
-		List<ItemStack> items = Lists.newArrayList();
+		List<ItemStack> items = new ArrayList<>();
 		for (Inventory i : getInventories()) {
 			for (ItemStack a : i.getContents()) {
 				try {
@@ -53,5 +53,14 @@ public class Storage {
 
 	public int size() {
 		return invs.size();
+	}
+	
+	public String toString() {
+		return invs.toString();
+	}
+
+	@Override
+	public String getDataName() {
+		return "Storage("+toString()+")";
 	}
 }

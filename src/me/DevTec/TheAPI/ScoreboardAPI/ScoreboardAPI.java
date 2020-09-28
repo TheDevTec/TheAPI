@@ -10,8 +10,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 
-import com.google.common.collect.Lists;
-
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.TheCoder;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
@@ -27,7 +25,7 @@ import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
  *
  */
 public class ScoreboardAPI {
-	private static Field teamlist= Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardTeam"), TheAPI.isOlder1_9() ? "g" : "h");
+	private static Field teamlist = Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardTeam"), TheAPI.isOlder1_9() ? "g" : "h");
 	private Player p;
 	private String player;
 	private final int id;
@@ -202,7 +200,7 @@ public class ScoreboardAPI {
 			o.getScore(TheCoder.toColor(line)).setScore(line);
 			LoaderClass.plugin.map.put(id, line, team);
 			}else {
-				String old = LoaderClass.plugin.map.containsThread(id, line) ? LoaderClass.plugin.map.get(id, line).toString() : null;
+				String old = LoaderClass.plugin.map.containsThread(id, line) ? (String)LoaderClass.plugin.map.get(id, line) : null;
 				if(old!=null)sb.resetScores(old);
 				value=TheAPI.isNewVersion() ? (value.length() > 48 ? value.substring(0,48) : value) : (value.length() > 32 ? value.substring(0,32) : value);
 				o.getScore(value).setScore(line);
@@ -229,7 +227,7 @@ public class ScoreboardAPI {
 			team.unregister();
 			sb.resetScores(Bukkit.getOfflinePlayer(line+""));
 			}else {
-				String old = LoaderClass.plugin.map.containsThread(id, line) ? LoaderClass.plugin.map.get(id, line).toString() : null;
+				String old = LoaderClass.plugin.map.containsThread(id, line) ? (String)LoaderClass.plugin.map.get(id, line) : null;
 				if(old==null)return;
 				sb.resetScores(old);
 			}
@@ -240,7 +238,7 @@ public class ScoreboardAPI {
 	public String getLine(int line) {
 		if(LoaderClass.plugin.map.containsThread(id,line))
 			return packets ? ((Team)LoaderClass.plugin.map.get(id,line)).getValue() : 
-				(teams? ((org.bukkit.scoreboard.Team)LoaderClass.plugin.map.get(id,line)).getPrefix():LoaderClass.plugin.map.get(id,line).toString());
+				(teams? ((org.bukkit.scoreboard.Team)LoaderClass.plugin.map.get(id,line)).getPrefix():(String)LoaderClass.plugin.map.get(id,line));
 		return null;
 	}
 
@@ -268,7 +266,7 @@ public class ScoreboardAPI {
 		Reflections.setField(packet, "a", p.getName());
 		Reflections.setField(packet, "d", mode);
 		if (mode == 0 || mode == 2) {
-			Reflections.setField(packet, "b", TheAPI.isNewVersion()?NMSAPI.getIChatBaseComponentText(displayName):displayName);
+			Reflections.setField(packet, "b", TheAPI.isNewVersion()?NMSAPI.getIChatBaseCompomentFromCraftBukkit(displayName):displayName);
 			Reflections.setField(packet, "c", NMSAPI.getEnumScoreboardHealthDisplay(DisplayType.INTEGER));
 		}
 		return packet;
@@ -281,11 +279,11 @@ public class ScoreboardAPI {
 		}
 	}
 
+	private static boolean a = !TheAPI.isNewVersion();
 	public class Team {
 		private final String name;
 		private String prefix = "",suffix = "",currentPlayer,oldPlayer;
-		private boolean changed, playerChanged;
-		private boolean first = true;
+		private boolean changed, playerChanged, first = true;
 
 		private Team(int slot) {
 			this.name = slot+"";
@@ -295,40 +293,12 @@ public class ScoreboardAPI {
 			return name;
 		}
 
-		public String getPrefix() {
-			return prefix;
-		}
-
-		public void setPrefix(String prefix) {
-			if (this.prefix == null || !this.prefix.equals(prefix))
-				this.changed = true;
-			this.prefix = prefix;
-		}
-
-		public String getSuffix() {
-			return suffix;
-		}
-
-		public void setSuffix(String suffix) {
-			if (this.suffix == null || !this.suffix.equals(prefix))
-				this.changed = true;
-			this.suffix = suffix;
-		}
-
 		private Object c(int mode) {
 			Object packet = NMSAPI.getPacketPlayOutScoreboardTeam();
 			Ref.set(packet, "a", name);
-			if(!TheAPI.isNewVersion()) {
-				Ref.set(packet, "b", "");
-				Ref.set(packet, "c", prefix);
-				Ref.set(packet, "d", suffix);
-			}else {
-				Ref.set(packet, "b", NMSAPI.getIChatBaseComponentText(""));
-			Ref.set(packet, "c", NMSAPI.getIChatBaseComponentText(prefix));
-			Ref.set(packet, "d", NMSAPI.getIChatBaseComponentText(suffix));
-			}
-			Ref.set(packet, "e", "always");
-			Ref.set(packet, "f", "always");
+			Ref.set(packet, "b", a?"":NMSAPI.getIChatBaseCompomentFromCraftBukkit(""));
+			Ref.set(packet, "c", a?prefix:NMSAPI.getIChatBaseCompomentFromCraftBukkit(prefix));
+			Ref.set(packet, "d", a?suffix:NMSAPI.getIChatBaseCompomentFromCraftBukkit(suffix));
 			Ref.set(packet, TheAPI.isOlder1_9()?"h":"i", mode);
 			return packet;
 		}
@@ -349,7 +319,7 @@ public class ScoreboardAPI {
 		}
 
 		public Iterator<Object> sendLine() {
-			ArrayList<Object> packets = Lists.newArrayList();
+			ArrayList<Object> packets = new ArrayList<>();
 			if (first) {
 				packets.add(c(0));
 			} else if (changed) {
@@ -388,22 +358,34 @@ public class ScoreboardAPI {
 		}
 
 		public String getValue() {
-			return getPrefix() + getCurrentPlayer() + getSuffix();
+			return prefix + currentPlayer + suffix;
 		}
 
 		public void setValue(String value) {
 			if (value.length() <= 16) {
-				setPrefix("");
-				setSuffix("");
+				if (prefix == null || !prefix.equals(""))
+					changed = true;
+				prefix = "";
+				if (suffix == null || !suffix.equals(""))
+					changed = true;
+				suffix = "";
 				setPlayer(value);
 			} else if (value.length() <= 32) {
-				setPrefix(value.substring(0, 16));
+				if (prefix == null || !prefix.equals(value.substring(0, 16)))
+					changed = true;
+				prefix = value.substring(0, 16);
+				if (suffix == null || !suffix.equals(""))
+					changed = true;
+				suffix = "";
 				setPlayer(value.substring(16));
-				setSuffix("");
 			} else {
-				setPrefix(value.substring(0, 16));
+				if (prefix == null || !prefix.equals(value.substring(0, 16)))
+					changed = true;
+				prefix = value.substring(0, 16);
+				if (suffix == null || !suffix.equals(value.length() < 48 ? value.substring(32) : value.substring(32,48)))
+					changed = true;
+				suffix = value.length() < 48 ? value.substring(32) : value.substring(32,48);
 				setPlayer(value.substring(16, 32));
-				setSuffix(value.length() < 48 ? value.substring(32) : value.substring(32,48));
 			}
 		}
 	}}

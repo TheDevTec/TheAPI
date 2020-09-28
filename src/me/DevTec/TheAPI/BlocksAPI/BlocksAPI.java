@@ -1,6 +1,7 @@
 package me.DevTec.TheAPI.BlocksAPI;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,8 +12,6 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.spigotmc.AsyncCatcher;
-
-import com.google.common.collect.Lists;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Scheduler.Tasker;
@@ -80,10 +79,10 @@ public class BlocksAPI {
 	public static List<Entity> getNearbyEntities(Position l, int radius) {
 		if (radius > 256) {
 			Validator.send("The radius cannot be greater than 256");
-			return Lists.newArrayList();
+			return new ArrayList<>();
 		}
 		int chunkRadius = radius < 16 ? 1 : (radius - (radius % 16)) / 16;
-		List<Entity> radiusEntities = Lists.newArrayList();
+		List<Entity> radiusEntities = new ArrayList<>();
 		for (int chX = 0 - chunkRadius; chX <= chunkRadius; chX++)
 			for (int chZ = 0 - chunkRadius; chZ <= chunkRadius; chZ++)
 				for (Entity e : new Location(l.getWorld(), l.getX() + (chX * 16), l.getY(), l.getZ() + (chZ * 16)).getChunk().getEntities())
@@ -131,7 +130,7 @@ public class BlocksAPI {
 	}
 	
 	private static List<Position> gt(Position from, Position to, List<TheMaterial> ignore){
-		List<Position> blocks = Lists.newArrayList();
+		List<Position> blocks = new ArrayList<>();
 		BlockGetter getter = get(from, to);
 		while(getter.has()) {
 			Position s = getter.get();
@@ -142,7 +141,7 @@ public class BlocksAPI {
 	}
 	
 	public static List<BlockSave> getBlockSaves(List<Position> a){
-		List<BlockSave> b = Lists.newArrayList();
+		List<BlockSave> b = new ArrayList<>();
 		for(Position s : a)b.add(getBlockSave(s));
 		return b;
 	}
@@ -198,7 +197,7 @@ public class BlocksAPI {
 	}
 	
 	private static List<Position> g(Shape form, Position where, int radius, List<TheMaterial> ignore){
-		List<Position> blocks = Lists.newArrayList();
+		List<Position> blocks = new ArrayList<>();
 		World w = where.getWorld();
 		int Xx = where.getBlockX();
 		int Yy = where.getBlockY();

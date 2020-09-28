@@ -20,18 +20,21 @@ public abstract class Listener {
 		PacketManager.unregister(this);
 	}
 	
-	public Priority getPriority() {
+	public final Priority getPriority() {
 		return priority;
 	}
 	
-	protected final Object call(Player player, Object packet, boolean isPacketOut) {
-		if(packet==null)return null;
-		if(isPacketOut)PacketPlayOut(player,packet);
-		else PacketPlayIn(player,packet);
+	protected final Object call(Player player, Object packet, Object channel, boolean isPacketOut) {
+		if(packet==null || channel == null)return null;
+		if(isPacketOut) {
+			PacketPlayOut(player,packet, channel);
+		}else {
+			PacketPlayIn(player,packet, channel);
+		}
 		return packet;
 	}
 	
-	public abstract void PacketPlayOut(Player player, Object packet);
+	public abstract void PacketPlayOut(Player player, Object packet, Object channel);
 	
-	public abstract void PacketPlayIn(Player player, Object packet);
+	public abstract void PacketPlayIn(Player player, Object packet, Object channel);
 }

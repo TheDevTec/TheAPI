@@ -1,5 +1,6 @@
 package me.DevTec.TheAPI.GUIAPI;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -9,16 +10,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class GUI {
 	private final String title;
-	private final LinkedHashMap<Integer, ItemGUI> items = Maps.newLinkedHashMap();
-	private final List<Player> opened = Lists.newArrayList();
+	private final LinkedHashMap<Integer, ItemGUI> items = new LinkedHashMap<>();
+	private final List<Player> opened = new ArrayList<>();
 	private final Inventory inv;
 	//Defaulty false
 	private boolean put;
@@ -171,7 +169,7 @@ public class GUI {
 	 * 
 	 */
 	public final void close() {
-		for(Player a : Lists.newArrayList(opened))
+		for(Player a : new ArrayList<>(opened))
 		close(a);
 	}
 

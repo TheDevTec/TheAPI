@@ -17,8 +17,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import com.google.common.collect.Maps;
-
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
@@ -26,7 +24,7 @@ public class ConfigAPI {
 	private String name, h, loc, end = "yml";
 	private FileConfiguration a;
 	private File f, folder;
-	private Map<String, Object> c = Maps.newHashMap();
+	private Map<String, Object> c = new HashMap<>();
 
 	public ConfigAPI(String localization, String configName) {
 		name = configName;

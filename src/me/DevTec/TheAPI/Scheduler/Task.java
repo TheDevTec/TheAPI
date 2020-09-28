@@ -35,6 +35,10 @@ public class Task implements Runnable {
 			er.printStackTrace();
 		}
 	}
+	
+	public boolean hasException() {
+		return error;
+	}
 
 	public boolean isRepeating() {
 		return repeat;

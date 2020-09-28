@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
-import org.bukkit.block.Barrel;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -15,7 +14,6 @@ import org.bukkit.block.Dispenser;
 import org.bukkit.block.Dropper;
 import org.bukkit.block.Furnace;
 import org.bukkit.block.Hopper;
-import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.Sign;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
@@ -25,6 +23,7 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.TheMaterial;
+import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class BlockSave {
 	private boolean isSign, isInvBlock, isCmd;
@@ -43,28 +42,28 @@ public class BlockSave {
 			isInvBlock = true;
 			Chest c = ((Chest) b.getState());
 			try {
-			cname=c.getCustomName();
-			}catch(NoSuchMethodError e) {
+			cname=(String) Ref.invoke(c, "getCustomName");
+			}catch(Exception e) {
 				cname=null;
 			}
 			inv = c.getBlockInventory().getContents();
 		}
 		if (b.getType().name().contains("SHULKER_BOX")) {
 			isInvBlock = true;
-			ShulkerBox c = ((ShulkerBox) b.getState());
+			Object c = Ref.cast(Ref.getClass("org.bukkit.block.ShulkerBox"), b.getState());
 			try {
-			cname=c.getCustomName();
+				cname=(String) Ref.invoke(c, "getCustomName");
 			}catch(NoSuchMethodError e) {
 				cname=null;
 			}
-			inv = c.getInventory().getContents();
+			inv = (ItemStack[]) Ref.invoke(Ref.invoke(c, "getInventory"),"getContents");
 		}
 		if (b.getType().name().equals("DROPPER")) {
 			isInvBlock = true;
 			Dropper c = ((Dropper) b.getState());
 			try {
-			cname=c.getCustomName();
-			}catch(NoSuchMethodError e) {
+			cname=(String) Ref.invoke(c, "getCustomName");
+			}catch(Exception e) {
 				cname=null;
 			}
 			inv = c.getInventory().getContents();
@@ -73,8 +72,8 @@ public class BlockSave {
 			isInvBlock = true;
 			Furnace c = ((Furnace) b.getState());
 			try {
-			cname=c.getCustomName();
-			}catch(NoSuchMethodError e) {
+			cname=(String) Ref.invoke(c, "getCustomName");
+			}catch(Exception e) {
 				cname=null;
 			}
 			inv = c.getInventory().getContents();
@@ -83,28 +82,28 @@ public class BlockSave {
 			isInvBlock = true;
 			Dispenser c = ((Dispenser) b.getState());
 			try {
-			cname=c.getCustomName();
-			}catch(NoSuchMethodError e) {
+			cname=(String) Ref.invoke(c, "getCustomName");
+			}catch(Exception e) {
 				cname=null;
 			}
 			inv = c.getInventory().getContents();
 		}
 		if (b.getType().name().equals("BARREL")) {
 			isInvBlock = true;
-			Barrel c = ((Barrel) b.getState());
+			Object c = Ref.cast(Ref.getClass("org.bukkit.block.Barrel"), b.getState());
 			try {
-			cname=c.getCustomName();
-			}catch(NoSuchMethodError e) {
+			cname=(String) Ref.invoke(c, "getCustomName");
+			}catch(Exception e) {
 				cname=null;
 			}
-			inv = c.getInventory().getContents();
+			inv = (ItemStack[]) Ref.invoke(Ref.invoke(c, "getInventory"),"getContents");
 		}
 		if (b.getType().name().equals("HOPPER")) {
 			isInvBlock = true;
 			Hopper c = ((Hopper) b.getState());
 			try {
-			cname=c.getCustomName();
-			}catch(NoSuchMethodError e) {
+			cname=(String) Ref.invoke(c, "getCustomName");
+			}catch(Exception e) {
 				cname=null;
 			}
 			inv = c.getInventory().getContents();
@@ -114,9 +113,9 @@ public class BlockSave {
 			Sign c = (Sign) b.getState();
 			lines = c.getLines();
 			try {
-				color = c.getColor();
-			} catch (NoSuchMethodError e) {
-
+				color=(DyeColor) Ref.invoke(c, "getColor");
+			}catch(Exception e) {
+				color=null;
 			}
 		}
 		if (b.getType().name().contains("COMMAND")) {
@@ -253,7 +252,7 @@ public class BlockSave {
 				}
 			try {
 				if (getColor() != null)
-					w.setColor(getColor());
+					Ref.invoke(w, "setColor", getColor());
 			} catch (NoSuchFieldError er) {
 				// old version
 			}
@@ -263,7 +262,7 @@ public class BlockSave {
 			Chest w = (Chest) pos.getBlock().getState();
 			try {
 			if(cname!=null && !cname.equals("null"))
-			w.setCustomName(cname);
+				Ref.invoke(w, "setCustomName", cname);
 			}catch(NoSuchMethodError e) {}
 			if(inv!=null)
 			w.getInventory().setContents(inv);
@@ -272,7 +271,7 @@ public class BlockSave {
 			Dropper w = (Dropper) pos.getBlock().getState();
 			try {
 			if(cname!=null && !cname.equals("null"))
-			w.setCustomName(cname);
+				Ref.invoke(w, "setCustomName", cname);
 			}catch(NoSuchMethodError e) {}
 			if (inv != null)
 				w.getInventory().setContents(inv);
@@ -281,7 +280,7 @@ public class BlockSave {
 			Dispenser w = (Dispenser) pos.getBlock().getState();
 			try {
 			if(cname!=null && !cname.equals("null"))
-			w.setCustomName(cname);
+				Ref.invoke(w, "setCustomName", cname);
 			}catch(NoSuchMethodError e) {}
 			if (inv != null)
 				w.getInventory().setContents(inv);
@@ -290,7 +289,7 @@ public class BlockSave {
 			Hopper w = (Hopper) pos.getBlock().getState();
 			try {
 			if(cname!=null && !cname.equals("null"))
-			w.setCustomName(cname);
+				Ref.invoke(w, "setCustomName", cname);
 			}catch(NoSuchMethodError e) {}
 			if (inv != null)
 				w.getInventory().setContents(inv);
@@ -298,18 +297,27 @@ public class BlockSave {
 		if (n.equals("FURNACE")) {
 			Furnace w = (Furnace) pos.getBlock().getState();
 			if(cname!=null && !cname.equals("null"))
-			w.setCustomName(cname);
+				Ref.invoke(w, "setCustomName", cname);
 			if (inv != null)
 				w.getInventory().setContents(inv);
 		}
 		if (n.contains("SHULKER_BOX")) {
-			ShulkerBox w = (ShulkerBox) pos.getBlock().getState();
+			Object w = Ref.cast(Ref.getClass("org.bukkit.block.ShulkerBox"), pos.getBlock().getState());
 			try {
 			if(cname!=null && !cname.equals("null"))
-			w.setCustomName(cname);
+				Ref.invoke(w, "setCustomName", cname);
 			}catch(NoSuchMethodError e) {}
 			if (inv != null)
-				w.getInventory().setContents(inv);
+				Ref.invoke(Ref.invoke(w, "getInventory"), "setContents", (Object)inv);
+		}
+		if (n.contains("BARREL")) {
+			Object w = Ref.cast(Ref.getClass("org.bukkit.block.Barrel"), pos.getBlock().getState());
+			try {
+			if(cname!=null && !cname.equals("null"))
+				Ref.invoke(w, "setCustomName", cname);
+			}catch(NoSuchMethodError e) {}
+			if (inv != null)
+				Ref.invoke(Ref.invoke(w, "getInventory"), "setContents", (Object)inv);
 		}
 		if (n.contains("COMMAND")) {
 			CommandBlock w = (CommandBlock) pos.getBlock().getState();

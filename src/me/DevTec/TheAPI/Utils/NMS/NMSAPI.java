@@ -22,7 +22,6 @@ import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.NMS.DataWatcher.DataWatcher;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.Utils.Reflections.Reflections;
-import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class NMSAPI {
 	
@@ -512,7 +511,7 @@ public class NMSAPI {
 		Object old = getIBlockData(world, x,y,z);
 		Object newIblock = getIBlockData(material, data), position = getBlockPosition(x, y, z), World = getWorld(world);
 		Reflections.invoke(World, worldset, position, newIblock, applyPsychics ? 3 : 2);
-		LoaderClass.plugin.refleshing.add(new Object[] {getWorld(world),getBlockPosition(x, y, z),old,newIblock});
+		NMSAPI.refleshBlock(getWorld(world),getBlockPosition(x, y, z),old,newIblock);
 	}
 
 	public static void setBlock(World world, int x, int y, int z, Material material, boolean applyPsychics) {
@@ -637,6 +636,10 @@ public class NMSAPI {
 
 	public static Object getIChatBaseComponentText(String text) {
 		return getIChatBaseComponentJson("{\"text\":\""+text+"\"}");
+	}
+	
+	public static Object getIChatBaseCompomentFromCraftBukkit(String text) {
+		return Ref.invokeNulled(Ref.method(Ref.craft("util.CraftChatMessage"), "fromStringOrNull", String.class), text);
 	}
 	
 	public static Object getIChatBaseComponentJson(String json) {

@@ -1,110 +1,126 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.Lists;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 
+import me.DevTec.TheAPI.Utils.StringUtils;
+import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheCollection;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
 @SuppressWarnings("unchecked")
 public class TheArrayList<T> implements TheList<T> {
-	private Object data[]={};
+	private static final long serialVersionUID = -1511439452126949560L;
+	private static final int DEFAULT_CAPACITY = 10;
+    
+	private transient T[] data;
 	private int size=0;
 	public TheArrayList() {
-		this(1);
+		this(DEFAULT_CAPACITY);
 	}
 
 	public TheArrayList(int initialSize) {
 		Validator.validate(initialSize <= -1, "Initial size must be greater than -1");
-		if(initialSize <= -1)
-		initialSize=0;
-		this.data = new Object[initialSize];
+		this.data =  (T[]) new Object[initialSize];
 	}
 	
-	public TheArrayList(Iterable<T> data) {
-		this(data, 1);
+	public TheArrayList(TheCollection<T> data) {
+		this((int) (data.size() * 1.1f));
+	    addAll(data);
 	}
 
-	public TheArrayList(Iterable<T> data, int initialSize) {
-		this(initialSize);
+	public TheArrayList(TheCollection<T> data, int initialSize) {
+		this((int) (initialSize * 1.1f));
 		addAll(data);
 	}
 	
-	public TheArrayList(Iterator<T> data) {
-		this(data, 1);
-	}
-
-	public TheArrayList(Iterator<T> data, int initialSize) {
-		this(initialSize);
-		addAll(data);
+	public TheArrayList(Collection<T> data) {
+		this((int) (data.size() * 1.1f));
+	    addAll(data);
 	}
 	
-	public T add(T item) {
+	public TheArrayList(Collection<T> collection, int initialSize) {
+		this((int) (initialSize * 1.1f));
+	    addAll(collection);
+	}
+	
+	public TheArrayList(T... array) {
+		data=array;
+		size=array.length;
+	}
+	
+	public boolean add(T item) {
 		if (size >= data.length)
-		      updateSize(size==0?1:size*2);
-		data[size++]=item;
-		return item;
+			data=Arrays.copyOf(data, size+3);
+        data[size++] = item;
+        return true;
 	}
 	
 	public T get(int i) {
 		if(data.length<=i || i < 0)return null;
-		return (T) data[i];
+		return data[i];
 	}
 	
 	public T set(int index, T item) {
-		if(index<0 || index >= size)return item;
+		if(index<0 || index >= size)return null;
+		T old = get(index);
+		if(item==null)remove(index);
+		else
 		data[index]=item;
-		return item;
+		return old;
 	}
 	
 	public void remove(int index) {
 		if(index<0 || index >= size)return;
-	    for(int i=index;i<size - 1;i++)
-	       data[i]=data[i+1];
-	    size--;
+		int numMoved = size - index - 1;
+        if (numMoved > 0)
+            System.arraycopy(data, index+1, data, index, numMoved);
+        data[--size] = null;
 	}
 	
-	public void remove(T item) {
-		if(item==null)return;
-		int index = 0;
-		for(Object o : data) { //find item
-			if(o!=null)
-			if(o.equals(item))break;
-			++index;
-		}
-		for(int i=index;i<size - 1;i++)
-		       data[i]=data[i+1];
-		size--;
+	public boolean remove(T item) {
+		 if (item == null) {
+	            for (int index = 0; index < size; index++)
+	                if (data[index] == null) {
+	                	int numMoved = size - index - 1;
+	                    if (numMoved > 0)
+	                    System.arraycopy(data, index+1, data, index,numMoved);
+	                    data[--size] = null;
+	                    return true;
+	                }
+	        } else {
+	            for (int index = 0; index < size; index++)
+	                if (item.equals(data[index])) {
+	                	int numMoved = size - index - 1;
+	                    if (numMoved > 0)
+	                    System.arraycopy(data, index+1, data, index,numMoved);
+	                    data[--size] = null;
+	                    return true;
+	                }
+	        }
+	        return false;
 	}
 	
-	public boolean contains(T item) {
+	public boolean contains(Object item) {
 		if(item==null)return false;
 		int i = 0;
-		for(Object o : data) { //find item
-			if(o!=null)
-			if(o.equals(item)) {
+		for(T o : data)
+			if(o!=null && o.equals(item)) {
 				i=1;
 				break;
 			}
-		}
 		return i==1;
 	}
 	
 	public T[] toArray() {
-		return (T[]) data;
+		return (T[]) Arrays.copyOf(data, size);
 	}
 	
 	public int size() {
 		return size;
 	}
 	
-	private void updateSize(int size) {
-		data=TheArrays.copyOf(data, size);
-	}
-	
-	public String toString() {
-		return data.toString();
-	}
-
 	public boolean isEmpty() {
 		return size==0;
 	}
@@ -112,20 +128,72 @@ public class TheArrayList<T> implements TheList<T> {
 	@Override
 	public Iterator<T> iterator() {
 		return new Iterator<T>() {
-			private int c=1;
+			int c=0;
 			@Override
 			public boolean hasNext() {
-				return !(size <= c);
+				return size > c;
 			}
 			@Override
 			public T next() {
-				return (T) data[c++];
+				return data[c++];
 			}
 		};
 	}
 
 	@Override
 	public void clear() {
-		data=new Object[0];
+		size=0;
+        for (int i = 0; i < size; i++)
+            data[i] = null;
+	}
+
+	@Override
+	public boolean addAll(TheCollection<? extends T> collection) {
+		T[] a = collection.toArray();
+	    int numNew = a.length;
+        data = Arrays.copyOf(data, size+numNew);
+	    System.arraycopy(a, 0, data, size, numNew);
+	    size += numNew;
+	    return numNew != 0;
+	}
+
+	@Override
+	public boolean removeAll(TheCollection<? extends T> collection) {
+        int modified = 0;
+        for(T o : this) {
+        	if(collection.contains(o)) {
+        	remove(o);
+        	modified = 1;
+        	}
+        }
+        return modified==1;
+	}
+
+	public boolean addAll(Collection<? extends T> collection) {
+	    int numNew = collection.toArray().length;
+		data=Arrays.copyOf(data, size + numNew);
+	    System.arraycopy(collection.toArray(), 0, data, size, numNew);
+	    size += numNew;
+	    return numNew != 0;
+	}
+
+	public boolean removeAll(Collection<? extends T> collection) {
+        int modified = 0;
+        for(T o : this) {
+        	if(collection.contains(o)) {
+        	remove(o);
+        	modified = 1;
+        	}
+        }
+        return modified==1;
+	}
+	
+	public String toString() {
+		return "["+StringUtils.join(data, ", ")+"]";
+	}
+
+	@Override
+	public String getDataName() {
+		return "TheArrayList("+toString()+")";
 	}
 }

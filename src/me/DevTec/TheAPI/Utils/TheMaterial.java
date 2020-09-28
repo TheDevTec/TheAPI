@@ -152,6 +152,22 @@ public class TheMaterial {
 		}
 		return null;
 	}
+	
+	public static TheMaterial fromItemStack(ItemStack stack) {
+		return new TheMaterial(stack);
+	}
+	
+	public static TheMaterial fromMaterial(Material material, int amount, int data) {
+		return new TheMaterial(material, amount, data);
+	}
+	
+	public static TheMaterial fromMaterial(Material material, int amount) {
+		return new TheMaterial(material, amount);
+	}
+	
+	public static TheMaterial fromMaterial(Material material) {
+		return new TheMaterial(material);
+	}
 
 	@Override
 	public boolean equals(Object a) {

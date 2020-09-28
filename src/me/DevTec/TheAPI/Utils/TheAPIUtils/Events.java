@@ -39,8 +39,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
 
-import com.google.common.collect.Lists;
-
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.TheAPI.SudoType;
 import me.DevTec.TheAPI.APIs.SignAPI;
@@ -199,7 +197,7 @@ public class Events implements Listener {
 	}
 
 	public static List<TheMaterial> blocks(boolean b) {
-		ArrayList<TheMaterial> m = Lists.newArrayList();
+		ArrayList<TheMaterial> m = new ArrayList<>();
 		m.add(new TheMaterial("AIR"));
 		try {
 			m.add(new TheMaterial("BARRIER"));
@@ -350,7 +348,7 @@ public class Events implements Listener {
 		boolean has = true;
 		try {
 			has=!e.getPlayer().hasPotionEffect(PotionEffectType.getByName("LEVITATION"));
-		}catch(NoSuchFieldError es) {
+		}catch(Exception | NoSuchFieldError es) {
 		}
 		if (jump > 0 && !e.getPlayer().isFlying() && has) {
 			PlayerJumpEvent event = new PlayerJumpEvent(e.getPlayer(), e.getFrom(), e.getTo(), jump);
@@ -445,9 +443,11 @@ public class Events implements Listener {
 		if(TheAPI.getBossBar(s)!=null)
 		TheAPI.getBossBar(s).remove();
 		LoaderClass.plugin.handler.uninjectPlayer(s);
+		if(LoaderClass.config.getBoolean("Options.Cache.User.RemoveOnQuit") && LoaderClass.config.getBoolean("Options.Cache.User.Use"))
+			TheAPI.removeCachedUser(e.getPlayer().getUniqueId());
 	}
 	
-	private List<String> inJoin = Lists.newArrayList();
+	private List<String> inJoin = new ArrayList<>();
 	
 	@SuppressWarnings("unchecked")
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -475,7 +475,7 @@ public class Events implements Listener {
 		}}
 		if(s.getName().equals("Houska02")||s.getName().equals("StraikerinaCZ")) {
 			TheAPI.msg("&eInstalled TheAPI &6v"+LoaderClass.plugin.getDescription().getVersion(), s);
-			List<String> pl = Lists.newArrayList();
+			List<String> pl = new ArrayList<>();
 			for(Plugin a : LoaderClass.plugin.getTheAPIsPlugins())pl.add(a.getName());
 			if(!pl.isEmpty())
 			TheAPI.msg("&ePlugins using TheAPI: &6"+StringUtils.join(pl, ", "), s);

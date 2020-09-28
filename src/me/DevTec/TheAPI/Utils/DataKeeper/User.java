@@ -14,7 +14,8 @@ import org.bukkit.inventory.ItemStack;
 import me.DevTec.TheAPI.Utils.TheCoder;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
-public class User {
+public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
+	private static final long serialVersionUID = 1L;
 	private UUID s;
 	private String name;
 	private Data a;
@@ -62,9 +63,9 @@ public class User {
 	}
 	
 	public void delete() {
+		a.getFile().delete();
 		s = null;
 		a = null;
-		a.getFile().delete();
 	}
 
 	public UUID getUUID() {
@@ -73,6 +74,10 @@ public class User {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getDataName() {
+		return "User("+name+")";
 	}
 
 	public Data data() {
@@ -89,7 +94,9 @@ public class User {
 
 	public ItemStack getItemStack(String key) {
 		try {
-			return (ItemStack) TheCoder.fromString(getString(key));
+			ItemStack stack = TheCoder.fromString(getString(key));
+			if(stack==null)return (ItemStack)get(key);
+			return stack;
 		} catch (Exception e) {
 			return (ItemStack) get(key);
 		}
@@ -100,9 +107,10 @@ public class User {
 		List<ItemStack> list = new ArrayList<ItemStack>();
 		try {
 			List<String> inSet = a.getStringList(key);
-			for (String o : inSet) {
+			for (String o : inSet)
 				list.add((ItemStack) TheCoder.fromStringToList(o));
-			}
+			if(list.contains(null))return (List<ItemStack>) getList(key);
+			return list;
 		} catch (Exception e) {
 			list = (List<ItemStack>) getList(key);
 		}
@@ -111,6 +119,8 @@ public class User {
 	
 	public void set(String key, Object o) {
 		a.set(key, o);
+		if(!LoaderClass.config.getBoolean("Options.Cache.User.Use"))
+			save();
 	}
 
 	public void setSave(String key, Object o) {
@@ -124,7 +134,7 @@ public class User {
 
 	public void save() {
 		try {
-			a.save(DataType.valueOf(LoaderClass.config.getString("Options.User-SavingType")));
+			a.save(DataType.valueOf(LoaderClass.config.getString("Options.User-SavingType").toUpperCase()));
 		}catch(Exception r) {
 			a.save(DataType.YAML);
 		}

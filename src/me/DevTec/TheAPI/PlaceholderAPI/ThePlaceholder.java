@@ -12,6 +12,14 @@ public abstract class ThePlaceholder {
 		return a;
 	}
 	
+	public void register() {
+		ThePlaceholderAPI.register(this);
+	}
+	
+	public final void unregister() {
+		ThePlaceholderAPI.unregister(this);
+	}
+	
 	public abstract String onRequest(Player player, String placeholder);
 
 	public String onPlaceholderRequest(Player player, String placeholder) {

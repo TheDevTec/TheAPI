@@ -2,6 +2,7 @@ package me.DevTec.TheAPI.Utils.TheAPIUtils.Command;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,8 +16,6 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.StringUtil;
-
-import com.google.common.collect.Lists;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.TheAPI.TPSType;
@@ -161,7 +160,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 	}
 
 	List<String> getWorlds() {
-		List<String> list = Lists.newArrayList();
+		List<String> list = new ArrayList<>();
 		for (World w : Bukkit.getWorlds())
 			list.add(w.getName());
 		return list;
@@ -169,28 +168,49 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 
 	@Override
 	public List<String> onTabComplete(CommandSender s, Command arg1, String arg2, String[] args) {
-		List<String> c = Lists.newArrayList();
+		List<String> c = new ArrayList<>();
 		if (args.length == 1) {
 			if (s.hasPermission("TheAPI.Command.Info"))
-				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("Info"), Lists.newArrayList()));
+				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("Info"), new ArrayList<>()));
 			if (s.hasPermission("TheAPI.Command.Reload"))
-				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("Reload"), Lists.newArrayList()));
+				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("Reload"), new ArrayList<>()));
 			if (s.hasPermission("TheAPI.Command.ClearCache"))
-				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("ClearCache"), Lists.newArrayList()));
+				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("ClearCache"), new ArrayList<>()));
 			if (s.hasPermission("TheAPI.Command.WorldsManager"))
-				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("WorldsManager"), Lists.newArrayList()));
+				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("WorldsManager"), new ArrayList<>()));
 			if (s.hasPermission("TheAPI.Command.Invsee"))
-				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("Invsee"), Lists.newArrayList()));
+				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("Invsee"), new ArrayList<>()));
 			if (s.hasPermission("TheAPI.Command.PluginManager"))
-				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("PluginManager"), Lists.newArrayList()));
+				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("PluginManager"), new ArrayList<>()));
+			if (s.hasPermission("TheAPI.Command.User"))
+				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("User"), new ArrayList<>()));
 			if (s.hasPermission("theapi.command.test"))
-				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("Test"), Lists.newArrayList()));
+				c.addAll(StringUtil.copyPartialMatches(args[0], Arrays.asList("Test"), new ArrayList<>()));
 		}
 		if (args[0].equalsIgnoreCase("Test") && s.hasPermission("theapi.command.test")) {
 			if (args.length == 2) {
 				c.addAll(StringUtil.copyPartialMatches(args[1],
-						Arrays.asList("SortedMap", "GUI", "Other"),
-						Lists.newArrayList()));
+						Arrays.asList("SortedMap", "GUI", "Other"),new ArrayList<>()));
+			}
+		}
+		if (args[0].equalsIgnoreCase("User") && s.hasPermission("theapi.command.user")) {
+			if (args.length == 2) {
+				return null;
+			}
+			if (args.length == 3) {
+				c.addAll(StringUtil.copyPartialMatches(args[2],
+						Arrays.asList("Set","Get","Keys","Exists","Reload"),new ArrayList<>()));
+			}
+			if (args.length == 4) {
+				if(args[2].equalsIgnoreCase("set")||args[2].equalsIgnoreCase("get")||args[2].equalsIgnoreCase("keys")||args[2].equalsIgnoreCase("exists")) {
+					c.addAll(StringUtil.copyPartialMatches(args[3],
+							args[3].isEmpty()?TheAPI.getUser(args[1]).getData().getKeys():TheAPI.getUser(args[1]).getData().getKeys(args[3].endsWith(".")?args[3].substring(0,args[3].length()-1):args[3]),new ArrayList<>()));
+				}
+			}
+			if (args.length == 5) {
+				if(args[2].equalsIgnoreCase("set")) {
+					c.addAll(StringUtil.copyPartialMatches(args[3], Arrays.asList("?"),new ArrayList<>()));
+				}
 			}
 		}
 		if (args[0].equalsIgnoreCase("Invsee") && s.hasPermission("TheAPI.Command.Invsee")) {
@@ -202,17 +222,17 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			if (args.length == 2) {
 				c.addAll(StringUtil.copyPartialMatches(args[1],
 						Arrays.asList("Load", "Unload", "Reload", "Enable", "Disable", "Info", "Files", "DisableAll", "EnableAll", "ReloadAll", "UnloadAll", "LoadAll"),
-						Lists.newArrayList()));
+						new ArrayList<>()));
 			}
 			if (args.length == 3) {
 				if (args[1].equalsIgnoreCase("Load")) {
 					c.addAll(StringUtil.copyPartialMatches(args[2],
-							PluginManagerAPI.getPluginsToLoad(), Lists.newArrayList()));
+							PluginManagerAPI.getPluginsToLoad(), new ArrayList<>()));
 				}
 				if (args[1].equalsIgnoreCase("Unload")||args[1].equalsIgnoreCase("Enable") || args[1].equalsIgnoreCase("Disable")
 						 || args[1].equalsIgnoreCase("Info") || args[1].equalsIgnoreCase("Reload")) {
 						c.addAll(StringUtil.copyPartialMatches(args[2],
-								PluginManagerAPI.getPluginsNames(), Lists.newArrayList()));
+								PluginManagerAPI.getPluginsNames(), new ArrayList<>()));
 				}
 			}}
 		if (s.hasPermission("TheAPI.Command.WorldsManager"))
@@ -220,7 +240,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			if (args.length == 2) {
 				c.addAll(StringUtil.copyPartialMatches(args[1],
 						Arrays.asList("Create", "Delete", "Load", "Teleport", "Unload", "Save", "SaveAll"),
-						Lists.newArrayList()));
+						new ArrayList<>()));
 			}
 			if (args.length >= 3) {
 				if (args[1].equalsIgnoreCase("Create") || args[1].equalsIgnoreCase("Load")) {
@@ -228,18 +248,18 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						return Arrays.asList("?");
 					if (args.length == 4)
 						c.addAll(StringUtil.copyPartialMatches(args[3],
-								Arrays.asList("Default", "Nether", "The_End", "The_Void", "Flat"), Lists.newArrayList()));
+								Arrays.asList("Default", "Nether", "The_End", "The_Void", "Flat"), new ArrayList<>()));
 				}
 				if (args[1].equalsIgnoreCase("Teleport")) {
 					if (args.length == 3)
-						c.addAll(StringUtil.copyPartialMatches(args[1], getWorlds(), Lists.newArrayList()));
+						c.addAll(StringUtil.copyPartialMatches(args[1], getWorlds(), new ArrayList<>()));
 					if (args.length == 4)
 						return null;
 				}
 				if (args[1].equalsIgnoreCase("Unload") || args[1].equalsIgnoreCase("Delete")
 						|| args[1].equalsIgnoreCase("Save")) {
 					if (args.length == 3)
-						c.addAll(StringUtil.copyPartialMatches(args[1], getWorlds(), Lists.newArrayList()));
+						c.addAll(StringUtil.copyPartialMatches(args[1], getWorlds(), new ArrayList<>()));
 				}
 			}
 		}

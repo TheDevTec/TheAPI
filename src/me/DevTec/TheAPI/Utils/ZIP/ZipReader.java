@@ -10,8 +10,6 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import com.google.common.collect.Lists;
-
 public class ZipReader {
 	private File a;
 	public ZipReader(File f) {
@@ -23,7 +21,7 @@ public class ZipReader {
 	}
 	
 	public List<ZipEntry> getEntries() {
-		List<ZipEntry> e = Lists.newArrayList();
+		List<ZipEntry> e = new ArrayList<>();
 		try {
 			@SuppressWarnings("resource")
 			ZipFile file = new ZipFile(a);
@@ -46,7 +44,7 @@ public class ZipReader {
 			          if(entry.getName().equals(fileName)) {
 			         InputStream is = file.getInputStream(entry);
 			         int readBytes;
-			         ArrayList<Character> c = Lists.newArrayList();
+			         ArrayList<Character> c = new ArrayList<>();
 			         while ((readBytes = is.read()) != -1) {
 			        	 c.add((char) readBytes);
 		              }

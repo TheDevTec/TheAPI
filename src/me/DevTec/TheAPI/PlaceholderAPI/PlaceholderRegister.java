@@ -3,9 +3,10 @@ package me.DevTec.TheAPI.PlaceholderAPI;
 import org.bukkit.entity.Player;
 
 public abstract class PlaceholderRegister extends PlaceholderPreRegister {
-	public PlaceholderRegister(String author, String prefix, String version) {
-		super(author, prefix, version);
+	public PlaceholderRegister(String identifier, String author, String version) {
+		super(identifier, author, version);
 	}
-    
-	public abstract String onRequest(Player player, String placeholder);
+	
+	@Override
+	public abstract String onRequest(Player player, String params);
 }

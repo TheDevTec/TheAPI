@@ -6,8 +6,6 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Location;
 
-import com.google.common.collect.Lists;
-
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.ConfigAPI.ConfigAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
@@ -33,7 +31,7 @@ public class PunishmentAPI {
 	public static List<String> getPlayersOnIP(String ip) {
 		if (!isIP(ip))
 			new Exception("PunishmentAPI error, String must be IP, not player.");
-		List<String> list = Lists.newArrayList();
+		List<String> list = new ArrayList<>();
 		if (c.exist("data"))
 			for (String s : c.getKeys("data")) {
 				if (ip.equals(getIP(s)))
@@ -236,7 +234,7 @@ public class PunishmentAPI {
 
 
 	public static List<String> getjails() {
-		ArrayList<String> list = Lists.newArrayList();
+		ArrayList<String> list = new ArrayList<>();
 		for (String s : c.getKeys("jails"))
 			list.add(s);
 		return list;

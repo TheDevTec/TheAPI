@@ -24,9 +24,6 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
 import me.DevTec.TheAPI.TheAPI;
@@ -247,9 +244,9 @@ public class ItemCreatorAPI implements Cloneable {
 	public static ItemStack createHeadByWeb(int amount, String displayName, List<String> lore, String ownerLink) {
 		Material mat = null;
 		try{
-			mat=Material.LEGACY_SKULL_ITEM;
+			mat=Material.PLAYER_HEAD;
 		}catch(Exception | NoSuchFieldError e) {
-			mat=Material.matchMaterial("SKULL_ITEM");
+			mat=Material.getMaterial("SKULL_ITEM");
 		}
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
 		a.setDisplayName(displayName);
@@ -264,11 +261,11 @@ public class ItemCreatorAPI implements Cloneable {
 	private Color c;
 	private boolean unb;
 	private SkullType type;
-	private Multimap<Attribute, AttributeModifier> w;
+	private HashMap<Attribute, AttributeModifier> w=new HashMap<>();
 	private int s= 1, model= -1, dur= -1;
-	private HashMap<PotionEffectType, String> ef = Maps.newHashMap();
-	private HashMap<Enchantment, Integer> enchs = Maps.newHashMap();
-	private List<Object> pages=Lists.newArrayList(), lore=Lists.newArrayList(), map=Lists.newArrayList();
+	private HashMap<PotionEffectType, String> ef = new HashMap<>();
+	private HashMap<Enchantment, Integer> enchs = new HashMap<>();
+	private List<Object> pages=new ArrayList<>(), lore=new ArrayList<>(), map=new ArrayList<>();
 	private MaterialData data = null;
 	private Generation gen;
 
@@ -281,10 +278,6 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public ItemCreatorAPI(ItemStack icon) {
-		try {
-			w = HashMultimap.create();
-		} catch (Exception | NoSuchMethodError er) {
-		}
 		a = icon != null ? icon : new ItemStack(Material.AIR);
 		unb = isUnbreakable();
 		if (hasPotionEffects())
@@ -308,9 +301,8 @@ public class ItemCreatorAPI implements Cloneable {
 			model = getCustomModelData();
 		type = getSkullType();
 		try {
-			for (ItemFlag s : getItemFlags()) {
+			for (ItemFlag s : getItemFlags())
 				map.add(s);
-			}
 		} catch (Exception | NoSuchMethodError er) {
 		}
 		try {
@@ -320,9 +312,8 @@ public class ItemCreatorAPI implements Cloneable {
 		dur = getDurability();
 		try {
 			if (hasAttributeModifiers())
-				for (Attribute s : getAttributeModifiers().keySet()) {
+				for (Attribute s : getAttributeModifiers().keySet())
 					addAttributeModifier(s, getAttributeModifiers().get(s));
-				}
 		} catch (Exception | NoSuchMethodError er) {
 		}
 		if (hasBookAuthor())
@@ -487,7 +478,7 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public HashMap<Enchantment, Integer> getEnchantments() {
-		HashMap<Enchantment, Integer> e = Maps.newHashMap();
+		HashMap<Enchantment, Integer> e = new HashMap<>();
 		for (Enchantment d : a.getEnchantments().keySet())
 			e.put(d, a.getEnchantments().get(d).intValue());
 		return e;
@@ -814,6 +805,7 @@ public class ItemCreatorAPI implements Cloneable {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public ItemStack create() {
 		ItemStack i = a;
 		try {
@@ -856,7 +848,7 @@ public class ItemCreatorAPI implements Cloneable {
 						mf.addItemFlags((ItemFlag) f);
 				if (w != null && !w.isEmpty() && TheAPI.isNewVersion()
 						&& !TheAPI.getServerVersion().equals("v1_13_R1")) {// 1.14+
-					mf.setAttributeModifiers(w);
+					mf.setAttributeModifiers((Multimap<Attribute, AttributeModifier>) w);
 				}
 			} catch (Exception | NoSuchMethodError er) {
 			}

@@ -20,8 +20,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 import me.DevTec.TheAPI.TheAPI;
+import me.DevTec.TheAPI.Utils.DataKeeper.TheArrays;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
-import me.DevTec.TheAPI.Utils.DataKeeper.Lists.TheArrays;
 
 public class StringUtils {
 	
@@ -52,8 +52,11 @@ public class StringUtils {
 	 * @return String
 	 */
 	public static String join(Collection<?> toJoin, String split) {
+		if(toJoin == null || split == null)return null;
 		String r = "";
 		for (Object s : toJoin)
+			if(s==null)continue;
+			else
 			r = r + split + s.toString();
 		r = r.replaceFirst(split, "");
 		return r;
@@ -64,8 +67,11 @@ public class StringUtils {
 	 * @return String
 	 */
 	public static String join(List<?> toJoin, String split) {
+		if(toJoin == null || split == null)return null;
 		String r = "";
 		for (Object s : toJoin)
+			if(s==null)continue;
+			else
 			r = r + split + s.toString();
 		r = r.replaceFirst(split, "");
 		return r;
@@ -76,8 +82,11 @@ public class StringUtils {
 	 * @return String
 	 */
 	public static String join(ArrayList<?> toJoin, String split) {
+		if(toJoin == null || split == null)return null;
 		String r = "";
 		for (Object s : toJoin)
+			if(s==null)continue;
+			else
 			r = r + split + s.toString();
 		r = r.replaceFirst(split, "");
 		return r;
@@ -88,8 +97,11 @@ public class StringUtils {
 	 * @return String
 	 */
 	public static String join(Object[] toJoin, String split) {
+		if(toJoin == null || split == null)return null;
 		String r = "";
 		for (Object s : toJoin)
+			if(s==null)continue;
+			else
 			r = r + split + s.toString();
 		r = r.replaceFirst(split, "");
 		return r;
@@ -102,6 +114,8 @@ public class StringUtils {
 	public static String join(Iterator<?> toJoin, String split) {
 		String r = "";
 		for (Object s = toJoin.next(); toJoin.hasNext();)
+			if(s==null)continue;
+			else
 			r = r + split + s.toString();
 		r = r.replaceFirst(split, "");
 		return r;
@@ -406,7 +420,7 @@ public class StringUtils {
 	 */
 	public static boolean getBoolean(String fromString) {
 		try {
-			return Boolean.parseBoolean(fromString);
+			return fromString.equalsIgnoreCase("true")||fromString.equalsIgnoreCase("yes")||fromString.equalsIgnoreCase("on");
 		} catch (Exception er) {
 			return false;
 		}
@@ -435,7 +449,7 @@ public class StringUtils {
 	 * @return double
 	 */
 	public static double getDouble(String fromString) {
-		if(fromString==null)return 0.0;
+		if(fromString==null)return 0.0D;
 		String a = fromString.replaceAll("[a-zA-Z]+", "").replace(",", ".");
 		if (isDouble(a)) {
 			return Double.parseDouble(a);
@@ -462,7 +476,7 @@ public class StringUtils {
 	 * @return long
 	 */
 	public static long getLong(String fromString) {
-		if(fromString==null)return 0;
+		if(fromString==null)return 0L;
 		String a = fromString.replaceAll("[a-zA-Z]+", "");
 		if (isLong(a)) {
 			return Long.parseLong(a);
@@ -529,7 +543,7 @@ public class StringUtils {
 	 * @return float
 	 */
 	public static float getFloat(String fromString) {
-		if(fromString==null)return 0;
+		if(fromString==null)return 0F;
 		String a = fromString.replaceAll("[a-zA-Z]+", "");
 		if (isFloat(a)) {
 			return Float.parseFloat(a);
@@ -556,7 +570,7 @@ public class StringUtils {
 	 * @return float
 	 */
 	public static byte getByte(String fromString) {
-		if(fromString==null)return 0;
+		if(fromString==null)return (byte)0;
 		String a = fromString.replaceAll("[a-zA-Z]+", "");
 		if (isByte(a)) {
 			return Byte.parseByte(a);
@@ -583,7 +597,7 @@ public class StringUtils {
 	 * @return float
 	 */
 	public static short getShort(String fromString) {
-		if(fromString==null)return 0;
+		if(fromString==null)return (short)0;
 		String a = fromString.replaceAll("[a-zA-Z]+", "");
 		if (isShort(a)) {
 			return Short.parseShort(a);
@@ -611,5 +625,15 @@ public class StringUtils {
 	private static Pattern special = Pattern.compile("[^A-Z-a-z0-9_]+");
 	public static boolean containsSpecial(String value) {
 		return special.matcher(value).find();
+	}
+
+	public static Number getNumber(String o) {
+		if(isInt(o))return getInt(o);
+		if(isDouble(o))return getDouble(o);
+		if(isLong(o))return getLong(o);
+		if(isByte(o))return getByte(o);
+		if(isShort(o))return getShort(o);
+		if(isFloat(o))return getFloat(o);
+		return null;
 	}
 }

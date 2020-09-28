@@ -1,24 +1,21 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.Maps;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import me.DevTec.TheAPI.Utils.DataKeeper.TheArrays;
+import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheCollection;
 import me.DevTec.TheAPI.Utils.DataKeeper.Lists.TheArrayList;
 
-public class MultiMap<K, T, V> implements Cloneable {
-	private TheHashMap<K, TheHashMap<T, V>> data;
+public class MultiMap<K, T, V> implements Data {
+	private static final long serialVersionUID = 1L;
+	private Map<K, Map<T, V>> data = new HashMap<>();
+
 	public MultiMap() {
-		data=new TheHashMap<>(0);
 	}
 
-	public MultiMap(int initialSize) {
-		data=new TheHashMap<>(initialSize);
-	}
-	
 	public MultiMap(MultiMap<K, T, V> map) {
-		this(map, map.size());
-	}
-
-	public MultiMap(MultiMap<K, T, V> map, int initialSize) {
-		this(initialSize);
 		putAll(map);
 	}
 	
@@ -32,6 +29,7 @@ public class MultiMap<K, T, V> implements Cloneable {
 	
 	public void remove(K key, T thread) {
 		data.get(key).remove(thread);
+		if(data.get(key).isEmpty())data.remove(key);
 	}
 	
 	public void remove(K key) {
@@ -55,20 +53,22 @@ public class MultiMap<K, T, V> implements Cloneable {
 	}
 	
 	public V put(K key, T thread, V value) {
-		if(data.containsKey(key)) {
-			TheHashMap<T, V> map = data.get(key);
-			map.put(thread, value);
-			data.put(key, map);
-		}else {
-			TheHashMap<T, V> map = new TheHashMap<>();
-			map.put(thread, value);
+		Map<T, V> map = data.getOrDefault(key, null);
+		if(map==null) {
+			map=new HashMap<>();
 			data.put(key, map);
 		}
+		map.put(thread, value);
 		return value;
+	}
+
+	public boolean isEmpty() {
+		return data.isEmpty();
 	}
 	
 	public V get(K key, T thread) {
-		return data.containsKey(key)?data.get(key).getOrDefault(thread, null):null;
+		Map<T, V> t = data.getOrDefault(key, null);
+		return t!=null?t.getOrDefault(thread, null):null;
 	}
 	
 	public void putAll(MultiMap<K, T, V> map) {
@@ -76,23 +76,31 @@ public class MultiMap<K, T, V> implements Cloneable {
 	}
 
 	public TheCollection<K> keySet(){
-		return data.keySet();
+		return new TheArrayList<>(data.keySet());
 	}
 
 	public TheCollection<T> threadSet(K key){
-		return data.containsKey(key)?data.get(key).keySet():new TheArrayList<>();
+		return data.containsKey(key)?new TheArrayList<>(data.get(key).keySet()):TheArrays.newList();
 	}
 
 	public TheCollection<V> values(K key, T thread){
-		return data.containsKey(key)?data.get(key).values():new TheArrayList<>();
+		return data.containsKey(key)?new TheArrayList<>(data.get(key).values()):TheArrays.newList();
 	}
 	
 	public TheCollection<Entry<K, T, V>> entrySet(){
-		TheArrayList<Entry<K, T, V>> entries = new TheArrayList<Entry<K, T, V>>(data.size());
+		TheArrayList<Entry<K, T, V>> entries = new TheArrayList<>(data.size());
 		for(K key : keySet())
 			for(T thread : threadSet(key))
 				entries.add(new Entry<>(key, thread, get(key, thread)));
 		return entries;
+	}
+	
+	public String toString() {
+		String builder = "";
+		for(Entry<K, T, V> e : entrySet()) {
+			builder+=(builder.isEmpty()?"":", ")+e.toString();
+		}
+		return "MultiMap:["+builder+"]";
 	}
 	
 	public static class Entry<K, T, V> {
@@ -128,5 +136,14 @@ public class MultiMap<K, T, V> implements Cloneable {
 		public void setValue(V value) {
 			v=value;
 		}
+		
+		public String toString() {
+			return k.toString()+":"+t.toString()+":"+v.toString();
+		}
+	}
+
+	@Override
+	public String getDataName() {
+		return "MultiMap("+toString()+")";
 	}
 }

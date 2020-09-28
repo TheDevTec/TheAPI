@@ -10,8 +10,6 @@ import java.util.jar.JarFile;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import com.google.common.collect.Lists;
-
 public class JarReader {
 	private File a;
 	public JarReader(File f) {
@@ -23,7 +21,7 @@ public class JarReader {
 	}
 	
 	public List<JarEntry> getEntries() {
-		List<JarEntry> e = Lists.newArrayList();
+		List<JarEntry> e = new ArrayList<>();
 		try {
 			@SuppressWarnings("resource")
 			JarFile file = new JarFile(a);
@@ -46,7 +44,7 @@ public class JarReader {
 			          if(entry.getName().equals(fileName)) {
 			         InputStream is = file.getInputStream(entry);
 			         int readBytes;
-			         ArrayList<Character> c = Lists.newArrayList();
+			         ArrayList<Character> c = new ArrayList<>();
 			         while ((readBytes = is.read()) != -1) {
 			        	 c.add((char) readBytes);
 		              }

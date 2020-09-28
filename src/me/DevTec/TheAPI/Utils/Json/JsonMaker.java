@@ -1,14 +1,13 @@
 package me.DevTec.TheAPI.Utils.Json;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import com.google.common.collect.Lists;
-
 public class JsonMaker {
-	private final List<JSONObject> values = Lists.newArrayList();
+	private final List<JSONObject> values = new ArrayList<>();
 	private JSONObject json = new JSONObject();
 	private boolean edit;
 

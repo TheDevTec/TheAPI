@@ -3,7 +3,6 @@ package me.DevTec.TheAPI.SortedMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,7 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class SortedMap {
-	public static <K extends Comparable<? super K>, V> LinkedHashMap<K, V> sortByKey(HashMap<K, V> map) {
+	public static <K extends Comparable<? super K>, V> LinkedHashMap<K, V> sortByKey(Map<K, V> map) {
 	    List<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
 	    Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
 	        public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
@@ -24,7 +23,7 @@ public class SortedMap {
 	    return result;
 	}
 
-	public static <K, V extends Comparable<? super V>> LinkedHashMap<K, V> sortByValue(HashMap<K, V> map) {
+	public static <K, V extends Comparable<? super V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map) {
 	    List<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
 	    Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
 	        public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
@@ -37,7 +36,7 @@ public class SortedMap {
 	    return result;
 	}
 	
-	public static <K, V> LinkedHashMap<K, V> sortNonComparableByKey(HashMap<K, V> map) {
+	public static <K, V> LinkedHashMap<K, V> sortNonComparableByKey(Map<K, V> map) {
         List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
         Collections.sort(list, new Comparator<Entry<K,V>>() {
 	        @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -53,7 +52,7 @@ public class SortedMap {
         return result;
 	}
 	
-	public static <K, V> LinkedHashMap<K, V> sortNonComparableByValue(HashMap<K, V> map) {
+	public static <K, V> LinkedHashMap<K, V> sortNonComparableByValue(Map<K, V> map) {
         List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
         Collections.sort(list, new Comparator<Entry<K,V>>() {
 	        @SuppressWarnings({ "unchecked", "rawtypes" })

@@ -17,8 +17,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.SimplePluginManager;
 
-import com.google.common.collect.Maps;
-
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 import me.DevTec.TheAPI.Utils.Reflections.Reflections;
@@ -98,8 +96,10 @@ public class PluginManagerAPI {
 	public static Plugin getPlugin(String plugin) {
 		Plugin p = null;
 		for (Plugin s : spm.getPlugins()) {
-			if (s.getName().equalsIgnoreCase(plugin))
+			if (s.getName().equalsIgnoreCase(plugin)) {
 				p = s;
+				break;
+			}
 		}
 		return p;
 	}
@@ -260,7 +260,7 @@ public class PluginManagerAPI {
 	 * @return HashMap<PluginName, FileName>
 	 */
 	public static HashMap<String,String> getPluginsToLoadWithNames() {
-		HashMap<String,String> a = Maps.newHashMap();
+		HashMap<String,String> a = new HashMap<>();
 		if (new File("plugins").isDirectory()) // is folder
 			for (File f : new File("plugins").listFiles()) {
 				if(!f.isDirectory() && f.getName().endsWith(".jar")) {

@@ -1,39 +1,62 @@
 package me.DevTec.TheAPI.PlaceholderAPI;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
 public abstract class PlaceholderPreRegister extends PlaceholderExpansion {
-	public abstract String onRequest(Player player, String placeholder);
-
-	private final String author, prefix, version;
+	private final String a,b,c;
+	public PlaceholderPreRegister(String identifier, String author, String version) {
+		a=identifier;
+		b=author;
+		c=version;
+	}
 	
-	
-	public PlaceholderPreRegister(String author, String prefix, String version) {
-		this.author=author;
-		this.prefix=prefix;
-		this.version=version;
+	@Override
+	public String getName() {
+		return a;
 	}
 	
 	@Override
 	public String getAuthor() {
-		return author;
+		return b;
 	}
-
-	@Override
-	public String getIdentifier() {
-		return prefix;
-	}
-
+	
 	@Override
 	public String getVersion() {
-		return version;
+		return c;
+	}
+	
+	@Override
+	public String getIdentifier() {
+		return a;
+	}
+	
+	@Override
+	public String getPlugin() {
+		return "TheAPI";
+	}
+	
+	@Override
+	public String getRequiredPlugin() {
+		return null;
+	}
+	
+	@Override
+	public boolean register() {
+		return super.register();
+	}
+	
+	@Override
+	public String onRequest(OfflinePlayer player, String params) {
+		return onPlaceholderRequest(player!=null?player.getPlayer():null, params);
 	}
 
-    @Override
-    public String onPlaceholderRequest(Player s, String identifier){
-        if(identifier==null||identifier.trim().isEmpty())return "";
-        return onRequest(s, identifier);
-    }
+	public String onPlaceholderRequest(Player player, String params) {
+		if(params==null||params.trim().isEmpty())return null;
+		return onRequest(player, params);
+	}
+	
+	public abstract String onRequest(Player player, String params);
 }

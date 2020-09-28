@@ -1,14 +1,13 @@
 package me.DevTec.TheAPI.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 public class Animation {
 	private long last=System.currentTimeMillis();
 	private long tics;
 	int c;
-	private List<String> lines = Lists.newArrayList();
+	private List<String> lines = new ArrayList<>();
 	public Animation(List<String> text, long ticks) {
 		lines=text;
 		tics=ticks;

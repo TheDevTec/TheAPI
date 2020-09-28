@@ -6,22 +6,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.APIs.MemoryAPI;
@@ -30,17 +29,21 @@ import me.DevTec.TheAPI.BossBar.BossBar;
 import me.DevTec.TheAPI.ConfigAPI.ConfigAPI;
 import me.DevTec.TheAPI.EconomyAPI.EconomyAPI;
 import me.DevTec.TheAPI.GUIAPI.GUI;
+import me.DevTec.TheAPI.PlaceholderAPI.PlaceholderAPI;
+import me.DevTec.TheAPI.PlaceholderAPI.PlaceholderPreRegister;
 import me.DevTec.TheAPI.PlaceholderAPI.ThePlaceholder;
 import me.DevTec.TheAPI.PlaceholderAPI.ThePlaceholderAPI;
 import me.DevTec.TheAPI.Scheduler.Scheduler;
 import me.DevTec.TheAPI.Scheduler.Task;
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
+import me.DevTec.TheAPI.Utils.StringUtils;
+import me.DevTec.TheAPI.Utils.DataKeeper.DataType;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap;
-import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler_New;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler_Old;
+import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.Utils.Reflections.Reflections;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Command.TheAPICommand;
 import me.DevTec.TheAPI.WorldsAPI.WorldsAPI;
@@ -48,18 +51,17 @@ import me.DevTec.TheVault.Bank;
 import me.DevTec.TheVault.TheVault;
 import net.milkbowl.vault.economy.Economy;
 
+@SuppressWarnings("restriction")
 public class LoaderClass extends JavaPlugin {
 	//Scoreboards
-	public final HashMap<Integer, ScoreboardAPI> scoreboard = Maps.newHashMap();
+	public final HashMap<Integer, ScoreboardAPI> scoreboard = new HashMap<>();
 	public final MultiMap<Integer, Integer, Object> map = new MultiMap<>();
-	//Queue for updating blocks of BlocksAPI
-	public final LinkedBlockingQueue<Object[]> refleshing = new LinkedBlockingQueue<Object[]>();
 	//Scheduler
-	public final HashMap<Integer, Task> scheduler = Maps.newHashMap();
+	public final HashMap<Integer, Task> scheduler = new HashMap<>();
 	//GUIs
-	public final HashMap<String, GUI> gui = Maps.newHashMap();
+	public final HashMap<String, GUI> gui = new HashMap<>();
 	//BossBars
-	public final List<BossBar> bars = Lists.newArrayList();
+	public final List<BossBar> bars = new ArrayList<>();
 	//TheAPI
 	public static LoaderClass plugin;
 	public static ConfigAPI unused= new ConfigAPI("TheAPI", "Cache"),
@@ -68,13 +70,14 @@ public class LoaderClass extends JavaPlugin {
 	protected static boolean online = true;
 	
 	public String motd;
-	public List<String> onlineText;
-	public int max, fakeOnline;
+	public int max;
 	//EconomyAPI
 	public boolean e, tve, tbank;
 	public Economy economy;
 	public me.DevTec.TheVault.Economy tveeconomy;
 	public Bank bank;
+	
+	public static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.get(null, Ref.field(sun.misc.Unsafe.class,"theUnsafe"));
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -84,15 +87,6 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&bTheAPI&7: &6Action: &6Loading plugin..", TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
 		createConfig();
-		new Thread(new Runnable() {
-			public void run() {
-				while(online){
-					if(refleshing.isEmpty())return;
-					Object[] a = refleshing.poll();
-					NMSAPI.refleshBlock(a[0], a[1], a[2], a[3]);
-				}
-			}
-		}).start();
 		if(TheAPI.isOlder1_9())
 		new Thread(new Runnable() {
 			public void run() {
@@ -116,20 +110,60 @@ public class LoaderClass extends JavaPlugin {
 				handler.injectPlayer(s);
 		}
 	}
-
+	
 	@Override
 	public void onEnable() {
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &6Action: &aEnabling plugin, creating config and registering economy..",
-				TheAPI.getConsole());
+		TheAPI.msg("&bTheAPI&7: &6Action: &aEnabling plugin, creating config and registering economy..", TheAPI.getConsole());
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
 		loadWorlds();
 		loadPlaceholders();
+		if(PlaceholderAPI.isEnabledPlaceholderAPI()) {
+			/* TheAPI placeholder extension for PAPI
+			 * BRIDGE:
+			 * 
+			 * PAPI -> THEAPI : %papi_placeholder_here%
+			 * PAPI <- THEAPI : %theapi_{theapi_placeholder_here}%
+			 */
+			new PlaceholderPreRegister("TheAPI", "DevTec", getDescription().getVersion()) {
+				Pattern finder = Pattern.compile("\\{(.*?)\\}"),
+						math = Pattern.compile("\\{math\\{((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*))\\}\\}");
+				@Override
+				public String onRequest(Player player, String params) {
+					String text = params;
+					while(true) {
+						Matcher m = math.matcher(text);
+						int v = 0;
+						while(m.find()) {
+							++v;
+							String w = m.group();
+							text=text.replace(w, StringUtils.calculate(w.substring(6,w.length()-2)).toString());
+						}
+						if(v!=0)continue;
+						else break;
+					}
+					Matcher found = finder.matcher(text);
+					while(found.find()) {
+						String g = found.group();
+						String find = g.substring(1,g.length()-1);
+						int v = 0;
+						for(Iterator<ThePlaceholder> r = ThePlaceholderAPI.getPlaceholders().iterator(); r.hasNext();) {
+							++v;
+							ThePlaceholder get = r.next();
+							String toReplace = get.onPlaceholderRequest(player, find);
+							if(toReplace!=null)
+								text=text.replace("{"+find+"}", toReplace);
+						}
+						if(v!=0)continue;
+						else break;
+					}
+					return text.equals(params)?null:text;
+				}
+			}.register();
+		}
 		Tasks.load();
 		Bukkit.getPluginManager().registerEvents(new Events(), this);
-		PluginCommand cmd = TheAPI.createCommand("TheAPI", this);
-		cmd.setExecutor(new TheAPICommand());
-		TheAPI.registerCommand(cmd);
+		TheAPI.createAndRegisterCommand("TheAPI", null, new TheAPICommand());
 		if (PluginManagerAPI.getPlugin("TheVault") != null)
 			TheVaultHooking();
 		if (PluginManagerAPI.getPlugin("Vault") == null) {
@@ -149,14 +183,23 @@ public class LoaderClass extends JavaPlugin {
 				TheAPI.msg("&bTheAPI&7: &aTheAPI using " + getTheAPIsPlugins().size() + " plugin" + end,TheAPI.getConsole());
 			}
 		}.laterAsync(200);
+		int removed = 0;
+		for(UUID u : TheAPI.getUsers()) {
+			if(TheAPI.getUser(u).getKeys().isEmpty()) {
+				TheAPI.getUser(u).delete();
+				++removed;
+			}
 		}
+		if(removed!=0)
+		TheAPI.msg("&bTheAPI&7: &aTheAPI deleted " + removed + " unused user files", TheAPI.getConsole());
+		TheAPI.clearCache();
+	}
 
 	@SuppressWarnings("rawtypes")
 	public PacketHandler handler;
 	
 	@Override
 	public void onDisable() {
-		if(TheAPI.isNewerThan(7))
 		handler.close();
 		online=false;
 		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
@@ -170,7 +213,7 @@ public class LoaderClass extends JavaPlugin {
 		unused.delete();
 		data.reload();
 		config.reload();
-		ThePlaceholderAPI.unregister(main);
+		main.unregister();
 	}
 
 	public List<Plugin> getTheAPIsPlugins() {
@@ -185,16 +228,10 @@ public class LoaderClass extends JavaPlugin {
 	private void createConfig() {
 		data.create();
 		config.setHeader("TNT, Action types: WAIT/DROP");
-		config.addDefault("Options.ServerList-Players.Enabled", true);
-		config.addDefault("Options.ServerList-Players.Format", "%player%");
-		config.addDefault("Options.ServerList-Players.FormatedWithPAPI", false);
-		config.addDefault("Options.ServerList.Enabled", false);
-		config.addDefault("Options.ServerList.OnlinePlayersText", Arrays.asList("&eOnline: &6%server_online%","&eMax: &6%server_maxonline%"));
-		config.addDefault("Options.ServerList.FakeOnline", -1);
-		config.addDefault("Options.ServerList.FakeMax", 125);
-		config.addDefault("Options.ServerList.Motd", "&eTheAPI's server MOTD\n&cServer version &6%server_version%");
 		config.addDefault("Options.HideErrors", false); //hide only TheAPI errors
-		config.addDefault("Options.User-SavingType", "YAML");
+		config.addDefault("Options.Cache.User.Use", true); //Require memory, but loading of User.class is faster (only from TheAPI.class)
+		config.addDefault("Options.Cache.User.RemoveOnQuit", true); //Remove cached player from cache on PlayerQuitEvent
+		config.addDefault("Options.User-SavingType", DataType.YAML.name());
 		config.addDefault("Options.AntiBot.Use", false);
 		config.addDefault("Options.AntiBot.TimeBetweenPlayer", 10); //10 milis
 		config.addDefault("Options.Optimize.TNT.Use", true);
@@ -219,24 +256,15 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("GameAPI.StartingIn", "&aStarting in %time%s");
 		config.addDefault("GameAPI.Start", "&aStart");
 		config.create();
-		if(config.getBoolean("Options.ServerList.Enabled")) {
-		motd=config.getString("Options.ServerList.Motd");
-	    onlineText=config.getStringList("Options.ServerList.OnlinePlayersText");
-	    max=config.getInt("Options.ServerList.FakeMax");
-	    fakeOnline=config.getInt("Options.ServerList.FakeOnline");
-		}else {
-			fakeOnline=-1;
-			max=Bukkit.getMaxPlayers();
-			onlineText=null;
-			motd=Bukkit.getMotd();
-		}
+		max=Bukkit.getMaxPlayers();
+		motd=Bukkit.getMotd();
 		unused.setCustomEnd("dat");
 		unused.create();
 	}
 	
 	private static ThePlaceholder main;
 	public void loadPlaceholders() {
-		main= new ThePlaceholder("TheAPI") {
+		main = new ThePlaceholder("TheAPI") {
 			@SuppressWarnings("deprecation")
 			@Override
 			public String onRequest(Player player, String placeholder) {
@@ -311,7 +339,7 @@ public class LoaderClass extends JavaPlugin {
 				return null;
 			}
 		};
-		ThePlaceholderAPI.register(main);
+		main.register();
 	}
 
 	public void loadWorlds() {

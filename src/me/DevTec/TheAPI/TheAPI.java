@@ -5,6 +5,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
@@ -29,9 +31,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import me.DevTec.TheAPI.APIs.EnchantmentAPI;
 import me.DevTec.TheAPI.APIs.EntityCreatorAPI;
@@ -50,6 +49,9 @@ import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.Storage;
 import me.DevTec.TheAPI.Utils.DataKeeper.User;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
+import me.DevTec.TheAPI.Utils.Listener.Event;
+import me.DevTec.TheAPI.Utils.Listener.HandlerList;
+import me.DevTec.TheAPI.Utils.Listener.Listener;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.ChatType;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.TitleAction;
@@ -59,12 +61,13 @@ import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 import me.DevTec.TheAPI.WorldsAPI.WorldBorderAPI;
 
 public class TheAPI {
-	private static final HashMap<String, BossBar> bars = Maps.newHashMap();
-	private static final HashMap<String, Integer> task = Maps.newHashMap();
-	private static final HashMap<UUID, User> cache = Maps.newHashMap();
+	private static final HashMap<String, BossBar> bars = new HashMap<>();
+	private static final HashMap<String, Integer> task = new HashMap<>();
+	private static final HashMap<UUID, User> cache = new HashMap<>();
 	private static Constructor<?> constructor = Ref.constructor(PluginCommand.class, String.class, Plugin.class);
 	private static Field commandMapField = Ref.field(Bukkit.getPluginManager().getClass(), "commandMap");
 	private static Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
+	private static Random random = new Random();
 	private static int ver;
 	static {
 		try {
@@ -72,6 +75,28 @@ public class TheAPI {
 		}catch(Exception e) {
 			ver=7;
 		}
+	}
+	
+	public static void register(Listener listener) {
+		HandlerList.register(listener);
+	}
+
+	public static void unregister(Listener listener) {
+		HandlerList.unregister(listener);
+	}
+	
+	public static void callEvent(Event e) {
+		HandlerList.callEvent(e);
+	}
+
+	public static void createAndRegisterCommand(String commandName, String permission, CommandExecutor commandExecutor, String... aliases) {
+		PluginCommand cmd = TheAPI.createCommand(commandName, LoaderClass.plugin);
+		if(permission!=null)
+		cmd.setPermission(permission);
+		if(aliases!=null && aliases.length>=2)
+		cmd.setAliases(Arrays.asList(aliases));
+		cmd.setExecutor(commandExecutor);
+		TheAPI.registerCommand(cmd);
 	}
 	
 	public static PluginCommand createCommand(String name, Plugin plugin) {
@@ -237,18 +262,7 @@ public class TheAPI {
 	 * @return int
 	 */
 	public static int generateRandomInt(int maxInt) {
-		boolean inMinus = false;
-		if (maxInt < 0) {
-			maxInt = -1 * maxInt;
-			inMinus = true;
-		}
-		if (maxInt == 0) {
-			return 0;
-		}
-		int i = new Random().nextInt(maxInt);
-		if (inMinus)
-			i = -1 * i;
-		return i;
+		return generateRandomInt(0, maxInt);
 	}
 
 	/**
@@ -257,22 +271,39 @@ public class TheAPI {
 	 * @return double
 	 */
 	public static double generateRandomDouble(double maxDouble) {
-		boolean inMinus = false;
-		if (maxDouble < 0) {
-			maxDouble = -1 * maxDouble;
-			inMinus = true;
-		}
-		if (maxDouble == 0.0) {
-			return 0.0;
-		}
-		double i = new Random().nextInt((int) maxDouble) + new Random().nextDouble();
-		if (i <= 0)
-			i = 1;
-		if (i > maxDouble)
-			i = maxDouble;
-		if (inMinus)
-			i = -1 * i;
-		return i;
+		return generateRandomDouble(0, maxDouble);
+	}
+	
+	/**
+	 * @see see Generate random double with limit
+	 * @param maxDouble
+	 * @return double
+	 */
+	public static double generateRandomDouble(double min, double maxDouble) {
+		boolean a = maxDouble < 0;
+		if (a)maxDouble = -1 * maxDouble;
+		if((min<0?min*-1 : min) >= maxDouble)return min;
+		if (maxDouble == 0)return maxDouble;
+		double i = random.nextInt((int) maxDouble) + random.nextDouble();
+		if (i < min)i = min;
+		if (i > maxDouble)i = maxDouble;
+		return a?-1 * i:i;
+	}
+	
+	/**
+	 * @see see Generate random double with limit
+	 * @param maxDouble
+	 * @return double
+	 */
+	public static int generateRandomInt(int min, int maxInt) {
+		boolean a = maxInt < 0;
+		if (a)maxInt = -1 * maxInt;
+		if((min<0?min*-1 : min) >= maxInt)return min;
+		if (maxInt == 0)return maxInt;
+		int i = random.nextInt(maxInt);
+		if (i < min)i = min;
+		if (i > maxInt)i = maxInt;
+		return a?-1 * i:i;
 	}
 
 	/**
@@ -322,11 +353,8 @@ public class TheAPI {
 	 */
 	@SuppressWarnings("unchecked")
 	public static List<Player> getOnlinePlayers() {
-		List<Player> a = Lists.newArrayList();
 		Object o = Ref.invokeNulled(m);
-		for (Player p : o instanceof Collection ? (Collection<Player>) o : Arrays.asList((Player[]) o))
-			a.add(p);
-		return a;
+		return new ArrayList<>(o instanceof Collection ? (Collection<Player>) o : Arrays.asList((Player[]) o));
 	}
 
 	/**
@@ -595,8 +623,24 @@ public class TheAPI {
 	 * @see see Send message to all online players
 	 * @param message
 	 */
+	public static void bcMsg(String message) {
+		broadcastMessage(message);
+	}
+
+	/**
+	 * @see see Send message to all online players
+	 * @param message
+	 */
 	public static void broadcastMessage(Object object) {
-		broadcastMessage(String.valueOf(object));
+		broadcastMessage(object+"");
+	}
+
+	/**
+	 * @see see Send message to all online players
+	 * @param message
+	 */
+	public static void bcMsg(Object object) {
+		broadcastMessage(object+"");
 	}
 
 	/**
@@ -605,7 +649,25 @@ public class TheAPI {
 	 * @param permission
 	 */
 	public static void broadcast(Object object, String permission) {
-		broadcast(String.valueOf(object), permission);
+		broadcast(object+"", permission);
+	}
+
+	/**
+	 * @see see Send message to all online players with specified permission
+	 * @param message
+	 * @param permission
+	 */
+	public static void bc(Object object, String permission) {
+		broadcast(object+"", permission);
+	}
+
+	/**
+	 * @see see Send message to all online players with specified permission
+	 * @param message
+	 * @param permission
+	 */
+	public static void bc(String message, String permission) {
+		broadcast(message, permission);
 	}
 
 	/**
@@ -636,22 +698,6 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Set online players on server
-	 * @param int
-	 */
-	public static void setFakeOnlinePlayers(int online) {
-		LoaderClass.plugin.fakeOnline = online;
-	}
-
-	/**
-	 * @see see Return fake amount of online players on server
-	 * @return int
-	 */
-	public static int getFakeOnlinePlayers() {
-		return LoaderClass.plugin.fakeOnline;
-	}
-
-	/**
 	 * @see see Return server motd
 	 * @return String
 	 */
@@ -664,23 +710,7 @@ public class TheAPI {
 	 * @param neww Motd text
 	 */
 	public static void setMotd(String neww) {
-		LoaderClass.plugin.motd = neww;
-	}
-
-	/**
-	 * @see see Return server list players text
-	 * @return String
-	 */
-	public static List<String> getServerListPlayers() {
-		return LoaderClass.plugin.onlineText;
-	}
-
-	/**
-	 * @see see Set new server list players text
-	 * @param neww List<String>
-	 */
-	public static void setServerListPlayers(List<String> neww) {
-		LoaderClass.plugin.onlineText = neww;
+		LoaderClass.plugin.motd = TheAPI.colorize(neww);
 	}
 
 	/**
@@ -766,21 +796,25 @@ public class TheAPI {
 	}
 	
 	public static boolean canSee(Player who, Player target) {
-		return has(who, target) && who.canSee(target);
+		return canSee(who, getUser(target));
+	}
+	
+	public static boolean canSee(Player who, User target) {
+		return has(who, target) && (getPlayerOrNull(target.getName())!=null ? who.canSee(getPlayerOrNull(target.getName())) : target.exists("vanish"));
 	}
 
-	private static boolean has(Player s, Player d) {
-		if (getUser(d).getString("vanish") != null)
-			return s.hasPermission(getUser(d).getString("vanish"));
+	private static boolean has(Player s, User d) {
+		if (d.exists("vanish"))
+			return s.hasPermission(d.getString("vanish"));
 		else
-			return false;
+			return true;
 	}
 
 	@SuppressWarnings("deprecation")
 	private static void hide(Player p) {
 		if (isVanished(p)) {
 			for (Player s : getOnlinePlayers()) {
-				if (s != p && !has(s, p))
+				if (s != p && !has(s, TheAPI.getUser(p)))
 					s.hidePlayer(p);
 			}
 		} else {
@@ -1021,7 +1055,8 @@ public class TheAPI {
 	 * @return List<UUID>
 	 */
 	public static List<UUID> getUsers() {
-		List<UUID> a = Lists.newArrayList();
+		List<UUID> a = new ArrayList<>();
+		if(new File("plugins/TheAPI/User").exists())
 		for (File f : new File("plugins/TheAPI/User").listFiles()) {
 			try {
 				a.add(UUID.fromString(f.getName().replaceFirst(".yml", "")));
@@ -1041,7 +1076,8 @@ public class TheAPI {
 	 * @return List<String>
 	 */
 	public static List<String> getUsersNames() {
-		List<String> a = Lists.newArrayList();
+		List<String> a = new ArrayList<>();
+		if(new File("plugins/TheAPI/User").exists())
 		for (File f : new File("plugins/TheAPI/User").listFiles()) {
 			try {
 				a.add(Bukkit.getOfflinePlayer(UUID.fromString(f.getName().replaceFirst(".yml", ""))).getName());
@@ -1089,11 +1125,40 @@ public class TheAPI {
 	public static User getUser(UUID uuid) {
 		if (uuid == null)
 			return null;
+		if(LoaderClass.config.getBoolean("Options.Cache.User.Use")) {
 		User c = cache.containsKey(uuid) ? cache.get(uuid) : null;
 		if (c == null) {
 			c = new User(uuid);
 			cache.put(uuid, c);
 		}
 		return c;
+		}
+		return new User(uuid);
+	}
+	
+	public static void removeCachedUser(UUID uuid) {
+		if (uuid == null)
+			return;
+		cache.remove(uuid);
+	}
+	
+	public static void removeCachedUser(Player player) {
+		if (player == null)
+			return;
+		cache.remove(player.getUniqueId());
+	}
+
+	
+	@SuppressWarnings("deprecation")
+	public static void removeCachedUser(String nameOrUUID) {
+	if (nameOrUUID == null)
+		return;
+	UUID s = null;
+	try {
+		s = UUID.fromString(nameOrUUID);
+	} catch (Exception e) {
+		s = Bukkit.getOfflinePlayer(nameOrUUID).getUniqueId();
+	}
+	cache.remove(s);
 	}
 }

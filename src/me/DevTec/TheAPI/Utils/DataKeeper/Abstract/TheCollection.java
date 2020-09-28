@@ -1,15 +1,14 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.Abstract;
 
-import java.util.Iterator;
+import java.util.Collection;
 
-public interface TheCollection<T> extends Iterable<T> {
+public interface TheCollection<T> extends Iterable<T>, Data {
 	
-	public boolean contains(T item);
+	public boolean contains(Object item);
 	
-	public default boolean containsAll(Iterator<T> collection) {
+	public default boolean containsAll(TheCollection<? extends T> collection) {
 		int i = 1;
-		while(collection.hasNext()) {
-			T t = collection.next();
+		for(T t : collection) {
 			if(!contains(t)) {
 				i=0;
 				break;
@@ -18,7 +17,7 @@ public interface TheCollection<T> extends Iterable<T> {
 		return i == 1;
 	}
 	
-	public default boolean containsAll(Iterable<T> collection) {
+	public default boolean containsAll(Collection<? extends T> collection) {
 		int i = 1;
 		for(T t : collection) {
 			if(!contains(t)) {
@@ -33,25 +32,19 @@ public interface TheCollection<T> extends Iterable<T> {
 
 	public int size();
 
-	public T add(T item);
+	public boolean add(T item);
 
-	public default void addAll(Iterable<T> collection) {
-		collection.forEach(e -> add(e));
-	}
+	public boolean addAll(TheCollection<? extends T> collection);
 
-	public default void addAll(Iterator<T> collection) {
-		collection.forEachRemaining(e -> add(e));
-	}
+	public boolean addAll(Collection<? extends T> collection);
 
-	public void remove(T item);
+	public boolean remove(T item);
 
-	public default void removeAll(Iterable<T> collection) {
-		collection.forEach(e -> remove(e));
-	}
-
-	public default void removeAll(Iterator<T> collection) {
-		collection.forEachRemaining(e -> remove(e));
-	}
+	public boolean removeAll(TheCollection<? extends T> collection);
+	
+	public boolean removeAll(Collection<? extends T> collection);
 
 	public void clear();
+
+	public T[] toArray();
 }

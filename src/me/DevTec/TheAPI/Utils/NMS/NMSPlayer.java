@@ -212,10 +212,12 @@ public class NMSPlayer {
 	}
 
 	private final Object a;
+	private final String name;
 	private static final Class<?> c = Ref.nms("EntityPlayer");
 
 	public NMSPlayer(Object nmsPlayer) {
 		a = nmsPlayer;
+		name = (String)Reflections.invoke(a, Reflections.getMethod(c, "getName"));
 	}
 
 	public NMSPlayer(org.bukkit.entity.Player bukkitPlayer) {
@@ -378,12 +380,11 @@ public class NMSPlayer {
 	}
 
 	public Player getPlayer() {
-		Player s = TheAPI.getPlayer(getName());
-		return s.getName().equals(getName()) ? s : null;
+		return TheAPI.getPlayerOrNull(getName());
 	}
 
 	public String getName() {
-		return Reflections.invoke(a, Reflections.getMethod(c, "getName")).toString();
+		return name;
 	}
 
 	public String getCustomName() {
@@ -403,10 +404,11 @@ public class NMSPlayer {
 	private static Object update = Ref.get(null, Ref.field(Ref.nms("PacketPlayOutPlayerInfo$EnumPlayerInfoAction"), "UPDATE_DISPLAY_NAME"));
 	@SuppressWarnings("unchecked")
 	public void setTabListName(String name) {
+		if(getPlayer()==null)return;
 		if(Ref.field(c, "listName").getType() == String.class)
 			Reflections.setField(a, "listName", name);
 		else
-			Reflections.setField(a, "listName", Ref.invokeNulled(Ref.method(Ref.craft("util.CraftChatMessage"), "fromStringOrNull", String.class), name));
+			Reflections.setField(a, "listName", NMSAPI.getIChatBaseCompomentFromCraftBukkit(name));
 		Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutPlayerInfo")));
 		Ref.set(packet, "a", update);
 		((List<Object>)Ref.get(packet, "b")).add(Ref.createPlayerInfoData(packet,getProfile(),getPing(),getPlayer().getGameMode().name(),name));

@@ -41,18 +41,24 @@ public class Reader {
 	}
 	
 	public boolean hasLine() {
+		if(sc!=null)
 	    return sc.hasNextLine();
+		return false;
 	}
 	
 	public String readLine() {
+		if(sc!=null)
 	    return sc.nextLine();
+		return null;
 	}
 	
 	public void close() {
+		if(sc!=null)
 		 sc.close();
 	}
 	
 	public void reset() {
+		if(sc!=null)
 		 sc.reset();
 	}
 }

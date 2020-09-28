@@ -3,9 +3,9 @@ package me.DevTec.TheAPI.BlocksAPI;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
-import org.bukkit.block.Barrel;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
@@ -14,14 +14,11 @@ import org.bukkit.block.Dispenser;
 import org.bukkit.block.Dropper;
 import org.bukkit.block.Furnace;
 import org.bukkit.block.Hopper;
-import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.Sign;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
-
-import com.google.common.collect.Maps;
 
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.Utils.Position;
@@ -30,6 +27,7 @@ import me.DevTec.TheAPI.Utils.TheMaterial;
 import me.DevTec.TheAPI.Utils.Compression.Compression.Compressor;
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
 import me.DevTec.TheAPI.Utils.File.Writer;
+import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class Schemate {
 	private final String s;
@@ -108,7 +106,7 @@ public class Schemate {
 				data.set("data.standing", fromCopy!=null);
 				data.set("data.corners", fromCopy!=null?a.subtract(fromCopy).toString()+"/!/"+b.subtract(fromCopy).toString():a.toString()+"/!/"+b.toString());
 				data.set("data.blocks", BlocksAPI.count(a, b));
-				Map<String, Compressor> perChunk = Maps.newHashMap();
+				Map<String, Compressor> perChunk = new HashMap<>();
 				BlockGetter getter = new BlockGetter(a, b);
 				while(getter.has()) {
 					Position pos = getter.get();
@@ -153,28 +151,28 @@ public class Schemate {
 				isInvBlock = true;
 				Chest c = ((Chest) b.getState());
 				try {
-				cname=c.getCustomName();
-				}catch(NoSuchMethodError e) {
+				cname=(String) Ref.invoke(c, "getCustomName");
+				}catch(Exception e) {
 					cname=null;
 				}
 				inv = c.getBlockInventory().getContents();
 			}
 			if (b.getType().name().contains("SHULKER_BOX")) {
 				isInvBlock = true;
-				ShulkerBox c = ((ShulkerBox) b.getState());
+				Object c = Ref.cast(Ref.getClass("org.bukkit.block.ShulkerBox"), b.getState());
 				try {
-				cname=c.getCustomName();
+					cname=(String) Ref.invoke(c, "getCustomName");
 				}catch(NoSuchMethodError e) {
 					cname=null;
 				}
-				inv = c.getInventory().getContents();
+				inv = (ItemStack[]) Ref.invoke(Ref.invoke(c, "getInventory"),"getContents");
 			}
 			if (b.getType().name().equals("DROPPER")) {
 				isInvBlock = true;
 				Dropper c = ((Dropper) b.getState());
 				try {
-				cname=c.getCustomName();
-				}catch(NoSuchMethodError e) {
+				cname=(String) Ref.invoke(c, "getCustomName");
+				}catch(Exception e) {
 					cname=null;
 				}
 				inv = c.getInventory().getContents();
@@ -183,8 +181,8 @@ public class Schemate {
 				isInvBlock = true;
 				Furnace c = ((Furnace) b.getState());
 				try {
-				cname=c.getCustomName();
-				}catch(NoSuchMethodError e) {
+				cname=(String) Ref.invoke(c, "getCustomName");
+				}catch(Exception e) {
 					cname=null;
 				}
 				inv = c.getInventory().getContents();
@@ -193,28 +191,28 @@ public class Schemate {
 				isInvBlock = true;
 				Dispenser c = ((Dispenser) b.getState());
 				try {
-				cname=c.getCustomName();
-				}catch(NoSuchMethodError e) {
+				cname=(String) Ref.invoke(c, "getCustomName");
+				}catch(Exception e) {
 					cname=null;
 				}
 				inv = c.getInventory().getContents();
 			}
 			if (b.getType().name().equals("BARREL")) {
 				isInvBlock = true;
-				Barrel c = ((Barrel) b.getState());
+				Object c = Ref.cast(Ref.getClass("org.bukkit.block.Barrel"), b.getState());
 				try {
-				cname=c.getCustomName();
-				}catch(NoSuchMethodError e) {
+				cname=(String) Ref.invoke(c, "getCustomName");
+				}catch(Exception e) {
 					cname=null;
 				}
-				inv = c.getInventory().getContents();
+				inv = (ItemStack[]) Ref.invoke(Ref.invoke(c, "getInventory"),"getContents");
 			}
 			if (b.getType().name().equals("HOPPER")) {
 				isInvBlock = true;
 				Hopper c = ((Hopper) b.getState());
 				try {
-				cname=c.getCustomName();
-				}catch(NoSuchMethodError e) {
+				cname=(String) Ref.invoke(c, "getCustomName");
+				}catch(Exception e) {
 					cname=null;
 				}
 				inv = c.getInventory().getContents();
@@ -275,7 +273,7 @@ public class Schemate {
 				Chest w = (Chest) pos.getBlock().getState();
 				try {
 				if(cname!=null && !cname.equals("null"))
-				w.setCustomName(cname);
+					Ref.invoke(w, "setCustomName", cname);
 				}catch(NoSuchMethodError e) {}
 				if(inv!=null)
 				w.getInventory().setContents(inv);
@@ -284,7 +282,7 @@ public class Schemate {
 				Dropper w = (Dropper) pos.getBlock().getState();
 				try {
 				if(cname!=null && !cname.equals("null"))
-				w.setCustomName(cname);
+					Ref.invoke(w, "setCustomName", cname);
 				}catch(NoSuchMethodError e) {}
 				if (inv != null)
 					w.getInventory().setContents(inv);
@@ -293,7 +291,7 @@ public class Schemate {
 				Dispenser w = (Dispenser) pos.getBlock().getState();
 				try {
 				if(cname!=null && !cname.equals("null"))
-				w.setCustomName(cname);
+					Ref.invoke(w, "setCustomName", cname);
 				}catch(NoSuchMethodError e) {}
 				if (inv != null)
 					w.getInventory().setContents(inv);
@@ -302,7 +300,7 @@ public class Schemate {
 				Hopper w = (Hopper) pos.getBlock().getState();
 				try {
 				if(cname!=null && !cname.equals("null"))
-				w.setCustomName(cname);
+					Ref.invoke(w, "setCustomName", cname);
 				}catch(NoSuchMethodError e) {}
 				if (inv != null)
 					w.getInventory().setContents(inv);
@@ -310,18 +308,27 @@ public class Schemate {
 			if (n.equals("FURNACE")) {
 				Furnace w = (Furnace) pos.getBlock().getState();
 				if(cname!=null && !cname.equals("null"))
-				w.setCustomName(cname);
+					Ref.invoke(w, "setCustomName", cname);
 				if (inv != null)
 					w.getInventory().setContents(inv);
 			}
 			if (n.contains("SHULKER_BOX")) {
-				ShulkerBox w = (ShulkerBox) pos.getBlock().getState();
+				Object w = Ref.cast(Ref.getClass("org.bukkit.block.ShulkerBox"), pos.getBlock().getState());
 				try {
 				if(cname!=null && !cname.equals("null"))
-				w.setCustomName(cname);
+					Ref.invoke(w, "setCustomName", cname);
 				}catch(NoSuchMethodError e) {}
 				if (inv != null)
-					w.getInventory().setContents(inv);
+					Ref.invoke(Ref.invoke(w, "getInventory"), "setContents", (Object)inv);
+			}
+			if (n.contains("BARREL")) {
+				Object w = Ref.cast(Ref.getClass("org.bukkit.block.Barrel"), pos.getBlock().getState());
+				try {
+				if(cname!=null && !cname.equals("null"))
+					Ref.invoke(w, "setCustomName", cname);
+				}catch(NoSuchMethodError e) {}
+				if (inv != null)
+					Ref.invoke(Ref.invoke(w, "getInventory"), "setContents", (Object)inv);
 			}
 			if (n.contains("COMMAND")) {
 				CommandBlock w = (CommandBlock) pos.getBlock().getState();

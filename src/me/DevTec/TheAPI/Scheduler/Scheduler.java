@@ -5,6 +5,7 @@ import java.util.TimerTask;
 
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
+import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
 public class Scheduler {
 	public static Task getTask(int id) {
@@ -34,27 +35,49 @@ public class Scheduler {
 	}
 
 	public static Task repeatingTimes(Runnable task, long delay, long period, long times) {
-		return repeatingTimes(task, delay, period, times, false);
+		try {
+			return repeatingTimes(task, delay, period, times, false);
+		} catch (Exception e) {
+			Validator.send("Error when processing Scheduler", e);
+			return null;
+		}
 	}
 
 	public static Task repeatingTimesAsync(Runnable task, long delay, long period, long times) {
-		return repeatingTimes(task, delay, period, times, true);
+		try {
+			return repeatingTimes(task, delay, period, times, true);
+		} catch (Exception e) {
+			Validator.send("Error when processing Scheduler", e);
+			return null;
+		}
 	}
 
 	public static Task repeating(Runnable task, long delay, long period) {
-		return repeating(task, delay, period, false);
+		try {
+			return repeating(task, delay, period, false);
+		} catch (Exception e) {
+			Validator.send("Error when processing Scheduler", e);
+			return null;
+		}
 	}
 
 	public static Task repeatingAsync(Runnable task, long delay, long period) {
-		return repeating(task, delay, period, true);
+		try {
+			return repeating(task, delay, period, true);
+		} catch (Exception e) {
+			Validator.send("Error when processing Scheduler", e);
+			return null;
+		}
 	}
 
 	public static Task run(Runnable task) {
 		Task t = run(task, false, false);
 		new Thread(new Runnable() {
+			@SuppressWarnings("deprecation")
 			public void run() {
 				NMSAPI.postToMainThread(task);
 				cancelTask(t);
+				Thread.currentThread().stop();
 				Thread.interrupted();
 			}
 		}).start();
@@ -64,9 +87,11 @@ public class Scheduler {
 	public static Task runAsync(Runnable task) {
 		Task t = run(task, true, false);
 		new Thread(new Runnable() {
+			@SuppressWarnings("deprecation")
 			public void run() {
 				t.run();
 				cancelTask(t);
+				Thread.currentThread().stop();
 				Thread.interrupted();
 			}
 		}).start();
@@ -74,11 +99,21 @@ public class Scheduler {
 	}
 
 	public static Task later(Runnable task, long delay) {
-		return later(task, delay, false);
+		try {
+			return later(task, delay, false);
+		} catch (Exception e) {
+			Validator.send("Error when processing Scheduler", e);
+			return null;
+		}
 	}
 
 	public static Task laterAsync(Runnable task, long delay) {
-		return later(task, delay, true);
+		try {
+			return later(task, delay, true);
+		} catch (Exception e) {
+			Validator.send("Error when processing Scheduler", e);
+			return null;
+		}
 	}
 
 	private static Task run(Runnable task, boolean async, boolean multipleTimes) {
@@ -97,39 +132,42 @@ public class Scheduler {
 		return LoaderClass.plugin.scheduler.get(id);
 	}
 
-	private static Task later(Runnable task, long delay, boolean async) {
+	private static Task later(Runnable task, long delay, boolean async) throws Exception {
 		if (delay < 0) {
-			new Exception("Error when starting a later task, delay cannot be negative.").printStackTrace();
-			return null;
+			throw new Exception("Error when starting a later task, delay cannot be negative.");
 		}
 		Task t = run(task, async, false);
 		new Timer().scheduleAtFixedRate(new TimerTask() {
+			@SuppressWarnings("deprecation")
 			public void run() {
 					t.run();
 					cancelTask(t);
 					cancel();
+					Thread.currentThread().stop();
 					Thread.interrupted();
 			}
 		}, delay*50,1);
 		return t;
 	}
 
-	private static Task repeating(Runnable task, long delay, long period, boolean async) {
+	private static Task repeating(Runnable task, long delay, long period, boolean async) throws Exception {
 		if (period < 0) {
-			new Exception("Error when starting a repeating task, period cannot be negative.").printStackTrace();
-			return null;
+			throw new Exception("Error when starting a repeating task, period cannot be negative.");
 		}
 		if (delay < 0) {
-			new Exception("Error when starting a repeating task, delay cannot be negative.").printStackTrace();
-			return null;
+			throw new Exception("Error when starting a repeating task, delay cannot be negative.");
 		}
 		Task t = run(task, async, true);
 		new Timer().scheduleAtFixedRate(new TimerTask() {
+			@SuppressWarnings("deprecation")
 			public void run() {
 					t.run();
+					if(t.hasException())
+						t.cancel();
 					if(t.isCancelled()) {
 					cancelTask(t);
 					cancel();
+					Thread.currentThread().stop();
 					Thread.interrupted();
 					}
 			}
@@ -137,27 +175,27 @@ public class Scheduler {
 		return t;
 	}
 
-	private static Task repeatingTimes(Runnable task, long delay, long period, long times, boolean async) {
+	private static Task repeatingTimes(Runnable task, long delay, long period, long times, boolean async) throws Exception {
 		if (times <= 0) {
-			new Exception("Error when starting a repeatingTimes task, times cannot be zero or negative.")
-					.printStackTrace();
-			return null;
+			throw new Exception("Error when starting a repeatingTimes task, times cannot be zero or negative.");
 		}
 		if (period < 0) {
-			new Exception("Error when starting a repeatingTimes task, period cannot be negative.").printStackTrace();
-			return null;
+			throw new Exception("Error when starting a repeatingTimes task, period cannot be negative.");
 		}
 		if (delay < 0) {
-			new Exception("Error when starting a repeatingTimes task, delay cannot be negative.").printStackTrace();
-			return null;
+			throw new Exception("Error when starting a repeatingTimes task, delay cannot be negative.");
 		}
 		Task t = run(task, async, true);
 		new Timer().scheduleAtFixedRate(new TimerTask() {
+			@SuppressWarnings("deprecation")
 			public void run() {
 					t.run();
+					if(t.hasException())
+						t.cancel();
 					if(t.isCancelled()||t.runTimes()>=times) {
 					cancelTask(t);
 					cancel();
+					Thread.currentThread().stop();
 					Thread.interrupted();
 					}
 			}

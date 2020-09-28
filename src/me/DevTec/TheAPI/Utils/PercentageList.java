@@ -1,15 +1,13 @@
 package me.DevTec.TheAPI.Utils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 public class PercentageList<T> {
-	private final HashMap<T, Double> a = Maps.newHashMap();
+	private final HashMap<T, Double> a = new HashMap<>();
 	
 	public boolean add(T t, double percent) {
 		a.put(t, percent);
@@ -36,7 +34,7 @@ public class PercentageList<T> {
 	}
 
 	public List<T> toList() {
-		List<T> t = Lists.newArrayList();
+		List<T> t = new ArrayList<>();
 		for(T a : a.keySet())
 		for(double i = 0; i < getChance(a); ++i)
 			t.add(a);
