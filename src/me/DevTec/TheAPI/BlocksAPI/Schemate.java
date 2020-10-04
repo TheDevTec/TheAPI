@@ -135,7 +135,7 @@ public class Schemate {
 				if(onFinish!=null)
 					onFinish.run();
 			}
-		}.runAsync();
+		}.runTask();
 	}
 	
 	public static class SimpleSave {

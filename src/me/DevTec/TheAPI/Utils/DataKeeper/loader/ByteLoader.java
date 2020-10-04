@@ -1,6 +1,9 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.Base64;
 import java.util.List;
@@ -23,18 +26,36 @@ public class ByteLoader implements DataLoader {
 		data.clear();
 		try {
 			byte[] bb = Base64.getDecoder().decode(input);
-			ObjectInputStream ousr = new ObjectInputStream(new GZIPInputStream(new ByteArrayInputStream(bb)));
+			InputStream ousr = null;
+			try {
+				ousr = new ObjectInputStream(new GZIPInputStream(new ByteArrayInputStream(bb)));
+			}catch(Exception er) {
+				ousr = new DataInputStream(new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(bb))));
+			}
 			while(true)
 				try {
-					String key = ousr.readUTF();
-					data.put(key.split("\\.")[0], key, new DataHolder(Maker.objectFromJson(ousr.readUTF())));
+					String key = (ousr instanceof DataInputStream?(DataInputStream)ousr : (ObjectInputStream)ousr).readUTF();
+					data.put(key.split("\\.")[0], key, new DataHolder(Maker.objectFromJson((ousr instanceof DataInputStream?(DataInputStream)ousr : (ObjectInputStream)ousr).readUTF())));
 				}catch(Exception e) {
 				break;
 				}
 			ousr.close();
 			l=true;
 		}catch(Exception er) {
-			l=false;
+			try {
+				DataInputStream ousr = new DataInputStream(new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(input.getBytes()))));
+				while(true)
+					try {
+						String key = ousr.readUTF();
+						data.put(key.split("\\.")[0], key, new DataHolder(Maker.objectFromJson(ousr.readUTF())));
+					}catch(Exception e) {
+					break;
+					}
+				ousr.close();
+				l=true;
+			}catch(Exception err) {
+				l=false;
+			}
 		}
 	}
 

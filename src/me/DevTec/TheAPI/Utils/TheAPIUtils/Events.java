@@ -45,7 +45,6 @@ import me.DevTec.TheAPI.APIs.SignAPI;
 import me.DevTec.TheAPI.APIs.SignAPI.SignAction;
 import me.DevTec.TheAPI.BlocksAPI.BlocksAPI;
 import me.DevTec.TheAPI.BlocksAPI.BlocksAPI.Shape;
-import me.DevTec.TheAPI.ConfigAPI.ConfigAPI;
 import me.DevTec.TheAPI.Events.DamageGodPlayerByEntityEvent;
 import me.DevTec.TheAPI.Events.DamageGodPlayerEvent;
 import me.DevTec.TheAPI.Events.PlayerJumpEvent;
@@ -65,7 +64,6 @@ import me.DevTec.TheAPI.WorldsAPI.WorldBorderAPI.WarningMessageType;
 
 @SuppressWarnings("deprecation")
 public class Events implements Listener {
-	public static ConfigAPI f = LoaderClass.config,d = LoaderClass.data;
 
 	@EventHandler
 	public synchronized void onClose(InventoryCloseEvent e) {
@@ -76,7 +74,7 @@ public class Events implements Listener {
 		d.getPlayers().remove(p);
 		d.onClose(p);
 	}
-
+	
 	@EventHandler
 	public synchronized void onClick(InventoryClickEvent e) {
 		if(e.isCancelled())return;
@@ -169,10 +167,10 @@ public class Events implements Listener {
 	public void onExplode(EntityExplodeEvent e) {
 		if (e.isCancelled())
 			return;
-		if (f.getBoolean("Options.LagChecker.Enabled") && f.getBoolean("Options.LagChecker.TNT.Use")) {
+		if (LoaderClass.config.getBoolean("Options.Optimize.TNT.Use")) {
 			e.setCancelled(true);
-			get((e.getEntity().hasMetadata("real")
-					? new Position(BlocksAPI.getLocationFromString(e.getEntity().getMetadata("real").get(0).asString()))
+			get((e.getEntity().hasMetadata("firstTnt")
+					? new Position(BlocksAPI.getLocationFromString(e.getEntity().getMetadata("firstTnt").get(0).asString()))
 					: new Position(e.getLocation())), new Position(e.getLocation()));
 		}
 	}
@@ -265,7 +263,7 @@ public class Events implements Listener {
 
 	public static Storage add(Position block, Position real, boolean t, Storage st, Collection<ItemStack> collection) {
 			if (!t) {
-				if (f.getBoolean("Options.Optimize.TNT.Drops.InSingleLocation")) {
+				if (LoaderClass.config.getBoolean("Options.Optimize.TNT.Drops.InSingleLocation")) {
 					for (ItemStack i : collection) {
 						if (i != null && i.getType() != Material.AIR)
 							st.add(i);
@@ -359,13 +357,13 @@ public class Events implements Listener {
 		try {
 			World w = e.getTo().getWorld();
 			if (TheAPI.getWorldBorder(w).isOutside(e.getTo())) {
-				if (d.exist("WorldBorder." + w.getName() + ".CancelMoveOutside")) {
+				if (LoaderClass.data.exists("WorldBorder." + w.getName() + ".CancelMoveOutside")) {
 					e.setCancelled(TheAPI.getWorldBorder(w).isCancellledMoveOutside());
 				}
-				if (d.getString("WorldBorder." + w.getName() + ".Type") != null) {
+				if (LoaderClass.data.getString("WorldBorder." + w.getName() + ".Type") != null) {
 					WarningMessageType t = WarningMessageType
-							.valueOf(d.getString("WorldBorder." + w.getName() + ".Type"));
-					String msg = d.getString("WorldBorder." + w.getName() + ".Message");
+							.valueOf(LoaderClass.data.getString("WorldBorder." + w.getName() + ".Type"));
+					String msg = LoaderClass.data.getString("WorldBorder." + w.getName() + ".Message");
 					if (msg == null)
 						return;
 					switch (t) {
@@ -581,7 +579,7 @@ public class Events implements Listener {
 	public void onChat(PlayerChatEvent e) {
 		if (e.isCancelled())
 			return;
-		PlayerBanList b = PunishmentAPI.getBanList(d.getName());
+		PlayerBanList b = PunishmentAPI.getBanList(e.getPlayer().getName());
 		if (b.isTempMuted()) {
 			e.setCancelled(true);
 			TheAPI.msg(b.getReason(PunishmentType.TEMPMUTE).replace("%time%",

@@ -40,8 +40,6 @@ public abstract class SlowLoop<T> {
 	public void start(long update) {
 		old = System.currentTimeMillis();
 		new Tasker() {
-
-			@Override
 			public void run() {
 				if (!to.isEmpty()) {
 					T t = to.get(to.size() - 1);
@@ -51,7 +49,7 @@ public abstract class SlowLoop<T> {
 					cancel();
 
 			}
-		}.repeating(0, update);
+		}.runRepeating(0, update);
 	}
 
 	public abstract void toRun(T t);

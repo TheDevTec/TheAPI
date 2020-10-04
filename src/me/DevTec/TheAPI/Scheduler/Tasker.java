@@ -1,60 +1,72 @@
 package me.DevTec.TheAPI.Scheduler;
 
 public abstract class Tasker implements Runnable {
-	private Task task;
-
+	private boolean cancel;
+	private int task;
+	
+	public synchronized boolean isCancelled() {
+		return cancel;
+	}
+	
 	public synchronized void cancel() {
-		if (task != null)
-			Scheduler.cancelTask(task);
+		cancel=true;
+		Scheduler.cancelTask(task);
 	}
 
-	public synchronized int runTimes() {
-		if (task != null)
-			return task.runTimes();
-		return 0;
-	}
-
-	public synchronized int runTask() {
-		return set(Scheduler.run(this));
-	}
-
-	public synchronized int runAsync() {
-		return set(Scheduler.runAsync(this));
-	}
-
-	public synchronized int later(long delay) {
-		return set(Scheduler.later(this, delay));
-	}
-
-	public synchronized int laterAsync(long delay) {
-		return set(Scheduler.laterAsync(this, delay));
-	}
-
-	public synchronized int repeating(long delay, long period) {
-		return set(Scheduler.repeating(this, delay, period));
-	}
-
-	public synchronized int repeatingAsync(long delay, long period) {
-		return set(Scheduler.repeatingAsync(this, delay, period));
-	}
-
-	public synchronized int repeatingTimes(long delay, long period, long times) {
-		return set(Scheduler.repeatingTimes(this, delay, period, times));
-	}
-
-	public synchronized int repeatingTimesAsync(long delay, long period, long times) {
-		return set(Scheduler.repeatingTimesAsync(this, delay, period, times));
-	}
-
-	public synchronized Task getTask() {
+	public synchronized int getId() {
 		return task;
 	}
 
-	private int set(Task t) {
-		return (task=t).getId();
+	public int runTask() {
+		return task=Scheduler.run(this);
+	}
+	
+	public int runRepeating(long delay, long period) {
+		if(task==0)
+		return task=Scheduler.repeating(delay, period, this);
+		return task;
+	}
+	
+	public int runTimer(long delay, long period, long times) {
+		return runRepeatingTimes(delay, period, times);
+	}
+	
+	public int runRepeatingTimes(long delay, long period, long times) {
+		if(task==0)
+		return task=Scheduler.repeatingTimes(delay, period, times, this);
+		return task;
+	}
+	
+	public int runLater(long delay) {
+		if(task==0)
+		return task=Scheduler.later(delay, this);
+		return task;
 	}
 
-	public static void cancelTask(int id) {
-		Scheduler.cancelTask(id);
+
+	public int runTaskSync() {
+		return task=Scheduler.runSync(this);
+	}
+	
+	public int runRepeatingSync(long delay, long period) {
+		if(task==0)
+		return task=Scheduler.repeatingSync(delay, period, this);
+		return task;
+	}
+	
+	public int runTimerSync(long delay, long period, long times) {
+		return runRepeatingTimesSync(delay, period, times);
+	}
+	
+	public int runRepeatingTimesSync(long delay, long period, long times) {
+		if(task==0)
+		return task=Scheduler.repeatingTimesSync(delay, period, times, this);
+		return task;
+	}
+	
+	public int runLaterSync(long delay) {
+		if(task==0)
+		return task=Scheduler.laterSync(delay, this);
+		return task;
 	}
 }

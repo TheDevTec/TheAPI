@@ -1,10 +1,8 @@
 package me.DevTec.TheAPI.PunishmentAPI;
 
-import me.DevTec.TheAPI.ConfigAPI.ConfigAPI;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class PlayerBanList {
-	private static final ConfigAPI c = LoaderClass.data;
 	private final String s;
 
 	public PlayerBanList(String player) {
@@ -74,45 +72,45 @@ public class PlayerBanList {
 		String r = null;
 		switch (type) {
 		case BAN:
-			r = c.getString("ban." + s + ".reason");
+			r = LoaderClass.data.getString("ban." + s + ".reason");
 			break;
 		case BANIP:
 			if(getIP()!=null)
-			r = c.getString("banip." + getIP().replace(".", "_") + ".reason");
+			r = LoaderClass.data.getString("banip." + getIP().replace(".", "_") + ".reason");
 			break;
 		case TEMPBAN:
-			r = c.getString("tempban." + s + ".reason");
+			r = LoaderClass.data.getString("tempban." + s + ".reason");
 			break;
 		case TEMPBANIP:
 			if(getIP()!=null)
-			r = c.getString("tempbanip." + getIP().replace(".", "_") + ".reason");
+			r = LoaderClass.data.getString("tempbanip." + getIP().replace(".", "_") + ".reason");
 			break;
 		case JAIL:
-			r = c.getString("jail." + s + ".reason");
+			r = LoaderClass.data.getString("jail." + s + ".reason");
 			break;
 		case TEMPJAIL:
-			r = c.getString("tempjail." + s + ".reason");
+			r = LoaderClass.data.getString("tempjail." + s + ".reason");
 			break;
 		case MUTE:
-			r = c.getString("mute." + s + ".reason");
+			r = LoaderClass.data.getString("mute." + s + ".reason");
 			break;
 		case TEMPMUTE:
-			r = c.getString("tempmute." + s + ".reason");
+			r = LoaderClass.data.getString("tempmute." + s + ".reason");
 			break;
 		case JAILIP:
-			r = c.getString("mute." + s + ".reason");
+			r = LoaderClass.data.getString("mute." + s + ".reason");
 			break;
 		case MUTEIP:
 			if(getIP()!=null)
-			r = c.getString("muteip." + getIP().replace(".", "_") + ".reason");
+			r = LoaderClass.data.getString("muteip." + getIP().replace(".", "_") + ".reason");
 			break;
 		case TEMPJAILIP:
 			if(getIP()!=null)
-			r = c.getString("tempjailip." + getIP().replace(".", "_") + ".reason");
+			r = LoaderClass.data.getString("tempjailip." + getIP().replace(".", "_") + ".reason");
 			break;
 		case TEMPMUTEIP:
 			if(getIP()!=null)
-			r = c.getString("tempmuteip." + getIP().replace(".", "_")+ ".reason");
+			r = LoaderClass.data.getString("tempmuteip." + getIP().replace(".", "_")+ ".reason");
 			break;
 		}
 		return r;
@@ -122,58 +120,58 @@ public class PlayerBanList {
 		long r = 0;
 		switch (type) {
 		case BAN:
-			if (c.exist("ban." + s + ".start"))
-				r = c.getLong("ban." + s + ".start");
+			if (LoaderClass.data.exists("ban." + s + ".start"))
+				r = LoaderClass.data.getLong("ban." + s + ".start");
 			break;
 		case BANIP:
 			if(getIP()!=null)
-			if (c.exist("banip." + getIP().replace(".", "_") + ".start"))
-				r = c.getLong("banip." + getIP().replace(".", "_") + ".start");
+			if (LoaderClass.data.exists("banip." + getIP().replace(".", "_") + ".start"))
+				r = LoaderClass.data.getLong("banip." + getIP().replace(".", "_") + ".start");
 			break;
 		case TEMPBAN:
-			if (c.exist("tempban." + s + ".start"))
-				r = c.getLong("tempban." + s + ".start");
+			if (LoaderClass.data.exists("tempban." + s + ".start"))
+				r = LoaderClass.data.getLong("tempban." + s + ".start");
 			break;
 		case TEMPBANIP:
 			if(getIP()!=null)
-			if (c.exist("tempbanip." + getIP().replace(".", "_") + ".start"))
-				r = c.getLong("tempbanip." + getIP().replace(".", "_") + ".start");
+			if (LoaderClass.data.exists("tempbanip." + getIP().replace(".", "_") + ".start"))
+				r = LoaderClass.data.getLong("tempbanip." + getIP().replace(".", "_") + ".start");
 			break;
 		case JAIL:
-			if (c.exist("jail." + s + ".start"))
-				r = c.getLong("jail." + s + ".start");
+			if (LoaderClass.data.exists("jail." + s + ".start"))
+				r = LoaderClass.data.getLong("jail." + s + ".start");
 			break;
 		case TEMPJAIL:
-			if (c.exist("tempjail." + s + ".start"))
-				r = c.getLong("tempjail." + s + ".start");
+			if (LoaderClass.data.exists("tempjail." + s + ".start"))
+				r = LoaderClass.data.getLong("tempjail." + s + ".start");
 			break;
 		case MUTE:
-			if (c.exist("mute." + s + ".start"))
-				r = c.getLong("mute." + s + ".start");
+			if (LoaderClass.data.exists("mute." + s + ".start"))
+				r = LoaderClass.data.getLong("mute." + s + ".start");
 			break;
 		case TEMPMUTE:
-			if (c.exist("tempmute." + s + ".start"))
-				r = c.getLong("tempmute." + s + ".start");
+			if (LoaderClass.data.exists("tempmute." + s + ".start"))
+				r = LoaderClass.data.getLong("tempmute." + s + ".start");
 			break;
 		case JAILIP:
 			if(getIP()!=null)
-			if (c.exist("jailip." +getIP().replace(".", "_") + ".start"))
-				r = c.getLong("jailip." + getIP().replace(".", "_") + ".start");
+			if (LoaderClass.data.exists("jailip." +getIP().replace(".", "_") + ".start"))
+				r = LoaderClass.data.getLong("jailip." + getIP().replace(".", "_") + ".start");
 			break;
 		case MUTEIP:
 			if(getIP()!=null)
-			if (c.exist("muteip." +getIP().replace(".", "_") + ".start"))
-				r = c.getLong("muteip." + getIP().replace(".", "_") + ".start");
+			if (LoaderClass.data.exists("muteip." +getIP().replace(".", "_") + ".start"))
+				r = LoaderClass.data.getLong("muteip." + getIP().replace(".", "_") + ".start");
 			break;
 		case TEMPJAILIP:
 			if(getIP()!=null)
-			if (c.exist("tempjailip." +getIP().replace(".", "_") + ".start"))
-				r = c.getLong("tempjailip." + getIP().replace(".", "_") + ".start");
+			if (LoaderClass.data.exists("tempjailip." +getIP().replace(".", "_") + ".start"))
+				r = LoaderClass.data.getLong("tempjailip." + getIP().replace(".", "_") + ".start");
 			break;
 		case TEMPMUTEIP:
 			if(getIP()!=null)
-			if (c.exist("tempmuteip." +getIP().replace(".", "_") + ".start"))
-				r = c.getLong("tempmuteip." + getIP().replace(".", "_") + ".start");
+			if (LoaderClass.data.exists("tempmuteip." +getIP().replace(".", "_") + ".start"))
+				r = LoaderClass.data.getLong("tempmuteip." + getIP().replace(".", "_") + ".start");
 			break;
 		}
 		return r;
@@ -184,30 +182,30 @@ public class PlayerBanList {
 		switch (type) {
 		case TEMPBANIP:
 			if(getIP()!=null)
-			if (c.exist("tempbanip." + getIP().replace(".", "_") + ".time"))
-				r = c.getLong("tempbanip." + getIP().replace(".", "_") + ".time");
+			if (LoaderClass.data.exists("tempbanip." + getIP().replace(".", "_") + ".time"))
+				r = LoaderClass.data.getLong("tempbanip." + getIP().replace(".", "_") + ".time");
 			break;
 		case TEMPJAIL:
-			if (c.exist("tempjail." + s + ".time"))
-				r = c.getLong("tempjail." + s + ".time");
+			if (LoaderClass.data.exists("tempjail." + s + ".time"))
+				r = LoaderClass.data.getLong("tempjail." + s + ".time");
 			break;
 		case TEMPMUTE:
-			if (c.exist("tempmute." + s + ".time"))
-				r = c.getLong("tempmute." + s + ".time");
+			if (LoaderClass.data.exists("tempmute." + s + ".time"))
+				r = LoaderClass.data.getLong("tempmute." + s + ".time");
 			break;
 		case TEMPBAN:
-			if (c.exist("tempban." + s + ".time"))
-				r = c.getLong("tempban." + s + ".time");
+			if (LoaderClass.data.exists("tempban." + s + ".time"))
+				r = LoaderClass.data.getLong("tempban." + s + ".time");
 			break;
 		case TEMPJAILIP:
 			if(getIP()!=null)
-			if (c.exist("tempjailip." +getIP().replace(".", "_") + ".time"))
-				r = c.getLong("tempjailip." + getIP().replace(".", "_") + ".time");
+			if (LoaderClass.data.exists("tempjailip." +getIP().replace(".", "_") + ".time"))
+				r = LoaderClass.data.getLong("tempjailip." + getIP().replace(".", "_") + ".time");
 			break;
 		case TEMPMUTEIP:
 			if(getIP()!=null)
-			if (c.exist("tempmuteip." +getIP().replace(".", "_") + ".time"))
-				r = c.getLong("tempmuteip." + getIP().replace(".", "_") + ".time");
+			if (LoaderClass.data.exists("tempmuteip." +getIP().replace(".", "_") + ".time"))
+				r = LoaderClass.data.getLong("tempmuteip." + getIP().replace(".", "_") + ".time");
 			break;
 		default:
 			break;

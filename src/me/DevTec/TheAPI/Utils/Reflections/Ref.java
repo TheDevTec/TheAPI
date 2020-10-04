@@ -88,10 +88,7 @@ public class Ref {
 		if(packet==null) {
 			return;
 		}
-		Object p = Ref.player(to);
-		Object con = Ref.get(p, playerCon);
-		Ref.invoke(con, send, packet);
-		
+		Ref.invoke(Ref.get(Ref.player(to), playerCon), send, packet);
 	}
 	
 	public static Object server() {
@@ -264,6 +261,24 @@ public class Ref {
 			if(!field.isAccessible())
 			field.setAccessible(true);
 			return field.get(main);
+		}catch(Exception es) {
+			return null;
+		}
+	}
+	
+	public static Object getNulled(Field field){
+		try {
+			if(!field.isAccessible())
+			field.setAccessible(true);
+			return field.get(null);
+		}catch(Exception es) {
+			return null;
+		}
+	}
+	
+	public static Object getNulled(Class<?> clas, String field){
+		try {
+			return field(clas,field).get(null);
 		}catch(Exception es) {
 			return null;
 		}

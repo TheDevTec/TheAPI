@@ -91,6 +91,10 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public Object get(String key) {
 		return a.get(key);
 	}
+	
+	public boolean isSection(String key) {
+		return a.isKey(key);
+	}
 
 	public ItemStack getItemStack(String key) {
 		try {
@@ -146,6 +150,14 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	public Set<String> getKeys() {
 		return a.getKeys();
+	}
+
+	public Set<String> getKeys(String key, boolean sub) {
+		return a.getKeys(key,sub);
+	}
+
+	public Set<String> getKeys(boolean sub) {
+		return a.getKeys(sub);
 	}
 
 	public List<String> getStringList(String key) {

@@ -903,8 +903,11 @@ public class ItemCreatorAPI implements Cloneable {
 				} else if (url != null || url == null && text != null) {
 					try {
 						Object profile = Ref.createGameProfile(null, null);
-						byte[] encodedData = Base64.getEncoder().encode(("{textures:{SKIN:{url:\""+url+"\"}}}").getBytes());
-						Ref.invoke(Ref.invoke(profile,"getProperties"),"put",Ref.createProperty("textures", (String)(url == null && text != null ? text : new String(encodedData))));
+						byte[] encodedData = null;
+						try{
+							encodedData=Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
+						}catch(Exception err) {}
+						Ref.invoke(Ref.invoke(profile,"getProperties"),"put",Ref.createProperty("textures", (url == null && text != null ? text : new String(encodedData))));
 						Ref.set(m, "profile", profile);
 					} catch (Exception | NoSuchMethodError e) {
 					}
@@ -914,8 +917,7 @@ public class ItemCreatorAPI implements Cloneable {
 		} catch (Exception | NoSuchMethodError err) {
 			Validator.send("Creating ItemStack exception", err);
 		}
-		a = i;
-		return a;
+		return i;
 	}
 
 }

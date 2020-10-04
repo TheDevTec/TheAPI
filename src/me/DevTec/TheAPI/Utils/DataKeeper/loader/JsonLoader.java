@@ -1,17 +1,15 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import java.util.Map.Entry;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap;
 import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker;
 
 public class JsonLoader implements DataLoader {
-	private static JSONParser parser = new JSONParser();
 	private boolean l;
 	private MultiMap<String, String, DataHolder> data = new MultiMap<>();
 	
@@ -24,12 +22,12 @@ public class JsonLoader implements DataLoader {
 	public void load(String input) {
 		data.clear();
 		try {
-		JSONArray s = (JSONArray)parser.parse(input);
+			ArrayList<?> s = (ArrayList<?>)Maker.objectFromJson(input);
 		for(int i = 0; i < s.size(); ++i) {
-			JSONObject o = (JSONObject) s.get(i);
-		for(Object key : o.keySet()) {
-			Object read = o.get(key);
-			data.put(key.toString().split("\\.")[0], key.toString(), new DataHolder(read instanceof String?Maker.objectFromJson(read.toString()):read));
+			HashMap<?,?> o = (HashMap<?,?>) s.get(i);
+		for(Entry<?, ?> key : o.entrySet()) {
+			Object read = key.getValue();
+			data.put(key.getKey().toString().split("\\.")[0], key.getKey().toString(), new DataHolder(read instanceof String?Maker.objectFromJson(read.toString()):read));
 		}}
 		l=true;
 		}catch(Exception er) {

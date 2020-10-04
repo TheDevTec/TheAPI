@@ -40,7 +40,7 @@ public class NMSAPI {
 			 metadata = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutEntityMetadata"), int.class, Reflections.getNMSClass("DataWatcher"), boolean.class);
 	private static Method getmat, getb, getc, gett, WorldHandle, PlayerHandle, ichatcon, getser, plist, block,
 			IBlockData, worldset, Chunk, getblocks, setblock, setblockb, itemstack, entityM, livingentity, oldichatser,
-			post;
+			post,notify;
 	private static int old;
 	private static Field tps,scoreb,scorec,scored;
 	private static Object sbremove, sbinteger, sbchange,sbhearts;
@@ -79,9 +79,9 @@ public class NMSAPI {
 			sbchange=Reflections.get(Reflections.getField(Reflections.getNMSClass("ScoreboardServer$Action"),"CHANGE"),null);
 		sbinteger=Reflections.get(Reflections.getField(Reflections.getNMSClass("IScoreboardCriteria$EnumScoreboardHealthDisplay"),"INTEGER"),null);
 		sbhearts=Reflections.get(Reflections.getField(Reflections.getNMSClass("IScoreboardCriteria$EnumScoreboardHealthDisplay"),"HEARTS"),null);
-		post=Reflections.getMethod(Reflections.getNMSClass("MinecraftServer"),"postToMainThread", Runnable.class);
+		if(TheAPI.isNewVersion())post=Reflections.getMethod(Reflections.getNMSClass("IAsyncTaskHandler"),"executeSync", Runnable.class);
 		if(post==null)post=Reflections.getMethod(Reflections.getNMSClass("MinecraftServer"),"executeSync", Runnable.class);
-		if(post==null)post=Reflections.getMethod(Reflections.getNMSClass("DedicatedServer"),"executeSync", Runnable.class);
+		if(post==null)post=Reflections.getMethod(Reflections.getNMSClass("MinecraftServer"),"postToMainThread", Runnable.class);
 		particle = Reflections.getConstructor(c);
 		if(Reflections.existNMSClass("PacketPlayOutTitle"))
 		enumTitle = Reflections.getNMSClass("PacketPlayOutTitle").getDeclaredClasses()[0];
@@ -144,6 +144,7 @@ public class NMSAPI {
 		pChunk = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutMapChunk"),Reflections.getNMSClass("Chunk"),int.class);
 		if(pChunk==null)
 			pChunk = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutMapChunk"),Reflections.getNMSClass("Chunk"), boolean.class,int.class);
+		notify=Ref.method(NMSAPI.world, "notify", pos, iblockdata, iblockdata, int.class);
 	}
 
 	public static enum Action {
@@ -489,7 +490,7 @@ public class NMSAPI {
 	}
 
 	public static void refleshBlock(Object world, Object blockposition, Object oldBlock, Object newBlock) {
-		Reflections.invoke(world, Reflections.getMethod(NMSAPI.world, "notify", pos, iblockdata, iblockdata, int.class),blockposition, oldBlock, newBlock, 3);
+		Ref.invoke(world, notify,blockposition, oldBlock, newBlock, 3);
 	}
 	
 	public static Object getPacketPlayOutChat(ChatType type, Object IChatBaseComponent) {

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 public class PercentageList<T> {
+	private static Random random = new Random();
 	private final HashMap<T, Double> a = new HashMap<>();
 	
 	public boolean add(T t, double percent) {
@@ -30,7 +31,7 @@ public class PercentageList<T> {
 	
 	public T getRandom() {
 		List<T> t = toList();
-		return t.get(new Random().nextInt(t.size()));
+		return t.get(random.nextInt(t.size()));
 	}
 
 	public List<T> toList() {

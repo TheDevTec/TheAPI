@@ -12,6 +12,7 @@ import org.bukkit.scoreboard.DisplaySlot;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.TheCoder;
+import me.DevTec.TheAPI.Utils.DataKeeper.Data;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.Action;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.DisplayType;
@@ -25,6 +26,7 @@ import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
  *
  */
 public class ScoreboardAPI {
+	private static Data data = new Data();
 	private static Field teamlist = Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardTeam"), TheAPI.isOlder1_9() ? "g" : "h");
 	private Player p;
 	private String player;
@@ -50,8 +52,8 @@ public class ScoreboardAPI {
 		teams=useTeams;
 		int sel = 0;
 		for(int i = 1; i > 0; ++i) { //search first empty id
-			if(!LoaderClass.unused.exist("sb."+i)) {
-				LoaderClass.unused.set("sb."+i,player.getName());
+			if(!data.exists("sb."+i)) {
+				data.set("sb."+i,player.getName());
 				sel=i;
 				break;
 			}
@@ -79,13 +81,13 @@ public class ScoreboardAPI {
 	
 	private void create() {
 		updatePlayer();
-		if(LoaderClass.unused.exist("sbc."+p.getName())) {
-		if(LoaderClass.unused.getInt("sbc."+p.getName())==id)return;
+		if(data.exists("sbc."+p.getName())) {
+		if(data.getInt("sbc."+p.getName())==id)return;
 		else
-			if(LoaderClass.plugin.scoreboard.containsKey(LoaderClass.unused.getInt("sbc."+p.getName())))
-			LoaderClass.plugin.scoreboard.get(LoaderClass.unused.getInt("sbc."+p.getName())).destroy();
+			if(LoaderClass.plugin.scoreboard.containsKey(data.getInt("sbc."+p.getName())))
+			LoaderClass.plugin.scoreboard.get(data.getInt("sbc."+p.getName())).destroy();
 		}
-		LoaderClass.unused.set("sbc."+p.getName(),id);
+		data.set("sbc."+p.getName(),id);
 		LoaderClass.plugin.scoreboard.put(id,this);
 		if(packets) {
 		Ref.sendPacket(p,createObjectivePacket(0, name));
@@ -108,9 +110,9 @@ public class ScoreboardAPI {
 	}
 	
 	public void destroy() { //you can destroy scoreboard, but scoreboard still "exists" -> you can recreate it by update line / displayName
-		if(LoaderClass.unused.exist("sbc."+p.getName())) {
-		if(LoaderClass.unused.getInt("sbc."+p.getName())==id)
-			LoaderClass.unused.set("sbc."+p.getName(),null);
+		if(data.exists("sbc."+p.getName())) {
+		if(data.getInt("sbc."+p.getName())==id)
+			data.set("sbc."+p.getName(),null);
 		}
 		if(packets) {
 			Ref.sendPacket(p,createObjectivePacket(1, null));
@@ -273,7 +275,7 @@ public class ScoreboardAPI {
 	}
 	
 	public static void destroyScoreboard(int id) {
-		if(LoaderClass.unused.exist("sb."+id)) {
+		if(data.exists("sb."+id)) {
 			if(LoaderClass.plugin.scoreboard.containsKey(id))
 				LoaderClass.plugin.scoreboard.get(id).destroy();
 		}

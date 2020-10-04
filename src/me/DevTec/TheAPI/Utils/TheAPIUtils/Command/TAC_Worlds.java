@@ -112,9 +112,9 @@ public class TAC_Worlds {
 			TheAPI.msg("&eTheAPI WorldsManager unloading world with name '" + args[2] + "'..", s);
 			WorldsAPI.unloadWorld(args[2], true);
 
-			List<String> a = LoaderClass.config.getConfig().getStringList("Worlds");
+			List<String> a = LoaderClass.config.getStringList("Worlds");
 			a.remove(args[2]);
-			LoaderClass.config.getConfig().set("Worlds", a);
+			LoaderClass.config.set("Worlds", a);
 			TheAPI.msg("&eWorld with name '" + args[2] + "' unloaded.", s);
 			return;
 		}
@@ -196,7 +196,7 @@ public class TAC_Worlds {
 			}
 			TheAPI.msg("&eTheAPI WorldsManager deleting world with name '" + args[2] + "'..", s);
 			WorldsAPI.delete(Bukkit.getWorld(args[2]), true);
-			List<String> a = LoaderClass.config.getConfig().getStringList("Worlds");
+			List<String> a = LoaderClass.config.getStringList("Worlds");
 			if(a.contains(args[2])) {
 			a.remove(args[2]);
 			LoaderClass.config.set("Worlds", a);

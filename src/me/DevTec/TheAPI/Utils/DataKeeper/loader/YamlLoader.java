@@ -24,6 +24,7 @@ public class YamlLoader implements DataLoader {
 		data.clear();
 		header.clear();
 		footer.clear();
+		try {
 		List<Object> items = new ArrayList<>(1);
 		List<String> lines = new ArrayList<>(1);
 		String key = "";
@@ -87,16 +88,16 @@ public class YamlLoader implements DataLoader {
 				key+=(key.equals("")?"":".")+text.split(":")[0].trim();
 				f=1;
 				last=c(text.split(":")[0]);
-				if(!text.replaceFirst(text.split(":")[0]+":", "").trim().isEmpty()) {
-					if(text.replaceFirst(text.split(":")[0]+": ", "").trim().equals("|")) {
+				if(!text.replaceFirst((text.split(":")[0]+":"),"").trim().isEmpty()) {
+					if(text.replaceFirst((text.split(":")[0]+": "),"").trim().equals("|")) {
 						c=1;
 						continue;
 					}
-					if(text.replaceFirst(text.split(":")[0]+": ", "").trim().equals("|-")) {
+					if(text.replaceFirst((text.split(":")[0]+": "),"").trim().equals("|-")) {
 						c=2;
 						continue;
 					}
-					set(key, Maker.objectFromJson(text.replaceFirst(text.split(":")[0]+": ", "")), lines);
+					set(key, Maker.objectFromJson(text.replaceFirst((text.split(":")[0]+": "),"")), lines);
 				}
 			}
 		}
@@ -109,6 +110,9 @@ public class YamlLoader implements DataLoader {
 		if(!lines.isEmpty())
 			footer=lines;
 		l=true;
+		}catch(Exception er) {
+			l=false;
+		}
 	}
 
 	@Override

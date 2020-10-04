@@ -18,7 +18,7 @@ import org.bukkit.util.Vector;
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.APIs.MemoryAPI;
 import me.DevTec.TheAPI.BlocksAPI.BlocksAPI;
-import me.DevTec.TheAPI.ConfigAPI.ConfigAPI;
+import me.DevTec.TheAPI.ConfigAPI.Config;
 import me.DevTec.TheAPI.Events.TNTExplosionEvent;
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.Utils.Position;
@@ -32,7 +32,7 @@ public class TNTTask {
 	private final Particle e;
 	private final TNTExplosionEvent event;
 	private final Position reals;
-	private final ConfigAPI f = LoaderClass.config;
+	private final Config f = LoaderClass.config;
 	private final boolean toReal= f.getBoolean("Options.Optimize.TNT.Drops.InFirstTNTLocation");
 
 	public TNTTask(Position reals2, List<Position> list, TNTExplosionEvent result) {
@@ -123,7 +123,7 @@ public class TNTTask {
 		new Tasker() {
 			int ignite = f.getInt("Options.Optimize.TNT.CollidingTNT.IgniteTime") <= 0 ? 5
 					: f.getInt("Options.Optimize.TNT.CollidingTNT.IgniteTime");
-			boolean igniteUsed = !f.getBoolean("Options.Optimize.TNT.CollidingTNT.Disabled");
+			boolean igniteUsed = f.getBoolean("Options.Optimize.TNT.CollidingTNT.Use");
 			boolean fakeTnt = !f.getBoolean("Options.Optimize.TNT.SpawnTNT");
 			String location = reals.toString();
 
@@ -154,7 +154,7 @@ public class TNTTask {
 											public void run() {
 												Events.get(reals, b);
 											}
-										}.later(ignite);
+										}.runLater(ignite);
 									} else {
 										TNTPrimed tnt = (TNTPrimed) b.getWorld().spawnEntity(b.toLocation(),
 												EntityType.PRIMED_TNT);
@@ -215,6 +215,6 @@ public class TNTTask {
 					cancel();
 				}
 			}
-		}.repeating(0, 10);
+		}.runRepeating(0, 10);
 	}
 }

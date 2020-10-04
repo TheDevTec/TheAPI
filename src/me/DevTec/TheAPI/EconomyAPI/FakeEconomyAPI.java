@@ -101,22 +101,24 @@ public class FakeEconomyAPI {
 	}
 
 	public void setSymbol(String symbol) {
-		LoaderClass.config.getConfig().set("FakeEconomyAPI.Symbol", symbol);
+		LoaderClass.config.set("FakeEconomyAPI.Symbol", symbol);
+		LoaderClass.config.save();
 	}
 
 	public String getSymbol() {
-		return LoaderClass.config.getConfig().getString("FakeEconomyAPI.Symbol");
+		return LoaderClass.config.getString("FakeEconomyAPI.Symbol");
 	}
 
 	/**
 	 * @param s Available placeholders: %symbol%, $ %money%, %eco%, %balance%
 	 */
 	public void setFormat(String s) {
-		LoaderClass.config.getConfig().set("FakeEconomyAPI.Format", s);
+		LoaderClass.config.set("FakeEconomyAPI.Format", s);
+		LoaderClass.config.save();
 	}
 
 	public String format(double money) {
-		return LoaderClass.config.getConfig().getString("FakeEconomyAPI.Format")
+		return LoaderClass.config.getString("FakeEconomyAPI.Format")
 				.replace("%money%", String.valueOf(money)).replace("%eco%", String.valueOf(money))
 				.replace("%balance%", String.valueOf(money)).replace("%symbol%", getSymbol()).replace("$", getSymbol());
 	}

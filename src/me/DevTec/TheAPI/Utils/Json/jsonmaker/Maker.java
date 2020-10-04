@@ -3,7 +3,6 @@ package me.DevTec.TheAPI.Utils.Json.jsonmaker;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,7 +22,7 @@ import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 @SuppressWarnings("restriction")
 public class Maker {
-	private List<String> values = Arrays.asList();
+	private List<String> values = new ArrayList<>();
 
 	public Maker add(MakerObject o) {
 		return add(o.toString());
@@ -145,7 +144,7 @@ public class Maker {
 	}
 	
 	public static Object objectFromJson(String o) {
-		if(o==null)return null;
+		if(o==null||o.equals("null"))return null;
 		if(o.startsWith("'") && o.endsWith("'") && o.length()>1 || o.startsWith("\"") && o.endsWith("\"") && o.length()>1)o=o.substring(1, o.length()-1);
 		Object a = itemFromJson(o);
 		if(a!=null)return a;

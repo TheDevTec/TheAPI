@@ -1,13 +1,17 @@
 package me.DevTec.TheAPI.Utils;
 
+import java.util.Map;
+
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
+import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
-public class TheMaterial {
+@SuppressWarnings("deprecation")
+public class TheMaterial implements Cloneable {
 
-	@SuppressWarnings("deprecation")
 	public TheMaterial(Object IBlockDataOrBlock) {
 		ItemStack stack = (ItemStack)Ref.invoke(Ref.invoke(null, Ref.method(Ref.craft("util.CraftMagicNumbers"),"getMaterial", Ref.nms("IBlockData")), IBlockDataOrBlock), "toItemStack");
 		if(stack==null)stack=(ItemStack)new ItemStack((Material)Ref.invokeNulled(Material.class, "getMaterial", (int)Ref.invoke(null, Ref.method(Ref.craft("util.CraftMagicNumbers"),"getId", Ref.nms("Block")), IBlockDataOrBlock)));
@@ -16,7 +20,6 @@ public class TheMaterial {
 		this.amount=stack.getAmount();
 	}
 	
-	@SuppressWarnings("deprecation")
 	public TheMaterial(ItemStack stack) {
 		this(stack.getType(), stack.getData().getData(), stack.getAmount());
 	}
@@ -102,24 +105,28 @@ public class TheMaterial {
 		return m;
 	}
 	
-	@SuppressWarnings("deprecation")
 	public int getCombinedId() {
-		try {
-		return getType().getId()+(data<<12);
-		}catch(Exception err) {
-			return (int)Ref.invoke(Ref.get(null,Ref.field(Ref.nms("Block"), "REGISTRY_ID")), Ref.method(Ref.nms("RegistryID"), "getId", Ref.nms("IBlockData")), getIBlockData());
-		}
+		return (int) Ref.invokeNulled(Ref.method(Ref.nms("Block"), "getCombinedId", Ref.nms("IBlockData")), getIBlockData());
 	}
 	
 	public Object getIBlockData() {
-		@SuppressWarnings("deprecation")
-		Object item = Ref.invoke(null, Ref.method(Ref.nms("Block"), "getByCombinedId", int.class), getType().getId()+(data<<12));
-		Object o = Ref.invoke(null, Ref.method(Ref.craft("util.CraftMagicNumbers"), "getBlock", Material.class), getType());
-		if(item==null)item=Ref.invoke(o, Ref.method(Ref.nms("Block"), "fromLegacyData", byte.class),(byte)data);
-		if(item==null) {
-		o = Ref.invoke(null, Ref.method(Ref.craft("block.data.CraftBlockData"), "newData", Material.class, String.class), getType(), data+"");
-		item=Ref.invoke(o, "getState");}
-		return item;
+		try {
+			return Ref.invoke(Ref.getNulled(Ref.nms("Blocks"), m.name()),"getBlockData");
+		}catch(Exception err) {
+			if(m!=null) {
+			Map<?,?> materialToData = (Map<?, ?>) Ref.getNulled(Ref.craft("legacy.CraftLegacy"), "materialToData");
+			Map<?,?> materialToBlock = (Map<?, ?>) Ref.getNulled(Ref.craft("legacy.CraftLegacy"), "materialToBlock");
+			MaterialData materialData = new MaterialData(m, (byte) data);
+			if(materialData!=null) {
+		    Object converted = materialToData.getOrDefault(materialData, null);
+		    if (converted != null)
+		      return converted; 
+		    Object convertedBlock = materialToBlock.getOrDefault(materialData, null);
+		    if (convertedBlock != null)
+		    	return Ref.invoke(convertedBlock,"getBlockData");
+			}}
+		    return LoaderClass.plugin.air;
+		}
 	}
 
 	public void setType(Material material) {
@@ -130,9 +137,8 @@ public class TheMaterial {
 		this.data = data;
 	}
 	
-	@SuppressWarnings("deprecation")
 	public ItemStack toItemStack() {
-		return new ItemStack(m, amount,(byte)data);
+		return new ItemStack(new ItemStack(m, 0,(byte)data).getType(), amount,(byte)data);
 	}
 
 	@Override
@@ -179,5 +185,13 @@ public class TheMaterial {
 			return m == (Material) a;
 		}
 		return false;
+	}
+	
+	public TheMaterial clone() {
+		try {
+			return (TheMaterial) super.clone();
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }

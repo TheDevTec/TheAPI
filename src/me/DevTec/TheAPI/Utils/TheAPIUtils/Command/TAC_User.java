@@ -77,7 +77,7 @@ public class TAC_User {
 			if(args.length==3||args.length==4)
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Set <key> <value>", s);
 			else {
-			TheAPI.getUser(args[1]).set(args[3], args[4]);
+			TheAPI.getUser(args[1]).set(args[3], StringUtils.buildString(4, args));
 			TheAPI.msg("&eIn user data of &6"+args[1]+" &eset value &6"+args[3]+" &eto &6"+args[4], s);
 			}
 			return;

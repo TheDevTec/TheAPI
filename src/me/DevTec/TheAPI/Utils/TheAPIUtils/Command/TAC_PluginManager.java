@@ -31,11 +31,10 @@ public class TAC_PluginManager {
 			TheAPI.msg("&e/TheAPI PluginManager Info <plugin>", s);
 			TheAPI.msg("&e/TheAPI PluginManager Files", s);
 			List<Plugin> pl =  PluginManagerAPI.getPlugins();
-			if(!pl.isEmpty()) {
-			TheAPI.msg("&7Plugins:", s);
+			String sd = "";
 			for (Plugin w :pl)
-				TheAPI.msg("&7 - &e" + getPlugin(w), s);
-			}
+				sd+=(sd.equals("")?"":"&7, ")+getPlugin(w)+" &6v"+w.getDescription().getVersion();
+			TheAPI.msg("&7Plugins ("+pl.size()+"): "+sd, s);
 			return;
 		}
 		if (args[1].equalsIgnoreCase("Files")||args[1].equalsIgnoreCase("notloaded")||args[1].equalsIgnoreCase( "toload")||args[1].equalsIgnoreCase( "unloaded")) {
@@ -279,37 +278,35 @@ public class TAC_PluginManager {
 				TheAPI.msg("&7Plugin "+args[2]+" isn't loaded.", s);
 				return;
 			}
-			TheAPI.msg("&7╔═════════════════════════════", s);
-			TheAPI.msg("&7║ Name: &e"+args[2], s);
-			TheAPI.msg("&7║ State: &e"+(i==1?"Enabled":"Disabled"), s);
+			TheAPI.msg("&7Name: &e"+args[2], s);
+			TheAPI.msg("&7State: &e"+(i==1?"Enabled":"Disabled"), s);
 			if (PluginManagerAPI.getCommands(args[2]).size() != 0) {
-				TheAPI.msg("&7║ Commands:", s);
+				TheAPI.msg("&7Commands:", s);
 				for (String a : PluginManagerAPI.getCommands(args[2]))
-					TheAPI.msg("&7║  - &e" + a, s);
+					TheAPI.msg("&7 - &e" + a, s);
 			}
 			if (PluginManagerAPI.getPermissions(args[2]).size() != 0) {
-				TheAPI.msg("&7║ Permissions:", s);
+				TheAPI.msg("&7Permissions:", s);
 				for (Permission a : PluginManagerAPI.getPermissions(args[2])) {
-					TheAPI.msg("&7║  » &e" + a.getName()+"&7:", s);
+					TheAPI.msg("&7 » &e" + a.getName()+"&7:", s);
 					Map<String, Boolean> c = a.getChildren();
 					if(c.isEmpty()==false)
 						for(String d : c.keySet())
-				TheAPI.msg("&7║    - "+(c.get(d) ? "&a" : "&c") + d, s);
+				TheAPI.msg("&7   - "+(c.get(d) ? "&a" : "&c") + d, s);
 				}
 			}
 			if (PluginManagerAPI.getVersion(args[2]) != null)
-				TheAPI.msg("&7║ Version: &e"+PluginManagerAPI.getVersion(args[2]), s);
+				TheAPI.msg("&7Version: &e"+PluginManagerAPI.getVersion(args[2]), s);
 			if (PluginManagerAPI.getWebsite(args[2]) != null)
-				TheAPI.msg("&7║ Website: &e"+PluginManagerAPI.getWebsite(args[2]), s);
+				TheAPI.msg("&7Website: &e"+PluginManagerAPI.getWebsite(args[2]), s);
 			if (PluginManagerAPI.getMainClass(args[2]) != null)
-				TheAPI.msg("&7║ MainClass: &e"+PluginManagerAPI.getMainClass(args[2]), s);
+				TheAPI.msg("&7MainClass: &e"+PluginManagerAPI.getMainClass(args[2]), s);
 			if (!PluginManagerAPI.getAuthor(args[2]).isEmpty())
-				TheAPI.msg("&7║ Author(s): &e"+StringUtils.join(PluginManagerAPI.getAuthor(args[2]),", "), s);
+				TheAPI.msg("&7Author(s): &e"+StringUtils.join(PluginManagerAPI.getAuthor(args[2]),", "), s);
 			if (!PluginManagerAPI.getSoftDepend(args[2]).isEmpty())
-				TheAPI.msg("&7║ SoftDepend(s): &e"+StringUtils.join(PluginManagerAPI.getSoftDepend(args[2]),", "), s);
+				TheAPI.msg("&7SoftDepend(s): &e"+StringUtils.join(PluginManagerAPI.getSoftDepend(args[2]),", "), s);
 			if (!PluginManagerAPI.getDepend(args[2]).isEmpty())
-				TheAPI.msg("&7║ Depend(s): &e"+StringUtils.join(PluginManagerAPI.getDepend(args[2]),", "), s);
-			TheAPI.msg("&7╚═════════════════════════════", s);
+				TheAPI.msg("&7Depend(s): &e"+StringUtils.join(PluginManagerAPI.getDepend(args[2]),", "), s);
 			return;
 		}
 		TheAPI.msg("&e/TheAPI PluginManager Enable <plugin>", s);
@@ -326,11 +323,10 @@ public class TAC_PluginManager {
 		TheAPI.msg("&e/TheAPI PluginManager Info <plugin>", s);
 		TheAPI.msg("&e/TheAPI PluginManager Files", s);
 		List<Plugin> pl =  PluginManagerAPI.getPlugins();
-		if(!pl.isEmpty()) {
-		TheAPI.msg("&7Plugins:", s);
+		String sd = "";
 		for (Plugin w :pl)
-			TheAPI.msg("&7 - &e" + getPlugin(w), s);
-		}
+			sd+=(sd.equals("")?"":"&7, ")+getPlugin(w)+" &6v"+w.getDescription().getVersion();
+		TheAPI.msg("&7Plugins ("+pl.size()+"): "+sd, s);
 		return;
 	}
 

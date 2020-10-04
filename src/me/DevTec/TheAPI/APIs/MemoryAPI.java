@@ -4,18 +4,22 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 
+import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.Utils.StringUtils;
 
 public class MemoryAPI {
 	private static double mb = 1048576;
-	private static double max = Runtime.getRuntime().maxMemory() / 1048576;
+	private static double max = Runtime.getRuntime().maxMemory() / mb;
 
 	public static String clearMemory() {
 		double mem = getRawUsedMemory(false);
+		new Tasker() {
+			public void run() {
+				System.gc();
+		}}.runTask();
 		for (World w : Bukkit.getWorlds())
 			for (Chunk c : w.getLoadedChunks())
 				c.unload(true);
-		System.gc();
 		return String.format("%2.02f", mem - getRawUsedMemory(false)).replaceFirst("\\.00", "");
 	}
 

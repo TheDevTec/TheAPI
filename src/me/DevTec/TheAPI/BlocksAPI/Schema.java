@@ -94,6 +94,6 @@ public class Schema {
 				if(onFinish!=null)
 					onFinish.run();
 			}
-		}.runAsync();
+		}.runTask();
 	}
 }

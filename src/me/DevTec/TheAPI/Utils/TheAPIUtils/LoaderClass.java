@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,7 +27,7 @@ import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.APIs.MemoryAPI;
 import me.DevTec.TheAPI.APIs.PluginManagerAPI;
 import me.DevTec.TheAPI.BossBar.BossBar;
-import me.DevTec.TheAPI.ConfigAPI.ConfigAPI;
+import me.DevTec.TheAPI.ConfigAPI.Config;
 import me.DevTec.TheAPI.EconomyAPI.EconomyAPI;
 import me.DevTec.TheAPI.GUIAPI.GUI;
 import me.DevTec.TheAPI.PlaceholderAPI.PlaceholderAPI;
@@ -34,7 +35,6 @@ import me.DevTec.TheAPI.PlaceholderAPI.PlaceholderPreRegister;
 import me.DevTec.TheAPI.PlaceholderAPI.ThePlaceholder;
 import me.DevTec.TheAPI.PlaceholderAPI.ThePlaceholderAPI;
 import me.DevTec.TheAPI.Scheduler.Scheduler;
-import me.DevTec.TheAPI.Scheduler.Task;
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
@@ -54,21 +54,15 @@ import net.milkbowl.vault.economy.Economy;
 @SuppressWarnings("restriction")
 public class LoaderClass extends JavaPlugin {
 	//Scoreboards
-	public final HashMap<Integer, ScoreboardAPI> scoreboard = new HashMap<>();
+	public final Map<Integer, ScoreboardAPI> scoreboard = new HashMap<>();
 	public final MultiMap<Integer, Integer, Object> map = new MultiMap<>();
-	//Scheduler
-	public final HashMap<Integer, Task> scheduler = new HashMap<>();
 	//GUIs
-	public final HashMap<String, GUI> gui = new HashMap<>();
+	public final Map<String, GUI> gui = new HashMap<>();
 	//BossBars
 	public final List<BossBar> bars = new ArrayList<>();
 	//TheAPI
 	public static LoaderClass plugin;
-	public static ConfigAPI unused= new ConfigAPI("TheAPI", "Cache"),
-			config= new ConfigAPI("TheAPI", "Config")
-			,data= new ConfigAPI("TheAPI", "Data");
-	protected static boolean online = true;
-	
+	public static Config config= new Config("TheAPI/Config.yml"), data= new Config("TheAPI/Data.yml");
 	public String motd;
 	public int max;
 	//EconomyAPI
@@ -76,22 +70,24 @@ public class LoaderClass extends JavaPlugin {
 	public Economy economy;
 	public me.DevTec.TheVault.Economy tveeconomy;
 	public Bank bank;
-	
-	public static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.get(null, Ref.field(sun.misc.Unsafe.class,"theUnsafe"));
+	private boolean oa = true;
+	public Object air = Ref.invoke(Ref.getNulled(Ref.field(Ref.nms("Block"), "AIR")), "getBlockData");
+
+	private static Method move = Ref.method(BossBar.class, "move");
+	public static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class,"theUnsafe"));
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onLoad() {
 		plugin = this;
-		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &6Action: &6Loading plugin..", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		createConfig();
 		if(TheAPI.isOlder1_9())
 		new Thread(new Runnable() {
 			public void run() {
-				while(online){
-					Method move = Reflections.getMethod(BossBar.class, "move");
+				while(oa){
 			        for(BossBar s : bars)
 			        	Reflections.invoke(s, move);
 			        try {
@@ -100,7 +96,7 @@ public class LoaderClass extends JavaPlugin {
 			        }
 				}
 			}
-		}).start();		
+		}).start();
 		if(TheAPI.isNewerThan(7))
 		handler = new PacketHandler_New();
 		else
@@ -113,10 +109,14 @@ public class LoaderClass extends JavaPlugin {
 	
 	@Override
 	public void onEnable() {
-		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &6Action: &aEnabling plugin, creating config and registering economy..", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		loadWorlds();
+		new Tasker() {
+			
+			@Override
+			public void run() {
 		loadPlaceholders();
 		if(PlaceholderAPI.isEnabledPlaceholderAPI()) {
 			/* TheAPI placeholder extension for PAPI
@@ -162,17 +162,17 @@ public class LoaderClass extends JavaPlugin {
 			}.register();
 		}
 		Tasks.load();
-		Bukkit.getPluginManager().registerEvents(new Events(), this);
+		Bukkit.getPluginManager().registerEvents(new Events(), LoaderClass.this);
 		TheAPI.createAndRegisterCommand("TheAPI", null, new TheAPICommand());
 		if (PluginManagerAPI.getPlugin("TheVault") != null)
 			TheVaultHooking();
 		if (PluginManagerAPI.getPlugin("Vault") == null) {
-			TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-			TheAPI.msg("&bTheAPI&7: &cPlugin not found Vault, EconomyAPI is disabled.", TheAPI.getConsole());
-			TheAPI.msg("&bTheAPI&7: &cYou can enabled EconomyAPI by set custom Economy in EconomyAPI.",
+			TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+			TheAPI.msg("&cTheAPI&7: &ePlugin not found Vault, EconomyAPI is disabled.", TheAPI.getConsole());
+			TheAPI.msg("&cTheAPI&7: &eYou can enabled EconomyAPI by set custom Economy in EconomyAPI.",
 					TheAPI.getConsole());
-			TheAPI.msg("&bTheAPI&7: &c *TheAPI will still normally work without problems*", TheAPI.getConsole());
-			TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+			TheAPI.msg("&cTheAPI&7: &e *TheAPI will still normally work without problems*", TheAPI.getConsole());
+			TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		} else
 			vaultHooking();
 		new Tasker() {
@@ -180,9 +180,9 @@ public class LoaderClass extends JavaPlugin {
 			public void run() {
 				if (getTheAPIsPlugins().size() == 0)return;
 				String end = getTheAPIsPlugins().size() != 1?"s":"";
-				TheAPI.msg("&bTheAPI&7: &aTheAPI using " + getTheAPIsPlugins().size() + " plugin" + end,TheAPI.getConsole());
+				TheAPI.msg("&cTheAPI&7: &eTheAPI using &6" + getTheAPIsPlugins().size() + " &eplugin" + end,TheAPI.getConsole());
 			}
-		}.laterAsync(200);
+		}.runLater(200);
 		int removed = 0;
 		for(UUID u : TheAPI.getUsers()) {
 			if(TheAPI.getUser(u).getKeys().isEmpty()) {
@@ -191,28 +191,26 @@ public class LoaderClass extends JavaPlugin {
 			}
 		}
 		if(removed!=0)
-		TheAPI.msg("&bTheAPI&7: &aTheAPI deleted " + removed + " unused user files", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &eTheAPI deleted &6" + removed + " &eunused user files", TheAPI.getConsole());
 		TheAPI.clearCache();
+		}}.runTask();
 	}
-
+	
 	@SuppressWarnings("rawtypes")
 	public PacketHandler handler;
 	
 	@Override
 	public void onDisable() {
+		oa=false;
 		handler.close();
-		online=false;
-		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &6Action: &cDisabling plugin, saving configs and stopping runnables..",
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &6Action: &eDisabling plugin, saving configs and stopping runnables..",
 				TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		Scheduler.cancelAll();
 		for (String p : gui.keySet())
 			gui.get(p).clear();
 		gui.clear();
-		unused.delete();
-		data.reload();
-		config.reload();
 		main.unregister();
 	}
 
@@ -226,40 +224,65 @@ public class LoaderClass extends JavaPlugin {
 	}
 	
 	private void createConfig() {
-		data.create();
-		config.setHeader("TNT, Action types: WAIT/DROP");
 		config.addDefault("Options.HideErrors", false); //hide only TheAPI errors
+		config.setComments("Options.HideErrors", Arrays.asList("","# If you enable this option, errors from TheAPI will dissapear","# defaulty: false"));
 		config.addDefault("Options.Cache.User.Use", true); //Require memory, but loading of User.class is faster (only from TheAPI.class)
+		config.setComments("Options.Cache", Arrays.asList(""));
+		config.setComments("Options.Cache.User.Use", Arrays.asList("# Cache Users to memory for faster loading","# defaulty: true"));
 		config.addDefault("Options.Cache.User.RemoveOnQuit", true); //Remove cached player from cache on PlayerQuitEvent
+		config.setComments("Options.Cache.User.RemoveOnQuit", Arrays.asList("# Remove cache of User from memory","# defaulty: true"));
 		config.addDefault("Options.User-SavingType", DataType.YAML.name());
+		config.setComments("Options.User-SavingType", Arrays.asList("","# Saving type of User data","# Types: YAML, JSON, BYTE, DATA","# defaulty: YAML"));
 		config.addDefault("Options.AntiBot.Use", false);
+		config.setComments("Options.AntiBot", Arrays.asList(""));
+		config.setComments("Options.AntiBot.Use", Arrays.asList("# If you enable this, TheAPI will set time between player can't connect to the server","# defaulty: false"));
 		config.addDefault("Options.AntiBot.TimeBetweenPlayer", 10); //10 milis
+		config.setComments("Options.AntiBot.TimeBetweenPlayer", Arrays.asList("# Time between player can't connect to the server","# defaulty: 10"));
+		config.setComments("Options.Optimize", Arrays.asList("","# TheAPI's optimizers for server"));
 		config.addDefault("Options.Optimize.TNT.Use", true);
+		config.setComments("Options.Optimize.TNT", Arrays.asList("# TNT optimizer"));
+		config.setComments("Options.Optimize.TNT.Use", Arrays.asList("# If you disable this, TNT optimizer will be disabled","# defaulty: true"));
 		config.addDefault("Options.Optimize.TNT.Particles.Use", false);
+		config.setComments("Options.Optimize.TNT.Particles.Use", Arrays.asList("# If you enable this, TNT will have particles","# defaulty: false"));
 		config.addDefault("Options.Optimize.TNT.Particles.Type", "EXPLOSION_LARGE");
+		config.setComments("Options.Optimize.TNT.Particles.Type", Arrays.asList("# Particle types are available on https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Particle.html","# defaulty: EXPLOSION_LARGE"));
 		config.addDefault("Options.Optimize.TNT.LiquidCancelExplosion", true);
+		config.setComments("Options.Optimize.TNT.LiquidCancelExplosion", Arrays.asList("# Can water/lava cancel TNT explosion","# defaulty: true"));
 		config.addDefault("Options.Optimize.TNT.DestroyBlocks", true);
+		config.setComments("Options.Optimize.TNT.DestroyBlocks", Arrays.asList("# Can TNT explosion destroy blocks","# defaulty: true"));
 		config.addDefault("Options.Optimize.TNT.DamageEntities", true);
+		config.setComments("Options.Optimize.TNT.DamageEntities", Arrays.asList("# Can TNT explosion damage entities around","# defaulty: true"));
 		config.addDefault("Options.Optimize.TNT.Power", 1);
+		config.setComments("Options.Optimize.TNT.Power", Arrays.asList("# Power of TNT explosion","# defaulty: 1"));
 		config.addDefault("Options.Optimize.TNT.Drops.Allowed", true);
+		config.setComments("Options.Optimize.TNT.Drops.Allowed", Arrays.asList("# Drop TNT explosion drops from destroyed blocks","# defaulty: true"));
 		config.addDefault("Options.Optimize.TNT.Drops.InSingleLocation", true);
+		config.setComments("Options.Optimize.TNT.Drops.InSingleLocation", Arrays.asList("# Drop TNT explosion drops to TNT's location","# defaulty: true"));
 		config.addDefault("Options.Optimize.TNT.Drops.InFirstTNTLocation", false);
-		config.addDefault("Options.Optimize.TNT.CollidingTNT.Disabled", false);
-		config.addDefault("Options.Optimize.TNT.Action.LowMememory", "WAIT");
-		config.addDefault("Options.Optimize.TNT.Action.LowTPS", "WAIT");
+		config.setComments("Options.Optimize.TNT.Drops.InFirstTNTLocation", Arrays.asList("# Drop TNT explosion drops to first TNT's location","# This can be used for mining system","# defaulty: false"));
+		config.addDefault("Options.Optimize.TNT.CollidingTNT.Use", true);
+		config.setComments("Options.Optimize.TNT.CollidingTNT.Use", Arrays.asList("# Can TNT explosion explode colliding TNTs","# defaulty: true"));
 		config.addDefault("Options.Optimize.TNT.CollidingTNT.IgniteTime", 3); // 0 is ultra fast, but with ultra lag
+		config.setComments("Options.Optimize.TNT.CollidingTNT.IgniteTime", Arrays.asList("# Time to ignite TNT","# defaulty: 3"));
+		config.addDefault("Options.Optimize.TNT.Action.LowMememory", "# WAIT");
+		config.setComments("Options.Optimize.TNT.Action", Arrays.asList("# Action types: WAIT, DROP"));
+		config.setComments("Options.Optimize.TNT.Action.LowMememory", Arrays.asList("# What TheAPI have to do when is low memory (ex.: free 100mb)","# defaulty: WAIT"));
+		config.addDefault("Options.Optimize.TNT.Action.LowTPS", "WAIT");
+		config.setComments("Options.Optimize.TNT.Action.LowTPS", Arrays.asList("# What TheAPI have to do when is low tps (ex.: 15 TPS)","# defaulty: WAIT"));
 		config.addDefault("Options.Optimize.TNT.SpawnTNT", false); //defaulty false, more friendly to server
+		config.setComments("Options.Optimize.TNT.SpawnTNT", Arrays.asList("# If you enable this, TheAPI will spawn ignite TNT entities","# Big amount of ignite TNT entities server can be laggy","# defaulty: false"));
+		config.addDefault("Options.EntityMoveEvent.Enabled", true);
+		config.setComments("Options.EntityMoveEvent.Enabled", Arrays.asList("# Enable EntityMoveEvent event","# defaulty: true"));
 		config.addDefault("Options.EntityMoveEvent.Reflesh", 3);
-		config.addDefault("Options.EntityMoveEvent.Enabled", true); // set false to disable this event
+		config.setComments("Options.EntityMoveEvent.Reflesh", Arrays.asList("# Ticks to look for entity move action","# defaulty: 3"));
 		config.addDefault("Options.FakeEconomyAPI.Symbol", "$");
+		config.setComments("Options.FakeEconomyAPI", Arrays.asList(""));
+		config.setComments("Options.FakeEconomyAPI.Symbol", Arrays.asList("# Economy symbol of FakeEconomyAPI","# defaulty: $"));
 		config.addDefault("Options.FakeEconomyAPI.Format", "$%money%");
-		config.addDefault("GameAPI.StartingIn", "&aStarting in %time%s");
-		config.addDefault("GameAPI.Start", "&aStart");
-		config.create();
+		config.setComments("Options.FakeEconomyAPI.Format", Arrays.asList("# Economy format of FakeEconomyAPI","# defaulty: $%money%"));
+		config.save();
 		max=Bukkit.getMaxPlayers();
 		motd=Bukkit.getMotd();
-		unused.setCustomEnd("dat");
-		unused.create();
 	}
 	
 	private static ThePlaceholder main;
@@ -343,16 +366,16 @@ public class LoaderClass extends JavaPlugin {
 	}
 
 	public void loadWorlds() {
-		if (config.exist("Worlds")) {
+		if (config.exists("Worlds")) {
 			if (!config.getStringList("Worlds").isEmpty()) {
-				TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
-				TheAPI.msg("&bTheAPI&7: &6Action: &6Loading worlds..",TheAPI.getConsole());
-				TheAPI.msg("&bTheAPI&7: &8********************",TheAPI.getConsole());
+				TheAPI.msg("&cTheAPI&7: &8********************",TheAPI.getConsole());
+				TheAPI.msg("&cTheAPI&7: &6Action: &eLoading worlds..",TheAPI.getConsole());
+				TheAPI.msg("&cTheAPI&7: &8********************",TheAPI.getConsole());
 				for (String s : config.getStringList("Worlds")) {
 					String type = "Default";
 					for (String w : Arrays.asList("Default", "Normal", "Nether", "The_End", "End", "The_Void", "Void",
 							"Empty", "Flat")) {
-						if (config.exist("WorldsSetting." + s)) {
+						if (config.exists("WorldsSetting." + s)) {
 							if (config.getString("WorldsSetting." + s + ".Generator").equalsIgnoreCase(w)) {
 								if (w.equalsIgnoreCase("Flat"))
 									type = "Flat";
@@ -384,14 +407,11 @@ public class LoaderClass extends JavaPlugin {
 					if (type.equals("Nether"))
 						env = Environment.NETHER;
 					boolean f = true;
-					if (config.exist("WorldsSetting." + s + ".GenerateStructures"))
+					if (config.exists("WorldsSetting." + s + ".GenerateStructures"))
 						f = config.getBoolean("WorldsSetting." + s + ".GenerateStructures");
-
-					TheAPI.msg("&bTheAPI&7: &6Loading world with name '" + s + "'..", TheAPI.getConsole());
 					WorldsAPI.create(s, env, wt, f, 0);
-					TheAPI.msg("&bTheAPI&7: &6World with name '" + s + "' loaded.", TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &eWorld with name '&6" + s + "&e' loaded.", TheAPI.getConsole());
 				}
-				TheAPI.msg("&bTheAPI&7: &6All worlds loaded.", TheAPI.getConsole());
 			}
 		}
 	}
@@ -411,27 +431,27 @@ public class LoaderClass extends JavaPlugin {
 	}
 	
 	public void vaultHooking() {
-		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &6Action: &6Looking for Vault Economy..", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &6Action: &eLooking for Vault Economy..", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		new Tasker() {
 			@Override
 			public void run() {
 				if (getVaultEconomy()) {
 					e = true;
-					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &6Found Vault Economy", TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7: &eFound Vault Economy", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 					cancel();
 				}
 			}
-		}.repeatingTimesAsync(0, 20, 15);
+		}.runTimer(0, 20, 15);
 	}
 
 	public void TheVaultHooking() {
-		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &6Action: &6Looking for TheVault Economy and Bank system..", TheAPI.getConsole());
-		TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &6Action: &eLooking for TheVault Economy and Bank system..", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		new Tasker() {
 			boolean as = false, b = false;
 			public void run() {
@@ -439,21 +459,21 @@ public class LoaderClass extends JavaPlugin {
 					as = true;
 					tveeconomy = TheVault.getEconomy();
 					tve = true;
-					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &6Found TheVault Economy", TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7: &eFound TheVault Economy", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 				}
 				if (TheVault.getBank() != null && !b) {
 					b = true;
 					bank = TheVault.getBank();
 					tbank = true;
-					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &6Found TheVault Bank system", TheAPI.getConsole());
-					TheAPI.msg("&bTheAPI&7: &8********************", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7: &eFound TheVault Bank system", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 				}
 				if (as && b)
 					cancel();
 			}
-		}.repeatingTimesAsync(0, 20, 15);
+		}.runTimer(0, 20, 15);
 	}
 }

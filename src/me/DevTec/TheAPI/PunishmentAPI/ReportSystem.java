@@ -18,7 +18,7 @@ public class ReportSystem {
 
 	public List<Report> getReports(String player) {
 		List<Report> a = new ArrayList<Report>();
-		if (LoaderClass.data.exist("report." + player))
+		if (LoaderClass.data.exists("report." + player))
 			for (String s : LoaderClass.data.getKeys("report." + player)) {
 				// sender, reported, reason, message
 				a.add(new Report(s, player, LoaderClass.data.getString("report." + player + "." + s + ".player"),
@@ -31,7 +31,7 @@ public class ReportSystem {
 
 	public List<String> getPlayers() {
 		List<String> a = new ArrayList<String>();
-		if (LoaderClass.data.exist("report"))
+		if (LoaderClass.data.exists("report"))
 			for (String s : LoaderClass.data.getKeys("report"))
 				a.add(s);
 		return a;
@@ -56,7 +56,7 @@ public class ReportSystem {
 
 	public List<String> getReportIDs(String player) {
 		List<String> a = new ArrayList<String>();
-		if (LoaderClass.data.exist("report." + player))
+		if (LoaderClass.data.exists("report." + player))
 			for (String s : LoaderClass.data.getKeys("report." + player))
 				a.add(s);
 		return a;

@@ -132,7 +132,7 @@ public class Config {
     }
     
     public void addComments(String path, List<String> value) {
-    	f.getLines(path).addAll(value);
+    	if(f.getLines(path)==null)setComments(path,value);else f.getLines(path).addAll(value);
     }
 	
     public void addComment(String path, String value) {

@@ -128,7 +128,7 @@ public enum EnchantmentAPI {
 		v=version;
 	}
 	
-	public void enchant(ItemStack to, int level) { //1_15_1R0 -> 15
+	public void enchant(ItemStack to, int level) { //1_15_R0 -> 15
 		if(StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]) >= v)
 		to.addUnsafeEnchantment(getEnchantment(), level);
 	}

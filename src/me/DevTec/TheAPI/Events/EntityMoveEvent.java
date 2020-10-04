@@ -29,7 +29,7 @@ public class EntityMoveEvent extends Event implements Cancellable {
 	}
 
 	public boolean isEventDisabled() {
-		return !LoaderClass.config.getConfig().getBoolean("Options.EntityMoveEvent.Enabled");
+		return !LoaderClass.config.getBoolean("Options.EntityMoveEvent.Enabled");
 	}
 
 	public EntityType getEntityType() {

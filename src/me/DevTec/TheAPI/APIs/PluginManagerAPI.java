@@ -19,7 +19,7 @@ import org.bukkit.plugin.SimplePluginManager;
 
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
-import me.DevTec.TheAPI.Utils.Reflections.Reflections;
+import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.Utils.ZIP.JarReader;
 
 public class PluginManagerAPI {
@@ -79,9 +79,8 @@ public class PluginManagerAPI {
 
 	public static List<Plugin> getPlugins() {
 		List<Plugin> a = new ArrayList<Plugin>();
-		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
+		for (Plugin p : Bukkit.getPluginManager().getPlugins())
 			a.add(p);
-		}
 		return a;
 	}
 
@@ -106,7 +105,7 @@ public class PluginManagerAPI {
 
 	public static List<String> getDepend(String plugin) {
 		Plugin p = getPlugin(plugin);
-		if (p != null && p.isEnabled())
+		if (p != null)
 			if (p.getDescription().getDepend() != null && p.getDescription().getDepend().isEmpty() == false)
 				return p.getDescription().getDepend();
 		return new ArrayList<String>();
@@ -114,7 +113,7 @@ public class PluginManagerAPI {
 
 	public static List<String> getSoftDepend(String plugin) {
 		Plugin p = getPlugin(plugin);
-		if (p != null && p.isEnabled())
+		if (p != null)
 			if (p.getDescription().getSoftDepend() != null && p.getDescription().getSoftDepend().isEmpty() == false)
 				return p.getDescription().getSoftDepend();
 		return new ArrayList<String>();
@@ -122,7 +121,7 @@ public class PluginManagerAPI {
 
 	public static List<String> getAuthor(String plugin) {
 		Plugin p = getPlugin(plugin);
-		if (p != null && p.isEnabled())
+		if (p != null)
 			return p.getDescription().getAuthors();
 		return new ArrayList<String>();
 	}
@@ -130,7 +129,7 @@ public class PluginManagerAPI {
 	public static String getAPIVersion(String plugin) {
 		Plugin p = getPlugin(plugin);
 		try {
-			if (p != null && p.isEnabled() && p.getDescription().getAPIVersion() != null)
+			if (p != null && p.getDescription().getAPIVersion() != null)
 				return p.getDescription().getAPIVersion();
 		} catch (Exception e) {
 		}
@@ -139,14 +138,14 @@ public class PluginManagerAPI {
 
 	public static String getVersion(String plugin) {
 		Plugin p = getPlugin(plugin);
-		if (p != null && p.isEnabled() && p.getDescription().getVersion() != null)
+		if (p != null && p.getDescription().getVersion() != null)
 			return p.getDescription().getVersion();
 		return null;
 	}
 
 	public static String getWebsite(String plugin) {
 		Plugin p = getPlugin(plugin);
-		if (p != null && p.isEnabled() && p.getDescription().getWebsite() != null)
+		if (p != null && p.getDescription().getWebsite() != null)
 			return p.getDescription().getWebsite();
 		return null;
 	}
@@ -252,7 +251,7 @@ public class PluginManagerAPI {
 	}
 	
 	public static File getFileOfPlugin(Plugin p) {
-		return new File("plugins/"+new File(Reflections.getClass(p.getDescription().getMain()).getProtectionDomain()
+		return new File("plugins/"+new File(Ref.getClass(p.getDescription().getMain()).getProtectionDomain()
 				  .getCodeSource().getLocation().getPath()).getName());
 	}
 	
@@ -296,7 +295,7 @@ public class PluginManagerAPI {
 				if(!f.isDirectory() && f.getName().endsWith(".jar")) {
 					Plugin loaded = null;
 					for(Plugin p : getPlugins()) {
-						if(new java.io.File(Reflections.getClass(p.getDescription().getMain()).getProtectionDomain()
+						if(new java.io.File(Ref.getClass(p.getDescription().getMain()).getProtectionDomain()
 								  .getCodeSource()
 								  .getLocation()
 								  .getPath())
@@ -360,10 +359,10 @@ public class PluginManagerAPI {
 			return;
 		new Tasker() {
 			public void run() {
-		List<Plugin> plugins = (List<Plugin>)Reflections.get(Reflections.getField(((SimplePluginManager)spm).getClass(), "plugins"),((SimplePluginManager)spm));
-		Map<String, Plugin> lookupNames = (Map<String, Plugin>)Reflections.get(Reflections.getField(((SimplePluginManager)spm).getClass(), "lookupNames"),((SimplePluginManager)spm));
-		SimpleCommandMap commandMap = (SimpleCommandMap)Reflections.get(Reflections.getField(((SimplePluginManager)spm).getClass(), "commandMap"),((SimplePluginManager)spm));
-		Map<String, Command> knownCommands = (Map<String, Command>)Reflections.get(Reflections.getField(commandMap.getClass(),"knownCommands"),commandMap);
+		List<Plugin> plugins = (List<Plugin>)Ref.get(((SimplePluginManager)spm),Ref.field(SimplePluginManager.class, "plugins"));
+		Map<String, Plugin> lookupNames = (Map<String, Plugin>)Ref.get(((SimplePluginManager)spm),Ref.field(SimplePluginManager.class, "lookupNames"));
+		SimpleCommandMap commandMap = (SimpleCommandMap)Ref.get(((SimplePluginManager)spm),Ref.field(SimplePluginManager.class, "commandMap"));
+		Map<String, Command> knownCommands = (Map<String, Command>)Ref.get(commandMap,Ref.field(commandMap.getClass(),"knownCommands"));
 			Plugin pl = getPlugin(pluginName);
 			disablePlugin(pl);
 			if(plugins != null && plugins.contains(pl))
@@ -389,7 +388,7 @@ public class PluginManagerAPI {
 					spm.removePermission(p.next().toString());
 				}
 			} catch (NoSuchMethodError e) {
-			}}}.runAsync();
+			}}}.runTask();
 		}
 
 	public static void loadPlugin(String n) {
@@ -402,11 +401,11 @@ public class PluginManagerAPI {
 			Plugin p = Bukkit.getPluginManager().loadPlugin(new File("plugins/" + pluginName + ".jar"));
 			p.onLoad();
 			Bukkit.getPluginManager().enablePlugin(p);
-				CommandMap commandMap = (CommandMap)Reflections.get(Reflections.getField(Bukkit.getServer().getClass(), "commandMap"), Bukkit.getServer());
+				CommandMap commandMap = (CommandMap)Ref.get(Bukkit.getServer(),Ref.field(Bukkit.getServer().getClass(), "commandMap"));
 				for (String s : p.getDescription().getCommands().keySet())
 					commandMap.register(s, null);
 		} catch (Exception e) {}
-			}}.runAsync();
+			}}.runTask();
 	}
 
 	public static boolean disablePlugin(String plugin) {

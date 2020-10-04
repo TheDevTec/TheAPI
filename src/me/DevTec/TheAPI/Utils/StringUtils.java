@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -24,6 +25,7 @@ import me.DevTec.TheAPI.Utils.DataKeeper.TheArrays;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
 
 public class StringUtils {
+	private static Random random = new Random();
 	
 	public static interface ColormaticFactory {
 		public String getColor();
@@ -47,6 +49,37 @@ public class StringUtils {
 		return colour == '\u0000' ? ChatColor.RESET : ChatColor.getByChar(colour);
 	}
 
+	/**
+	 * @see see Copy matches of String from Iterable<String>
+	 * Examples: 
+	 *   StringUtils.copyPartialMatches("hello", Arrays.asList("helloWorld", "hiHouska")) -> helloWorld
+	 *   StringUtils.copyPartialMatches("hello", Arrays.asList("helloWorld", "hiHouska", "this_is_list_of_words", "helloDevs", "hell")) -> helloWorld, helloDevs
+	 * @return List<String>
+	 */
+	public static List<String> copyPartialMatches(String prefix, Iterable<String> originals) {
+		List<String> collection = new ArrayList<>();  
+		for (String string : originals)
+			if (string.length() < prefix.length()?false:string.regionMatches(true, 0, prefix, 0, prefix.length()))
+				collection.add(string);
+		return collection;
+	}
+
+	/**
+	 * @see see Copy matches of String from Iterable<String>
+	 * Examples: 
+	 *   StringUtils.copyPartialMatches("hello", Arrays.asList("helloWorld", "hiHouska")) -> helloWorld
+	 *   StringUtils.copyPartialMatches("hello", Arrays.asList("helloWorld", "hiHouska", "this_is_list_of_words", "helloDevs", "hell")) -> helloWorld, helloDevs
+	 * @return List<String>
+	 */
+	public static List<String> copySortedPartialMatches(String prefix, Iterable<String> originals) {
+		List<String> collection = new ArrayList<>();  
+		for (String string : originals)
+			if (string.length() < prefix.length()?false:string.regionMatches(true, 0, prefix, 0, prefix.length()))
+				collection.add(string);
+		Collections.sort(collection);
+		return collection;
+	}
+	
 	/**
 	 * @see see Transfer Collection to String
 	 * @return String
@@ -221,8 +254,18 @@ public class StringUtils {
 	 * 
 	 */
 	public static String buildString(int start, String[] args) {
+		return buildString(start, args.length, args);
+	}
+
+	/**
+	 * @see see Build string from String[]
+	 * @param args
+	 * @return String
+	 * 
+	 */
+	public static String buildString(int start, int end, String[] args) {
 		String msg = "";
-		for (int i = start; i < args.length-1; ++i)
+		for (int i = start; i < args.length-1 && i < end; ++i)
 			msg += (msg.equals("")?"":" ") + args[i];
 		return msg;
 	}
@@ -236,7 +279,7 @@ public class StringUtils {
 	public static <T> T getRandomFromList(List<T> list) {
 		if (list.isEmpty() || list == null)
 			return null;
-		int r = new Random().nextInt(list.size());
+		int r = random.nextInt(list.size());
 		if (r <= 0) {
 			if (list.get(0) != null) {
 				return list.get(0);
@@ -255,7 +298,7 @@ public class StringUtils {
 	public static <T> T getRandomFromList(TheList<T> list) {
 		if (list.isEmpty() || list == null)
 			return null;
-		int r = new Random().nextInt(list.size());
+		int r = random.nextInt(list.size());
 		if (r <= 0) {
 			if (list.get(0) != null) {
 				return list.get(0);

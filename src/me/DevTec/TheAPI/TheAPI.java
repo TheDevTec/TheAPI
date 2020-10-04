@@ -42,6 +42,7 @@ import me.DevTec.TheAPI.ConfigAPI.ConfigAPI;
 import me.DevTec.TheAPI.CooldownAPI.CooldownAPI;
 import me.DevTec.TheAPI.Events.PlayerVanishEvent;
 import me.DevTec.TheAPI.SQLAPI.SQLAPI;
+import me.DevTec.TheAPI.Scheduler.Scheduler;
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
 import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardType;
@@ -395,7 +396,7 @@ public class TheAPI {
 		Validator.validate(text==null, "Text is null");
 		Validator.validate(progress<0, "Progress is lower than zero");
 		if (task.containsKey(p.getName())) {
-			Tasker.cancelTask(task.get(p.getName()));
+			Scheduler.cancelTask(task.get(p.getName()));
 			task.remove(p.getName());
 		}
 		BossBar a = bars.containsKey(p.getName()) ? bars.get(p.getName())
@@ -431,7 +432,7 @@ public class TheAPI {
 			public void run() {
 				a.hide();
 			}
-		}.laterAsync(timeToExpire));
+		}.runLater(timeToExpire));
 	}
 
 	/**
@@ -441,7 +442,7 @@ public class TheAPI {
 	public static void removeBossBar(Player p) {
 		Validator.validate(p==null, "Player is null");
 		if (task.containsKey(p.getName())) {
-			Tasker.cancelTask(task.get(p.getName()));
+			Scheduler.cancelTask(task.get(p.getName()));
 			task.remove(p.getName());
 		}
 		if (bars.containsKey(p.getName()))
@@ -783,14 +784,14 @@ public class TheAPI {
 		if (vanish) {
 			if (perm != null)
 				getUser(p).setAndSave("vanish", perm);
-			List<String> v = LoaderClass.data.getConfig().getStringList("vanished");
+			List<String> v = LoaderClass.data.getStringList("vanished");
 			v.add(p);
-			LoaderClass.data.getConfig().set("vanished", v);
+			LoaderClass.data.set("vanished", v);
 		} else {
 			getUser(p).setAndSave("vanish", null);
-			List<String> v = LoaderClass.data.getConfig().getStringList("vanished");
+			List<String> v = LoaderClass.data.getStringList("vanished");
 			v.remove(p);
-			LoaderClass.data.getConfig().set("vanished", v);
+			LoaderClass.data.set("vanished", v);
 		}
 		LoaderClass.data.save();
 	}
@@ -834,16 +835,16 @@ public class TheAPI {
 			if (vanish) {
 				if (perm != null)
 					getUser(p).setAndSave("vanish", perm);
-				List<String> v = LoaderClass.data.getConfig().getStringList("vanished");
+				List<String> v = LoaderClass.data.getStringList("vanished");
 				if (!v.contains(p.getName()))
 					v.add(p.getName());
-				LoaderClass.data.getConfig().set("vanished", v);
+				LoaderClass.data.set("vanished", v);
 			} else {
 				getUser(p).setAndSave("vanish", null);
-				List<String> v = LoaderClass.data.getConfig().getStringList("vanished");
+				List<String> v = LoaderClass.data.getStringList("vanished");
 				if (v.contains(p.getName()))
 					v.remove(p.getName());
-				LoaderClass.data.getConfig().set("vanished", v);
+				LoaderClass.data.set("vanished", v);
 			}
 			LoaderClass.data.save();
 			hide(p);

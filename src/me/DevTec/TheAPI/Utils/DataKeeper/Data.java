@@ -1,8 +1,13 @@
 package me.DevTec.TheAPI.Utils.DataKeeper;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
-import java.io.ObjectOutputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
@@ -16,16 +21,17 @@ import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
 import me.DevTec.TheAPI.Utils.DataKeeper.Lists.TheArrayList;
 import me.DevTec.TheAPI.Utils.DataKeeper.loader.DataLoader;
-import me.DevTec.TheAPI.Utils.File.Writer;
+import me.DevTec.TheAPI.Utils.DataKeeper.loader.EmptyLoader;
 import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker;
 import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker.MakerObject;
+import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
 public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, Iterable<Entry<String, Object>> {
 	private static final long serialVersionUID = 1L;
 
 	public static class DataHolder {
 		private Object o;
-		private List<String> lines;
+		private List<String> lines = new ArrayList<>(0);
 		public DataHolder(Object object) {
 			o=object;
 		}
@@ -46,14 +52,15 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 			return lines;
 		}
 	}
-
-	private DataLoader loader;
+	
+	private DataLoader loader = new EmptyLoader();
 	private List<String> header, footer;
 	private File a;
 	public Data() {
 	}
 	
 	public Data(String filePath, boolean load) {
+		this();
 		File f = new File(filePath);
 		if(!f.exists()) {
 			f.getParentFile().mkdirs();
@@ -115,7 +122,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 				loader.get().remove(key.split("\\.")[0], key);
 			return;
 		}
-		getOrCreateData(key).setValue(value);
+		getOrCreateData(key).o=value;
 	}
 	
 	public void remove(String key) {
@@ -125,7 +132,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	}
 
 	public List<String> getLines(String key) {
-		if(key==null)return new ArrayList<>(3);
+		if(key==null)return null;
 		return getOrCreateData(key).lines;
 	}
 	
@@ -135,8 +142,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	}
 	
 	public void addLines(String key, List<String> value) {
-		if(value==null||key==null)
-			return;
+		if(value==null||key==null)return;
 		DataHolder h = getOrCreateData(key);
 		if(h.lines==null)h.lines=value;
 		else
@@ -144,16 +150,14 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	}
 	
 	public void addLine(String key, String value) {
-		if(value==null||key==null)
-			return;
+		if(value==null||key==null)return;
 		DataHolder h = getOrCreateData(key);
 		if(h.lines==null)h.lines=new ArrayList<>(3);
 		h.lines.add(value);
 	}
 	
 	public void removeLine(String key, String value) {
-		if(value==null||key==null)
-			return;
+		if(value==null||key==null)return;
 		DataHolder h = getOrCreateData(key);
 		if(h.lines!=null)
 		h.lines.remove(value);
@@ -198,7 +202,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	@SuppressWarnings("unchecked")
 	public <E> E getVariable(String key) {
 		try {
-			return (E)(getData(key).getValue());
+			return (E)(getData(key).o);
 		}catch(Exception e) {
 			return null;
 		}
@@ -206,7 +210,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	
 	public Object get(String key) {
 		try {
-			return getData(key).getValue();
+			return getData(key).o;
 		}catch(Exception e) {
 			return null;
 		}
@@ -281,11 +285,47 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	}
 	
 	public void save(DataType type) {
-		if(a==null)return;
-		Writer w = new Writer(a);
-		w.append(toString(type));
-		w.flush();
-		w.close();
+		Validator.validate(a==null, "File is null");
+		try {
+			Writer w = new OutputStreamWriter(new FileOutputStream(a), "UTF_8");
+			if(type==DataType.DATA||type==DataType.BYTE) {
+				try {
+					ByteArrayOutputStream bos = new ByteArrayOutputStream(getKeys().size());
+					GZIPOutputStream tos = new GZIPOutputStream(bos);
+					BufferedOutputStream buf = new BufferedOutputStream(tos);
+					DataOutputStream ous = new DataOutputStream(buf);
+					for(String keyThread : loader.get().keySet())
+						for(String key : loader.get().threadSet(keyThread))
+						try {
+							Object o = get(key);
+							ous.writeUTF(key);
+							ous.writeUTF(o==null?"null":Maker.objectToJson(o));
+						}catch(Exception er) {}
+					ous.flush();
+					bos.flush();
+					buf.flush();
+					tos.finish();
+					w.write(type==DataType.DATA?bos.toString():Base64.getEncoder().encodeToString(bos.toByteArray()));
+				}catch(Exception e) {}
+				w.write("");
+			}
+			if(type==DataType.JSON) {
+				Maker maker = new Maker();
+				MakerObject main = maker.create();
+				for(String key : getKeys())
+					addKeys(main, key);
+				w.write(maker.add(main).toString());
+			}
+			if(header!=null)
+			for(String h : header)
+				w.write(h+System.lineSeparator());
+			for(String key : getKeys(false))
+				preparePath(key, w);
+			if(footer!=null)
+			for(String h : footer)
+				w.write(h+System.lineSeparator());
+			w.close();
+		}catch(Exception er) {}
 	}
 	
 	public void save() {
@@ -300,10 +340,12 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 		HashSet<String> a = new HashSet<>();
 		for(String ka : loader.get().keySet())
 			for(String d : loader.get().threadSet(ka))
-				if(subkeys)
+				if(subkeys) {
+					if(!a.contains(d)) 
 					a.add(d);
-				else
-					a.add(d.split("\\.")[0]);
+				}else
+					if(!a.contains(d.contains(".")?d.split("\\.")[0]:d))
+					a.add(d.contains(".")?d.split("\\.")[0]:d);
 		return a;
 	}
 
@@ -311,19 +353,38 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 		return getKeys(key, false);
 	}
 	
+	public boolean isKey(String key) {
+		boolean is = false;
+		for(String ka : loader.get().keySet())
+			for(String k : loader.get().threadSet(ka)) {
+			if(k.startsWith(key)) {
+				String r = k.replaceFirst(key, "");
+				if(r.startsWith(".")||r.trim().isEmpty()) {
+					is=true;
+					break;
+				}
+			}
+		}
+		return is;
+	}
+	
 	public Set<String> getKeys(String key, boolean subkeys) {
+		String keyw = key.endsWith(".")?key.substring(0, key.length()-1):key;
 		HashSet<String> a = new HashSet<>();
+		if(isKey(keyw))
 		for(String ka : loader.get().keySet())
 			for(String d : loader.get().threadSet(ka))
-			if(d.startsWith(key)) {
-				String c = d.replaceFirst(key, "");
-				if(c.startsWith("."))c=c.substring(1);
-				if(!c.isEmpty()) {
-				if(subkeys)
+			if(d.startsWith(keyw)) {
+				String c = d.replaceFirst(keyw, "");
+				if(c.trim().isEmpty())continue;
+				c=c.substring(1);
+				if(subkeys) {
+					if(!a.contains(c))
 					a.add(c);
-				else
+				}else
+					if(!a.contains(c.split("\\.")[0]))
 				a.add(c.split("\\.")[0]);
-			}}
+			}
 		return a;
 	}
 
@@ -334,44 +395,72 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	private void addKeys(MakerObject main, String key) {
 		Object o = get(key);
 		if(o!=null)
-			main.put(key, o instanceof Comparable<?> ? o.toString().replace(System.lineSeparator(), "") : Maker.objectToJson(o));
+			main.put(key, Maker.objectToJson(o));
 		for(String keyer : getKeys(key))
 			addKeys(main, key+"."+keyer);
 	}
 	
-	private void preparePath(String path, StringBuilder b) {
+	private void preparePath(String path, Writer b) {
+		try {
 		Object o = get(path);
+		String space = cs(path.split("\\.").length-1,1);
+		String pathName = space+(path.split("\\.")[path.split("\\.").length-1])+":";
+		for(String s : getLines(path))
+			b.write(space+s+System.lineSeparator());
 		if(o==null)
-		b.append(cs(path.split("\\.").length-1,1)+path.split("\\.")[path.split("\\.").length-1]+":"+System.lineSeparator());
+		b.write(pathName+System.lineSeparator());
 		else {
 			if(o instanceof List) {
-				b.append(cs(path.split("\\.").length-1,1)+path.split("\\.")[path.split("\\.").length-1]+":"+System.lineSeparator());
+				b.write(pathName+System.lineSeparator());
 				for(Object a : (List<?>)o)
-				b.append(cs(path.split("\\.").length-1,1)+"- "+addQuetos(a, a instanceof Comparable<?> ? a+"" : Maker.objectToJson(a))+System.lineSeparator());
+				b.write(space+"- "+addQuetos(a, Maker.objectToJson(a))+System.lineSeparator());
 			}else
-			b.append(cs(path.split("\\.").length-1,1)+path.split("\\.")[path.split("\\.").length-1]+": "+addQuetos(o, o instanceof Comparable<?> ? o+"" : Maker.objectToJson(o))+System.lineSeparator());
+			b.write(pathName+" "+addQuetos(o, Maker.objectToJson(o))+System.lineSeparator());
 		}
-		for(String key : getKeys(path))
+		for(String key : getKeys(path, false))
+			preparePath(path+"."+key, b);
+		}catch(Exception er) {}
+	}
+	
+	private void preparePath(String path, StringWriter b) {
+		Object o = get(path);
+		String space = cs(path.split("\\.").length-1,1);
+		String pathName = space+(path.split("\\.")[path.split("\\.").length-1])+":";
+		for(String s : getLines(path))
+			b.append(space+s+System.lineSeparator());
+		if(o==null)
+		b.append(pathName+System.lineSeparator());
+		else {
+			if(o instanceof List) {
+				b.append(pathName+System.lineSeparator());
+				for(Object a : (List<?>)o)
+				b.append(space+"- "+addQuetos(a, Maker.objectToJson(a))+System.lineSeparator());
+			}else
+			b.append(pathName+" "+addQuetos(o, Maker.objectToJson(o))+System.lineSeparator());
+		}
+		for(String key : getKeys(path, false))
 			preparePath(path+"."+key, b);
 	}
 	
 	public String toString(DataType type) {
-		if(type==DataType.DATA) {
+		if(type==DataType.DATA||type==DataType.BYTE) {
 			try {
-				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				ByteArrayOutputStream bos = new ByteArrayOutputStream(getKeys().size());
 				GZIPOutputStream tos = new GZIPOutputStream(bos);
-				ObjectOutputStream ous = new ObjectOutputStream(tos);
+				BufferedOutputStream buf = new BufferedOutputStream(tos);
+				DataOutputStream ous = new DataOutputStream(buf);
 				for(String keyThread : loader.get().keySet())
 					for(String key : loader.get().threadSet(keyThread))
 					try {
 						Object o = get(key);
 						ous.writeUTF(key);
-						ous.writeUTF(o instanceof Comparable<?> ? o.toString() : Maker.objectToJson(o));
+						ous.writeUTF(o==null?"null":Maker.objectToJson(o));
 					}catch(Exception er) {}
 				ous.flush();
 				bos.flush();
+				buf.flush();
 				tos.finish();
-				return Base64.getEncoder().encodeToString(bos.toByteArray());
+				return type==DataType.DATA?bos.toString():Base64.getEncoder().encodeToString(bos.toByteArray());
 			}catch(Exception e) {}
 			return "";
 		}
@@ -382,22 +471,20 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 				addKeys(main, key);
 			return maker.add(main).toString();
 		}
-		StringBuilder d = new StringBuilder();
+		StringWriter d = new StringWriter();
 		if(header!=null)
 		for(String h : header)
 			d.append(h+System.lineSeparator());
-		
-		for(String key : getKeys())
+		for(String key : getKeys(false))
 			preparePath(key, d);
-			if(footer!=null)
+		if(footer!=null)
 		for(String h : footer)
 			d.append(h+System.lineSeparator());
 		return d.toString();
 	}
 	
 	private String addQuetos(Object s, String text) {
-		if(text==null)return null;
-		if(s==null)return null;
+		if(text==null || s==null)return null;
 		if(!(text.startsWith("'") && text.endsWith("'") && text.startsWith("\"") && text.endsWith("\""))) {
 			if(s instanceof String)
 				return "\""+text+"\"".replace(System.lineSeparator(), "");
@@ -407,11 +494,11 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	}
 	
 	private static String cs(int s, int doubleSpace) {
-		String i = "";
+		StringWriter i = new StringWriter();
 		String space = doubleSpace==1?"  ":" ";
 		for(int c = 0; c < s; ++c)
-			i+=space;
-		return i;
+			i.append(space);
+		return i.toString();
 	}
 
 	@Override

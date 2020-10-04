@@ -41,11 +41,15 @@ public class MultiMap<K, T, V> implements Data {
 	}
 	
 	public boolean containsThread(K key, T thread) {
-		return containsKey(key) && data.get(key).containsKey(thread);
+		if(containsKey(key))
+		return data.get(key).containsKey(thread);
+		return false;
 	}
 	
 	public boolean containsValue(K key, V value) {
-		return containsKey(key) && data.get(key).containsValue(value);
+		if(containsKey(key))
+		return data.get(key).containsValue(value);
+		return false;
 	}
 	
 	public V replace(K key, T thread, V value) {

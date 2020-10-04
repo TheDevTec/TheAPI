@@ -110,7 +110,7 @@ public class WorldBorderAPI {
 	}
 
 	public void setWarningMessage(String message) {
-		LoaderClass.data.getConfig().set("WorldBorder." + w.getName() + ".Message", message);
+		LoaderClass.data.set("WorldBorder." + w.getName() + ".Message", message);
 	}
 
 	public static enum WarningMessageType {
@@ -131,11 +131,11 @@ public class WorldBorderAPI {
 	}
 
 	public void cancelMoveOutside(boolean cancel) {
-		LoaderClass.data.getConfig().set("WorldBorder." + w.getName() + ".CancelMoveOutside", cancel);
+		LoaderClass.data.set("WorldBorder." + w.getName() + ".CancelMoveOutside", cancel);
 	}
 
 	public boolean isCancellledMoveOutside() {
-		return LoaderClass.data.getConfig().getBoolean("WorldBorder." + w.getName() + ".CancelMoveOutside");
+		return LoaderClass.data.getBoolean("WorldBorder." + w.getName() + ".CancelMoveOutside");
 	}
 
 	/**
@@ -149,19 +149,19 @@ public class WorldBorderAPI {
 	}
 
 	public void setWarningMessageType(WarningMessageType type) {
-		LoaderClass.data.getConfig().set("WorldBorder." + w.getName() + ".Type", type);
+		LoaderClass.data.set("WorldBorder." + w.getName() + ".Type", type);
 	}
 
 	public void loadChunksOutside(boolean set) {
-		LoaderClass.data.getConfig().set("WorldBorder." + w.getName() + ".Outside", set);
+		LoaderClass.data.set("WorldBorder." + w.getName() + ".Outside", set);
 	}
 
 	public boolean getLoadChunksOutside() {
-		return LoaderClass.data.getConfig().getBoolean("WorldBorder." + w.getName() + ".Outside");
+		return LoaderClass.data.getBoolean("WorldBorder." + w.getName() + ".Outside");
 	}
 
 	public String getWarningMessage() {
-		return LoaderClass.data.getConfig().getString("WorldBorder." + w.getName() + ".Message");
+		return LoaderClass.data.getString("WorldBorder." + w.getName() + ".Message");
 	}
 
 	public double getDamageBuffer() {
