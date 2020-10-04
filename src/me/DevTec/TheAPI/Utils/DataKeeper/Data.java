@@ -13,20 +13,20 @@ import java.util.Base64;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
 import me.DevTec.TheAPI.Utils.DataKeeper.Lists.TheArrayList;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap.Entry;
 import me.DevTec.TheAPI.Utils.DataKeeper.loader.DataLoader;
 import me.DevTec.TheAPI.Utils.DataKeeper.loader.EmptyLoader;
 import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker;
 import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker.MakerObject;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
-public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, Iterable<Entry<String, Object>> {
+public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, Iterable<java.util.Map.Entry<String, Object>> {
 	private static final long serialVersionUID = 1L;
 
 	public static class DataHolder {
@@ -422,26 +422,6 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 		}catch(Exception er) {}
 	}
 	
-	private void preparePath(String path, StringWriter b) {
-		Object o = get(path);
-		String space = cs(path.split("\\.").length-1,1);
-		String pathName = space+(path.split("\\.")[path.split("\\.").length-1])+":";
-		for(String s : getLines(path))
-			b.append(space+s+System.lineSeparator());
-		if(o==null)
-		b.append(pathName+System.lineSeparator());
-		else {
-			if(o instanceof List) {
-				b.append(pathName+System.lineSeparator());
-				for(Object a : (List<?>)o)
-				b.append(space+"- "+addQuetos(a, Maker.objectToJson(a))+System.lineSeparator());
-			}else
-			b.append(pathName+" "+addQuetos(o, Maker.objectToJson(o))+System.lineSeparator());
-		}
-		for(String key : getKeys(path, false))
-			preparePath(path+"."+key, b);
-	}
-	
 	public String toString(DataType type) {
 		if(type==DataType.DATA||type==DataType.BYTE) {
 			try {
@@ -474,22 +454,19 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 		StringWriter d = new StringWriter();
 		if(header!=null)
 		for(String h : header)
-			d.append(h+System.lineSeparator());
+			d.write(h+System.lineSeparator());
 		for(String key : getKeys(false))
 			preparePath(key, d);
 		if(footer!=null)
 		for(String h : footer)
-			d.append(h+System.lineSeparator());
+			d.write(h+System.lineSeparator());
 		return d.toString();
 	}
 	
 	private String addQuetos(Object s, String text) {
 		if(text==null || s==null)return null;
-		if(!(text.startsWith("'") && text.endsWith("'") && text.startsWith("\"") && text.endsWith("\""))) {
-			if(s instanceof String)
-				return "\""+text+"\"".replace(System.lineSeparator(), "");
-			return text.replace(System.lineSeparator(), "");
-		}
+		if(s instanceof String && !(text.startsWith("'") && text.endsWith("'") || text.startsWith("\"") && text.endsWith("\"")))
+			return "\""+text+"\"".replace(System.lineSeparator(), "");
 		return text.replace(System.lineSeparator(), "");
 	}
 	
@@ -497,23 +474,23 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 		StringWriter i = new StringWriter();
 		String space = doubleSpace==1?"  ":" ";
 		for(int c = 0; c < s; ++c)
-			i.append(space);
+			i.write(space);
 		return i.toString();
 	}
 
 	@Override
-	public Iterator<Entry<String, Object>> iterator() {
-		return new Iterator<Entry<String, Object>>() {
-			TheList<me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap.Entry<String, String, DataHolder>> list = new TheArrayList<>(loader.get().entrySet());
+	public Iterator<java.util.Map.Entry<String, Object>> iterator() {
+		return new Iterator<java.util.Map.Entry<String, Object>>() {
+			TheList<Entry<String, String, DataHolder>> list = new TheArrayList<>(loader.get().entrySet());
 			int i = 0;
 			@Override
 			public boolean hasNext() {
 				return i<list.size()-1;
 			}
 			@Override
-			public Entry<String, Object> next() {
-				me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap.Entry<String, String, DataHolder> a = list.get(i++);
-				return new Entry<String, Object>() {
+			public java.util.Map.Entry<String, Object> next() {
+				Entry<String, String, DataHolder> a = list.get(i++);
+				return new java.util.Map.Entry<String, Object>() {
 					Object o = a.getValue().getValue();
 					@Override
 					public String getKey() {
