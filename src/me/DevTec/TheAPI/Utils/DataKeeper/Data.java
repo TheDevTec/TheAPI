@@ -413,9 +413,9 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 			if(o instanceof List) {
 				b.write(pathName+System.lineSeparator());
 				for(Object a : (List<?>)o)
-				b.write(space+"- "+addQuetos(a, Maker.objectToJson(a))+System.lineSeparator());
+				b.write(space+"- "+addQuotes(a, Maker.objectToJson(a))+System.lineSeparator());
 			}else
-			b.write(pathName+" "+addQuetos(o, Maker.objectToJson(o))+System.lineSeparator());
+			b.write(pathName+" "+addQuotes(o, Maker.objectToJson(o))+System.lineSeparator());
 		}
 		for(String key : getKeys(path, false))
 			preparePath(path+"."+key, b);
@@ -463,7 +463,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 		return d.toString();
 	}
 	
-	private String addQuetos(Object s, String text) {
+	private String addQuotes(Object s, String text) {
 		if(text==null || s==null)return null;
 		if(s instanceof String && !(text.startsWith("'") && text.endsWith("'") || text.startsWith("\"") && text.endsWith("\"")))
 			return "\""+text+"\"".replace(System.lineSeparator(), "");
