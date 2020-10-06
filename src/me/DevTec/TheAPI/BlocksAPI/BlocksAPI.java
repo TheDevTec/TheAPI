@@ -10,6 +10,8 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.util.BlockIterator;
 import org.spigotmc.AsyncCatcher;
 
 import me.DevTec.TheAPI.TheAPI;
@@ -45,6 +47,18 @@ public class BlocksAPI {
 						if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius)
 							task.set(new Position(w, X + Xx, Y + Yy, Z + Zz));
 		}
+	}
+	
+	public static Block getLookingBlock(Player player, int range) {
+		BlockIterator iter = new BlockIterator(player, range);
+		Block lastBlock = iter.next();
+		while (iter.hasNext()) {
+			lastBlock = iter.next();
+			if (lastBlock.getType() == Material.AIR)
+				continue;
+			break;
+		}
+		return lastBlock;
 	}
 	
 	private static void set(Position from, Position to, Blocking task) {

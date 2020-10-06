@@ -65,7 +65,7 @@ public class TAC_User {
 			if(args.length==3)
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Get <key>", s);
 			else
-			TheAPI.msg(TheAPI.getUser(args[1]).get(args[3])+"", s);
+			TheAPI.msg(String.valueOf(TheAPI.getUser(args[1]).get(args[3])), s);
 			return;
 		}
 		
