@@ -1,6 +1,7 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.Abstract;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 public interface TheCollection<T> extends Iterable<T>, Data {
 	
@@ -47,4 +48,11 @@ public interface TheCollection<T> extends Iterable<T>, Data {
 	public void clear();
 
 	public T[] toArray();
+	
+	public default Collection<T> toCollection() {
+		Collection<T> collection = new HashSet<>();
+		for(T t : this)
+		collection.add(t);
+		return collection;
+	}
 }

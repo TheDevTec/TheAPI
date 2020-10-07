@@ -15,7 +15,6 @@ import me.DevTec.TheAPI.Utils.TheCoder;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
-	private static final long serialVersionUID = 1L;
 	private UUID s;
 	private String name;
 	private Data a;

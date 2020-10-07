@@ -20,6 +20,10 @@ import org.bukkit.plugin.Plugin;
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
+/*
+ * @see see Prefer Config.class (Data.class)
+ */
+@Deprecated
 public class ConfigAPI {
 	private String name, h, loc, end = "yml";
 	private FileConfiguration a;

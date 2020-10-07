@@ -6,33 +6,34 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
-import me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap;
 import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker;
 
 public class JsonLoader implements DataLoader {
 	private boolean l;
-	private MultiMap<String, String, DataHolder> data = new MultiMap<>();
+	private HashMap<String, DataHolder> data = new HashMap<>();
 	
 	@Override
-	public MultiMap<String, String, DataHolder> get() {
+	public HashMap<String, DataHolder> get() {
 		return data;
 	}
 	
 	@Override
 	public void load(String input) {
 		data.clear();
+		synchronized(this) {
 		try {
 			ArrayList<?> s = (ArrayList<?>)Maker.objectFromJson(input);
-		for(int i = 0; i < s.size(); ++i) {
-			HashMap<?,?> o = (HashMap<?,?>) s.get(i);
-		for(Entry<?, ?> key : o.entrySet()) {
-			Object read = key.getValue();
-			data.put(key.getKey().toString().split("\\.")[0], key.getKey().toString(), new DataHolder(read instanceof String?Maker.objectFromJson(read.toString()):read));
+		for(int ir = 0; ir < s.size(); ++ir) {
+			HashMap<?,?> o = (HashMap<?,?>) s.get(ir);
+		for(Entry<?, ?> keyed : o.entrySet()) {
+			String key = keyed.getKey().toString();
+			String object = keyed.getValue().toString();
+			data.put(key, new DataHolder(Maker.objectFromJson(object)));
 		}}
 		l=true;
 		}catch(Exception er) {
 			l=false;
-		}
+		}}
 	}
 
 	@Override
@@ -50,5 +51,10 @@ public class JsonLoader implements DataLoader {
 	@Override
 	public boolean loaded() {
 		return l;
+	}
+
+	@Override
+	public String getDataName() {
+		return "Data(JsonLoader:"+data.size()+")";
 	}
 }

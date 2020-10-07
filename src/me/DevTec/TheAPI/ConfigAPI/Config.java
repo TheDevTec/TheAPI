@@ -9,8 +9,8 @@ import java.util.Set;
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
 import me.DevTec.TheAPI.Utils.DataKeeper.DataType;
 
-public class Config {
-    private final Map<String, Object> defaults = new HashMap<>();
+public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
+	private final Map<String, Object> defaults = new HashMap<>();
     private final Data f;
     private DataType t;
 
@@ -27,9 +27,8 @@ public class Config {
 			} catch (Exception e) {
 			}
         }
-    	f=new Data(file, false);
+    	f=new Data(file, true);
     	t=type;
-    	reload();
     }
     
     public DataType getType() {
@@ -306,4 +305,10 @@ public class Config {
     public String toString() {
     	return "[Config:"+getName()+"/"+t.name()+"]";
     }
+
+
+	@Override
+	public String getDataName() {
+		return "Data(Config:"+getName()+"/"+t.name()+")";
+	}
 }

@@ -1,21 +1,21 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
-import me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap;
 import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker;
 
 public class YamlLoader implements DataLoader {
 	private static final Pattern pattern = Pattern.compile("(.*?)+:*");
-	private MultiMap<String, String, DataHolder> data = new MultiMap<>();
+	private HashMap<String, DataHolder> data = new HashMap<>();
 	private boolean l;
-	private List<String> header = new ArrayList<>(1), footer = new ArrayList<>(1);
+	private List<String> header = new ArrayList<>(0), footer = new ArrayList<>(0);
 	
 	@Override
-	public MultiMap<String, String, DataHolder> get() {
+	public HashMap<String, DataHolder> get() {
 		return data;
 	}
 	
@@ -25,8 +25,8 @@ public class YamlLoader implements DataLoader {
 		header.clear();
 		footer.clear();
 		try {
-		List<Object> items = new ArrayList<>(1);
-		List<String> lines = new ArrayList<>(1);
+		List<Object> items = new ArrayList<>(0);
+		List<String> lines = new ArrayList<>(0);
 		String key = "";
 		StringBuilder v = new StringBuilder();
 		int last = 0, f=0, c = 0;
@@ -98,6 +98,9 @@ public class YamlLoader implements DataLoader {
 						continue;
 					}
 					set(key, Maker.objectFromJson(text.replaceFirst((text.split(":")[0]+": "),"")), lines);
+				}else
+				if(lines.isEmpty()==false) {
+					set(key, null, lines);
 				}
 			}
 		}
@@ -143,12 +146,17 @@ public class YamlLoader implements DataLoader {
 	}
 	
 	private final void set(String key, Object o, List<String> lines) {
-		data.put(key.split("\\.")[0], key, new DataHolder(o, new ArrayList<>(lines)));
+		data.put(key, new DataHolder(o, new ArrayList<>(lines)));
 		lines.clear();
 	}
 
 	@Override
 	public boolean loaded() {
 		return l;
+	}
+
+	@Override
+	public String getDataName() {
+		return "Data(YamlLoader:"+data.size()+")";
 	}
 }

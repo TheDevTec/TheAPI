@@ -4,31 +4,24 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
+import java.io.FileWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 import me.DevTec.TheAPI.Utils.StringUtils;
-import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
-import me.DevTec.TheAPI.Utils.DataKeeper.Lists.TheArrayList;
-import me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap.Entry;
 import me.DevTec.TheAPI.Utils.DataKeeper.loader.DataLoader;
 import me.DevTec.TheAPI.Utils.DataKeeper.loader.EmptyLoader;
 import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker;
-import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker.MakerObject;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
-public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, Iterable<java.util.Map.Entry<String, Object>> {
-	private static final long serialVersionUID = 1L;
-
+public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public static class DataHolder {
 		private Object o;
 		private List<String> lines = new ArrayList<>(0);
@@ -54,7 +47,6 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	}
 	
 	private DataLoader loader = new EmptyLoader();
-	private List<String> header, footer;
 	private File a;
 	public Data() {
 	}
@@ -76,9 +68,8 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	
 	public boolean exists(String path) {
 		int a = 0;
-		if(loader.get().containsKey(path.split("\\.")[0]))
-			for(String ka : loader.get().keySet())
-				for(String k : loader.get().threadSet(ka))
+		if(loader.get().containsKey(path))
+			for(String k : loader.get().keySet())
 				if(k.startsWith(path)) {
 					a=1;
 					break;
@@ -99,18 +90,15 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	public void setFile(File f) {
 		a=f;
 	}
-
-	private DataHolder getData(String key) {
-		if(key==null)return null;
-		return loader.get().containsThread(key.split("\\.")[0], key)?loader.get().get(key.split("\\.")[0], key):null;
-	}
 	
 	private DataHolder getOrCreateData(String key) {
 		if(key==null)return null;
-		DataHolder h = getData(key);
+		DataHolder h = loader.get().getOrDefault(key, null);
 		if(h==null) {
 			h = new DataHolder(null);
-			loader.get().put(key.split("\\.")[0], key, h);
+			if(!aw.contains(key.split("\\.")[0]))
+			aw.add(key.split("\\.")[0]);
+			loader.get().put(key, h);
 		}
 		return h;
 	}
@@ -118,8 +106,8 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	public void set(String key, Object value) {
 		if(key==null)return;
 		if(value==null) {
-			if(loader.get().containsThread(key.split("\\.")[0], key))
-				loader.get().remove(key.split("\\.")[0], key);
+			aw.remove(key.split("\\.")[0]);
+			loader.get().remove(key);
 			return;
 		}
 		getOrCreateData(key).o=value;
@@ -127,8 +115,8 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	
 	public void remove(String key) {
 		if(key==null)return;
-		if(loader.get().containsThread(key.split("\\.")[0], key))
-			loader.get().remove(key.split("\\.")[0], key);
+		aw.remove(key.split("\\.")[0]);
+		loader.get().remove(key);
 	}
 
 	public List<String> getLines(String key) {
@@ -176,33 +164,43 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	}
 	
 	public void setHeader(List<String> lines) {
-		header=lines;
+		loader.getHeader().clear();
+		loader.getHeader().addAll(lines);
 	}
 	
 	public void setFooter(List<String> lines) {
-		footer=lines;
+		loader.getFooter().clear();
+		loader.getFooter().addAll(lines);
 	}
 	
 	public List<String> getHeader() {
-		return header;
+		return loader.getHeader();
 	}
 	
 	public List<String> getFooter() {
-		return footer;
+		return loader.getFooter();
 	}
 
 	public void reload(String input) {
+		aw.clear();
 		loader = DataLoader.findLoaderFor(input); //get & load
+		for(String k : loader.get().keySet())
+			if(!aw.contains(k.split("\\.")[0]))
+			aw.add(k.split("\\.")[0]);
 	}
 	
 	public void reload(File a) {
+		aw.clear();
 		loader = DataLoader.findLoaderFor(a); //get & load
+		for(String k : loader.get().keySet())
+			if(!aw.contains(k.split("\\.")[0]))
+			aw.add(k.split("\\.")[0]);
 	}
 		
 	@SuppressWarnings("unchecked")
 	public <E> E getVariable(String key) {
 		try {
-			return (E)(getData(key).o);
+			return (E)(loader.get().get(key).o);
 		}catch(Exception e) {
 			return null;
 		}
@@ -210,7 +208,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	
 	public Object get(String key) {
 		try {
-			return getData(key).o;
+			return loader.get().get(key).o;
 		}catch(Exception e) {
 			return null;
 		}
@@ -285,20 +283,19 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	}
 	
 	public void save(DataType type) {
-		Validator.validate(a==null, "File is null");
+		synchronized (loader) {
 		try {
-			Writer w = new OutputStreamWriter(new FileOutputStream(a), "UTF_8");
-			if(type==DataType.DATA||type==DataType.BYTE) {
+			FileWriter w = new FileWriter(a);
+		    if(type==DataType.DATA||type==DataType.BYTE) {
 				try {
-					ByteArrayOutputStream bos = new ByteArrayOutputStream(getKeys().size());
+					ByteArrayOutputStream bos = new ByteArrayOutputStream(loader.get().size());
 					GZIPOutputStream tos = new GZIPOutputStream(bos);
 					BufferedOutputStream buf = new BufferedOutputStream(tos);
 					DataOutputStream ous = new DataOutputStream(buf);
-					for(String keyThread : loader.get().keySet())
-						for(String key : loader.get().threadSet(keyThread))
+					for(Entry<String, DataHolder> key: loader.get().entrySet())
 						try {
-							Object o = get(key);
-							ous.writeUTF(key);
+							Object o = key.getValue();
+							ous.writeUTF(key.toString());
 							ous.writeUTF(o==null?"null":Maker.objectToJson(o));
 						}catch(Exception er) {}
 					ous.flush();
@@ -306,47 +303,45 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 					buf.flush();
 					tos.finish();
 					w.write(type==DataType.DATA?bos.toString():Base64.getEncoder().encodeToString(bos.toByteArray()));
-				}catch(Exception e) {}
-				w.write("");
+					w.close();
+				}catch(Exception e) {
+					w.write("");
+					w.close();
+				}
+				return;
 			}
 			if(type==DataType.JSON) {
 				Maker maker = new Maker();
-				MakerObject main = maker.create();
-				for(String key : getKeys())
-					addKeys(main, key);
-				w.write(maker.add(main).toString());
+				for(String key : aw)
+					addKeys(maker, key);
+				w.write(maker.toString());
+				w.close();
+				return;
 			}
-			if(header!=null)
-			for(String h : header)
+			for(String h : loader.getHeader())
 				w.write(h+System.lineSeparator());
-			for(String key : getKeys(false))
-				preparePath(key, w);
-			if(footer!=null)
-			for(String h : footer)
+			for(String key : aw)
+				preparePath(key, key+":",0, w);
+			for(String h : loader.getFooter())
 				w.write(h+System.lineSeparator());
-			w.close();
-		}catch(Exception er) {}
-	}
+		    w.close();
+		}catch(Exception er) {
+			Validator.send("Saving Data to File", er);
+		}
+	}}
 	
 	public void save() {
 		save(DataType.YAML);
 	}
 
 	public Set<String> getKeys() {
-		return getKeys(false);
+		return aw;
 	}
 
+	private HashSet<String> aw = new HashSet<>();
 	public Set<String> getKeys(boolean subkeys) {
-		HashSet<String> a = new HashSet<>();
-		for(String ka : loader.get().keySet())
-			for(String d : loader.get().threadSet(ka))
-				if(subkeys) {
-					if(!a.contains(d)) 
-					a.add(d);
-				}else
-					if(!a.contains(d.contains(".")?d.split("\\.")[0]:d))
-					a.add(d.contains(".")?d.split("\\.")[0]:d);
-		return a;
+		if(subkeys)return loader.get().keySet();
+		return aw;
 	}
 
 	public Set<String> getKeys(String key) {
@@ -355,8 +350,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	
 	public boolean isKey(String key) {
 		boolean is = false;
-		for(String ka : loader.get().keySet())
-			for(String k : loader.get().threadSet(ka)) {
+		for(String k : loader.get().keySet()) {
 			if(k.startsWith(key)) {
 				String r = k.replaceFirst(key, "");
 				if(r.startsWith(".")||r.trim().isEmpty()) {
@@ -369,71 +363,69 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 	}
 	
 	public Set<String> getKeys(String key, boolean subkeys) {
-		String keyw = key.endsWith(".")?key.substring(0, key.length()-1):key;
+		synchronized (loader) {
 		HashSet<String> a = new HashSet<>();
-		if(isKey(keyw))
-		for(String ka : loader.get().keySet())
-			for(String d : loader.get().threadSet(ka))
-			if(d.startsWith(keyw)) {
-				String c = d.replaceFirst(keyw, "");
+		for(String d : loader.get().keySet())
+			if(d.startsWith(key)) {
+				String c = d.replaceFirst(key, "").replaceFirst("\\.", "");
 				if(c.trim().isEmpty())continue;
-				c=c.substring(1);
-				if(subkeys) {
-					if(!a.contains(c))
-					a.add(c);
-				}else
-					if(!a.contains(c.split("\\.")[0]))
-				a.add(c.split("\\.")[0]);
+				c = subkeys ? c : c.split("\\.")[0];
+				if(!a.contains(c))a.add(c);
 			}
 		return a;
+		}
 	}
 
 	public String toString() {
 		return toString(DataType.DATA);
 	}
 	
-	private void addKeys(MakerObject main, String key) {
+	private void addKeys(Maker main, String key) {
 		Object o = get(key);
 		if(o!=null)
-			main.put(key, Maker.objectToJson(o));
+			main.add(main.create().put(key, Maker.objectToJson(o)));
 		for(String keyer : getKeys(key))
 			addKeys(main, key+"."+keyer);
 	}
 	
-	private void preparePath(String path, Writer b) {
+	private void preparePath(String path, String pathName, int spaces, Writer b) {
+		synchronized (loader) {
 		try {
-		Object o = get(path);
-		String space = cs(path.split("\\.").length-1,1);
-		String pathName = space+(path.split("\\.")[path.split("\\.").length-1])+":";
-		for(String s : getLines(path))
+		Object o = getOrCreateData(path).o;
+		String space = cs(spaces,1);
+		pathName=space+pathName;
+		for(String s : getOrCreateData(path).lines)
 			b.write(space+s+System.lineSeparator());
-		if(o==null)
-		b.write(pathName+System.lineSeparator());
-		else {
-			if(o instanceof List) {
-				b.write(pathName+System.lineSeparator());
-				for(Object a : (List<?>)o)
-				b.write(space+"- "+addQuotes(a, Maker.objectToJson(a))+System.lineSeparator());
-			}else
-			b.write(pathName+" "+addQuotes(o, Maker.objectToJson(o))+System.lineSeparator());
+		if(getOrCreateData(path).lines.isEmpty())
+			b.write(System.lineSeparator()); //just space between keys in config
+		if(o==null) {
+			b.write(pathName+System.lineSeparator());
+		}else {
+		if(o instanceof List) {
+			b.write(pathName+System.lineSeparator());
+			String splitted = space+"- ";
+			for(Object a : (List<?>)o)
+				b.write(splitted+addQuotes(a instanceof String, Maker.objectToJson(a))+System.lineSeparator());
+		}else
+			b.write(pathName+" "+addQuotes(o instanceof String, Maker.objectToJson(o))+System.lineSeparator());
 		}
 		for(String key : getKeys(path, false))
-			preparePath(path+"."+key, b);
+			preparePath(path+"."+key, key+":", spaces+1, b);
 		}catch(Exception er) {}
-	}
+	}}
 	
 	public String toString(DataType type) {
+		synchronized (loader) {
 		if(type==DataType.DATA||type==DataType.BYTE) {
 			try {
-				ByteArrayOutputStream bos = new ByteArrayOutputStream(getKeys().size());
+				ByteArrayOutputStream bos = new ByteArrayOutputStream(loader.get().size());
 				GZIPOutputStream tos = new GZIPOutputStream(bos);
 				BufferedOutputStream buf = new BufferedOutputStream(tos);
 				DataOutputStream ous = new DataOutputStream(buf);
-				for(String keyThread : loader.get().keySet())
-					for(String key : loader.get().threadSet(keyThread))
+				for(Entry<String, DataHolder> key: loader.get().entrySet())
 					try {
-						Object o = get(key);
-						ous.writeUTF(key);
+						Object o = key.getValue();
+						ous.writeUTF(key.toString());
 						ous.writeUTF(o==null?"null":Maker.objectToJson(o));
 					}catch(Exception er) {}
 				ous.flush();
@@ -445,27 +437,24 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 			return "";
 		}
 		if(type==DataType.JSON) {
-			Maker maker = new Maker();
-			MakerObject main = maker.create();
-			for(String key : getKeys())
+			Maker main = new Maker();
+			for(String key : aw)
 				addKeys(main, key);
-			return maker.add(main).toString();
+			return main.toString();
 		}
 		StringWriter d = new StringWriter();
-		if(header!=null)
-		for(String h : header)
+		for(String h : loader.getHeader())
 			d.write(h+System.lineSeparator());
-		for(String key : getKeys(false))
-			preparePath(key, d);
-		if(footer!=null)
-		for(String h : footer)
+		for(String key : aw)
+			preparePath(key, key+":",0, d);
+		for(String h : loader.getFooter())
 			d.write(h+System.lineSeparator());
 		return d.toString();
-	}
+	}}
 	
-	private String addQuotes(Object s, String text) {
-		if(text==null || s==null)return null;
-		if(s instanceof String && !(text.startsWith("'") && text.endsWith("'") || text.startsWith("\"") && text.endsWith("\"")))
+	private String addQuotes(boolean s, String text) {
+		if(text==null)return null;
+		if(s && !(text.startsWith("'") && text.endsWith("'") || text.startsWith("\"") && text.endsWith("\"")))
 			return "\""+text+"\"".replace(System.lineSeparator(), "");
 		return text.replace(System.lineSeparator(), "");
 	}
@@ -476,39 +465,6 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data, It
 		for(int c = 0; c < s; ++c)
 			i.write(space);
 		return i.toString();
-	}
-
-	@Override
-	public Iterator<java.util.Map.Entry<String, Object>> iterator() {
-		return new Iterator<java.util.Map.Entry<String, Object>>() {
-			TheList<Entry<String, String, DataHolder>> list = new TheArrayList<>(loader.get().entrySet());
-			int i = 0;
-			@Override
-			public boolean hasNext() {
-				return i<list.size()-1;
-			}
-			@Override
-			public java.util.Map.Entry<String, Object> next() {
-				Entry<String, String, DataHolder> a = list.get(i++);
-				return new java.util.Map.Entry<String, Object>() {
-					Object o = a.getValue().getValue();
-					@Override
-					public String getKey() {
-						return a.getThread();
-					}
-					@Override
-					public Object getValue() {
-						return o;
-					}
-					@Override
-					public Object setValue(Object value) {
-						Object old = o;
-						o=value;
-						return old;
-					}
-				};
-			}
-		};
 	}
 
 	@Override

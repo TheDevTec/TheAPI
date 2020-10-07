@@ -15,11 +15,14 @@ public class MemoryAPI {
 		double mem = getRawUsedMemory(false);
 		new Tasker() {
 			public void run() {
-				System.gc();
-		}}.runTask();
 		for (World w : Bukkit.getWorlds())
 			for (Chunk c : w.getLoadedChunks())
 				c.unload(true);
+		new Tasker() {
+			public void run() {
+				System.gc();
+		}}.runTask();
+			}}.runTaskSync();
 		return String.format("%2.02f", mem - getRawUsedMemory(false)).replaceFirst("\\.00", "");
 	}
 

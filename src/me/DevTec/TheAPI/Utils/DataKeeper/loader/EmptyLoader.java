@@ -1,17 +1,17 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
-import me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap;
 
 public class EmptyLoader implements DataLoader {
-	private MultiMap<String, String, DataHolder> data = new MultiMap<>();
+	private HashMap<String, DataHolder> data = new HashMap<>();
 	private List<String> header = new ArrayList<>(1), footer = new ArrayList<>(1);
 	
 	@Override
-	public MultiMap<String, String, DataHolder> get() {
+	public HashMap<String, DataHolder> get() {
 		return data;
 	}
 	
@@ -35,5 +35,10 @@ public class EmptyLoader implements DataLoader {
 	@Override
 	public boolean loaded() {
 		return true;
+	}
+
+	@Override
+	public String getDataName() {
+		return "Data(EmptyLoader:"+data.size()+")";
 	}
 }

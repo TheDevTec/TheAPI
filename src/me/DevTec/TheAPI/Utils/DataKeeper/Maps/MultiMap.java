@@ -9,7 +9,6 @@ import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheCollection;
 import me.DevTec.TheAPI.Utils.DataKeeper.Lists.TheArrayList;
 
 public class MultiMap<K, T, V> implements Data {
-	private static final long serialVersionUID = 1L;
 	private Map<K, Map<T, V>> data = new HashMap<>();
 
 	public MultiMap() {
@@ -71,8 +70,17 @@ public class MultiMap<K, T, V> implements Data {
 	}
 	
 	public V get(K key, T thread) {
-		Map<T, V> t = data.getOrDefault(key, null);
-		return t!=null?t.getOrDefault(thread, null):null;
+		try {
+		Map<T, V> t = data.get(key);
+		return t.get(thread);
+		}catch(Exception er) {
+			return null;
+		}
+	}
+	
+	public V getOrDefault(K key, T thread, V def) {
+		V get = get(key, thread);
+		return get==null?def:get;
 	}
 	
 	public void putAll(MultiMap<K, T, V> map) {
