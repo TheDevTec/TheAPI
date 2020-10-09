@@ -14,7 +14,8 @@ public class TheMaterial implements Cloneable {
 
 	public TheMaterial(Object IBlockDataOrBlock) {
 		ItemStack stack = (ItemStack)Ref.invoke(Ref.invoke(null, Ref.method(Ref.craft("util.CraftMagicNumbers"),"getMaterial", Ref.nms("IBlockData")), IBlockDataOrBlock), "toItemStack");
-		if(stack==null)stack=(ItemStack)new ItemStack((Material)Ref.invokeNulled(Material.class, "getMaterial", (int)Ref.invoke(null, Ref.method(Ref.craft("util.CraftMagicNumbers"),"getId", Ref.nms("Block")), IBlockDataOrBlock)));
+		if(stack==null)stack=(ItemStack)Ref.invokeNulled(Ref.method(Ref.craft("inventory.CraftItemStack"), "asBukkitCopy", Ref.nms("ItemStack")),Ref.newInstance(Ref.constructor(Ref.nms("ItemStack"), Ref.nms("Block")), Ref.invoke(IBlockDataOrBlock, "getBlock")));
+		if(stack==null)stack=new ItemStack((Material)Ref.invokeNulled(Material.class, "getMaterial", (int)Ref.invokeNulled(Ref.method(Ref.craft("util.CraftMagicNumbers"),"getId", Ref.nms("Block")), IBlockDataOrBlock)));
 		m = stack.getType();
 		this.data = stack.getData().getData();
 		this.amount=stack.getAmount();

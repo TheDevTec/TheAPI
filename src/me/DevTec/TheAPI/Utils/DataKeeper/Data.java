@@ -68,12 +68,11 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	
 	public boolean exists(String path) {
 		int a = 0;
-		if(loader.get().containsKey(path))
-			for(String k : loader.get().keySet())
+			for(String k : loader.get().keySet()) {
 				if(k.startsWith(path)) {
 					a=1;
 					break;
-				}
+				}}
 		return a==1;
 	}
 

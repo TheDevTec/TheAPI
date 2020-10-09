@@ -18,7 +18,7 @@ public class Ref {
 	private static Class<?> craft = craft("entity.CraftPlayer"), world = craft("CraftWorld");
 	private static Method ichatcon, send = Ref.method(nms("PlayerConnection"), "sendPacket", Ref.nms("Packet"));
 	static {
-		ichatcon = method(getDeclaredClasses(nms("IChatBaseComponent"))[0],"a", String.class);
+		ichatcon = method(nms("IChatBaseComponent$ChatSerializer"),"a", String.class);
 		if(ichatcon==null)
 			ichatcon = method(nms("ChatSerializer"), "a", String.class);
 	}

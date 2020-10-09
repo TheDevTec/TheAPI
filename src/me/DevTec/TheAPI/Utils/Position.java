@@ -20,6 +20,7 @@ import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class Position implements Cloneable {
+	
 	public Position() {}
 
 	public Position(World world) {
@@ -90,10 +91,9 @@ public class Position implements Cloneable {
 		return getType().getType();
 	}
 
-	@SuppressWarnings("deprecation")
 	public TheMaterial getType() {
-		Block b = getBlock();
-		return new TheMaterial(b.getType(), b.getData());
+		Object c = getNMSChunk();
+		return new TheMaterial(Ref.invoke(c, Ref.method(Ref.nms("Chunk"), "getType", Ref.nms("BlockPosition")), Ref.blockPos(x, y, z)));
 	}
 
 	public Position subtract(double x, double y, double z) {
@@ -195,21 +195,19 @@ public class Position implements Cloneable {
 		return d*d;
 	}
 
-	public synchronized Chunk getChunk() {
-		return (Chunk)Ref.cast(Ref.craft("CraftChunk"), Ref.get(getNMSChunk(), "bukkitChunk"));
+	public Chunk getChunk() {
+		return (Chunk)Ref.get(getNMSChunk(), "bukkitChunk");
 	}
-	
+
 	private static int wf = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]);
+	
 	public Object getNMSChunk() {
-		Object w = Ref.world( getWorld());
-		Object old = !(wf>=9)?Ref.invoke(Ref.get(w, "chunkProviderServer"),
-				Ref.method(Ref.nms("ChunkProviderServer"),"getOrCreateChunk",int.class,int.class), getBlockX()>>4, getBlockZ()>>4):null;
-		if(old==null) {
-			old=(wf>=14?
-	Ref.invoke(Ref.cast(Ref.nms("ChunkProviderServer"), Ref.invoke(w, "getChunkProvider")), Ref.method(Ref.nms("ChunkProviderServer"), "getChunkAt", int.class, int.class, boolean.class), getBlockX()>>4, getBlockZ()>>4, true)
-	:Ref.invoke(Ref.cast(Ref.nms("ChunkProviderServer"), Ref.invoke(w, "getChunkProvider")),Ref.method(Ref.nms("ChunkProviderServer"), "originalGetOrLoadChunkAt", int.class, int.class), getBlockX()>>4, getBlockZ()>>4));
+		try {
+			return Ref.invoke(Ref.get(Ref.cast(Ref.nms("ChunkProviderServer"), Ref.invoke(Ref.world(getWorld()), "getChunkProvider")), "chunkGenerator"),
+					Ref.method(Ref.nms("ChunkGenerator"), "getOrCreateChunk", int.class, int.class), getBlockX()>>4, getBlockZ()>>4);
+		}catch(Exception er){
+			return Ref.handle(Ref.cast(Ref.craft("CraftChunk"), getWorld().getChunkAt(getBlockX()>>4, getBlockZ()>>4)));
 		}
-		return old;
 	}
 	
 	private Object o;

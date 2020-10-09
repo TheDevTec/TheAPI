@@ -9,7 +9,7 @@ import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
 import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker;
 
 public class YamlLoader implements DataLoader {
-	private static final Pattern pattern = Pattern.compile("(.*?)+:*");
+	private static final Pattern pattern = Pattern.compile("(.*?):");
 	private HashMap<String, DataHolder> data = new HashMap<>();
 	private boolean l;
 	private List<String> header = new ArrayList<>(0), footer = new ArrayList<>(0);
@@ -60,8 +60,8 @@ public class YamlLoader implements DataLoader {
 				}
 				c=0;
 			}
-			if(c==2 || text.replaceFirst(cs(c(text),0), "").startsWith("- ") && !key.equals("")) {
-				items.add(Maker.objectFromJson(c!=2?text.replaceFirst(text.split("- ")[0]+"- ", ""):text.replaceFirst(cs(c(text),0),"")));
+			if(c==2 || text.substring(c(text)).startsWith("- ") && !key.equals("")) {
+				items.add(Maker.objectFromJson(c!=2?text.replaceFirst(text.split("- ")[0]+"- ", ""):text.substring(c(text))));
 			}else {
 				if(!items.isEmpty()) {
 					set(key, items, lines);
@@ -146,7 +146,7 @@ public class YamlLoader implements DataLoader {
 	}
 	
 	private final void set(String key, Object o, List<String> lines) {
-		data.put(key, new DataHolder(o, new ArrayList<>(lines)));
+		data.put(key.replace("'", "").replace("\"", ""), new DataHolder(o, new ArrayList<>(lines)));
 		lines.clear();
 	}
 

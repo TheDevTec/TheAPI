@@ -97,7 +97,7 @@ public class LoaderClass extends JavaPlugin {
 				}
 			}
 		}).start();
-		if(TheAPI.isNewerThan(7))
+		if(TheAPI.isNewerThan(7) || Ref.getClass("net.minecraft.util.io.netty.channel.ChannelInitializer")==null)
 		handler = new PacketHandler_New();
 		else
 			handler = new PacketHandler_Old();

@@ -224,6 +224,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 			try {
 				msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_IN);
 			} catch (Exception e) {
+				msg = null;
 			}
 
 			if (msg != null)
@@ -246,6 +247,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 			try {
 				msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_OUT);
 			} catch (Exception e) {
+				msg = null;
 			}
 
 			if (msg != null)

@@ -214,21 +214,25 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 				if(channelLookup.containsValue(channel)) {
 					for(String name : channelLookup.keySet()) {
 						if(channelLookup.get(name).equals(channel)) {
-					if(TheAPI.getPlayer(name)!=null && TheAPI.getPlayer(name).getName().equals(name))
-						player=TheAPI.getPlayer(name);
-						}
-						break;
+							if(TheAPI.getPlayerOrNull(name)!=null)
+								player=TheAPI.getPlayerOrNull(name);
+							break;
+							}
 					}
 				}
 			}
-
+			synchronized(msg) {
 			try {
 				msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_IN);
 			} catch (Exception e) {
+				try {
+					msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_IN);
+				} catch (Exception er) {
+				}
 			}
-
 			if (msg != null)
 				super.channelRead(ctx, msg);
+			}
 		}
 
 		@Override
@@ -237,20 +241,25 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 				if(channelLookup.containsValue(ctx.channel())) {
 					for(String name : channelLookup.keySet()) {
 						if(channelLookup.get(name).equals(ctx.channel())) {
-					if(TheAPI.getPlayer(name)!=null && TheAPI.getPlayer(name).getName().equals(name))
-						player=TheAPI.getPlayer(name);
-						}
+					if(TheAPI.getPlayerOrNull(name)!=null)
+						player=TheAPI.getPlayerOrNull(name);
 						break;
+						}
 					}
 				}
 			}
+			synchronized(msg) {
 			try {
 				msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_OUT);
 			} catch (Exception e) {
+				try {
+					msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_OUT);
+				} catch (Exception er) {
+				}
 			}
-
 			if (msg != null)
 				super.write(ctx, msg, promise);
+			}
 		}
 	}
 }

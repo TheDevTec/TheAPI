@@ -24,7 +24,9 @@ import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.DataKeeper.TheArrays;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
 
-public class StringUtils {
+public class StringUtils {  
+	private static final Pattern INTEGER = Pattern.compile("[-+]?(?:0|[1-9][0-9]*)?i", 2)
+			, DOUBLE = Pattern.compile("[-+]?(?:[0-9]+[.]?|[0-9]*[.][0-9]+)(?:e[-+]?[0-9]+)?d", 2);
 	private static Random random = new Random();
 	
 	public static interface ColormaticFactory {
@@ -511,12 +513,7 @@ public class StringUtils {
 	 * @return boolean
 	 */
 	public static boolean isDouble(String fromString) {
-		try {
-			Double.parseDouble(fromString);
-		} catch (NumberFormatException e) {
-			return false;
-		}
-		return true;
+		return DOUBLE.matcher(fromString).matches();
 	}
 
 	/**
@@ -565,12 +562,7 @@ public class StringUtils {
 	 * @return boolean
 	 */
 	public static boolean isInt(String fromString) {
-		try {
-			Integer.parseInt(fromString);
-		} catch (NumberFormatException e) {
-			return false;
-		}
-		return true;
+		return INTEGER.matcher(fromString).matches();
 	}
 
 	/**

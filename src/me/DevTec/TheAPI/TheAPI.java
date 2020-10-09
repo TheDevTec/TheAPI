@@ -70,14 +70,7 @@ public class TheAPI {
 	private static Field commandMapField = Ref.field(Bukkit.getPluginManager().getClass(), "commandMap");
 	private static Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
 	private static Random random = new Random();
-	private static int ver;
-	static {
-		try {
-			ver=StringUtils.getInt(getServerVersion().split("_")[1]);
-		}catch(Exception e) {
-			ver=7;
-		}
-	}
+	private static int ver = StringUtils.getInt(getServerVersion().split("_")[1]);
 	
 	public static void register(Listener listener) {
 		HandlerList.register(listener);
