@@ -1,6 +1,5 @@
 package me.DevTec.TheAPI.Utils.TheAPIUtils;
 
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +43,6 @@ import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler_New;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler_Old;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
-import me.DevTec.TheAPI.Utils.Reflections.Reflections;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Command.TheAPICommand;
 import me.DevTec.TheAPI.WorldsAPI.WorldsAPI;
 import me.DevTec.TheVault.Bank;
@@ -73,13 +71,13 @@ public class LoaderClass extends JavaPlugin {
 	private boolean oa = true;
 	public Object air = Ref.invoke(Ref.getNulled(Ref.field(Ref.nms("Block"), "AIR")), "getBlockData");
 
-	private static Method move = Ref.method(BossBar.class, "move");
 	public static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class,"theUnsafe"));
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onLoad() {
 		plugin = this;
+		new TheAPI();
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
@@ -89,7 +87,7 @@ public class LoaderClass extends JavaPlugin {
 			public void run() {
 				while(oa){
 			        for(BossBar s : bars)
-			        	Reflections.invoke(s, move);
+			        	s.move();
 			        try {
 			            Thread.sleep(1000);
 			        } catch (InterruptedException e) {

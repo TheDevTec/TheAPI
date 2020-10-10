@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
@@ -105,7 +106,8 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public void set(String key, Object value) {
 		if(key==null)return;
 		if(value==null) {
-			aw.remove(key.split("\\.")[0]);
+			if(key.split("\\.").length<=1)
+				aw.remove(key.split("\\.")[0]);
 			loader.get().remove(key);
 			return;
 		}
@@ -114,8 +116,11 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	
 	public void remove(String key) {
 		if(key==null)return;
-		aw.remove(key.split("\\.")[0]);
+		if(key.split("\\.").length<=1)
+			aw.remove(key.split("\\.")[0]);
 		loader.get().remove(key);
+		for(String keys : getKeys(key))
+			loader.get().remove(key+"."+keys);
 	}
 
 	public List<String> getLines(String key) {
@@ -219,7 +224,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	
 	public int getInt(String key) {
 		try {
-		return getVariable(key);
+		return (int)getVariable(key);
 		}catch(Exception notNumber) {
 			return StringUtils.getInt(getString(key));
 		}
@@ -227,7 +232,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	
 	public double getDouble(String key) {
 		try {
-		return getVariable(key);
+		return (double)getVariable(key);
 		}catch(Exception notNumber) {
 			return StringUtils.getDouble(getString(key));
 		}
@@ -235,7 +240,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	
 	public long getLong(String key) {
 		try {
-		return getVariable(key);
+		return (long)getVariable(key);
 		}catch(Exception notNumber) {
 			return StringUtils.getLong(getString(key));
 		}
@@ -243,7 +248,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	
 	public float getFloat(String key) {
 		try {
-		return getVariable(key);
+		return (float)getVariable(key);
 		}catch(Exception notNumber) {
 			return StringUtils.getFloat(getString(key));
 		}
@@ -251,7 +256,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	
 	public byte getByte(String key) {
 		try {
-		return getVariable(key);
+		return (byte)getVariable(key);
 		}catch(Exception notNumber) {
 			return StringUtils.getByte(getString(key));
 		}
@@ -259,7 +264,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	public boolean getBoolean(String key) {
 		try {
-		return getVariable(key);
+		return (boolean)getVariable(key);
 		}catch(Exception notNumber) {
 			return StringUtils.getBoolean(getString(key));
 		}
@@ -267,7 +272,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	
 	public short getShort(String key) {
 		try {
-		return getVariable(key);
+		return (short)getVariable(key);
 		}catch(Exception notNumber) {
 			return StringUtils.getShort(getString(key));
 		}
@@ -334,13 +339,13 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	}
 
 	public Set<String> getKeys() {
-		return aw;
+		return new HashSet<>(aw);
 	}
 
-	private HashSet<String> aw = new HashSet<>();
+	private List<String> aw = new ArrayList<>();
 	public Set<String> getKeys(boolean subkeys) {
 		if(subkeys)return loader.get().keySet();
-		return aw;
+		return new HashSet<>(aw);
 	}
 
 	public Set<String> getKeys(String key) {
@@ -362,7 +367,6 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	}
 	
 	public Set<String> getKeys(String key, boolean subkeys) {
-		synchronized (loader) {
 		HashSet<String> a = new HashSet<>();
 		for(String d : loader.get().keySet())
 			if(d.startsWith(key)) {
@@ -372,7 +376,6 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 				if(!a.contains(c))a.add(c);
 			}
 		return a;
-		}
 	}
 
 	public String toString() {
@@ -395,18 +398,22 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		pathName=space+pathName;
 		for(String s : getOrCreateData(path).lines)
 			b.write(space+s+System.lineSeparator());
-		if(getOrCreateData(path).lines.isEmpty())
-			b.write(System.lineSeparator()); //just space between keys in config
 		if(o==null) {
 			b.write(pathName+System.lineSeparator());
 		}else {
-		if(o instanceof List) {
-			b.write(pathName+System.lineSeparator());
-			String splitted = space+"- ";
-			for(Object a : (List<?>)o)
-				b.write(splitted+addQuotes(a instanceof String, Maker.objectToJson(a))+System.lineSeparator());
-		}else
-			b.write(pathName+" "+addQuotes(o instanceof String, Maker.objectToJson(o))+System.lineSeparator());
+			if(o instanceof Map<?,?>) {
+				b.write(pathName+System.lineSeparator());
+				String splitted = space+"- ";
+				for(Entry<?,?> a : ((Map<?,?>)o).entrySet())
+					b.write(splitted+addQuotes(true, Maker.objectToJson(a.getKey())+"="+Maker.objectToJson(a.getValue()))+System.lineSeparator());
+			}
+			if(o instanceof List || o instanceof Object[]) {
+				b.write(pathName+System.lineSeparator());
+				String splitted = space+"- ";
+				for(Object a : (List<?>)o)
+					b.write(splitted+addQuotes(a instanceof String, Maker.objectToJson(a))+System.lineSeparator());
+			}else
+				b.write(pathName+" "+addQuotes(o instanceof String, Maker.objectToJson(o))+System.lineSeparator());
 		}
 		for(String key : getKeys(path, false))
 			preparePath(path+"."+key, key+":", spaces+1, b);

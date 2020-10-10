@@ -143,7 +143,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 		injectChannelInternal(player,getChannel(player));
 	}
 
-	public PacketInterceptor injectChannelInternal(Player a,Channel channel) {
+	private PacketInterceptor injectChannelInternal(Player a,Channel channel) {
 		try {
 			PacketInterceptor interceptor = (PacketInterceptor) channel.pipeline().get("InjectorTheAPI");
 			if (interceptor == null) {
@@ -152,14 +152,21 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 			}
 			return interceptor;
 		} catch (Exception e) {
+			try {
 			return (PacketInterceptor) channel.pipeline().get("InjectorTheAPI");
+			}catch(Exception err) {
+				PacketInterceptor interceptor = new PacketInterceptor();
+				channel.pipeline().addBefore("packet_handler", "InjectorTheAPI", interceptor);
+				return interceptor;
+			}
 		}
 	}
 
 	public Channel getChannel(Player player) {
 		Channel channel = channelLookup.getOrDefault(player.getName(), null);
 		if (channel == null) {
-			channelLookup.put(player.getName(), channel = (Channel)new NMSPlayer(player).getPlayerConnection().getNetworkManager().getChannel());
+			channel = (Channel)new NMSPlayer(player).getPlayerConnection().getNetworkManager().getChannel();
+			channelLookup.put(player.getName(), channel);
 		}
 		return channel;
 	}
@@ -169,6 +176,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 	}
 
 	public void uninjectChannel(final Channel channel) {
+		if(channel==null)return;
 		channel.eventLoop().execute(new Runnable() {
 			@Override
 			public void run() {

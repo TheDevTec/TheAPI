@@ -226,7 +226,7 @@ public class PunishmentAPI {
 
 
 	public static void deljail(String name) {
-		LoaderClass.data.set("jails." + name, null);
+		LoaderClass.data.remove("jails." + name);
 		LoaderClass.data.save();
 	}
 
@@ -245,8 +245,8 @@ public class PunishmentAPI {
 				unban(s);
 			return;
 		}
-		LoaderClass.data.set("ban." + playerOrIP, null);
-		LoaderClass.data.set("tempban." + playerOrIP, null);
+		LoaderClass.data.remove("ban." + playerOrIP);
+		LoaderClass.data.remove("tempban." + playerOrIP);
 		LoaderClass.data.save();
 	}
 
@@ -254,8 +254,8 @@ public class PunishmentAPI {
 	public static void unbanIP(String playerOrIP) {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
-		LoaderClass.data.set("banip." + playerOrIP.replace(".", "_"), null);
-		LoaderClass.data.set("tempbanip." + playerOrIP.replace(".", "_"), null);
+		LoaderClass.data.remove("banip." + playerOrIP.replace(".", "_"));
+		LoaderClass.data.remove("tempbanip." + playerOrIP.replace(".", "_"));
 		LoaderClass.data.save();
 	}
 
@@ -266,8 +266,8 @@ public class PunishmentAPI {
 				unjail(s);
 			return;
 		}
-		LoaderClass.data.set("jail." + playerOrIP, null);
-		LoaderClass.data.set("tempjail." + playerOrIP, null);
+		LoaderClass.data.remove("jail." + playerOrIP);
+		LoaderClass.data.remove("tempjail." + playerOrIP);
 		LoaderClass.data.save();
 	}
 
@@ -275,8 +275,8 @@ public class PunishmentAPI {
 	public static void unjailIP(String playerOrIP) {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
-		LoaderClass.data.set("jailip." + playerOrIP.replace(".", "_"), null);
-		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_"), null);
+		LoaderClass.data.remove("jailip." + playerOrIP.replace(".", "_"));
+		LoaderClass.data.remove("tempjailip." + playerOrIP.replace(".", "_"));
 		LoaderClass.data.save();
 	}
 
@@ -287,8 +287,8 @@ public class PunishmentAPI {
 				unmute(s);
 			return;
 		}
-		LoaderClass.data.set("mute." + playerOrIP, null);
-		LoaderClass.data.set("tempmute." + playerOrIP, null);
+		LoaderClass.data.remove("mute." + playerOrIP);
+		LoaderClass.data.remove("tempmute." + playerOrIP);
 		LoaderClass.data.save();
 	}
 
@@ -296,8 +296,8 @@ public class PunishmentAPI {
 	public static void unmuteIP(String playerOrIP) {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
-		LoaderClass.data.set("muteip." + playerOrIP.replace(".", "_"), null);
-		LoaderClass.data.set("tempmuteip." + playerOrIP.replace(".", "_"), null);
+		LoaderClass.data.remove("muteip." + playerOrIP.replace(".", "_"));
+		LoaderClass.data.remove("tempmuteip." + playerOrIP.replace(".", "_"));
 		LoaderClass.data.save();
 	}
 

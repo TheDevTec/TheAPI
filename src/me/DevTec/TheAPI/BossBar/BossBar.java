@@ -27,8 +27,7 @@ public class BossBar {
 			LoaderClass.plugin.bars.add(this);
 	}
 	
-	@SuppressWarnings("unused")
-	private void move() {
+	public void move() {
 		Player p = TheAPI.getPlayer(s);
 		if(!p.getName().equals(s))return;
 		if(!TheAPI.isOlder1_9() || bar==null)return;

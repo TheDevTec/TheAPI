@@ -4,7 +4,7 @@ import java.net.SocketAddress;
 import java.util.UUID;
 
 import me.DevTec.TheAPI.TheAPI;
-import me.DevTec.TheAPI.Utils.Reflections.Reflections;
+import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class NetworkManager {
 	private Object a;
@@ -14,27 +14,27 @@ public class NetworkManager {
 	}
 
 	public boolean isPreparing() {
-		return (boolean) Reflections.get(Reflections.getField(Reflections.getNMSClass("NetworkManager"), "preparing"),a);
+		return (boolean) Ref.get(a, Ref.field(Ref.nms("NetworkManager"), "preparing"));
 	}
 
 	public Object getProfile() {
-		return Reflections.get(Reflections.getField(Reflections.getNMSClass("NetworkManager"), "spoofedProfile"),a);
+		return Ref.get(a,Ref.field(Ref.nms("NetworkManager"), "spoofedProfile"));
 	}
 
 	public UUID getUUID() {
-		return (UUID) Reflections.get(Reflections.getField(Reflections.getNMSClass("NetworkManager"), "spoofedUUID"),a);
+		return (UUID) Ref.get(a,Ref.field(Ref.nms("NetworkManager"), "spoofedUUID"));
 	}
 
 	public Object getChannel() {
-		return Reflections.get(Reflections.getField(Reflections.getNMSClass("NetworkManager"), TheAPI.isOlderThan(8)?"m":"channel"),a);
+		return Ref.get(a,Ref.field(Ref.nms("NetworkManager"), TheAPI.isOlderThan(8)?"m":"channel"));
 	}
 
 	// YOUR RISK
 	public void setChannel(Object channel) {
-		Reflections.setField(a, Reflections.getField(Reflections.getNMSClass("NetworkManager"), TheAPI.isOlderThan(8)?"m":"channel"), channel);
+		Ref.set(a, Ref.field(Ref.nms("NetworkManager"), TheAPI.isOlderThan(8)?"m":"channel"), channel);
 	}
 
 	public SocketAddress getSocketAddress() {
-		return (SocketAddress) Reflections.invoke(a,Reflections.getMethod(Reflections.getNMSClass("NetworkManager"), "getSocketAddress"));
+		return (SocketAddress) Ref.invoke(a,Ref.method(Ref.nms("NetworkManager"), "getSocketAddress"));
 	}
 }

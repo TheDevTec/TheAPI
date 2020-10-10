@@ -25,8 +25,8 @@ import me.DevTec.TheAPI.Utils.DataKeeper.TheArrays;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
 
 public class StringUtils {  
-	private static final Pattern INTEGER = Pattern.compile("[-+]?(?:0|[1-9][0-9]*)?i", 2)
-			, DOUBLE = Pattern.compile("[-+]?(?:[0-9]+[.]?|[0-9]*[.][0-9]+)(?:e[-+]?[0-9]+)?d", 2);
+	private static final Pattern INTEGER = Pattern.compile("([0-9+-]+)")
+			, DOUBLE = Pattern.compile("([0-9+-]+\\.*[0-9]+)");
 	private static Random random = new Random();
 	
 	public static interface ColormaticFactory {

@@ -9,7 +9,7 @@ import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
 import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker;
 
 public class YamlLoader implements DataLoader {
-	private static final Pattern pattern = Pattern.compile("(.*?):");
+	private static final Pattern pattern = Pattern.compile("([ ]*)(.*?):[ ]*{1}(.*)");
 	private HashMap<String, DataHolder> data = new HashMap<>();
 	private boolean l;
 	private List<String> header = new ArrayList<>(0), footer = new ArrayList<>(0);
@@ -49,7 +49,7 @@ public class YamlLoader implements DataLoader {
 				lines.add(text.replaceFirst(cs(c(text),0), ""));
 				continue;
 			}
-			if(c!=0 && text.contains(":") && pattern.matcher(text).find()) {
+			if(c!=0 && pattern.matcher(text).find()) {
 				if(c==1) {
 				set(key, Maker.objectFromJson(v.toString()), lines);
 				v=new StringBuilder();
@@ -79,7 +79,7 @@ public class YamlLoader implements DataLoader {
 						if(remove > 0)
 						key=key.substring(0, remove);
 					}else {
-					for(int i = 0; i < Math.abs(last-c(text.split(":")[0])); ++i) {
+					for(int i = 0; i < Math.abs(last-c(text))/2+1; ++i) {
 					String lastr = key.split("\\.")[key.split("\\.").length-1]+1;
 					int remove = key.length()-lastr.length();
 					if(remove < 0)break;

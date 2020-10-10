@@ -287,7 +287,7 @@ public class Ref {
 	public static Object get(Object main, String field){
 		try {
 			return field(main.getClass(),field).get(main);
-		}catch(Exception es) {
+		}catch(Exception | NoSuchFieldError es) {
 			return null;
 		}
 	}
@@ -305,7 +305,7 @@ public class Ref {
 			if(!method.isAccessible())
 			method.setAccessible(true);
 			return method.invoke(main, bricks);
-		}catch(Exception es) {
+		}catch(Exception | NoSuchMethodError es) {
 			return null;
 		}
 	}

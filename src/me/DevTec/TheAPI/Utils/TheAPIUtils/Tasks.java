@@ -18,12 +18,9 @@ import me.DevTec.TheAPI.Events.EntityMoveEvent;
 import me.DevTec.TheAPI.Scheduler.Scheduler;
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
-import me.DevTec.TheAPI.Utils.Listener.Events.PlayerReceiveMessageEvent;
 import me.DevTec.TheAPI.Utils.Listener.Events.ServerListPingEvent;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.Utils.ServerList.PlayerProfile;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
 
 public class Tasks {
 	private static boolean load;
@@ -32,23 +29,6 @@ public class Tasks {
 	private static Constructor<?> cc = Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class, int.class);
 	private static me.DevTec.TheAPI.Utils.PacketListenerAPI.Listener l;
 	
-	private static String toString(Object component) {
-		if(component==null)return "";
-		StringBuilder out = new StringBuilder();
-		Object o = Ref.cast(Ref.nms("ChatComponentText"), component);
-	    for(Object a : (Iterable<?>)o) {
-			out.append(color(a)+Ref.invoke(a, "getText"));
-	    }
-	    if(out.toString().isEmpty())
-		out.append(color(o)+Ref.invoke(o, "getText"));
-	    return out.toString();
-	}
-	
-	private static String color(Object o) {
-		Object color = Ref.get(Ref.invoke(Ref.invoke(o, "getChatModifier"),"getColor"),"format");
-		return color==null?"":color.toString();
-	}
-	
 	public static void load() {
 		Data v = new Data();
 		if (load)return;
@@ -56,20 +36,6 @@ public class Tasks {
 		if(l==null)
 		l=new me.DevTec.TheAPI.Utils.PacketListenerAPI.Listener() {
 			public boolean PacketPlayOut(Player player, Object packet, Object channel) {
-				if(packet.toString().contains("PacketPlayOutChat")) {
-					Object request = Ref.get(packet, "a");
-					if(request==null) {
-						try {
-							request=TextComponent.toLegacyText((BaseComponent[])Ref.get(packet, "components"));
-						}catch(Exception err) {
-							request=null;
-						}
-					}
-					PlayerReceiveMessageEvent message = new PlayerReceiveMessageEvent(player, (request instanceof String ? (String)request : Tasks.toString(request)));
-					TheAPI.callEvent(message);
-					Ref.set(packet, "a", Ref.invokeNulled(Ref.method(Ref.craft("util.CraftChatMessage"), "fixComponent", Ref.nms("IChatBaseComponent")),Ref.IChatBaseComponent(message.getMessage())));
-					return false;
-				}
 				if(packet.toString().contains("PacketStatusOutServerInfo")) {
 					Object w = Ref.invoke(Ref.server(),"getServerPing");
 					if(w==null)w=Ref.invoke(Ref.server(), "aG");

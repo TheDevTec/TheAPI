@@ -311,4 +311,8 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public String getDataName() {
 		return "Data(Config:"+getName()+"/"+t.name()+")";
 	}
+
+	public void remove(String path) {
+		f.remove(path);
+	}
 }
