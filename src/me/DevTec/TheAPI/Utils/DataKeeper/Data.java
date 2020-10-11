@@ -479,11 +479,11 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	 *   : 5" -> "5""
 	 */
 	private String addQuotes(boolean raw, String text) {
-		if (text == null || raw == null) return null;
-
+		if (text == null) return null;
+		
 		boolean quotedString = (text.startsWith("'") && text.endsWith("'")) || (text.startsWith("\"") && text.endsWith("\""));
-		if (s && quotedString) {
-			return "\"" + text + "\"".replace(System.lineSeparator(), "");
+		if (raw && quotedString) {
+			return ("\"" + text + "\"").replace(System.lineSeparator(), "");
 		}
 		
 		return text.replace(System.lineSeparator(), "");
