@@ -3,13 +3,6 @@ package me.DevTec.TheAPI.Utils.PacketListenerAPI;
 import org.bukkit.entity.Player;
 
 public interface PacketHandler<C> {
-	public void sendPacket(Player player, Object packet);
-	
-	public void sendPacket(C channel, Object packet);
-	
-	public void receivePacket(Player player, Object packet);
-
-	public void receivePacket(C channel, Object packet);
 
 	public void injectPlayer(Player player);
 

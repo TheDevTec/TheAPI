@@ -267,7 +267,7 @@ public class StringUtils {
 	 */
 	public static String buildString(int start, int end, String[] args) {
 		String msg = "";
-		for (int i = start; i < args.length-1 && i < end; ++i)
+		for (int i = start; i < args.length && i < end; ++i)
 			msg += (msg.equals("")?"":" ") + args[i];
 		return msg;
 	}

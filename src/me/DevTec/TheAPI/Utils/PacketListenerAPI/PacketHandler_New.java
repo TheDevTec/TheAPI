@@ -123,25 +123,10 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 		for (Player player : TheAPI.getOnlinePlayers())
 			injectPlayer(player);
 	}
-	
-	public void sendPacket(Player player, Object packet) {
-		sendPacket(getChannel(player), packet);
-	}
-	
-	public void sendPacket(Channel channel, Object packet) {
-		channel.pipeline().writeAndFlush(packet);
-	}
-	
-	public void receivePacket(Player player, Object packet) {
-		receivePacket(getChannel(player), packet);
-	}
-
-	public void receivePacket(Channel channel, Object packet) {
-		channel.pipeline().context("encoder").fireChannelRead(packet);
-	}
 
 	public void injectPlayer(Player player) {
-		injectChannelInternal(player,getChannel(player));
+		if(getChannel(player)==null)getChannel(player);
+		injectChannelInternal(player, getChannel(player));
 	}
 
 	private PacketInterceptor injectChannelInternal(Player a,Channel channel) {
@@ -176,13 +161,13 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 		uninjectChannel(getChannel(player));
 	}
 
-	public void uninjectChannel(final Channel channel) {
+	public void uninjectChannel(Channel channel) {
 		if(channel==null)return;
 		channel.eventLoop().execute(new Runnable() {
 			@Override
 			public void run() {
 				if(hasInjected(channel))
-				channel.pipeline().remove("InjectorTheAPI");
+					channel.pipeline().remove("InjectorTheAPI");
 			}
 		});
 	}
@@ -193,7 +178,8 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 
 	public boolean hasInjected(Channel channel) {
 		try {
-		return channel.pipeline().get("InjectorTheAPI") != null;
+			if(channel==null)return false;
+			return channel.pipeline().get("InjectorTheAPI") != null;
 		}catch(Exception e) {
 			return false;
 		}
@@ -202,9 +188,8 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	public final void close() {
 		if (!closed) {
 			closed = true;
-			for (Player player : TheAPI.getOnlinePlayers()) {
+			for (Player player : TheAPI.getOnlinePlayers())
 				uninjectPlayer(player);
-			}
 			unregisterChannelHandler();
 		}
 	}
@@ -228,6 +213,10 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 							}
 					}
 				}
+			}else {
+				if(!player.isOnline())
+					if(TheAPI.getPlayerOrNull(player.getName())!=null)
+						player=TheAPI.getPlayerOrNull(player.getName());
 			}
 			synchronized(msg) {
 			try {
@@ -255,6 +244,10 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 						}
 					}
 				}
+			}else {
+				if(!player.isOnline())
+					if(TheAPI.getPlayerOrNull(player.getName())!=null)
+						player=TheAPI.getPlayerOrNull(player.getName());
 			}
 			synchronized(msg) {
 			try {

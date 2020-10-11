@@ -52,18 +52,23 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public Data() {
 	}
 	
+	public Data(String filePath) {
+		this(filePath, true);
+	}
+	
 	public Data(String filePath, boolean load) {
-		this();
-		File f = new File(filePath);
-		if (!f.exists()) {
-			f.getParentFile().mkdirs();
-			try {
-				f.createNewFile();
-			} catch (Exception e) {
-			}
-		}
-		a=f;
+		a=new File(filePath);
 		if (load)
+		reload(a);
+	}
+
+	public Data(File f) {
+		this(f,true);
+	}
+	
+	public Data(File f, boolean load) {
+		a=f;
+		if(load)
 		reload(a);
 	}
 	
@@ -75,16 +80,6 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 					break;
 				}}
 		return a==1;
-	}
-
-	public Data(File f) {
-		this(f,true);
-	}
-	
-	public Data(File f, boolean load) {
-		a=f;
-		if (load)
-			reload(a);
 	}
 	
 	public void setFile(File f) {
@@ -191,15 +186,22 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	public void reload(String input) {
 		aw.clear();
-		loader = DataLoader.findLoaderFor (input); //get & load
+		loader = DataLoader.findLoaderFor(input); //get & load
 		for (String k : loader.get().keySet())
 			if (!aw.contains(k.split("\\.")[0]))
 			aw.add(k.split("\\.")[0]);
 	}
 	
-	public void reload(File a) {
+	public void reload(File f) {
+		if (!f.exists()) {
+			f.getParentFile().mkdirs();
+			try {
+				f.createNewFile();
+			} catch (Exception e) {
+			}
+		}
 		aw.clear();
-		loader = DataLoader.findLoaderFor (a); //get & load
+		loader = DataLoader.findLoaderFor(f); //get & load
 		for (String k : loader.get().keySet())
 			if (!aw.contains(k.split("\\.")[0]))
 			aw.add(k.split("\\.")[0]);

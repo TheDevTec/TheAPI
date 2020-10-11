@@ -303,7 +303,7 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
     }
     
     public String toString() {
-    	return "[Config:"+getName()+"/"+t.name()+"]";
+    	return getDataName();
     }
 
 

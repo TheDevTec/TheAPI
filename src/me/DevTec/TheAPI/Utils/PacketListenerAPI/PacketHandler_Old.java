@@ -123,23 +123,8 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 			injectPlayer(player);
 	}
 	
-	public void sendPacket(Player player, Object packet) {
-		sendPacket(getChannel(player), packet);
-	}
-	
-	public void sendPacket(Channel channel, Object packet) {
-		channel.pipeline().writeAndFlush(packet);
-	}
-	
-	public void receivePacket(Player player, Object packet) {
-		receivePacket(getChannel(player), packet);
-	}
-
-	public void receivePacket(Channel channel, Object packet) {
-		channel.pipeline().context("encoder").fireChannelRead(packet);
-	}
-
 	public void injectPlayer(Player player) {
+		if(getChannel(player)==null)getChannel(player);
 		injectChannelInternal(player,getChannel(player));
 	}
 
@@ -192,6 +177,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 
 	public boolean hasInjected(Channel channel) {
 		try {
+			if(channel==null)return false;
 		return channel.pipeline().get("InjectorTheAPI") != null;
 		}catch(Exception e) {
 			return false;
@@ -201,13 +187,12 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 	public void close() {
 		if (!closed) {
 			closed = true;
-			for (Player player : TheAPI.getOnlinePlayers()) {
+			for (Player player : TheAPI.getOnlinePlayers())
 				uninjectPlayer(player);
-			}
 			unregisterChannelHandler();
 		}
 	}
-	public final class PacketInterceptor extends ChannelDuplexHandler {
+	public class PacketInterceptor extends ChannelDuplexHandler {
 		private Player player;
 
 		@Override
@@ -227,14 +212,16 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 						break;
 					}
 				}
+			}else {
+				if(!player.isOnline())
+					if(TheAPI.getPlayerOrNull(player.getName())!=null)
+						player=TheAPI.getPlayerOrNull(player.getName());
 			}
-
 			try {
 				msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_IN);
 			} catch (Exception e) {
 				msg = null;
 			}
-
 			if (msg != null)
 				super.channelRead(ctx, msg);
 		}
@@ -251,6 +238,10 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 						break;
 					}
 				}
+			}else {
+				if(!player.isOnline())
+					if(TheAPI.getPlayerOrNull(player.getName())!=null)
+						player=TheAPI.getPlayerOrNull(player.getName());
 			}
 			try {
 				msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_OUT);
