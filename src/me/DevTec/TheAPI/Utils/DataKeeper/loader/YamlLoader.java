@@ -49,7 +49,7 @@ public class YamlLoader implements DataLoader {
 				lines.add(text.replaceFirst(cs(c(text),0), ""));
 				continue;
 			}
-			if(c!=0 && pattern.matcher(text).find()) {
+			if(c!=0 && pattern.matcher(Pattern.quote(text)).find()) {
 				if(c==1) {
 				set(key, Maker.objectFromJson(v.toString()), lines);
 				v=new StringBuilder();
@@ -115,6 +115,7 @@ public class YamlLoader implements DataLoader {
 		l=true;
 		}catch(Exception er) {
 			l=false;
+			er.printStackTrace();
 		}
 	}
 

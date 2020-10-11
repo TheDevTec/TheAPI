@@ -57,9 +57,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	}
 	
 	public Data(String filePath, boolean load) {
-		a=new File(filePath);
-		if (load)
-		reload(a);
+		this(new File(filePath), load);
 	}
 
 	public Data(File f) {
@@ -186,6 +184,9 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	public void reload(String input) {
 		aw.clear();
+		loader.get().clear();
+		loader.getHeader().clear();
+		loader.getFooter().clear();
 		loader = DataLoader.findLoaderFor(input); //get & load
 		for (String k : loader.get().keySet())
 			if (!aw.contains(k.split("\\.")[0]))
@@ -201,14 +202,17 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			}
 		}
 		aw.clear();
+		loader.get().clear();
+		loader.getHeader().clear();
+		loader.getFooter().clear();
 		loader = DataLoader.findLoaderFor(f); //get & load
 		for (String k : loader.get().keySet())
 			if (!aw.contains(k.split("\\.")[0]))
 			aw.add(k.split("\\.")[0]);
 	}
-		
+
 	@SuppressWarnings("unchecked")
-	public <E> E getVariable(String key) {
+	public <E> E get(String key) {
 		try {
 			return (E)(loader.get().get(key).o);
 		} catch (Exception e) {
@@ -216,9 +220,9 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		}
 	}
 	
-	public Object get(String key) {
+	public <E> E getAs(String key, Class<? extends E> clazz) {
 		try {
-			return loader.get().get(key).o;
+			return clazz.cast(loader.get().get(key).o);
 		} catch (Exception e) {
 			return null;
 		}
@@ -230,7 +234,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	
 	public int getInt(String key) {
 		try {
-		return (int)getVariable(key);
+		return getAs(key, int.class);
 		} catch (Exception notNumber) {
 			return StringUtils.getInt(getString(key));
 		}
@@ -238,7 +242,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	
 	public double getDouble(String key) {
 		try {
-		return (double)getVariable(key);
+			return getAs(key, double.class);
 		} catch (Exception notNumber) {
 			return StringUtils.getDouble(getString(key));
 		}
@@ -246,7 +250,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	
 	public long getLong(String key) {
 		try {
-		return (long)getVariable(key);
+		return (long)get(key);
 		} catch (Exception notNumber) {
 			return StringUtils.getLong(getString(key));
 		}
@@ -254,7 +258,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	
 	public float getFloat(String key) {
 		try {
-		return (float)getVariable(key);
+			return getAs(key, float.class);
 		} catch (Exception notNumber) {
 			return StringUtils.getFloat(getString(key));
 		}
@@ -262,7 +266,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	
 	public byte getByte(String key) {
 		try {
-		return (byte)getVariable(key);
+			return getAs(key, byte.class);
 		} catch (Exception notNumber) {
 			return StringUtils.getByte(getString(key));
 		}
@@ -270,7 +274,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	public boolean getBoolean(String key) {
 		try {
-		return (boolean)getVariable(key);
+			return getAs(key, boolean.class);
 		} catch (Exception notNumber) {
 			return StringUtils.getBoolean(getString(key));
 		}
@@ -278,17 +282,89 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	
 	public short getShort(String key) {
 		try {
-		return (short)getVariable(key);
+			return getAs(key, short.class);
 		} catch (Exception notNumber) {
 			return StringUtils.getShort(getString(key));
 		}
 	}
 	
 	public <E> List<E> getList(String key) {
-		return get(key)!=null && get(key) instanceof List ? getVariable(key) :  new ArrayList<>(3);
+		return get(key)!=null && get(key) instanceof List ? get(key) :  new ArrayList<>(3);
 	}
 	
-	public List<String> getStringList(String key){
+	public List<String> getStringList(String key) {
+		//Cast everything to String
+		List<Object> items = getList(key);
+		List<String> list = new ArrayList<>(items.size());
+		for(Object o : items)
+			list.add(o==null?null:o.toString());
+		return list;
+	}
+	
+	public List<Boolean> getBooleanList(String key) {
+		//Cast everything to Boolean
+		List<Object> items = getList(key);
+		List<Boolean> list = new ArrayList<>(items.size());
+		for(Object o : items)
+			list.add(o==null?false:StringUtils.getBoolean(o.toString()));
+		return list;
+	}
+	
+	public List<Integer> getIntegerList(String key) {
+		//Cast everything to Integer
+		List<Object> items = getList(key);
+		List<Integer> list = new ArrayList<>(items.size());
+		for(Object o : items)
+			list.add(o==null?0:StringUtils.getInt(o.toString()));
+		return list;
+	}
+	
+	public List<Double> getDoubleList(String key) {
+		//Cast everything to Double
+		List<Object> items = getList(key);
+		List<Double> list = new ArrayList<>(items.size());
+		for(Object o : items)
+			list.add(o==null?0.0:StringUtils.getDouble(o.toString()));
+		return list;
+	}
+	
+	public List<Short> getShortList(String key) {
+		//Cast everything to Short
+		List<Object> items = getList(key);
+		List<Short> list = new ArrayList<>(items.size());
+		for(Object o : items)
+			list.add(o==null?0:StringUtils.getShort(o.toString()));
+		return list;
+	}
+	
+	public List<Byte> getByteList(String key) {
+		//Cast everything to Byte
+		List<Object> items = getList(key);
+		List<Byte> list = new ArrayList<>(items.size());
+		for(Object o : items)
+			list.add(o==null?0:StringUtils.getByte(o.toString()));
+		return list;
+	}
+	
+	public List<Float> getFloatList(String key) {
+		//Cast everything to Float
+		List<Object> items = getList(key);
+		List<Float> list = new ArrayList<>(items.size());
+		for(Object o : items)
+			list.add(o==null?0:StringUtils.getFloat(o.toString()));
+		return list;
+	}
+	
+	public List<Long> getLongList(String key) {
+		//Cast everything to Byte
+		List<Object> items = getList(key);
+		List<Long> list = new ArrayList<>(items.size());
+		for(Object o : items)
+			list.add(o==null?0:StringUtils.getLong(o.toString()));
+		return list;
+	}
+	
+	public List<Map<?,?>> getMapList(String key) {
 		return getList(key);
 	}
 	
@@ -408,12 +484,6 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		if (o==null) {
 			b.write(pathName+System.lineSeparator());
 		} else {
-			if (o instanceof Map<?,?>) {
-				b.write(pathName+System.lineSeparator());
-				String splitted = space+"- ";
-				for (Entry<?,?> a : ((Map<?,?>)o).entrySet())
-					b.write(splitted+addQuotes(true, Maker.objectToJson(a.getKey())+"="+Maker.objectToJson(a.getValue()))+System.lineSeparator());
-			}
 			if (o instanceof List || o instanceof Object[]) {
 				b.write(pathName+System.lineSeparator());
 				String splitted = space+"- ";

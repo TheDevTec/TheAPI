@@ -49,7 +49,7 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	}
 	
 	private final void prepareConfig() {
-    	a=new Data("TheAPI/User/"+s.toString(), true);
+    	a=new Data("plugins/TheAPI/User/"+s.toString(), true);
 	}
 	
 	public void delete() {

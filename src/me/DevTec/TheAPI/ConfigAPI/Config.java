@@ -107,212 +107,214 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
    }
 
     public void reload() {
-    	File file = new File(f.getFile().getPath());
-    	if (!file.exists()) {
-            file.getParentFile().mkdirs();
-            try {
-				file.createNewFile();
-			} catch (Exception e) {
-			}
-        }
-    	f.reload(file);
+    	f.reload(f.getFile());
     }
-
+    
     public String getName() {
         return f.getFile().getName();
     }
-
-    public boolean exists(String path) {
-        return f.exists(path);
-    }
-
-    public void setComments(String path, List<String> value) {
-    	f.setLines(path, value);
-    }
     
-    public void addComments(String path, List<String> value) {
-    	if(f.getLines(path)==null)setComments(path,value);else f.getLines(path).addAll(value);
-    }
+	public boolean exists(String path) {
+		if(path==null)return false;
+		return f.exists(path);
+	}
 	
-    public void addComment(String path, String value) {
-    	f.addLine(path, value);
-    }
-     
-    public List<String> getComments(String path) {
-    	return f.getLines(path);
-    }
-    
-    public Section getSection(String path) {
-    	return new Section(this,path);
-    }
-
-    /**
-     * @see see Get List<Integer> from Path
-     * @return List<Integer>
-     */
-    public List<Integer> getIntegerList(String path) {
-    	return f.getList(path);
-    }
-
-    /**
-     * @see see Get List<Byte> from Path
-     * @return List<Byte>
-     */
-    public List<Byte> getByteList(String path) {
-    	return f.getList(path);
-    }
-
-    /**
-     * @see see Get List<Boolean> from Path
-     * @return List<Boolean>
-     */
-    public List<Boolean> getBooleanList(String path) {
-    	return f.getList(path);
-    }
-
-    /**
-     * @see see Get List<Double> from Path
-     * @return List<Double>
-     */
-    public List<Double> getDoubleList(String path) {
-    	return f.getList(path);
-    }
-
-    /**
-     * @see see Get List<Short> from Path
-     * @return List<Short>
-     */
-    public List<Short> getShortList(String path) {
-    	return f.getList(path);
-    }
-
-    /**
-     * @see see Get List<Map<?,?>> from Path
-     * @return List<Map<?,?>>
-     */
-    public List<Map<?,?>> getMapList(String path) {
-    	return f.getList(path);
-    }
-
-    /**
-     * @see see Get List<Float> from Path
-     * @return List<Float>
-     */
-    public List<Float> getFloatList(String path) {
-    	return f.getList(path);
-    }
-
-    /**
-     * @see see Get List<Object> from Path
-     * @return List<Object>
-     */
-    public List<Object> getList(String path) {
-    	return f.getList(path);
-    }
-
-    /**
-     * @see see Get List<String> from Path
-     * @return List<String>
-     */
-    public List<String> getStringList(String path) {
-    	return f.getStringList(path);
-    }
-
-    public Set<String> getKeys(boolean subKeys) {
-    	return f.getKeys(subKeys);
-    }
-
-    public Set<String> getKeys(String path) {
-    	return f.getKeys(path);
-    }
-
-    public Set<String> getKeys(String path, boolean subKeys) {
-    	return f.getKeys(path, subKeys);
-    }
-
-    public String getString(String path) {
-    	return f.getString(path);
-    }
-
-    public void set(String path, Object value) {
-    	f.set(path, value);
-    }
-
-    public boolean isString(String path) {
-    	return get(path) instanceof String;
-    }
-
-    public boolean isDouble(String path) {
-    	return f.get(path) instanceof Double;
-    }
-
-    public boolean isLong(String path) {
-    	return f.get(path) instanceof Long;
-    }
-
-    public boolean isInt(String path) {
-    	return f.get(path) instanceof Integer;
-    }
-
-    public boolean isBoolean(String path) {
-    	return f.get(path) instanceof Boolean;
-    }
-
-    public boolean isFloat(String path) {
-    	return f.get(path) instanceof Float;
-    }
-
-    public boolean isShort(String path) {
-    	return f.get(path) instanceof Short;
-    }
-
-    public boolean isByte(String path) {
-    	return f.get(path) instanceof Byte;
-    }
-
-    public Object get(String path) {
-    	return f.get(path);
-    }
-
-    public int getInt(String path) {
-    	return f.getInt(path);
-    }
-
-    public double getDouble(String path) {
-    	return f.getDouble(path);
-    }
-
-    public long getLong(String path) {
-    	return f.getLong(path);
-    }
-
-    public float getFloat(String path) {
-    	return f.getFloat(path);
-    }
-
-    public boolean getBoolean(String path) {
-    	return f.getBoolean(path);
-    }
-
-    public Set<String> getKeys() {
-    	return f.getKeys();
-    }
+	public Section getSection(String path) {
+		if(exists(path))
+		return new Section(this, path);
+		return null;
+	}
+	
+	public void remove(String path) {
+		if(path == null)return;
+		f.remove(path);
+	}
+	
+	public void set(String path, Object value) {
+		if(path == null)return;
+		f.set(path, value);
+	}
+	
+	public Set<String> getKeys(String path) {
+		if(path == null)return null;
+		return f.getKeys(path);
+	}
+	
+	public List<String> getComments(String path) {
+		if(path == null)return null;
+		return f.getLines(path);
+	}
+	
+	public void setComments(String path, List<String> value) {
+		if(path == null)return;
+		f.setLines(path, value);
+	}
+	
+	public void addComment(String path, String... value) {
+		if(path != null && value != null)
+			for(String s : value)
+				getComments(path).add(s);
+	}
+	
+	public void addComments(String path, List<String> value) {
+		if(path != null && value != null)
+		getComments(path).addAll(value);
+	}
+	
+	public void removeComment(String path, String... value) {
+		if(path != null && value != null)
+			for(String s : value)
+				getComments(path).remove(s);
+	}
+	
+	public void removeComment(String path, List<String> value) {
+		if(path != null && value != null)
+		getComments(path).removeAll(value);
+	}
+	
+	public Object get(String path) {
+		if(path == null)return null;
+		return f.get(path);
+	}
+	
+	public int getInt(String path) {
+		if(path == null)return 0;
+		return f.getInt(path);
+	}
+	
+	public double getDouble(String path) {
+		if(path == null)return 0.0;
+		return f.getDouble(path);
+	}
+	
+	public long getLong(String path) {
+		if(path == null)return 0;
+		return f.getLong(path);
+	}
+	
+	public String getString(String path) {
+		if(path == null)return null;
+		return f.getString(path);
+	}
+	
+	public boolean getBoolean(String path) {
+		if(path == null)return false;
+		return f.getBoolean(path);
+	}
+	
+	public short getShort(String path) {
+		if(path == null)return 0;
+		return f.getShort(path);
+	}
+	
+	public byte getByte(String path) {
+		if(path == null)return 0;
+		return f.getByte(path);
+	}
+	
+	public List<Object> getList(String path) {
+		if(path == null)return null;
+		return f.getList(path);
+	}
+	
+	public List<String> getStringList(String path) {
+		if(path == null)return null;
+		return f.getStringList(path);
+	}
+	
+	public List<Boolean> getBooleanList(String path) {
+		if(path == null)return null;
+		return f.getBooleanList(path);
+	}
+	
+	public List<Byte> getByteList(String path) {
+		if(path == null)return null;
+		return f.getByteList(path);
+	}
+	
+	public List<Integer> getIntegerList(String path) {
+		if(path == null)return null;
+		return f.getIntegerList(path);
+	}
+	
+	public List<Float> getFloatList(String path) {
+		if(path == null)return null;
+		return f.getFloatList(path);
+	}
+	
+	public List<Long> getLongList(String path) {
+		if(path == null)return null;
+		return f.getLongList(path);
+	}
+	
+	public List<Short> getShortList(String path) {
+		if(path == null)return null;
+		return f.getShortList(path);
+	}
+	
+	public List<Map<?,?>> getMapList(String path) {
+		if(path == null)return null;
+		return f.getMapList(path);
+	}
+	
+	public boolean isString(String path) {
+		return get(path) instanceof String;
+	}
+	
+	public boolean isNumber(String path) {
+		return get(path) instanceof Number;
+	}
+	
+	public boolean isInt(String path) {
+		return get(path) instanceof Integer;
+	}
+	
+	public boolean isInteger(String path) {
+		return get(path) instanceof Integer;
+	}
+	
+	public boolean isDouble(String path) {
+		return get(path) instanceof Double;
+	}
+	
+	public boolean isFloat(String path) {
+		return get(path) instanceof Float;
+	}
+	
+	public boolean isLong(String path) {
+		return get(path) instanceof Long;
+	}
+	
+	public boolean isByte(String path) {
+		return get(path) instanceof Byte;
+	}
+	
+	public boolean isShort(String path) {
+		return get(path) instanceof Short;
+	}
+	
+	public boolean isList(String path) {
+		return get(path) instanceof List;
+	}
+	
+	public boolean isMap(String path) {
+		return get(path) instanceof Map;
+	}
+	
+	public boolean isBoolean(String path) {
+		return get(path) instanceof Boolean;
+	}
     
     public Data getData() {
     	return f;
     }
     
     public String toString() {
-    	return getDataName();
+		return "Data(Config:"+getName()+"/"+t.name()+")";
     }
-
 
 	@Override
 	public String getDataName() {
-		return "Data(Config:"+getName()+"/"+t.name()+")";
-	}
-
-	public void remove(String path) {
-		f.remove(path);
+		return toString();
 	}
 }
