@@ -344,7 +344,7 @@ public class PluginManagerAPI {
 					}
 				}).start();
 			}
-		}.runTask();
+		}.runTaskSync();
 	}
 
 	public static void unloadPlugin(Plugin plugin) {
@@ -388,7 +388,7 @@ public class PluginManagerAPI {
 					spm.removePermission(p.next().toString());
 				}
 			} catch (NoSuchMethodError e) {
-			}}}.runTask();
+			}}}.runTaskSync();
 		}
 
 	public static void loadPlugin(String n) {
@@ -405,7 +405,7 @@ public class PluginManagerAPI {
 				for (String s : p.getDescription().getCommands().keySet())
 					commandMap.register(s, null);
 		} catch (Exception e) {}
-			}}.runTask();
+			}}.runTaskSync();
 	}
 
 	public static boolean disablePlugin(String plugin) {

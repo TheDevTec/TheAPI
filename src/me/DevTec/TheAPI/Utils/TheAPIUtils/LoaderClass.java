@@ -183,7 +183,7 @@ public class LoaderClass extends JavaPlugin {
 		}.runLater(200);
 		int removed = 0;
 		for(UUID u : TheAPI.getUsers()) {
-			if(TheAPI.getUser(u).getKeys().isEmpty()) {
+			if(TheAPI.getUser(u).getData().getKeys().size()==0) {
 				TheAPI.getUser(u).delete();
 				++removed;
 			}

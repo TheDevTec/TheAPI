@@ -13,7 +13,7 @@ import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 public class HoverMessage {
 
 	public enum ClickAction {
-		RUN_COMMAND, SUGGEST_COMMAND, OPEN_URL
+		OPEN_URL, OPEN_FILE, RUN_COMMAND, SUGGEST_COMMAND, CHANGE_PAGE, COPY_TO_CLIPBOARD
 	}
 
 	public enum HoverAction {

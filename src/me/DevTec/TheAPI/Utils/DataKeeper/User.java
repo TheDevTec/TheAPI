@@ -1,6 +1,5 @@
 package me.DevTec.TheAPI.Utils.DataKeeper;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -50,15 +49,7 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	}
 	
 	private final void prepareConfig() {
-		File file = new File("plugins/TheAPI/User/"+s.toString()+".yml");
-    	if (!file.exists()) {
-            file.getParentFile().mkdirs();
-            try {
-				file.createNewFile();
-			} catch (Exception e) {
-			}
-        }
-    	a=new Data(file, true);
+    	a=new Data("TheAPI/User/"+s.toString(), true);
 	}
 	
 	public void delete() {
