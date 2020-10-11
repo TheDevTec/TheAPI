@@ -6,11 +6,11 @@ import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 
 public class Scheduler {
 	private final static HashMap<Integer, Thread> tasks = new HashMap<>();
-	private final static ThreadGroup g = new ThreadGroup("Scheduler");
 	
 	public static void cancelAll() {
+		for(Thread t : tasks.values())
+			t.interrupt();
 		tasks.clear();
-		g.interrupt();
 	}
 	
 	public static void cancelTask(int task) {
@@ -29,13 +29,16 @@ public class Scheduler {
 	
 	public static int later(long delay, Runnable r) {
 		int id = find();
-		tasks.put(id, new Thread(g,new Runnable() {
+		tasks.put(id, new Thread(new Runnable() {
 			public void run() {
 				try {
 					if(delay>0)
 					Thread.sleep(delay*50);
-					if(!Thread.currentThread().isInterrupted() && tasks.containsKey(id))
+					if(!Thread.currentThread().isInterrupted() && tasks.containsKey(id)) {
+						tasks.remove(id);
+						Thread.currentThread().interrupt();
 						r.run();
+					}
 				}catch(Exception er) {
 					tasks.remove(id);
 					Thread.currentThread().interrupt();
@@ -43,8 +46,6 @@ public class Scheduler {
 					er.printStackTrace();
 					return;
 				}
-				tasks.remove(id);
-				Thread.currentThread().interrupt();
 			}
 		},"TheAPI thread-"+id));
 		tasks.get(id).start();
@@ -53,13 +54,16 @@ public class Scheduler {
 	
 	public static int laterSync(long delay, Runnable r) {
 		int id = find();
-		tasks.put(id, new Thread(g,new Runnable() {
+		tasks.put(id, new Thread(new Runnable() {
 			public void run() {
 				try {
 					if(delay>0)
 					Thread.sleep(delay*50);
-					if(!Thread.currentThread().isInterrupted() && tasks.containsKey(id))
+					if(!Thread.currentThread().isInterrupted() && tasks.containsKey(id)) {
+						tasks.remove(id);
+						Thread.currentThread().interrupt();
 						NMSAPI.postToMainThread(r);
+					}
 				}catch(Exception er) {
 					tasks.remove(id);
 					Thread.currentThread().interrupt();
@@ -67,8 +71,6 @@ public class Scheduler {
 					er.printStackTrace();
 					return;
 				}
-				tasks.remove(id);
-				Thread.currentThread().interrupt();
 			}
 		},"TheAPI thread-"+id));
 		tasks.get(id).start();
@@ -77,7 +79,7 @@ public class Scheduler {
 	
 	public static int repeating(long delay, long period, Runnable r) {
 		int id = find();
-		tasks.put(id, new Thread(g,new Runnable() {
+		tasks.put(id, new Thread(new Runnable() {
 			public void run() {
 				try {
 					if(delay>0)
@@ -86,7 +88,11 @@ public class Scheduler {
 						if(!Thread.currentThread().isInterrupted() && tasks.containsKey(id)) {
 						r.run();
 						Thread.sleep(period*50);
-						}else break;
+						}else {
+							tasks.remove(id);
+							Thread.currentThread().interrupt();
+							break;
+						}
 					}
 				}catch(Exception er) {
 					tasks.remove(id);
@@ -95,8 +101,6 @@ public class Scheduler {
 					er.printStackTrace();
 					return;
 				}
-				tasks.remove(id);
-				Thread.currentThread().interrupt();
 			}
 		},"TheAPI thread-"+id));
 		tasks.get(id).start();
@@ -105,7 +109,7 @@ public class Scheduler {
 	
 	public static int repeatingSync(long delay, long period, Runnable r) {
 		int id = find();
-		tasks.put(id, new Thread(g,new Runnable() {
+		tasks.put(id, new Thread(new Runnable() {
 			public void run() {
 				try {
 					if(delay>0)
@@ -114,7 +118,11 @@ public class Scheduler {
 						if(!Thread.currentThread().isInterrupted() && tasks.containsKey(id)) {
 							NMSAPI.postToMainThread(r);
 						Thread.sleep(period*50);
-						}else break;
+						}else {
+							tasks.remove(id);
+							Thread.currentThread().interrupt();
+							break;
+						}
 					}
 				}catch(Exception er) {
 					tasks.remove(id);
@@ -123,8 +131,6 @@ public class Scheduler {
 					er.printStackTrace();
 					return;
 				}
-				tasks.remove(id);
-				Thread.currentThread().interrupt();
 			}
 		},"TheAPI thread-"+id));
 		tasks.get(id).start();
@@ -141,7 +147,7 @@ public class Scheduler {
 
 	public static int repeatingTimesSync(long delay, long period, long times, Runnable r) {
 		int id = find();
-		tasks.put(id, new Thread(g,new Runnable() {
+		tasks.put(id, new Thread(new Runnable() {
 			long run = 0;
 			public void run() {
 				try {
@@ -151,7 +157,11 @@ public class Scheduler {
 						if(!Thread.currentThread().isInterrupted() && tasks.containsKey(id) && (run++)<times) {
 							NMSAPI.postToMainThread(r);
 						Thread.sleep(period*50);
-						}else break;
+						}else {
+							tasks.remove(id);
+							Thread.currentThread().interrupt();
+							break;
+						}
 					}
 				}catch(Exception er) {
 					tasks.remove(id);
@@ -160,8 +170,6 @@ public class Scheduler {
 					er.printStackTrace();
 					return;
 				}
-				tasks.remove(id);
-				Thread.currentThread().interrupt();
 			}
 		},"TheAPI thread-"+id));
 		tasks.get(id).start();
@@ -170,7 +178,7 @@ public class Scheduler {
 	
 	public static int repeatingTimes(long delay, long period, long times, Runnable r) {
 		int id = find();
-		tasks.put(id, new Thread(g,new Runnable() {
+		tasks.put(id, new Thread(new Runnable() {
 			long run = 0;
 			public void run() {
 				try {
@@ -180,7 +188,11 @@ public class Scheduler {
 						if(!Thread.currentThread().isInterrupted() && tasks.containsKey(id) && (run++)<times) {
 						r.run();
 						Thread.sleep(period*50);
-						}else break;
+						}else {
+							tasks.remove(id);
+							Thread.currentThread().interrupt();
+							break;
+						}
 					}
 				}catch(Exception er) {
 					tasks.remove(id);
@@ -189,8 +201,6 @@ public class Scheduler {
 					er.printStackTrace();
 					return;
 				}
-				tasks.remove(id);
-				Thread.currentThread().interrupt();
 			}
 		},"TheAPI thread-"+id));
 		tasks.get(id).start();

@@ -14,7 +14,8 @@ public class TheMaterial implements Cloneable {
 
 	public TheMaterial(Object IBlockDataOrBlock) {
 		ItemStack stack = (ItemStack)Ref.invoke(Ref.invoke(null, Ref.method(Ref.craft("util.CraftMagicNumbers"),"getMaterial", Ref.nms("IBlockData")), IBlockDataOrBlock), "toItemStack");
-		if(stack==null)stack=(ItemStack)new ItemStack((Material)Ref.invokeNulled(Material.class, "getMaterial", (int)Ref.invoke(null, Ref.method(Ref.craft("util.CraftMagicNumbers"),"getId", Ref.nms("Block")), IBlockDataOrBlock)));
+		if(stack==null)stack=(ItemStack)Ref.invokeNulled(Ref.method(Ref.craft("inventory.CraftItemStack"), "asBukkitCopy", Ref.nms("ItemStack")),Ref.newInstance(Ref.constructor(Ref.nms("ItemStack"), Ref.nms("Block")), Ref.invoke(IBlockDataOrBlock, "getBlock")));
+		if(stack==null)stack=new ItemStack((Material)Ref.invokeNulled(Material.class, "getMaterial", (int)Ref.invokeNulled(Ref.method(Ref.craft("util.CraftMagicNumbers"),"getId", Ref.nms("Block")), IBlockDataOrBlock)));
 		m = stack.getType();
 		this.data = stack.getData().getData();
 		this.amount=stack.getAmount();
@@ -111,22 +112,27 @@ public class TheMaterial implements Cloneable {
 	
 	public Object getIBlockData() {
 		try {
-			return Ref.invoke(Ref.getNulled(Ref.nms("Blocks"), m.name()),"getBlockData");
+			Object o = Ref.invokeNulled(Ref.method(Ref.nms("Block"), "getByCombinedId", int.class), (int)(m.getId()+(data>>4)));
+			if(o==null) o = Ref.invokeNulled(Ref.method(Ref.nms("Block"), "getId", int.class), (int)m.getId());
+			return o;
 		}catch(Exception err) {
+			try {
+			return Ref.invoke(Ref.getNulled(Ref.nms("Blocks"), m.name()),"getBlockData");
+			}catch(Exception errr) {
 			if(m!=null) {
-			Map<?,?> materialToData = (Map<?, ?>) Ref.getNulled(Ref.craft("legacy.CraftLegacy"), "materialToData");
-			Map<?,?> materialToBlock = (Map<?, ?>) Ref.getNulled(Ref.craft("legacy.CraftLegacy"), "materialToBlock");
-			MaterialData materialData = new MaterialData(m, (byte) data);
-			if(materialData!=null) {
-		    Object converted = materialToData.getOrDefault(materialData, null);
-		    if (converted != null)
-		      return converted; 
-		    Object convertedBlock = materialToBlock.getOrDefault(materialData, null);
-		    if (convertedBlock != null)
-		    	return Ref.invoke(convertedBlock,"getBlockData");
-			}}
-		    return LoaderClass.plugin.air;
-		}
+				Map<?,?> materialToData = (Map<?, ?>) Ref.getNulled(Ref.craft("legacy.CraftLegacy"), "materialToData");
+				Map<?,?> materialToBlock = (Map<?, ?>) Ref.getNulled(Ref.craft("legacy.CraftLegacy"), "materialToBlock");
+				MaterialData materialData = toItemStack().getData();
+				if(materialData!=null) {
+			    Object converted = materialToData.getOrDefault(materialData, null);
+			    if (converted != null)
+			      return converted;
+			    Object convertedBlock = materialToBlock.getOrDefault(materialData, null);
+			    if (convertedBlock != null)
+			    	return Ref.invoke(convertedBlock,"getBlockData");
+				}}
+			    return LoaderClass.plugin.air;
+		}}
 	}
 
 	public void setType(Material material) {
@@ -135,6 +141,10 @@ public class TheMaterial implements Cloneable {
 
 	public void setData(int data) {
 		this.data = data;
+	}
+	
+	public Object toNMSItemStack() {
+		return Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", toItemStack());
 	}
 	
 	public ItemStack toItemStack() {

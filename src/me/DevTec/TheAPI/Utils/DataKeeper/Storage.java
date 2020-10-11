@@ -8,7 +8,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class Storage implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
-	private static final long serialVersionUID = 1L;
 	private List<Inventory> invs = new ArrayList<>();
 	private Inventory inv = Bukkit.createInventory(null, 54);
 

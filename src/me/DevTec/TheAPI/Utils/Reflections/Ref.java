@@ -18,7 +18,7 @@ public class Ref {
 	private static Class<?> craft = craft("entity.CraftPlayer"), world = craft("CraftWorld");
 	private static Method ichatcon, send = Ref.method(nms("PlayerConnection"), "sendPacket", Ref.nms("Packet"));
 	static {
-		ichatcon = method(getDeclaredClasses(nms("IChatBaseComponent"))[0],"a", String.class);
+		ichatcon = method(nms("IChatBaseComponent$ChatSerializer"),"a", String.class);
 		if(ichatcon==null)
 			ichatcon = method(nms("ChatSerializer"), "a", String.class);
 	}
@@ -287,7 +287,7 @@ public class Ref {
 	public static Object get(Object main, String field){
 		try {
 			return field(main.getClass(),field).get(main);
-		}catch(Exception es) {
+		}catch(Exception | NoSuchFieldError es) {
 			return null;
 		}
 	}
@@ -305,7 +305,7 @@ public class Ref {
 			if(!method.isAccessible())
 			method.setAccessible(true);
 			return method.invoke(main, bricks);
-		}catch(Exception es) {
+		}catch(Exception | NoSuchMethodError es) {
 			return null;
 		}
 	}

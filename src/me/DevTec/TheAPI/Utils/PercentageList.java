@@ -31,7 +31,7 @@ public class PercentageList<T> {
 	
 	public T getRandom() {
 		List<T> t = toList();
-		return t.get(random.nextInt(t.size()));
+		return t.isEmpty()?null:t.get(random.nextInt(t.size()));
 	}
 
 	public List<T> toList() {

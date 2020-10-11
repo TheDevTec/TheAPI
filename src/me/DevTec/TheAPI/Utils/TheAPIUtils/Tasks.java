@@ -28,14 +28,14 @@ public class Tasks {
 	private static Class<?> c=Ref.getClass("com.mojang.authlib.GameProfile")!=null?Ref.getClass("com.mojang.authlib.GameProfile"):Ref.getClass("net.minecraft.util.com.mojang.authlib.GameProfile");
 	private static Constructor<?> cc = Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class, int.class);
 	private static me.DevTec.TheAPI.Utils.PacketListenerAPI.Listener l;
-
+	
 	public static void load() {
 		Data v = new Data();
 		if (load)return;
 		load = true;
 		if(l==null)
 		l=new me.DevTec.TheAPI.Utils.PacketListenerAPI.Listener() {
-			public void PacketPlayOut(Player player, Object packet, Object channel) {
+			public boolean PacketPlayOut(Player player, Object packet, Object channel) {
 				if(packet.toString().contains("PacketStatusOutServerInfo")) {
 					Object w = Ref.invoke(Ref.server(),"getServerPing");
 					if(w==null)w=Ref.invoke(Ref.server(), "aG");
@@ -45,10 +45,8 @@ public class Tasks {
 						players.add(new PlayerProfile(p.getName(),p.getUniqueId()));
 					ServerListPingEvent event = new ServerListPingEvent(TheAPI.getOnlinePlayers().size(), TheAPI.getMaxPlayers(), players, TheAPI.getMotd(), null, ((InetSocketAddress)Ref.invoke(channel, "localAddress")).getAddress());
 					TheAPI.callEvent(event);
-					if(event.isCancelled()) {
-						Ref.set(packet, "b", null);
-						return;
-					}
+					if(event.isCancelled())
+						return true;
 					Object sd = Ref.newInstance(cc, event.getMaxPlayers(),event.getOnlinePlayers());
 					if(event.getPlayersText()!=null) {
 					Object[] a = (Object[]) Array.newInstance(c, event.getPlayersText().size());
@@ -67,11 +65,14 @@ public class Tasks {
 					Ref.set(packet, "b", w);
 					if(event.getFalvicon()!=null)
 					Ref.set(packet, "d", event.getFalvicon());
+					return false;
 				}
+				return false;
 			}
 
 			@Override
-			public void PacketPlayIn(Player player, Object packet, Object channel) {
+			public boolean PacketPlayIn(Player player, Object packet, Object channel) {
+				return false;
 			}
 		};
 		l.register();

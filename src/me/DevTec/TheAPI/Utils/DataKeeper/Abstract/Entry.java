@@ -1,7 +1,6 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.Abstract;
 
 public class Entry<K, V> implements Data {
-	private static final long serialVersionUID = 1L;
 	private K k;
 	private V t;
 

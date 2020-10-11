@@ -9,7 +9,6 @@ import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheCollection;
 import me.DevTec.TheAPI.Utils.DataKeeper.Lists.TheArrayList;
 
 public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
-	private static final long serialVersionUID = 1L;
 	private Map<K, Map<T, V>> data = new HashMap<>();
 
 	public SortedMultiMap() {
@@ -34,6 +33,20 @@ public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 	
 	public void remove(K key) {
 		data.remove(key);
+	}
+	
+	public V get(K key, T thread) {
+		try {
+		Map<T, V> t = data.get(key);
+		return t.get(thread);
+		}catch(Exception er) {
+			return null;
+		}
+	}
+	
+	public V getOrDefault(K key, T thread, V def) {
+		V get = get(key, thread);
+		return get==null?def:get;
 	}
 	
 	public boolean containsKey(K key) {
@@ -64,11 +77,6 @@ public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 
 	public boolean isEmpty() {
 		return data.isEmpty();
-	}
-	
-	public V get(K key, T thread) {
-		Map<T, V> t = data.getOrDefault(key, null);
-		return t!=null?t.getOrDefault(thread, null):null;
 	}
 	
 	public void putAll(SortedMultiMap<K, T, V> map) {

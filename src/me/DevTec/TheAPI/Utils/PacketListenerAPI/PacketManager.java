@@ -11,10 +11,13 @@ public class PacketManager {
 	private static final List<Priority> list = Arrays.asList(Priority.LOWEST, Priority.LOW, Priority.NORMAL, Priority.HIGH, Priority.HIGHEST, Priority.MONITOR);
 	private static final HashMap<Priority, List<Listener>> listeners = new HashMap<>();
 	public static Object call(Player player, Object packet, Object channel, PacketType type) {
-			for(Priority o : list)
+		if(packet==null||channel==null)return packet;
+			for(Priority o : list) {
 			if(listeners.containsKey(o))
-			for(Listener w : listeners.get(o))
-				w.call(player, packet, channel, type==PacketType.PLAY_OUT);
+			for(Listener w : listeners.get(o)) {
+				packet=w.call(player, packet, channel, type==PacketType.PLAY_OUT);
+			}
+			}
 		return packet;
 	}
 	

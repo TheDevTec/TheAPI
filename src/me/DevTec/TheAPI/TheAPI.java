@@ -61,6 +61,7 @@ import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 import me.DevTec.TheAPI.WorldsAPI.WorldBorderAPI;
 
+@SuppressWarnings("deprecation")
 public class TheAPI {
 	private static final HashMap<String, BossBar> bars = new HashMap<>();
 	private static final HashMap<String, Integer> task = new HashMap<>();
@@ -71,11 +72,7 @@ public class TheAPI {
 	private static Random random = new Random();
 	private static int ver;
 	static {
-		try {
-			ver=StringUtils.getInt(getServerVersion().split("_")[1]);
-		}catch(Exception e) {
-			ver=7;
-		}
+		ver = StringUtils.getInt(getServerVersion().split("_")[1]);
 	}
 	
 	public static void register(Listener listener) {
@@ -811,7 +808,6 @@ public class TheAPI {
 			return true;
 	}
 
-	@SuppressWarnings("deprecation")
 	private static void hide(Player p) {
 		if (isVanished(p)) {
 			for (Player s : getOnlinePlayers()) {
@@ -1024,7 +1020,6 @@ public class TheAPI {
 	 * @see see Return boolean exists User's file
 	 * @return boolean
 	 */
-	@SuppressWarnings("deprecation")
 	public static boolean existsUser(String name) {
 		String s = null;
 		try {
@@ -1094,7 +1089,6 @@ public class TheAPI {
 	 * @param nameOrUUID Name of player or UUID in String
 	 * @return User
 	 */
-	@SuppressWarnings("deprecation")
 	public static User getUser(String nameOrUUID) {
 		if (nameOrUUID == null)
 			return null;
@@ -1148,9 +1142,7 @@ public class TheAPI {
 			return;
 		cache.remove(player.getUniqueId());
 	}
-
 	
-	@SuppressWarnings("deprecation")
 	public static void removeCachedUser(String nameOrUUID) {
 	if (nameOrUUID == null)
 		return;
