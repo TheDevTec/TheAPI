@@ -60,7 +60,7 @@ public class LoaderClass extends JavaPlugin {
 	public final List<BossBar> bars = new ArrayList<>();
 	//TheAPI
 	public static LoaderClass plugin;
-	public static Config config= new Config("TheAPI/Config.yml"), data= new Config("TheAPI/Data.yml");
+	public static Config config, data;;
 	public String motd;
 	public int max;
 	//EconomyAPI
@@ -222,6 +222,8 @@ public class LoaderClass extends JavaPlugin {
 	}
 	
 	private void createConfig() {
+		config= new Config("TheAPI/Config.yml");
+		data= new Config("TheAPI/Data.yml");
 		config.addDefault("Options.HideErrors", false); //hide only TheAPI errors
 		config.setComments("Options.HideErrors", Arrays.asList("","# If you enable this option, errors from TheAPI will dissapear","# defaulty: false"));
 		config.addDefault("Options.Cache.User.Use", true); //Require memory, but loading of User.class is faster (only from TheAPI.class)
