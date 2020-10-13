@@ -123,6 +123,13 @@ public class Section implements Data {
 		return c.getLong(s+"."+path);
 	}
 	
+	public float getFloat(String path) {
+		if(path == null)return 0;
+		if(path.trim().isEmpty())
+			return c.getFloat(s);
+		return c.getFloat(s+"."+path);
+	}
+	
 	public String getString(String path) {
 		if(path == null)return null;
 		if(path.trim().isEmpty())

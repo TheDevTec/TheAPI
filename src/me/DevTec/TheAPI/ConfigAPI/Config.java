@@ -228,6 +228,11 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		return f.getByte(path);
 	}
 	
+	public float getFloat(String path) {
+		if(path == null)return 0;
+		return f.getFloat(path);
+	}
+	
 	public List<Object> getList(String path) {
 		if(path == null)return null;
 		return f.getList(path);
