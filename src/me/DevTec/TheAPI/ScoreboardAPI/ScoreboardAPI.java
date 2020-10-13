@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 
@@ -373,21 +374,48 @@ public class ScoreboardAPI {
 				suffix = "";
 				setPlayer(value);
 			} else if (value.length() <= 32) {
-				if (prefix == null || !prefix.equals(value.substring(0, 16)))
+				List<String> lines = new ArrayList<>();
+				wrapText(value, 16, lines);
+				String p = lines.get(0);
+				String n = lines.get(1);
+				if (prefix == null || !prefix.equals(p))
 					changed = true;
-				prefix = value.substring(0, 16);
+				prefix = p;
 				if (suffix == null || !suffix.equals(""))
 					changed = true;
 				suffix = "";
-				setPlayer(value.substring(16));
+				setPlayer(n);
 			} else {
-				if (prefix == null || !prefix.equals(value.substring(0, 16)))
+				List<String> lines = new ArrayList<>();
+				wrapText(value, 16, lines);
+				String p = lines.get(0);
+				String n = lines.get(1);
+				String s = lines.get(2);
+				if (prefix == null || !prefix.equals(p))
 					changed = true;
-				prefix = value.substring(0, 16);
-				if (suffix == null || !suffix.equals(value.length() < 48 ? value.substring(32) : value.substring(32,48)))
+				prefix = p;
+				if (suffix == null || !suffix.equals(s))
 					changed = true;
-				suffix = value.length() < 48 ? value.substring(32) : value.substring(32,48);
-				setPlayer(value.substring(16, 32));
+				suffix = s;
+				setPlayer(n);
 			}
 		}
+		
+	    private void wrapText(String text, int maxLength, Collection<String> list) {
+	        String colorPrefix = "";
+	        while (text.length() > maxLength)
+	        {
+	            int spaceIndex = text.lastIndexOf(' ', maxLength);
+	            if (spaceIndex <= 0) {
+	                list.add(colorPrefix + text);
+	                return;
+	            }
+	            String colorText = colorPrefix + text.substring(0, spaceIndex);
+	            colorPrefix = ChatColor.getLastColors(colorText);
+	            list.add(colorText);
+	            text = text.substring(spaceIndex);
+	        }
+	        list.add(colorPrefix + text);
+	    }
+		
 	}}

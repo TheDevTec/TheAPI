@@ -2,7 +2,6 @@ package me.DevTec.TheAPI.Utils.DataKeeper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -134,19 +133,19 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		}
 	}
 
-	public Set<String> getKeys(String key) {
+	public List<String> getKeys(String key) {
 		return a.getKeys(key);
 	}
 
-	public Set<String> getKeys() {
+	public List<String> getKeys() {
 		return a.getKeys();
 	}
 
-	public Set<String> getKeys(String key, boolean sub) {
+	public List<String> getKeys(String key, boolean sub) {
 		return a.getKeys(key,sub);
 	}
 
-	public Set<String> getKeys(boolean sub) {
+	public List<String> getKeys(boolean sub) {
 		return a.getKeys(sub);
 	}
 

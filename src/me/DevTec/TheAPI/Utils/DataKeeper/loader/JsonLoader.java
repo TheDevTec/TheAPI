@@ -1,8 +1,10 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
@@ -10,11 +12,33 @@ import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker;
 
 public class JsonLoader implements DataLoader {
 	private boolean l;
-	private HashMap<String, DataHolder> data = new HashMap<>();
+	private Map<String, DataHolder> data = new HashMap<>();
 	
 	@Override
-	public HashMap<String, DataHolder> get() {
+	public Map<String, DataHolder> get() {
 		return data;
+	}
+	
+	public Collection<String> getKeys() {
+		return data.keySet();
+	}
+	
+	public void set(String key, DataHolder holder) {
+		if(key==null)return;
+		if(holder==null) {
+			data.remove(key);
+			return;
+		}
+		data.put(key, holder);
+	}
+	
+	public void remove(String key) {
+		if(key==null)return;
+		data.remove(key);
+	}
+	
+	public void reset() {
+		data.clear();
 	}
 	
 	@Override

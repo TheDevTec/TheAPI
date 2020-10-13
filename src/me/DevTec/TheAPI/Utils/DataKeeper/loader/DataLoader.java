@@ -2,23 +2,32 @@ package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data;
 import me.DevTec.TheAPI.Utils.File.Reader;
 
 public interface DataLoader extends Data {
-	public HashMap<String, DataHolder> get();
+	public Map<String, DataHolder> get();
 
 	public boolean loaded();
+
+	public void set(String key, DataHolder value);
+
+	public void remove(String key);
 	
 	public List<String> getHeader();
 	
 	public List<String> getFooter();
 	
 	public void load(String input);
+
+	public Collection<String> getKeys();
+	
+	public void reset();
 	
 	public default void load(File f) {
 		load(Reader.read(f, true));

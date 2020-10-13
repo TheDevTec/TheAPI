@@ -1,21 +1,62 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
 import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker;
 
 public class YamlLoader implements DataLoader {
-	private static final Pattern pattern = Pattern.compile("([ ]*)(.*?):[ ]*{1}(.*)");
-	private HashMap<String, DataHolder> data = new HashMap<>();
+	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*):[ ]*(.*)");
+	private Map<String, DataHolder> data = new HashMap<>();
+	private Map<Integer, String> items = new HashMap<>();
 	private boolean l;
+	private int c;
 	private List<String> header = new ArrayList<>(0), footer = new ArrayList<>(0);
 	
+	public Collection<String> getKeys() {
+		return items.values();
+	}
+	
+	public void set(String key, DataHolder holder) {
+		if(key==null)return;
+		if(holder==null) {
+			remove(key);
+			return;
+		}
+		if(data.containsKey(key)) {
+			data.put(key, holder);
+		}else {
+			data.put(key, holder);
+			items.put(c++, key);
+		}
+	}
+	
+	public void remove(String key) {
+		if(key==null)return;
+		data.remove(key);
+		for(Entry<Integer, String> entry : items.entrySet()) {
+			if(entry.getValue().equals(key))
+			items.remove(entry.getKey());
+		}
+	}
+	
+	public void reset() {
+		data.clear();
+		items.clear();
+		header.clear();
+		footer.clear();
+		c=0;
+	}
+	
 	@Override
-	public HashMap<String, DataHolder> get() {
+	public Map<String, DataHolder> get() {
 		return data;
 	}
 	
@@ -28,14 +69,14 @@ public class YamlLoader implements DataLoader {
 		List<Object> items = new ArrayList<>(0);
 		List<String> lines = new ArrayList<>(0);
 		String key = "";
-		StringBuilder v = new StringBuilder();
-		int last = 0, f=0, c = 0;
+		StringBuilder v = null;
+		int last = 0, f = 0, c = 0;
 		for(String text : input.split(System.lineSeparator())) {
-			if(text.trim().startsWith("#")||c==0 && text.trim().isEmpty()) {
+			if(text.trim().startsWith("#") || text.trim().isEmpty()) {
 				if(c!=0) {
 					if(c==1) {
 						set(key, Maker.objectFromJson(v.toString()), lines);
-						v=new StringBuilder();
+						v=null;
 						}else
 						if(c==2) {
 							set(key, items, lines);
@@ -44,15 +85,17 @@ public class YamlLoader implements DataLoader {
 						c=0;
 				}
 				if(f==0)
-					header.add(text.replaceFirst(cs(c(text),0), ""));
+					header.add(text.substring(c(text)));
 				else
-				lines.add(text.replaceFirst(cs(c(text),0), ""));
+				lines.add(text.substring(c(text)));
 				continue;
 			}
-			if(c!=0 && pattern.matcher(Pattern.quote(text)).find()) {
+			Matcher sec = pattern.matcher(text);
+			boolean find = sec.find();
+			if(c!=0 && find) {
 				if(c==1) {
 				set(key, Maker.objectFromJson(v.toString()), lines);
-				v=new StringBuilder();
+				v=null;
 				}
 				if(c==2) {
 					set(key, items, lines);
@@ -62,16 +105,18 @@ public class YamlLoader implements DataLoader {
 			}
 			if(c==2 || text.substring(c(text)).startsWith("- ") && !key.equals("")) {
 				items.add(Maker.objectFromJson(c!=2?text.replaceFirst(text.split("- ")[0]+"- ", ""):text.substring(c(text))));
-			}else {
+				continue;
+			}
+			if(find) {
 				if(!items.isEmpty()) {
 					set(key, items, lines);
 					items=new ArrayList<>(1);
 				}
 				if(c==1) {
-					v.append(text.replaceFirst(cs(c(text),0),""));
+					v.append(text.substring(c(text)));
 					continue;
 				}
-				if(c(text.split(":")[0]) <= last) {
+				if(c(text) <= last) {
 					if(!text.startsWith(" "))key="";
 					if(c(text.split(":")[0]) == last) {
 						String lastr = key.split("\\.")[key.split("\\.").length-1]+1;
@@ -85,25 +130,32 @@ public class YamlLoader implements DataLoader {
 					if(remove < 0)break;
 					key=key.substring(0, remove);
 				}}}
-				key+=(key.equals("")?"":".")+text.split(":")[0].trim();
+				String split = sec.group(1);
+				if((split.startsWith("'")||split.startsWith("\"")) && (split.endsWith("'")||split.endsWith("\"")) && split.length()>1)
+					split=split.substring(1, split.length()-1);
+				String object = null;
+				try{
+					object=sec.group(2);
+				}catch(Exception er) {}
+				key+=(key.equals("")?"":".")+split.trim();
 				f=1;
-				last=c(text.split(":")[0]);
-				if(!text.replaceFirst((text.split(":")[0]+":"),"").trim().isEmpty()) {
-					if(text.replaceFirst((text.split(":")[0]+": "),"").trim().equals("|")) {
+				last=c(text);
+				if(!object.isEmpty()) {
+					if(object.trim().equals("|")) {
 						c=1;
+						v = new StringBuilder();
 						continue;
 					}
-					if(text.replaceFirst((text.split(":")[0]+": "),"").trim().equals("|-")) {
+					if(object.trim().equals("|-")) {
 						c=2;
+						v = new StringBuilder();
 						continue;
 					}
-					set(key, Maker.objectFromJson(text.replaceFirst((text.split(":")[0]+": "),"")), lines);
+					set(key, Maker.objectFromJson(object), lines);
 				}else
-				if(lines.isEmpty()==false) {
+				if(lines.isEmpty()==false)
 					set(key, null, lines);
-				}
-			}
-		}
+			}}
 		if(!items.isEmpty()||c==2) {
 			set(key, items, lines);
 		}else
@@ -115,7 +167,6 @@ public class YamlLoader implements DataLoader {
 		l=true;
 		}catch(Exception er) {
 			l=false;
-			er.printStackTrace();
 		}
 	}
 
@@ -128,15 +179,6 @@ public class YamlLoader implements DataLoader {
 	public List<String> getFooter() {
 		return footer;
 	}
-
-	//Other
-	private final String cs(int s, int doubleSpace) {
-		String i = "";
-		String space = doubleSpace==1?"  ":" ";
-		for(int c = 0; c < s; ++c)
-			i+=space;
-		return i;
-	}
 	
 	private final int c(String s) {
 		int i = 0;
@@ -147,7 +189,8 @@ public class YamlLoader implements DataLoader {
 	}
 	
 	private final void set(String key, Object o, List<String> lines) {
-		data.put(key.replace("'", "").replace("\"", ""), new DataHolder(o, new ArrayList<>(lines)));
+		if((key.startsWith("\"") && key.endsWith("\"")||key.startsWith("'") && key.endsWith("'")) && key.length()>1)key=key.substring(1, key.length()-1);
+		set(key, new DataHolder(o, new ArrayList<>(lines)));
 		lines.clear();
 	}
 

@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
 import me.DevTec.TheAPI.Utils.DataKeeper.DataType;
@@ -135,9 +134,26 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		f.set(path, value);
 	}
 	
-	public Set<String> getKeys(String path) {
+	public List<String> getKeys(String path) {
 		if(path == null)return null;
+		if(path.trim().isEmpty())
+			return f.getKeys();
 		return f.getKeys(path);
+	}
+	
+	public List<String> getKeys() {
+		return f.getKeys();
+	}
+	
+	public List<String> getKeys(String path, boolean sub) {
+		if(path == null)return null;
+		if(path.trim().isEmpty())
+			return f.getKeys(sub);
+		return f.getKeys(path, sub);
+	}
+	
+	public List<String> getKeys(boolean sub) {
+		return f.getKeys(sub);
 	}
 	
 	public List<String> getComments(String path) {

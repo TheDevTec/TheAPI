@@ -640,7 +640,7 @@ public class NMSAPI {
 	}
 	
 	public static Object getIChatBaseCompomentFromCraftBukkit(String text) {
-		return Ref.invokeNulled(Ref.method(Ref.craft("util.CraftChatMessage"), "fromStringOrNull", String.class), text);
+		return ((Object[])Ref.invokeNulled(Ref.method(Ref.craft("util.CraftChatMessage"), "fromString", String.class), text))[0];
 	}
 	
 	public static Object getIChatBaseComponentJson(String json) {
