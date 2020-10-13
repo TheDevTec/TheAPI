@@ -470,12 +470,12 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	}
 
 	public List<String> getKeys() {
-		return aw;
+		return new ArrayList<>(aw);
 	}
 	
 	public List<String> getKeys(boolean subkeys) {
 		if (subkeys)return new ArrayList<>(loader.getKeys());
-		return aw;
+		return new ArrayList<>(aw);
 	}
 
 	public List<String> getKeys(String key) {
