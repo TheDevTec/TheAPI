@@ -1,9 +1,10 @@
 package me.DevTec.TheAPI.Utils.DataKeeper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -76,13 +77,183 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public Data getData() {
 		return a;
 	}
-
-	public Object get(String key) {
-		return a.get(key);
+	
+	public void reload() {
+    	a.reload(a.getFile());
+    }
+    
+	public boolean exists(String path) {
+		if(path==null)return false;
+		return a.exists(path);
 	}
 	
-	public boolean isSection(String key) {
-		return a.isKey(key);
+	public void remove(String path) {
+		if(path == null)return;
+		a.remove(path);
+	}
+	
+	public List<String> getKeys(String path) {
+		if(path == null)return null;
+		if(path.trim().isEmpty())
+			return a.getKeys();
+		return a.getKeys(path);
+	}
+	
+	public List<String> getKeys() {
+		return a.getKeys();
+	}
+	
+	public List<String> getKeys(String path, boolean sub) {
+		if(path == null)return null;
+		if(path.trim().isEmpty())
+			return a.getKeys(sub);
+		return a.getKeys(path, sub);
+	}
+	
+	public List<String> getKeys(boolean sub) {
+		return a.getKeys(sub);
+	}
+	
+	public Object get(String path) {
+		if(path == null)return null;
+		return a.get(path);
+	}
+	
+	public int getInt(String path) {
+		if(path == null)return 0;
+		return a.getInt(path);
+	}
+	
+	public double getDouble(String path) {
+		if(path == null)return 0.0;
+		return a.getDouble(path);
+	}
+	
+	public long getLong(String path) {
+		if(path == null)return 0;
+		return a.getLong(path);
+	}
+	
+	public String getString(String path) {
+		if(path == null)return null;
+		return a.getString(path);
+	}
+	
+	public boolean getBoolean(String path) {
+		if(path == null)return false;
+		return a.getBoolean(path);
+	}
+	
+	public short getShort(String path) {
+		if(path == null)return 0;
+		return a.getShort(path);
+	}
+	
+	public byte getByte(String path) {
+		if(path == null)return 0;
+		return a.getByte(path);
+	}
+	
+	public float getFloat(String path) {
+		if(path == null)return 0;
+		return a.getFloat(path);
+	}
+	
+	public List<Object> getList(String path) {
+		if(path == null)return null;
+		return a.getList(path);
+	}
+	
+	public List<String> getStringList(String path) {
+		if(path == null)return null;
+		return a.getStringList(path);
+	}
+	
+	public List<Boolean> getBooleanList(String path) {
+		if(path == null)return null;
+		return a.getBooleanList(path);
+	}
+	
+	public List<Byte> getByteList(String path) {
+		if(path == null)return null;
+		return a.getByteList(path);
+	}
+	
+	public List<Integer> getIntegerList(String path) {
+		if(path == null)return null;
+		return a.getIntegerList(path);
+	}
+	
+	public List<Float> getFloatList(String path) {
+		if(path == null)return null;
+		return a.getFloatList(path);
+	}
+	
+	public List<Long> getLongList(String path) {
+		if(path == null)return null;
+		return a.getLongList(path);
+	}
+	
+	public List<Short> getShortList(String path) {
+		if(path == null)return null;
+		return a.getShortList(path);
+	}
+	
+	public List<Map<?,?>> getMapList(String path) {
+		if(path == null)return null;
+		return a.getMapList(path);
+	}
+	
+	public boolean isString(String path) {
+		return get(path) instanceof String;
+	}
+	
+	public boolean isNumber(String path) {
+		return get(path) instanceof Number;
+	}
+	
+	public boolean isInt(String path) {
+		return get(path) instanceof Integer;
+	}
+	
+	public boolean isInteger(String path) {
+		return get(path) instanceof Integer;
+	}
+	
+	public boolean isDouble(String path) {
+		return get(path) instanceof Double;
+	}
+	
+	public boolean isFloat(String path) {
+		return get(path) instanceof Float;
+	}
+	
+	public boolean isLong(String path) {
+		return get(path) instanceof Long;
+	}
+	
+	public boolean isByte(String path) {
+		return get(path) instanceof Byte;
+	}
+	
+	public boolean isShort(String path) {
+		return get(path) instanceof Short;
+	}
+	
+	public boolean isList(String path) {
+		return get(path) instanceof List;
+	}
+	
+	public boolean isMap(String path) {
+		return get(path) instanceof Map;
+	}
+	
+	public boolean isBoolean(String path) {
+		return get(path) instanceof Boolean;
+	}
+	
+	public boolean isSection(String path) {
+		return a.isKey(path);
 	}
 
 	public ItemStack getItemStack(String key) {
@@ -94,23 +265,24 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			return (ItemStack) get(key);
 		}
 	}
-
-	@SuppressWarnings("unchecked")
+	
 	public List<ItemStack> getItemStacks(String key) {
 		List<ItemStack> list = new ArrayList<ItemStack>();
 		try {
-			List<String> inSet = a.getStringList(key);
-			for (String o : inSet)
-				list.add((ItemStack) TheCoder.fromStringToList(o));
-			if(list.contains(null))return (List<ItemStack>) getList(key);
+			List<Object> inSet = a.getList(key);
+			for (Object o : inSet)
+				for(Object a : (o instanceof ItemStack ? Arrays.asList((ItemStack)o) : TheCoder.fromStringToList(o.toString())))
+				list.add((ItemStack) a);
+			if(list.contains(null))return a.getListAs(key, ItemStack.class);
 			return list;
 		} catch (Exception e) {
-			list = (List<ItemStack>) getList(key);
+			list = a.getListAs(key, ItemStack.class);
 		}
 		return list;
 	}
 	
 	public void set(String key, Object o) {
+		if(key == null)return;
 		a.set(key, o);
 		if(!LoaderClass.config.getBoolean("Options.Cache.User.Use"))
 			save();
@@ -133,30 +305,6 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		}
 	}
 
-	public List<String> getKeys(String key) {
-		return a.getKeys(key);
-	}
-
-	public List<String> getKeys() {
-		return a.getKeys();
-	}
-
-	public List<String> getKeys(String key, boolean sub) {
-		return a.getKeys(key,sub);
-	}
-
-	public List<String> getKeys(boolean sub) {
-		return a.getKeys(sub);
-	}
-
-	public List<String> getStringList(String key) {
-		return a.getStringList(key);
-	}
-
-	public List<?> getList(String key) {
-		return a.getList(key);
-	}
-
 	public boolean exist(String key) {
 		return exists(key);
 	}
@@ -173,12 +321,6 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		return !exists(key);
 	}
 
-	public boolean exists(String key) {
-		return a.exists(key);
-	}
-	
-	private static Pattern isD = Pattern.compile("[0-9.-]+"),isN = Pattern.compile("[0-9-]+");
-
 	/**
 	 * @see see getBoolean(key) method
 	 * @param key Path in config
@@ -186,53 +328,5 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	 */
 	public boolean has(String key) {
 		return getBoolean(key);
-	}
-
-	public boolean getBoolean(String key) {
-		return a.getBoolean(key);
-	}
-
-	public boolean isString(String key) {
-		return a.get(key) instanceof String;
-	}
-
-	public boolean isDouble(String key) {
-		return a.get(key) instanceof Double || isD.matcher(getString(key)).find();
-	}
-
-	public boolean isInt(String key) {
-		return a.get(key) instanceof Long || isN.matcher(getString(key)).find();
-	}
-
-	public boolean isList(String key) {
-		return a.get(key) instanceof List;
-	}
-
-	public boolean isLong(String key) {
-		return a.get(key) instanceof Long || isN.matcher(getString(key)).find();
-	}
-
-	public boolean isFloat(String key) {
-		return a.get(key) instanceof Float || a.get(key) instanceof Long || a.get(key) instanceof Double || isD.matcher(getString(key)).find();
-	}
-
-	public String getString(String key) {
-		return a.getString(key);
-	}
-
-	public int getInt(String key) {
-		return a.getInt(key);
-	}
-
-	public double getDouble(String key) {
-		return a.getDouble(key);
-	}
-
-	public long getLong(String key) {
-		return a.getLong(key);
-	}
-
-	public float getFloat(String key) {
-		return a.getFloat(key);
 	}
 }

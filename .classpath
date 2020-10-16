@@ -8,8 +8,8 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/Vault.jar"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/TheVault.jar"/>
-	<classpathentry kind="lib" path="C:/EclipseUtils/MC/spigot-1.16.2.jar"/>
-	<classpathentry kind="lib" path="C:/EclipseUtils/MC/spigot-1.7.10-SNAPSHOT-b1657.jar"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/PAPI.jar"/>
+	<classpathentry kind="lib" path="C:/EclipseUtils/MC/spigot-1.16.3.jar"/>
+	<classpathentry kind="lib" path="C:/EclipseUtils/spigot-1.7.10.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

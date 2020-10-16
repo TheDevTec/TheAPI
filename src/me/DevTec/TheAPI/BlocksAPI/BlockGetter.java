@@ -17,6 +17,12 @@ public class BlockGetter {
 		sizeZ = Math.abs(Math.max(a.getBlockZ(), b.getBlockZ()) - baseZ) + 1;
 	}
 	
+	public void reset() {
+		x=0;
+		y=0;
+		z=0;
+	}
+	
 	public boolean has() {
 		return x < sizeX && y < sizeY && z < sizeZ;
 	}

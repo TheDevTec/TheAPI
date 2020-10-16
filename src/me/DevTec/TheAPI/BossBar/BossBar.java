@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 import me.DevTec.TheAPI.Utils.NMS.DataWatcher.DataWatcher;
+import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.Utils.Reflections.Reflections;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
@@ -97,7 +98,7 @@ public class BossBar {
     		bar=Reflections.c(Reflections.getConstructor(Reflections.getNMSClass("BossBattleServer"),Reflections.getNMSClass("IChatBaseComponent"),Reflections.getNMSClass("BossBattle$BarColor"),Reflections.getNMSClass("BossBattle$BarStyle")),
     				NMSAPI.getIChatBaseComponentText(title), color.toMojang(), style.toMojang());
     			Reflections.invoke(bar, Reflections.getMethod(bar.getClass(), "setProgress", float.class), (float)progress!=-1?progress:1);
-    		Reflections.invoke(bar, Reflections.getMethod(Reflections.getNMSClass("BossBattleServer"), "addPlayer", Reflections.getNMSClass("EntityPlayer")), NMSAPI.getPlayer(p));
+    		Reflections.invoke(bar, Reflections.getMethod(Reflections.getNMSClass("BossBattleServer"), "addPlayer", Reflections.getNMSClass("EntityPlayer")), Ref.player(p));
     		return;
     		}
     		if(text!=null) {
@@ -123,7 +124,7 @@ public class BossBar {
         Object packet = null;
         boolean cr = false;
         if(bar==null) {
-        bar = Reflections.c(Reflections.getConstructor(c,Reflections.getNMSClass("World")),NMSAPI.getWorld(loc.getWorld()));
+        bar = Reflections.c(Reflections.getConstructor(c,Reflections.getNMSClass("World")),Ref.world(loc.getWorld()));
         Reflections.invoke(bar, Reflections.getMethod(c, "setLocation", double.class, double.class, double.class, float.class, float.class)
         		,loc.getX(), loc.getY() - 100, loc.getZ(), 0, 0);
         id=(int)Reflections.invoke(bar, Reflections.getMethod(c, "getId"));

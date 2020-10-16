@@ -103,9 +103,9 @@ public class Events implements Listener {
 		}}
 		if(!e.isCancelled()) {
 			if (e.getClickedInventory().getType() == InventoryType.PLAYER) {
-				d.onPutItem(p, i, e.getSlot());
+				e.setCancelled(d.onPutItem(p, i, e.getSlot()));
 			}else {
-			d.onTakeItem(p, i, e.getSlot());
+				e.setCancelled(d.onTakeItem(p, i, e.getSlot()));
 			}
 		}
 	}
@@ -190,7 +190,7 @@ public class Events implements Listener {
 		if (event.isCancelled()) {
 			return;
 		}
-		new TNTTask(reals, BlocksAPI.get(Shape.Sphere, c, event.getPower(),
+		new TNTTask(reals, BlocksAPI.get(Shape.Sphere, c, event.isNuclearBomb()?event.getPower()*20:event.getPower()*2,
 				blocks(event.isNuclearBomb() && event.canNuclearDestroyLiquid())), event).start();
 	}
 

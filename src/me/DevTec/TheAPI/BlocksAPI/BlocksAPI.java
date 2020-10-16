@@ -1,8 +1,11 @@
 package me.DevTec.TheAPI.BlocksAPI;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Location;
@@ -20,6 +23,7 @@ import me.DevTec.TheAPI.Utils.PercentageList;
 import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.TheMaterial;
+import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
 public class BlocksAPI {
@@ -232,6 +236,7 @@ public class BlocksAPI {
 							if (ignore==null||!ignore.contains(s.getType()))
 								blocks.add(s);
 						}
+			break;
 		}
 		return blocks;
 	}
@@ -700,8 +705,9 @@ public class BlocksAPI {
 				for(int i = 0; i < amount; ++i) {
 					if(!s.has())break;
 					Position pos = s.get();
+
 					if(ignore!=null)state.set(pos, TheAPI.getRandomFromList(with), ignore); else state.set(pos, TheAPI.getRandomFromList(with));
-					Position.updateBlockAt(pos);
+
 				}
 				if(!s.has())
 					cancel();
@@ -727,7 +733,6 @@ public class BlocksAPI {
 					if(!s.has())break;
 					Position pos = s.get();
 					if(ignore!=null)state.set(pos, with.getRandom(), ignore);else state.set(pos, with.getRandom());
-					Position.updateBlockAt(pos);
 				}
 				if(!s.has())
 					cancel();
@@ -765,7 +770,6 @@ public class BlocksAPI {
 					if(!s.has())break;
 					Position pos = s.get();
 					state.replace(pos, block, with.getRandom());
-					Position.updateBlockAt(pos);
 				}
 				if(!s.has())
 					cancel();
@@ -791,7 +795,6 @@ public class BlocksAPI {
 					if(!s.has())break;
 					Position pos = s.get();
 					state.replace(pos, block, TheAPI.getRandomFromList(with));
-					Position.updateBlockAt(pos);
 				}
 				if(!s.has())
 					cancel();
@@ -814,7 +817,6 @@ public class BlocksAPI {
 					if(!s.has())break;
 					Position pos = s.get();
 					state.replace(pos, blocks, TheAPI.getRandomFromList(with));
-					Position.updateBlockAt(pos);
 				}
 				if(!s.has())
 					cancel();
@@ -847,7 +849,6 @@ public class BlocksAPI {
 					if(!s.has())break;
 					Position pos = s.get();
 					state.replace(pos, blocks, with.getRandom());
-					Position.updateBlockAt(pos);
 				}
 				if(!s.has())
 					cancel();
@@ -943,6 +944,8 @@ public class BlocksAPI {
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with, List<TheMaterial> ignore) {
 		asynchronizedSet(a, b, onFinish, Arrays.asList(with), ignore);
 	}
+	
+	private static boolean ww = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1])>=14, palet = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1])>=9;
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with, List<TheMaterial> ignore) {
 		try {
@@ -952,16 +955,38 @@ public class BlocksAPI {
 		new Tasker() {
 			public void run() {
 				BlockGetter s = get(a, b);
+				HashMap<Long, Object> chunks = new HashMap<>();
 				while (s.has()) {
 					Position pos = s.get();
-					if(ignore!=null)state.set(pos, TheAPI.getRandomFromList(with), ignore);else state.set(pos, TheAPI.getRandomFromList(with));
-					Position.updateBlockAt(pos);
+					if(!ignore.contains(pos.getType())) {
+						if(!chunks.containsKey(pos.getChunkKey()))
+							chunks.put(pos.getChunkKey(), pos.getNMSChunk());
+						Object sc = ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4];
+					    if (sc == null) {
+					      if (ww)
+					        sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4);
+					      else
+					        sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4, true);
+					      ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4] = sc;
+					    }
+					Object cr = TheAPI.getRandomFromList(with).getIBlockData();
+				    if (palet)
+				      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+				    else
+				      Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+					}
+				}
+				for(Object chunk : chunks.values()) {
+				Object packet = Ref.newInstance(c, chunk, 0xffff);
+				for(Player p : TheAPI.getOnlinePlayers())
+					Ref.sendPacket(p, packet);
 				}
 				if(onFinish!=null)
 					onFinish.run();
 			}
 		}.runTask();
 	}
+	private static Constructor<?> c = Ref.constructor(Ref.nms("PacketPlayOutMapChunk"), Ref.nms("Chunk"), int.class);
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with) {
 		asynchronizedSet(a,b,onFinish, with, Arrays.asList());
@@ -978,12 +1003,55 @@ public class BlocksAPI {
 		}catch(Exception | NoSuchFieldError | NoSuchMethodError notEx) {}
 		new Tasker() {
 			public void run() {
-				BlockGetter s = get(a, b);
-				while (s.has()) {
-					Position pos = s.get();
-					if(ignore!=null)state.set(pos, with.getRandom(), ignore);else state.set(pos, with.getRandom());
-					Position.updateBlockAt(pos);
+			BlockGetter s = get(a, b);
+			//prepare regions
+			
+			//chunkKey, Chunk
+			HashMap<Long, Object> chunks = new HashMap<>();
+			boolean ww = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1])>=14;
+			boolean palet = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1])>=9;
+			while(s.has()) {
+				Position pos = s.get();
+				if(!chunks.containsKey(pos.getChunkKey())) {
+					chunks.put(pos.getChunkKey(), pos.getNMSChunk());
+					for(int i = 0; i < 255; ++i) {
+						Object c = pos.getNMSChunk();
+					    Object sc = ((Object[])Ref.invoke(c, get))[i >> 4];
+					    if (sc == null) {
+					      if (ww)
+					        sc = Ref.newInstance(aw, i >> 4 << 4);
+					      else
+					        sc = Ref.newInstance(aw, i >> 4 << 4, true);
+					      ((Object[])Ref.invoke(c, get))[i >> 4] = sc;
+					    }
+					}
 				}
+			}
+			
+			//regions prepared
+			s = get(a, b); //reset
+			
+			//set blocks
+			while (s.has()) {
+				Position pos = s.get();
+				if(!pos.getWorld().isChunkLoaded(pos.getBlockX()>>4, pos.getBlockZ()>>4))
+					pos.getWorld().loadChunk(pos.getBlockX()>>4, pos.getBlockZ()>>4, true);
+				if(!ignore.contains(pos.getType())) {
+				Object cr = with.getRandom().getIBlockData();
+				Object c = chunks.get(pos.getChunkKey());
+			    Object sc = ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4];
+			    if (palet)
+			      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+			    else
+			      Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+				}
+			}
+			//blocks set
+			s = get(a, b); //reset
+			
+			//send blocks update
+			while (s.has())
+			Position.sendBlockUpdateAt(s.get());
 				if(onFinish!=null)
 					onFinish.run();
 			}
@@ -1017,7 +1085,7 @@ public class BlocksAPI {
 				while (s.has()) {
 					Position pos = s.get();
 					state.replace(pos, block, with.getRandom());
-					Position.updateBlockAt(pos);
+					Position.sendBlockUpdateAt(pos);
 				}
 				if(onFinish!=null)
 					onFinish.run();
@@ -1037,10 +1105,46 @@ public class BlocksAPI {
 		new Tasker() {
 			public void run() {
 				BlockGetter s = get(a, b);
+				//prepare regions
+				
+				//chunkKey, Chunk
+				HashMap<Long, Object> chunks = new HashMap<>();
+				boolean ww = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1])>=14;
+				boolean palet = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1])>=9;
+				while(s.has()) {
+					Position pos = s.get();
+					if(!chunks.containsKey(pos.getChunkKey())) {
+						chunks.put(pos.getChunkKey(), pos.getNMSChunk());
+						for(int i = 0; i < 255; ++i) {
+							Object c = pos.getNMSChunk();
+						    Object sc = ((Object[])Ref.invoke(c, get))[i >> 4];
+						    if (sc == null) {
+						      if (ww)
+						        sc = Ref.newInstance(aw, i >> 4 << 4);
+						      else
+						        sc = Ref.newInstance(aw, i >> 4 << 4, true);
+						      ((Object[])Ref.invoke(c, get))[i >> 4] = sc;
+						    }
+						}
+					}
+				}
+				//regions prepared
+				s = get(a, b); //reset
+				
+				//set blocks
 				while (s.has()) {
 					Position pos = s.get();
-					state.replace(pos, block, TheAPI.getRandomFromList(with));
-					Position.updateBlockAt(pos);
+					if(block.contains(pos.getType())) {
+					Object cr = TheAPI.getRandomFromList(with).getIBlockData();
+					Object c = chunks.get(pos.getChunkKey());
+				    int y = (pos.getBlockY() < 0 ? 0 : (pos.getBlockY()>255?255:pos.getBlockY()));
+				    Object sc = ((Object[])Ref.invoke(c, get))[y >> 4];
+				    if (palet)
+				      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr);
+				    else
+				      Ref.invoke(sc, type, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr);
+					Position.sendBlockUpdateAt(pos);
+					}
 				}
 				if(onFinish!=null)
 					onFinish.run();
@@ -1048,6 +1152,20 @@ public class BlocksAPI {
 		}.runTask();
 	}
 
+
+	private static Constructor<?> aw = Ref.constructor(Ref.nms("ChunkSection"), int.class);
+	private static Method a,get=Ref.method(Ref.nms("Chunk"), "getSections"),blocks=Ref.method(Ref.nms("ChunkSection"), "getBlocks"),
+	type = Ref.method(Ref.nms("ChunkSection"), "setType", int.class, int.class, int.class, Ref.nms("IBlockData"));
+	static {
+		a=Ref.method(Ref.nms("DataPaletteBlock"), "b", int.class, int.class, int.class, Object.class);
+		if(a==null)
+			a = Ref.method(Ref.nms("DataPaletteBlock"), "setBlock", int.class, int.class, int.class, Ref.nms("IBlockData"));
+		if(a==null)
+			a=Ref.method(Ref.nms("DataPaletteBlock"), "setBlock", int.class, int.class, int.class, Object.class);
+		if(aw==null)
+			aw=Ref.constructor(Ref.nms("ChunkSection"), int.class,boolean.class);
+	}
+	
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> block, List<TheMaterial> with) {
 		try {
 			if(AsyncCatcher.enabled)
@@ -1056,11 +1174,46 @@ public class BlocksAPI {
 		new Tasker() {
 			public void run() {
 				BlockGetter s = get(a, b);
-				List<TheMaterial> blocks = block.toList();
+				//prepare regions
+				
+				//chunkKey, Chunk
+				HashMap<Long, Object> chunks = new HashMap<>();
+				boolean ww = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1])>=14;
+				boolean palet = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1])>=9;
+				while(s.has()) {
+					Position pos = s.get();
+					if(!chunks.containsKey(pos.getChunkKey())) {
+						chunks.put(pos.getChunkKey(), pos.getNMSChunk());
+						for(int i = 0; i < 255; ++i) {
+							Object c = pos.getNMSChunk();
+						    Object sc = ((Object[])Ref.invoke(c, get))[i >> 4];
+						    if (sc == null) {
+						      if (ww)
+						        sc = Ref.newInstance(aw, i >> 4 << 4);
+						      else
+						        sc = Ref.newInstance(aw, i >> 4 << 4, true);
+						      ((Object[])Ref.invoke(c, get))[i >> 4] = sc;
+						    }
+						}
+					}
+				}
+				//regions prepared
+				s = get(a, b); //reset
+				
+				//set blocks
 				while (s.has()) {
 					Position pos = s.get();
-					state.replace(pos, blocks, TheAPI.getRandomFromList(with));
-					Position.updateBlockAt(pos);
+					if(block.contains(pos.getType())) {
+					Object cr = TheAPI.getRandomFromList(with).getIBlockData();
+					Object c = chunks.get(pos.getChunkKey());
+				    int y = (pos.getBlockY() < 0 ? 0 : (pos.getBlockY()>255?255:pos.getBlockY()));
+				    Object sc = ((Object[])Ref.invoke(c, get))[y >> 4];
+				    if (palet)
+				      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr);
+				    else
+				      Ref.invoke(sc, type, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr);
+					Position.sendBlockUpdateAt(pos);
+					}
 				}
 				if(onFinish!=null)
 					onFinish.run();
@@ -1080,7 +1233,7 @@ public class BlocksAPI {
 				while (s.has()) {
 					Position pos = s.get();
 					state.replace(pos, blocks, with.getRandom());
-					Position.updateBlockAt(pos);
+					Position.sendBlockUpdateAt(pos);
 				}
 				if(onFinish!=null)
 					onFinish.run();

@@ -29,6 +29,12 @@ public class Section implements Data {
 		return null;
 	}
 	
+	public boolean isSection(String path) {
+		if(path.trim().isEmpty())
+			return c.isSection(s);
+		return c.isSection(s+"."+path);
+	}
+	
 	public void remove(String path) {
 		if(path.trim().isEmpty())
 			c.remove(s);

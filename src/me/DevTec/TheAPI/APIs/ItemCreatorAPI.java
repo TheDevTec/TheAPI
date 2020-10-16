@@ -24,6 +24,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import com.google.common.collect.Multimap;
+import com.mojang.authlib.properties.Property;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
@@ -288,6 +289,8 @@ public class ItemCreatorAPI implements Cloneable {
 		if (hasDisplayName())
 			name = getDisplayName();
 		owner = getOwner();
+		text = getOwnerByValues();
+		text = getOwnerByWeb();
 		if (hasLore())
 			for (String s : getLore()) {
 				addLore(s);
@@ -329,6 +332,17 @@ public class ItemCreatorAPI implements Cloneable {
 		}
 	}
 
+	public String getOwnerByWeb() {
+		return url;
+	}
+
+	public String getOwnerByValues() {
+		if (a.hasItemMeta())
+			if (a.getItemMeta() instanceof SkullMeta)
+				return (String)Ref.invoke(Ref.invoke(Ref.invoke(Ref.get(a.getItemMeta(), "profile"), "getProperties"), Ref.method(Ref.invoke(Ref.get(a.getItemMeta(), "profile"), "getProperties").getClass().getSuperclass(), "get", Object.class), "textures"), "getValue");
+		return text;
+	}
+
 	public Material getMaterial() {
 		return a.getType();
 	}
@@ -355,7 +369,7 @@ public class ItemCreatorAPI implements Cloneable {
 
 	public void setOwnerFromWeb(String web) {
 		if (web != null)
-			this.url = web;
+			url = web;
 	}
 
 	public void setOwnerFromValues(String values) {
@@ -896,18 +910,20 @@ public class ItemCreatorAPI implements Cloneable {
 						meta.addCustomEffect(new PotionEffect(t, StringUtils.getInt(ef.get(t).split(":")[0]), (amp <= 0 ? 1 : amp)), true);
 						}
 				i.setItemMeta(meta);
-			} else if (type != null) {
+			} else if (type != null && type==SkullType.PLAYER) {
 				SkullMeta m = (SkullMeta) i.getItemMeta();
-				if (owner != null) {
+				if (owner != null)
 					m.setOwner(owner);
-				} else if (url != null || url == null && text != null) {
+				if (url != null || text != null) {
 					try {
 						Object profile = Ref.createGameProfile(null, null);
 						byte[] encodedData = null;
 						try{
-							encodedData=Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
-						}catch(Exception err) {}
-						Ref.invoke(Ref.invoke(profile,"getProperties"),"put",Ref.createProperty("textures", (url == null && text != null ? text : new String(encodedData))));
+							if(url!=null)
+							encodedData=Base64.getEncoder().encode(("{textures:{SKIN:{url:\""+url+"\"}}}").getBytes());
+						}catch(Exception err) {
+						}
+						Ref.invoke(Ref.invoke(profile, "getProperties"), Ref.method(Ref.invoke(profile, "getProperties").getClass().getSuperclass(), "put", Object.class, Object.class), "textures", new Property("textures", encodedData!=null?new String(encodedData):text));
 						Ref.set(m, "profile", profile);
 					} catch (Exception | NoSuchMethodError e) {
 					}

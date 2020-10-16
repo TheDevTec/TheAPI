@@ -91,7 +91,7 @@ public class TheAPI {
 		PluginCommand cmd = TheAPI.createCommand(commandName, LoaderClass.plugin);
 		if(permission!=null)
 		cmd.setPermission(permission);
-		if(aliases!=null && aliases.length>=2)
+		if(aliases!=null && aliases.length>0)
 		cmd.setAliases(Arrays.asList(aliases));
 		cmd.setExecutor(commandExecutor);
 		TheAPI.registerCommand(cmd);

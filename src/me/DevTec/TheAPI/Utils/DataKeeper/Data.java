@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -80,7 +81,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	
 	public boolean exists(String path) {
 		int a = 0;
-		for (String k : loader.getKeys()) {
+		for (String k : loader.get().keySet()) {
 			if (k.startsWith(path)) {
 				a=1;
 				break;
@@ -213,10 +214,9 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			aw.add(k.split("\\.")[0]);
 	}
 
-	@SuppressWarnings("unchecked")
-	public <E> E get(String key) {
+	public Object get(String key) {
 		try {
-			return (E)(loader.get().get(key).o);
+			return loader.get().get(key).o;
 		} catch (Exception e) {
 			return null;
 		}
@@ -231,7 +231,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	}
 	
 	public String getString(String key) {
-		return (Object)get(key)!=null?String.valueOf((Object)get(key)):null;
+		return get(key)!=null?String.valueOf(get(key)):null;
 	}
 	
 	public int getInt(String key) {
@@ -318,8 +318,9 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		}
 	}
 	
-	public <E> List<E> getList(String key) {
-		return get(key)!=null && get(key) instanceof List ? get(key) :  new ArrayList<>(3);
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<Object> getList(String key) {
+		return get(key)!=null && get(key) instanceof Collection ? (List) get(key) :  new ArrayList<>(3);
 	}
 	
 	public <E> List<E> getListAs(String key, Class<? extends E> clazz) {
@@ -330,6 +331,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			try {
 				if(o!=null)
 				list.add(o==null?null:clazz.cast(o));
+				else list.add(null);
 			}catch(Exception er) {
 			}
 		return list;
@@ -341,7 +343,8 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		List<String> list = new ArrayList<>(items.size());
 		for(Object o : items)
 			if(o!=null)
-			list.add(o.toString());
+			list.add(""+o);
+			else list.add(null);
 		return list;
 	}
 	
@@ -498,12 +501,12 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	}
 	
 	public List<String> getKeys(String key, boolean subkeys) {
-		List<String> a = new ArrayList<>(loader.getKeys().size());
+		List<String> a = new ArrayList<>();
 		for (String d : loader.getKeys())
 			if (d.startsWith(key)) {
-				String c = d.replaceFirst(key, "").replaceFirst("\\.", "");
-				if (c.trim().isEmpty())continue;
-				c = subkeys ? c : c.split("\\.")[0];
+				String c = d.replaceFirst(key, "");
+				if(!c.startsWith("."))continue;
+				c = subkeys ? c : c.replaceFirst("\\.", "").split("\\.")[0];
 				if (c.trim().isEmpty())continue;
 				if (!a.contains(c))a.add(c);
 			}
@@ -559,18 +562,16 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 				DataOutputStream ous = new DataOutputStream(buf);
 				for (Entry<String, DataHolder> key: loader.get().entrySet())
 					try {
-						Object o = key.getValue();
+						String o = ""+Maker.objectToJson(key.getValue().o);
 						ous.writeUTF(key.getKey());
-						ous.writeUTF(""+Maker.objectToJson(o));
+						ous.writeUTF(o);
 					} catch (Exception er) {}
 				ous.flush();
 				bos.flush();
 				buf.flush();
 				tos.finish();
-
 				return type == DataType.DATA ? bos.toString() : Base64.getEncoder().encodeToString(bos.toByteArray());
 			} catch (Exception e) {}
-
 			return "";
 		}
 		if (type == DataType.JSON) {

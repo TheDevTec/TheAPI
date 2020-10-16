@@ -325,6 +325,10 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public boolean isBoolean(String path) {
 		return get(path) instanceof Boolean;
 	}
+	
+	public boolean isSection(String path) {
+		return f.isKey(path);
+	}
     
     public Data getData() {
     	return f;

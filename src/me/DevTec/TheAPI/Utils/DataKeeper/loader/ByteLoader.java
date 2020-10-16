@@ -60,9 +60,10 @@ public class ByteLoader implements DataLoader {
 			while(true)
 				try {
 					String key = (ousr instanceof DataInputStream?(DataInputStream)ousr : (ObjectInputStream)ousr).readUTF();
-					data.put(key, new DataHolder(Maker.objectFromJson((ousr instanceof DataInputStream?(DataInputStream)ousr : (ObjectInputStream)ousr).readUTF())));
+					String value = (ousr instanceof DataInputStream?(DataInputStream)ousr : (ObjectInputStream)ousr).readUTF();
+					data.put(key, new DataHolder(Maker.objectFromJson(value)));
 				}catch(Exception e) {
-				break;
+					break;
 				}
 			ousr.close();
 			l=true;

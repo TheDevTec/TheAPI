@@ -147,7 +147,10 @@ public class TNTTask {
 						if (event.canDestroyBlocks())
 							if (b.getBukkitType() == Material.TNT) {
 								if (igniteUsed) {
+									Object oldBlock = b.getType().getIBlockData();
 									b.setType(Material.AIR);
+									Position.updateBlockAt(b, oldBlock);
+									Position.updateLightAt(b);
 									if (fakeTnt) {
 										new Tasker() {
 											@Override
@@ -165,7 +168,10 @@ public class TNTTask {
 									if (event.isDropItems())
 										Events.add(b, (toReal ? reals : b), toReal, st,
 												b.getBlock().getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
+									Object oldBlock = b.getType().getIBlockData();
 									b.setType(Material.AIR);
+									Position.updateBlockAt(b, oldBlock);
+									Position.updateLightAt(b);
 									b.getBlock().getDrops().clear();
 									if (TheAPI.generateRandomInt(25) == 25) {
 										for (Entity e : BlocksAPI.getNearbyEntities(b, 2)) {
@@ -186,7 +192,10 @@ public class TNTTask {
 								if (event.isDropItems())
 									Events.add(b, (toReal ? reals : b), toReal, st,
 											b.getBlock().getDrops(new ItemStack(Material.DIAMOND_PICKAXE)));
+								Object oldBlock = b.getType().getIBlockData();
 								b.setType(Material.AIR);
+								Position.updateBlockAt(b, oldBlock);
+								Position.updateLightAt(b);
 								b.getBlock().getDrops().clear();
 								if (TheAPI.generateRandomInt(25) == 25) {
 									for (Entity e : BlocksAPI.getNearbyEntities(b, 2)) {

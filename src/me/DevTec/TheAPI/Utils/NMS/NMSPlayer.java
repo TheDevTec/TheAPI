@@ -221,7 +221,7 @@ public class NMSPlayer {
 	}
 
 	public NMSPlayer(org.bukkit.entity.Player bukkitPlayer) {
-		this(NMSAPI.getPlayer(bukkitPlayer));
+		this(Ref.player(bukkitPlayer));
 	}
 
 	public void kill() {

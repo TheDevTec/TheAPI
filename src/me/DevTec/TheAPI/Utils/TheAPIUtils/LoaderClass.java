@@ -1,5 +1,6 @@
 package me.DevTec.TheAPI.Utils.TheAPIUtils;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +40,7 @@ import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.DataType;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap;
+import me.DevTec.TheAPI.Utils.File.Reader;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler_New;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler_Old;
@@ -183,7 +185,7 @@ public class LoaderClass extends JavaPlugin {
 		}.runLater(200);
 		int removed = 0;
 		for(UUID u : TheAPI.getUsers()) {
-			if(TheAPI.getUser(u).getData().getKeys().size()==0) {
+			if(Reader.read(new File("plugins/TheAPI/User/"+u.toString()+".yml"), false).trim().isEmpty()) {
 				TheAPI.getUser(u).delete();
 				++removed;
 			}

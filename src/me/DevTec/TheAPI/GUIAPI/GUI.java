@@ -1,7 +1,7 @@
 package me.DevTec.TheAPI.GUIAPI;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -15,7 +15,7 @@ import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class GUI {
 	private final String title;
-	private final LinkedHashMap<Integer, ItemGUI> items = new LinkedHashMap<>();
+	private final HashMap<Integer, ItemGUI> items = new HashMap<>();
 	private final List<Player> opened = new ArrayList<>();
 	private final Inventory inv;
 	//Defaulty false
@@ -39,9 +39,9 @@ public class GUI {
 	
 	public void onClose(Player player) {}
 	
-	public void onPutItem(Player player, ItemStack item, int slot) {}
+	public boolean onPutItem(Player player, ItemStack item, int slot) {return false;}
 	
-	public void onTakeItem(Player player, ItemStack item, int slot) {}
+	public boolean onTakeItem(Player player, ItemStack item, int slot) {return false;}
 	
 	public final ItemStack[] getContents() {
 		return inv.getContents();
@@ -157,10 +157,10 @@ public class GUI {
 	}
 
 	/**
-	 * @return LinkedHashMap<Slot, Item>
+	 * @return HashMap<Slot, Item>
 	 * 
 	 */
-	public final LinkedHashMap<Integer, ItemGUI> getItemGUIs(){
+	public final HashMap<Integer, ItemGUI> getItemGUIs(){
 		return items;
 	}
 

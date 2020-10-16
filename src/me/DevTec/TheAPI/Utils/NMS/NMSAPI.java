@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.DevTec.TheAPI.TheAPI;
+import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.NMS.DataWatcher.DataWatcher;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
@@ -25,20 +26,12 @@ import me.DevTec.TheAPI.Utils.Reflections.Reflections;
 
 public class NMSAPI {
 	
-	private static Class<?> ichat = Reflections.getNMSClass("IChatBaseComponent"), ichatser,
-			iblockdata = Reflections.getNMSClass("IBlockData"), pos = Reflections.getNMSClass("BlockPosition"),
-			world = Reflections.getNMSClass("World"), enumChat = Reflections.getNMSClass("ChatMessageType"),
-			bWorld = Reflections.getBukkitClass("CraftWorld"),
-					bPlayer = Reflections.getBukkitClass("entity.CraftPlayer"),entity = Reflections.getNMSClass("Entity"),
-			EntityPlayer = Reflections.getNMSClass("EntityPlayer"), server = Reflections.getNMSClass("MinecraftServer"),
-			b = Reflections.getNMSClass("Block"), cChunk = Reflections.getBukkitClass("CraftChunk"),
-			cs = Reflections.getNMSClass("ChunkSection"), enumTitle, Containers = Reflections.getNMSClass("Containers"),
-			particleEnum = Reflections.existNMSClass("EnumParticle") ? Reflections.getNMSClass("EnumParticle")
-					: Reflections.getNMSClass("Particles");
+	private static Class<?> ichatser, enumTitle;
+	private static Class<?> particleEnum = Ref.nms("EnumParticle")!=null ? Ref.nms("EnumParticle") : Ref.nms("Particles");
 	private static Constructor<?> pDestroy, pTitle, pOutChat, pTab, pBlock, blockPos, pChunk, ChunkSection, chunkc, particle,
 			pSpawn, pNSpawn, pLSpawn, pWindow,score,sbobj,sbdisplayobj,sbteam,pSign,pTeleport,
 			 metadata = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutEntityMetadata"), int.class, Reflections.getNMSClass("DataWatcher"), boolean.class);
-	private static Method getmat, getb, getc, gett, WorldHandle, PlayerHandle, ichatcon, getser, plist, block,
+	private static Method getmat, getb, getc, gett, ichatcon, getser, plist, block,
 			IBlockData, worldset, Chunk, getblocks, setblock, setblockb, itemstack, entityM, livingentity, oldichatser,
 			post,notify;
 	private static int old;
@@ -61,9 +54,9 @@ public class NMSAPI {
 		scoreb=Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardScore"),"b");
 		scorec=Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardScore"),"c");
 		scored=Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardScore"),"d");
-		pTeleport=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutEntityTeleport"), entity);
-		pSign=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutOpenSignEditor"), pos);
-		getser=Reflections.getMethod(server, "getServer");
+		pTeleport=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutEntityTeleport"), Ref.nms("Entity"));
+		pSign=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutOpenSignEditor"), Ref.nms("BlockPosition"));
+		getser=Reflections.getMethod(Ref.nms("MinecraftServer"), "getServer");
 		sbteam=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutScoreboardTeam"));
 		sbdisplayobj=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutScoreboardDisplayObjective"));
 		sbobj=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutScoreboardObjective"));
@@ -83,68 +76,66 @@ public class NMSAPI {
 		if(post==null)post=Reflections.getMethod(Reflections.getNMSClass("MinecraftServer"),"executeSync", Runnable.class);
 		if(post==null)post=Reflections.getMethod(Reflections.getNMSClass("MinecraftServer"),"postToMainThread", Runnable.class);
 		particle = Reflections.getConstructor(c);
-		if(Reflections.existNMSClass("PacketPlayOutTitle"))
-		enumTitle = Reflections.getNMSClass("PacketPlayOutTitle").getDeclaredClasses()[0];
+		if(Ref.nms("PacketPlayOutTitle")!=null)
+		enumTitle = Ref.nms("PacketPlayOutTitle$EnumTitleAction");
 		try {
-			ichatser = ichat.getDeclaredClasses()[0];
+			ichatser = Ref.nms("IChatBaseComponent").getDeclaredClasses()[0];
 		} catch (Exception oldversion) {
 			oldichatser = Reflections.getMethod(Reflections.getNMSClass("ChatSerializer"), "a", String.class);
 		}
 		pDestroy = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutEntityDestroy"),int[].class);
-		pWindow = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutOpenWindow"),int.class, String.class, ichat);
+		pWindow = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutOpenWindow"),int.class, String.class, Ref.nms("IChatBaseComponent"));
 		if(pWindow==null)
-			pWindow = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutOpenWindow"),int.class, Containers,ichat);
+			pWindow = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutOpenWindow"),int.class, Ref.nms("Containers"),Ref.nms("IChatBaseComponent"));
 		pSpawn = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutSpawnEntity"),Reflections.getNMSClass("Entity"), int.class);
 		pNSpawn = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutNamedEntitySpawn"),Reflections.getNMSClass("EntityHuman"));
 		pLSpawn = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutSpawnEntityLiving"),Reflections.getNMSClass("EntityLiving"));
 		entityM = Reflections.getMethod(Reflections.getBukkitClass("entity.CraftEntity"),"getHandle");
 		livingentity = Reflections.getMethod(Reflections.getBukkitClass("entity.CraftLivingEntity"),"getHandle");
 		itemstack = Reflections.getMethod(Reflections.getBukkitClass("inventory.CraftItemStack"),"asNMSCopy",ItemStack.class);
-		getblocks = Reflections.getMethod(cs,"getBlocks");
+		getblocks = Reflections.getMethod(Ref.nms("ChunkSection"),"getBlocks");
 		setblock = Reflections.getMethod(Reflections.getNMSClass("DataPaletteBlock"),"setBlock",int.class, int.class,int.class, Object.class);
 		if(setblock==null)
-			setblock = Reflections.getMethod(Reflections.getNMSClass("DataPaletteBlock"),"setBlock",int.class, int.class,int.class, iblockdata);
+			setblock = Reflections.getMethod(Reflections.getNMSClass("DataPaletteBlock"),"setBlock",int.class, int.class,int.class, Ref.nms("IBlockData"));
 		setblockb = Reflections.getMethod(Reflections.getNMSClass("DataPaletteBlock"),"b",int.class, int.class,int.class, Object.class);
 		chunkc = Reflections.getConstructor(Reflections.getNMSClass("ChunkCoordIntPair"),int.class, int.class);
 		setblockb = Reflections.getMethod(Reflections.getNMSClass("MinecraftServer"),"getServer");
 		ChunkSection = Reflections.getConstructor(Reflections.getNMSClass("ChunkSection"),int.class);
 		if(ChunkSection==null)
 			ChunkSection = Reflections.getConstructor(Reflections.getNMSClass("ChunkSection"),int.class, boolean.class);
-		Chunk = Reflections.getMethod(cChunk,"getHandle");
-		getmat = Reflections.getMethod(iblockdata,"getMaterial");
-		getb = Reflections.getMethod(iblockdata,"getBlock");
-		getc = Reflections.getMethod(world,"getChunkAt", int.class, int.class);
-		gett = Reflections.getMethod(world,"getType",pos);
-		pTitle = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutTitle"),enumTitle, ichat, int.class,int.class, int.class);
-		pOutChat = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutChat"),ichat, enumChat);
+		Chunk = Reflections.getMethod(Ref.craft("CraftChunk"),"getHandle");
+		getmat = Reflections.getMethod(Ref.nms("IBlockData"),"getMaterial");
+		getb = Reflections.getMethod(Ref.nms("IBlockData"),"getBlock");
+		getc = Reflections.getMethod(Ref.nms("World"),"getChunkAt", int.class, int.class);
+		gett = Reflections.getMethod(Ref.nms("World"),"getType",Ref.nms("BlockPosition"));
+		pTitle = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutTitle"),enumTitle, Ref.nms("IChatBaseComponent"), int.class,int.class, int.class);
+		pOutChat = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutChat"),Ref.nms("IChatBaseComponent"), Ref.nms("ChatMessageType"));
 		if(pOutChat==null) {
 			old=1;
-			pOutChat = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutChat"),ichat, enumChat, UUID.class);
+			pOutChat = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutChat"),Ref.nms("IChatBaseComponent"), Ref.nms("ChatMessageType"), UUID.class);
 		}
 		if(pOutChat==null) {
 			old=2;
-			pOutChat = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutChat"),ichat, byte.class);
+			pOutChat = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutChat"),Ref.nms("IChatBaseComponent"), byte.class);
 		}
 		if(TheAPI.isNewerThan(7))
 		pTab = Ref.findConstructor(Reflections.getNMSClass("PacketPlayOutPlayerListHeaderFooter"));
-		WorldHandle = Reflections.getMethod(bWorld,"getHandle");
-		PlayerHandle = Reflections.getMethod(bPlayer,"getHandle");
-		pBlock = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutBlockChange"),Reflections.getNMSClass("IBlockAccess"), pos);
+		pBlock = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutBlockChange"),Reflections.getNMSClass("IBlockAccess"), Ref.nms("BlockPosition"));
 		if(pBlock==null)
-			pBlock = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutBlockChange"),Reflections.getNMSClass("World"), pos);
+			pBlock = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutBlockChange"),Reflections.getNMSClass("World"), Ref.nms("BlockPosition"));
 		blockPos = Reflections.getConstructor(Reflections.getNMSClass("BlockPosition"),int.class, int.class, int.class);
 		ichatcon = Reflections.getMethod(ichatser,"a", String.class);
-		tps = Reflections.getField(server,"recentTps");
-		plist = Reflections.getMethod(server,"getPlayerList");
-		block = Reflections.getMethod(b,"getById", int.class);
-		IBlockData = Reflections.getMethod(b,"fromLegacyData", int.class);
+		tps = Reflections.getField(Ref.nms("MinecraftServer"),"recentTps");
+		plist = Reflections.getMethod(Ref.nms("MinecraftServer"),"getPlayerList");
+		block = Reflections.getMethod(Ref.nms("Block"),"getById", int.class);
+		IBlockData = Reflections.getMethod(Ref.nms("Block"),"fromLegacyData", int.class);
 		if(IBlockData==null)
-			IBlockData = Reflections.getMethod(b,"getByCombinedId", int.class);
-		worldset = Reflections.getMethod(world,"setTypeAndData", pos, iblockdata, int.class);
+			IBlockData = Reflections.getMethod(Ref.nms("Block"),"getByCombinedId", int.class);
+		worldset = Reflections.getMethod(Ref.nms("World"),"setTypeAndData", Ref.nms("BlockPosition"), Ref.nms("IBlockData"), int.class);
 		pChunk = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutMapChunk"),Reflections.getNMSClass("Chunk"),int.class);
 		if(pChunk==null)
 			pChunk = Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutMapChunk"),Reflections.getNMSClass("Chunk"), boolean.class,int.class);
-		notify=Ref.method(NMSAPI.world, "notify", pos, iblockdata, iblockdata, int.class);
+		notify=Ref.method(Ref.nms("World"), "notify", Ref.nms("BlockPosition"), Ref.nms("IBlockData"), Ref.nms("IBlockData"), int.class);
 	}
 
 	public static enum Action {
@@ -244,7 +235,7 @@ public class NMSAPI {
 	}
 
 	public static NMSPlayer getNMSPlayerAPI(Player p) {
-		return new NMSPlayer(getPlayer(p));
+		return new NMSPlayer(Ref.player(p));
 	}
 
 	public static NMSPlayer getNMSPlayerAPI(Object entityPlayer) {
@@ -272,23 +263,23 @@ public class NMSAPI {
 	}
 
 	public static Class<?> getMinecraftServer() {
-		return server;
+		return Ref.nms("MinecraftServer");
 	}
 
 	public static ArrayList<String> getOnlinePlayersNames() {
 		ArrayList<String> a = new ArrayList<String>();
 		List<?> list = (List<?>) Reflections.get(Reflections.getField(Reflections.getNMSClass("PlayerList"), "players"),getPlayerList());
 		for (Object s : list) {
-			a.add((String) Reflections.invoke(s, Reflections.getMethod(EntityPlayer, "getName")));
+			a.add((String) Reflections.invoke(s, Reflections.getMethod(Ref.nms("EntityPlayer"), "getName")));
 		}
 		return a;
 	}
 
 	public static ArrayList<Player> getOnlinePlayers() {
 		ArrayList<Player> a = new ArrayList<Player>();
-		List<?> list = (List<?>) Reflections.get(Reflections.getField(Reflections.getNMSClass("PlayerList"), "players"),getPlayerList());
+		List<?> list = (List<?>) Ref.get(getPlayerList(), Ref.field(Ref.nms("PlayerList"), "players"));
 		for (Object s : list) {
-			a.add((Player)Reflections.invoke(s, Reflections.getMethod(EntityPlayer, "getBukkitEntity")));
+			a.add((Player)Ref.invoke(s, Ref.method(Ref.nms("EntityPlayer"), "getBukkitEntity")));
 		}
 		return a;
 	}
@@ -298,7 +289,7 @@ public class NMSAPI {
 	}
 
 	public static Object getServer() {
-		return Reflections.invoke(server, getser);
+		return Reflections.invoke(Ref.nms("MinecraftServer"), getser);
 	}
 
 	public static double[] getServerTPS() {
@@ -424,15 +415,15 @@ public class NMSAPI {
 	}
 
 	public static Object getIBlockData(World world, Object blockPosition) {
-		return getIBlockData(getWorld(world), blockPosition);
+		return getIBlockData(Ref.world(world), blockPosition);
 	}
 
 	public static Object getIBlockData(World world, int x, int y, int z) {
-		return getIBlockData(getWorld(world), getBlockPosition(x, y, z));
+		return getIBlockData(Ref.world(world), getBlockPosition(x, y, z));
 	}
 
 	public static Object getChunk(World world, int x, int z) {
-		return getChunk(getWorld(world), x, z);
+		return getChunk(Ref.world(world), x, z);
 	}
 
 	public static Object getPacketPlayOutTitle(TitleAction action, Object IChatBaseComponent) {
@@ -445,7 +436,7 @@ public class NMSAPI {
 
 	public static Object getPacketPlayOutOpenWindow(int id, String container, Object IChatBaseComponent) {
 		Object o = Reflections.c(pWindow, id, container, IChatBaseComponent);
-		return o!=null ? o : Reflections.c(pWindow, id,  Reflections.get(Reflections.getField(Containers, container),null), IChatBaseComponent);
+		return o!=null ? o : Reflections.c(pWindow, id,  Reflections.get(Ref.field(Ref.nms("Containers"), container),null), IChatBaseComponent);
 	}
 
 	public static Object getPacketPlayOutTitle(TitleAction action, Object IChatBaseComponent, int fadeIn, int stay, int fadeOut) {
@@ -489,13 +480,18 @@ public class NMSAPI {
 		return o != null ? o : Reflections.c(pChunk,Chunk, value, workers);
 	}
 
-	public static void refleshBlock(Object world, Object blockposition, Object oldBlock, Object newBlock) {
-		Ref.invoke(world, notify,blockposition, oldBlock, newBlock, 3);
+	public static void refleshBlock(Position pos, Object oldBlock) {
+		if(TheAPI.isOlderThan(8))
+			Ref.invoke(Ref.world(pos.getWorld()), notify, pos.getBlockX(), pos.getBlockY(), pos.getBlockZ());
+		else
+			Ref.invoke(Ref.world(pos.getWorld()), notify, pos.getBlockPosition(), oldBlock, pos.getType().getIBlockData(), 3);
 	}
+	
+	
 	
 	public static Object getPacketPlayOutChat(ChatType type, Object IChatBaseComponent) {
 		Object o = old==2?Reflections.c(pOutChat,IChatBaseComponent, (byte)1):
-			(old==0?Reflections.c(pOutChat,IChatBaseComponent, Reflections.get(Reflections.getField(enumChat, type.name()),null)):Reflections.c(pOutChat,IChatBaseComponent, Reflections.get(Reflections.getField(enumChat, type.name()),null), UUID.randomUUID()));
+			(old==0?Reflections.c(pOutChat,IChatBaseComponent, Reflections.get(Reflections.getField(Ref.nms("ChatMessageType"), type.name()),null)):Reflections.c(pOutChat,IChatBaseComponent, Reflections.get(Reflections.getField(Ref.nms("ChatMessageType"), type.name()),null), UUID.randomUUID()));
 		return o;
 	}
 
@@ -504,15 +500,15 @@ public class NMSAPI {
 	}
 
 	public static Object getType(World w, int x, int y, int z) {
-		return Reflections.invoke(getWorld(w), Reflections.getMethod(world, "getType", pos), getBlockPosition(x, y, z));
+		return Reflections.invoke(Ref.world(w), Reflections.getMethod(Ref.nms("World"), "getType", Ref.nms("BlockPosition")), getBlockPosition(x, y, z));
 	}
 
 	public static void setBlock(World world, int x, int y, int z, Material material, int data, boolean applyPsychics) {
 		world.getBlockAt(x, y, z).getDrops().clear();
 		Object old = getIBlockData(world, x,y,z);
-		Object newIblock = getIBlockData(material, data), position = getBlockPosition(x, y, z), World = getWorld(world);
+		Object newIblock = getIBlockData(material, data), position = getBlockPosition(x, y, z), World = Ref.world(world);
 		Reflections.invoke(World, worldset, position, newIblock, applyPsychics ? 3 : 2);
-		NMSAPI.refleshBlock(getWorld(world),getBlockPosition(x, y, z),old,newIblock);
+		NMSAPI.refleshBlock(new Position(world, x, y, z),old);
 	}
 
 	public static void setBlock(World world, int x, int y, int z, Material material, boolean applyPsychics) {
@@ -591,40 +587,16 @@ public class NMSAPI {
 				getIChatBaseComponentText(footer));
 	}
 
-	public static Object getCraftWorld(World world) {
-		return bWorld.cast(world);
-	}
-
-	public static Object getWorld(World world) {
-		return getWorld(getCraftWorld(world));
-	}
-
-	public static Object getWorld(Object craftWorld) {
-		return Reflections.invoke(craftWorld, WorldHandle);
-	}
-
-	public static Object getCraftPlayer(Player player) {
-		return Reflections.cast(bPlayer, player);
-	}
-
-	public static Object getPlayer(Player player) {
-		return getPlayer(getCraftPlayer(player));
-	}
-
-	public static Object getPlayer(Object CraftPlayer) {
-		return Reflections.invoke(CraftPlayer,PlayerHandle);
-	}
-
 	public static Object getPacketPlayOutBlockChange(Object World, int x, int y, int z) {
 		return getPacketPlayOutBlockChange(World, getBlockPosition(x, y, z));
 	}
 
 	public static Object getPacketPlayOutBlockChange(World world, Object BlockPosition) {
-		return getPacketPlayOutBlockChange(getWorld(world), BlockPosition);
+		return getPacketPlayOutBlockChange(Ref.world(world), BlockPosition);
 	}
 
 	public static Object getPacketPlayOutBlockChange(World world, int x, int y, int z) {
-		return getPacketPlayOutBlockChange(getWorld(world), getBlockPosition(x, y, z));
+		return getPacketPlayOutBlockChange(Ref.world(world), getBlockPosition(x, y, z));
 	}
 
 	public static Object getPacketPlayOutBlockChange(Object World, Object BlockPosition) {

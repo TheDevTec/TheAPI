@@ -6,6 +6,7 @@ import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 
 public class Scheduler {
 	private final static HashMap<Integer, Thread> tasks = new HashMap<>();
+	private static int id;
 	
 	public static void cancelAll() {
 		for(Thread t : tasks.values())
@@ -33,11 +34,11 @@ public class Scheduler {
 			public void run() {
 				try {
 					if(delay>0)
-					Thread.sleep(delay*50);
+						Thread.sleep(delay*50);
 					if(!Thread.currentThread().isInterrupted() && tasks.containsKey(id)) {
+						r.run();
 						tasks.remove(id);
 						Thread.currentThread().interrupt();
-						r.run();
 					}
 				}catch(Exception er) {
 					tasks.remove(id);
@@ -58,11 +59,11 @@ public class Scheduler {
 			public void run() {
 				try {
 					if(delay>0)
-					Thread.sleep(delay*50);
+						Thread.sleep(delay*50);
 					if(!Thread.currentThread().isInterrupted() && tasks.containsKey(id)) {
+						NMSAPI.postToMainThread(r);
 						tasks.remove(id);
 						Thread.currentThread().interrupt();
-						NMSAPI.postToMainThread(r);
 					}
 				}catch(Exception er) {
 					tasks.remove(id);
@@ -83,11 +84,11 @@ public class Scheduler {
 			public void run() {
 				try {
 					if(delay>0)
-					Thread.sleep(delay*50);
+						Thread.sleep(delay*50);
 					while(true) {
 						if(!Thread.currentThread().isInterrupted() && tasks.containsKey(id)) {
-						r.run();
-						Thread.sleep(period*50);
+							r.run();
+							Thread.sleep(period*50);
 						}else {
 							tasks.remove(id);
 							Thread.currentThread().interrupt();
@@ -113,11 +114,11 @@ public class Scheduler {
 			public void run() {
 				try {
 					if(delay>0)
-					Thread.sleep(delay*50);
+						Thread.sleep(delay*50);
 					while(true) {
 						if(!Thread.currentThread().isInterrupted() && tasks.containsKey(id)) {
 							NMSAPI.postToMainThread(r);
-						Thread.sleep(period*50);
+							Thread.sleep(period*50);
 						}else {
 							tasks.remove(id);
 							Thread.currentThread().interrupt();
@@ -152,11 +153,11 @@ public class Scheduler {
 			public void run() {
 				try {
 					if(delay>0)
-					Thread.sleep(delay*50);
+						Thread.sleep(delay*50);
 					while(true) {
 						if(!Thread.currentThread().isInterrupted() && tasks.containsKey(id) && (run++)<times) {
 							NMSAPI.postToMainThread(r);
-						Thread.sleep(period*50);
+							Thread.sleep(period*50);
 						}else {
 							tasks.remove(id);
 							Thread.currentThread().interrupt();
@@ -183,11 +184,11 @@ public class Scheduler {
 			public void run() {
 				try {
 					if(delay>0)
-					Thread.sleep(delay*50);
+						Thread.sleep(delay*50);
 					while(true) {
 						if(!Thread.currentThread().isInterrupted() && tasks.containsKey(id) && (run++)<times) {
-						r.run();
-						Thread.sleep(period*50);
+							r.run();
+							Thread.sleep(period*50);
 						}else {
 							tasks.remove(id);
 							Thread.currentThread().interrupt();
@@ -208,12 +209,6 @@ public class Scheduler {
 	}
 
 	private static int find() {
-		int f = 0;
-		for(int i = 1; i > 0; ++i)
-			if(!tasks.containsKey(i)) {
-				f=i;
-				break;
-			}
-		return f;
+		return id++;
 	}
 }

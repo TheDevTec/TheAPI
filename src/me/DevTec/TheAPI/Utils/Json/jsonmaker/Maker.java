@@ -100,7 +100,7 @@ public class Maker {
 	
 	private static String addSplitters(String s) {
 		StringBuilder b = new StringBuilder();
-		for(char c : s.toCharArray()) {
+		for(char c : (""+s).toCharArray()) {
 			if(c=='"')
 				b.append("\\");
 			b.append(c);
@@ -112,7 +112,10 @@ public class Maker {
 		if(list == null)return null;
 		String a = "{\"List\":[";
 		for(Object o : list)
-			a+=", \""+addSplitters(objectToJson(o))+"\"";
+			if(o==null)
+				a+=", null";
+			else
+				a+=", \""+addSplitters(objectToJson(o))+"\"";
 		return a.replaceFirst(", ", "")+"]}";
 	}
 	
@@ -145,7 +148,7 @@ public class Maker {
 	
 	public static Object objectFromJson(String o) {
 		if(o==null||o.equals("null"))return null;
-		if(o.startsWith("'") && o.endsWith("'") && o.length()>1 || o.startsWith("\"") && o.endsWith("\"") && o.length()>1)o=o.substring(1, o.length()-1);
+		if((o.startsWith("'") && o.endsWith("'") || o.startsWith("\"") && o.endsWith("\"")) && o.length()>1)o=o.substring(1, o.length()-1);
 		Object a = itemFromJson(o);
 		if(a!=null)return a;
 		a = locationFromJson(o);
@@ -194,23 +197,21 @@ public class Maker {
 		return a;
 	}
 	
-	private static Pattern isList = Pattern.compile("\\{\"([lL][iI][sS][tT]|[Aa][Rr][Rr][Aa][Yy]!.*?)\":\\[(\".*?(?!\\\\[\"]).\")[, ]*\\]\\}"),
-		    getterOfList = Pattern.compile("\"(.*?(?!\\\\[\"]).)\""),
+	private static Pattern isList = Pattern.compile("\\{\"([lL][iI][sS][tT]|[Aa][Rr][Rr][Aa][Yy]!.*?)\":\\[(.*)\\]\\}"),
+		    getterOfList = Pattern.compile("(\".*?(?!\\\\[\"]).\"|null)"),
 			getterOfEnum = Pattern.compile("\\{\"(.*?(?!\\\\[\"]).)\":\"(.*?(?!\\\\[\"]).)\"\\}"),
-			isMap = Pattern.compile("\\{\"Map:.*?(?!\\\\[\"]).\":\\[(\".*?(?!\\\\[\"]).\":\".*?(?!\\\\[\"]).\")[, ]*\\]\\}"),
-			keys = Pattern.compile("\"(.*?(?!\\\\[\"]).)\":\"(.*?(?!\\\\[\"]).)\""),
-			splitterOfJson = Pattern.compile("\\{\"(.*?(?!\\\\[\"]).)\":\\{(\".*?(?!\\\\[\"]).\":\".*?(?!\\\\[\"]).\")\\}\\}");
+			isMap = Pattern.compile("\\{\"Map:.*?(?!\\\\[\"]).\":\\[(\".*?(?!\\\\[\"]).\":(\".*?(?!\\\\[\"]).\"|null))[, ]*\\]\\}"),
+			keys = Pattern.compile("\"(.*?(?!\\\\[\"]).)\":(\".*?(?!\\\\[\"]).\"|null)"),
+			splitterOfJson = Pattern.compile("\\{\"(.*?(?!\\\\[\"]).)\":\\{(\".*?(?!\\\\[\"]).\":[\"]*.*?(?!\\\\[\"]).[\"]*)\\}\\}");
 	
 	public static List<?> listFromJson(String list) {
 		if(list==null)return null;
 		Matcher m = isList.matcher(list);
 		if(m.find()) {
 			List<Object> a = new ArrayList<>();
-			if(a!=null) {
-				Matcher f = getterOfList.matcher(m.group(2));
-				while(f.find()) {
-					a.add(objectFromJson(replaceSplitters(f.group(1))));
-			}}
+			Matcher f = getterOfList.matcher(m.group(2));
+			while(f.find())
+				a.add(objectFromJson(replaceSplitters(f.group(1))));
 			return a;
 		}
 		return null;
@@ -276,6 +277,7 @@ public class Maker {
 			String amount = stack.replaceFirst(material+"\", \"amount\":\"", "").split("\", ")[0];
 			String dur = stack.replaceFirst(stack.split("\", ")[0]+"\", "+stack.split("\", ")[1]+"\", \"durability\":\"", "").split("\", ")[0];
 			a = new ItemStack(Material.getMaterial(material), StringUtils.getInt(amount), StringUtils.getShort(dur));
+			try {
 			if(stack.replaceFirst(stack.split("\", ")[0]+"\", "+stack.split("\", ")[1]+"\", \"durability\":\"", "").split("\", ")[1].startsWith("\"meta\":")) {
 				stack=(stack.replaceFirst(stack.split("\", ")[0]+"\", "+stack.split("\", ")[1]+"\", \"durability\":\"", "").split("\", ")[1]).replaceFirst("\"meta\":", "");
 				stack=stack.substring(1, stack.length()-2);
@@ -283,6 +285,7 @@ public class Maker {
 				Ref.invoke(item, Ref.method(Ref.nms("ItemStack"), "setTag", Ref.nms("NBTTagCompound")), Ref.invokeNulled(Ref.method(Ref.nms("MojangsonParser"), "parse", String.class), stack));
 				return (ItemStack)Ref.invokeNulled(Ref.method(Ref.craft("inventory.CraftItemStack"), "asBukkitCopy", Ref.nms("ItemStack")), item);
 			}
+			}catch(Exception er) {}
 		}
 		return a;
 	}
