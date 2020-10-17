@@ -175,7 +175,7 @@ public class StringUtils {
 		return new HoverMessage(message);
 	}
 
-	private static final Pattern pattern = Pattern.compile("#[a-fA-F0-9]{6}");
+	private static final Pattern hex = Pattern.compile("#[a-fA-F0-9]{6}");
 	public static ColormaticFactory color = new ColormaticFactory() {
 		private TheList<Character> list = TheArrays.asList('4','c','6','e','5','d','9','3', 'b','2','a');
 		private int i = 0;
@@ -186,13 +186,13 @@ public class StringUtils {
 		}
 	};
 	/**
-	 * @see see Colorize string with colors
+	 * @see see Colorize string with colors (&eHello world -> {YELLOW}Hello world)
 	 * @param string
 	 * @return String
 	 */
 	public static String colorize(String string) {
 		if (string == null)return null;
-		if(string.contains("&u")||string.contains("&U")) {
+		if(string.toLowerCase().contains("&u")) {
 			String recreate = "";
 			int mode = 0;
 			for(char c : string.toCharArray()) {
@@ -225,7 +225,7 @@ public class StringUtils {
 		}
 		if (TheAPI.isNewerThan(15) && string.contains("#")) {
 			string = string.replace("&x", "§x");
-			Matcher match = pattern.matcher(string);
+			Matcher match = hex.matcher(string);
             while (match.find()) {
                 String color = match.group();
                 StringBuilder magic = new StringBuilder("§x");
@@ -235,8 +235,8 @@ public class StringUtils {
                 }
                 string = string.replace(color, magic.toString() + "");
             }
-    }
-	return ChatColor.translateAlternateColorCodes('&', string);
+		}
+		return ChatColor.translateAlternateColorCodes('&', string);
 	}
 
 	/**

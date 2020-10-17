@@ -1,8 +1,10 @@
 package me.DevTec.TheAPI.Utils.File;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.util.Scanner;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 public class Reader {
 
@@ -20,10 +22,12 @@ public class Reader {
 		return d;
 	}
 
-	private Scanner sc;
+	private BufferedReader sc;
 	public Reader(File f) {
 		try {
-			sc = new Scanner(new FileReader(f));
+			FileInputStream fis = new FileInputStream(f);
+		    InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
+		    sc = new BufferedReader(isr);
 		} catch (Exception e) {
 		}
 	}
@@ -35,38 +39,23 @@ public class Reader {
 	public String read(boolean split) {
 		StringBuffer buffer = new StringBuffer();
 		reset();
-		try {
-			while (sc.hasNextLine()) {
-				if (split)
-					buffer.append(sc.nextLine() + System.lineSeparator());
-				else
-					buffer.append(sc.nextLine());
-			}
-			reset();
-		} catch (Exception e) {
-		}
+		sc.lines().iterator().forEachRemaining(s -> buffer.append(s+(split?System.lineSeparator():"")));
 		return buffer.toString();
-	}
-
-	public String readLine() {
-		if (sc != null)
-			return sc.nextLine();
-		return null;
-	}
-
-	public boolean hasNext() {
-		if (sc != null)
-			return sc.hasNextLine();
-		return false;
 	}
 
 	public void close() {
 		if (sc != null)
-			sc.close();
+			try {
+				sc.close();
+			} catch (Exception e) {
+			}
 	}
 
 	public void reset() {
 		if (sc != null)
-			sc.reset();
+			try {
+				sc.reset();
+			} catch (Exception e) {
+			}
 	}
 }

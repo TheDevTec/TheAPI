@@ -1,5 +1,7 @@
 package me.DevTec.TheAPI.BlocksAPI;
 
+import java.lang.reflect.Constructor;
+
 import org.bukkit.entity.Player;
 import org.spigotmc.AsyncCatcher;
 
@@ -43,11 +45,11 @@ public class Schema {
 		paste(position, null);
 	}
 	
+	private static Constructor<?> ca = Ref.constructor(Ref.nms("PacketPlayOutMapChunk"), Ref.nms("Chunk"), int.class);
 	public void paste(Position position, SchemBlock task) {
 		if(AsyncCatcher.enabled==true)
 			AsyncCatcher.enabled=false;
 	    new Tasker() {
-			@SuppressWarnings("deprecation")
 			public void run() {
 				Data ca = new Data();
 				for(String fs : schem.getData().getKeys()) {
@@ -74,7 +76,7 @@ public class Schema {
 					save.load(pos, type);
 						else if(c.set(Schema.this, pos, type, save))
 						save.load(pos, type);
-					ca.set(pos.getChunkKey()+"", pos.getBlockX()+":"+pos.getBlockZ());
+					ca.set(pos.getChunkKey()+"", pos.getNMSChunk());
 				}
 				dec.close();
 				}catch(Exception e) {}
@@ -82,14 +84,10 @@ public class Schema {
 					Thread.sleep(50);
 				} catch (InterruptedException e) {
 				}}
-				for(String o : ca.getKeys()) {
-					String[] cw = ca.getString(o).split(":");
-					Position pos = new Position(position.getWorld(), StringUtils.getInt(cw[0]),0,StringUtils.getInt(cw[1]));
-					pos.getWorld().refreshChunk(pos.getBlockX()>>4, pos.getBlockZ()>>4);
-					Object a=Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutMapChunk"),Ref.nms("Chunk"), int.class), pos.getNMSChunk(), 65535);
-					if(a==null)a=Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutMapChunk"),Ref.nms("Chunk"), boolean.class, int.class), pos.getNMSChunk(), true, 20);
+				for(String chunkKey : ca.getKeys()) {
+					Object packet = Ref.newInstance(Schema.ca, ca.get(chunkKey), 0xffff);
 					for(Player p : TheAPI.getOnlinePlayers())
-						Ref.sendPacket(p, a);
+						Ref.sendPacket(p, packet);
 				}
 				if(onFinish!=null)
 					onFinish.run();

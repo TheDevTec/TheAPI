@@ -41,7 +41,7 @@ public class YamlLoader implements DataLoader {
 	public void remove(String key) {
 		if(key==null)return;
 		data.remove(key);
-		for(Entry<Integer, String> entry : items.entrySet()) {
+		for(Entry<Integer, String> entry : new ArrayList<>(items.entrySet())) {
 			if(entry.getValue().equals(key))
 			items.remove(entry.getKey());
 		}

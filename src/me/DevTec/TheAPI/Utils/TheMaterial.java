@@ -110,7 +110,7 @@ public class TheMaterial implements Cloneable {
 	
 	public Object getIBlockData() {
 		try {
-			Object o = Ref.invokeNulled(Ref.method(Ref.nms("Block"), "getByCombinedId", int.class), (int)(m.getId()+(data>>4)));
+			Object o = Ref.invokeNulled(Ref.method(Ref.nms("Block"), "getByCombinedId", int.class), (int)((m.getId()+(data>>4))));
 			if(o==null) o = Ref.invokeNulled(Ref.method(Ref.nms("Block"), "getId", int.class), (int)m.getId());
 			return o;
 		}catch(Exception err) {

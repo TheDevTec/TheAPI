@@ -3,8 +3,8 @@ package me.DevTec.TheAPI.Utils.Json.jsonmaker;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,8 +14,11 @@ import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import me.DevTec.TheAPI.APIs.ItemCreatorAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
@@ -89,7 +92,7 @@ public class Maker {
 				else b.append("\\");
 			}else {
 				if(paused==1){
-					if(c!='"')
+					if(c!='"'&&c!='['&&c!=']')
 					b.append("\\");
 				}
 				b.append(c);
@@ -101,7 +104,7 @@ public class Maker {
 	private static String addSplitters(String s) {
 		StringBuilder b = new StringBuilder();
 		for(char c : (""+s).toCharArray()) {
-			if(c=='"')
+			if(c=='"'||c=='['||c==']')
 				b.append("\\");
 			b.append(c);
 		}
@@ -110,21 +113,18 @@ public class Maker {
 	
 	public static String listToJson(List<?> list) {
 		if(list == null)return null;
-		String a = "{\"List\":[";
+		String a = "[";
 		for(Object o : list)
 			if(o==null)
 				a+=", null";
 			else
 				a+=", \""+addSplitters(objectToJson(o))+"\"";
-		return a.replaceFirst(", ", "")+"]}";
+		return a.replaceFirst(", ", "")+"]";
 	}
 	
 	public static String arrayToJson(Object[] list) {
 		if(list == null)return null;
-		String a = "{\"Array!"+list.getClass().getName().substring(2, list.getClass().getName().length()-1)+"\":[";
-		for(Object o : list)
-			a+=", \""+addSplitters(objectToJson(o))+"\"";
-		return a.replaceFirst(", ", "")+"]}";
+		return listToJson(Arrays.asList(list));
 	}
 	
 	public static String objectToJson(Object o) {
@@ -136,30 +136,31 @@ public class Maker {
 		if(o instanceof List<?>)return listToJson((List<?>)o);
 		if(o instanceof Map<?, ?>)return mapToJson((Map<?, ?>)o);
 		if(o instanceof Object[])return arrayToJson((Object[])o);
-		String a = "{\""+o.getClass().getName()+"\":{";
+		String a = "\""+o.getClass().getName()+"\":{";
 		for(Field f : o.getClass().getDeclaredFields()) {
 			if(Modifier.toString(f.getModifiers()).contains("static"))continue;
 			Object w = Ref.get(o, f);
 			if(w==null)continue;
 			a+=", \""+f.getName()+"\":\""+addSplitters(objectToJson(w))+"\"";
 		}
-		return (a.replaceFirst(", ", "")+"}}");
+		return (a.replaceFirst(", ", "")+"}");
 	}
 	
 	public static Object objectFromJson(String o) {
 		if(o==null||o.equals("null"))return null;
+		try {
 		if((o.startsWith("'") && o.endsWith("'") || o.startsWith("\"") && o.endsWith("\"")) && o.length()>1)o=o.substring(1, o.length()-1);
-		Object a = itemFromJson(o);
-		if(a!=null)return a;
-		a = locationFromJson(o);
+		Object a = mapFromJson(o);
 		if(a!=null)return a;
 		a = listFromJson(o);
+		if(a!=null)return a;
+		a = locationFromJson(o);
 		if(a!=null)return a;
 		a = enumToJson(o);
 		if(a!=null)return a;
 		a = enumFromJson(o);
 		if(a!=null)return a;
-		a = mapFromJson(o);
+		a = itemFromJson(o);
 		if(a!=null)return a;
 		Matcher m = splitterOfJson.matcher(o);
 		if(!m.find())
@@ -169,9 +170,7 @@ public class Maker {
 		} catch (Exception e) {
 			try {
 				a=LoaderClass.unsafe.allocateInstance(Ref.getClass(m.group(1)));
-			}catch(Exception er) {
-				
-			}
+			}catch(Exception | StackOverflowError er) {}
 		}
 		if(a==null) return null;
 		Matcher f = keys.matcher(m.group(2));
@@ -181,6 +180,9 @@ public class Maker {
 			Ref.set(a, field, object.equals("null")?null:objectFromJson(object));
 		}
 		return a;
+		}catch(Exception | StackOverflowError er) {
+			return null;
+		}
 	}
 	
 	public static String enumToJson(Object enumm) {
@@ -197,124 +199,142 @@ public class Maker {
 		return a;
 	}
 	
-	private static Pattern isList = Pattern.compile("\\{\"([lL][iI][sS][tT]|[Aa][Rr][Rr][Aa][Yy]!.*?)\":\\[(.*)\\]\\}"),
+	private static Pattern isList = Pattern.compile("\\[(\".*?(?!\\\\[\\]]).\"|null)\\]"),
 		    getterOfList = Pattern.compile("(\".*?(?!\\\\[\"]).\"|null)"),
 			getterOfEnum = Pattern.compile("\\{\"(.*?(?!\\\\[\"]).)\":\"(.*?(?!\\\\[\"]).)\"\\}"),
-			isMap = Pattern.compile("\\{\"Map:.*?(?!\\\\[\"]).\":\\[(\".*?(?!\\\\[\"]).\":(\".*?(?!\\\\[\"]).\"|null))[, ]*\\]\\}"),
+			isMap = Pattern.compile("\\[(\".*?(?!\\\\[\\]]).\"=\".*?(?!\\\\[\\]]).\")\\]"),
 			keys = Pattern.compile("\"(.*?(?!\\\\[\"]).)\":(\".*?(?!\\\\[\"]).\"|null)"),
-			splitterOfJson = Pattern.compile("\\{\"(.*?(?!\\\\[\"]).)\":\\{(\".*?(?!\\\\[\"]).\":[\"]*.*?(?!\\\\[\"]).[\"]*)\\}\\}");
+			mapKeys = Pattern.compile("\"(.*?(?!\\\\\").)\"=\"(.*?(?!\\\\\").)\""),
+			splitterOfJson = Pattern.compile("\"(.*?(?!\\\\[\"]).)\":\\{(\".*?(?!\\\\[\"]).\":[\"]*.*?(?!\\\\[\"]).[\"]*)\\}");
 	
 	public static List<?> listFromJson(String list) {
 		if(list==null)return null;
+		try {
 		Matcher m = isList.matcher(list);
 		if(m.find()) {
 			List<Object> a = new ArrayList<>();
-			Matcher f = getterOfList.matcher(m.group(2));
+			Matcher f = getterOfList.matcher(m.group(1));
 			while(f.find())
 				a.add(objectFromJson(replaceSplitters(f.group(1))));
 			return a;
 		}
+		}catch(Exception | StackOverflowError er) {}
 		return null;
 	}
 	
 	public static Map<?, ?> mapFromJson(String map) {
 		if(map==null)return null;
+		try {
 		Matcher m = isMap.matcher(map);
 		if(m.find()) {
-			Map<Object, Object> a = m.group().toLowerCase().contains("linked")?new LinkedHashMap<>():new HashMap<>();
-			if(a!=null) {
-				Matcher f = keys.matcher(m.group(1));
-				while(f.find()) {
-					a.put(objectFromJson(replaceSplitters(f.group(1))), objectFromJson(replaceSplitters(f.group(2))));
-			}}
+			Map<Object, Object> a = new HashMap<>();
+			try {
+			Matcher f = mapKeys.matcher(m.group(1));
+			while(f.find())
+				a.put(objectFromJson(replaceSplitters(f.group(1))), objectFromJson(replaceSplitters(f.group(2))));
+			}catch(Exception empty) {}
 			return a;
 		}
+		}catch(Exception | StackOverflowError er) {}
 		return null;
 	}
 	
 	public static Object[] arrayFromJson(String array) {
 		if(array==null)return null;
-		Matcher m = isList.matcher(array);
-		if(m.find()) {
-			List<Object> a = new ArrayList<>();
-			if(a!=null) {
-				Matcher f = getterOfList.matcher(m.group(2));
-				while(f.find())
-					a.add(objectFromJson(replaceSplitters(f.group(1))));
-			}
-			return a.toArray();
-		}
-		return null;
+		return listFromJson(array).toArray();
 	}
 	
 	public static String mapToJson(Map<?, ?> map) {
-		String a = "{\"Map:"+(map.getClass().getName().contains("Linked")?"Linked":"Hash")+"\":[";
+		String a = "[";
 		for(Entry<?, ?> o : map.entrySet())
-			a+=", \""+addSplitters(objectToJson(o.getKey()))+"\":\""+addSplitters(objectToJson(o.getValue()))+"\"";
-		return a.replaceFirst(", ", "")+"]}";
+			a+=", \""+addSplitters(objectToJson(o.getKey()))+"\"=\""+addSplitters(objectToJson(o.getValue()))+"\"";
+		return a.replaceFirst(", ", "")+"]";
 	}
 	
 	@SuppressWarnings("deprecation")
-	public static String itemToJson(ItemStack stack) {
-		if(stack == null)return null;
-		String a = "{\""+ItemStack.class.getName()+"\":{";
-		a+="\"type\":\""+stack.getType().name()+"\", ";
-		a+="\"amount\":\""+stack.getAmount()+"\", ";
-		a+="\"durability\":\""+stack.getDurability()+"\"";
-		Object tag = Ref.invoke(Ref.invokeNulled(Ref.method(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class), stack), "getTag");
-		if(tag!=null && !(boolean)Ref.invoke(tag, "isEmpty"))
-		a+=", \"meta\":\""+Ref.invoke(tag, "asString")+"\"";
-		return a+"}";
-	}
-	
-	@SuppressWarnings("deprecation")
-	public static ItemStack itemFromJson(String stack) {
-		if(stack == null)return null;
-		ItemStack a = null;
-		if(stack.startsWith("{\"org.bukkit.inventory.ItemStack\":{")) {
-			stack=stack.replaceFirst(Pattern.quote("{\"org.bukkit.inventory.ItemStack\":{\"type\":\""), "");
-			String material=stack.split("\", ")[0];
-			String amount = stack.replaceFirst(material+"\", \"amount\":\"", "").split("\", ")[0];
-			String dur = stack.replaceFirst(stack.split("\", ")[0]+"\", "+stack.split("\", ")[1]+"\", \"durability\":\"", "").split("\", ")[0];
-			a = new ItemStack(Material.getMaterial(material), StringUtils.getInt(amount), StringUtils.getShort(dur));
-			try {
-			if(stack.replaceFirst(stack.split("\", ")[0]+"\", "+stack.split("\", ")[1]+"\", \"durability\":\"", "").split("\", ")[1].startsWith("\"meta\":")) {
-				stack=(stack.replaceFirst(stack.split("\", ")[0]+"\", "+stack.split("\", ")[1]+"\", \"durability\":\"", "").split("\", ")[1]).replaceFirst("\"meta\":", "");
-				stack=stack.substring(1, stack.length()-2);
-				Object item = Ref.invokeNulled(Ref.method(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class), a);
-				Ref.invoke(item, Ref.method(Ref.nms("ItemStack"), "setTag", Ref.nms("NBTTagCompound")), Ref.invokeNulled(Ref.method(Ref.nms("MojangsonParser"), "parse", String.class), stack));
-				return (ItemStack)Ref.invokeNulled(Ref.method(Ref.craft("inventory.CraftItemStack"), "asBukkitCopy", Ref.nms("ItemStack")), item);
-			}
-			}catch(Exception er) {}
+	public static String itemToJson(ItemStack ss) {
+		if(ss == null)return null;
+		ItemStack stack = ss.clone();
+		Maker m = new Maker();
+		MakerObject contents = m.create();
+		contents.add("type", ss.getType().name());
+		contents.add("amount", ss.getAmount());
+		if(ss.getDurability()>0)
+		contents.add("durability", ss.getDurability());
+		ItemMeta meta = stack.getItemMeta();
+		if(meta.hasLore())
+		contents.add("lore", listToJson(meta.getLore()));
+		if(meta.hasEnchants()) {
+			String a = "[";
+			for(Entry<Enchantment, Integer> o : meta.getEnchants().entrySet())
+				a+=", \""+addSplitters(objectToJson(o.getKey().getName()))+"\"=\""+addSplitters(objectToJson(o.getValue()))+"\"";
+		contents.add("enchants", a.replaceFirst(", ", "")+"]");
 		}
-		return a;
+		if(meta.hasDisplayName())
+		contents.add("displayName", meta.getDisplayName());
+		if(meta.hasDisplayName())
+		meta.setDisplayName(null);
+		if(meta.hasLore())
+			meta.setLore(null);
+		if(meta.hasEnchants()) {
+			for(Enchantment e : meta.getEnchants().keySet())
+			meta.removeEnchant(e);
+		}
+		stack.setItemMeta(meta);
+		Object tag = Ref.invoke(Ref.invokeNulled(Ref.method(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class), stack), "getTag");
+		if(tag!=null)
+			contents.add("tag", (String)Ref.invoke(tag, "asString"));
+		return m.add(m.create().add(ItemStack.class.getName(), contents.toString()).toString()).toString();
+	}
+	
+	@SuppressWarnings({ "unchecked", "deprecation" })
+	public static ItemStack itemFromJson(String a) {
+		if(a == null)return null;
+		try {
+			if((a.startsWith("'") && a.endsWith("'") || a.startsWith("\"") && a.endsWith("\"")) && a.length()>1)a=a.substring(1, a.length()-1);
+			Map<?, ?> items = (Map<?, ?>) ((Map<?, ?>)((List<?>) Maker.listFromJson(a)).get(0)).get("org.bukkit.inventory.ItemStack");
+			ItemStack stack = ItemCreatorAPI.create(Material.matchMaterial((String)items.get("type")), (int)items.get("amount"), null, null, items.containsKey("durability")?(int)items.get("durability"):0);
+			Object item = Ref.invokeNulled(Ref.method(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class), stack);
+			Ref.invoke(item, Ref.method(Ref.nms("ItemStack"), "setTag", Ref.nms("NBTTagCompound")), Ref.invokeNulled(Ref.method(Ref.nms("MojangsonParser"), "parse", String.class), (String)items.get("tag")));
+			ItemMeta meta = (ItemMeta)Ref.invokeNulled(Ref.method(Ref.craft("inventory.CraftItemStack"), "getItemMeta", Ref.nms("ItemStack")), item);
+			meta.setDisplayName((String)items.get("displayName"));
+			meta.setLore((List<String>)items.get("lore"));
+			stack.setItemMeta(meta);
+			if(items.containsKey("enchants")) {
+			Map<?, ?> enchs = (Map<?, ?>) items.get("enchants");
+			Map<Enchantment, Integer> fixed = new HashMap<>(enchs.size());
+			for(Entry<?, ?> e : enchs.entrySet())
+				if(e.getKey() instanceof Enchantment || e.getKey() instanceof String)
+				fixed.put(e.getKey() instanceof String?Enchantment.getByName((String)e.getKey()):(Enchantment)e.getKey(), StringUtils.getInt(""+e.getValue()));
+			stack.addUnsafeEnchantments(fixed);
+			}
+			return stack;
+		}catch(Exception | StackOverflowError er) {
+			return null;
+		}
 	}
 	
 	public static String locationToJson(Location loc) {
 		if(loc==null || loc.getWorld()==null)return null;
-		String a = "{\""+Location.class.getName()+"\":{";
-		a+="\"world\":\""+loc.getWorld().getName()+"\", ";
-		a+="\"x\":\""+loc.getX()+"\", ";
-		a+="\"y\":\""+loc.getY()+"\", ";
-		a+="\"z\":\""+loc.getZ()+"\", ";
-		a+="\"Yaw\":\""+loc.getYaw()+"\", ";
-		a+="\"Pitch\":\""+loc.getPitch()+"\"}";
-		return a;
+		Maker m = new Maker();
+		MakerObject contents = m.create();
+		contents.add("world", loc.getWorld().getName());
+		contents.add("x", loc.getX());
+		contents.add("y", loc.getY());
+		contents.add("z", loc.getZ());
+		contents.add("yaw", loc.getYaw());
+		contents.add("pitch", loc.getPitch());
+		return m.add(m.create().add(Location.class.getName(), contents.toString()).toString()).toString();
 	}
 	
 	public static Location locationFromJson(String loc) {
-		if(loc==null)return null;
-		Location a = null;
-		if(loc.startsWith("{\"org.bukkit.Location\":{")) {
-			loc=loc.replaceFirst(Pattern.quote("{\"org.bukkit.Location\":{\"world\":\""), "");
-			String world=loc.split("\", ")[0];
-			String x = loc.replaceFirst(world+"\", \"x\":\"", "").split("\", ")[0];
-			String y = loc.replaceFirst(loc.split("\", ")[0]+"\", "+loc.split("\", ")[1]+"\", \"y\":\"", "").split("\", ")[0];
-			String z = loc.replaceFirst(loc.split("\", ")[0]+"\", "+loc.split("\", ")[1]+"\", "+loc.split("\", ")[2]+"\", \"z\":\"", "").split("\", ")[0];
-			String yaw = loc.replaceFirst(loc.split("\", ")[0]+"\", "+loc.split("\", ")[1]+"\", "+loc.split("\", ")[2]+"\", "+loc.split("\", ")[3]+"\", \"yaw\":\"", "").split("\", ")[0];
-			String pitch = loc.replaceFirst(loc.split("\", ")[0]+"\", "+loc.split("\", ")[1]+"\", "+loc.split("\", ")[2]+"\", "+loc.split("\", ")[3]+"\", "+loc.split("\", ")[4]+"\", \"pitch\":\"", "").split("\", ")[0];
-			a = new Location(Bukkit.getWorld(world), StringUtils.getDouble(x), StringUtils.getDouble(y), StringUtils.getDouble(z), StringUtils.getFloat(yaw), StringUtils.getFloat(pitch));
+		if(loc == null)return null;
+		try {
+			if((loc.startsWith("'") && loc.endsWith("'") || loc.startsWith("\"") && loc.endsWith("\"")) && loc.length()>1)loc=loc.substring(1, loc.length()-1);
+			Map<?, ?> items = (Map<?, ?>) ((Map<?, ?>)((List<?>) Maker.listFromJson(loc)).get(0)).get("org.bukkit.Location");
+			return new Location(Bukkit.getWorld((String)items.get("world")), (double)items.get("x"), (double)items.get("y"), (double)items.get("z"), (float)(double)items.get("yaw"), (float)(double)items.get("pitch"));
+		}catch(Exception | StackOverflowError er) {
+			return null;
 		}
-		return a;
 	}
 }

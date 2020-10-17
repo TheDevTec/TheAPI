@@ -582,289 +582,6 @@ public class BlocksAPI {
 		return isInside(new Position(loc),new Position(a),new Position(b));
 	}
 
-	// Synchronized part
-	public static void synchronizedSet(Position a, Position b, TheMaterial with) {
-		synchronizedSet(a, b, new Runnable() {public void run() {}}, with);
-	}
-
-	public static void synchronizedSet(Position a, Position b, TheMaterial with, TheMaterial ignore) {
-		synchronizedSet(a, b, new Runnable() {public void run() {}}, with, ignore);
-	}
-
-	public static void synchronizedSet(Position a, Position b, TheMaterial with, List<TheMaterial> ignore) {
-		synchronizedSet(a, b, new Runnable() {public void run() {}}, with, ignore);
-	}
-
-	public static void synchronizedSet(Position a, Position b, List<TheMaterial> with, List<TheMaterial> ignore) {
-		synchronizedSet(a, b, new Runnable() {public void run() {}}, with, ignore);
-	}
-
-	public static void synchronizedSet(Position a, Position b, List<TheMaterial> with) {
-		synchronizedSet(a, b, new Runnable() {public void run() {}}, with);
-	}
-
-	public static void synchronizedSet(Position a, Position b, PercentageList<TheMaterial> with, List<TheMaterial> ignore) {
-		synchronizedSet(a, b, new Runnable() {public void run() {}}, with, ignore);
-	}
-
-	public static void synchronizedSet(Position a, Position b, PercentageList<TheMaterial> with, TheMaterial ignore) {
-		synchronizedSet(a, b, new Runnable() {public void run() {}}, with, ignore);
-	}
-
-	public static void synchronizedReplace(Position a, Position b, List<TheMaterial> block, TheMaterial with) {
-		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
-	}
-
-	public static void synchronizedReplace(Position a, Position b, TheMaterial block, TheMaterial with) {
-		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
-	}
-
-	public static void synchronizedReplace(Position a, Position b, TheMaterial block, PercentageList<TheMaterial> with) {
-		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
-	}
-
-	public static void synchronizedReplace(Position a, Position b, TheMaterial block, List<TheMaterial> with) {
-		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
-	}
-
-	public static void synchronizedReplace(Position a, Position b, List<TheMaterial> block, List<TheMaterial> with) {
-		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
-	}
-
-	public static void synchronizedReplace(Position a, Position b, PercentageList<TheMaterial> block,
-			List<TheMaterial> with) {
-		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
-	}
-
-	public static void synchronizedReplace(Position a, Position b, PercentageList<TheMaterial> block,
-			PercentageList<TheMaterial> with) {
-		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
-	}
-
-	public static void synchronizedReplace(Position a, Position b, PercentageList<TheMaterial> block, TheMaterial with) {
-		synchronizedReplace(a, b, new Runnable() {public void run() {}}, block, with);
-	}
-
-	private final static BlockTask state = new BlockTask() {
-		@Override
-		public long set(Position block, TheMaterial toSet) {
-			return block.setType(toSet);
-		}
-		
-		@Override
-		public long replace(Position block, List<TheMaterial> toReplace, TheMaterial toSet) {
-			if(toReplace.contains(get(block)))
-				return block.setType(toSet);
-			return 0;
-		}
-		
-		@Override
-		public long replace(Position block, TheMaterial toReplace, TheMaterial toSet) {
-			if(toReplace.equals(get(block)))
-				return block.setType(toSet);
-			return 0;
-		}
-		
-		@Override
-		public TheMaterial get(Position block) {
-			return block.getType();
-		}
-
-		@Override
-		public long set(Position block, TheMaterial toSet, TheMaterial ignore) {
-			if(!ignore.equals(get(block)))
-				return block.setType(toSet);
-			return 0;
-		}
-
-		@Override
-		public long set(Position block, TheMaterial toSet, List<TheMaterial> ignore) {
-			if(!ignore.contains(get(block)))
-				return block.setType(toSet);
-			return 0;
-		}
-	};
-	
-	//Synchronized & Runnable on finish part
-	public static void synchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with) {
-		synchronizedSet(a, b, onFinish, Arrays.asList(with), Arrays.asList());
-	}
-
-	public static void synchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with, TheMaterial ignore) {
-		synchronizedSet(a, b, onFinish, Arrays.asList(with), Arrays.asList(ignore));
-	}
-
-	public static void synchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with, List<TheMaterial> ignore) {
-		synchronizedSet(a, b, onFinish, Arrays.asList(with), ignore);
-	}
-
-	public static void synchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with, List<TheMaterial> ignore) {
-		BlockGetter s = get(a, b);
-		new Tasker() {
-			public void run() {
-				for(int i = 0; i < amount; ++i) {
-					if(!s.has())break;
-					Position pos = s.get();
-
-					if(ignore!=null)state.set(pos, TheAPI.getRandomFromList(with), ignore); else state.set(pos, TheAPI.getRandomFromList(with));
-
-				}
-				if(!s.has())
-					cancel();
-					new Tasker() {
-						public void run() {
-							if(!s.has() && onFinish!=null)
-							onFinish.run();
-						}
-					}.runTask();
-			}
-		}.runRepeating(0, 2);
-	}
-
-	public static void synchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with) {
-		synchronizedSet(a,b,onFinish, with, Arrays.asList());
-	}
-
-	public static void synchronizedSet(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> with, List<TheMaterial> ignore) {
-		BlockGetter s = get(a, b);
-		new Tasker() {
-			public void run() {
-				for(int i = 0; i < amount; ++i) {
-					if(!s.has())break;
-					Position pos = s.get();
-					if(ignore!=null)state.set(pos, with.getRandom(), ignore);else state.set(pos, with.getRandom());
-				}
-				if(!s.has())
-					cancel();
-					new Tasker() {
-						public void run() {
-							if(!s.has() && onFinish!=null)
-							onFinish.run();
-						}
-					}.runTask();
-			}
-		}.runRepeating(0, 2);
-	}
-
-	public static void synchronizedSet(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> with, TheMaterial ignore) {
-		synchronizedSet(a, b, onFinish, with, Arrays.asList(ignore));
-	}
-
-	public static void synchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block, TheMaterial with) {
-		synchronizedReplace(a, b, onFinish, block, Arrays.asList(with));
-	}
-
-	public static void synchronizedReplace(Position a, Position b, Runnable onFinish, TheMaterial block, TheMaterial with) {
-		synchronizedReplace(a, b, onFinish, Arrays.asList(block), Arrays.asList(with));
-	}
-
-	public static void synchronizedReplace(Position a, Position b, Runnable onFinish, TheMaterial block, PercentageList<TheMaterial> with) {
-		synchronizedReplace(a,b,onFinish, Arrays.asList(block), with);
-	}
-	
-	public static void synchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block, PercentageList<TheMaterial> with) {
-		BlockGetter s = get(a, b);
-		new Tasker() {
-			public void run() {
-				for(int i = 0; i < amount; ++i) {
-					if(!s.has())break;
-					Position pos = s.get();
-					state.replace(pos, block, with.getRandom());
-				}
-				if(!s.has())
-					cancel();
-					new Tasker() {
-						public void run() {
-							if(!s.has() && onFinish!=null)
-							onFinish.run();
-						}
-					}.runTask();
-			}
-		}.runRepeating(0, 2);
-	}
-
-	public static void synchronizedReplace(Position a, Position b, Runnable onFinish, TheMaterial block, List<TheMaterial> with) {
-		synchronizedReplace(a, b, onFinish, Arrays.asList(block), with);
-	}
-
-	public static void synchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block, List<TheMaterial> with) {
-		BlockGetter s = get(a, b);
-		new Tasker() {
-			public void run() {
-				for(int i = 0; i < amount; ++i) {
-					if(!s.has())break;
-					Position pos = s.get();
-					state.replace(pos, block, TheAPI.getRandomFromList(with));
-				}
-				if(!s.has())
-					cancel();
-					new Tasker() {
-						public void run() {
-							if(!s.has() && onFinish!=null)
-							onFinish.run();
-						}
-					}.runTask();
-			}
-		}.runRepeating(0, 2);
-	}
-
-	public static void synchronizedReplace(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> block, List<TheMaterial> with) {
-		BlockGetter s = get(a, b);
-		List<TheMaterial> blocks = block.toList();
-		new Tasker() {
-			public void run() {
-				for(int i = 0; i < amount; ++i) {
-					if(!s.has())break;
-					Position pos = s.get();
-					state.replace(pos, blocks, TheAPI.getRandomFromList(with));
-				}
-				if(!s.has())
-					cancel();
-					new Tasker() {
-						public void run() {
-							if(!s.has() && onFinish!=null)
-							onFinish.run();
-						}
-					}.runTask();
-			}
-		}.runRepeating(0, 2);
-	}
-	
-
-	public static void synchronizedSet(Position a, Position b, PercentageList<TheMaterial> with) {
-		synchronizedSet(a,b, new Runnable() {public void run() {}},with, Arrays.asList());
-	}
-	
-
-	public static void synchronizedSet(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> with) {
-		synchronizedSet(a,b, onFinish,with, Arrays.asList());
-	}
-
-	public static void synchronizedReplace(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> block, PercentageList<TheMaterial> with) {
-		BlockGetter s = get(a, b);
-		List<TheMaterial> blocks = block.toList();
-		new Tasker() {
-			public void run() {
-				for(int i = 0; i < amount; ++i) {
-					if(!s.has())break;
-					Position pos = s.get();
-					state.replace(pos, blocks, with.getRandom());
-				}
-				if(!s.has())
-					cancel();
-					new Tasker() {
-						public void run() {
-							if(!s.has() && onFinish!=null)
-							onFinish.run();
-						}
-					}.runTask();
-			}
-		}.runRepeating(0, 2);
-	}
-
-	public static void synchronizedReplace(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> block, TheMaterial with) {
-		synchronizedReplace(a,b,onFinish,block,Arrays.asList(with));
-	}
 	// Asynchronized part
 	public static void asynchronizedSet(Position a, Position b, TheMaterial with) {
 		asynchronizedSet(a, b, new Runnable() {public void run() {}}, with);
@@ -1003,55 +720,33 @@ public class BlocksAPI {
 		}catch(Exception | NoSuchFieldError | NoSuchMethodError notEx) {}
 		new Tasker() {
 			public void run() {
-			BlockGetter s = get(a, b);
-			//prepare regions
-			
-			//chunkKey, Chunk
-			HashMap<Long, Object> chunks = new HashMap<>();
-			boolean ww = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1])>=14;
-			boolean palet = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1])>=9;
-			while(s.has()) {
-				Position pos = s.get();
-				if(!chunks.containsKey(pos.getChunkKey())) {
-					chunks.put(pos.getChunkKey(), pos.getNMSChunk());
-					for(int i = 0; i < 255; ++i) {
-						Object c = pos.getNMSChunk();
-					    Object sc = ((Object[])Ref.invoke(c, get))[i >> 4];
+				BlockGetter s = get(a, b);
+				HashMap<Long, Object> chunks = new HashMap<>();
+				while (s.has()) {
+					Position pos = s.get();
+					if(!ignore.contains(pos.getType())) {
+						if(!chunks.containsKey(pos.getChunkKey()))
+							chunks.put(pos.getChunkKey(), pos.getNMSChunk());
+						Object sc = ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4];
 					    if (sc == null) {
 					      if (ww)
-					        sc = Ref.newInstance(aw, i >> 4 << 4);
+					        sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4);
 					      else
-					        sc = Ref.newInstance(aw, i >> 4 << 4, true);
-					      ((Object[])Ref.invoke(c, get))[i >> 4] = sc;
+					        sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4, true);
+					      ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4] = sc;
 					    }
+						Object cr = with.getRandom().getIBlockData();
+				    if (palet)
+				      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+				    else
+				      Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
 					}
 				}
-			}
-			
-			//regions prepared
-			s = get(a, b); //reset
-			
-			//set blocks
-			while (s.has()) {
-				Position pos = s.get();
-				if(!pos.getWorld().isChunkLoaded(pos.getBlockX()>>4, pos.getBlockZ()>>4))
-					pos.getWorld().loadChunk(pos.getBlockX()>>4, pos.getBlockZ()>>4, true);
-				if(!ignore.contains(pos.getType())) {
-				Object cr = with.getRandom().getIBlockData();
-				Object c = chunks.get(pos.getChunkKey());
-			    Object sc = ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4];
-			    if (palet)
-			      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
-			    else
-			      Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+				for(Object chunk : chunks.values()) {
+				Object packet = Ref.newInstance(c, chunk, 0xffff);
+				for(Player p : TheAPI.getOnlinePlayers())
+					Ref.sendPacket(p, packet);
 				}
-			}
-			//blocks set
-			s = get(a, b); //reset
-			
-			//send blocks update
-			while (s.has())
-			Position.sendBlockUpdateAt(s.get());
 				if(onFinish!=null)
 					onFinish.run();
 			}
@@ -1082,10 +777,31 @@ public class BlocksAPI {
 		new Tasker() {
 			public void run() {
 				BlockGetter s = get(a, b);
+				HashMap<Long, Object> chunks = new HashMap<>();
 				while (s.has()) {
 					Position pos = s.get();
-					state.replace(pos, block, with.getRandom());
-					Position.sendBlockUpdateAt(pos);
+					if(block.contains(pos.getType())) {
+						if(!chunks.containsKey(pos.getChunkKey()))
+							chunks.put(pos.getChunkKey(), pos.getNMSChunk());
+						Object sc = ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4];
+					    if (sc == null) {
+					      if (ww)
+					        sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4);
+					      else
+					        sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4, true);
+					      ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4] = sc;
+					    }
+						Object cr = with.getRandom().getIBlockData();
+				    if (palet)
+				      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+				    else
+				      Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+					}
+				}
+				for(Object chunk : chunks.values()) {
+				Object packet = Ref.newInstance(c, chunk, 0xffff);
+				for(Player p : TheAPI.getOnlinePlayers())
+					Ref.sendPacket(p, packet);
 				}
 				if(onFinish!=null)
 					onFinish.run();
@@ -1105,46 +821,31 @@ public class BlocksAPI {
 		new Tasker() {
 			public void run() {
 				BlockGetter s = get(a, b);
-				//prepare regions
-				
-				//chunkKey, Chunk
 				HashMap<Long, Object> chunks = new HashMap<>();
-				boolean ww = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1])>=14;
-				boolean palet = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1])>=9;
-				while(s.has()) {
-					Position pos = s.get();
-					if(!chunks.containsKey(pos.getChunkKey())) {
-						chunks.put(pos.getChunkKey(), pos.getNMSChunk());
-						for(int i = 0; i < 255; ++i) {
-							Object c = pos.getNMSChunk();
-						    Object sc = ((Object[])Ref.invoke(c, get))[i >> 4];
-						    if (sc == null) {
-						      if (ww)
-						        sc = Ref.newInstance(aw, i >> 4 << 4);
-						      else
-						        sc = Ref.newInstance(aw, i >> 4 << 4, true);
-						      ((Object[])Ref.invoke(c, get))[i >> 4] = sc;
-						    }
-						}
-					}
-				}
-				//regions prepared
-				s = get(a, b); //reset
-				
-				//set blocks
 				while (s.has()) {
 					Position pos = s.get();
 					if(block.contains(pos.getType())) {
-					Object cr = TheAPI.getRandomFromList(with).getIBlockData();
-					Object c = chunks.get(pos.getChunkKey());
-				    int y = (pos.getBlockY() < 0 ? 0 : (pos.getBlockY()>255?255:pos.getBlockY()));
-				    Object sc = ((Object[])Ref.invoke(c, get))[y >> 4];
+						if(!chunks.containsKey(pos.getChunkKey()))
+							chunks.put(pos.getChunkKey(), pos.getNMSChunk());
+						Object sc = ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4];
+					    if (sc == null) {
+					      if (ww)
+					        sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4);
+					      else
+					        sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4, true);
+					      ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4] = sc;
+					    }
+						Object cr = TheAPI.getRandomFromList(with).getIBlockData();
 				    if (palet)
-				      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr);
+				      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
 				    else
-				      Ref.invoke(sc, type, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr);
-					Position.sendBlockUpdateAt(pos);
+				      Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
 					}
+				}
+				for(Object chunk : chunks.values()) {
+				Object packet = Ref.newInstance(c, chunk, 0xffff);
+				for(Player p : TheAPI.getOnlinePlayers())
+					Ref.sendPacket(p, packet);
 				}
 				if(onFinish!=null)
 					onFinish.run();
@@ -1174,46 +875,31 @@ public class BlocksAPI {
 		new Tasker() {
 			public void run() {
 				BlockGetter s = get(a, b);
-				//prepare regions
-				
-				//chunkKey, Chunk
 				HashMap<Long, Object> chunks = new HashMap<>();
-				boolean ww = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1])>=14;
-				boolean palet = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1])>=9;
-				while(s.has()) {
-					Position pos = s.get();
-					if(!chunks.containsKey(pos.getChunkKey())) {
-						chunks.put(pos.getChunkKey(), pos.getNMSChunk());
-						for(int i = 0; i < 255; ++i) {
-							Object c = pos.getNMSChunk();
-						    Object sc = ((Object[])Ref.invoke(c, get))[i >> 4];
-						    if (sc == null) {
-						      if (ww)
-						        sc = Ref.newInstance(aw, i >> 4 << 4);
-						      else
-						        sc = Ref.newInstance(aw, i >> 4 << 4, true);
-						      ((Object[])Ref.invoke(c, get))[i >> 4] = sc;
-						    }
-						}
-					}
-				}
-				//regions prepared
-				s = get(a, b); //reset
-				
-				//set blocks
 				while (s.has()) {
 					Position pos = s.get();
 					if(block.contains(pos.getType())) {
-					Object cr = TheAPI.getRandomFromList(with).getIBlockData();
-					Object c = chunks.get(pos.getChunkKey());
-				    int y = (pos.getBlockY() < 0 ? 0 : (pos.getBlockY()>255?255:pos.getBlockY()));
-				    Object sc = ((Object[])Ref.invoke(c, get))[y >> 4];
+						if(!chunks.containsKey(pos.getChunkKey()))
+							chunks.put(pos.getChunkKey(), pos.getNMSChunk());
+						Object sc = ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4];
+					    if (sc == null) {
+					      if (ww)
+					        sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4);
+					      else
+					        sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4, true);
+					      ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4] = sc;
+					    }
+						Object cr = TheAPI.getRandomFromList(with).getIBlockData();
 				    if (palet)
-				      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr);
+				      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
 				    else
-				      Ref.invoke(sc, type, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr);
-					Position.sendBlockUpdateAt(pos);
+				      Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
 					}
+				}
+				for(Object chunk : chunks.values()) {
+				Object packet = Ref.newInstance(c, chunk, 0xffff);
+				for(Player p : TheAPI.getOnlinePlayers())
+					Ref.sendPacket(p, packet);
 				}
 				if(onFinish!=null)
 					onFinish.run();
@@ -1229,11 +915,31 @@ public class BlocksAPI {
 		new Tasker() {
 			public void run() {
 				BlockGetter s = get(a, b);
-				List<TheMaterial> blocks = block.toList();
+				HashMap<Long, Object> chunks = new HashMap<>();
 				while (s.has()) {
 					Position pos = s.get();
-					state.replace(pos, blocks, with.getRandom());
-					Position.sendBlockUpdateAt(pos);
+					if(block.contains(pos.getType())) {
+						if(!chunks.containsKey(pos.getChunkKey()))
+							chunks.put(pos.getChunkKey(), pos.getNMSChunk());
+						Object sc = ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4];
+					    if (sc == null) {
+					      if (ww)
+					        sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4);
+					      else
+					        sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4, true);
+					      ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4] = sc;
+					    }
+						Object cr = block.getRandom().getIBlockData();
+				    if (palet)
+				      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+				    else
+				      Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+					}
+				}
+				for(Object chunk : chunks.values()) {
+				Object packet = Ref.newInstance(c, chunk, 0xffff);
+				for(Player p : TheAPI.getOnlinePlayers())
+					Ref.sendPacket(p, packet);
 				}
 				if(onFinish!=null)
 					onFinish.run();

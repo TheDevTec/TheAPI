@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -184,9 +183,9 @@ public class LoaderClass extends JavaPlugin {
 			}
 		}.runLater(200);
 		int removed = 0;
-		for(UUID u : TheAPI.getUsers()) {
-			if(Reader.read(new File("plugins/TheAPI/User/"+u.toString()+".yml"), false).trim().isEmpty()) {
-				TheAPI.getUser(u).delete();
+		for (File f : Arrays.asList(new File("plugins/TheAPI/User").listFiles())) {
+			if(Reader.read(f, false).trim().isEmpty()) {
+				f.delete();
 				++removed;
 			}
 		}
