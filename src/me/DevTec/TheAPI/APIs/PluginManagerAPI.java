@@ -283,7 +283,6 @@ public class PluginManagerAPI {
 					a.put(name,f.getName());
 					}
 					}
-	
 			}
 		return a;
 	}

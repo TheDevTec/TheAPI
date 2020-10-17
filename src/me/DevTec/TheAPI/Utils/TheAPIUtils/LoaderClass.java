@@ -183,6 +183,7 @@ public class LoaderClass extends JavaPlugin {
 			}
 		}.runLater(200);
 		int removed = 0;
+		if(new File("plugins/TheAPI/User").exists())
 		for (File f : Arrays.asList(new File("plugins/TheAPI/User").listFiles())) {
 			if(Reader.read(f, false).trim().isEmpty()) {
 				f.delete();
