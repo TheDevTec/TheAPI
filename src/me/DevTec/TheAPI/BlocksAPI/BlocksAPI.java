@@ -676,8 +676,9 @@ public class BlocksAPI {
 				while (s.has()) {
 					Position pos = s.get();
 					if(!ignore.contains(pos.getType())) {
+						Object c = pos.getNMSChunk();
 						if(!chunks.containsKey(pos.getChunkKey()))
-							chunks.put(pos.getChunkKey(), pos.getNMSChunk());
+							chunks.put(pos.getChunkKey(), c);
 						Object sc = ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4];
 					    if (sc == null) {
 					      if (ww)
@@ -691,20 +692,19 @@ public class BlocksAPI {
 				      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
 				    else
 				      Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+				    Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("BlockPosition"), Ref.nms("IBlockData")), pos.getBlockPosition(), cr);
+			    	if(packet==null)packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("World"), Ref.nms("BlockPosition")), Ref.world(pos.getWorld()), pos.getBlockPosition());
+			    	if(packet==null)packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class, int.class, Ref.nms("World")), pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
+					for(Player p : TheAPI.getOnlinePlayers())
+						Ref.sendPacket(p, packet);
 					}
-				}
-				for(Object chunk : chunks.values()) {
-				Object packet = Ref.newInstance(c, chunk, 0xffff);
-				for(Player p : TheAPI.getOnlinePlayers())
-					Ref.sendPacket(p, packet);
 				}
 				if(onFinish!=null)
 					onFinish.run();
 			}
 		}.runTask();
 	}
-	private static Constructor<?> c = Ref.constructor(Ref.nms("PacketPlayOutMapChunk"), Ref.nms("Chunk"), int.class);
-
+	
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with) {
 		asynchronizedSet(a,b,onFinish, with, Arrays.asList());
 	}
@@ -725,8 +725,9 @@ public class BlocksAPI {
 				while (s.has()) {
 					Position pos = s.get();
 					if(!ignore.contains(pos.getType())) {
+						Object c = pos.getNMSChunk();
 						if(!chunks.containsKey(pos.getChunkKey()))
-							chunks.put(pos.getChunkKey(), pos.getNMSChunk());
+							chunks.put(pos.getChunkKey(), c);
 						Object sc = ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4];
 					    if (sc == null) {
 					      if (ww)
@@ -740,12 +741,12 @@ public class BlocksAPI {
 				      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
 				    else
 				      Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+				    Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("BlockPosition"), Ref.nms("IBlockData")), pos.getBlockPosition(), cr);
+			    	if(packet==null)packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("World"), Ref.nms("BlockPosition")), Ref.world(pos.getWorld()), pos.getBlockPosition());
+			    	if(packet==null)packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class, int.class, Ref.nms("World")), pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
+					for(Player p : TheAPI.getOnlinePlayers())
+						Ref.sendPacket(p, packet);
 					}
-				}
-				for(Object chunk : chunks.values()) {
-				Object packet = Ref.newInstance(c, chunk, 0xffff);
-				for(Player p : TheAPI.getOnlinePlayers())
-					Ref.sendPacket(p, packet);
 				}
 				if(onFinish!=null)
 					onFinish.run();
@@ -781,8 +782,9 @@ public class BlocksAPI {
 				while (s.has()) {
 					Position pos = s.get();
 					if(block.contains(pos.getType())) {
+						Object c = pos.getNMSChunk();
 						if(!chunks.containsKey(pos.getChunkKey()))
-							chunks.put(pos.getChunkKey(), pos.getNMSChunk());
+							chunks.put(pos.getChunkKey(), c);
 						Object sc = ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4];
 					    if (sc == null) {
 					      if (ww)
@@ -796,12 +798,12 @@ public class BlocksAPI {
 				      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
 				    else
 				      Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+				    Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("BlockPosition"), Ref.nms("IBlockData")), pos.getBlockPosition(), cr);
+			    	if(packet==null)packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("World"), Ref.nms("BlockPosition")), Ref.world(pos.getWorld()), pos.getBlockPosition());
+			    	if(packet==null)packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class, int.class, Ref.nms("World")), pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
+					for(Player p : TheAPI.getOnlinePlayers())
+						Ref.sendPacket(p, packet);
 					}
-				}
-				for(Object chunk : chunks.values()) {
-				Object packet = Ref.newInstance(c, chunk, 0xffff);
-				for(Player p : TheAPI.getOnlinePlayers())
-					Ref.sendPacket(p, packet);
 				}
 				if(onFinish!=null)
 					onFinish.run();
@@ -825,8 +827,9 @@ public class BlocksAPI {
 				while (s.has()) {
 					Position pos = s.get();
 					if(block.contains(pos.getType())) {
+						Object c = pos.getNMSChunk();
 						if(!chunks.containsKey(pos.getChunkKey()))
-							chunks.put(pos.getChunkKey(), pos.getNMSChunk());
+							chunks.put(pos.getChunkKey(), c);
 						Object sc = ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4];
 					    if (sc == null) {
 					      if (ww)
@@ -840,12 +843,12 @@ public class BlocksAPI {
 				      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
 				    else
 				      Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+				    Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("BlockPosition"), Ref.nms("IBlockData")), pos.getBlockPosition(), cr);
+			    	if(packet==null)packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("World"), Ref.nms("BlockPosition")), Ref.world(pos.getWorld()), pos.getBlockPosition());
+			    	if(packet==null)packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class, int.class, Ref.nms("World")), pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
+					for(Player p : TheAPI.getOnlinePlayers())
+						Ref.sendPacket(p, packet);
 					}
-				}
-				for(Object chunk : chunks.values()) {
-				Object packet = Ref.newInstance(c, chunk, 0xffff);
-				for(Player p : TheAPI.getOnlinePlayers())
-					Ref.sendPacket(p, packet);
 				}
 				if(onFinish!=null)
 					onFinish.run();
@@ -879,8 +882,9 @@ public class BlocksAPI {
 				while (s.has()) {
 					Position pos = s.get();
 					if(block.contains(pos.getType())) {
+						Object c = pos.getNMSChunk();
 						if(!chunks.containsKey(pos.getChunkKey()))
-							chunks.put(pos.getChunkKey(), pos.getNMSChunk());
+							chunks.put(pos.getChunkKey(), c);
 						Object sc = ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4];
 					    if (sc == null) {
 					      if (ww)
@@ -894,12 +898,12 @@ public class BlocksAPI {
 				      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
 				    else
 				      Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+				    Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("BlockPosition"), Ref.nms("IBlockData")), pos.getBlockPosition(), cr);
+			    	if(packet==null)packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("World"), Ref.nms("BlockPosition")), Ref.world(pos.getWorld()), pos.getBlockPosition());
+			    	if(packet==null)packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class, int.class, Ref.nms("World")), pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
+					for(Player p : TheAPI.getOnlinePlayers())
+						Ref.sendPacket(p, packet);
 					}
-				}
-				for(Object chunk : chunks.values()) {
-				Object packet = Ref.newInstance(c, chunk, 0xffff);
-				for(Player p : TheAPI.getOnlinePlayers())
-					Ref.sendPacket(p, packet);
 				}
 				if(onFinish!=null)
 					onFinish.run();
@@ -919,8 +923,9 @@ public class BlocksAPI {
 				while (s.has()) {
 					Position pos = s.get();
 					if(block.contains(pos.getType())) {
+						Object c = pos.getNMSChunk();
 						if(!chunks.containsKey(pos.getChunkKey()))
-							chunks.put(pos.getChunkKey(), pos.getNMSChunk());
+							chunks.put(pos.getChunkKey(), c);
 						Object sc = ((Object[])Ref.invoke(c, get))[pos.getBlockY() >> 4];
 					    if (sc == null) {
 					      if (ww)
@@ -934,12 +939,12 @@ public class BlocksAPI {
 				      Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
 				    else
 				      Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+				    	Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("BlockPosition"), Ref.nms("IBlockData")), pos.getBlockPosition(), cr);
+				    	if(packet==null)packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("World"), Ref.nms("BlockPosition")), Ref.world(pos.getWorld()), pos.getBlockPosition());
+				    	if(packet==null)packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class, int.class, Ref.nms("World")), pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
+						for(Player p : TheAPI.getOnlinePlayers())
+							Ref.sendPacket(p, packet);
 					}
-				}
-				for(Object chunk : chunks.values()) {
-				Object packet = Ref.newInstance(c, chunk, 0xffff);
-				for(Player p : TheAPI.getOnlinePlayers())
-					Ref.sendPacket(p, packet);
 				}
 				if(onFinish!=null)
 					onFinish.run();

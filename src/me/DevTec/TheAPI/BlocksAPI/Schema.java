@@ -1,7 +1,5 @@
 package me.DevTec.TheAPI.BlocksAPI;
 
-import java.lang.reflect.Constructor;
-
 import org.bukkit.entity.Player;
 import org.spigotmc.AsyncCatcher;
 
@@ -45,7 +43,6 @@ public class Schema {
 		paste(position, null);
 	}
 	
-	private static Constructor<?> ca = Ref.constructor(Ref.nms("PacketPlayOutMapChunk"), Ref.nms("Chunk"), int.class);
 	public void paste(Position position, SchemBlock task) {
 		if(AsyncCatcher.enabled==true)
 			AsyncCatcher.enabled=false;
@@ -77,6 +74,10 @@ public class Schema {
 						else if(c.set(Schema.this, pos, type, save))
 						save.load(pos, type);
 					ca.set(pos.getChunkKey()+"", pos.getNMSChunk());
+			    	Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("BlockPosition"), Ref.nms("IBlockData")), pos.getBlockPosition(), type.getIBlockData());
+					for(Player p : TheAPI.getOnlinePlayers())
+						if(p.getWorld().getName().equals(pos.getWorldName()))
+						Ref.sendPacket(p, packet);
 				}
 				dec.close();
 				}catch(Exception e) {}
@@ -84,11 +85,6 @@ public class Schema {
 					Thread.sleep(50);
 				} catch (InterruptedException e) {
 				}}
-				for(String chunkKey : ca.getKeys()) {
-					Object packet = Ref.newInstance(Schema.ca, ca.get(chunkKey), 0xffff);
-					for(Player p : TheAPI.getOnlinePlayers())
-						Ref.sendPacket(p, packet);
-				}
 				if(onFinish!=null)
 					onFinish.run();
 			}

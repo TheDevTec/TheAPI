@@ -14,7 +14,8 @@ import me.DevTec.TheAPI.APIs.ItemCreatorAPI;
 import me.DevTec.TheAPI.APIs.PluginManagerAPI;
 import me.DevTec.TheAPI.GUIAPI.GUI;
 import me.DevTec.TheAPI.GUIAPI.ItemGUI;
-import me.DevTec.TheAPI.PlaceholderAPI.ThePlaceholderAPI;
+import me.DevTec.TheAPI.Scheduler.Tasker;
+import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
 import me.DevTec.TheAPI.SortedMap.RankingAPI;
 
 public class TAC_Test {
@@ -26,20 +27,32 @@ public class TAC_Test {
 			TheAPI.msg("&e/TheAPI Test Other - DevTec currently testing", s);
 			return;
 		}
-		if (args[1].equalsIgnoreCase("Other")) {
-		TheAPI.msg("&eThePlaceholderAPII:", s);
-		TheAPI.msg("&6- %player_health% -> "+ThePlaceholderAPI.setPlaceholders((Player)s, "%player_health%"), s);
-		TheAPI.msg("&6- %player_statistic_kills% -> "+ThePlaceholderAPI.setPlaceholders((Player)s, "%player_statistic_kills%"), s);
-		TheAPI.msg("&6- %server_time% -> "+ThePlaceholderAPI.setPlaceholders((Player)s, "%server_time%"), s);
-		TheAPI.msg("&6- %server_online% -> "+ThePlaceholderAPI.setPlaceholders((Player)s, "%server_online%"), s);
-		TheAPI.msg(" &eMath:", s);
-		TheAPI.msg("&6- %math{5*4+6}% -> "+ThePlaceholderAPI.setPlaceholders((Player)s, "%math{5*4+6}%"), s);
-		TheAPI.msg("&6- %math{5.9*4.4+6.448}% -> "+ThePlaceholderAPI.setPlaceholders((Player)s, "%math{5.9*4.4+6.448}%"), s);
-		TheAPI.msg("&6- %math{3*%math{2*4}%+1}% -> "+ThePlaceholderAPI.setPlaceholders((Player)s, "%math{3*%math{2*4}%+1}%"), s);
-		return;
-		}
 		if(s instanceof Player) {
 		Player p = (Player) s;
+
+		if (args[1].equalsIgnoreCase("Other")) {
+			ScoreboardAPI sb = new ScoreboardAPI(p, true);
+			new Tasker() {
+				int i = 0;
+				public void run() {
+					if(++i==50) {
+						new Tasker() {
+							public void run() {
+								sb.destroy();
+							}
+						}.runLater(20);
+						return;
+					}
+					sb.setDisplayName("&uRAINBOW_RAINBOW");
+					sb.setLine(0,"&uRAINBOW_RAINBOW");
+					sb.setLine(1,"&uRAINBOW_RAINBOW");
+					sb.setLine(2,"&uRAINBOW_RAINBOW");
+					sb.setLine(3,"&uRAINBOW_RAINBOW");
+					sb.setLine(4,"&uRAINBOW_RAINBOW");
+				}
+			}.runRepeatingTimes(0, 1, 50);
+		}
+		
 		if (args[1].equalsIgnoreCase("GUI")) {
 			GUI gui = new GUI("&eTheAPI v" + PluginManagerAPI.getVersion("TheAPI"), 54, p) {
 		

@@ -408,7 +408,7 @@ public class NMSPlayer {
 		if(Ref.field(c, "listName").getType() == String.class)
 			Reflections.setField(a, "listName", name);
 		else
-			Reflections.setField(a, "listName", NMSAPI.getIChatBaseCompomentFromCraftBukkit(name));
+			Reflections.setField(a, "listName", NMSAPI.getIChatBaseComponentFromCraftBukkit(name));
 		Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutPlayerInfo")));
 		Ref.set(packet, "a", update);
 		((List<Object>)Ref.get(packet, "b")).add(Ref.createPlayerInfoData(packet,getProfile(),getPing(),getPlayer().getGameMode().name(),name));

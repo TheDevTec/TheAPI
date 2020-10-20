@@ -111,7 +111,10 @@ public class TheMaterial implements Cloneable {
 	public Object getIBlockData() {
 		try {
 			Object o = Ref.invokeNulled(Ref.method(Ref.nms("Block"), "getByCombinedId", int.class), (int)((m.getId()+(data>>4))));
-			if(o==null) o = Ref.invokeNulled(Ref.method(Ref.nms("Block"), "getId", int.class), (int)m.getId());
+			if(o==null)
+				o = Ref.invokeNulled(Ref.method(Ref.nms("Block"), "getId", int.class), (int)m.getId());
+			else
+				o=Ref.invoke(Ref.invoke(o, "getBlock"), Ref.method(Ref.nms("Block"), "fromLegacyData", int.class), (int)data);
 			return o;
 		}catch(Exception err) {
 			try {
@@ -146,7 +149,7 @@ public class TheMaterial implements Cloneable {
 	}
 	
 	public ItemStack toItemStack() {
-		return new ItemStack(new ItemStack(m, 0,(byte)data).getType(), amount,(byte)data);
+		return new ItemStack(m, amount,(byte)data);
 	}
 
 	@Override

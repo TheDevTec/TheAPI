@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -21,7 +22,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 import me.DevTec.TheAPI.TheAPI;
-import me.DevTec.TheAPI.Utils.DataKeeper.TheArrays;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
 
 public class StringUtils {  
@@ -31,6 +31,28 @@ public class StringUtils {
 	
 	public static interface ColormaticFactory {
 		public String getColor();
+	}
+	
+	/**
+	 * @see see Split text correctly with colors
+	 */
+	public static List<String> fixedSplit(String text, int lengthOfSplit) {
+		List<String> splitted = new ArrayList<>();
+		String split = text;
+		String prefix = "";
+		while(split.length() > lengthOfSplit) {
+			int length = lengthOfSplit-1-prefix.length();
+			String a = prefix+split.substring(0, length);
+			if(a.endsWith("&")||a.endsWith("§")) {
+				--length;
+				a=prefix+split.substring(0, length);
+				prefix=ChatColor.getLastColors(a);
+			}else prefix = "";
+			splitted.add(a);
+			split=split.substring(length);
+		}
+		splitted.add(prefix+split);
+		return splitted;
 	}
 
 	/**
@@ -177,7 +199,7 @@ public class StringUtils {
 
 	private static final Pattern hex = Pattern.compile("#[a-fA-F0-9]{6}");
 	public static ColormaticFactory color = new ColormaticFactory() {
-		private TheList<Character> list = TheArrays.asList('4','c','6','e','5','d','9','3', 'b','2','a');
+		private List<Character> list = Arrays.asList('4','c','6','e','5','d','9','3', 'b','2','a');
 		private int i = 0;
 		@Override
 		public String getColor() {

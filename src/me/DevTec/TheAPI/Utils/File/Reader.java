@@ -25,9 +25,7 @@ public class Reader {
 	private BufferedReader sc;
 	public Reader(File f) {
 		try {
-			FileInputStream fis = new FileInputStream(f);
-		    InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
-		    sc = new BufferedReader(isr);
+		    sc = new BufferedReader(new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8));
 		} catch (Exception e) {
 		}
 	}

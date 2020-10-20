@@ -35,9 +35,9 @@ public class NMSAPI {
 			IBlockData, worldset, Chunk, getblocks, setblock, setblockb, itemstack, entityM, livingentity, oldichatser,
 			post,notify;
 	private static int old;
-	private static Field tps,scoreb,scorec,scored;
+	private static Field tps;
 	private static Object sbremove, sbinteger, sbchange,sbhearts;
-	private static Field[] part= new Field[11];
+	private static Field[] part= new Field[11], scr=new Field[4];
 	static {
 		Class<?> c = Reflections.getNMSClass("PacketPlayOutWorldParticles")!=null?Reflections.getNMSClass("PacketPlayOutWorldParticles"):Reflections.getNMSClass("Packet63WorldParticles");
 		part[0]=Reflections.getField(c, "a");
@@ -51,19 +51,17 @@ public class NMSAPI {
 		part[8]=Reflections.getField(c, "g");
 		part[9]=Reflections.getField(c, "h");
 		part[10]=Reflections.getField(c, "i");
-		scoreb=Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardScore"),"b");
-		scorec=Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardScore"),"c");
-		scored=Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardScore"),"d");
-		pTeleport=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutEntityTeleport"), Ref.nms("Entity"));
-		pSign=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutOpenSignEditor"), Ref.nms("BlockPosition"));
+		scr[0]=Ref.field(Ref.nms("PacketPlayOutScoreboardScore"),"a");
+		scr[1]=Ref.field(Ref.nms("PacketPlayOutScoreboardScore"),"b");
+		scr[2]=Ref.field(Ref.nms("PacketPlayOutScoreboardScore"),"c");
+		scr[3]=Ref.field(Ref.nms("PacketPlayOutScoreboardScore"),"d");
+		pTeleport=Ref.constructor(Ref.nms("PacketPlayOutEntityTeleport"), Ref.nms("Entity"));
+		pSign=Ref.constructor(Ref.nms("PacketPlayOutOpenSignEditor"), Ref.nms("BlockPosition"));
 		getser=Reflections.getMethod(Ref.nms("MinecraftServer"), "getServer");
-		sbteam=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutScoreboardTeam"));
-		sbdisplayobj=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutScoreboardDisplayObjective"));
-		sbobj=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutScoreboardObjective"));
-		score=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutScoreboardScore"),String.class);
-		if(score==null)
-			score=Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutScoreboardScore"),
-					Reflections.getNMSClass("ScoreboardServer$Action"),String.class, String.class, int.class);
+		sbteam=Ref.constructor(Ref.nms("PacketPlayOutScoreboardTeam"));
+		sbdisplayobj=Ref.constructor(Ref.nms("PacketPlayOutScoreboardDisplayObjective"));
+		sbobj=Ref.constructor(Ref.nms("PacketPlayOutScoreboardObjective"));
+		score=Ref.constructor(Ref.nms("PacketPlayOutScoreboardScore"));
 		sbremove=Reflections.get(Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardScore$EnumScoreboardAction"),"REMOVE"),null);
 		if(sbremove==null)
 			sbremove=Reflections.get(Reflections.getField(Reflections.getNMSClass("ScoreboardServer$Action"),"REMOVE"),null);
@@ -185,13 +183,13 @@ public class NMSAPI {
 	public static Object getPacketPlayOutEntityTeleport(Object entity) {
 		return Reflections.c(pTeleport, entity);
 	}
+	
 	public static Object getPacketPlayOutScoreboardScore(Action action, String player, String line, int score) {
-		if(TheAPI.isNewVersion())
-			return Ref.create(NMSAPI.score,getScoreboardAction(action),player, line, score);
-		Object o = Ref.create(NMSAPI.score,line);
-		Reflections.setField(o, scoreb, player);
-		Reflections.setField(o, scorec, score);
-		Reflections.setField(o, scored, getScoreboardAction(action));
+		Object o = Ref.newInstance(NMSAPI.score);
+		Ref.set(o, scr[0], line);
+		Ref.set(o, scr[1], player);
+		Ref.set(o, scr[2], score);
+		Ref.set(o, scr[3], getScoreboardAction(action));
 		return o;
 	}
 	
@@ -611,7 +609,7 @@ public class NMSAPI {
 		return getIChatBaseComponentJson("{\"text\":\""+text+"\"}");
 	}
 	
-	public static Object getIChatBaseCompomentFromCraftBukkit(String text) {
+	public static Object getIChatBaseComponentFromCraftBukkit(String text) {
 		return ((Object[])Ref.invokeNulled(Ref.method(Ref.craft("util.CraftChatMessage"), "fromString", String.class), text))[0];
 	}
 	
