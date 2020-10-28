@@ -3,6 +3,8 @@ package me.DevTec.TheAPI.Utils.Reflections;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -168,8 +170,20 @@ public class Ref {
 		try {
 			return main.getFields();
 		}catch(Exception es) {
-			return null;
+			return new Field[0];
 		}
+	}
+	
+	public static List<Field> getAllFields(Class<?> main) {
+		List<Field> f = new ArrayList<>();
+		Class<?> superclass = main;
+		while(superclass != null) {
+			for(Field fw : getDeclaredFields(superclass))
+				if(!f.contains(fw))
+					f.add(fw);
+			superclass=superclass.getSuperclass();
+		}
+		return f;
 	}
 	
 	public static Field[] getDeclaredFields(Class<?> main){

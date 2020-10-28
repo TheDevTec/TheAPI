@@ -50,7 +50,6 @@ import me.DevTec.TheVault.Bank;
 import me.DevTec.TheVault.TheVault;
 import net.milkbowl.vault.economy.Economy;
 
-@SuppressWarnings("restriction")
 public class LoaderClass extends JavaPlugin {
 	//Scoreboards
 	public final Map<Integer, ScoreboardAPI> scoreboard = new HashMap<>();
@@ -112,10 +111,6 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		loadWorlds();
-		new Tasker() {
-			
-			@Override
-			public void run() {
 		loadPlaceholders();
 		if(PlaceholderAPI.isEnabledPlaceholderAPI()) {
 			/* TheAPI placeholder extension for PAPI
@@ -160,6 +155,8 @@ public class LoaderClass extends JavaPlugin {
 				}
 			}.register();
 		}
+		new Tasker() {
+			public void run() {
 		Tasks.load();
 		Bukkit.getPluginManager().registerEvents(new Events(), LoaderClass.this);
 		TheAPI.createAndRegisterCommand("TheAPI", null, new TheAPICommand());
@@ -366,7 +363,7 @@ public class LoaderClass extends JavaPlugin {
 	}
 
 	public void loadWorlds() {
-		if (config.exists("Worlds")) {
+		if (config.exists("Worlds"))
 			if (!config.getStringList("Worlds").isEmpty()) {
 				TheAPI.msg("&cTheAPI&7: &8********************",TheAPI.getConsole());
 				TheAPI.msg("&cTheAPI&7: &6Action: &eLoading worlds..",TheAPI.getConsole());
@@ -413,7 +410,6 @@ public class LoaderClass extends JavaPlugin {
 					TheAPI.msg("&bTheAPI&7: &eWorld with name '&6" + s + "&e' loaded.", TheAPI.getConsole());
 				}
 			}
-		}
 	}
 
 	private boolean getVaultEconomy() {

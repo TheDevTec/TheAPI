@@ -3,7 +3,6 @@ package me.DevTec.TheAPI;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,13 +66,9 @@ public class TheAPI {
 	private static final HashMap<String, Integer> task = new HashMap<>();
 	private static final HashMap<UUID, User> cache = new HashMap<>();
 	private static Constructor<?> constructor = Ref.constructor(PluginCommand.class, String.class, Plugin.class);
-	private static Field commandMapField = Ref.field(Bukkit.getPluginManager().getClass(), "commandMap");
 	private static Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
 	private static Random random = new Random();
 	private static int ver;
-	static {
-		ver = StringUtils.getInt(getServerVersion().split("_")[1]);
-	}
 	
 	public static void register(Listener listener) {
 		HandlerList.register(listener);
@@ -88,22 +83,32 @@ public class TheAPI {
 	}
 
 	public static void createAndRegisterCommand(String commandName, String permission, CommandExecutor commandExecutor, String... aliases) {
-		PluginCommand cmd = TheAPI.createCommand(commandName, LoaderClass.plugin);
+		List<String> list = new ArrayList<>();
+		if(aliases!=null)
+		for(String s : aliases)list.add(s);
+		createAndRegisterCommand(commandName, permission, commandExecutor, list);
+	}
+
+	public static void createAndRegisterCommand(String commandName, String permission, CommandExecutor commandExecutor, List<String> aliases) {
+		PluginCommand cmd = TheAPI.createCommand(commandName.toLowerCase(), (Plugin)LoaderClass.plugin);
 		if(permission!=null)
 		cmd.setPermission(permission);
-		if(aliases!=null && aliases.length>0)
-		cmd.setAliases(Arrays.asList(aliases));
+		List<String> lowerCase = new ArrayList<>();
+		if(aliases!=null)
+		for(String s : aliases)lowerCase.add(s.toLowerCase());
+		if(!lowerCase.isEmpty())
+		cmd.setAliases(lowerCase);
 		cmd.setExecutor(commandExecutor);
-		TheAPI.registerCommand(cmd);
+		Ref.set(cmd, "activeAliases", lowerCase);
+		registerCommand(cmd);
 	}
 	
 	public static PluginCommand createCommand(String name, Plugin plugin) {
-		return (PluginCommand)Ref.create(constructor, name, plugin);
+		return (PluginCommand)Ref.newInstance(constructor, name, plugin);
 	}
 	
 	public static void registerCommand(PluginCommand command) {
-		((SimpleCommandMap)Ref.get(Bukkit.getPluginManager(), commandMapField))
-	 	.register(command.getPlugin().getDescription().getName(), command);
+		((SimpleCommandMap)Ref.get(Bukkit.getPluginManager(),"commandMap")).register(command.getPlugin().getName(), command);
 	}
 	
 	public static void clearCache() {
@@ -177,10 +182,16 @@ public class TheAPI {
 	}
 
 	public static boolean isOlderThan(int version) {
+		if(ver==0) {
+			ver=StringUtils.getInt(getServerVersion().split("_")[1]);
+		}
 		return ver < version;
 	}
 
 	public static boolean isNewerThan(int version) {
+		if(ver==0) {
+			ver=StringUtils.getInt(getServerVersion().split("_")[1]);
+		}
 		return ver > version;
 	}
 
@@ -958,19 +969,22 @@ public class TheAPI {
 	public static ScoreboardAPI getScoreboardAPI(Player p) {
 		return new ScoreboardAPI(p, false, false);
 	}
+	
+	private static String version;
 
 	/**
 	 * @see see Return server version, for ex. v1_14_R1
 	 * @return String
 	 */
 	public static String getServerVersion() {
-		String version = null;
-		try {
-			version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-		} catch (Exception e) {
+		if(version==null) {
 			try {
-				version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[1];
-			} catch (Exception ss) {
+				version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+			} catch (Exception e) {
+				try {
+					version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[1];
+				} catch (Exception ss) {
+				}
 			}
 		}
 		return version;

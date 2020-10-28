@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
-import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker;
+import me.DevTec.TheAPI.Utils.Json.jsonmaker.Reader;
 
 public class ByteLoader implements DataLoader {
 	private Map<String, DataHolder> data = new HashMap<>();
@@ -61,7 +61,7 @@ public class ByteLoader implements DataLoader {
 				try {
 					String key = (ousr instanceof DataInputStream?(DataInputStream)ousr : (ObjectInputStream)ousr).readUTF();
 					String value = (ousr instanceof DataInputStream?(DataInputStream)ousr : (ObjectInputStream)ousr).readUTF();
-					data.put(key, new DataHolder(Maker.objectFromJson(value)));
+					data.put(key, new DataHolder(Reader.object(value)));
 				}catch(Exception e) {
 					break;
 				}
@@ -73,7 +73,7 @@ public class ByteLoader implements DataLoader {
 				while(true)
 					try {
 						String key = ousr.readUTF();
-						data.put(key, new DataHolder(Maker.objectFromJson(ousr.readUTF())));
+						data.put(key, new DataHolder(Reader.object(ousr.readUTF())));
 					}catch(Exception e) {
 					break;
 					}

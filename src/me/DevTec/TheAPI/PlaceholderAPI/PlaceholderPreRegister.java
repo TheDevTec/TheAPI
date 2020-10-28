@@ -3,6 +3,7 @@ package me.DevTec.TheAPI.PlaceholderAPI;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
 public abstract class PlaceholderPreRegister extends PlaceholderExpansion {
@@ -43,9 +44,10 @@ public abstract class PlaceholderPreRegister extends PlaceholderExpansion {
 		return null;
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean register() {
-		return super.register();
+		return PlaceholderAPI.registerPlaceholderHook(a, this);
 	}
 	
 	@Override

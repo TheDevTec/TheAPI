@@ -430,7 +430,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 						try {
 							Object o = key.getValue();
 							ous.writeUTF(key.getKey());
-							ous.writeUTF(""+Maker.objectToJson(o));
+							ous.writeUTF(""+me.DevTec.TheAPI.Utils.Json.jsonmaker.Writer.object(o, true, true));
 						} catch (Exception er) {}
 					ous.flush();
 					bos.flush();
@@ -520,7 +520,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	private void addKeys(Maker main, String key) {
 		Object o = get(key);
 		if (o!=null)
-			main.add(main.create().put(key, Maker.objectToJson(o)));
+			main.add(main.create().put(key, me.DevTec.TheAPI.Utils.Json.jsonmaker.Writer.object(o, true, true)));
 		for (String keyer : getKeys(key))
 			addKeys(main, key+"."+keyer);
 	}
@@ -541,9 +541,9 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 					b.append(pathName+System.lineSeparator());
 					String splitted = space+"- ";
 					for (Object a : (List<?>)o)
-						b.append(splitted+addQuotes(a instanceof String, Maker.objectToJson(a))+System.lineSeparator());
+						b.append(splitted+addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.jsonmaker.Writer.object(a, true, true))+System.lineSeparator());
 				} else
-					b.append(pathName+" "+addQuotes(o instanceof String, Maker.objectToJson(o))+System.lineSeparator());
+					b.append(pathName+" "+addQuotes(o instanceof String, me.DevTec.TheAPI.Utils.Json.jsonmaker.Writer.object(o, true, true))+System.lineSeparator());
 			}
 			for (String key : getKeys(path, false))
 				preparePath(path+"."+key, key+":", spaces+1, b);
@@ -562,7 +562,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 				DataOutputStream ous = new DataOutputStream(buf);
 				for (Entry<String, DataHolder> key: loader.get().entrySet())
 					try {
-						String o = ""+Maker.objectToJson(key.getValue().o);
+						String o = ""+me.DevTec.TheAPI.Utils.Json.jsonmaker.Writer.object(key.getValue().o, true, true);
 						ous.writeUTF(key.getKey());
 						ous.writeUTF(o);
 					} catch (Exception er) {}

@@ -1,9 +1,6 @@
 package me.DevTec.TheAPI.Utils;
 
 import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,8 +22,8 @@ import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
 
 public class StringUtils {  
-	private static final Pattern INTEGER = Pattern.compile("([0-9+-]+)")
-			, DOUBLE = Pattern.compile("([0-9+-]+\\.*[0-9]+)");
+	private static final Pattern INTEGER = Pattern.compile("([+-]*[0-9]+[E]*)")
+			, DOUBLE = Pattern.compile("([+-]*[0-9]+\\.*[0-9]+[E]*)");
 	private static Random random = new Random();
 	
 	public static interface ColormaticFactory {
@@ -332,7 +329,7 @@ public class StringUtils {
 			return list.get(r);
 	}
 
-	private static final Pattern periodPattern = Pattern.compile("([0-9]+)((mon)|(min)|([ywhs]))");
+	private static final Pattern periodPattern = Pattern.compile("([0-9]+)(mon[t]*[h]*[s]*|m[i]*[n]*[u]*[t]*[e]*[s]*|y[e]*[a]*[r]*[s]*|w[e][e][k][s]|h[o]*[u]*[r]*[s]*|s[e]*[c]*[o]*[n]*[d]*[s]*)", Pattern.CASE_INSENSITIVE);
 	
 
 	/**
@@ -352,37 +349,36 @@ public class StringUtils {
 	public static long timeFromString(String period){ //New shorter name of method
 	    if(period == null||period.trim().isEmpty()) return 0;
 	    period = period.toLowerCase(Locale.ENGLISH);
-	    if(isInt(period))return getInt(period);
+	    if(isFloat(period))return (long)getFloat(period);
 	    Matcher matcher = periodPattern.matcher(period);
-	    Instant instant=Instant.EPOCH;
+	    float time = 0;
 	    while(matcher.find()) {
-	        int num = getInt(matcher.group(1));
+	        float num = getFloat(matcher.group(1));
+	        if(num==0)continue;
 	        String typ = matcher.group(2);
-	        switch (typ) {
-        		case "s":
-        			instant=instant.plus(Duration.ofSeconds(num));
-        			break;
-	        	case "min":
-	        		instant=instant.plus(Duration.ofMinutes(num));
-	        		break;
-	            case "h":
-	                instant=instant.plus(Duration.ofHours(num));
-	                break;
-	            case "d":
-	                instant=instant.plus(Duration.ofDays(num));
-	                break;
-	            case "w":
-	                instant=instant.plus(Period.ofWeeks(num));
-	                break;
-	            case "mon":
-	                instant=instant.plus(Period.ofMonths(num));
-	                break;
-	            case "y":
-	                instant=instant.plus(Period.ofYears(num));
-	                break;
+	        if(typ.toLowerCase().startsWith("s")) {
+	        	time+=num;
+	        }
+	        if(typ.toLowerCase().equals("m")||typ.toLowerCase().startsWith("mi")) {
+	        	time+=num*60;
+	        }
+	        if(typ.toLowerCase().startsWith("h")) {
+	        	time+=num*3600;
+	        }
+	        if(typ.toLowerCase().startsWith("d")) {
+	        	time+=num*86400;
+	        }
+	        if(typ.toLowerCase().startsWith("w")) {
+	        	time+=num*604800;
+	        }
+	        if(typ.toLowerCase().equals("mon")) {
+	        	time+=num*2629800;
+	        }
+	        if(typ.toLowerCase().startsWith("y")) {
+	        	time+=num*31557600;
 	        }
 	    }
-	    return instant.toEpochMilli()/1000;
+	    return (long)time;
 	}
 
 	/**
@@ -399,59 +395,28 @@ public class StringUtils {
 	 * @param l long
 	 * @return String
 	 */
-	public static String timeToString(long l) { //New shorter name of method
-		long seconds = l % 60;
-		long minutes = l / 60;
-		long hours = minutes / 60;
-		long days = hours / 24;
-		long weeks = days / 7;
-		long months = weeks / 4;
-		long years = months / 12;
-		long millenniums = years / 100000;
-		if (minutes >= 60)
-			minutes = minutes % 60;
-		if (hours >= 24)
-			hours = hours % 24;
-		if (days >= 7)
-			days = days % 7;
-		if (weeks >= 4)
-			weeks = weeks % 4;
-		if (months >= 12)
-			months = months % 12;
-		if (years >= 100)
-			years = years % 100;
-		String s = "s";
-
-		if (millenniums > 0) {
-			s = millenniums + "mil "  + years + "y";
-		} else if (years > 0) {
-			s = years +  "y " + months + "mon " + weeks +  "w " + days + "d";
-		} else if (months > 0) {
-			s = months + "mon " + weeks + "w " + days +  "d " + hours + "h " + minutes + "min";
-		} else if (weeks > 0) {
-			if (minutes != 0)
-				s = weeks +  "w " + days + "d " + hours +  "h " + minutes + "min";
-			else
-				s = weeks +  "w " + days + "d " + hours + "h";
-		} else if (days > 0) {
-			if (minutes != 0)
-				s = days +  "d " + hours + "h " + minutes + "min";
-			else
-				s = days +  "d " + hours + "h";
-		} else if (hours > 0) {
-			if (seconds != 0)
-				s = hours +  "h " + minutes +  "min " + seconds + s;
-			else
-				s = hours +  "h " + minutes + "min";
-		} else if (minutes > 0) {
-			if (seconds != 0)
-				s = minutes + "min " + seconds + s;
-			else
-				s = minutes + "min";
-		} else {
-			s = seconds + s;
-		}
-		return s;
+	public static String timeToString(long time) { //New shorter name of method
+	    long minutes = (time/60)%60;
+	    long hours = (time/3600)%24;
+	    long days = (time/86400)%31;
+	    long weeks = (time/604800)%7;
+	    long mounth = (time/2629800)%12;
+	    long year = (time/31557600);
+	    String date = "";
+	    if (year > 0)
+	        date = year + " year" + (year > 1 ? "s" : ""); 
+	    if (mounth > 0)
+	        date = (!date.equals("") ? date + " " : "")+mounth + " month" + (mounth > 1 ? "s" : ""); 
+	    if (weeks > 0)
+	        date = (!date.equals("") ? date + " " : "")+weeks + " week" + (weeks > 1 ? "s" : ""); 
+	    if (days > 0)
+	        date = (!date.equals("") ? date + " " : "")+days + " day" + (days > 1 ? "s" : ""); 
+	    if (hours > 0)
+	      date = (!date.equals("") ? date + " " : "") +hours + " hour" + (hours > 1 ? "s" : ""); 
+	    if (minutes > 0)
+	      date = (!date.equals("") ? date + " " : "") + minutes + " minute" + (minutes > 1 ? "s" : ""); 
+	    if(date.equals(""))date="&e"+(time%60)+" secound"+((time%60)==0?"":"s");
+	    return date;
 	}
 
 	/**
@@ -504,8 +469,8 @@ public class StringUtils {
 	 */
 	public static BigDecimal calculate(String fromString) {
 		if(fromString==null)return new BigDecimal(0);
-		String a = fromString.replaceAll("[A-z]+", "").replace(",", ".");
-		Matcher c = Pattern.compile("[0-9.]+").matcher(a);
+		String a = fromString.replaceAll("[^0-9E+.,-]+", "").replace(",", ".");
+		Matcher c = Pattern.compile("[^0-9E+.,-]+").matcher(a);
 		if(c.find())
 		for(String s = c.group(); c.find();)
 			a=a.replace(s, new BigDecimal(s)+"");
@@ -522,7 +487,7 @@ public class StringUtils {
 	 */
 	public static double getDouble(String fromString) {
 		if(fromString==null)return 0.0D;
-		String a = fromString.replaceAll("[a-zA-Z]+", "").replace(",", ".");
+		String a = fromString.replaceAll("[^+0-9E.,-]+", "").replace(",", ".");
 		if (isDouble(a)) {
 			return Double.parseDouble(a);
 		} else {
@@ -543,13 +508,7 @@ public class StringUtils {
 	 * @return long
 	 */
 	public static long getLong(String fromString) {
-		if(fromString==null)return 0L;
-		String a = fromString.replaceAll("[a-zA-Z]+", "");
-		if (isLong(a)) {
-			return Long.parseLong(a);
-		} else {
-			return 0;
-		}
+		return (long)getFloat(fromString);
 	}
 
 	/**
@@ -570,13 +529,7 @@ public class StringUtils {
 	 * @return int
 	 */
 	public static int getInt(String fromString) {
-		if(fromString==null)return 0;
-		String a = fromString.replaceAll("[a-zA-Z]+", "");
-		if (isInt(a)) {
-			return Integer.parseInt(a);
-		} else {
-			return 0;
-		}
+		return (int)getDouble(fromString);
 	}
 
 	/**
@@ -606,7 +559,7 @@ public class StringUtils {
 	 */
 	public static float getFloat(String fromString) {
 		if(fromString==null)return 0F;
-		String a = fromString.replaceAll("[a-zA-Z]+", "");
+		String a = fromString.replaceAll("[^+0-9E.,-]+", "");
 		if (isFloat(a)) {
 			return Float.parseFloat(a);
 		} else {
@@ -633,7 +586,7 @@ public class StringUtils {
 	 */
 	public static byte getByte(String fromString) {
 		if(fromString==null)return (byte)0;
-		String a = fromString.replaceAll("[a-zA-Z]+", "");
+		String a = fromString.replaceAll("[^+0-9E-]+", "");
 		if (isByte(a)) {
 			return Byte.parseByte(a);
 		} else {
@@ -660,7 +613,7 @@ public class StringUtils {
 	 */
 	public static short getShort(String fromString) {
 		if(fromString==null)return (short)0;
-		String a = fromString.replaceAll("[a-zA-Z]+", "");
+		String a = fromString.replaceAll("[^+0-9E-]+", "");
 		if (isShort(a)) {
 			return Short.parseShort(a);
 		} else {

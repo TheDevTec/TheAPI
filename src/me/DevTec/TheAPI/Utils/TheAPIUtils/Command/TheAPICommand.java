@@ -53,7 +53,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				TheAPI.msg("&e/TheAPI User", s);
 			if (s.hasPermission("TheAPI.Command.PluginManager"))
 				TheAPI.msg("&e/TheAPI PluginManager", s);
-			if (!s.hasPermission("theapi.command.test"))
+			if (s.hasPermission("theapi.command.test"))
 				TheAPI.msg("&e/TheAPI Test", s);
 			TheAPI.msg("&0[&6TheAPI&0] &7&eCreated by DevTec, StraikerinaCZ", s);
 			return true;

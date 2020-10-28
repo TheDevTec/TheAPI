@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
-import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker;
+import me.DevTec.TheAPI.Utils.Json.jsonmaker.Reader;
 
 public class JsonLoader implements DataLoader {
 	private boolean l;
@@ -46,13 +46,13 @@ public class JsonLoader implements DataLoader {
 		data.clear();
 		synchronized(this) {
 		try {
-			ArrayList<?> s = (ArrayList<?>)Maker.objectFromJson(input);
+			ArrayList<?> s = (ArrayList<?>)Reader.object(input);
 		for(int ir = 0; ir < s.size(); ++ir) {
 			HashMap<?,?> o = (HashMap<?,?>) s.get(ir);
 		for(Entry<?, ?> keyed : o.entrySet()) {
 			String key = keyed.getKey().toString();
 			String object = keyed.getValue().toString();
-			data.put(key, new DataHolder(Maker.objectFromJson(object)));
+			data.put(key, new DataHolder(Reader.object(object)));
 		}}
 		l=true;
 		}catch(Exception er) {

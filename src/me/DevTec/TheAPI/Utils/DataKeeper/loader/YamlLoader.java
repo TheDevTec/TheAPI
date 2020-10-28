@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
-import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker;
+import me.DevTec.TheAPI.Utils.Json.jsonmaker.Reader;
 
 public class YamlLoader implements DataLoader {
 	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*):[ ]*(.*)");
@@ -75,7 +75,7 @@ public class YamlLoader implements DataLoader {
 			if(text.trim().startsWith("#") || text.trim().isEmpty()) {
 				if(c!=0) {
 					if(c==1) {
-						set(key, Maker.objectFromJson(v.toString()), lines);
+						set(key, Reader.object(v.toString()), lines);
 						v=null;
 						}else
 						if(c==2) {
@@ -94,7 +94,7 @@ public class YamlLoader implements DataLoader {
 			boolean find = sec.find();
 			if(c!=0 && find) {
 				if(c==1) {
-				set(key, Maker.objectFromJson(v.toString()), lines);
+				set(key, Reader.object(v.toString()), lines);
 				v=null;
 				}
 				if(c==2) {
@@ -104,7 +104,7 @@ public class YamlLoader implements DataLoader {
 				c=0;
 			}
 			if(c==2 || text.substring(c(text)).startsWith("- ") && !key.equals("")) {
-				items.add(Maker.objectFromJson(c!=2?text.replaceFirst(text.split("- ")[0]+"- ", ""):text.substring(c(text))));
+				items.add(Reader.object(c!=2?text.replaceFirst(text.split("- ")[0]+"- ", ""):text.substring(c(text))));
 				continue;
 			}
 			if(find) {
@@ -151,7 +151,7 @@ public class YamlLoader implements DataLoader {
 						v = new StringBuilder();
 						continue;
 					}
-					set(key, Maker.objectFromJson(object), lines);
+					set(key, Reader.object(object), lines);
 				}else
 				if(lines.isEmpty()==false)
 					set(key, null, lines);
@@ -160,7 +160,7 @@ public class YamlLoader implements DataLoader {
 			set(key, items, lines);
 		}else
 		if(c==1) {
-			set(key, Maker.objectFromJson(v.toString()), lines);
+			set(key, Reader.object(v.toString()), lines);
 		}else
 		if(!lines.isEmpty())
 			footer=lines;
