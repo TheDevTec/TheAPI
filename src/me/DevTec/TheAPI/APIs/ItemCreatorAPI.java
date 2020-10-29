@@ -17,6 +17,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.BookMeta.Generation;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.material.MaterialData;
@@ -86,7 +87,7 @@ public class ItemCreatorAPI implements Cloneable {
 		a.setDisplayName(displayName);
 		for(PotionEffect effect : effects)
 		a.addPotionEffect(effect);
-		a.setPotionColor(color);
+		a.setColor(color);
 		return a.create();
 	}
 	
@@ -96,7 +97,22 @@ public class ItemCreatorAPI implements Cloneable {
 		a.setLore(lore);
 		for(PotionEffect effect : effects)
 		a.addPotionEffect(effect);
-		a.setPotionColor(color);
+		a.setColor(color);
+		return a.create();
+	}
+	
+	public static ItemStack createLeatherArmor(Material material, int amount, String displayName, Color color) {
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
+		a.setDisplayName(displayName);
+		a.setColor(color);
+		return a.create();
+	}
+	
+	public static ItemStack createLeatherArmor(Material material, int amount, String displayName, List<String> lore, Color color) {
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
+		a.setDisplayName(displayName);
+		a.setLore(lore);
+		a.setColor(color);
 		return a.create();
 	}
 	
@@ -284,8 +300,8 @@ public class ItemCreatorAPI implements Cloneable {
 			for (PotionEffect e : getPotionEffects()) {
 				addPotionEffect(e.getType(), e.getDuration(), e.getAmplifier());
 			}
-		if (hasPotionColor())
-			c = getPotionColor();
+		if (hasColor())
+			c = getColor();
 		if (hasDisplayName())
 			name = getDisplayName();
 		owner = getOwner();
@@ -410,11 +426,14 @@ public class ItemCreatorAPI implements Cloneable {
 		return false;
 	}
 
-	public boolean hasPotionColor() {
+	public boolean hasColor() {
 		try {
-			if (a.hasItemMeta())
+			if (a.hasItemMeta()) {
 				if (a.getItemMeta() instanceof PotionMeta)
 					return ((PotionMeta) a.getItemMeta()).hasColor();
+				if (a.getItemMeta() instanceof LeatherArmorMeta)
+					return ((LeatherArmorMeta) a.getItemMeta()).getColor()!=null;
+			}
 			return false;
 		} catch (Exception | NoSuchMethodError er) {
 			return false;
@@ -425,7 +444,7 @@ public class ItemCreatorAPI implements Cloneable {
 		if (effect != null) {
 			addPotionEffect(effect.getType(), effect.getDuration(), effect.getAmplifier());
 			try {
-				setPotionColor(effect.getColor());
+				setColor(effect.getColor());
 			}catch(Exception | NoSuchFieldError | NoSuchMethodError e) {
 			}
 		}
@@ -440,18 +459,21 @@ public class ItemCreatorAPI implements Cloneable {
 		addPotionEffect(PotionEffectType.getByName(potionEffect), duration, amlifier);
 	}
 
-	public Color getPotionColor() {
+	public Color getColor() {
 		try {
-			if (a.hasItemMeta())
+			if (a.hasItemMeta()) {
 				if (a.getItemMeta() instanceof PotionMeta)
 					return ((PotionMeta) a.getItemMeta()).getColor();
+				if (a.getItemMeta() instanceof LeatherArmorMeta)
+					return ((LeatherArmorMeta) a.getItemMeta()).getColor();
+			}
 			return null;
 		} catch (Exception | NoSuchMethodError er) {
 			return null;
 		}
 	}
 
-	public void setPotionColor(Color color) {
+	public void setColor(Color color) {
 		if (color != null)
 			c = color;
 	}
@@ -910,7 +932,13 @@ public class ItemCreatorAPI implements Cloneable {
 						meta.addCustomEffect(new PotionEffect(t, StringUtils.getInt(ef.get(t).split(":")[0]), (amp <= 0 ? 1 : amp)), true);
 						}
 				i.setItemMeta(meta);
-			} else if (type != null && type==SkullType.PLAYER) {
+			} else if (i.getType().name().startsWith("LEATHER_")) {
+				LeatherArmorMeta meta = (LeatherArmorMeta) i.getItemMeta();
+				try {
+					meta.setColor(c);
+				} catch (Exception | NoSuchMethodError er) {}
+				i.setItemMeta(meta);
+			}else if (type != null && type==SkullType.PLAYER) {
 				SkullMeta m = (SkullMeta) i.getItemMeta();
 				if (owner != null)
 					m.setOwner(owner);
