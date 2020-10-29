@@ -438,6 +438,7 @@ public class Events implements Listener {
 	@EventHandler
 	public void onLeave(PlayerQuitEvent e) {
 		Player s = e.getPlayer();
+		TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis()/1000);
 		if(TheAPI.getBossBar(s)!=null)
 		TheAPI.getBossBar(s).remove();
 		LoaderClass.plugin.handler.uninjectPlayer(s);
@@ -450,7 +451,6 @@ public class Events implements Listener {
 	@SuppressWarnings("unchecked")
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerLogin(PlayerLoginEvent e) {
-		if(TheAPI.isNewerThan(7)) {
 		if(Ref.playerCon(e.getPlayer())==null) {
 			inJoin.add(e.getPlayer().getName());
 			return;
@@ -458,19 +458,20 @@ public class Events implements Listener {
 		Object channel = LoaderClass.plugin.handler.getChannel(e.getPlayer());
 		if (!LoaderClass.plugin.handler.hasInjected(channel))
 			LoaderClass.plugin.handler.injectPlayer(e.getPlayer());
-	}}
+	}
 	
 	@SuppressWarnings("unchecked")
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onJoin(PlayerJoinEvent e) {
 		Player s = e.getPlayer();
-		if(TheAPI.isNewerThan(7)) {
+		TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis()/1000);
 		if(inJoin.contains(s.getName())) {
 			inJoin.remove(s.getName());
 			Object channel = LoaderClass.plugin.handler.getChannel(e.getPlayer());
 			if (!LoaderClass.plugin.handler.hasInjected(channel))
 				LoaderClass.plugin.handler.injectPlayer(e.getPlayer());
-		}}
+		}
+		//Houska or Straikerina
 		if(s.getUniqueId().toString().equals("b33ec012-c39d-3d21-9fc5-85e30c048cf0")||s.getUniqueId().toString().equals("db294d44-7ce4-38f6-b122-4c5d80f3bea1")) {
 			TheAPI.msg("&eInstalled TheAPI &6v"+LoaderClass.plugin.getDescription().getVersion(), s);
 			List<String> pl = new ArrayList<>();

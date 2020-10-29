@@ -46,6 +46,7 @@ import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
 import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardType;
 import me.DevTec.TheAPI.Utils.StringUtils;
+import me.DevTec.TheAPI.Utils.DataKeeper.Data;
 import me.DevTec.TheAPI.Utils.DataKeeper.Storage;
 import me.DevTec.TheAPI.Utils.DataKeeper.User;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
@@ -1157,15 +1158,53 @@ public class TheAPI {
 		cache.remove(player.getUniqueId());
 	}
 	
-	public static void removeCachedUser(String nameOrUUID) {
-	if (nameOrUUID == null)
-		return;
-	UUID s = null;
-	try {
-		s = UUID.fromString(nameOrUUID);
-	} catch (Exception e) {
-		s = Bukkit.getOfflinePlayer(nameOrUUID).getUniqueId();
+	public static List<UUID> getUsersByIP(String ip) {
+		if(ip.startsWith("/"))ip=ip.substring(1);
+		List<UUID> a = new ArrayList<>();
+		for(UUID s : getUsers()) {
+			if(new Data("TheAPI/User/"+s+".yml", true).getString("ip").equals(ip.replace(".", "_"))) {
+				a.add(s);
+			}
+		}
+		return a;
 	}
-	cache.remove(s);
+	
+	//Bit of LastLoginAPI
+	public static User getLastLoggedUserByIP(String ip, boolean canBeOnline) {
+		User a = null;
+		long last = 0;
+		List<UUID> ips = getUsersByIP(ip);
+		if(canBeOnline) {
+			for(Player s : TheAPI.getOnlinePlayers()) {
+				if(ips.contains(s.getUniqueId())) {
+					long quit = getUser(s).getLong("quit");
+					if(quit <= last) {
+						last=quit;
+						a=getUser(s);
+					}
+				}
+			}
+			if(a!=null)return a;
+		}
+		for(UUID s : ips) {
+			long quit = new User(s).getLong("quit");
+			if(quit <= last) {
+				last=quit;
+				a=getUser(s);
+			}
+		}
+		return a;
+	}
+	
+	public static void removeCachedUser(String nameOrUUID) {
+		if (nameOrUUID == null)
+			return;
+		UUID s = null;
+		try {
+			s = UUID.fromString(nameOrUUID);
+		} catch (Exception e) {
+			s = Bukkit.getOfflinePlayer(nameOrUUID).getUniqueId();
+		}
+		cache.remove(s);
 	}
 }

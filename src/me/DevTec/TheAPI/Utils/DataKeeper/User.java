@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.TheCoder;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
@@ -56,6 +57,10 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		a.getFile().delete();
 		s = null;
 		a = null;
+	}
+	
+	public boolean isOnline() {
+		return TheAPI.getPlayerOrNull(name)!=null;
 	}
 
 	public UUID getUUID() {

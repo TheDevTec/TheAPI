@@ -62,9 +62,7 @@ public class YamlLoader implements DataLoader {
 	
 	@Override
 	public void load(String input) {
-		data.clear();
-		header.clear();
-		footer.clear();
+		reset();
 		try {
 		List<Object> items = new ArrayList<>(0);
 		List<String> lines = new ArrayList<>(0);
@@ -75,7 +73,10 @@ public class YamlLoader implements DataLoader {
 			if(text.trim().startsWith("#") || text.trim().isEmpty()) {
 				if(c!=0) {
 					if(c==1) {
-						set(key, Reader.object(v.toString()), lines);
+						String object = v.toString();
+						if((object.startsWith("'")||object.startsWith("\"")) && (object.endsWith("'")||object.endsWith("\"")) && object.length()>1)
+							object=object.substring(1, object.length()-1);
+					set(key, Reader.object(object), lines);
 						v=null;
 						}else
 						if(c==2) {
@@ -94,7 +95,10 @@ public class YamlLoader implements DataLoader {
 			boolean find = sec.find();
 			if(c!=0 && find) {
 				if(c==1) {
-				set(key, Reader.object(v.toString()), lines);
+					String object = v.toString();
+					if((object.startsWith("'")||object.startsWith("\"")) && (object.endsWith("'")||object.endsWith("\"")) && object.length()>1)
+						object=object.substring(1, object.length()-1);
+				set(key, Reader.object(object), lines);
 				v=null;
 				}
 				if(c==2) {
@@ -104,7 +108,10 @@ public class YamlLoader implements DataLoader {
 				c=0;
 			}
 			if(c==2 || text.substring(c(text)).startsWith("- ") && !key.equals("")) {
-				items.add(Reader.object(c!=2?text.replaceFirst(text.split("- ")[0]+"- ", ""):text.substring(c(text))));
+				String object = c!=2?text.replaceFirst(text.split("- ")[0]+"- ", ""):text.substring(c(text));
+				if((object.startsWith("'")||object.startsWith("\"")) && (object.endsWith("'")||object.endsWith("\"")) && object.length()>1)
+					object=object.substring(1, object.length()-1);
+				items.add(Reader.object(object));
 				continue;
 			}
 			if(find) {
@@ -136,7 +143,10 @@ public class YamlLoader implements DataLoader {
 				String object = null;
 				try{
 					object=sec.group(2);
+					if((object.startsWith("'")||object.startsWith("\"")) && (object.endsWith("'")||object.endsWith("\"")) && object.length()>1)
+						object=object.substring(1, object.length()-1);
 				}catch(Exception er) {}
+				if((key.startsWith("\"") && key.endsWith("\"")||key.startsWith("'") && key.endsWith("'")) && key.length()>1)key=key.substring(1, key.length()-1);
 				key+=(key.equals("")?"":".")+split.trim();
 				f=1;
 				last=c(text);
@@ -160,7 +170,9 @@ public class YamlLoader implements DataLoader {
 			set(key, items, lines);
 		}else
 		if(c==1) {
-			set(key, Reader.object(v.toString()), lines);
+			String done = v.toString();
+			if((done.startsWith("\"") && done.endsWith("\"")||done.startsWith("'") && done.endsWith("'")) && done.length()>1)done=done.substring(1, done.length()-1);
+			set(key, Reader.object(done), lines);
 		}else
 		if(!lines.isEmpty())
 			footer=lines;

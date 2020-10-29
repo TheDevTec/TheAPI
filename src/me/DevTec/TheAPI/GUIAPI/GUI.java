@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -79,7 +78,7 @@ public class GUI {
 	 */
 	public final void removeItem(int slot) {
 		items.remove(slot);
-		inv.setItem(slot, new ItemStack(Material.AIR));
+		inv.setItem(slot, null);
 	}
 
 	/**

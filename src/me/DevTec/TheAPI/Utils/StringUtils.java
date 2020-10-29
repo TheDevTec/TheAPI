@@ -21,9 +21,7 @@ import org.bukkit.Location;
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
 
-public class StringUtils {  
-	private static final Pattern INTEGER = Pattern.compile("([+-]*[0-9]+[E]*)")
-			, DOUBLE = Pattern.compile("([+-]*[0-9]+\\.*[0-9]+[E]*)");
+public class StringUtils {
 	private static Random random = new Random();
 	
 	public static interface ColormaticFactory {
@@ -500,7 +498,12 @@ public class StringUtils {
 	 * @return boolean
 	 */
 	public static boolean isDouble(String fromString) {
-		return DOUBLE.matcher(fromString).matches();
+		try {
+			Double.parseDouble(fromString);
+			return true;
+		}catch(Exception err) {
+			return false;
+		}
 	}
 
 	/**
@@ -537,7 +540,12 @@ public class StringUtils {
 	 * @return boolean
 	 */
 	public static boolean isInt(String fromString) {
-		return INTEGER.matcher(fromString).matches();
+		try {
+			Integer.parseInt(fromString);
+			return true;
+		}catch(Exception err) {
+			return false;
+		}
 	}
 
 	/**
