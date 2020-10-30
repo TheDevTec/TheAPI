@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
-import me.DevTec.TheAPI.Utils.Json.jsonmaker.Reader;
+import me.DevTec.TheAPI.Utils.Json.Reader;
 
 public class ByteLoader implements DataLoader {
 	private Map<String, DataHolder> data = new HashMap<>();

@@ -1,4 +1,4 @@
-package me.DevTec.TheAPI.Utils.Json.jsonmaker;
+package me.DevTec.TheAPI.Utils.Json;
 
 import java.util.ArrayList;
 import java.util.Collection;

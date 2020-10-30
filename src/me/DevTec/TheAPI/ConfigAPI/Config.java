@@ -1,6 +1,7 @@
 package me.DevTec.TheAPI.ConfigAPI;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,29 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	private final Map<String, Object> defaults = new HashMap<>();
     private final Data f;
     private DataType t;
-
+    
+    //merge
+    public Config(String path, DataType type, Config c, MergeType... merge) {
+    	this(path, type);
+    	merge(c, merge);
+    }
+    
+    public void merge(Config c, MergeType... merge) {
+    	List<MergeType> todo = Arrays.asList(merge);
+    	if(todo.contains(MergeType.REMOVE_DATA))f.clear();
+    	if(todo.contains(MergeType.REMOVE_DEFAULTS))defaults.clear();
+    	if(todo.contains(MergeType.ADD_DEFAULTS))defaults.putAll(c.defaults);
+    	if(todo.contains(MergeType.ADD_DATA))f.merge(c.f, true, true);
+    }
+    
+    public void merge(Config c, boolean addHeader, boolean addFooter, MergeType... merge) {
+    	List<MergeType> todo = Arrays.asList(merge);
+    	if(todo.contains(MergeType.REMOVE_DATA))f.clear();
+    	if(todo.contains(MergeType.REMOVE_DEFAULTS))defaults.clear();
+    	if(todo.contains(MergeType.ADD_DEFAULTS))defaults.putAll(c.defaults);
+    	if(todo.contains(MergeType.ADD_DATA))f.merge(c.f, addHeader, addFooter);
+    }
+    
     public Config(String path) {
     	this(path, DataType.YAML);
     }

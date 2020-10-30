@@ -1,12 +1,12 @@
-package me.DevTec.TheAPI.Utils.Json.jsonmaker;
+package me.DevTec.TheAPI.Utils.Json;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
-public class Maker {
-	
-	public static class Reader {
+public class Maker implements Iterable<String> {
+	public static class Reader implements Iterable<Object> {
 		private List<Object> values = new ArrayList<>();
 		private String json;
 		public Reader() {
@@ -19,7 +19,7 @@ public class Maker {
 		
 		public void open(String json) {
 			this.json=json;
-			values=me.DevTec.TheAPI.Utils.Json.jsonmaker.Reader.list(json);
+			values=me.DevTec.TheAPI.Utils.Json.Reader.list(json);
 		}
 		
 		public String getCurrentJson() {
@@ -29,9 +29,25 @@ public class Maker {
 		public List<Object> getValues() {
 			return values;
 		}
+		
+		public Iterator<Object> iterator(){
+			return values.iterator();
+		}
+	}
+
+	private List<String> values;
+	public Maker() {
+		values = new ArrayList<>();
 	}
 	
-	private List<String> values = new ArrayList<>();
+	public Maker(Maker maker) {
+		values=maker.values;
+	}
+	
+	public Iterator<String> iterator(){
+		return values.iterator();
+	}
+	
 	public Maker add(Object o) {
 		values.add(Writer.object(o, true, true));
 		return this;
@@ -45,14 +61,15 @@ public class Maker {
 		return Writer.collection(values, true, true);
 	}
 	
-	public class MakerObject {
-		private HashMap<Object, Object> o = new HashMap<>();
+	public class MakerObject extends HashMap<Object, Object> {
+		private static final long serialVersionUID = 1L;
+
 		public Maker getMaker() {
 			return Maker.this;
 		}
 		
 		public MakerObject add(Object key, Object item) {
-			o.put(key, item);
+			super.put(key, item);
 			return this;
 		}
 
@@ -61,24 +78,12 @@ public class Maker {
 		}
 		
 		public MakerObject remove(Object key) {
-			o.remove(key);
+			super.remove(key);
 			return this;
 		}
 		
-		public Object get(Object key) {
-			return o.get(key);
-		}
-		
-		public boolean containsKey(Object key) {
-			return o.containsKey(key);
-		}
-		
-		public boolean containsValue(Object value) {
-			return o.containsKey(value);
-		}
-		
 		public String toString() {
-			return Writer.map(o, true, true);
+			return Writer.map(this, true, true);
 		}
 	}
 }

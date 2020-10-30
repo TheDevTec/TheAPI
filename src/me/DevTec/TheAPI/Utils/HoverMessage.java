@@ -1,13 +1,12 @@
 package me.DevTec.TheAPI.Utils;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.bukkit.entity.Player;
-import org.json.simple.JSONObject;
 
 import me.DevTec.TheAPI.TheAPI;
-import me.DevTec.TheAPI.Utils.Json.JsonMaker;
+import me.DevTec.TheAPI.Utils.Json.Maker;
+import me.DevTec.TheAPI.Utils.Json.Maker.MakerObject;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 
 public class HoverMessage {
@@ -20,7 +19,8 @@ public class HoverMessage {
 		SHOW_ITEM, SHOW_ACHIEVEMENT, SHOW_ENTITY, SHOW_TEXT
 	}
 	
-	private JsonMaker maker = new JsonMaker();
+	private Maker maker = new Maker();
+	private MakerObject o = null;
 
 	public HoverMessage(String... text) {
 		for (String extra : text)
@@ -28,26 +28,25 @@ public class HoverMessage {
 	}
 
 	public HoverMessage addText(String text) {
-		maker.jsonObject();
-		maker.add("text", TheAPI.colorize(text));
+		if(o!=null)maker.add(o);
+		o=maker.create();
+		o.add("text", TheAPI.colorize(text));
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")
 	public HoverMessage setClickEvent(ClickAction action, String value) {
-		JSONObject ac = new JSONObject();
+		MakerObject ac = maker.create();
 		ac.put("action", action.name().toLowerCase());
 		ac.put("value", TheAPI.colorize(value));
-		maker.add("clickEvent", ac);
+		o.add("clickEvent", ac);
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")
 	public HoverMessage setHoverEvent(HoverAction action, Object value) {
-		JSONObject ac = new JSONObject();
+		MakerObject ac = maker.create();
 		ac.put("action", action.name().toLowerCase());
 		ac.put("value", value instanceof  String?TheAPI.colorize(""+value):value);
-		maker.add("hoverEvent", ac);
+		o.add("hoverEvent", ac);
 		return this;
 	}
 
@@ -56,12 +55,9 @@ public class HoverMessage {
 	}
 
 	public String getJson() {
+		if(o!=null)maker.add(o);
+		o=null;
 		return maker.toString();
-	}
-
-	public void send(List<Player> players) {
-		for (Player p : players)
-			send(p);
 	}
 
 	public void send(Collection<Player> players) {

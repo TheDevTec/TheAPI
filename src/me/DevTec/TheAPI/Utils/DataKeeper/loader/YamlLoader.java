@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
-import me.DevTec.TheAPI.Utils.Json.jsonmaker.Reader;
+import me.DevTec.TheAPI.Utils.Json.Reader;
 
 public class YamlLoader implements DataLoader {
 	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*):[ ]*(.*)");
@@ -85,9 +85,10 @@ public class YamlLoader implements DataLoader {
 						}
 						c=0;
 				}
-				if(f==0)
+				if(f==0) {
+					if(!input.equals(""))
 					header.add(text.substring(c(text)));
-				else
+				}else
 				lines.add(text.substring(c(text)));
 				continue;
 			}

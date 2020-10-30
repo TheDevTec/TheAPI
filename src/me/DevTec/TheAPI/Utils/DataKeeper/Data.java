@@ -21,7 +21,7 @@ import com.google.common.base.Charsets;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.loader.DataLoader;
 import me.DevTec.TheAPI.Utils.DataKeeper.loader.EmptyLoader;
-import me.DevTec.TheAPI.Utils.Json.jsonmaker.Maker;
+import me.DevTec.TheAPI.Utils.Json.Maker;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
 public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
@@ -430,7 +430,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 						try {
 							Object o = key.getValue();
 							ous.writeUTF(key.getKey());
-							ous.writeUTF(""+me.DevTec.TheAPI.Utils.Json.jsonmaker.Writer.object(o, true, true));
+							ous.writeUTF(""+me.DevTec.TheAPI.Utils.Json.Writer.object(o, true, true));
 						} catch (Exception er) {}
 					ous.flush();
 					bos.flush();
@@ -520,7 +520,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	private void addKeys(Maker main, String key) {
 		Object o = get(key);
 		if (o!=null)
-			main.add(main.create().put(key, me.DevTec.TheAPI.Utils.Json.jsonmaker.Writer.object(o, true, true)));
+			main.add(main.create().put(key, me.DevTec.TheAPI.Utils.Json.Writer.object(o, true, true)));
 		for (String keyer : getKeys(key))
 			addKeys(main, key+"."+keyer);
 	}
@@ -541,9 +541,9 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 					b.append(pathName+System.lineSeparator());
 					String splitted = space+"- ";
 					for (Object a : (List<?>)o)
-						b.append(splitted+addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.jsonmaker.Writer.object(a, true, true))+System.lineSeparator());
+						b.append(splitted+addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.object(a, true, true))+System.lineSeparator());
 				} else
-					b.append(pathName+" "+addQuotes(o instanceof String, me.DevTec.TheAPI.Utils.Json.jsonmaker.Writer.object(o, true, true))+System.lineSeparator());
+					b.append(pathName+" "+addQuotes(o instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.object(o, true, true))+System.lineSeparator());
 			}
 			for (String key : getKeys(path, false))
 				preparePath(path+"."+key, key+":", spaces+1, b);
@@ -562,7 +562,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 				DataOutputStream ous = new DataOutputStream(buf);
 				for (Entry<String, DataHolder> key: loader.get().entrySet())
 					try {
-						String o = ""+me.DevTec.TheAPI.Utils.Json.jsonmaker.Writer.object(key.getValue().o, true, true);
+						String o = ""+me.DevTec.TheAPI.Utils.Json.Writer.object(key.getValue().o, true, true);
 						ous.writeUTF(key.getKey());
 						ous.writeUTF(o);
 					} catch (Exception er) {}
@@ -629,5 +629,24 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	@Override
 	public String getDataName() {
 		return "Data("+(a!=null?"'"+a.getName()+"'":"")+")";
+	}
+
+	public void clear() {
+		loader.get().clear();
+	}
+
+	public void reset() {
+		loader.reset();
+	}
+
+	public void merge(Data f, boolean addHeader, boolean addFooter) {
+		loader.get().putAll(f.loader.get());
+		for(String sw : f.aw)
+			if(!aw.contains(sw))
+				aw.add(sw);
+		if(addHeader)
+			loader.getHeader().addAll(f.loader.getHeader());
+		if(addFooter)
+			loader.getFooter().addAll(f.loader.getFooter());
 	}
 }

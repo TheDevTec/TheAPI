@@ -84,23 +84,18 @@ public class TheAPI {
 	}
 
 	public static void createAndRegisterCommand(String commandName, String permission, CommandExecutor commandExecutor, String... aliases) {
-		List<String> list = new ArrayList<>();
-		if(aliases!=null)
-		for(String s : aliases)list.add(s);
-		createAndRegisterCommand(commandName, permission, commandExecutor, list);
+		createAndRegisterCommand(commandName, permission, commandExecutor, aliases!=null?Arrays.asList(aliases):null);
 	}
 
 	public static void createAndRegisterCommand(String commandName, String permission, CommandExecutor commandExecutor, List<String> aliases) {
 		PluginCommand cmd = TheAPI.createCommand(commandName.toLowerCase(), (Plugin)LoaderClass.plugin);
 		if(permission!=null)
-		cmd.setPermission(permission);
+		Ref.set(cmd, "permission", permission);
 		List<String> lowerCase = new ArrayList<>();
 		if(aliases!=null)
 		for(String s : aliases)lowerCase.add(s.toLowerCase());
-		if(!lowerCase.isEmpty())
-		cmd.setAliases(lowerCase);
-		cmd.setExecutor(commandExecutor);
-		Ref.set(cmd, "activeAliases", lowerCase);
+		Ref.set(cmd, "aliases", lowerCase);
+		Ref.set(cmd, "executor", commandExecutor);
 		registerCommand(cmd);
 	}
 	
@@ -109,6 +104,8 @@ public class TheAPI {
 	}
 	
 	public static void registerCommand(PluginCommand command) {
+		if(!command.getAliases().isEmpty())
+			Ref.set(command, "activeAliases", command.getAliases());
 		((SimpleCommandMap)Ref.get(Bukkit.getPluginManager(),"commandMap")).register(command.getPlugin().getName(), command);
 	}
 	

@@ -1,4 +1,4 @@
-package me.DevTec.TheAPI.Utils.Json.jsonmaker;
+package me.DevTec.TheAPI.Utils.Json;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

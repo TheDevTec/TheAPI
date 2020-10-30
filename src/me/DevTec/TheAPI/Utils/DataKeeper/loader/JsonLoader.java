@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
-import me.DevTec.TheAPI.Utils.Json.jsonmaker.Reader;
+import me.DevTec.TheAPI.Utils.Json.Reader;
 
 public class JsonLoader implements DataLoader {
 	private boolean l;
