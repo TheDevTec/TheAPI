@@ -22,6 +22,8 @@ public class Reader {
 
 	public static Object object(String json) {
 		if(json==null)return null;
+		if(StringUtils.isNumber(json))return StringUtils.getNumber(json);
+		if(StringUtils.isBoolean(json))return StringUtils.getBoolean(json);
 		Object a = collection(json);
 		if(a==null)a=map(json);
 		else return parseR(a);

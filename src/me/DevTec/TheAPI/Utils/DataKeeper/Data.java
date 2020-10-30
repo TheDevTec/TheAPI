@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -525,25 +524,31 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			addKeys(main, key+"."+keyer);
 	}
 	
-	private void preparePath(String path, String pathName, int spaces, Writer b) {
+	private void preparePath(String path, String pathName, int spaces, java.io.Writer b) {
 		synchronized (loader) {
 			try {
-			DataHolder aw = getOrCreateData(path);
-			Object o = aw.o;
+			DataHolder aw = loader.get().get(path);
+			Object o = aw!=null?aw.o:null;
 			String space = cs(spaces,1);
 			pathName=space+pathName;
-			for (String s : aw.lines)
+			if(aw!=null)
+			for (String s : aw.getLines())
 				b.write(space+s+System.lineSeparator());
 			if (o==null) {
 				b.write(pathName+System.lineSeparator());
 			} else {
-				if (o instanceof List || o instanceof Object[]) {
-					b.append(pathName+System.lineSeparator());
+				if (o instanceof Collection || o instanceof Object[]) {
+					b.write(pathName+System.lineSeparator());
 					String splitted = space+"- ";
-					for (Object a : (List<?>)o)
-						b.append(splitted+addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.object(a, true, true))+System.lineSeparator());
+					if(o instanceof Collection) {
+					for (Object a : (Collection<?>)o)
+						b.write(splitted+addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.object(a, true, true))+System.lineSeparator());
+					}else {
+						for (Object a : (Object[])o)
+							b.write(splitted+addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.object(a, true, true))+System.lineSeparator());
+					}
 				} else
-					b.append(pathName+" "+addQuotes(o instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.object(o, true, true))+System.lineSeparator());
+					b.write(pathName+" "+addQuotes(o instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.object(o, true, true))+System.lineSeparator());
 			}
 			for (String key : getKeys(path, false))
 				preparePath(path+"."+key, key+":", spaces+1, b);
@@ -609,12 +614,10 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	 */
 	private String addQuotes(boolean raw, String text) {
 		if (text == null) return null;
-		
 		boolean quotedString = (text.startsWith("'") && text.endsWith("'")) || (text.startsWith("\"") && text.endsWith("\""));
-		if (raw && quotedString) {
+		if (raw && !quotedString) {
 			return ("\"" + text + "\"").replace(System.lineSeparator(), "");
 		}
-		
 		return text.replace(System.lineSeparator(), "");
 	}
 	

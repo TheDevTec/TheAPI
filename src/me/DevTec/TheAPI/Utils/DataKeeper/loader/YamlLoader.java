@@ -71,6 +71,10 @@ public class YamlLoader implements DataLoader {
 		int last = 0, f = 0, c = 0;
 		for(String text : input.split(System.lineSeparator())) {
 			if(text.trim().startsWith("#") || text.trim().isEmpty()) {
+				if(!items.isEmpty()) {
+					set(key, items, lines);
+					items=new ArrayList<>(0);
+				}
 				if(c!=0) {
 					if(c==1) {
 						String object = v.toString();
@@ -203,6 +207,9 @@ public class YamlLoader implements DataLoader {
 	
 	private final void set(String key, Object o, List<String> lines) {
 		if((key.startsWith("\"") && key.endsWith("\"")||key.startsWith("'") && key.endsWith("'")) && key.length()>1)key=key.substring(1, key.length()-1);
+		if(get().containsKey(key)) {
+			get().get(key).setValue(o);
+		}else
 		set(key, new DataHolder(o, new ArrayList<>(lines)));
 		lines.clear();
 	}

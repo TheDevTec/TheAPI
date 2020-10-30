@@ -22,9 +22,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -88,13 +88,13 @@ public class TheAPI {
 	}
 
 	public static void createAndRegisterCommand(String commandName, String permission, CommandExecutor commandExecutor, List<String> aliases) {
-		PluginCommand cmd = TheAPI.createCommand(commandName.toLowerCase(), (Plugin)LoaderClass.plugin);
+		PluginCommand cmd = TheAPI.createCommand(commandName.toLowerCase(), LoaderClass.plugin);
 		if(permission!=null)
-		Ref.set(cmd, "permission", permission);
+		Ref.set(cmd, "permission", permission.toLowerCase());
 		List<String> lowerCase = new ArrayList<>();
 		if(aliases!=null)
 		for(String s : aliases)lowerCase.add(s.toLowerCase());
-		Ref.set(cmd, "aliases", lowerCase);
+		cmd.setAliases(lowerCase);
 		Ref.set(cmd, "executor", commandExecutor);
 		registerCommand(cmd);
 	}
@@ -104,9 +104,8 @@ public class TheAPI {
 	}
 	
 	public static void registerCommand(PluginCommand command) {
-		if(!command.getAliases().isEmpty())
-			Ref.set(command, "activeAliases", command.getAliases());
-		((SimpleCommandMap)Ref.get(Bukkit.getPluginManager(),"commandMap")).register(command.getPlugin().getName(), command);
+		CommandMap simpleCommandMap = (CommandMap) Ref.get(Bukkit.getPluginManager(),"commandMap");
+        simpleCommandMap.register(command.getName(), command);
 	}
 	
 	public static void clearCache() {
