@@ -104,8 +104,7 @@ public class TheAPI {
 	}
 	
 	public static void registerCommand(PluginCommand command) {
-		CommandMap simpleCommandMap = (CommandMap) Ref.get(Bukkit.getPluginManager(),"commandMap");
-        simpleCommandMap.register(command.getName(), command);
+		((CommandMap) Ref.get(Bukkit.getPluginManager(),"commandMap")).register(command.getPlugin().getName(), command);
 	}
 	
 	public static void clearCache() {
