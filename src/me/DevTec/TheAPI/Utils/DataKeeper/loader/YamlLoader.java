@@ -146,8 +146,10 @@ public class YamlLoader implements DataLoader {
 				if((split.startsWith("'")||split.startsWith("\"")) && (split.endsWith("'")||split.endsWith("\"")) && split.length()>1)
 					split=split.substring(1, split.length()-1);
 				String object = null;
+				String org = null;
 				try{
 					object=sec.group(2);
+					org = object;
 					if((object.startsWith("'")||object.startsWith("\"")) && (object.endsWith("'")||object.endsWith("\"")) && object.length()>1)
 						object=object.substring(1, object.length()-1);
 				}catch(Exception er) {}
@@ -155,7 +157,8 @@ public class YamlLoader implements DataLoader {
 				key+=(key.equals("")?"":".")+split.trim();
 				f=1;
 				last=c(text);
-				if(!object.isEmpty()) {
+				if(org!=null)
+				if(!org.isEmpty()) {
 					if(object.trim().equals("|")) {
 						c=1;
 						v = new StringBuilder();
