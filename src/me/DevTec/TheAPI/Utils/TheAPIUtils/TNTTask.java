@@ -33,7 +33,7 @@ public class TNTTask {
 	private final TNTExplosionEvent event;
 	private final Position reals;
 	private final Config f = LoaderClass.config;
-	private final boolean toReal= f.getBoolean("Options.Optimize.TNT.Drops.InFirstTNTLocation");
+	private final boolean toReal = f.getBoolean("Options.Optimize.TNT.Drops.InFirstTNTLocation");
 
 	public TNTTask(Position reals2, List<Position> list, TNTExplosionEvent result) {
 		a = list;
@@ -41,7 +41,8 @@ public class TNTTask {
 		reals = reals2;
 		if (Particle.valueOf(f.getString("Options.Optimize.TNT.Particles.Type")) != null)
 			e = Particle.valueOf(f.getString("Options.Optimize.TNT.Particles.Type"));
-		else e = Particle.EXPLOSION_LARGE;
+		else
+			e = Particle.EXPLOSION_LARGE;
 	}
 
 	private String action() {
@@ -61,10 +62,10 @@ public class TNTTask {
 			return;
 		}
 		if (f.getBoolean("Options.Optimize.TNT.Particles.Use")) {
-				for (Entity ds : BlocksAPI.getNearbyEntities(event.getLocation(), 15))
-					if (ds.getType() == EntityType.PLAYER)
-						NMSAPI.sendPacket((Player) ds,
-								NMSAPI.getPacketPlayOutWorldParticles(e, event.getLocation().toLocation()));
+			for (Entity ds : BlocksAPI.getNearbyEntities(event.getLocation(), 15))
+				if (ds.getType() == EntityType.PLAYER)
+					NMSAPI.sendPacket((Player) ds,
+							NMSAPI.getPacketPlayOutWorldParticles(e, event.getLocation().toLocation()));
 		}
 		if (event.canHitEntities()) {
 			Position l = event.getLocation();
@@ -86,22 +87,18 @@ public class TNTTask {
 							double rd = (r - l.distance(e.getLocation()));
 							double damage = r * rd / 9;
 							double total = damage / 3;
-							String xd = TheAPI
-									.getRandomFromList(Arrays.asList(0.1 * total, 0.2 * total, 0.3 * total))
+							String xd = TheAPI.getRandomFromList(Arrays.asList(0.1 * total, 0.2 * total, 0.3 * total))
 									.toString();
-							String yd = TheAPI
-									.getRandomFromList(Arrays.asList(0.2 * total, 0.3 * total, 0.4 * total))
+							String yd = TheAPI.getRandomFromList(Arrays.asList(0.2 * total, 0.3 * total, 0.4 * total))
 									.toString();
-							String zd = TheAPI
-									.getRandomFromList(Arrays.asList(0.1 * total, 0.2 * total, 0.3 * total))
+							String zd = TheAPI.getRandomFromList(Arrays.asList(0.1 * total, 0.2 * total, 0.3 * total))
 									.toString();
 							if (e.getType() == EntityType.PRIMED_TNT) {
-								e.setVelocity(new Vector(StringUtils.getDouble(xd),
-										StringUtils.getDouble(yd), StringUtils.getDouble(zd)));
+								e.setVelocity(new Vector(StringUtils.getDouble(xd), StringUtils.getDouble(yd),
+										StringUtils.getDouble(zd)));
 							} else {
 								if (e instanceof LivingEntity) {
-									e.setVelocity(new Vector(StringUtils.getDouble(xd),
-											StringUtils.getDouble(yd),
+									e.setVelocity(new Vector(StringUtils.getDouble(xd), StringUtils.getDouble(yd),
 											StringUtils.getDouble(zd)));
 									LivingEntity a = (LivingEntity) e;
 									try {
@@ -179,12 +176,10 @@ public class TNTTask {
 												e.setFireTicks(80);
 											}
 										}
-										for (Entity ds : BlocksAPI.getNearbyEntities(event.getLocation(),
-												15))
+										for (Entity ds : BlocksAPI.getNearbyEntities(event.getLocation(), 15))
 											if (ds.getType() == EntityType.PLAYER)
-												NMSAPI.sendPacket((Player) ds,
-														NMSAPI.getPacketPlayOutWorldParticles(
-																Particle.FLAME, event.getLocation().toLocation()));
+												NMSAPI.sendPacket((Player) ds, NMSAPI.getPacketPlayOutWorldParticles(
+														Particle.FLAME, event.getLocation().toLocation()));
 
 									}
 								}
@@ -205,9 +200,8 @@ public class TNTTask {
 									}
 									for (Entity ds : BlocksAPI.getNearbyEntities(event.getLocation(), 15))
 										if (ds.getType() == EntityType.PLAYER)
-											NMSAPI.sendPacket((Player) ds,
-													NMSAPI.getPacketPlayOutWorldParticles(Particle.FLAME,
-															event.getLocation().toLocation()));
+											NMSAPI.sendPacket((Player) ds, NMSAPI.getPacketPlayOutWorldParticles(
+													Particle.FLAME, event.getLocation().toLocation()));
 
 								}
 							}

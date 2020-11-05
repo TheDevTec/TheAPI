@@ -217,7 +217,7 @@ public class NMSPlayer {
 
 	public NMSPlayer(Object nmsPlayer) {
 		a = nmsPlayer;
-		name = (String)Reflections.invoke(a, Reflections.getMethod(c, "getName"));
+		name = (String) Reflections.invoke(a, Reflections.getMethod(c, "getName"));
 	}
 
 	public NMSPlayer(org.bukkit.entity.Player bukkitPlayer) {
@@ -225,7 +225,7 @@ public class NMSPlayer {
 	}
 
 	public void kill() {
-		Reflections.invoke(a,Reflections.getMethod(c, "killEntity"));
+		Reflections.invoke(a, Reflections.getMethod(c, "killEntity"));
 	}
 
 	public void sendActionBar(String text) {
@@ -233,8 +233,8 @@ public class NMSPlayer {
 	}
 
 	public void setTabList(String header, String footer) {
-		if(TheAPI.isNewerThan(7))
-		sendPacket(NMSAPI.getPacketPlayOutPlayerListHeaderFooter(TheAPI.colorize(header), TheAPI.colorize(footer)));
+		if (TheAPI.isNewerThan(7))
+			sendPacket(NMSAPI.getPacketPlayOutPlayerListHeaderFooter(TheAPI.colorize(header), TheAPI.colorize(footer)));
 	}
 
 	public void sendTitle(String title, String subtitle) {
@@ -248,12 +248,12 @@ public class NMSPlayer {
 
 	public void damage(float damage) {
 		Object generic = getFieldWithNull(Reflections.getNMSClass("DamageSource"), "GENERIC");
-		Reflections.invoke(a, findMethod("damageEntity",generic, damage),generic, damage);
+		Reflections.invoke(a, findMethod("damageEntity", generic, damage), generic, damage);
 	}
 
 	public void playSound(Sound sound, float pitch, float yaw) {
 		Object s = Reflections.getField(Reflections.getNMSClass("SoundEffects"), sound.name());
-		Reflections.invoke(a, findMethod("a", s,pitch, yaw),s,pitch, yaw);
+		Reflections.invoke(a, findMethod("a", s, pitch, yaw), s, pitch, yaw);
 	}
 
 	public PlayerConnection getPlayerConnection() {
@@ -261,13 +261,16 @@ public class NMSPlayer {
 	}
 
 	public PlayerInventory getInventory() {
-		return (PlayerInventory) Reflections.c(Reflections.getConstructor(Reflections.getBukkitClass("inventory.CraftInventoryPlayer"),
-						Reflections.getNMSClass("PlayerInventory")), Reflections.get(Reflections.getField(c, "inventory"),a));
+		return (PlayerInventory) Reflections.c(
+				Reflections.getConstructor(Reflections.getBukkitClass("inventory.CraftInventoryPlayer"),
+						Reflections.getNMSClass("PlayerInventory")),
+				Reflections.get(Reflections.getField(c, "inventory"), a));
 	}
 
 	public void setInventory(PlayerInventory a) {
-		Reflections.setField(a, Reflections.getField(c,"inventory"), Reflections.cast(Reflections.getNMSClass("PlayerInventory"),
-				Reflections.cast(Reflections.getBukkitClass("inventory.CraftInventoryPlayer"), a)));
+		Reflections.setField(a, Reflections.getField(c, "inventory"),
+				Reflections.cast(Reflections.getNMSClass("PlayerInventory"),
+						Reflections.cast(Reflections.getBukkitClass("inventory.CraftInventoryPlayer"), a)));
 	}
 
 	public void teleport(Location destination) {
@@ -281,7 +284,7 @@ public class NMSPlayer {
 	public void sendMessageJson(String message) {
 		sendPacket(NMSAPI.getPacketPlayOutChat(ChatType.SYSTEM, NMSAPI.getIChatBaseComponentJson(message)));
 	}
-	
+
 	public void sendMessage(String message) {
 		sendPacket(NMSAPI.getPacketPlayOutChat(ChatType.SYSTEM, message));
 	}
@@ -348,7 +351,7 @@ public class NMSPlayer {
 	}
 
 	public World getWorld() {
-		return (World) getField(getField("world"),getField("world").getClass(), "getWorld");
+		return (World) getField(getField("world"), getField("world").getClass(), "getWorld");
 	}
 
 	public float getFallDistance() {
@@ -389,33 +392,39 @@ public class NMSPlayer {
 
 	public String getCustomName() {
 		Object o = Reflections.invoke(a, Reflections.getMethod(c, "getCustomName"));
-		return (String)(Ref.invoke(o, Ref.method(Ref.nms("IChatBaseComponent"), "getText")));
+		return (String) (Ref.invoke(o, Ref.method(Ref.nms("IChatBaseComponent"), "getText")));
 	}
 
 	public void setCustomName(String name) {
-		Reflections.invoke(a, findMethod("setCustomName", NMSAPI.getIChatBaseComponentText(name)), NMSAPI.getIChatBaseComponentText(name));
+		Reflections.invoke(a, findMethod("setCustomName", NMSAPI.getIChatBaseComponentText(name)),
+				NMSAPI.getIChatBaseComponentText(name));
 	}
 
 	public String getTabListName() {
 		Object o = getField("listName");
-		return o instanceof String ? (String)o : (String)(Ref.invoke(o, Ref.method(Ref.nms("IChatBaseComponent"), "getText")));
+		return o instanceof String ? (String) o
+				: (String) (Ref.invoke(o, Ref.method(Ref.nms("IChatBaseComponent"), "getText")));
 	}
 
-	private static Object update = Ref.get(null, Ref.field(Ref.nms("PacketPlayOutPlayerInfo$EnumPlayerInfoAction"), "UPDATE_DISPLAY_NAME"));
+	private static Object update = Ref.get(null,
+			Ref.field(Ref.nms("PacketPlayOutPlayerInfo$EnumPlayerInfoAction"), "UPDATE_DISPLAY_NAME"));
+
 	@SuppressWarnings("unchecked")
 	public void setTabListName(String name) {
-		if(getPlayer()==null)return;
-		if(Ref.field(c, "listName").getType() == String.class)
+		if (getPlayer() == null)
+			return;
+		if (Ref.field(c, "listName").getType() == String.class)
 			Reflections.setField(a, "listName", name);
 		else
 			Reflections.setField(a, "listName", NMSAPI.getIChatBaseComponentFromCraftBukkit(name));
 		Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutPlayerInfo")));
 		Ref.set(packet, "a", update);
-		((List<Object>)Ref.get(packet, "b")).add(Ref.createPlayerInfoData(packet,getProfile(),getPing(),getPlayer().getGameMode().name(),name));
+		((List<Object>) Ref.get(packet, "b"))
+				.add(Ref.createPlayerInfoData(packet, getProfile(), getPing(), getPlayer().getGameMode().name(), name));
 		for (Player player : TheAPI.getOnlinePlayers())
-		    Ref.sendPacket(player, packet);
+			Ref.sendPacket(player, packet);
 	}
-	
+
 	public Object getProfile() {
 		return Ref.invoke(a, "getProfile");
 	}
@@ -438,7 +447,9 @@ public class NMSPlayer {
 
 	public String getDisplayName() {
 		Object o = getField("displayName");
-		return o instanceof String ? (String)o : (String)(Reflections.invoke(o, Reflections.getMethod(Reflections.getNMSClass("IChatBaseComponent"), "getText")));
+		return o instanceof String ? (String) o
+				: (String) (Reflections.invoke(o,
+						Reflections.getMethod(Reflections.getNMSClass("IChatBaseComponent"), "getText")));
 	}
 
 	public void setDisplayName(String name) {
@@ -475,7 +486,7 @@ public class NMSPlayer {
 
 	public float getHealth() {
 		Object o = Reflections.invoke(a, Reflections.getMethod(c, "getBukkitEntity"));
-		return (float) getField(o,o.getClass(),"health");
+		return (float) getField(o, o.getClass(), "health");
 	}
 
 	public void setHealth(float health) {
@@ -484,7 +495,7 @@ public class NMSPlayer {
 
 	public int getFood() {
 		Object o = Reflections.invoke(a, Reflections.getMethod(c, "getFoodData"));
-		return (int) getField(o,o.getClass(), "foodLevel");
+		return (int) getField(o, o.getClass(), "foodLevel");
 	}
 
 	public void setFood(int food) {
@@ -497,7 +508,7 @@ public class NMSPlayer {
 	}
 
 	public void setFire(int fire) {
-		Reflections.setField(a, Reflections.getField(c,"fireTicks"), fire);
+		Reflections.setField(a, Reflections.getField(c, "fireTicks"), fire);
 	}
 
 	public double getAir() {
@@ -511,23 +522,23 @@ public class NMSPlayer {
 	public void sendPacket(Object packet) {
 		Ref.sendPacket(getPlayer(), packet);
 	}
-	
+
 	public Object getField(String name) {
 		return Ref.get(a, Ref.field(c, name));
 	}
-	
+
 	public Object getField(Object o, Class<?> in, String name) {
 		return Ref.get(o, Ref.field(in, name));
 	}
-	
+
 	public Object getFieldWithNull(String name) {
-		return Ref.get(null,Ref.field(c, name));
+		return Ref.get(null, Ref.field(c, name));
 	}
-	
+
 	public Object getFieldWithNull(Class<?> in, String name) {
 		return Ref.get(null, Ref.field(in, name));
 	}
-	
+
 	public Method findMethod(String name, Object... items) {
 		return Ref.findMethod(c, name, items);
 	}

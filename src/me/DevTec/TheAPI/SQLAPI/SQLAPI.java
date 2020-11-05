@@ -37,7 +37,7 @@ public class SQLAPI {
 
 	public boolean isConnected() {
 		try {
-			return connected && connection!=null && !connection.isClosed();
+			return connected && connection != null && !connection.isClosed();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -46,7 +46,7 @@ public class SQLAPI {
 
 	public void close() {
 		Validator.validate(!connected, "SQL connection is closed");
-		Validator.validate(connection==null, "SQL connection is null");
+		Validator.validate(connection == null, "SQL connection is null");
 		try {
 			connection.close();
 		} catch (Exception e) {
@@ -63,7 +63,7 @@ public class SQLAPI {
 
 	public PreparedStatement getPreparedStatement(String command) {
 		Validator.validate(!connected, "SQL connection is closed");
-		Validator.validate(command==null, "Command is null");
+		Validator.validate(command == null, "Command is null");
 		try {
 			return connection.prepareStatement(command);
 		} catch (Exception e) {
@@ -74,35 +74,35 @@ public class SQLAPI {
 	public boolean update(String command) {
 		return update(getPreparedStatement(command));
 	}
-	
+
 	public boolean update(PreparedStatement command) {
 		Validator.validate(!connected, "SQL connection is closed");
-		Validator.validate(command==null, "Command is null");
+		Validator.validate(command == null, "Command is null");
 		boolean result = false;
 		try {
 			command.executeUpdate();
 			result = true;
 		} catch (Exception e) {
-			if(!LoaderClass.config.getBoolean("Options.HideErrors"))
-			e.printStackTrace();
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e.printStackTrace();
 		}
 		return result;
 	}
-	
+
 	public boolean largeUpdate(String command) {
 		return largeUpdate(getPreparedStatement(command));
 	}
-	
+
 	public boolean largeUpdate(PreparedStatement command) {
 		Validator.validate(!connected, "SQL connection is closed");
-		Validator.validate(command==null, "Command is null");
+		Validator.validate(command == null, "Command is null");
 		boolean result = false;
 		try {
 			command.executeLargeUpdate();
 			result = true;
 		} catch (Exception e) {
-			if(!LoaderClass.config.getBoolean("Options.HideErrors"))
-			e.printStackTrace();
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e.printStackTrace();
 		}
 		return result;
 	}
@@ -110,16 +110,16 @@ public class SQLAPI {
 	public ResultSet query(String command) {
 		return query(getPreparedStatement(command));
 	}
-	
+
 	public ResultSet query(PreparedStatement command) {
 		Validator.validate(!connected, "SQL connection is closed");
-		Validator.validate(command==null, "Command is null");
+		Validator.validate(command == null, "Command is null");
 		ResultSet rs = null;
 		try {
 			rs = command.executeQuery();
 		} catch (Exception e) {
-			if(!LoaderClass.config.getBoolean("Options.HideErrors"))
-			e.printStackTrace();
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e.printStackTrace();
 		}
 		return rs;
 	}
@@ -130,12 +130,12 @@ public class SQLAPI {
 		try {
 			ResultSet s = query(command);
 			if (s != null)
-				while(s.next())
-				return s.getInt(lookingfor);
+				while (s.next())
+					return s.getInt(lookingfor);
 			return 0;
 		} catch (Exception e) {
-			if(!LoaderClass.config.getBoolean("Options.HideErrors"))
-			e.printStackTrace();
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e.printStackTrace();
 			return 0;
 		}
 	}
@@ -152,12 +152,13 @@ public class SQLAPI {
 
 	public void set(String table, String path, String value, String identifier, String idValue) {
 		Validator.validate(!connected, "SQL connection is closed");
-		String command = "UPDATE " + table + " SET " + path + "='" + value + "' WHERE " + identifier + "='" + idValue+ "'";
+		String command = "UPDATE " + table + " SET " + path + "='" + value + "' WHERE " + identifier + "='" + idValue
+				+ "'";
 		try {
 			update(command);
 		} catch (Exception e) {
-			if(!LoaderClass.config.getBoolean("Options.HideErrors"))
-			e.printStackTrace();
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e.printStackTrace();
 		}
 	}
 
@@ -167,12 +168,12 @@ public class SQLAPI {
 		try {
 			ResultSet s = query(command);
 			if (s != null)
-				while(s.next())
-				return s.getLong(lookingfor);
+				while (s.next())
+					return s.getLong(lookingfor);
 			return 0;
 		} catch (Exception e) {
-			if(!LoaderClass.config.getBoolean("Options.HideErrors"))
-			e.printStackTrace();
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e.printStackTrace();
 			return 0;
 		}
 	}
@@ -183,12 +184,12 @@ public class SQLAPI {
 		try {
 			ResultSet s = query(command);
 			if (s != null)
-				while(s.next())
-				return s.getArray(lookingfor);
+				while (s.next())
+					return s.getArray(lookingfor);
 			return null;
 		} catch (Exception e) {
-			if(!LoaderClass.config.getBoolean("Options.HideErrors"))
-			e.printStackTrace();
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e.printStackTrace();
 			return null;
 		}
 	}
@@ -199,12 +200,12 @@ public class SQLAPI {
 		try {
 			ResultSet s = query(command);
 			if (s != null)
-				while(s.next())
-				return s.getBoolean(lookingfor);
+				while (s.next())
+					return s.getBoolean(lookingfor);
 			return false;
 		} catch (Exception e) {
-			if(!LoaderClass.config.getBoolean("Options.HideErrors"))
-			e.printStackTrace();
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e.printStackTrace();
 			return false;
 		}
 	}
@@ -218,8 +219,8 @@ public class SQLAPI {
 				return s.getByte(lookingfor);
 			return 0;
 		} catch (Exception e) {
-			if(!LoaderClass.config.getBoolean("Options.HideErrors"))
-			e.printStackTrace();
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e.printStackTrace();
 			return 0;
 		}
 	}
@@ -230,12 +231,12 @@ public class SQLAPI {
 		try {
 			ResultSet s = query(command);
 			if (s != null)
-				while(s.next())
-				return s.getObject(lookingfor);
+				while (s.next())
+					return s.getObject(lookingfor);
 			return null;
 		} catch (Exception e) {
-			if(!LoaderClass.config.getBoolean("Options.HideErrors"))
-			e.printStackTrace();
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e.printStackTrace();
 			return null;
 		}
 	}
@@ -246,12 +247,12 @@ public class SQLAPI {
 		try {
 			ResultSet s = query(command);
 			if (s != null)
-				while(s.next())
-				return s.getBigDecimal(lookingfor);
+				while (s.next())
+					return s.getBigDecimal(lookingfor);
 			return new BigDecimal(0);
 		} catch (Exception e) {
-			if(!LoaderClass.config.getBoolean("Options.HideErrors"))
-			e.printStackTrace();
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e.printStackTrace();
 			return new BigDecimal(0);
 		}
 	}
@@ -262,12 +263,12 @@ public class SQLAPI {
 		try {
 			ResultSet s = query(command);
 			if (s != null)
-				while(s.next())
-				return s.getDouble(lookingfor);
+				while (s.next())
+					return s.getDouble(lookingfor);
 			return 0.0;
 		} catch (Exception e) {
-			if(!LoaderClass.config.getBoolean("Options.HideErrors"))
-			e.printStackTrace();
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e.printStackTrace();
 			return 0.0;
 		}
 	}
@@ -278,12 +279,12 @@ public class SQLAPI {
 		try {
 			ResultSet s = query(command);
 			if (s != null)
-				while(s.next())
-				return s.getString(lookingfor);
+				while (s.next())
+					return s.getString(lookingfor);
 			return null;
 		} catch (Exception e) {
-			if(!LoaderClass.config.getBoolean("Options.HideErrors"))
-			e.printStackTrace();
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e.printStackTrace();
 			return null;
 		}
 	}
@@ -299,20 +300,20 @@ public class SQLAPI {
 			return false;
 		}
 	}
-	
+
 	public boolean execute(String command) {
 		return execute(getPreparedStatement(command));
 	}
-	
+
 	public boolean execute(PreparedStatement command) {
 		Validator.validate(!connected, "SQL connection is closed");
-		Validator.validate(command==null, "Command is null");
+		Validator.validate(command == null, "Command is null");
 		try {
 			command.execute();
 			return true;
 		} catch (Exception e) {
-			if(!LoaderClass.config.getBoolean("Options.HideErrors"))
-			e.printStackTrace();
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e.printStackTrace();
 			return false;
 		}
 	}
@@ -327,20 +328,20 @@ public class SQLAPI {
 		try {
 			Validator.validate(connection != null && !connection.isClosed(), "SQL connection is already open");
 		} catch (Exception e1) {
-			if(!LoaderClass.config.getBoolean("Options.HideErrors"))
-			e1.printStackTrace();
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e1.printStackTrace();
 		}
 		synchronized (LoaderClass.plugin) {
 			if (isConnected())
 				return;
-				if(Ref.getClass("com.mysql.jdbc.Driver")!=null)
-					try {
-						connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + at,
-								username, password);
-					} catch (Exception e) {
-						if(!LoaderClass.config.getBoolean("Options.HideErrors"))
+			if (Ref.getClass("com.mysql.jdbc.Driver") != null)
+				try {
+					connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + at,
+							username, password);
+				} catch (Exception e) {
+					if (!LoaderClass.config.getBoolean("Options.HideErrors"))
 						e.printStackTrace();
-					}
+				}
 		}
 	}
 }

@@ -72,10 +72,10 @@ public class TAC_Worlds {
 			}
 		}
 		if (args[1].equalsIgnoreCase("saveall")) {
-				TheAPI.msg("&eTheAPI WorldsManager saving " + (Bukkit.getWorlds().size()) + " world(s)..", s);
-				for (World w : Bukkit.getWorlds())
-					w.save();
-				TheAPI.msg("&eWorlds saved..", s);
+			TheAPI.msg("&eTheAPI WorldsManager saving " + (Bukkit.getWorlds().size()) + " world(s)..", s);
+			for (World w : Bukkit.getWorlds())
+				w.save();
+			TheAPI.msg("&eWorlds saved..", s);
 			return;
 		}
 		if (args[1].equalsIgnoreCase("save")) {
@@ -91,7 +91,7 @@ public class TAC_Worlds {
 				TheAPI.msg("&eWorld with name '" + args[2] + "' doesn't exists.", s);
 				return;
 			}
-			
+
 			TheAPI.msg("&eTheAPI WorldsManager saving world with name '" + args[2] + "'..", s);
 			Bukkit.getWorld(args[2]).save();
 			TheAPI.msg("&eWorld with name '" + args[2] + "' saved.", s);
@@ -197,9 +197,9 @@ public class TAC_Worlds {
 			TheAPI.msg("&eTheAPI WorldsManager deleting world with name '" + args[2] + "'..", s);
 			WorldsAPI.delete(Bukkit.getWorld(args[2]), true);
 			List<String> a = LoaderClass.config.getStringList("Worlds");
-			if(a.contains(args[2])) {
-			a.remove(args[2]);
-			LoaderClass.config.set("Worlds", a);
+			if (a.contains(args[2])) {
+				a.remove(args[2]);
+				LoaderClass.config.set("Worlds", a);
 			}
 			LoaderClass.config.set("WorldsSetting." + args[2], null);
 			LoaderClass.config.save();
@@ -259,10 +259,10 @@ public class TAC_Worlds {
 				break;
 			}
 			List<String> a = LoaderClass.config.getStringList("Worlds");
-			if(!a.contains(args[2])) {
-			a.add(args[2]);
-			LoaderClass.config.set("Worlds", a);
-		    }
+			if (!a.contains(args[2])) {
+				a.add(args[2]);
+				LoaderClass.config.set("Worlds", a);
+			}
 			LoaderClass.config.set("WorldsSetting." + args[2] + ".Generator", generator);
 			LoaderClass.config.set("WorldsSetting." + args[2] + ".GenerateStructures", true);
 			LoaderClass.config.save();

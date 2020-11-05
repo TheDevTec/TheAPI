@@ -6,10 +6,10 @@ public class Entry<K, V> implements Data {
 
 	public Entry() {
 	}
-	
+
 	public Entry(K k, V v) {
-		this.k=k;
-		this.t=v;
+		this.k = k;
+		this.t = v;
 	}
 
 	public K getKey() {
@@ -21,19 +21,19 @@ public class Entry<K, V> implements Data {
 	}
 
 	public void setKey(K k) {
-		this.k=k;
+		this.k = k;
 	}
 
 	public void setValue(V v) {
-		t=v;
+		t = v;
 	}
-	
+
 	public String toString() {
-		return k.toString()+":"+t.toString();
+		return k.toString() + ":" + t.toString();
 	}
 
 	@Override
 	public String getDataName() {
-		return "Entry('"+k+"':'"+t+"')";
+		return "Entry('" + k + "':'" + t + "')";
 	}
 }

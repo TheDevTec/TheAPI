@@ -10,7 +10,7 @@ public class CooldownAPI {
 	private final User c;
 
 	public CooldownAPI(User player) {
-		Validator.validate(player==null, "User is null");
+		Validator.validate(player == null, "User is null");
 		c = player;
 	}
 
@@ -32,7 +32,7 @@ public class CooldownAPI {
 	}
 
 	public void createCooldown(String cooldown, int length) {
-		createCooldown(cooldown, (double)length);
+		createCooldown(cooldown, (double) length);
 	}
 
 	public boolean expired(String cooldown) {
@@ -52,7 +52,9 @@ public class CooldownAPI {
 	 * @return long If return is -1, it mean cooldown isn't exist
 	 */
 	public long getTimeToExpire(String cooldown) {
-		return (long) (getStart(cooldown) != -1 ? (getStart(cooldown) - System.currentTimeMillis() / 1000) + getCooldown(cooldown) : -1);
+		return (long) (getStart(cooldown) != -1
+				? (getStart(cooldown) - System.currentTimeMillis() / 1000) + getCooldown(cooldown)
+				: -1);
 
 	}
 

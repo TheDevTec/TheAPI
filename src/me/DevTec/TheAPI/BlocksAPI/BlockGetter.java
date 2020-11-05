@@ -16,19 +16,20 @@ public class BlockGetter {
 		sizeY = Math.abs(Math.max(a.getBlockY(), b.getBlockY()) - baseY) + 1;
 		sizeZ = Math.abs(Math.max(a.getBlockZ(), b.getBlockZ()) - baseZ) + 1;
 	}
-	
+
 	public void reset() {
-		x=0;
-		y=0;
-		z=0;
+		x = 0;
+		y = 0;
+		z = 0;
 	}
-	
+
 	public boolean has() {
 		return x < sizeX && y < sizeY && z < sizeZ;
 	}
 
 	public Position get() {
-		if(!has())return new Position(w, baseX + x, baseY + y, baseZ + z);
+		if (!has())
+			return new Position(w, baseX + x, baseY + y, baseZ + z);
 		Position b = new Position(w, baseX + x, baseY + y, baseZ + z);
 		if (++x >= sizeX) {
 			x = 0;

@@ -34,10 +34,11 @@ public class Schemate {
 	private Schema schem;
 	private File f;
 	private Data cache;
+
 	public Schemate(String name) {
-		s=name;
+		s = name;
 	}
-	
+
 	public String getName() {
 		return s;
 	}
@@ -45,86 +46,93 @@ public class Schemate {
 	public Schema load() {
 		return load(null);
 	}
-	
+
 	public Schema load(Runnable onFinish) {
-		if(schem==null) {
-			schem=new Schema(onFinish,this);
+		if (schem == null) {
+			schem = new Schema(onFinish, this);
 		}
 		return schem;
 	}
-	
+
 	public void save(Position fromCopy, Position a, Position b) {
-		save(fromCopy, a, b,null);
+		save(fromCopy, a, b, null);
 	}
-	
+
 	public File getFile() {
-		if(f==null)
-		f=new File("plugins/TheAPI/Schematic/"+s+".schem");
-		if(!f.getParentFile().exists())
-		f.getParentFile().mkdir();
-		if(!f.exists())
+		if (f == null)
+			f = new File("plugins/TheAPI/Schematic/" + s + ".schem");
+		if (!f.getParentFile().exists())
+			f.getParentFile().mkdir();
+		if (!f.exists())
 			try {
 				f.createNewFile();
 			} catch (Exception e1) {
 			}
 		return f;
 	}
-	
+
 	public Data getData() {
-		if(cache==null)
-			cache=new Data(getFile());
+		if (cache == null)
+			cache = new Data(getFile());
 		return cache;
 	}
-	
+
 	public boolean isSetStandingPosition() {
-		return (boolean)get("data.standing");
+		return (boolean) get("data.standing");
 	}
-	
+
 	public float getBlocks() {
-		return (float)get("data.blocks");
+		return (float) get("data.blocks");
 	}
-	
+
 	public void set(String key, Object object) {
 		getData().set(key, object);
 	}
-	
+
 	public Object get(String key) {
 		return getData().get(key);
 	}
-	
+
 	public Position[] getCorners() {
-		String[] s= get("data.corners").toString().split("/!/");
-		return new Position[] {Position.fromString(s[0]),Position.fromString(s[1])};
+		String[] s = get("data.corners").toString().split("/!/");
+		return new Position[] { Position.fromString(s[0]), Position.fromString(s[1]) };
 	}
-	
+
 	public void save(Position fromCopy, Position a, Position b, Runnable onFinish) {
-		for(String s: getData().getKeys())
+		for (String s : getData().getKeys())
 			getData().remove(s);
 		new Tasker() {
 			public void run() {
 				Data data = getData();
-				data.set("data.standing", fromCopy!=null);
-				data.set("data.corners", fromCopy!=null?a.subtract(fromCopy).toString()+"/!/"+b.subtract(fromCopy).toString():a.toString()+"/!/"+b.toString());
+				data.set("data.standing", fromCopy != null);
+				data.set("data.corners",
+						fromCopy != null ? a.subtract(fromCopy).toString() + "/!/" + b.subtract(fromCopy).toString()
+								: a.toString() + "/!/" + b.toString());
 				data.set("data.blocks", BlocksAPI.count(a, b));
 				Map<String, Compressor> perChunk = new HashMap<>();
 				BlockGetter getter = new BlockGetter(a, b);
-				while(getter.has()) {
+				while (getter.has()) {
 					Position pos = getter.get();
-					if(fromCopy!=null)
-					pos.add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ());
+					if (fromCopy != null)
+						pos.add(-fromCopy.getBlockX(), -fromCopy.getBlockY(), -fromCopy.getBlockZ());
 					try {
-						Compressor s = perChunk.getOrDefault(pos.getChunkKey()+"."+pos.getType().getType().name()+pos.getType().getData(), null);
-						if(s==null) {
-							s=new Compressor();
-							perChunk.put(pos.getChunkKey()+"."+pos.getType().getType().name()+pos.getType().getData(), s);
+						Compressor s = perChunk.getOrDefault(
+								pos.getChunkKey() + "." + pos.getType().getType().name() + pos.getType().getData(),
+								null);
+						if (s == null) {
+							s = new Compressor();
+							perChunk.put(
+									pos.getChunkKey() + "." + pos.getType().getType().name() + pos.getType().getData(),
+									s);
 						}
-						s.add(pos.getBlockX()+"/"+pos.getBlockY()+"/"+pos.getBlockZ()+"/!_!/"+new SimpleSave(pos).toString());
+						s.add(pos.getBlockX() + "/" + pos.getBlockY() + "/" + pos.getBlockZ() + "/!_!/"
+								+ new SimpleSave(pos).toString());
 					} catch (Exception e) {
 					}
 				}
-				for(String key : perChunk.keySet()) {
+				for (String key : perChunk.keySet()) {
 					Compressor s = perChunk.get(key);
-					data.set("c."+key, s.get());
+					data.set("c." + key, s.get());
 					s.close();
 				}
 				perChunk.clear();
@@ -132,18 +140,19 @@ public class Schemate {
 				w.append(data.toString());
 				w.flush();
 				w.close();
-				if(onFinish!=null)
+				if (onFinish != null)
 					onFinish.run();
 			}
 		}.runTask();
 	}
-	
+
 	public static class SimpleSave {
 		private boolean isSign, isInvBlock, isCmd;
 		private String[] lines;
 		private ItemStack[] inv;
-		private String cmd, cmdname,cname;
+		private String cmd, cmdname, cname;
 		private BlockFace f;
+
 		public SimpleSave(Position pos) {
 			Block b = pos.getBlock();
 			f = b.getFace(b);
@@ -151,9 +160,9 @@ public class Schemate {
 				isInvBlock = true;
 				Chest c = ((Chest) b.getState());
 				try {
-				cname=(String) Ref.invoke(c, "getCustomName");
-				}catch(Exception e) {
-					cname=null;
+					cname = (String) Ref.invoke(c, "getCustomName");
+				} catch (Exception e) {
+					cname = null;
 				}
 				inv = c.getBlockInventory().getContents();
 			}
@@ -161,19 +170,19 @@ public class Schemate {
 				isInvBlock = true;
 				Object c = Ref.cast(Ref.getClass("org.bukkit.block.ShulkerBox"), b.getState());
 				try {
-					cname=(String) Ref.invoke(c, "getCustomName");
-				}catch(NoSuchMethodError e) {
-					cname=null;
+					cname = (String) Ref.invoke(c, "getCustomName");
+				} catch (NoSuchMethodError e) {
+					cname = null;
 				}
-				inv = (ItemStack[]) Ref.invoke(Ref.invoke(c, "getInventory"),"getContents");
+				inv = (ItemStack[]) Ref.invoke(Ref.invoke(c, "getInventory"), "getContents");
 			}
 			if (b.getType().name().equals("DROPPER")) {
 				isInvBlock = true;
 				Dropper c = ((Dropper) b.getState());
 				try {
-				cname=(String) Ref.invoke(c, "getCustomName");
-				}catch(Exception e) {
-					cname=null;
+					cname = (String) Ref.invoke(c, "getCustomName");
+				} catch (Exception e) {
+					cname = null;
 				}
 				inv = c.getInventory().getContents();
 			}
@@ -181,9 +190,9 @@ public class Schemate {
 				isInvBlock = true;
 				Furnace c = ((Furnace) b.getState());
 				try {
-				cname=(String) Ref.invoke(c, "getCustomName");
-				}catch(Exception e) {
-					cname=null;
+					cname = (String) Ref.invoke(c, "getCustomName");
+				} catch (Exception e) {
+					cname = null;
 				}
 				inv = c.getInventory().getContents();
 			}
@@ -191,9 +200,9 @@ public class Schemate {
 				isInvBlock = true;
 				Dispenser c = ((Dispenser) b.getState());
 				try {
-				cname=(String) Ref.invoke(c, "getCustomName");
-				}catch(Exception e) {
-					cname=null;
+					cname = (String) Ref.invoke(c, "getCustomName");
+				} catch (Exception e) {
+					cname = null;
 				}
 				inv = c.getInventory().getContents();
 			}
@@ -201,19 +210,19 @@ public class Schemate {
 				isInvBlock = true;
 				Object c = Ref.cast(Ref.getClass("org.bukkit.block.Barrel"), b.getState());
 				try {
-				cname=(String) Ref.invoke(c, "getCustomName");
-				}catch(Exception e) {
-					cname=null;
+					cname = (String) Ref.invoke(c, "getCustomName");
+				} catch (Exception e) {
+					cname = null;
 				}
-				inv = (ItemStack[]) Ref.invoke(Ref.invoke(c, "getInventory"),"getContents");
+				inv = (ItemStack[]) Ref.invoke(Ref.invoke(c, "getInventory"), "getContents");
 			}
 			if (b.getType().name().equals("HOPPER")) {
 				isInvBlock = true;
 				Hopper c = ((Hopper) b.getState());
 				try {
-				cname=(String) Ref.invoke(c, "getCustomName");
-				}catch(Exception e) {
-					cname=null;
+					cname = (String) Ref.invoke(c, "getCustomName");
+				} catch (Exception e) {
+					cname = null;
 				}
 				inv = c.getInventory().getContents();
 			}
@@ -229,7 +238,7 @@ public class Schemate {
 				cmdname = c.getName();
 			}
 		}
-		
+
 		// sign
 		public SimpleSave(BlockFace face, String[] lines) {
 			f = face;
@@ -242,7 +251,7 @@ public class Schemate {
 			f = face;
 			this.inv = inv;
 			isInvBlock = true;
-			cname=customname;
+			cname = customname;
 		}
 
 		// cmd
@@ -255,7 +264,7 @@ public class Schemate {
 		public SimpleSave(BlockFace face) {
 			f = face;
 		}
-		
+
 		public long load(Position pos, TheMaterial type) {
 			pos.setType(type);
 			String n = type.getType().name();
@@ -272,42 +281,46 @@ public class Schemate {
 			if (n.contains("CHEST")) {
 				Chest w = (Chest) pos.getBlock().getState();
 				try {
-				if(cname!=null && !cname.equals("null"))
-					Ref.invoke(w, "setCustomName", cname);
-				}catch(NoSuchMethodError e) {}
-				if(inv!=null)
-				w.getInventory().setContents(inv);
+					if (cname != null && !cname.equals("null"))
+						Ref.invoke(w, "setCustomName", cname);
+				} catch (NoSuchMethodError e) {
+				}
+				if (inv != null)
+					w.getInventory().setContents(inv);
 			}
 			if (n.equals("DROPPER")) {
 				Dropper w = (Dropper) pos.getBlock().getState();
 				try {
-				if(cname!=null && !cname.equals("null"))
-					Ref.invoke(w, "setCustomName", cname);
-				}catch(NoSuchMethodError e) {}
+					if (cname != null && !cname.equals("null"))
+						Ref.invoke(w, "setCustomName", cname);
+				} catch (NoSuchMethodError e) {
+				}
 				if (inv != null)
 					w.getInventory().setContents(inv);
 			}
 			if (n.equals("DISPENSER")) {
 				Dispenser w = (Dispenser) pos.getBlock().getState();
 				try {
-				if(cname!=null && !cname.equals("null"))
-					Ref.invoke(w, "setCustomName", cname);
-				}catch(NoSuchMethodError e) {}
+					if (cname != null && !cname.equals("null"))
+						Ref.invoke(w, "setCustomName", cname);
+				} catch (NoSuchMethodError e) {
+				}
 				if (inv != null)
 					w.getInventory().setContents(inv);
 			}
 			if (n.equals("HOPPER")) {
 				Hopper w = (Hopper) pos.getBlock().getState();
 				try {
-				if(cname!=null && !cname.equals("null"))
-					Ref.invoke(w, "setCustomName", cname);
-				}catch(NoSuchMethodError e) {}
+					if (cname != null && !cname.equals("null"))
+						Ref.invoke(w, "setCustomName", cname);
+				} catch (NoSuchMethodError e) {
+				}
 				if (inv != null)
 					w.getInventory().setContents(inv);
 			}
 			if (n.equals("FURNACE")) {
 				Furnace w = (Furnace) pos.getBlock().getState();
-				if(cname!=null && !cname.equals("null"))
+				if (cname != null && !cname.equals("null"))
 					Ref.invoke(w, "setCustomName", cname);
 				if (inv != null)
 					w.getInventory().setContents(inv);
@@ -315,20 +328,22 @@ public class Schemate {
 			if (n.contains("SHULKER_BOX")) {
 				Object w = Ref.cast(Ref.getClass("org.bukkit.block.ShulkerBox"), pos.getBlock().getState());
 				try {
-				if(cname!=null && !cname.equals("null"))
-					Ref.invoke(w, "setCustomName", cname);
-				}catch(NoSuchMethodError e) {}
+					if (cname != null && !cname.equals("null"))
+						Ref.invoke(w, "setCustomName", cname);
+				} catch (NoSuchMethodError e) {
+				}
 				if (inv != null)
-					Ref.invoke(Ref.invoke(w, "getInventory"), "setContents", (Object)inv);
+					Ref.invoke(Ref.invoke(w, "getInventory"), "setContents", (Object) inv);
 			}
 			if (n.contains("BARREL")) {
 				Object w = Ref.cast(Ref.getClass("org.bukkit.block.Barrel"), pos.getBlock().getState());
 				try {
-				if(cname!=null && !cname.equals("null"))
-					Ref.invoke(w, "setCustomName", cname);
-				}catch(NoSuchMethodError e) {}
+					if (cname != null && !cname.equals("null"))
+						Ref.invoke(w, "setCustomName", cname);
+				} catch (NoSuchMethodError e) {
+				}
 				if (inv != null)
-					Ref.invoke(Ref.invoke(w, "getInventory"), "setContents", (Object)inv);
+					Ref.invoke(Ref.invoke(w, "getInventory"), "setContents", (Object) inv);
 			}
 			if (n.contains("COMMAND")) {
 				CommandBlock w = (CommandBlock) pos.getBlock().getState();
@@ -342,56 +357,60 @@ public class Schemate {
 		}
 
 		public static SimpleSave fromString(String stored) {
-			if(stored==null)return null;
-				if (stored.startsWith("S:/")) {
-					stored = stored.replaceFirst("S:/", "");
-					String[] s = stored.split("/!/");
-					return new SimpleSave(BlockFace.values()[StringUtils.getInt(s[0])], s[1].split(" "));
-				}
-				if (stored.startsWith("I:/")) {
-					stored = stored.replaceFirst("I:/", "");
-					String[] s = stored.split("/!/");
-					try {
-						BukkitObjectInputStream dataInput = new BukkitObjectInputStream(new ByteArrayInputStream(Base64Coder.decodeLines(s[2])));
-						ItemStack[] items = new ItemStack[StringUtils.getInt(s[1])];
-						for (int i = 0; i < StringUtils.getInt(s[1]); i++) {
-							items[i] = (ItemStack)dataInput.readObject();
-						}
-						dataInput.close();
-						return new SimpleSave(BlockFace.values()[StringUtils.getInt(s[0])], items, s[3]);
-					} catch (Exception e) {
-						return new SimpleSave(BlockFace.values()[StringUtils.getInt(s[0])], new ItemStack[1], s[3]);
+			if (stored == null)
+				return null;
+			if (stored.startsWith("S:/")) {
+				stored = stored.replaceFirst("S:/", "");
+				String[] s = stored.split("/!/");
+				return new SimpleSave(BlockFace.values()[StringUtils.getInt(s[0])], s[1].split(" "));
+			}
+			if (stored.startsWith("I:/")) {
+				stored = stored.replaceFirst("I:/", "");
+				String[] s = stored.split("/!/");
+				try {
+					BukkitObjectInputStream dataInput = new BukkitObjectInputStream(
+							new ByteArrayInputStream(Base64Coder.decodeLines(s[2])));
+					ItemStack[] items = new ItemStack[StringUtils.getInt(s[1])];
+					for (int i = 0; i < StringUtils.getInt(s[1]); i++) {
+						items[i] = (ItemStack) dataInput.readObject();
 					}
+					dataInput.close();
+					return new SimpleSave(BlockFace.values()[StringUtils.getInt(s[0])], items, s[3]);
+				} catch (Exception e) {
+					return new SimpleSave(BlockFace.values()[StringUtils.getInt(s[0])], new ItemStack[1], s[3]);
 				}
-				if (stored.startsWith("C:/")) {
-					stored = stored.replaceFirst("C:/", "");
-					String[] s = stored.split("/!/");
-					return new SimpleSave(BlockFace.values()[StringUtils.getInt(s[0])], s[1], s[2]);
-				}
-				return new SimpleSave(BlockFace.values()[StringUtils.getInt(stored)]);
+			}
+			if (stored.startsWith("C:/")) {
+				stored = stored.replaceFirst("C:/", "");
+				String[] s = stored.split("/!/");
+				return new SimpleSave(BlockFace.values()[StringUtils.getInt(s[0])], s[1], s[2]);
+			}
+			return new SimpleSave(BlockFace.values()[StringUtils.getInt(stored)]);
 		}
 
 		@Override
 		public String toString() {
 			if (isSign) {
-				return "S:/" + f.ordinal()+"/!/" + lines!=null ? StringUtils.join(lines, " ") : null;
+				return "S:/" + f.ordinal() + "/!/" + lines != null ? StringUtils.join(lines, " ") : null;
+			}
+			if (isInvBlock) {
+				try {
+					ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+					BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+					for (int i = 0; i < inv.length; i++) {
+						dataOutput.writeObject(inv[i]);
+					}
+					dataOutput.close();
+					return "I:/" + f.ordinal() + "/!/" + inv.length + "/!/"
+							+ Base64Coder.encodeLines(outputStream.toByteArray()) + "/!/" + cname;
+				} catch (Exception err) {
+					return "I:/" + f.ordinal() + "/!/" + inv.length + "/!/"
+							+ Base64Coder.encodeLines(new ByteArrayOutputStream().toByteArray()) + "/!/" + cname;
 				}
-						if (isInvBlock) {
-							try {
-								ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-								BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-								for (int i = 0; i < inv.length; i++) {
-									dataOutput.writeObject(inv[i]);
-								}
-								dataOutput.close();
-								return "I:/" +f.ordinal()+ "/!/" + inv.length+"/!/"+Base64Coder.encodeLines(outputStream.toByteArray()) + "/!/" + cname;
-							} catch (Exception err) {
-								return "I:/" +f.ordinal()+ "/!/" + inv.length+"/!/"+Base64Coder.encodeLines(new ByteArrayOutputStream().toByteArray()) + "/!/" + cname;
-							}
-						}
+			}
 			if (isCmd)
-				return "C:/" +f.ordinal()+ "/!/" + cmd + "/!/" + cmdname;
-			return f.ordinal()+"";
+				return "C:/" + f.ordinal() + "/!/" + cmd + "/!/" + cmdname;
+			return f.ordinal() + "";
 		}
 	}
 

@@ -62,31 +62,34 @@ import me.DevTec.TheAPI.Utils.DataKeeper.User;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.WorldsAPI.WorldBorderAPI.WarningMessageType;
 
-@SuppressWarnings("deprecation")
 public class Events implements Listener {
 
 	@EventHandler
 	public synchronized void onClose(InventoryCloseEvent e) {
 		Player p = (Player) e.getPlayer();
-		GUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(),null);
-		if (d == null)return;
+		GUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(), null);
+		if (d == null)
+			return;
 		LoaderClass.plugin.gui.remove(p.getName());
 		d.getPlayers().remove(p);
 		d.onClose(p);
 	}
-	
+
 	@EventHandler
 	public synchronized void onClick(InventoryClickEvent e) {
-		if(e.isCancelled())return;
+		if (e.isCancelled())
+			return;
 		Player p = (Player) e.getWhoClicked();
-		GUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(),null);
-		if(d==null)return;
-		if(e.getClick()==ClickType.NUMBER_KEY) {
+		GUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(), null);
+		if (d == null)
+			return;
+		if (e.getClick() == ClickType.NUMBER_KEY) {
 			e.setCancelled(true);
 			return;
 		}
 		ItemStack i = e.getCurrentItem();
-		if (i == null)return;
+		if (i == null)
+			return;
 		if (e.getClickedInventory().getType() == InventoryType.PLAYER) {
 			if (!d.isInsertable()) {
 				e.setCancelled(true);
@@ -94,17 +97,18 @@ public class Events implements Listener {
 			}
 		}
 		if (e.getClickedInventory().getType() != InventoryType.PLAYER) {
-		ItemGUI a = d.getItemGUI(e.getSlot());
-		if(a!=null) {
-		if(a.isUnstealable()) {
-			e.setCancelled(true);
+			ItemGUI a = d.getItemGUI(e.getSlot());
+			if (a != null) {
+				if (a.isUnstealable()) {
+					e.setCancelled(true);
+				}
+				a.onClick(p, d, e.getClick());
+			}
 		}
-			a.onClick(p, d, e.getClick());
-		}}
-		if(!e.isCancelled()) {
+		if (!e.isCancelled()) {
 			if (e.getClickedInventory().getType() == InventoryType.PLAYER) {
 				e.setCancelled(d.onPutItem(p, i, e.getSlot()));
-			}else {
+			} else {
 				e.setCancelled(d.onTakeItem(p, i, e.getSlot()));
 			}
 		}
@@ -170,7 +174,8 @@ public class Events implements Listener {
 		if (LoaderClass.config.getBoolean("Options.Optimize.TNT.Use")) {
 			e.setCancelled(true);
 			get((e.getEntity().hasMetadata("firstTnt")
-					? new Position(BlocksAPI.getLocationFromString(e.getEntity().getMetadata("firstTnt").get(0).asString()))
+					? new Position(
+							BlocksAPI.getLocationFromString(e.getEntity().getMetadata("firstTnt").get(0).asString()))
 					: new Position(e.getLocation())), new Position(e.getLocation()));
 		}
 	}
@@ -190,8 +195,10 @@ public class Events implements Listener {
 		if (event.isCancelled()) {
 			return;
 		}
-		new TNTTask(reals, BlocksAPI.get(Shape.Sphere, c, event.isNuclearBomb()?event.getPower()*20:event.getPower()*2,
-				blocks(event.isNuclearBomb() && event.canNuclearDestroyLiquid())), event).start();
+		new TNTTask(reals,
+				BlocksAPI.get(Shape.Sphere, c, event.isNuclearBomb() ? event.getPower() * 20 : event.getPower() * 2,
+						blocks(event.isNuclearBomb() && event.canNuclearDestroyLiquid())),
+				event).start();
 	}
 
 	public static List<TheMaterial> blocks(boolean b) {
@@ -262,60 +269,60 @@ public class Events implements Listener {
 	}
 
 	public static Storage add(Position block, Position real, boolean t, Storage st, Collection<ItemStack> collection) {
-			if (!t) {
-				if (LoaderClass.config.getBoolean("Options.Optimize.TNT.Drops.InSingleLocation")) {
-					for (ItemStack i : collection) {
-						if (i != null && i.getType() != Material.AIR)
-							st.add(i);
-					}
-				} else {
-					Storage qd = new Storage();
-					for (ItemStack i : collection) {
-						if (i != null && i.getType() != Material.AIR)
-							qd.add(i);
-					}
-					if (qd.isEmpty() == false)
-						for (ItemStack i : qd.getItems())
-							if (i != null && i.getType() != Material.AIR)
-								block.getWorld().dropItemNaturally(block.toLocation(), i);
+		if (!t) {
+			if (LoaderClass.config.getBoolean("Options.Optimize.TNT.Drops.InSingleLocation")) {
+				for (ItemStack i : collection) {
+					if (i != null && i.getType() != Material.AIR)
+						st.add(i);
 				}
 			} else {
-				List<Inventory> qd = new ArrayList<Inventory>();
-				Inventory a = Bukkit.createInventory(null, 54);
-				if (qd.isEmpty() == false) {
-					for (Inventory i : qd) {
-						if (i.firstEmpty() != -1) {
-							a = i;
-							break;
-						}
+				Storage qd = new Storage();
+				for (ItemStack i : collection) {
+					if (i != null && i.getType() != Material.AIR)
+						qd.add(i);
+				}
+				if (qd.isEmpty() == false)
+					for (ItemStack i : qd.getItems())
+						if (i != null && i.getType() != Material.AIR)
+							block.getWorld().dropItemNaturally(block.toLocation(), i);
+			}
+		} else {
+			List<Inventory> qd = new ArrayList<Inventory>();
+			Inventory a = Bukkit.createInventory(null, 54);
+			if (qd.isEmpty() == false) {
+				for (Inventory i : qd) {
+					if (i.firstEmpty() != -1) {
+						a = i;
+						break;
 					}
 				}
-				if (qd.contains(a))
-					qd.remove(a);
-				for (ItemStack i : collection) {
-					if (a.firstEmpty() != -1)
-						if (i != null && i.getType() != Material.AIR)
-							a.addItem(i);
-						else {
-							qd.add(a);
-							a = Bukkit.createInventory(null, 54);
-							a.addItem(i);
-						}
-				}
-				qd.add(a);
-				if (qd.isEmpty() == false)
-					for (Inventory f : qd)
-						for (ItemStack i : f.getContents())
-							if (i != null && i.getType() != Material.AIR)
-								real.getWorld().dropItemNaturally(real.toLocation(), i);
 			}
+			if (qd.contains(a))
+				qd.remove(a);
+			for (ItemStack i : collection) {
+				if (a.firstEmpty() != -1)
+					if (i != null && i.getType() != Material.AIR)
+						a.addItem(i);
+					else {
+						qd.add(a);
+						a = Bukkit.createInventory(null, 54);
+						a.addItem(i);
+					}
+			}
+			qd.add(a);
+			if (qd.isEmpty() == false)
+				for (Inventory f : qd)
+					for (ItemStack i : f.getContents())
+						if (i != null && i.getType() != Material.AIR)
+							real.getWorld().dropItemNaturally(real.toLocation(), i);
+		}
 		return st;
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onItemDestroy(PlayerItemBreakEvent e) {
-		me.DevTec.TheAPI.Events.PlayerItemBreakEvent event = new me.DevTec.TheAPI.Events.PlayerItemBreakEvent(e.getPlayer(),
-				e.getBrokenItem());
+		me.DevTec.TheAPI.Events.PlayerItemBreakEvent event = new me.DevTec.TheAPI.Events.PlayerItemBreakEvent(
+				e.getPlayer(), e.getBrokenItem());
 		Bukkit.getPluginManager().callEvent(event);
 		if (event.isCancelled() || isUnbreakable(event.getItem())) {
 			ItemStack a = e.getBrokenItem();
@@ -331,7 +338,7 @@ public class Events implements Listener {
 		PlayerBanList p = PunishmentAPI.getBanList(e.getPlayer().getName());
 		if (p.isJailed() || p.isTempJailed() || p.isIPJailed() || p.isTempIPJailed())
 			e.setCancelled(true);
-		 else {
+		else {
 			if (e.getBlock().getType().name().contains("SIGN") && !e.isCancelled()) {
 				SignAPI.removeSign(new Position(e.getBlock().getLocation()));
 			}
@@ -342,11 +349,11 @@ public class Events implements Listener {
 	public void onMove(PlayerMoveEvent e) {
 		if (e.isCancelled())
 			return;
-		double jump = e.getTo().getY()-e.getFrom().getY();
+		double jump = e.getTo().getY() - e.getFrom().getY();
 		boolean has = true;
 		try {
-			has=!e.getPlayer().hasPotionEffect(PotionEffectType.getByName("LEVITATION"));
-		}catch(Exception | NoSuchFieldError es) {
+			has = !e.getPlayer().hasPotionEffect(PotionEffectType.getByName("LEVITATION"));
+		} catch (Exception | NoSuchFieldError es) {
 		}
 		if (jump > 0 && !e.getPlayer().isFlying() && has) {
 			PlayerJumpEvent event = new PlayerJumpEvent(e.getPlayer(), e.getFrom(), e.getTo(), jump);
@@ -374,15 +381,15 @@ public class Events implements Listener {
 						TheAPI.sendBossBar(e.getPlayer(), msg, 1, 5);
 						break;
 					case CHAT:
-						TheAPI.msg(msg,e.getPlayer());
+						TheAPI.msg(msg, e.getPlayer());
 						break;
 					case NONE:
 						break;
 					case SUBTITLE:
-						TheAPI.sendTitle(e.getPlayer(),"", msg);
+						TheAPI.sendTitle(e.getPlayer(), "", msg);
 						break;
 					case TITLE:
-						TheAPI.sendTitle(e.getPlayer(),msg, "");
+						TheAPI.sendTitle(e.getPlayer(), msg, "");
 						break;
 					}
 				}
@@ -411,16 +418,15 @@ public class Events implements Listener {
 			return;
 		}
 		User s = TheAPI.getUser(e.getUniqueId());
-		s.setAndSave("ip", (e.getAddress()+"").replace("/", "").replace(".", "_"));
+		s.setAndSave("ip", (e.getAddress() + "").replace("/", "").replace(".", "_"));
 		PlayerBanList a = PunishmentAPI.getBanList(s.getName());
 		if (a.isBanned()) {
 			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.BAN).replace("\\n", "\n")));
 			return;
 		}
 		if (a.isTempBanned()) {
-			e.disallow(Result.KICK_BANNED,
-					TheAPI.colorize(a.getReason(PunishmentType.TEMPBAN).replace("\\n", "\n")).replace("%time%",
-							StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBAN))));
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.TEMPBAN).replace("\\n", "\n"))
+					.replace("%time%", StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBAN))));
 			return;
 		}
 		if (a.isIPBanned()) {
@@ -428,9 +434,8 @@ public class Events implements Listener {
 			return;
 		}
 		if (a.isTempIPBanned()) {
-			e.disallow(Result.KICK_BANNED,
-					TheAPI.colorize(a.getReason(PunishmentType.TEMPBANIP).replace("\\n", "\n")).replace("%time%",
-							StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBANIP))));
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.TEMPBANIP).replace("\\n", "\n"))
+					.replace("%time%", StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBANIP))));
 			return;
 		}
 	}
@@ -438,20 +443,21 @@ public class Events implements Listener {
 	@EventHandler
 	public void onLeave(PlayerQuitEvent e) {
 		Player s = e.getPlayer();
-		TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis()/1000);
-		if(TheAPI.getBossBar(s)!=null)
-		TheAPI.getBossBar(s).remove();
+		TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);
+		if (TheAPI.getBossBar(s) != null)
+			TheAPI.getBossBar(s).remove();
 		LoaderClass.plugin.handler.uninjectPlayer(s);
-		if(LoaderClass.config.getBoolean("Options.Cache.User.RemoveOnQuit") && LoaderClass.config.getBoolean("Options.Cache.User.Use"))
+		if (LoaderClass.config.getBoolean("Options.Cache.User.RemoveOnQuit")
+				&& LoaderClass.config.getBoolean("Options.Cache.User.Use"))
 			TheAPI.removeCachedUser(e.getPlayer().getUniqueId());
 	}
-	
+
 	private List<String> inJoin = new ArrayList<>();
-	
+
 	@SuppressWarnings("unchecked")
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerLogin(PlayerLoginEvent e) {
-		if(Ref.playerCon(e.getPlayer())==null) {
+		if (Ref.playerCon(e.getPlayer()) == null) {
 			inJoin.add(e.getPlayer().getName());
 			return;
 		}
@@ -459,40 +465,43 @@ public class Events implements Listener {
 		if (!LoaderClass.plugin.handler.hasInjected(channel))
 			LoaderClass.plugin.handler.injectPlayer(e.getPlayer());
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onJoin(PlayerJoinEvent e) {
 		Player s = e.getPlayer();
-		TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis()/1000);
-		if(inJoin.contains(s.getName())) {
+		TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);
+		if (inJoin.contains(s.getName())) {
 			inJoin.remove(s.getName());
 			Object channel = LoaderClass.plugin.handler.getChannel(e.getPlayer());
 			if (!LoaderClass.plugin.handler.hasInjected(channel))
 				LoaderClass.plugin.handler.injectPlayer(e.getPlayer());
 		}
-		//Houska or Straikerina
-		if(s.getUniqueId().toString().equals("b33ec012-c39d-3d21-9fc5-85e30c048cf0")||s.getUniqueId().toString().equals("db294d44-7ce4-38f6-b122-4c5d80f3bea1")) {
-			TheAPI.msg("&eInstalled TheAPI &6v"+LoaderClass.plugin.getDescription().getVersion(), s);
+		// Houska or Straikerina
+		if (s.getUniqueId().toString().equals("b33ec012-c39d-3d21-9fc5-85e30c048cf0")
+				|| s.getUniqueId().toString().equals("db294d44-7ce4-38f6-b122-4c5d80f3bea1")) {
+			TheAPI.msg("&eInstalled TheAPI &6v" + LoaderClass.plugin.getDescription().getVersion(), s);
 			List<String> pl = new ArrayList<>();
-			for(Plugin a : LoaderClass.plugin.getTheAPIsPlugins())pl.add(a.getName());
-			if(!pl.isEmpty())
-			TheAPI.msg("&ePlugins using TheAPI: &6"+StringUtils.join(pl, ", "), s);
+			for (Plugin a : LoaderClass.plugin.getTheAPIsPlugins())
+				pl.add(a.getName());
+			if (!pl.isEmpty())
+				TheAPI.msg("&ePlugins using TheAPI: &6" + StringUtils.join(pl, ", "), s);
 		}
 		for (Player p : TheAPI.getOnlinePlayers()) {
-			if (TheAPI.isVanished(p) && (TheAPI.getUser(p).exist("vanish")
-					? !s.hasPermission(TheAPI.getUser(p).getString("vanish"))
-					: true)) {
+			if (TheAPI.isVanished(p)
+					&& (TheAPI.getUser(p).exist("vanish") ? !s.hasPermission(TheAPI.getUser(p).getString("vanish"))
+							: true)) {
 				s.hidePlayer(p);
 			}
 		}
 		if (TheAPI.isVanished(s))
 			TheAPI.vanish(s, TheAPI.getUser(s).getString("vanish"), true);
 	}
-	
+
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlace(BlockPlaceEvent e) {
-		if (e.isCancelled())return;
+		if (e.isCancelled())
+			return;
 		PlayerBanList p = PunishmentAPI.getBanList(e.getPlayer().getName());
 		if (p.isJailed() || p.isTempJailed() || p.isIPJailed() || p.isTempIPJailed())
 			e.setCancelled(true);
@@ -505,7 +514,7 @@ public class Events implements Listener {
 		if (e.getEntity() instanceof Player) {
 			Player d = (Player) e.getEntity();
 			PlayerBanList p = PunishmentAPI.getBanList(d.getName());
-			if (p.isJailed() || p.isTempJailed() ||p.isIPJailed() || p.isTempIPJailed()) {
+			if (p.isJailed() || p.isTempJailed() || p.isIPJailed() || p.isTempIPJailed()) {
 				e.setCancelled(true);
 				return;
 			}
@@ -523,15 +532,17 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onFood(FoodLevelChangeEvent e) {
-		if (e.isCancelled()) return;
+		if (e.isCancelled())
+			return;
 		if (e.getEntity() instanceof Player)
-			if (TheAPI.getUser((Player)e.getEntity()).getBoolean("God"))
+			if (TheAPI.getUser((Player) e.getEntity()).getBoolean("God"))
 				e.setCancelled(true);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onDamage(EntityDamageByEntityEvent e) {
-		if (e.isCancelled()) return;
+		if (e.isCancelled())
+			return;
 		if (e.getEntity() instanceof Player) {
 			Player d = (Player) e.getEntity();
 			if (TheAPI.getUser(d).getBoolean("God")) {
@@ -584,7 +595,7 @@ public class Events implements Listener {
 		if (b.isTempMuted()) {
 			e.setCancelled(true);
 			TheAPI.msg(b.getReason(PunishmentType.TEMPMUTE).replace("%time%",
-							StringUtils.setTimeToString(b.getExpire(PunishmentType.TEMPMUTE))),e.getPlayer());
+					StringUtils.setTimeToString(b.getExpire(PunishmentType.TEMPMUTE))), e.getPlayer());
 			return;
 		}
 		if (b.isMuted()) {
@@ -595,7 +606,7 @@ public class Events implements Listener {
 		if (b.isTempIPMuted()) {
 			e.setCancelled(true);
 			TheAPI.msg(b.getReason(PunishmentType.TEMPMUTEIP).replace("%time%",
-							StringUtils.setTimeToString(b.getExpire(PunishmentType.TEMPMUTEIP))),e.getPlayer());
+					StringUtils.setTimeToString(b.getExpire(PunishmentType.TEMPMUTEIP))), e.getPlayer());
 			return;
 		}
 		if (b.isIPMuted()) {

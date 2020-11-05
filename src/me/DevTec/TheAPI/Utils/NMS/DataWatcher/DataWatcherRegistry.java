@@ -10,7 +10,7 @@ import me.DevTec.TheAPI.Utils.Reflections.Reflections;
  */
 public class DataWatcherRegistry {
 	private static Class<?> a = Reflections.getNMSClass("DataWatcherRegistry");
-	
+
 	/**
 	 * @return DataWatcherObject<Byte>
 	 */
@@ -151,46 +151,46 @@ public class DataWatcherRegistry {
 		Object o = Reflections.invoke(null, Reflections.getMethod(a, "a", int.class), id);
 		return new DataWatcherObject(Reflections.invoke(o, Reflections.getMethod(o.getClass(), "a", int.class), data));
 	}
-	
+
 	private static final HashMap<String, Integer> ids = new HashMap<>();
 	static {
-		if(TheAPI.isNewVersion()) {
-		    ids.put("a", 0);
-		    ids.put("b", 1);
-		    ids.put("c", 2);
-		    ids.put("d", 3);
-		    ids.put("e", 4);
-		    ids.put("f", 5);
-		    ids.put("g", 6);
-		    ids.put("i", 7);
-		    ids.put("k", 8);
-		    ids.put("l", 9);
-		    ids.put("m", 10);
-		    ids.put("n", 11);
-		    ids.put("o", 12);
-		    ids.put("h", 13);
-		    ids.put("p", 14);
-		    ids.put("j", 15);
-		    ids.put("q", 16);
-		    ids.put("r", 17);
-		    ids.put("s", 18);
+		if (TheAPI.isNewVersion()) {
+			ids.put("a", 0);
+			ids.put("b", 1);
+			ids.put("c", 2);
+			ids.put("d", 3);
+			ids.put("e", 4);
+			ids.put("f", 5);
+			ids.put("g", 6);
+			ids.put("i", 7);
+			ids.put("k", 8);
+			ids.put("l", 9);
+			ids.put("m", 10);
+			ids.put("n", 11);
+			ids.put("o", 12);
+			ids.put("h", 13);
+			ids.put("p", 14);
+			ids.put("j", 15);
+			ids.put("q", 16);
+			ids.put("r", 17);
+			ids.put("s", 18);
 		}
-	    ids.put("a", 0);
-	    ids.put("b", 1);
-	    ids.put("c", 2);
-	    ids.put("d", 3);
-	    ids.put("e", 4);
-	    ids.put("f", 5);
-	    ids.put("h", 6);
-	    ids.put("i", 7);
-	    ids.put("j", 8);
-	    ids.put("k", 9);
-	    ids.put("l", 10);
-	    ids.put("m", 11);
-	    ids.put("g", 12);
-	    ids.put("n", 13);
+		ids.put("a", 0);
+		ids.put("b", 1);
+		ids.put("c", 2);
+		ids.put("d", 3);
+		ids.put("e", 4);
+		ids.put("f", 5);
+		ids.put("h", 6);
+		ids.put("i", 7);
+		ids.put("j", 8);
+		ids.put("k", 9);
+		ids.put("l", 10);
+		ids.put("m", 11);
+		ids.put("g", 12);
+		ids.put("n", 13);
 	}
-	
+
 	private static Object c(String d, int data) {
 		return get(ids.get(d), data);
 	}

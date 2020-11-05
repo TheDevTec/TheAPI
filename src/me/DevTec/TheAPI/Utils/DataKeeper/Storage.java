@@ -53,13 +53,13 @@ public class Storage implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data 
 	public int size() {
 		return invs.size();
 	}
-	
+
 	public String toString() {
 		return invs.toString();
 	}
 
 	@Override
 	public String getDataName() {
-		return "Storage("+toString()+")";
+		return "Storage(" + toString() + ")";
 	}
 }

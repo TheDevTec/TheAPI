@@ -13,62 +13,66 @@ import me.DevTec.TheAPI.Utils.Json.Reader;
 public class JsonLoader implements DataLoader {
 	private boolean l;
 	private Map<String, DataHolder> data = new HashMap<>();
-	
+
 	@Override
 	public Map<String, DataHolder> get() {
 		return data;
 	}
-	
+
 	public Collection<String> getKeys() {
 		return data.keySet();
 	}
-	
+
 	public void set(String key, DataHolder holder) {
-		if(key==null)return;
-		if(holder==null) {
+		if (key == null)
+			return;
+		if (holder == null) {
 			data.remove(key);
 			return;
 		}
 		data.put(key, holder);
 	}
-	
+
 	public void remove(String key) {
-		if(key==null)return;
+		if (key == null)
+			return;
 		data.remove(key);
 	}
-	
+
 	public void reset() {
 		data.clear();
 	}
-	
+
 	@Override
 	public void load(String input) {
 		data.clear();
-		synchronized(this) {
-		try {
-			ArrayList<?> s = (ArrayList<?>)Reader.object(input);
-		for(int ir = 0; ir < s.size(); ++ir) {
-			HashMap<?,?> o = (HashMap<?,?>) s.get(ir);
-		for(Entry<?, ?> keyed : o.entrySet()) {
-			String key = keyed.getKey().toString();
-			String object = keyed.getValue().toString();
-			data.put(key, new DataHolder(Reader.object(object)));
-		}}
-		l=true;
-		}catch(Exception er) {
-			l=false;
-		}}
+		synchronized (this) {
+			try {
+				ArrayList<?> s = (ArrayList<?>) Reader.object(input);
+				for (int ir = 0; ir < s.size(); ++ir) {
+					HashMap<?, ?> o = (HashMap<?, ?>) s.get(ir);
+					for (Entry<?, ?> keyed : o.entrySet()) {
+						String key = keyed.getKey().toString();
+						String object = keyed.getValue().toString();
+						data.put(key, new DataHolder(Reader.object(object)));
+					}
+				}
+				l = true;
+			} catch (Exception er) {
+				l = false;
+			}
+		}
 	}
 
 	@Override
 	public List<String> getHeader() {
-		//NOT SUPPORTED
+		// NOT SUPPORTED
 		return null;
 	}
 
 	@Override
 	public List<String> getFooter() {
-		//NOT SUPPORTED
+		// NOT SUPPORTED
 		return null;
 	}
 
@@ -79,6 +83,6 @@ public class JsonLoader implements DataLoader {
 
 	@Override
 	public String getDataName() {
-		return "Data(JsonLoader:"+data.size()+")";
+		return "Data(JsonLoader:" + data.size() + ")";
 	}
 }

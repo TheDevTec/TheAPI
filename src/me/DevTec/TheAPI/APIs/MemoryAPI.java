@@ -15,24 +15,27 @@ public class MemoryAPI {
 		double mem = getRawUsedMemory(false);
 		new Tasker() {
 			public void run() {
-		for (World w : Bukkit.getWorlds())
-			for (Chunk c : w.getLoadedChunks())
-				c.unload(true);
-		new Tasker() {
-			public void run() {
-				System.gc();
-		}}.runTask();
-			}}.runTaskSync();
+				for (World w : Bukkit.getWorlds())
+					for (Chunk c : w.getLoadedChunks())
+						c.unload(true);
+				new Tasker() {
+					public void run() {
+						System.gc();
+					}
+				}.runTask();
+			}
+		}.runTaskSync();
 		return String.format("%2.02f", mem - getRawUsedMemory(false)).replaceFirst("\\.00", "");
 	}
 
 	public static double getFreeMemory(boolean inPercentage) {
 		if (!inPercentage)
-			return StringUtils
-					.getDouble(String.format("%2.02f", (getMaxMemory() - getRawUsedMemory(false))).replaceFirst("\\.00", ""));
+			return StringUtils.getDouble(
+					String.format("%2.02f", (getMaxMemory() - getRawUsedMemory(false))).replaceFirst("\\.00", ""));
 		else
 			return StringUtils.getDouble(
-					String.format("%2.02f", ((getMaxMemory() - getRawUsedMemory(false)) / getMaxMemory()) * 100).replaceFirst("\\.00", ""));
+					String.format("%2.02f", ((getMaxMemory() - getRawUsedMemory(false)) / getMaxMemory()) * 100)
+							.replaceFirst("\\.00", ""));
 	}
 
 	public static double getMaxMemory() {
@@ -43,8 +46,8 @@ public class MemoryAPI {
 		if (!inPercentage)
 			return StringUtils.getDouble(String.format("%2.02f", getRawUsedMemory(false)).replaceFirst("\\.00", ""));
 		else
-			return StringUtils
-					.getDouble(String.format("%2.02f", (getRawUsedMemory(false) / getMaxMemory()) * 100).replaceFirst("\\.00", ""));
+			return StringUtils.getDouble(String.format("%2.02f", (getRawUsedMemory(false) / getMaxMemory()) * 100)
+					.replaceFirst("\\.00", ""));
 	}
 
 	public static double getRawUsedMemory(boolean inPercentage) {

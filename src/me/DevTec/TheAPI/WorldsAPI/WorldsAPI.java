@@ -57,8 +57,10 @@ public class WorldsAPI {
 	 * @param seed               set 0 to generate random
 	 * @return boolean if world was created
 	 */
-	public static boolean create(String name, Environment generator, WorldType type, boolean generateStructures, long seed) {
-		return create(name, generator, type, TheAPI.isOlder1_9()?new voidGenerator_1_8():new voidGenerator(), generateStructures, seed);
+	public static boolean create(String name, Environment generator, WorldType type, boolean generateStructures,
+			long seed) {
+		return create(name, generator, type, TheAPI.isOlder1_9() ? new voidGenerator_1_8() : new voidGenerator(),
+				generateStructures, seed);
 	}
 
 	/**
@@ -71,7 +73,8 @@ public class WorldsAPI {
 	 * @param seed               set 0 to generate random
 	 * @return boolean if world was created
 	 */
-	public static boolean create(String name, Environment generator, WorldType type, ChunkGenerator Chunkgenerator, boolean generateStructures, long seed) {
+	public static boolean create(String name, Environment generator, WorldType type, ChunkGenerator Chunkgenerator,
+			boolean generateStructures, long seed) {
 		if (name == null || generator == null)
 			return false;
 
@@ -84,7 +87,7 @@ public class WorldsAPI {
 				c.seed(seed);
 			if (type != null)
 				c.type(type);
-			if(Chunkgenerator!=null)
+			if (Chunkgenerator != null)
 				c.generator(Chunkgenerator);
 			c.createWorld();
 			if (type == null) {
@@ -115,13 +118,16 @@ public class WorldsAPI {
 	}
 
 	public static boolean delete(World name, boolean safeUnloadWorld, boolean keepFolder) {
-		if (name == null) return false;
+		if (name == null)
+			return false;
 		List<World> w = Bukkit.getWorlds();
 		w.remove(name);
 		if (!w.isEmpty()) {
 			unloadWorld(name.getName(), safeUnloadWorld);
-			if (keepFolder)return true;
-			else return deleteDirectory(name.getWorldFolder());
+			if (keepFolder)
+				return true;
+			else
+				return deleteDirectory(name.getWorldFolder());
 		}
 		return false;
 	}

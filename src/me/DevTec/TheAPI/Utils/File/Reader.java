@@ -23,9 +23,10 @@ public class Reader {
 	}
 
 	private BufferedReader sc;
+
 	public Reader(File f) {
 		try {
-		    sc = new BufferedReader(new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8));
+			sc = new BufferedReader(new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8));
 		} catch (Exception e) {
 		}
 	}
@@ -37,7 +38,7 @@ public class Reader {
 	public String read(boolean split) {
 		StringBuffer buffer = new StringBuffer();
 		reset();
-		sc.lines().iterator().forEachRemaining(s -> buffer.append(s+(split?System.lineSeparator():"")));
+		sc.lines().iterator().forEachRemaining(s -> buffer.append(s + (split ? System.lineSeparator() : "")));
 		return buffer.toString();
 	}
 

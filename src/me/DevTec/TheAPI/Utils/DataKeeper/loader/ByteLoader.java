@@ -18,82 +18,90 @@ import me.DevTec.TheAPI.Utils.Json.Reader;
 public class ByteLoader implements DataLoader {
 	private Map<String, DataHolder> data = new HashMap<>();
 	private boolean l;
+
 	@Override
 	public Map<String, DataHolder> get() {
 		return data;
 	}
-	
+
 	public Collection<String> getKeys() {
 		return data.keySet();
 	}
-	
+
 	public void set(String key, DataHolder holder) {
-		if(key==null)return;
-		if(holder==null) {
+		if (key == null)
+			return;
+		if (holder == null) {
 			data.remove(key);
 			return;
 		}
 		data.put(key, holder);
 	}
-	
+
 	public void remove(String key) {
-		if(key==null)return;
+		if (key == null)
+			return;
 		data.remove(key);
 	}
-	
+
 	public void reset() {
 		data.clear();
 	}
-	
+
 	@Override
 	public void load(String input) {
 		data.clear();
-		synchronized(this) {
-		try {
-			byte[] bb = Base64.getDecoder().decode(input);
-			InputStream ousr = null;
+		synchronized (this) {
 			try {
-				ousr = new ObjectInputStream(new GZIPInputStream(new ByteArrayInputStream(bb)));
-			}catch(Exception er) {
-				ousr = new DataInputStream(new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(bb))));
-			}
-			while(true)
+				byte[] bb = Base64.getDecoder().decode(input);
+				InputStream ousr = null;
 				try {
-					String key = (ousr instanceof DataInputStream?(DataInputStream)ousr : (ObjectInputStream)ousr).readUTF();
-					String value = (ousr instanceof DataInputStream?(DataInputStream)ousr : (ObjectInputStream)ousr).readUTF();
-					data.put(key, new DataHolder(Reader.object(value)));
-				}catch(Exception e) {
-					break;
+					ousr = new ObjectInputStream(new GZIPInputStream(new ByteArrayInputStream(bb)));
+				} catch (Exception er) {
+					ousr = new DataInputStream(
+							new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(bb))));
 				}
-			ousr.close();
-			l=true;
-			}catch(Exception er) {
-			try {
-				DataInputStream ousr = new DataInputStream(new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(input.getBytes()))));
-				while(true)
+				while (true)
 					try {
-						String key = ousr.readUTF();
-						data.put(key, new DataHolder(Reader.object(ousr.readUTF())));
-					}catch(Exception e) {
-					break;
+						String key = (ousr instanceof DataInputStream ? (DataInputStream) ousr
+								: (ObjectInputStream) ousr).readUTF();
+						String value = (ousr instanceof DataInputStream ? (DataInputStream) ousr
+								: (ObjectInputStream) ousr).readUTF();
+						data.put(key, new DataHolder(Reader.object(value)));
+					} catch (Exception e) {
+						break;
 					}
 				ousr.close();
-				l=true;
-				}catch(Exception err) {
-				l=false;
+				l = true;
+			} catch (Exception er) {
+				try {
+					DataInputStream ousr = new DataInputStream(
+							new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(input.getBytes()))));
+					while (true)
+						try {
+							String key = ousr.readUTF();
+							data.put(key, new DataHolder(Reader.object(ousr.readUTF())));
+						} catch (Exception e) {
+							break;
+						}
+					ousr.close();
+					l = true;
+				} catch (Exception err) {
+					l = false;
+				}
 			}
-		}}
+		}
 	}
 
 	@Override
 	public List<String> getHeader() {
-		//NOT SUPPORTED
+		// NOT SUPPORTED
 		return null;
 	}
 
 	@Override
 	public List<String> getFooter() {
-		//NOT SUPPORTED
+		// NOT SUPPORTED
 		return null;
 	}
 
@@ -104,6 +112,6 @@ public class ByteLoader implements DataLoader {
 
 	@Override
 	public String getDataName() {
-		return "Data(ByteLoader:"+data.size()+")";
+		return "Data(ByteLoader:" + data.size() + ")";
 	}
 }

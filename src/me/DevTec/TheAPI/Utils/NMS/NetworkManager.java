@@ -18,23 +18,23 @@ public class NetworkManager {
 	}
 
 	public Object getProfile() {
-		return Ref.get(a,Ref.field(Ref.nms("NetworkManager"), "spoofedProfile"));
+		return Ref.get(a, Ref.field(Ref.nms("NetworkManager"), "spoofedProfile"));
 	}
 
 	public UUID getUUID() {
-		return (UUID) Ref.get(a,Ref.field(Ref.nms("NetworkManager"), "spoofedUUID"));
+		return (UUID) Ref.get(a, Ref.field(Ref.nms("NetworkManager"), "spoofedUUID"));
 	}
 
 	public Object getChannel() {
-		return Ref.get(a,Ref.field(Ref.nms("NetworkManager"), TheAPI.isOlderThan(8)?"m":"channel"));
+		return Ref.get(a, Ref.field(Ref.nms("NetworkManager"), TheAPI.isOlderThan(8) ? "m" : "channel"));
 	}
 
 	// YOUR RISK
 	public void setChannel(Object channel) {
-		Ref.set(a, Ref.field(Ref.nms("NetworkManager"), TheAPI.isOlderThan(8)?"m":"channel"), channel);
+		Ref.set(a, Ref.field(Ref.nms("NetworkManager"), TheAPI.isOlderThan(8) ? "m" : "channel"), channel);
 	}
 
 	public SocketAddress getSocketAddress() {
-		return (SocketAddress) Ref.invoke(a,Ref.method(Ref.nms("NetworkManager"), "getSocketAddress"));
+		return (SocketAddress) Ref.invoke(a, Ref.method(Ref.nms("NetworkManager"), "getSocketAddress"));
 	}
 }

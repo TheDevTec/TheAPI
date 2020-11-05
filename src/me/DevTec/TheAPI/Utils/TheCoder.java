@@ -22,12 +22,13 @@ public class TheCoder {
 			return null;
 		try {
 			String[] s = savedLocation.replace("_", ".").split(",");
-			return new Location(Bukkit.getWorld(s[0].replace(":", "_")), StringUtils.getDouble(s[1]), StringUtils.getDouble(s[2]),
-					StringUtils.getDouble(s[3]), StringUtils.getFloat(s[4]), StringUtils.getFloat(s[5]));
+			return new Location(Bukkit.getWorld(s[0].replace(":", "_")), StringUtils.getDouble(s[1]),
+					StringUtils.getDouble(s[2]), StringUtils.getDouble(s[3]), StringUtils.getFloat(s[4]),
+					StringUtils.getFloat(s[5]));
 		} catch (Exception er) {
 			return null;
 		}
-		
+
 	}
 
 	/**
@@ -95,11 +96,11 @@ public class TheCoder {
 			ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(savedObjects));
 			BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
 			while (true) {
-			try {
+				try {
 					r.add((T) dataInput.readObject());
-			} catch (Exception e) {
-				break;
-			}
+				} catch (Exception e) {
+					break;
+				}
 			}
 			dataInput.close();
 		} catch (Exception e) {
@@ -131,31 +132,15 @@ public class TheCoder {
 		}
 		return r;
 	}
-	
+
 	public static String toColor(long ints) {
-		String s = ""+ints;
-		return s.replace("0", "§0")
-				.replace("1", "§1")
-				.replace("2", "§2")
-				.replace("3", "§3")
-				.replace("4", "§4")
-				.replace("5", "§5")
-				.replace("6", "§6")
-				.replace("7", "§7")
-				.replace("8", "§8")
-				.replace("9", "§9");
+		String s = "" + ints;
+		return s.replace("0", "§0").replace("1", "§1").replace("2", "§2").replace("3", "§3").replace("4", "§4")
+				.replace("5", "§5").replace("6", "§6").replace("7", "§7").replace("8", "§8").replace("9", "§9");
 	}
-	
+
 	public static String fromColor(String c) {
-		return c.replace("§0","0")
-				.replace("§1","1")
-				.replace("§2","2")
-				.replace("§3","3")
-				.replace("§4","4")
-				.replace("§5","5")
-				.replace("§6","6")
-				.replace("§7","7")
-				.replace("§8","8")
-				.replace("§9","9");
+		return c.replace("§0", "0").replace("§1", "1").replace("§2", "2").replace("§3", "3").replace("§4", "4")
+				.replace("§5", "5").replace("§6", "6").replace("§7", "7").replace("§8", "8").replace("§9", "9");
 	}
 }

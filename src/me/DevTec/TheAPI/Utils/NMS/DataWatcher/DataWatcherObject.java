@@ -5,8 +5,9 @@ package me.DevTec.TheAPI.Utils.NMS.DataWatcher;
  */
 public class DataWatcherObject {
 	private Object a;
+
 	public DataWatcherObject(Object c) {
-		a=c;
+		a = c;
 	}
 
 	public Object get() {
@@ -14,6 +15,6 @@ public class DataWatcherObject {
 	}
 
 	public void set(Object newData) {
-		a=newData;
+		a = newData;
 	}
 }

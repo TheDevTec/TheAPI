@@ -78,17 +78,20 @@ public class ConfigAPI {
 
 	public void addDefault(String path, Object value) {
 		c.put(path, value);
-		if(a!=null)a.addDefault(path, value);
+		if (a != null)
+			a.addDefault(path, value);
 	}
 
 	public void addDefaults(Map<String, Object> defaults) {
 		c = defaults;
-		if(a!=null)a.addDefaults(defaults);
+		if (a != null)
+			a.addDefaults(defaults);
 	}
 
 	public void addDefaults(HashMap<String, Object> defaults) {
 		c = defaults;
-		if(a!=null)a.addDefaults(defaults);
+		if (a != null)
+			a.addDefaults(defaults);
 	}
 
 	public boolean existFile() {

@@ -7,7 +7,6 @@ public class ParticleData {
 	private final byte data;
 	private final int[] packetData;
 
-	@SuppressWarnings("deprecation")
 	public ParticleData(Material material, byte data) {
 		this.material = material;
 		this.data = data;

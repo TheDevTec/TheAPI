@@ -11,355 +11,388 @@ import me.DevTec.TheAPI.Utils.DataKeeper.DataType;
 
 public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	private final Map<String, Object> defaults = new HashMap<>();
-    private final Data f;
-    private DataType t;
-    
-    //merge
-    public Config(String path, DataType type, Config c, MergeType... merge) {
-    	this(path, type);
-    	merge(c, merge);
-    }
-    
-    public void merge(Config c, MergeType... merge) {
-    	List<MergeType> todo = Arrays.asList(merge);
-    	if(todo.contains(MergeType.REMOVE_DATA))f.clear();
-    	if(todo.contains(MergeType.REMOVE_DEFAULTS))defaults.clear();
-    	if(todo.contains(MergeType.ADD_DEFAULTS))defaults.putAll(c.defaults);
-    	if(todo.contains(MergeType.ADD_DATA))f.merge(c.f, true, true);
-    }
-    
-    public void merge(Config c, boolean addHeader, boolean addFooter, MergeType... merge) {
-    	List<MergeType> todo = Arrays.asList(merge);
-    	if(todo.contains(MergeType.REMOVE_DATA))f.clear();
-    	if(todo.contains(MergeType.REMOVE_DEFAULTS))defaults.clear();
-    	if(todo.contains(MergeType.ADD_DEFAULTS))defaults.putAll(c.defaults);
-    	if(todo.contains(MergeType.ADD_DATA))f.merge(c.f, addHeader, addFooter);
-    }
-    
-    public Config(String path) {
-    	this(path, DataType.YAML);
-    }
+	private final Data f;
+	private DataType t;
 
-    public Config(String path, DataType type) {
-    	File file = new File("plugins/"+path);
-    	if (!file.exists()) {
-            file.getParentFile().mkdirs();
-            try {
+	// merge
+	public Config(String path, DataType type, Config c, MergeType... merge) {
+		this(path, type);
+		merge(c, merge);
+	}
+
+	public void merge(Config c, MergeType... merge) {
+		List<MergeType> todo = Arrays.asList(merge);
+		if (todo.contains(MergeType.REMOVE_DATA))
+			f.clear();
+		if (todo.contains(MergeType.REMOVE_DEFAULTS))
+			defaults.clear();
+		if (todo.contains(MergeType.ADD_DEFAULTS))
+			defaults.putAll(c.defaults);
+		if (todo.contains(MergeType.ADD_DATA))
+			f.merge(c.f, true, true);
+	}
+
+	public void merge(Config c, boolean addHeader, boolean addFooter, MergeType... merge) {
+		List<MergeType> todo = Arrays.asList(merge);
+		if (todo.contains(MergeType.REMOVE_DATA))
+			f.clear();
+		if (todo.contains(MergeType.REMOVE_DEFAULTS))
+			defaults.clear();
+		if (todo.contains(MergeType.ADD_DEFAULTS))
+			defaults.putAll(c.defaults);
+		if (todo.contains(MergeType.ADD_DATA))
+			f.merge(c.f, addHeader, addFooter);
+	}
+
+	public Config(String path) {
+		this(path, DataType.YAML);
+	}
+
+	public Config(String path, DataType type) {
+		File file = new File("plugins/" + path);
+		if (!file.exists()) {
+			file.getParentFile().mkdirs();
+			try {
 				file.createNewFile();
 			} catch (Exception e) {
 			}
-        }
-    	f=new Data(file, true);
-    	t=type;
-    }
-    
-    public DataType getType() {
-    	return t;
-    }
-    
-    public void setType(DataType type) {
-    	t=type;
-    }
-    
-    public void save() {
-        f.save(t);
-    }
+		}
+		f = new Data(file, true);
+		t = type;
+	}
 
-    public void setHeader(List<String> texts) {
-    	f.setHeader(texts);
-    }
+	public DataType getType() {
+		return t;
+	}
 
-    public List<String> getHeader() {
-    	return f.getHeader();
-    }
+	public void setType(DataType type) {
+		t = type;
+	}
 
-    public void addHeader(String text) {
-    	f.getHeader().add(text);
-    }
+	public void save() {
+		f.save(t);
+	}
 
-    public void setHeader(int position, String text) {
-    	f.getHeader().set(position, text);
-    }
+	public void setHeader(List<String> texts) {
+		f.setHeader(texts);
+	}
 
-    public void removeHeader(String text) {
-    	f.getHeader().remove(text);
-    }
+	public List<String> getHeader() {
+		return f.getHeader();
+	}
 
-    public void removeHeader(int position) {
-    	f.getHeader().remove(position);
-    }
-    
-    public void setFooter(List<String> texts) {
-    	f.setFooter(texts);
-    }
+	public void addHeader(String text) {
+		f.getHeader().add(text);
+	}
 
-    public List<String> getFooter() {
-    	return f.getFooter();
-    }
+	public void setHeader(int position, String text) {
+		f.getHeader().set(position, text);
+	}
 
-    public void addFooter(String text) {
-    	f.getFooter().add(text);
-    }
+	public void removeHeader(String text) {
+		f.getHeader().remove(text);
+	}
 
-    public void setFooter(int position, String text) {
-    	f.getFooter().set(position, text);
-    }
+	public void removeHeader(int position) {
+		f.getHeader().remove(position);
+	}
 
-    public void removeFooter(String text) {
-    	f.getFooter().remove(text);
-    }
+	public void setFooter(List<String> texts) {
+		f.setFooter(texts);
+	}
 
-    public void removeFooter(int position) {
-    	f.getFooter().remove(position);
-    }
-    
-    public void addDefaults(Map<String, Object> values) {
-    	for(String key : values.keySet())
-    		addDefault(key, values.get(key));
-    }
+	public List<String> getFooter() {
+		return f.getFooter();
+	}
 
-    public void addDefault(String key, Object value) {
-    	defaults.put(key, value);
-        if(!f.exists(key))
-        	f.set(key, value);
-    }
-    
-    public Map<String, Object> getDefaults(){
-    	return defaults;
-   }
+	public void addFooter(String text) {
+		f.getFooter().add(text);
+	}
 
-    public void reload() {
-    	f.reload(f.getFile());
-    }
-    
-    public String getName() {
-        return f.getFile().getName();
-    }
-    
+	public void setFooter(int position, String text) {
+		f.getFooter().set(position, text);
+	}
+
+	public void removeFooter(String text) {
+		f.getFooter().remove(text);
+	}
+
+	public void removeFooter(int position) {
+		f.getFooter().remove(position);
+	}
+
+	public void addDefaults(Map<String, Object> values) {
+		for (String key : values.keySet())
+			addDefault(key, values.get(key));
+	}
+
+	public void addDefault(String key, Object value) {
+		defaults.put(key, value);
+		if (!f.exists(key))
+			f.set(key, value);
+	}
+
+	public Map<String, Object> getDefaults() {
+		return defaults;
+	}
+
+	public void reload() {
+		f.reload(f.getFile());
+	}
+
+	public String getName() {
+		return f.getFile().getName();
+	}
+
 	public boolean exists(String path) {
-		if(path==null)return false;
+		if (path == null)
+			return false;
 		return f.exists(path);
 	}
-	
+
 	public Section getSection(String path) {
-		if(exists(path))
-		return new Section(this, path);
+		if (exists(path))
+			return new Section(this, path);
 		return null;
 	}
-	
+
 	public void remove(String path) {
-		if(path == null)return;
+		if (path == null)
+			return;
 		f.remove(path);
 	}
-	
+
 	public void set(String path, Object value) {
-		if(path == null)return;
+		if (path == null)
+			return;
 		f.set(path, value);
 	}
-	
+
 	public List<String> getKeys(String path) {
-		if(path == null)return null;
-		if(path.trim().isEmpty())
+		if (path == null)
+			return null;
+		if (path.trim().isEmpty())
 			return f.getKeys();
 		return f.getKeys(path);
 	}
-	
+
 	public List<String> getKeys() {
 		return f.getKeys();
 	}
-	
+
 	public List<String> getKeys(String path, boolean sub) {
-		if(path == null)return null;
-		if(path.trim().isEmpty())
+		if (path == null)
+			return null;
+		if (path.trim().isEmpty())
 			return f.getKeys(sub);
 		return f.getKeys(path, sub);
 	}
-	
+
 	public List<String> getKeys(boolean sub) {
 		return f.getKeys(sub);
 	}
-	
+
 	public List<String> getComments(String path) {
-		if(path == null)return null;
+		if (path == null)
+			return null;
 		return f.getLines(path);
 	}
-	
+
 	public void setComments(String path, List<String> value) {
-		if(path == null)return;
+		if (path == null)
+			return;
 		f.setLines(path, value);
 	}
-	
+
 	public void addComment(String path, String... value) {
-		if(path != null && value != null)
-			for(String s : value)
+		if (path != null && value != null)
+			for (String s : value)
 				getComments(path).add(s);
 	}
-	
+
 	public void addComments(String path, List<String> value) {
-		if(path != null && value != null)
-		getComments(path).addAll(value);
+		if (path != null && value != null)
+			getComments(path).addAll(value);
 	}
-	
+
 	public void removeComment(String path, String... value) {
-		if(path != null && value != null)
-			for(String s : value)
+		if (path != null && value != null)
+			for (String s : value)
 				getComments(path).remove(s);
 	}
-	
+
 	public void removeComment(String path, List<String> value) {
-		if(path != null && value != null)
-		getComments(path).removeAll(value);
+		if (path != null && value != null)
+			getComments(path).removeAll(value);
 	}
-	
+
 	public Object get(String path) {
-		if(path == null)return null;
+		if (path == null)
+			return null;
 		return f.get(path);
 	}
-	
+
 	public int getInt(String path) {
-		if(path == null)return 0;
+		if (path == null)
+			return 0;
 		return f.getInt(path);
 	}
-	
+
 	public double getDouble(String path) {
-		if(path == null)return 0.0;
+		if (path == null)
+			return 0.0;
 		return f.getDouble(path);
 	}
-	
+
 	public long getLong(String path) {
-		if(path == null)return 0;
+		if (path == null)
+			return 0;
 		return f.getLong(path);
 	}
-	
+
 	public String getString(String path) {
-		if(path == null)return null;
+		if (path == null)
+			return null;
 		return f.getString(path);
 	}
-	
+
 	public boolean getBoolean(String path) {
-		if(path == null)return false;
+		if (path == null)
+			return false;
 		return f.getBoolean(path);
 	}
-	
+
 	public short getShort(String path) {
-		if(path == null)return 0;
+		if (path == null)
+			return 0;
 		return f.getShort(path);
 	}
-	
+
 	public byte getByte(String path) {
-		if(path == null)return 0;
+		if (path == null)
+			return 0;
 		return f.getByte(path);
 	}
-	
+
 	public float getFloat(String path) {
-		if(path == null)return 0;
+		if (path == null)
+			return 0;
 		return f.getFloat(path);
 	}
-	
+
 	public List<Object> getList(String path) {
-		if(path == null)return null;
+		if (path == null)
+			return null;
 		return f.getList(path);
 	}
-	
+
 	public List<String> getStringList(String path) {
-		if(path == null)return null;
+		if (path == null)
+			return null;
 		return f.getStringList(path);
 	}
-	
+
 	public List<Boolean> getBooleanList(String path) {
-		if(path == null)return null;
+		if (path == null)
+			return null;
 		return f.getBooleanList(path);
 	}
-	
+
 	public List<Byte> getByteList(String path) {
-		if(path == null)return null;
+		if (path == null)
+			return null;
 		return f.getByteList(path);
 	}
-	
+
 	public List<Integer> getIntegerList(String path) {
-		if(path == null)return null;
+		if (path == null)
+			return null;
 		return f.getIntegerList(path);
 	}
-	
+
 	public List<Float> getFloatList(String path) {
-		if(path == null)return null;
+		if (path == null)
+			return null;
 		return f.getFloatList(path);
 	}
-	
+
 	public List<Long> getLongList(String path) {
-		if(path == null)return null;
+		if (path == null)
+			return null;
 		return f.getLongList(path);
 	}
-	
+
 	public List<Short> getShortList(String path) {
-		if(path == null)return null;
+		if (path == null)
+			return null;
 		return f.getShortList(path);
 	}
-	
-	public List<Map<?,?>> getMapList(String path) {
-		if(path == null)return null;
+
+	public List<Map<?, ?>> getMapList(String path) {
+		if (path == null)
+			return null;
 		return f.getMapList(path);
 	}
-	
+
 	public boolean isString(String path) {
 		return get(path) instanceof String;
 	}
-	
+
 	public boolean isNumber(String path) {
 		return get(path) instanceof Number;
 	}
-	
+
 	public boolean isInt(String path) {
 		return get(path) instanceof Integer;
 	}
-	
+
 	public boolean isInteger(String path) {
 		return get(path) instanceof Integer;
 	}
-	
+
 	public boolean isDouble(String path) {
 		return get(path) instanceof Double;
 	}
-	
+
 	public boolean isFloat(String path) {
 		return get(path) instanceof Float;
 	}
-	
+
 	public boolean isLong(String path) {
 		return get(path) instanceof Long;
 	}
-	
+
 	public boolean isByte(String path) {
 		return get(path) instanceof Byte;
 	}
-	
+
 	public boolean isShort(String path) {
 		return get(path) instanceof Short;
 	}
-	
+
 	public boolean isList(String path) {
 		return get(path) instanceof List;
 	}
-	
+
 	public boolean isMap(String path) {
 		return get(path) instanceof Map;
 	}
-	
+
 	public boolean isBoolean(String path) {
 		return get(path) instanceof Boolean;
 	}
-	
+
 	public boolean isSection(String path) {
 		return f.isKey(path);
 	}
-    
-    public Data getData() {
-    	return f;
-    }
-    
-    public String toString() {
-		return "Data(Config:"+getName()+"/"+t.name()+")";
-    }
+
+	public Data getData() {
+		return f;
+	}
+
+	public String toString() {
+		return "Data(Config:" + getName() + "/" + t.name() + ")";
+	}
 
 	@Override
 	public String getDataName() {

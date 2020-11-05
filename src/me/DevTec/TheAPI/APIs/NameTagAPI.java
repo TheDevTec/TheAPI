@@ -65,7 +65,7 @@ public class NameTagAPI {
 	 *      checking UUID will kick/ban you from server, for ex.: UUIDSpoofFix
 	 * @param name New player name
 	 */
-	@SuppressWarnings("deprecation")
+
 	public void setPlayerName(String name) {
 		try {
 			Method getHandle = p.getClass().getMethod("getHandle");
@@ -126,7 +126,7 @@ public class NameTagAPI {
 	 * @param teamName By teamName you can sort players in tablist -> create sorted
 	 *                 tablist
 	 */
-	@SuppressWarnings("deprecation")
+
 	public void setNameTag(String teamName, Scoreboard sb) {
 		if (teamName == null)
 			teamName = "z";

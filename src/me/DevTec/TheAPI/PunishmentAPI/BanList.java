@@ -22,19 +22,19 @@ public class BanList {
 	public static List<String> getBanned() {
 		return new ArrayList<>(LoaderClass.data.getKeys("ban"));
 	}
-	
+
 	public static List<String> getTempIPMuted() {
 		return new ArrayList<>(LoaderClass.data.getKeys("tempmuteip"));
 	}
-	
+
 	public static List<String> getTempMuted() {
 		return new ArrayList<>(LoaderClass.data.getKeys("tempmute"));
 	}
-	
+
 	public static List<String> getIPMuted() {
 		return new ArrayList<>(LoaderClass.data.getKeys("muteip"));
 	}
-	
+
 	public static List<String> getMuted() {
 		return new ArrayList<>(LoaderClass.data.getKeys("mute"));
 	}

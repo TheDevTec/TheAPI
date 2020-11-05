@@ -11,67 +11,76 @@ import org.bukkit.entity.Player;
 import me.DevTec.TheAPI.Utils.StringUtils;
 
 public class ThePlaceholderAPI {
-	private final static Pattern finder = Pattern.compile("\\%(.*?)\\%"), //pattern for placeholder
-			math = Pattern.compile("\\%math\\{((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*))\\}\\%"); //pattern for placeholder of math
+	private final static Pattern finder = Pattern.compile("\\%(.*?)\\%"), // pattern for placeholder
+			math = Pattern.compile("\\%math\\{((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*))\\}\\%"); // pattern for
+																								// placeholder of math
 	private final static List<ThePlaceholder> reg = new ArrayList<>();
-	
+
 	public static void register(ThePlaceholder e) {
-		if(isRegistered(e))return;
+		if (isRegistered(e))
+			return;
 		reg.add(e);
 	}
-	
+
 	public static void unregister(ThePlaceholder e) {
-		if(!isRegistered(e))return;
+		if (!isRegistered(e))
+			return;
 		reg.remove(e);
 	}
-	
+
 	public static boolean isRegistered(ThePlaceholder e) {
 		return reg.contains(e);
 	}
-	
+
 	public static List<ThePlaceholder> getPlaceholders() {
-		return new ArrayList<>(reg); //to avoid manipulation with list
+		return new ArrayList<>(reg); // to avoid manipulation with list
 	}
 
 	public static List<String> setPlaceholders(Player player, List<String> list) {
 		List<String> edited = new ArrayList<String>(list.size());
-		for(Iterator<String> a = list.iterator(); a.hasNext();)edited.add(setPlaceholders(player, a.next()));
+		for (Iterator<String> a = list.iterator(); a.hasNext();)
+			edited.add(setPlaceholders(player, a.next()));
 		return edited;
 	}
-	
+
 	public static Iterator<String> setPlaceholders(Player player, Iterator<String> list) {
 		List<String> edited = new ArrayList<String>();
-		while(list.hasNext())edited.add(setPlaceholders(player, list.next()));
+		while (list.hasNext())
+			edited.add(setPlaceholders(player, list.next()));
 		return edited.iterator();
 	}
-	
+
 	public static String setPlaceholders(Player player, String textOrigin) {
 		String text = textOrigin;
-		while(true) {
+		while (true) {
 			Matcher m = math.matcher(text);
 			int v = 0;
-			while(m.find()) {
+			while (m.find()) {
 				++v;
 				String w = m.group();
-				text=text.replace(w, StringUtils.calculate(w.substring(6,w.length()-2)).toString());
+				text = text.replace(w, StringUtils.calculate(w.substring(6, w.length() - 2)).toString());
 			}
-			if(v!=0)continue;
-			else break;
+			if (v != 0)
+				continue;
+			else
+				break;
 		}
 		Matcher found = finder.matcher(text);
-		while(found.find()) {
+		while (found.find()) {
 			String g = found.group();
-			String find = g.substring(1,g.length()-1);
+			String find = g.substring(1, g.length() - 1);
 			int v = 0;
-			for(Iterator<ThePlaceholder> r = reg.iterator(); r.hasNext();) {
+			for (Iterator<ThePlaceholder> r = reg.iterator(); r.hasNext();) {
 				++v;
 				ThePlaceholder get = r.next();
 				String toReplace = get.onPlaceholderRequest(player, find);
-				if(toReplace!=null)
-					text=text.replace("%"+find+"%", toReplace);
+				if (toReplace != null)
+					text = text.replace("%" + find + "%", toReplace);
 			}
-			if(v!=0)continue;
-			else break;
+			if (v != 0)
+				continue;
+			else
+				break;
 		}
 		return text;
 	}

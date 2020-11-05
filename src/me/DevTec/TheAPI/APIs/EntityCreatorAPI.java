@@ -29,7 +29,6 @@ import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
-@SuppressWarnings("deprecation")
 public class EntityCreatorAPI {
 	private EntityType t;
 
@@ -418,36 +417,36 @@ public class EntityCreatorAPI {
 				e.setMaxHealth(hp);
 				e.setHealth(hp);
 			}
-				if (e.getType().name().equals("ARMOR_STAND")) {
-					ArmorStand a = (ArmorStand) e;
-					a.setArms(arms);
-					a.setBasePlate(base);
-					if (body != null)
-						a.setBodyPose(body);
-					if (head != null)
-						a.setHeadPose(head);
-					if (helmet != null)
-						a.setHelmet(helmet);
-					if (chestplate != null)
-						a.setChestplate(chestplate);
-					if (leggings != null)
-						a.setLeggings(leggings);
-					if (boots != null)
-						a.setBoots(boots);
-					if (item != null)
-						a.setItemInHand(item);
-					if (l_arm != null)
-						a.setLeftArmPose(l_arm);
-					if (l_leg != null)
-						a.setLeftLegPose(l_leg);
-					a.setMarker(marker);
-					if (r_arm != null)
-						a.setRightArmPose(r_arm);
-					if (r_leg != null)
-						a.setRightLegPose(r_leg);
-					a.setSmall(small);
-					a.setVisible(visible_armor);
-				}
+			if (e.getType().name().equals("ARMOR_STAND")) {
+				ArmorStand a = (ArmorStand) e;
+				a.setArms(arms);
+				a.setBasePlate(base);
+				if (body != null)
+					a.setBodyPose(body);
+				if (head != null)
+					a.setHeadPose(head);
+				if (helmet != null)
+					a.setHelmet(helmet);
+				if (chestplate != null)
+					a.setChestplate(chestplate);
+				if (leggings != null)
+					a.setLeggings(leggings);
+				if (boots != null)
+					a.setBoots(boots);
+				if (item != null)
+					a.setItemInHand(item);
+				if (l_arm != null)
+					a.setLeftArmPose(l_arm);
+				if (l_leg != null)
+					a.setLeftLegPose(l_leg);
+				a.setMarker(marker);
+				if (r_arm != null)
+					a.setRightArmPose(r_arm);
+				if (r_leg != null)
+					a.setRightLegPose(r_leg);
+				a.setSmall(small);
+				a.setVisible(visible_armor);
+			}
 			if (e.getType() == EntityType.VILLAGER) {
 				Villager v = (Villager) e;
 				if (v_adult)

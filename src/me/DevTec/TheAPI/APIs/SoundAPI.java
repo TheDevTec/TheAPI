@@ -16,16 +16,16 @@ public class SoundAPI {
 	}
 
 	public static void playSound(Player player, String sound, float volume, float pitch) {
-		playSound(new Position(player.getLocation()),sound,volume,pitch);
+		playSound(new Position(player.getLocation()), sound, volume, pitch);
 	}
 
 	public static void playSound(Location where, String sound, float volume, float pitch) {
-		playSound(new Position(where), sound,volume,pitch);
+		playSound(new Position(where), sound, volume, pitch);
 	}
 
 	public static void playSound(Position where, String sound, float volume, float pitch) {
-		Validator.validate(where == null || where.getWorld() == null,"Location is null");
-		Validator.validate(sound == null || getByName(sound) == null,"Sound is null");
+		Validator.validate(where == null || where.getWorld() == null, "Location is null");
+		Validator.validate(sound == null || getByName(sound) == null, "Sound is null");
 		where.getWorld().playSound(where.toLocation(), getByName(sound), volume, pitch);
 	}
 
@@ -34,11 +34,11 @@ public class SoundAPI {
 	}
 
 	public static void playSound(Position where, Sound sound, float volume, float pitch) {
-		playSound(where, sound.name(),volume, pitch);
+		playSound(where, sound.name(), volume, pitch);
 	}
 
 	public static void playSound(Location where, Sound sound, float volume, float pitch) {
-		playSound(new Position(where), sound.name(),volume, pitch);
+		playSound(new Position(where), sound.name(), volume, pitch);
 	}
 
 	public static void playSound(Player player, String sound) {
@@ -88,8 +88,7 @@ public class SoundAPI {
 			if (s.name().toLowerCase().equals(sound.toLowerCase())) {
 				a = s.name();
 				break;
-			}
-			else if (s.name().toLowerCase().contains(sound.toLowerCase()))
+			} else if (s.name().toLowerCase().contains(sound.toLowerCase()))
 				c = s.name();
 		}
 		if (a == null && c != null)

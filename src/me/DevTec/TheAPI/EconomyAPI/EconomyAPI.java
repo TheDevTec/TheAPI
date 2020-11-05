@@ -12,20 +12,20 @@ public class EconomyAPI {
 	public static void setEconomy(Economy a) {
 		if (a != null) {
 			LoaderClass.plugin.economy = a;
-			LoaderClass.plugin.e= true;
-		} else{
+			LoaderClass.plugin.e = true;
+		} else {
 			LoaderClass.plugin.economy = null;
-			LoaderClass.plugin.e= false;
+			LoaderClass.plugin.e = false;
 		}
 	}
 
 	public static void setEconomy(me.DevTec.TheVault.Economy a) {
 		if (a != null) {
 			LoaderClass.plugin.tveeconomy = a;
-			LoaderClass.plugin.tve= true;
+			LoaderClass.plugin.tve = true;
 		} else {
 			LoaderClass.plugin.tveeconomy = null;
-			LoaderClass.plugin.tve= false;
+			LoaderClass.plugin.tve = false;
 		}
 	}
 
@@ -52,8 +52,10 @@ public class EconomyAPI {
 	}
 
 	/**
-	 * @segetEconomy()segetEconomy()Warning, this FakeEconomyAPI return Economy stored in config. Isn't
-	 *      connect to thgetEconomy()Vault plugin. Working if is EconomyAPI "disabled" too.
+	 * @segetEconomy()segetEconomy()Warning, this FakeEconomyAPI return Economy
+	 *                                       stored in config. Isn't connect to
+	 *                                       thgetEconomy()Vault plugin. Working if
+	 *                                       is EconomyAPI "disabled" too.
 	 * @return FakeEconomyAPI
 	 */
 	public static FakeEconomyAPI getFakeEconomyAPI(String economyName) {
@@ -61,8 +63,10 @@ public class EconomyAPI {
 	}
 
 	/**
-	 * @segetEconomy()segetEconomy()Warning, this FakeEconomyAPI return Economy stored in config. Isn't
-	 *      connect to thgetEconomy()Vault plugin. Working if is EconomyAPI "disabled" too.
+	 * @segetEconomy()segetEconomy()Warning, this FakeEconomyAPI return Economy
+	 *                                       stored in config. Isn't connect to
+	 *                                       thgetEconomy()Vault plugin. Working if
+	 *                                       is EconomyAPI "disabled" too.
 	 * @return FakeEconomyAPI
 	 */
 	@Deprecated
@@ -76,7 +80,6 @@ public class EconomyAPI {
 		return getTheBank() != null && LoaderClass.plugin.tbank;
 	}
 
-	@SuppressWarnings("deprecation")
 	public static boolean hasAccount(String player) {
 		if (getEconomy() != null && LoaderClass.plugin.e)
 			return getEconomy().hasAccount(player);
@@ -85,9 +88,8 @@ public class EconomyAPI {
 		return false;
 	}
 
-	@SuppressWarnings("deprecation")
 	public static boolean hasAccount(String player, String world) {
-		if (getEconomy()!= null && LoaderClass.plugin.e)
+		if (getEconomy() != null && LoaderClass.plugin.e)
 			return getEconomy().hasAccount(player, world);
 		if (getTheEconomy() != null && LoaderClass.plugin.tve)
 			return getTheEconomy().hasAccount(player, world);
@@ -95,7 +97,7 @@ public class EconomyAPI {
 	}
 
 	public static List<String> getBanks() {
-		if (getEconomy()!= null && LoaderClass.plugin.e && hasBankSupport())
+		if (getEconomy() != null && LoaderClass.plugin.e && hasBankSupport())
 			return getEconomy().getBanks();
 		if (getTheBank() != null && LoaderClass.plugin.tbank && hasBankSupport())
 			return getTheBank().getBanks();
@@ -103,11 +105,11 @@ public class EconomyAPI {
 	}
 
 	public static String getName() {
-		if (getEconomy()!= null && LoaderClass.plugin.e)
+		if (getEconomy() != null && LoaderClass.plugin.e)
 			return getEconomy().getName();
 		if (getTheEconomy() != null && LoaderClass.plugin.tve) {
 			if (getTheBank() != null && LoaderClass.plugin.tbank && hasBankSupport())
-				return getTheEconomy().name()+" with TheBank "+getTheBank().name();
+				return getTheEconomy().name() + " with TheBank " + getTheBank().name();
 			return getTheEconomy().name();
 		}
 		if (getTheBank() != null && LoaderClass.plugin.tbank && hasBankSupport())
@@ -116,54 +118,51 @@ public class EconomyAPI {
 	}
 
 	public static void bankDeposit(String bank, double money) {
-		if (getEconomy()!= null && LoaderClass.plugin.e&& hasBankSupport())
+		if (getEconomy() != null && LoaderClass.plugin.e && hasBankSupport())
 			getEconomy().bankDeposit(bank, money);
 		if (getTheBank() != null && LoaderClass.plugin.tbank && hasBankSupport())
 			getTheBank().deposit(bank, money);
 	}
 
 	public static void bankWithdraw(String bank, double money) {
-		if (getEconomy()!= null && LoaderClass.plugin.e&& hasBankSupport())
+		if (getEconomy() != null && LoaderClass.plugin.e && hasBankSupport())
 			getEconomy().bankWithdraw(bank, money);
 		if (getTheBank() != null && LoaderClass.plugin.tbank && hasBankSupport())
 			getTheBank().withdraw(bank, money);
 	}
 
 	public static boolean bankHas(String bank, double money) {
-		if (getEconomy()!= null && LoaderClass.plugin.e&& hasBankSupport())
+		if (getEconomy() != null && LoaderClass.plugin.e && hasBankSupport())
 			return bankBalance(bank) >= money;
 		if (getTheBank() != null && LoaderClass.plugin.tbank && hasBankSupport())
 			return getTheBank().has(bank, money);
 		return false;
 	}
 
-	@SuppressWarnings("deprecation")
 	public static void createBank(String bank, String owner) {
-		if (getEconomy()!= null && LoaderClass.plugin.e&& hasBankSupport())
+		if (getEconomy() != null && LoaderClass.plugin.e && hasBankSupport())
 			getEconomy().createBank(bank, owner);
 		if (getTheBank() != null && LoaderClass.plugin.tbank && hasBankSupport())
 			getTheBank().create(bank, owner);
 	}
 
 	public static void deleteBank(String bank) {
-		if (getEconomy()!= null && LoaderClass.plugin.e&& hasBankSupport())
+		if (getEconomy() != null && LoaderClass.plugin.e && hasBankSupport())
 			getEconomy().deleteBank(bank);
 		if (getTheBank() != null && LoaderClass.plugin.tbank && hasBankSupport())
 			getTheBank().delete(bank);
 	}
 
-	@SuppressWarnings("deprecation")
 	public static boolean isBankMember(String bank, String player) {
-		if (getEconomy()!= null && LoaderClass.plugin.e&& hasBankSupport())
+		if (getEconomy() != null && LoaderClass.plugin.e && hasBankSupport())
 			return getEconomy().isBankMember(bank, player).transactionSuccess();
 		if (getTheBank() != null && LoaderClass.plugin.tbank && hasBankSupport())
 			getTheBank().isMember(bank, player);
 		return false;
 	}
 
-	@SuppressWarnings("deprecation")
 	public static boolean isBankOwner(String bank, String player) {
-		if (getEconomy()!= null && LoaderClass.plugin.e&& hasBankSupport())
+		if (getEconomy() != null && LoaderClass.plugin.e && hasBankSupport())
 			return getEconomy().isBankOwner(bank, player).transactionSuccess();
 		if (getTheBank() != null && LoaderClass.plugin.tbank && hasBankSupport())
 			getTheBank().getOwner(bank).equals(player);
@@ -171,84 +170,75 @@ public class EconomyAPI {
 	}
 
 	public static double bankBalance(String bank) {
-		if (getEconomy()!= null && LoaderClass.plugin.e&& hasBankSupport())
+		if (getEconomy() != null && LoaderClass.plugin.e && hasBankSupport())
 			return getEconomy().bankBalance(bank).balance;
 		if (getTheBank() != null && LoaderClass.plugin.tbank && hasBankSupport())
 			getTheBank().balance(bank);
 		return 0.0;
 	}
 
-	@SuppressWarnings("deprecation")
 	public static void depositPlayer(String player, double money) {
-		if (getEconomy()!= null && LoaderClass.plugin.e)
+		if (getEconomy() != null && LoaderClass.plugin.e)
 			getEconomy().depositPlayer(player, money);
 		if (getTheEconomy() != null && LoaderClass.plugin.tve)
 			getTheEconomy().deposit(player, money);
 	}
 
-	@SuppressWarnings("deprecation")
 	public static void depositPlayer(String player, String world, double money) {
-		if (getEconomy()!= null && LoaderClass.plugin.e)
+		if (getEconomy() != null && LoaderClass.plugin.e)
 			getEconomy().depositPlayer(player, world, money);
 		if (getTheEconomy() != null && LoaderClass.plugin.tve)
 			getTheEconomy().deposit(player, money, world);
 	}
 
-	@SuppressWarnings("deprecation")
 	public static void withdrawPlayer(String player, double money) {
-		if (getEconomy()!= null && LoaderClass.plugin.e)
+		if (getEconomy() != null && LoaderClass.plugin.e)
 			getEconomy().withdrawPlayer(player, money);
 		if (getTheEconomy() != null && LoaderClass.plugin.tve)
 			getTheEconomy().withdraw(player, money);
 	}
 
-	@SuppressWarnings("deprecation")
 	public static void withdrawPlayer(String player, String world, double money) {
-		if (getEconomy()!= null && LoaderClass.plugin.e)
+		if (getEconomy() != null && LoaderClass.plugin.e)
 			getEconomy().withdrawPlayer(player, world, money);
 		if (getTheEconomy() != null && LoaderClass.plugin.tve)
 			getTheEconomy().withdraw(player, money, world);
 	}
 
-	@SuppressWarnings("deprecation")
 	public static double getBalance(String player) {
-		if (getEconomy()!= null && LoaderClass.plugin.e)
+		if (getEconomy() != null && LoaderClass.plugin.e)
 			return getEconomy().getBalance(player);
 		if (getTheEconomy() != null && LoaderClass.plugin.tve)
 			return getTheEconomy().balance(player);
 		return 0.0;
 	}
 
-	@SuppressWarnings("deprecation")
 	public static double getBalance(String player, String world) {
-		if (getEconomy()!= null && LoaderClass.plugin.e)
+		if (getEconomy() != null && LoaderClass.plugin.e)
 			return getEconomy().getBalance(player, world);
 		if (getTheEconomy() != null && LoaderClass.plugin.tve)
 			return getTheEconomy().balance(player, world);
 		return 0.0;
 	}
 
-	@SuppressWarnings("deprecation")
 	public static boolean has(String player, double money) {
-		if (getEconomy()!= null && LoaderClass.plugin.e)
+		if (getEconomy() != null && LoaderClass.plugin.e)
 			return getEconomy().has(player, money);
 		if (getTheEconomy() != null && LoaderClass.plugin.tve)
 			return getTheEconomy().has(player, money);
 		return false;
 	}
 
-	@SuppressWarnings("deprecation")
 	public static boolean has(String player, String world, double money) {
-		if (getEconomy()!= null && LoaderClass.plugin.e)
+		if (getEconomy() != null && LoaderClass.plugin.e)
 			return getEconomy().has(player, world, money);
 		if (getTheEconomy() != null && LoaderClass.plugin.tve)
 			return getTheEconomy().has(player, money, world);
 		return false;
 	}
 
-	@SuppressWarnings("deprecation")
 	public static boolean createAccount(String player) {
-		if (getEconomy()!= null && LoaderClass.plugin.e)
+		if (getEconomy() != null && LoaderClass.plugin.e)
 			return getEconomy().createPlayerAccount(player);
 		if (getTheEconomy() != null && LoaderClass.plugin.tve)
 			return getTheEconomy().createAccount(player);
@@ -256,7 +246,7 @@ public class EconomyAPI {
 	}
 
 	public static String format(double money) {
-		if (getEconomy()!= null && LoaderClass.plugin.e)
+		if (getEconomy() != null && LoaderClass.plugin.e)
 			return getEconomy().format(money);
 		if (getTheEconomy() != null && LoaderClass.plugin.tve)
 			return getTheEconomy().format(money);

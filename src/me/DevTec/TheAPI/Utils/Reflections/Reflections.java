@@ -60,6 +60,7 @@ public class Reflections {
 			}
 		}
 	}
+
 	public static void setField(Object main, Field field, Object value) {
 		try {
 			field.set(main, value);

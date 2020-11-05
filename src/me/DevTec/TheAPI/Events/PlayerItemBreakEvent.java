@@ -11,6 +11,7 @@ public class PlayerItemBreakEvent extends Event implements Cancellable {
 	private Player s;
 	private ItemStack i;
 	private boolean cancel;
+
 	public PlayerItemBreakEvent(Player p, ItemStack item) {
 		s = p;
 		i = item;

@@ -27,74 +27,78 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public static class DataHolder {
 		private Object o;
 		private List<String> lines = new ArrayList<>(0);
+
 		public DataHolder() {
 		}
-		
+
 		public DataHolder(Object object) {
-			o=object;
+			o = object;
 		}
-		
+
 		public DataHolder(Object object, List<String> unusedLines) {
 			this(object);
-			lines=unusedLines;
+			lines = unusedLines;
 		}
-		
+
 		public Object getValue() {
 			return o;
 		}
-		
+
 		public void setValue(Object o) {
-			this.o=o;
+			this.o = o;
 		}
-		
+
 		public List<String> getLines() {
 			return lines;
 		}
 	}
-	
+
 	private DataLoader loader;
 	private List<String> aw = new ArrayList<>();
 	private File a;
+
 	public Data() {
 		loader = new EmptyLoader();
 	}
-	
+
 	public Data(String filePath) {
 		this(new File(filePath.startsWith("/") ? filePath.substring(1) : filePath), true);
 	}
-	
+
 	public Data(String filePath, boolean load) {
 		this(new File(filePath.startsWith("/") ? filePath.substring(1) : filePath), load);
 	}
 
 	public Data(File f) {
-		this(f,true);
+		this(f, true);
 	}
-	
+
 	public Data(File f, boolean load) {
-		a=f;
-		if(load)
-		reload(a);
-		else loader = new EmptyLoader();
+		a = f;
+		if (load)
+			reload(a);
+		else
+			loader = new EmptyLoader();
 	}
-	
+
 	public boolean exists(String path) {
 		int a = 0;
 		for (String k : loader.get().keySet()) {
 			if (k.startsWith(path)) {
-				a=1;
+				a = 1;
 				break;
-		}}
-		return a==1;
+			}
+		}
+		return a == 1;
 	}
-	
+
 	public void setFile(File f) {
-		a=f;
+		a = f;
 	}
-	
+
 	private DataHolder getOrCreateData(String key) {
 		DataHolder h = loader.get().getOrDefault(key, null);
-		if (h==null) {
+		if (h == null) {
 			h = new DataHolder(null);
 			if (!aw.contains(key.split("\\.")[0]))
 				aw.add(key.split("\\.")[0]);
@@ -102,100 +106,109 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		}
 		return h;
 	}
-	
+
 	public void set(String key, Object value) {
-		if (key==null) return;
-		if (value==null) {
-			if (key.split("\\.").length<=1)
+		if (key == null)
+			return;
+		if (value == null) {
+			if (key.split("\\.").length <= 1)
 				aw.remove(key.split("\\.")[0]);
 			loader.remove(key);
 			return;
 		}
-		
-		getOrCreateData(key).o=value;
+
+		getOrCreateData(key).o = value;
 	}
-	
+
 	public void remove(String key) {
-		if (key==null) return;
-		if (key.split("\\.").length<=1)
+		if (key == null)
+			return;
+		if (key.split("\\.").length <= 1)
 			aw.remove(key.split("\\.")[0]);
 		loader.remove(key);
 		for (String keys : getKeys(key))
-			loader.remove(key+"."+keys);
+			loader.remove(key + "." + keys);
 	}
 
 	public List<String> getLines(String key) {
-		if (key==null)return null;
+		if (key == null)
+			return null;
 		return getOrCreateData(key).lines;
 	}
-	
+
 	public void setLines(String key, List<String> value) {
-		if (value==null||key==null)return;
-		getOrCreateData(key).lines=value;
+		if (value == null || key == null)
+			return;
+		getOrCreateData(key).lines = value;
 	}
-	
+
 	public void addLines(String key, List<String> value) {
-		if (value==null||key==null)return;
-		DataHolder h = getOrCreateData(key);
-		if (h.lines==null)h.lines=value;
-		else
-		h.lines.addAll(value);
-	}
-	
-	public void addLine(String key, String value) {
-		if (value==null||key==null)return;
-		DataHolder h = getOrCreateData(key);
-		if (h.lines==null)h.lines=new ArrayList<>(3);
-		h.lines.add(value);
-	}
-	
-	public void removeLine(String key, String value) {
-		if (value==null||key==null)return;
-		DataHolder h = getOrCreateData(key);
-		if (h.lines!=null)
-		h.lines.remove(value);
-	}
-	
-	public void removeLine(String key, int line) {
-		if (line<0||key==null)
+		if (value == null || key == null)
 			return;
 		DataHolder h = getOrCreateData(key);
-		if (h.lines!=null)
-		h.lines.remove(line);
+		if (h.lines == null)
+			h.lines = value;
+		else
+			h.lines.addAll(value);
 	}
-	
+
+	public void addLine(String key, String value) {
+		if (value == null || key == null)
+			return;
+		DataHolder h = getOrCreateData(key);
+		if (h.lines == null)
+			h.lines = new ArrayList<>(3);
+		h.lines.add(value);
+	}
+
+	public void removeLine(String key, String value) {
+		if (value == null || key == null)
+			return;
+		DataHolder h = getOrCreateData(key);
+		if (h.lines != null)
+			h.lines.remove(value);
+	}
+
+	public void removeLine(String key, int line) {
+		if (line < 0 || key == null)
+			return;
+		DataHolder h = getOrCreateData(key);
+		if (h.lines != null)
+			h.lines.remove(line);
+	}
+
 	public File getFile() {
 		return a;
 	}
-	
+
 	public void setHeader(List<String> lines) {
 		loader.getHeader().clear();
 		loader.getHeader().addAll(lines);
 	}
-	
+
 	public void setFooter(List<String> lines) {
 		loader.getFooter().clear();
 		loader.getFooter().addAll(lines);
 	}
-	
+
 	public List<String> getHeader() {
 		return loader.getHeader();
 	}
-	
+
 	public List<String> getFooter() {
 		return loader.getFooter();
 	}
 
 	public void reload(String input) {
 		aw.clear();
-		if(loader!=null)
-		loader.reset();
-		loader = DataLoader.findLoaderFor(input); //get & load
+		if (loader != null)
+			loader.reset();
+		loader = DataLoader.findLoaderFor(input); // get & load
 		for (String k : loader.getKeys())
 			if (!aw.contains(k.split("\\.")[0]))
-			aw.add(k.split("\\.")[0]);
+				aw.add(k.split("\\.")[0]);
 	}
-	
+
 	public void reload(File f) {
 		if (!f.exists()) {
 			f.getParentFile().mkdirs();
@@ -205,12 +218,12 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			}
 		}
 		aw.clear();
-		if(loader!=null)
-		loader.reset();
-		loader = DataLoader.findLoaderFor(f); //get & load
+		if (loader != null)
+			loader.reset();
+		loader = DataLoader.findLoaderFor(f); // get & load
 		for (String k : loader.getKeys())
 			if (!aw.contains(k.split("\\.")[0]))
-			aw.add(k.split("\\.")[0]);
+				aw.add(k.split("\\.")[0]);
 	}
 
 	public Object get(String key) {
@@ -220,7 +233,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			return null;
 		}
 	}
-	
+
 	public <E> E getAs(String key, Class<? extends E> clazz) {
 		try {
 			return clazz.cast(loader.get().get(key).o);
@@ -228,11 +241,11 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			throw e;
 		}
 	}
-	
+
 	public String getString(String key) {
-		return get(key)!=null?String.valueOf(get(key)):null;
+		return get(key) != null ? String.valueOf(get(key)) : null;
 	}
-	
+
 	public int getInt(String key) {
 		try {
 			return getAs(key, int.class);
@@ -244,7 +257,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			}
 		}
 	}
-	
+
 	public double getDouble(String key) {
 		try {
 			return getAs(key, double.class);
@@ -256,7 +269,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			}
 		}
 	}
-	
+
 	public long getLong(String key) {
 		try {
 			return getAs(key, long.class);
@@ -268,7 +281,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			}
 		}
 	}
-	
+
 	public float getFloat(String key) {
 		try {
 			return getAs(key, float.class);
@@ -280,7 +293,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			}
 		}
 	}
-	
+
 	public byte getByte(String key) {
 		try {
 			return getAs(key, byte.class);
@@ -304,7 +317,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			}
 		}
 	}
-	
+
 	public short getShort(String key) {
 		try {
 			return getAs(key, short.class);
@@ -316,157 +329,165 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			}
 		}
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<Object> getList(String key) {
-		return get(key)!=null && get(key) instanceof Collection ? (List) get(key) :  new ArrayList<>(3);
+		return get(key) != null && get(key) instanceof Collection ? (List) get(key) : new ArrayList<>(3);
 	}
-	
+
 	public <E> List<E> getListAs(String key, Class<? extends E> clazz) {
-		//Cast everything to <E>
+		// Cast everything to <E>
 		List<Object> items = getList(key);
 		List<E> list = new ArrayList<>(items.size());
-		for(Object o : items)
+		for (Object o : items)
 			try {
-				if(o!=null)
-				list.add(o==null?null:clazz.cast(o));
-				else list.add(null);
-			}catch(Exception er) {
+				if (o != null)
+					list.add(o == null ? null : clazz.cast(o));
+				else
+					list.add(null);
+			} catch (Exception er) {
 			}
 		return list;
 	}
-	
+
 	public List<String> getStringList(String key) {
-		//Cast everything to String
+		// Cast everything to String
 		List<Object> items = getList(key);
 		List<String> list = new ArrayList<>(items.size());
-		for(Object o : items)
-			if(o!=null)
-			list.add(""+o);
-			else list.add(null);
+		for (Object o : items)
+			if (o != null)
+				list.add("" + o);
+			else
+				list.add(null);
 		return list;
 	}
-	
+
 	public List<Boolean> getBooleanList(String key) {
-		//Cast everything to Boolean
+		// Cast everything to Boolean
 		List<Object> items = getList(key);
 		List<Boolean> list = new ArrayList<>(items.size());
-		for(Object o : items)
-			list.add(o==null?false:StringUtils.getBoolean(o.toString()));
+		for (Object o : items)
+			list.add(o == null ? false : StringUtils.getBoolean(o.toString()));
 		return list;
 	}
-	
+
 	public List<Integer> getIntegerList(String key) {
-		//Cast everything to Integer
+		// Cast everything to Integer
 		List<Object> items = getList(key);
 		List<Integer> list = new ArrayList<>(items.size());
-		for(Object o : items)
-			list.add(o==null?0:StringUtils.getInt(o.toString()));
+		for (Object o : items)
+			list.add(o == null ? 0 : StringUtils.getInt(o.toString()));
 		return list;
 	}
-	
+
 	public List<Double> getDoubleList(String key) {
-		//Cast everything to Double
+		// Cast everything to Double
 		List<Object> items = getList(key);
 		List<Double> list = new ArrayList<>(items.size());
-		for(Object o : items)
-			list.add(o==null?0.0:StringUtils.getDouble(o.toString()));
+		for (Object o : items)
+			list.add(o == null ? 0.0 : StringUtils.getDouble(o.toString()));
 		return list;
 	}
-	
+
 	public List<Short> getShortList(String key) {
-		//Cast everything to Short
+		// Cast everything to Short
 		List<Object> items = getList(key);
 		List<Short> list = new ArrayList<>(items.size());
-		for(Object o : items)
-			list.add(o==null?0:StringUtils.getShort(o.toString()));
+		for (Object o : items)
+			list.add(o == null ? 0 : StringUtils.getShort(o.toString()));
 		return list;
 	}
-	
+
 	public List<Byte> getByteList(String key) {
-		//Cast everything to Byte
+		// Cast everything to Byte
 		List<Object> items = getList(key);
 		List<Byte> list = new ArrayList<>(items.size());
-		for(Object o : items)
-			list.add(o==null?0:StringUtils.getByte(o.toString()));
+		for (Object o : items)
+			list.add(o == null ? 0 : StringUtils.getByte(o.toString()));
 		return list;
 	}
-	
+
 	public List<Float> getFloatList(String key) {
-		//Cast everything to Float
+		// Cast everything to Float
 		List<Object> items = getList(key);
 		List<Float> list = new ArrayList<>(items.size());
-		for(Object o : items)
-			list.add(o==null?0:StringUtils.getFloat(o.toString()));
+		for (Object o : items)
+			list.add(o == null ? 0 : StringUtils.getFloat(o.toString()));
 		return list;
 	}
-	
+
 	public List<Long> getLongList(String key) {
-		//Cast everything to Byte
+		// Cast everything to Byte
 		List<Object> items = getList(key);
 		List<Long> list = new ArrayList<>(items.size());
-		for(Object o : items)
-			list.add(o==null?0:StringUtils.getLong(o.toString()));
+		for (Object o : items)
+			list.add(o == null ? 0 : StringUtils.getLong(o.toString()));
 		return list;
 	}
-	
-	public List<Map<?,?>> getMapList(String key) {
+
+	public List<Map<?, ?>> getMapList(String key) {
 		return getListAs(key, Map.class);
 	}
-	
+
 	public void save(DataType type) {
 		synchronized (loader) {
-		try {
-			if(a==null)return;
-			OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), Charsets.UTF_8);
-		    if (type==DataType.DATA||type==DataType.BYTE) {
-				try {
-					ByteArrayOutputStream bos = new ByteArrayOutputStream(loader.getKeys().size());
-					GZIPOutputStream tos = new GZIPOutputStream(bos);
-					BufferedOutputStream buf = new BufferedOutputStream(tos);
-					DataOutputStream ous = new DataOutputStream(buf);
-					for (Entry<String, DataHolder> key: loader.get().entrySet())
-						try {
-							Object o = key.getValue();
-							ous.writeUTF(key.getKey());
-							ous.writeUTF(""+me.DevTec.TheAPI.Utils.Json.Writer.object(o, true, true));
-						} catch (Exception er) {}
-					ous.flush();
-					bos.flush();
-					buf.flush();
-					tos.finish();
-					w.write(type==DataType.DATA?bos.toString():Base64.getEncoder().encodeToString(bos.toByteArray()));
-					w.close();
-				} catch (Exception e) {
-					w.write("");
-					w.close();
+			try {
+				if (a == null)
+					return;
+				OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), Charsets.UTF_8);
+				if (type == DataType.DATA || type == DataType.BYTE) {
+					try {
+						ByteArrayOutputStream bos = new ByteArrayOutputStream(loader.getKeys().size());
+						GZIPOutputStream tos = new GZIPOutputStream(bos);
+						BufferedOutputStream buf = new BufferedOutputStream(tos);
+						DataOutputStream ous = new DataOutputStream(buf);
+						for (Entry<String, DataHolder> key : loader.get().entrySet())
+							try {
+								Object o = key.getValue();
+								ous.writeUTF(key.getKey());
+								ous.writeUTF("" + me.DevTec.TheAPI.Utils.Json.Writer.object(o, true, true));
+							} catch (Exception er) {
+							}
+						ous.flush();
+						bos.flush();
+						buf.flush();
+						tos.finish();
+						w.write(type == DataType.DATA ? bos.toString()
+								: Base64.getEncoder().encodeToString(bos.toByteArray()));
+						w.close();
+					} catch (Exception e) {
+						w.write("");
+						w.close();
+					}
+					return;
 				}
-				return;
-			}
-			if (type==DataType.JSON) {
-				Maker maker = new Maker();
+				if (type == DataType.JSON) {
+					Maker maker = new Maker();
+					for (String key : aw)
+						addKeys(maker, key);
+					w.write(maker.toString());
+					w.close();
+					return;
+				}
+				try {
+					for (String h : loader.getHeader())
+						w.write(h + System.lineSeparator());
+				} catch (Exception er) {
+				}
 				for (String key : aw)
-					addKeys(maker, key);
-				w.write(maker.toString());
+					preparePath(key, key + ":", 0, w);
+				try {
+					for (String h : loader.getFooter())
+						w.write(h + System.lineSeparator());
+				} catch (Exception er) {
+				}
 				w.close();
-				return;
+			} catch (Exception er) {
+				Validator.send("Saving Data to File", er);
 			}
-			try {
-				for (String h : loader.getHeader())
-					w.write(h+System.lineSeparator());
-				}catch(Exception er) {}
-			for (String key : aw)
-				preparePath(key, key+":",0, w);
-			try {
-				for (String h : loader.getFooter())
-					w.write(h+System.lineSeparator());
-				}catch(Exception er) {}
-		    w.close();
-		} catch (Exception er) {
-			Validator.send("Saving Data to File", er);
 		}
-	}}
-	
+	}
+
 	public void save() {
 		save(DataType.YAML);
 	}
@@ -474,23 +495,24 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public List<String> getKeys() {
 		return new ArrayList<>(aw);
 	}
-	
+
 	public List<String> getKeys(boolean subkeys) {
-		if (subkeys)return new ArrayList<>(loader.getKeys());
+		if (subkeys)
+			return new ArrayList<>(loader.getKeys());
 		return new ArrayList<>(aw);
 	}
 
 	public List<String> getKeys(String key) {
 		return getKeys(key, false);
 	}
-	
+
 	public boolean isKey(String key) {
 		boolean is = false;
 		for (String k : loader.getKeys()) {
 			if (k.startsWith(key)) {
 				String r = k.replaceFirst(key, "");
-				if (r.startsWith(".")||r.trim().isEmpty()) {
-					is=true;
+				if (r.startsWith(".") || r.trim().isEmpty()) {
+					is = true;
 					break;
 				}
 			}
@@ -498,16 +520,19 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 		return is;
 	}
-	
+
 	public List<String> getKeys(String key, boolean subkeys) {
 		List<String> a = new ArrayList<>();
 		for (String d : loader.getKeys())
 			if (d.startsWith(key)) {
 				String c = d.replaceFirst(key, "");
-				if(!c.startsWith("."))continue;
+				if (!c.startsWith("."))
+					continue;
 				c = subkeys ? c : c.replaceFirst("\\.", "").split("\\.")[0];
-				if (c.trim().isEmpty())continue;
-				if (!a.contains(c))a.add(c);
+				if (c.trim().isEmpty())
+					continue;
+				if (!a.contains(c))
+					a.add(c);
 			}
 		return a;
 	}
@@ -515,115 +540,129 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public String toString() {
 		return toString(DataType.DATA);
 	}
-	
+
 	private void addKeys(Maker main, String key) {
 		Object o = get(key);
-		if (o!=null)
+		if (o != null)
 			main.add(main.create().put(key, me.DevTec.TheAPI.Utils.Json.Writer.object(o, true, true)));
 		for (String keyer : getKeys(key))
-			addKeys(main, key+"."+keyer);
+			addKeys(main, key + "." + keyer);
 	}
-	
+
 	private void preparePath(String path, String pathName, int spaces, java.io.Writer b) {
 		synchronized (loader) {
 			try {
-			DataHolder aw = loader.get().get(path);
-			Object o = aw!=null?aw.o:null;
-			String space = cs(spaces,1);
-			pathName=space+pathName;
-			if(aw!=null)
-			for (String s : aw.getLines())
-				b.write(space+s+System.lineSeparator());
-			if (o==null) {
-				b.write(pathName+System.lineSeparator());
-			} else {
-				if (o instanceof Collection || o instanceof Object[]) {
-					b.write(pathName+System.lineSeparator());
-					String splitted = space+"- ";
-					if(o instanceof Collection) {
-					for (Object a : (Collection<?>)o)
-						b.write(splitted+addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.object(a, true, true))+System.lineSeparator());
-					}else {
-						for (Object a : (Object[])o)
-							b.write(splitted+addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.object(a, true, true))+System.lineSeparator());
-					}
-				} else
-					b.write(pathName+" "+addQuotes(o instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.object(o, true, true))+System.lineSeparator());
-			}
-			for (String key : getKeys(path, false))
-				preparePath(path+"."+key, key+":", spaces+1, b);
+				DataHolder aw = loader.get().get(path);
+				Object o = aw != null ? aw.o : null;
+				String space = cs(spaces, 1);
+				pathName = space + pathName;
+				if (aw != null)
+					for (String s : aw.getLines())
+						b.write(space + s + System.lineSeparator());
+				if (o == null) {
+					b.write(pathName + System.lineSeparator());
+				} else {
+					if (o instanceof Collection || o instanceof Object[]) {
+						b.write(pathName + System.lineSeparator());
+						String splitted = space + "- ";
+						if (o instanceof Collection) {
+							for (Object a : (Collection<?>) o)
+								b.write(splitted
+										+ addQuotes(a instanceof String,
+												me.DevTec.TheAPI.Utils.Json.Writer.object(a, true, true))
+										+ System.lineSeparator());
+						} else {
+							for (Object a : (Object[]) o)
+								b.write(splitted
+										+ addQuotes(a instanceof String,
+												me.DevTec.TheAPI.Utils.Json.Writer.object(a, true, true))
+										+ System.lineSeparator());
+						}
+					} else
+						b.write(pathName + " "
+								+ addQuotes(o instanceof String,
+										me.DevTec.TheAPI.Utils.Json.Writer.object(o, true, true))
+								+ System.lineSeparator());
+				}
+				for (String key : getKeys(path, false))
+					preparePath(path + "." + key, key + ":", spaces + 1, b);
 			} catch (Exception er) {
 				Validator.send("Saving Data to YAML", er);
 			}
-	}}
-	
+		}
+	}
+
 	public String toString(DataType type) {
 		synchronized (loader) {
-		if (type == DataType.DATA || type == DataType.BYTE) {
-			try {
-				ByteArrayOutputStream bos = new ByteArrayOutputStream(loader.getKeys().size());
-				GZIPOutputStream tos = new GZIPOutputStream(bos);
-				BufferedOutputStream buf = new BufferedOutputStream(tos);
-				DataOutputStream ous = new DataOutputStream(buf);
-				for (Entry<String, DataHolder> key: loader.get().entrySet())
-					try {
-						String o = ""+me.DevTec.TheAPI.Utils.Json.Writer.object(key.getValue().o, true, true);
-						ous.writeUTF(key.getKey());
-						ous.writeUTF(o);
-					} catch (Exception er) {}
-				ous.flush();
-				bos.flush();
-				buf.flush();
-				tos.finish();
-				return type == DataType.DATA ? bos.toString() : Base64.getEncoder().encodeToString(bos.toByteArray());
-			} catch (Exception e) {}
-			return "";
-		}
-		if (type == DataType.JSON) {
-			Maker main = new Maker();
-			for (String key : aw)
-				addKeys(main, key);
-			return main.toString();
-		}
+			if (type == DataType.DATA || type == DataType.BYTE) {
+				try {
+					ByteArrayOutputStream bos = new ByteArrayOutputStream(loader.getKeys().size());
+					GZIPOutputStream tos = new GZIPOutputStream(bos);
+					BufferedOutputStream buf = new BufferedOutputStream(tos);
+					DataOutputStream ous = new DataOutputStream(buf);
+					for (Entry<String, DataHolder> key : loader.get().entrySet())
+						try {
+							String o = "" + me.DevTec.TheAPI.Utils.Json.Writer.object(key.getValue().o, true, true);
+							ous.writeUTF(key.getKey());
+							ous.writeUTF(o);
+						} catch (Exception er) {
+						}
+					ous.flush();
+					bos.flush();
+					buf.flush();
+					tos.finish();
+					return type == DataType.DATA ? bos.toString()
+							: Base64.getEncoder().encodeToString(bos.toByteArray());
+				} catch (Exception e) {
+				}
+				return "";
+			}
+			if (type == DataType.JSON) {
+				Maker main = new Maker();
+				for (String key : aw)
+					addKeys(main, key);
+				return main.toString();
+			}
 
-		StringWriter d = new StringWriter();
-		try {
-		for (String h : loader.getHeader())
-			d.write(h+System.lineSeparator());
-		}catch(Exception er) {}
-		for (String key : aw)
-			preparePath(key, key+":",0, d);
-		try {
-		for (String h : loader.getFooter())
-			d.write(h+System.lineSeparator());
-		}catch(Exception er) {}
-		return d.toString();
-	}}
-	
+			StringWriter d = new StringWriter();
+			try {
+				for (String h : loader.getHeader())
+					d.write(h + System.lineSeparator());
+			} catch (Exception er) {
+			}
+			for (String key : aw)
+				preparePath(key, key + ":", 0, d);
+			try {
+				for (String h : loader.getFooter())
+					d.write(h + System.lineSeparator());
+			} catch (Exception er) {
+			}
+			return d.toString();
+		}
+	}
+
 	/**
-	 *	Wraps string in double quotes, unless the string is already in double
-	 *	or single quotes. 
+	 * Wraps string in double quotes, unless the string is already in double or
+	 * single quotes.
 	 *
-	 *	New-line characters are removed from the returned string.
+	 * New-line characters are removed from the returned string.
 	 *
-	 *	Example input -> output:
-	 *	 : 5 -> "5"
-	 *	 : '5' -> '5'
-	 *	 : "5" -> "5"
-	 *   : 5" -> "5""
+	 * Example input -> output: : 5 -> "5" : '5' -> '5' : "5" -> "5" : 5" -> "5""
 	 */
 	private String addQuotes(boolean raw, String text) {
-		if (text == null) return null;
-		boolean quotedString = (text.startsWith("'") && text.endsWith("'")) || (text.startsWith("\"") && text.endsWith("\""));
+		if (text == null)
+			return null;
+		boolean quotedString = (text.startsWith("'") && text.endsWith("'"))
+				|| (text.startsWith("\"") && text.endsWith("\""));
 		if (raw && !quotedString) {
 			return ("\"" + text + "\"").replace(System.lineSeparator(), "");
 		}
 		return text.replace(System.lineSeparator(), "");
 	}
-	
+
 	private static String cs(int s, int doubleSpace) {
 		StringWriter i = new StringWriter();
-		String space = doubleSpace==1?"  ":" ";
+		String space = doubleSpace == 1 ? "  " : " ";
 		for (int c = 0; c < s; ++c)
 			i.write(space);
 		return i.toString();
@@ -631,7 +670,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	@Override
 	public String getDataName() {
-		return "Data("+(a!=null?"'"+a.getName()+"'":"")+")";
+		return "Data(" + (a != null ? "'" + a.getName() + "'" : "") + ")";
 	}
 
 	public void clear() {
@@ -644,12 +683,12 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	public void merge(Data f, boolean addHeader, boolean addFooter) {
 		loader.get().putAll(f.loader.get());
-		for(String sw : f.aw)
-			if(!aw.contains(sw))
+		for (String sw : f.aw)
+			if (!aw.contains(sw))
 				aw.add(sw);
-		if(addHeader)
+		if (addHeader)
 			loader.getHeader().addAll(f.loader.getHeader());
-		if(addFooter)
+		if (addFooter)
 			loader.getFooter().addAll(f.loader.getFooter());
 	}
 }

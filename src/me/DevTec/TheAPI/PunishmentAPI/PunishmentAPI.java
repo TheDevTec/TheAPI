@@ -12,18 +12,21 @@ import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class PunishmentAPI {
 	private static final BanList banlist = new BanList();
-	private static final Pattern ipFinder = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
-	
+	private static final Pattern ipFinder = Pattern
+			.compile("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+
 	public static boolean isIP(String text) {
-		if(text==null)return false;
+		if (text == null)
+			return false;
 		return ipFinder.matcher(text.replaceFirst("/", "")).find();
 	}
-	
+
 	public static String getIP(String player) {
-		if(player==null)return null;
+		if (player == null)
+			return null;
 		if (isIP(player))
-			player=getPlayersOnIP(player).get(0);
-		return TheAPI.getUser(player).exist("ip")?TheAPI.getUser(player).getString("ip").replace("_", "."):null;
+			player = getPlayersOnIP(player).get(0);
+		return TheAPI.getUser(player).exist("ip") ? TheAPI.getUser(player).getString("ip").replace("_", ".") : null;
 	}
 
 	public static List<String> getPlayersOnIP(String ip) {
@@ -82,7 +85,6 @@ public class PunishmentAPI {
 		LoaderClass.data.save();
 	}
 
-
 	public static void kick(String playerOrIP, String reason) {
 		if (isIP(playerOrIP)) {
 			for (String s : getPlayersOnIP(playerOrIP))
@@ -93,11 +95,9 @@ public class PunishmentAPI {
 			TheAPI.getPlayer(playerOrIP).kickPlayer(TheAPI.colorize(reason.replace("\\n", "\n")));
 	}
 
-
 	public static void kickIP(String playerOrIP, String reason) {
 		kick(playerOrIP, reason);
 	}
-
 
 	public static void warn(String player, String reason) {
 		if (isIP(player)) {
@@ -109,11 +109,9 @@ public class PunishmentAPI {
 			TheAPI.msg(reason, TheAPI.getPlayer(player));
 	}
 
-
 	public static void warnIP(String playerOrIP, String reason) {
 		warn(playerOrIP, reason);
 	}
-
 
 	public static void jail(String playerOrIP, String reason) {
 		if (isIP(playerOrIP)) {
@@ -124,13 +122,11 @@ public class PunishmentAPI {
 		jail(playerOrIP, reason, TheAPI.getRandomFromList(getjails()).toString());
 	}
 
-
 	public static void jailIP(String playerOrIP, String reason) {
 		if (!isIP(playerOrIP))
-			playerOrIP=getIP(playerOrIP);
+			playerOrIP = getIP(playerOrIP);
 		jailIP(playerOrIP, reason, TheAPI.getRandomFromList(getjails()).toString());
 	}
-
 
 	public static void jailIP(String playerOrIP, String reason, String jail) {
 		if (!isIP(playerOrIP))
@@ -139,14 +135,13 @@ public class PunishmentAPI {
 		LoaderClass.data.set("jailip." + playerOrIP.replace(".", "_") + ".reason", reason);
 		LoaderClass.data.set("jailip." + playerOrIP.replace(".", "_") + ".start", System.currentTimeMillis() / 1000);
 		LoaderClass.data.save();
-		for(String player : getPlayersOnIP(playerOrIP))
-		if (TheAPI.getPlayer(player) != null) {
-			TheAPI.getPlayer(player)
-					.teleport(StringUtils.getLocationFromString(LoaderClass.data.getString("jails." + jail)));
-			TheAPI.msg(reason, TheAPI.getPlayer(player));
-		}
+		for (String player : getPlayersOnIP(playerOrIP))
+			if (TheAPI.getPlayer(player) != null) {
+				TheAPI.getPlayer(player)
+						.teleport(StringUtils.getLocationFromString(LoaderClass.data.getString("jails." + jail)));
+				TheAPI.msg(reason, TheAPI.getPlayer(player));
+			}
 	}
-	
 
 	public static void jail(String player, String reason, String jail) {
 		if (isIP(player)) {
@@ -165,16 +160,15 @@ public class PunishmentAPI {
 		}
 	}
 
-
 	public static void tempjail(String player, String reason, long time) {
 		if (isIP(player)) {
 			for (String s : getPlayersOnIP(player))
 				tempjail(s, reason.replace("%time%", StringUtils.timeToString(time)), time);
 			return;
 		}
-		tempjail(player, reason.replace("%time%", StringUtils.timeToString(time)), time, TheAPI.getRandomFromList(getjails()).toString());
+		tempjail(player, reason.replace("%time%", StringUtils.timeToString(time)), time,
+				TheAPI.getRandomFromList(getjails()).toString());
 	}
-
 
 	public static void tempjail(String player, String reason, long time, String jail) {
 		if (isIP(player)) {
@@ -194,13 +188,11 @@ public class PunishmentAPI {
 		}
 	}
 
-
 	public static void tempjailIP(String playerOrIP, String reason, long time) {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
 		tempjailIP(playerOrIP, reason, time, TheAPI.getRandomFromList(getjails()).toString());
 	}
-
 
 	public static void tempjailIP(String playerOrIP, String reason, long time, String jail) {
 		if (!isIP(playerOrIP))
@@ -208,28 +200,26 @@ public class PunishmentAPI {
 		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_") + ".id", jail);
 		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_") + ".time", jail);
 		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_") + ".reason", reason);
-		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_") + ".start", System.currentTimeMillis() / 1000);
+		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_") + ".start",
+				System.currentTimeMillis() / 1000);
 		LoaderClass.data.save();
-		for(String player : getPlayersOnIP(playerOrIP))
-		if (TheAPI.getPlayer(player) != null) {
-			TheAPI.getPlayer(player)
-					.teleport(StringUtils.getLocationFromString(LoaderClass.data.getString("jails." + jail)));
-			TheAPI.msg(reason.replace("%time%", StringUtils.timeToString(time)), TheAPI.getPlayer(player));
-		}
+		for (String player : getPlayersOnIP(playerOrIP))
+			if (TheAPI.getPlayer(player) != null) {
+				TheAPI.getPlayer(player)
+						.teleport(StringUtils.getLocationFromString(LoaderClass.data.getString("jails." + jail)));
+				TheAPI.msg(reason.replace("%time%", StringUtils.timeToString(time)), TheAPI.getPlayer(player));
+			}
 	}
-
 
 	public static void setjail(Location location, String name) {
 		LoaderClass.data.set("jails." + name, StringUtils.getLocationAsString(location));
 		LoaderClass.data.save();
 	}
 
-
 	public static void deljail(String name) {
 		LoaderClass.data.remove("jails." + name);
 		LoaderClass.data.save();
 	}
-
 
 	public static List<String> getjails() {
 		ArrayList<String> list = new ArrayList<>();
@@ -237,7 +227,6 @@ public class PunishmentAPI {
 			list.add(s);
 		return list;
 	}
-
 
 	public static void unban(String playerOrIP) {
 		if (isIP(playerOrIP)) {
@@ -250,7 +239,6 @@ public class PunishmentAPI {
 		LoaderClass.data.save();
 	}
 
-
 	public static void unbanIP(String playerOrIP) {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
@@ -258,7 +246,6 @@ public class PunishmentAPI {
 		LoaderClass.data.remove("tempbanip." + playerOrIP.replace(".", "_"));
 		LoaderClass.data.save();
 	}
-
 
 	public static void unjail(String playerOrIP) {
 		if (isIP(playerOrIP)) {
@@ -271,7 +258,6 @@ public class PunishmentAPI {
 		LoaderClass.data.save();
 	}
 
-
 	public static void unjailIP(String playerOrIP) {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
@@ -279,7 +265,6 @@ public class PunishmentAPI {
 		LoaderClass.data.remove("tempjailip." + playerOrIP.replace(".", "_"));
 		LoaderClass.data.save();
 	}
-
 
 	public static void unmute(String playerOrIP) {
 		if (isIP(playerOrIP)) {
@@ -292,7 +277,6 @@ public class PunishmentAPI {
 		LoaderClass.data.save();
 	}
 
-
 	public static void unmuteIP(String playerOrIP) {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
@@ -300,7 +284,6 @@ public class PunishmentAPI {
 		LoaderClass.data.remove("tempmuteip." + playerOrIP.replace(".", "_"));
 		LoaderClass.data.save();
 	}
-
 
 	public static void mute(String playerOrIP, String reason) {
 		if (isIP(playerOrIP)) {
@@ -314,7 +297,6 @@ public class PunishmentAPI {
 		if (TheAPI.getPlayer(playerOrIP) != null)
 			TheAPI.msg(reason, TheAPI.getPlayer(playerOrIP));
 	}
-
 
 	public static void tempmute(String playerOrIP, String reason, long time) {
 		if (isIP(playerOrIP)) {
@@ -330,36 +312,33 @@ public class PunishmentAPI {
 			TheAPI.msg(reason.replace("%time%", StringUtils.timeToString(time)), TheAPI.getPlayer(playerOrIP));
 	}
 
-
 	public static void muteIP(String playerOrIP, String reason) {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
 		LoaderClass.data.set("muteip." + playerOrIP.replace(".", "_") + ".reason", reason);
 		LoaderClass.data.set("muteip." + playerOrIP.replace(".", "_") + ".start", System.currentTimeMillis() / 1000);
 		LoaderClass.data.save();
-		for(String player : getPlayersOnIP(playerOrIP))
-		if (TheAPI.getPlayer(player) != null)
-			TheAPI.msg(reason, TheAPI.getPlayer(player));
+		for (String player : getPlayersOnIP(playerOrIP))
+			if (TheAPI.getPlayer(player) != null)
+				TheAPI.msg(reason, TheAPI.getPlayer(player));
 	}
-
 
 	public static void tempmuteIP(String playerOrIP, String reason, long time) {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
 		LoaderClass.data.set("tempmuteip." + playerOrIP.replace(".", "_") + ".reason", reason);
 		LoaderClass.data.set("tempmuteip." + playerOrIP.replace(".", "_") + ".time", time);
-		LoaderClass.data.set("tempmuteip." + playerOrIP.replace(".", "_") + ".start", System.currentTimeMillis() / 1000);
+		LoaderClass.data.set("tempmuteip." + playerOrIP.replace(".", "_") + ".start",
+				System.currentTimeMillis() / 1000);
 		LoaderClass.data.save();
-		for(String player : getPlayersOnIP(playerOrIP))
-		if (TheAPI.getPlayer(player) != null)
-			TheAPI.msg(reason.replace("%time%", StringUtils.timeToString(time)), TheAPI.getPlayer(player));
+		for (String player : getPlayersOnIP(playerOrIP))
+			if (TheAPI.getPlayer(player) != null)
+				TheAPI.msg(reason.replace("%time%", StringUtils.timeToString(time)), TheAPI.getPlayer(player));
 	}
-
 
 	public static BanList getBanList() {
 		return banlist;
 	}
-
 
 	public static PlayerBanList getBanList(String player) {
 		return new PlayerBanList(player);

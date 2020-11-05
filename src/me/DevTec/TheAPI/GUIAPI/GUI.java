@@ -17,35 +17,42 @@ public class GUI {
 	private final HashMap<Integer, ItemGUI> items = new HashMap<>();
 	private final List<Player> opened = new ArrayList<>();
 	private final Inventory inv;
-	//Defaulty false
+	// Defaulty false
 	private boolean put;
-	
+
 	public GUI(String title, int size, Player... p) {
 		this.title = TheAPI.colorize(title);
-		if(size ==17||size ==18||size ==19)size=18;
+		if (size == 17 || size == 18 || size == 19)
+			size = 18;
+		else if (size == 26 || size == 27 || size == 28)
+			size = 27;
+		else if (size == 35 || size == 36 || size == 37)
+			size = 36;
+		else if (size == 44 || size == 45 || size == 46)
+			size = 45;
+		else if (size == 53 || size == 54 || size > 54)
+			size = 54;
 		else
-		if(size ==26||size ==27||size ==28)size=27;
-		else
-		if(size ==35||size ==36||size ==37)size=36;
-		else
-		if(size ==44||size ==45||size ==46)size=45;
-		else
-		if(size ==53||size ==54||size>54)size=54;
-		else size=9;
+			size = 9;
 		inv = Bukkit.createInventory(null, size, this.title);
 		open(p);
 	}
-	
-	public void onClose(Player player) {}
-	
-	public boolean onPutItem(Player player, ItemStack item, int slot) {return false;}
-	
-	public boolean onTakeItem(Player player, ItemStack item, int slot) {return false;}
-	
+
+	public void onClose(Player player) {
+	}
+
+	public boolean onPutItem(Player player, ItemStack item, int slot) {
+		return false;
+	}
+
+	public boolean onTakeItem(Player player, ItemStack item, int slot) {
+		return false;
+	}
+
 	public final ItemStack[] getContents() {
 		return inv.getContents();
 	}
-	
+
 	public final String getName() {
 		return title;
 	}
@@ -53,14 +60,14 @@ public class GUI {
 	public final List<Player> getPlayers() {
 		return opened;
 	}
-	
+
 	/**
 	 * @see see Set menu insertable for items
 	 */
 	public final void setInsertable(boolean value) {
-		put=value;
+		put = value;
 	}
-	
+
 	public final boolean isInsertable() {
 		return put;
 	}
@@ -108,8 +115,8 @@ public class GUI {
 	 */
 	public final ItemStack getItem(int slot) {
 		try {
-		return inv.getItem(slot);
-		}catch(Exception e) {
+			return inv.getItem(slot);
+		} catch (Exception e) {
 			return null;
 		}
 	}
@@ -120,7 +127,7 @@ public class GUI {
 	public final ItemGUI getItemGUI(int slot) {
 		return getItemGUIs().getOrDefault(slot, null);
 	}
-	
+
 	/**
 	 *
 	 * @return boolean is gui full
@@ -142,8 +149,8 @@ public class GUI {
 	 * 
 	 */
 	public final void open(Player... players) {
-		for(Player player : players) {
-			if(LoaderClass.plugin.gui.containsKey(player.getName())) {
+		for (Player player : players) {
+			if (LoaderClass.plugin.gui.containsKey(player.getName())) {
 				GUI a = LoaderClass.plugin.gui.get(player.getName());
 				LoaderClass.plugin.gui.remove(player.getName());
 				a.opened.remove(player);
@@ -159,7 +166,7 @@ public class GUI {
 	 * @return HashMap<Slot, Item>
 	 * 
 	 */
-	public final HashMap<Integer, ItemGUI> getItemGUIs(){
+	public final HashMap<Integer, ItemGUI> getItemGUIs() {
 		return items;
 	}
 
@@ -168,8 +175,8 @@ public class GUI {
 	 * 
 	 */
 	public final void close() {
-		for(Player a : new ArrayList<>(opened))
-		close(a);
+		for (Player a : new ArrayList<>(opened))
+			close(a);
 	}
 
 	/**
@@ -180,31 +187,31 @@ public class GUI {
 		inv.clear();
 		items.clear();
 	}
-	
+
 	/**
 	 * @see see Close opened gui for specified player
 	 * 
 	 */
 	public final void close(Player... players) {
-		for(Player player : players)
+		for (Player player : players)
 			player.getOpenInventory().close();
 	}
-	
+
 	public final String toString() {
 		String items = "";
-		for(Integer g : getItemGUIs().keySet()) {
-			items+="/"+g+":"+getItemGUIs().get(g).toString();
+		for (Integer g : getItemGUIs().keySet()) {
+			items += "/" + g + ":" + getItemGUIs().get(g).toString();
 		}
-		return "[GUI:"+title+"/"+put+"/"+inv.getSize()+items+"]";
+		return "[GUI:" + title + "/" + put + "/" + inv.getSize() + items + "]";
 	}
 
 	public boolean equals(Object other) {
-		if(other instanceof Inventory) {
-			Inventory c = (Inventory)other;
+		if (other instanceof Inventory) {
+			Inventory c = (Inventory) other;
 			return c.equals(inv);
 		}
-		if(other instanceof GUI) {
-			GUI c = (GUI)other;
+		if (other instanceof GUI) {
+			GUI c = (GUI) other;
 			return c.inv.equals(inv) && c.title.equals(title);
 		}
 		return false;

@@ -29,7 +29,7 @@ public class BlockSave {
 	private boolean isSign, isInvBlock, isCmd;
 	private String[] lines;
 	private ItemStack[] inv;
-	private String cmd, cmdname,cname;
+	private String cmd, cmdname, cname;
 	private TheMaterial type;
 	private DyeColor color;
 	private Biome b;
@@ -42,9 +42,9 @@ public class BlockSave {
 			isInvBlock = true;
 			Chest c = ((Chest) b.getState());
 			try {
-			cname=(String) Ref.invoke(c, "getCustomName");
-			}catch(Exception e) {
-				cname=null;
+				cname = (String) Ref.invoke(c, "getCustomName");
+			} catch (Exception e) {
+				cname = null;
 			}
 			inv = c.getBlockInventory().getContents();
 		}
@@ -52,19 +52,19 @@ public class BlockSave {
 			isInvBlock = true;
 			Object c = Ref.cast(Ref.getClass("org.bukkit.block.ShulkerBox"), b.getState());
 			try {
-				cname=(String) Ref.invoke(c, "getCustomName");
-			}catch(NoSuchMethodError e) {
-				cname=null;
+				cname = (String) Ref.invoke(c, "getCustomName");
+			} catch (NoSuchMethodError e) {
+				cname = null;
 			}
-			inv = (ItemStack[]) Ref.invoke(Ref.invoke(c, "getInventory"),"getContents");
+			inv = (ItemStack[]) Ref.invoke(Ref.invoke(c, "getInventory"), "getContents");
 		}
 		if (b.getType().name().equals("DROPPER")) {
 			isInvBlock = true;
 			Dropper c = ((Dropper) b.getState());
 			try {
-			cname=(String) Ref.invoke(c, "getCustomName");
-			}catch(Exception e) {
-				cname=null;
+				cname = (String) Ref.invoke(c, "getCustomName");
+			} catch (Exception e) {
+				cname = null;
 			}
 			inv = c.getInventory().getContents();
 		}
@@ -72,9 +72,9 @@ public class BlockSave {
 			isInvBlock = true;
 			Furnace c = ((Furnace) b.getState());
 			try {
-			cname=(String) Ref.invoke(c, "getCustomName");
-			}catch(Exception e) {
-				cname=null;
+				cname = (String) Ref.invoke(c, "getCustomName");
+			} catch (Exception e) {
+				cname = null;
 			}
 			inv = c.getInventory().getContents();
 		}
@@ -82,9 +82,9 @@ public class BlockSave {
 			isInvBlock = true;
 			Dispenser c = ((Dispenser) b.getState());
 			try {
-			cname=(String) Ref.invoke(c, "getCustomName");
-			}catch(Exception e) {
-				cname=null;
+				cname = (String) Ref.invoke(c, "getCustomName");
+			} catch (Exception e) {
+				cname = null;
 			}
 			inv = c.getInventory().getContents();
 		}
@@ -92,19 +92,19 @@ public class BlockSave {
 			isInvBlock = true;
 			Object c = Ref.cast(Ref.getClass("org.bukkit.block.Barrel"), b.getState());
 			try {
-			cname=(String) Ref.invoke(c, "getCustomName");
-			}catch(Exception e) {
-				cname=null;
+				cname = (String) Ref.invoke(c, "getCustomName");
+			} catch (Exception e) {
+				cname = null;
 			}
-			inv = (ItemStack[]) Ref.invoke(Ref.invoke(c, "getInventory"),"getContents");
+			inv = (ItemStack[]) Ref.invoke(Ref.invoke(c, "getInventory"), "getContents");
 		}
 		if (b.getType().name().equals("HOPPER")) {
 			isInvBlock = true;
 			Hopper c = ((Hopper) b.getState());
 			try {
-			cname=(String) Ref.invoke(c, "getCustomName");
-			}catch(Exception e) {
-				cname=null;
+				cname = (String) Ref.invoke(c, "getCustomName");
+			} catch (Exception e) {
+				cname = null;
 			}
 			inv = c.getInventory().getContents();
 		}
@@ -113,9 +113,9 @@ public class BlockSave {
 			Sign c = (Sign) b.getState();
 			lines = c.getLines();
 			try {
-				color=(DyeColor) Ref.invoke(c, "getColor");
-			}catch(Exception e) {
-				color=null;
+				color = (DyeColor) Ref.invoke(c, "getColor");
+			} catch (Exception e) {
+				color = null;
 			}
 		}
 		if (b.getType().name().contains("COMMAND")) {
@@ -145,7 +145,7 @@ public class BlockSave {
 		type = material;
 		this.inv = inv;
 		isInvBlock = true;
-		cname=customname;
+		cname = customname;
 	}
 
 	// cmd
@@ -166,7 +166,7 @@ public class BlockSave {
 	public String getCustomName() {
 		return cname;
 	}
-	
+
 	public BlockFace getFace() {
 		return f;
 	}
@@ -198,7 +198,7 @@ public class BlockSave {
 				dataOutput.writeObject(inv[i]);
 			}
 			dataOutput.close();
-			return inv.length+"/!/"+Base64Coder.encodeLines(outputStream.toByteArray());
+			return inv.length + "/!/" + Base64Coder.encodeLines(outputStream.toByteArray());
 		} catch (Exception err) {
 			return null;
 		}
@@ -221,7 +221,7 @@ public class BlockSave {
 	}
 
 	public String getSignLinesAsString() {
-		return lines!=null ? StringUtils.join(lines, " ") : null;
+		return lines != null ? StringUtils.join(lines, " ") : null;
 	}
 
 	public static String[] getSignLinesFromString(String s) {
@@ -235,12 +235,12 @@ public class BlockSave {
 	public TheMaterial getMaterial() {
 		return type;
 	}
-	
+
 	public long load(Position pos, boolean createBlock) {
-		long k = (pos.getBlockX()>>4 & 0xFFFF0000L) << 16L | (pos.getBlockX()>>4 & 0xFFFFL) << 0L;
-	    k |= (pos.getBlockZ()>>4 & 0xFFFF0000L) << 32L | (pos.getBlockZ()>>4 & 0xFFFFL) << 16L;
-		if(createBlock)
-		pos.setType(type);
+		long k = (pos.getBlockX() >> 4 & 0xFFFF0000L) << 16L | (pos.getBlockX() >> 4 & 0xFFFFL) << 0L;
+		k |= (pos.getBlockZ() >> 4 & 0xFFFF0000L) << 32L | (pos.getBlockZ() >> 4 & 0xFFFFL) << 16L;
+		if (createBlock)
+			pos.setType(type);
 		String n = type.getType().name();
 		if (n.contains("SIGN")) {
 			Sign w = (Sign) pos.getBlock().getState();
@@ -261,42 +261,46 @@ public class BlockSave {
 		if (n.contains("CHEST")) {
 			Chest w = (Chest) pos.getBlock().getState();
 			try {
-			if(cname!=null && !cname.equals("null"))
-				Ref.invoke(w, "setCustomName", cname);
-			}catch(NoSuchMethodError e) {}
-			if(inv!=null)
-			w.getInventory().setContents(inv);
+				if (cname != null && !cname.equals("null"))
+					Ref.invoke(w, "setCustomName", cname);
+			} catch (NoSuchMethodError e) {
+			}
+			if (inv != null)
+				w.getInventory().setContents(inv);
 		}
 		if (n.equals("DROPPER")) {
 			Dropper w = (Dropper) pos.getBlock().getState();
 			try {
-			if(cname!=null && !cname.equals("null"))
-				Ref.invoke(w, "setCustomName", cname);
-			}catch(NoSuchMethodError e) {}
+				if (cname != null && !cname.equals("null"))
+					Ref.invoke(w, "setCustomName", cname);
+			} catch (NoSuchMethodError e) {
+			}
 			if (inv != null)
 				w.getInventory().setContents(inv);
 		}
 		if (n.equals("DISPENSER")) {
 			Dispenser w = (Dispenser) pos.getBlock().getState();
 			try {
-			if(cname!=null && !cname.equals("null"))
-				Ref.invoke(w, "setCustomName", cname);
-			}catch(NoSuchMethodError e) {}
+				if (cname != null && !cname.equals("null"))
+					Ref.invoke(w, "setCustomName", cname);
+			} catch (NoSuchMethodError e) {
+			}
 			if (inv != null)
 				w.getInventory().setContents(inv);
 		}
 		if (n.equals("HOPPER")) {
 			Hopper w = (Hopper) pos.getBlock().getState();
 			try {
-			if(cname!=null && !cname.equals("null"))
-				Ref.invoke(w, "setCustomName", cname);
-			}catch(NoSuchMethodError e) {}
+				if (cname != null && !cname.equals("null"))
+					Ref.invoke(w, "setCustomName", cname);
+			} catch (NoSuchMethodError e) {
+			}
 			if (inv != null)
 				w.getInventory().setContents(inv);
 		}
 		if (n.equals("FURNACE")) {
 			Furnace w = (Furnace) pos.getBlock().getState();
-			if(cname!=null && !cname.equals("null"))
+			if (cname != null && !cname.equals("null"))
 				Ref.invoke(w, "setCustomName", cname);
 			if (inv != null)
 				w.getInventory().setContents(inv);
@@ -304,20 +308,22 @@ public class BlockSave {
 		if (n.contains("SHULKER_BOX")) {
 			Object w = Ref.cast(Ref.getClass("org.bukkit.block.ShulkerBox"), pos.getBlock().getState());
 			try {
-			if(cname!=null && !cname.equals("null"))
-				Ref.invoke(w, "setCustomName", cname);
-			}catch(NoSuchMethodError e) {}
+				if (cname != null && !cname.equals("null"))
+					Ref.invoke(w, "setCustomName", cname);
+			} catch (NoSuchMethodError e) {
+			}
 			if (inv != null)
-				Ref.invoke(Ref.invoke(w, "getInventory"), "setContents", (Object)inv);
+				Ref.invoke(Ref.invoke(w, "getInventory"), "setContents", (Object) inv);
 		}
 		if (n.contains("BARREL")) {
 			Object w = Ref.cast(Ref.getClass("org.bukkit.block.Barrel"), pos.getBlock().getState());
 			try {
-			if(cname!=null && !cname.equals("null"))
-				Ref.invoke(w, "setCustomName", cname);
-			}catch(NoSuchMethodError e) {}
+				if (cname != null && !cname.equals("null"))
+					Ref.invoke(w, "setCustomName", cname);
+			} catch (NoSuchMethodError e) {
+			}
 			if (inv != null)
-				Ref.invoke(Ref.invoke(w, "getInventory"), "setContents", (Object)inv);
+				Ref.invoke(Ref.invoke(w, "getInventory"), "setContents", (Object) inv);
 		}
 		if (n.contains("COMMAND")) {
 			CommandBlock w = (CommandBlock) pos.getBlock().getState();
@@ -331,36 +337,41 @@ public class BlockSave {
 	}
 
 	public static BlockSave fromString(String stored) {
-		if(stored==null)return null;
+		if (stored == null)
+			return null;
 		if (stored.startsWith("[BS:")) {
 			if (stored.startsWith("[BS:S/!/")) {
 				stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[BS:S/!/", "");
 				String[] s = stored.split("/!/");
 				try {
-				return new BlockSave(Biome.values()[StringUtils.getInt(s[0])], BlockFace.values()[StringUtils.getInt(s[1])],
-						TheMaterial.fromString(s[2]), DyeColor.values()[StringUtils.getInt(s[3])], getSignLinesFromString(s[4]));
-				}catch(Exception ererr) {
-					return new BlockSave(Biome.values()[StringUtils.getInt(s[0])], BlockFace.values()[StringUtils.getInt(s[1])],
-							TheMaterial.fromString(s[2]), null, getSignLinesFromString(s[4]));
+					return new BlockSave(Biome.values()[StringUtils.getInt(s[0])],
+							BlockFace.values()[StringUtils.getInt(s[1])], TheMaterial.fromString(s[2]),
+							DyeColor.values()[StringUtils.getInt(s[3])], getSignLinesFromString(s[4]));
+				} catch (Exception ererr) {
+					return new BlockSave(Biome.values()[StringUtils.getInt(s[0])],
+							BlockFace.values()[StringUtils.getInt(s[1])], TheMaterial.fromString(s[2]), null,
+							getSignLinesFromString(s[4]));
 				}
 			}
 			if (stored.startsWith("[BS:IB/!/")) {
 				stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[BS:IB/!/", "");
 				String[] s = stored.split("/!/");
-				return new BlockSave(Biome.values()[StringUtils.getInt(s[0])], BlockFace.values()[StringUtils.getInt(s[1])],
-						TheMaterial.fromString(s[2]), getBlockInventoryFromString(StringUtils.getInt(s[3]),s[4]), s[5]);
+				return new BlockSave(Biome.values()[StringUtils.getInt(s[0])],
+						BlockFace.values()[StringUtils.getInt(s[1])], TheMaterial.fromString(s[2]),
+						getBlockInventoryFromString(StringUtils.getInt(s[3]), s[4]), s[5]);
 			}
 			if (stored.startsWith("[BS:CB/!/")) {
 				stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[BS:CB/!/", "");
 				String[] s = stored.split("/!/");
-				return new BlockSave(Biome.values()[StringUtils.getInt(s[0])], BlockFace.values()[StringUtils.getInt(s[1])],
-						TheMaterial.fromString(s[2]), s[3], s[4]);
+				return new BlockSave(Biome.values()[StringUtils.getInt(s[0])],
+						BlockFace.values()[StringUtils.getInt(s[1])], TheMaterial.fromString(s[2]), s[3], s[4]);
 			}
 			if (stored.startsWith("[BS:B/!/")) {
 				stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[BS:B/!/", "");
 				String[] s = stored.split("/!/");
-				return new BlockSave(Biome.values()[StringUtils.getInt(s[0])], BlockFace.values()[StringUtils.getInt(s[1])],
-						s[2].equals("0")?new TheMaterial("AIR"):TheMaterial.fromString(s[2]));
+				return new BlockSave(Biome.values()[StringUtils.getInt(s[0])],
+						BlockFace.values()[StringUtils.getInt(s[1])],
+						s[2].equals("0") ? new TheMaterial("AIR") : TheMaterial.fromString(s[2]));
 			}
 			return null;
 		}
@@ -371,20 +382,20 @@ public class BlockSave {
 	public String toString() {
 		if (isSign) {
 			try {
-			return "[BS:S/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/"
-					+ type.toString() + "/!/" + color.ordinal() + "/!/" + getSignLinesAsString() + "]";// Biome/BlockFace/Material/Color/SignLines
-			}catch(Exception errer) {
-				return "[BS:S/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/"
-						+ type.toString() + "/!/" + 0 + "/!/" + getSignLinesAsString() + "]";// Biome/BlockFace/Material/Color/SignLines
-				}
+				return "[BS:S/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/" + type.toString() + "/!/"
+						+ color.ordinal() + "/!/" + getSignLinesAsString() + "]";// Biome/BlockFace/Material/Color/SignLines
+			} catch (Exception errer) {
+				return "[BS:S/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/" + type.toString() + "/!/" + 0 + "/!/"
+						+ getSignLinesAsString() + "]";// Biome/BlockFace/Material/Color/SignLines
 			}
-					if (isInvBlock)
-			return "[BS:IB/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/"
-					+ type.toString() + "/!/" + getBlockInventoryAsString() + "/!/" + cname + "]"; // Biome/BlockFace/Material/Inventory/CustomName
+		}
+		if (isInvBlock)
+			return "[BS:IB/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/" + type.toString() + "/!/"
+					+ getBlockInventoryAsString() + "/!/" + cname + "]"; // Biome/BlockFace/Material/Inventory/CustomName
 		if (isCmd)
-			return "[BS:CB/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/"
-					+ type.toString() + "/!/" + cmd + "/!/" + cmdname + "]"; // Biome/BlockFace/Material/Command/CmdBlockName
+			return "[BS:CB/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/" + type.toString() + "/!/" + cmd + "/!/"
+					+ cmdname + "]"; // Biome/BlockFace/Material/Command/CmdBlockName
 		return "[BS:B/!/" + b.ordinal() + "/!/" + f.ordinal() + "/!/"
-				+ (type.getType()==Material.AIR?"0":type.toString()) + "]"; // Biome/BlockFace/Material
+				+ (type.getType() == Material.AIR ? "0" : type.toString()) + "]"; // Biome/BlockFace/Material
 	}
 }

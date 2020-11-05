@@ -18,7 +18,7 @@ public class HoverMessage {
 	public enum HoverAction {
 		SHOW_ITEM, SHOW_ACHIEVEMENT, SHOW_ENTITY, SHOW_TEXT
 	}
-	
+
 	private Maker maker = new Maker();
 	private MakerObject o = null;
 
@@ -28,8 +28,9 @@ public class HoverMessage {
 	}
 
 	public HoverMessage addText(String text) {
-		if(o!=null)maker.add(o);
-		o=maker.create();
+		if (o != null)
+			maker.add(o);
+		o = maker.create();
 		o.add("text", TheAPI.colorize(text));
 		return this;
 	}
@@ -38,15 +39,15 @@ public class HoverMessage {
 		MakerObject ac = maker.create();
 		ac.put("action", action.name().toLowerCase());
 		ac.put("value", TheAPI.colorize(value));
-		o.add("clickEvent", ac);
+		o.add("clickEvent", ac.toString());
 		return this;
 	}
 
 	public HoverMessage setHoverEvent(HoverAction action, Object value) {
 		MakerObject ac = maker.create();
 		ac.put("action", action.name().toLowerCase());
-		ac.put("value", value instanceof  String?TheAPI.colorize(""+value):value);
-		o.add("hoverEvent", ac);
+		ac.put("value", value instanceof String ? TheAPI.colorize("" + value) : value);
+		o.add("hoverEvent", ac.toString());
 		return this;
 	}
 
@@ -55,8 +56,9 @@ public class HoverMessage {
 	}
 
 	public String getJson() {
-		if(o!=null)maker.add(o);
-		o=null;
+		if (o != null)
+			maker.add(o);
+		o = null;
 		return maker.toString();
 	}
 

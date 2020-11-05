@@ -61,7 +61,6 @@ import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 import me.DevTec.TheAPI.WorldsAPI.WorldBorderAPI;
 
-@SuppressWarnings("deprecation")
 public class TheAPI {
 	private static final HashMap<String, BossBar> bars = new HashMap<>();
 	private static final HashMap<String, Integer> task = new HashMap<>();
@@ -70,7 +69,7 @@ public class TheAPI {
 	private static Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
 	private static Random random = new Random();
 	private static int ver;
-	
+
 	public static void register(Listener listener) {
 		HandlerList.register(listener);
 	}
@@ -78,35 +77,40 @@ public class TheAPI {
 	public static void unregister(Listener listener) {
 		HandlerList.unregister(listener);
 	}
-	
+
 	public static void callEvent(Event e) {
 		HandlerList.callEvent(e);
 	}
 
-	public static void createAndRegisterCommand(String commandName, String permission, CommandExecutor commandExecutor, String... aliases) {
-		createAndRegisterCommand(commandName, permission, commandExecutor, aliases!=null?Arrays.asList(aliases):null);
+	public static void createAndRegisterCommand(String commandName, String permission, CommandExecutor commandExecutor,
+			String... aliases) {
+		createAndRegisterCommand(commandName, permission, commandExecutor,
+				aliases != null ? Arrays.asList(aliases) : null);
 	}
 
-	public static void createAndRegisterCommand(String commandName, String permission, CommandExecutor commandExecutor, List<String> aliases) {
+	public static void createAndRegisterCommand(String commandName, String permission, CommandExecutor commandExecutor,
+			List<String> aliases) {
 		PluginCommand cmd = TheAPI.createCommand(commandName.toLowerCase(), LoaderClass.plugin);
-		if(permission!=null)
-		Ref.set(cmd, "permission", permission.toLowerCase());
+		if (permission != null)
+			Ref.set(cmd, "permission", permission.toLowerCase());
 		List<String> lowerCase = new ArrayList<>();
-		if(aliases!=null)
-		for(String s : aliases)lowerCase.add(s.toLowerCase());
+		if (aliases != null)
+			for (String s : aliases)
+				lowerCase.add(s.toLowerCase());
 		cmd.setAliases(lowerCase);
 		Ref.set(cmd, "executor", commandExecutor);
 		registerCommand(cmd);
 	}
-	
+
 	public static PluginCommand createCommand(String name, Plugin plugin) {
-		return (PluginCommand)Ref.newInstance(constructor, name, plugin);
+		return (PluginCommand) Ref.newInstance(constructor, name, plugin);
 	}
-	
+
 	public static void registerCommand(PluginCommand command) {
-		((CommandMap) Ref.get(Bukkit.getPluginManager(),"commandMap")).register(command.getPlugin().getName(), command);
+		((CommandMap) Ref.get(Bukkit.getPluginManager(), "commandMap")).register(command.getPlugin().getName(),
+				command);
 	}
-	
+
 	public static void clearCache() {
 		cache.clear();
 	}
@@ -114,7 +118,7 @@ public class TheAPI {
 	public static boolean generateChance(double chance) {
 		return generateRandomDouble(100) <= chance;
 	}
-	
+
 	public static double getProcessCpuLoad() {
 		try {
 			MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
@@ -178,15 +182,15 @@ public class TheAPI {
 	}
 
 	public static boolean isOlderThan(int version) {
-		if(ver==0) {
-			ver=StringUtils.getInt(getServerVersion().split("_")[1]);
+		if (ver == 0) {
+			ver = StringUtils.getInt(getServerVersion().split("_")[1]);
 		}
 		return ver < version;
 	}
 
 	public static boolean isNewerThan(int version) {
-		if(ver==0) {
-			ver=StringUtils.getInt(getServerVersion().split("_")[1]);
+		if (ver == 0) {
+			ver = StringUtils.getInt(getServerVersion().split("_")[1]);
 		}
 		return ver > version;
 	}
@@ -278,7 +282,7 @@ public class TheAPI {
 	public static double generateRandomDouble(double maxDouble) {
 		return generateRandomDouble(0, maxDouble);
 	}
-	
+
 	/**
 	 * @see see Generate random double with limit
 	 * @param maxDouble
@@ -286,15 +290,20 @@ public class TheAPI {
 	 */
 	public static double generateRandomDouble(double min, double maxDouble) {
 		boolean a = maxDouble < 0;
-		if (a)maxDouble = -1 * maxDouble;
-		if((min<0?min*-1 : min) >= maxDouble)return min;
-		if (maxDouble == 0)return maxDouble;
+		if (a)
+			maxDouble = -1 * maxDouble;
+		if ((min < 0 ? min * -1 : min) >= maxDouble)
+			return min;
+		if (maxDouble == 0)
+			return maxDouble;
 		double i = random.nextInt((int) maxDouble) + random.nextDouble();
-		if (i < min)i = min;
-		if (i > maxDouble)i = maxDouble;
-		return a?-1 * i:i;
+		if (i < min)
+			i = min;
+		if (i > maxDouble)
+			i = maxDouble;
+		return a ? -1 * i : i;
 	}
-	
+
 	/**
 	 * @see see Generate random double with limit
 	 * @param maxDouble
@@ -302,13 +311,18 @@ public class TheAPI {
 	 */
 	public static int generateRandomInt(int min, int maxInt) {
 		boolean a = maxInt < 0;
-		if (a)maxInt = -1 * maxInt;
-		if((min<0?min*-1 : min) >= maxInt)return min;
-		if (maxInt == 0)return maxInt;
+		if (a)
+			maxInt = -1 * maxInt;
+		if ((min < 0 ? min * -1 : min) >= maxInt)
+			return min;
+		if (maxInt == 0)
+			return maxInt;
 		int i = random.nextInt(maxInt);
-		if (i < min)i = min;
-		if (i > maxInt)i = maxInt;
-		return a?-1 * i:i;
+		if (i < min)
+			i = min;
+		if (i > maxInt)
+			i = maxInt;
+		return a ? -1 * i : i;
 	}
 
 	/**
@@ -371,8 +385,8 @@ public class TheAPI {
 	}
 
 	public static void sendMessage(String message, CommandSender sender) {
-		Validator.validate(sender==null, "CommandSender is null");
-		Validator.validate(message==null, "Message is null");
+		Validator.validate(sender == null, "CommandSender is null");
+		Validator.validate(message == null, "Message is null");
 		ChatColor old = ChatColor.RESET;
 		for (String s : message.replace("\\n", "\n").split("\n")) {
 			sender.sendMessage(old + colorize(s));
@@ -396,9 +410,9 @@ public class TheAPI {
 	 * @param timeToExpire
 	 */
 	public static BossBar sendBossBar(Player p, String text, double progress) {
-		Validator.validate(p==null, "Player is null");
-		Validator.validate(text==null, "Text is null");
-		Validator.validate(progress<0, "Progress is lower than zero");
+		Validator.validate(p == null, "Player is null");
+		Validator.validate(text == null, "Text is null");
+		Validator.validate(progress < 0, "Progress is lower than zero");
 		if (task.containsKey(p.getName())) {
 			Scheduler.cancelTask(task.get(p.getName()));
 			task.remove(p.getName());
@@ -426,10 +440,10 @@ public class TheAPI {
 	 * @param timeToExpire
 	 */
 	public static void sendBossBar(Player p, String text, double progress, int timeToExpire) {
-		Validator.validate(p==null, "Player is null");
-		Validator.validate(text==null, "Text is null");
-		Validator.validate(progress<0, "Progress is lower than zero");
-		Validator.validate(timeToExpire<0, "Time to expire is lower than zero");
+		Validator.validate(p == null, "Player is null");
+		Validator.validate(text == null, "Text is null");
+		Validator.validate(progress < 0, "Progress is lower than zero");
+		Validator.validate(timeToExpire < 0, "Time to expire is lower than zero");
 		BossBar a = sendBossBar(p, text, progress);
 		task.put(p.getName(), new Tasker() {
 			@Override
@@ -444,7 +458,7 @@ public class TheAPI {
 	 * @param p
 	 */
 	public static void removeBossBar(Player p) {
-		Validator.validate(p==null, "Player is null");
+		Validator.validate(p == null, "Player is null");
 		if (task.containsKey(p.getName())) {
 			Scheduler.cancelTask(task.get(p.getName()));
 			task.remove(p.getName());
@@ -459,7 +473,7 @@ public class TheAPI {
 	 * @return BossBar
 	 */
 	public static BossBar getBossBar(Player p) {
-		Validator.validate(p==null, "Player is null");
+		Validator.validate(p == null, "Player is null");
 		return bars.containsKey(p.getName()) ? bars.get(p.getName()) : null;
 
 	}
@@ -469,7 +483,7 @@ public class TheAPI {
 	 * @param p
 	 */
 	public static void removeActionBar(Player p) {
-		Validator.validate(p==null, "Player is null");
+		Validator.validate(p == null, "Player is null");
 		sendActionBar(p, "");
 	}
 
@@ -488,11 +502,11 @@ public class TheAPI {
 	 * @param text
 	 */
 	public static void sendActionBar(Player p, String text, int fadeIn, int stay, int fadeOut) {
-		Validator.validate(p==null, "Player is null");
-		Validator.validate(text==null, "Text is null");
-		Validator.validate(fadeIn<0, "FadeIn time is lower than zero");
-		Validator.validate(stay<0, "Stay time is lower than zero");
-		Validator.validate(fadeOut<0, "FadeOut time is lower than zero");
+		Validator.validate(p == null, "Player is null");
+		Validator.validate(text == null, "Text is null");
+		Validator.validate(fadeIn < 0, "FadeIn time is lower than zero");
+		Validator.validate(stay < 0, "Stay time is lower than zero");
+		Validator.validate(fadeOut < 0, "FadeOut time is lower than zero");
 		Object packet = NMSAPI.getPacketPlayOutTitle(TitleAction.ACTIONBAR, colorize(text), fadeIn, stay, fadeOut);
 		if (packet == null)
 			packet = NMSAPI.getPacketPlayOutChat(ChatType.CHAT, colorize(text));
@@ -546,14 +560,14 @@ public class TheAPI {
 	}
 
 	private static void giveItems(Player p, ItemStack item) {
-		Validator.validate(p==null, "Player is null");
-		Validator.validate(item==null, "ItemStack is null");
+		Validator.validate(p == null, "Player is null");
+		Validator.validate(item == null, "ItemStack is null");
 		if (p.getInventory().firstEmpty() == -1) {
 			p.getWorld().dropItem(p.getLocation(), item);
 		} else {
 			p.getInventory().addItem(item);
 		}
-}
+	}
 
 	/**
 	 * @see see If player have full inventory, item will be dropped on ground or
@@ -562,7 +576,7 @@ public class TheAPI {
 	 * @param item
 	 */
 	public static void giveItem(Player p, List<ItemStack> item) {
-		Validator.validate(item==null, "List of ItemStacks is null");
+		Validator.validate(item == null, "List of ItemStacks is null");
 		for (ItemStack i : item)
 			giveItems(p, i);
 	}
@@ -574,7 +588,7 @@ public class TheAPI {
 	 * @param item
 	 */
 	public static void giveItem(Player p, ItemStack... item) {
-		Validator.validate(item==null, "ItemStacks are null");
+		Validator.validate(item == null, "ItemStacks are null");
 		for (ItemStack i : item)
 			giveItems(p, i);
 	}
@@ -587,9 +601,9 @@ public class TheAPI {
 	 * @param amount
 	 */
 	public static void giveItem(Player p, Material item, int amount) {
-		Validator.validate(p==null, "Player is null");
-		Validator.validate(item==null, "Material is null");
-		Validator.validate(amount<=0, "Amount of items is lower than one");
+		Validator.validate(p == null, "Player is null");
+		Validator.validate(item == null, "Material is null");
+		Validator.validate(amount <= 0, "Amount of items is lower than one");
 		giveItems(p, new ItemStack(item, amount));
 	}
 
@@ -600,9 +614,9 @@ public class TheAPI {
 	 * @param nextLine
 	 */
 	public static void sendTitle(Player p, String firstLine, String nextLine) {
-		Validator.validate(p==null, "Player is null");
-		Validator.validate(firstLine==null, "FirstLine is null");
-		Validator.validate(nextLine==null, "NextLine is null");
+		Validator.validate(p == null, "Player is null");
+		Validator.validate(firstLine == null, "FirstLine is null");
+		Validator.validate(nextLine == null, "NextLine is null");
 		NMSAPI.sendPacket(p,
 				NMSAPI.getPacketPlayOutTitle(TitleAction.TITLE, Ref.IChatBaseComponent(TheAPI.colorize(firstLine))));
 		NMSAPI.sendPacket(p,
@@ -637,7 +651,7 @@ public class TheAPI {
 	 * @param message
 	 */
 	public static void broadcastMessage(Object object) {
-		broadcastMessage(object+"");
+		broadcastMessage(object + "");
 	}
 
 	/**
@@ -645,7 +659,7 @@ public class TheAPI {
 	 * @param message
 	 */
 	public static void bcMsg(Object object) {
-		broadcastMessage(object+"");
+		broadcastMessage(object + "");
 	}
 
 	/**
@@ -654,7 +668,7 @@ public class TheAPI {
 	 * @param permission
 	 */
 	public static void broadcast(Object object, String permission) {
-		broadcast(object+"", permission);
+		broadcast(object + "", permission);
 	}
 
 	/**
@@ -663,7 +677,7 @@ public class TheAPI {
 	 * @param permission
 	 */
 	public static void bc(Object object, String permission) {
-		broadcast(object+"", permission);
+		broadcast(object + "", permission);
 	}
 
 	/**
@@ -739,7 +753,7 @@ public class TheAPI {
 	private static boolean isV(Player player) {
 		if (player.hasMetadata("vanished"))
 			for (MetadataValue meta : player.getMetadata("vanished"))
-					return meta.asBoolean();
+				return meta.asBoolean();
 		return false;
 	}
 
@@ -749,7 +763,7 @@ public class TheAPI {
 	 * @return boolean
 	 */
 	public static boolean isVanished(Player p) {
-		return isV(p)||getUser(p).exists("vanish");
+		return isV(p) || getUser(p).exists("vanish");
 	}
 
 	/**
@@ -799,13 +813,15 @@ public class TheAPI {
 		}
 		LoaderClass.data.save();
 	}
-	
+
 	public static boolean canSee(Player who, Player target) {
 		return canSee(who, getUser(target));
 	}
-	
+
 	public static boolean canSee(Player who, User target) {
-		return has(who, target) && (getPlayerOrNull(target.getName())!=null ? who.canSee(getPlayerOrNull(target.getName())) : target.exists("vanish"));
+		return has(who, target)
+				&& (getPlayerOrNull(target.getName()) != null ? who.canSee(getPlayerOrNull(target.getName()))
+						: target.exists("vanish"));
 	}
 
 	private static boolean has(Player s, User d) {
@@ -965,7 +981,7 @@ public class TheAPI {
 	public static ScoreboardAPI getScoreboardAPI(Player p) {
 		return new ScoreboardAPI(p, false, false);
 	}
-	
+
 	private static String version;
 
 	/**
@@ -973,7 +989,7 @@ public class TheAPI {
 	 * @return String
 	 */
 	public static String getServerVersion() {
-		if(version==null) {
+		if (version == null) {
 			try {
 				version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 			} catch (Exception e) {
@@ -1062,17 +1078,17 @@ public class TheAPI {
 	 */
 	public static List<UUID> getUsers() {
 		List<UUID> a = new ArrayList<>();
-		if(new File("plugins/TheAPI/User").exists())
-		for (File f : new File("plugins/TheAPI/User").listFiles()) {
-			try {
-				a.add(UUID.fromString(f.getName().replaceFirst(".yml", "")));
-			} catch (Exception e) {
-				// hide error.
+		if (new File("plugins/TheAPI/User").exists())
+			for (File f : new File("plugins/TheAPI/User").listFiles()) {
+				try {
+					a.add(UUID.fromString(f.getName().replaceFirst(".yml", "")));
+				} catch (Exception e) {
+					// hide error.
+				}
 			}
-		}
 		return a;
 	}
-	
+
 	public static Collection<User> getCachedUsers() {
 		return cache.values();
 	}
@@ -1083,14 +1099,14 @@ public class TheAPI {
 	 */
 	public static List<String> getUsersNames() {
 		List<String> a = new ArrayList<>();
-		if(new File("plugins/TheAPI/User").exists())
-		for (File f : new File("plugins/TheAPI/User").listFiles()) {
-			try {
-				a.add(Bukkit.getOfflinePlayer(UUID.fromString(f.getName().replaceFirst(".yml", ""))).getName());
-			} catch (Exception e) {
-				// hide error.
+		if (new File("plugins/TheAPI/User").exists())
+			for (File f : new File("plugins/TheAPI/User").listFiles()) {
+				try {
+					a.add(Bukkit.getOfflinePlayer(UUID.fromString(f.getName().replaceFirst(".yml", ""))).getName());
+				} catch (Exception e) {
+					// hide error.
+				}
 			}
-		}
 		return a;
 	}
 
@@ -1130,67 +1146,69 @@ public class TheAPI {
 	public static User getUser(UUID uuid) {
 		if (uuid == null)
 			return null;
-		if(LoaderClass.config.getBoolean("Options.Cache.User.Use")) {
-		User c = cache.containsKey(uuid) ? cache.get(uuid) : null;
-		if (c == null) {
-			c = new User(uuid);
-			cache.put(uuid, c);
-		}
-		return c;
+		if (LoaderClass.config.getBoolean("Options.Cache.User.Use")) {
+			User c = cache.containsKey(uuid) ? cache.get(uuid) : null;
+			if (c == null) {
+				c = new User(uuid);
+				cache.put(uuid, c);
+			}
+			return c;
 		}
 		return new User(uuid);
 	}
-	
+
 	public static void removeCachedUser(UUID uuid) {
 		if (uuid == null)
 			return;
 		cache.remove(uuid);
 	}
-	
+
 	public static void removeCachedUser(Player player) {
 		if (player == null)
 			return;
 		cache.remove(player.getUniqueId());
 	}
-	
+
 	public static List<UUID> getUsersByIP(String ip) {
-		if(ip.startsWith("/"))ip=ip.substring(1);
+		if (ip.startsWith("/"))
+			ip = ip.substring(1);
 		List<UUID> a = new ArrayList<>();
-		for(UUID s : getUsers()) {
-			if(new Data("TheAPI/User/"+s+".yml", true).getString("ip").equals(ip.replace(".", "_"))) {
+		for (UUID s : getUsers()) {
+			if (new Data("TheAPI/User/" + s + ".yml", true).getString("ip").equals(ip.replace(".", "_"))) {
 				a.add(s);
 			}
 		}
 		return a;
 	}
-	
-	//Bit of LastLoginAPI
+
+	// Bit of LastLoginAPI
 	public static User getLastLoggedUserByIP(String ip, boolean canBeOnline) {
 		User a = null;
 		long last = 0;
 		List<UUID> ips = getUsersByIP(ip);
-		if(canBeOnline) {
-			for(Player s : TheAPI.getOnlinePlayers()) {
-				if(ips.contains(s.getUniqueId())) {
+		if (canBeOnline) {
+			for (Player s : TheAPI.getOnlinePlayers()) {
+				if (ips.contains(s.getUniqueId())) {
 					long quit = getUser(s).getLong("quit");
-					if(quit <= last) {
-						last=quit;
-						a=getUser(s);
+					if (quit <= last) {
+						last = quit;
+						a = getUser(s);
 					}
 				}
 			}
-			if(a!=null)return a;
+			if (a != null)
+				return a;
 		}
-		for(UUID s : ips) {
+		for (UUID s : ips) {
 			long quit = new User(s).getLong("quit");
-			if(quit <= last) {
-				last=quit;
-				a=getUser(s);
+			if (quit <= last) {
+				last = quit;
+				a = getUser(s);
 			}
 		}
 		return a;
 	}
-	
+
 	public static void removeCachedUser(String nameOrUUID) {
 		if (nameOrUUID == null)
 			return;

@@ -118,8 +118,8 @@ public class FakeEconomyAPI {
 	}
 
 	public String format(double money) {
-		return LoaderClass.config.getString("FakeEconomyAPI.Format")
-				.replace("%money%", String.valueOf(money)).replace("%eco%", String.valueOf(money))
-				.replace("%balance%", String.valueOf(money)).replace("%symbol%", getSymbol()).replace("$", getSymbol());
+		return LoaderClass.config.getString("FakeEconomyAPI.Format").replace("%money%", String.valueOf(money))
+				.replace("%eco%", String.valueOf(money)).replace("%balance%", String.valueOf(money))
+				.replace("%symbol%", getSymbol()).replace("$", getSymbol());
 	}
 }

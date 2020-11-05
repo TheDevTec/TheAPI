@@ -25,7 +25,7 @@ public class SignAPI {
 		List<Position> l = new ArrayList<Position>();
 		if (LoaderClass.data.exists("Sign"))
 			for (String s : LoaderClass.data.getKeys("Sign")) {
-				Position d =Position.fromString(s);
+				Position d = Position.fromString(s);
 				if (d.getBlock().getType().name().contains("SIGN"))
 					l.add(d);
 				else
