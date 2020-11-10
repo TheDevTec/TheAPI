@@ -13,7 +13,7 @@ import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
 import me.DevTec.TheAPI.Utils.Json.Reader;
 
 public class YamlLoader implements DataLoader {
-	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*):[ ]*(.*)");
+	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*?):[ ]*(.*)");
 	private Map<String, DataHolder> data = new HashMap<>();
 	private Map<Integer, String> items = new HashMap<>();
 	private boolean l;

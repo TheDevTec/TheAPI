@@ -60,7 +60,7 @@ public class LoaderClass extends JavaPlugin {
 	public final List<BossBar> bars = new ArrayList<>();
 	// TheAPI
 	public static LoaderClass plugin;
-	public static Config config = new Config("TheAPI/Config.yml"), data = new Config("TheAPI/Data.yml");
+	public static Config config = new Config("TheAPI/Config.yml"), data = new Config("TheAPI/Data.dat", DataType.DATA);
 	public String motd;
 	public int max;
 	// EconomyAPI
@@ -212,12 +212,12 @@ public class LoaderClass extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		oa = false;
+		Scheduler.cancelAll();
 		handler.close();
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &6Action: &eDisabling plugin, saving configs and stopping runnables..",
 				TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-		Scheduler.cancelAll();
 		for (String p : gui.keySet())
 			gui.get(p).clear();
 		gui.clear();
@@ -257,56 +257,6 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.AntiBot.TimeBetweenPlayer", 10); // 10 milis
 		config.setComments("Options.AntiBot.TimeBetweenPlayer",
 				Arrays.asList("# Time between player can't connect to the server", "# defaulty: 10"));
-		config.setComments("Options.Optimize", Arrays.asList("", "# TheAPI's optimizers for server"));
-		config.addDefault("Options.Optimize.TNT.Use", true);
-		config.setComments("Options.Optimize.TNT", Arrays.asList("# TNT optimizer"));
-		config.setComments("Options.Optimize.TNT.Use",
-				Arrays.asList("# If you disable this, TNT optimizer will be disabled", "# defaulty: true"));
-		config.addDefault("Options.Optimize.TNT.Particles.Use", false);
-		config.setComments("Options.Optimize.TNT.Particles.Use",
-				Arrays.asList("# If you enable this, TNT will have particles", "# defaulty: false"));
-		config.addDefault("Options.Optimize.TNT.Particles.Type", "EXPLOSION_LARGE");
-		config.setComments("Options.Optimize.TNT.Particles.Type", Arrays.asList(
-				"# Particle types are available on https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Particle.html",
-				"# defaulty: EXPLOSION_LARGE"));
-		config.addDefault("Options.Optimize.TNT.LiquidCancelExplosion", true);
-		config.setComments("Options.Optimize.TNT.LiquidCancelExplosion",
-				Arrays.asList("# Can water/lava cancel TNT explosion", "# defaulty: true"));
-		config.addDefault("Options.Optimize.TNT.DestroyBlocks", true);
-		config.setComments("Options.Optimize.TNT.DestroyBlocks",
-				Arrays.asList("# Can TNT explosion destroy blocks", "# defaulty: true"));
-		config.addDefault("Options.Optimize.TNT.DamageEntities", true);
-		config.setComments("Options.Optimize.TNT.DamageEntities",
-				Arrays.asList("# Can TNT explosion damage entities around", "# defaulty: true"));
-		config.addDefault("Options.Optimize.TNT.Power", 1);
-		config.setComments("Options.Optimize.TNT.Power", Arrays.asList("# Power of TNT explosion", "# defaulty: 1"));
-		config.addDefault("Options.Optimize.TNT.Drops.Allowed", true);
-		config.setComments("Options.Optimize.TNT.Drops.Allowed",
-				Arrays.asList("# Drop TNT explosion drops from destroyed blocks", "# defaulty: true"));
-		config.addDefault("Options.Optimize.TNT.Drops.InSingleLocation", true);
-		config.setComments("Options.Optimize.TNT.Drops.InSingleLocation",
-				Arrays.asList("# Drop TNT explosion drops to TNT's location", "# defaulty: true"));
-		config.addDefault("Options.Optimize.TNT.Drops.InFirstTNTLocation", false);
-		config.setComments("Options.Optimize.TNT.Drops.InFirstTNTLocation",
-				Arrays.asList("# Drop TNT explosion drops to first TNT's location",
-						"# This can be used for mining system", "# defaulty: false"));
-		config.addDefault("Options.Optimize.TNT.CollidingTNT.Use", true);
-		config.setComments("Options.Optimize.TNT.CollidingTNT.Use",
-				Arrays.asList("# Can TNT explosion explode colliding TNTs", "# defaulty: true"));
-		config.addDefault("Options.Optimize.TNT.CollidingTNT.IgniteTime", 3); // 0 is ultra fast, but with ultra lag
-		config.setComments("Options.Optimize.TNT.CollidingTNT.IgniteTime",
-				Arrays.asList("# Time to ignite TNT", "# defaulty: 3"));
-		config.addDefault("Options.Optimize.TNT.Action.LowMememory", "# WAIT");
-		config.setComments("Options.Optimize.TNT.Action", Arrays.asList("# Action types: WAIT, DROP"));
-		config.setComments("Options.Optimize.TNT.Action.LowMememory",
-				Arrays.asList("# What TheAPI have to do when is low memory (ex.: free 100mb)", "# defaulty: WAIT"));
-		config.addDefault("Options.Optimize.TNT.Action.LowTPS", "WAIT");
-		config.setComments("Options.Optimize.TNT.Action.LowTPS",
-				Arrays.asList("# What TheAPI have to do when is low tps (ex.: 15 TPS)", "# defaulty: WAIT"));
-		config.addDefault("Options.Optimize.TNT.SpawnTNT", false); // defaulty false, more friendly to server
-		config.setComments("Options.Optimize.TNT.SpawnTNT",
-				Arrays.asList("# If you enable this, TheAPI will spawn ignite TNT entities",
-						"# Big amount of ignite TNT entities server can be laggy", "# defaulty: false"));
 		config.addDefault("Options.EntityMoveEvent.Enabled", true);
 		config.setComments("Options.EntityMoveEvent.Enabled",
 				Arrays.asList("# Enable EntityMoveEvent event", "# defaulty: true"));
@@ -384,6 +334,8 @@ public class LoaderClass extends JavaPlugin {
 				if (placeholder.equalsIgnoreCase("server_online"))
 					return "" + TheAPI.getOnlinePlayers().size();
 				if (placeholder.equalsIgnoreCase("server_maxonline"))
+					return "" + TheAPI.getMaxPlayers();
+				if (placeholder.equalsIgnoreCase("server_max_online"))
 					return "" + TheAPI.getMaxPlayers();
 				if (placeholder.equalsIgnoreCase("server_version"))
 					return Bukkit.getBukkitVersion();

@@ -7,22 +7,17 @@ import org.bukkit.event.HandlerList;
 
 public class PlayerVanishEvent extends Event implements Cancellable {
 	private Player p;
-	private boolean v, req, cancel;
+	private boolean v, cancel;
 	private String s;
 
-	public PlayerVanishEvent(Player player, String perm, boolean b, boolean req) {
+	public PlayerVanishEvent(Player player, String perm, boolean b) {
 		p = player;
 		v = b;
-		this.req = req;
 		s = perm;
 	}
 
 	public String getPermission() {
 		return s;
-	}
-
-	public boolean requiredPermission() {
-		return req;
 	}
 
 	public void setPermission(String perm) {

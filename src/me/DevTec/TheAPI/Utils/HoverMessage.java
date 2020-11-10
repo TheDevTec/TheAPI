@@ -31,22 +31,22 @@ public class HoverMessage {
 		if (o != null)
 			maker.add(o);
 		o = maker.create();
-		o.add("text", TheAPI.colorize(text));
+		o.add("text", "\""+TheAPI.colorize(text)+"\"");
 		return this;
 	}
 
 	public HoverMessage setClickEvent(ClickAction action, String value) {
 		MakerObject ac = maker.create();
-		ac.put("action", action.name().toLowerCase());
-		ac.put("value", TheAPI.colorize(value));
+		ac.put("action", "\""+action.name().toLowerCase()+"\"");
+		ac.put("value", "\""+TheAPI.colorize(value)+"\"");
 		o.add("clickEvent", ac.toString());
 		return this;
 	}
 
 	public HoverMessage setHoverEvent(HoverAction action, Object value) {
 		MakerObject ac = maker.create();
-		ac.put("action", action.name().toLowerCase());
-		ac.put("value", value instanceof String ? TheAPI.colorize("" + value) : value);
+		ac.put("action", "\""+action.name().toLowerCase()+"\"");
+		ac.put("value", "\""+(value instanceof String ? TheAPI.colorize("" + value) : value)+"\"");
 		o.add("hoverEvent", ac.toString());
 		return this;
 	}

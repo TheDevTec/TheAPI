@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
 
@@ -21,6 +23,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
@@ -106,9 +109,36 @@ public class TheAPI {
 		return (PluginCommand) Ref.newInstance(constructor, name, plugin);
 	}
 
+	private static Object cmdMap = Ref.get(Bukkit.getPluginManager(), "commandMap");
+	@SuppressWarnings("unchecked")
+	private static HashMap<String, Command> knownCommands = (HashMap<String, Command>) Ref.get(cmdMap, "knownCommands");
 	public static void registerCommand(PluginCommand command) {
-		((CommandMap) Ref.get(Bukkit.getPluginManager(), "commandMap")).register(command.getPlugin().getName(),
-				command);
+		String label = command.getName().toLowerCase(Locale.ENGLISH).trim();
+		String sd = command.getPlugin().getName().toLowerCase(Locale.ENGLISH).trim();
+		command.setLabel(sd+":"+label);
+		List<String> low = new ArrayList<>();
+		for(String s : command.getAliases()) {
+			s=s.toLowerCase(Locale.ENGLISH).trim();
+			low.add(s);
+		}
+		if(!low.contains(label))low.add(label);
+	    for(String s : low)
+	    	knownCommands.put(s, command);
+	    command.register((CommandMap) cmdMap);
+	}
+	
+	public static boolean unregisterCommand(PluginCommand command) {
+		return unregisterCommand(command.getName());
+	}
+	
+	public static boolean unregisterCommand(String name) {
+		boolean is = false;
+	    for(Entry<String, Command> e : new HashMap<>(knownCommands).entrySet())
+	    	if(e.getValue().getName().equals("name")) {
+	    		knownCommands.remove(e.getKey());
+	    		is=true;
+	    	}
+		return is;
 	}
 
 	public static void clearCache() {
@@ -338,7 +368,11 @@ public class TheAPI {
 	 * @return Player
 	 */
 	public static Player getPlayer(int i) {
-		return getOnlinePlayers().size() - 1 <= i ? null : getOnlinePlayers().get(i);
+		try {
+			return getOnlinePlayers().get(i);
+		}catch(Exception er) {
+			return null;
+		}
 	}
 
 	/**
@@ -363,7 +397,7 @@ public class TheAPI {
 	 * @return Player
 	 */
 	public static Player getRandomPlayer() {
-		return (Player) getRandomFromList(getOnlinePlayers());
+		return getRandomFromList(getOnlinePlayers());
 	}
 
 	/**
@@ -590,6 +624,7 @@ public class TheAPI {
 	public static void giveItem(Player p, ItemStack... item) {
 		Validator.validate(item == null, "ItemStacks are null");
 		for (ItemStack i : item)
+			if(i!=null)
 			giveItems(p, i);
 	}
 
@@ -739,135 +774,54 @@ public class TheAPI {
 	public static int getMaxPlayers() {
 		return LoaderClass.plugin.max;
 	}
-
-	/**
-	 * @see see Hide or show player to players on server
-	 * @param p
-	 * @param permission To see player
-	 * @param vanish
-	 */
-	public static void vanish(Player p, String permission, boolean vanish) {
-		v(p, vanish, permission);
+	
+	public static void setVanish(String playerName, String permission, boolean value) {
+		getUser(playerName).setAndSave("vanish", value);
+		getUser(playerName).setAndSave("vanish.perm", permission);
+		Player s = getPlayerOrNull(playerName);
+		if(s!=null)applyVanish(s, permission, value);
+	}
+	
+	private static void applyVanish(Player s, String perm, boolean var) {
+		PlayerVanishEvent da = new PlayerVanishEvent(s, perm, var);
+		Bukkit.getPluginManager().callEvent(da);
+		if (!da.isCancelled()) {
+			var = da.vanish();
+			perm = da.getPermission();
+			if(var) {
+				for(Player d : getOnlinePlayers())
+					if(d!=s)
+						d.hidePlayer(s);
+				return;
+			}
+			for(Player d : getOnlinePlayers())
+				if(d!=s)
+					d.showPlayer(s);
+		}
 	}
 
-	private static boolean isV(Player player) {
+	private static boolean hasSuperVanish(Player player) {
 		if (player.hasMetadata("vanished"))
 			for (MetadataValue meta : player.getMetadata("vanished"))
 				return meta.asBoolean();
 		return false;
 	}
-
-	/**
-	 * @see see Return is player in vanish mode
-	 * @param p
-	 * @return boolean
-	 */
-	public static boolean isVanished(Player p) {
-		return isV(p) || getUser(p).exists("vanish");
+	
+	public static boolean hasVanish(String playerName) {
+		Player s = getPlayerOrNull(playerName);
+		return s!=null?(hasSuperVanish(s) || getUser(s).getBoolean("vanish")) : getUser(playerName).getBoolean("vanish");
 	}
-
-	/**
-	 * @see see Return is player in vanish mode
-	 * @param p
-	 * @return boolean
-	 */
-	public static boolean isVanished(String p) {
-		return getUser(p).exists("vanish");
+	
+	public static String getVanishPermission(String playerName) {
+		return getUser(playerName).getString("vanish.perm");
 	}
-
-	/**
-	 * @see see Hide or show player to players on server
-	 * @param p
-	 * @param vanish
-	 */
-	public static void vanish(Player p, boolean vanish) {
-		v(p, vanish, null);
+	
+	public static boolean canSee(Player player, String target) {
+		return hasVanish(target) ? player.hasPermission(getVanishPermission(target)) : true;
 	}
-
-	/**
-	 * @see see Hide or show player to players on server
-	 * @param p
-	 * @param vanish
-	 */
-	public static void vanish(String p, boolean vanish) {
-		vanish(p, vanish, null);
-	}
-
-	/**
-	 * @see see Hide or show player to players on server
-	 * @param p
-	 * @param vanish
-	 */
-	public static void vanish(String p, boolean vanish, String perm) {
-		if (vanish) {
-			if (perm != null)
-				getUser(p).setAndSave("vanish", perm);
-			List<String> v = LoaderClass.data.getStringList("vanished");
-			v.add(p);
-			LoaderClass.data.set("vanished", v);
-		} else {
-			getUser(p).setAndSave("vanish", null);
-			List<String> v = LoaderClass.data.getStringList("vanished");
-			v.remove(p);
-			LoaderClass.data.set("vanished", v);
-		}
-		LoaderClass.data.save();
-	}
-
-	public static boolean canSee(Player who, Player target) {
-		return canSee(who, getUser(target));
-	}
-
-	public static boolean canSee(Player who, User target) {
-		return has(who, target)
-				&& (getPlayerOrNull(target.getName()) != null ? who.canSee(getPlayerOrNull(target.getName()))
-						: target.exists("vanish"));
-	}
-
-	private static boolean has(Player s, User d) {
-		if (d.exists("vanish"))
-			return s.hasPermission(d.getString("vanish"));
-		else
-			return true;
-	}
-
-	private static void hide(Player p) {
-		if (isVanished(p)) {
-			for (Player s : getOnlinePlayers()) {
-				if (s != p && !has(s, TheAPI.getUser(p)))
-					s.hidePlayer(p);
-			}
-		} else {
-			for (Player s : getOnlinePlayers()) {
-				s.showPlayer(p);
-			}
-		}
-	}
-
-	private static void v(Player p, boolean vanish, String perm) {
-		PlayerVanishEvent d = new PlayerVanishEvent(p, (perm == null ? null : perm), vanish,
-				(perm == null ? false : true));
-		Bukkit.getPluginManager().callEvent(d);
-		if (!d.isCancelled()) {
-			vanish = d.vanish();
-			perm = d.getPermission();
-			if (vanish) {
-				if (perm != null)
-					getUser(p).setAndSave("vanish", perm);
-				List<String> v = LoaderClass.data.getStringList("vanished");
-				if (!v.contains(p.getName()))
-					v.add(p.getName());
-				LoaderClass.data.set("vanished", v);
-			} else {
-				getUser(p).setAndSave("vanish", null);
-				List<String> v = LoaderClass.data.getStringList("vanished");
-				if (v.contains(p.getName()))
-					v.remove(p.getName());
-				LoaderClass.data.set("vanished", v);
-			}
-			LoaderClass.data.save();
-			hide(p);
-		}
+	
+	public static boolean canSee(String player, String target) {
+		return hasVanish(target);
 	}
 
 	/**

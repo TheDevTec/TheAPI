@@ -6,24 +6,35 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
+import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class TheMaterial implements Cloneable {
 
 	public TheMaterial(Object IBlockDataOrBlock) {
+		if(IBlockDataOrBlock==null) {
+			m=Material.AIR;
+			data=0;
+			amount=1;
+		}
 		ItemStack stack = (ItemStack) Ref.invoke(
-				Ref.invoke(null, Ref.method(Ref.craft("util.CraftMagicNumbers"), "getMaterial", Ref.nms("IBlockData")),
+				Ref.invokeNulled(Ref.method(Ref.craft("util.CraftMagicNumbers"), "getMaterial", Ref.nms("IBlockData")),
 						IBlockDataOrBlock),
 				"toItemStack");
-		m = stack == null ? (Material) Ref.invokeNulled(
-				Ref.method(Ref.craft("util.CraftMagicNumbers"), "getMaterial", Ref.nms("Block")),
-				Ref.invoke(IBlockDataOrBlock, "getBlock")) : stack.getType();
-		this.data = stack == null
-				? (int) Ref.invoke(Ref.invoke(IBlockDataOrBlock, "getBlock"),
-						Ref.method(Ref.nms("Block"), "toLegacyData", Ref.nms("IBlockData")), IBlockDataOrBlock)
-				: stack.getData().getData();
-		this.amount = stack == null ? 1 : stack.getAmount();
+		if(stack==null) {
+			m=(Material) Ref.invokeNulled(
+					Ref.method(Ref.craft("util.CraftMagicNumbers"), "getMaterial", Ref.nms("Block")),
+					Ref.invoke(IBlockDataOrBlock, "getBlock"));
+			if(TheAPI.isNewerThan(12)) {
+				this.data = (int)(byte)Ref.invokeNulled(
+						Ref.method(Ref.craft("util.CraftMagicNumbers"), "toLegacyData", Ref.nms("IBlockData")),
+						IBlockDataOrBlock);
+			}else
+			this.data = (int) Ref.invoke(Ref.invoke(IBlockDataOrBlock, "getBlock"),
+				Ref.method(Ref.nms("Block"), "toLegacyData", Ref.nms("IBlockData")), IBlockDataOrBlock);
+			this.amount = 1;
+		}
 	}
 
 	public TheMaterial(ItemStack stack) {

@@ -1,10 +1,12 @@
 package me.DevTec.TheAPI.Utils;
 
+import java.awt.Color;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -12,6 +14,7 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
@@ -25,7 +28,8 @@ public class StringUtils {
 	private static Random random = new Random();
 
 	public static interface ColormaticFactory {
-		public String getColor();
+		public String colorize(String text);
+		public String getNextColor();
 	}
 
 	/**
@@ -190,92 +194,235 @@ public class StringUtils {
 	 * @return HoverMessage
 	 */
 	public static HoverMessage getHoverMessage(String... message) {
-		/**
-		 * Example:
-		 * 
-		 * StringUtils.getHoverMessage("&eHello "+player.getName()+"
-		 * ").setHoverEvent("&cHoooooveeer messaagee")
-		 * .addText("&1A").setHoverEvent("&1A").setClickEvent(ClickAction.RUN_COMMAND,
-		 * "a")
-		 * .addText("&2B").setHoverEvent("&2B").setClickEvent(ClickAction.RUN_COMMAND,
-		 * "b")
-		 * .addText("&3C").setHoverEvent("&3C").setClickEvent(ClickAction.RUN_COMMAND,
-		 * "c")
-		 * .addText("&4D").setHoverEvent("&4D").setClickEvent(ClickAction.RUN_COMMAND,
-		 * "d")
-		 * .addText("&5E").setHoverEvent("&5E").setClickEvent(ClickAction.RUN_COMMAND,
-		 * "e").send(player);
-		 * 
-		 */
 		return new HoverMessage(message);
 	}
 
 	private static final Pattern hex = Pattern.compile("#[a-fA-F0-9]{6}");
-	public static ColormaticFactory color = new ColormaticFactory() {
-		private List<Character> list = Arrays.asList('4', 'c', '6', 'e', '5', 'd', '9', '3', 'b', '2', 'a');
-		private int i = 0;
+	public static ColormaticFactory color;
+	static {
+		if(TheAPI.isNewerThan(15)) {
+			color = new ColormaticFactory() {
+				private List<String> list = Arrays.asList("#FF0000", "#FF005C", "#9300A1", "#6400FF"
+						, "#1900FF", "#0040FF", "#009EFF", "#00F8FF", "#00FF9A", "#00FF37"
+						, "#56FF00", "#D1FF00", "#FFB800", "#FF6C00", "#FF3800", "#FF0000", "#A62D60", "#54A62D"
+						, "#9FB427", "#89400D", "#248698", "#6C1599", "#159962", "#74D912");
+				@Override
+				public String colorize(String text) {
+					String one = getNextColor(), second = getNextColor();
+					while(one.equals(second))second=getNextColor();
+					return gradient(text, second, one);
+				}
 
-		@Override
-		public String getColor() {
-			if (i >= list.size())
-				i = 0;
-			return "&" + list.get(i++);
-		}
-	};
+				@Override
+				public String getNextColor() {
+					return TheAPI.getRandomFromList(list);
+				}
+			};
+		}else
+		color = new ColormaticFactory() {
+			private List<String> list = Arrays.asList("&4", "&c", "&6", "&e", "&5", "&d", "&9", "&3", "&b", "&2", "&a");
+			private int i = 0;
+
+			@Override
+			public String colorize(String text) {
+				String ff = text;
+				int length = ff.length();
+    			HashMap<Integer, String> l = new HashMap<>();
+    	        ff = ff.replace("", "<!>");
+    	        Matcher ma = old.matcher(ff);
+    	        while(ma.find()) {
+    	        	switch(ma.group(3).toLowerCase()) {
+    	        	case "o":
+    	        	case "l":
+    	        	case "m":
+    	        	case "n":
+    	        	case "k":
+    		        	l.put((ff.indexOf(ma.group())/4+1), ma.group(3).toLowerCase());
+    	        		break;
+    	        	}
+    	        	ff=ff.replaceFirst(ma.group(), "");
+    	        }
+    	        boolean bold=false, strikethrough=false, underlined=false, italic=false, magic=false, br = false;
+    	        for (int index = 0; index <= length; index++) {
+    	            String formats = "";
+    	            if(l.containsKey(index)) {
+    	            	switch(l.get(index)) {
+    	            	case "l":
+    	            		bold=true;
+    	            		break;
+    	            	case "m":
+    	            		strikethrough=true;
+    	            		break;
+    	            	case "n":
+    	            		underlined=true;
+    	            		break;
+    	            	case "o":
+    	            		italic=true;
+    	            		break;
+    	            	case "k":
+    	            		magic=true;
+    	            		break;
+    	            	case "u":
+    	            	case "r":
+    	            		bold=false;
+    	            		strikethrough=false;
+    	            		italic=false;
+    	            		magic=false;
+    	            		underlined=false;
+    	            		break;
+    	            	default:
+    	            		br = true;
+    	            		bold=false;
+    	            		strikethrough=false;
+    	            		italic=false;
+    	            		magic=false;
+    	            		underlined=false;
+    	            		break;
+    	            	}
+    	            }
+    	            if (bold) formats += ChatColor.BOLD;
+    	            if (italic) formats += ChatColor.ITALIC;
+    	            if (underlined) formats += ChatColor.UNDERLINE;
+    	            if (strikethrough) formats += ChatColor.STRIKETHROUGH;
+    	            if (magic) formats += ChatColor.MAGIC;
+    		        ff = ff.replaceFirst("<!>", br?"&"+l.get(index)+formats:color.getNextColor() + formats);
+    	        }
+    	        return ff;
+			}
+
+			@Override
+			public String getNextColor() {
+				if (i >= list.size())i = 0;
+				return list.get(i++);
+			}
+		};
+	}
+	
+	private static Pattern reg  = Pattern.compile("&((<!>)*)([Rrk-oK-O])"), old  = Pattern.compile("&((<!>)*)([A-Za-zUu0-9Rrk-oK-O])");    
+    private static String gradient(String msg, String fromHex, String toHex) {
+    	int length =msg.length();
+        boolean bold=false, italic=false, underlined=false, strikethrough=false, magic=false;
+        Color fromRGB = Color.decode(fromHex), toRGB = Color.decode(toHex);
+        double rStep = Math.abs((double) (fromRGB.getRed() - toRGB.getRed()) /length);
+        double gStep = Math.abs((double) (fromRGB.getGreen() - toRGB.getGreen()) / length);
+        double bStep = Math.abs((double) (fromRGB.getBlue() - toRGB.getBlue()) / length);
+        if (fromRGB.getRed() > toRGB.getRed()) rStep = -rStep;
+        if (fromRGB.getGreen() > toRGB.getGreen()) gStep = -gStep;
+        if (fromRGB.getBlue() > toRGB.getBlue()) bStep = -bStep;
+        Color finalColor = new Color(fromRGB.getRGB());
+        HashMap<Integer, String> l = new HashMap<>();
+        msg = msg.replaceAll("#[A-Fa-f0-9]{6}", "");
+        msg = msg.replace("", "<!>");
+        Matcher ma = reg.matcher(msg);
+        while(ma.find()) {
+        	l.put((msg.indexOf(ma.group())/4+1), ma.group(3).toLowerCase());
+        	msg=msg.replaceFirst(ma.group(), "");
+        }
+        for (int index = 0; index <= length; index++) {
+            int red = (int) Math.round(finalColor.getRed() + rStep);
+            int green = (int) Math.round(finalColor.getGreen() + gStep);
+            int blue = (int) Math.round(finalColor.getBlue() + bStep);
+            if (red > 255) red = 255; 
+            if (red < 0) red = 0;
+            if (green > 255) green = 255; 
+            if (green < 0) green = 0;
+            if (blue > 255) blue = 255; 
+            if (blue < 0) blue = 0;
+            finalColor = new Color(red, green, blue);
+            String hex = "#" + Integer.toHexString(finalColor.getRGB()).substring(2);
+            String formats = "";
+            if(l.containsKey(index)) {
+            	switch(l.get(index)) {
+            	case "l":
+            		bold=true;
+            		break;
+            	case "m":
+            		strikethrough=true;
+            		break;
+            	case "n":
+            		underlined=true;
+            		break;
+            	case "o":
+            		italic=true;
+            		break;
+            	case "k":
+            		magic=true;
+            		break;
+            	default:
+            		bold=false;
+            		strikethrough=false;
+            		italic=false;
+            		magic=false;
+            		underlined=false;
+            		break;
+            	}
+            }
+            if (bold) formats += ChatColor.BOLD;
+            if (italic) formats += ChatColor.ITALIC;
+            if (underlined) formats += ChatColor.UNDERLINE;
+            if (strikethrough) formats += ChatColor.STRIKETHROUGH;
+            if (magic) formats += ChatColor.MAGIC;
+            msg = msg.replaceFirst("<!>", hex + formats);
+        }
+        return msg;
+    }
 
 	/**
 	 * @see see Colorize string with colors (&eHello world -> {YELLOW}Hello world)
 	 * @param string
 	 * @return String
 	 */
-	public static String colorize(String string) {
-		if (string == null)
-			return null;
-		if (string.toLowerCase().contains("&u")) {
-			String recreate = "";
-			int mode = 0;
-			for (char c : string.toCharArray()) {
-				if (c == '&') {
-					if (mode == 1) { // &&
-						recreate += "&" + c;
-						mode = 0;
-					} else
-						mode = 1;
-				} else {
-					if (mode == 1) {
-						mode = 0;
-						if (Character.toLowerCase(c) == 'u') { // &u
-							mode = 2;
-						} else { // ...
-							recreate += "&" + c;
-						}
-					} else {
-						if (mode == 2) { // &uText..
-							if (c == ' ')
-								recreate += c;
-							else
-								recreate += color.getColor() + c;
-						} else
-							recreate += c;
-					}
-				}
-			}
-			string = recreate;
+	public static String colorize(String msg) {
+		if (msg == null)return null;
+		if (msg.toLowerCase().contains("&u")) {
+	    	List<String> s = new ArrayList<>();
+	    	StringBuffer d = new StringBuffer();
+	    	int found = 0;
+	    	for(char c : msg.toCharArray()) {
+	    		if(c=='&') {
+	    			if(found==1)
+	    			d.append(c);
+	    			found=1;
+		    		continue;
+	    		}
+	    		if(found==1 && Pattern.compile("[A-Fa-fUu0-9]").matcher(c+"").find()) {
+		    		found=0;
+			    	s.add(d.toString());
+		    		d=d.delete(0, d.length());
+		    		d.append("&"+c);
+		    		continue;
+	    		}
+    			if(found==1) {
+    	    		found=0;
+		    		d.append("&"+c);
+		    		continue;
+    			}
+	    		found=0;
+	    		d.append(c);
+	    	}
+	    	if(d.length()!=0)
+	    		s.add(d.toString());
+	    	d = d.delete(0, d.length());
+	    	for(String ff : s) {
+	    		if(ff.toLowerCase().startsWith("&u"))
+	    			ff=color.colorize(ff.substring(2));
+	    		d.append(ff);
+	    	}
+	    	msg=d.toString();
 		}
-		if (TheAPI.isNewerThan(15) && string.contains("#")) {
-			string = string.replace("&x", "§x");
-			Matcher match = hex.matcher(string);
+		if (TheAPI.isNewerThan(15) && (msg.contains("#")||msg.contains("&x")||msg.contains("§x"))) {
+			msg = msg.replace("&x", "§x");
+			Matcher match = hex.matcher(msg);
 			while (match.find()) {
 				String color = match.group();
 				StringBuilder magic = new StringBuilder("§x");
 				char[] c = color.substring(1).toCharArray();
-				for (int i = 0; i < c.length; ++i) {
+				for (int i = 0; i < c.length; ++i)
 					magic.append(("&" + c[i]).toLowerCase());
-				}
-				string = string.replace(color, magic.toString() + "");
+				msg = msg.replace(color, magic.toString() + "");
 			}
 		}
-		return ChatColor.translateAlternateColorCodes('&', string);
+		return ChatColor.translateAlternateColorCodes('&', msg);
 	}
 
 	/**
@@ -496,13 +643,12 @@ public class StringUtils {
 	public static BigDecimal calculate(String fromString) {
 		if (fromString == null)
 			return new BigDecimal(0);
-		String a = fromString.replaceAll("[^0-9E+.,-]+", "").replace(",", ".");
-		Matcher c = Pattern.compile("[^0-9E+.,-]+").matcher(a);
-		if (c.find())
-			for (String s = c.group(); c.find();)
-				a = a.replace(s, new BigDecimal(s) + "");
+		String a = fromString.replaceAll("[^0-9E+.,()*/-]+", "").replace(",", ".");
 		try {
-			return new BigDecimal(new ScriptEngineManager().getEngineByName("JavaScript").eval(a).toString());
+			ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
+			if(engine==null)engine=new ScriptEngineManager().getEngineByName("nashorn");
+			if(engine==null)engine=new ScriptEngineManager().getEngineByName("graal.js");
+			return new BigDecimal(""+engine.eval(a));
 		} catch (ScriptException e) {
 		}
 		return new BigDecimal(0);

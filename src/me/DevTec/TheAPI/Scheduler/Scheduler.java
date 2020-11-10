@@ -1,17 +1,20 @@
 package me.DevTec.TheAPI.Scheduler;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 
 public class Scheduler {
-	private final static HashMap<Integer, Thread> tasks = new HashMap<>();
+	private final static HashMap<Integer, ThreadGroup> tasks = new HashMap<>();
 	private static int id;
 
 	public static void cancelAll() {
-		for (Thread t : tasks.values())
-			t.interrupt();
+		try {
+		for (Entry<Integer, ThreadGroup> t : tasks.entrySet())
+			t.getValue().interrupt();
 		tasks.clear();
+		}catch(Exception errr) {}
 	}
 
 	public static void cancelTask(int task) {
@@ -31,7 +34,9 @@ public class Scheduler {
 
 	public static int later(long delay, Runnable r) {
 		int id = find();
-		tasks.put(id, new Thread(new Runnable() {
+		ThreadGroup group = new ThreadGroup("TheAPI thread-" + id);
+		tasks.put(id, group);
+		new Thread(group, new Runnable() {
 			public void run() {
 				try {
 					if (delay > 0)
@@ -49,14 +54,15 @@ public class Scheduler {
 					return;
 				}
 			}
-		}, "TheAPI thread-" + id));
-		tasks.get(id).start();
+		}, "TheAPI thread-" + id).start();
 		return id;
 	}
 
 	public static int laterSync(long delay, Runnable r) {
 		int id = find();
-		tasks.put(id, new Thread(new Runnable() {
+		ThreadGroup group = new ThreadGroup("TheAPI thread-" + id);
+		tasks.put(id, group);
+		new Thread(group, new Runnable() {
 			public void run() {
 				try {
 					if (delay > 0)
@@ -74,14 +80,15 @@ public class Scheduler {
 					return;
 				}
 			}
-		}, "TheAPI thread-" + id));
-		tasks.get(id).start();
+		}, "TheAPI thread-" + id).start();
 		return id;
 	}
 
 	public static int repeating(long delay, long period, Runnable r) {
 		int id = find();
-		tasks.put(id, new Thread(new Runnable() {
+		ThreadGroup group = new ThreadGroup("TheAPI thread-" + id);
+		tasks.put(id, group);
+		new Thread(group, new Runnable() {
 			public void run() {
 				try {
 					if (delay > 0)
@@ -104,14 +111,15 @@ public class Scheduler {
 					return;
 				}
 			}
-		}, "TheAPI thread-" + id));
-		tasks.get(id).start();
+		}, "TheAPI thread-" + id).start();
 		return id;
 	}
 
 	public static int repeatingSync(long delay, long period, Runnable r) {
 		int id = find();
-		tasks.put(id, new Thread(new Runnable() {
+		ThreadGroup group = new ThreadGroup("TheAPI thread-" + id);
+		tasks.put(id, group);
+		new Thread(group, new Runnable() {
 			public void run() {
 				try {
 					if (delay > 0)
@@ -134,8 +142,7 @@ public class Scheduler {
 					return;
 				}
 			}
-		}, "TheAPI thread-" + id));
-		tasks.get(id).start();
+		}, "TheAPI thread-" + id).start();
 		return id;
 	}
 
@@ -149,7 +156,9 @@ public class Scheduler {
 
 	public static int repeatingTimesSync(long delay, long period, long times, Runnable r) {
 		int id = find();
-		tasks.put(id, new Thread(new Runnable() {
+		ThreadGroup group = new ThreadGroup("TheAPI thread-" + id);
+		tasks.put(id, group);
+		new Thread(group, new Runnable() {
 			long run = 0;
 
 			public void run() {
@@ -174,14 +183,15 @@ public class Scheduler {
 					return;
 				}
 			}
-		}, "TheAPI thread-" + id));
-		tasks.get(id).start();
+		}, "TheAPI thread-" + id).start();
 		return id;
 	}
 
 	public static int repeatingTimes(long delay, long period, long times, Runnable r) {
 		int id = find();
-		tasks.put(id, new Thread(new Runnable() {
+		ThreadGroup group = new ThreadGroup("TheAPI thread-" + id);
+		tasks.put(id, group);
+		new Thread(group, new Runnable() {
 			long run = 0;
 
 			public void run() {
@@ -206,8 +216,7 @@ public class Scheduler {
 					return;
 				}
 			}
-		}, "TheAPI thread-" + id));
-		tasks.get(id).start();
+		}, "TheAPI thread-" + id).start();
 		return id;
 	}
 

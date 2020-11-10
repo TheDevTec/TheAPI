@@ -1,12 +1,10 @@
 package me.DevTec.TheAPI.Utils.TheAPIUtils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -18,7 +16,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -34,7 +31,6 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
@@ -43,12 +39,9 @@ import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.TheAPI.SudoType;
 import me.DevTec.TheAPI.APIs.SignAPI;
 import me.DevTec.TheAPI.APIs.SignAPI.SignAction;
-import me.DevTec.TheAPI.BlocksAPI.BlocksAPI;
-import me.DevTec.TheAPI.BlocksAPI.BlocksAPI.Shape;
 import me.DevTec.TheAPI.Events.DamageGodPlayerByEntityEvent;
 import me.DevTec.TheAPI.Events.DamageGodPlayerEvent;
 import me.DevTec.TheAPI.Events.PlayerJumpEvent;
-import me.DevTec.TheAPI.Events.TNTExplosionEvent;
 import me.DevTec.TheAPI.GUIAPI.GUI;
 import me.DevTec.TheAPI.GUIAPI.ItemGUI;
 import me.DevTec.TheAPI.PunishmentAPI.PlayerBanList;
@@ -56,8 +49,6 @@ import me.DevTec.TheAPI.PunishmentAPI.PlayerBanList.PunishmentType;
 import me.DevTec.TheAPI.PunishmentAPI.PunishmentAPI;
 import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.StringUtils;
-import me.DevTec.TheAPI.Utils.TheMaterial;
-import me.DevTec.TheAPI.Utils.DataKeeper.Storage;
 import me.DevTec.TheAPI.Utils.DataKeeper.User;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.WorldsAPI.WorldBorderAPI.WarningMessageType;
@@ -165,158 +156,6 @@ public class Events implements Listener {
 			}
 		}
 		return is;
-	}
-
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onExplode(EntityExplodeEvent e) {
-		if (e.isCancelled())
-			return;
-		if (LoaderClass.config.getBoolean("Options.Optimize.TNT.Use")) {
-			e.setCancelled(true);
-			get((e.getEntity().hasMetadata("firstTnt")
-					? new Position(
-							BlocksAPI.getLocationFromString(e.getEntity().getMetadata("firstTnt").get(0).asString()))
-					: new Position(e.getLocation())), new Position(e.getLocation()));
-		}
-	}
-
-	public static boolean around(Position position) {
-		boolean s = false;
-		String f = position.getBukkitType().name();
-		if (f.contains("WATER") || f.contains("LAVA")) {
-			s = true;
-		}
-		return s;
-	}
-
-	public static void get(Position reals, Position c) {
-		TNTExplosionEvent event = new TNTExplosionEvent(c);
-		Bukkit.getPluginManager().callEvent(event);
-		if (event.isCancelled()) {
-			return;
-		}
-		new TNTTask(reals,
-				BlocksAPI.get(Shape.Sphere, c, event.isNuclearBomb() ? event.getPower() * 20 : event.getPower() * 2,
-						blocks(event.isNuclearBomb() && event.canNuclearDestroyLiquid())),
-				event).start();
-	}
-
-	public static List<TheMaterial> blocks(boolean b) {
-		ArrayList<TheMaterial> m = new ArrayList<>();
-		m.add(new TheMaterial("AIR"));
-		try {
-			m.add(new TheMaterial("BARRIER"));
-		} catch (Exception | NoSuchFieldError e) {
-
-		}
-		m.add(new TheMaterial("BEDROCK"));
-		m.add(new TheMaterial("ENDER_CHEST"));
-		try {
-			m.add(new TheMaterial("END_PORTAL_FRAME"));
-		} catch (Exception | NoSuchFieldError e) {
-
-		}
-		try {
-			m.add(new TheMaterial("STRUCTURE_BLOCK"));
-			m.add(new TheMaterial("JIGSAW"));
-		} catch (Exception | NoSuchFieldError e) {
-
-		}
-		m.add(new TheMaterial("OBSIDIAN"));
-		try {
-			m.add(new TheMaterial("END_GATEWAY"));
-		} catch (Exception | NoSuchFieldError e) {
-
-		}
-		try {
-			m.add(new TheMaterial("END_PORTAL"));
-		} catch (Exception | NoSuchFieldError e) {
-
-		}
-		try {
-			m.add(new TheMaterial("COMMAND_BLOCK"));
-			m.add(new TheMaterial("REPEATING_COMMAND_BLOCK"));
-			m.add(new TheMaterial("CHAIN_COMMAND_BLOCK"));
-		} catch (Exception | NoSuchFieldError e) {
-			m.add(new TheMaterial("COMMAND"));
-		}
-		if (!b) {
-			m.add(new TheMaterial("LAVA"));
-			m.add(new TheMaterial("STATIONARY_LAVA"));
-			m.add(new TheMaterial("WATER"));
-			m.add(new TheMaterial("STATIONARY_WATER"));
-		}
-		try {
-			m.add(new TheMaterial("ENCHANTING_TABLE"));
-		} catch (Exception | NoSuchFieldError e) {
-			m.add(new TheMaterial("ENCHANTMENT_TABLE"));
-		}
-		m.add(new TheMaterial("ANVIL"));
-		try {
-			m.add(new TheMaterial("CHIPPED_ANVIL"));
-			m.add(new TheMaterial("DAMAGED_ANVIL"));
-		} catch (Exception | NoSuchFieldError e) {
-
-		}
-		try {
-			m.add(new TheMaterial("NETHERITE_BLOCK"));
-			m.add(new TheMaterial("CRYING_OBSIDIAN"));
-			m.add(new TheMaterial("ANCIENT_DEBRIS"));
-		} catch (Exception | NoSuchFieldError e) {
-
-		}
-		return m;
-	}
-
-	public static Storage add(Position block, Position real, boolean t, Storage st, Collection<ItemStack> collection) {
-		if (!t) {
-			if (LoaderClass.config.getBoolean("Options.Optimize.TNT.Drops.InSingleLocation")) {
-				for (ItemStack i : collection) {
-					if (i != null && i.getType() != Material.AIR)
-						st.add(i);
-				}
-			} else {
-				Storage qd = new Storage();
-				for (ItemStack i : collection) {
-					if (i != null && i.getType() != Material.AIR)
-						qd.add(i);
-				}
-				if (qd.isEmpty() == false)
-					for (ItemStack i : qd.getItems())
-						if (i != null && i.getType() != Material.AIR)
-							block.getWorld().dropItemNaturally(block.toLocation(), i);
-			}
-		} else {
-			List<Inventory> qd = new ArrayList<Inventory>();
-			Inventory a = Bukkit.createInventory(null, 54);
-			if (qd.isEmpty() == false) {
-				for (Inventory i : qd) {
-					if (i.firstEmpty() != -1) {
-						a = i;
-						break;
-					}
-				}
-			}
-			if (qd.contains(a))
-				qd.remove(a);
-			for (ItemStack i : collection) {
-				if (a.firstEmpty() != -1)
-					if (i != null && i.getType() != Material.AIR)
-						a.addItem(i);
-					else {
-						qd.add(a);
-						a = Bukkit.createInventory(null, 54);
-						a.addItem(i);
-					}
-			}
-			qd.add(a);
-			if (qd.isEmpty() == false)
-				for (Inventory f : qd)
-					for (ItemStack i : f.getContents())
-						if (i != null && i.getType() != Material.AIR)
-							real.getWorld().dropItemNaturally(real.toLocation(), i);
-		}
-		return st;
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -488,14 +327,14 @@ public class Events implements Listener {
 				TheAPI.msg("&ePlugins using TheAPI: &6" + StringUtils.join(pl, ", "), s);
 		}
 		for (Player p : TheAPI.getOnlinePlayers()) {
-			if (TheAPI.isVanished(p)
+			if (TheAPI.hasVanish(p.getName())
 					&& (TheAPI.getUser(p).exist("vanish") ? !s.hasPermission(TheAPI.getUser(p).getString("vanish"))
 							: true)) {
 				s.hidePlayer(p);
 			}
 		}
-		if (TheAPI.isVanished(s))
-			TheAPI.vanish(s, TheAPI.getUser(s).getString("vanish"), true);
+		if (TheAPI.hasVanish(s.getName()))
+			TheAPI.setVanish(s.getName(), TheAPI.getUser(s).getString("vanish"), true);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)

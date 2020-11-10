@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,8 +13,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class Ref {
-	private static Constructor<?> blockpos = constructor(nms("BlockPosition"), double.class, double.class,
-			double.class),
+	private static Constructor<?> blockpos = constructor(nms("BlockPosition"), double.class, double.class, double.class),
 			c = Ref.constructor(
 					Ref.getClass("com.mojang.authlib.GameProfile") != null
 							? Ref.getClass("com.mojang.authlib.GameProfile")
@@ -23,11 +23,10 @@ public class Ref {
 					Ref.getClass("com.mojang.authlib.properties.Property") != null
 							? Ref.getClass("com.mojang.authlib.properties.Property")
 							: Ref.getClass("net.minecraft.util.com.mojang.authlib.properties.Property"),
-					String.class, String.class);
-	private static Field playerCon = Ref.field(nms("EntityPlayer"), "playerConnection");
+					String.class, String.class, String.class);
 	private static Object server = invoke(handle(cast(craft("CraftServer"), Bukkit.getServer())), "getServer");
 	private static Class<?> craft = craft("entity.CraftPlayer"), world = craft("CraftWorld");
-	private static Method ichatcon, send = Ref.method(nms("PlayerConnection"), "sendPacket", Ref.nms("Packet"));
+	private static Method ichatcon, send = Ref.method(nms("NetworkManager"), "sendPacket", Ref.nms("Packet"));
 	static {
 		ichatcon = method(nms("IChatBaseComponent$ChatSerializer"), "a", String.class);
 		if (ichatcon == null)
@@ -55,10 +54,16 @@ public class Ref {
 						playerName))[0]);
 	}
 
-	public static Object createProperty(String key, String value) {
-		if (key == null || value == null)
+	public static Object createProperty(String key, String texture, String signature) {
+		if (key == null || texture == null)
 			return null;
-		return Ref.newInstance(d, key, value);
+		return Ref.newInstance(d, key, texture, signature);
+	}
+
+	public static Object createProperty(String key, String texture) {
+		if (key == null || texture == null)
+			return null;
+		return Ref.newInstance(d, key, texture, null);
 	}
 
 	public static void set(Object main, Field field, Object o) {
@@ -105,7 +110,7 @@ public class Ref {
 	}
 
 	public static void sendPacket(Player to, Object packet) {
-		Ref.invoke(Ref.get(Ref.player(to), playerCon), send, packet);
+		Ref.invoke(Ref.network(Ref.playerCon(to)), send, packet);
 	}
 
 	public static Object server() {
@@ -158,13 +163,9 @@ public class Ref {
 
 	public static Constructor<?> constructor(Class<?> main, Class<?>... bricks) {
 		try {
-			return main.getConstructor(bricks);
+			return main.getDeclaredConstructor(bricks);
 		} catch (Exception es) {
-			try {
-				return main.getDeclaredConstructor(bricks);
-			} catch (Exception e) {
-				return null;
-			}
+			return null;
 		}
 	}
 
@@ -246,51 +247,50 @@ public class Ref {
 
 	public static Method method(Class<?> main, String name, Class<?>... bricks) {
 		try {
-			Method f = main.getMethod(name, bricks);
-			f.setAccessible(true);
-			return f;
-		} catch (Exception es) {
-			try {
-				Method f = main.getDeclaredMethod(name, bricks);
-				f.setAccessible(true);
-				return f;
-			} catch (Exception e) {
-				try {
-					if (main.getSuperclass() != null)
-						return method(main.getSuperclass(), name, bricks);
-				} catch (Exception er) {
+			Method a = main.getDeclaredMethod(name, bricks);
+			Class<?> d = main;
+			while(d!=null && a ==null) {
+				for (Method m : getDeclaredMethods(d)) {
+					if (m.getName().equals(name) && areSame(m.getParameterTypes(),bricks)) {
+						a = m;
+						break;
+					}
 				}
-				return null;
+				d=d.getSuperclass();
 			}
+			if (a != null)
+				a.setAccessible(true);
+			return a;
+		} catch (Exception e) {
+			return null;
 		}
 	}
 
 	public static Field field(Class<?> main, String name) {
 		try {
-			Field f = main.getField(name);
-			if (f != null)
-				f.setAccessible(true);
+			Field f = main.getDeclaredField(name);
+			f.setAccessible(true);
 			return f;
-		} catch (Exception es) {
+		} catch (Exception e) {
 			try {
-				Field f = main.getDeclaredField(name);
-				f.setAccessible(true);
-				return f;
-			} catch (Exception e) {
-				try {
-					if (main.getSuperclass() != null)
-						return field(main.getSuperclass(), name);
-				} catch (Exception er) {
+				Field f = null;
+				Class<?> c = main.getSuperclass();
+				while(c!=null && f == null) {
+					f = c.getDeclaredField(name);
+					c=c.getSuperclass();
 				}
-				return null;
+				if (f != null)
+					f.setAccessible(true);
+				return f;
+			} catch (Exception er) {
 			}
+			return null;
 		}
 	}
 
 	public static Object get(Object main, Field field) {
 		try {
-			if (!field.isAccessible())
-				field.setAccessible(true);
+			field.setAccessible(true);
 			return field.get(main);
 		} catch (Exception es) {
 			return null;
@@ -299,8 +299,7 @@ public class Ref {
 
 	public static Object getNulled(Field field) {
 		try {
-			if (!field.isAccessible())
-				field.setAccessible(true);
+			field.setAccessible(true);
 			return field.get(null);
 		} catch (Exception es) {
 			return null;
@@ -333,8 +332,7 @@ public class Ref {
 
 	public static Object invoke(Object main, Method method, Object... bricks) {
 		try {
-			if (!method.isAccessible())
-				method.setAccessible(true);
+			method.setAccessible(true);
 			return method.invoke(main, bricks);
 		} catch (Exception | NoSuchMethodError es) {
 			return null;
@@ -371,19 +369,16 @@ public class Ref {
 
 	public static Method findMethodByName(Class<?> c, String name) {
 		Method a = null;
-		for (Method m : getMethods(c)) {
-			if (m.getName().equals(name)) {
-				a = m;
-				break;
-			}
-		}
-		if (a == null)
-			for (Method m : getDeclaredMethods(c)) {
+		Class<?> d = c;
+		while(d!=null && a ==null) {
+			for (Method m : getDeclaredMethods(d)) {
 				if (m.getName().equals(name)) {
 					a = m;
 					break;
 				}
 			}
+			d=d.getSuperclass();
+		}
 		if (a != null)
 			a.setAccessible(true);
 		return a;
@@ -391,41 +386,21 @@ public class Ref {
 
 	public static Method findMethod(Class<?> c, String name, Object... bricks) {
 		Method a = null;
+		Class<?> d = c;
 		Class<?>[] param = new Class<?>[bricks.length];
 		int i = 0;
 		for (Object o : bricks) {
 			if (o != null)
-				param[i] = o instanceof Class ? (Class<?>) o : o.getClass();
-			++i;
+				param[i++] = o instanceof Class ? (Class<?>) o : o.getClass();
 		}
-		if (bricks.length == 0) {
-			for (Method m : getMethods(c)) {
-				if (m.getParameterCount() == 0 && m.getName().equals(name)) {
+		while(d!=null && a ==null) {
+			for (Method m : getDeclaredMethods(d)) {
+				if (m.getName().equals(name) && areSame(m.getParameterTypes(),param)) {
 					a = m;
 					break;
 				}
 			}
-			if (a == null)
-				for (Method m : getDeclaredMethods(c)) {
-					if (m.getParameterCount() == 0 && m.getName().equals(name)) {
-						a = m;
-						break;
-					}
-				}
-		} else {
-			for (Method m : getMethods(c)) {
-				if (m.getParameterTypes().equals(param) && m.getName().equals(name)) {
-					a = m;
-					break;
-				}
-			}
-			if (a == null)
-				for (Method m : getDeclaredMethods(c)) {
-					if (m.getParameterTypes().equals(param) && m.getName().equals(name)) {
-						a = m;
-						break;
-					}
-				}
+			d=d.getSuperclass();
 		}
 		if (a != null)
 			a.setAccessible(true);
@@ -438,45 +413,21 @@ public class Ref {
 		int i = 0;
 		for (Object o : bricks) {
 			if (o != null)
-				param[i] = o instanceof Class ? (Class<?>) o : o.getClass();
-			++i;
+				param[i++] = o instanceof Class ? (Class<?>) o : o.getClass();
 		}
-		if (bricks.length == 0) {
-			for (Constructor<?> m : getConstructors(c)) {
-				if (m.getParameterCount() == 0) {
-					a = m;
-					break;
-				}
+		for (Constructor<?> m : getDeclaredConstructors(c)) {
+			if (areSame(m.getParameterTypes(),param)) {
+				a = m;
+				break;
 			}
-			if (a == null)
-				for (Constructor<?> m : getDeclaredConstructors(c)) {
-					if (m.getParameterCount() == 0) {
-						a = m;
-						break;
-					}
-				}
-		} else {
-			for (Constructor<?> m : getConstructors(c)) {
-				if (m.getParameterTypes().equals(param)) {
-					a = m;
-					break;
-				}
-			}
-			if (a == null)
-				for (Constructor<?> m : getDeclaredConstructors(c)) {
-					if (m.getParameterTypes().equals(param)) {
-						a = m;
-						break;
-					}
-				}
 		}
 		if (a != null)
 			a.setAccessible(true);
 		return a;
 	}
-
-	public static Object create(Constructor<?> constructor, Object... bricks) {
-		return newInstance(constructor, bricks);
+	
+	private static boolean areSame(Class<?>[] a, Class<?>[] b) {
+		return Arrays.asList(a).containsAll(Arrays.asList(b));
 	}
 
 	public static Object newInstance(Constructor<?> constructor, Object... bricks) {
@@ -488,28 +439,20 @@ public class Ref {
 		}
 	}
 
-	public static Object createNms(String className, Object... bricks) {
-		return newInstanceNms(className, bricks);
-	}
-
 	public static Object newInstanceNms(String className, Object... bricks) {
 		return newInstance(findConstructor(nms(className), bricks), bricks);
-	}
-
-	public static Object createCraft(String className, Object... bricks) {
-		return newInstanceCraft(className, bricks);
 	}
 
 	public static Object newInstanceCraft(String className, Object... bricks) {
 		return newInstance(findConstructor(craft(className), bricks), bricks);
 	}
 
-	public static Object createByClass(String className, Object... bricks) {
-		return newInstanceByClass(className, bricks);
-	}
-
 	public static Object newInstanceByClass(String className, Object... bricks) {
 		return newInstance(findConstructor(getClass(className), bricks), bricks);
+	}
+
+	public static Object newInstanceByClass(Class<?> clazz, Object... bricks) {
+		return newInstance(findConstructor(clazz, bricks), bricks);
 	}
 
 	public static String version() {

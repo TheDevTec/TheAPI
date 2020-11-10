@@ -310,10 +310,12 @@ public class Writer {
 			if (Modifier.toString(f.getModifiers()).toLowerCase().contains("static"))
 				continue;
 			Object w = Ref.get(object, f);
-			if (w == null && !addNulls || addNulls)
+			if (w == null && !addNulls || w!=null && FORBIDDEN.contains(w.getClass().getName()))
 				continue;
-			if (FORBIDDEN.contains(w.getClass().getName()))
+			if(w==null) {
+				map.put(f.getName(), null);
 				continue;
+			}
 			if (w instanceof String || w.getClass() == Ref.nms("IChatBaseComponent")
 					|| w.getClass() == Ref.nms("IChatMutableComponent") || w.getClass() == Ref.nms("ChatBaseComponent")
 					|| w.getClass() == Ref.nms("ChatMessage") || w.getClass() == Ref.nms("ChatComponentText")
