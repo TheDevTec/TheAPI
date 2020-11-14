@@ -39,7 +39,6 @@ import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.DataType;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap;
-import me.DevTec.TheAPI.Utils.File.Reader;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler_New;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler_Old;
@@ -68,11 +67,7 @@ public class LoaderClass extends JavaPlugin {
 	public Economy economy;
 	public me.DevTec.TheVault.Economy tveeconomy;
 	public Bank bank;
-	private boolean oa = true;
 	public Object air = Ref.invoke(Ref.getNulled(Ref.field(Ref.nms("Block"), "AIR")), "getBlockData");
-
-	public static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref
-			.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -84,18 +79,12 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		createConfig();
 		if (TheAPI.isOlder1_9())
-			new Thread(new Runnable() {
+			new Tasker() {
 				public void run() {
-					while (oa) {
-						for (BossBar s : bars)
-							s.move();
-						try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-						}
-					}
+					for (BossBar s : bars)
+						s.move();
 				}
-			}).start();
+			}.runRepeating(0, 20);
 		if (TheAPI.isNewerThan(7) || Ref.getClass("net.minecraft.util.io.netty.channel.ChannelInitializer") == null)
 			handler = new PacketHandler_New();
 		else
@@ -193,7 +182,7 @@ public class LoaderClass extends JavaPlugin {
 				int removed = 0;
 				if (new File("plugins/TheAPI/User").exists())
 					for (File f : Arrays.asList(new File("plugins/TheAPI/User").listFiles())) {
-						if (Reader.read(f, false).trim().isEmpty()) {
+						if (me.DevTec.TheAPI.Utils.File.Reader.read(f, false).trim().isEmpty()) {
 							f.delete();
 							++removed;
 						}
@@ -211,7 +200,6 @@ public class LoaderClass extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		oa = false;
 		Scheduler.cancelAll();
 		handler.close();
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
@@ -246,6 +234,7 @@ public class LoaderClass extends JavaPlugin {
 																	// PlayerQuitEvent
 		config.setComments("Options.Cache.User.RemoveOnQuit",
 				Arrays.asList("# Remove cache of User from memory", "# defaulty: true"));
+		
 		config.addDefault("Options.User-SavingType", DataType.YAML.name());
 		config.setComments("Options.User-SavingType",
 				Arrays.asList("", "# Saving type of User data", "# Types: YAML, JSON, BYTE, DATA", "# defaulty: YAML"));

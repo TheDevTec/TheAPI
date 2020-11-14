@@ -1,7 +1,6 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -37,31 +36,34 @@ public interface DataLoader extends Data {
 
 	public static DataLoader findLoaderFor(File a) {
 		String aa = Reader.read(a, true), b = Reader.read(a, false);
-		DataLoader found = null;
-		for (String key : Arrays.asList("JSON", "BYTE", "YAML")) {
-			found = key.equals("JSON") ? new JsonLoader() : (key.equals("BYTE") ? new ByteLoader() : new YamlLoader());
-			found.load(aa);
-			if (!found.loaded()) {
-				found.load(b);
-				if (!found.loaded())
-					found = null;
-				else
-					break;
-			}
-		}
-		return found == null ? new EmptyLoader() : found;
+		DataLoader found=new ByteLoader();
+		found.load(aa);
+		if(!found.loaded())
+			found.load(b);
+		if(found.loaded())return found;
+		found=new JsonLoader();
+		found.load(aa);
+		if(!found.loaded())
+			found.load(b);
+		if(found.loaded())return found;
+		found=new YamlLoader();
+		found.load(aa);
+		if(!found.loaded())
+			found.load(b);
+		if(found.loaded())return found;
+		return new EmptyLoader();
 	}
 
 	public static DataLoader findLoaderFor(String input) {
-		DataLoader found = null;
-		for (String key : Arrays.asList("JSON", "BYTE", "YAML")) {
-			found = key.equals("JSON") ? new JsonLoader() : (key.equals("BYTE") ? new ByteLoader() : new YamlLoader());
-			found.load(input);
-			if (!found.loaded())
-				found = null;
-			else
-				break;
-		}
-		return found == null ? new EmptyLoader() : found;
+		DataLoader found = new ByteLoader();
+		found.load(input);
+		if(found.loaded())return found;
+		found=new JsonLoader();
+		found.load(input);
+		if(found.loaded())return found;
+		found=new YamlLoader();
+		found.load(input);
+		if(found.loaded())return found;
+		return new EmptyLoader();
 	}
 }

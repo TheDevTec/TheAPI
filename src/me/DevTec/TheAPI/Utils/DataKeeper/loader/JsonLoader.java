@@ -1,6 +1,5 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -43,24 +42,30 @@ public class JsonLoader implements DataLoader {
 		data.clear();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void load(String input) {
+		if(input==null) {
+			l=false;
+			return;
+		}
 		data.clear();
-		synchronized (this) {
-			try {
-				ArrayList<?> s = (ArrayList<?>) Reader.object(input);
-				for (int ir = 0; ir < s.size(); ++ir) {
-					HashMap<?, ?> o = (HashMap<?, ?>) s.get(ir);
-					for (Entry<?, ?> keyed : o.entrySet()) {
-						String key = keyed.getKey().toString();
-						String object = keyed.getValue().toString();
-						data.put(key, new DataHolder(Reader.object(object)));
-					}
-				}
-				l = true;
-			} catch (Exception er) {
-				l = false;
+		try {
+			Object read = Reader.read(input);
+			if(read instanceof Map) {
+					for (Entry<Object, Object> keyed : ((Map<Object, Object>)read).entrySet())
+						data.put((String)keyed.getKey(), new DataHolder(keyed.getValue()));
+					l = true;
+			}else {
+			for(Object o : (Collection<Object>)read) {
+			for (Entry<Object, Object> keyed : ((Map<Object, Object>) o).entrySet()) {
+				data.put((String)keyed.getKey(), new DataHolder(keyed.getValue()));
 			}
+			}
+			l=true;
+			}
+		} catch (Exception er) {
+			l = false;
 		}
 	}
 

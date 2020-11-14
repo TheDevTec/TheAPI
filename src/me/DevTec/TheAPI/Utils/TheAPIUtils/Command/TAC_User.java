@@ -11,6 +11,7 @@ public class TAC_User {
 	public TAC_User(CommandSender s, String[] args) {
 		if (args.length == 1) {
 			TheAPI.msg("&e/TheAPI User <NAME/UUID> Set <key> <value>", s);
+			TheAPI.msg("&e/TheAPI User <NAME/UUID> Remove <key>", s);
 			TheAPI.msg("&e/TheAPI User <NAME/UUID> Get <key>", s);
 			TheAPI.msg("&e/TheAPI User <NAME/UUID> Exists <key>", s);
 			TheAPI.msg("&e/TheAPI User <NAME/UUID> Keys [key]", s);
@@ -24,6 +25,7 @@ public class TAC_User {
 				return;
 			} else {
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Set <key> <value>", s);
+				TheAPI.msg("&e/TheAPI User <NAME/UUID> Remove <key>", s);
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Get <key>", s);
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Exists <key>", s);
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Keys [key]", s);
@@ -69,6 +71,20 @@ public class TAC_User {
 			return;
 		}
 
+		if (args[2].equalsIgnoreCase("remove")) {
+			if (args[1].equals("*")) {
+				TheAPI.msg("&eThis operation isn't allowed.", s);
+				return;
+			}
+			if (args.length == 3)
+				TheAPI.msg("&e/TheAPI User <NAME/UUID> Remove <key>", s);
+			else {
+				TheAPI.getUser(args[1]).remove(args[3]);
+				TheAPI.msg("&eRemoved path "+args[3]+" from user data of "+args[1], s);
+			}
+			return;
+		}
+
 		if (args[2].equalsIgnoreCase("Set")) {
 			if (args[1].equals("*")) {
 				TheAPI.msg("&eThis operation isn't allowed.", s);
@@ -78,7 +94,7 @@ public class TAC_User {
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Set <key> <value>", s);
 			else {
 				TheAPI.getUser(args[1]).set(args[3], StringUtils.buildString(4, args));
-				TheAPI.msg("&eIn user data of &6" + args[1] + " &eset value &6" + args[3] + " &eto &6" + args[4], s);
+				TheAPI.msg("&eTo user data of &6" + args[1] + " &eset value &6" + args[3] + " &eto &6" + args[4], s);
 			}
 			return;
 		}

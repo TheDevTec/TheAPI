@@ -44,7 +44,6 @@ public class Reflections {
 		try {
 			return c.newInstance(items);
 		} catch (Exception e) {
-			e.printStackTrace();
 			return null;
 		}
 	}

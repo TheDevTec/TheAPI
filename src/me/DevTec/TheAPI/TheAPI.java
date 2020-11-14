@@ -28,6 +28,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -116,6 +117,16 @@ public class TheAPI {
 		String label = command.getName().toLowerCase(Locale.ENGLISH).trim();
 		String sd = command.getPlugin().getName().toLowerCase(Locale.ENGLISH).trim();
 		command.setLabel(sd+":"+label);
+		if(command.getTabCompleter()==null) {
+			if(command.getExecutor() instanceof TabCompleter) {
+				command.setTabCompleter((TabCompleter)command.getExecutor());
+			}
+		}
+		if(command.getExecutor()==null) {
+			if(command.getTabCompleter() instanceof CommandExecutor) {
+				command.setExecutor((CommandExecutor)command.getTabCompleter());
+			}else return; //exectutor can't be null
+		}
 		List<String> low = new ArrayList<>();
 		for(String s : command.getAliases()) {
 			s=s.toLowerCase(Locale.ENGLISH).trim();
@@ -776,7 +787,7 @@ public class TheAPI {
 	}
 	
 	public static void setVanish(String playerName, String permission, boolean value) {
-		getUser(playerName).setAndSave("vanish", value);
+		getUser(playerName).set("vanish", value);
 		getUser(playerName).setAndSave("vanish.perm", permission);
 		Player s = getPlayerOrNull(playerName);
 		if(s!=null)applyVanish(s, permission, value);
@@ -789,13 +800,16 @@ public class TheAPI {
 			var = da.vanish();
 			perm = da.getPermission();
 			if(var) {
+				getUser(s).set("vanish", var);
+				getUser(s).set("vanish.perm", perm);
 				for(Player d : getOnlinePlayers())
-					if(d!=s)
+					if(s!=d && !canSee(d, s.getName()) && d.canSee(s))
 						d.hidePlayer(s);
 				return;
 			}
+			getUser(s).remove("vanish");
 			for(Player d : getOnlinePlayers())
-				if(d!=s)
+				if(s!=d && canSee(d, s.getName()) && !d.canSee(s))
 					d.showPlayer(s);
 		}
 	}

@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.TheCoder;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
+import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
 public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	private UUID s;
@@ -21,7 +22,7 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	public User(String name) {
 		if (name == null)
-			new Exception("String cannot be null.").printStackTrace();
+			Validator.send("String cannot be null.");
 		try {
 			s = UUID.fromString(name);
 			name = Bukkit.getOfflinePlayer(s).getName();
@@ -34,7 +35,7 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	public User(Player player) {
 		if (player == null)
-			new Exception("Player cannot be null.").printStackTrace();
+			Validator.send("Player cannot be null.");
 		s = player.getUniqueId();
 		name = player.getName();
 		prepareConfig();
@@ -42,7 +43,7 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	public User(UUID player) {
 		if (player == null)
-			new Exception("UUID cannot be null.").printStackTrace();
+			Validator.send("UUID cannot be null.");
 		s = player;
 		name = Bukkit.getOfflinePlayer(s).getName();
 		prepareConfig();

@@ -8,222 +8,92 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
+import java.util.WeakHashMap;
 
-import com.google.common.collect.Multimap;
+import org.bukkit.Location;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.internal.LinkedTreeMap;
 
 import me.DevTec.TheAPI.TheAPI;
+import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
-public class Writer {
-	private static String write(Map<?, ?> values, boolean whiteSpaces, boolean addNulls, boolean fancy) {
-		StringBuilder b = new StringBuilder("{");
-		int i = 0;
-		for (Entry<?, ?> e : values.entrySet()) {
-			if (e.getKey() == null)
-				continue;
-			if (e.getValue() == null && addNulls || e.getValue() != null) {
-				if (fancy) {
-					b.append((i != 0 ? (whiteSpaces ? ", " : ",") : "") + System.lineSeparator() + "   \""
-							+ object(e.getKey(), whiteSpaces, addNulls, true) + "\":");
-					if (e.getValue() instanceof Comparable) {
-						b.append(e.getValue() + "");
-					} else if (e.getValue() instanceof Collection) {
-						b.append(prepareCollection(addNulls, 1, (Collection<?>) e.getValue()));
-					} else if (e.getValue() instanceof Map) {
-						b.append(prepareMap(addNulls, 1, (Map<?, ?>) e.getValue()));
-					} else if (e.getValue() instanceof Multimap) {
-						b.append(prepareMap(addNulls, 1, (Multimap<?, ?>) e.getValue()));
-					} else
-						b.append(Writer.object(e.getValue(), whiteSpaces, addNulls, true));
-				} else {
-					b.append((i != 0 ? (whiteSpaces ? ", \"" : ",\"") : "\"")
-							+ Writer.object(e.getKey(), whiteSpaces, addNulls, true) + "\":"
-							+ object(e.getValue(), whiteSpaces, addNulls));
-				}
-				++i;
-			}
-		}
-		return b.append((i > 0 ? (fancy ? System.lineSeparator() : "") : "") + "}").toString();
+public class Writer implements JsonWriter {
+	private List<String> FORBIDDEN = new ArrayList<>();
+	public Writer() {
+		FORBIDDEN.add("org.bukkit.craftbukkit." + TheAPI.getServerVersion()
+		+ ".persistence.CraftPersistentDataAdapterContext");
+FORBIDDEN.add(
+		"org.bukkit.craftbukkit." + TheAPI.getServerVersion() + ".persistence.CraftPersistentDataTypeRegistry");
+	}
+	
+	private static JsonWriter writer = new Writer();
+	
+	public static String write(Object object) {
+		return writer.serilize(object);
+	}
+	
+	public static String write(Object object, boolean fancy) {
+		return writer.serilize(object, fancy);
+	}
+	
+	private Map<Object, Object> fix(Map<?, ?> o, boolean fancy, boolean addNulls) {
+		Map<Object, Object> map = new HashMap<>();
+		for(Entry<?, ?> e : o.entrySet())
+			map.put(object2(e.getKey(), fancy, addNulls), object2(e.getValue(), fancy, addNulls));
+		return map;
+	}
+	
+	private Collection<Object> fix(Collection<?> o, boolean fancy, boolean addNulls) {
+		Collection<Object> map = new ArrayList<>();
+		for(Object e : o)
+			map.add(object2(e, fancy, addNulls));
+		return map;
 	}
 
-	private static String write(Multimap<?, ?> values, boolean whiteSpaces, boolean addNulls, boolean fancy) {
-		StringBuilder b = new StringBuilder("{");
-		int i = 0;
-		for (Entry<?, ?> e : values.entries()) {
-			if (e.getKey() == null)
-				continue;
-			if (e.getValue() == null && addNulls || e.getValue() != null) {
-				if (fancy) {
-					b.append((i != 0 ? (whiteSpaces ? ", " : ",") : "") + System.lineSeparator() + "   \""
-							+ Writer.object(e.getKey(), whiteSpaces, addNulls, true) + "\":");
-					if (e.getValue() instanceof Comparable) {
-						b.append(e.getValue() + "");
-					} else if (e.getValue() instanceof Collection) {
-						b.append(prepareCollection(addNulls, 1, (Collection<?>) e.getValue()));
-					} else if (e.getValue() instanceof Map) {
-						b.append(prepareMap(addNulls, 1, (Map<?, ?>) e.getValue()));
-					} else if (e.getValue() instanceof Multimap) {
-						b.append(prepareMap(addNulls, 1, (Multimap<?, ?>) e.getValue()));
-					} else
-						b.append((i != 0 ? (whiteSpaces ? ", " : ",") : "") + System.lineSeparator()
-								+ Writer.object(e.getValue(), whiteSpaces, addNulls, true));
-				} else {
-					b.append((i != 0 ? (whiteSpaces ? ", \"" : ",\"") : "\"")
-							+ Writer.object(e.getKey(), whiteSpaces, addNulls, true) + "\":"
-							+ Writer.object(e.getValue(), whiteSpaces, addNulls));
-				}
-				++i;
-			}
-		}
-		return b.append((i > 0 ? (fancy ? System.lineSeparator() : "") : "") + "}").toString();
+	private static Gson pretty = new GsonBuilder().setPrettyPrinting().create(),
+			simple = new GsonBuilder().create();
+
+	public String array(Object[] object, boolean addNulls) {
+		return array(object, addNulls, false);
 	}
 
-	private static String write(Collection<?> values, boolean whiteSpaces, boolean addNulls, boolean fancy) {
-		StringBuilder b = new StringBuilder("[");
-		int i = 0;
-		for (Object e : values) {
-			if (e == null && addNulls || e != null) {
-				if (fancy) {
-					if (e instanceof Comparable) {
-						b.append((i != 0 ? (whiteSpaces ? ", " : ",") : "") + System.lineSeparator() + "  " + e);
-					} else if (e instanceof Collection) {
-						b.append((i != 0 ? (whiteSpaces ? ", " : ",") : "") + System.lineSeparator() + "  "
-								+ prepareCollection(addNulls, 1, (Collection<?>) e));
-					} else if (e instanceof Map) {
-						b.append((i != 0 ? (whiteSpaces ? ", " : ",") : "") + System.lineSeparator() + "  "
-								+ prepareMap(addNulls, 1, (Map<?, ?>) e));
-					} else if (e instanceof Multimap) {
-						b.append((i != 0 ? (whiteSpaces ? ", " : ",") : "") + System.lineSeparator() + "  "
-								+ prepareMap(addNulls, 1, (Multimap<?, ?>) e));
-					} else
-						b.append((i != 0 ? (whiteSpaces ? ", " : ",") : "") + System.lineSeparator() + "  "
-								+ object(e, whiteSpaces, addNulls, true) + "");
-				} else {
-					b.append((i != 0 ? (whiteSpaces ? ", " : ",") : "") + Writer.object(e, whiteSpaces, addNulls, fancy)
-							+ "");
-				}
-				++i;
-			}
-		}
-		return b.append((i > 0 ? (fancy ? System.lineSeparator() : "") : "") + "]").toString();
-	}
-
-	private static String prepareCollection(boolean addNulls, int spaces, Collection<?> list) {
-		String space = "";
-		String end = "";
-		for (int i = 0; i < spaces + 1; ++i)
-			space += "  ";
-		end = space.replaceFirst("  ", "");
-		StringBuilder b = new StringBuilder("[");
-		int i = 0;
-		for (Object o : list) {
-			if (o == null && addNulls || o != null) {
-				b.append(
-						(i != 0 ? (",") : "") + System.lineSeparator() + space
-								+ (o instanceof Collection ? prepareCollection(addNulls, spaces + 1, (Collection<?>) o)
-										: (o instanceof Map ? prepareMap(addNulls, spaces + 1, (Map<?, ?>) o)
-												: (o instanceof Multimap
-														? prepareMap(addNulls, spaces + 1, (Multimap<?, ?>) o)
-														: object(o, true, addNulls, true)))));
-				++i;
-			}
-		}
-		return b.append((i > 0 ? System.lineSeparator() : "") + (i > 0 ? end : "") + "]").toString();
-	}
-
-	private static String prepareMap(boolean addNulls, int spaces, Map<?, ?> list) {
-		String space = "";
-		String end = "";
-		for (int i = 0; i < spaces + 1; ++i)
-			space += "  ";
-		end = space.replaceFirst("  ", "");
-		StringBuilder b = new StringBuilder("{");
-		int i = 0;
-		for (Entry<?, ?> o : list.entrySet()) {
-			if (o.getValue() == null && addNulls || o.getValue() != null) {
-				b.append((i != 0 ? (",") : "") + System.lineSeparator() + space + "\"" + o.getKey() + "\":"
-						+ (o.getValue() instanceof Collection
-								? prepareCollection(addNulls, spaces + 1, (Collection<?>) o.getValue())
-								: (o.getValue() instanceof Map
-										? prepareMap(addNulls, spaces + 1, (Map<?, ?>) o.getValue())
-										: object(o.getValue(), true, addNulls, true))));
-				++i;
-			}
-		}
-		return b.append((i > 0 ? System.lineSeparator() : "") + (i > 0 ? end : "") + "}").toString();
-	}
-
-	private static String prepareMap(boolean addNulls, int spaces, Multimap<?, ?> list) {
-		String space = "";
-		String end = "";
-		for (int i = 0; i < spaces + 1; ++i)
-			space += "  ";
-		end = space.replaceFirst("  ", "");
-		StringBuilder b = new StringBuilder("{");
-		int i = 0;
-		for (Entry<?, ?> o : list.entries()) {
-			if (o.getValue() == null && addNulls || o.getValue() != null) {
-				b.append((i != 0 ? (",") : "") + System.lineSeparator() + space + "\"" + o.getKey() + "\":"
-						+ (o.getValue() instanceof Collection
-								? prepareCollection(addNulls, spaces + 1, (Collection<?>) o.getValue())
-								: (o.getValue() instanceof Map
-										? prepareMap(addNulls, spaces + 1, (Map<?, ?>) o.getValue())
-										: Writer.object(o.getValue(), true, addNulls, true))));
-				++i;
-			}
-		}
-		return b.append((i > 0 ? System.lineSeparator() : "") + (i > 0 ? end : "") + "}").toString();
-	}
-
-	public static String array(Object[] object, boolean whiteSpace, boolean addNulls) {
+	public String array(Object[] object, boolean addNulls, boolean fancy) {
 		if (object == null)
 			return null;
-		return write(Arrays.asList(object), whiteSpace, addNulls, false);
+		return (fancy?pretty:simple).toJson(fix(Arrays.asList(object), fancy, addNulls));
 	}
 
-	public static String array(Object[] object, boolean whiteSpace, boolean addNulls, boolean fancy) {
-		if (object == null)
-			return null;
-		return write(Arrays.asList(object), whiteSpace, addNulls, fancy);
+	public String collection(Collection<?> object, boolean addNulls) {
+		return collection(object, addNulls, false);
 	}
 
-	public static String collection(Collection<?> object, boolean whiteSpace, boolean addNulls) {
+	public String collection(Collection<?> object, boolean addNulls, boolean fancy) {
 		if (object == null)
 			return null;
-		return write(object, whiteSpace, addNulls, false);
+		return (fancy?pretty:simple).toJson(fix(object, fancy, addNulls));
 	}
 
-	public static String collection(Collection<?> object, boolean whiteSpace, boolean addNulls, boolean fancy) {
-		if (object == null)
-			return null;
-		return write(object, whiteSpace, addNulls, fancy);
+	public String map(Map<?, ?> object, boolean addNulls) {
+		return map(object, addNulls, false);
 	}
 
-	public static String map(Map<?, ?> object, boolean whiteSpace, boolean addNulls) {
+	public String map(Map<?, ?> object, boolean addNulls, boolean fancy) {
 		if (object == null)
 			return null;
-		return write(object, whiteSpace, addNulls, false);
-	}
-
-	public static String map(Map<?, ?> object, boolean whiteSpace, boolean addNulls, boolean fancy) {
-		if (object == null)
-			return null;
-		return write(object, whiteSpace, addNulls, fancy);
-	}
-
-	public static String map(Multimap<?, ?> object, boolean whiteSpace, boolean addNulls) {
-		if (object == null)
-			return null;
-		return write(object, whiteSpace, addNulls, false);
-	}
-
-	public static String map(Multimap<?, ?> object, boolean whiteSpace, boolean addNulls, boolean fancy) {
-		if (object == null)
-			return null;
-		return write(object, whiteSpace, addNulls, fancy);
+		return (fancy?pretty:simple).toJson(fix(object, fancy, addNulls));
 	}
 
 	private static Method from = Ref.method(Ref.craft("util.CraftChatMessage"), "fromComponent",
@@ -234,76 +104,224 @@ public class Writer {
 	 * @param object Object to parse to String
 	 * @return String Object converted to String
 	 */
-	public static String object(Object w, boolean whiteSpace, boolean addNulls, boolean fancy) {
+	public String object(Object w, boolean addNulls, boolean fancy) {
 		if (w == null)
 			return "null";
+		if(w instanceof Location) {
+			Location stack = (Location)w;
+			Map<String, Object> done = new HashMap<>();
+			Map<String, Object> items = new HashMap<>();
+			items.put("world", stack.getWorld().getName());
+			items.put("x", stack.getX());
+			items.put("y", stack.getY());
+			items.put("z", stack.getZ());
+			items.put("yaw", stack.getYaw());
+			items.put("pitch", stack.getPitch());
+			done.put("modifiedClass org.bukkit.Location", items);
+			return map(done, addNulls, fancy);
+		}
+		if(w instanceof Position) {
+			Position stack = (Position)w;
+			Map<String, Object> done = new HashMap<>();
+			Map<String, Object> items = new HashMap<>();
+			items.put("world", stack.getWorldName());
+			items.put("x", stack.getX());
+			items.put("y", stack.getY());
+			items.put("z", stack.getZ());
+			items.put("yaw", stack.getYaw());
+			items.put("pitch", stack.getPitch());
+			done.put("modifiedClass me.DevTec.TheAPI.Utils.Position", items);
+			return map(done, addNulls, fancy);
+		}
+		if(w instanceof ItemStack) {
+			ItemStack stack = ((ItemStack)w).clone();
+			Map<String, Object> done = new HashMap<>();
+			Map<String, Object> items = new HashMap<>();
+			items.put("type", stack.getType().name());
+			items.put("amount", stack.getAmount());
+			items.put("data", stack.getData().getData());
+			items.put("durability", stack.getDurability());
+			ItemMeta meta = stack.getItemMeta();
+			if(meta.hasEnchants()) {
+			Map<String, Integer> enchs = new HashMap<>();
+			for(Entry<Enchantment, Integer> e : stack.getEnchantments().entrySet())
+				enchs.put(e.getKey().getName(), e.getValue());
+			items.put("meta.enchs", enchs);
+			}
+			if(meta.hasDisplayName())
+			items.put("meta.name", meta.getDisplayName());
+			if(meta.hasLore())
+			items.put("meta.lore", meta.getLore());
+			if(meta.hasLocalizedName())
+			items.put("meta.locName", meta.getLocalizedName());
+			meta.setDisplayName(null);
+			meta.setLore(null);
+			meta.setLocalizedName(null);
+			stack.setItemMeta(meta);
+			for(Enchantment e : stack.getEnchantments().keySet())
+				stack.removeEnchantment(e);
+			Object tag = Ref.invoke(Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", stack), "getTag");
+			if(tag!=null && !(boolean)Ref.invoke(tag, "isEmpty")) {
+		        items.put("nbt", tag.toString());
+			}
+			done.put("modifiedClass org.bukkit.inventory.ItemStack", items);
+			return map(done, addNulls, fancy);
+		}
 		if (w instanceof String || w.getClass() == Ref.nms("IChatBaseComponent")
 				|| w.getClass() == Ref.nms("IChatMutableComponent") || w.getClass() == Ref.nms("ChatBaseComponent")
 				|| w.getClass() == Ref.nms("ChatMessage") || w.getClass() == Ref.nms("ChatComponentText")
 				|| w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")) {
-			if (w instanceof String)
-				return f("" + w);
+			if (w instanceof String) {
+				return "" + w;
+			}
 			String obj = w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")
 					? (String) Ref.invoke(w, "toLegacyText")
 					: (String) Ref.invoke(Ref.craft("util.CraftChatMessage"), from,
 							Ref.cast(Ref.nms("IChatBaseComponent"), w));
 			Map<String, Object> enumMap = new HashMap<>();
-			enumMap.put("class " + w.getClass().getName(), "\"" + f(obj) + "\"");
-			return map(enumMap, whiteSpace, addNulls, fancy);
+			enumMap.put("class " + w.getClass().getName(), obj);
+			return map(enumMap, addNulls, fancy);
 		}
 		if (w instanceof Enum<?>) {
 			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("enum " + w.getClass().getName(), w.toString());
-			return map(enumMap, whiteSpace, addNulls, fancy);
+			return map(enumMap, addNulls, fancy);
 		}
 		if (w instanceof Comparable)
 			return "" + w;
 		if (w instanceof Object[])
-			return array((Object[]) w, whiteSpace, addNulls, fancy);
+			return array((Object[]) w, addNulls, fancy);
 		if (w instanceof Collection) {
 			if (w instanceof ArrayList || w.getClass() == Ref.getClass("java.util.Arrays$ArrayList")
-					|| w instanceof HashSet) {
-				return collection((Collection<?>) w, whiteSpace, addNulls, fancy);
+					|| w instanceof HashSet || w instanceof LinkedList || w instanceof LinkedHashSet) {
+				return collection((Collection<?>) w, addNulls, fancy);
 			}
 			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("Collection " + w.getClass().getName(),
-					collection((Collection<?>) w, whiteSpace, addNulls, fancy));
-			return map(enumMap, whiteSpace, addNulls, fancy);
+					collection((Collection<?>) w, addNulls, fancy));
+			return map(enumMap, addNulls, fancy);
 		}
 		if (w instanceof Map) {
-			if (w instanceof HashMap) {
-				return map((Map<?, ?>) w, whiteSpace, addNulls, fancy);
+			if (w instanceof HashMap || w instanceof LinkedHashMap || w instanceof HashMap || w instanceof HashMap) {
+				return map((Map<?, ?>) w, addNulls, fancy);
 			}
 			Map<String, Object> enumMap = new HashMap<>();
-			enumMap.put("Map " + w.getClass().getName(), map((Map<?, ?>) w, whiteSpace, addNulls, fancy));
-			return map(enumMap, whiteSpace, addNulls, fancy);
+			enumMap.put("Map " + w.getClass().getName(), map((Map<?, ?>) w, addNulls, fancy));
+			return map(enumMap, addNulls, fancy);
 		}
-		if (w instanceof Multimap) {
+		return (fancy?pretty:simple).toJson(convert(w, fancy, addNulls));
+	}
+	
+	public Object object2(Object w, boolean fancy, boolean addNulls) {
+		if (w == null)
+			return null;
+		if(w instanceof Location) {
+			Location stack = (Location)w;
+			Map<String, Object> done = new HashMap<>();
+			Map<String, Object> items = new HashMap<>();
+			items.put("world", stack.getWorld().getName());
+			items.put("x", stack.getX());
+			items.put("y", stack.getY());
+			items.put("z", stack.getZ());
+			items.put("yaw", stack.getYaw());
+			items.put("pitch", stack.getPitch());
+			done.put("modifiedClass org.bukkit.Location", items);
+			return done;
+		}
+		if(w instanceof Position) {
+			Position stack = (Position)w;
+			Map<String, Object> done = new HashMap<>();
+			Map<String, Object> items = new HashMap<>();
+			items.put("world", stack.getWorldName());
+			items.put("x", stack.getX());
+			items.put("y", stack.getY());
+			items.put("z", stack.getZ());
+			items.put("yaw", stack.getYaw());
+			items.put("pitch", stack.getPitch());
+			done.put("modifiedClass me.DevTec.TheAPI.Utils.Position", items);
+			return done;
+		}
+		if(w instanceof ItemStack) {
+			ItemStack stack = ((ItemStack)w).clone();
+			Map<String, Object> done = new HashMap<>();
+			Map<String, Object> items = new HashMap<>();
+			items.put("type", stack.getType().name());
+			items.put("amount", stack.getAmount());
+			items.put("data", stack.getData().getData());
+			items.put("durability", stack.getDurability());
+			ItemMeta meta = stack.getItemMeta();
+			if(meta.hasEnchants()) {
+			Map<String, String> enchs = new HashMap<>();
+			for(Entry<Enchantment, Integer> e : stack.getEnchantments().entrySet())
+				enchs.put(e.getKey().getName(), e.getValue().toString());
+			items.put("meta.enchs", enchs);
+			}
+			if(meta.hasDisplayName())
+			items.put("meta.name", meta.getDisplayName());
+			if(meta.hasLore())
+			items.put("meta.lore", meta.getLore());
+			if(meta.hasLocalizedName())
+			items.put("meta.locName", meta.getLocalizedName());
+			meta.setDisplayName(null);
+			meta.setLore(null);
+			meta.setLocalizedName(null);
+			stack.setItemMeta(meta);
+			for(Enchantment e : stack.getEnchantments().keySet())
+				stack.removeEnchantment(e);
+			Object tag = Ref.invoke(Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", stack), "getTag");
+			if(tag!=null && !(boolean)Ref.invoke(tag, "isEmpty"))
+		        items.put("nbt", tag.toString());
+			done.put("modifiedClass org.bukkit.inventory.ItemStack", items);
+			return done;
+		}
+		if (w instanceof String || w.getClass() == Ref.nms("IChatBaseComponent")
+				|| w.getClass() == Ref.nms("IChatMutableComponent") || w.getClass() == Ref.nms("ChatBaseComponent")
+				|| w.getClass() == Ref.nms("ChatMessage") || w.getClass() == Ref.nms("ChatComponentText")
+				|| w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")) {
+			if (w instanceof String) {
+				return w;
+			}
+			String obj = w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")
+					? (String) Ref.invoke(w, "toLegacyText")
+					: (String) Ref.invoke(Ref.craft("util.CraftChatMessage"), from,
+							Ref.cast(Ref.nms("IChatBaseComponent"), w));
 			Map<String, Object> enumMap = new HashMap<>();
-			enumMap.put("Multimap " + w.getClass().getName(), map((Multimap<?, ?>) w, whiteSpace, addNulls, fancy));
-			return map(enumMap, whiteSpace, addNulls, fancy);
+			enumMap.put("class " + w.getClass().getName(), obj);
+			return enumMap;
 		}
-		return map(convert(w, whiteSpace, addNulls), whiteSpace, addNulls, fancy);
+		if(w instanceof Enchantment) {
+			return "{\"enum org.bukkit.enchantments.Enchantment\":\""+((Enchantment)w).getName()+"\"}";
+		}
+		if (w instanceof Enum<?>) {
+			Map<String, Object> enumMap = new HashMap<>();
+			enumMap.put("enum " + w.getClass().getName(), w.toString());
+			return enumMap;
+		}
+		if (w instanceof Comparable)
+			return w;
+		if (w instanceof Object[])
+			return fix(Arrays.asList((Object[]) w), fancy, addNulls);
+		if (w instanceof Collection) {
+			if (w instanceof ArrayList || w.getClass() == Ref.getClass("java.util.Arrays$ArrayList")
+					|| w instanceof HashSet || w instanceof LinkedList || w instanceof LinkedHashSet) {
+				return fix((Collection<?>) w, fancy, addNulls);
+			}
+			Map<String, Object> enumMap = new HashMap<>();
+			enumMap.put("Collection " + w.getClass().getName(),
+					fix((Collection<?>) w, fancy, addNulls));
+			return enumMap;
+		}
+		if (w instanceof Map) {
+			if(w instanceof HashMap || w instanceof LinkedHashMap || w instanceof TreeMap || w instanceof LinkedTreeMap || w instanceof WeakHashMap)
+				return fix((Map<?, ?>) w, fancy, addNulls);
+			Map<String, Object> enumMap = new HashMap<>();
+			enumMap.put("Map " + w.getClass().getName(), map((Map<?, ?>) w, addNulls));
+			return fix(enumMap, fancy, addNulls);
+		}
+		return convert(w, fancy, addNulls);
 	}
 
-	/**
-	 * 
-	 * @param object Object to parse to String
-	 * @return String Object converted to String
-	 */
-	public static String object(Object object, boolean whiteSpace, boolean addNulls) {
-		return object(object, whiteSpace, addNulls, false);
-	}
-
-	private static List<String> FORBIDDEN = new ArrayList<>();
-	static {
-		FORBIDDEN.add("org.bukkit.craftbukkit." + TheAPI.getServerVersion()
-				+ ".persistence.CraftPersistentDataAdapterContext");
-		FORBIDDEN.add(
-				"org.bukkit.craftbukkit." + TheAPI.getServerVersion() + ".persistence.CraftPersistentDataTypeRegistry");
-	}
-
-	private static Map<String, Object> convert(Object object, boolean whiteSpace, boolean addNulls) {
+	private Object convert(Object object, boolean fancy, boolean addNulls) {
 		Map<String, Object> item = new HashMap<>();
 		Map<String, Object> map = new HashMap<>();
 		for (Field f : Ref.getAllFields(object.getClass())) {
@@ -316,57 +334,30 @@ public class Writer {
 				map.put(f.getName(), null);
 				continue;
 			}
-			if (w instanceof String || w.getClass() == Ref.nms("IChatBaseComponent")
-					|| w.getClass() == Ref.nms("IChatMutableComponent") || w.getClass() == Ref.nms("ChatBaseComponent")
-					|| w.getClass() == Ref.nms("ChatMessage") || w.getClass() == Ref.nms("ChatComponentText")
-					|| w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")) {
-				if (w instanceof String) {
-					map.put(f.getName(), f("" + w));
-					continue;
-				} else {
-					String obj = w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")
-							? (String) Ref.invoke(w, "toLegacyText")
-							: (String) Ref.invoke(
-									Ref.craft("util.CraftChatMessage"), Ref.method(Ref.craft("util.CraftChatMessage"),
-											"fromComponent", Ref.nms("IChatBaseComponent")),
-									Ref.cast(Ref.nms("IChatBaseComponent"), w));
-					Map<String, Object> enumMap = new HashMap<>();
-					enumMap.put("class " + w.getClass().getName(), "\"" + f(obj) + "\"");
-					map.put(f.getName(), enumMap);
-					continue;
-				}
-			}
-			if (w instanceof Enum<?>) {
-				Map<String, Object> enumMap = new HashMap<>();
-				enumMap.put("enum " + w.getClass().getName(), "\"" + w.toString() + "\"");
-				map.put(f.getName(), enumMap);
-				continue;
-			}
-			map.put(f.getName(), w);
+			map.put(f.getName(), object2(w, fancy, addNulls));
+			continue;
 		}
 		item.put("class " + object.getClass().getName(), map);
 		return item;
 	}
 
-	private static String f(String s) {
-		StringBuilder a = new StringBuilder(s.length());
-		boolean before = false;
-		for (char c : s.toCharArray()) {
-			if (c == '\\') {
-				before = true;
-				a.append(c);
-				continue;
-			}
-			if (c == '"') {
-				if (before)
-					a.append('\\');
-				a.append(c);
-				before = false;
-				continue;
-			}
-			before = false;
-			a.append(c);
+	@Override
+	public String serilize(java.io.Writer writer, Object item) {
+		String write = object(item, false, true);
+		try {
+			writer.write(write);
+		} catch (Exception e) {
 		}
-		return a.toString();
+		return write;
+	}
+
+	@Override
+	public String serilize(Object item) {
+		return object(item, false, false);
+	}
+
+	@Override
+	public String serilize(Object item, boolean fancy) {
+		return object(item, false, fancy);
 	}
 }

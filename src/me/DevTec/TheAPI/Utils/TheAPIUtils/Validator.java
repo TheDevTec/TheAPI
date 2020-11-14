@@ -1,5 +1,7 @@
 package me.DevTec.TheAPI.Utils.TheAPIUtils;
 
+import org.bukkit.Bukkit;
+
 public class Validator {
 	public static boolean hideErrors = LoaderClass.config.getBoolean("Options.HideErrors");
 
@@ -14,7 +16,9 @@ public class Validator {
 	}
 
 	public static void send(String error, Throwable err) {
-		if (!hideErrors)
-			new Exception(error).printStackTrace();
+		if (!hideErrors) {
+			Bukkit.getLogger().warning("TheAPI Exception: "+error);
+			err.printStackTrace();
+		}
 	}
 }

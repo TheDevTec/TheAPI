@@ -1,58 +1,30 @@
 package me.DevTec.TheAPI.Utils.Json;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 
-public class Maker implements Iterable<String> {
-	public static class Reader implements Iterable<Object> {
-		private List<Object> values = new ArrayList<>();
-		private String json;
-
-		public Reader() {
-
-		}
-
-		public Reader(String json) {
-			open(json);
-		}
-
-		public void open(String json) {
-			this.json = json;
-			values = me.DevTec.TheAPI.Utils.Json.Reader.list(json);
-		}
-
-		public String getCurrentJson() {
-			return json;
-		}
-
-		public List<Object> getValues() {
-			return values;
-		}
-
-		public Iterator<Object> iterator() {
-			return values.iterator();
-		}
-	}
-
-	private List<String> values;
+public class Maker extends ArrayList<Object> {
+	private static final long serialVersionUID = 1L;
 
 	public Maker() {
-		values = new ArrayList<>();
 	}
 
-	public Maker(Maker maker) {
-		values = maker.values;
+	@SuppressWarnings("unchecked")
+	public Maker(String json) {
+		addAll((Collection<Object>) Reader.read(json));
 	}
-
-	public Iterator<String> iterator() {
-		return values.iterator();
+	
+	public Maker(Collection<Object> obj) {
+		addAll(obj);
 	}
-
-	public Maker add(Object o) {
-		values.add(Writer.object(o, true, true));
-		return this;
+	
+	public void addSerilized(String json) {
+		add(Reader.read(json));
+	}
+	
+	public void removeSerilized(String json) {
+		remove(Reader.read(json));
 	}
 
 	public MakerObject create() {
@@ -60,7 +32,11 @@ public class Maker implements Iterable<String> {
 	}
 
 	public String toString() {
-		return Writer.collection(values, true, true);
+		return Writer.write(this);
+	}
+
+	public String toString(boolean fancy) {
+		return Writer.write(this, fancy);
 	}
 
 	public class MakerObject extends HashMap<Object, Object> {
@@ -85,7 +61,7 @@ public class Maker implements Iterable<String> {
 		}
 
 		public String toString() {
-			return Writer.map(this, true, true);
+			return Writer.write(this);
 		}
 	}
 }

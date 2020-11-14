@@ -195,13 +195,13 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public List<String> getComments(String path) {
 		if (path == null)
 			return null;
-		return f.getLines(path);
+		return f.getComments(path);
 	}
 
 	public void setComments(String path, List<String> value) {
 		if (path == null)
 			return;
-		f.setLines(path, value);
+		f.setComments(path, value);
 	}
 
 	public void addComment(String path, String... value) {

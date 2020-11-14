@@ -39,7 +39,6 @@ public class SQLAPI {
 		try {
 			return connected && connection != null && !connection.isClosed();
 		} catch (Exception e) {
-			e.printStackTrace();
 			return false;
 		}
 	}
@@ -50,7 +49,6 @@ public class SQLAPI {
 		try {
 			connection.close();
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		connection = null;
 		connected = false;
@@ -67,6 +65,8 @@ public class SQLAPI {
 		try {
 			return connection.prepareStatement(command);
 		} catch (Exception e) {
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e.printStackTrace();
 			return null;
 		}
 	}

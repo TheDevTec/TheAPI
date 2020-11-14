@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -164,14 +165,17 @@ public class ItemCreatorAPI implements Cloneable {
 		a.setBookGeneration(gen);
 		return a.create();
 	}
-
-	public static ItemStack createHead(int amount, String displayName, String owner) {
-		Material mat = null;
+	
+	private static Material mat;
+	static {
 		try {
-			mat = Material.LEGACY_SKULL_ITEM;
+			mat = Material.PLAYER_HEAD;
 		} catch (Exception | NoSuchFieldError e) {
 			mat = Material.matchMaterial("SKULL_ITEM");
 		}
+	}
+
+	public static ItemStack createHead(int amount, String displayName, String owner) {
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
 		a.setDisplayName(displayName);
 		a.setOwner(owner);
@@ -180,12 +184,6 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public static ItemStack createHead(int amount, String displayName, String owner, List<String> lore) {
-		Material mat = null;
-		try {
-			mat = Material.LEGACY_SKULL_ITEM;
-		} catch (Exception | NoSuchFieldError e) {
-			mat = Material.matchMaterial("SKULL_ITEM");
-		}
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
 		a.setDisplayName(displayName);
 		a.setLore(lore);
@@ -195,12 +193,6 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public static ItemStack createHead(int amount, String displayName, SkullType type) {
-		Material mat = null;
-		try {
-			mat = Material.LEGACY_SKULL_ITEM;
-		} catch (Exception | NoSuchFieldError e) {
-			mat = Material.matchMaterial("SKULL_ITEM");
-		}
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
 		a.setDisplayName(displayName);
 		a.setSkullType(type);
@@ -208,12 +200,6 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public static ItemStack createHead(int amount, String displayName, List<String> lore, SkullType type) {
-		Material mat = null;
-		try {
-			mat = Material.LEGACY_SKULL_ITEM;
-		} catch (Exception | NoSuchFieldError e) {
-			mat = Material.matchMaterial("SKULL_ITEM");
-		}
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
 		a.setDisplayName(displayName);
 		a.setLore(lore);
@@ -222,12 +208,6 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public static ItemStack createHeadByValues(int amount, String displayName, String ownerValues) {
-		Material mat = null;
-		try {
-			mat = Material.LEGACY_SKULL_ITEM;
-		} catch (Exception | NoSuchFieldError e) {
-			mat = Material.matchMaterial("SKULL_ITEM");
-		}
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
 		a.setDisplayName(displayName);
 		a.setOwnerFromValues(ownerValues);
@@ -236,12 +216,6 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public static ItemStack createHeadByValues(int amount, String displayName, List<String> lore, String ownerValues) {
-		Material mat = null;
-		try {
-			mat = Material.LEGACY_SKULL_ITEM;
-		} catch (Exception | NoSuchFieldError e) {
-			mat = Material.matchMaterial("SKULL_ITEM");
-		}
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
 		a.setDisplayName(displayName);
 		a.setLore(lore);
@@ -251,12 +225,6 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public static ItemStack createHeadByWeb(int amount, String displayName, String ownerLink) {
-		Material mat = null;
-		try {
-			mat = Material.LEGACY_SKULL_ITEM;
-		} catch (Exception | NoSuchFieldError e) {
-			mat = Material.matchMaterial("SKULL_ITEM");
-		}
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
 		a.setDisplayName(displayName);
 		a.setSkullType("PLAYER");
@@ -265,12 +233,6 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public static ItemStack createHeadByWeb(int amount, String displayName, List<String> lore, String ownerLink) {
-		Material mat = null;
-		try {
-			mat = Material.PLAYER_HEAD;
-		} catch (Exception | NoSuchFieldError e) {
-			mat = Material.getMaterial("SKULL_ITEM");
-		}
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
 		a.setDisplayName(displayName);
 		a.setLore(lore);
@@ -903,8 +865,8 @@ public class ItemCreatorAPI implements Cloneable {
 			i.setItemMeta(mf);
 			if (!i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
 				if (enchs != null && !enchs.keySet().isEmpty())
-					for (Enchantment t : enchs.keySet()) {
-						i.addUnsafeEnchantment(t, enchs.get(t));
+					for (Entry<Enchantment, Integer> t : enchs.entrySet()) {
+						i.addUnsafeEnchantment(t.getKey(), t.getValue().intValue());
 					}
 			}
 			if (i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
@@ -948,12 +910,12 @@ public class ItemCreatorAPI implements Cloneable {
 					}
 				i.setItemMeta(meta);
 			} else if (i.getType().name().startsWith("LEATHER_")) {
-				LeatherArmorMeta meta = (LeatherArmorMeta) i.getItemMeta();
 				try {
-					meta.setColor(c);
+				LeatherArmorMeta meta = (LeatherArmorMeta) i.getItemMeta();
+				meta.setColor(c);
+				i.setItemMeta(meta);
 				} catch (Exception | NoSuchMethodError er) {
 				}
-				i.setItemMeta(meta);
 			} else if (type != null && type == SkullType.PLAYER) {
 				SkullMeta m = (SkullMeta) i.getItemMeta();
 				if (owner != null)

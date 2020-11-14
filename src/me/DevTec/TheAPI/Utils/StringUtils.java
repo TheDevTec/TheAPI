@@ -298,7 +298,7 @@ public class StringUtils {
 		};
 	}
 	
-	private static Pattern reg  = Pattern.compile("&((<!>)*)([Rrk-oK-O])"), old  = Pattern.compile("&((<!>)*)([A-Za-zUu0-9Rrk-oK-O])");    
+	private static Pattern reg  = Pattern.compile("&((<!>)*)([Rrk-oK-O])"), old  = Pattern.compile("&((<!>)*)([XxA-Za-zUu0-9Rrk-oK-O])");    
     private static String gradient(String msg, String fromHex, String toHex) {
     	int length =msg.length();
         boolean bold=false, italic=false, underlined=false, strikethrough=false, magic=false;
@@ -374,18 +374,18 @@ public class StringUtils {
 	 */
 	public static String colorize(String msg) {
 		if (msg == null)return null;
-		if (msg.toLowerCase().contains("&u")) {
+		if (msg.toLowerCase().contains("&u")||msg.toLowerCase().contains("§u")) {
 	    	List<String> s = new ArrayList<>();
 	    	StringBuffer d = new StringBuffer();
 	    	int found = 0;
 	    	for(char c : msg.toCharArray()) {
-	    		if(c=='&') {
+	    		if(c=='&' || c=='§') {
 	    			if(found==1)
 	    			d.append(c);
 	    			found=1;
 		    		continue;
 	    		}
-	    		if(found==1 && Pattern.compile("[A-Fa-fUu0-9]").matcher(c+"").find()) {
+	    		if(found==1 && Pattern.compile("[XxA-Fa-fUu0-9]").matcher(c+"").find()) {
 		    		found=0;
 			    	s.add(d.toString());
 		    		d=d.delete(0, d.length());

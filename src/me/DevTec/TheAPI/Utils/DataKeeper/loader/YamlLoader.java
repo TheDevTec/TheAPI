@@ -84,7 +84,7 @@ public class YamlLoader implements DataLoader {
 									&& (object.trim().endsWith("'") || object.trim().endsWith("\""))
 									&& object.length() > 1)
 								object = r(object).substring(1, object.length() - 1);
-							set(key, Reader.object(object), lines);
+							set(key, Reader.read(object), lines);
 							v = null;
 						} else if (c == 2) {
 							set(key, items, lines);
@@ -107,7 +107,7 @@ public class YamlLoader implements DataLoader {
 						if ((object.startsWith("'") || object.startsWith("\""))
 								&& (object.trim().endsWith("'") || object.trim().endsWith("\"")) && object.length() > 1)
 							object = r(object).substring(1, object.length() - 1);
-						set(key, Reader.object(object), lines);
+						set(key, Reader.read(object), lines);
 						v = null;
 					}
 					if (c == 2) {
@@ -122,7 +122,7 @@ public class YamlLoader implements DataLoader {
 					if ((object.startsWith("'") || object.startsWith("\""))
 							&& (object.trim().endsWith("'") || object.trim().endsWith("\"")) && object.length() > 1)
 						object = r(object).substring(1, object.length() - 1);
-					items.add(Reader.object(object));
+					items.add(Reader.read(object));
 					continue;
 				}
 				if (find) {
@@ -184,7 +184,7 @@ public class YamlLoader implements DataLoader {
 								v = new StringBuilder();
 								continue;
 							}
-							set(key, Reader.object(object), lines);
+							set(key, Reader.read(object), lines);
 						} else if (lines.isEmpty() == false)
 							set(key, null, lines);
 				}
@@ -196,7 +196,7 @@ public class YamlLoader implements DataLoader {
 				if ((done.startsWith("\"") && done.trim().endsWith("\"")
 						|| done.startsWith("'") && done.trim().endsWith("'")) && done.length() > 1)
 					done = r(done).substring(1, done.length() - 1);
-				set(key, Reader.object(done), lines);
+				set(key, Reader.read(done), lines);
 			} else if (!lines.isEmpty())
 				footer = lines;
 			l = true;

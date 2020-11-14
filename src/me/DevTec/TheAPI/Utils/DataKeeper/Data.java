@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
 import com.google.common.base.Charsets;
@@ -92,8 +93,9 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		return a == 1;
 	}
 
-	public void setFile(File f) {
+	public Data setFile(File f) {
 		a = f;
+		return this;
 	}
 
 	private DataHolder getOrCreateData(String key) {
@@ -107,88 +109,105 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		return h;
 	}
 
-	public void set(String key, Object value) {
+	public Data set(String key, Object value) {
 		if (key == null)
-			return;
+			return this;
 		if (value == null) {
 			if (key.split("\\.").length <= 1)
 				aw.remove(key.split("\\.")[0]);
 			loader.remove(key);
-			return;
+			return this;
 		}
-
-		getOrCreateData(key).o = value;
+		getOrCreateData(key).setValue(value);
+		return this;
 	}
 
-	public void remove(String key) {
+	public Data remove(String key) {
 		if (key == null)
-			return;
+			return this;
 		if (key.split("\\.").length <= 1)
 			aw.remove(key.split("\\.")[0]);
 		loader.remove(key);
 		for (String keys : getKeys(key))
 			loader.remove(key + "." + keys);
+		return this;
 	}
 
-	public List<String> getLines(String key) {
+	public List<String> getComments(String key) {
 		if (key == null)
 			return null;
 		return getOrCreateData(key).lines;
 	}
 
-	public void setLines(String key, List<String> value) {
+	public Data setComments(String key, List<String> value) {
 		if (value == null || key == null)
-			return;
+			return this;
 		getOrCreateData(key).lines = value;
+		return this;
 	}
 
-	public void addLines(String key, List<String> value) {
+	public Data addComments(String key, List<String> value) {
 		if (value == null || key == null)
-			return;
+			return this;
 		DataHolder h = getOrCreateData(key);
 		if (h.lines == null)
 			h.lines = value;
 		else
 			h.lines.addAll(value);
+		return this;
 	}
 
-	public void addLine(String key, String value) {
+	public Data addComment(String key, String value) {
 		if (value == null || key == null)
-			return;
+			return this;
 		DataHolder h = getOrCreateData(key);
 		if (h.lines == null)
 			h.lines = new ArrayList<>(3);
 		h.lines.add(value);
+		return this;
 	}
 
-	public void removeLine(String key, String value) {
+	public Data removeComments(String key, List<String> value) {
 		if (value == null || key == null)
-			return;
+			return this;
+		DataHolder h = getOrCreateData(key);
+		if (h.lines != null)
+			h.lines.removeAll(value);
+		return this;
+	}
+
+	public Data removeComment(String key, String value) {
+		if (value == null || key == null)
+			return this;
 		DataHolder h = getOrCreateData(key);
 		if (h.lines != null)
 			h.lines.remove(value);
+		return this;
 	}
 
-	public void removeLine(String key, int line) {
+	public Data removeComment(String key, int line) {
 		if (line < 0 || key == null)
-			return;
+			return this;
 		DataHolder h = getOrCreateData(key);
 		if (h.lines != null)
 			h.lines.remove(line);
+		return this;
 	}
 
 	public File getFile() {
 		return a;
 	}
 
-	public void setHeader(List<String> lines) {
+	public Data setHeader(List<String> lines) {
 		loader.getHeader().clear();
 		loader.getHeader().addAll(lines);
+		return this;
 	}
 
-	public void setFooter(List<String> lines) {
+	public Data setFooter(List<String> lines) {
 		loader.getFooter().clear();
 		loader.getFooter().addAll(lines);
+		return this;
 	}
 
 	public List<String> getHeader() {
@@ -199,7 +218,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		return loader.getFooter();
 	}
 
-	public void reload(String input) {
+	public Data reload(String input) {
 		aw.clear();
 		if (loader != null)
 			loader.reset();
@@ -207,9 +226,10 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		for (String k : loader.getKeys())
 			if (!aw.contains(k.split("\\.")[0]))
 				aw.add(k.split("\\.")[0]);
+		return this;
 	}
 
-	public void reload(File f) {
+	public Data reload(File f) {
 		if (!f.exists()) {
 			f.getParentFile().mkdirs();
 			try {
@@ -224,6 +244,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		for (String k : loader.getKeys())
 			if (!aw.contains(k.split("\\.")[0]))
 				aw.add(k.split("\\.")[0]);
+		return this;
 	}
 
 	public Object get(String key) {
@@ -429,11 +450,11 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		return getListAs(key, Map.class);
 	}
 
-	public void save(DataType type) {
+	public Data save(DataType type) {
 		synchronized (loader) {
 			try {
 				if (a == null)
-					return;
+					return this;
 				OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), Charsets.UTF_8);
 				if (type == DataType.DATA || type == DataType.BYTE) {
 					try {
@@ -445,7 +466,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 							try {
 								Object o = key.getValue();
 								ous.writeUTF(key.getKey());
-								ous.writeUTF("" + me.DevTec.TheAPI.Utils.Json.Writer.object(o, true, true));
+								ous.writeUTF("" + me.DevTec.TheAPI.Utils.Json.Writer.write(o));
 							} catch (Exception er) {
 							}
 						ous.flush();
@@ -459,15 +480,15 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 						w.write("");
 						w.close();
 					}
-					return;
+					return this;
 				}
 				if (type == DataType.JSON) {
 					Maker maker = new Maker();
 					for (String key : aw)
 						addKeys(maker, key);
-					w.write(maker.toString());
+					w.write(maker.toString(false).replace("\\n", System.lineSeparator()));
 					w.close();
-					return;
+					return this;
 				}
 				try {
 					for (String h : loader.getHeader())
@@ -486,6 +507,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 				Validator.send("Saving Data to File", er);
 			}
 		}
+		return this;
 	}
 
 	public void save() {
@@ -525,7 +547,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		List<String> a = new ArrayList<>();
 		for (String d : loader.getKeys())
 			if (d.startsWith(key)) {
-				String c = d.replaceFirst(key, "");
+				String c = d.replaceFirst(Pattern.quote(key), "");
 				if (!c.startsWith("."))
 					continue;
 				c = subkeys ? c : c.replaceFirst("\\.", "").split("\\.")[0];
@@ -544,7 +566,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	private void addKeys(Maker main, String key) {
 		Object o = get(key);
 		if (o != null)
-			main.add(main.create().put(key, me.DevTec.TheAPI.Utils.Json.Writer.object(o, true, true)));
+			main.add(main.create().put(key, o));
 		for (String keyer : getKeys(key))
 			addKeys(main, key + "." + keyer);
 	}
@@ -569,19 +591,19 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 							for (Object a : (Collection<?>) o)
 								b.write(splitted
 										+ addQuotes(a instanceof String,
-												me.DevTec.TheAPI.Utils.Json.Writer.object(a, true, true))
+												me.DevTec.TheAPI.Utils.Json.Writer.write(a))
 										+ System.lineSeparator());
 						} else {
 							for (Object a : (Object[]) o)
 								b.write(splitted
 										+ addQuotes(a instanceof String,
-												me.DevTec.TheAPI.Utils.Json.Writer.object(a, true, true))
+												me.DevTec.TheAPI.Utils.Json.Writer.write(a))
 										+ System.lineSeparator());
 						}
 					} else
 						b.write(pathName + " "
 								+ addQuotes(o instanceof String,
-										me.DevTec.TheAPI.Utils.Json.Writer.object(o, true, true))
+										me.DevTec.TheAPI.Utils.Json.Writer.write(o))
 								+ System.lineSeparator());
 				}
 				for (String key : getKeys(path, false))
@@ -602,17 +624,15 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 					DataOutputStream ous = new DataOutputStream(buf);
 					for (Entry<String, DataHolder> key : loader.get().entrySet())
 						try {
-							String o = "" + me.DevTec.TheAPI.Utils.Json.Writer.object(key.getValue().o, true, true);
 							ous.writeUTF(key.getKey());
-							ous.writeUTF(o);
+							ous.writeUTF(me.DevTec.TheAPI.Utils.Json.Writer.write(key.getValue().o));
 						} catch (Exception er) {
 						}
 					ous.flush();
 					bos.flush();
 					buf.flush();
 					tos.finish();
-					return type == DataType.DATA ? bos.toString()
-							: Base64.getEncoder().encodeToString(bos.toByteArray());
+					return type == DataType.DATA ? bos.toString() : Base64.getEncoder().encodeToString(bos.toByteArray());
 				} catch (Exception e) {
 				}
 				return "";
@@ -673,15 +693,17 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		return "Data(" + (a != null ? "'" + a.getName() + "'" : "") + ")";
 	}
 
-	public void clear() {
+	public Data clear() {
 		loader.get().clear();
+		return this;
 	}
 
-	public void reset() {
+	public Data reset() {
 		loader.reset();
+		return this;
 	}
 
-	public void merge(Data f, boolean addHeader, boolean addFooter) {
+	public Data merge(Data f, boolean addHeader, boolean addFooter) {
 		loader.get().putAll(f.loader.get());
 		for (String sw : f.aw)
 			if (!aw.contains(sw))
@@ -690,5 +712,6 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			loader.getHeader().addAll(f.loader.getHeader());
 		if (addFooter)
 			loader.getFooter().addAll(f.loader.getFooter());
+		return this;
 	}
 }

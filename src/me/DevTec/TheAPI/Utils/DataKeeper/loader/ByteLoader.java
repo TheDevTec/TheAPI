@@ -67,7 +67,7 @@ public class ByteLoader implements DataLoader {
 								: (ObjectInputStream) ousr).readUTF();
 						String value = (ousr instanceof DataInputStream ? (DataInputStream) ousr
 								: (ObjectInputStream) ousr).readUTF();
-						data.put(key, new DataHolder(Reader.object(value)));
+						set(key, (DataHolder) Reader.read(value));
 					} catch (Exception e) {
 						break;
 					}
@@ -79,8 +79,7 @@ public class ByteLoader implements DataLoader {
 							new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(input.getBytes()))));
 					while (true)
 						try {
-							String key = ousr.readUTF();
-							data.put(key, new DataHolder(Reader.object(ousr.readUTF())));
+							set(ousr.readUTF(), (DataHolder) Reader.read(ousr.readUTF()));
 						} catch (Exception e) {
 							break;
 						}

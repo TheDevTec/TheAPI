@@ -275,9 +275,14 @@ public class Ref {
 			try {
 				Field f = null;
 				Class<?> c = main.getSuperclass();
-				while(c!=null && f == null) {
-					f = c.getDeclaredField(name);
+				while(c!=null) {
+					try {
+						f = c.getDeclaredField(name);
+					}catch(Exception err) {}
+					if(f!=null)break;
+					try {
 					c=c.getSuperclass();
+					}catch(Exception err) {break;}
 				}
 				if (f != null)
 					f.setAccessible(true);
@@ -315,11 +320,7 @@ public class Ref {
 	}
 
 	public static Object get(Object main, String field) {
-		try {
-			return field(main.getClass(), field).get(main);
-		} catch (Exception | NoSuchFieldError es) {
-			return null;
-		}
+		return get(main, field(main.getClass(), field));
 	}
 
 	public static Object handle(Object item) {
@@ -370,14 +371,17 @@ public class Ref {
 	public static Method findMethodByName(Class<?> c, String name) {
 		Method a = null;
 		Class<?> d = c;
-		while(d!=null && a ==null) {
+		while(d!=null) {
 			for (Method m : getDeclaredMethods(d)) {
 				if (m.getName().equals(name)) {
 					a = m;
 					break;
 				}
 			}
-			d=d.getSuperclass();
+			if(a!=null)break;
+			try {
+				d=d.getSuperclass();
+			}catch(Exception err) {break;}
 		}
 		if (a != null)
 			a.setAccessible(true);
@@ -393,14 +397,17 @@ public class Ref {
 			if (o != null)
 				param[i++] = o instanceof Class ? (Class<?>) o : o.getClass();
 		}
-		while(d!=null && a ==null) {
+		while(d!=null) {
 			for (Method m : getDeclaredMethods(d)) {
 				if (m.getName().equals(name) && areSame(m.getParameterTypes(),param)) {
 					a = m;
 					break;
 				}
 			}
-			d=d.getSuperclass();
+			if(a!=null)break;
+			try {
+				d=d.getSuperclass();
+			}catch(Exception err) {break;}
 		}
 		if (a != null)
 			a.setAccessible(true);

@@ -101,6 +101,8 @@ public class BlocksAPI {
 		List<Entity> radiusEntities = new ArrayList<>();
 		for (int chX = 0 - chunkRadius; chX <= chunkRadius; chX++)
 			for (int chZ = 0 - chunkRadius; chZ <= chunkRadius; chZ++)
+				if(new Location(l.getWorld(), l.getX() + (chX * 16), l.getY(), l.getZ() + (chZ * 16))
+						.getChunk()!=null)
 				for (Entity e : new Location(l.getWorld(), l.getX() + (chX * 16), l.getY(), l.getZ() + (chZ * 16))
 						.getChunk().getEntities())
 					if (l.distance(e.getLocation()) <= radius)
