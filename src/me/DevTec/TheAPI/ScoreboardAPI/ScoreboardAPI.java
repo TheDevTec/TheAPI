@@ -18,7 +18,6 @@ import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.Action;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.DisplayType;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
-import me.DevTec.TheAPI.Utils.Reflections.Reflections;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 /**
@@ -29,7 +28,7 @@ import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
  */
 public class ScoreboardAPI {
 	private static Data data = new Data();
-	private static Field teamlist = Reflections.getField(Reflections.getNMSClass("PacketPlayOutScoreboardTeam"),
+	private static Field teamlist = Ref.field(Ref.nms("PacketPlayOutScoreboardTeam"),
 			TheAPI.isOlder1_9() ? "g" : "h");
 	private Player p;
 	private String player;
@@ -94,8 +93,8 @@ public class ScoreboardAPI {
 		if (packets) {
 			Ref.sendPacket(p, createObjectivePacket(0, name));
 			Object packet = NMSAPI.getPacketPlayOutScoreboardDisplayObjective();
-			Reflections.setField(packet, "a", 1);
-			Reflections.setField(packet, "b", player);
+			Ref.set(packet, "a", 1);
+			Ref.set(packet, "b", player);
 			Ref.sendPacket(p, packet);
 		} else {
 			if (p.getPlayer() != sb)

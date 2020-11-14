@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
-import me.DevTec.TheAPI.Utils.Reflections.Reflections;
+import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public enum EnchantmentAPI {
 	SHARPNESS("DAMAGE_ALL"), DAMAGEALL("DAMAGE_ALL"), ALLDAMAGE("DAMAGE_ALL"), DAMAGE_ALL("DAMAGE_ALL"),
@@ -87,7 +87,7 @@ public enum EnchantmentAPI {
 
 	private final String s;
 	private final int v;
-	private static Method getByName = Reflections.getMethod(Enchantment.class, "getByName", String.class);
+	private static Method getByName = Ref.method(Enchantment.class, "getByName", String.class);
 
 	EnchantmentAPI(String real) {
 		this(real, 0);
@@ -105,7 +105,7 @@ public enum EnchantmentAPI {
 
 	public Enchantment getEnchantment() {
 		if (StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]) >= v) {
-			Object o = Reflections.invoke(null, getByName, s);
+			Object o = Ref.invoke(null, getByName, s);
 			return o == null ? null : (Enchantment) o;
 		}
 		return null;
@@ -138,7 +138,7 @@ public enum EnchantmentAPI {
 
 	public static boolean registerEnchantment(org.bukkit.enchantments.Enchantment e) {
 		boolean registered = false;
-		Reflections.setFieldWithNull(Reflections.getField(Enchantment.class, "acceptingNew"), true);
+		Ref.set(null, Ref.field(Enchantment.class, "acceptingNew"), true);
 		try {
 			Enchantment.registerEnchantment(e);
 			registered = true;

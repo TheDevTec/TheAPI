@@ -45,8 +45,6 @@ import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler_Old;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Command.TheAPICommand;
 import me.DevTec.TheAPI.WorldsAPI.WorldsAPI;
-import me.DevTec.TheVault.Bank;
-import me.DevTec.TheVault.TheVault;
 import net.milkbowl.vault.economy.Economy;
 
 public class LoaderClass extends JavaPlugin {
@@ -65,8 +63,6 @@ public class LoaderClass extends JavaPlugin {
 	// EconomyAPI
 	public boolean e, tve, tbank;
 	public Economy economy;
-	public me.DevTec.TheVault.Economy tveeconomy;
-	public Bank bank;
 	public Object air = Ref.invoke(Ref.getNulled(Ref.field(Ref.nms("Block"), "AIR")), "getBlockData");
 
 	@SuppressWarnings("unchecked")
@@ -157,8 +153,6 @@ public class LoaderClass extends JavaPlugin {
 				Tasks.load();
 				Bukkit.getPluginManager().registerEvents(new Events(), LoaderClass.this);
 				TheAPI.createAndRegisterCommand("TheAPI", null, new TheAPICommand());
-				if (PluginManagerAPI.getPlugin("TheVault") != null)
-					TheVaultHooking();
 				if (PluginManagerAPI.getPlugin("Vault") == null) {
 					TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7: &ePlugin not found Vault, EconomyAPI is disabled.", TheAPI.getConsole());
@@ -424,36 +418,6 @@ public class LoaderClass extends JavaPlugin {
 					TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 					cancel();
 				}
-			}
-		}.runTimer(0, 20, 15);
-	}
-
-	public void TheVaultHooking() {
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &6Action: &eLooking for TheVault Economy and Bank system..", TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-		new Tasker() {
-			boolean as = false, b = false;
-
-			public void run() {
-				if (TheVault.getEconomy() != null && !as) {
-					as = true;
-					tveeconomy = TheVault.getEconomy();
-					tve = true;
-					TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-					TheAPI.msg("&cTheAPI&7: &eFound TheVault Economy", TheAPI.getConsole());
-					TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-				}
-				if (TheVault.getBank() != null && !b) {
-					b = true;
-					bank = TheVault.getBank();
-					tbank = true;
-					TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-					TheAPI.msg("&cTheAPI&7: &eFound TheVault Bank system", TheAPI.getConsole());
-					TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-				}
-				if (as && b)
-					cancel();
 			}
 		}.runTimer(0, 20, 15);
 	}

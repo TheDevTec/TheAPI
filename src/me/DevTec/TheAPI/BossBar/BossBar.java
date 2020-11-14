@@ -7,7 +7,6 @@ import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 import me.DevTec.TheAPI.Utils.NMS.DataWatcher.DataWatcher;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
-import me.DevTec.TheAPI.Utils.Reflections.Reflections;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 /**
@@ -20,7 +19,7 @@ public class BossBar {
 	private Object bar;
 	private int id;
 	private boolean hide;
-	private static Class<?> c = Reflections.getNMSClass("EntityEnderDragon");
+	private static Class<?> c = Ref.nms("EntityEnderDragon");
 
 	public BossBar(Player holder, String text, double progress, BarColor color, BarStyle style) {
 		s = holder.getName();
@@ -36,8 +35,8 @@ public class BossBar {
 		if (!TheAPI.isOlder1_9() || bar == null)
 			return;
 		Location loc = p.getLocation();
-		Object packet = Reflections.c(
-				Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutEntityTeleport"), int.class, int.class,
+		Object packet = Ref.newInstance(
+				Ref.constructor(Ref.nms("PacketPlayOutEntityTeleport"), int.class, int.class,
 						int.class, int.class, byte.class, byte.class, boolean.class),
 				getId(), (int) loc.getX() * 32, (int) (loc.getY() - 100) * 32, (int) loc.getZ() * 32,
 				(byte) ((int) loc.getYaw() * 256 / 360), (byte) ((int) loc.getPitch() * 256 / 360), false);
@@ -68,8 +67,8 @@ public class BossBar {
 		if (!p.getName().equals(s))
 			return;
 		if (!TheAPI.isOlder1_9()) {
-			Reflections.invoke(bar,
-					Reflections.getMethod(Reflections.getNMSClass("BossBattleServer"), "setVisible", boolean.class),
+			Ref.invoke(bar,
+					Ref.method(Ref.nms("BossBattleServer"), "setVisible", boolean.class),
 					false);
 			return;
 		}
@@ -81,8 +80,8 @@ public class BossBar {
 			return;
 		hide = false;
 		if (!TheAPI.isOlder1_9()) {
-			Reflections.invoke(bar,
-					Reflections.getMethod(Reflections.getNMSClass("BossBattleServer"), "setVisible", boolean.class),
+			Ref.invoke(bar,
+					Ref.method(Ref.nms("BossBattleServer"), "setVisible", boolean.class),
 					true);
 			return;
 		}
@@ -92,12 +91,10 @@ public class BossBar {
 	private void update(String a) {
 		if (bar == null)
 			return;
-		Reflections.invoke(bar,
-				Reflections.getMethod(bar.getClass(), "sendUpdate",
-						Reflections.getNMSClass("PacketPlayOutBoss$Action")),
-				Reflections.get(
-						Reflections.getField(Reflections.getNMSClass("PacketPlayOutBoss$Action"), a.toUpperCase()),
-						null));
+		Ref.invoke(bar,
+				Ref.method(bar.getClass(), "sendUpdate",
+						Ref.nms("PacketPlayOutBoss$Action")),
+				Ref.getNulled(Ref.field(Ref.nms("PacketPlayOutBoss$Action"), a.toUpperCase())));
 	}
 
 	private void set(String text, double progress, BarColor color, BarStyle style) {
@@ -114,28 +111,28 @@ public class BossBar {
 					color = BarColor.GREEN;
 				if (style == null)
 					style = BarStyle.NOTCHED_20;
-				bar = Reflections.c(Reflections.getConstructor(Reflections.getNMSClass("BossBattleServer"),
-						Reflections.getNMSClass("IChatBaseComponent"), Reflections.getNMSClass("BossBattle$BarColor"),
-						Reflections.getNMSClass("BossBattle$BarStyle")), NMSAPI.getIChatBaseComponentText(title),
+				bar = Ref.newInstance(Ref.constructor(Ref.nms("BossBattleServer"),
+						Ref.nms("IChatBaseComponent"), Ref.nms("BossBattle$BarColor"),
+						Ref.nms("BossBattle$BarStyle")), NMSAPI.getIChatBaseComponentText(title),
 						color.toMojang(), style.toMojang());
-				Reflections.invoke(bar, Reflections.getMethod(bar.getClass(), "setProgress", float.class),
+				Ref.invoke(bar, Ref.method(bar.getClass(), "setProgress", float.class),
 						(float) progress != -1 ? progress : 1);
-				Reflections.invoke(bar, Reflections.getMethod(Reflections.getNMSClass("BossBattleServer"), "addPlayer",
-						Reflections.getNMSClass("EntityPlayer")), Ref.player(p));
+				Ref.invoke(bar, Ref.method(Ref.nms("BossBattleServer"), "addPlayer",
+						Ref.nms("EntityPlayer")), Ref.player(p));
 				return;
 			}
 			if (text != null) {
-				Reflections.setField(bar, "title", NMSAPI.getIChatBaseComponentText(title));
+				Ref.set(bar, "title", NMSAPI.getIChatBaseComponentText(title));
 			}
 			if (progress != -1) {
-				Reflections.invoke(bar, Reflections.getMethod(bar.getClass(), "setProgress", float.class),
+				Ref.invoke(bar, Ref.method(bar.getClass(), "setProgress", float.class),
 						(float) progress);
 			}
 			if (color != null) {
-				Reflections.setField(bar, "color", color.toMojang());
+				Ref.set(bar, "color", color.toMojang());
 			}
 			if (style != null) {
-				Reflections.setField(bar, "style", style.toMojang());
+				Ref.set(bar, "style", style.toMojang());
 			}
 			update("UPDATE_PROPERTIES");
 			update("UPDATE_STYLE");
@@ -148,11 +145,11 @@ public class BossBar {
 		Object packet = null;
 		boolean cr = false;
 		if (bar == null) {
-			bar = Reflections.c(Reflections.getConstructor(c, Reflections.getNMSClass("World")),
+			bar = Ref.newInstance(Ref.constructor(c, Ref.nms("World")),
 					Ref.world(loc.getWorld()));
-			Reflections.invoke(bar, Reflections.getMethod(c, "setLocation", double.class, double.class, double.class,
+			Ref.invoke(bar, Ref.method(c, "setLocation", double.class, double.class, double.class,
 					float.class, float.class), loc.getX(), loc.getY() - 100, loc.getZ(), 0, 0);
-			id = (int) Reflections.invoke(bar, Reflections.getMethod(c, "getId"));
+			id = (int) Ref.invoke(bar, Ref.method(c, "getId"));
 			packet = NMSAPI.getPacketPlayOutSpawnEntityLiving(bar);
 			cr = true;
 		}
@@ -167,12 +164,12 @@ public class BossBar {
 		watcher.set(11, (byte) 1);
 		watcher.set(3, (byte) 1);
 		if (packet == null)
-			packet = Reflections.c(
-					Reflections.getConstructor(Reflections.getNMSClass("PacketPlayOutEntityMetadata"), int.class,
-							Reflections.getNMSClass("DataWatcher"), boolean.class),
+			packet = Ref.newInstance(
+					Ref.constructor(Ref.nms("PacketPlayOutEntityMetadata"), int.class,
+							Ref.nms("DataWatcher"), boolean.class),
 					getId(), watcher.getDataWatcher(), true);
 		if (cr)
-			Reflections.setField(packet, "l", watcher);
+			Ref.set(packet, "l", watcher);
 		NMSAPI.sendPacket(p, packet);
 	}
 

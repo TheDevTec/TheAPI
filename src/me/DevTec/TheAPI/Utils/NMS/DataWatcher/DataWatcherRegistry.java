@@ -3,13 +3,13 @@ package me.DevTec.TheAPI.Utils.NMS.DataWatcher;
 import java.util.HashMap;
 
 import me.DevTec.TheAPI.TheAPI;
-import me.DevTec.TheAPI.Utils.Reflections.Reflections;
+import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 /**
  * @apiNote This utility is only for 1.9+
  */
 public class DataWatcherRegistry {
-	private static Class<?> a = Reflections.getNMSClass("DataWatcherRegistry");
+	private static Class<?> a = Ref.nms("DataWatcherRegistry");
 
 	/**
 	 * @return DataWatcherObject<Byte>
@@ -148,8 +148,8 @@ public class DataWatcherRegistry {
 	 * @return DataWatcherObject<?>
 	 */
 	public static DataWatcherObject get(int id, int data) {
-		Object o = Reflections.invoke(null, Reflections.getMethod(a, "a", int.class), id);
-		return new DataWatcherObject(Reflections.invoke(o, Reflections.getMethod(o.getClass(), "a", int.class), data));
+		Object o = Ref.invokeNulled(Ref.method(a, "a", int.class), id);
+		return new DataWatcherObject(Ref.invoke(o, Ref.method(o.getClass(), "a", int.class), data));
 	}
 
 	private static final HashMap<String, Integer> ids = new HashMap<>();

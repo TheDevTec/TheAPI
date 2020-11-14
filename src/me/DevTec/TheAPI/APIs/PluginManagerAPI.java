@@ -1,11 +1,15 @@
 package me.DevTec.TheAPI.APIs;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -20,7 +24,6 @@ import org.bukkit.plugin.SimplePluginManager;
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
-import me.DevTec.TheAPI.Utils.ZIP.JarReader;
 
 public class PluginManagerAPI {
 	private static PluginManager spm = Bukkit.getPluginManager();
@@ -272,7 +275,7 @@ public class PluginManagerAPI {
 					}
 					if (loaded == null) {
 						String name = null;
-						String[] text = new JarReader(f).read("plugin.yml");
+						String[] text = readPlugin(f);
 						for (String find : text) {
 							if (find.contains("name: ")) {
 								String[] str = find.split("name: ");
@@ -302,7 +305,7 @@ public class PluginManagerAPI {
 					}
 					if (loaded == null) {
 						String name = null;
-						String[] text = new JarReader(f).read("plugin.yml");
+						String[] text = readPlugin(f);
 						for (String find : text) {
 							if (find.contains("name: ")) {
 								String[] str = find.split("name: ");
@@ -316,7 +319,30 @@ public class PluginManagerAPI {
 			}
 		return list;
 	}
-
+	
+	private static String[] readPlugin(File a) {
+		try {
+			JarFile file = new JarFile(a);
+			if (file != null) {
+				Enumeration<JarEntry> er = file.entries();
+				while(er.hasMoreElements()) {
+					JarEntry entry = er.nextElement();
+					if (entry.getName().equals("plugin.yml")) {
+						InputStream is = file.getInputStream(entry);
+						int readBytes;
+						StringBuffer f = new StringBuffer();
+						while ((readBytes = is.read()) != -1)
+							f.append((char) readBytes);
+						return f.toString().split("\r");
+					}
+				}
+			}
+			file.close();
+		} catch (Exception erer) {
+		}
+		return null;
+	}
+	
 	public static void reloadPlugin(Plugin plugin) {
 		reloadPlugin(plugin.getName());
 	}

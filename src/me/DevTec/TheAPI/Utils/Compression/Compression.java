@@ -46,10 +46,6 @@ public class Compression {
 		return new File(file.getParent());
 	}
 
-	public static Compressor getCompressor() {
-		return new Compressor();
-	}
-
 	public static class Compressor {
 		private ByteArrayOutputStream end = new ByteArrayOutputStream();
 		private GZIPOutputStream compressor;

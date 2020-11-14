@@ -1,12 +1,10 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.Maps;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-
-import me.DevTec.TheAPI.Utils.DataKeeper.TheArrays;
-import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheCollection;
-import me.DevTec.TheAPI.Utils.DataKeeper.Lists.TheArrayList;
 
 public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 	private Map<K, Map<T, V>> data = new HashMap<>();
@@ -83,28 +81,27 @@ public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 	public void putAll(SortedMultiMap<K, T, V> map) {
 		map.entrySet().forEach(Entry -> put(Entry.getKey(), Entry.getThread(), Entry.getValue()));
 	}
-
-	public TheCollection<K> keySet() {
-		return new TheArrayList<>(data.keySet());
+	
+	public Collection<K> keySet() {
+		return new ArrayList<>(data.keySet());
 	}
 
-	public TheCollection<T> threadSet(K key) {
-		return data.containsKey(key) ? new TheArrayList<>(data.get(key).keySet()) : TheArrays.newList();
+	public Collection<T> threadSet(K key) {
+		return data.containsKey(key) ? new ArrayList<>(data.get(key).keySet()) : new ArrayList<>();
 	}
 
-	public TheCollection<V> values(K key, T thread) {
-		return data.containsKey(key) ? new TheArrayList<>(data.get(key).values()) : TheArrays.newList();
+	public Collection<V> values(K key, T thread) {
+		return data.containsKey(key) ? new ArrayList<>(data.get(key).values()) : new ArrayList<>();
 	}
 
-	public TheCollection<me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap.Entry<K, T, V>> entrySet() {
-		TheArrayList<me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap.Entry<K, T, V>> entries = new TheArrayList<>(
-				data.size());
+	public Collection<Entry<K, T, V>> entrySet() {
+		ArrayList<Entry<K, T, V>> entries = new ArrayList<>(data.size());
 		for (K key : keySet())
 			for (T thread : threadSet(key))
 				entries.add(new Entry<>(key, thread, get(key, thread)));
 		return entries;
 	}
-
+	
 	public String toString() {
 		String builder = "";
 		for (Entry<K, T, V> e : entrySet()) {

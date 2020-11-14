@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -100,13 +101,13 @@ public class BlocksAPI {
 		int chunkRadius = radius < 16 ? 1 : (radius - (radius % 16)) / 16;
 		List<Entity> radiusEntities = new ArrayList<>();
 		for (int chX = 0 - chunkRadius; chX <= chunkRadius; chX++)
-			for (int chZ = 0 - chunkRadius; chZ <= chunkRadius; chZ++)
-				if(new Location(l.getWorld(), l.getX() + (chX * 16), l.getY(), l.getZ() + (chZ * 16))
-						.getChunk()!=null)
-				for (Entity e : new Location(l.getWorld(), l.getX() + (chX * 16), l.getY(), l.getZ() + (chZ * 16))
-						.getChunk().getEntities())
+			for (int chZ = 0 - chunkRadius; chZ <= chunkRadius; chZ++) {
+				Chunk c = new Location(l.getWorld(), l.getX() + (chX * 16), l.getY(), l.getZ() + (chZ * 16)).getChunk();
+				if(c!=null)
+				for (Entity e : c.getEntities())
 					if (l.distance(e.getLocation()) <= radius)
 						radiusEntities.add(e);
+			}
 		return radiusEntities;
 	}
 
@@ -575,10 +576,6 @@ public class BlocksAPI {
 		});
 	}
 
-	public static boolean isInside(Entity entity, Position a, Position b) {
-		return isInside(new Position(entity.getLocation()), a, b);
-	}
-
 	public static boolean isInside(Position loc, Position a, Position b) {
 		int xMin = Math.min(a.getBlockX(), b.getBlockX());
 		int yMin = Math.min(a.getBlockY(), b.getBlockY());
@@ -590,134 +587,7 @@ public class BlocksAPI {
 				&& loc.getBlockY() >= yMin && loc.getBlockY() <= yMax && loc.getBlockZ() >= zMin
 				&& loc.getBlockZ() <= zMax;
 	}
-
-	public static boolean isInside(Entity entity, Location a, Location b) {
-		return isInside(entity.getLocation(), a, b);
-	}
-
-	public static boolean isInside(Location loc, Location a, Location b) {
-		return isInside(new Position(loc), new Position(a), new Position(b));
-	}
-
-	// Asynchronized part
-	public static void asynchronizedSet(Position a, Position b, TheMaterial with) {
-		asynchronizedSet(a, b, new Runnable() {
-			public void run() {
-			}
-		}, with);
-	}
-
-	public static void asynchronizedSet(Position a, Position b, TheMaterial with, TheMaterial ignore) {
-		asynchronizedSet(a, b, new Runnable() {
-			public void run() {
-			}
-		}, with, ignore);
-	}
-
-	public static void asynchronizedSet(Position a, Position b, TheMaterial with, List<TheMaterial> ignore) {
-		asynchronizedSet(a, b, new Runnable() {
-			public void run() {
-			}
-		}, with, ignore);
-	}
-
-	public static void asynchronizedSet(Position a, Position b, List<TheMaterial> with, List<TheMaterial> ignore) {
-		asynchronizedSet(a, b, new Runnable() {
-			public void run() {
-			}
-		}, with, ignore);
-	}
-
-	public static void asynchronizedSet(Position a, Position b, List<TheMaterial> with) {
-		asynchronizedSet(a, b, new Runnable() {
-			public void run() {
-			}
-		}, with);
-	}
-
-	public static void asynchronizedSet(Position a, Position b, PercentageList<TheMaterial> with) {
-		asynchronizedSet(a, b, new Runnable() {
-			public void run() {
-			}
-		}, with, Arrays.asList());
-	}
-
-	public static void asynchronizedSet(Position a, Position b, PercentageList<TheMaterial> with,
-			List<TheMaterial> ignore) {
-		asynchronizedSet(a, b, new Runnable() {
-			public void run() {
-			}
-		}, with, ignore);
-	}
-
-	public static void asynchronizedSet(Position a, Position b, PercentageList<TheMaterial> with, TheMaterial ignore) {
-		asynchronizedSet(a, b, new Runnable() {
-			public void run() {
-			}
-		}, with, ignore);
-	}
-
-	public static void asynchronizedReplace(Position a, Position b, List<TheMaterial> block, TheMaterial with) {
-		asynchronizedReplace(a, b, new Runnable() {
-			public void run() {
-			}
-		}, block, with);
-	}
-
-	public static void asynchronizedReplace(Position a, Position b, TheMaterial block, TheMaterial with) {
-		asynchronizedReplace(a, b, new Runnable() {
-			public void run() {
-			}
-		}, block, with);
-	}
-
-	public static void asynchronizedReplace(Position a, Position b, TheMaterial block,
-			PercentageList<TheMaterial> with) {
-		asynchronizedReplace(a, b, new Runnable() {
-			public void run() {
-			}
-		}, block, with);
-	}
-
-	public static void asynchronizedReplace(Position a, Position b, TheMaterial block, List<TheMaterial> with) {
-		asynchronizedReplace(a, b, new Runnable() {
-			public void run() {
-			}
-		}, block, with);
-	}
-
-	public static void asynchronizedReplace(Position a, Position b, List<TheMaterial> block, List<TheMaterial> with) {
-		asynchronizedReplace(a, b, new Runnable() {
-			public void run() {
-			}
-		}, block, with);
-	}
-
-	public static void asynchronizedReplace(Position a, Position b, PercentageList<TheMaterial> block,
-			List<TheMaterial> with) {
-		asynchronizedReplace(a, b, new Runnable() {
-			public void run() {
-			}
-		}, block, with);
-	}
-
-	public static void asynchronizedReplace(Position a, Position b, PercentageList<TheMaterial> block,
-			PercentageList<TheMaterial> with) {
-		asynchronizedReplace(a, b, new Runnable() {
-			public void run() {
-			}
-		}, block, with);
-	}
-
-	public static void asynchronizedReplace(Position a, Position b, PercentageList<TheMaterial> block,
-			TheMaterial with) {
-		asynchronizedReplace(a, b, new Runnable() {
-			public void run() {
-			}
-		}, block, with);
-	}
-
-	// Asynchronized & Runnable on finish part
+	
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with) {
 		asynchronizedSet(a, b, onFinish, Arrays.asList(with), Arrays.asList());
 	}

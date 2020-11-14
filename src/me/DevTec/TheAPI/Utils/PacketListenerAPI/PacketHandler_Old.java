@@ -10,7 +10,6 @@ import org.bukkit.entity.Player;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Scheduler.Tasker;
-import me.DevTec.TheAPI.Utils.NMS.NMSPlayer;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import net.minecraft.util.com.mojang.authlib.GameProfile;
 import net.minecraft.util.io.netty.channel.Channel;
@@ -159,7 +158,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 	public Channel getChannel(Player player) {
 		Channel channel = channelLookup.getOrDefault(player.getName(), null);
 		if (channel == null) {
-			channel = (Channel) new NMSPlayer(player).getPlayerConnection().getNetworkManager().getChannel();
+			channel = (Channel) Ref.get(Ref.network(Ref.playerCon(player)),"m");
 			channelLookup.put(player.getName(), channel);
 		}
 		return channel;

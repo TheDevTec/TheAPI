@@ -1,12 +1,11 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.Maps;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.DevTec.TheAPI.Utils.DataKeeper.TheArrays;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data;
-import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheCollection;
-import me.DevTec.TheAPI.Utils.DataKeeper.Lists.TheArrayList;
 
 public class MultiMap<K, T, V> implements Data {
 	private Map<K, Map<T, V>> data = new HashMap<>();
@@ -88,20 +87,20 @@ public class MultiMap<K, T, V> implements Data {
 		map.entrySet().forEach(Entry -> put(Entry.k, Entry.t, Entry.v));
 	}
 
-	public TheCollection<K> keySet() {
-		return new TheArrayList<>(data.keySet());
+	public Collection<K> keySet() {
+		return new ArrayList<>(data.keySet());
 	}
 
-	public TheCollection<T> threadSet(K key) {
-		return data.containsKey(key) ? new TheArrayList<>(data.get(key).keySet()) : TheArrays.newList();
+	public Collection<T> threadSet(K key) {
+		return data.containsKey(key) ? new ArrayList<>(data.get(key).keySet()) : new ArrayList<>();
 	}
 
-	public TheCollection<V> values(K key, T thread) {
-		return data.containsKey(key) ? new TheArrayList<>(data.get(key).values()) : TheArrays.newList();
+	public Collection<V> values(K key, T thread) {
+		return data.containsKey(key) ? new ArrayList<>(data.get(key).values()) : new ArrayList<>();
 	}
 
-	public TheCollection<Entry<K, T, V>> entrySet() {
-		TheArrayList<Entry<K, T, V>> entries = new TheArrayList<>(data.size());
+	public Collection<Entry<K, T, V>> entrySet() {
+		ArrayList<Entry<K, T, V>> entries = new ArrayList<>(data.size());
 		for (K key : keySet())
 			for (T thread : threadSet(key))
 				entries.add(new Entry<>(key, thread, get(key, thread)));

@@ -39,12 +39,8 @@ public class Maker extends ArrayList<Object> {
 		return Writer.write(this, fancy);
 	}
 
-	public class MakerObject extends HashMap<Object, Object> {
+	public static class MakerObject extends HashMap<Object, Object> {
 		private static final long serialVersionUID = 1L;
-
-		public Maker getMaker() {
-			return Maker.this;
-		}
 
 		public MakerObject add(Object key, Object item) {
 			super.put(key, item);

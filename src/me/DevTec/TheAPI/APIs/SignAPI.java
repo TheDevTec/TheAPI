@@ -70,11 +70,9 @@ public class SignAPI {
 		HashMap<SignAction, List<String>> a = new HashMap<SignAction, List<String>>();
 		Position l = new Position(state.getLocation());
 		String ff = l.toString();
-		if (getRegistredSigns().contains(l)) {
-			for (String s : LoaderClass.data.getKeys("Sign." + ff)) {
+		if (getRegistredSigns().contains(l))
+			for (String s : LoaderClass.data.getKeys("Sign." + ff))
 				a.put(SignAction.valueOf(s), LoaderClass.data.getStringList("Sign." + ff + "." + s));
-			}
-		}
 		return a;
 	}
 

@@ -20,12 +20,10 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
+import org.json.simple.parser.JSONParser;
 
 import com.google.common.collect.Multimap;
 import com.google.common.io.CharStreams;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
 import me.DevTec.TheAPI.APIs.EnchantmentAPI;
 import me.DevTec.TheAPI.Utils.Position;
@@ -39,7 +37,7 @@ public class Reader implements JsonReader {
 	}
 	
 	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
-	private static Gson parser = new GsonBuilder().create();
+	private static JSONParser parser = new JSONParser();
 	
 	public Object object(String json) {
 		if (json == null)
@@ -60,7 +58,7 @@ public class Reader implements JsonReader {
 		if (json == null)
 			return null;
 		try {
-			return parser.fromJson(json, new TypeToken<Collection<?>>(){}.getType());
+			return (Collection<?>) parser.parse(json);
 		} catch (Exception e1) {
 		}
 		return null;
@@ -70,7 +68,7 @@ public class Reader implements JsonReader {
 		if (json == null)
 			return null;
 		try {
-			return parser.fromJson(json, new TypeToken<List<?>>(){}.getType());
+			return (List<?>) parser.parse(json);
 		} catch (Exception e1) {
 		}
 		return null;
@@ -86,7 +84,7 @@ public class Reader implements JsonReader {
 		if (json == null)
 			return null;
 		try {
-			return parser.fromJson(json, new TypeToken<Map<?,?>>(){}.getType());
+			return (Map<?,?>) parser.parse(json);
 		} catch (Exception e1) {
 		}
 		return null;

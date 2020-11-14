@@ -1,11 +1,11 @@
 package me.DevTec.TheAPI.BossBar;
 
-import me.DevTec.TheAPI.Utils.Reflections.Reflections;
+import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public enum BarColor {
 	GREEN, BLUE, PINK, PURPLE, RED, WHITE, YELLOW;
 
 	public Object toMojang() {
-		return Reflections.get(Reflections.getField(Reflections.getNMSClass("BossBattle$BarColor"), toString()), null);
+		return Ref.getNulled(Ref.field(Ref.nms("BossBattle$BarColor"), name()));
 	}
 }

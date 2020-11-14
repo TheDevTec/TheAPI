@@ -38,23 +38,15 @@ public class ItemCreatorAPI implements Cloneable {
 	// Simple creation
 
 	public static ItemStack create(Material material, int amount, String displayName) {
-		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
-		a.setDisplayName(displayName);
-		return a.create();
+		return create(material, amount, displayName, null, 0);
 	}
 
 	public static ItemStack create(Material material, int amount, String displayName, List<String> lore) {
-		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
-		a.setDisplayName(displayName);
-		a.setLore(lore);
-		return a.create();
+		return create(material, amount, displayName, lore, 0);
 	}
 
 	public static ItemStack create(Material material, int amount, String displayName, int data) {
-		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
-		a.setDisplayName(displayName);
-		a.setDurability(data);
-		return a.create();
+		return create(material, amount, displayName, null, data);
 	}
 
 	public static ItemStack create(Material material, int amount, String displayName, List<String> lore, int data) {
@@ -66,35 +58,18 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public static ItemStack createPotion(Material material, int amount, String displayName, PotionEffect... effects) {
-		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
-		a.setDisplayName(displayName);
-		for (PotionEffect effect : effects)
-			a.addPotionEffect(effect);
-		return a.create();
+		return createPotion(material, amount, displayName, null, null, effects);
 	}
 
-	public static ItemStack createPotion(Material material, int amount, String displayName, List<String> lore,
-			PotionEffect... effects) {
-		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
-		a.setDisplayName(displayName);
-		a.setLore(lore);
-		for (PotionEffect effect : effects)
-			a.addPotionEffect(effect);
-		return a.create();
+	public static ItemStack createPotion(Material material, int amount, String displayName, List<String> lore, PotionEffect... effects) {
+		return createPotion(material, amount, displayName, lore, null, effects);
 	}
 
-	public static ItemStack createPotion(Material material, int amount, String displayName, Color color,
-			PotionEffect... effects) {
-		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
-		a.setDisplayName(displayName);
-		for (PotionEffect effect : effects)
-			a.addPotionEffect(effect);
-		a.setColor(color);
-		return a.create();
+	public static ItemStack createPotion(Material material, int amount, String displayName, Color color, PotionEffect... effects) {
+		return createPotion(material, amount, displayName, null, color, effects);
 	}
 
-	public static ItemStack createPotion(Material material, int amount, String displayName, List<String> lore,
-			Color color, PotionEffect... effects) {
+	public static ItemStack createPotion(Material material, int amount, String displayName, List<String> lore, Color color, PotionEffect... effects) {
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
 		a.setDisplayName(displayName);
 		a.setLore(lore);
@@ -105,14 +80,10 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public static ItemStack createLeatherArmor(Material material, int amount, String displayName, Color color) {
-		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
-		a.setDisplayName(displayName);
-		a.setColor(color);
-		return a.create();
+		return createLeatherArmor(material, amount, displayName, null, color);
 	}
 
-	public static ItemStack createLeatherArmor(Material material, int amount, String displayName, List<String> lore,
-			Color color) {
+	public static ItemStack createLeatherArmor(Material material, int amount, String displayName, List<String> lore, Color color) {
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
 		a.setDisplayName(displayName);
 		a.setLore(lore);
@@ -120,42 +91,21 @@ public class ItemCreatorAPI implements Cloneable {
 		return a.create();
 	}
 
-	public static ItemStack createBook(Material material, int amount, String displayName, String author, String title,
-			List<String> pages) {
-		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
-		a.setDisplayName(displayName);
-		a.setBookAuthor(author);
-		a.setBookTitle(title);
-		a.setBookPages(pages);
-		return a.create();
+	public static ItemStack createBook(Material material, int amount, String displayName, String author, String title, List<String> pages) {
+		return createBook(material, amount, displayName, null, author, title, pages, null);
 	}
 
-	public static ItemStack createBook(Material material, int amount, String displayName, List<String> lore,
-			String author, String title, List<String> pages) {
-		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
-		a.setDisplayName(displayName);
-		a.setLore(lore);
-		a.setBookAuthor(author);
-		a.setBookTitle(title);
-		a.setBookPages(pages);
-		return a.create();
+	public static ItemStack createBook(Material material, int amount, String displayName, List<String> lore, String author, String title, List<String> pages) {
+		return createBook(material, amount, displayName, lore, author, title, pages, null);
 	}
 
 	// Only for newer minecraft versions
-	public static ItemStack createBook(Material material, int amount, String displayName, String author, String title,
-			List<String> pages, Generation gen) {
-		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
-		a.setDisplayName(displayName);
-		a.setBookAuthor(author);
-		a.setBookTitle(title);
-		a.setBookPages(pages);
-		a.setBookGeneration(gen);
-		return a.create();
+	public static ItemStack createBook(Material material, int amount, String displayName, String author, String title, List<String> pages, Generation gen) {
+		return createBook(material, amount, displayName, null, author, title, pages, gen);
 	}
 
 	// Only for newer minecraft versions
-	public static ItemStack createBook(Material material, int amount, String displayName, List<String> lore,
-			String author, String title, List<String> pages, Generation gen) {
+	public static ItemStack createBook(Material material, int amount, String displayName, List<String> lore, String author, String title, List<String> pages, Generation gen) {
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
 		a.setDisplayName(displayName);
 		a.setLore(lore);
@@ -176,11 +126,7 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public static ItemStack createHead(int amount, String displayName, String owner) {
-		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
-		a.setDisplayName(displayName);
-		a.setOwner(owner);
-		a.setSkullType("PLAYER");
-		return a.create();
+		return createHead(amount, displayName, owner, null);
 	}
 
 	public static ItemStack createHead(int amount, String displayName, String owner, List<String> lore) {
@@ -193,10 +139,7 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public static ItemStack createHead(int amount, String displayName, SkullType type) {
-		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
-		a.setDisplayName(displayName);
-		a.setSkullType(type);
-		return a.create();
+		return createHead(amount, displayName, null, type);
 	}
 
 	public static ItemStack createHead(int amount, String displayName, List<String> lore, SkullType type) {
@@ -208,11 +151,7 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public static ItemStack createHeadByValues(int amount, String displayName, String ownerValues) {
-		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
-		a.setDisplayName(displayName);
-		a.setOwnerFromValues(ownerValues);
-		a.setSkullType("PLAYER");
-		return a.create();
+		return createHeadByValues(amount, displayName, null, ownerValues);
 	}
 
 	public static ItemStack createHeadByValues(int amount, String displayName, List<String> lore, String ownerValues) {
@@ -225,11 +164,7 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public static ItemStack createHeadByWeb(int amount, String displayName, String ownerLink) {
-		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
-		a.setDisplayName(displayName);
-		a.setSkullType("PLAYER");
-		a.setOwnerFromWeb(ownerLink);
-		return a.create();
+		return createHeadByWeb(amount, displayName, null, ownerLink);
 	}
 
 	public static ItemStack createHeadByWeb(int amount, String displayName, List<String> lore, String ownerLink) {

@@ -10,7 +10,6 @@ import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.TheMaterial;
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
-import me.DevTec.TheAPI.Utils.Decompression.Decompression;
 import me.DevTec.TheAPI.Utils.Decompression.Decompression.Decompressor;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
@@ -54,7 +53,7 @@ public class Schema {
 					if (!fs.startsWith("c."))
 						continue;
 					try {
-						Decompressor dec = Decompression.getDecompressor((byte[]) schem.getData().get(fs));
+						Decompressor dec = new Decompressor((byte[]) schem.getData().get(fs));
 						fs = fs.replaceFirst(fs.split("\\.")[0], "");
 						while (true) {
 							String sd = null;

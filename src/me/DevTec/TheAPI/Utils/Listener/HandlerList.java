@@ -76,10 +76,14 @@ public class HandlerList {
 
 	public static void unregister(Listener a) {
 		Validator.validate(a == null, "Listener can not be null");
-		all.forEach(l -> l.l.forEach(s -> {
+		all.forEach(l -> {
+			List<RegisteredListener> w = new ArrayList<>();
+			l.l.forEach(s -> {
 			if (s.listener.equals(a))
-				l.l.remove(s);
-		}));
+				w.add(s);
+			});
+			l.l.removeAll(w);
+		});
 	}
 
 	public void registerAll(Collection<RegisteredListener> value) {

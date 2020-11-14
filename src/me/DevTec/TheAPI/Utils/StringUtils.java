@@ -7,9 +7,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,7 +23,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 import me.DevTec.TheAPI.TheAPI;
-import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
+import me.DevTec.TheAPI.Utils.Json.Reader;
+import me.DevTec.TheAPI.Utils.Json.Writer;
 
 public class StringUtils {
 	private static Random random = new Random();
@@ -32,6 +34,33 @@ public class StringUtils {
 		public String getNextColor();
 	}
 
+	public static String colorizeJson(String json) {
+		return Writer.write(correctColorize(Reader.read(json)));
+	}
+
+	public static Map<?, ?> colorizeJson(Map<?, ?> json) {
+		return (Map<?, ?>) correctColorize(json);
+	}
+	
+	private static Object correctColorize(Object o) {
+		if(o instanceof String) {
+			return colorize(o.toString());
+		}
+		if(o instanceof Map) {
+			Map<Object, Object> reader = new HashMap<>();
+			for(Entry<?,?> e : ((Map<?,?>)o).entrySet())
+				reader.put(correctColorize(e.getKey()), correctColorize(e.getValue()));
+			return reader;
+		}
+		if(o instanceof Collection) {
+			Collection<Object> reader = new ArrayList<>();
+			for(Object e : (Collection<?>)o)
+				reader.add(correctColorize(e));
+			return reader;
+		}
+		return o;
+	}
+	
 	/**
 	 * @see see Split text correctly with colors
 	 */
@@ -110,7 +139,7 @@ public class StringUtils {
 	 * @see see Transfer Collection to String
 	 * @return String
 	 */
-	public static String join(Collection<?> toJoin, String split) {
+	public static String join(Iterable<?> toJoin, String split) {
 		if (toJoin == null || split == null)
 			return null;
 		String r = "";
@@ -122,41 +151,7 @@ public class StringUtils {
 		r = r.replaceFirst(split, "");
 		return r;
 	}
-
-	/**
-	 * @see see Transfer List to String
-	 * @return String
-	 */
-	public static String join(List<?> toJoin, String split) {
-		if (toJoin == null || split == null)
-			return null;
-		String r = "";
-		for (Object s : toJoin)
-			if (s == null)
-				continue;
-			else
-				r = r + split + s.toString();
-		r = r.replaceFirst(split, "");
-		return r;
-	}
-
-	/**
-	 * @see see Transfer ArrayList to String
-	 * @return String
-	 */
-	public static String join(ArrayList<?> toJoin, String split) {
-		if (toJoin == null || split == null)
-			return null;
-		String r = "";
-		for (Object s : toJoin)
-			if (s == null)
-				continue;
-			else
-				r = r + split + s.toString();
-		r = r.replaceFirst(split, "");
-		return r;
-	}
-
+	
 	/**
 	 * @see see Transfer Object[] to String
 	 * @return String
@@ -166,21 +161,6 @@ public class StringUtils {
 			return null;
 		String r = "";
 		for (Object s : toJoin)
-			if (s == null)
-				continue;
-			else
-				r = r + split + s.toString();
-		r = r.replaceFirst(split, "");
-		return r;
-	}
-
-	/**
-	 * @see see Transfer Iterator<?> to String
-	 * @return String
-	 */
-	public static String join(Iterator<?> toJoin, String split) {
-		String r = "";
-		for (Object s = toJoin.next(); toJoin.hasNext();)
 			if (s == null)
 				continue;
 			else
@@ -465,25 +445,6 @@ public class StringUtils {
 	 * @return Object
 	 */
 	public static <T> T getRandomFromList(List<T> list) {
-		if (list.isEmpty() || list == null)
-			return null;
-		int r = random.nextInt(list.size());
-		if (r <= 0) {
-			if (list.get(0) != null) {
-				return list.get(0);
-			}
-			return null;
-		} else
-			return list.get(r);
-	}
-
-	/**
-	 * @see see Return random object from list
-	 * @param list
-	 * @return
-	 * @return Object
-	 */
-	public static <T> T getRandomFromList(TheList<T> list) {
 		if (list.isEmpty() || list == null)
 			return null;
 		int r = random.nextInt(list.size());

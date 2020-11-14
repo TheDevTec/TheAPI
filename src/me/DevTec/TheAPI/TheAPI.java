@@ -53,7 +53,6 @@ import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
 import me.DevTec.TheAPI.Utils.DataKeeper.Storage;
 import me.DevTec.TheAPI.Utils.DataKeeper.User;
-import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.TheList;
 import me.DevTec.TheAPI.Utils.Listener.Event;
 import me.DevTec.TheAPI.Utils.Listener.HandlerList;
 import me.DevTec.TheAPI.Utils.Listener.Listener;
@@ -285,15 +284,6 @@ public class TheAPI {
 	 * @return Object
 	 */
 	public static <T> T getRandomFromList(List<T> list) {
-		return StringUtils.getRandomFromList(list);
-	}
-
-	/**
-	 * @see see Return random object from list
-	 * @param list
-	 * @return Object
-	 */
-	public static <T> T getRandomFromList(TheList<T> list) {
 		return StringUtils.getRandomFromList(list);
 	}
 
@@ -1004,7 +994,7 @@ public class TheAPI {
 	 */
 	public static int getPlayerPing(Player p) {
 		try {
-			return NMSAPI.getNMSPlayerAPI(p).getPing();
+			return (int)Ref.get(Ref.player(p), "ping");
 		} catch (Exception e) {
 			return -1;
 		}

@@ -188,7 +188,7 @@ FORBIDDEN.add(
 			return map(enumMap, addNulls, fancy);
 		}
 		if (w instanceof Comparable)
-			return "" + w;
+			return w.toString();
 		if (w instanceof Object[])
 			return array((Object[]) w, addNulls, fancy);
 		if (w instanceof Collection) {
@@ -279,7 +279,7 @@ FORBIDDEN.add(
 				|| w.getClass() == Ref.nms("ChatMessage") || w.getClass() == Ref.nms("ChatComponentText")
 				|| w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")) {
 			if (w instanceof String) {
-				return w;
+				return w+"";
 			}
 			String obj = w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")
 					? (String) Ref.invoke(w, "toLegacyText")

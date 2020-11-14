@@ -5,7 +5,7 @@ website: https://www.spigotmc.org/resources/theapi.72679/
 version: 5.0
 api-version: 1.13
 loadbefore: [Residence,MobArena]
-softdepend: [TheVault,Vault,PlaceholderAPI]
+softdepend: [Vault,PlaceholderAPI]
 permissions:
   TheAPI.*:
     default: op

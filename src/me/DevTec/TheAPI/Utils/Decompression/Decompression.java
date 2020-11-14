@@ -62,10 +62,6 @@ public class Decompression {
 		return out;
 	}
 
-	public static Decompressor getDecompressor(byte[] toDecompress) {
-		return new Decompressor(toDecompress);
-	}
-
 	public static class Decompressor {
 		private ByteArrayInputStream end;
 		private GZIPInputStream decompressor;
