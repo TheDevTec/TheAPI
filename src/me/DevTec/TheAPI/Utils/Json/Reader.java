@@ -20,14 +20,17 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
-import org.json.simple.parser.JSONParser;
 
 import com.google.common.collect.Multimap;
 import com.google.common.io.CharStreams;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import me.DevTec.TheAPI.APIs.EnchantmentAPI;
 import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.StringUtils;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.LinkedSet;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class Reader implements JsonReader {
@@ -37,7 +40,7 @@ public class Reader implements JsonReader {
 	}
 	
 	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
-	private static JSONParser parser = new JSONParser();
+	private static Gson parser = new GsonBuilder().setLenient().create();
 	
 	public Object object(String json) {
 		if (json == null)
@@ -58,7 +61,7 @@ public class Reader implements JsonReader {
 		if (json == null)
 			return null;
 		try {
-			return (Collection<?>) parser.parse(json);
+			return parser.fromJson(json, LinkedSet.class);
 		} catch (Exception e1) {
 		}
 		return null;
@@ -68,7 +71,7 @@ public class Reader implements JsonReader {
 		if (json == null)
 			return null;
 		try {
-			return (List<?>) parser.parse(json);
+			return parser.fromJson(json, ArrayList.class);
 		} catch (Exception e1) {
 		}
 		return null;
@@ -84,12 +87,12 @@ public class Reader implements JsonReader {
 		if (json == null)
 			return null;
 		try {
-			return (Map<?,?>) parser.parse(json);
+			return parser.fromJson(json, UnsortedMap.class);
 		} catch (Exception e1) {
 		}
 		return null;
 	}
-
+	
 	private Object parse(Class<?> clazz, Object object) {
 		if (clazz == Ref.nms("IChatBaseComponent") || clazz == Ref.nms("IChatMutableComponent")
 				|| clazz == Ref.nms("ChatBaseComponent") || clazz == Ref.nms("ChatMessage")
@@ -181,10 +184,10 @@ public class Reader implements JsonReader {
 			return o;
 		}
 		if (o instanceof Map) {
-			Map<Object, Object> aw = new HashMap<>();
+			Map<Object, Object> aw = new UnsortedMap<>();
 			for(Entry<?, ?> f : ((Map<?, ?>) o).entrySet())aw.put(f.getKey() instanceof String ? object((String)f.getKey()) : f.getKey(), f.getValue());
 			o=aw;
-			Map<Object, Object> a = new HashMap<>();
+			Map<Object, Object> a = new UnsortedMap<>();
 			boolean c = false;
 			for (Entry<?, ?> s : ((Map<?, ?>) o).entrySet()) {
 				if (s.getKey().toString().startsWith("enum ")) {

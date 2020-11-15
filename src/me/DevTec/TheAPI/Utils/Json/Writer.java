@@ -28,6 +28,7 @@ import com.google.gson.internal.LinkedTreeMap;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.Position;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class Writer implements JsonWriter {
@@ -50,7 +51,7 @@ FORBIDDEN.add(
 	}
 	
 	private Map<Object, Object> fix(Map<?, ?> o, boolean fancy, boolean addNulls) {
-		Map<Object, Object> map = new HashMap<>();
+		Map<Object, Object> map = new UnsortedMap<>();
 		for(Entry<?, ?> e : o.entrySet())
 			map.put(object2(e.getKey(), fancy, addNulls), object2(e.getValue(), fancy, addNulls));
 		return map;
@@ -202,7 +203,7 @@ FORBIDDEN.add(
 			return map(enumMap, addNulls, fancy);
 		}
 		if (w instanceof Map) {
-			if (w instanceof HashMap || w instanceof LinkedHashMap || w instanceof HashMap || w instanceof HashMap) {
+			if (w instanceof UnsortedMap || w instanceof HashMap || w instanceof LinkedHashMap || w instanceof HashMap || w instanceof HashMap) {
 				return map((Map<?, ?>) w, addNulls, fancy);
 			}
 			Map<String, Object> enumMap = new HashMap<>();
@@ -312,7 +313,7 @@ FORBIDDEN.add(
 			return enumMap;
 		}
 		if (w instanceof Map) {
-			if(w instanceof HashMap || w instanceof LinkedHashMap || w instanceof TreeMap || w instanceof LinkedTreeMap || w instanceof WeakHashMap)
+			if(w instanceof UnsortedMap || w instanceof HashMap || w instanceof LinkedHashMap || w instanceof TreeMap || w instanceof LinkedTreeMap || w instanceof WeakHashMap)
 				return fix((Map<?, ?>) w, fancy, addNulls);
 			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("Map " + w.getClass().getName(), map((Map<?, ?>) w, addNulls));

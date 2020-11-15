@@ -2,7 +2,8 @@ package me.DevTec.TheAPI.Utils.Json;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 
 public class Maker extends ArrayList<Object> {
 	private static final long serialVersionUID = 1L;
@@ -39,8 +40,7 @@ public class Maker extends ArrayList<Object> {
 		return Writer.write(this, fancy);
 	}
 
-	public static class MakerObject extends HashMap<Object, Object> {
-		private static final long serialVersionUID = 1L;
+	public static class MakerObject extends UnsortedMap<Object, Object> {
 
 		public MakerObject add(Object key, Object item) {
 			super.put(key, item);

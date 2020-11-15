@@ -4,13 +4,11 @@ import java.awt.Color;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,7 +22,6 @@ import org.bukkit.Location;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.Json.Reader;
-import me.DevTec.TheAPI.Utils.Json.Writer;
 
 public class StringUtils {
 	private static Random random = new Random();
@@ -34,31 +31,13 @@ public class StringUtils {
 		public String getNextColor();
 	}
 
+	@SuppressWarnings("unchecked")
 	public static String colorizeJson(String json) {
-		return Writer.write(correctColorize(Reader.read(json)));
+		return new HoverMessage((Map<String, ?>)Reader.read(json)).toString();
 	}
 
-	public static Map<?, ?> colorizeJson(Map<?, ?> json) {
-		return (Map<?, ?>) correctColorize(json);
-	}
-	
-	private static Object correctColorize(Object o) {
-		if(o instanceof String) {
-			return colorize(o.toString());
-		}
-		if(o instanceof Map) {
-			Map<Object, Object> reader = new HashMap<>();
-			for(Entry<?,?> e : ((Map<?,?>)o).entrySet())
-				reader.put(correctColorize(e.getKey()), correctColorize(e.getValue()));
-			return reader;
-		}
-		if(o instanceof Collection) {
-			Collection<Object> reader = new ArrayList<>();
-			for(Object e : (Collection<?>)o)
-				reader.add(correctColorize(e));
-			return reader;
-		}
-		return o;
+	public static String colorizeJson(Map<String, Object> json) {
+		return new HoverMessage(json).toString();
 	}
 	
 	/**

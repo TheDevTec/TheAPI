@@ -122,7 +122,7 @@ public class YamlLoader implements DataLoader {
 					if ((object.startsWith("'") || object.startsWith("\""))
 							&& (object.trim().endsWith("'") || object.trim().endsWith("\"")) && object.length() > 1)
 						object = r(object).substring(1, object.length() - 1);
-					items.add(Reader.read(object));
+					items.add(object);
 					continue;
 				}
 				if (find) {

@@ -138,6 +138,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	}
 
 	private PacketInterceptor injectChannelInternal(Player a, Channel channel) {
+		if(channel==null||a==null)return null;
 		try {
 			PacketInterceptor interceptor = (PacketInterceptor) channel.pipeline().get("InjectorTheAPI");
 			if (interceptor == null) {
