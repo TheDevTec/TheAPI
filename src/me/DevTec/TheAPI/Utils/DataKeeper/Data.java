@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
 import com.google.common.base.Charsets;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.loader.DataLoader;
@@ -618,20 +620,13 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		synchronized (loader) {
 			if (type == DataType.DATA || type == DataType.BYTE) {
 				try {
-					ByteArrayOutputStream bos = new ByteArrayOutputStream(loader.getKeys().size());
-					GZIPOutputStream tos = new GZIPOutputStream(bos);
-					BufferedOutputStream buf = new BufferedOutputStream(tos);
-					DataOutputStream ous = new DataOutputStream(buf);
+					ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
 					for (Entry<String, DataHolder> key : loader.get().entrySet())
 						try {
-							ous.writeUTF(key.getKey());
-							ous.writeUTF(me.DevTec.TheAPI.Utils.Json.Writer.write(key.getValue().o));
+							bos.writeUTF(key.getKey());
+							bos.writeUTF(me.DevTec.TheAPI.Utils.Json.Writer.write(key.getValue().o));
 						} catch (Exception er) {
 						}
-					ous.flush();
-					bos.flush();
-					buf.flush();
-					tos.finish();
 					return type == DataType.DATA ? bos.toString() : Base64.getEncoder().encodeToString(bos.toByteArray());
 				} catch (Exception e) {
 				}

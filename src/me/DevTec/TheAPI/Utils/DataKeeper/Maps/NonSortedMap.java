@@ -6,7 +6,7 @@ import java.util.Set;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Collections.LinkedSet;
 
-public class UnsortedMap<K, V> implements Map<K, V> {
+public class NonSortedMap<K, V> implements Map<K, V> {
 	class Bucket implements Entry<K, V> {
 		K key;
 		V val;
@@ -45,11 +45,11 @@ public class UnsortedMap<K, V> implements Map<K, V> {
 	private final Bucket bucket;
 	private int size;
 	
-	public UnsortedMap() {
+	public NonSortedMap() {
 		this(5);
 	}
 	
-	public UnsortedMap(int size) {
+	public NonSortedMap(int size) {
 		if(size>0) {
 			bucket=new Bucket();
 			Bucket current = bucket;
@@ -64,7 +64,7 @@ public class UnsortedMap<K, V> implements Map<K, V> {
 		}
 	}
 	
-	public UnsortedMap(Map<? extends K, ? extends V> e) {
+	public NonSortedMap(Map<? extends K, ? extends V> e) {
 		this(e.size());
 		putAll(e);
 	}
@@ -227,6 +227,7 @@ public class UnsortedMap<K, V> implements Map<K, V> {
 		LinkedSet<V> key = new LinkedSet<>(size);
 		Bucket c = bucket;
 		for(int i = 0; i < size; ++i) {
+			if(c==null)break;
 			key.add(c.val);
 			c=c.next;
 		}

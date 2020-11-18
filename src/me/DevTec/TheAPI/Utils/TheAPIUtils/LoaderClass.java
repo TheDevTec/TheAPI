@@ -65,11 +65,9 @@ public class LoaderClass extends JavaPlugin {
 	public Economy economy;
 	public Object air = Ref.invoke(Ref.getNulled(Ref.field(Ref.nms("Block"), "AIR")), "getBlockData");
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onLoad() {
 		plugin = this;
-		new TheAPI();
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
@@ -81,6 +79,16 @@ public class LoaderClass extends JavaPlugin {
 						s.move();
 				}
 			}.runRepeating(0, 20);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void onEnable() {
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
+				TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		Bukkit.getPluginManager().registerEvents(new Events(), LoaderClass.this);
+		TheAPI.createAndRegisterCommand("TheAPI", null, new TheAPICommand());
 		if (TheAPI.isNewerThan(7) || Ref.getClass("net.minecraft.util.io.netty.channel.ChannelInitializer") == null)
 			handler = new PacketHandler_New();
 		else
@@ -89,14 +97,6 @@ public class LoaderClass extends JavaPlugin {
 			if (!handler.hasInjected(handler.getChannel(s)))
 				handler.injectPlayer(s);
 		}
-	}
-
-	@Override
-	public void onEnable() {
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
-				TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		loadWorlds();
 		loadPlaceholders();
 		if (PlaceholderAPI.isEnabledPlaceholderAPI()) {
@@ -151,8 +151,6 @@ public class LoaderClass extends JavaPlugin {
 		new Tasker() {
 			public void run() {
 				Tasks.load();
-				Bukkit.getPluginManager().registerEvents(new Events(), LoaderClass.this);
-				TheAPI.createAndRegisterCommand("TheAPI", null, new TheAPICommand());
 				if (PluginManagerAPI.getPlugin("Vault") == null) {
 					TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7: &ePlugin not found Vault, EconomyAPI is disabled.", TheAPI.getConsole());

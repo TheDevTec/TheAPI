@@ -53,8 +53,9 @@ public class JsonLoader implements DataLoader {
 		try {
 			Object read = Reader.read(input);
 			if(read instanceof Map) {
-					for (Entry<Object, Object> keyed : ((Map<Object, Object>)read).entrySet())
+					for (Entry<Object, Object> keyed : ((Map<Object, Object>)read).entrySet()) {
 						data.put((String)keyed.getKey(), new DataHolder(keyed.getValue()));
+					}
 					l = true;
 			}else {
 			for(Object o : (Collection<Object>)read) {

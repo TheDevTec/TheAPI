@@ -1,16 +1,13 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
+
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteStreams;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
 import me.DevTec.TheAPI.Utils.Json.Reader;
@@ -54,36 +51,29 @@ public class ByteLoader implements DataLoader {
 		synchronized (this) {
 			try {
 				byte[] bb = Base64.getDecoder().decode(input);
-				InputStream ousr = null;
-				try {
-					ousr = new ObjectInputStream(new GZIPInputStream(new ByteArrayInputStream(bb)));
-				} catch (Exception er) {
-					ousr = new DataInputStream(
-							new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(bb))));
-				}
+				ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
 				while (true)
 					try {
-						String key = (ousr instanceof DataInputStream ? (DataInputStream) ousr
-								: (ObjectInputStream) ousr).readUTF();
-						String value = (ousr instanceof DataInputStream ? (DataInputStream) ousr
-								: (ObjectInputStream) ousr).readUTF();
-						set(key, (DataHolder) Reader.read(value));
+						String key = bos.readUTF();
+						String value = bos.readUTF();
+						data.put(key, new DataHolder(Reader.read(value)));
 					} catch (Exception e) {
 						break;
 					}
-				ousr.close();
+				if(!data.isEmpty())
 				l = true;
 			} catch (Exception er) {
 				try {
-					DataInputStream ousr = new DataInputStream(
-							new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(input.getBytes()))));
+					ByteArrayDataInput bos = ByteStreams.newDataInput(input.getBytes());
 					while (true)
 						try {
-							set(ousr.readUTF(), (DataHolder) Reader.read(ousr.readUTF()));
+							String key = bos.readUTF();
+							String value = bos.readUTF();
+							data.put(key, new DataHolder(Reader.read(value)));
 						} catch (Exception e) {
 							break;
 						}
-					ousr.close();
+					if(!data.isEmpty())
 					l = true;
 				} catch (Exception err) {
 					l = false;

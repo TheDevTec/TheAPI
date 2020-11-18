@@ -177,9 +177,7 @@ public class NMSAPI {
 
 	// Entity
 	public static Object getPacketPlayOutEntityMetadata(Object entity) {
-		return getPacketPlayOutEntityMetadata(
-				(int) Ref.invoke(entity, Ref.method(entity.getClass(), "getId")),
-				Ref.invoke(entity, Ref.method(entity.getClass(), "getDataWatcher")));
+		return getPacketPlayOutEntityMetadata((int) Ref.invoke(entity, "getId"),Ref.invoke(entity, "getDataWatcher"));
 	}
 
 	public static Object getPacketPlayOutEntityMetadata(Entity entity, DataWatcher dataWatcher) {

@@ -1,12 +1,11 @@
 package me.DevTec.TheAPI.Utils.Json;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
-import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.LinkedSet;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.NonSortedMap;
 
-public class Maker extends ArrayList<Object> {
-	private static final long serialVersionUID = 1L;
+public class Maker extends LinkedSet<Object> {
 
 	public Maker() {
 	}
@@ -40,7 +39,7 @@ public class Maker extends ArrayList<Object> {
 		return Writer.write(this, fancy);
 	}
 
-	public static class MakerObject extends UnsortedMap<Object, Object> {
+	public static class MakerObject extends NonSortedMap<Object, Object> {
 
 		public MakerObject add(Object key, Object item) {
 			super.put(key, item);

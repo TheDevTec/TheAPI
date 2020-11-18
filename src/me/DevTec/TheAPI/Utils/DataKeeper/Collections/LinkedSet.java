@@ -125,9 +125,9 @@ public class LinkedSet<V> implements Set<V> {
 		StringBuffer f = new StringBuffer(size());
 		f.append("[");
 		for(V e : this) {
-			if(!f.toString().equals("{"))
+			if(!f.toString().equals("["))
 				f.append(", ");
-			f.append(e.toString());
+			f.append(e+"");
 		}
 		return f.append("]").toString();
 	}
@@ -136,13 +136,15 @@ public class LinkedSet<V> implements Set<V> {
 	public Iterator<V> iterator() {
 		return new Iterator<V>() {
 			Bucket c = bucket;
+			int d = 0;
 			@Override
 			public boolean hasNext() {
-				return c.next!=null;
+				return d < size;
 			}
 
 			@Override
 			public V next() {
+				d++;
 				try {
 				return c.val;
 				}finally {

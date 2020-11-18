@@ -72,7 +72,6 @@ public class TheAPI {
 	private static Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
 	private static Random random = new Random();
 	private static int ver;
-
 	public static void register(Listener listener) {
 		HandlerList.register(listener);
 	}
@@ -119,7 +118,12 @@ public class TheAPI {
 		if(command.getTabCompleter()==null) {
 			if(command.getExecutor() instanceof TabCompleter) {
 				command.setTabCompleter((TabCompleter)command.getExecutor());
-			}
+			}else
+				command.setTabCompleter(new TabCompleter() {
+					public List<String> onTabComplete(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
+						return null;
+					}
+				});
 		}
 		if(command.getExecutor()==null) {
 			if(command.getTabCompleter() instanceof CommandExecutor) {
