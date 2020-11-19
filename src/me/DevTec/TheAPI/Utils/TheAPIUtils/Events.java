@@ -264,8 +264,8 @@ public class Events implements Listener {
 			return;
 		}
 		if (a.isTempBanned()) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.TEMPBAN).replace("\\n", "\n"))
-					.replace("%time%", StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBAN))));
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.TEMPBAN).replace("\\n", "\n")
+					.replace("%time%", StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBAN)))));
 			return;
 		}
 		if (a.isIPBanned()) {
@@ -273,8 +273,8 @@ public class Events implements Listener {
 			return;
 		}
 		if (a.isTempIPBanned()) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.TEMPBANIP).replace("\\n", "\n"))
-					.replace("%time%", StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBANIP))));
+			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.TEMPBANIP).replace("\\n", "\n")
+					.replace("%time%", StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBANIP)))));
 			return;
 		}
 	}
