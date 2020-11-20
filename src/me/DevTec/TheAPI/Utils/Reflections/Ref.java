@@ -26,7 +26,7 @@ public class Ref {
 					String.class, String.class, String.class);
 	private static Object server = invoke(handle(cast(craft("CraftServer"), Bukkit.getServer())), "getServer");
 	private static Class<?> craft = craft("entity.CraftPlayer"), world = craft("CraftWorld");
-	private static Method ichatcon, send = Ref.method(nms("NetworkManager"), "sendPacket", Ref.nms("Packet"));
+	private static Method ichatcon, send = Ref.method(nms("PlayerConnection"), "sendPacket", Ref.nms("Packet"));
 	static {
 		ichatcon = method(nms("IChatBaseComponent$ChatSerializer"), "a", String.class);
 		if (ichatcon == null)
@@ -110,7 +110,7 @@ public class Ref {
 	}
 
 	public static void sendPacket(Player to, Object packet) {
-		Ref.invoke(Ref.network(Ref.playerCon(to)), send, packet);
+		Ref.invoke(Ref.playerCon(to), send, packet);
 	}
 
 	public static Object server() {
