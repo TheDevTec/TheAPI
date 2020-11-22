@@ -1,9 +1,9 @@
-package me.DevTec.TheAPI.Events;
+package me.DevTec.TheAPI.Utils.Listener.Events;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
+
+import me.DevTec.TheAPI.Utils.Listener.Cancellable;
+import me.DevTec.TheAPI.Utils.Listener.Event;
 
 public class PlayerVanishEvent extends Event implements Cancellable {
 	private Player p;
@@ -45,16 +45,4 @@ public class PlayerVanishEvent extends Event implements Cancellable {
 	public void setCancelled(boolean c) {
 		cancel = c;
 	}
-
-	private static final HandlerList c = new HandlerList();
-
-	@Override
-	public HandlerList getHandlers() {
-		return c;
-	}
-
-	public static HandlerList getHandlerList() {
-		return c;
-	}
-
 }

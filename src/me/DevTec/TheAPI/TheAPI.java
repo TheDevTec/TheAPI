@@ -43,7 +43,6 @@ import me.DevTec.TheAPI.BossBar.BarStyle;
 import me.DevTec.TheAPI.BossBar.BossBar;
 import me.DevTec.TheAPI.ConfigAPI.ConfigAPI;
 import me.DevTec.TheAPI.CooldownAPI.CooldownAPI;
-import me.DevTec.TheAPI.Events.PlayerVanishEvent;
 import me.DevTec.TheAPI.SQLAPI.SQLAPI;
 import me.DevTec.TheAPI.Scheduler.Scheduler;
 import me.DevTec.TheAPI.Scheduler.Tasker;
@@ -56,6 +55,7 @@ import me.DevTec.TheAPI.Utils.DataKeeper.User;
 import me.DevTec.TheAPI.Utils.Listener.Event;
 import me.DevTec.TheAPI.Utils.Listener.HandlerList;
 import me.DevTec.TheAPI.Utils.Listener.Listener;
+import me.DevTec.TheAPI.Utils.Listener.Events.PlayerVanishEvent;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.ChatType;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.TitleAction;
@@ -789,7 +789,7 @@ public class TheAPI {
 	
 	private static void applyVanish(Player s, String perm, boolean var) {
 		PlayerVanishEvent da = new PlayerVanishEvent(s, perm, var);
-		Bukkit.getPluginManager().callEvent(da);
+		callEvent(da);
 		if (!da.isCancelled()) {
 			var = da.vanish();
 			perm = da.getPermission();

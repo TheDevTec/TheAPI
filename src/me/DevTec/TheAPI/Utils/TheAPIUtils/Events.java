@@ -46,6 +46,7 @@ import me.DevTec.TheAPI.GUIAPI.GUI;
 import me.DevTec.TheAPI.GUIAPI.ItemGUI;
 import me.DevTec.TheAPI.PunishmentAPI.PlayerBanList;
 import me.DevTec.TheAPI.PunishmentAPI.PlayerBanList.PunishmentType;
+import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.PunishmentAPI.PunishmentAPI;
 import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.StringUtils;
@@ -309,32 +310,34 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onJoin(PlayerJoinEvent e) {
 		Player s = e.getPlayer();
-		TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);
-		if (inJoin.contains(s.getName())) {
-			inJoin.remove(s.getName());
-			Object channel = LoaderClass.plugin.handler.getChannel(e.getPlayer());
-			if (!LoaderClass.plugin.handler.hasInjected(channel))
-				LoaderClass.plugin.handler.injectPlayer(e.getPlayer());
-		}
-		// Houska or Straikerina
-		if (s.getUniqueId().toString().equals("b33ec012-c39d-3d21-9fc5-85e30c048cf0")
-				|| s.getUniqueId().toString().equals("db294d44-7ce4-38f6-b122-4c5d80f3bea1")) {
-			TheAPI.msg("&eInstalled TheAPI &6v" + LoaderClass.plugin.getDescription().getVersion(), s);
-			List<String> pl = new ArrayList<>();
-			for (Plugin a : LoaderClass.plugin.getTheAPIsPlugins())
-				pl.add(a.getName());
-			if (!pl.isEmpty())
-				TheAPI.msg("&ePlugins using TheAPI: &6" + StringUtils.join(pl, ", "), s);
-		}
-		for (Player p : TheAPI.getOnlinePlayers()) {
-			if (TheAPI.hasVanish(p.getName())
-					&& (TheAPI.getUser(p).exist("vanish") ? !s.hasPermission(TheAPI.getUser(p).getString("vanish"))
-							: true)) {
-				s.hidePlayer(p);
-			}
-		}
-		if (TheAPI.hasVanish(s.getName()))
-			TheAPI.setVanish(s.getName(), TheAPI.getUser(s).getString("vanish"), true);
+		new Tasker() {
+			public void run() {
+				TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);
+				if (inJoin.contains(s.getName())) {
+					inJoin.remove(s.getName());
+					Object channel = LoaderClass.plugin.handler.getChannel(e.getPlayer());
+					if (!LoaderClass.plugin.handler.hasInjected(channel))
+						LoaderClass.plugin.handler.injectPlayer(e.getPlayer());
+				}
+				// Houska or Straikerina
+				if (s.getUniqueId().toString().equals("b33ec012-c39d-3d21-9fc5-85e30c048cf0")
+						|| s.getUniqueId().toString().equals("db294d44-7ce4-38f6-b122-4c5d80f3bea1")) {
+					TheAPI.msg("&eInstalled TheAPI &6v" + LoaderClass.plugin.getDescription().getVersion(), s);
+					List<String> pl = new ArrayList<>();
+					for (Plugin a : LoaderClass.plugin.getTheAPIsPlugins())
+						pl.add(a.getName());
+					if (!pl.isEmpty())
+						TheAPI.msg("&ePlugins using TheAPI: &6" + StringUtils.join(pl, ", "), s);
+				}
+				for (Player p : TheAPI.getOnlinePlayers()) {
+					if (TheAPI.hasVanish(p.getName())
+							&& (TheAPI.getUser(p).exist("vanish") ? !s.hasPermission(TheAPI.getUser(p).getString("vanish")) : true)) {
+						s.hidePlayer(p);
+					}
+				}
+				if (TheAPI.hasVanish(s.getName()))
+					TheAPI.setVanish(s.getName(), TheAPI.getUser(s).getString("vanish"), true);
+			}}.runTask();
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)

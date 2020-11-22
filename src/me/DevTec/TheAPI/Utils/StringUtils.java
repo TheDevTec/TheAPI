@@ -260,6 +260,7 @@ public class StringUtils {
 	
 	private static Pattern reg  = Pattern.compile("&((<!>)*)([Rrk-oK-O])"), old  = Pattern.compile("&((<!>)*)([XxA-Za-zUu0-9Rrk-oK-O])");    
     private static String gradient(String msg, String fromHex, String toHex) {
+    	msg=msg.replace("§", "&");
     	int length =msg.length();
         boolean bold=false, italic=false, underlined=false, strikethrough=false, magic=false;
         Color fromRGB = Color.decode(fromHex), toRGB = Color.decode(toHex);
@@ -348,7 +349,7 @@ public class StringUtils {
             }
             if (text.length() == 0) continue;
             if (hexIndex + 1 >= hexes.size()) {
-                finalMsg.append(text);
+                if (!finalMsg.toString().contains(text)) finalMsg.append(text);
                 continue;
             }
             finalMsg.append(gradient(text, hexes.get(hexIndex), hexes.get(hexIndex+1)));
@@ -400,8 +401,10 @@ public class StringUtils {
 	    	}
 	    	msg=d.toString();
 		}
-		if (TheAPI.isNewerThan(15) && (msg.contains("#")||msg.contains("&x")||msg.contains("§x"))) {
-			msg = gradient(msg.replace("&x", "§x"));
+		if(TheAPI.isNewerThan(15)) {
+			msg=gradient(msg);
+		if (msg.contains("#")||msg.contains("&x")||msg.contains("§x")) {
+			msg = msg.replace("&x", "§x");
 			Matcher match = hex.matcher(msg);
 			while (match.find()) {
 				String color = match.group();
@@ -411,6 +414,7 @@ public class StringUtils {
 					magic.append(("&" + c[i]).toLowerCase());
 				msg = msg.replace(color, magic.toString() + "");
 			}
+		}
 		}
 		return ChatColor.translateAlternateColorCodes('&', msg);
 	}
