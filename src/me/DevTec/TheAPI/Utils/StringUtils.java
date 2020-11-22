@@ -22,6 +22,7 @@ import org.bukkit.Location;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.Json.Reader;
+import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class StringUtils {
 	private static Random random = new Random();
@@ -325,7 +326,37 @@ public class StringUtils {
         }
         return msg;
     }
-
+    
+	private static String gradient(String legacyMsg) {
+        for (String code : LoaderClass.plugin.colorMap.keySet()) {
+            String rawCode = LoaderClass.plugin.tagG + code;
+            if (!legacyMsg.toLowerCase().contains(rawCode)) continue;
+            legacyMsg = legacyMsg.replace(LoaderClass.plugin.gradientTag + rawCode, LoaderClass.plugin.gradientTag + LoaderClass.plugin.colorMap.get(code));
+        }
+        List<String> hexes = new ArrayList<>();
+        Matcher matcher = Pattern.compile(LoaderClass.plugin.gradientTag+"#[A-Fa-f0-9]{6}").matcher(legacyMsg);
+        while (matcher.find()) {
+            hexes.add(matcher.group().replace(LoaderClass.plugin.gradientTag, ""));
+        }
+        int hexIndex = 0;
+        List<String> texts = Arrays.asList(legacyMsg.split(LoaderClass.plugin.gradientTag+"#[A-Fa-f0-9]{6}"));
+        StringBuilder finalMsg = new StringBuilder();
+        for (String text : texts) {
+            if (texts.get(0).equalsIgnoreCase(text)) {
+                finalMsg.append(text);
+                continue;
+            }
+            if (text.length() == 0) continue;
+            if (hexIndex + 1 >= hexes.size()) {
+                finalMsg.append(text);
+                continue;
+            }
+            finalMsg.append(gradient(text, hexes.get(hexIndex), hexes.get(hexIndex+1)));
+            hexIndex++;
+        }
+        return finalMsg.toString();
+    }
+	
 	/**
 	 * @see see Colorize string with colors (&eHello world -> {YELLOW}Hello world)
 	 * @param string
@@ -370,7 +401,7 @@ public class StringUtils {
 	    	msg=d.toString();
 		}
 		if (TheAPI.isNewerThan(15) && (msg.contains("#")||msg.contains("&x")||msg.contains("§x"))) {
-			msg = msg.replace("&x", "§x");
+			msg = gradient(msg.replace("&x", "§x"));
 			Matcher match = hex.matcher(msg);
 			while (match.find()) {
 				String color = match.group();

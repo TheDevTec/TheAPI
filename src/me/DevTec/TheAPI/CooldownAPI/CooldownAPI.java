@@ -67,6 +67,7 @@ public class CooldownAPI {
 	}
 
 	public void removeCooldown(String cooldown) {
-		c.setAndSave("cooldown." + cooldown, null);
+		c.remove("cooldown." + cooldown);
+		c.save();
 	}
 }

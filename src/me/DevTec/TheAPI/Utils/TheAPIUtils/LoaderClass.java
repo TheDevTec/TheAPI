@@ -39,6 +39,7 @@ import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.DataType;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.NonSortedMap;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler_New;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler_Old;
@@ -49,16 +50,17 @@ import net.milkbowl.vault.economy.Economy;
 
 public class LoaderClass extends JavaPlugin {
 	// Scoreboards
-	public final Map<Integer, ScoreboardAPI> scoreboard = new HashMap<>();
+	public final Map<Integer, ScoreboardAPI> scoreboard = new NonSortedMap<>();
 	public final MultiMap<Integer, Integer, Object> map = new MultiMap<>();
+	public final Map<String, String> colorMap = new NonSortedMap<>();
 	// GUIs
 	public final Map<String, GUI> gui = new HashMap<>();
 	// BossBars
 	public final List<BossBar> bars = new ArrayList<>();
 	// TheAPI
 	public static LoaderClass plugin;
-	public static Config config = new Config("TheAPI/Config.yml"), data = new Config("TheAPI/Data.dat", DataType.DATA);
-	public String motd;
+	public static Config config = new Config("TheAPI/Config.yml"), tags, data = new Config("TheAPI/Data.dat", DataType.DATA);
+	public String motd, tagG, gradientTag;
 	public int max;
 	// EconomyAPI
 	public boolean e, tve, tbank;
@@ -68,6 +70,41 @@ public class LoaderClass extends JavaPlugin {
 	@Override
 	public void onLoad() {
 		plugin = this;
+		if(TheAPI.isNewerThan(15)) {
+			tags = new Config("TheAPI/Tags.yml");
+			tags.addDefault("TagPrefix", "!");
+			tags.addDefault("GradientPrefix", "!");
+			if(!tags.exists("Tags")) {
+				tags.addDefault("Tags.baby_blue", "0fd2f6");
+				tags.addDefault("Tags.beige", "ffc8a9");
+				tags.addDefault("Tags.blush", "e69296");
+				tags.addDefault("Tags.amaranth", "e52b50");
+				tags.addDefault("Tags.brown", "964b00");
+				tags.addDefault("Tags.crimson", "dc143c");
+				tags.addDefault("Tags.dandelion", "ffc31c");
+				tags.addDefault("Tags.eggshell", "f0ecc7");
+				tags.addDefault("Tags.fire", "ff0000");
+				tags.addDefault("Tags.ice", "bddeec");
+				tags.addDefault("Tags.indigo", "726eff");
+				tags.addDefault("Tags.lavender", "4b0082");
+				tags.addDefault("Tags.leaf", "618a3d");
+				tags.addDefault("Tags.lilac", "c8a2c8");
+				tags.addDefault("Tags.lime", "b7ff00");
+				tags.addDefault("Tags.midnight", "007bff");
+				tags.addDefault("Tags.mint", "50c878");
+				tags.addDefault("Tags.olive", "929d40");
+				tags.addDefault("Tags.royal_purple", "7851a9");
+				tags.addDefault("Tags.rust", "b45019");
+				tags.addDefault("Tags.sky", "00c8ff");
+				tags.addDefault("Tags.smoke", "708c98");
+				tags.addDefault("Tags.tangerine", "ef8e38");
+				tags.addDefault("Tags.violet", "9c6eff");
+			}
+			tagG=tags.getString("TagPrefix");
+			gradientTag=tags.getString("GradientPrefix");
+			for (String tag : tags.getKeys("Tags"))
+				colorMap.put(tag.toLowerCase(), "#" + tags.getString("Tags."+tag));
+		}
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());

@@ -59,7 +59,7 @@ public class WorldsAPI {
 	 */
 	public static boolean create(String name, Environment generator, WorldType type, boolean generateStructures,
 			long seed) {
-		return create(name, generator, type, TheAPI.isOlder1_9() ? new voidGenerator_1_8() : new voidGenerator(),
+		return create(name, generator, type, type == null ? (TheAPI.isOlder1_9() ? new voidGenerator_1_8() : new voidGenerator()) : null,
 				generateStructures, seed);
 	}
 
@@ -79,20 +79,17 @@ public class WorldsAPI {
 			return false;
 
 		if (Bukkit.getWorld(name) == null) {
-			WorldCreator c = new WorldCreator(name);
-			c.generateStructures(generateStructures);
-			if (generator != null)
-				c.environment(generator);
+			WorldCreator c = new WorldCreator(name).generateStructures(generateStructures).environment(generator);
 			if (seed != 0)
-				c.seed(seed);
+				c=c.seed(seed);
 			if (type != null)
-				c.type(type);
+				c=c.type(type);
 			if (Chunkgenerator != null)
-				c.generator(Chunkgenerator);
-			c.createWorld();
+				c=c.generator(Chunkgenerator);
+			World w = c.createWorld();
 			if (type == null) {
-				Location loc = new Location(Bukkit.getWorld(name), 0, 60, 0);
-				Bukkit.getWorld(name).setSpawnLocation(0, 60, 0);
+				Location loc = new Location(w, 0, 60, 0);
+				w.setSpawnLocation(0, 60, 0);
 				loc.getBlock().setType(Material.GLASS);
 			}
 			return true;
