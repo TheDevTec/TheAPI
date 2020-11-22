@@ -1,6 +1,9 @@
 package me.DevTec.TheAPI.Utils.TheAPIUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +42,7 @@ import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.DataType;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.LinkedSet;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.NonSortedMap;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler;
@@ -220,8 +225,100 @@ public class LoaderClass extends JavaPlugin {
 					TheAPI.msg("&cTheAPI&7: &eTheAPI deleted &6" + removed + " &eunused user files",
 							TheAPI.getConsole());
 				TheAPI.clearCache();
+				updater = new UpdateChecker();
+				switch(updater.checkForUpdates()) {
+				case -1:
+					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Unable to connect to spigot, check internet connection.", TheAPI.getConsole());
+					updater=null; //close updater
+					break;
+				case 1:
+					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Found new version of TheAPI.", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7:        https://www.spigotmc.org/resources/72679/", TheAPI.getConsole());
+					break;
+				case 2:
+					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7You are using the BETA version of TheAPI, report bugs to our Discord.", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7:        https://discord.io/spigotdevtec", TheAPI.getConsole());
+					break;
+				}
+				if(updater!=null)
+				new Tasker() {
+					public void run() {
+						switch(updater.checkForUpdates()) {
+							case -1:
+								TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
+								TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Unable to connect to spigot, check internet connection.", TheAPI.getConsole());
+								updater=null; //close updater
+								cancel(); //destroy task
+								break;
+							case 1:
+								TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
+								TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Found new version of TheAPI.", TheAPI.getConsole());
+								TheAPI.msg("&cTheAPI&7:        https://www.spigotmc.org/resources/72679/", TheAPI.getConsole());
+								break;
+							case 2:
+								TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
+								TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7You are using the BETA version of TheAPI, report bugs to our Discord.", TheAPI.getConsole());
+								TheAPI.msg("&cTheAPI&7:        https://discord.io/spigotdevtec", TheAPI.getConsole());
+								break;
+						}
+					}
+				}.runRepeating(144000, 144000);
 			}
 		}.runTask();
+	}
+	
+	private UpdateChecker updater;
+
+	public class UpdateChecker {
+	    private URL checkURL;
+	    
+	    public UpdateChecker reconnect() {
+	    	try {
+				checkURL=new URL("https://api.spigotmc.org/legacy/update.php?resource=72679");
+			} catch (Exception e) {}
+	        return this;
+	    }
+
+	    //0 == SAME VERSION
+	    //1 == NEW VERSION
+	    //2 == BETA VERSION
+	    public int checkForUpdates() {
+	    	if(checkURL==null)
+	    		reconnect();
+	    	String[] readerr = null;
+	    	try {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(checkURL.openConnection().getInputStream()));
+				Set<String> s = new LinkedSet<>();
+				String read;
+				while((read=reader.readLine()) != null)
+					s.add(read);
+				readerr=s.toArray(new String[s.size()]);
+			} catch (Exception e) {
+			}
+	    	if(readerr==null)return -1;
+	        return isNewer(getDescription().getVersion(), readerr[0]);
+	    }
+	    
+		private int isNewer(String a, String b) {
+	    	int is = 0, d = 0;
+	    	String[] s = a.split("\\.");
+	    	for(String f : b.split("\\.")) {
+	    		int id = StringUtils.getInt(f),
+	    			bi = StringUtils.getInt(s[d++]);
+	    		if(id > bi) {
+	    			is=1;
+	    			break;
+	    		}
+	    		if(id < bi) {
+	    			is=2;
+	    			break;
+	    		}
+	    	}
+	    	return is;
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
