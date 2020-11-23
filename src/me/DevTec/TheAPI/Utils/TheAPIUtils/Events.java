@@ -282,14 +282,18 @@ public class Events implements Listener {
 
 	@EventHandler
 	public void onLeave(PlayerQuitEvent e) {
-		Player s = e.getPlayer();
-		TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);
-		if (TheAPI.getBossBar(s) != null)
-			TheAPI.getBossBar(s).remove();
-		LoaderClass.plugin.handler.uninjectPlayer(s);
-		if (LoaderClass.config.getBoolean("Options.Cache.User.RemoveOnQuit")
-				&& LoaderClass.config.getBoolean("Options.Cache.User.Use"))
-			TheAPI.removeCachedUser(e.getPlayer().getUniqueId());
+		new Tasker() {
+			public void run() {
+				Player s = e.getPlayer();
+				TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);
+				if (TheAPI.getBossBar(s) != null)
+					TheAPI.getBossBar(s).remove();
+				LoaderClass.plugin.handler.uninjectPlayer(s);
+				if (LoaderClass.config.getBoolean("Options.Cache.User.RemoveOnQuit")
+						&& LoaderClass.config.getBoolean("Options.Cache.User.Use"))
+					TheAPI.removeCachedUser(e.getPlayer().getUniqueId());
+			}
+		}.runTask();
 	}
 
 	private List<String> inJoin = new ArrayList<>();

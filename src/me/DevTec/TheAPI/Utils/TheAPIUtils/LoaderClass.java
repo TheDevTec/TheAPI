@@ -105,6 +105,7 @@ public class LoaderClass extends JavaPlugin {
 				tags.addDefault("Tags.tangerine", "ef8e38");
 				tags.addDefault("Tags.violet", "9c6eff");
 			}
+			tags.save();
 			tagG=tags.getString("TagPrefix");
 			gradientTag=tags.getString("GradientPrefix");
 			for (String tag : tags.getKeys("Tags"))

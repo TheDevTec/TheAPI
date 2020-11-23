@@ -17,17 +17,14 @@ import org.bukkit.inventory.ItemStack;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.Position;
-import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.NMS.DataWatcher.DataWatcher;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class NMSAPI {
 
 	private static Class<?> enumTitle;
-	private static Class<?> particleEnum = Ref.nms("EnumParticle") != null ? Ref.nms("EnumParticle")
-			: Ref.nms("Particles");
 	private static Constructor<?> pDestroy, pTitle, pOutChat, pTab, pBlock, blockPos, pChunk, ChunkSection, chunkc,
-			particle, pSpawn, pNSpawn, pLSpawn, score, sbobj, sbdisplayobj, sbteam, pSign, pTeleport,
+			pSpawn, pNSpawn, pLSpawn, score, sbobj, sbdisplayobj, sbteam, pSign, pTeleport,
 			metadata = Ref.constructor(Ref.nms("PacketPlayOutEntityMetadata"), int.class,
 					Ref.nms("DataWatcher"), boolean.class);
 	private static Method getmat, getb, getc, gett, getser, block, IBlockData, worldset, Chunk,
@@ -35,22 +32,8 @@ public class NMSAPI {
 	private static int old;
 	private static Field tps;
 	private static Object sbremove, sbinteger, sbchange, sbhearts;
-	private static Field[] part = new Field[11], scr = new Field[4];
+	private static Field[] scr = new Field[4];
 	static {
-		Class<?> c = Ref.nms("PacketPlayOutWorldParticles") != null
-				? Ref.nms("PacketPlayOutWorldParticles")
-				: Ref.nms("Packet63WorldParticles");
-		part[0] = Ref.field(c, "a");
-		part[1] = Ref.field(c, "j");
-		part[2] = Ref.field(c, "k");
-		part[3] = Ref.field(c, "b");
-		part[4] = Ref.field(c, "c");
-		part[5] = Ref.field(c, "d");
-		part[6] = Ref.field(c, "e");
-		part[7] = Ref.field(c, "f");
-		part[8] = Ref.field(c, "g");
-		part[9] = Ref.field(c, "h");
-		part[10] = Ref.field(c, "i");
 		scr[0] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "a");
 		scr[1] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "b");
 		scr[2] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "c");
@@ -83,7 +66,6 @@ public class NMSAPI {
 		if (post == null)
 			post = Ref.method(Ref.nms("MinecraftServer"), "postToMainThread",
 					Runnable.class);
-		particle = Ref.constructor(c);
 		if (Ref.nms("PacketPlayOutTitle") != null)
 			enumTitle = Ref.nms("PacketPlayOutTitle$EnumTitleAction");
 		try {
@@ -303,95 +285,6 @@ public class NMSAPI {
 
 	public static Object getItemStack(org.bukkit.inventory.ItemStack stack) {
 		return Ref.invoke(null, itemstack, stack);
-	}
-
-	public static Object getPacketPlayOutWorldParticles(Particle effect, Location loc) {
-		return create(effect, (float) loc.getX(), (float) loc.getY(), (float) loc.getZ(), 1, 1, null, 0, 0, 0);
-	}
-
-	public static Object getPacketPlayOutWorldParticles(Particle effect, Location loc, ParticleData data) {
-		return create(effect, (float) loc.getX(), (float) loc.getY(), (float) loc.getZ(), 1, 1, data, 0, 0, 0);
-	}
-
-	public static Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, int amount,
-			ParticleData data) {
-		return create(effect, x, y, z, 1, amount, data, 0, 0, 0);
-	}
-
-	public static Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, ParticleData data) {
-		return create(effect, x, y, z, 1, 1, data, 0, 0, 0);
-	}
-
-	public static Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, float speed,
-			int amount, ParticleColor color) {
-		if (effect == Particle.REDSTONE && color.getRed() == 0) {
-			return create(effect, x, y, z, speed, amount, null, Float.MIN_NORMAL, color.getValueY(), color.getValueZ());
-		}
-		return create(effect, x, y, z, speed, amount, null, color.getValueX(), color.getValueY(), color.getValueZ());
-	}
-
-	public static Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, float speed,
-			ParticleColor color) {
-		if (effect == Particle.REDSTONE && color.getRed() == 0) {
-			return create(effect, x, y, z, speed, 1, null, Float.MIN_NORMAL, color.getValueY(), color.getValueZ());
-		}
-		return create(effect, x, y, z, speed, 1, null, color.getValueX(), color.getValueY(), color.getValueZ());
-	}
-
-	public static Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z,
-			ParticleColor color) {
-		if (effect == Particle.REDSTONE && color.getRed() == 0) {
-			return create(effect, x, y, z, 1, 1, null, Float.MIN_NORMAL, color.getValueY(), color.getValueZ());
-		}
-		return create(effect, x, y, z, 1, 1, null, color.getValueX(), color.getValueY(), color.getValueZ());
-	}
-
-	public static Object getPacketPlayOutWorldParticles(Particle effect, Location loc, ParticleColor color) {
-		if (effect == Particle.REDSTONE && color.getRed() == 0) {
-			return create(effect, (float) loc.getX(), (float) loc.getY(), (float) loc.getZ(), 1, 1, null,
-					Float.MIN_NORMAL, color.getValueY(), color.getValueZ());
-		}
-		return create(effect, (float) loc.getX(), (float) loc.getY(), (float) loc.getZ(), 1, 1, null, color.getValueX(),
-				color.getValueY(), color.getValueZ());
-	}
-
-	public static Object getPacketPlayOutWorldParticles(Particle effect, float x, float y, float z, float speed,
-			int amount, ParticleData data) {
-		if (speed < 0)
-			throw new IllegalArgumentException("The speed is lower than 0");
-		if (amount < 0)
-			throw new IllegalArgumentException("The amount is lower than 0");
-		return create(effect, x, y, z, speed, amount, data, 0, 0, 0);
-	}
-
-	private static Object create(Particle effect, float x, float y, float z, float speed, int amount, ParticleData data,
-			float floatx, float floaty, float floatz) {
-		Object packet = Ref.newInstance(particle);
-		if (StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]) < 8) {
-			String name = effect.name();
-			if (data != null) {
-				name += data.getPacketDataString();
-			}
-			Ref.set(packet, part[0], name);
-		} else {
-			Ref.set(packet, part[0],
-					Ref.getNulled(Ref.field(particleEnum, effect.name())));
-			Ref.set(packet, part[1], false);
-			if (data != null) {
-				int[] packetData = data.getPacketData();
-				Ref.set(packet, part[2], effect == Particle.ITEM_CRACK ? packetData
-						: new int[] { packetData[0] | (packetData[1] << 12) });
-			}
-		}
-		Ref.set(packet, part[3], x);
-		Ref.set(packet, part[4], y);
-		Ref.set(packet, part[5], z);
-		Ref.set(packet, part[6], floatx);
-		Ref.set(packet, part[7], floaty);
-		Ref.set(packet, part[8], floatz);
-		Ref.set(packet, part[9], speed);
-		Ref.set(packet, part[10], amount);
-		return packet;
 	}
 
 	public static Object getChunk(Object World, int x, int z) {
