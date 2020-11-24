@@ -44,8 +44,6 @@ import me.DevTec.TheAPI.Events.DamageGodPlayerEvent;
 import me.DevTec.TheAPI.Events.PlayerJumpEvent;
 import me.DevTec.TheAPI.GUIAPI.GUI;
 import me.DevTec.TheAPI.GUIAPI.ItemGUI;
-import me.DevTec.TheAPI.ParticlesAPI.Particle;
-import me.DevTec.TheAPI.ParticlesAPI.ParticleAPI;
 import me.DevTec.TheAPI.PunishmentAPI.PlayerBanList;
 import me.DevTec.TheAPI.PunishmentAPI.PlayerBanList.PunishmentType;
 import me.DevTec.TheAPI.PunishmentAPI.PunishmentAPI;
@@ -198,7 +196,6 @@ public class Events implements Listener {
 		} catch (Exception | NoSuchFieldError es) {
 		}
 		if (jump > 0 && !e.getPlayer().isFlying() && has) {
-			ParticleAPI.spawnParticle(e.getPlayer(), new Particle("HEART"), new Position(e.getPlayer().getLocation()));
 			PlayerJumpEvent event = new PlayerJumpEvent(e.getPlayer(), e.getFrom(), e.getTo(), jump);
 			Bukkit.getPluginManager().callEvent(event);
 			if (event.isCancelled())
