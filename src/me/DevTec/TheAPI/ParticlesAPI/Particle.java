@@ -107,9 +107,9 @@ public class Particle {
 		}
 		if(TheAPI.isOlderThan(8)) { //1.7.10 and older
 			Ref.set(packet, "a", name);
-			Ref.set(packet, "b", x);
-			Ref.set(packet, "c", y);
-			Ref.set(packet, "d", z);
+			Ref.set(packet, "b", (float)x);
+			Ref.set(packet, "c", (float)y);
+			Ref.set(packet, "d", (float)z);
 			Ref.set(packet, "h", speed);
 			Ref.set(packet, "i", amount);
 			if(data!=null) {
@@ -126,11 +126,13 @@ public class Particle {
 		}
 		//1.8 - 1.12.2
 		Ref.set(packet, "a", particle);
-		Ref.set(packet, "b", x);
-		Ref.set(packet, "c", y);
-		Ref.set(packet, "d", z);
+		Ref.set(packet, "b", (float)x);
+		Ref.set(packet, "c", (float)y);
+		Ref.set(packet, "d", (float)z);
 		Ref.set(packet, "h", speed);
 		Ref.set(packet, "i", amount);
+		Ref.set(packet, "j", true);
+		Ref.set(packet, "k", new int[0]);
 		if(data!=null) {
 			if(data instanceof NoteOptions || data instanceof RedstoneOptions) {
 				Ref.set(packet, "e", data instanceof NoteOptions ? ((NoteOptions)data).getValueX() : ((RedstoneOptions)data).getValueX());
