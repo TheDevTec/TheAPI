@@ -231,17 +231,20 @@ public class LoaderClass extends JavaPlugin {
 				case -1:
 					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Unable to connect to spigot, check internet connection.", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 					updater=null; //close updater
 					break;
 				case 1:
 					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Found new version of TheAPI.", TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7:        https://www.spigotmc.org/resources/72679/", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 					break;
 				case 2:
 					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7You are using the BETA version of TheAPI, report bugs to our Discord.", TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7:        https://discord.io/spigotdevtec", TheAPI.getConsole());
+					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 					break;
 				}
 				if(updater!=null)
@@ -251,6 +254,7 @@ public class LoaderClass extends JavaPlugin {
 							case -1:
 								TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 								TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Unable to connect to spigot, check internet connection.", TheAPI.getConsole());
+								TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 								updater=null; //close updater
 								cancel(); //destroy task
 								break;
@@ -258,11 +262,13 @@ public class LoaderClass extends JavaPlugin {
 								TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 								TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Found new version of TheAPI.", TheAPI.getConsole());
 								TheAPI.msg("&cTheAPI&7:        https://www.spigotmc.org/resources/72679/", TheAPI.getConsole());
+								TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 								break;
 							case 2:
 								TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 								TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7You are using the BETA version of TheAPI, report bugs to our Discord.", TheAPI.getConsole());
 								TheAPI.msg("&cTheAPI&7:        https://discord.io/spigotdevtec", TheAPI.getConsole());
+								TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 								break;
 						}
 					}

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -435,7 +434,7 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public void addEnchantment(String e, int level) {
-		if (e != null && EnchantmentAPI.byName(e) != null)
+		if (EnchantmentAPI.byName(e) != null)
 			enchs.put(EnchantmentAPI.byName(e).getEnchantment(), level);
 	}
 
@@ -444,13 +443,11 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public void setAmount(int amount) {
-		if (amount > 64)
-			amount = 64;
 		s = amount;
 	}
 
 	public void setLore(List<String> lore) {
-		if (lore != null && lore.isEmpty() == false)
+		if (lore != null)
 			for (String s : lore)
 				addLore(s);
 	}
@@ -766,7 +763,6 @@ public class ItemCreatorAPI implements Cloneable {
 			ItemMeta mf = i.getItemMeta();
 			if (data != null)
 				i.setData(data);
-
 			if (name != null)
 				mf.setDisplayName(name);
 			if (model != -1 && TheAPI.isNewVersion() // 1.13+
@@ -781,50 +777,46 @@ public class ItemCreatorAPI implements Cloneable {
 					addLore("&9UNBREAKABLE");
 				}
 			}
-			if (lore != null && !lore.isEmpty()) {
-				List<String> lor = new ArrayList<String>();
+			if (lore != null) {
+				List<String> lor = new ArrayList<>();
 				for (Object o : lore)
 					lor.add(o.toString());
 				mf.setLore(lor);
 			}
 			try {
-				if (map != null && !map.isEmpty())
+				if (map != null)
 					for (Object f : map)
 						mf.addItemFlags((ItemFlag) f);
 				if (w != null && !w.isEmpty() && TheAPI.isNewVersion()
 						&& !TheAPI.getServerVersion().equals("v1_13_R1")) {// 1.14+
 					mf.setAttributeModifiers((Multimap<Attribute, AttributeModifier>) w);
 				}
-			} catch (Exception | NoSuchMethodError er) {
-			}
+			} catch (Exception | NoSuchMethodError er) {}
 			i.setItemMeta(mf);
 			if (!i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
-				if (enchs != null && !enchs.keySet().isEmpty())
-					for (Entry<Enchantment, Integer> t : enchs.entrySet()) {
-						i.addUnsafeEnchantment(t.getKey(), t.getValue().intValue());
-					}
-			}
-			if (i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
+				if (enchs != null)
+					i.addUnsafeEnchantments(enchs);
+				a = i;
+			} else {
 				EnchantmentStorageMeta m = (EnchantmentStorageMeta) i.getItemMeta();
-				if (enchs != null && !enchs.keySet().isEmpty())
+				if (enchs != null)
 					for (Enchantment e : enchs.keySet())
 						m.addStoredEnchant(e, enchs.get(e), true);
 				i.setItemMeta(m);
-
 				a = i;
-			} else if (i.getType().name().equalsIgnoreCase("WRITABLE_BOOK")
+			}
+			if (i.getType().name().equalsIgnoreCase("WRITABLE_BOOK")
 					|| i.getType().name().equalsIgnoreCase("BOOK_AND_QUILL")) {
 				BookMeta m = (BookMeta) i.getItemMeta();
 				m.setAuthor(author);
-				List<String> page = new ArrayList<String>();
+				List<String> page = new ArrayList<>();
 				for (Object o : pages)
 					page.add(o.toString());
 				m.setPages(page);
 				m.setTitle(title);
 				try {
 					m.setGeneration(gen);
-				} catch (Exception | NoSuchMethodError e) {
-				}
+				} catch (Exception | NoSuchMethodError e) {}
 				i.setItemMeta(m);
 			} else if (i.getType().name().startsWith("LINGERING_POTION_OF_")
 					|| i.getType().name().startsWith("SPLASH_POTION_OF_")
@@ -832,16 +824,14 @@ public class ItemCreatorAPI implements Cloneable {
 				PotionMeta meta = (PotionMeta) i.getItemMeta();
 				try {
 					meta.setColor(c);
-				} catch (Exception | NoSuchMethodError er) {
-				}
+				} catch (Exception | NoSuchMethodError er) {}
 				if (!ef.keySet().isEmpty())
 					for (PotionEffectType t : ef.keySet()) {
 						if (t == null)
 							continue;
 						int amp = StringUtils.getInt(ef.get(t).split(":")[1]);
 						meta.addCustomEffect(
-								new PotionEffect(t, StringUtils.getInt(ef.get(t).split(":")[0]), (amp <= 0 ? 1 : amp)),
-								true);
+								new PotionEffect(t, StringUtils.getInt(ef.get(t).split(":")[0]), (amp <= 0 ? 1 : amp)), true);
 					}
 				i.setItemMeta(meta);
 			} else if (i.getType().name().startsWith("LEATHER_")) {
@@ -849,8 +839,7 @@ public class ItemCreatorAPI implements Cloneable {
 				LeatherArmorMeta meta = (LeatherArmorMeta) i.getItemMeta();
 				meta.setColor(c);
 				i.setItemMeta(meta);
-				} catch (Exception | NoSuchMethodError er) {
-				}
+				} catch (Exception | NoSuchMethodError er) {}
 			} else if (type != null && type == SkullType.PLAYER) {
 				SkullMeta m = (SkullMeta) i.getItemMeta();
 				if (owner != null)
@@ -863,16 +852,12 @@ public class ItemCreatorAPI implements Cloneable {
 							if (url != null)
 								encodedData = Base64.getEncoder()
 										.encode(("{textures:{SKIN:{url:\"" + url + "\"}}}").getBytes());
-						} catch (Exception err) {
-						}
+						} catch (Exception err) {}
 						Ref.invoke(Ref.invoke(profile, "getProperties"),
-								Ref.method(Ref.invoke(profile, "getProperties").getClass().getSuperclass(), "put",
-										Object.class, Object.class),
-								"textures",
+								Ref.method(Ref.invoke(profile, "getProperties").getClass().getSuperclass(), "put", Object.class, Object.class), "textures",
 								new Property("textures", encodedData != null ? new String(encodedData) : text));
 						Ref.set(m, "profile", profile);
-					} catch (Exception | NoSuchMethodError e) {
-					}
+					} catch (Exception | NoSuchMethodError e) {}
 				}
 				i.setItemMeta(m);
 			}

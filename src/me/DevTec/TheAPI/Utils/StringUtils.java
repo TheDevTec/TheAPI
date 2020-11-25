@@ -472,7 +472,7 @@ public class StringUtils {
 	}
 
 	private static final Pattern periodPattern = Pattern.compile(
-			"([0-9]+)(mon[t]*[h]*[s]*|m[i]*[n]*[u]*[t]*[e]*[s]*|y[e]*[a]*[r]*[s]*|w[e][e][k][s]|h[o]*[u]*[r]*[s]*|s[e]*[c]*[o]*[n]*[d]*[s]*)",
+			"([0-9]+)(mon[t]*[h]*[s]*|m[i]*[n]*[u]*[t]*[e]*[s]*|y[e]*[a]*[r]*[s]*|w[e]*[k]*[s]*|h[o]*[u]*[r]*[s]*|s[e]*[c]*[o]*[n]*[d]*[s]*|d[a]*[y]*[s]*)",
 			Pattern.CASE_INSENSITIVE);
 
 	/**
