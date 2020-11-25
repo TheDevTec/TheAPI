@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
+import java.io.Reader;
 import java.util.Enumeration;
 import java.util.zip.DataFormatException;
 import java.util.zip.GZIPInputStream;
@@ -50,16 +51,20 @@ public class Decompression {
 
 	}
 
-	public static StringBuffer getText(InputStream in) {
-		StringBuffer out = new StringBuffer();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-		String line;
+	public static String getText(InputStream is) {
 		try {
-			while ((line = reader.readLine()) != null)
-				out.append(line);
-		} catch (Exception e) {
+	        InputStreamReader isr = new InputStreamReader(is, "UTF-8");
+	        StringBuffer buffer = new StringBuffer();
+	        Reader in = new BufferedReader(isr);
+	        int ch;
+	        while ((ch = in.read()) > -1) {
+	            buffer.append((char)ch);
+	        }
+	        in.close();
+	        return buffer.toString();
+		}catch(Exception err) {
+			return null;
 		}
-		return out;
 	}
 
 	public static class Decompressor {

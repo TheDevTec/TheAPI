@@ -2,26 +2,23 @@ package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.NonSortedMap;
 import me.DevTec.TheAPI.Utils.Json.Reader;
 
 public class YamlLoader implements DataLoader {
 	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*?):[ ]*(.*)");
-	private Map<String, DataHolder> data = new HashMap<>();
-	private Map<Integer, String> items = new HashMap<>();
+	private Map<String, DataHolder> data = new NonSortedMap<>();
 	private boolean l;
-	private int c;
-	private List<String> header = new ArrayList<>(0), footer = new ArrayList<>(0);
+	private List<String> header = new ArrayList<>(), footer = new ArrayList<>();
 
 	public Collection<String> getKeys() {
-		return items.values();
+		return data.keySet();
 	}
 
 	public void set(String key, DataHolder holder) {
@@ -31,30 +28,19 @@ public class YamlLoader implements DataLoader {
 			remove(key);
 			return;
 		}
-		if (data.containsKey(key)) {
-			data.put(key, holder);
-		} else {
-			data.put(key, holder);
-			items.put(c++, key);
-		}
+		data.put(key, holder);
 	}
 
 	public void remove(String key) {
 		if (key == null)
 			return;
 		data.remove(key);
-		for (Entry<Integer, String> entry : new ArrayList<>(items.entrySet())) {
-			if (entry.getValue().equals(key))
-				items.remove(entry.getKey());
-		}
 	}
 
 	public void reset() {
 		data.clear();
-		items.clear();
 		header.clear();
 		footer.clear();
-		c = 0;
 	}
 
 	@Override
@@ -66,16 +52,17 @@ public class YamlLoader implements DataLoader {
 	public void load(String input) {
 		reset();
 		try {
-			List<Object> items = new ArrayList<>(0);
-			List<String> lines = new ArrayList<>(0);
+			List<Object> items = new ArrayList<>();
+			List<String> lines = new ArrayList<>();
 			String key = "";
 			StringBuilder v = null;
 			int last = 0, f = 0, c = 0;
+			if (!input.equals(""))
 			for (String text : input.split(System.lineSeparator())) {
 				if (text.trim().startsWith("#") || text.trim().isEmpty()) {
 					if (!items.isEmpty()) {
 						set(key, items, lines);
-						items = new ArrayList<>(0);
+						items = new ArrayList<>();
 					}
 					if (c != 0) {
 						if (c == 1) {
@@ -88,13 +75,12 @@ public class YamlLoader implements DataLoader {
 							v = null;
 						} else if (c == 2) {
 							set(key, items, lines);
-							items = new ArrayList<>(1);
+							items = new ArrayList<>();
 						}
 						c = 0;
 					}
 					if (f == 0) {
-						if (!input.equals(""))
-							header.add(text.substring(c(text)));
+						header.add(text.substring(c(text)));
 					} else
 						lines.add(text.substring(c(text)));
 					continue;
@@ -112,7 +98,7 @@ public class YamlLoader implements DataLoader {
 					}
 					if (c == 2) {
 						set(key, items, lines);
-						items = new ArrayList<>(1);
+						items = new ArrayList<>();
 					}
 					c = 0;
 				}
@@ -128,7 +114,7 @@ public class YamlLoader implements DataLoader {
 				if (find) {
 					if (!items.isEmpty()) {
 						set(key, items, lines);
-						items = new ArrayList<>(1);
+						items = new ArrayList<>();
 					}
 					if (c == 1) {
 						v.append(text.substring(c(text)));
@@ -137,7 +123,7 @@ public class YamlLoader implements DataLoader {
 					if (c(text) <= last) {
 						if (!text.startsWith(" "))
 							key = "";
-						if (c(text.split(":")[0]) == last) {
+						if (c(text) == last) {
 							String lastr = key.split("\\.")[key.split("\\.").length - 1] + 1;
 							int remove = key.length() - lastr.length();
 							if (remove > 0)
@@ -236,9 +222,9 @@ public class YamlLoader implements DataLoader {
 		if ((key.startsWith("\"") && key.trim().endsWith("\"") || key.startsWith("'") && key.trim().endsWith("'"))
 				&& key.length() > 1)
 			key = r(key).substring(1, key.length() - 1);
-		if (get().containsKey(key)) {
+		if(get().containsKey(key)) {
 			get().get(key).setValue(o);
-		} else
+		}else
 			set(key, new DataHolder(o, new ArrayList<>(lines)));
 		lines.clear();
 	}

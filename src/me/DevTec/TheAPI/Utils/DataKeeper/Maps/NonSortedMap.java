@@ -216,6 +216,7 @@ public class NonSortedMap<K, V> implements Map<K, V> {
 		LinkedSet<K> key = new LinkedSet<>(size);
 		Bucket c = bucket;
 		for(int i = 0; i < size; ++i) {
+			if(c==null)break;
 			key.add(c.key);
 			c=c.next;
 		}
@@ -239,6 +240,7 @@ public class NonSortedMap<K, V> implements Map<K, V> {
 		LinkedSet<Entry<K, V>> entries = new LinkedSet<>(size);
 		Bucket c = bucket;
 		for(int i = 0; i < size; ++i) {
+			if(c==null)break;
 			entries.add(c);
 			c=c.next;
 		}

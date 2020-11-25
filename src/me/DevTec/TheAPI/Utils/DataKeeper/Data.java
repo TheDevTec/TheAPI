@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -16,7 +17,6 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
-import com.google.common.base.Charsets;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
@@ -457,7 +457,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			try {
 				if (a == null)
 					return this;
-				OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), Charsets.UTF_8);
+				OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
 				if (type == DataType.DATA || type == DataType.BYTE) {
 					try {
 						ByteArrayOutputStream bos = new ByteArrayOutputStream(loader.getKeys().size());
@@ -670,9 +670,9 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		boolean quotedString = (text.startsWith("'") && text.endsWith("'"))
 				|| (text.startsWith("\"") && text.endsWith("\""));
 		if (raw && !quotedString) {
-			return ("\"" + text + "\"").replace(System.lineSeparator(), "");
+			return ("\"" + text + "\"").replace(System.lineSeparator(), "\\r\\n");
 		}
-		return text.replace(System.lineSeparator(), "");
+		return text.replace(System.lineSeparator(), "\r\n");
 	}
 
 	private static String cs(int s, int doubleSpace) {
