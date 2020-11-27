@@ -9,7 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import me.DevTec.TheAPI.TheAPI;
-import me.DevTec.TheAPI.Utils.DataKeeper.Maps.NonSortedMap;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Json.Maker;
 import me.DevTec.TheAPI.Utils.Json.Maker.MakerObject;
 import me.DevTec.TheAPI.Utils.Json.Writer;
@@ -130,8 +130,8 @@ public class HoverMessage {
 	}
 
 	public String getJson() {
-		NonSortedMap<Object, Object> copyOfMaker = new NonSortedMap<>(maker);
-		NonSortedMap<Object, Object> copyOfExtra = extra!=null?new NonSortedMap<>(extra):null;
+		UnsortedMap<Object, Object> copyOfMaker = new UnsortedMap<>(maker);
+		UnsortedMap<Object, Object> copyOfExtra = extra!=null?new UnsortedMap<>(extra):null;
 		Maker copyExtras = new Maker(extras);
 		if(hover != null && hoverAction != null || click != null && clickAction != null) {
 			if(hover != null && hoverAction!=null) {

@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
@@ -21,6 +22,8 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
 import me.DevTec.TheAPI.Utils.StringUtils;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedSet;
 import me.DevTec.TheAPI.Utils.DataKeeper.loader.DataLoader;
 import me.DevTec.TheAPI.Utils.DataKeeper.loader.EmptyLoader;
 import me.DevTec.TheAPI.Utils.Json.Maker;
@@ -29,7 +32,7 @@ import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public static class DataHolder {
 		private Object o;
-		private List<String> lines = new ArrayList<>(0);
+		private List<String> lines = new UnsortedList<>();
 
 		public DataHolder() {
 		}
@@ -51,13 +54,13 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			this.o = o;
 		}
 
-		public List<String> getLines() {
+		public List<String> getComments() {
 			return lines;
 		}
 	}
 
 	private DataLoader loader;
-	private List<String> aw = new ArrayList<>();
+	private Set<String> aw = new UnsortedSet<>();
 	private File a;
 
 	public Data() {
@@ -142,20 +145,18 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	}
 
 	public Data setComments(String key, List<String> value) {
-		if (value == null || key == null)
+		if (key == null)
 			return this;
-		getOrCreateData(key).lines = value;
+		getOrCreateData(key).lines.clear();
+		if(value == null)return this;
+		getOrCreateData(key).lines.addAll(value);
 		return this;
 	}
 
 	public Data addComments(String key, List<String> value) {
 		if (value == null || key == null)
 			return this;
-		DataHolder h = getOrCreateData(key);
-		if (h.lines == null)
-			h.lines = value;
-		else
-			h.lines.addAll(value);
+		getOrCreateData(key).lines.addAll(value);
 		return this;
 	}
 
@@ -163,8 +164,6 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		if (value == null || key == null)
 			return this;
 		DataHolder h = getOrCreateData(key);
-		if (h.lines == null)
-			h.lines = new ArrayList<>(3);
 		h.lines.add(value);
 		return this;
 	}
@@ -172,9 +171,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public Data removeComments(String key, List<String> value) {
 		if (value == null || key == null)
 			return this;
-		DataHolder h = getOrCreateData(key);
-		if (h.lines != null)
-			h.lines.removeAll(value);
+		getOrCreateData(key).lines.removeAll(value);
 		return this;
 	}
 
@@ -516,17 +513,17 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		save(DataType.YAML);
 	}
 
-	public List<String> getKeys() {
-		return new ArrayList<>(aw);
+	public Set<String> getKeys() {
+		return new UnsortedSet<>(aw);
 	}
 
-	public List<String> getKeys(boolean subkeys) {
+	public Set<String> getKeys(boolean subkeys) {
 		if (subkeys)
-			return new ArrayList<>(loader.getKeys());
-		return new ArrayList<>(aw);
+			return loader.getKeys();
+		return new UnsortedSet<>(aw);
 	}
 
-	public List<String> getKeys(String key) {
+	public Set<String> getKeys(String key) {
 		return getKeys(key, false);
 	}
 
@@ -545,8 +542,8 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		return is;
 	}
 
-	public List<String> getKeys(String key, boolean subkeys) {
-		List<String> a = new ArrayList<>();
+	public Set<String> getKeys(String key, boolean subkeys) {
+		Set<String> a = new UnsortedSet<>();
 		for (String d : loader.getKeys())
 			if (d.startsWith(key)) {
 				String c = d.replaceFirst(Pattern.quote(key), "");
@@ -581,7 +578,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 				String space = cs(spaces, 1);
 				pathName = space + pathName;
 				if (aw != null)
-					for (String s : aw.getLines())
+					for (String s : aw.getComments())
 						b.write(space + s + System.lineSeparator());
 				if (o == null) {
 					b.write(pathName + System.lineSeparator());

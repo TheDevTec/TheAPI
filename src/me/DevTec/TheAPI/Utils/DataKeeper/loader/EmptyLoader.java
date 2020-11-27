@@ -1,23 +1,23 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 
 public class EmptyLoader implements DataLoader {
-	private Map<String, DataHolder> data = new HashMap<>();
-	private List<String> header = new ArrayList<>(1), footer = new ArrayList<>(1);
+	private Map<String, DataHolder> data = new UnsortedMap<>();
+	private List<String> header = new ArrayList<>(), footer = new ArrayList<>();
 
 	@Override
 	public Map<String, DataHolder> get() {
 		return data;
 	}
 
-	public Collection<String> getKeys() {
+	public Set<String> getKeys() {
 		return data.keySet();
 	}
 

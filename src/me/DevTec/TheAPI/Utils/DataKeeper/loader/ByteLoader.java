@@ -1,19 +1,19 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
 import java.util.Base64;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Json.Reader;
 
 public class ByteLoader implements DataLoader {
-	private Map<String, DataHolder> data = new HashMap<>();
+	private Map<String, DataHolder> data = new UnsortedMap<>();
 	private boolean l;
 
 	@Override
@@ -21,7 +21,7 @@ public class ByteLoader implements DataLoader {
 		return data;
 	}
 
-	public Collection<String> getKeys() {
+	public Set<String> getKeys() {
 		return data.keySet();
 	}
 

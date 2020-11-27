@@ -1,9 +1,9 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data;
@@ -24,7 +24,7 @@ public interface DataLoader extends Data {
 
 	public void load(String input);
 
-	public Collection<String> getKeys();
+	public Set<String> getKeys();
 
 	public void reset();
 

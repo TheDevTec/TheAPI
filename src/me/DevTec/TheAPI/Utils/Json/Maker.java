@@ -2,10 +2,10 @@ package me.DevTec.TheAPI.Utils.Json;
 
 import java.util.Collection;
 
-import me.DevTec.TheAPI.Utils.DataKeeper.Collections.LinkedSet;
-import me.DevTec.TheAPI.Utils.DataKeeper.Maps.NonSortedMap;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedSet;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 
-public class Maker extends LinkedSet<Object> {
+public class Maker extends UnsortedSet<Object> {
 
 	public Maker() {
 	}
@@ -39,7 +39,7 @@ public class Maker extends LinkedSet<Object> {
 		return Writer.write(this, fancy);
 	}
 
-	public static class MakerObject extends NonSortedMap<Object, Object> {
+	public static class MakerObject extends UnsortedMap<Object, Object> {
 
 		public MakerObject add(Object key, Object item) {
 			super.put(key, item);

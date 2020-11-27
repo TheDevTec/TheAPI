@@ -26,8 +26,9 @@ import com.google.gson.internal.LinkedTreeMap;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.Position;
-import me.DevTec.TheAPI.Utils.DataKeeper.Collections.LinkedSet;
-import me.DevTec.TheAPI.Utils.DataKeeper.Maps.NonSortedMap;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedSet;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class Writer implements JsonWriter {
@@ -50,7 +51,7 @@ FORBIDDEN.add(
 	}
 	
 	private Map<Object, Object> fix(Map<?, ?> o, boolean fancy, boolean addNulls) {
-		Map<Object, Object> map = new NonSortedMap<>();
+		Map<Object, Object> map = new UnsortedMap<>();
 		for(Entry<?, ?> e : o.entrySet())
 			map.put(object2(e.getKey(), fancy, addNulls), object2(e.getValue(), fancy, addNulls));
 		return map;
@@ -182,12 +183,12 @@ FORBIDDEN.add(
 					? (String) Ref.invoke(w, "toLegacyText")
 					: (String) Ref.invoke(Ref.craft("util.CraftChatMessage"), from,
 							Ref.cast(Ref.nms("IChatBaseComponent"), w));
-			Map<String, Object> enumMap = new NonSortedMap<>();
+			Map<String, Object> enumMap = new UnsortedMap<>();
 			enumMap.put("class " + w.getClass().getName(), obj);
 			return map(enumMap, addNulls, fancy);
 		}
 		if (w instanceof Enum<?>) {
-			Map<String, Object> enumMap = new NonSortedMap<>();
+			Map<String, Object> enumMap = new UnsortedMap<>();
 			enumMap.put("enum " + w.getClass().getName(), w.toString());
 			return map(enumMap, addNulls, fancy);
 		}
@@ -196,19 +197,19 @@ FORBIDDEN.add(
 		if (w instanceof Object[])
 			return array((Object[]) w, addNulls, fancy);
 		if (w instanceof Collection) {
-			if (w instanceof ArrayList || w instanceof LinkedSet || w.getClass() == Ref.getClass("java.util.Arrays$ArrayList")
+			if (w instanceof ArrayList || w instanceof UnsortedSet || w instanceof UnsortedList || w.getClass() == Ref.getClass("java.util.Arrays$ArrayList")
 					|| w instanceof HashSet || w instanceof LinkedList || w instanceof LinkedHashSet) {
 				return collection((Collection<?>) w, addNulls, fancy);
 			}
-			Map<String, Object> enumMap = new NonSortedMap<>();
+			Map<String, Object> enumMap = new UnsortedMap<>();
 			enumMap.put("Collection " + w.getClass().getName(), w);
 			return map(enumMap, addNulls, fancy);
 		}
 		if (w instanceof Map) {
-			if (w instanceof NonSortedMap || w instanceof HashMap || w instanceof LinkedHashMap || w instanceof HashMap || w instanceof HashMap) {
+			if (w instanceof UnsortedMap || w instanceof HashMap || w instanceof LinkedHashMap || w instanceof HashMap || w instanceof HashMap) {
 				return map((Map<?, ?>) w, addNulls, fancy);
 			}
-			Map<String, Object> enumMap = new NonSortedMap<>();
+			Map<String, Object> enumMap = new UnsortedMap<>();
 			enumMap.put("Map " + w.getClass().getName(), w);
 			return map(enumMap, addNulls, fancy);
 		}
@@ -305,7 +306,7 @@ FORBIDDEN.add(
 		if (w instanceof Object[])
 			return fix(Arrays.asList((Object[]) w), fancy, addNulls);
 		if (w instanceof Collection) {
-			if (w instanceof ArrayList || w instanceof LinkedSet || w.getClass() == Ref.getClass("java.util.Arrays$ArrayList")
+			if (w instanceof ArrayList || w instanceof UnsortedSet || w instanceof UnsortedList || w.getClass() == Ref.getClass("java.util.Arrays$ArrayList")
 					|| w instanceof HashSet || w instanceof LinkedList || w instanceof LinkedHashSet) {
 				return fix((Collection<?>) w, fancy, addNulls);
 			}
@@ -315,7 +316,7 @@ FORBIDDEN.add(
 			return enumMap;
 		}
 		if (w instanceof Map) {
-			if(w instanceof NonSortedMap || w instanceof HashMap || w instanceof LinkedHashMap || w instanceof TreeMap || w instanceof LinkedTreeMap || w instanceof WeakHashMap)
+			if(w instanceof UnsortedMap || w instanceof HashMap || w instanceof LinkedHashMap || w instanceof TreeMap || w instanceof LinkedTreeMap || w instanceof WeakHashMap)
 				return fix((Map<?, ?>) w, fancy, addNulls);
 			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("Map " + w.getClass().getName(), map((Map<?, ?>) w, addNulls));

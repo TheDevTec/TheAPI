@@ -42,9 +42,9 @@ import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.DataType;
-import me.DevTec.TheAPI.Utils.DataKeeper.Collections.LinkedSet;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedSet;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap;
-import me.DevTec.TheAPI.Utils.DataKeeper.Maps.NonSortedMap;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler_New;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler_Old;
@@ -55,9 +55,9 @@ import net.milkbowl.vault.economy.Economy;
 
 public class LoaderClass extends JavaPlugin {
 	// Scoreboards
-	public final Map<Integer, ScoreboardAPI> scoreboard = new NonSortedMap<>();
+	public final Map<Integer, ScoreboardAPI> scoreboard = new UnsortedMap<>();
 	public final MultiMap<Integer, Integer, Object> map = new MultiMap<>();
-	public final Map<String, String> colorMap = new NonSortedMap<>();
+	public final Map<String, String> colorMap = new UnsortedMap<>();
 	// GUIs
 	public final Map<String, GUI> gui = new HashMap<>();
 	// BossBars
@@ -298,7 +298,7 @@ public class LoaderClass extends JavaPlugin {
 	    	String[] readerr = null;
 	    	try {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(checkURL.openConnection().getInputStream()));
-				Set<String> s = new LinkedSet<>();
+				Set<String> s = new UnsortedSet<>();
 				String read;
 				while((read=reader.readLine()) != null)
 					s.add(read);

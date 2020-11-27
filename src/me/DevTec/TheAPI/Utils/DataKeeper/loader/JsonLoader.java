@@ -1,24 +1,25 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Json.Reader;
 
 public class JsonLoader implements DataLoader {
 	private boolean l;
-	private Map<String, DataHolder> data = new HashMap<>();
+	private Map<String, DataHolder> data = new UnsortedMap<>();
 
 	@Override
 	public Map<String, DataHolder> get() {
 		return data;
 	}
 
-	public Collection<String> getKeys() {
+	public Set<String> getKeys() {
 		return data.keySet();
 	}
 

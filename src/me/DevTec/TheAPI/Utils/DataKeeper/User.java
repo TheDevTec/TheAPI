@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -99,7 +100,7 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		a.remove(path);
 	}
 
-	public List<String> getKeys(String path) {
+	public Set<String> getKeys(String path) {
 		if (path == null)
 			return null;
 		if (path.trim().isEmpty())
@@ -107,11 +108,11 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		return a.getKeys(path);
 	}
 
-	public List<String> getKeys() {
+	public Set<String> getKeys() {
 		return a.getKeys();
 	}
 
-	public List<String> getKeys(String path, boolean sub) {
+	public Set<String> getKeys(String path, boolean sub) {
 		if (path == null)
 			return null;
 		if (path.trim().isEmpty())
@@ -119,7 +120,7 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		return a.getKeys(path, sub);
 	}
 
-	public List<String> getKeys(boolean sub) {
+	public Set<String> getKeys(boolean sub) {
 		return a.getKeys(sub);
 	}
 

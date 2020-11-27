@@ -1,23 +1,23 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
-import me.DevTec.TheAPI.Utils.DataKeeper.Maps.NonSortedMap;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Json.Reader;
 
 public class YamlLoader implements DataLoader {
 	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*?):[ ]*(.*)");
-	private Map<String, DataHolder> data = new NonSortedMap<>();
+	private Map<String, DataHolder> data = new UnsortedMap<>();
 	private boolean l;
 	private List<String> header = new ArrayList<>(), footer = new ArrayList<>();
 
-	public Collection<String> getKeys() {
+	public Set<String> getKeys() {
 		return data.keySet();
 	}
 
@@ -67,9 +67,7 @@ public class YamlLoader implements DataLoader {
 					if (c != 0) {
 						if (c == 1) {
 							String object = v.toString();
-							if ((object.startsWith("'") || object.startsWith("\""))
-									&& (object.trim().endsWith("'") || object.trim().endsWith("\""))
-									&& object.length() > 1)
+							if ((object.startsWith("'") && object.trim().endsWith("'") || object.startsWith("\"") && object.trim().endsWith("\"")) && object.length() > 1)
 								object = r(object).substring(1, object.length() - 1);
 							set(key, Reader.read(object), lines);
 							v = null;
@@ -90,8 +88,7 @@ public class YamlLoader implements DataLoader {
 				if (c != 0 && find) {
 					if (c == 1) {
 						String object = v.toString();
-						if ((object.startsWith("'") || object.startsWith("\""))
-								&& (object.trim().endsWith("'") || object.trim().endsWith("\"")) && object.length() > 1)
+						if ((object.startsWith("'") && object.trim().endsWith("'") || object.startsWith("\"") && object.trim().endsWith("\"")) && object.length() > 1)
 							object = r(object).substring(1, object.length() - 1);
 						set(key, Reader.read(object), lines);
 						v = null;
@@ -103,10 +100,8 @@ public class YamlLoader implements DataLoader {
 					c = 0;
 				}
 				if (c == 2 || text.substring(c(text)).startsWith("- ") && !key.equals("")) {
-					String object = c != 2 ? text.replaceFirst(text.split("- ")[0] + "- ", "")
-							: text.substring(c(text));
-					if ((object.startsWith("'") || object.startsWith("\""))
-							&& (object.trim().endsWith("'") || object.trim().endsWith("\"")) && object.length() > 1)
+					String object = c != 2 ? text.replaceFirst(text.split("- ")[0] + "- ", "") : text.substring(c(text));
+					if ((object.startsWith("'") && object.trim().endsWith("'") || object.startsWith("\"") && object.trim().endsWith("\"")) && object.length() > 1)
 						object = r(object).substring(1, object.length() - 1);
 					items.add(object);
 					continue;
@@ -135,25 +130,20 @@ public class YamlLoader implements DataLoader {
 								if (remove < 0)
 									break;
 								key = key.substring(0, remove);
-							}
-						}
-					}
+					}}}
 					String split = sec.group(1);
-					if ((split.startsWith("'") || split.startsWith("\""))
-							&& (split.trim().endsWith("'") || split.trim().endsWith("\"")) && split.length() > 1)
+					if ((split.startsWith("'") && split.trim().endsWith("'") || split.startsWith("\"") && split.trim().endsWith("\"")) && split.length() > 1)
 						split = r(split).substring(1, split.length() - 1);
 					String object = null;
 					String org = null;
 					try {
 						object = sec.group(2);
 						org = object;
-						if ((object.startsWith("'") || object.startsWith("\""))
-								&& (object.trim().endsWith("'") || object.trim().endsWith("\"")) && object.length() > 1)
-							object = r(object).substring(1, object.length() - 1);
+						if ((object.startsWith("'") && object.trim().endsWith("'") || object.startsWith("\"") && object.trim().endsWith("\"")) && object.length() > 1)
+								object = r(object).substring(1, object.length() - 1);
 					} catch (Exception er) {
 					}
-					if ((key.startsWith("\"") && key.trim().endsWith("\"")
-							|| key.startsWith("'") && key.trim().endsWith("'")) && key.length() > 1)
+					if ((key.startsWith("'") && key.trim().endsWith("'") || key.startsWith("\"") && key.trim().endsWith("\"")) && key.length() > 1)
 						key = r(key).substring(1, key.length() - 1);
 					key += (key.equals("") ? "" : ".") + split.trim();
 					f = 1;
@@ -178,11 +168,7 @@ public class YamlLoader implements DataLoader {
 			if (!items.isEmpty() || c == 2) {
 				set(key, items, lines);
 			} else if (c == 1) {
-				String done = v.toString();
-				if ((done.startsWith("\"") && done.trim().endsWith("\"")
-						|| done.startsWith("'") && done.trim().endsWith("'")) && done.length() > 1)
-					done = r(done).substring(1, done.length() - 1);
-				set(key, Reader.read(done), lines);
+				set(key, Reader.read(v.toString()), lines);
 			} else if (!lines.isEmpty())
 				footer = lines;
 			l = true;
@@ -219,8 +205,7 @@ public class YamlLoader implements DataLoader {
 	}
 
 	private final void set(String key, Object o, List<String> lines) {
-		if ((key.startsWith("\"") && key.trim().endsWith("\"") || key.startsWith("'") && key.trim().endsWith("'"))
-				&& key.length() > 1)
+		if ((key.startsWith("'") && key.trim().endsWith("'") || key.startsWith("\"") && key.trim().endsWith("\"")) && key.length() > 1)
 			key = r(key).substring(1, key.length() - 1);
 		if(get().containsKey(key)) {
 			get().get(key).setValue(o);

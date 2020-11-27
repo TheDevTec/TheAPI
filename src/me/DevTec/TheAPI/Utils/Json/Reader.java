@@ -27,8 +27,8 @@ import com.google.common.io.CharStreams;
 import me.DevTec.TheAPI.APIs.EnchantmentAPI;
 import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.StringUtils;
-import me.DevTec.TheAPI.Utils.DataKeeper.Collections.LinkedSet;
-import me.DevTec.TheAPI.Utils.DataKeeper.Maps.NonSortedMap;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class Reader implements JsonReader {
@@ -60,7 +60,7 @@ public class Reader implements JsonReader {
 		if (json == null)
 			return null;
 		try {
-			return (Collection<?>) Ref.invoke(parser, Ref.method(parser.getClass(), "fromJson", String.class, Class.class), json, LinkedSet.class);
+			return (Collection<?>) Ref.invoke(parser, Ref.method(parser.getClass(), "fromJson", String.class, Class.class), json, UnsortedList.class);
 		} catch (Exception e1) {
 		}
 		return null;
@@ -86,7 +86,7 @@ public class Reader implements JsonReader {
 		if (json == null)
 			return null;
 		try {
-			return (Map<?, ?>) Ref.invoke(parser, Ref.method(parser.getClass(), "fromJson", String.class, Class.class), json, NonSortedMap.class);
+			return (Map<?, ?>) Ref.invoke(parser, Ref.method(parser.getClass(), "fromJson", String.class, Class.class), json, UnsortedMap.class);
 		} catch (Exception e1) {
 		}
 		return null;
@@ -183,10 +183,10 @@ public class Reader implements JsonReader {
 			return o;
 		}
 		if (o instanceof Map) {
-			Map<Object, Object> aw = new NonSortedMap<>();
+			Map<Object, Object> aw = new UnsortedMap<>();
 			for(Entry<?, ?> f : ((Map<?, ?>) o).entrySet())aw.put(f.getKey() instanceof String ? object((String)f.getKey()) : f.getKey(), f.getValue());
 			o=aw;
-			Map<Object, Object> a = new NonSortedMap<>();
+			Map<Object, Object> a = new UnsortedMap<>();
 			boolean c = false;
 			for (Entry<?, ?> s : ((Map<?, ?>) o).entrySet()) {
 				if (s.getKey().toString().startsWith("enum ")) {

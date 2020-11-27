@@ -9,12 +9,12 @@ import me.DevTec.TheAPI.ParticlesAPI.ParticleData.NoteOptions;
 import me.DevTec.TheAPI.ParticlesAPI.ParticleData.RedstoneOptions;
 import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.TheMaterial;
-import me.DevTec.TheAPI.Utils.DataKeeper.Maps.NonSortedMap;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class Particle {
 	private static Class<?> a = Ref.nms("Particles");
-	private static NonSortedMap<String, Object> identifier = new NonSortedMap<>();
+	private static UnsortedMap<String, Object> identifier = new UnsortedMap<>();
 	static {
 		if(a==null)a = Ref.nms("EnumParticle"); //1.8 - 1.12.2 
 		if(a==null)a = Ref.nms("PacketPlayOutWorldParticles$Particle"); //1.7.10 and older

@@ -1,13 +1,10 @@
 package me.DevTec.TheAPI.Utils.Decompression;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
-import java.io.Reader;
 import java.util.Enumeration;
 import java.util.zip.DataFormatException;
 import java.util.zip.GZIPInputStream;
@@ -53,15 +50,13 @@ public class Decompression {
 
 	public static String getText(InputStream is) {
 		try {
-	        InputStreamReader isr = new InputStreamReader(is, "UTF-8");
-	        StringBuffer buffer = new StringBuffer();
-	        Reader in = new BufferedReader(isr);
-	        int ch;
-	        while ((ch = in.read()) > -1) {
-	            buffer.append((char)ch);
-	        }
-	        in.close();
-	        return buffer.toString();
+			ByteArrayOutputStream result = new ByteArrayOutputStream();
+		    byte[] buffer = new byte[4096];
+		    int length;
+		    while ((length = is.read(buffer)) != -1) {
+		    	result.write(buffer, 0, length);
+		    }
+        return result.toString("UTF-8");
 		}catch(Exception err) {
 			return null;
 		}

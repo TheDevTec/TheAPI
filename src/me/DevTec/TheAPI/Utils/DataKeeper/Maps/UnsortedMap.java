@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import me.DevTec.TheAPI.Utils.DataKeeper.Collections.LinkedSet;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedSet;
 
-public class NonSortedMap<K, V> implements Map<K, V> {
+public class UnsortedMap<K, V> implements Map<K, V> {
 	class Bucket implements Entry<K, V> {
 		K key;
 		V val;
@@ -45,11 +45,11 @@ public class NonSortedMap<K, V> implements Map<K, V> {
 	private final Bucket bucket;
 	private int size;
 	
-	public NonSortedMap() {
+	public UnsortedMap() {
 		this(5);
 	}
 	
-	public NonSortedMap(int size) {
+	public UnsortedMap(int size) {
 		if(size>0) {
 			bucket=new Bucket();
 			Bucket current = bucket;
@@ -64,7 +64,7 @@ public class NonSortedMap<K, V> implements Map<K, V> {
 		}
 	}
 	
-	public NonSortedMap(Map<? extends K, ? extends V> e) {
+	public UnsortedMap(Map<? extends K, ? extends V> e) {
 		this(e.size());
 		putAll(e);
 	}
@@ -213,7 +213,7 @@ public class NonSortedMap<K, V> implements Map<K, V> {
 
 	@Override
 	public Set<K> keySet() {
-		LinkedSet<K> key = new LinkedSet<>(size);
+		Set<K> key = new UnsortedSet<>(size);
 		Bucket c = bucket;
 		for(int i = 0; i < size; ++i) {
 			if(c==null)break;
@@ -225,7 +225,7 @@ public class NonSortedMap<K, V> implements Map<K, V> {
 
 	@Override
 	public Collection<V> values() {
-		LinkedSet<V> key = new LinkedSet<>(size);
+		Set<V> key = new UnsortedSet<>(size);
 		Bucket c = bucket;
 		for(int i = 0; i < size; ++i) {
 			if(c==null)break;
@@ -237,7 +237,7 @@ public class NonSortedMap<K, V> implements Map<K, V> {
 
 	@Override
 	public Set<Entry<K, V>> entrySet() {
-		LinkedSet<Entry<K, V>> entries = new LinkedSet<>(size);
+		Set<Entry<K, V>> entries = new UnsortedSet<>(size);
 		Bucket c = bucket;
 		for(int i = 0; i < size; ++i) {
 			if(c==null)break;

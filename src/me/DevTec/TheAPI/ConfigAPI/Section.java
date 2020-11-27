@@ -2,6 +2,7 @@ package me.DevTec.TheAPI.ConfigAPI;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data;
 
@@ -52,7 +53,7 @@ public class Section implements Data {
 			c.set(s + "." + path, value);
 	}
 
-	public List<String> getKeys(String path) {
+	public Set<String> getKeys(String path) {
 		if (path == null)
 			return null;
 		if (path.trim().isEmpty())
@@ -60,7 +61,7 @@ public class Section implements Data {
 		return c.getKeys(s + "." + path);
 	}
 
-	public List<String> getKeys(String path, boolean sub) {
+	public Set<String> getKeys(String path, boolean sub) {
 		if (path == null)
 			return null;
 		if (path.trim().isEmpty())

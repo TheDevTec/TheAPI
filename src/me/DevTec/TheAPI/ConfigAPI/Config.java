@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
 import me.DevTec.TheAPI.Utils.DataKeeper.DataType;
@@ -128,7 +129,7 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	public void addDefault(String key, Object value) {
 		defaults.put(key, value);
-		if (!f.exists(key) || f.exists(key) && !f.isKey(key))
+		if (value != null && f.get(key)==null || !f.isKey(key) || !f.exists(key))
 			f.set(key, value);
 	}
 
@@ -168,7 +169,7 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		f.set(path, value);
 	}
 
-	public List<String> getKeys(String path) {
+	public Set<String> getKeys(String path) {
 		if (path == null)
 			return null;
 		if (path.trim().isEmpty())
@@ -176,11 +177,11 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		return f.getKeys(path);
 	}
 
-	public List<String> getKeys() {
+	public Set<String> getKeys() {
 		return f.getKeys();
 	}
 
-	public List<String> getKeys(String path, boolean sub) {
+	public Set<String> getKeys(String path, boolean sub) {
 		if (path == null)
 			return null;
 		if (path.trim().isEmpty())
@@ -188,7 +189,7 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		return f.getKeys(path, sub);
 	}
 
-	public List<String> getKeys(boolean sub) {
+	public Set<String> getKeys(boolean sub) {
 		return f.getKeys(sub);
 	}
 
