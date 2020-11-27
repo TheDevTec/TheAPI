@@ -13,19 +13,18 @@ import java.util.Set;
  * 
  * @apiNote
  * Plus:
- * - Faster method removeAll (About ~%)
  * - May contain duplicate & null values (Like List)
  * - No sorting of embedded objects
  * - Faster methods:
  *     * addAll
+ *     * removeAll
  *     * retainAll
- *     * remove
  *     * contains
+ *     * remove
  *     * add
  *     * clear
  * Minus:
- * - Slower methods
- * -   * containsAll
+ * - Slower method containsAll
  *
  * @param <V> Param of values in Set
  */
