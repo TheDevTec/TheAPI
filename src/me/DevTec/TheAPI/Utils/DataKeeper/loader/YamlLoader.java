@@ -68,8 +68,8 @@ public class YamlLoader implements DataLoader {
 						if (c != 0) {
 							if (c == 1) {
 								String object = v.toString();
-								if ((object.startsWith("'") && object.trim().endsWith("'")
-										|| object.startsWith("\"") && object.trim().endsWith("\""))
+								if ((object.trim().startsWith("'") && object.trim().endsWith("'")
+										|| object.trim().startsWith("\"") && object.trim().endsWith("\""))
 										&& object.length() > 1) {
 									object = r(object);
 									Matcher m = fixSplit.matcher(object);
@@ -95,9 +95,13 @@ public class YamlLoader implements DataLoader {
 					if (c != 0 && find) {
 						if (c == 1) {
 							String object = v.toString();
-							if ((object.startsWith("'") && object.trim().endsWith("'")
-									|| object.startsWith("\"") && object.trim().endsWith("\"")) && object.length() > 1)
-								object = r(object).substring(1, object.length() - 1);
+							if ((object.trim().startsWith("'") && object.trim().endsWith("'")
+									|| object.trim().startsWith("\"") && object.trim().endsWith("\"")) && object.length() > 1){
+								object = r(object);
+								Matcher m = fixSplit.matcher(object);
+								m.find();
+								object=m.group(1);
+							}
 							set(key, Reader.read(object), lines);
 							v = null;
 						}
@@ -110,9 +114,8 @@ public class YamlLoader implements DataLoader {
 					if (c == 2 || text.substring(c(text)).startsWith("- ") && !key.equals("")) {
 						String object = c != 2 ? text.replaceFirst(text.split("- ")[0] + "- ", "")
 								: text.substring(c(text));
-						if ((object.startsWith("'") && object.trim().endsWith("'")
-								|| object.startsWith("\"") && object.trim().endsWith("\"")) && object.length() > 1) {
-							object=r(object);
+						if ((object.trim().startsWith("'") && object.trim().endsWith("'")
+								|| object.trim().startsWith("\"") && object.trim().endsWith("\"")) && object.length() > 1) {
 							object = r(object);
 							Matcher m = fixSplit.matcher(object);
 							m.find();
@@ -149,22 +152,34 @@ public class YamlLoader implements DataLoader {
 							}
 						}
 						String split = sec.group(1);
-						if ((split.startsWith("'") && split.trim().endsWith("'")
-								|| split.startsWith("\"") && split.trim().endsWith("\"")) && split.length() > 1)
-							split = r(split).substring(1, split.length() - 1);
+						if ((split.trim().startsWith("'") && split.trim().endsWith("'")
+								|| split.trim().startsWith("\"") && split.trim().endsWith("\"")) && split.length() > 1) {
+							split = r(split);
+							Matcher m = fixSplit.matcher(split);
+							m.find();
+							split=m.group(1);
+						}
 						String object = null;
 						String org = null;
 						try {
 							object = sec.group(2);
 							org = object;
-							if ((object.startsWith("'") && object.trim().endsWith("'")
-									|| object.startsWith("\"") && object.trim().endsWith("\"")) && object.length() > 1)
-								object = r(object).substring(1, object.length() - 1);
+							if ((object.trim().startsWith("'") && object.trim().endsWith("'")
+									|| object.trim().startsWith("\"") && object.trim().endsWith("\"")) && object.length() > 1) {
+								object = r(object);
+								Matcher m = fixSplit.matcher(object);
+								m.find();
+								object=m.group(1);
+							}
 						} catch (Exception er) {
 						}
-						if ((key.startsWith("'") && key.trim().endsWith("'")
-								|| key.startsWith("\"") && key.trim().endsWith("\"")) && key.length() > 1)
-							key = r(key).substring(1, key.length() - 1);
+						if ((key.trim().startsWith("'") && key.trim().endsWith("'")
+								|| key.trim().startsWith("\"") && key.trim().endsWith("\"")) && key.length() > 1) {
+							key = r(key);
+							Matcher m = fixSplit.matcher(key);
+							m.find();
+							key=m.group(1);
+						}
 						key += (key.equals("") ? "" : ".") + split.trim();
 						f = 1;
 						last = c(text);
@@ -229,9 +244,6 @@ public class YamlLoader implements DataLoader {
 	}
 
 	private final void set(String key, Object o, List<String> lines) {
-		if ((key.startsWith("'") && key.trim().endsWith("'") || key.startsWith("\"") && key.trim().endsWith("\""))
-				&& key.length() > 1)
-			key = r(key).substring(1, key.length() - 1);
 		if (get().containsKey(key)) {
 			get().get(key).setValue(o);
 		} else

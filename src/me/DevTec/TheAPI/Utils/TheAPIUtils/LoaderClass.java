@@ -511,6 +511,7 @@ public class LoaderClass extends JavaPlugin {
 					for (String w : Arrays.asList("Default", "Normal", "Nether", "The_End", "End", "The_Void", "Void",
 							"Empty", "Flat")) {
 						if (config.exists("WorldsSetting." + s)) {
+							if(config.exists("WorldsSetting." + s + ".Generator"))
 							if (config.getString("WorldsSetting." + s + ".Generator").equalsIgnoreCase(w)) {
 								if (w.equalsIgnoreCase("Flat"))
 									type = "Flat";

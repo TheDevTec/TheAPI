@@ -521,8 +521,8 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	private String addQuotes(boolean raw, String text) {
 		if (text == null)
 			return null;
-		boolean quotedString = (text.startsWith("'") && text.endsWith("'"))
-				|| (text.startsWith("\"") && text.endsWith("\""));
+		boolean quotedString = (text.trim().startsWith("'") && text.trim().endsWith("'"))
+				|| (text.trim().startsWith("\"") && text.trim().endsWith("\""));
 		if (raw && !quotedString) {
 			return StringUtils.isBoolean(text)?text:StringUtils.isNumber(text)?"'"+text+"'":"\"" + text + "\"";
 		}
@@ -608,18 +608,18 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 						String splitted = space + "- ";
 						if (o instanceof Collection) {
 							for (Object a : (Collection<?>) o) {
-								b.write(splitted+addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.write(a)
-										+ System.lineSeparator()));
+								b.write(splitted+addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.write(a))
+										+ System.lineSeparator());
 							}
 						} else {
 							for (Object a : (Object[]) o)
-								b.write(splitted+addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.write(a)
-										+ System.lineSeparator()));
+								b.write(splitted+addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.write(a))
+										+ System.lineSeparator());
 						}
 					} else
 						b.write(pathName + " "
-								+ addQuotes(o instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.write(o)
-								+ System.lineSeparator()));
+								+ addQuotes(o instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.write(o))
+								+ System.lineSeparator());
 				}
 				for (String key : getKeys(path, false))
 					preparePath(path + "." + key, key + ":", spaces + 1, b);
