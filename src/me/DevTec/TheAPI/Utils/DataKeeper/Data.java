@@ -510,6 +510,25 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		return this;
 	}
 
+	/**
+	 * Wraps string in double quotes, unless the string is already in double or
+	 * single quotes.
+	 *
+	 * New-line characters are removed from the returned string.
+	 *
+	 * Example input -> output: : 5 -> "5" : '5' -> '5' : "5" -> "5" : 5" -> "5""
+	 */
+	private String addQuotes(boolean raw, String text) {
+		if (text == null)
+			return null;
+		boolean quotedString = (text.startsWith("'") && text.endsWith("'"))
+				|| (text.startsWith("\"") && text.endsWith("\""));
+		if (raw && !quotedString) {
+			return StringUtils.isBoolean(text)?text:StringUtils.isNumber(text)?"'"+text+"'":"\"" + text + "\"";
+		}
+		return text;
+	}
+	
 	public void save() {
 		save(DataType.YAML);
 	}
@@ -588,20 +607,19 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 						b.write(pathName + System.lineSeparator());
 						String splitted = space + "- ";
 						if (o instanceof Collection) {
-							for (Object a : (Collection<?>) o)
-								b.write(splitted
-										+ addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.write(a))
-										+ System.lineSeparator());
+							for (Object a : (Collection<?>) o) {
+								b.write(splitted+addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.write(a)
+										+ System.lineSeparator()));
+							}
 						} else {
 							for (Object a : (Object[]) o)
-								b.write(splitted
-										+ addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.write(a))
-										+ System.lineSeparator());
+								b.write(splitted+addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.write(a)
+										+ System.lineSeparator()));
 						}
 					} else
 						b.write(pathName + " "
-								+ addQuotes(o instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.write(o))
-								+ System.lineSeparator());
+								+ addQuotes(o instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.write(o)
+								+ System.lineSeparator()));
 				}
 				for (String key : getKeys(path, false))
 					preparePath(path + "." + key, key + ":", spaces + 1, b);
@@ -650,25 +668,6 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			}
 			return d.toString();
 		}
-	}
-
-	/**
-	 * Wraps string in double quotes, unless the string is already in double or
-	 * single quotes.
-	 *
-	 * New-line characters are removed from the returned string.
-	 *
-	 * Example input -> output: : 5 -> "5" : '5' -> '5' : "5" -> "5" : 5" -> "5""
-	 */
-	private String addQuotes(boolean raw, String text) {
-		if (text == null)
-			return null;
-		boolean quotedString = (text.startsWith("'") && text.endsWith("'"))
-				|| (text.startsWith("\"") && text.endsWith("\""));
-		if (raw && !quotedString) {
-			return ("\"" + text + "\"").replace(System.lineSeparator(), "\\r\\n");
-		}
-		return text.replace(System.lineSeparator(), "\r\n");
 	}
 
 	private static String cs(int s, int doubleSpace) {

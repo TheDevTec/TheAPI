@@ -430,6 +430,7 @@ public class TheAPI {
 	public static void sendMessage(String message, CommandSender sender) {
 		Validator.validate(sender == null, "CommandSender is null");
 		Validator.validate(message == null, "Message is null");
+		if(message == null)return;
 		ChatColor old = ChatColor.RESET;
 		for (String s : message.replace("\\n", "\n").split("\n")) {
 			sender.sendMessage(old + colorize(s));

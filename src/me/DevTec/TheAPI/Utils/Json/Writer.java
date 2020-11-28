@@ -59,7 +59,7 @@ public class Writer implements JsonWriter {
 	}
 
 	private Collection<Object> fix(Collection<?> o, boolean fancy, boolean addNulls) {
-		Collection<Object> map = new ArrayList<>();
+		Collection<Object> map = new UnsortedList<>();
 		for (Object e : o)
 			map.add(object2(e, fancy, addNulls));
 		return map;
@@ -298,7 +298,7 @@ public class Writer implements JsonWriter {
 				|| w.getClass() == Ref.nms("ChatMessage") || w.getClass() == Ref.nms("ChatComponentText")
 				|| w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")) {
 			if (w instanceof String) {
-				return w + "";
+				return w;
 			}
 			String obj = w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")
 					? (String) Ref.invoke(w, "toLegacyText")

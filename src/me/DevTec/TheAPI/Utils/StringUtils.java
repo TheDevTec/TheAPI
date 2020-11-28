@@ -504,7 +504,7 @@ public class StringUtils {
 	}
 
 	private static final Pattern periodPattern = Pattern.compile(
-			"([0-9]+)(mon[t]*[h]*[s]*|m[i]*[n]*[u]*[t]*[e]*[s]*|y[e]*[a]*[r]*[s]*|w[e]*[k]*[s]*|h[o]*[u]*[r]*[s]*|s[e]*[c]*[o]*[n]*[d]*[s]*|d[a]*[y]*[s]*)",
+			"([+-]*[0-9]+)(m[o]+[n]*[t]*[h]*[s]*|m[i]*[n]*[u]*[t]*[e]*[s]*|y[e]*[a]*[r]*[s]*|w[e]*[k]*[s]*|h[o]*[u]*[r]*[s]*|s[e]*[c]*[o]*[n]*[d]*[s]*|d[a]*[y]*[s]*)",
 			Pattern.CASE_INSENSITIVE);
 
 	/**
@@ -525,12 +525,12 @@ public class StringUtils {
 		if (period == null || period.trim().isEmpty())
 			return 0;
 		period = period.toLowerCase(Locale.ENGLISH);
-		if (isFloat(period))
-			return (long) getFloat(period);
+		if (isLong(period))
+			return getLong(period);
 		Matcher matcher = periodPattern.matcher(period);
 		float time = 0;
 		while (matcher.find()) {
-			float num = getFloat(matcher.group(1));
+			long num = getLong(matcher.group(1));
 			if (num == 0)
 				continue;
 			String typ = matcher.group(2);
@@ -550,10 +550,10 @@ public class StringUtils {
 				time += num * 604800;
 			}
 			if (typ.toLowerCase().equals("mon")) {
-				time += num * 2629800;
+				time += num * 2629743.83;
 			}
 			if (typ.toLowerCase().startsWith("y")) {
-				time += num * 31557600;
+				time += num * 31556926;
 			}
 		}
 		return (long) time;
@@ -576,10 +576,10 @@ public class StringUtils {
 	public static String timeToString(long time) { // New shorter name of method
 		long minutes = (time / 60) % 60;
 		long hours = (time / 3600) % 24;
-		long days = (time / 86400) % 31;
-		long weeks = (time / 604800) % 7;
-		long mounth = (time / 2629800) % 12;
-		long year = (time / 31557600);
+		long days = (long) ((time / 86400) % 30.5F);
+		long weeks = (time / 604800) % 4;
+		long mounth = (long) ((time / 2629743.83F) % 12);
+		long year = (time / 31556926);
 		String date = "";
 		if (year > 0)
 			date = year + " year" + (year > 1 ? "s" : "");
@@ -753,7 +753,7 @@ public class StringUtils {
 	public static float getFloat(String fromString) {
 		if (fromString == null)
 			return 0F;
-		String a = fromString.replaceAll("[^+0-9E.,-]+", "");
+		String a = fromString.replaceAll("[^+0-9E.,-]+", "").replace(",", ".");
 		if (isFloat(a)) {
 			return Float.parseFloat(a);
 		} else {

@@ -12,7 +12,8 @@ import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Json.Reader;
 
 public class YamlLoader implements DataLoader {
-	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*?):[ ]*(.*)");
+	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*?):[ ]*(.*)"),
+			fixSplit = Pattern.compile("[\"'](.*)['\"]");
 	private Map<String, DataHolder> data = new UnsortedMap<>();
 	private boolean l;
 	private List<String> header = new ArrayList<>(), footer = new ArrayList<>();
@@ -69,8 +70,12 @@ public class YamlLoader implements DataLoader {
 								String object = v.toString();
 								if ((object.startsWith("'") && object.trim().endsWith("'")
 										|| object.startsWith("\"") && object.trim().endsWith("\""))
-										&& object.length() > 1)
-									object = r(object).substring(1, object.length() - 1);
+										&& object.length() > 1) {
+									object = r(object);
+									Matcher m = fixSplit.matcher(object);
+									m.find();
+									object=m.group(1);
+								}
 								set(key, Reader.read(object), lines);
 								v = null;
 							} else if (c == 2) {
@@ -106,8 +111,13 @@ public class YamlLoader implements DataLoader {
 						String object = c != 2 ? text.replaceFirst(text.split("- ")[0] + "- ", "")
 								: text.substring(c(text));
 						if ((object.startsWith("'") && object.trim().endsWith("'")
-								|| object.startsWith("\"") && object.trim().endsWith("\"")) && object.length() > 1)
-							object = r(object).substring(1, object.length() - 1);
+								|| object.startsWith("\"") && object.trim().endsWith("\"")) && object.length() > 1) {
+							object=r(object);
+							object = r(object);
+							Matcher m = fixSplit.matcher(object);
+							m.find();
+							object=m.group(1);
+						}
 						items.add(object);
 						continue;
 					}
@@ -191,7 +201,11 @@ public class YamlLoader implements DataLoader {
 		int remove = 0;
 		while (s.substring(s.length() - remove, s.length()).startsWith(" "))
 			++remove;
-		return s.substring(0, s.length() - remove);
+		s=s.substring(0, s.length() - remove);
+		remove = 0;
+		while (s.substring(remove, s.length()).startsWith(" "))
+			++remove;
+		return s.substring(remove, s.length());
 	}
 
 	@Override
