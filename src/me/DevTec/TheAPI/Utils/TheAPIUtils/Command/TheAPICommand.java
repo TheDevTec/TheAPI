@@ -113,6 +113,43 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				TheAPI.msg("&eReloading configs..", s);
 				LoaderClass.data.reload();
 				LoaderClass.config.reload();
+				if(TheAPI.isNewerThan(15)) {
+					LoaderClass.tags.reload();
+					LoaderClass.tags.addDefault("TagPrefix", "!");
+					LoaderClass.tags.addDefault("GradientPrefix", "!");
+					if(!LoaderClass.tags.exists("Tags")) {
+						LoaderClass.tags.addDefault("Tags.baby_blue", "0fd2f6");
+						LoaderClass.tags.addDefault("Tags.beige", "ffc8a9");
+						LoaderClass.tags.addDefault("Tags.blush", "e69296");
+						LoaderClass.tags.addDefault("Tags.amaranth", "e52b50");
+						LoaderClass.tags.addDefault("Tags.brown", "964b00");
+						LoaderClass.tags.addDefault("Tags.crimson", "dc143c");
+						LoaderClass.tags.addDefault("Tags.dandelion", "ffc31c");
+						LoaderClass.tags.addDefault("Tags.eggshell", "f0ecc7");
+						LoaderClass.tags.addDefault("Tags.fire", "ff0000");
+						LoaderClass.tags.addDefault("Tags.ice", "bddeec");
+						LoaderClass.tags.addDefault("Tags.indigo", "726eff");
+						LoaderClass.tags.addDefault("Tags.lavender", "4b0082");
+						LoaderClass.tags.addDefault("Tags.leaf", "618a3d");
+						LoaderClass.tags.addDefault("Tags.lilac", "c8a2c8");
+						LoaderClass.tags.addDefault("Tags.lime", "b7ff00");
+						LoaderClass.tags.addDefault("Tags.midnight", "007bff");
+						LoaderClass.tags.addDefault("Tags.mint", "50c878");
+						LoaderClass.tags.addDefault("Tags.olive", "929d40");
+						LoaderClass.tags.addDefault("Tags.royal_purple", "7851a9");
+						LoaderClass.tags.addDefault("Tags.rust", "b45019");
+						LoaderClass.tags.addDefault("Tags.sky", "00c8ff");
+						LoaderClass.tags.addDefault("Tags.smoke", "708c98");
+						LoaderClass.tags.addDefault("Tags.tangerine", "ef8e38");
+						LoaderClass.tags.addDefault("Tags.violet", "9c6eff");
+					}
+					LoaderClass.tags.save();
+					LoaderClass.tagG=LoaderClass.tags.getString("TagPrefix");
+					LoaderClass.gradientTag=LoaderClass.tags.getString("GradientPrefix");
+					LoaderClass.colorMap.clear();
+					for (String tag : LoaderClass.tags.getKeys("Tags"))
+						LoaderClass.colorMap.put(tag.toLowerCase(), "#" + LoaderClass.tags.getString("Tags."+tag));
+				}
 				for (User u : TheAPI.getCachedUsers())
 					u.getData().reload(u.getData().getFile());
 				Tasks.unload();

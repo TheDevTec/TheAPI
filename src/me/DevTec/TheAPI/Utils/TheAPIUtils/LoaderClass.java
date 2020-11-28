@@ -57,7 +57,7 @@ public class LoaderClass extends JavaPlugin {
 	// Scoreboards
 	public final Map<Integer, ScoreboardAPI> scoreboard = new UnsortedMap<>();
 	public final MultiMap<Integer, Integer, Object> map = new MultiMap<>();
-	public final Map<String, String> colorMap = new UnsortedMap<>();
+	public final static Map<String, String> colorMap = new UnsortedMap<>();
 	// GUIs
 	public final Map<String, GUI> gui = new HashMap<>();
 	// BossBars
@@ -65,7 +65,9 @@ public class LoaderClass extends JavaPlugin {
 	// TheAPI
 	public static LoaderClass plugin;
 	public static Config config = new Config("TheAPI/Config.yml"), tags, data = new Config("TheAPI/Data.dat", DataType.DATA);
-	public String motd, tagG, gradientTag;
+	public String motd;
+	public static String ss;
+	public static String gradientTag, tagG;
 	public int max;
 	// EconomyAPI
 	public boolean e, tve, tbank;

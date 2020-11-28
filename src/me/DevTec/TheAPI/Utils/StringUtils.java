@@ -329,18 +329,18 @@ public class StringUtils {
     }
     
 	private static String gradient(String legacyMsg) {
-        for (String code : LoaderClass.plugin.colorMap.keySet()) {
-            String rawCode = LoaderClass.plugin.tagG + code;
+        for (String code : LoaderClass.colorMap.keySet()) {
+            String rawCode = LoaderClass.tagG + code;
             if (!legacyMsg.toLowerCase().contains(rawCode)) continue;
-            legacyMsg = legacyMsg.replace(LoaderClass.plugin.gradientTag + rawCode, LoaderClass.plugin.gradientTag + LoaderClass.plugin.colorMap.get(code));
+            legacyMsg = legacyMsg.replace(LoaderClass.gradientTag + rawCode, LoaderClass.gradientTag + LoaderClass.colorMap.get(code));
         }
         List<String> hexes = new ArrayList<>();
-        Matcher matcher = Pattern.compile(LoaderClass.plugin.gradientTag+"#[A-Fa-f0-9]{6}").matcher(legacyMsg);
+        Matcher matcher = Pattern.compile(LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}").matcher(legacyMsg);
         while (matcher.find()) {
-            hexes.add(matcher.group().replace(LoaderClass.plugin.gradientTag, ""));
+            hexes.add(matcher.group().replace(LoaderClass.gradientTag, ""));
         }
         int hexIndex = 0;
-        List<String> texts = Arrays.asList(legacyMsg.split(LoaderClass.plugin.gradientTag+"#[A-Fa-f0-9]{6}"));
+        List<String> texts = Arrays.asList(legacyMsg.split(LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}"));
         StringBuilder finalMsg = new StringBuilder();
         for (String text : texts) {
             if (texts.get(0).equalsIgnoreCase(text)) {
