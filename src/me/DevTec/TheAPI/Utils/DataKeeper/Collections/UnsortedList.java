@@ -9,7 +9,7 @@ public class UnsortedList<V> implements List<V> {
 	class Bucket {
 		V val;
 		int assigned;
-		Bucket next, prev;
+		Bucket next;
 
 		public V getValue() {
 			return val;
@@ -67,16 +67,16 @@ public class UnsortedList<V> implements List<V> {
 
 	@Override
 	public boolean contains(Object value) {
-		boolean con = false;
+		int con = 0;
 		Bucket c = bucket;
-		while(c!=null && c.assigned==1) {
+		for(int i = 0; i < size; ++i) {
 			if(c.val.equals(value)) {
-				con=true;
+				con=1;
 				break;
 			}
 			c=c.next;
 		}
-		return con;
+		return con==1;
 	}
 
 	@Override
@@ -91,7 +91,6 @@ public class UnsortedList<V> implements List<V> {
 		Bucket b = c.next==null?new Bucket():c.next;
 		b.val=value;
 		b.assigned=1;
-		b.prev=c;
 		last=c.next=b;
 		++size;
 		return true;
@@ -99,18 +98,16 @@ public class UnsortedList<V> implements List<V> {
 
 	@Override
 	public boolean remove(Object value) {
-		Bucket c = bucket;
+		Bucket c = bucket, prev=c;
 		int found = 0;
-		while(c!=null && c.assigned==1) {
+		for(int i = 0; i < size; ++i) {
 			if(c.val.equals(value)) {
 				if(c==bucket) {
-					bucket=c.next;
-					c.next.prev=null;
+					bucket=c.next==null?new Bucket():c.next;
 					found=1;
 					--size;
 				}else {
-					c.next.prev=c.prev;
-					c.prev.next=c.next; //remove bucket & trim to size
+					prev.next=c.next; //remove bucket & trim to size
 					found=1;
 					--size;
 					c=c.next;
@@ -118,6 +115,7 @@ public class UnsortedList<V> implements List<V> {
 				}
 			}
 			last=c;
+			prev=last;
 			c=c.next;
 		}
 		return found==1;
@@ -133,12 +131,12 @@ public class UnsortedList<V> implements List<V> {
 	}
 	
 	public String toString() {
-		StringBuffer f = new StringBuffer(size());
-		f.append("[");
-		for(V e : this) {
-			if(!f.toString().equals("["))
-				f.append(", ");
-			f.append(e+"");
+		StringBuffer f = new StringBuffer("[");
+		Iterator<V> iterator = iterator();
+		int i = 0;
+		while(iterator.hasNext()) {
+			if(i!=0)f.append(", "); i=1;
+			f.append(iterator.next()+"");
 		}
 		return f.append("]").toString();
 	}
@@ -147,13 +145,15 @@ public class UnsortedList<V> implements List<V> {
 	public Iterator<V> iterator() {
 		return new Iterator<V>() {
 			Bucket c = bucket;
+			int i = 0;
 			@Override
 			public boolean hasNext() {
-				return c!=null && c.assigned==1;
+				return i < size;
 			}
 
 			@Override
 			public V next() {
+				++i;
 				try {
 					return c.val;
 				}finally {
@@ -166,10 +166,9 @@ public class UnsortedList<V> implements List<V> {
 	@Override
 	public Object[] toArray() {
 		Object[] array = new Object[size];
-		int d = 0;
 		Bucket c = bucket;
-		while(c!=null && c.assigned==1) {
-			array[d++]=c.val;
+		for(int i = 0; i < size; ++i) {
+			array[i]=c.val;
 			c=c.next;
 		}
 		return array;
@@ -178,10 +177,9 @@ public class UnsortedList<V> implements List<V> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T[] toArray(T[] array) {
-		int d = 0;
 		Bucket c = bucket;
-		while(c!=null && c.assigned==1) {
-			array[d++]=(T) c.val;
+		for(int i = 0; i < size; ++i) {
+			array[i]=(T) c.val;
 			c=c.next;
 		}
 		return array;
@@ -189,14 +187,14 @@ public class UnsortedList<V> implements List<V> {
 
 	@Override
 	public boolean containsAll(Collection<?> c) {
-		boolean d = true;
-		for(Object a : c) {
-			if(!contains(a)) {
-				d=false;
+		int d = 0;
+		Iterator<?> t = c.iterator();
+		while(t.hasNext())
+			if(!contains(t.next())) {
+				d=1;
 				break;
 			}
-		}
-		return d;
+		return d==1;
 	}
 
 	@Override
@@ -213,7 +211,6 @@ public class UnsortedList<V> implements List<V> {
 			Bucket b = c.next==null?new Bucket():c.next;
 			b.val=value;
 			b.assigned=1;
-			b.prev=c;
 			last=c=c.next=b;
 			++size;
 		}
@@ -223,31 +220,16 @@ public class UnsortedList<V> implements List<V> {
 	@Override
 	public boolean retainAll(Collection<?> cc) {
 		if(cc==null || cc.isEmpty())return false;
-		UnsortedSet<Object> remove = new UnsortedSet<>();
-		Bucket ca = bucket;
-		while(ca!=null && ca.assigned==1) {
-			if(!cc.contains(ca.val))
-				remove.add(ca.val);
-			ca=ca.next;
-		}
-		return removeAll(remove);
-	}
-
-	@Override
-	public boolean removeAll(Collection<?> values) {
-		if(values==null||values.isEmpty())return false;
-		Bucket c = bucket;
 		int found = 0;
-		while(c!=null && c.assigned==1) {
-			if(values.contains(c.val)) {
+		Bucket c = bucket, prev=c;
+		for(int i = 0; i < size; ++i) {
+			if(!cc.contains(c.val)) {
 				if(c==bucket) {
-					bucket=c.next;
-					c.next.prev=null;
+					bucket=c.next==null?new Bucket():c.next;
 					found=1;
 					--size;
 				}else {
-					c.next.prev=c.prev;
-					c.prev.next=c.next; //remove bucket & trim to size
+					prev.next=c.next; //remove bucket & trim to size
 					found=1;
 					--size;
 					c=c.next;
@@ -255,6 +237,33 @@ public class UnsortedList<V> implements List<V> {
 				}
 			}
 			last=c;
+			prev=last;
+			c=c.next;
+		}
+		return found==1;
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> values) {
+		if(values==null||values.isEmpty())return false;
+		Bucket c = bucket, prev=c;
+		int found = 0;
+		while(c!=null && c.assigned==1) {
+			if(values.contains(c.val)) {
+				if(c==bucket) {
+					bucket=c.next==null?new Bucket():c.next;
+					found=1;
+					--size;
+				}else {
+					prev.next=c.next; //remove bucket & trim to size
+					found=1;
+					--size;
+					c=c.next;
+					continue;
+				}
+			}
+			last=c;
+			prev=last;
 			c=c.next;
 		}
 		return found==1;
@@ -276,7 +285,6 @@ public class UnsortedList<V> implements List<V> {
 			Bucket b = c.next==null?new Bucket():c.next;
 			b.val=value;
 			b.assigned=1;
-			b.prev=c;
 			last=c=c.next=b;
 			++size;
 		}
@@ -312,11 +320,14 @@ public class UnsortedList<V> implements List<V> {
 		int a = 0;
 		Bucket c = bucket;
 		while(c!=null && c.assigned==1) {
-			if(++a==index) {
+			if(a++==index) {
 				Bucket next = c.next;
-				c.next=new Bucket();
-				c.next.val=element;
-				c.next.next=next;
+				Bucket d =new Bucket();
+				d.val=element;
+				d.assigned=1;
+				c.next=d;
+				d.next=next;
+				++size;
 				break;
 			}
 			c=c.next;
@@ -331,8 +342,17 @@ public class UnsortedList<V> implements List<V> {
 		Bucket c = bucket, before = c;
 		while(c!=null && c.assigned==1) {
 			if(a++==index) {
+				if(c==before) {
+					if(c.next==null) {
+						c.assigned=0;
+						c.val=null;
+					}else
+					bucket=c.next;
+				}else {
 				item=c.val;
 				before.next=c.next;
+				}
+				--size;
 				break;
 			}
 			before=c;
@@ -343,11 +363,10 @@ public class UnsortedList<V> implements List<V> {
 
 	@Override
 	public int indexOf(Object o) {
-		int a = 0;
-		int f = 0;
+		int a = 0, f = -1;
 		Bucket c = bucket;
 		while(c!=null && c.assigned==1) {
-			if(c.val==null && o ==null || c.val!=null && c.val.equals(o)) {
+			if(c.val.equals(o)) {
 				f=a;
 				break;
 			}
@@ -359,11 +378,10 @@ public class UnsortedList<V> implements List<V> {
 
 	@Override
 	public int lastIndexOf(Object o) {
-		int a = 0;
-		int f = 0;
+		int a = 0, f = -1;
 		Bucket c = bucket;
 		while(c!=null && c.assigned==1) {
-			if(c.val==null && o ==null || c.val!=null && c.val.equals(o))f=a;
+			if(c.val.equals(o))f=a;
 			a++;
 			c=c.next;
 		}
@@ -375,7 +393,7 @@ public class UnsortedList<V> implements List<V> {
 		return listIterator(0);
 	}
 
-	public Bucket getBucketAt(int index) {
+	private Bucket getBucketAt(int index) {
 		if(index > size || index < 0)return null;
 		Bucket b = bucket;
 		int c = 0;
@@ -390,7 +408,7 @@ public class UnsortedList<V> implements List<V> {
 	public ListIterator<V> listIterator(int index) {
 		if(index < 0)return null;
 		return new ListIterator<V>() {
-			int c = index;
+			int c = index-1;
 			
 			@Override
 			public boolean hasNext() {
@@ -399,8 +417,7 @@ public class UnsortedList<V> implements List<V> {
 
 			@Override
 			public V next() {
-				++c;
-				return getBucketAt(c).val;
+				return getBucketAt(++c).val;
 			}
 
 			@Override
@@ -410,8 +427,7 @@ public class UnsortedList<V> implements List<V> {
 
 			@Override
 			public V previous() {
-				--c;
-				return getBucketAt(c).val;
+				return getBucketAt(--c).val;
 			}
 
 			@Override
