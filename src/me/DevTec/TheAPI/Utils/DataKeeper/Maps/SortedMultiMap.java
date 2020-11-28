@@ -81,7 +81,7 @@ public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 	public void putAll(SortedMultiMap<K, T, V> map) {
 		map.entrySet().forEach(Entry -> put(Entry.getKey(), Entry.getThread(), Entry.getValue()));
 	}
-	
+
 	public Collection<K> keySet() {
 		return new ArrayList<>(data.keySet());
 	}
@@ -101,7 +101,7 @@ public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 				entries.add(new Entry<>(key, thread, get(key, thread)));
 		return entries;
 	}
-	
+
 	public String toString() {
 		String builder = "";
 		for (Entry<K, T, V> e : entrySet()) {

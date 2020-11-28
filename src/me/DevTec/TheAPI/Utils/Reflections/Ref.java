@@ -13,7 +13,8 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class Ref {
-	private static Constructor<?> blockpos = constructor(nms("BlockPosition"), double.class, double.class, double.class),
+	private static Constructor<?> blockpos = constructor(nms("BlockPosition"), double.class, double.class,
+			double.class),
 			c = Ref.constructor(
 					Ref.getClass("com.mojang.authlib.GameProfile") != null
 							? Ref.getClass("com.mojang.authlib.GameProfile")
@@ -249,14 +250,14 @@ public class Ref {
 		try {
 			Method a = main.getDeclaredMethod(name, bricks);
 			Class<?> d = main;
-			while(d!=null && a ==null) {
+			while (d != null && a == null) {
 				for (Method m : getDeclaredMethods(d)) {
-					if (m.getName().equals(name) && areSame(m.getParameterTypes(),bricks)) {
+					if (m.getName().equals(name) && areSame(m.getParameterTypes(), bricks)) {
 						a = m;
 						break;
 					}
 				}
-				d=d.getSuperclass();
+				d = d.getSuperclass();
 			}
 			if (a != null)
 				a.setAccessible(true);
@@ -275,14 +276,18 @@ public class Ref {
 			try {
 				Field f = null;
 				Class<?> c = main.getSuperclass();
-				while(c!=null) {
+				while (c != null) {
 					try {
 						f = c.getDeclaredField(name);
-					}catch(Exception err) {}
-					if(f!=null)break;
+					} catch (Exception err) {
+					}
+					if (f != null)
+						break;
 					try {
-					c=c.getSuperclass();
-					}catch(Exception err) {break;}
+						c = c.getSuperclass();
+					} catch (Exception err) {
+						break;
+					}
 				}
 				if (f != null)
 					f.setAccessible(true);
@@ -371,17 +376,20 @@ public class Ref {
 	public static Method findMethodByName(Class<?> c, String name) {
 		Method a = null;
 		Class<?> d = c;
-		while(d!=null) {
+		while (d != null) {
 			for (Method m : getDeclaredMethods(d)) {
 				if (m.getName().equals(name)) {
 					a = m;
 					break;
 				}
 			}
-			if(a!=null)break;
+			if (a != null)
+				break;
 			try {
-				d=d.getSuperclass();
-			}catch(Exception err) {break;}
+				d = d.getSuperclass();
+			} catch (Exception err) {
+				break;
+			}
 		}
 		if (a != null)
 			a.setAccessible(true);
@@ -397,17 +405,20 @@ public class Ref {
 			if (o != null)
 				param[i++] = o instanceof Class ? (Class<?>) o : o.getClass();
 		}
-		while(d!=null) {
+		while (d != null) {
 			for (Method m : getDeclaredMethods(d)) {
-				if (m.getName().equals(name) && areSame(m.getParameterTypes(),param)) {
+				if (m.getName().equals(name) && areSame(m.getParameterTypes(), param)) {
 					a = m;
 					break;
 				}
 			}
-			if(a!=null)break;
+			if (a != null)
+				break;
 			try {
-				d=d.getSuperclass();
-			}catch(Exception err) {break;}
+				d = d.getSuperclass();
+			} catch (Exception err) {
+				break;
+			}
 		}
 		if (a != null)
 			a.setAccessible(true);
@@ -423,7 +434,7 @@ public class Ref {
 				param[i++] = o instanceof Class ? (Class<?>) o : o.getClass();
 		}
 		for (Constructor<?> m : getDeclaredConstructors(c)) {
-			if (areSame(m.getParameterTypes(),param)) {
+			if (areSame(m.getParameterTypes(), param)) {
 				a = m;
 				break;
 			}
@@ -432,7 +443,7 @@ public class Ref {
 			a.setAccessible(true);
 		return a;
 	}
-	
+
 	private static boolean areSame(Class<?>[] a, Class<?>[] b) {
 		return Arrays.asList(a).containsAll(Arrays.asList(b));
 	}

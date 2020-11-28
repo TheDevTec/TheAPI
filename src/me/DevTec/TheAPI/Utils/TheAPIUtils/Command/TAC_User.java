@@ -80,7 +80,7 @@ public class TAC_User {
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Remove <key>", s);
 			else {
 				TheAPI.getUser(args[1]).remove(args[3]);
-				TheAPI.msg("&eRemoved path "+args[3]+" from user data of "+args[1], s);
+				TheAPI.msg("&eRemoved path " + args[3] + " from user data of " + args[1], s);
 			}
 			return;
 		}

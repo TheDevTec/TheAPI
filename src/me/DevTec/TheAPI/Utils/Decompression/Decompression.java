@@ -51,13 +51,13 @@ public class Decompression {
 	public static String getText(InputStream is) {
 		try {
 			ByteArrayOutputStream result = new ByteArrayOutputStream();
-		    byte[] buffer = new byte[4096];
-		    int length;
-		    while ((length = is.read(buffer)) != -1) {
-		    	result.write(buffer, 0, length);
-		    }
-        return result.toString("UTF-8");
-		}catch(Exception err) {
+			byte[] buffer = new byte[4096];
+			int length;
+			while ((length = is.read(buffer)) != -1) {
+				result.write(buffer, 0, length);
+			}
+			return result.toString("UTF-8");
+		} catch (Exception err) {
 			return null;
 		}
 	}

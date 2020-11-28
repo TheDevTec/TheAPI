@@ -36,34 +36,40 @@ public interface DataLoader extends Data {
 
 	public static DataLoader findLoaderFor(File a) {
 		String aa = Reader.read(a, true), b = Reader.read(a, false);
-		DataLoader found=new ByteLoader();
+		DataLoader found = new ByteLoader();
 		found.load(aa);
-		if(!found.loaded())
+		if (!found.loaded())
 			found.load(b);
-		if(found.loaded())return found;
-		found=new JsonLoader();
+		if (found.loaded())
+			return found;
+		found = new JsonLoader();
 		found.load(aa);
-		if(!found.loaded())
+		if (!found.loaded())
 			found.load(b);
-		if(found.loaded())return found;
-		found=new YamlLoader();
+		if (found.loaded())
+			return found;
+		found = new YamlLoader();
 		found.load(aa);
-		if(!found.loaded())
+		if (!found.loaded())
 			found.load(b);
-		if(found.loaded())return found;
+		if (found.loaded())
+			return found;
 		return new EmptyLoader();
 	}
 
 	public static DataLoader findLoaderFor(String input) {
 		DataLoader found = new ByteLoader();
 		found.load(input);
-		if(found.loaded())return found;
-		found=new JsonLoader();
+		if (found.loaded())
+			return found;
+		found = new JsonLoader();
 		found.load(input);
-		if(found.loaded())return found;
-		found=new YamlLoader();
+		if (found.loaded())
+			return found;
+		found = new YamlLoader();
 		found.load(input);
-		if(found.loaded())return found;
+		if (found.loaded())
+			return found;
 		return new EmptyLoader();
 	}
 }

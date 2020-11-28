@@ -60,15 +60,18 @@ public class ItemCreatorAPI implements Cloneable {
 		return createPotion(material, amount, displayName, null, null, effects);
 	}
 
-	public static ItemStack createPotion(Material material, int amount, String displayName, List<String> lore, PotionEffect... effects) {
+	public static ItemStack createPotion(Material material, int amount, String displayName, List<String> lore,
+			PotionEffect... effects) {
 		return createPotion(material, amount, displayName, lore, null, effects);
 	}
 
-	public static ItemStack createPotion(Material material, int amount, String displayName, Color color, PotionEffect... effects) {
+	public static ItemStack createPotion(Material material, int amount, String displayName, Color color,
+			PotionEffect... effects) {
 		return createPotion(material, amount, displayName, null, color, effects);
 	}
 
-	public static ItemStack createPotion(Material material, int amount, String displayName, List<String> lore, Color color, PotionEffect... effects) {
+	public static ItemStack createPotion(Material material, int amount, String displayName, List<String> lore,
+			Color color, PotionEffect... effects) {
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
 		a.setDisplayName(displayName);
 		a.setLore(lore);
@@ -82,7 +85,8 @@ public class ItemCreatorAPI implements Cloneable {
 		return createLeatherArmor(material, amount, displayName, null, color);
 	}
 
-	public static ItemStack createLeatherArmor(Material material, int amount, String displayName, List<String> lore, Color color) {
+	public static ItemStack createLeatherArmor(Material material, int amount, String displayName, List<String> lore,
+			Color color) {
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
 		a.setDisplayName(displayName);
 		a.setLore(lore);
@@ -90,21 +94,25 @@ public class ItemCreatorAPI implements Cloneable {
 		return a.create();
 	}
 
-	public static ItemStack createBook(Material material, int amount, String displayName, String author, String title, List<String> pages) {
+	public static ItemStack createBook(Material material, int amount, String displayName, String author, String title,
+			List<String> pages) {
 		return createBook(material, amount, displayName, null, author, title, pages, null);
 	}
 
-	public static ItemStack createBook(Material material, int amount, String displayName, List<String> lore, String author, String title, List<String> pages) {
+	public static ItemStack createBook(Material material, int amount, String displayName, List<String> lore,
+			String author, String title, List<String> pages) {
 		return createBook(material, amount, displayName, lore, author, title, pages, null);
 	}
 
 	// Only for newer minecraft versions
-	public static ItemStack createBook(Material material, int amount, String displayName, String author, String title, List<String> pages, Generation gen) {
+	public static ItemStack createBook(Material material, int amount, String displayName, String author, String title,
+			List<String> pages, Generation gen) {
 		return createBook(material, amount, displayName, null, author, title, pages, gen);
 	}
 
 	// Only for newer minecraft versions
-	public static ItemStack createBook(Material material, int amount, String displayName, List<String> lore, String author, String title, List<String> pages, Generation gen) {
+	public static ItemStack createBook(Material material, int amount, String displayName, List<String> lore,
+			String author, String title, List<String> pages, Generation gen) {
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
 		a.setDisplayName(displayName);
 		a.setLore(lore);
@@ -114,7 +122,7 @@ public class ItemCreatorAPI implements Cloneable {
 		a.setBookGeneration(gen);
 		return a.create();
 	}
-	
+
 	private static Material mat;
 	static {
 		try {
@@ -791,7 +799,8 @@ public class ItemCreatorAPI implements Cloneable {
 						&& !TheAPI.getServerVersion().equals("v1_13_R1")) {// 1.14+
 					mf.setAttributeModifiers((Multimap<Attribute, AttributeModifier>) w);
 				}
-			} catch (Exception | NoSuchMethodError er) {}
+			} catch (Exception | NoSuchMethodError er) {
+			}
 			i.setItemMeta(mf);
 			if (!i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
 				if (enchs != null)
@@ -816,7 +825,8 @@ public class ItemCreatorAPI implements Cloneable {
 				m.setTitle(title);
 				try {
 					m.setGeneration(gen);
-				} catch (Exception | NoSuchMethodError e) {}
+				} catch (Exception | NoSuchMethodError e) {
+				}
 				i.setItemMeta(m);
 			} else if (i.getType().name().startsWith("LINGERING_POTION_OF_")
 					|| i.getType().name().startsWith("SPLASH_POTION_OF_")
@@ -824,22 +834,25 @@ public class ItemCreatorAPI implements Cloneable {
 				PotionMeta meta = (PotionMeta) i.getItemMeta();
 				try {
 					meta.setColor(c);
-				} catch (Exception | NoSuchMethodError er) {}
+				} catch (Exception | NoSuchMethodError er) {
+				}
 				if (!ef.keySet().isEmpty())
 					for (PotionEffectType t : ef.keySet()) {
 						if (t == null)
 							continue;
 						int amp = StringUtils.getInt(ef.get(t).split(":")[1]);
 						meta.addCustomEffect(
-								new PotionEffect(t, StringUtils.getInt(ef.get(t).split(":")[0]), (amp <= 0 ? 1 : amp)), true);
+								new PotionEffect(t, StringUtils.getInt(ef.get(t).split(":")[0]), (amp <= 0 ? 1 : amp)),
+								true);
 					}
 				i.setItemMeta(meta);
 			} else if (i.getType().name().startsWith("LEATHER_")) {
 				try {
-				LeatherArmorMeta meta = (LeatherArmorMeta) i.getItemMeta();
-				meta.setColor(c);
-				i.setItemMeta(meta);
-				} catch (Exception | NoSuchMethodError er) {}
+					LeatherArmorMeta meta = (LeatherArmorMeta) i.getItemMeta();
+					meta.setColor(c);
+					i.setItemMeta(meta);
+				} catch (Exception | NoSuchMethodError er) {
+				}
 			} else if (type != null && type == SkullType.PLAYER) {
 				SkullMeta m = (SkullMeta) i.getItemMeta();
 				if (owner != null)
@@ -852,12 +865,16 @@ public class ItemCreatorAPI implements Cloneable {
 							if (url != null)
 								encodedData = Base64.getEncoder()
 										.encode(("{textures:{SKIN:{url:\"" + url + "\"}}}").getBytes());
-						} catch (Exception err) {}
+						} catch (Exception err) {
+						}
 						Ref.invoke(Ref.invoke(profile, "getProperties"),
-								Ref.method(Ref.invoke(profile, "getProperties").getClass().getSuperclass(), "put", Object.class, Object.class), "textures",
+								Ref.method(Ref.invoke(profile, "getProperties").getClass().getSuperclass(), "put",
+										Object.class, Object.class),
+								"textures",
 								new Property("textures", encodedData != null ? new String(encodedData) : text));
 						Ref.set(m, "profile", profile);
-					} catch (Exception | NoSuchMethodError e) {}
+					} catch (Exception | NoSuchMethodError e) {
+					}
 				}
 				i.setItemMeta(m);
 			}

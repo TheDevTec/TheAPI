@@ -59,7 +59,8 @@ public class WorldsAPI {
 	 */
 	public static boolean create(String name, Environment generator, WorldType type, boolean generateStructures,
 			long seed) {
-		return create(name, generator, type, type == null ? (TheAPI.isOlder1_9() ? new voidGenerator_1_8() : new voidGenerator()) : null,
+		return create(name, generator, type,
+				type == null ? (TheAPI.isOlder1_9() ? new voidGenerator_1_8() : new voidGenerator()) : null,
 				generateStructures, seed);
 	}
 
@@ -81,11 +82,11 @@ public class WorldsAPI {
 		if (Bukkit.getWorld(name) == null) {
 			WorldCreator c = new WorldCreator(name).generateStructures(generateStructures).environment(generator);
 			if (seed != 0)
-				c=c.seed(seed);
+				c = c.seed(seed);
 			if (type != null)
-				c=c.type(type);
+				c = c.type(type);
 			if (Chunkgenerator != null)
-				c=c.generator(Chunkgenerator);
+				c = c.generator(Chunkgenerator);
 			World w = c.createWorld();
 			if (type == null) {
 				Location loc = new Location(w, 0, 60, 0);

@@ -25,10 +25,10 @@ public class NMSAPI {
 	private static Class<?> enumTitle;
 	private static Constructor<?> pDestroy, pTitle, pOutChat, pTab, pBlock, blockPos, pChunk, ChunkSection, chunkc,
 			pSpawn, pNSpawn, pLSpawn, score, sbobj, sbdisplayobj, sbteam, pSign, pTeleport,
-			metadata = Ref.constructor(Ref.nms("PacketPlayOutEntityMetadata"), int.class,
-					Ref.nms("DataWatcher"), boolean.class);
-	private static Method getmat, getb, getc, gett, getser, block, IBlockData, worldset, Chunk,
-			getblocks, setblock, setblockb, itemstack, entityM, livingentity, oldichatser, post, notify;
+			metadata = Ref.constructor(Ref.nms("PacketPlayOutEntityMetadata"), int.class, Ref.nms("DataWatcher"),
+					boolean.class);
+	private static Method getmat, getb, getc, gett, getser, block, IBlockData, worldset, Chunk, getblocks, setblock,
+			setblockb, itemstack, entityM, livingentity, oldichatser, post, notify;
 	private static int old;
 	private static Field tps;
 	private static Object sbremove, sbinteger, sbchange, sbhearts;
@@ -45,27 +45,20 @@ public class NMSAPI {
 		sbdisplayobj = Ref.constructor(Ref.nms("PacketPlayOutScoreboardDisplayObjective"));
 		sbobj = Ref.constructor(Ref.nms("PacketPlayOutScoreboardObjective"));
 		score = Ref.constructor(Ref.nms("PacketPlayOutScoreboardScore"));
-		sbremove = Ref.getNulled(Ref.field(
-				Ref.nms("PacketPlayOutScoreboardScore$EnumScoreboardAction"), "REMOVE"));
+		sbremove = Ref.getNulled(Ref.field(Ref.nms("PacketPlayOutScoreboardScore$EnumScoreboardAction"), "REMOVE"));
 		if (sbremove == null)
-			sbremove = Ref
-					.getNulled(Ref.field(Ref.nms("ScoreboardServer$Action"), "REMOVE"));
-		sbchange = Ref.getNulled(Ref.field(
-				Ref.nms("PacketPlayOutScoreboardScore$EnumScoreboardAction"), "CHANGE"));
+			sbremove = Ref.getNulled(Ref.field(Ref.nms("ScoreboardServer$Action"), "REMOVE"));
+		sbchange = Ref.getNulled(Ref.field(Ref.nms("PacketPlayOutScoreboardScore$EnumScoreboardAction"), "CHANGE"));
 		if (sbchange == null)
-			sbchange = Ref
-					.getNulled(Ref.field(Ref.nms("ScoreboardServer$Action"), "CHANGE"));
-		sbinteger = Ref.getNulled(Ref
-				.field(Ref.nms("IScoreboardCriteria$EnumScoreboardHealthDisplay"), "INTEGER"));
-		sbhearts = Ref.getNulled(Ref
-				.field(Ref.nms("IScoreboardCriteria$EnumScoreboardHealthDisplay"), "HEARTS"));
+			sbchange = Ref.getNulled(Ref.field(Ref.nms("ScoreboardServer$Action"), "CHANGE"));
+		sbinteger = Ref.getNulled(Ref.field(Ref.nms("IScoreboardCriteria$EnumScoreboardHealthDisplay"), "INTEGER"));
+		sbhearts = Ref.getNulled(Ref.field(Ref.nms("IScoreboardCriteria$EnumScoreboardHealthDisplay"), "HEARTS"));
 		if (TheAPI.isNewVersion())
 			post = Ref.method(Ref.nms("IAsyncTaskHandler"), "executeSync", Runnable.class);
 		if (post == null)
 			post = Ref.method(Ref.nms("MinecraftServer"), "executeSync", Runnable.class);
 		if (post == null)
-			post = Ref.method(Ref.nms("MinecraftServer"), "postToMainThread",
-					Runnable.class);
+			post = Ref.method(Ref.nms("MinecraftServer"), "postToMainThread", Runnable.class);
 		if (Ref.nms("PacketPlayOutTitle") != null)
 			enumTitle = Ref.nms("PacketPlayOutTitle$EnumTitleAction");
 		try {
@@ -74,70 +67,58 @@ public class NMSAPI {
 			oldichatser = Ref.method(Ref.nms("ChatSerializer"), "a", String.class);
 		}
 		pDestroy = Ref.constructor(Ref.nms("PacketPlayOutEntityDestroy"), int[].class);
-		pSpawn = Ref.constructor(Ref.nms("PacketPlayOutSpawnEntity"),
-				Ref.nms("Entity"), int.class);
-		pNSpawn = Ref.constructor(Ref.nms("PacketPlayOutNamedEntitySpawn"),
-				Ref.nms("EntityHuman"));
-		pLSpawn = Ref.constructor(Ref.nms("PacketPlayOutSpawnEntityLiving"),
-				Ref.nms("EntityLiving"));
+		pSpawn = Ref.constructor(Ref.nms("PacketPlayOutSpawnEntity"), Ref.nms("Entity"), int.class);
+		pNSpawn = Ref.constructor(Ref.nms("PacketPlayOutNamedEntitySpawn"), Ref.nms("EntityHuman"));
+		pLSpawn = Ref.constructor(Ref.nms("PacketPlayOutSpawnEntityLiving"), Ref.nms("EntityLiving"));
 		entityM = Ref.method(Ref.craft("entity.CraftEntity"), "getHandle");
 		livingentity = Ref.method(Ref.craft("entity.CraftLivingEntity"), "getHandle");
-		itemstack = Ref.method(Ref.craft("inventory.CraftItemStack"), "asNMSCopy",
-				ItemStack.class);
+		itemstack = Ref.method(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class);
 		getblocks = Ref.method(Ref.nms("ChunkSection"), "getBlocks");
-		setblock = Ref.method(Ref.nms("DataPaletteBlock"), "setBlock", int.class, int.class,
-				int.class, Object.class);
+		setblock = Ref.method(Ref.nms("DataPaletteBlock"), "setBlock", int.class, int.class, int.class, Object.class);
 		if (setblock == null)
-			setblock = Ref.method(Ref.nms("DataPaletteBlock"), "setBlock", int.class,
-					int.class, int.class, Ref.nms("IBlockData"));
-		setblockb = Ref.method(Ref.nms("DataPaletteBlock"), "b", int.class, int.class,
-				int.class, Object.class);
+			setblock = Ref.method(Ref.nms("DataPaletteBlock"), "setBlock", int.class, int.class, int.class,
+					Ref.nms("IBlockData"));
+		setblockb = Ref.method(Ref.nms("DataPaletteBlock"), "b", int.class, int.class, int.class, Object.class);
 		chunkc = Ref.constructor(Ref.nms("ChunkCoordIntPair"), int.class, int.class);
 		setblockb = Ref.method(Ref.nms("MinecraftServer"), "getServer");
 		ChunkSection = Ref.constructor(Ref.nms("ChunkSection"), int.class);
 		if (ChunkSection == null)
-			ChunkSection = Ref.constructor(Ref.nms("ChunkSection"), int.class,
-					boolean.class);
+			ChunkSection = Ref.constructor(Ref.nms("ChunkSection"), int.class, boolean.class);
 		Chunk = Ref.method(Ref.craft("CraftChunk"), "getHandle");
 		getmat = Ref.method(Ref.nms("IBlockData"), "getMaterial");
 		getb = Ref.method(Ref.nms("IBlockData"), "getBlock");
 		getc = Ref.method(Ref.nms("World"), "getChunkAt", int.class, int.class);
 		gett = Ref.method(Ref.nms("World"), "getType", Ref.nms("BlockPosition"));
-		pTitle = Ref.constructor(Ref.nms("PacketPlayOutTitle"), enumTitle,
-				Ref.nms("IChatBaseComponent"), int.class, int.class, int.class);
-		pOutChat = Ref.constructor(Ref.nms("PacketPlayOutChat"),
-				Ref.nms("IChatBaseComponent"), Ref.nms("ChatMessageType"));
+		pTitle = Ref.constructor(Ref.nms("PacketPlayOutTitle"), enumTitle, Ref.nms("IChatBaseComponent"), int.class,
+				int.class, int.class);
+		pOutChat = Ref.constructor(Ref.nms("PacketPlayOutChat"), Ref.nms("IChatBaseComponent"),
+				Ref.nms("ChatMessageType"));
 		if (pOutChat == null) {
 			old = 1;
-			pOutChat = Ref.constructor(Ref.nms("PacketPlayOutChat"),
-					Ref.nms("IChatBaseComponent"), Ref.nms("ChatMessageType"), UUID.class);
+			pOutChat = Ref.constructor(Ref.nms("PacketPlayOutChat"), Ref.nms("IChatBaseComponent"),
+					Ref.nms("ChatMessageType"), UUID.class);
 		}
 		if (pOutChat == null) {
 			old = 2;
-			pOutChat = Ref.constructor(Ref.nms("PacketPlayOutChat"),
-					Ref.nms("IChatBaseComponent"), byte.class);
+			pOutChat = Ref.constructor(Ref.nms("PacketPlayOutChat"), Ref.nms("IChatBaseComponent"), byte.class);
 		}
 		if (TheAPI.isNewerThan(7))
 			pTab = Ref.findConstructor(Ref.nms("PacketPlayOutPlayerListHeaderFooter"));
-		pBlock = Ref.constructor(Ref.nms("PacketPlayOutBlockChange"),
-				Ref.nms("IBlockAccess"), Ref.nms("BlockPosition"));
+		pBlock = Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("IBlockAccess"),
+				Ref.nms("BlockPosition"));
 		if (pBlock == null)
-			pBlock = Ref.constructor(Ref.nms("PacketPlayOutBlockChange"),
-					Ref.nms("World"), Ref.nms("BlockPosition"));
-		blockPos = Ref.constructor(Ref.nms("BlockPosition"), int.class, int.class,
-				int.class);
+			pBlock = Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("World"), Ref.nms("BlockPosition"));
+		blockPos = Ref.constructor(Ref.nms("BlockPosition"), int.class, int.class, int.class);
 		tps = Ref.field(Ref.nms("MinecraftServer"), "recentTps");
 		block = Ref.method(Ref.nms("Block"), "getById", int.class);
 		IBlockData = Ref.method(Ref.nms("Block"), "fromLegacyData", int.class);
 		if (IBlockData == null)
 			IBlockData = Ref.method(Ref.nms("Block"), "getByCombinedId", int.class);
-		worldset = Ref.method(Ref.nms("World"), "setTypeAndData", Ref.nms("BlockPosition"),
-				Ref.nms("IBlockData"), int.class);
-		pChunk = Ref.constructor(Ref.nms("PacketPlayOutMapChunk"),
-				Ref.nms("Chunk"), int.class);
+		worldset = Ref.method(Ref.nms("World"), "setTypeAndData", Ref.nms("BlockPosition"), Ref.nms("IBlockData"),
+				int.class);
+		pChunk = Ref.constructor(Ref.nms("PacketPlayOutMapChunk"), Ref.nms("Chunk"), int.class);
 		if (pChunk == null)
-			pChunk = Ref.constructor(Ref.nms("PacketPlayOutMapChunk"),
-					Ref.nms("Chunk"), boolean.class, int.class);
+			pChunk = Ref.constructor(Ref.nms("PacketPlayOutMapChunk"), Ref.nms("Chunk"), boolean.class, int.class);
 		notify = Ref.method(Ref.nms("World"), "notify", Ref.nms("BlockPosition"), Ref.nms("IBlockData"),
 				Ref.nms("IBlockData"), int.class);
 	}
@@ -159,7 +140,7 @@ public class NMSAPI {
 
 	// Entity
 	public static Object getPacketPlayOutEntityMetadata(Object entity) {
-		return getPacketPlayOutEntityMetadata((int) Ref.invoke(entity, "getId"),Ref.invoke(entity, "getDataWatcher"));
+		return getPacketPlayOutEntityMetadata((int) Ref.invoke(entity, "getId"), Ref.invoke(entity, "getDataWatcher"));
 	}
 
 	public static Object getPacketPlayOutEntityMetadata(Entity entity, DataWatcher dataWatcher) {
@@ -318,12 +299,12 @@ public class NMSAPI {
 	public static Object getPacketPlayOutTitle(TitleAction action, Object IChatBaseComponent, int fadeIn, int stay,
 			int fadeOut) {
 		if (action == TitleAction.ACTIONBAR) {
-			Object o = Ref.newInstance(pTitle, Ref.getNulled(Ref.field(enumTitle, action.name())),
-					IChatBaseComponent, fadeIn, stay, fadeOut);
+			Object o = Ref.newInstance(pTitle, Ref.getNulled(Ref.field(enumTitle, action.name())), IChatBaseComponent,
+					fadeIn, stay, fadeOut);
 			return o != null ? o : Ref.newInstance(pOutChat, IChatBaseComponent, (byte) 2);
 		}
-		return Ref.newInstance(pTitle, Ref.getNulled(Ref.field(enumTitle, action.name())),
-				IChatBaseComponent, fadeIn, stay, fadeOut);
+		return Ref.newInstance(pTitle, Ref.getNulled(Ref.field(enumTitle, action.name())), IChatBaseComponent, fadeIn,
+				stay, fadeOut);
 	}
 
 	public static Object getPacketPlayOutTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut) {
@@ -373,8 +354,7 @@ public class NMSAPI {
 						? Ref.newInstance(pOutChat, IChatBaseComponent,
 								Ref.getNulled(Ref.field(Ref.nms("ChatMessageType"), type.name())))
 						: Ref.newInstance(pOutChat, IChatBaseComponent,
-								Ref.getNulled(Ref.field(Ref.nms("ChatMessageType"), type.name())),
-								UUID.randomUUID()));
+								Ref.getNulled(Ref.field(Ref.nms("ChatMessageType"), type.name())), UUID.randomUUID()));
 		return o;
 	}
 
@@ -383,8 +363,7 @@ public class NMSAPI {
 	}
 
 	public static Object getType(World w, int x, int y, int z) {
-		return Ref.invoke(Ref.world(w),
-				Ref.method(Ref.nms("World"), "getType", Ref.nms("BlockPosition")),
+		return Ref.invoke(Ref.world(w), Ref.method(Ref.nms("World"), "getType", Ref.nms("BlockPosition")),
 				getBlockPosition(x, y, z));
 	}
 
@@ -412,10 +391,8 @@ public class NMSAPI {
 	public static Object getIBlockData(Material material, int data) {
 		try {
 			// 1.13+ only
-			Object o = Ref.cast(Ref.nms("block.data.CraftBlockData"),
-					Bukkit.createBlockData(material));
-			return Ref.invoke(o,
-					Ref.method(Ref.nms("block.data.CraftBlockData"), "getState"));
+			Object o = Ref.cast(Ref.nms("block.data.CraftBlockData"), Bukkit.createBlockData(material));
+			return Ref.invoke(o, Ref.method(Ref.nms("block.data.CraftBlockData"), "getState"));
 		} catch (NoSuchMethodError er) {
 			try {
 				Object o = Ref.invoke(Ref.invoke(null, block, material.getId()), IBlockData, data);
@@ -435,8 +412,7 @@ public class NMSAPI {
 	}
 
 	public static Object getEntityLiving(LivingEntity entity) {
-		return Ref.invoke(Ref.cast(Ref.craft("entity.CraftLivingEntity"), entity),
-				livingentity);
+		return Ref.invoke(Ref.cast(Ref.craft("entity.CraftLivingEntity"), entity), livingentity);
 	}
 
 	public static Object getPacketPlayOutSpawnEntity(Object entity, int id) {
@@ -500,7 +476,7 @@ public class NMSAPI {
 	}
 
 	public static Object getIChatBaseComponentFromCraftBukkit(String text) {
-		return Ref.invokeNulled(Ref.method(Ref.craft("util.CraftChatMessage"), "fromStringOrNull", String.class),text);
+		return Ref.invokeNulled(Ref.method(Ref.craft("util.CraftChatMessage"), "fromStringOrNull", String.class), text);
 	}
 
 	public static Object getIChatBaseComponentJson(String json) {
@@ -508,10 +484,9 @@ public class NMSAPI {
 	}
 
 	public static Thread getServerThread() {
-		Object o = Ref.get(getServer(),Ref.field(Ref.nms("MinecraftServer"), "primaryThread"));
+		Object o = Ref.get(getServer(), Ref.field(Ref.nms("MinecraftServer"), "primaryThread"));
 		return o != null ? (Thread) o
-				: (Thread) Ref.get(getServer(),
-						Ref.field(Ref.nms("MinecraftServer"), "serverThread"));
+				: (Thread) Ref.get(getServer(), Ref.field(Ref.nms("MinecraftServer"), "serverThread"));
 	}
 
 	public static void sendPacket(Player to, Object packet) {

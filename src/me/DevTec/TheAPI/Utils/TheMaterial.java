@@ -13,26 +13,26 @@ import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 public class TheMaterial implements Cloneable {
 
 	public TheMaterial(Object IBlockDataOrBlock) {
-		if(IBlockDataOrBlock==null) {
-			m=Material.AIR;
-			data=0;
-			amount=1;
+		if (IBlockDataOrBlock == null) {
+			m = Material.AIR;
+			data = 0;
+			amount = 1;
 		}
 		ItemStack stack = (ItemStack) Ref.invoke(
 				Ref.invokeNulled(Ref.method(Ref.craft("util.CraftMagicNumbers"), "getMaterial", Ref.nms("IBlockData")),
 						IBlockDataOrBlock),
 				"toItemStack");
-		if(stack==null) {
-			m=(Material) Ref.invokeNulled(
+		if (stack == null) {
+			m = (Material) Ref.invokeNulled(
 					Ref.method(Ref.craft("util.CraftMagicNumbers"), "getMaterial", Ref.nms("Block")),
 					Ref.invoke(IBlockDataOrBlock, "getBlock"));
-			if(TheAPI.isNewerThan(12)) {
-				this.data = (int)(byte)Ref.invokeNulled(
+			if (TheAPI.isNewerThan(12)) {
+				this.data = (int) (byte) Ref.invokeNulled(
 						Ref.method(Ref.craft("util.CraftMagicNumbers"), "toLegacyData", Ref.nms("IBlockData")),
 						IBlockDataOrBlock);
-			}else
-			this.data = (int) Ref.invoke(Ref.invoke(IBlockDataOrBlock, "getBlock"),
-				Ref.method(Ref.nms("Block"), "toLegacyData", Ref.nms("IBlockData")), IBlockDataOrBlock);
+			} else
+				this.data = (int) Ref.invoke(Ref.invoke(IBlockDataOrBlock, "getBlock"),
+						Ref.method(Ref.nms("Block"), "toLegacyData", Ref.nms("IBlockData")), IBlockDataOrBlock);
 			this.amount = 1;
 		}
 	}

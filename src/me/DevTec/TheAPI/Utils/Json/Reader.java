@@ -33,34 +33,42 @@ import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class Reader implements JsonReader {
 	private static JsonReader reader = new Reader();
+
 	public static Object read(String json) {
 		return reader.deserilize(json);
 	}
-	
-	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
-	private static Object parser = Ref.invoke(Ref.invoke(Ref.newInstance(Ref.constructor(Ref.getClass("com.google.gson.GsonBuilder") != null ? Ref.getClass("com.google.gson.GsonBuilder") : Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder")))
-	,"setLenient"),"create");
-	
+
+	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref
+			.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+	private static Object parser = Ref.invoke(Ref.invoke(
+			Ref.newInstance(Ref.constructor(
+					Ref.getClass("com.google.gson.GsonBuilder") != null ? Ref.getClass("com.google.gson.GsonBuilder")
+							: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder"))),
+			"setLenient"), "create");
+
 	public Object object(String json) {
 		if (json == null)
 			return null;
 		Object parsed = json;
 		try {
 			parsed = map(json);
-			if(parsed==null)parsed=collection(json);
-			if(parsed==null)parsed=json;
+			if (parsed == null)
+				parsed = collection(json);
+			if (parsed == null)
+				parsed = json;
 		} catch (Exception e) {
 		}
 		if (parsed instanceof Comparable)
 			return parsed;
 		return parseR(parsed);
 	}
-	
+
 	public Collection<?> collection(String json) {
 		if (json == null)
 			return null;
 		try {
-			return (Collection<?>) Ref.invoke(parser, Ref.method(parser.getClass(), "fromJson", String.class, Class.class), json, UnsortedList.class);
+			return (Collection<?>) Ref.invoke(parser,
+					Ref.method(parser.getClass(), "fromJson", String.class, Class.class), json, UnsortedList.class);
 		} catch (Exception e1) {
 		}
 		return null;
@@ -70,7 +78,8 @@ public class Reader implements JsonReader {
 		if (json == null)
 			return null;
 		try {
-			return (List<?>) Ref.invoke(parser, Ref.method(parser.getClass(), "fromJson", String.class, Class.class), json, ArrayList.class);
+			return (List<?>) Ref.invoke(parser, Ref.method(parser.getClass(), "fromJson", String.class, Class.class),
+					json, ArrayList.class);
 		} catch (Exception e1) {
 		}
 		return null;
@@ -86,12 +95,13 @@ public class Reader implements JsonReader {
 		if (json == null)
 			return null;
 		try {
-			return (Map<?, ?>) Ref.invoke(parser, Ref.method(parser.getClass(), "fromJson", String.class, Class.class), json, UnsortedMap.class);
+			return (Map<?, ?>) Ref.invoke(parser, Ref.method(parser.getClass(), "fromJson", String.class, Class.class),
+					json, UnsortedMap.class);
 		} catch (Exception e1) {
 		}
 		return null;
 	}
-	
+
 	private Object parse(Class<?> clazz, Object object) {
 		if (clazz == Ref.nms("IChatBaseComponent") || clazz == Ref.nms("IChatMutableComponent")
 				|| clazz == Ref.nms("ChatBaseComponent") || clazz == Ref.nms("ChatMessage")
@@ -116,57 +126,58 @@ public class Reader implements JsonReader {
 		if (v == null)
 			Ref.set(o, f, v);
 		Type c = Ref.field(o.getClass(), f).getGenericType();
-		v=cast(v, Ref.getClass(c.getTypeName()));
+		v = cast(v, Ref.getClass(c.getTypeName()));
 		Matcher ma = Pattern.compile("Map<(.*?), (.*?)>").matcher(c.getTypeName());
-		if(ma.find()) {
+		if (ma.find()) {
 			@SuppressWarnings("rawtypes")
 			HashMap uknown = new HashMap<>();
-			for(Entry<?,?> e : ((Map<?,?>) v).entrySet())
-			uknown.put(cast(e.getKey(),Ref.getClass(ma.group(1))), cast(e.getValue(),Ref.getClass(ma.group(2))));
-			v=uknown;
+			for (Entry<?, ?> e : ((Map<?, ?>) v).entrySet())
+				uknown.put(cast(e.getKey(), Ref.getClass(ma.group(1))), cast(e.getValue(), Ref.getClass(ma.group(2))));
+			v = uknown;
 		}
 		ma = Pattern.compile("List<(.*?)>").matcher(c.getTypeName());
-		if(ma.find()) {
+		if (ma.find()) {
 			@SuppressWarnings("rawtypes")
 			ArrayList uknown = new ArrayList<>();
-			for(Object e : ((List<?>) v))
-			uknown.add(cast(e,Ref.getClass(ma.group(1))));
-			v=uknown;
+			for (Object e : ((List<?>) v))
+				uknown.add(cast(e, Ref.getClass(ma.group(1))));
+			v = uknown;
 		}
 		ma = Pattern.compile("Set<(.*?)>").matcher(c.getTypeName());
-		if(ma.find()) {
+		if (ma.find()) {
 			@SuppressWarnings("rawtypes")
 			HashSet uknown = new HashSet<>();
-			for(Object e : ((Set<?>) v))
-			uknown.add(cast(e,Ref.getClass(ma.group(1))));
-			v=uknown;
+			for (Object e : ((Set<?>) v))
+				uknown.add(cast(e, Ref.getClass(ma.group(1))));
+			v = uknown;
 		}
 		Ref.set(o, f, v);
 	}
-	
+
 	private Object cast(Object v, Class<?> c) {
-		if(v instanceof Comparable) {
-			if(c==boolean.class | c==Boolean.class)
-				v=StringUtils.getBoolean(v+"");
-			if(c==String.class)
-				v=v.toString();
-			if(c==double.class  | c==Double.class)
-				v=StringUtils.getDouble(v+"");
-			if(c==float.class | c==Float.class)
-				v=StringUtils.getFloat(v+"");
-			if(v instanceof Double) v = (int)(double)v;
-			if(c==int.class | c==Integer.class)
-				v=StringUtils.getInt(v+"");
-			if(c==long.class | c==Long.class)
-				v=StringUtils.getLong(v+"");
-			if(c==byte.class | c==Byte.class)
-				v=StringUtils.getByte(v+"");
-			if(c==short.class | c==Short.class)
-				v=StringUtils.getShort(v+"");
-			if(c==BigDecimal.class)
-				v=new BigDecimal(v+"");
+		if (v instanceof Comparable) {
+			if (c == boolean.class | c == Boolean.class)
+				v = StringUtils.getBoolean(v + "");
+			if (c == String.class)
+				v = v.toString();
+			if (c == double.class | c == Double.class)
+				v = StringUtils.getDouble(v + "");
+			if (c == float.class | c == Float.class)
+				v = StringUtils.getFloat(v + "");
+			if (v instanceof Double)
+				v = (int) (double) v;
+			if (c == int.class | c == Integer.class)
+				v = StringUtils.getInt(v + "");
+			if (c == long.class | c == Long.class)
+				v = StringUtils.getLong(v + "");
+			if (c == byte.class | c == Byte.class)
+				v = StringUtils.getByte(v + "");
+			if (c == short.class | c == Short.class)
+				v = StringUtils.getShort(v + "");
+			if (c == BigDecimal.class)
+				v = new BigDecimal(v + "");
 		}
-		
+
 		return v;
 	}
 
@@ -174,8 +185,9 @@ public class Reader implements JsonReader {
 	private Object parseR(Object o) {
 		if (o instanceof Collection) {
 			Collection<Object> aw = new ArrayList<>();
-			for(Object f : ((Collection<?>) o))aw.add(f instanceof String ? object((String)f) : f);
-			o=aw;
+			for (Object f : ((Collection<?>) o))
+				aw.add(f instanceof String ? object((String) f) : f);
+			o = aw;
 			List<Object> cloneOfList = new ArrayList<>((Collection<Object>) o);
 			((Collection<Object>) o).clear();
 			for (Object s : cloneOfList)
@@ -184,13 +196,14 @@ public class Reader implements JsonReader {
 		}
 		if (o instanceof Map) {
 			Map<Object, Object> aw = new UnsortedMap<>();
-			for(Entry<?, ?> f : ((Map<?, ?>) o).entrySet())aw.put(f.getKey() instanceof String ? object((String)f.getKey()) : f.getKey(), f.getValue());
-			o=aw;
+			for (Entry<?, ?> f : ((Map<?, ?>) o).entrySet())
+				aw.put(f.getKey() instanceof String ? object((String) f.getKey()) : f.getKey(), f.getValue());
+			o = aw;
 			Map<Object, Object> a = new UnsortedMap<>();
 			boolean c = false;
 			for (Entry<?, ?> s : ((Map<?, ?>) o).entrySet()) {
 				if (s.getKey().toString().startsWith("enum ")) {
-					if(s.getKey().toString().replaceFirst("enum ", "").equals("org.bukkit.enchantments.Enchantment")) {
+					if (s.getKey().toString().replaceFirst("enum ", "").equals("org.bukkit.enchantments.Enchantment")) {
 						a.put(s.getKey(), EnchantmentAPI.byName(s.getValue() + "").getEnchantment());
 						c = true;
 						continue;
@@ -202,50 +215,58 @@ public class Reader implements JsonReader {
 					a.put(s.getKey(), parse(Ref.getClass((s.getKey().toString()).replaceFirst("class ", "")),
 							parseR(s.getValue())));
 					c = true;
-				}else
-				if (s.getKey().toString().startsWith("modifiedClass ")) {
+				} else if (s.getKey().toString().startsWith("modifiedClass ")) {
 					String which = s.getKey().toString().replaceFirst("modifiedClass ", "");
-					if(which.equals("org.bukkit.inventory.ItemStack")) {
+					if (which.equals("org.bukkit.inventory.ItemStack")) {
 						Map<String, Object> values = (Map<String, Object>) s.getValue();
-						ItemStack item = new ItemStack(Material.getMaterial((String) values.get("type")), ((Number)values.get("amount")).intValue(), ((Number)values.get("durability")).shortValue());
-						item.setData(new MaterialData(item.getType(), ((Number)values.get("data")).byteValue()));
+						ItemStack item = new ItemStack(Material.getMaterial((String) values.get("type")),
+								((Number) values.get("amount")).intValue(),
+								((Number) values.get("durability")).shortValue());
+						item.setData(new MaterialData(item.getType(), ((Number) values.get("data")).byteValue()));
 						try {
-						if(values.containsKey("nbt")) {
-							Object os = Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", item);
-							Ref.invoke(os, "setTag", Ref.invokeNulled(Ref.nms("MojangsonParser"), "parse", (String) values.get("nbt")));
-							item=(ItemStack)Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"), "asBukkitCopy", os);
-						}
-						}catch(Exception err) {
+							if (values.containsKey("nbt")) {
+								Object os = Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", item);
+								Ref.invoke(os, "setTag", Ref.invokeNulled(Ref.nms("MojangsonParser"), "parse",
+										(String) values.get("nbt")));
+								item = (ItemStack) Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"),
+										"asBukkitCopy", os);
+							}
+						} catch (Exception err) {
 						}
 						ItemMeta meta = item.getItemMeta();
-						if(values.containsKey("meta.name"))
-						meta.setDisplayName((String)values.get("meta.name"));
-						if(values.containsKey("meta.locName"))
-						meta.setLocalizedName((String)values.get("meta.locName"));
-						if(values.containsKey("meta.lore"))
-						meta.setLore((List<String>)values.get("meta.lore"));
-						if(values.containsKey("meta.enchs")) {
-						for(Entry<String, Double> enchs : ((Map<String, Double>) values.get("meta.enchs")).entrySet())
-						meta.addEnchant(Enchantment.getByName(enchs.getKey()), enchs.getValue().intValue(), true);
+						if (values.containsKey("meta.name"))
+							meta.setDisplayName((String) values.get("meta.name"));
+						if (values.containsKey("meta.locName"))
+							meta.setLocalizedName((String) values.get("meta.locName"));
+						if (values.containsKey("meta.lore"))
+							meta.setLore((List<String>) values.get("meta.lore"));
+						if (values.containsKey("meta.enchs")) {
+							for (Entry<String, Double> enchs : ((Map<String, Double>) values.get("meta.enchs"))
+									.entrySet())
+								meta.addEnchant(Enchantment.getByName(enchs.getKey()), enchs.getValue().intValue(),
+										true);
 						}
 						item.setItemMeta(meta);
 						a.put(s.getKey(), item);
 						c = true;
-					}else
-					if(which.equals("org.bukkit.Location")) {
+					} else if (which.equals("org.bukkit.Location")) {
 						Map<String, Object> values = (Map<String, Object>) s.getValue();
-						a.put(s.getKey(), new Location(Bukkit.getWorld((String)values.get("world")), (double)values.get("x"), (double)values.get("y"), (double)values.get("z"), (float)(double)values.get("yaw"), (float)(double)values.get("pitch")));
+						a.put(s.getKey(),
+								new Location(Bukkit.getWorld((String) values.get("world")), (double) values.get("x"),
+										(double) values.get("y"), (double) values.get("z"),
+										(float) (double) values.get("yaw"), (float) (double) values.get("pitch")));
 						c = true;
-					}else
-					if(which.equals("me.DevTec.TheAPI.Utils.Position")) {
+					} else if (which.equals("me.DevTec.TheAPI.Utils.Position")) {
 						Map<String, Object> values = (Map<String, Object>) s.getValue();
-						a.put(s.getKey(), new Position((String)values.get("world"), (double)values.get("x"), (double)values.get("y"), (double)values.get("z"), (float)(double)values.get("yaw"), (float)(double)values.get("pitch")));
+						a.put(s.getKey(),
+								new Position((String) values.get("world"), (double) values.get("x"),
+										(double) values.get("y"), (double) values.get("z"),
+										(float) (double) values.get("yaw"), (float) (double) values.get("pitch")));
 						c = true;
-					}else {
+					} else {
 						a.put(s.getKey(), parseR(s.getValue()));
 					}
-				}else
-				if (s.getKey().toString().startsWith("Map ")) {
+				} else if (s.getKey().toString().startsWith("Map ")) {
 					Map map = (Map) Ref.newInstance(
 							Ref.constructor(Ref.getClass((s.getKey().toString()).replaceFirst("Map ", ""))));
 					for (Entry<?, ?> er : ((Map<?, ?>) s.getValue()).entrySet())
@@ -268,9 +289,9 @@ public class Reader implements JsonReader {
 					c = true;
 				} else {
 					Object aa = s.getKey();
-					if(!aa.equals(parseR(s.getKey()))) {
-						aa=parseR(s.getKey());
-						c=true;
+					if (!aa.equals(parseR(s.getKey()))) {
+						aa = parseR(s.getKey());
+						c = true;
 					}
 					a.put(aa, parseR(s.getValue()));
 				}
@@ -282,7 +303,6 @@ public class Reader implements JsonReader {
 		}
 		return o;
 	}
-
 
 	@Override
 	public Object deserilize(java.io.Reader reader) {

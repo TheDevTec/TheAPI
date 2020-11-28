@@ -129,7 +129,7 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	public void addDefault(String key, Object value) {
 		defaults.put(key, value);
-		if (value != null && f.get(key)==null || !f.isKey(key) || !f.exists(key))
+		if (value != null && f.get(key) == null || !f.isKey(key) || !f.exists(key))
 			f.set(key, value);
 	}
 

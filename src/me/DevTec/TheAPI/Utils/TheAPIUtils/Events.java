@@ -334,14 +334,16 @@ public class Events implements Listener {
 						TheAPI.msg("&ePlugins using TheAPI: &6" + StringUtils.join(pl, ", "), s);
 				}
 				for (Player p : TheAPI.getOnlinePlayers()) {
-					if (TheAPI.hasVanish(p.getName())
-							&& (TheAPI.getUser(p).exist("vanish") ? !s.hasPermission(TheAPI.getUser(p).getString("vanish")) : true)) {
+					if (TheAPI.hasVanish(p.getName()) && (TheAPI.getUser(p).exist("vanish")
+							? !s.hasPermission(TheAPI.getUser(p).getString("vanish"))
+							: true)) {
 						s.hidePlayer(p);
 					}
 				}
 				if (TheAPI.hasVanish(s.getName()))
 					TheAPI.setVanish(s.getName(), TheAPI.getUser(s).getString("vanish"), true);
-			}}.runTask();
+			}
+		}.runTask();
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)

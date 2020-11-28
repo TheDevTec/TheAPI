@@ -17,7 +17,7 @@ public class Validator {
 
 	public static void send(String error, Throwable err) {
 		if (!hideErrors) {
-			Bukkit.getLogger().warning("TheAPI Exception: "+error);
+			Bukkit.getLogger().warning("TheAPI Exception: " + error);
 			err.printStackTrace();
 		}
 	}

@@ -28,8 +28,7 @@ import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
  */
 public class ScoreboardAPI {
 	private static Data data = new Data();
-	private static Field teamlist = Ref.field(Ref.nms("PacketPlayOutScoreboardTeam"),
-			TheAPI.isOlder1_9() ? "g" : "h");
+	private static Field teamlist = Ref.field(Ref.nms("PacketPlayOutScoreboardTeam"), TheAPI.isOlder1_9() ? "g" : "h");
 	private Player p;
 	private String player;
 	private final int id;

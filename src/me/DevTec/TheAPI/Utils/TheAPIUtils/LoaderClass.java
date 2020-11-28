@@ -64,7 +64,8 @@ public class LoaderClass extends JavaPlugin {
 	public final List<BossBar> bars = new ArrayList<>();
 	// TheAPI
 	public static LoaderClass plugin;
-	public static Config config = new Config("TheAPI/Config.yml"), tags, data = new Config("TheAPI/Data.dat", DataType.DATA);
+	public static Config config = new Config("TheAPI/Config.yml"), tags,
+			data = new Config("TheAPI/Data.dat", DataType.DATA);
 	public String motd;
 	public static String ss;
 	public static String gradientTag, tagG;
@@ -77,11 +78,11 @@ public class LoaderClass extends JavaPlugin {
 	@Override
 	public void onLoad() {
 		plugin = this;
-		if(TheAPI.isNewerThan(15)) {
+		if (TheAPI.isNewerThan(15)) {
 			tags = new Config("TheAPI/Tags.yml");
 			tags.addDefault("TagPrefix", "!");
 			tags.addDefault("GradientPrefix", "!");
-			if(!tags.exists("Tags")) {
+			if (!tags.exists("Tags")) {
 				tags.addDefault("Tags.baby_blue", "0fd2f6");
 				tags.addDefault("Tags.beige", "ffc8a9");
 				tags.addDefault("Tags.blush", "e69296");
@@ -108,10 +109,10 @@ public class LoaderClass extends JavaPlugin {
 				tags.addDefault("Tags.violet", "9c6eff");
 			}
 			tags.save();
-			tagG=tags.getString("TagPrefix");
-			gradientTag=tags.getString("GradientPrefix");
+			tagG = tags.getString("TagPrefix");
+			gradientTag = tags.getString("GradientPrefix");
 			for (String tag : tags.getKeys("Tags"))
-				colorMap.put(tag.toLowerCase(), "#" + tags.getString("Tags."+tag));
+				colorMap.put(tag.toLowerCase(), "#" + tags.getString("Tags." + tag));
 		}
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());
@@ -229,12 +230,14 @@ public class LoaderClass extends JavaPlugin {
 							TheAPI.getConsole());
 				TheAPI.clearCache();
 				updater = new UpdateChecker();
-				switch(updater.checkForUpdates()) {
+				switch (updater.checkForUpdates()) {
 				case -1:
 					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
-					TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Unable to connect to spigot, check internet connection.", TheAPI.getConsole());
+					TheAPI.msg(
+							"&cTheAPI&7: &eUpdate checker: &7Unable to connect to spigot, check internet connection.",
+							TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
-					updater=null; //close updater
+					updater = null; // close updater
 					break;
 				case 1:
 					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
@@ -244,89 +247,105 @@ public class LoaderClass extends JavaPlugin {
 					break;
 				case 2:
 					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
-					TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7You are using the BETA version of TheAPI, report bugs to our Discord.", TheAPI.getConsole());
+					TheAPI.msg(
+							"&cTheAPI&7: &eUpdate checker: &7You are using the BETA version of TheAPI, report bugs to our Discord.",
+							TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7:        https://discord.io/spigotdevtec", TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 					break;
 				}
-				if(updater!=null)
-				new Tasker() {
-					public void run() {
-						switch(updater.checkForUpdates()) {
+				if (updater != null)
+					new Tasker() {
+						public void run() {
+							switch (updater.checkForUpdates()) {
 							case -1:
-								TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
-								TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Unable to connect to spigot, check internet connection.", TheAPI.getConsole());
-								TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
-								updater=null; //close updater
-								cancel(); //destroy task
+								TheAPI.msg("&cTheAPI&7: &8*********************************************",
+										TheAPI.getConsole());
+								TheAPI.msg(
+										"&cTheAPI&7: &eUpdate checker: &7Unable to connect to spigot, check internet connection.",
+										TheAPI.getConsole());
+								TheAPI.msg("&cTheAPI&7: &8*********************************************",
+										TheAPI.getConsole());
+								updater = null; // close updater
+								cancel(); // destroy task
 								break;
 							case 1:
-								TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
-								TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Found new version of TheAPI.", TheAPI.getConsole());
-								TheAPI.msg("&cTheAPI&7:        https://www.spigotmc.org/resources/72679/", TheAPI.getConsole());
-								TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
+								TheAPI.msg("&cTheAPI&7: &8*********************************************",
+										TheAPI.getConsole());
+								TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Found new version of TheAPI.",
+										TheAPI.getConsole());
+								TheAPI.msg("&cTheAPI&7:        https://www.spigotmc.org/resources/72679/",
+										TheAPI.getConsole());
+								TheAPI.msg("&cTheAPI&7: &8*********************************************",
+										TheAPI.getConsole());
 								break;
 							case 2:
-								TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
-								TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7You are using the BETA version of TheAPI, report bugs to our Discord.", TheAPI.getConsole());
+								TheAPI.msg("&cTheAPI&7: &8*********************************************",
+										TheAPI.getConsole());
+								TheAPI.msg(
+										"&cTheAPI&7: &eUpdate checker: &7You are using the BETA version of TheAPI, report bugs to our Discord.",
+										TheAPI.getConsole());
 								TheAPI.msg("&cTheAPI&7:        https://discord.io/spigotdevtec", TheAPI.getConsole());
-								TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
+								TheAPI.msg("&cTheAPI&7: &8*********************************************",
+										TheAPI.getConsole());
 								break;
+							}
 						}
-					}
-				}.runRepeating(144000, 144000);
+					}.runRepeating(144000, 144000);
 			}
 		}.runTask();
 	}
-	
+
 	private UpdateChecker updater;
 
 	public class UpdateChecker {
-	    private URL checkURL;
-	    
-	    public UpdateChecker reconnect() {
-	    	try {
-				checkURL=new URL("https://api.spigotmc.org/legacy/update.php?resource=72679");
-			} catch (Exception e) {}
-	        return this;
-	    }
+		private URL checkURL;
 
-	    //0 == SAME VERSION
-	    //1 == NEW VERSION
-	    //2 == BETA VERSION
-	    public int checkForUpdates() {
-	    	if(checkURL==null)
-	    		reconnect();
-	    	String[] readerr = null;
-	    	try {
-				BufferedReader reader = new BufferedReader(new InputStreamReader(checkURL.openConnection().getInputStream()));
-				Set<String> s = new UnsortedSet<>();
-				String read;
-				while((read=reader.readLine()) != null)
-					s.add(read);
-				readerr=s.toArray(new String[s.size()]);
+		public UpdateChecker reconnect() {
+			try {
+				checkURL = new URL("https://api.spigotmc.org/legacy/update.php?resource=72679");
 			} catch (Exception e) {
 			}
-	    	if(readerr==null)return -1;
-	        return isNewer(getDescription().getVersion(), readerr[0]);
-	    }
-	    
+			return this;
+		}
+
+		// 0 == SAME VERSION
+		// 1 == NEW VERSION
+		// 2 == BETA VERSION
+		public int checkForUpdates() {
+			if (checkURL == null)
+				reconnect();
+			String[] readerr = null;
+			try {
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(checkURL.openConnection().getInputStream()));
+				Set<String> s = new UnsortedSet<>();
+				String read;
+				while ((read = reader.readLine()) != null)
+					s.add(read);
+				readerr = s.toArray(new String[s.size()]);
+			} catch (Exception e) {
+			}
+			if (readerr == null)
+				return -1;
+			return isNewer(getDescription().getVersion(), readerr[0]);
+		}
+
 		private int isNewer(String a, String b) {
-	    	int is = 0, d = 0;
-	    	String[] s = a.split("\\.");
-	    	for(String f : b.split("\\.")) {
-	    		int id = StringUtils.getInt(f),
-	    			bi = StringUtils.getInt(s[d++]);
-	    		if(id > bi) {
-	    			is=1;
-	    			break;
-	    		}
-	    		if(id < bi) {
-	    			is=2;
-	    			break;
-	    		}
-	    	}
-	    	return is;
+			int is = 0, d = 0;
+			String[] s = a.split("\\.");
+			for (String f : b.split("\\.")) {
+				int id = StringUtils.getInt(f), bi = StringUtils.getInt(s[d++]);
+				if (id > bi) {
+					is = 1;
+					break;
+				}
+				if (id < bi) {
+					is = 2;
+					break;
+				}
+			}
+			return is;
 		}
 	}
 
@@ -369,7 +388,7 @@ public class LoaderClass extends JavaPlugin {
 																	// PlayerQuitEvent
 		config.setComments("Options.Cache.User.RemoveOnQuit",
 				Arrays.asList("# Remove cache of User from memory", "# defaulty: true"));
-		
+
 		config.addDefault("Options.User-SavingType", DataType.YAML.name());
 		config.setComments("Options.User-SavingType",
 				Arrays.asList("", "# Saving type of User data", "# Types: YAML, JSON, BYTE, DATA", "# defaulty: YAML"));

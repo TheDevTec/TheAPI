@@ -11,10 +11,11 @@ public class Scheduler {
 
 	public static void cancelAll() {
 		try {
-		for (Entry<Integer, ThreadGroup> t : tasks.entrySet())
-			t.getValue().interrupt();
-		tasks.clear();
-		}catch(Exception errr) {}
+			for (Entry<Integer, ThreadGroup> t : tasks.entrySet())
+				t.getValue().interrupt();
+			tasks.clear();
+		} catch (Exception errr) {
+		}
 	}
 
 	public static void cancelTask(int task) {

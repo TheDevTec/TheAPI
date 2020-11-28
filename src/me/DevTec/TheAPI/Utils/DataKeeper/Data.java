@@ -148,7 +148,8 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		if (key == null)
 			return this;
 		getOrCreateData(key).lines.clear();
-		if(value == null)return this;
+		if (value == null)
+			return this;
 		getOrCreateData(key).lines.addAll(value);
 		return this;
 	}
@@ -589,20 +590,17 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 						if (o instanceof Collection) {
 							for (Object a : (Collection<?>) o)
 								b.write(splitted
-										+ addQuotes(a instanceof String,
-												me.DevTec.TheAPI.Utils.Json.Writer.write(a))
+										+ addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.write(a))
 										+ System.lineSeparator());
 						} else {
 							for (Object a : (Object[]) o)
 								b.write(splitted
-										+ addQuotes(a instanceof String,
-												me.DevTec.TheAPI.Utils.Json.Writer.write(a))
+										+ addQuotes(a instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.write(a))
 										+ System.lineSeparator());
 						}
 					} else
 						b.write(pathName + " "
-								+ addQuotes(o instanceof String,
-										me.DevTec.TheAPI.Utils.Json.Writer.write(o))
+								+ addQuotes(o instanceof String, me.DevTec.TheAPI.Utils.Json.Writer.write(o))
 								+ System.lineSeparator());
 				}
 				for (String key : getKeys(path, false))
@@ -624,7 +622,8 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 							bos.writeUTF(me.DevTec.TheAPI.Utils.Json.Writer.write(key.getValue().o));
 						} catch (Exception er) {
 						}
-					return type == DataType.DATA ? bos.toString() : Base64.getEncoder().encodeToString(bos.toByteArray());
+					return type == DataType.DATA ? bos.toString()
+							: Base64.getEncoder().encodeToString(bos.toByteArray());
 				} catch (Exception e) {
 				}
 				return "";

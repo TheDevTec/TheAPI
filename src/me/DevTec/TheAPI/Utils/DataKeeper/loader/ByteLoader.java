@@ -60,8 +60,8 @@ public class ByteLoader implements DataLoader {
 					} catch (Exception e) {
 						break;
 					}
-				if(!data.isEmpty())
-				l = true;
+				if (!data.isEmpty())
+					l = true;
 			} catch (Exception er) {
 				try {
 					ByteArrayDataInput bos = ByteStreams.newDataInput(input.getBytes());
@@ -73,8 +73,8 @@ public class ByteLoader implements DataLoader {
 						} catch (Exception e) {
 							break;
 						}
-					if(!data.isEmpty())
-					l = true;
+					if (!data.isEmpty())
+						l = true;
 				} catch (Exception err) {
 					l = false;
 				}

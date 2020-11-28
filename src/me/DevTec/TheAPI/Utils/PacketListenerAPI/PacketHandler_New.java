@@ -138,7 +138,8 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	}
 
 	private PacketInterceptor injectChannelInternal(Player a, Channel channel) {
-		if(channel==null||a==null)return null;
+		if (channel == null || a == null)
+			return null;
 		try {
 			PacketInterceptor interceptor = (PacketInterceptor) channel.pipeline().get("InjectorTheAPI");
 			if (interceptor == null) {
@@ -160,7 +161,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	public Channel getChannel(Player player) {
 		Channel channel = channelLookup.getOrDefault(player.getName(), null);
 		if (channel == null) {
-			channel = (Channel) Ref.get(Ref.network(Ref.playerCon(player)),"channel");
+			channel = (Channel) Ref.get(Ref.network(Ref.playerCon(player)), "channel");
 			channelLookup.put(player.getName(), channel);
 		}
 		return channel;

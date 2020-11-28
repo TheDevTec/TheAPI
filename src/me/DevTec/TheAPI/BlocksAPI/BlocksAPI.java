@@ -32,7 +32,8 @@ public class BlocksAPI {
 		public void set(Position pos);
 	}
 
-	public static int amount = 500; // 1000 blocks per 10 ticks, Can be changed: BlocksAPI.amount = <new value in int>
+	public static int amount = 500; // 1000 blocks per 10 ticks, Can be changed: BlocksAPI.amount = <new value in
+									// int>
 
 	private static void set(Shape form, Position where, int radius, Blocking task) {
 		World w = where.getWorld();
@@ -103,10 +104,10 @@ public class BlocksAPI {
 		for (int chX = 0 - chunkRadius; chX <= chunkRadius; chX++)
 			for (int chZ = 0 - chunkRadius; chZ <= chunkRadius; chZ++) {
 				Chunk c = new Location(l.getWorld(), l.getX() + (chX * 16), l.getY(), l.getZ() + (chZ * 16)).getChunk();
-				if(c!=null)
-				for (Entity e : c.getEntities())
-					if (l.distance(e.getLocation()) <= radius)
-						radiusEntities.add(e);
+				if (c != null)
+					for (Entity e : c.getEntities())
+						if (l.distance(e.getLocation()) <= radius)
+							radiusEntities.add(e);
 			}
 		return radiusEntities;
 	}
@@ -587,7 +588,7 @@ public class BlocksAPI {
 				&& loc.getBlockY() >= yMin && loc.getBlockY() <= yMax && loc.getBlockZ() >= zMin
 				&& loc.getBlockZ() <= zMax;
 	}
-	
+
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with) {
 		asynchronizedSet(a, b, onFinish, Arrays.asList(with), Arrays.asList());
 	}

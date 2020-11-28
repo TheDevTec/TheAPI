@@ -79,8 +79,8 @@ public class HandlerList {
 		all.forEach(l -> {
 			List<RegisteredListener> w = new ArrayList<>();
 			l.l.forEach(s -> {
-			if (s.listener.equals(a))
-				w.add(s);
+				if (s.listener.equals(a))
+					w.add(s);
 			});
 			l.l.removeAll(w);
 		});

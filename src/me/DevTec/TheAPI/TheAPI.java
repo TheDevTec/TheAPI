@@ -72,6 +72,7 @@ public class TheAPI {
 	private static Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
 	private static Random random = new Random();
 	private static int ver;
+
 	public static void register(Listener listener) {
 		HandlerList.register(listener);
 	}
@@ -111,47 +112,50 @@ public class TheAPI {
 	private static Object cmdMap = Ref.get(Bukkit.getPluginManager(), "commandMap");
 	@SuppressWarnings("unchecked")
 	private static HashMap<String, Command> knownCommands = (HashMap<String, Command>) Ref.get(cmdMap, "knownCommands");
+
 	public static void registerCommand(PluginCommand command) {
 		String label = command.getName().toLowerCase(Locale.ENGLISH).trim();
 		String sd = command.getPlugin().getName().toLowerCase(Locale.ENGLISH).trim();
-		command.setLabel(sd+":"+label);
-		if(command.getTabCompleter()==null) {
-			if(command.getExecutor() instanceof TabCompleter) {
-				command.setTabCompleter((TabCompleter)command.getExecutor());
-			}else
+		command.setLabel(sd + ":" + label);
+		if (command.getTabCompleter() == null) {
+			if (command.getExecutor() instanceof TabCompleter) {
+				command.setTabCompleter((TabCompleter) command.getExecutor());
+			} else
 				command.setTabCompleter(new TabCompleter() {
 					public List<String> onTabComplete(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 						return null;
 					}
 				});
 		}
-		if(command.getExecutor()==null) {
-			if(command.getTabCompleter() instanceof CommandExecutor) {
-				command.setExecutor((CommandExecutor)command.getTabCompleter());
-			}else return; //exectutor can't be null
+		if (command.getExecutor() == null) {
+			if (command.getTabCompleter() instanceof CommandExecutor) {
+				command.setExecutor((CommandExecutor) command.getTabCompleter());
+			} else
+				return; // exectutor can't be null
 		}
 		List<String> low = new ArrayList<>();
-		for(String s : command.getAliases()) {
-			s=s.toLowerCase(Locale.ENGLISH).trim();
+		for (String s : command.getAliases()) {
+			s = s.toLowerCase(Locale.ENGLISH).trim();
 			low.add(s);
 		}
-		if(!low.contains(label))low.add(label);
-	    for(String s : low)
-	    	knownCommands.put(s, command);
-	    command.register((CommandMap) cmdMap);
+		if (!low.contains(label))
+			low.add(label);
+		for (String s : low)
+			knownCommands.put(s, command);
+		command.register((CommandMap) cmdMap);
 	}
-	
+
 	public static boolean unregisterCommand(PluginCommand command) {
 		return unregisterCommand(command.getName());
 	}
-	
+
 	public static boolean unregisterCommand(String name) {
 		boolean is = false;
-	    for(Entry<String, Command> e : new HashMap<>(knownCommands).entrySet())
-	    	if(e.getValue().getName().equals("name")) {
-	    		knownCommands.remove(e.getKey());
-	    		is=true;
-	    	}
+		for (Entry<String, Command> e : new HashMap<>(knownCommands).entrySet())
+			if (e.getValue().getName().equals("name")) {
+				knownCommands.remove(e.getKey());
+				is = true;
+			}
 		return is;
 	}
 
@@ -375,7 +379,7 @@ public class TheAPI {
 	public static Player getPlayer(int i) {
 		try {
 			return getOnlinePlayers().get(i);
-		}catch(Exception er) {
+		} catch (Exception er) {
 			return null;
 		}
 	}
@@ -629,8 +633,8 @@ public class TheAPI {
 	public static void giveItem(Player p, ItemStack... item) {
 		Validator.validate(item == null, "ItemStacks are null");
 		for (ItemStack i : item)
-			if(i!=null)
-			giveItems(p, i);
+			if (i != null)
+				giveItems(p, i);
 	}
 
 	/**
@@ -779,31 +783,32 @@ public class TheAPI {
 	public static int getMaxPlayers() {
 		return LoaderClass.plugin.max;
 	}
-	
+
 	public static void setVanish(String playerName, String permission, boolean value) {
 		getUser(playerName).set("vanish", value);
 		getUser(playerName).setAndSave("vanish.perm", permission);
 		Player s = getPlayerOrNull(playerName);
-		if(s!=null)applyVanish(s, permission, value);
+		if (s != null)
+			applyVanish(s, permission, value);
 	}
-	
+
 	private static void applyVanish(Player s, String perm, boolean var) {
 		PlayerVanishEvent da = new PlayerVanishEvent(s, perm, var);
 		callEvent(da);
 		if (!da.isCancelled()) {
 			var = da.vanish();
 			perm = da.getPermission();
-			if(var) {
+			if (var) {
 				getUser(s).set("vanish", var);
 				getUser(s).set("vanish.perm", perm);
-				for(Player d : getOnlinePlayers())
-					if(s!=d && !canSee(d, s.getName()) && d.canSee(s))
+				for (Player d : getOnlinePlayers())
+					if (s != d && !canSee(d, s.getName()) && d.canSee(s))
 						d.hidePlayer(s);
 				return;
 			}
 			getUser(s).remove("vanish");
-			for(Player d : getOnlinePlayers())
-				if(s!=d && canSee(d, s.getName()) && !d.canSee(s))
+			for (Player d : getOnlinePlayers())
+				if (s != d && canSee(d, s.getName()) && !d.canSee(s))
 					d.showPlayer(s);
 		}
 	}
@@ -814,20 +819,21 @@ public class TheAPI {
 				return meta.asBoolean();
 		return false;
 	}
-	
+
 	public static boolean hasVanish(String playerName) {
 		Player s = getPlayerOrNull(playerName);
-		return s!=null?(hasSuperVanish(s) || getUser(s).getBoolean("vanish")) : getUser(playerName).getBoolean("vanish");
+		return s != null ? (hasSuperVanish(s) || getUser(s).getBoolean("vanish"))
+				: getUser(playerName).getBoolean("vanish");
 	}
-	
+
 	public static String getVanishPermission(String playerName) {
 		return getUser(playerName).getString("vanish.perm");
 	}
-	
+
 	public static boolean canSee(Player player, String target) {
 		return hasVanish(target) ? player.hasPermission(getVanishPermission(target)) : true;
 	}
-	
+
 	public static boolean canSee(String player, String target) {
 		return hasVanish(target);
 	}
@@ -998,7 +1004,7 @@ public class TheAPI {
 	 */
 	public static int getPlayerPing(Player p) {
 		try {
-			return (int)Ref.get(Ref.player(p), "ping");
+			return (int) Ref.get(Ref.player(p), "ping");
 		} catch (Exception e) {
 			return -1;
 		}

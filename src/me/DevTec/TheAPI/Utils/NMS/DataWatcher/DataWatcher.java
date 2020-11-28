@@ -9,9 +9,7 @@ public class DataWatcher {
 	private Object w;
 
 	public DataWatcher(Object entity) {
-		w = Ref.newInstance(
-				Ref.constructor(Ref.nms("DataWatcher"), Ref.nms("Entity")),
-				entity);
+		w = Ref.newInstance(Ref.constructor(Ref.nms("DataWatcher"), Ref.nms("Entity")), entity);
 	}
 
 	public Object getDataWatcher() {
@@ -19,9 +17,7 @@ public class DataWatcher {
 	}
 
 	public Object get(DataWatcherObject dataWatcherObject) {
-		return Ref.invoke(w,
-				Ref.method(w.getClass(), "get", Ref.nms("DataWatcherObject")),
-				dataWatcherObject.get());
+		return Ref.invoke(w, Ref.method(w.getClass(), "get", Ref.nms("DataWatcherObject")), dataWatcherObject.get());
 	}
 
 	public Object get(int id) {
@@ -34,13 +30,12 @@ public class DataWatcher {
 	}
 
 	public void set(DataWatcherObject dataWatcherObject, Object data) {
-		Ref.invoke(w,
-				Ref.method(w.getClass(), "a", Ref.nms("DataWatcherObject"), Object.class),
+		Ref.invoke(w, Ref.method(w.getClass(), "a", Ref.nms("DataWatcherObject"), Object.class),
 				dataWatcherObject.get(), data);
 	}
 
 	public void register(DataWatcherObject dataWatcherObject, Object data) {
-		Ref.invoke(w, Ref.method(w.getClass(), "register",
-				Ref.nms("DataWatcherObject"), Object.class), dataWatcherObject.get(), data);
+		Ref.invoke(w, Ref.method(w.getClass(), "register", Ref.nms("DataWatcherObject"), Object.class),
+				dataWatcherObject.get(), data);
 	}
 }

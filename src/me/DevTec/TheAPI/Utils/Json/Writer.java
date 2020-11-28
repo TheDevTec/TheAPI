@@ -33,41 +33,49 @@ import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class Writer implements JsonWriter {
 	private List<String> FORBIDDEN = new ArrayList<>();
+
 	public Writer() {
 		FORBIDDEN.add("org.bukkit.craftbukkit." + TheAPI.getServerVersion()
-		+ ".persistence.CraftPersistentDataAdapterContext");
-FORBIDDEN.add(
-		"org.bukkit.craftbukkit." + TheAPI.getServerVersion() + ".persistence.CraftPersistentDataTypeRegistry");
+				+ ".persistence.CraftPersistentDataAdapterContext");
+		FORBIDDEN.add(
+				"org.bukkit.craftbukkit." + TheAPI.getServerVersion() + ".persistence.CraftPersistentDataTypeRegistry");
 	}
-	
+
 	private static JsonWriter writer = new Writer();
-	
+
 	public static String write(Object object) {
 		return writer.serilize(object);
 	}
-	
+
 	public static String write(Object object, boolean fancy) {
 		return writer.serilize(object, fancy);
 	}
-	
+
 	private Map<Object, Object> fix(Map<?, ?> o, boolean fancy, boolean addNulls) {
 		Map<Object, Object> map = new UnsortedMap<>();
-		for(Entry<?, ?> e : o.entrySet())
+		for (Entry<?, ?> e : o.entrySet())
 			map.put(object2(e.getKey(), fancy, addNulls), object2(e.getValue(), fancy, addNulls));
 		return map;
 	}
-	
+
 	private Collection<Object> fix(Collection<?> o, boolean fancy, boolean addNulls) {
 		Collection<Object> map = new ArrayList<>();
-		for(Object e : o)
+		for (Object e : o)
 			map.add(object2(e, fancy, addNulls));
 		return map;
 	}
 
-	private static Object pretty = Ref.invoke(Ref.invoke(Ref.newInstance(Ref.constructor(Ref.getClass("com.google.gson.GsonBuilder") != null ? Ref.getClass("com.google.gson.GsonBuilder") : Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder")))
-			,"setPrettyPrinting"),"create"),
-			simple=Ref.invoke(Ref.newInstance(Ref.constructor(Ref.getClass("com.google.gson.GsonBuilder") != null ? Ref.getClass("com.google.gson.GsonBuilder") : Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder"))),"create");
-			
+	private static Object pretty = Ref.invoke(Ref.invoke(
+			Ref.newInstance(Ref.constructor(
+					Ref.getClass("com.google.gson.GsonBuilder") != null ? Ref.getClass("com.google.gson.GsonBuilder")
+							: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder"))),
+			"setPrettyPrinting"), "create"),
+			simple = Ref.invoke(
+					Ref.newInstance(Ref.constructor(Ref.getClass("com.google.gson.GsonBuilder") != null
+							? Ref.getClass("com.google.gson.GsonBuilder")
+							: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder"))),
+					"create");
+
 	public String array(Object[] object, boolean addNulls) {
 		return array(object, addNulls, false);
 	}
@@ -75,7 +83,8 @@ FORBIDDEN.add(
 	public String array(Object[] object, boolean addNulls, boolean fancy) {
 		if (object == null)
 			return null;
-		return (String) Ref.invoke((fancy?pretty:simple),Ref.method(pretty.getClass(), "toJson", Object.class),fix(Arrays.asList(object), fancy, addNulls));
+		return (String) Ref.invoke((fancy ? pretty : simple), Ref.method(pretty.getClass(), "toJson", Object.class),
+				fix(Arrays.asList(object), fancy, addNulls));
 	}
 
 	public String collection(Collection<?> object, boolean addNulls) {
@@ -85,8 +94,9 @@ FORBIDDEN.add(
 	public String collection(Collection<?> object, boolean addNulls, boolean fancy) {
 		if (object == null)
 			return null;
-		
-		return (String) Ref.invoke((fancy?pretty:simple),Ref.method(pretty.getClass(), "toJson", Object.class),fix(object, fancy, addNulls));
+
+		return (String) Ref.invoke((fancy ? pretty : simple), Ref.method(pretty.getClass(), "toJson", Object.class),
+				fix(object, fancy, addNulls));
 	}
 
 	public String map(Map<?, ?> object, boolean addNulls) {
@@ -96,7 +106,8 @@ FORBIDDEN.add(
 	public String map(Map<?, ?> object, boolean addNulls, boolean fancy) {
 		if (object == null)
 			return null;
-		return (String) Ref.invoke((fancy?pretty:simple),Ref.method(pretty.getClass(), "toJson", Object.class),fix(object, fancy, addNulls));
+		return (String) Ref.invoke((fancy ? pretty : simple), Ref.method(pretty.getClass(), "toJson", Object.class),
+				fix(object, fancy, addNulls));
 	}
 
 	private static Method from = Ref.method(Ref.craft("util.CraftChatMessage"), "fromComponent",
@@ -110,8 +121,8 @@ FORBIDDEN.add(
 	public String object(Object w, boolean addNulls, boolean fancy) {
 		if (w == null)
 			return "null";
-		if(w instanceof Location) {
-			Location stack = (Location)w;
+		if (w instanceof Location) {
+			Location stack = (Location) w;
 			Map<String, Object> done = new HashMap<>();
 			Map<String, Object> items = new HashMap<>();
 			items.put("world", stack.getWorld().getName());
@@ -123,8 +134,8 @@ FORBIDDEN.add(
 			done.put("modifiedClass org.bukkit.Location", items);
 			return map(done, addNulls, fancy);
 		}
-		if(w instanceof Position) {
-			Position stack = (Position)w;
+		if (w instanceof Position) {
+			Position stack = (Position) w;
 			Map<String, Object> done = new HashMap<>();
 			Map<String, Object> items = new HashMap<>();
 			items.put("world", stack.getWorldName());
@@ -136,38 +147,39 @@ FORBIDDEN.add(
 			done.put("modifiedClass me.DevTec.TheAPI.Utils.Position", items);
 			return map(done, addNulls, fancy);
 		}
-		if(w instanceof ItemStack) {
-			ItemStack stack = ((ItemStack)w).clone();
+		if (w instanceof ItemStack) {
+			ItemStack stack = ((ItemStack) w).clone();
 			Map<String, Object> done = new HashMap<>();
 			Map<String, Object> items = new HashMap<>();
 			items.put("type", stack.getType().name());
 			items.put("amount", stack.getAmount());
 			items.put("data", stack.getData().getData());
 			items.put("durability", stack.getDurability());
-			if(stack.hasItemMeta()) {
-			ItemMeta meta = stack.getItemMeta();
-			if(meta.hasEnchants()) {
-			Map<String, Integer> enchs = new HashMap<>();
-			for(Entry<Enchantment, Integer> e : stack.getEnchantments().entrySet())
-				enchs.put(e.getKey().getName(), e.getValue());
-			items.put("meta.enchs", enchs);
+			if (stack.hasItemMeta()) {
+				ItemMeta meta = stack.getItemMeta();
+				if (meta.hasEnchants()) {
+					Map<String, Integer> enchs = new HashMap<>();
+					for (Entry<Enchantment, Integer> e : stack.getEnchantments().entrySet())
+						enchs.put(e.getKey().getName(), e.getValue());
+					items.put("meta.enchs", enchs);
+				}
+				if (meta.hasDisplayName())
+					items.put("meta.name", meta.getDisplayName());
+				if (meta.hasLore())
+					items.put("meta.lore", meta.getLore());
+				if (meta.hasLocalizedName())
+					items.put("meta.locName", meta.getLocalizedName());
+				meta.setDisplayName(null);
+				meta.setLore(null);
+				meta.setLocalizedName(null);
+				stack.setItemMeta(meta);
+				for (Enchantment e : stack.getEnchantments().keySet())
+					stack.removeEnchantment(e);
 			}
-			if(meta.hasDisplayName())
-			items.put("meta.name", meta.getDisplayName());
-			if(meta.hasLore())
-			items.put("meta.lore", meta.getLore());
-			if(meta.hasLocalizedName())
-			items.put("meta.locName", meta.getLocalizedName());
-			meta.setDisplayName(null);
-			meta.setLore(null);
-			meta.setLocalizedName(null);
-			stack.setItemMeta(meta);
-			for(Enchantment e : stack.getEnchantments().keySet())
-				stack.removeEnchantment(e);
-			}
-			Object tag = Ref.invoke(Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", stack), "getTag");
-			if(tag!=null && !(boolean)Ref.invoke(tag, "isEmpty")) {
-		        items.put("nbt", tag.toString());
+			Object tag = Ref.invoke(Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", stack),
+					"getTag");
+			if (tag != null && !(boolean) Ref.invoke(tag, "isEmpty")) {
+				items.put("nbt", tag.toString());
 			}
 			done.put("modifiedClass org.bukkit.inventory.ItemStack", items);
 			return map(done, addNulls, fancy);
@@ -197,8 +209,9 @@ FORBIDDEN.add(
 		if (w instanceof Object[])
 			return array((Object[]) w, addNulls, fancy);
 		if (w instanceof Collection) {
-			if (w instanceof ArrayList || w instanceof UnsortedSet || w instanceof UnsortedList || w.getClass() == Ref.getClass("java.util.Arrays$ArrayList")
-					|| w instanceof HashSet || w instanceof LinkedList || w instanceof LinkedHashSet) {
+			if (w instanceof ArrayList || w instanceof UnsortedSet || w instanceof UnsortedList
+					|| w.getClass() == Ref.getClass("java.util.Arrays$ArrayList") || w instanceof HashSet
+					|| w instanceof LinkedList || w instanceof LinkedHashSet) {
 				return collection((Collection<?>) w, addNulls, fancy);
 			}
 			Map<String, Object> enumMap = new UnsortedMap<>();
@@ -206,21 +219,22 @@ FORBIDDEN.add(
 			return map(enumMap, addNulls, fancy);
 		}
 		if (w instanceof Map) {
-			if (w instanceof UnsortedMap || w instanceof HashMap || w instanceof LinkedHashMap || w instanceof HashMap || w instanceof HashMap) {
+			if (w instanceof UnsortedMap || w instanceof HashMap || w instanceof LinkedHashMap || w instanceof HashMap
+					|| w instanceof HashMap) {
 				return map((Map<?, ?>) w, addNulls, fancy);
 			}
 			Map<String, Object> enumMap = new UnsortedMap<>();
 			enumMap.put("Map " + w.getClass().getName(), w);
 			return map(enumMap, addNulls, fancy);
 		}
-		return (String) Ref.invoke((fancy?pretty:simple),"toJson",(Object)convert(w, fancy, addNulls));
+		return (String) Ref.invoke((fancy ? pretty : simple), "toJson", (Object) convert(w, fancy, addNulls));
 	}
-	
+
 	public Object object2(Object w, boolean fancy, boolean addNulls) {
 		if (w == null)
 			return null;
-		if(w instanceof Location) {
-			Location stack = (Location)w;
+		if (w instanceof Location) {
+			Location stack = (Location) w;
 			Map<String, Object> done = new HashMap<>();
 			Map<String, Object> items = new HashMap<>();
 			items.put("world", stack.getWorld().getName());
@@ -232,8 +246,8 @@ FORBIDDEN.add(
 			done.put("modifiedClass org.bukkit.Location", items);
 			return done;
 		}
-		if(w instanceof Position) {
-			Position stack = (Position)w;
+		if (w instanceof Position) {
+			Position stack = (Position) w;
 			Map<String, Object> done = new HashMap<>();
 			Map<String, Object> items = new HashMap<>();
 			items.put("world", stack.getWorldName());
@@ -245,8 +259,8 @@ FORBIDDEN.add(
 			done.put("modifiedClass me.DevTec.TheAPI.Utils.Position", items);
 			return done;
 		}
-		if(w instanceof ItemStack) {
-			ItemStack stack = ((ItemStack)w).clone();
+		if (w instanceof ItemStack) {
+			ItemStack stack = ((ItemStack) w).clone();
 			Map<String, Object> done = new HashMap<>();
 			Map<String, Object> items = new HashMap<>();
 			items.put("type", stack.getType().name());
@@ -254,27 +268,28 @@ FORBIDDEN.add(
 			items.put("data", stack.getData().getData());
 			items.put("durability", stack.getDurability());
 			ItemMeta meta = stack.getItemMeta();
-			if(meta.hasEnchants()) {
-			Map<String, String> enchs = new HashMap<>();
-			for(Entry<Enchantment, Integer> e : stack.getEnchantments().entrySet())
-				enchs.put(e.getKey().getName(), e.getValue().toString());
-			items.put("meta.enchs", enchs);
+			if (meta.hasEnchants()) {
+				Map<String, String> enchs = new HashMap<>();
+				for (Entry<Enchantment, Integer> e : stack.getEnchantments().entrySet())
+					enchs.put(e.getKey().getName(), e.getValue().toString());
+				items.put("meta.enchs", enchs);
 			}
-			if(meta.hasDisplayName())
-			items.put("meta.name", meta.getDisplayName());
-			if(meta.hasLore())
-			items.put("meta.lore", meta.getLore());
-			if(meta.hasLocalizedName())
-			items.put("meta.locName", meta.getLocalizedName());
+			if (meta.hasDisplayName())
+				items.put("meta.name", meta.getDisplayName());
+			if (meta.hasLore())
+				items.put("meta.lore", meta.getLore());
+			if (meta.hasLocalizedName())
+				items.put("meta.locName", meta.getLocalizedName());
 			meta.setDisplayName(null);
 			meta.setLore(null);
 			meta.setLocalizedName(null);
 			stack.setItemMeta(meta);
-			for(Enchantment e : stack.getEnchantments().keySet())
+			for (Enchantment e : stack.getEnchantments().keySet())
 				stack.removeEnchantment(e);
-			Object tag = Ref.invoke(Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", stack), "getTag");
-			if(tag!=null && !(boolean)Ref.invoke(tag, "isEmpty"))
-		        items.put("nbt", tag.toString());
+			Object tag = Ref.invoke(Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", stack),
+					"getTag");
+			if (tag != null && !(boolean) Ref.invoke(tag, "isEmpty"))
+				items.put("nbt", tag.toString());
 			done.put("modifiedClass org.bukkit.inventory.ItemStack", items);
 			return done;
 		}
@@ -283,7 +298,7 @@ FORBIDDEN.add(
 				|| w.getClass() == Ref.nms("ChatMessage") || w.getClass() == Ref.nms("ChatComponentText")
 				|| w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")) {
 			if (w instanceof String) {
-				return w+"";
+				return w + "";
 			}
 			String obj = w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")
 					? (String) Ref.invoke(w, "toLegacyText")
@@ -293,8 +308,8 @@ FORBIDDEN.add(
 			enumMap.put("class " + w.getClass().getName(), obj);
 			return enumMap;
 		}
-		if(w instanceof Enchantment) {
-			return "{\"enum org.bukkit.enchantments.Enchantment\":\""+((Enchantment)w).getName()+"\"}";
+		if (w instanceof Enchantment) {
+			return "{\"enum org.bukkit.enchantments.Enchantment\":\"" + ((Enchantment) w).getName() + "\"}";
 		}
 		if (w instanceof Enum<?>) {
 			Map<String, Object> enumMap = new HashMap<>();
@@ -306,17 +321,18 @@ FORBIDDEN.add(
 		if (w instanceof Object[])
 			return fix(Arrays.asList((Object[]) w), fancy, addNulls);
 		if (w instanceof Collection) {
-			if (w instanceof ArrayList || w instanceof UnsortedSet || w instanceof UnsortedList || w.getClass() == Ref.getClass("java.util.Arrays$ArrayList")
-					|| w instanceof HashSet || w instanceof LinkedList || w instanceof LinkedHashSet) {
+			if (w instanceof ArrayList || w instanceof UnsortedSet || w instanceof UnsortedList
+					|| w.getClass() == Ref.getClass("java.util.Arrays$ArrayList") || w instanceof HashSet
+					|| w instanceof LinkedList || w instanceof LinkedHashSet) {
 				return fix((Collection<?>) w, fancy, addNulls);
 			}
 			Map<String, Object> enumMap = new HashMap<>();
-			enumMap.put("Collection " + w.getClass().getName(),
-					fix((Collection<?>) w, fancy, addNulls));
+			enumMap.put("Collection " + w.getClass().getName(), fix((Collection<?>) w, fancy, addNulls));
 			return enumMap;
 		}
 		if (w instanceof Map) {
-			if(w instanceof UnsortedMap || w instanceof HashMap || w instanceof LinkedHashMap || w instanceof TreeMap || w instanceof LinkedTreeMap || w instanceof WeakHashMap)
+			if (w instanceof UnsortedMap || w instanceof HashMap || w instanceof LinkedHashMap || w instanceof TreeMap
+					|| w instanceof LinkedTreeMap || w instanceof WeakHashMap)
 				return fix((Map<?, ?>) w, fancy, addNulls);
 			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("Map " + w.getClass().getName(), map((Map<?, ?>) w, addNulls));
@@ -332,9 +348,9 @@ FORBIDDEN.add(
 			if (Modifier.toString(f.getModifiers()).toLowerCase().contains("static"))
 				continue;
 			Object w = Ref.get(object, f);
-			if (w == null && !addNulls || w!=null && FORBIDDEN.contains(w.getClass().getName()))
+			if (w == null && !addNulls || w != null && FORBIDDEN.contains(w.getClass().getName()))
 				continue;
-			if(w==null) {
+			if (w == null) {
 				map.put(f.getName(), null);
 				continue;
 			}

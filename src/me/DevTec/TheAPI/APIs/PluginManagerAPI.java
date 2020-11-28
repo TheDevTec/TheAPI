@@ -319,13 +319,13 @@ public class PluginManagerAPI {
 			}
 		return list;
 	}
-	
+
 	private static String[] readPlugin(File a) {
 		try {
 			JarFile file = new JarFile(a);
 			if (file != null) {
 				Enumeration<JarEntry> er = file.entries();
-				while(er.hasMoreElements()) {
+				while (er.hasMoreElements()) {
 					JarEntry entry = er.nextElement();
 					if (entry.getName().equals("plugin.yml")) {
 						InputStream is = file.getInputStream(entry);
@@ -342,7 +342,7 @@ public class PluginManagerAPI {
 		}
 		return null;
 	}
-	
+
 	public static void reloadPlugin(Plugin plugin) {
 		reloadPlugin(plugin.getName());
 	}

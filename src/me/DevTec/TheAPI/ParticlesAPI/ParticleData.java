@@ -20,7 +20,7 @@ public class ParticleData {
 			}
 			this.note = note;
 		}
-		
+
 		public int getNote() {
 			return note;
 		}
@@ -63,7 +63,7 @@ public class ParticleData {
 				throw new IllegalArgumentException("The blue value is higher than 255");
 			}
 			this.blue = blue;
-			this.size=size;
+			this.size = size;
 		}
 
 		public RedstoneOptions(Color color) {
@@ -87,22 +87,22 @@ public class ParticleData {
 		}
 
 		public float getValueX() {
-			return red/255.0F;
+			return red / 255.0F;
 		}
 
 		public float getValueY() {
-			return green/255.0F;
+			return green / 255.0F;
 		}
 
 		public float getValueZ() {
-			return blue/255.0F;
+			return blue / 255.0F;
 		}
-		
+
 		public float getSize() {
 			return size;
 		}
 	}
-	
+
 	public static class ItemOptions extends ParticleData {
 		private ItemStack item;
 		private int[] packetData;
@@ -117,13 +117,14 @@ public class ParticleData {
 
 		public ItemOptions(TheMaterial material) {
 			this.item = material.toItemStack();
-			packetData = new int[] {(int)Ref.invokeNulled(Ref.nms("Block"), "getCombinedId", material.getIBlockData())};
+			packetData = new int[] {
+					(int) Ref.invokeNulled(Ref.nms("Block"), "getCombinedId", material.getIBlockData()) };
 		}
 
 		public ItemStack getItem() {
 			return item;
 		}
-		
+
 		public int[] getPacketData() {
 			return packetData;
 		}
@@ -137,8 +138,8 @@ public class ParticleData {
 			this.material = material;
 			try {
 				this.packetData = new int[] { material.getType().getId(), material.getData() };
-			}catch(Exception err) {
-				//not supported for 1.13+
+			} catch (Exception err) {
+				// not supported for 1.13+
 			}
 		}
 

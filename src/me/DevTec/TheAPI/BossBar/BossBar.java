@@ -36,8 +36,8 @@ public class BossBar {
 			return;
 		Location loc = p.getLocation();
 		Object packet = Ref.newInstance(
-				Ref.constructor(Ref.nms("PacketPlayOutEntityTeleport"), int.class, int.class,
-						int.class, int.class, byte.class, byte.class, boolean.class),
+				Ref.constructor(Ref.nms("PacketPlayOutEntityTeleport"), int.class, int.class, int.class, int.class,
+						byte.class, byte.class, boolean.class),
 				getId(), (int) loc.getX() * 32, (int) (loc.getY() - 100) * 32, (int) loc.getZ() * 32,
 				(byte) ((int) loc.getYaw() * 256 / 360), (byte) ((int) loc.getPitch() * 256 / 360), false);
 		NMSAPI.sendPacket(p, packet);
@@ -67,9 +67,7 @@ public class BossBar {
 		if (!p.getName().equals(s))
 			return;
 		if (!TheAPI.isOlder1_9()) {
-			Ref.invoke(bar,
-					Ref.method(Ref.nms("BossBattleServer"), "setVisible", boolean.class),
-					false);
+			Ref.invoke(bar, Ref.method(Ref.nms("BossBattleServer"), "setVisible", boolean.class), false);
 			return;
 		}
 		NMSAPI.sendPacket(p, NMSAPI.getPacketPlayOutEntityDestroy(getId()));
@@ -80,9 +78,7 @@ public class BossBar {
 			return;
 		hide = false;
 		if (!TheAPI.isOlder1_9()) {
-			Ref.invoke(bar,
-					Ref.method(Ref.nms("BossBattleServer"), "setVisible", boolean.class),
-					true);
+			Ref.invoke(bar, Ref.method(Ref.nms("BossBattleServer"), "setVisible", boolean.class), true);
 			return;
 		}
 		set(title, progress, null, null);
@@ -91,9 +87,7 @@ public class BossBar {
 	private void update(String a) {
 		if (bar == null)
 			return;
-		Ref.invoke(bar,
-				Ref.method(bar.getClass(), "sendUpdate",
-						Ref.nms("PacketPlayOutBoss$Action")),
+		Ref.invoke(bar, Ref.method(bar.getClass(), "sendUpdate", Ref.nms("PacketPlayOutBoss$Action")),
 				Ref.getNulled(Ref.field(Ref.nms("PacketPlayOutBoss$Action"), a.toUpperCase())));
 	}
 
@@ -111,22 +105,21 @@ public class BossBar {
 					color = BarColor.GREEN;
 				if (style == null)
 					style = BarStyle.NOTCHED_20;
-				bar = Ref.newInstance(Ref.constructor(Ref.nms("BossBattleServer"),
-						Ref.nms("IChatBaseComponent"), Ref.nms("BossBattle$BarColor"),
-						Ref.nms("BossBattle$BarStyle")), NMSAPI.getIChatBaseComponentText(title),
-						color.toMojang(), style.toMojang());
+				bar = Ref.newInstance(
+						Ref.constructor(Ref.nms("BossBattleServer"), Ref.nms("IChatBaseComponent"),
+								Ref.nms("BossBattle$BarColor"), Ref.nms("BossBattle$BarStyle")),
+						NMSAPI.getIChatBaseComponentText(title), color.toMojang(), style.toMojang());
 				Ref.invoke(bar, Ref.method(bar.getClass(), "setProgress", float.class),
 						(float) progress != -1 ? progress : 1);
-				Ref.invoke(bar, Ref.method(Ref.nms("BossBattleServer"), "addPlayer",
-						Ref.nms("EntityPlayer")), Ref.player(p));
+				Ref.invoke(bar, Ref.method(Ref.nms("BossBattleServer"), "addPlayer", Ref.nms("EntityPlayer")),
+						Ref.player(p));
 				return;
 			}
 			if (text != null) {
 				Ref.set(bar, "title", NMSAPI.getIChatBaseComponentText(title));
 			}
 			if (progress != -1) {
-				Ref.invoke(bar, Ref.method(bar.getClass(), "setProgress", float.class),
-						(float) progress);
+				Ref.invoke(bar, Ref.method(bar.getClass(), "setProgress", float.class), (float) progress);
 			}
 			if (color != null) {
 				Ref.set(bar, "color", color.toMojang());
@@ -145,10 +138,10 @@ public class BossBar {
 		Object packet = null;
 		boolean cr = false;
 		if (bar == null) {
-			bar = Ref.newInstance(Ref.constructor(c, Ref.nms("World")),
-					Ref.world(loc.getWorld()));
-			Ref.invoke(bar, Ref.method(c, "setLocation", double.class, double.class, double.class,
-					float.class, float.class), loc.getX(), loc.getY() - 100, loc.getZ(), 0, 0);
+			bar = Ref.newInstance(Ref.constructor(c, Ref.nms("World")), Ref.world(loc.getWorld()));
+			Ref.invoke(bar,
+					Ref.method(c, "setLocation", double.class, double.class, double.class, float.class, float.class),
+					loc.getX(), loc.getY() - 100, loc.getZ(), 0, 0);
 			id = (int) Ref.invoke(bar, Ref.method(c, "getId"));
 			packet = NMSAPI.getPacketPlayOutSpawnEntityLiving(bar);
 			cr = true;
@@ -164,10 +157,8 @@ public class BossBar {
 		watcher.set(11, (byte) 1);
 		watcher.set(3, (byte) 1);
 		if (packet == null)
-			packet = Ref.newInstance(
-					Ref.constructor(Ref.nms("PacketPlayOutEntityMetadata"), int.class,
-							Ref.nms("DataWatcher"), boolean.class),
-					getId(), watcher.getDataWatcher(), true);
+			packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutEntityMetadata"), int.class,
+					Ref.nms("DataWatcher"), boolean.class), getId(), watcher.getDataWatcher(), true);
 		if (cr)
 			Ref.set(packet, "l", watcher);
 		NMSAPI.sendPacket(p, packet);

@@ -113,11 +113,11 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				TheAPI.msg("&eReloading configs..", s);
 				LoaderClass.data.reload();
 				LoaderClass.config.reload();
-				if(TheAPI.isNewerThan(15)) {
+				if (TheAPI.isNewerThan(15)) {
 					LoaderClass.tags.reload();
 					LoaderClass.tags.addDefault("TagPrefix", "!");
 					LoaderClass.tags.addDefault("GradientPrefix", "!");
-					if(!LoaderClass.tags.exists("Tags")) {
+					if (!LoaderClass.tags.exists("Tags")) {
 						LoaderClass.tags.addDefault("Tags.baby_blue", "0fd2f6");
 						LoaderClass.tags.addDefault("Tags.beige", "ffc8a9");
 						LoaderClass.tags.addDefault("Tags.blush", "e69296");
@@ -144,11 +144,11 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						LoaderClass.tags.addDefault("Tags.violet", "9c6eff");
 					}
 					LoaderClass.tags.save();
-					LoaderClass.tagG=LoaderClass.tags.getString("TagPrefix");
-					LoaderClass.gradientTag=LoaderClass.tags.getString("GradientPrefix");
+					LoaderClass.tagG = LoaderClass.tags.getString("TagPrefix");
+					LoaderClass.gradientTag = LoaderClass.tags.getString("GradientPrefix");
 					LoaderClass.colorMap.clear();
 					for (String tag : LoaderClass.tags.getKeys("Tags"))
-						LoaderClass.colorMap.put(tag.toLowerCase(), "#" + LoaderClass.tags.getString("Tags."+tag));
+						LoaderClass.colorMap.put(tag.toLowerCase(), "#" + LoaderClass.tags.getString("Tags." + tag));
 				}
 				for (User u : TheAPI.getCachedUsers())
 					u.getData().reload(u.getData().getFile());

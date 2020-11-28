@@ -14,15 +14,15 @@ public class Maker extends UnsortedSet<Object> {
 	public Maker(String json) {
 		addAll((Collection<Object>) Reader.read(json));
 	}
-	
+
 	public Maker(Collection<Object> obj) {
 		addAll(obj);
 	}
-	
+
 	public void addSerilized(String json) {
 		add(Reader.read(json));
 	}
-	
+
 	public void removeSerilized(String json) {
 		remove(Reader.read(json));
 	}

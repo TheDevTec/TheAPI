@@ -46,25 +46,25 @@ public class JsonLoader implements DataLoader {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void load(String input) {
-		if(input==null) {
-			l=false;
+		if (input == null) {
+			l = false;
 			return;
 		}
 		data.clear();
 		try {
 			Object read = Reader.read(input);
-			if(read instanceof Map) {
-					for (Entry<Object, Object> keyed : ((Map<Object, Object>)read).entrySet()) {
-						data.put((String)keyed.getKey(), new DataHolder(keyed.getValue()));
+			if (read instanceof Map) {
+				for (Entry<Object, Object> keyed : ((Map<Object, Object>) read).entrySet()) {
+					data.put((String) keyed.getKey(), new DataHolder(keyed.getValue()));
+				}
+				l = true;
+			} else {
+				for (Object o : (Collection<Object>) read) {
+					for (Entry<Object, Object> keyed : ((Map<Object, Object>) o).entrySet()) {
+						data.put((String) keyed.getKey(), new DataHolder(keyed.getValue()));
 					}
-					l = true;
-			}else {
-			for(Object o : (Collection<Object>)read) {
-			for (Entry<Object, Object> keyed : ((Map<Object, Object>) o).entrySet()) {
-				data.put((String)keyed.getKey(), new DataHolder(keyed.getValue()));
-			}
-			}
-			l=true;
+				}
+				l = true;
 			}
 		} catch (Exception er) {
 			l = false;
