@@ -63,7 +63,7 @@ public class Particle {
 	}
 	
 	public Object createPacket(double x, double y, double z) {
-		return createPacket(x, y, z, 0, 1);
+		return createPacket(x, y, z, 1, 1);
 	}
 	
 	public Object createPacket(Position pos, float speed, int amount) {
@@ -120,7 +120,6 @@ public class Particle {
 					Ref.set(packet, "e", data instanceof NoteOptions ? ((NoteOptions)data).getValueX() : ((RedstoneOptions)data).getValueX());
 					Ref.set(packet, "f", data instanceof NoteOptions ? ((NoteOptions)data).getValueY() : ((RedstoneOptions)data).getValueY());
 					Ref.set(packet, "g", data instanceof NoteOptions ? ((NoteOptions)data).getValueZ() : ((RedstoneOptions)data).getValueZ());
-					Ref.set(packet, "i", 0);
 				}else {
 					int[] packetData = data instanceof BlockOptions ? ((BlockOptions)data).getPacketData() : ((ItemOptions)data).getPacketData();
 					Ref.set(packet, "a", name+"_" + packetData[0] + "_" + packetData[1]);
@@ -142,7 +141,6 @@ public class Particle {
 				Ref.set(packet, "e", data instanceof NoteOptions ? ((NoteOptions)data).getValueX() : ((RedstoneOptions)data).getValueX());
 				Ref.set(packet, "f", data instanceof NoteOptions ? ((NoteOptions)data).getValueY() : ((RedstoneOptions)data).getValueY());
 				Ref.set(packet, "g", data instanceof NoteOptions ? ((NoteOptions)data).getValueZ() : ((RedstoneOptions)data).getValueZ());
-				Ref.set(packet, "i", 0);
 			}else {
 				int[] packetData = data instanceof BlockOptions ? ((BlockOptions)data).getPacketData() : ((ItemOptions)data).getPacketData();
 				Ref.set(packet, "k", name.equalsIgnoreCase("ITEM_CRACK") || name.equalsIgnoreCase("ITEM_TAKE") ? packetData : new int[] { packetData[0] | (packetData[1] << 12) });
