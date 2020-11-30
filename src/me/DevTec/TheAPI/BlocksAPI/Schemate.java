@@ -3,6 +3,7 @@ package me.DevTec.TheAPI.BlocksAPI;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,12 +22,11 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import me.DevTec.TheAPI.Scheduler.Tasker;
+import me.DevTec.TheAPI.Utils.Compressors.Compressor;
 import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.TheMaterial;
-import me.DevTec.TheAPI.Utils.Compression.Compression.Compressor;
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
-import me.DevTec.TheAPI.Utils.File.Writer;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class Schemate {
@@ -136,10 +136,12 @@ public class Schemate {
 					s.close();
 				}
 				perChunk.clear();
-				Writer w = new Writer(getFile());
+				try {
+				FileWriter w = new FileWriter(getFile());
 				w.append(data.toString());
 				w.flush();
 				w.close();
+				}catch(Exception er) {}
 				if (onFinish != null)
 					onFinish.run();
 			}

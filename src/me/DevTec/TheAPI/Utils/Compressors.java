@@ -1,23 +1,38 @@
-package me.DevTec.TheAPI.Utils.Compression;
+package me.DevTec.TheAPI.Utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import java.util.zip.Inflater;
 
-public class Compression {
-	public static int COMPRESS = 2;
+public class Compressors {
+	static byte[] buf = new byte[1024];
 
-	private static byte[] buf = new byte[1024];
+	public static byte[] decompress(byte[] in) {
+		Inflater decompressor = new Inflater(true);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		for (int isf = 0; isf < 2; ++isf) {
+			decompressor.setInput(in);
+			while (!decompressor.finished())
+				try {
+					bos.write(buf, 0, decompressor.inflate(buf));
+				} catch (Exception e) {
+				}
+			decompressor.reset();
+			in = bos.toByteArray();
+			bos.reset();
+		}
+		return in;
+	}
 
 	public static byte[] compress(byte[] in) {
 		Deflater compressor = new Deflater(Deflater.BEST_COMPRESSION, true);
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-		for (int i = 0; i < COMPRESS; ++i) {
+		for (int i = 0; i < 2; ++i) {
 			compressor.setInput(in);
 			compressor.finish();
 			while (!compressor.finished())
@@ -28,24 +43,7 @@ public class Compression {
 		}
 		return in;
 	}
-
-	public static File zip(File file) {
-		if (file == null)
-			return null;
-		try {
-			FileInputStream inputStream = new FileInputStream(file);
-			FileOutputStream outputStream = new FileOutputStream(file);
-			DeflaterOutputStream compresser = new DeflaterOutputStream(outputStream);
-			int contents;
-			while ((contents = inputStream.read()) != -1)
-				compresser.write(contents);
-			inputStream.close();
-			compresser.close();
-		} catch (Exception e) {
-		}
-		return new File(file.getParent());
-	}
-
+	
 	public static class Compressor {
 		private ByteArrayOutputStream end = new ByteArrayOutputStream();
 		private GZIPOutputStream compressor;
@@ -164,5 +162,112 @@ public class Compression {
 			return end.toByteArray();
 		}
 	}
+	
+	public static class Decompressor {
+		private ByteArrayInputStream end;
+		private GZIPInputStream decompressor;
+		private ObjectInputStream get;
 
+		public Decompressor(byte[] toDecompress) {
+			try {
+				end = new ByteArrayInputStream(toDecompress);
+				decompressor = new GZIPInputStream(end);
+				get = new ObjectInputStream(decompressor);
+			} catch (Exception e) {
+			}
+		}
+
+		public Object readObject() {
+			try {
+				get.readObject();
+			} catch (Exception e) {
+			}
+			return null;
+		}
+
+		public String readString() {
+			try {
+				get.readUTF();
+			} catch (Exception e) {
+			}
+			return null;
+		}
+
+		public String readUTF() {
+			return readString();
+		}
+
+		public boolean readBoolean() {
+			try {
+				return get.readBoolean();
+			} catch (Exception e) {
+			}
+			return false;
+		}
+
+		public float readFloat() {
+			try {
+				return get.readFloat();
+			} catch (Exception e) {
+			}
+			return 0;
+		}
+
+		public int readInt() {
+			try {
+				return get.readInt();
+			} catch (Exception e) {
+			}
+			return 0;
+		}
+
+		public byte readByte() {
+			try {
+				return get.readByte();
+			} catch (Exception e) {
+			}
+			return 0;
+		}
+
+		public double readDouble() {
+			try {
+				return get.readDouble();
+			} catch (Exception e) {
+			}
+			return 0;
+		}
+
+		public long readLong() {
+			try {
+				return get.readLong();
+			} catch (Exception e) {
+			}
+			return 0;
+		}
+
+		public short readShort() {
+			try {
+				return get.readShort();
+			} catch (Exception e) {
+			}
+			return 0;
+		}
+
+		public char readChar() {
+			try {
+				return get.readChar();
+			} catch (Exception e) {
+			}
+			return 0;
+		}
+
+		public void close() {
+			try {
+				get.close();
+				decompressor.close();
+				end.close();
+			} catch (Exception e) {
+			}
+		}
+	}
 }

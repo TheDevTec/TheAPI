@@ -2,16 +2,17 @@ package me.DevTec.TheAPI.ConfigAPI;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
 import me.DevTec.TheAPI.Utils.DataKeeper.DataType;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 
 public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
-	private final Map<String, Object> defaults = new HashMap<>();
+	private final Map<String, Object> defaults = new UnsortedMap<>();
 	private final Data f;
 	private DataType t;
 
@@ -129,7 +130,7 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	public void addDefault(String key, Object value) {
 		defaults.put(key, value);
-		if (value != null && f.get(key) == null || !f.isKey(key) || !f.exists(key))
+		if (value != null && f.get(key) == null)
 			f.set(key, value);
 	}
 
@@ -139,6 +140,16 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	public void reload() {
 		f.reload(f.getFile());
+		boolean change = false;
+		for(Entry<String, Object> def : defaults.entrySet()) {
+			String key = def.getKey();
+			Object value=def.getValue();
+			if (value != null && f.get(key) == null) {
+				f.set(key, value);
+				change=true;
+			}
+		}
+		if(change)save();
 	}
 
 	public String getName() {

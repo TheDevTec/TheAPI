@@ -6,11 +6,11 @@ import org.spigotmc.AsyncCatcher;
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.BlocksAPI.Schemate.SimpleSave;
 import me.DevTec.TheAPI.Scheduler.Tasker;
+import me.DevTec.TheAPI.Utils.Compressors.Decompressor;
 import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.TheMaterial;
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
-import me.DevTec.TheAPI.Utils.Decompression.Decompression.Decompressor;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class Schema {

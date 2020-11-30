@@ -1,6 +1,5 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -8,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Json.Reader;
 
@@ -16,7 +16,7 @@ public class YamlLoader implements DataLoader {
 			fixSplit = Pattern.compile("[\"'](.*)['\"]");
 	private Map<String, DataHolder> data = new UnsortedMap<>();
 	private boolean l;
-	private List<String> header = new ArrayList<>(), footer = new ArrayList<>();
+	private List<String> header = new UnsortedList<>(), footer = new UnsortedList<>();
 
 	public Set<String> getKeys() {
 		return data.keySet();
@@ -53,8 +53,8 @@ public class YamlLoader implements DataLoader {
 	public void load(String input) {
 		reset();
 		try {
-			List<Object> items = new ArrayList<>();
-			List<String> lines = new ArrayList<>();
+			List<Object> items = new UnsortedList<>();
+			List<String> lines = new UnsortedList<>();
 			String key = "";
 			StringBuilder v = null;
 			int last = 0, f = 0, c = 0;
@@ -63,7 +63,7 @@ public class YamlLoader implements DataLoader {
 					if (text.trim().startsWith("#") || text.trim().isEmpty()) {
 						if (!items.isEmpty()) {
 							set(key, items, lines);
-							items = new ArrayList<>();
+							items = new UnsortedList<>();
 						}
 						if (c != 0) {
 							if (c == 1) {
@@ -80,7 +80,7 @@ public class YamlLoader implements DataLoader {
 								v = null;
 							} else if (c == 2) {
 								set(key, items, lines);
-								items = new ArrayList<>();
+								items = new UnsortedList<>();
 							}
 							c = 0;
 						}
@@ -107,7 +107,7 @@ public class YamlLoader implements DataLoader {
 						}
 						if (c == 2) {
 							set(key, items, lines);
-							items = new ArrayList<>();
+							items = new UnsortedList<>();
 						}
 						c = 0;
 					}
@@ -127,7 +127,7 @@ public class YamlLoader implements DataLoader {
 					if (find) {
 						if (!items.isEmpty()) {
 							set(key, items, lines);
-							items = new ArrayList<>();
+							items = new UnsortedList<>();
 						}
 						if (c == 1) {
 							v.append(text.substring(c(text)));
@@ -196,7 +196,7 @@ public class YamlLoader implements DataLoader {
 									continue;
 								}
 								set(key, Reader.read(object), lines);
-							} else if (lines.isEmpty() == false)
+							} else if (!lines.isEmpty())
 								set(key, null, lines);
 					}
 				}
@@ -244,10 +244,11 @@ public class YamlLoader implements DataLoader {
 	}
 
 	private final void set(String key, Object o, List<String> lines) {
+		if(key==null)return;
 		if (get().containsKey(key)) {
 			get().get(key).setValue(o);
 		} else
-			set(key, new DataHolder(o, new ArrayList<>(lines)));
+			set(key, new DataHolder(o, new UnsortedList<>(lines)));
 		lines.clear();
 	}
 

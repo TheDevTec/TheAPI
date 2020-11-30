@@ -40,6 +40,7 @@ import me.DevTec.TheAPI.PlaceholderAPI.ThePlaceholderAPI;
 import me.DevTec.TheAPI.Scheduler.Scheduler;
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
+import me.DevTec.TheAPI.Utils.StreamUtils;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.DataType;
 import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedSet;
@@ -220,7 +221,7 @@ public class LoaderClass extends JavaPlugin {
 				int removed = 0;
 				if (new File("plugins/TheAPI/User").exists())
 					for (File f : Arrays.asList(new File("plugins/TheAPI/User").listFiles())) {
-						if (me.DevTec.TheAPI.Utils.File.Reader.read(f, false).trim().isEmpty()) {
+						if (StreamUtils.fromStream(f).trim().isEmpty()) {
 							f.delete();
 							++removed;
 						}

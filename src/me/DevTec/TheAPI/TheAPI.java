@@ -431,10 +431,11 @@ public class TheAPI {
 		Validator.validate(sender == null, "CommandSender is null");
 		Validator.validate(message == null, "Message is null");
 		if(message == null)return;
-		ChatColor old = ChatColor.RESET;
+		String old = "";
 		for (String s : message.replace("\\n", "\n").split("\n")) {
-			sender.sendMessage(old + colorize(s));
-			old = StringUtils.getColor(s);
+			s=old + colorize(s);
+			sender.sendMessage(s);
+			old = ChatColor.getLastColors(s);
 		}
 	}
 
@@ -746,10 +747,11 @@ public class TheAPI {
 					msg(s, p);
 				}
 		}
-		ChatColor old = ChatColor.RESET;
+		String old = "";
 		for (String s : message.replace("\\n", "\n").split("\n")) {
-			getConsole().sendMessage(old + colorize(s));
-			old = StringUtils.getColor(s);
+			s=old + colorize(s);
+			getConsole().sendMessage(s);
+			old = ChatColor.getLastColors(s);
 		}
 	}
 

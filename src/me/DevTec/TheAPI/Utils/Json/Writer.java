@@ -35,10 +35,8 @@ public class Writer implements JsonWriter {
 	private List<String> FORBIDDEN = new ArrayList<>();
 
 	public Writer() {
-		FORBIDDEN.add("org.bukkit.craftbukkit." + TheAPI.getServerVersion()
-				+ ".persistence.CraftPersistentDataAdapterContext");
-		FORBIDDEN.add(
-				"org.bukkit.craftbukkit." + TheAPI.getServerVersion() + ".persistence.CraftPersistentDataTypeRegistry");
+		FORBIDDEN.add("org.bukkit.craftbukkit." + TheAPI.getServerVersion() + ".persistence.CraftPersistentDataAdapterContext");
+		FORBIDDEN.add("org.bukkit.craftbukkit." + TheAPI.getServerVersion() + ".persistence.CraftPersistentDataTypeRegistry");
 	}
 
 	private static JsonWriter writer = new Writer();

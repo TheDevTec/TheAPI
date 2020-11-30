@@ -5,6 +5,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+/**
+ * 
+ * Created 27.11. 2020
+ * 
+ * @author StraikerinaCZ
+ * @since 5.1
+ * 
+ 
+ */
+
 public class UnsortedList<V> implements List<V> {
 	class Bucket {
 		V val;
@@ -24,7 +34,7 @@ public class UnsortedList<V> implements List<V> {
 		}
 
 		public String toString() {
-			return val + "";
+			return val.toString() + "";
 		}
 
 	}
@@ -71,7 +81,7 @@ public class UnsortedList<V> implements List<V> {
 	public boolean contains(Object value) {
 		int con = 0;
 		Bucket c = bucket;
-		for (int i = 0; i < size; ++i) {
+		while (c != null && c.assigned == 1) {
 			if (c.val.equals(value)) {
 				con = 1;
 				break;
@@ -102,7 +112,7 @@ public class UnsortedList<V> implements List<V> {
 	public boolean remove(Object value) {
 		Bucket c = bucket, prev = c;
 		int found = 0;
-		for (int i = 0; i < size; ++i) {
+		while (c != null && c.assigned == 1) {
 			if (c.val.equals(value)) {
 				if (c == bucket) {
 					bucket = c.next == null ? new Bucket() : c.next;
@@ -140,25 +150,25 @@ public class UnsortedList<V> implements List<V> {
 			if (i != 0)
 				f.append(", ");
 			i = 1;
-			f.append(iterator.next() + "");
+			V v = iterator.next();
+			f.append(v==null?"null":v.toString());
 		}
 		return f.append("]").toString();
 	}
+
 
 	@Override
 	public Iterator<V> iterator() {
 		return new Iterator<V>() {
 			Bucket c = bucket;
-			int i = 0;
 
 			@Override
 			public boolean hasNext() {
-				return i < size;
+				return c!=null && c.assigned==1;
 			}
 
 			@Override
 			public V next() {
-				++i;
 				try {
 					return c.val;
 				} finally {
@@ -229,7 +239,7 @@ public class UnsortedList<V> implements List<V> {
 			return false;
 		int found = 0;
 		Bucket c = bucket, prev = c;
-		for (int i = 0; i < size; ++i) {
+		while (c != null && c.assigned == 1) {
 			if (!cc.contains(c.val)) {
 				if (c == bucket) {
 					bucket = c.next == null ? new Bucket() : c.next;

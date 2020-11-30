@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import me.DevTec.TheAPI.Utils.StreamUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
 import me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data;
-import me.DevTec.TheAPI.Utils.File.Reader;
 
 public interface DataLoader extends Data {
 	public Map<String, DataHolder> get();
@@ -29,29 +29,21 @@ public interface DataLoader extends Data {
 	public void reset();
 
 	public default void load(File f) {
-		load(Reader.read(f, true));
-		if (!loaded())
-			load(Reader.read(f, false)); // for json & byte
+		load(StreamUtils.fromStream(f));
 	}
 
 	public static DataLoader findLoaderFor(File a) {
-		String aa = Reader.read(a, true), b = Reader.read(a, false);
+		String aa = StreamUtils.fromStream(a);
 		DataLoader found = new ByteLoader();
 		found.load(aa);
-		if (!found.loaded())
-			found.load(b);
 		if (found.loaded())
 			return found;
 		found = new JsonLoader();
 		found.load(aa);
-		if (!found.loaded())
-			found.load(b);
 		if (found.loaded())
 			return found;
 		found = new YamlLoader();
 		found.load(aa);
-		if (!found.loaded())
-			found.load(b);
 		if (found.loaded())
 			return found;
 		return new EmptyLoader();

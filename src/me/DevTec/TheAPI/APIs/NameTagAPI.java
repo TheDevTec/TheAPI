@@ -3,14 +3,12 @@ package me.DevTec.TheAPI.APIs;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
-import org.bukkit.scoreboard.Team.Option;
-import org.bukkit.scoreboard.Team.OptionStatus;
 
 import me.DevTec.TheAPI.TheAPI;
-import me.DevTec.TheAPI.Utils.StringUtils;
 
 public class NameTagAPI {
 	private String prefix, suffix;
@@ -138,10 +136,6 @@ public class NameTagAPI {
 		if (sb.getTeam(teamName) == null)
 			sb.registerNewTeam(teamName);
 		Team t = sb.getTeam(teamName);
-		try {
-			t.setOption(Option.NAME_TAG_VISIBILITY, OptionStatus.ALWAYS);
-		} catch (Exception | NoClassDefFoundError | NoSuchMethodError | NoSuchFieldError nope) {
-		}
 		if (suffix != null) {
 			if (TheAPI.isOlder1_9()) {
 				if (suffix.length() > 16) {
@@ -178,7 +172,7 @@ public class NameTagAPI {
 				}
 			}
 			if (TheAPI.isNewVersion())
-				t.setColor(StringUtils.getColor(prefix));
+				t.setColor(ChatColor.getLastColors(prefix).isEmpty()?ChatColor.WHITE:ChatColor.getByChar(ChatColor.getLastColors(prefix).split("&")[1]));
 		}
 		if (!t.hasPlayer(p))
 			t.addPlayer(p);

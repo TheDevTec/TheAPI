@@ -6,15 +6,25 @@ import java.util.Set;
 
 /**
  * 
- * Created 26.11. 2020
+ * Created 27.11. 2020
  * 
  * @author StraikerinaCZ
  * @since 5.1
  * 
- * @apiNote Plus: - May contain duplicate & null values (Like List) - No sorting
- *          of embedded objects - Faster methods: * addAll * removeAll *
- *          retainAll * contains * remove * add * clear Minus: - Slower method
- *          containsAll
+ * @apiNote 
+ * Plus:
+ *  - May contain duplicate & null values (Like List)
+ *  - No sorting of embedded objects
+ *  - Faster methods:
+ *   * addAll
+ *   * removeAll
+ *   * retainAll
+ *   * contains
+ *   * remove
+ *   * add
+ *   * clear
+ *  Minus:
+ *   - Slower method containsAll
  *
  * @param <V> Param of values in Set
  */
@@ -38,7 +48,7 @@ public class UnsortedSet<V> implements Set<V> {
 		}
 
 		public String toString() {
-			return val + "";
+			return val==null?"null":val.toString();
 		}
 
 	}
@@ -85,7 +95,7 @@ public class UnsortedSet<V> implements Set<V> {
 	public boolean contains(Object value) {
 		int con = 0;
 		Bucket c = bucket;
-		for (int i = 0; i < size; ++i) {
+		while (c!=null && c.assigned==1) {
 			if (c.val.equals(value)) {
 				con = 1;
 				break;
@@ -116,7 +126,7 @@ public class UnsortedSet<V> implements Set<V> {
 	public boolean remove(Object value) {
 		Bucket c = bucket, prev = c;
 		int found = 0;
-		for (int i = 0; i < size; ++i) {
+		while (c!=null && c.assigned==1) {
 			if (c.val.equals(value)) {
 				if (c == bucket) {
 					bucket = c.next == null ? new Bucket() : c.next;
@@ -152,9 +162,11 @@ public class UnsortedSet<V> implements Set<V> {
 		int i = 0;
 		while (iterator.hasNext()) {
 			if (i != 0)
-				f.append(", ");
+				f.
+				append(", ");
 			i = 1;
-			f.append(iterator.next() + "");
+			V v = iterator.next();
+			f.append(v==null?"null":v.toString());
 		}
 		return f.append("]").toString();
 	}
@@ -163,16 +175,14 @@ public class UnsortedSet<V> implements Set<V> {
 	public Iterator<V> iterator() {
 		return new Iterator<V>() {
 			Bucket c = bucket;
-			int i = 0;
 
 			@Override
 			public boolean hasNext() {
-				return i < size;
+				return c!=null && c.assigned==1;
 			}
 
 			@Override
 			public V next() {
-				++i;
 				try {
 					return c.val;
 				} finally {
@@ -243,7 +253,7 @@ public class UnsortedSet<V> implements Set<V> {
 			return false;
 		int found = 0;
 		Bucket c = bucket, prev = c;
-		for (int i = 0; i < size; ++i) {
+		while (c!=null && c.assigned==1) {
 			if (!cc.contains(c.val)) {
 				if (c == bucket) {
 					bucket = c.next == null ? new Bucket() : c.next;

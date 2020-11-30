@@ -1,16 +1,16 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 
 public class EmptyLoader implements DataLoader {
 	private Map<String, DataHolder> data = new UnsortedMap<>();
-	private List<String> header = new ArrayList<>(), footer = new ArrayList<>();
+	private List<String> header = new UnsortedList<>(), footer = new UnsortedList<>();
 
 	@Override
 	public Map<String, DataHolder> get() {

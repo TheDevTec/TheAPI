@@ -4,11 +4,13 @@ import java.awt.Color;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,7 +23,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 import me.DevTec.TheAPI.TheAPI;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Json.Reader;
+import me.DevTec.TheAPI.Utils.Json.Writer;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class StringUtils {
@@ -35,11 +40,136 @@ public class StringUtils {
 
 	@SuppressWarnings("unchecked")
 	public static String colorizeJson(String json) {
-		return new HoverMessage((Map<String, ?>) Reader.read(json)).toString();
+		return Writer.write(colorizeMap((Map<Object, Object>) Reader.read(json)));
 	}
 
-	public static String colorizeJson(Map<String, Object> json) {
-		return new HoverMessage(json).toString();
+	@SuppressWarnings("unchecked")
+	public static Map<Object, Object> colorizeMap(Map<Object, Object> json) {
+		Map<Object, Object> colorized = new UnsortedMap<>(json.size());
+		for(Entry<Object, Object> e : json.entrySet()) {
+			if(e.getKey() instanceof Collection) {
+				if(e.getValue() instanceof Collection) {
+					colorized.put(colorizeList((Collection<Object>) e.getKey()), colorizeList((Collection<Object>) e.getKey()));
+				}
+				if(e.getValue() instanceof Map) {
+					colorized.put(colorizeList((Collection<Object>) e.getKey()), colorizeMap((Map<Object, Object>) e.getKey()));
+				}
+				if(e.getValue() instanceof Object[]) {
+					colorized.put(colorizeList((Collection<Object>) e.getKey()), colorizeArray((Object[]) e.getKey()));
+				}
+				if(e.getValue() instanceof String) {
+					colorized.put(colorizeList((Collection<Object>) e.getKey()), colorize((String) e.getKey()));
+				}else {
+					colorized.put(colorizeList((Collection<Object>) e.getKey()), e.getValue());
+				}
+			}
+			if(e.getKey() instanceof Map) {
+				if(e.getValue() instanceof Collection) {
+					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), colorizeList((Collection<Object>) e.getKey()));
+				}
+				if(e.getValue() instanceof Map) {
+					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), colorizeMap((Map<Object, Object>) e.getKey()));
+				}
+				if(e.getValue() instanceof Object[]) {
+					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), colorizeArray((Object[]) e.getKey()));
+				}
+				if(e.getValue() instanceof String) {
+					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), colorize((String) e.getKey()));
+				}else {
+					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), e.getValue());
+				}
+			}
+			if(e.getKey() instanceof Object[]) {
+				if(e.getValue() instanceof Collection) {
+					colorized.put(colorizeArray((Object[]) e.getKey()), colorizeList((Collection<Object>) e.getKey()));
+				}
+				if(e.getValue() instanceof Map) {
+					colorized.put(colorizeArray((Object[]) e.getKey()), colorizeMap((Map<Object, Object>) e.getKey()));
+				}
+				if(e.getValue() instanceof Object[]) {
+					colorized.put(colorizeArray((Object[]) e.getKey()), colorizeArray((Object[]) e.getKey()));
+				}
+				if(e.getValue() instanceof String) {
+					colorized.put(colorizeArray((Object[]) e.getKey()), colorize((String) e.getKey()));
+				}else {
+					colorized.put(colorizeArray((Object[]) e.getKey()), e.getValue());
+				}
+			}
+			if(e.getKey() instanceof String) {
+				if(e.getValue() instanceof Collection) {
+					colorized.put(colorize((String) e.getKey()), colorizeList((Collection<Object>) e.getKey()));
+				}
+				if(e.getValue() instanceof Map) {
+					colorized.put(colorize((String) e.getKey()), colorizeMap((Map<Object, Object>) e.getKey()));
+				}
+				if(e.getValue() instanceof Object[]) {
+					colorized.put(colorize((String) e.getKey()), colorizeArray((Object[]) e.getKey()));
+				}
+				if(e.getValue() instanceof String) {
+					colorized.put(colorize((String) e.getKey()), colorize((String) e.getKey()));
+				}else {
+					colorized.put(colorize((String) e.getKey()), e.getValue());
+				}
+			}else {
+				if(e.getValue() instanceof Collection) {
+					colorized.put(e.getKey(), colorizeList((Collection<Object>) e.getKey()));
+				}
+				if(e.getValue() instanceof Map) {
+					colorized.put(e.getKey(), colorizeMap((Map<Object, Object>) e.getKey()));
+				}
+				if(e.getValue() instanceof Object[]) {
+					colorized.put(e.getKey(), colorizeArray((Object[]) e.getKey()));
+				}
+				if(e.getValue() instanceof String) {
+					colorized.put(e.getKey(), colorize((String) e.getKey()));
+				}else {
+					colorized.put(e.getKey(), e.getValue());
+				}
+			}
+		}
+		return colorized;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static Collection<Object> colorizeList(Collection<Object> json) {
+		List<Object> colorized = new UnsortedList<>(json.size());
+		for(Object e : json) {
+			if(e instanceof Collection) {
+				colorized.add(colorizeList((Collection<Object>) e));
+			}
+			if(e instanceof Map) {
+				colorized.add(colorizeMap((Map<Object, Object>) e));
+			}
+			if(e instanceof Object[]) {
+				colorized.add(colorizeArray((Object[]) e));
+			}
+			if(e instanceof String)
+				colorized.add(colorize((String) e));
+			else
+				colorized.add(e);
+		}
+		return colorized;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static Object[] colorizeArray(Object[] json) {
+		List<Object> colorized = new UnsortedList<>(json.length);
+		for(Object e : json) {
+			if(e instanceof Collection) {
+				colorized.add(colorizeList((Collection<Object>) e));
+			}
+			if(e instanceof Map) {
+				colorized.add(colorizeMap((Map<Object, Object>) e));
+			}
+			if(e instanceof Object[]) {
+				colorized.add(colorizeArray((Object[]) e));
+			}
+			if(e instanceof String)
+				colorized.add(colorize((String) e));
+			else
+				colorized.add(e);
+		}
+		return colorized.toArray();
 	}
 
 	/**
@@ -63,24 +193,6 @@ public class StringUtils {
 		}
 		splitted.add(prefix + split);
 		return splitted;
-	}
-
-	/**
-	 * @see see Get Color from String
-	 * @return ChatColor
-	 */
-	public static ChatColor getColor(String fromString) {
-		char colour = '\u0000';
-		char[] chars = fromString.toCharArray();
-		for (int i = 0; i < chars.length; ++i) {
-			char code;
-			char at = chars[i];
-			if (at != '\u00a7' && at != '&' || i + 1 >= chars.length
-					|| ChatColor.getByChar(code = chars[i + 1]) == null)
-				continue;
-			colour = code;
-		}
-		return colour == '\u0000' ? ChatColor.RESET : ChatColor.getByChar(colour);
 	}
 
 	/**
