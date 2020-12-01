@@ -172,7 +172,10 @@ public class NameTagAPI {
 				}
 			}
 			if (TheAPI.isNewVersion())
-				t.setColor(ChatColor.getLastColors(prefix).isEmpty()?ChatColor.WHITE:ChatColor.getByChar(ChatColor.getLastColors(prefix).split("&")[1]));
+				if(!ChatColor.getLastColors(prefix).trim().isEmpty()) {
+					t.setColor(ChatColor.getByChar(ChatColor.getLastColors(prefix).substring(1,2)));
+				}else
+					t.setColor(ChatColor.WHITE);
 		}
 		if (!t.hasPlayer(p))
 			t.addPlayer(p);

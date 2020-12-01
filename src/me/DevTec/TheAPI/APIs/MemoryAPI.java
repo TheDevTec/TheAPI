@@ -13,18 +13,14 @@ public class MemoryAPI {
 
 	public static String clearMemory() {
 		double mem = getRawUsedMemory(false);
+		for (World w : Bukkit.getWorlds())
+			for (Chunk c : w.getLoadedChunks())
+				c.unload(true);
 		new Tasker() {
 			public void run() {
-				for (World w : Bukkit.getWorlds())
-					for (Chunk c : w.getLoadedChunks())
-						c.unload(true);
-				new Tasker() {
-					public void run() {
-						System.gc();
-					}
-				}.runTask();
+				System.gc();
 			}
-		}.runTaskSync();
+		}.runTask();
 		return String.format("%2.02f", mem - getRawUsedMemory(false)).replaceFirst("\\.00", "");
 	}
 

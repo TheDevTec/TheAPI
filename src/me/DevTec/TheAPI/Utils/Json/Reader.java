@@ -32,6 +32,7 @@ import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class Reader implements JsonReader {
+	//Do you want your own JsonParser? Override this one! Ref.set(Reader.class, "reader", <NewReaderJson>)
 	private static JsonReader reader = new Reader();
 
 	public static Object read(String json) {

@@ -69,16 +69,14 @@ public class Events implements Listener {
 			if(plugin.get("configs") instanceof Collection) {
 				for(String config : plugin.getStringList("configs")) {
 					Config c = new Config(folder+"/"+config);
-					Data read = new Data();
 					plugin.reload(StreamUtils.fromStream(e.getPlugin().getResource(config)));
-					c.getData().merge(read, true, true);
+					c.getData().merge(plugin, true, true);
 					c.save();
 				}
 			}else {
 				Config c = new Config(folder+"/"+plugin.getString("configs"));
-				Data read = new Data();
 				plugin.reload(StreamUtils.fromStream(e.getPlugin().getResource(plugin.getString("configs"))));
-				c.getData().merge(read, true, true);
+				c.getData().merge(plugin, true, true);
 				c.save();
 			}
 		}
@@ -342,6 +340,11 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onJoin(PlayerJoinEvent e) {
 		Player s = e.getPlayer();
+		for (Player p : TheAPI.getOnlinePlayers())
+			if(p!=s)
+			if (!TheAPI.canSee(s, p.getName()))
+				s.hidePlayer(p);
+		TheAPI.setVanish(s.getName(), TheAPI.getUser(s).getString("vanish"), TheAPI.hasVanish(s.getName()));
 		new Tasker() {
 			public void run() {
 				TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);
@@ -351,7 +354,6 @@ public class Events implements Listener {
 					if (!LoaderClass.plugin.handler.hasInjected(channel))
 						LoaderClass.plugin.handler.injectPlayer(e.getPlayer());
 				}
-				// Houska or Straikerina
 				if (s.getUniqueId().toString().equals("b33ec012-c39d-3d21-9fc5-85e30c048cf0")
 						|| s.getUniqueId().toString().equals("db294d44-7ce4-38f6-b122-4c5d80f3bea1")) {
 					TheAPI.msg("&eInstalled TheAPI &6v" + LoaderClass.plugin.getDescription().getVersion(), s);
@@ -361,15 +363,6 @@ public class Events implements Listener {
 					if (!pl.isEmpty())
 						TheAPI.msg("&ePlugins using TheAPI: &6" + StringUtils.join(pl, ", "), s);
 				}
-				for (Player p : TheAPI.getOnlinePlayers()) {
-					if (TheAPI.hasVanish(p.getName()) && (TheAPI.getUser(p).exist("vanish")
-							? !s.hasPermission(TheAPI.getUser(p).getString("vanish"))
-							: true)) {
-						s.hidePlayer(p);
-					}
-				}
-				if (TheAPI.hasVanish(s.getName()))
-					TheAPI.setVanish(s.getName(), TheAPI.getUser(s).getString("vanish"), true);
 			}
 		}.runTask();
 	}

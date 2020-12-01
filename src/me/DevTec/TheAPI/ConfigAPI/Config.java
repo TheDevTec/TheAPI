@@ -2,6 +2,7 @@ package me.DevTec.TheAPI.ConfigAPI;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -75,11 +76,11 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		f.save(t);
 	}
 
-	public void setHeader(List<String> texts) {
+	public void setHeader(Collection<String> texts) {
 		f.setHeader(texts);
 	}
 
-	public List<String> getHeader() {
+	public Collection<String> getHeader() {
 		return f.getHeader();
 	}
 
@@ -87,23 +88,15 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		f.getHeader().add(text);
 	}
 
-	public void setHeader(int position, String text) {
-		f.getHeader().set(position, text);
-	}
-
 	public void removeHeader(String text) {
 		f.getHeader().remove(text);
 	}
 
-	public void removeHeader(int position) {
-		f.getHeader().remove(position);
-	}
-
-	public void setFooter(List<String> texts) {
+	public void setFooter(Collection<String> texts) {
 		f.setFooter(texts);
 	}
 
-	public List<String> getFooter() {
+	public Collection<String> getFooter() {
 		return f.getFooter();
 	}
 
@@ -111,16 +104,8 @@ public class Config implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		f.getFooter().add(text);
 	}
 
-	public void setFooter(int position, String text) {
-		f.getFooter().set(position, text);
-	}
-
 	public void removeFooter(String text) {
 		f.getFooter().remove(text);
-	}
-
-	public void removeFooter(int position) {
-		f.getFooter().remove(position);
 	}
 
 	public void addDefaults(Map<String, Object> values) {

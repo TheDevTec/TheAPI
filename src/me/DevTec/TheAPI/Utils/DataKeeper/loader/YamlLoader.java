@@ -1,5 +1,6 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,7 +12,7 @@ import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Json.Reader;
 
-public class YamlLoader implements DataLoader {
+public class YamlLoader extends DataLoader {
 	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*?):[ ]*(.*)"),
 			fixSplit = Pattern.compile("[\"'](.*)['\"]");
 	private Map<String, DataHolder> data = new UnsortedMap<>();
@@ -217,12 +218,12 @@ public class YamlLoader implements DataLoader {
 	}
 
 	@Override
-	public List<String> getHeader() {
+	public Collection<String> getHeader() {
 		return header;
 	}
 
 	@Override
-	public List<String> getFooter() {
+	public Collection<String> getFooter() {
 		return footer;
 	}
 
@@ -246,8 +247,12 @@ public class YamlLoader implements DataLoader {
 	}
 
 	@Override
-	public boolean loaded() {
+	public boolean isLoaded() {
 		return l;
+	}
+	
+	public String toString() {
+		return getDataName();
 	}
 
 	@Override

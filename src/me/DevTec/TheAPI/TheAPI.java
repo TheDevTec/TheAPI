@@ -834,7 +834,7 @@ public class TheAPI {
 	}
 
 	public static boolean canSee(Player player, String target) {
-		return hasVanish(target) ? player.hasPermission(getVanishPermission(target)) : true;
+		return hasVanish(target) ? (getVanishPermission(target)==null?false:player.hasPermission(getVanishPermission(target))) : true;
 	}
 
 	public static boolean canSee(String player, String target) {

@@ -1,7 +1,6 @@
 package me.DevTec.TheAPI.Utils.DataKeeper.loader;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -10,7 +9,7 @@ import me.DevTec.TheAPI.Utils.DataKeeper.Data.DataHolder;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Json.Reader;
 
-public class JsonLoader implements DataLoader {
+public class JsonLoader extends DataLoader {
 	private boolean l;
 	private Map<String, DataHolder> data = new UnsortedMap<>();
 
@@ -72,20 +71,24 @@ public class JsonLoader implements DataLoader {
 	}
 
 	@Override
-	public List<String> getHeader() {
+	public Collection<String> getHeader() {
 		// NOT SUPPORTED
 		return null;
 	}
 
 	@Override
-	public List<String> getFooter() {
+	public Collection<String> getFooter() {
 		// NOT SUPPORTED
 		return null;
 	}
 
 	@Override
-	public boolean loaded() {
+	public boolean isLoaded() {
 		return l;
+	}
+	
+	public String toString() {
+		return getDataName();
 	}
 
 	@Override

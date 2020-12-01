@@ -650,7 +650,7 @@ public class BlocksAPI {
 									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class,
 											int.class, Ref.nms("World")),
 									pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
-						for (Player p : TheAPI.getOnlinePlayers())
+						for (Player p : pos.getWorld().getPlayers())
 							Ref.sendPacket(p, packet);
 					}
 				}
@@ -712,7 +712,7 @@ public class BlocksAPI {
 									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class,
 											int.class, Ref.nms("World")),
 									pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
-						for (Player p : TheAPI.getOnlinePlayers())
+						for (Player p : pos.getWorld().getPlayers())
 							Ref.sendPacket(p, packet);
 					}
 				}
@@ -786,7 +786,7 @@ public class BlocksAPI {
 									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class,
 											int.class, Ref.nms("World")),
 									pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
-						for (Player p : TheAPI.getOnlinePlayers())
+						for (Player p : pos.getWorld().getPlayers())
 							Ref.sendPacket(p, packet);
 					}
 				}
@@ -845,7 +845,7 @@ public class BlocksAPI {
 									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class,
 											int.class, Ref.nms("World")),
 									pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
-						for (Player p : TheAPI.getOnlinePlayers())
+						for (Player p : pos.getWorld().getPlayers())
 							Ref.sendPacket(p, packet);
 					}
 				}
@@ -914,7 +914,7 @@ public class BlocksAPI {
 									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class,
 											int.class, Ref.nms("World")),
 									pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
-						for (Player p : TheAPI.getOnlinePlayers())
+						for (Player p : pos.getWorld().getPlayers())
 							Ref.sendPacket(p, packet);
 					}
 				}
@@ -968,7 +968,7 @@ public class BlocksAPI {
 									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class,
 											int.class, Ref.nms("World")),
 									pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
-						for (Player p : TheAPI.getOnlinePlayers())
+						for (Player p : pos.getWorld().getPlayers())
 							Ref.sendPacket(p, packet);
 					}
 				}

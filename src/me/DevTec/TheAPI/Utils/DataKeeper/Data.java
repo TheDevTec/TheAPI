@@ -198,23 +198,23 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		return a;
 	}
 
-	public Data setHeader(List<String> lines) {
+	public Data setHeader(Collection<String> lines) {
 		loader.getHeader().clear();
 		loader.getHeader().addAll(lines);
 		return this;
 	}
 
-	public Data setFooter(List<String> lines) {
+	public Data setFooter(Collection<String> lines) {
 		loader.getFooter().clear();
 		loader.getFooter().addAll(lines);
 		return this;
 	}
 
-	public List<String> getHeader() {
+	public Collection<String> getHeader() {
 		return loader.getHeader();
 	}
 
-	public List<String> getFooter() {
+	public Collection<String> getFooter() {
 		return loader.getFooter();
 	}
 
@@ -695,23 +695,15 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	public Data merge(Data f, boolean addHeader, boolean addFooter) {
 		for(Entry<String, DataHolder> s : f.loader.get().entrySet()) {
-			if(get(s.getKey())==null && s.getValue().getValue()!=null) {
+			if(get(s.getKey())==null && s.getValue().getValue()!=null)
 				set(s.getKey(), s.getValue().getValue());
-			}
-			if(getComments(s.getKey()).isEmpty() && !s.getValue().getComments().isEmpty()) {
+			if(getComments(s.getKey()).isEmpty() && !s.getValue().getComments().isEmpty())
 				setComments(s.getKey(), s.getValue().getComments());
-			}
 		}
-		if (addHeader)
-			if(!loader.getHeader().containsAll(f.loader.getHeader())) {
-				loader.getHeader().clear();
-				loader.getHeader().addAll(f.loader.getHeader());
-			}
-		if (addFooter)
-			if(!loader.getFooter().containsAll(f.loader.getFooter())) {
-				loader.getFooter().clear();
-				loader.getFooter().addAll(f.loader.getFooter());
-			}
+		if(addHeader && !loader.getHeader().containsAll(f.loader.getHeader()))
+			setHeader(f.loader.getHeader());
+		if(addFooter && !loader.getFooter().containsAll(f.loader.getFooter()))
+			setFooter(f.loader.getFooter());
 		return this;
 	}
 }
