@@ -96,7 +96,7 @@ public class YamlLoader implements DataLoader {
 						if (c == 1) {
 							String object = v.toString();
 							if ((object.trim().startsWith("'") && object.trim().endsWith("'")
-									|| object.trim().startsWith("\"") && object.trim().endsWith("\"")) && object.length() > 1){
+									|| object.trim().startsWith("\"") && object.trim().endsWith("\"")) && object.length() > 1) {
 								object = r(object);
 								Matcher m = fixSplit.matcher(object);
 								m.find();
@@ -173,13 +173,6 @@ public class YamlLoader implements DataLoader {
 							}
 						} catch (Exception er) {
 						}
-						if ((key.trim().startsWith("'") && key.trim().endsWith("'")
-								|| key.trim().startsWith("\"") && key.trim().endsWith("\"")) && key.length() > 1) {
-							key = r(key);
-							Matcher m = fixSplit.matcher(key);
-							m.find();
-							key=m.group(1);
-						}
 						key += (key.equals("") ? "" : ".") + split.trim();
 						f = 1;
 						last = c(text);
@@ -248,7 +241,7 @@ public class YamlLoader implements DataLoader {
 		if (get().containsKey(key)) {
 			get().get(key).setValue(o);
 		} else
-			set(key, new DataHolder(o, new UnsortedList<>(lines)));
+			set(key, new DataHolder(o, lines));
 		lines.clear();
 	}
 

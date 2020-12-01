@@ -688,7 +688,7 @@ public class StringUtils {
 	public static String timeToString(long time) { // New shorter name of method
 		long minutes = (time / 60) % 60;
 		long hours = (time / 3600) % 24;
-		long days = (long) ((time / 86400) % 30.5F);
+		long days = (time / 86400) % 7;
 		long weeks = (time / 604800) % 4;
 		long mounth = (long) ((time / 2629743.83F) % 12);
 		long year = (time / 31556926);

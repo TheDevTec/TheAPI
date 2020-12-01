@@ -1,6 +1,7 @@
 package me.DevTec.TheAPI.Utils.TheAPIUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,6 +31,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -39,6 +41,7 @@ import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.TheAPI.SudoType;
 import me.DevTec.TheAPI.APIs.SignAPI;
 import me.DevTec.TheAPI.APIs.SignAPI.SignAction;
+import me.DevTec.TheAPI.ConfigAPI.Config;
 import me.DevTec.TheAPI.Events.DamageGodPlayerByEntityEvent;
 import me.DevTec.TheAPI.Events.DamageGodPlayerEvent;
 import me.DevTec.TheAPI.Events.PlayerJumpEvent;
@@ -49,13 +52,38 @@ import me.DevTec.TheAPI.PunishmentAPI.PlayerBanList.PunishmentType;
 import me.DevTec.TheAPI.PunishmentAPI.PunishmentAPI;
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.Utils.Position;
+import me.DevTec.TheAPI.Utils.StreamUtils;
 import me.DevTec.TheAPI.Utils.StringUtils;
+import me.DevTec.TheAPI.Utils.DataKeeper.Data;
 import me.DevTec.TheAPI.Utils.DataKeeper.User;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.WorldsAPI.WorldBorderAPI.WarningMessageType;
 
 public class Events implements Listener {
-
+	@EventHandler
+	public void load(PluginEnableEvent e) {
+		Data plugin = new Data();
+		plugin.reload(StreamUtils.fromStream(e.getPlugin().getResource("plugin.yml")));
+		if(plugin.exists("configs")) {
+			String folder = plugin.exists("configsFolder")?(plugin.getString("configsFolder").trim().isEmpty()?e.getPlugin().getName():plugin.getString("configsFolder")):e.getPlugin().getName();
+			if(plugin.get("configs") instanceof Collection) {
+				for(String config : plugin.getStringList("configs")) {
+					Config c = new Config(folder+"/"+config);
+					Data read = new Data();
+					plugin.reload(StreamUtils.fromStream(e.getPlugin().getResource(config)));
+					c.getData().merge(read, true, true);
+					c.save();
+				}
+			}else {
+				Config c = new Config(folder+"/"+plugin.getString("configs"));
+				Data read = new Data();
+				plugin.reload(StreamUtils.fromStream(e.getPlugin().getResource(plugin.getString("configs"))));
+				c.getData().merge(read, true, true);
+				c.save();
+			}
+		}
+	}
+	
 	@EventHandler
 	public synchronized void onClose(InventoryCloseEvent e) {
 		Player p = (Player) e.getPlayer();

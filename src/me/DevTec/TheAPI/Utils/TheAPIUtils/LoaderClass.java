@@ -7,6 +7,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,6 +43,7 @@ import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
 import me.DevTec.TheAPI.Utils.StreamUtils;
 import me.DevTec.TheAPI.Utils.StringUtils;
+import me.DevTec.TheAPI.Utils.DataKeeper.Data;
 import me.DevTec.TheAPI.Utils.DataKeeper.DataType;
 import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedSet;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap;
@@ -134,6 +136,28 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
 				TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		Data plugin = new Data();
+		for(Plugin e : Bukkit.getPluginManager().getPlugins()) {
+		plugin.reload(StreamUtils.fromStream(e.getResource("plugin.yml")));
+		if(plugin.exists("configs")) {
+			String folder = plugin.exists("configsFolder")?(plugin.getString("configsFolder").trim().isEmpty()?e.getName():plugin.getString("configsFolder")):e.getName();
+			if(plugin.get("configs") instanceof Collection) {
+				for(String config : plugin.getStringList("configs")) {
+					Config c = new Config(folder+"/"+config);
+					Data read = new Data();
+					plugin.reload(StreamUtils.fromStream(e.getResource(config)));
+					c.getData().merge(read, true, true);
+					c.save();
+				}
+			}else {
+				Config c = new Config(folder+"/"+plugin.getString("configs"));
+				Data read = new Data();
+				plugin.reload(StreamUtils.fromStream(e.getResource(plugin.getString("configs"))));
+				c.getData().merge(read, true, true);
+				c.save();
+			}
+		}
+		}
 		Bukkit.getPluginManager().registerEvents(new Events(), LoaderClass.this);
 		TheAPI.createAndRegisterCommand("TheAPI", null, new TheAPICommand());
 		if (TheAPI.isNewerThan(7) || Ref.getClass("net.minecraft.util.io.netty.channel.ChannelInitializer") == null)

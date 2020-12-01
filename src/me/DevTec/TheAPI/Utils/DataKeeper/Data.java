@@ -43,7 +43,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 		public DataHolder(Object object, List<String> unusedLines) {
 			this(object);
-			lines = unusedLines;
+			lines.addAll(unusedLines);
 		}
 
 		public Object getValue() {
@@ -694,14 +694,24 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	}
 
 	public Data merge(Data f, boolean addHeader, boolean addFooter) {
-		loader.get().putAll(f.loader.get());
-		for (String sw : f.aw)
-			if (!aw.contains(sw))
-				aw.add(sw);
+		for(Entry<String, DataHolder> s : f.loader.get().entrySet()) {
+			if(get(s.getKey())==null && s.getValue().getValue()!=null) {
+				set(s.getKey(), s.getValue().getValue());
+			}
+			if(getComments(s.getKey()).isEmpty() && !s.getValue().getComments().isEmpty()) {
+				setComments(s.getKey(), s.getValue().getComments());
+			}
+		}
 		if (addHeader)
-			loader.getHeader().addAll(f.loader.getHeader());
+			if(!loader.getHeader().containsAll(f.loader.getHeader())) {
+				loader.getHeader().clear();
+				loader.getHeader().addAll(f.loader.getHeader());
+			}
 		if (addFooter)
-			loader.getFooter().addAll(f.loader.getFooter());
+			if(!loader.getFooter().containsAll(f.loader.getFooter())) {
+				loader.getFooter().clear();
+				loader.getFooter().addAll(f.loader.getFooter());
+			}
 		return this;
 	}
 }

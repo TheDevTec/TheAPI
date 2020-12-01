@@ -1,9 +1,11 @@
 package me.DevTec.TheAPI.Utils;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 import com.google.common.io.ByteArrayDataOutput;
@@ -31,7 +33,15 @@ public class StreamUtils {
 	
 	public static String fromStream(InputStream stream) {
 		try {
-			return new String(ByteStreams.toByteArray(stream), StandardCharsets.UTF_8);
+			InputStreamReader isr = new InputStreamReader(stream, StandardCharsets.UTF_8);
+			BufferedReader br = new BufferedReader(isr);
+			StringBuffer sb = new StringBuffer();
+			String content;
+			while ((content = br.readLine()) != null)
+				sb.append(content+System.lineSeparator());
+			br.close();
+			isr.close();
+			return sb.toString();
 		} catch (Exception e) {
 			return null;
 		} finally {
