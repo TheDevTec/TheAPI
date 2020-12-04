@@ -1,6 +1,5 @@
 package me.DevTec.TheAPI.Utils.TheAPIUtils.Command;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +38,7 @@ public class TAC_PluginManager {
 		}
 		if (args[1].equalsIgnoreCase("Files") || args[1].equalsIgnoreCase("notloaded")
 				|| args[1].equalsIgnoreCase("toload") || args[1].equalsIgnoreCase("unloaded")) {
-			HashMap<String, String> d = PluginManagerAPI.getPluginsToLoadWithNames();
+			Map<String, String> d = PluginManagerAPI.getPluginsToLoadWithNames();
 			if (d.isEmpty()) {
 				TheAPI.msg("&eNo plugin to load.", s);
 				return;

@@ -1,16 +1,17 @@
 package me.DevTec.TheAPI.Utils.PacketListenerAPI;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.entity.Player;
 
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
+
 public class PacketManager {
 	private static final List<Priority> list = Arrays.asList(Priority.LOWEST, Priority.LOW, Priority.NORMAL,
 			Priority.HIGH, Priority.HIGHEST, Priority.MONITOR);
-	private static final HashMap<Priority, List<Listener>> listeners = new HashMap<>();
+	private static final UnsortedMap<Priority, List<Listener>> listeners = new UnsortedMap<>();
 
 	public static Object call(Player player, Object packet, Object channel, PacketType type) {
 		if (packet == null || channel == null)
@@ -60,7 +61,7 @@ public class PacketManager {
 				edit.remove(listener);
 				listeners.put(old, edit);
 			}
-		List<Listener> edit = listeners.containsKey(neww) ? listeners.get(neww) : new ArrayList<>();
+		List<Listener> edit = listeners.containsKey(neww) ? listeners.get(neww) : new UnsortedList<>();
 		if (neww != null) {
 			if (edit.contains(listener))
 				return;

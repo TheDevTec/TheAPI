@@ -1,9 +1,7 @@
 package me.DevTec.TheAPI.ScoreboardAPI;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -14,6 +12,7 @@ import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.TheCoder;
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.Action;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.DisplayType;
@@ -29,24 +28,45 @@ import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 public class ScoreboardAPI {
 	private static Data data = new Data();
 	private static Field teamlist = Ref.field(Ref.nms("PacketPlayOutScoreboardTeam"), TheAPI.isOlder1_9() ? "g" : "h");
+	private Object packetD;
 	private Player p;
 	private String player;
-	private final int id;
+	private final int id, slott;
 	private org.bukkit.scoreboard.Scoreboard sb;
 	private org.bukkit.scoreboard.Objective o;
 	private boolean packets, teams;
 	private String name = "TheAPI";
 
 	public ScoreboardAPI(Player player) {
-		this(player, false, false);
+		this(player, false, false, -1);
 	}
 
 	public ScoreboardAPI(Player player, boolean usePackets) {
-		this(player, usePackets, false);
+		this(player, usePackets, false, -1);
+	}
+
+	public ScoreboardAPI(Player player, int slot) {
+		this(player, false, false, slot);
+	}
+
+	public ScoreboardAPI(Player player, boolean usePackets, int slot) {
+		this(player, usePackets, false, slot);
 	}
 
 	public ScoreboardAPI(Player player, boolean usePackets, boolean useTeams) {
+		this(player, usePackets, useTeams, -1);
+	}
+
+	/**
+	 * 
+	 * @param player Player - Holder of scoreboard
+	 * @param usePackets Use nms teams?
+	 * @param useTeams Use bukkit teams?
+	 * @param slot -1 to adaptive slot
+	 */
+	public ScoreboardAPI(Player player, boolean usePackets, boolean useTeams, int slot) {
 		p = player;
+		slott=slot;
 		this.player = player.getName();
 		packets = usePackets;
 		teams = useTeams;
@@ -63,12 +83,20 @@ public class ScoreboardAPI {
 			sb = player.getServer().getScoreboardManager().getNewScoreboard();
 			o = sb.getObjective(id + "") != null ? sb.getObjective(id + "") : sb.registerNewObjective(id + "", "dummy");
 			o.setDisplaySlot(DisplaySlot.SIDEBAR);
+		}else {
+			packetD = NMSAPI.getPacketPlayOutScoreboardDisplayObjective();
+			Ref.set(packetD, "a", 1);
+			Ref.set(packetD, "b", this.player);
 		}
 		create();
 	}
 
 	public ScoreboardAPI(Player player, ScoreboardType type) {
-		this(player, type == ScoreboardType.PACKETS, type == ScoreboardType.TEAMS);
+		this(player, type == ScoreboardType.PACKETS, type == ScoreboardType.TEAMS, -1);
+	}
+
+	public ScoreboardAPI(Player player, ScoreboardType type, int slot) {
+		this(player, type == ScoreboardType.PACKETS, type == ScoreboardType.TEAMS, slot);
 	}
 
 	public boolean usingPackets() {
@@ -78,7 +106,7 @@ public class ScoreboardAPI {
 	public boolean usingTeams() {
 		return teams;
 	}
-
+	
 	private void create() {
 		updatePlayer();
 		if (data.exists("sbc." + player)) {
@@ -91,10 +119,7 @@ public class ScoreboardAPI {
 		LoaderClass.plugin.scoreboard.put(id, this);
 		if (packets) {
 			Ref.sendPacket(p, createObjectivePacket(0, name));
-			Object packet = NMSAPI.getPacketPlayOutScoreboardDisplayObjective();
-			Ref.set(packet, "a", 1);
-			Ref.set(packet, "b", player);
-			Ref.sendPacket(p, packet);
+			Ref.sendPacket(p, packetD);
 		} else {
 			if (p.getPlayer() != sb)
 				p.getPlayer().setScoreboard(sb);
@@ -117,19 +142,19 @@ public class ScoreboardAPI {
 		}
 		if (packets) {
 			Ref.sendPacket(p, createObjectivePacket(1, null));
-			if (LoaderClass.plugin.map.containsKey(id))
-				for (int line : LoaderClass.plugin.map.threadSet(id))
-					for (Object team : LoaderClass.plugin.map.values(id, line))
+			if (data.exists(""+id))
+				for (String line : data.getKeys(""+id))
+					for (Object team : data.getList(id+"."+line))
 						Ref.sendPacket(p, ((Team) team).remove());
 		} else {
-			if (LoaderClass.plugin.map.containsKey(id))
-				for (int line : LoaderClass.plugin.map.threadSet(id))
-					removeLine(line);
+			if (data.exists(""+id))
+				for (String line : data.getKeys(""+id))
+					removeLine(Integer.parseInt(line));
 			if (p.getPlayer().getScoreboard() == sb)
 				p.getPlayer().setScoreboard(p.getPlayer().getServer().getScoreboardManager().getNewScoreboard());
 		}
 		LoaderClass.plugin.scoreboard.remove(id);
-		LoaderClass.plugin.map.remove(id);
+		data.remove(""+id);
 	}
 
 	public void setTitle(String name) {
@@ -152,8 +177,10 @@ public class ScoreboardAPI {
 	}
 
 	public void addLine(String value) {
-		for (int i = 0; i > -1; ++i) {
-			if (!LoaderClass.plugin.map.containsThread(id, i)) {
+		int i = -1;
+		while (true) {
+			++i;
+			if (!data.exists(id+"."+i)) {
 				setLine(i, value);
 				break;
 			}
@@ -169,13 +196,9 @@ public class ScoreboardAPI {
 	public void setLine(int line, String value) {
 		create();
 		value = TheAPI.colorize(value);
-		if (getLine(line) != null && getLine(line).equals(value))
-			return;
+		if(getLine(line)!=null && getLine(line).equals(value))return;
 		if (packets) {
 			Team team = getTeam(line);
-			String old = team.currentPlayer;
-			if (old != null)
-				Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", old, 0));
 			team.setValue(value);
 			sendLine(team, line);
 		} else {
@@ -186,7 +209,7 @@ public class ScoreboardAPI {
 					team.addEntry(TheCoder.toColor(line));
 				}
 				try {
-					if (TheAPI.isNewVersion()) {
+					if (!a) {
 						String prefix = value.length() > 48 ? value.substring(0, 48) : value;
 						team.setPrefix(prefix);
 						if (value.length() > 48) {
@@ -204,25 +227,24 @@ public class ScoreboardAPI {
 				} catch (Exception e) {
 				}
 				o.getScore(TheCoder.toColor(line)).setScore(line);
-				LoaderClass.plugin.map.put(id, line, team);
+				data.set(id+"."+line, team);
 			} else {
-				String old = LoaderClass.plugin.map.containsThread(id, line)
-						? (String) LoaderClass.plugin.map.get(id, line)
+				String old = data.exists(id+"."+line)
+						? (String) data.get(id+"."+line)
 						: null;
 				if (old != null)
 					sb.resetScores(old);
-				value = TheAPI.isNewVersion() ? (value.length() > 48 ? value.substring(0, 48) : value)
+				value = !a ? (value.length() > 48 ? value.substring(0, 48) : value)
 						: (value.length() > 32 ? value.substring(0, 32) : value);
 				o.getScore(value).setScore(line);
-				LoaderClass.plugin.map.put(id, line, value);
+				data.set(id+"."+line, value);
 			}
 		}
 	}
 
 	public void removeLine(int line) {
 		create();
-		if (!LoaderClass.plugin.map.containsThread(id, line))
-			return;
+		if(!data.exists(id+"."+line))return;
 		if (packets) {
 			Team team = getTeam(line);
 			String old = team.currentPlayer;
@@ -230,59 +252,71 @@ public class ScoreboardAPI {
 				Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", old, 0));
 				Ref.sendPacket(p, team.remove());
 			}
+			data.remove(id+"."+line);
 		} else {
 			if (teams) {
 				org.bukkit.scoreboard.Team team = sb.getTeam(line + "");
-				if (team == null)
-					return;
+				if (team != null)
 				team.unregister();
 				sb.resetScores(Bukkit.getOfflinePlayer(line + ""));
+				data.remove(id+"."+line);
 			} else {
-				String old = LoaderClass.plugin.map.containsThread(id, line)
-						? (String) LoaderClass.plugin.map.get(id, line)
+				String old = data.exists(id+"."+line)
+						? (String) data.get(id+"."+line)
 						: null;
-				if (old == null)
-					return;
+				if (old != null)
 				sb.resetScores(old);
+				data.remove(id+"."+line);
 			}
 		}
-		LoaderClass.plugin.map.remove(id, line);
+	}
+	
+	public void removeUpperLines(int line) {
+		for(String a : data.getKeys(id+"")) {
+			if(Integer.parseInt(a)>line) {
+				removeLine(Integer.parseInt(a));
+			}
+		}
 	}
 
 	public String getLine(int line) {
-		if (LoaderClass.plugin.map.containsThread(id, line))
-			return packets ? ((Team) LoaderClass.plugin.map.get(id, line)).getValue()
-					: (teams ? ((org.bukkit.scoreboard.Team) LoaderClass.plugin.map.get(id, line)).getPrefix()
-							: (String) LoaderClass.plugin.map.get(id, line));
+		if (data.exists(id+"."+line))
+			return packets ? ((Team) data.get(id+"."+line)).getValue()
+					: (teams ? ((org.bukkit.scoreboard.Team) data.get(id+"."+line)).getPrefix()
+							: (String) data.get(id+"."+line));
 		return null;
 	}
 
-	public int getLines() {
-		return LoaderClass.plugin.map.threadSet(id).size();
+	public List<String> getLines() {
+		List<String> lines = new UnsortedList<>();
+		for(String line : data.getKeys(id+"")) {
+			lines.add(getLine(Integer.parseInt(line)));
+		}
+		return lines;
 	}
+	
 
 	private void sendLine(Team team, int line) {
-		for (Iterator<Object> r = team.sendLine(); r.hasNext();)
-			Ref.sendPacket(p, r.next());
-		Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.CHANGE, player, team.currentPlayer, line));
+		team.sendLine(p);
+		Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.CHANGE, player, team.currentPlayer, slott==-1?line:slott));
 		team.reset();
-		LoaderClass.plugin.map.put(id, line, team);
+		data.set(id+"."+line, team);
 	}
 
 	private Team getTeam(int line) {
-		if (!LoaderClass.plugin.map.containsThread(id, line)) {
-			LoaderClass.plugin.map.put(id, line, new Team(line));
+		if (!data.exists(id+"."+line)) {
+			data.set(id+"."+line, new Team(line));
 		}
-		return (Team) LoaderClass.plugin.map.get(id, line);
+		return (Team) data.get(id+"."+line);
 	}
 
+	private Object packet = NMSAPI.getPacketPlayOutScoreboardObjective(), inte = NMSAPI.getEnumScoreboardHealthDisplay(DisplayType.INTEGER);
 	private Object createObjectivePacket(int mode, String displayName) {
-		Object packet = NMSAPI.getPacketPlayOutScoreboardObjective();
 		Ref.set(packet, "a", player);
 		Ref.set(packet, "d", mode);
 		if (mode == 0 || mode == 2) {
 			Ref.set(packet, "b", !a ? NMSAPI.getIChatBaseComponentFromCraftBukkit(displayName) : displayName);
-			Ref.set(packet, "c", NMSAPI.getEnumScoreboardHealthDisplay(DisplayType.INTEGER));
+			Ref.set(packet, "c", inte);
 		}
 		return packet;
 	}
@@ -295,67 +329,59 @@ public class ScoreboardAPI {
 	}
 
 	private static boolean a = !TheAPI.isNewVersion();
-	private static Object empty = a ? "" : NMSAPI.getIChatBaseComponentText("");
 
 	public class Team {
-		private final String name;
+		private Object re = NMSAPI.getPacketPlayOutScoreboardTeam(), create = NMSAPI.getPacketPlayOutScoreboardTeam();
 		private String prefix = "", suffix = "", currentPlayer, old;
+		private final String name;
 		private boolean changed, changedPlayer, first = true;
-
+		
 		private Team(int slot) {
-			this.name = slot + "";
+			name=""+slot;
 			currentPlayer = TheCoder.toColor(slot);
+			Ref.set(re, "a", name);
+			Ref.set(create, "a", name);
 		}
-
-		public String getName() {
-			return name;
-		}
-
-		Object packet = NMSAPI.getPacketPlayOutScoreboardTeam();
 
 		private Object c(int mode) {
+			Object packet = NMSAPI.getPacketPlayOutScoreboardTeam();
 			Ref.set(packet, "a", name);
-			Ref.set(packet, "b", empty);
-			Ref.set(packet, "c", a ? prefix : NMSAPI.getIChatBaseComponentText(prefix));
-			Ref.set(packet, "d", a ? suffix : empty);
+			if(!a)
+			Ref.set(packet, "c", a ? prefix : NMSAPI.getIChatBaseComponentFromCraftBukkit(prefix));
+			else {
+				Ref.set(packet, "c", prefix);
+				Ref.set(packet, "d", suffix);
+			}
 			Ref.set(packet, TheAPI.isOlder1_9() ? "h" : "i", mode);
 			return packet;
 		}
 
-		Object re = NMSAPI.getPacketPlayOutScoreboardTeam();
-
 		public Object remove() {
-			Ref.set(re, "a", name);
 			Ref.set(re, TheAPI.isOlder1_9() ? "h" : "i", 1);
 			first = true;
 			return re;
 		}
 
-		public Iterator<Object> sendLine() {
-			List<Object> packets = new ArrayList<>();
+		public void sendLine(Player p) {
 			if (first)
-				packets.add(c(0));
+				Ref.sendPacket(p, c(0));
 			else if (changed)
-				packets.add(c(2));
+				Ref.sendPacket(p, c(2));
 			if (first || changedPlayer) {
 				if (old != null)
-					packets.add(createPlayer(2, old));
-				packets.add(createPlayer(3, currentPlayer));
+					Ref.sendPacket(p, createPlayer(2, old));
+				Ref.sendPacket(p, createPlayer(3, currentPlayer));
 				changedPlayer = false;
 				first = false;
 			}
-			return packets.iterator();
 		}
 
 		public void reset() {
 			changed = false;
 		}
 
-		Object create = NMSAPI.getPacketPlayOutScoreboardTeam();
-
 		@SuppressWarnings("unchecked")
 		public Object createPlayer(int mode, String playerName) {
-			Ref.set(create, "a", name);
 			Ref.set(create, TheAPI.isOlder1_9() ? "h" : "i", mode);
 			if (TheAPI.isNewerThan(15))
 				((Collection<String>) Ref.get(create, teamlist)).add(playerName);

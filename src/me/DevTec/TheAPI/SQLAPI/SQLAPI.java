@@ -292,10 +292,8 @@ public class SQLAPI {
 	public boolean exists(String table, String lookingfor, String identifier, String idValue) {
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
-			ResultSet s = query(command);
-			if (s == null)
-				return false;
-			return s.next();
+			ResultSet rs = getPreparedStatement(command).executeQuery();
+			return rs!=null && rs.next();
 		} catch (Exception e) {
 			return false;
 		}

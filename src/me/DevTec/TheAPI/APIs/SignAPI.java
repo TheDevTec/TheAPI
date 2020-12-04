@@ -1,12 +1,13 @@
 package me.DevTec.TheAPI.APIs;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.block.Sign;
 
 import me.DevTec.TheAPI.Utils.Position;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class SignAPI {
@@ -22,7 +23,7 @@ public class SignAPI {
 	}
 
 	public static List<Position> getRegistredSigns() {
-		List<Position> l = new ArrayList<Position>();
+		List<Position> l = new UnsortedList<Position>();
 		if (LoaderClass.data.exists("Sign"))
 			for (String s : LoaderClass.data.getKeys("Sign")) {
 				Position d = Position.fromString(s);
@@ -41,7 +42,7 @@ public class SignAPI {
 		return s;
 	}
 
-	public static void setActions(Sign state, HashMap<SignAction, List<String>> options) {
+	public static void setActions(Sign state, Map<SignAction, List<String>> options) {
 		String l = new Position(state.getLocation()).toString();
 		for (SignAction s : options.keySet()) {
 			switch (s) {
@@ -66,8 +67,8 @@ public class SignAPI {
 		LoaderClass.data.save();
 	}
 
-	public static HashMap<SignAction, List<String>> getSignActions(Sign state) {
-		HashMap<SignAction, List<String>> a = new HashMap<SignAction, List<String>>();
+	public static Map<SignAction, List<String>> getSignActions(Sign state) {
+		UnsortedMap<SignAction, List<String>> a = new UnsortedMap<SignAction, List<String>>();
 		Position l = new Position(state.getLocation());
 		String ff = l.toString();
 		if (getRegistredSigns().contains(l))

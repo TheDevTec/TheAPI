@@ -1,7 +1,5 @@
 package me.DevTec.TheAPI.GUIAPI;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -10,12 +8,14 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import me.DevTec.TheAPI.TheAPI;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class GUI {
 	private final String title;
-	private final HashMap<Integer, ItemGUI> items = new HashMap<>();
-	private final List<Player> opened = new ArrayList<>();
+	private final UnsortedMap<Integer, ItemGUI> items = new UnsortedMap<>();
+	private final List<Player> opened = new UnsortedList<>();
 	private final Inventory inv;
 	// Defaulty false
 	private boolean put;
@@ -163,10 +163,10 @@ public class GUI {
 	}
 
 	/**
-	 * @return HashMap<Slot, Item>
+	 * @return UnsortedMap<Slot, Item>
 	 * 
 	 */
-	public final HashMap<Integer, ItemGUI> getItemGUIs() {
+	public final UnsortedMap<Integer, ItemGUI> getItemGUIs() {
 		return items;
 	}
 
@@ -175,7 +175,7 @@ public class GUI {
 	 * 
 	 */
 	public final void close() {
-		for (Player a : new ArrayList<>(opened))
+		for (Player a : new UnsortedList<>(opened))
 			close(a);
 	}
 

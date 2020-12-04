@@ -3,7 +3,6 @@ package me.DevTec.TheAPI.Utils.Reflections;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -11,6 +10,11 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+
+import io.netty.channel.Channel;
+import me.DevTec.TheAPI.TheAPI;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
+import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class Ref {
 	private static Constructor<?> blockpos = constructor(nms("BlockPosition"), double.class, double.class,
@@ -27,7 +31,7 @@ public class Ref {
 					String.class, String.class, String.class);
 	private static Object server = invoke(handle(cast(craft("CraftServer"), Bukkit.getServer())), "getServer");
 	private static Class<?> craft = craft("entity.CraftPlayer"), world = craft("CraftWorld");
-	private static Method ichatcon, send = Ref.method(nms("PlayerConnection"), "sendPacket", Ref.nms("Packet"));
+	private static Method ichatcon;
 	static {
 		ichatcon = method(nms("IChatBaseComponent$ChatSerializer"), "a", String.class);
 		if (ichatcon == null)
@@ -111,7 +115,10 @@ public class Ref {
 	}
 
 	public static void sendPacket(Player to, Object packet) {
-		Ref.invoke(Ref.playerCon(to), send, packet);
+		if(TheAPI.isOlderThan(8))
+			((net.minecraft.util.io.netty.channel.Channel)LoaderClass.plugin.handler.getChannel(to)).writeAndFlush(packet);
+		else
+		((Channel)LoaderClass.plugin.handler.getChannel(to)).writeAndFlush(packet);
 	}
 
 	public static Object server() {
@@ -195,7 +202,7 @@ public class Ref {
 	}
 
 	public static List<Field> getAllFields(Class<?> main) {
-		List<Field> f = new ArrayList<>();
+		List<Field> f = new UnsortedList<>();
 		Class<?> superclass = main;
 		while (superclass != null) {
 			for (Field fw : getDeclaredFields(superclass))

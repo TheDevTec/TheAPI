@@ -1,10 +1,8 @@
 package me.DevTec.TheAPI.Utils.Listener;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -12,18 +10,20 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
 public class HandlerList {
-	public static List<HandlerList> all = new ArrayList<>();
-	private List<RegisteredListener> l = new ArrayList<>();
+	public static List<HandlerList> all = new UnsortedList<>();
+	private List<RegisteredListener> l = new UnsortedList<>();
 
 	public HandlerList() {
 		all.add(this);
 	}
 
 	private static Map<Class<? extends Event>, Set<RegisteredListener>> create(Listener listener) {
-		Map<Class<? extends Event>, Set<RegisteredListener>> ret = new HashMap<>();
+		Map<Class<? extends Event>, Set<RegisteredListener>> ret = new UnsortedMap<>();
 		Method[] Methods = listener.getClass().getDeclaredMethods();
 		Set<Method> methods = new HashSet<>(Methods.length, 1);
 		methods.addAll(Arrays.asList(Methods));
@@ -77,7 +77,7 @@ public class HandlerList {
 	public static void unregister(Listener a) {
 		Validator.validate(a == null, "Listener can not be null");
 		all.forEach(l -> {
-			List<RegisteredListener> w = new ArrayList<>();
+			List<RegisteredListener> w = new UnsortedList<>();
 			l.l.forEach(s -> {
 				if (s.listener.equals(a))
 					w.add(s);

@@ -3,7 +3,6 @@ package me.DevTec.TheAPI.Utils.TheAPIUtils;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -18,6 +17,7 @@ import me.DevTec.TheAPI.Events.EntityMoveEvent;
 import me.DevTec.TheAPI.Scheduler.Scheduler;
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 import me.DevTec.TheAPI.Utils.Listener.Events.ServerListPingEvent;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.Utils.ServerList.PlayerProfile;
@@ -46,7 +46,7 @@ public class Tasks {
 							w = Ref.invoke(Ref.server(), "aG");
 						if (w == null)
 							w = Ref.invoke(Ref.invoke(Ref.server(), "getServer"), "getServerPing");
-						List<PlayerProfile> players = new ArrayList<>();
+						List<PlayerProfile> players = new UnsortedList<>();
 						for (Player p : TheAPI.getOnlinePlayers())
 							players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
 						ServerListPingEvent event = new ServerListPingEvent(TheAPI.getOnlinePlayers().size(),

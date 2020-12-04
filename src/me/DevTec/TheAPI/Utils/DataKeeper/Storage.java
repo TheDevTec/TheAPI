@@ -1,14 +1,15 @@
 package me.DevTec.TheAPI.Utils.DataKeeper;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
+
 public class Storage implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
-	private List<Inventory> invs = new ArrayList<>();
+	private List<Inventory> invs = new UnsortedList<>();
 	private Inventory inv = Bukkit.createInventory(null, 54);
 
 	public void add(ItemStack item) {
@@ -33,7 +34,7 @@ public class Storage implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data 
 	}
 
 	public List<ItemStack> getItems() {
-		List<ItemStack> items = new ArrayList<>();
+		List<ItemStack> items = new UnsortedList<>();
 		for (Inventory i : getInventories()) {
 			for (ItemStack a : i.getContents()) {
 				try {

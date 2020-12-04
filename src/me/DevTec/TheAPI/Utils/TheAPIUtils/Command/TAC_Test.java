@@ -1,7 +1,6 @@
 package me.DevTec.TheAPI.Utils.TheAPIUtils.Command;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.bukkit.Material;
@@ -16,7 +15,9 @@ import me.DevTec.TheAPI.GUIAPI.GUI;
 import me.DevTec.TheAPI.GUIAPI.ItemGUI;
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
+import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardType;
 import me.DevTec.TheAPI.SortedMap.RankingAPI;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 
 public class TAC_Test {
 
@@ -31,10 +32,9 @@ public class TAC_Test {
 			Player p = (Player) s;
 
 			if (args[1].equalsIgnoreCase("Other")) {
-				ScoreboardAPI sb = new ScoreboardAPI(p, true);
+				ScoreboardAPI sb = new ScoreboardAPI(p, ScoreboardType.PACKETS, 0);
 				new Tasker() {
 					int i = 0;
-
 					public void run() {
 						if (++i == 50) {
 							new Tasker() {
@@ -44,12 +44,11 @@ public class TAC_Test {
 							}.runLater(20);
 							return;
 						}
-						sb.setDisplayName("&uRAINBOW_RAINBOW");
-						sb.setLine(0, "&uRAINBOW_RAINBOW");
-						sb.setLine(1, "&uRAINBOW_RAINBOW");
-						sb.setLine(2, "&uRAINBOW_RAINBOW");
-						sb.setLine(3, "&uRAINBOW_RAINBOW");
-						sb.setLine(4, "&uRAINBOW_RAINBOW");
+						sb.setDisplayName("&uRAINBOW");
+						sb.setLine(0, "&7Welcome back &u"+p.getName());
+						sb.setLine(1, "&7Version: &uUKNOWN");
+						sb.setLine(2, "&7Created by &uScoreboardAPI");
+						sb.setLine(3, "&7  using &uTheAPI");
 					}
 				}.runRepeatingTimes(0, 1, 50);
 			}
@@ -141,7 +140,7 @@ public class TAC_Test {
 			}
 		}
 		if (args[1].equalsIgnoreCase("SortedMap")) {
-			HashMap<String, Double> Comparable = new HashMap<>();
+			UnsortedMap<String, Double> Comparable = new UnsortedMap<>();
 			TheAPI.msg("&eInput:", s);
 			TheAPI.msg("&6- A, 50.0", s);
 			TheAPI.msg("&6- D, 5431.6", s);
@@ -155,7 +154,7 @@ public class TAC_Test {
 			TheAPI.msg("&eResult:", s);
 			for (Entry<String, Double> entry : map.entrySet())
 				TheAPI.msg("&6" + map.getPosition(entry.getKey()) + ". " + entry.getKey() + ", " + entry.getValue(), s);
-			HashMap<String, String> tops = new HashMap<>();
+			UnsortedMap<String, String> tops = new UnsortedMap<>();
 			TheAPI.msg("&eInput:", s);
 			TheAPI.msg("&6- A, ABD", s); // 1
 			TheAPI.msg("&6- B, VGR", s); // 4

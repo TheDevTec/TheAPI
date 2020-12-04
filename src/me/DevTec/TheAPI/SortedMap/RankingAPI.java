@@ -1,14 +1,14 @@
 package me.DevTec.TheAPI.SortedMap;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 public class RankingAPI<K, V> {
 	private LinkedHashMap<K, V> s;
 
-	public RankingAPI(HashMap<K, V> map) {
+	public RankingAPI(Map<K, V> map) {
 		setMap(map);
 	}
 
@@ -38,11 +38,11 @@ public class RankingAPI<K, V> {
 		return s.keySet();
 	}
 
-	public HashMap<K, V> getMap() {
+	public Map<K, V> getMap() {
 		return s;
 	}
 
-	public void setMap(HashMap<K, V> map) {
+	public void setMap(Map<K, V> map) {
 		s = SortedMap.sortNonComparableByValue(map);
 	}
 

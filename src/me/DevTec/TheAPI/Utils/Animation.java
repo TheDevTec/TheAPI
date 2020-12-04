@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Animation {
 	private List<String> lines;
-	private long last = System.currentTimeMillis(), tics;
+	private long last = System.currentTimeMillis()/50, tics;
 	private int c;
 
 	public Animation(List<String> text, long ticks) {
@@ -19,8 +19,8 @@ public class Animation {
 	public String get() {
 		if (c >= lines.size())
 			c = 0;
-		if (last - System.currentTimeMillis() + tics <= 0) {
-			last = System.currentTimeMillis();
+		if (last - System.currentTimeMillis()/50 + tics <= 0) {
+			last = System.currentTimeMillis()/50;
 			return lines.get(c++);
 		}
 		return lines.get(c);

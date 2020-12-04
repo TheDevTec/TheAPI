@@ -3,9 +3,7 @@ package me.DevTec.TheAPI.BlocksAPI;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Chunk;
@@ -24,6 +22,8 @@ import me.DevTec.TheAPI.Utils.PercentageList;
 import me.DevTec.TheAPI.Utils.Position;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.TheMaterial;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
@@ -97,10 +97,10 @@ public class BlocksAPI {
 	public static List<Entity> getNearbyEntities(Position l, int radius) {
 		if (radius > 256) {
 			Validator.send("The radius cannot be greater than 256");
-			return new ArrayList<>();
+			return new UnsortedList<>();
 		}
 		int chunkRadius = radius < 16 ? 1 : (radius - (radius % 16)) / 16;
-		List<Entity> radiusEntities = new ArrayList<>();
+		List<Entity> radiusEntities = new UnsortedList<>();
 		for (int chX = 0 - chunkRadius; chX <= chunkRadius; chX++)
 			for (int chZ = 0 - chunkRadius; chZ <= chunkRadius; chZ++) {
 				Chunk c = new Location(l.getWorld(), l.getX() + (chX * 16), l.getY(), l.getZ() + (chZ * 16)).getChunk();
@@ -157,7 +157,7 @@ public class BlocksAPI {
 	}
 
 	private static List<Position> gt(Position from, Position to, List<TheMaterial> ignore) {
-		List<Position> blocks = new ArrayList<>();
+		List<Position> blocks = new UnsortedList<>();
 		BlockGetter getter = get(from, to);
 		while (getter.has()) {
 			Position s = getter.get();
@@ -168,7 +168,7 @@ public class BlocksAPI {
 	}
 
 	public static List<BlockSave> getBlockSaves(List<Position> a) {
-		List<BlockSave> b = new ArrayList<>();
+		List<BlockSave> b = new UnsortedList<>();
 		for (Position s : a)
 			b.add(getBlockSave(s));
 		return b;
@@ -225,7 +225,7 @@ public class BlocksAPI {
 	}
 
 	private static List<Position> g(Shape form, Position where, int radius, List<TheMaterial> ignore) {
-		List<Position> blocks = new ArrayList<>();
+		List<Position> blocks = new UnsortedList<>();
 		World w = where.getWorld();
 		int Xx = where.getBlockX();
 		int Yy = where.getBlockY();
@@ -616,7 +616,7 @@ public class BlocksAPI {
 		new Tasker() {
 			public void run() {
 				BlockGetter s = get(a, b);
-				HashMap<Long, Object> chunks = new HashMap<>();
+				UnsortedMap<Long, Object> chunks = new UnsortedMap<>();
 				while (s.has()) {
 					Position pos = s.get();
 					if (!ignore.contains(pos.getType())) {
@@ -678,7 +678,7 @@ public class BlocksAPI {
 		new Tasker() {
 			public void run() {
 				BlockGetter s = get(a, b);
-				HashMap<Long, Object> chunks = new HashMap<>();
+				UnsortedMap<Long, Object> chunks = new UnsortedMap<>();
 				while (s.has()) {
 					Position pos = s.get();
 					if (!ignore.contains(pos.getType())) {
@@ -752,7 +752,7 @@ public class BlocksAPI {
 		new Tasker() {
 			public void run() {
 				BlockGetter s = get(a, b);
-				HashMap<Long, Object> chunks = new HashMap<>();
+				UnsortedMap<Long, Object> chunks = new UnsortedMap<>();
 				while (s.has()) {
 					Position pos = s.get();
 					if (block.contains(pos.getType())) {
@@ -811,7 +811,7 @@ public class BlocksAPI {
 		new Tasker() {
 			public void run() {
 				BlockGetter s = get(a, b);
-				HashMap<Long, Object> chunks = new HashMap<>();
+				UnsortedMap<Long, Object> chunks = new UnsortedMap<>();
 				while (s.has()) {
 					Position pos = s.get();
 					if (block.contains(pos.getType())) {
@@ -880,7 +880,7 @@ public class BlocksAPI {
 		new Tasker() {
 			public void run() {
 				BlockGetter s = get(a, b);
-				HashMap<Long, Object> chunks = new HashMap<>();
+				UnsortedMap<Long, Object> chunks = new UnsortedMap<>();
 				while (s.has()) {
 					Position pos = s.get();
 					if (block.contains(pos.getType())) {
@@ -934,7 +934,7 @@ public class BlocksAPI {
 		new Tasker() {
 			public void run() {
 				BlockGetter s = get(a, b);
-				HashMap<Long, Object> chunks = new HashMap<>();
+				UnsortedMap<Long, Object> chunks = new UnsortedMap<>();
 				while (s.has()) {
 					Position pos = s.get();
 					if (block.contains(pos.getType())) {

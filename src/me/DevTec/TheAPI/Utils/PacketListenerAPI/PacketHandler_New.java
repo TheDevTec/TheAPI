@@ -1,7 +1,5 @@
 package me.DevTec.TheAPI.Utils.PacketListenerAPI;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,13 +18,15 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Scheduler.Tasker;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public class PacketHandler_New implements PacketHandler<Channel> {
 	private static Class<?> login = Ref.nms("PacketLoginInStart");
-	private Map<String, Channel> channelLookup = new HashMap<>();
+	private Map<String, Channel> channelLookup = new UnsortedMap<>();
 	private List<?> networkManagers;
-	private List<Channel> serverChannels = new ArrayList<>();
+	private List<Channel> serverChannels = new UnsortedList<>();
 	private ChannelInboundHandlerAdapter serverChannelHandler;
 	private ChannelInitializer<Channel> beginInitProtocol, endInitProtocol;
 	protected volatile boolean closed;

@@ -2,9 +2,7 @@ package me.DevTec.TheAPI.Utils.Json;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +78,7 @@ public class Reader implements JsonReader {
 			return null;
 		try {
 			return (List<?>) Ref.invoke(parser, Ref.method(parser.getClass(), "fromJson", String.class, Class.class),
-					json, ArrayList.class);
+					json, UnsortedList.class);
 		} catch (Exception e1) {
 		}
 		return null;
@@ -131,7 +129,7 @@ public class Reader implements JsonReader {
 		Matcher ma = Pattern.compile("Map<(.*?), (.*?)>").matcher(c.getTypeName());
 		if (ma.find()) {
 			@SuppressWarnings("rawtypes")
-			HashMap uknown = new HashMap<>();
+			UnsortedMap uknown = new UnsortedMap<>();
 			for (Entry<?, ?> e : ((Map<?, ?>) v).entrySet())
 				uknown.put(cast(e.getKey(), Ref.getClass(ma.group(1))), cast(e.getValue(), Ref.getClass(ma.group(2))));
 			v = uknown;
@@ -139,7 +137,7 @@ public class Reader implements JsonReader {
 		ma = Pattern.compile("List<(.*?)>").matcher(c.getTypeName());
 		if (ma.find()) {
 			@SuppressWarnings("rawtypes")
-			ArrayList uknown = new ArrayList<>();
+			UnsortedList uknown = new UnsortedList<>();
 			for (Object e : ((List<?>) v))
 				uknown.add(cast(e, Ref.getClass(ma.group(1))));
 			v = uknown;
@@ -185,11 +183,11 @@ public class Reader implements JsonReader {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Object parseR(Object o) {
 		if (o instanceof Collection) {
-			Collection<Object> aw = new ArrayList<>();
+			Collection<Object> aw = new UnsortedList<>();
 			for (Object f : ((Collection<?>) o))
 				aw.add(f instanceof String ? object((String) f) : f);
 			o = aw;
-			List<Object> cloneOfList = new ArrayList<>((Collection<Object>) o);
+			List<Object> cloneOfList = new UnsortedList<>((Collection<Object>) o);
 			((Collection<Object>) o).clear();
 			for (Object s : cloneOfList)
 				((Collection<Object>) o).add(parseR(s));

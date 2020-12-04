@@ -1,10 +1,10 @@
 package me.DevTec.TheAPI.EconomyAPI;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.entity.Player;
 
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 import net.milkbowl.vault.economy.Economy;
 
@@ -67,7 +67,7 @@ public class EconomyAPI {
 	public static List<String> getBanks() {
 		if (getEconomy() != null && LoaderClass.plugin.e && hasBankSupport())
 			return getEconomy().getBanks();
-		return new ArrayList<String>();
+		return new UnsortedList<String>();
 	}
 
 	public static String getName() {

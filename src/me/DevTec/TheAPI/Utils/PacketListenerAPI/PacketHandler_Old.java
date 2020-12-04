@@ -1,7 +1,5 @@
 package me.DevTec.TheAPI.Utils.PacketListenerAPI;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +8,8 @@ import org.bukkit.entity.Player;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Scheduler.Tasker;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import net.minecraft.util.com.mojang.authlib.GameProfile;
 import net.minecraft.util.io.netty.channel.Channel;
@@ -23,9 +23,9 @@ import net.minecraft.util.io.netty.channel.ChannelPromise;
 
 public class PacketHandler_Old implements PacketHandler<Channel> {
 	private static Class<?> login = Ref.nms("PacketLoginInStart");
-	private Map<String, Channel> channelLookup = new HashMap<>();
+	private Map<String, Channel> channelLookup = new UnsortedMap<>();
 	private List<?> networkManagers;
-	private List<Channel> serverChannels = new ArrayList<>();
+	private List<Channel> serverChannels = new UnsortedList<>();
 	private ChannelInboundHandlerAdapter serverChannelHandler;
 	private ChannelInitializer<Channel> beginInitProtocol, endInitProtocol;
 	protected volatile boolean closed;

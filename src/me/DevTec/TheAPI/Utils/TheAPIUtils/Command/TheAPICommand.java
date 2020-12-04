@@ -2,7 +2,6 @@ package me.DevTec.TheAPI.Utils.TheAPIUtils.Command;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +23,7 @@ import me.DevTec.TheAPI.APIs.PluginManagerAPI;
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.User;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Tasks;
 
@@ -223,7 +223,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 	}
 
 	List<String> getWorlds() {
-		List<String> list = new ArrayList<>();
+		List<String> list = new UnsortedList<>();
 		for (World w : Bukkit.getWorlds())
 			list.add(w.getName());
 		return list;
@@ -231,7 +231,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 
 	@Override
 	public List<String> onTabComplete(CommandSender s, Command arg1, String arg2, String[] args) {
-		List<String> c = new ArrayList<>();
+		List<String> c = new UnsortedList<>();
 		if (args.length == 1) {
 			if (s.hasPermission("TheAPI.Command.Info"))
 				c.addAll(StringUtils.copyPartialMatches(args[0], Arrays.asList("Info")));
@@ -257,7 +257,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		}
 		if (args[0].equalsIgnoreCase("User") && s.hasPermission("theapi.command.user")) {
 			if (args.length == 2) {
-				List<String> a = new ArrayList<>();
+				List<String> a = new UnsortedList<>();
 				for (Player p : TheAPI.getOnlinePlayers())
 					a.add(p.getName());
 				for (User u : TheAPI.getCachedUsers())

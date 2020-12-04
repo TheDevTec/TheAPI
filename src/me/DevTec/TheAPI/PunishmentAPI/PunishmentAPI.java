@@ -1,6 +1,5 @@
 package me.DevTec.TheAPI.PunishmentAPI;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -8,6 +7,7 @@ import org.bukkit.Location;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class PunishmentAPI {
@@ -32,7 +32,7 @@ public class PunishmentAPI {
 	public static List<String> getPlayersOnIP(String ip) {
 		if (!isIP(ip))
 			new Exception("PunishmentAPI error, String must be IP, not player.");
-		List<String> list = new ArrayList<>();
+		List<String> list = new UnsortedList<>();
 		if (LoaderClass.data.exists("data"))
 			for (String s : LoaderClass.data.getKeys("data")) {
 				if (ip.equals(getIP(s)))
@@ -222,7 +222,7 @@ public class PunishmentAPI {
 	}
 
 	public static List<String> getjails() {
-		ArrayList<String> list = new ArrayList<>();
+		UnsortedList<String> list = new UnsortedList<>();
 		for (String s : LoaderClass.data.getKeys("jails"))
 			list.add(s);
 		return list;

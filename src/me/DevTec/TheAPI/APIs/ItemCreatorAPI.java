@@ -1,9 +1,8 @@
 package me.DevTec.TheAPI.APIs;
 
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -29,6 +28,8 @@ import com.mojang.authlib.properties.Property;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
@@ -188,11 +189,11 @@ public class ItemCreatorAPI implements Cloneable {
 	private Color c;
 	private boolean unb;
 	private SkullType type;
-	private HashMap<Attribute, AttributeModifier> w = new HashMap<>();
+	private UnsortedMap<Attribute, AttributeModifier> w = new UnsortedMap<>();
 	private int s = 1, model = -1, dur = -1;
-	private HashMap<PotionEffectType, String> ef = new HashMap<>();
-	private HashMap<Enchantment, Integer> enchs = new HashMap<>();
-	private List<Object> pages = new ArrayList<>(), lore = new ArrayList<>(), map = new ArrayList<>();
+	private UnsortedMap<PotionEffectType, String> ef = new UnsortedMap<>();
+	private UnsortedMap<Enchantment, Integer> enchs = new UnsortedMap<>();
+	private List<Object> pages = new UnsortedList<>(), lore = new UnsortedList<>(), map = new UnsortedList<>();
 	private MaterialData data = null;
 	private Generation gen;
 
@@ -322,7 +323,7 @@ public class ItemCreatorAPI implements Cloneable {
 		if (a.hasItemMeta())
 			if (a.getItemMeta() instanceof PotionMeta)
 				return ((PotionMeta) a.getItemMeta()).getCustomEffects();
-		return new ArrayList<PotionEffect>();
+		return new UnsortedList<PotionEffect>();
 	}
 
 	public ItemMeta getItemMeta() {
@@ -414,7 +415,7 @@ public class ItemCreatorAPI implements Cloneable {
 	public List<String> getLore() {
 		if (a.hasItemMeta())
 			return a.getItemMeta().getLore();
-		return new ArrayList<String>();
+		return new UnsortedList<String>();
 	}
 
 	public String getOwner() {
@@ -429,8 +430,8 @@ public class ItemCreatorAPI implements Cloneable {
 			this.owner = owner;
 	}
 
-	public HashMap<Enchantment, Integer> getEnchantments() {
-		HashMap<Enchantment, Integer> e = new HashMap<>();
+	public Map<Enchantment, Integer> getEnchantments() {
+		UnsortedMap<Enchantment, Integer> e = new UnsortedMap<>();
 		for (Enchantment d : a.getEnchantments().keySet())
 			e.put(d, a.getEnchantments().get(d).intValue());
 		return e;
@@ -512,7 +513,7 @@ public class ItemCreatorAPI implements Cloneable {
 
 	public List<ItemFlag> getItemFlags() {
 		try {
-			List<ItemFlag> items = new ArrayList<ItemFlag>();
+			List<ItemFlag> items = new UnsortedList<ItemFlag>();
 			if (a.hasItemMeta())
 				for (ItemFlag f : a.getItemMeta().getItemFlags())
 					items.add(f);
@@ -529,12 +530,12 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	@SuppressWarnings("unchecked")
-	public HashMap<Attribute, AttributeModifier> getAttributeModifiers() {
+	public Map<Attribute, AttributeModifier> getAttributeModifiers() {
 		try {
-			HashMap<Attribute, AttributeModifier> h = new HashMap<Attribute, AttributeModifier>();
+			UnsortedMap<Attribute, AttributeModifier> h = new UnsortedMap<Attribute, AttributeModifier>();
 			try {
 				if (hasAttributeModifiers()) {
-					HashMap<Attribute, AttributeModifier> map = (HashMap<Attribute, AttributeModifier>) a.getItemMeta()
+					UnsortedMap<Attribute, AttributeModifier> map = (UnsortedMap<Attribute, AttributeModifier>) a.getItemMeta()
 							.getAttributeModifiers();
 					for (Attribute a : map.keySet())
 						h.put(a, map.get(a));
@@ -556,7 +557,7 @@ public class ItemCreatorAPI implements Cloneable {
 		}
 	}
 
-	public void addAttributeModifiers(HashMap<Attribute, AttributeModifier> s) {
+	public void addAttributeModifiers(Map<Attribute, AttributeModifier> s) {
 		if (TheAPI.isNewVersion() && !TheAPI.getServerVersion().equals("v1_13_R1") && s != null)
 			for (Attribute r : s.keySet()) {
 				addAttributeModifier(r, s.get(r));
@@ -684,7 +685,7 @@ public class ItemCreatorAPI implements Cloneable {
 			if (a.getItemMeta() instanceof BookMeta) {
 				return ((BookMeta) a.getItemMeta()).getPages();
 			}
-		return new ArrayList<String>();
+		return new UnsortedList<String>();
 	}
 
 	public String getBookPage(int page) {
@@ -786,7 +787,7 @@ public class ItemCreatorAPI implements Cloneable {
 				}
 			}
 			if (lore != null) {
-				List<String> lor = new ArrayList<>();
+				List<String> lor = new UnsortedList<>();
 				for (Object o : lore)
 					lor.add(o.toString());
 				mf.setLore(lor);
@@ -818,7 +819,7 @@ public class ItemCreatorAPI implements Cloneable {
 					|| i.getType().name().equalsIgnoreCase("BOOK_AND_QUILL")) {
 				BookMeta m = (BookMeta) i.getItemMeta();
 				m.setAuthor(author);
-				List<String> page = new ArrayList<>();
+				List<String> page = new UnsortedList<>();
 				for (Object o : pages)
 					page.add(o.toString());
 				m.setPages(page);

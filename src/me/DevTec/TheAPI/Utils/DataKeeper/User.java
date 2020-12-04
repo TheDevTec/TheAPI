@@ -1,6 +1,5 @@
 package me.DevTec.TheAPI.Utils.DataKeeper;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.TheCoder;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
@@ -296,7 +296,7 @@ public class User implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	}
 
 	public List<ItemStack> getItemStacks(String key) {
-		List<ItemStack> list = new ArrayList<ItemStack>();
+		List<ItemStack> list = new UnsortedList<ItemStack>();
 		try {
 			List<Object> inSet = a.getList(key);
 			for (Object o : inSet)

@@ -8,7 +8,7 @@ public class BlockGetter {
 	private final String w;
 
 	public BlockGetter(Position a, Position b) {
-		w = a.getWorld().getName();
+		w = a.getWorldName();
 		baseX = Math.min(a.getBlockX(), b.getBlockX());
 		baseY = Math.min(a.getBlockY(), b.getBlockY());
 		baseZ = Math.min(a.getBlockZ(), b.getBlockZ());

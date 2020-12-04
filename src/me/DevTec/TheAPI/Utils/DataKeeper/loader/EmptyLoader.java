@@ -26,7 +26,7 @@ public class EmptyLoader extends DataLoader {
 		if (key == null)
 			return;
 		if (holder == null) {
-			data.remove(key);
+			remove(key);
 			return;
 		}
 		data.put(key, holder);

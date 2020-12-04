@@ -1,6 +1,5 @@
 package me.DevTec.TheAPI.PlaceholderAPI;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -9,12 +8,13 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Player;
 
 import me.DevTec.TheAPI.Utils.StringUtils;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 
 public class ThePlaceholderAPI {
 	private final static Pattern finder = Pattern.compile("\\%(.*?)\\%"), // pattern for placeholder
 			math = Pattern.compile("\\%math\\{((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*))\\}\\%"); // pattern for
 																								// placeholder of math
-	private final static List<ThePlaceholder> reg = new ArrayList<>();
+	private final static List<ThePlaceholder> reg = new UnsortedList<>();
 
 	public static void register(ThePlaceholder e) {
 		if (isRegistered(e))
@@ -33,18 +33,18 @@ public class ThePlaceholderAPI {
 	}
 
 	public static List<ThePlaceholder> getPlaceholders() {
-		return new ArrayList<>(reg); // to avoid manipulation with list
+		return new UnsortedList<>(reg); // to avoid manipulation with list
 	}
 
 	public static List<String> setPlaceholders(Player player, List<String> list) {
-		List<String> edited = new ArrayList<String>(list.size());
+		List<String> edited = new UnsortedList<String>(list.size());
 		for (Iterator<String> a = list.iterator(); a.hasNext();)
 			edited.add(setPlaceholders(player, a.next()));
 		return edited;
 	}
 
 	public static Iterator<String> setPlaceholders(Player player, Iterator<String> list) {
-		List<String> edited = new ArrayList<String>();
+		List<String> edited = new UnsortedList<String>();
 		while (list.hasNext())
 			edited.add(setPlaceholders(player, list.next()));
 		return edited.iterator();

@@ -2,7 +2,6 @@ package me.DevTec.TheAPI.Utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -10,6 +9,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
+
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 
 public class TheCoder {
 
@@ -91,7 +92,7 @@ public class TheCoder {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> List<T> fromStringToList(String savedObjects) {
-		List<T> r = new ArrayList<T>();
+		List<T> r = new UnsortedList<T>();
 		try {
 			ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(savedObjects));
 			BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);

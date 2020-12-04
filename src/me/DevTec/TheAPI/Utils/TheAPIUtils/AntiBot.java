@@ -1,6 +1,5 @@
 package me.DevTec.TheAPI.Utils.TheAPIUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -8,10 +7,11 @@ import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.PunishmentAPI.BanList;
 import me.DevTec.TheAPI.PunishmentAPI.PlayerBanList;
 import me.DevTec.TheAPI.PunishmentAPI.PunishmentAPI;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 
 public class AntiBot {
 	private static long last;
-	private static List<String> c = new ArrayList<String>();
+	private static List<String> c = new UnsortedList<String>();
 
 	public static boolean hasAccess(UUID e) {
 		boolean s = canJoin();

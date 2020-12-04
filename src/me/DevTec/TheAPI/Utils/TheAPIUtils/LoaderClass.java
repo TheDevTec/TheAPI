@@ -5,11 +5,9 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,8 +43,9 @@ import me.DevTec.TheAPI.Utils.StreamUtils;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
 import me.DevTec.TheAPI.Utils.DataKeeper.DataType;
+import me.DevTec.TheAPI.Utils.DataKeeper.User;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedSet;
-import me.DevTec.TheAPI.Utils.DataKeeper.Maps.MultiMap;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler;
 import me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketHandler_New;
@@ -59,16 +58,15 @@ import net.milkbowl.vault.economy.Economy;
 public class LoaderClass extends JavaPlugin {
 	// Scoreboards
 	public final Map<Integer, ScoreboardAPI> scoreboard = new UnsortedMap<>();
-	public final MultiMap<Integer, Integer, Object> map = new MultiMap<>();
 	public final static Map<String, String> colorMap = new UnsortedMap<>();
 	// GUIs
-	public final Map<String, GUI> gui = new HashMap<>();
+	public final Map<String, GUI> gui = new UnsortedMap<>();
 	// BossBars
-	public final List<BossBar> bars = new ArrayList<>();
+	public final List<BossBar> bars = new UnsortedList<>();
 	// TheAPI
 	public static LoaderClass plugin;
 	public static Config config = new Config("TheAPI/Config.yml"), tags,
-			data = new Config("TheAPI/Data.dat", DataType.DATA);
+			data = new Config("TheAPI/Data.dat", DataType.BYTE);
 	public String motd;
 	public static String ss;
 	public static String gradientTag, tagG;
@@ -389,10 +387,13 @@ public class LoaderClass extends JavaPlugin {
 			gui.get(p).clear();
 		gui.clear();
 		main.unregister();
+		for(User u : TheAPI.getCachedUsers())
+			u.save();
+		data.save();
 	}
 
 	public List<Plugin> getTheAPIsPlugins() {
-		List<Plugin> a = new ArrayList<Plugin>();
+		List<Plugin> a = new UnsortedList<Plugin>();
 		for (Plugin all : PluginManagerAPI.getPlugins())
 			if (PluginManagerAPI.getDepend(all.getName()).contains("TheAPI")
 					|| PluginManagerAPI.getSoftDepend(all.getName()).contains("TheAPI"))

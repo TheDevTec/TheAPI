@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import me.DevTec.TheAPI.TheAPI;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 
 /*
@@ -28,7 +28,7 @@ public class ConfigAPI {
 	private String name, h, loc, end = "yml";
 	private FileConfiguration a;
 	private File f, folder;
-	private Map<String, Object> c = new HashMap<>();
+	private Map<String, Object> c = new UnsortedMap<>();
 
 	public ConfigAPI(String localization, String configName) {
 		name = configName;
@@ -88,7 +88,7 @@ public class ConfigAPI {
 			a.addDefaults(defaults);
 	}
 
-	public void addDefaults(HashMap<String, Object> defaults) {
+	public void addDefaults(UnsortedMap<String, Object> defaults) {
 		c = defaults;
 		if (a != null)
 			a.addDefaults(defaults);

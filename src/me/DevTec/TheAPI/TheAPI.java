@@ -4,12 +4,11 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
@@ -52,6 +51,8 @@ import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
 import me.DevTec.TheAPI.Utils.DataKeeper.Storage;
 import me.DevTec.TheAPI.Utils.DataKeeper.User;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.Listener.Event;
 import me.DevTec.TheAPI.Utils.Listener.HandlerList;
 import me.DevTec.TheAPI.Utils.Listener.Listener;
@@ -65,9 +66,9 @@ import me.DevTec.TheAPI.Utils.TheAPIUtils.Validator;
 import me.DevTec.TheAPI.WorldsAPI.WorldBorderAPI;
 
 public class TheAPI {
-	private static final HashMap<String, BossBar> bars = new HashMap<>();
-	private static final HashMap<String, Integer> task = new HashMap<>();
-	private static final HashMap<UUID, User> cache = new HashMap<>();
+	private static final UnsortedMap<String, BossBar> bars = new UnsortedMap<>();
+	private static final UnsortedMap<String, Integer> task = new UnsortedMap<>();
+	private static final UnsortedMap<UUID, User> cache = new UnsortedMap<>();
 	private static Constructor<?> constructor = Ref.constructor(PluginCommand.class, String.class, Plugin.class);
 	private static Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
 	private static Random random = new Random();
@@ -96,7 +97,7 @@ public class TheAPI {
 		PluginCommand cmd = TheAPI.createCommand(commandName.toLowerCase(), LoaderClass.plugin);
 		if (permission != null)
 			Ref.set(cmd, "permission", permission.toLowerCase());
-		List<String> lowerCase = new ArrayList<>();
+		List<String> lowerCase = new UnsortedList<>();
 		if (aliases != null)
 			for (String s : aliases)
 				lowerCase.add(s.toLowerCase());
@@ -111,7 +112,7 @@ public class TheAPI {
 
 	private static Object cmdMap = Ref.get(Bukkit.getPluginManager(), "commandMap");
 	@SuppressWarnings("unchecked")
-	private static HashMap<String, Command> knownCommands = (HashMap<String, Command>) Ref.get(cmdMap, "knownCommands");
+	private static Map<String, Command> knownCommands = (Map<String, Command>) Ref.get(cmdMap, "knownCommands");
 
 	public static void registerCommand(PluginCommand command) {
 		String label = command.getName().toLowerCase(Locale.ENGLISH).trim();
@@ -133,7 +134,7 @@ public class TheAPI {
 			} else
 				return; // exectutor can't be null
 		}
-		List<String> low = new ArrayList<>();
+		List<String> low = new UnsortedList<>();
 		for (String s : command.getAliases()) {
 			s = s.toLowerCase(Locale.ENGLISH).trim();
 			low.add(s);
@@ -151,7 +152,7 @@ public class TheAPI {
 
 	public static boolean unregisterCommand(String name) {
 		boolean is = false;
-		for (Entry<String, Command> e : new HashMap<>(knownCommands).entrySet())
+		for (Entry<String, Command> e : new UnsortedMap<>(knownCommands).entrySet())
 			if (e.getValue().getName().equals("name")) {
 				knownCommands.remove(e.getKey());
 				is = true;
@@ -416,7 +417,7 @@ public class TheAPI {
 	@SuppressWarnings("unchecked")
 	public static List<Player> getOnlinePlayers() {
 		Object o = Ref.invokeNulled(m);
-		return new ArrayList<>(o instanceof Collection ? (Collection<Player>) o : Arrays.asList((Player[]) o));
+		return new UnsortedList<>(o instanceof Collection ? (Collection<Player>) o : Arrays.asList((Player[]) o));
 	}
 
 	/**
@@ -1048,7 +1049,7 @@ public class TheAPI {
 	 * @return List<UUID>
 	 */
 	public static List<UUID> getUsers() {
-		List<UUID> a = new ArrayList<>();
+		List<UUID> a = new UnsortedList<>();
 		if (new File("plugins/TheAPI/User").exists())
 			for (File f : new File("plugins/TheAPI/User").listFiles()) {
 				try {
@@ -1069,7 +1070,7 @@ public class TheAPI {
 	 * @return List<String>
 	 */
 	public static List<String> getUsersNames() {
-		List<String> a = new ArrayList<>();
+		List<String> a = new UnsortedList<>();
 		if (new File("plugins/TheAPI/User").exists())
 			for (File f : new File("plugins/TheAPI/User").listFiles()) {
 				try {
@@ -1143,7 +1144,7 @@ public class TheAPI {
 	public static List<UUID> getUsersByIP(String ip) {
 		if (ip.startsWith("/"))
 			ip = ip.substring(1);
-		List<UUID> a = new ArrayList<>();
+		List<UUID> a = new UnsortedList<>();
 		for (UUID s : getUsers()) {
 			if (new Data("TheAPI/User/" + s + ".yml", true).getString("ip").equals(ip.replace(".", "_"))) {
 				a.add(s);

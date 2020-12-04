@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
@@ -21,6 +20,7 @@ import java.util.zip.GZIPOutputStream;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
+import me.DevTec.TheAPI.Utils.StreamUtils;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedSet;
@@ -59,12 +59,11 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		}
 	}
 
-	private DataLoader loader;
+	private DataLoader loader = new EmptyLoader();
 	private Set<String> aw = new UnsortedSet<>();
 	private File a;
 
 	public Data() {
-		loader = new EmptyLoader();
 	}
 
 	public Data(String filePath) {
@@ -83,8 +82,6 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		a = f;
 		if (load)
 			reload(a);
-		else
-			loader = new EmptyLoader();
 	}
 
 	public boolean exists(String path) {
@@ -106,7 +103,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	private DataHolder getOrCreateData(String key) {
 		DataHolder h = loader.get().getOrDefault(key, null);
 		if (h == null) {
-			h = new DataHolder(null);
+			h = new DataHolder();
 			if (!aw.contains(key.split("\\.")[0]))
 				aw.add(key.split("\\.")[0]);
 			loader.set(key, h);
@@ -220,8 +217,6 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	public Data reload(String input) {
 		aw.clear();
-		if (loader != null)
-			loader.reset();
 		loader = DataLoader.findLoaderFor(input); // get & load
 		for (String k : loader.getKeys())
 			if (!aw.contains(k.split("\\.")[0]))
@@ -237,19 +232,12 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 			} catch (Exception e) {
 			}
 		}
-		aw.clear();
-		if (loader != null)
-			loader.reset();
-		loader = DataLoader.findLoaderFor(f); // get & load
-		for (String k : loader.getKeys())
-			if (!aw.contains(k.split("\\.")[0]))
-				aw.add(k.split("\\.")[0]);
-		return this;
+		return reload(StreamUtils.fromStream(f));
 	}
 
 	public Object get(String key) {
 		try {
-			return loader.get().get(key).o;
+			return loader.get().get(key).getValue();
 		} catch (Exception e) {
 			return null;
 		}
@@ -257,10 +245,10 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	public <E> E getAs(String key, Class<? extends E> clazz) {
 		try {
-			return clazz.cast(loader.get().get(key).o);
+			return clazz.cast(loader.get().get(key).getValue());
 		} catch (Exception e) {
-			throw e;
 		}
+		return null;
 	}
 
 	public String getString(String key) {
@@ -353,13 +341,13 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<Object> getList(String key) {
-		return get(key) != null && get(key) instanceof Collection ? (List) get(key) : new ArrayList<>(3);
+		return get(key) != null && get(key) instanceof Collection ? (List) get(key) : new UnsortedList<>(3);
 	}
 
 	public <E> List<E> getListAs(String key, Class<? extends E> clazz) {
 		// Cast everything to <E>
 		List<Object> items = getList(key);
-		List<E> list = new ArrayList<>(items.size());
+		List<E> list = new UnsortedList<>(items.size());
 		for (Object o : items)
 			try {
 				if (o != null)
@@ -374,7 +362,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public List<String> getStringList(String key) {
 		// Cast everything to String
 		List<Object> items = getList(key);
-		List<String> list = new ArrayList<>(items.size());
+		List<String> list = new UnsortedList<>(items.size());
 		for (Object o : items)
 			if (o != null)
 				list.add("" + o);
@@ -386,7 +374,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public List<Boolean> getBooleanList(String key) {
 		// Cast everything to Boolean
 		List<Object> items = getList(key);
-		List<Boolean> list = new ArrayList<>(items.size());
+		List<Boolean> list = new UnsortedList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? false : StringUtils.getBoolean(o.toString()));
 		return list;
@@ -395,7 +383,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public List<Integer> getIntegerList(String key) {
 		// Cast everything to Integer
 		List<Object> items = getList(key);
-		List<Integer> list = new ArrayList<>(items.size());
+		List<Integer> list = new UnsortedList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : StringUtils.getInt(o.toString()));
 		return list;
@@ -404,7 +392,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public List<Double> getDoubleList(String key) {
 		// Cast everything to Double
 		List<Object> items = getList(key);
-		List<Double> list = new ArrayList<>(items.size());
+		List<Double> list = new UnsortedList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0.0 : StringUtils.getDouble(o.toString()));
 		return list;
@@ -413,7 +401,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public List<Short> getShortList(String key) {
 		// Cast everything to Short
 		List<Object> items = getList(key);
-		List<Short> list = new ArrayList<>(items.size());
+		List<Short> list = new UnsortedList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : StringUtils.getShort(o.toString()));
 		return list;
@@ -422,7 +410,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public List<Byte> getByteList(String key) {
 		// Cast everything to Byte
 		List<Object> items = getList(key);
-		List<Byte> list = new ArrayList<>(items.size());
+		List<Byte> list = new UnsortedList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : StringUtils.getByte(o.toString()));
 		return list;
@@ -431,7 +419,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public List<Float> getFloatList(String key) {
 		// Cast everything to Float
 		List<Object> items = getList(key);
-		List<Float> list = new ArrayList<>(items.size());
+		List<Float> list = new UnsortedList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : StringUtils.getFloat(o.toString()));
 		return list;
@@ -440,7 +428,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 	public List<Long> getLongList(String key) {
 		// Cast everything to Byte
 		List<Object> items = getList(key);
-		List<Long> list = new ArrayList<>(items.size());
+		List<Long> list = new UnsortedList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : StringUtils.getLong(o.toString()));
 		return list;
@@ -594,7 +582,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		synchronized (loader) {
 			try {
 				DataHolder aw = loader.get().get(path);
-				Object o = aw != null ? aw.o : null;
+				Object o = aw != null ? aw.getValue() : null;
 				String space = cs(spaces, 1);
 				pathName = space + pathName;
 				if (aw != null)
@@ -637,7 +625,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 					for (Entry<String, DataHolder> key : loader.get().entrySet())
 						try {
 							bos.writeUTF(key.getKey());
-							bos.writeUTF(me.DevTec.TheAPI.Utils.Json.Writer.write(key.getValue().o));
+							bos.writeUTF(me.DevTec.TheAPI.Utils.Json.Writer.write(key.getValue().getValue()));
 						} catch (Exception er) {
 						}
 					return type == DataType.DATA ? bos.toString()

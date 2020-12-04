@@ -1,12 +1,12 @@
 package me.DevTec.TheAPI.Scheduler;
 
-import java.util.HashMap;
 import java.util.Map.Entry;
 
+import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 
 public class Scheduler {
-	private final static HashMap<Integer, ThreadGroup> tasks = new HashMap<>();
+	private final static UnsortedMap<Integer, ThreadGroup> tasks = new UnsortedMap<>();
 	private static int id;
 
 	public static void cancelAll() {

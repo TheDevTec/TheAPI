@@ -1,7 +1,7 @@
 package me.DevTec.TheAPI.APIs;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.entity.AnimalTamer;
@@ -201,7 +201,7 @@ public class EntityCreatorAPI {
 	Color c; // horse color
 	AnimalTamer owner; // horse owner
 
-	public void setHorseOptions(HashMap<HorseOptions, Object> w) {
+	public void setHorseOptions(Map<HorseOptions, Object> w) {
 		for (HorseOptions a : w.keySet()) {
 			switch (a) {
 			case CarryingChest:
@@ -240,7 +240,7 @@ public class EntityCreatorAPI {
 		}
 	}
 
-	public void setTNTOptions(HashMap<TNTOptions, Object> w) {
+	public void setTNTOptions(Map<TNTOptions, Object> w) {
 		for (TNTOptions a : w.keySet()) {
 			switch (a) {
 			case IsIncendiary:
@@ -257,7 +257,7 @@ public class EntityCreatorAPI {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void setVillagerOptions(HashMap<VillagerOptions, Object> w) {
+	public void setVillagerOptions(Map<VillagerOptions, Object> w) {
 		for (VillagerOptions a : w.keySet()) {
 			switch (a) {
 			case Adult:
@@ -312,7 +312,7 @@ public class EntityCreatorAPI {
 		}
 	}
 
-	public void setArmorStandOptions(HashMap<ArmorStandOptions, Object> w) {
+	public void setArmorStandOptions(Map<ArmorStandOptions, Object> w) {
 		for (ArmorStandOptions a : w.keySet()) {
 			switch (a) {
 			case Arms:

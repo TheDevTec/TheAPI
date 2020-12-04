@@ -1,7 +1,6 @@
 package me.DevTec.TheAPI.Utils;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -75,13 +74,13 @@ public class HoverMessage {
 	public HoverMessage addText(String text) {
 		if (hover != null && hoverAction != null || click != null && clickAction != null) {
 			if (hover != null && hoverAction != null) {
-				HashMap<String, Object> o = new HashMap<>();
+				UnsortedMap<String, Object> o = new UnsortedMap<>();
 				o.put("action", hoverAction.name());
 				o.put("value", hover);
 				(isSuper ? extra : maker).add("hoverEvent", o);
 			}
 			if (click != null && clickAction != null) {
-				HashMap<String, Object> o = new HashMap<>();
+				UnsortedMap<String, Object> o = new UnsortedMap<>();
 				o.put("action", clickAction.name());
 				o.put("value", click);
 				(isSuper ? extra : maker).add("clickEvent", o);
@@ -135,13 +134,13 @@ public class HoverMessage {
 		Maker copyExtras = new Maker(extras);
 		if (hover != null && hoverAction != null || click != null && clickAction != null) {
 			if (hover != null && hoverAction != null) {
-				HashMap<String, Object> o = new HashMap<>();
+				UnsortedMap<String, Object> o = new UnsortedMap<>();
 				o.put("action", hoverAction.name().toLowerCase());
 				o.put("value", hover);
 				(isSuper ? copyOfExtra : copyOfMaker).put("hoverEvent", o);
 			}
 			if (click != null && clickAction != null) {
-				HashMap<String, Object> o = new HashMap<>();
+				UnsortedMap<String, Object> o = new UnsortedMap<>();
 				o.put("action", clickAction.name().toLowerCase());
 				o.put("value", click);
 				(isSuper ? copyOfExtra : copyOfMaker).put("clickEvent", o);

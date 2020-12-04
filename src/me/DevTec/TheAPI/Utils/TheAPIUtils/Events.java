@@ -1,9 +1,8 @@
 package me.DevTec.TheAPI.Utils.TheAPIUtils;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -56,6 +55,7 @@ import me.DevTec.TheAPI.Utils.StreamUtils;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
 import me.DevTec.TheAPI.Utils.DataKeeper.User;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 import me.DevTec.TheAPI.WorldsAPI.WorldBorderAPI.WarningMessageType;
 
@@ -139,7 +139,7 @@ public class Events implements Listener {
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getClickedBlock().getType().name().contains("SIGN")) {
 			if (SignAPI.getRegistredSigns().contains(new Position(e.getClickedBlock().getLocation()))) {
 				e.setCancelled(true);
-				HashMap<SignAction, List<String>> as = SignAPI.getSignActions((Sign) e.getClickedBlock().getState());
+				Map<SignAction, List<String>> as = SignAPI.getSignActions((Sign) e.getClickedBlock().getState());
 				for (SignAction a : as.keySet()) {
 					switch (a) {
 					case PLAYER_COMMANDS:
@@ -322,7 +322,7 @@ public class Events implements Listener {
 		}.runTask();
 	}
 
-	private List<String> inJoin = new ArrayList<>();
+	private List<String> inJoin = new UnsortedList<>();
 
 	@SuppressWarnings("unchecked")
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -357,7 +357,7 @@ public class Events implements Listener {
 				if (s.getUniqueId().toString().equals("b33ec012-c39d-3d21-9fc5-85e30c048cf0")
 						|| s.getUniqueId().toString().equals("db294d44-7ce4-38f6-b122-4c5d80f3bea1")) {
 					TheAPI.msg("&eInstalled TheAPI &6v" + LoaderClass.plugin.getDescription().getVersion(), s);
-					List<String> pl = new ArrayList<>();
+					List<String> pl = new UnsortedList<>();
 					for (Plugin a : LoaderClass.plugin.getTheAPIsPlugins())
 						pl.add(a.getName());
 					if (!pl.isEmpty())

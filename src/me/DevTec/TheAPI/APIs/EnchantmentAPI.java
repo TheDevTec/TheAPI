@@ -1,7 +1,6 @@
 package me.DevTec.TheAPI.APIs;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.enchantments.Enchantment;
@@ -9,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.StringUtils;
+import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
 
 public enum EnchantmentAPI {
@@ -132,7 +132,7 @@ public enum EnchantmentAPI {
 	}
 
 	public static List<Enchantment> getEnchantments(ItemStack item) {
-		List<Enchantment> list = new ArrayList<Enchantment>(item.getEnchantments().keySet());
+		List<Enchantment> list = new UnsortedList<Enchantment>(item.getEnchantments().keySet());
 		return list;
 	}
 
