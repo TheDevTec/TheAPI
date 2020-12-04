@@ -28,7 +28,6 @@ import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 public class ScoreboardAPI {
 	private static Data data = new Data();
 	private static Field teamlist = Ref.field(Ref.nms("PacketPlayOutScoreboardTeam"), TheAPI.isOlder1_9() ? "g" : "h");
-	private Object packetD;
 	private Player p;
 	private String player;
 	private final int id, slott;
@@ -83,10 +82,6 @@ public class ScoreboardAPI {
 			sb = player.getServer().getScoreboardManager().getNewScoreboard();
 			o = sb.getObjective(id + "") != null ? sb.getObjective(id + "") : sb.registerNewObjective(id + "", "dummy");
 			o.setDisplaySlot(DisplaySlot.SIDEBAR);
-		}else {
-			packetD = NMSAPI.getPacketPlayOutScoreboardDisplayObjective();
-			Ref.set(packetD, "a", 1);
-			Ref.set(packetD, "b", this.player);
 		}
 		create();
 	}
@@ -119,6 +114,9 @@ public class ScoreboardAPI {
 		LoaderClass.plugin.scoreboard.put(id, this);
 		if (packets) {
 			Ref.sendPacket(p, createObjectivePacket(0, name));
+			Object packetD = NMSAPI.getPacketPlayOutScoreboardDisplayObjective();
+			Ref.set(packetD, "a", 1);
+			Ref.set(packetD, "b", player);
 			Ref.sendPacket(p, packetD);
 		} else {
 			if (p.getPlayer() != sb)
@@ -134,8 +132,7 @@ public class ScoreboardAPI {
 		return id;
 	}
 
-	public void destroy() { // you can destroy scoreboard, but scoreboard still "exists" -> you can recreate
-							// it by update line / displayName
+	public void destroy() {
 		if (data.exists("sbc." + player)) {
 			if (data.getInt("sbc." + player) == id)
 				data.set("sbc." + player, null);
@@ -310,13 +307,13 @@ public class ScoreboardAPI {
 		return (Team) data.get(id+"."+line);
 	}
 
-	private Object packet = NMSAPI.getPacketPlayOutScoreboardObjective(), inte = NMSAPI.getEnumScoreboardHealthDisplay(DisplayType.INTEGER);
 	private Object createObjectivePacket(int mode, String displayName) {
+		Object packet = NMSAPI.getPacketPlayOutScoreboardObjective();
 		Ref.set(packet, "a", player);
 		Ref.set(packet, "d", mode);
 		if (mode == 0 || mode == 2) {
 			Ref.set(packet, "b", !a ? NMSAPI.getIChatBaseComponentFromCraftBukkit(displayName) : displayName);
-			Ref.set(packet, "c", inte);
+			Ref.set(packet, "c", NMSAPI.getEnumScoreboardHealthDisplay(DisplayType.INTEGER));
 		}
 		return packet;
 	}
@@ -331,7 +328,6 @@ public class ScoreboardAPI {
 	private static boolean a = !TheAPI.isNewVersion();
 
 	public class Team {
-		private Object re = NMSAPI.getPacketPlayOutScoreboardTeam(), create = NMSAPI.getPacketPlayOutScoreboardTeam();
 		private String prefix = "", suffix = "", currentPlayer, old;
 		private final String name;
 		private boolean changed, changedPlayer, first = true;
@@ -339,8 +335,6 @@ public class ScoreboardAPI {
 		private Team(int slot) {
 			name=""+slot;
 			currentPlayer = TheCoder.toColor(slot);
-			Ref.set(re, "a", name);
-			Ref.set(create, "a", name);
 		}
 
 		private Object c(int mode) {
@@ -357,6 +351,8 @@ public class ScoreboardAPI {
 		}
 
 		public Object remove() {
+			Object re = NMSAPI.getPacketPlayOutScoreboardTeam();
+			Ref.set(re, "a", name);
 			Ref.set(re, TheAPI.isOlder1_9() ? "h" : "i", 1);
 			first = true;
 			return re;
@@ -382,6 +378,8 @@ public class ScoreboardAPI {
 
 		@SuppressWarnings("unchecked")
 		public Object createPlayer(int mode, String playerName) {
+			Object create = NMSAPI.getPacketPlayOutScoreboardTeam();
+			Ref.set(create, "a", name);
 			Ref.set(create, TheAPI.isOlder1_9() ? "h" : "i", mode);
 			if (TheAPI.isNewerThan(15))
 				((Collection<String>) Ref.get(create, teamlist)).add(playerName);

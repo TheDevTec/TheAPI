@@ -11,10 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import io.netty.channel.Channel;
-import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
-import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class Ref {
 	private static Constructor<?> blockpos = constructor(nms("BlockPosition"), double.class, double.class,
@@ -31,7 +28,7 @@ public class Ref {
 					String.class, String.class, String.class);
 	private static Object server = invoke(handle(cast(craft("CraftServer"), Bukkit.getServer())), "getServer");
 	private static Class<?> craft = craft("entity.CraftPlayer"), world = craft("CraftWorld");
-	private static Method ichatcon;
+	private static Method ichatcon, send = Ref.method(nms("PlayerConnection"), "sendPacket", Ref.nms("Packet"));
 	static {
 		ichatcon = method(nms("IChatBaseComponent$ChatSerializer"), "a", String.class);
 		if (ichatcon == null)
@@ -115,10 +112,7 @@ public class Ref {
 	}
 
 	public static void sendPacket(Player to, Object packet) {
-		if(TheAPI.isOlderThan(8))
-			((net.minecraft.util.io.netty.channel.Channel)LoaderClass.plugin.handler.getChannel(to)).writeAndFlush(packet);
-		else
-		((Channel)LoaderClass.plugin.handler.getChannel(to)).writeAndFlush(packet);
+		Ref.invoke(Ref.playerCon(to), send, packet);
 	}
 
 	public static Object server() {
