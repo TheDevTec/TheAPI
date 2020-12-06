@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,6 @@ import me.DevTec.TheAPI.PlaceholderAPI.ThePlaceholder;
 import me.DevTec.TheAPI.PlaceholderAPI.ThePlaceholderAPI;
 import me.DevTec.TheAPI.Scheduler.Scheduler;
 import me.DevTec.TheAPI.Scheduler.Tasker;
-import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
 import me.DevTec.TheAPI.Utils.StreamUtils;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
@@ -56,13 +56,11 @@ import me.DevTec.TheAPI.WorldsAPI.WorldsAPI;
 import net.milkbowl.vault.economy.Economy;
 
 public class LoaderClass extends JavaPlugin {
-	// Scoreboards
-	public final Map<Integer, ScoreboardAPI> scoreboard = new UnsortedMap<>();
 	public final static Map<String, String> colorMap = new UnsortedMap<>();
 	// GUIs
-	public final Map<String, GUI> gui = new UnsortedMap<>();
+	public final Map<String, GUI> gui = new HashMap<>();
 	// BossBars
-	public final List<BossBar> bars = new UnsortedList<>();
+	public final Set<BossBar> bars = new UnsortedSet<>();
 	// TheAPI
 	public static LoaderClass plugin;
 	public static Config config = new Config("TheAPI/Config.yml"), tags,

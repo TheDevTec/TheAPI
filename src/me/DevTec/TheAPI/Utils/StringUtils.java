@@ -185,7 +185,7 @@ public class StringUtils {
 				a = prefix + split.substring(0, length);
 				prefix = ChatColor.getLastColors(a);
 			} else
-				prefix = "";
+				prefix = ChatColor.getLastColors(a);
 			splitted.add(a);
 			split = split.substring(length);
 		}
@@ -470,8 +470,7 @@ public class StringUtils {
 			String rawCode = LoaderClass.tagG + code;
 			if (!legacyMsg.toLowerCase().contains(rawCode))
 				continue;
-			legacyMsg = legacyMsg.replace(LoaderClass.gradientTag + rawCode,
-					LoaderClass.gradientTag + LoaderClass.colorMap.get(code));
+			legacyMsg = legacyMsg.replace(rawCode, LoaderClass.colorMap.get(code));
 		}
 		List<String> hexes = new UnsortedList<>();
 		Matcher matcher = Pattern.compile(LoaderClass.gradientTag + "#[A-Fa-f0-9]{6}").matcher(legacyMsg);

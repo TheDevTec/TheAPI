@@ -30,6 +30,7 @@ public class TAC_User {
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Exists <key>", s);
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Keys [key]", s);
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Reload", s);
+				TheAPI.msg("&e/TheAPI User <NAME/UUID> Save", s);
 				return;
 			}
 		}
@@ -45,6 +46,20 @@ public class TAC_User {
 			TheAPI.msg("&eReloading user &6" + args[1] + "&e..", s);
 			TheAPI.getUser(args[1]).getData().reload(TheAPI.getUser(args[1]).getData().getFile());
 			TheAPI.msg("&eReload of user &6" + args[1] + "&e finished.", s);
+			return;
+		}
+
+		if (args[2].equalsIgnoreCase("save")) {
+			if (args[1].equals("*")) {
+				TheAPI.msg("&eSaving cached users..", s);
+				for (User u : TheAPI.getCachedUsers())
+					u.save();
+				TheAPI.msg("&eSave of cached users finished.", s);
+				return;
+			}
+			TheAPI.msg("&eSaving user &6" + args[1] + "&e..", s);
+			TheAPI.getUser(args[1]).save();
+			TheAPI.msg("&eSave of user &6" + args[1] + "&e finished.", s);
 			return;
 		}
 

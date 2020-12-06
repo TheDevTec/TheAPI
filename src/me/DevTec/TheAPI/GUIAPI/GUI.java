@@ -1,6 +1,6 @@
 package me.DevTec.TheAPI.GUIAPI;
 
-import java.util.List;
+import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -8,14 +8,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import me.DevTec.TheAPI.TheAPI;
-import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedList;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 public class GUI {
 	private final String title;
 	private final UnsortedMap<Integer, ItemGUI> items = new UnsortedMap<>();
-	private final List<Player> opened = new UnsortedList<>();
 	private final Inventory inv;
 	// Defaulty false
 	private boolean put;
@@ -55,10 +53,6 @@ public class GUI {
 
 	public final String getName() {
 		return title;
-	}
-
-	public final List<Player> getPlayers() {
-		return opened;
 	}
 
 	/**
@@ -153,11 +147,9 @@ public class GUI {
 			if (LoaderClass.plugin.gui.containsKey(player.getName())) {
 				GUI a = LoaderClass.plugin.gui.get(player.getName());
 				LoaderClass.plugin.gui.remove(player.getName());
-				a.opened.remove(player);
 				a.onClose(player);
 			}
 			player.openInventory(inv);
-			opened.add(player);
 			LoaderClass.plugin.gui.put(player.getName(), this);
 		}
 	}
@@ -175,8 +167,9 @@ public class GUI {
 	 * 
 	 */
 	public final void close() {
-		for (Player a : new UnsortedList<>(opened))
-			close(a);
+		for(Entry<String, GUI> p : LoaderClass.plugin.gui.entrySet())
+			if(p.getValue().equals(this))
+			close(TheAPI.getPlayerOrNull(p.getKey()));
 	}
 
 	/**
@@ -203,17 +196,5 @@ public class GUI {
 			items += "/" + g + ":" + getItemGUIs().get(g).toString();
 		}
 		return "[GUI:" + title + "/" + put + "/" + inv.getSize() + items + "]";
-	}
-
-	public boolean equals(Object other) {
-		if (other instanceof Inventory) {
-			Inventory c = (Inventory) other;
-			return c.equals(inv);
-		}
-		if (other instanceof GUI) {
-			GUI c = (GUI) other;
-			return c.inv.equals(inv) && c.title.equals(title);
-		}
-		return false;
 	}
 }

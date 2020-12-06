@@ -17,7 +17,6 @@ import me.DevTec.TheAPI.Utils.NMS.NMSAPI;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.Action;
 import me.DevTec.TheAPI.Utils.NMS.NMSAPI.DisplayType;
 import me.DevTec.TheAPI.Utils.Reflections.Ref;
-import me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass;
 
 /**
  * https://gist.github.com/MrZalTy/f8895d84979d49af946fbcc108b1bf2b
@@ -104,14 +103,6 @@ public class ScoreboardAPI {
 	
 	private void create() {
 		updatePlayer();
-		if (data.exists("sbc." + player)) {
-			if (data.getInt("sbc." + player) == id)
-				return;
-			else if (LoaderClass.plugin.scoreboard.containsKey(data.getInt("sbc." + player)))
-				LoaderClass.plugin.scoreboard.get(data.getInt("sbc." + player)).destroy();
-		}
-		data.set("sbc." + player, id);
-		LoaderClass.plugin.scoreboard.put(id, this);
 		if (packets) {
 			Ref.sendPacket(p, createObjectivePacket(0, name));
 			Object packetD = NMSAPI.getPacketPlayOutScoreboardDisplayObjective();
@@ -133,10 +124,6 @@ public class ScoreboardAPI {
 	}
 
 	public void destroy() {
-		if (data.exists("sbc." + player)) {
-			if (data.getInt("sbc." + player) == id)
-				data.set("sbc." + player, null);
-		}
 		if (packets) {
 			Ref.sendPacket(p, createObjectivePacket(1, null));
 			if (data.exists(""+id))
@@ -150,7 +137,6 @@ public class ScoreboardAPI {
 			if (p.getPlayer().getScoreboard() == sb)
 				p.getPlayer().setScoreboard(p.getPlayer().getServer().getScoreboardManager().getNewScoreboard());
 		}
-		LoaderClass.plugin.scoreboard.remove(id);
 		data.remove(""+id);
 	}
 
@@ -270,9 +256,8 @@ public class ScoreboardAPI {
 	
 	public void removeUpperLines(int line) {
 		for(String a : data.getKeys(id+"")) {
-			if(Integer.parseInt(a)>line) {
+			if(Integer.parseInt(a)>line)
 				removeLine(Integer.parseInt(a));
-			}
 		}
 	}
 
@@ -317,14 +302,7 @@ public class ScoreboardAPI {
 		}
 		return packet;
 	}
-
-	public static void destroyScoreboard(int id) {
-		if (data.exists("sb." + id)) {
-			if (LoaderClass.plugin.scoreboard.containsKey(id))
-				LoaderClass.plugin.scoreboard.get(id).destroy();
-		}
-	}
-
+	
 	private static boolean a = !TheAPI.isNewVersion();
 
 	public class Team {

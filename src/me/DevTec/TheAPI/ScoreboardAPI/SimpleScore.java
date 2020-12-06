@@ -8,7 +8,7 @@ import me.DevTec.TheAPI.Utils.DataKeeper.Collections.UnsortedSet;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 
 public class SimpleScore {
-	private final UnsortedMap<String, ScoreboardAPI> scores = new UnsortedMap<>();
+	private static final UnsortedMap<String, ScoreboardAPI> scores = new UnsortedMap<>();
 	private String name = "TheAPI";
 	private final UnsortedSet<String> lines = new UnsortedSet<>();
 	
@@ -30,13 +30,15 @@ public class SimpleScore {
 	public void send(Player...players) {
 		for(Player a : players) {
 			ScoreboardAPI sb = getOrCreate(a);
-			sb.setDisplayName(name);
+			sb.setTitle(name);
 			if(sb.getLines().size()>lines.size())
 			sb.removeUpperLines(lines.size()-1);
 			int i = 0;
 			for (String line : lines)
 				sb.setLine(i++, line);
 		}
+		lines.clear();
+		name="TheAPI";
 	}
 	
 	private ScoreboardAPI getOrCreate(Player player) {

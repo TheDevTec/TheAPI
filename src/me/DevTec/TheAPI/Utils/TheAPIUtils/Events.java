@@ -89,7 +89,6 @@ public class Events implements Listener {
 		if (d == null)
 			return;
 		LoaderClass.plugin.gui.remove(p.getName());
-		d.getPlayers().remove(p);
 		d.onClose(p);
 	}
 

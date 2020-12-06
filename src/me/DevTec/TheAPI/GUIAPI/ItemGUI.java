@@ -4,6 +4,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 
+import me.DevTec.TheAPI.Utils.Json.Writer;
+
 public abstract class ItemGUI {
 	public abstract void onClick(Player player, GUI gui, ClickType click);
 
@@ -33,6 +35,6 @@ public abstract class ItemGUI {
 	}
 
 	public final String toString() {
-		return "[ItemGUI:" + unsteal + "/" + s.toString() + "]";
+		return "[ItemGUI:" + unsteal + "/" + Writer.write(s) + "]";
 	}
 }

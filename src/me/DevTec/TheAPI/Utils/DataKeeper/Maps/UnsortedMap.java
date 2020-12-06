@@ -20,7 +20,7 @@ public class UnsortedMap<K, V> implements Map<K, V> {
 	private Set<Entry<K, V>> entries;
 
 	public UnsortedMap() {
-		this(3);
+		this(10);
 	}
 
 	public UnsortedMap(int size) {
@@ -28,7 +28,6 @@ public class UnsortedMap<K, V> implements Map<K, V> {
 	}
 
 	public UnsortedMap(Map<? extends K, ? extends V> e) {
-		this(e.size());
 		putAll(e);
 	}
 
@@ -60,9 +59,15 @@ public class UnsortedMap<K, V> implements Map<K, V> {
 
 	@Override
 	public V put(K key, V value) {
+		boolean v = false;
+		V a = null;
 		for(Entry<K, V> e : entries)
-			if(e.getKey().equals(key))
-				return e.setValue(value);
+			if(e.getKey().equals(key)) {
+				a=e.setValue(value);
+				v=true;
+				break;
+			}
+		if(v)return a;
 		entries.add(new Entry<K, V>() {
 				V val = value;
 				@Override
@@ -86,17 +91,14 @@ public class UnsortedMap<K, V> implements Map<K, V> {
 
 	@Override
 	public V remove(Object value) {
-		Entry<K, V> old = null;
+		V old = null;
 		for(Entry<K, V> e : entries)
 			if(e.getKey().equals(value)){
-				old=e;
+				old=e.getValue();
+				entries.remove(e);
 				break;
 			}
-		if(old!=null) {
-			entries.remove(old);
-			return old.getValue();
-		}
-		return null;
+		return old;
 	}
 
 	@Override
