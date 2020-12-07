@@ -6,9 +6,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
@@ -45,8 +45,6 @@ import me.DevTec.TheAPI.CooldownAPI.CooldownAPI;
 import me.DevTec.TheAPI.SQLAPI.SQLAPI;
 import me.DevTec.TheAPI.Scheduler.Scheduler;
 import me.DevTec.TheAPI.Scheduler.Tasker;
-import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
-import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardType;
 import me.DevTec.TheAPI.Utils.StringUtils;
 import me.DevTec.TheAPI.Utils.DataKeeper.Data;
 import me.DevTec.TheAPI.Utils.DataKeeper.Storage;
@@ -112,7 +110,7 @@ public class TheAPI {
 
 	private static Object cmdMap = Ref.get(Bukkit.getPluginManager(), "commandMap");
 	@SuppressWarnings("unchecked")
-	private static Map<String, Command> knownCommands = (Map<String, Command>) Ref.get(cmdMap, "knownCommands");
+	private static HashMap<String, Command> knownCommands = (HashMap<String, Command>) Ref.get(cmdMap, "knownCommands");
 
 	public static void registerCommand(PluginCommand command) {
 		String label = command.getName().toLowerCase(Locale.ENGLISH).trim();
@@ -904,54 +902,6 @@ public class TheAPI {
 	 */
 	public static EnchantmentAPI getEnchantmentAPI(String enchantment) {
 		return EnchantmentAPI.byName(enchantment);
-	}
-
-	/**
-	 * @see see Send player scoreboard (Fuctions: Per player scoreboard, Packets)
-	 * @param p          Player
-	 * @param usePackets If this is set to true, scoreboard will use packets, not
-	 *                   bukkit methods
-	 * @return ScoreboardAPI
-	 */
-	public static ScoreboardAPI getScoreboardAPI(Player p, boolean usePackets) {
-		return new ScoreboardAPI(p, usePackets, false);
-	}
-
-	/**
-	 * @see see Send player scoreboard (Fuctions: Per player scoreboard, Teams ->
-	 *      Non-Flashing)
-	 * @param p          Player
-	 * @param usePackets If this is set to true, scoreboard will use packets, not
-	 *                   bukkit methods
-	 * @param useTeams   If this is set to true & usePackets is set to false,
-	 *                   scoreboard will use teams (Bukkit methods) Or if useTeams &
-	 *                   usePackets are set to false, scoreboard will use
-	 *                   OfflinePlayers (Bukkit methods, not teams)
-	 * @return ScoreboardAPI
-	 */
-	public static ScoreboardAPI getScoreboardAPI(Player p, boolean usePackets, boolean useTeams) {
-		return new ScoreboardAPI(p, usePackets, useTeams);
-	}
-
-	/**
-	 * @see see Send player scoreboard (Fuctions: Per player scoreboard, Teams ->
-	 *      Non-Flashing)
-	 * @param p    Player
-	 * @param type ScoreboardType
-	 * @return ScoreboardAPI
-	 */
-	public static ScoreboardAPI getScoreboardAPI(Player p, ScoreboardType type) {
-		return new ScoreboardAPI(p, type);
-	}
-
-	/**
-	 * @see see Send player scoreboard (Fuctions: Per player scoreboard)
-	 * @param p
-	 * @param board
-	 * @return ScoreboardAPI
-	 */
-	public static ScoreboardAPI getScoreboardAPI(Player p) {
-		return new ScoreboardAPI(p, false, false);
 	}
 
 	private static String version;

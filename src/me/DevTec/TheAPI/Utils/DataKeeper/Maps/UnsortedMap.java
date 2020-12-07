@@ -28,6 +28,7 @@ public class UnsortedMap<K, V> implements Map<K, V> {
 	}
 
 	public UnsortedMap(Map<? extends K, ? extends V> e) {
+		this(e.size());
 		putAll(e);
 	}
 

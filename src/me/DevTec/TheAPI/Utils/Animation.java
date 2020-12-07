@@ -17,6 +17,7 @@ public class Animation {
 	}
 
 	public String get() {
+		if(lines.isEmpty())return null;
 		if (c >= lines.size())
 			c = 0;
 		if (last - System.currentTimeMillis()/50 + tics <= 0) {

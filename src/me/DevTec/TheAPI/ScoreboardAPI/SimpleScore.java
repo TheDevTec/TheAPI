@@ -34,17 +34,17 @@ public class SimpleScore {
 			if(sb.getLines().size()>lines.size())
 			sb.removeUpperLines(lines.size()-1);
 			int i = 0;
-			for (String line : lines)
+			for (String line : lines) {
 				sb.setLine(i++, line);
+			}
 		}
 		lines.clear();
-		name="TheAPI";
 	}
 	
 	private ScoreboardAPI getOrCreate(Player player) {
 		ScoreboardAPI a = scores.getOrDefault(player.getName(), null);
 		if(a==null) {
-			a=new ScoreboardAPI(player, true, 0);
+			a=new ScoreboardAPI(player, 0);
 			scores.put(player.getName(), a);
 		}
 		return a;

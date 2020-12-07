@@ -64,7 +64,7 @@ public class BossBar {
 			return;
 		hide = true;
 		Player p = TheAPI.getPlayer(s);
-		if (!p.getName().equals(s))
+		if (p==null ||!p.getName().equals(s))
 			return;
 		if (!TheAPI.isOlder1_9()) {
 			Ref.invoke(bar, Ref.method(Ref.nms("BossBattleServer"), "setVisible", boolean.class), false);
@@ -93,7 +93,7 @@ public class BossBar {
 
 	private void set(String text, double progress, BarColor color, BarStyle style) {
 		Player p = TheAPI.getPlayer(s);
-		if (!p.getName().equals(s))
+		if (p==null||!p.getName().equals(s))
 			return;
 		if (progress != -1)
 			this.progress = progress;
@@ -108,7 +108,7 @@ public class BossBar {
 				bar = Ref.newInstance(
 						Ref.constructor(Ref.nms("BossBattleServer"), Ref.nms("IChatBaseComponent"),
 								Ref.nms("BossBattle$BarColor"), Ref.nms("BossBattle$BarStyle")),
-						NMSAPI.getIChatBaseComponentText(title), color.toMojang(), style.toMojang());
+						NMSAPI.getIChatBaseComponentFromCraftBukkit(title), color.toMojang(), style.toMojang());
 				Ref.invoke(bar, Ref.method(bar.getClass(), "setProgress", float.class),
 						(float) progress != -1 ? progress : 1);
 				Ref.invoke(bar, Ref.method(Ref.nms("BossBattleServer"), "addPlayer", Ref.nms("EntityPlayer")),
@@ -116,7 +116,7 @@ public class BossBar {
 				return;
 			}
 			if (text != null) {
-				Ref.set(bar, "title", NMSAPI.getIChatBaseComponentText(title));
+				Ref.set(bar, "title", NMSAPI.getIChatBaseComponentFromCraftBukkit(title));
 			}
 			if (progress != -1) {
 				Ref.invoke(bar, Ref.method(bar.getClass(), "setProgress", float.class), (float) progress);

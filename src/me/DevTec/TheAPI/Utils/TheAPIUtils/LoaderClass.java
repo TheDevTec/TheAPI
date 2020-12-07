@@ -468,7 +468,7 @@ public class LoaderClass extends JavaPlugin {
 					if (placeholder.equalsIgnoreCase("player_food"))
 						return "" + player.getFoodLevel();
 					if (placeholder.equalsIgnoreCase("player_exp"))
-						return "" + player.getExp();
+						return "" + Ref.get(Ref.player(player), "exp");
 					if (placeholder.equalsIgnoreCase("player_ping"))
 						return "" + TheAPI.getPlayerPing(player);
 					if (placeholder.equalsIgnoreCase("player_level"))

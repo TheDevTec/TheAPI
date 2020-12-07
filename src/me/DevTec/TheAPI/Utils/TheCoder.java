@@ -6,6 +6,7 @@ import java.util.Base64;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
@@ -136,12 +137,16 @@ public class TheCoder {
 
 	public static String toColor(long ints) {
 		String s = "" + ints;
-		return s.replace("0", "§0").replace("1", "§1").replace("2", "§2").replace("3", "§3").replace("4", "§4")
-				.replace("5", "§5").replace("6", "§6").replace("7", "§7").replace("8", "§8").replace("9", "§9");
+		for(int i = ChatColor.values().length-1; i > -1; --i) {
+			s=s.replace(i+"", ChatColor.values()[i]+"");
+		}
+		return s;
 	}
 
 	public static String fromColor(String c) {
-		return c.replace("§0", "0").replace("§1", "1").replace("§2", "2").replace("§3", "3").replace("§4", "4")
-				.replace("§5", "5").replace("§6", "6").replace("§7", "7").replace("§8", "8").replace("§9", "9");
+		for(int i = ChatColor.values().length-1; i > -1; --i) {
+			c=c.replace(ChatColor.values()[i]+"", i+"");
+		}
+		return c;
 	}
 }

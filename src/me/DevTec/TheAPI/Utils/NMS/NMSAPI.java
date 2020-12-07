@@ -308,11 +308,11 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut) {
-		return getPacketPlayOutTitle(action, getIChatBaseComponentText(text), fadeIn, stay, fadeOut);
+		return getPacketPlayOutTitle(action, getIChatBaseComponentFromCraftBukkit(text), fadeIn, stay, fadeOut);
 	}
 
 	public static Object getPacketPlayOutTitle(TitleAction action, String text) {
-		return getPacketPlayOutTitle(action, getIChatBaseComponentText(text), 10, 20, 10);
+		return getPacketPlayOutTitle(action, getIChatBaseComponentFromCraftBukkit(text), 10, 20, 10);
 	}
 
 	public static Object getPacketPlayOutMapChunk(Object Chunk, int workers) {
@@ -359,7 +359,7 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutChat(ChatType type, String text) {
-		return getPacketPlayOutChat(type, getIChatBaseComponentText(text));
+		return getPacketPlayOutChat(type, getIChatBaseComponentFromCraftBukkit(text));
 	}
 
 	public static Object getType(World w, int x, int y, int z) {
@@ -427,18 +427,20 @@ public class NMSAPI {
 		return Ref.newInstance(pLSpawn, entityLiving);
 	}
 
-	public static Object getPacketPlayOutPlayerListHeaderFooter(Object headerIChatBaseComponent,
-			Object footerIChatBaseComponent) {
-		if (pTab != null) {
-			Object packet = Ref.newInstance(pTab);
-			Field aField = null;
-			Field bField = null;
+	static Field aField, bField;
+	static {
+		try {
 			aField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "header");
 			if (aField == null)
 				aField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "a");
 			bField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "footer");
 			if (bField == null)
 				bField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "b");
+		}catch(Exception e) {}
+	}
+	public static Object getPacketPlayOutPlayerListHeaderFooter(Object headerIChatBaseComponent, Object footerIChatBaseComponent) {
+		if(pTab!=null) {
+			Object packet = Ref.newInstance(pTab);
 			Ref.set(packet, aField, headerIChatBaseComponent);
 			Ref.set(packet, bField, footerIChatBaseComponent);
 			return packet;
@@ -447,8 +449,7 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutPlayerListHeaderFooter(String header, String footer) {
-		return getPacketPlayOutPlayerListHeaderFooter(getIChatBaseComponentText(header),
-				getIChatBaseComponentText(footer));
+		return getPacketPlayOutPlayerListHeaderFooter(getIChatBaseComponentFromCraftBukkit(header), getIChatBaseComponentFromCraftBukkit(footer));
 	}
 
 	public static Object getPacketPlayOutBlockChange(Object World, int x, int y, int z) {
@@ -476,7 +477,7 @@ public class NMSAPI {
 	}
 
 	public static Object getIChatBaseComponentFromCraftBukkit(String text) {
-		return Ref.invokeNulled(Ref.method(Ref.craft("util.CraftChatMessage"), "fromStringOrNull", String.class), text);
+		return Ref.invokeNulled(Ref.method(Ref.craft("util.CraftChatMessage"), "fromStringOrNull", String.class, boolean.class), text, true);
 	}
 
 	public static Object getIChatBaseComponentJson(String json) {

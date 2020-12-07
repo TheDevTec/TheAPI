@@ -133,9 +133,9 @@ public class NameTagAPI {
 		if (teamName.length() > 16) {
 			teamName = teamName.substring(0, 15);
 		}
-		if (sb.getTeam(teamName) == null)
-			sb.registerNewTeam(teamName);
 		Team t = sb.getTeam(teamName);
+		if (t == null)
+			t=sb.registerNewTeam(teamName);
 		if (suffix != null) {
 			if (TheAPI.isOlder1_9()) {
 				if (suffix.length() > 16) {

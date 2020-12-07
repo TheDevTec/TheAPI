@@ -15,7 +15,6 @@ import me.DevTec.TheAPI.GUIAPI.GUI;
 import me.DevTec.TheAPI.GUIAPI.ItemGUI;
 import me.DevTec.TheAPI.Scheduler.Tasker;
 import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
-import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardType;
 import me.DevTec.TheAPI.SortedMap.RankingAPI;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 
@@ -32,7 +31,7 @@ public class TAC_Test {
 			Player p = (Player) s;
 
 			if (args[1].equalsIgnoreCase("Other")) {
-				ScoreboardAPI sb = new ScoreboardAPI(p, ScoreboardType.PACKETS, 0);
+				ScoreboardAPI sb = new ScoreboardAPI(p, 0);
 				new Tasker() {
 					int i = 0;
 					public void run() {
