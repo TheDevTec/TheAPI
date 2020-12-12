@@ -1,19 +1,17 @@
 package me.DevTec.TheAPI.Utils.PacketListenerAPI;
 
-import org.bukkit.entity.Player;
-
-public abstract class Listener {
-	public Listener() {
+public abstract class PacketListener {
+	public PacketListener() {
 		this(Priority.NORMAL);
 	}
 
-	public Listener(Priority prio) {
+	public PacketListener(Priority prio) {
 		priority = prio;
 	}
 
 	private Priority priority;
 
-	public final Listener setPriority(Priority prio) {
+	public final PacketListener setPriority(Priority prio) {
 		if (prio == null)
 			return this;
 		PacketManager.notify(this, priority, prio);
@@ -33,14 +31,14 @@ public abstract class Listener {
 		return priority;
 	}
 
-	protected final Object call(Player player, Object packet, Object channel, boolean isPacketOut) {
+	protected final Object call(String player, Object packet, Object channel, boolean isPacketOut) {
 		if (packet == null || channel == null
 				|| (isPacketOut ? PacketPlayOut(player, packet, channel) : PacketPlayIn(player, packet, channel)))
 			return null;
 		return packet;
 	}
 
-	public abstract boolean PacketPlayOut(Player player, Object packet, Object channel);
+	public abstract boolean PacketPlayOut(String player, Object packet, Object channel);
 
-	public abstract boolean PacketPlayIn(Player player, Object packet, Object channel);
+	public abstract boolean PacketPlayIn(String player, Object packet, Object channel);
 }

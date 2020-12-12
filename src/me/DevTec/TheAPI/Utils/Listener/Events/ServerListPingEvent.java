@@ -11,19 +11,28 @@ public class ServerListPingEvent extends Event implements Cancellable {
 	private boolean b;
 	private int online, max;
 	private List<PlayerProfile> playersText;
-	private String motd, falvicon;
+	private String motd, falvicon, version;
 	private final InetAddress address;
 
 	public ServerListPingEvent(int online, int max, List<PlayerProfile> playersText, String motd, String falvicon,
-			InetAddress inetAddress) {
+			InetAddress inetAddress, String ver) {
 		this.online = online;
 		this.max = max;
 		this.playersText = playersText;
 		this.motd = motd;
 		this.falvicon = falvicon;
 		this.address = inetAddress;
+		version=ver;
 	}
 
+	public String getVersion() {
+		return version;
+	}
+	
+	public void setVersion(String ver) {
+		version=ver;
+	}
+	
 	public InetAddress getAddress() {
 		return address;
 	}

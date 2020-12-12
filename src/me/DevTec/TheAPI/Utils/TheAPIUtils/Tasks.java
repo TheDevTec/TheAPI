@@ -30,7 +30,7 @@ public class Tasks {
 			: Ref.getClass("net.minecraft.util.com.mojang.authlib.GameProfile");
 	private static Constructor<?> cc = Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class,
 			int.class);
-	private static me.DevTec.TheAPI.Utils.PacketListenerAPI.Listener l;
+	private static me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketListener l;
 
 	public static void load() {
 		Data v = new Data();
@@ -38,9 +38,9 @@ public class Tasks {
 			return;
 		load = true;
 		if (l == null)
-			l = new me.DevTec.TheAPI.Utils.PacketListenerAPI.Listener() {
-				public boolean PacketPlayOut(Player player, Object packet, Object channel) {
-					if (packet.toString().contains("PacketStatusOutServerInfo")) {
+			l = new me.DevTec.TheAPI.Utils.PacketListenerAPI.PacketListener() {
+				public boolean PacketPlayOut(String player, Object packet, Object channel) {
+					if (packet.getClass().getCanonicalName().endsWith("PacketStatusOutServerInfo")) {
 						Object w = Ref.invoke(Ref.server(), "getServerPing");
 						if (w == null)
 							w = Ref.invoke(Ref.server(), "aG");
@@ -51,7 +51,7 @@ public class Tasks {
 							players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
 						ServerListPingEvent event = new ServerListPingEvent(TheAPI.getOnlinePlayers().size(),
 								TheAPI.getMaxPlayers(), players, TheAPI.getMotd(), null,
-								((InetSocketAddress) Ref.invoke(channel, "localAddress")).getAddress());
+								((InetSocketAddress) Ref.invoke(channel, "remoteAddress")).getAddress(), (String)Ref.get(Ref.get(w, "c"),"a"));
 						TheAPI.callEvent(event);
 						if (event.isCancelled())
 							return true;
@@ -70,6 +70,9 @@ public class Tasks {
 							Ref.set(w, "a", Ref.IChatBaseComponent(event.getMotd()));
 						else
 							Ref.set(w, "a", Ref.IChatBaseComponent(""));
+						if(event.getVersion()!=null) {
+							Ref.set(Ref.get(w, "c"), "a", event.getVersion());
+						}
 						Ref.set(packet, "b", w);
 						if (event.getFalvicon() != null)
 							Ref.set(packet, "d", event.getFalvicon());
@@ -79,7 +82,7 @@ public class Tasks {
 				}
 
 				@Override
-				public boolean PacketPlayIn(Player player, Object packet, Object channel) {
+				public boolean PacketPlayIn(String player, Object packet, Object channel) {
 					return false;
 				}
 			};

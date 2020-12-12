@@ -305,18 +305,20 @@ public class Events implements Listener {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@EventHandler
 	public void onLeave(PlayerQuitEvent e) {
+		Player s = e.getPlayer();
+		if (LoaderClass.plugin.handler.has(LoaderClass.plugin.handler.get(e.getPlayer())))
+		LoaderClass.plugin.handler.remove(LoaderClass.plugin.handler.get(s));
+		if (TheAPI.getBossBar(s) != null)
+			TheAPI.getBossBar(s).remove();
 		new Tasker() {
 			public void run() {
-				Player s = e.getPlayer();
 				TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);
-				if (TheAPI.getBossBar(s) != null)
-					TheAPI.getBossBar(s).remove();
-				LoaderClass.plugin.handler.uninjectPlayer(s);
 				if (LoaderClass.config.getBoolean("Options.Cache.User.RemoveOnQuit")
 						&& LoaderClass.config.getBoolean("Options.Cache.User.Use"))
-					TheAPI.removeCachedUser(e.getPlayer().getUniqueId());
+				TheAPI.removeCachedUser(e.getPlayer().getUniqueId());
 			}
 		}.runTask();
 	}
@@ -330,9 +332,8 @@ public class Events implements Listener {
 			inJoin.add(e.getPlayer().getName());
 			return;
 		}
-		Object channel = LoaderClass.plugin.handler.getChannel(e.getPlayer());
-		if (!LoaderClass.plugin.handler.hasInjected(channel))
-			LoaderClass.plugin.handler.injectPlayer(e.getPlayer());
+		if (!LoaderClass.plugin.handler.has(LoaderClass.plugin.handler.get(e.getPlayer())))
+		LoaderClass.plugin.handler.add(e.getPlayer());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -344,15 +345,14 @@ public class Events implements Listener {
 			if (!TheAPI.canSee(s, p.getName()))
 				s.hidePlayer(p);
 		TheAPI.setVanish(s.getName(), TheAPI.getUser(s).getString("vanish"), TheAPI.hasVanish(s.getName()));
+		if (inJoin.contains(s.getName())) {
+			inJoin.remove(s.getName());
+			if (!LoaderClass.plugin.handler.has(LoaderClass.plugin.handler.get(e.getPlayer())))
+				LoaderClass.plugin.handler.add(e.getPlayer());
+		}
 		new Tasker() {
 			public void run() {
 				TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);
-				if (inJoin.contains(s.getName())) {
-					inJoin.remove(s.getName());
-					Object channel = LoaderClass.plugin.handler.getChannel(e.getPlayer());
-					if (!LoaderClass.plugin.handler.hasInjected(channel))
-						LoaderClass.plugin.handler.injectPlayer(e.getPlayer());
-				}
 				if (s.getUniqueId().toString().equals("b33ec012-c39d-3d21-9fc5-85e30c048cf0")
 						|| s.getUniqueId().toString().equals("db294d44-7ce4-38f6-b122-4c5d80f3bea1")) {
 					TheAPI.msg("&eInstalled TheAPI &6v" + LoaderClass.plugin.getDescription().getVersion(), s);

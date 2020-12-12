@@ -48,8 +48,8 @@ public class PunishmentAPI {
 			return;
 		}
 		kick(playerOrIP, reason);
-		LoaderClass.data.set("ban." + playerOrIP + ".start", System.currentTimeMillis() / 1000);
-		LoaderClass.data.set("ban." + playerOrIP + ".reason", reason);
+		LoaderClass.data.set("ban." + playerOrIP.toLowerCase() + ".start", System.currentTimeMillis() / 1000);
+		LoaderClass.data.set("ban." + playerOrIP.toLowerCase() + ".reason", reason);
 		LoaderClass.data.save();
 	}
 
@@ -57,8 +57,8 @@ public class PunishmentAPI {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
 		kickIP(playerOrIP, reason);
-		LoaderClass.data.set("banip." + playerOrIP.replace(".", "_") + ".start", System.currentTimeMillis() / 1000);
-		LoaderClass.data.set("banip." + playerOrIP.replace(".", "_") + ".reason", reason);
+		LoaderClass.data.set("banip." + playerOrIP.replace(".", "_").toLowerCase() + ".start", System.currentTimeMillis() / 1000);
+		LoaderClass.data.set("banip." + playerOrIP.replace(".", "_").toLowerCase() + ".reason", reason);
 		LoaderClass.data.save();
 	}
 
@@ -69,9 +69,9 @@ public class PunishmentAPI {
 			return;
 		}
 		kick(playerOrIP, reason.replace("%time%", StringUtils.timeToString(time)));
-		LoaderClass.data.set("tempban." + playerOrIP + ".start", System.currentTimeMillis() / 1000);
-		LoaderClass.data.set("tempban." + playerOrIP + ".time", time);
-		LoaderClass.data.set("tempban." + playerOrIP + ".reason", reason);
+		LoaderClass.data.set("tempban." + playerOrIP.toLowerCase() + ".start", System.currentTimeMillis() / 1000);
+		LoaderClass.data.set("tempban." + playerOrIP.toLowerCase() + ".time", time);
+		LoaderClass.data.set("tempban." + playerOrIP.toLowerCase() + ".reason", reason);
 		LoaderClass.data.save();
 	}
 
@@ -79,9 +79,9 @@ public class PunishmentAPI {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
 		kickIP(playerOrIP, reason.replace("%time%", StringUtils.timeToString(time)));
-		LoaderClass.data.set("tempbanip." + playerOrIP.replace(".", "_") + ".start", System.currentTimeMillis() / 1000);
-		LoaderClass.data.set("tempbanip." + playerOrIP.replace(".", "_") + ".time", time);
-		LoaderClass.data.set("tempbanip." + playerOrIP.replace(".", "_") + ".reason", reason);
+		LoaderClass.data.set("tempbanip." + playerOrIP.replace(".", "_").toLowerCase() + ".start", System.currentTimeMillis() / 1000);
+		LoaderClass.data.set("tempbanip." + playerOrIP.replace(".", "_").toLowerCase() + ".time", time);
+		LoaderClass.data.set("tempbanip." + playerOrIP.replace(".", "_").toLowerCase() + ".reason", reason);
 		LoaderClass.data.save();
 	}
 
@@ -91,8 +91,8 @@ public class PunishmentAPI {
 				kick(s, reason);
 			return;
 		}
-		if (TheAPI.getPlayer(playerOrIP) != null)
-			TheAPI.getPlayer(playerOrIP).kickPlayer(TheAPI.colorize(reason.replace("\\n", "\n")));
+		if (TheAPI.getPlayerOrNull(playerOrIP) != null)
+			TheAPI.getPlayerOrNull(playerOrIP).kickPlayer(TheAPI.colorize(reason.replace("\\n", "\n")));
 	}
 
 	public static void kickIP(String playerOrIP, String reason) {
@@ -131,9 +131,9 @@ public class PunishmentAPI {
 	public static void jailIP(String playerOrIP, String reason, String jail) {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
-		LoaderClass.data.set("jailip." + playerOrIP.replace(".", "_") + ".id", jail);
-		LoaderClass.data.set("jailip." + playerOrIP.replace(".", "_") + ".reason", reason);
-		LoaderClass.data.set("jailip." + playerOrIP.replace(".", "_") + ".start", System.currentTimeMillis() / 1000);
+		LoaderClass.data.set("jailip." + playerOrIP.replace(".", "_").toLowerCase() + ".id", jail);
+		LoaderClass.data.set("jailip." + playerOrIP.replace(".", "_").toLowerCase() + ".reason", reason);
+		LoaderClass.data.set("jailip." + playerOrIP.replace(".", "_").toLowerCase() + ".start", System.currentTimeMillis() / 1000);
 		LoaderClass.data.save();
 		for (String player : getPlayersOnIP(playerOrIP))
 			if (TheAPI.getPlayer(player) != null) {
@@ -149,9 +149,9 @@ public class PunishmentAPI {
 				jail(s, reason, jail);
 			return;
 		}
-		LoaderClass.data.set("jail." + player + ".id", jail);
-		LoaderClass.data.set("jail." + player + ".reason", reason);
-		LoaderClass.data.set("jail." + player + ".start", System.currentTimeMillis() / 1000);
+		LoaderClass.data.set("jail." + player.toLowerCase() + ".id", jail);
+		LoaderClass.data.set("jail." + player.toLowerCase() + ".reason", reason);
+		LoaderClass.data.set("jail." + player.toLowerCase() + ".start", System.currentTimeMillis() / 1000);
 		LoaderClass.data.save();
 		if (TheAPI.getPlayer(player) != null) {
 			TheAPI.getPlayer(player)
@@ -176,10 +176,10 @@ public class PunishmentAPI {
 				tempjail(s, reason, time, jail);
 			return;
 		}
-		LoaderClass.data.set("tempjail." + player + ".id", jail);
-		LoaderClass.data.set("tempjail." + player + ".time", jail);
-		LoaderClass.data.set("tempjail." + player + ".reason", reason);
-		LoaderClass.data.set("tempjail." + player + ".start", System.currentTimeMillis() / 1000);
+		LoaderClass.data.set("tempjail." + player.toLowerCase() + ".id", jail);
+		LoaderClass.data.set("tempjail." + player.toLowerCase() + ".time", jail);
+		LoaderClass.data.set("tempjail." + player.toLowerCase() + ".reason", reason);
+		LoaderClass.data.set("tempjail." + player.toLowerCase() + ".start", System.currentTimeMillis() / 1000);
 		LoaderClass.data.save();
 		if (TheAPI.getPlayer(player) != null) {
 			TheAPI.getPlayer(player)
@@ -197,10 +197,10 @@ public class PunishmentAPI {
 	public static void tempjailIP(String playerOrIP, String reason, long time, String jail) {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
-		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_") + ".id", jail);
-		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_") + ".time", jail);
-		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_") + ".reason", reason);
-		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_") + ".start",
+		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_").toLowerCase() + ".id", jail);
+		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_").toLowerCase() + ".time", jail);
+		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_").toLowerCase() + ".reason", reason);
+		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_").toLowerCase() + ".start",
 				System.currentTimeMillis() / 1000);
 		LoaderClass.data.save();
 		for (String player : getPlayersOnIP(playerOrIP))
@@ -230,20 +230,20 @@ public class PunishmentAPI {
 
 	public static void unban(String playerOrIP) {
 		if (isIP(playerOrIP)) {
-			for (String s : getPlayersOnIP(playerOrIP))
+			for (String s : getPlayersOnIP(playerOrIP.toLowerCase()))
 				unban(s);
 			return;
 		}
-		LoaderClass.data.remove("ban." + playerOrIP);
-		LoaderClass.data.remove("tempban." + playerOrIP);
+		LoaderClass.data.remove("ban." + playerOrIP.toLowerCase());
+		LoaderClass.data.remove("tempban." + playerOrIP.toLowerCase());
 		LoaderClass.data.save();
 	}
 
 	public static void unbanIP(String playerOrIP) {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
-		LoaderClass.data.remove("banip." + playerOrIP.replace(".", "_"));
-		LoaderClass.data.remove("tempbanip." + playerOrIP.replace(".", "_"));
+		LoaderClass.data.remove("banip." + playerOrIP.replace(".", "_").toLowerCase());
+		LoaderClass.data.remove("tempbanip." + playerOrIP.replace(".", "_").toLowerCase());
 		LoaderClass.data.save();
 	}
 
@@ -253,16 +253,16 @@ public class PunishmentAPI {
 				unjail(s);
 			return;
 		}
-		LoaderClass.data.remove("jail." + playerOrIP);
-		LoaderClass.data.remove("tempjail." + playerOrIP);
+		LoaderClass.data.remove("jail." + playerOrIP.toLowerCase());
+		LoaderClass.data.remove("tempjail." + playerOrIP.toLowerCase());
 		LoaderClass.data.save();
 	}
 
 	public static void unjailIP(String playerOrIP) {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
-		LoaderClass.data.remove("jailip." + playerOrIP.replace(".", "_"));
-		LoaderClass.data.remove("tempjailip." + playerOrIP.replace(".", "_"));
+		LoaderClass.data.remove("jailip." + playerOrIP.replace(".", "_").toLowerCase());
+		LoaderClass.data.remove("tempjailip." + playerOrIP.replace(".", "_").toLowerCase());
 		LoaderClass.data.save();
 	}
 
@@ -272,16 +272,16 @@ public class PunishmentAPI {
 				unmute(s);
 			return;
 		}
-		LoaderClass.data.remove("mute." + playerOrIP);
-		LoaderClass.data.remove("tempmute." + playerOrIP);
+		LoaderClass.data.remove("mute." + playerOrIP.toLowerCase());
+		LoaderClass.data.remove("tempmute." + playerOrIP.toLowerCase());
 		LoaderClass.data.save();
 	}
 
 	public static void unmuteIP(String playerOrIP) {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
-		LoaderClass.data.remove("muteip." + playerOrIP.replace(".", "_"));
-		LoaderClass.data.remove("tempmuteip." + playerOrIP.replace(".", "_"));
+		LoaderClass.data.remove("muteip." + playerOrIP.replace(".", "_").toLowerCase());
+		LoaderClass.data.remove("tempmuteip." + playerOrIP.replace(".", "_").toLowerCase());
 		LoaderClass.data.save();
 	}
 
@@ -291,8 +291,8 @@ public class PunishmentAPI {
 				mute(s, reason);
 			return;
 		}
-		LoaderClass.data.set("mute." + playerOrIP + ".reason", reason);
-		LoaderClass.data.set("mute." + playerOrIP + ".start", System.currentTimeMillis() / 1000);
+		LoaderClass.data.set("mute." + playerOrIP.toLowerCase() + ".reason", reason);
+		LoaderClass.data.set("mute." + playerOrIP.toLowerCase() + ".start", System.currentTimeMillis() / 1000);
 		LoaderClass.data.save();
 		if (TheAPI.getPlayer(playerOrIP) != null)
 			TheAPI.msg(reason, TheAPI.getPlayer(playerOrIP));
@@ -304,9 +304,9 @@ public class PunishmentAPI {
 				tempmute(s, reason, time);
 			return;
 		}
-		LoaderClass.data.set("tempmute." + playerOrIP + ".reason", reason);
-		LoaderClass.data.set("tempmute." + playerOrIP + ".time", time);
-		LoaderClass.data.set("tempmute." + playerOrIP + ".start", System.currentTimeMillis() / 1000);
+		LoaderClass.data.set("tempmute." + playerOrIP.toLowerCase() + ".reason", reason);
+		LoaderClass.data.set("tempmute." + playerOrIP.toLowerCase() + ".time", time);
+		LoaderClass.data.set("tempmute." + playerOrIP.toLowerCase() + ".start", System.currentTimeMillis() / 1000);
 		LoaderClass.data.save();
 		if (TheAPI.getPlayer(playerOrIP) != null)
 			TheAPI.msg(reason.replace("%time%", StringUtils.timeToString(time)), TheAPI.getPlayer(playerOrIP));
@@ -315,8 +315,8 @@ public class PunishmentAPI {
 	public static void muteIP(String playerOrIP, String reason) {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
-		LoaderClass.data.set("muteip." + playerOrIP.replace(".", "_") + ".reason", reason);
-		LoaderClass.data.set("muteip." + playerOrIP.replace(".", "_") + ".start", System.currentTimeMillis() / 1000);
+		LoaderClass.data.set("muteip." + playerOrIP.replace(".", "_").toLowerCase() + ".reason", reason);
+		LoaderClass.data.set("muteip." + playerOrIP.replace(".", "_").toLowerCase() + ".start", System.currentTimeMillis() / 1000);
 		LoaderClass.data.save();
 		for (String player : getPlayersOnIP(playerOrIP))
 			if (TheAPI.getPlayer(player) != null)
@@ -326,9 +326,9 @@ public class PunishmentAPI {
 	public static void tempmuteIP(String playerOrIP, String reason, long time) {
 		if (!isIP(playerOrIP))
 			playerOrIP = getIP(playerOrIP);
-		LoaderClass.data.set("tempmuteip." + playerOrIP.replace(".", "_") + ".reason", reason);
-		LoaderClass.data.set("tempmuteip." + playerOrIP.replace(".", "_") + ".time", time);
-		LoaderClass.data.set("tempmuteip." + playerOrIP.replace(".", "_") + ".start",
+		LoaderClass.data.set("tempmuteip." + playerOrIP.replace(".", "_").toLowerCase() + ".reason", reason);
+		LoaderClass.data.set("tempmuteip." + playerOrIP.replace(".", "_").toLowerCase() + ".time", time);
+		LoaderClass.data.set("tempmuteip." + playerOrIP.replace(".", "_").toLowerCase() + ".start",
 				System.currentTimeMillis() / 1000);
 		LoaderClass.data.save();
 		for (String player : getPlayersOnIP(playerOrIP))
@@ -341,6 +341,7 @@ public class PunishmentAPI {
 	}
 
 	public static PlayerBanList getBanList(String player) {
-		return new PlayerBanList(player);
+		if(player==null)return null;
+		return new PlayerBanList(player.toLowerCase());
 	}
 }

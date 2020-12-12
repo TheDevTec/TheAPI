@@ -2,8 +2,8 @@ package me.DevTec.TheAPI.Utils.PacketListenerAPI;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import me.DevTec.TheAPI.TheAPI;
@@ -18,7 +18,6 @@ import net.minecraft.util.io.netty.channel.ChannelFuture;
 import net.minecraft.util.io.netty.channel.ChannelHandlerContext;
 import net.minecraft.util.io.netty.channel.ChannelInboundHandlerAdapter;
 import net.minecraft.util.io.netty.channel.ChannelInitializer;
-import net.minecraft.util.io.netty.channel.ChannelPipeline;
 import net.minecraft.util.io.netty.channel.ChannelPromise;
 
 public class PacketHandler_Old implements PacketHandler<Channel> {
@@ -36,7 +35,6 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 			registerPlayers();
 		} catch (Exception ex) {
 			new Tasker() {
-				@Override
 				public void run() {
 					registerChannelHandler();
 					registerPlayers();
@@ -45,7 +43,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 		}
 	}
 
-	public void createServerChannelHandler() {
+	private void createServerChannelHandler() {
 		endInitProtocol = new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel channel) throws Exception {
@@ -53,17 +51,16 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 					synchronized (networkManagers) {
 						if (!closed) {
 							channel.eventLoop().submit(() -> {
-								try {
-									PacketInterceptor interceptor = (PacketInterceptor) channel.pipeline()
-											.get("InjectorTheAPI");
-									if (interceptor == null) {
-										interceptor = new PacketInterceptor();
-										channel.pipeline().addBefore("packet_handler", "InjectorTheAPI", interceptor);
+								PacketInterceptor interceptor = new PacketInterceptor(); //add new hook
+								channel.eventLoop().execute(new Runnable() {
+									@Override
+									public void run() {
+										if(channel.pipeline().names().contains("InjectorTheAPI"))
+										channel.pipeline().remove("InjectorTheAPI");
+										channel.pipeline().addFirst("InjectorTheAPI", interceptor);
 									}
-									return interceptor;
-								} catch (Exception e) {
-									return (PacketInterceptor) channel.pipeline().get("InjectorTheAPI");
-								}
+								});
+								return interceptor;
 							});
 						}
 					}
@@ -91,120 +88,105 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 		};
 	}
 
-	public void registerChannelHandler() {
-		Object serverConnection = Ref.invoke(
-				Ref.invoke(Ref.handle(Ref.cast(Ref.craft("CraftServer"), Bukkit.getServer())), "getServer"),
-				"getServerConnection");
-		networkManagers = (List<?>) Ref.get(serverConnection,
-				(Integer.parseInt(Ref.version().split("_")[1]) >= 16 ? "listeningChannels" : "g"));
+	private void registerChannelHandler() {
+		Object serverConnection = Ref.invoke(Ref.server(),"getServerConnection");
+		networkManagers = (List<?>) Ref.get(serverConnection, TheAPI.isNewerThan(15) ? "listeningChannels" : "g");
 		createServerChannelHandler();
 		for (Object item : networkManagers) {
-			if (!ChannelFuture.class.isInstance(item))
-				break;
+			if (!ChannelFuture.class.isInstance(item))break;
 			Channel serverChannel = ((ChannelFuture) item).channel();
 			serverChannels.add(serverChannel);
 			serverChannel.pipeline().addFirst(serverChannelHandler);
 		}
 	}
 
-	public void unregisterChannelHandler() {
-		if (serverChannelHandler == null)
-			return;
-		for (Channel serverChannel : serverChannels) {
-			final ChannelPipeline pipeline = serverChannel.pipeline();
+	private void unregisterChannelHandler() {
+		if (serverChannelHandler == null)return;
+		for (Channel serverChannel : serverChannels) 
 			serverChannel.eventLoop().execute(new Runnable() {
 				@Override
 				public void run() {
-					try {
-						pipeline.remove(serverChannelHandler);
-					} catch (Exception e) {
-					}
+					serverChannel.pipeline().remove(serverChannelHandler);
 				}
-
 			});
-		}
 	}
 
-	public void registerPlayers() {
+	private void registerPlayers() {
 		for (Player player : TheAPI.getOnlinePlayers())
-			injectPlayer(player);
+			add(player);
 	}
 
-	public void injectPlayer(Player player) {
-		if (getChannel(player) == null)
-			getChannel(player);
-		injectChannelInternal(player, getChannel(player));
+	public void add(Player player) {
+		injectChannelInternal(player, get(player));
 	}
 
 	private PacketInterceptor injectChannelInternal(Player a, Channel channel) {
+		if (channel == null)return null;
 		try {
-			PacketInterceptor interceptor = (PacketInterceptor) channel.pipeline().get("InjectorTheAPI");
-			if (interceptor == null) {
-				interceptor = new PacketInterceptor();
-				channel.pipeline().addBefore("packet_handler", "InjectorTheAPI", interceptor);
+			if(channel.pipeline().names().contains("InjectorTheAPI")) {
+				return (PacketInterceptor) channel.pipeline().get("InjectorTheAPI");
 			}
+			PacketInterceptor interceptor = new PacketInterceptor();
+			channel.pipeline().addFirst("InjectorTheAPI", interceptor);
 			return interceptor;
 		} catch (Exception e) {
-			try {
-				return (PacketInterceptor) channel.pipeline().get("InjectorTheAPI");
-			} catch (Exception err) {
-				PacketInterceptor interceptor = new PacketInterceptor();
-				channel.pipeline().addBefore("packet_handler", "InjectorTheAPI", interceptor);
+			if(channel.pipeline().names().contains("InjectorTheAPI")) {
+				PacketInterceptor interceptor = new PacketInterceptor(); //add new hook
+				channel.eventLoop().execute(new Runnable() {
+					@Override
+					public void run() {
+						channel.pipeline().remove("InjectorTheAPI");
+						channel.pipeline().addFirst("InjectorTheAPI", interceptor);
+					}
+				});
 				return interceptor;
 			}
+			return null;
 		}
 	}
 
-	public Channel getChannel(Player player) {
+	public Channel get(Player player) {
 		Channel channel = channelLookup.getOrDefault(player.getName(), null);
 		if (channel == null) {
-			channel = (Channel) Ref.get(Ref.network(Ref.playerCon(player)), "m");
+			channel = (Channel) Ref.get(Ref.network(Ref.playerCon(player)), "channel");
 			channelLookup.put(player.getName(), channel);
 		}
 		return channel;
 	}
 
-	public void uninjectPlayer(Player player) {
-		uninjectChannel(getChannel(player));
-	}
-
-	public void uninjectChannel(final Channel channel) {
-		if (channel == null)
-			return;
+	public void remove(Channel channel) {
+		if (channel == null)return;
 		channel.eventLoop().execute(new Runnable() {
 			@Override
 			public void run() {
-				if (hasInjected(channel))
-					channel.pipeline().remove("InjectorTheAPI");
+				for(Entry<String, Channel> s : channelLookup.entrySet())
+					if(s.getValue().equals(channel))
+					channelLookup.remove(s.getKey());
+				channel.pipeline().remove("InjectorTheAPI");
 			}
 		});
 	}
 
-	public boolean hasInjected(Player player) {
-		return hasInjected(getChannel(player));
-	}
-
-	public boolean hasInjected(Channel channel) {
+	public boolean has(Channel channel) {
+		if (channel == null)return false;
 		try {
-			if (channel == null)
-				return false;
 			return channel.pipeline().get("InjectorTheAPI") != null;
 		} catch (Exception e) {
 			return false;
 		}
 	}
 
-	public void close() {
+	public final void close() {
 		if (!closed) {
 			closed = true;
 			for (Player player : TheAPI.getOnlinePlayers())
-				uninjectPlayer(player);
+				remove(get(player));
 			unregisterChannelHandler();
 		}
 	}
 
-	public class PacketInterceptor extends ChannelDuplexHandler {
-		private Player player;
+	public final class PacketInterceptor extends ChannelDuplexHandler {
+		private String player;
 
 		@Override
 		public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -213,55 +195,39 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 				GameProfile profile = (GameProfile) Ref.get(msg, "a");
 				channelLookup.put(profile.getName(), channel);
 			}
-			if (player == null) {
-				if (channelLookup.containsValue(channel)) {
-					for (String name : channelLookup.keySet()) {
-						if (channelLookup.get(name).equals(channel)) {
-							if (TheAPI.getPlayer(name) != null && TheAPI.getPlayer(name).getName().equals(name))
-								player = TheAPI.getPlayer(name);
-						}
-						break;
+			synchronized (msg) {
+				try {
+					msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_IN);
+				} catch (Exception e) {
+					try {
+						msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_IN);
+					} catch (Exception er) {
 					}
 				}
-			} else {
-				if (!player.isOnline())
-					if (TheAPI.getPlayerOrNull(player.getName()) != null)
-						player = TheAPI.getPlayerOrNull(player.getName());
+				if (msg != null)
+					super.channelRead(ctx, msg);
 			}
-			try {
-				msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_IN);
-			} catch (Exception e) {
-				msg = null;
-			}
-			if (msg != null)
-				super.channelRead(ctx, msg);
 		}
 
 		@Override
 		public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-			if (player == null) {
-				if (channelLookup.containsValue(ctx.channel())) {
-					for (String name : channelLookup.keySet()) {
-						if (channelLookup.get(name).equals(ctx.channel())) {
-							if (TheAPI.getPlayer(name) != null && TheAPI.getPlayer(name).getName().equals(name))
-								player = TheAPI.getPlayer(name);
-						}
-						break;
+			synchronized (msg) {
+				try {
+					msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_OUT);
+				} catch (Exception e) {
+					try {
+						msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_OUT);
+					} catch (Exception er) {
 					}
 				}
-			} else {
-				if (!player.isOnline())
-					if (TheAPI.getPlayerOrNull(player.getName()) != null)
-						player = TheAPI.getPlayerOrNull(player.getName());
+				if (msg != null)
+					super.write(ctx, msg, promise);
 			}
-			try {
-				msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_OUT);
-			} catch (Exception e) {
-				msg = null;
-			}
-
-			if (msg != null)
-				super.write(ctx, msg, promise);
 		}
+	}
+
+	@Override
+	public void send(Channel channel, Object packet) {
+		channel.writeAndFlush(packet);
 	}
 }

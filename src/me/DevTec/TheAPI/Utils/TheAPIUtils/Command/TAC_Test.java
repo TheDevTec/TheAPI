@@ -11,10 +11,12 @@ import org.bukkit.event.inventory.ClickType;
 import me.DevTec.TheAPI.TheAPI;
 import me.DevTec.TheAPI.APIs.ItemCreatorAPI;
 import me.DevTec.TheAPI.APIs.PluginManagerAPI;
+import me.DevTec.TheAPI.BossBar.BarColor;
+import me.DevTec.TheAPI.BossBar.BarStyle;
+import me.DevTec.TheAPI.BossBar.BossBar;
 import me.DevTec.TheAPI.GUIAPI.GUI;
 import me.DevTec.TheAPI.GUIAPI.ItemGUI;
 import me.DevTec.TheAPI.Scheduler.Tasker;
-import me.DevTec.TheAPI.ScoreboardAPI.ScoreboardAPI;
 import me.DevTec.TheAPI.SortedMap.RankingAPI;
 import me.DevTec.TheAPI.Utils.DataKeeper.Maps.UnsortedMap;
 
@@ -29,27 +31,13 @@ public class TAC_Test {
 		}
 		if (s instanceof Player) {
 			Player p = (Player) s;
-
 			if (args[1].equalsIgnoreCase("Other")) {
-				ScoreboardAPI sb = new ScoreboardAPI(p, 0);
+				BossBar bar = new BossBar(p, "&7TheAPI &uTesting", 55.49, BarColor.PURPLE, BarStyle.PROGRESS);
 				new Tasker() {
-					int i = 0;
 					public void run() {
-						if (++i == 50) {
-							new Tasker() {
-								public void run() {
-									sb.destroy();
-								}
-							}.runLater(20);
-							return;
-						}
-						sb.setDisplayName("&uRAINBOW");
-						sb.setLine(0, "&7Welcome back &u"+p.getName());
-						sb.setLine(1, "&7Version: &uUKNOWN");
-						sb.setLine(2, "&7Created by &uScoreboardAPI");
-						sb.setLine(3, "&7  using &uTheAPI");
+						bar.remove();
 					}
-				}.runRepeatingTimes(0, 1, 50);
+				}.runLater(100);
 			}
 
 			if (args[1].equalsIgnoreCase("GUI")) {

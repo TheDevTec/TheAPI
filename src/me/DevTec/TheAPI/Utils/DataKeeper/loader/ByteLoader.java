@@ -48,10 +48,22 @@ public class ByteLoader extends DataLoader {
 	@Override
 	public void load(String input) {
 		data.clear();
-		synchronized (this) {
+		try {
+			byte[] bb = Base64.getDecoder().decode(input);
+			ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
+			while (true)
+				try {
+					String key = bos.readUTF();
+					String value = bos.readUTF();
+					data.put(key, new DataHolder(Reader.read(value)));
+				} catch (Exception e) {
+					break;
+				}
+			if (!data.isEmpty())
+				l = true;
+		} catch (Exception er) {
 			try {
-				byte[] bb = Base64.getDecoder().decode(input);
-				ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
+				ByteArrayDataInput bos = ByteStreams.newDataInput(input.getBytes());
 				while (true)
 					try {
 						String key = bos.readUTF();
@@ -62,9 +74,11 @@ public class ByteLoader extends DataLoader {
 					}
 				if (!data.isEmpty())
 					l = true;
-			} catch (Exception er) {
+			} catch (Exception err) {
+				String inputF =input.substring(0, input.length()-2);
 				try {
-					ByteArrayDataInput bos = ByteStreams.newDataInput(input.getBytes());
+					byte[] bb = Base64.getDecoder().decode(inputF);
+					ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
 					while (true)
 						try {
 							String key = bos.readUTF();
@@ -75,8 +89,22 @@ public class ByteLoader extends DataLoader {
 						}
 					if (!data.isEmpty())
 						l = true;
-				} catch (Exception err) {
-					l = false;
+				} catch (Exception rrr) {
+					try {
+						ByteArrayDataInput bos = ByteStreams.newDataInput(inputF.getBytes());
+						while (true)
+							try {
+								String key = bos.readUTF();
+								String value = bos.readUTF();
+								data.put(key, new DataHolder(Reader.read(value)));
+							} catch (Exception e) {
+								break;
+							}
+						if (!data.isEmpty())
+							l = true;
+					} catch (Exception errrr) {
+						l = false;
+					}
 				}
 			}
 		}

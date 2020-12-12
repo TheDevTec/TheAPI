@@ -687,7 +687,7 @@ public class StringUtils {
 		long hours = (time / 3600) % 24;
 		long days = (time / 86400) % 7;
 		long weeks = (time / 604800) % 4;
-		long mounth = (long) ((time / 2629743.83F) % 12);
+		long mounth = (long) (((float)time / 2629743.83F) % 12);
 		long year = (time / 31556926);
 		String date = "";
 		if (year > 0)

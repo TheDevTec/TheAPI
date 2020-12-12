@@ -397,7 +397,7 @@ public class TheAPI {
 	 */
 	public static Player getPlayerOrNull(String name) {
 		Player found = Bukkit.getPlayer(name);
-		return found != null && found.getName().equals(name) ? found : null;
+		return found != null && found.getName().equalsIgnoreCase(name) ? found : null;
 	}
 
 	/**
@@ -1024,7 +1024,9 @@ public class TheAPI {
 		if (new File("plugins/TheAPI/User").exists())
 			for (File f : new File("plugins/TheAPI/User").listFiles()) {
 				try {
-					a.add(Bukkit.getOfflinePlayer(UUID.fromString(f.getName().replaceFirst(".yml", ""))).getName());
+					String name = Bukkit.getOfflinePlayer(UUID.fromString(f.getName().replaceFirst(".yml", ""))).getName();
+					if(name!=null)
+					a.add(name);
 				} catch (Exception e) {
 					// hide error.
 				}

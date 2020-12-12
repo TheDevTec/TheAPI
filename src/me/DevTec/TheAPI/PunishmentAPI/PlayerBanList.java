@@ -8,7 +8,7 @@ public class PlayerBanList {
 	public PlayerBanList(String player) {
 		if (PunishmentAPI.isIP(player))
 			new Exception("PlayerBanList error, String must be player, not IP.");
-		s = player;
+		s = player.toLowerCase();
 	}
 
 	public boolean isTempBanned() {
@@ -220,5 +220,4 @@ public class PlayerBanList {
 	public String getIP() {
 		return PunishmentAPI.getIP(s);
 	}
-
 }

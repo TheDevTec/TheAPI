@@ -126,7 +126,6 @@ public class LoaderClass extends JavaPlugin {
 			}.runRepeating(0, 20);
 	}
 
-	@SuppressWarnings("unchecked")
 	public void onEnable() {
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
@@ -156,14 +155,10 @@ public class LoaderClass extends JavaPlugin {
 		}
 		Bukkit.getPluginManager().registerEvents(new Events(), LoaderClass.this);
 		TheAPI.createAndRegisterCommand("TheAPI", null, new TheAPICommand());
-		if (TheAPI.isNewerThan(7) || Ref.getClass("net.minecraft.util.io.netty.channel.ChannelInitializer") == null)
+		if (TheAPI.isNewerThan(7))
 			handler = new PacketHandler_New();
 		else
 			handler = new PacketHandler_Old();
-		for (Player s : TheAPI.getOnlinePlayers()) {
-			if (!handler.hasInjected(handler.getChannel(s)))
-				handler.injectPlayer(s);
-		}
 		loadWorlds();
 		loadPlaceholders();
 		if (PlaceholderAPI.isEnabledPlaceholderAPI()) {

@@ -1,8 +1,5 @@
 package me.DevTec.TheAPI.Utils.DataKeeper;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -15,7 +12,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.zip.GZIPOutputStream;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -446,21 +442,13 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 				OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
 				if (type == DataType.DATA || type == DataType.BYTE) {
 					try {
-						ByteArrayOutputStream bos = new ByteArrayOutputStream(loader.getKeys().size());
-						GZIPOutputStream tos = new GZIPOutputStream(bos);
-						BufferedOutputStream buf = new BufferedOutputStream(tos);
-						DataOutputStream ous = new DataOutputStream(buf);
+						ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
 						for (Entry<String, DataHolder> key : loader.get().entrySet())
 							try {
-								Object o = key.getValue();
-								ous.writeUTF(key.getKey());
-								ous.writeUTF("" + me.DevTec.TheAPI.Utils.Json.Writer.write(o));
+								bos.writeUTF(key.getKey());
+								bos.writeUTF(me.DevTec.TheAPI.Utils.Json.Writer.write(key.getValue().getValue()));
 							} catch (Exception er) {
 							}
-						ous.flush();
-						bos.flush();
-						buf.flush();
-						tos.finish();
 						w.write(type == DataType.DATA ? bos.toString()
 								: Base64.getEncoder().encodeToString(bos.toByteArray()));
 						w.close();

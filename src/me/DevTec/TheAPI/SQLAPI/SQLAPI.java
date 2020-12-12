@@ -289,11 +289,11 @@ public class SQLAPI {
 		}
 	}
 
-	public boolean exists(String table, String lookingfor, String identifier, String idValue) {
-		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
+	public boolean exists(String table, String identifier, String idValue) {
+		String command = "SELECT * FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
-			ResultSet rs = getPreparedStatement(command).executeQuery();
-			return rs!=null && rs.next();
+			ResultSet q = query(command);
+			return q!=null && q.next();
 		} catch (Exception e) {
 			return false;
 		}
