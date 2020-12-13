@@ -500,7 +500,7 @@ public class Data implements me.DevTec.TheAPI.Utils.DataKeeper.Abstract.Data {
 		boolean quotedString = (text.trim().startsWith("'") && text.trim().endsWith("'"))
 				|| (text.trim().startsWith("\"") && text.trim().endsWith("\""));
 		if (raw && !quotedString) {
-			return StringUtils.isBoolean(text)?text:StringUtils.isNumber(text)?"'"+text+"'":"\"" + text + "\"";
+			return StringUtils.isBoolean(text)?text:StringUtils.isNumber(text)?"'"+text+"'":"\"" + text.replace(System.lineSeparator(), "\\n") + "\"";
 		}
 		return text;
 	}
