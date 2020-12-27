@@ -1,5 +1,5 @@
 name: TheAPI
-main: me.DevTec.TheAPI.Utils.TheAPIUtils.LoaderClass
+main: me.devtec.theapi.utils.thapiutils.LoaderClass
 author: DevTec
 website: https://www.spigotmc.org/resources/theapi.72679/
 version: 5.5
