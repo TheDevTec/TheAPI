@@ -12,11 +12,12 @@ import me.devtec.theapi.utils.datakeeper.collections.UnsortedSet;
 import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 
 public class Server {
-	Set<Reader> readers = new HashSet<>();
-	Set<ClientHandler> sockets = new HashSet<>();
-	Map<String, Set<String>> queue = new UnsortedMap<>();
-	ServerSocket server;
-	String pass;
+	private Set<Reader> readers = new HashSet<>();
+	protected Map<Socket, ClientHandler> sockets = new UnsortedMap<>();
+	protected Map<String, Set<String>> queue = new UnsortedMap<>();
+	private ServerSocket server;
+	protected String pass;
+	private boolean run=true;
 	
 	public Server(String password, int port) {
 		pass=password;
@@ -29,14 +30,15 @@ public class Server {
 			}));
 			new Thread(new Runnable() {
 				public void run() {
-					while(true) {
+					while(run) {
 						Socket s = null;
 			            try {
 							s = server.accept();
+							if(sockets.containsKey(s))continue;
 			                DataInputStream dis = new DataInputStream(s.getInputStream()); 
 			                DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 			                ClientHandler handler = new ClientHandler(Server.this, s, dis, dos);
-			                sockets.add(handler);
+			                sockets.put(s, handler);
 			                handler.start();   
 			            }catch (Exception e){
 			                try {
@@ -52,13 +54,13 @@ public class Server {
     }
 	
 	public void sendAll(String text) {
-		for(ClientHandler s : sockets)
+		for(ClientHandler s : sockets.values())
 			s.send(text);
 	}
 	
 	public void send(String client, String text) {
 		boolean found = false;
-		for(ClientHandler s : sockets) {
+		for(ClientHandler s : sockets.values()) {
 			if(s.getUser().equals(client)) {
 				s.send(text);
 				found=true;
@@ -88,7 +90,8 @@ public class Server {
     
     public void stop() {
 		try {
-	    	sockets.forEach(s -> {
+			run=false;
+	    	sockets.values().forEach(s -> {
 				try {
 					s.end();
 				} catch (Exception e) {

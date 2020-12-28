@@ -657,13 +657,13 @@ public class StringUtils {
 				time += num * 86400;
 			}
 			if (typ.toLowerCase().startsWith("w")) {
-				time += num * 604800;
+				time += num * 86400 * 7;
 			}
-			if (typ.toLowerCase().equals("mon")) {
-				time += num * 2629743.83;
+			if (typ.toLowerCase().startsWith("mo")) {
+				time += num * 86400 * 31;
 			}
 			if (typ.toLowerCase().startsWith("y")) {
-				time += num * 31556926;
+				time += num * 86400 * 31 * 12;
 			}
 		}
 		return (long) time;
@@ -684,25 +684,22 @@ public class StringUtils {
 	 * @return String
 	 */
 	public static String timeToString(long time) {
-		if(time==0) {
+		if(time==0)
 			return "0 second";
-		}
 		long minutes = (time / 60) % 60;
 		long hours = (time / 3600) % 24;
-		long days = (time / 86400) % 7;
-		long weeks = (time / 604800) % 4;
-		long month = (time / 604800)/4 % 12;
+		long days = (time / 86400) % 31;
+		long month = 0;
 		long year = 0;
 		try{
-			year=(time / ((time / 604800)/4/12));;
+			month = (time / 60/60/24/31) % 12;
+			year=time / 60/60/24/31/12;
 		}catch(Exception er) {}
 		String date = "";
 		if (year > 0)
 			date = year + " year" + (year > 1 ? "s" : "");
 		if (month > 0)
 			date = (!date.equals("") ? date + " " : "") + month + " month" + (month > 1 ? "s" : "");
-		if (weeks > 0)
-			date = (!date.equals("") ? date + " " : "") + weeks + " week" + (weeks > 1 ? "s" : "");
 		if (days > 0)
 			date = (!date.equals("") ? date + " " : "") + days + " day" + (days > 1 ? "s" : "");
 		if (hours > 0)

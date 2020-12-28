@@ -100,6 +100,7 @@ public class LoaderClass extends JavaPlugin {
 		plugin = this;
 		sockets.addDefault("Options.Enabled", false);
 		sockets.addDefault("Options.Password", generate());
+		sockets.addDefault("Options.Name", "serverName");
 		sockets.addDefault("Options.Port", 25569);
 		if(!sockets.exists("Server")) {
 			sockets.set("Server.Bungee.IP", "localhost");
@@ -115,7 +116,7 @@ public class LoaderClass extends JavaPlugin {
 			String pass = sockets.getString("Options.Password");
 			server=new Server(pass, sockets.getInt("Options.Port"));
 			for(String s : sockets.getKeys("Server")) {
-				servers.put(s, new Client(s, sockets.getString("Server."+s+".Password"), sockets.getString("Server."+s+".IP"), sockets.getInt("Server."+s+".Port")) {
+				servers.put(s, new Client(sockets.getString("Options.Name"), sockets.getString("Server."+s+".Password"), sockets.getString("Server."+s+".IP"), sockets.getInt("Server."+s+".Port")) {
 					public void read(String text) {
 						TheAPI.callEvent(new ServerReceiveMessaveEvent(this, text));
 					}
@@ -427,6 +428,8 @@ public class LoaderClass extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		Scheduler.cancelAll();
+		if(server!=null)
+		server.stop();
 		handler.close();
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &6Action: &eDisabling plugin, saving configs and stopping runnables..",

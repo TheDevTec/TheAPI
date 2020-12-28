@@ -20,7 +20,7 @@ public abstract class Client {
         	this.pass=pass;
         	this.ip=ip;
         	this.port=port;
-        	reconnect(600);
+        	reconnect(3000);
         }catch(Exception e){
         }
     }

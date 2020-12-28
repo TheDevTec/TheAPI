@@ -22,7 +22,7 @@ public class ClientHandler extends Thread {
     
     public void end() {
     	run=false;
-    	ser.sockets.remove(this);
+    	ser.sockets.remove(s);
     	try {
 			dos.writeUTF("exit");
     		dos.close();
@@ -83,6 +83,7 @@ public class ClientHandler extends Thread {
             		dos.writeUTF("pong");
             		continue;
             	}
+            	if(!access || !logged)continue;
             	if(received.equals("request")) {
             		if(ser.queue.get(name)!=null)
             		for(String q : ser.queue.get(name))send(q);
@@ -90,7 +91,6 @@ public class ClientHandler extends Thread {
             		dos.writeUTF("request");
             		continue;
             	}
-            	if(!access || !logged)continue;
             	received=received.replaceFirst("chat:", "");
             	ser.read(this, received);
             } catch (Exception e) {

@@ -66,17 +66,17 @@ public class UnsortedList<V> implements List<V> {
 		this(e.size());
 		addAll(e);
 	}
-
+	
 	@Override
 	public int size() {
 		return size;
 	}
-
+	
 	@Override
 	public boolean isEmpty() {
 		return size == 0;
 	}
-
+	
 	@Override
 	public boolean contains(Object value) {
 		int con = 0;
@@ -90,7 +90,7 @@ public class UnsortedList<V> implements List<V> {
 		}
 		return con == 1;
 	}
-
+	
 	@Override
 	public boolean add(V value) {
 		Bucket c = last;
@@ -107,7 +107,7 @@ public class UnsortedList<V> implements List<V> {
 		++size;
 		return true;
 	}
-
+	
 	@Override
 	public boolean remove(Object value) {
 		Bucket c = bucket, prev = c;
@@ -132,7 +132,7 @@ public class UnsortedList<V> implements List<V> {
 		}
 		return found == 1;
 	}
-
+	
 	@Override
 	public void clear() {
 		size = 0;
