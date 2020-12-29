@@ -679,8 +679,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			if(getComments(s.getKey()).isEmpty() && !s.getValue().getComments().isEmpty())
 				setComments(s.getKey(), s.getValue().getComments());
 		}
+		if(f.loader.getHeader()!=null)
 		if(addHeader && !loader.getHeader().containsAll(f.loader.getHeader()))
 			setHeader(f.loader.getHeader());
+		if(f.loader.getFooter()!=null)
 		if(addFooter && !loader.getFooter().containsAll(f.loader.getFooter()))
 			setFooter(f.loader.getFooter());
 		return this;
