@@ -25,6 +25,18 @@ public abstract class Client {
         }
     }
     
+    public String getName() {
+    	return name;
+    }
+    
+    public String getIP() {
+    	return ip;
+    }
+    
+    public int getPort() {
+    	return port;
+    }
+    
     public void reconnect(int trottle) {
 		exit();
     	try {

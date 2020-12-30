@@ -13,7 +13,7 @@ import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 
 public class Server {
 	private Set<Reader> readers = new HashSet<>();
-	protected Map<Socket, ClientHandler> sockets = new UnsortedMap<>();
+	protected Map<Socket, ServerClient> sockets = new UnsortedMap<>();
 	protected Map<String, Set<String>> queue = new UnsortedMap<>();
 	private ServerSocket server;
 	protected String pass;
@@ -38,7 +38,7 @@ public class Server {
 			                DataInputStream dis = new DataInputStream(s.getInputStream()); 
 			                DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 			                ClientHandler handler = new ClientHandler(Server.this, s, dis, dos);
-			                sockets.put(s, handler);
+			                sockets.put(s, new ServerClient(handler));
 			                handler.start();   
 			            }catch (Exception e){
 			                try {
@@ -54,14 +54,14 @@ public class Server {
     }
 	
 	public void sendAll(String text) {
-		for(ClientHandler s : sockets.values())
+		for(ServerClient s : sockets.values())
 			s.send(text);
 	}
 	
 	public void send(String client, String text) {
 		boolean found = false;
-		for(ClientHandler s : sockets.values()) {
-			if(s.getUser().equals(client)) {
+		for(ServerClient s : sockets.values()) {
+			if(s.getName().equals(client)) {
 				s.send(text);
 				found=true;
 				break;
@@ -74,7 +74,7 @@ public class Server {
 		}
 	}
 	
-	public void read(ClientHandler client, final String text) {
+	public void read(ServerClient client, final String text) {
 		readers.forEach(a -> {
 			a.read(client, text);
 		});
@@ -93,7 +93,7 @@ public class Server {
 			run=false;
 	    	sockets.values().forEach(s -> {
 				try {
-					s.end();
+					s.exit();
 				} catch (Exception e) {
 				}
 			});

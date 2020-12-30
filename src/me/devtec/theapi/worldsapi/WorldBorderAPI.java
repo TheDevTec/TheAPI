@@ -3,7 +3,6 @@ package me.devtec.theapi.worldsapi;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import me.devtec.theapi.utils.thapiutils.LoaderClass;
 import me.devtec.theapi.utils.thapiutils.Validator;
 
 public class WorldBorderAPI {
@@ -109,14 +108,6 @@ public class WorldBorderAPI {
 		}
 	}
 
-	public void setWarningMessage(String message) {
-		LoaderClass.data.set("WorldBorder." + w.getName() + ".Message", message);
-	}
-
-	public static enum WarningMessageType {
-		ACTIONBAR, TITLE, SUBTITLE, CHAT, BOSSBAR, NONE
-	}
-
 	/**
 	 * Is location outside world border
 	 * 
@@ -130,14 +121,6 @@ public class WorldBorderAPI {
 		return Math.abs(x) > size && Math.abs(z) > size;
 	}
 
-	public void cancelMoveOutside(boolean cancel) {
-		LoaderClass.data.set("WorldBorder." + w.getName() + ".CancelMoveOutside", cancel);
-	}
-
-	public boolean isCancellledMoveOutside() {
-		return LoaderClass.data.getBoolean("WorldBorder." + w.getName() + ".CancelMoveOutside");
-	}
-
 	/**
 	 * 
 	 * Is location outside world border
@@ -145,23 +128,10 @@ public class WorldBorderAPI {
 	 * @return boolean
 	 */
 	public boolean isOutside(double X, double Z) {
-		return isOutside(new Location(w, X, 100, Z));
-	}
-
-	public void setWarningMessageType(WarningMessageType type) {
-		LoaderClass.data.set("WorldBorder." + w.getName() + ".Type", type);
-	}
-
-	public void loadChunksOutside(boolean set) {
-		LoaderClass.data.set("WorldBorder." + w.getName() + ".Outside", set);
-	}
-
-	public boolean getLoadChunksOutside() {
-		return LoaderClass.data.getBoolean("WorldBorder." + w.getName() + ".Outside");
-	}
-
-	public String getWarningMessage() {
-		return LoaderClass.data.getString("WorldBorder." + w.getName() + ".Message");
+		double size = getSize() / 2;
+		double x = X - getCenter().getX();
+		double z = Z - getCenter().getZ();
+		return Math.abs(x) > size && Math.abs(z) > size;
 	}
 
 	public double getDamageBuffer() {

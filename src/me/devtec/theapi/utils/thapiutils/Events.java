@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.World;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,7 +28,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
@@ -56,7 +54,6 @@ import me.devtec.theapi.utils.listener.events.DamageGodPlayerByEntityEvent;
 import me.devtec.theapi.utils.listener.events.DamageGodPlayerEvent;
 import me.devtec.theapi.utils.listener.events.PlayerJumpEvent;
 import me.devtec.theapi.utils.reflections.Ref;
-import me.devtec.theapi.worldsapi.WorldBorderAPI.WarningMessageType;
 
 public class Events implements Listener {
 	@EventHandler
@@ -225,54 +222,6 @@ public class Events implements Listener {
 			if (event.isCancelled())
 				e.setCancelled(true);
 		}
-		try {
-			World w = e.getTo().getWorld();
-			if (TheAPI.getWorldBorder(w).isOutside(e.getTo())) {
-				if (LoaderClass.data.exists("WorldBorder." + w.getName() + ".CancelMoveOutside")) {
-					e.setCancelled(TheAPI.getWorldBorder(w).isCancellledMoveOutside());
-				}
-				if (LoaderClass.data.getString("WorldBorder." + w.getName() + ".Type") != null) {
-					WarningMessageType t = WarningMessageType
-							.valueOf(LoaderClass.data.getString("WorldBorder." + w.getName() + ".Type"));
-					String msg = LoaderClass.data.getString("WorldBorder." + w.getName() + ".Message");
-					if (msg == null)
-						return;
-					switch (t) {
-					case ACTIONBAR:
-						TheAPI.sendActionBar(e.getPlayer(), msg);
-						break;
-					case BOSSBAR:
-						TheAPI.sendBossBar(e.getPlayer(), msg, 1, 5);
-						break;
-					case CHAT:
-						TheAPI.msg(msg, e.getPlayer());
-						break;
-					case NONE:
-						break;
-					case SUBTITLE:
-						TheAPI.sendTitle(e.getPlayer(), "", msg);
-						break;
-					case TITLE:
-						TheAPI.sendTitle(e.getPlayer(), msg, "");
-						break;
-					}
-				}
-			}
-		} catch (Exception er) {
-
-		}
-	}
-
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onChunkLoad(ChunkLoadEvent e) {
-		try {
-			if (TheAPI.getWorldBorder(e.getWorld()).isOutside(e.getChunk().getBlock(15, 0, 15).getLocation())
-					|| TheAPI.getWorldBorder(e.getWorld()).isOutside(e.getChunk().getBlock(0, 0, 0).getLocation()))
-				if (!TheAPI.getWorldBorder(e.getWorld()).getLoadChunksOutside())
-					e.getChunk().unload(true);
-		} catch (Exception er) {
-
-		}
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -287,7 +236,7 @@ public class Events implements Listener {
 		set.add(s.getName());
 		LoaderClass.data.set("data."+(e.getAddress() + "").replace("/", "").replace(".", "_"), set);
 		s.setAndSave("ip", (e.getAddress() + "").replace("/", "").replace(".", "_"));
-		PlayerBanList a = PunishmentAPI.getBanList(s.getName());
+		PlayerBanList a = PunishmentAPI.getBanList(e.getName());
 		if(a==null)return;
 		if (a.isBanned()) {
 			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.BAN).replace("\\n", "\n")));
@@ -315,6 +264,7 @@ public class Events implements Listener {
 		Player s = e.getPlayer();
 		new Tasker() {
 			public void run() {
+				if(LoaderClass.plugin.handler!=null)
 				LoaderClass.plugin.handler.remove(LoaderClass.plugin.handler.get(s));
 				((Map<String, BossBar>)Ref.getNulled(TheAPI.class, "bars")).remove(s.getName());
 				TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);

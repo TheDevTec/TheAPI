@@ -12,9 +12,10 @@ public class ClientHandler extends Thread {
     final Server ser;
     boolean run = true, logged;
 	long keep = System.currentTimeMillis();
+	ServerClient c;
     
     public ClientHandler(Server server, Socket s, DataInputStream dis, DataOutputStream dos) {
-        this.s = s; 
+        this.s = s;
         ser=server;
         this.dis = dis; 
         this.dos = dos;
@@ -92,7 +93,7 @@ public class ClientHandler extends Thread {
             		continue;
             	}
             	received=received.replaceFirst("chat:", "");
-            	ser.read(this, received);
+            	ser.read(c, received);
             } catch (Exception e) {
             } 
         }

@@ -12,7 +12,7 @@ import me.devtec.theapi.utils.thapiutils.LoaderClass;
 
 public class PunishmentAPI {
 	private static final BanList banlist = new BanList();
-	private static final Pattern ipFinder = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+	private static final Pattern ipFinder = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[\\._]){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
 
 	public static boolean isIP(String text) {
 		if (text == null)
@@ -29,9 +29,14 @@ public class PunishmentAPI {
 	}
 
 	public static List<String> getPlayersOnIP(String ip) {
+		if(ip==null)return new UnsortedList<>();
+		if(ip.contains(":")) // me.domain.net:<ip>
+			ip=ip.split(":")[1];
+		if(ip.startsWith("/"))
+			ip=ip.substring(1);
 		if (!isIP(ip))
 			new Exception("PunishmentAPI error, String must be IP, not player.");
-		ip=ip.replace(".", "_").replace("/", "");
+		ip=ip.replace(".", "_");
 		return LoaderClass.data.getStringList("data."+ip);
 	}
 

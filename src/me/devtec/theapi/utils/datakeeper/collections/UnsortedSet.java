@@ -96,7 +96,7 @@ public class UnsortedSet<V> implements Set<V> {
 		int con = 0;
 		Bucket c = bucket;
 		while (c!=null && c.assigned==1) {
-			if (c.val.equals(value)) {
+			if (c.val==null ? value==null : c.val.equals(value)) {
 				con = 1;
 				break;
 			}
@@ -127,7 +127,7 @@ public class UnsortedSet<V> implements Set<V> {
 		Bucket c = bucket, prev = c;
 		int found = 0;
 		while (c!=null && c.assigned==1) {
-			if (c.val.equals(value)) {
+			if (c.val==null ? value==null : c.val.equals(value)) {
 				if (c == bucket) {
 					bucket = c.next == null ? new Bucket() : c.next;
 					found = 1;

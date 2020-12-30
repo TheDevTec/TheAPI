@@ -62,7 +62,8 @@ public class ScoreboardAPI {
 
 	public void destroy() {
 		Ref.sendPacket(p, createObjectivePacket(1, null));
-		removeUpperLines(-1);
+		for(String a : data.getKeys(player))
+			removeLine(Integer.parseInt(a));
 	}
 
 	public void setTitle(String name) {

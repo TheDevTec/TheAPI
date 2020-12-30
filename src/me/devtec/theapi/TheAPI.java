@@ -42,13 +42,13 @@ import me.devtec.theapi.bossbar.BarStyle;
 import me.devtec.theapi.bossbar.BossBar;
 import me.devtec.theapi.configapi.ConfigAPI;
 import me.devtec.theapi.cooldownapi.CooldownAPI;
+import me.devtec.theapi.punishmentapi.PunishmentAPI;
 import me.devtec.theapi.scheduler.Scheduler;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.sockets.Client;
 import me.devtec.theapi.sockets.Server;
 import me.devtec.theapi.sqlapi.SQLAPI;
 import me.devtec.theapi.utils.StringUtils;
-import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.Storage;
 import me.devtec.theapi.utils.datakeeper.User;
 import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
@@ -1104,36 +1104,17 @@ public class TheAPI {
 	}
 
 	public static List<UUID> getUsersByIP(String ip) {
-		if (ip.startsWith("/"))
-			ip = ip.substring(1);
-		List<UUID> a = new UnsortedList<>();
-		for (UUID s : getUsers()) {
-			if (new Data("TheAPI/User/" + s + ".yml", true).getString("ip").equals(ip.replace(".", "_"))) {
-				a.add(s);
-			}
-		}
-		return a;
+		List<UUID> uuid = new UnsortedList<>();
+		for(String a : PunishmentAPI.getPlayersOnIP(ip))
+			uuid.add(getUser(a).getUUID());
+		return uuid;
 	}
 
 	// Bit of LastLoginAPI
-	public static User getLastLoggedUserByIP(String ip, boolean canBeOnline) {
+	public static User getLastLoggedUserByIP(String ip) {
 		User a = null;
 		long last = 0;
-		List<UUID> ips = getUsersByIP(ip);
-		if (canBeOnline) {
-			for (Player s : TheAPI.getOnlinePlayers()) {
-				if (ips.contains(s.getUniqueId())) {
-					long quit = getUser(s).getLong("quit");
-					if (quit <= last) {
-						last = quit;
-						a = getUser(s);
-					}
-				}
-			}
-			if (a != null)
-				return a;
-		}
-		for (UUID s : ips) {
+		for (UUID s : getUsersByIP(ip)) {
 			long quit = new User(s).getLong("quit");
 			if (quit <= last) {
 				last = quit;
@@ -1144,8 +1125,7 @@ public class TheAPI {
 	}
 
 	public static void removeCachedUser(String nameOrUUID) {
-		if (nameOrUUID == null)
-			return;
+		if (nameOrUUID == null)return;
 		UUID s = null;
 		try {
 			s = UUID.fromString(nameOrUUID);

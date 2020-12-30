@@ -83,10 +83,9 @@ public class LoaderClass extends JavaPlugin {
 	public Object air = Ref.invoke(Ref.getNulled(Ref.field(Ref.nms("Block"), "AIR")), "getBlockData");
 	public Map<String, Client> servers = new UnsortedMap<>();
 	public Server server;
-
 	
 	private final String generate() {
-		 final String alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		 final String alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 		    int N = alphabet.length();
 		    Random r = new Random();
 		    String pass = "";
