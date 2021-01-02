@@ -182,8 +182,7 @@ public class Events implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onItemDestroy(PlayerItemBreakEvent e) {
-		me.devtec.theapi.utils.listener.events.PlayerItemBreakEvent event = new me.devtec.theapi.utils.listener.events.PlayerItemBreakEvent(
-				e.getPlayer(), e.getBrokenItem());
+		me.devtec.theapi.utils.listener.events.PlayerItemBreakEvent event = new me.devtec.theapi.utils.listener.events.PlayerItemBreakEvent(e.getPlayer(), e.getBrokenItem());
 		TheAPI.callEvent(event);
 		if (event.isCancelled() || isUnbreakable(event.getItem())) {
 			ItemStack a = e.getBrokenItem();
@@ -206,16 +205,14 @@ public class Events implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.LOWEST)
+	@EventHandler
 	public void onMove(PlayerMoveEvent e) {
-		if (e.isCancelled())
-			return;
+		if (e.isCancelled())return;
 		double jump = e.getTo().getY() - e.getFrom().getY();
 		boolean has = true;
 		try {
-			has = !e.getPlayer().hasPotionEffect(PotionEffectType.getByName("LEVITATION"));
-		} catch (Exception | NoSuchFieldError es) {
-		}
+			has = !e.getPlayer().hasPotionEffect(PotionEffectType.LEVITATION);
+		} catch (Exception | NoSuchFieldError | NoSuchMethodError es) {}
 		if (jump > 0 && !e.getPlayer().isFlying() && has) {
 			PlayerJumpEvent event = new PlayerJumpEvent(e.getPlayer(), e.getFrom(), e.getTo(), jump);
 			TheAPI.callEvent(event);
@@ -262,10 +259,10 @@ public class Events implements Listener {
 	@EventHandler
 	public void onLeave(PlayerQuitEvent e) {
 		Player s = e.getPlayer();
+		if(LoaderClass.plugin.handler!=null)
+		LoaderClass.plugin.handler.remove(LoaderClass.plugin.handler.get(s));
 		new Tasker() {
 			public void run() {
-				if(LoaderClass.plugin.handler!=null)
-				LoaderClass.plugin.handler.remove(LoaderClass.plugin.handler.get(s));
 				((Map<String, BossBar>)Ref.getNulled(TheAPI.class, "bars")).remove(s.getName());
 				TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);
 				if (LoaderClass.config.getBoolean("Options.Cache.User.RemoveOnQuit")

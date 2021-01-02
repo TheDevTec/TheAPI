@@ -34,8 +34,8 @@ public class Server {
 						Socket s = null;
 			            try {
 							s = server.accept();
-							if(sockets.containsKey(s))continue;
-			                DataInputStream dis = new DataInputStream(s.getInputStream()); 
+							if(sockets.containsKey(s))sockets.get(s).exit();
+							DataInputStream dis = new DataInputStream(s.getInputStream()); 
 			                DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 			                ClientHandler handler = new ClientHandler(Server.this, s, dis, dos);
 			                sockets.put(s, new ServerClient(handler));

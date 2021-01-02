@@ -65,22 +65,14 @@ public abstract class Client {
 			 		}
 					}catch(Exception er) {}
 					if(ccc) {
-						new Thread(new Runnable() {
-							public void run() {
-						 		try {
-						 			Thread.sleep(1000);
-									send.writeUTF("request");
-								} catch (Exception e) {
-								}
-							}
-						}).start();
-						keep = System.currentTimeMillis();
+						keep = System.currentTimeMillis()/20;
+						boolean req = false;
 						while(true) {
-							if(System.currentTimeMillis()-keep >= 1000) {
+							if(System.currentTimeMillis()/20-keep >= 1000) {
 								reconnect(trottle);
 			            		break;
 							}
-							if(System.currentTimeMillis()-keep >= 500) {
+							if(System.currentTimeMillis()/20-keep >= 500) {
 								try {
 									send.writeUTF("ping");
 								} catch (Exception e) {
@@ -93,7 +85,11 @@ public abstract class Client {
 									continue;
 								}
 								if(text.equals("pong")) {
-									keep=System.currentTimeMillis();
+									keep=System.currentTimeMillis()/20;
+									if(!req) {
+										req=true;
+										send.writeUTF("request");
+									}
 									continue;
 								}
 								if(text.equals("exit")) {

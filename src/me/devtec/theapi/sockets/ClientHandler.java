@@ -45,21 +45,20 @@ public class ClientHandler extends Thread {
     public void run() {
     	keep = System.currentTimeMillis();
         while (run) {
-			if(System.currentTimeMillis()-keep >= 1000) {
+			if(System.currentTimeMillis()/20-keep >= 1000) {
         		end();
         		break;
 			}
-			if(System.currentTimeMillis()-keep >= 500) {
+			if(System.currentTimeMillis()/20-keep >= 500) {
 				try {
 					dos.writeUTF("ping");
 				} catch (Exception e) {
 				}
 			}
-			
             try {
             	String received = dis.readUTF();
             	if(received.equals("pong")) {
-            		keep=System.currentTimeMillis();
+            		keep=System.currentTimeMillis()/20;
             		continue;
             	}
             	if(received.startsWith("login:")) {

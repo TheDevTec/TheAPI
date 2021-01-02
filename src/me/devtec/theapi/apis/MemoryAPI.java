@@ -9,7 +9,6 @@ import me.devtec.theapi.utils.StringUtils;
 
 public class MemoryAPI {
 	private static double mb = 1048576;
-	private static double max = Runtime.getRuntime().maxMemory() / mb;
 
 	public static String clearMemory() {
 		double mem = getRawUsedMemory(false);
@@ -35,7 +34,7 @@ public class MemoryAPI {
 	}
 
 	public static double getMaxMemory() {
-		return max;
+		return Runtime.getRuntime().maxMemory() / mb;
 	}
 
 	public static double getUsedMemory(boolean inPercentage) {

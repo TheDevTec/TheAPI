@@ -1,5 +1,6 @@
 package me.devtec.theapi.utils.thapiutils.command;
 
+import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.Arrays;
@@ -193,6 +194,12 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						TheAPI.msg("&7 UpTime: &e" + StringUtils.timeToString(TheAPI.getServerUpTime() / 1000), s);
 						TheAPI.msg("&7 Version: &e" + TheAPI.getServerVersion(), s);
 						TheAPI.msg("&7 Startup-Cmd: &e" + System.getProperty("sun.java.command"), s);
+						TheAPI.msg("&7 Disk:", s);
+						File d = new File("plugins");
+						TheAPI.msg("&7   Total: &e" + String.format("%.2f GB", (double)d.getTotalSpace() /1073741824), s);
+						TheAPI.msg("&7   Free: &e" + String.format("%.2f GB", (double)d.getFreeSpace() /1073741824), s);
+						TheAPI.msg("&7   Used: &e" + String.format("%.2f GB", (double)(d.getTotalSpace()-d.getFreeSpace()) /1073741824), s);
+						TheAPI.msg("&7   Usable: &e" + String.format("%.2f GB", (double)d.getUsableSpace() /1073741824), s);
 						TheAPI.msg("&7TPS: &e" + TheAPI.getServerTPS(TPSType.ONE_MINUTE) + ", "
 								+ TheAPI.getServerTPS(TPSType.FIVE_MINUTES) + ", "
 								+ TheAPI.getServerTPS(TPSType.FIFTEEN_MINUTES), s);
