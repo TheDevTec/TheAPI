@@ -1,54 +1,40 @@
 package me.devtec.theapi.sockets;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedSet;
 import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 
 public class Server {
 	private Set<Reader> readers = new HashSet<>();
 	protected Map<Socket, ServerClient> sockets = new UnsortedMap<>();
-	protected Map<String, Set<String>> queue = new UnsortedMap<>();
 	private ServerSocket server;
-	protected String pass;
-	private boolean run=true;
 	
-	public Server(String password, int port) {
-		pass=password;
+	public Server(int port) {
 		try {
 			server = new ServerSocket(port);
-        	Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-				public void run() {
-					stop();
-				}
-			}));
 			new Thread(new Runnable() {
 				public void run() {
-					while(run) {
-						Socket s = null;
-			            try {
-							s = server.accept();
+					while(!server.isClosed()) {
+						try {
+							Thread.sleep(1000);
+			            	Socket s = server.accept();
 							if(sockets.containsKey(s))sockets.get(s).exit();
+					        s.setSoTimeout(100);
 							DataInputStream dis = new DataInputStream(s.getInputStream()); 
-			                DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+							ObjectOutputStream dos = new ObjectOutputStream(new BufferedOutputStream(s.getOutputStream()));
 			                ClientHandler handler = new ClientHandler(Server.this, s, dis, dos);
 			                sockets.put(s, new ServerClient(handler));
-			                handler.start();   
-			            }catch (Exception e){
-			                try {
-			                	if(s!=null)
-								s.close();
-							} catch (IOException e1) {
-							}
-			            }
+			                handler.start();
+						}catch(Exception e) {}
+					}
 				}
-			}}).start();
+			}).start();
 		} catch (Exception e) {
 		}
     }
@@ -59,19 +45,9 @@ public class Server {
 	}
 	
 	public void send(String client, String text) {
-		boolean found = false;
-		for(ServerClient s : sockets.values()) {
-			if(s.getName().equals(client)) {
+		for(ServerClient s : sockets.values())
+			if(s.getName().equals(client))
 				s.send(text);
-				found=true;
-				break;
-			}
-		}
-		if(!found) {
-			Set<String> e = queue.getOrDefault(client, new UnsortedSet<>());
-			e.add(text);
-			queue.put(client, e);
-		}
 	}
 	
 	public void read(ServerClient client, final String text) {
@@ -90,7 +66,6 @@ public class Server {
     
     public void stop() {
 		try {
-			run=false;
 	    	sockets.values().forEach(s -> {
 				try {
 					s.exit();

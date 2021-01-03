@@ -21,6 +21,6 @@ public class ServerClient {
 	}
 	
 	public boolean isConnected() {
-		return c.run;
+		return c.s.isConnected();
 	}
 }

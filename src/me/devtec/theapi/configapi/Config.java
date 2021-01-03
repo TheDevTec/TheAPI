@@ -13,6 +13,8 @@ import me.devtec.theapi.utils.datakeeper.DataType;
 import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 
 public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
+	public static String folderName = "plugins/";
+	
 	private final Map<String, Object> defaults = new UnsortedMap<>();
 	private final Data f;
 	private DataType t;
@@ -52,7 +54,7 @@ public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data 
 	}
 
 	public Config(String path, DataType type) {
-		File file = new File("plugins/" + path);
+		File file = new File(folderName + path);
 		if (!file.exists()) {
 			file.getParentFile().mkdirs();
 			try {

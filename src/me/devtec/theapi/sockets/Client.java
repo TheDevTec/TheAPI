@@ -1,23 +1,19 @@
 package me.devtec.theapi.sockets;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedSet;
-
 public abstract class Client { 
-	private DataOutputStream send;
+	private ObjectOutputStream send;
 	private DataInputStream receive;
 	private Socket s;
-	private String name, pass,ip;
-	private UnsortedSet<String> e = new UnsortedSet<>();
+	private String name,ip;
 	private int port;
-	private long keep = System.currentTimeMillis();
 	
-    public Client(String name, String pass, String ip, int port) { 
+    public Client(String name, String ip, int port) { 
         try {
         	this.name=name;
-        	this.pass=pass;
         	this.ip=ip;
         	this.port=port;
         	reconnect(3000);
@@ -48,13 +44,13 @@ public abstract class Client {
 			 		while(true) {
 				 		try {
 					    	s = new Socket(ip, port);
-					        receive = new DataInputStream(s.getInputStream()); 
-					        send = new DataOutputStream(s.getOutputStream());
-					        send.writeUTF("ping");
-					        receive.readUTF();
-					        send.writeUTF("login:"+name);
-					        send.writeUTF("password:"+pass);
-					        break;
+					    	if(s.isConnected()) {
+						    	s.setSoTimeout(100);
+						        receive = new DataInputStream(s.getInputStream()); 
+								send = new ObjectOutputStream(new BufferedOutputStream(s.getOutputStream()));
+						        send.writeUTF("login:"+name);
+						        break;
+					    	}
 				 		}catch(Exception err) {
 				 			Thread.sleep(50);
 				 			if(c++ >= trottle) {
@@ -65,46 +61,17 @@ public abstract class Client {
 			 		}
 					}catch(Exception er) {}
 					if(ccc) {
-						keep = System.currentTimeMillis()/20;
-						boolean req = false;
-						while(true) {
-							if(System.currentTimeMillis()/20-keep >= 1000) {
-								reconnect(trottle);
-			            		break;
-							}
-							if(System.currentTimeMillis()/20-keep >= 500) {
-								try {
-									send.writeUTF("ping");
-								} catch (Exception e) {
-								}
-							}
+						while(s.isConnected()) {
 							try {
 								String text = receive.readUTF();
-								if(text.equals("ping")) {
-									send.writeUTF("pong");
-									continue;
-								}
-								if(text.equals("pong")) {
-									keep=System.currentTimeMillis()/20;
-									if(!req) {
-										req=true;
-										send.writeUTF("request");
-									}
-									continue;
-								}
 								if(text.equals("exit")) {
 									reconnect(trottle);
 									break;
 								}
-								if(text.equals("request")) {
-									for(String a : e)write(a);
-									e.clear();
-									continue;
-								}
-								text=text.replaceFirst("chat:", "");
-								read(text);
+								read(text.replaceFirst("chat:", ""));
 							}catch(Exception err) {}
 						}
+						reconnect(trottle);
 					}
 				}
 			}).start();
@@ -113,15 +80,11 @@ public abstract class Client {
     }
     
     public boolean isConnected() {
-    	return s!=null && !s.isClosed();
+    	return s!=null && s.isConnected();
     }
     
     public void write(String tosend) {
     	try {
-    		if(!isConnected()) {
-    			e.add(tosend);
-    			return;
-    		}
     		send.writeUTF("chat:"+tosend);
 		} catch (Exception e) {
 		}

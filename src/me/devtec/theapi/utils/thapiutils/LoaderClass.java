@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -84,45 +83,29 @@ public class LoaderClass extends JavaPlugin {
 	public Map<String, Client> servers = new UnsortedMap<>();
 	public Server server;
 	
-	private final String generate() {
-		 final String alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-		    int N = alphabet.length();
-		    Random r = new Random();
-		    String pass = "";
-		    for (int i = 0; i < 20; i++)
-		    	pass+=alphabet.charAt(r.nextInt(N));
-		    return pass;
-	}
-	
 	@Override
 	public void onLoad() {
 		plugin = this;
 		sockets.addDefault("Options.Enabled", false);
-		sockets.addDefault("Options.Password", generate());
 		sockets.addDefault("Options.Name", "serverName");
 		sockets.addDefault("Options.Port", 25569);
 		if(!sockets.exists("Server")) {
 			sockets.set("Server.Bungee.IP", "localhost");
 			sockets.set("Server.Bungee.Port", 25567);
-			sockets.set("Server.Bungee.Password", "PASSWORD INPUT HERE");
 			sockets.set("Server.AnotherSpigotServer.IP", "localhost");
 			sockets.set("Server.AnotherSpigotServer.Port", 25568);
-			sockets.set("Server.AnotherSpigotServer.Password", "PASSWORD INPUT HERE");
 		}
 		sockets.save();
-		
 		if(sockets.getBoolean("Options.Enabled")) {
-			String pass = sockets.getString("Options.Password");
-			server=new Server(pass, sockets.getInt("Options.Port"));
+			server=new Server(sockets.getInt("Options.Port"));
 			for(String s : sockets.getKeys("Server")) {
-				servers.put(s, new Client(sockets.getString("Options.Name"), sockets.getString("Server."+s+".Password"), sockets.getString("Server."+s+".IP"), sockets.getInt("Server."+s+".Port")) {
+				servers.put(s, new Client(sockets.getString("Options.Name"), sockets.getString("Server."+s+".IP"), sockets.getInt("Server."+s+".Port")) {
 					public void read(String text) {
 						TheAPI.callEvent(new ServerReceiveMessaveEvent(this, text));
 					}
 				});
 			}
 		}
-		
 		try {
 			Class.forName("org.apache.logging.log4j.core.filter.AbstractFilter");
 			Logger logger = (Logger)LogManager.getRootLogger();
