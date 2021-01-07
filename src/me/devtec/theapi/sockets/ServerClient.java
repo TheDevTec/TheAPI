@@ -13,11 +13,15 @@ public class ServerClient {
 	}
 	
 	public void exit() {
-		c.end();
+		c.exit();
 	}
 	
-	public void send(String text) {
-		c.send(text);
+	public void write(String path, Object value) {
+		c.write(path, value);
+	}
+	
+	public void send() {
+		c.send();
 	}
 	
 	public boolean isConnected() {

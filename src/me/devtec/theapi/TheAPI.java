@@ -983,7 +983,11 @@ public class TheAPI {
 		try {
 			s = UUID.fromString(name).toString();
 		} catch (Exception e) {
-			s = Bukkit.getOfflinePlayer(name).getUniqueId().toString();
+			Player p = getPlayerOrNull(name);
+			if(p!=null)
+				s=p.getUniqueId().toString();
+			else
+				s = Bukkit.getOfflinePlayer(name).getUniqueId().toString();
 		}
 		return new File("plugins/TheAPI/User/" + s + ".yml").exists();
 	}
@@ -1043,6 +1047,8 @@ public class TheAPI {
 			}
 		return a;
 	}
+	
+	private static Method method = Ref.method(Ref.nms("EntityHuman"), "getOfflineUUID", String.class);
 
 	/**
 	 * @see see If the user doesn't exist, his data file is created automatically.
@@ -1056,7 +1062,7 @@ public class TheAPI {
 		try {
 			s = UUID.fromString(nameOrUUID);
 		} catch (Exception e) {
-			s = Bukkit.getOfflinePlayer(nameOrUUID).getUniqueId();
+			s = (UUID)Ref.invokeNulled(method, nameOrUUID);
 		}
 		return getUser(s);
 	}

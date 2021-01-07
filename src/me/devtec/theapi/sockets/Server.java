@@ -1,22 +1,25 @@
 package me.devtec.theapi.sockets;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.ObjectOutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 
 public class Server {
 	private Set<Reader> readers = new HashSet<>();
 	protected Map<Socket, ServerClient> sockets = new UnsortedMap<>();
 	private ServerSocket server;
+	public String pas;
 	
-	public Server(int port) {
+	public Server(String password, int port) {
 		try {
+			pas=password;
 			server = new ServerSocket(port);
 			new Thread(new Runnable() {
 				public void run() {
@@ -26,8 +29,8 @@ public class Server {
 			            	Socket s = server.accept();
 							if(sockets.containsKey(s))sockets.get(s).exit();
 					        s.setSoTimeout(100);
-							DataInputStream dis = new DataInputStream(s.getInputStream()); 
-							ObjectOutputStream dos = new ObjectOutputStream(new BufferedOutputStream(s.getOutputStream()));
+					        BufferedReader dis = new BufferedReader(new InputStreamReader(s.getInputStream()));
+					    	PrintWriter dos = new PrintWriter(s.getOutputStream(), true);
 			                ClientHandler handler = new ClientHandler(Server.this, s, dis, dos);
 			                sockets.put(s, new ServerClient(handler));
 			                handler.start();
@@ -39,20 +42,31 @@ public class Server {
 		}
     }
 	
-	public void sendAll(String text) {
+	public void writeAll(String path, Object object) {
 		for(ServerClient s : sockets.values())
-			s.send(text);
+			s.write(path, object);
 	}
 	
-	public void send(String client, String text) {
+	public void write(String client, String path, Object object) {
 		for(ServerClient s : sockets.values())
 			if(s.getName().equals(client))
-				s.send(text);
+				s.write(path, object);
 	}
 	
-	public void read(ServerClient client, final String text) {
+	public void sendAll() {
+		for(ServerClient s : sockets.values())
+			s.send();
+	}
+	
+	public void send(String client) {
+		for(ServerClient s : sockets.values())
+			if(s.getName().equals(client))
+				s.send();
+	}
+	
+	protected void read(ServerClient client, final Data data) {
 		readers.forEach(a -> {
-			a.read(client, text);
+			a.read(client, data);
 		});
 	}
 	
@@ -64,7 +78,7 @@ public class Server {
 		readers.remove(reader);
 	}
     
-    public void stop() {
+    public void exit() {
 		try {
 	    	sockets.values().forEach(s -> {
 				try {

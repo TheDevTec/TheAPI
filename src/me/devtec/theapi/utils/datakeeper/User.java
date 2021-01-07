@@ -1,5 +1,6 @@
 package me.devtec.theapi.utils.datakeeper;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -14,10 +15,14 @@ import org.bukkit.inventory.ItemStack;
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.TheCoder;
 import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
+import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.thapiutils.LoaderClass;
 import me.devtec.theapi.utils.thapiutils.Validator;
 
 public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
+	
+	private static Method method = Ref.method(Ref.nms("EntityHuman"), "getOfflineUUID", String.class);
+	
 	private UUID s;
 	private String name;
 	private Data a;
@@ -29,7 +34,7 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			s = UUID.fromString(name);
 			name = Bukkit.getOfflinePlayer(s).getName();
 		} catch (Exception e) {
-			s = Bukkit.getOfflinePlayer(name).getUniqueId();
+			s = (UUID)Ref.invokeNulled(method, name);
 			this.name = name;
 		}
 		prepareConfig();

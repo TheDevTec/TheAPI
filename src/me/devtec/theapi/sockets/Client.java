@@ -1,20 +1,26 @@
 package me.devtec.theapi.sockets;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.ObjectOutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
+import me.devtec.theapi.utils.datakeeper.Data;
+import me.devtec.theapi.utils.datakeeper.DataType;
+
 public abstract class Client { 
-	private ObjectOutputStream send;
-	private DataInputStream receive;
+	private PrintWriter send;
+	private BufferedReader receive;
 	private Socket s;
-	private String name,ip;
+	private String name,ip,pas;
 	private int port;
 	
-    public Client(String name, String ip, int port) { 
+	private Data data = new Data();
+	
+    public Client(String name, String password, String ip, int port) { 
         try {
         	this.name=name;
         	this.ip=ip;
+        	pas=password;
         	this.port=port;
         	reconnect(3000);
         }catch(Exception e){
@@ -46,30 +52,35 @@ public abstract class Client {
 					    	s = new Socket(ip, port);
 					    	if(s.isConnected()) {
 						    	s.setSoTimeout(100);
-						        receive = new DataInputStream(s.getInputStream()); 
-								send = new ObjectOutputStream(new BufferedOutputStream(s.getOutputStream()));
-						        send.writeUTF("login:"+name);
+						    	receive = new BufferedReader(new InputStreamReader(s.getInputStream()));
+						        send = new PrintWriter(s.getOutputStream(), true);
+						    	send.println("login:"+name);
+						    	send.println("password:"+pas);
+						    	send.flush();
 						        break;
 					    	}
 				 		}catch(Exception err) {
-				 			Thread.sleep(50);
 				 			if(c++ >= trottle) {
 				 				ccc=false;
 				 				break;
 				 			}
+				 			Thread.sleep(50*60);
 				 		}
 			 		}
 					}catch(Exception er) {}
 					if(ccc) {
+						Data reader = new Data();
 						while(s.isConnected()) {
 							try {
-								String text = receive.readUTF();
+								String text = receive.readLine();
 								if(text.equals("exit")) {
 									reconnect(trottle);
 									break;
 								}
-								read(text.replaceFirst("chat:", ""));
-							}catch(Exception err) {}
+								reader.reload(text);
+								read(reader);
+								Thread.sleep(50);
+								}catch(Exception err) {}
 						}
 						reconnect(trottle);
 					}
@@ -83,22 +94,28 @@ public abstract class Client {
     	return s!=null && s.isConnected();
     }
     
-    public void write(String tosend) {
+    public void write(String path, Object send) {
+    	data.set(path, send);
+    }
+    
+    public void send() {
     	try {
-    		send.writeUTF("chat:"+tosend);
-		} catch (Exception e) {
-		}
+    		send.println(data.toString(DataType.BYTE));
+	    	send.flush();
+		} catch (Exception e) {}
+		data.clear();
     }
 
 	public void exit() {
 		try {
-    		send.writeUTF("exit");
+    		send.println("exit");
+	    	send.flush();
 			send.close(); 
 			receive.close(); 
 	        s.close();
 		}catch(Exception err) {}
 	}
     
-    public abstract void read(String text);
+    public abstract void read(Data data);
 }
 

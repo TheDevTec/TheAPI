@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
@@ -29,7 +30,7 @@ import me.devtec.theapi.utils.thapiutils.Validator;
 public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public static class DataHolder {
 		private Object o;
-		private List<String> lines = new UnsortedList<>();
+		private List<String> lines;
 
 		public DataHolder() {
 		}
@@ -40,7 +41,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 		public DataHolder(Object object, List<String> unusedLines) {
 			this(object);
-			lines.addAll(unusedLines);
+			lines=unusedLines;
 		}
 
 		public Object getValue() {
@@ -141,42 +142,39 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public Data setComments(String key, List<String> value) {
 		if (key == null)
 			return this;
-		getOrCreateData(key).lines.clear();
-		if (value == null)
-			return this;
-		getOrCreateData(key).lines.addAll(value);
+		getOrCreateData(key).lines=value;
 		return this;
 	}
 
 	public Data addComments(String key, List<String> value) {
 		if (value == null || key == null)
 			return this;
-		getOrCreateData(key).lines.addAll(value);
+		DataHolder g = getOrCreateData(key);
+		if(g.lines==null)g.lines=value;
+		else
+		g.lines.addAll(value);
 		return this;
 	}
 
 	public Data addComment(String key, String value) {
 		if (value == null || key == null)
 			return this;
-		DataHolder h = getOrCreateData(key);
-		h.lines.add(value);
-		return this;
+		return addComments(key, Arrays.asList(value));
 	}
 
 	public Data removeComments(String key, List<String> value) {
 		if (value == null || key == null)
 			return this;
-		getOrCreateData(key).lines.removeAll(value);
+		DataHolder g = getOrCreateData(key);
+		if(g.lines!=null)
+			g.lines.removeAll(value);
 		return this;
 	}
 
 	public Data removeComment(String key, String value) {
 		if (value == null || key == null)
 			return this;
-		DataHolder h = getOrCreateData(key);
-		if (h.lines != null)
-			h.lines.remove(value);
-		return this;
+		return removeComments(key, Arrays.asList(value));
 	}
 
 	public Data removeComment(String key, int line) {
@@ -577,7 +575,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				Object o = aw != null ? aw.getValue() : null;
 				String space = cs(spaces, 1);
 				pathName = space + pathName;
-				if (aw != null)
+				if (aw != null && aw.getComments()!=null)
 					for (String s : aw.getComments())
 						b.write(space + s + System.lineSeparator());
 				if (o == null) {
@@ -676,7 +674,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		for(Entry<String, DataHolder> s : f.loader.get().entrySet()) {
 			if(get(s.getKey())==null && s.getValue().getValue()!=null)
 				set(s.getKey(), s.getValue().getValue());
-			if(getComments(s.getKey()).isEmpty() && !s.getValue().getComments().isEmpty())
+			if(getComments(s.getKey()) != null && getComments(s.getKey()).isEmpty() && (s.getValue().getComments()==null||!s.getValue().getComments().isEmpty()))
 				setComments(s.getKey(), s.getValue().getComments());
 		}
 		if(f.loader.getHeader()!=null)

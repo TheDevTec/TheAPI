@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,7 +43,9 @@ import me.devtec.theapi.placeholderapi.ThePlaceholderAPI;
 import me.devtec.theapi.scheduler.Scheduler;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.sockets.Client;
+import me.devtec.theapi.sockets.Reader;
 import me.devtec.theapi.sockets.Server;
+import me.devtec.theapi.sockets.ServerClient;
 import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.Data;
@@ -51,10 +54,12 @@ import me.devtec.theapi.utils.datakeeper.User;
 import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
 import me.devtec.theapi.utils.datakeeper.collections.UnsortedSet;
 import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
+import me.devtec.theapi.utils.listener.events.ClientReceiveMessaveEvent;
 import me.devtec.theapi.utils.listener.events.ServerReceiveMessaveEvent;
 import me.devtec.theapi.utils.packetlistenerapi.PacketHandler;
 import me.devtec.theapi.utils.packetlistenerapi.PacketHandler_New;
 import me.devtec.theapi.utils.packetlistenerapi.PacketHandler_Old;
+import me.devtec.theapi.utils.packetlistenerapi.PacketManager;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.thapiutils.LoggerManager.BukkitLogger;
 import me.devtec.theapi.utils.thapiutils.LoggerManager.ConsoleLogger;
@@ -83,29 +88,52 @@ public class LoaderClass extends JavaPlugin {
 	public Map<String, Client> servers = new UnsortedMap<>();
 	public Server server;
 	
+	private String generate() {
+		String d = "abcdefghijklmnopqrstuvwxyz0123456789";
+		char[] a = d.toCharArray();
+		String gen = "";
+		for(int i = 0; i < 16; ++i)
+			gen+=new Random().nextBoolean() ? (a[TheAPI.generateRandomInt(d.length())]) : (""+a[TheAPI.generateRandomInt(d.length())]).toUpperCase();
+		return gen;
+	}
+	
 	@Override
 	public void onLoad() {
 		plugin = this;
+		
+		//SOCKETS
+		boolean ops = sockets.exists("Options");
 		sockets.addDefault("Options.Enabled", false);
 		sockets.addDefault("Options.Name", "serverName");
+		sockets.addDefault("Options.Password", generate());
 		sockets.addDefault("Options.Port", 25569);
-		if(!sockets.exists("Server")) {
+		if(!sockets.exists("Server") && !ops) {
 			sockets.set("Server.Bungee.IP", "localhost");
+			sockets.set("Server.Bungee.Password", "INSERT PASSWORD HERE");
 			sockets.set("Server.Bungee.Port", 25567);
 			sockets.set("Server.AnotherSpigotServer.IP", "localhost");
+			sockets.set("Server.AnotherSpigotServer.Password", 25568);
+			sockets.set("Server.AnotherSpigotServer.Password", "INSERT PASSWORD HERE");
 			sockets.set("Server.AnotherSpigotServer.Port", 25568);
 		}
 		sockets.save();
 		if(sockets.getBoolean("Options.Enabled")) {
-			server=new Server(sockets.getInt("Options.Port"));
+			server=new Server(sockets.getString("Options.Password"), sockets.getInt("Options.Port"));
+			server.register(new Reader() {
+				public void read(ServerClient client, Data data) {
+					TheAPI.callEvent(new ServerReceiveMessaveEvent(client, data));
+				}
+			});
 			for(String s : sockets.getKeys("Server")) {
-				servers.put(s, new Client(sockets.getString("Options.Name"), sockets.getString("Server."+s+".IP"), sockets.getInt("Server."+s+".Port")) {
-					public void read(String text) {
-						TheAPI.callEvent(new ServerReceiveMessaveEvent(this, text));
+				servers.put(s, new Client(sockets.getString("Options.Name"), sockets.getString("Server."+s+".Password"), sockets.getString("Server."+s+".IP"), sockets.getInt("Server."+s+".Port")) {
+					public void read(Data data) {
+						TheAPI.callEvent(new ClientReceiveMessaveEvent(this, data));
 					}
 				});
 			}
 		}
+		
+		//CONSOLE LOG EVENT
 		try {
 			Class.forName("org.apache.logging.log4j.core.filter.AbstractFilter");
 			Logger logger = (Logger)LogManager.getRootLogger();
@@ -116,6 +144,8 @@ public class LoaderClass extends JavaPlugin {
 		getLogger().setFilter(filter);
 		Bukkit.getLogger().setFilter(filter);
 		java.util.logging.Logger.getLogger("Minecraft").setFilter(filter);
+		
+		//TAGS - 1.16+
 		if (TheAPI.isNewerThan(15)) {
 			tags = new Config("TheAPI/Tags.yml");
 			tags.addDefault("TagPrefix", "!");
@@ -155,7 +185,11 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		
+		//CONFIG
 		createConfig();
+		
+		//BOSSBAR - 1.7.10 - 1.8.8
 		if (TheAPI.isOlder1_9())
 			new Tasker() {
 				public void run() {
@@ -172,27 +206,30 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		Data plugin = new Data();
 		for(Plugin e : Bukkit.getPluginManager().getPlugins()) {
-		plugin.reload(StreamUtils.fromStream(e.getResource("plugin.yml")));
-		if(plugin.exists("configs")) {
-			String folder = plugin.exists("configsFolder")?(plugin.getString("configsFolder").trim().isEmpty()?e.getName():plugin.getString("configsFolder")):e.getName();
-			if(plugin.get("configs") instanceof Collection) {
-				for(String config : plugin.getStringList("configs")) {
-					Config c = new Config(folder+"/"+config);
+			plugin.reload(StreamUtils.fromStream(e.getResource("plugin.yml")));
+			if(plugin.exists("configs")) {
+				String folder = plugin.exists("configsFolder")?(plugin.getString("configsFolder").trim().isEmpty()?e.getName():plugin.getString("configsFolder")):e.getName();
+				if(plugin.get("configs") instanceof Collection) {
+					for(String config : plugin.getStringList("configs")) {
+						Config c = new Config(folder+"/"+config);
+						Data read = new Data();
+						plugin.reload(StreamUtils.fromStream(e.getResource(config)));
+						c.getData().merge(read, true, true);
+						c.save();
+					}
+				}else {
+					Config c = new Config(folder+"/"+plugin.getString("configs"));
 					Data read = new Data();
-					plugin.reload(StreamUtils.fromStream(e.getResource(config)));
+					plugin.reload(StreamUtils.fromStream(e.getResource(plugin.getString("configs"))));
 					c.getData().merge(read, true, true);
 					c.save();
 				}
-			}else {
-				Config c = new Config(folder+"/"+plugin.getString("configs"));
-				Data read = new Data();
-				plugin.reload(StreamUtils.fromStream(e.getResource(plugin.getString("configs"))));
-				c.getData().merge(read, true, true);
-				c.save();
 			}
 		}
-		}
 		Bukkit.getPluginManager().registerEvents(new Events(), LoaderClass.this);
+		if(config.getBoolean("Options.PlayerMoveEvent"))
+		Bukkit.getPluginManager().registerEvents(new JumpEvent(), LoaderClass.this);
+		
 		TheAPI.createAndRegisterCommand("TheAPI", null, new TheAPICommand());
 		if (TheAPI.isNewerThan(7))
 			handler = new PacketHandler_New();
@@ -409,26 +446,34 @@ public class LoaderClass extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		Scheduler.cancelAll();
-		if(server!=null)
-		server.stop();
-		handler.close();
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &6Action: &eDisabling plugin, saving configs and stopping runnables..",
 				TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+
+		//Scheulder
+		Scheduler.cancelAll();
+		
+		//GUI
 		for (String p : gui.keySet())
 			gui.get(p).clear();
 		gui.clear();
-		
-		//SOCKETS
+		//Sockets
 		if(server!=null)
-			server.stop();
-		servers.values().forEach(a -> a.exit());
+			server.exit();
 		
+		//PacketListener
+		handler.close();
+		PacketManager.unregisterAll();
+		
+		//Placeholders
 		main.unregister();
+		
+		//Users
 		for(User u : TheAPI.getCachedUsers())
 			u.save();
+		
+		//Bans
 		data.save();
 	}
 
@@ -445,6 +490,7 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.HideErrors", false); // hide only TheAPI errors
 		config.setComments("Options.HideErrors", Arrays.asList("",
 				"# If you enable this option, errors from TheAPI will dissapear", "# defaulty: false"));
+		config.addDefault("Options.PlayerMoveEvent", true); // hide only TheAPI errors
 		config.addDefault("Options.Cache.User.Use", true); // Require memory, but loading of User.class is faster (only
 															// from TheAPI.class)
 		config.setComments("Options.Cache", Arrays.asList(""));
@@ -479,8 +525,7 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.FakeEconomyAPI.Format", "$%money%");
 		config.setComments("Options.FakeEconomyAPI.Format",
 				Arrays.asList("# Economy format of FakeEconomyAPI", "# defaulty: $%money%"));
-		
-	
+		config.save();	
 		max = Bukkit.getMaxPlayers();
 		motd = Bukkit.getMotd();
 	}

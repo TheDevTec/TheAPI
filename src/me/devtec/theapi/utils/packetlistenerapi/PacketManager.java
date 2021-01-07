@@ -60,7 +60,7 @@ public class PacketManager {
 				edit.remove(listener);
 				listeners.put(old, edit);
 			}
-		List<PacketListener> edit = listeners.containsKey(neww) ? listeners.get(neww) : new UnsortedList<>();
+		List<PacketListener> edit = listeners.getOrDefault(neww, new UnsortedList<>());
 		if (neww != null) {
 			if (edit.contains(listener))
 				return;
@@ -72,5 +72,9 @@ public class PacketManager {
 			edit.remove(listener);
 			listeners.put(neww, edit);
 		}
+	}
+
+	public static void unregisterAll() {
+		listeners.clear();
 	}
 }

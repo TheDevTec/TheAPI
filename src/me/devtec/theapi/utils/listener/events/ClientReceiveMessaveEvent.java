@@ -1,19 +1,19 @@
 package me.devtec.theapi.utils.listener.events;
 
-import me.devtec.theapi.sockets.ServerClient;
+import me.devtec.theapi.sockets.Client;
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.listener.Event;
 
-public class ServerReceiveMessaveEvent extends Event {
+public class ClientReceiveMessaveEvent extends Event {
 	private Data s;
-	private ServerClient c;
+	private Client c;
 	
-	public ServerReceiveMessaveEvent(ServerClient client, Data text) {
+	public ClientReceiveMessaveEvent(Client client, Data text) {
 		s=text;
 		c=client;
 	}
 	
-	public ServerClient getClient() {
+	public Client getClient() {
 		return c;
 	}
 	

@@ -25,12 +25,10 @@ import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.potion.PotionEffectType;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.TheAPI.SudoType;
@@ -52,7 +50,6 @@ import me.devtec.theapi.utils.datakeeper.User;
 import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
 import me.devtec.theapi.utils.listener.events.DamageGodPlayerByEntityEvent;
 import me.devtec.theapi.utils.listener.events.DamageGodPlayerEvent;
-import me.devtec.theapi.utils.listener.events.PlayerJumpEvent;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class Events implements Listener {
@@ -202,22 +199,6 @@ public class Events implements Listener {
 			if (e.getBlock().getType().name().contains("SIGN") && !e.isCancelled()) {
 				SignAPI.removeSign(new Position(e.getBlock().getLocation()));
 			}
-		}
-	}
-
-	@EventHandler
-	public void onMove(PlayerMoveEvent e) {
-		if (e.isCancelled())return;
-		double jump = e.getTo().getY() - e.getFrom().getY();
-		boolean has = true;
-		try {
-			has = !e.getPlayer().hasPotionEffect(PotionEffectType.LEVITATION);
-		} catch (Exception | NoSuchFieldError | NoSuchMethodError es) {}
-		if (jump > 0 && !e.getPlayer().isFlying() && has) {
-			PlayerJumpEvent event = new PlayerJumpEvent(e.getPlayer(), e.getFrom(), e.getTo(), jump);
-			TheAPI.callEvent(event);
-			if (event.isCancelled())
-				e.setCancelled(true);
 		}
 	}
 
