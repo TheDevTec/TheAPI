@@ -1,16 +1,15 @@
 package me.devtec.theapi.utils.packetlistenerapi;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 
 public class PacketManager {
 	private static final Priority[] list = Arrays.asList(Priority.LOWEST, Priority.LOW, Priority.NORMAL,
 			Priority.HIGH, Priority.HIGHEST, Priority.MONITOR).toArray(new Priority[5]);
 	
-	private static final UnsortedMap<Priority, List<PacketListener>> listeners = new UnsortedMap<>();
+	private static final HashMap<Priority, List<PacketListener>> listeners = new HashMap<>();
 
 	public static Object call(String player, Object packet, Object channel, PacketType type) {
 		if (packet == null || channel == null)
@@ -60,7 +59,7 @@ public class PacketManager {
 				edit.remove(listener);
 				listeners.put(old, edit);
 			}
-		List<PacketListener> edit = listeners.getOrDefault(neww, new UnsortedList<>());
+		List<PacketListener> edit = listeners.getOrDefault(neww, new ArrayList<>());
 		if (neww != null) {
 			if (edit.contains(listener))
 				return;

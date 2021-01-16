@@ -2,22 +2,21 @@ package me.devtec.theapi.utils.datakeeper.loader;
 
 import java.util.Base64;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 
-import me.devtec.theapi.utils.datakeeper.Data.DataHolder;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.json.Reader;
 
 public class ByteLoader extends DataLoader {
-	private Map<String, DataHolder> data = new UnsortedMap<>();
+	private HashMap<String, Object[]> data = new HashMap<>();
 	private boolean l;
 
 	@Override
-	public Map<String, DataHolder> get() {
+	public Map<String, Object[]> get() {
 		return data;
 	}
 
@@ -25,7 +24,7 @@ public class ByteLoader extends DataLoader {
 		return data.keySet();
 	}
 
-	public void set(String key, DataHolder holder) {
+	public void set(String key, Object[] holder) {
 		if (key == null)
 			return;
 		if (holder == null) {
@@ -55,7 +54,7 @@ public class ByteLoader extends DataLoader {
 				try {
 					String key = bos.readUTF();
 					String value = bos.readUTF();
-					data.put(key, new DataHolder(Reader.read(value)));
+					data.put(key, new Object[] {Reader.read(value), null});
 				} catch (Exception e) {
 					break;
 				}
@@ -70,7 +69,7 @@ public class ByteLoader extends DataLoader {
 					try {
 						String key = bos.readUTF();
 						String value = bos.readUTF();
-						data.put(key, new DataHolder(Reader.read(value)));
+						data.put(key, new Object[] {Reader.read(value), null});
 					} catch (Exception e) {
 						break;
 					}

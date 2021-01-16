@@ -6,13 +6,12 @@ import java.util.Map;
 import java.util.Set;
 
 import me.devtec.theapi.utils.StreamUtils;
-import me.devtec.theapi.utils.datakeeper.Data.DataHolder;
 import me.devtec.theapi.utils.datakeeper.abstracts.Data;
 
 public abstract class DataLoader implements Data {
-	public abstract Map<String, DataHolder> get();
+	public abstract Map<String, Object[]> get();
 
-	public abstract void set(String key, DataHolder value);
+	public abstract void set(String key, Object[] value);
 
 	public abstract void remove(String key);
 

@@ -2,7 +2,9 @@ package me.devtec.theapi.apis;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +22,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.SimplePluginManager;
 
 import me.devtec.theapi.scheduler.Tasker;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 
@@ -45,7 +45,7 @@ public class PluginManagerAPI {
 	}
 
 	public static List<Plugin> getEnabledPlugins() {
-		List<Plugin> a = new UnsortedList<Plugin>();
+		List<Plugin> a = new ArrayList<Plugin>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
 			if (p.isEnabled())
 				a.add(p);
@@ -54,7 +54,7 @@ public class PluginManagerAPI {
 	}
 
 	public static List<Plugin> getDisabledPlugins() {
-		List<Plugin> a = new UnsortedList<Plugin>();
+		List<Plugin> a = new ArrayList<Plugin>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
 			if (!p.isEnabled())
 				a.add(p);
@@ -63,7 +63,7 @@ public class PluginManagerAPI {
 	}
 
 	public static List<String> getEnabledPluginsNames() {
-		List<String> a = new UnsortedList<String>();
+		List<String> a = new ArrayList<String>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
 			if (p.isEnabled())
 				a.add(p.getName());
@@ -72,7 +72,7 @@ public class PluginManagerAPI {
 	}
 
 	public static List<String> getDisabledPluginsNames() {
-		List<String> a = new UnsortedList<String>();
+		List<String> a = new ArrayList<String>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
 			if (!p.isEnabled())
 				a.add(p.getName());
@@ -81,14 +81,14 @@ public class PluginManagerAPI {
 	}
 
 	public static List<Plugin> getPlugins() {
-		List<Plugin> a = new UnsortedList<Plugin>();
+		List<Plugin> a = new ArrayList<Plugin>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins())
 			a.add(p);
 		return a;
 	}
 
 	public static List<String> getPluginsNames() {
-		List<String> a = new UnsortedList<String>();
+		List<String> a = new ArrayList<String>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
 			a.add(p.getName());
 		}
@@ -111,7 +111,7 @@ public class PluginManagerAPI {
 		if (p != null)
 			if (p.getDescription().getDepend() != null && p.getDescription().getDepend().isEmpty() == false)
 				return p.getDescription().getDepend();
-		return new UnsortedList<String>();
+		return new ArrayList<String>();
 	}
 
 	public static List<String> getSoftDepend(String plugin) {
@@ -119,14 +119,14 @@ public class PluginManagerAPI {
 		if (p != null)
 			if (p.getDescription().getSoftDepend() != null && p.getDescription().getSoftDepend().isEmpty() == false)
 				return p.getDescription().getSoftDepend();
-		return new UnsortedList<String>();
+		return new ArrayList<String>();
 	}
 
 	public static List<String> getAuthor(String plugin) {
 		Plugin p = getPlugin(plugin);
 		if (p != null)
 			return p.getDescription().getAuthors();
-		return new UnsortedList<String>();
+		return new ArrayList<String>();
 	}
 
 	public static String getAPIVersion(String plugin) {
@@ -161,7 +161,7 @@ public class PluginManagerAPI {
 	}
 
 	public static List<String> getCommands(String plugin) {
-		List<String> list = new UnsortedList<String>();
+		List<String> list = new ArrayList<String>();
 		for (String s : getPlugin(plugin).getDescription().getCommands().keySet())
 			list.add(s);
 		return list;
@@ -204,7 +204,7 @@ public class PluginManagerAPI {
 	}
 
 	public static List<String> getPluginsToLoad() {
-		List<String> list = new UnsortedList<String>();
+		List<String> list = new ArrayList<String>();
 		if (new File("plugins").isDirectory()) // is folder
 			for (File f : new File("plugins").listFiles()) {
 				if (!f.isDirectory() && f.getName().endsWith(".jar")) {
@@ -262,7 +262,7 @@ public class PluginManagerAPI {
 	 * @return Map<PluginName, FileName>
 	 */
 	public static Map<String, String> getPluginsToLoadWithNames() {
-		UnsortedMap<String, String> a = new UnsortedMap<>();
+		HashMap<String, String> a = new HashMap<>();
 		if (new File("plugins").isDirectory()) // is folder
 			for (File f : new File("plugins").listFiles()) {
 				if (!f.isDirectory() && f.getName().endsWith(".jar")) {
@@ -291,7 +291,7 @@ public class PluginManagerAPI {
 	}
 
 	public static List<String> getRawPluginsToLoad() {
-		List<String> list = new UnsortedList<String>();
+		List<String> list = new ArrayList<String>();
 		if (new File("plugins").isDirectory()) // is folder
 			for (File f : new File("plugins").listFiles()) {
 				if (!f.isDirectory() && f.getName().endsWith(".jar")) {

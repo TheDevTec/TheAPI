@@ -1,5 +1,6 @@
 package me.devtec.theapi.guiapi;
 
+import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
@@ -8,12 +9,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.thapiutils.LoaderClass;
 
 public class GUI {
 	private final String title;
-	private final UnsortedMap<Integer, ItemGUI> items = new UnsortedMap<>();
+	private final HashMap<Integer, ItemGUI> items = new HashMap<>();
 	private final Inventory inv;
 	// Defaulty false
 	private boolean put;
@@ -158,7 +158,7 @@ public class GUI {
 	 * @return UnsortedMap<Slot, Item>
 	 * 
 	 */
-	public final UnsortedMap<Integer, ItemGUI> getItemGUIs() {
+	public final HashMap<Integer, ItemGUI> getItemGUIs() {
 		return items;
 	}
 
@@ -167,9 +167,11 @@ public class GUI {
 	 * 
 	 */
 	public final void close() {
+		try {
 		for(Entry<String, GUI> p : LoaderClass.plugin.gui.entrySet())
 			if(p.getValue().equals(this))
 			close(TheAPI.getPlayerOrNull(p.getKey()));
+		}catch(Exception e) {}
 	}
 
 	/**

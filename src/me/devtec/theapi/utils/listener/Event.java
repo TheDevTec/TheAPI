@@ -1,9 +1,9 @@
 package me.devtec.theapi.utils.listener;
 
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
+import java.util.HashMap;
 
 public class Event {
-	private static final UnsortedMap<String, HandlerList> lists = new UnsortedMap<>();
+	private static final HashMap<String, HandlerList> lists = new HashMap<>();
 
 	public Event() {
 		lists.put(getClass().getName(), h);

@@ -1,29 +1,27 @@
 package me.devtec.theapi.utils.datakeeper.loader;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import me.devtec.theapi.utils.datakeeper.Data.DataHolder;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.json.Reader;
 
 public class YamlLoader extends DataLoader {
 	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*?):[ ]*(.*)"),
 			fixSplit = Pattern.compile("[\"'](.*)['\"]");
-	private Map<String, DataHolder> data = new UnsortedMap<>();
+	private HashMap<String, Object[]> data = new HashMap<>();
 	private boolean l;
-	private List<String> header = new UnsortedList<>(), footer = new UnsortedList<>();
+	private ArrayList<String> header = new ArrayList<>(), footer = new ArrayList<>();
 
 	public Set<String> getKeys() {
 		return data.keySet();
 	}
 
-	public void set(String key, DataHolder holder) {
+	public void set(String key, Object[] holder) {
 		if (key == null)
 			return;
 		if (holder == null) {
@@ -46,7 +44,7 @@ public class YamlLoader extends DataLoader {
 	}
 
 	@Override
-	public Map<String, DataHolder> get() {
+	public Map<String, Object[]> get() {
 		return data;
 	}
 
@@ -54,8 +52,8 @@ public class YamlLoader extends DataLoader {
 	public void load(String input) {
 		reset();
 		try {
-			List<Object> items = new UnsortedList<>();
-			List<String> lines = new UnsortedList<>();
+			ArrayList<Object> items = new ArrayList<>();
+			ArrayList<String> lines = new ArrayList<>();
 			String key = "";
 			StringBuilder v = null;
 			int last = 0, f = 0, c = 0;
@@ -64,7 +62,7 @@ public class YamlLoader extends DataLoader {
 					if (text.trim().startsWith("#") || text.trim().isEmpty()) {
 						if (!items.isEmpty()) {
 							set(key, items, lines);
-							items = new UnsortedList<>();
+							items = new ArrayList<>();
 						}
 						if (c != 0) {
 							if (c == 1) {
@@ -81,7 +79,7 @@ public class YamlLoader extends DataLoader {
 								v = null;
 							} else if (c == 2) {
 								set(key, items, lines);
-								items = new UnsortedList<>();
+								items = new ArrayList<>();
 							}
 							c = 0;
 						}
@@ -108,7 +106,7 @@ public class YamlLoader extends DataLoader {
 						}
 						if (c == 2) {
 							set(key, items, lines);
-							items = new UnsortedList<>();
+							items = new ArrayList<>();
 						}
 						c = 0;
 					}
@@ -128,7 +126,7 @@ public class YamlLoader extends DataLoader {
 					if (find) {
 						if (!items.isEmpty()) {
 							set(key, items, lines);
-							items = new UnsortedList<>();
+							items = new ArrayList<>();
 						}
 						if (c == 1) {
 							v.append(text.substring(c(text)));
@@ -237,12 +235,12 @@ public class YamlLoader extends DataLoader {
 		return i;
 	}
 
-	private final void set(String key, Object o, List<String> lines) {
+	private final void set(String key, Object o, ArrayList<String> lines) {
 		if(key==null)return;
-		if (get().containsKey(key)) {
-			get().get(key).setValue(o);
+		if (data.containsKey(key)) {
+			data.get(key)[0]=o;
 		} else
-			set(key, new DataHolder(o, lines));
+			set(key, new Object[] {o, lines});
 		lines.clear();
 	}
 

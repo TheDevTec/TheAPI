@@ -1,13 +1,13 @@
 package me.devtec.theapi.utils.datakeeper.maps;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
-
 public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
-	private Map<K, Map<T, V>> data = new UnsortedMap<>();
+	private Map<K, Map<T, V>> data = new HashMap<>();
 
 	public SortedMultiMap() {
 	}
@@ -83,19 +83,19 @@ public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 	}
 
 	public Collection<K> keySet() {
-		return new UnsortedList<>(data.keySet());
+		return new ArrayList<>(data.keySet());
 	}
 
 	public Collection<T> threadSet(K key) {
-		return data.containsKey(key) ? new UnsortedList<>(data.get(key).keySet()) : new UnsortedList<>();
+		return data.containsKey(key) ? new ArrayList<>(data.get(key).keySet()) : new ArrayList<>();
 	}
 
 	public Collection<V> values(K key, T thread) {
-		return data.containsKey(key) ? new UnsortedList<>(data.get(key).values()) : new UnsortedList<>();
+		return data.containsKey(key) ? new ArrayList<>(data.get(key).values()) : new ArrayList<>();
 	}
 
 	public Collection<Entry<K, T, V>> entrySet() {
-		UnsortedList<Entry<K, T, V>> entries = new UnsortedList<>(data.size());
+		ArrayList<Entry<K, T, V>> entries = new ArrayList<>();
 		for (K key : keySet())
 			for (T thread : threadSet(key))
 				entries.add(new Entry<>(key, thread, get(key, thread)));

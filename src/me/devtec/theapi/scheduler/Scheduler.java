@@ -1,17 +1,17 @@
 package me.devtec.theapi.scheduler;
 
+import java.util.HashMap;
 import java.util.Map.Entry;
 
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.nms.NMSAPI;
 
 public class Scheduler {
-	private final static UnsortedMap<Integer, ThreadGroup> tasks = new UnsortedMap<>();
+	private final static HashMap<Integer, Thread> tasks = new HashMap<>();
 	private static int id;
 
 	public static void cancelAll() {
 		try {
-			for (Entry<Integer, ThreadGroup> t : tasks.entrySet())
+			for (Entry<Integer, Thread> t : tasks.entrySet())
 				t.getValue().interrupt();
 			tasks.clear();
 		} catch (Exception errr) {
@@ -19,9 +19,8 @@ public class Scheduler {
 	}
 
 	public static void cancelTask(int task) {
-		if (!tasks.containsKey(task))
-			return;
-		tasks.get(task).interrupt();
+		if(tasks.containsKey(task))
+			tasks.get(task).interrupt();
 		tasks.remove(task);
 	}
 
@@ -35,61 +34,59 @@ public class Scheduler {
 
 	public static int later(long delay, Runnable r) {
 		int id = find();
-		ThreadGroup group = new ThreadGroup("TheAPI thread-" + id);
-		tasks.put(id, group);
-		new Thread(group, new Runnable() {
+		Thread t = new Thread(new Runnable() {
 			public void run() {
 				try {
 					if (delay > 0)
 						Thread.sleep(delay * 50);
 					if (!Thread.currentThread().isInterrupted() && tasks.containsKey(id)) {
 						r.run();
-						tasks.remove(id);
 						Thread.currentThread().interrupt();
+						tasks.remove(id);
 					}
 				} catch (Exception er) {
-					tasks.remove(id);
 					Thread.currentThread().interrupt();
+					tasks.remove(id);
 					if (er instanceof InterruptedException == false)
 						er.printStackTrace();
 					return;
 				}
 			}
-		}, "TheAPI thread-" + id).start();
+		}, "TheAPI thread-" + id);
+		tasks.put(id, t);
+		t.start();
 		return id;
 	}
 
 	public static int laterSync(long delay, Runnable r) {
 		int id = find();
-		ThreadGroup group = new ThreadGroup("TheAPI thread-" + id);
-		tasks.put(id, group);
-		new Thread(group, new Runnable() {
+		Thread t = new Thread(new Runnable() {
 			public void run() {
 				try {
 					if (delay > 0)
 						Thread.sleep(delay * 50);
 					if (!Thread.currentThread().isInterrupted() && tasks.containsKey(id)) {
 						NMSAPI.postToMainThread(r);
-						tasks.remove(id);
 						Thread.currentThread().interrupt();
+						tasks.remove(id);
 					}
 				} catch (Exception er) {
-					tasks.remove(id);
 					Thread.currentThread().interrupt();
+					tasks.remove(id);
 					if (er instanceof InterruptedException == false)
 						er.printStackTrace();
 					return;
 				}
 			}
-		}, "TheAPI thread-" + id).start();
+		}, "TheAPI thread-" + id);
+		tasks.put(id, t);
+		t.start();
 		return id;
 	}
 
 	public static int repeating(long delay, long period, Runnable r) {
 		int id = find();
-		ThreadGroup group = new ThreadGroup("TheAPI thread-" + id);
-		tasks.put(id, group);
-		new Thread(group, new Runnable() {
+		Thread t = new Thread(new Runnable() {
 			public void run() {
 				try {
 					if (delay > 0)
@@ -99,28 +96,28 @@ public class Scheduler {
 							r.run();
 							Thread.sleep(period * 50);
 						} else {
-							tasks.remove(id);
 							Thread.currentThread().interrupt();
+							tasks.remove(id);
 							break;
 						}
 					}
 				} catch (Exception er) {
-					tasks.remove(id);
 					Thread.currentThread().interrupt();
+					tasks.remove(id);
 					if (er instanceof InterruptedException == false)
 						er.printStackTrace();
 					return;
 				}
 			}
-		}, "TheAPI thread-" + id).start();
+		}, "TheAPI thread-" + id);
+		tasks.put(id, t);
+		t.start();
 		return id;
 	}
 
 	public static int repeatingSync(long delay, long period, Runnable r) {
 		int id = find();
-		ThreadGroup group = new ThreadGroup("TheAPI thread-" + id);
-		tasks.put(id, group);
-		new Thread(group, new Runnable() {
+		Thread t = new Thread(new Runnable() {
 			public void run() {
 				try {
 					if (delay > 0)
@@ -130,20 +127,22 @@ public class Scheduler {
 							NMSAPI.postToMainThread(r);
 							Thread.sleep(period * 50);
 						} else {
-							tasks.remove(id);
 							Thread.currentThread().interrupt();
+							tasks.remove(id);
 							break;
 						}
 					}
 				} catch (Exception er) {
-					tasks.remove(id);
 					Thread.currentThread().interrupt();
+					tasks.remove(id);
 					if (er instanceof InterruptedException == false)
 						er.printStackTrace();
 					return;
 				}
 			}
-		}, "TheAPI thread-" + id).start();
+		}, "TheAPI thread-" + id);
+		tasks.put(id, t);
+		t.start();
 		return id;
 	}
 
@@ -157,9 +156,7 @@ public class Scheduler {
 
 	public static int repeatingTimesSync(long delay, long period, long times, Runnable r) {
 		int id = find();
-		ThreadGroup group = new ThreadGroup("TheAPI thread-" + id);
-		tasks.put(id, group);
-		new Thread(group, new Runnable() {
+		Thread t = new Thread(new Runnable() {
 			long run = 0;
 
 			public void run() {
@@ -171,28 +168,28 @@ public class Scheduler {
 							NMSAPI.postToMainThread(r);
 							Thread.sleep(period * 50);
 						} else {
-							tasks.remove(id);
 							Thread.currentThread().interrupt();
+							tasks.remove(id);
 							break;
 						}
 					}
 				} catch (Exception er) {
-					tasks.remove(id);
 					Thread.currentThread().interrupt();
+					tasks.remove(id);
 					if (er instanceof InterruptedException == false)
 						er.printStackTrace();
 					return;
 				}
 			}
-		}, "TheAPI thread-" + id).start();
+		}, "TheAPI thread-" + id);
+		tasks.put(id, t);
+		t.start();
 		return id;
 	}
 
 	public static int repeatingTimes(long delay, long period, long times, Runnable r) {
 		int id = find();
-		ThreadGroup group = new ThreadGroup("TheAPI thread-" + id);
-		tasks.put(id, group);
-		new Thread(group, new Runnable() {
+		Thread t = new Thread(new Runnable() {
 			long run = 0;
 
 			public void run() {
@@ -204,20 +201,22 @@ public class Scheduler {
 							r.run();
 							Thread.sleep(period * 50);
 						} else {
-							tasks.remove(id);
 							Thread.currentThread().interrupt();
+							tasks.remove(id);
 							break;
 						}
 					}
 				} catch (Exception er) {
-					tasks.remove(id);
 					Thread.currentThread().interrupt();
+					tasks.remove(id);
 					if (er instanceof InterruptedException == false)
 						er.printStackTrace();
 					return;
 				}
 			}
-		}, "TheAPI thread-" + id).start();
+		}, "TheAPI thread-" + id);
+		tasks.put(id, t);
+		t.start();
 		return id;
 	}
 

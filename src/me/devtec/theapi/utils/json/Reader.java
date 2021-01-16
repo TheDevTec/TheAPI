@@ -2,7 +2,9 @@ package me.devtec.theapi.utils.json;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +27,6 @@ import com.google.common.io.CharStreams;
 import me.devtec.theapi.apis.EnchantmentAPI;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.StringUtils;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class Reader implements JsonReader {
@@ -39,11 +39,9 @@ public class Reader implements JsonReader {
 
 	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref
 			.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
-	private static Object parser = Ref.invoke(Ref.invoke(
-			Ref.newInstance(Ref.constructor(
+	private static Object parser = Ref.invoke(Ref.newInstance(Ref.constructor(
 					Ref.getClass("com.google.gson.GsonBuilder") != null ? Ref.getClass("com.google.gson.GsonBuilder")
-							: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder"))),
-			"setLenient"), "create");
+							: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder"))), "create");
 
 	public Object object(String json) {
 		if (json == null)
@@ -67,7 +65,7 @@ public class Reader implements JsonReader {
 			return null;
 		try {
 			return (Collection<?>) Ref.invoke(parser,
-					Ref.method(parser.getClass(), "fromJson", String.class, Class.class), json, UnsortedList.class);
+					Ref.method(parser.getClass(), "fromJson", String.class, Class.class), json, ArrayList.class);
 		} catch (Exception e1) {
 		}
 		return null;
@@ -78,7 +76,7 @@ public class Reader implements JsonReader {
 			return null;
 		try {
 			return (List<?>) Ref.invoke(parser, Ref.method(parser.getClass(), "fromJson", String.class, Class.class),
-					json, UnsortedList.class);
+					json, ArrayList.class);
 		} catch (Exception e1) {
 		}
 		return null;
@@ -95,7 +93,7 @@ public class Reader implements JsonReader {
 			return null;
 		try {
 			return (Map<?, ?>) Ref.invoke(parser, Ref.method(parser.getClass(), "fromJson", String.class, Class.class),
-					json, UnsortedMap.class);
+					json, HashMap.class);
 		} catch (Exception e1) {
 		}
 		return null;
@@ -129,7 +127,7 @@ public class Reader implements JsonReader {
 		Matcher ma = Pattern.compile("Map<(.*?), (.*?)>").matcher(c.getTypeName());
 		if (ma.find()) {
 			@SuppressWarnings("rawtypes")
-			UnsortedMap uknown = new UnsortedMap<>();
+			HashMap uknown = new HashMap<>();
 			for (Entry<?, ?> e : ((Map<?, ?>) v).entrySet())
 				uknown.put(cast(e.getKey(), Ref.getClass(ma.group(1))), cast(e.getValue(), Ref.getClass(ma.group(2))));
 			v = uknown;
@@ -137,7 +135,7 @@ public class Reader implements JsonReader {
 		ma = Pattern.compile("List<(.*?)>").matcher(c.getTypeName());
 		if (ma.find()) {
 			@SuppressWarnings("rawtypes")
-			UnsortedList uknown = new UnsortedList<>();
+			ArrayList uknown = new ArrayList<>();
 			for (Object e : ((List<?>) v))
 				uknown.add(cast(e, Ref.getClass(ma.group(1))));
 			v = uknown;
@@ -183,22 +181,22 @@ public class Reader implements JsonReader {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Object parseR(Object o) {
 		if (o instanceof Collection) {
-			Collection<Object> aw = new UnsortedList<>();
+			Collection<Object> aw = new ArrayList<>();
 			for (Object f : ((Collection<?>) o))
 				aw.add(f instanceof String ? object((String) f) : f);
 			o = aw;
-			List<Object> cloneOfList = new UnsortedList<>((Collection<Object>) o);
+			List<Object> cloneOfList = new ArrayList<>((Collection<Object>) o);
 			((Collection<Object>) o).clear();
 			for (Object s : cloneOfList)
 				((Collection<Object>) o).add(parseR(s));
 			return o;
 		}
 		if (o instanceof Map) {
-			Map<Object, Object> aw = new UnsortedMap<>();
+			Map<Object, Object> aw = new HashMap<>();
 			for (Entry<?, ?> f : ((Map<?, ?>) o).entrySet())
 				aw.put(f.getKey() instanceof String ? object((String) f.getKey()) : f.getKey(), f.getValue());
 			o = aw;
-			Map<Object, Object> a = new UnsortedMap<>();
+			Map<Object, Object> a = new HashMap<>();
 			boolean c = false;
 			for (Entry<?, ?> s : ((Map<?, ?>) o).entrySet()) {
 				if (s.getKey().toString().startsWith("enum ")) {
@@ -235,8 +233,10 @@ public class Reader implements JsonReader {
 						ItemMeta meta = item.getItemMeta();
 						if (values.containsKey("meta.name"))
 							meta.setDisplayName((String) values.get("meta.name"));
+						try {
 						if (values.containsKey("meta.locName"))
 							meta.setLocalizedName((String) values.get("meta.locName"));
+						}catch(Exception | NoSuchMethodError e) {}
 						if (values.containsKey("meta.lore"))
 							meta.setLore((List<String>) values.get("meta.lore"));
 						if (values.containsKey("meta.enchs")) {

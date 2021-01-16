@@ -4,11 +4,13 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
@@ -51,8 +53,6 @@ import me.devtec.theapi.sqlapi.SQLAPI;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.Storage;
 import me.devtec.theapi.utils.datakeeper.User;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.listener.Event;
 import me.devtec.theapi.utils.listener.HandlerList;
 import me.devtec.theapi.utils.listener.Listener;
@@ -66,9 +66,9 @@ import me.devtec.theapi.utils.thapiutils.Validator;
 import me.devtec.theapi.worldsapi.WorldBorderAPI;
 
 public class TheAPI {
-	private static final UnsortedMap<String, BossBar> bars = new UnsortedMap<>();
-	private static final UnsortedMap<String, Integer> task = new UnsortedMap<>();
-	private static final UnsortedMap<UUID, User> cache = new UnsortedMap<>();
+	private static final HashMap<String, BossBar> bars = new HashMap<>();
+	private static final HashMap<String, Integer> task = new HashMap<>();
+	private static final HashMap<UUID, User> cache = new HashMap<>();
 	private static Constructor<?> constructor = Ref.constructor(PluginCommand.class, String.class, Plugin.class);
 	private static Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
 	private static Random random = new Random();
@@ -105,11 +105,13 @@ public class TheAPI {
 		PluginCommand cmd = TheAPI.createCommand(commandName.toLowerCase(), LoaderClass.plugin);
 		if (permission != null)
 			Ref.set(cmd, "permission", permission.toLowerCase());
-		List<String> lowerCase = new UnsortedList<>();
+		cmd.setPermissionMessage("");
+		List<String> lowerCase = new ArrayList<>();
 		if (aliases != null)
 			for (String s : aliases)
 				lowerCase.add(s.toLowerCase());
 		cmd.setAliases(lowerCase);
+		cmd.setUsage("");
 		Ref.set(cmd, "executor", commandExecutor);
 		registerCommand(cmd);
 	}
@@ -120,7 +122,7 @@ public class TheAPI {
 
 	private static Object cmdMap = Ref.get(Bukkit.getPluginManager(), "commandMap");
 	@SuppressWarnings("unchecked")
-	private static HashMap<String, Command> knownCommands = (HashMap<String, Command>) Ref.get(cmdMap, "knownCommands");
+	private static Map<String, Command> knownCommands = (Map<String, Command>) Ref.get(cmdMap, "knownCommands");
 
 	public static void registerCommand(PluginCommand command) {
 		String label = command.getName().toLowerCase(Locale.ENGLISH).trim();
@@ -142,7 +144,7 @@ public class TheAPI {
 			} else
 				return; // exectutor can't be null
 		}
-		List<String> low = new UnsortedList<>();
+		List<String> low = new ArrayList<>();
 		for (String s : command.getAliases()) {
 			s = s.toLowerCase(Locale.ENGLISH).trim();
 			low.add(s);
@@ -160,7 +162,7 @@ public class TheAPI {
 
 	public static boolean unregisterCommand(String name) {
 		boolean is = false;
-		for (Entry<String, Command> e : new UnsortedMap<>(knownCommands).entrySet())
+		for (Entry<String, Command> e : new HashMap<>(knownCommands).entrySet())
 			if (e.getValue().getName().equals("name")) {
 				knownCommands.remove(e.getKey());
 				is = true;
@@ -425,7 +427,7 @@ public class TheAPI {
 	@SuppressWarnings("unchecked")
 	public static List<Player> getOnlinePlayers() {
 		Object o = Ref.invokeNulled(m);
-		return new UnsortedList<>(o instanceof Collection ? (Collection<Player>) o : Arrays.asList((Player[]) o));
+		return new ArrayList<>(o instanceof Collection ? (Collection<Player>) o : Arrays.asList((Player[]) o));
 	}
 
 	/**
@@ -797,28 +799,29 @@ public class TheAPI {
 	}
 
 	public static void setVanish(String playerName, String permission, boolean value) {
-		getUser(playerName).set("vanish", value);
-		getUser(playerName).setAndSave("vanish.perm", permission);
+		User i = getUser(playerName);
+		i.set("vanish", value);
+		i.setAndSave("vanish.perm", permission);
 		Player s = getPlayerOrNull(playerName);
 		if (s != null)
-			applyVanish(s, permission, value);
+			applyVanish(i,s, permission, value);
 	}
 
-	private static void applyVanish(Player s, String perm, boolean var) {
+	private static void applyVanish(User i, Player s, String perm, boolean var) {
 		PlayerVanishEvent da = new PlayerVanishEvent(s, perm, var);
 		callEvent(da);
 		if (!da.isCancelled()) {
 			var = da.vanish();
 			perm = da.getPermission();
 			if (var) {
-				getUser(s).set("vanish", var);
-				getUser(s).set("vanish.perm", perm);
+				i.set("vanish", var);
+				i.set("vanish.perm", perm);
 				for (Player d : getOnlinePlayers())
 					if (s != d && !canSee(d, s.getName()) && d.canSee(s))
 						d.hidePlayer(s);
 				return;
 			}
-			getUser(s).remove("vanish");
+			i.remove("vanish");
 			for (Player d : getOnlinePlayers())
 				if (s != d && canSee(d, s.getName()) && !d.canSee(s))
 					d.showPlayer(s);
@@ -1013,7 +1016,7 @@ public class TheAPI {
 	 * @return List<UUID>
 	 */
 	public static List<UUID> getUsers() {
-		List<UUID> a = new UnsortedList<>();
+		List<UUID> a = new ArrayList<>();
 		if (new File("plugins/TheAPI/User").exists())
 			for (File f : new File("plugins/TheAPI/User").listFiles()) {
 				try {
@@ -1034,7 +1037,7 @@ public class TheAPI {
 	 * @return List<String>
 	 */
 	public static List<String> getUsersNames() {
-		List<String> a = new UnsortedList<>();
+		List<String> a = new ArrayList<>();
 		if (new File("plugins/TheAPI/User").exists())
 			for (File f : new File("plugins/TheAPI/User").listFiles()) {
 				try {
@@ -1048,8 +1051,6 @@ public class TheAPI {
 		return a;
 	}
 	
-	private static Method method = Ref.method(Ref.nms("EntityHuman"), "getOfflineUUID", String.class);
-
 	/**
 	 * @see see If the user doesn't exist, his data file is created automatically.
 	 * @param nameOrUUID Name of player or UUID in String
@@ -1062,7 +1063,7 @@ public class TheAPI {
 		try {
 			s = UUID.fromString(nameOrUUID);
 		} catch (Exception e) {
-			s = (UUID)Ref.invokeNulled(method, nameOrUUID);
+			s = UUID.nameUUIDFromBytes(("OfflinePlayer:"+nameOrUUID).getBytes());
 		}
 		return getUser(s);
 	}
@@ -1087,7 +1088,7 @@ public class TheAPI {
 		if (uuid == null)
 			return null;
 		if (LoaderClass.config.getBoolean("Options.Cache.User.Use")) {
-			User c = cache.containsKey(uuid) ? cache.get(uuid) : null;
+			User c = cache.getOrDefault(uuid, null);
 			if (c == null) {
 				c = new User(uuid);
 				cache.put(uuid, c);
@@ -1110,7 +1111,7 @@ public class TheAPI {
 	}
 
 	public static List<UUID> getUsersByIP(String ip) {
-		List<UUID> uuid = new UnsortedList<>();
+		List<UUID> uuid = new ArrayList<>();
 		for(String a : PunishmentAPI.getPlayersOnIP(ip))
 			uuid.add(getUser(a).getUUID());
 		return uuid;

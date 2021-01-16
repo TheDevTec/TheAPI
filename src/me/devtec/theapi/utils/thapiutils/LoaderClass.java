@@ -5,10 +5,12 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -51,9 +53,6 @@ import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.DataType;
 import me.devtec.theapi.utils.datakeeper.User;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedSet;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.listener.events.ClientReceiveMessaveEvent;
 import me.devtec.theapi.utils.listener.events.ServerReceiveMessaveEvent;
 import me.devtec.theapi.utils.packetlistenerapi.PacketHandler;
@@ -68,11 +67,11 @@ import me.devtec.theapi.worldsapi.WorldsAPI;
 import net.milkbowl.vault.economy.Economy;
 
 public class LoaderClass extends JavaPlugin {
-	public final static Map<String, String> colorMap = new UnsortedMap<>();
+	public final static Map<String, String> colorMap = new HashMap<>();
 	// GUIs
 	public final Map<String, GUI> gui = new HashMap<>();
 	// BossBars
-	public final Set<BossBar> bars = new UnsortedSet<>();
+	public final Set<BossBar> bars = new HashSet<>();
 	// TheAPI
 	public static LoaderClass plugin;
 	public static Config config = new Config("TheAPI/Config.yml"), sockets = new Config("TheAPI/Sockets.yml"), tags,
@@ -85,21 +84,26 @@ public class LoaderClass extends JavaPlugin {
 	public boolean e, tve, tbank;
 	public Economy economy;
 	public Object air = Ref.invoke(Ref.getNulled(Ref.field(Ref.nms("Block"), "AIR")), "getBlockData");
-	public Map<String, Client> servers = new UnsortedMap<>();
+	public Map<String, Client> servers;
 	public Server server;
-	
+
 	private String generate() {
 		String d = "abcdefghijklmnopqrstuvwxyz0123456789";
+		int len = d.length();
 		char[] a = d.toCharArray();
-		String gen = "";
+		Random r = new Random();
+		StringBuilder b = new StringBuilder();
 		for(int i = 0; i < 16; ++i)
-			gen+=new Random().nextBoolean() ? (a[TheAPI.generateRandomInt(d.length())]) : (""+a[TheAPI.generateRandomInt(d.length())]).toUpperCase();
-		return gen;
+			b.append(r.nextBoolean() ? (a[TheAPI.generateRandomInt(len)]) : (""+a[TheAPI.generateRandomInt(len)]).toUpperCase());
+		return b.toString();
 	}
 	
 	@Override
 	public void onLoad() {
 		plugin = this;
+		
+		//CONFIG
+		createConfig();
 		
 		//SOCKETS
 		boolean ops = sockets.exists("Options");
@@ -118,6 +122,7 @@ public class LoaderClass extends JavaPlugin {
 		}
 		sockets.save();
 		if(sockets.getBoolean("Options.Enabled")) {
+			servers = new HashMap<>();
 			server=new Server(sockets.getString("Options.Password"), sockets.getInt("Options.Port"));
 			server.register(new Reader() {
 				public void read(ServerClient client, Data data) {
@@ -131,9 +136,10 @@ public class LoaderClass extends JavaPlugin {
 					}
 				});
 			}
-		}
+		}else sockets.getData().clear();
 		
 		//CONSOLE LOG EVENT
+		if(config.getBoolean("Options.ConsoleLogEvent")) {
 		try {
 			Class.forName("org.apache.logging.log4j.core.filter.AbstractFilter");
 			Logger logger = (Logger)LogManager.getRootLogger();
@@ -144,7 +150,7 @@ public class LoaderClass extends JavaPlugin {
 		getLogger().setFilter(filter);
 		Bukkit.getLogger().setFilter(filter);
 		java.util.logging.Logger.getLogger("Minecraft").setFilter(filter);
-		
+		}
 		//TAGS - 1.16+
 		if (TheAPI.isNewerThan(15)) {
 			tags = new Config("TheAPI/Tags.yml");
@@ -186,9 +192,6 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		
-		//CONFIG
-		createConfig();
-		
 		//BOSSBAR - 1.7.10 - 1.8.8
 		if (TheAPI.isOlder1_9())
 			new Tasker() {
@@ -216,6 +219,7 @@ public class LoaderClass extends JavaPlugin {
 						plugin.reload(StreamUtils.fromStream(e.getResource(config)));
 						c.getData().merge(read, true, true);
 						c.save();
+						c.getData().clear();
 					}
 				}else {
 					Config c = new Config(folder+"/"+plugin.getString("configs"));
@@ -223,12 +227,16 @@ public class LoaderClass extends JavaPlugin {
 					plugin.reload(StreamUtils.fromStream(e.getResource(plugin.getString("configs"))));
 					c.getData().merge(read, true, true);
 					c.save();
+					c.getData().clear();
 				}
 			}
 		}
 		Bukkit.getPluginManager().registerEvents(new Events(), LoaderClass.this);
 		if(config.getBoolean("Options.PlayerMoveEvent"))
 		Bukkit.getPluginManager().registerEvents(new JumpEvent(), LoaderClass.this);
+
+		if(config.getBoolean("Options.ItemBreakEvent"))
+		Bukkit.getPluginManager().registerEvents(new ItemBreakEvent(), LoaderClass.this);
 		
 		TheAPI.createAndRegisterCommand("TheAPI", null, new TheAPICommand());
 		if (TheAPI.isNewerThan(7))
@@ -286,6 +294,7 @@ public class LoaderClass extends JavaPlugin {
 				}
 			}.register();
 		}
+		
 		new Tasker() {
 			public void run() {
 				Tasks.load();
@@ -411,7 +420,7 @@ public class LoaderClass extends JavaPlugin {
 			try {
 				BufferedReader reader = new BufferedReader(
 						new InputStreamReader(checkURL.openConnection().getInputStream()));
-				Set<String> s = new UnsortedSet<>();
+				Set<String> s = new HashSet<>();
 				String read;
 				while ((read = reader.readLine()) != null)
 					s.add(read);
@@ -478,7 +487,7 @@ public class LoaderClass extends JavaPlugin {
 	}
 
 	public List<Plugin> getTheAPIsPlugins() {
-		List<Plugin> a = new UnsortedList<Plugin>();
+		List<Plugin> a = new ArrayList<>();
 		for (Plugin all : PluginManagerAPI.getPlugins())
 			if (PluginManagerAPI.getDepend(all.getName()).contains("TheAPI")
 					|| PluginManagerAPI.getSoftDepend(all.getName()).contains("TheAPI"))
@@ -490,7 +499,9 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.HideErrors", false); // hide only TheAPI errors
 		config.setComments("Options.HideErrors", Arrays.asList("",
 				"# If you enable this option, errors from TheAPI will dissapear", "# defaulty: false"));
-		config.addDefault("Options.PlayerMoveEvent", true); // hide only TheAPI errors
+		config.addDefault("Options.PlayerMoveEvent", true);
+		config.addDefault("Options.ConsoleLogEvent", false);
+		config.addDefault("Options.ItemBreakEvent", false);
 		config.addDefault("Options.Cache.User.Use", true); // Require memory, but loading of User.class is faster (only
 															// from TheAPI.class)
 		config.setComments("Options.Cache", Arrays.asList(""));

@@ -2,9 +2,11 @@ package me.devtec.theapi.utils;
 
 import java.awt.Color;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -21,8 +23,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.json.Reader;
 import me.devtec.theapi.utils.json.Writer;
 import me.devtec.theapi.utils.thapiutils.LoaderClass;
@@ -43,7 +43,7 @@ public class StringUtils {
 
 	@SuppressWarnings("unchecked")
 	public static Map<Object, Object> colorizeMap(Map<Object, Object> json) {
-		Map<Object, Object> colorized = new UnsortedMap<>(json.size());
+		Map<Object, Object> colorized = new HashMap<>();
 		for(Entry<Object, Object> e : json.entrySet()) {
 			if(e.getKey() instanceof Collection) {
 				if(e.getValue() instanceof Collection) {
@@ -130,7 +130,7 @@ public class StringUtils {
 	
 	@SuppressWarnings("unchecked")
 	public static Collection<Object> colorizeList(Collection<Object> json) {
-		List<Object> colorized = new UnsortedList<>(json.size());
+		List<Object> colorized = new ArrayList<>();
 		for(Object e : json) {
 			if(e instanceof Collection) {
 				colorized.add(colorizeList((Collection<Object>) e));
@@ -151,7 +151,7 @@ public class StringUtils {
 	
 	@SuppressWarnings("unchecked")
 	public static Object[] colorizeArray(Object[] json) {
-		List<Object> colorized = new UnsortedList<>(json.length);
+		List<Object> colorized = new ArrayList<>();
 		for(Object e : json) {
 			if(e instanceof Collection) {
 				colorized.add(colorizeList((Collection<Object>) e));
@@ -174,7 +174,7 @@ public class StringUtils {
 	 * @see see Split text correctly with colors
 	 */
 	public static List<String> fixedSplit(String text, int lengthOfSplit) {
-		List<String> splitted = new UnsortedList<>();
+		List<String> splitted = new ArrayList<>();
 		String split = text;
 		String prefix = "";
 		while (split.length() > lengthOfSplit) {
@@ -202,7 +202,7 @@ public class StringUtils {
 	 * @return List<String>
 	 */
 	public static List<String> copyPartialMatches(String prefix, Iterable<String> originals) {
-		List<String> collection = new UnsortedList<>();
+		List<String> collection = new ArrayList<>();
 		for (String string : originals)
 			if (string.length() < prefix.length() ? false : string.regionMatches(true, 0, prefix, 0, prefix.length()))
 				collection.add(string);
@@ -218,7 +218,7 @@ public class StringUtils {
 	 * @return List<String>
 	 */
 	public static List<String> copySortedPartialMatches(String prefix, Iterable<String> originals) {
-		List<String> collection = new UnsortedList<>();
+		List<String> collection = new ArrayList<>();
 		for (String string : originals)
 			if (string.length() < prefix.length() ? false : string.regionMatches(true, 0, prefix, 0, prefix.length()))
 				collection.add(string);
@@ -301,7 +301,7 @@ public class StringUtils {
 				public String colorize(String text) {
 					String ff = text;
 					int length = ff.length();
-					UnsortedMap<Integer, String> l = new UnsortedMap<>();
+					HashMap<Integer, String> l = new HashMap<>();
 					ff = ff.replace("", "<!>");
 					Matcher ma = old.matcher(ff);
 					while (ma.find()) {
@@ -397,7 +397,7 @@ public class StringUtils {
 		if (fromRGB.getBlue() > toRGB.getBlue())
 			bStep = -bStep;
 		Color finalColor = new Color(fromRGB.getRGB());
-		UnsortedMap<Integer, String> l = new UnsortedMap<>();
+		HashMap<Integer, String> l = new HashMap<>();
 		msg = msg.replaceAll("#[A-Fa-f0-9]{6}", "");
 		msg = msg.replace("", "<!>");
 		Matcher ma = reg.matcher(msg);
@@ -472,7 +472,7 @@ public class StringUtils {
 				continue;
 			legacyMsg = legacyMsg.replace(rawCode, LoaderClass.colorMap.get(code));
 		}
-		List<String> hexes = new UnsortedList<>();
+		List<String> hexes = new ArrayList<>();
 		Matcher matcher = Pattern.compile(LoaderClass.gradientTag + "#[A-Fa-f0-9]{6}").matcher(legacyMsg);
 		while (matcher.find()) {
 			hexes.add(matcher.group().replace(LoaderClass.gradientTag, ""));
@@ -508,7 +508,7 @@ public class StringUtils {
 			return null;
 		msg=msg.replace("§", "&");
 		if (msg.toLowerCase().contains("&u")) {
-			List<String> s = new UnsortedList<>();
+			List<String> s = new ArrayList<>();
 			StringBuffer d = new StringBuffer();
 			int found = 0;
 			for (char c : msg.toCharArray()) {

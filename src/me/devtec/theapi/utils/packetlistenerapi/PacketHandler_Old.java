@@ -1,6 +1,8 @@
 package me.devtec.theapi.utils.packetlistenerapi;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -9,8 +11,6 @@ import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.scheduler.Tasker;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.reflections.Ref;
 import net.minecraft.util.com.mojang.authlib.GameProfile;
 import net.minecraft.util.io.netty.channel.Channel;
@@ -23,9 +23,9 @@ import net.minecraft.util.io.netty.channel.ChannelPromise;
 
 public class PacketHandler_Old implements PacketHandler<Channel> {
 	private static Class<?> login = Ref.nms("PacketLoginInStart");
-	private Map<String, Channel> channelLookup = new UnsortedMap<>();
+	private Map<String, Channel> channelLookup = new HashMap<>();
 	private List<?> networkManagers;
-	private List<Channel> serverChannels = new UnsortedList<>();
+	private List<Channel> serverChannels = new ArrayList<>();
 	private ChannelInboundHandlerAdapter serverChannelHandler;
 	private final Object serverConnection = Ref.invoke(Ref.server(),"getServerConnection");
 	private ChannelInitializer<Channel> beginInitProtocol, endInitProtocol;

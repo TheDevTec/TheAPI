@@ -3,6 +3,7 @@ package me.devtec.theapi.utils.thapiutils;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -16,7 +17,6 @@ import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.scheduler.Scheduler;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.datakeeper.Data;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
 import me.devtec.theapi.utils.listener.events.EntityMoveEvent;
 import me.devtec.theapi.utils.listener.events.ServerListPingEvent;
 import me.devtec.theapi.utils.packetlistenerapi.PacketListener;
@@ -47,7 +47,7 @@ public class Tasks {
 							w = Ref.invoke(Ref.server(), "aG");
 						if (w == null)
 							w = Ref.invoke(Ref.invoke(Ref.server(), "getServer"), "getServerPing");
-						List<PlayerProfile> players = new UnsortedList<>();
+						List<PlayerProfile> players = new ArrayList<>();
 						for (Player p : TheAPI.getOnlinePlayers())
 							players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
 						ServerListPingEvent event = new ServerListPingEvent(TheAPI.getOnlinePlayers().size(),
@@ -111,8 +111,7 @@ public class Tasks {
 									}
 								}
 							}
-						} catch (Exception error) {
-						}
+						} catch (Exception error) {}
 					}
 				}
 			}.runRepeating(0, LoaderClass.config.getInt("Options.EntityMoveEvent.Reflesh"));

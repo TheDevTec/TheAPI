@@ -3,6 +3,7 @@ package me.devtec.theapi.utils.json;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,13 +26,10 @@ import com.google.gson.internal.LinkedTreeMap;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.Position;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedSet;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class Writer implements JsonWriter {
-	private List<String> FORBIDDEN = new UnsortedList<>();
+	private List<String> FORBIDDEN = new ArrayList<>();
 
 	public Writer() {
 		FORBIDDEN.add("org.bukkit.craftbukkit." + TheAPI.getServerVersion() + ".persistence.CraftPersistentDataAdapterContext");
@@ -49,14 +47,14 @@ public class Writer implements JsonWriter {
 	}
 
 	private Map<Object, Object> fix(Map<?, ?> o, boolean fancy, boolean addNulls) {
-		Map<Object, Object> map = new UnsortedMap<>();
+		Map<Object, Object> map = new HashMap<>();
 		for (Entry<?, ?> e : o.entrySet())
 			map.put(object2(e.getKey(), fancy, addNulls), object2(e.getValue(), fancy, addNulls));
 		return map;
 	}
 
 	private Collection<Object> fix(Collection<?> o, boolean fancy, boolean addNulls) {
-		Collection<Object> map = new UnsortedList<>();
+		Collection<Object> map = new ArrayList<>();
 		for (Object e : o)
 			map.add(object2(e, fancy, addNulls));
 		return map;
@@ -120,8 +118,8 @@ public class Writer implements JsonWriter {
 			return "null";
 		if (w instanceof Location) {
 			Location stack = (Location) w;
-			Map<String, Object> done = new UnsortedMap<>();
-			Map<String, Object> items = new UnsortedMap<>();
+			Map<String, Object> done = new HashMap<>();
+			Map<String, Object> items = new HashMap<>();
 			items.put("world", stack.getWorld().getName());
 			items.put("x", stack.getX());
 			items.put("y", stack.getY());
@@ -133,8 +131,8 @@ public class Writer implements JsonWriter {
 		}
 		if (w instanceof Position) {
 			Position stack = (Position) w;
-			Map<String, Object> done = new UnsortedMap<>();
-			Map<String, Object> items = new UnsortedMap<>();
+			Map<String, Object> done = new HashMap<>();
+			Map<String, Object> items = new HashMap<>();
 			items.put("world", stack.getWorldName());
 			items.put("x", stack.getX());
 			items.put("y", stack.getY());
@@ -146,8 +144,8 @@ public class Writer implements JsonWriter {
 		}
 		if (w instanceof ItemStack) {
 			ItemStack stack = ((ItemStack) w).clone();
-			Map<String, Object> done = new UnsortedMap<>();
-			Map<String, Object> items = new UnsortedMap<>();
+			Map<String, Object> done = new HashMap<>();
+			Map<String, Object> items = new HashMap<>();
 			items.put("type", stack.getType().name());
 			items.put("amount", stack.getAmount());
 			items.put("data", stack.getData().getData());
@@ -155,7 +153,7 @@ public class Writer implements JsonWriter {
 			if (stack.hasItemMeta()) {
 				ItemMeta meta = stack.getItemMeta();
 				if (meta.hasEnchants()) {
-					Map<String, Integer> enchs = new UnsortedMap<>();
+					Map<String, Integer> enchs = new HashMap<>();
 					for (Entry<Enchantment, Integer> e : stack.getEnchantments().entrySet())
 						enchs.put(e.getKey().getName(), e.getValue());
 					items.put("meta.enchs", enchs);
@@ -164,11 +162,13 @@ public class Writer implements JsonWriter {
 					items.put("meta.name", meta.getDisplayName());
 				if (meta.hasLore())
 					items.put("meta.lore", meta.getLore());
+				try {
 				if (meta.hasLocalizedName())
 					items.put("meta.locName", meta.getLocalizedName());
+				meta.setLocalizedName(null);
+				}catch(Exception | NoSuchMethodError e) {}
 				meta.setDisplayName(null);
 				meta.setLore(null);
-				meta.setLocalizedName(null);
 				stack.setItemMeta(meta);
 				for (Enchantment e : stack.getEnchantments().keySet())
 					stack.removeEnchantment(e);
@@ -192,12 +192,12 @@ public class Writer implements JsonWriter {
 					? (String) Ref.invoke(w, "toLegacyText")
 					: (String) Ref.invoke(Ref.craft("util.CraftChatMessage"), from,
 							Ref.cast(Ref.nms("IChatBaseComponent"), w));
-			Map<String, Object> enumMap = new UnsortedMap<>();
+			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("class " + w.getClass().getName(), obj);
 			return map(enumMap, addNulls, fancy);
 		}
 		if (w instanceof Enum<?>) {
-			Map<String, Object> enumMap = new UnsortedMap<>();
+			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("enum " + w.getClass().getName(), w.toString());
 			return map(enumMap, addNulls, fancy);
 		}
@@ -206,21 +206,20 @@ public class Writer implements JsonWriter {
 		if (w instanceof Object[])
 			return array((Object[]) w, addNulls, fancy);
 		if (w instanceof Collection) {
-			if (w instanceof UnsortedList || w instanceof UnsortedSet || w instanceof UnsortedList
-					|| w.getClass() == Ref.getClass("java.util.Arrays$UnsortedList") || w instanceof HashSet
+			if (w instanceof HashSet
+					|| w.getClass() == Ref.getClass("java.util.Arrays$ArrayList") || w instanceof HashSet
 					|| w instanceof LinkedList || w instanceof LinkedHashSet) {
 				return collection((Collection<?>) w, addNulls, fancy);
 			}
-			Map<String, Object> enumMap = new UnsortedMap<>();
+			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("Collection " + w.getClass().getName(), w);
 			return map(enumMap, addNulls, fancy);
 		}
 		if (w instanceof Map) {
-			if (w instanceof UnsortedMap || w instanceof HashMap || w instanceof LinkedHashMap || w instanceof UnsortedMap
-					|| w instanceof UnsortedMap) {
+			if (w instanceof HashMap || w instanceof LinkedHashMap) {
 				return map((Map<?, ?>) w, addNulls, fancy);
 			}
-			Map<String, Object> enumMap = new UnsortedMap<>();
+			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("Map " + w.getClass().getName(), w);
 			return map(enumMap, addNulls, fancy);
 		}
@@ -232,8 +231,7 @@ public class Writer implements JsonWriter {
 			return null;
 		if (w instanceof Location) {
 			Location stack = (Location) w;
-			Map<String, Object> done = new UnsortedMap<>();
-			Map<String, Object> items = new UnsortedMap<>();
+			Map<String, Object> done = new HashMap<>(), items = new HashMap<>();
 			items.put("world", stack.getWorld().getName());
 			items.put("x", stack.getX());
 			items.put("y", stack.getY());
@@ -245,8 +243,7 @@ public class Writer implements JsonWriter {
 		}
 		if (w instanceof Position) {
 			Position stack = (Position) w;
-			Map<String, Object> done = new UnsortedMap<>();
-			Map<String, Object> items = new UnsortedMap<>();
+			Map<String, Object> done = new HashMap<>(), items = new HashMap<>();
 			items.put("world", stack.getWorldName());
 			items.put("x", stack.getX());
 			items.put("y", stack.getY());
@@ -258,15 +255,14 @@ public class Writer implements JsonWriter {
 		}
 		if (w instanceof ItemStack) {
 			ItemStack stack = ((ItemStack) w).clone();
-			Map<String, Object> done = new UnsortedMap<>();
-			Map<String, Object> items = new UnsortedMap<>();
+			Map<String, Object> done = new HashMap<>(), items = new HashMap<>();
 			items.put("type", stack.getType().name());
 			items.put("amount", stack.getAmount());
 			items.put("data", stack.getData().getData());
 			items.put("durability", stack.getDurability());
 			ItemMeta meta = stack.getItemMeta();
 			if (meta.hasEnchants()) {
-				Map<String, String> enchs = new UnsortedMap<>();
+				Map<String, String> enchs = new HashMap<>();
 				for (Entry<Enchantment, Integer> e : stack.getEnchantments().entrySet())
 					enchs.put(e.getKey().getName(), e.getValue().toString());
 				items.put("meta.enchs", enchs);
@@ -275,11 +271,13 @@ public class Writer implements JsonWriter {
 				items.put("meta.name", meta.getDisplayName());
 			if (meta.hasLore())
 				items.put("meta.lore", meta.getLore());
+			try {
 			if (meta.hasLocalizedName())
 				items.put("meta.locName", meta.getLocalizedName());
+			meta.setLocalizedName(null);
+			}catch(Exception | NoSuchMethodError e) {}
 			meta.setDisplayName(null);
 			meta.setLore(null);
-			meta.setLocalizedName(null);
 			stack.setItemMeta(meta);
 			for (Enchantment e : stack.getEnchantments().keySet())
 				stack.removeEnchantment(e);
@@ -301,7 +299,7 @@ public class Writer implements JsonWriter {
 					? (String) Ref.invoke(w, "toLegacyText")
 					: (String) Ref.invoke(Ref.craft("util.CraftChatMessage"), from,
 							Ref.cast(Ref.nms("IChatBaseComponent"), w));
-			Map<String, Object> enumMap = new UnsortedMap<>();
+			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("class " + w.getClass().getName(), obj);
 			return enumMap;
 		}
@@ -309,7 +307,7 @@ public class Writer implements JsonWriter {
 			return "{\"enum org.bukkit.enchantments.Enchantment\":\"" + ((Enchantment) w).getName() + "\"}";
 		}
 		if (w instanceof Enum<?>) {
-			Map<String, Object> enumMap = new UnsortedMap<>();
+			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("enum " + w.getClass().getName(), w.toString());
 			return enumMap;
 		}
@@ -318,20 +316,20 @@ public class Writer implements JsonWriter {
 		if (w instanceof Object[])
 			return fix(Arrays.asList((Object[]) w), fancy, addNulls);
 		if (w instanceof Collection) {
-			if (w instanceof UnsortedList || w instanceof UnsortedSet || w instanceof UnsortedList
-					|| w.getClass() == Ref.getClass("java.util.Arrays$UnsortedList") || w instanceof HashSet
+			if (w instanceof HashSet
+					|| w.getClass() == Ref.getClass("java.util.Arrays$ArrayList") || w instanceof HashSet
 					|| w instanceof LinkedList || w instanceof LinkedHashSet) {
 				return fix((Collection<?>) w, fancy, addNulls);
 			}
-			Map<String, Object> enumMap = new UnsortedMap<>();
+			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("Collection " + w.getClass().getName(), fix((Collection<?>) w, fancy, addNulls));
 			return enumMap;
 		}
 		if (w instanceof Map) {
-			if (w instanceof UnsortedMap || w instanceof HashMap || w instanceof LinkedHashMap || w instanceof TreeMap
+			if (w instanceof HashMap || w instanceof LinkedHashMap || w instanceof TreeMap
 					|| w instanceof LinkedTreeMap || w instanceof WeakHashMap)
 				return fix((Map<?, ?>) w, fancy, addNulls);
-			Map<String, Object> enumMap = new UnsortedMap<>();
+			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("Map " + w.getClass().getName(), map((Map<?, ?>) w, addNulls));
 			return fix(enumMap, fancy, addNulls);
 		}
@@ -339,8 +337,7 @@ public class Writer implements JsonWriter {
 	}
 
 	private Object convert(Object object, boolean fancy, boolean addNulls) {
-		Map<String, Object> item = new UnsortedMap<>();
-		Map<String, Object> map = new UnsortedMap<>();
+		Map<String, Object> item = new HashMap<>(), map = new HashMap<>();
 		for (Field f : Ref.getAllFields(object.getClass())) {
 			if (Modifier.toString(f.getModifiers()).toLowerCase().contains("static"))
 				continue;

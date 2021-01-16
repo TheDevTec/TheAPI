@@ -1,12 +1,12 @@
 package me.devtec.theapi.blocksapi.schematic;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.block.Biome;
 
 import me.devtec.theapi.blocksapi.schematic.construct.SerializedBlock;
 import me.devtec.theapi.utils.TheMaterial;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.json.Reader;
 import me.devtec.theapi.utils.json.Writer;
 
@@ -27,7 +27,7 @@ public class AsyncSerializedBlock implements SerializedBlock {
 
 	@Override
 	public String getAsString() {
-		Map<String, Object> writer = new UnsortedMap<>();
+		Map<String, Object> writer = new HashMap<>();
 		writer.put("a", material);
 		writer.put("b", biome);
 		writer.put("c", data);

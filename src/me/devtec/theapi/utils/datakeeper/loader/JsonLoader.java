@@ -1,20 +1,19 @@
 package me.devtec.theapi.utils.datakeeper.loader;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import me.devtec.theapi.utils.datakeeper.Data.DataHolder;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.json.Reader;
 
 public class JsonLoader extends DataLoader {
 	private boolean l;
-	private Map<String, DataHolder> data = new UnsortedMap<>();
+	private Map<String, Object[]> data = new HashMap<>();
 
 	@Override
-	public Map<String, DataHolder> get() {
+	public Map<String, Object[]> get() {
 		return data;
 	}
 
@@ -22,7 +21,7 @@ public class JsonLoader extends DataLoader {
 		return data.keySet();
 	}
 
-	public void set(String key, DataHolder holder) {
+	public void set(String key, Object[] holder) {
 		if (key == null)
 			return;
 		if (holder == null) {
@@ -54,13 +53,13 @@ public class JsonLoader extends DataLoader {
 			Object read = Reader.read(input);
 			if (read instanceof Map) {
 				for (Entry<Object, Object> keyed : ((Map<Object, Object>) read).entrySet()) {
-					data.put((String) keyed.getKey(), new DataHolder(keyed.getValue()));
+					data.put((String) keyed.getKey(), new Object[] {keyed.getValue(), null});
 				}
 				l = true;
 			} else {
 				for (Object o : (Collection<Object>) read) {
 					for (Entry<Object, Object> keyed : ((Map<Object, Object>) o).entrySet()) {
-						data.put((String) keyed.getKey(), new DataHolder(keyed.getValue()));
+						data.put((String) keyed.getKey(), new Object[] {keyed.getValue(), null});
 					}
 				}
 				l = true;

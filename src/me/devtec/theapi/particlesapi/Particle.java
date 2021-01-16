@@ -1,6 +1,7 @@
 package me.devtec.theapi.particlesapi;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.particlesapi.ParticleData.BlockOptions;
@@ -9,12 +10,11 @@ import me.devtec.theapi.particlesapi.ParticleData.NoteOptions;
 import me.devtec.theapi.particlesapi.ParticleData.RedstoneOptions;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.TheMaterial;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class Particle {
 	private static Class<?> a = Ref.nms("Particles");
-	private static UnsortedMap<String, Object> identifier = new UnsortedMap<>();
+	private static HashMap<String, Object> identifier = new HashMap<>();
 	static {
 		if (a == null)
 			a = Ref.nms("EnumParticle"); // 1.8 - 1.12.2

@@ -1,6 +1,8 @@
 package me.devtec.theapi.utils.packetlistenerapi;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,15 +20,13 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPromise;
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.scheduler.Tasker;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class PacketHandler_New implements PacketHandler<Channel> {
 	private static Class<?> login = Ref.nms("PacketLoginInStart");
-	private Map<String, Channel> channelLookup = new UnsortedMap<>();
+	private Map<String, Channel> channelLookup = new HashMap<>();
 	private List<?> networkManagers;
-	private List<Channel> serverChannels = new UnsortedList<>();
+	private List<Channel> serverChannels = new ArrayList<>();
 	private ChannelInboundHandlerAdapter serverChannelHandler;
 	private final Object serverConnection = Ref.invoke(Ref.server(),"getServerConnection");
 	private ChannelInitializer<Channel> beginInitProtocol, endInitProtocol;
@@ -48,7 +48,6 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 
 	private void createServerChannelHandler() {
 		endInitProtocol = new ChannelInitializer<Channel>() {
-			@Override
 			protected void initChannel(Channel channel) throws Exception {
 				try {
 					synchronized (networkManagers) {
@@ -56,7 +55,6 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 							channel.eventLoop().submit(() -> {
 								PacketInterceptor interceptor = new PacketInterceptor(null); //add new hook
 								channel.eventLoop().execute(new Runnable() {
-									@Override
 									public void run() {
 										if(channel.pipeline().names().contains("InjectorTheAPI"))
 											channel.pipeline().remove("InjectorTheAPI");
@@ -77,7 +75,6 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 
 		};
 		beginInitProtocol = new ChannelInitializer<Channel>() {
-			@Override
 			protected void initChannel(Channel channel) throws Exception {
 				channel.pipeline().addLast(endInitProtocol);
 			}
@@ -85,7 +82,6 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 		};
 
 		serverChannelHandler = new ChannelInboundHandlerAdapter() {
-			@Override
 			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 				Channel channel = (Channel) msg;
 				channel.pipeline().addFirst(beginInitProtocol);
@@ -110,7 +106,6 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 		if (serverChannelHandler == null)return;
 		for (Channel serverChannel : serverChannels) 
 			serverChannel.eventLoop().execute(new Runnable() {
-				@Override
 				public void run() {
 					try {
 					serverChannel.pipeline().remove(serverChannelHandler);
@@ -266,6 +261,6 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	
 	@Override
 	public void send(Channel channel, Object packet) {
-		Ref.invoke(channel.pipeline().get("packet_handler"),mm,packet);
+		Ref.invoke(channel.pipeline().get("packet_handler"), mm, packet);
 	}
 }

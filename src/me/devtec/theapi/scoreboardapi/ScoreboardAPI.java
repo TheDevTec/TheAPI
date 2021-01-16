@@ -1,6 +1,7 @@
 package me.devtec.theapi.scoreboardapi;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -10,7 +11,6 @@ import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.TheCoder;
 import me.devtec.theapi.utils.datakeeper.Data;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.nms.NMSAPI.Action;
 import me.devtec.theapi.utils.nms.NMSAPI.DisplayType;
@@ -133,7 +133,7 @@ public class ScoreboardAPI {
 	}
 
 	public List<String> getLines() {
-		List<String> lines = new UnsortedList<>();
+		List<String> lines = new ArrayList<>();
 		for(String line : data.getKeys(player)) {
 			lines.add(getLine(Integer.parseInt(line)));
 		}

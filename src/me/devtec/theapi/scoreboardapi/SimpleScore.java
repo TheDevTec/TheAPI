@@ -1,16 +1,15 @@
 package me.devtec.theapi.scoreboardapi;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 import org.bukkit.entity.Player;
 
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedSet;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
-
 public class SimpleScore {
-	private static final UnsortedMap<String, ScoreboardAPI> scores = new UnsortedMap<>();
+	private static final HashMap<String, ScoreboardAPI> scores = new HashMap<>();
 	private String name = "TheAPI";
-	private final UnsortedSet<String> lines = new UnsortedSet<>();
+	private final ArrayList<String> lines = new ArrayList<>();
 	
 	public SimpleScore addLine(String line) {
 		lines.add(line);
@@ -34,9 +33,8 @@ public class SimpleScore {
 			if(sb.getLines().size()>lines.size())
 			sb.removeUpperLines(lines.size()-1);
 			int i = 0;
-			for (String line : lines) {
+			for (String line : lines)
 				sb.setLine(i++, line);
-			}
 		}
 		lines.clear();
 	}

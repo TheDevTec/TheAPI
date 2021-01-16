@@ -1,5 +1,6 @@
 package me.devtec.theapi.apis;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Location;
@@ -7,7 +8,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import me.devtec.theapi.utils.Position;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
 import me.devtec.theapi.utils.thapiutils.Validator;
 
 public class SoundAPI {
@@ -62,7 +62,7 @@ public class SoundAPI {
 	}
 
 	public static List<Sound> valuesInList() {
-		List<Sound> a = new UnsortedList<Sound>();
+		List<Sound> a = new ArrayList<Sound>();
 		for (Sound s : values())
 			a.add(s);
 		return a;

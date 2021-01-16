@@ -1,7 +1,8 @@
 package me.devtec.theapi.utils.nms.datawatcher;
 
+import java.util.HashMap;
+
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.reflections.Ref;
 
 /**
@@ -151,7 +152,7 @@ public class DataWatcherRegistry {
 		return new DataWatcherObject(Ref.invoke(o, Ref.method(o.getClass(), "a", int.class), data));
 	}
 
-	private static final UnsortedMap<String, Integer> ids = new UnsortedMap<>();
+	private static final HashMap<String, Integer> ids = new HashMap<>();
 	static {
 		if (TheAPI.isNewVersion()) {
 			ids.put("a", 0);

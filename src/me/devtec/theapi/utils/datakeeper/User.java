@@ -1,7 +1,6 @@
 package me.devtec.theapi.utils.datakeeper;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.utils.TheCoder;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.thapiutils.LoaderClass;
 import me.devtec.theapi.utils.thapiutils.Validator;
@@ -291,31 +288,11 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public ItemStack getItemStack(String key) {
-		try {
-			ItemStack stack = TheCoder.fromString(getString(key));
-			if (stack == null)
-				return (ItemStack) get(key);
-			return stack;
-		} catch (Exception e) {
-			return (ItemStack) get(key);
-		}
+		return a.getAs(key, ItemStack.class);
 	}
 
 	public List<ItemStack> getItemStacks(String key) {
-		List<ItemStack> list = new UnsortedList<ItemStack>();
-		try {
-			Collection<Object> inSet = a.getList(key);
-			for (Object o : inSet)
-				for (Object a : (o instanceof ItemStack ? Arrays.asList((ItemStack) o)
-						: TheCoder.fromStringToList(o.toString())))
-					list.add((ItemStack) a);
-			if (list.contains(null))
-				return a.getListAs(key, ItemStack.class);
-			return list;
-		} catch (Exception e) {
-			list = a.getListAs(key, ItemStack.class);
-		}
-		return list;
+		return a.getListAs(key, ItemStack.class);
 	}
 
 	public void set(String key, Object o) {

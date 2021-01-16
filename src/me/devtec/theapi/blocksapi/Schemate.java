@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.block.Block;
@@ -26,7 +27,6 @@ import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.TheMaterial;
 import me.devtec.theapi.utils.datakeeper.Data;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class Schemate {
@@ -107,7 +107,7 @@ public class Schemate {
 				data.set("data.standing", fromCopy != null);
 				data.set("data.corners", fromCopy != null ? a.subtract(fromCopy).toString() + "/!/" + b.subtract(fromCopy).toString() : a.toString() + "/!/" + b.toString());
 				data.set("data.blocks", BlocksAPI.count(a, b));
-				Map<String, Compressor> perChunk = new UnsortedMap<>();
+				Map<String, Compressor> perChunk = new HashMap<>();
 				for(Position pos : BlocksAPI.get(a, b)) {
 					if (fromCopy != null)
 						pos.add(-fromCopy.getBlockX(), -fromCopy.getBlockY(), -fromCopy.getBlockZ());

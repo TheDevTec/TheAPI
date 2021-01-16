@@ -1,15 +1,15 @@
 package me.devtec.theapi.utils.datakeeper.maps;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import me.devtec.theapi.utils.datakeeper.abstracts.Data;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
 
 public class MultiMap<K, T, V> implements Data {
-	private Map<K, Map<T, V>> data = new UnsortedMap<>();
+	private Map<K, Map<T, V>> data = new HashMap<>();
 
 	public MultiMap() {
 	}
@@ -59,7 +59,7 @@ public class MultiMap<K, T, V> implements Data {
 	public V put(K key, T thread, V value) {
 		Map<T, V> map = data.getOrDefault(key, null);
 		if (map == null) {
-			map = new UnsortedMap<>();
+			map = new HashMap<>();
 			data.put(key, map);
 		}
 		map.put(thread, value);
@@ -89,7 +89,7 @@ public class MultiMap<K, T, V> implements Data {
 	}
 
 	public Collection<K> keySet() {
-		return new UnsortedList<>(data.keySet());
+		return data.keySet();
 	}
 
 	public Collection<T> threadSet(K key) {

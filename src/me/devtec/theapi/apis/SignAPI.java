@@ -1,13 +1,13 @@
 package me.devtec.theapi.apis;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.bukkit.block.Sign;
 
 import me.devtec.theapi.utils.Position;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.thapiutils.LoaderClass;
 
 public class SignAPI {
@@ -23,7 +23,7 @@ public class SignAPI {
 	}
 
 	public static List<Position> getRegistredSigns() {
-		List<Position> l = new UnsortedList<Position>();
+		List<Position> l = new ArrayList<>();
 		if (LoaderClass.data.exists("Sign"))
 			for (String s : LoaderClass.data.getKeys("Sign")) {
 				Position d = Position.fromString(s);
@@ -68,7 +68,7 @@ public class SignAPI {
 	}
 
 	public static Map<SignAction, List<String>> getSignActions(Sign state) {
-		UnsortedMap<SignAction, List<String>> a = new UnsortedMap<SignAction, List<String>>();
+		HashMap<SignAction, List<String>> a = new HashMap<SignAction, List<String>>();
 		Position l = new Position(state.getLocation());
 		String ff = l.toString();
 		if (getRegistredSigns().contains(l))

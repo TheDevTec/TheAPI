@@ -1,6 +1,7 @@
 package me.devtec.theapi.utils;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -8,7 +9,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.json.Maker;
 import me.devtec.theapi.utils.json.Maker.MakerObject;
 import me.devtec.theapi.utils.json.Writer;
@@ -74,13 +74,13 @@ public class HoverMessage {
 	public HoverMessage addText(String text) {
 		if (hover != null && hoverAction != null || click != null && clickAction != null) {
 			if (hover != null && hoverAction != null) {
-				UnsortedMap<String, Object> o = new UnsortedMap<>();
+				HashMap<String, Object> o = new HashMap<>();
 				o.put("action", hoverAction.name());
 				o.put("value", hover);
 				(isSuper ? extra : maker).add("hoverEvent", o);
 			}
 			if (click != null && clickAction != null) {
-				UnsortedMap<String, Object> o = new UnsortedMap<>();
+				HashMap<String, Object> o = new HashMap<>();
 				o.put("action", clickAction.name());
 				o.put("value", click);
 				(isSuper ? extra : maker).add("clickEvent", o);
@@ -129,18 +129,18 @@ public class HoverMessage {
 	}
 
 	public String getJson() {
-		UnsortedMap<Object, Object> copyOfMaker = new UnsortedMap<>(maker);
-		UnsortedMap<Object, Object> copyOfExtra = extra != null ? new UnsortedMap<>(extra) : null;
+		HashMap<Object, Object> copyOfMaker = new HashMap<>(maker);
+		HashMap<Object, Object> copyOfExtra = extra != null ? new HashMap<>(extra) : null;
 		Maker copyExtras = new Maker(extras);
 		if (hover != null && hoverAction != null || click != null && clickAction != null) {
 			if (hover != null && hoverAction != null) {
-				UnsortedMap<String, Object> o = new UnsortedMap<>();
+				HashMap<String, Object> o = new HashMap<>();
 				o.put("action", hoverAction.name().toLowerCase());
 				o.put("value", hover);
 				(isSuper ? copyOfExtra : copyOfMaker).put("hoverEvent", o);
 			}
 			if (click != null && clickAction != null) {
-				UnsortedMap<String, Object> o = new UnsortedMap<>();
+				HashMap<String, Object> o = new HashMap<>();
 				o.put("action", clickAction.name().toLowerCase());
 				o.put("value", click);
 				(isSuper ? copyOfExtra : copyOfMaker).put("clickEvent", o);

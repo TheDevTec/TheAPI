@@ -1,11 +1,11 @@
 package me.devtec.theapi.utils.json;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedSet;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
-
-public class Maker extends UnsortedSet<Object> {
+public class Maker extends ArrayList<Object> {
+	private static final long serialVersionUID = 1L;
 
 	public Maker() {
 	}
@@ -39,7 +39,9 @@ public class Maker extends UnsortedSet<Object> {
 		return Writer.write(this, fancy);
 	}
 
-	public static class MakerObject extends UnsortedMap<Object, Object> {
+	public static class MakerObject extends HashMap<Object, Object> {
+
+		private static final long serialVersionUID = 1L;
 
 		public MakerObject add(Object key, Object item) {
 			super.put(key, item);

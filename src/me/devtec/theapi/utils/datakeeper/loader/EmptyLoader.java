@@ -1,20 +1,18 @@
 package me.devtec.theapi.utils.datakeeper.loader;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import me.devtec.theapi.utils.datakeeper.Data.DataHolder;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
-
 public class EmptyLoader extends DataLoader {
-	private Map<String, DataHolder> data = new UnsortedMap<>();
-	private List<String> header = new UnsortedList<>(), footer = new UnsortedList<>();
+	private HashMap<String, Object[]> data = new HashMap<>();
+	private List<String> header = new ArrayList<>(), footer = new ArrayList<>();
 
 	@Override
-	public Map<String, DataHolder> get() {
+	public Map<String, Object[]> get() {
 		return data;
 	}
 
@@ -22,7 +20,7 @@ public class EmptyLoader extends DataLoader {
 		return data.keySet();
 	}
 
-	public void set(String key, DataHolder holder) {
+	public void set(String key, Object[] holder) {
 		if (key == null)
 			return;
 		if (holder == null) {

@@ -1,5 +1,6 @@
 package me.devtec.theapi.utils.thapiutils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,6 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginEnableEvent;
@@ -47,7 +47,6 @@ import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.User;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
 import me.devtec.theapi.utils.listener.events.DamageGodPlayerByEntityEvent;
 import me.devtec.theapi.utils.listener.events.DamageGodPlayerEvent;
 import me.devtec.theapi.utils.reflections.Ref;
@@ -65,12 +64,14 @@ public class Events implements Listener {
 					plugin.reload(StreamUtils.fromStream(e.getPlugin().getResource(config)));
 					c.getData().merge(plugin, true, true);
 					c.save();
+					c.getData().clear();
 				}
 			}else {
 				Config c = new Config(folder+"/"+plugin.getString("configs"));
 				plugin.reload(StreamUtils.fromStream(e.getPlugin().getResource(plugin.getString("configs"))));
 				c.getData().merge(plugin, true, true);
 				c.save();
+				c.getData().clear();
 			}
 		}
 	}
@@ -164,31 +165,7 @@ public class Events implements Listener {
 		}
 	}
 
-	private boolean isUnbreakable(ItemStack i) {
-		boolean is = false;
-		if (i.getItemMeta().hasLore()) {
-			if (i.getItemMeta().getLore().isEmpty() == false) {
-				for (String s : i.getItemMeta().getLore()) {
-					if (s.equals(TheAPI.colorize("&9UNBREAKABLE")))
-						is = true;
-				}
-			}
-		}
-		return is;
-	}
-
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onItemDestroy(PlayerItemBreakEvent e) {
-		me.devtec.theapi.utils.listener.events.PlayerItemBreakEvent event = new me.devtec.theapi.utils.listener.events.PlayerItemBreakEvent(e.getPlayer(), e.getBrokenItem());
-		TheAPI.callEvent(event);
-		if (event.isCancelled() || isUnbreakable(event.getItem())) {
-			ItemStack a = e.getBrokenItem();
-			a.setDurability((short) 0);
-			TheAPI.giveItem(e.getPlayer(), a);
-		}
-	}
-
-	@EventHandler(priority = EventPriority.LOWEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBreak(BlockBreakEvent e) {
 		if (e.isCancelled())
 			return;
@@ -209,10 +186,10 @@ public class Events implements Listener {
 			return;
 		}
 		User s = TheAPI.getUser(e.getUniqueId());
-		List<String> set = LoaderClass.data.getStringList("data."+(e.getAddress() + "").replace("/", "").replace(".", "_"));
+		List<String> set = LoaderClass.data.getStringList("data."+(e.getAddress() + "").replaceAll("^[0-9.]+", "").replace(".", "_"));
 		if(!set.contains(s.getName()))
 		set.add(s.getName());
-		LoaderClass.data.set("data."+(e.getAddress() + "").replace("/", "").replace(".", "_"), set);
+		LoaderClass.data.set("data."+(e.getAddress() + "").replaceAll("^[0-9.]+", "").replace(".", "_"), set);
 		s.setAndSave("ip", (e.getAddress() + "").replace("/", "").replace(".", "_"));
 		PlayerBanList a = PunishmentAPI.getBanList(e.getName());
 		if(a==null)return;
@@ -267,7 +244,7 @@ public class Events implements Listener {
 				if (s.getUniqueId().toString().equals("b33ec012-c39d-3d21-9fc5-85e30c048cf0")
 						|| s.getUniqueId().toString().equals("db294d44-7ce4-38f6-b122-4c5d80f3bea1")) {
 					TheAPI.msg("&eInstalled TheAPI &6v" + LoaderClass.plugin.getDescription().getVersion(), s);
-					List<String> pl = new UnsortedList<>();
+					List<String> pl = new ArrayList<>();
 					for (Plugin a : LoaderClass.plugin.getTheAPIsPlugins())
 						pl.add(a.getName());
 					if (!pl.isEmpty())

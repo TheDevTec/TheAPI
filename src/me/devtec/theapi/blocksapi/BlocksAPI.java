@@ -3,7 +3,9 @@ package me.devtec.theapi.blocksapi;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Chunk;
@@ -21,8 +23,6 @@ import me.devtec.theapi.utils.PercentageList;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.TheMaterial;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.thapiutils.Validator;
 
@@ -30,23 +30,20 @@ public class BlocksAPI {
 	private static interface Blocking {
 		public void set(Position pos);
 	}
-
-	public static int amount = 500; // 1000 blocks per 10 ticks, Can be changed: BlocksAPI.amount = <new value in
-									// int>
-
+	
 	private static void set(Shape form, Position where, int radius, Blocking task) {
 		World w = where.getWorld();
 		int Xx = where.getBlockX();
 		int Yy = where.getBlockY();
 		int Zz = where.getBlockZ();
 		switch (form) {
-		case Square:
+		case SQAURE:
 			for (int x = Xx - radius; x <= Xx + radius; x++)
 				for (int y = Yy - radius; y <= Yy + radius; y++)
 					for (int z = Zz - radius; z <= Zz + radius; z++)
 						task.set(new Position(w, x, y, z));
 			break;
-		case Sphere:
+		case SPHERE:
 			for (int Y = -radius; Y < radius; Y++)
 				for (int X = -radius; X < radius; X++)
 					for (int Z = -radius; Z < radius; Z++)
@@ -74,7 +71,7 @@ public class BlocksAPI {
 	}
 
 	public static enum Shape {
-		Sphere, Square
+		SPHERE, SQAURE
 	}
 
 	public static Schemate getSchemate(String name) {
@@ -96,10 +93,10 @@ public class BlocksAPI {
 	public static List<Entity> getNearbyEntities(Position l, int radius) {
 		if (radius > 256) {
 			Validator.send("The radius cannot be greater than 256");
-			return new UnsortedList<>();
+			return new ArrayList<>();
 		}
 		int chunkRadius = radius < 16 ? 1 : (radius - (radius % 16)) / 16;
-		List<Entity> radiusEntities = new UnsortedList<>();
+		List<Entity> radiusEntities = new ArrayList<>();
 		for (int chX = 0 - chunkRadius; chX <= chunkRadius; chX++)
 			for (int chZ = 0 - chunkRadius; chZ <= chunkRadius; chZ++) {
 				Chunk c = new Location(l.getWorld(), l.getX() + (chX * 16), l.getY(), l.getZ() + (chZ * 16)).getChunk();
@@ -156,7 +153,7 @@ public class BlocksAPI {
 	}
 
 	private static List<Position> gt(Position from, Position to, List<TheMaterial> ignore) {
-		List<Position> blocks = new UnsortedList<>();
+		List<Position> blocks = new ArrayList<>();
 		BlockIterator getter = get(from, to);
 		while (getter.has()) {
 			Position s = getter.get();
@@ -167,7 +164,7 @@ public class BlocksAPI {
 	}
 
 	public static List<BlockSave> getBlockSaves(List<Position> a) {
-		List<BlockSave> b = new UnsortedList<>();
+		List<BlockSave> b = new ArrayList<>();
 		for (Position s : a)
 			b.add(getBlockSave(s));
 		return b;
@@ -224,13 +221,13 @@ public class BlocksAPI {
 	}
 
 	private static List<Position> g(Shape form, Position where, int radius, List<TheMaterial> ignore) {
-		List<Position> blocks = new UnsortedList<>();
+		List<Position> blocks = new ArrayList<>();
 		World w = where.getWorld();
 		int Xx = where.getBlockX();
 		int Yy = where.getBlockY();
 		int Zz = where.getBlockZ();
 		switch (form) {
-		case Square:
+		case SQAURE:
 			for (int x = Xx - radius; x <= Xx + radius; x++)
 				for (int y = Yy - radius; y <= Yy + radius; y++)
 					for (int z = Zz - radius; z <= Zz + radius; z++) {
@@ -239,7 +236,7 @@ public class BlocksAPI {
 							blocks.add(s);
 					}
 			break;
-		case Sphere:
+		case SPHERE:
 			for (int Y = -radius; Y < radius; Y++)
 				for (int X = -radius; X < radius; X++)
 					for (int Z = -radius; Z < radius; Z++)
@@ -614,7 +611,7 @@ public class BlocksAPI {
 		}
 		new Tasker() {
 			public void run() {
-				UnsortedMap<Long, Object> chunks = new UnsortedMap<>();
+				HashMap<Long, Object> chunks = new HashMap<>();
 				for(Position pos : get(a, b)) {
 					if (!ignore.contains(pos.getType())) {
 						Object c = pos.getNMSChunk();
@@ -651,6 +648,7 @@ public class BlocksAPI {
 							Ref.sendPacket(p, packet);
 					}
 				}
+				chunks.clear();
 				if (onFinish != null)
 					onFinish.run();
 			}
@@ -674,7 +672,7 @@ public class BlocksAPI {
 		}
 		new Tasker() {
 			public void run() {
-				UnsortedMap<Long, Object> chunks = new UnsortedMap<>();
+				HashMap<Long, Object> chunks = new HashMap<>();
 				for(Position pos : get(a, b)) {
 					if (!ignore.contains(pos.getType())) {
 						Object c = pos.getNMSChunk();
@@ -711,6 +709,7 @@ public class BlocksAPI {
 							Ref.sendPacket(p, packet);
 					}
 				}
+				chunks.clear();
 				if (onFinish != null)
 					onFinish.run();
 			}
@@ -746,7 +745,7 @@ public class BlocksAPI {
 		}
 		new Tasker() {
 			public void run() {
-				UnsortedMap<Long, Object> chunks = new UnsortedMap<>();
+				HashMap<Long, Object> chunks = new HashMap<>();
 				for(Position pos : get(a, b)) {
 					if (block.contains(pos.getType())) {
 						Object c = pos.getNMSChunk();
@@ -783,6 +782,7 @@ public class BlocksAPI {
 							Ref.sendPacket(p, packet);
 					}
 				}
+				chunks.clear();
 				if (onFinish != null)
 					onFinish.run();
 			}
@@ -803,7 +803,7 @@ public class BlocksAPI {
 		}
 		new Tasker() {
 			public void run() {
-				UnsortedMap<Long, Object> chunks = new UnsortedMap<>();
+				HashMap<Long, Object> chunks = new HashMap<>();
 				for(Position pos : get(a, b)) {
 					if (block.contains(pos.getType())) {
 						Object c = pos.getNMSChunk();
@@ -840,6 +840,7 @@ public class BlocksAPI {
 							Ref.sendPacket(p, packet);
 					}
 				}
+				chunks.clear();
 				if (onFinish != null)
 					onFinish.run();
 			}
@@ -870,7 +871,7 @@ public class BlocksAPI {
 		}
 		new Tasker() {
 			public void run() {
-				UnsortedMap<Long, Object> chunks = new UnsortedMap<>();
+				HashMap<Long, Object> chunks = new HashMap<>();
 				for(Position pos : get(a, b)) {
 					if (block.contains(pos.getType())) {
 						Object c = pos.getNMSChunk();
@@ -907,6 +908,7 @@ public class BlocksAPI {
 							Ref.sendPacket(p, packet);
 					}
 				}
+				chunks.clear();
 				if (onFinish != null)
 					onFinish.run();
 			}
@@ -922,7 +924,7 @@ public class BlocksAPI {
 		}
 		new Tasker() {
 			public void run() {
-				UnsortedMap<Long, Object> chunks = new UnsortedMap<>();
+				HashMap<Long, Object> chunks = new HashMap<>();
 				for(Position pos : get(a, b)) {
 					if (block.contains(pos.getType())) {
 						Object c = pos.getNMSChunk();
@@ -957,6 +959,7 @@ public class BlocksAPI {
 							Ref.sendPacket(p, packet);
 					}
 				}
+				chunks.clear();
 				if (onFinish != null)
 					onFinish.run();
 			}

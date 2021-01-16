@@ -3,6 +3,7 @@ package me.devtec.theapi.utils.reflections;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -11,8 +12,6 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
 
 public class Ref {
 	private static Constructor<?> blockpos = constructor(nms("BlockPosition"), double.class, double.class,
@@ -214,7 +213,7 @@ public class Ref {
 	}
 
 	public static List<Field> getAllFields(Class<?> main) {
-		List<Field> f = new UnsortedList<>();
+		List<Field> f = new ArrayList<>();
 		Class<?> superclass = main;
 		while (superclass != null) {
 			for (Field fw : getDeclaredFields(superclass))

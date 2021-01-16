@@ -1,13 +1,13 @@
 package me.devtec.theapi.utils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import me.devtec.theapi.scheduler.Tasker;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
 
 public abstract class SlowLoop<T> {
-	private List<T> to = new UnsortedList<T>();
+	private List<T> to = new ArrayList<T>();
 	private boolean s = false;
 	private long old;
 

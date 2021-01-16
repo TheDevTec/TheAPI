@@ -3,6 +3,7 @@ package me.devtec.theapi.configapi;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,12 +11,11 @@ import java.util.Set;
 
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.DataType;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 
 public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public static String folderName = "plugins/";
 	
-	private final Map<String, Object> defaults = new UnsortedMap<>();
+	private final Map<String, Object> defaults = new HashMap<>();
 	private final Data f;
 	private DataType t;
 

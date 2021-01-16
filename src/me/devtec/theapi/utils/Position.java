@@ -2,6 +2,7 @@ package me.devtec.theapi.utils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -14,7 +15,6 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.thapiutils.LoaderClass;
@@ -233,12 +233,9 @@ public class Position implements Cloneable {
 					getBlockZ() >> 4);
 		}
 	}
-	private Object o;
-
+	
 	public Object getBlockPosition() {
-		if (o == null)
-			o = (wf <= 7 ? Ref.newInstance(old, (int) x, (int) y, (int) z) : Ref.blockPos((int) x, (int) y, (int) z));
-		return o;
+		return (wf <= 7 ? Ref.newInstance(old, (int) x, (int) y, (int) z) : Ref.blockPos((int) x, (int) y, (int) z));
 	}
 
 	public ChunkSnapshot getChunkSnapshot() {
@@ -398,7 +395,7 @@ public class Position implements Cloneable {
 					: pos.getBlockY()) >> 4] = sc;
 		}
 		try {
-			UnsortedMap<?, ?> aw = ((UnsortedMap<?, ?>) Ref.get(c, "tileEntities"));
+			HashMap<?, ?> aw = ((HashMap<?, ?>) Ref.get(c, "tileEntities"));
 			if (aw.containsKey(pos.getBlockPosition())) {
 				Ref.invoke(w, "setTypeAndData", pos.getBlockPosition(), LoaderClass.plugin.air, 3);
 				aw.remove(pos.getBlockPosition());

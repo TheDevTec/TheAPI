@@ -1,5 +1,7 @@
 package me.devtec.theapi.punishmentapi;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -7,7 +9,6 @@ import org.bukkit.Location;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.StringUtils;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
 import me.devtec.theapi.utils.thapiutils.LoaderClass;
 
 public class PunishmentAPI {
@@ -25,11 +26,12 @@ public class PunishmentAPI {
 			return null;
 		if (isIP(player))
 			return player.replace("_", ".").replace("/", "");
-		return TheAPI.getUser(player).exist("ip") ? TheAPI.getUser(player).getString("ip").replace("_", ".") : null;
+		if(TheAPI.getUser(player)==null)return null;
+		return TheAPI.getUser(player).exists("ip") && TheAPI.getUser(player).getString("ip")!=null ? TheAPI.getUser(player).getString("ip").replace("_", ".") : null;
 	}
 
 	public static List<String> getPlayersOnIP(String ip) {
-		if(ip==null)return new UnsortedList<>();
+		if(ip==null)return new ArrayList<>();
 		if(ip.contains(":")) // me.domain.net:<ip>
 			ip=ip.split(":")[1];
 		if(ip.startsWith("/"))
@@ -243,7 +245,7 @@ public class PunishmentAPI {
 	}
 
 	public static List<String> getjails() {
-		UnsortedList<String> list = new UnsortedList<>();
+		ArrayList<String> list = new ArrayList<>();
 		for (String s : LoaderClass.data.getKeys("jails"))
 			list.add(s);
 		return list;
@@ -378,8 +380,15 @@ public class PunishmentAPI {
 		return banlist;
 	}
 
+	private static final HashMap<String, PlayerBanList> players = new HashMap<>(); 
+	
 	public static PlayerBanList getBanList(String player) {
 		if(player==null)return null;
-		return new PlayerBanList(player.toLowerCase());
+		PlayerBanList banlist = players.getOrDefault(player.toLowerCase(), null);
+		if(banlist==null) {
+			banlist=new PlayerBanList(player);
+			players.put(player.toLowerCase(), banlist);
+		}
+		return banlist;
 	}
 }

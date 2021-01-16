@@ -1,6 +1,7 @@
 package me.devtec.theapi.utils.thapiutils.command;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.bukkit.Material;
@@ -18,7 +19,6 @@ import me.devtec.theapi.guiapi.GUI;
 import me.devtec.theapi.guiapi.ItemGUI;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.sortedmap.RankingAPI;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 
 public class TAC_Test {
 
@@ -127,7 +127,7 @@ public class TAC_Test {
 			}
 		}
 		if (args[1].equalsIgnoreCase("SortedMap")) {
-			UnsortedMap<String, Double> Comparable = new UnsortedMap<>();
+			HashMap<String, Double> Comparable = new HashMap<>();
 			TheAPI.msg("&eInput:", s);
 			TheAPI.msg("&6- A, 50.0", s);
 			TheAPI.msg("&6- D, 5431.6", s);
@@ -141,7 +141,7 @@ public class TAC_Test {
 			TheAPI.msg("&eResult:", s);
 			for (Entry<String, Double> entry : map.entrySet())
 				TheAPI.msg("&6" + map.getPosition(entry.getKey()) + ". " + entry.getKey() + ", " + entry.getValue(), s);
-			UnsortedMap<String, String> tops = new UnsortedMap<>();
+			HashMap<String, String> tops = new HashMap<>();
 			TheAPI.msg("&eInput:", s);
 			TheAPI.msg("&6- A, ABD", s); // 1
 			TheAPI.msg("&6- B, VGR", s); // 4

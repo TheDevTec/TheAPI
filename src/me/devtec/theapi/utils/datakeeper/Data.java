@@ -5,9 +5,11 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,8 +21,6 @@ import com.google.common.io.ByteStreams;
 
 import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.StringUtils;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedSet;
 import me.devtec.theapi.utils.datakeeper.loader.DataLoader;
 import me.devtec.theapi.utils.datakeeper.loader.EmptyLoader;
 import me.devtec.theapi.utils.json.Maker;
@@ -28,37 +28,8 @@ import me.devtec.theapi.utils.json.Writer;
 import me.devtec.theapi.utils.thapiutils.Validator;
 
 public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
-	public static class DataHolder {
-		private Object o;
-		private List<String> lines;
-
-		public DataHolder() {
-		}
-
-		public DataHolder(Object object) {
-			o = object;
-		}
-
-		public DataHolder(Object object, List<String> unusedLines) {
-			this(object);
-			lines=unusedLines;
-		}
-
-		public Object getValue() {
-			return o;
-		}
-
-		public void setValue(Object o) {
-			this.o = o;
-		}
-
-		public List<String> getComments() {
-			return lines;
-		}
-	}
-
 	private DataLoader loader = new EmptyLoader();
-	private Set<String> aw = new UnsortedSet<>();
+	private Set<String> aw = new HashSet<>();
 	private File a;
 
 	public Data() {
@@ -98,10 +69,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return this;
 	}
 
-	private DataHolder getOrCreateData(String key) {
-		DataHolder h = loader.get().getOrDefault(key, null);
+	private Object[] getOrCreateData(String key) {
+		Object[] h = loader.get().getOrDefault(key, null);
 		if (h == null) {
-			h = new DataHolder();
+			h = new Object[2];
 			if (!aw.contains(key.split("\\.")[0]))
 				aw.add(key.split("\\.")[0]);
 			loader.set(key, h);
@@ -118,7 +89,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			loader.remove(key);
 			return this;
 		}
-		getOrCreateData(key).setValue(value);
+		getOrCreateData(key)[0]=value;
 		return this;
 	}
 
@@ -133,26 +104,28 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<String> getComments(String key) {
 		if (key == null)
 			return null;
-		return getOrCreateData(key).lines;
+		return (List<String>) getOrCreateData(key)[1];
 	}
 
 	public Data setComments(String key, List<String> value) {
 		if (key == null)
 			return this;
-		getOrCreateData(key).lines=value;
+		getOrCreateData(key)[1]=value;
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Data addComments(String key, List<String> value) {
 		if (value == null || key == null)
 			return this;
-		DataHolder g = getOrCreateData(key);
-		if(g.lines==null)g.lines=value;
+		Object[] g = getOrCreateData(key);
+		if(g[1]==null)g[1]=value;
 		else
-		g.lines.addAll(value);
+		((List<String>) g[1]).addAll(value);
 		return this;
 	}
 
@@ -162,12 +135,13 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return addComments(key, Arrays.asList(value));
 	}
 
+	@SuppressWarnings("unchecked")
 	public Data removeComments(String key, List<String> value) {
 		if (value == null || key == null)
 			return this;
-		DataHolder g = getOrCreateData(key);
-		if(g.lines!=null)
-			g.lines.removeAll(value);
+		Object[] g = getOrCreateData(key);
+		if(g[0]!=null)
+			((List<String>) g[1]).removeAll(value);
 		return this;
 	}
 
@@ -177,12 +151,13 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return removeComments(key, Arrays.asList(value));
 	}
 
+	@SuppressWarnings("unchecked")
 	public Data removeComment(String key, int line) {
 		if (line < 0 || key == null)
 			return this;
-		DataHolder h = getOrCreateData(key);
-		if (h.lines != null)
-			h.lines.remove(line);
+		Object[] h = getOrCreateData(key);
+		if (h[1] != null)
+			((List<String>) h[1]).remove(line);
 		return this;
 	}
 
@@ -236,7 +211,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	public Object get(String key) {
 		try {
-			return loader.get().get(key).getValue();
+			return loader.get().get(key)[0];
 		} catch (Exception e) {
 			return null;
 		}
@@ -244,7 +219,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	public <E> E getAs(String key, Class<? extends E> clazz) {
 		try {
-			return clazz.cast(loader.get().get(key).getValue());
+			return clazz.cast(loader.get().get(key)[0]);
 		} catch (Exception e) {
 		}
 		return null;
@@ -340,28 +315,31 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Collection<Object> getList(String key) {
-		return get(key) != null && get(key) instanceof Collection ? (Collection) get(key) : new UnsortedList<>(3);
+		return get(key) != null && get(key) instanceof Collection ? (Collection) get(key) : new ArrayList<>();
 	}
 
+	@SuppressWarnings("unchecked")
 	public <E> List<E> getListAs(String key, Class<? extends E> clazz) {
 		// Cast everything to <E>
-		Collection<Object> items = getList(key);
-		List<E> list = new UnsortedList<>(items.size());
-		for (Object o : items)
-			try {
-				if (o != null)
+		try {
+			//try to cast List<?> to List<E>
+			return (List<E>)getList(key);
+		}catch(Exception err) {
+			List<E> list = new ArrayList<>();
+			for (Object o : getList(key))
+				try {
 					list.add(o == null ? null : clazz.cast(o));
-				else
-					list.add(null);
-			} catch (Exception er) {
-			}
-		return list;
+				} catch (Exception er) {
+					er.printStackTrace();
+				}
+			return list;
+		}
 	}
 
 	public List<String> getStringList(String key) {
 		// Cast everything to String
 		Collection<Object> items = getList(key);
-		List<String> list = new UnsortedList<>(items.size());
+		List<String> list = new ArrayList<>();
 		for (Object o : items)
 			if (o != null)
 				list.add("" + o);
@@ -373,7 +351,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public List<Boolean> getBooleanList(String key) {
 		// Cast everything to Boolean
 		Collection<Object> items = getList(key);
-		List<Boolean> list = new UnsortedList<>(items.size());
+		List<Boolean> list = new ArrayList<>();
 		for (Object o : items)
 			list.add(o == null ? false : StringUtils.getBoolean(o.toString()));
 		return list;
@@ -382,7 +360,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public List<Integer> getIntegerList(String key) {
 		// Cast everything to Integer
 		Collection<Object> items = getList(key);
-		List<Integer> list = new UnsortedList<>(items.size());
+		List<Integer> list = new ArrayList<>();
 		for (Object o : items)
 			list.add(o == null ? 0 : StringUtils.getInt(o.toString()));
 		return list;
@@ -391,7 +369,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public List<Double> getDoubleList(String key) {
 		// Cast everything to Double
 		Collection<Object> items = getList(key);
-		List<Double> list = new UnsortedList<>(items.size());
+		List<Double> list = new ArrayList<>();
 		for (Object o : items)
 			list.add(o == null ? 0.0 : StringUtils.getDouble(o.toString()));
 		return list;
@@ -400,7 +378,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public List<Short> getShortList(String key) {
 		// Cast everything to Short
 		Collection<Object> items = getList(key);
-		List<Short> list = new UnsortedList<>(items.size());
+		List<Short> list = new ArrayList<>();
 		for (Object o : items)
 			list.add(o == null ? 0 : StringUtils.getShort(o.toString()));
 		return list;
@@ -409,7 +387,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public List<Byte> getByteList(String key) {
 		// Cast everything to Byte
 		Collection<Object> items = getList(key);
-		List<Byte> list = new UnsortedList<>(items.size());
+		List<Byte> list = new ArrayList<>();
 		for (Object o : items)
 			list.add(o == null ? 0 : StringUtils.getByte(o.toString()));
 		return list;
@@ -418,7 +396,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public List<Float> getFloatList(String key) {
 		// Cast everything to Float
 		Collection<Object> items = getList(key);
-		List<Float> list = new UnsortedList<>(items.size());
+		List<Float> list = new ArrayList<>();
 		for (Object o : items)
 			list.add(o == null ? 0 : StringUtils.getFloat(o.toString()));
 		return list;
@@ -427,7 +405,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public List<Long> getLongList(String key) {
 		// Cast everything to Byte
 		Collection<Object> items = getList(key);
-		List<Long> list = new UnsortedList<>(items.size());
+		List<Long> list = new ArrayList<>();
 		for (Object o : items)
 			list.add(o == null ? 0 : StringUtils.getLong(o.toString()));
 		return list;
@@ -446,10 +424,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				if (type == DataType.BYTE) {
 					try {
 						ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
-						for (Entry<String, DataHolder> key : loader.get().entrySet())
+						for (Entry<String, Object[]> key : loader.get().entrySet())
 							try {
 								bos.writeUTF(key.getKey());
-								bos.writeUTF(Writer.write(key.getValue().getValue()));
+								bos.writeUTF(Writer.write(key.getValue()[0]));
 							} catch (Exception er) {
 							}
 						w.write(Base64.getEncoder().encodeToString(bos.toByteArray()));
@@ -512,13 +490,13 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public Set<String> getKeys() {
-		return new UnsortedSet<>(aw);
+		return new HashSet<>(aw);
 	}
 
 	public Set<String> getKeys(boolean subkeys) {
 		if (subkeys)
 			return loader.getKeys();
-		return new UnsortedSet<>(aw);
+		return new HashSet<>(aw);
 	}
 
 	public Set<String> getKeys(String key) {
@@ -541,7 +519,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public Set<String> getKeys(String key, boolean subkeys) {
-		Set<String> a = new UnsortedSet<>();
+		Set<String> a = new HashSet<>();
 		for (String d : loader.getKeys())
 			if (d.startsWith(key)) {
 				String c = d.replaceFirst(Pattern.quote(key), "");
@@ -568,15 +546,16 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			addKeys(main, key + "." + keyer);
 	}
 
+	@SuppressWarnings("unchecked")
 	private void preparePath(String path, String pathName, int spaces, java.io.Writer b) {
 		synchronized (loader) {
 			try {
-				DataHolder aw = loader.get().get(path);
-				Object o = aw != null ? aw.getValue() : null;
+				Object[] aw = loader.get().get(path);
+				Object o = aw != null ? aw[0] : null;
 				String space = cs(spaces, 1);
 				pathName = space + pathName;
-				if (aw != null && aw.getComments()!=null)
-					for (String s : aw.getComments())
+				if (aw != null && aw[1]!=null)
+					for (String s : (List<String>)aw[1])
 						b.write(space + s + System.lineSeparator());
 				if (o == null) {
 					b.write(pathName + System.lineSeparator());
@@ -612,10 +591,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			if (type == DataType.BYTE) {
 				try {
 					ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
-					for (Entry<String, DataHolder> key : loader.get().entrySet())
+					for (Entry<String, Object[]> key : loader.get().entrySet())
 						try {
 							bos.writeUTF(key.getKey());
-							bos.writeUTF(Writer.write(key.getValue().getValue()));
+							bos.writeUTF(Writer.write(key.getValue()[0]));
 						} catch (Exception er) {
 						}
 					return Base64.getEncoder().encodeToString(bos.toByteArray());
@@ -670,12 +649,13 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Data merge(Data f, boolean addHeader, boolean addFooter) {
-		for(Entry<String, DataHolder> s : f.loader.get().entrySet()) {
-			if(get(s.getKey())==null && s.getValue().getValue()!=null)
-				set(s.getKey(), s.getValue().getValue());
-			if(getComments(s.getKey()) != null && getComments(s.getKey()).isEmpty() && (s.getValue().getComments()==null||!s.getValue().getComments().isEmpty()))
-				setComments(s.getKey(), s.getValue().getComments());
+		for(Entry<String, Object[]> s : f.loader.get().entrySet()) {
+			if(get(s.getKey())==null && s.getValue()[0]!=null)
+				set(s.getKey(), s.getValue()[0]);
+			if(getComments(s.getKey()) != null && getComments(s.getKey()).isEmpty() && (s.getValue()[1]==null||!((List<String>) s.getValue()[1]).isEmpty()))
+				setComments(s.getKey(), (List<String>) s.getValue()[1]);
 		}
 		if(f.loader.getHeader()!=null)
 		if(addHeader && !loader.getHeader().containsAll(f.loader.getHeader()))

@@ -1,6 +1,8 @@
 package me.devtec.theapi.apis;
 
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,8 +30,6 @@ import com.mojang.authlib.properties.Property;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.StringUtils;
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
-import me.devtec.theapi.utils.datakeeper.maps.UnsortedMap;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.thapiutils.Validator;
 
@@ -189,11 +189,11 @@ public class ItemCreatorAPI implements Cloneable {
 	private Color c;
 	private boolean unb;
 	private SkullType type;
-	private UnsortedMap<Attribute, AttributeModifier> w = new UnsortedMap<>();
+	private HashMap<Attribute, AttributeModifier> w = new HashMap<>();
 	private int s = 1, model = -1, dur = -1;
-	private UnsortedMap<PotionEffectType, String> ef = new UnsortedMap<>();
-	private UnsortedMap<Enchantment, Integer> enchs = new UnsortedMap<>();
-	private List<Object> pages = new UnsortedList<>(), lore = new UnsortedList<>(), map = new UnsortedList<>();
+	private HashMap<PotionEffectType, String> ef = new HashMap<>();
+	private HashMap<Enchantment, Integer> enchs = new HashMap<>();
+	private List<Object> pages = new ArrayList<>(), lore = new ArrayList<>(), map = new ArrayList<>();
 	private MaterialData data = null;
 	private Generation gen;
 
@@ -323,7 +323,7 @@ public class ItemCreatorAPI implements Cloneable {
 		if (a.hasItemMeta())
 			if (a.getItemMeta() instanceof PotionMeta)
 				return ((PotionMeta) a.getItemMeta()).getCustomEffects();
-		return new UnsortedList<PotionEffect>();
+		return new ArrayList<PotionEffect>();
 	}
 
 	public ItemMeta getItemMeta() {
@@ -415,7 +415,7 @@ public class ItemCreatorAPI implements Cloneable {
 	public List<String> getLore() {
 		if (a.hasItemMeta())
 			return a.getItemMeta().getLore();
-		return new UnsortedList<String>();
+		return new ArrayList<String>();
 	}
 
 	public String getOwner() {
@@ -431,7 +431,7 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public Map<Enchantment, Integer> getEnchantments() {
-		UnsortedMap<Enchantment, Integer> e = new UnsortedMap<>();
+		HashMap<Enchantment, Integer> e = new HashMap<>();
 		for (Enchantment d : a.getEnchantments().keySet())
 			e.put(d, a.getEnchantments().get(d).intValue());
 		return e;
@@ -513,7 +513,7 @@ public class ItemCreatorAPI implements Cloneable {
 
 	public List<ItemFlag> getItemFlags() {
 		try {
-			List<ItemFlag> items = new UnsortedList<ItemFlag>();
+			List<ItemFlag> items = new ArrayList<ItemFlag>();
 			if (a.hasItemMeta())
 				for (ItemFlag f : a.getItemMeta().getItemFlags())
 					items.add(f);
@@ -532,10 +532,10 @@ public class ItemCreatorAPI implements Cloneable {
 	@SuppressWarnings("unchecked")
 	public Map<Attribute, AttributeModifier> getAttributeModifiers() {
 		try {
-			UnsortedMap<Attribute, AttributeModifier> h = new UnsortedMap<Attribute, AttributeModifier>();
+			HashMap<Attribute, AttributeModifier> h = new HashMap<Attribute, AttributeModifier>();
 			try {
 				if (hasAttributeModifiers()) {
-					UnsortedMap<Attribute, AttributeModifier> map = (UnsortedMap<Attribute, AttributeModifier>) a.getItemMeta()
+					HashMap<Attribute, AttributeModifier> map = (HashMap<Attribute, AttributeModifier>) a.getItemMeta()
 							.getAttributeModifiers();
 					for (Attribute a : map.keySet())
 						h.put(a, map.get(a));
@@ -685,7 +685,7 @@ public class ItemCreatorAPI implements Cloneable {
 			if (a.getItemMeta() instanceof BookMeta) {
 				return ((BookMeta) a.getItemMeta()).getPages();
 			}
-		return new UnsortedList<String>();
+		return new ArrayList<String>();
 	}
 
 	public String getBookPage(int page) {
@@ -787,7 +787,7 @@ public class ItemCreatorAPI implements Cloneable {
 				}
 			}
 			if (lore != null) {
-				List<String> lor = new UnsortedList<>();
+				List<String> lor = new ArrayList<>();
 				for (Object o : lore)
 					lor.add(o.toString());
 				mf.setLore(lor);
@@ -819,7 +819,7 @@ public class ItemCreatorAPI implements Cloneable {
 					|| i.getType().name().equalsIgnoreCase("BOOK_AND_QUILL")) {
 				BookMeta m = (BookMeta) i.getItemMeta();
 				m.setAuthor(author);
-				List<String> page = new UnsortedList<>();
+				List<String> page = new ArrayList<>();
 				for (Object o : pages)
 					page.add(o.toString());
 				m.setPages(page);

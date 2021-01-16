@@ -1,5 +1,6 @@
 package me.devtec.theapi.sortedmap;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -7,8 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import me.devtec.theapi.utils.datakeeper.collections.UnsortedList;
 
 public class SortedMap {
 	public static <K extends Comparable<? super K>, V> LinkedHashMap<K, V> sortByKey(Map<K, V> map) {
@@ -38,7 +37,7 @@ public class SortedMap {
 	}
 
 	public static <K, V> LinkedHashMap<K, V> sortNonComparableByKey(Map<K, V> map) {
-		List<Entry<K, V>> list = new UnsortedList<>(map.entrySet());
+		List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
 		Collections.sort(list, new Comparator<Entry<K, V>>() {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			public int compare(Map.Entry<K, V> e1, Map.Entry<K, V> e2) {
@@ -54,7 +53,7 @@ public class SortedMap {
 	}
 
 	public static <K, V> LinkedHashMap<K, V> sortNonComparableByValue(Map<K, V> map) {
-		List<Entry<K, V>> list = new UnsortedList<>(map.entrySet());
+		List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
 		Collections.sort(list, new Comparator<Entry<K, V>>() {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			public int compare(Map.Entry<K, V> e1, Map.Entry<K, V> e2) {
