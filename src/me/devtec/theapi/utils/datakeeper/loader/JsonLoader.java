@@ -1,7 +1,7 @@
 package me.devtec.theapi.utils.datakeeper.loader;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -10,10 +10,10 @@ import me.devtec.theapi.utils.json.Reader;
 
 public class JsonLoader extends DataLoader {
 	private boolean l;
-	private Map<String, Object[]> data = new HashMap<>();
+	private LinkedHashMap<String, Object[]> data = new LinkedHashMap<>();
 
 	@Override
-	public Map<String, Object[]> get() {
+	public LinkedHashMap<String, Object[]> get() {
 		return data;
 	}
 

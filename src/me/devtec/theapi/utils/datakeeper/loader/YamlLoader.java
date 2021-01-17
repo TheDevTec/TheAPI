@@ -2,8 +2,7 @@ package me.devtec.theapi.utils.datakeeper.loader;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,7 +12,7 @@ import me.devtec.theapi.utils.json.Reader;
 public class YamlLoader extends DataLoader {
 	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*?):[ ]*(.*)"),
 			fixSplit = Pattern.compile("[\"'](.*)['\"]");
-	private HashMap<String, Object[]> data = new HashMap<>();
+	private LinkedHashMap<String, Object[]> data = new LinkedHashMap<>();
 	private boolean l;
 	private ArrayList<String> header = new ArrayList<>(), footer = new ArrayList<>();
 
@@ -44,7 +43,7 @@ public class YamlLoader extends DataLoader {
 	}
 
 	@Override
-	public Map<String, Object[]> get() {
+	public LinkedHashMap<String, Object[]> get() {
 		return data;
 	}
 

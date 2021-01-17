@@ -2,8 +2,7 @@ package me.devtec.theapi.utils.datakeeper.loader;
 
 import java.util.Base64;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import com.google.common.io.ByteArrayDataInput;
@@ -12,11 +11,11 @@ import com.google.common.io.ByteStreams;
 import me.devtec.theapi.utils.json.Reader;
 
 public class ByteLoader extends DataLoader {
-	private HashMap<String, Object[]> data = new HashMap<>();
+	private LinkedHashMap<String, Object[]> data = new LinkedHashMap<>();
 	private boolean l;
 
 	@Override
-	public Map<String, Object[]> get() {
+	public LinkedHashMap<String, Object[]> get() {
 		return data;
 	}
 

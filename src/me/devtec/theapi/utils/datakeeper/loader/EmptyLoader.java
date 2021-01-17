@@ -2,17 +2,16 @@ package me.devtec.theapi.utils.datakeeper.loader;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class EmptyLoader extends DataLoader {
-	private HashMap<String, Object[]> data = new HashMap<>();
+	private LinkedHashMap<String, Object[]> data = new LinkedHashMap<>();
 	private List<String> header = new ArrayList<>(), footer = new ArrayList<>();
 
 	@Override
-	public Map<String, Object[]> get() {
+	public LinkedHashMap<String, Object[]> get() {
 		return data;
 	}
 
