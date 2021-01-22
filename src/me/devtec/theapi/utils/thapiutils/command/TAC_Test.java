@@ -12,8 +12,6 @@ import org.bukkit.event.inventory.ClickType;
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.apis.ItemCreatorAPI;
 import me.devtec.theapi.apis.PluginManagerAPI;
-import me.devtec.theapi.bossbar.BarColor;
-import me.devtec.theapi.bossbar.BarStyle;
 import me.devtec.theapi.bossbar.BossBar;
 import me.devtec.theapi.guiapi.GUI;
 import me.devtec.theapi.guiapi.ItemGUI;
@@ -32,7 +30,7 @@ public class TAC_Test {
 		if (s instanceof Player) {
 			Player p = (Player) s;
 			if (args[1].equalsIgnoreCase("Other")) {
-				BossBar bar = new BossBar(p, "&7TheAPI &uTesting", 55.49, BarColor.PURPLE, BarStyle.PROGRESS);
+				BossBar bar = TheAPI.sendBossBar(p, "&7TheAPI &uTesting", 55.49);
 				new Tasker() {
 					public void run() {
 						bar.remove();

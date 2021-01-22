@@ -3,10 +3,12 @@ package me.devtec.theapi.utils.thapiutils.command;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -150,6 +152,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					LoaderClass.colorMap.clear();
 					for (String tag : LoaderClass.tags.getKeys("Tags"))
 						LoaderClass.colorMap.put(tag.toLowerCase(), "#" + LoaderClass.tags.getString("Tags." + tag));
+					StringUtils.gradientFinder=Pattern.compile(LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})(.*?)"+LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})|.*?(?=(?:"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}.*?"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}))");
 				}
 				for (User u : TheAPI.getCachedUsers())
 					u.getData().reload(u.getData().getFile());
@@ -193,7 +196,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						TheAPI.msg("&7 Path: &e" + System.getProperty("user.dir"), s);
 						TheAPI.msg("&7 UpTime: &e" + StringUtils.timeToString(TheAPI.getServerUpTime() / 1000), s);
 						TheAPI.msg("&7 Version: &e" + TheAPI.getServerVersion(), s);
-						TheAPI.msg("&7 Startup-Cmd: &e" + System.getProperty("sun.java.command"), s);
+						RuntimeMXBean rr = ManagementFactory.getRuntimeMXBean();
+						TheAPI.msg("&7 Startup-Cmd: &e" + StringUtils.join(rr.getInputArguments(), " "), s);
 						TheAPI.msg("&7 Disk:", s);
 						File d = new File("plugins");
 						TheAPI.msg("&7   Total: &e" + String.format("%.2f GB", (double)d.getTotalSpace() /1073741824), s);

@@ -1,17 +1,18 @@
 package me.devtec.theapi.utils.datakeeper.loader;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class EmptyLoader extends DataLoader {
-	private LinkedHashMap<String, Object[]> data = new LinkedHashMap<>();
-	private List<String> header = new ArrayList<>(), footer = new ArrayList<>();
+	private Map<String, Object[]> data = new LinkedHashMap<>();
+	private List<String> header = new LinkedList<>(), footer = new LinkedList<>();
 
 	@Override
-	public LinkedHashMap<String, Object[]> get() {
+	public Map<String, Object[]> get() {
 		return data;
 	}
 
@@ -59,14 +60,5 @@ public class EmptyLoader extends DataLoader {
 	@Override
 	public boolean isLoaded() {
 		return true;
-	}
-	
-	public String toString() {
-		return getDataName();
-	}
-
-	@Override
-	public String getDataName() {
-		return "Data(EmptyLoader:" + data.size() + ")";
 	}
 }

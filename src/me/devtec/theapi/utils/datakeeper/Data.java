@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,29 +28,40 @@ import me.devtec.theapi.utils.json.Writer;
 import me.devtec.theapi.utils.thapiutils.Validator;
 
 public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
-	private DataLoader loader = new EmptyLoader();
-	private Set<String> aw = new HashSet<>();
+	
+	private DataLoader loader;
+	private Set<String> aw;
 	private File a;
-
+	
 	public Data() {
+		loader = new EmptyLoader();
+		aw = new LinkedHashSet<>();
 	}
-
+	
 	public Data(String filePath) {
 		this(new File(filePath.startsWith("/") ? filePath.substring(1) : filePath), true);
 	}
-
+	
 	public Data(String filePath, boolean load) {
 		this(new File(filePath.startsWith("/") ? filePath.substring(1) : filePath), load);
 	}
-
+	
 	public Data(File f) {
 		this(f, true);
 	}
-
+	
 	public Data(File f, boolean load) {
 		a = f;
+		aw = new LinkedHashSet<>();
 		if (load)
 			reload(a);
+	}
+	
+	// CLONE
+	public Data(Data data) {
+		a = data.a;
+		aw = data.aw;
+		loader=data.loader;
 	}
 
 	public boolean exists(String path) {
@@ -490,13 +501,13 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public Set<String> getKeys() {
-		return new HashSet<>(aw);
+		return new LinkedHashSet<>(aw);
 	}
 
 	public Set<String> getKeys(boolean subkeys) {
 		if (subkeys)
 			return loader.getKeys();
-		return new HashSet<>(aw);
+		return new LinkedHashSet<>(aw);
 	}
 
 	public Set<String> getKeys(String key) {
@@ -519,7 +530,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public Set<String> getKeys(String key, boolean subkeys) {
-		Set<String> a = new HashSet<>();
+		Set<String> a = new LinkedHashSet<>();
 		for (String d : loader.getKeys())
 			if (d.startsWith(key)) {
 				String c = d.replaceFirst(Pattern.quote(key), "");
@@ -627,10 +638,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	private static String cs(int s, int doubleSpace) {
-		StringWriter i = new StringWriter();
+		StringBuilder i = new StringBuilder();
 		String space = doubleSpace == 1 ? "  " : " ";
 		for (int c = 0; c < s; ++c)
-			i.write(space);
+			i.append(space);
 		return i.toString();
 	}
 

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -65,7 +67,7 @@ public class Reader implements JsonReader {
 			return null;
 		try {
 			return (Collection<?>) Ref.invoke(parser,
-					Ref.method(parser.getClass(), "fromJson", String.class, Class.class), json, ArrayList.class);
+					Ref.method(parser.getClass(), "fromJson", String.class, Class.class), json, LinkedList.class);
 		} catch (Exception e1) {
 		}
 		return null;
@@ -76,7 +78,7 @@ public class Reader implements JsonReader {
 			return null;
 		try {
 			return (List<?>) Ref.invoke(parser, Ref.method(parser.getClass(), "fromJson", String.class, Class.class),
-					json, ArrayList.class);
+					json, LinkedList.class);
 		} catch (Exception e1) {
 		}
 		return null;
@@ -93,7 +95,7 @@ public class Reader implements JsonReader {
 			return null;
 		try {
 			return (Map<?, ?>) Ref.invoke(parser, Ref.method(parser.getClass(), "fromJson", String.class, Class.class),
-					json, HashMap.class);
+					json, LinkedHashMap.class);
 		} catch (Exception e1) {
 		}
 		return null;

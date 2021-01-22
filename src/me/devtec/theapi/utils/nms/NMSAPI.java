@@ -299,9 +299,10 @@ public class NMSAPI {
 	public static Object getPacketPlayOutTitle(TitleAction action, Object IChatBaseComponent, int fadeIn, int stay,
 			int fadeOut) {
 		if (action == TitleAction.ACTIONBAR) {
-			Object o = Ref.newInstance(pTitle, Ref.getNulled(Ref.field(enumTitle, action.name())), IChatBaseComponent,
+			Object tt=Ref.getNulled(Ref.field(enumTitle, action.name()));
+			Object o = Ref.newInstance(pTitle, tt, IChatBaseComponent,
 					fadeIn, stay, fadeOut);
-			return o != null ? o : Ref.newInstance(pOutChat, IChatBaseComponent, (byte) 2);
+			return tt!=null&&o != null ? o : Ref.newInstance(pOutChat, IChatBaseComponent, (byte) 2);
 		}
 		return Ref.newInstance(pTitle, Ref.getNulled(Ref.field(enumTitle, action.name())), IChatBaseComponent, fadeIn,
 				stay, fadeOut);
@@ -373,7 +374,7 @@ public class NMSAPI {
 		Object newIblock = getIBlockData(material, data), position = getBlockPosition(x, y, z),
 				World = Ref.world(world);
 		Ref.invoke(World, worldset, position, newIblock, applyPsychics ? 3 : 2);
-		NMSAPI.refleshBlock(new Position(world, x, y, z), old);
+		refleshBlock(new Position(world, x, y, z), old);
 	}
 
 	public static void setBlock(World world, int x, int y, int z, Material material, boolean applyPsychics) {
@@ -475,9 +476,20 @@ public class NMSAPI {
 	public static Object getIChatBaseComponentText(String text) {
 		return getIChatBaseComponentJson("{\"text\":\"" + text + "\"}");
 	}
-
+	private static int oo;
+	private static Method mm = Ref.method(Ref.craft("util.CraftChatMessage"), "fromStringOrNull", String.class, boolean.class);
+	static {
+		if(mm==null) {
+			mm = Ref.method(Ref.craft("util.CraftChatMessage"), "fromString", String.class, boolean.class);
+			if(mm==null) {
+				oo=1;
+				mm = Ref.method(Ref.craft("util.CraftChatMessage"), "fromString", String.class);
+			}
+		}
+	}
+	
 	public static Object getIChatBaseComponentFromCraftBukkit(String text) {
-		return Ref.invokeNulled(Ref.method(Ref.craft("util.CraftChatMessage"), "fromStringOrNull", String.class, boolean.class), text, true);
+		return oo==0?Ref.invokeNulled(mm, text, true):((Object[])Ref.invokeNulled(mm, text))[0];
 	}
 
 	public static Object getIChatBaseComponentJson(String json) {

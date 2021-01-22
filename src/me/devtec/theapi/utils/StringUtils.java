@@ -281,8 +281,11 @@ public class StringUtils {
 				@Override
 				public String colorize(String text) {
 					String one = getNextColor(), second = getNextColor();
-					while (one.equals(second))
+					int tries = 0;
+					while (one.equals(second)) {
 						second = getNextColor();
+						if(tries++>=10)break;
+					}
 					return gradient(text, second, one);
 				}
 
@@ -382,8 +385,10 @@ public class StringUtils {
 	private static Pattern reg = Pattern.compile("&((<!>)*)([Rrk-oK-O])"),
 			old = Pattern.compile("&((<!>)*)([XxA-Za-zUu0-9Rrk-oK-O])");
 
+	public static Pattern gradientFinder;
+	
 	private static String gradient(String msg, String fromHex, String toHex) {
-		msg = msg.replace("§", "&");
+		msg=msg.replace("§", "&");
 		int length = msg.length();
 		boolean bold = false, italic = false, underlined = false, strikethrough = false, magic = false;
 		Color fromRGB = Color.decode(fromHex), toRGB = Color.decode(toHex);
@@ -424,7 +429,7 @@ public class StringUtils {
 			finalColor = new Color(red, green, blue);
 			String hex = "#" + Integer.toHexString(finalColor.getRGB()).substring(2);
 			String formats = "";
-			if (l.containsKey(index)) {
+			if (l.containsKey(index))
 				switch (l.get(index)) {
 				case "l":
 					bold = true;
@@ -449,7 +454,6 @@ public class StringUtils {
 					underlined = false;
 					break;
 				}
-			}
 			if (bold)
 				formats += ChatColor.BOLD;
 			if (italic)
@@ -464,40 +468,34 @@ public class StringUtils {
 		}
 		return msg;
 	}
-
-	private static String gradient(String legacyMsg) {
+	
+	public static String gradient(String msg) {
+		String legacyMsg = msg;
 		for (String code : LoaderClass.colorMap.keySet()) {
 			String rawCode = LoaderClass.tagG + code;
 			if (!legacyMsg.toLowerCase().contains(rawCode))
 				continue;
 			legacyMsg = legacyMsg.replace(rawCode, LoaderClass.colorMap.get(code));
 		}
-		List<String> hexes = new ArrayList<>();
-		Matcher matcher = Pattern.compile(LoaderClass.gradientTag + "#[A-Fa-f0-9]{6}").matcher(legacyMsg);
-		while (matcher.find()) {
-			hexes.add(matcher.group().replace(LoaderClass.gradientTag, ""));
-		}
-		int hexIndex = 0;
-		List<String> texts = Arrays.asList(legacyMsg.split(LoaderClass.gradientTag + "#[A-Fa-f0-9]{6}"));
-		StringBuilder finalMsg = new StringBuilder();
-		for (String text : texts) {
-			if (texts.get(0).equalsIgnoreCase(text)) {
-				finalMsg.append(text);
+		StringBuilder finalMsg = new StringBuilder(legacyMsg.length());
+		Matcher matcher = gradientFinder.matcher(legacyMsg);
+		while(matcher.find()) {
+			legacyMsg=legacyMsg.substring(matcher.group().length()+1);
+			if(matcher.groupCount()==0 || matcher.group(1)==null) {
+				finalMsg.append(matcher.group());
 				continue;
 			}
-			if (text.length() == 0)
-				continue;
-			if (hexIndex + 1 >= hexes.size()) {
-				if (!finalMsg.toString().contains(text))
-					finalMsg.append(text);
-				continue;
-			}
-			finalMsg.append(gradient(text, hexes.get(hexIndex), hexes.get(hexIndex + 1)));
-			hexIndex++;
+			String hexA = matcher.group(1);
+			String hexB = matcher.group(3);
+			String text = matcher.group(2);
+			finalMsg.append(gradient(text, hexA, hexB));
 		}
+		finalMsg.append(legacyMsg);
 		return finalMsg.toString();
 	}
 
+	private static boolean neww = TheAPI.isNewerThan(15);
+	
 	/**
 	 * @see see Colorize string with colors (&eHello world -> {YELLOW}Hello world)
 	 * @param string
@@ -538,12 +536,13 @@ public class StringUtils {
 			d = d.delete(0, d.length());
 			for (String ff : s) {
 				if (ff.toLowerCase().startsWith("&u"))
-					ff = color.colorize(ff.substring(2));
+					ff=color.colorize(ff.substring(2));
 				d.append(ff);
 			}
+			s.clear();
 			msg = d.toString();
 		}
-		if (TheAPI.isNewerThan(15)) {
+		if (neww) {
 			msg = gradient(msg);
 			if (msg.contains("#") || msg.contains("&x")) {
 				msg = msg.replace("&x", "§x");
@@ -707,7 +706,7 @@ public class StringUtils {
 		if (minutes > 0)
 			date = (!date.equals("") ? date + " " : "") + minutes + " minute" + (minutes > 1 ? "s" : "");
 		if (date.equals(""))
-			date = (time % 60) + " second" + ((time % 60) == 0 ? "" : "s");
+			date = (time % 60) + " second" + ((time % 60) > 1 ? "s" : "");
 		return date;
 	}
 

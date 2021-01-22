@@ -13,6 +13,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import me.devtec.theapi.TheAPI;
+
 public class Ref {
 	private static Constructor<?> blockpos = constructor(nms("BlockPosition"), double.class, double.class,
 			double.class),
@@ -28,7 +30,7 @@ public class Ref {
 					String.class, String.class, String.class);
 	private static Object server = invoke(handle(cast(craft("CraftServer"), Bukkit.getServer())), "getServer");
 	private static Class<?> craft = craft("entity.CraftPlayer"), world = craft("CraftWorld");
-	private static Method ichatcon, send = method(nms("NetworkManager"), "sendPacket", nms("Packet"));
+	private static Method ichatcon, send = method(nms("PlayerConnection"), "sendPacket", nms("Packet"));
 	static {
 		ichatcon = method(nms("IChatBaseComponent$ChatSerializer"), "a", String.class);
 		if (ichatcon == null)
@@ -112,15 +114,16 @@ public class Ref {
 	}
 
 	public static void sendPacket(Player to, Object packet) {
+		if(packet==null)TheAPI.bcMsg("nulled packet!!");
 		if(packet!=null && to!=null)
-			invoke(network(playerCon(to)), send, packet);
+			invoke(playerCon(to), send, packet);
 	}
 
 	public static void sendPacket(Collection<? extends Player> toPlayers, Object packet) {
 		if(packet!=null)
 		for(Player to : toPlayers) {
 			if(to!=null)
-				invoke(network(playerCon(to)), send, packet);
+				invoke(playerCon(to), send, packet);
 		}
 	}
 
@@ -128,7 +131,7 @@ public class Ref {
 		if(packet!=null)
 		for(Player to : toPlayers) {
 			if(to!=null)
-				invoke(network(playerCon(to)), send, packet);
+				invoke(playerCon(to), send, packet);
 		}
 	}
 

@@ -6,15 +6,19 @@ import java.util.Map.Entry;
 import me.devtec.theapi.utils.nms.NMSAPI;
 
 public class Scheduler {
-	private final static HashMap<Integer, Thread> tasks = new HashMap<>();
+	private static HashMap<Integer, Thread> tasks = new HashMap<>();
 	private static int id;
 
 	public static void cancelAll() {
 		try {
 			for (Entry<Integer, Thread> t : tasks.entrySet())
 				t.getValue().interrupt();
+		} catch (Exception errr) {
+		}
+		try {
 			tasks.clear();
 		} catch (Exception errr) {
+			tasks=null;
 		}
 	}
 
@@ -37,6 +41,10 @@ public class Scheduler {
 		Thread t = new Thread(new Runnable() {
 			public void run() {
 				try {
+					if(tasks==null) {
+						Thread.currentThread().interrupt();
+						return;
+					}
 					if (delay > 0)
 						Thread.sleep(delay * 50);
 					if (!Thread.currentThread().isInterrupted() && tasks.containsKey(id)) {
@@ -63,6 +71,10 @@ public class Scheduler {
 		Thread t = new Thread(new Runnable() {
 			public void run() {
 				try {
+					if(tasks==null) {
+						Thread.currentThread().interrupt();
+						return;
+					}
 					if (delay > 0)
 						Thread.sleep(delay * 50);
 					if (!Thread.currentThread().isInterrupted() && tasks.containsKey(id)) {
@@ -89,6 +101,10 @@ public class Scheduler {
 		Thread t = new Thread(new Runnable() {
 			public void run() {
 				try {
+					if(tasks==null) {
+						Thread.currentThread().interrupt();
+						return;
+					}
 					if (delay > 0)
 						Thread.sleep(delay * 50);
 					while (true) {
@@ -120,6 +136,10 @@ public class Scheduler {
 		Thread t = new Thread(new Runnable() {
 			public void run() {
 				try {
+					if(tasks==null) {
+						Thread.currentThread().interrupt();
+						return;
+					}
 					if (delay > 0)
 						Thread.sleep(delay * 50);
 					while (true) {
@@ -161,6 +181,10 @@ public class Scheduler {
 
 			public void run() {
 				try {
+					if(tasks==null) {
+						Thread.currentThread().interrupt();
+						return;
+					}
 					if (delay > 0)
 						Thread.sleep(delay * 50);
 					while (true) {
@@ -194,6 +218,10 @@ public class Scheduler {
 
 			public void run() {
 				try {
+					if(tasks==null) {
+						Thread.currentThread().interrupt();
+						return;
+					}
 					if (delay > 0)
 						Thread.sleep(delay * 50);
 					while (true) {

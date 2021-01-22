@@ -94,7 +94,7 @@ public class LoaderClass extends JavaPlugin {
 		Random r = new Random();
 		StringBuilder b = new StringBuilder();
 		for(int i = 0; i < 16; ++i)
-			b.append(r.nextBoolean() ? (a[TheAPI.generateRandomInt(len)]) : (""+a[TheAPI.generateRandomInt(len)]).toUpperCase());
+			b.append(r.nextBoolean() ? (a[TheAPI.generateRandomInt(len)]) : (Character.toUpperCase(a[TheAPI.generateRandomInt(len)])));
 		return b.toString();
 	}
 	
@@ -187,6 +187,7 @@ public class LoaderClass extends JavaPlugin {
 			gradientTag = tags.getString("GradientPrefix");
 			for (String tag : tags.getKeys("Tags"))
 				colorMap.put(tag.toLowerCase(), "#" + tags.getString("Tags." + tag));
+			StringUtils.gradientFinder=Pattern.compile(LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})(.*?)"+LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})|.*?(?=(?:"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}.*?"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}))");
 		}
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());

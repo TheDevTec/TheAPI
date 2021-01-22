@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.nms.NMSAPI;
-import me.devtec.theapi.utils.nms.datawatcher.DataWatcher;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.thapiutils.LoaderClass;
 
@@ -17,12 +16,11 @@ import me.devtec.theapi.utils.thapiutils.LoaderClass;
  */
 public class BossBar {
 	private static boolean ww = !TheAPI.isOlder1_9();
-	private static Class<?> c = Ref.nms("EntityEnderDragon");
+	private static Class<?> c = Ref.nms("EntityWither");
 	private static Constructor<?> barC= Ref.constructor(Ref.nms("BossBattleServer"), Ref.nms("IChatBaseComponent"),
-			Ref.nms("BossBattle$BarColor"), Ref.nms("BossBattle$BarStyle")), tpC=Ref.constructor(Ref.nms("PacketPlayOutEntityTeleport"), int.class, int.class, int.class, int.class,
-					byte.class, byte.class, boolean.class),barOld=Ref.constructor(c, Ref.nms("World"));
-	private static Method mSend = Ref.method(Ref.nms("BossBattleServer"), "sendUpdate", Ref.nms("PacketPlayOutBoss$Action")),mAdd=Ref.method(Ref.nms("BossBattleServer"), "addPlayer", Ref.nms("EntityPlayer")),idM=Ref.method(c, "getId"),
-			mVis=Ref.method(Ref.nms("BossBattleServer"), "setVisible", boolean.class),mLoc=Ref.method(c, "setLocation", double.class, double.class, double.class, float.class, float.class);
+			Ref.nms("BossBattle$BarColor"), Ref.nms("BossBattle$BarStyle")), tpC=Ref.constructor(Ref.nms("PacketPlayOutEntityTeleport")),barOld=Ref.constructor(c, Ref.nms("World"));
+	private static Method mSend = Ref.method(Ref.nms("BossBattleServer"), "sendUpdate", Ref.nms("PacketPlayOutBoss$Action")),mAdd=Ref.method(Ref.nms("BossBattleServer"), "addPlayer", Ref.nms("EntityPlayer")),idM=Ref.method(Ref.nms("Entity"), "getId"),
+			mVis=Ref.method(Ref.nms("BossBattleServer"), "setVisible", boolean.class),mLoc=Ref.method(Ref.nms("Entity"), "setLocation", double.class, double.class, double.class, float.class, float.class);
 	
 	private Player p;
 	private String title;
@@ -44,10 +42,14 @@ public class BossBar {
 		if (!p.isOnline())return;
 		if (ww || bar == null)return;
 		Location loc = p.getLocation();
-		Object packet = Ref.newInstance(tpC,
-				id, (int) loc.getX() * 32, (int) (loc.getY() - 100) * 32, (int) loc.getZ() * 32,
-				(byte) ((int) loc.getYaw() * 256 / 360), (byte) ((int) loc.getPitch() * 256 / 360), false);
-		NMSAPI.sendPacket(p, packet);
+		Object packet = Ref.newInstance(tpC);
+		Ref.set(packet,"a", id);
+		Ref.set(packet,"b", (int) ((loc.getX()-32) * 32D));
+		Ref.set(packet,"c", (int) ((loc.getY()-32) * 32D));
+		Ref.set(packet,"d", (int) (loc.getZ() * 32D));
+		Ref.set(packet,"e", (byte) 0);
+		Ref.set(packet,"f", (byte) 0);
+		Ref.sendPacket(p, packet);
 	}
 
 	public boolean isHidden() {
@@ -79,7 +81,7 @@ public class BossBar {
 			return;
 		}
 		if (!p.isOnline())return;
-		NMSAPI.sendPacket(p, NMSAPI.getPacketPlayOutEntityDestroy(id));
+		Ref.sendPacket(p, NMSAPI.getPacketPlayOutEntityDestroy(id));
 	}
 
 	public void show() {
@@ -139,31 +141,21 @@ public class BossBar {
 			}
 			return;
 		}
-		Location loc = p.getLocation();
-		Object packet = null;
 		boolean cr = false;
 		if (bar == null) {
+			Location loc = p.getLocation();
 			bar = Ref.newInstance(barOld, Ref.world(loc.getWorld()));
-			Ref.invoke(bar,mLoc,loc.getX(), loc.getY() - 100, loc.getZ(), 0, 0);
+			Ref.invoke(bar,mLoc,loc.getX()-32, loc.getY()-32, loc.getZ(), 0, 0);
 			id = (int) Ref.invoke(bar, idM);
-			packet = NMSAPI.getPacketPlayOutSpawnEntityLiving(bar);
 			cr = true;
 		}
-		DataWatcher watcher = new DataWatcher(bar);
-		watcher.set(0, (byte) 0x20);
-		if (progress != -1)
-			watcher.set(6, (float) (progress * 200) / 100);
-		if (text != null) {
-			watcher.set(10, text);
-			watcher.set(2, text);
-		}
-		watcher.set(11, (byte) 1);
-		watcher.set(3, (byte) 1);
-		if (packet == null)
-			packet = NMSAPI.getPacketPlayOutEntityMetadata(id, watcher);
-		if (cr)
-			Ref.set(packet, "l", watcher);
-		Ref.sendPacket(p, packet);
+		Ref.invoke(bar, "setInvisible", true);
+		Ref.invoke(bar, "setCustomName", text);
+		Ref.invoke(bar, "setHealth", (float)progress);
+		if(cr)
+			Ref.sendPacket(p, NMSAPI.getPacketPlayOutSpawnEntityLiving(bar));
+		else
+			Ref.sendPacket(p, NMSAPI.getPacketPlayOutEntityMetadata(id, Ref.get(bar, "datawatcher")));
 	}
 
 	public void remove() {

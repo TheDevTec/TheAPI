@@ -10,10 +10,10 @@ import me.devtec.theapi.utils.json.Reader;
 
 public class JsonLoader extends DataLoader {
 	private boolean l;
-	private LinkedHashMap<String, Object[]> data = new LinkedHashMap<>();
+	private Map<String, Object[]> data = new LinkedHashMap<>();
 
 	@Override
-	public LinkedHashMap<String, Object[]> get() {
+	public Map<String, Object[]> get() {
 		return data;
 	}
 
@@ -84,14 +84,5 @@ public class JsonLoader extends DataLoader {
 	@Override
 	public boolean isLoaded() {
 		return l;
-	}
-	
-	public String toString() {
-		return getDataName();
-	}
-
-	@Override
-	public String getDataName() {
-		return "Data(JsonLoader:" + data.size() + ")";
 	}
 }

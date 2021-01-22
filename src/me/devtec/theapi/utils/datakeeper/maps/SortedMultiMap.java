@@ -3,11 +3,15 @@ package me.devtec.theapi.utils.datakeeper.maps;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.TreeMap;
 
+import me.devtec.theapi.utils.json.Writer;
+
 public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
-	private Map<K, Map<T, V>> data = new HashMap<>();
+	private Map<K, Map<T, V>> data = new LinkedHashMap<>();
 
 	public SortedMultiMap() {
 	}
@@ -78,7 +82,7 @@ public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 		return data.isEmpty();
 	}
 
-	public void putAll(SortedMultiMap<K, T, V> map) {
+	public void putAll(MultiMap<K, T, V> map) {
 		map.entrySet().forEach(Entry -> put(Entry.getKey(), Entry.getThread(), Entry.getValue()));
 	}
 
@@ -95,7 +99,7 @@ public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 	}
 
 	public Collection<Entry<K, T, V>> entrySet() {
-		ArrayList<Entry<K, T, V>> entries = new ArrayList<>();
+		LinkedHashSet<Entry<K, T, V>> entries = new LinkedHashSet<>(keySet().size());
 		for (K key : keySet())
 			for (T thread : threadSet(key))
 				entries.add(new Entry<>(key, thread, get(key, thread)));
@@ -105,13 +109,18 @@ public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 	public String toString() {
 		String builder = "";
 		for (Entry<K, T, V> e : entrySet()) {
-			builder += (builder.isEmpty() ? "" : ", ") + e.toString();
+			builder += (builder.isEmpty() ? "" : ", ") + "("+e.toString()+")";
 		}
-		return "MultiMap:[" + builder + "]";
+		return "{" + builder + "}";
 	}
 
 	@Override
 	public String getDataName() {
-		return "SortedMultiMap(" + toString() + ")";
+		Map<String, Object> ser = new HashMap<>();
+		ser.put("name", "MultiMap");
+		ser.put("sorted", true);
+		ser.put("size", size());
+		ser.put("values", toString());
+		return Writer.write(ser);
 	}
 }

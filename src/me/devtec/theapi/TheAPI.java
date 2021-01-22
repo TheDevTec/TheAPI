@@ -58,7 +58,6 @@ import me.devtec.theapi.utils.listener.HandlerList;
 import me.devtec.theapi.utils.listener.Listener;
 import me.devtec.theapi.utils.listener.events.PlayerVanishEvent;
 import me.devtec.theapi.utils.nms.NMSAPI;
-import me.devtec.theapi.utils.nms.NMSAPI.ChatType;
 import me.devtec.theapi.utils.nms.NMSAPI.TitleAction;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.thapiutils.LoaderClass;
@@ -473,8 +472,12 @@ public class TheAPI {
 			Scheduler.cancelTask(task.get(p.getName()));
 			task.remove(p.getName());
 		}
-		BossBar a = bars.containsKey(p.getName()) ? bars.get(p.getName())
-				: new BossBar(p, TheAPI.colorize(text), progress, BarColor.GREEN, BarStyle.PROGRESS);
+		BossBar a = bars.getOrDefault(p.getName(), null);
+		if(a==null) {
+			a=new BossBar(p, TheAPI.colorize(text), progress, BarColor.GREEN, BarStyle.PROGRESS);
+			bars.put(p.getName(), a);
+			return a;
+		}
 		if (progress < 0)
 			progress = 0;
 		if (progress > 1)
@@ -563,10 +566,7 @@ public class TheAPI {
 		Validator.validate(fadeIn < 0, "FadeIn time is lower than zero");
 		Validator.validate(stay < 0, "Stay time is lower than zero");
 		Validator.validate(fadeOut < 0, "FadeOut time is lower than zero");
-		Object packet = NMSAPI.getPacketPlayOutTitle(TitleAction.ACTIONBAR, colorize(text), fadeIn, stay, fadeOut);
-		if (packet == null)
-			packet = NMSAPI.getPacketPlayOutChat(ChatType.CHAT, colorize(text));
-		NMSAPI.sendPacket(p, packet);
+		Ref.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.ACTIONBAR, colorize(text), fadeIn, stay, fadeOut));
 	}
 
 	public static enum SudoType {
@@ -674,9 +674,9 @@ public class TheAPI {
 		Validator.validate(p == null, "Player is null");
 		Validator.validate(firstLine == null, "FirstLine is null");
 		Validator.validate(nextLine == null, "NextLine is null");
-		NMSAPI.sendPacket(p,
+		Ref.sendPacket(p,
 				NMSAPI.getPacketPlayOutTitle(TitleAction.TITLE, Ref.IChatBaseComponent(TheAPI.colorize(firstLine))));
-		NMSAPI.sendPacket(p,
+		Ref.sendPacket(p,
 				NMSAPI.getPacketPlayOutTitle(TitleAction.SUBTITLE, Ref.IChatBaseComponent(TheAPI.colorize(nextLine))));
 	}
 

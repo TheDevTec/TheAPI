@@ -326,7 +326,7 @@ public class Writer implements JsonWriter {
 			return enumMap;
 		}
 		if (w instanceof Map) {
-			if (w instanceof HashMap || w instanceof LinkedHashMap || w instanceof TreeMap
+			if (w instanceof HashMap || w instanceof LinkedHashMap || w instanceof TreeMap 
 					|| w instanceof LinkedTreeMap || w instanceof WeakHashMap)
 				return fix((Map<?, ?>) w, fancy, addNulls);
 			Map<String, Object> enumMap = new HashMap<>();

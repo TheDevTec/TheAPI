@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.bukkit.entity.Player;
 
@@ -23,12 +24,12 @@ import me.devtec.theapi.utils.reflections.Ref;
  *
  */
 public class ScoreboardAPI {
-	private Data data = new Data();
-	private static Field teamlist = Ref.field(Ref.nms("PacketPlayOutScoreboardTeam"), TheAPI.isOlder1_9() ? "g" : "h");
-	private Player p;
-	private String player;
-	private int slott = -1;
-	private String name = "TheAPI";
+	protected Data data = new Data();
+	protected static Field teamlist = Ref.field(Ref.nms("PacketPlayOutScoreboardTeam"), TheAPI.isOlder1_9() ? "g" : "h");
+	protected Player p;
+	protected String player;
+	protected int slott = -1;
+	protected String name = "TheAPI";
 
 	public ScoreboardAPI(Player player) {
 		this(player, -1);
@@ -61,9 +62,12 @@ public class ScoreboardAPI {
 	}
 
 	public void destroy() {
+		for(String a : data.getKeys(player)){
+			Team team = data.getAs(player+"."+a, Team.class);
+			Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", team.currentPlayer, 0));
+			Ref.sendPacket(p, team.remove());
+		}
 		Ref.sendPacket(p, createObjectivePacket(1, null));
-		for(String a : data.getKeys(player))
-			removeLine(Integer.parseInt(a));
 	}
 
 	public void setTitle(String name) {
@@ -76,53 +80,58 @@ public class ScoreboardAPI {
 
 	public void setDisplayName(String a) {
 		name = TheAPI.colorize(a);
-		if (ScoreboardAPI.a)
-			name = name.substring(0, name.length() > 32 ? 32 : name.length());
+		if (ScoreboardAPI.a && name.length() > 32)
+			name = name.substring(0, 32);
 		Ref.sendPacket(p, createObjectivePacket(2, name));
 	}
 
 	public void addLine(String value) {
 		int i = -1;
-		while (true) {
-			++i;
-			if (!data.exists(player+"."+i)) {
-				setLine(i, value);
-				break;
-			}
-		}
+		Set<String> slots = data.getKeys(player);
+		while (!slots.contains(""+(++i)));
+		setLine(i, value);
 	}
 
 	public void setLine(int line, String value) {
 		value = TheAPI.colorize(value);
-		if(getLine(line)!=null && getLine(line).equals(value))return;
-		int slot = data.getKeys(player).size();
+		if(getLine(line)!=null && getLine(line).equals(a?cut(value):value))return;
+		Team team = null;
+		boolean add = true;
 		for(String wd : data.getKeys(player)) {
-			Team t = getTeam(Integer.valueOf(wd), 0);
+			Team t = data.getAs(player+"."+wd, Team.class);
 			if(t.name.equals(line+"")) {
-				slot=Integer.valueOf(TheCoder.fromColor(t.currentPlayer));
+				team=t;
+				add=false;
 			}
 		}
-		Team team = getTeam(line, slot);
-		if(team==null)team = getTeam(line, slot);
+		if(team==null)team = getTeam(line, data.getKeys(player).size());
 		team.setValue(value);
-		sendLine(team, line);
+		sendLine(team, line, add);
+	}
+
+	private String cut(String a) {
+		List<String> d = StringUtils.fixedSplit(a, 16);
+		if (a.length() <= 16)return d.get(0);
+		if (a.length() <= 32)return d.get(0)+d.get(1);
+		return d.get(0)+d.get(1)+d.get(2);
 	}
 
 	public void removeLine(int line) {
 		if(!data.exists(player+"."+line))return;
-		Team team = getTeam(line, line);
-		String old = team.currentPlayer;
-		if (old != null) {
-			Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", old, 0));
-			Ref.sendPacket(p, team.remove());
-		}
+		Team team = getTeam(line, 0);
+		Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", team.currentPlayer, 0));
+		Ref.sendPacket(p, team.remove());
 		data.remove(player+"."+line);
 	}
 	
 	public void removeUpperLines(int line) {
 		for(String a : data.getKeys(player)) {
-			if(Integer.parseInt(a)>line)
-				removeLine(Integer.parseInt(a));
+			if(Integer.parseInt(a)>line) {
+				Team team = data.getAs(player+"."+a, Team.class);
+				Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", team.currentPlayer, 0));
+				Ref.sendPacket(p, team.remove());
+				data.remove(player+"."+line);
+			}
 		}
 	}
 
@@ -139,20 +148,20 @@ public class ScoreboardAPI {
 		}
 		return lines;
 	}
-	
 
-	private void sendLine(Team team, int line) {
-		team.sendLine(p);
+	private void sendLine(Team team, int line, boolean add) {
+		if(a)Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, player, team.old, line));
+		team.sendLine();
 		Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.CHANGE, player, team.currentPlayer, slott==-1?line:slott));
 		team.reset();
-		data.set(player+"."+line, team);
+		if(add)
+			data.set(player+"."+line, team);
 	}
 
 	private Team getTeam(int line, int realPos) {
-		if (!data.exists(player+"."+line) || data.get(player+"."+line)==null) {
+		if (!data.exists(player+"."+line) || data.get(player+"."+line)==null)
 			data.set(player+"."+line, new Team(line, realPos));
-		}
-		return (Team) data.get(player+"."+line);
+		return data.getAs(player+"."+line, Team.class);
 	}
 
 	private Object createObjectivePacket(int mode, String displayName) {
@@ -168,6 +177,8 @@ public class ScoreboardAPI {
 	
 	private static boolean a = !TheAPI.isNewVersion();
 
+	private static String path = TheAPI.isOlder1_9() ? "h" : "i";
+	
 	public class Team {
 		private String prefix = "", suffix = "", currentPlayer, old;
 		private final String name;
@@ -187,26 +198,26 @@ public class ScoreboardAPI {
 				Ref.set(packet, "c", prefix);
 				Ref.set(packet, "d", suffix);
 			}
-			Ref.set(packet, TheAPI.isOlder1_9() ? "h" : "i", mode);
+			Ref.set(packet, path, mode);
 			return packet;
 		}
 
 		public Object remove() {
 			Object re = NMSAPI.getPacketPlayOutScoreboardTeam();
 			Ref.set(re, "a", name);
-			Ref.set(re, TheAPI.isOlder1_9() ? "h" : "i", 1);
+			Ref.set(re, path, 1);
 			first = true;
 			return re;
 		}
 
-		public void sendLine(Player p) {
+		public void sendLine() {
 			if (first)
 				Ref.sendPacket(p, c(0));
 			else if (changed)
 				Ref.sendPacket(p, c(2));
 			if (first || changedPlayer) {
-				if (old != null)
-					Ref.sendPacket(p, createPlayer(2, old));
+				if (old != null) 
+					Ref.sendPacket(p, createPlayer(4, old));
 				Ref.sendPacket(p, createPlayer(3, currentPlayer));
 				changedPlayer = false;
 				first = false;
@@ -221,23 +232,19 @@ public class ScoreboardAPI {
 		public Object createPlayer(int mode, String playerName) {
 			Object create = NMSAPI.getPacketPlayOutScoreboardTeam();
 			Ref.set(create, "a", name);
-			Ref.set(create, TheAPI.isOlder1_9() ? "h" : "i", mode);
-			if (TheAPI.isNewerThan(15))
-				((Collection<String>) Ref.get(create, teamlist)).add(playerName);
-			else
-				((List<String>) Ref.get(create, teamlist)).add(playerName);
+			Ref.set(create, path, mode);
+			((Collection<String>) Ref.get(create, teamlist)).add(playerName);
 			return create;
 		}
 
 		public String getValue() {
-			return prefix;
+			return ScoreboardAPI.a?prefix+currentPlayer+suffix:prefix;
 		}
 
 		private void setPlayer(String a) {
-			if (!currentPlayer.equals(a)) {
-				old = currentPlayer;
+			if (currentPlayer==null||!currentPlayer.equals(a))
 				changedPlayer = true;
-			}
+			old = currentPlayer;
 			currentPlayer = a;
 		}
 
@@ -255,19 +262,19 @@ public class ScoreboardAPI {
 					return;
 				}
 				if (a.length() <= 32) {
-					setPlayer(d.get(1));
 					if (!prefix.equals(d.get(0)))
 						changed = true;
 					prefix = d.get(0);
+					setPlayer(d.get(1));
 					if (!suffix.equals(""))
 						changed = true;
 					suffix = "";
 					return;
 				}
-				setPlayer(d.get(1));
 				if (!prefix.equals(d.get(0)))
 					changed = true;
 				prefix = d.get(0);
+				setPlayer(d.get(1));
 				if (!suffix.equals(d.get(2)))
 					changed = true;
 				suffix = d.get(2);

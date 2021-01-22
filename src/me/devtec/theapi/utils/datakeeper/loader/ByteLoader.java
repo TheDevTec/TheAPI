@@ -3,6 +3,7 @@ package me.devtec.theapi.utils.datakeeper.loader;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.io.ByteArrayDataInput;
@@ -11,11 +12,11 @@ import com.google.common.io.ByteStreams;
 import me.devtec.theapi.utils.json.Reader;
 
 public class ByteLoader extends DataLoader {
-	private LinkedHashMap<String, Object[]> data = new LinkedHashMap<>();
+	private Map<String, Object[]> data = new LinkedHashMap<>();
 	private boolean l;
 
 	@Override
-	public LinkedHashMap<String, Object[]> get() {
+	public Map<String, Object[]> get() {
 		return data;
 	}
 
@@ -95,14 +96,5 @@ public class ByteLoader extends DataLoader {
 	@Override
 	public boolean isLoaded() {
 		return l;
-	}
-	
-	public String toString() {
-		return getDataName();
-	}
-
-	@Override
-	public String getDataName() {
-		return "Data(ByteLoader:" + data.size() + ")";
 	}
 }

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import me.devtec.theapi.utils.datakeeper.abstracts.Data;
+import me.devtec.theapi.utils.json.Writer;
 
 public class MultiMap<K, T, V> implements Data {
 	private Map<K, Map<T, V>> data = new HashMap<>();
@@ -111,9 +112,9 @@ public class MultiMap<K, T, V> implements Data {
 	public String toString() {
 		String builder = "";
 		for (Entry<K, T, V> e : entrySet()) {
-			builder += (builder.isEmpty() ? "" : ", ") + e.toString();
+			builder += (builder.isEmpty() ? "" : ", ") + "("+e.toString()+")";
 		}
-		return "MultiMap:[" + builder + "]";
+		return "{" + builder + "}";
 	}
 
 	public static class Entry<K, T, V> {
@@ -152,12 +153,17 @@ public class MultiMap<K, T, V> implements Data {
 		}
 
 		public String toString() {
-			return k.toString() + ":" + t.toString() + ":" + v.toString();
+			return k+"="+t+"="+v;
 		}
 	}
 
 	@Override
 	public String getDataName() {
-		return "MultiMap(" + toString() + ")";
+		Map<String, Object> ser = new HashMap<>();
+		ser.put("name", "MultiMap");
+		ser.put("sorted", false);
+		ser.put("size", size());
+		ser.put("values", toString());
+		return Writer.write(ser);
 	}
 }

@@ -53,4 +53,12 @@ public abstract class DataLoader implements Data {
 		}catch(Exception err) {}
 		return new EmptyLoader();
 	}
+	
+	public String toString() {
+		return "{\"Data\":{\"name\":\""+this.getClass().getCanonicalName()+"\",\"size\":"+get().size()+",\"load\":"+isLoaded()+"}}";
+	}
+	
+	public String getDataName() {
+		return toString();
+	}
 }

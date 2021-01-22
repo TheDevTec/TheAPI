@@ -50,7 +50,7 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public static ItemStack create(Material material, int amount, String displayName, List<String> lore, int data) {
-		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount));
+		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(material, amount, (byte) data));
 		a.setDisplayName(displayName);
 		a.setLore(lore);
 		a.setDurability(data);
@@ -759,6 +759,11 @@ public class ItemCreatorAPI implements Cloneable {
 	@SuppressWarnings("unchecked")
 	public ItemStack create() {
 		ItemStack i = a;
+		if(i.getType().name().equals("LEGACY_SKULL_ITEM")||i.getType().name().equals("LEGACY_SKULL")||i.getType().name().equals("SKULL_ITEM")||i.getType().name().equals("SKULL")||i.getType().name().contains("_HEAD")) {
+			if(type==null)
+				setSkullType(dur);
+		}
+		
 		try {
 			if (type != null) {
 				a.setDurability((short) type.ordinal());
@@ -774,12 +779,10 @@ public class ItemCreatorAPI implements Cloneable {
 				i.setData(data);
 			if (name != null)
 				mf.setDisplayName(name);
-			if (model != -1 && TheAPI.isNewVersion() // 1.13+
-					&& !TheAPI.getServerVersion().contains("v1_13"))
+			if (model != -1 && TheAPI.isNewerThan(13))
 				mf.setCustomModelData(model);
 			if (unb) {
-				if (!TheAPI.isOlder1_9() && !TheAPI.getServerVersion().contains("v1_9")
-						&& !TheAPI.getServerVersion().contains("v1_10"))
+				if (TheAPI.isNewerThan(10))
 					mf.setUnbreakable(unb);
 				else {
 					addLore(" ");
