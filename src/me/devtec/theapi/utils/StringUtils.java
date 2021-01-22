@@ -388,7 +388,6 @@ public class StringUtils {
 	public static Pattern gradientFinder;
 	
 	private static String gradient(String msg, String fromHex, String toHex) {
-		msg=msg.replace("§", "&");
 		int length = msg.length();
 		boolean bold = false, italic = false, underlined = false, strikethrough = false, magic = false;
 		Color fromRGB = Color.decode(fromHex), toRGB = Color.decode(toHex);
@@ -469,29 +468,23 @@ public class StringUtils {
 		return msg;
 	}
 	
-	public static String gradient(String msg) {
-		String legacyMsg = msg;
+	public static String gradient(String legacyMsg) {
 		for (String code : LoaderClass.colorMap.keySet()) {
 			String rawCode = LoaderClass.tagG + code;
 			if (!legacyMsg.toLowerCase().contains(rawCode))
 				continue;
 			legacyMsg = legacyMsg.replace(rawCode, LoaderClass.colorMap.get(code));
 		}
-		StringBuilder finalMsg = new StringBuilder(legacyMsg.length());
 		Matcher matcher = gradientFinder.matcher(legacyMsg);
 		while(matcher.find()) {
-			legacyMsg=legacyMsg.substring(matcher.group().length()+1);
-			if(matcher.groupCount()==0 || matcher.group(1)==null) {
-				finalMsg.append(matcher.group());
+			if(matcher.groupCount()==0 || matcher.group(1)==null)
 				continue;
-			}
 			String hexA = matcher.group(1);
 			String hexB = matcher.group(3);
 			String text = matcher.group(2);
-			finalMsg.append(gradient(text, hexA, hexB));
+			legacyMsg=legacyMsg.replaceFirst(matcher.group(),gradient(text, hexA, hexB));
 		}
-		finalMsg.append(legacyMsg);
-		return finalMsg.toString();
+		return legacyMsg;
 	}
 
 	private static boolean neww = TheAPI.isNewerThan(15);
