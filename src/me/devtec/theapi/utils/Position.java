@@ -334,16 +334,22 @@ public class Position implements Cloneable {
 		return false;
 	}
 
+	private static Constructor<?> c;
+	private static int t;
+	static {
+		c=Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("IBlockAccess"), Ref.nms("BlockPosition"));
+		if(c==null) {
+			c=Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("World"), Ref.nms("BlockPosition"));
+			if(c==null) {
+				c=Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class, int.class, Ref.nms("World"));
+				t=1;
+			}
+		}
+	}
+	
 	public static void updateBlockAt(Position pos, Object oldBlock) {
 		NMSAPI.refleshBlock(pos, oldBlock);
-		sendBlockUpdateAt(pos);
-	}
-
-	private static Constructor<?> c = Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("World"),
-			Ref.nms("BlockPosition"));
-
-	public static void sendBlockUpdateAt(Position pos) {
-		Object packet = Ref.newInstance(c, Ref.world(pos.getWorld()), pos.getBlockPosition());
+		Object packet = t==0?Ref.newInstance(c, Ref.world(pos.getWorld()), pos.getBlockPosition()):Ref.newInstance(c, pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
 		for (Player p : TheAPI.getOnlinePlayers())
 			Ref.sendPacket(p, packet);
 	}

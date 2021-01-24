@@ -32,7 +32,7 @@ public class BlocksAPI {
 	}
 	
 	private static void set(Shape form, Position where, int radius, Blocking task) {
-		World w = where.getWorld();
+		String w = where.getWorld().getName();
 		int Xx = where.getBlockX();
 		int Yy = where.getBlockY();
 		int Zz = where.getBlockZ();
@@ -43,12 +43,16 @@ public class BlocksAPI {
 					for (int z = Zz - radius; z <= Zz + radius; z++)
 						task.set(new Position(w, x, y, z));
 			break;
-		case SPHERE:
-			for (int Y = -radius; Y < radius; Y++)
-				for (int X = -radius; X < radius; X++)
-					for (int Z = -radius; Z < radius; Z++)
-						if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius)
-							task.set(new Position(w, X + Xx, Y + Yy, Z + Zz));
+			default: break;
+		}
+		if(form!=Shape.SQAURE) {
+			for(int x = Xx - radius; x <= Xx + radius; x++)
+		           for(int y = Yy - radius; y <= Yy + radius; y++)
+		               for(int z = Zz - radius; z <= Zz + radius; z++) {
+		                   double distance = ((Xx-x) * (Xx-x) + ((Zz-z) * (Zz-z)) + ((Yy-y) * (Yy-y)));
+		                   if(distance < radius * radius && !(form==Shape.HOLLOW_SPHERE && distance < ((radius - 1) * (radius - 1))))
+		                	   task.set(new Position(w, x, y, z));
+		               }
 		}
 	}
 
@@ -71,7 +75,7 @@ public class BlocksAPI {
 	}
 
 	public static enum Shape {
-		SPHERE, SQAURE
+		HOLLOW_SPHERE, SPHERE, SQAURE
 	}
 
 	public static Schemate getSchemate(String name) {
@@ -181,7 +185,10 @@ public class BlocksAPI {
 	public static void set(Position loc, TheMaterial material) {
 		if (!material.getType().isBlock())
 			return;
+		Object old = loc.getType().getIBlockData();
 		loc.setType(material);
+		Position.updateBlockAt(loc, old);
+		Position.updateLightAt(loc);
 	}
 
 	public static void set(Block loc, TheMaterial material) {
@@ -222,7 +229,7 @@ public class BlocksAPI {
 
 	private static List<Position> g(Shape form, Position where, int radius, List<TheMaterial> ignore) {
 		List<Position> blocks = new ArrayList<>();
-		World w = where.getWorld();
+		String w = where.getWorld().getName();
 		int Xx = where.getBlockX();
 		int Yy = where.getBlockY();
 		int Zz = where.getBlockZ();
@@ -231,21 +238,22 @@ public class BlocksAPI {
 			for (int x = Xx - radius; x <= Xx + radius; x++)
 				for (int y = Yy - radius; y <= Yy + radius; y++)
 					for (int z = Zz - radius; z <= Zz + radius; z++) {
-						Position s = new Position(w, x, y, z);
-						if (ignore == null || !ignore.contains(s.getType()))
-							blocks.add(s);
+						Position s = (new Position(w, x, y, z));
+	                	   if (ignore == null || !ignore.contains(s.getType()))blocks.add(s);
 					}
 			break;
-		case SPHERE:
-			for (int Y = -radius; Y < radius; Y++)
-				for (int X = -radius; X < radius; X++)
-					for (int Z = -radius; Z < radius; Z++)
-						if (Math.sqrt((X * X) + (Y * Y) + (Z * Z)) <= radius) {
-							Position s = new Position(w, X + Xx, Y + Yy, Z + Zz);
-							if (ignore == null || !ignore.contains(s.getType()))
-								blocks.add(s);
-						}
-			break;
+			default: break;
+		}
+		if(form!=Shape.SQAURE) {
+			for(int x = Xx - radius; x <= Xx + radius; x++)
+		           for(int y = Yy - radius; y <= Yy + radius; y++)
+		              for(int z = Zz - radius; z <= Zz + radius; z++) {
+		            	  double distance = ((Xx-x) * (Xx-x) + ((Zz-z) * (Zz-z)) + ((Yy-y) * (Yy-y)));
+		                  if(distance < radius * radius && !(form==Shape.HOLLOW_SPHERE && distance < ((radius - 1) * (radius - 1)))) {
+		                	   Position s = (new Position(w, x, y, z));
+		                	   if (ignore == null || !ignore.contains(s.getType()))blocks.add(s);
+		                  }
+		              }
 		}
 		return blocks;
 	}
@@ -613,7 +621,8 @@ public class BlocksAPI {
 			public void run() {
 				HashMap<Long, Object> chunks = new HashMap<>();
 				for(Position pos : get(a, b)) {
-					if (!ignore.contains(pos.getType())) {
+					TheMaterial before = pos.getType();
+					if (!ignore.contains(before)) {
 						Object c = pos.getNMSChunk();
 						if (!chunks.containsKey(pos.getChunkKey()))
 							chunks.put(pos.getChunkKey(), c);
@@ -632,20 +641,7 @@ public class BlocksAPI {
 						else
 							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF,
 									cr);
-						Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"),
-								Ref.nms("BlockPosition"), Ref.nms("IBlockData")), pos.getBlockPosition(), cr);
-						if (packet == null)
-							packet = Ref.newInstance(
-									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("World"),
-											Ref.nms("BlockPosition")),
-									Ref.world(pos.getWorld()), pos.getBlockPosition());
-						if (packet == null)
-							packet = Ref.newInstance(
-									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class,
-											int.class, Ref.nms("World")),
-									pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
-						for (Player p : pos.getWorld().getPlayers())
-							Ref.sendPacket(p, packet);
+						Position.updateBlockAt(pos, before.getIBlockData());
 					}
 				}
 				chunks.clear();
@@ -674,7 +670,8 @@ public class BlocksAPI {
 			public void run() {
 				HashMap<Long, Object> chunks = new HashMap<>();
 				for(Position pos : get(a, b)) {
-					if (!ignore.contains(pos.getType())) {
+					TheMaterial before = pos.getType();
+					if (!ignore.contains(before)) {
 						Object c = pos.getNMSChunk();
 						if (!chunks.containsKey(pos.getChunkKey()))
 							chunks.put(pos.getChunkKey(), c);
@@ -693,20 +690,7 @@ public class BlocksAPI {
 						else
 							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF,
 									cr);
-						Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"),
-								Ref.nms("BlockPosition"), Ref.nms("IBlockData")), pos.getBlockPosition(), cr);
-						if (packet == null)
-							packet = Ref.newInstance(
-									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("World"),
-											Ref.nms("BlockPosition")),
-									Ref.world(pos.getWorld()), pos.getBlockPosition());
-						if (packet == null)
-							packet = Ref.newInstance(
-									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class,
-											int.class, Ref.nms("World")),
-									pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
-						for (Player p : pos.getWorld().getPlayers())
-							Ref.sendPacket(p, packet);
+						Position.updateBlockAt(pos, before.getIBlockData());
 					}
 				}
 				chunks.clear();
@@ -747,7 +731,8 @@ public class BlocksAPI {
 			public void run() {
 				HashMap<Long, Object> chunks = new HashMap<>();
 				for(Position pos : get(a, b)) {
-					if (block.contains(pos.getType())) {
+					TheMaterial before = pos.getType();
+					if (block.contains(before)) {
 						Object c = pos.getNMSChunk();
 						if (!chunks.containsKey(pos.getChunkKey()))
 							chunks.put(pos.getChunkKey(), c);
@@ -766,20 +751,7 @@ public class BlocksAPI {
 						else
 							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF,
 									cr);
-						Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"),
-								Ref.nms("BlockPosition"), Ref.nms("IBlockData")), pos.getBlockPosition(), cr);
-						if (packet == null)
-							packet = Ref.newInstance(
-									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("World"),
-											Ref.nms("BlockPosition")),
-									Ref.world(pos.getWorld()), pos.getBlockPosition());
-						if (packet == null)
-							packet = Ref.newInstance(
-									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class,
-											int.class, Ref.nms("World")),
-									pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
-						for (Player p : pos.getWorld().getPlayers())
-							Ref.sendPacket(p, packet);
+						Position.updateBlockAt(pos, before.getIBlockData());
 					}
 				}
 				chunks.clear();
@@ -805,7 +777,8 @@ public class BlocksAPI {
 			public void run() {
 				HashMap<Long, Object> chunks = new HashMap<>();
 				for(Position pos : get(a, b)) {
-					if (block.contains(pos.getType())) {
+					TheMaterial before = pos.getType();
+					if (block.contains(before)) {
 						Object c = pos.getNMSChunk();
 						if (!chunks.containsKey(pos.getChunkKey()))
 							chunks.put(pos.getChunkKey(), c);
@@ -824,20 +797,7 @@ public class BlocksAPI {
 						else
 							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF,
 									cr);
-						Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"),
-								Ref.nms("BlockPosition"), Ref.nms("IBlockData")), pos.getBlockPosition(), cr);
-						if (packet == null)
-							packet = Ref.newInstance(
-									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("World"),
-											Ref.nms("BlockPosition")),
-									Ref.world(pos.getWorld()), pos.getBlockPosition());
-						if (packet == null)
-							packet = Ref.newInstance(
-									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class,
-											int.class, Ref.nms("World")),
-									pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
-						for (Player p : pos.getWorld().getPlayers())
-							Ref.sendPacket(p, packet);
+						Position.updateBlockAt(pos, before.getIBlockData());
 					}
 				}
 				chunks.clear();
@@ -873,7 +833,8 @@ public class BlocksAPI {
 			public void run() {
 				HashMap<Long, Object> chunks = new HashMap<>();
 				for(Position pos : get(a, b)) {
-					if (block.contains(pos.getType())) {
+					TheMaterial before = pos.getType();
+					if (block.contains(before)) {
 						Object c = pos.getNMSChunk();
 						if (!chunks.containsKey(pos.getChunkKey()))
 							chunks.put(pos.getChunkKey(), c);
@@ -892,20 +853,7 @@ public class BlocksAPI {
 						else
 							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF,
 									cr);
-						Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"),
-								Ref.nms("BlockPosition"), Ref.nms("IBlockData")), pos.getBlockPosition(), cr);
-						if (packet == null)
-							packet = Ref.newInstance(
-									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("World"),
-											Ref.nms("BlockPosition")),
-									Ref.world(pos.getWorld()), pos.getBlockPosition());
-						if (packet == null)
-							packet = Ref.newInstance(
-									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class,
-											int.class, Ref.nms("World")),
-									pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
-						for (Player p : pos.getWorld().getPlayers())
-							Ref.sendPacket(p, packet);
+						Position.updateBlockAt(pos, before.getIBlockData());
 					}
 				}
 				chunks.clear();
@@ -926,7 +874,8 @@ public class BlocksAPI {
 			public void run() {
 				HashMap<Long, Object> chunks = new HashMap<>();
 				for(Position pos : get(a, b)) {
-					if (block.contains(pos.getType())) {
+					TheMaterial before = pos.getType();
+					if (block.contains(before)) {
 						Object c = pos.getNMSChunk();
 						chunks.put(pos.getChunkKey(), c);
 						Object sc = ((Object[]) Ref.invoke(c, get))[pos.getBlockY() >> 4];
@@ -943,20 +892,7 @@ public class BlocksAPI {
 									pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
 						else
 							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
-						Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutBlockChange"),
-								Ref.nms("BlockPosition"), Ref.nms("IBlockData")), pos.getBlockPosition(), cr);
-						if (packet == null)
-							packet = Ref.newInstance(
-									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("World"),
-											Ref.nms("BlockPosition")),
-									Ref.world(pos.getWorld()), pos.getBlockPosition());
-						if (packet == null)
-							packet = Ref.newInstance(
-									Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class,
-											int.class, Ref.nms("World")),
-									pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
-						for (Player p : pos.getWorld().getPlayers())
-							Ref.sendPacket(p, packet);
+						Position.updateBlockAt(pos, before.getIBlockData());
 					}
 				}
 				chunks.clear();

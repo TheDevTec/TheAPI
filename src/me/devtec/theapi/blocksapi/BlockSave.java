@@ -239,8 +239,12 @@ public class BlockSave {
 	public long load(Position pos, boolean createBlock) {
 		long k = (pos.getBlockX() >> 4 & 0xFFFF0000L) << 16L | (pos.getBlockX() >> 4 & 0xFFFFL) << 0L;
 		k |= (pos.getBlockZ() >> 4 & 0xFFFF0000L) << 32L | (pos.getBlockZ() >> 4 & 0xFFFFL) << 16L;
-		if (createBlock)
+		if (createBlock) {
+			Object old = pos.getType().getIBlockData();
 			pos.setType(type);
+			Position.updateBlockAt(pos, old);
+			Position.updateLightAt(pos);
+		}
 		String n = type.getType().name();
 		if (n.contains("SIGN")) {
 			Sign w = (Sign) pos.getBlock().getState();
