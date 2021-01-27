@@ -22,6 +22,8 @@ public class Animation {
 			c = 0;
 		if (last - System.currentTimeMillis()/50 + tics <= 0) {
 			last = System.currentTimeMillis()/50;
+			if (c >= lines.size())
+				c = 0;
 			return lines.get(c++);
 		}
 		return lines.get(c);

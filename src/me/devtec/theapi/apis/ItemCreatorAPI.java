@@ -1,5 +1,6 @@
 package me.devtec.theapi.apis;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -264,16 +265,19 @@ public class ItemCreatorAPI implements Cloneable {
 		return url;
 	}
 
+	private static Method get = Ref.method(Ref.getClass("com.google.common.collect.ForwardingMultimap"), "get", Object.class);
+	static {
+		if(get==null) {
+			get = Ref.method(Ref.getClass("net.minecraft.util.com.google.common.collect.ForwardingMultimap"), "get", Object.class);
+		}
+	}
+	
 	public String getOwnerByValues() {
 		if (a.hasItemMeta())
 			if (a.getItemMeta() instanceof SkullMeta)
-				return (String) Ref
-						.invoke(Ref
+				return (String) Ref.invoke(Ref
 								.invoke(Ref.invoke(Ref.get(a.getItemMeta(), "profile"), "getProperties"),
-										Ref.method(Ref.invoke(Ref.get(a.getItemMeta(), "profile"), "getProperties")
-												.getClass().getSuperclass(), "get", Object.class),
-										"textures"),
-								"getValue");
+										get,"textures"),"getValue");
 		return text;
 	}
 

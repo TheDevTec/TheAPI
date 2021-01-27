@@ -1,6 +1,5 @@
 package me.devtec.theapi.utils;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -13,32 +12,149 @@ import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.thapiutils.LoaderClass;
 
 public class TheMaterial implements Cloneable {
-	private static Constructor<?> itemStack = Ref.constructor(Ref.nms("ItemStack"), Ref.nms("Block"));
-	static Method mm = Ref.method(Ref.craft("inventory.CraftItemStack"), "getMaterial", Ref.nms("IBlockData"));
-	static int i = 0;
+	static Method mm, mat, create;
+	static Class<?> block = Ref.nms("Block"), item = Ref.nms("Item");
+
 	static {
-		if(mm==null) {
-			i=1;
-			mm = Ref.method(Ref.craft("inventory.CraftItemStack"), "asNewCraftStack", Ref.nms("Item"));
+		create = Ref.method(Ref.craft("inventory.CraftItemStack"), "asNewCraftStack", Ref.nms("Item"));
+		if(!TheAPI.isNewVersion()) {
+			mm=Ref.method(Ref.craft("util.CraftMagicNumbers"), "getId", Ref.nms("Block"));
+			mat=Ref.method(Material.class, "getMaterial", int.class);
 		}
 	}
 
-	public TheMaterial(Object IBlockDataOrBlock) {
+	public static TheMaterial fromData(Object blockData) {
+		return new TheMaterial(blockData);
+	}
+
+	public static TheMaterial fromData(Object blockData, int data) {
+		return new TheMaterial(blockData, data);
+	}
+	
+	private TheMaterial(Object blockData, int data) { //1.7.10 support
+		this.data=data;
 		if(TheAPI.isNewVersion()) {
-			ItemStack stack = null;
-			if(i==0) {
-				stack = (((MaterialData)Ref.invokeNulled(mm, IBlockDataOrBlock)).toItemStack());
-			}else {
-				stack = (ItemStack)Ref.invokeNulled(mm, Ref.invoke(Ref.invoke(IBlockDataOrBlock, "getBlock"),"getItem"));
+			if(block.isInstance(blockData)) {
+				ItemStack stack = (ItemStack)Ref.invokeNulled(create, Ref.invoke(blockData,"getItem"));
+				m = stack.getType();
+				this.amount = stack.getAmount();
+				return;
 			}
+			if(item.isInstance(blockData)) {
+				ItemStack stack = (ItemStack)Ref.invokeNulled(create, blockData);
+				m = stack.getType();
+				this.amount = stack.getAmount();
+				return;
+			}
+			ItemStack stack = (ItemStack)Ref.invokeNulled(create, Ref.invoke(Ref.invoke(blockData, "getBlock"),"getItem"));
 			m = stack.getType();
-			this.data = stack.getData().getData();
 			this.amount = stack.getAmount();
+			return;
 		}else {
-			ItemStack stack = ((ItemStack)Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"), "asBukkitCopy", Ref.newInstance(itemStack, Ref.invoke(IBlockDataOrBlock, "getBlock"))));
+			if(TheAPI.isOlderThan(8)) { //1.7.10
+				if(item.isInstance(blockData)) {
+					ItemStack stack = (ItemStack)Ref.invokeNulled(create, blockData);
+					m = stack.getType();
+					this.amount = stack.getAmount();
+					return;
+				}
+				if(block.isInstance(blockData)) {
+					int id = (int)Ref.invokeNulled(mm, blockData);
+					m=(Material) Ref.invokeNulled(mat, id);
+					amount=1;
+					return;
+				}
+				m=Material.AIR;
+				amount=1;
+				return;
+			}
+			if(item.isInstance(blockData)) {
+				ItemStack stack = (ItemStack)Ref.invokeNulled(create, blockData);
+				m = stack.getType();
+				this.data = stack.getData().getData();
+				this.amount = stack.getAmount();
+				return;
+			}
+			if(block.isInstance(blockData)) {
+				int id = (int)Ref.invokeNulled(mm, blockData);
+				m=(Material) Ref.invokeNulled(mat, id);
+				amount=1;
+				return;
+			}
+			int id = (int)Ref.invokeNulled(mm, Ref.invoke(blockData, "getBlock"));
+			m=(Material) Ref.invokeNulled(mat, id);
+			amount=1;
+		}
+	}
+
+	private TheMaterial(Object blockData) {
+		if(blockData==null)return;
+		if(TheAPI.isNewVersion()) {
+			if(block.isInstance(blockData)) {
+				ItemStack stack = (ItemStack)Ref.invokeNulled(create, Ref.invoke(blockData,"getItem"));
+				m = stack.getType();
+				this.data = stack.getData().getData();
+				this.amount = stack.getAmount();
+				return;
+			}
+			if(item.isInstance(blockData)) {
+				ItemStack stack = (ItemStack)Ref.invokeNulled(create, blockData);
+				m = stack.getType();
+				this.data = stack.getData().getData();
+				this.amount = stack.getAmount();
+				return;
+			}
+			ItemStack stack = (ItemStack)Ref.invokeNulled(create, Ref.invoke(Ref.invoke(blockData, "getBlock"),"getItem"));
 			m = stack.getType();
 			this.data = stack.getData().getData();
 			this.amount = stack.getAmount();
+			return;
+		}else {
+			if(TheAPI.isOlderThan(8)) { //1.7.10
+				if(item.isInstance(blockData)) {
+					ItemStack stack = (ItemStack)Ref.invokeNulled(create, blockData);
+					m = stack.getType();
+					this.data = stack.getData().getData();
+					this.amount = stack.getAmount();
+					return;
+				}
+				if(block.isInstance(blockData)) {
+					int id = (int)Ref.invokeNulled(mm, blockData);
+					m=(Material) Ref.invokeNulled(mat, id);
+					amount=1;
+					return;
+				}
+				m=Material.AIR;
+				amount=1;
+				return;
+			}
+			if(item.isInstance(blockData)) {
+				ItemStack stack = (ItemStack)Ref.invokeNulled(create, blockData);
+				m = stack.getType();
+				this.data = stack.getData().getData();
+				this.amount = stack.getAmount();
+				return;
+			}
+			if(block.isInstance(blockData)) {
+				Object bdata= Ref.invoke(blockData, "getBlockData");
+				int id = (int)Ref.invokeNulled(mm, blockData);
+				m=(Material) Ref.invokeNulled(mat, id);
+				try {
+					data=(byte)Ref.invoke(blockData, "toLegacyData",bdata);
+				}catch(Exception | NoSuchMethodError outDated) {
+					data=0;
+				}
+				amount=1;
+				return;
+			}
+			int id = (int)Ref.invokeNulled(mm, Ref.invoke(blockData, "getBlock"));
+			m=(Material) Ref.invokeNulled(mat, id);
+			try {
+				data=(int)Ref.invoke(Ref.invoke(blockData, "getBlock"),Ref.method(Ref.nms("Block"), "toLegacyData", Ref.nms("IBlockData")),blockData);
+			}catch(Exception | NoSuchMethodError outDated) {
+				data=0;
+			}
+			amount=1;
 		}
 	}
 
@@ -229,10 +345,6 @@ public class TheMaterial implements Cloneable {
 	}
 
 	public TheMaterial clone() {
-		try {
-			return (TheMaterial) super.clone();
-		} catch (Exception e) {
-			return null;
-		}
+		return new TheMaterial(m, data, amount);
 	}
 }

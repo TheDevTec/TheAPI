@@ -241,7 +241,7 @@ public class YamlLoader extends DataLoader {
 		if (data.containsKey(key)) {
 			data.get(key)[0]=o;
 		} else
-			set(key, new Object[] {o, lines});
+			set(key, new Object[] {o, lines.isEmpty()?null:new LinkedList<>(lines)});
 		lines.clear();
 	}
 

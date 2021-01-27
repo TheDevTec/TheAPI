@@ -841,6 +841,12 @@ public class TheAPI {
 				: getUser(playerName).getBoolean("vanish");
 	}
 
+	public static boolean hasVanish(Player player) {
+		if(player==null)return false;
+		if(player.isOnline())return hasSuperVanish(player) || getUser(player).getBoolean("vanish");
+		return getUser(player).getBoolean("vanish");
+	}
+
 	public static String getVanishPermission(String playerName) {
 		return getUser(playerName).getString("vanish.perm");
 	}

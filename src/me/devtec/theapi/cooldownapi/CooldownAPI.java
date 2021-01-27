@@ -2,6 +2,8 @@ package me.devtec.theapi.cooldownapi;
 
 import java.util.UUID;
 
+import org.bukkit.entity.Player;
+
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.datakeeper.User;
 import me.devtec.theapi.utils.thapiutils.Validator;
@@ -20,6 +22,10 @@ public class CooldownAPI {
 
 	public CooldownAPI(UUID player) {
 		this(TheAPI.getUser(player));
+	}
+
+	public CooldownAPI(Player player) {
+		this(TheAPI.getUser(player.getUniqueId()));
 	}
 
 	public User getUser() {

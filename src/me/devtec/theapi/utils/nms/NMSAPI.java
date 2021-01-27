@@ -430,14 +430,12 @@ public class NMSAPI {
 
 	static Field aField, bField;
 	static {
-		try {
-			aField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "header");
-			if (aField == null)
-				aField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "a");
-			bField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "footer");
-			if (bField == null)
-				bField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "b");
-		}catch(Exception e) {}
+		aField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "header");
+		if (aField == null)
+			aField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "a");
+		bField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "footer");
+		if (bField == null)
+			bField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "b");
 	}
 	public static Object getPacketPlayOutPlayerListHeaderFooter(Object headerIChatBaseComponent, Object footerIChatBaseComponent) {
 		if(pTab!=null) {

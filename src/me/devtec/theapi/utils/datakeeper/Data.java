@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -647,7 +648,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	@Override
 	public String getDataName() {
-		return "Data(" + (a != null ? "'" + a.getName() + "'" : "") + ")";
+		HashMap<String, Object> s = new HashMap<>();
+		if(a!=null)s.put("file", a.getPath()+"/"+a.getName());
+		s.put("loader", loader.getDataName());
+		return Writer.write(s);
 	}
 
 	public Data clear() {
@@ -661,19 +665,29 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Data merge(Data f, boolean addHeader, boolean addFooter) {
+	public boolean merge(Data f, boolean addHeader, boolean addFooter) {
+		boolean change = false;
 		for(Entry<String, Object[]> s : f.loader.get().entrySet()) {
-			if(get(s.getKey())==null && s.getValue()[0]!=null)
+			if(get(s.getKey())==null && s.getValue()[0]!=null) {
 				set(s.getKey(), s.getValue()[0]);
-			if(getComments(s.getKey()) != null && getComments(s.getKey()).isEmpty() && (s.getValue()[1]==null||!((List<String>) s.getValue()[1]).isEmpty()))
+				change = true;
+			}
+			List<String> com = getComments(s.getKey());
+			if((com == null || com.isEmpty()) && (s.getValue()[1]!=null&&!((List<String>) s.getValue()[1]).isEmpty())) {
 				setComments(s.getKey(), (List<String>) s.getValue()[1]);
+				change = true;
+			}
 		}
-		if(f.loader.getHeader()!=null)
-		if(addHeader && !loader.getHeader().containsAll(f.loader.getHeader()))
+		if(addHeader)
+		if(f.loader.getHeader()==null || f.loader.getHeader()!=null && !loader.getHeader().containsAll(f.loader.getHeader())) {
 			setHeader(f.loader.getHeader());
-		if(f.loader.getFooter()!=null)
-		if(addFooter && !loader.getFooter().containsAll(f.loader.getFooter()))
+			change = true;
+		}
+		if(addFooter)
+		if(f.loader.getFooter()==null || f.loader.getFooter()!=null && !loader.getFooter().containsAll(f.loader.getFooter())) {
 			setFooter(f.loader.getFooter());
-		return this;
+			change = true;
+		}
+		return change;
 	}
 }

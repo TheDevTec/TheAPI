@@ -7,8 +7,8 @@
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/Vault.jar"/>
-	<classpathentry kind="lib" path="C:/EclipseUtils/PlaceholderAPI-2.10.9.jar"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/Spigot.jar"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/spigot-1.7.10.jar"/>
+	<classpathentry kind="lib" path="C:/EclipseUtils/PlaceholderAPI-2.10.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

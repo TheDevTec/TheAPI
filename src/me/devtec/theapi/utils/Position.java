@@ -103,8 +103,19 @@ public class Position implements Cloneable {
 		return getType().getType();
 	}
 
+	private static Method getter, getdata;
+	static {
+		if(TheAPI.isOlderThan(8)) {
+			getdata=Ref.method(Ref.nms("Chunk"), "getData", int.class, int.class, int.class);
+			getter = Ref.method(Ref.nms("Chunk"), "getType", int.class, int.class, int.class);
+		}else
+		getter = Ref.method(Ref.nms("Chunk"), "getBlockData", Ref.nms("BlockPosition"));
+	}
+	
 	public TheMaterial getType() {
-		return new TheMaterial(Ref.invoke(Ref.world(getWorld()),Ref.method(Ref.nms("World"), "getType", Ref.nms("BlockPosition")), getBlockPosition()));
+		if(TheAPI.isOlderThan(8)) //1.7.10
+			return TheMaterial.fromData(Ref.invoke(getNMSChunk(), getter, (int)x&0xF, (int)y, (int)z&0xF), (byte)Ref.invoke(getNMSChunk(), getdata, (int)x & 0xF, (int)y & 0xFF, (int)z & 0xF));
+		return TheMaterial.fromData(Ref.invoke(getNMSChunk(), getter, getBlockPosition()));
 	}
 
 	public Position subtract(double x, double y, double z) {
