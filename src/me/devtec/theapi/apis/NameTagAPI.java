@@ -1,14 +1,12 @@
 package me.devtec.theapi.apis;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.utils.reflections.Ref;
 
 public class NameTagAPI {
 	private String prefix, suffix;
@@ -66,30 +64,22 @@ public class NameTagAPI {
 
 	public void setPlayerName(String name) {
 		try {
-			Method getHandle = p.getClass().getMethod("getHandle");
-			Object entityPlayer = getHandle.invoke(p);
 			boolean gameProfileExists = false;
 			try {
 				Class.forName("net.minecraft.util.com.mojang.authlib.GameProfile");
 				gameProfileExists = true;
 			} catch (Exception e) {
-
-			}
-			try {
-				Class.forName("com.mojang.authlib.GameProfile");
-				gameProfileExists = true;
-			} catch (Exception e) {
-
+				try {
+					Class.forName("com.mojang.authlib.GameProfile");
+					gameProfileExists = true;
+				} catch (Exception er) {
+				}
 			}
 			if (!gameProfileExists) {
-				Field nameField = entityPlayer.getClass().getSuperclass().getDeclaredField("name");
-				nameField.setAccessible(true);
-				nameField.set(entityPlayer, name);
+				Ref.set(Ref.player(p), "name", name);
 			} else {
-				Object profile = entityPlayer.getClass().getMethod("getProfile").invoke(entityPlayer);
-				Field ff = profile.getClass().getDeclaredField("name");
-				ff.setAccessible(true);
-				ff.set(profile, name);
+				Object profile = Ref.invoke(Ref.player(p), "getProfile");
+				Ref.set(profile, "name", name);
 			}
 			for (Player p : TheAPI.getOnlinePlayers()) {
 				p.hidePlayer(this.p);
@@ -126,56 +116,53 @@ public class NameTagAPI {
 	 */
 
 	public void setNameTag(String teamName, Scoreboard sb) {
-		if (teamName == null)
-			teamName = "z";
-		if (sb == null)
-			sb = p.getScoreboard();
-		if (teamName.length() > 16) {
-			teamName = teamName.substring(0, 15);
-		}
+		if (teamName == null)teamName = "z";
+		if (sb == null)sb = p.getScoreboard();
+		if (teamName.length() > 16)teamName = teamName.substring(0, 15);
 		Team t = sb.getTeam(teamName);
-		if (t == null)
-			t=sb.registerNewTeam(teamName);
+		if (t == null)t=sb.registerNewTeam(teamName);
 		if (suffix != null) {
 			if (TheAPI.isOlder1_9()) {
-				if (suffix.length() > 16) {
-					suffix = suffix.substring(0, 15);
-				}
-				if (!t.getSuffix().equals(TheAPI.colorize(suffix)))
-					t.setSuffix(TheAPI.colorize(suffix));
+				String cut = TheAPI.colorize(suffix);
+				if (cut.length() > 16)
+					cut = cut.substring(0, 15);
+				if (!t.getSuffix().equals(cut))
+					t.setSuffix(cut);
 			} else {
 				try {
-					if (suffix.length() > 32) {
-						suffix = suffix.substring(0, 31);
+					String cut = TheAPI.colorize(suffix);
+					if (cut.length() > 32) {
+						cut = cut.substring(0, 31);
 					}
-					if (!t.getSuffix().equals(TheAPI.colorize(suffix)))
-						t.setSuffix(TheAPI.colorize(suffix));
+					if (!t.getSuffix().equals(cut))
+						t.setSuffix(cut);
 				} catch (Exception e) {
 				}
 			}
 		}
 		if (prefix != null) {
 			if (TheAPI.isOlder1_9()) {
-				if (prefix.length() > 16) {
-					prefix = suffix.substring(0, 15);
-				}
-				if (!t.getPrefix().equals(TheAPI.colorize(prefix)))
-					t.setPrefix(TheAPI.colorize(prefix));
+				String cut = TheAPI.colorize(prefix);
+				if (cut.length() > 16)
+					cut = cut.substring(0, 15);
+				if (!t.getPrefix().equals(cut))
+					t.setPrefix(cut);
 			} else {
 				try {
-					if (prefix.length() > 32) {
-						prefix = prefix.substring(0, 31);
+					String cut = TheAPI.colorize(prefix);
+					if (cut.length() > 32) {
+						cut = cut.substring(0, 31);
 					}
-					if (!t.getPrefix().equals(TheAPI.colorize(prefix)))
-						t.setPrefix(TheAPI.colorize(prefix));
+					if (!t.getPrefix().equals(cut))
+						t.setPrefix(cut);
 				} catch (Exception e) {
 				}
+				if (TheAPI.isNewVersion())
+					if(!ChatColor.getLastColors(prefix).trim().equals("")) {
+						t.setColor(ChatColor.getByChar(ChatColor.getLastColors(prefix).substring(1,2)));
+					}else
+						t.setColor(ChatColor.WHITE);
 			}
-			if (TheAPI.isNewVersion())
-				if(!ChatColor.getLastColors(prefix).trim().isEmpty()) {
-					t.setColor(ChatColor.getByChar(ChatColor.getLastColors(prefix).substring(1,2)));
-				}else
-					t.setColor(ChatColor.WHITE);
 		}
 		if (!t.hasPlayer(p))
 			t.addPlayer(p);

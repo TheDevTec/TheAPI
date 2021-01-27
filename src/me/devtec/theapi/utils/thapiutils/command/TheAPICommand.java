@@ -24,6 +24,7 @@ import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.TheAPI.TPSType;
 import me.devtec.theapi.apis.MemoryAPI;
 import me.devtec.theapi.apis.PluginManagerAPI;
+import me.devtec.theapi.apis.PluginManagerAPI.SearchType;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.User;
@@ -302,7 +303,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				}
 				if (args.length == 3) {
 					if (args[1].equalsIgnoreCase("Load")) {
-						c.addAll(StringUtils.copyPartialMatches(args[2], PluginManagerAPI.getPluginsToLoad()));
+						c.addAll(StringUtils.copyPartialMatches(args[2], PluginManagerAPI.getPluginsToLoad(SearchType.PLUGIN_NAME)));
 					}
 					if (args[1].equalsIgnoreCase("Unload") || args[1].equalsIgnoreCase("Enable")
 							|| args[1].equalsIgnoreCase("Disable") || args[1].equalsIgnoreCase("Info")

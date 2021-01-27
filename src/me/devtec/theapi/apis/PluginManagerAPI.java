@@ -1,19 +1,17 @@
 package me.devtec.theapi.apis;
 
 import java.io.File;
-import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandMap;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.permissions.Permission;
@@ -21,9 +19,11 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.SimplePluginManager;
 
-import me.devtec.theapi.scheduler.Tasker;
+import me.devtec.theapi.utils.StreamUtils;
+import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
+import me.devtec.theapi.utils.thapiutils.LoaderClass;
 
 public class PluginManagerAPI {
 	private static PluginManager spm = Bukkit.getPluginManager();
@@ -45,7 +45,7 @@ public class PluginManagerAPI {
 	}
 
 	public static List<Plugin> getEnabledPlugins() {
-		List<Plugin> a = new ArrayList<Plugin>();
+		List<Plugin> a = new ArrayList<>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
 			if (p.isEnabled())
 				a.add(p);
@@ -54,7 +54,7 @@ public class PluginManagerAPI {
 	}
 
 	public static List<Plugin> getDisabledPlugins() {
-		List<Plugin> a = new ArrayList<Plugin>();
+		List<Plugin> a = new ArrayList<>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
 			if (!p.isEnabled())
 				a.add(p);
@@ -63,7 +63,7 @@ public class PluginManagerAPI {
 	}
 
 	public static List<String> getEnabledPluginsNames() {
-		List<String> a = new ArrayList<String>();
+		List<String> a = new ArrayList<>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
 			if (p.isEnabled())
 				a.add(p.getName());
@@ -72,7 +72,7 @@ public class PluginManagerAPI {
 	}
 
 	public static List<String> getDisabledPluginsNames() {
-		List<String> a = new ArrayList<String>();
+		List<String> a = new ArrayList<>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
 			if (!p.isEnabled())
 				a.add(p.getName());
@@ -81,94 +81,85 @@ public class PluginManagerAPI {
 	}
 
 	public static List<Plugin> getPlugins() {
-		List<Plugin> a = new ArrayList<Plugin>();
+		List<Plugin> a = new ArrayList<>();
 		for (Plugin p : Bukkit.getPluginManager().getPlugins())
 			a.add(p);
 		return a;
 	}
 
 	public static List<String> getPluginsNames() {
-		List<String> a = new ArrayList<String>();
-		for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
+		List<String> a = new ArrayList<>();
+		for (Plugin p : Bukkit.getPluginManager().getPlugins())
 			a.add(p.getName());
-		}
 		return a;
 	}
 
 	public static Plugin getPlugin(String plugin) {
-		Plugin p = null;
-		for (Plugin s : spm.getPlugins()) {
-			if (s.getName().equalsIgnoreCase(plugin)) {
-				p = s;
-				break;
-			}
-		}
-		return p;
+		for (Plugin s : spm.getPlugins())
+			if (s.getName().equalsIgnoreCase(plugin))return s;
+		return null;
 	}
 
 	public static List<String> getDepend(String plugin) {
 		Plugin p = getPlugin(plugin);
 		if (p != null)
-			if (p.getDescription().getDepend() != null && p.getDescription().getDepend().isEmpty() == false)
+			if (p.getDescription().getDepend() != null)
 				return p.getDescription().getDepend();
-		return new ArrayList<String>();
+		return new ArrayList<>();
 	}
 
 	public static List<String> getSoftDepend(String plugin) {
 		Plugin p = getPlugin(plugin);
 		if (p != null)
-			if (p.getDescription().getSoftDepend() != null && p.getDescription().getSoftDepend().isEmpty() == false)
+			if (p.getDescription().getSoftDepend() != null)
 				return p.getDescription().getSoftDepend();
-		return new ArrayList<String>();
+		return new ArrayList<>();
 	}
 
 	public static List<String> getAuthor(String plugin) {
 		Plugin p = getPlugin(plugin);
 		if (p != null)
 			return p.getDescription().getAuthors();
-		return new ArrayList<String>();
+		return new ArrayList<>();
 	}
 
 	public static String getAPIVersion(String plugin) {
 		Plugin p = getPlugin(plugin);
 		try {
-			if (p != null && p.getDescription().getAPIVersion() != null)
+			if (p != null)
 				return p.getDescription().getAPIVersion();
-		} catch (Exception e) {
+		} catch (Exception | NoSuchMethodError e) {
 		}
 		return null;
 	}
 
 	public static String getVersion(String plugin) {
 		Plugin p = getPlugin(plugin);
-		if (p != null && p.getDescription().getVersion() != null)
+		if (p != null)
 			return p.getDescription().getVersion();
 		return null;
 	}
 
 	public static String getWebsite(String plugin) {
 		Plugin p = getPlugin(plugin);
-		if (p != null && p.getDescription().getWebsite() != null)
+		if (p != null)
 			return p.getDescription().getWebsite();
 		return null;
 	}
 
 	public static String getMainClass(String plugin) {
 		Plugin p = getPlugin(plugin);
-		if (p != null && p.getDescription().getMain() != null)
+		if (p != null)
 			return p.getDescription().getMain();
 		return null;
 	}
 
 	public static List<String> getCommands(String plugin) {
-		List<String> list = new ArrayList<String>();
-		for (String s : getPlugin(plugin).getDescription().getCommands().keySet())
-			list.add(s);
-		return list;
+		return new ArrayList<>(getPlugin(plugin).getDescription().getCommands().keySet());
 	}
 
 	public static List<String> getCommands(Plugin plugin) {
-		return getCommands(plugin.getName());
+		return new ArrayList<>(plugin.getDescription().getCommands().keySet());
 	}
 
 	public static List<Permission> getPermissions(String plugin) {
@@ -176,171 +167,197 @@ public class PluginManagerAPI {
 	}
 
 	public static List<Permission> getPermissions(Plugin plugin) {
-		return getPermissions(plugin.getName());
+		return plugin.getDescription().getPermissions();
 	}
 
 	public static boolean isEnabledPlugin(String plugin) {
-		if (plugin == null || getPlugin(plugin) == null)
-			return false;
+		if (plugin == null || getPlugin(plugin) == null)return false;
 		return getPlugin(plugin).isEnabled();
 	}
 
 	public static boolean isEnabledPlugin(Plugin plugin) {
-		if (plugin == null)
-			return false;
+		if (plugin == null)return false;
 		return isEnabledPlugin(plugin.getName());
 	}
 
 	public static boolean isDisabledPlugin(String plugin) {
-		if (plugin == null || getPlugin(plugin) == null)
-			return true;
+		if (plugin == null || getPlugin(plugin) == null)return true;
 		return !getPlugin(plugin).isEnabled();
 	}
 
 	public static boolean isDisabledPlugin(Plugin plugin) {
-		if (plugin == null)
-			return true;
+		if (plugin == null)return true;
 		return !isEnabledPlugin(plugin.getName());
 	}
-
-	public static List<String> getPluginsToLoad() {
-		List<String> list = new ArrayList<String>();
-		if (new File("plugins").isDirectory()) // is folder
-			for (File f : new File("plugins").listFiles()) {
+	
+	public static enum SearchType {
+		PLUGIN_NAME,
+		FILE_NAME
+	}
+	
+	public static List<String> getPluginsToLoad(SearchType type) {
+		List<String> list = new ArrayList<>();
+		File ff = new File("plugins");
+		Data data = new Data();
+		if (ff.exists() && ff.isDirectory()) // is folder
+			for (File f : ff.listFiles()) {
 				if (!f.isDirectory() && f.getName().endsWith(".jar")) {
-					for (Plugin p : getPlugins()) {
-						if (!getFileOfPlugin(p).getName().equals(f.getName()))
-							if (!spm.isPluginEnabled(f.getName().substring(0, f.getName().length() - 4)))
-								list.add(f.getName());
-						break;
-					}
+					try {
+						JarFile jar = new JarFile(f);
+						data.reload(StreamUtils.fromStream(jar.getInputStream(jar.getEntry("plugin.yml"))));
+						jar.close();
+						if(getPlugin(data.getString("name"))==null) {
+							list.add(type==SearchType.FILE_NAME?f.getName():data.getString("name"));
+						}
+					}catch(Exception err) {}
+					data.reset();
 				}
 			}
 		return list;
 	}
-
-	public static String getPluginFileByName(String pluginName) {
-		String pl = null;
-		Map<String, String> load = getPluginsToLoadWithNames();
-		for (String s : load.keySet()) {
-			if (s.equals(pluginName)) {
-				pl = load.get(s);
-				break;
+	
+	public static String getPluginName(String name, SearchType type) {
+		File ff = new File("plugins");
+		Data data = new Data();
+		if (ff.exists() && ff.isDirectory()) // is folder
+			for (File f : ff.listFiles()) {
+				if (!f.isDirectory() && f.getName().endsWith(".jar")) {
+					try {
+						JarFile jar = new JarFile(f);
+						data.reload(StreamUtils.fromStream(jar.getInputStream(jar.getEntry("plugin.yml"))));
+						jar.close();
+						if(type==SearchType.PLUGIN_NAME?f.getName().equals(name):name.equalsIgnoreCase(data.getString("name")))return type==SearchType.PLUGIN_NAME?data.getString("name"):f.getName();
+					}catch(Exception err) {}
+					data.reset();
+				}
 			}
-			if (load.get(s).equals(pluginName)) {
-				pl = load.get(s);
-				break;
-			}
-		}
-		if (pl.endsWith(".jar"))
-			pl = pl.substring(0, pl.length() - 4);
-		return pl;
+		return null;
 	}
-
-	public static String getPluginNameByFile(String pluginFile) {
-		String pluginName = null;
-		Map<String, String> load = getPluginsToLoadWithNames();
-		for (String s : load.keySet()) {
-			if (s.equals(pluginFile)) {
-				pluginName = pluginFile;
-				break;
+	
+	public static String getPluginName(File name) {
+		File ff = new File("plugins");
+		Data data = new Data();
+		if (ff.exists() && ff.isDirectory()) // is folder
+			for (File f : ff.listFiles()) {
+				if (!f.isDirectory() && f.getName().endsWith(".jar") && f == name) {
+					try {
+						JarFile jar = new JarFile(f);
+						data.reload(StreamUtils.fromStream(jar.getInputStream(jar.getEntry("plugin.yml"))));
+						jar.close();
+						return data.getString("name");
+					}catch(Exception err) {}
+					data.reset();
+				}
 			}
-			if (load.get(s).equals(pluginFile)) {
-				pluginName = s;
-				break;
-			}
-		}
-		return pluginName;
+		return null;
 	}
-
-	public static File getFileOfPlugin(Plugin p) {
+	
+	public static File getPluginFile(String name, SearchType type) {
+		File ff = new File("plugins");
+		Data data = new Data();
+		if (ff.exists() && ff.isDirectory()) // is folder
+			for (File f : ff.listFiles()) {
+				if (!f.isDirectory() && f.getName().endsWith(".jar")) {
+					try {
+						JarFile jar = new JarFile(f);
+						data.reload(StreamUtils.fromStream(jar.getInputStream(jar.getEntry("plugin.yml"))));
+						jar.close();
+						if(type==SearchType.PLUGIN_NAME?data.getString("name").equalsIgnoreCase(name):f.getName().equalsIgnoreCase(name))return f;
+					}catch(Exception err) {}
+					data.reset();
+				}
+			}
+		return null;
+	}
+	
+	public static File getPluginFile(Plugin p) {
 		return new File("plugins/" + new File(Ref.getClass(p.getDescription().getMain()).getProtectionDomain()
 				.getCodeSource().getLocation().getPath()).getName());
 	}
 
-	/**
-	 * @return Map<PluginName, FileName>
-	 */
-	public static Map<String, String> getPluginsToLoadWithNames() {
-		HashMap<String, String> a = new HashMap<>();
-		if (new File("plugins").isDirectory()) // is folder
-			for (File f : new File("plugins").listFiles()) {
+	public static Map<String, File> getPluginsToLoadWithNames() {
+		HashMap<String, File> nameFile = new HashMap<>();
+		HashMap<String, String> copies = new HashMap<>();
+		File ff = new File("plugins");
+		Data data = new Data();
+		if (ff.exists() && ff.isDirectory()) // is folder
+			for (File f : ff.listFiles()) {
 				if (!f.isDirectory() && f.getName().endsWith(".jar")) {
-					Plugin loaded = null;
-					for (Plugin p : getPlugins()) {
-						if (getFileOfPlugin(p).getName().equals(f.getName())) {
-							loaded = p;
-							break;
-						}
-					}
-					if (loaded == null) {
-						String name = null;
-						String[] text = readPlugin(f);
-						for (String find : text) {
-							if (find.contains("name: ")) {
-								String[] str = find.split("name: ");
-								name = str[1];
-								break;
+					try {
+						JarFile jar = new JarFile(f);
+						data.reload(StreamUtils.fromStream(jar.getInputStream(jar.getEntry("plugin.yml"))));
+						jar.close();
+						if(getPlugin(data.getString("name"))==null) {
+							if(data.getString("name").contains(data.getString("name").toLowerCase())) {
+								Bukkit.getLogger().warning("Found two or more plugins with similiar name! ("+copies.get(data.getString("name").toLowerCase())+" = "+f.getName()+")");
 							}
+							nameFile.put(data.getString("name"), f);
+							copies.put(data.getString("name").toLowerCase(), f.getName());
 						}
-						a.put(name, f.getName());
-					}
+					}catch(Exception err) {}
+					data.reset();
 				}
 			}
-		return a;
+		return nameFile;
 	}
 
-	public static List<String> getRawPluginsToLoad() {
-		List<String> list = new ArrayList<String>();
-		if (new File("plugins").isDirectory()) // is folder
-			for (File f : new File("plugins").listFiles()) {
-				if (!f.isDirectory() && f.getName().endsWith(".jar")) {
-					Plugin loaded = null;
-					for (Plugin p : getPlugins()) {
-						if (new java.io.File(Ref.getClass(p.getDescription().getMain()).getProtectionDomain()
-								.getCodeSource().getLocation().getPath()).getName().equals(f.getName())) {
-							loaded = p;
-							break;
-						}
-					}
-					if (loaded == null) {
-						String name = null;
-						String[] text = readPlugin(f);
-						for (String find : text) {
-							if (find.contains("name: ")) {
-								String[] str = find.split("name: ");
-								name = str[1];
-								break;
-							}
-						}
-						list.add(name);
-					}
-				}
-			}
-		return list;
+	public static void reloadPlugin(Plugin plugin, Runnable onReload) {
+		reloadPlugin(plugin.getName(), onReload);
 	}
 
-	private static String[] readPlugin(File a) {
-		try {
-			JarFile file = new JarFile(a);
-			if (file != null) {
-				Enumeration<JarEntry> er = file.entries();
-				while (er.hasMoreElements()) {
-					JarEntry entry = er.nextElement();
-					if (entry.getName().equals("plugin.yml")) {
-						InputStream is = file.getInputStream(entry);
-						int readBytes;
-						StringBuffer f = new StringBuffer();
-						while ((readBytes = is.read()) != -1)
-							f.append((char) readBytes);
-						return f.toString().split("\r");
+	public static void unloadPlugins() {
+		NMSAPI.postToMainThread(new Runnable() {
+			public void run() {
+				List<Plugin> pl = getPlugins();
+				pl.remove(LoaderClass.plugin);
+				for(Plugin p : new ArrayList<>(pl))
+					unloadPlugin(p, new Runnable() {
+						public void run() {
+							pl.remove(p);
+							if(pl.isEmpty()) {
+								unloadPlugin(LoaderClass.plugin);
+							}
+						}
+					});
+			}});
+	}
+
+	public static void reloadPlugins(Runnable onReload) {
+		NMSAPI.postToMainThread(new Runnable() {
+			public void run() {
+				List<Plugin> pl = getPlugins();
+				pl.remove(LoaderClass.plugin);
+				for(Plugin p : new ArrayList<>(pl))
+					unloadPlugin(p, new Runnable() {
+						public void run() {
+							pl.remove(p);
+							if(pl.isEmpty()) {
+								unloadPlugin(LoaderClass.plugin, new Runnable() {
+									public void run() {
+										for(Plugin p : spm.loadPlugins(new File("plugins"))) {
+											p.onLoad();
+											spm.enablePlugin(p);
+										}
+										if(onReload!=null)
+										onReload.run();
+									}
+								});
+							}
+						}
+					});
+			}});
+	}
+
+	public static void reloadPlugin(String plugin, Runnable onReload) {
+		NMSAPI.postToMainThread(new Runnable() {
+			public void run() {
+				String pl = plugin;
+				unloadPlugin(getPlugin(pl), new Runnable() {
+					public void run() {
+						loadPlugin(pl, onReload);
 					}
-				}
-			}
-			file.close();
-		} catch (Exception erer) {
-		}
-		return null;
+				});
+			}});
 	}
 
 	public static void reloadPlugin(Plugin plugin) {
@@ -348,102 +365,116 @@ public class PluginManagerAPI {
 	}
 
 	public static void reloadPlugin(String plugin) {
-		new Tasker() {
+		NMSAPI.postToMainThread(new Runnable() {
 			public void run() {
 				String pl = plugin;
-				unloadPlugin(getPlugin(pl));
-				new Thread(new Runnable() {
+				unloadPlugin(getPlugin(pl), new Runnable() {
 					public void run() {
-						try {
-							Thread.sleep(100);
-						} catch (InterruptedException e) {
-						}
-						NMSAPI.postToMainThread(new Runnable() {
-							public void run() {
-								loadPlugin(pl);
-							}
-						});
+						loadPlugin(pl);
 					}
-				}).start();
-			}
-		}.runTaskSync();
+				});
+			}});
+	}
+
+	public static void unloadPlugin(Plugin plugin, Runnable onUnload) {
+		if (plugin == null)return;
+		unloadPlugin(plugin.getName(), onUnload);
 	}
 
 	public static void unloadPlugin(Plugin plugin) {
-		if (plugin == null)
-			return;
-		unloadPlugin(plugin.getName());
+		if (plugin == null)return;
+		unloadPlugin(plugin.getName(), null);
 	}
+	
+	public static void unloadPlugin(String pluginName) {
+		unloadPlugin(pluginName, null);
+	}
+	
+	private static Field fPls = Ref.field(SimplePluginManager.class, "plugins"), lNms = Ref.field(SimplePluginManager.class, "lookupNames");
+	private static SimpleCommandMap commandMap = (SimpleCommandMap)Ref.get(spm, "commandMap");
+	@SuppressWarnings("unchecked")
+	private static Map<String, Command> knownCommands = (Map<String, Command>) Ref.get(commandMap, "knownCommands");
 
 	@SuppressWarnings("unchecked")
-	public static void unloadPlugin(String pluginName) {
+	public static void unloadPlugin(String pluginName, Runnable onUnload) {
 		if (pluginName == null)
 			return;
-		new Tasker() {
+		Plugin pl = getPlugin(pluginName);
+		if(pl==null)return;
+		try {
+			disablePlugin(pl);
+		}catch(Exception er) {
+			er.printStackTrace();
+		}
+		new Thread() {
 			public void run() {
-				List<Plugin> plugins = (List<Plugin>) Ref.get(((SimplePluginManager) spm),
-						Ref.field(SimplePluginManager.class, "plugins"));
-				Map<String, Plugin> lookupNames = (Map<String, Plugin>) Ref.get(((SimplePluginManager) spm),
-						Ref.field(SimplePluginManager.class, "lookupNames"));
-				SimpleCommandMap commandMap = (SimpleCommandMap) Ref.get(((SimplePluginManager) spm),
-						Ref.field(SimplePluginManager.class, "commandMap"));
-				Map<String, Command> knownCommands = (Map<String, Command>) Ref.get(commandMap,
-						Ref.field(commandMap.getClass(), "knownCommands"));
-				Plugin pl = getPlugin(pluginName);
-				disablePlugin(pl);
+				List<Plugin> plugins = (List<Plugin>) Ref.get(((SimplePluginManager) spm),fPls);
+				Map<String, Plugin> lookupNames = (Map<String, Plugin>) Ref.get(((SimplePluginManager) spm),lNms);
 				if (plugins != null && plugins.contains(pl))
 					plugins.remove(pl);
 				if (lookupNames != null && lookupNames.containsKey(pluginName))
 					lookupNames.remove(pluginName);
-				if (commandMap != null) {
+				if (commandMap != null)
 					for (Iterator<Map.Entry<String, Command>> it = knownCommands.entrySet().iterator(); it.hasNext();) {
 						Map.Entry<String, Command> entry = it.next();
 						if (entry.getValue() instanceof PluginCommand) {
 							PluginCommand c = (PluginCommand) entry.getValue();
-							if (c.getPlugin() == pl) {
+							if (c.getPlugin().getName().equalsIgnoreCase(pl.getName())) {
 								c.unregister(commandMap);
 								it.remove();
 							}
 						}
 					}
-				}
 				try {
 					List<Permission> permissionlist = pl.getDescription().getPermissions();
 					Iterator<Permission> p = permissionlist.iterator();
-					while (p.hasNext()) {
+					while (p.hasNext())
 						spm.removePermission(p.next().toString());
-					}
-				} catch (NoSuchMethodError e) {
+				} catch (Exception | NoSuchMethodError e) {
 				}
+				if(onUnload!=null)
+					onUnload.run();
 			}
-		}.runTaskSync();
+		}.start();
+	}
+
+	public static void loadPlugin(String n, Runnable onLoad) {
+		if (n == null)
+			return;
+		new Thread() {
+			public void run() {
+				File plugin = getPluginFile(n, SearchType.PLUGIN_NAME);
+				if (plugin == null)return;
+				try {
+					Plugin p = spm.loadPlugin(plugin);
+					NMSAPI.postToMainThread(new Runnable() {
+						public void run() {
+							p.onLoad();
+							spm.enablePlugin(p);
+							try {
+							if(p.getDescription().getCommands()!=null)
+								for (String command : p.getDescription().getCommands().keySet()) {
+									command = command.toLowerCase(Locale.ENGLISH).trim();
+									commandMap.register(command, null);
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+							if(onLoad!=null)
+							onLoad.run();
+						}});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}}.start();
 	}
 
 	public static void loadPlugin(String n) {
-		if (n == null)
-			return;
-		new Tasker() {
-			public void run() {
-				String pluginName = getPluginFileByName(n);
-				if (pluginName == null)
-					pluginName = getPluginNameByFile(n);
-				try {
-					Plugin p = Bukkit.getPluginManager().loadPlugin(new File("plugins/" + pluginName + ".jar"));
-					p.onLoad();
-					Bukkit.getPluginManager().enablePlugin(p);
-					CommandMap commandMap = (CommandMap) Ref.get(Bukkit.getServer(),
-							Ref.field(Bukkit.getServer().getClass(), "commandMap"));
-					for (String s : p.getDescription().getCommands().keySet())
-						commandMap.register(s, null);
-				} catch (Exception e) {
-				}
-			}
-		}.runTaskSync();
+		loadPlugin(n, null);
 	}
 
 	public static boolean disablePlugin(String plugin) {
-		if (plugin == null)
-			return false;
+		if (plugin == null)return false;
 		if (isEnabledPlugin(plugin)) {
 			spm.disablePlugin(getPlugin(plugin));
 			return true;
@@ -452,8 +483,8 @@ public class PluginManagerAPI {
 	}
 
 	public static boolean disablePlugin(Plugin plugin) {
-		if (plugin == null)
-			return false;
+		if (plugin == null)return false;
 		return disablePlugin(plugin.getName());
 	}
 }
+
