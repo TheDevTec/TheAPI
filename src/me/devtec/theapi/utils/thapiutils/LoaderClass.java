@@ -25,6 +25,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -104,6 +105,14 @@ public class LoaderClass extends JavaPlugin {
 		
 		//CONFIG
 		createConfig();
+		
+		PluginCommand c = TheAPI.createCommand("theapi", this);
+		if(Ref.get(c, "timings") == null && Ref.getClass("org.spigotmc.SpigotConfig")!=null) {
+			Ref.set(Bukkit.getServer(), "commandMap", new Old1_8SimpleCommandMap(Bukkit.getServer()));
+			c = TheAPI.createCommand("theapi", this);
+		}
+		c.setExecutor(new TheAPICommand());
+		TheAPI.registerCommand(c);
 		
 		//SOCKETS
 		boolean ops = sockets.exists("Options");
@@ -238,8 +247,6 @@ public class LoaderClass extends JavaPlugin {
 
 		if(config.getBoolean("Options.ItemBreakEvent"))
 		Bukkit.getPluginManager().registerEvents(new ItemBreakEvent(), LoaderClass.this);
-		
-		TheAPI.createAndRegisterCommand("TheAPI", null, new TheAPICommand());
 		if (TheAPI.isNewerThan(7))
 			handler = new PacketHandler_New();
 		else
