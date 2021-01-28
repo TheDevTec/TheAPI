@@ -13,6 +13,7 @@ import me.devtec.theapi.blocksapi.BlocksAPI;
 import me.devtec.theapi.blocksapi.schematic.construct.Schematic;
 import me.devtec.theapi.blocksapi.schematic.construct.SchematicCallable;
 import me.devtec.theapi.blocksapi.schematic.construct.SchematicSaveCallable;
+import me.devtec.theapi.blocksapi.schematic.construct.SerializedBlock;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.TheMaterial;
@@ -21,7 +22,7 @@ import me.devtec.theapi.utils.datakeeper.DataType;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 
-public class AsyncSchematic implements Schematic {
+public class WorldSchematic implements Schematic {
 	private static Method save, loadd;
 	static {
 		save=Ref.method(Ref.nms("Entity"), "b", Ref.nms("NBTTagCompound"));
@@ -33,10 +34,16 @@ public class AsyncSchematic implements Schematic {
 	}
 	private static String end = ".schem";
 	private final String name;
-	private Data load;
+	protected Data load;
 	
-	public AsyncSchematic(String name) {
+	public WorldSchematic(String name) {
 		this.name=name;
+	}
+	
+	public WorldSchematic(VirtualSchematic schem, String name) {
+		this.name=name;
+		load=schem.load;
+		load.set("info.version", "1.0");
 	}
 	
 	@Override
@@ -52,7 +59,7 @@ public class AsyncSchematic implements Schematic {
 		if(load==null || load.getKeys().isEmpty())return; //isn't loaded or is empty
 		new Tasker() {
 			public void run() {
-				AsyncSerializedBlock ser = new AsyncSerializedBlock();
+				SerializedBlock ser = new InitialSerializedBlock();
 				Position aa = Position.fromString(load.getString("info.corner.a")), bb = Position.fromString(load.getString("info.corner.b"));
 				aa.setWorld(stand.getWorld());
 				bb.setWorld(stand.getWorld());
@@ -67,21 +74,21 @@ public class AsyncSchematic implements Schematic {
 							set=true;
 							ser.fromString(block);
 							Position sett = pos.clone();
-							if(stand!=null)
+							if(stand!=null && !load.getBoolean("info.standing"))
 								sett=sett.add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ());
-							BlocksAPI.set(sett, ser.material);
+							BlocksAPI.set(sett, ser.getType());
 							break;
 						}
 					}
 					if(!set && replaceAir)
-						(stand!=null?pos.clone().add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ()):pos).setType(new TheMaterial(Material.AIR));
+						(stand!=null && !load.getBoolean("info.standing")?pos.clone().add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ()):pos).setType(new TheMaterial(Material.AIR));
 					
 					//ENTITIES
 					if(pasteEntities) {
 						for (String fs : load.getStringList(pos.getChunkKey()+".entities")) {
 							String poos = fs.split("/:/")[0], ent = fs.replaceFirst(poos+"/:/", "");
 							Position a = Position.fromString(poos);
-							if(pos!=null)a.add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ());
+							if(pos!=null && !load.getBoolean("info.standing"))a.add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ());
 							if(pos.getBlockX()==a.getBlockX() && pos.getBlockY()==a.getBlockY() && pos.getBlockZ()==a.getBlockZ()) {
 								set=true;
 								String type = ent.split("/")[0];
@@ -90,7 +97,7 @@ public class AsyncSchematic implements Schematic {
 								new Tasker() {
 									public void run() {
 										Entity e = pos.getWorld().spawnEntity(pos.toLocation(), EntityType.valueOf(type));
-										Ref.invoke(NMSAPI.getEntity(e), AsyncSchematic.loadd, nbt); //load
+										Ref.invoke(NMSAPI.getEntity(e), WorldSchematic.loadd, nbt); //load
 									}
 								}.runTaskSync();
 								break;
@@ -99,7 +106,7 @@ public class AsyncSchematic implements Schematic {
 					}
 				}
 				if(callable!=null)
-					callable.run(AsyncSchematic.this);
+					callable.run(WorldSchematic.this);
 		}}.runTask();
 	}
 
@@ -113,7 +120,7 @@ public class AsyncSchematic implements Schematic {
 				save.set("info.standing", fromCopy != null);
 				save.set("info.corner.a", fromCopy != null ? cornerA.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).toString() : cornerA.toString());
 				save.set("info.corner.b", fromCopy != null ?cornerB.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).toString() : cornerB.toString());
-				AsyncSerializedBlock ser = new AsyncSerializedBlock();
+				SerializedBlock ser = new InitialSerializedBlock();
 				for(Position pos : new BlockIterator(cornerA, cornerB)) {
 					//ENTITIES
 					List<String> saved = save.getStringList((fromCopy != null ? pos.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).getChunkKey() : pos.getChunkKey())+".entities");
@@ -121,7 +128,7 @@ public class AsyncSchematic implements Schematic {
 						if(e.getType()!=EntityType.PLAYER)
 						if(e.getLocation().distance(pos.toLocation()) <= 1) {
 							Object nbt = Ref.newInstance(Ref.constructor(Ref.nms("NBTTagCompound")));
-							Ref.invoke(NMSAPI.getEntity(e), AsyncSchematic.save, nbt); //save
+							Ref.invoke(NMSAPI.getEntity(e), WorldSchematic.save, nbt); //save
 							String en = e.getType().name()+"/"+nbt.toString();
 							saved.add((fromCopy != null?new Position(e.getLocation()).clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).toString():new Position(e.getLocation()).toString())+"/:/"+en);
 						}
@@ -135,8 +142,8 @@ public class AsyncSchematic implements Schematic {
 					save.set((fromCopy != null ? pos.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).getChunkKey() : pos.getChunkKey())+".blocks", saved);
 				}
 				if(callable!=null)
-					callable.run(AsyncSchematic.this, save);
-				AsyncSchematic.this.load=save;
+					callable.run(WorldSchematic.this, save);
+				WorldSchematic.this.load=save;
 				if(save!=null && !save.getKeys().isEmpty())
 				save.save(DataType.YAML);
 		}}.runTask();

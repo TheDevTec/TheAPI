@@ -3,7 +3,7 @@ package me.devtec.theapi.blocksapi.schematic;
 import me.devtec.theapi.blocksapi.schematic.construct.SerializedBlock;
 import me.devtec.theapi.utils.TheMaterial;
 
-public class AsyncSerializedBlock implements SerializedBlock {
+public class InitialSerializedBlock implements SerializedBlock {
 	private static final long serialVersionUID = 98117975197494498L;
 	
 	protected TheMaterial material;
@@ -17,6 +17,10 @@ public class AsyncSerializedBlock implements SerializedBlock {
 	@Override
 	public String getAsString() {
 		return material.toString();
+	}
+	
+	public TheMaterial getType() {
+		return material;
 	}
 
 	@Override

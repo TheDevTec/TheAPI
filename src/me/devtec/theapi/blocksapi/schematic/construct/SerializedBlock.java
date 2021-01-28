@@ -14,5 +14,7 @@ public interface SerializedBlock extends Serializable {
 	
 	public String getAsString();
 	
+	public TheMaterial getType();
+	
 	public SerializedBlock fromString(String string);
 }
