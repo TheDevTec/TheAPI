@@ -43,7 +43,6 @@ public class WorldSchematic implements Schematic {
 	public WorldSchematic(VirtualSchematic schem, String name) {
 		this.name=name;
 		load=schem.load;
-		load.set("info.version", "1.0");
 	}
 	
 	@Override
@@ -74,21 +73,21 @@ public class WorldSchematic implements Schematic {
 							set=true;
 							ser.fromString(block);
 							Position sett = pos.clone();
-							if(stand!=null && !load.getBoolean("info.standing"))
+							if(stand!=null && load.getBoolean("info.standing"))
 								sett=sett.add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ());
 							BlocksAPI.set(sett, ser.getType());
 							break;
 						}
 					}
 					if(!set && replaceAir)
-						(stand!=null && !load.getBoolean("info.standing")?pos.clone().add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ()):pos).setType(new TheMaterial(Material.AIR));
+						(stand!=null && load.getBoolean("info.standing")?pos.clone().add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ()):pos).setType(new TheMaterial(Material.AIR));
 					
 					//ENTITIES
 					if(pasteEntities) {
 						for (String fs : load.getStringList(pos.getChunkKey()+".entities")) {
 							String poos = fs.split("/:/")[0], ent = fs.replaceFirst(poos+"/:/", "");
 							Position a = Position.fromString(poos);
-							if(pos!=null && !load.getBoolean("info.standing"))a.add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ());
+							if(stand!=null && load.getBoolean("info.standing"))a.add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ());
 							if(pos.getBlockX()==a.getBlockX() && pos.getBlockY()==a.getBlockY() && pos.getBlockZ()==a.getBlockZ()) {
 								set=true;
 								String type = ent.split("/")[0];
@@ -115,6 +114,7 @@ public class WorldSchematic implements Schematic {
 		new Tasker() {
 			public void run() {
 				Data save = new Data("plugins/TheAPI/Schematic/"+name+end);
+				save.reset();
 				save.set("info.version", "1.0");
 				save.set("info.created", System.currentTimeMillis());
 				save.set("info.standing", fromCopy != null);
@@ -145,7 +145,7 @@ public class WorldSchematic implements Schematic {
 					callable.run(WorldSchematic.this, save);
 				WorldSchematic.this.load=save;
 				if(save!=null && !save.getKeys().isEmpty())
-				save.save(DataType.YAML);
+				save.save(DataType.BYTE);
 		}}.runTask();
 	}
 }

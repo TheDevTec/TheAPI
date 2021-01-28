@@ -576,19 +576,17 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 						b.write(pathName + System.lineSeparator());
 						String splitted = space + "- ";
 						if (o instanceof Collection) {
+							if(!((Collection<?>) o).isEmpty())
 							for (Object a : (Collection<?>) o) {
-								b.write(splitted+addQuotes(a instanceof String, Writer.write(a))
-										+ System.lineSeparator());
+								b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
 							}
 						} else {
+							if(((Object[]) o).length!=0)
 							for (Object a : (Object[]) o)
-								b.write(splitted+addQuotes(a instanceof String, Writer.write(a))
-										+ System.lineSeparator());
+								b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
 						}
 					} else
-						b.write(pathName + " "
-								+ addQuotes(o instanceof String,Writer.write(o))
-								+ System.lineSeparator());
+						b.write(pathName + " " + addQuotes(o instanceof String,Writer.write(o)) + System.lineSeparator());
 				}
 				for (String key : getKeys(path, false))
 					preparePath(path + "." + key, key + ":", spaces + 1, b);

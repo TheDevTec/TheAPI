@@ -17,7 +17,6 @@ import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.TheMaterial;
 import me.devtec.theapi.utils.datakeeper.Data;
-import me.devtec.theapi.utils.datakeeper.DataType;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 
@@ -36,7 +35,7 @@ public class VirtualSchematic implements Schematic {
 	
 	@Override
 	public boolean load() {
-		return true;
+		return load != null;
 	}
 
 	@Override
@@ -124,11 +123,9 @@ public class VirtualSchematic implements Schematic {
 					saved.add((fromCopy != null?pos.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).toString():pos.toString())+"/:/"+ser.serialize(pos).getAsString());
 					save.set((fromCopy != null ? pos.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).getChunkKey() : pos.getChunkKey())+".blocks", saved);
 				}
+				VirtualSchematic.this.load=save;
 				if(callable!=null)
 					callable.run(VirtualSchematic.this, save);
-				VirtualSchematic.this.load=save;
-				if(save!=null && !save.getKeys().isEmpty())
-				save.save(DataType.YAML);
 		}}.runTask();
 	}
 }
