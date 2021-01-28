@@ -475,6 +475,7 @@ public class StringUtils {
 				continue;
 			legacyMsg = legacyMsg.replace(rawCode, LoaderClass.colorMap.get(code));
 		}
+		if(gradientFinder!=null) {
 		Matcher matcher = gradientFinder.matcher(legacyMsg);
 		while(matcher.find()) {
 			if(matcher.groupCount()==0 || matcher.group(1)==null)
@@ -483,7 +484,7 @@ public class StringUtils {
 			String hexB = matcher.group(3);
 			String text = matcher.group(2);
 			legacyMsg=legacyMsg.replaceFirst(matcher.group(),gradient(text, hexA, hexB));
-		}
+		}}
 		return legacyMsg;
 	}
 

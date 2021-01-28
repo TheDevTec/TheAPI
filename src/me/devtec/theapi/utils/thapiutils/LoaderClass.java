@@ -25,6 +25,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
+import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
@@ -105,14 +106,6 @@ public class LoaderClass extends JavaPlugin {
 		
 		//CONFIG
 		createConfig();
-		
-		PluginCommand c = TheAPI.createCommand("theapi", this);
-		if(Ref.get(c, "timings") == null && Ref.getClass("org.spigotmc.SpigotConfig")!=null) {
-			Ref.set(Bukkit.getServer(), "commandMap", new Old1_8SimpleCommandMap(Bukkit.getServer()));
-			c = TheAPI.createCommand("theapi", this);
-		}
-		c.setExecutor(new TheAPICommand());
-		TheAPI.registerCommand(c);
 		
 		//SOCKETS
 		boolean ops = sockets.exists("Options");
@@ -209,7 +202,15 @@ public class LoaderClass extends JavaPlugin {
 					for (BossBar s : bars)
 						s.move();
 				}
-			}.runRepeating(0, 20);
+		}.runRepeating(0, 20);
+		
+		PluginCommand ca = TheAPI.createCommand("theapi", this);
+		if(Ref.field(Command.class, "timings")!=null && TheAPI.isOlder1_9()) {
+			Ref.set(Bukkit.getServer(), "commandMap", new Old1_8SimpleCommandMap(Bukkit.getServer()));
+			ca = TheAPI.createCommand("theapi", this);
+		}
+		ca.setExecutor(new TheAPICommand());
+		TheAPI.registerCommand(ca);
 	}
 
 	public void onEnable() {
@@ -217,6 +218,7 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
 				TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		
 		Data plugin = new Data();
 		for(Plugin e : Bukkit.getPluginManager().getPlugins()) {
 			plugin.reload(StreamUtils.fromStream(e.getResource("plugin.yml")));

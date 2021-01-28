@@ -163,11 +163,11 @@ public class TheMaterial implements Cloneable {
 	}
 
 	public TheMaterial(String name, String data) {
-		this(Material.matchMaterial(name), StringUtils.getInt(data), 1);
+		this(Material.getMaterial(name), StringUtils.getInt(data), 1);
 	}
 
 	public TheMaterial(String name, int data) {
-		this(Material.matchMaterial(name), data, 1);
+		this(Material.getMaterial(name), data, 1);
 	}
 
 	public TheMaterial(Material material, int data) {
@@ -179,7 +179,7 @@ public class TheMaterial implements Cloneable {
 	}
 
 	public TheMaterial(String name) {
-		this(Material.matchMaterial(name));
+		this(Material.getMaterial(name));
 	}
 
 	public TheMaterial(Material material) {
@@ -187,11 +187,11 @@ public class TheMaterial implements Cloneable {
 	}
 
 	public TheMaterial(String name, String data, int amount) {
-		this(Material.matchMaterial(name), StringUtils.getInt(data), amount);
+		this(Material.getMaterial(name), StringUtils.getInt(data), amount);
 	}
 
 	public TheMaterial(String name, int data, int amount) {
-		this(Material.matchMaterial(name), data, amount);
+		this(Material.getMaterial(name), data, amount);
 	}
 
 	public TheMaterial(Material material, int data, int amount) {
@@ -205,11 +205,11 @@ public class TheMaterial implements Cloneable {
 	}
 
 	public TheMaterial(String name, String data, String amount) {
-		this(Material.matchMaterial(name), StringUtils.getInt(data), StringUtils.getInt(amount));
+		this(Material.getMaterial(name), StringUtils.getInt(data), StringUtils.getInt(amount));
 	}
 
 	public TheMaterial(String name, int data, String amount) {
-		this(Material.matchMaterial(name), data, amount);
+		this(Material.getMaterial(name), data, amount);
 	}
 
 	public TheMaterial(Material material, int data, String amount) {
@@ -346,5 +346,9 @@ public class TheMaterial implements Cloneable {
 
 	public TheMaterial clone() {
 		return new TheMaterial(m, data, amount);
+	}
+
+	public Object getBlock() {
+		return null;
 	}
 }

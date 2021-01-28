@@ -18,6 +18,8 @@ import org.bukkit.entity.Player;
 import org.spigotmc.AsyncCatcher;
 
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.blocksapi.schematic.AsyncSchematic;
+import me.devtec.theapi.blocksapi.schematic.construct.Schematic;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.PercentageList;
 import me.devtec.theapi.utils.Position;
@@ -78,8 +80,8 @@ public class BlocksAPI {
 		HOLLOW_SPHERE, SPHERE, SQAURE
 	}
 
-	public static Schemate getSchemate(String name) {
-		return new Schemate(name);
+	public static Schematic getSchematic(String name) {
+		return new AsyncSchematic(name);
 	}
 
 	public static String getLocationAsString(Location loc) {

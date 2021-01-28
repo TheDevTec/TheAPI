@@ -26,9 +26,9 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -119,7 +119,7 @@ public class TheAPI {
 		return (PluginCommand) Ref.newInstance(constructor, name, plugin);
 	}
 
-	public static SimpleCommandMap cmdMap = (SimpleCommandMap) Ref.get(Bukkit.getPluginManager(), "commandMap");
+	public static CommandMap cmdMap = (CommandMap)Ref.get(Bukkit.getPluginManager(), "commandMap");
 	@SuppressWarnings("unchecked")
 	public static Map<String, Command> knownCommands = (Map<String, Command>) Ref.get(cmdMap, "knownCommands");
 
