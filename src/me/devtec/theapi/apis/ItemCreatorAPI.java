@@ -266,23 +266,30 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	private static Method get = Ref.method(Ref.getClass("com.google.common.collect.ForwardingMultimap"), "get", Object.class);
+	private static Method set = Ref.method(Ref.getClass("com.google.common.collect.ForwardingMultimap"), "put", Object.class, Object.class);
+	
 	static {
-		if(get==null) {
+		if(get==null)
 			get = Ref.method(Ref.getClass("net.minecraft.util.com.google.common.collect.ForwardingMultimap"), "get", Object.class);
-		}
+		if(set==null)
+			set = Ref.method(Ref.getClass("net.minecraft.util.com.google.common.collect.ForwardingMultimap"), "put", Object.class, Object.class);
 	}
 	
 	public String getOwnerByValues() {
 		if (a.hasItemMeta())
 			if (a.getItemMeta() instanceof SkullMeta)
 				return (String) Ref.invoke(Ref
-								.invoke(Ref.invoke(Ref.get(a.getItemMeta(), "profile"), "getProperties"),
-										get,"textures"),"getValue");
+								.invoke(Ref.invoke(Ref.get(a.getItemMeta(), "profile"), "getProperties"),get,"textures"),"getValue");
 		return text;
 	}
 
 	public Material getMaterial() {
 		return a.getType();
+	}
+
+	public void setMaterial(Material mat) {
+		if(mat!=null)
+			a.setType(mat);
 	}
 
 	public boolean isItem(boolean canBeLegacy) {
@@ -813,14 +820,12 @@ public class ItemCreatorAPI implements Cloneable {
 			if (!i.getType().name().equalsIgnoreCase("ENCHANTED_BOOK")) {
 				if (enchs != null)
 					i.addUnsafeEnchantments(enchs);
-				a = i;
 			} else {
 				EnchantmentStorageMeta m = (EnchantmentStorageMeta) i.getItemMeta();
 				if (enchs != null)
 					for (Enchantment e : enchs.keySet())
 						m.addStoredEnchant(e, enchs.get(e), true);
 				i.setItemMeta(m);
-				a = i;
 			}
 			if (i.getType().name().equalsIgnoreCase("WRITABLE_BOOK")
 					|| i.getType().name().equalsIgnoreCase("BOOK_AND_QUILL")) {
@@ -828,7 +833,7 @@ public class ItemCreatorAPI implements Cloneable {
 				m.setAuthor(author);
 				List<String> page = new ArrayList<>();
 				for (Object o : pages)
-					page.add(o.toString());
+					page.add(o+"");
 				m.setPages(page);
 				m.setTitle(title);
 				try {
@@ -875,11 +880,8 @@ public class ItemCreatorAPI implements Cloneable {
 										.encode(("{textures:{SKIN:{url:\"" + url + "\"}}}").getBytes());
 						} catch (Exception err) {
 						}
-						Ref.invoke(Ref.invoke(profile, "getProperties"),
-								Ref.method(Ref.invoke(profile, "getProperties").getClass().getSuperclass(), "put",
-										Object.class, Object.class),
-								"textures",
-								new Property("textures", encodedData != null ? new String(encodedData) : text));
+						Ref.invoke(Ref.invoke(profile, "getProperties"), set,
+								"textures", new Property("textures", encodedData != null ? new String(encodedData) : text));
 						Ref.set(m, "profile", profile);
 					} catch (Exception | NoSuchMethodError e) {
 					}
@@ -889,6 +891,7 @@ public class ItemCreatorAPI implements Cloneable {
 		} catch (Exception | NoSuchMethodError err) {
 			Validator.send("Creating ItemStack exception", err);
 		}
+		a=i;
 		return i;
 	}
 

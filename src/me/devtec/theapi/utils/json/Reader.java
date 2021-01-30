@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -127,7 +126,7 @@ public class Reader implements JsonReader {
 		Type c = Ref.field(o.getClass(), f).getGenericType();
 		v = cast(v, Ref.getClass(c.getTypeName()));
 		Matcher ma = Pattern.compile("Map<(.*?), (.*?)>").matcher(c.getTypeName());
-		if (ma.find()) {
+		if (ma.find() && v instanceof Map) {
 			@SuppressWarnings("rawtypes")
 			HashMap uknown = new HashMap<>();
 			for (Entry<?, ?> e : ((Map<?, ?>) v).entrySet())
@@ -135,18 +134,18 @@ public class Reader implements JsonReader {
 			v = uknown;
 		}
 		ma = Pattern.compile("List<(.*?)>").matcher(c.getTypeName());
-		if (ma.find()) {
+		if (ma.find() && v instanceof Collection) {
 			@SuppressWarnings("rawtypes")
 			ArrayList uknown = new ArrayList<>();
-			for (Object e : ((List<?>) v))
+			for (Object e : ((Collection<?>) v))
 				uknown.add(cast(e, Ref.getClass(ma.group(1))));
 			v = uknown;
 		}
 		ma = Pattern.compile("Set<(.*?)>").matcher(c.getTypeName());
-		if (ma.find()) {
+		if (ma.find() && v instanceof Collection) {
 			@SuppressWarnings("rawtypes")
 			HashSet uknown = new HashSet<>();
-			for (Object e : ((Set<?>) v))
+			for (Object e : ((Collection<?>) v))
 				uknown.add(cast(e, Ref.getClass(ma.group(1))));
 			v = uknown;
 		}
@@ -179,9 +178,9 @@ public class Reader implements JsonReader {
 
 		return v;
 	}
-
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Object parseR(Object o) {
+	public Object parseR(Object o) {
 		if (o instanceof Collection) {
 			Collection<Object> aw = new ArrayList<>();
 			for (Object f : ((Collection<?>) o))
@@ -267,7 +266,7 @@ public class Reader implements JsonReader {
 					} else {
 						a.put(s.getKey(), parseR(s.getValue()));
 					}
-				} else if (s.getKey().toString().startsWith("Map ")) {
+				} else if (s.getKey().toString().startsWith("Map ") && s.getValue() instanceof Map) {
 					Map map = (Map) Ref.newInstance(
 							Ref.constructor(Ref.getClass((s.getKey().toString()).replaceFirst("Map ", ""))));
 					for (Entry<?, ?> er : ((Map<?, ?>) s.getValue()).entrySet())

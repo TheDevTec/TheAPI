@@ -13,8 +13,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import me.devtec.theapi.TheAPI;
-
 public class Ref {
 	private static Constructor<?> blockpos = constructor(nms("BlockPosition"), double.class, double.class,
 			double.class),
@@ -114,7 +112,7 @@ public class Ref {
 	}
 
 	public static void sendPacket(Player to, Object packet) {
-		if(packet==null)TheAPI.bcMsg("nulled packet!!");
+		if(packet==null)Bukkit.getLogger().severe("Tryting to send to player null packet!");
 		if(packet!=null && to!=null)
 			invoke(playerCon(to), send, packet);
 	}
@@ -219,9 +217,7 @@ public class Ref {
 		List<Field> f = new ArrayList<>();
 		Class<?> superclass = main;
 		while (superclass != null) {
-			for (Field fw : getDeclaredFields(superclass))
-				if (!f.contains(fw))
-					f.add(fw);
+			f.addAll(Arrays.asList(getDeclaredFields(superclass)));
 			superclass = superclass.getSuperclass();
 		}
 		return f;

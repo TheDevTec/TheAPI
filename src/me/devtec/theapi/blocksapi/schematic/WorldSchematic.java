@@ -9,7 +9,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
 import me.devtec.theapi.blocksapi.BlockIterator;
-import me.devtec.theapi.blocksapi.BlocksAPI;
 import me.devtec.theapi.blocksapi.schematic.construct.Schematic;
 import me.devtec.theapi.blocksapi.schematic.construct.SchematicCallable;
 import me.devtec.theapi.blocksapi.schematic.construct.SchematicSaveCallable;
@@ -53,6 +52,10 @@ public class WorldSchematic implements Schematic {
 		return !load.getKeys().isEmpty();
 	}
 
+	private static String sum(int i, int j, int k) {
+		return (i)+""+(j)+""+(k);
+	}
+	
 	@Override
 	public void paste(Position stand, boolean pasteEntities, boolean replaceAir, SchematicCallable callable) {
 		if(load==null || load.getKeys().isEmpty())return; //isn't loaded or is empty
@@ -62,45 +65,37 @@ public class WorldSchematic implements Schematic {
 				Position aa = Position.fromString(load.getString("info.corner.a")), bb = Position.fromString(load.getString("info.corner.b"));
 				aa.setWorld(stand.getWorld());
 				bb.setWorld(stand.getWorld());
+				boolean st = load.getBoolean("info.standing");
 				for(Position pos : new BlockIterator(aa,bb)) {
-					//BLOCKS
-					boolean set = false;
-					for (String fs : load.getStringList(pos.getChunkKey()+".blocks")) {
-						String poos = fs.split("/:/")[0];
-						Position a = Position.fromString(poos);
-						if(pos.getBlockX()==a.getBlockX() && pos.getBlockY()==a.getBlockY() && pos.getBlockZ()==a.getBlockZ()) {
-							String block= fs.substring(poos.length()+3);
-							set=true;
-							ser.fromString(block);
-							Position sett = pos.clone();
-							if(stand!=null && load.getBoolean("info.standing"))
-								sett=sett.add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ());
-							BlocksAPI.set(sett, ser.getType());
-							break;
-						}
+					//BLOCK
+					String setr = load.getString(pos.getChunkKey()+".b."+sum(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ()));
+					if(setr!=null) {
+						Position sett = pos.clone();
+						if(stand!=null && st)
+							sett=sett.add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ());
+						ser.fromString(setr).apply(sett);
 					}
-					if(!set && replaceAir)
-						(stand!=null && load.getBoolean("info.standing")?pos.clone().add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ()):pos).setType(new TheMaterial(Material.AIR));
+					if(setr==null && replaceAir)
+						(stand!=null && st?pos.clone().add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ()):pos).setType(new TheMaterial(Material.AIR));
 					
 					//ENTITIES
 					if(pasteEntities) {
-						for (String fs : load.getStringList(pos.getChunkKey()+".entities")) {
-							String poos = fs.split("/:/")[0], ent = fs.replaceFirst(poos+"/:/", "");
+						List<String> sset=load.getStringList(pos.getChunkKey()+".e."+sum(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ()));
+						if(sset.isEmpty())continue;
+						for(String set :sset) {
+							String poos = set.split("/:/")[0];
+							String ent = set.substring(poos.length()+3);
 							Position a = Position.fromString(poos);
-							if(stand!=null && load.getBoolean("info.standing"))a.add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ());
-							if(pos.getBlockX()==a.getBlockX() && pos.getBlockY()==a.getBlockY() && pos.getBlockZ()==a.getBlockZ()) {
-								set=true;
-								String type = ent.split("/")[0];
-								String serNbt = ent.replaceFirst(type+"/", "");
-								Object nbt = Ref.invokeNulled(Ref.nms("MojangsonParser"), "parse", serNbt);
-								new Tasker() {
-									public void run() {
-										Entity e = pos.getWorld().spawnEntity(pos.toLocation(), EntityType.valueOf(type));
-										Ref.invoke(NMSAPI.getEntity(e), WorldSchematic.loadd, nbt); //load
-									}
-								}.runTaskSync();
-								break;
-							}
+							if(stand!=null && st)a.add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ());
+							String type = ent.split("/")[0];
+							String serNbt = ent.replaceFirst(type+"/", "");
+							Object nbt = Ref.invokeNulled(Ref.nms("MojangsonParser"), "parse", serNbt);
+							new Tasker() {
+								public void run() {
+									Entity e = pos.getWorld().spawnEntity(pos.toLocation(), EntityType.valueOf(type));
+									Ref.invoke(NMSAPI.getEntity(e), WorldSchematic.loadd, nbt); //load
+								}
+							}.runTaskSync();
 						}
 					}
 				}
@@ -113,7 +108,7 @@ public class WorldSchematic implements Schematic {
 	public void save(Position fromCopy, Position cornerA, Position cornerB, SchematicSaveCallable callable) {
 		new Tasker() {
 			public void run() {
-				Data save = new Data("plugins/TheAPI/Schematic/"+name+end);
+				final Data save = new Data("plugins/TheAPI/Schematic/"+name+end);
 				save.reset();
 				save.set("info.version", "1.0");
 				save.set("info.created", System.currentTimeMillis());
@@ -123,28 +118,28 @@ public class WorldSchematic implements Schematic {
 				SerializedBlock ser = new InitialSerializedBlock();
 				for(Position pos : new BlockIterator(cornerA, cornerB)) {
 					//ENTITIES
-					List<String> saved = save.getStringList((fromCopy != null ? pos.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).getChunkKey() : pos.getChunkKey())+".entities");
+					String sum = sum(fromCopy != null ? pos.getBlockX()-fromCopy.getBlockX():pos.getBlockX(), fromCopy != null ? pos.getBlockY()-fromCopy.getBlockY():pos.getBlockY(), fromCopy != null ? pos.getBlockZ()-fromCopy.getBlockZ():pos.getBlockZ());
+					long key  =(fromCopy != null ? pos.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).getChunkKey() : pos.getChunkKey());
+					List<String> entity = save.getStringList(key+".e");
 					for(Entity e : pos.getChunk().getEntities()) {
 						if(e.getType()!=EntityType.PLAYER)
 						if(e.getLocation().distance(pos.toLocation()) <= 1) {
 							Object nbt = Ref.newInstance(Ref.constructor(Ref.nms("NBTTagCompound")));
 							Ref.invoke(NMSAPI.getEntity(e), WorldSchematic.save, nbt); //save
 							String en = e.getType().name()+"/"+nbt.toString();
-							saved.add((fromCopy != null?new Position(e.getLocation()).clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).toString():new Position(e.getLocation()).toString())+"/:/"+en);
+							entity.add((fromCopy != null?new Position(e.getLocation()).clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).toString():new Position(e.getLocation()).toString())+"/:/"+en);
 						}
 					}
-					save.set((fromCopy != null ? pos.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).getChunkKey() : pos.getChunkKey())+".entities", saved);
+					save.set(key+".e."+sum, entity);
 					if(pos.getBukkitType()==Material.AIR||pos.getBukkitType()==Material.CAVE_AIR)continue; //DON'T SAVE AIR BLOCK
 					
-					//BLOCKS
-					saved = save.getStringList((fromCopy != null ? pos.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).getChunkKey() : pos.getChunkKey())+".blocks");
-					saved.add((fromCopy != null?pos.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).toString():pos.toString())+"/:/"+ser.serialize(pos).getAsString());
-					save.set((fromCopy != null ? pos.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).getChunkKey() : pos.getChunkKey())+".blocks", saved);
+					//BLOCK
+					save.set(key+".b."+sum, ser.serialize(pos).getAsString());
 				}
+				WorldSchematic.this.load=save;
 				if(callable!=null)
 					callable.run(WorldSchematic.this, save);
-				WorldSchematic.this.load=save;
-				if(save!=null && !save.getKeys().isEmpty())
+				if(!save.getKeys().isEmpty())
 				save.save(DataType.BYTE);
 		}}.runTask();
 	}

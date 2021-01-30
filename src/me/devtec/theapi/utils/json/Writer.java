@@ -24,18 +24,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.google.gson.internal.LinkedTreeMap;
 
-import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class Writer implements JsonWriter {
-	private List<String> FORBIDDEN = new ArrayList<>();
-
-	public Writer() {
-		FORBIDDEN.add("org.bukkit.craftbukkit." + TheAPI.getServerVersion() + ".persistence.CraftPersistentDataAdapterContext");
-		FORBIDDEN.add("org.bukkit.craftbukkit." + TheAPI.getServerVersion() + ".persistence.CraftPersistentDataTypeRegistry");
-	}
-
+	
 	private static JsonWriter writer = new Writer();
 
 	public static String write(Object object) {
@@ -260,6 +253,7 @@ public class Writer implements JsonWriter {
 			items.put("amount", stack.getAmount());
 			items.put("data", stack.getData().getData());
 			items.put("durability", stack.getDurability());
+			if(stack.hasItemMeta()) {
 			ItemMeta meta = stack.getItemMeta();
 			if (meta.hasEnchants()) {
 				Map<String, String> enchs = new HashMap<>();
@@ -281,6 +275,7 @@ public class Writer implements JsonWriter {
 			stack.setItemMeta(meta);
 			for (Enchantment e : stack.getEnchantments().keySet())
 				stack.removeEnchantment(e);
+			}
 			Object tag = Ref.invoke(Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", stack),
 					"getTag");
 			if (tag != null && !(boolean) Ref.invoke(tag, "isEmpty"))
@@ -336,22 +331,66 @@ public class Writer implements JsonWriter {
 		return convert(w, fancy, addNulls);
 	}
 
-	private Object convert(Object object, boolean fancy, boolean addNulls) {
+	private static List<Class<?>> FORBIDDEN = new ArrayList<>(), SEMI_FORBIDDEN = new ArrayList<>();
+
+	static {
+		SEMI_FORBIDDEN.add(Ref.craft("persistence.CraftPersistentDataAdapterContext"));
+		SEMI_FORBIDDEN.add(Ref.craft("persistence.CraftPersistentDataTypeRegistry"));
+		FORBIDDEN.add(org.apache.logging.log4j.Logger.class);
+		FORBIDDEN.add(java.util.logging.Logger.class);
+		SEMI_FORBIDDEN.add(Ref.nms("Fluid"));
+		SEMI_FORBIDDEN.add(Ref.nms("Material"));
+		SEMI_FORBIDDEN.add(Ref.nms("Block"));
+	}
+
+	private static boolean isForbidden(Class<?> c) {
+		for(Class<?> f : FORBIDDEN) {
+			if(f.isAssignableFrom(c))return true;
+		}
+		return false;
+	}
+
+	private static boolean isSemiForbidden(Class<?> c) {
+		for(Class<?> f : SEMI_FORBIDDEN) {
+			if(f.isAssignableFrom(c))return true;
+		}
+		return false;
+	}
+	
+	private Object convertSimple(Object o, boolean fancy, boolean addNulls) {
+		if(o instanceof Number || o instanceof Boolean || o instanceof String)return o;
 		Map<String, Object> item = new HashMap<>(), map = new HashMap<>();
-		for (Field f : Ref.getAllFields(object.getClass())) {
-			if (Modifier.toString(f.getModifiers()).toLowerCase().contains("static"))
+		for (Field f : Ref.getDeclaredFields(o.getClass())) {
+			if (Modifier.toString(f.getModifiers()).toLowerCase().contains("static")
+					||  isForbidden(f.getType()))
 				continue;
-			Object w = Ref.get(object, f);
-			if (w == null && !addNulls || w != null && FORBIDDEN.contains(w.getClass().getName()))
+			Object w = Ref.get(o, f);
+			if (w == null)
 				continue;
-			if (w == null) {
-				map.put(f.getName(), null);
-				continue;
-			}
-			map.put(f.getName(), object2(w, fancy, addNulls));
+			map.put(f.getName(), w);
 			continue;
 		}
-		item.put("class " + object.getClass().getName(), map);
+		item.put("class " + o.getClass().getName(), map);
+		return item;
+	}
+	
+	public Object convert(Object o, boolean fancy, boolean addNulls) {
+		if(o instanceof Number || o instanceof Boolean || o instanceof String)return o;
+		Map<String, Object> item = new HashMap<>(), map = new HashMap<>();
+		for (Field f : Ref.getDeclaredFields(o.getClass())) {
+			if (Modifier.toString(f.getModifiers()).toLowerCase().contains("static")
+					||  isForbidden(f.getType()))
+				continue;
+			Object w = Ref.get(o, f);
+			if (w == null)
+				continue;
+			if(isSemiForbidden(f.getType())) {
+				map.put(f.getName(), convertSimple(w, fancy, addNulls));
+			}else
+				map.put(f.getName(), object2(w, fancy, addNulls));
+			continue;
+		}
+		item.put("class " + o.getClass().getName(), map);
 		return item;
 	}
 

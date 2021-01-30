@@ -438,14 +438,21 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 						ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
 						for (Entry<String, Object[]> key : loader.get().entrySet())
 							try {
+								bos.writeInt(1);
 								bos.writeUTF(key.getKey());
-								bos.writeUTF(Writer.write(key.getValue()[0]));
+								String write = Writer.write(key.getValue()[0]);
+								while(write.length()>50000) {
+									String wr = write.substring(0, 49999);
+									bos.writeUTF(wr);
+									write=write.substring(49999);
+								}
+								bos.writeUTF(write);
+								bos.writeByte(1);
 							} catch (Exception er) {
 							}
 						w.write(Base64.getEncoder().encodeToString(bos.toByteArray()));
 						w.close();
 					} catch (Exception e) {
-						w.write("");
 						w.close();
 					}
 					return this;
@@ -603,8 +610,16 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 					ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
 					for (Entry<String, Object[]> key : loader.get().entrySet())
 						try {
+							bos.writeInt(1);
 							bos.writeUTF(key.getKey());
-							bos.writeUTF(Writer.write(key.getValue()[0]));
+							String write = Writer.write(key.getValue()[0]);
+							while(write.length()>1_000_000) {
+								String wr = write.substring(0, 999_999);
+								bos.writeUTF(wr);
+								write=write.substring(999_999);
+							}
+							bos.writeUTF(write);
+							bos.writeByte(1);
 						} catch (Exception er) {
 						}
 					return Base64.getEncoder().encodeToString(bos.toByteArray());

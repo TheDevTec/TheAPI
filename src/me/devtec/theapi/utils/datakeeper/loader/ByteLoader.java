@@ -50,21 +50,22 @@ public class ByteLoader extends DataLoader {
 		try {
 			byte[] bb = Base64.getDecoder().decode(input);
 			ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
-			while (true)
-				try {
-					String key = bos.readUTF();
-					String value = bos.readUTF();
-					data.put(key, new Object[] {Reader.read(value), null});
-				} catch (Exception e) {
-					break;
-				}
-			if (!data.isEmpty())
-				l = true;
-		} catch (Exception er) {
-			String inputF =input.substring(0, input.length()-2);
-			try {
-				byte[] bb = Base64.getDecoder().decode(inputF);
-				ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
+			try{
+				bos.readInt();
+				while (true)
+					try {
+						String key = bos.readUTF();
+						String value = bos.readUTF();
+						try {
+							bos.readByte();
+						}catch(Exception not) {
+							value+=bos.readUTF();
+						}
+						data.put(key, new Object[] {Reader.read(value), null});
+					} catch (Exception e) {
+						break;
+					}
+			}catch(Exception old) {
 				while (true)
 					try {
 						String key = bos.readUTF();
@@ -73,6 +74,39 @@ public class ByteLoader extends DataLoader {
 					} catch (Exception e) {
 						break;
 					}
+			}
+			if (!data.isEmpty())
+				l = true;
+		} catch (Exception er) {
+			String inputF =input.substring(0, input.length()-2);
+			try {
+				byte[] bb = Base64.getDecoder().decode(inputF);
+				ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
+				try{
+					bos.readInt();
+					while (true)
+						try {
+							String key = bos.readUTF();
+							String value = bos.readUTF();
+							try {
+								bos.readByte();
+							}catch(Exception not) {
+								value+=bos.readUTF();
+							}
+							data.put(key, new Object[] {Reader.read(value), null});
+						} catch (Exception e) {
+							break;
+						}
+				}catch(Exception old) {
+					while (true)
+						try {
+							String key = bos.readUTF();
+							String value = bos.readUTF();
+							data.put(key, new Object[] {Reader.read(value), null});
+						} catch (Exception e) {
+							break;
+						}
+				}
 				if (!data.isEmpty())
 					l = true;
 			} catch (Exception rrr) {
