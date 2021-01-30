@@ -32,6 +32,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.spigotmc.AsyncCatcher;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.apis.MemoryAPI;
@@ -103,7 +104,11 @@ public class LoaderClass extends JavaPlugin {
 	@Override
 	public void onLoad() {
 		plugin = this;
-		
+		try {
+			if (AsyncCatcher.enabled)
+				AsyncCatcher.enabled = false;
+		} catch (Exception | NoSuchFieldError | NoSuchMethodError notEx) {
+		}
 		//CONFIG
 		createConfig();
 		

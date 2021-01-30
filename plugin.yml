@@ -4,7 +4,7 @@ author: DevTec
 website: https://www.spigotmc.org/resources/72679/
 version: 5.7
 api-version: 1.13
-loadbefore: [Residence,MobArena]
+loadbefore: [Residence,MobArena,SpecializedCrates,GoldenCrates]
 softdepend: [Vault,PlaceholderAPI]
 permissions:
   TheAPI.*:

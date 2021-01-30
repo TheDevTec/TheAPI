@@ -431,7 +431,7 @@ public class Position implements Cloneable {
 	 * @param data  int data of Material
 	 * @return long ChunkKey
 	 */
-	private static synchronized void set(Position pos, boolean palet, boolean neww, Object cr) { // 1.8 - 1.16
+	public static synchronized void set(Position pos, boolean palet, boolean neww, Object cr) { // 1.8 - 1.16
 		Object c = pos.getNMSChunk();
 		int y = pos.getBlockY();
 		Object sc = ((Object[]) Ref.invoke(c, get))[y >> 4];

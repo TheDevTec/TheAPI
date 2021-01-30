@@ -15,7 +15,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.spigotmc.AsyncCatcher;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.blocksapi.schematic.WorldSchematic;
@@ -614,11 +613,6 @@ public class BlocksAPI {
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with,
 			List<TheMaterial> ignore) {
-		try {
-			if (AsyncCatcher.enabled)
-				AsyncCatcher.enabled = false;
-		} catch (Exception | NoSuchFieldError | NoSuchMethodError notEx) {
-		}
 		new Tasker() {
 			public void run() {
 				HashMap<Long, Object> chunks = new HashMap<>();
@@ -663,11 +657,6 @@ public class BlocksAPI {
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> with,
 			List<TheMaterial> ignore) {
-		try {
-			if (AsyncCatcher.enabled)
-				AsyncCatcher.enabled = false;
-		} catch (Exception | NoSuchFieldError | NoSuchMethodError notEx) {
-		}
 		new Tasker() {
 			public void run() {
 				HashMap<Long, Object> chunks = new HashMap<>();
@@ -724,11 +713,6 @@ public class BlocksAPI {
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block,
 			PercentageList<TheMaterial> with) {
-		try {
-			if (AsyncCatcher.enabled)
-				AsyncCatcher.enabled = false;
-		} catch (Exception | NoSuchFieldError | NoSuchMethodError notEx) {
-		}
 		new Tasker() {
 			public void run() {
 				HashMap<Long, Object> chunks = new HashMap<>();
@@ -770,11 +754,6 @@ public class BlocksAPI {
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block,
 			List<TheMaterial> with) {
-		try {
-			if (AsyncCatcher.enabled)
-				AsyncCatcher.enabled = false;
-		} catch (Exception | NoSuchFieldError | NoSuchMethodError notEx) {
-		}
 		new Tasker() {
 			public void run() {
 				HashMap<Long, Object> chunks = new HashMap<>();
@@ -826,11 +805,6 @@ public class BlocksAPI {
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish,
 			PercentageList<TheMaterial> block, List<TheMaterial> with) {
-		try {
-			if (AsyncCatcher.enabled)
-				AsyncCatcher.enabled = false;
-		} catch (Exception | NoSuchFieldError | NoSuchMethodError notEx) {
-		}
 		new Tasker() {
 			public void run() {
 				HashMap<Long, Object> chunks = new HashMap<>();
@@ -867,11 +841,6 @@ public class BlocksAPI {
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish,
 			PercentageList<TheMaterial> block, PercentageList<TheMaterial> with) {
-		try {
-			if (AsyncCatcher.enabled)
-				AsyncCatcher.enabled = false;
-		} catch (Exception | NoSuchFieldError | NoSuchMethodError notEx) {
-		}
 		new Tasker() {
 			public void run() {
 				HashMap<Long, Object> chunks = new HashMap<>();
