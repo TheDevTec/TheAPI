@@ -3,7 +3,7 @@ package me.devtec.theapi.placeholderapi;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import me.clip.placeholderapi.PlaceholderAPI;
+import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
 public abstract class PlaceholderPreRegister extends PlaceholderExpansion {
@@ -36,18 +36,13 @@ public abstract class PlaceholderPreRegister extends PlaceholderExpansion {
 	}
 
 	@Override
-	public String getPlugin() {
+	public String getRequiredPlugin() {
 		return "TheAPI";
 	}
 
 	@Override
-	public String getRequiredPlugin() {
-		return null;
-	}
-
-	@Override
 	public boolean register() {
-		return PlaceholderAPI.registerPlaceholderHook(a, this);
+		return PlaceholderAPIPlugin.getInstance().getLocalExpansionManager().register(this);
 	}
 
 	@Override
