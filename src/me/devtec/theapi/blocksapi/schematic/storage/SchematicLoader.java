@@ -1,4 +1,4 @@
-package me.devtec.theapi.utils.datakeeper.loader;
+package me.devtec.theapi.blocksapi.schematic.storage;
 
 import java.util.Base64;
 import java.util.Collection;
@@ -9,9 +9,11 @@ import java.util.Set;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 
+import me.devtec.theapi.utils.Compressors;
+import me.devtec.theapi.utils.datakeeper.loader.DataLoader;
 import me.devtec.theapi.utils.json.Reader;
 
-public class ByteLoader extends DataLoader {
+public class SchematicLoader extends DataLoader {
 	private Map<String, Object[]> data = new LinkedHashMap<>();
 	private boolean l;
 
@@ -48,9 +50,8 @@ public class ByteLoader extends DataLoader {
 	public void load(String input) {
 		data.clear();
 		try {
-			byte[] bb = Base64.getDecoder().decode(input);
+			byte[] bb = Compressors.decompress(Base64.getDecoder().decode(input));
 			ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
-			bos.readInt();
 			while (true)
 				try {
 					String key = bos.readUTF();
@@ -61,7 +62,7 @@ public class ByteLoader extends DataLoader {
 							next=bos.readUTF();
 							if(next==null)value+=next;
 							else {
-								if(next.equals("0"))break;
+								if(next.equals("1"))break;
 								next=next.substring(1);
 								value+=next;
 							}
@@ -77,9 +78,8 @@ public class ByteLoader extends DataLoader {
 		} catch (Exception er) {
 			String inputF =input.substring(0, input.length()-2);
 			try {
-				byte[] bb = Base64.getDecoder().decode(inputF);
+				byte[] bb = Compressors.decompress(Base64.getDecoder().decode(inputF));
 				ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
-				bos.readInt();
 				while (true)
 					try {
 						String key = bos.readUTF();
@@ -90,7 +90,7 @@ public class ByteLoader extends DataLoader {
 								next=bos.readUTF();
 								if(next==null)value+=next;
 								else {
-									if(next.equals("0"))break;
+									if(next.equals("1"))break;
 									next=next.substring(1);
 									value+=next;
 								}

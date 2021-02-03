@@ -186,11 +186,12 @@ public class Events implements Listener {
 			return;
 		}
 		User s = TheAPI.getUser(e.getUniqueId());
-		List<String> set = LoaderClass.data.getStringList("data."+(e.getAddress() + "").replaceAll("^[0-9.]+", "").replace(".", "_"));
+		String add = e.getAddress().getHostAddress().equalsIgnoreCase("localhost")?"127.0.0.1":e.getAddress().getHostAddress().replaceAll("^[0-9.]+", "").replace(".", "_");
+		List<String> set = LoaderClass.data.getStringList("data."+add);
 		if(!set.contains(s.getName()))
 		set.add(s.getName());
-		LoaderClass.data.set("data."+(e.getAddress() + "").replaceAll("^[0-9.]+", "").replace(".", "_"), set);
-		s.setAndSave("ip", (e.getAddress() + "").replace("/", "").replace(".", "_"));
+		LoaderClass.data.set("data."+add, set);
+		s.setAndSave("ip", add);
 		PlayerBanList a = PunishmentAPI.getBanList(e.getName());
 		if(a==null)return;
 		if (a.isBanned()) {

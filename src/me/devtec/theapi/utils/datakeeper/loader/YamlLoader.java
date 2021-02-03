@@ -1,5 +1,6 @@
 package me.devtec.theapi.utils.datakeeper.loader;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -186,6 +187,10 @@ public class YamlLoader extends DataLoader {
 								if (object.trim().equals("|-")) {
 									c = 2;
 									v = new StringBuilder();
+									continue;
+								}
+								if (object.trim().equals("[]")) {
+									set(key, new ArrayList<>(), lines);
 									continue;
 								}
 								set(key, Reader.read(object), lines);

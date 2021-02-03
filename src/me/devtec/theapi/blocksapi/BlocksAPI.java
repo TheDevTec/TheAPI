@@ -175,7 +175,7 @@ public class BlocksAPI {
 	public static void set(Position loc, TheMaterial material) {
 		if (!material.getType().isBlock())
 			return;
-		Object old = loc.getType().getIBlockData();
+		Object old = loc.getIBlockData();
 		loc.setType(material);
 		Position.updateBlockAt(loc, old);
 		Position.updateLightAt(loc);

@@ -10,20 +10,19 @@ import me.devtec.theapi.utils.Position;
 
 public class BlockIterator implements Iterable<Position> {
 	private final BlockMathIterator iterator;
-	private final String w;
 
 	public BlockIterator(Position a, Position b) {
-		w = a.getWorldName();
+		copy = new Position(a.getWorldName(), 0, 0 ,0);
 		iterator=new BlockMathIterator(a,b);
 	}
 
 	public BlockIterator(Location a, Location b) {
-		w = a.getWorld().getName();
+		copy = new Position(a.getWorld().getName(), 0, 0 ,0);
 		iterator=new BlockMathIterator(a,b);
 	}
 
 	public BlockIterator(String world, int posX, int posY, int posZ, int posX2, int posY2, int posZ2) {
-		w = world;
+		copy = new Position(world, 0, 0 ,0);
 		iterator=new BlockMathIterator(posX, posY, posZ, posX2, posY2, posZ2);
 	}
 
@@ -39,9 +38,11 @@ public class BlockIterator implements Iterable<Position> {
 		return iterator.has();
 	}
 
+	final Position copy;
+	
 	public Position get() {
 		int[] get = iterator.get();
-		return new Position(w, get[0], get[1], get[2]);
+		return copy.setX(get[0]).setY(get[1]).setZ(get[2]);
 	}
 
 	@Override

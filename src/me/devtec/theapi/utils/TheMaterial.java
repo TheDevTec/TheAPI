@@ -300,7 +300,7 @@ public class TheMaterial implements Cloneable {
 
 	@Override
 	public String toString() {
-		return "[TheMaterial:" + m.name() + "/" + data + "/" + amount + "]";
+		return "[TheMaterial:" + m + "/" + data + "/" + amount + "]";
 	}
 
 	public static TheMaterial fromString(String stored) {

@@ -3,6 +3,7 @@ package me.devtec.theapi.punishmentapi;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.bukkit.Location;
@@ -15,27 +16,34 @@ public class PunishmentAPI {
 	private static final BanList banlist = new BanList();
 	private static final Pattern ipFinder = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)[\\._]){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
 
-	public static boolean isIP(String text) {
-		if (text == null)
-			return false;
-		return ipFinder.matcher(text.replaceFirst("/", "")).find();
+	public static boolean isIP(String ip) {
+		if (ip == null)return false;
+		ip=fixIP(ip);
+		return ipFinder.matcher(ip).find();
 	}
 
 	public static String getIP(String player) {
 		if (player == null)
 			return null;
-		if (isIP(player))
-			return player.replace("_", ".").replace("/", "");
+		if ((player.contains(".") || player.contains("_")) && isIP(fixIP(player)))
+			return fixIP(player);
 		if(TheAPI.getUser(player)==null)return null;
-		return TheAPI.getUser(player).exists("ip") && TheAPI.getUser(player).getString("ip")!=null ? TheAPI.getUser(player).getString("ip").replace("_", ".") : null;
+		return TheAPI.getUser(player).exists("ip") && TheAPI.getUser(player).getString("ip")!=null ? 
+				fixIP(TheAPI.getUser(player).getString("ip")) : null;
 	}
 
+	protected static String fixIP(String ip) {
+		ip=ip.replace("_", ".").replaceAll("[^0-9._]+", "").replaceAll("\\.\\.", "");
+		while(ip.startsWith("."))
+			ip=ip.substring(1);
+		while(ip.endsWith("."))
+			ip=ip.substring(0,ip.length()-1);
+		return ip;
+	}
+	
 	public static List<String> getPlayersOnIP(String ip) {
 		if(ip==null)return new ArrayList<>();
-		if(ip.contains(":")) // me.domain.net:<ip>
-			ip=ip.split(":")[1];
-		if(ip.startsWith("/"))
-			ip=ip.substring(1);
+		ip=fixIP(ip);
 		if (!isIP(ip))
 			new Exception("PunishmentAPI error, String must be IP, not player.");
 		ip=ip.replace(".", "_");
@@ -380,15 +388,13 @@ public class PunishmentAPI {
 		return banlist;
 	}
 
-	private static final HashMap<String, PlayerBanList> players = new HashMap<>(); 
+	private static final Map<String, PlayerBanList> players = new HashMap<>(); 
 	
 	public static PlayerBanList getBanList(String player) {
 		if(player==null)return null;
 		PlayerBanList banlist = players.getOrDefault(player.toLowerCase(), null);
-		if(banlist==null) {
-			banlist=new PlayerBanList(player);
-			players.put(player.toLowerCase(), banlist);
-		}
+		if(banlist==null)
+			players.put(player.toLowerCase(), (banlist=new PlayerBanList(player)));
 		return banlist;
 	}
 }

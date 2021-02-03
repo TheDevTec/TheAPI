@@ -30,9 +30,9 @@ import me.devtec.theapi.utils.thapiutils.Validator;
 
 public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	
-	private DataLoader loader;
-	private Set<String> aw;
-	private File a;
+	protected DataLoader loader;
+	protected Set<String> aw;
+	protected File a;
 	
 	public Data() {
 		loader = new EmptyLoader();
@@ -365,7 +365,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Collection<Object> items = getList(key);
 		List<Boolean> list = new ArrayList<>();
 		for (Object o : items)
-			list.add(o == null ? false : StringUtils.getBoolean(o.toString()));
+			list.add(o == null ? false : o instanceof Boolean ? (Boolean)o: StringUtils.getBoolean(o.toString()));
 		return list;
 	}
 
@@ -374,7 +374,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Collection<Object> items = getList(key);
 		List<Integer> list = new ArrayList<>();
 		for (Object o : items)
-			list.add(o == null ? 0 : StringUtils.getInt(o.toString()));
+			list.add(o == null ? 0 : o instanceof Number ? ((Number)o).intValue():StringUtils.getInt(o.toString()));
 		return list;
 	}
 
@@ -383,7 +383,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Collection<Object> items = getList(key);
 		List<Double> list = new ArrayList<>();
 		for (Object o : items)
-			list.add(o == null ? 0.0 : StringUtils.getDouble(o.toString()));
+			list.add(o == null ? 0.0 : o instanceof Number ? ((Number)o).doubleValue():StringUtils.getDouble(o.toString()));
 		return list;
 	}
 
@@ -392,7 +392,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Collection<Object> items = getList(key);
 		List<Short> list = new ArrayList<>();
 		for (Object o : items)
-			list.add(o == null ? 0 : StringUtils.getShort(o.toString()));
+			list.add(o == null ? 0 : o instanceof Number ? ((Number)o).shortValue():StringUtils.getShort(o.toString()));
 		return list;
 	}
 
@@ -401,7 +401,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Collection<Object> items = getList(key);
 		List<Byte> list = new ArrayList<>();
 		for (Object o : items)
-			list.add(o == null ? 0 : StringUtils.getByte(o.toString()));
+			list.add(o == null ? 0 : o instanceof Number ? ((Number)o).byteValue():StringUtils.getByte(o.toString()));
 		return list;
 	}
 
@@ -410,7 +410,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Collection<Object> items = getList(key);
 		List<Float> list = new ArrayList<>();
 		for (Object o : items)
-			list.add(o == null ? 0 : StringUtils.getFloat(o.toString()));
+			list.add(o == null ? 0 : o instanceof Number ? ((Number)o).floatValue():StringUtils.getFloat(o.toString()));
 		return list;
 	}
 
@@ -436,18 +436,22 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				if (type == DataType.BYTE) {
 					try {
 						ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
+						bos.writeInt(1);
 						for (Entry<String, Object[]> key : loader.get().entrySet())
 							try {
-								bos.writeInt(1);
 								bos.writeUTF(key.getKey());
-								String write = Writer.write(key.getValue()[0]);
-								while(write.length()>50000) {
-									String wr = write.substring(0, 49999);
-									bos.writeUTF(wr);
-									write=write.substring(49999);
+								if(key.getValue()[0]==null) {
+									bos.writeUTF(null);
+								}else {
+									String write = Writer.write(key.getValue()[0]);
+									while(write.length()>35000) {
+										String wr = write.substring(0, 34999);
+										bos.writeUTF("0"+wr);
+										write=write.substring(34999);
+									}
+									bos.writeUTF("0"+write);
 								}
-								bos.writeUTF(write);
-								bos.writeByte(1);
+								bos.writeUTF("0");
 							} catch (Exception er) {
 							}
 						w.write(Base64.getEncoder().encodeToString(bos.toByteArray()));
@@ -544,9 +548,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				String c = d.replaceFirst(Pattern.quote(key), "");
 				if (!c.startsWith("."))
 					continue;
-				c = subkeys ? c : c.replaceFirst("\\.", "").split("\\.")[0];
+				c = subkeys ? c : (c.startsWith(".")?c.substring(1):c).split("\\.")[0];
 				if (c.trim().isEmpty())
 					continue;
+				if(c.startsWith("."))c=c.substring(1);
 				if (!a.contains(c))
 					a.add(c);
 			}
@@ -570,30 +575,60 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		synchronized (loader) {
 			try {
 				Object[] aw = loader.get().get(path);
+				Collection<String> list = aw != null ? (Collection<String>)aw[1] : null;
 				Object o = aw != null ? aw[0] : null;
 				String space = cs(spaces, 1);
 				pathName = space + pathName;
-				if (aw != null && aw[1]!=null)
-					for (String s : (List<String>)aw[1])
+				if(list != null && !list.isEmpty()) {
+					for (String s : list)
 						b.write(space + s + System.lineSeparator());
-				if (o == null) {
-					b.write(pathName + System.lineSeparator());
-				} else {
-					if (o instanceof Collection || o instanceof Object[]) {
-						b.write(pathName + System.lineSeparator());
-						String splitted = space + "- ";
-						if (o instanceof Collection) {
-							if(!((Collection<?>) o).isEmpty())
-							for (Object a : (Collection<?>) o) {
-								b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
+					if(o==null)b.write(pathName + System.lineSeparator());
+					else {
+						if (o instanceof Collection || o instanceof Object[]) {
+							String splitted = space + "- ";
+							if (o instanceof Collection) {
+								if(!((Collection<?>) o).isEmpty()) {
+									b.write(pathName + System.lineSeparator());
+									for (Object a : (Collection<?>) o) {
+										b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
+									}
+								}else
+									b.write(pathName + " []" + System.lineSeparator());
+							} else {
+								if(((Object[]) o).length!=0) {
+									b.write(pathName + System.lineSeparator());
+									for (Object a : (Object[]) o)
+										b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
+								}else
+									b.write(pathName + " []" + System.lineSeparator());
 							}
-						} else {
-							if(((Object[]) o).length!=0)
-							for (Object a : (Object[]) o)
-								b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-						}
-					} else
-						b.write(pathName + " " + addQuotes(o instanceof String,Writer.write(o)) + System.lineSeparator());
+						} else
+							b.write(pathName + " " + addQuotes(o instanceof String,Writer.write(o)) + System.lineSeparator());
+					}
+				}else {
+					if(o==null)b.write(pathName + System.lineSeparator());
+					else {
+						if (o instanceof Collection || o instanceof Object[]) {
+							String splitted = space + "- ";
+							if (o instanceof Collection) {
+								if(!((Collection<?>) o).isEmpty()) {
+									b.write(pathName + System.lineSeparator());
+									for (Object a : (Collection<?>) o) {
+										b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
+									}
+								}else
+									b.write(pathName + " []" + System.lineSeparator());
+							} else {
+								if(((Object[]) o).length!=0) {
+									b.write(pathName + System.lineSeparator());
+									for (Object a : (Object[]) o)
+										b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
+								}else
+									b.write(pathName + " []" + System.lineSeparator());
+							}
+						} else
+							b.write(pathName + " " + addQuotes(o instanceof String,Writer.write(o)) + System.lineSeparator());
+					}
 				}
 				for (String key : getKeys(path, false))
 					preparePath(path + "." + key, key + ":", spaces + 1, b);
@@ -608,18 +643,22 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			if (type == DataType.BYTE) {
 				try {
 					ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
+					bos.writeInt(1);
 					for (Entry<String, Object[]> key : loader.get().entrySet())
 						try {
-							bos.writeInt(1);
 							bos.writeUTF(key.getKey());
-							String write = Writer.write(key.getValue()[0]);
-							while(write.length()>1_000_000) {
-								String wr = write.substring(0, 999_999);
-								bos.writeUTF(wr);
-								write=write.substring(999_999);
+							if(key.getValue()[0]==null) {
+								bos.writeUTF(null);
+							}else {
+								String write = Writer.write(key.getValue()[0]);
+								while(write.length()>35000) {
+									String wr = write.substring(0, 34999);
+									bos.writeUTF("0"+wr);
+									write=write.substring(34999);
+								}
+								bos.writeUTF("0"+write);
 							}
-							bos.writeUTF(write);
-							bos.writeByte(1);
+							bos.writeUTF("0");
 						} catch (Exception er) {
 						}
 					return Base64.getEncoder().encodeToString(bos.toByteArray());

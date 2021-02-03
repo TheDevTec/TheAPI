@@ -32,7 +32,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.spigotmc.AsyncCatcher;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.apis.MemoryAPI;
@@ -104,11 +103,21 @@ public class LoaderClass extends JavaPlugin {
 	@Override
 	public void onLoad() {
 		plugin = this;
-		try {
-			if (AsyncCatcher.enabled)
-				AsyncCatcher.enabled = false;
-		} catch (Exception | NoSuchFieldError | NoSuchMethodError notEx) {
+		
+		PluginCommand ca = TheAPI.createCommand("theapi", this);
+		if(Ref.field(Command.class, "timings")!=null && TheAPI.isOlder1_9()) {
+			Ref.set(Bukkit.getServer(), "commandMap", new Old1_8SimpleCommandMap(Bukkit.getServer()));
+			ca = TheAPI.createCommand("theapi", this);
 		}
+		ca.setExecutor(new TheAPICommand());
+		TheAPI.registerCommand(ca);
+	}
+
+	public void onEnable() {
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
+				TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		//CONFIG
 		createConfig();
 		
@@ -196,9 +205,6 @@ public class LoaderClass extends JavaPlugin {
 				colorMap.put(tag.toLowerCase(), "#" + tags.getString("Tags." + tag));
 			StringUtils.gradientFinder=Pattern.compile(LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})(.*?)"+LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})|.*?(?=(?:"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}.*?"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}))");
 		}
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		
 		//BOSSBAR - 1.7.10 - 1.8.8
 		if (TheAPI.isOlder1_9())
@@ -208,21 +214,6 @@ public class LoaderClass extends JavaPlugin {
 						s.move();
 				}
 		}.runRepeating(0, 20);
-		
-		PluginCommand ca = TheAPI.createCommand("theapi", this);
-		if(Ref.field(Command.class, "timings")!=null && TheAPI.isOlder1_9()) {
-			Ref.set(Bukkit.getServer(), "commandMap", new Old1_8SimpleCommandMap(Bukkit.getServer()));
-			ca = TheAPI.createCommand("theapi", this);
-		}
-		ca.setExecutor(new TheAPICommand());
-		TheAPI.registerCommand(ca);
-	}
-
-	public void onEnable() {
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
-				TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		
 		Data plugin = new Data();
 		for(Plugin e : Bukkit.getPluginManager().getPlugins()) {

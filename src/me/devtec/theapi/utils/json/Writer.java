@@ -22,8 +22,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.google.gson.internal.LinkedTreeMap;
-
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.reflections.Ref;
 
@@ -200,8 +198,8 @@ public class Writer implements JsonWriter {
 			return array((Object[]) w, addNulls, fancy);
 		if (w instanceof Collection) {
 			if (w instanceof HashSet
-					|| w.getClass() == Ref.getClass("java.util.Arrays$ArrayList") || w instanceof HashSet
-					|| w instanceof LinkedList || w instanceof LinkedHashSet) {
+					|| w.getClass() == Ref.getClass("java.util.Arrays$ArrayList") || w instanceof HashSet || w instanceof ArrayList
+					|| w instanceof LinkedList || w instanceof LinkedHashSet || w instanceof Maker.MakerObject) {
 				return collection((Collection<?>) w, addNulls, fancy);
 			}
 			Map<String, Object> enumMap = new HashMap<>();
@@ -209,9 +207,8 @@ public class Writer implements JsonWriter {
 			return map(enumMap, addNulls, fancy);
 		}
 		if (w instanceof Map) {
-			if (w instanceof HashMap || w instanceof LinkedHashMap) {
+			if (w instanceof HashMap || w instanceof LinkedHashMap || w instanceof TreeMap  || w instanceof WeakHashMap || w instanceof Maker)
 				return map((Map<?, ?>) w, addNulls, fancy);
-			}
 			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("Map " + w.getClass().getName(), w);
 			return map(enumMap, addNulls, fancy);
@@ -312,8 +309,8 @@ public class Writer implements JsonWriter {
 			return fix(Arrays.asList((Object[]) w), fancy, addNulls);
 		if (w instanceof Collection) {
 			if (w instanceof HashSet
-					|| w.getClass() == Ref.getClass("java.util.Arrays$ArrayList") || w instanceof HashSet
-					|| w instanceof LinkedList || w instanceof LinkedHashSet) {
+					|| w.getClass() == Ref.getClass("java.util.Arrays$ArrayList") || w instanceof HashSet || w instanceof ArrayList
+					|| w instanceof LinkedList || w instanceof LinkedHashSet || w instanceof Maker.MakerObject) {
 				return fix((Collection<?>) w, fancy, addNulls);
 			}
 			Map<String, Object> enumMap = new HashMap<>();
@@ -321,8 +318,7 @@ public class Writer implements JsonWriter {
 			return enumMap;
 		}
 		if (w instanceof Map) {
-			if (w instanceof HashMap || w instanceof LinkedHashMap || w instanceof TreeMap 
-					|| w instanceof LinkedTreeMap || w instanceof WeakHashMap)
+			if (w instanceof HashMap || w instanceof LinkedHashMap || w instanceof TreeMap  || w instanceof WeakHashMap || w instanceof Maker)
 				return fix((Map<?, ?>) w, fancy, addNulls);
 			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("Map " + w.getClass().getName(), map((Map<?, ?>) w, addNulls));

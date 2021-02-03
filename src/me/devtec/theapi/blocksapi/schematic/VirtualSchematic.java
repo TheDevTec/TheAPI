@@ -1,22 +1,27 @@
 package me.devtec.theapi.blocksapi.schematic;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 
 import me.devtec.theapi.blocksapi.BlockIterator;
+import me.devtec.theapi.blocksapi.BlocksAPI;
 import me.devtec.theapi.blocksapi.schematic.construct.Schematic;
 import me.devtec.theapi.blocksapi.schematic.construct.SchematicCallable;
 import me.devtec.theapi.blocksapi.schematic.construct.SchematicSaveCallable;
 import me.devtec.theapi.blocksapi.schematic.construct.SerializedBlock;
+import me.devtec.theapi.blocksapi.schematic.storage.SchematicData;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.TheMaterial;
-import me.devtec.theapi.utils.datakeeper.Data;
-import me.devtec.theapi.utils.nms.NMSAPI;
+import me.devtec.theapi.utils.datakeeper.maps.MultiMap;
+import me.devtec.theapi.utils.json.Reader;
+import me.devtec.theapi.utils.json.Writer;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class VirtualSchematic implements Schematic {
@@ -30,59 +35,63 @@ public class VirtualSchematic implements Schematic {
 			loadd=Ref.method(Ref.nms("Entity"), "loadData", Ref.nms("NBTTagCompound"));
 	}
 	
-	protected Data load;
+	protected SchematicData load;
 	
 	@Override
 	public boolean load() {
 		return load != null;
 	}
 
-	private static String sum(int i, int j, int k) {
-		return (i)+""+(j)+""+(k);
+	private static int sum(int i, int j, int k) {
+		return (j << 8 | (k & 15) << 4 | (i & 15));
 	}
 	
 	@Override
 	public void paste(Position stand, boolean pasteEntities, boolean replaceAir, SchematicCallable callable) {
 		if(load==null || load.getKeys().isEmpty())return; //isn't loaded or is empty
 		new Tasker() {
+			@SuppressWarnings("unchecked")
 			public void run() {
 				SerializedBlock ser = new InitialSerializedBlock();
 				Position aa = Position.fromString(load.getString("info.corner.a")), bb = Position.fromString(load.getString("info.corner.b"));
 				aa.setWorld(stand.getWorld());
 				bb.setWorld(stand.getWorld());
 				boolean st = load.getBoolean("info.standing");
+				//PALLETE
+				Map<Integer, String> pallete = new HashMap<>();
+				for(String key : load.getKeys("pallete"))
+					pallete.put(load.getInt("pallete."+key), key);
+
+				//BLOCKS PER CHUNK: CHUNK-KEY, BLOCK-SUM, PALLETE-ID>
+				MultiMap<Long, Integer, Integer> blocks = new MultiMap<>();
+				for(String key : load.getKeys()) {
+					if(!key.equals("info") && !key.equals("pallete")) {
+						long c = Long.valueOf(key);
+							for(String values : load.getKeys(key+".b")) {
+								int val = Integer.valueOf(values);
+								if(pallete.get(val)==null)continue;
+								for(Double d : (List<Double>)Reader.read(load.getString(key+".b."+values)))
+									blocks.put(c, d.intValue(), val);
+							}
+					}
+				}
+				
+				TheMaterial air = new TheMaterial(Material.AIR);
+				
+				//BLOCKS
 				for(Position pos : new BlockIterator(aa,bb)) {
 					//BLOCK
-					String setr = load.getString(pos.getChunkKey()+".b."+sum(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ()));
-					if(setr!=null) {
-						Position sett = pos.clone();
-						if(stand!=null && st)
-							sett=sett.add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ());
-						ser.fromString(setr).apply(sett);
-					}
-					if(setr==null && replaceAir)
-						(stand!=null && st?pos.clone().add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ()):pos).setType(new TheMaterial(Material.AIR));
+					int sum = sum(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ());
 					
-					//ENTITIES
-					if(pasteEntities) {
-						List<String> sset=load.getStringList(pos.getChunkKey()+".e."+sum(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ()));
-						if(sset.isEmpty())continue;
-						for(String set :sset) {
-							String poos = set.split("/:/")[0];
-							String ent = set.substring(poos.length()+3);
-							Position a = Position.fromString(poos);
-							if(stand!=null && st)a.add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ());
-							String type = ent.split("/")[0];
-							String serNbt = ent.replaceFirst(type+"/", "");
-							Object nbt = Ref.invokeNulled(Ref.nms("MojangsonParser"), "parse", serNbt);
-							new Tasker() {
-								public void run() {
-									Entity e = pos.getWorld().spawnEntity(pos.toLocation(), EntityType.valueOf(type));
-									Ref.invoke(NMSAPI.getEntity(e), VirtualSchematic.loadd, nbt); //load
-								}
-							}.runTaskSync();
-						}
-					}
+					Position sett = pos.clone();
+					if(stand!=null && st)
+						sett=sett.add(stand.getBlockX(), stand.getBlockY(), stand.getBlockZ());
+					
+					if(blocks.containsThread(pos.getChunkKey(), sum)) {
+						ser.fromString(pallete.get(blocks.get(pos.getChunkKey(), sum)).replace("<!>", ".")).apply(sett);
+					}else if(replaceAir)
+						BlocksAPI.set(sett, air);
+					
 				}
 				if(callable!=null)
 					callable.run(VirtualSchematic.this);
@@ -90,40 +99,55 @@ public class VirtualSchematic implements Schematic {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void save(Position fromCopy, Position cornerA, Position cornerB, SchematicSaveCallable callable) {
 		new Tasker() {
 			public void run() {
-				final Data save = new Data();
-				save.reset();
-				save.set("info.version", "1.0");
-				save.set("info.created", System.currentTimeMillis());
-				save.set("info.standing", fromCopy != null);
-				save.set("info.corner.a", fromCopy != null ? cornerA.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).toString() : cornerA.toString());
-				save.set("info.corner.b", fromCopy != null ?cornerB.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).toString() : cornerB.toString());
+				final Map<String, Object> save = new HashMap<>();
+				save.put("info.version", 1.1);
+				save.put("info.created", System.currentTimeMillis());
+				save.put("info.standing", fromCopy != null);
+				save.put("info.corner.a", fromCopy != null ? cornerA.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).toString() : cornerA.toString());
+				save.put("info.corner.b", fromCopy != null ?cornerB.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).toString() : cornerB.toString());
 				SerializedBlock ser = new InitialSerializedBlock();
+				int pal = 0;
 				for(Position pos : new BlockIterator(cornerA, cornerB)) {
-					//ENTITIES
-					String sum = sum(fromCopy != null ? pos.getBlockX()-fromCopy.getBlockX():pos.getBlockX(), fromCopy != null ? pos.getBlockY()-fromCopy.getBlockY():pos.getBlockY(), fromCopy != null ? pos.getBlockZ()-fromCopy.getBlockZ():pos.getBlockZ());
-					long key  =(fromCopy != null ? pos.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).getChunkKey() : pos.getChunkKey());
-					List<String> entity = save.getStringList(key+".e");
-					for(Entity e : pos.getChunk().getEntities()) {
-						if(e.getType()!=EntityType.PLAYER)
-						if(e.getLocation().distance(pos.toLocation()) <= 1) {
-							Object nbt = Ref.newInstance(Ref.constructor(Ref.nms("NBTTagCompound")));
-							Ref.invoke(NMSAPI.getEntity(e), VirtualSchematic.save, nbt); //save
-							String en = e.getType().name()+"/"+nbt.toString();
-							entity.add((fromCopy != null?new Position(e.getLocation()).clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).toString():new Position(e.getLocation()).toString())+"/:/"+en);
-						}
-					}
-					save.set(key+".e."+sum, entity);
-					if(pos.getBukkitType()==Material.AIR||pos.getBukkitType()==Material.CAVE_AIR)continue; //DON'T SAVE AIR BLOCK
+					TheMaterial n = pos.getType();
+					String ss = ser.serialize(pos, n).getAsString().replace(".", "<!>");
+					if(fromCopy!=null)pos.add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ());
+					int sum = sum(pos.getBlockX(),pos.getBlockY(),pos.getBlockZ());
+					long key  = pos.getChunkKey();
 					
+					if(n.getType().name().equals("AIR")||n.getType().name().equals("CAVE_AIR")||n.getType().name().equals("VOID_AIR"))continue; //DON'T SAVE AIR BLOCK
+					
+					//PALLETE
+					String pallete;
+					if(!save.containsKey("pallete."+ss)) {
+						pallete=(pal++)+"";
+						save.put("pallete."+ss, pallete);
+					}else
+						pallete=(String)save.get("pallete."+ss);
 					//BLOCK
-					save.set(key+".b."+sum, ser.serialize(pos).getAsString());
+					if(save.containsKey(key+".b."+pallete)) {
+						List<Integer> ids = (List<Integer>)save.get(key+".b."+pallete);
+						ids.add(sum);
+					}else {
+						List<Integer> ids = new ArrayList<>();
+						ids.add(sum);
+						save.put(key+".b."+pallete, ids);
+					}
 				}
-				VirtualSchematic.this.load=save;
+				//SERIALIZE
+				SchematicData data = new SchematicData();
+				for(Entry<String, Object> key : save.entrySet()) {
+					if(key.getKey().contains(".b.") && !key.getKey().contains("pallete")) {
+						data.set(key.getKey(), Writer.write((List<Integer>)key.getValue()));
+					}else
+						data.set(key.getKey(), key.getValue());
+				}
+				VirtualSchematic.this.load=data;
 				if(callable!=null)
-					callable.run(VirtualSchematic.this, save);
+					callable.run(VirtualSchematic.this, load);
 		}}.runTask();
 	}
 }

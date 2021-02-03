@@ -59,7 +59,7 @@ public class InitialSerializedBlock implements SerializedBlock {
 		Map<String, Object> map = new HashMap<>();
 		map.put("material", material.toString());
 		map.put("state", extra);
-		return Writer.write(map);
+		return Writer.write(map).replace(System.lineSeparator(), "").replace("\n\r", "").replace("\n", "");
 	}
 	
 	public TheMaterial getType() {
@@ -72,6 +72,7 @@ public class InitialSerializedBlock implements SerializedBlock {
 		Map<String, Object> map = (Map<String, Object>)Reader.read(string);
 		extra=(Map<String, Object>)map.get("state");
 		material=TheMaterial.fromString((String)map.get("material"));
+		values.clear();
 		return this;
 	}
 	
@@ -96,11 +97,11 @@ public class InitialSerializedBlock implements SerializedBlock {
 					}
 					if(d instanceof Ageable && extra.containsKey("age")) {
 						Ageable dir = (Ageable)d;
-						dir.setAge((int)extra.get("age"));
+						dir.setAge((int)(double)extra.get("age"));
 					}
 					if(d instanceof AnaloguePowerable && extra.containsKey("power")) {
 						AnaloguePowerable dir = (AnaloguePowerable)d;
-						dir.setPower((int)extra.get("power"));
+						dir.setPower((int)(double)extra.get("power"));
 					}
 					if(d instanceof Attachable && extra.containsKey("attach")) {
 						Attachable dir = (Attachable)d;
@@ -118,7 +119,7 @@ public class InitialSerializedBlock implements SerializedBlock {
 					}
 					if(d instanceof Levelled && extra.containsKey("level")) {
 						Levelled dir = (Levelled)d;
-						dir.setLevel((int)extra.get("level"));
+						dir.setLevel((int)(double)extra.get("level"));
 					}
 					if(d instanceof Lightable && extra.containsKey("lit")) {
 						Lightable dir = (Lightable)d;
@@ -151,7 +152,9 @@ public class InitialSerializedBlock implements SerializedBlock {
 						Waterlogged dir = (Waterlogged)d;
 						dir.setWaterlogged((boolean)extra.get("water"));
 					}
-					b.setBlockData(d);
+					try {
+						b.setBlockData(d);
+					}catch(Exception err) {}
 			}else {
 				BlockState state = b.getState();
 				if(state.getData() instanceof org.bukkit.material.Colorable)

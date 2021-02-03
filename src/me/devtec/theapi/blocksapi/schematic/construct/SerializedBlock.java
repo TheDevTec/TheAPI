@@ -11,6 +11,7 @@ import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.AnaloguePowerable;
 import org.bukkit.block.data.Attachable;
 import org.bukkit.block.data.Bisected;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.FaceAttachable;
 import org.bukkit.block.data.Levelled;
@@ -34,54 +35,59 @@ import me.devtec.theapi.utils.reflections.Ref;
 public interface SerializedBlock extends Serializable {
 	static Method get = Ref.getClass("com.google.common.collect.ForwardingMultimap")==null?Ref.method(Ref.getClass("net.minecraft.util.com.google.common.collect.ForwardingMultimap"), "get", Object.class):
 			Ref.method(Ref.getClass("com.google.common.collect.ForwardingMultimap"), "get", Object.class);
-	
+
+	Map<String, Object> values = new HashMap<>();
 	public default SerializedBlock serialize(Position block) {
+		return serialize(block, block.getType());
+	}
+	Object objectNbt= Ref.newInstance(Ref.constructor(Ref.nms("NBTTagCompound")));
+	public default SerializedBlock serialize(Position block, TheMaterial type) {
 		Block b = block.getBlock();
-		Map<String, Object> values = new HashMap<>();
 		if(TheAPI.isNewVersion()) {
-			if(b.getBlockData() instanceof Orientable) {
-				Orientable dir = (Orientable)b.getBlockData();
+			BlockData d = b.getBlockData();
+			if(d instanceof Orientable) {
+				Orientable dir = (Orientable)d;
 				values.put("orient", dir.getAxis().name());
 			}
-			if(b.getBlockData() instanceof Rotatable) {
-				Rotatable dir = (Rotatable)b.getBlockData();
+			if(d instanceof Rotatable) {
+				Rotatable dir = (Rotatable)d;
 				values.put("rotate", dir.getRotation().name());
 			}
-			if(b.getBlockData() instanceof Directional) {
-				Directional dir = (Directional)b.getBlockData();
+			if(d instanceof Directional) {
+				Directional dir = (Directional)d;
 				values.put("face", dir.getFacing().name());
 			}
-			if(b.getBlockData() instanceof Ageable) {
-				Ageable dir = (Ageable)b.getBlockData();
+			if(d instanceof Ageable) {
+				Ageable dir = (Ageable)d;
 				values.put("age", dir.getAge());
 			}
-			if(b.getBlockData() instanceof AnaloguePowerable) {
-				AnaloguePowerable dir = (AnaloguePowerable)b.getBlockData();
+			if(d instanceof AnaloguePowerable) {
+				AnaloguePowerable dir = (AnaloguePowerable)d;
 				values.put("power", dir.getPower());
 			}
-			if(b.getBlockData() instanceof Attachable) {
-				Attachable dir = (Attachable)b.getBlockData();
+			if(d instanceof Attachable) {
+				Attachable dir = (Attachable)d;
 				values.put("attach", dir.isAttached());
 			}
-			if(b.getBlockData() instanceof Bisected) {
-				Bisected dir = (Bisected)b.getBlockData();
+			if(d instanceof Bisected) {
+				Bisected dir = (Bisected)d;
 				values.put("half", dir.getHalf().name());
 			}
-			if(b.getBlockData() instanceof FaceAttachable) {
-				FaceAttachable dir = (FaceAttachable)b.getBlockData();
+			if(d instanceof FaceAttachable) {
+				FaceAttachable dir = (FaceAttachable)d;
 				values.put("fattach", dir.getAttachedFace().name());
 			}
-			if(b.getBlockData() instanceof Levelled) {
-				Levelled dir = (Levelled)b.getBlockData();
+			if(d instanceof Levelled) {
+				Levelled dir = (Levelled)d;
 				values.put("level", dir.getLevel());
 			}
-			if(b.getBlockData() instanceof Lightable) {
-				Lightable dir = (Lightable)b.getBlockData();
+			if(d instanceof Lightable) {
+				Lightable dir = (Lightable)d;
 				values.put("lit", dir.isLit());
 			}
 			if(TheAPI.isNewerThan(15)) {
-				if(b.getBlockData() instanceof MultipleFacing) {
-					MultipleFacing dir = (MultipleFacing)b.getBlockData();
+				if(d instanceof MultipleFacing) {
+					MultipleFacing dir = (MultipleFacing)d;
 					Map<String, Boolean> map = new HashMap<>(dir.getFaces().size());
 					for(BlockFace face : dir.getFaces())
 						if(dir.getAllowedFaces().contains(face))map.put(face.name(), true);
@@ -89,24 +95,24 @@ public interface SerializedBlock extends Serializable {
 					values.put("mface", Writer.write(map));
 				}
 			}
-			if(b.getBlockData() instanceof Openable) {
-				Openable dir = (Openable)b.getBlockData();
+			if(d instanceof Openable) {
+				Openable dir = (Openable)d;
 				values.put("open", dir.isOpen());
 			}
-			if(b.getBlockData() instanceof Powerable) {
-				Powerable dir = (Powerable)b.getBlockData();
+			if(d instanceof Powerable) {
+				Powerable dir = (Powerable)d;
 				values.put("power", dir.isPowered());
 			}
-			if(b.getBlockData() instanceof Rail) {
-				Rail  dir = (Rail)b.getBlockData();
+			if(d instanceof Rail) {
+				Rail  dir = (Rail)d;
 				values.put("rail", dir.getShape().name());
 			}
-			if(b.getBlockData() instanceof Snowable) {
-				Snowable dir = (Snowable)b.getBlockData();
+			if(d instanceof Snowable) {
+				Snowable dir = (Snowable)d;
 				values.put("snow", dir.isSnowy());
 			}
-			if(b.getBlockData() instanceof Waterlogged) {
-				Waterlogged dir = (Waterlogged)b.getBlockData();
+			if(d instanceof Waterlogged) {
+				Waterlogged dir = (Waterlogged)d;
 				values.put("water", dir.isWaterlogged());
 			}
 		}else {
@@ -122,29 +128,23 @@ public interface SerializedBlock extends Serializable {
 		}
 		Object dir = getState(block);
 		if(dir!=null) {
-			Object ret = Ref.invoke(dir, "save", Ref.newInstance(Ref.constructor(Ref.nms("NBTTagCompound"))));
+			((Map<?,?>)Ref.get(objectNbt, "map")).clear();
+			Object ret = Ref.invoke(dir, "save", objectNbt);
 			if(ret==null) {
-				ret = Ref.invoke(dir, "b", Ref.newInstance(Ref.constructor(Ref.nms("NBTTagCompound"))));
+				ret = Ref.invoke(dir, "b", objectNbt);
 			}
 			values.put("nbt", ret.toString());
 		}
-		return serialize(block.getType(), values);
+		return serialize(type, values);
 	}
 	
 	static Object getState(Position block) {
 		Object w = Ref.world(block.getWorld());
-		@SuppressWarnings("unchecked")
-		Map<Object, Object> map = (Map<Object, Object>) Ref.get(w, "capturedTileEntities");
-		  if (map.containsKey(block.getBlockPosition()))
-		      return map.get(block.getBlockPosition());
-		    Object tileentity = null;
-		    if ((boolean)Ref.get(w, "tickingTileEntities"))
-		      tileentity = Ref.invoke(w,"E",block.getBlockPosition());
-		    if (tileentity == null)
-		      tileentity = Ref.invoke(Ref.invoke(w,"getChunkAtWorldCoords",block.getBlockPosition()),"a", block.getBlockPosition(), Ref.getNulled(Ref.nms("Chunk$EnumTileEntityState"), "IMMEDIATE")); 
-		    if (tileentity == null)
-		      tileentity = Ref.invoke(w,"E",block.getBlockPosition()); 
-		    return tileentity;
+		Map<?,?> map = (Map<?,?>) Ref.get(w, "capturedTileEntities");
+		if (map.containsKey(block.getBlockPosition()))
+			return map.get(block.getBlockPosition());
+		map = (Map<?,?>) Ref.get(block.getNMSChunk(), "tileEntities");
+		return map.get(block.getBlockPosition());
 	}
 	
 	public SerializedBlock serialize(TheMaterial material, Map<String, Object> extra);

@@ -68,10 +68,10 @@ public class Ref {
 		return Ref.newInstance(d, key, texture, null);
 	}
 
-	public static void set(Object main, Field field, Object o) {
+	public static void set(Object main, Field f, Object o) {
 		try {
-			field.setAccessible(true);
-			field.set(main, o);
+			f.setAccessible(true);
+			f.set(main, o);
 		} catch (Exception e) {
 		}
 	}
@@ -283,7 +283,7 @@ public class Ref {
 			return null;
 		}
 	}
-
+	
 	public static Field field(Class<?> main, String name) {
 		try {
 			Field f = main.getDeclaredField(name);
@@ -306,8 +306,9 @@ public class Ref {
 						break;
 					}
 				}
-				if (f != null)
+				if (f != null) {
 					f.setAccessible(true);
+				}
 				return f;
 			} catch (Exception er) {
 			}
