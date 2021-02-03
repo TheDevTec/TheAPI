@@ -103,19 +103,8 @@ public class LoaderClass extends JavaPlugin {
 	@Override
 	public void onLoad() {
 		plugin = this;
-		
-		PluginCommand ca = TheAPI.createCommand("theapi", this);
-		if(Ref.field(Command.class, "timings")!=null && TheAPI.isOlder1_9()) {
-			Ref.set(Bukkit.getServer(), "commandMap", new Old1_8SimpleCommandMap(Bukkit.getServer()));
-			ca = TheAPI.createCommand("theapi", this);
-		}
-		ca.setExecutor(new TheAPICommand());
-		TheAPI.registerCommand(ca);
-	}
-
-	public void onEnable() {
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
+		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..",
 				TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		//CONFIG
@@ -205,6 +194,20 @@ public class LoaderClass extends JavaPlugin {
 				colorMap.put(tag.toLowerCase(), "#" + tags.getString("Tags." + tag));
 			StringUtils.gradientFinder=Pattern.compile(LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})(.*?)"+LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})|.*?(?=(?:"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}.*?"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}))");
 		}
+		PluginCommand ca = TheAPI.createCommand("theapi", this);
+		if(Ref.field(Command.class, "timings")!=null && TheAPI.isOlder1_9()) {
+			Ref.set(Bukkit.getServer(), "commandMap", new Old1_8SimpleCommandMap(Bukkit.getServer()));
+			ca = TheAPI.createCommand("theapi", this);
+		}
+		ca.setExecutor(new TheAPICommand());
+		TheAPI.registerCommand(ca);
+	}
+
+	public void onEnable() {
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
+				TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		
 		//BOSSBAR - 1.7.10 - 1.8.8
 		if (TheAPI.isOlder1_9())
