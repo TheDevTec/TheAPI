@@ -121,10 +121,6 @@ public class BlocksAPI {
 		return getNearbyEntities(new Position(world, x, y, z), radius);
 	}
 
-	public static BlockSave getBlockSave(Position b) {
-		return new BlockSave(b);
-	}
-
 	public static BlockIterator get(Location from, Location to) {
 		return new BlockIterator(from, to);
 	}
@@ -168,13 +164,6 @@ public class BlocksAPI {
 		return blocks;
 	}
 
-	public static List<BlockSave> getBlockSaves(List<Position> a) {
-		List<BlockSave> b = new ArrayList<>();
-		for (Position s : a)
-			b.add(getBlockSave(s));
-		return b;
-	}
-
 	public static void set(Position loc, Material material) {
 		set(loc, new TheMaterial(material));
 	}
@@ -210,14 +199,6 @@ public class BlocksAPI {
 
 	public static void set(Block loc, PercentageList<TheMaterial> material) {
 		set(new Position(loc), material);
-	}
-
-	public static void loadBlockSave(Position pos, BlockSave s) {
-		s.load(pos, true);
-	}
-
-	public static void pasteBlockSave(Position pos, BlockSave s) {
-		s.load(pos, true);
 	}
 
 	public static List<Position> get(Shape form, Position where, int radius) {
