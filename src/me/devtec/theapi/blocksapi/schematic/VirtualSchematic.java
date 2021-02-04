@@ -41,6 +41,10 @@ public class VirtualSchematic implements Schematic {
 	public boolean load() {
 		return load != null;
 	}
+	
+	public SchematicData data() {
+		return load;
+	}
 
 	private static int sum(int i, int j, int k) {
 		return (j << 8 | (k & 15) << 4 | (i & 15));

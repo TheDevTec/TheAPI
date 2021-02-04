@@ -69,6 +69,10 @@ public class WorldSchematic implements Schematic {
 		load.reload(new File("plugins/TheAPI/Schematic/"+name+end));
 		return !load.getKeys().isEmpty();
 	}
+	
+	public SchematicData data() {
+		return load;
+	}
 
 	private static int sum(int i, int j, int k) {
 		return (j << 8 | (k & 15) << 4 | (i & 15));
