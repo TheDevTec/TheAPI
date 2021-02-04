@@ -678,29 +678,29 @@ public class StringUtils {
 	 */
 	public static String timeToString(long time) {
 		if(time==0)
-			return "0 second";
+			return "0s";
 		long minutes = (time / 60) % 60;
 		long hours = (time / 3600) % 24;
 		long days = (time / 86400) % 31;
 		long month = 0;
 		long year = 0;
 		try{
-			month = (time / 60/60/24/31) % 12;
-			year=time / 60/60/24/31/12;
+			month = (time / 86400 / 31) % 12;
+			year=time / 86400 / 31 / 12;
 		}catch(Exception er) {}
 		String date = "";
 		if (year > 0)
-			date = year + " year" + (year > 1 ? "s" : "");
+			date = year + "y";
 		if (month > 0)
-			date = (!date.equals("") ? date + " " : "") + month + " month" + (month > 1 ? "s" : "");
+			date += month + "mo";
 		if (days > 0)
-			date = (!date.equals("") ? date + " " : "") + days + " day" + (days > 1 ? "s" : "");
+			date += days + "d";
 		if (hours > 0)
-			date = (!date.equals("") ? date + " " : "") + hours + " hour" + (hours > 1 ? "s" : "");
+			date += hours + "h";
 		if (minutes > 0)
-			date = (!date.equals("") ? date + " " : "") + minutes + " minute" + (minutes > 1 ? "s" : "");
-		if (date.equals(""))
-			date = (time % 60) + " second" + ((time % 60) > 1 ? "s" : "");
+			date += minutes + "m";
+		if (time % 60 > 0)
+			date += (time % 60) + "s";
 		return date;
 	}
 
