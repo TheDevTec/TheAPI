@@ -28,9 +28,9 @@ public class NMSAPI {
 			metadata = Ref.constructor(Ref.nms("PacketPlayOutEntityMetadata"), int.class, Ref.nms("DataWatcher"),
 					boolean.class);
 	private static Method getmat, getb, getc, gett, getser, block, IBlockData, worldset, Chunk, getblocks, setblock,
-			setblockb, itemstack, entityM, livingentity, oldichatser, post, notify;
-	private static int old;
-	private static Field tps;
+			setblockb, itemstack, entityM, livingentity, oldichatser, post, notify,nofifyManual;
+	private static int old, not;
+	private static Field tps,getMap,getProvider;
 	private static Object sbremove, sbinteger, sbchange, sbhearts;
 	private static Field[] scr = new Field[4];
 	static {
@@ -119,8 +119,29 @@ public class NMSAPI {
 		pChunk = Ref.constructor(Ref.nms("PacketPlayOutMapChunk"), Ref.nms("Chunk"), int.class);
 		if (pChunk == null)
 			pChunk = Ref.constructor(Ref.nms("PacketPlayOutMapChunk"), Ref.nms("Chunk"), boolean.class, int.class);
-		notify = Ref.method(Ref.nms("World"), "notify", Ref.nms("BlockPosition"), Ref.nms("IBlockData"),
-				Ref.nms("IBlockData"), int.class);
+		
+		getMap = Ref.field(Ref.nms("WorldServer"),"manager");
+		if(getMap==null) {
+			getProvider = Ref.field(Ref.nms("WorldServer"),"chunkProvider");
+			getMap = Ref.field(Ref.nms("ChunkProviderServer"),"playerChunkMap");
+		}
+		
+		notify = Ref.method(Ref.nms("PlayerChunkMap"), "flagDirty", int.class, int.class, int.class); //1.7
+		if(notify==null) {
+		notify = Ref.method(Ref.nms("PlayerChunkMap"), "a", int.class, int.class, int.class); //1.8
+		if(notify==null) {
+		notify = Ref.method(Ref.nms("PlayerChunkMap"), "flagDirty", Ref.nms("BlockPosition")); //1.9 - 1.12
+		if(notify==null) {
+		notify = Ref.method(Ref.nms("PlayerChunkMap"), "a", Ref.nms("BlockPosition")); //1.13
+		if(notify==null) {
+			not=1;
+			notify = Ref.method(Ref.nms("PlayerChunkMap"), "getVisibleChunk", long.class); //1.14 - 1.16
+			nofifyManual = Ref.method(Ref.nms("PlayerChunk"), "a", int.class, int.class, int.class);
+			if(nofifyManual==null) {
+				not=0;
+				nofifyManual = Ref.method(Ref.nms("PlayerChunk"), "a", Ref.nms("BlockPosition"));
+			}
+		}}}}
 	}
 
 	public static enum Action {
@@ -342,11 +363,14 @@ public class NMSAPI {
 	}
 
 	public static void refleshBlock(Position pos, Object oldBlock) {
-		if (TheAPI.isOlderThan(8))
-			Ref.invoke(Ref.world(pos.getWorld()), notify, pos.getBlockX(), pos.getBlockY(), pos.getBlockZ());
-		else
-			Ref.invoke(Ref.world(pos.getWorld()), notify, pos.getBlockPosition(), oldBlock,
-					pos.getType().getIBlockData(), 3);
+		if (TheAPI.isOlderThan(9)) { //1.7 - 1.8
+			Ref.invoke(Ref.get(Ref.world(pos.getWorld()), getMap), notify, pos.getBlockX(), pos.getBlockY(), pos.getBlockZ());
+		}else
+		if (TheAPI.isOlderThan(14)) { //1.9 - 1.13
+			Ref.invoke(Ref.get(Ref.world(pos.getWorld()), getMap), notify, pos.getBlockPosition());
+		}else { //1.14+ - manually
+			Ref.invoke(Ref.get(Ref.get(Ref.world(pos.getWorld()), getProvider), getMap), notify, not==0?pos.getBlockPosition():pos.getBlockX(), pos.getBlockY(), pos.getBlockZ());
+		}
 	}
 
 	public static Object getPacketPlayOutChat(ChatType type, Object IChatBaseComponent) {

@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -67,6 +69,27 @@ public class BlocksAPI {
 			break;
 		}
 		return lastBlock;
+	}
+	
+	public static Object findState(Object iblockdata, String name) {
+		for(Entry<?,?> e : ((Map<?,?>)Ref.invoke(iblockdata, "getStateMap")).entrySet())
+			if(Ref.invoke(e.getKey(), "getName").equals(name))return e.getKey();
+		return null;
+	}
+	
+	public static Comparable<?> getState(Position pos, String name){
+		Object block = pos.getIBlockData();
+		Object state = findState(block, name);
+		return (Comparable<?>)Ref.invoke(block, getState, state);
+	}
+	
+	private static Method getState = Ref.method(Ref.nms("IBlockDataHolder"), "get", Ref.nms("IBlockState")),
+			setState = Ref.method(Ref.nms("IBlockDataHolder"), "set", Ref.nms("IBlockState"), Comparable.class);
+	
+	public static Object setState(Position pos, String name, Comparable<?> comparable){
+		Object block = pos.getIBlockData();
+		Object state = findState(block, name);
+		return Ref.invoke(block, setState, state, comparable);
 	}
 
 	private static void set(Position from, Position to, Blocking task) {

@@ -518,10 +518,12 @@ public class LoaderClass extends JavaPlugin {
 		config.setComments("Options.Cache.User.Use",
 				Arrays.asList("# Cache Users to memory for faster loading", "# defaulty: true"));
 		config.addDefault("Options.Cache.User.RemoveOnQuit", true); // Remove cached player from cache on
-																	// PlayerQuitEvent
+		// PlayerQuitEvent
 		config.setComments("Options.Cache.User.RemoveOnQuit",
 				Arrays.asList("# Remove cache of User from memory", "# defaulty: true"));
 
+		config.addDefault("Options.Cache.User.OfflineNames", true); // Cache offline-names of players
+																	// PlayerQuitEvent
 		config.addDefault("Options.User-SavingType", DataType.YAML.name());
 		config.setComments("Options.User-SavingType",
 				Arrays.asList("", "# Saving type of User data", "# Types: YAML, JSON, BYTE, DATA", "# defaulty: YAML"));
