@@ -20,7 +20,7 @@ public class SimpleScore {
 	}
 	
 	public SimpleScore addLines(Collection<String> lines) {
-		lines.addAll(lines);
+		this.lines.addAll(lines);
 		return this;
 	}
 	

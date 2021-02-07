@@ -2,6 +2,7 @@ package me.devtec.theapi.utils.thapiutils;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.bukkit.Server;
@@ -11,13 +12,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.utils.reflections.Ref;
 
 public class Old1_8SimpleCommandMap extends SimpleCommandMap {
 	  private static final Pattern PATTERN_ON_SPACE = Pattern.compile(" ", 16);
 	  
-	  public Old1_8SimpleCommandMap(Server server) {
+	  public Old1_8SimpleCommandMap(Server server, Map<String, Command> map) {
 		super(server);
 	    TheAPI.cmdMap=this;
+	    Ref.set(this, "knownCommands", map);
 	    TheAPI.knownCommands=knownCommands;
 	  }
 	  
@@ -52,7 +55,6 @@ public class Old1_8SimpleCommandMap extends SimpleCommandMap {
 	  
 	  @Override
 	  public boolean dispatch(CommandSender sender, String commandLine) throws CommandException {
-		  TheAPI.bcMsg(commandLine);
 	    String[] args = PATTERN_ON_SPACE.split(commandLine);
 	    if (args.length == 0)
 	      return false; 

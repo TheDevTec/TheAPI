@@ -19,14 +19,14 @@ import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.nms.datawatcher.DataWatcher;
 import me.devtec.theapi.utils.reflections.Ref;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class NMSAPI {
 
 	private static Class<?> enumTitle;
 	private static Constructor<?> pDestroy, pTitle, pOutChat, pTab, pBlock, blockPos, pChunk, ChunkSection, chunkc,
 			pSpawn, pNSpawn, pLSpawn, score, sbobj, sbdisplayobj, sbteam, pSign, pTeleport,
-			metadata = Ref.constructor(Ref.nms("PacketPlayOutEntityMetadata"), int.class, Ref.nms("DataWatcher"),
-					boolean.class);
+			metadata = Ref.constructor(Ref.nms("PacketPlayOutEntityMetadata"), int.class, Ref.nms("DataWatcher"), boolean.class);
 	private static Method getmat, getb, getc, gett, getser, block, IBlockData, worldset, Chunk, getblocks, setblock,
 			setblockb, itemstack, entityM, livingentity, oldichatser, post, notify,nofifyManual;
 	private static int old, not;
@@ -161,7 +161,7 @@ public class NMSAPI {
 
 	// Entity
 	public static Object getPacketPlayOutEntityMetadata(Object entity) {
-		return getPacketPlayOutEntityMetadata((int) Ref.invoke(entity, "getId"), Ref.invoke(entity, "getDataWatcher"));
+		return Ref.newInstance(metadata, (int) Ref.invoke(entity, "getId"), Ref.invoke(entity, "getDataWatcher"), true);
 	}
 
 	public static Object getPacketPlayOutEntityMetadata(Entity entity, DataWatcher dataWatcher) {
@@ -175,6 +175,11 @@ public class NMSAPI {
 	// EntityId, DataWatcher
 	public static Object getPacketPlayOutEntityMetadata(int entityId, Object dataWatcher) {
 		return Ref.newInstance(metadata, entityId, dataWatcher, true);
+	}
+
+	// EntityId, DataWatcher, Boolean
+	public static Object getPacketPlayOutEntityMetadata(int entityId, Object dataWatcher, boolean bal) {
+		return Ref.newInstance(metadata, entityId, dataWatcher, bal);
 	}
 
 	public static Object getPacketPlayOutScoreboardObjective() {
@@ -453,6 +458,8 @@ public class NMSAPI {
 	}
 
 	static Field aField, bField;
+	static Object empty = getIChatBaseComponentText("");
+	static boolean paper;
 	static {
 		aField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "header");
 		if (aField == null)
@@ -460,6 +467,7 @@ public class NMSAPI {
 		bField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "footer");
 		if (bField == null)
 			bField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "b");
+		paper=(aField+"").contains("net.md_5.bungee.api.chat.BaseComponent");
 	}
 	public static Object getPacketPlayOutPlayerListHeaderFooter(Object headerIChatBaseComponent, Object footerIChatBaseComponent) {
 		if(pTab!=null) {
@@ -472,7 +480,7 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutPlayerListHeaderFooter(String header, String footer) {
-		return getPacketPlayOutPlayerListHeaderFooter(getIChatBaseComponentFromCraftBukkit(header), getIChatBaseComponentFromCraftBukkit(footer));
+		return getPacketPlayOutPlayerListHeaderFooter(paper?TextComponent.fromLegacyText(header):header.equals("")?empty:getIChatBaseComponentFromCraftBukkit(header), paper?TextComponent.fromLegacyText(footer):footer.equals("")?empty:getIChatBaseComponentFromCraftBukkit(footer));
 	}
 
 	public static Object getPacketPlayOutBlockChange(Object World, int x, int y, int z) {

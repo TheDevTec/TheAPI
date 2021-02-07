@@ -1071,6 +1071,7 @@ public class TheAPI {
 		try {
 			s = UUID.fromString(nameOrUUID);
 		} catch (Exception e) {
+			if(LoaderClass.cache!=null && LoaderClass.cache.exists(nameOrUUID.toLowerCase()))nameOrUUID=LoaderClass.cache.getString(nameOrUUID.toLowerCase());
 			s = UUID.nameUUIDFromBytes(("OfflinePlayer:"+nameOrUUID).getBytes());
 		}
 		return getUser(s);

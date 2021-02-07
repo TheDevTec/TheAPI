@@ -77,7 +77,7 @@ public class LoaderClass extends JavaPlugin {
 	// TheAPI
 	public static LoaderClass plugin;
 	public static Config config = new Config("TheAPI/Config.yml"), sockets = new Config("TheAPI/Sockets.yml"), tags,
-			data = new Config("TheAPI/Data.dat", DataType.BYTE);
+			data = new Config("TheAPI/Data.dat", DataType.BYTE), cache;
 	public String motd;
 	public static String ss;
 	public static String gradientTag, tagG;
@@ -197,7 +197,7 @@ public class LoaderClass extends JavaPlugin {
 		}
 		PluginCommand ca = TheAPI.createCommand("theapi", this);
 		if(Ref.field(Command.class, "timings")!=null && TheAPI.isOlder1_9()) {
-			Ref.set(Bukkit.getServer(), "commandMap", new Old1_8SimpleCommandMap(Bukkit.getServer()));
+			Ref.set(Bukkit.getServer(), "commandMap", new Old1_8SimpleCommandMap(Bukkit.getServer(), TheAPI.knownCommands));
 			ca = TheAPI.createCommand("theapi", this);
 		}
 		ca.setExecutor(new TheAPICommand());
@@ -518,12 +518,11 @@ public class LoaderClass extends JavaPlugin {
 		config.setComments("Options.Cache.User.Use",
 				Arrays.asList("# Cache Users to memory for faster loading", "# defaulty: true"));
 		config.addDefault("Options.Cache.User.RemoveOnQuit", true); // Remove cached player from cache on
-		// PlayerQuitEvent
+																	// PlayerQuitEvent
 		config.setComments("Options.Cache.User.RemoveOnQuit",
 				Arrays.asList("# Remove cache of User from memory", "# defaulty: true"));
 
-		config.addDefault("Options.Cache.User.OfflineNames", true); // Cache offline-names of players
-																	// PlayerQuitEvent
+		config.addDefault("Options.Cache.User.OfflineNames", false); // Cache offline-names of players
 		config.addDefault("Options.User-SavingType", DataType.YAML.name());
 		config.setComments("Options.User-SavingType",
 				Arrays.asList("", "# Saving type of User data", "# Types: YAML, JSON, BYTE, DATA", "# defaulty: YAML"));
@@ -549,6 +548,8 @@ public class LoaderClass extends JavaPlugin {
 		config.setComments("Options.FakeEconomyAPI.Format",
 				Arrays.asList("# Economy format of FakeEconomyAPI", "# defaulty: $%money%"));
 		config.save();	
+		if(config.getBoolean("Options.Cache.User.OfflineNames"))
+			cache=new Config("TheAPI/OfflineNameCache.dat");
 		max = Bukkit.getMaxPlayers();
 		motd = Bukkit.getMotd();
 	}

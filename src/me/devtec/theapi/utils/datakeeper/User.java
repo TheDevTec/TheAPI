@@ -31,6 +31,7 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			s = UUID.fromString(name);
 			name = Bukkit.getOfflinePlayer(s).getName();
 		} catch (Exception e) {
+			if(LoaderClass.cache!=null && LoaderClass.cache.exists(name.toLowerCase()))name=LoaderClass.cache.getString(name.toLowerCase());
 			s = (UUID)Ref.invokeNulled(method, name);
 			this.name = name;
 		}

@@ -42,6 +42,8 @@ import me.devtec.theapi.punishmentapi.PlayerBanList;
 import me.devtec.theapi.punishmentapi.PlayerBanList.PunishmentType;
 import me.devtec.theapi.punishmentapi.PunishmentAPI;
 import me.devtec.theapi.scheduler.Tasker;
+import me.devtec.theapi.scoreboardapi.ScoreboardAPI;
+import me.devtec.theapi.scoreboardapi.SimpleScore;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.StringUtils;
@@ -185,6 +187,7 @@ public class Events implements Listener {
 			e.disallow(Result.KICK_OTHER, "");
 			return;
 		}
+		if(LoaderClass.cache!=null)LoaderClass.cache.set(e.getName().toLowerCase(), e.getName());
 		User s = TheAPI.getUser(e.getUniqueId());
 		String add = e.getAddress().getHostAddress().equalsIgnoreCase("localhost")?"127.0.0.1":e.getAddress().getHostAddress().replaceAll("^[0-9.]+", "").replace(".", "_");
 		List<String> set = LoaderClass.data.getStringList("data."+add);
@@ -218,6 +221,9 @@ public class Events implements Listener {
 	@EventHandler
 	public void onLeave(PlayerQuitEvent e) {
 		Player s = e.getPlayer();
+		if(((Map<String, ScoreboardAPI>)Ref.getNulled(SimpleScore.class,"scores")).containsKey(s.getName()))
+		((Map<String, ScoreboardAPI>)Ref.getNulled(SimpleScore.class,"scores")).get(s.getName()).destroy();
+		((Map<String, ScoreboardAPI>)Ref.getNulled(SimpleScore.class,"scores")).remove(s.getName());
 		if(LoaderClass.plugin.handler!=null)
 		LoaderClass.plugin.handler.remove(LoaderClass.plugin.handler.get(s));
 		new Tasker() {
