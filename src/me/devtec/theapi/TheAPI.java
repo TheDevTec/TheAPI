@@ -997,8 +997,12 @@ public class TheAPI {
 			Player p = getPlayerOrNull(name);
 			if(p!=null)
 				s=p.getUniqueId().toString();
-			else
-				s = Bukkit.getOfflinePlayer(name).getUniqueId().toString();
+			else {
+				if(LoaderClass.cache!=null) {
+					s=LoaderClass.cache.lookupId(name).toString();
+				}else
+				s=UUID.nameUUIDFromBytes(("OfflinePlayer:"+name).getBytes()).toString();
+			}
 		}
 		return new File("plugins/TheAPI/User/" + s + ".yml").exists();
 	}
@@ -1051,7 +1055,7 @@ public class TheAPI {
 				try {
 					String name = Bukkit.getOfflinePlayer(UUID.fromString(f.getName().replaceFirst(".yml", ""))).getName();
 					if(name!=null)
-					a.add(name);
+						a.add(name);
 				} catch (Exception e) {
 					// hide error.
 				}
@@ -1067,14 +1071,19 @@ public class TheAPI {
 	public static User getUser(String nameOrUUID) {
 		if (nameOrUUID == null)
 			return null;
-		UUID s = null;
 		try {
-			s = UUID.fromString(nameOrUUID);
+			return getUser(UUID.fromString(nameOrUUID));
 		} catch (Exception e) {
-			if(LoaderClass.cache!=null && LoaderClass.cache.exists(nameOrUUID.toLowerCase()))nameOrUUID=LoaderClass.cache.getString(nameOrUUID.toLowerCase());
-			s = UUID.nameUUIDFromBytes(("OfflinePlayer:"+nameOrUUID).getBytes());
+			String name = nameOrUUID;
+			Player p = getPlayerOrNull(nameOrUUID);
+			if(p!=null)name=p.getName();
+			if(LoaderClass.cache!=null) {
+				name=LoaderClass.cache.lookupName(name);
+				return getUser(name,LoaderClass.cache.lookupId(name));
+			}else {
+				return getUser(name,UUID.nameUUIDFromBytes(("OfflinePlayer:"+name).getBytes()));
+			}
 		}
-		return getUser(s);
 	}
 
 	/**
@@ -1085,7 +1094,7 @@ public class TheAPI {
 	public static User getUser(Player player) {
 		if (player == null)
 			return null;
-		return getUser(player.getUniqueId());
+		return getUser(player.getName(),player.getUniqueId());
 	}
 
 	/**
@@ -1105,6 +1114,25 @@ public class TheAPI {
 			return c;
 		}
 		return new User(uuid);
+	}
+
+	/**
+	 * @see see If the user doesn't exist, his data file is created automatically.
+	 * @param uuid UUID of player
+	 * @return User
+	 */
+	public static User getUser(String name, UUID uuid) {
+		if (uuid == null)
+			return null;
+		if (LoaderClass.config.getBoolean("Options.Cache.User.Use")) {
+			User c = cache.getOrDefault(uuid, null);
+			if (c == null) {
+				c = new User(name,uuid);
+				cache.put(uuid, c);
+			}
+			return c;
+		}
+		return new User(name,uuid);
 	}
 
 	public static void removeCachedUser(UUID uuid) {
@@ -1146,7 +1174,7 @@ public class TheAPI {
 		try {
 			s = UUID.fromString(nameOrUUID);
 		} catch (Exception e) {
-			s = Bukkit.getOfflinePlayer(nameOrUUID).getUniqueId();
+			s = LoaderClass.cache!=null?LoaderClass.cache.lookupId(nameOrUUID):Bukkit.getOfflinePlayer(nameOrUUID).getUniqueId();
 		}
 		cache.remove(s);
 	}

@@ -14,8 +14,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,7 +79,9 @@ public class LoaderClass extends JavaPlugin {
 	// TheAPI
 	public static LoaderClass plugin;
 	public static Config config = new Config("TheAPI/Config.yml"), sockets = new Config("TheAPI/Sockets.yml"), tags,
-			data = new Config("TheAPI/Data.dat", DataType.BYTE), cache;
+			data = new Config("TheAPI/Data.dat", DataType.BYTE);
+	public static Cache cache;
+	
 	public String motd;
 	public static String ss;
 	public static String gradientTag, tagG;
@@ -494,6 +498,25 @@ public class LoaderClass extends JavaPlugin {
 		
 		//Bans
 		data.save();
+		
+		//users cache
+		if(cache!=null) {
+			Data data = cache.saveToData();
+			File f = new File("plugins/TheAPI/Cache.dat");
+			if (!f.exists()) {
+				try {
+					if(f.getParentFile()!=null)
+						f.getParentFile().mkdirs();
+				} catch (Exception e) {
+				}
+				try {
+					f.createNewFile();
+				} catch (Exception e) {
+				}
+			}
+			data.setFile(f);
+			data.save(DataType.BYTE);
+		}
 	}
 
 	public List<Plugin> getTheAPIsPlugins() {
@@ -522,10 +545,14 @@ public class LoaderClass extends JavaPlugin {
 		config.setComments("Options.Cache.User.RemoveOnQuit",
 				Arrays.asList("# Remove cache of User from memory", "# defaulty: true"));
 
-		config.addDefault("Options.Cache.User.OfflineNames", false); // Cache offline-names of players
+		config.addDefault("Options.Cache.User.OfflineNames.Use", true); // Cache offline-names of players
+		config.addDefault("Options.Cache.User.OfflineNames.AutoSave", "15min"); // Period in which offline-names saves
+		config.addDefault("Options.Cache.User.OfflineNames.AutoClear.Use", false); // Enable automatic clearing of cache
+		config.addDefault("Options.Cache.User.OfflineNames.AutoClear.OfflineTime", "1mon"); // Automatic clear cache after 1mon
+		config.addDefault("Options.Cache.User.OfflineNames.AutoClear.Period", "0"); // 0 means on startup or type time period
 		config.addDefault("Options.User-SavingType", DataType.YAML.name());
 		config.setComments("Options.User-SavingType",
-				Arrays.asList("", "# Saving type of User data", "# Types: YAML, JSON, BYTE, DATA", "# defaulty: YAML"));
+				Arrays.asList("", "# Saving type of User data", "# Types: YAML, JSON, BYTE", "# defaulty: YAML"));
 		config.addDefault("Options.AntiBot.Use", false);
 		config.setComments("Options.AntiBot", Arrays.asList(""));
 		config.setComments("Options.AntiBot.Use",
@@ -548,8 +575,82 @@ public class LoaderClass extends JavaPlugin {
 		config.setComments("Options.FakeEconomyAPI.Format",
 				Arrays.asList("# Economy format of FakeEconomyAPI", "# defaulty: $%money%"));
 		config.save();	
-		if(config.getBoolean("Options.Cache.User.OfflineNames"))
-			cache=new Config("TheAPI/OfflineNameCache.dat");
+		if(config.getBoolean("Options.Cache.User.OfflineNames.Use")) {
+			if(cache==null) {
+				cache=new Cache();
+				Data data = new Data("plugins/TheAPI/Cache.dat");
+				for(String s : data.getKeys())
+					cache.setLookup(UUID.fromString(s), data.getString(s));
+				new Tasker() {
+					public void run() {
+						Data data = cache.saveToData();
+						File f = new File("plugins/TheAPI/Cache.dat");
+						if (!f.exists()) {
+							try {
+								if(f.getParentFile()!=null)
+									f.getParentFile().mkdirs();
+							} catch (Exception e) {
+							}
+							try {
+								f.createNewFile();
+							} catch (Exception e) {
+							}
+						}
+						data.setFile(f);
+						data.save(DataType.BYTE);
+					}
+				}.runRepeating(0, 20*StringUtils.timeFromString(config.getString("Options.Cache.User.OfflineNames.AutoSave")));
+				if(config.getBoolean("Options.Cache.User.OfflineNames.AutoClear.Use")) {
+					long removeAfter = StringUtils.timeFromString(config.getString("Options.Cache.User.OfflineNames.AutoClear.OfflineTime"));
+					if(removeAfter > 0 && StringUtils.timeFromString(config.getString("Options.Cache.User.OfflineNames.AutoClear.Period"))<=0) {
+						int removed = 0;
+						for(String s : data.getKeys()) {
+							User user = new User(data.getString(s), UUID.fromString(s));
+							if(user.getLong("quit")==0) {
+								user.data().clear(); //clear cache from memory
+								continue; //fake user?
+							}
+							if(user.getLong("quit") - System.currentTimeMillis()/1000 + removeAfter <= 0) {
+								cache.nameLookup.remove(user.getName().toLowerCase());
+								cache.uuidLookup.remove(user.getName().toLowerCase());
+								TheAPI.removeCachedUser(user.getUUID());
+								user.delete(); //delete file
+								++removed;
+							}else
+								user.data().clear(); //clear cache from memory
+						}
+						data.clear();
+						if (removed != 0)
+							TheAPI.msg("&cTheAPI&7: &eTheAPI deleted &6" + removed + " &eunused user files",
+									TheAPI.getConsole());
+					}else {
+						new Tasker() {
+							public void run() {
+								int removed = 0;
+								for(Entry<String, UUID> s : cache.uuidLookup.entrySet()) {
+									User user = new User(cache.nameLookup.get(s.getKey()), s.getValue());
+									if(user.getLong("quit")==0) {
+										user.data().clear(); //clear cache from memory
+										continue; //fake user?
+									}
+									if(user.getLong("quit") - System.currentTimeMillis()/1000 + removeAfter <= 0) {
+										cache.nameLookup.remove(user.getName().toLowerCase());
+										cache.uuidLookup.remove(user.getName().toLowerCase());
+										TheAPI.removeCachedUser(user.getUUID());
+										user.delete(); //delete file
+										++removed;
+									}else
+										user.data().clear(); //clear cache from memory
+								}
+								if (removed != 0)
+									TheAPI.msg("&cTheAPI&7: &eTheAPI deleted &6" + removed + " &eunused user files",
+											TheAPI.getConsole());
+							}
+						}.runRepeating(0, 20*StringUtils.timeFromString(config.getString("Options.Cache.User.OfflineNames.AutoClear.Period")));
+					}
+				}
+			}
+		}
 		max = Bukkit.getMaxPlayers();
 		motd = Bukkit.getMotd();
 	}

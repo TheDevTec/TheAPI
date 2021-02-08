@@ -1,24 +1,19 @@
 package me.devtec.theapi.utils.datakeeper;
 
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.thapiutils.LoaderClass;
 import me.devtec.theapi.utils.thapiutils.Validator;
 
 public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
-	
-	private static Method method = Ref.method(Ref.nms("EntityHuman"), "getOfflineUUID", String.class);
 	
 	private UUID s;
 	private String name;
@@ -29,11 +24,12 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			Validator.send("String cannot be null.");
 		try {
 			s = UUID.fromString(name);
-			name = Bukkit.getOfflinePlayer(s).getName();
+			this.name=LoaderClass.cache.lookupNameById(s);
 		} catch (Exception e) {
-			if(LoaderClass.cache!=null && LoaderClass.cache.exists(name.toLowerCase()))name=LoaderClass.cache.getString(name.toLowerCase());
-			s = (UUID)Ref.invokeNulled(method, name);
-			this.name = name;
+			if(LoaderClass.cache!=null) {
+				this.name=LoaderClass.cache.lookupName(name);
+				s=LoaderClass.cache.lookupId(name);
+			}
 		}
 		prepareConfig();
 	}
@@ -50,7 +46,15 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (player == null)
 			Validator.send("UUID cannot be null.");
 		s = player;
-		name = Bukkit.getOfflinePlayer(s).getName();
+		this.name=LoaderClass.cache.lookupNameById(s);
+		prepareConfig();
+	}
+
+	public User(String name, UUID player) {
+		if (name == null||player == null)
+			Validator.send("UUID cannot be null.");
+		s = player;
+		this.name = name;
 		prepareConfig();
 	}
 

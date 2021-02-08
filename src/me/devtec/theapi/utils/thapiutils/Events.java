@@ -187,13 +187,16 @@ public class Events implements Listener {
 			e.disallow(Result.KICK_OTHER, "");
 			return;
 		}
-		if(LoaderClass.cache!=null)LoaderClass.cache.set(e.getName().toLowerCase(), e.getName());
+		if(LoaderClass.cache!=null)
+			LoaderClass.cache.setLookup(e.getUniqueId(),e.getName());
 		User s = TheAPI.getUser(e.getUniqueId());
-		String add = e.getAddress().getHostAddress().equalsIgnoreCase("localhost")?"127.0.0.1":e.getAddress().getHostAddress().replaceAll("^[0-9.]+", "").replace(".", "_");
+		String add = e.getAddress().getHostAddress().replaceAll("[^0-9.]+", "").replace(".", "_");
 		List<String> set = LoaderClass.data.getStringList("data."+add);
 		if(!set.contains(s.getName()))
 		set.add(s.getName());
 		LoaderClass.data.set("data."+add, set);
+		LoaderClass.data.save();
+		s.set("quit", System.currentTimeMillis() / 1000);
 		s.setAndSave("ip", add);
 		PlayerBanList a = PunishmentAPI.getBanList(e.getName());
 		if(a==null)return;
@@ -229,7 +232,6 @@ public class Events implements Listener {
 		new Tasker() {
 			public void run() {
 				((Map<String, BossBar>)Ref.getNulled(TheAPI.class, "bars")).remove(s.getName());
-				TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);
 				if (LoaderClass.config.getBoolean("Options.Cache.User.RemoveOnQuit")
 						&& LoaderClass.config.getBoolean("Options.Cache.User.Use"))
 				TheAPI.removeCachedUser(e.getPlayer().getUniqueId());
