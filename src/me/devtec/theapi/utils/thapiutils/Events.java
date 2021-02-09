@@ -242,11 +242,6 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onJoin(PlayerJoinEvent e) {
 		Player s = e.getPlayer();
-		for (Player p : TheAPI.getOnlinePlayers())
-			if(p!=s)
-			if (!TheAPI.canSee(s, p.getName()))
-				s.hidePlayer(p);
-		TheAPI.setVanish(s.getName(), TheAPI.getUser(s).getString("vanish"), TheAPI.hasVanish(s.getName()));
 		new Tasker() {
 			public void run() {
 				TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);

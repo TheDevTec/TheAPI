@@ -33,7 +33,6 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 
 import me.devtec.theapi.apis.EnchantmentAPI;
@@ -56,7 +55,6 @@ import me.devtec.theapi.utils.datakeeper.User;
 import me.devtec.theapi.utils.listener.Event;
 import me.devtec.theapi.utils.listener.HandlerList;
 import me.devtec.theapi.utils.listener.Listener;
-import me.devtec.theapi.utils.listener.events.PlayerVanishEvent;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.nms.NMSAPI.TitleAction;
 import me.devtec.theapi.utils.reflections.Ref;
@@ -798,67 +796,6 @@ public class TheAPI {
 	 */
 	public static int getMaxPlayers() {
 		return LoaderClass.plugin.max;
-	}
-
-	public static void setVanish(String playerName, String permission, boolean value) {
-		User i = getUser(playerName);
-		i.set("vanish", value);
-		i.setAndSave("vanish.perm", permission);
-		Player s = getPlayerOrNull(playerName);
-		if (s != null)
-			applyVanish(i,s, permission, value);
-	}
-
-	private static void applyVanish(User i, Player s, String perm, boolean var) {
-		PlayerVanishEvent da = new PlayerVanishEvent(s, perm, var);
-		callEvent(da);
-		if (!da.isCancelled()) {
-			var = da.vanish();
-			perm = da.getPermission();
-			if (var) {
-				i.set("vanish", var);
-				i.set("vanish.perm", perm);
-				for (Player d : getOnlinePlayers())
-					if (s != d && !canSee(d, s.getName()) && d.canSee(s))
-						d.hidePlayer(s);
-				return;
-			}
-			i.remove("vanish");
-			for (Player d : getOnlinePlayers())
-				if (s != d && canSee(d, s.getName()) && !d.canSee(s))
-					d.showPlayer(s);
-		}
-	}
-
-	private static boolean hasSuperVanish(Player player) {
-		if (player.hasMetadata("vanished"))
-			for (MetadataValue meta : player.getMetadata("vanished"))
-				return meta.asBoolean();
-		return false;
-	}
-
-	public static boolean hasVanish(String playerName) {
-		Player s = getPlayerOrNull(playerName);
-		return s != null ? (hasSuperVanish(s) || getUser(s).getBoolean("vanish"))
-				: getUser(playerName).getBoolean("vanish");
-	}
-
-	public static boolean hasVanish(Player player) {
-		if(player==null)return false;
-		if(player.isOnline())return hasSuperVanish(player) || getUser(player).getBoolean("vanish");
-		return getUser(player).getBoolean("vanish");
-	}
-
-	public static String getVanishPermission(String playerName) {
-		return getUser(playerName).getString("vanish.perm");
-	}
-
-	public static boolean canSee(Player player, String target) {
-		return hasVanish(target) ? (getVanishPermission(target)==null?false:player.hasPermission(getVanishPermission(target))) : true;
-	}
-
-	public static boolean canSee(String player, String target) {
-		return hasVanish(target);
 	}
 
 	/**
