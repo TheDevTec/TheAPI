@@ -248,10 +248,10 @@ public class LoaderClass extends JavaPlugin {
 			}
 		}
 		Bukkit.getPluginManager().registerEvents(new Events(), LoaderClass.this);
-		if(config.getBoolean("Options.PlayerMoveEvent"))
+		if(config.getBoolean("Options.PlayerJumpEvent"))
 		Bukkit.getPluginManager().registerEvents(new JumpEvent(), LoaderClass.this);
 
-		if(config.getBoolean("Options.ItemBreakEvent"))
+		if(config.getBoolean("Options.ItemUnbreakable"))
 		Bukkit.getPluginManager().registerEvents(new ItemBreakEvent(), LoaderClass.this);
 		if (TheAPI.isNewerThan(7))
 			handler = new PacketHandler_New();
@@ -532,9 +532,9 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.HideErrors", false); // hide only TheAPI errors
 		config.setComments("Options.HideErrors", Arrays.asList("",
 				"# If you enable this option, errors from TheAPI will dissapear", "# defaulty: false"));
-		config.addDefault("Options.PlayerMoveEvent", true);
+		config.addDefault("Options.PlayerJumpEvent", true);
 		config.addDefault("Options.ConsoleLogEvent", false);
-		config.addDefault("Options.ItemBreakEvent", false);
+		config.addDefault("Options.ItemUnbreakable", true);
 		config.addDefault("Options.Cache.User.Use", true); // Require memory, but loading of User.class is faster (only
 															// from TheAPI.class)
 		config.setComments("Options.Cache", Arrays.asList(""));

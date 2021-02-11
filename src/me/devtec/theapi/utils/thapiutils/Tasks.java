@@ -19,6 +19,7 @@ import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.listener.events.EntityMoveEvent;
 import me.devtec.theapi.utils.listener.events.ServerListPingEvent;
+import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.packetlistenerapi.PacketListener;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.serverlist.PlayerProfile;
@@ -44,9 +45,9 @@ public class Tasks {
 					if (packet.getClass().getCanonicalName().endsWith("PacketStatusOutServerInfo")) {
 						Object w = Ref.invoke(Ref.server(), "getServerPing");
 						if (w == null)
-							w = Ref.invoke(Ref.server(), "aG");
-						if (w == null)
 							w = Ref.invoke(Ref.invoke(Ref.server(), "getServer"), "getServerPing");
+						if (w == null)
+							w = Ref.invoke(Ref.server(), "aG");
 						List<PlayerProfile> players = new ArrayList<>();
 						for (Player p : TheAPI.getOnlinePlayers())
 							players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
@@ -70,10 +71,9 @@ public class Tasks {
 						if (event.getMotd() != null)
 							Ref.set(w, "a", Ref.IChatBaseComponent(event.getMotd()));
 						else
-							Ref.set(w, "a", Ref.IChatBaseComponent(""));
-						if(event.getVersion()!=null) {
+							Ref.set(w, "a", NMSAPI.getIChatBaseComponentText(""));
+						if(event.getVersion()!=null)
 							Ref.set(Ref.get(w, "c"), "a", event.getVersion());
-						}
 						Ref.set(packet, "b", w);
 						if (event.getFalvicon() != null)
 							Ref.set(packet, "d", event.getFalvicon());

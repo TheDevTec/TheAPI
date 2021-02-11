@@ -8,10 +8,12 @@ import java.util.UUID;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.nms.datawatcher.DataWatcher;
+import me.devtec.theapi.utils.nms.nbt.NBTEdit;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class NMSAPI {
@@ -20,7 +22,12 @@ public class NMSAPI {
 	private static Constructor<?> pDestroy, pTitle, pOutChat, pTab, pBlock,
 			pSpawn, pNSpawn, pLSpawn, score, sbobj, sbdisplayobj, sbteam, pTeleport,
 			metadata = Ref.constructor(Ref.nms("PacketPlayOutEntityMetadata"), int.class, Ref.nms("DataWatcher"), boolean.class);
-	private static Method getser, entityM, livingentity, oldichatser, post, notify,nofifyManual;
+	private static Method getser, entityM, livingentity, oldichatser, post, notify,nofifyManual,
+	parseNbt = Ref.method(Ref.nms("MojangsonParser"), "parse", String.class),
+	getNbt=Ref.method(Ref.nms("ItemStack"), "getTag"), setNbt=Ref.method(Ref.nms("ItemStack"), "setTag", Ref.nms("NBTTagCompound")),
+	asNms=Ref.method(Ref.nms("CraftItemStack"), "asNMSCopy", ItemStack.class), 
+	asBukkit=Ref.method(Ref.nms("CraftItemStack"), "asBukkitCopy", Ref.nms("ItemStack"));
+	
 	private static int old, not;
 	private static Field tps,getMap,getProvider;
 	private static Object sbremove, sbinteger, sbchange, sbhearts, empty;
@@ -111,7 +118,7 @@ public class NMSAPI {
 				nofifyManual = Ref.method(Ref.nms("PlayerChunk"), "a", Ref.nms("BlockPosition"));
 			}
 		}}}}
-		empty = getIChatBaseComponentText("");
+		empty = getIChatBaseComponentJson("{\"text\":\"\"}");
 	}
 
 	public static enum Action {
@@ -121,12 +128,55 @@ public class NMSAPI {
 	public static enum DisplayType {
 		INTEGER, HEARTS
 	}
+	
+	//ItemStack utils
+	public static Object getNBT(ItemStack stack) {
+		return Ref.invoke(asNMSItem(stack), getNbt);
+	}
 
-	// Entity
+	public static Object getNBT(Object stack) {
+		return Ref.invoke(stack instanceof ItemStack?asNMSItem((ItemStack)stack):stack, getNbt);
+	}
+	
+	public static Object parseNBT(String json) {
+		return Ref.invokeNulled(parseNbt, json);
+	}
+	
+	public static ItemStack setNBT(ItemStack stack, String nbt) {
+		return setNBT(stack, parseNBT(nbt));
+	}
+	
+	public static ItemStack setNBT(ItemStack stack, NBTEdit nbt) {
+		Object nms = asNMSItem(stack);
+		setNBT(nms, nbt.getNBT());
+		stack.setItemMeta(asBukkitItem(stack).getItemMeta());
+		return stack;
+	}
+	
+	public static ItemStack setNBT(ItemStack stack, Object nbt) {
+		Object nms = asNMSItem(stack);
+		setNBT(nms, nbt instanceof String?parseNBT((String)nbt):nbt);
+		stack.setItemMeta(asBukkitItem(stack).getItemMeta());
+		return stack;
+	}
+	
+	public static ItemStack setNBT(Object stack, Object nbt) {
+		if(stack instanceof ItemStack)return setNBT((ItemStack)stack, nbt);
+		Ref.invoke(stack, setNbt, nbt);
+		return asBukkitItem(stack);
+	}
+	
+	public static Object asNMSItem(ItemStack stack) {
+		return Ref.invokeNulled(asNms, stack);
+	}
+	
+	public static ItemStack asBukkitItem(Object stack) {
+		return stack instanceof ItemStack ? (ItemStack) stack : (ItemStack) Ref.invokeNulled(asBukkit, stack);
+	}
+	
 	public static Object getPacketPlayOutEntityMetadata(Entity entity) {
 		Object o = getEntity(entity);
-		return getPacketPlayOutEntityMetadata(entity.getEntityId(),
-				Ref.invoke(o, Ref.method(o.getClass(), "getDataWatcher")));
+		return getPacketPlayOutEntityMetadata(entity.getEntityId(), Ref.invoke(o, Ref.method(o.getClass(), "getDataWatcher")), true);
 	}
 
 	// Entity
@@ -209,16 +259,14 @@ public class NMSAPI {
 		return getPacketPlayOutTitle(action, IChatBaseComponent, 10, 20, 10);
 	}
 
-	public static Object getPacketPlayOutTitle(TitleAction action, Object IChatBaseComponent, int fadeIn, int stay,
-			int fadeOut) {
+	public static Object getPacketPlayOutTitle(TitleAction action, Object IChatBaseComponent, int fadeIn, int stay, int fadeOut) {
 		if (action == TitleAction.ACTIONBAR) {
 			Object tt=Ref.getNulled(Ref.field(enumTitle, action.name()));
 			Object o = Ref.newInstance(pTitle, tt, IChatBaseComponent,
 					fadeIn, stay, fadeOut);
 			return tt!=null&&o != null ? o : Ref.newInstance(pOutChat, IChatBaseComponent, (byte) 2);
 		}
-		return Ref.newInstance(pTitle, Ref.getNulled(Ref.field(enumTitle, action.name())), IChatBaseComponent, fadeIn,
-				stay, fadeOut);
+		return Ref.newInstance(pTitle, Ref.getNulled(Ref.field(enumTitle, action.name())), IChatBaseComponent, fadeIn, stay, fadeOut);
 	}
 
 	public static Object getPacketPlayOutTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut) {
@@ -318,6 +366,7 @@ public class NMSAPI {
 	}
 
 	public static Object getIChatBaseComponentText(String text) {
+		if(text==null||text.equals(""))return empty;
 		return getIChatBaseComponentJson("{\"text\":\"" + text + "\"}");
 	}
 	private static int oo;

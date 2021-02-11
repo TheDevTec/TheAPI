@@ -12,6 +12,13 @@ import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.thapiutils.LoaderClass;
 
 public class GUI {
+	public static final int LINES_6 = 54;
+	public static final int LINES_5 = 45;
+	public static final int LINES_4 = 36;
+	public static final int LINES_3 = 27;
+	public static final int LINES_2 = 18;
+	public static final int LINES_1 = 9;
+	
 	private final String title;
 	private final HashMap<Integer, ItemGUI> items = new HashMap<>();
 	private final Inventory inv;

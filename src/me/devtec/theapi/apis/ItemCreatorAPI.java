@@ -6,6 +6,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -26,11 +27,14 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.mojang.authlib.properties.Property;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.StringUtils;
+import me.devtec.theapi.utils.nms.NMSAPI;
+import me.devtec.theapi.utils.nms.nbt.NBTEdit;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.thapiutils.Validator;
 
@@ -219,7 +223,6 @@ public class ItemCreatorAPI implements Cloneable {
 			name = getDisplayName();
 		owner = getOwner();
 		text = getOwnerByValues();
-		text = getOwnerByWeb();
 		if (hasLore())
 			for (String s : getLore()) {
 				addLore(s);
@@ -488,7 +491,11 @@ public class ItemCreatorAPI implements Cloneable {
 		try {
 			return a.getItemMeta().isUnbreakable();
 		} catch (Exception | NoSuchMethodError er) {
-			return hasLore() && getLore().contains(TheAPI.colorize("&9UNBREAKABLE"));
+			try {
+			return (boolean) Ref.invoke(Ref.invoke(a.getItemMeta(), "spigot"),"isUnbreakable");
+			} catch (Exception | NoSuchMethodError errr) { //use our own wave
+				return new NBTEdit(a).getBoolean("unbreakable");
+			}
 		}
 	}
 
@@ -540,16 +547,14 @@ public class ItemCreatorAPI implements Cloneable {
 				map.add(f);
 	}
 
-	@SuppressWarnings("unchecked")
 	public Map<Attribute, AttributeModifier> getAttributeModifiers() {
 		try {
-			HashMap<Attribute, AttributeModifier> h = new HashMap<Attribute, AttributeModifier>();
+			Map<Attribute, AttributeModifier> h = new HashMap<>();
 			try {
 				if (hasAttributeModifiers()) {
-					HashMap<Attribute, AttributeModifier> map = (HashMap<Attribute, AttributeModifier>) a.getItemMeta()
-							.getAttributeModifiers();
-					for (Attribute a : map.keySet())
-						h.put(a, map.get(a));
+					Multimap<Attribute, AttributeModifier> map = a.getItemMeta().getAttributeModifiers();
+					for (Entry<Attribute, AttributeModifier> a : map.entries())
+						h.put(a.getKey(), a.getValue());
 				}
 				return h;
 			} catch (Exception | NoSuchMethodError er) {
@@ -562,14 +567,14 @@ public class ItemCreatorAPI implements Cloneable {
 
 	public void addAttributeModifier(Attribute a, AttributeModifier s) {
 		try {
-			if (TheAPI.isNewVersion() && !TheAPI.getServerVersion().equals("v1_13_R1") && a != null && s != null)
+			if (TheAPI.isNewerThan(13) && a != null && s != null)
 				w.put(a, s);
 		} catch (Exception | NoSuchMethodError er) {
 		}
 	}
 
 	public void addAttributeModifiers(Map<Attribute, AttributeModifier> s) {
-		if (TheAPI.isNewVersion() && !TheAPI.getServerVersion().equals("v1_13_R1") && s != null)
+		if (TheAPI.isNewerThan(13) && s != null)
 			for (Attribute r : s.keySet()) {
 				addAttributeModifier(r, s.get(r));
 			}
@@ -767,7 +772,6 @@ public class ItemCreatorAPI implements Cloneable {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public ItemStack create() {
 		ItemStack i = a;
 		if(i.getType().name().equals("LEGACY_SKULL_ITEM")||i.getType().name().equals("LEGACY_SKULL")||i.getType().name().equals("SKULL_ITEM")||i.getType().name().equals("SKULL")||i.getType().name().contains("_HEAD")) {
@@ -796,23 +800,32 @@ public class ItemCreatorAPI implements Cloneable {
 				if (TheAPI.isNewerThan(10))
 					mf.setUnbreakable(unb);
 				else {
-					addLore(" ");
-					addLore("&9UNBREAKABLE");
+					try { //spigot version
+						Ref.invoke(Ref.invoke(mf, "spigot"),"setUnbreakable", unb);
+					} catch (Exception | NoSuchMethodError errr) { //use our own wave - craft bukkit
+						a.setItemMeta(mf);
+						NBTEdit edit = new NBTEdit(a);
+						edit.setBoolean("unbreakable", unb);
+						a=NMSAPI.setNBT(a, edit);
+						mf=a.getItemMeta();
+					}
 				}
 			}
-			if (lore != null) {
+			if (lore != null && !lore.isEmpty()) {
 				List<String> lor = new ArrayList<>();
 				for (Object o : lore)
-					lor.add(o.toString());
+					lor.add(o+"");
 				mf.setLore(lor);
 			}
 			try {
 				if (map != null)
 					for (Object f : map)
 						mf.addItemFlags((ItemFlag) f);
-				if (w != null && !w.isEmpty() && TheAPI.isNewVersion()
-						&& !TheAPI.getServerVersion().equals("v1_13_R1")) {// 1.14+
-					mf.setAttributeModifiers((Multimap<Attribute, AttributeModifier>) w);
+				if (w != null && !w.isEmpty() && TheAPI.isNewerThan(13)) {// 1.14+
+					Multimap<Attribute, AttributeModifier> multimap = HashMultimap.create();
+					for(Entry<Attribute, AttributeModifier> e : w.entrySet())
+					multimap.put(e.getKey(), e.getValue());
+					mf.setAttributeModifiers(multimap);
 				}
 			} catch (Exception | NoSuchMethodError er) {
 			}
@@ -894,5 +907,4 @@ public class ItemCreatorAPI implements Cloneable {
 		a=i;
 		return i;
 	}
-
 }

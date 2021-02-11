@@ -342,6 +342,14 @@ public class Ref {
 		}
 	}
 
+	public static Object getStatic(Field field) {
+		return getNulled(field);
+	}
+
+	public static Object getStatic(Class<?> clas, String field) {
+		return getNulled(clas,field);
+	}
+
 	public static Object get(Object main, String field) {
 		return get(main, field(main.getClass(), field));
 	}
@@ -385,6 +393,14 @@ public class Ref {
 		} catch (Exception es) {
 			return null;
 		}
+	}
+
+	public static Object invokeStatic(Class<?> classInMethod, String method, Object... bricks) {
+		return invokeNulled(classInMethod, method, bricks);
+	}
+
+	public static Object invokeStatic(Method method, Object... bricks) {
+		return invokeNulled(method, bricks);
 	}
 
 	public static Method findMethod(Object c, String name, Object... bricks) {
