@@ -37,6 +37,12 @@ public abstract class Tasker implements Runnable {
 		return task;
 	}
 
+	public int runRepeatingTimes(long delay, long period, long times, Runnable onFinish) {
+		if (task == 0)
+			return task = Scheduler.repeatingTimes(delay, period, times, this, onFinish);
+		return task;
+	}
+
 	public int runLater(long delay) {
 		if (task == 0)
 			return task = Scheduler.later(delay, this);
@@ -60,6 +66,12 @@ public abstract class Tasker implements Runnable {
 	public int runRepeatingTimesSync(long delay, long period, long times) {
 		if (task == 0)
 			return task = Scheduler.repeatingTimesSync(delay, period, times, this);
+		return task;
+	}
+
+	public int runRepeatingTimesSync(long delay, long period, long times, Runnable onFinish) {
+		if (task == 0)
+			return task = Scheduler.repeatingTimesSync(delay, period, times, this, onFinish);
 		return task;
 	}
 
