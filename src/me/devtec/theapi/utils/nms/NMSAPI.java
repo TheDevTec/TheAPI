@@ -20,11 +20,11 @@ public class NMSAPI {
 
 	private static Class<?> enumTitle;
 	private static Constructor<?> pDestroy, pTitle, pOutChat, pTab, pBlock,
-			pSpawn, pNSpawn, pLSpawn, score, sbobj, sbdisplayobj, sbteam, pTeleport,
+			pSpawn, pNSpawn, pLSpawn, score, sbobj, sbdisplayobj, sbteam, pTeleport,nbt=Ref.constructor(Ref.nms("NBTTagCompound")),
 			metadata = Ref.constructor(Ref.nms("PacketPlayOutEntityMetadata"), int.class, Ref.nms("DataWatcher"), boolean.class);
 	private static Method getser, entityM, livingentity, oldichatser, post, notify,nofifyManual,
 	parseNbt = Ref.method(Ref.nms("MojangsonParser"), "parse", String.class),
-	getNbt=Ref.method(Ref.nms("ItemStack"), "getTag"), setNbt=Ref.method(Ref.nms("ItemStack"), "setTag", Ref.nms("NBTTagCompound")),
+	getNbt=Ref.method(Ref.nms("ItemStack"), "getOrCreateTag"), setNbt=Ref.method(Ref.nms("ItemStack"), "setTag", Ref.nms("NBTTagCompound")),
 	asNms=Ref.method(Ref.nms("CraftItemStack"), "asNMSCopy", ItemStack.class), 
 	asBukkit=Ref.method(Ref.nms("CraftItemStack"), "asBukkitCopy", Ref.nms("ItemStack"));
 	
@@ -33,6 +33,8 @@ public class NMSAPI {
 	private static Object sbremove, sbinteger, sbchange, sbhearts, empty;
 	private static Field[] scr = new Field[4];
 	static {
+		if(getNbt==null)
+			getNbt=Ref.method(Ref.nms("ItemStack"), "getTag");
 		scr[0] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "a");
 		scr[1] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "b");
 		scr[2] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "c");
@@ -131,11 +133,17 @@ public class NMSAPI {
 	
 	//ItemStack utils
 	public static Object getNBT(ItemStack stack) {
-		return Ref.invoke(asNMSItem(stack), getNbt);
+		Object n = Ref.invoke(asNMSItem(stack), getNbt);
+		if(n==null)
+			setNBT(stack, n=Ref.newInstance(nbt));
+		return n;
 	}
 
 	public static Object getNBT(Object stack) {
-		return Ref.invoke(stack instanceof ItemStack?asNMSItem((ItemStack)stack):stack, getNbt);
+		Object n = Ref.invoke(stack instanceof ItemStack?asNMSItem((ItemStack)stack):stack, getNbt);
+		if(n==null)
+			setNBT(stack, n=Ref.newInstance(nbt));
+		return n;
 	}
 	
 	public static Object parseNBT(String json) {

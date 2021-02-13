@@ -488,6 +488,7 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public boolean isUnbreakable() {
+		if(!a.hasItemMeta())return false;
 		try {
 			return a.getItemMeta().isUnbreakable();
 		} catch (Exception | NoSuchMethodError er) {
