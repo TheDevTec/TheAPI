@@ -1,5 +1,6 @@
 package me.devtec.theapi.utils.json;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -38,6 +39,8 @@ public class Reader implements JsonReader {
 
 	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref
 			.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+	private static Method fromJson = Ref.method(Ref.getClass("com.google.gson.GsonBuilder") != null ? Ref.getClass("com.google.gson.GsonBuilder")
+			: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder"), "fromJson", String.class, Class.class);
 	private static Object parser = Ref.invoke(Ref.newInstance(Ref.constructor(
 					Ref.getClass("com.google.gson.GsonBuilder") != null ? Ref.getClass("com.google.gson.GsonBuilder")
 							: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder"))), "create");
@@ -63,8 +66,7 @@ public class Reader implements JsonReader {
 		if (json == null)
 			return null;
 		try {
-			return (Collection<?>) Ref.invoke(parser,
-					Ref.method(parser.getClass(), "fromJson", String.class, Class.class), json, Collection.class);
+			return (Collection<?>) Ref.invoke(parser, fromJson, json, Collection.class);
 		} catch (Exception e1) {
 		}
 		return null;
@@ -74,8 +76,7 @@ public class Reader implements JsonReader {
 		if (json == null)
 			return null;
 		try {
-			return (List<?>) Ref.invoke(parser, Ref.method(parser.getClass(), "fromJson", String.class, Class.class),
-					json, List.class);
+			return (List<?>) Ref.invoke(parser, fromJson, json, List.class);
 		} catch (Exception e1) {
 		}
 		return null;
@@ -91,8 +92,7 @@ public class Reader implements JsonReader {
 		if (json == null)
 			return null;
 		try {
-			return (Map<?, ?>) Ref.invoke(parser, Ref.method(parser.getClass(), "fromJson", String.class, Class.class),
-					json, Map.class);
+			return (Map<?, ?>) Ref.invoke(parser, fromJson, json, Map.class);
 		} catch (Exception e1) {
 		}
 		return null;

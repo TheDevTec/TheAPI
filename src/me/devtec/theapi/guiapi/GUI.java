@@ -1,14 +1,21 @@
 package me.devtec.theapi.guiapi;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.utils.StringUtils;
+import me.devtec.theapi.utils.nms.NMSAPI;
+import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.thapiutils.LoaderClass;
 
 public class GUI {
@@ -19,8 +26,9 @@ public class GUI {
 	public static final int LINES_2 = 18;
 	public static final int LINES_1 = 9;
 	
-	private final String title;
-	private final HashMap<Integer, ItemGUI> items = new HashMap<>();
+	private String title;
+	private final Map<Integer, ItemGUI> items = new HashMap<>();
+	private final Map<Player, Object> containers = new HashMap<>();
 	private final Inventory inv;
 	// Defaulty false
 	private boolean put;
@@ -40,6 +48,8 @@ public class GUI {
 		else
 			size = 9;
 		inv = Bukkit.createInventory(null, size, this.title);
+		windowType = Ref.invokeStatic(getType, inv);
+		setTitle(title);
 		open(p);
 	}
 
@@ -145,6 +155,23 @@ public class GUI {
 		return inv.firstEmpty();
 	}
 
+	private static Constructor<?> openWindow, closeWindow = Ref.constructor(Ref.nms("PacketPlayOutCloseWindow"), int.class), containerClass,
+			setSlot=Ref.constructor(Ref.nms("PacketPlayOutSetSlot"), int.class, int.class, Ref.nms("ItemStack")),
+			itemsS=Ref.getConstructors(Ref.nms("PacketPlayOutWindowItems"))[0];
+	static {
+		if(TheAPI.isOlderThan(8)) {
+			openWindow=Ref.constructor(Ref.nms("PacketPlayOutOpenWindow"), int.class, int.class, String.class, int.class, boolean.class);
+		}else if(TheAPI.isOlderThan(14)) {
+			openWindow=Ref.constructor(Ref.nms("PacketPlayOutOpenWindow"), int.class, String.class, Ref.nms("IChatBaseComponent"), int.class);
+		}else {
+			openWindow=Ref.constructor(Ref.nms("PacketPlayOutOpenWindow"), int.class, Ref.nms("Containers"), Ref.nms("IChatBaseComponent"));
+		}
+		containerClass=Ref.constructor(Ref.craft("inventory.CraftContainer"), Inventory.class, Ref.nms("EntityHuman"), int.class);
+	}
+	private static Method getType = Ref.method(Ref.craft("inventory.CraftContainer"),"getNotchInventoryType", Inventory.class),
+			transfer=Ref.method(Ref.nms("Container"),"transferTo", Ref.nms("Container"), Ref.craft("entity.CraftHumanEntity"));
+	private Object windowType;
+	
 	/**
 	 * @see see Open GUI menu to player
 	 * 
@@ -156,17 +183,72 @@ public class GUI {
 				LoaderClass.plugin.gui.remove(player.getName());
 				a.onClose(player);
 			}
-			player.openInventory(inv);
+			Object container = Ref.newInstance(containerClass, inv, Ref.player(player), Ref.invoke(Ref.player(player), "nextContainerCounter"));
+			Object active = Ref.get(Ref.player(player), "activeContainer");
+			Ref.invoke(active, transfer, container, Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
+			if(TheAPI.isOlderThan(8)) {
+				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(Ref.player(player),"containerCounter"),0,title, Ref.invoke(container,"getSize"), false));
+			}else if(TheAPI.isOlderThan(14)) {
+				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(Ref.player(player),"containerCounter"),"minecraft:container",NMSAPI.getIChatBaseComponentFromCraftBukkit(title), Ref.invoke(container,"getSize")));
+			}else {
+				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(container,"windowId"), windowType, NMSAPI.getIChatBaseComponentFromCraftBukkit(title)));
+			}
+			Ref.set(Ref.player(player), "activeContainer", container);
+			Ref.invoke(container, Ref.method(Ref.nms("Container"), "addSlotListener", Ref.nms("ICrafting")), Ref.cast(Ref.nms("ICrafting"), Ref.player(player)));
+			Ref.set(container, "checkReachable", false);
+			inv.getViewers().add(player);
+			containers.put(player, container);
 			LoaderClass.plugin.gui.put(player.getName(), this);
 		}
 	}
+	
+	private static Object empty = Ref.getStatic(Ref.nms("ItemStack"), "b");
+	
+	public final void setTitle(String title) {
+		title=StringUtils.colorize(title);
+		this.title=title;
+		for(HumanEntity player : inv.getViewers()) {
+			Object container = containers.get(player);
+			if(TheAPI.isOlderThan(8)) {
+				Ref.sendPacket((Player)player, Ref.newInstance(openWindow,Ref.get(Ref.player((Player)player),"containerCounter"),0,title, inv.getSize(), false));
+			}else if(TheAPI.isOlderThan(14)) {
+				Ref.sendPacket((Player)player, Ref.newInstance(openWindow,Ref.get(Ref.player((Player)player),"containerCounter"),"minecraft:container",NMSAPI.getIChatBaseComponentFromCraftBukkit(title), inv.getSize()));
+			}else {
+				Ref.sendPacket((Player)player, Ref.newInstance(openWindow,Ref.get(container,"windowId"), windowType, NMSAPI.getIChatBaseComponentFromCraftBukkit(title)));
+			}
+			Ref.sendPacket((Player)player, Ref.newInstance(itemsS, Ref.get(container, "windowId"), Ref.get(container,"items")));
+			Object carry = Ref.invoke(Ref.get(Ref.player((Player)player),"inventory"),"getCarried");
+			if(carry!=empty) //Don't send useless packets
+				Ref.sendPacket((Player)player, Ref.newInstance(setSlot, -1, -1, carry));
+		}
+	}
+	
+	public final String getTitle() {
+		return title;
+	}
 
 	/**
-	 * @return UnsortedMap<Slot, Item>
+	 * @return Map<Slot, Item>
 	 * 
 	 */
-	public final HashMap<Integer, ItemGUI> getItemGUIs() {
+	public final Map<Integer, ItemGUI> getItemGUIs() {
 		return items;
+	}
+
+	/**
+	 * @return List<HumanEntity>
+	 * 
+	 */
+	public final List<HumanEntity> getPlayers() {
+		return inv.getViewers();
+	}
+
+	/**
+	 * @return List<Player>
+	 * 
+	 */
+	public final boolean hasOpen(Player player) {
+		return inv.getViewers().contains(player);
 	}
 
 	/**
@@ -174,11 +256,8 @@ public class GUI {
 	 * 
 	 */
 	public final void close() {
-		try {
-		for(Entry<String, GUI> p : LoaderClass.plugin.gui.entrySet())
-			if(p.getValue().equals(this))
-			close(TheAPI.getPlayerOrNull(p.getKey()));
-		}catch(Exception e) {}
+		for(HumanEntity player : inv.getViewers())
+			close((Player)player);
 	}
 
 	/**
@@ -195,8 +274,16 @@ public class GUI {
 	 * 
 	 */
 	public final void close(Player... players) {
-		for (Player player : players)
-			player.getOpenInventory().close();
+		for (Player player : players) {
+			Object ac =containers.remove(player);
+			Ref.sendPacket(player, Ref.newInstance(closeWindow, Ref.get(ac, "windowId")));
+			Ref.invoke(ac, "b", Ref.player(player));
+			Ref.set(Ref.player(player), "activeContainer", Ref.get(Ref.player(player), "defaultContainer"));
+			Ref.invoke(ac, transfer, Ref.get(Ref.player(player), "defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
+			inv.getViewers().remove(player);
+			LoaderClass.plugin.gui.remove(player.getName());
+			onClose(player);
+		}
 	}
 
 	public final String toString() {

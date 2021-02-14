@@ -274,7 +274,7 @@ public class TAC_PluginManager {
 			if (PluginManagerAPI.getPermissions(args[2]).size() != 0) {
 				TheAPI.msg("&7Permissions:", s);
 				for (Permission a : PluginManagerAPI.getPermissions(args[2])) {
-					TheAPI.msg("&7 � &e" + a.getName() + "&7:", s);
+					TheAPI.msg("&7 » &e" + a.getName() + "&7:", s);
 					Map<String, Boolean> c = a.getChildren();
 					if (c.isEmpty() == false)
 						for (String d : c.keySet())
