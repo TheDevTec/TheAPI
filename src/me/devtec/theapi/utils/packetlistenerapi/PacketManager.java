@@ -28,7 +28,7 @@ public class PacketManager {
 	}
 
 	public static void unregister(PacketListener listener) {
-		notify(listener, null, null);
+		listeners.get(listener.getPriority()).remove(listener);
 	}
 
 	public static void setPriority(PacketListener listener, Priority priority) {
