@@ -115,13 +115,13 @@ public class TAC_PluginManager {
 				TheAPI.msg("&e/TheAPI PluginManager Enable <plugin>", s);
 				return;
 			}
-			if (args[2].equals("TheAPI")) {
+			if (args[2].equalsIgnoreCase("TheAPI")) {
 				TheAPI.msg("&eYou can't enable TheAPI.", s);
 				return;
 			}
 			int f = 0;
 			for (Plugin a : PluginManagerAPI.getPlugins())
-				if (a.getName().equals(args[2])) {
+				if (a.getName().equalsIgnoreCase(args[2])) {
 					if (a.isEnabled())
 						f = 1;
 					else
@@ -146,13 +146,13 @@ public class TAC_PluginManager {
 				TheAPI.msg("&e/TheAPI PluginManager Disable <plugin>", s);
 				return;
 			}
-			if (args[2].equals("TheAPI")) {
+			if (args[2].equalsIgnoreCase("TheAPI")) {
 				TheAPI.msg("&eYou can't disable TheAPI.", s);
 				return;
 			}
 			int f = 0;
 			for (Plugin a : PluginManagerAPI.getPlugins())
-				if (a.getName().equals(args[2])) {
+				if (a.getName().equalsIgnoreCase(args[2])) {
 					if (a.isEnabled())
 						f = 1;
 					else
@@ -178,7 +178,7 @@ public class TAC_PluginManager {
 				return;
 			}
 			String pluginName = args[2];
-			if (pluginName.equals("TheAPI")) {
+			if (pluginName.equalsIgnoreCase("TheAPI")) {
 				TheAPI.msg("&eYou can't load TheAPI.", s);
 				return;
 			}
@@ -199,13 +199,13 @@ public class TAC_PluginManager {
 				TheAPI.msg("&e/TheAPI PluginManager Unload <plugin>", s);
 				return;
 			}
-			if (args[2].equals("TheAPI")) {
+			if (args[2].equalsIgnoreCase("TheAPI")) {
 				TheAPI.msg("&eYou can't unload TheAPI.", s);
 				return;
 			}
 			int f = 0;
 			for (Plugin a : PluginManagerAPI.getPlugins()) {
-				if (a.getName().equals(args[2])) {
+				if (a.getName().equalsIgnoreCase(args[2])) {
 					if (a.isEnabled())
 						f = 1;
 					else
@@ -229,7 +229,7 @@ public class TAC_PluginManager {
 			}
 			int i = 0;
 			for (Plugin a : PluginManagerAPI.getPlugins())
-				if (a.getName().equals(args[2])) {
+				if (a.getName().equalsIgnoreCase(args[2])) {
 					if (a.isEnabled())
 						i = 1;
 					else
@@ -253,7 +253,7 @@ public class TAC_PluginManager {
 			}
 			int i = 0;
 			for (Plugin a : PluginManagerAPI.getPlugins())
-				if (a.getName().equals(args[2])) {
+				if (a.getName().equalsIgnoreCase(args[2])) {
 					if (a.isEnabled())
 						i = 1;
 					else
