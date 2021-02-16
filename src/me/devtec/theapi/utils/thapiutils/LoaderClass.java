@@ -200,7 +200,7 @@ public class LoaderClass extends JavaPlugin {
 			StringUtils.gradientFinder=Pattern.compile(LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})(.*?)"+LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})|.*?(?=(?:"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}.*?"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}))");
 		}
 		PluginCommand ca = TheAPI.createCommand("theapi", this);
-		if(Ref.field(Command.class, "timings")!=null && TheAPI.isOlder1_9()) {
+		if(Ref.field(Command.class, "timings")!=null && TheAPI.isOlderThan(9)) {
 			Ref.set(Bukkit.getServer(), "commandMap", new Old1_8SimpleCommandMap(Bukkit.getServer(), TheAPI.knownCommands));
 			ca = TheAPI.createCommand("theapi", this);
 		}
@@ -215,7 +215,7 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		
 		//BOSSBAR - 1.7.10 - 1.8.8
-		if (TheAPI.isOlder1_9())
+		if (TheAPI.isOlderThan(9))
 			new Tasker() {
 				public void run() {
 					for (BossBar s : bars)
@@ -526,6 +526,9 @@ public class LoaderClass extends JavaPlugin {
 		return a;
 	}
 
+	public int receive_speed = 500;
+	public long relog = 10000;
+	
 	private void createConfig() {
 		config.addDefault("Options.HideErrors", false); // hide only TheAPI errors
 		config.setComments("Options.HideErrors", Arrays.asList("",
@@ -533,7 +536,10 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.ConsoleLogEvent", false);
 		config.addDefault("Options.ItemUnbreakable", true);
 		config.addDefault("Options.Cache.User.Use", true); // Require memory, but loading of User.class is faster (only
-															// from TheAPI.class)
+		// from TheAPI.class)
+		config.addDefault("Options.SocketsSpeed", "PERFORMANCE");
+		config.setComments("Options.SocketsSpeed",
+				Arrays.asList("# Speed types: FAST, PERFORMANCE, SLOW", "# defaulty: PERFORMANCE"));
 		config.setComments("Options.Cache", Arrays.asList(""));
 		config.setComments("Options.Cache.User.Use",
 				Arrays.asList("# Cache Users to memory for faster loading", "# defaulty: true"));
@@ -547,7 +553,7 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.Cache.User.OfflineNames.AutoClear.Use", false); // Enable automatic clearing of cache
 		config.addDefault("Options.Cache.User.OfflineNames.AutoClear.OfflineTime", "1mon"); // Automatic clear cache after 1mon
 		config.addDefault("Options.Cache.User.OfflineNames.AutoClear.Period", "0"); // 0 means on startup or type time period
-		config.addDefault("Options.User-SavingType", DataType.YAML.name());
+		config.addDefault("Options.User-SavingType", "YAML");
 		config.setComments("Options.User-SavingType",
 				Arrays.asList("", "# Saving type of User data", "# Types: YAML, JSON, BYTE", "# defaulty: YAML"));
 		config.addDefault("Options.AntiBot.Use", false);
@@ -572,6 +578,18 @@ public class LoaderClass extends JavaPlugin {
 		config.setComments("Options.FakeEconomyAPI.Format",
 				Arrays.asList("# Economy format of FakeEconomyAPI", "# defaulty: $%money%"));
 		config.save();	
+		if(config.getString("Options.SocketsSpeed").equalsIgnoreCase("fast")) {
+			receive_speed=100;
+			relog=5000;
+		}
+		if(config.getString("Options.SocketsSpeed").equalsIgnoreCase("performance")) {
+			receive_speed=500;
+			relog=10000;
+		}
+		if(config.getString("Options.SocketsSpeed").equalsIgnoreCase("slow")) {
+			receive_speed=1000;
+			relog=15000;
+		}
 		if(config.getBoolean("Options.Cache.User.OfflineNames.Use")) {
 			if(cache==null) {
 				cache=new Cache();

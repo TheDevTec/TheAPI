@@ -3,9 +3,11 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.LinkedList;
 
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.DataType;
+import me.devtec.theapi.utils.thapiutils.LoaderClass;
 
 public abstract class Client { 
 	private PrintWriter send;
@@ -39,6 +41,7 @@ public abstract class Client {
     	return port;
     }
     
+    private boolean logged;
     public void reconnect(int trottle) {
 		exit();
     	try {
@@ -51,12 +54,20 @@ public abstract class Client {
 				 		try {
 					    	s = new Socket(ip, port);
 					    	if(s.isConnected()) {
-						    	s.setSoTimeout(100);
+						    	s.setSoTimeout(LoaderClass.plugin.receive_speed);
 						    	receive = new BufferedReader(new InputStreamReader(s.getInputStream()));
 						        send = new PrintWriter(s.getOutputStream(), true);
 						    	send.println("login:"+name);
 						    	send.println("password:"+pas);
 						    	send.flush();
+						    	receive.readLine(); //logged in
+						    	logged=true;
+						    	for(String s : postQueue) {
+						    		send.println(s);
+						    	}
+						    	if(!postQueue.isEmpty())
+						    		send.flush();
+						    	postQueue.clear();
 						        break;
 					    	}
 				 		}catch(Exception err) {
@@ -64,7 +75,7 @@ public abstract class Client {
 				 				ccc=false;
 				 				break;
 				 			}
-				 			Thread.sleep(50*60);
+							Thread.sleep(LoaderClass.plugin.relog);
 				 		}
 			 		}
 					}catch(Exception er) {}
@@ -79,8 +90,11 @@ public abstract class Client {
 								}
 								reader.reload(text);
 								read(reader);
-								Thread.sleep(50);
-								}catch(Exception err) {}
+							}catch(Exception err) {}
+						}
+						try {
+							Thread.sleep(LoaderClass.plugin.relog);
+						} catch (Exception e) {
 						}
 						reconnect(trottle);
 					}
@@ -98,15 +112,25 @@ public abstract class Client {
     	data.set(path, send);
     }
     
+    private LinkedList<String> postQueue;
+    
     public void send() {
-    	try {
-    		send.println(data.toString(DataType.BYTE));
-	    	send.flush();
-		} catch (Exception e) {}
-		data.clear();
+    	if(logged) {
+	    	try {
+	    		send.println(data.toString(DataType.BYTE));
+		    	send.flush();
+			} catch (Exception e) {}
+			data.clear();
+    	}else {
+    		if(postQueue==null)
+    			postQueue = new LinkedList<>();
+    		postQueue.add(data.toString(DataType.BYTE));
+    		data.clear();
+    	}
     }
 
 	public void exit() {
+    	logged=false;
 		try {
     		send.println("exit");
 	    	send.flush();

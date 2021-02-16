@@ -254,14 +254,6 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Return is server version older than 1.9 ? (1.0 - 1.8.9)
-	 * @return boolean
-	 */
-	public static boolean isOlder1_9() {
-		return isOlderThan(9);
-	}
-
-	/**
 	 * @see see Return time in which server start
 	 * @return long
 	 */

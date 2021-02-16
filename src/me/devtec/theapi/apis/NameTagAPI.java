@@ -122,7 +122,7 @@ public class NameTagAPI {
 		Team t = sb.getTeam(teamName);
 		if (t == null)t=sb.registerNewTeam(teamName);
 		if (suffix != null) {
-			if (TheAPI.isOlder1_9()) {
+			if (TheAPI.isOlderThan(9)) {
 				String cut = TheAPI.colorize(suffix);
 				if (cut.length() > 16)
 					cut = cut.substring(0, 15);
@@ -141,7 +141,7 @@ public class NameTagAPI {
 			}
 		}
 		if (prefix != null) {
-			if (TheAPI.isOlder1_9()) {
+			if (TheAPI.isOlderThan(9)) {
 				String cut = TheAPI.colorize(prefix);
 				if (cut.length() > 16)
 					cut = cut.substring(0, 15);

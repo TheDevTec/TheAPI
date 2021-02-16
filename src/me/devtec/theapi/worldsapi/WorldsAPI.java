@@ -60,7 +60,7 @@ public class WorldsAPI {
 	public static boolean create(String name, Environment generator, WorldType type, boolean generateStructures,
 			long seed) {
 		return create(name, generator, type,
-				type == null ? (TheAPI.isOlder1_9() ? new voidGenerator_1_8() : new voidGenerator()) : null,
+				type == null ? (TheAPI.isOlderThan(9) ? new voidGenerator_1_8() : new voidGenerator()) : null,
 				generateStructures, seed);
 	}
 

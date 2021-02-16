@@ -25,7 +25,7 @@ import me.devtec.theapi.utils.reflections.Ref;
  */
 public class ScoreboardAPI {
 	protected Data data = new Data();
-	protected static Field teamlist = Ref.field(Ref.nms("PacketPlayOutScoreboardTeam"), TheAPI.isOlder1_9() ? "g" : "h");
+	protected static Field teamlist = Ref.field(Ref.nms("PacketPlayOutScoreboardTeam"), TheAPI.isOlderThan(9) ? "g" : "h");
 	protected Player p;
 	protected String player;
 	protected int slott = -1;
@@ -177,7 +177,7 @@ public class ScoreboardAPI {
 	
 	private static boolean a = !TheAPI.isNewVersion();
 
-	private static String path = TheAPI.isOlder1_9() ? "h" : "i";
+	private static String path = TheAPI.isOlderThan(9) ? "h" : "i";
 	
 	public class Team {
 		private String prefix = "", suffix = "", currentPlayer, old;

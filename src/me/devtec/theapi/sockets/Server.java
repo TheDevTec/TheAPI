@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import me.devtec.theapi.utils.datakeeper.Data;
+import me.devtec.theapi.utils.thapiutils.LoaderClass;
 
 public class Server {
 	private Set<Reader> readers = new HashSet<>();
@@ -25,15 +26,15 @@ public class Server {
 				public void run() {
 					while(!server.isClosed()) {
 						try {
-							Thread.sleep(1000);
 			            	Socket s = server.accept();
 							if(sockets.containsKey(s))sockets.get(s).exit();
-					        s.setSoTimeout(100);
+					        s.setSoTimeout(LoaderClass.plugin.receive_speed);
 					        BufferedReader dis = new BufferedReader(new InputStreamReader(s.getInputStream()));
 					    	PrintWriter dos = new PrintWriter(s.getOutputStream(), true);
 			                ClientHandler handler = new ClientHandler(Server.this, s, dis, dos);
 			                sockets.put(s, new ServerClient(handler));
 			                handler.start();
+							Thread.sleep(LoaderClass.plugin.relog);
 						}catch(Exception e) {}
 					}
 				}

@@ -39,8 +39,8 @@ public class Reader implements JsonReader {
 
 	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref
 			.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
-	private static Method fromJson = Ref.method(Ref.getClass("com.google.gson.GsonBuilder") != null ? Ref.getClass("com.google.gson.GsonBuilder")
-			: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder"), "fromJson", String.class, Class.class);
+	private static Method fromJson = Ref.method(Ref.getClass("com.google.gson.Gson") != null ? Ref.getClass("com.google.gson.Gson")
+			: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.Gson"), "fromJson", String.class, Class.class);
 	private static Object parser = Ref.invoke(Ref.newInstance(Ref.constructor(
 					Ref.getClass("com.google.gson.GsonBuilder") != null ? Ref.getClass("com.google.gson.GsonBuilder")
 							: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder"))), "create");

@@ -15,7 +15,7 @@ import me.devtec.theapi.utils.thapiutils.LoaderClass;
  * 1.8 - 1.16+
  */
 public class BossBar {
-	private static boolean ww = !TheAPI.isOlder1_9();
+	private static boolean ww = !TheAPI.isOlderThan(9);
 	private static Class<?> c = Ref.nms("EntityWither");
 	private static Constructor<?> barC= Ref.constructor(Ref.nms("BossBattleServer"), Ref.nms("IChatBaseComponent"),
 			Ref.nms("BossBattle$BarColor"), Ref.nms("BossBattle$BarStyle")), tpC=Ref.constructor(Ref.nms("PacketPlayOutEntityTeleport")),barOld=Ref.constructor(c, Ref.nms("World"));

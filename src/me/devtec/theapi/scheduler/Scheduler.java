@@ -156,11 +156,11 @@ public class Scheduler {
 	}
 
 	public static int timerSyncSync(long delay, long period, long times, Runnable r) {
-		return repeatingTimes(delay, period, times, r, null);
+		return repeatingTimesSync(delay, period, times, r, null);
 	}
 
 	public static int repeatingTimesSync(long delay, long period, long times, Runnable runnable) {
-		return repeatingTimes(delay, period, times, runnable, null);
+		return repeatingTimesSync(delay, period, times, runnable, null);
 	}
 
 	public static int repeatingTimesSync(long delay, long period, long times, Runnable runnable, Runnable onFinish) {
@@ -176,7 +176,7 @@ public class Scheduler {
 							NMSAPI.postToMainThread(runnable);
 							Thread.sleep(period * 50);
 						} else {
-							if(run >= times) {
+							if(!Thread.currentThread().isInterrupted() && Thread.currentThread().isAlive()) {
 								if(onFinish!=null)
 									NMSAPI.postToMainThread(onFinish);
 							}
