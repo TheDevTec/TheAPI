@@ -5,27 +5,32 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import me.devtec.theapi.utils.thapiutils.Validator;
 
 public class HandlerList {
-	public static List<HandlerList> all = new ArrayList<>();
-	private List<RegisteredListener> l = new ArrayList<>();
+	protected static Map<String, HandlerList> all = new HashMap<>();
+	protected Map<Integer, List<RegisteredListener>> reg = new HashMap<>();
 
-	public HandlerList() {
-		all.add(this);
+	protected static HandlerList getOrCreate(String event) {
+		if(all.containsKey(event))return all.get(event);
+		HandlerList handler = new HandlerList();
+		all.put(event, handler);
+		return handler;
+	}
+	
+	private HandlerList() {
+		for(int i = 0; i < 6; ++i)
+			reg.put(i, new ArrayList<>());
 	}
 
-	private static Map<Class<? extends Event>, Set<RegisteredListener>> create(Listener listener) {
-		Map<Class<? extends Event>, Set<RegisteredListener>> ret = new HashMap<>();
+	private static Map<Class<? extends Event>, Collection<RegisteredListener>> create(Listener listener) {
+		Map<Class<? extends Event>, Collection<RegisteredListener>> ret = new HashMap<>();
 		Method[] Methods = listener.getClass().getDeclaredMethods();
-		Set<Method> methods = new HashSet<>(Methods.length, 1);
+		Collection<Method> methods = new ArrayList<>(Methods.length);
 		methods.addAll(Arrays.asList(Methods));
 		for (Method method : methods) {
 			EventHandler eh = method.getAnnotation(EventHandler.class);
@@ -36,91 +41,69 @@ public class HandlerList {
 				continue;
 			Class<? extends Event> eventClass = checkClass.asSubclass(Event.class);
 			method.setAccessible(true);
-			Set<RegisteredListener> eventSet = ret.get(eventClass);
-			if (eventSet == null) {
-				eventSet = new HashSet<>();
-				ret.put(eventClass, eventSet);
-			}
-			EventExecutor executor = new EventExecutor() {
-				public void execute(Listener listener, Event event) {
-					try {
-						if (!eventClass.isAssignableFrom(event.getClass()))
-							return;
-						method.invoke(listener, event);
-					} catch (Exception ex) {
-					}
-				}
-			};
-			eventSet.add(new RegisteredListener(listener, executor, eh.priority(), eh.ignoreCancelled()));
+			Collection<RegisteredListener> eventSet = ret.get(eventClass);
+			if (eventSet == null)
+				ret.put(eventClass, eventSet = new ArrayList<>());
+			eventSet.add(new RegisteredListener(listener, method, eh.priority(), eh.ignoreCancelled()));
 		}
 		return ret;
 	}
 
 	public static void register(Listener a) {
-		Validator.validate(a == null, "Listener can not be null");
-		for (Entry<Class<? extends Event>, Set<RegisteredListener>> entry : create(a).entrySet()) {
-			if (Event.getHandlerList(entry.getKey()) != null)
-				Event.getHandlerList(entry.getKey()).registerAll(entry.getValue());
-		}
+		Validator.validate(a == null, "Listener cannot be null");
+		for (Entry<Class<? extends Event>, Collection<RegisteredListener>> entry : create(a).entrySet())
+			getOrCreate(entry.getKey().getCanonicalName()).registerAll(entry.getValue());
 	}
 
 	public void register(RegisteredListener a) {
-		Validator.validate(a == null, "Listener can not be null");
-		l.add(a);
+		Validator.validate(a == null, "Listener cannot be null");
+		reg.get(a.priority.ordinal()).add(a);
 	}
 
 	public void unregister(RegisteredListener a) {
-		Validator.validate(a == null, "Listener can not be null");
-		l.remove(a);
+		Validator.validate(a == null, "Listener cannot be null");
+		reg.get(a.priority.ordinal()).remove(a);
 	}
 
 	public static void unregister(Listener a) {
-		Validator.validate(a == null, "Listener can not be null");
-		all.forEach(l -> {
-			List<RegisteredListener> w = new ArrayList<>();
-			l.l.forEach(s -> {
-				if (s.listener.equals(a))
-					w.add(s);
+		Validator.validate(a == null, "Listener cannot be null");
+		all.values().forEach(l -> {
+			Map<Integer,RegisteredListener> w = new HashMap<>();
+			l.reg.forEach((d, s) -> {
+				s.forEach(f -> {
+				if (f.listener.equals(a))
+					w.put(f.priority.ordinal(), f);
+				});
 			});
-			l.l.removeAll(w);
+			for(Entry<Integer,RegisteredListener> aw : w.entrySet())
+				l.reg.get(aw.getKey()).remove(aw.getValue());
 		});
 	}
 
 	public void registerAll(Collection<RegisteredListener> value) {
-		Validator.validate(value == null, "Collection<Listener> can not be null");
-		l.addAll(value);
+		Validator.validate(value == null, "Collection<RegisteredListener> cannot be null");
+		for(RegisteredListener r : value)
+			reg.get(r.priority.ordinal()).add(r);
 	}
 
 	public static void callEvent(Event e) {
-		Validator.validate(e == null, "Event can not be null");
-		all.forEach(l -> call(l.l, e));
+		Validator.validate(e == null, "Event cannot be null");
+			call(all.get(e.getClass().getCanonicalName()).reg, e);
 	}
 
-	private static void call(List<RegisteredListener> l, Event e) {
-		LinkedHashMap<Integer, HashSet<RegisteredListener>> a = new LinkedHashMap<>();
-		for (RegisteredListener s : l) {
-			if (a.containsKey(s.priority.ordinal())) {
-				HashSet<RegisteredListener> set = a.get(s.priority.ordinal());
-				set.add(s);
-			} else {
-				HashSet<RegisteredListener> set = new HashSet<>();
-				set.add(s);
-				a.put(s.priority.ordinal(), set);
-			}
-		} // prepare sorted set
-		for (Integer ea : a.keySet())
-			a.get(ea).forEach(f -> f.callEvent(e));
+	private static void call(Map<Integer, List<RegisteredListener>> reg2, Event e) {
+		for (int i = 0; i < 6; ++i)
+			reg2.get(i).forEach(f -> f.callEvent(e));
 		// call event
 	}
 
 	private static class RegisteredListener {
 		private final Listener listener;
 		private final EventPriority priority;
-		private final EventExecutor executor;
+		private final Method executor;
 		private final boolean ignoreCancelled;
 
-		public RegisteredListener(Listener listener, EventExecutor executor, EventPriority priority,
-				boolean ignoreCancelled) {
+		public RegisteredListener(Listener listener, Method executor, EventPriority priority, boolean ignoreCancelled) {
 			this.listener = listener;
 			this.priority = priority;
 			this.executor = executor;
@@ -130,11 +113,10 @@ public class HandlerList {
 		public void callEvent(Event event) {
 			if (event instanceof Cancellable && ((Cancellable) event).isCancelled() && ignoreCancelled)
 				return;
-			executor.execute(listener, event);
+			try {
+				executor.invoke(listener, event);
+			} catch (Exception ex) {
+			}
 		}
-	}
-
-	private static interface EventExecutor {
-		public void execute(Listener listener, Event event);
 	}
 }

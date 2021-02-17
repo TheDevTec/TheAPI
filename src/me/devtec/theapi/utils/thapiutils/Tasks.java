@@ -62,7 +62,7 @@ public class Tasks {
 							Object[] a = (Object[]) Array.newInstance(c, event.getPlayersText().size());
 							int i = -1;
 							for (PlayerProfile s : event.getPlayersText())
-								a[++i] = Ref.createGameProfile(s.uuid, s.name);
+								a[++i] = Ref.createGameProfile(s.getUUID(), s.getName());
 							Ref.set(sd, "c", a);
 						} else
 							Ref.set(sd, "c", (Object[]) Array.newInstance(c, 0));
@@ -90,6 +90,7 @@ public class Tasks {
 		l.register();
 		if (LoaderClass.config.getBoolean("Options.EntityMoveEvent.Enabled"))
 			task = new Tasker() {
+			EntityMoveEvent event = new EntityMoveEvent(null, null, null);
 				public void run() {
 					for (World w : Bukkit.getWorlds()) {
 						try {
@@ -102,7 +103,10 @@ public class Tasks {
 											: a;
 									if (v.exists(e.getUniqueId().toString())
 											&& v.get(e.getUniqueId().toString()) != a) {
-										EntityMoveEvent event = new EntityMoveEvent(e, old, a);
+										Ref.set(event, "from", old);
+										Ref.set(event, "to", a);
+										Ref.set(event, "entity", e);
+										event.setCancelled(false);
 										TheAPI.callEvent(event);
 										if (event.isCancelled())
 											e.teleport(old);

@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -749,6 +748,8 @@ public class StringUtils {
 		}
 	}
 
+	private static ScriptEngine engine = new ScriptEngineManager().getEngineFactories().get(0).getScriptEngine();
+	
 	/**
 	 * @see see Convert String to Math and Calculate exempt
 	 * @return double
@@ -758,13 +759,8 @@ public class StringUtils {
 			return new BigDecimal(0);
 		String a = fromString.replaceAll("[^0-9E+.,()*/-]+", "").replace(",", ".");
 		try {
-			ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
-			if (engine == null)
-				engine = new ScriptEngineManager().getEngineByName("nashorn");
-			if (engine == null)
-				engine = new ScriptEngineManager().getEngineByName("graal.js");
 			return new BigDecimal("" + engine.eval(a));
-		} catch (ScriptException e) {
+		} catch (Exception e) {
 		}
 		return new BigDecimal(0);
 	}

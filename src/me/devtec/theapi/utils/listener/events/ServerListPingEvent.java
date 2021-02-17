@@ -8,7 +8,7 @@ import me.devtec.theapi.utils.listener.Event;
 import me.devtec.theapi.utils.serverlist.PlayerProfile;
 
 public class ServerListPingEvent extends Event implements Cancellable {
-	private boolean b;
+	private boolean cancel;
 	private int online, max;
 	private List<PlayerProfile> playersText;
 	private String motd, falvicon, version;
@@ -78,11 +78,11 @@ public class ServerListPingEvent extends Event implements Cancellable {
 	}
 
 	public boolean isCancelled() {
-		return b;
+		return cancel;
 	}
 
 	@Override
 	public void setCancelled(boolean cancel) {
-		b = cancel;
+		this.cancel = cancel;
 	}
 }
