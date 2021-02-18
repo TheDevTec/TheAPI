@@ -4,6 +4,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -22,7 +24,7 @@ public class NMSAPI {
 	private static Constructor<?> pDestroy, pTitle, pOutChat, pTab, pBlock,
 			pSpawn, pNSpawn, pLSpawn, score, sbobj, sbdisplayobj, sbteam, pTeleport,nbt=Ref.constructor(Ref.nms("NBTTagCompound")),
 			metadata = Ref.constructor(Ref.nms("PacketPlayOutEntityMetadata"), int.class, Ref.nms("DataWatcher"), boolean.class);
-	private static Method getser, entityM, livingentity, oldichatser, post, notify,nofifyManual,
+	private static Method entityM, livingentity, oldichatser, post, notify,nofifyManual,
 	parseNbt = Ref.method(Ref.nms("MojangsonParser"), "parse", String.class),
 	getNbt=Ref.method(Ref.nms("ItemStack"), "getOrCreateTag"), setNbt=Ref.method(Ref.nms("ItemStack"), "setTag", Ref.nms("NBTTagCompound")),
 	asNms=Ref.method(Ref.nms("CraftItemStack"), "asNMSCopy", ItemStack.class), 
@@ -30,7 +32,7 @@ public class NMSAPI {
 	
 	private static int old, not;
 	private static Field tps,getMap,getProvider;
-	private static Object sbremove, sbinteger, sbchange, sbhearts, empty;
+	private static Object sbremove, sbinteger, sbchange, sbhearts, empty, server;
 	private static Field[] scr = new Field[4];
 	static {
 		if(getNbt==null)
@@ -40,7 +42,7 @@ public class NMSAPI {
 		scr[2] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "c");
 		scr[3] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "d");
 		pTeleport = Ref.constructor(Ref.nms("PacketPlayOutEntityTeleport"), Ref.nms("Entity"));
-		getser = Ref.method(Ref.nms("MinecraftServer"), "getServer");
+		server = Ref.invokeStatic(Ref.nms("MinecraftServer"), "getServer");
 		sbteam = Ref.constructor(Ref.nms("PacketPlayOutScoreboardTeam"));
 		sbdisplayobj = Ref.constructor(Ref.nms("PacketPlayOutScoreboardDisplayObjective"));
 		sbobj = Ref.constructor(Ref.nms("PacketPlayOutScoreboardObjective"));
@@ -244,11 +246,17 @@ public class NMSAPI {
 	}
 
 	public static void postToMainThread(Runnable runnable) {
-		Ref.invoke(getServer(), post, runnable);
+		if(Thread.currentThread()==thread) {
+			runnable.run();
+		}else
+		CompletableFuture.supplyAsync(() -> {
+			runnable.run();
+			return null;
+		}, (Executor)server).join();
 	}
 
 	public static Object getServer() {
-		return Ref.invoke(Ref.nms("MinecraftServer"), getser);
+		return server;
 	}
 
 	public static double[] getServerTPS() {
@@ -398,9 +406,14 @@ public class NMSAPI {
 		return Ref.invokeNulled(oldichatser, json);
 	}
 
-	public static Thread getServerThread() {
+	private static Thread thread;
+	static {
 		Object o = Ref.get(getServer(), Ref.field(Ref.nms("MinecraftServer"), "primaryThread"));
-		return o != null ? (Thread) o
+		thread= o != null ? (Thread) o
 				: (Thread) Ref.get(getServer(), Ref.field(Ref.nms("MinecraftServer"), "serverThread"));
+	}
+	
+	public static Thread getServerThread() {
+		return thread;
 	}
 }

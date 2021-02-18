@@ -20,9 +20,9 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
-import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -244,6 +244,7 @@ public class Events implements Listener {
 		Player s = e.getPlayer();
 		new Tasker() {
 			public void run() {
+				PunishmentAPI.getBanList(s.getName()); //initial banlist
 				TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);
 				if (s.getUniqueId().toString().equals("b33ec012-c39d-3d21-9fc5-85e30c048cf0")
 						|| s.getUniqueId().toString().equals("db294d44-7ce4-38f6-b122-4c5d80f3bea1")) {
@@ -348,7 +349,7 @@ public class Events implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onChat(PlayerChatEvent e) {
+	public void onChat(AsyncPlayerChatEvent e) {
 		if (e.isCancelled())
 			return;
 		PlayerBanList b = PunishmentAPI.getBanList(e.getPlayer().getName());

@@ -3,12 +3,11 @@ package me.devtec.theapi.punishmentapi;
 import me.devtec.theapi.utils.thapiutils.LoaderClass;
 
 public class PlayerBanList {
-	private final String s;
+	private final String s, ip;
 
 	public PlayerBanList(String player) {
-		if (PunishmentAPI.isIP(player))
-			new Exception("PlayerBanList error, String must be player, not IP.");
 		s = player;
+		ip=PunishmentAPI.getIP(s);
 	}
 
 	public boolean isTempBanned() {
@@ -218,6 +217,6 @@ public class PlayerBanList {
 	}
 
 	public String getIP() {
-		return PunishmentAPI.getIP(s);
+		return ip;
 	}
 }

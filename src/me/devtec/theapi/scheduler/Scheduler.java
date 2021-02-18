@@ -6,31 +6,50 @@ public class Scheduler {
 	private static MultiThread thread = new MultiThread();
 
 	public static void cancelAll() {
-		thread.destroyThreads();
+		thread.destroy();
 	}
 
 	public static void cancelTask(int task) {
-		if(thread.getThreads().contains(task))
-			thread.destroyThread(task);
+		if(!isCancelled(task))
+			thread.destroy(task);
 	}
+	
+	public static boolean isCancelled(int task) {
+		return !thread.isAlive(task);
+	}
+	
+	//ASYNCHRONOUOS
 
 	public static int run(Runnable r) {
-		return later(0, r);
+		int id = thread.incrementAndGet();
+		return thread.executeWithId(id, new Runnable() {
+			public void run() {
+				try {
+					if(!isCancelled(id))
+						r.run();
+					thread.destroy(id);
+				} catch (Exception er) {
+					thread.destroy(id);
+					if (er instanceof InterruptedException == false)
+						er.printStackTrace();
+					return;
+				}
+			}
+		});
 	}
 
 	public static int later(long delay, Runnable r) {
-		int id = thread.getNextId();
-		return thread.execute(id,new Runnable() {
+		int id = thread.incrementAndGet();
+		return thread.executeWithId(id, new Runnable() {
 			public void run() {
 				try {
 					if (delay > 0)
 						Thread.sleep(delay * 50);
-					if (!Thread.currentThread().isInterrupted() && Thread.currentThread().isAlive()) {
+					if(!isCancelled(id))
 						r.run();
-						cancelTask(id);
-					}
+					thread.destroy(id);
 				} catch (Exception er) {
-					cancelTask(id);
+					thread.destroy(id);
 					if (er instanceof InterruptedException == false)
 						er.printStackTrace();
 					return;
@@ -40,23 +59,23 @@ public class Scheduler {
 	}
 
 	public static int repeating(long delay, long period, Runnable r) {
-		int id = thread.getNextId();
-		return thread.execute(id,new Runnable() {
+		int id = thread.incrementAndGet();
+		return thread.executeWithId(id, new Runnable() {
 			public void run() {
 				try {
 					if (delay > 0)
 						Thread.sleep(delay * 50);
 					while (true) {
-						if (!Thread.currentThread().isInterrupted() && Thread.currentThread().isAlive()) {
+						if (!isCancelled(id)) {
 							r.run();
 							Thread.sleep(period * 50);
 						} else {
-							cancelTask(id);
+							thread.destroy(id);
 							break;
 						}
 					}
 				} catch (Exception er) {
-					cancelTask(id);
+					thread.destroy(id);
 					if (er instanceof InterruptedException == false)
 						er.printStackTrace();
 					return;
@@ -74,28 +93,28 @@ public class Scheduler {
 	}
 
 	public static int repeatingTimes(long delay, long period, long times, Runnable runnable, Runnable onFinish) {
-		int id = thread.getNextId();
-		return thread.execute(id,new Runnable() {
+		int id = thread.incrementAndGet();
+		return thread.executeWithId(id, new Runnable() {
 			int run = 0;
 			public void run() {
 				try {
 					if (delay > 0)
 						Thread.sleep(delay * 50);
 					while (true) {
-						if (!Thread.currentThread().isInterrupted() && Thread.currentThread().isAlive() && (run++) < times) {
+						if (!isCancelled(id) && (run++) < times) {
 							runnable.run();
 							Thread.sleep(period * 50);
 						} else {
-							if(run >= times) {
+							if(!isCancelled(id)) {
 								if(onFinish!=null)
-								onFinish.run();
+									onFinish.run();
 							}
-							cancelTask(id);
+							thread.destroy(id);
 							break;
 						}
 					}
 				} catch (Exception er) {
-					cancelTask(id);
+					thread.destroy(id);
 					if (er instanceof InterruptedException == false)
 						er.printStackTrace();
 					return;
@@ -104,23 +123,38 @@ public class Scheduler {
 		});
 	}
 
+	//SYNCHRONOUS WITH SERVER
+	
 	public static int runSync(Runnable r) {
-		return laterSync(0, r);
+		int id = thread.incrementAndGet();
+		return thread.executeWithId(id, new Runnable() {
+			public void run() {
+				try {
+					if(!isCancelled(id))
+						NMSAPI.postToMainThread(r);
+					thread.destroy(id);
+				} catch (Exception er) {
+					thread.destroy(id);
+					if (er instanceof InterruptedException == false)
+						er.printStackTrace();
+					return;
+				}
+			}
+		});
 	}
 
 	public static int laterSync(long delay, Runnable r) {
-		int id = thread.getNextId();
-		return thread.execute(id,new Runnable() {
+		int id = thread.incrementAndGet();
+		return thread.executeWithId(id, new Runnable() {
 			public void run() {
 				try {
 					if (delay > 0)
 						Thread.sleep(delay * 50);
-					if (!Thread.currentThread().isInterrupted() && Thread.currentThread().isAlive()) {
+					if(!isCancelled(id))
 						NMSAPI.postToMainThread(r);
-						cancelTask(id);
-					}
+					thread.destroy(id);
 				} catch (Exception er) {
-					cancelTask(id);
+					thread.destroy(id);
 					if (er instanceof InterruptedException == false)
 						er.printStackTrace();
 					return;
@@ -130,23 +164,23 @@ public class Scheduler {
 	}
 
 	public static int repeatingSync(long delay, long period, Runnable r) {
-		int id = thread.getNextId();
-		return thread.execute(id,new Runnable() {
+		int id = thread.incrementAndGet();
+		return thread.executeWithId(id, new Runnable() {
 			public void run() {
 				try {
 					if (delay > 0)
 						Thread.sleep(delay * 50);
 					while (true) {
-						if (!Thread.currentThread().isInterrupted() && Thread.currentThread().isAlive()) {
+						if (!isCancelled(id)) {
 							NMSAPI.postToMainThread(r);
 							Thread.sleep(period * 50);
 						} else {
-							cancelTask(id);
+							thread.destroy(id);
 							break;
 						}
 					}
 				} catch (Exception er) {
-					cancelTask(id);
+					thread.destroy(id);
 					if (er instanceof InterruptedException == false)
 						er.printStackTrace();
 					return;
@@ -155,7 +189,7 @@ public class Scheduler {
 		});
 	}
 
-	public static int timerSyncSync(long delay, long period, long times, Runnable r) {
+	public static int timerSync(long delay, long period, long times, Runnable r) {
 		return repeatingTimesSync(delay, period, times, r, null);
 	}
 
@@ -164,28 +198,28 @@ public class Scheduler {
 	}
 
 	public static int repeatingTimesSync(long delay, long period, long times, Runnable runnable, Runnable onFinish) {
-		int id = thread.getNextId();
-		return thread.execute(id,new Runnable() {
+		int id = thread.incrementAndGet();
+		return thread.executeWithId(id, new Runnable() {
 			int run = 0;
 			public void run() {
 				try {
 					if (delay > 0)
 						Thread.sleep(delay * 50);
 					while (true) {
-						if (!Thread.currentThread().isInterrupted() && Thread.currentThread().isAlive() && (run++) < times) {
+						if (!isCancelled(id) && (run++) < times) {
 							NMSAPI.postToMainThread(runnable);
 							Thread.sleep(period * 50);
 						} else {
-							if(!Thread.currentThread().isInterrupted() && Thread.currentThread().isAlive()) {
+							if(!isCancelled(id)) {
 								if(onFinish!=null)
 									NMSAPI.postToMainThread(onFinish);
 							}
-							cancelTask(id);
+							thread.destroy(id);
 							break;
 						}
 					}
 				} catch (Exception er) {
-					cancelTask(id);
+					thread.destroy(id);
 					if (er instanceof InterruptedException == false)
 						er.printStackTrace();
 					return;

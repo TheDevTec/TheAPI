@@ -2,48 +2,15 @@ package me.devtec.theapi.scheduler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-public class MultiThread {
-	private LinkedList<Thread> queue = new LinkedList<>();
-	private Map<Integer, Thread> threads = new HashMap<>();
-	private int i;
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
+public class MultiThread implements Executor {
+	protected Map<Integer, Thread> threads = new HashMap<>();
+	protected final AtomicInteger i = new AtomicInteger();
 	
-	public MultiThread() {
-		new Thread(new Runnable() {
-			public void run() {
-				while(queue!=null) {
-					if(queue.isEmpty()) {
-						try {
-							Thread.sleep(20);
-						} catch (Exception e) {
-						}
-						continue;
-					}
-					queue.poll().start();
-					try {
-						Thread.sleep(1);
-					} catch (Exception e) {
-					}
-				}
-			}
-		}, "MultiThread-Processor").start();
-	}
-	
-	public void interrupt() {
-		queue=null;
-		for(Entry<Integer, Thread> tht : threads.entrySet()) {
-			tht.getValue().stop();
-			tht.getValue().interrupt();
-		}
-		threads=null;
-	}
-	
-	public void destroyThreads() {
-		queue.clear();
+	public void destroy() {
 		List<Thread> clone = new ArrayList<>(threads.values());
 		threads.clear();
 		for(Thread tht : clone) {
@@ -54,33 +21,40 @@ public class MultiThread {
 		}
 	}
 	
-	public synchronized int getNextId() {
-		return i++;
+	public boolean isAlive(int id) {
+		return threads.containsKey(id) && threads.get(id).isAlive();
 	}
 	
-	public synchronized int execute(int id, Runnable thread) {
-		Thread t = new Thread(thread, "MultiThread-Worker-"+id);
-		threads.put(id, t);
-		queue.add(t);
-		return id;
+	public Map<Integer, Thread> getThreads(){
+		return threads;
 	}
 	
-	public synchronized int execute(Runnable thread) {
-		int id = i++;
-		Thread t = new Thread(thread, "MultiThread-Worker-"+id);
-		threads.put(id, t);
-		queue.add(t);
-		return id;
+	public int  incrementAndGet(){
+		return i.incrementAndGet();
 	}
 	
-	public Set<Integer> getThreads(){
-		return threads.keySet();
-	}
-	
-	public void destroyThread(int id) {
+	public void destroy(int id) {
 		Thread t = threads.remove(id);
-		queue.remove(t);
+		if(t==null)return;
 		t.stop();
 		t.interrupt();
+	}
+	
+	public int executeWithId(int id, Runnable command) {
+		Thread t = new Thread(command, "MultiThread-Worker-"+id);
+		threads.put(id, t);
+		t.start();
+		return id;
+	}
+	
+	public int executeAndGet(Runnable command) {
+		int id = i.incrementAndGet();
+		return executeWithId(id, command);
+	}
+
+	@Override
+	public void execute(Runnable command) {
+		int id = i.incrementAndGet();
+		executeWithId(id, command);
 	}
 }
