@@ -117,8 +117,7 @@ public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data 
 
 	public void addDefault(String key, Object value) {
 		defaults.put(key, value);
-		if (value != null && f.get(key) == null)
-			f.set(key, value);
+		f.setIfAbsent(key, value);
 	}
 
 	public Map<String, Object> getDefaults() {
@@ -131,10 +130,8 @@ public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data 
 		for(Entry<String, Object> def : defaults.entrySet()) {
 			String key = def.getKey();
 			Object value=def.getValue();
-			if (value != null && f.get(key) == null) {
-				f.set(key, value);
+			if (f.setIfAbsent(key, value))
 				change=true;
-			}
 		}
 		if(change)save();
 	}

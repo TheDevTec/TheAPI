@@ -76,6 +76,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return a == 1;
 	}
 
+	public boolean existsKey(String path) {
+		return loader.get().containsKey(path);
+	}
+
 	public Data setFile(File f) {
 		a = f;
 		return this;
@@ -90,6 +94,16 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			loader.set(key, h);
 		}
 		return h;
+	}
+
+	public boolean setIfAbsent(String key, Object value) {
+		if (key == null || value==null)
+			return false;
+		if(!existsKey(key)) {
+			getOrCreateData(key)[0]=value;
+			return true;
+		}
+		return false;
 	}
 
 	public Data set(String key, Object value) {

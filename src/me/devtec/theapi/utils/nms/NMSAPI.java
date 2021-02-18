@@ -63,11 +63,9 @@ public class NMSAPI {
 			post = Ref.method(Ref.nms("MinecraftServer"), "postToMainThread", Runnable.class);
 		if (Ref.nms("PacketPlayOutTitle") != null)
 			enumTitle = Ref.nms("PacketPlayOutTitle$EnumTitleAction");
-		try {
-			oldichatser = Ref.method(Ref.nms("IChatBaseComponent$ChatSerializer"), "a", String.class);
-		} catch (Exception oldversion) {
+		oldichatser = Ref.method(Ref.nms("IChatBaseComponent$ChatSerializer"), "a", String.class);
+		if(oldichatser==null)
 			oldichatser = Ref.method(Ref.nms("ChatSerializer"), "a", String.class);
-		}
 		pDestroy = Ref.constructor(Ref.nms("PacketPlayOutEntityDestroy"), int[].class);
 		pSpawn = Ref.constructor(Ref.nms("PacketPlayOutSpawnEntity"), Ref.nms("Entity"), int.class);
 		pNSpawn = Ref.constructor(Ref.nms("PacketPlayOutNamedEntitySpawn"), Ref.nms("EntityHuman"));
