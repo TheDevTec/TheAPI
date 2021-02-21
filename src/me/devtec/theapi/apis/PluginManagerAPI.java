@@ -19,6 +19,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.SimplePluginManager;
 
+import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.nms.NMSAPI;
@@ -455,7 +456,8 @@ public class PluginManagerAPI {
 							if(p.getDescription().getCommands()!=null)
 								for (String command : p.getDescription().getCommands().keySet()) {
 									command = command.toLowerCase(Locale.ENGLISH).trim();
-									commandMap.register(command, null);
+									if(commandMap.getCommand(command)==null)
+									commandMap.register(command, TheAPI.createCommand(command, p));
 								}
 							} catch (Exception e) {
 								e.printStackTrace();

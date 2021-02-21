@@ -748,7 +748,14 @@ public class StringUtils {
 		}
 	}
 
-	private static ScriptEngine engine = new ScriptEngineManager().getEngineFactories().get(0).getScriptEngine();
+	private static ScriptEngine engine;
+	static{
+		try {
+			engine= new ScriptEngineManager().getEngineFactories().get(0).getScriptEngine();
+		}catch(Exception err) {
+			engine= new ScriptEngineManager().getEngineByName("JavaScript");
+		}
+	}
 	
 	/**
 	 * @see see Convert String to Math and Calculate exempt
