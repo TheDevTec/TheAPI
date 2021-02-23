@@ -22,8 +22,7 @@ public class Cache {
 	public UUID lookupId(String name){
 		return uuidLookup.getOrDefault(name.toLowerCase(), 
 				Bukkit.getOnlineMode()?lookupIdFromMojang(name):
-					Bukkit.getOfflinePlayer(
-							UUID.nameUUIDFromBytes(("OfflinePlayer:"+name).getBytes(StandardCharsets.UTF_8))).getUniqueId());
+					UUID.nameUUIDFromBytes(("OfflinePlayer:"+name).getBytes(StandardCharsets.UTF_8)));
 	}
 	
 	@SuppressWarnings("unchecked")

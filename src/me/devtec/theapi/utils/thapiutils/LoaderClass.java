@@ -471,14 +471,17 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &6Action: &eDisabling plugin, saving configs and stopping runnables..",
 				TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-
+		
+		//GUI
+		for (Entry<String, GUI> p : gui.entrySet()) {
+			p.getValue().clear();
+			p.getValue().close();
+		}
+		gui.clear();
+		
 		//Scheulder
 		Scheduler.cancelAll();
 		
-		//GUI
-		for (String p : gui.keySet())
-			gui.get(p).clear();
-		gui.clear();
 		//Sockets
 		if(server!=null)
 			server.exit();

@@ -2,6 +2,7 @@ package me.devtec.theapi.guiapi;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -256,7 +257,7 @@ public class GUI {
 	 * 
 	 */
 	public final void close() {
-		for(HumanEntity player : inv.getViewers())
+		for(HumanEntity player : new ArrayList<>(inv.getViewers()))
 			close((Player)player);
 	}
 
@@ -274,12 +275,16 @@ public class GUI {
 	 * 
 	 */
 	public final void close(Player... players) {
+		if(players==null)return;
 		for (Player player : players) {
-			Object ac =containers.remove(player);
-			Ref.sendPacket(player, Ref.newInstance(closeWindow, Ref.get(ac, "windowId")));
-			Ref.invoke(ac, "b", Ref.player(player));
-			Ref.set(Ref.player(player), "activeContainer", Ref.get(Ref.player(player), "defaultContainer"));
-			Ref.invoke(ac, transfer, Ref.get(Ref.player(player), "defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
+			if(player==null)continue;
+			Object ac = containers.remove(player);
+			if(ac!=null) {
+				Ref.sendPacket(player, Ref.newInstance(closeWindow, Ref.get(ac, "windowId")));
+				Ref.invoke(ac, "b", Ref.player(player));
+				Ref.set(Ref.player(player), "activeContainer", Ref.get(Ref.player(player), "defaultContainer"));
+				Ref.invoke(ac, transfer, Ref.get(Ref.player(player), "defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
+			}
 			inv.getViewers().remove(player);
 			LoaderClass.plugin.gui.remove(player.getName());
 			onClose(player);
