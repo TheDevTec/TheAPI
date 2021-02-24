@@ -477,7 +477,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				}
 				if (type == DataType.JSON) {
 					Maker maker = new Maker();
-					for (String key : aw)
+					for (String key : new LinkedHashSet<>(aw))
 						addKeys(maker, key);
 					w.write(maker.toString(false).replace("\\n", System.lineSeparator()));
 					w.close();
@@ -488,7 +488,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 						w.write(h + System.lineSeparator());
 				} catch (Exception er) {
 				}
-				for (String key : aw)
+				for (String key : new LinkedHashSet<>(aw))
 					preparePath(key, key + ":", 0, w);
 				try {
 					for (String h : loader.getFooter())
@@ -682,7 +682,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			}
 			if (type == DataType.JSON) {
 				Maker main = new Maker();
-				for (String key : aw)
+				for (String key : new LinkedHashSet<>(aw))
 					addKeys(main, key);
 				return main.toString();
 			}
@@ -693,7 +693,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 					d.write(h + System.lineSeparator());
 			} catch (Exception er) {
 			}
-			for (String key : aw)
+			for (String key : new LinkedHashSet<>(aw))
 				preparePath(key, key + ":", 0, d);
 			try {
 				for (String h : loader.getFooter())
