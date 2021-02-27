@@ -41,7 +41,6 @@ import me.devtec.theapi.apis.NameTagAPI;
 import me.devtec.theapi.bossbar.BarColor;
 import me.devtec.theapi.bossbar.BarStyle;
 import me.devtec.theapi.bossbar.BossBar;
-import me.devtec.theapi.configapi.ConfigAPI;
 import me.devtec.theapi.cooldownapi.CooldownAPI;
 import me.devtec.theapi.punishmentapi.PunishmentAPI;
 import me.devtec.theapi.scheduler.Scheduler;
@@ -209,26 +208,6 @@ public class TheAPI {
 	 */
 	public static Storage getStorage() {
 		return new Storage();
-	}
-
-	/**
-	 * @see see Create or delete config
-	 * @param localization
-	 * @param name
-	 * @return ConfigAPI
-	 */
-	public static ConfigAPI getConfig(String localization, String name) {
-		return new ConfigAPI(localization, name);
-	}
-
-	/**
-	 * @see see Create or delete config
-	 * @param plugin
-	 * @param name
-	 * @return ConfigAPI
-	 */
-	public static ConfigAPI getConfig(Plugin plugin, String name) {
-		return new ConfigAPI(plugin.getName(), name);
 	}
 
 	/**
