@@ -181,12 +181,16 @@ public class YamlLoader extends DataLoader {
 							if (!org.isEmpty()) {
 								if (object.trim().equals("|")) {
 									c = 1;
+									if(v==null)
 									v = new StringBuilder();
+									else v=v.delete(0, v.length());
 									continue;
 								}
 								if (object.trim().equals("|-")) {
 									c = 2;
+									if(v==null)
 									v = new StringBuilder();
+									else v=v.delete(0, v.length());
 									continue;
 								}
 								if (object.trim().equals("[]")) {
