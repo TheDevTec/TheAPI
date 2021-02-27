@@ -13,9 +13,40 @@ import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.DataType;
 
 public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
+	
+	public static class Node {
+		public Node(Object value, List<String> comments){
+			this.value=value;
+			this.comments=comments;
+		}
+		
+		private Object value;
+		private List<String> comments;
+		
+		public Object getValue() {
+			return value;
+		}
+		
+		public Object setValue(Object value) {
+			Object old = value;
+			this.value=value;
+			return old;
+		}
+		
+		public List<String> getComments() {
+			return comments;
+		}
+		
+		public List<String> setComments(List<String> comments) {
+			List<String> old = comments;
+			this.comments=comments;
+			return old;
+		}
+	}
+	
 	public static String folderName = "plugins/";
 	
-	private final Map<String, Object> defaults = new HashMap<>();
+	private final Map<String, Node> defaults = new HashMap<>();
 	private final Data f;
 	private DataType t;
 
@@ -110,30 +141,36 @@ public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data 
 		f.getFooter().remove(text);
 	}
 
-	public void addDefaults(Map<String, Object> values) {
+	public void addDefaults(Map<String, Node> values) {
 		for (String key : values.keySet())
 			addDefault(key, values.get(key));
 	}
 
 	public void addDefault(String key, Object value) {
-		defaults.put(key, value);
+		if(key==null||value==null)return;
+		if(value instanceof Node)addDefault(key, (Node)value);
+		defaults.put(key, new Node(value, null));
 		f.setIfAbsent(key, value);
 	}
 
-	public Map<String, Object> getDefaults() {
+	public void addDefault(String key, Node value) {
+		if(key==null||value==null)return;
+		defaults.put(key, value);
+		f.setIfAbsent(key, value.getValue(), value.getComments());
+	}
+
+	public Map<String, Node> getDefaults() {
 		return defaults;
 	}
 
 	public void reload() {
 		f.reload(f.getFile());
-		boolean change = false;
-		for(Entry<String, Object> def : defaults.entrySet()) {
-			String key = def.getKey();
-			Object value=def.getValue();
-			if (f.setIfAbsent(key, value))
-				change=true;
+		int change = 0;
+		for(Entry<String, Node> def : defaults.entrySet()) {
+			if (f.setIfAbsent(def.getKey(), def.getValue().getValue(), def.getValue().getComments()))
+				change=1;
 		}
-		if(change)save();
+		if(change==1)save();
 	}
 
 	public String getName() {

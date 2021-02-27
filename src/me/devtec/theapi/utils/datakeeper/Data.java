@@ -106,6 +106,23 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return false;
 	}
 
+	public boolean setIfAbsent(String key, Object value, List<String> comments) {
+		if (key == null || value==null)
+			return false;
+		if(!existsKey(key)) {
+			Object[] data = getOrCreateData(key);
+			data[0]=value;
+			data[1]=comments;
+			return true;
+		}
+		Object[] data = getOrCreateData(key);
+		if(data[1]==null || ((List<?>) data[1]).isEmpty()) {
+			data[1]=comments;
+			return true;
+		}
+		return false;
+	}
+
 	public Data set(String key, Object value) {
 		if (key == null)
 			return this;
