@@ -1,65 +1,88 @@
 package me.devtec.theapi.utils.datakeeper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
-import org.bukkit.Bukkit;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import me.devtec.theapi.utils.json.Writer;
+
 public class Storage implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
-	private List<Inventory> invs = new ArrayList<>();
-	private Inventory inv = Bukkit.createInventory(null, 54);
+	private List<ItemStack> items = new ArrayList<>();
 
 	public void add(ItemStack item) {
-		if (invs.contains(inv))
-			invs.remove(inv);
-		if (inv.firstEmpty() == -1) {
-			invs.add(inv);
-			inv = Bukkit.createInventory(null, 54);
-		} else {
-		}
-		inv.addItem(item);
-	}
-
-	public List<Inventory> getInventories() {
-		if (invs.contains(inv) == false)
-			invs.add(inv);
-		return invs;
-	}
-
-	public boolean isEmpty() {
-		return getInventories().isEmpty();
-	}
-
-	public List<ItemStack> getItems() {
-		List<ItemStack> items = new ArrayList<>();
-		for (Inventory i : getInventories()) {
-			for (ItemStack a : i.getContents()) {
-				try {
-					items.add(a);
-				} catch (Exception er) {
+		ItemStack add = new ItemStack(item);
+		for(ItemStack i : items) {
+			if(i.getAmount()<i.getMaxStackSize()) {
+				if(i.getItemMeta().equals(item.getItemMeta()) && i.getType()==item.getType() && i.getDurability()==item.getDurability()) {
+					int count = i.getAmount()+add.getAmount();
+					if(count>i.getMaxStackSize()) {
+						add.setAmount(count-i.getMaxStackSize());
+						i.setAmount(i.getMaxStackSize());
+					}else {
+						i.setAmount(count);
+						add=null;
+						break;
+					}
 				}
 			}
 		}
+		if(add!=null)
+			items.add(add);
+	}
+
+	public void remove(int slot) {
+		if(items.size()>slot && slot >= 0)items.remove(slot);
+	}
+
+	public void remove(ItemStack item, int count) {
+		int amount=count;
+		Iterator<ItemStack> it = items.iterator();
+		while(it.hasNext()) {
+		ItemStack i = it.next();
+			if(i.getAmount()<i.getMaxStackSize()) {
+				if(i.getItemMeta().equals(item.getItemMeta()) && i.getType()==item.getType() && i.getDurability()==item.getDurability()) {
+					int counter = i.getAmount()-amount;
+					if(counter>0) {
+						i.setAmount(counter);
+						break;
+					}else {
+						it.remove();
+						amount-=i.getAmount();
+					}
+				}
+			}
+		}
+	}
+
+	public boolean isEmpty() {
+		return items.isEmpty();
+	}
+
+	public List<ItemStack> getItems() {
 		return items;
 	}
 
 	public void clear() {
-		inv = Bukkit.createInventory(null, 54);
-		invs.clear();
+		items.clear();
 	}
 
 	public int size() {
-		return invs.size();
-	}
-
-	public String toString() {
-		return invs.toString();
+		return items.size();
 	}
 
 	@Override
+	public String toString() {
+		return getDataName();
+	}
+	
+	@Override
 	public String getDataName() {
-		return "Storage(" + toString() + ")";
+		HashMap<String, Object> s = new HashMap<>();
+		s.put("items", items.size());
+		s.put("list", items);
+		return Writer.write(s);
 	}
 }
