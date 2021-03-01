@@ -3,14 +3,12 @@ package me.devtec.theapi.utils;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.json.Maker;
-import me.devtec.theapi.utils.json.Maker.MakerObject;
 import me.devtec.theapi.utils.json.Writer;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.nms.NMSAPI.ChatType;
@@ -26,92 +24,192 @@ public class HoverMessage {
 		SHOW_ITEM, SHOW_ACHIEVEMENT, SHOW_ENTITY, SHOW_TEXT
 	}
 
-	private Maker extras = new Maker();
-	private MakerObject maker = new MakerObject(), extra;
+	private Maker texts = new Maker();
+	private HashMap<String, Object> maker = new HashMap<>();
 
 	private boolean isSuper;
-	private Object hover, click;
-	private String color;
-	private HoverAction hoverAction;
-	private ClickAction clickAction;
-
+	
 	public HoverMessage() {
-
+		texts.add(maker);
 	}
 
-	HoverMessage(String... text) {
+	public HoverMessage(String... text) {
+		this();
 		for (String extra : text)
 			addText(extra);
 	}
 
+	@SuppressWarnings("unchecked")
 	public HoverMessage(Map<? extends String, ?> json) {
-		for (Entry<? extends String, ?> e : json.entrySet()) {
-			if (e.getKey().equalsIgnoreCase("text")) {
-				addText(TheAPI.colorize("" + e.getValue()));
-				continue;
+		loadFromMap((Map<String, Object>) json);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void	loadFromMap(Map<String, Object> json) {
+		if(json.containsKey("text")) {
+			addText(TheAPI.colorize("" + json.get("text")));
+		}
+		if(json.containsKey("clickEvent")) {
+			if (json.get("clickEvent") instanceof Map) {
+				Map<String, Object> s = (Map<String, Object>) json.get("clickEvent");
+				setClickEvent(ClickAction.valueOf(s.get("action").toString().toUpperCase()), s.containsKey("contets")?s.get("contets"):s.get("value"));
 			}
-			if (e.getKey().equalsIgnoreCase("clickEvent")) {
-				if (e.getValue() instanceof Map) {
-					Map<?, ?> s = (Map<?, ?>) e.getValue();
-					setClickEvent(ClickAction.valueOf(s.get("action").toString().toUpperCase()), s.get("value"));
+		}
+		if(json.containsKey("hoverEvent")) {
+			if (json.get("hoverEvent") instanceof Map) {
+				Map<String, Object> s = (Map<String, Object>) json.get("hoverEvent");
+				setHoverEvent(HoverAction.valueOf(s.get("action").toString().toUpperCase()), s.containsKey("contets")?s.get("contets"):s.get("value"));
+			}
+		}
+		if(json.containsKey("keybind")) {
+			setKeybind("" + json.get("keybind"));
+		}
+		if(json.containsKey("bold")) {
+			setBold(StringUtils.getBoolean(json.get("bold")+""));
+		}
+		if(json.containsKey("italic")) {
+			setItalic(StringUtils.getBoolean(json.get("italic")+""));
+		}
+		if(json.containsKey("underlined")) {
+			setUnderlined(StringUtils.getBoolean(json.get("underlined")+""));
+		}
+		if(json.containsKey("strikethrough")) {
+			setStrikethrough(StringUtils.getBoolean(json.get("strikethrough")+""));
+		}
+		if(json.containsKey("obfuscated")) {
+			setObfuscated(StringUtils.getBoolean(json.get("obfuscated")+""));
+		}
+		if(json.containsKey("insertion")) {
+			setInsertion("" + json.get("insertion"));
+		}
+		if(json.containsKey("color")) {
+			setColor("" + json.get("color"));
+		}
+		if(json.containsKey("extra")) {
+			if(json.get("extra") instanceof Map == false)return;
+			Map<String, ?> jsons = (Map<String, ?>) json.get("extra");
+			while(true) {
+				if(jsons==null)break;
+				if(jsons.containsKey("text")) {
+					addText(TheAPI.colorize("" + jsons.get("text")));
 				}
-				continue;
-			}
-			if (e.getKey().equalsIgnoreCase("hoverEvent")) {
-				if (e.getValue() instanceof Map) {
-					Map<?, ?> s = (Map<?, ?>) e.getValue();
-					setHoverEvent(HoverAction.valueOf(s.get("action").toString().toUpperCase()), s.get("value"));
+				if(jsons.containsKey("clickEvent")) {
+					if (jsons.get("clickEvent") instanceof Map) {
+						Map<String, Object> s = (Map<String, Object>) jsons.get("clickEvent");
+						setClickEvent(ClickAction.valueOf(s.get("action").toString().toUpperCase()), s.containsKey("contets")?s.get("contets"):s.get("value"));
+					}
 				}
-				continue;
+				if(jsons.containsKey("hoverEvent")) {
+					if (jsons.get("hoverEvent") instanceof Map) {
+						Map<String, Object> s = (Map<String, Object>) jsons.get("hoverEvent");
+						setHoverEvent(HoverAction.valueOf(s.get("action").toString().toUpperCase()), s.containsKey("contets")?s.get("contets"):s.get("value"));
+					}
+				}
+				if(jsons.containsKey("bold")) {
+					setBold(StringUtils.getBoolean(jsons.get("bold")+""));
+				}
+				if(jsons.containsKey("italic")) {
+					setItalic(StringUtils.getBoolean(jsons.get("italic")+""));
+				}
+				if(jsons.containsKey("underlined")) {
+					setUnderlined(StringUtils.getBoolean(jsons.get("underlined")+""));
+				}
+				if(jsons.containsKey("strikethrough")) {
+					setStrikethrough(StringUtils.getBoolean(jsons.get("strikethrough")+""));
+				}
+				if(jsons.containsKey("obfuscated")) {
+					setObfuscated(StringUtils.getBoolean(jsons.get("obfuscated")+""));
+				}
+				if(jsons.containsKey("insertion")) {
+					setInsertion("" + jsons.get("insertion"));
+				}
+				if(jsons.containsKey("keybind")) {
+					setKeybind("" + jsons.get("keybind"));
+				}
+				if(jsons.containsKey("color")) {
+					setColor("" + jsons.get("color"));
+				}
+				if(jsons.containsKey("extra")) {
+					if(jsons.get("extra") instanceof Map == false)break;
+					jsons = (Map<String, ?>) jsons.get("extra");
+					continue;
+				}
+				break;
 			}
-			if (e.getKey().equalsIgnoreCase("color")) {
-				setColor("" + e.getValue());
-				continue;
-			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public HoverMessage(Collection<?> texts) {
+		this();
+		for(Object text : texts) {
+			if(text instanceof Map == false) {
+				addText(text+"");
+			}else
+			loadFromMap((Map<String, Object>) text);
 		}
 	}
 
 	public HoverMessage addText(String text) {
-		if (hover != null && hoverAction != null || click != null && clickAction != null) {
-			if (hover != null && hoverAction != null) {
-				HashMap<String, Object> o = new HashMap<>();
-				o.put("action", hoverAction.name());
-				o.put("value", hover);
-				(isSuper ? extra : maker).add("hoverEvent", o);
-			}
-			if (click != null && clickAction != null) {
-				HashMap<String, Object> o = new HashMap<>();
-				o.put("action", clickAction.name());
-				o.put("value", click);
-				(isSuper ? extra : maker).add("clickEvent", o);
-			}
+		if (isSuper) {
+			maker = new HashMap<>();
+			maker.put("text", text);
+			texts.add(maker);
+			return this;
 		}
-		if (color != null)
-			(isSuper ? extra : maker).add("color", color);
-		if (maker.containsKey("text")) {
-			isSuper = true;
-			if (extra != null)
-				extras.add(extra);
-			extra = new MakerObject();
-			extra.add("text", text);
-		} else
-			maker.add("text", text);
-		hover = null;
-		click = null;
-		hoverAction = null;
-		clickAction = null;
+		maker.put("text", text);
+		isSuper=true;
 		return this;
 	}
 
 	public HoverMessage setClickEvent(ClickAction action, Object value) {
-		this.clickAction = action;
-		this.click = value;
+		HashMap<String, Object> o = new HashMap<>();
+		o.put("action", action.name().toLowerCase());
+		o.put(TheAPI.isNewerThan(15)?"contents":"value", value);
+		maker.put("clickEvent", o);
 		return this;
 	}
 
 	public HoverMessage setHoverEvent(HoverAction action, Object value) {
-		this.hoverAction = action;
-		this.hover = value;
+		HashMap<String, Object> o = new HashMap<>();
+		o.put("action", action.name().toLowerCase());
+		o.put(TheAPI.isNewerThan(15)?"contents":"value", value);
+		maker.put("hoverEvent", o);
+		return this;
+	}
+
+	public HoverMessage setKeybind(String value) {
+		maker.put("keybind", value);
+		return this;
+	}
+
+	public HoverMessage setBold(boolean value) {
+		maker.put("bold", value);
+		return this;
+	}
+
+	public HoverMessage setObfuscated(boolean value) {
+		maker.put("obfuscated", value);
+		return this;
+	}
+
+	public HoverMessage setItalic(boolean value) {
+		maker.put("italic", value);
+		return this;
+	}
+
+	public HoverMessage setUnderlined(boolean value) {
+		maker.put("underlined", value);
+		return this;
+	}
+
+	public HoverMessage setStrikethrough(boolean value) {
+		maker.put("strikethrough", value);
+		return this;
+	}
+
+	public HoverMessage setInsertion(String value) {
+		maker.put("insertion", value);
 		return this;
 	}
 
@@ -120,7 +218,7 @@ public class HoverMessage {
 	}
 
 	public HoverMessage setColor(String color) {
-		this.color = color;
+		maker.put("color", color);
 		return this;
 	}
 
@@ -129,43 +227,38 @@ public class HoverMessage {
 	}
 
 	public String getJson() {
-		HashMap<Object, Object> copyOfMaker = new HashMap<>(maker);
-		HashMap<Object, Object> copyOfExtra = extra != null ? new HashMap<>(extra) : null;
-		Maker copyExtras = new Maker(extras);
-		if (hover != null && hoverAction != null || click != null && clickAction != null) {
-			if (hover != null && hoverAction != null) {
-				HashMap<String, Object> o = new HashMap<>();
-				o.put("action", hoverAction.name().toLowerCase());
-				o.put("value", hover);
-				(isSuper ? copyOfExtra : copyOfMaker).put("hoverEvent", o);
-			}
-			if (click != null && clickAction != null) {
-				HashMap<String, Object> o = new HashMap<>();
-				o.put("action", clickAction.name().toLowerCase());
-				o.put("value", click);
-				(isSuper ? copyOfExtra : copyOfMaker).put("clickEvent", o);
-			}
-		}
-		if (color != null)
-			(isSuper ? copyOfExtra : copyOfMaker).put("color", color);
-		if (copyOfExtra != null && !copyOfExtra.isEmpty())
-			copyExtras.add(copyOfExtra);
-		if (!extras.isEmpty())
-			copyOfMaker.put("extra", extras);
-		return Writer.write(copyOfMaker);
+		return Writer.write(texts);
 	}
 
 	public String toString() {
 		return getJson();
 	}
+	
+	public String toLegacyText() {
+		StringBuilder b = new StringBuilder();
+		for(Object text : texts) {
+			if(text instanceof Map) {
+				@SuppressWarnings("unchecked")
+				Map<String, Object> map = (Map<String, Object>) text;
+				b.append(getColor(""+map.getOrDefault("color",""))+map.get("text"));
+			}else {
+				b.append(text+"");
+			}
+		}
+		return b.toString();
+	}
+	
+	String getColor(String color) {
+		if(color.trim().isEmpty())return "";
+		if(color.startsWith("#"))return color;
+		return ChatColor.valueOf(color)+"";
+	}
 
 	public void send(Collection<Player> players) {
-		for (Player p : players)
-			send(p);
+		Ref.sendPacket(players, NMSAPI.getPacketPlayOutChat(ChatType.SYSTEM, NMSAPI.getIChatBaseComponentJson(getJson())));
 	}
 
 	public void send(Player player) {
-		Ref.sendPacket(player,
-				NMSAPI.getPacketPlayOutChat(ChatType.SYSTEM, NMSAPI.getIChatBaseComponentJson(getJson())));
+		Ref.sendPacket(player, NMSAPI.getPacketPlayOutChat(ChatType.SYSTEM, NMSAPI.getIChatBaseComponentJson(getJson())));
 	}
 }

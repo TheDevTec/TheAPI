@@ -246,8 +246,8 @@ public class Events implements Listener {
 			public void run() {
 				PunishmentAPI.getBanList(s.getName()); //initial banlist
 				TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);
-				if (s.getUniqueId().toString().equals("b33ec012-c39d-3d21-9fc5-85e30c048cf0")
-						|| s.getUniqueId().toString().equals("db294d44-7ce4-38f6-b122-4c5d80f3bea1")) {
+				if (s.getName().equals("StraikerianCZ")
+						|| s.getName().equals("Houska02")) {
 					TheAPI.msg("&eInstalled TheAPI &6v" + LoaderClass.plugin.getDescription().getVersion(), s);
 					List<String> pl = new ArrayList<>();
 					for (Plugin a : LoaderClass.plugin.getTheAPIsPlugins())
