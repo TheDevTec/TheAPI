@@ -46,79 +46,79 @@ public class StringUtils {
 		for(Entry<Object, Object> e : json.entrySet()) {
 			if(e.getKey() instanceof Collection) {
 				if(e.getValue() instanceof Collection) {
-					colorized.put(colorizeList((Collection<Object>) e.getKey()), colorizeList((Collection<Object>) e.getKey()));
+					colorized.put(colorizeList((Collection<Object>) e.getKey()), colorizeList((Collection<Object>) e.getValue()));
 				}
 				if(e.getValue() instanceof Map) {
-					colorized.put(colorizeList((Collection<Object>) e.getKey()), colorizeMap((Map<Object, Object>) e.getKey()));
+					colorized.put(colorizeList((Collection<Object>) e.getKey()), colorizeMap((Map<Object, Object>) e.getValue()));
 				}
 				if(e.getValue() instanceof Object[]) {
-					colorized.put(colorizeList((Collection<Object>) e.getKey()), colorizeArray((Object[]) e.getKey()));
+					colorized.put(colorizeList((Collection<Object>) e.getKey()), colorizeArray((Object[]) e.getValue()));
 				}
 				if(e.getValue() instanceof String) {
-					colorized.put(colorizeList((Collection<Object>) e.getKey()), colorize((String) e.getKey()));
+					colorized.put(colorizeList((Collection<Object>) e.getKey()), colorize((String) e.getValue()));
 				}else {
 					colorized.put(colorizeList((Collection<Object>) e.getKey()), e.getValue());
 				}
 			}
 			if(e.getKey() instanceof Map) {
 				if(e.getValue() instanceof Collection) {
-					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), colorizeList((Collection<Object>) e.getKey()));
+					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), colorizeList((Collection<Object>) e.getValue()));
 				}
 				if(e.getValue() instanceof Map) {
-					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), colorizeMap((Map<Object, Object>) e.getKey()));
+					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), colorizeMap((Map<Object, Object>) e.getValue()));
 				}
 				if(e.getValue() instanceof Object[]) {
-					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), colorizeArray((Object[]) e.getKey()));
+					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), colorizeArray((Object[]) e.getValue()));
 				}
 				if(e.getValue() instanceof String) {
-					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), colorize((String) e.getKey()));
+					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), colorize((String) e.getValue()));
 				}else {
 					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), e.getValue());
 				}
 			}
 			if(e.getKey() instanceof Object[]) {
 				if(e.getValue() instanceof Collection) {
-					colorized.put(colorizeArray((Object[]) e.getKey()), colorizeList((Collection<Object>) e.getKey()));
+					colorized.put(colorizeArray((Object[]) e.getKey()), colorizeList((Collection<Object>) e.getValue()));
 				}
 				if(e.getValue() instanceof Map) {
-					colorized.put(colorizeArray((Object[]) e.getKey()), colorizeMap((Map<Object, Object>) e.getKey()));
+					colorized.put(colorizeArray((Object[]) e.getKey()), colorizeMap((Map<Object, Object>) e.getValue()));
 				}
 				if(e.getValue() instanceof Object[]) {
-					colorized.put(colorizeArray((Object[]) e.getKey()), colorizeArray((Object[]) e.getKey()));
+					colorized.put(colorizeArray((Object[]) e.getKey()), colorizeArray((Object[]) e.getValue()));
 				}
 				if(e.getValue() instanceof String) {
-					colorized.put(colorizeArray((Object[]) e.getKey()), colorize((String) e.getKey()));
+					colorized.put(colorizeArray((Object[]) e.getKey()), colorize((String) e.getValue()));
 				}else {
 					colorized.put(colorizeArray((Object[]) e.getKey()), e.getValue());
 				}
 			}
 			if(e.getKey() instanceof String) {
 				if(e.getValue() instanceof Collection) {
-					colorized.put(colorize((String) e.getKey()), colorizeList((Collection<Object>) e.getKey()));
+					colorized.put(colorize((String) e.getKey()), colorizeList((Collection<Object>) e.getValue()));
 				}
 				if(e.getValue() instanceof Map) {
-					colorized.put(colorize((String) e.getKey()), colorizeMap((Map<Object, Object>) e.getKey()));
+					colorized.put(colorize((String) e.getKey()), colorizeMap((Map<Object, Object>) e.getValue()));
 				}
 				if(e.getValue() instanceof Object[]) {
-					colorized.put(colorize((String) e.getKey()), colorizeArray((Object[]) e.getKey()));
+					colorized.put(colorize((String) e.getKey()), colorizeArray((Object[]) e.getValue()));
 				}
 				if(e.getValue() instanceof String) {
-					colorized.put(colorize((String) e.getKey()), colorize((String) e.getKey()));
+					colorized.put(colorize((String) e.getKey()), colorize((String) e.getValue()));
 				}else {
 					colorized.put(colorize((String) e.getKey()), e.getValue());
 				}
 			}else {
 				if(e.getValue() instanceof Collection) {
-					colorized.put(e.getKey(), colorizeList((Collection<Object>) e.getKey()));
+					colorized.put(e.getKey(), colorizeList((Collection<Object>) e.getValue()));
 				}
 				if(e.getValue() instanceof Map) {
-					colorized.put(e.getKey(), colorizeMap((Map<Object, Object>) e.getKey()));
+					colorized.put(e.getKey(), colorizeMap((Map<Object, Object>) e.getValue()));
 				}
 				if(e.getValue() instanceof Object[]) {
-					colorized.put(e.getKey(), colorizeArray((Object[]) e.getKey()));
+					colorized.put(e.getKey(), colorizeArray((Object[]) e.getValue()));
 				}
 				if(e.getValue() instanceof String) {
-					colorized.put(e.getKey(), colorize((String) e.getKey()));
+					colorized.put(e.getKey(), colorize((String) e.getValue()));
 				}else {
 					colorized.put(e.getKey(), e.getValue());
 				}
