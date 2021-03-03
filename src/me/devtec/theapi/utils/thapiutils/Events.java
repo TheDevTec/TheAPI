@@ -16,10 +16,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
@@ -27,7 +23,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import me.devtec.theapi.TheAPI;
@@ -36,8 +31,6 @@ import me.devtec.theapi.apis.SignAPI;
 import me.devtec.theapi.apis.SignAPI.SignAction;
 import me.devtec.theapi.bossbar.BossBar;
 import me.devtec.theapi.configapi.Config;
-import me.devtec.theapi.guiapi.GUI;
-import me.devtec.theapi.guiapi.ItemGUI;
 import me.devtec.theapi.punishmentapi.PlayerBanList;
 import me.devtec.theapi.punishmentapi.PlayerBanList.PunishmentType;
 import me.devtec.theapi.punishmentapi.PunishmentAPI;
@@ -78,55 +71,6 @@ public class Events implements Listener {
 		}
 	}
 	
-	@EventHandler
-	public synchronized void onClose(InventoryCloseEvent e) {
-		Player p = (Player) e.getPlayer();
-		GUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(), null);
-		if (d == null)
-			return;
-		LoaderClass.plugin.gui.remove(p.getName());
-		d.onClose(p);
-	}
-
-	@EventHandler
-	public synchronized void onClick(InventoryClickEvent e) {
-		if (e.isCancelled())
-			return;
-		Player p = (Player) e.getWhoClicked();
-		GUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(), null);
-		if (d == null)
-			return;
-		if (e.getClick() == ClickType.NUMBER_KEY) {
-			e.setCancelled(true);
-			return;
-		}
-		ItemStack i = e.getCurrentItem();
-		if (i == null)
-			return;
-		if (e.getClickedInventory().getType() == InventoryType.PLAYER) {
-			if (!d.isInsertable()) {
-				e.setCancelled(true);
-				return;
-			}
-		}
-		if (e.getClickedInventory().getType() != InventoryType.PLAYER) {
-			ItemGUI a = d.getItemGUI(e.getSlot());
-			if (a != null) {
-				if (a.isUnstealable()) {
-					e.setCancelled(true);
-				}
-				a.onClick(p, d, e.getClick());
-			}
-		}
-		if (!e.isCancelled()) {
-			if (e.getClickedInventory().getType() == InventoryType.PLAYER) {
-				e.setCancelled(d.onPutItem(p, i, e.getSlot()));
-			} else {
-				e.setCancelled(d.onTakeItem(p, i, e.getSlot()));
-			}
-		}
-	}
-
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onClick(PlayerInteractEvent e) {
 		if (e.isCancelled())

@@ -7,13 +7,13 @@ import java.util.Map.Entry;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.apis.ItemCreatorAPI;
 import me.devtec.theapi.apis.PluginManagerAPI;
 import me.devtec.theapi.bossbar.BossBar;
 import me.devtec.theapi.guiapi.GUI;
+import me.devtec.theapi.guiapi.GUI.ClickType;
 import me.devtec.theapi.guiapi.ItemGUI;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.sortedmap.RankingAPI;

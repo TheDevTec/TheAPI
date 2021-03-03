@@ -3,6 +3,8 @@ package me.devtec.theapi.utils.thapiutils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,9 +23,8 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
@@ -31,6 +32,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -42,6 +44,7 @@ import me.devtec.theapi.bossbar.BossBar;
 import me.devtec.theapi.configapi.Config;
 import me.devtec.theapi.economyapi.EconomyAPI;
 import me.devtec.theapi.guiapi.GUI;
+import me.devtec.theapi.guiapi.ItemGUI;
 import me.devtec.theapi.placeholderapi.PlaceholderAPI;
 import me.devtec.theapi.placeholderapi.PlaceholderPreRegister;
 import me.devtec.theapi.placeholderapi.ThePlaceholder;
@@ -49,7 +52,6 @@ import me.devtec.theapi.placeholderapi.ThePlaceholderAPI;
 import me.devtec.theapi.scheduler.Scheduler;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.sockets.Client;
-import me.devtec.theapi.sockets.Reader;
 import me.devtec.theapi.sockets.Server;
 import me.devtec.theapi.sockets.ServerClient;
 import me.devtec.theapi.utils.StreamUtils;
@@ -59,9 +61,11 @@ import me.devtec.theapi.utils.datakeeper.DataType;
 import me.devtec.theapi.utils.datakeeper.User;
 import me.devtec.theapi.utils.listener.events.ClientReceiveMessaveEvent;
 import me.devtec.theapi.utils.listener.events.ServerReceiveMessaveEvent;
+import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.packetlistenerapi.PacketHandler;
 import me.devtec.theapi.utils.packetlistenerapi.PacketHandler_New;
 import me.devtec.theapi.utils.packetlistenerapi.PacketHandler_Old;
+import me.devtec.theapi.utils.packetlistenerapi.PacketListener;
 import me.devtec.theapi.utils.packetlistenerapi.PacketManager;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.thapiutils.LoggerManager.BukkitLogger;
@@ -103,14 +107,108 @@ public class LoaderClass extends JavaPlugin {
 			b.append(r.nextBoolean() ? (a[TheAPI.generateRandomInt(len)]) : (Character.toUpperCase(a[TheAPI.generateRandomInt(len)])));
 		return b.toString();
 	}
+
+	static enum InventoryClickType {
+		PICKUP, QUICK_MOVE, SWAP, CLONE, THROW, QUICK_CRAFT, PICKUP_ALL;
+	}
 	
 	@Override
 	public void onLoad() {
 		plugin = this;
+		new PacketListener() {
+			
+			@Override
+			public boolean PacketPlayOut(String player, Object packet, Object channel) {
+				return false;
+			}
+			
+			Map<String, ItemStack> holding = new HashMap<>();
+			Method getSlot = Ref.method(Ref.nms("Container"), "getSlot", int.class);
+			Constructor<?> setSlot = Ref.constructor(Ref.nms("PacketPlayOutSetSlot"), int.class, int.class, Ref.nms("ItemStack"));
+			@Override
+			public boolean PacketPlayIn(String player, Object packet, Object channel) {
+				//GUIS
+				if(packet.toString().contains("PacketPlayInCloseWindow")) {
+					int id = (int) Ref.get(packet, "id");
+					Player p = (Player) TheAPI.getPlayer(player);
+					GUI d = LoaderClass.plugin.gui.getOrDefault(p.getName()+":"+id, null);
+					if (d == null)
+						return false;
+					LoaderClass.plugin.gui.remove(p.getName());
+					d.onClose(p);
+					return true;
+				}
+				if(packet.toString().contains("PacketPlayInWindowClick")) {
+					int id = (int) Ref.get(packet, "a");
+					int mouseClick = (int) Ref.get(packet, "button");
+					int slot = (int) Ref.get(packet, "slot");
+					Player p = (Player) TheAPI.getPlayer(player);
+					GUI d = LoaderClass.plugin.gui.getOrDefault(p.getName()+":"+id, null);
+					if (d == null)
+						return false;
+					InventoryClickType type = null;
+					if(Ref.get(packet, "shift") instanceof Integer) {
+						type=InventoryClickType.values()[(int)Ref.get(packet, "shift")];
+					}else {
+						type=InventoryClickType.valueOf(Ref.get(packet, "shift").toString());
+					}
+					if(InventoryClickType.PICKUP==type && slot==-999||slot<0||InventoryClickType.SWAP==type||InventoryClickType.PICKUP_ALL==type) {
+						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(Ref.get(Ref.player(p), "activeContainer"), getSlot, slot),"getItem")));
+						Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(p.getItemOnCursor())));
+		                return true;
+					}
+					ItemStack i = NMSAPI.asBukkitItem(Ref.get(packet, "item"));
+					if(type==InventoryClickType.QUICK_MOVE) {
+						if(slot < d.getSize())i=d.getItem(slot%d.getSize());
+						else
+						i=NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(Ref.get(Ref.player(p), "activeContainer"), getSlot, slot),"getItem"));
+					}
+					ItemStack before = holding.get(player);
+					if((before==null||before.getType()==Material.AIR)&&i.getType()==Material.AIR || type!=InventoryClickType.CLONE && type!=InventoryClickType.QUICK_MOVE && type!=InventoryClickType.QUICK_CRAFT && type!=InventoryClickType.PICKUP) {
+						if(type==InventoryClickType.QUICK_MOVE) {
+							Ref.invoke(Ref.player(p), Ref.method(Ref.nms("EntityPlayer"), "updateInventory", Ref.nms("Container")), Ref.get(Ref.player(p), "activeContainer"));
+						}else {
+							Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(Ref.get(Ref.player(p), "activeContainer"), getSlot, slot),"getItem")));
+							Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(p.getItemOnCursor())));
+						}
+						return true;
+					}
+					holding.put(player, i);
+					String action = i.getType()==Material.AIR && (type==InventoryClickType.PICKUP||type==InventoryClickType.QUICK_CRAFT)?"DROP":"PICKUP";
+					action=(mouseClick==0?"LEFT_":mouseClick==1?"RIGHT_":"MIDDLE_")+action;
+					if(type==InventoryClickType.QUICK_MOVE)
+					action="SHIFT_"+action;
+					boolean cancel = false;
+					if (slot < d.getSize()) {
+						if(action.contains("DROP"))
+							cancel = d.onPutItem(p, i, slot%d.getSize());
+						else
+							cancel = d.onTakeItem(p, i, slot%d.getSize());
+						ItemGUI a = d.getItemGUI(slot);
+						if (a != null) {
+							if (a.isUnstealable())
+								cancel=true;
+							a.onClick(p, d, me.devtec.theapi.guiapi.GUI.ClickType.valueOf(action));
+						}
+					}else
+						if (!d.isInsertable())
+							cancel=true;
+					if(cancel) {
+						if(type==InventoryClickType.QUICK_MOVE) {
+							Ref.invoke(Ref.player(p), Ref.method(Ref.nms("EntityPlayer"), "updateInventory", Ref.nms("Container")), Ref.get(Ref.player(p), "activeContainer"));
+						}else {
+							Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(Ref.get(Ref.player(p), "activeContainer"), getSlot, slot),"getItem")));
+							Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(p.getItemOnCursor())));
+						}
+					}
+					return cancel;
+				}
+				return false;
+			}
+		}.register();
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..",
-				TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8*****w***************", TheAPI.getConsole());
 		
 		//CONFIG
 		createConfig();
@@ -134,7 +232,7 @@ public class LoaderClass extends JavaPlugin {
 		if(sockets.getBoolean("Options.Enabled")) {
 			servers = new HashMap<>();
 			server=new Server(sockets.getString("Options.Password"), sockets.getInt("Options.Port"));
-			server.register(new Reader() {
+			server.register(new me.devtec.theapi.sockets.Reader() {
 				public void read(ServerClient client, Data data) {
 					TheAPI.callEvent(new ServerReceiveMessaveEvent(client, data));
 				}
@@ -152,7 +250,7 @@ public class LoaderClass extends JavaPlugin {
 		if(config.getBoolean("Options.ConsoleLogEvent")) {
 		try {
 			Class.forName("org.apache.logging.log4j.core.filter.AbstractFilter");
-			Logger logger = (Logger)LogManager.getRootLogger();
+			org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger)org.apache.logging.log4j.LogManager.getRootLogger();
 			logger.addFilter(new ConsoleLogger());
 		} catch (ClassNotFoundException e) {
 		}
@@ -221,7 +319,7 @@ public class LoaderClass extends JavaPlugin {
 					for (BossBar s : bars)
 						s.move();
 				}
-		}.runRepeating(0, 20);
+			}.runRepeating(0, 20);
 		
 		Data plugin = new Data();
 		for(Plugin e : Bukkit.getPluginManager().getPlugins()) {

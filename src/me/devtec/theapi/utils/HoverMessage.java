@@ -165,7 +165,7 @@ public class HoverMessage {
 	public HoverMessage setClickEvent(ClickAction action, Object value) {
 		HashMap<String, Object> o = new HashMap<>();
 		o.put("action", action.name().toLowerCase());
-		o.put(TheAPI.isNewerThan(15)?"contents":"value", value);
+		o.put("value", value);
 		maker.put("clickEvent", o);
 		return this;
 	}
@@ -173,7 +173,7 @@ public class HoverMessage {
 	public HoverMessage setHoverEvent(HoverAction action, Object value) {
 		HashMap<String, Object> o = new HashMap<>();
 		o.put("action", action.name().toLowerCase());
-		o.put(TheAPI.isNewerThan(15)?"contents":"value", value);
+		o.put("value", value);
 		maker.put("hoverEvent", o);
 		return this;
 	}

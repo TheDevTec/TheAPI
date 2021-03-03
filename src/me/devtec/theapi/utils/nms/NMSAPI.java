@@ -27,8 +27,8 @@ public class NMSAPI {
 	private static Method entityM, livingentity, oldichatser, post, notify,nofifyManual,
 	parseNbt = Ref.method(Ref.nms("MojangsonParser"), "parse", String.class),
 	getNbt=Ref.method(Ref.nms("ItemStack"), "getOrCreateTag"), setNbt=Ref.method(Ref.nms("ItemStack"), "setTag", Ref.nms("NBTTagCompound")),
-	asNms=Ref.method(Ref.nms("CraftItemStack"), "asNMSCopy", ItemStack.class), 
-	asBukkit=Ref.method(Ref.nms("CraftItemStack"), "asBukkitCopy", Ref.nms("ItemStack"));
+	asNms=Ref.method(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class), 
+	asBukkit=Ref.method(Ref.craft("inventory.CraftItemStack"), "asBukkitCopy", Ref.nms("ItemStack"));
 	
 	private static int old, not;
 	private static Field tps,getMap,getProvider;

@@ -36,7 +36,7 @@ public class Cache {
 			conn.connect();
 			return (String)((Map<String, Object>) Reader.read(StreamUtils.fromStream(conn.getInputStream()))).get("username");
 		}catch(Exception error) {}
-		return null;
+		return name;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -50,7 +50,7 @@ public class Cache {
 			conn.connect();
 			return UUID.fromString((String)((Map<String, Object>) Reader.read(StreamUtils.fromStream(conn.getInputStream()))).get("uuid"));
 		}catch(Exception error) {}
-		return null;
+		return UUID.nameUUIDFromBytes(("OfflinePlayer:"+name).getBytes(StandardCharsets.UTF_8));
 	}
 	
 	public String lookupNameById(UUID id){

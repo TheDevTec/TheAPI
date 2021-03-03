@@ -49,7 +49,6 @@ import me.devtec.theapi.sockets.Client;
 import me.devtec.theapi.sockets.Server;
 import me.devtec.theapi.sqlapi.SQLAPI;
 import me.devtec.theapi.utils.StringUtils;
-import me.devtec.theapi.utils.datakeeper.Storage;
 import me.devtec.theapi.utils.datakeeper.User;
 import me.devtec.theapi.utils.listener.Event;
 import me.devtec.theapi.utils.listener.HandlerList;
@@ -200,14 +199,6 @@ public class TheAPI {
 	 */
 	public static String colorize(String string) {
 		return StringUtils.colorize(string);
-	}
-
-	/**
-	 * @see see Create Inventory that can be used as Storage for Items or Sorter
-	 * @return Storage
-	 */
-	public static Storage getStorage() {
-		return new Storage();
 	}
 
 	/**
@@ -398,6 +389,16 @@ public class TheAPI {
 	public static List<Player> getOnlinePlayers() {
 		Object o = Ref.invokeNulled(m);
 		return new ArrayList<>(o instanceof Collection ? (Collection<Player>) o : Arrays.asList((Player[]) o));
+	}
+
+	/**
+	 * @see see Get random player from List<Player>
+	 * @return List<Player>
+	 */
+	@SuppressWarnings("unchecked")
+	public static int getOnlineCount() {
+		Object o = Ref.invokeNulled(m);
+		return o instanceof Collection ? ((Collection<Player>) o).size() : ((Player[]) o).length;
 	}
 
 	/**

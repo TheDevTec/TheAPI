@@ -18,6 +18,7 @@ import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.thapiutils.LoaderClass;
+import net.minecraft.server.v1_16_R3.NonNullList;
 
 public class GUI {
 	public static final int LINES_6 = 54;
@@ -26,6 +27,10 @@ public class GUI {
 	public static final int LINES_3 = 27;
 	public static final int LINES_2 = 18;
 	public static final int LINES_1 = 9;
+	
+	public static enum ClickType {
+		MIDDLE_PICKUP, MIDDLE_DROP, RIGHT_PICKUP, RIGHT_DROP, LEFT_PICKUP, SHIFT_LEFT_DROP, SHIFT_RIGHT_PICKUP, SHIFT_RIGHT_DROP, SHIFT_LEFT_PICKUP
+	}
 	
 	private String title;
 	private final Map<Integer, ItemGUI> items = new HashMap<>();
@@ -179,12 +184,14 @@ public class GUI {
 	 */
 	public final void open(Player... players) {
 		for (Player player : players) {
-			if (LoaderClass.plugin.gui.containsKey(player.getName())) {
-				GUI a = LoaderClass.plugin.gui.get(player.getName());
-				LoaderClass.plugin.gui.remove(player.getName());
+			int window = containers.containsKey(player)?(int) Ref.get(containers.get(player), "windowId"):-1;
+			if (LoaderClass.plugin.gui.containsKey(player.getName()+":"+window)) {
+				GUI a = LoaderClass.plugin.gui.get(player.getName()+":"+window);
+				LoaderClass.plugin.gui.remove(player.getName()+":"+window);
 				a.onClose(player);
 			}
-			Object container = Ref.newInstance(containerClass, inv, Ref.player(player), Ref.invoke(Ref.player(player), "nextContainerCounter"));
+			int id = (int) Ref.invoke(Ref.player(player), "nextContainerCounter");
+			Object container = Ref.newInstance(containerClass, inv, Ref.player(player), id);
 			Object active = Ref.get(Ref.player(player), "activeContainer");
 			Ref.invoke(active, transfer, container, Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
 			if(TheAPI.isOlderThan(8)) {
@@ -199,7 +206,7 @@ public class GUI {
 			Ref.set(container, "checkReachable", false);
 			inv.getViewers().add(player);
 			containers.put(player, container);
-			LoaderClass.plugin.gui.put(player.getName(), this);
+			LoaderClass.plugin.gui.put(player.getName()+":"+id, this);
 		}
 	}
 	
@@ -286,7 +293,7 @@ public class GUI {
 				Ref.invoke(ac, transfer, Ref.get(Ref.player(player), "defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
 			}
 			inv.getViewers().remove(player);
-			LoaderClass.plugin.gui.remove(player.getName());
+			LoaderClass.plugin.gui.remove(player.getName()+":"+Ref.get(ac, "windowId"));
 			onClose(player);
 		}
 	}
@@ -297,5 +304,14 @@ public class GUI {
 			items += "/" + g + ":" + getItemGUIs().get(g).toString();
 		}
 		return "[GUI:" + title + "/" + put + "/" + inv.getSize() + items + "]";
+	}
+
+	public int getSize() {
+		return inv.getSize();
+	}
+
+	@SuppressWarnings("unchecked")
+	public NonNullList<net.minecraft.server.v1_16_R3.ItemStack> getNMSItems() {
+		return (NonNullList<net.minecraft.server.v1_16_R3.ItemStack>) Ref.get(Ref.get(containers.values().iterator().next(),"delegate"),"items");
 	}
 }

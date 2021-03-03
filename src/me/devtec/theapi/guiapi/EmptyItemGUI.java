@@ -1,8 +1,9 @@
 package me.devtec.theapi.guiapi;
 
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+
+import me.devtec.theapi.guiapi.GUI.ClickType;
 
 public class EmptyItemGUI extends ItemGUI {
 	
