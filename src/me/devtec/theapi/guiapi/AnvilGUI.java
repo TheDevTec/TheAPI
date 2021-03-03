@@ -30,7 +30,6 @@ public class AnvilGUI implements HolderGUI {
 	public AnvilGUI(String title, Player... p) {
 		title=StringUtils.colorize(title);
 		this.title=title;
-		windowType = Ref.getStatic(Ref.nms("Containers"), "ANVIL");
 		open(p);
 	}
 
@@ -123,7 +122,7 @@ public class AnvilGUI implements HolderGUI {
 		}
 	}
 	private static Method transfer=Ref.method(Ref.nms("Container"),"transferTo", Ref.nms("Container"), Ref.craft("entity.CraftHumanEntity"));
-	private Object windowType;
+	private static Object windowType = Ref.getStatic(Ref.nms("Containers"), "ANVIL");
 	private final int size=2;
 	private static Object zero = new Position("world",0,0,0).getBlockPosition();
 	
