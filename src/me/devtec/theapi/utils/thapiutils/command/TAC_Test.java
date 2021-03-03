@@ -14,6 +14,7 @@ import me.devtec.theapi.apis.PluginManagerAPI;
 import me.devtec.theapi.bossbar.BossBar;
 import me.devtec.theapi.guiapi.GUI;
 import me.devtec.theapi.guiapi.GUI.ClickType;
+import me.devtec.theapi.guiapi.HolderGUI;
 import me.devtec.theapi.guiapi.ItemGUI;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.sortedmap.RankingAPI;
@@ -55,7 +56,7 @@ public class TAC_Test {
 								: ItemCreatorAPI.create(a, 1, "&7", 15)) {
 
 					@Override
-					public void onClick(Player player, GUI gui, ClickType click) {
+					public void onClick(Player player, HolderGUI gui, ClickType click) {
 
 					}
 				};
@@ -76,7 +77,7 @@ public class TAC_Test {
 										"  &e» &7Owner of TheAPI is DevTec"))) {
 
 							@Override
-							public void onClick(Player player, GUI gui, ClickType click) {
+							public void onClick(Player player, HolderGUI gui, ClickType click) {
 								TheAPI.msg("&0[&cTheAPI&0] &eWho created TheAPI?", player);
 								TheAPI.msg("  &e» &7Creator of TheAPI is StraikerinaCZ", player);
 								TheAPI.msg("  &e» &7Owner of TheAPI is DevTec", player);
@@ -90,7 +91,7 @@ public class TAC_Test {
 										"  &e» &7Github: https://github.com/TheDevTec/TheAPI"))) {
 
 							@Override
-							public void onClick(Player player, GUI gui, ClickType click) {
+							public void onClick(Player player, HolderGUI gui, ClickType click) {
 								TheAPI.msg("&0[&cTheAPI&0] &eWhere report bug?", player);
 								TheAPI.msg("  &e» &7On our discord or github", player);
 								TheAPI.msg("  &e» &7Discord: https://discord.gg/z4kK66g", player);
@@ -104,7 +105,7 @@ public class TAC_Test {
 										"  &e» &7GUI #1: https://pastebin.com/PGPwKxRz"))) {
 
 							@Override
-							public void onClick(Player player, GUI gui, ClickType click) {
+							public void onClick(Player player, HolderGUI gui, ClickType click) {
 								TheAPI.msg("&0[&cTheAPI&0] &eAre somewhere examples of GUIs?", player);
 								TheAPI.msg("  &e» &7GUI Slots: https://i.imgur.com/f43qxux.png", player);
 								TheAPI.msg("  &e» &7GUI #1: https://pastebin.com/PGPwKxRz", player);
@@ -117,7 +118,7 @@ public class TAC_Test {
 										: Material.getMaterial("BARRIER"), 1, "&cClose")) {
 
 							@Override
-							public void onClick(Player player, GUI gui, ClickType click) {
+							public void onClick(Player player, HolderGUI gui, ClickType click) {
 								gui.close(player);
 							}
 						});

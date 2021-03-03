@@ -43,7 +43,8 @@ import me.devtec.theapi.apis.PluginManagerAPI;
 import me.devtec.theapi.bossbar.BossBar;
 import me.devtec.theapi.configapi.Config;
 import me.devtec.theapi.economyapi.EconomyAPI;
-import me.devtec.theapi.guiapi.GUI;
+import me.devtec.theapi.guiapi.AnvilGUI;
+import me.devtec.theapi.guiapi.HolderGUI;
 import me.devtec.theapi.guiapi.ItemGUI;
 import me.devtec.theapi.placeholderapi.PlaceholderAPI;
 import me.devtec.theapi.placeholderapi.PlaceholderPreRegister;
@@ -77,7 +78,7 @@ import net.milkbowl.vault.economy.Economy;
 public class LoaderClass extends JavaPlugin {
 	public final static Map<String, String> colorMap = new HashMap<>();
 	// GUIs
-	public final Map<String, GUI> gui = new HashMap<>();
+	public final Map<String, HolderGUI> gui = new HashMap<>();
 	// BossBars
 	public final Set<BossBar> bars = new HashSet<>();
 	// TheAPI
@@ -121,17 +122,17 @@ public class LoaderClass extends JavaPlugin {
 			public boolean PacketPlayOut(String player, Object packet, Object channel) {
 				return false;
 			}
-			
-			Map<String, ItemStack> holding = new HashMap<>();
+
 			Method getSlot = Ref.method(Ref.nms("Container"), "getSlot", int.class);
-			Constructor<?> setSlot = Ref.constructor(Ref.nms("PacketPlayOutSetSlot"), int.class, int.class, Ref.nms("ItemStack"));
+			Constructor<?> setSlot = Ref.constructor(Ref.nms("PacketPlayOutSetSlot"), int.class, int.class, Ref.nms("ItemStack"))
+					,equipment = Ref.constructor(Ref.nms("PacketPlayOutEntityEquipment"), int.class, List.class);
+			Object OFFHAND = Ref.getStatic(Ref.nms("EnumItemSlot"),"OFFHAND");
 			@Override
 			public boolean PacketPlayIn(String player, Object packet, Object channel) {
 				//GUIS
 				if(packet.toString().contains("PacketPlayInCloseWindow")) {
-					int id = (int) Ref.get(packet, "id");
 					Player p = (Player) TheAPI.getPlayer(player);
-					GUI d = LoaderClass.plugin.gui.getOrDefault(p.getName()+":"+id, null);
+					HolderGUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(), null);
 					if (d == null)
 						return false;
 					LoaderClass.plugin.gui.remove(p.getName());
@@ -143,7 +144,7 @@ public class LoaderClass extends JavaPlugin {
 					int mouseClick = (int) Ref.get(packet, "button");
 					int slot = (int) Ref.get(packet, "slot");
 					Player p = (Player) TheAPI.getPlayer(player);
-					GUI d = LoaderClass.plugin.gui.getOrDefault(p.getName()+":"+id, null);
+					HolderGUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(), null);
 					if (d == null)
 						return false;
 					InventoryClickType type = null;
@@ -152,53 +153,76 @@ public class LoaderClass extends JavaPlugin {
 					}else {
 						type=InventoryClickType.valueOf(Ref.get(packet, "shift").toString());
 					}
-					if(InventoryClickType.PICKUP==type && slot==-999||slot<0||InventoryClickType.SWAP==type||InventoryClickType.PICKUP_ALL==type) {
+					if(InventoryClickType.THROW==type)return false;
+					if(InventoryClickType.PICKUP==type && slot==-999||InventoryClickType.SWAP==type) {
+						if(slot==-999)return false;
 						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(Ref.get(Ref.player(p), "activeContainer"), getSlot, slot),"getItem")));
+						if(mouseClick == 40) {
+							final List<com.mojang.datafixers.util.Pair<?,?>> equipmentList = new ArrayList<>();
+							equipmentList.add(new com.mojang.datafixers.util.Pair<>(OFFHAND, NMSAPI.asNMSItem(p.getEquipment().getItemInOffHand())));
+							Ref.sendPacket(p,Ref.newInstance(equipment, p.getEntityId(), equipmentList));
+						}else
+						Ref.sendPacket(p,Ref.newInstance(setSlot,id, (36+d.size())-9+mouseClick, NMSAPI.asNMSItem(p.getInventory().getItem(mouseClick))));
 						Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(p.getItemOnCursor())));
-		                return true;
-					}
-					ItemStack i = NMSAPI.asBukkitItem(Ref.get(packet, "item"));
-					if(type==InventoryClickType.QUICK_MOVE) {
-						if(slot < d.getSize())i=d.getItem(slot%d.getSize());
-						else
-						i=NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(Ref.get(Ref.player(p), "activeContainer"), getSlot, slot),"getItem"));
-					}
-					ItemStack before = holding.get(player);
-					if((before==null||before.getType()==Material.AIR)&&i.getType()==Material.AIR || type!=InventoryClickType.CLONE && type!=InventoryClickType.QUICK_MOVE && type!=InventoryClickType.QUICK_CRAFT && type!=InventoryClickType.PICKUP) {
-						if(type==InventoryClickType.QUICK_MOVE) {
-							Ref.invoke(Ref.player(p), Ref.method(Ref.nms("EntityPlayer"), "updateInventory", Ref.nms("Container")), Ref.get(Ref.player(p), "activeContainer"));
-						}else {
-							Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(Ref.get(Ref.player(p), "activeContainer"), getSlot, slot),"getItem")));
-							Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(p.getItemOnCursor())));
+						if (slot < d.size()) {
+							ItemGUI a = d.getItemGUI(slot);
+							if (a != null) {
+								a.onClick(p, d, me.devtec.theapi.guiapi.GUI.ClickType.LEFT_PICKUP);
+							}
 						}
 						return true;
 					}
-					holding.put(player, i);
+					ItemStack i = NMSAPI.asBukkitItem(Ref.get(packet, "item"));
+					if(type==InventoryClickType.QUICK_MOVE && i.getType()==Material.AIR)
+						i=NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(Ref.get(Ref.player(p), "activeContainer"), getSlot, slot),"getItem"));
+					ItemStack before = p.getItemOnCursor();
+					if(type!=InventoryClickType.PICKUP_ALL)
+					if(before.getType()==Material.AIR&&i.getType()==Material.AIR || type!=InventoryClickType.CLONE && type!=InventoryClickType.QUICK_MOVE && type!=InventoryClickType.QUICK_CRAFT && type!=InventoryClickType.PICKUP) {
+						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(Ref.get(Ref.player(p), "activeContainer"), getSlot, slot),"getItem")));
+						Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));
+						return true;
+					}
 					String action = i.getType()==Material.AIR && (type==InventoryClickType.PICKUP||type==InventoryClickType.QUICK_CRAFT)?"DROP":"PICKUP";
 					action=(mouseClick==0?"LEFT_":mouseClick==1?"RIGHT_":"MIDDLE_")+action;
 					if(type==InventoryClickType.QUICK_MOVE)
 					action="SHIFT_"+action;
 					boolean cancel = false;
-					if (slot < d.getSize()) {
+					if (slot < d.size()) {
 						if(action.contains("DROP"))
-							cancel = d.onPutItem(p, i, slot%d.getSize());
+							cancel = d.onPutItem(p, i, slot%d.size());
 						else
-							cancel = d.onTakeItem(p, i, slot%d.getSize());
+							cancel = d.onTakeItem(p, i, slot%d.size());
 						ItemGUI a = d.getItemGUI(slot);
 						if (a != null) {
 							if (a.isUnstealable())
 								cancel=true;
 							a.onClick(p, d, me.devtec.theapi.guiapi.GUI.ClickType.valueOf(action));
 						}
+						if(!cancel && d instanceof AnvilGUI) {
+							if(action.contains("DROP") && slot < 2) {
+							if(d.getItemGUI(slot)==null) 
+								((AnvilGUI) d).getInventory().put(slot, i);
+							}else if(action.contains("PICKUP")) {
+								if(slot==2) {
+									((AnvilGUI) d).getInventory().remove(0);
+									((AnvilGUI) d).getItemGUIs().remove(0);
+									((AnvilGUI) d).getInventory().remove(1);
+									((AnvilGUI) d).getItemGUIs().remove(1);
+								}
+								((AnvilGUI) d).getInventory().remove(slot);
+								((AnvilGUI) d).getItemGUIs().remove(slot);
+							}
+						}
 					}else
-						if (!d.isInsertable())
+						if(!d.isInsertable())
 							cancel=true;
+						if(!cancel && slot%d.size()!=2 && d instanceof AnvilGUI)((AnvilGUI) d).getInventory().put(slot%d.size(), i);
 					if(cancel) {
 						if(type==InventoryClickType.QUICK_MOVE) {
 							Ref.invoke(Ref.player(p), Ref.method(Ref.nms("EntityPlayer"), "updateInventory", Ref.nms("Container")), Ref.get(Ref.player(p), "activeContainer"));
 						}else {
 							Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(Ref.get(Ref.player(p), "activeContainer"), getSlot, slot),"getItem")));
-							Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(p.getItemOnCursor())));
+							Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));
 						}
 					}
 					return cancel;
@@ -208,7 +232,7 @@ public class LoaderClass extends JavaPlugin {
 		}.register();
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &8*****w***************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		
 		//CONFIG
 		createConfig();
@@ -571,7 +595,7 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		
 		//GUI
-		for (Entry<String, GUI> p : gui.entrySet()) {
+		for (Entry<String, HolderGUI> p : gui.entrySet()) {
 			p.getValue().clear();
 			p.getValue().close();
 		}

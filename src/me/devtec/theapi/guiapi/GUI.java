@@ -2,9 +2,8 @@ package me.devtec.theapi.guiapi;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
@@ -18,9 +17,8 @@ import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.thapiutils.LoaderClass;
-import net.minecraft.server.v1_16_R3.NonNullList;
 
-public class GUI {
+public class GUI implements HolderGUI {
 	public static final int LINES_6 = 54;
 	public static final int LINES_5 = 45;
 	public static final int LINES_4 = 36;
@@ -53,9 +51,10 @@ public class GUI {
 			size = 54;
 		else
 			size = 9;
+		title=StringUtils.colorize(title);
+		this.title=title;
 		inv = Bukkit.createInventory(null, size, this.title);
 		windowType = Ref.invokeStatic(getType, inv);
-		setTitle(title);
 		open(p);
 	}
 
@@ -75,6 +74,10 @@ public class GUI {
 	}
 
 	public final String getName() {
+		return title;
+	}
+
+	public final String getTitle() {
 		return title;
 	}
 
@@ -184,10 +187,9 @@ public class GUI {
 	 */
 	public final void open(Player... players) {
 		for (Player player : players) {
-			int window = containers.containsKey(player)?(int) Ref.get(containers.get(player), "windowId"):-1;
-			if (LoaderClass.plugin.gui.containsKey(player.getName()+":"+window)) {
-				GUI a = LoaderClass.plugin.gui.get(player.getName()+":"+window);
-				LoaderClass.plugin.gui.remove(player.getName()+":"+window);
+			if (LoaderClass.plugin.gui.containsKey(player.getName())) {
+				HolderGUI a = LoaderClass.plugin.gui.get(player.getName());
+				LoaderClass.plugin.gui.remove(player.getName());
 				a.onClose(player);
 			}
 			int id = (int) Ref.invoke(Ref.player(player), "nextContainerCounter");
@@ -204,9 +206,8 @@ public class GUI {
 			Ref.set(Ref.player(player), "activeContainer", container);
 			Ref.invoke(container, Ref.method(Ref.nms("Container"), "addSlotListener", Ref.nms("ICrafting")), Ref.cast(Ref.nms("ICrafting"), Ref.player(player)));
 			Ref.set(container, "checkReachable", false);
-			inv.getViewers().add(player);
 			containers.put(player, container);
-			LoaderClass.plugin.gui.put(player.getName()+":"+id, this);
+			LoaderClass.plugin.gui.put(player.getName(), this);
 		}
 	}
 	
@@ -231,10 +232,6 @@ public class GUI {
 		}
 	}
 	
-	public final String getTitle() {
-		return title;
-	}
-
 	/**
 	 * @return Map<Slot, Item>
 	 * 
@@ -244,19 +241,19 @@ public class GUI {
 	}
 
 	/**
-	 * @return List<HumanEntity>
+	 * @return Collection<Player>
 	 * 
 	 */
-	public final List<HumanEntity> getPlayers() {
-		return inv.getViewers();
+	public final Collection<Player> getPlayers() {
+		return containers.keySet();
 	}
 
 	/**
-	 * @return List<Player>
+	 * @return boolean
 	 * 
 	 */
 	public final boolean hasOpen(Player player) {
-		return inv.getViewers().contains(player);
+		return containers.containsKey(player);
 	}
 
 	/**
@@ -264,8 +261,7 @@ public class GUI {
 	 * 
 	 */
 	public final void close() {
-		for(HumanEntity player : new ArrayList<>(inv.getViewers()))
-			close((Player)player);
+		close(containers.keySet().toArray(new Player[containers.size()]));
 	}
 
 	/**
@@ -292,8 +288,7 @@ public class GUI {
 				Ref.set(Ref.player(player), "activeContainer", Ref.get(Ref.player(player), "defaultContainer"));
 				Ref.invoke(ac, transfer, Ref.get(Ref.player(player), "defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
 			}
-			inv.getViewers().remove(player);
-			LoaderClass.plugin.gui.remove(player.getName()+":"+Ref.get(ac, "windowId"));
+			LoaderClass.plugin.gui.remove(player.getName());
 			onClose(player);
 		}
 	}
@@ -310,8 +305,13 @@ public class GUI {
 		return inv.getSize();
 	}
 
-	@SuppressWarnings("unchecked")
-	public NonNullList<net.minecraft.server.v1_16_R3.ItemStack> getNMSItems() {
-		return (NonNullList<net.minecraft.server.v1_16_R3.ItemStack>) Ref.get(Ref.get(containers.values().iterator().next(),"delegate"),"items");
+	@Override
+	public int size() {
+		return inv.getSize();
+	}
+
+	@Override
+	public Object getContainer(Player player) {
+		return containers.get(player);
 	}
 }

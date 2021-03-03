@@ -7,7 +7,7 @@ import me.devtec.theapi.guiapi.GUI.ClickType;
 import me.devtec.theapi.utils.json.Writer;
 
 public abstract class ItemGUI {
-	public abstract void onClick(Player player, GUI gui, ClickType click);
+	public abstract void onClick(Player player, HolderGUI gui, ClickType click);
 
 	private ItemStack s;
 	// Defaulty true
@@ -17,8 +17,9 @@ public abstract class ItemGUI {
 		s = stack;
 	}
 
-	public final void setUnstealable(boolean value) {
+	public final ItemGUI setUnstealable(boolean value) {
 		unsteal = value;
+		return this;
 	}
 
 	public final boolean isUnstealable() {
@@ -29,9 +30,10 @@ public abstract class ItemGUI {
 		return s;
 	}
 
-	public final void setItem(ItemStack stack) {
+	public final ItemGUI setItem(ItemStack stack) {
 		if (stack != null)
 			s = stack;
+		return this;
 	}
 
 	public final String toString() {

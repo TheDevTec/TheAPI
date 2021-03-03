@@ -11,5 +11,5 @@ public class EmptyItemGUI extends ItemGUI {
 		super(stack);
 	}
 
-	public void onClick(Player player, GUI gui, ClickType click) {}
+	public void onClick(Player player,  HolderGUI gui, ClickType click) {}
 }

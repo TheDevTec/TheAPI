@@ -267,6 +267,67 @@ public class StringUtils {
 		return new HoverMessage(message);
 	}
 
+	/**
+	 * @see see Get last colors from String (HEX SUPPORT!)
+	 * @return String
+	 */
+	public static String getLastColors(String last) {
+		String color = "";
+		String format = "";
+		
+		char was = 0;
+		int count = 0;
+		String hex = "";
+		boolean hexPart = false;
+		for(char c : last.toCharArray()) {
+			if(c=='&'||c=='§'||c=='#') {
+				was=c;
+				continue;
+			}
+			if((was=='&'||was=='§'||was=='#')&&(Character.isDigit(c)||c=='a'||c=='b'||c=='c'||c=='d'||c=='e'||c=='f')) {
+				if(was=='#'||hexPart) {
+					hex+=c;
+					if(count++==5) {
+						was=c;
+						color="#"+hex;
+						hexPart=false;
+						format="";
+						count=0;
+					}
+					continue;
+				}else {
+					format="";
+					color="&"+c;
+					hex="";
+					count=0;
+				}
+			}
+			if((was=='&'||was=='§')&&(c=='r'||c=='n'||c=='m'||c=='l'||c=='o'||c=='k'||c=='x')) {
+				if(c=='r') {
+					format="";
+					count=0;
+				}else
+				if(was=='#') {
+					color="";
+					hex="";
+					count=0;
+					format="&"+c;
+				}else {
+					if(c=='x') {
+						hexPart=true;
+						count=0;
+						continue;
+					}else
+						if(!format.contains(("&"+c).toLowerCase()))
+					format+=("&"+c).toLowerCase();
+					count=0;
+				}
+			}
+			was=c;
+		}
+		return color+format;
+	}
+
 	private static final Pattern hex = Pattern.compile("#[a-fA-F0-9]{6}");
 	public static ColormaticFactory color;
 	static {
