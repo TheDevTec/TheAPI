@@ -69,7 +69,8 @@ public class Cache {
 	}
 	
 	public void setLookup(UUID uuid, String name) {
-		if(!uuidLookup.containsKey(name.toLowerCase())||!lookupNameById(uuid).equals(name)) {
+		if(uuid==null||name==null)return;
+		if(!uuidLookup.containsKey(name.toLowerCase())||!name.equals(lookupNameById(uuid))) {
 			uuidLookup.put(name.toLowerCase(), uuid);
 			nameLookup.put(name.toLowerCase(), name);
 		}

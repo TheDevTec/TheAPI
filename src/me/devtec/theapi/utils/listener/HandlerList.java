@@ -88,12 +88,13 @@ public class HandlerList {
 
 	public static void callEvent(Event e) {
 		Validator.validate(e == null, "Event cannot be null");
-			call(all.get(e.getClass().getCanonicalName()).reg, e);
+		call(getOrCreate(e.getClass().getCanonicalName()).reg, e);
 	}
 
 	private static void call(Map<Integer, List<RegisteredListener>> reg2, Event e) {
-		for (int i = 0; i < 6; ++i)
+		for (int i = 0; i < 6; ++i) {
 			reg2.get(i).forEach(f -> f.callEvent(e));
+		}
 		// call event
 	}
 

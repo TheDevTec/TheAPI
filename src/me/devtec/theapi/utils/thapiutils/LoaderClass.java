@@ -109,7 +109,7 @@ public class LoaderClass extends JavaPlugin {
 		return b.toString();
 	}
 
-	static enum InventoryClickType {
+	public static enum InventoryClickType {
 		PICKUP, QUICK_MOVE, SWAP, CLONE, THROW, QUICK_CRAFT, PICKUP_ALL;
 	}
 	
@@ -144,15 +144,15 @@ public class LoaderClass extends JavaPlugin {
 					int mouseClick = (int) Ref.get(packet, "button");
 					int slot = (int) Ref.get(packet, "slot");
 					Player p = (Player) TheAPI.getPlayer(player);
-					HolderGUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(), null);
-					if (d == null)
-						return false;
 					InventoryClickType type = null;
 					if(Ref.get(packet, "shift") instanceof Integer) {
 						type=InventoryClickType.values()[(int)Ref.get(packet, "shift")];
 					}else {
 						type=InventoryClickType.valueOf(Ref.get(packet, "shift").toString());
 					}
+					HolderGUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(), null);
+					if (d == null)
+						return false;
 					if(InventoryClickType.THROW==type)return false;
 					if(InventoryClickType.PICKUP==type && slot==-999||InventoryClickType.SWAP==type) {
 						if(slot==-999)return false;
