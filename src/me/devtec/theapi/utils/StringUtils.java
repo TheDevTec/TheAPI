@@ -290,6 +290,7 @@ public class StringUtils {
 					if(count++==5) {
 						was=c;
 						color="#"+hex;
+						hex="";
 						hexPart=false;
 						format="";
 						count=0;
@@ -316,6 +317,7 @@ public class StringUtils {
 					if(c=='x') {
 						hexPart=true;
 						count=0;
+						hex="";
 						continue;
 					}else
 						if(!format.contains(("&"+c).toLowerCase()))
