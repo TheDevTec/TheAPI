@@ -43,6 +43,10 @@ public class HoverMessage {
 	public HoverMessage(Map<? extends String, ?> json) {
 		loadFromMap((Map<String, Object>) json);
 	}
+	
+	public Maker getMaker() {
+		return texts;
+	}
 
 	@SuppressWarnings("unchecked")
 	public void	loadFromMap(Map<String, Object> json) {
@@ -251,7 +255,11 @@ public class HoverMessage {
 	String getColor(String color) {
 		if(color.trim().isEmpty())return "";
 		if(color.startsWith("#"))return color;
-		return ChatColor.valueOf(color)+"";
+		try {
+		return ChatColor.valueOf(color.toUpperCase())+"";
+		}catch(Exception | NoSuchFieldError err) {
+			return "";
+		}
 	}
 
 	public void send(Collection<Player> players) {

@@ -280,11 +280,11 @@ public class StringUtils {
 		String hex = "";
 		boolean hexPart = false;
 		for(char c : last.toCharArray()) {
-			if(c=='&'||c=='§'||c=='#') {
+			if(c=='§'||c=='#') {
 				was=c;
 				continue;
 			}
-			if((was=='&'||was=='§'||was=='#')&&(Character.isDigit(c)||c=='a'||c=='b'||c=='c'||c=='d'||c=='e'||c=='f')) {
+			if((was=='§'||was=='#')&&(Character.isDigit(c)||c=='a'||c=='b'||c=='c'||c=='d'||c=='e'||c=='f')) {
 				if(was=='#'||hexPart) {
 					hex+=c;
 					if(count++==5) {
@@ -303,16 +303,16 @@ public class StringUtils {
 					count=0;
 				}
 			}
-			if((was=='&'||was=='§')&&(c=='r'||c=='n'||c=='m'||c=='l'||c=='o'||c=='k'||c=='x')) {
+			if((was=='§')&&(c=='r'||c=='n'||c=='m'||c=='l'||c=='o'||c=='k'||c=='x')) {
 				if(c=='r') {
-					format="";
+					format=was+"r";
 					count=0;
 				}else
 				if(was=='#') {
 					color="";
 					hex="";
 					count=0;
-					format="&"+c;
+					format="§"+c;
 				}else {
 					if(c=='x') {
 						hexPart=true;
@@ -320,8 +320,8 @@ public class StringUtils {
 						hex="";
 						continue;
 					}else
-						if(!format.contains(("&"+c).toLowerCase()))
-					format+=("&"+c).toLowerCase();
+						if(!format.contains(("§"+c).toLowerCase()))
+					format+=("§"+c).toLowerCase();
 					count=0;
 				}
 			}

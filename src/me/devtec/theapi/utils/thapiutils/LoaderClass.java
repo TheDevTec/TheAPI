@@ -72,6 +72,7 @@ import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.thapiutils.LoggerManager.BukkitLogger;
 import me.devtec.theapi.utils.thapiutils.LoggerManager.ConsoleLogger;
 import me.devtec.theapi.utils.thapiutils.command.TheAPICommand;
+import me.devtec.theapi.utils.thapiutils.metrics.Metrics;
 import me.devtec.theapi.worldsapi.WorldsAPI;
 import net.milkbowl.vault.economy.Economy;
 
@@ -335,6 +336,9 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
 				TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		
+		//METRICS
+		new Metrics(this, 10581);
 		
 		//BOSSBAR - 1.7.10 - 1.8.8
 		if (TheAPI.isOlderThan(9))
