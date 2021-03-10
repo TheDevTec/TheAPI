@@ -4,11 +4,11 @@ import me.devtec.theapi.sockets.Client;
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.listener.Event;
 
-public class ClientReceiveMessaveEvent extends Event {
+public class ClientReceiveMessageEvent extends Event {
 	private Data s;
 	private Client c;
 	
-	public ClientReceiveMessaveEvent(Client client, Data text) {
+	public ClientReceiveMessageEvent(Client client, Data text) {
 		s=text;
 		c=client;
 	}

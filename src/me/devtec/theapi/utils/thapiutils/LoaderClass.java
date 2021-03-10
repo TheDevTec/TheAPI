@@ -60,7 +60,7 @@ import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.DataType;
 import me.devtec.theapi.utils.datakeeper.User;
-import me.devtec.theapi.utils.listener.events.ClientReceiveMessaveEvent;
+import me.devtec.theapi.utils.listener.events.ClientReceiveMessageEvent;
 import me.devtec.theapi.utils.listener.events.ServerReceiveMessageEvent;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.packetlistenerapi.PacketHandler;
@@ -265,7 +265,7 @@ public class LoaderClass extends JavaPlugin {
 			for(String s : sockets.getKeys("Server")) {
 				servers.put(s, new Client(sockets.getString("Options.Name"), sockets.getString("Server."+s+".Password"), sockets.getString("Server."+s+".IP"), sockets.getInt("Server."+s+".Port")) {
 					public void read(Data data) {
-						TheAPI.callEvent(new ClientReceiveMessaveEvent(this, data));
+						TheAPI.callEvent(new ClientReceiveMessageEvent(this, data));
 					}
 				});
 			}
