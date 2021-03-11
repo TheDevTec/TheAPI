@@ -15,8 +15,6 @@ public class TabListAPI {
 
 	public static void setHeaderFooter(Player p, String header, String footer) {
 		Validator.validate(p == null, "Player is null");
-		Validator.validate(header == null, "Header is null");
-		Validator.validate(footer == null, "Footer is null");
 		Ref.sendPacket(p, NMSAPI.getPacketPlayOutPlayerListHeaderFooter(TheAPI.colorize(header), TheAPI.colorize(footer)));
 	}
 }
