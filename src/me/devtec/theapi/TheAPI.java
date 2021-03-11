@@ -34,6 +34,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.spigotmc.SpigotConfig;
 
 import me.devtec.theapi.apis.EnchantmentAPI;
 import me.devtec.theapi.apis.EntityCreatorAPI;
@@ -109,6 +110,21 @@ public class TheAPI {
 		cmd.setUsage("");
 		Ref.set(cmd, "executor", commandExecutor);
 		registerCommand(cmd);
+	}
+	
+	public static void dispatchCommandAsync(CommandSender sender, String cmd) {
+		if(!cmdMap.dispatch(sender, cmd)) {
+			if(Ref.getClass("org.spigotmc.SpigotConfig")!=null) { //spigot+
+				if (!SpigotConfig.unknownCommandMessage.isEmpty())
+					sender.sendMessage(SpigotConfig.unknownCommandMessage);
+			}else { //craftbukkit
+				if (sender instanceof Player) {
+					sender.sendMessage("Unknown command. Type \"/help\" for help.");
+				} else {
+					sender.sendMessage("Unknown command. Type \"help\" for help.");
+				}
+			}
+		}
 	}
 
 	public static PluginCommand createCommand(String name, Plugin plugin) {
