@@ -1,11 +1,8 @@
 package me.devtec.theapi.utils.thapiutils;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,6 +52,7 @@ import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.sockets.Client;
 import me.devtec.theapi.sockets.Server;
 import me.devtec.theapi.sockets.ServerClient;
+import me.devtec.theapi.utils.SpigotUpdateChecker;
 import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.Data;
@@ -468,23 +466,23 @@ public class LoaderClass extends JavaPlugin {
 					TheAPI.msg("&cTheAPI&7: &eTheAPI deleted &6" + removed + " &eunused user files",
 							TheAPI.getConsole());
 				TheAPI.clearCache();
-				updater = new UpdateChecker();
-				switch (updater.checkForUpdates()) {
-				case -1:
+				checker = new SpigotUpdateChecker(getDescription().getVersion(), 72679);
+				switch (checker.checkForUpdates()) {
+				case UKNOWN:
 					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 					TheAPI.msg(
 							"&cTheAPI&7: &eUpdate checker: &7Unable to connect to spigot, check internet connection.",
 							TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
-					updater = null; // close updater
+					checker = null; // close updater
 					break;
-				case 1:
+				case NEW:
 					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Found new version of TheAPI.", TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7:        https://www.spigotmc.org/resources/72679/", TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 					break;
-				case 2:
+				case OLD:
 					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 					TheAPI.msg(
 							"&cTheAPI&7: &eUpdate checker: &7You are using the BETA version of TheAPI, report bugs to our Discord.",
@@ -492,12 +490,14 @@ public class LoaderClass extends JavaPlugin {
 					TheAPI.msg("&cTheAPI&7:        https://discord.io/spigotdevtec", TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
 					break;
+				default:
+					break;
 				}
-				if (updater != null)
+				if (checker != null)
 					new Tasker() {
 						public void run() {
-							switch (updater.checkForUpdates()) {
-							case -1:
+							switch (checker.checkForUpdates()) {
+							case UKNOWN:
 								TheAPI.msg("&cTheAPI&7: &8*********************************************",
 										TheAPI.getConsole());
 								TheAPI.msg(
@@ -505,10 +505,10 @@ public class LoaderClass extends JavaPlugin {
 										TheAPI.getConsole());
 								TheAPI.msg("&cTheAPI&7: &8*********************************************",
 										TheAPI.getConsole());
-								updater = null; // close updater
+								checker = null; // close updater
 								cancel(); // destroy task
 								break;
-							case 1:
+							case NEW:
 								TheAPI.msg("&cTheAPI&7: &8*********************************************",
 										TheAPI.getConsole());
 								TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Found new version of TheAPI.",
@@ -518,7 +518,7 @@ public class LoaderClass extends JavaPlugin {
 								TheAPI.msg("&cTheAPI&7: &8*********************************************",
 										TheAPI.getConsole());
 								break;
-							case 2:
+							case OLD:
 								TheAPI.msg("&cTheAPI&7: &8*********************************************",
 										TheAPI.getConsole());
 								TheAPI.msg(
@@ -528,6 +528,8 @@ public class LoaderClass extends JavaPlugin {
 								TheAPI.msg("&cTheAPI&7: &8*********************************************",
 										TheAPI.getConsole());
 								break;
+							default:
+								break;
 							}
 						}
 					}.runRepeating(144000, 144000);
@@ -535,58 +537,7 @@ public class LoaderClass extends JavaPlugin {
 		}.runTask();
 	}
 
-	private UpdateChecker updater;
-
-	public class UpdateChecker {
-		private URL checkURL;
-
-		public UpdateChecker reconnect() {
-			try {
-				checkURL = new URL("https://api.spigotmc.org/legacy/update.php?resource=72679");
-			} catch (Exception e) {
-			}
-			return this;
-		}
-
-		// 0 == SAME VERSION
-		// 1 == NEW VERSION
-		// 2 == BETA VERSION
-		public int checkForUpdates() {
-			if (checkURL == null)
-				reconnect();
-			String[] readerr = null;
-			try {
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(checkURL.openConnection().getInputStream()));
-				Set<String> s = new HashSet<>();
-				String read;
-				while ((read = reader.readLine()) != null)
-					s.add(read);
-				readerr = s.toArray(new String[s.size()]);
-			} catch (Exception e) {
-			}
-			if (readerr == null)
-				return -1;
-			return isNewer(getDescription().getVersion(), readerr[0]);
-		}
-
-		private int isNewer(String a, String b) {
-			int is = 0, d = 0;
-			String[] s = a.split("\\.");
-			for (String f : b.split("\\.")) {
-				int id = StringUtils.getInt(f), bi = StringUtils.getInt(s[d++]);
-				if (id > bi) {
-					is = 1;
-					break;
-				}
-				if (id < bi) {
-					is = 2;
-					break;
-				}
-			}
-			return is;
-		}
-	}
+	private SpigotUpdateChecker checker;
 
 	@SuppressWarnings("rawtypes")
 	public PacketHandler handler;
