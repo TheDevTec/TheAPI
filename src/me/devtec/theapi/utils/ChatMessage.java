@@ -27,41 +27,12 @@ public class ChatMessage {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static Map<String, Object> fixMap(Map<String, Object> text) {
-		if(text==null)return null;
-		Map<String, Object> f = new HashMap<>();
-		for(Entry<String, Object> s : text.entrySet()) {
-			if(s.getValue()instanceof Map) {
-				ChatMessage c = new ChatMessage((String) s.getValue());
-				if(c.join.size()==1) {
-					text.put(s.getKey(), c.join.get(0));
-				}else {
-					Map<String, Object> extra = (Map<String, Object>) ((Map<String, Object>) s.getValue()).get("extra");
-					Map<String, Object> map = (Map<String, Object>) s.getValue(), m = map;
-					for(Map<String, Object> d : c.join) {
-						for(Entry<String, Object> g : map.entrySet())
-							if(!g.getKey().equals("text") && !d.containsKey(g.getKey()))
-								d.put(g.getKey(), g.getValue());
-						m.put("extra", d);
-						m=d;
-					}
-					if(extra!=null)
-					m.put("extra", extra);
-					text.put(s.getKey(), map);
-				}
-			}else
-			text.put(s.getKey(), s.getValue());
-		}
-		return f;
-	}
-	
-	@SuppressWarnings("unchecked")
 	static Map<String, Object> fix(Map<String, Object> h){
 		if(h==null)return null;
 		Map<String, Object> f = new HashMap<>();
 		f.put("action", h.get("action"));
 		String n = h.containsKey("value")?"value":"contents";
-		f.put("value", h.get(n) instanceof Map ? fixMap((Map<String, Object>) h.get(n)):h.get(n) instanceof List ? fixListMap((List<Map<String, Object>>)h.get(n)): fromString(h.get(n).toString()).join);
+		f.put("value", h.get(n) instanceof Map ? h.get(n):h.get(n) instanceof List ? fixListMap((List<Map<String, Object>>)h.get(n)): fromString(h.get(n).toString()).join);
 		return f;
 	}
 	
@@ -94,7 +65,7 @@ public class ChatMessage {
 				}
 			}else
 			if(s.getValue()instanceof Map) {
-				text.put(s.getKey(), fixMap((Map<String, Object>) s.getValue()));
+				text.put(s.getKey(), (Map<String, Object>) s.getValue());
 			}else
 			text.put(s.getKey(), s.getValue());
 		}
