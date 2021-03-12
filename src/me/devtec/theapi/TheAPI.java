@@ -573,7 +573,7 @@ public class TheAPI {
 			target.chat(value);
 			break;
 		case COMMAND:
-			target.performCommand(value);
+			dispatchCommandAsync(target, value);
 			break;
 		}
 	}
@@ -586,10 +586,10 @@ public class TheAPI {
 	public static void sudoConsole(SudoType type, String value) {
 		switch (type) {
 		case CHAT:
-			Bukkit.dispatchCommand(getConsole(), "say " + value);
+			dispatchCommandAsync(getConsole(), "say " + value);
 			break;
 		case COMMAND:
-			Bukkit.dispatchCommand(getConsole(), value);
+			dispatchCommandAsync(getConsole(), value);
 			break;
 		}
 	}

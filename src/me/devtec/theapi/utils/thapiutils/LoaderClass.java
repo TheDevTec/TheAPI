@@ -152,9 +152,8 @@ public class LoaderClass extends JavaPlugin {
 					HolderGUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(), null);
 					if (d == null)
 						return false;
-					if(InventoryClickType.THROW==type)return false;
-					if(InventoryClickType.PICKUP==type && slot==-999||InventoryClickType.SWAP==type) {
-						if(slot==-999)return false;
+					if(InventoryClickType.THROW==type||InventoryClickType.PICKUP==type && slot==-999)return false;
+					if(InventoryClickType.SWAP==type) {
 						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(Ref.get(Ref.player(p), "activeContainer"), getSlot, slot),"getItem")));
 						if(mouseClick == 40) {
 							final List<com.mojang.datafixers.util.Pair<?,?>> equipmentList = new ArrayList<>();
@@ -217,7 +216,7 @@ public class LoaderClass extends JavaPlugin {
 							cancel=true;
 						if(!cancel && slot%d.size()!=2 && d instanceof AnvilGUI)((AnvilGUI) d).getInventory().put(slot%d.size(), i);
 					if(cancel) {
-						if(type==InventoryClickType.QUICK_MOVE) {
+						if(type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.PICKUP_ALL) {
 							Ref.invoke(Ref.player(p), Ref.method(Ref.nms("EntityPlayer"), "updateInventory", Ref.nms("Container")), Ref.get(Ref.player(p), "activeContainer"));
 						}else {
 							Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(Ref.get(Ref.player(p), "activeContainer"), getSlot, slot),"getItem")));
