@@ -464,6 +464,13 @@ public class LoaderClass extends JavaPlugin {
 				if (removed != 0)
 					TheAPI.msg("&cTheAPI&7: &eTheAPI deleted &6" + removed + " &eunused user files",
 							TheAPI.getConsole());
+				new Tasker() {
+					@Override
+					public void run() {
+						for(User u : TheAPI.getCachedUsers())
+							u.save();
+					}
+				}.runRepeating(20*300, 20*300);
 				TheAPI.clearCache();
 				checker = new SpigotUpdateChecker(getDescription().getVersion(), 72679);
 				switch (checker.checkForUpdates()) {
