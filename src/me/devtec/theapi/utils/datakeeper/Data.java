@@ -26,7 +26,7 @@ import me.devtec.theapi.utils.datakeeper.loader.DataLoader;
 import me.devtec.theapi.utils.datakeeper.loader.EmptyLoader;
 import me.devtec.theapi.utils.json.Maker;
 import me.devtec.theapi.utils.json.Writer;
-import me.devtec.theapi.utils.thapiutils.Validator;
+import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	

@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.datakeeper.User;
-import me.devtec.theapi.utils.thapiutils.Validator;
+import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class CooldownAPI {
 	private final User c;

@@ -9,7 +9,7 @@ import org.bukkit.material.MaterialData;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.reflections.Ref;
-import me.devtec.theapi.utils.thapiutils.LoaderClass;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class TheMaterial implements Cloneable {
 	static Method mm, mat, create;

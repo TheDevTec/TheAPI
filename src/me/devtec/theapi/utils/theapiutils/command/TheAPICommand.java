@@ -1,4 +1,4 @@
-package me.devtec.theapi.utils.thapiutils.command;
+package me.devtec.theapi.utils.theapiutils.command;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
@@ -28,8 +28,8 @@ import me.devtec.theapi.apis.PluginManagerAPI.SearchType;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.User;
-import me.devtec.theapi.utils.thapiutils.LoaderClass;
-import me.devtec.theapi.utils.thapiutils.Tasks;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
+import me.devtec.theapi.utils.theapiutils.Tasks;
 
 public class TheAPICommand implements CommandExecutor, TabCompleter {
 

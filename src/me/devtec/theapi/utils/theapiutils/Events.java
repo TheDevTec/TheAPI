@@ -1,4 +1,4 @@
-package me.devtec.theapi.utils.thapiutils;
+package me.devtec.theapi.utils.theapiutils;
 
 import java.util.ArrayList;
 import java.util.Collection;

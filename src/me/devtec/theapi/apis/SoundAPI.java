@@ -8,7 +8,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import me.devtec.theapi.utils.Position;
-import me.devtec.theapi.utils.thapiutils.Validator;
+import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class SoundAPI {
 	public static boolean existSound(String sound) {

@@ -6,7 +6,7 @@ import org.bukkit.entity.EntityType;
 
 import me.devtec.theapi.utils.listener.Cancellable;
 import me.devtec.theapi.utils.listener.Event;
-import me.devtec.theapi.utils.thapiutils.LoaderClass;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class EntityMoveEvent extends Event implements Cancellable {
 	private Entity entity;

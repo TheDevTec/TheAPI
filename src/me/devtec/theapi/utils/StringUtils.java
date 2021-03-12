@@ -24,7 +24,7 @@ import org.bukkit.Location;
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.json.Reader;
 import me.devtec.theapi.utils.json.Writer;
-import me.devtec.theapi.utils.thapiutils.LoaderClass;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class StringUtils {
 	private static Random random = new Random();

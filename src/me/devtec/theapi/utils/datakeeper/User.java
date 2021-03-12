@@ -10,8 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.utils.thapiutils.LoaderClass;
-import me.devtec.theapi.utils.thapiutils.Validator;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
+import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	

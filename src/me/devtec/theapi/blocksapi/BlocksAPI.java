@@ -27,7 +27,7 @@ import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.TheMaterial;
 import me.devtec.theapi.utils.reflections.Ref;
-import me.devtec.theapi.utils.thapiutils.Validator;
+import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class BlocksAPI {
 	private static interface Blocking {

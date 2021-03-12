@@ -1,4 +1,4 @@
-package me.devtec.theapi.utils.thapiutils.command;
+package me.devtec.theapi.utils.theapiutils.command;
 
 import java.util.Arrays;
 import java.util.HashMap;

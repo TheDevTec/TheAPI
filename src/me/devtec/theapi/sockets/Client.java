@@ -7,7 +7,7 @@ import java.util.LinkedList;
 
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.DataType;
-import me.devtec.theapi.utils.thapiutils.LoaderClass;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public abstract class Client { 
 	private PrintWriter send;

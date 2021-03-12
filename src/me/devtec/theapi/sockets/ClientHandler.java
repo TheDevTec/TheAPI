@@ -6,7 +6,7 @@ import java.util.LinkedList;
 
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.DataType;
-import me.devtec.theapi.utils.thapiutils.LoaderClass;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class ClientHandler extends Thread {
 	final BufferedReader dis; 

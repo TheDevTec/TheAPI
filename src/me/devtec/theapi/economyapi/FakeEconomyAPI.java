@@ -3,7 +3,7 @@ package me.devtec.theapi.economyapi;
 import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.utils.thapiutils.LoaderClass;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class FakeEconomyAPI {
 	private String w;

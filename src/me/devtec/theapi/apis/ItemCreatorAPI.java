@@ -36,7 +36,7 @@ import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.nms.nbt.NBTEdit;
 import me.devtec.theapi.utils.reflections.Ref;
-import me.devtec.theapi.utils.thapiutils.Validator;
+import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class ItemCreatorAPI implements Cloneable {
 

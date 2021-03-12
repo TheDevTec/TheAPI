@@ -3,7 +3,7 @@ package me.devtec.theapi.worldsapi;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import me.devtec.theapi.utils.thapiutils.Validator;
+import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class WorldBorderAPI {
 	private World w;

@@ -1,4 +1,4 @@
-package me.devtec.theapi.utils.thapiutils;
+package me.devtec.theapi.utils.theapiutils;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -67,10 +67,10 @@ import me.devtec.theapi.utils.packetlistenerapi.PacketHandler_Old;
 import me.devtec.theapi.utils.packetlistenerapi.PacketListener;
 import me.devtec.theapi.utils.packetlistenerapi.PacketManager;
 import me.devtec.theapi.utils.reflections.Ref;
-import me.devtec.theapi.utils.thapiutils.LoggerManager.BukkitLogger;
-import me.devtec.theapi.utils.thapiutils.LoggerManager.ConsoleLogger;
-import me.devtec.theapi.utils.thapiutils.command.TheAPICommand;
-import me.devtec.theapi.utils.thapiutils.metrics.Metrics;
+import me.devtec.theapi.utils.theapiutils.LoggerManager.BukkitLogger;
+import me.devtec.theapi.utils.theapiutils.LoggerManager.ConsoleLogger;
+import me.devtec.theapi.utils.theapiutils.command.TheAPICommand;
+import me.devtec.theapi.utils.theapiutils.metrics.Metrics;
 import me.devtec.theapi.worldsapi.WorldsAPI;
 import net.milkbowl.vault.economy.Economy;
 

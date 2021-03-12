@@ -1,4 +1,4 @@
-package me.devtec.theapi.utils.thapiutils;
+package me.devtec.theapi.utils.theapiutils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;

@@ -8,7 +8,7 @@ import java.util.Map;
 import org.bukkit.block.Sign;
 
 import me.devtec.theapi.utils.Position;
-import me.devtec.theapi.utils.thapiutils.LoaderClass;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class SignAPI {
 

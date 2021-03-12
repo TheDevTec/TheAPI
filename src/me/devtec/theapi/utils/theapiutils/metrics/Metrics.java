@@ -1,4 +1,4 @@
-package me.devtec.theapi.utils.thapiutils.metrics;
+package me.devtec.theapi.utils.theapiutils.metrics;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;

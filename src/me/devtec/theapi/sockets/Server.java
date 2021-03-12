@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import me.devtec.theapi.utils.datakeeper.Data;
-import me.devtec.theapi.utils.thapiutils.LoaderClass;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class Server {
 	private Set<Reader> readers = new HashSet<>();

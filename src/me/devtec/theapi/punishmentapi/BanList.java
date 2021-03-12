@@ -3,7 +3,7 @@ package me.devtec.theapi.punishmentapi;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.devtec.theapi.utils.thapiutils.LoaderClass;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class BanList {
 

@@ -57,8 +57,8 @@ import me.devtec.theapi.utils.listener.Listener;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.nms.NMSAPI.TitleAction;
 import me.devtec.theapi.utils.reflections.Ref;
-import me.devtec.theapi.utils.thapiutils.LoaderClass;
-import me.devtec.theapi.utils.thapiutils.Validator;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
+import me.devtec.theapi.utils.theapiutils.Validator;
 import me.devtec.theapi.worldsapi.WorldBorderAPI;
 
 public class TheAPI {

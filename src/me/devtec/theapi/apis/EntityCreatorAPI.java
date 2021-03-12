@@ -26,8 +26,8 @@ import org.bukkit.util.EulerAngle;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.Position;
-import me.devtec.theapi.utils.thapiutils.LoaderClass;
-import me.devtec.theapi.utils.thapiutils.Validator;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
+import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class EntityCreatorAPI {
 	private EntityType t;

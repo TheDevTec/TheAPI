@@ -10,7 +10,7 @@ import org.bukkit.Location;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.StringUtils;
-import me.devtec.theapi.utils.thapiutils.LoaderClass;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class PunishmentAPI {
 	private static final BanList banlist = new BanList();

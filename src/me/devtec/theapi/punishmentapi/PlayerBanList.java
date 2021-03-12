@@ -1,6 +1,6 @@
 package me.devtec.theapi.punishmentapi;
 
-import me.devtec.theapi.utils.thapiutils.LoaderClass;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class PlayerBanList {
 	private final String s, ip;
