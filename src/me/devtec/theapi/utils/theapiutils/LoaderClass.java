@@ -37,6 +37,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.apis.MemoryAPI;
 import me.devtec.theapi.apis.PluginManagerAPI;
+import me.devtec.theapi.apis.ResourcePackAPI;
+import me.devtec.theapi.apis.ResourcePackAPI.ResourcePackResult;
 import me.devtec.theapi.bossbar.BossBar;
 import me.devtec.theapi.configapi.Config;
 import me.devtec.theapi.economyapi.EconomyAPI;
@@ -128,6 +130,13 @@ public class LoaderClass extends JavaPlugin {
 			Object OFFHAND = Ref.getStatic(Ref.nms("EnumItemSlot"),"OFFHAND");
 			@Override
 			public boolean PacketPlayIn(String player, Object packet, Object channel) {
+				//ResourcePackAPI
+				if(packet.toString().contains("PacketPlayInResourcePackStatus")) {
+					Player s = TheAPI.getPlayer(player);
+					if(ResourcePackAPI.getResourcePack(s)==null||ResourcePackAPI.getHandlingPlayer(s)==null)return false;
+					ResourcePackAPI.getHandlingPlayer(s).onHandle(s, ResourcePackAPI.getResourcePack(s), ResourcePackResult.valueOf(Ref.get(packet, "status").toString()));
+					return false;
+				}
 				//GUIS
 				if(packet.toString().contains("PacketPlayInCloseWindow")) {
 					Player p = (Player) TheAPI.getPlayer(player);
