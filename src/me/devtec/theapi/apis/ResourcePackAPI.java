@@ -35,7 +35,7 @@ public class ResourcePackAPI {
 	}
 	
 	public static void setResourcePack(Player player, String resourcePack, String sha) {
-		setResourcePack(player, resourcePack, null);
+		setResourcePack(player, resourcePack, sha, null);
 	}
 	
 	private static Constructor<?> p = Ref.constructor(Ref.nms("PacketPlayOutResourcePackSend"), String.class, String.class);
