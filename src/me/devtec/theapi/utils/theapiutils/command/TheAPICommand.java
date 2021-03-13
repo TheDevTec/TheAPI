@@ -235,7 +235,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		                } else {
 		                  String sdf = "";
 		                  for (Plugin w : pl)
-		                    sdf += sdf + (sdf.equals("") ? "" : "&7, ") + TAC_PluginManager.getPlugin(w) + " &ev" + 
+		                    sdf += (sdf.equals("") ? "" : "&7, ") + TAC_PluginManager.getPlugin(w) + " &ev" + 
 		                      w.getDescription().getVersion(); 
 		                  TheAPI.msg(color+"» &7Plugins using TheAPI (" + pl.size() + "): " + sdf, s);
 		                }
