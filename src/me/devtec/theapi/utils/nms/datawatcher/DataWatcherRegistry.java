@@ -5,9 +5,6 @@ import java.util.HashMap;
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 
-/**
- * @apiNote This utility is only for 1.9+
- */
 public class DataWatcherRegistry {
 	private static Class<?> a = Ref.nms("DataWatcherRegistry");
 

@@ -1,8 +1,5 @@
 package me.devtec.theapi.utils.nms.datawatcher;
 
-/**
- * @apiNote This utility is only for 1.9+
- */
 public class DataWatcherObject {
 	private Object a;
 
