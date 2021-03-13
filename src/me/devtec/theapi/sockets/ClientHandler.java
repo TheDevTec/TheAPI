@@ -9,13 +9,13 @@ import me.devtec.theapi.utils.datakeeper.DataType;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class ClientHandler extends Thread {
-	final BufferedReader dis; 
-    final PrintWriter dos; 
-    final Socket s;
-    String name;
-    boolean access, accessFull;
-    final Server ser;
-	ServerClient c;
+	protected final BufferedReader dis; 
+	protected final PrintWriter dos; 
+	protected final Socket s;
+    protected String name;
+    protected boolean access, accessFull;
+    protected final Server ser;
+	protected ServerClient c;
 	private final Data data = new Data();
     
     public ClientHandler(Server server, Socket s, BufferedReader dis2, PrintWriter dos2) {

@@ -13,10 +13,10 @@ import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class Server {
-	private Set<Reader> readers = new HashSet<>();
+	protected Set<Reader> readers = new HashSet<>();
 	protected Map<Socket, ServerClient> sockets = new HashMap<>();
-	private ServerSocket server;
-	public String pas;
+	protected ServerSocket server;
+	protected String pas;
 	
 	public Server(String password, int port) {
 		try {
