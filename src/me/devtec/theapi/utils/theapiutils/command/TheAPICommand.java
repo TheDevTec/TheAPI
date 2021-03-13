@@ -21,18 +21,24 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.TheAPI.TPSType;
 import me.devtec.theapi.apis.MemoryAPI;
 import me.devtec.theapi.apis.PluginManagerAPI;
 import me.devtec.theapi.apis.PluginManagerAPI.SearchType;
 import me.devtec.theapi.scheduler.Tasker;
+import me.devtec.theapi.utils.HoverMessage;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.User;
+import me.devtec.theapi.utils.nms.NMSAPI;
+import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 import me.devtec.theapi.utils.theapiutils.Tasks;
 
 public class TheAPICommand implements CommandExecutor, TabCompleter {
-
+	  String realVersion = (String)Ref.invoke(Ref.getStatic(Ref.nms("MinecraftVersion"), "a"), "getName");
+	  OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
+	  RuntimeMXBean rr = ManagementFactory.getRuntimeMXBean();
+	  File d = new File("plugins");
+	  
 	private boolean perm(CommandSender s, String p) {
 		if (s.hasPermission("TheAPI.Command." + p))
 			return true;
@@ -166,59 +172,75 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		}
 		if (args[0].equalsIgnoreCase("informations") || args[0].equalsIgnoreCase("info")) {
 			if (perm(s, "Info")) {
+				
 				new Tasker() {
-					public void run() {
-						OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
-						TheAPI.msg("&7Memory:", s);
-						TheAPI.msg("&7 Max: &e" + MemoryAPI.getMaxMemory(), s);
-						TheAPI.msg("&7 Used: &e" + MemoryAPI.getUsedMemory(false) + " &7(&e"
-								+ MemoryAPI.getUsedMemory(true) + "%&7)", s);
-						TheAPI.msg("&7 Free: &e" + MemoryAPI.getFreeMemory(false) + " &7(&e"
-								+ MemoryAPI.getFreeMemory(true) + "%&7)", s);
-						TheAPI.msg("&7Worlds:", s);
-						for (World w : Bukkit.getWorlds())
-							TheAPI.msg("&7 - &e" + w.getName() + " &7(Ent:&e" + w.getEntities().size()
-									+ "&7, Players:&e" + w.getPlayers().size() + "&7, Chunks:&e"
-									+ w.getLoadedChunks().length + "&7)", s);
-						TheAPI.msg("&7Players:", s);
-						TheAPI.msg("&7 Max: &e" + TheAPI.getMaxPlayers(), s);
-						TheAPI.msg("&7 Online: &e" + (TheAPI.getOnlinePlayers().size() + " &7(&e"
-								+ ((int) (TheAPI.getOnlinePlayers().size() / ((double) TheAPI.getMaxPlayers() / 100))))
-								+ "%&7)", s);
-						TheAPI.msg("&7System:", s);
-						TheAPI.msg("&7 CPU: &e" + String.format("%2.02f", TheAPI.getProcessCpuLoad())
-								.replaceFirst(",", ".").replaceFirst("\\.00", "") + "%", s);
-						TheAPI.msg("&7 Arch: &e" + osBean.getArch(), s);
-						TheAPI.msg("&7 Name: &e" + osBean.getName(), s);
-						TheAPI.msg("&7 Version: &e" + osBean.getVersion(), s);
-						TheAPI.msg("&7 Procesors: &e" + osBean.getAvailableProcessors(), s);
-						TheAPI.msg("&7Server:", s);
-						TheAPI.msg("&7 File: &e" + System.getProperty("java.class.path"), s);
-						TheAPI.msg("&7 Path: &e" + System.getProperty("user.dir"), s);
-						TheAPI.msg("&7 UpTime: &e" + StringUtils.timeToString(TheAPI.getServerUpTime() / 1000), s);
-						TheAPI.msg("&7 Version: &e" + TheAPI.getServerVersion(), s);
-						RuntimeMXBean rr = ManagementFactory.getRuntimeMXBean();
-						TheAPI.msg("&7 Startup-Cmd: &e" + StringUtils.join(rr.getInputArguments(), " "), s);
-						TheAPI.msg("&7 Disk:", s);
-						File d = new File("plugins");
-						TheAPI.msg("&7   Total: &e" + String.format("%.2f GB", (double)d.getTotalSpace() /1073741824), s);
-						TheAPI.msg("&7   Free: &e" + String.format("%.2f GB", (double)d.getFreeSpace() /1073741824), s);
-						TheAPI.msg("&7   Used: &e" + String.format("%.2f GB", (double)(d.getTotalSpace()-d.getFreeSpace()) /1073741824), s);
-						TheAPI.msg("&7   Usable: &e" + String.format("%.2f GB", (double)d.getUsableSpace() /1073741824), s);
-						TheAPI.msg("&7TPS: &e" + TheAPI.getServerTPS(TPSType.ONE_MINUTE) + ", "
-								+ TheAPI.getServerTPS(TPSType.FIVE_MINUTES) + ", "
-								+ TheAPI.getServerTPS(TPSType.FIFTEEN_MINUTES), s);
-						TheAPI.msg("&7Version: &ev" + LoaderClass.plugin.getDescription().getVersion(), s);
-						List<Plugin> pl = LoaderClass.plugin.getTheAPIsPlugins();
-						if (!pl.isEmpty()) {
-							String sd = "";
-							for (Plugin w : pl)
-								sd += (sd.equals("") ? "" : "&7, ") + TAC_PluginManager.getPlugin(w) + " &6v"
-										+ w.getDescription().getVersion();
-							TheAPI.msg("&7Plugins using TheAPI (" + pl.size() + "): " + sd, s);
-						}
-					}
-				}.runTask();
+		            public void run() {
+		              String load = StringUtils.fixedFormatDouble(TheAPI.getProcessCpuLoad()).replace(".00", "");
+		              double[] tps = NMSAPI.getServerTPS();
+		              double first = tps[0], second = tps[1], third = tps[2];
+		              if (first > 20.0D)
+		                first = 20.0D; 
+		              if (second > 20.0D)
+		                second = 20.0D; 
+		              if (third > 20.0D)
+		                third = 20.0D; 
+		              String color = TheAPI.getRandomFromList(Arrays.asList("&b", "&a", "&c", "&d", "&5"));
+		              String sd = " " + color + "* &7";
+		              
+		              TheAPI.msg(color + "» &7System Info:", s);
+		              TheAPI.msg(sd + "Arch: &e"+osBean.getArch(), s);
+		              TheAPI.msg(sd + "Name: &e"+osBean.getName(), s);
+		              TheAPI.msg(sd + "Java: &e"+System.getProperty("java.version"), s);
+		              TheAPI.msg(sd + "Version: &e"+osBean.getVersion(), s);
+		              TheAPI.msg(sd + "Processors: &e"+osBean.getAvailableProcessors(), s);
+		              TheAPI.msg(sd + "CPU load: &e"+load+"%", s);
+		              TheAPI.msg(sd + "Memory:", s);
+		              TheAPI.msg(sd + "  Free: &e"+ MemoryAPI.getFreeMemory(false)+"MB &7&o("+MemoryAPI.getFreeMemory(true)+"%)", s);
+		              TheAPI.msg(sd + "  Used: &e"+ MemoryAPI.getUsedMemory(false)+"MB &7&o("+MemoryAPI.getUsedMemory(true)+"%)", s);
+		              TheAPI.msg(sd + "  Total: &e"+MemoryAPI.getMaxMemory()+"MB", s);
+		              TheAPI.msg(sd + "TPS:", s);
+		              TheAPI.msg(sd + "  1 minute: &e"+StringUtils.fixedFormatDouble(first), s);
+		              TheAPI.msg(sd + "  5 minutes: &e"+StringUtils.fixedFormatDouble(second), s);
+		              TheAPI.msg(sd + "  15 minutes: &e"+StringUtils.fixedFormatDouble(third), s);
+		              TheAPI.msg(sd + "Disk:", s);
+		              TheAPI.msg(sd + "  Free: &e"+StringUtils.fixedFormatDouble((double)d.getTotalSpace() /1073741824), s);
+		              TheAPI.msg(sd + "  Used: &e"+StringUtils.fixedFormatDouble((double)(d.getTotalSpace()-d.getFreeSpace()) /1073741824), s);
+		              if(d.getFreeSpace()!=d.getUsableSpace())
+		              TheAPI.msg(sd + "  Usable: &e"+StringUtils.fixedFormatDouble((double)d.getUsableSpace() /1073741824), s);
+		              TheAPI.msg(sd + "  Total: &e"+StringUtils.fixedFormatDouble((double)d.getTotalSpace() /1073741824), s);
+		              TheAPI.msg(color + "» &7Server Status:", s);
+		              TheAPI.msg(sd + "  File: &e"+System.getProperty("java.class.path"), s);
+		              TheAPI.msg(sd + "  Path: &e"+System.getProperty("user.dir"), s);
+		              TheAPI.msg(sd + "  UpTime: &e"+StringUtils.timeToString(TheAPI.getServerUpTime() / 1000L), s);
+		              TheAPI.msg(sd + "  Version: &e"+TheAPICommand.this.realVersion + " &7&o(" + TheAPI.getServerVersion() + ")", s);
+		              TheAPI.msg(sd + "  Startup-Cmd: &e"+StringUtils.join(TheAPICommand.this.rr.getInputArguments(), " "), s);
+		              TheAPI.msg(sd + "» &7Plugin Version: &e"+ LoaderClass.plugin.getDescription().getVersion(), s);
+		              List<Plugin> pl = LoaderClass.plugin.getTheAPIsPlugins();
+		              if (!pl.isEmpty())
+		                if (s instanceof Player) {
+		                  int c = 0;
+		                  HoverMessage sdf = new HoverMessage(StringUtils.colorize(color + "» &7Plugins using TheAPI (" + pl.size() + "): "));
+		                  for (Plugin w : pl) {
+		                	  if(c++ != 0)
+		                		  sdf.addText(", ").setColor("GRAY");
+		                    sdf.addText(StringUtils.colorize(TAC_PluginManager.getPlugin(w))).setHoverEvent(StringUtils.colorize(
+		                        "&7Author: &e"+ StringUtils.join(w.getDescription().getAuthors(), ", ") + "\n" + 
+		                        		(w.getDescription().getWebsite() != null ?
+		                        "&7Website: &e"+ w.getDescription().getWebsite()+ "\n":"")
+		                        +"&7Version: &e"+ w.getDescription().getVersion()));
+		                    if (w.getDescription().getWebsite() != null)
+		                      sdf.setClickEvent(HoverMessage.ClickAction.OPEN_URL, w.getDescription().getWebsite()); 
+		                  }
+		                  sdf.send((Player)s);
+		                } else {
+		                  String sdf = "";
+		                  for (Plugin w : pl)
+		                    sdf += sdf + (sdf.equals("") ? "" : "&7, ") + TAC_PluginManager.getPlugin(w) + " &ev" + 
+		                      w.getDescription().getVersion(); 
+		                  TheAPI.msg(color+"» &7Plugins using TheAPI (" + pl.size() + "): " + sdf, s);
+		                }
+		            }
+		          }.runTask();
 				return true;
 			}
 			return true;

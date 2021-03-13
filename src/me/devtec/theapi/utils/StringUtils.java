@@ -835,6 +835,31 @@ public class StringUtils {
 		return new BigDecimal(0);
 	}
 
+	static Pattern mat = Pattern.compile("\\.([0-9])([0-9])?");
+	public static String fixedFormatDouble(double val) {
+		String text=String.format("%.2f",val);
+		Matcher m = mat.matcher(text);
+		if(m.find()) {
+			if(m.groupCount()!=2) {
+				if(m.group(1).equals("0")) {
+					return m.replaceFirst("");
+				}
+				return m.replaceFirst(".$1");
+			}
+			if(m.group(1).equals("0")) {
+				if(m.group(2).equals("0")) {
+					return m.replaceFirst("");
+				}
+				return m.replaceFirst(".$1$2");
+			}
+			if(m.group(2).equals("0")) {
+				return m.replaceFirst(".$1");
+			}
+			return m.replaceFirst(".$1$2");
+		}
+		return text;
+	}
+	
 	/**
 	 * @see see Get double from string
 	 * @return double

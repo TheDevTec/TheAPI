@@ -222,7 +222,7 @@ public class HoverMessage {
 	}
 
 	public HoverMessage setColor(String color) {
-		maker.put("color", color);
+		maker.put("color", color.toLowerCase());
 		return this;
 	}
 
