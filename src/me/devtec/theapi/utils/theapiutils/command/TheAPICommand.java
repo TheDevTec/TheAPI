@@ -175,7 +175,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				
 				new Tasker() {
 		            public void run() {
-		              String load = StringUtils.fixedFormatDouble(TheAPI.getProcessCpuLoad()).replace(".00", "");
+		              String load = StringUtils.fixedFormatDouble(TheAPI.getProcessCpuLoad());
 		              double[] tps = NMSAPI.getServerTPS();
 		              double first = tps[0], second = tps[1], third = tps[2];
 		              if (first > 20.0D)
@@ -195,9 +195,9 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		              TheAPI.msg(sd + "Processors: &e"+osBean.getAvailableProcessors(), s);
 		              TheAPI.msg(sd + "CPU load: &e"+load+"%", s);
 		              TheAPI.msg(sd + "Memory:", s);
-		              TheAPI.msg(sd + "  Free: &e"+ MemoryAPI.getFreeMemory(false)+"MB &7&o("+MemoryAPI.getFreeMemory(true)+"%)", s);
-		              TheAPI.msg(sd + "  Used: &e"+ MemoryAPI.getUsedMemory(false)+"MB &7&o("+MemoryAPI.getUsedMemory(true)+"%)", s);
-		              TheAPI.msg(sd + "  Total: &e"+MemoryAPI.getMaxMemory()+"MB", s);
+		              TheAPI.msg(sd + "  Free: &e"+ StringUtils.fixedFormatDouble(MemoryAPI.getFreeMemory(false))+"MB &7&o("+StringUtils.fixedFormatDouble(MemoryAPI.getFreeMemory(true))+"%)", s);
+		              TheAPI.msg(sd + "  Used: &e"+ StringUtils.fixedFormatDouble(MemoryAPI.getUsedMemory(false))+"MB &7&o("+StringUtils.fixedFormatDouble(MemoryAPI.getUsedMemory(true))+"%)", s);
+		              TheAPI.msg(sd + "  Total: &e"+StringUtils.fixedFormatDouble(MemoryAPI.getMaxMemory())+"MB", s);
 		              TheAPI.msg(sd + "TPS:", s);
 		              TheAPI.msg(sd + "  1 minute: &e"+StringUtils.fixedFormatDouble(first), s);
 		              TheAPI.msg(sd + "  5 minutes: &e"+StringUtils.fixedFormatDouble(second), s);
@@ -212,7 +212,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		              TheAPI.msg(sd + "  File: &e"+System.getProperty("java.class.path"), s);
 		              TheAPI.msg(sd + "  Path: &e"+System.getProperty("user.dir"), s);
 		              TheAPI.msg(sd + "  UpTime: &e"+StringUtils.timeToString(TheAPI.getServerUpTime() / 1000L), s);
-		              TheAPI.msg(sd + "  Version: &e"+TheAPICommand.this.realVersion + " &7&o(" + TheAPI.getServerVersion() + ")", s);
+		              TheAPI.msg(sd + "  Version: &e"+realVersion + " &7&o(" + TheAPI.getServerVersion() + ")", s);
 		              TheAPI.msg(sd + "  Startup-Cmd: &e"+StringUtils.join(TheAPICommand.this.rr.getInputArguments(), " "), s);
 		              TheAPI.msg(sd + "» &7Plugin Version: &e"+ LoaderClass.plugin.getDescription().getVersion(), s);
 		              List<Plugin> pl = LoaderClass.plugin.getTheAPIsPlugins();
