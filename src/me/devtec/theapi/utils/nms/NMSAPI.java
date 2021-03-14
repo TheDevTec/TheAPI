@@ -352,8 +352,8 @@ public class NMSAPI {
 	public static Object getPacketPlayOutPlayerListHeaderFooter(Object headerIChatBaseComponent, Object footerIChatBaseComponent) {
 		if(pTab!=null) {
 			Object packet = Ref.newInstance(pTab);
-			Ref.set(packet, aField, headerIChatBaseComponent);
-			Ref.set(packet, bField, footerIChatBaseComponent);
+			Ref.set(packet, aField, headerIChatBaseComponent==null?empty:headerIChatBaseComponent);
+			Ref.set(packet, bField, footerIChatBaseComponent==null?empty:footerIChatBaseComponent);
 			return packet;
 		}
 		return null;
@@ -387,9 +387,10 @@ public class NMSAPI {
 	private static Method mm = Ref.method(Ref.craft("util.CraftChatMessage"), "fromStringOrNull", String.class, boolean.class);
 	static {
 		if(mm==null) {
+			oo=1;
 			mm = Ref.method(Ref.craft("util.CraftChatMessage"), "fromString", String.class, boolean.class);
 			if(mm==null) {
-				oo=1;
+				oo=2;
 				mm = Ref.method(Ref.craft("util.CraftChatMessage"), "fromString", String.class);
 			}
 		}
@@ -397,7 +398,7 @@ public class NMSAPI {
 	
 	public static Object getIChatBaseComponentFromCraftBukkit(String text) {
 		if(text==null||text.equals(""))return empty;
-		return oo==0?Ref.invokeNulled(mm, text, true):((Object[])Ref.invokeNulled(mm, text))[0];
+		return oo==0?Ref.invokeNulled(mm, text, true):((Object[])(oo==1?Ref.invokeNulled(mm, text, true):Ref.invokeNulled(mm, text)))[0];
 	}
 
 	public static Object getIChatBaseComponentJson(String json) {
