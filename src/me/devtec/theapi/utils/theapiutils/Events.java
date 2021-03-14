@@ -19,6 +19,7 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -109,6 +110,15 @@ public class Events implements Listener {
 				}
 			}
 		}
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onCOmmand(PlayerCommandPreprocessEvent e) {
+		if (e.isCancelled())
+			return;
+		PlayerBanList p = PunishmentAPI.getBanList(e.getPlayer().getName());
+		if (p.isJailed() || p.isTempJailed() || p.isIPJailed() || p.isTempIPJailed())
+			e.setCancelled(true);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -297,26 +307,9 @@ public class Events implements Listener {
 		if (e.isCancelled())
 			return;
 		PlayerBanList b = PunishmentAPI.getBanList(e.getPlayer().getName());
-		if (b.isTempMuted()) {
-			e.setCancelled(true);
-			TheAPI.msg(b.getReason(PunishmentType.TEMPMUTE).replace("%time%",
-					StringUtils.setTimeToString(b.getExpire(PunishmentType.TEMPMUTE))), e.getPlayer());
-			return;
-		}
-		if (b.isMuted()) {
-			e.setCancelled(true);
-			TheAPI.msg(b.getReason(PunishmentType.MUTE), e.getPlayer());
-			return;
-		}
-		if (b.isTempIPMuted()) {
-			e.setCancelled(true);
-			TheAPI.msg(b.getReason(PunishmentType.TEMPMUTEIP).replace("%time%",
-					StringUtils.setTimeToString(b.getExpire(PunishmentType.TEMPMUTEIP))), e.getPlayer());
-			return;
-		}
-		if (b.isIPMuted()) {
-			e.setCancelled(true);
-			TheAPI.msg(b.getReason(PunishmentType.MUTEIP), e.getPlayer());
+		if (b.isIPMuted()||b.isTempIPMuted()||b.isMuted()||b.isTempMuted()) {
+			e.getRecipients().clear();
+			e.getRecipients().add(e.getPlayer());
 			return;
 		}
 	}
