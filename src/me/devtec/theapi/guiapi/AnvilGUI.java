@@ -254,6 +254,22 @@ public class AnvilGUI implements HolderGUI {
 		}
 	}
 
+	@Override
+	public void closeWithoutPacket(Player... p) {
+		if(p==null)return;
+		for (Player player : p) {
+			if(player==null)continue;
+			Object ac = containers.remove(player);
+			if(ac!=null) {
+				Ref.invoke(ac, "b", Ref.player(player));
+				Ref.set(Ref.player(player), "activeContainer", Ref.get(Ref.player(player), "defaultContainer"));
+				Ref.invoke(ac, transfer, Ref.get(Ref.player(player), "defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
+			}
+			LoaderClass.plugin.gui.remove(player.getName());
+			onClose(player);
+		}
+	}
+
 	public final String toString() {
 		String items = "";
 		for (Integer g : getItemGUIs().keySet()) {

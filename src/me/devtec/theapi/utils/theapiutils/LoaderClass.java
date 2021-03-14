@@ -124,7 +124,7 @@ public class LoaderClass extends JavaPlugin {
 				return false;
 			}
 
-			Method getSlot = Ref.method(Ref.nms("Container"), "getSlot", int.class);
+			Method getSlot = Ref.method(Ref.nms("Container"), "getSlot", int.class), updateInv=Ref.method(Ref.nms("EntityPlayer"), "updateInventory", Ref.nms("Container"));
 			Constructor<?> setSlot = Ref.constructor(Ref.nms("PacketPlayOutSetSlot"), int.class, int.class, Ref.nms("ItemStack"))
 					,equipment = Ref.constructor(Ref.nms("PacketPlayOutEntityEquipment"), int.class, List.class);
 			Object OFFHAND = Ref.getStatic(Ref.nms("EnumItemSlot"),"OFFHAND");
@@ -144,7 +144,7 @@ public class LoaderClass extends JavaPlugin {
 					if (d == null)
 						return false;
 					LoaderClass.plugin.gui.remove(p.getName());
-					d.onClose(p);
+					d.closeWithoutPacket(p);
 					return true;
 				}
 				if(packet.toString().contains("PacketPlayInWindowClick")) {
@@ -163,8 +163,8 @@ public class LoaderClass extends JavaPlugin {
 						return false;
 					if(InventoryClickType.THROW==type||InventoryClickType.PICKUP==type && slot==-999)return false;
 					if(InventoryClickType.SWAP==type) {
-						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(Ref.get(Ref.player(p), "activeContainer"), getSlot, slot),"getItem")));
-						if(mouseClick == 40) {
+						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(d.getContainer(p), getSlot, slot),"getItem")));
+						if(mouseClick == 40 && TheAPI.isNewerThan(7)) {
 							final List<com.mojang.datafixers.util.Pair<?,?>> equipmentList = new ArrayList<>();
 							equipmentList.add(new com.mojang.datafixers.util.Pair<>(OFFHAND, NMSAPI.asNMSItem(p.getEquipment().getItemInOffHand())));
 							Ref.sendPacket(p,Ref.newInstance(equipment, p.getEntityId(), equipmentList));
@@ -180,17 +180,17 @@ public class LoaderClass extends JavaPlugin {
 						return true;
 					}
 					ItemStack i = NMSAPI.asBukkitItem(Ref.get(packet, "item"));
-					if(type==InventoryClickType.QUICK_MOVE && i.getType()==Material.AIR)
-						i=NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(Ref.get(Ref.player(p), "activeContainer"), getSlot, slot),"getItem"));
+					if((type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.CLONE) && i.getType()==Material.AIR)
+						i=NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(d.getContainer(p), getSlot, slot),"getItem"));
 					ItemStack before = p.getItemOnCursor();
 					if(type!=InventoryClickType.PICKUP_ALL)
 					if(before.getType()==Material.AIR&&i.getType()==Material.AIR || type!=InventoryClickType.CLONE && type!=InventoryClickType.QUICK_MOVE && type!=InventoryClickType.QUICK_CRAFT && type!=InventoryClickType.PICKUP) {
-						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(Ref.get(Ref.player(p), "activeContainer"), getSlot, slot),"getItem")));
+						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(d.getContainer(p), getSlot, slot),"getItem")));
 						Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));
 						return true;
 					}
 					String action = i.getType()==Material.AIR && (type==InventoryClickType.PICKUP||type==InventoryClickType.QUICK_CRAFT)?"DROP":"PICKUP";
-					action=(mouseClick==0?"LEFT_":mouseClick==1?"RIGHT_":"MIDDLE_")+action;
+					action=(type==InventoryClickType.CLONE?"MIDDLE_":(mouseClick==0?"LEFT_":mouseClick==1?"RIGHT_":"MIDDLE_"))+action;
 					if(type==InventoryClickType.QUICK_MOVE)
 					action="SHIFT_"+action;
 					boolean cancel = false;
@@ -223,16 +223,16 @@ public class LoaderClass extends JavaPlugin {
 					}else
 						if(!d.isInsertable())
 							cancel=true;
-						if(!cancel && slot%d.size()!=2 && d instanceof AnvilGUI)((AnvilGUI) d).getInventory().put(slot%d.size(), i);
 					if(cancel) {
 						if(type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.PICKUP_ALL) {
-							Ref.invoke(Ref.player(p), Ref.method(Ref.nms("EntityPlayer"), "updateInventory", Ref.nms("Container")), Ref.get(Ref.player(p), "activeContainer"));
+							Ref.invoke(Ref.player(p), updateInv, d.getContainer(p));
 						}else {
-							Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(Ref.get(Ref.player(p), "activeContainer"), getSlot, slot),"getItem")));
+							Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(d.getContainer(p), getSlot, slot),"getItem")));
 							Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));
 						}
+						return true;
 					}
-					return cancel;
+					if(type!=InventoryClickType.CLONE && slot%d.size()!=2 && d instanceof AnvilGUI)((AnvilGUI) d).getInventory().put(slot%d.size(), i);
 				}
 				return false;
 			}

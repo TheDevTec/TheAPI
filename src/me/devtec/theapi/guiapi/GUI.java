@@ -318,4 +318,20 @@ public class GUI implements HolderGUI {
 	public Object getContainer(Player player) {
 		return containers.get(player);
 	}
+
+	@Override
+	public void closeWithoutPacket(Player... p) {
+		if(p==null)return;
+		for (Player player : p) {
+			if(player==null)continue;
+			Object ac = containers.remove(player);
+			if(ac!=null) {
+				Ref.invoke(ac, "b", Ref.player(player));
+				Ref.set(Ref.player(player), "activeContainer", Ref.get(Ref.player(player), "defaultContainer"));
+				Ref.invoke(ac, transfer, Ref.get(Ref.player(player), "defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
+			}
+			LoaderClass.plugin.gui.remove(player.getName());
+			onClose(player);
+		}
+	}
 }

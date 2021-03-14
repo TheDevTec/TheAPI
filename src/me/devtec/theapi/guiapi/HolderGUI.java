@@ -39,4 +39,6 @@ public interface HolderGUI {
 	public void clear();
 	
 	public Object getContainer(Player player);
+
+	public void closeWithoutPacket(Player... p);
 }
