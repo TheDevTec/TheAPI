@@ -411,8 +411,7 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public void setDisplayName(String newName) {
-		if (newName != null)
-			name = TheAPI.colorize(newName);
+		name = TheAPI.colorize(newName);
 	}
 
 	public String getDisplayName() {
@@ -470,9 +469,10 @@ public class ItemCreatorAPI implements Cloneable {
 	}
 
 	public void setLore(List<String> lore) {
-		if (lore != null)
+		if (lore != null) {
 			for (String s : lore)
 				addLore(s);
+		}else lore =null;
 	}
 
 	public int getCustomModelData() {
