@@ -108,6 +108,7 @@ public class AnvilGUI implements HolderGUI {
 		return getItemGUIs().getOrDefault(slot, null);
 	}
 
+	private static Method addListener = Ref.method(Ref.nms("Container"), "addSlotListener", Ref.nms("ICrafting"));
 	private static Constructor<?> openWindow, closeWindow = Ref.constructor(Ref.nms("PacketPlayOutCloseWindow"), int.class),
 			createAnvil = Ref.constructor(Ref.nms("ContainerAnvil"), int.class, Ref.nms("PlayerInventory"), Ref.nms("ContainerAccess")),
 			setSlot=Ref.constructor(Ref.nms("PacketPlayOutSetSlot"), int.class, int.class, Ref.nms("ItemStack")),
@@ -150,7 +151,7 @@ public class AnvilGUI implements HolderGUI {
 			Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getIChatBaseComponentFromCraftBukkit(title)));
 		}
 		Ref.set(aw, "activeContainer", container);
-		Ref.invoke(container, Ref.method(Ref.nms("Container"), "addSlotListener", Ref.nms("ICrafting")), Ref.cast(Ref.nms("ICrafting"), aw));
+		Ref.invoke(container, addListener, aw);
 		Ref.set(container, "checkReachable", false);
 		containers.put(player, container);
 		LoaderClass.plugin.gui.put(player.getName(), this);

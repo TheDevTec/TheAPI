@@ -5,9 +5,9 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -192,43 +192,47 @@ public class GUI implements HolderGUI {
 				LoaderClass.plugin.gui.remove(player.getName());
 				a.onClose(player);
 			}
-			int id = (int) Ref.invoke(Ref.player(player), "nextContainerCounter");
-			Object container = Ref.newInstance(containerClass, inv, Ref.player(player), id);
-			Object active = Ref.get(Ref.player(player), "activeContainer");
+			Object f= Ref.player(player);
+			int id = (int) Ref.invoke(f, "nextContainerCounter");
+			Object container = Ref.newInstance(containerClass, inv, f, id);
+			Object active = Ref.get(f, "activeContainer");
 			Ref.invoke(active, transfer, container, Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
 			if(TheAPI.isOlderThan(8)) {
-				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(Ref.player(player),"containerCounter"),0,title, Ref.invoke(container,"getSize"), false));
+				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(f,"containerCounter"),0,title, Ref.invoke(container,"getSize"), false));
 			}else if(TheAPI.isOlderThan(14)) {
-				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(Ref.player(player),"containerCounter"),"minecraft:container",NMSAPI.getIChatBaseComponentFromCraftBukkit(title), Ref.invoke(container,"getSize")));
+				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(f,"containerCounter"),"minecraft:container",NMSAPI.getIChatBaseComponentFromCraftBukkit(title), Ref.invoke(container,"getSize")));
 			}else {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(container,"windowId"), windowType, NMSAPI.getIChatBaseComponentFromCraftBukkit(title)));
 			}
-			Ref.set(Ref.player(player), "activeContainer", container);
-			Ref.invoke(container, Ref.method(Ref.nms("Container"), "addSlotListener", Ref.nms("ICrafting")), Ref.cast(Ref.nms("ICrafting"), Ref.player(player)));
+			Ref.set(f, "activeContainer", container);
+			Ref.invoke(container, addListener, f);
 			Ref.set(container, "checkReachable", false);
 			containers.put(player, container);
 			LoaderClass.plugin.gui.put(player.getName(), this);
 		}
 	}
 	
+	private static Method addListener = Ref.method(Ref.nms("Container"), "addSlotListener", Ref.nms("ICrafting"));
 	private static Object empty = Ref.getStatic(Ref.nms("ItemStack"), "b");
 	
 	public final void setTitle(String title) {
 		title=StringUtils.colorize(title);
 		this.title=title;
-		for(HumanEntity player : inv.getViewers()) {
-			Object container = containers.get(player);
+		for(Entry<Player, Object> ec : containers.entrySet()) {
+			Player player = ec.getKey();
+			Object container = ec.getValue();
+			Object f= Ref.player(player);
 			if(TheAPI.isOlderThan(8)) {
-				Ref.sendPacket((Player)player, Ref.newInstance(openWindow,Ref.get(Ref.player((Player)player),"containerCounter"),0,title, inv.getSize(), false));
+				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(f,"containerCounter"),0,title, inv.getSize(), false));
 			}else if(TheAPI.isOlderThan(14)) {
-				Ref.sendPacket((Player)player, Ref.newInstance(openWindow,Ref.get(Ref.player((Player)player),"containerCounter"),"minecraft:container",NMSAPI.getIChatBaseComponentFromCraftBukkit(title), inv.getSize()));
+				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(f,"containerCounter"),"minecraft:container",NMSAPI.getIChatBaseComponentFromCraftBukkit(title), inv.getSize()));
 			}else {
-				Ref.sendPacket((Player)player, Ref.newInstance(openWindow,Ref.get(container,"windowId"), windowType, NMSAPI.getIChatBaseComponentFromCraftBukkit(title)));
+				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(container,"windowId"), windowType, NMSAPI.getIChatBaseComponentFromCraftBukkit(title)));
 			}
-			Ref.sendPacket((Player)player, Ref.newInstance(itemsS, Ref.get(container, "windowId"), Ref.get(container,"items")));
-			Object carry = Ref.invoke(Ref.get(Ref.player((Player)player),"inventory"),"getCarried");
+			Ref.sendPacket(player, Ref.newInstance(itemsS, Ref.get(container, "windowId"), Ref.get(container,"items")));
+			Object carry = Ref.invoke(Ref.get(f,"inventory"),"getCarried");
 			if(carry!=empty) //Don't send useless packets
-				Ref.sendPacket((Player)player, Ref.newInstance(setSlot, -1, -1, carry));
+				Ref.sendPacket(player, Ref.newInstance(setSlot, -1, -1, carry));
 		}
 	}
 	
