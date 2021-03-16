@@ -45,6 +45,7 @@ public class ResourcePackAPI {
 		if(handler!=null)
 		resourcePacksLoading.put(player, handler);
 		else resourcePacksLoading.remove(player);
+		resourcePacks.put(player, resourcePack);
 		Ref.sendPacket(player, Ref.newInstance(p, resourcePack, sha));
 	}
 }

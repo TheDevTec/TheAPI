@@ -117,6 +117,18 @@ public class LoaderClass extends JavaPlugin {
 	@Override
 	public void onLoad() {
 		plugin = this;
+		Data plugin = new Data();
+		for(Plugin e : Bukkit.getPluginManager().getPlugins()) {
+			plugin.reload(StreamUtils.fromStream(e.getResource("plugin.yml")));
+			if(plugin.exists("configs")) {
+				String folder = plugin.exists("configsFolder")?(plugin.getString("configsFolder").trim().isEmpty()?e.getName():plugin.getString("configsFolder")):e.getName();
+				if(plugin.get("configs") instanceof Collection) {
+					for(String config : plugin.getStringList("configs"))
+						Config.loadConfig(e, config, folder+"/"+config);
+				}else
+					Config.loadConfig(e, plugin.getString("configs"), folder+"/"+plugin.getString("configs"));
+			}
+		}
 		new PacketListener() {
 			
 			@Override
@@ -361,22 +373,10 @@ public class LoaderClass extends JavaPlugin {
 			if(plugin.exists("configs")) {
 				String folder = plugin.exists("configsFolder")?(plugin.getString("configsFolder").trim().isEmpty()?e.getName():plugin.getString("configsFolder")):e.getName();
 				if(plugin.get("configs") instanceof Collection) {
-					for(String config : plugin.getStringList("configs")) {
-						Config c = new Config(folder+"/"+config);
-						Data read = new Data();
-						plugin.reload(StreamUtils.fromStream(e.getResource(config)));
-						c.getData().merge(read, true, true);
-						c.save();
-						c.getData().clear();
-					}
-				}else {
-					Config c = new Config(folder+"/"+plugin.getString("configs"));
-					Data read = new Data();
-					plugin.reload(StreamUtils.fromStream(e.getResource(plugin.getString("configs"))));
-					c.getData().merge(read, true, true);
-					c.save();
-					c.getData().clear();
-				}
+					for(String config : plugin.getStringList("configs"))
+						Config.loadConfig(e, config, folder+"/"+config);
+				}else
+					Config.loadConfig(e, plugin.getString("configs"), folder+"/"+plugin.getString("configs"));
 			}
 		}
 		Bukkit.getPluginManager().registerEvents(new Events(), LoaderClass.this);

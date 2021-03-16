@@ -55,20 +55,10 @@ public class Events implements Listener {
 		if(plugin.exists("configs")) {
 			String folder = plugin.exists("configsFolder")?(plugin.getString("configsFolder").trim().isEmpty()?e.getPlugin().getName():plugin.getString("configsFolder")):e.getPlugin().getName();
 			if(plugin.get("configs") instanceof Collection) {
-				for(String config : plugin.getStringList("configs")) {
-					Config c = new Config(folder+"/"+config);
-					plugin.reload(StreamUtils.fromStream(e.getPlugin().getResource(config)));
-					c.getData().merge(plugin, true, true);
-					c.save();
-					c.getData().clear();
-				}
-			}else {
-				Config c = new Config(folder+"/"+plugin.getString("configs"));
-				plugin.reload(StreamUtils.fromStream(e.getPlugin().getResource(plugin.getString("configs"))));
-				c.getData().merge(plugin, true, true);
-				c.save();
-				c.getData().clear();
-			}
+				for(String config : plugin.getStringList("configs"))
+					Config.loadConfig(e.getPlugin(), config, folder+"/"+config);
+			}else
+				Config.loadConfig(e.getPlugin(), plugin.getString("configs"), folder+"/"+plugin.getString("configs"));
 		}
 	}
 	

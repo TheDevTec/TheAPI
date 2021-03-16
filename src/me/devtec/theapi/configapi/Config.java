@@ -9,8 +9,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.bukkit.plugin.Plugin;
+
+import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.DataType;
+import me.devtec.theapi.utils.datakeeper.loader.ByteLoader;
+import me.devtec.theapi.utils.datakeeper.loader.JsonLoader;
+import me.devtec.theapi.utils.reflections.Ref;
 
 public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	
@@ -42,6 +48,26 @@ public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data 
 			this.comments=comments;
 			return old;
 		}
+	}
+	
+	public static Config loadConfig(Plugin plugin, String pathToConfig, String outputFile) { 
+		Config c = new Config(outputFile);
+		Data load = new Data();
+		load.reload(StreamUtils.fromStream(plugin.getResource(pathToConfig)));
+		Object loader = Ref.get(load, "loader");
+		if(loader instanceof JsonLoader)c.t=DataType.JSON;
+		else if(loader instanceof ByteLoader)c.t=DataType.BYTE;
+		else c.t=DataType.YAML;
+		if(c.getData().merge(load, true, true))c.save();
+		return c;
+	}
+	
+	public static Config loadConfig(Plugin plugin, String pathToConfig, String outputFile, DataType type) {
+		Config c = new Config(outputFile, type);
+		Data load = new Data();
+		load.reload(StreamUtils.fromStream(plugin.getResource(pathToConfig)));
+		if(c.getData().merge(load, true, true))c.save();
+		return c;
 	}
 	
 	public static String folderName = "plugins/";
