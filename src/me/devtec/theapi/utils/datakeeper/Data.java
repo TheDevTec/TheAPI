@@ -458,64 +458,62 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return getListAs(key, Map.class);
 	}
 
-	public Data save(DataType type) {
-		synchronized (loader) {
-			try {
-				if (a == null)
-					return this;
-				OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
-				if (type == DataType.BYTE) {
-					try {
-						ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
-						bos.writeInt(1);
-						for (Entry<String, Object[]> key : loader.get().entrySet())
-							try {
-								bos.writeUTF(key.getKey());
-								if(key.getValue()[0]==null) {
-									bos.writeUTF(null);
-								}else {
-									String write = Writer.write(key.getValue()[0]);
-									while(write.length()>35000) {
-										String wr = write.substring(0, 34999);
-										bos.writeUTF("0"+wr);
-										write=write.substring(34999);
-									}
-									bos.writeUTF("0"+write);
+	public synchronized Data save(DataType type) {
+		try {
+			if (a == null)
+				return this;
+			OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
+			if (type == DataType.BYTE) {
+				try {
+					ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
+					bos.writeInt(1);
+					for (Entry<String, Object[]> key : loader.get().entrySet())
+						try {
+							bos.writeUTF(key.getKey());
+							if(key.getValue()[0]==null) {
+								bos.writeUTF(null);
+							}else {
+								String write = Writer.write(key.getValue()[0]);
+								while(write.length()>35000) {
+									String wr = write.substring(0, 34999);
+									bos.writeUTF("0"+wr);
+									write=write.substring(34999);
 								}
-								bos.writeUTF("0");
-							} catch (Exception er) {
+								bos.writeUTF("0"+write);
 							}
-						w.write(Base64.getEncoder().encodeToString(bos.toByteArray()));
-						w.close();
-					} catch (Exception e) {
-						w.close();
-					}
-					return this;
-				}
-				if (type == DataType.JSON) {
-					Maker maker = new Maker();
-					for (String key : new LinkedHashSet<>(aw))
-						addKeys(maker, key);
-					w.write(maker.toString(false).replace("\\n", System.lineSeparator()));
+							bos.writeUTF("0");
+						} catch (Exception er) {
+						}
+					w.write(Base64.getEncoder().encodeToString(bos.toByteArray()));
 					w.close();
-					return this;
+				} catch (Exception e) {
+					w.close();
 				}
-				try {
-					for (String h : loader.getHeader())
-						w.write(h + System.lineSeparator());
-				} catch (Exception er) {
-				}
-				for (String key : new LinkedHashSet<>(aw))
-					preparePath(key, key + ":", 0, w);
-				try {
-					for (String h : loader.getFooter())
-						w.write(h + System.lineSeparator());
-				} catch (Exception er) {
-				}
-				w.close();
-			} catch (Exception er) {
-				Validator.send("Saving Data to File", er);
+				return this;
 			}
+			if (type == DataType.JSON) {
+				Maker maker = new Maker();
+				for (String key : new LinkedHashSet<>(aw))
+					addKeys(maker, key);
+				w.write(maker.toString(false).replace("\\n", System.lineSeparator()));
+				w.close();
+				return this;
+			}
+			try {
+				for (String h : loader.getHeader())
+					w.write(h + System.lineSeparator());
+			} catch (Exception er) {
+			}
+			for (String key : new LinkedHashSet<>(aw))
+				preparePath(key, key + ":", 0, w);
+			try {
+				for (String h : loader.getFooter())
+					w.write(h + System.lineSeparator());
+			} catch (Exception er) {
+			}
+			w.close();
+		} catch (Exception er) {
+			Validator.send("Saving Data to File", er);
 		}
 		return this;
 	}
@@ -669,56 +667,54 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 	}
 
-	public String toString(DataType type) {
-		synchronized (loader) {
-			if (type == DataType.BYTE) {
-				try {
-					ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
-					bos.writeInt(1);
-					for (Entry<String, Object[]> key : loader.get().entrySet())
-						try {
-							bos.writeUTF(key.getKey());
-							if(key.getValue()[0]==null) {
-								bos.writeUTF(null);
-							}else {
-								String write = Writer.write(key.getValue()[0]);
-								while(write.length()>35000) {
-									String wr = write.substring(0, 34999);
-									bos.writeUTF("0"+wr);
-									write=write.substring(34999);
-								}
-								bos.writeUTF("0"+write);
+	public synchronized String toString(DataType type) {
+		if (type == DataType.BYTE) {
+			try {
+				ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
+				bos.writeInt(1);
+				for (Entry<String, Object[]> key : loader.get().entrySet())
+					try {
+						bos.writeUTF(key.getKey());
+						if(key.getValue()[0]==null) {
+							bos.writeUTF(null);
+						}else {
+							String write = Writer.write(key.getValue()[0]);
+							while(write.length()>35000) {
+								String wr = write.substring(0, 34999);
+								bos.writeUTF("0"+wr);
+								write=write.substring(34999);
 							}
-							bos.writeUTF("0");
-						} catch (Exception er) {
+							bos.writeUTF("0"+write);
 						}
-					return Base64.getEncoder().encodeToString(bos.toByteArray());
-				} catch (Exception e) {
-				}
-				return "";
+						bos.writeUTF("0");
+					} catch (Exception er) {
+					}
+				return Base64.getEncoder().encodeToString(bos.toByteArray());
+			} catch (Exception e) {
 			}
-			if (type == DataType.JSON) {
-				Maker main = new Maker();
-				for (String key : new LinkedHashSet<>(aw))
-					addKeys(main, key);
-				return main.toString();
-			}
-
-			StringWriter d = new StringWriter();
-			try {
-				for (String h : loader.getHeader())
-					d.write(h + System.lineSeparator());
-			} catch (Exception er) {
-			}
-			for (String key : new LinkedHashSet<>(aw))
-				preparePath(key, key + ":", 0, d);
-			try {
-				for (String h : loader.getFooter())
-					d.write(h + System.lineSeparator());
-			} catch (Exception er) {
-			}
-			return d.toString();
+			return "";
 		}
+		if (type == DataType.JSON) {
+			Maker main = new Maker();
+			for (String key : new LinkedHashSet<>(aw))
+				addKeys(main, key);
+			return main.toString();
+		}
+
+		StringWriter d = new StringWriter();
+		try {
+			for (String h : loader.getHeader())
+				d.write(h + System.lineSeparator());
+		} catch (Exception er) {
+		}
+		for (String key : new LinkedHashSet<>(aw))
+			preparePath(key, key + ":", 0, d);
+		try {
+			for (String h : loader.getFooter())
+				d.write(h + System.lineSeparator());
+		} catch (Exception er) {
+		}
+		return d.toString();
 	}
 
 	private static String cs(int s, int doubleSpace) {
