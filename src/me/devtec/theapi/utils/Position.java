@@ -59,6 +59,18 @@ public class Position implements Cloneable {
 		this.pitch = pitch;
 	}
 
+	public Position(double x, double y, double z) {
+		this(x, y, z, 0, 0);
+	}
+
+	public Position(double x, double y, double z, float yaw, float pitch) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.yaw = yaw;
+		this.pitch = pitch;
+	}
+
 	public Position(Location location) {
 		w = location.getWorld().getName();
 		this.x = location.getX();
@@ -138,8 +150,6 @@ public class Position implements Cloneable {
 		this.x -= position.getX();
 		this.y -= position.getY();
 		this.z -= position.getZ();
-		yaw -= position.getYaw();
-		pitch -= position.getPitch();
 		return this;
 	}
 
@@ -147,8 +157,6 @@ public class Position implements Cloneable {
 		this.x -= location.getX();
 		this.y -= location.getY();
 		this.z -= location.getZ();
-		yaw -= location.getYaw();
-		pitch -= location.getPitch();
 		return this;
 	}
 
@@ -334,15 +342,30 @@ public class Position implements Cloneable {
 	}
 
 	public long setType(Material with) {
-		return setType(with, 0);
+		return setType(new TheMaterial(with));
+	}
+
+	public long setType(Material with, int data) {
+		return setType(new TheMaterial(with, data));
 	}
 
 	public long setType(TheMaterial with) {
 		return set(this, with);
 	}
 
-	public long setType(Material with, int data) {
-		return setType(new TheMaterial(with, data));
+	public void setTypeAndUpdate(Material with) {
+		setTypeAndUpdate(new TheMaterial(with));
+	}
+
+	public void setTypeAndUpdate(Material with, int data) {
+		setTypeAndUpdate(new TheMaterial(with, data));
+	}
+	
+	public void setTypeAndUpdate(TheMaterial with) {
+		Object old = getType().getIBlockData();
+		setType(with);
+		updateBlockAt(this, old);
+		updateLightAt(this);
 	}
 
 	@Override
@@ -381,12 +404,20 @@ public class Position implements Cloneable {
 	}
 
 	private static boolean aww = TheAPI.isOlderThan(8);
+	private static Method updateLight = Ref.method(Ref.nms("LightEngine"), "a", Ref.nms("BlockPosition")),getEngine;
+	static {
+		if(updateLight==null) {
+			updateLight = Ref.method(Ref.nms("Chunk"), "initLighting");
+		}else {
+			getEngine=Ref.method(Ref.nms("Chunk"), "e");
+		}
+	}
 
 	public static void updateLightAt(Position pos) {
 		if (aww)
-			Ref.invoke(pos.getNMSChunk(), "initLighting");
+			Ref.invoke(pos.getNMSChunk(), updateLight);
 		else
-			Ref.invoke(Ref.invoke(pos.getNMSChunk(), "e"), "a", pos.getBlockPosition());
+			Ref.invoke(Ref.invoke(pos.getNMSChunk(), getEngine), updateLight, pos.getBlockPosition());
 	}
 
 	public static long set(Position pos, TheMaterial mat) {
