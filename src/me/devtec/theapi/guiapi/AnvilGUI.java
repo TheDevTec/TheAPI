@@ -1,7 +1,6 @@
 package me.devtec.theapi.guiapi;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,8 +81,8 @@ public class AnvilGUI implements HolderGUI {
 		items.remove(slot);
 		inv.remove(slot);
 		for(Entry<Player, Object> p : containers.entrySet()) {
-			Ref.sendPacket(p.getKey(), Ref.newInstance(setSlot, Ref.get(p.getValue(), "windowId"),slot, empty));
-			Ref.invoke(p.getValue(), Ref.method(Ref.nms("Container"), "setItem", int.class, Ref.nms("ItemStack")), slot, empty);
+			Ref.sendPacket(p.getKey(), Ref.newInstance(setSlot, Ref.get(p.getValue(), "windowId"),slot, GUI.empty));
+			Ref.invoke(p.getValue(), Ref.method(Ref.nms("Container"), "setItem", int.class, Ref.nms("ItemStack")), slot, GUI.empty);
 		}
 	}
 
@@ -108,21 +107,9 @@ public class AnvilGUI implements HolderGUI {
 		return getItemGUIs().getOrDefault(slot, null);
 	}
 
-	private static Method addListener = Ref.method(Ref.nms("Container"), "addSlotListener", Ref.nms("ICrafting"));
-	private static Constructor<?> openWindow, closeWindow = Ref.constructor(Ref.nms("PacketPlayOutCloseWindow"), int.class),
-			createAnvil = Ref.constructor(Ref.nms("ContainerAnvil"), int.class, Ref.nms("PlayerInventory"), Ref.nms("ContainerAccess")),
+	private static Constructor<?> createAnvil = Ref.constructor(Ref.nms("ContainerAnvil"), int.class, Ref.nms("PlayerInventory"), Ref.nms("ContainerAccess")),
 			setSlot=Ref.constructor(Ref.nms("PacketPlayOutSetSlot"), int.class, int.class, Ref.nms("ItemStack")),
 			itemsS=Ref.getConstructors(Ref.nms("PacketPlayOutWindowItems"))[0];
-	static {
-		if(TheAPI.isOlderThan(8)) {
-			openWindow=Ref.constructor(Ref.nms("PacketPlayOutOpenWindow"), int.class, int.class, String.class, int.class, boolean.class);
-		}else if(TheAPI.isOlderThan(14)) {
-			openWindow=Ref.constructor(Ref.nms("PacketPlayOutOpenWindow"), int.class, String.class, Ref.nms("IChatBaseComponent"), int.class);
-		}else {
-			openWindow=Ref.constructor(Ref.nms("PacketPlayOutOpenWindow"), int.class, Ref.nms("Containers"), Ref.nms("IChatBaseComponent"));
-		}
-	}
-	private static Method transfer=Ref.method(Ref.nms("Container"),"transferTo", Ref.nms("Container"), Ref.craft("entity.CraftHumanEntity"));
 	private static Object windowType = Ref.getStatic(Ref.nms("Containers"), "ANVIL");
 	private final int size=2;
 	private static Object zero = new Position("world",0,0,0).getBlockPosition();
@@ -142,16 +129,16 @@ public class AnvilGUI implements HolderGUI {
 		int id = (int) Ref.invoke(aw, "nextContainerCounter");
 		Object container = Ref.newInstance(createAnvil, id, Ref.get(aw, "inventory"), Ref.invokeStatic(Ref.method(Ref.nms("ContainerAccess"), "at", Ref.nms("World"), Ref.nms("BlockPosition")), Ref.get(aw,"world"), zero));
 		Object active = Ref.get(aw, "activeContainer");
-		Ref.invoke(active, transfer, container, Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
+		Ref.invoke(active, GUI.transfer, container, Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
 		if(TheAPI.isOlderThan(8)) {
-			Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(aw,"containerCounter"),8,title, size, false));
+			Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,8,title, size, false));
 		}else if(TheAPI.isOlderThan(14)) {
-			Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(aw,"containerCounter"),"minecraft:anvil",NMSAPI.getIChatBaseComponentFromCraftBukkit(title), size));
+			Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,"minecraft:anvil",NMSAPI.getIChatBaseComponentFromCraftBukkit(title), size));
 		}else {
-			Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getIChatBaseComponentFromCraftBukkit(title)));
+			Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id, windowType, NMSAPI.getIChatBaseComponentFromCraftBukkit(title)));
 		}
 		Ref.set(aw, "activeContainer", container);
-		Ref.invoke(container, addListener, aw);
+		Ref.invoke(container, GUI.addListener, aw);
 		Ref.set(container, "checkReachable", false);
 		containers.put(player, container);
 		LoaderClass.plugin.gui.put(player.getName(), this);
@@ -168,8 +155,6 @@ public class AnvilGUI implements HolderGUI {
 		return (String)Ref.get(containers.get(player), "renameText");
 	}
 	
-	private static Object empty = Ref.getStatic(Ref.nms("ItemStack"), "b");
-	
 	public final void setTitle(String title) {
 		title=StringUtils.colorize(title);
 		this.title=title;
@@ -177,14 +162,14 @@ public class AnvilGUI implements HolderGUI {
 			Player player = entry.getKey();
 			Object container = entry.getValue();
 			if(TheAPI.isOlderThan(8)) {
-				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(container,"windowId"),8,title, size, false));
+				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,Ref.get(container,"windowId"),8,title, size, false));
 			}else if(TheAPI.isOlderThan(14)) {
-				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(container,"windowId"),"minecraft:anvil",NMSAPI.getIChatBaseComponentFromCraftBukkit(title), size));
+				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,Ref.get(container,"windowId"),"minecraft:anvil",NMSAPI.getIChatBaseComponentFromCraftBukkit(title), size));
 			}else
-				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(container,"windowId"), windowType, NMSAPI.getIChatBaseComponentFromCraftBukkit(title)));
+				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,Ref.get(container,"windowId"), windowType, NMSAPI.getIChatBaseComponentFromCraftBukkit(title)));
 			Ref.sendPacket(player, Ref.newInstance(itemsS, Ref.get(container, "windowId"), Ref.get(container,"items")));
 			Object carry = Ref.invoke(Ref.get(Ref.player(player),"inventory"),"getCarried");
-			if(carry!=empty) //Don't send useless packets
+			if(carry!=GUI.empty) //Don't send useless packets
 				Ref.sendPacket(player, Ref.newInstance(setSlot, -1, -1, carry));
 		}
 		
@@ -244,10 +229,11 @@ public class AnvilGUI implements HolderGUI {
 			if(player==null)continue;
 			Object ac = containers.remove(player);
 			if(ac!=null) {
-				Ref.sendPacket(player, Ref.newInstance(closeWindow, Ref.get(ac, "windowId")));
-				Ref.invoke(ac, "b", Ref.player(player));
-				Ref.set(Ref.player(player), "activeContainer", Ref.get(Ref.player(player), "defaultContainer"));
-				Ref.invoke(ac, transfer, Ref.get(Ref.player(player), "defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
+				Ref.sendPacket(player, Ref.newInstance(GUI.closeWindow, Ref.get(ac, "windowId")));
+				Object d = Ref.player(player);
+				Ref.invoke(ac, "b", d);
+				Ref.set(Ref.player(player), "activeContainer", Ref.get(d, "defaultContainer"));
+				Ref.invoke(ac, GUI.transfer, Ref.get(d, "defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
 			}
 			LoaderClass.plugin.gui.remove(player.getName());
 			onClose(player);
@@ -261,9 +247,10 @@ public class AnvilGUI implements HolderGUI {
 			if(player==null)continue;
 			Object ac = containers.remove(player);
 			if(ac!=null) {
-				Ref.invoke(ac, "b", Ref.player(player));
-				Ref.set(Ref.player(player), "activeContainer", Ref.get(Ref.player(player), "defaultContainer"));
-				Ref.invoke(ac, transfer, Ref.get(Ref.player(player), "defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
+				Object d = Ref.player(player);
+				Ref.invoke(ac, "b", d);
+				Ref.set(Ref.player(player), "activeContainer", Ref.get(d, "defaultContainer"));
+				Ref.invoke(ac, GUI.transfer, Ref.get(d, "defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
 			}
 			LoaderClass.plugin.gui.remove(player.getName());
 			onClose(player);
