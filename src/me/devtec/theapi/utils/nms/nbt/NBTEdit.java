@@ -39,12 +39,16 @@ public class NBTEdit {
 			getShort=Ref.method(Ref.nms("NBTTagCompound"), "getShort", String.class);
 	
 	private Object nbt;
-	public NBTEdit(Object nbt) {
-		if(nbt instanceof ItemStack)
-			this.nbt=NMSAPI.getNBT((ItemStack)nbt);
-		else
-			this.nbt=nbt;
-	}
+    public NBTEdit(Object nbt) {
+        if(nbt instanceof ItemStack)
+            this.nbt=NMSAPI.getNBT((ItemStack)nbt);
+        else
+
+        if(nbt instanceof String)
+            this.nbt=NMSAPI.getNBT((String)nbt);
+        else
+            this.nbt=nbt;
+    }
 	
 	public NBTEdit(ItemStack stack) {
 		this(NMSAPI.getNBT(stack));
