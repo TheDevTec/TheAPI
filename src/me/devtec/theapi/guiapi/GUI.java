@@ -227,15 +227,16 @@ public class GUI implements HolderGUI {
 		for(Entry<Player, Object> ec : containers.entrySet()) {
 			Player player = ec.getKey();
 			Object container = ec.getValue();
+			int id = (int)Ref.get(container,"windowId");
 			Object f= Ref.player(player);
 			if(TheAPI.isOlderThan(8)) {
-				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(container,"windowId"),0,title, inv.getSize(), false));
+				Ref.sendPacket(player, Ref.newInstance(openWindow,id,0,title, inv.getSize(), false));
 			}else if(TheAPI.isOlderThan(14)) {
-				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(container,"windowId"),"minecraft:container",NMSAPI.getIChatBaseComponentFromCraftBukkit(title), inv.getSize()));
+				Ref.sendPacket(player, Ref.newInstance(openWindow,id,"minecraft:container",NMSAPI.getIChatBaseComponentFromCraftBukkit(title), inv.getSize()));
 			}else {
-				Ref.sendPacket(player, Ref.newInstance(openWindow,Ref.get(container,"windowId"), windowType, NMSAPI.getIChatBaseComponentFromCraftBukkit(title)));
+				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getIChatBaseComponentFromCraftBukkit(title)));
 			}
-			Ref.sendPacket(player, Ref.newInstance(itemsS, Ref.get(container, "windowId"), Ref.get(container,"items")));
+			Ref.sendPacket(player, Ref.newInstance(itemsS,id, Ref.get(container,"items")));
 			Object carry = Ref.invoke(Ref.get(f,"inventory"),"getCarried");
 			if(carry!=empty) //Don't send useless packets
 				Ref.sendPacket(player, Ref.newInstance(setSlot, -1, -1, carry));
@@ -293,7 +294,7 @@ public class GUI implements HolderGUI {
 			if(player==null)continue;
 			Object ac = containers.remove(player);
 			if(ac!=null) {
-				Ref.sendPacket(player, Ref.newInstance(closeWindow, Ref.get(ac, "windowId")));
+				Ref.sendPacket(player, Ref.newInstance(closeWindow, (int)Ref.get(ac, "windowId")));
 				Object d = Ref.player(player);
 				Ref.invoke(ac, "b", d);
 				Ref.set(Ref.player(player), "activeContainer", Ref.get(d, "defaultContainer"));
