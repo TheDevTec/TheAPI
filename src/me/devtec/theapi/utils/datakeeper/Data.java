@@ -751,21 +751,25 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				set(s.getKey(), s.getValue()[0]);
 				change = true;
 			}
-			List<String> com = getComments(s.getKey());
-			if((com == null || com.isEmpty()) && (s.getValue()[1]!=null&&!((List<String>) s.getValue()[1]).isEmpty())) {
-				setComments(s.getKey(), (List<String>) s.getValue()[1]);
-				change = true;
-			}
-		}
-		if(addHeader)
-		if(f.loader.getHeader()==null || f.loader.getHeader()!=null && !loader.getHeader().containsAll(f.loader.getHeader())) {
-			setHeader(f.loader.getHeader());
-			change = true;
-		}
-		if(addFooter)
-		if(f.loader.getFooter()==null || f.loader.getFooter()!=null && !loader.getFooter().containsAll(f.loader.getFooter())) {
-			setFooter(f.loader.getFooter());
-			change = true;
+			try {
+			if(addHeader)
+				if(f.loader.getHeader()==null || f.loader.getHeader()!=null && !loader.getHeader().containsAll(f.loader.getHeader())) {
+					setHeader(f.loader.getHeader());
+					change = true;
+				}
+			if(addFooter)
+				if(f.loader.getFooter()==null || f.loader.getFooter()!=null && !loader.getFooter().containsAll(f.loader.getFooter())) {
+					setFooter(f.loader.getFooter());
+					change = true;
+				}
+			}catch(Exception nope) {}
+			if(s.getValue()[1]!=null)
+    		if((getComments(s.getKey())==null || getComments(s.getKey()).isEmpty() && !((List<String>) s.getValue()[1]).isEmpty())) {
+    			if(getHeader()!=null && ((List<String>)s.getValue()[1]).containsAll(getHeader())
+    					|| getFooter()!=null && ((List<String>) s.getValue()[1]).containsAll(getFooter()))continue;
+    			setComments(s.getKey(), (List<String>)s.getValue()[1]);
+    			change = true;
+    		}
 		}
 		return change;
 	}
