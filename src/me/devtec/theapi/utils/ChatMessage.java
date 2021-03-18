@@ -42,14 +42,14 @@ public class ChatMessage {
 		ListIterator<Map<String, Object>> it = lists.listIterator();
 		while(it.hasNext()) {
 			Map<String, Object> text = it.next();
-		Map<String, Object> hover=fix((Map<String, Object>) text.remove("hoverEvent")), click=fix((Map<String, Object>) text.remove("clickEvent"));
+		Map<String, Object> hover=fix((Map<String, Object>) text.get("hoverEvent")), click=fix((Map<String, Object>) text.get("clickEvent"));
 		for(Entry<String, Object> s : text.entrySet()) {
 			if(s.getValue()instanceof String) {
 				ChatMessage c = new ChatMessage((String) s.getValue());
 				if(!c.join.isEmpty()) {
 					try {
 						it.remove();
-						}catch(Exception err) {}
+					}catch(Exception err) {}
 					for(Map<String, Object> d : c.join) {
 						it.add(d);
 						for(Entry<String, Object> g : text.entrySet())
@@ -98,6 +98,7 @@ public class ChatMessage {
 			if(colors.get(i)[0]==null||colors.get(i)[0].toString().replaceAll("[&§][A-Fa-f0-9K-Ok-oRrXx]|#[A-Fa-f0-9]{6}", "").equals(""))continue;
 			HashMap<String, Object> c=new HashMap<>();
 			join.add(c);
+			if(colors.get(i)[0].toString().equals(""))continue;
 			c.put("text", colors.get(i)[0]+"");
 			if(!(colors.get(i)[0]+"").trim().isEmpty()) {
 				if(colors.get(i)[1]!=null && !colors.get(i)[1].equals(""))
@@ -142,6 +143,7 @@ public class ChatMessage {
 		List<Object[]> colors = new ArrayList<>();
 		Object[] actual = new Object[8];
 		colors.add(actual);
+		int hex = 0;
 		String val = "", url=null;
 		for(char c : text.toCharArray()) {
 			val+=c;
@@ -170,11 +172,21 @@ public class ChatMessage {
 					actual[1]=color;
 				val=c+"";
 			}
+			boolean complete = false;
 			String last = StringUtils.getLastColors(val);
-			if(!last.equals(""))
-			val=val.replaceAll("[&§][A-Fa-f0-9K-Ok-oRrXx]|#[A-Fa-f0-9]{6}", "");
+			if(last.matches("#[A-Fa-f0-9]{6}|[&§][Xx]([§&][A-Fa-f0-9]){6}")) {
+				complete=true;
+				hex=0;
+				val=val.replaceAll("[&§][A-Fa-f0-9K-Ok-oRrXx]|#[A-Fa-f0-9]{6}", "");
+			}else {
+			if(!last.equals("")) {
+				if(!last.startsWith("§x") && hex == 0) {
+				complete=true;
+				val=val.replaceAll("[&§][A-Fa-f0-9K-Ok-oRrXx]|#[A-Fa-f0-9]{6}", "");
+				}else ++hex;
+			}}
 			actual[0]=val;
-			if(!last.equals(""))
+			if(!last.equals("") && complete)
 			applyChanges(actual, last);
 			if(change) {
 				change=false;
@@ -375,7 +387,7 @@ public class ChatMessage {
 			return next;
 		}
 		if(next.startsWith("&x")||next.startsWith("§x")) {
-			return next.replaceAll(fixedHex, "#$2$3$4$5$6");
+			return next.replaceAll(fixedHex, "#$1$2$3$4$5$6");
 		}}
 		switch(next.substring(1)) {
 		case "0":

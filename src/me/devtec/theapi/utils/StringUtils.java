@@ -267,67 +267,23 @@ public class StringUtils {
 		return new HoverMessage(message);
 	}
 
+	private static Pattern getLast = Pattern.compile("(#[A-Fa-f0-9]{6}|[&§][Xx]([&§][A-Fa-f0-9]){6}|[&§][A-Fa-f0-9RrK-Ok-oUuXx])");
+
 	/**
 	 * @see see Get last colors from String (HEX SUPPORT!)
 	 * @return String
 	 */
-	public static String getLastColors(String last) {
-		String color = "";
-		String format = "";
-		
-		char was = 0;
-		int count = 0;
-		String hex = "";
-		boolean hexPart = false;
-		for(char c : last.toCharArray()) {
-			if(c=='§'||c=='#') {
-				was=c;
-				continue;
-			}
-			if((was=='§'||was=='#')&&(Character.isDigit(c)||c=='a'||c=='b'||c=='c'||c=='d'||c=='e'||c=='f')) {
-				if(was=='#'||hexPart) {
-					hex+=c;
-					if(count++==5) {
-						was=c;
-						color="#"+hex;
-						hex="";
-						hexPart=false;
-						format="";
-						count=0;
-					}
-					continue;
-				}else {
-					format="";
-					color="&"+c;
-					hex="";
-					count=0;
-				}
-			}
-			if((was=='§')&&(c=='r'||c=='n'||c=='m'||c=='l'||c=='o'||c=='k'||c=='x')) {
-				if(c=='r') {
-					format=was+"r";
-					count=0;
-				}else
-				if(was=='#') {
-					color="";
-					hex="";
-					count=0;
-					format="§"+c;
-				}else {
-					if(c=='x') {
-						hexPart=true;
-						count=0;
-						hex="";
-						continue;
-					}else
-						if(!format.contains(("§"+c).toLowerCase()))
-					format+=("§"+c).toLowerCase();
-					count=0;
-				}
-			}
-			was=c;
+	public static String getLastColors(String s) {
+		Matcher m = getLast.matcher(s);
+		String colors = "";
+		while(m.find()) {
+			String last = m.group(1);
+			if(last.matches("[&§][A-Fa-f0-9]|#[A-Fa-f0-9]{6}|[&§][Xx]([§&][A-Fa-f0-9]){6}"))
+				colors=last;
+			else
+				colors+=last;
 		}
-		return color+format;
+		return colors;
 	}
 
 	private static final Pattern hex = Pattern.compile("#[a-fA-F0-9]{6}");
@@ -335,25 +291,18 @@ public class StringUtils {
 	static {
 		if (TheAPI.isNewerThan(15)) {
 			color = new ColormaticFactory() {
-				private List<String> list = Arrays.asList("#FF0000", "#FF005C", "#9300A1", "#6400FF", "#1900FF",
-						"#0040FF", "#009EFF", "#00F8FF", "#00FF9A", "#00FF37", "#56FF00", "#D1FF00", "#FFB800",
-						"#FF6C00", "#FF3800", "#FF0000", "#A62D60", "#54A62D", "#9FB427", "#89400D", "#248698",
-						"#6C1599", "#159962", "#74D912");
+				private List<String> list = Arrays.asList("a", "b", "c", "d", "e",
+						"f", "0", "1", "2", "3", "4", "5", "6",
+						"7", "8", "9");
 
 				@Override
 				public String colorize(String text) {
-					String one = getNextColor(), second = getNextColor();
-					int tries = 0;
-					while (one.equals(second)) {
-						second = getNextColor();
-						if(tries++>=10)break;
-					}
-					return gradient(text, second, one);
+					return gradient(text, getNextColor(), getNextColor());
 				}
 
 				@Override
 				public String getNextColor() {
-					return TheAPI.getRandomFromList(list);
+					return "#"+getRandomFromList(list)+getRandomFromList(list)+getRandomFromList(list)+getRandomFromList(list)+getRandomFromList(list)+getRandomFromList(list);
 				}
 			};
 		} else
@@ -421,15 +370,15 @@ public class StringUtils {
 							}
 						}
 						if (bold)
-							formats += ChatColor.BOLD;
+							formats += "§l";
 						if (italic)
-							formats += ChatColor.ITALIC;
+							formats += "§o";
 						if (underlined)
-							formats += ChatColor.UNDERLINE;
+							formats += "§n";
 						if (strikethrough)
-							formats += ChatColor.STRIKETHROUGH;
+							formats += "§m";
 						if (magic)
-							formats += ChatColor.MAGIC;
+							formats += "§k";
 						ff = ff.replaceFirst("<!>", br ? "&" + l.get(index) + formats : color.getNextColor() + formats);
 					}
 					return ff;
@@ -444,12 +393,18 @@ public class StringUtils {
 			};
 	}
 
-	private static Pattern reg = Pattern.compile("&((<!>)*)([Rrk-oK-O])"),
-			old = Pattern.compile("&((<!>)*)([XxA-Za-zUu0-9Rrk-oK-O])");
+	private static Pattern reg = Pattern.compile("[&§]([Rrk-oK-O])"), colorMatic = Pattern.compile("(<!>)*([&§])<!>([A-Fa-f0-9RrK-Ok-oUu"+(TheAPI.isNewerThan(15)?"Xx":"")+"])"),
+			old = Pattern.compile("&((<!>)*)([XxA-Za-zUu0-9Rrk-oK-O])"), spaceRemover = Pattern.compile("<!> ");
 
 	public static Pattern gradientFinder;
 	
 	private static String gradient(String msg, String fromHex, String toHex) {
+		Matcher ma = reg.matcher(msg);
+		HashMap<Integer, String> l = new HashMap<>();
+		while (ma.find()) {
+			l.put(msg.indexOf(ma.group()), ma.group(1).toLowerCase());
+			msg = msg.replaceFirst(ma.group(), "");
+		}
 		int length = msg.length();
 		boolean bold = false, italic = false, underlined = false, strikethrough = false, magic = false;
 		Color fromRGB = Color.decode(fromHex), toRGB = Color.decode(toHex);
@@ -463,14 +418,15 @@ public class StringUtils {
 		if (fromRGB.getBlue() > toRGB.getBlue())
 			bStep = -bStep;
 		Color finalColor = new Color(fromRGB.getRGB());
-		HashMap<Integer, String> l = new HashMap<>();
 		msg = msg.replaceAll("#[A-Fa-f0-9]{6}", "");
 		msg = msg.replace("", "<!>");
-		Matcher ma = reg.matcher(msg);
-		while (ma.find()) {
-			l.put((msg.indexOf(ma.group()) / 4 + 1), ma.group(3).toLowerCase());
-			msg = msg.replaceFirst(ma.group(), "");
-		}
+		msg=msg.substring(0, msg.length()-3);
+		Matcher removeUnused = spaceRemover.matcher(msg);
+		while(removeUnused.find())
+			msg=removeUnused.replaceAll(" ");
+		Matcher fixColors = colorMatic.matcher(msg);
+		while(fixColors.find())
+			msg=msg.replace(fixColors.group(), fixColors.group(2)+fixColors.group(3));
 		for (int index = 0; index <= length; index++) {
 			int red = (int) Math.round(finalColor.getRed() + rStep);
 			int green = (int) Math.round(finalColor.getGreen() + gStep);
@@ -488,7 +444,11 @@ public class StringUtils {
 			if (blue < 0)
 				blue = 0;
 			finalColor = new Color(red, green, blue);
-			String hex = "#" + Integer.toHexString(finalColor.getRGB()).substring(2);
+			String hex = Integer.toHexString(finalColor.getRGB()).substring(2);
+			StringBuilder fixedHex = new StringBuilder("§x");
+			char[] c = hex.toCharArray();
+			for (int i = 0; i < c.length; ++i)
+				fixedHex.append(("§" + c[i]).toLowerCase());
 			String formats = "";
 			if (l.containsKey(index))
 				switch (l.get(index)) {
@@ -525,7 +485,7 @@ public class StringUtils {
 				formats += ChatColor.STRIKETHROUGH;
 			if (magic)
 				formats += ChatColor.MAGIC;
-			msg = msg.replaceFirst("<!>", hex + formats);
+			msg = msg.replaceFirst("<!>", fixedHex.toString() + formats);
 		}
 		return msg;
 	}
@@ -545,12 +505,14 @@ public class StringUtils {
 			String hexA = matcher.group(1);
 			String hexB = matcher.group(3);
 			String text = matcher.group(2);
-			legacyMsg=legacyMsg.replaceFirst(matcher.group(),gradient(text, hexA, hexB));
+			legacyMsg=legacyMsg.replace(matcher.group(), gradient(text, hexA, hexB));
+			matcher = gradientFinder.matcher(legacyMsg);
 		}}
 		return legacyMsg;
 	}
 
 	private static boolean neww = TheAPI.isNewerThan(15);
+	private static Pattern fixedSplit = Pattern.compile("(#[A-Fa-f0-9]{6}([&§][K-Ok-oRr])*|[&§][Xx]([&§][A-Fa-f0-9]){6}([&§][K-Ok-oRr])*|[&§][A-Fa-f0-9K-ORrk-oUuXx]([&§][K-Ok-oRr])*)");
 	
 	/**
 	 * @see see Colorize string with colors (&eHello world -> {YELLOW}Hello world)
@@ -560,55 +522,38 @@ public class StringUtils {
 	public static String colorize(String msg) {
 		if (msg == null)
 			return null;
-		msg=msg.replace("§", "&");
+		if(msg.trim().isEmpty())return msg;
 		if (msg.toLowerCase().contains("&u")) {
-			List<String> s = new ArrayList<>();
-			StringBuffer d = new StringBuffer();
-			int found = 0;
-			for (char c : msg.toCharArray()) {
-				if (c == '&') {
-					if (found == 1)
-						d.append(c);
-					found = 1;
-					continue;
+			StringBuilder d = new StringBuilder(msg.length());
+			String[] split = fixedSplit.split(msg);
+			//atempt to add colors to split
+			Matcher m = fixedSplit.matcher(msg);
+			int id = 1;
+			while(m.find()) {
+				try {
+				split[id]=m.group(1)+split[id++];
+				}catch(Exception err) {
 				}
-				if (found == 1 && Pattern.compile("[XxA-Fa-fUu0-9]").matcher(c + "").find()) {
-					found = 0;
-					s.add(d.toString());
-					d = d.delete(0, d.length());
-					d.append("&" + c);
-					continue;
-				}
-				if (found == 1) {
-					found = 0;
-					d.append("&" + c);
-					continue;
-				}
-				found = 0;
-				d.append(c);
 			}
-			if (d.length() != 0)
-				s.add(d.toString());
-			d = d.delete(0, d.length());
-			for (String ff : s) {
-				if (ff.toLowerCase().startsWith("&u"))
-					ff=color.colorize(ff.substring(2));
+			//colors
+			for (String ff : split) {
+				if (ff.toLowerCase().contains("§u")||ff.toLowerCase().contains("&u"))
+					ff = StringUtils.colorize(StringUtils.color.colorize(ff.replaceAll("[§&][Uu]","")));
 				d.append(ff);
 			}
-			s.clear();
-			msg = d.toString();
+			msg=d.toString();
 		}
 		if (neww) {
+			msg=msg.replace("&x", "§x").replace("&X", "§x");
 			msg = gradient(msg);
-			if (msg.contains("#") || msg.contains("&x")) {
-				msg = msg.replace("&x", "§x");
+			if (msg.contains("#")) {
 				Matcher match = hex.matcher(msg);
 				while (match.find()) {
 					String color = match.group();
 					StringBuilder magic = new StringBuilder("§x");
 					char[] c = color.substring(1).toCharArray();
 					for (int i = 0; i < c.length; ++i)
-						magic.append(("&" + c[i]).toLowerCase());
+						magic.append(("§" + c[i]).toLowerCase());
 					msg = msg.replace(color, magic.toString() + "");
 				}
 			}

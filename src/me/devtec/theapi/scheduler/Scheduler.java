@@ -74,7 +74,6 @@ public class Scheduler {
 					}
 					thread.destroy(id);
 				} catch (Exception er) {
-					er.printStackTrace();
 					thread.destroy(id);
 					if (er instanceof InterruptedException == false)
 						er.printStackTrace();
