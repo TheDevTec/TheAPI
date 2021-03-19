@@ -406,7 +406,6 @@ public class StringUtils {
 			msg = msg.replaceFirst(ma.group(), "");
 		}
 		int length = msg.length();
-		boolean bold = false, italic = false, underlined = false, strikethrough = false, magic = false;
 		Color fromRGB = Color.decode(fromHex), toRGB = Color.decode(toHex);
 		double rStep = Math.abs((double) (fromRGB.getRed() - toRGB.getRed()) / length);
 		double gStep = Math.abs((double) (fromRGB.getGreen() - toRGB.getGreen()) / length);
@@ -425,6 +424,7 @@ public class StringUtils {
 		while(removeUnused.find())
 			msg=removeUnused.replaceAll(" ");
 		Matcher fixColors = colorMatic.matcher(msg);
+		String formats = "";
 		while(fixColors.find())
 			msg=msg.replace(fixColors.group(), fixColors.group(2)+fixColors.group(3));
 		for (int index = 0; index <= length; index++) {
@@ -444,48 +444,32 @@ public class StringUtils {
 			if (blue < 0)
 				blue = 0;
 			finalColor = new Color(red, green, blue);
-			String hex = Integer.toHexString(finalColor.getRGB()).substring(2);
-			StringBuilder fixedHex = new StringBuilder("§x");
-			char[] c = hex.toCharArray();
+			String hex = "§x";
+			char[] c = Integer.toHexString(finalColor.getRGB()).substring(2).toCharArray();
 			for (int i = 0; i < c.length; ++i)
-				fixedHex.append(("§" + c[i]).toLowerCase());
-			String formats = "";
+				hex+="§"+c[i];
 			if (l.containsKey(index))
 				switch (l.get(index)) {
 				case "l":
-					bold = true;
+					if(!formats.contains("§l"))formats+="§l";
 					break;
 				case "m":
-					strikethrough = true;
+					if(!formats.contains("§m"))formats+="§m";
 					break;
 				case "n":
-					underlined = true;
+					if(!formats.contains("§n"))formats+="§n";
 					break;
 				case "o":
-					italic = true;
+					if(!formats.contains("§o"))formats+="§o";
 					break;
 				case "k":
-					magic = true;
+					if(!formats.contains("§k"))formats+="§k";
 					break;
 				default:
-					bold = false;
-					strikethrough = false;
-					italic = false;
-					magic = false;
-					underlined = false;
+					formats="";
 					break;
 				}
-			if (bold)
-				formats += ChatColor.BOLD;
-			if (italic)
-				formats += ChatColor.ITALIC;
-			if (underlined)
-				formats += ChatColor.UNDERLINE;
-			if (strikethrough)
-				formats += ChatColor.STRIKETHROUGH;
-			if (magic)
-				formats += ChatColor.MAGIC;
-			msg = msg.replaceFirst("<!>", fixedHex.toString() + formats);
+			msg = msg.replaceFirst("<!>", hex + formats);
 		}
 		return msg;
 	}
@@ -497,17 +481,12 @@ public class StringUtils {
 				continue;
 			legacyMsg = legacyMsg.replace(rawCode, LoaderClass.colorMap.get(code));
 		}
-		if(gradientFinder!=null) {
+		if(gradientFinder==null)return legacyMsg;
 		Matcher matcher = gradientFinder.matcher(legacyMsg);
 		while(matcher.find()) {
-			if(matcher.groupCount()==0 || matcher.group(1)==null)
-				continue;
-			String hexA = matcher.group(1);
-			String hexB = matcher.group(3);
-			String text = matcher.group(2);
-			legacyMsg=legacyMsg.replace(matcher.group(), gradient(text, hexA, hexB));
-			matcher = gradientFinder.matcher(legacyMsg);
-		}}
+			if(matcher.groupCount()==0 || matcher.group(1)==null)continue;
+			legacyMsg=legacyMsg.replace(matcher.group(), gradient(matcher.group(2), matcher.group(1), matcher.group(3)));
+		}
 		return legacyMsg;
 	}
 
@@ -538,7 +517,7 @@ public class StringUtils {
 			//colors
 			for (String ff : split) {
 				if (ff.toLowerCase().contains("§u")||ff.toLowerCase().contains("&u"))
-					ff = StringUtils.colorize(StringUtils.color.colorize(ff.replaceAll("[§&][Uu]","")));
+					ff = StringUtils.color.colorize(ff.replaceAll("[§&][uU]",""));
 				d.append(ff);
 			}
 			msg=d.toString();
@@ -550,11 +529,11 @@ public class StringUtils {
 				Matcher match = hex.matcher(msg);
 				while (match.find()) {
 					String color = match.group();
-					StringBuilder magic = new StringBuilder("§x");
+					String magic = "§x";
 					char[] c = color.substring(1).toCharArray();
 					for (int i = 0; i < c.length; ++i)
-						magic.append(("§" + c[i]).toLowerCase());
-					msg = msg.replace(color, magic.toString() + "");
+						magic+="§" + c[i];
+					msg = msg.replace(color, magic);
 				}
 			}
 		}
