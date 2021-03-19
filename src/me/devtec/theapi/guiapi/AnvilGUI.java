@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.utils.ChatMessage;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.nms.NMSAPI;
@@ -133,9 +134,9 @@ public class AnvilGUI implements HolderGUI {
 		if(TheAPI.isOlderThan(8)) {
 			Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,8,title, size, false));
 		}else if(TheAPI.isOlderThan(14)) {
-			Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,"minecraft:anvil",NMSAPI.getIChatBaseComponentFromCraftBukkit(title), size));
+			Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,"minecraft:anvil",NMSAPI.getIChatBaseComponentJson(new ChatMessage(title).getJson()), size));
 		}else {
-			Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id, windowType, NMSAPI.getIChatBaseComponentFromCraftBukkit(title)));
+			Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id, windowType, NMSAPI.getIChatBaseComponentJson(new ChatMessage(title).getJson())));
 		}
 		Ref.set(aw, "activeContainer", container);
 		Ref.invoke(container, GUI.addListener, aw);
@@ -165,9 +166,9 @@ public class AnvilGUI implements HolderGUI {
 			if(TheAPI.isOlderThan(8)) {
 				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,8,title, size, false));
 			}else if(TheAPI.isOlderThan(14)) {
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,"minecraft:anvil",NMSAPI.getIChatBaseComponentFromCraftBukkit(title), size));
+				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,"minecraft:anvil",NMSAPI.getIChatBaseComponentJson(new ChatMessage(title).getJson()), size));
 			}else
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id, windowType, NMSAPI.getIChatBaseComponentFromCraftBukkit(title)));
+				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id, windowType, NMSAPI.getIChatBaseComponentJson(new ChatMessage(title).getJson())));
 			Ref.sendPacket(player, Ref.newInstance(itemsS,id, Ref.get(container,"items")));
 			Object carry = Ref.invoke(Ref.get(Ref.player(player),"inventory"),"getCarried");
 			if(carry!=GUI.empty) //Don't send useless packets

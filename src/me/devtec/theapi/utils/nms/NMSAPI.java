@@ -13,6 +13,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.utils.ChatMessage;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.nms.datawatcher.DataWatcher;
 import me.devtec.theapi.utils.nms.nbt.NBTEdit;
@@ -284,11 +285,11 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut) {
-		return getPacketPlayOutTitle(action, getIChatBaseComponentFromCraftBukkit(text), fadeIn, stay, fadeOut);
+		return getPacketPlayOutTitle(action, NMSAPI.getIChatBaseComponentJson(new ChatMessage(text).getJson()), fadeIn, stay, fadeOut);
 	}
 
 	public static Object getPacketPlayOutTitle(TitleAction action, String text) {
-		return getPacketPlayOutTitle(action, getIChatBaseComponentFromCraftBukkit(text), 10, 20, 10);
+		return getPacketPlayOutTitle(action, NMSAPI.getIChatBaseComponentJson(new ChatMessage(text).getJson()), 10, 20, 10);
 	}
 
 	public static void refleshBlock(Position pos, Object oldBlock) {
@@ -313,7 +314,7 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutChat(ChatType type, String text) {
-		return getPacketPlayOutChat(type, getIChatBaseComponentFromCraftBukkit(text));
+		return getPacketPlayOutChat(type, NMSAPI.getIChatBaseComponentJson(new ChatMessage(text).getJson()));
 	}
 
 	public static Object getPacketPlayOutEntityDestroy(int... id) {
@@ -360,7 +361,7 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutPlayerListHeaderFooter(String header, String footer) {
-		return getPacketPlayOutPlayerListHeaderFooter(getIChatBaseComponentFromCraftBukkit(header), getIChatBaseComponentFromCraftBukkit(footer));
+		return getPacketPlayOutPlayerListHeaderFooter(getIChatBaseComponentJson(new ChatMessage(header).getJson()), getIChatBaseComponentJson(new ChatMessage(footer).getJson()));
 	}
 
 	public static Object getPacketPlayOutBlockChange(Object World, Position pos) {

@@ -35,44 +35,80 @@ public class ChatMessage {
 		f.put("value", h.get(n) instanceof Map ? h.get(n):h.get(n) instanceof List ? fixListMap((List<Map<String, Object>>)h.get(n)): fromString(h.get(n).toString()).join);
 		return f;
 	}
+
+	static Map<String, Object> emptys = new HashMap<>(), emptyc = new HashMap<>();
+	static {
+		emptys.put("action", "show_text");
+		emptys.put("value", "");
+
+		emptyc.put("action", "suggest_command");
+		emptyc.put("value", "");
+	}
 	
 	@SuppressWarnings("unchecked")
 	public static List<Map<String, Object>> fixListMap(List<Map<String, Object>> lists) {
 		if(lists==null)return null;
 		ListIterator<Map<String, Object>> it = lists.listIterator();
+		boolean hasHover = false, hasClick = false, hasInteract = false;
 		while(it.hasNext()) {
 			Map<String, Object> text = it.next();
-		Map<String, Object> hover=fix((Map<String, Object>) text.get("hoverEvent")), click=fix((Map<String, Object>) text.get("clickEvent"));
-		for(Entry<String, Object> s : text.entrySet()) {
-			if(s.getValue()instanceof String) {
-				ChatMessage c = new ChatMessage((String) s.getValue());
-				if(!c.join.isEmpty()) {
-					try {
-						it.remove();
-					}catch(Exception err) {}
-					for(Map<String, Object> d : c.join) {
-						it.add(d);
-						for(Entry<String, Object> g : text.entrySet())
-							if(!g.getKey().equals("text") && !d.containsKey(g.getKey()))
-								d.put(g.getKey(), g.getValue());
-						if(!d.containsKey("color") && text.containsKey("color"))
-							d.put("color", text.get("color"));
-						if(hover!=null)
-							d.put("hoverEvent", hover);
-						if(click!=null)
-							d.put("clickEvent", click);
+			Map<String, Object> hover=fix((Map<String, Object>) text.get("hoverEvent")), click=fix((Map<String, Object>) text.get("clickEvent"));
+			String interact=(String) text.get("insertion");
+			if(hover!=null) {
+				hasHover=true;
+			}
+			if(click!=null) {
+				hasClick=true;
+			}
+			if(interact!=null) {
+				hasInteract=true;
+			}
+			if(hover==null && hasHover) {
+				text.put("hoverEvent", emptys);
+			}
+			if(click==null && hasClick) {
+				text.put("clickEvent", emptyc);
+			}
+			if(interact==null && hasInteract) {
+				text.put("insertion", "");
+			}
+			boolean remove = false;
+			for(Entry<String, Object> s : text.entrySet()) {
+				if(s.getKey().equals("color")||s.getKey().equals("insertion"))continue;
+				if(s.getValue()instanceof String) {
+					ChatMessage c = new ChatMessage((String) s.getValue());
+					if(!c.join.isEmpty()) {
+						try {
+							if(!remove) {
+							it.remove();
+							remove=true;
+							}
+						}catch(Exception err) {}
+						for(Map<String, Object> d : c.join) {
+							it.add(d);
+							if(!d.containsKey("color") && text.containsKey("color"))
+								d.put("color", text.get("color"));
+							if(hover!=null)
+								d.put("hoverEvent", hover);
+							else if(hasHover)
+								d.put("hoverEvent", emptys);
+							if(click!=null)
+								d.put("clickEvent", click);
+							else if(hasClick)
+								d.put("clickEvent", emptyc);
+							if(interact!=null)
+								d.put("insertion", interact);
+							else if(hasInteract)
+								d.put("insertion", "");
+						}
 					}
-				}
-			}else
-			if(s.getValue()instanceof Map) {
-				text.put(s.getKey(), (Map<String, Object>) s.getValue());
-			}else
-			text.put(s.getKey(), s.getValue());
-		}
-		if(hover!=null)
-		text.put("hoverEvent", hover);
-		if(click!=null)
-		text.put("clickEvent", click);
+				}else
+					if(s.getValue()instanceof Map) //hoverEvent
+						text.put(s.getKey(), fix((Map<String, Object>) s.getValue()));
+					else
+						if(s.getValue()instanceof List) //extras
+							text.put(s.getKey(), fixListMap((List<Map<String, Object>>) s.getValue()));
+			}
 		}
 		return lists;
 	}
@@ -85,8 +121,10 @@ public class ChatMessage {
 		return new ArrayList<>(join);
 	}
 	
+	private static String empty = "{\"text\":\"\"}";
+	
 	public String getJson() {
-		return Writer.write(join);
+		return join.isEmpty()?empty:Writer.write(join);
 	}
 	
 	private void convert() {
@@ -100,15 +138,12 @@ public class ChatMessage {
 			join.add(c);
 			if(colors.get(i)[0].toString().equals(""))continue;
 			c.put("text", colors.get(i)[0]+"");
-			if(!(colors.get(i)[0]+"").trim().isEmpty()) {
-				if(colors.get(i)[1]!=null && !colors.get(i)[1].equals(""))
-					c.put("color", colors.get(i)[1]+"");
-				for(int is = 2; is < 7; ++is)
-					if(colors.get(i)[is]!=null)
-						c.put(is==2?"bold":(is==3?"italic":(is==4?"obfuscated":(is==5?"strikethrough":"underlined"))), (boolean)colors.get(i)[is]);
-				if(colors.get(i)[7]!=null && !colors.get(i)[7].equals(""))
-					c.put("clickEvent", colors.get(i)[7]);
-			}
+			if(colors.get(i)[1]!=null && !colors.get(i)[1].equals(""))
+				c.put("color", colors.get(i)[1]+"");
+			for(int is = 2; is < 7; ++is)
+				c.put(is==2?"bold":(is==3?"italic":(is==4?"obfuscated":(is==5?"strikethrough":"underlined"))), (boolean)colors.get(i)[is]);
+			if(colors.get(i)[7]!=null && !colors.get(i)[7].equals(""))
+				c.put("clickEvent", colors.get(i)[7]);
 		}
 	}
 	
@@ -142,6 +177,8 @@ public class ChatMessage {
 	private List<Object[]> parse() {
 		List<Object[]> colors = new ArrayList<>();
 		Object[] actual = new Object[8];
+		for(int i = 2; i < 7; ++i)
+			actual[i]=false;
 		colors.add(actual);
 		int hex = 0;
 		String val = "", url=null;
@@ -193,33 +230,29 @@ public class ChatMessage {
 				if(!val.replaceAll("[&§][A-Fa-f0-9K-Ok-oRrXx]|#[A-Fa-f0-9]{6}", "").equals("")) {
 					val="";
 					actual=new Object[8];
+					for(int i = 2; i <7; ++i)
+						actual[i]=false;
 					colors.add(actual);
 				}
 			}
 			if(color!=null && !color.equals(""))
 				actual[1]=color;
-			else
-				actual[1]=null;
+			else actual[1]=null;
 			if(bold)
 				actual[2]=bold;
-			else
-				actual[2]=null;
+			else actual[2]=false;
 			if(italic)
 				actual[3]=italic;
-			else
-				actual[3]=null;
+			else actual[3]=false;
 			if(obfuscated)
 				actual[4]=obfuscated;
-			else
-				actual[4]=null;
+			else actual[4]=false;
 			if(strike)
 				actual[5]=strike;
-			else
-				actual[5]=null;
+			else actual[5]=false;
 			if(under)
 				actual[6]=under;
-			else
-				actual[6]=null;
+			else actual[6]=false;
 		}
 		if(url!=null) {
 			val=val.replace(url, "");
@@ -232,24 +265,19 @@ public class ChatMessage {
 				actual[1]=color;
 			if(bold)
 				actual[2]=bold;
-			else
-				actual[2]=null;
+			else actual[2]=false;
 			if(italic)
 				actual[3]=italic;
-			else
-				actual[3]=null;
+			else actual[3]=false;
 			if(obfuscated)
 				actual[4]=obfuscated;
-			else
-				actual[4]=null;
+			else actual[4]=false;
 			if(strike)
 				actual[5]=strike;
-			else
-				actual[5]=null;
+			else actual[5]=false;
 			if(under)
 				actual[6]=under;
-			else
-				actual[6]=null;
+			else actual[6]=false;
 		}
 		return colors;
 	}
@@ -308,21 +336,8 @@ public class ChatMessage {
 					else
 					actual[0]=getColorName(next);
 				}
-			if(actual[1]==null || (boolean)actual[1]==true) {
-				actual[1]=null;
-			}
-			if(actual[2]==null || (boolean)actual[2]==true) {
-				actual[2]=null;
-			}
-			if(actual[3]==null || (boolean)actual[3]==true) {
-				actual[3]=null;
-			}
-			if(actual[4]==null || (boolean)actual[4]==true) {
-				actual[4]=null;
-			}
-			if(actual[5]==null || (boolean)actual[5]==true) {
-				actual[5]=null;
-			}
+			for(int i = 1; i < 6; ++i)
+				actual[i]=false;
 		}
 	}
 
