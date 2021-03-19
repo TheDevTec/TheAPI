@@ -26,7 +26,7 @@ public abstract class DataLoader implements Data {
 	public abstract void load(String input);
 	
 	public abstract boolean isLoaded();
-
+	
 	public void load(File f) {
 		load(StreamUtils.fromStream(f));
 	}

@@ -44,7 +44,7 @@ public class YamlLoader extends DataLoader {
 		header.clear();
 		footer.clear();
 	}
-
+	
 	@Override
 	public Map<String, Object[]> get() {
 		return data;

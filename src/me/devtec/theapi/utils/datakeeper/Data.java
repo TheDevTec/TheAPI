@@ -459,9 +459,9 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public synchronized Data save(DataType type) {
+		if (a == null)
+			return this;
 		try {
-			if (a == null)
-				return this;
 			OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
 			if (type == DataType.BYTE) {
 				try {
@@ -746,6 +746,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	@SuppressWarnings("unchecked")
 	public boolean merge(Data f, boolean addHeader, boolean addFooter) {
 		boolean change = false;
+		try {
 		for(Entry<String, Object[]> s : f.loader.get().entrySet()) {
 			if(get(s.getKey())==null && s.getValue()[0]!=null) {
 				set(s.getKey(), s.getValue()[0]);
@@ -771,6 +772,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
     			change = true;
     		}
 		}
+		}catch(Exception err) {}
 		return change;
 	}
 }

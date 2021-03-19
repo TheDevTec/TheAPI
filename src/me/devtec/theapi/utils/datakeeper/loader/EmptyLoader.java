@@ -10,7 +10,7 @@ import java.util.Set;
 public class EmptyLoader extends DataLoader {
 	private Map<String, Object[]> data = new LinkedHashMap<>();
 	private List<String> header = new LinkedList<>(), footer = new LinkedList<>();
-
+	
 	@Override
 	public Map<String, Object[]> get() {
 		return data;
@@ -27,19 +27,31 @@ public class EmptyLoader extends DataLoader {
 			remove(key);
 			return;
 		}
+		while(!isReady());
 		data.put(key, holder);
 	}
 
 	public void remove(String key) {
 		if (key == null)
 			return;
+		while(!isReady());
 		data.remove(key);
 	}
 
 	public void reset() {
+		while(!isReady());
 		data.clear();
 		header.clear();
 		footer.clear();
+	}
+	
+	public boolean isReady() {
+		return !paused;
+	}
+	
+	private boolean paused = false;
+	public void setReady(boolean val) {
+		paused=val;
 	}
 
 	@Override

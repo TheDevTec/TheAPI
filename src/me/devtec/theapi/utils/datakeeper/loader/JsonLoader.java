@@ -25,20 +25,32 @@ public class JsonLoader extends DataLoader {
 		if (key == null)
 			return;
 		if (holder == null) {
-			data.remove(key);
+			remove(key);
 			return;
 		}
+		while(paused);
 		data.put(key, holder);
 	}
 
 	public void remove(String key) {
 		if (key == null)
 			return;
+		while(paused);
 		data.remove(key);
 	}
 
 	public void reset() {
+		while(paused);
 		data.clear();
+	}
+
+	public boolean isReady() {
+		return !paused;
+	}
+	
+	private boolean paused = false;
+	public void setReady(boolean val) {
+		paused=val;
 	}
 
 	@SuppressWarnings("unchecked")

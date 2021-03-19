@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.jar.JarFile;
 
 import org.bukkit.Bukkit;
@@ -333,16 +335,19 @@ public class PluginManagerAPI {
 						public void run() {
 							pl.remove(p);
 							if(pl.isEmpty()) {
-								unloadPlugin(LoaderClass.plugin, new Runnable() {
-									public void run() {
-										for(Plugin p : spm.loadPlugins(new File("plugins"))) {
-											p.onLoad();
-											spm.enablePlugin(p);
+								CompletableFuture.supplyAsync(() -> {
+									unloadPlugin(LoaderClass.plugin, new Runnable() {
+										public void run() {
+											for(Plugin p : spm.loadPlugins(new File("plugins"))) {
+												p.onLoad();
+												spm.enablePlugin(p);
+											}
+											if(onReload!=null)
+											onReload.run();
 										}
-										if(onReload!=null)
-										onReload.run();
-									}
-								});
+									});
+									return null;
+								}, (Executor)NMSAPI.getServer()).join();
 							}
 						}
 					});

@@ -203,11 +203,11 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		              TheAPI.msg(sd + "  5 minutes: &e"+StringUtils.fixedFormatDouble(second), s);
 		              TheAPI.msg(sd + "  15 minutes: &e"+StringUtils.fixedFormatDouble(third), s);
 		              TheAPI.msg(sd + "Disk:", s);
-		              TheAPI.msg(sd + "  Free: &e"+StringUtils.fixedFormatDouble((double)d.getTotalSpace() /1073741824), s);
-		              TheAPI.msg(sd + "  Used: &e"+StringUtils.fixedFormatDouble((double)(d.getTotalSpace()-d.getFreeSpace()) /1073741824), s);
+		              TheAPI.msg(sd + "  Free: &e"+StringUtils.fixedFormatDouble((double)d.getTotalSpace() /1073741824)+"GB", s);
+		              TheAPI.msg(sd + "  Used: &e"+StringUtils.fixedFormatDouble((double)(d.getTotalSpace()-d.getFreeSpace()) /1073741824)+"GB", s);
 		              if(d.getFreeSpace()!=d.getUsableSpace())
-		              TheAPI.msg(sd + "  Usable: &e"+StringUtils.fixedFormatDouble((double)d.getUsableSpace() /1073741824), s);
-		              TheAPI.msg(sd + "  Total: &e"+StringUtils.fixedFormatDouble((double)d.getTotalSpace() /1073741824), s);
+		              TheAPI.msg(sd + "  Usable: &e"+StringUtils.fixedFormatDouble((double)d.getUsableSpace() /1073741824)+"GB", s);
+		              TheAPI.msg(sd + "  Total: &e"+StringUtils.fixedFormatDouble((double)d.getTotalSpace() /1073741824)+"GB", s);
 		              TheAPI.msg(color + "» &7Server Status:", s);
 		              TheAPI.msg(sd + "  File: &e"+System.getProperty("java.class.path"), s);
 		              TheAPI.msg(sd + "  Path: &e"+System.getProperty("user.dir"), s);
