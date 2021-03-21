@@ -182,9 +182,9 @@ public class StringUtils {
 			if (a.endsWith("&") || a.endsWith("§")) {
 				--length;
 				a = prefix + split.substring(0, length);
-				prefix = ChatColor.getLastColors(a);
+				prefix = getLastColors(a);
 			} else
-				prefix = ChatColor.getLastColors(a);
+				prefix = getLastColors(a);
 			splitted.add(a);
 			split = split.substring(length);
 		}
