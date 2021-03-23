@@ -7,7 +7,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.utils.ChatMessage;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
@@ -118,14 +117,14 @@ public class BossBar {
 				this.style=style;
 				if(style==null)
 					style = BarStyle.PROGRESS;
-				bar = Ref.newInstance(barC, NMSAPI.getIChatBaseComponentJson(new ChatMessage(title).getJson()), color.toMojang(), style.toMojang());
+				bar = Ref.newInstance(barC, NMSAPI.getFixedIChatBaseComponent(title), color.toMojang(), style.toMojang());
 				Ref.set(bar, "b", (float) progress > -1 ? progress : 0);
 				Ref.invoke(bar, mAdd,Ref.player(p));
 				update("ADD");
 				return;
 			}
 			if (text != null) {
-				Ref.set(bar, "title", NMSAPI.getIChatBaseComponentJson(new ChatMessage(title).getJson()));
+				Ref.set(bar, "title", NMSAPI.getFixedIChatBaseComponent(title));
 				update("UPDATE_NAME");
 			}
 			if (progress != -1) {

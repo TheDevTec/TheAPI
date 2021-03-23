@@ -9,7 +9,6 @@ import java.util.Set;
 import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.utils.ChatMessage;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.TheCoder;
 import me.devtec.theapi.utils.datakeeper.Data;
@@ -170,7 +169,7 @@ public class ScoreboardAPI {
 		Ref.set(packet, "a", player);
 		Ref.set(packet, "d", mode);
 		if (mode == 0 || mode == 2) {
-			Ref.set(packet, "b", !a ? NMSAPI.getIChatBaseComponentJson(new ChatMessage(displayName).getJson()) : displayName);
+			Ref.set(packet, "b", !a ? NMSAPI.getFixedIChatBaseComponent(displayName) : displayName);
 			Ref.set(packet, "c", NMSAPI.getEnumScoreboardHealthDisplay(DisplayType.INTEGER));
 		}
 		return packet;
@@ -194,7 +193,7 @@ public class ScoreboardAPI {
 			Object packet = NMSAPI.getPacketPlayOutScoreboardTeam();
 			Ref.set(packet, "a", name);
 			if(!a)
-			Ref.set(packet, "c", a ? prefix : NMSAPI.getIChatBaseComponentJson(new ChatMessage(prefix).getJson()));
+			Ref.set(packet, "c", a ? prefix : NMSAPI.getFixedIChatBaseComponent(prefix));
 			else {
 				Ref.set(packet, "c", prefix);
 				Ref.set(packet, "d", suffix);

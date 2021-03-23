@@ -14,7 +14,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.utils.ChatMessage;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
@@ -207,9 +206,9 @@ public class GUI implements HolderGUI {
 			if(TheAPI.isOlderThan(8)) {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id,0,title, getSize(), false));
 			}else if(TheAPI.isOlderThan(14)) {
-				Ref.sendPacket(player, Ref.newInstance(openWindow,id,"minecraft:container",NMSAPI.getIChatBaseComponentJson(new ChatMessage(title).getJson()), getSize()));
+				Ref.sendPacket(player, Ref.newInstance(openWindow,id,"minecraft:container",NMSAPI.getFixedIChatBaseComponent(title), getSize()));
 			}else {
-				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getIChatBaseComponentJson(new ChatMessage(title).getJson())));
+				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getFixedIChatBaseComponent(title)));
 			}
 			Ref.set(f, "activeContainer", container);
 			Ref.invoke(container, addListener, f);
@@ -233,9 +232,9 @@ public class GUI implements HolderGUI {
 			if(TheAPI.isOlderThan(8)) {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id,0,title, inv.getSize(), false));
 			}else if(TheAPI.isOlderThan(14)) {
-				Ref.sendPacket(player, Ref.newInstance(openWindow,id,"minecraft:container",NMSAPI.getIChatBaseComponentJson(new ChatMessage(title).getJson()), inv.getSize()));
+				Ref.sendPacket(player, Ref.newInstance(openWindow,id,"minecraft:container",NMSAPI.getFixedIChatBaseComponent(title), inv.getSize()));
 			}else {
-				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getIChatBaseComponentJson(new ChatMessage(title).getJson())));
+				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getFixedIChatBaseComponent(title)));
 			}
 			Ref.sendPacket(player, Ref.newInstance(itemsS,id, Ref.get(container,"items")));
 			Object carry = Ref.invoke(Ref.get(f,"inventory"),"getCarried");

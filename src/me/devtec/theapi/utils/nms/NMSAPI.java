@@ -285,11 +285,11 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut) {
-		return getPacketPlayOutTitle(action, NMSAPI.getIChatBaseComponentJson(new ChatMessage(text).getJson()), fadeIn, stay, fadeOut);
+		return getPacketPlayOutTitle(action, NMSAPI.getFixedIChatBaseComponent(text), fadeIn, stay, fadeOut);
 	}
 
 	public static Object getPacketPlayOutTitle(TitleAction action, String text) {
-		return getPacketPlayOutTitle(action, NMSAPI.getIChatBaseComponentJson(new ChatMessage(text).getJson()), 10, 20, 10);
+		return getPacketPlayOutTitle(action, NMSAPI.getFixedIChatBaseComponent(text), 10, 20, 10);
 	}
 
 	public static void refleshBlock(Position pos, Object oldBlock) {
@@ -314,7 +314,7 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutChat(ChatType type, String text) {
-		return getPacketPlayOutChat(type, NMSAPI.getIChatBaseComponentJson(new ChatMessage(text).getJson()));
+		return getPacketPlayOutChat(type, NMSAPI.getFixedIChatBaseComponent(text));
 	}
 
 	public static Object getPacketPlayOutEntityDestroy(int... id) {
@@ -361,7 +361,7 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutPlayerListHeaderFooter(String header, String footer) {
-		return getPacketPlayOutPlayerListHeaderFooter(getIChatBaseComponentJson(new ChatMessage(header).getJson()), getIChatBaseComponentJson(new ChatMessage(footer).getJson()));
+		return getPacketPlayOutPlayerListHeaderFooter(getFixedIChatBaseComponent(header), getFixedIChatBaseComponent(header));
 	}
 
 	public static Object getPacketPlayOutBlockChange(Object World, Position pos) {
@@ -378,6 +378,11 @@ public class NMSAPI {
 
 	public static Object getPacketPlayOutBlockChange(Object World, Object BlockPosition) {
 		return Ref.newInstance(pBlock, World, BlockPosition);
+	}
+
+	public static Object getFixedIChatBaseComponent(String text) {
+		if(text==null||text.equals(""))return empty;
+		return getIChatBaseComponentJson(new ChatMessage(text).getJson());
 	}
 
 	public static Object getIChatBaseComponentText(String text) {

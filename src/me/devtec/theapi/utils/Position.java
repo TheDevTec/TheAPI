@@ -84,6 +84,31 @@ public class Position implements Cloneable {
 		this(b.getLocation());
 	}
 
+	public static Position fromString(String stored) {
+		if (stored.startsWith("[Position:")) {
+			stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[Position:", "");
+			String[] part = stored.replace(":", ".").split("/");
+			return new Position(part[0], StringUtils.getDouble(part[1]), StringUtils.getDouble(part[2]),
+					StringUtils.getDouble(part[3]), StringUtils.getFloat(part[4]), StringUtils.getFloat(part[5]));
+		}
+		Location loc = StringUtils.getLocationFromString(stored);
+		if (loc != null)
+			return new Position(loc);
+		return null;
+	}
+
+	public static Position fromBlock(Block block) {
+		if (block != null)
+			return new Position(block.getLocation());
+		return null;
+	}
+
+	public static Position fromLocation(Location location) {
+		if (location != null)
+			return new Position(location);
+		return null;
+	}
+
 	private String w;
 	private double x, y, z;
 	private float yaw, pitch;
@@ -192,19 +217,6 @@ public class Position implements Cloneable {
 	public Position setPitch(float pitch) {
 		this.pitch = pitch;
 		return this;
-	}
-
-	public static Position fromString(String stored) {
-		if (stored.startsWith("[Position:")) {
-			stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[Position:", "");
-			String[] part = stored.replace(":", ".").split("/");
-			return new Position(part[0], StringUtils.getDouble(part[1]), StringUtils.getDouble(part[2]),
-					StringUtils.getDouble(part[3]), StringUtils.getFloat(part[4]), StringUtils.getFloat(part[5]));
-		}
-		Location loc = StringUtils.getLocationFromString(stored);
-		if (loc != null)
-			return new Position(loc);
-		return null;
 	}
 
 	public double distance(Location location) {

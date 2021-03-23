@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -69,7 +68,7 @@ public class Events implements Listener {
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK && e.getClickedBlock().getType().name().contains("SIGN")) {
 			if (SignAPI.getRegistredSigns().contains(new Position(e.getClickedBlock().getLocation()))) {
 				e.setCancelled(true);
-				Map<SignAction, List<String>> as = SignAPI.getSignActions((Sign) e.getClickedBlock().getState());
+				Map<SignAction, List<String>> as = SignAPI.getSignActions(new Position(e.getClickedBlock()));
 				for (SignAction a : as.keySet()) {
 					switch (a) {
 					case PLAYER_COMMANDS:

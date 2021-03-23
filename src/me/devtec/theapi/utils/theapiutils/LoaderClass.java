@@ -176,7 +176,7 @@ public class LoaderClass extends JavaPlugin {
 					if(InventoryClickType.THROW==type||InventoryClickType.PICKUP==type && slot==-999)return false;
 					if(InventoryClickType.SWAP==type) {
 						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(d.getContainer(p), getSlot, slot),"getItem")));
-						if(mouseClick == 40 && TheAPI.isNewerThan(7)) {
+						if(mouseClick == 40 && TheAPI.isNewerThan(8)) {
 							final List<com.mojang.datafixers.util.Pair<?,?>> equipmentList = new ArrayList<>();
 							equipmentList.add(new com.mojang.datafixers.util.Pair<>(OFFHAND, NMSAPI.asNMSItem(p.getEquipment().getItemInOffHand())));
 							Ref.sendPacket(p,Ref.newInstance(equipment, p.getEntityId(), equipmentList));
