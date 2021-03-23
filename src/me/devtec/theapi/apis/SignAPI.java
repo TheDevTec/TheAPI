@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.ChatColor;
 import org.bukkit.block.Sign;
 
 import me.devtec.theapi.TheAPI;
@@ -72,66 +71,9 @@ public class SignAPI {
 		else {
 			String[] parsed = new String[]{"","","",""};
 			for(int i = 0; i < 4; ++i)
-				parsed[i]=fromComponent(get[i]);
+				parsed[i]=NMSAPI.fromComponent(get[i]);
 			return parsed;
 		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	private static String fromComponent(Object o) {
-		if (o == null)
-			return "";
-		StringBuilder out = new StringBuilder();
-		boolean hadFormat = false;
-		for (Object c : (Iterable<Object>)o) {
-			Object modi = Ref.invoke(c, "getChatModifier");
-			Object color = Ref.invoke(modi, "getColor");
-			if (!((String)Ref.invoke(c, "getText")).isEmpty() || color != null) {
-				if (color != null) {
-					if (Ref.get(color, "format") != null) {
-						out.append(""+Ref.get(color, "format"));
-						hadFormat = true;
-					} else if(TheAPI.isNewerThan(15)){
-						out.append("§x");
-						char[] arrc = ((String)Ref.invoke(color, "b")).substring(1).toCharArray();
-						int n = arrc.length;
-						int n2 = 0;
-						while (n2 < n) {
-							char magic = arrc[n2];
-							out.append("§").append(magic);
-							++n2;
-						}
-						hadFormat = true;
-					}else
-					hadFormat = false;
-				} else if (hadFormat) {
-					out.append(""+ChatColor.RESET);
-					hadFormat = false;
-				}
-			}
-			if ((boolean)Ref.invoke(modi, "isBold")) {
-				out.append(""+ChatColor.BOLD);
-				hadFormat = true;
-			}
-			if ((boolean)Ref.invoke(modi, "isItalic")) {
-				out.append(""+ChatColor.ITALIC);
-				hadFormat = true;
-			}
-			if ((boolean)Ref.invoke(modi, "isUnderlined")) {
-				out.append(""+ChatColor.UNDERLINE);
-				hadFormat = true;
-			}
-			if ((boolean)Ref.invoke(modi, "isStrikethrough")) {
-				out.append(""+ChatColor.STRIKETHROUGH);
-				hadFormat = true;
-			}
-			if ((boolean)Ref.invoke(modi, "isRandom")) {
-				out.append(""+ChatColor.MAGIC);
-				hadFormat = true;
-			}
-			out.append(""+Ref.invoke(c, "getText"));
-		}
-		return out.toString();
 	}
 
 	public static void setActions(Position loc, Map<SignAction, List<String>> options) {

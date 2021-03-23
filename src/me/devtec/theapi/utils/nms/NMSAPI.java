@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -379,7 +380,64 @@ public class NMSAPI {
 	public static Object getPacketPlayOutBlockChange(Object World, Object BlockPosition) {
 		return Ref.newInstance(pBlock, World, BlockPosition);
 	}
-
+	
+	@SuppressWarnings("unchecked")
+	public static String fromComponent(Object o) {
+		if (o == null)
+			return "";
+		StringBuilder out = new StringBuilder();
+		boolean hadFormat = false;
+		for (Object c : (Iterable<Object>)o) {
+			Object modi = Ref.invoke(c, "getChatModifier");
+			Object color = Ref.invoke(modi, "getColor");
+			if (!((String)Ref.invoke(c, "getText")).isEmpty() || color != null) {
+				if (color != null) {
+					if (Ref.get(color, "format") != null) {
+						out.append(""+Ref.get(color, "format"));
+						hadFormat = true;
+					} else if(TheAPI.isNewerThan(15)){
+						out.append("§x");
+						char[] arrc = ((String)Ref.invoke(color, "b")).substring(1).toCharArray();
+						int n = arrc.length;
+						int n2 = 0;
+						while (n2 < n) {
+							char magic = arrc[n2];
+							out.append("§").append(magic);
+							++n2;
+						}
+						hadFormat = true;
+					}else
+					hadFormat = false;
+				} else if (hadFormat) {
+					out.append(""+ChatColor.RESET);
+					hadFormat = false;
+				}
+			}
+			if ((boolean)Ref.invoke(modi, "isBold")) {
+				out.append(""+ChatColor.BOLD);
+				hadFormat = true;
+			}
+			if ((boolean)Ref.invoke(modi, "isItalic")) {
+				out.append(""+ChatColor.ITALIC);
+				hadFormat = true;
+			}
+			if ((boolean)Ref.invoke(modi, "isUnderlined")) {
+				out.append(""+ChatColor.UNDERLINE);
+				hadFormat = true;
+			}
+			if ((boolean)Ref.invoke(modi, "isStrikethrough")) {
+				out.append(""+ChatColor.STRIKETHROUGH);
+				hadFormat = true;
+			}
+			if ((boolean)Ref.invoke(modi, "isRandom")) {
+				out.append(""+ChatColor.MAGIC);
+				hadFormat = true;
+			}
+			out.append(""+Ref.invoke(c, "getText"));
+		}
+		return out.toString();
+	}
+	
 	public static Object getFixedIChatBaseComponent(String text) {
 		if(text==null||text.equals(""))return empty;
 		return getIChatBaseComponentJson(new ChatMessage(text).getJson());
