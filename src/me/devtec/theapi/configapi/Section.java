@@ -285,7 +285,7 @@ public class Section implements Data {
 		return get(path) instanceof Boolean;
 	}
 
-	public List<Map<?, ?>> getMapList(String path) {
+	public <K, V> List<Map<K, V>> getMapList(String path) {
 		if (path == null)
 			return null;
 		if (path.trim().isEmpty())

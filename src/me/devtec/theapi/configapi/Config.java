@@ -387,7 +387,7 @@ public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data 
 		return f.getShortList(path);
 	}
 
-	public List<Map<?, ?>> getMapList(String path) {
+	public <K, V> List<Map<K, V>> getMapList(String path) {
 		if (path == null)
 			return null;
 		return f.getMapList(path);

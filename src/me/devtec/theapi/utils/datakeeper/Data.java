@@ -25,6 +25,7 @@ import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.loader.DataLoader;
 import me.devtec.theapi.utils.datakeeper.loader.EmptyLoader;
 import me.devtec.theapi.utils.json.Maker;
+import me.devtec.theapi.utils.json.Reader;
 import me.devtec.theapi.utils.json.Writer;
 import me.devtec.theapi.utils.theapiutils.Validator;
 
@@ -88,7 +89,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	private Object[] getOrCreateData(String key) {
 		Object[] h = loader.get().getOrDefault(key, null);
 		if (h == null) {
-			h = new Object[2];
+			h = new Object[3];
 			if (!aw.contains(key.split("\\.")[0]))
 				aw.add(key.split("\\.")[0]);
 			loader.set(key, h);
@@ -113,6 +114,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			Object[] data = getOrCreateData(key);
 			data[0]=value;
 			data[1]=comments;
+			data[2]=value+"";
 			return true;
 		}
 		Object[] data = getOrCreateData(key);
@@ -132,7 +134,9 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			loader.remove(key);
 			return this;
 		}
-		getOrCreateData(key)[0]=value;
+		Object[] o = getOrCreateData(key);
+		o[0]=value;
+		o[2]=value+"";
 		return this;
 	}
 
@@ -262,6 +266,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	public <E> E getAs(String key, Class<? extends E> clazz) {
 		try {
+		if(clazz==String.class||clazz==CharSequence.class)return clazz.cast(getString(key));
+		} catch (Exception e) {
+		}
+		try {
 			return clazz.cast(loader.get().get(key)[0]);
 		} catch (Exception e) {
 		}
@@ -269,7 +277,12 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public String getString(String key) {
-		return get(key) != null ? String.valueOf(get(key)) : null;
+		try {
+			return (String)loader.get().get(key)[2];
+		}catch(Exception outOfBound) {
+			Object a = loader.get().get(key)[0];
+			return a instanceof String ? (String)a : (a==null?null:a+"");
+		}
 	}
 
 	public int getInt(String key) {
@@ -373,16 +386,17 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				try {
 					list.add(o == null ? null : clazz.cast(o));
 				} catch (Exception er) {
-					er.printStackTrace();
 				}
 			return list;
 		}
 	}
 
 	public List<String> getStringList(String key) {
+		List<String> list = getListAs(key, String.class);
 		// Cast everything to String
 		Collection<Object> items = getList(key);
-		List<String> list = new ArrayList<>();
+		if(list!=null && list.containsAll(items))return list;
+		list=new ArrayList<>(items.size());
 		for (Object o : items)
 			if (o != null)
 				list.add("" + o);
@@ -392,70 +406,94 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public List<Boolean> getBooleanList(String key) {
+		List<Boolean> list = getListAs(key, Boolean.class);
 		// Cast everything to Boolean
 		Collection<Object> items = getList(key);
-		List<Boolean> list = new ArrayList<>();
+		if(list!=null && list.containsAll(items))return list;
+		list=new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? false : o instanceof Boolean ? (Boolean)o: StringUtils.getBoolean(o.toString()));
 		return list;
 	}
 
 	public List<Integer> getIntegerList(String key) {
+		List<Integer> list = getListAs(key, Integer.class);
 		// Cast everything to Integer
 		Collection<Object> items = getList(key);
-		List<Integer> list = new ArrayList<>();
+		if(list!=null && list.containsAll(items))return list;
+		list=new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : o instanceof Number ? ((Number)o).intValue():StringUtils.getInt(o.toString()));
 		return list;
 	}
 
 	public List<Double> getDoubleList(String key) {
+		List<Double> list = getListAs(key, Double.class);
 		// Cast everything to Double
 		Collection<Object> items = getList(key);
-		List<Double> list = new ArrayList<>();
+		if(list!=null && list.containsAll(items))return list;
+		list=new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0.0 : o instanceof Number ? ((Number)o).doubleValue():StringUtils.getDouble(o.toString()));
 		return list;
 	}
 
 	public List<Short> getShortList(String key) {
+		List<Short> list = getListAs(key, Short.class);
 		// Cast everything to Short
 		Collection<Object> items = getList(key);
-		List<Short> list = new ArrayList<>();
+		if(list!=null && list.containsAll(items))return list;
+		list=new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : o instanceof Number ? ((Number)o).shortValue():StringUtils.getShort(o.toString()));
 		return list;
 	}
 
 	public List<Byte> getByteList(String key) {
+		List<Byte> list = getListAs(key, Byte.class);
 		// Cast everything to Byte
 		Collection<Object> items = getList(key);
-		List<Byte> list = new ArrayList<>();
+		if(list!=null && list.containsAll(items))return list;
+		list=new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : o instanceof Number ? ((Number)o).byteValue():StringUtils.getByte(o.toString()));
 		return list;
 	}
 
 	public List<Float> getFloatList(String key) {
+		List<Float> list = getListAs(key, Float.class);
 		// Cast everything to Float
 		Collection<Object> items = getList(key);
-		List<Float> list = new ArrayList<>();
+		if(list!=null && list.containsAll(items))return list;
+		list=new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : o instanceof Number ? ((Number)o).floatValue():StringUtils.getFloat(o.toString()));
 		return list;
 	}
 
 	public List<Long> getLongList(String key) {
-		// Cast everything to Byte
+		List<Long> list = getListAs(key, Long.class);
+		// Cast everything to Long
 		Collection<Object> items = getList(key);
-		List<Long> list = new ArrayList<>();
+		if(list!=null && list.containsAll(items))return list;
+		list=new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : StringUtils.getLong(o.toString()));
 		return list;
 	}
 
-	public List<Map<?, ?>> getMapList(String key) {
-		return getListAs(key, Map.class);
+	@SuppressWarnings("unchecked")
+	public <K, V> List<Map<K, V>> getMapList(String key) {
+		List<Map<K, V>> list = getListAs(key, Map.class);
+		// Cast everything to Long
+		Collection<Object> items = getList(key);
+		if(list!=null && list.containsAll(items))return list;
+		list=new ArrayList<>(items.size());
+		for (Object o : items) {
+			Object re = Reader.read(o.toString());
+			list.add(o == null ? null : re instanceof Map ? (Map<K, V>)re : new HashMap<>());
+		}
+		return list;
 	}
 
 	public synchronized Data save(DataType type) {

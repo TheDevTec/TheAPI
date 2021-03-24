@@ -87,8 +87,9 @@ public class YamlLoader extends DataLoader {
 						}
 						if (f == 0) {
 							header.add(text.substring(c(text)));
-						} else
+						} else {
 							lines.add(text.substring(c(text)));
+						}
 						continue;
 					}
 					Matcher sec = pattern.matcher(text);
@@ -103,7 +104,7 @@ public class YamlLoader extends DataLoader {
 								m.find();
 								object=m.group(1);
 							}
-							set(key, Reader.read(object), lines);
+							set(key, Reader.read(object), lines, object);
 							v = null;
 						}
 						if (c == 2) {
@@ -197,7 +198,7 @@ public class YamlLoader extends DataLoader {
 									set(key, new ArrayList<>(), lines);
 									continue;
 								}
-								set(key, Reader.read(object), lines);
+								set(key, Reader.read(object), lines, object);
 							} else if (!lines.isEmpty())
 								set(key, null, lines);
 					}
@@ -205,7 +206,7 @@ public class YamlLoader extends DataLoader {
 			if (!items.isEmpty() || c == 2) {
 				set(key, items, lines);
 			} else if (c == 1) {
-				set(key, Reader.read(v.toString()), lines);
+				set(key, Reader.read(v.toString()), lines, v.toString());
 			} else if (!lines.isEmpty())
 				footer = lines;
 			l = true;
@@ -250,7 +251,16 @@ public class YamlLoader extends DataLoader {
 		if (data.containsKey(key)) {
 			data.get(key)[0]=o;
 		} else
-			set(key, new Object[] {o, lines.isEmpty()?null:new LinkedList<>(lines)});
+			set(key, new Object[] {o, lines.isEmpty()?null:new LinkedList<>(lines), null});
+		lines.clear();
+	}
+
+	private final void set(String key, Object o, LinkedList<String> lines, String original) {
+		if(key==null)return;
+		if (data.containsKey(key)) {
+			data.get(key)[0]=o;
+		} else
+			set(key, new Object[] {o, lines.isEmpty()?null:new LinkedList<>(lines), original});
 		lines.clear();
 	}
 
