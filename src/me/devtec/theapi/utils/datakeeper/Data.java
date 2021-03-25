@@ -277,11 +277,12 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public String getString(String key) {
+		Object[] a = loader.get().get(key);
+		if(a==null)return null;
 		try {
-			return (String)loader.get().get(key)[2];
+			return (String)a[2];
 		}catch(Exception outOfBound) {
-			Object a = loader.get().get(key)[0];
-			return a instanceof String ? (String)a : (a==null?null:a+"");
+			return a[0] instanceof String ? (String)a[0] : (a[0]==null?null:a[0]+"");
 		}
 	}
 
