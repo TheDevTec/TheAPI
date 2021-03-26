@@ -89,7 +89,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	private Object[] getOrCreateData(String key) {
 		Object[] h = loader.get().getOrDefault(key, null);
 		if (h == null) {
-			h = new Object[3];
+			h = new Object[4];
 			if (!aw.contains(key.split("\\.")[0]))
 				aw.add(key.split("\\.")[0]);
 			loader.set(key, h);
@@ -137,6 +137,16 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Object[] o = getOrCreateData(key);
 		o[0]=value;
 		o[2]=value+"";
+		try {
+			o[3]=1;
+		}catch(Exception outOfBound) {
+			Object[] h = new Object[4];
+			h[0]=value;
+			h[1]=o[1];
+			h[2]=value==null?null:value+"";
+			h[3]=1;
+			loader.set(key, h);
+		}
 		return this;
 	}
 
@@ -650,54 +660,113 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				if(list != null && !list.isEmpty()) {
 					for (String s : list)
 						b.write(space + s + System.lineSeparator());
-					if(o==null)b.write(pathName + System.lineSeparator());
-					else {
-						if (o instanceof Collection || o instanceof Object[]) {
-							String splitted = space + "- ";
-							if (o instanceof Collection) {
-								if(!((Collection<?>) o).isEmpty()) {
-									b.write(pathName + System.lineSeparator());
-									for (Object a : (Collection<?>) o) {
-										b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-									}
-								}else
-									b.write(pathName + " []" + System.lineSeparator());
-							} else {
-								if(((Object[]) o).length!=0) {
-									b.write(pathName + System.lineSeparator());
-									for (Object a : (Object[]) o)
-										b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-								}else
-									b.write(pathName + " []" + System.lineSeparator());
-							}
-						} else
-							b.write(pathName + " " + addQuotes(o instanceof String,Writer.write(o)) + System.lineSeparator());
-					}
-				}else {
-					if(o==null)b.write(pathName + System.lineSeparator());
-					else {
-						if (o instanceof Collection || o instanceof Object[]) {
-							String splitted = space + "- ";
-							if (o instanceof Collection) {
-								if(!((Collection<?>) o).isEmpty()) {
-									b.write(pathName + System.lineSeparator());
-									for (Object a : (Collection<?>) o) {
-										b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-									}
-								}else
-									b.write(pathName + " []" + System.lineSeparator());
-							} else {
-								if(((Object[]) o).length!=0) {
-									b.write(pathName + System.lineSeparator());
-									for (Object a : (Object[]) o)
-										b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-								}else
-									b.write(pathName + " []" + System.lineSeparator());
-							}
-						} else
-							b.write(pathName + " " + addQuotes(o instanceof String,Writer.write(o)) + System.lineSeparator());
-					}
 				}
+					if(o==null)b.write(pathName + System.lineSeparator());
+					else {
+						if (o instanceof Collection || o instanceof Object[]) {
+							String splitted = space + "- ";
+							boolean add = false;
+							if (o instanceof Collection) {
+								if(!((Collection<?>) o).isEmpty()) {
+									try {
+										if((int)aw[3]==1) {
+											b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+										}else {
+											if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
+												b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+											}else {
+												add=true;
+												b.write(pathName + System.lineSeparator());
+												for (Object a : (Collection<?>) o) {
+													b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
+											}}
+										}
+									}catch(Exception er) {
+										try {
+										if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
+											b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+										}else {
+											if(!add) {
+												add=true;
+												b.write(pathName + System.lineSeparator());
+											}
+										for (Object a : (Collection<?>) o) {
+											b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
+										}}
+										}catch(Exception unsuported) {
+											if(!add) {
+												add=true;
+												b.write(pathName + System.lineSeparator());
+											}
+											for (Object a : (Collection<?>) o) {
+												b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
+											}
+										}
+									}
+								}else
+									b.write(pathName + " []" + System.lineSeparator());
+							} else {
+								if(((Object[]) o).length!=0) {
+									b.write(pathName + System.lineSeparator());
+									try {
+										if((int)aw[3]==1) {
+											b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+										}else {
+											if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
+												b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+											}else {
+												add=true;
+												b.write(pathName + System.lineSeparator());
+											for (Object a : (Collection<?>) o) {
+												b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
+											}}
+										}
+									}catch(Exception er) {
+										try {
+										if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
+											b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+										}else {
+											if(!add) {
+												add=true;
+												b.write(pathName + System.lineSeparator());
+											}
+										for (Object a : (Collection<?>) o) {
+											b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
+										}}
+										}catch(Exception unsuported) {
+											if(!add) {
+												add=true;
+												b.write(pathName + System.lineSeparator());
+											}
+											for (Object a : (Collection<?>) o) {
+												b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
+											}
+										}
+								}}else
+									b.write(pathName + " []" + System.lineSeparator());
+							}
+						} else {
+							try {
+								if((int)aw[3]==1) {
+									b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+								}else {
+									if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
+										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+									}else
+										b.write(pathName + " "+addQuotes(o instanceof String, Writer.write(o)) + System.lineSeparator());
+								}
+							}catch(Exception er) {
+								try {
+									if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
+										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+									}else
+										b.write(pathName + " "+addQuotes(o instanceof String, Writer.write(o)) + System.lineSeparator());
+								}catch(Exception unsuported) {
+									b.write(pathName + " "+addQuotes(o instanceof String, Writer.write(o)) + System.lineSeparator());
+								}
+							}
+						}
+					}
 				for (String key : getKeys(path, false))
 					preparePath(path + "." + key, key + ":", spaces + 1, b);
 			} catch (Exception er) {
