@@ -66,7 +66,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		loader=data.loader;
 	}
 
-	public boolean exists(String path) {
+	public synchronized boolean exists(String path) {
 		int a = 0;
 		for (String k : loader.get().keySet()) {
 			if (k.startsWith(path)) {
@@ -77,16 +77,16 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return a == 1;
 	}
 
-	public boolean existsKey(String path) {
+	public synchronized boolean existsKey(String path) {
 		return loader.get().containsKey(path);
 	}
 
-	public Data setFile(File f) {
+	public synchronized Data setFile(File f) {
 		a = f;
 		return this;
 	}
 
-	private Object[] getOrCreateData(String key) {
+	private synchronized Object[] getOrCreateData(String key) {
 		Object[] h = loader.get().getOrDefault(key, null);
 		if (h == null) {
 			h = new Object[4];
@@ -97,7 +97,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return h;
 	}
 
-	public boolean setIfAbsent(String key, Object value) {
+	public synchronized boolean setIfAbsent(String key, Object value) {
 		if (key == null || value==null)
 			return false;
 		if(!existsKey(key)) {
@@ -107,7 +107,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return false;
 	}
 
-	public boolean setIfAbsent(String key, Object value, List<String> comments) {
+	public synchronized boolean setIfAbsent(String key, Object value, List<String> comments) {
 		if (key == null || value==null)
 			return false;
 		if(!existsKey(key)) {
@@ -125,7 +125,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return false;
 	}
 
-	public Data set(String key, Object value) {
+	public synchronized Data set(String key, Object value) {
 		if (key == null)
 			return this;
 		if (value == null) {
@@ -150,7 +150,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return this;
 	}
 
-	public Data remove(String key) {
+	public synchronized Data remove(String key) {
 		if (key == null)
 			return this;
 		if (key.split("\\.").length <= 1)
@@ -162,13 +162,13 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<String> getComments(String key) {
+	public synchronized List<String> getComments(String key) {
 		if (key == null)
 			return null;
 		return (List<String>) getOrCreateData(key)[1];
 	}
 
-	public Data setComments(String key, List<String> value) {
+	public synchronized Data setComments(String key, List<String> value) {
 		if (key == null)
 			return this;
 		getOrCreateData(key)[1]=value;
@@ -176,7 +176,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Data addComments(String key, List<String> value) {
+	public synchronized Data addComments(String key, List<String> value) {
 		if (value == null || key == null)
 			return this;
 		Object[] g = getOrCreateData(key);
@@ -186,14 +186,14 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return this;
 	}
 
-	public Data addComment(String key, String value) {
+	public synchronized Data addComment(String key, String value) {
 		if (value == null || key == null)
 			return this;
 		return addComments(key, Arrays.asList(value));
 	}
 
 	@SuppressWarnings("unchecked")
-	public Data removeComments(String key, List<String> value) {
+	public synchronized Data removeComments(String key, List<String> value) {
 		if (value == null || key == null)
 			return this;
 		Object[] g = getOrCreateData(key);
@@ -202,14 +202,14 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return this;
 	}
 
-	public Data removeComment(String key, String value) {
+	public synchronized Data removeComment(String key, String value) {
 		if (value == null || key == null)
 			return this;
 		return removeComments(key, Arrays.asList(value));
 	}
 
 	@SuppressWarnings("unchecked")
-	public Data removeComment(String key, int line) {
+	public synchronized Data removeComment(String key, int line) {
 		if (line < 0 || key == null)
 			return this;
 		Object[] h = getOrCreateData(key);
@@ -218,31 +218,31 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return this;
 	}
 
-	public File getFile() {
+	public synchronized File getFile() {
 		return a;
 	}
 
-	public Data setHeader(Collection<String> lines) {
+	public synchronized Data setHeader(Collection<String> lines) {
 		loader.getHeader().clear();
 		loader.getHeader().addAll(lines);
 		return this;
 	}
 
-	public Data setFooter(Collection<String> lines) {
+	public synchronized Data setFooter(Collection<String> lines) {
 		loader.getFooter().clear();
 		loader.getFooter().addAll(lines);
 		return this;
 	}
 
-	public Collection<String> getHeader() {
+	public synchronized Collection<String> getHeader() {
 		return loader.getHeader();
 	}
 
-	public Collection<String> getFooter() {
+	public synchronized Collection<String> getFooter() {
 		return loader.getFooter();
 	}
 
-	public Data reload(String input) {
+	public synchronized Data reload(String input) {
 		aw.clear();
 		loader = DataLoader.findLoaderFor(input); // get & load
 		for (String k : loader.getKeys())
@@ -251,7 +251,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return this;
 	}
 
-	public Data reload(File f) {
+	public synchronized Data reload(File f) {
 		if (!f.exists()) {
 			try {
 				if(f.getParentFile()!=null)
@@ -266,7 +266,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return reload(StreamUtils.fromStream(f));
 	}
 
-	public Object get(String key) {
+	public synchronized Object get(String key) {
 		try {
 			return loader.get().get(key)[0];
 		} catch (Exception e) {
@@ -274,7 +274,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 	}
 
-	public <E> E getAs(String key, Class<? extends E> clazz) {
+	public synchronized <E> E getAs(String key, Class<? extends E> clazz) {
 		try {
 		if(clazz==String.class||clazz==CharSequence.class)return clazz.cast(getString(key));
 		} catch (Exception e) {
@@ -286,7 +286,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return null;
 	}
 
-	public String getString(String key) {
+	public synchronized String getString(String key) {
 		Object[] a = loader.get().get(key);
 		if(a==null)return null;
 		try {
@@ -296,7 +296,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 	}
 
-	public int getInt(String key) {
+	public synchronized int getInt(String key) {
 		try {
 			return getAs(key, int.class);
 		} catch (Exception notNumber) {
@@ -308,7 +308,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 	}
 
-	public double getDouble(String key) {
+	public synchronized double getDouble(String key) {
 		try {
 			return getAs(key, double.class);
 		} catch (Exception notNumber) {
@@ -320,7 +320,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 	}
 
-	public long getLong(String key) {
+	public synchronized long getLong(String key) {
 		try {
 			return getAs(key, long.class);
 		} catch (Exception notNumber) {
@@ -332,7 +332,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 	}
 
-	public float getFloat(String key) {
+	public synchronized float getFloat(String key) {
 		try {
 			return getAs(key, float.class);
 		} catch (Exception notNumber) {
@@ -344,7 +344,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 	}
 
-	public byte getByte(String key) {
+	public synchronized byte getByte(String key) {
 		try {
 			return getAs(key, byte.class);
 		} catch (Exception notNumber) {
@@ -356,7 +356,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 	}
 
-	public boolean getBoolean(String key) {
+	public synchronized boolean getBoolean(String key) {
 		try {
 			return getAs(key, boolean.class);
 		} catch (Exception notNumber) {
@@ -368,7 +368,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 	}
 
-	public short getShort(String key) {
+	public synchronized short getShort(String key) {
 		try {
 			return getAs(key, short.class);
 		} catch (Exception notNumber) {
@@ -381,12 +381,12 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Collection<Object> getList(String key) {
+	public synchronized Collection<Object> getList(String key) {
 		return get(key) != null && get(key) instanceof Collection ? (Collection) get(key) : new ArrayList<>();
 	}
 
 	@SuppressWarnings("unchecked")
-	public <E> List<E> getListAs(String key, Class<? extends E> clazz) {
+	public synchronized <E> List<E> getListAs(String key, Class<? extends E> clazz) {
 		// Cast everything to <E>
 		try {
 			//try to cast List<?> to List<E>
@@ -402,7 +402,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 	}
 
-	public List<String> getStringList(String key) {
+	public synchronized List<String> getStringList(String key) {
 		List<String> list = getListAs(key, String.class);
 		// Cast everything to String
 		Collection<Object> items = getList(key);
@@ -416,7 +416,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return list;
 	}
 
-	public List<Boolean> getBooleanList(String key) {
+	public synchronized List<Boolean> getBooleanList(String key) {
 		List<Boolean> list = getListAs(key, Boolean.class);
 		// Cast everything to Boolean
 		Collection<Object> items = getList(key);
@@ -427,7 +427,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return list;
 	}
 
-	public List<Integer> getIntegerList(String key) {
+	public synchronized List<Integer> getIntegerList(String key) {
 		List<Integer> list = getListAs(key, Integer.class);
 		// Cast everything to Integer
 		Collection<Object> items = getList(key);
@@ -438,7 +438,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return list;
 	}
 
-	public List<Double> getDoubleList(String key) {
+	public synchronized List<Double> getDoubleList(String key) {
 		List<Double> list = getListAs(key, Double.class);
 		// Cast everything to Double
 		Collection<Object> items = getList(key);
@@ -449,7 +449,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return list;
 	}
 
-	public List<Short> getShortList(String key) {
+	public synchronized List<Short> getShortList(String key) {
 		List<Short> list = getListAs(key, Short.class);
 		// Cast everything to Short
 		Collection<Object> items = getList(key);
@@ -460,7 +460,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return list;
 	}
 
-	public List<Byte> getByteList(String key) {
+	public synchronized List<Byte> getByteList(String key) {
 		List<Byte> list = getListAs(key, Byte.class);
 		// Cast everything to Byte
 		Collection<Object> items = getList(key);
@@ -471,7 +471,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return list;
 	}
 
-	public List<Float> getFloatList(String key) {
+	public synchronized List<Float> getFloatList(String key) {
 		List<Float> list = getListAs(key, Float.class);
 		// Cast everything to Float
 		Collection<Object> items = getList(key);
@@ -482,7 +482,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return list;
 	}
 
-	public List<Long> getLongList(String key) {
+	public synchronized List<Long> getLongList(String key) {
 		List<Long> list = getListAs(key, Long.class);
 		// Cast everything to Long
 		Collection<Object> items = getList(key);
@@ -494,7 +494,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <K, V> List<Map<K, V>> getMapList(String key) {
+	public synchronized <K, V> List<Map<K, V>> getMapList(String key) {
 		List<Map<K, V>> list = getListAs(key, Map.class);
 		// Cast everything to Long
 		Collection<Object> items = getList(key);
@@ -586,25 +586,25 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return text;
 	}
 	
-	public void save() {
+	public synchronized void save() {
 		save(DataType.YAML);
 	}
 
-	public Set<String> getKeys() {
+	public synchronized Set<String> getKeys() {
 		return new LinkedHashSet<>(aw);
 	}
 
-	public Set<String> getKeys(boolean subkeys) {
+	public synchronized Set<String> getKeys(boolean subkeys) {
 		if (subkeys)
 			return loader.getKeys();
 		return new LinkedHashSet<>(aw);
 	}
 
-	public Set<String> getKeys(String key) {
+	public synchronized Set<String> getKeys(String key) {
 		return getKeys(key, false);
 	}
 
-	public boolean isKey(String key) {
+	public synchronized boolean isKey(String key) {
 		boolean is = false;
 		for (String k : loader.getKeys()) {
 			if (k.startsWith(key)) {
@@ -619,7 +619,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return is;
 	}
 
-	public Set<String> getKeys(String key, boolean subkeys) {
+	public synchronized Set<String> getKeys(String key, boolean subkeys) {
 		Set<String> a = new LinkedHashSet<>();
 		for (String d : loader.getKeys())
 			if (d.startsWith(key)) {
@@ -636,11 +636,11 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return a;
 	}
 
-	public String toString() {
+	public synchronized String toString() {
 		return toString(DataType.BYTE);
 	}
 
-	private void addKeys(Maker main, String key) {
+	private synchronized void addKeys(Maker main, String key) {
 		Object o = get(key);
 		if (o != null)
 			main.add(main.create().put(key, o));
@@ -649,129 +649,127 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void preparePath(String path, String pathName, int spaces, java.io.Writer b) {
-		synchronized (loader) {
-			try {
-				Object[] aw = loader.get().get(path);
-				Collection<String> list = aw != null ? (Collection<String>)aw[1] : null;
-				Object o = aw != null ? aw[0] : null;
-				String space = cs(spaces, 1);
-				pathName = space + pathName;
-				if(list != null && !list.isEmpty()) {
-					for (String s : list)
-						b.write(space + s + System.lineSeparator());
-				}
-					if(o==null)b.write(pathName + System.lineSeparator());
-					else {
-						if (o instanceof Collection || o instanceof Object[]) {
-							String splitted = space + "- ";
-							boolean add = false;
-							if (o instanceof Collection) {
-								if(!((Collection<?>) o).isEmpty()) {
-									try {
-										if((int)aw[3]==1) {
-											b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
-										}else {
-											if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
-												b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
-											}else {
-												add=true;
-												b.write(pathName + System.lineSeparator());
-												for (Object a : (Collection<?>) o) {
-													b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-											}}
-										}
-									}catch(Exception er) {
-										try {
+	private synchronized void preparePath(String path, String pathName, int spaces, java.io.Writer b) {
+		try {
+			Object[] aw = loader.get().get(path);
+			Collection<String> list = aw != null ? (Collection<String>)aw[1] : null;
+			Object o = aw != null ? aw[0] : null;
+			String space = cs(spaces);
+			pathName = space + pathName;
+			if(list != null && !list.isEmpty()) {
+				for (String s : list)
+					b.write(space + s + System.lineSeparator());
+			}
+				if(o==null)b.write(pathName + System.lineSeparator());
+				else {
+					if (o instanceof Collection || o instanceof Object[]) {
+						String splitted = space + "- ";
+						boolean add = false;
+						if (o instanceof Collection) {
+							if(!((Collection<?>) o).isEmpty()) {
+								try {
+									if((int)aw[3]==1) {
+										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+									}else {
 										if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
 											b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
 										}else {
-											if(!add) {
-												add=true;
-												b.write(pathName + System.lineSeparator());
-											}
-										for (Object a : (Collection<?>) o) {
-											b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-										}}
-										}catch(Exception unsuported) {
-											if(!add) {
-												add=true;
-												b.write(pathName + System.lineSeparator());
-											}
+											add=true;
+											b.write(pathName + System.lineSeparator());
 											for (Object a : (Collection<?>) o) {
 												b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-											}
+										}}
+									}
+								}catch(Exception er) {
+									try {
+									if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
+										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+									}else {
+										if(!add) {
+											add=true;
+											b.write(pathName + System.lineSeparator());
+										}
+									for (Object a : (Collection<?>) o) {
+										b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
+									}}
+									}catch(Exception unsuported) {
+										if(!add) {
+											add=true;
+											b.write(pathName + System.lineSeparator());
+										}
+										for (Object a : (Collection<?>) o) {
+											b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
 										}
 									}
-								}else
-									b.write(pathName + " []" + System.lineSeparator());
-							} else {
-								if(((Object[]) o).length!=0) {
-									b.write(pathName + System.lineSeparator());
-									try {
-										if((int)aw[3]==1) {
-											b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
-										}else {
-											if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
-												b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
-											}else {
-												add=true;
-												b.write(pathName + System.lineSeparator());
-											for (Object a : (Collection<?>) o) {
-												b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-											}}
-										}
-									}catch(Exception er) {
-										try {
+								}
+							}else
+								b.write(pathName + " []" + System.lineSeparator());
+						} else {
+							if(((Object[]) o).length!=0) {
+								b.write(pathName + System.lineSeparator());
+								try {
+									if((int)aw[3]==1) {
+										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+									}else {
 										if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
 											b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
 										}else {
-											if(!add) {
-												add=true;
-												b.write(pathName + System.lineSeparator());
-											}
+											add=true;
+											b.write(pathName + System.lineSeparator());
 										for (Object a : (Collection<?>) o) {
 											b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
 										}}
-										}catch(Exception unsuported) {
-											if(!add) {
-												add=true;
-												b.write(pathName + System.lineSeparator());
-											}
-											for (Object a : (Collection<?>) o) {
-												b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-											}
+									}
+								}catch(Exception er) {
+									try {
+									if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
+										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+									}else {
+										if(!add) {
+											add=true;
+											b.write(pathName + System.lineSeparator());
 										}
-								}}else
-									b.write(pathName + " []" + System.lineSeparator());
-							}
-						} else {
-							try {
-								if((int)aw[3]==1) {
+									for (Object a : (Collection<?>) o) {
+										b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
+									}}
+									}catch(Exception unsuported) {
+										if(!add) {
+											add=true;
+											b.write(pathName + System.lineSeparator());
+										}
+										for (Object a : (Collection<?>) o) {
+											b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
+										}
+									}
+							}}else
+								b.write(pathName + " []" + System.lineSeparator());
+						}
+					} else {
+						try {
+							if((int)aw[3]==1) {
+								b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+							}else {
+								if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
 									b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
-								}else {
-									if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
-										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
-									}else
-										b.write(pathName + " "+addQuotes(o instanceof String, Writer.write(o)) + System.lineSeparator());
-								}
-							}catch(Exception er) {
-								try {
-									if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
-										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
-									}else
-										b.write(pathName + " "+addQuotes(o instanceof String, Writer.write(o)) + System.lineSeparator());
-								}catch(Exception unsuported) {
+								}else
 									b.write(pathName + " "+addQuotes(o instanceof String, Writer.write(o)) + System.lineSeparator());
-								}
+							}
+						}catch(Exception er) {
+							try {
+								if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
+									b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+								}else
+									b.write(pathName + " "+addQuotes(o instanceof String, Writer.write(o)) + System.lineSeparator());
+							}catch(Exception unsuported) {
+								b.write(pathName + " "+addQuotes(o instanceof String, Writer.write(o)) + System.lineSeparator());
 							}
 						}
 					}
-				for (String key : getKeys(path, false))
-					preparePath(path + "." + key, key + ":", spaces + 1, b);
-			} catch (Exception er) {
-				Validator.send("Saving Data to YAML", er);
-			}
+				}
+			for (String key : getKeys(path, false))
+				preparePath(path + "." + key, key + ":", spaces + 1, b);
+		} catch (Exception er) {
+			Validator.send("Saving Data to YAML", er);
 		}
 	}
 
@@ -825,34 +823,34 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return d.toString();
 	}
 
-	private static String cs(int s, int doubleSpace) {
+	private static final String space = "  ";
+	private String cs(int s) {
 		StringBuilder i = new StringBuilder();
-		String space = doubleSpace == 1 ? "  " : " ";
 		for (int c = 0; c < s; ++c)
 			i.append(space);
 		return i.toString();
 	}
 
 	@Override
-	public String getDataName() {
+	public synchronized String getDataName() {
 		HashMap<String, Object> s = new HashMap<>();
 		if(a!=null)s.put("file", a.getPath()+"/"+a.getName());
 		s.put("loader", loader.getDataName());
 		return Writer.write(s);
 	}
 
-	public Data clear() {
+	public synchronized Data clear() {
 		loader.get().clear();
 		return this;
 	}
 
-	public Data reset() {
+	public synchronized Data reset() {
 		loader.reset();
 		return this;
 	}
 
 	@SuppressWarnings("unchecked")
-	public boolean merge(Data f, boolean addHeader, boolean addFooter) {
+	public synchronized boolean merge(Data f, boolean addHeader, boolean addFooter) {
 		boolean change = false;
 		try {
 		for(Entry<String, Object[]> s : f.loader.get().entrySet()) {
