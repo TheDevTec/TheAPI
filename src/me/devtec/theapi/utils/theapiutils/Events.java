@@ -164,22 +164,17 @@ public class Events implements Listener {
 	}
 
 	@SuppressWarnings("unchecked")
-	@EventHandler
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLeave(PlayerQuitEvent e) {
 		Player s = e.getPlayer();
 		if(((Map<String, ScoreboardAPI>)Ref.getNulled(SimpleScore.class,"scores")).containsKey(s.getName()))
-		((Map<String, ScoreboardAPI>)Ref.getNulled(SimpleScore.class,"scores")).get(s.getName()).destroy();
-		((Map<String, ScoreboardAPI>)Ref.getNulled(SimpleScore.class,"scores")).remove(s.getName());
+		((Map<String, ScoreboardAPI>)Ref.getNulled(SimpleScore.class,"scores")).remove(s.getName()).destroy();
 		if(LoaderClass.plugin.handler!=null)
 		LoaderClass.plugin.handler.remove(LoaderClass.plugin.handler.get(s));
-		new Tasker() {
-			public void run() {
-				((Map<String, BossBar>)Ref.getNulled(TheAPI.class, "bars")).remove(s.getName());
-				if (LoaderClass.config.getBoolean("Options.Cache.User.RemoveOnQuit")
-						&& LoaderClass.config.getBoolean("Options.Cache.User.Use"))
-				TheAPI.removeCachedUser(e.getPlayer().getUniqueId());
-			}
-		}.runTask();
+		((Map<String, BossBar>)Ref.getNulled(TheAPI.class, "bars")).remove(s.getName()).hide();
+		if (LoaderClass.config.getBoolean("Options.Cache.User.RemoveOnQuit")
+				&& LoaderClass.config.getBoolean("Options.Cache.User.Use"))
+		TheAPI.removeCachedUser(e.getPlayer().getUniqueId());
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)

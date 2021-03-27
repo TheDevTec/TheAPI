@@ -1063,7 +1063,8 @@ public class TheAPI {
 	public static void removeCachedUser(UUID uuid) {
 		if (uuid == null)
 			return;
-		cache.remove(uuid);
+		User u = cache.remove(uuid);
+		if(u!=null)u.save();
 	}
 
 	public static void removeCachedUser(Player player) {

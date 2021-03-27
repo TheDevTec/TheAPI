@@ -1,5 +1,6 @@
 package me.devtec.theapi.utils.datakeeper;
 
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -10,12 +11,12 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -90,8 +91,9 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Object[] h = loader.get().getOrDefault(key, null);
 		if (h == null) {
 			h = new Object[4];
-			if (!aw.contains(key.split("\\.")[0]))
-				aw.add(key.split("\\.")[0]);
+			String ss = key.split("\\.")[0];
+			if (!aw.contains(ss))
+				aw.add(ss);
 			loader.set(key, h);
 		}
 		return h;
@@ -125,26 +127,28 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return false;
 	}
 
+	private static final int set = 1;
 	public synchronized Data set(String key, Object value) {
 		if (key == null)
 			return this;
 		if (value == null) {
-			if (key.split("\\.").length <= 1)
-				aw.remove(key.split("\\.")[0]);
+			String[] sf = key.split("\\.");
+			if (sf.length <= 1)
+				aw.remove(sf[0]);
 			loader.remove(key);
 			return this;
 		}
 		Object[] o = getOrCreateData(key);
 		o[0]=value;
-		o[2]=value+"";
 		try {
-			o[3]=1;
+			o[2]=value+"";
+			o[3]=set;
 		}catch(Exception outOfBound) {
 			Object[] h = new Object[4];
 			h[0]=value;
 			h[1]=o[1];
-			h[2]=value==null?null:value+"";
-			h[3]=1;
+			h[2]=value+"";
+			h[3]=set;
 			loader.set(key, h);
 		}
 		return this;
@@ -156,8 +160,16 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (key.split("\\.").length <= 1)
 			aw.remove(key.split("\\.")[0]);
 		loader.remove(key);
-		for (String keys : getKeys(key))
-			loader.remove(key + "." + keys);
+		Iterator<String> s = loader.getKeys().iterator();
+		while(s.hasNext()) {
+			String d = s.next();
+			if (d.startsWith(key)) {
+				if(d.substring(key.length()).trim().startsWith(".")) {
+					s.remove();
+					loader.remove(d);
+				}
+			}
+		}
 		return this;
 	}
 
@@ -623,13 +635,14 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Set<String> a = new LinkedHashSet<>();
 		for (String d : loader.getKeys())
 			if (d.startsWith(key)) {
-				String c = d.replaceFirst(Pattern.quote(key), "");
+				String c = d.substring(key.length());
 				if (!c.startsWith("."))
 					continue;
-				c = subkeys ? c : (c.startsWith(".")?c.substring(1):c).split("\\.")[0];
+				c = c.startsWith(".")?c.substring(1):c;
+				if(!subkeys)
+				c = c.split("\\.")[0];
 				if (c.trim().isEmpty())
 					continue;
-				if(c.startsWith("."))c=c.substring(1);
 				if (!a.contains(c))
 					a.add(c);
 			}
@@ -668,7 +681,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 						if (o instanceof Collection) {
 							if(!((Collection<?>) o).isEmpty()) {
 								try {
-									if((int)aw[3]==1) {
+									if((int)aw[3]==set) {
 										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
 									}else {
 										if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
@@ -708,7 +721,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 							if(((Object[]) o).length!=0) {
 								b.write(pathName + System.lineSeparator());
 								try {
-									if((int)aw[3]==1) {
+									if((int)aw[3]==set) {
 										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
 									}else {
 										if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
@@ -746,7 +759,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 						}
 					} else {
 						try {
-							if((int)aw[3]==1) {
+							if((int)aw[3]==set) {
 								b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
 							}else {
 								if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
@@ -757,7 +770,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 						}catch(Exception er) {
 							try {
 								if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
-									b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+									b.write(pathName + " "+aw[2] + System.lineSeparator());
 								}else
 									b.write(pathName + " "+addQuotes(o instanceof String, Writer.write(o)) + System.lineSeparator());
 							}catch(Exception unsuported) {
@@ -769,7 +782,6 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			for (String key : getKeys(path, false))
 				preparePath(path + "." + key, key + ":", spaces + 1, b);
 		} catch (Exception er) {
-			Validator.send("Saving Data to YAML", er);
 		}
 	}
 
@@ -819,6 +831,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			for (String h : loader.getFooter())
 				d.write(h + System.lineSeparator());
 		} catch (Exception er) {
+			Validator.send("Saving Data to YAML", er);
 		}
 		return d.toString();
 	}
