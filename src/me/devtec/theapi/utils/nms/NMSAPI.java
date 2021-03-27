@@ -362,7 +362,7 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutPlayerListHeaderFooter(String header, String footer) {
-		return getPacketPlayOutPlayerListHeaderFooter(getFixedIChatBaseComponent(header), getFixedIChatBaseComponent(header));
+		return getPacketPlayOutPlayerListHeaderFooter(getFixedIChatBaseComponent(header), getFixedIChatBaseComponent(footer));
 	}
 
 	public static Object getPacketPlayOutBlockChange(Object World, Position pos) {
