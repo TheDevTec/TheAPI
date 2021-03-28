@@ -511,7 +511,7 @@ public class TheAPI {
 			task.remove(p.getName());
 		}
 		if (bars.containsKey(p.getName()))
-			bars.get(p.getName()).remove();
+			bars.remove(p.getName()).remove();
 	}
 
 	/**

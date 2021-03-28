@@ -29,7 +29,6 @@ import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.TheAPI.SudoType;
 import me.devtec.theapi.apis.SignAPI;
 import me.devtec.theapi.apis.SignAPI.SignAction;
-import me.devtec.theapi.bossbar.BossBar;
 import me.devtec.theapi.configapi.Config;
 import me.devtec.theapi.punishmentapi.PlayerBanList;
 import me.devtec.theapi.punishmentapi.PlayerBanList.PunishmentType;
@@ -171,7 +170,7 @@ public class Events implements Listener {
 		((Map<String, ScoreboardAPI>)Ref.getNulled(SimpleScore.class,"scores")).remove(s.getName()).destroy();
 		if(LoaderClass.plugin.handler!=null)
 		LoaderClass.plugin.handler.remove(LoaderClass.plugin.handler.get(s));
-		((Map<String, BossBar>)Ref.getNulled(TheAPI.class, "bars")).remove(s.getName()).hide();
+		TheAPI.removeBossBar(s);
 		if (LoaderClass.config.getBoolean("Options.Cache.User.RemoveOnQuit")
 				&& LoaderClass.config.getBoolean("Options.Cache.User.Use"))
 		TheAPI.removeCachedUser(e.getPlayer().getUniqueId());
