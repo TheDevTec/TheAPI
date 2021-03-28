@@ -103,7 +103,9 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (key == null || value==null)
 			return false;
 		if(!existsKey(key)) {
-			getOrCreateData(key)[0]=value;
+			Object[] data = getOrCreateData(key);
+			data[0]=value;
+			data[2]=value+"";
 			return true;
 		}
 		return false;
