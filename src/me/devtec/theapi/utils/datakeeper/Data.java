@@ -521,9 +521,12 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return list;
 	}
 
+	protected boolean isSaving;
 	public synchronized Data save(DataType type) {
+		if(isSaving)return this;
 		if (a == null)
 			return this;
+		isSaving=true;
 		try {
 			OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
 			if (type == DataType.BYTE) {
@@ -578,6 +581,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		} catch (Exception er) {
 			Validator.send("Saving Data to File", er);
 		}
+		isSaving=false;
 		return this;
 	}
 
@@ -589,7 +593,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	 *
 	 * Example input -> output: : 5 -> "5" : '5' -> '5' : "5" -> "5" : 5" -> "5""
 	 */
-	private String addQuotes(boolean raw, String text) {
+	protected String addQuotes(boolean raw, String text) {
 		if (text == null)
 			return null;
 		boolean quotedString = (text.trim().startsWith("'") && text.trim().endsWith("'"))
@@ -655,7 +659,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return toString(DataType.BYTE);
 	}
 
-	private synchronized void addKeys(Maker main, String key) {
+	protected synchronized void addKeys(Maker main, String key) {
 		Object o = get(key);
 		if (o != null)
 			main.add(main.create().put(key, o));
@@ -664,7 +668,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	@SuppressWarnings("unchecked")
-	private synchronized void preparePath(String path, String pathName, int spaces, java.io.Writer b) {
+	protected synchronized void preparePath(String path, String pathName, int spaces, java.io.Writer b) {
 		try {
 			Object[] aw = loader.get().get(path);
 			Collection<String> list = aw != null ? (Collection<String>)aw[1] : null;
@@ -839,7 +843,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	private static final String space = "  ";
-	private String cs(int s) {
+	protected String cs(int s) {
 		StringBuilder i = new StringBuilder();
 		for (int c = 0; c < s; ++c)
 			i.append(space);

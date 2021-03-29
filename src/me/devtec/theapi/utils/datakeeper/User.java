@@ -64,8 +64,6 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	public void delete() {
 		a.getFile().delete();
-		s = null;
-		a = null;
 	}
 
 	public boolean isOnline() {

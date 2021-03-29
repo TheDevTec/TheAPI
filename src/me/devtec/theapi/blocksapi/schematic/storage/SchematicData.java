@@ -86,9 +86,11 @@ public class SchematicData extends Data {
 				aw.add(k.split("\\.")[0]);
 		return this;
 	}
-
+	
 	@Override
 	public void save() {
+		if(isSaving)return;
+		isSaving=true;
 		synchronized (loader) {
 			if (a == null)
 				return;
@@ -120,7 +122,7 @@ public class SchematicData extends Data {
 			}
 			}catch(Exception er) {}
 		}
-		return;
+		isSaving=false;
 	}
 
 	@Override
