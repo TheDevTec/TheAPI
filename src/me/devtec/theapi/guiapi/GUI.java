@@ -55,7 +55,32 @@ public class GUI implements HolderGUI {
 		title=StringUtils.colorize(title);
 		this.title=title;
 		inv = Bukkit.createInventory(null, size, this.title);
-		windowType = Ref.invokeStatic(getType, inv);
+		switch (size) {
+		case 9 : {
+			windowType = Ref.getStatic(Ref.nms("Containers"),"GENERIC_9X1");
+			break;
+		}
+		case 18 : {
+			windowType = Ref.getStatic(Ref.nms("Containers"),"GENERIC_9X2");
+			break;
+		}
+		case 27 : {
+			windowType = Ref.getStatic(Ref.nms("Containers"),"GENERIC_9X3");
+			break;
+		}
+		case 41 : {
+			windowType = Ref.getStatic(Ref.nms("Containers"),"GENERIC_9X4");
+			break;
+		}
+		case 45 : {
+			windowType = Ref.getStatic(Ref.nms("Containers"),"GENERIC_9X5");
+			break;
+		}
+		case 54 : {
+			windowType = Ref.getStatic(Ref.nms("Containers"),"GENERIC_9X6");
+			break;
+		}
+		}
 		open(p);
 	}
 
@@ -169,6 +194,9 @@ public class GUI implements HolderGUI {
 			setSlot=Ref.constructor(Ref.nms("PacketPlayOutSetSlot"), int.class, int.class, Ref.nms("ItemStack")),
 			itemsS=Ref.getConstructors(Ref.nms("PacketPlayOutWindowItems"))[0];
 	protected static int type;
+	protected static Method
+	transfer=Ref.method(Ref.nms("Container"),"transferTo", Ref.nms("Container"), Ref.craft("entity.CraftHumanEntity"));
+	private Object windowType;
 	static {
 		if(TheAPI.isOlderThan(8)) {
 			openWindow=Ref.constructor(Ref.nms("PacketPlayOutOpenWindow"), int.class, int.class, String.class, int.class, boolean.class);
@@ -183,9 +211,6 @@ public class GUI implements HolderGUI {
 			containerClass=Ref.constructor(Ref.craft("inventory.CraftContainer"), Inventory.class, HumanEntity.class, int.class);
 		}
 	}
-	protected static Method getType = Ref.method(Ref.craft("inventory.CraftContainer"),"getNotchInventoryType", Inventory.class),
-			transfer=Ref.method(Ref.nms("Container"),"transferTo", Ref.nms("Container"), Ref.craft("entity.CraftHumanEntity"));
-	private Object windowType;
 	
 	/**
 	 * @see see Open GUI menu to player
@@ -211,7 +236,7 @@ public class GUI implements HolderGUI {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getFixedIChatBaseComponent(title)));
 			}
 			Ref.set(f, "activeContainer", container);
-			Ref.invoke(container, addListener, f);
+			Ref.invoke(container, addListener, Ref.cast(Ref.nms("ICrafting"), f));
 			Ref.set(container, "checkReachable", false);
 			containers.put(player, container);
 			LoaderClass.plugin.gui.put(player.getName(), this);

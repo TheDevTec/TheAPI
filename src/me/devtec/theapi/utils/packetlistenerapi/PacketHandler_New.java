@@ -59,8 +59,6 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 											channel.pipeline().remove("InjectorTheAPI"); //remove old instance - reload of server?
 										if(channel.pipeline().names().contains("packet_handler"))
 											channel.pipeline().addBefore("packet_handler","InjectorTheAPI", interceptor);
-										else
-											channel.pipeline().addFirst("InjectorTheAPI", interceptor);
 									}
 								});
 								return interceptor;
@@ -90,7 +88,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	}
 
 	private void registerChannelHandler() {
-		networkManagers = (List<?>) Ref.get(serverConnection, TheAPI.isNewerThan(15) ? "listeningChannels" : "g");
+		networkManagers = (List<?>) (Ref.get(serverConnection, "listeningChannels")!=null?Ref.get(serverConnection, "listeningChannels"):Ref.get(serverConnection, "g"));
 		createServerChannelHandler();
 		for (Object item : networkManagers) {
 			if (!ChannelFuture.class.isInstance(item))break;
@@ -201,10 +199,10 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 		@Override
 		public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 			final Channel channel = ctx.channel();
+			if(msg==null)return;
 			if (login.isInstance(msg)) {
-				GameProfile profile = (GameProfile) Ref.get(msg, "a");
-				this.player=profile.getName();
-				channelLookup.put(this.player, channel);
+				this.player=((GameProfile) Ref.get(msg, "a")).getName();
+				channelLookup.put(player, channel);
 			}
 			synchronized (msg) {
 				try {
@@ -223,6 +221,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 		@Override
 		public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
 			final Channel channel = ctx.channel();
+			if(msg==null)return;
 			synchronized (msg) {
 				try {
 					msg = PacketManager.call(player, msg, channel, PacketType.PLAY_OUT);

@@ -34,7 +34,7 @@ import me.devtec.theapi.utils.theapiutils.LoaderClass;
 import me.devtec.theapi.utils.theapiutils.Tasks;
 
 public class TheAPICommand implements CommandExecutor, TabCompleter {
-	  String realVersion = (String)Ref.invoke(Ref.getStatic(Ref.nms("MinecraftVersion"), "a"), "getName");
+	  String realVersion = (String)Ref.invoke(Ref.get(Bukkit.getServer(), "console"), "getVersion");
 	  OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
 	  RuntimeMXBean rr = ManagementFactory.getRuntimeMXBean();
 	  File d = new File("plugins");
