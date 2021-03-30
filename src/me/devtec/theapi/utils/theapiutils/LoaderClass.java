@@ -463,13 +463,15 @@ public class LoaderClass extends JavaPlugin {
 					}
 				}.runLater(200);
 				int removed = 0;
-				if (new File("plugins/TheAPI/User").exists())
-					for (File f : Arrays.asList(new File("plugins/TheAPI/User").listFiles())) {
+				if (new File("plugins/TheAPI/User").exists()) {
+					File[] fff = new File("plugins/TheAPI/User").listFiles();
+					for (File f : Arrays.copyOf(fff, fff.length)) {
 						if (StreamUtils.fromStream(f).trim().isEmpty()) {
 							f.delete();
 							++removed;
 						}
 					}
+				}
 				if (removed != 0)
 					TheAPI.msg("&cTheAPI&7: &eTheAPI deleted &6" + removed + " &eunused user files",
 							TheAPI.getConsole());
@@ -480,7 +482,6 @@ public class LoaderClass extends JavaPlugin {
 							u.save();
 					}
 				}.runRepeating(20*300, 20*300);
-				TheAPI.clearCache();
 				checker = new SpigotUpdateChecker(getDescription().getVersion(), 72679);
 				switch (checker.checkForUpdates()) {
 				case UKNOWN:
@@ -559,11 +560,6 @@ public class LoaderClass extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &6Action: &eDisabling plugin, saving configs and stopping runnables..",
-				TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-		
 		//GUI
 		for (Entry<String, HolderGUI> p : gui.entrySet()) {
 			p.getValue().clear();
@@ -579,8 +575,8 @@ public class LoaderClass extends JavaPlugin {
 			server.exit();
 		
 		//PacketListener
-		handler.close();
 		PacketManager.unregisterAll();
+		handler.close();
 		
 		//Placeholders
 		main.unregister();
@@ -588,6 +584,7 @@ public class LoaderClass extends JavaPlugin {
 		//Users
 		for(User u : TheAPI.getCachedUsers())
 			u.save();
+		TheAPI.clearCache();
 		
 		//Bans
 		data.save();
@@ -610,6 +607,9 @@ public class LoaderClass extends JavaPlugin {
 			data.setFile(f);
 			data.save(DataType.BYTE);
 		}
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &6Action: &eDisabling plugin, saving configs and stopping runnables..", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 	}
 
 	public List<Plugin> getTheAPIsPlugins() {

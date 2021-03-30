@@ -27,31 +27,19 @@ public class EmptyLoader extends DataLoader {
 			remove(key);
 			return;
 		}
-		while(!isReady());
 		data.put(key, holder);
 	}
 
 	public void remove(String key) {
 		if (key == null)
 			return;
-		while(!isReady());
 		data.remove(key);
 	}
 
 	public void reset() {
-		while(!isReady());
 		data.clear();
 		header.clear();
 		footer.clear();
-	}
-	
-	public boolean isReady() {
-		return !paused;
-	}
-	
-	private boolean paused = false;
-	public void setReady(boolean val) {
-		paused=val;
 	}
 
 	@Override

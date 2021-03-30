@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -159,17 +158,13 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public synchronized Data remove(String key) {
 		if (key == null)
 			return this;
-		if (key.split("\\.").length <= 1)
+		if (key.split("\\.").length<=1)
 			aw.remove(key.split("\\.")[0]);
 		loader.remove(key);
-		Iterator<String> s = loader.getKeys().iterator();
-		while(s.hasNext()) {
-			String d = s.next();
-			if (d.startsWith(key)) {
-				if(d.substring(key.length()).trim().startsWith(".")) {
-					s.remove();
-					loader.remove(d);
-				}
+		for(Entry<String, Object[]> o : new ArrayList<>(loader.get().entrySet())) {
+			String d = o.getKey();
+			if (d.startsWith(key) && d.substring(key.length()).trim().startsWith(".")) {
+				loader.remove(d);
 			}
 		}
 		return this;
