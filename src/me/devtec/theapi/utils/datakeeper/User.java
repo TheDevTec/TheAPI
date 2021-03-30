@@ -104,6 +104,8 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (path == null)
 			return;
 		a.remove(path);
+		if (!LoaderClass.config.getBoolean("Options.Cache.User.Use"))
+			save();
 	}
 
 	public Set<String> getKeys(String path) {
@@ -312,6 +314,7 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	public void setAndSave(String key, Object o) {
 		set(key, o);
+		if (LoaderClass.config.getBoolean("Options.Cache.User.Use"))
 		save();
 	}
 

@@ -13,7 +13,7 @@ import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.json.Writer;
 
 public class ChatMessage {
-	static Pattern url = Pattern.compile("(w{3}\\.|(https?|ftp|file):\\/\\/)[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"),
+	static Pattern url = Pattern.compile("(w{3}\\.|[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+:\\/\\/)?[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+\\.[a-zA-Z0-9+&@#/%?=~_|!:,.;-]{2,}"),
 			colorOrRegex = Pattern.compile("#[A-Fa-f0-9]{6}|[&§]x([&§][A-Fa-f0-9]){6}|[&§][A-Fa-f0-9RrK-Ok-o]");
 	private static String fixedHex  ="[&§][xX][&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])";
 	private String text, color = "";
@@ -85,21 +85,21 @@ public class ChatMessage {
 							}
 						}catch(Exception err) {}
 						for(Map<String, Object> d : c.join) {
-							it.add(d);
 							if(!d.containsKey("color") && text.containsKey("color"))
 								d.put("color", text.get("color"));
-							if(hover!=null)
+							if(hover!=null && !d.containsKey("hoverEvent"))
 								d.put("hoverEvent", hover);
-							else if(hasHover)
+							else if(hasHover && !d.containsKey("hoverEvent"))
 								d.put("hoverEvent", emptys);
-							if(click!=null)
+							if(click!=null && !d.containsKey("clickEvent"))
 								d.put("clickEvent", click);
-							else if(hasClick)
+							else if(hasClick && !d.containsKey("clickEvent"))
 								d.put("clickEvent", emptyc);
-							if(interact!=null)
+							if(interact!=null && !d.containsKey("insertation"))
 								d.put("insertion", interact);
-							else if(hasInteract)
+							else if(hasInteract && !d.containsKey("insertation"))
 								d.put("insertion", "");
+							it.add(d);
 						}
 					}
 				}else
@@ -141,7 +141,10 @@ public class ChatMessage {
 			if(colors.get(i)[1]!=null && !colors.get(i)[1].equals(""))
 				c.put("color", colors.get(i)[1]+"");
 			for(int is = 2; is < 7; ++is)
-				c.put(is==2?"bold":(is==3?"italic":(is==4?"obfuscated":(is==5?"strikethrough":"underlined"))), (boolean)colors.get(i)[is]);
+				if(colors.get(i)[is]!=null)
+					c.put(is==2?"bold":(is==3?"italic":(is==4?"obfuscated":(is==5?"strikethrough":"underlined"))), (boolean)colors.get(i)[is]);
+				else
+					c.put(is==2?"bold":(is==3?"italic":(is==4?"obfuscated":(is==5?"strikethrough":"underlined"))), false);
 			if(colors.get(i)[7]!=null && !colors.get(i)[7].equals(""))
 				c.put("clickEvent", colors.get(i)[7]);
 		}
@@ -155,9 +158,8 @@ public class ChatMessage {
 		strike = false;
 		under = false;
 		change = false;
-		color="";
+		color=null;
 		join.clear();
-		convert();
 	}
 	
 	public void reset(String text) {
@@ -168,7 +170,7 @@ public class ChatMessage {
 		strike = false;
 		under = false;
 		change = false;
-		color="";
+		color=null;
 		join.clear();
 		convert();
 	}
@@ -177,8 +179,6 @@ public class ChatMessage {
 	private List<Object[]> parse() {
 		List<Object[]> colors = new ArrayList<>();
 		Object[] actual = new Object[8];
-		for(int i = 2; i < 7; ++i)
-			actual[i]=false;
 		colors.add(actual);
 		int hex = 0;
 		String val = "", url=null;
@@ -189,37 +189,65 @@ public class ChatMessage {
 				url=mmm.group();
 				continue;
 			}else if(url!=null) {
-				String v = val.replaceAll(url+"[ ]*", "");
-				if(!v.equals("")) {
-					actual[0]=v;
+				String[] v = val.split(Pattern.quote(url));
+				if(!v[0].equals("")) {
+					actual[0]=v[0];
 					if(color!=null && !color.equals(""))
 						actual[1]=color;
+					if(bold)
+						actual[2]=bold;
+					else actual[2]=null;
+					if(italic)
+						actual[3]=italic;
+					else actual[3]=null;
+					if(obfuscated)
+						actual[4]=obfuscated;
+					else actual[4]=null;
+					if(strike)
+						actual[5]=strike;
+					else actual[5]=null;
+					if(under)
+						actual[6]=under;
+					else actual[6]=null;
 					actual=new Object[8];
 					colors.add(actual);
 				}
+				val=v.length>=2?v[1]:"";
 				setupUrl(actual, url);
 				actual[0]=url;
 				if(color!=null && !color.equals(""))
 					actual[1]=color;
+				if(bold)
+					actual[2]=bold;
+				else actual[2]=null;
+				if(italic)
+					actual[3]=italic;
+				else actual[3]=null;
+				if(obfuscated)
+					actual[4]=obfuscated;
+				else actual[4]=null;
+				if(strike)
+					actual[5]=strike;
+				else actual[5]=null;
+				if(under)
+					actual[6]=under;
+				else actual[6]=null;
 				url=null;
 				actual=new Object[8];
 				colors.add(actual);
-				actual[0]=c;
-				if(color!=null && !color.equals(""))
-					actual[1]=color;
-				val=c+"";
+				actual[0]=val;
 			}
 			boolean complete = false;
-			String last = StringUtils.getLastColors(val);
-			if(last.matches("#[A-Fa-f0-9]{6}|[&§][Xx]([§&][A-Fa-f0-9]){6}")) {
+			String last = getLastColors(val);
+			if(last.matches("§[Xx](§[A-Fa-f0-9]){6}")) {
 				complete=true;
 				hex=0;
-				val=val.replaceAll("[&§][A-Fa-f0-9K-Ok-oRrXx]|#[A-Fa-f0-9]{6}", "");
+				val=val.replaceAll("§[A-Fa-f0-9K-Ok-oRrXx]", "");
 			}else {
 			if(!last.equals("")) {
-				if(!last.startsWith("§x") && hex == 0) {
+				if(!last.toLowerCase().startsWith("§x") && hex == 0) {
 				complete=true;
-				val=val.replaceAll("[&§][A-Fa-f0-9K-Ok-oRrXx]|#[A-Fa-f0-9]{6}", "");
+				val=val.replaceAll("§[A-Fa-f0-9K-Ok-oRrXx]", "");
 				}else ++hex;
 			}}
 			actual[0]=val;
@@ -227,11 +255,9 @@ public class ChatMessage {
 			applyChanges(actual, last);
 			if(change) {
 				change=false;
-				if(!val.replaceAll("[&§][A-Fa-f0-9K-Ok-oRrXx]|#[A-Fa-f0-9]{6}", "").equals("")) {
+				if(!val.replaceAll("§[A-Fa-f0-9K-Ok-oRrXx]", "").equals("")) {
 					val="";
 					actual=new Object[8];
-					for(int i = 2; i <7; ++i)
-						actual[i]=false;
 					colors.add(actual);
 				}
 			}
@@ -240,22 +266,22 @@ public class ChatMessage {
 			else actual[1]=null;
 			if(bold)
 				actual[2]=bold;
-			else actual[2]=false;
+			else actual[2]=null;
 			if(italic)
 				actual[3]=italic;
-			else actual[3]=false;
+			else actual[3]=null;
 			if(obfuscated)
 				actual[4]=obfuscated;
-			else actual[4]=false;
+			else actual[4]=null;
 			if(strike)
 				actual[5]=strike;
-			else actual[5]=false;
+			else actual[5]=null;
 			if(under)
 				actual[6]=under;
-			else actual[6]=false;
+			else actual[6]=null;
 		}
 		if(url!=null) {
-			val=val.replace(url, "");
+			val=val.replaceAll(Pattern.quote(url)+"[ ]{0,1}", "");
 			actual[0]=val;
 			actual=new Object[8];
 			colors.add(actual);
@@ -265,27 +291,41 @@ public class ChatMessage {
 				actual[1]=color;
 			if(bold)
 				actual[2]=bold;
-			else actual[2]=false;
+			else actual[2]=null;
 			if(italic)
 				actual[3]=italic;
-			else actual[3]=false;
+			else actual[3]=null;
 			if(obfuscated)
 				actual[4]=obfuscated;
-			else actual[4]=false;
+			else actual[4]=null;
 			if(strike)
 				actual[5]=strike;
-			else actual[5]=false;
+			else actual[5]=null;
 			if(under)
 				actual[6]=under;
-			else actual[6]=false;
+			else actual[6]=null;
+		}
+		return colors;
+	}
+	private static Pattern getLast = Pattern.compile("(§[Xx](§[A-Fa-f0-9]){6}|§[A-Fa-f0-9RrK-Ok-oUuXx])");
+
+	static String getLastColors(String s) {
+		Matcher m = getLast.matcher(s);
+		String colors = "";
+		while(m.find()) {
+			String last = m.group(1);
+			if(last.matches("§[A-Fa-f0-9]|§[Xx](§[A-Fa-f0-9]){6}"))
+				colors=last;
+			else
+				colors+=last;
 		}
 		return colors;
 	}
 	
 	private void setupUrl(Object[] actual, String url) {
 		Map<String, Object> map = new HashMap<>();
-		map.put("action", "OPEN_URL");
-		map.put("value", url);
+		map.put("action", "open_url");
+		map.put("value", (url.startsWith("https://")||url.startsWith("http://"))?url:"http://"+url+(url.endsWith("/")?"":"/"));
 		actual[7]=map;
 	}
 
@@ -332,7 +372,7 @@ public class ChatMessage {
 		}else {
 			if(!next.contains("r"))
 				if(actual[1]==null || !actual[1].equals(getColorName(next))) {
-					if(getColorName(next).equals("WHITE"))actual[0]="";
+					if(getColorName(next).equals("white"))actual[0]="";
 					else
 					actual[0]=getColorName(next);
 				}

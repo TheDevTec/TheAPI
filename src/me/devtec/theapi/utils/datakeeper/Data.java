@@ -102,6 +102,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (key == null || value==null)
 			return false;
 		if(!existsKey(key)) {
+			requireSave=true;
 			Object[] data = getOrCreateData(key);
 			data[0]=value;
 			data[2]=value+"";
@@ -114,6 +115,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (key == null || value==null)
 			return false;
 		if(!existsKey(key)) {
+			requireSave=true;
 			Object[] data = getOrCreateData(key);
 			data[0]=value;
 			data[1]=comments;
@@ -123,6 +125,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Object[] data = getOrCreateData(key);
 		if(data[1]==null || ((List<?>) data[1]).isEmpty()) {
 			data[1]=comments;
+			requireSave=true;
 			return true;
 		}
 		return false;
@@ -132,6 +135,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public synchronized Data set(String key, Object value) {
 		if (key == null)
 			return this;
+		requireSave=true;
 		if (value == null) {
 			String[] sf = key.split("\\.");
 			if (sf.length <= 1)
@@ -158,15 +162,13 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public synchronized Data remove(String key) {
 		if (key == null)
 			return this;
+		requireSave=true;
 		if (key.split("\\.").length<=1)
 			aw.remove(key.split("\\.")[0]);
 		loader.remove(key);
-		for(Entry<String, Object[]> o : new ArrayList<>(loader.get().entrySet())) {
-			String d = o.getKey();
-			if (d.startsWith(key) && d.substring(key.length()).trim().startsWith(".")) {
-				loader.remove(d);
-			}
-		}
+		for(String d : new ArrayList<>(loader.get().keySet()))
+			if (d.startsWith(key) && d.substring(key.length()).trim().startsWith("."))
+				loader.get().remove(d);
 		return this;
 	}
 
@@ -174,12 +176,14 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public synchronized List<String> getComments(String key) {
 		if (key == null)
 			return null;
+		requireSave=true;
 		return (List<String>) getOrCreateData(key)[1];
 	}
 
 	public synchronized Data setComments(String key, List<String> value) {
 		if (key == null)
 			return this;
+		requireSave=true;
 		getOrCreateData(key)[1]=value;
 		return this;
 	}
@@ -188,6 +192,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public synchronized Data addComments(String key, List<String> value) {
 		if (value == null || key == null)
 			return this;
+		requireSave=true;
 		Object[] g = getOrCreateData(key);
 		if(g[1]==null)g[1]=value;
 		else
@@ -198,6 +203,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public synchronized Data addComment(String key, String value) {
 		if (value == null || key == null)
 			return this;
+		requireSave=true;
 		return addComments(key, Arrays.asList(value));
 	}
 
@@ -205,6 +211,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public synchronized Data removeComments(String key, List<String> value) {
 		if (value == null || key == null)
 			return this;
+		requireSave=true;
 		Object[] g = getOrCreateData(key);
 		if(g[0]!=null)
 			((List<String>) g[1]).removeAll(value);
@@ -221,6 +228,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public synchronized Data removeComment(String key, int line) {
 		if (line < 0 || key == null)
 			return this;
+		requireSave=true;
 		Object[] h = getOrCreateData(key);
 		if (h[1] != null)
 			((List<String>) h[1]).remove(line);
@@ -232,12 +240,14 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public synchronized Data setHeader(Collection<String> lines) {
+		requireSave=true;
 		loader.getHeader().clear();
 		loader.getHeader().addAll(lines);
 		return this;
 	}
 
 	public synchronized Data setFooter(Collection<String> lines) {
+		requireSave=true;
 		loader.getFooter().clear();
 		loader.getFooter().addAll(lines);
 		return this;
@@ -252,6 +262,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public synchronized Data reload(String input) {
+		requireSave=true;
 		aw.clear();
 		loader = DataLoader.findLoaderFor(input); // get & load
 		for (String k : loader.getKeys())
@@ -516,14 +527,23 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return list;
 	}
 
-	protected boolean isSaving;
+	protected boolean isSaving, requireSave, doSave;
 	public synchronized Data save(DataType type) {
-		if(isSaving)return this;
 		if (a == null)
 			return this;
+		if(!requireSave)return this;
+		if(isSaving) {
+			doSave=true;
+			return this;
+		}
 		isSaving=true;
+		requireSave=false;
+		OutputStreamWriter w = null;
 		try {
-			OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
+			w=new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
+		}catch(Exception e) {}
+		if(w==null)return this;
+		try {
 			if (type == DataType.BYTE) {
 				try {
 					ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
@@ -572,11 +592,18 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 					w.write(h + System.lineSeparator());
 			} catch (Exception er) {
 			}
-			w.close();
 		} catch (Exception er) {
 			Validator.send("Saving Data to File", er);
 		}
+		try {
+			w.close();
+		} catch (Exception e) {
+		}
 		isSaving=false;
+		if(doSave) {
+			doSave=false;
+			save();
+		}
 		return this;
 	}
 
@@ -854,11 +881,13 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public synchronized Data clear() {
+		aw.clear();
 		loader.get().clear();
 		return this;
 	}
 
 	public synchronized Data reset() {
+		aw.clear();
 		loader.reset();
 		return this;
 	}
@@ -872,12 +901,11 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				Object[] o = getOrCreateData(s.getKey());
 				o[0]=s.getValue()[0];
 				try {
-				o[2]=s.getValue()[2]==null?null:s.getValue()[2]+"";
+				o[2]=s.getValue()[2];
 				}catch(Exception outOfBoud) {
 					try {
 						o[2]=s.getValue()[0]==null?null:s.getValue()[0]+"";
 					}catch(Exception outOfBoud2) {
-						
 					}
 				}
 				change = true;
@@ -885,12 +913,14 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			try {
 			if(addHeader)
 				if(f.loader.getHeader()==null || f.loader.getHeader()!=null && !f.loader.getHeader().isEmpty() && (loader.getHeader().isEmpty()||!f.loader.getHeader().containsAll(loader.getHeader()))) {
-					setHeader(f.loader.getHeader());
+					loader.getHeader().clear();
+					loader.getHeader().addAll(f.loader.getHeader());
 					change = true;
 				}
 			if(addFooter)
 				if(f.loader.getFooter()==null || f.loader.getFooter()!=null && !f.loader.getFooter().isEmpty() && (loader.getFooter().isEmpty()||!f.loader.getFooter().containsAll(loader.getFooter()))) {
-					setFooter(f.loader.getFooter());
+					loader.getFooter().clear();
+					loader.getFooter().addAll(f.loader.getFooter());
 					change = true;
 				}
 			}catch(Exception nope) {}
@@ -898,11 +928,13 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
     		if(getComments(s.getKey())==null || getComments(s.getKey()).isEmpty()) {
     			if(getHeader()!=null && !getHeader().isEmpty() && ((List<String>)s.getValue()[1]).containsAll(getHeader())
     					|| getFooter()!=null && !getFooter().isEmpty() && ((List<String>) s.getValue()[1]).containsAll(getFooter()))continue;
-    			setComments(s.getKey(), (List<String>)s.getValue()[1]);
+    			getOrCreateData(s.getKey())[1]=(List<String>)s.getValue()[1];
     			change = true;
     		}
 		}
 		}catch(Exception err) {}
+		if(change)
+			requireSave=true;
 		return change;
 	}
 }

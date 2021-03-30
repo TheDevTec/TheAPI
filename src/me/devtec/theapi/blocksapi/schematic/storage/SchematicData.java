@@ -78,6 +78,7 @@ public class SchematicData extends Data {
 	}
 
 	public SchematicData reload(String input) {
+		requireSave=true;
 		aw.clear();
 		loader = new SchematicLoader();
 		loader.load(input);
@@ -87,10 +88,16 @@ public class SchematicData extends Data {
 		return this;
 	}
 	
+	
 	@Override
 	public void save() {
-		if(isSaving)return;
+		if(!requireSave)return;
+		if(isSaving) {
+			doSave=true;
+			return;
+		}
 		isSaving=true;
+		requireSave=false;
 		synchronized (loader) {
 			if (a == null)
 				return;
@@ -123,6 +130,10 @@ public class SchematicData extends Data {
 			}catch(Exception er) {}
 		}
 		isSaving=false;
+		if(doSave) {
+			doSave=false;
+			save();
+		}
 	}
 
 	@Override

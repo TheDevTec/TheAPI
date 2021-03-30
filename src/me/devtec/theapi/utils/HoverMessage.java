@@ -155,6 +155,7 @@ public class HoverMessage {
 	}
 
 	public HoverMessage addText(String text) {
+		if(text==null)return this;
 		if (isSuper) {
 			maker = new HashMap<>();
 			maker.put("text", text);
@@ -167,14 +168,16 @@ public class HoverMessage {
 	}
 
 	public HoverMessage setClickEvent(ClickAction action, Object value) {
+		if(value==null||action==null)return this;
 		HashMap<String, Object> o = new HashMap<>();
 		o.put("action", action.name().toLowerCase());
-		o.put("value", value);
+		o.put("value", action==ClickAction.OPEN_URL?((value.toString().startsWith("https://")||value.toString().startsWith("http://"))?value:"http://"+value+(value.toString().endsWith("/")?"":"/")):value);
 		maker.put("clickEvent", o);
 		return this;
 	}
 
 	public HoverMessage setHoverEvent(HoverAction action, Object value) {
+		if(value==null||action==null)return this;
 		HashMap<String, Object> o = new HashMap<>();
 		o.put("action", action.name().toLowerCase());
 		o.put("value", value);
@@ -183,6 +186,7 @@ public class HoverMessage {
 	}
 
 	public HoverMessage setKeybind(String value) {
+		if(value==null)return this;
 		maker.put("keybind", value);
 		return this;
 	}
@@ -213,20 +217,24 @@ public class HoverMessage {
 	}
 
 	public HoverMessage setInsertion(String value) {
+		if(value==null)return this;
 		maker.put("insertion", value);
 		return this;
 	}
 
 	public HoverMessage setColor(ChatColor color) {
+		if(color==null)return this;
 		return setColor(color.name());
 	}
 
 	public HoverMessage setColor(String color) {
+		if(color==null)return this;
 		maker.put("color", color.toLowerCase());
 		return this;
 	}
 
 	public HoverMessage setHoverEvent(String value) {
+		if(value==null)return this;
 		return setHoverEvent(HoverAction.SHOW_TEXT, value);
 	}
 
