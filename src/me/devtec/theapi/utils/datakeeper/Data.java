@@ -400,34 +400,25 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	public synchronized Collection<Object> getList(String key) {
-		return get(key) != null && get(key) instanceof Collection ? (Collection) get(key) : new ArrayList<>();
+		Object g = get(key);
+		return g != null && g instanceof Collection ? new ArrayList<>((Collection<Object>) g) : new ArrayList<>();
 	}
-
-	@SuppressWarnings("unchecked")
+	
 	public synchronized <E> List<E> getListAs(String key, Class<? extends E> clazz) {
-		// Cast everything to <E>
-		try {
-			//try to cast List<?> to List<E>
-			return (List<E>)getList(key);
-		}catch(Exception err) {
-			List<E> list = new ArrayList<>();
-			for (Object o : getList(key))
-				try {
-					list.add(o == null ? null : clazz.cast(o));
-				} catch (Exception er) {
-				}
-			return list;
-		}
+		List<E> list = new ArrayList<>();
+		for (Object o : getList(key))
+			try {
+				list.add(o == null ? null : clazz.cast(o));
+			} catch (Exception er) {
+			}
+		return list;
 	}
 
 	public synchronized List<String> getStringList(String key) {
-		List<String> list = getListAs(key, String.class);
-		// Cast everything to String
 		Collection<Object> items = getList(key);
-		if(list!=null && list.containsAll(items))return list;
-		list=new ArrayList<>(items.size());
+		List<String> list=new ArrayList<>(items.size());
 		for (Object o : items)
 			if (o != null)
 				list.add("" + o);
@@ -437,77 +428,56 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public synchronized List<Boolean> getBooleanList(String key) {
-		List<Boolean> list = getListAs(key, Boolean.class);
-		// Cast everything to Boolean
 		Collection<Object> items = getList(key);
-		if(list!=null && list.containsAll(items))return list;
-		list=new ArrayList<>(items.size());
+		List<Boolean> list=new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? false : o instanceof Boolean ? (Boolean)o: StringUtils.getBoolean(o.toString()));
 		return list;
 	}
 
 	public synchronized List<Integer> getIntegerList(String key) {
-		List<Integer> list = getListAs(key, Integer.class);
-		// Cast everything to Integer
 		Collection<Object> items = getList(key);
-		if(list!=null && list.containsAll(items))return list;
-		list=new ArrayList<>(items.size());
+		List<Integer> list=new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : o instanceof Number ? ((Number)o).intValue():StringUtils.getInt(o.toString()));
 		return list;
 	}
 
 	public synchronized List<Double> getDoubleList(String key) {
-		List<Double> list = getListAs(key, Double.class);
-		// Cast everything to Double
 		Collection<Object> items = getList(key);
-		if(list!=null && list.containsAll(items))return list;
-		list=new ArrayList<>(items.size());
+		List<Double> list=new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0.0 : o instanceof Number ? ((Number)o).doubleValue():StringUtils.getDouble(o.toString()));
 		return list;
 	}
 
 	public synchronized List<Short> getShortList(String key) {
-		List<Short> list = getListAs(key, Short.class);
-		// Cast everything to Short
 		Collection<Object> items = getList(key);
-		if(list!=null && list.containsAll(items))return list;
-		list=new ArrayList<>(items.size());
+		List<Short> list=new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : o instanceof Number ? ((Number)o).shortValue():StringUtils.getShort(o.toString()));
 		return list;
 	}
 
 	public synchronized List<Byte> getByteList(String key) {
-		List<Byte> list = getListAs(key, Byte.class);
-		// Cast everything to Byte
 		Collection<Object> items = getList(key);
-		if(list!=null && list.containsAll(items))return list;
-		list=new ArrayList<>(items.size());
+		List<Byte> list=new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : o instanceof Number ? ((Number)o).byteValue():StringUtils.getByte(o.toString()));
 		return list;
 	}
 
 	public synchronized List<Float> getFloatList(String key) {
-		List<Float> list = getListAs(key, Float.class);
-		// Cast everything to Float
 		Collection<Object> items = getList(key);
-		if(list!=null && list.containsAll(items))return list;
-		list=new ArrayList<>(items.size());
+		List<Float> list=new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : o instanceof Number ? ((Number)o).floatValue():StringUtils.getFloat(o.toString()));
 		return list;
 	}
 
 	public synchronized List<Long> getLongList(String key) {
-		List<Long> list = getListAs(key, Long.class);
-		// Cast everything to Long
 		Collection<Object> items = getList(key);
-		if(list!=null && list.containsAll(items))return list;
-		list=new ArrayList<>(items.size());
+		List<Long> list=new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : StringUtils.getLong(o.toString()));
 		return list;
@@ -515,11 +485,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	@SuppressWarnings("unchecked")
 	public synchronized <K, V> List<Map<K, V>> getMapList(String key) {
-		List<Map<K, V>> list = getListAs(key, Map.class);
-		// Cast everything to Long
 		Collection<Object> items = getList(key);
-		if(list!=null && list.containsAll(items))return list;
-		list=new ArrayList<>(items.size());
+		List<Map<K, V>> list=new ArrayList<>(items.size());
 		for (Object o : items) {
 			Object re = Reader.read(o.toString());
 			list.add(o == null ? null : re instanceof Map ? (Map<K, V>)re : new HashMap<>());
