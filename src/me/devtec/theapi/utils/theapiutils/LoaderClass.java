@@ -173,7 +173,7 @@ public class LoaderClass extends JavaPlugin {
 					HolderGUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(), null);
 					if (d == null)
 						return false;
-					if(InventoryClickType.THROW==type||InventoryClickType.PICKUP==type && slot==-999)return false;
+					if(InventoryClickType.THROW==type && slot==-999||InventoryClickType.PICKUP==type && slot==-999)return false;
 					if(InventoryClickType.SWAP==type) {
 						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(d.getContainer(p), getSlot, slot),"getItem")));
 						if(mouseClick == 40 && TheAPI.isNewerThan(8)) {
@@ -192,11 +192,11 @@ public class LoaderClass extends JavaPlugin {
 						return true;
 					}
 					ItemStack i = NMSAPI.asBukkitItem(Ref.get(packet, "item"));
-					if((type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.CLONE) && i.getType()==Material.AIR)
+					if((type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.CLONE||type==InventoryClickType.THROW) && i.getType()==Material.AIR)
 						i=NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(d.getContainer(p), getSlot, slot),"getItem"));
 					ItemStack before = p.getItemOnCursor();
 					if(type!=InventoryClickType.PICKUP_ALL)
-					if(before.getType()==Material.AIR&&i.getType()==Material.AIR || type!=InventoryClickType.CLONE && type!=InventoryClickType.QUICK_MOVE && type!=InventoryClickType.QUICK_CRAFT && type!=InventoryClickType.PICKUP) {
+					if(before.getType()==Material.AIR&&i.getType()==Material.AIR || type!=InventoryClickType.CLONE && type!=InventoryClickType.QUICK_MOVE && type!=InventoryClickType.QUICK_CRAFT && type!=InventoryClickType.PICKUP && type!=InventoryClickType.THROW) {
 						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(d.getContainer(p), getSlot, slot),"getItem")));
 						Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));
 						return true;

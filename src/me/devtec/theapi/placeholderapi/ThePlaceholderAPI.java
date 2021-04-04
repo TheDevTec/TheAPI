@@ -37,10 +37,9 @@ public class ThePlaceholderAPI {
 	}
 
 	public static List<String> setPlaceholders(Player player, List<String> list) {
-		List<String> edited = new ArrayList<String>();
-		for (Iterator<String> a = list.iterator(); a.hasNext();)
-			edited.add(setPlaceholders(player, a.next()));
-		return edited;
+		list=new ArrayList<>(list);
+		list.replaceAll(a -> setPlaceholders(player, a));
+		return list;
 	}
 
 	public static Iterator<String> setPlaceholders(Player player, Iterator<String> list) {

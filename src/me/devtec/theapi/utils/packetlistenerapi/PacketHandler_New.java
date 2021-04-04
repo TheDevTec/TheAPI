@@ -208,10 +208,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 				try {
 					msg = PacketManager.call(player, msg, channel, PacketType.PLAY_IN);
 				} catch (Exception e) {
-					try {
-						msg = PacketManager.call(player, msg, channel, PacketType.PLAY_IN);
-					} catch (Exception er) {
-					}
+					e.printStackTrace();
 				}
 				if (msg != null)
 					super.channelRead(ctx, msg);
@@ -226,10 +223,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 				try {
 					msg = PacketManager.call(player, msg, channel, PacketType.PLAY_OUT);
 				} catch (Exception e) {
-					try {
-						msg = PacketManager.call(player, msg, channel, PacketType.PLAY_OUT);
-					} catch (Exception er) {
-					}
+					e.printStackTrace();
 				}
 				if (msg != null)
 					super.write(ctx, msg, promise);

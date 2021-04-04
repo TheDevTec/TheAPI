@@ -29,7 +29,6 @@ import org.bukkit.potion.PotionEffectType;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.mojang.authlib.properties.Property;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.StringUtils;
@@ -134,7 +133,7 @@ public class ItemCreatorAPI implements Cloneable {
 		try {
 			mat = Material.PLAYER_HEAD;
 		} catch (Exception | NoSuchFieldError e) {
-			mat = Material.matchMaterial("SKULL_ITEM");
+			mat = Material.getMaterial("SKULL_ITEM");
 		}
 	}
 
@@ -147,7 +146,7 @@ public class ItemCreatorAPI implements Cloneable {
 		a.setDisplayName(displayName);
 		a.setLore(lore);
 		a.setOwner(owner);
-		a.setSkullType("PLAYER");
+		a.setSkullType(SkullType.PLAYER);
 		return a.create();
 	}
 
@@ -171,7 +170,7 @@ public class ItemCreatorAPI implements Cloneable {
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
 		a.setDisplayName(displayName);
 		a.setLore(lore);
-		a.setSkullType("PLAYER");
+		a.setSkullType(SkullType.PLAYER);
 		a.setOwnerFromValues(ownerValues);
 		return a.create();
 	}
@@ -184,7 +183,7 @@ public class ItemCreatorAPI implements Cloneable {
 		ItemCreatorAPI a = new ItemCreatorAPI(new ItemStack(mat, amount));
 		a.setDisplayName(displayName);
 		a.setLore(lore);
-		a.setSkullType("PLAYER");
+		a.setSkullType(SkullType.PLAYER);
 		a.setOwnerFromWeb(ownerLink);
 		return a.create();
 	}
@@ -886,7 +885,7 @@ public class ItemCreatorAPI implements Cloneable {
 					m.setOwner(owner);
 				if (url != null || text != null) {
 					try {
-						Object profile = Ref.createGameProfile(null, null);
+						Object profile = Ref.createGameProfile(null, "TheAPI");
 						byte[] encodedData = null;
 						try {
 							if (url != null)
@@ -895,7 +894,7 @@ public class ItemCreatorAPI implements Cloneable {
 						} catch (Exception err) {
 						}
 						Ref.invoke(Ref.invoke(profile, "getProperties"), set,
-								"textures", new Property("textures", encodedData != null ? new String(encodedData) : text));
+								"textures", Ref.createProperty("textures", encodedData != null ? new String(encodedData) : text));
 						Ref.set(m, "profile", profile);
 					} catch (Exception | NoSuchMethodError e) {
 					}

@@ -1,6 +1,5 @@
 package me.devtec.theapi.utils.packetlistenerapi;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +46,6 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 
 	private void createServerChannelHandler() {
 		endInitProtocol = new ChannelInitializer<Channel>() {
-			@Override
 			protected void initChannel(Channel channel) throws Exception {
 				try {
 					synchronized (networkManagers) {
@@ -55,15 +53,11 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 							channel.eventLoop().submit(() -> {
 								PacketInterceptor interceptor = new PacketInterceptor(null); //add new hook
 								channel.eventLoop().execute(new Runnable() {
-									@Override
 									public void run() {
 										if(channel.pipeline().names().contains("InjectorTheAPI"))
-											channel.pipeline().remove("InjectorTheAPI");
+											channel.pipeline().remove("InjectorTheAPI"); //remove old instance - reload of server?
 										if(channel.pipeline().names().contains("packet_handler"))
 											channel.pipeline().addBefore("packet_handler","InjectorTheAPI", interceptor);
-										else
-											channel.pipeline().addFirst("InjectorTheAPI", interceptor);
-										
 									}
 								});
 								return interceptor;
@@ -76,7 +70,6 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 
 		};
 		beginInitProtocol = new ChannelInitializer<Channel>() {
-			@Override
 			protected void initChannel(Channel channel) throws Exception {
 				channel.pipeline().addLast(endInitProtocol);
 			}
@@ -84,18 +77,17 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 		};
 
 		serverChannelHandler = new ChannelInboundHandlerAdapter() {
-			@Override
 			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 				Channel channel = (Channel) msg;
 				channel.pipeline().addFirst(beginInitProtocol);
-				ctx.fireChannelRead(msg);
+				ctx.fireChannelRead(channel);
 			}
 
 		};
 	}
 
 	private void registerChannelHandler() {
-		networkManagers = (List<?>) Ref.get(serverConnection, TheAPI.isNewerThan(15) ? "listeningChannels" : "g");
+		networkManagers = (List<?>) (Ref.get(serverConnection, "listeningChannels")!=null?Ref.get(serverConnection, "listeningChannels"):Ref.get(serverConnection, "g"));
 		createServerChannelHandler();
 		for (Object item : networkManagers) {
 			if (!ChannelFuture.class.isInstance(item))break;
@@ -109,13 +101,13 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 		if (serverChannelHandler == null)return;
 		for (Channel serverChannel : serverChannels) 
 			serverChannel.eventLoop().execute(new Runnable() {
-				@Override
 				public void run() {
 					try {
 					serverChannel.pipeline().remove(serverChannelHandler);
 					}catch(Exception err) {}
 				}
 			});
+		serverChannels.clear();
 	}
 
 	private void registerPlayers() {
@@ -155,32 +147,13 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 
 	public Channel get(Player player) {
 		Channel channel = channelLookup.getOrDefault(player.getName(), null);
-		if (channel == null) {
-			channel = (Channel) Ref.get(Ref.network(Ref.playerCon(player)), "channel");
-			channelLookup.put(player.getName(), channel);
-		}else {
-			Channel pl = (Channel) Ref.get(Ref.network(Ref.playerCon(player)), "channel");
-			if(!channel.equals(pl)) {
-				channel=pl;
-				channelLookup.put(player.getName(), pl);
-			}
-		}
+		if (channel == null)
+			channelLookup.put(player.getName(), channel = (Channel) Ref.get(Ref.network(Ref.playerCon(player)), "channel"));
 		return channel;
 	}
 
 	public void remove(Channel channel) {
 		if (channel == null)return;
-		if(channel.eventLoop().inEventLoop()) {
-			String owner = null;
-			for(Entry<String, Channel> s : channelLookup.entrySet())
-				if(s.getValue().equals(channel)) {
-					owner=s.getKey();
-					break;
-				}
-			channelLookup.remove(owner);
-			if(channel.pipeline().names().contains("InjectorTheAPI"))
-			channel.pipeline().remove("InjectorTheAPI");
-		}else
 		channel.eventLoop().execute(new Runnable() {
 			@Override
 			public void run() {
@@ -225,19 +198,16 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 		@Override
 		public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 			final Channel channel = ctx.channel();
+			if(msg==null)return;
 			if (login.isInstance(msg)) {
-				GameProfile profile = (GameProfile) Ref.get(msg, "a");
-				this.player=profile.getName();
-				channelLookup.put(profile.getName(), channel);
+				this.player=((GameProfile) Ref.get(msg, "a")).getName();
+				channelLookup.put(player, channel);
 			}
 			synchronized (msg) {
 				try {
-					msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_IN);
+					msg = PacketManager.call(player, msg, channel, PacketType.PLAY_IN);
 				} catch (Exception e) {
-					try {
-						msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_IN);
-					} catch (Exception er) {
-					}
+					e.printStackTrace();
 				}
 				if (msg != null)
 					super.channelRead(ctx, msg);
@@ -246,25 +216,22 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 
 		@Override
 		public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+			final Channel channel = ctx.channel();
+			if(msg==null)return;
 			synchronized (msg) {
 				try {
-					msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_OUT);
+					msg = PacketManager.call(player, msg, channel, PacketType.PLAY_OUT);
 				} catch (Exception e) {
-					try {
-						msg = PacketManager.call(player, msg, ctx.channel(), PacketType.PLAY_OUT);
-					} catch (Exception er) {
-					}
+					e.printStackTrace();
 				}
 				if (msg != null)
 					super.write(ctx, msg, promise);
 			}
 		}
 	}
-
-	private static Method mm = Ref.method(Ref.nms("NetworkManager"), "sendPacket", Ref.nms("Packet"));
 	
 	@Override
 	public void send(Channel channel, Object packet) {
-		Ref.invoke(channel.pipeline().get("packet_handler"),mm,packet);
+		channel.writeAndFlush(packet);
 	}
 }
