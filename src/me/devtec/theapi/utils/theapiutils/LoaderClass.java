@@ -142,6 +142,7 @@ public class LoaderClass extends JavaPlugin {
 			Object OFFHAND = Ref.getStatic(Ref.nms("EnumItemSlot"),"OFFHAND");
 			@Override
 			public boolean PacketPlayIn(String player, Object packet, Object channel) {
+				if(player==null)return false; //NPC
 				//ResourcePackAPI
 				if(packet.toString().contains("PacketPlayInResourcePackStatus")) {
 					Player s = TheAPI.getPlayer(player);
