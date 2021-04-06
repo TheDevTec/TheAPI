@@ -14,6 +14,8 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
@@ -446,6 +448,28 @@ public class Position implements Cloneable {
 		return k;
 	}
 
+	public void setState(BlockState state) {
+		setState(this, state);
+	}
+
+	public void setBlockData(BlockData state) {
+		setBlockData(this, state);
+	}
+
+	public void setStateAndUpdate(BlockState state) {
+		Object old = getIBlockData();
+		setState(this, state);
+		updateBlockAt(this, old);
+		updateLightAt(this);
+	}
+
+	public void setBlockDataAndUpdate(BlockData state) {
+		Object old = getIBlockData();
+		setBlockData(this, state);
+		updateBlockAt(this, old);
+		updateLightAt(this);
+	}
+	
 	public static long set(Location pos, int id, int data) {
 		return set(new Position(pos), new TheMaterial(id, data));
 	}
@@ -519,7 +543,19 @@ public class Position implements Cloneable {
 		}
 	}
 	private static String aa = TheAPI.isNewerThan(7)?"h":"a", bb = TheAPI.isNewerThan(7)?"h":"b";
-
+	private static Method getBlock = Ref.method(Ref.craft("util.CraftMagicNumbers"), "getBlock", Material.class),
+			fromLegacyData=Ref.method(Ref.nms("Block"), "fromLegacyData", int.class);
+	
+	public static void setBlockData(Position pos, BlockData data) {
+		if(data==null||!TheAPI.isNewVersion() || pos == null)return;
+		set(pos, true, wf >= 14, Ref.invoke(data,"getState"));
+	}
+	
+	public static void setState(Position pos, BlockState state) {
+		if(state==null || pos == null)return;
+		set(pos, true, wf >= 14, Ref.invoke(Ref.invokeNulled(getBlock, state.getType()),fromLegacyData,(int)state.getRawData()));
+	}
+	
 	/**
 	 * 
 	 * @param pos   Location
@@ -531,16 +567,14 @@ public class Position implements Cloneable {
 	 */
 	@SuppressWarnings("unchecked")
 	public static synchronized void set(Position pos, boolean palet, boolean neww, Object cr) { // 1.8 - 1.16
+		if(pos==null||cr==null)return;
 		Object c = pos.getNMSChunk();
 		int y = pos.getBlockY();
 		//CHECK IF CHUNKSECTION EXISTS
 		Object sc = ((Object[]) Ref.invoke(c, get))[y >> 4];
 		if (sc == null) {
 			//CREATE NEW CHUNKSECTION
-			if (neww)
-				sc = Ref.newInstance(aw, y >> 4 << 4);
-			else
-				sc = Ref.newInstance(aw, y >> 4 << 4, true);
+			sc = neww?Ref.newInstance(aw, y >> 4 << 4):Ref.newInstance(aw, y >> 4 << 4, true);
 			((Object[]) Ref.invoke(c, get))[y >> 4] = sc;
 		}
 		
@@ -607,6 +641,7 @@ public class Position implements Cloneable {
 		else
 		Ref.set(tt, "e", Ref.invoke(cr, "getBlock"));
 		Ref.set(tt, TheAPI.isNewerThan(13)?"f":"d", false);
+		Ref.sendPacket(TheAPI.getOnlinePlayers(), Ref.invoke(tt, "getUpdatePacket"));
 	}
 	
 	static int ver = 0;

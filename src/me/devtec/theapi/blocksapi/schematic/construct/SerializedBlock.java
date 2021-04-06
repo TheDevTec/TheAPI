@@ -51,7 +51,7 @@ public interface SerializedBlock extends Serializable {
 			}
 			if(d instanceof Rotatable) {
 				Rotatable dir = (Rotatable)d;
-				values.put("rotate", dir.getRotation().name());
+				values.put("face", dir.getRotation().name());
 			}
 			if(d instanceof Directional) {
 				Directional dir = (Directional)d;
@@ -73,10 +73,11 @@ public interface SerializedBlock extends Serializable {
 				Bisected dir = (Bisected)d;
 				values.put("half", dir.getHalf().name());
 			}
+			if(TheAPI.isNewerThan(15)) {
 			if(d instanceof FaceAttachable) {
 				FaceAttachable dir = (FaceAttachable)d;
 				values.put("fattach", dir.getAttachedFace().name());
-			}
+			}}
 			if(d instanceof Levelled) {
 				Levelled dir = (Levelled)d;
 				values.put("level", dir.getLevel());
@@ -85,15 +86,13 @@ public interface SerializedBlock extends Serializable {
 				Lightable dir = (Lightable)d;
 				values.put("lit", dir.isLit());
 			}
-			if(TheAPI.isNewerThan(15)) {
-				if(d instanceof MultipleFacing) {
-					MultipleFacing dir = (MultipleFacing)d;
-					Map<String, Boolean> map = new HashMap<>(dir.getFaces().size());
-					for(BlockFace face : dir.getFaces())
-						if(dir.getAllowedFaces().contains(face))map.put(face.name(), true);
-						else map.put(face.name(), false);
-					values.put("mface", Writer.write(map));
-				}
+			if(d instanceof MultipleFacing) {
+				MultipleFacing dir = (MultipleFacing)d;
+				Map<String, Boolean> map = new HashMap<>(dir.getFaces().size());
+				for(BlockFace face : dir.getFaces())
+					if(dir.getAllowedFaces().contains(face))map.put(face.name(), true);
+					else map.put(face.name(), false);
+				values.put("mface", Writer.write(map));
 			}
 			if(d instanceof Openable) {
 				Openable dir = (Openable)d;
@@ -118,7 +117,7 @@ public interface SerializedBlock extends Serializable {
 		}else {
 			MaterialData data = b.getState().getData();
 			if(data instanceof org.bukkit.material.Colorable)
-				values.put("color", ((org.bukkit.material.Colorable) data).getColor().name());
+				values.put("data", ((org.bukkit.material.Colorable) data).getColor().name());
 			if(data instanceof org.bukkit.material.Directional)
 				values.put("face", ((org.bukkit.material.Directional) data).getFacing().name());
 			if(data instanceof org.bukkit.material.Attachable)

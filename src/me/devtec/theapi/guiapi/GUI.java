@@ -226,12 +226,10 @@ public class GUI implements HolderGUI {
 			Object f= Ref.player(player);
 			int id = (int) Ref.invoke(f, "nextContainerCounter");
 			Object container = type==0?Ref.newInstance(containerClass, inv, f, id):Ref.newInstance(containerClass, inv, player, id);
-			Object active = Ref.get(f, "activeContainer");
-			Ref.invoke(active, transfer, container, Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
 			if(TheAPI.isOlderThan(8)) {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id,0,title, getSize(), false));
 			}else if(TheAPI.isOlderThan(14)) {
-				Ref.sendPacket(player, Ref.newInstance(openWindow,id,"minecraft:container",NMSAPI.getFixedIChatBaseComponent(title), getSize()));
+				Ref.sendPacket(player, Ref.newInstance(openWindow,id,"minecraft:chest",NMSAPI.getIChatBaseComponentText(title), getSize()));
 			}else {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getFixedIChatBaseComponent(title)));
 			}
@@ -257,7 +255,7 @@ public class GUI implements HolderGUI {
 			if(TheAPI.isOlderThan(8)) {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id,0,title, inv.getSize(), false));
 			}else if(TheAPI.isOlderThan(14)) {
-				Ref.sendPacket(player, Ref.newInstance(openWindow,id,"minecraft:container",NMSAPI.getFixedIChatBaseComponent(title), inv.getSize()));
+				Ref.sendPacket(player, Ref.newInstance(openWindow,id,"minecraft:chest",NMSAPI.getIChatBaseComponentText(title), inv.getSize()));
 			}else {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getFixedIChatBaseComponent(title)));
 			}

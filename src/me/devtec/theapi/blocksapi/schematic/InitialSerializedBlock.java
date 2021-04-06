@@ -87,9 +87,9 @@ public class InitialSerializedBlock implements SerializedBlock {
 						Orientable dir = (Orientable)d;
 						dir.setAxis(Axis.valueOf((String)extra.get("orient")));
 					}
-					if(d instanceof Rotatable && extra.containsKey("rotate")) {
+					if(d instanceof Rotatable && extra.containsKey("face")) {
 						Rotatable dir = (Rotatable)d;
-						dir.setRotation(BlockFace.valueOf((String)extra.get("rotate")));
+						dir.setRotation(BlockFace.valueOf((String)extra.get("face")));
 					}
 					if(d instanceof Directional && extra.containsKey("face")) {
 						Directional dir = (Directional)d;
@@ -112,11 +112,10 @@ public class InitialSerializedBlock implements SerializedBlock {
 						dir.setHalf(Half.valueOf((String)extra.get("half")));
 					}
 					if(TheAPI.isNewerThan(15)) {
-						if(d instanceof FaceAttachable && extra.containsKey("fattach")) {
-							FaceAttachable dir = (FaceAttachable)d;
-							dir.setAttachedFace(AttachedFace.valueOf((String)extra.get("fattach")));
-						}
-					}
+					if(d instanceof FaceAttachable && extra.containsKey("fattach")) {
+						FaceAttachable dir = (FaceAttachable)d;
+						dir.setAttachedFace(AttachedFace.valueOf((String)extra.get("fattach")));
+					}}
 					if(d instanceof Levelled && extra.containsKey("level")) {
 						Levelled dir = (Levelled)d;
 						dir.setLevel((int)(double)extra.get("level"));
@@ -152,9 +151,7 @@ public class InitialSerializedBlock implements SerializedBlock {
 						Waterlogged dir = (Waterlogged)d;
 						dir.setWaterlogged((boolean)extra.get("water"));
 					}
-					try {
-						b.setBlockData(d);
-					}catch(Exception err) {}
+					pos.setBlockDataAndUpdate(d);
 			}else {
 				BlockState state = b.getState();
 				if(state.getData() instanceof org.bukkit.material.Colorable)
@@ -165,14 +162,14 @@ public class InitialSerializedBlock implements SerializedBlock {
 					((Attachable)state.getData()).setAttached((boolean)extra.get("attach"));
 				if(state.getData() instanceof org.bukkit.material.Openable)
 					((Openable)state.getData()).setOpen((boolean)extra.get("open"));
-				state.update(true, false);
+				pos.setStateAndUpdate(state);
 			}
 			if(extra.containsKey("nbt")) {
 				Object nbt = Ref.invokeNulled(parse, (String)extra.get("nbt"));
 				Ref.invoke(nbt, setInt, "x", pos.getBlockX());
 				Ref.invoke(nbt, setInt, "y", pos.getBlockY());
 				Ref.invoke(nbt, setInt, "z", pos.getBlockZ());
-				Ref.invoke(SerializedBlock.getState(pos), "load", pos.getType().getIBlockData(), nbt);
+				Ref.invoke(SerializedBlock.getState(pos), "load", pos.getIBlockData(), nbt);
 			}
 		}
 		return this;

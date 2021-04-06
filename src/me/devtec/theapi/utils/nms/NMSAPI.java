@@ -245,14 +245,21 @@ public class NMSAPI {
 		return Ref.newInstance(sbteam);
 	}
 
+	private static Method poost = Ref.method(Ref.nms("MinecraftServer"), "postToMainThread", Runnable.class);
+	
 	public static void postToMainThread(Runnable runnable) {
 		if(Thread.currentThread()==thread) {
 			runnable.run();
-		}else
-		CompletableFuture.supplyAsync(() -> {
-			runnable.run();
-			return null;
-		}, (Executor)server).join();
+		}else {
+			if(server instanceof Executor) {
+				CompletableFuture.supplyAsync(() -> {
+					runnable.run();
+					return null;
+				}, (Executor)server).join();
+			}else {
+				Ref.invoke(server, poost, runnable);
+			}
+		}
 	}
 
 	public static Object getServer() {

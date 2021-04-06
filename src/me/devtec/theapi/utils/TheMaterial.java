@@ -87,11 +87,13 @@ public class TheMaterial implements Cloneable {
 		}
 	}
 
+	private static Method bb = Ref.method(Ref.craft("util.CraftMagicNumbers"), "getMaterial", Ref.nms("Block"));
+	
 	private TheMaterial(Object blockData) {
 		if(blockData==null)return;
-		if(TheAPI.isNewVersion()) {
+		if(TheAPI.isNewVersion()) { //1.13+
 			if(block.isInstance(blockData)) {
-				ItemStack stack = (ItemStack)Ref.invokeNulled(create, Ref.invoke(blockData,"getItem"));
+				ItemStack stack = new ItemStack((Material)Ref.invokeNulled(bb, blockData));
 				m = stack.getType();
 				this.data = stack.getData().getData();
 				this.amount = stack.getAmount();
@@ -104,28 +106,22 @@ public class TheMaterial implements Cloneable {
 				this.amount = stack.getAmount();
 				return;
 			}
-			ItemStack stack = (ItemStack)Ref.invokeNulled(create, Ref.invoke(Ref.invoke(blockData, "getBlock"),"getItem"));
+			ItemStack stack = new ItemStack((Material)Ref.invokeNulled(bb, Ref.invoke(blockData,"getBlock")));
 			m = stack.getType();
 			this.data = stack.getData().getData();
 			this.amount = stack.getAmount();
 			return;
-		}else {
-			if(TheAPI.isOlderThan(8)) { //1.7.10
-				if(item.isInstance(blockData)) {
-					ItemStack stack = (ItemStack)Ref.invokeNulled(create, blockData);
-					m = stack.getType();
-					this.data = stack.getData().getData();
-					this.amount = stack.getAmount();
-					return;
+		}else { //1.7 - 1.12.2
+			if(block.isInstance(blockData)) {
+				ItemStack stack = new ItemStack((Material)Ref.invokeNulled(bb, blockData));
+				m = stack.getType();
+				this.data = stack.getData().getData();
+				try {
+					data=(byte)Ref.invoke(blockData, "toLegacyData",Ref.invoke(blockData, "getBlockData"));
+				}catch(Exception | NoSuchMethodError outDated) {
+					data=0;
 				}
-				if(block.isInstance(blockData)) {
-					int id = (int)Ref.invokeNulled(mm, blockData);
-					m=(Material) Ref.invokeNulled(mat, id);
-					amount=1;
-					return;
-				}
-				m=Material.AIR;
-				amount=1;
+				this.amount = stack.getAmount();
 				return;
 			}
 			if(item.isInstance(blockData)) {
@@ -135,26 +131,14 @@ public class TheMaterial implements Cloneable {
 				this.amount = stack.getAmount();
 				return;
 			}
-			if(block.isInstance(blockData)) {
-				Object bdata= Ref.invoke(blockData, "getBlockData");
-				int id = (int)Ref.invokeNulled(mm, blockData);
-				m=(Material) Ref.invokeNulled(mat, id);
-				try {
-					data=(byte)Ref.invoke(blockData, "toLegacyData",bdata);
-				}catch(Exception | NoSuchMethodError outDated) {
-					data=0;
-				}
-				amount=1;
-				return;
-			}
-			int id = (int)Ref.invokeNulled(mm, Ref.invoke(blockData, "getBlock"));
-			m=(Material) Ref.invokeNulled(mat, id);
+			ItemStack stack = new ItemStack((Material)Ref.invokeNulled(bb, Ref.invoke(blockData,"getBlock")));
+			m = stack.getType();
 			try {
-				data=(int)Ref.invoke(Ref.invoke(blockData, "getBlock"),Ref.method(Ref.nms("Block"), "toLegacyData", Ref.nms("IBlockData")),blockData);
+				data=(byte)Ref.invoke(Ref.invoke(blockData,"getBlock"), "toLegacyData",blockData);
 			}catch(Exception | NoSuchMethodError outDated) {
 				data=0;
 			}
-			amount=1;
+			this.amount = stack.getAmount();
 		}
 	}
 

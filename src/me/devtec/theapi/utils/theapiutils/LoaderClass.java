@@ -42,7 +42,6 @@ import me.devtec.theapi.apis.ResourcePackAPI.ResourcePackResult;
 import me.devtec.theapi.bossbar.BossBar;
 import me.devtec.theapi.configapi.Config;
 import me.devtec.theapi.economyapi.EconomyAPI;
-import me.devtec.theapi.guiapi.AnvilGUI;
 import me.devtec.theapi.guiapi.HolderGUI;
 import me.devtec.theapi.guiapi.ItemGUI;
 import me.devtec.theapi.placeholderapi.PlaceholderAPI;
@@ -51,6 +50,8 @@ import me.devtec.theapi.placeholderapi.ThePlaceholder;
 import me.devtec.theapi.placeholderapi.ThePlaceholderAPI;
 import me.devtec.theapi.scheduler.Scheduler;
 import me.devtec.theapi.scheduler.Tasker;
+import me.devtec.theapi.scoreboardapi.ScoreboardAPI;
+import me.devtec.theapi.scoreboardapi.SimpleScore;
 import me.devtec.theapi.sockets.Client;
 import me.devtec.theapi.sockets.Server;
 import me.devtec.theapi.sockets.ServerClient;
@@ -193,9 +194,11 @@ public class LoaderClass extends JavaPlugin {
 						return true;
 					}
 					ItemStack i = NMSAPI.asBukkitItem(Ref.get(packet, "item"));
-					if((type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.CLONE||type==InventoryClickType.THROW) && i.getType()==Material.AIR)
+					if((type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.CLONE||type==InventoryClickType.THROW||i.getType()==Material.AIR) && i.getType()==Material.AIR)
 						i=NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(d.getContainer(p), getSlot, slot),"getItem"));
 					ItemStack before = p.getItemOnCursor();
+					if(i==null)i=new ItemStack(Material.AIR);
+					if(before==null)before=new ItemStack(Material.AIR);
 					if(type!=InventoryClickType.PICKUP_ALL)
 					if(before.getType()==Material.AIR&&i.getType()==Material.AIR || type!=InventoryClickType.CLONE && type!=InventoryClickType.QUICK_MOVE && type!=InventoryClickType.QUICK_CRAFT && type!=InventoryClickType.PICKUP && type!=InventoryClickType.THROW) {
 						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(d.getContainer(p), getSlot, slot),"getItem")));
@@ -218,21 +221,6 @@ public class LoaderClass extends JavaPlugin {
 								cancel=true;
 							a.onClick(p, d, me.devtec.theapi.guiapi.GUI.ClickType.valueOf(action));
 						}
-						if(!cancel && d instanceof AnvilGUI) {
-							if(action.contains("DROP") && slot < 2) {
-							if(d.getItemGUI(slot)==null) 
-								((AnvilGUI) d).getInventory().put(slot, i);
-							}else if(action.contains("PICKUP")) {
-								if(slot==2) {
-									((AnvilGUI) d).getInventory().remove(0);
-									((AnvilGUI) d).getItemGUIs().remove(0);
-									((AnvilGUI) d).getInventory().remove(1);
-									((AnvilGUI) d).getItemGUIs().remove(1);
-								}
-								((AnvilGUI) d).getInventory().remove(slot);
-								((AnvilGUI) d).getItemGUIs().remove(slot);
-							}
-						}
 					}else
 						if(!d.isInsertable())
 							cancel=true;
@@ -245,7 +233,6 @@ public class LoaderClass extends JavaPlugin {
 						}
 						return true;
 					}
-					if(type!=InventoryClickType.CLONE && slot%d.size()!=2 && d instanceof AnvilGUI)((AnvilGUI) d).getInventory().put(slot%d.size(), i);
 				}
 				return false;
 			}
@@ -559,6 +546,7 @@ public class LoaderClass extends JavaPlugin {
 	@SuppressWarnings("rawtypes")
 	public PacketHandler handler;
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onDisable() {
 		//GUI
@@ -568,7 +556,7 @@ public class LoaderClass extends JavaPlugin {
 		}
 		gui.clear();
 		
-		//Scheulder
+		//Scheduler
 		Scheduler.cancelAll();
 		
 		//Sockets
@@ -589,6 +577,17 @@ public class LoaderClass extends JavaPlugin {
 		
 		//Bans
 		data.save();
+		
+		//SCOREBOARD
+		for(ScoreboardAPI sb : ((Map<String,ScoreboardAPI>)Ref.getStatic(SimpleScore.class, "scores")).values())
+			sb.destroy();
+		
+		//BOSSBAR, ACTION BAR & TITLE
+		for(Player p : TheAPI.getOnlinePlayers()) {
+			TheAPI.removeBossBar(p);
+			TheAPI.removeActionBar(p);
+			TheAPI.sendTitle(p, "","");
+		}
 		
 		//users cache
 		if(cache!=null) {

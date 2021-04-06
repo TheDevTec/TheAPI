@@ -508,8 +508,9 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		OutputStreamWriter w = null;
 		try {
 			w=new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
-		}catch(Exception e) {}
-		if(w==null)return this;
+		}catch(Exception e) {
+			return this;
+		}
 		try {
 			if (type == DataType.BYTE) {
 				try {
@@ -553,7 +554,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			} catch (Exception er) {
 			}
 			for (String key : new LinkedHashSet<>(aw))
-				preparePath(key, key + ":", 0, w);
+				preparePath(new ArrayList<>(loader.getKeys()),new HashMap<>(this.loader.get()),key, key + ":", 0, w);
 			try {
 				for (String h : loader.getFooter())
 					w.write(h + System.lineSeparator());
@@ -582,7 +583,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	 *
 	 * Example input -> output: : 5 -> "5" : '5' -> '5' : "5" -> "5" : 5" -> "5""
 	 */
-	protected String addQuotes(boolean raw, String text) {
+	protected synchronized String addQuotes(boolean raw, String text) {
 		if (text == null)
 			return null;
 		boolean quotedString = (text.trim().startsWith("'") && text.trim().endsWith("'"))
@@ -644,6 +645,24 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return a;
 	}
 
+	private synchronized Set<String> getKeys(Collection<String> loader, String key, boolean subkeys) {
+		Set<String> a = new LinkedHashSet<>();
+		for (String d : loader)
+			if (d.startsWith(key)) {
+				String c = d.substring(key.length());
+				if (!c.startsWith("."))
+					continue;
+				c = c.startsWith(".")?c.substring(1):c;
+				if(!subkeys)
+				c = c.split("\\.")[0];
+				if (c.trim().isEmpty())
+					continue;
+				if (!a.contains(c))
+					a.add(c);
+			}
+		return a;
+	}
+
 	public synchronized String toString() {
 		return toString(DataType.BYTE);
 	}
@@ -657,9 +676,9 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected synchronized void preparePath(String path, String pathName, int spaces, java.io.Writer b) {
+	protected synchronized void preparePath(Collection<String> keys, Map<String, Object[]> loader, String path, String pathName, int spaces, java.io.Writer b) {
 		try {
-			Object[] aw = loader.get().get(path);
+			Object[] aw = loader.get(path);
 			Collection<String> list = aw != null ? (Collection<String>)aw[1] : null;
 			Object o = aw != null ? aw[0] : null;
 			String space = cs(spaces);
@@ -774,8 +793,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 						}
 					}
 				}
-			for (String key : getKeys(path, false))
-				preparePath(path + "." + key, key + ":", spaces + 1, b);
+			for (String key : getKeys(keys,path, false))
+				preparePath(keys,loader,path + "." + key, key + ":", spaces + 1, b);
 		} catch (Exception er) {
 		}
 	}
@@ -821,7 +840,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		} catch (Exception er) {
 		}
 		for (String key : new LinkedHashSet<>(aw))
-			preparePath(key, key + ":", 0, d);
+			preparePath(new ArrayList<>(loader.getKeys()),new HashMap<>(this.loader.get()),key, key + ":", 0, d);
 		try {
 			for (String h : loader.getFooter())
 				d.write(h + System.lineSeparator());
