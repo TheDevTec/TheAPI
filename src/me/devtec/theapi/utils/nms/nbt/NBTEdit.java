@@ -20,9 +20,9 @@ public class NBTEdit {
 			setInt=Ref.method(Ref.nms("NBTTagCompound"), "setInt", String.class, int.class),
 			setIntArray=Ref.method(Ref.nms("NBTTagCompound"), "setIntArray", String.class, int[].class),
 			setLong=Ref.method(Ref.nms("NBTTagCompound"), "setLong", String.class, long.class),
-			setShort=Ref.method(Ref.nms("NBTTagCompound"), "setShort", String.class, short.class);
+			setShort=Ref.method(Ref.nms("NBTTagCompound"), "setShort", String.class, short.class)
 	//getter
-	private static Method get=Ref.method(Ref.nms("NBTTagCompound"), "get", String.class), //NBTEdit or other value
+			,get=Ref.method(Ref.nms("NBTTagCompound"), "get", String.class), //NBTEdit or other value
 			getKeys=Ref.method(Ref.nms("NBTTagCompound"), "getKeys"), //Set<String> of keys
 			getTypeId=Ref.method(Ref.nms("NBTTagCompound"), "getTypeId"), //byte
 			getCompound=Ref.method(Ref.nms("NBTTagCompound"), "getCompound", String.class), //NBTEdit
@@ -36,7 +36,10 @@ public class NBTEdit {
 			getInt=Ref.method(Ref.nms("NBTTagCompound"), "getInt", String.class),
 			getIntArray=Ref.method(Ref.nms("NBTTagCompound"), "getIntArray", String.class),
 			getLong=Ref.method(Ref.nms("NBTTagCompound"), "getLong", String.class),
-			getShort=Ref.method(Ref.nms("NBTTagCompound"), "getShort", String.class);
+			getShort=Ref.method(Ref.nms("NBTTagCompound"), "getShort", String.class),
+	//other
+			remove=Ref.method(Ref.nms("NBTTagCompound"), "remove", String.class),
+			hasKey=Ref.method(Ref.nms("NBTTagCompound"), "hasKey", String.class);
 	
 	private Object nbt;
     public NBTEdit(Object nbt) {
@@ -68,6 +71,14 @@ public class NBTEdit {
 	
 	public void setString(String path, String value) {
 		Ref.invoke(nbt, setString, path, value);
+	}
+	
+	public boolean hasKey(String path) {
+		return (boolean)Ref.invoke(nbt, hasKey, path);
+	}
+	
+	public void remove(String path) {
+		Ref.invoke(nbt, remove, path);
 	}
 	
 	public void setBoolean(String path, boolean value) {
