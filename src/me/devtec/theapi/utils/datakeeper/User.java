@@ -18,6 +18,7 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	private UUID s;
 	private String name;
 	private Data a;
+	private boolean autounload;
 
 	public User(String name) {
 		if (name == null)
@@ -56,6 +57,14 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		s = player;
 		this.name = name;
 		prepareConfig();
+	}
+	
+	public void setAutoUnload(boolean unload) {
+		autounload=unload;
+	}
+	
+	public boolean getAutoUnload() {
+		return autounload;
 	}
 
 	private final void prepareConfig() {

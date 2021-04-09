@@ -399,11 +399,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			}
 		}
 	}
-
-	@SuppressWarnings({ "unchecked" })
+	
 	public synchronized Collection<Object> getList(String key) {
 		Object g = get(key);
-		return g != null && g instanceof Collection ? new ArrayList<>((Collection<Object>) g) : new ArrayList<>();
+		return g != null && g instanceof Collection ? new ArrayList<>((Collection<?>) g) : new ArrayList<>();
 	}
 	
 	public synchronized <E> List<E> getListAs(String key, Class<? extends E> clazz) {

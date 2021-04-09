@@ -966,7 +966,7 @@ public class TheAPI {
 	}
 
 	public static Collection<User> getCachedUsers() {
-		return cache.values();
+		return new ArrayList<>(cache.values());
 	}
 
 	/**
@@ -1070,7 +1070,8 @@ public class TheAPI {
 	public static void removeCachedUser(Player player) {
 		if (player == null)
 			return;
-		cache.remove(player.getUniqueId());
+		User u = cache.remove(player.getUniqueId());
+		if(u!=null)u.save();
 	}
 
 	public static List<UUID> getUsersByIP(String ip) {
@@ -1102,6 +1103,7 @@ public class TheAPI {
 		} catch (Exception e) {
 			s = LoaderClass.cache!=null?LoaderClass.cache.lookupId(nameOrUUID):Bukkit.getOfflinePlayer(nameOrUUID).getUniqueId();
 		}
-		cache.remove(s);
+		User u = cache.remove(s);
+		if(u!=null)u.save();
 	}
 }

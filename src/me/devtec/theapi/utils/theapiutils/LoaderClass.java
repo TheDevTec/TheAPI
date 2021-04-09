@@ -211,10 +211,12 @@ public class LoaderClass extends JavaPlugin {
 					action="SHIFT_"+action;
 					boolean cancel = false;
 					if (slot < d.size()) {
-						if(action.contains("DROP"))
-							cancel = d.onPutItem(p, i, slot%d.size());
-						else
-							cancel = d.onTakeItem(p, i, slot%d.size());
+						if(slot%d.size()>0) {
+							if(action.contains("DROP"))
+								cancel = d.onPutItem(p, i, slot%d.size());
+							else
+								cancel = d.onTakeItem(p, i, slot%d.size());
+						}
 						ItemGUI a = d.getItemGUI(slot);
 						if (a != null) {
 							if (a.isUnstealable())
@@ -466,8 +468,12 @@ public class LoaderClass extends JavaPlugin {
 				new Tasker() {
 					@Override
 					public void run() {
-						for(User u : TheAPI.getCachedUsers())
+						for(User u : TheAPI.getCachedUsers()) {
 							u.save();
+							if(u.getAutoUnload() && TheAPI.getPlayerOrNull(u.getName())==null)
+								TheAPI.removeCachedUser(u.getUUID());
+								
+						}
 					}
 				}.runRepeating(20*300, 20*300);
 				checker = new SpigotUpdateChecker(getDescription().getVersion(), 72679);

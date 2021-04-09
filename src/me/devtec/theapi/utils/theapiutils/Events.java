@@ -173,7 +173,7 @@ public class Events implements Listener {
 		TheAPI.removeBossBar(s);
 		if (LoaderClass.config.getBoolean("Options.Cache.User.RemoveOnQuit")
 				&& LoaderClass.config.getBoolean("Options.Cache.User.Use"))
-		TheAPI.removeCachedUser(e.getPlayer().getUniqueId());
+		TheAPI.getUser(e.getPlayer()).setAutoUnload(true);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
