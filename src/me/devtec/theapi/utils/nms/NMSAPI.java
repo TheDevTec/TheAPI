@@ -157,16 +157,13 @@ public class NMSAPI {
 	}
 	
 	public static ItemStack setNBT(ItemStack stack, NBTEdit nbt) {
-		Object nms = asNMSItem(stack);
-		setNBT(nms, nbt.getNBT());
-		stack.setItemMeta(asBukkitItem(stack).getItemMeta());
-		return stack;
+		return setNBT(stack,nbt.getNBT());
 	}
 	
 	public static ItemStack setNBT(ItemStack stack, Object nbt) {
 		Object nms = asNMSItem(stack);
-		setNBT(nms, nbt instanceof String?parseNBT((String)nbt):nbt);
-		stack.setItemMeta(asBukkitItem(stack).getItemMeta());
+		setNBT(nms, nbt instanceof String?parseNBT((String)nbt):(nbt instanceof NBTEdit?((NBTEdit) nbt).getNBT():nbt));
+		stack.setItemMeta(asBukkitItem(nms).getItemMeta());
 		return stack;
 	}
 	
