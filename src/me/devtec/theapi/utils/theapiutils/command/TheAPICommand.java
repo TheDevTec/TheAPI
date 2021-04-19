@@ -6,7 +6,6 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -335,7 +334,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				}
 			}
 		if (s.hasPermission("TheAPI.Command.WorldsManager"))
-			if (args[0].equalsIgnoreCase("WorldsManager") || args[0].equalsIgnoreCase("wm")) {
+			if (args[0].equalsIgnoreCase("WorldsManager") || args[0].equalsIgnoreCase("mw") || args[0].equalsIgnoreCase("mv") || args[0].equalsIgnoreCase("wm")) {
 				if (args.length == 2) {
 					c.addAll(StringUtils.copyPartialMatches(args[1],
 							Arrays.asList("Create", "Delete", "Load", "Teleport", "Unload", "Save", "SaveAll")));
@@ -350,18 +349,17 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					}
 					if (args[1].equalsIgnoreCase("Teleport")) {
 						if (args.length == 3)
-							c.addAll(StringUtils.copyPartialMatches(args[1], getWorlds()));
+							c.addAll(StringUtils.copyPartialMatches(args[2], getWorlds()));
 						if (args.length == 4)
 							return null;
 					}
 					if (args[1].equalsIgnoreCase("Unload") || args[1].equalsIgnoreCase("Delete")
 							|| args[1].equalsIgnoreCase("Save")) {
 						if (args.length == 3)
-							c.addAll(StringUtils.copyPartialMatches(args[1], getWorlds()));
+							c.addAll(StringUtils.copyPartialMatches(args[2], getWorlds()));
 					}
 				}
 			}
-		Collections.sort(c);
 		return c;
 	}
 

@@ -63,8 +63,7 @@ public class NMSAPI {
 			post = Ref.method(Ref.nms("MinecraftServer"), "executeSync", Runnable.class);
 		if (post == null)
 			post = Ref.method(Ref.nms("MinecraftServer"), "postToMainThread", Runnable.class);
-		if (Ref.nms("PacketPlayOutTitle") != null)
-			enumTitle = Ref.nms("PacketPlayOutTitle$EnumTitleAction");
+		enumTitle = Ref.nms("PacketPlayOutTitle$EnumTitleAction");
 		oldichatser = Ref.method(Ref.nms("IChatBaseComponent$ChatSerializer"), "a", String.class);
 		if(oldichatser==null)
 			oldichatser = Ref.method(Ref.nms("ChatSerializer"), "a", String.class);
@@ -227,6 +226,13 @@ public class NMSAPI {
 		Ref.set(o, scr[1], player);
 		Ref.set(o, scr[2], score);
 		Ref.set(o, scr[3], getScoreboardAction(action));
+		return o;
+	}
+
+	public static Object getPacketPlayOutScoreboardScoreRemove(String line) {
+		Object o = Ref.newInstance(NMSAPI.score);
+		Ref.set(o, scr[0], line);
+		Ref.set(o, scr[3], sbremove);
 		return o;
 	}
 

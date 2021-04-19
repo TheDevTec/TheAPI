@@ -28,16 +28,15 @@ public class SignAPI {
 	public static List<Position> getRegistredSigns() {
 		List<Position> l = new ArrayList<>();
 		boolean save = false;
-		if (LoaderClass.data.exists("Sign"))
-			for (String s : LoaderClass.data.getKeys("Sign")) {
-				Position d = Position.fromString(s);
-				if (d!=null && d.getBukkitType().name().contains("SIGN"))
-					l.add(d);
-				else {
-					LoaderClass.data.remove("Sign." + s);
-					save=true;
-				}
+		for (String s : LoaderClass.data.getKeys("Sign")) {
+			Position d = Position.fromString(s);
+			if (d!=null && d.getBukkitType().name().contains("SIGN"))
+				l.add(d);
+			else {
+				LoaderClass.data.remove("Sign." + s);
+				save=true;
 			}
+		}
 		if(save)LoaderClass.data.save();
 		return l;
 	}

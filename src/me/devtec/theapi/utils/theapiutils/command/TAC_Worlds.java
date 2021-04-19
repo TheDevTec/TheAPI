@@ -161,7 +161,9 @@ public class TAC_Worlds {
 				case 3:
 					try {
 						env = Environment.valueOf("THE_END");
-					} catch (Exception e) {
+						if(env==null)
+						env = Environment.valueOf("END");
+					} catch (Exception | NoSuchFieldError e) {
 						env = Environment.valueOf("END");
 					}
 					break;

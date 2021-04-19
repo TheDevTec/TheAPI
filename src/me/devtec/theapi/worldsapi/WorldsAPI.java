@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
@@ -32,8 +31,6 @@ public class WorldsAPI {
 	 * @return boolean if world was loaded
 	 */
 	public static boolean load(String world, Environment generator, WorldType type) {
-		if (Bukkit.getWorld(world) != null)
-			return false;
 		return create(world, generator, type, true, 0);
 	}
 
@@ -80,18 +77,19 @@ public class WorldsAPI {
 			return false;
 
 		if (Bukkit.getWorld(name) == null) {
-			WorldCreator c = new WorldCreator(name).generateStructures(generateStructures).environment(generator);
+			WorldCreator c = new WorldCreator(name);
+			c.generateStructures(generateStructures);
+			c.environment(generator);
 			if (seed != 0)
-				c = c.seed(seed);
+				c.seed(seed);
 			if (type != null)
-				c = c.type(type);
+				c.type(type);
 			if (Chunkgenerator != null)
-				c = c.generator(Chunkgenerator);
-			World w = c.createWorld();
-			if (type == null) {
-				Location loc = new Location(w, 0, 60, 0);
+				c.generator(Chunkgenerator);
+			World w = Bukkit.createWorld(c);
+			if (type == null) { //void generator
 				w.setSpawnLocation(0, 60, 0);
-				loc.getBlock().setType(Material.GLASS);
+				w.getBlockAt(0, 60, 0).setType(Material.GLASS);
 			}
 			return true;
 		}

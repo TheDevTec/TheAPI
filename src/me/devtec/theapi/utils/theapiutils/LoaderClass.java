@@ -328,7 +328,7 @@ public class LoaderClass extends JavaPlugin {
 			gradientTag = tags.getString("GradientPrefix");
 			for (String tag : tags.getKeys("Tags"))
 				colorMap.put(tag.toLowerCase(), "#" + tags.getString("Tags." + tag));
-			StringUtils.gradientFinder=Pattern.compile(LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})(.*?)"+LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})|.*?(?=(?:"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}.*?"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}))");
+			StringUtils.gradientFinder=Pattern.compile(LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})(.*?)"+LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})");
 		}
 		PluginCommand ca = TheAPI.createCommand("theapi", this);
 		if(Ref.field(Command.class, "timings")!=null && TheAPI.isOlderThan(9)) {

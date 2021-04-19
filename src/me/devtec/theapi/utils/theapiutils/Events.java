@@ -132,7 +132,7 @@ public class Events implements Listener {
 		if(LoaderClass.cache!=null)
 			LoaderClass.cache.setLookup(e.getUniqueId(),e.getName());
 		User s = TheAPI.getUser(e.getUniqueId());
-		String add = e.getAddress().getHostAddress().replaceAll("[^0-9.]+", "").replace(".", "_");
+		String add = e.getAddress().toString().replaceAll("[^0-9.]+", "").replace(".", "_");
 		List<String> set = LoaderClass.data.getStringList("data."+add);
 		if(!set.contains(s.getName()))
 		set.add(s.getName());

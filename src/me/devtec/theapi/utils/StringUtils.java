@@ -43,125 +43,133 @@ public class StringUtils {
 	@SuppressWarnings("unchecked")
 	public static Map<Object, Object> colorizeMap(Map<Object, Object> json) {
 		Map<Object, Object> colorized = new HashMap<>();
-		for(Entry<Object, Object> e : json.entrySet()) {
-			if(e.getKey() instanceof Collection) {
-				if(e.getValue() instanceof Collection) {
-					colorized.put(colorizeList((Collection<Object>) e.getKey()), colorizeList((Collection<Object>) e.getValue()));
+		for (Entry<Object, Object> e : json.entrySet()) {
+			if (e.getKey() instanceof Collection) {
+				if (e.getValue() instanceof Collection) {
+					colorized.put(colorizeList((Collection<Object>) e.getKey()),
+							colorizeList((Collection<Object>) e.getValue()));
 				}
-				if(e.getValue() instanceof Map) {
-					colorized.put(colorizeList((Collection<Object>) e.getKey()), colorizeMap((Map<Object, Object>) e.getValue()));
+				if (e.getValue() instanceof Map) {
+					colorized.put(colorizeList((Collection<Object>) e.getKey()),
+							colorizeMap((Map<Object, Object>) e.getValue()));
 				}
-				if(e.getValue() instanceof Object[]) {
-					colorized.put(colorizeList((Collection<Object>) e.getKey()), colorizeArray((Object[]) e.getValue()));
+				if (e.getValue() instanceof Object[]) {
+					colorized.put(colorizeList((Collection<Object>) e.getKey()),
+							colorizeArray((Object[]) e.getValue()));
 				}
-				if(e.getValue() instanceof String) {
+				if (e.getValue() instanceof String) {
 					colorized.put(colorizeList((Collection<Object>) e.getKey()), colorize((String) e.getValue()));
-				}else {
+				} else {
 					colorized.put(colorizeList((Collection<Object>) e.getKey()), e.getValue());
 				}
 			}
-			if(e.getKey() instanceof Map) {
-				if(e.getValue() instanceof Collection) {
-					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), colorizeList((Collection<Object>) e.getValue()));
+			if (e.getKey() instanceof Map) {
+				if (e.getValue() instanceof Collection) {
+					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()),
+							colorizeList((Collection<Object>) e.getValue()));
 				}
-				if(e.getValue() instanceof Map) {
-					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), colorizeMap((Map<Object, Object>) e.getValue()));
+				if (e.getValue() instanceof Map) {
+					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()),
+							colorizeMap((Map<Object, Object>) e.getValue()));
 				}
-				if(e.getValue() instanceof Object[]) {
-					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), colorizeArray((Object[]) e.getValue()));
+				if (e.getValue() instanceof Object[]) {
+					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()),
+							colorizeArray((Object[]) e.getValue()));
 				}
-				if(e.getValue() instanceof String) {
+				if (e.getValue() instanceof String) {
 					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), colorize((String) e.getValue()));
-				}else {
+				} else {
 					colorized.put(colorizeMap((Map<Object, Object>) e.getKey()), e.getValue());
 				}
 			}
-			if(e.getKey() instanceof Object[]) {
-				if(e.getValue() instanceof Collection) {
-					colorized.put(colorizeArray((Object[]) e.getKey()), colorizeList((Collection<Object>) e.getValue()));
+			if (e.getKey() instanceof Object[]) {
+				if (e.getValue() instanceof Collection) {
+					colorized.put(colorizeArray((Object[]) e.getKey()),
+							colorizeList((Collection<Object>) e.getValue()));
 				}
-				if(e.getValue() instanceof Map) {
-					colorized.put(colorizeArray((Object[]) e.getKey()), colorizeMap((Map<Object, Object>) e.getValue()));
+				if (e.getValue() instanceof Map) {
+					colorized.put(colorizeArray((Object[]) e.getKey()),
+							colorizeMap((Map<Object, Object>) e.getValue()));
 				}
-				if(e.getValue() instanceof Object[]) {
+				if (e.getValue() instanceof Object[]) {
 					colorized.put(colorizeArray((Object[]) e.getKey()), colorizeArray((Object[]) e.getValue()));
 				}
-				if(e.getValue() instanceof String) {
+				if (e.getValue() instanceof String) {
 					colorized.put(colorizeArray((Object[]) e.getKey()), colorize((String) e.getValue()));
-				}else {
+				} else {
 					colorized.put(colorizeArray((Object[]) e.getKey()), e.getValue());
 				}
 			}
-			if(e.getKey() instanceof String) {
-				if(e.getValue() instanceof Collection) {
+			if (e.getKey() instanceof String) {
+				if (e.getValue() instanceof Collection) {
 					colorized.put(colorize((String) e.getKey()), colorizeList((Collection<Object>) e.getValue()));
 				}
-				if(e.getValue() instanceof Map) {
+				if (e.getValue() instanceof Map) {
 					colorized.put(colorize((String) e.getKey()), colorizeMap((Map<Object, Object>) e.getValue()));
 				}
-				if(e.getValue() instanceof Object[]) {
+				if (e.getValue() instanceof Object[]) {
 					colorized.put(colorize((String) e.getKey()), colorizeArray((Object[]) e.getValue()));
 				}
-				if(e.getValue() instanceof String) {
+				if (e.getValue() instanceof String) {
 					colorized.put(colorize((String) e.getKey()), colorize((String) e.getValue()));
-				}else {
+				} else {
 					colorized.put(colorize((String) e.getKey()), e.getValue());
 				}
-			}else {
-				if(e.getValue() instanceof Collection) {
+			} else {
+				if (e.getValue() instanceof Collection) {
 					colorized.put(e.getKey(), colorizeList((Collection<Object>) e.getValue()));
 				}
-				if(e.getValue() instanceof Map) {
+				if (e.getValue() instanceof Map) {
 					colorized.put(e.getKey(), colorizeMap((Map<Object, Object>) e.getValue()));
 				}
-				if(e.getValue() instanceof Object[]) {
+				if (e.getValue() instanceof Object[]) {
 					colorized.put(e.getKey(), colorizeArray((Object[]) e.getValue()));
 				}
-				if(e.getValue() instanceof String) {
+				if (e.getValue() instanceof String) {
 					colorized.put(e.getKey(), colorize((String) e.getValue()));
-				}else {
+				} else {
 					colorized.put(e.getKey(), e.getValue());
 				}
 			}
 		}
 		return colorized;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static Collection<Object> colorizeList(Collection<Object> json) {
 		List<Object> colorized = new ArrayList<>();
-		for(Object e : json) {
-			if(e instanceof Collection) {
+		for (Object e : json) {
+			if (e instanceof Collection) {
 				colorized.add(colorizeList((Collection<Object>) e));
 			}
-			if(e instanceof Map) {
+			if (e instanceof Map) {
 				colorized.add(colorizeMap((Map<Object, Object>) e));
 			}
-			if(e instanceof Object[]) {
+			if (e instanceof Object[]) {
 				colorized.add(colorizeArray((Object[]) e));
 			}
-			if(e instanceof String)
+			if (e instanceof String)
 				colorized.add(colorize((String) e));
 			else
 				colorized.add(e);
 		}
 		return colorized;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static Object[] colorizeArray(Object[] json) {
 		List<Object> colorized = new ArrayList<>();
-		for(Object e : json) {
-			if(e instanceof Collection) {
+		for (Object e : json) {
+			if (e instanceof Collection) {
 				colorized.add(colorizeList((Collection<Object>) e));
 			}
-			if(e instanceof Map) {
+			if (e instanceof Map) {
 				colorized.add(colorizeMap((Map<Object, Object>) e));
 			}
-			if(e instanceof Object[]) {
+			if (e instanceof Object[]) {
 				colorized.add(colorizeArray((Object[]) e));
 			}
-			if(e instanceof String)
+			if (e instanceof String)
 				colorized.add(colorize((String) e));
 			else
 				colorized.add(e);
@@ -179,7 +187,7 @@ public class StringUtils {
 		while (split.length() > lengthOfSplit) {
 			int length = lengthOfSplit - 1 - prefix.length();
 			String a = prefix + split.substring(0, length);
-			if (a.endsWith("&") || a.endsWith("§")) {
+			if (a.endsWith("§")) {
 				--length;
 				a = prefix + split.substring(0, length);
 				prefix = getLastColors(a);
@@ -267,7 +275,8 @@ public class StringUtils {
 		return new HoverMessage(message);
 	}
 
-	private static Pattern getLast = Pattern.compile("(#[A-Fa-f0-9]{6}|[&§][Xx]([&§][A-Fa-f0-9]){6}|[&§][A-Fa-f0-9RrK-Ok-oUuXx])");
+	private static Pattern getLast = Pattern
+			.compile("(#[A-Fa-f0-9]{6}|[&§][Xx]([&§][A-Fa-f0-9]){6}|[&§][A-Fa-f0-9RrK-Ok-oUuXx])");
 
 	/**
 	 * @see see Get last colors from String (HEX SUPPORT!)
@@ -276,12 +285,12 @@ public class StringUtils {
 	public static String getLastColors(String s) {
 		Matcher m = getLast.matcher(s);
 		String colors = "";
-		while(m.find()) {
+		while (m.find()) {
 			String last = m.group(1);
-			if(last.matches("[&§][A-Fa-f0-9]|#[A-Fa-f0-9]{6}|[&§][Xx]([§&][A-Fa-f0-9]){6}"))
-				colors=last;
+			if (last.matches("[§][A-Fa-f0-9]|[§][Xx]([§][A-Fa-f0-9]){6}"))
+				colors = last;
 			else
-				colors+=last;
+				colors += last;
 		}
 		return colors;
 	}
@@ -291,9 +300,10 @@ public class StringUtils {
 	static {
 		if (TheAPI.isNewerThan(15)) {
 			color = new ColormaticFactory() {
-				private List<String> list = Arrays.asList("a", "b", "c", "d", "e",
-						"f", "0", "1", "2", "3", "4", "5", "6",
-						"7", "8", "9");
+				private String d = "abcdef0123456789";
+				private int len = d.length();
+				private char[] a = d.toCharArray();
+				private Random r = new Random();
 
 				@Override
 				public String colorize(String text) {
@@ -302,7 +312,10 @@ public class StringUtils {
 
 				@Override
 				public String getNextColor() {
-					return "#"+getRandomFromList(list)+getRandomFromList(list)+getRandomFromList(list)+getRandomFromList(list)+getRandomFromList(list)+getRandomFromList(list);
+					StringBuilder b = new StringBuilder("#");
+					for (int i = 0; i < 6; ++i)
+						b.append(a[r.nextInt(len)]);
+					return b.toString();
 				}
 			};
 		} else
@@ -393,12 +406,14 @@ public class StringUtils {
 			};
 	}
 
-	private static Pattern reg = Pattern.compile("[&§]([Rrk-oK-O])"), colorMatic = Pattern.compile("(<!>)*([&§])<!>([A-Fa-f0-9RrK-Ok-oUu"+(TheAPI.isNewerThan(15)?"Xx":"")+"])"),
-			old = Pattern.compile("&((<!>)*)([XxA-Za-zUu0-9Rrk-oK-O])"), spaceRemover = Pattern.compile("<!> ");
+	private static Pattern reg = Pattern.compile("[&§]([Rrk-oK-O])"),
+			colorMatic = Pattern
+					.compile("(<!>)*([&§])<!>([A-Fa-f0-9RrK-Ok-oUu" + (TheAPI.isNewerThan(15) ? "Xx" : "") + "])"),
+			old = Pattern.compile("&((<!>)*)([XxA-Za-zUu0-9Rrk-oK-O])");
 
 	public static Pattern gradientFinder;
-	
-	private static String gradient(String msg, String fromHex, String toHex) {
+
+	public static String gradient(String msg, String fromHex, String toHex) {
 		Matcher ma = reg.matcher(msg);
 		HashMap<Integer, String> l = new HashMap<>();
 		while (ma.find()) {
@@ -419,14 +434,12 @@ public class StringUtils {
 		Color finalColor = new Color(fromRGB.getRGB());
 		msg = msg.replaceAll("#[A-Fa-f0-9]{6}", "");
 		msg = msg.replace("", "<!>");
-		msg=msg.substring(0, msg.length()-3);
-		Matcher removeUnused = spaceRemover.matcher(msg);
-		while(removeUnused.find())
-			msg=removeUnused.replaceAll(" ");
+		msg = msg.substring(0, msg.length() - 3);
+		msg = msg.replace("<!> ","");
 		Matcher fixColors = colorMatic.matcher(msg);
 		String formats = "";
-		while(fixColors.find())
-			msg=msg.replace(fixColors.group(), fixColors.group(2)+fixColors.group(3));
+		while (fixColors.find())
+			msg = msg.replace(fixColors.group(), fixColors.group(2) + fixColors.group(3));
 		for (int index = 0; index <= length; index++) {
 			int red = (int) Math.round(finalColor.getRed() + rStep);
 			int green = (int) Math.round(finalColor.getGreen() + gStep);
@@ -447,52 +460,61 @@ public class StringUtils {
 			String hex = "§x";
 			char[] c = Integer.toHexString(finalColor.getRGB()).substring(2).toCharArray();
 			for (int i = 0; i < c.length; ++i)
-				hex+="§"+c[i];
+				hex += "§" + c[i];
 			if (l.containsKey(index))
 				switch (l.get(index)) {
 				case "l":
-					if(!formats.contains("§l"))formats+="§l";
+					if (!formats.contains("§l"))
+						formats += "§l";
 					break;
 				case "m":
-					if(!formats.contains("§m"))formats+="§m";
+					if (!formats.contains("§m"))
+						formats += "§m";
 					break;
 				case "n":
-					if(!formats.contains("§n"))formats+="§n";
+					if (!formats.contains("§n"))
+						formats += "§n";
 					break;
 				case "o":
-					if(!formats.contains("§o"))formats+="§o";
+					if (!formats.contains("§o"))
+						formats += "§o";
 					break;
 				case "k":
-					if(!formats.contains("§k"))formats+="§k";
+					if (!formats.contains("§k"))
+						formats += "§k";
 					break;
 				default:
-					formats="";
+					formats = "";
 					break;
 				}
 			msg = msg.replaceFirst("<!>", hex + formats);
 		}
 		return msg;
 	}
-	
+
 	public static String gradient(String legacyMsg) {
-		for (String code : LoaderClass.colorMap.keySet()) {
-			String rawCode = LoaderClass.tagG + code;
+		for (Entry<String, String> code : LoaderClass.colorMap.entrySet()) {
+			String rawCode = LoaderClass.tagG + code.getKey();
 			if (!legacyMsg.toLowerCase().contains(rawCode))
 				continue;
-			legacyMsg = legacyMsg.replace(rawCode, LoaderClass.colorMap.get(code));
+			legacyMsg = legacyMsg.replace(rawCode, code.getValue());
 		}
-		if(gradientFinder==null)return legacyMsg;
+		if (gradientFinder == null)
+			return legacyMsg;
 		Matcher matcher = gradientFinder.matcher(legacyMsg);
-		while(matcher.find()) {
-			if(matcher.groupCount()==0 || matcher.group(1)==null)continue;
-			legacyMsg=legacyMsg.replace(matcher.group(), gradient(matcher.group(2), matcher.group(1), matcher.group(3)));
+		while (matcher.find()) {
+			if (matcher.groupCount() == 0 || matcher.group(1) == null)
+				continue;
+			legacyMsg = legacyMsg.replace(matcher.group(),
+					gradient(matcher.group(2), matcher.group(1), matcher.group(3)));
 		}
 		return legacyMsg;
 	}
 
 	private static boolean neww = TheAPI.isNewerThan(15);
-	private static Pattern fixedSplit = Pattern.compile("(#[A-Fa-f0-9]{6}([&§][K-Ok-oRr])*|[&§][Xx]([&§][A-Fa-f0-9]){6}([&§][K-Ok-oRr])*|[&§][A-Fa-f0-9K-ORrk-oUuXx]([&§][K-Ok-oRr])*)");
-	
+	private static Pattern fixedSplit = Pattern.compile(
+			"(#[A-Fa-f0-9]{6}([&§][K-Ok-oRr])*|[&§][Xx]([&§][A-Fa-f0-9]){6}([&§][K-Ok-oRr])*|[&§][A-Fa-f0-9K-ORrk-oUuXx]([&§][K-Ok-oRr])*)");
+
 	/**
 	 * @see see Colorize string with colors (&eHello world -> {YELLOW}Hello world)
 	 * @param string
@@ -501,29 +523,30 @@ public class StringUtils {
 	public static String colorize(String msg) {
 		if (msg == null)
 			return null;
-		if(msg.trim().isEmpty())return msg;
+		if (msg.trim().isEmpty())
+			return msg;
 		if (msg.toLowerCase().contains("&u")) {
-			StringBuilder d = new StringBuilder(msg.length());
 			String[] split = fixedSplit.split(msg);
-			//atempt to add colors to split
+			// atempt to add colors to split
 			Matcher m = fixedSplit.matcher(msg);
 			int id = 1;
-			while(m.find()) {
+			while (m.find()) {
 				try {
-				split[id]=m.group(1)+split[id++];
-				}catch(Exception err) {
+					split[id] = m.group(1) + split[id++];
+				} catch (Exception err) {
 				}
 			}
-			//colors
+			// colors
+			StringBuilder d = new StringBuilder(msg.length());
 			for (String ff : split) {
-				if (ff.toLowerCase().contains("§u")||ff.toLowerCase().contains("&u"))
-					ff = StringUtils.color.colorize(ff.replaceAll("[§&][uU]",""));
+				if (ff.toLowerCase().contains("§u") || ff.toLowerCase().contains("&u"))
+					ff = StringUtils.color.colorize(ff.replaceAll("[§&][uU]", ""));
 				d.append(ff);
 			}
-			msg=d.toString();
+			msg = d.toString();
 		}
 		if (neww) {
-			msg=msg.replace("&x", "§x").replace("&X", "§x");
+			msg = msg.replace("&x", "§x").replace("&X", "§x");
 			msg = gradient(msg);
 			if (msg.contains("#")) {
 				Matcher match = hex.matcher(msg);
@@ -532,7 +555,7 @@ public class StringUtils {
 					String magic = "§x";
 					char[] c = color.substring(1).toCharArray();
 					for (int i = 0; i < c.length; ++i)
-						magic+="§" + c[i];
+						magic += "§" + c[i];
 					msg = msg.replace(color, magic);
 				}
 			}
@@ -663,17 +686,18 @@ public class StringUtils {
 	 * @return String
 	 */
 	public static String timeToString(long time) {
-		if(time==0)
+		if (time == 0)
 			return "0s";
 		long minutes = (time / 60) % 60;
 		long hours = (time / 3600) % 24;
 		long days = (time / 86400) % 31;
 		long month = 0;
 		long year = 0;
-		try{
+		try {
 			month = (time / 86400 / 31) % 12;
-			year=time / 86400 / 31 / 12;
-		}catch(Exception er) {}
+			year = time / 86400 / 31 / 12;
+		} catch (Exception er) {
+		}
 		String date = "";
 		if (year > 0)
 			date = year + "y";
@@ -729,21 +753,21 @@ public class StringUtils {
 	public static boolean getBoolean(String fromString) {
 		try {
 			return fromString.equalsIgnoreCase("true") || fromString.equalsIgnoreCase("yes")
-					|| fromString.equalsIgnoreCase("on");
+					|| fromString.equalsIgnoreCase("on") || fromString.equalsIgnoreCase("ano");
 		} catch (Exception er) {
 			return false;
 		}
 	}
 
 	private static ScriptEngine engine;
-	static{
+	static {
 		try {
-			engine= new ScriptEngineManager().getEngineFactories().get(0).getScriptEngine();
-		}catch(Exception err) {
-			engine= new ScriptEngineManager().getEngineByName("JavaScript");
+			engine = new ScriptEngineManager().getEngineFactories().get(0).getScriptEngine();
+		} catch (Exception err) {
+			engine = new ScriptEngineManager().getEngineByName("JavaScript");
 		}
 	}
-	
+
 	/**
 	 * @see see Convert String to Math and Calculate exempt
 	 * @return double
@@ -760,30 +784,31 @@ public class StringUtils {
 	}
 
 	static Pattern mat = Pattern.compile("\\.([0-9])([0-9])?");
+
 	public static String fixedFormatDouble(double val) {
-		String text=String.format("%.2f",val);
+		String text = String.format("%.2f", val);
 		Matcher m = mat.matcher(text);
-		if(m.find()) {
-			if(m.groupCount()!=2) {
-				if(m.group(1).equals("0")) {
+		if (m.find()) {
+			if (m.groupCount() != 2) {
+				if (m.group(1).equals("0")) {
 					return m.replaceFirst("");
 				}
 				return m.replaceFirst(".$1");
 			}
-			if(m.group(1).equals("0")) {
-				if(m.group(2).equals("0")) {
+			if (m.group(1).equals("0")) {
+				if (m.group(2).equals("0")) {
 					return m.replaceFirst("");
 				}
 				return m.replaceFirst(".$1$2");
 			}
-			if(m.group(2).equals("0")) {
+			if (m.group(2).equals("0")) {
 				return m.replaceFirst(".$1");
 			}
 			return m.replaceFirst(".$1$2");
 		}
 		return text;
 	}
-	
+
 	/**
 	 * @see see Get double from string
 	 * @return double
