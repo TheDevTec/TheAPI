@@ -107,7 +107,7 @@ public class LoaderClass extends JavaPlugin {
 		Random r = new Random();
 		StringBuilder b = new StringBuilder();
 		for(int i = 0; i < 16; ++i)
-			b.append(r.nextBoolean() ? (a[TheAPI.generateRandomInt(len)]) : (Character.toUpperCase(a[TheAPI.generateRandomInt(len)])));
+			b.append(r.nextBoolean() ? (a[r.nextInt(len)]) : Character.toUpperCase(a[r.nextInt(len)]));
 		return b.toString();
 	}
 
