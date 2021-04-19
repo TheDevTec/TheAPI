@@ -95,7 +95,7 @@ public class Ref {
 
 	public static boolean existsMethod(Class<?> c, String name) {
 		boolean a = false;
-		for (Method d : getMethods(c))
+		for (Method d : getDeclaredMethods(c))
 			if (d.getName().equals(name)) {
 				a = true;
 				break;

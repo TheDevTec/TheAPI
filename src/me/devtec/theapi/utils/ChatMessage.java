@@ -11,19 +11,32 @@ import java.util.regex.Pattern;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.json.Writer;
+import me.devtec.theapi.utils.nms.NMSAPI;
 
 public class ChatMessage {
 	static Pattern url = Pattern.compile("(w{3}\\.|[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+:\\/\\/)?[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+\\.[a-zA-Z0-9+&@#/%?=~_|!:,.;-]{2,}"),
 			colorOrRegex = Pattern.compile("#[A-Fa-f0-9]{6}|[&§]x([&§][A-Fa-f0-9]){6}|[&§][A-Fa-f0-9RrK-Ok-o]");
 	private static String fixedHex  ="[&§][xX][&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])";
 	private String text, color = "";
-	boolean bold = false, italic = false, obfuscated = false, strike = false, under = false, change = false;
+	private boolean bold = false, italic = false, obfuscated = false, strike = false, under = false, change = false;
 	
 	private List<Map<String, Object>> join = new ArrayList<>();
 	
 	public ChatMessage(String text) {
 		this.text=text;
 		convert();
+	}
+	
+	public static Object toIChatBaseComponent(String text) {
+		return NMSAPI.getIChatBaseComponentJson(new ChatMessage(text).getJson());
+	}
+	
+	public static Object toIChatBaseComponent(ChatMessage text) {
+		return NMSAPI.getIChatBaseComponentJson(text.getJson());
+	}
+	
+	public static ChatMessage fromIChatBaseComponent(Object component) {
+		return new ChatMessage(NMSAPI.fromComponent(component));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -281,10 +294,30 @@ public class ChatMessage {
 			else actual[6]=null;
 		}
 		if(url!=null) {
-			val=val.replaceAll(Pattern.quote(url)+"[ ]{0,1}", "");
-			actual[0]=val;
-			actual=new Object[8];
-			colors.add(actual);
+			String[] v = val.split(Pattern.quote(url));
+			if(!v[0].equals("")) {
+				actual[0]=v[0];
+				if(color!=null && !color.equals(""))
+					actual[1]=color;
+				if(bold)
+					actual[2]=bold;
+				else actual[2]=null;
+				if(italic)
+					actual[3]=italic;
+				else actual[3]=null;
+				if(obfuscated)
+					actual[4]=obfuscated;
+				else actual[4]=null;
+				if(strike)
+					actual[5]=strike;
+				else actual[5]=null;
+				if(under)
+					actual[6]=under;
+				else actual[6]=null;
+				actual=new Object[8];
+				colors.add(actual);
+			}
+			val=v.length>=2?v[1]:"";
 			setupUrl(actual, url);
 			actual[0]=url;
 			if(color!=null && !color.equals(""))
@@ -304,6 +337,10 @@ public class ChatMessage {
 			if(under)
 				actual[6]=under;
 			else actual[6]=null;
+			url=null;
+			actual=new Object[8];
+			colors.add(actual);
+			actual[0]=val;
 		}
 		return colors;
 	}
