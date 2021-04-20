@@ -678,7 +678,42 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.FakeEconomyAPI.Format", "$%money%");
 		config.setComments("Options.FakeEconomyAPI.Format",
 				Arrays.asList("# Economy format of FakeEconomyAPI", "# defaulty: $%money%"));
-		config.save();	
+		
+		//TRANSLATABLE TIME CONVERTOR
+		config.addDefault("Options.TimeConvertor.Seconds.Convertor", "s");
+		config.addDefault("Options.TimeConvertor.Seconds.Lookup", Arrays.asList("s","sec","second","seconds"));
+		
+		config.addDefault("Options.TimeConvertor.Minutes.Convertor", "m");
+		config.addDefault("Options.TimeConvertor.Minutes.Lookup", Arrays.asList("m","mi","min","minu","minut","minute","minutes"));
+		
+		config.addDefault("Options.TimeConvertor.Hours.Convertor", "h");
+		config.addDefault("Options.TimeConvertor.Hours.Lookup", Arrays.asList("h","ho","hou","hour","hours"));
+		
+		config.addDefault("Options.TimeConvertor.Days.Convertor", "d");
+		config.addDefault("Options.TimeConvertor.Days.Lookup", Arrays.asList("d","da","day","days"));
+		
+		config.addDefault("Options.TimeConvertor.Weeks.Convertor", "w");
+		config.addDefault("Options.TimeConvertor.Weeks.Lookup", Arrays.asList("w","we","wee","week","weeks"));
+		
+		config.addDefault("Options.TimeConvertor.Months.Convertor", "mo");
+		config.addDefault("Options.TimeConvertor.Months.Lookup", Arrays.asList("mo","mon","mont","month","monts"));
+		
+		config.addDefault("Options.TimeConvertor.Years.Convertor", "y");
+		config.addDefault("Options.TimeConvertor.Years.Lookup", Arrays.asList("y","ye","yea","year","years"));
+		
+		config.setComments("Options.FakeEconomyAPI.Format",
+				Arrays.asList("# Economy format of FakeEconomyAPI", "# defaulty: $%money%"));
+		
+		config.save();
+		
+		StringUtils.sec=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.min=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Minutes.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.hour=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Hours.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.day=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Days.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.week=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Weeks.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.mon=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Months.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.year=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Years.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		
 		if(config.getString("Options.SocketsSpeed").equalsIgnoreCase("fast")) {
 			receive_speed=100;
 			relog=5000;

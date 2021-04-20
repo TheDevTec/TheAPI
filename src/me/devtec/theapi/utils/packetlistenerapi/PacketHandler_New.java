@@ -59,6 +59,8 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 											channel.pipeline().remove("InjectorTheAPI"); //remove old instance - reload of server?
 										if(channel.pipeline().names().contains("packet_handler"))
 											channel.pipeline().addBefore("packet_handler","InjectorTheAPI", interceptor);
+										else
+											channel.pipeline().addBefore("encoder","InjectorTheAPI", interceptor);
 									}
 								});
 								return interceptor;
@@ -126,7 +128,10 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 			if(channel.pipeline().names().contains("InjectorTheAPI"))
 				return (PacketInterceptor) channel.pipeline().get("InjectorTheAPI");
 			PacketInterceptor interceptor = new PacketInterceptor(a.getName());
+			if(channel.pipeline().names().contains("packet_handler"))
 			channel.pipeline().addBefore("packet_handler", "InjectorTheAPI", interceptor);
+			else
+				channel.pipeline().addBefore("encoder","InjectorTheAPI", interceptor);
 			return interceptor;
 		} catch (Exception e) {
 			if(channel.pipeline().names().contains("InjectorTheAPI")) {
@@ -136,7 +141,10 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 					public void run() {
 						channel.pipeline().remove("InjectorTheAPI");
 						try {
+							if(channel.pipeline().names().contains("packet_handler"))
 						channel.pipeline().addBefore("packet_handler", "InjectorTheAPI", interceptor);
+						else
+							channel.pipeline().addBefore("encoder","InjectorTheAPI", interceptor);
 						}catch(Exception e) {}
 					}
 				});

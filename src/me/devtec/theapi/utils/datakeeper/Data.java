@@ -105,7 +105,6 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			requireSave=true;
 			Object[] data = getOrCreateData(key);
 			data[0]=value;
-			data[2]=value+"";
 			return true;
 		}
 		return false;

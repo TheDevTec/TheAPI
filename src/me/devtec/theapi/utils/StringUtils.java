@@ -245,8 +245,9 @@ public class StringUtils {
 			if (s == null)
 				continue;
 			else
-				r = r + split + s.toString();
-		r = r.replaceFirst(split, "");
+				r += split + s.toString();
+		if(r.length()>1)
+		r = r.substring(1);
 		return r;
 	}
 
@@ -262,8 +263,9 @@ public class StringUtils {
 			if (s == null)
 				continue;
 			else
-				r = r + split + s.toString();
-		r = r.replaceFirst(split, "");
+				r += split + s.toString();
+		if(r.length()>1)
+		r = r.substring(1);
 		return r;
 	}
 
@@ -615,9 +617,7 @@ public class StringUtils {
 			return list.get(r);
 	}
 
-	private static final Pattern periodPattern = Pattern.compile(
-			"([+-]*[0-9]+)(m[o]+[n]*[t]*[h]*[s]*|m[i]*[n]*[u]*[t]*[e]*[s]*|y[e]*[a]*[r]*[s]*|w[e]*[k]*[s]*|h[o]*[u]*[r]*[s]*|s[e]*[c]*[o]*[n]*[d]*[s]*|d[a]*[y]*[s]*)",
-			Pattern.CASE_INSENSITIVE);
+	public static Pattern sec, min, hour, day, week,mon, year;
 
 	/**
 	 * @see see Get long from string
@@ -633,40 +633,48 @@ public class StringUtils {
 	 * @param s String
 	 * @return long
 	 */
-	public static long timeFromString(String period) { // New shorter name of method
+	public static long timeFromString(String period) {
 		if (period == null || period.trim().isEmpty())
 			return 0;
 		period = period.toLowerCase(Locale.ENGLISH);
-		if (isLong(period))
-			return getLong(period);
-		Matcher matcher = periodPattern.matcher(period);
+		if (isFloat(period))
+			return (long)getFloat(period);
 		float time = 0;
+
+		Matcher matcher = sec.matcher(period);
 		while (matcher.find()) {
-			long num = getLong(matcher.group(1));
-			if (num == 0)
-				continue;
-			String typ = matcher.group(2);
-			if (typ.toLowerCase().startsWith("s")) {
-				time += num;
-			}
-			if (typ.toLowerCase().equals("m") || typ.toLowerCase().startsWith("mi")) {
-				time += num * 60;
-			}
-			if (typ.toLowerCase().startsWith("h")) {
-				time += num * 3600;
-			}
-			if (typ.toLowerCase().startsWith("d")) {
-				time += num * 86400;
-			}
-			if (typ.toLowerCase().startsWith("w")) {
-				time += num * 86400 * 7;
-			}
-			if (typ.toLowerCase().startsWith("mo")) {
-				time += num * 86400 * 31;
-			}
-			if (typ.toLowerCase().startsWith("y")) {
-				time += num * 86400 * 31 * 12;
-			}
+			time+=getFloat(matcher.group());
+			period=period.replace(matcher.group(), "");
+		}
+		matcher = min.matcher(period);
+		while (matcher.find()) {
+			time+=getFloat(matcher.group())*60;
+			period=period.replace(matcher.group(), "");
+		}
+		matcher = hour.matcher(period);
+		while (matcher.find()) {
+			time+=getFloat(matcher.group())*3600;
+			period=period.replace(matcher.group(), "");
+		}
+		matcher = day.matcher(period);
+		while (matcher.find()) {
+			time+=getFloat(matcher.group())*86400;
+			period=period.replace(matcher.group(), "");
+		}
+		matcher = week.matcher(period);
+		while (matcher.find()) {
+			time+=getFloat(matcher.group())* 86400 * 7;
+			period=period.replace(matcher.group(), "");
+		}
+		matcher = mon.matcher(period);
+		while (matcher.find()) {
+			time+=getFloat(matcher.group())* 86400 * 31;
+			period=period.replace(matcher.group(), "");
+		}
+		matcher = year.matcher(period);
+		while (matcher.find()) {
+			time+=getFloat(matcher.group())* 86400 * 31 * 12;
+			period=period.replace(matcher.group(), "");
 		}
 		return (long) time;
 	}
@@ -687,7 +695,7 @@ public class StringUtils {
 	 */
 	public static String timeToString(long time) {
 		if (time == 0)
-			return "0s";
+			return "0"+LoaderClass.config.getString("Options.TimeConvertor.Seconds.Convertor");
 		long minutes = (time / 60) % 60;
 		long hours = (time / 3600) % 24;
 		long days = (time / 86400) % 31;
@@ -700,17 +708,17 @@ public class StringUtils {
 		}
 		String date = "";
 		if (year > 0)
-			date = year + "y";
+			date = year + LoaderClass.config.getString("Options.TimeConvertor.Years.Convertor");
 		if (month > 0)
-			date += month + "mo";
+			date += month + LoaderClass.config.getString("Options.TimeConvertor.Months.Convertor");
 		if (days > 0)
-			date += days + "d";
+			date += days + LoaderClass.config.getString("Options.TimeConvertor.Days.Convertor");
 		if (hours > 0)
-			date += hours + "h";
+			date += hours + LoaderClass.config.getString("Options.TimeConvertor.Hours.Convertor");
 		if (minutes > 0)
-			date += minutes + "m";
+			date += minutes + LoaderClass.config.getString("Options.TimeConvertor.Minutes.Convertor");
 		if (time % 60 > 0)
-			date += (time % 60) + "s";
+			date += (time % 60) + LoaderClass.config.getString("Options.TimeConvertor.Seconds.Convertor");
 		return date;
 	}
 
@@ -786,7 +794,7 @@ public class StringUtils {
 	static Pattern mat = Pattern.compile("\\.([0-9])([0-9])?");
 
 	public static String fixedFormatDouble(double val) {
-		String text = String.format("%.2f", val);
+		String text = String.format(Locale.ENGLISH,"%.2f", val);
 		Matcher m = mat.matcher(text);
 		if (m.find()) {
 			if (m.groupCount() != 2) {
