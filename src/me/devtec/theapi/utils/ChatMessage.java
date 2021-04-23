@@ -14,7 +14,7 @@ import me.devtec.theapi.utils.json.Writer;
 import me.devtec.theapi.utils.nms.NMSAPI;
 
 public class ChatMessage {
-	static Pattern url = Pattern.compile("(w{3}\\.|[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+:\\/\\/)?[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+\\.[a-zA-Z0-9+&@#/%?=~_|!:,.;-]{2,}"),
+	static Pattern url = Pattern.compile("(w{3}\\\\.|[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+:\\/\\/)?[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+\\w\\.[a-zA-Z0-9+&@#/%?=~_|!:,.;-]{2,}\\w"),
 			colorOrRegex = Pattern.compile("#[A-Fa-f0-9]{6}|[&§]x([&§][A-Fa-f0-9]){6}|[&§][A-Fa-f0-9RrK-Ok-o]");
 	private static String fixedHex  ="[&§][xX][&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])";
 	private String text, color = "";
@@ -203,7 +203,7 @@ public class ChatMessage {
 				continue;
 			}else if(url!=null) {
 				String[] v = val.split(Pattern.quote(url));
-				if(!v[0].equals("")) {
+				if(v.length>0 && !v[0].equals("")) {
 					actual[0]=v[0];
 					if(color!=null && !color.equals(""))
 						actual[1]=color;
@@ -295,7 +295,7 @@ public class ChatMessage {
 		}
 		if(url!=null) {
 			String[] v = val.split(Pattern.quote(url));
-			if(!v[0].equals("")) {
+			if(v.length>0 && !v[0].equals("")) {
 				actual[0]=v[0];
 				if(color!=null && !color.equals(""))
 					actual[1]=color;
