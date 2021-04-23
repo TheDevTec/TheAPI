@@ -15,8 +15,9 @@ import me.devtec.theapi.utils.nms.NMSAPI;
 
 public class ChatMessage {
 	static Pattern url = Pattern.compile("(w{3}\\\\.|[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+:\\/\\/)?[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+\\w\\.[a-zA-Z0-9+&@#/%?=~_|!:,.;-]{2,}\\w"),
-			colorOrRegex = Pattern.compile("#[A-Fa-f0-9]{6}|[&§]x([&§][A-Fa-f0-9]){6}|[&§][A-Fa-f0-9RrK-Ok-o]");
-	private static String fixedHex  ="[&§][xX][&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])";
+			colorOrRegex = Pattern.compile(TheAPI.isNewerThan(15)?"#[A-Fa-f0-9]{6}|[&§][Xx]([&§][A-Fa-f0-9]){6}|[&§][A-Fa-f0-9RrK-Ok-o]"
+					:"[&§][A-Fa-f0-9RrK-Ok-o]");
+	private static String fixedHex  = "[&§][xX][&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])";
 	private String text, color = "";
 	private boolean bold = false, italic = false, obfuscated = false, strike = false, under = false, change = false;
 	
