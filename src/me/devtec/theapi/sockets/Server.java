@@ -9,37 +9,100 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.datakeeper.Data;
-import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class Server {
 	protected Set<Reader> readers = new HashSet<>();
 	protected Map<Socket, ServerClient> sockets = new HashMap<>();
 	protected ServerSocket server;
 	protected String pas;
+	private boolean closed;
 	
 	public Server(String password, int port) {
+		pas=password;
 		try {
-			pas=password;
 			server = new ServerSocket(port);
+			server.setSoTimeout(200);
 			new Thread(new Runnable() {
 				public void run() {
-					while(!server.isClosed()) {
+					while(!closed) {
+						Socket receive;
 						try {
-			            	Socket s = server.accept();
-							if(sockets.containsKey(s))sockets.get(s).exit();
-					        s.setSoTimeout(LoaderClass.plugin.receive_speed);
-					        BufferedReader dis = new BufferedReader(new InputStreamReader(s.getInputStream()));
-					    	PrintWriter dos = new PrintWriter(s.getOutputStream(), true);
-			                ClientHandler handler = new ClientHandler(Server.this, s, dis, dos);
-			                sockets.put(s, new ServerClient(handler));
-			                handler.start();
-							Thread.sleep(LoaderClass.plugin.relog);
-						}catch(Exception e) {}
+							receive = server.accept();
+						} catch (Exception e) {
+							try {
+								Thread.sleep(7000);
+							} catch (Exception e1) {
+							}
+							continue;
+						}
+						BufferedReader reader;
+						PrintWriter writer;
+						try {
+							reader = new BufferedReader(new InputStreamReader(receive.getInputStream()));
+							writer = new PrintWriter(receive.getOutputStream(),true);
+						} catch (Exception e) {
+							try {
+								receive.close();
+							} catch (Exception e1) {
+							}
+							try {
+								Thread.sleep(7000);
+							} catch (Exception e1) {
+							}
+							continue;
+						}
+						ClientHandler handler = new ClientHandler(Server.this, receive, reader, writer);
+		                sockets.put(receive, new ServerClient(handler));
+		                handler.start();
 					}
 				}
 			}).start();
 		} catch (Exception e) {
+			new Tasker() {
+				public void run() {
+					try {
+					server = new ServerSocket(port);
+					server.setSoTimeout(200);
+					new Thread(new Runnable() {
+						public void run() {
+							while(!closed) {
+								Socket receive;
+								try {
+									receive = server.accept();
+								} catch (Exception e) {
+									try {
+										Thread.sleep(7000);
+									} catch (Exception e1) {
+									}
+									continue;
+								}
+								BufferedReader reader;
+								PrintWriter writer;
+								try {
+									reader = new BufferedReader(new InputStreamReader(receive.getInputStream()));
+									writer = new PrintWriter(receive.getOutputStream(),true);
+								} catch (Exception e) {
+									try {
+										receive.close();
+									} catch (Exception e1) {
+									}
+									try {
+										Thread.sleep(7000);
+									} catch (Exception e1) {
+									}
+									continue;
+								}
+								ClientHandler handler = new ClientHandler(Server.this, receive, reader, writer);
+				                sockets.put(receive, new ServerClient(handler));
+				                handler.start();
+							}
+						}
+					}).start();
+					} catch (Exception e) {}
+				}
+			}.runLater(100);
 		}
     }
 	
@@ -79,17 +142,24 @@ public class Server {
 		readers.remove(reader);
 	}
     
+	public boolean isClosed() {
+		return closed;
+	}
+	
     public void exit() {
+		closed=true;
 		try {
-	    	sockets.values().forEach(s -> {
-				try {
-					s.exit();
-				} catch (Exception e) {
-				}
-			});
+	    	sockets.values().forEach(s -> s.exit());
 	    	sockets.clear();
-	    	server.close();
 		} catch (Exception e) {
+		}
+		try {
+			server.getChannel().close();
+		}catch (Exception e) {
+		}
+		try {
+	    	server.close();
+		}catch (Exception e) {
 		}
     }
 }

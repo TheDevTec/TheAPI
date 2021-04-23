@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bukkit.entity.Player;
 
@@ -25,14 +24,12 @@ import me.devtec.theapi.utils.reflections.Ref;
  *
  */
 public class ScoreboardAPI {
-	private static AtomicInteger i = new AtomicInteger();
-	
 	protected Data data = new Data();
 	protected static Field teamlist = Ref.field(Ref.nms("PacketPlayOutScoreboardTeam"), TheAPI.isOlderThan(9) ? "g" : "h");
 	protected Player p;
 	protected String player;
 	protected int slott = -1;
-	protected String name = "TheAPI";
+	protected String name = "";
 
 	public ScoreboardAPI(Player player) {
 		this(player, -1);
@@ -48,7 +45,7 @@ public class ScoreboardAPI {
 	public ScoreboardAPI(Player player, int slot) {
 		p = player;
 		slott=slot;
-		this.player = i.incrementAndGet()+"";
+		this.player = player.getName();
 		Ref.sendPacket(p, createObjectivePacket(0, name));
 		Object packetD = NMSAPI.getPacketPlayOutScoreboardDisplayObjective();
 		Ref.set(packetD, "a", 1);
@@ -68,8 +65,8 @@ public class ScoreboardAPI {
 		for(String a : data.getKeys(player)){
 			Team team = data.getAs(player+"."+a, Team.class);
 			if(ScoreboardAPI.a)
-			Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScoreRemove(team.old));
-			Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScoreRemove(team.currentPlayer));
+				Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", team.old, 0));
+			Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", team.currentPlayer, 0));
 			Ref.sendPacket(p, team.remove());
 		}
 		Ref.sendPacket(p, createObjectivePacket(1, null));
@@ -134,8 +131,8 @@ public class ScoreboardAPI {
 		if(!data.exists(player+"."+line))return;
 		Team team = getTeam(line, line);
 		if(ScoreboardAPI.a)
-		Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScoreRemove(team.old));
-		Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScoreRemove(team.currentPlayer));
+		Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", team.old, 0));
+		Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", team.currentPlayer, 0));
 		Ref.sendPacket(p, team.remove());
 		data.remove(player+"."+line);
 	}
@@ -145,8 +142,8 @@ public class ScoreboardAPI {
 			if(Integer.parseInt(a)>line) {
 				Team team = data.getAs(player+"."+a, Team.class);
 				if(ScoreboardAPI.a)
-				Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScoreRemove(team.old));
-				Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScoreRemove(team.currentPlayer));
+				Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", team.old, 0));
+				Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", team.currentPlayer, 0));
 				Ref.sendPacket(p, team.remove());
 				data.remove(player+"."+line);
 			}
@@ -201,7 +198,9 @@ public class ScoreboardAPI {
 		private boolean changed, changedPlayer, first = true;
 		
 		private Team(int slot, int realPos) {
-			currentPlayer = TheCoder.toColor(realPos)+"§f";
+			currentPlayer = TheCoder.toColor(realPos);
+			if(a)
+			currentPlayer=currentPlayer+"§f";
 			format=currentPlayer;
 			name=slot+"";
 		}
@@ -234,8 +233,8 @@ public class ScoreboardAPI {
 				Ref.sendPacket(p, c(2));
 			if (first || changedPlayer) {
 				if(old!=null) {
-					if(a) 
-						Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScoreRemove(old));
+					if(a)
+						Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", old, 0));
 					Ref.sendPacket(p, createPlayer(4, old));
 				}
 				Ref.sendPacket(p, createPlayer(3, currentPlayer));
@@ -246,12 +245,11 @@ public class ScoreboardAPI {
 		}
 
 		@SuppressWarnings("unchecked")
-		public Object createPlayer(int mode, String playerName) {
+		private Object createPlayer(int mode, String playerName) {
 			Object create = NMSAPI.getPacketPlayOutScoreboardTeam();
 			Ref.set(create, "a", name);
 			Ref.set(create, path, mode);
-			Collection<String> f = (Collection<String>) Ref.get(create, teamlist);
-			f.add(playerName);
+			((Collection<String>) Ref.get(create, teamlist)).add(playerName);
 			return create;
 		}
 

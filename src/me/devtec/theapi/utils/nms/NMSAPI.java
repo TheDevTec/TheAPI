@@ -229,13 +229,6 @@ public class NMSAPI {
 		return o;
 	}
 
-	public static Object getPacketPlayOutScoreboardScoreRemove(String line) {
-		Object o = Ref.newInstance(NMSAPI.score);
-		Ref.set(o, scr[0], line);
-		Ref.set(o, scr[3], sbremove);
-		return o;
-	}
-
 	public static Object getScoreboardAction(Action type) {
 		return type == Action.CHANGE ? sbchange : sbremove;
 	}

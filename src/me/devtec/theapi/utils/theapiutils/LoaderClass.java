@@ -551,10 +551,12 @@ public class LoaderClass extends JavaPlugin {
 
 	@SuppressWarnings("rawtypes")
 	public PacketHandler handler;
+	public boolean enabled=true;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onDisable() {
+		enabled=false;
 		//GUI
 		for (Entry<String, HolderGUI> p : gui.entrySet()) {
 			p.getValue().clear();
@@ -626,9 +628,6 @@ public class LoaderClass extends JavaPlugin {
 				a.add(all);
 		return a;
 	}
-
-	public int receive_speed = 500;
-	public long relog = 10000;
 	
 	private void createConfig() {
 		config.addDefault("Options.HideErrors", false); // hide only TheAPI errors
@@ -638,9 +637,6 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.ItemUnbreakable", true);
 		config.addDefault("Options.Cache.User.Use", true); // Require memory, but loading of User.class is faster (only
 		// from TheAPI.class)
-		config.addDefault("Options.SocketsSpeed", "PERFORMANCE");
-		config.setComments("Options.SocketsSpeed",
-				Arrays.asList("# Speed types: FAST, PERFORMANCE, SLOW", "# defaulty: PERFORMANCE"));
 		config.setComments("Options.Cache", Arrays.asList(""));
 		config.setComments("Options.Cache.User.Use",
 				Arrays.asList("# Cache Users to memory for faster loading", "# defaulty: true"));
@@ -696,14 +692,10 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.TimeConvertor.Weeks.Lookup", Arrays.asList("w","we","wee","week","weeks"));
 		
 		config.addDefault("Options.TimeConvertor.Months.Convertor", "mo");
-		config.addDefault("Options.TimeConvertor.Months.Lookup", Arrays.asList("mo","mon","mont","month","monts"));
+		config.addDefault("Options.TimeConvertor.Months.Lookup", Arrays.asList("mo","mon","mont","month","months"));
 		
 		config.addDefault("Options.TimeConvertor.Years.Convertor", "y");
 		config.addDefault("Options.TimeConvertor.Years.Lookup", Arrays.asList("y","ye","yea","year","years"));
-		
-		config.setComments("Options.FakeEconomyAPI.Format",
-				Arrays.asList("# Economy format of FakeEconomyAPI", "# defaulty: $%money%"));
-		
 		config.save();
 		
 		StringUtils.sec=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
@@ -714,18 +706,6 @@ public class LoaderClass extends JavaPlugin {
 		StringUtils.mon=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Months.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
 		StringUtils.year=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Years.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
 		
-		if(config.getString("Options.SocketsSpeed").equalsIgnoreCase("fast")) {
-			receive_speed=100;
-			relog=5000;
-		}
-		if(config.getString("Options.SocketsSpeed").equalsIgnoreCase("performance")) {
-			receive_speed=500;
-			relog=10000;
-		}
-		if(config.getString("Options.SocketsSpeed").equalsIgnoreCase("slow")) {
-			receive_speed=1000;
-			relog=15000;
-		}
 		if(config.getBoolean("Options.Cache.User.OfflineNames.Use")) {
 			if(cache==null) {
 				cache=new Cache();
@@ -801,7 +781,8 @@ public class LoaderClass extends JavaPlugin {
 					}
 				}
 			}
-		}
+		}else
+			cache=new Cache();
 		max = Bukkit.getMaxPlayers();
 		motd = Bukkit.getMotd();
 	}

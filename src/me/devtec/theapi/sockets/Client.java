@@ -10,8 +10,8 @@ import me.devtec.theapi.utils.datakeeper.DataType;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public abstract class Client { 
-	private PrintWriter send;
-	private BufferedReader receive;
+	private BufferedReader receive; 
+	private PrintWriter send; 
 	private Socket s;
 	private String name,ip,pas;
 	private int port;
@@ -41,71 +41,76 @@ public abstract class Client {
     	return port;
     }
     
-    private boolean logged;
+    private boolean logged,closed=true;
     public void reconnect(int trottle) {
 		exit();
-    	try {
-			new Thread(new Runnable() {
-				public void run() {
-					boolean ccc = true;
+		new Thread(new Runnable() {
+			int c = 0;
+			public void run() {
+				while(LoaderClass.plugin!=null && LoaderClass.plugin.enabled && c < trottle) {
 					try {
-			 		int c = 0;
-			 		while(true) {
-				 		try {
-					    	s = new Socket(ip, port);
-					    	if(s.isConnected()) {
-						    	s.setSoTimeout(LoaderClass.plugin.receive_speed);
-						    	receive = new BufferedReader(new InputStreamReader(s.getInputStream()));
-						        send = new PrintWriter(s.getOutputStream(), true);
-						    	send.println("login:"+name);
-						    	send.println("password:"+pas);
-						    	send.flush();
-						    	receive.readLine(); //logged in
-						    	logged=true;
-						    	for(String s : postQueue) {
-						    		send.println(s);
-						    	}
-						    	if(!postQueue.isEmpty())
-						    		send.flush();
-						    	postQueue.clear();
-						        break;
-					    	}
-				 		}catch(Exception err) {
-				 			if(c++ >= trottle) {
-				 				ccc=false;
-				 				break;
-				 			}
-							Thread.sleep(LoaderClass.plugin.relog);
-				 		}
-			 		}
-					}catch(Exception er) {}
-					if(ccc) {
-						Data reader = new Data();
-						while(s.isConnected()) {
-							try {
-								String text = receive.readLine();
-								if(text.equals("exit")) {
-									reconnect(trottle);
-									break;
-								}
-								reader.reload(text);
-								read(reader);
-							}catch(Exception err) {}
-						}
+						s = new Socket(ip, port);
+						closed=false;
+					} catch (Exception e2) {
+			 			++c;
 						try {
-							Thread.sleep(LoaderClass.plugin.relog);
+							Thread.sleep(3000);
 						} catch (Exception e) {
 						}
-						reconnect(trottle);
+						continue;
+					}
+					if(isConnected()) {
+						try {
+							receive = new BufferedReader(new InputStreamReader(s.getInputStream()));
+					    	send = new PrintWriter(s.getOutputStream(),true);
+					    	send.println("login:"+name);
+					    	send.flush();
+					    	send.println("password:"+pas);
+					    	send.flush();
+					    	if(receive.readLine()!=null) { //logged in
+						    	logged=true;
+						    	if(postQueue!=null && !postQueue.isEmpty()) {
+							    	for(String s : postQueue) {
+							    		send.println(s);
+								    	send.flush();
+							    	}
+							    	postQueue.clear();
+						    	}
+					        }
+						} catch (Exception e) {
+							try {
+								s.close();
+							} catch (Exception e1) {
+							}
+							continue;
+						}
+						new Thread(new Runnable() {
+							public void run() {
+								while(isConnected()) {
+									try {
+									String read = receive.readLine();
+									if(read==null)continue;
+									if(read.equals("exit")) {
+										closed=true;
+										break;
+									}
+									Data reader = new Data();
+									reader.reload(read);
+									read(reader);
+									}catch(Exception e) {}
+								}
+								reconnect(trottle);
+							}
+						}).start();
+						break;
 					}
 				}
-			}).start();
-    	}catch(Exception e){
-    	}
+			}
+		}).start();
     }
     
     public boolean isConnected() {
-    	return s!=null && s.isConnected();
+    	return !closed;
     }
     
     public void write(String path, Object send) {
@@ -130,13 +135,16 @@ public abstract class Client {
     }
 
 	public void exit() {
+		closed=true;
     	logged=false;
 		try {
     		send.println("exit");
 	    	send.flush();
 			send.close(); 
-			receive.close(); 
-	        s.close();
+			receive.close();
+		}catch(Exception err) {}
+		try {
+			s.close();
 		}catch(Exception err) {}
 	}
     
