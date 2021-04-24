@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.datakeeper.Data;
 
@@ -21,6 +22,7 @@ public class Server {
 	
 	public Server(String password, int port) {
 		pas=password;
+		TheAPI.msg("Starting SocketServer on port "+port, TheAPI.getConsole());
 		try {
 			server = new ServerSocket(port);
 			server.setSoTimeout(200);
@@ -100,7 +102,7 @@ public class Server {
 							}
 						}
 					}).start();
-					} catch (Exception e) {}
+					} catch (Exception e) {e.printStackTrace();}
 				}
 			}.runLater(100);
 		}
