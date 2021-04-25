@@ -41,7 +41,7 @@ public class BlockIterator implements Iterable<Position> {
 	final Position copy;
 	
 	public Position get() {
-		int[] get = iterator.get();
+		double[] get = iterator.get();
 		return copy.setX(get[0]).setY(get[1]).setZ(get[2]);
 	}
 

@@ -437,7 +437,7 @@ public class StringUtils {
 		msg = msg.replaceAll("#[A-Fa-f0-9]{6}", "");
 		msg = msg.replace("", "<!>");
 		msg = msg.substring(0, msg.length() - 3);
-		msg = msg.replace("<!> ","");
+		msg = msg.replace("<!> "," ");
 		Matcher fixColors = colorMatic.matcher(msg);
 		String formats = "";
 		while (fixColors.find())

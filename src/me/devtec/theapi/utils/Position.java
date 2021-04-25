@@ -136,7 +136,7 @@ public class Position implements Cloneable {
 	}
 
 	public int getData() {
-		return TheAPI.isOlderThan(8)?(byte)Ref.invoke(getNMSChunk(), getdata, (int)x & 0xF, (int)y & 0xF, (int)z & 0xF):getType().getData();
+		return TheAPI.isOlderThan(8)?(byte)Ref.invoke(getNMSChunk(), getdata, getBlockX() & 0xF, getBlockY() & 0xF, getBlockZ() & 0xF):getType().getData();
 	}
 
 	public Material getBukkitType() {
@@ -156,13 +156,13 @@ public class Position implements Cloneable {
 	
 	public Object getIBlockData() {
 		if(TheAPI.isOlderThan(8)) //1.7.10
-			return Ref.invoke(getNMSChunk(), getter, (int)x&0xF, (int)y&0xF, (int)z&0xF);
+			return Ref.invoke(getNMSChunk(), getter, getBlockX() & 0xF, getBlockY() & 0xF, getBlockZ() & 0xF);
 		return Ref.invoke(getNMSChunk(), getter, getBlockPosition());
 	}
 	
 	public TheMaterial getType() {
 		if(TheAPI.isOlderThan(8)) //1.7.10
-			return TheMaterial.fromData(Ref.invoke(getNMSChunk(), getter, (int)x&0xF, (int)y&0xF, (int)z&0xF), (byte)Ref.invoke(getNMSChunk(), getdata, (int)x & 0xF, (int)y & 0xF, (int)z & 0xF));
+			return TheMaterial.fromData(Ref.invoke(getNMSChunk(), getter, getBlockX() & 0xF, getBlockY() & 0xF, getBlockZ() & 0xF), (byte)Ref.invoke(getNMSChunk(), getdata, getBlockX() & 0xF, getBlockY() & 0xF, getBlockZ() & 0xF));
 		return TheMaterial.fromData(Ref.invoke(getNMSChunk(), getter, getBlockPosition()));
 	}
 
@@ -283,7 +283,7 @@ public class Position implements Cloneable {
 	}
 	
 	public Object getBlockPosition() {
-		return (wf <= 7 ? Ref.newInstance(old, (int) x, (int) y, (int) z) : Ref.blockPos((int) x, (int) y, (int) z));
+		return (wf <= 7 ? Ref.newInstance(old, getBlockX(), getBlockY(), getBlockZ()) : Ref.blockPos(getBlockX(), getBlockY(), getBlockZ()));
 	}
 
 	public ChunkSnapshot getChunkSnapshot() {
@@ -332,15 +332,18 @@ public class Position implements Cloneable {
 	}
 
 	public int getBlockX() {
-		return (int) x;
+		int floor = (int) x;
+		return (double) floor == x ? floor : floor - (int) (Double.doubleToRawLongBits(x) >>> 63);
 	}
 
 	public int getBlockY() {
-		return (int) y;
+		int floor = (int) y;
+		return (double) floor == y ? floor : floor - (int) (Double.doubleToRawLongBits(y) >>> 63);
 	}
 
 	public int getBlockZ() {
-		return (int) z;
+		int floor = (int) z;
+		return (double) floor == z ? floor : floor - (int) (Double.doubleToRawLongBits(z) >>> 63);
 	}
 
 	public float getYaw() {

@@ -4,29 +4,29 @@ import java.util.Iterator;
 
 import org.bukkit.Location;
 
-public class BlockMathIterator implements Iterable<int[]> {
-	private final int sizeZ, sizeY, sizeX, baseZ, baseX, baseY;
-	private int x, y, z;
+public class BlockMathIterator implements Iterable<double[]> {
+	private final double sizeZ, sizeY, sizeX, baseZ, baseX, baseY;
+	private double x, y, z;
 
 	public BlockMathIterator(Position a, Position b) {
-		baseX = Math.min(a.getBlockX(), b.getBlockX());
-		baseY = Math.min(a.getBlockY(), b.getBlockY());
-		baseZ = Math.min(a.getBlockZ(), b.getBlockZ());
-		sizeX = Math.abs(Math.max(a.getBlockX(), b.getBlockX()) - baseX) + 1;
-		sizeY = Math.abs(Math.max(a.getBlockY(), b.getBlockY()) - baseY) + 1;
-		sizeZ = Math.abs(Math.max(a.getBlockZ(), b.getBlockZ()) - baseZ) + 1;
+		baseX = Math.min(a.getX(), b.getX());
+		baseY = Math.min(a.getY(), b.getY());
+		baseZ = Math.min(a.getZ(), b.getZ());
+		sizeX = Math.abs(Math.max(a.getX(), b.getX()) - baseX) + 1;
+		sizeY = Math.abs(Math.max(a.getY(), b.getY()) - baseY) + 1;
+		sizeZ = Math.abs(Math.max(a.getZ(), b.getZ()) - baseZ) + 1;
 	}
 
 	public BlockMathIterator(Location a, Location b) {
-		baseX = Math.min(a.getBlockX(), b.getBlockX());
-		baseY = Math.min(a.getBlockY(), b.getBlockY());
-		baseZ = Math.min(a.getBlockZ(), b.getBlockZ());
-		sizeX = Math.abs(Math.max(a.getBlockX(), b.getBlockX()) - baseX) + 1;
-		sizeY = Math.abs(Math.max(a.getBlockY(), b.getBlockY()) - baseY) + 1;
-		sizeZ = Math.abs(Math.max(a.getBlockZ(), b.getBlockZ()) - baseZ) + 1;
+		baseX = Math.min(a.getX(), b.getX());
+		baseY = Math.min(a.getY(), b.getY());
+		baseZ = Math.min(a.getZ(), b.getZ());
+		sizeX = Math.abs(Math.max(a.getX(), b.getX()) - baseX) + 1;
+		sizeY = Math.abs(Math.max(a.getY(), b.getY()) - baseY) + 1;
+		sizeZ = Math.abs(Math.max(a.getZ(), b.getZ()) - baseZ) + 1;
 	}
 
-	public BlockMathIterator(int posX, int posY, int posZ, int posX2, int posY2, int posZ2) {
+	public BlockMathIterator(double posX, double posY, double posZ, double posX2, double posY2, double posZ2) {
 		baseX = Math.min(posX, posX2);
 		baseY = Math.min(posY, posY2);
 		baseZ = Math.min(posZ, posZ2);
@@ -45,8 +45,8 @@ public class BlockMathIterator implements Iterable<int[]> {
 		return x < sizeX && y < sizeY && z < sizeZ;
 	}
 
-	public int[] get() {
-		int[] b = new int[] {baseX + x, baseY + y, baseZ + z};
+	public double[] get() {
+		double[] b = new double[] {baseX + x, baseY + y, baseZ + z};
 		if (!has())return b;
 		if (++x >= sizeX) {
 			x = 0;
@@ -59,12 +59,12 @@ public class BlockMathIterator implements Iterable<int[]> {
 	}
 
 	@Override
-	public Iterator<int[]> iterator() {
-		return new Iterator<int[]>() {
+	public Iterator<double[]> iterator() {
+		return new Iterator<double[]>() {
 			public boolean hasNext() {
 				return has();
 			}
-			public int[] next() {
+			public double[] next() {
 				return get();
 			}
 		};
