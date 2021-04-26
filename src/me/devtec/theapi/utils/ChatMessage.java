@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.ChatColor;
+
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.json.Writer;
 import me.devtec.theapi.utils.nms.NMSAPI;
@@ -129,6 +131,23 @@ public class ChatMessage {
 	
 	public static ChatMessage fromString(String text) {
 		return new ChatMessage(text);
+	}
+	
+	public String toLogecy() {
+		StringBuilder b = new StringBuilder();
+		for(Map<String, Object> text : join)
+			b.append(StringUtils.colorize(getColor(""+text.getOrDefault("color","")))+text.get("text"));
+		return b.toString();
+	}
+	
+	String getColor(String color) {
+		if(color.trim().isEmpty())return "";
+		if(color.startsWith("#"))return color;
+		try {
+		return ChatColor.valueOf(color.toUpperCase())+"";
+		}catch(Exception | NoSuchFieldError err) {
+			return "";
+		}
 	}
 	
 	public List<Map<String, Object>> get(){

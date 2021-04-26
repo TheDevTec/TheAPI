@@ -33,7 +33,7 @@ public class CooldownAPI {
 	}
 
 	public void createCooldown(String cooldown, double length) {
-		c.set("cooldown." + cooldown + ".start", System.currentTimeMillis() / 20);
+		c.set("cooldown." + cooldown + ".start", System.currentTimeMillis() / 50);
 		c.setAndSave("cooldown." + cooldown + ".time", length);
 	}
 
@@ -59,7 +59,7 @@ public class CooldownAPI {
 	 */
 	public long getTimeToExpire(String cooldown) {
 		return (long) (getStart(cooldown) != -1
-				? (getStart(cooldown) - System.currentTimeMillis() / 20) + getCooldown(cooldown)
+				? (getStart(cooldown) - System.currentTimeMillis() / 50) + getCooldown(cooldown)
 				: -1);
 
 	}
