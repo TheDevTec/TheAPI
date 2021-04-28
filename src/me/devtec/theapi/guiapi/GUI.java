@@ -84,6 +84,9 @@ public class GUI implements HolderGUI {
 		open(p);
 	}
 
+	public void onPreClose(Player player) {
+	}
+
 	public void onClose(Player player) {
 	}
 
@@ -315,6 +318,7 @@ public class GUI implements HolderGUI {
 		if(players==null)return;
 		for (Player player : players) {
 			if(player==null)continue;
+			onPreClose(player);
 			Object ac = containers.remove(player);
 			if(ac!=null) {
 				Ref.sendPacket(player, Ref.newInstance(closeWindow, (int)Ref.get(ac, "windowId")));
@@ -355,6 +359,7 @@ public class GUI implements HolderGUI {
 		if(p==null)return;
 		for (Player player : p) {
 			if(player==null)continue;
+			onPreClose(player);
 			Object ac = containers.remove(player);
 			if(ac!=null) {
 				Object d = Ref.player(player);
