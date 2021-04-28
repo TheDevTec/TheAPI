@@ -175,9 +175,10 @@ public class LoaderClass extends JavaPlugin {
 					HolderGUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(), null);
 					if (d == null)
 						return false;
+					Object g = d.getContainer(p);
 					if(InventoryClickType.THROW==type && slot==-999||InventoryClickType.PICKUP==type && slot==-999)return false;
 					if(InventoryClickType.SWAP==type) {
-						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(d.getContainer(p), getSlot, slot),"getItem")));
+						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),"getItem")));
 						if(mouseClick == 40 && TheAPI.isNewerThan(8)) {
 							final List<com.mojang.datafixers.util.Pair<?,?>> equipmentList = new ArrayList<>();
 							equipmentList.add(new com.mojang.datafixers.util.Pair<>(OFFHAND, NMSAPI.asNMSItem(p.getEquipment().getItemInOffHand())));
@@ -195,13 +196,13 @@ public class LoaderClass extends JavaPlugin {
 					}
 					ItemStack i = NMSAPI.asBukkitItem(Ref.get(packet, "item"));
 					if((type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.CLONE||type==InventoryClickType.THROW||i.getType()==Material.AIR) && i.getType()==Material.AIR)
-						i=NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(d.getContainer(p), getSlot, slot),"getItem"));
+						i=NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(g, getSlot, slot),"getItem"));
 					ItemStack before = p.getItemOnCursor();
 					if(i==null)i=new ItemStack(Material.AIR);
 					if(before==null)before=new ItemStack(Material.AIR);
 					if(type!=InventoryClickType.PICKUP_ALL)
 					if(before.getType()==Material.AIR&&i.getType()==Material.AIR || type!=InventoryClickType.CLONE && type!=InventoryClickType.QUICK_MOVE && type!=InventoryClickType.QUICK_CRAFT && type!=InventoryClickType.PICKUP && type!=InventoryClickType.THROW) {
-						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(d.getContainer(p), getSlot, slot),"getItem")));
+						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),"getItem")));
 						Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));
 						return true;
 					}
@@ -228,9 +229,12 @@ public class LoaderClass extends JavaPlugin {
 							cancel=true;
 					if(cancel) {
 						if(type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.PICKUP_ALL) {
-							Ref.invoke(Ref.player(p), updateInv, d.getContainer(p));
+							if(gui.containsKey(player))
+							Ref.invoke(Ref.player(p), updateInv, g);
+							else
+							p.updateInventory();
 						}else {
-							Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(d.getContainer(p), getSlot, slot),"getItem")));
+							Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),"getItem")));
 							Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));
 						}
 						return true;
