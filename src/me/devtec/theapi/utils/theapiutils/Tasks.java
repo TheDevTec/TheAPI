@@ -41,8 +41,9 @@ public class Tasks {
 		load = true;
 		if (l == null)
 			l = new PacketListener() {
+			Class<?> info = Ref.nms("PacketStatusOutServerInfo");
 				public boolean PacketPlayOut(String player, Object packet, Object channel) {
-					if (packet.getClass().getCanonicalName().endsWith("PacketStatusOutServerInfo")) {
+					if (packet.getClass()==info) {
 						Object w = Ref.invoke(Ref.server(), "getServerPing");
 						if (w == null)
 							w = Ref.invoke(Ref.invoke(Ref.server(), "getServer"), "getServerPing");

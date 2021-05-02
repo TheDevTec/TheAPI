@@ -141,18 +141,21 @@ public class LoaderClass extends JavaPlugin {
 			Constructor<?> setSlot = Ref.constructor(Ref.nms("PacketPlayOutSetSlot"), int.class, int.class, Ref.nms("ItemStack"))
 					,equipment = Ref.constructor(Ref.nms("PacketPlayOutEntityEquipment"), int.class, List.class);
 			Object OFFHAND = Ref.getStatic(Ref.nms("EnumItemSlot"),"OFFHAND");
+			
+			Class<?> resource = Ref.nms("PacketPlayInResourcePackStatus"), close = Ref.nms("PacketPlayInCloseWindow"), click = Ref.nms("PacketPlayInWindowClick");
+			
 			@Override
 			public boolean PacketPlayIn(String player, Object packet, Object channel) {
 				if(player==null)return false; //NPC
 				//ResourcePackAPI
-				if(packet.toString().contains("PacketPlayInResourcePackStatus")) {
+				if(resource!=null && packet.getClass()==resource) {
 					Player s = TheAPI.getPlayer(player);
 					if(ResourcePackAPI.getResourcePack(s)==null||ResourcePackAPI.getHandlingPlayer(s)==null)return false;
 					ResourcePackAPI.getHandlingPlayer(s).onHandle(s, ResourcePackAPI.getResourcePack(s), ResourcePackResult.valueOf(Ref.get(packet, "status").toString()));
 					return false;
 				}
 				//GUIS
-				if(packet.toString().contains("PacketPlayInCloseWindow")) {
+				if(packet.getClass()==close) {
 					Player p = (Player) TheAPI.getPlayer(player);
 					HolderGUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(), null);
 					if (d == null)
@@ -161,7 +164,7 @@ public class LoaderClass extends JavaPlugin {
 					d.closeWithoutPacket(p);
 					return true;
 				}
-				if(packet.toString().contains("PacketPlayInWindowClick")) {
+				if(packet.getClass()==click) {
 					int id = (int) Ref.get(packet, "a");
 					int mouseClick = (int) Ref.get(packet, "button");
 					int slot = (int) Ref.get(packet, "slot");
