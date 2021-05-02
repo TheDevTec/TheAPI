@@ -131,7 +131,7 @@ public class AnvilGUI implements HolderGUI {
 				a.onClose(player);
 			}
 			Object entityPlayer = Ref.player(player);
-			int containerCounter = (int)Ref.invoke(entityPlayer, "nextContainerCounter");
+			int containerCounter = (int) GUI.nextCounter(entityPlayer);
 			Object g = TheAPI.isNewerThan(14)?Ref.newInstance(anvil, containerCounter, Ref.get(entityPlayer, "inventory"), Ref.invokeNulled(getAt, Ref.get(entityPlayer, "world"), Ref.get(entityPlayer, "locBlock")))
 					:(TheAPI.isOlderThan(8)?Ref.newInstance(anvil, Ref.get(entityPlayer, "inventory"), Ref.get(entityPlayer, "world"), 0, 0, 0, entityPlayer)
 							:Ref.newInstance(anvil, Ref.get(entityPlayer, "inventory"), Ref.get(entityPlayer, "world"), Ref.get(entityPlayer, "locBlock"), entityPlayer));

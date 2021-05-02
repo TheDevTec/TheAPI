@@ -227,7 +227,7 @@ public class GUI implements HolderGUI {
 				a.onClose(player);
 			}
 			Object f= Ref.player(player);
-			int id = (int) Ref.invoke(f, "nextContainerCounter");
+			int id = (int) nextCounter(f);
 			Object container = type==0?Ref.newInstance(containerClass, inv, f, id):Ref.newInstance(containerClass, inv, player, id);
 			if(TheAPI.isOlderThan(8)) {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id,0,title, getSize(), false));
@@ -244,6 +244,13 @@ public class GUI implements HolderGUI {
 		}
 	}
 	
+	protected static int nextCounter(Object f) {
+		int containerCounter = (int)Ref.get(f, "containerCounter");
+		containerCounter = containerCounter % 100 + 1;
+	    Ref.set(f, "containerCounter", containerCounter);
+		return containerCounter;
+	}
+
 	protected static Method addListener = Ref.method(Ref.nms("Container"), "addSlotListener", Ref.nms("ICrafting"));
 	protected static Object empty = Ref.getStatic(Ref.nms("ItemStack"), "b");
 	
