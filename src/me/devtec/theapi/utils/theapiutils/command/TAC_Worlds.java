@@ -66,6 +66,11 @@ public class TAC_Worlds {
 					TheAPI.msg("&ePlayer " + args[3] + " isn't online", p);
 					return;
 				}
+				try {
+					p.teleport(Bukkit.getWorld(args[2]).getSpawnLocation());
+				} catch (Exception e) {
+					p.teleport(new Location(Bukkit.getWorld(args[2]), 60, 60, 60));
+				}
 				TheAPI.msg("&eTeleporting to the world " + args[2] + "..", p);
 				TheAPI.msg("&eTeleporting player " + p.getName() + " to the world " + args[2] + "..", s);
 				return;

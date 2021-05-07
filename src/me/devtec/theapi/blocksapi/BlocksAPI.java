@@ -198,10 +198,11 @@ public class BlocksAPI {
 	public static void set(Position loc, TheMaterial material) {
 		if (!material.getType().isBlock())
 			return;
-		Object old = loc.getIBlockData();
-		loc.setType(material);
-		Position.updateBlockAt(loc, old);
-		Position.updateLightAt(loc);
+		if(material.getType()==Material.AIR) {
+			loc.setAirAndUpdate();
+			return;
+		}
+		loc.setTypeAndUpdate(material);
 	}
 
 	public static void set(Block loc, TheMaterial material) {
@@ -587,15 +588,15 @@ public class BlocksAPI {
 	}
 
 	public static boolean isInside(Position loc, Position a, Position b) {
-		int xMin = Math.min(a.getBlockX(), b.getBlockX());
-		int yMin = Math.min(a.getBlockY(), b.getBlockY());
-		int zMin = Math.min(a.getBlockZ(), b.getBlockZ());
-		int xMax = Math.max(a.getBlockX(), b.getBlockX());
-		int yMax = Math.max(a.getBlockY(), b.getBlockY());
-		int zMax = Math.max(a.getBlockZ(), b.getBlockZ());
-		return loc.getWorld() == a.getWorld() && loc.getBlockX() >= xMin && loc.getBlockX() <= xMax
-				&& loc.getBlockY() >= yMin && loc.getBlockY() <= yMax && loc.getBlockZ() >= zMin
-				&& loc.getBlockZ() <= zMax;
+		double xMin = Math.min(a.getX(), b.getX());
+		double yMin = Math.min(a.getY(), b.getY());
+		double zMin = Math.min(a.getZ(), b.getZ());
+		double xMax = Math.max(a.getX(), b.getX());
+		double yMax = Math.max(a.getY(), b.getY());
+		double zMax = Math.max(a.getZ(), b.getZ());
+		return loc.getWorld().equals(a.getWorld()) && loc.getX() >= xMin && loc.getX() <= xMax
+				&& loc.getY() >= yMin && loc.getY() <= yMax && loc.getZ() >= zMin
+				&& loc.getZ() <= zMax;
 	}
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with) {

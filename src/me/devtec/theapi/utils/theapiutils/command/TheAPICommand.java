@@ -290,18 +290,15 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		}
 		if (args[0].equalsIgnoreCase("User") && s.hasPermission("theapi.command.user")) {
 			if (args.length == 2) {
-				List<String> a = new ArrayList<>();
-				for (Player p : TheAPI.getOnlinePlayers())
-					a.add(p.getName());
-				c.addAll(StringUtils.copyPartialMatches(args[1], a));
+				return null;
 			}
 			if (args.length == 3) {
 				c.addAll(StringUtils.copyPartialMatches(args[2],
-						Arrays.asList("Set", "Get", "Keys", "Exists", "Reload")));
+						Arrays.asList("Set", "Get", "Keys", "Remove", "Exists", "Reload")));
 			}
 			if (args.length == 4) {
 				if (args[2].equalsIgnoreCase("set") || args[2].equalsIgnoreCase("get")
-						|| args[2].equalsIgnoreCase("keys") || args[2].equalsIgnoreCase("exists")) {
+						|| args[2].equalsIgnoreCase("keys") || args[2].equalsIgnoreCase("exists") || args[2].equalsIgnoreCase("remove")) {
 					c.addAll(StringUtils.copyPartialMatches(args[3], TheAPI.getUser(args[1]).getKeys(true)));
 				}
 			}
@@ -347,7 +344,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 							c.addAll(StringUtils.copyPartialMatches(args[3],
 									Arrays.asList("Default", "Nether", "The_End", "The_Void", "Flat")));
 					}
-					if (args[1].equalsIgnoreCase("Teleport")) {
+					if (args[1].equalsIgnoreCase("Teleport")||args[1].equalsIgnoreCase("tp")) {
 						if (args.length == 3)
 							c.addAll(StringUtils.copyPartialMatches(args[2], getWorlds()));
 						if (args.length == 4)

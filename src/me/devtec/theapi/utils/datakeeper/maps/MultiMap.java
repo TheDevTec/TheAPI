@@ -110,7 +110,7 @@ public class MultiMap<K, T, V> implements Data {
 	public String toString() {
 		String builder = "";
 		for (Entry<K, T, V> e : entrySet()) {
-			builder += (builder.isEmpty() ? "" : ", ") + "("+e.toString()+")";
+			builder += (builder.trim().isEmpty() ? "" : ", ") + "("+e.toString()+")";
 		}
 		return "{" + builder + "}";
 	}

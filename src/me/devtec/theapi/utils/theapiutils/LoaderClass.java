@@ -79,6 +79,7 @@ import net.milkbowl.vault.economy.Economy;
 
 public class LoaderClass extends JavaPlugin {
 	public final static Map<String, String> colorMap = new HashMap<>();
+	public final Map<Long, Object> chunks = new HashMap<>();
 	// GUIs
 	public final Map<String, HolderGUI> gui = new HashMap<>();
 	// BossBars
@@ -118,6 +119,10 @@ public class LoaderClass extends JavaPlugin {
 	@Override
 	public void onLoad() {
 		plugin = this;
+		
+		//CONFIG
+		createConfig();
+		
 		Data plugin = new Data();
 		for(Plugin e : Bukkit.getPluginManager().getPlugins()) {
 			plugin.reload(StreamUtils.fromStream(e.getResource("plugin.yml")));
@@ -250,9 +255,6 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		
-		//CONFIG
-		createConfig();
-		
 		//SOCKETS
 		boolean ops = sockets.exists("Options");
 		sockets.addDefault("Options.Enabled", false);
@@ -351,6 +353,14 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
 				TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+
+		StringUtils.sec=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.min=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Minutes.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.hour=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Hours.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.day=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Days.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.week=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Weeks.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.mon=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Months.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.year=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Years.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
 		
 		//METRICS
 		new Metrics(this, 10581);

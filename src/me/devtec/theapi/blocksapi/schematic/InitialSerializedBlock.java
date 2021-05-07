@@ -58,6 +58,7 @@ public class InitialSerializedBlock implements SerializedBlock {
 	public String getAsString() {
 		Map<String, Object> map = new HashMap<>();
 		map.put("material", material.toString());
+		if(!extra.isEmpty())
 		map.put("state", extra);
 		return Writer.write(map).replace(System.lineSeparator(), "").replace("\n\r", "").replace("\n", "");
 	}
@@ -79,7 +80,7 @@ public class InitialSerializedBlock implements SerializedBlock {
 	@Override
 	public SerializedBlock apply(Position pos) {
 		BlocksAPI.set(pos,material);
-		if(!extra.isEmpty()) {
+		if(extra!=null && !extra.isEmpty()) {
 			Block b = pos.getBlock();
 			if(TheAPI.isNewVersion()) {
 				BlockData d = b.getBlockData();

@@ -24,6 +24,13 @@ public class Particle {
 			for (Object e : a.getEnumConstants())
 				identifier.put((String) Ref.invoke(e, "name"), e);
 		} else { // 1.13+
+			if(TheAPI.isNewerThan(12)&&TheAPI.isOlderThan(14)) { //1.13
+				for (Field f : Ref.getFields(a)) {
+					if (f.getName().equals("au"))
+						continue;
+					identifier.put((String)Ref.invoke(Ref.getStatic(f), "a"), Ref.getNulled(f));
+				}
+			}else
 			for (Field f : Ref.getFields(a)) {
 				if (f.getName().equals("au"))
 					continue;
@@ -48,6 +55,10 @@ public class Particle {
 		name = particle;
 		this.particle = toNMS(particle);
 		this.data = data;
+	}
+	
+	public boolean isValid() {
+		return particle!=null;
 	}
 
 	public Object getParticle() {

@@ -23,6 +23,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginEnableEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.plugin.Plugin;
 
 import me.devtec.theapi.TheAPI;
@@ -194,6 +195,13 @@ public class Events implements Listener {
 				}
 			}
 		}.runTask();
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onUnload(ChunkUnloadEvent e) {
+		long k = (e.getChunk().getX() & 0xFFFF0000L) << 16L | (e.getChunk().getX() & 0xFFFFL) << 0L;
+		k |= (e.getChunk().getZ() & 0xFFFF0000L) << 32L | (e.getChunk().getZ() & 0xFFFFL) << 16L;
+		LoaderClass.plugin.chunks.remove(k);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
