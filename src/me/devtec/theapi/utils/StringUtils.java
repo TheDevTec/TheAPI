@@ -15,9 +15,6 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
@@ -766,29 +763,75 @@ public class StringUtils {
 			return false;
 		}
 	}
-
-	private static ScriptEngine engine;
-	static {
-		try {
-			engine = new ScriptEngineManager().getEngineFactories().get(0).getScriptEngine();
-		} catch (Exception err) {
-			engine = new ScriptEngineManager().getEngineByName("JavaScript");
-		}
-	}
-
+	
+	private static Pattern extra = Pattern.compile("((^[-])?[0-9.]+)([*/])(-?[0-9.]+)"),
+			superr = Pattern.compile("\\(.*?\\)+"),
+			normal = Pattern.compile("((^[-])?[0-9.]+)([+-])(-?[0-9.]+)");
+	
 	/**
 	 * @see see Convert String to Math and Calculate exempt
 	 * @return double
 	 */
-	public static BigDecimal calculate(String fromString) {
-		if (fromString == null)
-			return new BigDecimal(0);
-		String a = fromString.replaceAll("[^0-9E+.,()*/-]+", "").replace(",", ".");
-		try {
-			return new BigDecimal("" + engine.eval(a));
-		} catch (Exception e) {
+	public static BigDecimal calculate(String val) {
+		if(val.contains("(")&&val.contains(")")) {
+			Matcher s = superr.matcher(val);
+			while(s.find()) {
+				val=val.replace(s.group(), simpleCalculate(s.group().substring(1, s.group().length()-1))+"");
+				s = superr.matcher(val);
+			}
 		}
-		return new BigDecimal(0);
+		if(val.contains("*")||val.contains("/")) {
+			Matcher s = extra.matcher(val);
+			while(s.find()) {
+				double a = getDouble(s.group(1));
+				String b = s.group(3);
+				double d = getDouble(s.group(4));
+				val=val.replace(s.group(), (b.equals("*")?a*d:a/d)+"");
+				s = extra.matcher(val);
+			}
+		}
+		if(val.contains("+")||val.contains("-")) {
+			Matcher s = normal.matcher(val);
+			while(s.find()) {
+				double a = getDouble(s.group(1));
+				String b = s.group(3);
+				double d = getDouble(s.group(4));
+				val=val.replace(s.group(), (b.equals("+")?a+d:a-d)+"");
+				s = normal.matcher(val);
+			}
+		}
+		return new BigDecimal(getDouble(val.replaceAll("[^0-9+.-]", "")));
+	}
+
+	private static double simpleCalculate(String val) {
+		if(val.contains("(")&&val.contains(")")) {
+			Matcher s = superr.matcher(val);
+			while(s.find()) {
+				val=val.replace(s.group(), simpleCalculate(s.group().substring(1, s.group().length()-1))+"");
+				s = superr.matcher(val);
+			}
+		}
+		if(val.contains("*")||val.contains("/")) {
+			Matcher s = extra.matcher(val);
+			while(s.find()) {
+				double a = getDouble(s.group(1));
+				String b = s.group(3);
+				double d = getDouble(s.group(4));
+				val=val.replace(s.group(), (b.equals("*")?a*d:a/d)+"");
+				s = extra.matcher(val);
+			}
+		}
+		if(val.contains("+")||val.contains("-")) {
+			Matcher s = normal.matcher(val);
+			while(s.find()) {
+				double a = getDouble(s.group(1));
+				String b = s.group(3);
+				double d = getDouble(s.group(4));
+				val=val.replace(s.group(), (b.equals("+")?a+d:a-d)+"");
+				s = normal.matcher(val);
+			}
+		}
+		return getDouble(val.replaceAll("[^0-9+.-]", ""));
 	}
 
 	static Pattern mat = Pattern.compile("\\.([0-9])([0-9])?");
