@@ -20,7 +20,6 @@ import java.util.Set;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
-import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.loader.DataLoader;
@@ -498,7 +497,6 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (a == null)
 			return this;
 		if(!requireSave)return this;
-		TheAPI.bcMsg(isSaving);
 		if(isSaving) {
 			doSave=true;
 			return this;
