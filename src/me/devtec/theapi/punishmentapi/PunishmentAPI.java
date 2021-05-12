@@ -200,7 +200,7 @@ public class PunishmentAPI {
 			return;
 		}
 		LoaderClass.data.set("tempjail." + player.toLowerCase() + ".id", jail);
-		LoaderClass.data.set("tempjail." + player.toLowerCase() + ".time", jail);
+		LoaderClass.data.set("tempjail." + player.toLowerCase() + ".time", time);
 		LoaderClass.data.set("tempjail." + player.toLowerCase() + ".reason", reason);
 		LoaderClass.data.set("tempjail." + player.toLowerCase() + ".start", System.currentTimeMillis() / 1000);
 		LoaderClass.data.save();
@@ -225,7 +225,7 @@ public class PunishmentAPI {
 			playerOrIP = getIP(playerOrIP);
 		if(playerOrIP==null)return;
 		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_") + ".id", jail);
-		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_") + ".time", jail);
+		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_") + ".time", time);
 		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_") + ".reason", reason);
 		LoaderClass.data.set("tempjailip." + playerOrIP.replace(".", "_") + ".start",
 				System.currentTimeMillis() / 1000);
@@ -247,7 +247,7 @@ public class PunishmentAPI {
 
 	public static void deljail(String name) {
 		if(name==null)return;
-		LoaderClass.data.remove("jails." + name);
+		LoaderClass.data.set("jails." + name, null);
 		LoaderClass.data.save();
 	}
 

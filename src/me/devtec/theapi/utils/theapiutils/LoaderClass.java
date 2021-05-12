@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
@@ -34,6 +35,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.apis.MemoryAPI;
 import me.devtec.theapi.apis.PluginManagerAPI;
@@ -41,11 +43,11 @@ import me.devtec.theapi.apis.ResourcePackAPI;
 import me.devtec.theapi.apis.ResourcePackAPI.ResourcePackResult;
 import me.devtec.theapi.bossbar.BossBar;
 import me.devtec.theapi.configapi.Config;
+import me.devtec.theapi.configapi.Config.Node;
 import me.devtec.theapi.economyapi.EconomyAPI;
 import me.devtec.theapi.guiapi.HolderGUI;
 import me.devtec.theapi.guiapi.ItemGUI;
 import me.devtec.theapi.placeholderapi.PlaceholderAPI;
-import me.devtec.theapi.placeholderapi.PlaceholderPreRegister;
 import me.devtec.theapi.placeholderapi.ThePlaceholder;
 import me.devtec.theapi.placeholderapi.ThePlaceholderAPI;
 import me.devtec.theapi.scheduler.Scheduler;
@@ -79,7 +81,6 @@ import net.milkbowl.vault.economy.Economy;
 
 public class LoaderClass extends JavaPlugin {
 	public final static Map<String, String> colorMap = new HashMap<>();
-	public final Map<Long, Object> chunks = new HashMap<>();
 	// GUIs
 	public final Map<String, HolderGUI> gui = new HashMap<>();
 	// BossBars
@@ -87,7 +88,7 @@ public class LoaderClass extends JavaPlugin {
 	// TheAPI
 	public static LoaderClass plugin;
 	public static Config config = new Config("TheAPI/Config.yml"), sockets = new Config("TheAPI/Sockets.yml"), tags,
-			data = new Config("TheAPI/Data.dat", DataType.BYTE);
+			data;
 	public static Cache cache;
 	
 	public String motd;
@@ -119,6 +120,7 @@ public class LoaderClass extends JavaPlugin {
 	@Override
 	public void onLoad() {
 		plugin = this;
+		data = new Config("TheAPI/Data.dat", DataType.BYTE);
 		
 		//CONFIG
 		createConfig();
@@ -403,43 +405,41 @@ public class LoaderClass extends JavaPlugin {
 			 * PAPI -> THEAPI : %papi_placeholder_here% PAPI <- THEAPI :
 			 * %theapi_{theapi_placeholder_here}%
 			 */
-			new PlaceholderPreRegister("TheAPI", "DevTec", getDescription().getVersion()) {
-				Pattern finder = Pattern.compile("\\{(.*?)\\}"),
-						math = Pattern.compile("\\{math\\{((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*))\\}\\}");
-
+			new PlaceholderExpansion() {
+				Pattern math = Pattern.compile("math\\{((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*))\\}");
+				
 				@Override
-				public String onRequest(Player player, String params) {
+				public String getVersion() {
+					return LoaderClass.this.getDescription().getVersion();
+				}
+				
+				@Override
+				public String getIdentifier() {
+					return "theapi";
+				}
+				
+				@Override
+				public String getAuthor() {
+					return "DevTec";
+				}
+				  
+				public String onRequest(OfflinePlayer player, String params) {
 					String text = params;
-					while (true) {
-						Matcher m = math.matcher(text);
-						int v = 0;
-						while (m.find()) {
-							++v;
-							String w = m.group();
-							text = text.replace(w, StringUtils.calculate(w.substring(6, w.length() - 2)).toString());
-						}
-						if (v != 0)
-							continue;
-						else
-							break;
+					Matcher m = math.matcher(text);
+					while (m.find()) {
+						text = text.replace(m.group(), StringUtils.calculate(m.group(1)).toString());
+						m = math.matcher(text);
 					}
-					Matcher found = finder.matcher(text);
-					while (found.find()) {
-						String g = found.group();
-						String find = g.substring(1, g.length() - 1);
-						int v = 0;
-						for (Iterator<ThePlaceholder> r = ThePlaceholderAPI.getPlaceholders().iterator(); r
-								.hasNext();) {
-							++v;
-							ThePlaceholder get = r.next();
-							String toReplace = get.onPlaceholderRequest(player, find);
-							if (toReplace != null)
-								text = text.replace("{" + find + "}", toReplace);
-						}
-						if (v != 0)
-							continue;
-						else
-							break;
+					for (Iterator<ThePlaceholder> r = ThePlaceholderAPI.getPlaceholders().iterator(); r.hasNext();) {
+						ThePlaceholder get = r.next();
+						String toReplace = get.onPlaceholderRequest(player==null?null:player.isOnline()?player.getPlayer():null, params);
+						if (toReplace != null)
+							text = text.replace(params, toReplace);
+					}
+					m = math.matcher(text);
+					while (m.find()) {
+						text = text.replace(m.group(), StringUtils.calculate(m.group(1)).toString());
+						m = math.matcher(text);
 					}
 					return text.equals(params) ? null : text;
 				}
@@ -647,50 +647,29 @@ public class LoaderClass extends JavaPlugin {
 	}
 	
 	private void createConfig() {
-		config.addDefault("Options.HideErrors", false); // hide only TheAPI errors
-		config.setComments("Options.HideErrors", Arrays.asList("",
-				"# If you enable this option, errors from TheAPI will dissapear", "# defaulty: false"));
+		config.addDefault("Options.HideErrors", new Node(false, "",
+				"# If you enable this option, errors from TheAPI will dissapear", "# defaulty: false")); // hide only TheAPI errors
 		config.addDefault("Options.ConsoleLogEvent", false);
 		config.addDefault("Options.ItemUnbreakable", true);
-		config.addDefault("Options.Cache.User.Use", true); // Require memory, but loading of User.class is faster (only
+		config.addDefault("Options.Cache.User.Use", new Node(true, "# Cache Users to memory for faster loading", "# defaulty: true")); // Require memory, but loading of User.class is faster (only
 		// from TheAPI.class)
 		config.setComments("Options.Cache", Arrays.asList(""));
-		config.setComments("Options.Cache.User.Use",
-				Arrays.asList("# Cache Users to memory for faster loading", "# defaulty: true"));
-		config.addDefault("Options.Cache.User.RemoveOnQuit", true); // Remove cached player from cache on
-																	// PlayerQuitEvent
-		config.setComments("Options.Cache.User.RemoveOnQuit",
-				Arrays.asList("# Remove cache of User from memory", "# defaulty: true"));
-
+		config.addDefault("Options.Cache.User.RemoveOnQuit", new Node(true, "# Remove cache of User from memory", "# defaulty: true")); // Remove cached player from cache on
 		config.addDefault("Options.Cache.User.OfflineNames.Use", true); // Cache offline-names of players
 		config.addDefault("Options.Cache.User.OfflineNames.AutoSave", "15min"); // Period in which offline-names saves
 		config.addDefault("Options.Cache.User.OfflineNames.AutoClear.Use", false); // Enable automatic clearing of cache
 		config.addDefault("Options.Cache.User.OfflineNames.AutoClear.OfflineTime", "1mon"); // Automatic clear cache after 1mon
 		config.addDefault("Options.Cache.User.OfflineNames.AutoClear.Period", "0"); // 0 means on startup or type time period
-		config.addDefault("Options.User-SavingType", "YAML");
-		config.setComments("Options.User-SavingType",
-				Arrays.asList("", "# Saving type of User data", "# Types: YAML, JSON, BYTE", "# defaulty: YAML"));
-		config.addDefault("Options.AntiBot.Use", false);
-		config.setComments("Options.AntiBot", Arrays.asList(""));
-		config.setComments("Options.AntiBot.Use",
-				Arrays.asList("# If you enable this, TheAPI will set time between player can't connect to the server",
+		config.addDefault("Options.User-SavingType", new Node("YAML","", "# Saving type of User data", "# Types: YAML, JSON, BYTE", "# defaulty: YAML"));
+		config.addDefault("Options.AntiBot.Use", new Node(false, "# If you enable this, TheAPI will set time between player can't connect to the server",
 						"# defaulty: false"));
-		config.addDefault("Options.AntiBot.TimeBetweenPlayer", 10); // 10 milis
-		config.setComments("Options.AntiBot.TimeBetweenPlayer",
-				Arrays.asList("# Time between player can't connect to the server", "# defaulty: 10"));
-		config.addDefault("Options.EntityMoveEvent.Enabled", true);
-		config.setComments("Options.EntityMoveEvent.Enabled",
-				Arrays.asList("# Enable EntityMoveEvent event", "# defaulty: true"));
-		config.addDefault("Options.EntityMoveEvent.Reflesh", 3);
-		config.setComments("Options.EntityMoveEvent.Reflesh",
-				Arrays.asList("# Ticks to look for entity move action", "# defaulty: 3"));
-		config.addDefault("Options.FakeEconomyAPI.Symbol", "$");
+		config.setComments("Options.AntiBot", Arrays.asList(""));
+		config.addDefault("Options.AntiBot.TimeBetweenPlayer", new Node(10,"# Time between player can't connect to the server", "# defaulty: 10")); // 10 milis
+		config.addDefault("Options.EntityMoveEvent.Enabled", new Node(true, "# Enable EntityMoveEvent event", "# defaulty: true"));
+		config.addDefault("Options.EntityMoveEvent.Reflesh", new Node(3, "# Ticks to look for entity move action", "# defaulty: 3"));
+		config.addDefault("Options.FakeEconomyAPI.Symbol", new Node("$", "# Economy symbol of FakeEconomyAPI", "# defaulty: $"));
 		config.setComments("Options.FakeEconomyAPI", Arrays.asList(""));
-		config.setComments("Options.FakeEconomyAPI.Symbol",
-				Arrays.asList("# Economy symbol of FakeEconomyAPI", "# defaulty: $"));
-		config.addDefault("Options.FakeEconomyAPI.Format", "$%money%");
-		config.setComments("Options.FakeEconomyAPI.Format",
-				Arrays.asList("# Economy format of FakeEconomyAPI", "# defaulty: $%money%"));
+		config.addDefault("Options.FakeEconomyAPI.Format", new Node("$%money%", "# Economy format of FakeEconomyAPI", "# defaulty: $%money%"));
 		
 		//TRANSLATABLE TIME CONVERTOR
 		config.addDefault("Options.TimeConvertor.Seconds.Convertor", "s");
@@ -813,7 +792,11 @@ public class LoaderClass extends JavaPlugin {
 				if (player != null) {
 					if (placeholder.equalsIgnoreCase("player_money"))
 						return "" + EconomyAPI.getBalance(player);
+					if (placeholder.equalsIgnoreCase("player_balance"))
+						return "" + EconomyAPI.getBalance(player);
 					if (placeholder.equalsIgnoreCase("player_formated_money"))
+						return EconomyAPI.format(EconomyAPI.getBalance(player));
+					if (placeholder.equalsIgnoreCase("player_formated_balance"))
 						return EconomyAPI.format(EconomyAPI.getBalance(player));
 					if (placeholder.equalsIgnoreCase("player_displayname"))
 						return player.getDisplayName();

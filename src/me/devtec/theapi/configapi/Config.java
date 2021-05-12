@@ -26,6 +26,13 @@ public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data 
 			this.comments=comments;
 		}
 		
+		public Node(Object value, String...strings){
+			this.value=value;
+			if(strings!=null)
+			this.comments=Arrays.asList(strings);
+			else comments=Arrays.asList();
+		}
+		
 		private Object value;
 		private List<String> comments;
 		
@@ -175,7 +182,7 @@ public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data 
 	public void addDefault(String key, Object value) {
 		if(key==null||value==null)return;
 		if(value instanceof Node)addDefault(key, (Node)value);
-		defaults.put(key, new Node(value, null));
+		defaults.put(key, new Node(value));
 		f.setIfAbsent(key, value);
 	}
 

@@ -6,6 +6,7 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -24,9 +25,15 @@ import me.devtec.theapi.apis.MemoryAPI;
 import me.devtec.theapi.apis.PluginManagerAPI;
 import me.devtec.theapi.apis.PluginManagerAPI.SearchType;
 import me.devtec.theapi.scheduler.Tasker;
+import me.devtec.theapi.sockets.Client;
+import me.devtec.theapi.sockets.Server;
+import me.devtec.theapi.sockets.ServerClient;
 import me.devtec.theapi.utils.HoverMessage;
 import me.devtec.theapi.utils.StringUtils;
+import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.User;
+import me.devtec.theapi.utils.listener.events.ClientReceiveMessageEvent;
+import me.devtec.theapi.utils.listener.events.ServerReceiveMessageEvent;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
@@ -103,56 +110,40 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			}
 			return true;
 		}
-		if (args[0].equalsIgnoreCase("invsee")) {
-			if (!s.hasPermission("TheAPI.Command.Invsee"))
-				return true;
-			if (args.length == 1) {
-				TheAPI.msg("&e/TheAPI Invsee <player>", s);
-				return true;
-			}
-			Player p = TheAPI.getPlayer(args[1]);
-			if (p != null) {
-				TheAPI.msg("&eOpening inventory of player " + p.getName() + "..", s);
-				((Player) s).openInventory(p.getInventory());
-			}
-			return true;
-		}
 		if (args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("rl")) {
 			if (perm(s, "Reload")) {
 				TheAPI.msg("&eReloading configs..", s);
 				LoaderClass.data.reload();
 				LoaderClass.config.reload();
+				boolean wasEnabled = LoaderClass.sockets.getBoolean("Options.Enabled");
+				LoaderClass.sockets.reload();
+				if(!wasEnabled && LoaderClass.sockets.getBoolean("Options.Enabled")) {
+					LoaderClass.plugin.servers = new HashMap<>();
+					LoaderClass.plugin.server=new Server(LoaderClass.sockets.getString("Options.Password"), LoaderClass.sockets.getInt("Options.Port"));
+					LoaderClass.plugin.server.register(new me.devtec.theapi.sockets.Reader() {
+						public void read(ServerClient client, Data data) {
+							TheAPI.callEvent(new ServerReceiveMessageEvent(client, data));
+						}
+					});
+					for(String ds : LoaderClass.sockets.getKeys("Server")) {
+						LoaderClass.plugin.servers.put(ds, new Client(LoaderClass.sockets.getString("Options.Name"),LoaderClass. sockets.getString("Server."+ds+".Password"), LoaderClass.sockets.getString("Server."+ds+".IP"), LoaderClass.sockets.getInt("Server."+ds+".Port")) {
+							public void read(Data data) {
+								TheAPI.callEvent(new ClientReceiveMessageEvent(this, data));
+							}
+						});
+					}
+				}else {
+					if(wasEnabled) {
+						LoaderClass.plugin.server.exit();
+						for(Client e : LoaderClass.plugin.servers.values())
+							e.exit();
+						LoaderClass.plugin.servers.clear();
+						LoaderClass.plugin.server=null;
+					}
+					LoaderClass.sockets.getData().clear();
+				}
 				if (TheAPI.isNewerThan(15)) {
 					LoaderClass.tags.reload();
-					LoaderClass.tags.addDefault("TagPrefix", "!");
-					LoaderClass.tags.addDefault("GradientPrefix", "!");
-					if (!LoaderClass.tags.exists("Tags")) {
-						LoaderClass.tags.addDefault("Tags.baby_blue", "0fd2f6");
-						LoaderClass.tags.addDefault("Tags.beige", "ffc8a9");
-						LoaderClass.tags.addDefault("Tags.blush", "e69296");
-						LoaderClass.tags.addDefault("Tags.amaranth", "e52b50");
-						LoaderClass.tags.addDefault("Tags.brown", "964b00");
-						LoaderClass.tags.addDefault("Tags.crimson", "dc143c");
-						LoaderClass.tags.addDefault("Tags.dandelion", "ffc31c");
-						LoaderClass.tags.addDefault("Tags.eggshell", "f0ecc7");
-						LoaderClass.tags.addDefault("Tags.fire", "ff0000");
-						LoaderClass.tags.addDefault("Tags.ice", "bddeec");
-						LoaderClass.tags.addDefault("Tags.indigo", "726eff");
-						LoaderClass.tags.addDefault("Tags.lavender", "4b0082");
-						LoaderClass.tags.addDefault("Tags.leaf", "618a3d");
-						LoaderClass.tags.addDefault("Tags.lilac", "c8a2c8");
-						LoaderClass.tags.addDefault("Tags.lime", "b7ff00");
-						LoaderClass.tags.addDefault("Tags.midnight", "007bff");
-						LoaderClass.tags.addDefault("Tags.mint", "50c878");
-						LoaderClass.tags.addDefault("Tags.olive", "929d40");
-						LoaderClass.tags.addDefault("Tags.royal_purple", "7851a9");
-						LoaderClass.tags.addDefault("Tags.rust", "b45019");
-						LoaderClass.tags.addDefault("Tags.sky", "00c8ff");
-						LoaderClass.tags.addDefault("Tags.smoke", "708c98");
-						LoaderClass.tags.addDefault("Tags.tangerine", "ef8e38");
-						LoaderClass.tags.addDefault("Tags.violet", "9c6eff");
-					}
-					LoaderClass.tags.save();
 					LoaderClass.tagG = LoaderClass.tags.getString("TagPrefix");
 					LoaderClass.gradientTag = LoaderClass.tags.getString("GradientPrefix");
 					LoaderClass.colorMap.clear();

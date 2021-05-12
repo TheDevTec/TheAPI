@@ -12,8 +12,8 @@ import me.devtec.theapi.utils.StringUtils;
 
 public class ThePlaceholderAPI {
 	private final static Pattern finder = Pattern.compile("\\%(.*?)\\%"), // pattern for placeholder
-			math = Pattern.compile("\\%math\\{((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*))\\}\\%"); // pattern for
-																								// placeholder of math
+			math = Pattern.compile("\\%math\\{((?:\\{??.*?)+)\\}\\%");
+	
 	private final static List<ThePlaceholder> reg = new ArrayList<>();
 
 	public static void register(ThePlaceholder e) {
@@ -51,18 +51,10 @@ public class ThePlaceholderAPI {
 
 	public static String setPlaceholders(Player player, String textOrigin) {
 		String text = textOrigin;
-		while (true) {
-			Matcher m = math.matcher(text);
-			int v = 0;
-			while (m.find()) {
-				++v;
-				String w = m.group();
-				text = text.replace(w, StringUtils.calculate(w.substring(6, w.length() - 2)).toString());
-			}
-			if (v != 0)
-				continue;
-			else
-				break;
+		Matcher m = math.matcher(text);
+		while (m.find()) {
+			text = text.replace(m.group(), StringUtils.calculate(PlaceholderAPI.setPlaceholders(player, m.group(1))).toString());
+			m = math.matcher(text);
 		}
 		Matcher found = finder.matcher(text);
 		while (found.find()) {
@@ -74,7 +66,7 @@ public class ThePlaceholderAPI {
 				ThePlaceholder get = r.next();
 				String toReplace = get.onPlaceholderRequest(player, find);
 				if (toReplace != null)
-					text = text.replace("%" + find + "%", toReplace);
+					text = text.replace(g, toReplace);
 			}
 			if (v != 0)
 				continue;

@@ -20,6 +20,7 @@ import java.util.Set;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
+import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.loader.DataLoader;
@@ -122,7 +123,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			return true;
 		}
 		Object[] data = getOrCreateData(key);
-		if(data[1]==null || ((List<?>) data[1]).isEmpty()) {
+		if(data[1]==null && comments!=null && !comments.isEmpty() || data[1]!=null && ((List<?>) data[1]).isEmpty() && comments!=null && !comments.isEmpty()) {
 			data[1]=comments;
 			requireSave=true;
 			return true;
@@ -497,6 +498,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (a == null)
 			return this;
 		if(!requireSave)return this;
+		TheAPI.bcMsg(isSaving);
 		if(isSaving) {
 			doSave=true;
 			return this;
@@ -514,7 +516,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				try {
 					ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
 					bos.writeInt(1);
-					for (Entry<String, Object[]> key : loader.get().entrySet())
+					for (Entry<String, Object[]> key : loader.get().entrySet()) {
 						try {
 							bos.writeUTF(key.getKey());
 							if(key.getValue()[0]==null) {
@@ -531,10 +533,16 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 							bos.writeUTF("0");
 						} catch (Exception er) {
 						}
+					}
 					w.write(Base64.getEncoder().encodeToString(bos.toByteArray()));
-					w.close();
 				} catch (Exception e) {
-					w.close();
+				}
+				w.close();
+				isSaving=false;
+				if(doSave) {
+					doSave=false;
+					if(requireSave)
+					save(type);
 				}
 				return this;
 			}
@@ -542,8 +550,14 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				Maker maker = new Maker();
 				for (String key : new LinkedHashSet<>(aw))
 					addKeys(maker, key);
-				w.write(maker.toString(false).replace("\\n", System.lineSeparator()));
+				w.write(maker.toString(false).replace("\n", System.lineSeparator()).replace("\\n", System.lineSeparator()));
 				w.close();
+				isSaving=false;
+				if(doSave) {
+					doSave=false;
+					if(requireSave)
+					save(type);
+				}
 				return this;
 			}
 			try {
@@ -568,7 +582,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		isSaving=false;
 		if(doSave) {
 			doSave=false;
-			save();
+			if(requireSave)
+			save(type);
 		}
 		return this;
 	}
@@ -696,7 +711,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 									if((int)aw[3]==set) {
 										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
 									}else {
-										if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
+										Object obj = Reader.read(aw[2]+"");
+										if(obj instanceof Map||obj instanceof Collection) { //json
 											b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
 										}else {
 											add=true;
@@ -707,7 +723,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 									}
 								}catch(Exception er) {
 									try {
-									if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
+										Object obj = Reader.read(aw[2]+"");
+										if(obj instanceof Map||obj instanceof Collection) { //json
 										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
 									}else {
 										if(!add) {
@@ -736,7 +753,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 									if((int)aw[3]==set) {
 										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
 									}else {
-										if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
+										Object obj = Reader.read(aw[2]+"");
+										if(obj instanceof Map||obj instanceof Collection) { //json
 											b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
 										}else {
 											add=true;
@@ -747,16 +765,18 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 									}
 								}catch(Exception er) {
 									try {
-									if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
-										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
-									}else {
-										if(!add) {
-											add=true;
-											b.write(pathName + System.lineSeparator());
+										Object obj = Reader.read(aw[2]+"");
+										if(obj instanceof Map||obj instanceof Collection) { //json
+											b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
+										}else {
+											if(!add) {
+												add=true;
+												b.write(pathName + System.lineSeparator());
+											}
+											for (Object a : (Collection<?>) o) {
+												b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
+											}
 										}
-									for (Object a : (Collection<?>) o) {
-										b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-									}}
 									}catch(Exception unsuported) {
 										if(!add) {
 											add=true;
@@ -774,14 +794,16 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 							if((int)aw[3]==set) {
 								b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
 							}else {
-								if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
+								Object obj = Reader.read(aw[2]+"");
+								if(obj instanceof Map||obj instanceof Collection) { //json
 									b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
 								}else
 									b.write(pathName + " "+addQuotes(o instanceof String, Writer.write(o)) + System.lineSeparator());
 							}
 						}catch(Exception er) {
 							try {
-								if(Reader.read(aw[2]+"") instanceof Map||Reader.read(aw[2]+"") instanceof Collection) { //json
+								Object obj = Reader.read(aw[2]+"");
+								if(obj instanceof Map||obj instanceof Collection) { //json
 									b.write(pathName + " "+aw[2] + System.lineSeparator());
 								}else
 									b.write(pathName + " "+addQuotes(o instanceof String, Writer.write(o)) + System.lineSeparator());
@@ -920,5 +942,9 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if(change)
 			requireSave=true;
 		return change;
+	}
+
+	public DataLoader getDataLoader() {
+		return loader;
 	}
 }

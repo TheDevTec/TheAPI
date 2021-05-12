@@ -3,7 +3,6 @@ package me.devtec.theapi.utils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -22,7 +21,6 @@ import org.bukkit.entity.Player;
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
-import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class Position implements Cloneable {
 
@@ -270,24 +268,14 @@ public class Position implements Cloneable {
 	}
 
 	private static int wf = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]);
-	private static Method getorc = Ref.method(Ref.nms("ChunkGenerator"), "getOrCreateChunk", int.class, int.class);
-	private static Map<String, Object> providers = new HashMap<>();
 	private static Class<?> craft = Ref.craft("CraftChunk");
 	
 	public Object getNMSChunk() {
-		Object chunk = LoaderClass.plugin.chunks.get(getChunkKey());
-		if(chunk==null)
 		try {
-			LoaderClass.plugin.chunks.put(getChunkKey(), chunk= Ref.handle(Ref.cast(craft, getWorld().getChunkAt(getBlockX() >> 4, getBlockZ() >> 4))));
+			return Ref.handle(Ref.cast(craft, getWorld().getChunkAt(getBlockX() >> 4, getBlockZ() >> 4)));
 		} catch (Exception er) {
-			Object pr = providers.get(w);
-			if(pr==null) {
-				providers.put(w, pr=Ref.get(Ref.cast(Ref.nms("ChunkProviderServer"),
-						Ref.invoke(Ref.world(getWorld()), "getChunkProvider")), "chunkGenerator"));
-			}
-			LoaderClass.plugin.chunks.put(getChunkKey(), chunk= Ref.invoke(pr, getorc, getBlockX() >> 4, getBlockZ() >> 4));
+			return null;
 		}
-		return chunk;
 	}
 	
 	public Object getBlockPosition() {

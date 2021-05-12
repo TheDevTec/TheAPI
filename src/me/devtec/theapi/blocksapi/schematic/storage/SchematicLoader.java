@@ -69,19 +69,23 @@ public class SchematicLoader extends DataLoader {
 					String key = bos.readUTF();
 					String value = bos.readUTF().substring(1);
 					String next;
-					while (true)
+					boolean run = true;
+					while (run)
 						try {
 							next=bos.readUTF();
 							if(next==null)value+=next;
 							else {
-								if(next.equals("1"))break;
+								if(next.equals("1")) {
+									run=false;
+									continue;
+								}
 								next=next.substring(1);
 								value+=next;
 							}
 					}catch(Exception not) {
-						break;
+						run=false;
 					}
-					data.put(key, new Object[] {Reader.read(value), null});
+					data.put(key, new Object[] {value==null?null:Reader.read(value), null, value});
 				} catch (Exception e) {
 					break;
 				}
@@ -97,19 +101,23 @@ public class SchematicLoader extends DataLoader {
 						String key = bos.readUTF();
 						String value = bos.readUTF().substring(1);
 						String next;
-						while (true)
+						boolean run = true;
+						while (run)
 							try {
 								next=bos.readUTF();
 								if(next==null)value+=next;
 								else {
-									if(next.equals("1"))break;
+									if(next.equals("1")) {
+										run=false;
+										continue;
+									}
 									next=next.substring(1);
 									value+=next;
 								}
 						}catch(Exception not) {
-							break;
+							run=false;
 						}
-						data.put(key, new Object[] {Reader.read(value), null});
+						data.put(key, new Object[] {value==null?null:Reader.read(value), null, value});
 					} catch (Exception e) {
 						break;
 					}
