@@ -28,9 +28,8 @@ public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data 
 		
 		public Node(Object value, String...strings){
 			this.value=value;
-			if(strings!=null)
+			if(strings!=null && strings.length!=0)
 			this.comments=Arrays.asList(strings);
-			else comments=Arrays.asList();
 		}
 		
 		private Object value;

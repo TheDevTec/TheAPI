@@ -50,6 +50,8 @@ public class YamlLoader extends DataLoader {
 		return data;
 	}
 
+	private static Pattern bot = Pattern.compile("\\.");
+	
 	@Override
 	public void load(String input) {
 		reset();
@@ -139,13 +141,13 @@ public class YamlLoader extends DataLoader {
 							if (!text.startsWith(" "))
 								key = "";
 							if (c(text) == last) {
-								String lastr = key.split("\\.")[key.split("\\.").length - 1] + 1;
+								String lastr =  bot.split(key)[ bot.split(key).length - 1] + 1;
 								int remove = key.length() - lastr.length();
 								if (remove > 0)
 									key = key.substring(0, remove);
 							} else {
 								for (int i = 0; i < Math.abs(last - c(text)) / 2 + 1; ++i) {
-									String lastr = key.split("\\.")[key.split("\\.").length - 1] + 1;
+									String lastr =  bot.split(key)[ bot.split(key).length - 1] + 1;
 									int remove = key.length() - lastr.length();
 									if (remove < 0)
 										break;
@@ -260,7 +262,7 @@ public class YamlLoader extends DataLoader {
 		if (data.containsKey(key)) {
 			data.get(key)[0]=o;
 		} else
-			set(key, new Object[] {o, lines.isEmpty()?null:new LinkedList<>(lines), original});
+			set(key, new Object[] {o, lines.isEmpty()?null:new LinkedList<>(lines), original,1});
 		lines.clear();
 	}
 

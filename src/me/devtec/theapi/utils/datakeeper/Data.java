@@ -2,19 +2,21 @@ package me.devtec.theapi.utils.datakeeper;
 
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 import java.util.Set;
 
 import com.google.common.io.ByteArrayDataOutput;
@@ -30,14 +32,13 @@ import me.devtec.theapi.utils.json.Writer;
 import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
-	
 	protected DataLoader loader;
-	protected Set<String> aw;
+	protected List<String> aw;
 	protected File a;
 	
 	public Data() {
 		loader = new EmptyLoader();
-		aw = new LinkedHashSet<>();
+		aw = new LinkedList<>();
 	}
 	
 	public Data(String filePath) {
@@ -54,7 +55,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	
 	public Data(File f, boolean load) {
 		a = f;
-		aw = new LinkedHashSet<>();
+		aw = new LinkedList<>();
 		if (load)
 			reload(a);
 	}
@@ -67,14 +68,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public synchronized boolean exists(String path) {
-		int a = 0;
-		for (String k : loader.get().keySet()) {
-			if (k.startsWith(path)) {
-				a = 1;
-				break;
-			}
-		}
-		return a == 1;
+		for (String k : loader.getKeys())
+			if (k.indexOf(path)==0)
+				return true;
+		return false;
 	}
 
 	public synchronized boolean existsKey(String path) {
@@ -86,18 +83,19 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return this;
 	}
 
-	private synchronized Object[] getOrCreateData(String key) {
-		Object[] h = loader.get().getOrDefault(key, null);
+	private static Pattern bot = Pattern.compile("\\.");
+	
+	private Object[] getOrCreateData(String key) {
+		Object[] h = loader.get().get(key);
 		if (h == null) {
-			h = new Object[4];
-			String ss = key.split("\\.")[0];
+			String ss = bot.split(key)[0];
 			if (!aw.contains(ss))
 				aw.add(ss);
-			loader.set(key, h);
+			loader.get().put(key, h = new Object[2]);
 		}
 		return h;
 	}
-
+	
 	public synchronized boolean setIfAbsent(String key, Object value) {
 		if (key == null || value==null)
 			return false;
@@ -118,7 +116,6 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			Object[] data = getOrCreateData(key);
 			data[0]=value;
 			data[1]=comments;
-			data[2]=value+"";
 			return true;
 		}
 		Object[] data = getOrCreateData(key);
@@ -130,13 +127,12 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return false;
 	}
 
-	private static final int set = 1;
-	public synchronized Data set(String key, Object value) {
+	public Data set(String key, Object value) {
 		if (key == null)
 			return this;
 		requireSave=true;
 		if (value == null) {
-			String[] sf = key.split("\\.");
+			String[] sf =  bot.split(key);
 			if (sf.length <= 1)
 				aw.remove(sf[0]);
 			loader.remove(key);
@@ -144,17 +140,6 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 		Object[] o = getOrCreateData(key);
 		o[0]=value;
-		try {
-			o[2]=value+"";
-			o[3]=set;
-		}catch(Exception outOfBound) {
-			Object[] h = new Object[4];
-			h[0]=value;
-			h[1]=o[1];
-			h[2]=value+"";
-			h[3]=set;
-			loader.set(key, h);
-		}
 		return this;
 	}
 
@@ -162,11 +147,11 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (key == null)
 			return this;
 		requireSave=true;
-		if (key.split("\\.").length<=1)
-			aw.remove(key.split("\\.")[0]);
+		if ( bot.split(key).length<=1)
+			aw.remove(bot.split(key)[0]);
 		loader.remove(key);
 		for(String d : new ArrayList<>(loader.get().keySet()))
-			if (d.startsWith(key) && d.substring(key.length()).trim().startsWith("."))
+			if (d.indexOf(key)==0 && d.substring(key.length()).indexOf('.')==0)
 				loader.get().remove(d);
 		return this;
 	}
@@ -265,8 +250,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		aw.clear();
 		loader = DataLoader.findLoaderFor(input); // get & load
 		for (String k : loader.getKeys())
-			if (!aw.contains(k.split("\\.")[0]))
-				aw.add(k.split("\\.")[0]);
+			if (!aw.contains( bot.split(k)[0]))
+				aw.add( bot.split(k)[0]);
 		return this;
 	}
 
@@ -492,97 +477,24 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return list;
 	}
 
-	protected boolean isSaving, requireSave, doSave;
-	public synchronized Data save(DataType type) {
+	protected boolean isSaving, requireSave;
+	public Data save(DataType type) {
 		if (a == null)
 			return this;
 		if(!requireSave)return this;
-		if(isSaving) {
-			doSave=true;
+		if(isSaving)
 			return this;
-		}
 		isSaving=true;
 		requireSave=false;
-		OutputStreamWriter w = null;
 		try {
-			w=new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
-		}catch(Exception e) {
-			return this;
-		}
-		try {
-			if (type == DataType.BYTE) {
-				try {
-					ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
-					bos.writeInt(1);
-					for (Entry<String, Object[]> key : loader.get().entrySet()) {
-						try {
-							bos.writeUTF(key.getKey());
-							if(key.getValue()[0]==null) {
-								bos.writeUTF(null);
-							}else {
-								String write = Writer.write(key.getValue()[0]);
-								while(write.length()>35000) {
-									String wr = write.substring(0, 34999);
-									bos.writeUTF("0"+wr);
-									write=write.substring(34999);
-								}
-								bos.writeUTF("0"+write);
-							}
-							bos.writeUTF("0");
-						} catch (Exception er) {
-						}
-					}
-					w.write(Base64.getEncoder().encodeToString(bos.toByteArray()));
-				} catch (Exception e) {
-				}
-				w.close();
-				isSaving=false;
-				if(doSave) {
-					doSave=false;
-					if(requireSave)
-					save(type);
-				}
-				return this;
-			}
-			if (type == DataType.JSON) {
-				Maker maker = new Maker();
-				for (String key : new LinkedHashSet<>(aw))
-					addKeys(maker, key);
-				w.write(maker.toString(false).replace("\n", System.lineSeparator()).replace("\\n", System.lineSeparator()));
-				w.close();
-				isSaving=false;
-				if(doSave) {
-					doSave=false;
-					if(requireSave)
-					save(type);
-				}
-				return this;
-			}
+			Path path = Paths.get(a.toURI());
 			try {
-				for (String h : loader.getHeader())
-					w.write(h + System.lineSeparator());
-			} catch (Exception er) {
+			    Files.write(path, toString(type).getBytes());
+			} catch (Exception ex) {
 			}
-			for (String key : new LinkedHashSet<>(aw))
-				preparePath(new ArrayList<>(loader.getKeys()),new HashMap<>(this.loader.get()),key, key + ":", 0, w);
-			try {
-				for (String h : loader.getFooter())
-					w.write(h + System.lineSeparator());
-			} catch (Exception er) {
-			}
-		} catch (Exception er) {
-			Validator.send("Saving Data to File", er);
-		}
-		try {
-			w.close();
-		} catch (Exception e) {
+		} catch (Exception e1) {
 		}
 		isSaving=false;
-		if(doSave) {
-			doSave=false;
-			if(requireSave)
-			save(type);
-		}
 		return this;
 	}
 
@@ -591,17 +503,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	 * single quotes.
 	 *
 	 * New-line characters are removed from the returned string.
-	 *
-	 * Example input -> output: : 5 -> "5" : '5' -> '5' : "5" -> "5" : 5" -> "5""
+	 * 
 	 */
-	protected synchronized String addQuotes(boolean raw, String text) {
-		if (text == null)
-			return null;
-		boolean quotedString = (text.trim().startsWith("'") && text.trim().endsWith("'"))
-				|| (text.trim().startsWith("\"") && text.trim().endsWith("\""));
-		if (raw && !quotedString) {
-			return StringUtils.isBoolean(text)?text:StringUtils.isNumber(text)?"'"+text+"'":"\"" + text.replace(System.lineSeparator(), "\\n") + "\"";
-		}
+	protected synchronized String addQuotes(Object raw, String text) {
+		if(raw instanceof String)return '"'+text+'"';
 		return text;
 	}
 	
@@ -624,48 +529,27 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public synchronized boolean isKey(String key) {
-		boolean is = false;
 		for (String k : loader.getKeys()) {
-			if (k.startsWith(key)) {
-				String r = k.replaceFirst(key, "");
-				if (r.startsWith(".") || r.trim().isEmpty()) {
-					is = true;
-					break;
+			if (k.indexOf(key)==0) {
+				String r = k.substring(key.length());
+				if (r.indexOf('.')==0 || r.trim().isEmpty()) {
+					return true;
 				}
 			}
 		}
-
-		return is;
+		return false;
 	}
 
 	public synchronized Set<String> getKeys(String key, boolean subkeys) {
 		Set<String> a = new LinkedHashSet<>();
 		for (String d : loader.getKeys())
-			if (d.startsWith(key)) {
+			if (d.indexOf(key)==0) {
 				String c = d.substring(key.length());
-				if (!c.startsWith("."))
+				if (c.indexOf('.')!=0)
 					continue;
-				c = c.startsWith(".")?c.substring(1):c;
+				c = c.substring(1);
 				if(!subkeys)
-				c = c.split("\\.")[0];
-				if (c.trim().isEmpty())
-					continue;
-				if (!a.contains(c))
-					a.add(c);
-			}
-		return a;
-	}
-
-	private synchronized Set<String> getKeys(Collection<String> loader, String key, boolean subkeys) {
-		Set<String> a = new LinkedHashSet<>();
-		for (String d : loader)
-			if (d.startsWith(key)) {
-				String c = d.substring(key.length());
-				if (!c.startsWith("."))
-					continue;
-				c = c.startsWith(".")?c.substring(1):c;
-				if(!subkeys)
-				c = c.split("\\.")[0];
+				c =  bot.split(c)[0];
 				if (c.trim().isEmpty())
 					continue;
 				if (!a.contains(c))
@@ -683,138 +567,106 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (o != null)
 			main.add(main.create().put(key, o));
 		for (String keyer : getKeys(key))
-			addKeys(main, key + "." + keyer);
+			addKeys(main, key + '.' + keyer);
 	}
 
 	@SuppressWarnings("unchecked")
-	protected synchronized void preparePath(Collection<String> keys, Map<String, Object[]> loader, String path, String pathName, int spaces, java.io.Writer b) {
+	protected void preparePath(List<String> done, String path, String pathName, String space, java.io.Writer b) {
+		pathName = space + pathName;
 		try {
-			Object[] aw = loader.get(path);
-			Collection<String> list = aw != null ? (Collection<String>)aw[1] : null;
-			Object o = aw != null ? aw[0] : null;
-			String space = cs(spaces);
-			pathName = space + pathName;
-			if(list != null && !list.isEmpty()) {
-				for (String s : list)
-					b.write(space + s + System.lineSeparator());
-			}
-				if(o==null)b.write(pathName + System.lineSeparator());
-				else {
-					if (o instanceof Collection || o instanceof Object[]) {
-						String splitted = space + "- ";
-						boolean add = false;
-						if (o instanceof Collection) {
-							if(!((Collection<?>) o).isEmpty()) {
-								try {
-									if((int)aw[3]==set) {
-										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
-									}else {
-										Object obj = Reader.read(aw[2]+"");
-										if(obj instanceof Map||obj instanceof Collection) { //json
-											b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
-										}else {
-											add=true;
-											b.write(pathName + System.lineSeparator());
-											for (Object a : (Collection<?>) o) {
-												b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-										}}
-									}
-								}catch(Exception er) {
-									try {
-										Object obj = Reader.read(aw[2]+"");
-										if(obj instanceof Map||obj instanceof Collection) { //json
-										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
-									}else {
-										if(!add) {
-											add=true;
-											b.write(pathName + System.lineSeparator());
-										}
-									for (Object a : (Collection<?>) o) {
-										b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-									}}
-									}catch(Exception unsuported) {
-										if(!add) {
-											add=true;
-											b.write(pathName + System.lineSeparator());
-										}
-										for (Object a : (Collection<?>) o) {
-											b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-										}
-									}
-								}
-							}else
-								b.write(pathName + " []" + System.lineSeparator());
-						} else {
-							if(((Object[]) o).length!=0) {
-								b.write(pathName + System.lineSeparator());
-								try {
-									if((int)aw[3]==set) {
-										b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
-									}else {
-										Object obj = Reader.read(aw[2]+"");
-										if(obj instanceof Map||obj instanceof Collection) { //json
-											b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
-										}else {
-											add=true;
-											b.write(pathName + System.lineSeparator());
-										for (Object a : (Collection<?>) o) {
-											b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-										}}
-									}
-								}catch(Exception er) {
-									try {
-										Object obj = Reader.read(aw[2]+"");
-										if(obj instanceof Map||obj instanceof Collection) { //json
-											b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
-										}else {
-											if(!add) {
-												add=true;
-												b.write(pathName + System.lineSeparator());
-											}
-											for (Object a : (Collection<?>) o) {
-												b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-											}
-										}
-									}catch(Exception unsuported) {
-										if(!add) {
-											add=true;
-											b.write(pathName + System.lineSeparator());
-										}
-										for (Object a : (Collection<?>) o) {
-											b.write(splitted+addQuotes(a instanceof String, Writer.write(a)) + System.lineSeparator());
-										}
-									}
-							}}else
-								b.write(pathName + " []" + System.lineSeparator());
-						}
-					} else {
-						try {
-							if((int)aw[3]==set) {
-								b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
-							}else {
-								Object obj = Reader.read(aw[2]+"");
-								if(obj instanceof Map||obj instanceof Collection) { //json
-									b.write(pathName + " "+addQuotes(true, aw[2]+"") + System.lineSeparator());
-								}else
-									b.write(pathName + " "+addQuotes(o instanceof String, Writer.write(o)) + System.lineSeparator());
-							}
-						}catch(Exception er) {
-							try {
-								Object obj = Reader.read(aw[2]+"");
-								if(obj instanceof Map||obj instanceof Collection) { //json
-									b.write(pathName + " "+aw[2] + System.lineSeparator());
-								}else
-									b.write(pathName + " "+addQuotes(o instanceof String, Writer.write(o)) + System.lineSeparator());
-							}catch(Exception unsuported) {
-								b.write(pathName + " "+addQuotes(o instanceof String, Writer.write(o)) + System.lineSeparator());
-							}
-						}
+		Object[] aw = loader.get().get(path);
+		if(aw==null) {
+			b.write(pathName + System.lineSeparator());
+			for (String d : loader.get().keySet()) {
+				if (d.indexOf(path)==0) {
+					String c = d.substring(path.length());
+					if (c.indexOf('.')!=0)
+						continue;
+					c = c.substring(1);
+					c =  bot.split(c)[0];
+					if (c.trim().isEmpty())
+						continue;
+					String dd = path + '.' + c;
+					if(!done.contains(dd)) {
+						done.add(dd);
+						preparePath(done, dd, c + ':', space+' '+' ', b);
 					}
 				}
-			for (String key : getKeys(keys,path, false))
-				preparePath(keys,loader,path + "." + key, key + ":", spaces + 1, b);
-		} catch (Exception er) {
+			}
+			return;
 		}
+		Collection<String> list = (Collection<String>)aw[1];
+		Object o = aw[0];
+		if(list != null)
+			for (String s : list)
+				b.write(space + s + System.lineSeparator());
+		if(o==null)b.write(pathName + System.lineSeparator());
+		else {
+			if (o instanceof Collection || o instanceof Object[]) {
+				String splitted = space + "- ";
+				if (o instanceof Collection) {
+					if(!((Collection<?>) o).isEmpty()) {
+						b.write(pathName + System.lineSeparator());
+						try {
+							if((int)aw[3]==1) {
+								b.write(pathName + ' '+addQuotes(o, aw[2]+"") + System.lineSeparator());
+							}else {
+								for (Object a : (Collection<?>) o) {
+									b.write(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
+								}
+							}
+						}catch(Exception er) {
+							for (Object a : (Collection<?>) o) {
+								b.write(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
+							}
+					}}else
+						b.write(pathName + " []" + System.lineSeparator());
+				} else {
+					if(((Object[]) o).length!=0) {
+						b.write(pathName + System.lineSeparator());
+						try {
+							if((int)aw[3]==1) {
+								b.write(pathName + ' '+addQuotes(o, aw[2]+"") + System.lineSeparator());
+							}else {
+								for (Object a : (Object[]) o) {
+									b.write(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
+								}
+							}
+						}catch(Exception er) {
+							for (Object a : (Object[]) o) {
+								b.write(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
+							}
+					}}else
+						b.write(pathName + " []" + System.lineSeparator());
+				}
+			} else {
+				try {
+					if((int)aw[3]==1) {
+						b.write(pathName + ' '+addQuotes(o, aw[2]+"") + System.lineSeparator());
+					}else {
+						b.write(pathName + ' '+addQuotes(o, Writer.write(o)) + System.lineSeparator());
+					}
+				}catch(Exception er) {
+					b.write(pathName + ' '+addQuotes(o, Writer.write(o)) + System.lineSeparator());
+				}
+			}
+		}
+		for (String d : loader.getKeys())
+			if (d.indexOf(path)==0) {
+				String c = d.substring(path.length());
+				if (c.indexOf('.')!=0)
+					continue;
+				c = c.substring(1);
+				c =  bot.split(c)[0];
+				if (c.trim().isEmpty())
+					continue;
+				String dd = path + '.' + c;
+				if(!done.contains(dd)) {
+					done.add(dd);
+					preparePath(done, dd, c + ':', space+' '+' ', b);
+				}
+			}
+		}catch(Exception err) {}
 	}
 
 	public synchronized String toString(DataType type) {
@@ -843,39 +695,35 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			} catch (Exception e) {
 			}
 			return "";
-		}
+		}else
 		if (type == DataType.JSON) {
 			Maker main = new Maker();
 			for (String key : new LinkedHashSet<>(aw))
 				addKeys(main, key);
 			return main.toString();
 		}
-
-		StringWriter d = new StringWriter();
+		StringWriter d = new StringWriter(aw.size()*8);
 		try {
 			for (String h : loader.getHeader())
-				d.write(h + System.lineSeparator());
+				d.append(h + System.lineSeparator());
 		} catch (Exception er) {
 		}
+		List<String> done = new ArrayList<>(loader.get().size());
 		for (String key : new LinkedHashSet<>(aw))
-			preparePath(new ArrayList<>(loader.getKeys()),new HashMap<>(this.loader.get()),key, key + ":", 0, d);
+			preparePath(done,key, key + ':', "", d);
 		try {
 			for (String h : loader.getFooter())
-				d.write(h + System.lineSeparator());
+				d.append(h + System.lineSeparator());
 		} catch (Exception er) {
 			Validator.send("Saving Data to YAML", er);
 		}
+		try {
+			d.close();
+		} catch (Exception e) {
+		}
 		return d.toString();
 	}
-
-	private static final String space = "  ";
-	protected String cs(int s) {
-		StringBuilder i = new StringBuilder();
-		for (int c = 0; c < s; ++c)
-			i.append(space);
-		return i.toString();
-	}
-
+	
 	@Override
 	public synchronized String getDataName() {
 		HashMap<String, Object> s = new HashMap<>();

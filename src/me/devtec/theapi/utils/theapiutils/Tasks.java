@@ -2,9 +2,13 @@ package me.devtec.theapi.utils.theapiutils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -16,7 +20,6 @@ import org.bukkit.entity.Player;
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.scheduler.Scheduler;
 import me.devtec.theapi.scheduler.Tasker;
-import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.listener.events.EntityMoveEvent;
 import me.devtec.theapi.utils.listener.events.ServerListPingEvent;
 import me.devtec.theapi.utils.nms.NMSAPI;
@@ -35,7 +38,7 @@ public class Tasks {
 	private static PacketListener l;
 
 	public static void load() {
-		Data v = new Data();
+		Map<UUID, Location> v = new HashMap<>();
 		if (load)
 			return;
 		load = true;
@@ -70,7 +73,7 @@ public class Tasks {
 						Ref.set(w, "b", sd);
 
 						if (event.getMotd() != null)
-							Ref.set(w, "a", Ref.IChatBaseComponent(event.getMotd()));
+							Ref.set(w, "a", NMSAPI.getFixedIChatBaseComponent(event.getMotd()));
 						else
 							Ref.set(w, "a", NMSAPI.getIChatBaseComponentText(""));
 						if(event.getVersion()!=null)
@@ -92,6 +95,9 @@ public class Tasks {
 		if (LoaderClass.config.getBoolean("Options.EntityMoveEvent.Enabled"))
 			task = new Tasker() {
 			EntityMoveEvent event = new EntityMoveEvent(null, null, null);
+			Field from = Ref.field(EntityMoveEvent.class, "from");
+			Field to = Ref.field(EntityMoveEvent.class, "to");
+			Field entity = Ref.field(EntityMoveEvent.class, "entity");
 				public void run() {
 					for (World w : Bukkit.getWorlds()) {
 						try {
@@ -99,20 +105,17 @@ public class Tasks {
 								if (da instanceof LivingEntity) {
 									LivingEntity e = (LivingEntity) da;
 									Location a = e.getLocation();
-									Location old = v.exists(e.getUniqueId().toString())
-											? (Location) v.get(e.getUniqueId().toString())
-											: a;
-									if (v.exists(e.getUniqueId().toString())
-											&& v.get(e.getUniqueId().toString()) != a) {
-										Ref.set(event, "from", old);
-										Ref.set(event, "to", a);
-										Ref.set(event, "entity", e);
+									Location old = v.getOrDefault(e.getUniqueId(),a);
+									if (!v.get(e.getUniqueId()).equals(a)) {
+										Ref.set(event, from, old);
+										Ref.set(event, to, a);
+										Ref.set(event, entity, e);
 										event.setCancelled(false);
 										TheAPI.callEvent(event);
 										if (event.isCancelled())
 											e.teleport(old);
 										else
-											v.set(e.getUniqueId().toString(), a);
+											v.put(e.getUniqueId(), a);
 									}
 								}
 							}

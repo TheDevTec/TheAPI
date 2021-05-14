@@ -72,7 +72,7 @@ public class ByteLoader extends DataLoader {
 					}catch(Exception not) {
 						run=false;
 					}
-					data.put(key, new Object[] {value==null?null:Reader.read(value), null, value});
+					data.put(key, new Object[] {value==null?null:Reader.read(value), null, value,1});
 				} catch (Exception e) {
 					break;
 				}
@@ -105,7 +105,7 @@ public class ByteLoader extends DataLoader {
 						}catch(Exception not) {
 							run=false;
 						}
-						data.put(key, new Object[] {value==null?null:Reader.read(value), null, value});
+						data.put(key, new Object[] {value==null?null:Reader.read(value), null, value, 1});
 					} catch (Exception e) {
 						break;
 					}

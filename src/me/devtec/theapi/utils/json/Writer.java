@@ -107,6 +107,13 @@ public class Writer implements JsonWriter {
 	public String object(Object w, boolean addNulls, boolean fancy) {
 		if (w == null)
 			return "null";
+		if (w instanceof Enum<?>) {
+			Map<String, Object> enumMap = new HashMap<>();
+			enumMap.put("enum " + w.getClass().getName(), w.toString());
+			return map(enumMap, addNulls, fancy);
+		}
+		if (w instanceof Comparable)
+			return w.toString();
 		if (w instanceof Location) {
 			Location stack = (Location) w;
 			Map<String, Object> done = new HashMap<>();
@@ -172,13 +179,10 @@ public class Writer implements JsonWriter {
 			done.put("modifiedClass org.bukkit.inventory.ItemStack", items);
 			return map(done, addNulls, fancy);
 		}
-		if (w instanceof String || w.getClass() == Ref.nms("IChatBaseComponent")
+		if (w.getClass() == Ref.nms("IChatBaseComponent")
 				|| w.getClass() == Ref.nms("IChatMutableComponent") || w.getClass() == Ref.nms("ChatBaseComponent")
 				|| w.getClass() == Ref.nms("ChatMessage") || w.getClass() == Ref.nms("ChatComponentText")
 				|| w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")) {
-			if (w instanceof String) {
-				return "" + w;
-			}
 			String obj = w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")
 					? (String) Ref.invoke(w, "toLegacyText")
 					: (String) Ref.invoke(Ref.craft("util.CraftChatMessage"), from,
@@ -187,13 +191,6 @@ public class Writer implements JsonWriter {
 			enumMap.put("class " + w.getClass().getName(), obj);
 			return map(enumMap, addNulls, fancy);
 		}
-		if (w instanceof Enum<?>) {
-			Map<String, Object> enumMap = new HashMap<>();
-			enumMap.put("enum " + w.getClass().getName(), w.toString());
-			return map(enumMap, addNulls, fancy);
-		}
-		if (w instanceof Comparable)
-			return w.toString();
 		if (w instanceof Object[])
 			return array((Object[]) w, addNulls, fancy);
 		if (w instanceof Collection) {
@@ -219,6 +216,13 @@ public class Writer implements JsonWriter {
 	public Object object2(Object w, boolean fancy, boolean addNulls) {
 		if (w == null)
 			return null;
+		if (w instanceof Enum<?>) {
+			Map<String, Object> enumMap = new HashMap<>();
+			enumMap.put("enum " + w.getClass().getName(), w.toString());
+			return enumMap;
+		}
+		if (w instanceof Comparable)
+			return w;
 		if (w instanceof Location) {
 			Location stack = (Location) w;
 			Map<String, Object> done = new HashMap<>(), items = new HashMap<>();
@@ -280,13 +284,10 @@ public class Writer implements JsonWriter {
 			done.put("modifiedClass org.bukkit.inventory.ItemStack", items);
 			return done;
 		}
-		if (w instanceof String || w.getClass() == Ref.nms("IChatBaseComponent")
+		if (w.getClass() == Ref.nms("IChatBaseComponent")
 				|| w.getClass() == Ref.nms("IChatMutableComponent") || w.getClass() == Ref.nms("ChatBaseComponent")
 				|| w.getClass() == Ref.nms("ChatMessage") || w.getClass() == Ref.nms("ChatComponentText")
 				|| w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")) {
-			if (w instanceof String) {
-				return w;
-			}
 			String obj = w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")
 					? (String) Ref.invoke(w, "toLegacyText")
 					: (String) Ref.invoke(Ref.craft("util.CraftChatMessage"), from,
@@ -298,13 +299,6 @@ public class Writer implements JsonWriter {
 		if (w instanceof Enchantment) {
 			return "{\"enum org.bukkit.enchantments.Enchantment\":\"" + ((Enchantment) w).getName() + "\"}";
 		}
-		if (w instanceof Enum<?>) {
-			Map<String, Object> enumMap = new HashMap<>();
-			enumMap.put("enum " + w.getClass().getName(), w.toString());
-			return enumMap;
-		}
-		if (w instanceof Comparable)
-			return w;
 		if (w instanceof Object[])
 			return fix(Arrays.asList((Object[]) w), fancy, addNulls);
 		if (w instanceof Collection) {

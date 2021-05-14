@@ -5,8 +5,9 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -22,8 +23,11 @@ public class SchematicData extends Data {
 	
 	public SchematicData() {
 		loader = new EmptyLoader();
-		aw = new LinkedHashSet<>();
+		aw = new LinkedList<>();
 	}
+	
+	private static Pattern bot = Pattern.compile("\\.");
+	
 	
 	public SchematicData(String filePath) {
 		this(new File(filePath.startsWith("/") ? filePath.substring(1) : filePath), true);
@@ -39,7 +43,7 @@ public class SchematicData extends Data {
 	
 	public SchematicData(File f, boolean load) {
 		a = f;
-		aw = new LinkedHashSet<>();
+		aw = new LinkedList<>();
 		if (load)
 			reload(a);
 	}
@@ -54,7 +58,7 @@ public class SchematicData extends Data {
 	public boolean exists(String path) {
 		int a = 0;
 		for (String k : loader.get().keySet()) {
-			if (k.startsWith(path)) {
+			if (k.indexOf(path)==0) {
 				a = 1;
 				break;
 			}
@@ -83,8 +87,8 @@ public class SchematicData extends Data {
 		loader = new SchematicLoader();
 		loader.load(input);
 		for (String k : loader.getKeys())
-			if (!aw.contains(k.split("\\.")[0]))
-				aw.add(k.split("\\.")[0]);
+			if (!aw.contains( bot.split(k)[0]))
+				aw.add( bot.split(k)[0]);
 		return this;
 	}
 	
@@ -93,7 +97,6 @@ public class SchematicData extends Data {
 	public void save() {
 		if(!requireSave)return;
 		if(isSaving) {
-			doSave=true;
 			return;
 		}
 		isSaving=true;
@@ -130,10 +133,6 @@ public class SchematicData extends Data {
 			}catch(Exception er) {}
 		}
 		isSaving=false;
-		if(doSave) {
-			doSave=false;
-			save();
-		}
 	}
 
 	@Override
