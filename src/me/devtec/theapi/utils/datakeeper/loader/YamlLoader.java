@@ -49,8 +49,6 @@ public class YamlLoader extends DataLoader {
 	public Map<String, Object[]> get() {
 		return data;
 	}
-
-	private static Pattern bot = Pattern.compile("\\.");
 	
 	@Override
 	public void load(String input) {
@@ -141,13 +139,13 @@ public class YamlLoader extends DataLoader {
 							if (!text.startsWith(" "))
 								key = "";
 							if (c(text) == last) {
-								String lastr =  bot.split(key)[ bot.split(key).length - 1] + 1;
+								String lastr = key.split("\\.")[key.split("\\.").length - 1] + 1;
 								int remove = key.length() - lastr.length();
 								if (remove > 0)
 									key = key.substring(0, remove);
 							} else {
 								for (int i = 0; i < Math.abs(last - c(text)) / 2 + 1; ++i) {
-									String lastr =  bot.split(key)[ bot.split(key).length - 1] + 1;
+									String lastr = key.split("\\.")[key.split("\\.").length - 1] + 1;
 									int remove = key.length() - lastr.length();
 									if (remove < 0)
 										break;
@@ -250,8 +248,9 @@ public class YamlLoader extends DataLoader {
 
 	private final void set(String key, Object o, LinkedList<String> lines) {
 		if(key==null)return;
-		if (data.containsKey(key)) {
-			data.get(key)[0]=o;
+		Object[] s = data.get(key);
+		if (s!=null) {
+			s[0]=o;
 		} else
 			set(key, new Object[] {o, lines.isEmpty()?null:new LinkedList<>(lines), null});
 		lines.clear();
@@ -259,10 +258,11 @@ public class YamlLoader extends DataLoader {
 
 	private final void set(String key, Object o, LinkedList<String> lines, String original) {
 		if(key==null)return;
-		if (data.containsKey(key)) {
-			data.get(key)[0]=o;
+		Object[] s = data.get(key);
+		if (s!=null) {
+			s[0]=o;
 		} else
-			set(key, new Object[] {o, lines.isEmpty()?null:new LinkedList<>(lines), original,1});
+			set(key, new Object[] {o, lines.isEmpty()?null:new LinkedList<>(lines), original, 1});
 		lines.clear();
 	}
 

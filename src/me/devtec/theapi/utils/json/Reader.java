@@ -61,7 +61,7 @@ public class Reader implements JsonReader {
 		}
 		if (parsed instanceof Comparable) {
 			if(parsed instanceof String) {
-				if(StringUtils.isBoolean(json))return true;
+				if(StringUtils.isBoolean(json))return StringUtils.getBoolean(json);
 				if(StringUtils.isNumber(json))return StringUtils.getNumber(json);
 			}
 			return parsed;

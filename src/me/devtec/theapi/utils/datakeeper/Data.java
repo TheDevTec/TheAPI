@@ -2,10 +2,9 @@ package me.devtec.theapi.utils.datakeeper;
 
 
 import java.io.File;
-import java.io.StringWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -16,7 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 import java.util.Set;
 
 import com.google.common.io.ByteArrayDataOutput;
@@ -83,12 +81,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return this;
 	}
 
-	private static Pattern bot = Pattern.compile("\\.");
-	
 	private Object[] getOrCreateData(String key) {
 		Object[] h = loader.get().get(key);
 		if (h == null) {
-			String ss = bot.split(key)[0];
+			String ss = key.split("\\.")[0];
 			if (!aw.contains(ss))
 				aw.add(ss);
 			loader.get().put(key, h = new Object[2]);
@@ -132,7 +128,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			return this;
 		requireSave=true;
 		if (value == null) {
-			String[] sf =  bot.split(key);
+			String[] sf = key.split("\\.");
 			if (sf.length <= 1)
 				aw.remove(sf[0]);
 			loader.remove(key);
@@ -140,6 +136,15 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 		Object[] o = getOrCreateData(key);
 		o[0]=value;
+		switch(o.length) {
+		case 4:
+			o[2]=null;
+			o[3]=null;
+			break;
+		case 3:
+			o[2]=null;
+			break;
+		}
 		return this;
 	}
 
@@ -147,8 +152,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (key == null)
 			return this;
 		requireSave=true;
-		if ( bot.split(key).length<=1)
-			aw.remove(bot.split(key)[0]);
+		if (key.split("\\.").length<=1)
+			aw.remove(key.split("\\.")[0]);
 		loader.remove(key);
 		for(String d : new ArrayList<>(loader.get().keySet()))
 			if (d.indexOf(key)==0 && d.substring(key.length()).indexOf('.')==0)
@@ -161,7 +166,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (key == null)
 			return null;
 		requireSave=true;
-		return (List<String>) getOrCreateData(key)[1];
+		Object obj = getOrCreateData(key)[1];
+		return obj==null?null:(List<String>)obj;
 	}
 
 	public synchronized Data setComments(String key, List<String> value) {
@@ -250,8 +256,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		aw.clear();
 		loader = DataLoader.findLoaderFor(input); // get & load
 		for (String k : loader.getKeys())
-			if (!aw.contains( bot.split(k)[0]))
-				aw.add( bot.split(k)[0]);
+			if (!aw.contains(k.split("\\.")[0]))
+				aw.add(k.split("\\.")[0]);
 		return this;
 	}
 
@@ -487,11 +493,9 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		isSaving=true;
 		requireSave=false;
 		try {
-			Path path = Paths.get(a.toURI());
-			try {
-			    Files.write(path, toString(type).getBytes());
-			} catch (Exception ex) {
-			}
+			OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
+			w.write(toString(type));
+			w.close();
 		} catch (Exception e1) {
 		}
 		isSaving=false;
@@ -549,7 +553,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 					continue;
 				c = c.substring(1);
 				if(!subkeys)
-				c =  bot.split(c)[0];
+				c =  c.split("\\.")[0];
 				if (c.trim().isEmpty())
 					continue;
 				if (!a.contains(c))
@@ -567,29 +571,29 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (o != null)
 			main.add(main.create().put(key, o));
 		for (String keyer : getKeys(key))
-			addKeys(main, key + '.' + keyer);
+			addKeys(main, key + "." + keyer);
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void preparePath(List<String> done, String path, String pathName, String space, java.io.Writer b) {
+	protected synchronized void preparePath(List<String> done, String path, String pathName, String space, StringBuffer b) {
 		pathName = space + pathName;
 		try {
 		Object[] aw = loader.get().get(path);
 		if(aw==null) {
-			b.write(pathName + System.lineSeparator());
+			b.append(pathName + System.lineSeparator());
 			for (String d : loader.get().keySet()) {
 				if (d.indexOf(path)==0) {
 					String c = d.substring(path.length());
 					if (c.indexOf('.')!=0)
 						continue;
 					c = c.substring(1);
-					c =  bot.split(c)[0];
+					c =  c.split("\\.")[0];
 					if (c.trim().isEmpty())
 						continue;
-					String dd = path + '.' + c;
+					String dd = path + "." + c;
 					if(!done.contains(dd)) {
 						done.add(dd);
-						preparePath(done, dd, c + ':', space+' '+' ', b);
+						preparePath(done, dd, c + ":", space+"  ", b);
 					}
 				}
 			}
@@ -599,55 +603,55 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Object o = aw[0];
 		if(list != null)
 			for (String s : list)
-				b.write(space + s + System.lineSeparator());
-		if(o==null)b.write(pathName + System.lineSeparator());
+				b.append(space + s + System.lineSeparator());
+		if(o==null)b.append(pathName + System.lineSeparator());
 		else {
 			if (o instanceof Collection || o instanceof Object[]) {
 				String splitted = space + "- ";
 				if (o instanceof Collection) {
 					if(!((Collection<?>) o).isEmpty()) {
-						b.write(pathName + System.lineSeparator());
+						b.append(pathName + System.lineSeparator());
 						try {
 							if((int)aw[3]==1) {
-								b.write(pathName + ' '+addQuotes(o, aw[2]+"") + System.lineSeparator());
+								b.append(pathName + ' '+addQuotes(o, aw[2]+"") + System.lineSeparator());
 							}else {
 								for (Object a : (Collection<?>) o) {
-									b.write(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
+									b.append(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
 								}
 							}
 						}catch(Exception er) {
 							for (Object a : (Collection<?>) o) {
-								b.write(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
+								b.append(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
 							}
 					}}else
-						b.write(pathName + " []" + System.lineSeparator());
+						b.append(pathName + " []" + System.lineSeparator());
 				} else {
 					if(((Object[]) o).length!=0) {
-						b.write(pathName + System.lineSeparator());
+						b.append(pathName + System.lineSeparator());
 						try {
 							if((int)aw[3]==1) {
-								b.write(pathName + ' '+addQuotes(o, aw[2]+"") + System.lineSeparator());
+								b.append(pathName + ' '+addQuotes(o, aw[2]+"") + System.lineSeparator());
 							}else {
 								for (Object a : (Object[]) o) {
-									b.write(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
+									b.append(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
 								}
 							}
 						}catch(Exception er) {
 							for (Object a : (Object[]) o) {
-								b.write(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
+								b.append(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
 							}
 					}}else
-						b.write(pathName + " []" + System.lineSeparator());
+						b.append(pathName + " []" + System.lineSeparator());
 				}
 			} else {
 				try {
 					if((int)aw[3]==1) {
-						b.write(pathName + ' '+addQuotes(o, aw[2]+"") + System.lineSeparator());
+						b.append(pathName + ' '+addQuotes(o, aw[2]+"") + System.lineSeparator());
 					}else {
-						b.write(pathName + ' '+addQuotes(o, Writer.write(o)) + System.lineSeparator());
+						b.append(pathName + ' '+addQuotes(o, Writer.write(o)) + System.lineSeparator());
 					}
 				}catch(Exception er) {
-					b.write(pathName + ' '+addQuotes(o, Writer.write(o)) + System.lineSeparator());
+					b.append(pathName + ' '+addQuotes(o, Writer.write(o)) + System.lineSeparator());
 				}
 			}
 		}
@@ -657,13 +661,13 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				if (c.indexOf('.')!=0)
 					continue;
 				c = c.substring(1);
-				c =  bot.split(c)[0];
+				c = c.split("\\.")[0];
 				if (c.trim().isEmpty())
 					continue;
-				String dd = path + '.' + c;
+				String dd = path + "." + c;
 				if(!done.contains(dd)) {
 					done.add(dd);
-					preparePath(done, dd, c + ':', space+' '+' ', b);
+					preparePath(done, dd, c + ":", space+"  ", b);
 				}
 			}
 		}catch(Exception err) {}
@@ -695,14 +699,14 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			} catch (Exception e) {
 			}
 			return "";
-		}else
+		}
 		if (type == DataType.JSON) {
 			Maker main = new Maker();
 			for (String key : new LinkedHashSet<>(aw))
 				addKeys(main, key);
 			return main.toString();
 		}
-		StringWriter d = new StringWriter(aw.size()*8);
+		StringBuffer d = new StringBuffer(loader.get().size()*8);
 		try {
 			for (String h : loader.getHeader())
 				d.append(h + System.lineSeparator());
@@ -710,16 +714,12 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 		List<String> done = new ArrayList<>(loader.get().size());
 		for (String key : new LinkedHashSet<>(aw))
-			preparePath(done,key, key + ':', "", d);
+			preparePath(done,key, key + ":", "", d);
 		try {
 			for (String h : loader.getFooter())
 				d.append(h + System.lineSeparator());
 		} catch (Exception er) {
 			Validator.send("Saving Data to YAML", er);
-		}
-		try {
-			d.close();
-		} catch (Exception e) {
 		}
 		return d.toString();
 	}

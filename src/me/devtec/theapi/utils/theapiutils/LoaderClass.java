@@ -740,8 +740,7 @@ public class LoaderClass extends JavaPlugin {
 								TheAPI.removeCachedUser(user.getUUID());
 								user.delete(); //delete file
 								++removed;
-							}else
-								user.data().clear(); //clear cache from memory
+							}
 						}
 						data.clear();
 						if (removed != 0)
@@ -763,8 +762,7 @@ public class LoaderClass extends JavaPlugin {
 										TheAPI.removeCachedUser(user.getUUID());
 										user.delete(); //delete file
 										++removed;
-									}else
-										user.data().clear(); //clear cache from memory
+									}
 								}
 								if (removed != 0)
 									TheAPI.msg("&cTheAPI&7: &eTheAPI deleted &6" + removed + " &eunused user files",
