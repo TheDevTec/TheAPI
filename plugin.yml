@@ -2,7 +2,7 @@ name: TheAPI
 main: me.devtec.theapi.utils.theapiutils.LoaderClass
 author: DevTec
 website: https://www.spigotmc.org/resources/72679/
-version: 5.9.7
+version: 5.9.8
 api-version: 1.13
 loadbefore: [WorldGuard,Residence,MobArena,SpecializedCrates,GoldenCrates]
 softdepend: [Vault,PlaceholderAPI]
