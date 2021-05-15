@@ -33,21 +33,15 @@ public class StreamUtils {
 	
 	public static String fromStream(InputStream stream) {
 		try {
-			InputStreamReader isr = new InputStreamReader(stream, StandardCharsets.UTF_8);
-			BufferedReader br = new BufferedReader(isr);
-			StringBuffer sb = new StringBuffer();
+			BufferedReader br = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
+			StringBuffer sb = new StringBuffer(512);
 			String content;
 			while ((content = br.readLine()) != null)
 				sb.append(content+System.lineSeparator());
 			br.close();
-			isr.close();
 			return sb.toString();
 		} catch (Exception e) {
 			return null;
-		} finally {
-			try {
-				stream.close();
-			} catch (Exception e) {}
 		}
 	}
 
@@ -72,10 +66,6 @@ public class StreamUtils {
 			return Reader.read(ByteStreams.newDataInput(ByteStreams.toByteArray(stream)).readUTF()); //object
 		} catch (Exception e) {
 			return null;
-		} finally {
-			try {
-				stream.close();
-			} catch (Exception e) {}
 		}
 	}
 }

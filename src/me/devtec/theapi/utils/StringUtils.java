@@ -1041,10 +1041,10 @@ public class StringUtils {
 	}
 
 	public static Number getNumber(String o) {
-		if (isInt(o))
-			return getInt(o);
 		if (isDouble(o))
 			return getDouble(o);
+		if (isInt(o))
+			return getInt(o);
 		if (isLong(o))
 			return getLong(o);
 		if (isByte(o))

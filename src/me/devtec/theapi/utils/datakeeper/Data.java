@@ -299,94 +299,66 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public synchronized String getString(String key) {
 		Object[] a = loader.get().get(key);
 		if(a==null)return null;
-		try {
-			return (String)a[2];
-		}catch(Exception outOfBound) {
-			return a[0] instanceof String ? (String)a[0] : (a[0]==null?null:a[0]+"");
+		if(a.length>=3) {
+			Object s = a[2];
+			if(s!=null)return s+"";
 		}
+		return a[0] instanceof String ? (String)a[0] : (a[0]==null?null:a[0]+"");
 	}
 
 	public synchronized int getInt(String key) {
 		try {
-			return getAs(key, int.class);
+			return ((Number)get(key)).intValue();
 		} catch (Exception notNumber) {
-			try {
-				return getAs(key, Integer.class);
-			} catch (Exception notNumber2) {
-				return StringUtils.getInt(getString(key));
-			}
+			return StringUtils.getInt(getString(key));
 		}
 	}
 
 	public synchronized double getDouble(String key) {
 		try {
-			return getAs(key, double.class);
+			return ((Number)get(key)).doubleValue();
 		} catch (Exception notNumber) {
-			try {
-				return getAs(key, Double.class);
-			} catch (Exception notNumber2) {
-				return StringUtils.getDouble(getString(key));
-			}
+			return StringUtils.getDouble(getString(key));
 		}
 	}
 
 	public synchronized long getLong(String key) {
 		try {
-			return getAs(key, long.class);
+			return ((Number)get(key)).longValue();
 		} catch (Exception notNumber) {
-			try {
-				return getAs(key, Long.class);
-			} catch (Exception notNumber2) {
-				return StringUtils.getLong(getString(key));
-			}
+			return StringUtils.getLong(getString(key));
 		}
 	}
 
 	public synchronized float getFloat(String key) {
 		try {
-			return getAs(key, float.class);
+			return ((Number)get(key)).floatValue();
 		} catch (Exception notNumber) {
-			try {
-				return getAs(key, Float.class);
-			} catch (Exception notNumber2) {
-				return StringUtils.getFloat(getString(key));
-			}
+			return StringUtils.getFloat(getString(key));
 		}
 	}
 
 	public synchronized byte getByte(String key) {
 		try {
-			return getAs(key, byte.class);
+			return ((Number)get(key)).byteValue();
 		} catch (Exception notNumber) {
-			try {
-				return getAs(key, Byte.class);
-			} catch (Exception notNumber2) {
-				return StringUtils.getByte(getString(key));
-			}
+			return StringUtils.getByte(getString(key));
 		}
 	}
 
 	public synchronized boolean getBoolean(String key) {
 		try {
-			return getAs(key, boolean.class);
+			return (boolean)get(key);
 		} catch (Exception notNumber) {
-			try {
-				return getAs(key, Boolean.class);
-			} catch (Exception notNumber2) {
-				return StringUtils.getBoolean(getString(key));
-			}
+			return StringUtils.getBoolean(getString(key));
 		}
 	}
 
 	public synchronized short getShort(String key) {
 		try {
-			return getAs(key, short.class);
+			return ((Number)get(key)).shortValue();
 		} catch (Exception notNumber) {
-			try {
-				return getAs(key, Short.class);
-			} catch (Exception notNumber2) {
-				return StringUtils.getShort(getString(key));
-			}
+			return StringUtils.getShort(getString(key));
 		}
 	}
 	

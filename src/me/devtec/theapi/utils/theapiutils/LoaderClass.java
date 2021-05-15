@@ -469,19 +469,6 @@ public class LoaderClass extends JavaPlugin {
 								TheAPI.getConsole());
 					}
 				}.runLater(200);
-				int removed = 0;
-				if (new File("plugins/TheAPI/User").exists()) {
-					File[] fff = new File("plugins/TheAPI/User").listFiles();
-					for (File f : Arrays.copyOf(fff, fff.length)) {
-						if (StreamUtils.fromStream(f).trim().isEmpty()) {
-							f.delete();
-							++removed;
-						}
-					}
-				}
-				if (removed != 0)
-					TheAPI.msg("&cTheAPI&7: &eTheAPI deleted &6" + removed + " &eunused user files",
-							TheAPI.getConsole());
 				new Tasker() {
 					public void run() {
 						for(User u : TheAPI.getCachedUsers()) {
@@ -648,6 +635,7 @@ public class LoaderClass extends JavaPlugin {
 				"# If you enable this option, errors from TheAPI will dissapear", "# defaulty: false")); // hide only TheAPI errors
 		config.addDefault("Options.ConsoleLogEvent", false);
 		config.addDefault("Options.ItemUnbreakable", true);
+		config.addDefault("Options.ServerListPingEvent", true);
 		config.addDefault("Options.Cache.User.Use", new Node(true, "# Cache Users to memory for faster loading", "# defaulty: true")); // Require memory, but loading of User.class is faster (only
 		// from TheAPI.class)
 		config.setComments("Options.Cache", Arrays.asList(""));

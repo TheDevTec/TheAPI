@@ -55,10 +55,10 @@ public class Reader implements JsonReader {
 			parsed = map(json);
 			if (parsed == null)
 				parsed = collection(json);
-			if (parsed == null)
-				parsed = json;
 		} catch (Exception e) {
 		}
+		if (parsed == null)
+			parsed = json;
 		if (parsed instanceof Comparable) {
 			if(parsed instanceof String) {
 				if(StringUtils.isBoolean(json))return StringUtils.getBoolean(json);

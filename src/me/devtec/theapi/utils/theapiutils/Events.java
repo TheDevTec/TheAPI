@@ -166,6 +166,9 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLeave(PlayerQuitEvent e) {
 		Player s = e.getPlayer();
+		User u = TheAPI.getUser(s);
+		u.set("quit", System.currentTimeMillis()/1000);
+		u.save();
 		if(((Map<String, ScoreboardAPI>)Ref.getNulled(SimpleScore.class,"scores")).containsKey(s.getName()))
 		((Map<String, ScoreboardAPI>)Ref.getNulled(SimpleScore.class,"scores")).remove(s.getName()).destroy();
 		if(LoaderClass.plugin.handler!=null)
@@ -173,7 +176,7 @@ public class Events implements Listener {
 		TheAPI.removeBossBar(s);
 		if (LoaderClass.config.getBoolean("Options.Cache.User.RemoveOnQuit")
 				&& LoaderClass.config.getBoolean("Options.Cache.User.Use"))
-		TheAPI.getUser(e.getPlayer()).setAutoUnload(true);
+		u.setAutoUnload(true);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)

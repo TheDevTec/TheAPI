@@ -42,56 +42,58 @@ public class Tasks {
 		if (load)
 			return;
 		load = true;
-		if (l == null)
-			l = new PacketListener() {
-			Class<?> info = Ref.nms("PacketStatusOutServerInfo");
-				public boolean PacketPlayOut(String player, Object packet, Object channel) {
-					if (packet.getClass()==info) {
-						Object w = Ref.invoke(Ref.server(), "getServerPing");
-						if (w == null)
-							w = Ref.invoke(Ref.invoke(Ref.server(), "getServer"), "getServerPing");
-						if (w == null)
-							w = Ref.invoke(Ref.server(), "aG");
-						List<PlayerProfile> players = new ArrayList<>();
-						for (Player p : TheAPI.getOnlinePlayers())
-							players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
-						ServerListPingEvent event = new ServerListPingEvent(TheAPI.getOnlinePlayers().size(),
-								TheAPI.getMaxPlayers(), players, TheAPI.getMotd(), null,
-								((InetSocketAddress) Ref.invoke(channel, "remoteAddress")).getAddress(), (String)Ref.get(Ref.get(w, "c"),"a"));
-						TheAPI.callEvent(event);
-						if (event.isCancelled())
-							return true;
-						Object sd = Ref.newInstance(cc, event.getMaxPlayers(), event.getOnlinePlayers());
-						if (event.getPlayersText() != null) {
-							Object[] a = (Object[]) Array.newInstance(c, event.getPlayersText().size());
-							int i = -1;
-							for (PlayerProfile s : event.getPlayersText())
-								a[++i] = Ref.createGameProfile(s.getUUID(), s.getName());
-							Ref.set(sd, "c", a);
-						} else
-							Ref.set(sd, "c", (Object[]) Array.newInstance(c, 0));
-						Ref.set(w, "b", sd);
-
-						if (event.getMotd() != null)
-							Ref.set(w, "a", NMSAPI.getFixedIChatBaseComponent(event.getMotd()));
-						else
-							Ref.set(w, "a", NMSAPI.getIChatBaseComponentText(""));
-						if(event.getVersion()!=null)
-							Ref.set(Ref.get(w, "c"), "a", event.getVersion());
-						Ref.set(packet, "b", w);
-						if (event.getFalvicon() != null)
-							Ref.set(packet, "d", event.getFalvicon());
+		if(LoaderClass.config.getBoolean("Options.ServerListPingEvent")) {
+			if (l == null)
+				l = new PacketListener() {
+				Class<?> info = Ref.nms("PacketStatusOutServerInfo");
+					public boolean PacketPlayOut(String player, Object packet, Object channel) {
+						if (packet.getClass()==info) {
+							Object w = Ref.invoke(Ref.server(), "getServerPing");
+							if (w == null)
+								w = Ref.invoke(Ref.invoke(Ref.server(), "getServer"), "getServerPing");
+							if (w == null)
+								w = Ref.invoke(Ref.server(), "aG");
+							List<PlayerProfile> players = new ArrayList<>();
+							for (Player p : TheAPI.getOnlinePlayers())
+								players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
+							ServerListPingEvent event = new ServerListPingEvent(TheAPI.getOnlinePlayers().size(),
+									TheAPI.getMaxPlayers(), players, TheAPI.getMotd(), null,
+									((InetSocketAddress) Ref.invoke(channel, "remoteAddress")).getAddress(), (String)Ref.get(Ref.get(w, "c"),"a"));
+							TheAPI.callEvent(event);
+							if (event.isCancelled())
+								return true;
+							Object sd = Ref.newInstance(cc, event.getMaxPlayers(), event.getOnlinePlayers());
+							if (event.getPlayersText() != null) {
+								Object[] a = (Object[]) Array.newInstance(c, event.getPlayersText().size());
+								int i = -1;
+								for (PlayerProfile s : event.getPlayersText())
+									a[++i] = Ref.createGameProfile(s.getUUID(), s.getName());
+								Ref.set(sd, "c", a);
+							} else
+								Ref.set(sd, "c", (Object[]) Array.newInstance(c, 0));
+							Ref.set(w, "b", sd);
+	
+							if (event.getMotd() != null)
+								Ref.set(w, "a", NMSAPI.getFixedIChatBaseComponent(event.getMotd()));
+							else
+								Ref.set(w, "a", NMSAPI.getIChatBaseComponentText(""));
+							if(event.getVersion()!=null)
+								Ref.set(Ref.get(w, "c"), "a", event.getVersion());
+							Ref.set(packet, "b", w);
+							if (event.getFalvicon() != null)
+								Ref.set(packet, "d", event.getFalvicon());
+							return false;
+						}
 						return false;
 					}
-					return false;
-				}
-
-				@Override
-				public boolean PacketPlayIn(String player, Object packet, Object channel) {
-					return false;
-				}
-			};
-		l.register();
+	
+					@Override
+					public boolean PacketPlayIn(String player, Object packet, Object channel) {
+						return false;
+					}
+				};
+			l.register();
+		}
 		if (LoaderClass.config.getBoolean("Options.EntityMoveEvent.Enabled"))
 			task = new Tasker() {
 			EntityMoveEvent event = new EntityMoveEvent(null, null, null);

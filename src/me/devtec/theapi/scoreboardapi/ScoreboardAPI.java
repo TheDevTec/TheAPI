@@ -236,7 +236,7 @@ public class ScoreboardAPI {
 			if (first || changedPlayer) {
 				if(old!=null) {
 					if(a)
-					Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, player, old, 0));
+						Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, player, old, 0));
 					Ref.sendPacket(p, createPlayer(4, old));
 				}
 				Ref.sendPacket(p, createPlayer(3, currentPlayer));

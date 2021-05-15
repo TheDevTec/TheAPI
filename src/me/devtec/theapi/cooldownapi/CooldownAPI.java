@@ -25,7 +25,7 @@ public class CooldownAPI {
 	}
 
 	public CooldownAPI(Player player) {
-		this(TheAPI.getUser(player.getUniqueId()));
+		this(TheAPI.getUser(player));
 	}
 
 	public User getUser() {
