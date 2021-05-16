@@ -29,6 +29,7 @@ import com.google.common.io.CharStreams;
 import me.devtec.theapi.apis.EnchantmentAPI;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.StringUtils;
+import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class Reader implements JsonReader {
@@ -226,16 +227,8 @@ public class Reader implements JsonReader {
 								((Number) values.get("amount")).intValue(),
 								((Number) values.get("durability")).shortValue());
 						item.setData(new MaterialData(item.getType(), ((Number) values.get("data")).byteValue()));
-						try {
-							if (values.containsKey("nbt")) {
-								Object os = Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", item);
-								Ref.invoke(os, "setTag", Ref.invokeNulled(Ref.nms("MojangsonParser"), "parse",
-										(String) values.get("nbt")));
-								item = (ItemStack) Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"),
-										"asBukkitCopy", os);
-							}
-						} catch (Exception err) {
-						}
+						if (values.containsKey("nbt"))
+							item=NMSAPI.setNBT(item, values.get("nbt")+"");
 						ItemMeta meta = item.getItemMeta();
 						if (values.containsKey("meta.name"))
 							meta.setDisplayName((String) values.get("meta.name"));
@@ -246,8 +239,7 @@ public class Reader implements JsonReader {
 						if (values.containsKey("meta.lore"))
 							meta.setLore((List<String>) values.get("meta.lore"));
 						if (values.containsKey("meta.enchs")) {
-							for (Entry<String, Double> enchs : ((Map<String, Double>) values.get("meta.enchs"))
-									.entrySet())
+							for (Entry<String, Double> enchs : ((Map<String, Double>) values.get("meta.enchs")).entrySet())
 								meta.addEnchant(Enchantment.getByName(enchs.getKey()), enchs.getValue().intValue(),
 										true);
 						}

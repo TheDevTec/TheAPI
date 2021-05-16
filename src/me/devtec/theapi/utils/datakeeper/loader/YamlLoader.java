@@ -238,7 +238,7 @@ public class YamlLoader extends DataLoader {
 
 	private final int c(String s) {
 		int i = 0;
-		for (char c : s.toCharArray())
+		for (byte c : s.getBytes())
 			if (c == ' ')
 				++i;
 			else

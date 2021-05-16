@@ -134,7 +134,7 @@ public class ChatMessage {
 	}
 	
 	public String toLogecy() {
-		StringBuilder b = new StringBuilder();
+		StringBuilder b = new StringBuilder(join.size()*16);
 		for(Map<String, Object> text : join)
 			b.append(StringUtils.colorize(getColor(""+text.getOrDefault("color","")))+text.get("text"));
 		return b.toString();

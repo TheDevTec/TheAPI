@@ -23,6 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import me.devtec.theapi.utils.Position;
+import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class Writer implements JsonWriter {
@@ -61,6 +62,7 @@ public class Writer implements JsonWriter {
 							? Ref.getClass("com.google.gson.GsonBuilder")
 							: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder"))),
 					"create");
+	private static Method toJson = Ref.method(pretty.getClass(), "toJson", Object.class);
 
 	public String array(Object[] object, boolean addNulls) {
 		return array(object, addNulls, false);
@@ -69,7 +71,7 @@ public class Writer implements JsonWriter {
 	public String array(Object[] object, boolean addNulls, boolean fancy) {
 		if (object == null)
 			return null;
-		return (String) Ref.invoke((fancy ? pretty : simple), Ref.method(pretty.getClass(), "toJson", Object.class),
+		return (String) Ref.invoke((fancy ? pretty : simple), toJson,
 				fix(Arrays.asList(object), fancy, addNulls));
 	}
 
@@ -81,7 +83,7 @@ public class Writer implements JsonWriter {
 		if (object == null)
 			return null;
 
-		return (String) Ref.invoke((fancy ? pretty : simple), Ref.method(pretty.getClass(), "toJson", Object.class),
+		return (String) Ref.invoke((fancy ? pretty : simple), toJson,
 				fix(object, fancy, addNulls));
 	}
 
@@ -92,12 +94,12 @@ public class Writer implements JsonWriter {
 	public String map(Map<?, ?> object, boolean addNulls, boolean fancy) {
 		if (object == null)
 			return null;
-		return (String) Ref.invoke((fancy ? pretty : simple), Ref.method(pretty.getClass(), "toJson", Object.class),
+		return (String) Ref.invoke((fancy ? pretty : simple), toJson,
 				fix(object, fancy, addNulls));
 	}
 
 	private static Method from = Ref.method(Ref.craft("util.CraftChatMessage"), "fromComponent",
-			Ref.nms("IChatBaseComponent"));
+			Ref.nms("IChatBaseComponent")), isEmpty = Ref.method(Ref.nms("NBTTagCompound"), "isEmpty");
 
 	/**
 	 * 
@@ -171,9 +173,8 @@ public class Writer implements JsonWriter {
 				for (Enchantment e : stack.getEnchantments().keySet())
 					stack.removeEnchantment(e);
 			}
-			Object tag = Ref.invoke(Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", stack),
-					"getTag");
-			if (tag != null && !(boolean) Ref.invoke(tag, "isEmpty")) {
+			Object tag = NMSAPI.getNBT(stack);
+			if (tag != null && !(boolean) Ref.invoke(tag, isEmpty)) {
 				items.put("nbt", tag.toString());
 			}
 			done.put("modifiedClass org.bukkit.inventory.ItemStack", items);
@@ -210,7 +211,7 @@ public class Writer implements JsonWriter {
 			enumMap.put("Map " + w.getClass().getName(), w);
 			return map(enumMap, addNulls, fancy);
 		}
-		return (String) Ref.invoke((fancy ? pretty : simple), "toJson", (Object) convert(w, fancy, addNulls));
+		return (String) Ref.invoke((fancy ? pretty : simple), toJson, convert(w, fancy, addNulls));
 	}
 
 	public Object object2(Object w, boolean fancy, boolean addNulls) {

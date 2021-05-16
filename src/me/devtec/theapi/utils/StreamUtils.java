@@ -33,11 +33,11 @@ public class StreamUtils {
 	
 	public static String fromStream(InputStream stream) {
 		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
-			StringBuffer sb = new StringBuffer(512);
+			BufferedReader br = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8), 8192);
+			StringBuilder sb = new StringBuilder(512);
 			String content;
 			while ((content = br.readLine()) != null)
-				sb.append(content+System.lineSeparator());
+				sb.append(content).append(System.lineSeparator());
 			br.close();
 			return sb.toString();
 		} catch (Exception e) {

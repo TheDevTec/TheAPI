@@ -81,7 +81,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return this;
 	}
 
-	private Object[] getOrCreateData(String key) {
+	public synchronized Object[] getOrCreateData(String key) {
 		Object[] h = loader.get().get(key);
 		if (h == null) {
 			String ss = key.split("\\.")[0];
@@ -459,9 +459,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public Data save(DataType type) {
 		if (a == null)
 			return this;
+		if(isSaving)return this;
 		if(!requireSave)return this;
-		if(isSaving)
-			return this;
 		isSaving=true;
 		requireSave=false;
 		try {
@@ -473,14 +472,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		isSaving=false;
 		return this;
 	}
-
-	/**
-	 * Wraps string in double quotes, unless the string is already in double or
-	 * single quotes.
-	 *
-	 * New-line characters are removed from the returned string.
-	 * 
-	 */
+	
 	protected synchronized String addQuotes(Object raw, String text) {
 		if(raw instanceof String)return '"'+text+'"';
 		return text;
@@ -543,11 +535,11 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (o != null)
 			main.add(main.create().put(key, o));
 		for (String keyer : getKeys(key))
-			addKeys(main, key + "." + keyer);
+			addKeys(main, key + '.' + keyer);
 	}
 
 	@SuppressWarnings("unchecked")
-	protected synchronized void preparePath(List<String> done, String path, String pathName, String space, StringBuffer b) {
+	protected synchronized void preparePath(List<String> done, String path, String pathName, String space, StringBuilder b) {
 		pathName = space + pathName;
 		try {
 		Object[] aw = loader.get().get(path);
@@ -562,10 +554,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 					c =  c.split("\\.")[0];
 					if (c.trim().isEmpty())
 						continue;
-					String dd = path + "." + c;
+					String dd = path + '.' + c;
 					if(!done.contains(dd)) {
 						done.add(dd);
-						preparePath(done, dd, c + ":", space+"  ", b);
+						preparePath(done, dd, c + ':', space+' '+' ', b);
 					}
 				}
 			}
@@ -579,13 +571,13 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if(o==null)b.append(pathName + System.lineSeparator());
 		else {
 			if (o instanceof Collection || o instanceof Object[]) {
-				String splitted = space + "- ";
+				String splitted = space + '-'+' ';
 				if (o instanceof Collection) {
 					if(!((Collection<?>) o).isEmpty()) {
 						b.append(pathName + System.lineSeparator());
 						try {
 							if((int)aw[3]==1) {
-								b.append(pathName + ' '+addQuotes(o, aw[2]+"") + System.lineSeparator());
+								b.append(pathName + ' '+addQuotes(o, (String)aw[2]) + System.lineSeparator());
 							}else {
 								for (Object a : (Collection<?>) o) {
 									b.append(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
@@ -596,13 +588,13 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 								b.append(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
 							}
 					}}else
-						b.append(pathName + " []" + System.lineSeparator());
+						b.append(pathName + ' '+'['+']' + System.lineSeparator());
 				} else {
 					if(((Object[]) o).length!=0) {
 						b.append(pathName + System.lineSeparator());
 						try {
 							if((int)aw[3]==1) {
-								b.append(pathName + ' '+addQuotes(o, aw[2]+"") + System.lineSeparator());
+								b.append(pathName + ' '+addQuotes(o, (String)aw[2]) + System.lineSeparator());
 							}else {
 								for (Object a : (Object[]) o) {
 									b.append(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
@@ -613,12 +605,12 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 								b.append(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
 							}
 					}}else
-						b.append(pathName + " []" + System.lineSeparator());
+						b.append(pathName + ' '+'['+']' + System.lineSeparator());
 				}
 			} else {
 				try {
 					if((int)aw[3]==1) {
-						b.append(pathName + ' '+addQuotes(o, aw[2]+"") + System.lineSeparator());
+						b.append(pathName + ' '+addQuotes(o, (String)aw[2]) + System.lineSeparator());
 					}else {
 						b.append(pathName + ' '+addQuotes(o, Writer.write(o)) + System.lineSeparator());
 					}
@@ -636,10 +628,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				c = c.split("\\.")[0];
 				if (c.trim().isEmpty())
 					continue;
-				String dd = path + "." + c;
+				String dd = path + '.' + c;
 				if(!done.contains(dd)) {
 					done.add(dd);
-					preparePath(done, dd, c + ":", space+"  ", b);
+					preparePath(done, dd, c + ':', space+' '+' ', b);
 				}
 			}
 		}catch(Exception err) {}
@@ -657,12 +649,12 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 							bos.writeUTF(null);
 						}else {
 							String write = Writer.write(key.getValue()[0]);
-							while(write.length()>35000) {
-								String wr = write.substring(0, 34999);
-								bos.writeUTF("0"+wr);
-								write=write.substring(34999);
+							while(write.length()>40000) {
+								String wr = write.substring(0, 39999);
+								bos.writeUTF(0+wr);
+								write=write.substring(39999);
 							}
-							bos.writeUTF("0"+write);
+							bos.writeUTF(0+write);
 						}
 						bos.writeUTF("0");
 					} catch (Exception er) {
@@ -678,7 +670,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				addKeys(main, key);
 			return main.toString();
 		}
-		StringBuffer d = new StringBuffer(loader.get().size()*8);
+		StringBuilder d = new StringBuilder(loader.get().size()*8);
 		try {
 			for (String h : loader.getHeader())
 				d.append(h + System.lineSeparator());
@@ -686,7 +678,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 		List<String> done = new ArrayList<>(loader.get().size());
 		for (String key : new LinkedHashSet<>(aw))
-			preparePath(done,key, key + ":", "", d);
+			preparePath(done,key, key + ':', "", d);
 		try {
 			for (String h : loader.getFooter())
 				d.append(h + System.lineSeparator());
@@ -697,7 +689,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 	
 	@Override
-	public synchronized String getDataName() {
+	public String getDataName() {
 		HashMap<String, Object> s = new HashMap<>();
 		if(a!=null)s.put("file", a.getPath()+"/"+a.getName());
 		s.put("loader", loader.getDataName());
@@ -720,41 +712,38 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public synchronized boolean merge(Data f, boolean addHeader, boolean addFooter) {
 		boolean change = false;
 		try {
+		if(addHeader)
+			if(f.loader.getHeader()==null || f.loader.getHeader()!=null && !f.loader.getHeader().isEmpty() && (loader.getHeader().isEmpty()||!f.loader.getHeader().containsAll(loader.getHeader()))) {
+				loader.getHeader().clear();
+				loader.getHeader().addAll(f.loader.getHeader());
+				change = true;
+			}
+		if(addFooter)
+			if(f.loader.getFooter()==null || f.loader.getFooter()!=null && !f.loader.getFooter().isEmpty() && (loader.getFooter().isEmpty()||!f.loader.getFooter().containsAll(loader.getFooter()))) {
+				loader.getFooter().clear();
+				loader.getFooter().addAll(f.loader.getFooter());
+				change = true;
+			}
+		}catch(Exception nope) {}
+		try {
 		for(Entry<String, Object[]> s : f.loader.get().entrySet()) {
-			if(get(s.getKey())==null && s.getValue()[0]!=null) {
-				Object[] o = getOrCreateData(s.getKey());
+			Object[] o = getOrCreateData(s.getKey());
+			if(o[0]==null && s.getValue()[0]!=null) {
 				o[0]=s.getValue()[0];
 				try {
 				o[2]=s.getValue()[2];
-				}catch(Exception outOfBoud) {
-					try {
-						o[2]=s.getValue()[0]==null?null:s.getValue()[0]+"";
-					}catch(Exception outOfBoud2) {
-					}
-				}
+				}catch(Exception outOfBoud) {}
 				change = true;
 			}
-			try {
-			if(addHeader)
-				if(f.loader.getHeader()==null || f.loader.getHeader()!=null && !f.loader.getHeader().isEmpty() && (loader.getHeader().isEmpty()||!f.loader.getHeader().containsAll(loader.getHeader()))) {
-					loader.getHeader().clear();
-					loader.getHeader().addAll(f.loader.getHeader());
-					change = true;
-				}
-			if(addFooter)
-				if(f.loader.getFooter()==null || f.loader.getFooter()!=null && !f.loader.getFooter().isEmpty() && (loader.getFooter().isEmpty()||!f.loader.getFooter().containsAll(loader.getFooter()))) {
-					loader.getFooter().clear();
-					loader.getFooter().addAll(f.loader.getFooter());
-					change = true;
-				}
-			}catch(Exception nope) {}
-			if(s.getValue()[1]!=null && !((List<String>) s.getValue()[1]).isEmpty())
-    		if(getComments(s.getKey())==null || getComments(s.getKey()).isEmpty()) {
-    			if(getHeader()!=null && !getHeader().isEmpty() && ((List<String>)s.getValue()[1]).containsAll(getHeader())
-    					|| getFooter()!=null && !getFooter().isEmpty() && ((List<String>) s.getValue()[1]).containsAll(getFooter()))continue;
-    			getOrCreateData(s.getKey())[1]=(List<String>)s.getValue()[1];
-    			change = true;
-    		}
+			if(s.getValue()[1]!=null && !((List<String>) s.getValue()[1]).isEmpty()) {
+				List<String> cc = (List<String>)o[1];
+	    		if(cc==null || cc.isEmpty()) {
+	    			if(getHeader()!=null && !getHeader().isEmpty() && ((List<String>)s.getValue()[1]).containsAll(getHeader())
+	    					|| getFooter()!=null && !getFooter().isEmpty() && ((List<String>) s.getValue()[1]).containsAll(getFooter()))continue;
+	    			o[1]=(List<String>)s.getValue()[1];
+	    			change = true;
+	    		}
+			}
 		}
 		}catch(Exception err) {}
 		if(change)

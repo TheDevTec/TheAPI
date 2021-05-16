@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.LinkedList;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
@@ -25,8 +24,6 @@ public class SchematicData extends Data {
 		loader = new EmptyLoader();
 		aw = new LinkedList<>();
 	}
-	
-	private static Pattern bot = Pattern.compile("\\.");
 	
 	
 	public SchematicData(String filePath) {
@@ -87,51 +84,47 @@ public class SchematicData extends Data {
 		loader = new SchematicLoader();
 		loader.load(input);
 		for (String k : loader.getKeys())
-			if (!aw.contains( bot.split(k)[0]))
-				aw.add( bot.split(k)[0]);
+			if (!aw.contains(k.split("\\.")[0]))
+				aw.add(k.split("\\.")[0]);
 		return this;
 	}
 	
 	
 	@Override
 	public void save() {
-		if(!requireSave)return;
-		if(isSaving) {
-			return;
-		}
+		if(isSaving)return;
 		isSaving=true;
+		if(!requireSave)return;
 		requireSave=false;
-		synchronized (loader) {
-			if (a == null)
-				return;
-			try {
-			OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
-			try {
-				ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
-				for (Entry<String, Object[]> key : loader.get().entrySet())
-					try {
-						bos.writeUTF(key.getKey());
-						if(key.getValue()[0]==null) {
-							bos.writeUTF(null);
-						}else {
-							String write = Writer.write(key.getValue()[0]);
-							while(write.length()>40000) {
-								String wr = write.substring(0, 39999);
-								bos.writeUTF("1"+wr);
-								write=write.substring(39999);
-							}
-							bos.writeUTF("1"+write);
+		if (a == null)
+			return;
+		try {
+		OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
+		try {
+			ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
+			for (Entry<String, Object[]> key : loader.get().entrySet())
+				try {
+					bos.writeUTF(key.getKey());
+					if(key.getValue()[0]==null) {
+						bos.writeUTF(null);
+					}else {
+						String write = Writer.write(key.getValue()[0]);
+						while(write.length()>40000) {
+							String wr = write.substring(0, 39999);
+							bos.writeUTF("1"+wr);
+							write=write.substring(39999);
 						}
-						bos.writeUTF("1");
-					} catch (Exception er) {
+						bos.writeUTF("1"+write);
 					}
-				w.write(Base64.getEncoder().encodeToString(Compressors.compress(bos.toByteArray())));
-				w.close();
-			} catch (Exception e) {
-				w.close();
-			}
-			}catch(Exception er) {}
+					bos.writeUTF("1");
+				} catch (Exception er) {
+				}
+			w.write(Base64.getEncoder().encodeToString(Compressors.compress(bos.toByteArray())));
+			w.close();
+		} catch (Exception e) {
+			w.close();
 		}
+		}catch(Exception er) {}
 		isSaving=false;
 	}
 
