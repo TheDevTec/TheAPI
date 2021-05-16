@@ -31,6 +31,7 @@ import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class Reader implements JsonReader {
 	//Do you want your own JsonParser? Override this one! Ref.set(Reader.class, "reader", <NewReaderJson>)
@@ -110,8 +111,11 @@ public class Reader implements JsonReader {
 		if (clazz == Ref.nms("IChatBaseComponent") || clazz == Ref.nms("IChatMutableComponent")
 				|| clazz == Ref.nms("ChatBaseComponent") || clazz == Ref.nms("ChatMessage")
 				|| clazz == Ref.nms("ChatComponentText")
-				|| clazz == Ref.getClass("net.md_5.bungee.api.chat.TextComponent"))
+				|| clazz == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")) {
+			if(clazz == Ref.getClass("net.md_5.bungee.api.chat.TextComponent"))
+				return TextComponent.fromLegacyText(object + "");
 			return Ref.IChatBaseComponent(object + "");
+		}
 		Object o = Ref.newInstance(Ref.constructor(clazz));
 		try {
 			o = unsafe.allocateInstance(clazz);
