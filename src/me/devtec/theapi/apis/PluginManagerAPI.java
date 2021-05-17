@@ -158,19 +158,27 @@ public class PluginManagerAPI {
 	}
 
 	public static List<String> getCommands(String plugin) {
+		if(getPlugin(plugin)!=null && getPlugin(plugin).getDescription().getCommands()!=null)
 		return new ArrayList<>(getPlugin(plugin).getDescription().getCommands().keySet());
+		return new ArrayList<>();
 	}
 
 	public static List<String> getCommands(Plugin plugin) {
+		if(plugin!=null && plugin.getDescription().getCommands()!=null)
 		return new ArrayList<>(plugin.getDescription().getCommands().keySet());
+		return new ArrayList<>();
 	}
 
 	public static List<Permission> getPermissions(String plugin) {
-		return getPlugin(plugin).getDescription().getPermissions();
+		if(getPlugin(plugin)!=null && getPlugin(plugin).getDescription().getPermissions()!=null)
+		return new ArrayList<>(getPlugin(plugin).getDescription().getPermissions());
+		return new ArrayList<>();
 	}
 
 	public static List<Permission> getPermissions(Plugin plugin) {
-		return plugin.getDescription().getPermissions();
+		if(plugin!=null && plugin.getDescription().getPermissions()!=null)
+		return new ArrayList<>(plugin.getDescription().getPermissions());
+		return new ArrayList<>();
 	}
 
 	public static boolean isEnabledPlugin(String plugin) {

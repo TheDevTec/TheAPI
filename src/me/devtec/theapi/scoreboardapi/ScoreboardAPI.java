@@ -113,15 +113,15 @@ public class ScoreboardAPI {
 	}
 
 	private String cut(String a) {
-		List<String> d = StringUtils.fixedSplit(a, 16);
-		if (a.length() <= 16)return d.get(0);
-		if (a.length() <= 32)return d.get(0)+d.get(1);
+		List<String> d = StringUtils.fixedSplit(a, 17);
+		if (a.length() <= 17)return d.get(0);
+		if (a.length() <= 34)return d.get(0)+d.get(1);
 		String text = d.get(0);
 		a=a.substring(d.get(0).length());
-		d = StringUtils.fixedSplit(a, 19);
+		d = StringUtils.fixedSplit(a, 18);
 		text+=StringUtils.getLastColors(text)+d.get(0);
 		a=a.substring(d.get(0).length());
-		d = StringUtils.fixedSplit(a, 16);
+		d = StringUtils.fixedSplit(a, 17);
 		text+=d.get(0);
 		return text;
 	}
@@ -196,7 +196,7 @@ public class ScoreboardAPI {
 				currentPlayer+="§f";
 				format=currentPlayer;
 			}else format=null;
-			name=""+slot;
+			name=""+realPos;
 		}
 
 		private synchronized void c(int mode) {
@@ -266,7 +266,7 @@ public class ScoreboardAPI {
 		public synchronized void setValue(String a) {
 			if(a==null)a="";
 			if (ScoreboardAPI.a) {
-				List<String> d = StringUtils.fixedSplit(a, 17);
+				List<String> d = StringUtils.fixedSplit(a, 16);
 				if (a.length() <= 16) {
 					setPlayer("");
 					if (!prefix.equals(d.get(0)))
@@ -282,9 +282,15 @@ public class ScoreboardAPI {
 						changed = true;
 					prefix = d.get(0);
 					setPlayer("");
-					if (!suffix.equals(d.get(1)))
-						changed = true;
-					suffix = d.get(1);
+					if(d.size()>1) {
+						if (!suffix.equals(d.get(1)))
+							changed = true;
+						suffix = d.get(1);
+					}else {
+						if (!suffix.equals(""))
+							changed = true;
+						suffix = "";
+					}
 					return;
 				}
 				if(TheAPI.isOlderThan(8)) {
@@ -293,7 +299,7 @@ public class ScoreboardAPI {
 					prefix = d.get(0);
 					d = StringUtils.fixedSplit(a=a.substring(prefix.length()), 17-format.length());
 					setPlayer(d.get(0));
-					d = StringUtils.fixedSplit(a=a.substring(d.get(0).length()), 17);
+					d = StringUtils.fixedSplit(a=a.substring(d.get(0).length()), 16);
 					if (!suffix.equals(d.get(0)))
 						changed = true;
 					suffix = d.get(0);

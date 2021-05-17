@@ -2,9 +2,12 @@ package me.devtec.theapi.scoreboardapi;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 
 import org.bukkit.entity.Player;
+
+import me.devtec.theapi.TheAPI;
 
 public class SimpleScore {
 	private static final HashMap<String, ScoreboardAPI> scores = new HashMap<>();
@@ -32,19 +35,26 @@ public class SimpleScore {
 			sb.setTitle(name);
 			if(sb.getLines().size()>lines.size())
 			sb.removeUpperLines(lines.size()-1);
+			if(!TheAPI.isNewerThan(7)) {
+				Collections.reverse(lines);
+				if(lines.size()>15) {
+					for(int i = 15; i < lines.size(); ++i)
+					lines.remove(i);
+				}
+			}
 			int i = 0;
 			for (String line : lines)
+				try {
 				sb.setLine(i++, line);
+				}catch(Exception er) {er.printStackTrace();}
 		}
 		lines.clear();
 	}
 	
 	private ScoreboardAPI getOrCreate(Player player) {
-		ScoreboardAPI a = scores.getOrDefault(player.getName(), null);
-		if(a==null) {
-			a=new ScoreboardAPI(player, 0);
-			scores.put(player.getName(), a);
-		}
+		ScoreboardAPI a = scores.get(player.getName());
+		if(a==null)
+			scores.put(player.getName(), a=new ScoreboardAPI(player, TheAPI.isNewerThan(7)?0:-1));
 		return a;
 	}
 }

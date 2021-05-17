@@ -572,10 +572,6 @@ public class LoaderClass extends JavaPlugin {
 		if(server!=null)
 			server.exit();
 		
-		//PacketListener
-		PacketManager.unregisterAll();
-		handler.close();
-		
 		//Placeholders
 		main.unregister();
 		
@@ -597,6 +593,10 @@ public class LoaderClass extends JavaPlugin {
 			TheAPI.removeActionBar(p);
 			TheAPI.sendTitle(p, "","");
 		}
+		
+		//PacketListener
+		PacketManager.unregisterAll();
+		handler.close();
 		
 		//users cache
 		if(cache!=null) {

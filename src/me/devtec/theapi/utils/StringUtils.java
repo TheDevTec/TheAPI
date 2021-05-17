@@ -193,6 +193,7 @@ public class StringUtils {
 			splitted.add(a);
 			split = split.substring(length);
 		}
+		if(!(prefix + split).isEmpty())
 		splitted.add(prefix + split);
 		return splitted;
 	}
