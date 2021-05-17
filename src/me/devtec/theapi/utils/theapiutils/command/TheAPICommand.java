@@ -40,7 +40,7 @@ import me.devtec.theapi.utils.theapiutils.LoaderClass;
 import me.devtec.theapi.utils.theapiutils.Tasks;
 
 public class TheAPICommand implements CommandExecutor, TabCompleter {
-	  String realVersion = (String)Ref.invoke(Ref.get(Bukkit.getServer(), "console"), "getVersion");
+	  String realVersion = (String)Ref.get(Bukkit.getServer(), "serverVersion");
 	  OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
 	  RuntimeMXBean rr = ManagementFactory.getRuntimeMXBean();
 	  File d = new File("plugins");
@@ -161,8 +161,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			return true;
 		}
 		if (args[0].equalsIgnoreCase("informations") || args[0].equalsIgnoreCase("info")) {
-			if (perm(s, "Info")) {
-				
+			if (s instanceof Player == false || perm(s, "Info")) {
 				new Tasker() {
 		            public void run() {
 		              String load = StringUtils.fixedFormatDouble(TheAPI.getProcessCpuLoad());

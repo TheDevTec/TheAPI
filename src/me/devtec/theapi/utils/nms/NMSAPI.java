@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -45,6 +46,7 @@ public class NMSAPI {
 		scr[3] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "d");
 		pTeleport = Ref.constructor(Ref.nms("PacketPlayOutEntityTeleport"), Ref.nms("Entity"));
 		server = Ref.invokeStatic(Ref.nms("MinecraftServer"), "getServer");
+		if(server==null)server=Ref.invoke(Ref.cast(Ref.craft("CraftServer"), Bukkit.getServer()),"getServer");
 		sbteam = Ref.constructor(Ref.nms("PacketPlayOutScoreboardTeam"));
 		sbdisplayobj = Ref.constructor(Ref.nms("PacketPlayOutScoreboardDisplayObjective"));
 		sbobj = Ref.constructor(Ref.nms("PacketPlayOutScoreboardObjective"));
@@ -223,9 +225,11 @@ public class NMSAPI {
 	public static Object getPacketPlayOutScoreboardScore(Action action, String player, String line, int score) {
 		Object o = Ref.newInstance(NMSAPI.score);
 		Ref.set(o, scr[0], line);
+		if(!player.equals(""))
 		Ref.set(o, scr[1], player);
+		if(score!=0)
 		Ref.set(o, scr[2], score);
-		Ref.set(o, scr[3], getScoreboardAction(action));
+		Ref.set(o, scr[3], getScoreboardAction(action)!=null?getScoreboardAction(action):(action==Action.REMOVE?1:0));
 		return o;
 	}
 

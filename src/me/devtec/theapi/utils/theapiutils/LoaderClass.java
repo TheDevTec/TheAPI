@@ -2,6 +2,7 @@
 
 import java.io.File;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -144,13 +145,13 @@ public class LoaderClass extends JavaPlugin {
 				return false;
 			}
 
-			Method getSlot = Ref.method(Ref.nms("Container"), "getSlot", int.class), updateInv=Ref.method(Ref.nms("EntityPlayer"), "updateInventory", Ref.nms("Container"));
+			Method getSlot = Ref.method(Ref.nms("Container"), "getSlot", int.class),getItem= Ref.method(Ref.nms("Slot"), "getItem"), updateInv=Ref.method(Ref.nms("EntityPlayer"), "updateInventory", Ref.nms("Container"));
 			Constructor<?> setSlot = Ref.constructor(Ref.nms("PacketPlayOutSetSlot"), int.class, int.class, Ref.nms("ItemStack"))
 					,equipment = Ref.constructor(Ref.nms("PacketPlayOutEntityEquipment"), int.class, List.class);
 			Object OFFHAND = Ref.getStatic(Ref.nms("EnumItemSlot"),"OFFHAND");
-			
 			Class<?> resource = Ref.nms("PacketPlayInResourcePackStatus"), close = Ref.nms("PacketPlayInCloseWindow"), click = Ref.nms("PacketPlayInWindowClick");
-			
+
+			Field shift=Ref.field(click, "shift"), slot=Ref.field(click, "slot"), button=Ref.field(click, "button"), a=Ref.field(click, "a"), item=Ref.field(click, "item");
 			@Override
 			public boolean PacketPlayIn(String player, Object packet, Object channel) {
 				if(player==null)return false; //NPC
@@ -164,31 +165,30 @@ public class LoaderClass extends JavaPlugin {
 				//GUIS
 				if(packet.getClass()==close) {
 					Player p = (Player) TheAPI.getPlayer(player);
-					HolderGUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(), null);
+					HolderGUI d = LoaderClass.plugin.gui.remove(p.getName());
 					if (d == null)
 						return false;
-					LoaderClass.plugin.gui.remove(p.getName());
 					d.closeWithoutPacket(p);
 					return true;
 				}
 				if(packet.getClass()==click) {
-					int id = (int) Ref.get(packet, "a");
-					int mouseClick = (int) Ref.get(packet, "button");
-					int slot = (int) Ref.get(packet, "slot");
+					int id = (int) Ref.get(packet, a);
+					int mouseClick = (int) Ref.get(packet, button);
+					int slot = (int) Ref.get(packet, this.slot);
 					Player p = (Player) TheAPI.getPlayer(player);
 					InventoryClickType type = null;
-					if(Ref.get(packet, "shift") instanceof Integer) {
-						type=InventoryClickType.values()[(int)Ref.get(packet, "shift")];
+					if(Ref.get(packet, shift) instanceof Integer) {
+						type=InventoryClickType.values()[(int)Ref.get(packet, shift)];
 					}else {
-						type=InventoryClickType.valueOf(Ref.get(packet, "shift").toString());
+						type=InventoryClickType.valueOf(Ref.get(packet, shift).toString());
 					}
-					HolderGUI d = LoaderClass.plugin.gui.getOrDefault(p.getName(), null);
+					HolderGUI d = LoaderClass.plugin.gui.get(p.getName());
 					if (d == null)
 						return false;
 					Object g = d.getContainer(p);
 					if(InventoryClickType.THROW==type && slot==-999||InventoryClickType.PICKUP==type && slot==-999)return false;
 					if(InventoryClickType.SWAP==type) {
-						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),"getItem")));
+						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
 						if(mouseClick == 40 && TheAPI.isNewerThan(8)) {
 							final List<com.mojang.datafixers.util.Pair<?,?>> equipmentList = new ArrayList<>();
 							equipmentList.add(new com.mojang.datafixers.util.Pair<>(OFFHAND, NMSAPI.asNMSItem(p.getEquipment().getItemInOffHand())));
@@ -204,15 +204,15 @@ public class LoaderClass extends JavaPlugin {
 						}
 						return true;
 					}
-					ItemStack i = NMSAPI.asBukkitItem(Ref.get(packet, "item"));
+					ItemStack i = NMSAPI.asBukkitItem(Ref.get(packet, item));
 					if((type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.CLONE||type==InventoryClickType.THROW||i.getType()==Material.AIR) && i.getType()==Material.AIR)
-						i=NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(g, getSlot, slot),"getItem"));
+						i=NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(g, getSlot, slot),getItem));
 					ItemStack before = p.getItemOnCursor();
 					if(i==null)i=new ItemStack(Material.AIR);
 					if(before==null)before=new ItemStack(Material.AIR);
 					if(type!=InventoryClickType.PICKUP_ALL)
 					if(before.getType()==Material.AIR&&i.getType()==Material.AIR || type!=InventoryClickType.CLONE && type!=InventoryClickType.QUICK_MOVE && type!=InventoryClickType.QUICK_CRAFT && type!=InventoryClickType.PICKUP && type!=InventoryClickType.THROW) {
-						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),"getItem")));
+						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
 						Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));
 						return true;
 					}
@@ -244,7 +244,7 @@ public class LoaderClass extends JavaPlugin {
 							else
 							p.updateInventory();
 						}else {
-							Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),"getItem")));
+							Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
 							Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));
 						}
 						return true;
@@ -355,6 +355,10 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
 				TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		if (TheAPI.isNewerThan(7))
+			handler = new PacketHandler_New();
+		else
+			handler = new PacketHandler_Old();
 
 		StringUtils.sec=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
 		StringUtils.min=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Minutes.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
@@ -392,10 +396,6 @@ public class LoaderClass extends JavaPlugin {
 
 		if(config.getBoolean("Options.ItemUnbreakable"))
 		Bukkit.getPluginManager().registerEvents(new ItemBreakEvent(), LoaderClass.this);
-		if (TheAPI.isNewerThan(7))
-			handler = new PacketHandler_New();
-		else
-			handler = new PacketHandler_Old();
 		loadWorlds();
 		loadPlaceholders();
 		if (PlaceholderAPI.isEnabledPlaceholderAPI()) {

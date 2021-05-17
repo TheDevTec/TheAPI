@@ -2,7 +2,7 @@ package me.devtec.theapi.scoreboardapi;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -25,7 +25,6 @@ import me.devtec.theapi.utils.reflections.Ref;
  */
 public class ScoreboardAPI {
 	protected Data data = new Data();
-	protected static Field teamlist = Ref.field(Ref.nms("PacketPlayOutScoreboardTeam"), TheAPI.isOlderThan(9) ? "g" : "h");
 	protected Player p;
 	protected String player;
 	protected int slott = -1;
@@ -62,16 +61,14 @@ public class ScoreboardAPI {
 	}
 
 	public void destroy() {
+		Ref.sendPacket(p, createObjectivePacket(1, ""));
 		for(String a : data.getKeys(player)){
-			Team team = data.getAs(player+"."+a, Team.class);
+			Team team = data.getAs(player+'.'+a, Team.class);
 			if(team!=null) {
-				if(ScoreboardAPI.a)
-					Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, player, team.old, 0));
-				Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, player, team.currentPlayer, 0));
-				Ref.sendPacket(p, team.remove());
+				team.remove();
 			}
 		}
-		Ref.sendPacket(p, createObjectivePacket(1, null));
+		data.clear();
 	}
 
 	public void setTitle(String name) {
@@ -98,14 +95,14 @@ public class ScoreboardAPI {
 		setLine(i, value);
 	}
 
-	public void setLine(int line, String value) {
+	public synchronized void setLine(int line, String value) {
 		value = TheAPI.colorize(value);
 		if(getLine(line)!=null && getLine(line).equals(a?cut(value):value))return;
 		Team team = null;
 		boolean add = true;
 		for(String wd : data.getKeys(player)) {
-			Team t = data.getAs(player+"."+wd, Team.class);
-			if(t.name.equals(line+"")) {
+			Team t = data.getAs(player+'.'+wd, Team.class);
+			if(t.name.equals(""+line)) {
 				team=t;
 				add=false;
 			}
@@ -129,85 +126,80 @@ public class ScoreboardAPI {
 		return text;
 	}
 
-	public void removeLine(int line) {
-		if(!data.exists(player+"."+line))return;
+	public synchronized void removeLine(int line) {
+		if(!data.exists(player+'.'+line))return;
 		Team team = getTeam(line, line);
-		if(ScoreboardAPI.a)
-		Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, player, team.old, 0));
+		team.remove();
 		Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, player, team.currentPlayer, 0));
-		Ref.sendPacket(p, team.remove());
-		data.remove(player+"."+line);
+		data.remove(player+'.'+line);
 	}
 	
-	public void removeUpperLines(int line) {
+	public synchronized void removeUpperLines(int line) {
 		for(String a : data.getKeys(player)) {
 			if(Integer.parseInt(a)>line) {
-				Team team = data.getAs(player+"."+a, Team.class);
-				if(ScoreboardAPI.a)
-				Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, player, team.old, 0));
+				Team team = data.getAs(player+'.'+a, Team.class);
+				team.remove();
 				Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, player, team.currentPlayer, 0));
-				Ref.sendPacket(p, team.remove());
-				data.remove(player+"."+line);
+				data.remove(player+'.'+line);
 			}
 		}
 	}
 
 	public String getLine(int line) {
-		if (data.exists(player+"."+line) && data.get(player+"."+line)!=null)
-			return ((Team) data.get(player+"."+line)).getValue();
+		if (data.exists(player+'.'+line) && data.get(player+'.'+line)!=null)
+			return ((Team) data.get(player+'.'+line)).getValue();
 		return null;
 	}
 
 	public List<String> getLines() {
 		List<String> lines = new ArrayList<>();
 		for(String line : data.getKeys(player))
-			lines.add(((Team) data.get(player+"."+line)).getValue());
+			lines.add(((Team) data.get(player+'.'+line)).getValue());
 		return lines;
 	}
 
-	private void sendLine(Team team, int line, boolean add) {
-		team.sendLine();
-		Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.CHANGE, player, team.currentPlayer, slott==-1?line:slott));
+	private synchronized void sendLine(Team team, int line, boolean add) {
+		team.sendLine(line);
 		if(add)
-			data.set(player+"."+line, team);
+			data.set(player+'.'+line, team);
 	}
 
 	private Team getTeam(int line, int realPos) {
-		if (!data.exists(player+"."+line) || data.get(player+"."+line)==null)
-			data.set(player+"."+line, new Team(line, realPos));
-		return data.getAs(player+"."+line, Team.class);
+		if (!data.exists(player+'.'+line) || data.get(player+'.'+line)==null)
+			data.set(player+'.'+line, new Team(line, realPos));
+		return data.getAs(player+'.'+line, Team.class);
 	}
 
 	private Object createObjectivePacket(int mode, String displayName) {
 		Object packet = NMSAPI.getPacketPlayOutScoreboardObjective();
 		Ref.set(packet, "a", player);
-		Ref.set(packet, "d", mode);
-		if (mode == 0 || mode == 2) {
-			Ref.set(packet, "b", !a ? NMSAPI.getFixedIChatBaseComponent(displayName) : displayName);
+		Ref.set(packet, "b", !a ? NMSAPI.getFixedIChatBaseComponent(displayName) : displayName);
+		if(TheAPI.isNewerThan(7)) {
 			Ref.set(packet, "c", NMSAPI.getEnumScoreboardHealthDisplay(DisplayType.INTEGER));
-		}
+			Ref.set(packet, "d", mode);
+		}else
+			Ref.set(packet, "c", mode);
 		return packet;
 	}
 	
 	private static boolean a = !TheAPI.isNewVersion();
-
-	private static String path = TheAPI.isOlderThan(9) ? "h" : "i";
+	private static Field modus = Ref.field(Ref.nms("PacketPlayOutScoreboardTeam"), TheAPI.isOlderThan(9) ? (TheAPI.isOlderThan(8)?"f":"h") : "i"),
+			players = Ref.field(Ref.nms("PacketPlayOutScoreboardTeam"), TheAPI.isOlderThan(9) ? (TheAPI.isOlderThan(8)?"e":"g") : "h");
 	
 	public class Team {
 		private String prefix = "", suffix = "", currentPlayer, old;
 		private final String name, format;
-		private boolean changed, changedPlayer, first = true;
-		
+		private boolean changed, first = true;
 		private Team(int slot, int realPos) {
-			currentPlayer = TheCoder.toColor(realPos);
+			currentPlayer = TheCoder.toColor(realPos)+"";
 			if(a) {
-				currentPlayer=currentPlayer+"§f";
+				currentPlayer+="§f";
 				format=currentPlayer;
 			}else format=null;
-			name=slot+"";
+			name=""+slot;
 		}
 
-		private Object c(int mode) {
+		private synchronized void c(int mode) {
 			Object packet = NMSAPI.getPacketPlayOutScoreboardTeam();
 			Ref.set(packet, "a", name);
 			if(!a)
@@ -216,43 +208,47 @@ public class ScoreboardAPI {
 				Ref.set(packet, "c", prefix);
 				Ref.set(packet, "d", suffix);
 			}
-			Ref.set(packet, path, mode);
-			return packet;
+			Ref.set(packet, modus, mode);
+			Ref.set(packet, players, Collections.singleton(currentPlayer));
+			Ref.sendPacket(p, packet);
 		}
 
-		public Object remove() {
-			Object re = NMSAPI.getPacketPlayOutScoreboardTeam();
-			Ref.set(re, "a", name);
-			Ref.set(re, path, 1);
+		public synchronized void remove() {
+			createPlayer(4, currentPlayer);
 			first = true;
-			return re;
+			Object delete = NMSAPI.getPacketPlayOutScoreboardTeam();
+			Ref.set(delete, "a", name);
+			Ref.set(delete, modus, 1);
+			Ref.sendPacket(p, delete);
 		}
 
-		public synchronized void sendLine() {
-			if (first)
-				Ref.sendPacket(p, c(0));
-			else if (changed)
-				Ref.sendPacket(p, c(2));
-			if (first || changedPlayer) {
-				if(old!=null) {
-					if(a)
-						Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, player, old, 0));
-					Ref.sendPacket(p, createPlayer(4, old));
-				}
-				Ref.sendPacket(p, createPlayer(3, currentPlayer));
-				changedPlayer = false;
+		public synchronized void sendLine(int line) {
+			if (first) {
+				c(0);
+				createPlayer(3, currentPlayer);
 				first = false;
+				old=null;
+				Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.CHANGE, player, currentPlayer, slott==-1?line:slott));
+				return;
 			}
+			if (changed)
+				c(2);
+			if(old!=null) {
+				createPlayer(3, currentPlayer);
+				createPlayer(4, old);
+				Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", old, 0));
+				old=null;
+			}
+			Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.CHANGE, player, currentPlayer, slott==-1?line:slott));
 			changed = false;
 		}
-
-		@SuppressWarnings("unchecked")
-		private Object createPlayer(int mode, String playerName) {
+		
+		private synchronized void createPlayer(int mode, String playerName) {
 			Object create = NMSAPI.getPacketPlayOutScoreboardTeam();
 			Ref.set(create, "a", name);
-			Ref.set(create, path, mode);
-			((Collection<String>) Ref.get(create, teamlist)).add(playerName);
-			return create;
+			Ref.set(create, modus, mode);
+			Ref.set(create, players, Collections.singleton(playerName));
+			Ref.sendPacket(p, create);
 		}
 
 		public String getValue() {
@@ -260,17 +256,17 @@ public class ScoreboardAPI {
 		}
 
 		private void setPlayer(String a) {
+			a=format+a;
 			if (currentPlayer==null||!currentPlayer.equals(a)) {
-				changedPlayer = true;
 				old = currentPlayer;
-				currentPlayer = a.equals("")?format:format+a;
+				currentPlayer = a;
 			}
 		}
 
-		public void setValue(String a) {
+		public synchronized void setValue(String a) {
 			if(a==null)a="";
 			if (ScoreboardAPI.a) {
-				List<String> d = StringUtils.fixedSplit(a, 16);
+				List<String> d = StringUtils.fixedSplit(a, 17);
 				if (a.length() <= 16) {
 					setPlayer("");
 					if (!prefix.equals(d.get(0)))
@@ -291,14 +287,26 @@ public class ScoreboardAPI {
 					suffix = d.get(1);
 					return;
 				}
+				if(TheAPI.isOlderThan(8)) {
+					if (!prefix.equals(d.get(0)))
+						changed = true;
+					prefix = d.get(0);
+					d = StringUtils.fixedSplit(a=a.substring(prefix.length()), 17-format.length());
+					setPlayer(d.get(0));
+					d = StringUtils.fixedSplit(a=a.substring(d.get(0).length()), 17);
+					if (!suffix.equals(d.get(0)))
+						changed = true;
+					suffix = d.get(0);
+					return;
+				}
 				if (!prefix.equals(d.get(0)))
 					changed = true;
 				prefix = d.get(0);
 				a=a.substring(d.get(0).length());
-				d = StringUtils.fixedSplit(a, 19);
+				d = StringUtils.fixedSplit(a, 18);
 				setPlayer(StringUtils.getLastColors(prefix)+d.get(0));
 				a=a.substring(d.get(0).length());
-				d = StringUtils.fixedSplit(a, 16);
+				d = StringUtils.fixedSplit(a, 17);
 				if (!suffix.equals(d.get(0)))
 					changed = true;
 				suffix = d.get(0);

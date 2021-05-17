@@ -818,9 +818,11 @@ public class ItemCreatorAPI implements Cloneable {
 				mf.setLore(lor);
 			}
 			try {
+				try {
 				if (map != null)
 					for (Object f : map)
 						mf.addItemFlags((ItemFlag) f);
+				}catch(Exception | NoSuchFieldError | NoClassDefFoundError | NoSuchMethodError e) {}
 				if (w != null && !w.isEmpty() && TheAPI.isNewerThan(13)) {// 1.14+
 					Multimap<Attribute, AttributeModifier> multimap = HashMultimap.create();
 					for(Entry<Attribute, AttributeModifier> e : w.entrySet())

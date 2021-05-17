@@ -33,9 +33,10 @@ public class Tasks {
 	private static Class<?> c = Ref.getClass("com.mojang.authlib.GameProfile") != null
 			? Ref.getClass("com.mojang.authlib.GameProfile")
 			: Ref.getClass("net.minecraft.util.com.mojang.authlib.GameProfile");
-	private static Constructor<?> cc = Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample"), int.class,
+	private static Constructor<?> cc = Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample")!=null?Ref.nms("ServerPing$ServerPingPlayerSample"):Ref.nms("ServerPingPlayerSample"), int.class,
 			int.class);
 	private static PacketListener l;
+	
 
 	public static void load() {
 		Map<UUID, Location> v = new HashMap<>();
@@ -45,14 +46,10 @@ public class Tasks {
 		if(LoaderClass.config.getBoolean("Options.ServerListPingEvent")) {
 			if (l == null)
 				l = new PacketListener() {
-				Class<?> info = Ref.nms("PacketStatusOutServerInfo");
+					Class<?> info = Ref.nms("PacketStatusOutServerInfo");
 					public boolean PacketPlayOut(String player, Object packet, Object channel) {
 						if (packet.getClass()==info) {
-							Object w = Ref.invoke(Ref.server(), "getServerPing");
-							if (w == null)
-								w = Ref.invoke(Ref.invoke(Ref.server(), "getServer"), "getServerPing");
-							if (w == null)
-								w = Ref.invoke(Ref.server(), "aG");
+							Object w = Ref.get(packet, "b");
 							List<PlayerProfile> players = new ArrayList<>();
 							for (Player p : TheAPI.getOnlinePlayers())
 								players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
@@ -79,7 +76,6 @@ public class Tasks {
 								Ref.set(w, "a", NMSAPI.getIChatBaseComponentText(""));
 							if(event.getVersion()!=null)
 								Ref.set(Ref.get(w, "c"), "a", event.getVersion());
-							Ref.set(packet, "b", w);
 							if (event.getFalvicon() != null)
 								Ref.set(packet, "d", event.getFalvicon());
 							return false;

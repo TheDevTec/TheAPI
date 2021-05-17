@@ -3,6 +3,9 @@ package me.devtec.theapi.particlesapi;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
+import org.bukkit.Effect;
+import org.bukkit.Effect.Type;
+
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.particlesapi.ParticleData.BlockOptions;
 import me.devtec.theapi.particlesapi.ParticleData.ItemOptions;
@@ -20,22 +23,31 @@ public class Particle {
 			a = Ref.nms("EnumParticle"); // 1.8 - 1.12.2
 		if (a == null)
 			a = Ref.nms("PacketPlayOutWorldParticles$Particle"); // 1.7.10 and older
-		if (a.isEnum()) {
-			for (Object e : a.getEnumConstants())
-				identifier.put((String) Ref.invoke(e, "name"), e);
-		} else { // 1.13+
-			if(TheAPI.isNewerThan(12)&&TheAPI.isOlderThan(14)) { //1.13
+		if(a!=null) {
+			if (a.isEnum()) {
+				for (Object e : a.getEnumConstants())
+					identifier.put((String) Ref.invoke(e, "name"), e);
+			} else { // 1.13+
+				if(TheAPI.isNewerThan(12)&&TheAPI.isOlderThan(14)) { //1.13
+					for (Field f : Ref.getFields(a)) {
+						if (f.getName().equals("au"))
+							continue;
+						identifier.put((String)Ref.invoke(Ref.getStatic(f), "a"), Ref.getNulled(f));
+					}
+				}else
 				for (Field f : Ref.getFields(a)) {
 					if (f.getName().equals("au"))
 						continue;
-					identifier.put((String)Ref.invoke(Ref.getStatic(f), "a"), Ref.getNulled(f));
+					identifier.put(f.getName(), Ref.getNulled(f));
 				}
-			}else
-			for (Field f : Ref.getFields(a)) {
-				if (f.getName().equals("au"))
-					continue;
-				identifier.put(f.getName(), Ref.getNulled(f));
 			}
+		}else { //modded
+			for(Effect e : Effect.values()) {
+				if(e.getType()==Type.VISUAL) {
+					identifier.put(e.name(), e.name());
+				}
+			}
+			
 		}
 	}
 

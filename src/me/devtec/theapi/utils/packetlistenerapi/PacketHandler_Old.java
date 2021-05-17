@@ -1,5 +1,6 @@
 package me.devtec.theapi.utils.packetlistenerapi;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,11 +27,18 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 	private List<?> networkManagers;
 	private List<Channel> serverChannels = new ArrayList<>();
 	private ChannelInboundHandlerAdapter serverChannelHandler;
-	private final Object serverConnection = Ref.invoke(Ref.server(),"getServerConnection");
+	private Object serverConnection;
 	private ChannelInitializer<Channel> beginInitProtocol, endInitProtocol;
 	protected volatile boolean closed;
 
 	public PacketHandler_Old() {
+		serverConnection=Ref.invoke(Ref.server(), "getServerConnection");
+		if(serverConnection==null) //modded server
+		for(Field f : Ref.getAllFields(Ref.server().getClass()))
+			if(f.getType()==Ref.nms("ServerConnection")) {
+				serverConnection=Ref.get(Ref.server(), f);
+				break;
+			}
 		try {
 			registerChannelHandler();
 			registerPlayers();
@@ -90,6 +98,13 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 
 	private void registerChannelHandler() {
 		networkManagers = (List<?>) (Ref.get(serverConnection, "listeningChannels")!=null?Ref.get(serverConnection, "listeningChannels"):Ref.get(serverConnection, "g"));
+		if(networkManagers==null) { //modded server
+			for(Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
+				if(java.util.List.class==f.getType()){
+					networkManagers=(java.util.List<?>) Ref.get(serverConnection, f);
+					break;
+				}
+			}
 		createServerChannelHandler();
 		for (Object item : networkManagers) {
 			if (!ChannelFuture.class.isInstance(item))break;
@@ -156,7 +171,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 	public Channel get(Player player) {
 		Channel channel = channelLookup.getOrDefault(player.getName(), null);
 		if (channel == null)
-			channelLookup.put(player.getName(), channel = (Channel) Ref.get(Ref.network(Ref.playerCon(player)), "channel"));
+			channelLookup.put(player.getName(), channel = (Channel) Ref.get(Ref.network(Ref.playerCon(player)), "m"));
 		return channel;
 	}
 

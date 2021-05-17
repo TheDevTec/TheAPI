@@ -13,6 +13,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import me.devtec.theapi.utils.nms.NMSAPI;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
+
 public class Ref {
 	private static Constructor<?> blockpos = constructor(nms("BlockPosition"), double.class, double.class,
 			double.class),
@@ -26,9 +29,9 @@ public class Ref {
 							? Ref.getClass("com.mojang.authlib.properties.Property")
 							: Ref.getClass("net.minecraft.util.com.mojang.authlib.properties.Property"),
 					String.class, String.class, String.class);
-	private static Object server = invoke(handle(cast(craft("CraftServer"), Bukkit.getServer())), "getServer");
+	private static Object server = NMSAPI.getServer();
 	private static Class<?> craft = craft("entity.CraftPlayer"), world = craft("CraftWorld");
-	private static Method ichatcon, send = method(nms("PlayerConnection"), "sendPacket", nms("Packet"));
+	private static Method ichatcon;
 	static {
 		ichatcon = method(nms("IChatBaseComponent$ChatSerializer"), "a", String.class);
 		if (ichatcon == null)
@@ -114,14 +117,16 @@ public class Ref {
 	public static void sendPacket(Player to, Object packet) {
 		if(packet==null)Bukkit.getLogger().severe("Tryting to send to player null packet!");
 		if(packet!=null && to!=null)
-			invoke(playerCon(to), send, packet);
+			LoaderClass.plugin.handler.send(to, packet);
+			//invoke(playerCon(to), send, packet);
 	}
 
 	public static void sendPacket(Collection<? extends Player> toPlayers, Object packet) {
 		if(packet!=null)
 		for(Player to : toPlayers) {
 			if(to!=null)
-				invoke(playerCon(to), send, packet);
+				LoaderClass.plugin.handler.send(to, packet);
+			//invoke(playerCon(to), send, packet);
 		}
 	}
 
@@ -129,7 +134,8 @@ public class Ref {
 		if(packet!=null)
 		for(Player to : toPlayers) {
 			if(to!=null)
-				invoke(playerCon(to), send, packet);
+				LoaderClass.plugin.handler.send(to, packet);
+				//invoke(playerCon(to), send, packet);
 		}
 	}
 

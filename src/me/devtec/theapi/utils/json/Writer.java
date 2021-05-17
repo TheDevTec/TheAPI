@@ -62,7 +62,9 @@ public class Writer implements JsonWriter {
 							? Ref.getClass("com.google.gson.GsonBuilder")
 							: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder"))),
 					"create");
-	private static Method toJson = Ref.method(pretty.getClass(), "toJson", Object.class);
+	private static Method toJson = Ref.method(Ref.getClass("com.google.gson.Gson") != null
+			? Ref.getClass("com.google.gson.Gson")
+			: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.Gson"), "toJson", Object.class);
 
 	public String array(Object[] object, boolean addNulls) {
 		return array(object, addNulls, false);

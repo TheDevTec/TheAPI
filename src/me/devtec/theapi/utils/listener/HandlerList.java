@@ -97,6 +97,14 @@ public class HandlerList {
 		}
 		// call event
 	}
+	
+	public static boolean isListening(Event e) {
+		Map<Integer, List<RegisteredListener>> reg2 = getOrCreate(e.getClass().getCanonicalName()).reg;
+		for (int i = 0; i < 6; ++i) {
+			if(!reg2.get(i).isEmpty())return true;
+		}
+		return false;
+	}
 
 	private static class RegisteredListener {
 		private final Listener listener;
