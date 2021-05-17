@@ -3,6 +3,7 @@ package me.devtec.theapi.utils.nms;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -163,9 +164,9 @@ public class NMSAPI {
 	
 	public static ItemStack setNBT(ItemStack stack, Object nbt) {
 		Object nms = asNMSItem(stack);
-		setNBT(nms, nbt instanceof String?parseNBT((String)nbt):(nbt instanceof NBTEdit?((NBTEdit) nbt).getNBT():nbt));
-		stack.setItemMeta(asBukkitItem(nms).getItemMeta());
-		return stack;
+		ItemStack st =setNBT(nms, nbt instanceof String?parseNBT((String)nbt):(nbt instanceof NBTEdit?((NBTEdit) nbt).getNBT():nbt));
+		stack.setItemMeta(st.getItemMeta());
+		return st;
 	}
 	
 	public static ItemStack setNBT(Object stack, Object nbt) {
@@ -247,6 +248,7 @@ public class NMSAPI {
 
 	private static Method poost = Ref.method(Ref.nms("MinecraftServer"), "postToMainThread", Runnable.class);
 	
+	@SuppressWarnings("unchecked")
 	public static void postToMainThread(Runnable runnable) {
 		if(Thread.currentThread()==thread) {
 			runnable.run();
@@ -257,7 +259,11 @@ public class NMSAPI {
 					return null;
 				}, (Executor)server).join();
 			}else {
-				Ref.invoke(server, poost, runnable);
+				if(!TheAPI.isOlderThan(8)) {
+					Ref.invoke(server, poost, runnable);
+				}else {
+					((Queue<Runnable>)Ref.get(server, "processQueue")).add(runnable);
+				}
 			}
 		}
 	}
