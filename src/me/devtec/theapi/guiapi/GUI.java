@@ -53,6 +53,11 @@ public class GUI implements HolderGUI {
 		else
 			size = 9;
 		title=StringUtils.colorize(title);
+		if(TheAPI.isOlderThan(9)) {
+			if(title.length() <= 32) {
+				title=title.substring(0, 32);
+			}
+		}
 		this.title=title;
 		inv = Bukkit.createInventory(null, size, this.title);
 		switch (size) {

@@ -765,21 +765,13 @@ public class StringUtils {
 		}
 	}
 	
-	private static Pattern extra = Pattern.compile("((^[-])?[0-9.]+)([*/])(-?[0-9.]+)"),
-			superr = Pattern.compile("\\(.*?\\)+"),
-			normal = Pattern.compile("((^[-])?[0-9.]+)([+-])(-?[0-9.]+)");
-	
 	/**
 	 * @see see Convert String to Math and Calculate exempt
 	 * @return double
 	 */
 	public static BigDecimal calculate(String val) {
 		if(val.contains("(")&&val.contains(")")) {
-			Matcher s = superr.matcher(val);
-			while(s.find()) {
-				val=val.replace(s.group(), simpleCalculate(s.group().substring(1, s.group().length()-1))+"");
-				s = superr.matcher(val);
-			}
+			val=splitter(val);
 		}
 		if(val.contains("*")||val.contains("/")) {
 			Matcher s = extra.matcher(val);
@@ -787,7 +779,7 @@ public class StringUtils {
 				double a = getDouble(s.group(1));
 				String b = s.group(3);
 				double d = getDouble(s.group(4));
-				val=val.replace(s.group(), (b.equals("*")?a*d:a/d)+"");
+				val=val.replace(s.group(), (a==0||d==0?0:((b.equals("*")?a*d:a/d)))+"");
 				s = extra.matcher(val);
 			}
 		}
@@ -804,13 +796,38 @@ public class StringUtils {
 		return new BigDecimal(getDouble(val.replaceAll("[^0-9+.-]", "")));
 	}
 
+	private static String splitter(String s) {
+		String i = "", fix = "";
+		
+		int count = 0, waiting = 0;
+		for(char c : s.toCharArray()) {
+			i+=""+c;
+			if(c=='(') {
+				fix+=""+c;
+				waiting=1;
+				++count;
+			}else
+			if(c==')') {
+				fix+=""+c;
+				if(--count==0) {
+					waiting=0;
+					i=i.replace(fix, ""+simpleCalculate(fix.substring(1, fix.length()-1)));
+					fix="";
+				}
+			}else
+			if(waiting==1)
+				fix+=""+c;
+		}
+		return i;
+	}
+	
+	private static Pattern extra = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([*/])[ ]*(-?[ ]*[0-9.]+)"),
+			normal = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([+-])[ ]*(-?[ ]*[0-9.]+)");
+
+	
 	private static double simpleCalculate(String val) {
 		if(val.contains("(")&&val.contains(")")) {
-			Matcher s = superr.matcher(val);
-			while(s.find()) {
-				val=val.replace(s.group(), simpleCalculate(s.group().substring(1, s.group().length()-1))+"");
-				s = superr.matcher(val);
-			}
+			val=splitter(val);
 		}
 		if(val.contains("*")||val.contains("/")) {
 			Matcher s = extra.matcher(val);
@@ -818,7 +835,7 @@ public class StringUtils {
 				double a = getDouble(s.group(1));
 				String b = s.group(3);
 				double d = getDouble(s.group(4));
-				val=val.replace(s.group(), (b.equals("*")?a*d:a/d)+"");
+				val=val.replace(s.group(), (a==0||d==0?0:((b.equals("*")?a*d:a/d)))+"");
 				s = extra.matcher(val);
 			}
 		}

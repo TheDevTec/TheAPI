@@ -26,6 +26,11 @@ public class AnvilGUI implements HolderGUI {
 
 	public AnvilGUI(String title, Player... p) {
 		title=StringUtils.colorize(title);
+		if(TheAPI.isOlderThan(9)) {
+			if(title.length() <= 32) {
+				title=title.substring(0, 32);
+			}
+		}
 		this.title=title;
 		open(p);
 	}
