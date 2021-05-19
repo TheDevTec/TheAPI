@@ -45,6 +45,10 @@ public abstract class PlaceholderPreRegister extends PlaceholderExpansion {
 		return PlaceholderAPIPlugin.getInstance().getLocalExpansionManager().register(this);
 	}
 
+	public boolean doUnregister() {
+		return PlaceholderAPIPlugin.getInstance().getLocalExpansionManager().unregister(this);
+	}
+
 	@Override
 	public String onRequest(OfflinePlayer player, String params) {
 		return onPlaceholderRequest(player != null ? player.getPlayer() : null, params);
