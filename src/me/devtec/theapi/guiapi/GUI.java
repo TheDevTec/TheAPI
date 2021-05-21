@@ -54,7 +54,7 @@ public class GUI implements HolderGUI {
 			size = 9;
 		title=StringUtils.colorize(title);
 		if(TheAPI.isOlderThan(9)) {
-			if(title.length() <= 32) {
+			if(title.length() >= 32) {
 				title=title.substring(0, 32);
 			}
 		}
