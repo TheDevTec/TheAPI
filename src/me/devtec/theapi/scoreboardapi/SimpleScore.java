@@ -33,8 +33,6 @@ public class SimpleScore {
 		for(Player a : players) {
 			ScoreboardAPI sb = getOrCreate(a);
 			sb.setTitle(name);
-			if(sb.getLines().size()>lines.size())
-			sb.removeUpperLines(lines.size()-1);
 			if(!TheAPI.isNewerThan(7)) {
 				Collections.reverse(lines);
 				if(lines.size()>15) {
@@ -42,10 +40,13 @@ public class SimpleScore {
 					lines.remove(i);
 				}
 			}
+			if(sb.getLines().size()>lines.size())
+			sb.removeUpperLines(lines.size()-1);
 			int i = 0;
 			for (String line : lines)
+				if(line!=null)
 				try {
-				sb.setLine(i++, line);
+					sb.setLine(i++, line);
 				}catch(Exception er) {er.printStackTrace();}
 		}
 		lines.clear();
