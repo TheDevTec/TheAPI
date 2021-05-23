@@ -1,71 +1,51 @@
 package me.devtec.theapi.sortedmap;
 
-import java.util.ArrayList;
-import java.util.Collections;
+
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 public class SortedMap {
-	public static <K extends Comparable<? super K>, V> LinkedHashMap<K, V> sortByKey(Map<K, V> map) {
-		List<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
-		Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
-			public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
-				return o2.getKey().compareTo(o1.getKey());
-			}
-		});
-		LinkedHashMap<K, V> result = new LinkedHashMap<K, V>(list.size());
-		for (Map.Entry<K, V> entry : list)
-			result.put(entry.getKey(), entry.getValue());
-		return result;
+	public static <K extends Comparable<? super K>, V> Map<K, V> sortByKey(Map<K, V> map) {
+		return sortNonComparableByKey(map);
 	}
 
-	public static <K, V extends Comparable<? super V>> LinkedHashMap<K, V> sortByValue(Map<K, V> map) {
-		List<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
-		Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
-			public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
-				return o2.getValue().compareTo(o1.getValue());
-			}
-		});
-		LinkedHashMap<K, V> result = new LinkedHashMap<K, V>(list.size());
-		for (Map.Entry<K, V> entry : list)
-			result.put(entry.getKey(), entry.getValue());
-		return result;
+	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
+		return sortNonComparableByValue(map);
 	}
 
-	public static <K, V> LinkedHashMap<K, V> sortNonComparableByKey(Map<K, V> map) {
-		List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
-		Collections.sort(list, new Comparator<Entry<K, V>>() {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			public int compare(Map.Entry<K, V> e1, Map.Entry<K, V> e2) {
-				if (e1.getKey() instanceof Comparable)
-					return ((Comparable) e1.getKey()).compareTo((Comparable) e2.getKey());
-				return (e2.getKey() + "").compareTo(e1.getKey() + "");
+	public static <K, V> Map<K, V> sortNonComparableByKey(Map<K, V> map) {
+		TreeMap<K, V> result = new TreeMap<>(new Comparator<K>() {
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			public int compare(K o1, K o2) {
+				if(o2 instanceof Comparable && o1 instanceof Comparable)
+					return ((Comparable)o2).compareTo((Comparable)o1);
+				return o2.toString().compareTo(o1.toString());
 			}
 		});
-		LinkedHashMap<K, V> result = new LinkedHashMap<>(list.size());
-		for (Entry<K, V> entry : list)
-			result.put(entry.getKey(), entry.getValue());
-		return result;
+		result.putAll(map);
+		LinkedHashMap<K, V> resultFix = new LinkedHashMap<>();
+		for(Entry<K, V> entry : result.entrySet())
+			resultFix.put(entry.getKey(), entry.getValue());
+		return resultFix;
 	}
 
-	public static <K, V> LinkedHashMap<K, V> sortNonComparableByValue(Map<K, V> map) {
-		List<Entry<K, V>> list = new ArrayList<>(map.entrySet());
-		Collections.sort(list, new Comparator<Entry<K, V>>() {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			public int compare(Map.Entry<K, V> e1, Map.Entry<K, V> e2) {
-				if (e1.getValue() instanceof Comparable) {
-					return ((Comparable) e2.getValue()).compareTo((Comparable) e1.getValue());
-				}
-				return (e2.getValue() + "").compareTo(e1.getValue() + "");
+	public static <K, V> Map<K, V> sortNonComparableByValue(Map<K, V> map) {
+		TreeMap<V, K> result = new TreeMap<>(new Comparator<V>() {
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			public int compare(V o1, V o2) {
+				if(o2 instanceof Comparable && o1 instanceof Comparable)
+					return ((Comparable)o2).compareTo((Comparable)o1);
+				return o2.toString().compareTo(o1.toString());
 			}
 		});
-		LinkedHashMap<K, V> result = new LinkedHashMap<>(list.size());
-		for (Entry<K, V> entry : list)
-			result.put(entry.getKey(), entry.getValue());
-		return result;
+		for(Entry<K, V> entry : map.entrySet())
+			result.put(entry.getValue(), entry.getKey());
+		LinkedHashMap<K, V> resultFix = new LinkedHashMap<>();
+		for(Entry<V, K> entry : result.entrySet())
+			resultFix.put(entry.getValue(), entry.getKey());
+		return resultFix;
 	}
 }
