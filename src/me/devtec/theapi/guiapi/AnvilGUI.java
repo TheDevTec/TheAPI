@@ -172,6 +172,12 @@ public class AnvilGUI implements HolderGUI {
 	
 	public final void setTitle(String title) {
 		title=StringUtils.colorize(title);
+		if(TheAPI.isOlderThan(9)) {
+			if(title.length() >= 32) {
+				title=title.substring(0, 32);
+			}
+		}
+		if(title.equals(this.title))return;
 		this.title=title;
 		for(Entry<Player, Object> entry : containers.entrySet()) {
 			Player player = entry.getKey();

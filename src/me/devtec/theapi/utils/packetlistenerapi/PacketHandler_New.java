@@ -1,5 +1,6 @@
 package me.devtec.theapi.utils.packetlistenerapi;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,11 +28,19 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	private List<?> networkManagers;
 	private List<Channel> serverChannels = new ArrayList<>();
 	private ChannelInboundHandlerAdapter serverChannelHandler;
-	private final Object serverConnection = Ref.invoke(Ref.server(),"getServerConnection");
+	private Object serverConnection;
 	private ChannelInitializer<Channel> beginInitProtocol, endInitProtocol;
 	protected volatile boolean closed;
 
 	public PacketHandler_New() {
+		serverConnection = Ref.invoke(Ref.server(),"getServerConnection");
+		if(serverConnection==null) //modded server
+		for(Field f : Ref.getAllFields(Ref.server().getClass()))
+			if(f.getType()==Ref.nms("ServerConnection")) {
+				serverConnection=Ref.get(Ref.server(), f);
+				break;
+			}
+		if(serverConnection==null)return;
 		try {
 			registerChannelHandler();
 			registerPlayers();
@@ -91,9 +100,28 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 
 	private void registerChannelHandler() {
 		networkManagers = (List<?>) (Ref.get(serverConnection, "listeningChannels")!=null?Ref.get(serverConnection, "listeningChannels"):Ref.get(serverConnection, "g"));
+		if(networkManagers==null) { //modded server
+			for(Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
+				if(java.util.List.class==f.getType()){
+					networkManagers=(java.util.List<?>) Ref.get(serverConnection, f);
+					break;
+				}
+			}
+		if(networkManagers==null)return;
+		if(networkManagers.isEmpty()) {
+			networkManagers = (List<?>) (Ref.get(serverConnection, "f")!=null?Ref.get(serverConnection, "f"):Ref.get(serverConnection, "listeningChannels"));
+			if(networkManagers==null) { //modded server
+				for(Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
+					if(java.util.List.class==f.getType()){
+						networkManagers=(java.util.List<?>) Ref.get(serverConnection, f);
+						break;
+					}
+				}
+		}
+		if(networkManagers==null)return;
 		createServerChannelHandler();
 		for (Object item : networkManagers) {
-			if (!ChannelFuture.class.isInstance(item))break;
+			if (!ChannelFuture.class.isInstance(item))continue;
 			Channel serverChannel = ((ChannelFuture) item).channel();
 			serverChannels.add(serverChannel);
 			serverChannel.pipeline().addFirst(serverChannelHandler);
@@ -207,12 +235,11 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 		@Override
 		public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 			final Channel channel = ctx.channel();
-			if(msg==null)return;
-			if (login.isInstance(msg)) {
-				this.player=((GameProfile) Ref.get(msg, "a")).getName();
-				channelLookup.put(player, channel);
-			}
 			synchronized (msg) {
+				if (login.isInstance(msg)) {
+					player=((GameProfile) Ref.get(msg, "a")).getName();
+					channelLookup.put(player, channel);
+				}
 				try {
 					msg = PacketManager.call(player, msg, channel, PacketType.PLAY_IN);
 				} catch (Exception e) {
@@ -226,7 +253,6 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 		@Override
 		public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
 			final Channel channel = ctx.channel();
-			if(msg==null)return;
 			synchronized (msg) {
 				try {
 					msg = PacketManager.call(player, msg, channel, PacketType.PLAY_OUT);

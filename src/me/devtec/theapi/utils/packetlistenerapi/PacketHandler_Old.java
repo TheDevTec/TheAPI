@@ -39,6 +39,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 				serverConnection=Ref.get(Ref.server(), f);
 				break;
 			}
+		if(serverConnection==null)return;
 		try {
 			registerChannelHandler();
 			registerPlayers();
@@ -97,7 +98,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 	}
 
 	private void registerChannelHandler() {
-		networkManagers = (List<?>) (Ref.get(serverConnection, "listeningChannels")!=null?Ref.get(serverConnection, "listeningChannels"):Ref.get(serverConnection, "g"));
+		networkManagers = (List<?>) (Ref.get(serverConnection, "e")!=null?Ref.get(serverConnection, "e"):Ref.get(serverConnection, "f"));
 		if(networkManagers==null) { //modded server
 			for(Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
 				if(java.util.List.class==f.getType()){
@@ -105,6 +106,18 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 					break;
 				}
 			}
+		if(networkManagers==null)return;
+		if(networkManagers.isEmpty()) {
+			networkManagers = (List<?>) (Ref.get(serverConnection, "f")!=null?Ref.get(serverConnection, "f"):Ref.get(serverConnection, "e"));
+			if(networkManagers==null) { //modded server
+				for(Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
+					if(java.util.List.class==f.getType()){
+						networkManagers=(java.util.List<?>) Ref.get(serverConnection, f);
+						break;
+					}
+				}
+		}
+		if(networkManagers==null)return;
 		createServerChannelHandler();
 		for (Object item : networkManagers) {
 			if (!ChannelFuture.class.isInstance(item))break;
@@ -221,12 +234,11 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 		@Override
 		public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 			final Channel channel = ctx.channel();
-			if(msg==null)return;
-			if (login.isInstance(msg)) {
-				this.player=((GameProfile) Ref.get(msg, "a")).getName();
-				channelLookup.put(player, channel);
-			}
 			synchronized (msg) {
+				if (login.isInstance(msg)) {
+					player=((GameProfile) Ref.get(msg, "a")).getName();
+					channelLookup.put(player, channel);
+				}
 				try {
 					msg = PacketManager.call(player, msg, channel, PacketType.PLAY_IN);
 				} catch (Exception e) {
@@ -240,7 +252,6 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 		@Override
 		public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
 			final Channel channel = ctx.channel();
-			if(msg==null)return;
 			synchronized (msg) {
 				try {
 					msg = PacketManager.call(player, msg, channel, PacketType.PLAY_OUT);

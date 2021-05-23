@@ -60,6 +60,7 @@ public class GUI implements HolderGUI {
 		}
 		this.title=title;
 		inv = Bukkit.createInventory(null, size, this.title);
+		if(TheAPI.isNewerThan(13))
 		switch (size) {
 		case 9 : {
 			windowType = Ref.getStatic(Ref.nms("Containers"),"GENERIC_9X1");
@@ -261,6 +262,12 @@ public class GUI implements HolderGUI {
 	
 	public final void setTitle(String title) {
 		title=StringUtils.colorize(title);
+		if(TheAPI.isOlderThan(9)) {
+			if(title.length() >= 32) {
+				title=title.substring(0, 32);
+			}
+		}
+		if(title.equals(this.title))return;
 		this.title=title;
 		for(Entry<Player, Object> ec : containers.entrySet()) {
 			Player player = ec.getKey();
