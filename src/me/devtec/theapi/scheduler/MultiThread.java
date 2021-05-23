@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
 public class MultiThread implements Executor {
 	protected Map<Integer, Thread> threads = new HashMap<>();
 	protected final AtomicInteger i = new AtomicInteger();
@@ -36,11 +38,12 @@ public class MultiThread implements Executor {
 	public void destroy(int id) {
 		Thread t = threads.remove(id);
 		if(t==null)return;
-		t.stop();
-		t.interrupt();
+		t.stop(); //destroy loops and whole running code
+		t.interrupt(); //safe destroy of thread
 	}
 	
 	public int executeWithId(int id, Runnable command) {
+		if(!LoaderClass.plugin.enabled)return id;
 		Thread t = new Thread(command, "MultiThread-Worker-"+id);
 		threads.put(id, t);
 		t.start();
