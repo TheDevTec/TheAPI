@@ -647,20 +647,36 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 						bos.writeUTF(key.getKey());
 						if(key.getValue()[0]==null) {
 							bos.writeUTF(null);
+							bos.writeUTF("0");
 						}else {
+							if(key.getValue().length >2)
+								if(key.getValue()[2]!=null && key.getValue()[2] instanceof String) {
+									String write = (String)key.getValue()[2];
+									while(write.length()>20000) {
+										String wr = write.substring(0, 19999);
+										bos.writeUTF('0'+wr);
+										write=write.substring(19999);
+									}
+									bos.writeUTF('0'+write);
+									bos.writeUTF("0");
+									continue;
+								}
 							String write = Writer.write(key.getValue()[0]);
-							while(write.length()>40000) {
-								String wr = write.substring(0, 39999);
-								bos.writeUTF(0+wr);
-								write=write.substring(39999);
+							while(write.length()>20000) {
+								String wr = write.substring(0, 19999);
+								bos.writeUTF('0'+wr);
+								write=write.substring(19999);
 							}
-							bos.writeUTF(0+write);
+							bos.writeUTF('0'+write);
+							bos.writeUTF("0");
+							continue;
 						}
-						bos.writeUTF("0");
 					} catch (Exception er) {
+						er.printStackTrace();
 					}
 				return Base64.getEncoder().encodeToString(bos.toByteArray());
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 			return "";
 		}
