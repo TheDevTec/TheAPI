@@ -110,6 +110,7 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	private static Object windowType = Ref.getStatic(Ref.nms("Containers"), "ANVIL");
+	
 	private static Method getAt = Ref.method(Ref.nms("ContainerAccess"), "at", Ref.nms("World"), Ref.nms("BlockPosition")),
 			getSlot=Ref.method(Ref.nms("Container"), "getSlot", int.class);
 	private static Constructor<?> anvil;
@@ -136,20 +137,30 @@ public class AnvilGUI implements HolderGUI {
 				a.onClose(player);
 			}
 			Object entityPlayer = Ref.player(player);
-			int containerCounter = (int) GUI.nextCounter(entityPlayer);
-			Object g = TheAPI.isNewerThan(14)?Ref.newInstance(anvil, containerCounter, Ref.get(entityPlayer, "inventory"), Ref.invokeNulled(getAt, Ref.get(entityPlayer, "world"), Ref.get(entityPlayer, "locBlock")))
+			int id = (int) GUI.nextCounter(entityPlayer);
+			Object g = TheAPI.isNewerThan(14)?Ref.newInstance(anvil, id, Ref.get(entityPlayer, "inventory"), Ref.invokeNulled(getAt, Ref.get(entityPlayer, "world"), Ref.invoke(entityPlayer, "getChunkCoordinates")))
 					:(TheAPI.isOlderThan(8)?Ref.newInstance(anvil, Ref.get(entityPlayer, "inventory"), Ref.get(entityPlayer, "world"), 0, 0, 0, entityPlayer)
-							:Ref.newInstance(anvil, Ref.get(entityPlayer, "inventory"), Ref.get(entityPlayer, "world"), Ref.get(entityPlayer, "locBlock"), entityPlayer));
+							:Ref.newInstance(anvil, Ref.get(entityPlayer, "inventory"), Ref.get(entityPlayer, "world"), Ref.invoke(entityPlayer, "getChunkCoordinates"), entityPlayer));
 			Ref.set(g, "checkReachable", false);
 			Ref.set(entityPlayer, "activeContainer", g);
+			if(TheAPI.isOlderThan(15))
+			Ref.set(Ref.get(g, "repairInventory")!=null?Ref.get(g, "repairInventory"):Ref.get(g, "h"),"a", TheAPI.isOlderThan(14)?NMSAPI.getIChatBaseComponentText(title):title);
 			if(TheAPI.isOlderThan(8)) {
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,containerCounter,8,title, 0, true));
+				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,8,title, 0, true));
 			}else if(TheAPI.isOlderThan(14)) {
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,containerCounter,"minecraft:anvil",NMSAPI.getIChatBaseComponentText(title), 0));
+				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,"minecraft:anvil",NMSAPI.getIChatBaseComponentText(title), 0));
 			}else {
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,containerCounter, windowType, NMSAPI.getFixedIChatBaseComponent(title)));
+				Object obj = NMSAPI.getFixedIChatBaseComponent(title);
+				Ref.set(g, "title", obj);
+				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id, windowType, obj));
 			}
-			Ref.set(g, "windowId", containerCounter);
+			if(TheAPI.isOlderThan(8)) {
+				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,8,title, 0, false));
+			}else if(TheAPI.isOlderThan(14)) {
+				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,"minecraft:anvil",NMSAPI.getIChatBaseComponentText(title), 0));
+			}else
+				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id, windowType, NMSAPI.getFixedIChatBaseComponent(title)));
+			Ref.set(g, "windowId", id);
 			Ref.invoke(g, GUI.addListener, entityPlayer);
 			for(int i = 0; i < 3; ++i)
 				if(items.get(i)!=null)
@@ -183,6 +194,17 @@ public class AnvilGUI implements HolderGUI {
 			Player player = entry.getKey();
 			Object container = entry.getValue();
 			int id = (int)Ref.get(container,"windowId");
+			if(TheAPI.isOlderThan(15))
+			Ref.set(Ref.get(container, "repairInventory")!=null?Ref.get(container, "repairInventory"):Ref.get(container, "h"),"a", TheAPI.isOlderThan(14)?NMSAPI.getIChatBaseComponentText(title):title);
+			if(TheAPI.isOlderThan(8)) {
+				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,8,title, 0, true));
+			}else if(TheAPI.isOlderThan(14)) {
+				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,"minecraft:anvil",NMSAPI.getIChatBaseComponentText(title), 0));
+			}else {
+				Object obj = NMSAPI.getFixedIChatBaseComponent(title);
+				Ref.set(container, "title", obj);
+				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id, windowType, obj));
+			}
 			if(TheAPI.isOlderThan(8)) {
 				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,8,title, 0, false));
 			}else if(TheAPI.isOlderThan(14)) {
