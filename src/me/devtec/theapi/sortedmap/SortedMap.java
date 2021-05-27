@@ -1,8 +1,10 @@
 package me.devtec.theapi.sortedmap;
 
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -33,7 +35,7 @@ public class SortedMap {
 	}
 
 	public static <K, V> Map<K, V> sortNonComparableByValue(Map<K, V> map) {
-		TreeMap<V, K> result = new TreeMap<>(new Comparator<V>() {
+		TreeMap<V, List<K>> result = new TreeMap<>(new Comparator<V>() {
 			@SuppressWarnings({ "rawtypes", "unchecked" })
 			public int compare(V o1, V o2) {
 				if(o2 instanceof Comparable && o1 instanceof Comparable)
@@ -41,11 +43,16 @@ public class SortedMap {
 				return o2.toString().compareTo(o1.toString());
 			}
 		});
-		for(Entry<K, V> entry : map.entrySet())
-			result.put(entry.getValue(), entry.getKey());
+		for(Entry<K, V> entry : map.entrySet()) {
+			List<K> e = result.get(entry.getValue());
+			if(e==null)
+				result.put(entry.getValue(), e=new ArrayList<>());
+			e.add(entry.getKey());
+		}
 		LinkedHashMap<K, V> resultFix = new LinkedHashMap<>();
-		for(Entry<V, K> entry : result.entrySet())
-			resultFix.put(entry.getValue(), entry.getKey());
+		for(Entry<V, List<K>> entry : result.entrySet())
+			for(K r : entry.getValue())
+			resultFix.put(r, entry.getKey());
 		return resultFix;
 	}
 }

@@ -8,6 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
@@ -275,7 +276,7 @@ public class TheMaterial implements Cloneable {
 	}
 
 	public Object toNMSItemStack() {
-		return Ref.invokeNulled(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", toItemStack());
+		return NMSAPI.asNMSItem(toItemStack());
 	}
 
 	public ItemStack toItemStack() {

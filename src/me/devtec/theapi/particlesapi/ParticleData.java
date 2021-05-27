@@ -108,7 +108,12 @@ public class ParticleData {
 		private int[] packetData;
 
 		public ItemOptions(ItemStack stack) {
-			this(new TheMaterial(stack));
+			this.item = stack;
+			try {
+				packetData = new int[] {(int) Ref.invokeNulled(Ref.nms("Block"), "getCombinedId", new TheMaterial(stack).getIBlockData())};
+			}catch(Exception err) {
+				packetData=new int[] {0,0};
+			}
 		}
 
 		public ItemOptions(Material material, byte data) {
@@ -117,8 +122,11 @@ public class ParticleData {
 
 		public ItemOptions(TheMaterial material) {
 			this.item = material.toItemStack();
-			packetData = new int[] {
-					(int) Ref.invokeNulled(Ref.nms("Block"), "getCombinedId", material.getIBlockData()) };
+			try {
+				packetData = new int[] {(int) Ref.invokeNulled(Ref.nms("Block"), "getCombinedId", material.getIBlockData())};
+			}catch(Exception err) {
+				packetData=new int[] {0,0};
+			}
 		}
 
 		public ItemStack getItem() {

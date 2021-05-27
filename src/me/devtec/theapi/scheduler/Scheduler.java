@@ -1,6 +1,7 @@
 package me.devtec.theapi.scheduler;
 
 import me.devtec.theapi.utils.nms.NMSAPI;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class Scheduler {
 	private static MultiThread thread = new MultiThread();
@@ -10,18 +11,18 @@ public class Scheduler {
 	}
 
 	public static void cancelTask(int task) {
-		if(!isCancelled(task))
+		if(thread.isAlive(task))
 			thread.destroy(task);
 	}
 	
 	public static boolean isCancelled(int task) {
-		return !thread.isAlive(task);
+		return !thread.isAlive(task)&&LoaderClass.plugin.enabled;
 	}
 	
 	//ASYNCHRONOUOS
 
 	public static int run(Runnable r) {
-		if(r==null)return -1;
+		if(r==null||!LoaderClass.plugin.enabled)return -1;
 		int id = thread.incrementAndGet();
 		return thread.executeWithId(id, new Runnable() {
 			public void run() {
@@ -40,7 +41,7 @@ public class Scheduler {
 	}
 
 	public static int later(long delay, Runnable r) {
-		if(r==null)return -1;
+		if(r==null||!LoaderClass.plugin.enabled)return -1;
 		int id = thread.incrementAndGet();
 		return thread.executeWithId(id, new Runnable() {
 			public void run() {
@@ -61,7 +62,7 @@ public class Scheduler {
 	}
 
 	public static int repeating(long delay, long period, Runnable r) {
-		if(r==null||period<0)return -1;
+		if(r==null||!LoaderClass.plugin.enabled||period<0)return -1;
 		int id = thread.incrementAndGet();
 		return thread.executeWithId(id, new Runnable() {
 			public void run() {
@@ -92,7 +93,7 @@ public class Scheduler {
 	}
 
 	public static int repeatingTimes(long delay, long period, long times, Runnable runnable, Runnable onFinish) {
-		if(runnable==null||period<0||times<0)return -1;
+		if(runnable==null||!LoaderClass.plugin.enabled||period<0||times<0)return -1;
 		int id = thread.incrementAndGet();
 		return thread.executeWithId(id, new Runnable() {
 			int run = 0;
@@ -122,7 +123,7 @@ public class Scheduler {
 	//SYNCHRONOUS WITH SERVER
 	
 	public static int runSync(Runnable r) {
-		if(r==null)return -1;
+		if(r==null||!LoaderClass.plugin.enabled)return -1;
 		int id = thread.incrementAndGet();
 		return thread.executeWithId(id, new Runnable() {
 			public void run() {
@@ -141,7 +142,7 @@ public class Scheduler {
 	}
 
 	public static int laterSync(long delay, Runnable r) {
-		if(r==null)return -1;
+		if(r==null||!LoaderClass.plugin.enabled)return -1;
 		int id = thread.incrementAndGet();
 		return thread.executeWithId(id, new Runnable() {
 			public void run() {
@@ -162,7 +163,7 @@ public class Scheduler {
 	}
 
 	public static int repeatingSync(long delay, long period, Runnable r) {
-		if(r==null||period<0)return -1;
+		if(r==null||period<0||!LoaderClass.plugin.enabled)return -1;
 		int id = thread.incrementAndGet();
 		return thread.executeWithId(id, new Runnable() {
 			public void run() {
@@ -193,7 +194,7 @@ public class Scheduler {
 	}
 
 	public static int repeatingTimesSync(long delay, long period, long times, Runnable runnable, Runnable onFinish) {
-		if(runnable==null||period<0||times<0)return -1;
+		if(runnable==null||period<0||times<0||!LoaderClass.plugin.enabled)return -1;
 		int id = thread.incrementAndGet();
 		return thread.executeWithId(id, new Runnable() {
 			int run = 0;

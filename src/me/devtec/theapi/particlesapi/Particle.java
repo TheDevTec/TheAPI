@@ -1,5 +1,6 @@
 package me.devtec.theapi.particlesapi;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
@@ -12,7 +13,7 @@ import me.devtec.theapi.particlesapi.ParticleData.ItemOptions;
 import me.devtec.theapi.particlesapi.ParticleData.NoteOptions;
 import me.devtec.theapi.particlesapi.ParticleData.RedstoneOptions;
 import me.devtec.theapi.utils.Position;
-import me.devtec.theapi.utils.TheMaterial;
+import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class Particle {
@@ -96,9 +97,14 @@ public class Particle {
 	public Object createPacket(Position pos, float speed, int amount) {
 		return createPacket(pos.getX(), pos.getY(), pos.getZ(), speed, amount);
 	}
+	
+	private static Constructor<?> paramRed = Ref.getConstructors(Ref.nms("ParticleParamRedstone"))[0],
+			paramBlock=Ref.getConstructors(Ref.nms("ParticleParamBlock"))[0],
+			paramItem=Ref.getConstructors(Ref.nms("ParticleParamItem"))[0],
+			part=Ref.constructor(Ref.nms("PacketPlayOutWorldParticles"));
 
 	public Object createPacket(double x, double y, double z, float speed, int amount) {
-		Object packet = Ref.newInstance(Ref.constructor(Ref.nms("PacketPlayOutWorldParticles")));
+		Object packet = Ref.newInstance(part);
 		if (TheAPI.isNewVersion()) { // 1.13+
 			Ref.set(packet, "i", true);
 			Ref.set(packet, "a", x);
@@ -112,7 +118,7 @@ public class Particle {
 					Ref.set(packet, "d", d.getValueX());
 					Ref.set(packet, "e", d.getValueY());
 					Ref.set(packet, "f", d.getValueZ());
-					Ref.set(packet, "j", Ref.newInstance(Ref.getConstructors(Ref.nms("ParticleParamRedstone"))[0],
+					Ref.set(packet, "j", Ref.newInstance(paramRed,
 							d.getValueX(), d.getValueY(), d.getValueZ(), d.getSize()));
 					return packet;
 				}
@@ -126,13 +132,13 @@ public class Particle {
 				}
 				if (data instanceof BlockOptions) {
 					BlockOptions a = (BlockOptions) data;
-					Ref.set(packet, "j", Ref.newInstance(Ref.getConstructors(Ref.nms("ParticleParamBlock"))[0],
+					Ref.set(packet, "j", Ref.newInstance(paramBlock,
 							particle, a.getType().getIBlockData()));
 					return packet;
 				}
 				ItemOptions a = (ItemOptions) data;
-				Ref.set(packet, "j", Ref.newInstance(Ref.getConstructors(Ref.nms("ParticleParamItem"))[0], particle,
-						new TheMaterial(a.getItem()).toNMSItemStack()));
+				Ref.set(packet, "j", Ref.newInstance(paramItem, particle,
+						NMSAPI.asNMSItem(a.getItem())));
 				return packet;
 			}
 			Ref.set(packet, "j", particle);
@@ -182,7 +188,7 @@ public class Particle {
 				int[] packetData = data instanceof BlockOptions ? ((BlockOptions) data).getPacketData()
 						: ((ItemOptions) data).getPacketData();
 				Ref.set(packet, "k",
-						name.equalsIgnoreCase("ITEM_CRACK") || name.equalsIgnoreCase("ITEM_TAKE") ? packetData
+						name.equalsIgnoreCase("CRACK_ITEM") || name.equalsIgnoreCase("ITEM_CRACK") || name.equalsIgnoreCase("ITEM") || name.equalsIgnoreCase("ITEM_TAKE") ? packetData
 								: new int[] { packetData[0] | (packetData[1] << 12) });
 			}
 		}
