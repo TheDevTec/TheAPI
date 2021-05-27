@@ -540,7 +540,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	@SuppressWarnings("unchecked")
 	protected synchronized void preparePath(List<String> done, String path, String pathName, String space, StringBuilder b) {
-		pathName = space + pathName;
+		pathName = space + (pathName.contains(":")?'"'+pathName+'"':pathName);
 		try {
 		Object[] aw = loader.get().get(path);
 		if(aw==null) {

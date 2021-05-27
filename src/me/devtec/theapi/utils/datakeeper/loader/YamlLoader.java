@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import me.devtec.theapi.utils.json.Reader;
 
 public class YamlLoader extends DataLoader {
-	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*?):[ ][ ]*(.*)"),
+	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*?):[ ]*(.*)"),
 			fixSplit = Pattern.compile("[\"'](.*)['\"]");
 	private Map<String, Object[]> data = new LinkedHashMap<>();
 	private List<String> header = new LinkedList<>(), footer = new LinkedList<>();
