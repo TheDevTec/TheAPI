@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
@@ -27,31 +29,27 @@ public class SQLAPI {
 	public SQLAPI(String host, String database, String username, String password) {
 		this(host, database, username, password, 3306);
 	}
-
-	private boolean connected;
-
+	
 	public void connect() {
 		openConnection();
-		connected = true;
 	}
 
 	public boolean isConnected() {
 		try {
-			return connected && connection != null && !connection.isClosed();
+			return connection != null && !connection.isClosed();
 		} catch (Exception e) {
 			return false;
 		}
 	}
 
 	public void close() {
-		Validator.validate(!connected, "SQL connection is closed");
 		Validator.validate(connection == null, "SQL connection is null");
+		Validator.validate(!isConnected(), "SQL connection is closed");
 		try {
 			connection.close();
 		} catch (Exception e) {
 		}
 		connection = null;
-		connected = false;
 	}
 
 	public void reconnect() {
@@ -59,8 +57,53 @@ public class SQLAPI {
 		connect();
 	}
 
+	public void createTable(String table, String values) {
+		Validator.validate(!isConnected(), "SQL connection is closed");
+		execute("CREATE TABLE IF NOT EXISTS "+table+" ("+values+")");
+	}
+
+	public void deleteTable(String table) {
+		Validator.validate(!isConnected(), "SQL connection is closed");
+		execute("DROP TABLE "+table);
+	}
+
+	public void remove(String table, String lookingfor, String identifier) {
+		Validator.validate(!isConnected(), "SQL connection is closed");
+		execute("DELETE FROM "+table+" WHERE "+lookingfor+"='"+identifier+"'");
+	}
+
+	public List<Object> getTop(String table, String value, String lookingfor, String identifier, int limit) {
+		Validator.validate(!isConnected(), "SQL connection is closed");
+		List<Object> s = new ArrayList<>();
+		try {
+			ResultSet f = query("SELECT '"+value+"' FROM "+table+" WHERE "+lookingfor+"='"+identifier+"'");
+			if(f!=null)
+			while(f.next()) {
+				s.add(f.getObject(value));
+			}
+		}catch(Exception er) {}
+		return s;
+	}
+
+	public List<Object> getTop(String table, String value, int limit) {
+		Validator.validate(!isConnected(), "SQL connection is closed");
+		List<Object> s = new ArrayList<>();
+		try {
+			ResultSet f = query("SELECT '"+value+"' FROM "+table);
+			if(f!=null)
+			while(f.next()) {
+				s.add(f.getObject(value));
+			}
+		}catch(Exception er) {}
+		return s;
+	}
+
+	public void clearTable(String table) {
+		Validator.validate(!isConnected(), "SQL connection is closed");
+		execute("DELETE FROM "+table);
+	}
+
 	public PreparedStatement getPreparedStatement(String command) {
-		Validator.validate(!connected, "SQL connection is closed");
 		Validator.validate(command == null, "Command is null");
 		try {
 			return connection.prepareStatement(command);
@@ -76,7 +119,6 @@ public class SQLAPI {
 	}
 
 	public boolean update(PreparedStatement command) {
-		Validator.validate(!connected, "SQL connection is closed");
 		Validator.validate(command == null, "Command is null");
 		boolean result = false;
 		try {
@@ -94,7 +136,6 @@ public class SQLAPI {
 	}
 
 	public boolean largeUpdate(PreparedStatement command) {
-		Validator.validate(!connected, "SQL connection is closed");
 		Validator.validate(command == null, "Command is null");
 		boolean result = false;
 		try {
@@ -112,7 +153,6 @@ public class SQLAPI {
 	}
 
 	public ResultSet query(PreparedStatement command) {
-		Validator.validate(!connected, "SQL connection is closed");
 		Validator.validate(command == null, "Command is null");
 		ResultSet rs = null;
 		try {
@@ -125,13 +165,11 @@ public class SQLAPI {
 	}
 
 	public int getInt(String table, String lookingfor, String identifier, String idValue) {
-		Validator.validate(!connected, "SQL connection is closed");
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
-			if (s != null)
-				while (s.next())
-					return s.getInt(lookingfor);
+			if (s != null && s.next())
+				return s.getInt(lookingfor);
 			return 0;
 		} catch (Exception e) {
 			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
@@ -141,17 +179,17 @@ public class SQLAPI {
 	}
 
 	public void insert(String table, String... values) {
-		Validator.validate(!connected, "SQL connection is closed");
 		String items = "";
 		for (String s : values)
-			items += ", '" + s + "'";
-		items = items.replaceFirst(", ", "");
-		String command = "INSERT INTO " + table + " VALUES (" + items + ")";
-		execute(command);
+			items += s!=null?", '" + s + "'":", null";
+		if(!items.trim().isEmpty()) {
+			items = items.substring(2);
+			String command = "INSERT INTO " + table + " VALUES (" + items + ")";
+			execute(command);
+		}
 	}
-
+	
 	public void set(String table, String path, String value, String identifier, String idValue) {
-		Validator.validate(!connected, "SQL connection is closed");
 		String command = "UPDATE " + table + " SET " + path + "='" + value + "' WHERE " + identifier + "='" + idValue
 				+ "'";
 		try {
@@ -163,13 +201,11 @@ public class SQLAPI {
 	}
 
 	public long getLong(String table, String lookingfor, String identifier, String idValue) {
-		Validator.validate(!connected, "SQL connection is closed");
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
-			if (s != null)
-				while (s.next())
-					return s.getLong(lookingfor);
+			if (s != null && s.next())
+				return s.getLong(lookingfor);
 			return 0;
 		} catch (Exception e) {
 			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
@@ -179,13 +215,11 @@ public class SQLAPI {
 	}
 
 	public Array getArray(String table, String lookingfor, String identifier, String idValue) {
-		Validator.validate(!connected, "SQL connection is closed");
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
-			if (s != null)
-				while (s.next())
-					return s.getArray(lookingfor);
+			if (s != null && s.next())
+				return s.getArray(lookingfor);
 			return null;
 		} catch (Exception e) {
 			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
@@ -195,13 +229,11 @@ public class SQLAPI {
 	}
 
 	public boolean getBoolean(String table, String lookingfor, String identifier, String idValue) {
-		Validator.validate(!connected, "SQL connection is closed");
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
-			if (s != null)
-				while (s.next())
-					return s.getBoolean(lookingfor);
+			if (s != null && s.next())
+				return s.getBoolean(lookingfor);
 			return false;
 		} catch (Exception e) {
 			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
@@ -211,7 +243,6 @@ public class SQLAPI {
 	}
 
 	public byte getByte(String table, String lookingfor, String identifier, String idValue) {
-		Validator.validate(!connected, "SQL connection is closed");
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
@@ -226,13 +257,11 @@ public class SQLAPI {
 	}
 
 	public Object getObject(String table, String lookingfor, String identifier, String idValue) {
-		Validator.validate(!connected, "SQL connection is closed");
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
-			if (s != null)
-				while (s.next())
-					return s.getObject(lookingfor);
+			if (s != null && s.next())
+				return s.getObject(lookingfor);
 			return null;
 		} catch (Exception e) {
 			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
@@ -242,13 +271,11 @@ public class SQLAPI {
 	}
 
 	public BigDecimal getBigDecimal(String table, String lookingfor, String identifier, String idValue) {
-		Validator.validate(!connected, "SQL connection is closed");
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
-			if (s != null)
-				while (s.next())
-					return s.getBigDecimal(lookingfor);
+			if (s != null && s.next())
+				return s.getBigDecimal(lookingfor);
 			return new BigDecimal(0);
 		} catch (Exception e) {
 			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
@@ -258,13 +285,11 @@ public class SQLAPI {
 	}
 
 	public double getDouble(String table, String lookingfor, String identifier, String idValue) {
-		Validator.validate(!connected, "SQL connection is closed");
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
-			if (s != null)
-				while (s.next())
-					return s.getDouble(lookingfor);
+			if (s != null && s.next())
+				return s.getDouble(lookingfor);
 			return 0.0;
 		} catch (Exception e) {
 			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
@@ -274,13 +299,11 @@ public class SQLAPI {
 	}
 
 	public String getString(String table, String lookingfor, String identifier, String idValue) {
-		Validator.validate(!connected, "SQL connection is closed");
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
-			if (s != null)
-				while (s.next())
-					return s.getString(lookingfor);
+			if (s != null && s.next())
+				return s.getString(lookingfor);
 			return null;
 		} catch (Exception e) {
 			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
@@ -304,7 +327,6 @@ public class SQLAPI {
 	}
 
 	public boolean execute(PreparedStatement command) {
-		Validator.validate(!connected, "SQL connection is closed");
 		Validator.validate(command == null, "Command is null");
 		try {
 			command.execute();
