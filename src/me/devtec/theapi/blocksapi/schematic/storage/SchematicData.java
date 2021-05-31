@@ -109,12 +109,12 @@ public class SchematicData extends Data {
 						bos.writeUTF(null);
 					}else {
 						String write = Writer.write(key.getValue()[0]);
-						while(write.length()>40000) {
-							String wr = write.substring(0, 39999);
-							bos.writeUTF("1"+wr);
-							write=write.substring(39999);
+						while(write.length()>50000) {
+							String wr = write.substring(0, 49999);
+							bos.writeUTF('1'+wr);
+							write=write.substring(49999);
 						}
-						bos.writeUTF("1"+write);
+						bos.writeUTF('1'+write);
 					}
 					bos.writeUTF("1");
 				} catch (Exception er) {
@@ -144,12 +144,12 @@ public class SchematicData extends Data {
 						bos.writeUTF(null);
 					}else {
 						String write = Writer.write(key.getValue()[0]);
-						while(write.length()>40000) {
-							String wr = write.substring(0, 39999);
-							bos.writeUTF("1"+wr);
-							write=write.substring(39999);
+						while(write.length()>50000) {
+							String wr = write.substring(0, 49999);
+							bos.writeUTF('1'+wr);
+							write=write.substring(49999);
 						}
-						bos.writeUTF("1"+write);
+						bos.writeUTF('1'+write);
 					}
 					bos.writeUTF("1");
 				} catch (Exception er) {

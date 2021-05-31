@@ -19,7 +19,7 @@ import me.devtec.theapi.utils.json.Reader;
 import me.devtec.theapi.utils.json.Writer;
 
 public class VirtualSchematic implements Schematic {
-	private static String air="AIR",air1="CAVE_AIR",air2="VOID_AIR",air3="STRUCTURE_AIR",pall="pallete.",split=".b.",broken=".", fix = "<!>";
+	private static String pall="pallete.",split=".b.",broken=".", fix = "<!>";
 	
 	protected SchematicData load;
 	
@@ -50,19 +50,21 @@ public class VirtualSchematic implements Schematic {
 				Map<Integer, String> pallete = new HashMap<>();
 				for(String key : load.getKeys("pallete"))
 					pallete.put(load.getInt(pall+key), key);
-				//BLOCKS PER CHUNK: <CHUNK-KEY.BLOCK-SUM>, PALLETE-ID>
-				Map<String, Integer> blocks = new HashMap<>();
+				//BLOCKS PER CHUNK: <CHUNK-KEY.BLOCK-SUM>, BLOCK>
+				Map<String, String> blocks = new HashMap<>();
 				for(String key : load.getKeys()) {
 					if(!key.equals("info") && !key.equals("pallete")) {
 						long c = Long.valueOf(key);
 							for(String values : load.getKeys(key+".b")) {
 								int val = Integer.valueOf(values);
-								if(pallete.get(val)==null)continue; //invalid entry
+								String i = pallete.get(val);
+								if(i==null)continue; //invalid entry
 								for(Double d : (List<Double>)Reader.read(load.getString(key+split+values)))
-									blocks.put(c+fix+d.intValue(), val);
+									blocks.put(c+fix+d.intValue(), i.replaceAll("\\.",broken));
 							}
 					}
 				}
+				pallete.clear();
 				//BLOCKS
 				Position sett = new Position(aa.getWorld(),0,0,0);
 				if(stand!=null && st) {
@@ -74,35 +76,30 @@ public class VirtualSchematic implements Schematic {
 						int sum = sum(get(aaa[0]), get(aaa[1]), get(aaa[2]));
 						long k = (get(aaa[0]) >> 4 & 0xFFFF0000L) << 16L | (get(aaa[0]) >> 4 & 0xFFFFL) << 0L;
 						k |= (get(aaa[2]) >> 4 & 0xFFFF0000L) << 32L | (get(aaa[2]) >> 4 & 0xFFFFL) << 16L;
-						String path = k+fix+sum;
-						if(blocks.containsKey(path)) {
-							ser.fromString(pallete.get(blocks.get(path)).replace(fix,broken)).apply(sett);
+						String path = new StringBuilder(String.valueOf(k)).append(fix).append(String.valueOf(sum)).toString();
+						String i = blocks.get(path);
+						if(i!=null) {
+							ser.fromString(i).apply(sett);
 						}else if(replaceAir) {
-							if(sett.getBukkitType().name().equals(air))continue;
-							Object old = sett.getIBlockData();
-							sett.setAir();
-							Position.updateBlockAt(sett, old);
-							Position.updateLightAt(sett);
+							sett.setAirAndUpdate();
 						}
 					}
-				}else
+				}else {
 					for(double[] aaa : new BlockMathIterator(aa, bb)) {
 						sett.setX(aaa[0]);
 						sett.setY(aaa[1]);
 						sett.setZ(aaa[2]);
 						//BLOCK
 						int sum = sum(sett.getBlockX(), sett.getBlockY(), sett.getBlockZ());
-						String path = sett.getChunkKey()+fix+sum;
-						if(blocks.containsKey(path)) {
-							ser.fromString(pallete.get(blocks.get(path)).replace(fix,broken)).apply(sett);
+						String path = new StringBuilder(String.valueOf(sett.getChunkKey())).append(fix).append(String.valueOf(sum)).toString();
+						String i = blocks.get(path);
+						if(i!=null) {
+							ser.fromString(i).apply(sett);
 						}else if(replaceAir) {
-							if(sett.getBukkitType().name().equals(air))continue;
-							Object old = sett.getIBlockData();
-							sett.setAir();
-							Position.updateBlockAt(sett, old);
-							Position.updateLightAt(sett);
+							sett.setAirAndUpdate();
 						}
 					}
+				}
 				if(callable!=null)
 					callable.run(VirtualSchematic.this);
 		}
@@ -131,16 +128,15 @@ public class VirtualSchematic implements Schematic {
 					pos.setY(aaa[1]);
 					pos.setZ(aaa[2]);
 					TheMaterial n = pos.getType();
-					String t = n.getType().name();
-					if(t.equals(air)||t.equals(air1)||t.equals(air2)||t.equals(air3))continue; //DON'T SAVE AIR BLOCK
+					if(n.getType().isAir())continue; //DON'T SAVE AIR BLOCK
+					//PALLETE
+					String ss = ser.serialize(pos, n).getAsString().replace(broken, fix);
 					if(fromCopy!=null)pos.add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ());
 					int sum = sum(pos.getBlockX(),pos.getBlockY(),pos.getBlockZ());
-					//PALLETE
-					String ss = ser.serialize(pos, n).getAsString().replace(broken,fix);
 					String path = pall+ss;
 					String pallete = (String)save.get(path);
 					if(pallete==null)
-						save.put(path, pallete=(pal++)+"");
+						save.put(path, pallete=String.valueOf(pal++));
 					//BLOCK
 					path = pos.getChunkKey()+split+pallete;
 					List<Integer> ids = (List<Integer>) save.get(path);

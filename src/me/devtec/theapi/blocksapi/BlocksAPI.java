@@ -642,7 +642,7 @@ public class BlocksAPI {
 						else
 							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF,
 									cr);
-						Position.updateBlockAt(pos, before.getIBlockData());
+						Position.updateBlockAt(pos);
 					}
 				}
 				chunks.clear();
@@ -686,7 +686,7 @@ public class BlocksAPI {
 						else
 							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF,
 									cr);
-						Position.updateBlockAt(pos, before.getIBlockData());
+						Position.updateBlockAt(pos);
 					}
 				}
 				chunks.clear();
@@ -742,7 +742,7 @@ public class BlocksAPI {
 						else
 							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF,
 									cr);
-						Position.updateBlockAt(pos, before.getIBlockData());
+						Position.updateBlockAt(pos);
 					}
 				}
 				chunks.clear();
@@ -783,7 +783,7 @@ public class BlocksAPI {
 						else
 							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF,
 									cr);
-						Position.updateBlockAt(pos, before.getIBlockData());
+						Position.updateBlockAt(pos);
 					}
 				}
 				chunks.clear();
@@ -834,7 +834,7 @@ public class BlocksAPI {
 						else
 							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF,
 									cr);
-						Position.updateBlockAt(pos, before.getIBlockData());
+						Position.updateBlockAt(pos);
 					}
 				}
 				chunks.clear();
@@ -868,7 +868,7 @@ public class BlocksAPI {
 									pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
 						else
 							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
-						Position.updateBlockAt(pos, before.getIBlockData());
+						Position.updateBlockAt(pos);
 					}
 				}
 				chunks.clear();

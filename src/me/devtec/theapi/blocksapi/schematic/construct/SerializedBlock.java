@@ -24,6 +24,8 @@ import org.bukkit.block.data.Rail;
 import org.bukkit.block.data.Rotatable;
 import org.bukkit.block.data.Snowable;
 import org.bukkit.block.data.Waterlogged;
+import org.bukkit.block.data.type.Leaves;
+import org.bukkit.block.data.type.Stairs;
 import org.bukkit.material.MaterialData;
 
 import me.devtec.theapi.TheAPI;
@@ -33,6 +35,9 @@ import me.devtec.theapi.utils.json.Writer;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public interface SerializedBlock extends Serializable {
+	static Method saveNbt = Ref.method(Ref.nms("TileEntity"), "save", Ref.nms("NBTTagCompound"))!=null?
+			Ref.method(Ref.nms("TileEntity"), "save", Ref.nms("NBTTagCompound")):
+				Ref.method(Ref.nms("TileEntity"), "b", Ref.nms("NBTTagCompound"));
 	static Method get = Ref.getClass("com.google.common.collect.ForwardingMultimap")==null?Ref.method(Ref.getClass("net.minecraft.util.com.google.common.collect.ForwardingMultimap"), "get", Object.class):
 			Ref.method(Ref.getClass("com.google.common.collect.ForwardingMultimap"), "get", Object.class);
 
@@ -48,6 +53,10 @@ public interface SerializedBlock extends Serializable {
 			if(d instanceof Orientable) {
 				Orientable dir = (Orientable)d;
 				values.put("orient", dir.getAxis().name());
+			}
+			if(d instanceof Leaves) {
+				Leaves dir = (Leaves)d;
+				values.put("leaves", dir.isPersistent());
 			}
 			if(d instanceof Rotatable) {
 				Rotatable dir = (Rotatable)d;
@@ -114,6 +123,14 @@ public interface SerializedBlock extends Serializable {
 				Waterlogged dir = (Waterlogged)d;
 				values.put("water", dir.isWaterlogged());
 			}
+			if(d instanceof Stairs) {
+				Stairs dir = (Stairs)d;
+				values.put("sshape", dir.getShape().name());
+			}
+			if(d instanceof Rail) {
+				Rail dir = (Rail)d;
+				values.put("rshape", dir.getShape().name());
+			}
 		}else {
 			MaterialData data = b.getState().getData();
 			if(data instanceof org.bukkit.material.Colorable)
@@ -124,25 +141,20 @@ public interface SerializedBlock extends Serializable {
 				values.put("attach", ((org.bukkit.material.Attachable) data).getAttachedFace().name());
 			if(data instanceof org.bukkit.material.Openable)
 				values.put("open", ((org.bukkit.material.Openable) data).isOpen());
+			if(data instanceof org.bukkit.material.Leaves)
+				values.put("leaves", ((org.bukkit.material.Leaves) data).isDecaying());
 		}
 		Object dir = getState(block);
 		if(dir!=null) {
 			((Map<?,?>)Ref.get(objectNbt, "map")).clear();
-			Object ret = Ref.invoke(dir, "save", objectNbt);
-			if(ret==null) {
-				ret = Ref.invoke(dir, "b", objectNbt);
-			}
+			Object ret = Ref.invoke(dir, saveNbt, objectNbt);
 			values.put("nbt", ret.toString());
 		}
 		return serialize(type, values);
 	}
 	
 	static Object getState(Position block) {
-		Object w = Ref.world(block.getWorld());
-		Map<?,?> map = (Map<?,?>) Ref.get(w, "capturedTileEntities");
-		if (map.containsKey(block.getBlockPosition()))
-			return map.get(block.getBlockPosition());
-		map = (Map<?,?>) Ref.get(block.getNMSChunk(), "tileEntities");
+		Map<?,?> map = (Map<?,?>) Ref.get(block.getNMSChunk(), "tileEntities");
 		return map.get(block.getBlockPosition());
 	}
 	

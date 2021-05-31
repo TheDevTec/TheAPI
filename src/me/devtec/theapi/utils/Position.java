@@ -87,15 +87,16 @@ public class Position implements Cloneable {
 	}
 
 	public static Position fromString(String stored) {
-		if (stored.startsWith("[Position:")) {
-			stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[Position:", "");
-			String[] part = stored.replace(":", ".").split("/");
+		try {
+			stored = stored.substring(10, stored.length() - 1);
+			String[] part = stored.replaceAll(":", ".").split("/");
 			return new Position(part[0], StringUtils.getDouble(part[1]), StringUtils.getDouble(part[2]),
 					StringUtils.getDouble(part[3]), StringUtils.getFloat(part[4]), StringUtils.getFloat(part[5]));
+		} catch (Exception notMat) {
+			Location loc = StringUtils.getLocationFromString(stored);
+			if (loc != null)
+				return new Position(loc);
 		}
-		Location loc = StringUtils.getLocationFromString(stored);
-		if (loc != null)
-			return new Position(loc);
 		return null;
 	}
 
@@ -117,7 +118,7 @@ public class Position implements Cloneable {
 
 	@Override
 	public String toString() {
-		return ("[Position:" + w + "/" + x + "/" + y + "/" + z + "/" + yaw + "/" + pitch + "]").replace(".", ":");
+		return ("[Position:" + w + '/' + x + '/' + y + '/' + z + '/' + yaw + '/' + pitch + ']').replaceAll("\\.", ":");
 	}
 
 	public int hashCode() {
@@ -143,27 +144,28 @@ public class Position implements Cloneable {
 		return getType().getType();
 	}
 
-	private static Method getter, getdata;
+	private static Method getdata;
 	static {
-		if(TheAPI.isOlderThan(8)) {
-			getdata=Ref.method(Ref.nms("Chunk"), "getData", int.class, int.class, int.class);
-			getter = Ref.method(Ref.nms("Chunk"), "getType", int.class, int.class, int.class);
-		}else
-			getter = Ref.method(Ref.nms("Chunk"), "getType", Ref.nms("BlockPosition"));
-		if(getter==null)
-			getter = Ref.method(Ref.nms("Chunk"), "getBlockData", Ref.nms("BlockPosition"));
+		if(TheAPI.isOlderThan(8))
+			getdata=Ref.method(Ref.nms("ChunkSection"), "getData", int.class, int.class, int.class);
 	}
 	
 	public Object getIBlockData() {
+		Object sc = ((Object[]) Ref.invoke(c, get))[getBlockY() >> 4];
+		if (sc == null)return new TheMaterial(Material.AIR, 0);
 		if(TheAPI.isOlderThan(8)) //1.7.10
-			return Ref.invoke(getNMSChunk(), getter, getBlockX() & 0xF, getBlockY() & 0xF, getBlockZ() & 0xF);
-		return Ref.invoke(getNMSChunk(), getter, getBlockPosition());
+			return Ref.invoke(sc, getType, getBlockX() & 15, getBlockY() & 15, getBlockZ() & 15);
+		return Ref.invoke(sc, getType, getBlockX() & 15, getBlockY() & 15, getBlockZ() & 15);
 	}
 	
+	private static Method getType = Ref.method(Ref.nms("ChunkSection"), "getType", int.class, int.class, int.class);
+	
 	public TheMaterial getType() {
+		Object sc = ((Object[]) Ref.invoke(c, get))[getBlockY() >> 4];
+		if (sc == null)return new TheMaterial(Material.AIR, 0);
 		if(TheAPI.isOlderThan(8)) //1.7.10
-			return TheMaterial.fromData(Ref.invoke(getNMSChunk(), getter, getBlockX() & 0xF, getBlockY() & 0xF, getBlockZ() & 0xF), (byte)Ref.invoke(getNMSChunk(), getdata, getBlockX() & 0xF, getBlockY() & 0xF, getBlockZ() & 0xF));
-		return TheMaterial.fromData(Ref.invoke(getNMSChunk(), getter, getBlockPosition()));
+			return TheMaterial.fromData(Ref.invoke(sc, getType, getBlockX() & 15, getBlockY() & 15, getBlockZ() & 15), (byte)Ref.invoke(sc, getdata, getBlockX() & 15, getBlockY() & 15, getBlockZ() & 15));
+		return TheMaterial.fromData(Ref.invoke(sc, getType, getBlockX() & 15, getBlockY() & 15, getBlockZ() & 15));
 	}
 
 	public Position subtract(double x, double y, double z) {
@@ -268,11 +270,11 @@ public class Position implements Cloneable {
 	}
 
 	private static int wf = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]);
-	private static Class<?> craft = Ref.craft("CraftChunk");
+	private static Method handle = Ref.method(Ref.craft("CraftChunk"), "getHandle");
 	
 	public Object getNMSChunk() {
 		try {
-			return Ref.handle(Ref.cast(craft, getWorld().getChunkAt(getBlockX() >> 4, getBlockZ() >> 4)));
+			return Ref.invoke(getWorld().getChunkAt(getBlockX() >> 4, getBlockZ() >> 4), handle);
 		} catch (Exception er) {
 			return null;
 		}
@@ -375,9 +377,8 @@ public class Position implements Cloneable {
 	}
 	
 	public void setTypeAndUpdate(TheMaterial with) {
-		Object old = getType().getIBlockData();
 		setType(with);
-		updateBlockAt(this, old);
+		updateBlockAt(this);
 		updateLightAt(this);
 	}
 
@@ -409,8 +410,8 @@ public class Position implements Cloneable {
 		}
 	}
 	
-	public static void updateBlockAt(Position pos, Object oldBlock) {
-		NMSAPI.refleshBlock(pos, oldBlock);
+	public static void updateBlockAt(Position pos) {
+		NMSAPI.refleshBlock(pos);
 		Object packet = t==0?Ref.newInstance(c, Ref.world(pos.getWorld()), pos.getBlockPosition()):Ref.newInstance(c, pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
 		for (Player p : TheAPI.getOnlinePlayers())
 			Ref.sendPacket(p, packet);
@@ -456,17 +457,13 @@ public class Position implements Cloneable {
 	}
 
 	public void setStateAndUpdate(BlockState state) {
-		Object old = getIBlockData();
 		setState(this, state);
-		updateBlockAt(this, old);
-		updateLightAt(this);
+		updateBlockAt(this);
 	}
 
 	public void setBlockDataAndUpdate(BlockData state) {
-		Object old = getIBlockData();
 		setBlockData(this, state);
-		updateBlockAt(this, old);
-		updateLightAt(this);
+		updateBlockAt(this);
 	}
 
 	private static Object air = new TheMaterial(Material.AIR).getIBlockData();
@@ -479,10 +476,8 @@ public class Position implements Cloneable {
 	}
 
 	public void setAirAndUpdate() {
-		Object old = getIBlockData();
 		setAir();
-		updateBlockAt(this, old);
-		updateLightAt(this);
+		updateBlockAt(this);
 	}
 	
 	public static long set(Location pos, int id, int data) {
@@ -598,45 +593,14 @@ public class Position implements Cloneable {
 		//REMOVE TILE ENTITY FROM CHUNK
 		((Map<?,?>)Ref.get(c, "tileEntities")).remove(p);
 		if (palet) {
-			//REMOVE TILE ENTITY
-			((Map<?,?>)Ref.get(ww, "capturedTileEntities")).remove(p);
-			Collection<?> list= (Collection<?>)Ref.get(ww, "tileEntityListTick");
-			Object re = null;
-			for(Object r : list) {
-				if(Ref.get(r, "position").equals(p)) {
-					re=r;
-					break;
-				}
-			}
-			if(re!=null)
-			list.remove(re);
 			//CHANGE BLOCK IN CHUNKSECTION (PALLETE)
 			Ref.invoke(sc, a, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr, false);
 		}else {
-			//REMOVE TILE ENTITY
-			for(Iterator<?> r = ((Collection<?>)Ref.get(ww, "tileEntityList")).iterator(); r.hasNext();) {
-				if(Ref.get(r.next(), "position").equals(p)) {
-					r.remove();
-					break;
-				}
-			}
-			for(Iterator<?> r = ((Collection<?>)Ref.get(ww, aa)).iterator(); r.hasNext();) {
-				if(Ref.get(r.next(), "position").equals(p)) {
-					r.remove();
-					break;
-				}
-			}
-			for(Iterator<?> r = ((Collection<?>)Ref.get(ww, bb)).iterator(); r.hasNext();) {
-				if(Ref.get(r.next(), "position").equals(p)) {
-					r.remove();
-					break;
-				}
-			}
 			//CHANGE BLOCK IN CHUNKSECTION (PALLETE)
 			Ref.invoke(sc, a, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr);
 		}
 		//ADD TILE ENTITY
-		Object tt = Ref.invoke(cr, "getBlock");
+		Object tt = cr.getClass().isAssignableFrom(Ref.nms("Block"))?cr:Ref.invoke(cr, "getBlock");
 		if(ver!=-1 && cont.isInstance(tt)) {
 			tt=ver==0?Ref.invoke(tt, tile, ww):Ref.invoke(tt, tile, ww, 0);
 			((Map<Object, Object>)Ref.get(c, "tileEntities")).put(p, tt);

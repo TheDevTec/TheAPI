@@ -55,8 +55,14 @@ public class Cache {
 	
 	public String lookupNameById(UUID id){
 		for(Entry<String, UUID> i : uuidLookup.entrySet())
-			if(i.getValue().equals(id))return i.getKey();
+			if(i.getValue().equals(id))return lookupName(i.getKey());
 		return Bukkit.getOfflinePlayer(id).getName();
+	}
+	
+	public String lookupNameByIdOrNull(UUID id){
+		for(Entry<String, UUID> i : uuidLookup.entrySet())
+			if(i.getValue().equals(id))return lookupName(i.getKey());
+		return null;
 	}
 	
 	public String lookupName(String name) {
@@ -70,7 +76,7 @@ public class Cache {
 	
 	public void setLookup(UUID uuid, String name) {
 		if(uuid==null||name==null)return;
-		if(!uuidLookup.containsKey(name.toLowerCase())||!name.equals(lookupNameById(uuid))) {
+		if(!uuidLookup.containsKey(name.toLowerCase())||!name.equals(lookupNameByIdOrNull(uuid))) {
 			uuidLookup.put(name.toLowerCase(), uuid);
 			nameLookup.put(name.toLowerCase(), name);
 		}

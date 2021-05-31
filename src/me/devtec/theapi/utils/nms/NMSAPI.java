@@ -30,7 +30,7 @@ public class NMSAPI {
 			metadata = Ref.constructor(Ref.nms("PacketPlayOutEntityMetadata"), int.class, Ref.nms("DataWatcher"), boolean.class);
 	private static Method entityM, livingentity, oldichatser, post, notify,nofifyManual,
 	parseNbt = Ref.method(Ref.nms("MojangsonParser"), "parse", String.class),
-	getNbt=Ref.method(Ref.nms("ItemStack"), "getOrCreateTag"), setNbt=Ref.method(Ref.nms("ItemStack"), "setTag", Ref.nms("NBTTagCompound")),
+	getNbt, setNbt,
 	asNms=Ref.method(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class), 
 	asBukkit=Ref.method(Ref.craft("inventory.CraftItemStack"), "asBukkitCopy", Ref.nms("ItemStack"));
 	
@@ -39,8 +39,9 @@ public class NMSAPI {
 	private static Object sbremove, sbinteger, sbchange, sbhearts, empty, server;
 	private static Field[] scr = new Field[4];
 	static {
-		if(getNbt==null)
-			getNbt=Ref.method(Ref.nms("ItemStack"), "getTag");
+		getNbt=Ref.method(Ref.nms("ItemStack"), "getOrCreateTag");
+		if(getNbt==null)getNbt=Ref.method(Ref.nms("ItemStack"), "getTag");
+		setNbt=Ref.method(Ref.nms("ItemStack"), "setTag", Ref.nms("NBTTagCompound"));
 		scr[0] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "a");
 		scr[1] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "b");
 		scr[2] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "c");
@@ -144,14 +145,14 @@ public class NMSAPI {
 	}
 
 	public static Object getNBT(Object stack) {
-		Object n = Ref.invoke(stack instanceof ItemStack?asNMSItem((ItemStack)stack):stack, getNbt);
-		if(n==null)
-			setNBT(stack, n=Ref.newInstance(nbt));
-		return n;
+		return Ref.invoke(stack instanceof ItemStack?asNMSItem((ItemStack)stack):stack, getNbt);
 	}
 	
 	public static Object parseNBT(String json) {
-		return Ref.invokeNulled(parseNbt, json);
+		Object obj = Ref.invokeNulled(parseNbt, json);
+		if(obj.getClass()!=Ref.nms("NBTTagCompound"))
+			obj=Ref.cast(Ref.nms("NBTTagCompound"), obj);
+		return obj;
 	}
 	
 	public static ItemStack setNBT(ItemStack stack, String nbt) {
@@ -306,8 +307,8 @@ public class NMSAPI {
 	public static Object getPacketPlayOutTitle(TitleAction action, String text) {
 		return getPacketPlayOutTitle(action, NMSAPI.getFixedIChatBaseComponent(text), 10, 20, 10);
 	}
-
-	public static void refleshBlock(Position pos, Object oldBlock) {
+	
+	public static void refleshBlock(Position pos) {
 		if (TheAPI.isOlderThan(9)) { //1.7 - 1.8
 			Ref.invoke(Ref.get(Ref.world(pos.getWorld()), getMap), notify, pos.getBlockX(), pos.getBlockY(), pos.getBlockZ());
 		}else

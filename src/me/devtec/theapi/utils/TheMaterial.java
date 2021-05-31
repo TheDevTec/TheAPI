@@ -117,10 +117,10 @@ public class TheMaterial implements Cloneable {
 				ItemStack stack = new ItemStack((Material)Ref.invokeNulled(bb, blockData));
 				m = stack.getType();
 				this.data = stack.getData().getData();
+				if(TheAPI.isNewerThan(7))
 				try {
 					data=(byte)Ref.invoke(blockData, "toLegacyData",Ref.invoke(blockData, "getBlockData"));
 				}catch(Exception | NoSuchMethodError outDated) {
-					data=0;
 				}
 				this.amount = stack.getAmount();
 				return;
@@ -134,10 +134,10 @@ public class TheMaterial implements Cloneable {
 			}
 			ItemStack stack = new ItemStack((Material)Ref.invokeNulled(bb, Ref.invoke(blockData,"getBlock")));
 			m = stack.getType();
+			if(TheAPI.isNewerThan(7))
 			try {
 				data=(byte)Ref.invoke(Ref.invoke(blockData,"getBlock"), "toLegacyData",blockData);
 			}catch(Exception | NoSuchMethodError outDated) {
-				data=0;
 			}
 			this.amount = stack.getAmount();
 		}
@@ -285,20 +285,21 @@ public class TheMaterial implements Cloneable {
 
 	@Override
 	public String toString() {
-		return "[TheMaterial:" + m + "/" + data + "/" + amount + "]";
+		return "[TheMaterial:" + m +'/' + data + '/' + amount + ']';
 	}
 
 	public static TheMaterial fromString(String stored) {
-		if (stored.startsWith("[TheMaterial:")) {
-			stored = stored.substring(0, stored.length() - 1).replaceFirst("\\[TheMaterial:", "");
+		try {
+			stored = stored.substring(13, stored.length() - 1);
 			String[] s = stored.split("/");
 			try {
 				return new TheMaterial(s[0], s[1], s[2]);
 			} catch (Exception | NoSuchMethodError old) {
 				return new TheMaterial(s[0], s[1], 1);
 			}
+		} catch (Exception notMat) {
+			return null;
 		}
-		return null;
 	}
 
 	public static TheMaterial fromItemStack(ItemStack stack) {

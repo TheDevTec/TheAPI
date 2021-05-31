@@ -30,10 +30,11 @@ import org.bukkit.block.data.Rail.Shape;
 import org.bukkit.block.data.Rotatable;
 import org.bukkit.block.data.Snowable;
 import org.bukkit.block.data.Waterlogged;
+import org.bukkit.block.data.type.Leaves;
+import org.bukkit.block.data.type.Stairs;
 import org.bukkit.material.Colorable;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.blocksapi.BlocksAPI;
 import me.devtec.theapi.blocksapi.schematic.construct.SerializedBlock;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.TheMaterial;
@@ -60,7 +61,7 @@ public class InitialSerializedBlock implements SerializedBlock {
 		map.put("material", material.toString());
 		if(!extra.isEmpty())
 		map.put("state", extra);
-		return Writer.write(map).replace(System.lineSeparator(), "").replace("\n\r", "").replace("\n", "");
+		return Writer.write(map).replace(System.lineSeparator(), "");
 	}
 	
 	public TheMaterial getType() {
@@ -70,16 +71,16 @@ public class InitialSerializedBlock implements SerializedBlock {
 	@SuppressWarnings("unchecked")
 	@Override
 	public SerializedBlock fromString(String string) {
+		values.clear();
 		Map<String, Object> map = (Map<String, Object>)Reader.read(string);
 		extra=(Map<String, Object>)map.get("state");
 		material=TheMaterial.fromString((String)map.get("material"));
-		values.clear();
 		return this;
 	}
 	
 	@Override
 	public SerializedBlock apply(Position pos) {
-		BlocksAPI.set(pos,material);
+		pos.setType(material);
 		if(extra!=null && !extra.isEmpty()) {
 			Block b = pos.getBlock();
 			if(TheAPI.isNewVersion()) {
@@ -99,6 +100,14 @@ public class InitialSerializedBlock implements SerializedBlock {
 					if(d instanceof Ageable && extra.containsKey("age")) {
 						Ageable dir = (Ageable)d;
 						dir.setAge((int)(double)extra.get("age"));
+					}
+					if(d instanceof Stairs && extra.containsKey("sshape")) {
+						Stairs dir = (Stairs)d;
+						dir.setShape(org.bukkit.block.data.type.Stairs.Shape.valueOf((String)extra.get("sshape")));
+					}
+					if(d instanceof Rail && extra.containsKey("rshape")) {
+						Rail dir = (Rail)d;
+						dir.setShape(Shape.valueOf((String)extra.get("rshape")));
 					}
 					if(d instanceof AnaloguePowerable && extra.containsKey("power")) {
 						AnaloguePowerable dir = (AnaloguePowerable)d;
@@ -152,7 +161,11 @@ public class InitialSerializedBlock implements SerializedBlock {
 						Waterlogged dir = (Waterlogged)d;
 						dir.setWaterlogged((boolean)extra.get("water"));
 					}
-					pos.setBlockDataAndUpdate(d);
+					if(d instanceof Leaves) {
+						Leaves dir = (Leaves)d;
+						dir.setPersistent((boolean)extra.get("leaves"));
+					}
+					pos.setBlockData(d);
 			}else {
 				BlockState state = b.getState();
 				if(state.getData() instanceof org.bukkit.material.Colorable)
@@ -163,18 +176,26 @@ public class InitialSerializedBlock implements SerializedBlock {
 					((Attachable)state.getData()).setAttached((boolean)extra.get("attach"));
 				if(state.getData() instanceof org.bukkit.material.Openable)
 					((Openable)state.getData()).setOpen((boolean)extra.get("open"));
-				pos.setStateAndUpdate(state);
+				if(state.getData() instanceof org.bukkit.material.Leaves)
+					((org.bukkit.material.Leaves)state.getData()).setDecayable((boolean)extra.get("leaves"));
+				pos.setState(state);
 			}
-			if(extra.containsKey("nbt")) {
-				Object nbt = Ref.invokeNulled(parse, (String)extra.get("nbt"));
+			String n = (String)extra.get("nbt");
+			if(n!=null) {
+				Object nbt = Ref.invokeNulled(parse, n);
 				Ref.invoke(nbt, setInt, "x", pos.getBlockX());
 				Ref.invoke(nbt, setInt, "y", pos.getBlockY());
 				Ref.invoke(nbt, setInt, "z", pos.getBlockZ());
-				Ref.invoke(SerializedBlock.getState(pos), "load", pos.getIBlockData(), nbt);
+				Ref.invoke(SerializedBlock.getState(pos), load, pos.getIBlockData(), nbt);
 			}
 		}
+		Position.updateBlockAt(pos);
+		Position.updateLightAt(pos);
 		return this;
 	}
+	private static Method load = Ref.method(Ref.nms("TileEntity"), "load", Ref.nms("IBlockData"), Ref.nms("NBTTagCompound"))!=null?
+			Ref.method(Ref.nms("TileEntity"), "load", Ref.nms("IBlockData"), Ref.nms("NBTTagCompound")):
+				Ref.method(Ref.nms("TileEntity"), "a", Ref.nms("NBTTagCompound"));
 	private static Method setInt = Ref.method(Ref.nms("NBTTagCompound"), "setInt", String.class, int.class);
 	
 	private static Method parse = Ref.method(Ref.nms("MojangsonParser"), "parse", String.class);
