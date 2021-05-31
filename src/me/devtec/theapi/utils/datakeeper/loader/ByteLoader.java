@@ -55,16 +55,17 @@ public class ByteLoader extends DataLoader {
 				try {
 					String key = bos.readUTF();
 					String value = bos.readUTF();
-					if(value!=null)
+					if(!value.equals("null")) {
 					if(value.startsWith("0"))
 						value=value.substring(1);
+					}else value=null;
 					String next;
 					boolean run = true;
 					while (run)
 						try {
 							next=bos.readUTF();
-							if(next==null) {
-								value+=next;
+							if(next.equals("null")) {
+								value+=null;
 								continue;
 							}
 							if(next.equals("0")) {
@@ -94,29 +95,30 @@ public class ByteLoader extends DataLoader {
 					try {
 						String key = bos.readUTF();
 						String value = bos.readUTF();
-						if(value!=null)
-						if(value.startsWith("0"))
-							value=value.substring(1);
-						String next;
-						boolean run = true;
-						while (run)
-							try {
-								next=bos.readUTF();
-								if(next==null) {
-									value+=next;
-									continue;
-								}
-								if(next.equals("0")) {
+						if(!value.equals("null")) {
+							if(value.startsWith("0"))
+								value=value.substring(1);
+							}else value=null;
+							String next;
+							boolean run = true;
+							while (run)
+								try {
+									next=bos.readUTF();
+									if(next.equals("null")) {
+										value+=null;
+										continue;
+									}
+									if(next.equals("0")) {
+										run=false;
+										continue;
+									}else {
+										if(next.startsWith("0"))
+											next=next.substring(1);
+										value+=next;
+									}
+								}catch(Exception not) {
 									run=false;
-									continue;
-								}else {
-									if(next.startsWith("0"))
-										next=next.substring(1);
-									value+=next;
 								}
-							}catch(Exception not) {
-								run=false;
-							}
 						data.put(key, new Object[] {value==null?null:Reader.read(value), null, value, 1});
 					} catch (Exception e) {
 						break;

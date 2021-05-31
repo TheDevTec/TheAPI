@@ -26,7 +26,7 @@ public class NMSAPI {
 
 	private static Class<?> enumTitle;
 	private static Constructor<?> pDestroy, pTitle, pOutChat, pTab, pBlock,
-			pSpawn, pNSpawn, pLSpawn, score, sbobj, sbdisplayobj, sbteam, pTeleport,nbt=Ref.constructor(Ref.nms("NBTTagCompound")),
+			pSpawn, pNSpawn, pLSpawn, score, sbobj, sbdisplayobj, sbteam, pTeleport,
 			metadata = Ref.constructor(Ref.nms("PacketPlayOutEntityMetadata"), int.class, Ref.nms("DataWatcher"), boolean.class);
 	private static Method entityM, livingentity, oldichatser, post, notify,nofifyManual,
 	parseNbt = Ref.method(Ref.nms("MojangsonParser"), "parse", String.class),
@@ -138,10 +138,7 @@ public class NMSAPI {
 	
 	//ItemStack utils
 	public static Object getNBT(ItemStack stack) {
-		Object n = Ref.invoke(asNMSItem(stack), getNbt);
-		if(n==null)
-			setNBT(stack, n=Ref.newInstance(nbt));
-		return n;
+		return Ref.invoke(asNMSItem(stack), getNbt);
 	}
 
 	public static Object getNBT(Object stack) {
@@ -164,11 +161,11 @@ public class NMSAPI {
 	}
 	
 	public static ItemStack setNBT(ItemStack stack, Object nbt) {
-		Object nms = asNMSItem(stack);
+		Object nms = Ref.get(stack,"handle");
+		if(nms==null)
+			Ref.set(stack, "handle", nms=Ref.invokeNulled(asNms, stack));
 		Ref.invoke(nms, setNbt, nbt instanceof String?parseNBT((String)nbt):(nbt instanceof NBTEdit?((NBTEdit) nbt).getNBT():nbt));
-		ItemStack st = asBukkitItem(nms);
-		stack.setItemMeta(st.getItemMeta());
-		return st;
+		return stack;
 	}
 	
 	public static Object setNBT(Object stack, Object nbt) {
@@ -178,6 +175,8 @@ public class NMSAPI {
 	}
 	
 	public static Object asNMSItem(ItemStack stack) {
+		Object nms = Ref.get(stack,"handle");
+		if(nms!=null)return nms;
 		return Ref.invokeNulled(asNms, stack);
 	}
 	

@@ -646,12 +646,17 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 					try {
 						bos.writeUTF(key.getKey());
 						if(key.getValue()[0]==null) {
-							bos.writeUTF(null);
+							bos.writeUTF("null");
 							bos.writeUTF("0");
 						}else {
 							if(key.getValue().length >2)
 								if(key.getValue()[2]!=null && key.getValue()[2] instanceof String) {
 									String write = (String)key.getValue()[2];
+									if(write==null) {
+										bos.writeUTF("null");
+										bos.writeUTF("0");
+										continue;
+									}
 									while(write.length()>20000) {
 										String wr = write.substring(0, 19999);
 										bos.writeUTF('0'+wr);
@@ -662,6 +667,11 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 									continue;
 								}
 							String write = Writer.write(key.getValue()[0]);
+							if(write==null) {
+								bos.writeUTF("null");
+								bos.writeUTF("0");
+								continue;
+							}
 							while(write.length()>20000) {
 								String wr = write.substring(0, 19999);
 								bos.writeUTF('0'+wr);

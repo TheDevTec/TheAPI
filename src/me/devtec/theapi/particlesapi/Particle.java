@@ -3,6 +3,7 @@ package me.devtec.theapi.particlesapi;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.Effect;
 import org.bukkit.Effect.Type;
@@ -18,38 +19,44 @@ import me.devtec.theapi.utils.reflections.Ref;
 
 public class Particle {
 	private static Class<?> a = Ref.nms("Particles");
-	private static HashMap<String, Object> identifier = new HashMap<>();
+	private static Map<String, Object> identifier = new HashMap<>();
 	static {
 		if (a == null)
 			a = Ref.nms("EnumParticle"); // 1.8 - 1.12.2
-		if (a == null)
+		if (a == null) {
 			a = Ref.nms("PacketPlayOutWorldParticles$Particle"); // 1.7.10 and older
+		}
 		if(a!=null) {
-			if (a.isEnum()) {
+			if (a==Ref.nms("EnumParticle")) { // 1.8 - 1.12.2
 				for (Object e : a.getEnumConstants())
 					identifier.put((String) Ref.invoke(e, "name"), e);
 			} else { // 1.13+
 				if(TheAPI.isNewerThan(12)&&TheAPI.isOlderThan(14)) { //1.13
 					for (Field f : Ref.getFields(a)) {
-						if (f.getName().equals("au"))
-							continue;
-						identifier.put((String)Ref.invoke(Ref.getStatic(f), "a"), Ref.getNulled(f));
+						Object g = Ref.getStatic(f);
+						identifier.put(((String)Ref.invoke(g, "a")).toUpperCase(), g);
 					}
-				}else
+				}else //1.7.10 or older or 1.14+
 				for (Field f : Ref.getFields(a)) {
 					if (f.getName().equals("au"))
 						continue;
-					identifier.put(f.getName(), Ref.getNulled(f));
+					identifier.put(f.getName(), TheAPI.isOlderThan(8)?null:Ref.getNulled(f));
 				}
 			}
 		}else { //modded
 			for(Effect e : Effect.values()) {
 				if(e.getType()==Type.VISUAL) {
-					identifier.put(e.name(), e.name());
+					identifier.put(e.name(), null);
 				}
 			}
 			
 		}
+		if(Ref.nms("ParticleParamRedstone")!=null) {
+		paramRed = Ref.getConstructors(Ref.nms("ParticleParamRedstone"))[0];
+		paramBlock=Ref.getConstructors(Ref.nms("ParticleParamBlock"))[0];
+		paramItem=Ref.getConstructors(Ref.nms("ParticleParamItem"))[0];
+		}
+		part=Ref.constructor(Ref.nms("PacketPlayOutWorldParticles"));
 	}
 
 	private static Object toNMS(String particle) {
@@ -66,7 +73,9 @@ public class Particle {
 
 	public Particle(String particle, ParticleData data) {
 		name = particle;
+		if(!TheAPI.isOlderThan(8))
 		this.particle = toNMS(particle);
+		else this.particle=name;
 		this.data = data;
 	}
 	
@@ -98,10 +107,7 @@ public class Particle {
 		return createPacket(pos.getX(), pos.getY(), pos.getZ(), speed, amount);
 	}
 	
-	private static Constructor<?> paramRed = Ref.getConstructors(Ref.nms("ParticleParamRedstone"))[0],
-			paramBlock=Ref.getConstructors(Ref.nms("ParticleParamBlock"))[0],
-			paramItem=Ref.getConstructors(Ref.nms("ParticleParamItem"))[0],
-			part=Ref.constructor(Ref.nms("PacketPlayOutWorldParticles"));
+	private static Constructor<?> paramRed, paramBlock, paramItem, part;
 
 	public Object createPacket(double x, double y, double z, float speed, int amount) {
 		Object packet = Ref.newInstance(part);
