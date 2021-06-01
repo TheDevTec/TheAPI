@@ -30,7 +30,7 @@ public class NMSAPI {
 			metadata = Ref.constructor(Ref.nms("PacketPlayOutEntityMetadata"), int.class, Ref.nms("DataWatcher"), boolean.class);
 	private static Method entityM, livingentity, oldichatser, post, notify,nofifyManual,
 	parseNbt = Ref.method(Ref.nms("MojangsonParser"), "parse", String.class),
-	getNbt, setNbt,
+	setNbt,
 	asNms=Ref.method(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class), 
 	asBukkit=Ref.method(Ref.craft("inventory.CraftItemStack"), "asBukkitCopy", Ref.nms("ItemStack"));
 	
@@ -39,8 +39,6 @@ public class NMSAPI {
 	private static Object sbremove, sbinteger, sbchange, sbhearts, empty, server;
 	private static Field[] scr = new Field[4];
 	static {
-		getNbt=Ref.method(Ref.nms("ItemStack"), "getOrCreateTag");
-		if(getNbt==null)getNbt=Ref.method(Ref.nms("ItemStack"), "getTag");
 		setNbt=Ref.method(Ref.nms("ItemStack"), "setTag", Ref.nms("NBTTagCompound"));
 		scr[0] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "a");
 		scr[1] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "b");
@@ -138,18 +136,15 @@ public class NMSAPI {
 	
 	//ItemStack utils
 	public static Object getNBT(ItemStack stack) {
-		return Ref.invoke(asNMSItem(stack), getNbt);
+		return Ref.get(asNMSItem(stack), "tag");
 	}
 
 	public static Object getNBT(Object stack) {
-		return Ref.invoke(stack instanceof ItemStack?asNMSItem((ItemStack)stack):stack, getNbt);
+		return Ref.get(stack instanceof ItemStack?asNMSItem((ItemStack)stack):stack, "tag");
 	}
 	
 	public static Object parseNBT(String json) {
-		Object obj = Ref.invokeNulled(parseNbt, json);
-		if(obj.getClass()!=Ref.nms("NBTTagCompound"))
-			obj=Ref.cast(Ref.nms("NBTTagCompound"), obj);
-		return obj;
+		return Ref.invokeNulled(parseNbt, json);
 	}
 	
 	public static ItemStack setNBT(ItemStack stack, String nbt) {
@@ -161,10 +156,9 @@ public class NMSAPI {
 	}
 	
 	public static ItemStack setNBT(ItemStack stack, Object nbt) {
-		Object nms = Ref.get(stack,"handle");
-		if(nms==null)
-			Ref.set(stack, "handle", nms=Ref.invokeNulled(asNms, stack));
+		Object nms = asNMSItem(stack);
 		Ref.invoke(nms, setNbt, nbt instanceof String?parseNBT((String)nbt):(nbt instanceof NBTEdit?((NBTEdit) nbt).getNBT():nbt));
+		Ref.set(stack, "handle", nms);
 		return stack;
 	}
 	
@@ -177,7 +171,8 @@ public class NMSAPI {
 	public static Object asNMSItem(ItemStack stack) {
 		Object nms = Ref.get(stack,"handle");
 		if(nms!=null)return nms;
-		return Ref.invokeNulled(asNms, stack);
+		Ref.set(stack, "handle", nms=Ref.invokeNulled(asNms, stack));
+		return nms;
 	}
 	
 	public static ItemStack asBukkitItem(Object stack) {

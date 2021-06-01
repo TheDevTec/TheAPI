@@ -1,5 +1,6 @@
 package me.devtec.theapi.utils.nms.nbt;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Set;
 
@@ -41,16 +42,19 @@ public class NBTEdit {
 			remove=Ref.method(Ref.nms("NBTTagCompound"), "remove", String.class),
 			hasKey=Ref.method(Ref.nms("NBTTagCompound"), "hasKey", String.class);
 	
+	private static Constructor<?> cd = Ref.constructor(Ref.nms("NBTTagCompound"));
 	private Object nbt;
     public NBTEdit(Object nbt) {
         if(nbt instanceof ItemStack)
             this.nbt=NMSAPI.getNBT((ItemStack)nbt);
         else
-
         if(nbt instanceof String)
-            this.nbt=NMSAPI.getNBT((String)nbt);
+            this.nbt=NMSAPI.parseNBT((String)nbt);
         else
             this.nbt=nbt;
+        if(this.nbt==null) {
+        	this.nbt=Ref.newInstance(cd);
+        }
     }
 	
 	public NBTEdit(ItemStack stack) {
