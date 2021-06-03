@@ -427,7 +427,7 @@ public class LoaderClass extends JavaPlugin {
 					String text = params;
 					Matcher m = math.matcher(text);
 					while (m.find()) {
-						text = text.replace(m.group(), StringUtils.calculate(m.group(1)).toString());
+						text = text.replace(m.group(), StringUtils.calculate(m.group(1))+"");
 						m = math.matcher(text);
 					}
 					for (Iterator<ThePlaceholder> r = ThePlaceholderAPI.getPlaceholders().iterator(); r.hasNext();) {
@@ -438,7 +438,7 @@ public class LoaderClass extends JavaPlugin {
 					}
 					m = math.matcher(text);
 					while (m.find()) {
-						text = text.replace(m.group(), StringUtils.calculate(m.group(1)).toString());
+						text = text.replace(m.group(), StringUtils.calculate(m.group(1))+"");
 						m = math.matcher(text);
 					}
 					return text.equals(params) ? null : text;

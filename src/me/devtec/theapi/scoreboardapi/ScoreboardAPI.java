@@ -313,9 +313,15 @@ public class ScoreboardAPI {
 				setPlayer(StringUtils.getLastColors(prefix)+d.get(0));
 				a=a.substring(d.get(0).length());
 				d = StringUtils.fixedSplit(a, 17);
+				if(d.isEmpty()) {
+					if (!suffix.equals(""))
+						changed = true;
+					suffix = "";
+				}else {
 				if (!suffix.equals(d.get(0)))
 					changed = true;
 				suffix = d.get(0);
+				}
 			} else {
 				if (!prefix.equals(a))
 					changed = true;

@@ -92,9 +92,8 @@ public class HandlerList {
 	}
 
 	private static void call(Map<Integer, List<RegisteredListener>> reg2, Event e) {
-		for (int i = 0; i < 6; ++i) {
-			reg2.get(i).forEach(f -> f.callEvent(e));
-		}
+		for (List<RegisteredListener> er : reg2.values())
+			er.forEach(f -> f.callEvent(e));
 		// call event
 	}
 	

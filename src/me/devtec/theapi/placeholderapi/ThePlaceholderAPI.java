@@ -53,7 +53,7 @@ public class ThePlaceholderAPI {
 		String text = textOrigin;
 		Matcher m = math.matcher(text);
 		while (m.find()) {
-			text = text.replace(m.group(), StringUtils.calculate(PlaceholderAPI.setPlaceholders(player, m.group(1))).toString());
+			text = text.replace(m.group(), StringUtils.calculate(PlaceholderAPI.setPlaceholders(player, m.group(1)))+"");
 			m = math.matcher(text);
 		}
 		Matcher found = finder.matcher(text);

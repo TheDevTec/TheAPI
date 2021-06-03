@@ -1,7 +1,6 @@
 package me.devtec.theapi.utils;
 
 import java.awt.Color;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -758,8 +757,7 @@ public class StringUtils {
 	 */
 	public static boolean getBoolean(String fromString) {
 		try {
-			return fromString.equalsIgnoreCase("true") || fromString.equalsIgnoreCase("yes")
-					|| fromString.equalsIgnoreCase("on") || fromString.equalsIgnoreCase("ano");
+			return fromString.equalsIgnoreCase("true") || fromString.equalsIgnoreCase("yes");
 		} catch (Exception er) {
 			return false;
 		}
@@ -769,7 +767,7 @@ public class StringUtils {
 	 * @see see Convert String to Math and Calculate exempt
 	 * @return double
 	 */
-	public static BigDecimal calculate(String val) {
+	public static double calculate(String val) {
 		if(val.contains("(")&&val.contains(")")) {
 			val=splitter(val);
 		}
@@ -793,7 +791,7 @@ public class StringUtils {
 				s = normal.matcher(val);
 			}
 		}
-		return new BigDecimal(getDouble(val.replaceAll("[^0-9+.-]", "")));
+		return getDouble(val.replaceAll("[^0-9+.-]", ""));
 	}
 
 	private static String splitter(String s) {
