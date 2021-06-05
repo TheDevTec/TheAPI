@@ -1,6 +1,8 @@
 package me.devtec.theapi.sortedmap;
 
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -16,14 +18,10 @@ public class RankingAPI<K, V> {
 		if (position <= 0)
 			position = 1;
 		int i = 0;
-		K f = null;
-		for (Entry<K, V> e : s.entrySet()) {
-			if (++i >= position) {
-				f = e.getKey();
-				break;
-			}
-		}
-		return f;
+		for (Entry<K, V> e : s.entrySet())
+			if (++i >= position)
+				return e.getKey();
+		return null;
 	}
 
 	public int size() {
@@ -59,14 +57,22 @@ public class RankingAPI<K, V> {
 	}
 
 	public int getPosition(K o) {
-		int i = 0, f = 0;
+		int i = 0;
 		for (Entry<K, V> e : s.entrySet()) {
-			if (e.getKey().equals(o)) {
-				f = 1;
-				break;
-			}
 			++i;
+			if (e.getKey().equals(o))
+				return i;
 		}
-		return f == 0 ? 0 : ++i;
+		return 0;
+	}
+	
+	public List<Entry<K, V>> getTop(int size) {
+		List<Entry<K, V>> list = new LinkedList<>();
+		int slot = 1;
+		for (Entry<K, V> e : s.entrySet()) {
+			list.add(e);
+			if(++slot==size)break;
+		}
+		return list;
 	}
 }
