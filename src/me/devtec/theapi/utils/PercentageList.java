@@ -2,9 +2,9 @@ package me.devtec.theapi.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
@@ -48,29 +48,32 @@ public class PercentageList<T> {
 	}
 
 	public T getRandom() {
-		ArrayList<T> t = new ArrayList<>(a.size());
-		for (Entry<T, Double> a : a.entrySet())
-			for (double i = 0; i < a.getValue(); ++i)
-				t.add(a.getKey());
-		if(t.isEmpty())return null;
-		int r = random.nextInt(t.size());
-		Collections.shuffle(t);
-		return t.get(r);
+		double chance = random.nextInt((int)getTotalChance())+random.nextDouble();
+		return select(a,chance);
 	}
-
+	
+	private static <K> K select(Map<K, Double> keys, double chance) {
+		double nearest = 0;
+		@SuppressWarnings("unchecked")
+		Entry<K,Double>[] aw = keys.entrySet().toArray(new Entry[0]);
+		Entry<K,Double> found = aw[keys.size()-1];
+		for(int i = 0; i < aw.length; ++i) {
+			Entry<K, Double> e = (Entry<K, Double>) aw[i];
+			if(chance<e.getValue() && chance > nearest) {
+				nearest=e.getValue();
+				found=e;
+			}
+		}
+		return found.getKey();
+	}
+	
 	public double getTotalChance() {
-		double chance = 0;
-		for (Entry<T, Double> a : a.entrySet())
-			chance+=a.getValue();
-		return chance;
+		double d = 0.0;
+		for(double as : a.values())d+=as;
+		return d;
 	}
 
 	public List<T> toList() {
-		ArrayList<T> t = new ArrayList<>(a.size());
-		for (Entry<T, Double> a : a.entrySet())
-			for (double i = 0; i < a.getValue(); ++i)
-				t.add(a.getKey());
-		Collections.shuffle(t);
-		return t;
+		return new ArrayList<>(a.keySet());
 	}
 }

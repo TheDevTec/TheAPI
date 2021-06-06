@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -692,7 +693,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 		if (type == DataType.JSON) {
 			Maker main = new Maker();
-			for (String key : new LinkedHashSet<>(aw))
+			for (String key : Collections.unmodifiableList(aw))
 				addKeys(main, key);
 			return main.toString();
 		}
@@ -703,7 +704,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		} catch (Exception er) {
 		}
 		List<String> done = new ArrayList<>(loader.get().size());
-		for (String key : new LinkedHashSet<>(aw))
+		for (String key : Collections.unmodifiableList(aw))
 			preparePath(done,key, key + ':', "", d);
 		try {
 			for (String h : loader.getFooter())

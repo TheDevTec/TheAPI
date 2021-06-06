@@ -597,21 +597,22 @@ public class StringUtils {
 
 	/**
 	 * @see see Return random object from list
-	 * @param list
-	 * @return
-	 * @return Object
 	 */
 	public static <T> T getRandomFromList(List<T> list) {
 		if (list.isEmpty() || list == null)
 			return null;
-		int r = random.nextInt(list.size());
-		if (r <= 0) {
-			if (list.get(0) != null) {
-				return list.get(0);
-			}
+		return list.get(random.nextInt(list.size()));
+	}
+
+	/**
+	 * @see see Return random object from collection
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T getRandomFromCollection(Collection<T> list) {
+		if (list.isEmpty() || list == null)
 			return null;
-		} else
-			return list.get(r);
+		if(list instanceof List)return getRandomFromList((List<T>)list);
+		return (T) list.toArray()[random.nextInt(list.size())];
 	}
 
 	public static Pattern sec, min, hour, day, week,mon, year;

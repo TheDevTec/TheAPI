@@ -21,7 +21,6 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -276,11 +275,16 @@ public class TheAPI {
 
 	/**
 	 * @see see Return random object from list
-	 * @param list
-	 * @return Object
 	 */
 	public static <T> T getRandomFromList(List<T> list) {
 		return StringUtils.getRandomFromList(list);
+	}
+
+	/**
+	 * @see see Return random object from collection
+	 */
+	public static <T> T getRandomFromCollection(Collection<T> list) {
+		return StringUtils.getRandomFromCollection(list);
 	}
 
 	/**
@@ -316,16 +320,14 @@ public class TheAPI {
 	 * @return double
 	 */
 	public static double generateRandomDouble(double min, double maxDouble) {
-		boolean a = maxDouble < 0;
-		if (a)
-			maxDouble = -1 * maxDouble;
-		if ((min < 0 ? min * -1 : min) >= maxDouble)
-			return min;
 		if (maxDouble == 0)
 			return maxDouble;
+		boolean a = maxDouble < 0;
+		if (a)
+			maxDouble *= -1;
 		double i = random.nextInt((int) maxDouble) + random.nextDouble();
-		if (i < min)
-			i = min;
+		if (i < (min < 0 ? min * -1 : min))
+			return min;
 		if (i > maxDouble)
 			i = maxDouble;
 		return a ? -1 * i : i;
@@ -337,16 +339,14 @@ public class TheAPI {
 	 * @return double
 	 */
 	public static int generateRandomInt(int min, int maxInt) {
-		boolean a = maxInt < 0;
-		if (a)
-			maxInt = -1 * maxInt;
-		if ((min < 0 ? min * -1 : min) >= maxInt)
-			return min;
 		if (maxInt == 0)
 			return maxInt;
+		boolean a = maxInt < 0;
+		if (a)
+			maxInt *= -1;
 		int i = random.nextInt(maxInt);
-		if (i < min)
-			i = min;
+		if (i < (min < 0 ? min * -1 : min))
+			return min;
 		if (i > maxInt)
 			i = maxInt;
 		return a ? -1 * i : i;
@@ -401,20 +401,23 @@ public class TheAPI {
 	 * @see see Get random player from List<Player>
 	 * @return List<Player>
 	 */
-	@SuppressWarnings("unchecked")
 	public static List<Player> getOnlinePlayers() {
+		if(isNewerThan(7))return new ArrayList<>(Bukkit.getOnlinePlayers());
 		Object o = Ref.invokeNulled(m);
-		return new ArrayList<>(o instanceof Collection ? (Collection<Player>) o : Arrays.asList((Player[]) o));
+		Player[] f = (Player[]) o;
+		List<Player> p = new ArrayList<>(f.length);
+		for(Player s : f)p.add(s);
+		return p;
 	}
 
 	/**
 	 * @see see Get random player from List<Player>
 	 * @return List<Player>
 	 */
-	@SuppressWarnings("unchecked")
 	public static int getOnlineCount() {
+		if(isNewerThan(7))return Bukkit.getOnlinePlayers().size();
 		Object o = Ref.invokeNulled(m);
-		return o instanceof Collection ? ((Collection<Player>) o).size() : ((Player[]) o).length;
+		return ((Player[]) o).length;
 	}
 
 	/**
@@ -430,10 +433,10 @@ public class TheAPI {
 		Validator.validate(message == null, "Message is null");
 		if(message == null)return;
 		String old = "";
-		for (String s : message.replace("\\n", "\n").split("\n")) {
-			s=old + colorize(s);
+		for (String s : colorize(message).replace("\\n", "\n").split("\n")) {
+			s=old+s;
 			sender.sendMessage(s);
-			old = ChatColor.getLastColors(s);
+			old = StringUtils.getLastColors(s);
 		}
 	}
 
@@ -673,13 +676,13 @@ public class TheAPI {
 	 * @param message
 	 */
 	public static void broadcastMessage(String message) {
-		for (Player p : TheAPI.getOnlinePlayers()) {
-			for (String s : message.replace("\\n", "\n").split("\n")) {
-				p.sendMessage(colorize(s));
-			}
-		}
-		for (String s : message.replace("\\n", "\n").split("\n")) {
+		String old = "";
+		for (String s : colorize(message).replace("\\n", "\n").split("\n")) {
+			s=old+s;
+			for(Player p : TheAPI.getOnlinePlayers())
+				p.sendMessage(s);
 			getConsole().sendMessage(colorize(s));
+			old = StringUtils.getLastColors(s);
 		}
 	}
 
@@ -740,17 +743,15 @@ public class TheAPI {
 	 * @param permission
 	 */
 	public static void broadcast(String message, String permission) {
-		for (Player p : TheAPI.getOnlinePlayers()) {
-			if (p.hasPermission(permission))
-				for (String s : message.replace("\\n", "\n").split("\n")) {
-					msg(s, p);
-				}
-		}
 		String old = "";
-		for (String s : message.replace("\\n", "\n").split("\n")) {
-			s=old + colorize(s);
-			getConsole().sendMessage(s);
-			old = ChatColor.getLastColors(s);
+		for (String s : colorize(message).replace("\\n", "\n").split("\n")) {
+			s=old+s;
+			for(Player p : TheAPI.getOnlinePlayers())
+				if (p.hasPermission(permission))
+					p.sendMessage(s);
+			if (getConsole().hasPermission(permission))
+				getConsole().sendMessage(colorize(s));
+			old = StringUtils.getLastColors(s);
 		}
 	}
 
