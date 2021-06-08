@@ -692,7 +692,9 @@ public class LoaderClass extends JavaPlugin {
 				cache=new Cache();
 				Data data = new Data("plugins/TheAPI/Cache.dat");
 				for(String s : data.getKeys())
+					try {
 					cache.setLookup(UUID.fromString(s), data.getString(s));
+					}catch(Exception err) {}
 				new Tasker() {
 					public void run() {
 						Data data = cache.saveToData();
@@ -717,6 +719,7 @@ public class LoaderClass extends JavaPlugin {
 					if(removeAfter > 0 && StringUtils.timeFromString(config.getString("Options.Cache.User.OfflineNames.AutoClear.Period"))<=0) {
 						int removed = 0;
 						for(String s : data.getKeys()) {
+							try {
 							User user = new User(data.getString(s), UUID.fromString(s));
 							if(user.getLong("quit")==0) {
 								user.data().clear(); //clear cache from memory
@@ -729,6 +732,7 @@ public class LoaderClass extends JavaPlugin {
 								user.delete(); //delete file
 								++removed;
 							}
+							}catch(Exception err) {}
 						}
 						data.clear();
 						if (removed != 0)
