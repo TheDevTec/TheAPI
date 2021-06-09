@@ -46,14 +46,14 @@ public abstract class DataLoader implements Data {
 		data.load(input);
 		if(data.isLoaded())return data;
 		}catch(Exception err) {}
-		data = new PropertiesLoader();
+		PropertiesLoader data3 = new PropertiesLoader();
 		try {
-		data.load(input);
-		if(data.isLoaded() && !data.get().isEmpty())return data;
+		data3.load(input);
 		}catch(Exception err) {}
 		data = new YamlLoader();
 		try {
 		data.load(input);
+		if(data3.isLoaded() && !data3.get().isEmpty() && data3.get().size()>data.get().size())return data3;
 		if(data.isLoaded())return data;
 		}catch(Exception err) {}
 		return new EmptyLoader();
