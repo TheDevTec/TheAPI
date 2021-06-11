@@ -6,7 +6,7 @@ import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class DataWatcherRegistry {
-	private static Class<?> a = Ref.nms("DataWatcherRegistry");
+	private static Class<?> a = Ref.nmsOrOld("network.syncher.DataWatcherRegistry","DataWatcherRegistry");
 
 	/**
 	 * @return DataWatcherObject<Byte>

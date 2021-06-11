@@ -18,7 +18,7 @@ import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class Particle {
-	private static Class<?> a = Ref.nms("Particles");
+	private static Class<?> a = Ref.nmsOrOld("core.particles.Particles","Particles");
 	private static Map<String, Object> identifier = new HashMap<>();
 	static {
 		if (a == null)
@@ -51,12 +51,12 @@ public class Particle {
 			}
 			
 		}
-		if(Ref.nms("ParticleParamRedstone")!=null) {
-		paramRed = Ref.getConstructors(Ref.nms("ParticleParamRedstone"))[0];
-		paramBlock=Ref.getConstructors(Ref.nms("ParticleParamBlock"))[0];
-		paramItem=Ref.getConstructors(Ref.nms("ParticleParamItem"))[0];
+		if(Ref.nmsOrOld("core.particles.ParticleParamRedstone","ParticleParamRedstone")!=null) {
+		paramRed = Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamRedstone","ParticleParamRedstone"))[0];
+		paramBlock=Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamBlock","ParticleParamBlock"))[0];
+		paramItem=Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamItem","ParticleParamItem"))[0];
 		}
-		part=Ref.constructor(Ref.nms("PacketPlayOutWorldParticles"));
+		part=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutWorldParticles", "PacketPlayOutWorldParticles"));
 	}
 
 	private static Object toNMS(String particle) {

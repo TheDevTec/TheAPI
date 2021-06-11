@@ -107,9 +107,9 @@ public class Reader implements JsonReader {
 	}
 
 	private Object parse(Class<?> clazz, Object object) {
-		if (clazz == Ref.nms("IChatBaseComponent") || clazz == Ref.nms("IChatMutableComponent")
-				|| clazz == Ref.nms("ChatBaseComponent") || clazz == Ref.nms("ChatMessage")
-				|| clazz == Ref.nms("ChatComponentText")
+		if (clazz == Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent") || clazz == Ref.nmsOrOld("network.chat.IChatMutableComponent","IChatMutableComponent")
+				|| clazz == Ref.nmsOrOld("network.chat.ChatBaseComponent","ChatBaseComponent") || clazz == Ref.nmsOrOld("network.chat.ChatMessage","ChatMessage")
+				|| clazz == Ref.nmsOrOld("network.chat.ChatComponentText","ChatComponentText")
 				|| clazz == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")) {
 			if(clazz == Ref.getClass("net.md_5.bungee.api.chat.TextComponent"))
 				return TextComponent.fromLegacyText(object + "");

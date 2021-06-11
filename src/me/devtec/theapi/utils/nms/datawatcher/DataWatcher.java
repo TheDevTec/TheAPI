@@ -6,17 +6,17 @@ import java.lang.reflect.Method;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class DataWatcher {
-	private static final Constructor<?> c = Ref.constructor(Ref.nms("DataWatcher"), Ref.nms("Entity"));
+	private static final Constructor<?> c = Ref.constructor(Ref.nmsOrOld("network.syncher.DataWatcher","DataWatcher"), Ref.nmsOrOld("world.entity.Entity","Entity"));
 	private static Method get, getC, set, register;
 	static {
-		get=Ref.method(Ref.nms("DataWatcher"), "get", Ref.nms("DataWatcherObject"));
+		get=Ref.method(Ref.nmsOrOld("network.syncher.DataWatcher","DataWatcher"), "get", Ref.nmsOrOld("network.syncher.DataWatcherObject","DataWatcherObject"));
 		if(get==null) {
-			get=Ref.method(Ref.nms("DataWatcher"), "j", int.class);
-			getC=Ref.method(Ref.nms("DataWatcher$WatchableObject"), "b");
-			set=Ref.method(Ref.nms("DataWatcher"), "a", int.class, Object.class);
+			get=Ref.method(Ref.nmsOrOld("network.syncher.DataWatcher","DataWatcher"), "j", int.class);
+			getC=Ref.method(Ref.nmsOrOld("network.syncher.DataWatcher$WatchableObject","DataWatcher$WatchableObject"), "b");
+			set=Ref.method(Ref.nmsOrOld("network.syncher.DataWatcher","DataWatcher"), "a", int.class, Object.class);
 		}else {
-			set=Ref.method(Ref.nms("DataWatcher"), "a", Ref.nms("DataWatcherObject"), Object.class);
-			register=Ref.method(Ref.nms("DataWatcher"), "register", Ref.nms("DataWatcherObject"), Object.class);
+			set=Ref.method(Ref.nmsOrOld("network.syncher.DataWatcher","DataWatcher"), "a", Ref.nmsOrOld("network.syncher.DataWatcherObject","DataWatcherObject"), Object.class);
+			register=Ref.method(Ref.nmsOrOld("network.syncher.DataWatcher","DataWatcher"), "register", Ref.nmsOrOld("network.syncher.DataWatcherObject","DataWatcherObject"), Object.class);
 		}
 	}
 	

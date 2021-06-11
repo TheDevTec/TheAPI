@@ -99,7 +99,7 @@ public class LoaderClass extends JavaPlugin {
 	// EconomyAPI
 	public boolean e, tve, tbank;
 	public Economy economy;
-	public Object air = Ref.invoke(Ref.getNulled(Ref.field(Ref.nms("Block"), "AIR")), "getBlockData");
+	public Object air = Ref.invoke(Ref.getNulled(Ref.field(Ref.nmsOrOld("world.level.block.Block","Block"), "AIR")), "getBlockData");
 	public Map<String, Client> servers;
 	public Server server;
 
@@ -144,14 +144,13 @@ public class LoaderClass extends JavaPlugin {
 			public boolean PacketPlayOut(String player, Object packet, Object channel) {
 				return false;
 			}
+			Method getSlot = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "getSlot", int.class),getItem= Ref.method(Ref.nmsOrOld("world.inventory.Slot","Slot"), "getItem");
+			Constructor<?> setSlot = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"))
+					,equipment = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityEquipmentPacketPlayOutEntityEquipment","PacketPlayOutEntityEquipment"), int.class, List.class);
+			Object OFFHAND = Ref.getStatic(Ref.nmsOrOld("world.entity.EnumItemSlot","EnumItemSlot"),"OFFHAND");
+			Class<?> resource = Ref.nmsOrOld("network.protocol.game.PacketPlayInResourcePackStatus","PacketPlayInResourcePackStatus"), close = Ref.nmsOrOld("network.protocol.game.PacketPlayInCloseWindow","PacketPlayInCloseWindow"), click = Ref.nmsOrOld("network.protocol.game.PacketPlayInWindowClick","PacketPlayInWindowClick");
 
-			Method getSlot = Ref.method(Ref.nms("Container"), "getSlot", int.class),getItem= Ref.method(Ref.nms("Slot"), "getItem"), updateInv=Ref.method(Ref.nms("EntityPlayer"), "updateInventory", Ref.nms("Container"));
-			Constructor<?> setSlot = Ref.constructor(Ref.nms("PacketPlayOutSetSlot"), int.class, int.class, Ref.nms("ItemStack"))
-					,equipment = Ref.constructor(Ref.nms("PacketPlayOutEntityEquipment"), int.class, List.class);
-			Object OFFHAND = Ref.getStatic(Ref.nms("EnumItemSlot"),"OFFHAND");
-			Class<?> resource = Ref.nms("PacketPlayInResourcePackStatus"), close = Ref.nms("PacketPlayInCloseWindow"), click = Ref.nms("PacketPlayInWindowClick");
-
-			Field shift=Ref.field(click, "shift"), slot=Ref.field(click, "slot"), button=Ref.field(click, "button"), a=Ref.field(click, "a"), item=Ref.field(click, "item");
+			Field shift=Ref.field(click, TheAPI.isNewerThan(16)?"d":"shift"), slot=Ref.field(click, TheAPI.isNewerThan(16)?"b":"slot"), button=Ref.field(click, TheAPI.isNewerThan(16)?"a":"button"), a=Ref.field(click, "a"), item=Ref.field(click, TheAPI.isNewerThan(16)?"e":"item");
 			@Override
 			public boolean PacketPlayIn(String player, Object packet, Object channel) {
 				if(player==null)return false; //NPC
@@ -159,7 +158,7 @@ public class LoaderClass extends JavaPlugin {
 				if(resource!=null && packet.getClass()==resource) {
 					Player s = TheAPI.getPlayer(player);
 					if(ResourcePackAPI.getResourcePack(s)==null||ResourcePackAPI.getHandlingPlayer(s)==null)return false;
-					ResourcePackAPI.getHandlingPlayer(s).onHandle(s, ResourcePackAPI.getResourcePack(s), ResourcePackResult.valueOf(Ref.get(packet, "status").toString()));
+					ResourcePackAPI.getHandlingPlayer(s).onHandle(s, ResourcePackAPI.getResourcePack(s), ResourcePackResult.valueOf(Ref.get(packet, TheAPI.isNewerThan(16)?"a":"status").toString()));
 					return false;
 				}
 				//GUIS
@@ -189,13 +188,18 @@ public class LoaderClass extends JavaPlugin {
 					if(InventoryClickType.THROW==type && slot==-999||InventoryClickType.PICKUP==type && slot==-999)return false;
 					if(InventoryClickType.SWAP==type) {
 						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
+						ItemStack i=NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(g, getSlot, slot),getItem));
 						if(mouseClick == 40 && TheAPI.isNewerThan(8)) {
 							final List<com.mojang.datafixers.util.Pair<?,?>> equipmentList = new ArrayList<>();
 							equipmentList.add(new com.mojang.datafixers.util.Pair<>(OFFHAND, NMSAPI.asNMSItem(p.getEquipment().getItemInOffHand())));
 							Ref.sendPacket(p,Ref.newInstance(equipment, p.getEntityId(), equipmentList));
-						}else
-						Ref.sendPacket(p,Ref.newInstance(setSlot,id, (36+d.size())-9+mouseClick, NMSAPI.asNMSItem(p.getInventory().getItem(mouseClick))));
+						}
+						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, NMSAPI.asNMSItem(i)));
 						Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(p.getItemOnCursor())));
+						if(TheAPI.isNewerThan(16))
+							Ref.invoke(Ref.get(Ref.player(p),"bU"),"updateInventory");
+						else
+							p.updateInventory();
 						if (slot < d.size()) {
 							ItemGUI a = d.getItemGUI(slot);
 							if (a != null) {
@@ -239,10 +243,11 @@ public class LoaderClass extends JavaPlugin {
 							cancel=true;
 					if(cancel) {
 						if(type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.PICKUP_ALL) {
-							if(gui.containsKey(player))
-							Ref.invoke(Ref.player(p), updateInv, g);
+							if(TheAPI.isNewerThan(16))
+								Ref.invoke(Ref.get(Ref.player(p),"bU"),"updateInventory");
 							else
-							p.updateInventory();
+								p.updateInventory();
+							Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
 						}else {
 							Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
 							Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));

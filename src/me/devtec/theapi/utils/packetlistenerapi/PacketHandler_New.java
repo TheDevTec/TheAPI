@@ -23,7 +23,7 @@ import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class PacketHandler_New implements PacketHandler<Channel> {
-	private static Class<?> login = Ref.nms("PacketLoginInStart");
+	private static Class<?> login = Ref.nmsOrOld("network.protocol.login.PacketLoginInStart","PacketLoginInStart");
 	private Map<String, Channel> channelLookup = new HashMap<>();
 	private List<?> networkManagers;
 	private List<Channel> serverChannels = new ArrayList<>();
@@ -36,7 +36,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 		serverConnection = Ref.invoke(Ref.server(),"getServerConnection");
 		if(serverConnection==null) //modded server
 		for(Field f : Ref.getAllFields(Ref.server().getClass()))
-			if(f.getType()==Ref.nms("ServerConnection")) {
+			if(f.getType()==Ref.nmsOrOld("server.network.ServerConnection","ServerConnection")) {
 				serverConnection=Ref.get(Ref.server(), f);
 				break;
 			}
@@ -101,7 +101,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	private void registerChannelHandler() {
 		networkManagers = (List<?>) (Ref.get(serverConnection, "listeningChannels")!=null?Ref.get(serverConnection, "listeningChannels"):Ref.get(serverConnection, "g"));
 		if(networkManagers==null) { //modded server
-			for(Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
+			for(Field f : Ref.getAllFields(Ref.nmsOrOld("server.network.ServerConnection","ServerConnection")))
 				if(java.util.List.class==f.getType()){
 					networkManagers=(java.util.List<?>) Ref.get(serverConnection, f);
 					break;
@@ -111,7 +111,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 		if(networkManagers.isEmpty()) {
 			networkManagers = (List<?>) (Ref.get(serverConnection, "f")!=null?Ref.get(serverConnection, "f"):Ref.get(serverConnection, "listeningChannels"));
 			if(networkManagers==null) { //modded server
-				for(Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
+				for(Field f : Ref.getAllFields(Ref.nmsOrOld("server.network.ServerConnection","ServerConnection")))
 					if(java.util.List.class==f.getType()){
 						networkManagers=(java.util.List<?>) Ref.get(serverConnection, f);
 						break;
@@ -185,7 +185,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	public Channel get(Player player) {
 		Channel channel = channelLookup.getOrDefault(player.getName(), null);
 		if (channel == null)
-			channelLookup.put(player.getName(), channel = (Channel) Ref.get(Ref.network(Ref.playerCon(player)), "channel"));
+			channelLookup.put(player.getName(), channel = (Channel) Ref.channel(Ref.network(Ref.playerCon(player))));
 		return channel;
 	}
 

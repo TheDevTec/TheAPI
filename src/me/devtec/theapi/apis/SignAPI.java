@@ -41,7 +41,7 @@ public class SignAPI {
 		return l;
 	}
 	
-	private static Class<?> sign = Ref.nms("TileEntitySign");
+	private static Class<?> sign = Ref.nmsOrOld("world.level.block.entity.TileEntitySign","TileEntitySign");
 	
 	public static void setLines(Position loc, String... lines) {
 		Object state = SerializedBlock.getState(loc);
@@ -53,7 +53,7 @@ public class SignAPI {
 			shorted[i]=lines[i].length()>16?lines[i].substring(0, 15):lines[i];
 			Ref.set(state, "lines", shorted);
 		}else {
-			Object[] parsed = (Object[]) Array.newInstance(Ref.nms("IChatBaseComponent"), 4);
+			Object[] parsed = (Object[]) Array.newInstance(Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"), 4);
 			for(int i = 0; i < 4; ++i)
 				if(lines.length>=i)
 					parsed[i]=NMSAPI.getFixedIChatBaseComponent(lines[i]);

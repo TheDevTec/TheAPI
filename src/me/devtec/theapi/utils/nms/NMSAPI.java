@@ -25,102 +25,111 @@ import me.devtec.theapi.utils.reflections.Ref;
 public class NMSAPI {
 
 	private static Class<?> enumTitle;
-	private static Constructor<?> pDestroy, pTitle, pOutChat, pTab, pBlock,
+	private static Constructor<?> pDestroy, pTimes, pTitle, pSub, pAction, pReset, pOutChat, pTab, pBlock,
 			pSpawn, pNSpawn, pLSpawn, score, sbobj, sbdisplayobj, sbteam, pTeleport,
-			metadata = Ref.constructor(Ref.nms("PacketPlayOutEntityMetadata"), int.class, Ref.nms("DataWatcher"), boolean.class);
-	private static Method entityM, livingentity, oldichatser, post, notify,nofifyManual,
-	parseNbt = Ref.method(Ref.nms("MojangsonParser"), "parse", String.class),
+			metadata = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityMetadata","PacketPlayOutEntityMetadata"), int.class, Ref.nmsOrOld("network.syncher.DataWatcher","DataWatcher"), boolean.class);
+	private static Method entityM, livingentity, post, notify,nofifyManual,
+	parseNbt = Ref.method(Ref.nmsOrOld("nbt.MojangsonParser","MojangsonParser"), "parse", String.class),
 	setNbt,
 	asNms=Ref.method(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class), 
-	asBukkit=Ref.method(Ref.craft("inventory.CraftItemStack"), "asBukkitCopy", Ref.nms("ItemStack"));
+	asBukkit=Ref.method(Ref.craft("inventory.CraftItemStack"), "asBukkitCopy", Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
 	
 	private static int old, not;
 	private static Field tps,getMap,getProvider;
 	private static Object sbremove, sbinteger, sbchange, sbhearts, empty, server;
 	private static Field[] scr = new Field[4];
+	
 	static {
-		setNbt=Ref.method(Ref.nms("ItemStack"), "setTag", Ref.nms("NBTTagCompound"));
-		scr[0] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "a");
-		scr[1] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "b");
-		scr[2] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "c");
-		scr[3] = Ref.field(Ref.nms("PacketPlayOutScoreboardScore"), "d");
-		pTeleport = Ref.constructor(Ref.nms("PacketPlayOutEntityTeleport"), Ref.nms("Entity"));
-		server = Ref.invokeStatic(Ref.nms("MinecraftServer"), "getServer");
+		setNbt=Ref.method(Ref.nmsOrOld("world.item.ItemStack","ItemStack"), "setTag", Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"));
+		scr[0] = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"), "a");
+		scr[1] = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"), "b");
+		scr[2] = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"), "c");
+		scr[3] = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"), "d");
+		pTeleport = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityTeleport","PacketPlayOutEntityTeleport"), Ref.nmsOrOld("world.entity.Entity","Entity"));
+		server = Ref.invokeStatic(Ref.nmsOrOld("server.MinecraftServer","MinecraftServer"), "getServer");
 		if(server==null)server=Ref.invoke(Ref.cast(Ref.craft("CraftServer"), Bukkit.getServer()),"getServer");
-		sbteam = Ref.constructor(Ref.nms("PacketPlayOutScoreboardTeam"));
-		sbdisplayobj = Ref.constructor(Ref.nms("PacketPlayOutScoreboardDisplayObjective"));
-		sbobj = Ref.constructor(Ref.nms("PacketPlayOutScoreboardObjective"));
-		score = Ref.constructor(Ref.nms("PacketPlayOutScoreboardScore"));
-		sbremove = Ref.getNulled(Ref.field(Ref.nms("PacketPlayOutScoreboardScore$EnumScoreboardAction"), "REMOVE"));
+		sbteam = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardTeam","PacketPlayOutScoreboardTeam"));
+		sbdisplayobj = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardDisplayObjective","PacketPlayOutScoreboardDisplayObjective"));
+		sbobj = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardObjective","PacketPlayOutScoreboardObjective"));
+		score = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"));
+		sbremove = Ref.getNulled(Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore$EnumScoreboardActio","PacketPlayOutScoreboardScore$EnumScoreboardActio"), "REMOVE"));
 		if (sbremove == null)
-			sbremove = Ref.getNulled(Ref.field(Ref.nms("ScoreboardServer$Action"), "REMOVE"));
-		sbchange = Ref.getNulled(Ref.field(Ref.nms("PacketPlayOutScoreboardScore$EnumScoreboardAction"), "CHANGE"));
+			sbremove = Ref.getNulled(Ref.field(Ref.nmsOrOld("server.ScoreboardServer$Action","ScoreboardServer$Action"), "REMOVE"));
+		sbchange = Ref.getNulled(Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore$EnumScoreboardAction","PacketPlayOutScoreboardScore$EnumScoreboardAction"), "CHANGE"));
 		if (sbchange == null)
-			sbchange = Ref.getNulled(Ref.field(Ref.nms("ScoreboardServer$Action"), "CHANGE"));
-		sbinteger = Ref.getNulled(Ref.field(Ref.nms("IScoreboardCriteria$EnumScoreboardHealthDisplay"), "INTEGER"));
-		sbhearts = Ref.getNulled(Ref.field(Ref.nms("IScoreboardCriteria$EnumScoreboardHealthDisplay"), "HEARTS"));
+			sbchange = Ref.getNulled(Ref.field(Ref.nmsOrOld("server.ScoreboardServer$Action","ScoreboardServer$Action"), "CHANGE"));
+		sbinteger = Ref.getNulled(Ref.field(Ref.nmsOrOld("world.scores.criteria.IScoreboardCriteria$EnumScoreboardHealthDisplay","IScoreboardCriteria$EnumScoreboardHealthDisplay"), "INTEGER"));
+		sbhearts = Ref.getNulled(Ref.field(Ref.nmsOrOld("world.scores.criteria.IScoreboardCriteria$EnumScoreboardHealthDisplay","IScoreboardCriteria$EnumScoreboardHealthDisplay"), "HEARTS"));
 		if (TheAPI.isNewVersion())
-			post = Ref.method(Ref.nms("IAsyncTaskHandler"), "executeSync", Runnable.class);
+			post = Ref.method(Ref.nmsOrOld("util.thread.IAsyncTaskHandler","IAsyncTaskHandler"), "executeSync", Runnable.class);
 		if (post == null)
 			post = Ref.method(Ref.nms("MinecraftServer"), "executeSync", Runnable.class);
 		if (post == null)
 			post = Ref.method(Ref.nms("MinecraftServer"), "postToMainThread", Runnable.class);
+		
 		enumTitle = Ref.nms("PacketPlayOutTitle$EnumTitleAction");
-		oldichatser = Ref.method(Ref.nms("IChatBaseComponent$ChatSerializer"), "a", String.class);
-		if(oldichatser==null)
-			oldichatser = Ref.method(Ref.nms("ChatSerializer"), "a", String.class);
-		pDestroy = Ref.constructor(Ref.nms("PacketPlayOutEntityDestroy"), int[].class);
-		pSpawn = Ref.constructor(Ref.nms("PacketPlayOutSpawnEntity"), Ref.nms("Entity"), int.class);
-		pNSpawn = Ref.constructor(Ref.nms("PacketPlayOutNamedEntitySpawn"), Ref.nms("EntityHuman"));
-		pLSpawn = Ref.constructor(Ref.nms("PacketPlayOutSpawnEntityLiving"), Ref.nms("EntityLiving"));
+		if(enumTitle==null && TheAPI.isNewerThan(16)) { //1.17+
+			pTimes = Ref.constructor(Ref.nmsOrOld("network.protocol.game.ClientboundSetTitlesAnimationPacket", null), int.class, int.class, int.class);
+			pTitle = Ref.constructor(Ref.nmsOrOld("network.protocol.game.ClientboundSetTitleTextPacket", null), Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"));
+			pSub = Ref.constructor(Ref.nmsOrOld("network.protocol.game.ClientboundSetSubtitleTextPacket", null), Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"));
+			pAction = Ref.constructor(Ref.nmsOrOld("network.protocol.game.ClientboundSetActionBarTextPacket", null), Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"));
+			pReset = Ref.constructor(Ref.nmsOrOld("network.protocol.game.ClientboundClearTitlesPacket", null), boolean.class);
+			
+		}else {
+			pTitle = Ref.constructor(Ref.nms("PacketPlayOutTitle"), enumTitle, Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"), int.class, int.class, int.class);
+		}
+		pDestroy = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityDestroy","PacketPlayOutEntityDestroy"), int[].class);
+		if(pDestroy==null)
+			pDestroy = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityDestroy","PacketPlayOutEntityDestroy"), int.class);
+		pSpawn = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSpawnEntity","PacketPlayOutSpawnEntity"), Ref.nmsOrOld("world.entity.Entity","Entity"), int.class);
+		pNSpawn = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutNamedEntitySpawn","PacketPlayOutNamedEntitySpawn"), Ref.nmsOrOld("world.entity.player.EntityHuman","EntityHuman"));
+		pLSpawn = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSpawnEntityLiving","PacketPlayOutSpawnEntityLiving"), Ref.nmsOrOld("world.entity.EntityLiving","EntityLiving"));
 		entityM = Ref.method(Ref.craft("entity.CraftEntity"), "getHandle");
 		livingentity = Ref.method(Ref.craft("entity.CraftLivingEntity"), "getHandle");
-		pTitle = Ref.constructor(Ref.nms("PacketPlayOutTitle"), enumTitle, Ref.nms("IChatBaseComponent"), int.class,
-				int.class, int.class);
-		pOutChat = Ref.constructor(Ref.nms("PacketPlayOutChat"), Ref.nms("IChatBaseComponent"),
-				Ref.nms("ChatMessageType"));
+		
+		pOutChat = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutChat","PacketPlayOutChat"), Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"),
+				Ref.nmsOrOld("network.chat.ChatMessageType","ChatMessageType"));
 		if (pOutChat == null) {
 			old = 1;
-			pOutChat = Ref.constructor(Ref.nms("PacketPlayOutChat"), Ref.nms("IChatBaseComponent"),
-					Ref.nms("ChatMessageType"), UUID.class);
+			pOutChat = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutChat","PacketPlayOutChat"), Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"),
+					Ref.nmsOrOld("network.chat.ChatMessageType","ChatMessageType"), UUID.class);
 		}
 		if (pOutChat == null) {
 			old = 2;
-			pOutChat = Ref.constructor(Ref.nms("PacketPlayOutChat"), Ref.nms("IChatBaseComponent"), byte.class);
+			pOutChat = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutChat","PacketPlayOutChat"), Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"), byte.class);
 		}
 		if (TheAPI.isNewerThan(7))
 			try {
-				pTab = Ref.nms("PacketPlayOutPlayerListHeaderFooter").getDeclaredConstructor();
+				pTab = Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerListHeaderFooter","PacketPlayOutPlayerListHeaderFooter").getDeclaredConstructor();
 			} catch (Exception e) {
 			}
-		pBlock = Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("IBlockAccess"),
-				Ref.nms("BlockPosition"));
+		pBlock = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutBlockChange","PacketPlayOutBlockChange"), Ref.nmsOrOld("world.level.IBlockAccess","IBlockAccess"),
+				Ref.nmsOrOld("core.BlockPosition","BlockPosition"));
 		if (pBlock == null)
-			pBlock = Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), Ref.nms("World"), Ref.nms("BlockPosition"));
+			pBlock = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutBlockChange","PacketPlayOutBlockChange"), Ref.nmsOrOld("world.level.World","World"), Ref.nmsOrOld("core.BlockPosition","BlockPosition"));
 		if (pBlock == null)
-			pBlock = Ref.constructor(Ref.nms("PacketPlayOutBlockChange"), int.class, int.class, int.class, Ref.nms("World"));
-		tps = Ref.field(Ref.nms("MinecraftServer"), "recentTps");
-		
-		getMap = Ref.field(Ref.nms("WorldServer"),"manager");
+			pBlock = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutBlockChange","PacketPlayOutBlockChange"), int.class, int.class, int.class, Ref.nmsOrOld("world.level.World","World"));
+		tps = Ref.field(Ref.nmsOrOld("server.MinecraftServer","MinecraftServer"), "recentTps");
+		getMap = Ref.field(Ref.nmsOrOld("server.level.WorldServer","WorldServer"),"manager");
 		if(getMap==null) {
-			getProvider = Ref.field(Ref.nms("WorldServer"),"chunkProvider");
-			getMap = Ref.field(Ref.nms("ChunkProviderServer"),"playerChunkMap");
+			getProvider = Ref.field(Ref.nmsOrOld("server.level.WorldServer","WorldServer"),"chunkProvider");
+			getMap = Ref.field(Ref.nmsOrOld("server.level.ChunkProviderServer","ChunkProviderServer"),"playerChunkMap");
 		}
 		
-		notify = Ref.method(Ref.nms("PlayerChunkMap"), "flagDirty", int.class, int.class, int.class); //1.7
+		notify = Ref.method(Ref.nmsOrOld("server.level.PlayerChunkMap","PlayerChunkMap"), "flagDirty", int.class, int.class, int.class); //1.7
 		if(notify==null) {
-		notify = Ref.method(Ref.nms("PlayerChunkMap"), "a", int.class, int.class, int.class); //1.8
+		notify = Ref.method(Ref.nmsOrOld("server.level.PlayerChunkMap","PlayerChunkMap"), "a", int.class, int.class, int.class); //1.8
 		if(notify==null) {
-		notify = Ref.method(Ref.nms("PlayerChunkMap"), "flagDirty", Ref.nms("BlockPosition")); //1.9 - 1.12
+		notify = Ref.method(Ref.nmsOrOld("server.level.PlayerChunkMap","PlayerChunkMap"), "flagDirty", Ref.nmsOrOld("core.BlockPosition","BlockPosition")); //1.9 - 1.12
 		if(notify==null) {
-		notify = Ref.method(Ref.nms("PlayerChunkMap"), "a", Ref.nms("BlockPosition")); //1.13
+		notify = Ref.method(Ref.nmsOrOld("server.level.PlayerChunkMap","PlayerChunkMap"), "a", Ref.nmsOrOld("core.BlockPosition","BlockPosition")); //1.13
 		if(notify==null) {
 			not=1;
-			notify = Ref.method(Ref.nms("PlayerChunkMap"), "getVisibleChunk", long.class); //1.14 - 1.16
-			nofifyManual = Ref.method(Ref.nms("PlayerChunk"), "a", int.class, int.class, int.class);
+			notify = Ref.method(Ref.nmsOrOld("server.level.PlayerChunkMap","PlayerChunkMap"), "getVisibleChunk", long.class); //1.14 - 1.16
+			nofifyManual = Ref.method(Ref.nmsOrOld("server.level.PlayerChunk","PlayerChunk"), "a", int.class, int.class, int.class);
 			if(nofifyManual==null) {
 				not=0;
-				nofifyManual = Ref.method(Ref.nms("PlayerChunk"), "a", Ref.nms("BlockPosition"));
+				nofifyManual = Ref.method(Ref.nmsOrOld("server.level.PlayerChunk","PlayerChunk"), "a", Ref.nmsOrOld("core.BlockPosition","BlockPosition"));
 			}
 		}}}}
 		empty = getIChatBaseComponentJson("{\"text\":\"\"}");
@@ -156,9 +165,9 @@ public class NMSAPI {
 	}
 	
 	public static ItemStack setNBT(ItemStack stack, Object nbt) {
-		Object nms = asNMSItem(stack);
-		Ref.invoke(nms, setNbt, nbt instanceof String?parseNBT((String)nbt):(nbt instanceof NBTEdit?((NBTEdit) nbt).getNBT():nbt));
-		Ref.set(stack, "handle", nms);
+		Object nmsOrOld = asNMSItem(stack);
+		Ref.invoke(nmsOrOld, setNbt, nbt instanceof String?parseNBT((String)nbt):(nbt instanceof NBTEdit?((NBTEdit) nbt).getNBT():nbt));
+		Ref.set(stack, "handle", nmsOrOld);
 		return stack;
 	}
 	
@@ -169,10 +178,10 @@ public class NMSAPI {
 	}
 	
 	public static Object asNMSItem(ItemStack stack) {
-		Object nms = Ref.get(stack,"handle");
-		if(nms!=null)return nms;
-		Ref.set(stack, "handle", nms=Ref.invokeNulled(asNms, stack));
-		return nms;
+		Object nmsOrOld = Ref.get(stack,"handle");
+		if(nmsOrOld!=null)return nmsOrOld;
+		Ref.set(stack, "handle", nmsOrOld=Ref.invokeNulled(asNms, stack));
+		return nmsOrOld;
 	}
 	
 	public static ItemStack asBukkitItem(Object stack) {
@@ -242,7 +251,7 @@ public class NMSAPI {
 		return Ref.newInstance(sbteam);
 	}
 
-	private static Method poost = Ref.method(Ref.nms("MinecraftServer"), "postToMainThread", Runnable.class);
+	private static Method poost = Ref.method(Ref.nmsOrOld("server.MinecraftServer","MinecraftServer"), "postToMainThread", Runnable.class);
 	
 	@SuppressWarnings("unchecked")
 	public static void postToMainThread(Runnable runnable) {
@@ -273,7 +282,7 @@ public class NMSAPI {
 	}
 
 	public static enum TitleAction {
-		ACTIONBAR, CLEAR, RESET, SUBTITLE, TITLE
+		ACTIONBAR, CLEAR, RESET, SUBTITLE, TITLE, TIMES
 	}
 
 	public static enum ChatType {
@@ -285,6 +294,22 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutTitle(TitleAction action, Object IChatBaseComponent, int fadeIn, int stay, int fadeOut) {
+		if(TheAPI.isNewerThan(16)) {
+			switch(action) {
+			case TIMES:
+				return Ref.newInstance(pTimes, fadeIn, stay, fadeOut);
+			case ACTIONBAR:
+				return Ref.newInstance(pAction, IChatBaseComponent);
+			case SUBTITLE:
+				return Ref.newInstance(pSub, IChatBaseComponent);
+			case TITLE:
+				return Ref.newInstance(pTitle, IChatBaseComponent);
+			case CLEAR:
+			case RESET:
+				return Ref.newInstance(pReset, true);
+			}
+		}
+		if(action==TitleAction.TIMES)action=TitleAction.TITLE;
 		if (action == TitleAction.ACTIONBAR) {
 			Object tt=Ref.getNulled(Ref.field(enumTitle, action.name()));
 			Object o = Ref.newInstance(pTitle, tt, IChatBaseComponent,
@@ -317,9 +342,9 @@ public class NMSAPI {
 		Object o = old == 2 ? Ref.newInstance(pOutChat, IChatBaseComponent, (byte) 1)
 				: (old == 0
 						? Ref.newInstance(pOutChat, IChatBaseComponent,
-								Ref.getNulled(Ref.field(Ref.nms("ChatMessageType"), type.name())))
+								Ref.getNulled(Ref.field(Ref.nmsOrOld("network.chat.ChatMessageType","ChatMessageType"), type.name())))
 						: Ref.newInstance(pOutChat, IChatBaseComponent,
-								Ref.getNulled(Ref.field(Ref.nms("ChatMessageType"), type.name())), UUID.randomUUID()));
+								Ref.getNulled(Ref.field(Ref.nmsOrOld("network.chat.ChatMessageType","ChatMessageType"), type.name())), UUID.randomUUID()));
 		return o;
 	}
 
@@ -328,7 +353,7 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutEntityDestroy(int... id) {
-		return Ref.newInstance(pDestroy, id);
+		return Ref.newInstance(pDestroy, TheAPI.isNewerThan(16)?id[0]:id);
 	}
 
 	public static Object getEntity(Entity entity) {
@@ -353,12 +378,12 @@ public class NMSAPI {
 
 	static Field aField, bField;
 	static {
-		aField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "a");
+		aField = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerListHeaderFooter","PacketPlayOutPlayerListHeaderFooter"), "a");
 		if (aField == null)
-			aField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "header");
-		bField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "b");
+			aField = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerListHeaderFooter","PacketPlayOutPlayerListHeaderFooter"), "header");
+		bField = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerListHeaderFooter","PacketPlayOutPlayerListHeaderFooter"), "b");
 		if (bField == null)
-			bField = Ref.field(Ref.nms("PacketPlayOutPlayerListHeaderFooter"), "footer");
+			bField = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerListHeaderFooter","PacketPlayOutPlayerListHeaderFooter"), "footer");
 	}
 	public static Object getPacketPlayOutPlayerListHeaderFooter(Object headerIChatBaseComponent, Object footerIChatBaseComponent) {
 		if(pTab!=null) {
@@ -449,12 +474,12 @@ public class NMSAPI {
 	
 	public static Object getFixedIChatBaseComponent(String text) {
 		if(text==null||text.equals(""))return empty;
-		return getIChatBaseComponentJson(new ChatMessage(text).getJson());
+		return TheAPI.isNewerThan(16)?new ChatMessage(text).toNMS():getIChatBaseComponentJson(new ChatMessage(text).getJson());
 	}
 
 	public static Object getIChatBaseComponentText(String text) {
 		if(text==null||text.equals(""))return empty;
-		return getIChatBaseComponentJson("{\"text\":\"" + text + "\"}");
+		return Ref.IChatBaseComponent(text);
 	}
 	private static int oo;
 	private static Method mm = Ref.method(Ref.craft("util.CraftChatMessage"), "fromStringOrNull", String.class, boolean.class);
@@ -475,14 +500,14 @@ public class NMSAPI {
 	}
 
 	public static Object getIChatBaseComponentJson(String json) {
-		return Ref.invokeNulled(oldichatser, json);
+		return Ref.IChatBaseComponentJson(json);
 	}
 
 	private static Thread thread;
 	static {
-		Object o = Ref.get(getServer(), Ref.field(Ref.nms("MinecraftServer"), "primaryThread"));
+		Object o = Ref.get(getServer(), Ref.field(Ref.nmsOrOld("server.MinecraftServer","MinecraftServer"), "primaryThread"));
 		thread= o != null ? (Thread) o
-				: (Thread) Ref.get(getServer(), Ref.field(Ref.nms("MinecraftServer"), "serverThread"));
+				: (Thread) Ref.get(getServer(), Ref.field(Ref.nmsOrOld("server.MinecraftServer","MinecraftServer"), "serverThread"));
 	}
 	
 	public static Thread getServerThread() {

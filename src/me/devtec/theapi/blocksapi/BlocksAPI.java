@@ -83,8 +83,8 @@ public class BlocksAPI {
 		return (Comparable<?>)Ref.invoke(block, getState, state);
 	}
 	
-	private static Method getState = Ref.method(Ref.nms("IBlockDataHolder"), "get", Ref.nms("IBlockState")),
-			setState = Ref.method(Ref.nms("IBlockDataHolder"), "set", Ref.nms("IBlockState"), Comparable.class);
+	private static Method getState = Ref.method(Ref.nmsOrOld("world.level.block.state.IBlockDataHolder","IBlockDataHolder"), "get", Ref.nmsOrOld("world.level.block.state.properties.IBlockState","IBlockState")),
+			setState = Ref.method(Ref.nmsOrOld("world.level.block.state.IBlockDataHolder","IBlockDataHolder"), "set", Ref.nmsOrOld("world.level.block.state.properties.IBlockState","IBlockState"), Comparable.class);
 	
 	public static Object setState(Position pos, String name, Comparable<?> comparable){
 		Object block = pos.getIBlockData();
@@ -793,19 +793,19 @@ public class BlocksAPI {
 		}.runTask();
 	}
 
-	private static Constructor<?> aw = Ref.constructor(Ref.nms("ChunkSection"), int.class);
-	private static Method a, get = Ref.method(Ref.nms("Chunk"), "getSections"),
-			blocks = Ref.method(Ref.nms("ChunkSection"), "getBlocks"), type = Ref.method(Ref.nms("ChunkSection"),
-					"setType", int.class, int.class, int.class, Ref.nms("IBlockData"));
+	private static Constructor<?> aw = Ref.constructor(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), int.class);
+	private static Method a, get = Ref.method(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "getSections"),
+			blocks = Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), "getBlocks"), type = Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"),
+					"setType", int.class, int.class, int.class, Ref.nmsOrOld("world.level.block.state.IBlockData","IBlockData"));
 	static {
-		a = Ref.method(Ref.nms("DataPaletteBlock"), "b", int.class, int.class, int.class, Object.class);
+		a = Ref.method(Ref.nmsOrOld("world.level.chunk.DataPaletteBlock","DataPaletteBlock"), "b", int.class, int.class, int.class, Object.class);
 		if (a == null)
-			a = Ref.method(Ref.nms("DataPaletteBlock"), "setBlock", int.class, int.class, int.class,
-					Ref.nms("IBlockData"));
+			a = Ref.method(Ref.nmsOrOld("world.level.chunk.DataPaletteBlock","DataPaletteBlock"), "setBlock", int.class, int.class, int.class,
+					Ref.nmsOrOld("world.level.block.state.IBlockData","IBlockData"));
 		if (a == null)
-			a = Ref.method(Ref.nms("DataPaletteBlock"), "setBlock", int.class, int.class, int.class, Object.class);
+			a = Ref.method(Ref.nmsOrOld("world.level.chunk.DataPaletteBlock","DataPaletteBlock"), "setBlock", int.class, int.class, int.class, Object.class);
 		if (aw == null)
-			aw = Ref.constructor(Ref.nms("ChunkSection"), int.class, boolean.class);
+			aw = Ref.constructor(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), int.class, boolean.class);
 	}
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish,

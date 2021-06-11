@@ -33,7 +33,7 @@ public class Tasks {
 	private static Class<?> c = Ref.getClass("com.mojang.authlib.GameProfile") != null
 			? Ref.getClass("com.mojang.authlib.GameProfile")
 			: Ref.getClass("net.minecraft.util.com.mojang.authlib.GameProfile");
-	private static Constructor<?> cc = Ref.constructor(Ref.nms("ServerPing$ServerPingPlayerSample")!=null?Ref.nms("ServerPing$ServerPingPlayerSample"):Ref.nms("ServerPingPlayerSample"), int.class,
+	private static Constructor<?> cc = Ref.constructor(Ref.nmsOrOld("network.protocol.status.ServerPing$ServerPingPlayerSample","ServerPing$ServerPingPlayerSample")!=null?Ref.nmsOrOld("network.protocol.status.ServerPing$ServerPingPlayerSample","ServerPing$ServerPingPlayerSample"):Ref.nms("ServerPingPlayerSample"), int.class,
 			int.class);
 	private static PacketListener l;
 	
@@ -46,7 +46,8 @@ public class Tasks {
 		if(LoaderClass.config.getBoolean("Options.ServerListPingEvent")) {
 			if (l == null)
 				l = new PacketListener() {
-					Class<?> info = Ref.nms("PacketStatusOutServerInfo");
+				
+					Class<?> info = Ref.nmsOrOld("network.protocol.status.PacketStatusOutServerInfo","PacketStatusOutServerInfo");
 					public boolean PacketPlayOut(String player, Object packet, Object channel) {
 						if (packet.getClass()==info) {
 							Object w = Ref.get(packet, "b");
@@ -55,7 +56,7 @@ public class Tasks {
 								players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
 							ServerListPingEvent event = new ServerListPingEvent(TheAPI.getOnlinePlayers().size(),
 									TheAPI.getMaxPlayers(), players, TheAPI.getMotd(), null,
-									((InetSocketAddress) Ref.invoke(channel, "remoteAddress")).getAddress(), (String)Ref.get(Ref.get(w, "c"),"a"));
+									((InetSocketAddress) Ref.invoke(channel, "remoteAddress")).getAddress(), (String)Ref.get(Ref.get(w, TheAPI.isNewerThan(16)?"e":"c"),"a"));
 							TheAPI.callEvent(event);
 							if (event.isCancelled())
 								return true;
@@ -75,7 +76,7 @@ public class Tasks {
 							else
 								Ref.set(w, "a", NMSAPI.getIChatBaseComponentText(""));
 							if(event.getVersion()!=null)
-								Ref.set(Ref.get(w, "c"), "a", event.getVersion());
+								Ref.set(Ref.get(w, TheAPI.isNewerThan(16)?"e":"c"), "a", event.getVersion());
 							if (event.getFalvicon() != null)
 								Ref.set(packet, "d", event.getFalvicon());
 							return false;

@@ -38,7 +38,7 @@ public class ResourcePackAPI {
 		setResourcePack(player, resourcePack, sha, null);
 	}
 	
-	private static Constructor<?> p = Ref.constructor(Ref.nms("PacketPlayOutResourcePackSend"), String.class, String.class);
+	private static Constructor<?> p = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutResourcePackSend","PacketPlayOutResourcePackSend"), String.class, String.class);
 	
 	public static void setResourcePack(Player player, String resourcePack, String sha, ResourcePackHandler handler) {
 		if(TheAPI.isOlderThan(8))return; //1.8+ only

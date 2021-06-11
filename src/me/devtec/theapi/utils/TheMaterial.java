@@ -14,12 +14,12 @@ import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class TheMaterial implements Cloneable {
 	static Method mm, mat, create;
-	static Class<?> block = Ref.nms("Block"), item = Ref.nms("Item");
+	static Class<?> block = Ref.nmsOrOld("world.level.block.Block","Block"), item = Ref.nmsOrOld("world.item.Item","Item");
 
 	static {
-		create = Ref.method(Ref.craft("inventory.CraftItemStack"), "asNewCraftStack", Ref.nms("Item"));
+		create = Ref.method(Ref.craft("inventory.CraftItemStack"), "asNewCraftStack", Ref.nmsOrOld("world.item.Item","Item"));
 		if(!TheAPI.isNewVersion()) {
-			mm=Ref.method(Ref.craft("util.CraftMagicNumbers"), "getId", Ref.nms("Block"));
+			mm=Ref.method(Ref.craft("util.CraftMagicNumbers"), "getId", Ref.nmsOrOld("world.level.block.Block","Block"));
 			mat=Ref.method(Material.class, "getMaterial", int.class);
 		}
 	}
@@ -88,7 +88,7 @@ public class TheMaterial implements Cloneable {
 		}
 	}
 
-	private static Method bb = Ref.method(Ref.craft("util.CraftMagicNumbers"), "getMaterial", Ref.nms("Block"));
+	private static Method bb = Ref.method(Ref.craft("util.CraftMagicNumbers"), "getMaterial", Ref.nmsOrOld("world.level.block.Block","Block"));
 	
 	private TheMaterial(Object blockData) {
 		if(blockData==null)return;
@@ -229,23 +229,23 @@ public class TheMaterial implements Cloneable {
 	}
 
 	public int getCombinedId() {
-		return (int) Ref.invokeNulled(Ref.method(Ref.nms("Block"), "getCombinedId", Ref.nms("IBlockData")),
+		return (int) Ref.invokeNulled(Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "getCombinedId", Ref.nmsOrOld("world.level.block.state.IBlockData","IBlockData")),
 				getIBlockData());
 	}
 
 	public Object getIBlockData() {
 		try {
-			Object o = Ref.invokeNulled(Ref.method(Ref.nms("Block"), "getByCombinedId", int.class),
+			Object o = Ref.invokeNulled(Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "getByCombinedId", int.class),
 					(int) ((m.getId() + (data >> 4))));
 			if (o == null)
-				o = Ref.invokeNulled(Ref.method(Ref.nms("Block"), "getId", int.class), (int) m.getId());
+				o = Ref.invokeNulled(Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "getId", int.class), (int) m.getId());
 			else
-				o = Ref.invoke(Ref.invoke(o, "getBlock"), Ref.method(Ref.nms("Block"), "fromLegacyData", int.class),
+				o = Ref.invoke(Ref.invoke(o, "getBlock"), Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "fromLegacyData", int.class),
 						(int) data);
 			return o;
 		} catch (Exception err) {
 			try {
-				return Ref.invoke(Ref.getNulled(Ref.nms("Blocks"), m.name()), "getBlockData");
+				return Ref.invoke(Ref.getNulled(Ref.nmsOrOld("world.level.block.Blocks","Blocks"), m.name()), "getBlockData");
 			} catch (Exception errr) {
 				if (m != null) {
 					Map<?, ?> materialToData = (Map<?, ?>) Ref.getNulled(Ref.craft("legacy.CraftLegacy"),

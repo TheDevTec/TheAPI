@@ -193,10 +193,10 @@ public class InitialSerializedBlock implements SerializedBlock {
 		Position.updateLightAt(pos);
 		return this;
 	}
-	private static Method load = Ref.method(Ref.nms("TileEntity"), "load", Ref.nms("IBlockData"), Ref.nms("NBTTagCompound"))!=null?
-			Ref.method(Ref.nms("TileEntity"), "load", Ref.nms("IBlockData"), Ref.nms("NBTTagCompound")):
-				Ref.method(Ref.nms("TileEntity"), "a", Ref.nms("NBTTagCompound"));
-	private static Method setInt = Ref.method(Ref.nms("NBTTagCompound"), "setInt", String.class, int.class);
+	private static Method load = Ref.method(Ref.nmsOrOld("world.level.block.entity.TileEntity","TileEntity"), "load", Ref.nmsOrOld("world.level.block.state.IBlockData","IBlockData"), Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"))!=null?
+			Ref.method(Ref.nmsOrOld("world.level.block.entity.TileEntity","TileEntity"), "load", Ref.nmsOrOld("world.level.block.state.IBlockData","IBlockData"), Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound")):
+				Ref.method(Ref.nmsOrOld("world.level.block.entity.TileEntity","TileEntity"), "a", Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"));
+	private static Method setInt = Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setInt", String.class, int.class);
 	
-	private static Method parse = Ref.method(Ref.nms("MojangsonParser"), "parse", String.class);
+	private static Method parse = Ref.method(Ref.nmsOrOld("nbt.MojangsonParser","MojangsonParser"), "parse", String.class);
 }

@@ -1,5 +1,7 @@
 package me.devtec.theapi.utils;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +16,7 @@ import org.bukkit.ChatColor;
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.json.Writer;
 import me.devtec.theapi.utils.nms.NMSAPI;
+import me.devtec.theapi.utils.reflections.Ref;
 
 public class ChatMessage {
 	static Pattern url = Pattern.compile("(w{3}\\\\.|[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+:\\/\\/)?[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+\\w\\.[a-zA-Z0-9+&@#/%?=~_|!:,.;-]{2,}\\w"),
@@ -31,11 +34,11 @@ public class ChatMessage {
 	}
 	
 	public static Object toIChatBaseComponent(String text) {
-		return NMSAPI.getIChatBaseComponentJson(new ChatMessage(text).getJson());
+		return new ChatMessage(text).toNMS();
 	}
 	
 	public static Object toIChatBaseComponent(ChatMessage text) {
-		return NMSAPI.getIChatBaseComponentJson(text.getJson());
+		return text.toNMS();
 	}
 	
 	public static ChatMessage fromIChatBaseComponent(Object component) {
@@ -133,7 +136,62 @@ public class ChatMessage {
 		return new ChatMessage(text);
 	}
 	
-	public String toLogecy() {
+	private static Constructor<?> chat = Ref.constructor(Ref.nmsOrOld("network.chat.ChatComponentText", "ChatComponentText"), String.class),
+			clickEvent = Ref.constructor(Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable", "ChatClickable"), Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable$EnumClickAction", "EnumClickAction"), String.class);
+	private static Method addSibling=Ref.method(Ref.nmsOrOld("network.chat.IChatMutableComponent", "IChatMutableComponent"), "addSibling", Ref.nmsOrOld("network.chat.IChatBaseComponent", "IChatBaseComponent"))
+			, getChatModif=Ref.method(Ref.nmsOrOld("network.chat.IChatBaseComponent", "IChatBaseComponent"), "getChatModifier")
+			, setChatModif=Ref.method(Ref.nmsOrOld("network.chat.IChatMutableComponent", "IChatMutableComponent"), "setChatModifier", Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier")),
+			setBold=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setBold", Boolean.class),
+			setItalic=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setItalic", Boolean.class),
+			setRandom=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setRandom", Boolean.class),
+			setStrikethrough=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setStrikethrough", Boolean.class),
+			setChatClickable=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setChatClickable", Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable", "ChatClickable")),
+			setUnderline=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setUnderline", Boolean.class),
+			hex=Ref.method(Ref.nmsOrOld("network.chat.ChatHexColor", "ChatHexColor"), "a", String.class),
+			colors=Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", char.class),
+			setColorHex=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setColor", Ref.nmsOrOld("network.chat.ChatHexColor", "ChatHexColor")),
+			setColorNormal=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setColor", Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"));
+	
+	private static Object open_url = TheAPI.isNewerThan(16)?Ref.getNulled(Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable$EnumClickAction", "EnumClickAction"), "a"):Ref.getNulled(Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable$EnumClickAction", "EnumClickAction"), "OPEN_URL");
+	
+	public Object toNMS() {
+		Object main = Ref.newInstance(chat, "");
+		Object ab = main;
+		for(Map<String, Object> s : join) {
+			Object a = Ref.newInstance(chat, s.get("text"));
+			Object mod = Ref.invoke(a, getChatModif);
+			mod=Ref.invoke(mod, setBold, s.getOrDefault("bold",false));
+			mod=Ref.invoke(mod, setItalic, s.getOrDefault("italic",false));
+			mod=Ref.invoke(mod, setRandom, s.getOrDefault("obfuscated",false));
+			mod=Ref.invoke(mod, setStrikethrough, s.getOrDefault("strikethrough",false));
+			mod=Ref.invoke(mod, setUnderline, s.getOrDefault("underlined",false));
+			if(s.get("color")!=null) {
+				if(((String) s.get("color")).startsWith("#")) {
+					mod=Ref.invoke(mod, setColorHex, getColorHex((String) s.get("color")));
+				}else
+					mod=Ref.invoke(mod, setColorNormal, getColorNormal(((String) s.get("color")).toUpperCase()));
+			}
+			if(s.get("clickEvent")!=null) {
+				mod=Ref.invoke(mod, setChatClickable, Ref.newInstance(clickEvent, open_url, s.get("value")));
+			}
+			a=Ref.invoke(a, setChatModif, mod);
+			Ref.invoke(ab, addSibling, a);
+			ab=a;
+		}
+		return main;
+	}
+
+	private Object getColorHex(String object) {
+		if(object.startsWith("#"))return Ref.invokeStatic(hex, object);
+		return null;
+	}
+	
+	private Object getColorNormal(String object) {
+		if(object.startsWith("#"))return null;
+		return Ref.invokeStatic(colors, ChatColor.valueOf(object).getChar());
+	}
+
+	public String toLegacy() {
 		StringBuilder b = new StringBuilder(join.size()*16);
 		for(Map<String, Object> text : join)
 			b.append(StringUtils.colorize(getColor(""+text.getOrDefault("color","")))+text.get("text"));

@@ -463,7 +463,7 @@ public class TheAPI {
 			Scheduler.cancelTask(task.get(p.getName()));
 			task.remove(p.getName());
 		}
-		BossBar a = bars.getOrDefault(p.getName(), null);
+		BossBar a = bars.get(p.getName());
 		if(a==null) {
 			a=new BossBar(p, TheAPI.colorize(text), progress, BarColor.GREEN, BarStyle.PROGRESS);
 			bars.put(p.getName(), a);
@@ -477,8 +477,6 @@ public class TheAPI {
 		a.setTitle(colorize(text));
 		if (a.isHidden())
 			a.show();
-		if (!bars.containsKey(p.getName()))
-			bars.put(p.getName(), a);
 		return a;
 	}
 

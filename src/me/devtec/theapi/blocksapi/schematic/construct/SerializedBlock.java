@@ -35,9 +35,9 @@ import me.devtec.theapi.utils.json.Writer;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public interface SerializedBlock extends Serializable {
-	static Method saveNbt = Ref.method(Ref.nms("TileEntity"), "save", Ref.nms("NBTTagCompound"))!=null?
-			Ref.method(Ref.nms("TileEntity"), "save", Ref.nms("NBTTagCompound")):
-				Ref.method(Ref.nms("TileEntity"), "b", Ref.nms("NBTTagCompound"));
+	static Method saveNbt = Ref.method(Ref.nmsOrOld("world.level.block.entity.TileEntity","TileEntity"), "save", Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"))!=null?
+			Ref.method(Ref.nmsOrOld("world.level.block.entity.TileEntity","TileEntity"), "save", Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound")):
+				Ref.method(Ref.nmsOrOld("world.level.block.entity.TileEntity","TileEntity"), "b", Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"));
 	static Method get = Ref.getClass("com.google.common.collect.ForwardingMultimap")==null?Ref.method(Ref.getClass("net.minecraft.util.com.google.common.collect.ForwardingMultimap"), "get", Object.class):
 			Ref.method(Ref.getClass("com.google.common.collect.ForwardingMultimap"), "get", Object.class);
 
@@ -45,7 +45,7 @@ public interface SerializedBlock extends Serializable {
 	public default SerializedBlock serialize(Position block) {
 		return serialize(block, block.getType());
 	}
-	Object objectNbt= Ref.newInstance(Ref.constructor(Ref.nms("NBTTagCompound")));
+	Object objectNbt= Ref.newInstance(Ref.constructor(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound")));
 	public default SerializedBlock serialize(Position block, TheMaterial type) {
 		Block b = block.getBlock();
 		if(TheAPI.isNewVersion()) {

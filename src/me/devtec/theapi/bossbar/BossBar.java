@@ -2,6 +2,7 @@ package me.devtec.theapi.bossbar;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.function.Function;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -12,15 +13,15 @@ import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 /**
- * 1.8 - 1.16+
+ * 1.8 - 1.17+
  */
 public class BossBar {
 	private static boolean ww = !TheAPI.isOlderThan(9);
 	private static Class<?> c = Ref.nms("EntityWither");
-	private static Constructor<?> barC= Ref.constructor(Ref.nms("BossBattleServer"), Ref.nms("IChatBaseComponent"),
-			Ref.nms("BossBattle$BarColor"), Ref.nms("BossBattle$BarStyle")), tpC=Ref.constructor(Ref.nms("PacketPlayOutEntityTeleport")),barOld=Ref.constructor(c, Ref.nms("World"));
-	private static Method mSend = Ref.method(Ref.nms("BossBattleServer"), "sendUpdate", Ref.nms("PacketPlayOutBoss$Action")),mAdd=Ref.method(Ref.nms("BossBattleServer"), "addPlayer", Ref.nms("EntityPlayer")),idM=Ref.method(Ref.nms("Entity"), "getId"),
-			mVis=Ref.method(Ref.nms("BossBattleServer"), "setVisible", boolean.class),mLoc=Ref.method(Ref.nms("Entity"), "setLocation", double.class, double.class, double.class, float.class, float.class);
+	private static Constructor<?> barC= Ref.constructor(Ref.nmsOrOld("server.level.BossBattleServer","BossBattleServer"), Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"),
+			Ref.nmsOrOld("world.BossBattle$BarColor","BossBattle$BarColor"), Ref.nmsOrOld("world.BossBattle$BarStyle","BossBattle$BarStyle")), tpC=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityTeleport","PacketPlayOutEntityTeleport")),barOld=Ref.constructor(c, Ref.nmsOrOld("world.level.World","World"));
+	private static Method mSend = Ref.method(Ref.nmsOrOld("server.level.BossBattleServer","BossBattleServer"), "sendUpdate", TheAPI.isNewerThan(16)?Function.class:Ref.nmsOrOld("network.protocol.game.PacketPlayOutBoss$Action","PacketPlayOutBoss$Action")),mAdd=Ref.method(Ref.nmsOrOld("server.level.BossBattleServer","BossBattleServer"), "addPlayer", Ref.nmsOrOld("server.level.EntityPlayer","EntityPlayer")),idM=Ref.method(Ref.nmsOrOld("world.entity.Entity","Entity"), "getId"),
+			mVis=Ref.method(Ref.nmsOrOld("server.level.BossBattleServer","BossBattleServer"), "setVisible", boolean.class),mLoc=Ref.method(Ref.nmsOrOld("world.entity.Entity","Entity"), "setLocation", double.class, double.class, double.class, float.class, float.class);
 	
 	private Player p;
 	private String title;
@@ -95,10 +96,34 @@ public class BossBar {
 		if (!p.isOnline())return;
 		set(title, progress, null, null);
 	}
-
-	private void update(String a) {
+	
+	private void update(String a, Object... objs) {
 		if (!ww || bar == null)return;
+		if(TheAPI.isNewerThan(16)){
+			if (!p.isOnline())return;
+			Ref.sendPacket(p, Ref.invokeStatic(Ref.findMethod(Ref.nmsOrOld("network.protocol.game.PacketPlayOutBoss", null), findCorrect(a)),objs));
+			return;
+		}
+		if(a.equals("UPDATE_PROGRESS"))a="UPDATE_PCT";
 		Ref.invoke(bar, mSend, Ref.getNulled(Ref.field(Ref.nms("PacketPlayOutBoss$Action"), a.toUpperCase())));
+	}
+
+	private String findCorrect(String a) {
+		switch(a) {
+		case "ADD":
+			return "createAddPacket";
+		case "REMOVE":
+			return "createRemovePacket";
+		case "UPDATE_NAME":
+			return "createUpdateNamePacket";
+		case "UPDATE_PROGRESS":
+			return "createUpdateProgressPacket";
+		case "UPDATE_PCT":
+			return "createUpdatePropertiesPacket";
+		case "UPDATE_STYLE":
+			return "createUpdateStylePacket";
+		}
+		return null;
 	}
 
 	private void set(String text, double progress, BarColor color, BarStyle style) {
@@ -110,34 +135,35 @@ public class BossBar {
 		if (ww) {
 			if (bar == null) {
 				if (color == null)color=this.color;
-				this.color=color;
 				if(color==null)
 					color = BarColor.PURPLE;
+				this.color=color;
 				if (style == null)style=this.style;
-				this.style=style;
 				if(style==null)
 					style = BarStyle.PROGRESS;
+				this.style=style;
 				bar = Ref.newInstance(barC, NMSAPI.getFixedIChatBaseComponent(title), color.toMojang(), style.toMojang());
 				Ref.set(bar, "b", (float) progress > -1 ? progress : 0);
 				Ref.invoke(bar, mAdd,Ref.player(p));
-				update("ADD");
+				if(TheAPI.isOlderThan(17))
+				update("ADD",bar);
 				return;
 			}
 			if (text != null) {
-				Ref.set(bar, "title", NMSAPI.getFixedIChatBaseComponent(title));
-				update("UPDATE_NAME");
+				Ref.set(bar, TheAPI.isNewerThan(16)?"a":"title", NMSAPI.getFixedIChatBaseComponent(title));
+				update("UPDATE_NAME",bar);
 			}
 			if (progress != -1) {
 				Ref.set(bar, "b", (float) progress);
-				update("UPDATE_PCT");
+				update("UPDATE_PROGRESS",bar);
 			}
 			if (color != null) {
-				Ref.set(bar, "color", color.toMojang());
-				update("UPDATE_STYLE");
+				Ref.set(bar, TheAPI.isNewerThan(16)?"c":"color", color.toMojang());
+				update("UPDATE_PCT",bar);
 			}
 			if (style != null) {
-				Ref.set(bar, "style", style.toMojang());
-				update("UPDATE_STYLE");
+				Ref.set(bar, TheAPI.isNewerThan(16)?"d":"style", style.toMojang());
+				update("UPDATE_STYLE",bar);
 			}
 			return;
 		}

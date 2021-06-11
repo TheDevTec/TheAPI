@@ -101,7 +101,7 @@ public class Writer implements JsonWriter {
 	}
 
 	private static Method from = Ref.method(Ref.craft("util.CraftChatMessage"), "fromComponent",
-			Ref.nms("IChatBaseComponent")), isEmpty = Ref.method(Ref.nms("NBTTagCompound"), "isEmpty");
+			Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent")), isEmpty = Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "isEmpty");
 
 	/**
 	 * 
@@ -182,14 +182,14 @@ public class Writer implements JsonWriter {
 			done.put("modifiedClass org.bukkit.inventory.ItemStack", items);
 			return map(done, addNulls, fancy);
 		}
-		if (w.getClass() == Ref.nms("IChatBaseComponent")
-				|| w.getClass() == Ref.nms("IChatMutableComponent") || w.getClass() == Ref.nms("ChatBaseComponent")
-				|| w.getClass() == Ref.nms("ChatMessage") || w.getClass() == Ref.nms("ChatComponentText")
+		if (w.getClass() == Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent") || w.getClass() == Ref.nmsOrOld("network.chat.IChatMutableComponent","IChatMutableComponent")
+				|| w.getClass() == Ref.nmsOrOld("network.chat.ChatBaseComponent","ChatBaseComponent") || w.getClass() == Ref.nmsOrOld("network.chat.ChatMessage","ChatMessage")
+				|| w.getClass() == Ref.nmsOrOld("network.chat.ChatComponentText","ChatComponentText")
 				|| w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")) {
 			String obj = w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")
 					? (String) Ref.invoke(w, "toLegacyText")
 					: (String) Ref.invoke(Ref.craft("util.CraftChatMessage"), from,
-							Ref.cast(Ref.nms("IChatBaseComponent"), w));
+							Ref.cast(Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"), w));
 			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("class " + w.getClass().getName(), obj);
 			return map(enumMap, addNulls, fancy);
@@ -287,14 +287,14 @@ public class Writer implements JsonWriter {
 			done.put("modifiedClass org.bukkit.inventory.ItemStack", items);
 			return done;
 		}
-		if (w.getClass() == Ref.nms("IChatBaseComponent")
-				|| w.getClass() == Ref.nms("IChatMutableComponent") || w.getClass() == Ref.nms("ChatBaseComponent")
-				|| w.getClass() == Ref.nms("ChatMessage") || w.getClass() == Ref.nms("ChatComponentText")
+		if (w.getClass() == Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent") || w.getClass() == Ref.nmsOrOld("network.chat.IChatMutableComponent","IChatMutableComponent")
+				|| w.getClass() == Ref.nmsOrOld("network.chat.ChatBaseComponent","ChatBaseComponent") || w.getClass() == Ref.nmsOrOld("network.chat.ChatMessage","ChatMessage")
+				|| w.getClass() == Ref.nmsOrOld("network.chat.ChatComponentText","ChatComponentText")
 				|| w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")) {
 			String obj = w.getClass() == Ref.getClass("net.md_5.bungee.api.chat.TextComponent")
 					? (String) Ref.invoke(w, "toLegacyText")
 					: (String) Ref.invoke(Ref.craft("util.CraftChatMessage"), from,
-							Ref.cast(Ref.nms("IChatBaseComponent"), w));
+							Ref.cast(Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"), w));
 			Map<String, Object> enumMap = new HashMap<>();
 			enumMap.put("class " + w.getClass().getName(), obj);
 			return enumMap;
@@ -331,9 +331,9 @@ public class Writer implements JsonWriter {
 		SEMI_FORBIDDEN.add(Ref.craft("persistence.CraftPersistentDataTypeRegistry"));
 		FORBIDDEN.add(org.apache.logging.log4j.Logger.class);
 		FORBIDDEN.add(java.util.logging.Logger.class);
-		SEMI_FORBIDDEN.add(Ref.nms("Fluid"));
-		SEMI_FORBIDDEN.add(Ref.nms("Material"));
-		SEMI_FORBIDDEN.add(Ref.nms("Block"));
+		SEMI_FORBIDDEN.add(Ref.nmsOrOld("world.level.material.Fluid","Fluid"));
+		SEMI_FORBIDDEN.add(Ref.nmsOrOld("world.level.material.Material","Material"));
+		SEMI_FORBIDDEN.add(Ref.nmsOrOld("world.level.block.Block","Block"));
 	}
 
 	private static boolean isForbidden(Class<?> c) {

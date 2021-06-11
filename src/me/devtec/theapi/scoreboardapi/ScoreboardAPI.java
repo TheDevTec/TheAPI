@@ -183,8 +183,8 @@ public class ScoreboardAPI {
 	}
 	
 	private static boolean a = !TheAPI.isNewVersion();
-	private static Field modus = Ref.field(Ref.nms("PacketPlayOutScoreboardTeam"), TheAPI.isOlderThan(9) ? (TheAPI.isOlderThan(8)?"f":"h") : "i"),
-			players = Ref.field(Ref.nms("PacketPlayOutScoreboardTeam"), TheAPI.isOlderThan(9) ? (TheAPI.isOlderThan(8)?"e":"g") : "h");
+	private static Field modus = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardTeam","PacketPlayOutScoreboardTeam"), TheAPI.isOlderThan(9) ? (TheAPI.isOlderThan(8)?"f":"h") : "i"),
+			players = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardTeam","PacketPlayOutScoreboardTeam"), TheAPI.isOlderThan(9) ? (TheAPI.isOlderThan(8)?"e":"g") : "h");
 	
 	public class Team {
 		private String prefix = "", suffix = "", currentPlayer, old;

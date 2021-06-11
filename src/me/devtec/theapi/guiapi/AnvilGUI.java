@@ -64,7 +64,7 @@ public class AnvilGUI implements HolderGUI {
 		return put;
 	}
 
-	private static Method set = Ref.method(Ref.nms("Container"), "setItem", int.class, Ref.nms("ItemStack"));
+	private static Method set = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "setItem", int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
 	
 	/**
 	 * @see see Set item on position to the gui with options
@@ -109,19 +109,19 @@ public class AnvilGUI implements HolderGUI {
 		return getItemGUIs().getOrDefault(slot, null);
 	}
 
-	private static Object windowType = Ref.getStatic(Ref.nms("Containers"), "ANVIL");
+	private static Object windowType = Ref.getStatic(Ref.nmsOrOld("world.inventory.Containers","Containers"), TheAPI.isNewerThan(16)?"h":"ANVIL");
 	
-	private static Method getAt = Ref.method(Ref.nms("ContainerAccess"), "at", Ref.nms("World"), Ref.nms("BlockPosition")),
-			getSlot=Ref.method(Ref.nms("Container"), "getSlot", int.class);
+	private static Method getAt = Ref.method(Ref.nmsOrOld("world.inventory.ContainerAccess","ContainerAccess"), "at", Ref.nmsOrOld("world.level.World","World"), Ref.nmsOrOld("core.BlockPosition","BlockPosition")),
+			getSlot=Ref.method(Ref.nmsOrOld("world.inventory.ContainerAnvil","Container"), "getSlot", int.class);
 	private static Constructor<?> anvil;
 	static {
 		if(TheAPI.isNewerThan(14)) {
-			anvil=Ref.constructor(Ref.nms("ContainerAnvil"), int.class, Ref.nms("PlayerInventory"), Ref.nms("ContainerAccess"));
+			anvil=Ref.constructor(Ref.nmsOrOld("world.inventory.ContainerAnvil","Container"), int.class, Ref.nmsOrOld("world.entity.player.PlayerInventory","PlayerInventory"), Ref.nmsOrOld("world.inventory.ContainerAccess","ContainerAccess"));
 		}else {
 			if(TheAPI.isOlderThan(8))
-				anvil=Ref.constructor(Ref.nms("ContainerAnvil"), Ref.nms("PlayerInventory"), Ref.nms("World"), int.class, int.class, int.class, Ref.nms("EntityHuman"));
+				anvil=Ref.constructor(Ref.nmsOrOld("world.inventory.ContainerAnvil","Container"), Ref.nmsOrOld("world.entity.player.PlayerInventory","PlayerInventory"), Ref.nmsOrOld("world.level.World","World"), int.class, int.class, int.class, Ref.nmsOrOld("world.entity.player.EntityHuman","EntityHuman"));
 			else
-			anvil=Ref.constructor(Ref.nms("ContainerAnvil"), Ref.nms("PlayerInventory"), Ref.nms("World"), Ref.nms("BlockPosition"), Ref.nms("EntityHuman"));
+			anvil=Ref.constructor(Ref.nmsOrOld("world.inventory.ContainerAnvil","Container"), Ref.nmsOrOld("world.entity.player.PlayerInventory","PlayerInventory"), Ref.nmsOrOld("world.level.World","World"), Ref.nmsOrOld("core.BlockPosition","BlockPosition"), Ref.nmsOrOld("world.entity.player.EntityHuman","EntityHuman"));
 		}
 	}
 	

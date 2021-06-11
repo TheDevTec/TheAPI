@@ -28,7 +28,7 @@ public class GUI implements HolderGUI {
 	public static final int LINES_1 = 9;
 	
 	public static enum ClickType {
-		MIDDLE_PICKUP, MIDDLE_DROP, LEFT_DROP, RIGHT_PICKUP, RIGHT_DROP, LEFT_PICKUP, SHIFT_LEFT_DROP, SHIFT_RIGHT_PICKUP, SHIFT_RIGHT_DROP, SHIFT_LEFT_PICKUP
+		SHIFT_MIDDLE_PICKUP, MIDDLE_PICKUP, MIDDLE_DROP, LEFT_DROP, RIGHT_PICKUP, RIGHT_DROP, LEFT_PICKUP, SHIFT_LEFT_DROP, SHIFT_RIGHT_PICKUP, SHIFT_RIGHT_DROP, SHIFT_LEFT_PICKUP
 	}
 	
 	private String title;
@@ -63,27 +63,27 @@ public class GUI implements HolderGUI {
 		if(TheAPI.isNewerThan(13))
 		switch (size) {
 		case 9 : {
-			windowType = Ref.getStatic(Ref.nms("Containers"),"GENERIC_9X1");
+			windowType = Ref.getStatic(Ref.nmsOrOld("world.inventory.Containers","Containers"),TheAPI.isNewerThan(16)?"a":"GENERIC_9X1");
 			break;
 		}
 		case 18 : {
-			windowType = Ref.getStatic(Ref.nms("Containers"),"GENERIC_9X2");
+			windowType = Ref.getStatic(Ref.nmsOrOld("world.inventory.Containers","Containers"),TheAPI.isNewerThan(16)?"b":"GENERIC_9X2");
 			break;
 		}
 		case 27 : {
-			windowType = Ref.getStatic(Ref.nms("Containers"),"GENERIC_9X3");
+			windowType = Ref.getStatic(Ref.nmsOrOld("world.inventory.Containers","Containers"),TheAPI.isNewerThan(16)?"c":"GENERIC_9X3");
 			break;
 		}
 		case 41 : {
-			windowType = Ref.getStatic(Ref.nms("Containers"),"GENERIC_9X4");
+			windowType = Ref.getStatic(Ref.nmsOrOld("world.inventory.Containers","Containers"),TheAPI.isNewerThan(16)?"d":"GENERIC_9X4");
 			break;
 		}
 		case 45 : {
-			windowType = Ref.getStatic(Ref.nms("Containers"),"GENERIC_9X5");
+			windowType = Ref.getStatic(Ref.nmsOrOld("world.inventory.Containers","Containers"),TheAPI.isNewerThan(16)?"e":"GENERIC_9X5");
 			break;
 		}
 		case 54 : {
-			windowType = Ref.getStatic(Ref.nms("Containers"),"GENERIC_9X6");
+			windowType = Ref.getStatic(Ref.nmsOrOld("world.inventory.Containers","Containers"),TheAPI.isNewerThan(16)?"f":"GENERIC_9X6");
 			break;
 		}
 		}
@@ -133,6 +133,10 @@ public class GUI implements HolderGUI {
 	public final void setItem(int position, ItemGUI item) {
 		items.put(position, item);
 		inv.setItem(position, item.getItem());
+		if(TheAPI.isNewerThan(16)) {
+			for(Entry<Player, Object> p : containers.entrySet()) 
+				Ref.sendPacket(p.getKey(),Ref.newInstance(setSlot,Ref.get(p.getValue(),"j"), position, NMSAPI.asNMSItem(item.getItem())));
+		}
 	}
 
 	/**
@@ -180,7 +184,7 @@ public class GUI implements HolderGUI {
 	 * @see see Return ItemGUI from position in gui
 	 */
 	public final ItemGUI getItemGUI(int slot) {
-		return getItemGUIs().getOrDefault(slot, null);
+		return getItemGUIs().get(slot);
 	}
 
 	/**
@@ -199,22 +203,22 @@ public class GUI implements HolderGUI {
 		return inv.firstEmpty();
 	}
 
-	protected static Constructor<?> openWindow, closeWindow = Ref.constructor(Ref.nms("PacketPlayOutCloseWindow"), int.class), containerClass,
-			setSlot=Ref.constructor(Ref.nms("PacketPlayOutSetSlot"), int.class, int.class, Ref.nms("ItemStack")),
-			itemsS=Ref.getConstructors(Ref.nms("PacketPlayOutWindowItems"))[0];
+	protected static Constructor<?> openWindow, closeWindow = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutCloseWindow","PacketPlayOutCloseWindow"), int.class), containerClass,
+			setSlot=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack")),
+			itemsS=Ref.getConstructors(Ref.nmsOrOld("network.protocol.game.PacketPlayOutWindowItems","PacketPlayOutWindowItems"))[0];
 	protected static int type;
 	protected static Method
-	transfer=Ref.method(Ref.nms("Container"),"transferTo", Ref.nms("Container"), Ref.craft("entity.CraftHumanEntity"));
+	transfer=Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"),"transferTo", Ref.nmsOrOld("world.inventory.Container","Container"), Ref.craft("entity.CraftHumanEntity"));
 	private Object windowType;
 	static {
 		if(TheAPI.isOlderThan(8)) {
-			openWindow=Ref.constructor(Ref.nms("PacketPlayOutOpenWindow"), int.class, int.class, String.class, int.class, boolean.class);
+			openWindow=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutOpenWindow","PacketPlayOutOpenWindow"), int.class, int.class, String.class, int.class, boolean.class);
 		}else if(TheAPI.isOlderThan(14)) {
-			openWindow=Ref.constructor(Ref.nms("PacketPlayOutOpenWindow"), int.class, String.class, Ref.nms("IChatBaseComponent"), int.class);
+			openWindow=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutOpenWindow","PacketPlayOutOpenWindow"), int.class, String.class, Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"), int.class);
 		}else {
-			openWindow=Ref.constructor(Ref.nms("PacketPlayOutOpenWindow"), int.class, Ref.nms("Containers"), Ref.nms("IChatBaseComponent"));
+			openWindow=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutOpenWindow","PacketPlayOutOpenWindow"), int.class, Ref.nmsOrOld("world.inventory.Containers","Containers"), Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"));
 		}
-		containerClass=Ref.constructor(Ref.craft("inventory.CraftContainer"), Inventory.class, Ref.nms("EntityHuman"), int.class);
+		containerClass=Ref.constructor(Ref.craft("inventory.CraftContainer"), Inventory.class, Ref.nmsOrOld("world.entity.player.EntityHuman","EntityHuman"), int.class);
 		if(containerClass==null) {
 			++type;
 			containerClass=Ref.constructor(Ref.craft("inventory.CraftContainer"), Inventory.class, HumanEntity.class, int.class);
@@ -242,8 +246,8 @@ public class GUI implements HolderGUI {
 			}else {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getFixedIChatBaseComponent(title)));
 			}
-			Ref.set(f, "activeContainer", container);
-			Ref.invoke(container, addListener, Ref.cast(Ref.nms("ICrafting"), f));
+			Ref.set(f, TheAPI.isNewerThan(16)?"bV":"activeContainer", container);
+			Ref.invoke(container, addListener, f);
 			Ref.set(container, "checkReachable", false);
 			containers.put(player, container);
 			LoaderClass.plugin.gui.put(player.getName(), this);
@@ -251,14 +255,14 @@ public class GUI implements HolderGUI {
 	}
 	
 	protected static int nextCounter(Object f) {
-		int containerCounter = (int)Ref.get(f, "containerCounter");
+		int containerCounter = (int)Ref.get(f, TheAPI.isNewerThan(16)?"cY":"containerCounter");
 		containerCounter = containerCounter % 100 + 1;
-	    Ref.set(f, "containerCounter", containerCounter);
+	    Ref.set(f, TheAPI.isNewerThan(16)?"cY":"containerCounter", containerCounter);
 		return containerCounter;
 	}
 
-	protected static Method addListener = Ref.method(Ref.nms("Container"), "addSlotListener", Ref.nms("ICrafting"));
-	protected static Object empty = Ref.getStatic(Ref.nms("ItemStack"), "b");
+	protected static Method addListener = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "addSlotListener", Ref.nmsOrOld("world.inventory.ICrafting","ICrafting"));
+	protected static Object empty = Ref.getStatic(Ref.nmsOrOld("world.item.ItemStack","ItemStack"), "b");
 	
 	public final void setTitle(String title) {
 		title=StringUtils.colorize(title);
@@ -272,7 +276,7 @@ public class GUI implements HolderGUI {
 		for(Entry<Player, Object> ec : containers.entrySet()) {
 			Player player = ec.getKey();
 			Object container = ec.getValue();
-			int id = (int)Ref.get(container,"windowId");
+			int id = (int)Ref.get(container,TheAPI.isNewerThan(16)?"j":"windowId");
 			Object f= Ref.player(player);
 			if(TheAPI.isOlderThan(8)) {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id,0,title, inv.getSize(), false));
@@ -281,8 +285,8 @@ public class GUI implements HolderGUI {
 			}else {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getFixedIChatBaseComponent(title)));
 			}
-			Ref.sendPacket(player, Ref.newInstance(itemsS,id, Ref.get(container,"items")));
-			Object carry = Ref.invoke(Ref.get(f,"inventory"),"getCarried");
+			Ref.sendPacket(player, Ref.newInstance(itemsS,id, TheAPI.isNewerThan(16)?Ref.invoke(container, "c"):Ref.get(container,"items")));
+			Object carry = Ref.invoke(Ref.get(f,TheAPI.isNewerThan(16)?"co":"inventory"),"getCarried");
 			if(carry!=empty) //Don't send useless packets
 				Ref.sendPacket(player, Ref.newInstance(setSlot, -1, -1, carry));
 		}
@@ -340,11 +344,10 @@ public class GUI implements HolderGUI {
 			onPreClose(player);
 			Object ac = containers.remove(player);
 			if(ac!=null) {
-				Ref.sendPacket(player, Ref.newInstance(closeWindow, (int)Ref.get(ac, "windowId")));
+				Ref.sendPacket(player, Ref.newInstance(closeWindow, (int)Ref.get(ac, TheAPI.isNewerThan(16)?"j":"windowId")));
 				Object d = Ref.player(player);
-				Ref.invoke(ac, "b", d);
-				Ref.set(Ref.player(player), "activeContainer", Ref.get(d, "defaultContainer"));
-				Ref.invoke(ac, GUI.transfer, Ref.get(d, "defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
+				Ref.set(Ref.player(player), TheAPI.isNewerThan(16)?"bV":"activeContainer", Ref.get(d, TheAPI.isNewerThan(16)?"bU":"defaultContainer"));
+				Ref.invoke(ac, GUI.transfer, Ref.get(d, TheAPI.isNewerThan(16)?"bU":"defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
 			}
 			LoaderClass.plugin.gui.remove(player.getName());
 			onClose(player);
@@ -383,8 +386,8 @@ public class GUI implements HolderGUI {
 			if(ac!=null) {
 				Object d = Ref.player(player);
 				Ref.invoke(ac, "b", d);
-				Ref.set(Ref.player(player), "activeContainer", Ref.get(d, "defaultContainer"));
-				Ref.invoke(ac, GUI.transfer, Ref.get(d, "defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
+				Ref.set(Ref.player(player), TheAPI.isNewerThan(16)?"bV":"activeContainer", Ref.get(d, TheAPI.isNewerThan(16)?"bU":"defaultContainer"));
+				Ref.invoke(ac, GUI.transfer, Ref.get(d, TheAPI.isNewerThan(16)?"bU":"defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
 			}
 			LoaderClass.plugin.gui.remove(player.getName());
 			onClose(player);
