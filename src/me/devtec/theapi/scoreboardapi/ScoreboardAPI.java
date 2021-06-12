@@ -1,9 +1,10 @@
 package me.devtec.theapi.scoreboardapi;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.bukkit.entity.Player;
@@ -45,10 +46,9 @@ public class ScoreboardAPI {
 		p = player;
 		slott=slot;
 		this.player = player.getName();
-		Ref.sendPacket(p, createObjectivePacket(0, name));
-		Object packetD = NMSAPI.getPacketPlayOutScoreboardDisplayObjective();
-		Ref.set(packetD, "a", 1);
-		Ref.set(packetD, "b", this.player);
+		Ref.sendPacket(p, createObjectivePacket(0,"§0"));
+		Object packetD = Ref.newInstance(display, 1, null);
+		Ref.set(packetD, "b", "sb");
 		Ref.sendPacket(p, packetD);
 	}
 	
@@ -65,7 +65,8 @@ public class ScoreboardAPI {
 		for(String a : data.getKeys(player)){
 			Team team = data.getAs(player+'.'+a, Team.class);
 			if(team!=null) {
-				team.remove();
+				for(Object o : remove(team.currentPlayer, team.name))
+					Ref.sendPacket(p, o);
 			}
 		}
 		data.clear();
@@ -129,8 +130,8 @@ public class ScoreboardAPI {
 	public synchronized void removeLine(int line) {
 		if(!data.exists(player+'.'+line))return;
 		Team team = getTeam(line, line);
-		team.remove();
-		Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, player, team.currentPlayer, 0));
+		for(Object o : remove(team.currentPlayer, team.name))
+			Ref.sendPacket(p, o);
 		data.remove(player+'.'+line);
 	}
 	
@@ -138,8 +139,8 @@ public class ScoreboardAPI {
 		for(String a : data.getKeys(player)) {
 			if(Integer.parseInt(a)>line) {
 				Team team = data.getAs(player+'.'+a, Team.class);
-				team.remove();
-				Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, player, team.currentPlayer, 0));
+				for(Object o : remove(team.currentPlayer, team.name))
+					Ref.sendPacket(p, o);
 				data.remove(player+'.'+line);
 			}
 		}
@@ -169,90 +170,153 @@ public class ScoreboardAPI {
 			data.set(player+'.'+line, new Team(line, realPos));
 		return data.getAs(player+'.'+line, Team.class);
 	}
+	
+	private static Constructor<?> cons = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"), Ref.nmsOrOld("server.ScoreboardServer$Action","ScoreboardServer$Action"), String.class, String.class, int.class),
+			display = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardDisplayObjective", "PacketPlayOutScoreboardDisplayObjective"), int.class, Ref.nmsOrOld("world.scores.ScoreboardObjective","ScoreboardObjective"));
+	static {
+		if(cons==null) {
+			cons=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"));
+		}
+	}
+	
+	private Object[] create(String prefix, String suffix, String name, String realName, int slot) {
+		Object[] o = new Object[2];
+		o[0]=c(0, prefix, suffix, name, realName);
+		if(TheAPI.isNewerThan(12)) {
+			o[1]=Ref.newInstance(cons, NMSAPI.getScoreboardAction(Action.CHANGE), "sb", name, slot);
+		}else {
+			Object os = Ref.newInstance(cons);
+			Ref.set(os, "a", name);
+			Ref.set(os, "b", "sb");
+			Ref.set(os, "c", slot);
+			Ref.set(os, "d", NMSAPI.getScoreboardAction(Action.CHANGE));
+			o[1]=os;
+		}
+		return o;
+	}
+	
+	private Object[] modify(String prefix, String suffix, String name, String realName, int slot) {
+		Object[] o = new Object[2];
+		o[0]=c(2, prefix, suffix, name, realName);
+		if(TheAPI.isNewerThan(12)) {
+			o[1]=Ref.newInstance(cons, NMSAPI.getScoreboardAction(Action.CHANGE), "sb", name, slot);
+		}else {
+			Object os = Ref.newInstance(cons);
+			Ref.set(os, "a", name);
+			Ref.set(os, "b", "sb");
+			Ref.set(os, "c", slot);
+			Ref.set(os, "d", NMSAPI.getScoreboardAction(Action.CHANGE));
+			o[1]=os;
+		}
+		return o;
+	}
+	
+	private Object[] remove(String name, String realName) {
+		Object[] o = new Object[2];
+		o[0]=c(1, "", "", name,realName);
+		if(TheAPI.isNewerThan(12)) {
+			o[1]=Ref.newInstance(cons, NMSAPI.getScoreboardAction(Action.REMOVE), "sb", name, 0);
+		}else {
+			Object os = Ref.newInstance(cons);
+			Ref.set(os, "a", name);
+			Ref.set(os, "b", "sb");
+			Ref.set(os, "c", 0);
+			Ref.set(os, "d", NMSAPI.getScoreboardAction(Action.REMOVE));
+			o[1]=os;
+		}
+		return o;
+	}
+	
+	private static Class<?> sbTeam = Ref.getClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam$b");
+	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+	private static Object white = Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class), (char)'r');
+	private static String always = "ALWAYS";
+	
+	private Object c(int mode, String prefix, String suffix, String name, String realName) {
+		Object packet = NMSAPI.getPacketPlayOutScoreboardTeam();
+		if(TheAPI.isNewerThan(16)) {
+			Ref.set(packet, "i", realName);
+			try {
+				Object o = unsafe.allocateInstance(sbTeam);
+				Ref.set(o, "a", NMSAPI.getIChatBaseComponentText(name));
+				Ref.set(o, "b", NMSAPI.getFixedIChatBaseComponent(prefix));
+				Ref.set(o, "c", NMSAPI.getIChatBaseComponentText(suffix));
+				Ref.set(o, "d", always);
+				Ref.set(o, "e", always);
+				Ref.set(o, "f", white);
+				Ref.set(packet, "k", Optional.ofNullable(o));
+			} catch (Exception e) {
+			}
+			Ref.set(packet, "h", mode);
+			Ref.set(packet, "j", Collections.singleton(name));
+		}else {
+			Ref.set(packet, "a", realName);
+			Ref.set(packet, "c", TheAPI.isNewerThan(12)?NMSAPI.getFixedIChatBaseComponent(prefix):prefix);
+			Ref.set(packet, "d", TheAPI.isNewerThan(12)?NMSAPI.getIChatBaseComponentText(suffix):suffix);
+			Ref.set(packet, "i", mode);
+			Ref.set(packet, "h", Collections.singleton(name));
+		}
+		return packet;
+	}
 
 	private Object createObjectivePacket(int mode, String displayName) {
 		Object packet = NMSAPI.getPacketPlayOutScoreboardObjective();
-		Ref.set(packet, "a", player);
-		Ref.set(packet, "b", !a ? NMSAPI.getFixedIChatBaseComponent(displayName) : displayName);
-		if(TheAPI.isNewerThan(7)) {
-			Ref.set(packet, "c", NMSAPI.getEnumScoreboardHealthDisplay(DisplayType.INTEGER));
-			Ref.set(packet, "d", mode);
-		}else
-			Ref.set(packet, "c", mode);
+		if(TheAPI.isNewerThan(16)) {
+			Ref.set(packet, "d", "sb");
+			Ref.set(packet, "e", NMSAPI.getFixedIChatBaseComponent(displayName));
+			Ref.set(packet, "f", NMSAPI.getEnumScoreboardHealthDisplay(DisplayType.INTEGER));
+			Ref.set(packet, "g", mode);
+		}else {
+			Ref.set(packet, "a", "sb");
+			Ref.set(packet, "b", TheAPI.isNewerThan(12)?NMSAPI.getFixedIChatBaseComponent(displayName):displayName);
+			if(TheAPI.isNewerThan(7)) {
+				Ref.set(packet, "c", NMSAPI.getEnumScoreboardHealthDisplay(DisplayType.INTEGER));
+				Ref.set(packet, "d", mode);
+			}else
+				Ref.set(packet, "c", mode);
+		}
 		return packet;
 	}
 	
-	private static boolean a = !TheAPI.isNewVersion();
-	private static Field modus = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardTeam","PacketPlayOutScoreboardTeam"), TheAPI.isOlderThan(9) ? (TheAPI.isOlderThan(8)?"f":"h") : "i"),
-			players = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardTeam","PacketPlayOutScoreboardTeam"), TheAPI.isOlderThan(9) ? (TheAPI.isOlderThan(8)?"e":"g") : "h");
 	
+	
+	
+	private static boolean a = !TheAPI.isNewVersion();
 	public class Team {
 		private String prefix = "", suffix = "", currentPlayer, old;
 		private final String name, format;
 		private boolean changed, first = true;
 		private Team(int slot, int realPos) {
-			currentPlayer = TheCoder.toColor(realPos)+"";
+			currentPlayer = TheCoder.toColor(realPos);
 			if(a) {
 				currentPlayer+="§f";
 				format=currentPlayer;
 			}else format=null;
 			name=""+realPos;
 		}
-
-		private synchronized void c(int mode) {
-			Object packet = NMSAPI.getPacketPlayOutScoreboardTeam();
-			Ref.set(packet, "a", name);
-			if(!a)
-				Ref.set(packet, "c", NMSAPI.getFixedIChatBaseComponent(prefix));
-			else {
-				Ref.set(packet, "c", prefix);
-				Ref.set(packet, "d", suffix);
-			}
-			Ref.set(packet, modus, mode);
-			Ref.set(packet, players, Collections.singleton(currentPlayer));
-			Ref.sendPacket(p, packet);
-		}
-
-		public synchronized void remove() {
-			createPlayer(4, currentPlayer);
-			first = true;
-			Object delete = NMSAPI.getPacketPlayOutScoreboardTeam();
-			Ref.set(delete, "a", name);
-			Ref.set(delete, modus, 1);
-			Ref.sendPacket(p, delete);
-		}
-
+		
 		public synchronized void sendLine(int line) {
 			if (first) {
-				c(0);
-				createPlayer(3, currentPlayer);
+				for(Object o : create(prefix, suffix, currentPlayer, name, slott==-1?line:slott))
+					Ref.sendPacket(p, o);
 				first = false;
 				old=null;
-				Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.CHANGE, player, currentPlayer, slott==-1?line:slott));
+				changed=false;
 				return;
 			}
 			if (changed)
-				c(2);
+				for(Object o : modify(prefix, suffix, currentPlayer, name, slott==-1?line:slott))
+					Ref.sendPacket(p, o);
 			if(old!=null) {
-				createPlayer(3, currentPlayer);
-				createPlayer(4, old);
-				Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.REMOVE, "", old, 0));
+				for(Object o : remove(old, name))
+					Ref.sendPacket(p, o);
 				old=null;
 			}
-			Ref.sendPacket(p, NMSAPI.getPacketPlayOutScoreboardScore(Action.CHANGE, player, currentPlayer, slott==-1?line:slott));
 			changed = false;
-		}
-		
-		private synchronized void createPlayer(int mode, String playerName) {
-			Object create = NMSAPI.getPacketPlayOutScoreboardTeam();
-			Ref.set(create, "a", name);
-			Ref.set(create, modus, mode);
-			Ref.set(create, players, Collections.singleton(playerName));
-			Ref.sendPacket(p, create);
 		}
 
 		public String getValue() {
-			return ScoreboardAPI.a?prefix+currentPlayer.replaceFirst(format,"")+suffix:prefix;
+			return ScoreboardAPI.a?prefix+currentPlayer.replaceFirst(format,"")+suffix:prefix+suffix;
 		}
 
 		private void setPlayer(String a) {
@@ -323,9 +387,20 @@ public class ScoreboardAPI {
 				suffix = d.get(0);
 				}
 			} else {
-				if (!prefix.equals(a))
+				if(a.length()<=16) {
+					if (!prefix.equals(a))
+						changed = true;
+					prefix = a;
+					return;
+				}
+				List<String> d = StringUtils.fixedSplit(a, 16);
+				if (!prefix.equals(d.get(0)))
 					changed = true;
-				prefix = a;
+				prefix = d.get(0);
+				a=a.substring(d.get(0).length());
+				if (!suffix.equals(a))
+					changed = true;
+				suffix = a;
 			}
 		}
 	}

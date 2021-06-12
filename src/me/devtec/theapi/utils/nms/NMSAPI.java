@@ -26,7 +26,7 @@ public class NMSAPI {
 
 	private static Class<?> enumTitle;
 	private static Constructor<?> pDestroy, pTimes, pTitle, pSub, pAction, pReset, pOutChat, pTab, pBlock,
-			pSpawn, pNSpawn, pLSpawn, score, sbobj, sbdisplayobj, sbteam, pTeleport,
+			pSpawn, pNSpawn, pLSpawn, pTeleport,
 			metadata = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityMetadata","PacketPlayOutEntityMetadata"), int.class, Ref.nmsOrOld("network.syncher.DataWatcher","DataWatcher"), boolean.class);
 	private static Method entityM, livingentity, post, notify,nofifyManual,
 	parseNbt = Ref.method(Ref.nmsOrOld("nbt.MojangsonParser","MojangsonParser"), "parse", String.class),
@@ -48,18 +48,14 @@ public class NMSAPI {
 		pTeleport = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityTeleport","PacketPlayOutEntityTeleport"), Ref.nmsOrOld("world.entity.Entity","Entity"));
 		server = Ref.invokeStatic(Ref.nmsOrOld("server.MinecraftServer","MinecraftServer"), "getServer");
 		if(server==null)server=Ref.invoke(Ref.cast(Ref.craft("CraftServer"), Bukkit.getServer()),"getServer");
-		sbteam = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardTeam","PacketPlayOutScoreboardTeam"));
-		sbdisplayobj = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardDisplayObjective","PacketPlayOutScoreboardDisplayObjective"));
-		sbobj = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardObjective","PacketPlayOutScoreboardObjective"));
-		score = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"));
-		sbremove = Ref.getNulled(Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore$EnumScoreboardActio","PacketPlayOutScoreboardScore$EnumScoreboardActio"), "REMOVE"));
+		sbremove = Ref.getNulled(Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore$EnumScoreboardAction","PacketPlayOutScoreboardScore$EnumScoreboardAction"), "REMOVE"));
 		if (sbremove == null)
-			sbremove = Ref.getNulled(Ref.field(Ref.nmsOrOld("server.ScoreboardServer$Action","ScoreboardServer$Action"), "REMOVE"));
+			sbremove = Ref.getNulled(Ref.field(Ref.nmsOrOld("server.ScoreboardServer$Action","ScoreboardServer$Action"), TheAPI.isNewerThan(16)?"b":"REMOVE"));
 		sbchange = Ref.getNulled(Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore$EnumScoreboardAction","PacketPlayOutScoreboardScore$EnumScoreboardAction"), "CHANGE"));
 		if (sbchange == null)
-			sbchange = Ref.getNulled(Ref.field(Ref.nmsOrOld("server.ScoreboardServer$Action","ScoreboardServer$Action"), "CHANGE"));
-		sbinteger = Ref.getNulled(Ref.field(Ref.nmsOrOld("world.scores.criteria.IScoreboardCriteria$EnumScoreboardHealthDisplay","IScoreboardCriteria$EnumScoreboardHealthDisplay"), "INTEGER"));
-		sbhearts = Ref.getNulled(Ref.field(Ref.nmsOrOld("world.scores.criteria.IScoreboardCriteria$EnumScoreboardHealthDisplay","IScoreboardCriteria$EnumScoreboardHealthDisplay"), "HEARTS"));
+			sbchange = Ref.getNulled(Ref.field(Ref.nmsOrOld("server.ScoreboardServer$Action","ScoreboardServer$Action"), TheAPI.isNewerThan(16)?"a":"CHANGE"));
+		sbinteger = Ref.getNulled(Ref.field(Ref.nmsOrOld("world.scores.criteria.IScoreboardCriteria$EnumScoreboardHealthDisplay","IScoreboardCriteria$EnumScoreboardHealthDisplay"), TheAPI.isNewerThan(16)?"a":"INTEGER"));
+		sbhearts = Ref.getNulled(Ref.field(Ref.nmsOrOld("world.scores.criteria.IScoreboardCriteria$EnumScoreboardHealthDisplay","IScoreboardCriteria$EnumScoreboardHealthDisplay"), TheAPI.isNewerThan(16)?"b":"HEARTS"));
 		if (TheAPI.isNewVersion())
 			post = Ref.method(Ref.nmsOrOld("util.thread.IAsyncTaskHandler","IAsyncTaskHandler"), "executeSync", Runnable.class);
 		if (post == null)
@@ -217,26 +213,36 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutScoreboardObjective() {
-		return Ref.newInstance(sbobj);
+		try {
+			return unsafe.allocateInstance(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardObjective","PacketPlayOutScoreboardObjective"));
+		}catch(Exception err) {
+			return null;
+		}
 	}
 
 	public static Object getPacketPlayOutScoreboardDisplayObjective() {
-		return Ref.newInstance(sbdisplayobj);
+		try {
+			return unsafe.allocateInstance(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardDisplayObjective","PacketPlayOutScoreboardDisplayObjective"));
+		} catch (InstantiationException e) {
+		}
+		return null;
 	}
-
+	
 	public static Object getPacketPlayOutEntityTeleport(Object entity) {
 		return Ref.newInstance(pTeleport, entity);
 	}
 
 	public static Object getPacketPlayOutScoreboardScore(Action action, String player, String line, int score) {
-		Object o = Ref.newInstance(NMSAPI.score);
-		Ref.set(o, scr[0], line);
-		if(!player.equals(""))
-		Ref.set(o, scr[1], player);
-		if(score!=0)
-		Ref.set(o, scr[2], score);
-		Ref.set(o, scr[3], getScoreboardAction(action)!=null?getScoreboardAction(action):(action==Action.REMOVE?1:0));
-		return o;
+		try {
+			Object o = unsafe.allocateInstance(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"));
+			Ref.set(o, scr[0], line);
+			Ref.set(o, scr[1], player);
+			Ref.set(o, scr[2], score);
+			Ref.set(o, scr[3], getScoreboardAction(action)!=null?getScoreboardAction(action):(action==Action.REMOVE?1:0));
+			return o;
+		}catch(Exception err) {
+			return null;
+		}
 	}
 
 	public static Object getScoreboardAction(Action type) {
@@ -247,8 +253,14 @@ public class NMSAPI {
 		return type == DisplayType.HEARTS ? sbhearts : sbinteger;
 	}
 
+	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref
+			.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
 	public static Object getPacketPlayOutScoreboardTeam() {
-		return Ref.newInstance(sbteam);
+		try {
+			return unsafe.allocateInstance(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardTeam","PacketPlayOutScoreboardTeam"));
+		} catch (InstantiationException e) {
+		}
+		return null;
 	}
 
 	private static Method poost = Ref.method(Ref.nmsOrOld("server.MinecraftServer","MinecraftServer"), "postToMainThread", Runnable.class);

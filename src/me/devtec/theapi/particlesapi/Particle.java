@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Effect;
 import org.bukkit.Effect.Type;
@@ -37,6 +38,12 @@ public class Particle {
 						identifier.put(((String)Ref.invoke(g, "a")).toUpperCase(), g);
 					}
 				}else //1.7.10 or older or 1.14+
+					if(TheAPI.isNewerThan(16)) { //1.17
+						Object i = Ref.getStatic(Ref.getClass("net.minecraft.core.IRegistry"),"ab");
+						for(Object k : (Set<?>)Ref.invoke(i, "keySet")) {
+							identifier.put(Ref.invoke(k, "getKey").toString().toUpperCase(), Ref.invoke(i, "get", k));
+						}
+					}else
 				for (Field f : Ref.getFields(a)) {
 					if (f.getName().equals("au"))
 						continue;
@@ -51,6 +58,7 @@ public class Particle {
 			}
 			
 		}
+		
 		if(Ref.nmsOrOld("core.particles.ParticleParamRedstone","ParticleParamRedstone")!=null) {
 		paramRed = Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamRedstone","ParticleParamRedstone"))[0];
 		paramBlock=Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamBlock","ParticleParamBlock"))[0];

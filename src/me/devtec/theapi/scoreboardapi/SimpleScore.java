@@ -45,9 +45,7 @@ public class SimpleScore {
 			int i = 0;
 			for (String line : lines)
 				if(line!=null)
-				try {
 					sb.setLine(i++, line);
-				}catch(Exception er) {er.printStackTrace();}
 		}
 		lines.clear();
 	}
