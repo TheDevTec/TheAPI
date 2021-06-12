@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
 
 public class SimpleScore {
-	private static final HashMap<String, ScoreboardAPI> scores = new HashMap<>();
-	private String name = "TheAPI";
+	public static final Map<String, ScoreboardAPI> scores = new HashMap<>();
+	private String name = "";
 	private final ArrayList<String> lines = new ArrayList<>();
 	
 	public SimpleScore addLine(String line) {

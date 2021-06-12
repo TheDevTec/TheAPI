@@ -14,6 +14,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.utils.ChatMessage;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
@@ -112,7 +113,7 @@ public class Ref {
 	}
 
 	public static Object IChatBaseComponent(String text) {
-		return IChatBaseComponentJson(TheAPI.isNewerThan(16)?text:"{\"text\":\"" + text + "\"}");
+		return new ChatMessage(text).toNMS();
 	}
 
 	public static Object IChatBaseComponentJson(String text) {

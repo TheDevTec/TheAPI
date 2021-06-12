@@ -507,10 +507,8 @@ public class TheAPI {
 	 */
 	public static void removeBossBar(Player p) {
 		Validator.validate(p == null, "Player is null");
-		if (task.containsKey(p.getName())) {
-			Scheduler.cancelTask(task.get(p.getName()));
-			task.remove(p.getName());
-		}
+		if (task.containsKey(p.getName()))
+			Scheduler.cancelTask(task.remove(p.getName()));
 		if (bars.containsKey(p.getName()))
 			bars.remove(p.getName()).remove();
 	}
@@ -541,7 +539,9 @@ public class TheAPI {
 	 * @param text
 	 */
 	public static void sendActionBar(Player p, String text) {
-		sendActionBar(p, text, 10, 20, 10);
+		Validator.validate(p == null, "Player is null");
+		Validator.validate(text == null, "Text is null");
+		Ref.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.ACTIONBAR, colorize(text), 10, 20, 10));
 	}
 
 	/**
@@ -555,6 +555,7 @@ public class TheAPI {
 		Validator.validate(fadeIn < 0, "FadeIn time is lower than zero");
 		Validator.validate(stay < 0, "Stay time is lower than zero");
 		Validator.validate(fadeOut < 0, "FadeOut time is lower than zero");
+		Ref.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.TIMES, "", fadeIn, stay, fadeOut));
 		Ref.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.ACTIONBAR, colorize(text), fadeIn, stay, fadeOut));
 	}
 
@@ -663,10 +664,26 @@ public class TheAPI {
 		Validator.validate(p == null, "Player is null");
 		Validator.validate(firstLine == null, "FirstLine is null");
 		Validator.validate(nextLine == null, "NextLine is null");
-		Ref.sendPacket(p,
-				NMSAPI.getPacketPlayOutTitle(TitleAction.TITLE, Ref.IChatBaseComponent(TheAPI.colorize(firstLine))));
-		Ref.sendPacket(p,
-				NMSAPI.getPacketPlayOutTitle(TitleAction.SUBTITLE, Ref.IChatBaseComponent(TheAPI.colorize(nextLine))));
+		Ref.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.TITLE, Ref.IChatBaseComponent(TheAPI.colorize(firstLine))));
+		Ref.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.SUBTITLE, Ref.IChatBaseComponent(TheAPI.colorize(nextLine))));
+	}
+
+	/**
+	 * @see see Send player title
+	 * @param p
+	 * @param firstLine
+	 * @param nextLine
+	 */
+	public static void sendTitle(Player p, String firstLine, String nextLine, int fadeIn, int stay, int fadeOut) {
+		Validator.validate(p == null, "Player is null");
+		Validator.validate(firstLine == null, "FirstLine is null");
+		Validator.validate(nextLine == null, "NextLine is null");
+		Validator.validate(fadeIn < 0, "FadeIn time is lower than zero");
+		Validator.validate(stay < 0, "Stay time is lower than zero");
+		Validator.validate(fadeOut < 0, "FadeOut time is lower than zero");
+		Ref.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.TIMES, "", fadeIn, stay, fadeOut));
+		Ref.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.TITLE, Ref.IChatBaseComponent(TheAPI.colorize(firstLine)),fadeIn,stay,fadeOut));
+		Ref.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.SUBTITLE, Ref.IChatBaseComponent(TheAPI.colorize(nextLine)),fadeIn,stay,fadeOut));
 	}
 
 	/**
@@ -903,7 +920,7 @@ public class TheAPI {
 	 */
 	public static int getPlayerPing(Player p) {
 		try {
-			return (int) Ref.get(Ref.player(p), "ping");
+			return (int) Ref.get(Ref.player(p), isNewerThan(16)?"e":"ping");
 		} catch (Exception e) {
 			return -1;
 		}

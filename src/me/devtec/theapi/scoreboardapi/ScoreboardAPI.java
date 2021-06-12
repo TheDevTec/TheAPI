@@ -30,6 +30,7 @@ public class ScoreboardAPI {
 	protected String player;
 	protected int slott = -1;
 	protected String name = "";
+	protected boolean destroyed;
 
 	public ScoreboardAPI(Player player) {
 		this(player, -1);
@@ -61,6 +62,8 @@ public class ScoreboardAPI {
 	}
 
 	public void destroy() {
+		if(destroyed)return;
+		destroyed = true;
 		Ref.sendPacket(p, createObjectivePacket(1, ""));
 		for(String a : data.getKeys(player)){
 			Team team = data.getAs(player+'.'+a, Team.class);
@@ -81,6 +84,7 @@ public class ScoreboardAPI {
 	}
 
 	public void setDisplayName(String a) {
+		destroyed=false;
 		String displayName = name;
 		name = TheAPI.colorize(a);
 		if (ScoreboardAPI.a && name.length() > 32)
@@ -160,6 +164,7 @@ public class ScoreboardAPI {
 	}
 
 	private synchronized void sendLine(Team team, int line, boolean add) {
+		destroyed=false;
 		team.sendLine(line);
 		if(add)
 			data.set(player+'.'+line, team);
@@ -387,20 +392,9 @@ public class ScoreboardAPI {
 				suffix = d.get(0);
 				}
 			} else {
-				if(a.length()<=16) {
-					if (!prefix.equals(a))
-						changed = true;
-					prefix = a;
-					return;
-				}
-				List<String> d = StringUtils.fixedSplit(a, 16);
-				if (!prefix.equals(d.get(0)))
+				if (!prefix.equals(a))
 					changed = true;
-				prefix = d.get(0);
-				a=a.substring(d.get(0).length());
-				if (!suffix.equals(a))
-					changed = true;
-				suffix = a;
+				prefix = a;
 			}
 		}
 	}

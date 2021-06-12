@@ -62,7 +62,6 @@ public class NMSAPI {
 			post = Ref.method(Ref.nms("MinecraftServer"), "executeSync", Runnable.class);
 		if (post == null)
 			post = Ref.method(Ref.nms("MinecraftServer"), "postToMainThread", Runnable.class);
-		
 		enumTitle = Ref.nms("PacketPlayOutTitle$EnumTitleAction");
 		if(enumTitle==null && TheAPI.isNewerThan(16)) { //1.17+
 			pTimes = Ref.constructor(Ref.nmsOrOld("network.protocol.game.ClientboundSetTitlesAnimationPacket", null), int.class, int.class, int.class);
@@ -70,7 +69,6 @@ public class NMSAPI {
 			pSub = Ref.constructor(Ref.nmsOrOld("network.protocol.game.ClientboundSetSubtitleTextPacket", null), Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"));
 			pAction = Ref.constructor(Ref.nmsOrOld("network.protocol.game.ClientboundSetActionBarTextPacket", null), Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"));
 			pReset = Ref.constructor(Ref.nmsOrOld("network.protocol.game.ClientboundClearTitlesPacket", null), boolean.class);
-			
 		}else {
 			pTitle = Ref.constructor(Ref.nms("PacketPlayOutTitle"), enumTitle, Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"), int.class, int.class, int.class);
 		}
@@ -96,7 +94,10 @@ public class NMSAPI {
 		}
 		if (TheAPI.isNewerThan(7))
 			try {
-				pTab = Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerListHeaderFooter","PacketPlayOutPlayerListHeaderFooter").getDeclaredConstructor();
+				pTab=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerListHeaderFooter","PacketPlayOutPlayerListHeaderFooter"));
+				if(pTab==null) { //1.17
+					pTab=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerListHeaderFooter","PacketPlayOutPlayerListHeaderFooter"),Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"),Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"));
+				}
 			} catch (Exception e) {
 			}
 		pBlock = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutBlockChange","PacketPlayOutBlockChange"), Ref.nmsOrOld("world.level.IBlockAccess","IBlockAccess"),
@@ -128,7 +129,7 @@ public class NMSAPI {
 				nofifyManual = Ref.method(Ref.nmsOrOld("server.level.PlayerChunk","PlayerChunk"), "a", Ref.nmsOrOld("core.BlockPosition","BlockPosition"));
 			}
 		}}}}
-		empty = getIChatBaseComponentJson("{\"text\":\"\"}");
+		empty = Ref.IChatBaseComponent("");
 	}
 
 	public static enum Action {
@@ -390,18 +391,23 @@ public class NMSAPI {
 
 	static Field aField, bField;
 	static {
-		aField = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerListHeaderFooter","PacketPlayOutPlayerListHeaderFooter"), "a");
-		if (aField == null)
-			aField = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerListHeaderFooter","PacketPlayOutPlayerListHeaderFooter"), "header");
-		bField = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerListHeaderFooter","PacketPlayOutPlayerListHeaderFooter"), "b");
-		if (bField == null)
-			bField = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerListHeaderFooter","PacketPlayOutPlayerListHeaderFooter"), "footer");
+		if(TheAPI.isOlderThan(17)) {
+			aField = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerListHeaderFooter","PacketPlayOutPlayerListHeaderFooter"), "a");
+			if (aField == null)
+				aField = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerListHeaderFooter","PacketPlayOutPlayerListHeaderFooter"), "header");
+			bField = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerListHeaderFooter","PacketPlayOutPlayerListHeaderFooter"), "b");
+			if (bField == null)
+				bField = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerListHeaderFooter","PacketPlayOutPlayerListHeaderFooter"), "footer");
+		}
 	}
-	public static Object getPacketPlayOutPlayerListHeaderFooter(Object headerIChatBaseComponent, Object footerIChatBaseComponent) {
+	public static Object getPacketPlayOutPlayerListHeaderFooter(Object h, Object f) {
 		if(pTab!=null) {
+			if(TheAPI.isNewerThan(16)) {
+				return Ref.newInstance(pTab, h==null?empty:h, f==null?empty:f);
+			}
 			Object packet = Ref.newInstance(pTab);
-			Ref.set(packet, aField, headerIChatBaseComponent==null?empty:headerIChatBaseComponent);
-			Ref.set(packet, bField, footerIChatBaseComponent==null?empty:footerIChatBaseComponent);
+			Ref.set(packet, aField, h==null?empty:h);
+			Ref.set(packet, bField, f==null?empty:f);
 			return packet;
 		}
 		return null;
