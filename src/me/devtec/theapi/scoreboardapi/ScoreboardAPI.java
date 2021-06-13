@@ -2,6 +2,7 @@ package me.devtec.theapi.scoreboardapi;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -88,7 +89,7 @@ public class ScoreboardAPI {
 		destroyed=false;
 		String displayName = name;
 		name = TheAPI.colorize(a);
-		if (ScoreboardAPI.a && name.length() > 32)
+		if (!TheAPI.isNewerThan(12) && name.length() > 32)
 			name = name.substring(0, 32);
 		if(!name.equals(displayName))
 		Ref.sendPacket(p, createObjectivePacket(2, name));
@@ -103,7 +104,7 @@ public class ScoreboardAPI {
 
 	public synchronized void setLine(int line, String value) {
 		value = TheAPI.colorize(value);
-		if(getLine(line)!=null && getLine(line).equals(a?cut(value):value))return;
+		if(getLine(line)!=null && getLine(line).equals(!TheAPI.isNewerThan(12)?cut(value):value))return;
 		Team team = null;
 		boolean add = true;
 		for(String wd : data.getKeys(player)) {
@@ -172,9 +173,17 @@ public class ScoreboardAPI {
 	}
 
 	private Team getTeam(int line, int realPos) {
-		if (!data.exists(player+'.'+line) || data.get(player+'.'+line)==null)
+		if (data.get(player+'.'+line)==null)
 			data.set(player+'.'+line, new Team(line, realPos));
 		return data.getAs(player+'.'+line, Team.class);
+	}
+	
+	private List<Object> scores = new ArrayList<>();
+	
+	public void sendScoreChanges() {
+		for(Object o : scores)
+			Ref.sendPacket(p, o);
+		scores.clear();
 	}
 	
 	private static Constructor<?> cons = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"), Ref.nmsOrOld("server.ScoreboardServer$Action","ScoreboardServer$Action"), String.class, String.class, int.class),
@@ -235,7 +244,9 @@ public class ScoreboardAPI {
 	
 	private static Class<?> sbTeam = Ref.getClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam$b");
 	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
-	private static Object white = Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class), (char)'r');
+	private static Object white = Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class)==null?
+			Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",int.class), -1):
+			Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class), 'r');
 	private static String always = "ALWAYS";
 	
 	private Object c(int mode, String prefix, String suffix, String name, String realName) {
@@ -266,10 +277,10 @@ public class ScoreboardAPI {
 				if(TheAPI.isNewerThan(8))
 					Ref.set(packet, "g",TheAPI.isNewerThan(12)?white:-1);
 				Ref.set(packet, TheAPI.isNewerThan(8)?"i":"h", mode);
-				Ref.set(packet, TheAPI.isNewerThan(8)?"h":"g", Collections.singleton(name));
+				Ref.set(packet, TheAPI.isNewerThan(8)?"h":"g", (Collection<String>)Collections.singleton(name));
 			}else {
 				Ref.set(packet, "f", mode);
-				Ref.set(packet, "e", Collections.singleton(name));
+				Ref.set(packet, "e", (Collection<String>)Collections.singleton(name));
 			}
 		}
 		return packet;
@@ -294,17 +305,13 @@ public class ScoreboardAPI {
 		return packet;
 	}
 	
-	
-	
-	
-	private static boolean a = !TheAPI.isNewVersion();
 	public class Team {
 		private String prefix = "", suffix = "", currentPlayer, old;
 		private final String name, format;
 		private boolean changed, first = true;
 		private Team(int slot, int realPos) {
 			currentPlayer = TheCoder.toColor(realPos);
-			if(a) {
+			if(!TheAPI.isNewVersion()) {
 				currentPlayer+="§f";
 				format=currentPlayer;
 			}else format=null;
@@ -313,26 +320,30 @@ public class ScoreboardAPI {
 		
 		public synchronized void sendLine(int line) {
 			if (first) {
-				for(Object o : create(prefix, suffix, currentPlayer, name, slott==-1?line:slott))
-					Ref.sendPacket(p, o);
+				Object[] o = create(prefix, suffix, currentPlayer, name, slott==-1?line:slott);
+				scores.add(o[0]);
+				scores.add(o[1]);
 				first = false;
 				old=null;
 				changed=false;
 				return;
 			}
-			if (changed)
-				for(Object o : modify(prefix, suffix, currentPlayer, name, slott==-1?line:slott))
-					Ref.sendPacket(p, o);
+			if (changed) {
+				Object[] o = modify(prefix, suffix, currentPlayer, name, slott==-1?line:slott);
+				scores.add(o[0]);
+				scores.add(o[1]);
+			}
 			if(old!=null) {
-				for(Object o : remove(old, name))
-					Ref.sendPacket(p, o);
+				Object[] o = remove(old, name);
+				scores.add(o[0]);
+				scores.add(o[1]);
 				old=null;
 			}
 			changed = false;
 		}
 
 		public String getValue() {
-			return ScoreboardAPI.a?prefix+currentPlayer.replaceFirst(format,"")+suffix:prefix+suffix;
+			return !TheAPI.isNewVersion()?prefix+currentPlayer.replaceFirst(format,"")+suffix:prefix+suffix;
 		}
 
 		private void setPlayer(String a) {
@@ -345,7 +356,7 @@ public class ScoreboardAPI {
 
 		public synchronized void setValue(String a) {
 			if(a==null)a="";
-			if (ScoreboardAPI.a) {
+			if (!TheAPI.isNewVersion()) {
 				List<String> d = StringUtils.fixedSplit(a, 16);
 				if (a.length() <= 16) {
 					setPlayer("");

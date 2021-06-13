@@ -47,6 +47,7 @@ public class SimpleScore {
 			for (String line : lines)
 				if(line!=null)
 					sb.setLine(i++, line);
+			sb.sendScoreChanges();
 		}
 		lines.clear();
 	}

@@ -31,7 +31,7 @@ public class NMSAPI {
 	private static Method entityM, livingentity, post, notify,nofifyManual,
 	parseNbt = Ref.method(Ref.nmsOrOld("nbt.MojangsonParser","MojangsonParser"), "parse", String.class),
 	setNbt,
-	asNms=Ref.method(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class), 
+	asNms=Ref.method(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class), getNbt,
 	asBukkit=Ref.method(Ref.craft("inventory.CraftItemStack"), "asBukkitCopy", Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
 	
 	private static int old, not;
@@ -41,6 +41,7 @@ public class NMSAPI {
 	
 	static {
 		setNbt=Ref.method(Ref.nmsOrOld("world.item.ItemStack","ItemStack"), "setTag", Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"));
+		getNbt=Ref.method(Ref.nmsOrOld("world.item.ItemStack","ItemStack"), "getTag");
 		scr[0] = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"), "a");
 		scr[1] = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"), "b");
 		scr[2] = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"), "c");
@@ -142,11 +143,11 @@ public class NMSAPI {
 	
 	//ItemStack utils
 	public static Object getNBT(ItemStack stack) {
-		return Ref.get(asNMSItem(stack), "tag");
+		return Ref.invoke(asNMSItem(stack), getNbt);
 	}
 
 	public static Object getNBT(Object stack) {
-		return Ref.get(stack instanceof ItemStack?asNMSItem((ItemStack)stack):stack, "tag");
+		return Ref.invoke(stack instanceof ItemStack?asNMSItem((ItemStack)stack):stack, getNbt);
 	}
 	
 	public static Object parseNBT(String json) {
@@ -165,7 +166,7 @@ public class NMSAPI {
 		Object nmsOrOld = asNMSItem(stack);
 		Ref.invoke(nmsOrOld, setNbt, nbt instanceof String?parseNBT((String)nbt):(nbt instanceof NBTEdit?((NBTEdit) nbt).getNBT():nbt));
 		Ref.set(stack, "handle", nmsOrOld);
-		return stack;
+		return asBukkitItem(nmsOrOld);
 	}
 	
 	public static Object setNBT(Object stack, Object nbt) {
