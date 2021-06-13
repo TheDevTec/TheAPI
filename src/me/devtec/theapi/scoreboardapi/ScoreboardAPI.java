@@ -22,6 +22,7 @@ import me.devtec.theapi.utils.reflections.Ref;
  * https://gist.github.com/MrZalTy/f8895d84979d49af946fbcc108b1bf2b
  * 
  * @author MrZalTy
+ * Forked by StraikerinaCZ
  *
  */
 public class ScoreboardAPI {
@@ -256,10 +257,15 @@ public class ScoreboardAPI {
 			Ref.set(packet, "j", Collections.singleton(name));
 		}else {
 			Ref.set(packet, "a", realName);
+			Ref.set(packet, "b", TheAPI.isNewerThan(12)?NMSAPI.getFixedIChatBaseComponent(""):"");
 			Ref.set(packet, "c", TheAPI.isNewerThan(12)?NMSAPI.getFixedIChatBaseComponent(prefix):prefix);
 			Ref.set(packet, "d", TheAPI.isNewerThan(12)?NMSAPI.getIChatBaseComponentText(suffix):suffix);
-			Ref.set(packet, "i", mode);
-			Ref.set(packet, "h", Collections.singleton(name));
+			Ref.set(packet, "e", always);
+			Ref.set(packet, "f", TheAPI.isNewerThan(8)?always:-1);
+			if(TheAPI.isNewerThan(8))
+				Ref.set(packet, "g",TheAPI.isNewerThan(12)?white:-1);
+			Ref.set(packet, TheAPI.isNewerThan(8)?"i":"h", mode);
+			Ref.set(packet, TheAPI.isNewerThan(8)?"h":"g", Collections.singleton(name));
 		}
 		return packet;
 	}
