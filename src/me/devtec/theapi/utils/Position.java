@@ -151,7 +151,7 @@ public class Position implements Cloneable {
 	}
 	
 	public Object getIBlockData() {
-		Object sc = ((Object[]) Ref.invoke(c, get))[getBlockY() >> 4];
+		Object sc = ((Object[]) Ref.invoke(getNMSChunk(), get))[getBlockY() >> 4];
 		if (sc == null)return new TheMaterial(Material.AIR, 0);
 		if(TheAPI.isOlderThan(8)) //1.7.10
 			return Ref.invoke(sc, getType, getBlockX() & 15, getBlockY() & 15, getBlockZ() & 15);
@@ -161,7 +161,7 @@ public class Position implements Cloneable {
 	private static Method getType = Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), "getType", int.class, int.class, int.class);
 	
 	public TheMaterial getType() {
-		Object sc = ((Object[]) Ref.invoke(c, get))[getBlockY() >> 4];
+		Object sc = ((Object[]) Ref.invoke(getNMSChunk(), get))[getBlockY() >> 4];
 		if (sc == null)return new TheMaterial(Material.AIR, 0);
 		if(TheAPI.isOlderThan(8)) //1.7.10
 			return TheMaterial.fromData(Ref.invoke(sc, getType, getBlockX() & 15, getBlockY() & 15, getBlockZ() & 15), (byte)Ref.invoke(sc, getdata, getBlockX() & 15, getBlockY() & 15, getBlockZ() & 15));
