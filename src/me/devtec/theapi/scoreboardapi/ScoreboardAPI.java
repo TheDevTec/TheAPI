@@ -195,7 +195,7 @@ public class ScoreboardAPI {
 			Ref.set(os, "a", name);
 			Ref.set(os, "b", "sb");
 			Ref.set(os, "c", slot);
-			Ref.set(os, "d", NMSAPI.getScoreboardAction(Action.CHANGE));
+			Ref.set(os, "d", TheAPI.isOlderThan(8)?0:NMSAPI.getScoreboardAction(Action.CHANGE));
 			o[1]=os;
 		}
 		return o;
@@ -211,7 +211,7 @@ public class ScoreboardAPI {
 			Ref.set(os, "a", name);
 			Ref.set(os, "b", "sb");
 			Ref.set(os, "c", slot);
-			Ref.set(os, "d", NMSAPI.getScoreboardAction(Action.CHANGE));
+			Ref.set(os, "d", TheAPI.isOlderThan(8)?0:NMSAPI.getScoreboardAction(Action.CHANGE));
 			o[1]=os;
 		}
 		return o;
@@ -227,7 +227,7 @@ public class ScoreboardAPI {
 			Ref.set(os, "a", name);
 			Ref.set(os, "b", "sb");
 			Ref.set(os, "c", 0);
-			Ref.set(os, "d", NMSAPI.getScoreboardAction(Action.REMOVE));
+			Ref.set(os, "d",TheAPI.isOlderThan(8)?1: NMSAPI.getScoreboardAction(Action.REMOVE));
 			o[1]=os;
 		}
 		return o;
@@ -260,12 +260,17 @@ public class ScoreboardAPI {
 			Ref.set(packet, "b", TheAPI.isNewerThan(12)?NMSAPI.getFixedIChatBaseComponent(""):"");
 			Ref.set(packet, "c", TheAPI.isNewerThan(12)?NMSAPI.getFixedIChatBaseComponent(prefix):prefix);
 			Ref.set(packet, "d", TheAPI.isNewerThan(12)?NMSAPI.getIChatBaseComponentText(suffix):suffix);
-			Ref.set(packet, "e", always);
-			Ref.set(packet, "f", TheAPI.isNewerThan(8)?always:-1);
-			if(TheAPI.isNewerThan(8))
-				Ref.set(packet, "g",TheAPI.isNewerThan(12)?white:-1);
-			Ref.set(packet, TheAPI.isNewerThan(8)?"i":"h", mode);
-			Ref.set(packet, TheAPI.isNewerThan(8)?"h":"g", Collections.singleton(name));
+			if(TheAPI.isNewerThan(7)) {
+				Ref.set(packet, "e", always);
+				Ref.set(packet, "f", TheAPI.isNewerThan(8)?always:-1);
+				if(TheAPI.isNewerThan(8))
+					Ref.set(packet, "g",TheAPI.isNewerThan(12)?white:-1);
+				Ref.set(packet, TheAPI.isNewerThan(8)?"i":"h", mode);
+				Ref.set(packet, TheAPI.isNewerThan(8)?"h":"g", Collections.singleton(name));
+			}else {
+				Ref.set(packet, "f", mode);
+				Ref.set(packet, "e", Collections.singleton(name));
+			}
 		}
 		return packet;
 	}

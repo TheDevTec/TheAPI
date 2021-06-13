@@ -65,7 +65,16 @@ public class Writer implements JsonWriter {
 	private static Method toJson = Ref.method(Ref.getClass("com.google.gson.Gson") != null
 			? Ref.getClass("com.google.gson.Gson")
 			: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.Gson"), "toJson", Object.class);
-
+	static {
+		if(pretty==null) {
+			pretty = Ref.invoke(Ref.invoke(
+					Ref.newInstance(Ref.constructor(Ref.getClass("net.minecraft.util.com.google.gson.GsonBuilder"))), "setPrettyPrinting"), "create");
+			simple = Ref.invoke(
+					Ref.newInstance(Ref.constructor(Ref.getClass("net.minecraft.util.com.google.gson.GsonBuilder"))),"create");
+			toJson = Ref.method(Ref.getClass("net.minecraft.util.com.google.gson.Gson"), "toJson", Object.class);
+		}
+	}
+	
 	public String array(Object[] object, boolean addNulls) {
 		return array(object, addNulls, false);
 	}
@@ -96,8 +105,7 @@ public class Writer implements JsonWriter {
 	public String map(Map<?, ?> object, boolean addNulls, boolean fancy) {
 		if (object == null)
 			return null;
-		return (String) Ref.invoke((fancy ? pretty : simple), toJson,
-				fix(object, fancy, addNulls));
+		return (String) Ref.invoke((fancy ? pretty : simple), toJson, object);
 	}
 
 	private static Method from = Ref.method(Ref.craft("util.CraftChatMessage"), "fromComponent",
@@ -116,8 +124,6 @@ public class Writer implements JsonWriter {
 			enumMap.put("enum " + w.getClass().getName(), w.toString());
 			return map(enumMap, addNulls, fancy);
 		}
-		if (w instanceof Comparable)
-			return w.toString();
 		if (w instanceof Location) {
 			Location stack = (Location) w;
 			Map<String, Object> done = new HashMap<>();
@@ -141,7 +147,7 @@ public class Writer implements JsonWriter {
 			items.put("z", stack.getZ());
 			items.put("yaw", stack.getYaw());
 			items.put("pitch", stack.getPitch());
-			done.put("modifiedClass me.DevTec.TheAPI.Utils.Position", items);
+			done.put("modifiedClass me.devtec.theapi.utils.Position", items);
 			return map(done, addNulls, fancy);
 		}
 		if (w instanceof ItemStack) {
@@ -182,6 +188,8 @@ public class Writer implements JsonWriter {
 			done.put("modifiedClass org.bukkit.inventory.ItemStack", items);
 			return map(done, addNulls, fancy);
 		}
+		if (w instanceof Comparable)
+			return w.toString();
 		if (w.getClass() == Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent") || w.getClass() == Ref.nmsOrOld("network.chat.IChatMutableComponent","IChatMutableComponent")
 				|| w.getClass() == Ref.nmsOrOld("network.chat.ChatBaseComponent","ChatBaseComponent") || w.getClass() == Ref.nmsOrOld("network.chat.ChatMessage","ChatMessage")
 				|| w.getClass() == Ref.nmsOrOld("network.chat.ChatComponentText","ChatComponentText")
@@ -224,8 +232,6 @@ public class Writer implements JsonWriter {
 			enumMap.put("enum " + w.getClass().getName(), w.toString());
 			return enumMap;
 		}
-		if (w instanceof Comparable)
-			return w;
 		if (w instanceof Location) {
 			Location stack = (Location) w;
 			Map<String, Object> done = new HashMap<>(), items = new HashMap<>();
@@ -247,7 +253,7 @@ public class Writer implements JsonWriter {
 			items.put("z", stack.getZ());
 			items.put("yaw", stack.getYaw());
 			items.put("pitch", stack.getPitch());
-			done.put("modifiedClass me.DevTec.TheAPI.Utils.Position", items);
+			done.put("modifiedClass me.devtec.theapi.utils.Position", items);
 			return done;
 		}
 		if (w instanceof ItemStack) {
@@ -287,6 +293,8 @@ public class Writer implements JsonWriter {
 			done.put("modifiedClass org.bukkit.inventory.ItemStack", items);
 			return done;
 		}
+		if (w instanceof Comparable)
+			return w;
 		if (w.getClass() == Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent") || w.getClass() == Ref.nmsOrOld("network.chat.IChatMutableComponent","IChatMutableComponent")
 				|| w.getClass() == Ref.nmsOrOld("network.chat.ChatBaseComponent","ChatBaseComponent") || w.getClass() == Ref.nmsOrOld("network.chat.ChatMessage","ChatMessage")
 				|| w.getClass() == Ref.nmsOrOld("network.chat.ChatComponentText","ChatComponentText")

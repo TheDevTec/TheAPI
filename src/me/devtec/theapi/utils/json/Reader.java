@@ -41,14 +41,20 @@ public class Reader implements JsonReader {
 		return reader.deserilize(json);
 	}
 
-	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref
-			.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
 	private static Method fromJson = Ref.method(Ref.getClass("com.google.gson.Gson") != null ? Ref.getClass("com.google.gson.Gson")
 			: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.Gson"), "fromJson", String.class, Class.class);
 	private static Object parser = Ref.invoke(Ref.newInstance(Ref.constructor(
 					Ref.getClass("com.google.gson.GsonBuilder") != null ? Ref.getClass("com.google.gson.GsonBuilder")
 							: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder"))), "create");
-
+	static {
+		if(parser==null) {
+			parser = Ref.invoke(
+					Ref.newInstance(Ref.constructor(Ref.getClass("net.minecraft.util.com.google.gson.GsonBuilder"))),"create");
+			fromJson = Ref.method(Ref.getClass("net.minecraft.util.com.google.gson.Gson"), "fromJson", String.class, Class.class);
+		}
+	}
+	
 	public Object object(String json) {
 		if (json == null)
 			return null;
@@ -62,7 +68,7 @@ public class Reader implements JsonReader {
 		if (parsed == null)
 			parsed = json;
 		if (parsed instanceof Comparable) {
-			if(json.equalsIgnoreCase("true")||json.equalsIgnoreCase("false")||json.equalsIgnoreCase("yes")||json.equalsIgnoreCase("no"))return StringUtils.getBoolean(json);
+			if(json.equalsIgnoreCase("true")||json.equalsIgnoreCase("false")||json.equalsIgnoreCase("yes")||json.equalsIgnoreCase("no"))return json.equalsIgnoreCase("true")||json.equalsIgnoreCase("yes");
 			if(StringUtils.isInt(json))return StringUtils.getInt(json);
 			if(StringUtils.isDouble(json))return StringUtils.getDouble(json);
 			return parsed;
@@ -252,11 +258,11 @@ public class Reader implements JsonReader {
 					} else if (which.equals("org.bukkit.Location")) {
 						Map<String, Object> values = (Map<String, Object>) s.getValue();
 						a.put(s.getKey(),
-								new Location(Bukkit.getWorld((String) values.get("world")), (double) values.get("x"),
+								new Location(Bukkit.getWorld((String)values.get("world")), (double) values.get("x"),
 										(double) values.get("y"), (double) values.get("z"),
 										(float) (double) values.get("yaw"), (float) (double) values.get("pitch")));
 						c = true;
-					} else if (which.equals("me.DevTec.TheAPI.Utils.Position")) {
+					} else if (which.equals("me.devtec.theapi.utils.Position")) {
 						Map<String, Object> values = (Map<String, Object>) s.getValue();
 						a.put(s.getKey(),
 								new Position((String) values.get("world"), (double) values.get("x"),

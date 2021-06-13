@@ -34,9 +34,12 @@ public class Ref {
 	private static Object server = NMSAPI.getServer();
 	private static Class<?> craft = craft("entity.CraftPlayer"), world = craft("CraftWorld"), playerInfoData = Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerInfo$PlayerInfoData","PacketPlayOutPlayerInfo$PlayerInfoData");
 	private static Method ichatcon;
-	private static Constructor<?> playerInfo = Ref.getConstructors(playerInfoData)[0].getParameterTypes()[0].getName()
-			.contains("Packet")?Ref.getConstructors(playerInfoData)[0]:null;
+	private static Constructor<?> playerInfo;
 	static {
+		try {
+		playerInfo = Ref.getConstructors(playerInfoData)[0].getParameterTypes()[0].getName()
+				.contains("Packet")?Ref.getConstructors(playerInfoData)[0]:null;
+		}catch(Exception err) {}
 		ichatcon = method(nmsOrOld("network.chat.IChatBaseComponent", "IChatBaseComponent$ChatSerializer"), "a", String.class);
 		if (ichatcon == null)
 			ichatcon = method(nmsOrOld(null, "ChatSerializer"), "a", String.class);

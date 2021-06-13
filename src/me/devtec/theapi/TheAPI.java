@@ -401,9 +401,13 @@ public class TheAPI {
 	 * @see see Get random player from List<Player>
 	 * @return List<Player>
 	 */
+	@SuppressWarnings("unchecked")
 	public static List<Player> getOnlinePlayers() {
 		if(isNewerThan(7))return new ArrayList<>(Bukkit.getOnlinePlayers());
 		Object o = Ref.invokeNulled(m);
+		if(o instanceof Collection) {
+			return new ArrayList<>((Collection<Player>)o);
+		}
 		Player[] f = (Player[]) o;
 		List<Player> p = new ArrayList<>(f.length);
 		for(Player s : f)p.add(s);
@@ -414,9 +418,13 @@ public class TheAPI {
 	 * @see see Get random player from List<Player>
 	 * @return List<Player>
 	 */
+	@SuppressWarnings("unchecked")
 	public static int getOnlineCount() {
 		if(isNewerThan(7))return Bukkit.getOnlinePlayers().size();
 		Object o = Ref.invokeNulled(m);
+		if(o instanceof Collection) {
+			return  ((Collection<Player>)o).size();
+		}
 		return ((Player[]) o).length;
 	}
 
