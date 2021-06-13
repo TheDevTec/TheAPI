@@ -182,7 +182,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 	}
 
 	public Channel get(Player player) {
-		Channel channel = channelLookup.getOrDefault(player.getName(), null);
+		Channel channel = channelLookup.get(player.getName());
 		if (channel == null)
 			channelLookup.put(player.getName(), channel = (Channel) Ref.get(Ref.network(Ref.playerCon(player)), "m"));
 		return channel;

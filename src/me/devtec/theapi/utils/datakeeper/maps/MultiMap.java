@@ -58,7 +58,7 @@ public class MultiMap<K, T, V> implements Data {
 	}
 
 	public V put(K key, T thread, V value) {
-		Map<T, V> map = data.getOrDefault(key, null);
+		Map<T, V> map = data.get(key);
 		if (map == null)
 			data.put(key, map = new HashMap<>());
 		map.put(thread, value);
@@ -79,8 +79,7 @@ public class MultiMap<K, T, V> implements Data {
 	}
 
 	public V getOrDefault(K key, T thread, V def) {
-		V get = get(key, thread);
-		return get == null ? def : get;
+		return containsThread(key,thread)?get(key, thread):def;
 	}
 
 	public void putAll(MultiMap<K, T, V> map) {

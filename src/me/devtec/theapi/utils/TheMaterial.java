@@ -254,10 +254,10 @@ public class TheMaterial implements Cloneable {
 							"materialToBlock");
 					MaterialData materialData = toItemStack().getData();
 					if (materialData != null) {
-						Object converted = materialToData.getOrDefault(materialData, null);
+						Object converted = materialToData.get(materialData);
 						if (converted != null)
 							return converted;
-						Object convertedBlock = materialToBlock.getOrDefault(materialData, null);
+						Object convertedBlock = materialToBlock.get(materialData);
 						if (convertedBlock != null)
 							return Ref.invoke(convertedBlock, "getBlockData");
 					}

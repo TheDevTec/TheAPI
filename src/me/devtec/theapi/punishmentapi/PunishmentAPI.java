@@ -390,7 +390,7 @@ public class PunishmentAPI {
 	
 	public static PlayerBanList getBanList(String player) {
 		if(player==null)return null;
-		PlayerBanList banlist = players.getOrDefault(player.toLowerCase(), null);
+		PlayerBanList banlist = players.get(player.toLowerCase());
 		if(banlist==null) {
 			banlist=new PlayerBanList(player);
 			players.put(player.toLowerCase(), banlist);

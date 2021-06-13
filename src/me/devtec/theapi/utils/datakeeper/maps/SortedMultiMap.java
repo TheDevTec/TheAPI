@@ -46,10 +46,9 @@ public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 			return null;
 		}
 	}
-
+	
 	public V getOrDefault(K key, T thread, V def) {
-		V get = get(key, thread);
-		return get == null ? def : get;
+		return containsThread(key,thread)?get(key, thread):def;
 	}
 
 	public boolean containsKey(K key) {
@@ -69,7 +68,7 @@ public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 	}
 
 	public V put(K key, T thread, V value) {
-		Map<T, V> map = data.getOrDefault(key, null);
+		Map<T, V> map = data.get(key);
 		if (map == null) {
 			map = new TreeMap<>();
 			data.put(key, map);

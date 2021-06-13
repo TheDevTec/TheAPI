@@ -1047,7 +1047,7 @@ public class TheAPI {
 		if (uuid == null)
 			return null;
 		if (LoaderClass.config.getBoolean("Options.Cache.User.Use")) {
-			User c = cache.getOrDefault(uuid, null);
+			User c = cache.get(uuid);
 			if (c == null) {
 				c = new User(uuid);
 				cache.put(uuid, c);
@@ -1066,7 +1066,7 @@ public class TheAPI {
 		if (uuid == null)
 			return null;
 		if (LoaderClass.config.getBoolean("Options.Cache.User.Use")) {
-			User c = cache.getOrDefault(uuid, null);
+			User c = cache.get(uuid);
 			if (c == null) {
 				c = new User(name,uuid);
 				cache.put(uuid, c);

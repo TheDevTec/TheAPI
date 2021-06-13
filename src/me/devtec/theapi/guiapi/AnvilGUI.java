@@ -106,7 +106,7 @@ public class AnvilGUI implements HolderGUI {
 	 * @see see Return ItemGUI from position in gui
 	 */
 	public final ItemGUI getItemGUI(int slot) {
-		return getItemGUIs().getOrDefault(slot, null);
+		return getItemGUIs().get(slot);
 	}
 
 	private static Object windowType = Ref.getStatic(Ref.nmsOrOld("world.inventory.Containers","Containers"), TheAPI.isNewerThan(16)?"h":"ANVIL");

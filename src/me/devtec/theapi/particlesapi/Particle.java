@@ -30,7 +30,7 @@ public class Particle {
 		if(a!=null) {
 			if (a==Ref.nms("EnumParticle")) { // 1.8 - 1.12.2
 				for (Object e : a.getEnumConstants())
-					identifier.put((String) Ref.invoke(e, "name"), e);
+					identifier.put(((String) Ref.invoke(e, "name")).toUpperCase(), e);
 			} else { // 1.13+
 				if(TheAPI.isNewerThan(12)&&TheAPI.isOlderThan(14)) { //1.13
 					for (Field f : Ref.getFields(a)) {
@@ -68,7 +68,7 @@ public class Particle {
 	}
 
 	private static Object toNMS(String particle) {
-		return identifier.getOrDefault(particle, null);
+		return identifier.get(particle);
 	}
 
 	private Object particle;
