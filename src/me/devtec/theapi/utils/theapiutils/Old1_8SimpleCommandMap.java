@@ -1,9 +1,8 @@
 package me.devtec.theapi.utils.theapiutils;
 
-import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.bukkit.Server;
 import org.bukkit.command.Command;
@@ -15,8 +14,6 @@ import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class Old1_8SimpleCommandMap extends SimpleCommandMap {
-	  private static final Pattern PATTERN_ON_SPACE = Pattern.compile(" ", 16);
-	  
 	  public Old1_8SimpleCommandMap(Server server, Map<String, Command> map) {
 		super(server);
 	    TheAPI.cmdMap=this;
@@ -55,7 +52,7 @@ public class Old1_8SimpleCommandMap extends SimpleCommandMap {
 	  
 	  @Override
 	  public boolean dispatch(CommandSender sender, String commandLine) throws CommandException {
-	    String[] args = PATTERN_ON_SPACE.split(commandLine);
+	    String[] args = commandLine.split(" ");
 	    if (args.length == 0)
 	      return false; 
 	    String sentCommandLabel = args[0].toLowerCase();
@@ -63,7 +60,7 @@ public class Old1_8SimpleCommandMap extends SimpleCommandMap {
 	    if (target == null)
 	      return false; 
 	    try {
-	      target.execute(sender, sentCommandLabel, Arrays_copyOfRange(args, 1, args.length));
+	      target.execute(sender, sentCommandLabel, Arrays.copyOfRange(args, 1, args.length));
 	    } catch (CommandException ex) {
 	      throw ex;
 	    } catch (Throwable ex) {
@@ -71,18 +68,4 @@ public class Old1_8SimpleCommandMap extends SimpleCommandMap {
 	    } 
 	    return true;
 	  }
-		public static <T> T[] Arrays_copyOfRange(T[] original, int start, int end) {
-			if (original.length >= start && 0 <= start) {
-				if (start <= end) {
-					int length = end - start;
-					int copyLength = Math.min(length, original.length - start);
-					@SuppressWarnings("unchecked")
-					T[] copy = (T[]) Array.newInstance(original.getClass().getComponentType(), length);
-					System.arraycopy(original, start, copy, 0, copyLength);
-					return copy;
-				}
-				throw new IllegalArgumentException();
-			}
-			throw new ArrayIndexOutOfBoundsException();
-		}
-	}
+}

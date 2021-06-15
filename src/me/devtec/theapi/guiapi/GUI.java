@@ -238,14 +238,16 @@ public class GUI implements HolderGUI {
 			}
 			Object f= Ref.player(player);
 			int id = (int) nextCounter(f);
+			
 			Object container = type==0?Ref.newInstance(containerClass, inv, f, id):Ref.newInstance(containerClass, inv, player, id);
 			if(TheAPI.isOlderThan(8)) {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id,0,title, getSize(), false));
 			}else if(TheAPI.isOlderThan(14)) {
-				Ref.sendPacket(player, Ref.newInstance(openWindow,id,"minecraft:chest",NMSAPI.getIChatBaseComponentText(title), getSize()));
+				Ref.sendPacket(player, Ref.newInstance(openWindow,id,"minecraft:container",NMSAPI.getIChatBaseComponentText(title), getSize()));
 			}else {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getFixedIChatBaseComponent(title)));
 			}
+			Ref.set(container, "windowId", id);
 			Ref.set(f, TheAPI.isNewerThan(16)?"bV":"activeContainer", container);
 			Ref.invoke(container, addListener, f);
 			Ref.set(container, "checkReachable", false);

@@ -120,6 +120,9 @@ public class LoaderClass extends JavaPlugin {
 	
 	@Override
 	public void onLoad() {
+		if(air==null) {
+			air=Ref.getNulled(Ref.field(Ref.nmsOrOld("world.level.block.Blocks","Blocks"), "AIR"));
+		}
 		plugin = this;
 		data = new Config("TheAPI/Data.dat", DataType.BYTE);
 		
@@ -216,8 +219,14 @@ public class LoaderClass extends JavaPlugin {
 					if(before==null)before=new ItemStack(Material.AIR);
 					if(type!=InventoryClickType.PICKUP_ALL)
 					if(before.getType()==Material.AIR&&i.getType()==Material.AIR || type!=InventoryClickType.CLONE && type!=InventoryClickType.QUICK_MOVE && type!=InventoryClickType.QUICK_CRAFT && type!=InventoryClickType.PICKUP && type!=InventoryClickType.THROW) {
-						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
+						if(type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.PICKUP_ALL) {
+							if(TheAPI.isNewerThan(16))
+								Ref.invoke(Ref.get(Ref.player(p),"bU"),"updateInventory");
+							else
+								p.updateInventory();
+						}
 						Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));
+						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
 						return true;
 					}
 					String action = i.getType()==Material.AIR && (type==InventoryClickType.PICKUP||type==InventoryClickType.QUICK_CRAFT)?"DROP":"PICKUP";
@@ -234,24 +243,22 @@ public class LoaderClass extends JavaPlugin {
 						}
 						ItemGUI a = d.getItemGUI(slot);
 						if (a != null) {
-							if (a.isUnstealable())
-								cancel=true;
+							cancel=a.isUnstealable();
 							a.onClick(p, d, me.devtec.theapi.guiapi.GUI.ClickType.valueOf(action));
 						}
 					}else
-						if(!d.isInsertable())
-							cancel=true;
+						cancel=!d.isInsertable();
+					if(TheAPI.isOlderThan(9) && !cancel)
+					cancel=type==InventoryClickType.QUICK_MOVE;
 					if(cancel) {
 						if(type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.PICKUP_ALL) {
 							if(TheAPI.isNewerThan(16))
 								Ref.invoke(Ref.get(Ref.player(p),"bU"),"updateInventory");
 							else
 								p.updateInventory();
-							Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
-						}else {
-							Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
-							Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));
 						}
+						Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));
+						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
 						return true;
 					}
 				}

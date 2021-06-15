@@ -138,9 +138,9 @@ public class ChatMessage {
 	
 	private static Constructor<?> chat = Ref.constructor(Ref.nmsOrOld("network.chat.ChatComponentText", "ChatComponentText"), String.class),
 			clickEvent = Ref.constructor(Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable", "ChatClickable"), Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable$EnumClickAction", "EnumClickAction"), String.class);
-	private static Method addSibling=Ref.method(Ref.nmsOrOld("network.chat.IChatMutableComponent", "IChatMutableComponent"), "addSibling", Ref.nmsOrOld("network.chat.IChatBaseComponent", "IChatBaseComponent"))
+	private static Method addSibling=Ref.method(Ref.nmsOrOld("network.chat.IChatMutableComponent", "IChatBaseComponent"), "addSibling", Ref.nmsOrOld("network.chat.IChatBaseComponent", "IChatBaseComponent"))
 			, getChatModif=Ref.method(Ref.nmsOrOld("network.chat.IChatBaseComponent", "IChatBaseComponent"), "getChatModifier")
-			, setChatModif=Ref.method(Ref.nmsOrOld("network.chat.IChatMutableComponent", "IChatMutableComponent"), "setChatModifier", Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier")),
+			, setChatModif=Ref.method(Ref.nmsOrOld("network.chat.IChatMutableComponent", "IChatBaseComponent"), "setChatModifier", Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier")),
 			setBold=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setBold", Boolean.class),
 			setItalic=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setItalic", Boolean.class),
 			setRandom=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setRandom", Boolean.class),
@@ -151,12 +151,20 @@ public class ChatMessage {
 			colors=Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", char.class),
 			setColorHex=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setColor", Ref.nmsOrOld("network.chat.ChatHexColor", "ChatHexColor")),
 			setColorNormal=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setColor", Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"));
+	static int t;
+	static {
+		if(colors==null) {
+			++t;
+			colors=Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", int.class);
+		}
+	}
 	
 	private static Object open_url = TheAPI.isNewerThan(16)?Ref.getNulled(Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable$EnumClickAction", "EnumClickAction"), "a"):Ref.getNulled(Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable$EnumClickAction", "EnumClickAction"), "OPEN_URL");
 	
 	public Object toNMS() {
 		Object main = Ref.newInstance(chat, "");
 		Object ab = main;
+		if(TheAPI.isNewerThan(15)) {
 		for(Map<String, Object> s : join) {
 			Object a = Ref.newInstance(chat, s.get("text"));
 			Object mod = Ref.invoke(a, getChatModif);
@@ -175,10 +183,33 @@ public class ChatMessage {
 				mod=Ref.invoke(mod, setChatClickable, Ref.newInstance(clickEvent, open_url, s.get("value")));
 			}
 			a=Ref.invoke(a, setChatModif, mod);
-			Ref.invoke(ab, addSibling, a);
-			ab=a;
+			ab=Ref.invoke(ab, addSibling, a);
+		}
+		}else {
+			for(Map<String, Object> s : join) {
+				Object a = Ref.newInstance(chat, (s.get("color")==null?"":""+getColorR(((String)s.get("color")).toUpperCase()))+
+						build((boolean)s.getOrDefault("bold",false),(boolean)s.getOrDefault("italic",false),
+								(boolean)s.getOrDefault("obfuscated",false),(boolean)s.getOrDefault("strikethrough",false)
+								,(boolean)s.getOrDefault("underlined",false))+s.get("text"));
+				Object mod = Ref.invoke(a, getChatModif);
+				if(s.get("clickEvent")!=null) {
+					mod=Ref.invoke(mod, setChatClickable, Ref.newInstance(clickEvent, open_url, s.get("value")));
+				}
+				a=Ref.invoke(a, setChatModif, mod);
+				ab=Ref.invoke(ab, addSibling, a);
+			}
 		}
 		return main;
+	}
+
+	private String build(boolean orDefault, boolean orDefault2, boolean orDefault3, boolean orDefault4, boolean orDefault5) {
+		StringBuilder b = new StringBuilder();
+		if(orDefault)b.append("§l");
+		if(orDefault2)b.append("§o");
+		if(orDefault3)b.append("§k");
+		if(orDefault4)b.append("§m");
+		if(orDefault5)b.append("§n");
+		return b.toString();
 	}
 
 	private Object getColorHex(String object) {
@@ -188,7 +219,12 @@ public class ChatMessage {
 	
 	private Object getColorNormal(String object) {
 		if(object.startsWith("#"))return null;
-		return Ref.invokeStatic(colors, ChatColor.valueOf(object).getChar());
+		return Ref.invokeStatic(colors, t==0?ChatColor.valueOf(object).getChar():(int)ChatColor.valueOf(object).getChar());
+	}
+	
+	private ChatColor getColorR(String object) {
+		if(object.startsWith("#"))return null;
+		return ChatColor.valueOf(object);
 	}
 
 	public String toLegacy() {

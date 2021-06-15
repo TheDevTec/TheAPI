@@ -270,14 +270,24 @@ public class Position implements Cloneable {
 	}
 
 	private static int wf = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]);
-	private static Method handle = Ref.method(Ref.craft("CraftChunk"), "getHandle");
+	private static Method handle = Ref.method(Ref.craft("CraftChunk"), "getHandle"),
+			getOrCreate=Ref.method(Ref.nms("ChunkProviderServer"), "getOrCreateChunk", int.class, int.class);
+	static {
+		if(getOrCreate==null) {
+			getOrCreate=Ref.method(Ref.nms("ChunkProviderServer"), "getOrLoadChunkAt", int.class, int.class);
+		}
+	}
 	
 	public Object getNMSChunk() {
 		try {
-			return Ref.invoke(getWorld().getChunkAt(getBlockX() >> 4, getBlockZ() >> 4), handle);
+			if(TheAPI.isNewVersion())
+				return Ref.invoke(getWorld().getChunkAt(getBlockX() >> 4, getBlockZ() >> 4), handle);
+			else {
+				return Ref.invoke(Ref.get(Ref.world(getWorld()), "chunkProviderServer"), getOrCreate, getBlockX() >> 4, getBlockZ() >> 4);
+			}
 		} catch (Exception er) {
-			return null;
 		}
+		return null;
 	}
 	
 	public Object getBlockPosition() {
