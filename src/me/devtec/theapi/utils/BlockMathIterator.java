@@ -67,6 +67,9 @@ public class BlockMathIterator implements Iterable<double[]> {
 			public double[] next() {
 				return get();
 			}
+			public void remove() {
+				
+			}
 		};
 	}
 }

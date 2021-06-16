@@ -203,21 +203,23 @@ public class LoaderClass extends JavaPlugin {
 					if(before==null)before=new ItemStack(Material.AIR);
 					if(i==null)i=new ItemStack(Material.AIR);
 					ClickType w = GUIEvents.buildClick(i, type, slot, mouseClick);
-					TheAPI.bcMsg(w);
 					boolean cancel = GUIEvents.useItem(p, i, d, slot, w);
 					if(!d.isInsertable())cancel=true;
 					if(!cancel) {
 						cancel=d.onIteractItem(p, i, w, slot>d.size()?slot-d.size()+27:slot, slot<d.size());
 					}
+					if(type==InventoryClickType.QUICK_MOVE && TheAPI.isOlderThan(9))
+						cancel=true;
 					if(cancel) {
 						try {
 							return true;
 						}finally {
 							if(type==InventoryClickType.QUICK_MOVE) {
-								if(TheAPI.isNewerThan(16))
+								if(TheAPI.isNewerThan(16)) {
 								for(int s : ((org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMaps.UnmodifiableMap<Object>)Ref.get(packet, "f")).keySet())
 									Ref.sendPacket(p,Ref.newInstance(setSlot,id, s, Ref.invoke(Ref.invoke(g, getSlot, s),getItem)));
-							}else {
+								}else p.updateInventory();
+								}else {
 								if(type==InventoryClickType.SWAP||type==InventoryClickType.PICKUP_ALL) {
 									if(TheAPI.isNewerThan(16)) {
 										Ref.invoke(Ref.get(Ref.player(p),"bU"),"updateInventory");

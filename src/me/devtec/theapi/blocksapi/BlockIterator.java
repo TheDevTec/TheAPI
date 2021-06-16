@@ -54,6 +54,9 @@ public class BlockIterator implements Iterable<Position> {
 			public Position next() {
 				return get();
 			}
+			public void remove() {
+				
+			}
 		};
 	}
 }

@@ -146,7 +146,7 @@ public interface SerializedBlock extends Serializable {
 		}
 		Object dir = getState(block);
 		if(dir!=null) {
-			((Map<?,?>)Ref.get(objectNbt, "map")).clear();
+			((Map<?,?>)Ref.get(objectNbt, TheAPI.isNewerThan(16)?"x":"map")).clear();
 			Object ret = Ref.invoke(dir, saveNbt, objectNbt);
 			values.put("nbt", ret.toString());
 		}
@@ -154,7 +154,7 @@ public interface SerializedBlock extends Serializable {
 	}
 	
 	static Object getState(Position block) {
-		Map<?,?> map = (Map<?,?>) Ref.get(block.getNMSChunk(), "tileEntities");
+		Map<?,?> map = (Map<?,?>) Ref.get(block.getNMSChunk(), TheAPI.isNewerThan(16)?"l":"tileEntities");
 		return map.get(block.getBlockPosition());
 	}
 	

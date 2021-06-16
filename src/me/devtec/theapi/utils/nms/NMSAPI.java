@@ -493,7 +493,7 @@ public class NMSAPI {
 	
 	public static Object getFixedIChatBaseComponent(String text) {
 		if(text==null||text.equals(""))return empty;
-		return TheAPI.isNewerThan(16)?new ChatMessage(text).toNMS():getIChatBaseComponentJson(new ChatMessage(text).getJson());
+		return new ChatMessage(text).toNMS();
 	}
 
 	public static Object getIChatBaseComponentText(String text) {

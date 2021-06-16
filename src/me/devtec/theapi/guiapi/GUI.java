@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -203,7 +204,11 @@ public class GUI implements HolderGUI {
 
 	protected static Constructor<?> openWindow, closeWindow = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutCloseWindow","PacketPlayOutCloseWindow"), int.class), containerClass,
 			setSlot=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack")),
-			itemsS=Ref.getConstructors(Ref.nmsOrOld("network.protocol.game.PacketPlayOutWindowItems","PacketPlayOutWindowItems"))[0];
+			itemsS=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutWindowItems","PacketPlayOutWindowItems"),int.class, List.class);
+	static {
+		if(itemsS==null)
+			itemsS=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutWindowItems","PacketPlayOutWindowItems"),int.class, Ref.nmsOrOld("core.NonNullList", "NonNullList"));
+	}
 	protected static int type;
 	protected static Method
 	transfer=Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"),"transferTo", Ref.nmsOrOld("world.inventory.Container","Container"), Ref.craft("entity.CraftHumanEntity"));

@@ -224,9 +224,9 @@ public class ChatMessage {
 		return Ref.invokeStatic(colors, (int)ChatColor.valueOf(object.toUpperCase()).getChar());
 	}
 	
-	private ChatColor getColorR(String object) {
+	private String getColorR(String object) {
 		if(object.startsWith("#"))return null;
-		return ChatColor.valueOf(object.toUpperCase());
+		return "§"+ChatColor.valueOf(object.toUpperCase()).getChar();
 	}
 
 	public String toLegacy() {
