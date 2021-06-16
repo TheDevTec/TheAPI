@@ -214,6 +214,8 @@ public class NMSAPI {
 		return Ref.newInstance(metadata, entityId, dataWatcher, bal);
 	}
 
+	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+	
 	public static Object getPacketPlayOutScoreboardObjective() {
 		try {
 			return unsafe.allocateInstance(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardObjective","PacketPlayOutScoreboardObjective"));
@@ -254,9 +256,7 @@ public class NMSAPI {
 	public static Object getEnumScoreboardHealthDisplay(DisplayType type) {
 		return type == DisplayType.HEARTS ? sbhearts : sbinteger;
 	}
-
-	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref
-			.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+	
 	public static Object getPacketPlayOutScoreboardTeam() {
 		try {
 			return unsafe.allocateInstance(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardTeam","PacketPlayOutScoreboardTeam"));

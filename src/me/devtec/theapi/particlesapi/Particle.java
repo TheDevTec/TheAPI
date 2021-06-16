@@ -60,11 +60,13 @@ public class Particle {
 		}
 		
 		if(Ref.nmsOrOld("core.particles.ParticleParamRedstone","ParticleParamRedstone")!=null) {
-		paramRed = Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamRedstone","ParticleParamRedstone"))[0];
-		paramBlock=Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamBlock","ParticleParamBlock"))[0];
-		paramItem=Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamItem","ParticleParamItem"))[0];
+			paramRed = Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamRedstone","ParticleParamRedstone"))[0];
+			paramBlock=Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamBlock","ParticleParamBlock"))[0];
+			paramItem=Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamItem","ParticleParamItem"))[0];
 		}
-		part=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutWorldParticles", "PacketPlayOutWorldParticles"));
+		if(TheAPI.isNewerThan(16))
+			paramDust = Ref.getConstructors(Ref.nmsOrOld("core.particles.DustColorTransitionOptions","DustColorTransitionOptions"))[0];
+		part=Ref.nmsOrOld("network.protocol.game.PacketPlayOutWorldParticles", "PacketPlayOutWorldParticles");
 	}
 
 	private static Object toNMS(String particle) {
@@ -115,10 +117,17 @@ public class Particle {
 		return createPacket(pos.getX(), pos.getY(), pos.getZ(), speed, amount);
 	}
 	
-	private static Constructor<?> paramRed, paramBlock, paramItem, part;
-
+	private static Constructor<?> paramRed, paramDust, paramBlock, paramItem, vector=Ref.constructor(Ref.getClass("com.mojang.math.Vector3fa"), float.class, float.class, float.class);
+	private static Class<?> part;
+	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+	
 	public Object createPacket(double x, double y, double z, float speed, int amount) {
-		Object packet = Ref.newInstance(part);
+		Object packet;
+		try {
+			packet = unsafe.allocateInstance(part);
+		} catch (Exception e) {
+			return null;
+		}
 		if (TheAPI.isNewVersion()) { // 1.13+
 			Ref.set(packet, "i", true);
 			Ref.set(packet, "a", x);
@@ -132,6 +141,14 @@ public class Particle {
 					Ref.set(packet, "d", d.getValueX());
 					Ref.set(packet, "e", d.getValueY());
 					Ref.set(packet, "f", d.getValueZ());
+					if(TheAPI.isNewerThan(16)) {
+						if(name.equalsIgnoreCase("dust_color_transition"))
+						Ref.set(packet, "j", Ref.newInstance(paramDust,
+								Ref.newInstance(vector, d.getValueX(), d.getValueY(), d.getValueZ()), Ref.newInstance(vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize()));
+						else
+						Ref.set(packet, "j", Ref.newInstance(paramRed,
+							Ref.newInstance(vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize()));
+					}else
 					Ref.set(packet, "j", Ref.newInstance(paramRed,
 							d.getValueX(), d.getValueY(), d.getValueZ(), d.getSize()));
 					return packet;

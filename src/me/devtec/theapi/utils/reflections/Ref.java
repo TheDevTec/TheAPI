@@ -19,8 +19,8 @@ import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class Ref {
-	private static Constructor<?> blockpos = constructor(nmsOrOld("core.BlockPosition", "BlockPosition"), double.class, double.class,
-			double.class),
+	private static Constructor<?> blockpos = constructor(nmsOrOld("core.BlockPosition", "BlockPosition"), double.class,
+			double.class, double.class),
 			c = Ref.constructor(
 					Ref.getClass("com.mojang.authlib.GameProfile") != null
 							? Ref.getClass("com.mojang.authlib.GameProfile")
@@ -32,15 +32,20 @@ public class Ref {
 							: Ref.getClass("net.minecraft.util.com.mojang.authlib.properties.Property"),
 					String.class, String.class, String.class);
 	private static Object server = NMSAPI.getServer();
-	private static Class<?> craft = craft("entity.CraftPlayer"), world = craft("CraftWorld"), playerInfoData = Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerInfo$PlayerInfoData","PacketPlayOutPlayerInfo$PlayerInfoData");
+	private static Class<?> craft = craft("entity.CraftPlayer"), world = craft("CraftWorld"),
+			playerInfoData = Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerInfo$PlayerInfoData",
+					"PacketPlayOutPlayerInfo$PlayerInfoData");
 	private static Method ichatcon;
 	private static Constructor<?> playerInfo;
 	static {
 		try {
-		playerInfo = Ref.getConstructors(playerInfoData)[0].getParameterTypes()[0].getName()
-				.contains("Packet")?Ref.getConstructors(playerInfoData)[0]:null;
-		}catch(Exception err) {}
-		ichatcon = method(nmsOrOld("network.chat.IChatBaseComponent", "IChatBaseComponent$ChatSerializer"), "a", String.class);
+			playerInfo = Ref.getConstructors(playerInfoData)[0].getParameterTypes()[0].getName().contains("Packet")
+					? Ref.getConstructors(playerInfoData)[0]
+					: null;
+		} catch (Exception err) {
+		}
+		ichatcon = method(nmsOrOld("network.chat.IChatBaseComponent", "IChatBaseComponent$ChatSerializer"), "a",
+				String.class);
 		if (ichatcon == null)
 			ichatcon = method(nmsOrOld(null, "ChatSerializer"), "a", String.class);
 	}
@@ -51,15 +56,19 @@ public class Ref {
 		return Ref.newInstance(c, id, name);
 	}
 
-	public static Object createPlayerInfoData(Object packet, Object profile, int ping, String gamemode, String playerName) {
-		if (playerInfo!=null)
-			return Ref.newInstance(playerInfo, packet,
-					profile, ping, Ref.get(null, Ref.field(Ref.nmsOrOld("world.level.EnumGamemode","EnumGamemode"), gamemode.toUpperCase())),
+	public static Object createPlayerInfoData(Object packet, Object profile, int ping, String gamemode,
+			String playerName) {
+		if (playerInfo != null)
+			return Ref.newInstance(playerInfo, packet, profile, ping,
+					Ref.get(null,
+							Ref.field(Ref.nmsOrOld("world.level.EnumGamemode", "EnumGamemode"),
+									gamemode.toUpperCase())),
 					((Object[]) Ref.invokeNulled(
 							Ref.method(Ref.craft("util.CraftChatMessage"), "fromString", String.class),
 							playerName))[0]);
 		return Ref.newInstance(playerInfo, profile, ping,
-				Ref.get(null, Ref.field(Ref.nmsOrOld("world.level.EnumGamemode","EnumGamemode"), gamemode.toUpperCase())),
+				Ref.get(null,
+						Ref.field(Ref.nmsOrOld("world.level.EnumGamemode", "EnumGamemode"), gamemode.toUpperCase())),
 				((Object[]) Ref.invokeNulled(Ref.method(Ref.craft("util.CraftChatMessage"), "fromString", String.class),
 						playerName))[0]);
 	}
@@ -124,25 +133,26 @@ public class Ref {
 	}
 
 	public static void sendPacket(Player to, Object packet) {
-		if(packet==null)Bukkit.getLogger().severe("Tryting to send to player null packet!");
-		if(packet!=null && to!=null)
+		if (packet == null)
+			Bukkit.getLogger().severe("Tryting to send to player null packet!");
+		if (packet != null && to != null)
 			LoaderClass.plugin.handler.send(to, packet);
 	}
 
 	public static void sendPacket(Collection<? extends Player> toPlayers, Object packet) {
-		if(packet!=null)
-		for(Player to : toPlayers) {
-			if(to!=null)
-				LoaderClass.plugin.handler.send(to, packet);
-		}
+		if (packet != null)
+			for (Player to : toPlayers) {
+				if (to != null)
+					LoaderClass.plugin.handler.send(to, packet);
+			}
 	}
 
 	public static void sendPacket(Player[] toPlayers, Object packet) {
-		if(packet!=null)
-		for(Player to : toPlayers) {
-			if(to!=null)
-				LoaderClass.plugin.handler.send(to, packet);
-		}
+		if (packet != null)
+			for (Player to : toPlayers) {
+				if (to != null)
+					LoaderClass.plugin.handler.send(to, packet);
+			}
 	}
 
 	public static Object server() {
@@ -154,15 +164,15 @@ public class Ref {
 	}
 
 	public static Object playerCon(Player a) {
-		return get(player(a), TheAPI.isNewerThan(16)?"b":"playerConnection");
+		return get(player(a), TheAPI.isNewerThan(16) ? "b" : "playerConnection");
 	}
 
 	public static Object network(Object playercon) {
-		return get(playercon, TheAPI.isNewerThan(16)?"a":"networkManager");
+		return get(playercon, TheAPI.isNewerThan(16) ? "a" : "networkManager");
 	}
 
 	public static Object channel(Object network) {
-		return get(network, TheAPI.isNewerThan(16)?"k":"channel");
+		return get(network, TheAPI.isNewerThan(16) ? "k" : "channel");
 	}
 
 	public static Object world(World a) {
@@ -187,8 +197,8 @@ public class Ref {
 
 	public static Class<?> nmsOrOld(String name, String old) {
 		try {
-			if(name!=null)
-				return Class.forName("net.minecraft."+name);
+			if (name != null)
+				return Class.forName("net.minecraft." + name);
 			return Class.forName("net.minecraft.server." + version() + "." + old);
 		} catch (Exception e) {
 			try {
@@ -309,7 +319,7 @@ public class Ref {
 			return null;
 		}
 	}
-	
+
 	public static Field field(Class<?> main, String name) {
 		try {
 			Field f = main.getDeclaredField(name);
@@ -373,7 +383,7 @@ public class Ref {
 	}
 
 	public static Object getStatic(Class<?> clas, String field) {
-		return getNulled(clas,field);
+		return getNulled(clas, field);
 	}
 
 	public static Object get(Object main, String field) {
@@ -484,7 +494,7 @@ public class Ref {
 			a.setAccessible(true);
 		return a;
 	}
-	
+
 	public static Constructor<?> findConstructor(Class<?> c, Object... bricks) {
 		Constructor<?> a = null;
 		Class<?>[] param = new Class<?>[bricks.length];
@@ -516,7 +526,7 @@ public class Ref {
 			return null;
 		}
 	}
-	
+
 	public static Object newInstanceNms(String className, Object... bricks) {
 		return newInstance(findConstructor(nms(className), bricks), bricks);
 	}

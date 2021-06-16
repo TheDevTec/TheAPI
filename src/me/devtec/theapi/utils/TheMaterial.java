@@ -3,6 +3,7 @@ package me.devtec.theapi.utils;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
@@ -245,7 +246,7 @@ public class TheMaterial implements Cloneable {
 			return o;
 		} catch (Exception err) {
 			try {
-				return Ref.invoke(Ref.getNulled(Ref.nmsOrOld("world.level.block.Blocks","Blocks"), m.name()), "getBlockData");
+				return Ref.invoke(Bukkit.createBlockData(Material.getMaterial(m.name())), "getState");
 			} catch (Exception errr) {
 				if (m != null) {
 					Map<?, ?> materialToData = (Map<?, ?>) Ref.getNulled(Ref.craft("legacy.CraftLegacy"),
@@ -262,7 +263,7 @@ public class TheMaterial implements Cloneable {
 							return Ref.invoke(convertedBlock, "getBlockData");
 					}
 				}
-				return LoaderClass.plugin.air;
+				return LoaderClass.air;
 			}
 		}
 	}

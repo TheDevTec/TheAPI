@@ -601,7 +601,7 @@ public class Position implements Cloneable {
 		Object p = pos.getBlockPosition();
 		Object ww = Ref.world(pos.getWorld());
 		//REMOVE TILE ENTITY FROM CHUNK
-		((Map<?,?>)Ref.get(c, "tileEntities")).remove(p);
+		((Map<?,?>)Ref.get(c, TheAPI.isNewerThan(16)?"l":"tileEntities")).remove(p);
 		if (palet) {
 			//CHANGE BLOCK IN CHUNKSECTION (PALLETE)
 			Ref.invoke(sc, a, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr, false);
@@ -613,11 +613,11 @@ public class Position implements Cloneable {
 		Object tt = cr.getClass().isAssignableFrom(Ref.nmsOrOld("world.level.block.Block","Block"))?cr:Ref.invoke(cr, "getBlock");
 		if(ver!=-1 && cont.isInstance(tt)) {
 			tt=ver==0?Ref.invoke(tt, tile, ww):Ref.invoke(tt, tile, ww, 0);
-			((Map<Object, Object>)Ref.get(c, "tileEntities")).put(p, tt);
+			((Map<Object, Object>)Ref.get(c, TheAPI.isNewerThan(16)?"l":"tileEntities")).put(p, tt);
 		}
 		if(cont.isInstance(tt)) {
 			tt=Ref.invoke(tt, tile, ww, 0);
-			((Map<Object, Object>)Ref.get(c, "tileEntities")).put(p, tt);
+			((Map<Object, Object>)Ref.get(c, TheAPI.isNewerThan(16)?"l":"tileEntities")).put(p, tt);
 		}
 		setup(ww,p,cr,tt);
 	}

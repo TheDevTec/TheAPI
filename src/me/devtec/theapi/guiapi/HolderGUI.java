@@ -3,7 +3,10 @@ package me.devtec.theapi.guiapi;
 import java.util.Collection;
 
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+
+import me.devtec.theapi.guiapi.GUI.ClickType;
 
 public interface HolderGUI {
 	public String getTitle();
@@ -22,9 +25,7 @@ public interface HolderGUI {
 
 	public void onClose(Player player);
 
-	public boolean onPutItem(Player player, ItemStack item, int slot);
-
-	public boolean onTakeItem(Player player, ItemStack item, int slot);
+	public boolean onIteractItem(Player player, ItemStack item, ClickType type, int slot, boolean gui);
 
 	public boolean isInsertable();
 
@@ -41,4 +42,6 @@ public interface HolderGUI {
 	public Object getContainer(Player player);
 
 	public void closeWithoutPacket(Player... p);
+
+	public Inventory getInventory();
 }

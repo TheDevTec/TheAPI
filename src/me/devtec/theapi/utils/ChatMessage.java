@@ -219,12 +219,14 @@ public class ChatMessage {
 	
 	private Object getColorNormal(String object) {
 		if(object.startsWith("#"))return null;
-		return Ref.invokeStatic(colors, t==0?ChatColor.valueOf(object).getChar():(int)ChatColor.valueOf(object).getChar());
+		if(t==0)
+			return Ref.invokeStatic(colors, (char)ChatColor.valueOf(object.toUpperCase()).getChar());
+		return Ref.invokeStatic(colors, (int)ChatColor.valueOf(object.toUpperCase()).getChar());
 	}
 	
 	private ChatColor getColorR(String object) {
 		if(object.startsWith("#"))return null;
-		return ChatColor.valueOf(object);
+		return ChatColor.valueOf(object.toUpperCase());
 	}
 
 	public String toLegacy() {

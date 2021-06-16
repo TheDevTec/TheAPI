@@ -46,8 +46,8 @@ import me.devtec.theapi.bossbar.BossBar;
 import me.devtec.theapi.configapi.Config;
 import me.devtec.theapi.configapi.Config.Node;
 import me.devtec.theapi.economyapi.EconomyAPI;
+import me.devtec.theapi.guiapi.GUI.ClickType;
 import me.devtec.theapi.guiapi.HolderGUI;
-import me.devtec.theapi.guiapi.ItemGUI;
 import me.devtec.theapi.placeholderapi.PlaceholderAPI;
 import me.devtec.theapi.placeholderapi.ThePlaceholder;
 import me.devtec.theapi.placeholderapi.ThePlaceholderAPI;
@@ -99,7 +99,13 @@ public class LoaderClass extends JavaPlugin {
 	// EconomyAPI
 	public boolean e, tve, tbank;
 	public Economy economy;
-	public Object air = Ref.invoke(Ref.getNulled(Ref.field(Ref.nmsOrOld("world.level.block.Block","Block"), "AIR")), "getBlockData");
+	public static Object air = Ref.invoke(Ref.getNulled(Ref.field(Ref.nmsOrOld("world.level.block.Block","Block"), "AIR")), "getBlockData");
+	static {
+		if(air==null)
+			air=Ref.getNulled(Ref.field(Ref.nmsOrOld("world.level.block.Blocks","Blocks"), "AIR"));
+		if(air==null && TheAPI.isNewVersion())
+			air=Ref.invoke(Ref.get(Ref.cast(Ref.craft("block.data.CraftBlockData"), Bukkit.createBlockData(Material.AIR)), "state"),"getBlock");
+	}
 	public Map<String, Client> servers;
 	public Server server;
 
@@ -120,9 +126,6 @@ public class LoaderClass extends JavaPlugin {
 	
 	@Override
 	public void onLoad() {
-		if(air==null) {
-			air=Ref.getNulled(Ref.field(Ref.nmsOrOld("world.level.block.Blocks","Blocks"), "AIR"));
-		}
 		plugin = this;
 		data = new Config("TheAPI/Data.dat", DataType.BYTE);
 		
@@ -148,13 +151,13 @@ public class LoaderClass extends JavaPlugin {
 				return false;
 			}
 			Method getSlot = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "getSlot", int.class),getItem= Ref.method(Ref.nmsOrOld("world.inventory.Slot","Slot"), "getItem");
-			Constructor<?> setSlot = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"))
-					,equipment = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityEquipmentPacketPlayOutEntityEquipment","PacketPlayOutEntityEquipment"), int.class, List.class);
-			Object OFFHAND = Ref.getStatic(Ref.nmsOrOld("world.entity.EnumItemSlot","EnumItemSlot"),"OFFHAND");
+			Constructor<?> setSlot = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
 			Class<?> resource = Ref.nmsOrOld("network.protocol.game.PacketPlayInResourcePackStatus","PacketPlayInResourcePackStatus"), close = Ref.nmsOrOld("network.protocol.game.PacketPlayInCloseWindow","PacketPlayInCloseWindow"), click = Ref.nmsOrOld("network.protocol.game.PacketPlayInWindowClick","PacketPlayInWindowClick");
 
-			Field shift=Ref.field(click, TheAPI.isNewerThan(16)?"d":"shift"), slot=Ref.field(click, TheAPI.isNewerThan(16)?"b":"slot"), button=Ref.field(click, TheAPI.isNewerThan(16)?"a":"button"), a=Ref.field(click, "a"), item=Ref.field(click, TheAPI.isNewerThan(16)?"e":"item");
-			@Override
+			Field shift=Ref.field(click, TheAPI.isNewerThan(16)?"d":"shift"), slot=Ref.field(click, TheAPI.isNewerThan(16)?"b":"slot"), button=Ref.field(click, TheAPI.isNewerThan(16)?"c":"button"), a=Ref.field(click, "a"), item=Ref.field(click, TheAPI.isNewerThan(16)?"e":"item");
+
+			
+			@SuppressWarnings("unchecked")
 			public boolean PacketPlayIn(String player, Object packet, Object channel) {
 				if(player==null)return false; //NPC
 				//ResourcePackAPI
@@ -174,92 +177,56 @@ public class LoaderClass extends JavaPlugin {
 					return true;
 				}
 				if(packet.getClass()==click) {
-					int id = (int) Ref.get(packet, a);
-					int mouseClick = (int) Ref.get(packet, button);
-					int slot = (int) Ref.get(packet, this.slot);
 					Player p = (Player) TheAPI.getPlayer(player);
-					InventoryClickType type = null;
-					if(Ref.get(packet, shift) instanceof Integer) {
-						type=InventoryClickType.values()[(int)Ref.get(packet, shift)];
-					}else {
-						type=InventoryClickType.valueOf(Ref.get(packet, shift).toString());
-					}
 					HolderGUI d = LoaderClass.plugin.gui.get(p.getName());
-					if (d == null)
-						return false;
-					Object g = d.getContainer(p);
-					if(InventoryClickType.THROW==type && slot==-999||InventoryClickType.PICKUP==type && slot==-999)return false;
-					if(InventoryClickType.SWAP==type) {
-						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
-						ItemStack i=NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(g, getSlot, slot),getItem));
-						if(mouseClick == 40 && TheAPI.isNewerThan(8)) {
-							final List<com.mojang.datafixers.util.Pair<?,?>> equipmentList = new ArrayList<>();
-							equipmentList.add(new com.mojang.datafixers.util.Pair<>(OFFHAND, NMSAPI.asNMSItem(p.getEquipment().getItemInOffHand())));
-							Ref.sendPacket(p,Ref.newInstance(equipment, p.getEntityId(), equipmentList));
-						}
-						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, NMSAPI.asNMSItem(i)));
-						Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(p.getItemOnCursor())));
-						if(TheAPI.isNewerThan(16))
-							Ref.invoke(Ref.get(Ref.player(p),"bU"),"updateInventory");
-						else
-							p.updateInventory();
-						if (slot < d.size()) {
-							ItemGUI a = d.getItemGUI(slot);
-							if (a != null) {
-								a.onClick(p, d, me.devtec.theapi.guiapi.GUI.ClickType.LEFT_PICKUP);
-							}
-						}
-						return true;
+					if (d == null)return false;
+					int id = (int) Ref.get(packet, a);
+					int slot = (int) Ref.get(packet, this.slot);
+					int mouseClick = (int) Ref.get(packet, button);
+					Object aw = Ref.get(packet, shift);
+					InventoryClickType type = null;
+					if(aw instanceof Integer) {
+						type=InventoryClickType.values()[(int)aw];
+					}else {
+						type=InventoryClickType.valueOf(aw.toString());
 					}
+					if(slot==-999)return false;
+					Object g = d.getContainer(p);
 					ItemStack i = NMSAPI.asBukkitItem(Ref.get(packet, item));
 					if((type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.CLONE||type==InventoryClickType.THROW||i.getType()==Material.AIR) && i.getType()==Material.AIR)
 						i=NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(g, getSlot, slot),getItem));
-					ItemStack before = p.getItemOnCursor();
-					if(i==null)i=new ItemStack(Material.AIR);
-					if(before==null)before=new ItemStack(Material.AIR);
-					if(type!=InventoryClickType.PICKUP_ALL)
-					if(before.getType()==Material.AIR&&i.getType()==Material.AIR || type!=InventoryClickType.CLONE && type!=InventoryClickType.QUICK_MOVE && type!=InventoryClickType.QUICK_CRAFT && type!=InventoryClickType.PICKUP && type!=InventoryClickType.THROW) {
-						if(type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.PICKUP_ALL) {
-							if(TheAPI.isNewerThan(16))
-								Ref.invoke(Ref.get(Ref.player(p),"bU"),"updateInventory");
-							else
-								p.updateInventory();
-						}
-						Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));
-						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
-						return true;
+					if(InventoryClickType.SWAP==type) {
+						i=p.getInventory().getItem(mouseClick);
+						mouseClick=0;
 					}
-					String action = i.getType()==Material.AIR && (type==InventoryClickType.PICKUP||type==InventoryClickType.QUICK_CRAFT)?"DROP":"PICKUP";
-					action=(type==InventoryClickType.CLONE?"MIDDLE_":(mouseClick==0?"LEFT_":mouseClick==1?"RIGHT_":"MIDDLE_"))+action;
-					if(type==InventoryClickType.QUICK_MOVE)
-					action="SHIFT_"+action;
-					boolean cancel = false;
-					if (slot < d.size()) {
-						if(slot%d.size()>0) {
-							if(action.contains("DROP"))
-								cancel = d.onPutItem(p, i, slot%d.size());
-							else
-								cancel = d.onTakeItem(p, i, slot%d.size());
-						}
-						ItemGUI a = d.getItemGUI(slot);
-						if (a != null) {
-							cancel=a.isUnstealable();
-							a.onClick(p, d, me.devtec.theapi.guiapi.GUI.ClickType.valueOf(action));
-						}
-					}else
-						cancel=!d.isInsertable();
-					if(TheAPI.isOlderThan(9) && !cancel)
-					cancel=type==InventoryClickType.QUICK_MOVE;
+					ItemStack before = p.getItemOnCursor();
+					if(before==null)before=new ItemStack(Material.AIR);
+					if(i==null)i=new ItemStack(Material.AIR);
+					ClickType w = GUIEvents.buildClick(i, type, slot, mouseClick);
+					TheAPI.bcMsg(w);
+					boolean cancel = GUIEvents.useItem(p, i, d, slot, w);
+					if(!d.isInsertable())cancel=true;
+					if(!cancel) {
+						cancel=d.onIteractItem(p, i, w, slot>d.size()?slot-d.size()+27:slot, slot<d.size());
+					}
 					if(cancel) {
-						if(type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.PICKUP_ALL) {
-							if(TheAPI.isNewerThan(16))
-								Ref.invoke(Ref.get(Ref.player(p),"bU"),"updateInventory");
-							else
-								p.updateInventory();
+						try {
+							return true;
+						}finally {
+							if(type==InventoryClickType.QUICK_MOVE) {
+								if(TheAPI.isNewerThan(16))
+								for(int s : ((org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMaps.UnmodifiableMap<Object>)Ref.get(packet, "f")).keySet())
+									Ref.sendPacket(p,Ref.newInstance(setSlot,id, s, Ref.invoke(Ref.invoke(g, getSlot, s),getItem)));
+							}else {
+								if(type==InventoryClickType.SWAP||type==InventoryClickType.PICKUP_ALL) {
+									if(TheAPI.isNewerThan(16)) {
+										Ref.invoke(Ref.get(Ref.player(p),"bU"),"updateInventory");
+									}else p.updateInventory();
+								}
+								Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));
+								Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
+							}
 						}
-						Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));
-						Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
-						return true;
 					}
 				}
 				return false;
