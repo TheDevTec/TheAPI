@@ -246,10 +246,6 @@ public class GUI implements HolderGUI {
 				if(inv.getItem(i)==null||inv.getItem(i).getType()==Material.AIR)continue;
 				Ref.invoke(Ref.invoke(container, "getSlot", i),"set", NMSAPI.asNMSItem(inv.getItem(i)));
 			}
-			Ref.set(container, "windowId", id);
-			Ref.set(f, TheAPI.isNewerThan(16)?"bV":"activeContainer", container);
-			Ref.invoke(container, addListener, f);
-			Ref.set(container, "checkReachable", false);
 			if(TheAPI.isOlderThan(8)) {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id,0,title, getSize(), false));
 			}else if(TheAPI.isOlderThan(14)) {
@@ -258,6 +254,10 @@ public class GUI implements HolderGUI {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getFixedIChatBaseComponent(title)));
 			}
 			Ref.sendPacket(player, Ref.newInstance(itemsS,id, Ref.invoke(container,getItems)));
+			Ref.set(container, "windowId", id);
+			Ref.set(f, TheAPI.isNewerThan(16)?"bV":"activeContainer", container);
+			Ref.invoke(container, addListener, f);
+			Ref.set(container, "checkReachable", false);
 			containers.put(player, container);
 			LoaderClass.plugin.gui.put(player.getName(), this);
 		}
@@ -301,7 +301,7 @@ public class GUI implements HolderGUI {
 			}else {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getFixedIChatBaseComponent(title)));
 			}
-			Ref.sendPacket(player, Ref.newInstance(itemsS,id, TheAPI.isNewerThan(16)?Ref.invoke(container, "c"):Ref.get(container,"items")));
+			Ref.sendPacket(player, Ref.newInstance(itemsS,id, Ref.invoke(container,getItems)));
 			Object inv = Ref.invoke(f, "getInventory");
 			if(inv==null)inv=Ref.get(f, "inventory");
 			Object carry = Ref.invoke(inv,"getCarried");
