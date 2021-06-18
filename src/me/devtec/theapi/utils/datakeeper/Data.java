@@ -541,7 +541,19 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	@SuppressWarnings("unchecked")
 	protected synchronized void preparePath(List<String> done, String path, String pathName, String space, StringBuilder b) {
-		pathName = space + (pathName.substring(0, pathName.length()-1).contains(":")?'"'+pathName+'"':pathName);
+		StringBuilder bab = new StringBuilder(pathName.length()+space.length()+2);
+		bab.append(space);
+		String split = pathName.substring(0, pathName.length()-1);
+		if(split.length()==1) { //char
+			bab.append('\'').append(split).append('\'').append(':');
+		}else
+		if(split.contains(":")) {
+			bab.append('"').append(split).append('"').append(':');
+		}else
+		if(split.startsWith("#")) { //starts with comment
+			bab.append('"').append(split).append('"').append(':');
+		}else bab.append(pathName);
+		pathName=bab.toString();
 		try {
 		Object[] aw = loader.get().get(path);
 		if(aw==null) {

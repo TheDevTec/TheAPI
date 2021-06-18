@@ -13,7 +13,8 @@ import java.util.regex.Pattern;
 import me.devtec.theapi.utils.json.Reader;
 
 public class YamlLoader extends DataLoader {
-	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*?):[ ]*(.*)");
+	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*?):[ ]*(.*)"),
+			fixedSplitter=Pattern.compile("^\"(.*)(\"([ ]*#?.*?))$|^'(.*)('([ ]*#?.*?))$|(.*)");
 	private Map<String, Object[]> data = new LinkedHashMap<>();
 	private List<String> header = new LinkedList<>(), footer = new LinkedList<>();
 	private boolean l;
@@ -69,11 +70,9 @@ public class YamlLoader extends DataLoader {
 						if (c != 0) {
 							if (c == 1) {
 								String object = v.toString();
-								String fix = object.trim();
-								if ((fix.startsWith("'") && fix.endsWith("'")
-										|| fix.startsWith("\"") && fix.endsWith("\"")) && fix.length() > 1) {
-									object=object.substring(1,object.length()-1);
-								}
+								Matcher m = fixedSplitter.matcher(object);
+								if(m.find())
+								object=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
 								set(key, object, lines);
 								v = null;
 							} else if (c == 2) {
@@ -94,11 +93,9 @@ public class YamlLoader extends DataLoader {
 					if (c != 0 && find) {
 						if (c == 1) {
 							String object = v.toString();
-							String fix = object.trim();
-							if ((fix.startsWith("'") && fix.endsWith("'")
-									|| fix.startsWith("\"") && fix.endsWith("\"")) && fix.length() > 1) {
-								object=object.substring(1,object.length()-1);
-							}
+							Matcher m = fixedSplitter.matcher(object);
+							if(m.find())
+							object=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
 							set(key, object, lines, object);
 							v = null;
 						}
@@ -111,11 +108,9 @@ public class YamlLoader extends DataLoader {
 					if (c == 2 || text.substring(c(text)).startsWith("- ") && !key.equals("")) {
 						String object = c != 2 ? text.substring(c(text)+2)
 								: text.substring(c(text));
-						String fix = object.trim();
-						if ((fix.startsWith("'") && fix.endsWith("'")
-								|| fix.startsWith("\"") && fix.endsWith("\"")) && fix.length() > 1) {
-							object=object.substring(1,object.length()-1);
-						}
+						Matcher m = fixedSplitter.matcher(object);
+						if(m.find())
+						object=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
 						items.add(object);
 						continue;
 					}
@@ -150,19 +145,17 @@ public class YamlLoader extends DataLoader {
 							}
 						}
 						String split = sec.group(1);
-						String fix = split.trim();
-						if ((fix.startsWith("'") && fix.endsWith("'")
-								|| fix.startsWith("\"") && fix.endsWith("\"")) && fix.length() > 1) {
-							split=split.substring(1,split.length()-1);
-						}
+						Matcher m = fixedSplitter.matcher(split);
+						if(m.find())
+							split=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
 						String object = null;
+						String fix = null;
 						try {
 							object = sec.group(2);
 							fix = object.trim();
-							if ((fix.startsWith("'") && fix.endsWith("'")
-									|| fix.startsWith("\"") && fix.endsWith("\"")) && fix.length() > 1) {
-								object=object.substring(1,object.length()-1);
-							}
+							m=m.reset(object);
+							if(m.find())
+								object=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
 						} catch (Exception er) {
 						}
 						if(!key.equals(""))key+='.';
