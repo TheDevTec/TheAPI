@@ -883,7 +883,7 @@ public class ItemCreatorAPI implements Cloneable {
 				}
 			} else if (type != null && type == SkullType.PLAYER) {
 				SkullMeta m = (SkullMeta) i.getItemMeta();
-				if (owner != null)
+				if (owner != null && !owner.trim().isEmpty())
 					m.setOwner(owner);
 				if (url != null || text != null) {
 					try {
