@@ -88,7 +88,7 @@ public class WorldsAPI {
 				c.generator(Chunkgenerator);
 			World w = Bukkit.createWorld(c);
 			if (type == null) { //void generator
-				w.setSpawnLocation(0, 60, 0);
+				w.setSpawnLocation(0, 61, 0);
 				w.getBlockAt(0, 60, 0).setType(Material.GLASS);
 			}
 			return true;

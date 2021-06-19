@@ -63,12 +63,12 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 								PacketInterceptor interceptor = new PacketInterceptor(null); //add new hook
 								channel.eventLoop().execute(new Runnable() {
 									public void run() {
-										if(channel.pipeline().names().contains("InjectorTheAPI"))
-											channel.pipeline().remove("InjectorTheAPI"); //remove old instance - reload of server?
+										if(channel.pipeline().names().contains("InjectorTA"))
+											channel.pipeline().remove("InjectorTA"); //remove old instance - reload of server?
 										if(channel.pipeline().names().contains("packet_handler"))
-											channel.pipeline().addBefore("packet_handler","InjectorTheAPI", interceptor);
+											channel.pipeline().addBefore("packet_handler","InjectorTA", interceptor);
 										else
-											channel.pipeline().addBefore("encoder","InjectorTheAPI", interceptor);
+											channel.pipeline().addBefore("encoder","InjectorTA", interceptor);
 									}
 								});
 								return interceptor;
@@ -152,26 +152,26 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 	private PacketInterceptor injectChannelInternal(Player a, Channel channel) {
 		if (channel == null)return null;
 		try {
-			if(channel.pipeline().names().contains("InjectorTheAPI"))
-				return (PacketInterceptor) channel.pipeline().get("InjectorTheAPI");
+			if(channel.pipeline().names().contains("InjectorTA"))
+				return (PacketInterceptor) channel.pipeline().get("InjectorTA");
 			PacketInterceptor interceptor = new PacketInterceptor(a.getName());
 			if(channel.pipeline().names().contains("packet_handler"))
-			channel.pipeline().addBefore("packet_handler", "InjectorTheAPI", interceptor);
+			channel.pipeline().addBefore("packet_handler", "InjectorTA", interceptor);
 			else
-				channel.pipeline().addBefore("encoder","InjectorTheAPI", interceptor);
+				channel.pipeline().addBefore("encoder","InjectorTA", interceptor);
 			return interceptor;
 		} catch (Exception e) {
-			if(channel.pipeline().names().contains("InjectorTheAPI")) {
+			if(channel.pipeline().names().contains("InjectorTA")) {
 				PacketInterceptor interceptor = new PacketInterceptor(a.getName()); //add new hook
 				channel.eventLoop().execute(new Runnable() {
 					@Override
 					public void run() {
-						channel.pipeline().remove("InjectorTheAPI");
+						channel.pipeline().remove("InjectorTA");
 						try {
 							if(channel.pipeline().names().contains("packet_handler"))
-						channel.pipeline().addBefore("packet_handler", "InjectorTheAPI", interceptor);
+						channel.pipeline().addBefore("packet_handler", "InjectorTA", interceptor);
 						else
-							channel.pipeline().addBefore("encoder","InjectorTheAPI", interceptor);
+							channel.pipeline().addBefore("encoder","InjectorTA", interceptor);
 						}catch(Exception e) {}
 					}
 				});
@@ -200,8 +200,8 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 						break;
 					}
 				channelLookup.remove(owner);
-				if(channel.pipeline().names().contains("InjectorTheAPI"))
-				channel.pipeline().remove("InjectorTheAPI");
+				if(channel.pipeline().names().contains("InjectorTA"))
+				channel.pipeline().remove("InjectorTA");
 			}
 		});
 	}
@@ -209,7 +209,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 	public boolean has(Channel channel) {
 		if (channel == null)return false;
 		try {
-			return channel.pipeline().get("InjectorTheAPI") != null;
+			return channel.pipeline().get("InjectorTA") != null;
 		} catch (Exception e) {
 			return false;
 		}

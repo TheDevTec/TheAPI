@@ -9,17 +9,13 @@ import org.bukkit.generator.ChunkGenerator;
 import me.devtec.theapi.TheAPI;
 
 public class voidGenerator extends ChunkGenerator {
-	private static String the_void = TheAPI.isNewVersion() ? "THE_VOID" : "VOID";
+	private static Biome the_void = TheAPI.isNewVersion() ? Biome.valueOf("THE_VOID") : Biome.valueOf("VOID");
 
 	@Override
 	public ChunkGenerator.ChunkData generateChunkData(World world, Random random, int chunkx, int chunkz,
 			ChunkGenerator.BiomeGrid biome) {
 		ChunkGenerator.ChunkData data = this.createChunkData(world);
-		for (int x = 0; x < 16; ++x) {
-			for (int z = 0; z < 16; ++z) {
-				biome.setBiome(x, z, Biome.valueOf(the_void));
-			}
-		}
+		biome.setBiome(chunkx, chunkz, the_void);
 		return data;
 	}
 }

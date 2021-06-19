@@ -162,7 +162,8 @@ public class LoaderClass extends JavaPlugin {
 				if(player==null)return false; //NPC
 				//ResourcePackAPI
 				if(resource!=null && packet.getClass()==resource) {
-					Player s = TheAPI.getPlayer(player);
+					Player s = (Player) TheAPI.getPlayer(player);
+					if(s==null)return false;
 					if(ResourcePackAPI.getResourcePack(s)==null||ResourcePackAPI.getHandlingPlayer(s)==null)return false;
 					ResourcePackAPI.getHandlingPlayer(s).onHandle(s, ResourcePackAPI.getResourcePack(s), ResourcePackResult.valueOf(Ref.get(packet, TheAPI.isNewerThan(16)?"a":"status").toString()));
 					return false;
@@ -170,6 +171,7 @@ public class LoaderClass extends JavaPlugin {
 				//GUIS
 				if(packet.getClass()==close) {
 					Player p = (Player) TheAPI.getPlayer(player);
+					if(p==null)return false;
 					HolderGUI d = LoaderClass.plugin.gui.remove(p.getName());
 					if (d == null)
 						return false;
@@ -178,6 +180,7 @@ public class LoaderClass extends JavaPlugin {
 				}
 				if(packet.getClass()==click) {
 					Player p = (Player) TheAPI.getPlayer(player);
+					if(p==null)return false;
 					HolderGUI d = LoaderClass.plugin.gui.get(p.getName());
 					if (d == null)return false;
 					int id = (int) Ref.get(packet, a);
@@ -850,14 +853,14 @@ public class LoaderClass extends JavaPlugin {
 						if (config.exists("WorldsSetting." + s)) {
 							if(config.exists("WorldsSetting." + s + ".Generator"))
 							if (config.getString("WorldsSetting." + s + ".Generator").equalsIgnoreCase(w)) {
-								if (w.equalsIgnoreCase("Flat"))
+								if (w.equalsIgnoreCase("Flat")|| w.equals("3"))
 									type = "Flat";
-								if (w.equalsIgnoreCase("Nether"))
+								if (w.equalsIgnoreCase("Nether")|| w.equals("1"))
 									type = "Nether";
-								if (w.equalsIgnoreCase("The_End") || w.equalsIgnoreCase("End"))
+								if (w.equalsIgnoreCase("The_End") || w.equalsIgnoreCase("End")|| w.equals("2"))
 									type = "The_End";
 								if (w.equalsIgnoreCase("The_Void") || w.equalsIgnoreCase("Void")
-										|| w.equalsIgnoreCase("Empty"))
+										|| w.equalsIgnoreCase("Empty")|| w.equals("4"))
 									type = "The_Void";
 								break;
 							}
