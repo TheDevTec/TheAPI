@@ -235,6 +235,8 @@ public class TheMaterial implements Cloneable {
 	}
 
 	public Object getIBlockData() {
+		if(TheAPI.isNewerThan(12))
+			return Ref.get(Bukkit.createBlockData(m), "state");
 		try {
 			Object o = Ref.invokeNulled(Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "getByCombinedId", int.class),
 					(int) ((m.getId() + (data >> 4))));
@@ -245,26 +247,22 @@ public class TheMaterial implements Cloneable {
 						(int) data);
 			return o;
 		} catch (Exception err) {
-			try {
-				return Ref.invoke(Bukkit.createBlockData(Material.getMaterial(m.name())), "getState");
-			} catch (Exception errr) {
-				if (m != null) {
-					Map<?, ?> materialToData = (Map<?, ?>) Ref.getNulled(Ref.craft("legacy.CraftLegacy"),
-							"materialToData");
-					Map<?, ?> materialToBlock = (Map<?, ?>) Ref.getNulled(Ref.craft("legacy.CraftLegacy"),
-							"materialToBlock");
-					MaterialData materialData = toItemStack().getData();
-					if (materialData != null) {
-						Object converted = materialToData.get(materialData);
-						if (converted != null)
-							return converted;
-						Object convertedBlock = materialToBlock.get(materialData);
-						if (convertedBlock != null)
-							return Ref.invoke(convertedBlock, "getBlockData");
-					}
+			if (m != null) {
+				Map<?, ?> materialToData = (Map<?, ?>) Ref.getNulled(Ref.craft("legacy.CraftLegacy"),
+						"materialToData");
+				Map<?, ?> materialToBlock = (Map<?, ?>) Ref.getNulled(Ref.craft("legacy.CraftLegacy"),
+						"materialToBlock");
+				MaterialData materialData = toItemStack().getData();
+				if (materialData != null) {
+					Object converted = materialToData.get(materialData);
+					if (converted != null)
+						return converted;
+					Object convertedBlock = materialToBlock.get(materialData);
+					if (convertedBlock != null)
+						return Ref.invoke(convertedBlock, "getBlockData");
 				}
-				return LoaderClass.air;
 			}
+			return LoaderClass.air;
 		}
 	}
 
