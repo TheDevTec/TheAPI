@@ -853,14 +853,14 @@ public class LoaderClass extends JavaPlugin {
 						if (config.exists("WorldsSetting." + s)) {
 							if(config.exists("WorldsSetting." + s + ".Generator"))
 							if (config.getString("WorldsSetting." + s + ".Generator").equalsIgnoreCase(w)) {
-								if (w.equalsIgnoreCase("Flat")|| w.equals("3"))
+								if (w.equalsIgnoreCase("Flat")|| w.equalsIgnoreCase("3"))
 									type = "Flat";
-								if (w.equalsIgnoreCase("Nether")|| w.equals("1"))
+								if (w.equalsIgnoreCase("Nether")|| w.equalsIgnoreCase("1"))
 									type = "Nether";
-								if (w.equalsIgnoreCase("The_End") || w.equalsIgnoreCase("End")|| w.equals("2"))
+								if (w.equalsIgnoreCase("The_End") || w.equalsIgnoreCase("End")|| w.equalsIgnoreCase("2"))
 									type = "The_End";
 								if (w.equalsIgnoreCase("The_Void") || w.equalsIgnoreCase("Void")
-										|| w.equalsIgnoreCase("Empty")|| w.equals("4"))
+										|| w.equalsIgnoreCase("Empty")|| w.equalsIgnoreCase("4"))
 									type = "The_Void";
 								break;
 							}
@@ -872,7 +872,7 @@ public class LoaderClass extends JavaPlugin {
 					if (type.equals("Flat"))
 						wt = WorldType.FLAT;
 					if (type.equals("The_Void"))
-						env = null;
+						wt = null;
 					if (type.equals("The_End")) {
 						try {
 							env = Environment.valueOf("THE_END");
