@@ -58,6 +58,7 @@ import me.devtec.theapi.scoreboardapi.SimpleScore;
 import me.devtec.theapi.sockets.Client;
 import me.devtec.theapi.sockets.Server;
 import me.devtec.theapi.sockets.ServerClient;
+import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.SpigotUpdateChecker;
 import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.StringUtils;
@@ -144,6 +145,32 @@ public class LoaderClass extends JavaPlugin {
 					Config.loadConfig(e, plugin.getString("configs"), folder+"/"+plugin.getString("configs"));
 			}
 		}
+		if(config.getBoolean("Options.AntiFakeBlocks"))
+		new PacketListener() {
+			@Override
+			public boolean PacketPlayIn(String player, Object packet, Object channel) {
+				return false;
+			}
+			@Override
+			public boolean PacketPlayOut(String player, Object packet, Object channel) {
+				if(packet.toString().contains("PacketPlayOutBlockChange")) {
+					if(TheAPI.isNewerThan(7)) {
+						Player a = TheAPI.getPlayer(player);
+						Position c = new Position(a.getWorld(),(int)Ref.invoke(Ref.get(packet,"a"), "getX"),(int)Ref.invoke(Ref.get(packet,"a"), "getY"),(int)Ref.invoke(Ref.get(packet,"a"), "getZ"));
+						if(!c.getIBlockData().equals(Ref.get(packet, TheAPI.isNewerThan(16)?"b":"block")))
+							Ref.set(packet, TheAPI.isNewerThan(16)?"b":"block", LoaderClass.air);
+					}else {
+						Player a = TheAPI.getPlayer(player);
+						Position c = new Position(a.getWorld(),(int)Ref.get(packet,"a"),(int)Ref.get(packet,"b"),(int)Ref.get(packet,"c"));
+						if(!c.getIBlockData().equals(Ref.get(packet, "block")) || !Ref.get(packet, "data").equals(c.getData())) {
+							Ref.set(packet, "block", LoaderClass.air);
+							Ref.set(packet, "data", 0);
+						}
+					}
+				}
+				return false;
+			}
+		}.register();
 		new PacketListener() {
 			
 			@Override
@@ -620,6 +647,7 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.ConsoleLogEvent", false);
 		config.addDefault("Options.ItemUnbreakable", true);
 		config.addDefault("Options.ServerListPingEvent", true);
+		config.addDefault("Options.AntiFakeBlocks", new Node(false, "# This function can solve problems with \"ghost blocks\", but make anti-xray no longer working", "# defaulty: false"));
 		config.addDefault("Options.Cache.User.Use", new Node(true, "# Cache Users to memory for faster loading", "# defaulty: true")); // Require memory, but loading of User.class is faster (only
 		// from TheAPI.class)
 		config.setComments("Options.Cache", Arrays.asList(""));

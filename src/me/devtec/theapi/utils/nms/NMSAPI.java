@@ -28,14 +28,13 @@ public class NMSAPI {
 	private static Constructor<?> pDestroy, pTimes, pTitle, pSub, pAction, pReset, pOutChat, pTab, pBlock,
 			pSpawn, pNSpawn, pLSpawn, pTeleport,
 			metadata = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityMetadata","PacketPlayOutEntityMetadata"), int.class, Ref.nmsOrOld("network.syncher.DataWatcher","DataWatcher"), boolean.class);
-	private static Method entityM, livingentity, post, notify,nofifyManual,
-	parseNbt = Ref.method(Ref.nmsOrOld("nbt.MojangsonParser","MojangsonParser"), "parse", String.class),
+	private static Method entityM, livingentity, post, parseNbt = Ref.method(Ref.nmsOrOld("nbt.MojangsonParser","MojangsonParser"), "parse", String.class),
 	setNbt,
 	asNms=Ref.method(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class), getNbt,
 	asBukkit=Ref.method(Ref.craft("inventory.CraftItemStack"), "asBukkitCopy", Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
 	
-	private static int old, not;
-	private static Field tps,getMap,getProvider;
+	private static int old;
+	private static Field tps;
 	private static Object sbremove, sbinteger, sbchange, sbhearts, empty, server;
 	private static Field[] scr = new Field[4];
 	
@@ -108,28 +107,6 @@ public class NMSAPI {
 		if (pBlock == null)
 			pBlock = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutBlockChange","PacketPlayOutBlockChange"), int.class, int.class, int.class, Ref.nmsOrOld("world.level.World","World"));
 		tps = Ref.field(Ref.nmsOrOld("server.MinecraftServer","MinecraftServer"), "recentTps");
-		getMap = Ref.field(Ref.nmsOrOld("server.level.WorldServer","WorldServer"),"manager");
-		if(getMap==null) {
-			getProvider = Ref.field(Ref.nmsOrOld("server.level.WorldServer","WorldServer"),"chunkProvider");
-			getMap = Ref.field(Ref.nmsOrOld("server.level.ChunkProviderServer","ChunkProviderServer"),"playerChunkMap");
-		}
-		
-		notify = Ref.method(Ref.nmsOrOld("server.level.PlayerChunkMap","PlayerChunkMap"), "flagDirty", int.class, int.class, int.class); //1.7
-		if(notify==null) {
-		notify = Ref.method(Ref.nmsOrOld("server.level.PlayerChunkMap","PlayerChunkMap"), "a", int.class, int.class, int.class); //1.8
-		if(notify==null) {
-		notify = Ref.method(Ref.nmsOrOld("server.level.PlayerChunkMap","PlayerChunkMap"), "flagDirty", Ref.nmsOrOld("core.BlockPosition","BlockPosition")); //1.9 - 1.12
-		if(notify==null) {
-		notify = Ref.method(Ref.nmsOrOld("server.level.PlayerChunkMap","PlayerChunkMap"), "a", Ref.nmsOrOld("core.BlockPosition","BlockPosition")); //1.13
-		if(notify==null) {
-			not=1;
-			notify = Ref.method(Ref.nmsOrOld("server.level.PlayerChunkMap","PlayerChunkMap"), "getVisibleChunk", long.class); //1.14 - 1.16
-			nofifyManual = Ref.method(Ref.nmsOrOld("server.level.PlayerChunk","PlayerChunk"), "a", int.class, int.class, int.class);
-			if(nofifyManual==null) {
-				not=0;
-				nofifyManual = Ref.method(Ref.nmsOrOld("server.level.PlayerChunk","PlayerChunk"), "a", Ref.nmsOrOld("core.BlockPosition","BlockPosition"));
-			}
-		}}}}
 		empty = Ref.IChatBaseComponent("");
 	}
 
@@ -339,17 +316,6 @@ public class NMSAPI {
 
 	public static Object getPacketPlayOutTitle(TitleAction action, String text) {
 		return getPacketPlayOutTitle(action, NMSAPI.getFixedIChatBaseComponent(text), 10, 20, 10);
-	}
-	
-	public static void refleshBlock(Position pos) {
-		if (TheAPI.isOlderThan(9)) { //1.7 - 1.8
-			Ref.invoke(Ref.get(Ref.world(pos.getWorld()), getMap), notify, pos.getBlockX(), pos.getBlockY(), pos.getBlockZ());
-		}else
-		if (TheAPI.isOlderThan(14)) { //1.9 - 1.13
-			Ref.invoke(Ref.get(Ref.world(pos.getWorld()), getMap), notify, pos.getBlockPosition());
-		}else { //1.14+ - manually
-			Ref.invoke(Ref.get(Ref.get(Ref.world(pos.getWorld()), getProvider), getMap), notify, not==0?pos.getBlockPosition():pos.getBlockX(), pos.getBlockY(), pos.getBlockZ());
-		}
 	}
 
 	public static Object getPacketPlayOutChat(ChatType type, Object IChatBaseComponent) {

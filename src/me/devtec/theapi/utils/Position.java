@@ -1,6 +1,7 @@
 package me.devtec.theapi.utils;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Iterator;
@@ -16,10 +17,8 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class Position implements Cloneable {
@@ -266,10 +265,13 @@ public class Position implements Cloneable {
 	}
 
 	public Chunk getChunk() {
-		return (Chunk) Ref.get(getNMSChunk(), "bukkitChunk");
+		if(TheAPI.isNewVersion())
+			return getWorld().getChunkAt(getBlockX() >> 4, getBlockZ() >> 4);
+		return (Chunk) Ref.get(getNMSChunk(), f);
 	}
 
 	private static int wf = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]);
+	private static Field f = Ref.field(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "bukkitChunk");
 	private static Method handle = Ref.method(Ref.craft("CraftChunk"), "getHandle"),
 			getOrCreate=Ref.method(Ref.nms("ChunkProviderServer"), "getOrCreateChunk", int.class, int.class);
 	static {
@@ -388,8 +390,8 @@ public class Position implements Cloneable {
 	
 	public void setTypeAndUpdate(TheMaterial with) {
 		setType(with);
-		updateBlockAt(this);
-		updateLightAt(this);
+		Position.updateBlockAt(this);
+		Position.updateLightAt(this);
 	}
 
 	@Override
@@ -410,21 +412,18 @@ public class Position implements Cloneable {
 	private static Constructor<?> c;
 	private static int t;
 	static {
-		c=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutBlockChange","PacketPlayOutBlockChange"), Ref.nmsOrOld("world.level.IBlockAccess","IBlockAccess"), Ref.nmsOrOld("core.BlockPosition","BlockPosition"));
+		c=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutBlockChange","PacketPlayOutBlockChange"), Ref.nms("World"), Ref.nms("BlockPosition"));
+		if(c==null)
+			c=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutBlockChange","PacketPlayOutBlockChange"), Ref.nms("IBlockAccess"), Ref.nms("BlockPosition"));
 		if(c==null) {
-			c=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutBlockChange","PacketPlayOutBlockChange"), Ref.nmsOrOld("world.level.World","World"), Ref.nmsOrOld("core.BlockPosition","BlockPosition"));
-			if(c==null) {
-				c=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutBlockChange","PacketPlayOutBlockChange"), int.class, int.class, int.class, Ref.nmsOrOld("world.level.World","World"));
-				t=1;
-			}
+			c=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutBlockChange","PacketPlayOutBlockChange"), int.class, int.class, int.class, Ref.nms("World"));
+			++t;
 		}
 	}
 	
 	public static void updateBlockAt(Position pos) {
-		NMSAPI.refleshBlock(pos);
-		Object packet = t==0?Ref.newInstance(c, Ref.world(pos.getWorld()), pos.getBlockPosition()):Ref.newInstance(c, pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.world(pos.getWorld()));
-		for (Player p : TheAPI.getOnlinePlayers())
-			Ref.sendPacket(p, packet);
+		Ref.sendPacket(pos.getWorld().getPlayers(), t==0?Ref.newInstance(c, Ref.world(pos.getWorld()),pos.getBlockPosition()):
+			Ref.newInstance(c, pos.getBlockX(),pos.getBlockY(),pos.getBlockZ(),Ref.world(pos.getWorld())));
 	}
 
 	private static boolean aww = TheAPI.isOlderThan(8);
@@ -468,12 +467,14 @@ public class Position implements Cloneable {
 
 	public void setStateAndUpdate(BlockState state) {
 		setState(this, state);
-		updateBlockAt(this);
+		Position.updateBlockAt(this);
+		Position.updateLightAt(this);
 	}
 
 	public void setBlockDataAndUpdate(BlockData state) {
 		setBlockData(this, state);
-		updateBlockAt(this);
+		Position.updateBlockAt(this);
+		Position.updateLightAt(this);
 	}
 
 	private static Object air = new TheMaterial(Material.AIR).getIBlockData();
@@ -487,7 +488,8 @@ public class Position implements Cloneable {
 
 	public void setAirAndUpdate() {
 		setAir();
-		updateBlockAt(this);
+		Position.updateBlockAt(this);
+		Position.updateLightAt(this);
 	}
 	
 	public static long set(Location pos, int id, int data) {
@@ -576,6 +578,11 @@ public class Position implements Cloneable {
 		set(pos, true, wf >= 14, Ref.invoke(Ref.invokeNulled(getBlock, state.getType()),fromLegacyData,(int)state.getRawData()));
 	}
 	
+
+	private static Field ff = Ref.field(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), TheAPI.isNewerThan(16)?"l":"tileEntities");
+	private static Class<?>b =  Ref.nmsOrOld("world.level.block.Block","Block");
+	private static Method bgetBlock = Ref.method(Ref.nmsOrOld("world.level.block.state.IBlockData", "IBlockData"), "getBlock");
+	
 	/**
 	 * 
 	 * @param pos   Location
@@ -601,23 +608,23 @@ public class Position implements Cloneable {
 		Object p = pos.getBlockPosition();
 		Object ww = Ref.world(pos.getWorld());
 		//REMOVE TILE ENTITY FROM CHUNK
-		((Map<?,?>)Ref.get(c, TheAPI.isNewerThan(16)?"l":"tileEntities")).remove(p);
+		((Map<?,?>)Ref.get(c, ff)).remove(p);
 		if (palet) {
 			//CHANGE BLOCK IN CHUNKSECTION (PALLETE)
-			Ref.invoke(sc, a, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr, false);
+			Ref.invoke(sc, a, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr, true);
 		}else {
 			//CHANGE BLOCK IN CHUNKSECTION (PALLETE)
 			Ref.invoke(sc, a, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr);
 		}
 		//ADD TILE ENTITY
-		Object tt = cr.getClass().isAssignableFrom(Ref.nmsOrOld("world.level.block.Block","Block"))?cr:Ref.invoke(cr, "getBlock");
+		Object tt = cr.getClass().isAssignableFrom(b)?cr:Ref.invoke(cr, bgetBlock);
 		if(ver!=-1 && cont.isInstance(tt)) {
 			tt=ver==0?Ref.invoke(tt, tile, ww):Ref.invoke(tt, tile, ww, 0);
-			((Map<Object, Object>)Ref.get(c, TheAPI.isNewerThan(16)?"l":"tileEntities")).put(p, tt);
+			((Map<Object, Object>)Ref.get(c, ff)).put(p, tt);
 		}
 		if(cont.isInstance(tt)) {
 			tt=Ref.invoke(tt, tile, ww, 0);
-			((Map<Object, Object>)Ref.get(c, TheAPI.isNewerThan(16)?"l":"tileEntities")).put(p, tt);
+			((Map<Object, Object>)Ref.get(c, ff)).put(p, tt);
 		}
 		setup(ww,p,cr,tt);
 	}
@@ -628,7 +635,7 @@ public class Position implements Cloneable {
 		if(TheAPI.isNewVersion())
 			Ref.set(tt, TheAPI.isNewerThan(13)?"c":"f", cr);
 		else
-		Ref.set(tt, "e", Ref.invoke(cr, "getBlock"));
+		Ref.set(tt, "e", Ref.invoke(cr, bgetBlock));
 		Ref.set(tt, TheAPI.isNewerThan(13)?"f":"d", false);
 		Ref.sendPacket(TheAPI.getOnlinePlayers(), Ref.invoke(tt, "getUpdatePacket"));
 	}
