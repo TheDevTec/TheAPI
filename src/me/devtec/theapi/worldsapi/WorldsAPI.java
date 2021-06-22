@@ -75,8 +75,8 @@ public class WorldsAPI {
 			boolean generateStructures, long seed) {
 		if (name == null || generator == null)
 			return false;
-
 		if (Bukkit.getWorld(name) == null) {
+			boolean createdFolder = new File(name).exists();
 			WorldCreator c = new WorldCreator(name);
 			c.generateStructures(generateStructures);
 			c.environment(generator);
@@ -87,7 +87,7 @@ public class WorldsAPI {
 			if (Chunkgenerator != null)
 				c.generator(Chunkgenerator);
 			World w = Bukkit.createWorld(c);
-			if (type == null) { //void generator
+			if (type == null && !createdFolder) { //void generator
 				w.setSpawnLocation(0, 61, 0);
 				w.getBlockAt(0, 60, 0).setType(Material.GLASS);
 			}
