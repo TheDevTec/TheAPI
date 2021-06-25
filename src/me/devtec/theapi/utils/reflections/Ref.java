@@ -172,7 +172,7 @@ public class Ref {
 	}
 
 	public static Object channel(Object network) {
-		return get(network, TheAPI.isNewerThan(16) ? "k" : "channel");
+		return get(network, TheAPI.isNewerThan(16) ? "k" : TheAPI.isNewerThan(7)?"channel":"k");
 	}
 
 	public static Object world(World a) {

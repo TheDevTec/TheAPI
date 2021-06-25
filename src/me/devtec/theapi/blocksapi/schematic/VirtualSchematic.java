@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bukkit.Material;
+
 import me.devtec.theapi.blocksapi.schematic.construct.Schematic;
 import me.devtec.theapi.blocksapi.schematic.construct.SchematicCallable;
 import me.devtec.theapi.blocksapi.schematic.construct.SchematicSaveCallable;
@@ -128,7 +130,7 @@ public class VirtualSchematic implements Schematic {
 					pos.setY(aaa[1]);
 					pos.setZ(aaa[2]);
 					TheMaterial n = pos.getType();
-					if(n.getType().isAir())continue; //DON'T SAVE AIR BLOCK
+					if(n.getType()==Material.AIR||n.getType().name().equals("CAVE_AIR"))continue; //DON'T SAVE AIR BLOCK
 					//PALLETE
 					String ss = ser.serialize(pos, n).getAsString().replace(broken, fix);
 					if(fromCopy!=null)pos.add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ());

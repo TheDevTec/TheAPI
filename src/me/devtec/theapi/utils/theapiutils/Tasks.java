@@ -92,36 +92,74 @@ public class Tasks {
 			l.register();
 		}
 		if (LoaderClass.config.getBoolean("Options.EntityMoveEvent.Enabled"))
-			task = new Tasker() {
-			EntityMoveEvent event = new EntityMoveEvent(null, null, null);
-			Field from = Ref.field(EntityMoveEvent.class, "from");
-			Field to = Ref.field(EntityMoveEvent.class, "to");
-			Field entity = Ref.field(EntityMoveEvent.class, "entity");
-				public void run() {
-					for (World w : Bukkit.getWorlds()) {
-						try {
-							for (Entity da : w.getEntities()) {
-								if (da instanceof LivingEntity) {
-									LivingEntity e = (LivingEntity) da;
-									Location a = e.getLocation();
-									Location old = v.getOrDefault(e.getUniqueId(),a);
-									if (!v.get(e.getUniqueId()).equals(a)) {
-										Ref.set(event, from, old);
-										Ref.set(event, to, a);
-										Ref.set(event, entity, e);
-										event.setCancelled(false);
-										TheAPI.callEvent(event);
-										if (event.isCancelled())
-											e.teleport(old);
-										else
-											v.put(e.getUniqueId(), a);
+			if(TheAPI.isNewerThan(16)) {
+				task = new Tasker() {
+				EntityMoveEvent event = new EntityMoveEvent(null, null, null);
+				Field from = Ref.field(EntityMoveEvent.class, "from");
+				Field to = Ref.field(EntityMoveEvent.class, "to");
+				Field entity = Ref.field(EntityMoveEvent.class, "entity");
+					public void run() {
+						for (World w : Bukkit.getWorlds()) {
+							try {
+								List<Entity> ent = w.getEntities();
+								new Tasker() {
+									public void run() {
+										for (Entity da : ent) {
+											if (da instanceof LivingEntity) {
+												LivingEntity e = (LivingEntity) da;
+												Location a = e.getLocation();
+												Location old = v.getOrDefault(e.getUniqueId(),a);
+												if (!v.get(e.getUniqueId()).equals(a)) {
+													Ref.set(event, from, old);
+													Ref.set(event, to, a);
+													Ref.set(event, entity, e);
+													event.setCancelled(false);
+													TheAPI.callEvent(event);
+													if (event.isCancelled())
+														e.teleport(old);
+													else
+														v.put(e.getUniqueId(), a);
+												}
+											}
+										}
 									}
-								}
-							}
-						} catch (Exception error) {}
+								}.runTask();
+							} catch (Exception error) {}
+						}
 					}
-				}
-			}.runRepeating(0, LoaderClass.config.getInt("Options.EntityMoveEvent.Reflesh"));
+				}.runRepeatingSync(3, LoaderClass.config.getInt("Options.EntityMoveEvent.Reflesh"));
+			}else {
+				task = new Tasker() {
+					EntityMoveEvent event = new EntityMoveEvent(null, null, null);
+					Field from = Ref.field(EntityMoveEvent.class, "from");
+					Field to = Ref.field(EntityMoveEvent.class, "to");
+					Field entity = Ref.field(EntityMoveEvent.class, "entity");
+						public void run() {
+							for (World w : Bukkit.getWorlds()) {
+								try {
+									for (Entity da : w.getEntities()) {
+										if (da instanceof LivingEntity) {
+											LivingEntity e = (LivingEntity) da;
+											Location a = e.getLocation();
+											Location old = v.getOrDefault(e.getUniqueId(),a);
+											if (!v.get(e.getUniqueId()).equals(a)) {
+												Ref.set(event, from, old);
+												Ref.set(event, to, a);
+												Ref.set(event, entity, e);
+												event.setCancelled(false);
+												TheAPI.callEvent(event);
+												if (event.isCancelled())
+													e.teleport(old);
+												else
+													v.put(e.getUniqueId(), a);
+											}
+										}
+									}
+								} catch (Exception error) {}
+							}
+						}
+					}.runRepeating(3, LoaderClass.config.getInt("Options.EntityMoveEvent.Reflesh"));
+			}
 	}
 
 	public static void unload() {

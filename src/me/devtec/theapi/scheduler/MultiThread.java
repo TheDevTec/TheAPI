@@ -14,6 +14,7 @@ public class MultiThread implements Executor {
 		List<Thread> clone = new ArrayList<>(threads.values());
 		threads.clear();
 		for(Thread tht : clone) {
+			if(tht!=null)
 			if(tht.isAlive()) {
 				tht.stop();
 				tht.interrupt();

@@ -22,17 +22,18 @@ import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.reflections.Ref;
 
+@SuppressWarnings("unchecked")
 public class PacketHandler_New implements PacketHandler<Channel> {
 	private static Class<?> login = Ref.nmsOrOld("network.protocol.login.PacketLoginInStart","PacketLoginInStart");
 	private Map<String, Channel> channelLookup = new HashMap<>();
-	private List<?> networkManagers;
+	private List<ChannelFuture> networkManagers;
 	private List<Channel> serverChannels = new ArrayList<>();
 	private ChannelInboundHandlerAdapter serverChannelHandler;
 	private Object serverConnection;
 	private ChannelInitializer<Channel> beginInitProtocol, endInitProtocol;
 	protected volatile boolean closed;
 
-	public PacketHandler_New() {
+	public PacketHandler_New(boolean lateBind) {
 		serverConnection = Ref.invoke(Ref.server(),"getServerConnection");
 		if(serverConnection==null) //modded server
 		for(Field f : Ref.getAllFields(Ref.server().getClass()))
@@ -41,16 +42,39 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 				break;
 			}
 		if(serverConnection==null)return;
-		try {
-			registerChannelHandler();
-			registerPlayers();
-		} catch (Exception ex) {
-			new Tasker() {
-				public void run() {
-					registerChannelHandler();
-					registerPlayers();
+		if(lateBind) {
+			while(!(boolean)Ref.get(Ref.server(), TheAPI.isOlderThan(9)?"Q":(TheAPI.isOlderThan(11)?"P":TheAPI.isOlderThan(13)?"Q":TheAPI.isOlderThan(14)?"P":TheAPI.isOlderThan(17)?"hasTicked":"ah")))
+				try {
+					Thread.sleep(50);
+				} catch (Exception e) {
 				}
-			}.runTask();
+			try {
+				Thread.sleep(100);
+			} catch (Exception e) {
+			}
+			try {
+				registerChannelHandler();
+				registerPlayers();
+			} catch (Exception ex) {
+				new Tasker() {
+					public void run() {
+						registerChannelHandler();
+						registerPlayers();
+					}
+				}.runTask();
+			}
+		}else {
+			try {
+				registerChannelHandler();
+				registerPlayers();
+			} catch (Exception ex) {
+				new Tasker() {
+					public void run() {
+						registerChannelHandler();
+						registerPlayers();
+					}
+				}.runTask();
+			}
 		}
 	}
 
@@ -62,16 +86,14 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 						if (!closed) {
 							channel.eventLoop().submit(() -> {
 								PacketInterceptor interceptor = new PacketInterceptor(null); //add new hook
-								channel.eventLoop().execute(new Runnable() {
-									public void run() {
+								channel.eventLoop().execute(() -> {
 										if(channel.pipeline().names().contains("InjectorTA"))
 											channel.pipeline().remove("InjectorTA"); //remove old instance - reload of server?
 										if(channel.pipeline().names().contains("packet_handler"))
 											channel.pipeline().addBefore("packet_handler","InjectorTA", interceptor);
 										else
 											channel.pipeline().addBefore("encoder","InjectorTA", interceptor);
-									}
-								});
+									});
 								return interceptor;
 							});
 						}
@@ -99,21 +121,21 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	}
 
 	private void registerChannelHandler() {
-		networkManagers = (List<?>) (Ref.get(serverConnection, "listeningChannels")!=null?Ref.get(serverConnection, "listeningChannels"):Ref.get(serverConnection, "g"));
+		networkManagers = (List<ChannelFuture>) (Ref.get(serverConnection, "listeningChannels")!=null?Ref.get(serverConnection, "listeningChannels"):Ref.get(serverConnection, "g"));
 		if(networkManagers==null) { //modded server
 			for(Field f : Ref.getAllFields(Ref.nmsOrOld("server.network.ServerConnection","ServerConnection")))
 				if(java.util.List.class==f.getType()){
-					networkManagers=(java.util.List<?>) Ref.get(serverConnection, f);
+					networkManagers=(java.util.List<ChannelFuture>) Ref.get(serverConnection, f);
 					break;
 				}
 			}
 		if(networkManagers==null)return;
 		if(networkManagers.isEmpty()) {
-			networkManagers = (List<?>) (Ref.get(serverConnection, "f")!=null?Ref.get(serverConnection, "f"):Ref.get(serverConnection, "listeningChannels"));
+			networkManagers = (List<ChannelFuture>) (Ref.get(serverConnection, "f")!=null?Ref.get(serverConnection, "f"):Ref.get(serverConnection, "listeningChannels"));
 			if(networkManagers==null) { //modded server
 				for(Field f : Ref.getAllFields(Ref.nmsOrOld("server.network.ServerConnection","ServerConnection")))
 					if(java.util.List.class==f.getType()){
-						networkManagers=(java.util.List<?>) Ref.get(serverConnection, f);
+						networkManagers=(java.util.List<ChannelFuture>) Ref.get(serverConnection, f);
 						break;
 					}
 				}
@@ -236,7 +258,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 		public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 			final Channel channel = ctx.channel();
 			synchronized (msg) {
-				if (login.isInstance(msg)) {
+				if (msg.getClass()==login) {
 					player=((GameProfile) Ref.get(msg, "a")).getName();
 					channelLookup.put(player, channel);
 				}

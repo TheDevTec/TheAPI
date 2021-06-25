@@ -46,8 +46,7 @@ public class NMSAPI {
 		scr[2] = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"), "c");
 		scr[3] = Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"), "d");
 		pTeleport = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityTeleport","PacketPlayOutEntityTeleport"), Ref.nmsOrOld("world.entity.Entity","Entity"));
-		server = Ref.invokeStatic(Ref.nmsOrOld("server.MinecraftServer","MinecraftServer"), "getServer");
-		if(server==null)server=Ref.invoke(Ref.cast(Ref.craft("CraftServer"), Bukkit.getServer()),"getServer");
+		server=Ref.invoke(Ref.cast(Ref.craft("CraftServer"), Bukkit.getServer()),"getServer");
 		sbremove = Ref.getNulled(Ref.field(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore$EnumScoreboardAction","PacketPlayOutScoreboardScore$EnumScoreboardAction"), "REMOVE"));
 		if (sbremove == null)
 			sbremove = Ref.getNulled(Ref.field(Ref.nmsOrOld("server.ScoreboardServer$Action","ScoreboardServer$Action"), TheAPI.isNewerThan(16)?"b":"REMOVE"));

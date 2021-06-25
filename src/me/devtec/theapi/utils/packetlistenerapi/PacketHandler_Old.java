@@ -31,25 +31,48 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 	private ChannelInitializer<Channel> beginInitProtocol, endInitProtocol;
 	protected volatile boolean closed;
 
-	public PacketHandler_Old() {
-		serverConnection=Ref.invoke(Ref.server(), "getServerConnection");
+	public PacketHandler_Old(boolean lateBind) {
+		serverConnection = Ref.invoke(Ref.server(),"getServerConnection");
 		if(serverConnection==null) //modded server
 		for(Field f : Ref.getAllFields(Ref.server().getClass()))
-			if(f.getType()==Ref.nms("ServerConnection")) {
+			if(f.getType()==Ref.nmsOrOld("server.network.ServerConnection","ServerConnection")) {
 				serverConnection=Ref.get(Ref.server(), f);
 				break;
 			}
 		if(serverConnection==null)return;
-		try {
-			registerChannelHandler();
-			registerPlayers();
-		} catch (Exception ex) {
-			new Tasker() {
-				public void run() {
-					registerChannelHandler();
-					registerPlayers();
+		if(lateBind) {
+			while(!(boolean)Ref.get(Ref.server(), "O"))
+				try {
+					Thread.sleep(50);
+				} catch (Exception e) {
 				}
-			}.runTask();
+			try {
+				Thread.sleep(100);
+			} catch (Exception e) {
+			}
+			try {
+				registerChannelHandler();
+				registerPlayers();
+			} catch (Exception ex) {
+				new Tasker() {
+					public void run() {
+						registerChannelHandler();
+						registerPlayers();
+					}
+				}.runTask();
+			}
+		}else {
+			try {
+				registerChannelHandler();
+				registerPlayers();
+			} catch (Exception ex) {
+				new Tasker() {
+					public void run() {
+						registerChannelHandler();
+						registerPlayers();
+					}
+				}.runTask();
+			}
 		}
 	}
 

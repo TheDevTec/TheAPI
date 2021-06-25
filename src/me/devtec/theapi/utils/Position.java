@@ -158,12 +158,14 @@ public class Position implements Cloneable {
 	}
 	
 	private static Method getType = Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), "getType", int.class, int.class, int.class);
-	
+	static {
+		if(getType==null)getType = Ref.method(Ref.nms("ChunkSection"), "getTypeId", int.class, int.class, int.class);
+	}
 	public TheMaterial getType() {
 		Object sc = ((Object[]) Ref.invoke(getNMSChunk(), get))[getBlockY() >> 4];
 		if (sc == null)return new TheMaterial(Material.AIR, 0);
 		if(TheAPI.isOlderThan(8)) //1.7.10
-			return TheMaterial.fromData(Ref.invoke(sc, getType, getBlockX() & 15, getBlockY() & 15, getBlockZ() & 15), (byte)Ref.invoke(sc, getdata, getBlockX() & 15, getBlockY() & 15, getBlockZ() & 15));
+			return TheMaterial.fromData(Ref.invoke(sc, getType, getBlockX() & 15, getBlockY() & 15, getBlockZ() & 15), (byte)(int)Ref.invoke(sc, getdata, getBlockX() & 15, getBlockY() & 15, getBlockZ() & 15));
 		return TheMaterial.fromData(Ref.invoke(sc, getType, getBlockX() & 15, getBlockY() & 15, getBlockZ() & 15));
 	}
 
@@ -445,7 +447,7 @@ public class Position implements Cloneable {
 
 	public static long set(Position pos, TheMaterial mat) {
 		if (wf <= 7)
-			setOld(pos, mat.getType().getId(), mat.getData());
+			setOld(pos, mat.getBlock(), mat.getData());
 		else
 			set(pos, wf >= 9, wf >= 14, mat.getIBlockData());
 		return pos.getChunkKey();
@@ -503,7 +505,7 @@ public class Position implements Cloneable {
 	 * @return long ChunkKey
 	 */
 	@SuppressWarnings("unchecked")
-	private static synchronized void setOld(Position pos, int id, int data) { // Uknown - 1.7.10
+	private static synchronized void setOld(Position pos, Object block, int data) { // Uknown - 1.7.10
 		Object c = pos.getNMSChunk();
 		Object sc = ((Object[]) Ref.invoke(c, get))[pos.getBlockY() >> 4];
 		if (sc == null) {
@@ -511,28 +513,15 @@ public class Position implements Cloneable {
 			((Object[]) Ref.invoke(c, "getSections"))[pos.getBlockY() >> 4] = sc;
 		}
 		Object ww = Ref.world(pos.getWorld());
-		Object p = pos.getBlockPosition();
 		//REMOVE TILE ENTITY
 		for(Iterator<?> r = ((Collection<?>)Ref.get(ww, "tileEntityList")).iterator(); r.hasNext();) {
-			if(Ref.get(r.next(), "position").equals(p)) {
-				r.remove();
-				break;
-			}
-		}
-		for(Iterator<?> r = ((Collection<?>)Ref.get(ww, aa)).iterator(); r.hasNext();) {
-			if(Ref.get(r.next(), "position").equals(p)) {
-				r.remove();
-				break;
-			}
-		}
-		for(Iterator<?> r = ((Collection<?>)Ref.get(ww, bb)).iterator(); r.hasNext();) {
-			if(Ref.get(r.next(), "position").equals(p)) {
+			if(Ref.get(r.next(), "x").equals(pos.getBlockX()) && Ref.get(r.next(), "y").equals(pos.getBlockY()) && Ref.get(r.next(), "z").equals(pos.getBlockZ())) {
 				r.remove();
 				break;
 			}
 		}
 		//CHANGE BLOCK IN CHUNKSECTION
-		Ref.invoke(sc, setId, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, id);
+		Ref.invoke(sc, setId, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, block);
 		Ref.invoke(sc, setData, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, data);
 		//ADD TILE ENTITY
 		Object tt = Ref.invoke(c, "getType", pos.getBlockX() & 0xF, pos.getBlockY(), pos.getBlockZ() & 0xF);
@@ -545,8 +534,6 @@ public class Position implements Cloneable {
 			Ref.set(tt, "h", tt);
 			Ref.set(tt, "world", ww);
 			((Collection<Object>)Ref.get(ww, "tileEntityList")).add(tt);
-			((Collection<Object>)Ref.get(ww, aa)).add(tt);
-			((Collection<Object>)Ref.get(ww, bb)).add(tt);
 		}
 	}
 
@@ -559,12 +546,11 @@ public class Position implements Cloneable {
 			a = Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), "setType", int.class, int.class, int.class, Ref.nmsOrOld("world.level.block.state.IBlockData","IBlockData"));
 		if (aw == null)
 			aw = Ref.constructor(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), int.class, boolean.class);
-		if(TheAPI.isNewerThan(8)) {
+		if(TheAPI.isOlderThan(8)) {
 			setId=Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), "setTypeId", int.class, int.class, int.class, Ref.nmsOrOld("world.level.block.Block","Block"));
 			setData=Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), "setData", int.class, int.class, int.class, int.class);
 		}
 	}
-	private static String aa = TheAPI.isNewerThan(7)?"h":"a", bb = TheAPI.isNewerThan(7)?"h":"b";
 	private static Method getBlock = Ref.method(Ref.craft("util.CraftMagicNumbers"), "getBlock", Material.class),
 			fromLegacyData=Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "fromLegacyData", int.class);
 	

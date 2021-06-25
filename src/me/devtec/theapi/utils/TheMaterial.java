@@ -234,17 +234,25 @@ public class TheMaterial implements Cloneable {
 				getIBlockData());
 	}
 
+	private static Method fromLegacy,id = Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "getByCombinedId", int.class);
+	static {
+		if(id==null)id=Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "getById", int.class);
+		fromLegacy=Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "fromLegacyData", int.class);
+	}
+	
 	public Object getIBlockData() {
 		if(TheAPI.isNewerThan(12))
 			return Ref.get(Bukkit.createBlockData(m), "state");
 		try {
-			Object o = Ref.invokeNulled(Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "getByCombinedId", int.class),
+			if(TheAPI.isOlderThan(8)) {
+				return Ref.invokeNulled(id, (int) m.getId());
+			}
+			Object o = Ref.invokeNulled(id,
 					(int) ((m.getId() + (data >> 4))));
 			if (o == null)
-				o = Ref.invokeNulled(Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "getId", int.class), (int) m.getId());
+				o = Ref.invokeNulled(id, (int) m.getId());
 			else
-				o = Ref.invoke(Ref.invoke(o, "getBlock"), Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "fromLegacyData", int.class),
-						(int) data);
+				o = Ref.invoke(Ref.invoke(o, "getBlock"), fromLegacy, (int) data);
 			return o;
 		} catch (Exception err) {
 			if (m != null) {
@@ -333,7 +341,11 @@ public class TheMaterial implements Cloneable {
 		return new TheMaterial(m, data, amount);
 	}
 
+	private static Class<?> bab = Ref.nmsOrOld("world.level.block.Block", "Block");
+	private static Method getBlock = Ref.method(Ref.nmsOrOld("world.level.block.state.IBlockData", "IBlockData"), "getBlock");
 	public Object getBlock() {
-		return null;
+		Object ib = getIBlockData();
+		if(bab.isInstance(ib))return ib;
+		return Ref.invoke(ib, getBlock);
 	}
 }

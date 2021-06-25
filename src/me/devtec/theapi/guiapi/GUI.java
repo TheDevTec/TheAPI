@@ -254,6 +254,7 @@ public class GUI implements HolderGUI {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getFixedIChatBaseComponent(title)));
 			}
 			Ref.sendPacket(player, Ref.newInstance(itemsS,id, Ref.invoke(container,getItems)));
+			if(TheAPI.isOlderThan(17))
 			Ref.set(container, "windowId", id);
 			Ref.set(f, TheAPI.isNewerThan(16)?"bV":"activeContainer", container);
 			Ref.invoke(container, addListener, f);
@@ -292,7 +293,7 @@ public class GUI implements HolderGUI {
 		for(Entry<Player, Object> ec : containers.entrySet()) {
 			Player player = ec.getKey();
 			Object container = ec.getValue();
-			int id = (int)Ref.get(container,"windowId");
+			int id = TheAPI.isOlderThan(17)?(int)Ref.get(container,"windowId"):(int)Ref.get(container,"j");
 			Object f= Ref.player(player);
 			if(TheAPI.isOlderThan(8)) {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id,0,title, inv.getSize(), false));
@@ -362,7 +363,7 @@ public class GUI implements HolderGUI {
 			onPreClose(player);
 			Object ac = containers.remove(player);
 			if(ac!=null) {
-				Ref.sendPacket(player, Ref.newInstance(closeWindow, (int)Ref.get(ac, "windowId")));
+				Ref.sendPacket(player, Ref.newInstance(closeWindow, TheAPI.isOlderThan(17)?(int)Ref.get(ac,"windowId"):(int)Ref.get(ac,"j")));
 				Object d = Ref.player(player);
 				Ref.set(Ref.player(player), TheAPI.isNewerThan(16)?"bV":"activeContainer", Ref.get(d, TheAPI.isNewerThan(16)?"bU":"defaultContainer"));
 				Ref.invoke(ac, GUI.transfer, Ref.get(d, TheAPI.isNewerThan(16)?"bU":"defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));

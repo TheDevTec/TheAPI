@@ -145,15 +145,121 @@ public class LoaderClass extends JavaPlugin {
 					Config.loadConfig(e, plugin.getString("configs"), folder+"/"+plugin.getString("configs"));
 			}
 		}
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		
+		//SOCKETS
+		boolean ops = sockets.exists("Options");
+		sockets.addDefault("Options.Enabled", false);
+		sockets.addDefault("Options.Name", "serverName");
+		sockets.addDefault("Options.Password", generate());
+		sockets.addDefault("Options.Port", 25569);
+		if(!sockets.exists("Server") && !ops) {
+			sockets.set("Server.Bungee.IP", "localhost");
+			sockets.set("Server.Bungee.Password", "INSERT PASSWORD HERE");
+			sockets.set("Server.Bungee.Port", 25567);
+			sockets.set("Server.AnotherSpigotServer.IP", "localhost");
+			sockets.set("Server.AnotherSpigotServer.Password", 25568);
+			sockets.set("Server.AnotherSpigotServer.Password", "INSERT PASSWORD HERE");
+			sockets.set("Server.AnotherSpigotServer.Port", 25568);
+		}
+		sockets.save();
+		if(sockets.getBoolean("Options.Enabled")) {
+			servers = new HashMap<>();
+			server=new Server(sockets.getString("Options.Password"), sockets.getInt("Options.Port"));
+			server.register(new me.devtec.theapi.sockets.Reader() {
+				public void read(ServerClient client, Data data) {
+					TheAPI.callEvent(new ServerReceiveMessageEvent(client, data));
+				}
+			});
+			for(String s : sockets.getKeys("Server")) {
+				servers.put(s, new Client(sockets.getString("Options.Name"), sockets.getString("Server."+s+".Password"), sockets.getString("Server."+s+".IP"), sockets.getInt("Server."+s+".Port")) {
+					public void read(Data data) {
+						TheAPI.callEvent(new ClientReceiveMessageEvent(this, data));
+					}
+				});
+			}
+		}else sockets.getData().clear();
+		
+		//CONSOLE LOG EVENT
+		if(config.getBoolean("Options.ConsoleLogEvent")) {
+		try {
+			Class.forName("org.apache.logging.log4j.core.filter.AbstractFilter");
+			org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger)org.apache.logging.log4j.LogManager.getRootLogger();
+			logger.addFilter(new ConsoleLogger());
+		} catch (ClassNotFoundException e) {
+		}
+		BukkitLogger filter = new BukkitLogger();
+		getLogger().setFilter(filter);
+		Bukkit.getLogger().setFilter(filter);
+		java.util.logging.Logger.getLogger("Minecraft").setFilter(filter);
+		}
+		//TAGS - 1.16+
+		if (TheAPI.isNewerThan(15)) {
+			tags = new Config("TheAPI/Tags.yml");
+			tags.addDefault("TagPrefix", "!");
+			tags.addDefault("GradientPrefix", "!");
+			if (!tags.exists("Tags")) {
+				tags.addDefault("Tags.baby_blue", "0fd2f6");
+				tags.addDefault("Tags.beige", "ffc8a9");
+				tags.addDefault("Tags.blush", "e69296");
+				tags.addDefault("Tags.amaranth", "e52b50");
+				tags.addDefault("Tags.brown", "964b00");
+				tags.addDefault("Tags.crimson", "dc143c");
+				tags.addDefault("Tags.dandelion", "ffc31c");
+				tags.addDefault("Tags.eggshell", "f0ecc7");
+				tags.addDefault("Tags.fire", "ff0000");
+				tags.addDefault("Tags.ice", "bddeec");
+				tags.addDefault("Tags.indigo", "726eff");
+				tags.addDefault("Tags.lavender", "4b0082");
+				tags.addDefault("Tags.leaf", "618a3d");
+				tags.addDefault("Tags.lilac", "c8a2c8");
+				tags.addDefault("Tags.lime", "b7ff00");
+				tags.addDefault("Tags.midnight", "007bff");
+				tags.addDefault("Tags.mint", "50c878");
+				tags.addDefault("Tags.olive", "929d40");
+				tags.addDefault("Tags.royal_purple", "7851a9");
+				tags.addDefault("Tags.rust", "b45019");
+				tags.addDefault("Tags.sky", "00c8ff");
+				tags.addDefault("Tags.smoke", "708c98");
+				tags.addDefault("Tags.tangerine", "ef8e38");
+				tags.addDefault("Tags.violet", "9c6eff");
+			}
+			tags.save();
+			tagG = tags.getString("TagPrefix");
+			gradientTag = tags.getString("GradientPrefix");
+			for (String tag : tags.getKeys("Tags"))
+				colorMap.put(tag.toLowerCase(), "#" + tags.getString("Tags." + tag));
+			StringUtils.gradientFinder=Pattern.compile(LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})(.*?)"+LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})");
+		}
+		PluginCommand ca = TheAPI.createCommand("theapi", this);
+		if(Ref.field(Command.class, "timings")!=null && TheAPI.isOlderThan(9)) {
+			Ref.set(Bukkit.getServer(), "commandMap", new Old1_8SimpleCommandMap(Bukkit.getServer(), TheAPI.knownCommands));
+			ca = TheAPI.createCommand("theapi", this);
+		}
+		ca.setExecutor(new TheAPICommand());
+		TheAPI.registerCommand(ca);
+	}
+
+	public void onEnable() {
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
+				TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+
 		if(config.getBoolean("Options.AntiFakeBlocks"))
 		new PacketListener() {
 			@Override
 			public boolean PacketPlayIn(String player, Object packet, Object channel) {
 				return false;
 			}
+			
+			Class<?> c = Ref.nmsOrOld("network.protocol.game.PacketPlayOutBlockChange", "PacketPlayOutBlockChange");
+			
 			@Override
 			public boolean PacketPlayOut(String player, Object packet, Object channel) {
-				if(packet.toString().contains("PacketPlayOutBlockChange")) {
+				if(packet.getClass()==c) {
 					if(TheAPI.isNewerThan(7)) {
 						Player a = TheAPI.getPlayer(player);
 						Position c = new Position(a.getWorld(),(int)Ref.invoke(Ref.get(packet,"a"), "getX"),(int)Ref.invoke(Ref.get(packet,"a"), "getY"),(int)Ref.invoke(Ref.get(packet,"a"), "getZ"));
@@ -264,113 +370,21 @@ public class LoaderClass extends JavaPlugin {
 				return false;
 			}
 		}.register();
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-		
-		//SOCKETS
-		boolean ops = sockets.exists("Options");
-		sockets.addDefault("Options.Enabled", false);
-		sockets.addDefault("Options.Name", "serverName");
-		sockets.addDefault("Options.Password", generate());
-		sockets.addDefault("Options.Port", 25569);
-		if(!sockets.exists("Server") && !ops) {
-			sockets.set("Server.Bungee.IP", "localhost");
-			sockets.set("Server.Bungee.Password", "INSERT PASSWORD HERE");
-			sockets.set("Server.Bungee.Port", 25567);
-			sockets.set("Server.AnotherSpigotServer.IP", "localhost");
-			sockets.set("Server.AnotherSpigotServer.Password", 25568);
-			sockets.set("Server.AnotherSpigotServer.Password", "INSERT PASSWORD HERE");
-			sockets.set("Server.AnotherSpigotServer.Port", 25568);
-		}
-		sockets.save();
-		if(sockets.getBoolean("Options.Enabled")) {
-			servers = new HashMap<>();
-			server=new Server(sockets.getString("Options.Password"), sockets.getInt("Options.Port"));
-			server.register(new me.devtec.theapi.sockets.Reader() {
-				public void read(ServerClient client, Data data) {
-					TheAPI.callEvent(new ServerReceiveMessageEvent(client, data));
+		if(new Data("spigot.yml").getBoolean("settings.late-bind")) {
+			new Tasker() {
+				public void run() {
+					if (TheAPI.isNewerThan(7))
+						handler = new PacketHandler_New(true);
+					else
+						handler = new PacketHandler_Old(true);
 				}
-			});
-			for(String s : sockets.getKeys("Server")) {
-				servers.put(s, new Client(sockets.getString("Options.Name"), sockets.getString("Server."+s+".Password"), sockets.getString("Server."+s+".IP"), sockets.getInt("Server."+s+".Port")) {
-					public void read(Data data) {
-						TheAPI.callEvent(new ClientReceiveMessageEvent(this, data));
-					}
-				});
-			}
-		}else sockets.getData().clear();
-		
-		//CONSOLE LOG EVENT
-		if(config.getBoolean("Options.ConsoleLogEvent")) {
-		try {
-			Class.forName("org.apache.logging.log4j.core.filter.AbstractFilter");
-			org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger)org.apache.logging.log4j.LogManager.getRootLogger();
-			logger.addFilter(new ConsoleLogger());
-		} catch (ClassNotFoundException e) {
+			}.runTask();
+		}else {
+			if (TheAPI.isNewerThan(7))
+				handler = new PacketHandler_New(false);
+			else
+				handler = new PacketHandler_Old(false);
 		}
-		BukkitLogger filter = new BukkitLogger();
-		getLogger().setFilter(filter);
-		Bukkit.getLogger().setFilter(filter);
-		java.util.logging.Logger.getLogger("Minecraft").setFilter(filter);
-		}
-		//TAGS - 1.16+
-		if (TheAPI.isNewerThan(15)) {
-			tags = new Config("TheAPI/Tags.yml");
-			tags.addDefault("TagPrefix", "!");
-			tags.addDefault("GradientPrefix", "!");
-			if (!tags.exists("Tags")) {
-				tags.addDefault("Tags.baby_blue", "0fd2f6");
-				tags.addDefault("Tags.beige", "ffc8a9");
-				tags.addDefault("Tags.blush", "e69296");
-				tags.addDefault("Tags.amaranth", "e52b50");
-				tags.addDefault("Tags.brown", "964b00");
-				tags.addDefault("Tags.crimson", "dc143c");
-				tags.addDefault("Tags.dandelion", "ffc31c");
-				tags.addDefault("Tags.eggshell", "f0ecc7");
-				tags.addDefault("Tags.fire", "ff0000");
-				tags.addDefault("Tags.ice", "bddeec");
-				tags.addDefault("Tags.indigo", "726eff");
-				tags.addDefault("Tags.lavender", "4b0082");
-				tags.addDefault("Tags.leaf", "618a3d");
-				tags.addDefault("Tags.lilac", "c8a2c8");
-				tags.addDefault("Tags.lime", "b7ff00");
-				tags.addDefault("Tags.midnight", "007bff");
-				tags.addDefault("Tags.mint", "50c878");
-				tags.addDefault("Tags.olive", "929d40");
-				tags.addDefault("Tags.royal_purple", "7851a9");
-				tags.addDefault("Tags.rust", "b45019");
-				tags.addDefault("Tags.sky", "00c8ff");
-				tags.addDefault("Tags.smoke", "708c98");
-				tags.addDefault("Tags.tangerine", "ef8e38");
-				tags.addDefault("Tags.violet", "9c6eff");
-			}
-			tags.save();
-			tagG = tags.getString("TagPrefix");
-			gradientTag = tags.getString("GradientPrefix");
-			for (String tag : tags.getKeys("Tags"))
-				colorMap.put(tag.toLowerCase(), "#" + tags.getString("Tags." + tag));
-			StringUtils.gradientFinder=Pattern.compile(LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})(.*?)"+LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})");
-		}
-		PluginCommand ca = TheAPI.createCommand("theapi", this);
-		if(Ref.field(Command.class, "timings")!=null && TheAPI.isOlderThan(9)) {
-			Ref.set(Bukkit.getServer(), "commandMap", new Old1_8SimpleCommandMap(Bukkit.getServer(), TheAPI.knownCommands));
-			ca = TheAPI.createCommand("theapi", this);
-		}
-		ca.setExecutor(new TheAPICommand());
-		TheAPI.registerCommand(ca);
-	}
-
-	public void onEnable() {
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
-				TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-		if (TheAPI.isNewerThan(7))
-			handler = new PacketHandler_New();
-		else
-			handler = new PacketHandler_Old();
-
 		StringUtils.sec=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
 		StringUtils.min=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Minutes.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
 		StringUtils.hour=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Hours.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
