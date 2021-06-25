@@ -141,7 +141,8 @@ public class AnvilGUI implements HolderGUI {
 			Object g = TheAPI.isNewerThan(14)?Ref.newInstance(anvil, id, inv, Ref.invokeNulled(getAt, Ref.get(entityPlayer, TheAPI.isNewerThan(16)?"t":"world"), Ref.invoke(entityPlayer, "getChunkCoordinates")))
 					:(TheAPI.isOlderThan(8)?Ref.newInstance(anvil, inv, Ref.get(entityPlayer, TheAPI.isNewerThan(16)?"t":"world"), 0, 0, 0, entityPlayer)
 							:Ref.newInstance(anvil, inv, Ref.get(entityPlayer, TheAPI.isNewerThan(16)?"t":"world"), Ref.invoke(entityPlayer, "getChunkCoordinates"), entityPlayer));
-		Ref.set(g, "windowId", id);
+			if(TheAPI.isOlderThan(17))
+			Ref.set(g, "windowId", id);
 			Ref.set(g, "checkReachable", false);
 			Ref.set(entityPlayer, TheAPI.isNewerThan(16)?"bV":"activeContainer", g);
 			if(TheAPI.isOlderThan(15))
@@ -193,7 +194,7 @@ public class AnvilGUI implements HolderGUI {
 		for(Entry<Player, Object> entry : containers.entrySet()) {
 			Player player = entry.getKey();
 			Object container = entry.getValue();
-			int id = (int)Ref.get(container, "windowId");
+			int id = (int)Ref.get(container, TheAPI.isOlderThan(17)?"windowId":"j");
 			if(TheAPI.isOlderThan(15))
 			Ref.set(Ref.get(container, "repairInventory")!=null?Ref.get(container, "repairInventory"):Ref.get(container, "h"),"a", TheAPI.isOlderThan(14)?NMSAPI.getFixedIChatBaseComponent(title):title);
 			if(TheAPI.isOlderThan(8)) {
@@ -279,7 +280,7 @@ public class AnvilGUI implements HolderGUI {
 			onPreClose(player);
 			Object ac = containers.remove(player);
 			if(ac!=null) {
-				Ref.sendPacket(player, Ref.newInstance(GUI.closeWindow, (int)Ref.get(ac, "windowId")));
+				Ref.sendPacket(player, Ref.newInstance(GUI.closeWindow, (int)Ref.get(ac, TheAPI.isOlderThan(17)?"windowId":"j")));
 				Object d = Ref.player(player);
 				Ref.invoke(ac, "b", d);
 				Ref.set(Ref.player(player), TheAPI.isNewerThan(16)?"bV":"activeContainer", Ref.get(d, TheAPI.isNewerThan(16)?"bU":"defaultContainer"));
@@ -313,7 +314,7 @@ public class AnvilGUI implements HolderGUI {
 		for (Integer g : getItemGUIs().keySet()) {
 			items += "/" + g + ":" + getItemGUIs().get(g).toString();
 		}
-		return "[GUI:" + title + "/" + put + "/" + 3 + items + "]";
+		return "[AnvilGUI:" + title + "/" + put + "/" + 3 + items + "]";
 	}
 
 	public int getSize() {
