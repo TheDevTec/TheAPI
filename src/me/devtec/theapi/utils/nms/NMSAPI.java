@@ -245,7 +245,7 @@ public class NMSAPI {
 	
 	@SuppressWarnings("unchecked")
 	public static void postToMainThread(Runnable runnable) {
-		if(Thread.currentThread()==thread) {
+		if(Thread.currentThread().equals(thread)) {
 			runnable.run();
 		}else {
 			if(server instanceof Executor) {
@@ -492,6 +492,8 @@ public class NMSAPI {
 		Object o = Ref.get(getServer(), Ref.field(Ref.nmsOrOld("server.MinecraftServer","MinecraftServer"), "primaryThread"));
 		thread= o != null ? (Thread) o
 				: (Thread) Ref.get(getServer(), Ref.field(Ref.nmsOrOld("server.MinecraftServer","MinecraftServer"), "serverThread"));
+		if(thread==null)
+		thread= (Thread) Ref.get(getServer(), Ref.field(Ref.nmsOrOld("server.MinecraftServer","MinecraftServer"), "an"));
 	}
 	
 	public static Thread getServerThread() {

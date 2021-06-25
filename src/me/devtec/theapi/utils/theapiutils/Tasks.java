@@ -124,7 +124,7 @@ public class Tasks {
 										}
 									}
 								}.runTask();
-							} catch (Exception error) {}
+							} catch (Throwable error) {}
 						}
 					}
 				}.runRepeatingSync(3, LoaderClass.config.getInt("Options.EntityMoveEvent.Reflesh"));
