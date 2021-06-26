@@ -50,6 +50,8 @@ public class ThePlaceholderAPI {
 	}
 
 	public static String setPlaceholders(Player player, String textOrigin) {
+		if (textOrigin == null || textOrigin.trim().isEmpty())
+			return textOrigin;
 		String text = textOrigin;
 		Matcher m = math.matcher(text);
 		while (m.find()) {

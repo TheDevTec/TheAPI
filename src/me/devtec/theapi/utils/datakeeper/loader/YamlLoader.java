@@ -73,6 +73,7 @@ public class YamlLoader extends DataLoader {
 								Matcher m = fixedSplitter.matcher(object);
 								if(m.find())
 								object=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
+								if(object==null)object="";
 								set(key, object, lines);
 								v = null;
 							} else if (c == 2) {
@@ -96,6 +97,7 @@ public class YamlLoader extends DataLoader {
 							Matcher m = fixedSplitter.matcher(object);
 							if(m.find())
 							object=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
+							if(object==null)object="";
 							set(key, object, lines, object);
 							v = null;
 						}
@@ -111,6 +113,7 @@ public class YamlLoader extends DataLoader {
 						Matcher m = fixedSplitter.matcher(object);
 						if(m.find())
 						object=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
+						if(object==null)object="";
 						items.add(object);
 						continue;
 					}
@@ -148,6 +151,7 @@ public class YamlLoader extends DataLoader {
 						Matcher m = fixedSplitter.matcher(split);
 						if(m.find())
 							split=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
+						if(split==null)split="";
 						String object = null;
 						String fix = null;
 						try {
@@ -157,6 +161,7 @@ public class YamlLoader extends DataLoader {
 							if(m.find())
 								object=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
 						} catch (Exception er) {
+							object="";
 						}
 						if(!key.equals(""))key+='.';
 						key += split;

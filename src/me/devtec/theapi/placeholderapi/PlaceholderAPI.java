@@ -19,7 +19,7 @@ public class PlaceholderAPI {
 
 	public static String setPlaceholders(Player player, String where) {
 		if (where == null || where.trim().isEmpty())
-			return null;
+			return where;
 		String e = null;
 		if (isEnabledPlaceholderAPI())
 			e = (String) Ref.invokeNulled(set, player, where);
