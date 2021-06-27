@@ -77,7 +77,7 @@ public class GUI implements HolderGUI {
 			windowType = Ref.getStatic(Ref.nmsOrOld("world.inventory.Containers","Containers"),TheAPI.isNewerThan(16)?"c":"GENERIC_9X3");
 			break;
 		}
-		case 41 : {
+		case 36 : {
 			windowType = Ref.getStatic(Ref.nmsOrOld("world.inventory.Containers","Containers"),TheAPI.isNewerThan(16)?"d":"GENERIC_9X4");
 			break;
 		}
