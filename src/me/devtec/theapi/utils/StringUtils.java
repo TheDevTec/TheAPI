@@ -494,7 +494,7 @@ public class StringUtils {
 	public static String gradient(String legacyMsg) {
 		for (Entry<String, String> code : LoaderClass.colorMap.entrySet()) {
 			String rawCode = LoaderClass.tagG + code.getKey();
-			if (!legacyMsg.toLowerCase().contains(rawCode))
+			if (!legacyMsg.toLowerCase().contains(rawCode.toLowerCase()))
 				continue;
 			legacyMsg = legacyMsg.replace(rawCode, code.getValue());
 		}
@@ -502,8 +502,7 @@ public class StringUtils {
 			return legacyMsg;
 		Matcher matcher = gradientFinder.matcher(legacyMsg);
 		while (matcher.find()) {
-			if (matcher.groupCount() == 0 || matcher.group(1) == null)
-				continue;
+			if (matcher.groupCount() == 0)continue;
 			legacyMsg = legacyMsg.replace(matcher.group(),
 					gradient(matcher.group(2), matcher.group(1), matcher.group(3)));
 		}
@@ -520,9 +519,7 @@ public class StringUtils {
 	 * @return String
 	 */
 	public static String colorize(String msg) {
-		if (msg == null)
-			return null;
-		if (msg.trim().isEmpty())
+		if (msg == null||msg.trim().isEmpty())
 			return msg;
 		if (msg.toLowerCase().contains("&u")) {
 			String[] split = fixedSplit.split(msg);
@@ -551,11 +548,11 @@ public class StringUtils {
 				Matcher match = hex.matcher(msg);
 				while (match.find()) {
 					String color = match.group();
-					String magic = "§x";
-					char[] c = color.substring(1).toCharArray();
-					for (int i = 0; i < c.length; ++i)
-						magic += "§" + c[i];
-					msg = msg.replace(color, magic);
+	                StringBuilder magic = new StringBuilder("§x");
+	                char[] c = color.substring(1).toCharArray();
+	                for(int i = 0; i < c.length; ++i)
+	                    magic.append("§"+Character.toLowerCase(c[i]));
+					msg = msg.replace(color, magic.toString());
 				}
 			}
 		}

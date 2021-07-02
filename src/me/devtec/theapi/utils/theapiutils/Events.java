@@ -129,15 +129,25 @@ public class Events implements Listener {
 		}
 		if(LoaderClass.cache!=null)
 			LoaderClass.cache.setLookup(e.getUniqueId(),e.getName());
-		User s = TheAPI.getUser(e.getName(), e.getUniqueId());
-		String add = e.getAddress().toString().replaceAll("[^0-9.]+", "").replace(".", "_");
-		List<String> set = LoaderClass.data.getStringList("data."+add);
-		if(!set.contains(s.getName()))
-		set.add(s.getName());
-		LoaderClass.data.set("data."+add, set);
-		LoaderClass.data.save();
-		s.set("quit", System.currentTimeMillis() / 1000);
-		s.setAndSave("ip", add);
+		boolean save = false;
+		User s = null;
+		if(!LoaderClass.config.getBoolean("Options.Cache.User.DisableSaving.IP")) {
+			s = TheAPI.getUser(e.getName(), e.getUniqueId());
+			String add = e.getAddress().toString().replaceAll("[^0-9.]+", "").replace(".", "_");
+			List<String> set = LoaderClass.data.getStringList("data."+add);
+			if(!set.contains(s.getName()))
+			set.add(s.getName());
+			LoaderClass.data.set("data."+add, set);
+			LoaderClass.data.save();
+			save=true;
+			s.set("ip", add);
+		}
+		if(!LoaderClass.config.getBoolean("Options.Cache.User.DisableSaving.Quit")) {
+			if(s==null)s=TheAPI.getUser(e.getName(), e.getUniqueId());
+			s.set("quit", System.currentTimeMillis() / 1000);
+			save=true;
+		}
+		if(save)s.save();
 		PlayerBanList a = PunishmentAPI.getBanList(e.getName());
 		if(a==null)return;
 		if (a.isBanned()) {
@@ -165,8 +175,10 @@ public class Events implements Listener {
 	public void onLeave(PlayerQuitEvent e) {
 		Player s = e.getPlayer();
 		User u = TheAPI.getUser(s);
-		u.set("quit", System.currentTimeMillis()/1000);
-		u.save();
+		if(!LoaderClass.config.getBoolean("Options.Cache.User.DisableSaving.Quit")) {
+			u.set("quit", System.currentTimeMillis()/1000);
+			u.save();
+		}
 		if(SimpleScore.scores.containsKey(s.getName()))
 			SimpleScore.scores.remove(s.getName()).destroy();
 		TheAPI.removeBossBar(s);
