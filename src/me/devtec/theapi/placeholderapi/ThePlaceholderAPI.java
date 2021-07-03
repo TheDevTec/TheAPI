@@ -12,7 +12,8 @@ import me.devtec.theapi.utils.StringUtils;
 
 public class ThePlaceholderAPI {
 	private final static Pattern finder = Pattern.compile("\\%(.*?)\\%"), // pattern for placeholder
-			math = Pattern.compile("\\%math\\{((?:\\{??.*?)+)\\}\\%");
+			math = Pattern.compile("\\%math\\{((?:\\{??.*?)+)\\}\\%"),
+			limiter = Pattern.compile("\\%limiter\\{((?:\\{??.*?)+),[ ]*((?:\\{??.*?)+),[ ]*((?:\\{??.*?)+)\\}\\%");
 	
 	private final static List<ThePlaceholder> reg = new ArrayList<>();
 
@@ -58,6 +59,11 @@ public class ThePlaceholderAPI {
 			text = text.replace(m.group(), StringUtils.calculate(PlaceholderAPI.setPlaceholders(player, m.group(1)))+"");
 			m = math.matcher(text);
 		}
+		m = limiter.matcher(text);
+		while (m.find()) {
+			text = text.replace(m.group(), limit(StringUtils.getDouble(m.group(1)),StringUtils.getDouble(m.group(2)),StringUtils.getDouble(m.group(3)))+"");
+			m = limiter.matcher(text);
+		}
 		Matcher found = finder.matcher(text);
 		while (found.find()) {
 			String g = found.group();
@@ -75,6 +81,22 @@ public class ThePlaceholderAPI {
 			else
 				break;
 		}
+		m = math.matcher(text);
+		while (m.find()) {
+			text = text.replace(m.group(), StringUtils.calculate(PlaceholderAPI.setPlaceholders(player, m.group(1)))+"");
+			m = math.matcher(text);
+		}
+		m = limiter.matcher(text);
+		while (m.find()) {
+			text = text.replace(m.group(), limit(StringUtils.getDouble(m.group(1)),StringUtils.getDouble(m.group(2)),StringUtils.getDouble(m.group(3)))+"");
+			m = limiter.matcher(text);
+		}
 		return text;
+	}
+	
+	private static double limit(double val, double min, double max) {
+		if(val<min)val=min;
+		if(val>max)val=max;
+		return val;
 	}
 }

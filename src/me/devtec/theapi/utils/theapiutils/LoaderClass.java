@@ -432,6 +432,7 @@ public class LoaderClass extends JavaPlugin {
 			 */
 			new PlaceholderExpansion() {
 				Pattern math = Pattern.compile("math\\{((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*))\\}");
+				Pattern limiter = Pattern.compile("limiter\\{((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*)),[ ]*((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*)),[ ]*((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*))\\}");
 				
 				@Override
 				public String getVersion() {
@@ -455,6 +456,11 @@ public class LoaderClass extends JavaPlugin {
 						text = text.replace(m.group(), StringUtils.calculate(m.group(1))+"");
 						m = math.matcher(text);
 					}
+					m = limiter.matcher(text);
+					while (m.find()) {
+						text = text.replace(m.group(), limit(StringUtils.getDouble(m.group(1)),StringUtils.getDouble(m.group(2)),StringUtils.getDouble(m.group(3)))+"");
+						m = limiter.matcher(text);
+					}
 					for (Iterator<ThePlaceholder> r = ThePlaceholderAPI.getPlaceholders().iterator(); r.hasNext();) {
 						ThePlaceholder get = r.next();
 						String toReplace = get.onPlaceholderRequest(player==null?null:player.isOnline()?player.getPlayer():null, params);
@@ -466,7 +472,18 @@ public class LoaderClass extends JavaPlugin {
 						text = text.replace(m.group(), StringUtils.calculate(m.group(1))+"");
 						m = math.matcher(text);
 					}
+					m = limiter.matcher(text);
+					while (m.find()) {
+						text = text.replace(m.group(), limit(StringUtils.getDouble(m.group(1)),StringUtils.getDouble(m.group(2)),StringUtils.getDouble(m.group(3)))+"");
+						m = limiter.matcher(text);
+					}
 					return text.equals(params) ? null : text;
+				}
+
+				private double limit(double val, double min, double max) {
+					if(val<min)val=min;
+					if(val>max)val=max;
+					return val;
 				}
 			}.register();
 		}
