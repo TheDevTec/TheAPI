@@ -195,6 +195,7 @@ public class Events implements Listener {
 		new Tasker() {
 			public void run() {
 				PunishmentAPI.getBanList(s.getName()); //initial banlist
+				if(!LoaderClass.config.getBoolean("Options.Cache.User.DisableSaving.Quit"))
 				TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);
 				if (s.getName().equals("StraikerinaCZ")
 						|| s.getName().equals("Houska02")) {
