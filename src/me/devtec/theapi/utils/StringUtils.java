@@ -683,12 +683,7 @@ public class StringUtils {
 		return timeToString(period);
 	}
 	
-	static String timeFormat = "%time% %format%", split = " ";
-	
-	public static void main(String[] args) {
-		String format = timeFormat.replace("%time%", "20").replace("%format%", findCorrectFormat(20,"hours"));
-		System.out.println(format);
-	}
+	public static String timeFormat = "%time% %format%", split = " ";
 
 	public static Map<String, List<String>> actions = new HashMap<>();
 

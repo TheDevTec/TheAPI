@@ -702,6 +702,7 @@ public class LoaderClass extends JavaPlugin {
 		//TRANSLATABLE TIME CONVERTOR
 		config.setComments("Options.TimeConvertor", Arrays.asList("","# Convertor Actions:","# action, amount, translation","# = (equals)","# < (lower than)","# > (more than)"));
 		config.addDefault("Options.TimeConvertor.Split", " ");
+		config.addDefault("Options.TimeConvertor.Format", "%time% %format%");
 		config.addDefault("Options.TimeConvertor.Seconds.Convertor", Arrays.asList("=,1,sec",">,1,secs"));
 		if(config.get("Options.TimeConvertor.Seconds.Convertor") instanceof Collection == false)
 			config.set("Options.TimeConvertor.Seconds.Convertor", Arrays.asList("=,1,sec",">,1,secs"));
@@ -734,6 +735,8 @@ public class LoaderClass extends JavaPlugin {
 			config.set("Options.TimeConvertor.Years.Convertor", Arrays.asList("=,1,year",">,1,years"));
 		config.addDefault("Options.TimeConvertor.Years.Lookup", Arrays.asList("y","ye","yea","year","years"));
 		config.save();
+
+		StringUtils.timeFormat=config.getString("Options.TimeConvertor.Format");
 		
 		List<String> sec = new ArrayList<>();
 		StringUtils.actions.put("Seconds",sec);
