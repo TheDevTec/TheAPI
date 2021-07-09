@@ -683,7 +683,7 @@ public class StringUtils {
 		return timeToString(period);
 	}
 	
-	public static String timeFormat = "%time% %format%", split = " ";
+	public static String timeFormat = "%time% %format%";
 
 	public static Map<String, List<String>> actions = new HashMap<>();
 
