@@ -631,7 +631,7 @@ public class StringUtils {
 	public static long timeFromString(String period) {
 		if (period == null || period.trim().isEmpty())
 			return 0;
-		period = period.toLowerCase(Locale.ENGLISH);
+		period = period.trim().toLowerCase(Locale.ENGLISH);
 		if (isFloat(period))
 			return (long)getFloat(period);
 		float time = 0;
@@ -682,6 +682,32 @@ public class StringUtils {
 	public static String setTimeToString(long period) {
 		return timeToString(period);
 	}
+	
+	static String timeFormat = "%time% %format%", split = " ";
+	
+	public static void main(String[] args) {
+		String format = timeFormat.replace("%time%", "20").replace("%format%", findCorrectFormat(20,"hours"));
+		System.out.println(format);
+	}
+
+	public static Map<String, List<String>> actions = new HashMap<>();
+
+	static String findCorrectFormat(long i, String string) {
+		String result = i+string;
+		for(String s : actions.get(string)) {
+			if(s.startsWith("=,"))
+				if(s.substring(1).split(",")[1].equals(""+i))return s.substring(3+s.substring(1).split(",")[1].length());
+			if(s.startsWith("<,"))
+				if(Integer.parseInt(s.substring(1).split(",")[1]) > i)return s.substring(3+s.substring(1).split(",")[1].length());
+			if(s.startsWith(">,"))
+				if(Integer.parseInt(s.substring(1).split(",")[1]) < i)return s.substring(3+s.substring(1).split(",")[1].length());
+		}
+		return result;
+	}
+	
+	private static String format(long time, String section) {
+		return timeFormat.replace("%time%", ""+time).replace("%format%", findCorrectFormat(time,section));
+	}
 
 	/**
 	 * @see see Set long to string
@@ -690,7 +716,7 @@ public class StringUtils {
 	 */
 	public static String timeToString(long time) {
 		if (time == 0)
-			return "0"+LoaderClass.config.getString("Options.TimeConvertor.Seconds.Convertor");
+			return format(0,"Seconds");
 		long minutes = (time / 60) % 60;
 		long hours = (time / 3600) % 24;
 		long days = (time / 86400) % 31;
@@ -701,20 +727,35 @@ public class StringUtils {
 			year = time / 86400 / 31 / 12;
 		} catch (Exception er) {
 		}
-		String date = "";
+		StringBuilder date = new StringBuilder(64);
 		if (year > 0)
-			date = year + LoaderClass.config.getString("Options.TimeConvertor.Years.Convertor");
-		if (month > 0)
-			date += month + LoaderClass.config.getString("Options.TimeConvertor.Months.Convertor");
-		if (days > 0)
-			date += days + LoaderClass.config.getString("Options.TimeConvertor.Days.Convertor");
-		if (hours > 0)
-			date += hours + LoaderClass.config.getString("Options.TimeConvertor.Hours.Convertor");
-		if (minutes > 0)
-			date += minutes + LoaderClass.config.getString("Options.TimeConvertor.Minutes.Convertor");
-		if (time % 60 > 0)
-			date += (time % 60) + LoaderClass.config.getString("Options.TimeConvertor.Seconds.Convertor");
-		return date;
+			date.append(format(year, "Years"));
+		if (month > 0) {
+			if(date.length()!=0)
+				date.append(LoaderClass.config.getString("Options.TimeConvertor.Split"));
+			date.append(format(month, "Months"));
+		}
+		if (days > 0) {
+			if(date.length()!=0)
+				date.append(LoaderClass.config.getString("Options.TimeConvertor.Split"));
+			date.append(format(days, "Days"));
+		}
+		if (hours > 0) {
+			if(date.length()!=0)
+				date.append(LoaderClass.config.getString("Options.TimeConvertor.Split"));
+			date.append(format(hours, "Hours"));
+		}
+		if (minutes > 0) {
+			if(date.length()!=0)
+				date.append(LoaderClass.config.getString("Options.TimeConvertor.Split"));
+			date.append(format(minutes, "Minutes"));
+		}
+		if (time % 60 > 0) {
+			if(date.length()!=0)
+				date.append(LoaderClass.config.getString("Options.TimeConvertor.Split"));
+			date.append(format(time % 60, "Seconds"));
+		}
+		return date.toString();
 	}
 
 	/**

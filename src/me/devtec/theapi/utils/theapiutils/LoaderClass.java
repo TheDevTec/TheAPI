@@ -246,7 +246,6 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
 				TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-
 		if(config.getBoolean("Options.AntiFakeBlocks"))
 		new PacketListener() {
 			@Override
@@ -701,27 +700,82 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.FakeEconomyAPI.Format", new Node("$%money%", "# Economy format of FakeEconomyAPI", "# defaulty: $%money%"));
 		
 		//TRANSLATABLE TIME CONVERTOR
-		config.addDefault("Options.TimeConvertor.Seconds.Convertor", "s");
+		config.setComments("Options.TimeConvertor", Arrays.asList("","# Convertor Actions:","# action, amount, translation","# = (equals)","# < (lower than)","# > (more than)"));
+		config.addDefault("Options.TimeConvertor.Split", " ");
+		config.addDefault("Options.TimeConvertor.Seconds.Convertor", Arrays.asList("=,1,sec",">,1,secs"));
+		if(config.get("Options.TimeConvertor.Seconds.Convertor") instanceof Collection == false)
+			config.set("Options.TimeConvertor.Seconds.Convertor", Arrays.asList("=,1,sec",">,1,secs"));
 		config.addDefault("Options.TimeConvertor.Seconds.Lookup", Arrays.asList("s","sec","second","seconds"));
 		
-		config.addDefault("Options.TimeConvertor.Minutes.Convertor", "m");
+		config.addDefault("Options.TimeConvertor.Minutes.Convertor", Arrays.asList("=,1,min",">,1,mins"));
+		if(config.get("Options.TimeConvertor.Minutes.Convertor") instanceof Collection == false)
+			config.set("Options.TimeConvertor.Minutes.Convertor", Arrays.asList("=,1,min",">,1,mins"));
 		config.addDefault("Options.TimeConvertor.Minutes.Lookup", Arrays.asList("m","mi","min","minu","minut","minute","minutes"));
 		
-		config.addDefault("Options.TimeConvertor.Hours.Convertor", "h");
+		if(config.get("Options.TimeConvertor.Hours.Convertor") instanceof Collection == false)
+			config.set("Options.TimeConvertor.Hours.Convertor", Arrays.asList("=,1,hour",">,1,hours"));
+		config.addDefault("Options.TimeConvertor.Hours.Convertor", Arrays.asList("=,1,hour",">,1,hours"));
 		config.addDefault("Options.TimeConvertor.Hours.Lookup", Arrays.asList("h","ho","hou","hour","hours"));
 		
-		config.addDefault("Options.TimeConvertor.Days.Convertor", "d");
+		config.addDefault("Options.TimeConvertor.Days.Convertor", Arrays.asList("=,1,day",">,1,days"));
+		if(config.get("Options.TimeConvertor.Days.Convertor") instanceof Collection == false)
+			config.set("Options.TimeConvertor.Days.Convertor", Arrays.asList("=,1,day",">,1,days"));
 		config.addDefault("Options.TimeConvertor.Days.Lookup", Arrays.asList("d","da","day","days"));
 		
-		config.addDefault("Options.TimeConvertor.Weeks.Convertor", "w");
 		config.addDefault("Options.TimeConvertor.Weeks.Lookup", Arrays.asList("w","we","wee","week","weeks"));
 		
-		config.addDefault("Options.TimeConvertor.Months.Convertor", "mo");
+		config.addDefault("Options.TimeConvertor.Months.Convertor", Arrays.asList("=,1,month",">,1,months"));
+		if(config.get("Options.TimeConvertor.Months.Convertor") instanceof Collection == false)
+			config.set("Options.TimeConvertor.Months.Convertor", Arrays.asList("=,1,month",">,1,months"));
 		config.addDefault("Options.TimeConvertor.Months.Lookup", Arrays.asList("mo","mon","mont","month","months"));
 		
-		config.addDefault("Options.TimeConvertor.Years.Convertor", "y");
+		config.addDefault("Options.TimeConvertor.Years.Convertor", Arrays.asList("=,1,year",">,1,years"));
+		if(config.get("Options.TimeConvertor.Years.Convertor") instanceof Collection == false)
+			config.set("Options.TimeConvertor.Years.Convertor", Arrays.asList("=,1,year",">,1,years"));
 		config.addDefault("Options.TimeConvertor.Years.Lookup", Arrays.asList("y","ye","yea","year","years"));
 		config.save();
+		
+		List<String> sec = new ArrayList<>();
+		StringUtils.actions.put("Seconds",sec);
+		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Convertor"))
+			sec.add(action);
+		if(sec.isEmpty())
+			sec.addAll(Arrays.asList("=,1,sec",">,1,secs"));
+		
+		List<String> min = new ArrayList<>();
+		StringUtils.actions.put("Minutes",min);
+		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Minutes.Convertor"))
+			min.add(action);
+		if(min.isEmpty())
+			min.addAll(Arrays.asList("=,1,min",">,1,s"));
+		
+		List<String> hours = new ArrayList<>();
+		StringUtils.actions.put("Hours",hours);
+		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Hours.Convertor"))
+			hours.add(action);
+		if(hours.isEmpty())
+			hours.addAll(Arrays.asList("=,1,hour",">,1,hours"));
+		
+		List<String> days = new ArrayList<>();
+		StringUtils.actions.put("Days",days);
+		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Days.Convertor"))
+			days.add(action);
+		if(days.isEmpty())
+			days.addAll(Arrays.asList("=,1,day",">,1,days"));
+		
+		List<String> weeks = new ArrayList<>();
+		StringUtils.actions.put("Weeks",weeks);
+		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Weeks.Convertor"))
+			weeks.add(action);
+		if(weeks.isEmpty())
+			weeks.addAll(Arrays.asList("=,1,week",">,1,weeks"));
+		
+		List<String> years = new ArrayList<>();
+		StringUtils.actions.put("Years",years);
+		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Years.Convertor"))
+			years.add(action);
+		if(years.isEmpty())
+			years.addAll(Arrays.asList("=,1,year",">,1,years"));
 		
 		StringUtils.sec=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
 		StringUtils.min=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Minutes.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
