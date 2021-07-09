@@ -183,7 +183,7 @@ public class StringUtils {
 		while (split.length() > lengthOfSplit) {
 			int length = lengthOfSplit - 1 - prefix.length();
 			String a = prefix + split.substring(0, length);
-			if (a.endsWith("§")) {
+			if (a.endsWith("§")||a.endsWith("&")) {
 				--length;
 				a = prefix + split.substring(0, length);
 				prefix = getLastColors(a);
@@ -456,10 +456,10 @@ public class StringUtils {
 			if (blue < 0)
 				blue = 0;
 			finalColor = new Color(red, green, blue);
-			String hex = "§x";
+			StringBuilder hex = new StringBuilder("§x");
 			char[] c = Integer.toHexString(finalColor.getRGB()).substring(2).toCharArray();
 			for (int i = 0; i < c.length; ++i)
-				hex += "§" + c[i];
+				hex.append('§').append(c[i]);
 			if (l.containsKey(index))
 				switch (l.get(index)) {
 				case "l":
@@ -486,7 +486,7 @@ public class StringUtils {
 					formats = "";
 					break;
 				}
-			msg = msg.replaceFirst("<!>", hex + formats);
+			msg = msg.replaceFirst("<!>", hex.append(formats).toString());
 		}
 		return msg;
 	}
@@ -551,7 +551,7 @@ public class StringUtils {
 	                StringBuilder magic = new StringBuilder("§x");
 	                char[] c = color.substring(1).toCharArray();
 	                for(int i = 0; i < c.length; ++i)
-	                    magic.append("§"+Character.toLowerCase(c[i]));
+	                    magic.append('§').append(c[i]);
 					msg = msg.replace(color, magic.toString());
 				}
 			}
@@ -917,7 +917,7 @@ public class StringUtils {
 	public static boolean isLong(String fromString) {
 		try {
 			Long.parseLong(fromString);
-		} catch (NumberFormatException e) {
+		} catch (Exception e) {
 			return false;
 		}
 		return true;
@@ -951,7 +951,7 @@ public class StringUtils {
 	public static boolean isFloat(String fromString) {
 		try {
 			Float.parseFloat(fromString);
-		} catch (NumberFormatException e) {
+		} catch (Exception e) {
 			return false;
 		}
 		return true;
@@ -979,7 +979,7 @@ public class StringUtils {
 	public static boolean isByte(String fromString) {
 		try {
 			Byte.parseByte(fromString);
-		} catch (NumberFormatException e) {
+		} catch (Exception e) {
 			return false;
 		}
 		return true;
@@ -1007,7 +1007,7 @@ public class StringUtils {
 	public static boolean isShort(String fromString) {
 		try {
 			Short.parseShort(fromString);
-		} catch (NumberFormatException e) {
+		} catch (Exception e) {
 			return false;
 		}
 		return true;
