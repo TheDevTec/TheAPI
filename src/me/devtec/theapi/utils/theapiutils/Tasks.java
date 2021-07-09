@@ -56,7 +56,9 @@ public class Tasks {
 								players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
 							ServerListPingEvent event = new ServerListPingEvent(TheAPI.getOnlinePlayers().size(),
 									TheAPI.getMaxPlayers(), players, TheAPI.getMotd(), null,
-									((InetSocketAddress) Ref.invoke(channel, "remoteAddress")).getAddress(), (String)Ref.get(Ref.get(w, TheAPI.isNewerThan(16)?"e":"c"),"a"));
+									((InetSocketAddress) Ref.invoke(channel, "remoteAddress")).getAddress(), 
+									(String)Ref.get(Ref.get(w, TheAPI.isNewerThan(16)?"e":"c"),"a"),
+									(int)Ref.get(Ref.get(w, TheAPI.isNewerThan(16)?"e":"c"), "b"));
 							TheAPI.callEvent(event);
 							if (event.isCancelled())
 								return true;
@@ -69,16 +71,17 @@ public class Tasks {
 								Ref.set(sd, "c", a);
 							} else
 								Ref.set(sd, "c", (Object[]) Array.newInstance(c, 0));
-							Ref.set(w, "b", sd);
-	
+							Ref.set(w, TheAPI.isNewerThan(16)?"d":"b", sd);
+
 							if (event.getMotd() != null)
-								Ref.set(w, "a", NMSAPI.getFixedIChatBaseComponent(event.getMotd()));
+								Ref.set(w, TheAPI.isNewerThan(16)?"c":"a", NMSAPI.getFixedIChatBaseComponent(event.getMotd()));
 							else
-								Ref.set(w, "a", NMSAPI.getIChatBaseComponentText(""));
+								Ref.set(w, TheAPI.isNewerThan(16)?"c":"a", NMSAPI.getIChatBaseComponentText(""));
 							if(event.getVersion()!=null)
-								Ref.set(Ref.get(w, TheAPI.isNewerThan(16)?"e":"c"), "a", event.getVersion());
+								Ref.set(Ref.get(w, TheAPI.isNewerThan(16)?"e":"c"), "a",event.getVersion());
+							Ref.set(Ref.get(w, TheAPI.isNewerThan(16)?"e":"c"), "b",event.getProtocol());
 							if (event.getFalvicon() != null)
-								Ref.set(packet, "d", event.getFalvicon());
+								Ref.set(packet, TheAPI.isNewerThan(16)?"f":"d", event.getFalvicon());
 							return false;
 						}
 						return false;
@@ -137,21 +140,44 @@ public class Tasks {
 						public void run() {
 							for (World w : Bukkit.getWorlds()) {
 								try {
-									for (Entity da : w.getEntities()) {
-										if (da instanceof LivingEntity) {
-											LivingEntity e = (LivingEntity) da;
-											Location a = e.getLocation();
-											Location old = v.getOrDefault(e.getUniqueId(),a);
-											if (!v.get(e.getUniqueId()).equals(a)) {
-												Ref.set(event, from, old);
-												Ref.set(event, to, a);
-												Ref.set(event, entity, e);
-												event.setCancelled(false);
-												TheAPI.callEvent(event);
-												if (event.isCancelled())
-													e.teleport(old);
-												else
-													v.put(e.getUniqueId(), a);
+									if(TheAPI.isNewerThan(16)) {
+										Object af = Ref.invoke(Ref.get(Ref.world(w), "G"), "d");
+										for(Object en : (Iterable<?>)Ref.invoke(af,"a")) {
+											Entity da = (Entity) Ref.invoke(en,"getBukkitEntity");
+											if (da instanceof LivingEntity) {
+												LivingEntity e = (LivingEntity) da;
+												Location a = e.getLocation();
+												Location old = v.getOrDefault(e.getUniqueId(),a);
+												if (!v.get(e.getUniqueId()).equals(a)) {
+													Ref.set(event, from, old);
+													Ref.set(event, to, a);
+													Ref.set(event, entity, e);
+													event.setCancelled(false);
+													TheAPI.callEvent(event);
+													if (event.isCancelled())
+														e.teleport(old);
+													else
+														v.put(e.getUniqueId(), a);
+												}
+											}
+										}
+									}else {
+										for (Entity da : w.getEntities()) {
+											if (da instanceof LivingEntity) {
+												LivingEntity e = (LivingEntity) da;
+												Location a = e.getLocation();
+												Location old = v.getOrDefault(e.getUniqueId(),a);
+												if (!v.get(e.getUniqueId()).equals(a)) {
+													Ref.set(event, from, old);
+													Ref.set(event, to, a);
+													Ref.set(event, entity, e);
+													event.setCancelled(false);
+													TheAPI.callEvent(event);
+													if (event.isCancelled())
+														e.teleport(old);
+													else
+														v.put(e.getUniqueId(), a);
+												}
 											}
 										}
 									}

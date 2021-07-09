@@ -48,86 +48,78 @@ public class ByteLoader extends DataLoader {
 	public void load(String input) {
 		data.clear();
 		try {
-			byte[] bb = Base64.getDecoder().decode(input);
+			byte[] bb = Base64.getDecoder().decode(input.trim());
 			ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
-			bos.readInt();
-			while (true)
-				try {
-					String key = bos.readUTF();
-					String value = bos.readUTF();
-					if(!value.equals("null")) {
-					if(value.startsWith("0"))
-						value=value.substring(1);
-					}else value=null;
-					String next;
-					boolean run = true;
-					while (run)
-						try {
-							next=bos.readUTF();
-							if(next.equals("null")) {
-								value+=null;
-								continue;
-							}
-							if(next.equals("0")) {
-								run=false;
-								continue;
-							}else {
-								if(next.startsWith("0"))
-									next=next.substring(1);
-								value+=next;
-							}
-						}catch(Exception not) {
-							run=false;
-						}
-					data.put(key, new Object[] {value==null?null:Reader.read(value), null, value,1});
-				} catch (Exception e) {
-					break;
-				}
-			if (!data.isEmpty())
-				l = true;
-		} catch (Exception er) {
-			String inputF =input.substring(0, input.length()-2);
-			try {
-				byte[] bb = Base64.getDecoder().decode(inputF);
-				ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
-				bos.readInt();
+			int version = bos.readInt();
+			if(version==1) {
 				while (true)
 					try {
 						String key = bos.readUTF();
 						String value = bos.readUTF();
 						if(!value.equals("null")) {
-							if(value.startsWith("0"))
-								value=value.substring(1);
-							}else value=null;
-							String next;
-							boolean run = true;
-							while (run)
-								try {
-									next=bos.readUTF();
-									if(next.equals("null")) {
-										value+=null;
-										continue;
-									}
-									if(next.equals("0")) {
-										run=false;
-										continue;
-									}else {
-										if(next.startsWith("0"))
-											next=next.substring(1);
-										value+=next;
-									}
-								}catch(Exception not) {
-									run=false;
+							value=value.substring(1);
+						}else value=null;
+						String next;
+						boolean run = true;
+						while (run)
+							try {
+								next=bos.readUTF();
+								if(next.equals("null")) {
+									value+=null;
+									continue;
 								}
-						data.put(key, new Object[] {value==null?null:Reader.read(value), null, value, 1});
+								if(next.equals("0")) {
+									run=false;
+									continue;
+								}else {
+									next=next.substring(1);
+									value+=next;
+								}
+							}catch(Exception not) {
+								run=false;
+							}
+						data.put(key, new Object[] {value==null?null:Reader.read(value), null, value,1});
 					} catch (Exception e) {
 						break;
 					}
-				if (!data.isEmpty())
-					l = true;
-			}catch(Exception era) {
-				l=false;
+			}else {
+				String key = bos.readUTF();
+				while(!key.equals("1"))key = bos.readUTF();
+				key = bos.readUTF();
+				while (true)
+					try {
+						String value = bos.readUTF();
+						if(!value.equals("null")) {
+							value=value.substring(1);
+						}else value=null;
+						String next;
+						boolean run = true;
+						while (run)
+							try {
+								next=bos.readUTF();
+								if(next.equals("null")) {
+									value+=null;
+									continue;
+								}
+								if(next.equals("0")) {
+									run=false;
+									continue;
+								}else {
+									next=next.substring(1);
+									value+=next;
+								}
+							}catch(Exception not) {
+								run=false;
+							}
+						data.put(key, new Object[] {value==null?null:Reader.read(value), null, value,1});
+					} catch (Exception e) {
+						break;
+					}
 			}
+			if (!data.isEmpty())
+				l = true;
+		} catch (Exception er) {
+			l=false;
 		}
 	}
 

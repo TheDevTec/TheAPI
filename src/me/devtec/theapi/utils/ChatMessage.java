@@ -145,7 +145,7 @@ public class ChatMessage {
 			setItalic=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setItalic", Boolean.class),
 			setRandom=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setRandom", Boolean.class),
 			setStrikethrough=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setStrikethrough", Boolean.class),
-			setChatClickable=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setChatClickable", Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable", "ChatClickable")),
+			setChatClickable=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setChatClickable", Ref.nmsOrOld("network.chat.ChatClickable", "ChatClickable")),
 			setUnderline=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setUnderline", Boolean.class),
 			hex=Ref.method(Ref.nmsOrOld("network.chat.ChatHexColor", "ChatHexColor"), "a", String.class),
 			colors=Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", char.class),

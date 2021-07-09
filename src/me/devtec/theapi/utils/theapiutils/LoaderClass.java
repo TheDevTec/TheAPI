@@ -129,7 +129,6 @@ public class LoaderClass extends JavaPlugin {
 	public void onLoad() {
 		plugin = this;
 		data = new Config("TheAPI/Data.dat", DataType.BYTE);
-		
 		//CONFIG
 		createConfig();
 		

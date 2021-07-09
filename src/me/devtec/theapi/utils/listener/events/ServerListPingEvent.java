@@ -9,18 +9,19 @@ import me.devtec.theapi.utils.serverlist.PlayerProfile;
 
 public class ServerListPingEvent extends Event implements Cancellable {
 	private boolean cancel;
-	private int online, max;
+	private int online, max, protocol;
 	private List<PlayerProfile> playersText;
 	private String motd, falvicon, version;
 	private final InetAddress address;
 
 	public ServerListPingEvent(int online, int max, List<PlayerProfile> playersText, String motd, String falvicon,
-			InetAddress inetAddress, String ver) {
+			InetAddress inetAddress, String ver, int protocol) {
 		this.online = online;
 		this.max = max;
 		this.playersText = playersText;
 		this.motd = motd;
 		this.falvicon = falvicon;
+		this.protocol=protocol;
 		this.address = inetAddress;
 		version=ver;
 	}
@@ -31,6 +32,14 @@ public class ServerListPingEvent extends Event implements Cancellable {
 	
 	public void setVersion(String ver) {
 		version=ver;
+	}
+
+	public int getProtocol() {
+		return protocol;
+	}
+	
+	public void setProtocol(int protocol) {
+		this.protocol=protocol;
 	}
 	
 	public InetAddress getAddress() {

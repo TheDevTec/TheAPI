@@ -654,7 +654,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (type == DataType.BYTE) {
 			try {
 				ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
-				bos.writeInt(1);
+				bos.writeInt(2);
+				bos.writeUTF("1");
 				for (Entry<String, Object[]> key : loader.get().entrySet())
 					try {
 						bos.writeUTF(key.getKey());
@@ -670,10 +671,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 										bos.writeUTF("0");
 										continue;
 									}
-									while(write.length()>20000) {
-										String wr = write.substring(0, 19999);
+									while(write.length()>40000) {
+										String wr = write.substring(0, 39999);
 										bos.writeUTF('0'+wr);
-										write=write.substring(19999);
+										write=write.substring(39999);
 									}
 									bos.writeUTF('0'+write);
 									bos.writeUTF("0");
@@ -685,10 +686,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 								bos.writeUTF("0");
 								continue;
 							}
-							while(write.length()>20000) {
-								String wr = write.substring(0, 19999);
+							while(write.length()>40000) {
+								String wr = write.substring(0, 39999);
 								bos.writeUTF('0'+wr);
-								write=write.substring(19999);
+								write=write.substring(39999);
 							}
 							bos.writeUTF('0'+write);
 							bos.writeUTF("0");
