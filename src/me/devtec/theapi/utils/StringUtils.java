@@ -237,15 +237,15 @@ public class StringUtils {
 	public static String join(Iterable<?> toJoin, String split) {
 		if (toJoin == null || split == null)
 			return null;
-		String r = "";
+		StringBuilder r = new StringBuilder();
 		for (Object s : toJoin)
 			if (s == null)
 				continue;
 			else
-				r += split + s.toString();
-		if(r.length()>1)
-		r = r.substring(1);
-		return r;
+				r.append(split).append(s.toString());
+		if(r.length()!=0)
+			r.delete(0,split.length());
+		return r.toString();
 	}
 
 	/**
@@ -255,15 +255,15 @@ public class StringUtils {
 	public static String join(Object[] toJoin, String split) {
 		if (toJoin == null || split == null)
 			return null;
-		String r = "";
+		StringBuilder r = new StringBuilder();
 		for (Object s : toJoin)
 			if (s == null)
 				continue;
 			else
-				r += split + s.toString();
-		if(r.length()>1)
-		r = r.substring(1);
-		return r;
+				r.append(split).append(s.toString());
+		if(r.length()!=0)
+			r.delete(0,split.length());
+		return r.toString();
 	}
 
 	/**
@@ -586,10 +586,12 @@ public class StringUtils {
 	 * 
 	 */
 	public static String buildString(int start, int end, String[] args) {
-		String msg = "";
+		StringBuilder msg = new StringBuilder();
 		for (int i = start; i < args.length && i < end; ++i)
-			msg += (msg.equals("") ? "" : " ") + args[i];
-		return msg;
+			msg.append(' ').append(args[i]);
+		if(msg.length()!=0)
+			msg.delete(0,1);
+		return msg.toString();
 	}
 
 	/**

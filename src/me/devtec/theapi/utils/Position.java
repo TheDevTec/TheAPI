@@ -279,7 +279,8 @@ public class Position implements Cloneable {
 
 	private static int wf = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]);
 	private static Field f = Ref.field(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "bukkitChunk");
-	private static Method getOrCreate=Ref.method(Ref.nms("ChunkProviderServer"), "getOrCreateChunk", int.class, int.class);
+	private static Method getOrCreate=Ref.method(Ref.nms("ChunkProviderServer"), "getOrCreateChunk", int.class, int.class),
+			handle=Ref.method(Ref.craft("CraftChunk"), "getHandle");
 	static {
 		if(getOrCreate==null)
 			getOrCreate=Ref.method(Ref.nms("ChunkProviderServer"), "getOrLoadChunkAt", int.class, int.class);
@@ -287,7 +288,7 @@ public class Position implements Cloneable {
 	
 	public Object getNMSChunk() {
 		try {
-			if(TheAPI.isNewVersion())return Ref.get(getWorld().getChunkAt(getBlockX()>>4, getBlockZ()>>4), "handle");
+			if(TheAPI.isNewVersion())return Ref.invoke(Ref.cast(Ref.craft("CraftChunk"), getWorld().getChunkAt(getBlockX()>>4, getBlockZ()>>4)), handle);
 			return Ref.invoke(Ref.get(Ref.world(getWorld()), "chunkProviderServer"), getOrCreate, getBlockX() >> 4, getBlockZ() >> 4);
 		} catch (Exception er) {
 		}

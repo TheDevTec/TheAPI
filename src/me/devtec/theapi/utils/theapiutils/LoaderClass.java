@@ -239,13 +239,6 @@ public class LoaderClass extends JavaPlugin {
 		}
 		ca.setExecutor(new TheAPICommand());
 		TheAPI.registerCommand(ca);
-	}
-
-	public void onEnable() {
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
-				TheAPI.getConsole());
-		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		if(config.getBoolean("Options.AntiFakeBlocks"))
 		new PacketListener() {
 			@Override
@@ -402,25 +395,132 @@ public class LoaderClass extends JavaPlugin {
 						s.move();
 				}
 			}.runRepeating(0, 20);
-		
-		Data plugin = new Data();
-		for(Plugin e : Bukkit.getPluginManager().getPlugins()) {
-			plugin.reload(StreamUtils.fromStream(e.getResource("plugin.yml")));
-			if(plugin.exists("configs")) {
-				String folder = plugin.exists("configsFolder")?(plugin.getString("configsFolder").trim().isEmpty()?e.getName():plugin.getString("configsFolder")):e.getName();
-				if(plugin.get("configs") instanceof Collection) {
-					for(String config : plugin.getStringList("configs"))
-						Config.loadConfig(e, config, folder+"/"+config);
-				}else
-					Config.loadConfig(e, plugin.getString("configs"), folder+"/"+plugin.getString("configs"));
-			}
-		}
-		Bukkit.getPluginManager().registerEvents(new Events(), LoaderClass.this);
 
+			Data plugind = new Data();
+			for(Plugin e : Bukkit.getPluginManager().getPlugins()) {
+				plugind.reload(StreamUtils.fromStream(e.getResource("plugin.yml")));
+				if(plugind.exists("configs")) {
+					String folder = plugind.exists("configsFolder")?(plugind.getString("configsFolder").trim().isEmpty()?e.getName():plugind.getString("configsFolder")):e.getName();
+					if(plugind.get("configs") instanceof Collection) {
+						for(String config : plugind.getStringList("configs"))
+							Config.loadConfig(e, config, folder+"/"+config);
+					}else
+						Config.loadConfig(e, plugind.getString("configs"), folder+"/"+plugind.getString("configs"));
+				}
+			}
+			loadPlaceholders();
+			
+			new Tasker() {
+				public void run() {
+					Tasks.load();
+					if (PluginManagerAPI.getPlugin("Vault") == null) {
+						TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+						TheAPI.msg("&cTheAPI&7: &ePlugin not found Vault, EconomyAPI is disabled.", TheAPI.getConsole());
+						TheAPI.msg("&cTheAPI&7: &eYou can enabled EconomyAPI by set custom Economy in EconomyAPI.",
+								TheAPI.getConsole());
+						TheAPI.msg("&cTheAPI&7: &e *TheAPI will still normally work without problems*",
+								TheAPI.getConsole());
+						TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+					} else
+						vaultHooking();
+					new Tasker() {
+						@Override
+						public void run() {
+							if (getTheAPIsPlugins().size() == 0)
+								return;
+							String end = getTheAPIsPlugins().size() != 1 ? "s" : "";
+							TheAPI.msg("&cTheAPI&7: &eTheAPI using &6" + getTheAPIsPlugins().size() + " &eplugin" + end,
+									TheAPI.getConsole());
+						}
+					}.runLater(200);
+					new Tasker() {
+						public void run() {
+							for(User u : TheAPI.getCachedUsers()) {
+								if(u.getAutoUnload() && TheAPI.getPlayerOrNull(u.getName())==null)
+									TheAPI.removeCachedUser(u.getUUID());
+							}
+						}
+					}.runRepeating(40, 20*300);
+					checker = new SpigotUpdateChecker(getDescription().getVersion(), 72679);
+					switch (checker.checkForUpdates()) {
+					case UKNOWN:
+						TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
+						TheAPI.msg(
+								"&cTheAPI&7: &eUpdate checker: &7Unable to connect to spigot, check internet connection.",
+								TheAPI.getConsole());
+						TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
+						checker = null; // close updater
+						break;
+					case NEW:
+						TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
+						TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Found new version of TheAPI.", TheAPI.getConsole());
+						TheAPI.msg("&cTheAPI&7:        https://www.spigotmc.org/resources/72679/", TheAPI.getConsole());
+						TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
+						break;
+					case OLD:
+						TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
+						TheAPI.msg(
+								"&cTheAPI&7: &eUpdate checker: &7You are using the BETA version of TheAPI, report bugs to our Discord.",
+								TheAPI.getConsole());
+						TheAPI.msg("&cTheAPI&7:        https://discord.io/spigotdevtec", TheAPI.getConsole());
+						TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
+						break;
+					default:
+						break;
+					}
+					if (checker != null)
+						new Tasker() {
+							public void run() {
+								switch (checker.checkForUpdates()) {
+								case UKNOWN:
+									TheAPI.msg("&cTheAPI&7: &8*********************************************",
+											TheAPI.getConsole());
+									TheAPI.msg(
+											"&cTheAPI&7: &eUpdate checker: &7Unable to connect to spigot, check internet connection.",
+											TheAPI.getConsole());
+									TheAPI.msg("&cTheAPI&7: &8*********************************************",
+											TheAPI.getConsole());
+									checker = null; // close updater
+									cancel(); // destroy task
+									break;
+								case NEW:
+									TheAPI.msg("&cTheAPI&7: &8*********************************************",
+											TheAPI.getConsole());
+									TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Found new version of TheAPI.",
+											TheAPI.getConsole());
+									TheAPI.msg("&cTheAPI&7:        https://www.spigotmc.org/resources/72679/",
+											TheAPI.getConsole());
+									TheAPI.msg("&cTheAPI&7: &8*********************************************",
+											TheAPI.getConsole());
+									break;
+								case OLD:
+									TheAPI.msg("&cTheAPI&7: &8*********************************************",
+											TheAPI.getConsole());
+									TheAPI.msg(
+											"&cTheAPI&7: &eUpdate checker: &7You are using the BETA version of TheAPI, report bugs to our Discord.",
+											TheAPI.getConsole());
+									TheAPI.msg("&cTheAPI&7:        https://discord.io/spigotdevtec", TheAPI.getConsole());
+									TheAPI.msg("&cTheAPI&7: &8*********************************************",
+											TheAPI.getConsole());
+									break;
+								default:
+									break;
+								}
+							}
+						}.runRepeating(144000, 144000);
+				}
+			}.runTask();
+	}
+
+	public void onEnable() {
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
+				TheAPI.getConsole());
+		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		Bukkit.getPluginManager().registerEvents(new Events(), LoaderClass.this);
 		if(config.getBoolean("Options.ItemUnbreakable"))
 		Bukkit.getPluginManager().registerEvents(new ItemBreakEvent(), LoaderClass.this);
 		loadWorlds();
-		loadPlaceholders();
 		if (PlaceholderAPI.isEnabledPlaceholderAPI()) {
 			/*
 			 * TheAPI placeholder extension for PAPI BRIDGE:
@@ -485,107 +585,6 @@ public class LoaderClass extends JavaPlugin {
 				}
 			}.register();
 		}
-		
-		new Tasker() {
-			public void run() {
-				Tasks.load();
-				if (PluginManagerAPI.getPlugin("Vault") == null) {
-					TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-					TheAPI.msg("&cTheAPI&7: &ePlugin not found Vault, EconomyAPI is disabled.", TheAPI.getConsole());
-					TheAPI.msg("&cTheAPI&7: &eYou can enabled EconomyAPI by set custom Economy in EconomyAPI.",
-							TheAPI.getConsole());
-					TheAPI.msg("&cTheAPI&7: &e *TheAPI will still normally work without problems*",
-							TheAPI.getConsole());
-					TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-				} else
-					vaultHooking();
-				new Tasker() {
-					@Override
-					public void run() {
-						if (getTheAPIsPlugins().size() == 0)
-							return;
-						String end = getTheAPIsPlugins().size() != 1 ? "s" : "";
-						TheAPI.msg("&cTheAPI&7: &eTheAPI using &6" + getTheAPIsPlugins().size() + " &eplugin" + end,
-								TheAPI.getConsole());
-					}
-				}.runLater(200);
-				new Tasker() {
-					public void run() {
-						for(User u : TheAPI.getCachedUsers()) {
-							if(u.getAutoUnload() && TheAPI.getPlayerOrNull(u.getName())==null)
-								TheAPI.removeCachedUser(u.getUUID());
-						}
-					}
-				}.runRepeating(40, 20*300);
-				checker = new SpigotUpdateChecker(getDescription().getVersion(), 72679);
-				switch (checker.checkForUpdates()) {
-				case UKNOWN:
-					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
-					TheAPI.msg(
-							"&cTheAPI&7: &eUpdate checker: &7Unable to connect to spigot, check internet connection.",
-							TheAPI.getConsole());
-					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
-					checker = null; // close updater
-					break;
-				case NEW:
-					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
-					TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Found new version of TheAPI.", TheAPI.getConsole());
-					TheAPI.msg("&cTheAPI&7:        https://www.spigotmc.org/resources/72679/", TheAPI.getConsole());
-					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
-					break;
-				case OLD:
-					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
-					TheAPI.msg(
-							"&cTheAPI&7: &eUpdate checker: &7You are using the BETA version of TheAPI, report bugs to our Discord.",
-							TheAPI.getConsole());
-					TheAPI.msg("&cTheAPI&7:        https://discord.io/spigotdevtec", TheAPI.getConsole());
-					TheAPI.msg("&cTheAPI&7: &8*********************************************", TheAPI.getConsole());
-					break;
-				default:
-					break;
-				}
-				if (checker != null)
-					new Tasker() {
-						public void run() {
-							switch (checker.checkForUpdates()) {
-							case UKNOWN:
-								TheAPI.msg("&cTheAPI&7: &8*********************************************",
-										TheAPI.getConsole());
-								TheAPI.msg(
-										"&cTheAPI&7: &eUpdate checker: &7Unable to connect to spigot, check internet connection.",
-										TheAPI.getConsole());
-								TheAPI.msg("&cTheAPI&7: &8*********************************************",
-										TheAPI.getConsole());
-								checker = null; // close updater
-								cancel(); // destroy task
-								break;
-							case NEW:
-								TheAPI.msg("&cTheAPI&7: &8*********************************************",
-										TheAPI.getConsole());
-								TheAPI.msg("&cTheAPI&7: &eUpdate checker: &7Found new version of TheAPI.",
-										TheAPI.getConsole());
-								TheAPI.msg("&cTheAPI&7:        https://www.spigotmc.org/resources/72679/",
-										TheAPI.getConsole());
-								TheAPI.msg("&cTheAPI&7: &8*********************************************",
-										TheAPI.getConsole());
-								break;
-							case OLD:
-								TheAPI.msg("&cTheAPI&7: &8*********************************************",
-										TheAPI.getConsole());
-								TheAPI.msg(
-										"&cTheAPI&7: &eUpdate checker: &7You are using the BETA version of TheAPI, report bugs to our Discord.",
-										TheAPI.getConsole());
-								TheAPI.msg("&cTheAPI&7:        https://discord.io/spigotdevtec", TheAPI.getConsole());
-								TheAPI.msg("&cTheAPI&7: &8*********************************************",
-										TheAPI.getConsole());
-								break;
-							default:
-								break;
-							}
-						}
-					}.runRepeating(144000, 144000);
-			}
-		}.runTask();
 	}
 
 	private SpigotUpdateChecker checker;
