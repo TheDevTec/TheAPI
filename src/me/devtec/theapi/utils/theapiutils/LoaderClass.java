@@ -828,6 +828,14 @@ public class LoaderClass extends JavaPlugin {
 						for(String s : data.getKeys()) {
 							try {
 							User user = new User(data.getString(s), UUID.fromString(s));
+							if(user.getData().getKeys().size()==0) { //empty user
+								cache.nameLookup.remove(user.getName().toLowerCase());
+								cache.uuidLookup.remove(user.getName().toLowerCase());
+								TheAPI.removeCachedUser(user.getUUID());
+								user.delete(); //delete file
+								++removed;
+								continue;
+							}
 							if(user.getLong("quit")==0) {
 								user.data().clear(); //clear cache from memory
 								continue; //fake user?
@@ -851,6 +859,14 @@ public class LoaderClass extends JavaPlugin {
 								int removed = 0;
 								for(Entry<String, UUID> s : cache.uuidLookup.entrySet()) {
 									User user = new User(cache.nameLookup.get(s.getKey()), s.getValue());
+									if(user.getData().getKeys().size()==0) { //empty user
+										cache.nameLookup.remove(user.getName().toLowerCase());
+										cache.uuidLookup.remove(user.getName().toLowerCase());
+										TheAPI.removeCachedUser(user.getUUID());
+										user.delete(); //delete file
+										++removed;
+										continue;
+									}
 									if(user.getLong("quit")==0) {
 										user.data().clear(); //clear cache from memory
 										continue; //fake user?
