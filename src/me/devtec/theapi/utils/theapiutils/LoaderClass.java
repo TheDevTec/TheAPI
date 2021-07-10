@@ -693,8 +693,6 @@ public class LoaderClass extends JavaPlugin {
 						"# defaulty: false"));
 		config.setComments("Options.AntiBot", Arrays.asList(""));
 		config.addDefault("Options.AntiBot.TimeBetweenPlayer", new Node(10,"# Time between player can't connect to the server", "# defaulty: 10")); // 10 milis
-		config.addDefault("Options.EntityMoveEvent.Enabled", new Node(true, "# Enable EntityMoveEvent event", "# defaulty: true"));
-		config.addDefault("Options.EntityMoveEvent.Reflesh", new Node(3, "# Ticks to look for entity move action", "# defaulty: 3"));
 		config.addDefault("Options.FakeEconomyAPI.Symbol", new Node("$", "# Economy symbol of FakeEconomyAPI", "# defaulty: $"));
 		config.setComments("Options.FakeEconomyAPI", Arrays.asList(""));
 		config.addDefault("Options.FakeEconomyAPI.Format", new Node("$%money%", "# Economy format of FakeEconomyAPI", "# defaulty: $%money%"));

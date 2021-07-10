@@ -52,7 +52,7 @@ public class Old1_8SimpleCommandMap extends SimpleCommandMap {
 	  
 	  @Override
 	  public boolean dispatch(CommandSender sender, String commandLine) throws CommandException {
-	    String[] args = commandLine.split(" ");
+	    String[] args = commandLine.replace("  ", " ").split(" ");
 	    if (args.length == 0)
 	      return false; 
 	    String sentCommandLabel = args[0].toLowerCase();
@@ -60,12 +60,12 @@ public class Old1_8SimpleCommandMap extends SimpleCommandMap {
 	    if (target == null)
 	      return false; 
 	    try {
-	      target.execute(sender, sentCommandLabel, Arrays.copyOfRange(args, 1, args.length));
+	    	target.execute(sender, sentCommandLabel, Arrays.copyOfRange(args, 1, args.length));
 	    } catch (CommandException ex) {
-	      throw ex;
+	    	throw ex;
 	    } catch (Throwable ex) {
-	      throw new CommandException("Unhandled exception executing '" + commandLine + "' in " + target, ex);
-	    } 
+	    	throw new CommandException("Unhandled exception executing '" + commandLine + "' in " + target, ex);
+	    }
 	    return true;
 	  }
 }

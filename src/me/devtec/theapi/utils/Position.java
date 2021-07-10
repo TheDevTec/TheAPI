@@ -17,6 +17,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Entity;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.reflections.Ref;
@@ -82,6 +83,10 @@ public class Position implements Cloneable {
 	}
 
 	public Position(Block b) {
+		this(b.getLocation());
+	}
+
+	public Position(Entity b) {
 		this(b.getLocation());
 	}
 
@@ -274,21 +279,18 @@ public class Position implements Cloneable {
 
 	private static int wf = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]);
 	private static Field f = Ref.field(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "bukkitChunk");
-	private static Method handle = Ref.method(Ref.craft("CraftChunk"), "getHandle"),
-			getOrCreate=Ref.method(Ref.nms("ChunkProviderServer"), "getOrCreateChunk", int.class, int.class);
+	private static Method getOrCreate=Ref.method(Ref.nms("ChunkProviderServer"), "getOrCreateChunk", int.class, int.class);
 	static {
 		if(getOrCreate==null) {
 			getOrCreate=Ref.method(Ref.nms("ChunkProviderServer"), "getOrLoadChunkAt", int.class, int.class);
+			if(TheAPI.isNewVersion())
+				getOrCreate=Ref.method(Ref.nms("ChunkProviderServer"), "getChunkAt", int.class, int.class);
 		}
 	}
 	
 	public Object getNMSChunk() {
 		try {
-			if(TheAPI.isNewVersion())
-				return Ref.invoke(getWorld().getChunkAt(getBlockX() >> 4, getBlockZ() >> 4), handle);
-			else {
-				return Ref.invoke(Ref.get(Ref.world(getWorld()), "chunkProviderServer"), getOrCreate, getBlockX() >> 4, getBlockZ() >> 4);
-			}
+			return Ref.invoke(Ref.get(Ref.world(getWorld()), TheAPI.isNewerThan(16)?"C":"chunkProviderServer"), getOrCreate, getBlockX() >> 4, getBlockZ() >> 4);
 		} catch (Exception er) {
 		}
 		return null;
@@ -429,7 +431,7 @@ public class Position implements Cloneable {
 	}
 
 	private static boolean aww = TheAPI.isOlderThan(8);
-	private static Method updateLight = Ref.method(Ref.nmsOrOld("world.level.lighting.LightEngine","LightEngine"), "a", Ref.nmsOrOld("core.BlockPosition","BlockPosition")),getEngine;
+	private static Method updateLight = Ref.method(Ref.nmsOrOld("world.level.lighting.LightEngine","LightEngine"), "a", Ref.nmsOrOld("core.BlockPosition","BlockPosition"), int.class),getEngine;
 	static {
 		if(updateLight==null) {
 			updateLight = Ref.method(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "initLighting");
@@ -442,7 +444,7 @@ public class Position implements Cloneable {
 		if (aww)
 			Ref.invoke(pos.getNMSChunk(), updateLight);
 		else
-			Ref.invoke(Ref.invoke(pos.getNMSChunk(), getEngine), updateLight, pos.getBlockPosition());
+			Ref.invoke(Ref.invoke(pos.getNMSChunk(), getEngine), updateLight, pos.getBlockPosition(), 15);
 	}
 
 	public static long set(Position pos, TheMaterial mat) {

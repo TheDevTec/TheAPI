@@ -16,7 +16,10 @@ public class ItemBreakEvent implements Listener {
 			return a.getItemMeta().isUnbreakable();
 		} catch (Exception | NoSuchMethodError er) {
 			try {
-			return (boolean) Ref.invoke(Ref.invoke(a.getItemMeta(), "spigot"),"isUnbreakable");
+				Object spigot = Ref.invoke(a.getItemMeta(), "spigot");
+				if(spigot!=null)
+					return (boolean) Ref.invoke(spigot,"isUnbreakable");
+				return new NBTEdit(a).getBoolean("unbreakable");
 			} catch (Exception | NoSuchMethodError errr) { //use our own wave
 				return new NBTEdit(a).getBoolean("unbreakable");
 			}
