@@ -132,18 +132,6 @@ public class LoaderClass extends JavaPlugin {
 		//CONFIG
 		createConfig();
 		
-		Data plugin = new Data();
-		for(Plugin e : Bukkit.getPluginManager().getPlugins()) {
-			plugin.reload(StreamUtils.fromStream(e.getResource("plugin.yml")));
-			if(plugin.exists("configs")) {
-				String folder = plugin.exists("configsFolder")?(plugin.getString("configsFolder").trim().isEmpty()?e.getName():plugin.getString("configsFolder")):e.getName();
-				if(plugin.get("configs") instanceof Collection) {
-					for(String config : plugin.getStringList("configs"))
-						Config.loadConfig(e, config, folder+"/"+config);
-				}else
-					Config.loadConfig(e, plugin.getString("configs"), folder+"/"+plugin.getString("configs"));
-			}
-		}
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
@@ -239,143 +227,6 @@ public class LoaderClass extends JavaPlugin {
 		}
 		ca.setExecutor(new TheAPICommand());
 		TheAPI.registerCommand(ca);
-		if(config.getBoolean("Options.AntiFakeBlocks"))
-		new PacketListener() {
-			@Override
-			public boolean PacketPlayIn(String player, Object packet, Object channel) {
-				return false;
-			}
-			
-			Class<?> c = Ref.nmsOrOld("network.protocol.game.PacketPlayOutBlockChange", "PacketPlayOutBlockChange");
-			
-			@Override
-			public boolean PacketPlayOut(String player, Object packet, Object channel) {
-				if(packet.getClass()==c) {
-					if(TheAPI.isNewerThan(7)) {
-						Player a = TheAPI.getPlayer(player);
-						Position c = new Position(a.getWorld(),(int)Ref.invoke(Ref.get(packet,"a"), "getX"),(int)Ref.invoke(Ref.get(packet,"a"), "getY"),(int)Ref.invoke(Ref.get(packet,"a"), "getZ"));
-						if(!c.getIBlockData().equals(Ref.get(packet, TheAPI.isNewerThan(16)?"b":"block")))
-							Ref.set(packet, TheAPI.isNewerThan(16)?"b":"block", LoaderClass.air);
-					}else {
-						Player a = TheAPI.getPlayer(player);
-						Position c = new Position(a.getWorld(),(int)Ref.get(packet,"a"),(int)Ref.get(packet,"b"),(int)Ref.get(packet,"c"));
-						if(!c.getIBlockData().equals(Ref.get(packet, "block")) || !Ref.get(packet, "data").equals(c.getData())) {
-							Ref.set(packet, "block", LoaderClass.air);
-							Ref.set(packet, "data", 0);
-						}
-					}
-				}
-				return false;
-			}
-		}.register();
-		new PacketListener() {
-			
-			@Override
-			public boolean PacketPlayOut(String player, Object packet, Object channel) {
-				return false;
-			}
-			Method getSlot = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "getSlot", int.class),getItem= Ref.method(Ref.nmsOrOld("world.inventory.Slot","Slot"), "getItem");
-			Constructor<?> setSlot = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
-			Class<?> resource = Ref.nmsOrOld("network.protocol.game.PacketPlayInResourcePackStatus","PacketPlayInResourcePackStatus"), close = Ref.nmsOrOld("network.protocol.game.PacketPlayInCloseWindow","PacketPlayInCloseWindow"), click = Ref.nmsOrOld("network.protocol.game.PacketPlayInWindowClick","PacketPlayInWindowClick");
-
-			Field shift=Ref.field(click, TheAPI.isNewerThan(16)?"d":"shift"), slot=Ref.field(click, TheAPI.isNewerThan(16)?"b":"slot"), button=Ref.field(click, TheAPI.isNewerThan(16)?"c":"button"), a=Ref.field(click, "a"), item=Ref.field(click, TheAPI.isNewerThan(16)?"e":"item");
-
-			
-			@SuppressWarnings("unchecked")
-			public boolean PacketPlayIn(String player, Object packet, Object channel) {
-				if(player==null)return false; //NPC
-				//ResourcePackAPI
-				if(resource!=null && packet.getClass()==resource) {
-					Player s = (Player) TheAPI.getPlayer(player);
-					if(s==null)return false;
-					if(ResourcePackAPI.getResourcePack(s)==null||ResourcePackAPI.getHandlingPlayer(s)==null)return false;
-					ResourcePackAPI.getHandlingPlayer(s).onHandle(s, ResourcePackAPI.getResourcePack(s), ResourcePackResult.valueOf(Ref.get(packet, TheAPI.isNewerThan(16)?"a":"status").toString()));
-					return false;
-				}
-				//GUIS
-				if(packet.getClass()==close) {
-					Player p = (Player) TheAPI.getPlayer(player);
-					if(p==null)return false;
-					HolderGUI d = LoaderClass.plugin.gui.remove(p.getName());
-					if (d == null)
-						return false;
-					d.closeWithoutPacket(p);
-					return true;
-				}
-				if(packet.getClass()==click) {
-					Player p = (Player) TheAPI.getPlayer(player);
-					if(p==null)return false;
-					HolderGUI d = LoaderClass.plugin.gui.get(p.getName());
-					if (d == null)return false;
-					int id = (int) Ref.get(packet, a);
-					int slot = (int) Ref.get(packet, this.slot);
-					int mouseClick = (int) Ref.get(packet, button);
-					Object aw = Ref.get(packet, shift);
-					InventoryClickType type = null;
-					if(aw instanceof Integer) {
-						type=InventoryClickType.values()[(int)aw];
-					}else {
-						type=InventoryClickType.valueOf(aw.toString());
-					}
-					if(slot==-999)return false;
-					Object g = d.getContainer(p);
-					ItemStack i = NMSAPI.asBukkitItem(Ref.get(packet, item));
-					if((type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.CLONE||type==InventoryClickType.THROW||i.getType()==Material.AIR) && i.getType()==Material.AIR)
-						i=NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(g, getSlot, slot),getItem));
-					if(InventoryClickType.SWAP==type) {
-						i=p.getInventory().getItem(mouseClick);
-						mouseClick=0;
-					}
-					ItemStack before = p.getItemOnCursor();
-					if(before==null)before=new ItemStack(Material.AIR);
-					if(i==null)i=new ItemStack(Material.AIR);
-					ClickType w = GUIEvents.buildClick(i, type, slot, mouseClick);
-					boolean cancel = GUIEvents.useItem(p, i, d, slot, w);
-					if(!d.isInsertable())cancel=true;
-					if(!cancel) {
-						cancel=d.onIteractItem(p, i, w, slot>d.size()?slot-d.size()+27:slot, slot<d.size());
-					}
-					if(type==InventoryClickType.QUICK_MOVE && TheAPI.isOlderThan(9))
-						cancel=true;
-					if(cancel) {
-						try {
-							return true;
-						}finally {
-							if(type==InventoryClickType.QUICK_MOVE) {
-								if(TheAPI.isNewerThan(16)) {
-								for(int s : ((org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMaps.UnmodifiableMap<Object>)Ref.get(packet, "f")).keySet())
-									Ref.sendPacket(p,Ref.newInstance(setSlot,id, s, Ref.invoke(Ref.invoke(g, getSlot, s),getItem)));
-								}else p.updateInventory();
-								}else {
-								if(type==InventoryClickType.SWAP||type==InventoryClickType.PICKUP_ALL) {
-									if(TheAPI.isNewerThan(16)) {
-										Ref.invoke(Ref.get(Ref.player(p),"bU"),"updateInventory");
-									}else p.updateInventory();
-								}
-								Ref.sendPacket(p,Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)));
-								Ref.sendPacket(p,Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
-							}
-						}
-					}
-				}
-				return false;
-			}
-		}.register();
-		if(new Data("spigot.yml").getBoolean("settings.late-bind")) {
-			new Tasker() {
-				public void run() {
-					if (TheAPI.isNewerThan(7))
-						handler = new PacketHandler_New(true);
-					else
-						handler = new PacketHandler_Old(true);
-				}
-			}.runTask();
-		}else {
-			if (TheAPI.isNewerThan(7))
-				handler = new PacketHandler_New(false);
-			else
-				handler = new PacketHandler_Old(false);
-		}
 		StringUtils.sec=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
 		StringUtils.min=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Minutes.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
 		StringUtils.hour=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Hours.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
@@ -396,18 +247,6 @@ public class LoaderClass extends JavaPlugin {
 				}
 			}.runRepeating(0, 20);
 
-			Data plugind = new Data();
-			for(Plugin e : Bukkit.getPluginManager().getPlugins()) {
-				plugind.reload(StreamUtils.fromStream(e.getResource("plugin.yml")));
-				if(plugind.exists("configs")) {
-					String folder = plugind.exists("configsFolder")?(plugind.getString("configsFolder").trim().isEmpty()?e.getName():plugind.getString("configsFolder")):e.getName();
-					if(plugind.get("configs") instanceof Collection) {
-						for(String config : plugind.getStringList("configs"))
-							Config.loadConfig(e, config, folder+"/"+config);
-					}else
-						Config.loadConfig(e, plugind.getString("configs"), folder+"/"+plugind.getString("configs"));
-				}
-			}
 			loadPlaceholders();
 			
 			new Tasker() {
@@ -517,9 +356,179 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
 				TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		if(new Data("spigot.yml").getBoolean("settings.late-bind")) {
+			new Tasker() {
+				public void run() {
+					if (TheAPI.isNewerThan(7))
+						handler = new PacketHandler_New(true);
+					else
+						handler = new PacketHandler_Old(true);
+				}
+			}.runTask();
+		}else {
+			if (TheAPI.isNewerThan(7))
+				handler = new PacketHandler_New(false);
+			else
+				handler = new PacketHandler_Old(false);
+		}
+		if(config.getBoolean("Options.AntiFakeBlocks"))
+		new PacketListener() {
+			@Override
+			public boolean PacketPlayIn(String player, Object packet, Object channel) {
+				return false;
+			}
+			
+			Class<?> c = Ref.nmsOrOld("network.protocol.game.PacketPlayOutBlockChange", "PacketPlayOutBlockChange");
+			
+			@Override
+			public boolean PacketPlayOut(String player, Object packet, Object channel) {
+				if(packet.getClass()==c) {
+					if(TheAPI.isNewerThan(7)) {
+						Player a = TheAPI.getPlayer(player);
+						Position c = new Position(a.getWorld(),(int)Ref.invoke(Ref.get(packet,"a"), "getX"),(int)Ref.invoke(Ref.get(packet,"a"), "getY"),(int)Ref.invoke(Ref.get(packet,"a"), "getZ"));
+						if(!c.getIBlockData().equals(Ref.get(packet, TheAPI.isNewerThan(16)?"b":"block")))
+							Ref.set(packet, TheAPI.isNewerThan(16)?"b":"block", LoaderClass.air);
+					}else {
+						Player a = TheAPI.getPlayer(player);
+						Position c = new Position(a.getWorld(),(int)Ref.get(packet,"a"),(int)Ref.get(packet,"b"),(int)Ref.get(packet,"c"));
+						if(!c.getIBlockData().equals(Ref.get(packet, "block")) || !Ref.get(packet, "data").equals(c.getData())) {
+							Ref.set(packet, "block", LoaderClass.air);
+							Ref.set(packet, "data", 0);
+						}
+					}
+				}
+				return false;
+			}
+		}.register();
+		int airR = 0;
+		Method getSlot = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "getSlot", int.class),getItem= Ref.method(Ref.nmsOrOld("world.inventory.Slot","Slot"), "getItem");
+		Constructor<?> setSlotR = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
+		Class<?> resource = Ref.nmsOrOld("network.protocol.game.PacketPlayInResourcePackStatus","PacketPlayInResourcePackStatus"), close = Ref.nmsOrOld("network.protocol.game.PacketPlayInCloseWindow","PacketPlayInCloseWindow"), click = Ref.nmsOrOld("network.protocol.game.PacketPlayInWindowClick","PacketPlayInWindowClick");
+
+		if(setSlotR==null) {
+			++airR;
+			setSlotR=Ref.findConstructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
+		}
+		Field shift,item,slotR,button,a;
+		if(airR==1) {
+			a=Ref.field(click, "b");
+			shift=Ref.field(click, TheAPI.isNewerThan(16)?"f":"shift");
+			item=Ref.field(click, TheAPI.isNewerThan(16)?"g":"item");
+			//
+			slotR=Ref.field(click, TheAPI.isNewerThan(16)?"d":"slot");
+			button=Ref.field(click, TheAPI.isNewerThan(16)?"e":"button");
+		}else {
+			a=Ref.field(click, "a");
+			shift=Ref.field(click, TheAPI.isNewerThan(16)?"d":"shift");
+			item=Ref.field(click, TheAPI.isNewerThan(16)?"e":"item");
+			slotR=Ref.field(click, TheAPI.isNewerThan(16)?"b":"slot");
+			button=Ref.field(click, TheAPI.isNewerThan(16)?"c":"button");
+		}
+		final int airplane = airR;
+		final Constructor<?> setSlot = setSlotR;
+		new PacketListener() {
+			
+			@Override
+			public boolean PacketPlayOut(String player, Object packet, Object channel) {
+				return false;
+			}
+			
+			@SuppressWarnings("unchecked")
+			public boolean PacketPlayIn(String player, Object packet, Object channel) {
+				if(player==null)return false; //NPC
+				//ResourcePackAPI
+				if(resource!=null && packet.getClass()==resource) {
+					Player s = TheAPI.getPlayer(player);
+					if(s==null)return false;
+					if(ResourcePackAPI.getResourcePack(s)==null||ResourcePackAPI.getHandlingPlayer(s)==null)return false;
+					ResourcePackAPI.getHandlingPlayer(s).onHandle(s, ResourcePackAPI.getResourcePack(s), ResourcePackResult.valueOf(Ref.get(packet, TheAPI.isNewerThan(16)?"a":"status").toString()));
+					return false;
+				}
+				//GUIS
+				if(packet.getClass()==close) {
+					Player p = TheAPI.getPlayer(player);
+					if(p==null)return false;
+					HolderGUI d = LoaderClass.plugin.gui.remove(p.getName());
+					if (d == null)
+						return false;
+					d.closeWithoutPacket(p);
+					return true;
+				}
+				if(packet.getClass()==click) {
+					Player p = TheAPI.getPlayer(player);
+					if(p==null)return false;
+					HolderGUI d = LoaderClass.plugin.gui.get(p.getName());
+					if (d == null)return false;
+					int id = (int) Ref.get(packet, a);
+					int slot = (int) Ref.get(packet, slotR);
+					int mouseClick = (int) Ref.get(packet, button);
+					Object aw = Ref.get(packet, shift);
+					InventoryClickType type = null;
+					if(aw instanceof Integer) {
+						type=InventoryClickType.values()[(int)aw];
+					}else {
+						type=InventoryClickType.valueOf(aw.toString());
+					}
+					if(slot==-999)return false;
+					Object g = d.getContainer(p);
+					ItemStack i = NMSAPI.asBukkitItem(Ref.get(packet, item));
+					if((type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.CLONE||type==InventoryClickType.THROW||i.getType()==Material.AIR) && i.getType()==Material.AIR)
+						i=NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(g, getSlot, slot),getItem));
+					if(InventoryClickType.SWAP==type) {
+						i=p.getInventory().getItem(mouseClick);
+						mouseClick=0;
+					}
+					ItemStack before = p.getItemOnCursor();
+					if(before==null)before=new ItemStack(Material.AIR);
+					if(i==null)i=new ItemStack(Material.AIR);
+					ClickType w = GUIEvents.buildClick(i, type, slot, mouseClick);
+					boolean cancel = GUIEvents.useItem(p, i, d, slot, w);
+					if(!d.isInsertable())cancel=true;
+					if(!cancel) {
+						cancel=d.onIteractItem(p, i, w, slot>d.size()?slot-d.size()+27:slot, slot<d.size());
+					}
+					if(type==InventoryClickType.QUICK_MOVE && TheAPI.isOlderThan(9))
+						cancel=true;
+					if(cancel) {
+						if(type==InventoryClickType.QUICK_MOVE) {
+							if(TheAPI.isNewerThan(16)) {
+							for(int s : ((org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMaps.UnmodifiableMap<Object>)Ref.get(packet, airplane==0?"f":"h")).keySet())
+								Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, s, Ref.invoke(Ref.invoke(g, getSlot, s),getItem))
+										:Ref.newInstance(setSlot,id,id, s, Ref.invoke(Ref.invoke(g, getSlot, s),getItem)));
+							}else p.updateInventory();
+						}else {
+							if(type==InventoryClickType.SWAP||type==InventoryClickType.PICKUP_ALL) {
+								if(TheAPI.isNewerThan(16)) {
+									Ref.invoke(Ref.get(Ref.player(p),"bU"),"updateInventory");
+								}else p.updateInventory();
+							}
+							Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)):
+								Ref.newInstance(setSlot,-1,-1, -1, NMSAPI.asNMSItem(before)));
+							Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)):
+								Ref.newInstance(setSlot,id,slot, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
+						}
+						return true;
+					}
+				}
+				return false;
+			}
+		}.register();
 		Bukkit.getPluginManager().registerEvents(new Events(), LoaderClass.this);
 		if(config.getBoolean("Options.ItemUnbreakable"))
 		Bukkit.getPluginManager().registerEvents(new ItemBreakEvent(), LoaderClass.this);
+
+		Data plugin = new Data();
+		for(Plugin e : Bukkit.getPluginManager().getPlugins()) {
+			plugin.reload(StreamUtils.fromStream(e.getResource("plugin.yml")));
+			if(plugin.exists("configs")) {
+				String folder = plugin.exists("configsFolder")?(plugin.getString("configsFolder").trim().isEmpty()?e.getName():plugin.getString("configsFolder")):e.getName();
+				if(plugin.get("configs") instanceof Collection) {
+					for(String config : plugin.getStringList("configs"))
+						Config.loadConfig(e, config, folder+"/"+config);
+				}else
+					Config.loadConfig(e, plugin.getString("configs"), folder+"/"+plugin.getString("configs"));
+			}
+		}
 		loadWorlds();
 		if (PlaceholderAPI.isEnabledPlaceholderAPI()) {
 			/*

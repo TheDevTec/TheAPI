@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -132,10 +131,9 @@ public class GUI implements HolderGUI {
 	public final void setItem(int position, ItemGUI item) {
 		items.put(position, item);
 		inv.setItem(position, item.getItem());
-		if(TheAPI.isNewerThan(16)) {
-			for(Entry<Player, Object> p : containers.entrySet()) 
-				Ref.sendPacket(p.getKey(),Ref.newInstance(setSlot,Ref.get(p.getValue(),"j"), position, NMSAPI.asNMSItem(item.getItem())));
-		}
+		if(TheAPI.isNewerThan(16))
+			for(Entry<Player, Object> p : containers.entrySet())
+				Ref.sendPacket(p.getKey(), airplane==1?Ref.newInstance(setSlot,Ref.get(p.getValue(),"j"),position,position, NMSAPI.asNMSItem(item.getItem())):Ref.newInstance(setSlot,Ref.get(p.getValue(),"j"),position, NMSAPI.asNMSItem(item.getItem())));
 	}
 
 	/**
@@ -144,6 +142,9 @@ public class GUI implements HolderGUI {
 	public final void removeItem(int slot) {
 		items.remove(slot);
 		inv.setItem(slot, null);
+		if(TheAPI.isNewerThan(16))
+			for(Entry<Player, Object> p : containers.entrySet())
+				Ref.sendPacket(p.getKey(), airplane==1?Ref.newInstance(setSlot,Ref.get(p.getValue(),"j"),slot,slot, NMSAPI.asNMSItem(new ItemStack(Material.AIR))):Ref.newInstance(setSlot,Ref.get(p.getValue(),"j"),slot, NMSAPI.asNMSItem(new ItemStack(Material.AIR))));
 	}
 
 	/**
@@ -202,18 +203,18 @@ public class GUI implements HolderGUI {
 		return inv.firstEmpty();
 	}
 
+	static int airplane;
 	protected static Constructor<?> openWindow, closeWindow = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutCloseWindow","PacketPlayOutCloseWindow"), int.class), containerClass,
-			setSlot=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack")),
-			itemsS=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutWindowItems","PacketPlayOutWindowItems"),int.class, List.class);
-	static {
-		if(itemsS==null)
-			itemsS=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutWindowItems","PacketPlayOutWindowItems"),int.class, Ref.nmsOrOld("core.NonNullList", "NonNullList"));
-	}
+			setSlot=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
 	protected static int type;
 	protected static Method
 	transfer=Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"),"transferTo", Ref.nmsOrOld("world.inventory.Container","Container"), Ref.craft("entity.CraftHumanEntity"));
 	private Object windowType;
 	static {
+		if(setSlot==null) {
+			++airplane;
+			setSlot=Ref.findConstructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
+		}
 		if(TheAPI.isOlderThan(8)) {
 			openWindow=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutOpenWindow","PacketPlayOutOpenWindow"), int.class, int.class, String.class, int.class, boolean.class);
 		}else if(TheAPI.isOlderThan(14)) {
@@ -253,8 +254,10 @@ public class GUI implements HolderGUI {
 			}else {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getFixedIChatBaseComponent(title)));
 			}
-			Ref.sendPacket(player, Ref.newInstance(itemsS,id, Ref.invoke(container,getItems)));
-			if(TheAPI.isOlderThan(17))
+			int slot = 0;
+			for(Object o : (Collection<?>)Ref.invoke(container,getItems)) {
+				Ref.sendPacket(player, airplane==1?Ref.newInstance(setSlot,id,id,slot++, o):Ref.newInstance(setSlot,id,slot++, o));
+			}
 			Ref.set(container, "windowId", id);
 			Ref.set(f, TheAPI.isNewerThan(16)?"bV":"activeContainer", container);
 			Ref.invoke(container, addListener, f);
@@ -302,12 +305,14 @@ public class GUI implements HolderGUI {
 			}else {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getFixedIChatBaseComponent(title)));
 			}
-			Ref.sendPacket(player, Ref.newInstance(itemsS,id, Ref.invoke(container,getItems)));
+			int slot = 0;
+			for(Object o : (Collection<?>)Ref.invoke(container,getItems))
+				Ref.sendPacket(player, airplane==1?Ref.newInstance(setSlot,id,id,slot++, o):Ref.newInstance(setSlot,id,slot++, o));
 			Object inv = Ref.invoke(f, "getInventory");
 			if(inv==null)inv=Ref.get(f, "inventory");
 			Object carry = Ref.invoke(inv,"getCarried");
 			if(carry!=empty) //Don't send useless packets
-				Ref.sendPacket(player, Ref.newInstance(setSlot, -1, -1, carry));
+				Ref.sendPacket(player, airplane==1?Ref.newInstance(setSlot, -1, -1, -1, carry):Ref.newInstance(setSlot, -1, -1, carry));
 		}
 	}
 	

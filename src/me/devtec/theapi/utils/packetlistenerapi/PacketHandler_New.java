@@ -48,34 +48,19 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 					Thread.sleep(50);
 				} catch (Exception e) {
 				}
-			try {
-				Thread.sleep(100);
-			} catch (Exception e) {
-			}
-			try {
-				registerChannelHandler();
-				registerPlayers();
-			} catch (Exception ex) {
-				new Tasker() {
-					public void run() {
-						registerChannelHandler();
-						registerPlayers();
-					}
-				}.runTask();
-			}
-		}else {
-			try {
-				registerChannelHandler();
-				registerPlayers();
-			} catch (Exception ex) {
-				new Tasker() {
-					public void run() {
-						registerChannelHandler();
-						registerPlayers();
-					}
-				}.runTask();
-			}
-		}
+			new Tasker() {
+				public void run() {
+					registerChannelHandler();
+					registerPlayers();
+				}
+			}.runLater(20);
+		}else
+			new Tasker() {
+				public void run() {
+					registerChannelHandler();
+					registerPlayers();
+				}
+			}.runLater(20);
 	}
 
 	private void createServerChannelHandler() {

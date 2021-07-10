@@ -43,6 +43,7 @@ public class SimpleScore {
 			}
 			if(sb.getLines().size()>lines.size())
 			sb.removeUpperLines(lines.size()-1);
+			sb.sendScoreChanges();
 			int i = 0;
 			for (String line : lines)
 				if(line!=null)
