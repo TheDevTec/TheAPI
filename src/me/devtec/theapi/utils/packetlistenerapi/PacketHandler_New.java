@@ -53,14 +53,14 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 					registerChannelHandler();
 					registerPlayers();
 				}
-			}.runLater(20);
+			}.runLater(1);
 		}else
 			new Tasker() {
 				public void run() {
 					registerChannelHandler();
 					registerPlayers();
 				}
-			}.runLater(20);
+			}.runLater(1);
 	}
 
 	private void createServerChannelHandler() {
@@ -72,8 +72,10 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 							channel.eventLoop().submit(() -> {
 								PacketInterceptor interceptor = new PacketInterceptor(null); //add new hook
 								channel.eventLoop().execute(() -> {
-										if(channel.pipeline().names().contains("InjectorTA"))
+										if(channel.pipeline().names().contains("InjectorTA")) {
+											TheAPI.bcMsg("already reg");
 											channel.pipeline().remove("InjectorTA"); //remove old instance - reload of server?
+										}
 										if(channel.pipeline().names().contains("packet_handler"))
 											channel.pipeline().addBefore("packet_handler","InjectorTA", interceptor);
 										else
@@ -226,8 +228,8 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	public final void close() {
 		if (!closed) {
 			closed = true;
-			for (Player player : TheAPI.getOnlinePlayers())
-				remove(get(player));
+			for (Channel c : channelLookup.values())
+				remove(c);
 			unregisterChannelHandler();
 		}
 	}
@@ -274,6 +276,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	
 	@Override
 	public void send(Channel channel, Object packet) {
+		if(channel==null||packet==null)return;
 		channel.writeAndFlush(packet);
 	}
 }

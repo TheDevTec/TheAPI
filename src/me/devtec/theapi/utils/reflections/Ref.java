@@ -155,6 +155,41 @@ public class Ref {
 			}
 	}
 
+	public static void sendPacket(Player to, Collection<Object> packet) {
+		if(to== null)return;
+		if (packet == null)
+			Bukkit.getLogger().severe("Tryting to send to player null packets!");
+		for (Object p : packet)
+			if(p!=null)
+				LoaderClass.plugin.handler.send(to, p);
+			else
+				Bukkit.getLogger().severe("Tryting to send to player null packet!");
+	}
+
+	public static void sendPacket(Collection<? extends Player> toPlayers, Collection<Object> packet) {
+		if(toPlayers== null||toPlayers.isEmpty())return;
+		if (packet == null)
+			Bukkit.getLogger().severe("Tryting to send to player null packets!");
+		for (Object p : packet)
+			if(p!=null)
+				for(Player to : toPlayers)
+				LoaderClass.plugin.handler.send(to, p);
+			else
+				Bukkit.getLogger().severe("Tryting to send to player null packet!");
+	}
+
+	public static void sendPacket(Player[] toPlayers, Collection<Object> packet) {
+		if(toPlayers== null||toPlayers.length==0)return;
+		if (packet == null)
+			Bukkit.getLogger().severe("Tryting to send to player null packets!");
+		for (Object p : packet)
+			if(p!=null)
+				for(Player to : toPlayers)
+				LoaderClass.plugin.handler.send(to, p);
+			else
+				Bukkit.getLogger().severe("Tryting to send to player null packet!");
+	}
+
 	public static Object server() {
 		return server;
 	}

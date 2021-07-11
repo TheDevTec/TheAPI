@@ -124,6 +124,8 @@ public class Writer implements JsonWriter {
 			enumMap.put("enum " + w.getClass().getName(), w.toString());
 			return map(enumMap, addNulls, fancy);
 		}
+		if (w instanceof Comparable)
+			return w.toString();
 		if (w instanceof Location) {
 			Location stack = (Location) w;
 			Map<String, Object> done = new HashMap<>();
@@ -188,8 +190,6 @@ public class Writer implements JsonWriter {
 			done.put("modifiedClass org.bukkit.inventory.ItemStack", items);
 			return map(done, addNulls, fancy);
 		}
-		if (w instanceof Comparable)
-			return w.toString();
 		if (w.getClass() == Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent") || w.getClass() == Ref.nmsOrOld("network.chat.IChatMutableComponent","IChatMutableComponent")
 				|| w.getClass() == Ref.nmsOrOld("network.chat.ChatBaseComponent","ChatBaseComponent") || w.getClass() == Ref.nmsOrOld("network.chat.ChatMessage","ChatMessage")
 				|| w.getClass() == Ref.nmsOrOld("network.chat.ChatComponentText","ChatComponentText")
@@ -232,6 +232,8 @@ public class Writer implements JsonWriter {
 			enumMap.put("enum " + w.getClass().getName(), w.toString());
 			return enumMap;
 		}
+		if (w instanceof Comparable)
+			return w;
 		if (w instanceof Location) {
 			Location stack = (Location) w;
 			Map<String, Object> done = new HashMap<>(), items = new HashMap<>();
@@ -293,8 +295,6 @@ public class Writer implements JsonWriter {
 			done.put("modifiedClass org.bukkit.inventory.ItemStack", items);
 			return done;
 		}
-		if (w instanceof Comparable)
-			return w;
 		if (w.getClass() == Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent") || w.getClass() == Ref.nmsOrOld("network.chat.IChatMutableComponent","IChatMutableComponent")
 				|| w.getClass() == Ref.nmsOrOld("network.chat.ChatBaseComponent","ChatBaseComponent") || w.getClass() == Ref.nmsOrOld("network.chat.ChatMessage","ChatMessage")
 				|| w.getClass() == Ref.nmsOrOld("network.chat.ChatComponentText","ChatComponentText")

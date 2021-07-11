@@ -1,5 +1,10 @@
 package me.devtec.theapi.utils.datakeeper.loader;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -42,13 +47,28 @@ public class ByteLoader extends DataLoader {
 
 	public void reset() {
 		data.clear();
+		l=false;
+	}
+	
+	public void load(File file) {
+		reset();
+		try {
+			BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8), 8192);
+			StringBuilder d = new StringBuilder(128);
+			String s;
+			while((s=r.readLine())!=null)d.append(s);
+			r.close();
+			load(s);
+		} catch (Exception e) {
+			reset();
+		}
 	}
 
 	@Override
 	public void load(String input) {
 		data.clear();
 		try {
-			byte[] bb = Base64.getDecoder().decode(input.trim());
+			byte[] bb = Base64.getDecoder().decode(input.trim().replace(System.lineSeparator(), ""));
 			ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
 			int version = bos.readInt();
 			if(version==1) {

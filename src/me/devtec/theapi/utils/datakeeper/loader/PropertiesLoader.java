@@ -1,5 +1,10 @@
 package me.devtec.theapi.utils.datakeeper.loader;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -14,6 +19,39 @@ public class PropertiesLoader extends DataLoader {
 	private Map<String, Object[]> map = new HashMap<>();
 	private List<String> header=new LinkedList<>(), footer = new LinkedList<>();
 	private boolean loaded;
+	
+	public void load(File file) {
+		reset();
+		List<String> comments = new LinkedList<>();
+		try {
+			BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8), 8192);
+			String s;
+			while((s=r.readLine())!=null) {
+				String f = s.trim();
+				if(f.isEmpty()||f.startsWith("#")) { //comment
+					comments.add(s);
+				}else {
+					Matcher m = pattern.matcher(s);
+					if(m.find()) {
+						map.put(m.group(1), new Object[] {m.group(2), comments.isEmpty()?null:new LinkedList<>(comments)});
+						comments.clear();
+						continue;
+					}
+					//comment
+					comments.add(s);
+				}
+			}
+			r.close();
+			if(!comments.isEmpty()) {
+				if(map.isEmpty())header=comments;
+				else
+				footer=comments;
+			}
+			loaded=!map.isEmpty();
+		} catch (Exception e) {
+			reset();
+		}
+	}
 	
 	public void load(String d) {
 		reset();

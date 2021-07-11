@@ -41,39 +41,24 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 			}
 		if(serverConnection==null)return;
 		if(lateBind) {
-			while(!(boolean)Ref.get(Ref.server(), "O"))
+			while(!(boolean)Ref.get(Ref.server(), TheAPI.isOlderThan(9)?"Q":(TheAPI.isOlderThan(11)?"P":TheAPI.isOlderThan(13)?"Q":TheAPI.isOlderThan(14)?"P":TheAPI.isOlderThan(17)?"hasTicked":"ah")))
 				try {
 					Thread.sleep(50);
 				} catch (Exception e) {
 				}
-			try {
-				Thread.sleep(100);
-			} catch (Exception e) {
-			}
-			try {
-				registerChannelHandler();
-				registerPlayers();
-			} catch (Exception ex) {
-				new Tasker() {
-					public void run() {
-						registerChannelHandler();
-						registerPlayers();
-					}
-				}.runTask();
-			}
-		}else {
-			try {
-				registerChannelHandler();
-				registerPlayers();
-			} catch (Exception ex) {
-				new Tasker() {
-					public void run() {
-						registerChannelHandler();
-						registerPlayers();
-					}
-				}.runTask();
-			}
-		}
+			new Tasker() {
+				public void run() {
+					registerChannelHandler();
+					registerPlayers();
+				}
+			}.runLater(1);
+		}else
+			new Tasker() {
+				public void run() {
+					registerChannelHandler();
+					registerPlayers();
+				}
+			}.runLater(1);
 	}
 
 	private void createServerChannelHandler() {
@@ -84,16 +69,16 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 						if (!closed) {
 							channel.eventLoop().submit(() -> {
 								PacketInterceptor interceptor = new PacketInterceptor(null); //add new hook
-								channel.eventLoop().execute(new Runnable() {
-									public void run() {
-										if(channel.pipeline().names().contains("InjectorTA"))
+								channel.eventLoop().execute(() -> {
+										if(channel.pipeline().names().contains("InjectorTA")) {
+											TheAPI.bcMsg("already reg");
 											channel.pipeline().remove("InjectorTA"); //remove old instance - reload of server?
+										}
 										if(channel.pipeline().names().contains("packet_handler"))
 											channel.pipeline().addBefore("packet_handler","InjectorTA", interceptor);
 										else
 											channel.pipeline().addBefore("encoder","InjectorTA", interceptor);
-									}
-								});
+									});
 								return interceptor;
 							});
 						}
@@ -143,7 +128,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 		if(networkManagers==null)return;
 		createServerChannelHandler();
 		for (Object item : networkManagers) {
-			if (!ChannelFuture.class.isInstance(item))break;
+			if (!ChannelFuture.class.isInstance(item))continue;
 			Channel serverChannel = ((ChannelFuture) item).channel();
 			serverChannels.add(serverChannel);
 			serverChannel.pipeline().addFirst(serverChannelHandler);
@@ -207,7 +192,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 	public Channel get(Player player) {
 		Channel channel = channelLookup.get(player.getName());
 		if (channel == null)
-			channelLookup.put(player.getName(), channel = (Channel) Ref.get(Ref.network(Ref.playerCon(player)), "m"));
+			channelLookup.put(player.getName(), channel = (Channel) Ref.channel(Ref.network(Ref.playerCon(player))));
 		return channel;
 	}
 
@@ -241,8 +226,8 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 	public final void close() {
 		if (!closed) {
 			closed = true;
-			for (Player player : TheAPI.getOnlinePlayers())
-				remove(get(player));
+			for (Channel c : channelLookup.values())
+				remove(c);
 			unregisterChannelHandler();
 		}
 	}
@@ -258,7 +243,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 		public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 			final Channel channel = ctx.channel();
 			synchronized (msg) {
-				if (login.isInstance(msg)) {
+				if (msg.getClass()==login) {
 					player=((GameProfile) Ref.get(msg, "a")).getName();
 					channelLookup.put(player, channel);
 				}
@@ -289,6 +274,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 	
 	@Override
 	public void send(Channel channel, Object packet) {
+		if(channel==null||packet==null)return;
 		channel.writeAndFlush(packet);
 	}
 }

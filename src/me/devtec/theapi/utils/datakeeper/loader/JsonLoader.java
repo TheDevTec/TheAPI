@@ -1,5 +1,10 @@
 package me.devtec.theapi.utils.datakeeper.loader;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -39,6 +44,21 @@ public class JsonLoader extends DataLoader {
 
 	public void reset() {
 		data.clear();
+		l=false;
+	}
+	
+	public void load(File file) {
+		reset();
+		try {
+			BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8), 8192);
+			StringBuilder d = new StringBuilder(128);
+			String s;
+			while((s=r.readLine())!=null)d.append(s);
+			r.close();
+			load(s);
+		} catch (Exception e) {
+			reset();
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -48,7 +68,7 @@ public class JsonLoader extends DataLoader {
 			l = false;
 			return;
 		}
-		data.clear();
+		reset();
 		try {
 			Object read = Reader.read(input);
 			if (read instanceof Map) {
@@ -65,7 +85,7 @@ public class JsonLoader extends DataLoader {
 				l = true;
 			}
 		} catch (Exception er) {
-			l = false;
+			reset();
 		}
 	}
 

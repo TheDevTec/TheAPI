@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +20,6 @@ import java.util.Set;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
-import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.loader.DataLoader;
 import me.devtec.theapi.utils.datakeeper.loader.EmptyLoader;
@@ -68,7 +66,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	public synchronized boolean exists(String path) {
 		for (String k : loader.getKeys())
-			if (k.indexOf(path)==0)
+			if (k.startsWith(path))
 				return true;
 		return false;
 	}
@@ -157,7 +155,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			aw.remove(key.split("\\.")[0]);
 		loader.remove(key);
 		for(String d : new ArrayList<>(loader.get().keySet()))
-			if (d.indexOf(key)==0 && d.substring(key.length()).indexOf('.')==0)
+			if (d.startsWith(key) && d.substring(key.length()).startsWith("."))
 				loader.get().remove(d);
 		return this;
 	}
@@ -191,11 +189,15 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	public synchronized Data addComment(String key, String value) {
 		if (value == null || key == null)
 			return this;
 		requireSave=true;
-		return addComments(key, Arrays.asList(value));
+		Object[] g = getOrCreateData(key);
+		if(g[0]==null)g[1]=new ArrayList<>();
+		((List<String>) g[1]).add(value);
+		return this;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -209,10 +211,15 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	public synchronized Data removeComment(String key, String value) {
 		if (value == null || key == null)
 			return this;
-		return removeComments(key, Arrays.asList(value));
+		requireSave=true;
+		Object[] g = getOrCreateData(key);
+		if(g[0]!=null)
+			((List<String>) g[1]).remove(value);
+		return this;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -256,25 +263,32 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		requireSave=true;
 		aw.clear();
 		loader = DataLoader.findLoaderFor(input); // get & load
-		for (String k : loader.getKeys())
-			if (!aw.contains(k.split("\\.")[0]))
-				aw.add(k.split("\\.")[0]);
+		for (String k : loader.getKeys()) {
+			String g = k.split("\\.")[0];
+			if (!aw.contains(g))
+				aw.add(g);
+		}
 		return this;
 	}
 
 	public synchronized Data reload(File f) {
 		if (!f.exists()) {
 			try {
-				if(f.getParentFile()!=null)
+				if(f.getName().contains("/"))
 					f.getParentFile().mkdirs();
-			} catch (Exception e) {
-			}
-			try {
 				f.createNewFile();
 			} catch (Exception e) {
 			}
 		}
-		return reload(StreamUtils.fromStream(f));
+		requireSave=true;
+		aw.clear();
+		loader = DataLoader.findLoaderFor(f); // get & load
+		for (String k : loader.getKeys()) {
+			String g = k.split("\\.")[0];
+			if (!aw.contains(g))
+				aw.add(g);
+		}
+		return this;
 	}
 
 	public synchronized Object get(String key) {
@@ -474,9 +488,44 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return this;
 	}
 	
-	protected synchronized String addQuotes(Object raw, String text) {
-		if(raw instanceof String)return '"'+text+'"';
-		return text;
+	static Writer wr = new Writer();
+	
+	private String write(Object w) {
+		if (w instanceof Enum<?>) {
+			Map<String, Object> enumMap = new HashMap<>();
+			enumMap.put("enum " + w.getClass().getName(), w.toString());
+			return wr.map(enumMap, false);
+		}
+		if(w instanceof Comparable<?>)return w.toString();
+		return Writer.write(w);
+	}
+
+	protected synchronized void addQuotesSplit(StringBuilder b, CharSequence split, String aw) {
+		b.append(split);
+		b.append('"');
+		b.append(aw);
+		b.append('"');
+		b.append(System.lineSeparator());
+	}
+	
+	protected synchronized void addQuotesSplit(StringBuilder b, CharSequence split, Object aw) {
+		b.append(split);
+		b.append(write(aw));
+		b.append(System.lineSeparator());
+	}
+	
+	protected synchronized void addQuotes(StringBuilder b, CharSequence pathName, String aw) {
+		b.append(pathName).append(' ');
+		b.append('"');
+		b.append(aw);
+		b.append('"');
+		b.append(System.lineSeparator());
+	}
+	
+	protected synchronized void addQuotes(StringBuilder b, CharSequence pathName, Object aw) {
+		b.append(pathName).append(' ');
+		b.append(write(aw));
+		b.append(System.lineSeparator());
 	}
 	
 	public synchronized void save() {
@@ -499,9 +548,9 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	public synchronized boolean isKey(String key) {
 		for (String k : loader.getKeys()) {
-			if (k.indexOf(key)==0) {
+			if (k.startsWith(key)) {
 				String r = k.substring(key.length());
-				if (r.indexOf('.')==0 || r.trim().isEmpty()) {
+				if (r.startsWith(".") || r.trim().isEmpty()) {
 					return true;
 				}
 			}
@@ -512,9 +561,9 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public synchronized Set<String> getKeys(String key, boolean subkeys) {
 		Set<String> a = new LinkedHashSet<>();
 		for (String d : loader.getKeys())
-			if (d.indexOf(key)==0) {
+			if (d.startsWith(key)) {
 				String c = d.substring(key.length());
-				if (c.indexOf('.')!=0)
+				if (!c.startsWith("."))
 					continue;
 				c = c.substring(1);
 				if(!subkeys)
@@ -536,7 +585,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (o != null)
 			main.add(main.create().put(key, o));
 		for (String keyer : getKeys(key))
-			addKeys(main, key + '.' + keyer);
+			addKeys(main, key + "." + keyer);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -545,7 +594,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		bab.append(space);
 		String split = pathName.substring(0, pathName.length()-1);
 		if(split.length()==1) { //char
-			bab.append('\'').append(split).append('\'').append(':');
+			bab.append('"').append(split).append('"').append(':');
 		}else
 		if(split.contains(":")) {
 			bab.append('"').append(split).append('"').append(':');
@@ -553,24 +602,23 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if(split.startsWith("#")) { //starts with comment
 			bab.append('"').append(split).append('"').append(':');
 		}else bab.append(pathName);
-		pathName=bab.toString();
 		try {
 		Object[] aw = loader.get().get(path);
 		if(aw==null) {
-			b.append(pathName + System.lineSeparator());
+			b.append(bab).append(System.lineSeparator());
 			for (String d : loader.get().keySet()) {
-				if (d.indexOf(path)==0) {
+				if (d.startsWith(path)) {
 					String c = d.substring(path.length());
-					if (c.indexOf('.')!=0)
+					if (!c.startsWith("."))
 						continue;
 					c = c.substring(1);
 					c =  c.split("\\.")[0];
 					if (c.trim().isEmpty())
 						continue;
-					String dd = path + '.' + c;
+					String dd = path+"."+c;
 					if(!done.contains(dd)) {
 						done.add(dd);
-						preparePath(done, dd, c + ':', space+' '+' ', b);
+						preparePath(done, dd, c+":", space+"  ", b);
 					}
 				}
 			}
@@ -580,78 +628,99 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Object o = aw[0];
 		if(list != null)
 			for (String s : list)
-				b.append(space + s + System.lineSeparator());
-		if(o==null)b.append(pathName + System.lineSeparator());
+				b.append(space+s+System.lineSeparator());
+		if(o==null)b.append(bab).append(System.lineSeparator());
 		else {
 			if (o instanceof Collection || o instanceof Object[]) {
-				String splitted = space + '-'+' ';
+				String splitted = space+"- ";
 				if (o instanceof Collection) {
 					if(!((Collection<?>) o).isEmpty()) {
-						b.append(pathName + System.lineSeparator());
 						try {
-							if((int)aw[3]==1) {
-								b.append(pathName + ' '+addQuotes(o, (String)aw[2]) + System.lineSeparator());
+							if(aw[3]!=null && (int)aw[3]==1) {
+								addQuotes(b,bab,(String)aw[2]);
 							}else {
+								b.append(bab).append(System.lineSeparator());
 								for (Object a : (Collection<?>) o) {
-									b.append(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
+									if(a instanceof String)
+										addQuotesSplit(b,splitted,(String)a);
+									else
+										addQuotesSplit(b,splitted,a);
 								}
 							}
 						}catch(Exception er) {
+							b.append(bab).append(System.lineSeparator());
 							for (Object a : (Collection<?>) o) {
-								b.append(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
+								if(a instanceof String)
+									addQuotesSplit(b,splitted,(String)a);
+								else
+									addQuotesSplit(b,splitted,a);
 							}
 					}}else
-						b.append(pathName + ' '+'['+']' + System.lineSeparator());
+						b.append(bab).append(" []").append(System.lineSeparator());
 				} else {
 					if(((Object[]) o).length!=0) {
-						b.append(pathName + System.lineSeparator());
 						try {
-							if((int)aw[3]==1) {
-								b.append(pathName + ' '+addQuotes(o, (String)aw[2]) + System.lineSeparator());
+							if(aw[3]!=null && (int)aw[3]==1) {
+								addQuotes(b,bab,(String)aw[2]);
 							}else {
+								b.append(bab).append(System.lineSeparator());
 								for (Object a : (Object[]) o) {
-									b.append(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
+									if(a instanceof String)
+										addQuotesSplit(b,splitted,(String)a);
+									else
+										addQuotesSplit(b,splitted,a);
 								}
 							}
 						}catch(Exception er) {
+							b.append(bab).append(System.lineSeparator());
 							for (Object a : (Object[]) o) {
-								b.append(splitted+addQuotes(a, Writer.write(a)) + System.lineSeparator());
+								if(a instanceof String)
+									addQuotesSplit(b,splitted,(String)a);
+								else
+									addQuotesSplit(b,splitted,a);
 							}
 					}}else
-						b.append(pathName + ' '+'['+']' + System.lineSeparator());
+						b.append(bab).append(" []").append(System.lineSeparator());
 				}
 			} else {
 				try {
-					if((int)aw[3]==1) {
-						b.append(pathName + ' '+addQuotes(o, (String)aw[2]) + System.lineSeparator());
+					if(aw[3]!=null && (int)aw[3]==1) {
+						addQuotes(b,bab,(String)aw[2]);
 					}else {
-						b.append(pathName + ' '+addQuotes(o, Writer.write(o)) + System.lineSeparator());
+						if(o instanceof String)
+							addQuotes(b,bab,(String)o);
+						else
+							addQuotes(b,bab,o);
 					}
 				}catch(Exception er) {
-					b.append(pathName + ' '+addQuotes(o, Writer.write(o)) + System.lineSeparator());
+					if(o instanceof String)
+						addQuotes(b,bab,(String)o);
+					else
+						addQuotes(b,bab,o);
 				}
 			}
 		}
 		for (String d : loader.getKeys())
-			if (d.indexOf(path)==0) {
+			if (d.startsWith(path)) {
 				String c = d.substring(path.length());
-				if (c.indexOf('.')!=0)
+				if (!c.startsWith("."))
 					continue;
 				c = c.substring(1);
 				c = c.split("\\.")[0];
 				if (c.trim().isEmpty())
 					continue;
-				String dd = path + '.' + c;
+				String dd = path+"."+c;
 				if(!done.contains(dd)) {
 					done.add(dd);
-					preparePath(done, dd, c + ':', space+' '+' ', b);
+					preparePath(done, dd, c+":", space+"  ", b);
 				}
 			}
 		}catch(Exception err) {}
 	}
 
 	public synchronized String toString(DataType type) {
-		if (type == DataType.BYTE) {
+		switch(type) {
+		case BYTE:
 			try {
 				ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
 				bos.writeInt(2);
@@ -673,14 +742,15 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 									}
 									while(write.length()>40000) {
 										String wr = write.substring(0, 39999);
-										bos.writeUTF('0'+wr);
+										bos.writeUTF("0"+wr);
 										write=write.substring(39999);
 									}
-									bos.writeUTF('0'+write);
+									bos.writeUTF("0"+write);
 									bos.writeUTF("0");
 									continue;
 								}
-							String write = Writer.write(key.getValue()[0]);
+							Object val = key.getValue()[0];
+							String write = val instanceof String ? (String)val:Writer.write(val);
 							if(write==null) {
 								bos.writeUTF("null");
 								bos.writeUTF("0");
@@ -688,10 +758,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 							}
 							while(write.length()>40000) {
 								String wr = write.substring(0, 39999);
-								bos.writeUTF('0'+wr);
+								bos.writeUTF("0"+wr);
 								write=write.substring(39999);
 							}
-							bos.writeUTF('0'+write);
+							bos.writeUTF("0"+write);
 							bos.writeUTF("0");
 							continue;
 						}
@@ -703,29 +773,31 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				e.printStackTrace();
 			}
 			return "";
-		}
-		if (type == DataType.JSON) {
+		case JSON:
 			Maker main = new Maker();
 			for (String key : Collections.unmodifiableList(aw))
 				addKeys(main, key);
 			return main.toString();
+		case YAML:
+			int size = loader.get().size();
+			StringBuilder d = new StringBuilder(size*8);
+			try {
+				for (String h : loader.getHeader())
+					d.append(h + System.lineSeparator());
+			} catch (Exception er) {
+			}
+			List<String> done = new ArrayList<>(size);
+			for (String key : Collections.unmodifiableList(aw))
+				preparePath(done,key, key + ":", "", d);
+			try {
+				for (String h : loader.getFooter())
+					d.append(h + System.lineSeparator());
+			} catch (Exception er) {
+				Validator.send("Saving Data to YAML", er);
+			}
+			return d.toString();
 		}
-		StringBuilder d = new StringBuilder(loader.get().size()*8);
-		try {
-			for (String h : loader.getHeader())
-				d.append(h + System.lineSeparator());
-		} catch (Exception er) {
-		}
-		List<String> done = new ArrayList<>(loader.get().size());
-		for (String key : Collections.unmodifiableList(aw))
-			preparePath(done,key, key + ':', "", d);
-		try {
-			for (String h : loader.getFooter())
-				d.append(h + System.lineSeparator());
-		} catch (Exception er) {
-			Validator.send("Saving Data to YAML", er);
-		}
-		return d.toString();
+		return null;
 	}
 	
 	@Override

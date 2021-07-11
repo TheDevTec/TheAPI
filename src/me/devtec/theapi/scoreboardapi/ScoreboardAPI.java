@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -178,11 +179,10 @@ public class ScoreboardAPI {
 		return data.getAs(player+'.'+line, Team.class);
 	}
 	
-	private List<Object> scores = new ArrayList<>();
+	private List<Object> scores = new LinkedList<>();
 	
 	public void sendScoreChanges() {
-		for(Object o : scores)
-			Ref.sendPacket(p, o);
+		Ref.sendPacket(p, scores);
 		scores.clear();
 	}
 	
