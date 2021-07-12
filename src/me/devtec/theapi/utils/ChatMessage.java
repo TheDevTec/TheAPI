@@ -60,7 +60,7 @@ public class ChatMessage {
 		emptys.put("action", "show_text");
 		emptys.put("value", "");
 
-		emptyc.put("action", "suggest_command");
+		emptyc.put("action", "copy_to_clipboard");
 		emptyc.put("value", "");
 	}
 	

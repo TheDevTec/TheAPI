@@ -66,7 +66,6 @@ import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.DataType;
 import me.devtec.theapi.utils.datakeeper.User;
 import me.devtec.theapi.utils.listener.events.ClientReceiveMessageEvent;
-import me.devtec.theapi.utils.listener.events.ServerReceiveMessageEvent;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.packetlistenerapi.PacketHandler;
 import me.devtec.theapi.utils.packetlistenerapi.PacketHandler_New;
@@ -157,7 +156,7 @@ public class LoaderClass extends JavaPlugin {
 			server=new Server(sockets.getString("Options.Password"), sockets.getInt("Options.Port"));
 			server.register(new me.devtec.theapi.sockets.Reader() {
 				public void read(ServerClient client, Data data) {
-					TheAPI.callEvent(new ServerReceiveMessageEvent(client, data));
+					TheAPI.callEvent(new ClientReceiveMessageEvent(client, data));
 				}
 			});
 			for(String s : sockets.getKeys("Server")) {
@@ -680,7 +679,105 @@ public class LoaderClass extends JavaPlugin {
 		return a;
 	}
 	
-	private void createConfig() {
+	public void reload() {
+		LoaderClass.data.reload();
+		LoaderClass.config.reload();
+		boolean wasEnabled = LoaderClass.sockets.getBoolean("Options.Enabled");
+		LoaderClass.sockets.reload();
+		if(!wasEnabled && LoaderClass.sockets.getBoolean("Options.Enabled")) {
+			LoaderClass.plugin.servers = new HashMap<>();
+			LoaderClass.plugin.server=new Server(LoaderClass.sockets.getString("Options.Password"), LoaderClass.sockets.getInt("Options.Port"));
+			LoaderClass.plugin.server.register(new me.devtec.theapi.sockets.Reader() {
+				public void read(ServerClient client, Data data) {
+					TheAPI.callEvent(new ClientReceiveMessageEvent(client, data));
+				}
+			});
+			for(String ds : LoaderClass.sockets.getKeys("Server")) {
+				LoaderClass.plugin.servers.put(ds, new Client(LoaderClass.sockets.getString("Options.Name"),LoaderClass. sockets.getString("Server."+ds+".Password"), LoaderClass.sockets.getString("Server."+ds+".IP"), LoaderClass.sockets.getInt("Server."+ds+".Port")) {
+					public void read(Data data) {
+						TheAPI.callEvent(new ClientReceiveMessageEvent(this, data));
+					}
+				});
+			}
+		}else {
+			if(wasEnabled) {
+				LoaderClass.plugin.server.exit();
+				for(Client e : LoaderClass.plugin.servers.values())
+					e.exit();
+				LoaderClass.plugin.servers.clear();
+				LoaderClass.plugin.server=null;
+			}
+			LoaderClass.sockets.getData().clear();
+		}
+		if (TheAPI.isNewerThan(15)) {
+			LoaderClass.tags.reload();
+			LoaderClass.tagG = LoaderClass.tags.getString("TagPrefix");
+			LoaderClass.gradientTag = LoaderClass.tags.getString("GradientPrefix");
+			LoaderClass.colorMap.clear();
+			for (String tag : LoaderClass.tags.getKeys("Tags"))
+				LoaderClass.colorMap.put(tag.toLowerCase(), "#" + LoaderClass.tags.getString("Tags." + tag));
+			StringUtils.gradientFinder=Pattern.compile(LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})(.*?)"+LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})|.*?(?=(?:"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}.*?"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}))");
+		}
+		for (User u : TheAPI.getCachedUsers())
+			u.getData().reload(u.getData().getFile());
+		Tasks.unload();
+		Tasks.load();
+
+		StringUtils.timeFormat=config.getString("Options.TimeConvertor.Format");
+		
+		List<String> sec = new ArrayList<>();
+		StringUtils.actions.put("Seconds",sec);
+		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Convertor"))
+			sec.add(action);
+		if(sec.isEmpty())
+			sec.addAll(Arrays.asList("=,1,sec",">,1,secs"));
+		
+		List<String> min = new ArrayList<>();
+		StringUtils.actions.put("Minutes",min);
+		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Minutes.Convertor"))
+			min.add(action);
+		if(min.isEmpty())
+			min.addAll(Arrays.asList("=,1,min",">,1,s"));
+		
+		List<String> hours = new ArrayList<>();
+		StringUtils.actions.put("Hours",hours);
+		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Hours.Convertor"))
+			hours.add(action);
+		if(hours.isEmpty())
+			hours.addAll(Arrays.asList("=,1,hour",">,1,hours"));
+		
+		List<String> days = new ArrayList<>();
+		StringUtils.actions.put("Days",days);
+		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Days.Convertor"))
+			days.add(action);
+		if(days.isEmpty())
+			days.addAll(Arrays.asList("=,1,day",">,1,days"));
+		
+		List<String> weeks = new ArrayList<>();
+		StringUtils.actions.put("Weeks",weeks);
+		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Weeks.Convertor"))
+			weeks.add(action);
+		if(weeks.isEmpty())
+			weeks.addAll(Arrays.asList("=,1,week",">,1,weeks"));
+		
+		List<String> years = new ArrayList<>();
+		StringUtils.actions.put("Years",years);
+		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Years.Convertor"))
+			years.add(action);
+		if(years.isEmpty())
+			years.addAll(Arrays.asList("=,1,year",">,1,years"));
+
+		StringUtils.sec=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.min=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Minutes.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.hour=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Hours.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.day=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Days.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.week=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Weeks.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.mon=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Months.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.year=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Years.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		
+	}
+	
+	public void createConfig() {
 		config.addDefault("Options.HideErrors", new Node(false, "",
 				"# If you enable this option, errors from TheAPI will dissapear", "# defaulty: false")); // hide only TheAPI errors
 		config.addDefault("Options.ConsoleLogEvent", false);

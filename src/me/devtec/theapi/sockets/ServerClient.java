@@ -1,6 +1,6 @@
 package me.devtec.theapi.sockets;
 
-public class ServerClient {
+public class ServerClient implements SocketClient {
 	private final ClientHandler c;
 	
 	public ServerClient(ClientHandler c) {

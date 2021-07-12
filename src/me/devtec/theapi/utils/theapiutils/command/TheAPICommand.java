@@ -6,9 +6,7 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -25,19 +23,11 @@ import me.devtec.theapi.apis.MemoryAPI;
 import me.devtec.theapi.apis.PluginManagerAPI;
 import me.devtec.theapi.apis.PluginManagerAPI.SearchType;
 import me.devtec.theapi.scheduler.Tasker;
-import me.devtec.theapi.sockets.Client;
-import me.devtec.theapi.sockets.Server;
-import me.devtec.theapi.sockets.ServerClient;
 import me.devtec.theapi.utils.HoverMessage;
 import me.devtec.theapi.utils.StringUtils;
-import me.devtec.theapi.utils.datakeeper.Data;
-import me.devtec.theapi.utils.datakeeper.User;
-import me.devtec.theapi.utils.listener.events.ClientReceiveMessageEvent;
-import me.devtec.theapi.utils.listener.events.ServerReceiveMessageEvent;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
-import me.devtec.theapi.utils.theapiutils.Tasks;
 
 public class TheAPICommand implements CommandExecutor, TabCompleter {
 	  String realVersion = (String)Ref.get(Bukkit.getServer(), "serverVersion");
@@ -113,48 +103,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		if (args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("rl")) {
 			if (perm(s, "Reload")) {
 				TheAPI.msg("&eReloading configs..", s);
-				LoaderClass.data.reload();
-				LoaderClass.config.reload();
-				boolean wasEnabled = LoaderClass.sockets.getBoolean("Options.Enabled");
-				LoaderClass.sockets.reload();
-				if(!wasEnabled && LoaderClass.sockets.getBoolean("Options.Enabled")) {
-					LoaderClass.plugin.servers = new HashMap<>();
-					LoaderClass.plugin.server=new Server(LoaderClass.sockets.getString("Options.Password"), LoaderClass.sockets.getInt("Options.Port"));
-					LoaderClass.plugin.server.register(new me.devtec.theapi.sockets.Reader() {
-						public void read(ServerClient client, Data data) {
-							TheAPI.callEvent(new ServerReceiveMessageEvent(client, data));
-						}
-					});
-					for(String ds : LoaderClass.sockets.getKeys("Server")) {
-						LoaderClass.plugin.servers.put(ds, new Client(LoaderClass.sockets.getString("Options.Name"),LoaderClass. sockets.getString("Server."+ds+".Password"), LoaderClass.sockets.getString("Server."+ds+".IP"), LoaderClass.sockets.getInt("Server."+ds+".Port")) {
-							public void read(Data data) {
-								TheAPI.callEvent(new ClientReceiveMessageEvent(this, data));
-							}
-						});
-					}
-				}else {
-					if(wasEnabled) {
-						LoaderClass.plugin.server.exit();
-						for(Client e : LoaderClass.plugin.servers.values())
-							e.exit();
-						LoaderClass.plugin.servers.clear();
-						LoaderClass.plugin.server=null;
-					}
-					LoaderClass.sockets.getData().clear();
-				}
-				if (TheAPI.isNewerThan(15)) {
-					LoaderClass.tags.reload();
-					LoaderClass.tagG = LoaderClass.tags.getString("TagPrefix");
-					LoaderClass.gradientTag = LoaderClass.tags.getString("GradientPrefix");
-					LoaderClass.colorMap.clear();
-					for (String tag : LoaderClass.tags.getKeys("Tags"))
-						LoaderClass.colorMap.put(tag.toLowerCase(), "#" + LoaderClass.tags.getString("Tags." + tag));
-					StringUtils.gradientFinder=Pattern.compile(LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})(.*?)"+LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})|.*?(?=(?:"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}.*?"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}))");
-				}
-				for (User u : TheAPI.getCachedUsers())
-					u.getData().reload(u.getData().getFile());
-				Tasks.unload();
-				Tasks.load();
+				LoaderClass.plugin.reload();
 				TheAPI.msg("&eConfigs reloaded.", s);
 				return true;
 			}

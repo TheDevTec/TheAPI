@@ -9,7 +9,7 @@ import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.DataType;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
-public abstract class Client { 
+public abstract class Client implements SocketClient { 
 	private BufferedReader receive; 
 	private PrintWriter send; 
 	private Socket s;
