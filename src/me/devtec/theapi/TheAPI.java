@@ -939,6 +939,7 @@ public class TheAPI {
 	 * @return boolean
 	 */
 	public static boolean existsUser(String name) {
+		if(getPlayerOrNull(name)!=null)return true;
 		String s = null;
 		try {
 			s = UUID.fromString(name).toString();

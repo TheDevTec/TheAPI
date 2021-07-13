@@ -68,7 +68,7 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	private final void prepareConfig() {
-		a = new Data("plugins/TheAPI/User/" + s.toString() + ".yml", true);
+		a = new Data("plugins/TheAPI/User/" + s + ".yml", true);
 	}
 
 	public void delete() {

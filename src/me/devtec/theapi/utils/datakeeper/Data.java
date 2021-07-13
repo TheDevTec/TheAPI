@@ -272,10 +272,12 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public synchronized Data reload(File f) {
+		try {
+			f.getParentFile().mkdirs();
+		} catch (Exception e) {
+		}
 		if (!f.exists()) {
 			try {
-				if(f.getName().contains("/"))
-					f.getParentFile().mkdirs();
 				f.createNewFile();
 			} catch (Exception e) {
 			}
@@ -476,6 +478,17 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			return this;
 		if(isSaving)return this;
 		if(!requireSave)return this;
+		if (!a.exists()) {
+			try {
+				if(a.getName().contains("/"))
+					a.getParentFile().mkdirs();
+			} catch (Exception e) {
+			}
+			try {
+				a.createNewFile();
+			} catch (Exception e) {
+			}
+		}
 		isSaving=true;
 		requireSave=false;
 		try {
@@ -514,11 +527,15 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		b.append(System.lineSeparator());
 	}
 	
-	protected synchronized void addQuotes(StringBuilder b, CharSequence pathName, String aw) {
+	protected synchronized void addQuotes(StringBuilder b, CharSequence pathName, String aw, boolean add) {
 		b.append(pathName).append(' ');
-		b.append('"');
-		b.append(aw);
-		b.append('"');
+		if(add) {
+			b.append(aw);
+		}else {
+			b.append('"');
+			b.append(aw);
+			b.append('"');
+		}
 		b.append(System.lineSeparator());
 	}
 	
@@ -637,7 +654,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 					if(!((Collection<?>) o).isEmpty()) {
 						try {
 							if(aw[3]!=null && (int)aw[3]==1) {
-								addQuotes(b,bab,(String)aw[2]);
+								addQuotes(b,bab,(String)aw[2], o instanceof Comparable && o instanceof String == false);
 							}else {
 								b.append(bab).append(System.lineSeparator());
 								for (Object a : (Collection<?>) o) {
@@ -661,7 +678,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 					if(((Object[]) o).length!=0) {
 						try {
 							if(aw[3]!=null && (int)aw[3]==1) {
-								addQuotes(b,bab,(String)aw[2]);
+								addQuotes(b,bab,(String)aw[2], o instanceof Comparable && o instanceof String == false);
 							}else {
 								b.append(bab).append(System.lineSeparator());
 								for (Object a : (Object[]) o) {
@@ -685,7 +702,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			} else {
 				try {
 					if(aw[3]!=null && (int)aw[3]==1) {
-						addQuotes(b,bab,(String)aw[2]);
+						addQuotes(b,bab,(String)aw[2], o instanceof Comparable && o instanceof String == false);
 					}else {
 						if(o instanceof String)
 							addQuotes(b,bab,(String)o);

@@ -53,14 +53,14 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 					registerChannelHandler();
 					registerPlayers();
 				}
-			}.runLater(1);
+			}.runLater(10);
 		}else
 			new Tasker() {
 				public void run() {
 					registerChannelHandler();
 					registerPlayers();
 				}
-			}.runLater(1);
+			}.runLater(10);
 	}
 
 	private void createServerChannelHandler() {

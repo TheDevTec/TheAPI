@@ -19,11 +19,12 @@ public class TAC_User {
 			return;
 		}
 
-		if (args.length == 2) {
+		if (args.length >= 2) {
 			if (!TheAPI.existsUser(args[1]) && !args[1].equals("*")) {
 				TheAPI.msg("&eUser &6" + args[1] + " &edoesn't exist.", s);
 				return;
 			} else {
+				if (args.length == 2) {
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Set <key> <value>", s);
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Remove <key>", s);
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Get <key>", s);
@@ -32,6 +33,7 @@ public class TAC_User {
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Reload", s);
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Save", s);
 				return;
+				}
 			}
 		}
 

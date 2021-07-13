@@ -116,7 +116,7 @@ public class LoaderClass extends JavaPlugin {
 		Random r = new Random();
 		StringBuilder b = new StringBuilder();
 		for(int i = 0; i < 16; ++i)
-			b.append(r.nextBoolean() ? (a[r.nextInt(len)]) : Character.toUpperCase(a[r.nextInt(len)]));
+			b.append(r.nextBoolean() ? a[r.nextInt(len)] : Character.toUpperCase(a[r.nextInt(len)]));
 		return b.toString();
 	}
 
@@ -170,16 +170,16 @@ public class LoaderClass extends JavaPlugin {
 		
 		//CONSOLE LOG EVENT
 		if(config.getBoolean("Options.ConsoleLogEvent")) {
-		try {
-			Class.forName("org.apache.logging.log4j.core.filter.AbstractFilter");
-			org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger)org.apache.logging.log4j.LogManager.getRootLogger();
-			logger.addFilter(new ConsoleLogger());
-		} catch (ClassNotFoundException e) {
-		}
-		BukkitLogger filter = new BukkitLogger();
-		getLogger().setFilter(filter);
-		Bukkit.getLogger().setFilter(filter);
-		java.util.logging.Logger.getLogger("Minecraft").setFilter(filter);
+			try {
+				Class.forName("org.apache.logging.log4j.core.filter.AbstractFilter");
+				org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger)org.apache.logging.log4j.LogManager.getRootLogger();
+				logger.addFilter(new ConsoleLogger());
+			} catch (ClassNotFoundException e) {
+			}
+			BukkitLogger filter = new BukkitLogger();
+			getLogger().setFilter(filter);
+			Bukkit.getLogger().setFilter(filter);
+			java.util.logging.Logger.getLogger("Minecraft").setFilter(filter);
 		}
 		//TAGS - 1.16+
 		if (TheAPI.isNewerThan(15)) {
@@ -431,8 +431,8 @@ public class LoaderClass extends JavaPlugin {
 			public boolean PacketPlayOut(String player, Object packet, Object channel) {
 				return false;
 			}
-			
-			@SuppressWarnings("unchecked")
+
+			ItemStack empty = new ItemStack(Material.AIR);
 			public boolean PacketPlayIn(String player, Object packet, Object channel) {
 				if(player==null)return false; //NPC
 				//ResourcePackAPI
@@ -489,25 +489,33 @@ public class LoaderClass extends JavaPlugin {
 					if(type==InventoryClickType.QUICK_MOVE && TheAPI.isOlderThan(9))
 						cancel=true;
 					if(cancel) {
-						if(type==InventoryClickType.QUICK_MOVE) {
-							if(TheAPI.isNewerThan(16)) {
-							for(int s : ((org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMaps.UnmodifiableMap<Object>)Ref.get(packet, airplane==0?"f":"h")).keySet())
-								Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, s, Ref.invoke(Ref.invoke(g, getSlot, s),getItem))
-										:Ref.newInstance(setSlot,id,id, s, Ref.invoke(Ref.invoke(g, getSlot, s),getItem)));
-							}else p.updateInventory();
-						}else {
-							if(type==InventoryClickType.SWAP||type==InventoryClickType.PICKUP_ALL) {
-								if(TheAPI.isNewerThan(16)) {
-									for(int s : ((org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMaps.UnmodifiableMap<Object>)Ref.get(packet, airplane==0?"f":"h")).keySet())
-										Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, s, Ref.invoke(Ref.invoke(g, getSlot, s),getItem))
-												:Ref.newInstance(setSlot,id,id, s, Ref.invoke(Ref.invoke(g, getSlot, s),getItem)));
-								}else p.updateInventory();
-							}
-							Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)):
-								Ref.newInstance(setSlot,-1,-1, -1, NMSAPI.asNMSItem(before)));
+						//MOUSE
+						Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)):
+							Ref.newInstance(setSlot,-1,-1, -1, NMSAPI.asNMSItem(before)));
+						if(type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.SWAP||type==InventoryClickType.CLONE) {
 							Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)):
 								Ref.newInstance(setSlot,id,slot, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
+							//IF MOVE FROM BUTTON
+							if(slot>d.size()) {
+								//TOP
+								int ic = 0;
+								for(ItemStack o : d.getInventory().getContents()) {
+									if(o==null)o=empty;
+									Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
+										Ref.newInstance(setSlot,id,ic, ic++, NMSAPI.asNMSItem(o)));
+								}
+							}
+						}else {
+							//TOP
+							int ic = 0;
+							for(ItemStack o : d.getInventory().getContents()) {
+								if(o==null)o=empty;
+								Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
+									Ref.newInstance(setSlot,id,ic, ic++, NMSAPI.asNMSItem(o)));
+							}
 						}
+						//BUTTON
+						Ref.invoke(Ref.get(Ref.player(p), TheAPI.isNewerThan(16)?"bU":"inventory"),TheAPI.isNewerThan(16)?"updateInventory":"update");
 						return true;
 					}
 				}
