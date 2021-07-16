@@ -105,9 +105,9 @@ public class ByteLoader extends DataLoader {
 			}else {
 				String key = bos.readUTF();
 				while(!key.equals("1"))key = bos.readUTF();
-				key = bos.readUTF();
 				while (true)
 					try {
+						key = bos.readUTF();
 						String value = bos.readUTF();
 						if(!value.equals("null")) {
 							value=value.substring(1);
