@@ -1,4 +1,4 @@
- package me.devtec.theapi.utils.theapiutils;
+package me.devtec.theapi.utils.theapiutils;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -108,6 +108,35 @@ public class LoaderClass extends JavaPlugin {
 	}
 	public Map<String, Client> servers;
 	public Server server;
+	
+	static int airR = 0;
+	static Field shift,item,slotR,button,a,quickMove;
+	static Method getSlot = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "getSlot", int.class),getItem= Ref.method(Ref.nmsOrOld("world.inventory.Slot","Slot"), "getItem");
+	static Constructor<?> setSlotR = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
+	static Class<?> resource = Ref.nmsOrOld("network.protocol.game.PacketPlayInResourcePackStatus","PacketPlayInResourcePackStatus"), close = Ref.nmsOrOld("network.protocol.game.PacketPlayInCloseWindow","PacketPlayInCloseWindow"), click = Ref.nmsOrOld("network.protocol.game.PacketPlayInWindowClick","PacketPlayInWindowClick");
+	static {
+		if(setSlotR==null) {
+			++airR;
+			setSlotR=Ref.findConstructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
+		}
+		if(airR==1) {
+			a=Ref.field(click, "b");
+			shift=Ref.field(click, TheAPI.isNewerThan(16)?"f":"shift");
+			item=Ref.field(click, TheAPI.isNewerThan(16)?"g":"item");
+			slotR=Ref.field(click, TheAPI.isNewerThan(16)?"d":"slot");
+			button=Ref.field(click, TheAPI.isNewerThan(16)?"e":"button");
+			quickMove=Ref.field(click, TheAPI.isNewerThan(16)?"h":"h");
+		}else {
+			a=Ref.field(click, "a");
+			shift=Ref.field(click, TheAPI.isNewerThan(16)?"d":"shift");
+			item=Ref.field(click, TheAPI.isNewerThan(16)?"e":"item");
+			slotR=Ref.field(click, TheAPI.isNewerThan(16)?"b":"slot");
+			button=Ref.field(click, TheAPI.isNewerThan(16)?"c":"button");
+			if(TheAPI.isNewerThan(16))quickMove=Ref.field(click, "f");
+		}
+	}
+	static Constructor<?> setSlot = setSlotR;
+	static int airplane = airR;
 
 	private String generate() {
 		String d = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -399,39 +428,14 @@ public class LoaderClass extends JavaPlugin {
 				return false;
 			}
 		}.register();
-		int airR = 0;
-		Method getSlot = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "getSlot", int.class),getItem= Ref.method(Ref.nmsOrOld("world.inventory.Slot","Slot"), "getItem");
-		Constructor<?> setSlotR = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
-		Class<?> resource = Ref.nmsOrOld("network.protocol.game.PacketPlayInResourcePackStatus","PacketPlayInResourcePackStatus"), close = Ref.nmsOrOld("network.protocol.game.PacketPlayInCloseWindow","PacketPlayInCloseWindow"), click = Ref.nmsOrOld("network.protocol.game.PacketPlayInWindowClick","PacketPlayInWindowClick");
-
-		if(setSlotR==null) {
-			++airR;
-			setSlotR=Ref.findConstructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
-		}
-		Field shift,item,slotR,button,a;
-		if(airR==1) {
-			a=Ref.field(click, "b");
-			shift=Ref.field(click, TheAPI.isNewerThan(16)?"f":"shift");
-			item=Ref.field(click, TheAPI.isNewerThan(16)?"g":"item");
-			//
-			slotR=Ref.field(click, TheAPI.isNewerThan(16)?"d":"slot");
-			button=Ref.field(click, TheAPI.isNewerThan(16)?"e":"button");
-		}else {
-			a=Ref.field(click, "a");
-			shift=Ref.field(click, TheAPI.isNewerThan(16)?"d":"shift");
-			item=Ref.field(click, TheAPI.isNewerThan(16)?"e":"item");
-			slotR=Ref.field(click, TheAPI.isNewerThan(16)?"b":"slot");
-			button=Ref.field(click, TheAPI.isNewerThan(16)?"c":"button");
-		}
-		final int airplane = airR;
-		final Constructor<?> setSlot = setSlotR;
+		
 		new PacketListener() {
 			
 			@Override
 			public boolean PacketPlayOut(String player, Object packet, Object channel) {
 				return false;
 			}
-
+			boolean installedModificationPlugin = PluginManagerAPI.getPlugin("ViaVersion")!=null||PluginManagerAPI.getPlugin("ProtocolSupport")!=null;
 			ItemStack empty = new ItemStack(Material.AIR);
 			public boolean PacketPlayIn(String player, Object packet, Object channel) {
 				if(player==null)return false; //NPC
@@ -492,31 +496,76 @@ public class LoaderClass extends JavaPlugin {
 						//MOUSE
 						Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,-1, -1, NMSAPI.asNMSItem(before)):
 							Ref.newInstance(setSlot,-1,-1, -1, NMSAPI.asNMSItem(before)));
-						if(type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.SWAP||type==InventoryClickType.CLONE) {
-							Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)):
-								Ref.newInstance(setSlot,id,slot, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
-							//IF MOVE FROM BUTTON
+						switch(type) {
+						case CLONE:
+							return true;
+						case SWAP:
+						case QUICK_MOVE:
+							//1.17+ = simplier packet & need viaversion & protocolsupport installed check
+							if(TheAPI.isNewerThan(16)) {
+								if(installedModificationPlugin) {
+									org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMap<?> f = (org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMap<?>) Ref.get(packet, quickMove);
+									if(f.isEmpty()) { //not 1.17 packet - modified
+										//We need to update top inventory & player inv
+										//TOP
+										int ic = 0;
+										int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
+										for(ItemStack o : d.getInventory().getContents()) {
+											if(o==null)o=empty;
+											Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
+												Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
+										}
+									}else {
+										int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
+										for(int o : f.keySet()) {
+											Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, o, Ref.invoke(Ref.invoke(g, getSlot, o),getItem)):
+												Ref.newInstance(setSlot,id,slotId,o, Ref.invoke(Ref.invoke(g, getSlot, o),getItem)));
+										}
+									}
+								}else { //without check
+									int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
+									org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMap<?> f = (org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMap<?>) Ref.get(packet, quickMove);
+									for(int o : f.keySet()) {
+										Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, o, Ref.invoke(Ref.invoke(g, getSlot, o),getItem)):
+											Ref.newInstance(setSlot,id,slotId,o, Ref.invoke(Ref.invoke(g, getSlot, o),getItem)));
+									}
+								}
+								Ref.invoke(Ref.get(Ref.player(p), TheAPI.isNewerThan(16)?"bU":"inventory"),TheAPI.isNewerThan(16)?"updateInventory":"update");
+								return true;
+							}
 							if(slot>d.size()) {
+								int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
 								//TOP
 								int ic = 0;
 								for(ItemStack o : d.getInventory().getContents()) {
 									if(o==null)o=empty;
 									Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
-										Ref.newInstance(setSlot,id,ic, ic++, NMSAPI.asNMSItem(o)));
+										Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
 								}
 							}
-						}else {
-							//TOP
-							int ic = 0;
-							for(ItemStack o : d.getInventory().getContents()) {
-								if(o==null)o=empty;
-								Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
-									Ref.newInstance(setSlot,id,ic, ic++, NMSAPI.asNMSItem(o)));
+							//BUTTON
+							Ref.invoke(Ref.get(Ref.player(p), TheAPI.isNewerThan(16)?"bU":"inventory"),TheAPI.isNewerThan(16)?"updateInventory":"update");
+							return true;
+						case PICKUP_ALL:
+							//IF PICKUP IN TOP
+							if(slot<=d.size()) {
+								int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
+								//TOP
+								int ic = 0;
+								for(ItemStack o : d.getInventory().getContents()) {
+									if(o==null)o=empty;
+									Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
+										Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
+								}
 							}
+							//BUTTON
+							Ref.invoke(Ref.get(Ref.player(p), TheAPI.isNewerThan(16)?"bU":"inventory"),TheAPI.isNewerThan(16)?"updateInventory":"update");
+							return true;
+						default:
+							Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)):
+								Ref.newInstance(setSlot,id,(int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId"), slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
+							return true;
 						}
-						//BUTTON
-						Ref.invoke(Ref.get(Ref.player(p), TheAPI.isNewerThan(16)?"bU":"inventory"),TheAPI.isNewerThan(16)?"updateInventory":"update");
-						return true;
 					}
 				}
 				return false;

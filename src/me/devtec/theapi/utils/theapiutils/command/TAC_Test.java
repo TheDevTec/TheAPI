@@ -48,9 +48,9 @@ public class TAC_Test {
 					}
 
 				};
-				Material a = Material.matchMaterial("BLACK_STAINED_GLASS_PANE") != null
-						? Material.matchMaterial("BLACK_STAINED_GLASS_PANE")
-						: Material.matchMaterial("STAINED_GLASS_PANE");
+				Material a = Material.getMaterial("BLACK_STAINED_GLASS_PANE") != null
+						? Material.getMaterial("BLACK_STAINED_GLASS_PANE")
+						: Material.getMaterial("STAINED_GLASS_PANE");
 				ItemGUI item = new ItemGUI(
 						a.name().equals("BLACK_STAINED_GLASS_PANE") ? ItemCreatorAPI.create(a, 1, "&7")
 								: ItemCreatorAPI.create(a, 1, "&7", 15)) {
@@ -153,8 +153,7 @@ public class TAC_Test {
 			RankingAPI<String, String> maps = new RankingAPI<>(tops);
 			TheAPI.msg("&eResult:", s);
 			for (Entry<String, String> entry : maps.entrySet())
-				TheAPI.msg("&6" + maps.getPosition(entry.getKey()) + ". " + entry.getKey() + ", " + entry.getValue(),
-						s);
+				TheAPI.msg("&6" + maps.getPosition(entry.getKey()) + ". " + entry.getKey() + ", " + entry.getValue(), s);
 			return;
 		}
 	}

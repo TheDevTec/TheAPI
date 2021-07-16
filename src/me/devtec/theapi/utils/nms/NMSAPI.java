@@ -235,7 +235,7 @@ public class NMSAPI {
 	
 	public static Object getPacketPlayOutScoreboardTeam() {
 		try {
-			return unsafe.allocateInstance(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardTeam","PacketPlayOutScoreboardTeam"));
+ 			return unsafe.allocateInstance(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardTeam","PacketPlayOutScoreboardTeam"));
 		} catch (InstantiationException e) {
 		}
 		return null;

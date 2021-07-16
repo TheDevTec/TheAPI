@@ -53,14 +53,14 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 					registerChannelHandler();
 					registerPlayers();
 				}
-			}.runLater(10);
+			}.runLater(1);
 		}else
 			new Tasker() {
 				public void run() {
 					registerChannelHandler();
 					registerPlayers();
 				}
-			}.runLater(10);
+			}.runLater(1);
 	}
 
 	private void createServerChannelHandler() {
@@ -108,6 +108,9 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	}
 
 	private void registerChannelHandler() {
+		if(TheAPI.isNewerThan(16))
+			networkManagers = (List<ChannelFuture>) (Ref.get(serverConnection, "f"));
+		else
 		networkManagers = (List<ChannelFuture>) (Ref.get(serverConnection, "listeningChannels")!=null?Ref.get(serverConnection, "listeningChannels"):Ref.get(serverConnection, "g"));
 		if(networkManagers==null) { //modded server
 			for(Field f : Ref.getAllFields(Ref.nmsOrOld("server.network.ServerConnection","ServerConnection")))

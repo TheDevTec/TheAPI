@@ -4,7 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -179,7 +179,7 @@ public class ScoreboardAPI {
 		return data.getAs(player+'.'+line, Team.class);
 	}
 	
-	private List<Object> scores = new LinkedList<>();
+	private Set<Object> scores = new LinkedHashSet<>();
 	
 	public void sendScoreChanges() {
 		Ref.sendPacket(p, scores);
@@ -257,11 +257,11 @@ public class ScoreboardAPI {
 				Object o = unsafe.allocateInstance(sbTeam);
 				Ref.set(o, "a", NMSAPI.getIChatBaseComponentText(name));
 				Ref.set(o, "b", NMSAPI.getFixedIChatBaseComponent(prefix));
-				Ref.set(o, "c", NMSAPI.getIChatBaseComponentText(suffix));
+				Ref.set(o, "c", NMSAPI.getFixedIChatBaseComponent(suffix));
 				Ref.set(o, "d", always);
 				Ref.set(o, "e", always);
 				Ref.set(o, "f", white);
-				Ref.set(packet, "k", Optional.ofNullable(o));
+				Ref.set(packet, "k", Optional.of(o));
 			} catch (Exception e) {
 			}
 			Ref.set(packet, "h", mode);
@@ -270,7 +270,7 @@ public class ScoreboardAPI {
 			Ref.set(packet, "a", realName);
 			Ref.set(packet, "b", TheAPI.isNewerThan(12)?NMSAPI.getFixedIChatBaseComponent(""):"");
 			Ref.set(packet, "c", TheAPI.isNewerThan(12)?NMSAPI.getFixedIChatBaseComponent(prefix):prefix);
-			Ref.set(packet, "d", TheAPI.isNewerThan(12)?NMSAPI.getIChatBaseComponentText(suffix):suffix);
+			Ref.set(packet, "d", TheAPI.isNewerThan(12)?NMSAPI.getFixedIChatBaseComponent(suffix):suffix);
 			if(TheAPI.isNewerThan(7)) {
 				Ref.set(packet, "e", always);
 				Ref.set(packet, "f", TheAPI.isNewerThan(8)?always:-1);

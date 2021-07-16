@@ -41,7 +41,7 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 			}
 		if(serverConnection==null)return;
 		if(lateBind) {
-			while(!(boolean)Ref.get(Ref.server(), TheAPI.isOlderThan(9)?"Q":(TheAPI.isOlderThan(11)?"P":TheAPI.isOlderThan(13)?"Q":TheAPI.isOlderThan(14)?"P":TheAPI.isOlderThan(17)?"hasTicked":"ah")))
+			while(!(boolean)Ref.get(Ref.server(), "Q"))
 				try {
 					Thread.sleep(50);
 				} catch (Exception e) {
