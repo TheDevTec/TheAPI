@@ -534,13 +534,23 @@ public class LoaderClass extends JavaPlugin {
 								return true;
 							}
 							if(slot>d.size()) {
-								int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
-								//TOP
-								int ic = 0;
-								for(ItemStack o : d.getInventory().getContents()) {
-									if(o==null)o=empty;
-									Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
-										Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
+								if(TheAPI.isNewerThan(16)) {
+									int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
+									//TOP
+									int ic = 0;
+									for(ItemStack o : d.getInventory().getContents()) {
+										if(o==null)o=empty;
+										Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
+											Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
+									}
+								}else {
+									//TOP
+									int ic = 0;
+									for(ItemStack o : d.getInventory().getContents()) {
+										if(o==null)o=empty;
+										Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
+											Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
+									}
 								}
 							}
 							//BUTTON
@@ -549,13 +559,23 @@ public class LoaderClass extends JavaPlugin {
 						case PICKUP_ALL:
 							//IF PICKUP IN TOP
 							if(slot<=d.size()) {
-								int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
-								//TOP
-								int ic = 0;
-								for(ItemStack o : d.getInventory().getContents()) {
-									if(o==null)o=empty;
-									Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
-										Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
+								if(TheAPI.isNewerThan(16)) {
+									int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
+									//TOP
+									int ic = 0;
+									for(ItemStack o : d.getInventory().getContents()) {
+										if(o==null)o=empty;
+										Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
+											Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
+									}
+								}else {
+									//TOP
+									int ic = 0;
+									for(ItemStack o : d.getInventory().getContents()) {
+										if(o==null)o=empty;
+										Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
+											Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
+									}
 								}
 							}
 							//BUTTON
