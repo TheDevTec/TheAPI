@@ -321,10 +321,22 @@ public class NMSAPI {
 		Object o = old == 2 ? Ref.newInstance(pOutChat, IChatBaseComponent, (byte) 1)
 				: (old == 0
 						? Ref.newInstance(pOutChat, IChatBaseComponent,
-								Ref.getNulled(Ref.field(Ref.nmsOrOld("network.chat.ChatMessageType","ChatMessageType"), type.name())))
+								Ref.getNulled(Ref.field(Ref.nmsOrOld("network.chat.ChatMessageType","ChatMessageType"), TheAPI.isNewerThan(16)?convertNew(type.name()):type.name())))
 						: Ref.newInstance(pOutChat, IChatBaseComponent,
-								Ref.getNulled(Ref.field(Ref.nmsOrOld("network.chat.ChatMessageType","ChatMessageType"), type.name())), UUID.randomUUID()));
+								Ref.getNulled(Ref.field(Ref.nmsOrOld("network.chat.ChatMessageType","ChatMessageType"), TheAPI.isNewerThan(16)?convertNew(type.name()):type.name())), UUID.randomUUID()));
 		return o;
+	}
+
+	private static String convertNew(String name) {
+		switch(name) {
+		case "CHAT":
+			return "c";
+		case "GAME_INFO":
+			return "b";
+		case "SYSTEM":
+			return "a";
+		}
+		return null;
 	}
 
 	public static Object getPacketPlayOutChat(ChatType type, String text) {

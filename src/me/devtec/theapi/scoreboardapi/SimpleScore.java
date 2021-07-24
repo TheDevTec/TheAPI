@@ -42,12 +42,10 @@ public class SimpleScore {
 				}
 			}
 			if(sb.getLines().size()>lines.size())
-			sb.removeUpperLines(lines.size()-1);
+				sb.removeUpperLines(lines.size()-1);
 			int i = 0;
 			for (String line : lines)
-				if(line!=null)
-					sb.setLine(i++, line);
-			sb.sendScoreChanges();
+				sb.setLine(++i, line);
 		}
 		lines.clear();
 	}

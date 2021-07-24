@@ -406,8 +406,7 @@ public class StringUtils {
 	}
 
 	private static Pattern reg = Pattern.compile("[&§]([Rrk-oK-O])"),
-			colorMatic = Pattern
-					.compile("(<!>)*([&§])<!>([A-Fa-f0-9RrK-Ok-oUu" + (TheAPI.isNewerThan(15) ? "Xx" : "") + "])"),
+			colorMatic = Pattern.compile("(<!>)*([&§])<!>([A-Fa-f0-9RrK-Ok-oUu" + (TheAPI.isNewerThan(15) ? "Xx" : "") + "])"),
 			old = Pattern.compile("&((<!>)*)([XxA-Za-zUu0-9Rrk-oK-O])");
 
 	public static Pattern gradientFinder;

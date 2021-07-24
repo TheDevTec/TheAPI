@@ -504,82 +504,107 @@ public class LoaderClass extends JavaPlugin {
 							//1.17+ = simplier packet & need viaversion & protocolsupport installed check
 							if(TheAPI.isNewerThan(16)) {
 								if(installedModificationPlugin) {
-									org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMap<?> f = (org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMap<?>) Ref.get(packet, quickMove);
-									if(f.isEmpty()) { //not 1.17 packet - modified
-										//We need to update top inventory & player inv
+									if(airplane == 0) {
 										//TOP
 										int ic = 0;
-										int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
 										for(ItemStack o : d.getInventory().getContents()) {
 											if(o==null)o=empty;
-											Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
-												Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
+											Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
+										}
+										//BUTTON
+										for(ItemStack o : p.getInventory().getContents()) {
+											if(o==null)o=empty;
+											Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
 										}
 									}else {
 										int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
-										for(int o : f.keySet()) {
-											Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, o, Ref.invoke(Ref.invoke(g, getSlot, o),getItem)):
-												Ref.newInstance(setSlot,id,slotId,o, Ref.invoke(Ref.invoke(g, getSlot, o),getItem)));
+										//TOP
+										int ic = 0;
+										for(ItemStack o : d.getInventory().getContents()) {
+											if(o==null)o=empty;
+											Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
+										}
+										//BUTTON
+										for(ItemStack o : p.getInventory().getContents()) {
+											if(o==null)o=empty;
+											Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
 										}
 									}
 								}else { //without check
-									int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
 									org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMap<?> f = (org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMap<?>) Ref.get(packet, quickMove);
-									for(int o : f.keySet()) {
-										Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, o, Ref.invoke(Ref.invoke(g, getSlot, o),getItem)):
-											Ref.newInstance(setSlot,id,slotId,o, Ref.invoke(Ref.invoke(g, getSlot, o),getItem)));
+									if(airplane == 0) {
+										//TOP
+										for(int o : f.keySet()) {
+											Ref.sendPacket(p,Ref.newInstance(setSlot,id, o, Ref.invoke(Ref.invoke(g, getSlot, o),getItem)));
+										}
+									}else {
+										int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
+										//TOP
+										for(int o : f.keySet()) {
+											Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId,o, Ref.invoke(Ref.invoke(g, getSlot, o),getItem)));
+										}
 									}
 								}
 								Ref.invoke(Ref.get(Ref.player(p), TheAPI.isNewerThan(16)?"bU":"inventory"),TheAPI.isNewerThan(16)?"updateInventory":"update");
 								return true;
-							}
-							if(slot>d.size()) {
-								if(TheAPI.isNewerThan(16)) {
-									int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
-									//TOP
-									int ic = 0;
-									for(ItemStack o : d.getInventory().getContents()) {
-										if(o==null)o=empty;
-										Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
-											Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
-									}
-								}else {
-									//TOP
-									int ic = 0;
-									for(ItemStack o : d.getInventory().getContents()) {
-										if(o==null)o=empty;
-										Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
-											Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
-									}
+							}else {
+								//TOP
+								int ic = 0;
+								for(ItemStack o : d.getInventory().getContents()) {
+									if(o==null)o=empty;
+									Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
+								}
+								//BUTTON
+								for(ItemStack o : p.getInventory().getContents()) {
+									if(o==null)o=empty;
+									Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
 								}
 							}
-							//BUTTON
-							Ref.invoke(Ref.get(Ref.player(p), TheAPI.isNewerThan(16)?"bU":"inventory"),TheAPI.isNewerThan(16)?"updateInventory":"update");
 							return true;
 						case PICKUP_ALL:
 							//IF PICKUP IN TOP
 							if(slot<=d.size()) {
 								if(TheAPI.isNewerThan(16)) {
-									int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
-									//TOP
-									int ic = 0;
-									for(ItemStack o : d.getInventory().getContents()) {
-										if(o==null)o=empty;
-										Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
-											Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
+									if(airplane == 0) {
+										//TOP
+										int ic = 0;
+										for(ItemStack o : d.getInventory().getContents()) {
+											if(o==null)o=empty;
+											Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
+										}
+										//BUTTON
+										for(ItemStack o : p.getInventory().getContents()) {
+											if(o==null)o=empty;
+											Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
+										}
+									}else {
+										int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
+										//TOP
+										int ic = 0;
+										for(ItemStack o : d.getInventory().getContents()) {
+											if(o==null)o=empty;
+											Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
+										}
+										//BUTTON
+										for(ItemStack o : p.getInventory().getContents()) {
+											if(o==null)o=empty;
+											Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
+										}
 									}
 								}else {
 									//TOP
 									int ic = 0;
 									for(ItemStack o : d.getInventory().getContents()) {
 										if(o==null)o=empty;
-										Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)):
-											Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
+										Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
+									}
+									//BUTTON
+									for(ItemStack o : p.getInventory().getContents()) {
+										if(o==null)o=empty;
+										Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
 									}
 								}
 							}
-							//BUTTON
-							Ref.invoke(Ref.get(Ref.player(p), TheAPI.isNewerThan(16)?"bU":"inventory"),TheAPI.isNewerThan(16)?"updateInventory":"update");
 							return true;
 						default:
 							Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)):

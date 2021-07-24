@@ -71,7 +71,6 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 								PacketInterceptor interceptor = new PacketInterceptor(null); //add new hook
 								channel.eventLoop().execute(() -> {
 										if(channel.pipeline().names().contains("InjectorTA")) {
-											TheAPI.bcMsg("already reg");
 											channel.pipeline().remove("InjectorTA"); //remove old instance - reload of server?
 										}
 										if(channel.pipeline().names().contains("packet_handler"))

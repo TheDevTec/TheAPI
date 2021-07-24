@@ -354,7 +354,7 @@ public class SQLAPI {
 		synchronized (LoaderClass.plugin) {
 			if (isConnected())
 				return;
-			if (Ref.getClass("com.mysql.jdbc.Driver") != null)
+			if (Ref.getClass("com.mysql.cj.jdbc.Driver")!=null || Ref.getClass("com.mysql.jdbc.Driver") != null)
 				try {
 					connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + at,
 							username, password);

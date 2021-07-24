@@ -46,51 +46,13 @@ public class ChatMessage {
 	}
 	
 	@SuppressWarnings("unchecked")
-	static Map<String, Object> fix(Map<String, Object> h){
-		if(h==null)return null;
-		Map<String, Object> f = new HashMap<>();
-		f.put("action", h.get("action"));
-		String n = h.containsKey("value")?"value":"contents";
-		f.put("value", h.get(n) instanceof Map ? h.get(n):h.get(n) instanceof List ? fixListMap((List<Map<String, Object>>)h.get(n)): fromString(h.get(n).toString()).join);
-		return f;
-	}
-
-	static Map<String, Object> emptys = new HashMap<>(), emptyc = new HashMap<>();
-	static {
-		emptys.put("action", "show_text");
-		emptys.put("value", "");
-
-		emptyc.put("action", "copy_to_clipboard");
-		emptyc.put("value", "");
-	}
-	
-	@SuppressWarnings("unchecked")
 	public static List<Map<String, Object>> fixListMap(List<Map<String, Object>> lists) {
 		if(lists==null)return null;
 		ListIterator<Map<String, Object>> it = lists.listIterator();
-		boolean hasHover = false, hasClick = false, hasInteract = false;
 		while(it.hasNext()) {
 			Map<String, Object> text = it.next();
-			Map<String, Object> hover=fix((Map<String, Object>) text.get("hoverEvent")), click=fix((Map<String, Object>) text.get("clickEvent"));
+			Map<String, Object> hover=(Map<String, Object>) text.get("hoverEvent"), click=(Map<String, Object>) text.get("clickEvent");
 			String interact=(String) text.get("insertion");
-			if(hover!=null) {
-				hasHover=true;
-			}
-			if(click!=null) {
-				hasClick=true;
-			}
-			if(interact!=null) {
-				hasInteract=true;
-			}
-			if(hover==null && hasHover) {
-				text.put("hoverEvent", emptys);
-			}
-			if(click==null && hasClick) {
-				text.put("clickEvent", emptyc);
-			}
-			if(interact==null && hasInteract) {
-				text.put("insertion", "");
-			}
 			boolean remove = false;
 			for(Entry<String, Object> s : text.entrySet()) {
 				if(s.getKey().equals("color")||s.getKey().equals("insertion"))continue;
@@ -108,22 +70,16 @@ public class ChatMessage {
 								d.put("color", text.get("color"));
 							if(hover!=null && !d.containsKey("hoverEvent"))
 								d.put("hoverEvent", hover);
-							else if(hasHover && !d.containsKey("hoverEvent"))
-								d.put("hoverEvent", emptys);
 							if(click!=null && !d.containsKey("clickEvent"))
 								d.put("clickEvent", click);
-							else if(hasClick && !d.containsKey("clickEvent"))
-								d.put("clickEvent", emptyc);
 							if(interact!=null && !d.containsKey("insertation"))
 								d.put("insertion", interact);
-							else if(hasInteract && !d.containsKey("insertation"))
-								d.put("insertion", "");
 							it.add(d);
 						}
 					}
 				}else
 					if(s.getValue()instanceof Map) //hoverEvent
-						text.put(s.getKey(), fix((Map<String, Object>) s.getValue()));
+						text.put(s.getKey(), s.getValue());
 					else
 						if(s.getValue()instanceof List) //extras
 							text.put(s.getKey(), fixListMap((List<Map<String, Object>>) s.getValue()));

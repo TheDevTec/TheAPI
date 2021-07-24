@@ -239,7 +239,9 @@ public class HoverMessage {
 	}
 
 	public String getJson() {
-		return Writer.write(texts);
+		Maker m = (Maker) texts.clone();
+		m.add(0, "");
+		return Writer.write(m);
 	}
 
 	public String toString() {

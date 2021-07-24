@@ -44,8 +44,7 @@ public class Ref {
 					: null;
 		} catch (Exception err) {
 		}
-		ichatcon = method(nmsOrOld("network.chat.IChatBaseComponent", "IChatBaseComponent$ChatSerializer"), "a",
-				String.class);
+		ichatcon = method(nmsOrOld("network.chat.IChatBaseComponent$ChatSerializer", "IChatBaseComponent$ChatSerializer"), "a", String.class);
 		if (ichatcon == null)
 			ichatcon = method(nmsOrOld(null, "ChatSerializer"), "a", String.class);
 	}

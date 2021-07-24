@@ -705,13 +705,13 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 						addQuotes(b,bab,(String)aw[2], o instanceof Comparable && o instanceof String == false);
 					}else {
 						if(o instanceof String)
-							addQuotes(b,bab,(String)o);
+							addQuotes(b,bab,(String)o, false);
 						else
 							addQuotes(b,bab,o);
 					}
 				}catch(Exception er) {
 					if(o instanceof String)
-						addQuotes(b,bab,(String)o);
+						addQuotes(b,bab,(String)o, false);
 					else
 						addQuotes(b,bab,o);
 				}
