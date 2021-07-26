@@ -504,6 +504,8 @@ public class LoaderClass extends JavaPlugin {
 							//1.17+ = simplier packet & need viaversion & protocolsupport installed check
 							if(TheAPI.isNewerThan(16)) {
 								if(installedModificationPlugin) {
+									Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)):
+										Ref.newInstance(setSlot,id,(int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId"), slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
 									if(airplane == 0) {
 										//TOP
 										int ic = 0;
