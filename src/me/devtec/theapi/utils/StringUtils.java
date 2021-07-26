@@ -563,8 +563,8 @@ public class StringUtils {
 	}
 
 	private static boolean has(int c) {
-		return c<=102 && c>=97 || c<=57 && c>=48 || c<=70 && c>=65 || c<=79 && c>=75 || c==114 || c==82 || c==88 || c==120;
-	}
+		return c<=102 && c>=97 || c<=57 && c>=48 || c<=70 && c>=65 || c<=79 && c>=75 || c<=111 && c>=107 || c==114 || c==82 || c==88 || c==120;
+		}
 
 	private static char lower(int c) {
 		switch(c){
