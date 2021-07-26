@@ -14,7 +14,6 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 import me.devtec.theapi.TheAPI;
@@ -502,8 +501,7 @@ public class StringUtils {
 		Matcher matcher = gradientFinder.matcher(legacyMsg);
 		while (matcher.find()) {
 			if (matcher.groupCount() == 0)continue;
-			legacyMsg = legacyMsg.replace(matcher.group(),
-					gradient(matcher.group(2), matcher.group(1), matcher.group(3)));
+			legacyMsg = legacyMsg.replace(matcher.group(), gradient(matcher.group(2), matcher.group(1), matcher.group(3)));
 		}
 		return legacyMsg;
 	}
@@ -541,7 +539,6 @@ public class StringUtils {
 			msg = d.toString();
 		}
 		if (neww) {
-			msg = msg.replace("&x", "§x").replace("&X", "§x");
 			msg = gradient(msg);
 			if (msg.contains("#")) {
 				Matcher match = hex.matcher(msg);
@@ -555,7 +552,39 @@ public class StringUtils {
 				}
 			}
 		}
-		return ChatColor.translateAlternateColorCodes('&', msg);
+		char[] b = msg.toCharArray();
+	    for (int i = 0; i < b.length - 1; i++) {
+	      if (b[i] == '&' && has(b[i + 1])) {
+	        b[i] = '§';
+	        b[i + 1] = lower(b[i + 1]);
+	      }
+	    }
+	    return new String(b);
+	}
+
+	private static boolean has(int c) {
+		return c<=102 && c>=97 || c<=57 && c>=48 || c<=70 && c>=65 || c<=79 && c>=75 || c==114 || c==82 || c==88 || c==120;
+	}
+
+	private static char lower(int c) {
+		switch(c){
+		case 65:
+		case 66:
+		case 67:
+		case 68:
+		case 69:
+		case 70:
+		case 75:
+		case 76:
+		case 77:
+		case 78:
+		case 79:
+		case 82:
+			return (char)(c+32);
+		case 120:
+			return (char)88;
+		}
+		return (char)c;
 	}
 
 	/**

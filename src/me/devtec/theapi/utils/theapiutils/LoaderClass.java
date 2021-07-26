@@ -245,7 +245,7 @@ public class LoaderClass extends JavaPlugin {
 			tagG = tags.getString("TagPrefix");
 			gradientTag = tags.getString("GradientPrefix");
 			for (String tag : tags.getKeys("Tags"))
-				colorMap.put(tag.toLowerCase(), "#" + tags.getString("Tags." + tag));
+				colorMap.put(tag.toLowerCase(), StringUtils.colorize("#"+tags.getString("Tags." + tag)));
 			StringUtils.gradientFinder=Pattern.compile(LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})(.*?)"+LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})");
 		}
 		PluginCommand ca = TheAPI.createCommand("theapi", this);
@@ -514,7 +514,7 @@ public class LoaderClass extends JavaPlugin {
 										//BUTTON
 										for(ItemStack o : p.getInventory().getContents()) {
 											if(o==null)o=empty;
-											Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
+											Ref.sendPacket(p,Ref.newInstance(setSlot,id, p.getInventory().getSize()-ic++, NMSAPI.asNMSItem(o)));
 										}
 									}else {
 										int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
@@ -527,7 +527,7 @@ public class LoaderClass extends JavaPlugin {
 										//BUTTON
 										for(ItemStack o : p.getInventory().getContents()) {
 											if(o==null)o=empty;
-											Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
+											Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId, p.getInventory().getSize()-ic++, NMSAPI.asNMSItem(o)));
 										}
 									}
 								}else { //without check
@@ -557,7 +557,7 @@ public class LoaderClass extends JavaPlugin {
 								//BUTTON
 								for(ItemStack o : p.getInventory().getContents()) {
 									if(o==null)o=empty;
-									Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
+									Ref.sendPacket(p,Ref.newInstance(setSlot,id, p.getInventory().getSize()-ic++, NMSAPI.asNMSItem(o)));
 								}
 							}
 							return true;
@@ -575,7 +575,7 @@ public class LoaderClass extends JavaPlugin {
 										//BUTTON
 										for(ItemStack o : p.getInventory().getContents()) {
 											if(o==null)o=empty;
-											Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
+											Ref.sendPacket(p,Ref.newInstance(setSlot,id, p.getInventory().getSize()-ic++, NMSAPI.asNMSItem(o)));
 										}
 									}else {
 										int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
@@ -588,7 +588,7 @@ public class LoaderClass extends JavaPlugin {
 										//BUTTON
 										for(ItemStack o : p.getInventory().getContents()) {
 											if(o==null)o=empty;
-											Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
+											Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId, p.getInventory().getSize()-ic++, NMSAPI.asNMSItem(o)));
 										}
 									}
 								}else {
@@ -601,7 +601,7 @@ public class LoaderClass extends JavaPlugin {
 									//BUTTON
 									for(ItemStack o : p.getInventory().getContents()) {
 										if(o==null)o=empty;
-										Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
+										Ref.sendPacket(p,Ref.newInstance(setSlot,id, p.getInventory().getSize()-ic++, NMSAPI.asNMSItem(o)));
 									}
 								}
 							}
