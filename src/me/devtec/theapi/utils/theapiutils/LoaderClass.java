@@ -245,7 +245,7 @@ public class LoaderClass extends JavaPlugin {
 			tagG = tags.getString("TagPrefix");
 			gradientTag = tags.getString("GradientPrefix");
 			for (String tag : tags.getKeys("Tags"))
-				colorMap.put(tag.toLowerCase(), StringUtils.colorize("#"+tags.getString("Tags." + tag)));
+				colorMap.put(tag.toLowerCase(), "#"+tags.getString("Tags." + tag));
 			StringUtils.gradientFinder=Pattern.compile(LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})(.*?)"+LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})");
 		}
 		PluginCommand ca = TheAPI.createCommand("theapi", this);
