@@ -7,17 +7,25 @@ public class Validator {
 
 	public static void validate(boolean question, String error) {
 		if (question)
-			send(error);
+			try {
+				throw new Exception(error);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 	}
 
 	public static void send(String error) {
 		if (!hideErrors)
-			new Exception(error).printStackTrace();
+			try {
+				throw new Exception(error);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 	}
 
 	public static void send(String error, Throwable err) {
 		if (!hideErrors) {
-			Bukkit.getLogger().warning("TheAPI Exception: " + error);
+			Bukkit.getLogger().severe("TheAPI Exception: " + error);
 			err.printStackTrace();
 		}
 	}

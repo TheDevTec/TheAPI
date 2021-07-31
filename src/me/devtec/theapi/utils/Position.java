@@ -93,9 +93,8 @@ public class Position implements Cloneable {
 	public static Position fromString(String stored) {
 		try {
 			stored = stored.substring(10, stored.length() - 1);
-			String[] part = stored.replaceAll(":", ".").split("/");
-			return new Position(part[0], StringUtils.getDouble(part[1]), StringUtils.getDouble(part[2]),
-					StringUtils.getDouble(part[3]), StringUtils.getFloat(part[4]), StringUtils.getFloat(part[5]));
+			String[] part = stored.replace(":", ".").split("/");
+			return new Position(part[0], StringUtils.getDouble(part[1]), StringUtils.getDouble(part[2]), StringUtils.getDouble(part[3]), StringUtils.getFloat(part[4]), StringUtils.getFloat(part[5]));
 		} catch (Exception notMat) {
 			Location loc = StringUtils.getLocationFromString(stored);
 			if (loc != null)
@@ -122,7 +121,7 @@ public class Position implements Cloneable {
 
 	@Override
 	public String toString() {
-		return ("[Position:" + w + '/' + x + '/' + y + '/' + z + '/' + yaw + '/' + pitch + ']').replaceAll("\\.", ":");
+		return ("[Position:" + w + "/" + x + "/" + y + "/" + z + "/" + yaw + "/" + pitch + ']').replace(".", ":");
 	}
 
 	public int hashCode() {

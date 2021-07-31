@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,6 +74,7 @@ import me.devtec.theapi.utils.packetlistenerapi.PacketHandler_Old;
 import me.devtec.theapi.utils.packetlistenerapi.PacketListener;
 import me.devtec.theapi.utils.packetlistenerapi.PacketManager;
 import me.devtec.theapi.utils.reflections.Ref;
+import me.devtec.theapi.utils.theapiutils.Cache.Query;
 import me.devtec.theapi.utils.theapiutils.LoggerManager.BukkitLogger;
 import me.devtec.theapi.utils.theapiutils.LoggerManager.ConsoleLogger;
 import me.devtec.theapi.utils.theapiutils.command.TheAPICommand;
@@ -1032,8 +1034,7 @@ public class LoaderClass extends JavaPlugin {
 							try {
 							User user = new User(data.getString(s), UUID.fromString(s));
 							if(user.getData().getKeys().size()==0) { //empty user
-								cache.nameLookup.remove(user.getName().toLowerCase());
-								cache.uuidLookup.remove(user.getName().toLowerCase());
+								cache.values.remove(user.getName().toLowerCase());
 								TheAPI.removeCachedUser(user.getUUID());
 								user.delete(); //delete file
 								++removed;
@@ -1044,8 +1045,7 @@ public class LoaderClass extends JavaPlugin {
 								continue; //fake user?
 							}
 							if(user.getLong("quit") - System.currentTimeMillis()/1000 + removeAfter <= 0) {
-								cache.nameLookup.remove(user.getName().toLowerCase());
-								cache.uuidLookup.remove(user.getName().toLowerCase());
+								cache.values.remove(user.getName().toLowerCase());
 								TheAPI.removeCachedUser(user.getUUID());
 								user.delete(); //delete file
 								++removed;
@@ -1060,11 +1060,10 @@ public class LoaderClass extends JavaPlugin {
 						new Tasker() {
 							public void run() {
 								int removed = 0;
-								for(Entry<String, UUID> s : cache.uuidLookup.entrySet()) {
-									User user = new User(cache.nameLookup.get(s.getKey()), s.getValue());
+								for(Query s : Collections.unmodifiableCollection(cache.values.values())) {
+									User user = new User(s);
 									if(user.getData().getKeys().size()==0) { //empty user
-										cache.nameLookup.remove(user.getName().toLowerCase());
-										cache.uuidLookup.remove(user.getName().toLowerCase());
+										cache.values.remove(user.getName().toLowerCase());
 										TheAPI.removeCachedUser(user.getUUID());
 										user.delete(); //delete file
 										++removed;
@@ -1075,8 +1074,7 @@ public class LoaderClass extends JavaPlugin {
 										continue; //fake user?
 									}
 									if(user.getLong("quit") - System.currentTimeMillis()/1000 + removeAfter <= 0) {
-										cache.nameLookup.remove(user.getName().toLowerCase());
-										cache.uuidLookup.remove(user.getName().toLowerCase());
+										cache.values.remove(user.getName().toLowerCase());
 										TheAPI.removeCachedUser(user.getUUID());
 										user.delete(); //delete file
 										++removed;

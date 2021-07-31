@@ -18,17 +18,18 @@ public class Animation {
 
 	public String get() {
 		if(lines.isEmpty())return null;
-		if (c >= lines.size())
-			c = 0;
-		if (last - System.currentTimeMillis()/50 + tics <= 0) {
-			last = System.currentTimeMillis()/50;
-			if (c >= lines.size())
-				c = 0;
-			return lines.get(++c);
-		}
 		return lines.get(c);
 	}
 
+	public void next() {
+		if (last - System.currentTimeMillis()/50 + tics <= 0) {
+			last = System.currentTimeMillis()/50;
+			++c;
+			if (c >= lines.size())
+				c = 0;
+		}
+	}
+	
 	public List<String> getLines() {
 		return lines;
 	}

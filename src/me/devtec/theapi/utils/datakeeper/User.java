@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.utils.theapiutils.Cache;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 import me.devtec.theapi.utils.theapiutils.Validator;
 
@@ -56,6 +57,14 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			Validator.send("UUID cannot be null.");
 		s = player;
 		this.name = name;
+		prepareConfig();
+	}
+
+	public User(Cache.Query query) {
+		if (query == null)
+			Validator.send("Query cannot be null.");
+		s = query.uuid;
+		this.name = query.name;
 		prepareConfig();
 	}
 	

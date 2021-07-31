@@ -9,7 +9,7 @@ public abstract class PacketListener {
 		priority = prio;
 	}
 
-	private Priority priority;
+	protected Priority priority;
 
 	public final PacketListener setPriority(Priority prio) {
 		if (prio == null)
@@ -29,13 +29,6 @@ public abstract class PacketListener {
 
 	public final Priority getPriority() {
 		return priority;
-	}
-
-	protected final Object call(String player, Object packet, Object channel, boolean isPacketOut) {
-		if (packet == null || channel == null
-				|| (isPacketOut ? PacketPlayOut(player, packet, channel) : PacketPlayIn(player, packet, channel)))
-			return null;
-		return packet;
 	}
 
 	public abstract boolean PacketPlayOut(String player, Object packet, Object channel);

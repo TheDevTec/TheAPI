@@ -2,7 +2,6 @@ package me.devtec.theapi.utils.listener;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -29,10 +28,7 @@ public class HandlerList {
 
 	private static Map<Class<? extends Event>, Collection<RegisteredListener>> create(Listener listener) {
 		Map<Class<? extends Event>, Collection<RegisteredListener>> ret = new HashMap<>();
-		Method[] Methods = listener.getClass().getDeclaredMethods();
-		Collection<Method> methods = new ArrayList<>(Methods.length);
-		methods.addAll(Arrays.asList(Methods));
-		for (Method method : methods) {
+		for (Method method : listener.getClass().getDeclaredMethods()) {
 			EventHandler eh = method.getAnnotation(EventHandler.class);
 			if (eh == null || method.isBridge() || method.isSynthetic())
 				continue;

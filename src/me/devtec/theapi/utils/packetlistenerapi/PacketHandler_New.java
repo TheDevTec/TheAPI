@@ -25,6 +25,7 @@ import me.devtec.theapi.utils.reflections.Ref;
 @SuppressWarnings("unchecked")
 public class PacketHandler_New implements PacketHandler<Channel> {
 	private static Class<?> login = Ref.nmsOrOld("network.protocol.login.PacketLoginInStart","PacketLoginInStart");
+	static Field f = Ref.field(login, "a");
 	private Map<String, Channel> channelLookup = new HashMap<>();
 	private List<ChannelFuture> networkManagers;
 	private List<Channel> serverChannels = new ArrayList<>();
@@ -195,8 +196,12 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 
 	public Channel get(Player player) {
 		Channel channel = channelLookup.get(player.getName());
-		if (channel == null)
-			channelLookup.put(player.getName(), channel = (Channel) Ref.channel(Ref.network(Ref.playerCon(player))));
+		if (channel == null) {
+			Object get = Ref.channel(Ref.network(Ref.playerCon(player)));
+			if(get==null)
+				return null;
+			channelLookup.put(player.getName(), channel = (Channel) get);
+		}
 		return channel;
 	}
 
@@ -248,7 +253,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 			final Channel channel = ctx.channel();
 			synchronized (msg) {
 				if (msg.getClass()==login) {
-					player=((GameProfile) Ref.get(msg, "a")).getName();
+					player=((GameProfile) Ref.get(msg, f)).getName();
 					channelLookup.put(player, channel);
 				}
 				try {

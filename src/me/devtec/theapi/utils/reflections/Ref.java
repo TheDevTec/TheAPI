@@ -196,17 +196,19 @@ public class Ref {
 	public static Object player(Player a) {
 		return handle(cast(craft, a));
 	}
-
+	static Field playerCon = Ref.field(Ref.nms("EntityPlayer"), TheAPI.isNewerThan(16) ? "b" : "playerConnection")
+			, network = Ref.field(Ref.nms("PlayerConnection"), TheAPI.isNewerThan(16) ? "a" : "networkManager")
+			, channel = Ref.field(Ref.nms("NetworkManager"), TheAPI.isNewerThan(16) ? "k" : TheAPI.isNewerThan(7)?"channel":"k");
 	public static Object playerCon(Player a) {
-		return get(player(a), TheAPI.isNewerThan(16) ? "b" : "playerConnection");
+		return get(player(a), playerCon);
 	}
 
 	public static Object network(Object playercon) {
-		return get(playercon, TheAPI.isNewerThan(16) ? "a" : "networkManager");
+		return get(playercon, network);
 	}
 
 	public static Object channel(Object network) {
-		return get(network, TheAPI.isNewerThan(16) ? "k" : TheAPI.isNewerThan(7)?"channel":"k");
+		return get(network, channel);
 	}
 
 	public static Object world(World a) {

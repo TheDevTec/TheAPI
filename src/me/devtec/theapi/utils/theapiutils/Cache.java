@@ -5,7 +5,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -16,13 +15,17 @@ import me.devtec.theapi.utils.json.Reader;
 
 public class Cache {
 	private String USER_FORMAT="https://api.ashcon.app/mojang/v2/user/%s";
-	protected Map<String, String> nameLookup = new HashMap<>();
-	protected Map<String, UUID> uuidLookup = new HashMap<>();
+	protected Map<String, Query> values = new HashMap<>();
 	
 	public UUID lookupId(String name){
-		return uuidLookup.getOrDefault(name.toLowerCase(), 
-				Bukkit.getOnlineMode()?lookupIdFromMojang(name):
-					UUID.nameUUIDFromBytes(("OfflinePlayer:"+name).getBytes(StandardCharsets.UTF_8)));
+		Query o = values.get(name.toLowerCase());
+		if(o==null) {
+			UUID uuid = Bukkit.getOnlineMode()?lookupIdFromMojang(name):
+				UUID.nameUUIDFromBytes(("OfflinePlayer:"+name).getBytes(StandardCharsets.UTF_8));
+			values.put(name.toLowerCase(), new Query(name, uuid));
+			return uuid;
+		}
+		return o.uuid;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -53,39 +56,87 @@ public class Cache {
 		return UUID.nameUUIDFromBytes(("OfflinePlayer:"+name).getBytes(StandardCharsets.UTF_8));
 	}
 	
-	public String lookupNameById(UUID id){
-		for(Entry<String, UUID> i : uuidLookup.entrySet())
-			if(i.getValue().equals(id))return lookupName(i.getKey());
-		return Bukkit.getOfflinePlayer(id).getName();
+	public String lookupNameById(UUID id) {
+		for(Query i : values.values())
+			if(i.uuid.equals(id))return i.name;
+		String name = Bukkit.getOfflinePlayer(id).getName();
+		values.put(name.toLowerCase(), new Query(name, id));
+		return name;
 	}
 	
-	public String lookupNameByIdOrNull(UUID id){
-		for(Entry<String, UUID> i : uuidLookup.entrySet())
-			if(i.getValue().equals(id))return lookupName(i.getKey());
+	public String lookupNameByIdOrNull(UUID id) {
+		for(Query i : values.values())
+			if(i.uuid.equals(id))return i.name;
+		return null;
+	}
+	
+	public Query lookupQuery(String name) {
+		return values.get(name.toLowerCase());
+	}
+	
+	public Query lookupQuery(UUID id) {
+		for(Query i : values.values())
+			if(i.uuid.equals(id))return i;
 		return null;
 	}
 	
 	public String lookupName(String name) {
-		String get = nameLookup.get(name.toLowerCase());
+		Query get = values.get(name.toLowerCase());
+		String result = null;
 		if(get==null) {
-			get=Bukkit.getOfflinePlayer(lookupId(name)).getName();
-			if(get==null)get=name;
-		}
-		return get;
+			UUID uuid = Bukkit.getOnlineMode()?lookupIdFromMojang(name):
+				UUID.nameUUIDFromBytes(("OfflinePlayer:"+name).getBytes(StandardCharsets.UTF_8));
+			result=Bukkit.getOfflinePlayer(uuid).getName();
+			if(result==null)result=name;
+			else
+				values.put(result.toLowerCase(), new Query(result, uuid));
+		}else
+			result=get.name;
+		return result;
 	}
 	
 	public void setLookup(UUID uuid, String name) {
 		if(uuid==null||name==null)return;
-		if(!uuidLookup.containsKey(name.toLowerCase())||!name.equals(lookupNameByIdOrNull(uuid))) {
-			uuidLookup.put(name.toLowerCase(), uuid);
-			nameLookup.put(name.toLowerCase(), name);
+		Query get = values.get(name.toLowerCase());
+		if(get==null) {
+			values.put(name.toLowerCase(), new Query(name,uuid));
+			return;
+		}
+		if(!get.uuid.equals(uuid) || !get.name.equals(name)) {
+			get.name=name;
+			get.uuid=uuid;
 		}
 	}
 	
 	public Data saveToData() {
 		Data data = new Data();
-		for(Entry<String, UUID> i : uuidLookup.entrySet())
-			data.set(i.getValue().toString(), nameLookup.get(i.getKey()));	
+		for(Query i : values.values())
+			data.set(i.uuid.toString(), i.name);	
 		return data;
+	}
+	
+	public static class Query {
+		public String name;
+		public UUID uuid;
+		public Query(String name, UUID uuid) {
+			this.name=name;
+			this.uuid=uuid;
+		}
+		
+		public String getName() {
+			return name;
+		}
+		
+		public UUID getUUID() {
+			return uuid;
+		}
+		
+		public void setName(String name) {
+			this.name=name;
+		}
+		
+		public void setUUID(UUID uuid) {
+			this.uuid=uuid;
+		}
 	}
 }

@@ -56,6 +56,8 @@ import me.devtec.theapi.utils.listener.Listener;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.nms.NMSAPI.TitleAction;
 import me.devtec.theapi.utils.reflections.Ref;
+import me.devtec.theapi.utils.theapiutils.Cache;
+import me.devtec.theapi.utils.theapiutils.Cache.Query;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 import me.devtec.theapi.utils.theapiutils.Validator;
 import me.devtec.theapi.worldsapi.WorldBorderAPI;
@@ -68,6 +70,10 @@ public class TheAPI {
 	private static Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
 	private static Random random = new Random();
 	private static int ver;
+	
+	public static Cache getCache() {
+		return LoaderClass.cache;
+	}
 	
 	public static Client getSocketClient(String server) {
 		return LoaderClass.plugin.servers.get(server);
@@ -1024,14 +1030,14 @@ public class TheAPI {
 		try {
 			return getUser(UUID.fromString(nameOrUUID));
 		} catch (Exception e) {
-			String name = nameOrUUID;
 			Player p = getPlayerOrNull(nameOrUUID);
-			if(p!=null)name=p.getName();
+			if(p!=null)
+				return getUser(p.getName(), p.getUniqueId());
 			if(LoaderClass.cache!=null) {
-				name=LoaderClass.cache.lookupName(name);
-				return getUser(name,LoaderClass.cache.lookupId(name));
+				Query query = LoaderClass.cache.lookupQuery(nameOrUUID);
+				return getUser(query.name, query.uuid);
 			}else {
-				return getUser(name,UUID.nameUUIDFromBytes(("OfflinePlayer:"+name).getBytes()));
+				return getUser(nameOrUUID,UUID.nameUUIDFromBytes(("OfflinePlayer:"+nameOrUUID).getBytes()));
 			}
 		}
 	}
@@ -1058,7 +1064,7 @@ public class TheAPI {
 		if (LoaderClass.config.getBoolean("Options.Cache.User.Use")) {
 			User c = cache.get(uuid);
 			if (c == null) {
-				c = new User(uuid);
+				c = new User(LoaderClass.cache.lookupQuery(uuid));
 				cache.put(uuid, c);
 			}
 			return c;
@@ -1083,6 +1089,25 @@ public class TheAPI {
 			return c;
 		}
 		return new User(name,uuid);
+	}
+
+	/**
+	 * @see see If the user doesn't exist, his data file is created automatically.
+	 * @param uuid UUID of player
+	 * @return User
+	 */
+	public static User getUser(Query query) {
+		if (query == null)
+			return null;
+		if (LoaderClass.config.getBoolean("Options.Cache.User.Use")) {
+			User c = cache.get(query.uuid);
+			if (c == null) {
+				c = new User(query);
+				cache.put(query.uuid, c);
+			}
+			return c;
+		}
+		return new User(query);
 	}
 
 	public static void removeCachedUser(UUID uuid) {
