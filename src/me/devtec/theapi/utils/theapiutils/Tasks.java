@@ -2,6 +2,7 @@ package me.devtec.theapi.utils.theapiutils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +33,16 @@ public class Tasks {
 		if(LoaderClass.config.getBoolean("Options.ServerListPingEvent")) {
 			if (l == null)
 				l = new PacketListener() {
-				
 					Class<?> info = Ref.nmsOrOld("network.protocol.status.PacketStatusOutServerInfo","PacketStatusOutServerInfo");
+					Field w = Ref.field(info, "b");
+					Field players = Ref.field(Ref.nmsOrOld("network.protocol.status.ServerPing$ServerPingPlayerSample","ServerPing$ServerPingPlayerSample")!=null?Ref.nmsOrOld("network.protocol.status.ServerPing$ServerPingPlayerSample","ServerPing$ServerPingPlayerSample"):Ref.nms("ServerPingPlayerSample"), "c");
+					Field setp = Ref.field(Ref.nmsOrOld("network.protocol.status.ServerPing", "ServerPing"), TheAPI.isNewerThan(16)?"d":"b");
+					Field setm = Ref.field(Ref.nmsOrOld("network.protocol.status.ServerPing", "ServerPing"), TheAPI.isNewerThan(16)?"c":"a");
+					Field gets = Ref.field(Ref.nmsOrOld("network.protocol.status.ServerPing", "ServerPing"), TheAPI.isNewerThan(16)?"e":"c");
+					Field falv = Ref.field(info, TheAPI.isNewerThan(16)?"f":"d");
 					public boolean PacketPlayOut(String player, Object packet, Object channel) {
 						if (packet.getClass()==info) {
-							Object w = Ref.get(packet, "b");
+							Object w = Ref.get(packet, this.w);
 							List<PlayerProfile> players = new ArrayList<>();
 							for (Player p : TheAPI.getOnlinePlayers())
 								players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
@@ -54,20 +60,20 @@ public class Tasks {
 								int i = -1;
 								for (PlayerProfile s : event.getPlayersText())
 									a[++i] = Ref.createGameProfile(s.getUUID(), s.getName());
-								Ref.set(sd, "c", a);
+								Ref.set(sd, this.players, a);
 							} else
-								Ref.set(sd, "c", (Object[]) Array.newInstance(c, 0));
-							Ref.set(w, TheAPI.isNewerThan(16)?"d":"b", sd);
+								Ref.set(sd, this.players, (Object[]) Array.newInstance(c, 0));
+							Ref.set(w, setp, sd);
 
 							if (event.getMotd() != null)
-								Ref.set(w, TheAPI.isNewerThan(16)?"c":"a", NMSAPI.getFixedIChatBaseComponent(event.getMotd()));
+								Ref.set(w, setm, NMSAPI.getFixedIChatBaseComponent(event.getMotd()));
 							else
-								Ref.set(w, TheAPI.isNewerThan(16)?"c":"a", NMSAPI.getIChatBaseComponentText(""));
+								Ref.set(w, setm, NMSAPI.getIChatBaseComponentText(""));
 							if(event.getVersion()!=null)
-								Ref.set(Ref.get(w, TheAPI.isNewerThan(16)?"e":"c"), "a",event.getVersion());
-							Ref.set(Ref.get(w, TheAPI.isNewerThan(16)?"e":"c"), "b",event.getProtocol());
+								Ref.set(Ref.get(w, gets), "a",event.getVersion());
+							Ref.set(Ref.get(w, gets), "b",event.getProtocol());
 							if (event.getFalvicon() != null)
-								Ref.set(packet, TheAPI.isNewerThan(16)?"f":"d", event.getFalvicon());
+								Ref.set(packet, falv, event.getFalvicon());
 							return false;
 						}
 						return false;

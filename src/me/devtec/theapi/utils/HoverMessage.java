@@ -56,13 +56,13 @@ public class HoverMessage {
 		if(json.containsKey("clickEvent")) {
 			if (json.get("clickEvent") instanceof Map) {
 				Map<String, Object> s = (Map<String, Object>) json.get("clickEvent");
-				setClickEvent(ClickAction.valueOf(s.get("action").toString().toUpperCase()), s.containsKey("contets")?s.get("contets"):s.get("value"));
+				setClickEvent(ClickAction.valueOf(s.get("action").toString().toUpperCase()), s.containsKey("contents")?s.get("contents"):s.get("value"));
 			}
 		}
 		if(json.containsKey("hoverEvent")) {
 			if (json.get("hoverEvent") instanceof Map) {
 				Map<String, Object> s = (Map<String, Object>) json.get("hoverEvent");
-				setHoverEvent(HoverAction.valueOf(s.get("action").toString().toUpperCase()), s.containsKey("contets")?s.get("contets"):s.get("value"));
+				setHoverEvent(HoverAction.valueOf(s.get("action").toString().toUpperCase()), s.containsKey("contents")?s.get("contents"):s.get("value"));
 			}
 		}
 		if(json.containsKey("keybind")) {
@@ -100,13 +100,13 @@ public class HoverMessage {
 				if(jsons.containsKey("clickEvent")) {
 					if (jsons.get("clickEvent") instanceof Map) {
 						Map<String, Object> s = (Map<String, Object>) jsons.get("clickEvent");
-						setClickEvent(ClickAction.valueOf(s.get("action").toString().toUpperCase()), s.containsKey("contets")?s.get("contets"):s.get("value"));
+						setClickEvent(ClickAction.valueOf(s.get("action").toString().toUpperCase()), s.containsKey("contents")?s.get("contents"):s.get("value"));
 					}
 				}
 				if(jsons.containsKey("hoverEvent")) {
 					if (jsons.get("hoverEvent") instanceof Map) {
 						Map<String, Object> s = (Map<String, Object>) jsons.get("hoverEvent");
-						setHoverEvent(HoverAction.valueOf(s.get("action").toString().toUpperCase()), s.containsKey("contets")?s.get("contets"):s.get("value"));
+						setHoverEvent(HoverAction.valueOf(s.get("action").toString().toUpperCase()), s.containsKey("contents")?s.get("contents"):s.get("value"));
 					}
 				}
 				if(jsons.containsKey("bold")) {

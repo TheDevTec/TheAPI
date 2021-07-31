@@ -277,18 +277,19 @@ public class Position implements Cloneable {
 	}
 
 	private static int wf = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]);
-	private static Field f = Ref.field(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "bukkitChunk");
+	private static Field f = Ref.field(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "bukkitChunk"), chunkProv = Ref.field(Ref.nms("World"), "chunkProviderServer");
 	private static Method getOrCreate=Ref.method(Ref.nms("ChunkProviderServer"), "getOrCreateChunk", int.class, int.class),
 			handle=Ref.method(Ref.craft("CraftChunk"), "getHandle");
 	static {
 		if(getOrCreate==null)
 			getOrCreate=Ref.method(Ref.nms("ChunkProviderServer"), "getOrLoadChunkAt", int.class, int.class);
 	}
+	static Class<?> cchunk = Ref.craft("CraftChunk");
 	
 	public Object getNMSChunk() {
 		try {
-			if(TheAPI.isNewVersion())return Ref.invoke(Ref.cast(Ref.craft("CraftChunk"), getWorld().getChunkAt(getBlockX()>>4, getBlockZ()>>4)), handle);
-			return Ref.invoke(Ref.get(Ref.world(getWorld()), "chunkProviderServer"), getOrCreate, getBlockX() >> 4, getBlockZ() >> 4);
+			if(TheAPI.isNewVersion())return Ref.invoke(Ref.cast(cchunk, getWorld().getChunkAt(getBlockX()>>4, getBlockZ()>>4)), handle);
+			return Ref.invoke(Ref.get(Ref.world(getWorld()), chunkProv), getOrCreate, getBlockX() >> 4, getBlockZ() >> 4);
 		} catch (Exception er) {
 		}
 		return null;
@@ -510,11 +511,11 @@ public class Position implements Cloneable {
 		Object sc = ((Object[]) Ref.invoke(c, get))[pos.getBlockY() >> 4];
 		if (sc == null) {
 			sc = Ref.newInstance(aw,pos.getBlockY() >> 4 << 4, true);
-			((Object[]) Ref.invoke(c, "getSections"))[pos.getBlockY() >> 4] = sc;
+			((Object[]) Ref.invoke(c, get))[pos.getBlockY() >> 4] = sc;
 		}
 		Object ww = Ref.world(pos.getWorld());
 		//REMOVE TILE ENTITY
-		for(Iterator<?> r = ((Collection<?>)Ref.get(ww, "tileEntityList")).iterator(); r.hasNext();) {
+		for(Iterator<?> r = ((Collection<?>)Ref.get(ww, ff)).iterator(); r.hasNext();) {
 			if(Ref.get(r.next(), "x").equals(pos.getBlockX()) && Ref.get(r.next(), "y").equals(pos.getBlockY()) && Ref.get(r.next(), "z").equals(pos.getBlockZ())) {
 				r.remove();
 				break;
@@ -524,7 +525,7 @@ public class Position implements Cloneable {
 		Ref.invoke(sc, setId, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, block);
 		Ref.invoke(sc, setData, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, data);
 		//ADD TILE ENTITY
-		Object tt = Ref.invoke(c, "getType", pos.getBlockX() & 0xF, pos.getBlockY(), pos.getBlockZ() & 0xF);
+		Object tt = Ref.invoke(c, cgett, pos.getBlockX() & 0xF, pos.getBlockY(), pos.getBlockZ() & 0xF);
 		if(cont.isInstance(tt)) {
 			tt=Ref.invoke(tt, tile, ww, 0);
 			Ref.set(tt, "x", pos.getBlockX());
@@ -533,7 +534,7 @@ public class Position implements Cloneable {
 			Ref.invoke(tt, "t");
 			Ref.set(tt, "h", tt);
 			Ref.set(tt, "world", ww);
-			((Collection<Object>)Ref.get(ww, "tileEntityList")).add(tt);
+			((Collection<Object>)Ref.get(ww, ff)).add(tt);
 		}
 	}
 
@@ -565,9 +566,15 @@ public class Position implements Cloneable {
 	}
 	
 
-	private static Field ff = Ref.field(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), TheAPI.isNewerThan(16)?"l":"tileEntities");
 	private static Class<?>b =  Ref.nmsOrOld("world.level.block.Block","Block");
-	private static Method bgetBlock = Ref.method(Ref.nmsOrOld("world.level.block.state.IBlockData", "IBlockData"), "getBlock");
+	private static Method bgetBlock = Ref.method(Ref.nmsOrOld("world.level.block.state.IBlockData", "IBlockData"), "getBlock"),cgett;
+	private static Field ff = Ref.field(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), TheAPI.isNewerThan(16)?"l":"tileEntities");
+	static {
+		if(TheAPI.isOlderThan(8)) {
+			ff=Ref.field(Ref.nms("Chunk"), "tileEntityList");
+			cgett=Ref.method(Ref.nms("Chunk"), "getType", int.class, int.class, int.class);
+		}
+	}
 	
 	/**
 	 * 
@@ -604,11 +611,10 @@ public class Position implements Cloneable {
 		}
 		//ADD TILE ENTITY
 		Object tt = cr.getClass().isAssignableFrom(b)?cr:Ref.invoke(cr, bgetBlock);
-		if(ver!=-1 && cont.isInstance(tt)) {
-			tt=ver==0?Ref.invoke(tt, tile, ww):Ref.invoke(tt, tile, ww, 0);
-			((Map<Object, Object>)Ref.get(c, ff)).put(p, tt);
-		}
 		if(cont.isInstance(tt)) {
+		if(ver!=-1)
+			tt=ver==0?Ref.invoke(tt, tile, ww):Ref.invoke(tt, tile, ww, 0);
+		else
 			tt=Ref.invoke(tt, tile, ww, 0);
 			((Map<Object, Object>)Ref.get(c, ff)).put(p, tt);
 		}

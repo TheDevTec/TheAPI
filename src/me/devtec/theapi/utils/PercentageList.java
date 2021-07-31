@@ -48,6 +48,7 @@ public class PercentageList<T> {
 	}
 
 	public T getRandom() {
+		if(a.isEmpty())return null;
 		double chance = random.nextInt((int)getTotalChance())+random.nextDouble();
 		return select(a,chance);
 	}
