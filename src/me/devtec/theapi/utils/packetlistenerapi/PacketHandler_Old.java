@@ -23,7 +23,9 @@ import net.minecraft.util.io.netty.channel.ChannelPromise;
 
 public class PacketHandler_Old implements PacketHandler<Channel> {
 	private static Class<?> login = Ref.nms("PacketLoginInStart");
+	private static Class<?> postlogin = Ref.nms("PacketLoginOutSuccess");
 	static Field f = Ref.field(login, "a");
+	static Field fPost = Ref.field(postlogin, "a");
 	private Map<String, Channel> channelLookup = new HashMap<>();
 	private List<?> networkManagers;
 	private List<Channel> serverChannels = new ArrayList<>();
@@ -243,7 +245,6 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 			this.player=player;
 		}
 		
-		
 		@Override
 		public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 			final Channel channel = ctx.channel();
@@ -266,6 +267,10 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 		public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
 			final Channel channel = ctx.channel();
 			synchronized (msg) {
+				if (player==null && msg.getClass()==postlogin) { //ProtocolLib cancelled packets
+					player=((GameProfile) Ref.get(msg, fPost)).getName();
+					channelLookup.put(player, channel);
+				}
 				try {
 					msg = PacketManager.call(player, msg, channel, PacketType.PLAY_OUT);
 				} catch (Exception e) {
@@ -281,5 +286,12 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 	public void send(Channel channel, Object packet) {
 		if(channel==null||packet==null)return;
 		channel.writeAndFlush(packet);
+	}
+
+	@Override
+	public void hookChannel(Player player) {
+		if(player==null)return;
+		Object get = Ref.channel(Ref.network(Ref.playerCon(player)));
+		if(get!=null)channelLookup.put(player.getName(), (Channel) get);
 	}
 }

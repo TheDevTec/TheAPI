@@ -25,7 +25,9 @@ import me.devtec.theapi.utils.reflections.Ref;
 @SuppressWarnings("unchecked")
 public class PacketHandler_New implements PacketHandler<Channel> {
 	private static Class<?> login = Ref.nmsOrOld("network.protocol.login.PacketLoginInStart","PacketLoginInStart");
+	private static Class<?> postlogin = Ref.nmsOrOld("network.protocol.login.PacketLoginOutSuccess","PacketLoginOutSuccess");
 	static Field f = Ref.field(login, "a");
+	static Field fPost = Ref.field(postlogin, "a");
 	private Map<String, Channel> channelLookup = new HashMap<>();
 	private List<ChannelFuture> networkManagers;
 	private List<Channel> serverChannels = new ArrayList<>();
@@ -76,10 +78,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 										if(channel.pipeline().names().contains("InjectorTA")) {
 											channel.pipeline().remove("InjectorTA"); //remove old instance - reload of server?
 										}
-										if(channel.pipeline().names().contains("packet_handler"))
-											channel.pipeline().addBefore("packet_handler","InjectorTA", interceptor);
-										else
-											channel.pipeline().addBefore("encoder","InjectorTA", interceptor);
+										channel.pipeline().addBefore("packet_handler","InjectorTA", interceptor);
 									});
 								return interceptor;
 							});
@@ -270,6 +269,10 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 		public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
 			final Channel channel = ctx.channel();
 			synchronized (msg) {
+				if (player==null && msg.getClass()==postlogin) { //ProtocolLib cancelled packets
+					player=((GameProfile) Ref.get(msg, fPost)).getName();
+					channelLookup.put(player, channel);
+				}
 				try {
 					msg = PacketManager.call(player, msg, channel, PacketType.PLAY_OUT);
 				} catch (Exception e) {
@@ -285,5 +288,12 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	public void send(Channel channel, Object packet) {
 		if(channel==null||packet==null)return;
 		channel.writeAndFlush(packet);
+	}
+
+	@Override
+	public void hookChannel(Player player) {
+		if(player==null)return;
+		Object get = Ref.channel(Ref.network(Ref.playerCon(player)));
+		if(get!=null)channelLookup.put(player.getName(), (Channel) get);
 	}
 }
