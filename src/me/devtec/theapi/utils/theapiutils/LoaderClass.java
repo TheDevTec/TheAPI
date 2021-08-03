@@ -32,6 +32,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Player;
+import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -80,6 +81,8 @@ import me.devtec.theapi.utils.theapiutils.LoggerManager.ConsoleLogger;
 import me.devtec.theapi.utils.theapiutils.command.TheAPICommand;
 import me.devtec.theapi.utils.theapiutils.metrics.Metrics;
 import me.devtec.theapi.worldsapi.WorldsAPI;
+import me.devtec.theapi.worldsapi.voidGenerator;
+import me.devtec.theapi.worldsapi.voidGenerator_1_8;
 import net.milkbowl.vault.economy.Economy;
 
 public class LoaderClass extends JavaPlugin {
@@ -636,7 +639,13 @@ public class LoaderClass extends JavaPlugin {
 					Config.loadConfig(e, plugin.getString("configs"), folder+"/"+plugin.getString("configs"));
 			}
 		}
-		loadWorlds();
+		new Tasker() {
+			
+			@Override
+			public void run() {
+				loadWorlds();
+			}
+		}.runLaterSync(20);
 		if (PlaceholderAPI.isEnabledPlaceholderAPI()) {
 			/*
 			 * TheAPI placeholder extension for PAPI BRIDGE:
@@ -1187,12 +1196,14 @@ public class LoaderClass extends JavaPlugin {
 				TheAPI.msg("&cTheAPI&7: &6Action: &eLoading worlds..", TheAPI.getConsole());
 				TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 				for (String s : config.getStringList("Worlds")) {
-					String type = "Default";
+					String type = null;
 					for (String w : Arrays.asList("Default", "Normal", "Nether", "The_End", "End", "The_Void", "Void",
 							"Empty", "Flat")) {
 						if (config.exists("WorldsSetting." + s)) {
 							if(config.exists("WorldsSetting." + s + ".Generator"))
 							if (config.getString("WorldsSetting." + s + ".Generator").equalsIgnoreCase(w)) {
+								if (w.equalsIgnoreCase("Normal")|| w.equalsIgnoreCase("0"))
+									type = "Normal";
 								if (w.equalsIgnoreCase("Flat")|| w.equalsIgnoreCase("3"))
 									type = "Flat";
 								if (w.equalsIgnoreCase("Nether")|| w.equalsIgnoreCase("1"))
@@ -1209,6 +1220,23 @@ public class LoaderClass extends JavaPlugin {
 					}
 					Environment env = Environment.NORMAL;
 					WorldType wt = WorldType.NORMAL;
+					if(type==null) {
+						String gen = config.getString("WorldsSetting." + s + ".Generator");
+						ChunkGenerator g = null;
+						if(gen.contains(":")) {
+							g=PluginManagerAPI.getPlugin(gen.split(":")[0]).getDefaultWorldGenerator(s, gen.split(":")[1]);
+						}else
+							for(Plugin p : Bukkit.getPluginManager().getPlugins())
+								g=p.getDefaultWorldGenerator(s, gen);
+						if(g!=null) {
+							boolean f = true;
+							if (config.exists("WorldsSetting." + s + ".GenerateStructures"))
+								f = config.getBoolean("WorldsSetting." + s + ".GenerateStructures");
+							WorldsAPI.create(s, env, wt, g, f, 0);
+							TheAPI.msg("&bTheAPI&7: &eWorld with name '&6" + s + "&e' loaded.", TheAPI.getConsole());
+							continue;
+						}
+					}
 					if (type.equals("Flat"))
 						wt = WorldType.FLAT;
 					if (type.equals("The_Void"))
@@ -1261,5 +1289,12 @@ public class LoaderClass extends JavaPlugin {
 				}
 			}
 		}.runTimer(0, 20, 15);
+	}
+	
+	public ChunkGenerator getDefaultWorldGenerator(String world, String id) {
+		if(id.equalsIgnoreCase("void")) {
+			return TheAPI.isNewerThan(8)?new voidGenerator():new voidGenerator_1_8();
+		}
+		return null;
 	}
 }

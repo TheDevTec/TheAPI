@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldCreator;
@@ -88,8 +87,7 @@ public class WorldsAPI {
 				c.generator(Chunkgenerator);
 			World w = Bukkit.createWorld(c);
 			if (type == null && !createdFolder) { //void generator
-				w.setSpawnLocation(0, 61, 0);
-				w.getBlockAt(0, 60, 0).setType(Material.GLASS);
+				w.setSpawnLocation(0, 62, 0);
 			}
 			return true;
 		}
