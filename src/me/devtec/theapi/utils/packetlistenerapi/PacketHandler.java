@@ -14,8 +14,6 @@ public interface PacketHandler<C> {
 
 	public void close();
 	
-	public void hookChannel(Player player);
-	
 	public default void send(Player player, Object packet) {
 		send(get(player), packet);
 	}

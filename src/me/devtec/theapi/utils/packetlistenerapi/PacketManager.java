@@ -57,6 +57,7 @@ public class PacketManager {
 	}
 
 	public static void unregisterAll() {
-		listeners.clear();
+		for(List<PacketListener> l : listeners.values())
+			l.clear();
 	}
 }
