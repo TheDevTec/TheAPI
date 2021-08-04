@@ -58,15 +58,16 @@ public class Cache {
 	
 	public String lookupNameById(UUID id) {
 		for(Query i : values.values())
-			if(i.uuid.equals(id))return i.name;
+			if(id.equals(i.uuid))return i.name;
 		String name = Bukkit.getOfflinePlayer(id).getName();
+		if(name==null)return null;
 		values.put(name.toLowerCase(), new Query(name, id));
 		return name;
 	}
 	
 	public String lookupNameByIdOrNull(UUID id) {
 		for(Query i : values.values())
-			if(i.uuid.equals(id))return i.name;
+			if(id.equals(i.uuid))return i.name;
 		return null;
 	}
 	
@@ -76,7 +77,7 @@ public class Cache {
 	
 	public Query lookupQuery(UUID id) {
 		for(Query i : values.values())
-			if(i.uuid.equals(id))return i;
+			if(id.equals(i.uuid))return i;
 		return null;
 	}
 	
@@ -98,7 +99,7 @@ public class Cache {
 	public void setLookup(UUID uuid, String name) {
 		if(uuid==null||name==null)return;
 		Query get = values.get(name.toLowerCase());
-		if(get==null) {
+		if(get==null || get.uuid==null) {
 			values.put(name.toLowerCase(), new Query(name,uuid));
 			return;
 		}

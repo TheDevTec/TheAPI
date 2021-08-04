@@ -1035,10 +1035,10 @@ public class TheAPI {
 				return getUser(p.getName(), p.getUniqueId());
 			if(LoaderClass.cache!=null) {
 				Query query = LoaderClass.cache.lookupQuery(nameOrUUID);
+				if(query!=null)
 				return getUser(query.name, query.uuid);
-			}else {
-				return getUser(nameOrUUID,UUID.nameUUIDFromBytes(("OfflinePlayer:"+nameOrUUID).getBytes()));
 			}
+			return getUser(nameOrUUID,UUID.nameUUIDFromBytes(("OfflinePlayer:"+nameOrUUID).getBytes()));
 		}
 	}
 
@@ -1064,7 +1064,11 @@ public class TheAPI {
 		if (LoaderClass.config.getBoolean("Options.Cache.User.Use")) {
 			User c = cache.get(uuid);
 			if (c == null) {
-				c = new User(LoaderClass.cache.lookupQuery(uuid));
+				Query query = LoaderClass.cache.lookupQuery(uuid);
+				if(query!=null)
+					c = new User(query);
+				else
+					c = new User(uuid);
 				cache.put(uuid, c);
 			}
 			return c;

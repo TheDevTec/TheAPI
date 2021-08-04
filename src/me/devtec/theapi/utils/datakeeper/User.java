@@ -61,7 +61,7 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public User(Cache.Query query) {
-		if (query == null)
+		if (query == null || query.name == null || query.uuid == null)
 			Validator.send("Query cannot be null.");
 		s = query.uuid;
 		this.name = query.name;
