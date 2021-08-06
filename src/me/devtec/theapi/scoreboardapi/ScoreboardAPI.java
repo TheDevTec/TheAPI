@@ -29,7 +29,7 @@ import me.devtec.theapi.utils.reflections.Ref;
 public class ScoreboardAPI {
 	protected Data data = new Data();
 	protected Player p;
-	protected String player;
+	protected String player, sbname;
 	protected int slott = -1;
 	protected String name = "";
 	protected boolean destroyed;
@@ -49,9 +49,11 @@ public class ScoreboardAPI {
 		p = player;
 		slott=slot;
 		this.player = player.getName();
+		sbname="sb:"+this.player;
+		if(sbname.length()>16)sbname=sbname.substring(0,16);
 		Ref.sendPacket(p, createObjectivePacket(0,"§0"));
 		Object packetD = Ref.newInstance(display, 1, null);
-		Ref.set(packetD, "b", "sb:"+player.getName());
+		Ref.set(packetD, "b", sbname);
 		Ref.sendPacket(p, packetD);
 	}
 	
@@ -191,11 +193,11 @@ public class ScoreboardAPI {
 		Object[] o = new Object[2];
 		o[0]=c(0, prefix, suffix, name, realName);
 		if(TheAPI.isNewerThan(12)) {
-			o[1]=Ref.newInstance(cons, NMSAPI.getScoreboardAction(Action.CHANGE), "sb:"+player, name, slot);
+			o[1]=Ref.newInstance(cons, NMSAPI.getScoreboardAction(Action.CHANGE), sbname, name, slot);
 		}else {
 			Object os = Ref.newInstance(cons);
 			Ref.set(os, "a", name);
-			Ref.set(os, "b", "sb:"+player);
+			Ref.set(os, "b", sbname);
 			Ref.set(os, "c", slot);
 			Ref.set(os, "d", TheAPI.isOlderThan(8)?0:NMSAPI.getScoreboardAction(Action.CHANGE));
 			o[1]=os;
@@ -207,11 +209,11 @@ public class ScoreboardAPI {
 		Object[] o = new Object[2];
 		o[0]=c(2, prefix, suffix, name, realName);
 		if(TheAPI.isNewerThan(12)) {
-			o[1]=Ref.newInstance(cons, NMSAPI.getScoreboardAction(Action.CHANGE), "sb:"+player, name, slot);
+			o[1]=Ref.newInstance(cons, NMSAPI.getScoreboardAction(Action.CHANGE), sbname, name, slot);
 		}else {
 			Object os = Ref.newInstance(cons);
 			Ref.set(os, "a", name);
-			Ref.set(os, "b", "sb:"+player);
+			Ref.set(os, "b", sbname);
 			Ref.set(os, "c", slot);
 			Ref.set(os, "d", TheAPI.isOlderThan(8)?0:NMSAPI.getScoreboardAction(Action.CHANGE));
 			o[1]=os;
@@ -223,11 +225,11 @@ public class ScoreboardAPI {
 		Object[] o = new Object[2];
 		o[0]=c(1, "", "", name,realName);
 		if(TheAPI.isNewerThan(12)) {
-			o[1]=Ref.newInstance(cons, NMSAPI.getScoreboardAction(Action.REMOVE), "sb:"+player, name, 0);
+			o[1]=Ref.newInstance(cons, NMSAPI.getScoreboardAction(Action.REMOVE), sbname, name, 0);
 		}else {
 			Object os = Ref.newInstance(cons);
 			Ref.set(os, "a", name);
-			Ref.set(os, "b", "sb:"+player);
+			Ref.set(os, "b", sbname);
 			Ref.set(os, "c", 0);
 			Ref.set(os, "d",TheAPI.isOlderThan(8)?1: NMSAPI.getScoreboardAction(Action.REMOVE));
 			o[1]=os;
@@ -282,12 +284,12 @@ public class ScoreboardAPI {
 	private Object createObjectivePacket(int mode, String displayName) {
 		Object packet = NMSAPI.getPacketPlayOutScoreboardObjective();
 		if(TheAPI.isNewerThan(16)) {
-			Ref.set(packet, "d", "sb:"+player);
+			Ref.set(packet, "d", sbname);
 			Ref.set(packet, "e", NMSAPI.getFixedIChatBaseComponent(displayName));
 			Ref.set(packet, "f", NMSAPI.getEnumScoreboardHealthDisplay(DisplayType.INTEGER));
 			Ref.set(packet, "g", mode);
 		}else {
-			Ref.set(packet, "a", "sb:"+player);
+			Ref.set(packet, "a", sbname);
 			Ref.set(packet, "b", TheAPI.isNewerThan(12)?NMSAPI.getFixedIChatBaseComponent(displayName):displayName);
 			if(TheAPI.isNewerThan(7)) {
 				Ref.set(packet, "c", NMSAPI.getEnumScoreboardHealthDisplay(DisplayType.INTEGER));
