@@ -210,11 +210,12 @@ public class PluginManagerAPI {
 		Data data = new Data();
 		if (ff.exists() && ff.isDirectory()) // is folder
 			for (File f : ff.listFiles()) {
-				if (!f.isDirectory() && f.getName().endsWith(".jar")) {
+				if (!f.isDirectory() && f.isFile() && f.getName().endsWith(".jar")) {
 					try {
 						JarFile jar = new JarFile(f);
 						data.reload(StreamUtils.fromStream(jar.getInputStream(jar.getEntry("plugin.yml"))));
 						jar.close();
+						if(!isValid(data))continue;
 						if(getPlugin(data.getString("name"))==null) {
 							list.add(type==SearchType.FILE_NAME?f.getName():data.getString("name"));
 						}
@@ -225,6 +226,11 @@ public class PluginManagerAPI {
 		return list;
 	}
 	
+	private static boolean isValid(Data data) {
+		return data.getString("name")!=null && data.getString("version")!=null && 
+			   data.getString("author")!=null && data.getString("main")!=null;
+	}
+
 	public static String getPluginName(String name, SearchType type) {
 		File ff = new File("plugins");
 		Data data = new Data();

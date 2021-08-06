@@ -1073,7 +1073,11 @@ public class TheAPI {
 			}
 			return c;
 		}
-		return new User(uuid);
+		Query query = LoaderClass.cache.lookupQuery(uuid);
+		if(query!=null)
+			return new User(query);
+		else
+			return new User(uuid);
 	}
 
 	/**
@@ -1084,6 +1088,8 @@ public class TheAPI {
 	public static User getUser(String name, UUID uuid) {
 		if (uuid == null)
 			return null;
+		name=getCache().lookupName(name);
+		getCache().setLookup(uuid, name);
 		if (LoaderClass.config.getBoolean("Options.Cache.User.Use")) {
 			User c = cache.get(uuid);
 			if (c == null) {

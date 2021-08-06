@@ -176,6 +176,7 @@ public class StringUtils {
 	 * @see see Split text correctly with colors
 	 */
 	public static List<String> fixedSplit(String text, int lengthOfSplit) {
+		if(text==null)return null;
 		List<String> splitted = new ArrayList<>();
 		String split = text;
 		String prefix = "";
@@ -207,7 +208,7 @@ public class StringUtils {
 	public static List<String> copyPartialMatches(String prefix, Iterable<String> originals) {
 		List<String> collection = new ArrayList<>();
 		for (String string : originals)
-			if (string.length() < prefix.length() ? false : string.regionMatches(true, 0, prefix, 0, prefix.length()))
+			if (string!=null && string.length() < prefix.length() ? false : string.regionMatches(true, 0, prefix, 0, prefix.length()))
 				collection.add(string);
 		return collection;
 	}
@@ -223,7 +224,7 @@ public class StringUtils {
 	public static List<String> copySortedPartialMatches(String prefix, Iterable<String> originals) {
 		List<String> collection = new ArrayList<>();
 		for (String string : originals)
-			if (string.length() < prefix.length() ? false : string.regionMatches(true, 0, prefix, 0, prefix.length()))
+			if (string!=null && string.length() < prefix.length() ? false : string.regionMatches(true, 0, prefix, 0, prefix.length()))
 				collection.add(string);
 		Collections.sort(collection);
 		return collection;

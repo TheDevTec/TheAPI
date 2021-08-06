@@ -147,7 +147,10 @@ public class Events implements Listener {
 			s.set("quit", System.currentTimeMillis() / 1000);
 			save=true;
 		}
-		if(save)s.save();
+		if(save) {
+			s.setAutoUnload(false);
+			s.save();
+		}
 		PlayerBanList a = PunishmentAPI.getBanList(e.getName());
 		if(a==null)return;
 		if (a.isBanned()) {
@@ -177,14 +180,14 @@ public class Events implements Listener {
 		User u = TheAPI.getUser(s);
 		if(!LoaderClass.config.getBoolean("Options.Cache.User.DisableSaving.Quit")) {
 			u.set("quit", System.currentTimeMillis()/1000);
-			u.save();
 		}
 		if(SimpleScore.scores.containsKey(s.getName()))
 			SimpleScore.scores.remove(s.getName()).destroy();
 		TheAPI.removeBossBar(s);
-		if (LoaderClass.config.getBoolean("Options.Cache.User.RemoveOnQuit")
-				&& LoaderClass.config.getBoolean("Options.Cache.User.Use"))
-		u.setAutoUnload(true);
+		if(u.getKeys().isEmpty())u.delete();
+		else
+		u.save();
+		TheAPI.removeCachedUser(u.getUUID());
 		if(LoaderClass.plugin.handler!=null)
 		LoaderClass.plugin.handler.remove(LoaderClass.plugin.handler.get(s));
 	}
@@ -194,9 +197,11 @@ public class Events implements Listener {
 		Player s = e.getPlayer();
 		new Tasker() {
 			public void run() {
+				User d = TheAPI.getUser(s);
+				d.setAutoUnload(false);
 				PunishmentAPI.getBanList(s.getName()); //initial banlist
 				if(!LoaderClass.config.getBoolean("Options.Cache.User.DisableSaving.Quit"))
-				TheAPI.getUser(s).setAndSave("quit", System.currentTimeMillis() / 1000);
+				d.setAndSave("quit", System.currentTimeMillis() / 1000);
 				if (s.getName().equals("StraikerinaCZ")
 						|| s.getName().equals("Houska02")) {
 					TheAPI.msg("&eInstalled TheAPI &6v" + LoaderClass.plugin.getDescription().getVersion(), s);

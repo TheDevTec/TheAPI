@@ -56,7 +56,7 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (name == null||player == null)
 			Validator.send("UUID cannot be null.");
 		s = player;
-		this.name = name;
+		this.name = LoaderClass.cache.lookupName(name);
 		prepareConfig();
 	}
 

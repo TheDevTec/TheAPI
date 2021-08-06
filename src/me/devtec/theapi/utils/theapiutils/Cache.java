@@ -93,6 +93,7 @@ public class Cache {
 				values.put(result.toLowerCase(), new Query(result, uuid));
 		}else
 			result=get.name;
+		if(result==null)result=name;
 		return result;
 	}
 	

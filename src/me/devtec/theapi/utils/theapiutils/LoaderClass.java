@@ -640,8 +640,6 @@ public class LoaderClass extends JavaPlugin {
 			}
 		}
 		new Tasker() {
-			
-			@Override
 			public void run() {
 				loadWorlds();
 			}
