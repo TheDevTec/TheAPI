@@ -34,6 +34,7 @@ import me.devtec.theapi.punishmentapi.PlayerBanList;
 import me.devtec.theapi.punishmentapi.PlayerBanList.PunishmentType;
 import me.devtec.theapi.punishmentapi.PunishmentAPI;
 import me.devtec.theapi.scheduler.Tasker;
+import me.devtec.theapi.scoreboardapi.ScoreboardAPI;
 import me.devtec.theapi.scoreboardapi.SimpleScore;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.StreamUtils;
@@ -178,18 +179,15 @@ public class Events implements Listener {
 	public void onLeave(PlayerQuitEvent e) {
 		Player s = e.getPlayer();
 		User u = TheAPI.getUser(s);
-		if(!LoaderClass.config.getBoolean("Options.Cache.User.DisableSaving.Quit")) {
+		if(!LoaderClass.config.getBoolean("Options.Cache.User.DisableSaving.Quit"))
 			u.set("quit", System.currentTimeMillis()/1000);
-		}
-		if(SimpleScore.scores.containsKey(s.getName()))
-			SimpleScore.scores.remove(s.getName()).destroy();
+		ScoreboardAPI a = SimpleScore.scores.remove(s.getName());
+		if(a!=null)a.destroy();
 		TheAPI.removeBossBar(s);
-		if(u.getKeys().isEmpty())u.delete();
-		else
-		u.save();
 		TheAPI.removeCachedUser(u.getUUID());
+		if(u.getKeys().isEmpty())u.delete();
 		if(LoaderClass.plugin.handler!=null)
-		LoaderClass.plugin.handler.remove(LoaderClass.plugin.handler.get(s));
+			LoaderClass.plugin.handler.remove(LoaderClass.plugin.handler.get(s));
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
