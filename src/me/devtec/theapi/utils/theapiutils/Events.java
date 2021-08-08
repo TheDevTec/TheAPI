@@ -185,7 +185,6 @@ public class Events implements Listener {
 		if(a!=null)a.destroy();
 		TheAPI.removeBossBar(s);
 		TheAPI.removeCachedUser(u.getUUID());
-		if(u.getKeys().isEmpty())u.delete();
 		if(LoaderClass.plugin.handler!=null)
 			LoaderClass.plugin.handler.remove(LoaderClass.plugin.handler.get(s));
 	}

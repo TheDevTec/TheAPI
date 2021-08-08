@@ -521,10 +521,10 @@ public class TheAPI {
 	 */
 	public static void removeBossBar(Player p) {
 		Validator.validate(p == null, "Player is null");
-		if (task.containsKey(p.getName()))
-			Scheduler.cancelTask(task.remove(p.getName()));
-		if (bars.containsKey(p.getName()))
-			bars.remove(p.getName()).remove();
+		Integer id = task.remove(p.getName());
+		if(id!=null)Scheduler.cancelTask(id);
+		BossBar bar = bars.remove(p.getName());
+		if(bar!=null)bar.remove();
 	}
 
 	/**
@@ -534,7 +534,7 @@ public class TheAPI {
 	 */
 	public static BossBar getBossBar(Player p) {
 		Validator.validate(p == null, "Player is null");
-		return bars.containsKey(p.getName()) ? bars.get(p.getName()) : null;
+		return bars.get(p.getName());
 
 	}
 
@@ -544,7 +544,7 @@ public class TheAPI {
 	 */
 	public static void removeActionBar(Player p) {
 		Validator.validate(p == null, "Player is null");
-		sendActionBar(p, "");
+		Ref.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.ACTIONBAR, "", 10, 20, 10));
 	}
 
 	/**
@@ -1124,7 +1124,9 @@ public class TheAPI {
 		if (uuid == null)
 			return;
 		User u = cache.remove(uuid);
-		if(u!=null)u.save();
+		if(u==null)return;
+		if(u.getKeys().isEmpty())u.delete();
+		else u.save();
 	}
 
 	public static void removeCachedUser(Player player) {
