@@ -18,8 +18,8 @@ public class voidGenerator_1_8 extends ChunkGenerator {
     }
     
     public Location getFixedSpawnLocation(World world, Random random) {
-    	Location spawnLocation = new Location(world, 0, 64, 0);
-    	Location blockLocation = spawnLocation.clone().subtract(0, 1, 0);
+    	Location spawnLocation = new Location(world, 0, 65, 0);
+    	Location blockLocation = spawnLocation.clone().subtract(0, 2, 0);
     	if(blockLocation.getBlock().getType()==Material.AIR)
     		blockLocation.getBlock().setType(Material.GLASS);
     	return spawnLocation;
