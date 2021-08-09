@@ -330,8 +330,10 @@ public class LoaderClass extends JavaPlugin {
 				new Tasker() {
 					public void run() {
 						for(User u : TheAPI.getCachedUsers()) {
-							if(u.getAutoUnload() && TheAPI.getPlayerOrNull(u.getName())==null)
+							if(u.getAutoUnload() && TheAPI.getPlayerOrNull(u.getName())==null) {
 								TheAPI.removeCachedUser(u.getUUID());
+								u.clearCache();
+							}
 						}
 					}
 				}.runRepeating(40, 20*300);
@@ -1044,6 +1046,7 @@ public class LoaderClass extends JavaPlugin {
 								cache.values.remove(user.getName().toLowerCase());
 								TheAPI.removeCachedUser(user.getUUID());
 								user.delete(); //delete file
+								user.clearCache();
 								++removed;
 								continue;
 							}
@@ -1055,6 +1058,7 @@ public class LoaderClass extends JavaPlugin {
 								cache.values.remove(user.getName().toLowerCase());
 								TheAPI.removeCachedUser(user.getUUID());
 								user.delete(); //delete file
+								user.clearCache();
 								++removed;
 							}
 							}catch(Exception err) {}
@@ -1073,6 +1077,7 @@ public class LoaderClass extends JavaPlugin {
 										cache.values.remove(user.getName().toLowerCase());
 										TheAPI.removeCachedUser(user.getUUID());
 										user.delete(); //delete file
+										user.clearCache();
 										++removed;
 										continue;
 									}
@@ -1084,6 +1089,7 @@ public class LoaderClass extends JavaPlugin {
 										cache.values.remove(user.getName().toLowerCase());
 										TheAPI.removeCachedUser(user.getUUID());
 										user.delete(); //delete file
+										user.clearCache();
 										++removed;
 									}
 								}

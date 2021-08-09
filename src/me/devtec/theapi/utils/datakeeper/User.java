@@ -84,6 +84,10 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			datasByUUID.put(s, d=new Data("plugins/TheAPI/User/" + s + ".yml", true));
 		a = d;
 	}
+	
+	public Data clearCache() {
+		return datasByUUID.remove(s);
+	}
 
 	public void delete() {
 		a.getFile().delete();
