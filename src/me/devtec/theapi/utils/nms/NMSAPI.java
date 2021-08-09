@@ -37,6 +37,7 @@ public class NMSAPI {
 	private static Field tps;
 	private static Object sbremove, sbinteger, sbchange, sbhearts, empty, server;
 	private static Field[] scr = new Field[4];
+	private static int spec;
 	
 	static {
 		setNbt=Ref.method(Ref.nmsOrOld("world.item.ItemStack","ItemStack"), "setTag", Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"));
@@ -72,8 +73,10 @@ public class NMSAPI {
 			pTitle = Ref.constructor(Ref.nms("PacketPlayOutTitle"), enumTitle, Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"), int.class, int.class, int.class);
 		}
 		pDestroy = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityDestroy","PacketPlayOutEntityDestroy"), int[].class);
-		if(pDestroy==null)
+		if(pDestroy==null) {
 			pDestroy = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityDestroy","PacketPlayOutEntityDestroy"), int.class);
+			++spec;
+		}
 		pSpawn = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSpawnEntity","PacketPlayOutSpawnEntity"), Ref.nmsOrOld("world.entity.Entity","Entity"), int.class);
 		pNSpawn = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutNamedEntitySpawn","PacketPlayOutNamedEntitySpawn"), Ref.nmsOrOld("world.entity.player.EntityHuman","EntityHuman"));
 		pLSpawn = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSpawnEntityLiving","PacketPlayOutSpawnEntityLiving"), Ref.nmsOrOld("world.entity.EntityLiving","EntityLiving"));
@@ -344,7 +347,7 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutEntityDestroy(int... id) {
-		return Ref.newInstance(pDestroy, TheAPI.isNewerThan(16)?id[0]:id);
+		return Ref.newInstance(pDestroy, spec==1?id[0]:id);
 	}
 
 	public static Object getEntity(Entity entity) {
