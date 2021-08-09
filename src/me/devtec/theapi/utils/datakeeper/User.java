@@ -1,6 +1,7 @@
 package me.devtec.theapi.utils.datakeeper;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +16,7 @@ import me.devtec.theapi.utils.theapiutils.LoaderClass;
 import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
+	protected static Map<UUID, Data> datasByUUID = new HashMap<>();
 	
 	private UUID s;
 	private String name;
@@ -77,7 +79,10 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	private final void prepareConfig() {
-		a = new Data("plugins/TheAPI/User/" + s + ".yml", true);
+		Data d = datasByUUID.get(s);
+		if(d==null)
+			datasByUUID.put(s, d=new Data("plugins/TheAPI/User/" + s + ".yml", true));
+		a = d;
 	}
 
 	public void delete() {

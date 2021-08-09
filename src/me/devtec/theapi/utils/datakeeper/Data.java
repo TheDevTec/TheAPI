@@ -23,6 +23,7 @@ import com.google.common.io.ByteStreams;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.loader.DataLoader;
 import me.devtec.theapi.utils.datakeeper.loader.EmptyLoader;
+import me.devtec.theapi.utils.datakeeper.loader.YamlLoader;
 import me.devtec.theapi.utils.json.Maker;
 import me.devtec.theapi.utils.json.Reader;
 import me.devtec.theapi.utils.json.Writer;
@@ -272,15 +273,11 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public synchronized Data reload(File f) {
-		try {
-			f.getParentFile().mkdirs();
-		} catch (Exception e) {
-		}
 		if (!f.exists()) {
-			try {
-				f.createNewFile();
-			} catch (Exception e) {
-			}
+			requireSave=true;
+			loader=new YamlLoader();
+			aw.clear();
+			return this;
 		}
 		requireSave=true;
 		aw.clear();
@@ -480,8 +477,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if(!requireSave)return this;
 		if (!a.exists()) {
 			try {
-				if(a.getName().contains("/"))
-					a.getParentFile().mkdirs();
+				a.getParentFile().mkdirs();
 			} catch (Exception e) {
 			}
 			try {
