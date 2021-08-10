@@ -722,11 +722,11 @@ public class StringUtils {
 		String result = i+string;
 		for(String s : actions.get(string)) {
 			if(s.startsWith("=,"))
-				if(s.substring(1).split(",")[1].equals(""+i))return s.substring(3+s.substring(1).split(",")[1].length());
+				if(getInt(s.substring(1).split(",")[1])==i)return s.substring(3+s.substring(1).split(",")[1].length());
 			if(s.startsWith("<,"))
-				if(Integer.parseInt(s.substring(1).split(",")[1]) > i)return s.substring(3+s.substring(1).split(",")[1].length());
+				if(getInt(s.substring(1).split(",")[1]) > i)return s.substring(3+s.substring(1).split(",")[1].length());
 			if(s.startsWith(">,"))
-				if(Integer.parseInt(s.substring(1).split(",")[1]) < i)return s.substring(3+s.substring(1).split(",")[1].length());
+				if(getInt(s.substring(1).split(",")[1]) < i)return s.substring(3+s.substring(1).split(",")[1].length());
 		}
 		return result;
 	}
@@ -742,7 +742,7 @@ public class StringUtils {
 	 */
 	public static String timeToString(long time) {
 		if (time == 0)
-			return format(0,"Seconds");
+			return format(0, "Seconds");
 		long minutes = (time / 60) % 60;
 		long hours = (time / 3600) % 24;
 		long days = (time / 86400) % 31;
