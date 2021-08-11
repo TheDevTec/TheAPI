@@ -21,6 +21,7 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
@@ -128,9 +129,9 @@ public class Events implements Listener {
 			e.disallow(Result.KICK_OTHER, "");
 			return;
 		}
+		boolean save = false;
 		if(LoaderClass.cache!=null)
 			LoaderClass.cache.setLookup(e.getUniqueId(),e.getName());
-		boolean save = false;
 		User s = null;
 		if(!LoaderClass.config.getBoolean("Options.Cache.User.DisableSaving.IP")) {
 			s = TheAPI.getUser(e.getName(), e.getUniqueId());
@@ -172,6 +173,12 @@ public class Events implements Listener {
 					.replace("%time%", StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBANIP)))));
 			return;
 		}
+	}
+	
+	@EventHandler
+	public void onLogin(PlayerLoginEvent e) {
+		if(LoaderClass.cache!=null)
+			LoaderClass.cache.setLookup(e.getPlayer().getUniqueId(),e.getPlayer().getName());
 	}
 
 	@SuppressWarnings("unchecked")
