@@ -90,6 +90,8 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public void delete() {
+		a.clear();
+		datasByUUID.remove(s);
 		a.getFile().delete();
 	}
 

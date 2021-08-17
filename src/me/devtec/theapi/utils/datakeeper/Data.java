@@ -470,7 +470,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	protected boolean isSaving, requireSave;
-	public Data save(DataType type) {
+	public synchronized Data save(DataType type) {
 		if (a == null)
 			return this;
 		if(isSaving)return this;
@@ -488,12 +488,17 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		isSaving=true;
 		requireSave=false;
 		try {
-			OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
-			w.write(toString(type));
-			w.close();
+			new Thread(() -> {
+				try {
+					OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
+					w.write(toString(type));
+					w.close();
+				} catch (Exception e1) {
+				}
+				isSaving=false;
+			}).start();
 		} catch (Exception e1) {
 		}
-		isSaving=false;
 		return this;
 	}
 	

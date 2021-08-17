@@ -57,6 +57,13 @@ public class PunishmentAPI {
 			return;
 		}
 		kick(playerOrIP, reason);
+		/*if(LoaderClass.banlist!=null) {
+			if(LoaderClass.banlist.exists("ta_banlist", "name", playerOrIP)) {
+				LoaderClass.banlist.query("");
+				//LoaderClass.banlist.set("ta_banlist", "name", playerOrIP);
+			}
+			return;
+		}*/
 		LoaderClass.data.set("ban." + playerOrIP.toLowerCase() + ".start", System.currentTimeMillis() / 1000);
 		LoaderClass.data.set("ban." + playerOrIP.toLowerCase() + ".reason", reason);
 		LoaderClass.data.save();

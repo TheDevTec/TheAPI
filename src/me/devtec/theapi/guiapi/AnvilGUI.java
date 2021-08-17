@@ -7,7 +7,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -23,6 +26,7 @@ public class AnvilGUI implements HolderGUI {
 	private String title;
 	private final Map<Integer, ItemGUI> items = new HashMap<>();
 	private final Map<Player, Object> containers = new HashMap<>();
+	private final Inventory inv;
 	// Defaulty false
 	private boolean put;
 
@@ -34,6 +38,7 @@ public class AnvilGUI implements HolderGUI {
 			}
 		}
 		this.title=title;
+		inv=Bukkit.createInventory(null, InventoryType.ANVIL, title);
 		open(p);
 	}
 
@@ -63,14 +68,26 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	private static Method set = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "setItem", int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
+	static {
+		set = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "setItem", int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
+	}
 	
 	/**
 	 * @see see Set item on position to the gui with options
 	 */
 	public final void setItem(int position, ItemGUI item) {
 		items.put(position, item);
-		for(Entry<Player, Object> c : containers.entrySet())
-			Ref.invoke(c.getValue(), set, position, NMSAPI.asNMSItem(item.getItem()));
+		inv.setItem(position, item.getItem());
+		for(Entry<Player, Object> c : containers.entrySet()) {
+			Object nms = NMSAPI.asNMSItem(item.getItem());
+			int id = (int)Ref.get(c.getValue(), TheAPI.isOlderThan(17)?"windowId":"j");
+			if(GUI.airplane==0)
+				Ref.invoke(c.getValue(), set, position, nms);
+				else
+				Ref.invoke(c.getValue(), set, position, (int)Ref.invoke(Ref.get(Ref.player(c.getKey()), "bU"),"incrementStateId"), nms);
+			Ref.sendPacket(c.getKey(),GUI.airplane==0?Ref.newInstance(GUI.setSlot,id, position, nms):
+				Ref.newInstance(GUI.setSlot,id,(int)Ref.invoke(Ref.get(Ref.player(c.getKey()), "bU"),"incrementStateId"), position, nms));
+		}
 	}
 
 	/**
@@ -78,8 +95,17 @@ public class AnvilGUI implements HolderGUI {
 	 */
 	public final void removeItem(int position) {
 		items.remove(position);
-		for(Entry<Player, Object> c : containers.entrySet())
-			Ref.invoke(c.getValue(), set, position, GUI.empty);
+		inv.setItem(position, new ItemStack(Material.AIR));
+		for(Entry<Player, Object> c : containers.entrySet()) {
+			Object nms = GUI.empty;
+			int id = (int)Ref.get(c.getValue(), TheAPI.isOlderThan(17)?"windowId":"j");
+			if(GUI.airplane==0)
+				Ref.invoke(c.getValue(), set, position, nms);
+				else
+				Ref.invoke(c.getValue(), set, position, (int)Ref.invoke(Ref.get(Ref.player(c.getKey()), "bU"),"incrementStateId"), nms);
+			Ref.sendPacket(c.getKey(),GUI.airplane==0?Ref.newInstance(GUI.setSlot,id, position, nms):
+				Ref.newInstance(GUI.setSlot,id,(int)Ref.invoke(Ref.get(Ref.player(c.getKey()), "bU"),"incrementStateId"), position, nms));
+		}
 	}
 
 	/**
@@ -90,7 +116,7 @@ public class AnvilGUI implements HolderGUI {
 	}
 	
 	public final ItemStack getItem(int slot) {
-		return null;
+		return inv.getItem(slot);
 	}
 
 	/**
@@ -267,6 +293,7 @@ public class AnvilGUI implements HolderGUI {
 	 */
 	public final void clear() {
 		items.clear();
+		inv.clear();
 	}
 
 	/**
@@ -328,6 +355,6 @@ public class AnvilGUI implements HolderGUI {
 
 	@Override
 	public Inventory getInventory() {
-		return null;
+		return inv;
 	}
 }

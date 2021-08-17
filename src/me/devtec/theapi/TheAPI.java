@@ -1125,7 +1125,9 @@ public class TheAPI {
 			return;
 		User u = cache.remove(uuid);
 		if(u==null)return;
-		if(u.getKeys().isEmpty())u.delete();
+		if(u.getKeys().isEmpty()) {
+			u.delete();
+		}
 		else u.save();
 	}
 

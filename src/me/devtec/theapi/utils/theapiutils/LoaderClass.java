@@ -60,6 +60,7 @@ import me.devtec.theapi.scoreboardapi.SimpleScore;
 import me.devtec.theapi.sockets.Client;
 import me.devtec.theapi.sockets.Server;
 import me.devtec.theapi.sockets.ServerClient;
+import me.devtec.theapi.sqlapi.SQLAPI;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.SpigotUpdateChecker;
 import me.devtec.theapi.utils.StreamUtils;
@@ -93,8 +94,9 @@ public class LoaderClass extends JavaPlugin {
 	public final Set<BossBar> bars = new HashSet<>();
 	// TheAPI
 	public static LoaderClass plugin;
-	public static Config config = new Config("TheAPI/Config.yml"), sockets = new Config("TheAPI/Sockets.yml"), tags,
-			data;
+	public static Config config = new Config("TheAPI/Config.yml"), sockets = new Config("TheAPI/Sockets.yml"), tags, data,
+			database=new Config("TheAPI/PunishmentAPI-Database.yml");
+	public static SQLAPI banlist;
 	public static Cache cache;
 	
 	public String motd;
@@ -161,13 +163,41 @@ public class LoaderClass extends JavaPlugin {
 	@Override
 	public void onLoad() {
 		plugin = this;
-		data = new Config("TheAPI/Data.dat", DataType.BYTE);
+		data = new Config("TheAPI/Data.dat", DataType.YAML);
 		//CONFIG
 		createConfig();
 		
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+
+		database.addDefault("Enabled", false);
+		database.addDefault("Host", "localhost");
+		database.addDefault("Database", "banlist");
+		database.addDefault("Username", "admin");
+		database.addDefault("Password", "admin");
+		database.save();
+		if(database.getBoolean("Enabled")) {
+			banlist=new SQLAPI(database.getString("Host"), database.getString("Database"), database.getString("Username"), database.getString("Password"));
+			banlist.connect();
+			if(banlist.isConnected()) {
+				banlist.createTable("ta_banlist_ips", "ip VARCHAR(64), type VARCHAR(32), time LONG(128), reason TEXT");
+				banlist.createTable("ta_banlist", "name VARCHAR(64), type VARCHAR(32), time LONG(128), reason TEXT");
+				new Tasker() {
+					public void run() {
+						banlist.reconnect();
+						if(!banlist.isConnected()) {
+							banlist=new SQLAPI(database.getString("Host"), database.getString("Database"), database.getString("Username"), database.getString("Password"));
+							banlist.connect();
+							if(!banlist.isConnected()) {
+								cancel();
+								banlist=null;
+							}
+						}
+					}
+				}.runRepeating(20*60*10, 20*60*10);
+			}else banlist=null;
+		}
 		
 		//SOCKETS
 		boolean ops = sockets.exists("Options");
@@ -572,35 +602,24 @@ public class LoaderClass extends JavaPlugin {
 							return true;
 						case PICKUP_ALL:
 							//IF PICKUP IN TOP
-							if(slot<=d.size()) {
-								if(TheAPI.isNewerThan(16)) {
-									if(airplane == 0) {
-										//TOP
-										int ic = 0;
-										for(ItemStack o : d.getInventory().getContents()) {
-											if(o==null)o=empty;
-											Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
-										}
-										//BUTTON
-										for(ItemStack o : p.getInventory().getContents()) {
-											if(o==null)o=empty;
-											Ref.sendPacket(p,Ref.newInstance(setSlot,id, p.getInventory().getSize()-ic++, NMSAPI.asNMSItem(o)));
-										}
-									}else {
-										int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
-										//TOP
-										int ic = 0;
-										for(ItemStack o : d.getInventory().getContents()) {
-											if(o==null)o=empty;
-											Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
-										}
-										//BUTTON
-										for(ItemStack o : p.getInventory().getContents()) {
-											if(o==null)o=empty;
-											Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId, p.getInventory().getSize()-ic++, NMSAPI.asNMSItem(o)));
-										}
+							if(TheAPI.isNewerThan(16) && !installedModificationPlugin) {
+								org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMap<?> f = (org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMap<?>) Ref.get(packet, quickMove);
+								if(airplane == 0) {
+									//TOP
+									for(int o : f.keySet()) {
+										Ref.sendPacket(p,Ref.newInstance(setSlot,id, o, Ref.invoke(Ref.invoke(g, getSlot, o),getItem)));
 									}
 								}else {
+									int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
+									//TOP
+									for(int o : f.keySet()) {
+										Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId,o, Ref.invoke(Ref.invoke(g, getSlot, o),getItem)));
+									}
+								}
+								return true;
+							}
+							if(TheAPI.isNewerThan(16)) {
+								if(airplane == 0) {
 									//TOP
 									int ic = 0;
 									for(ItemStack o : d.getInventory().getContents()) {
@@ -612,6 +631,31 @@ public class LoaderClass extends JavaPlugin {
 										if(o==null)o=empty;
 										Ref.sendPacket(p,Ref.newInstance(setSlot,id, p.getInventory().getSize()-ic++, NMSAPI.asNMSItem(o)));
 									}
+								}else {
+									int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
+									//TOP
+									int ic = 0;
+									for(ItemStack o : d.getInventory().getContents()) {
+										if(o==null)o=empty;
+										Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId, ic++, NMSAPI.asNMSItem(o)));
+									}
+									//BUTTON
+									for(ItemStack o : p.getInventory().getContents()) {
+										if(o==null)o=empty;
+										Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId, p.getInventory().getSize()-ic++, NMSAPI.asNMSItem(o)));
+									}
+								}
+							}else {
+								//TOP
+								int ic = 0;
+								for(ItemStack o : d.getInventory().getContents()) {
+									if(o==null)o=empty;
+									Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, NMSAPI.asNMSItem(o)));
+								}
+								//BUTTON
+								for(ItemStack o : p.getInventory().getContents()) {
+									if(o==null)o=empty;
+									Ref.sendPacket(p,Ref.newInstance(setSlot,id, p.getInventory().getSize()-ic++, NMSAPI.asNMSItem(o)));
 								}
 							}
 							return true;
@@ -778,7 +822,7 @@ public class LoaderClass extends JavaPlugin {
 				}
 			}
 			data.setFile(f);
-			data.save(DataType.BYTE);
+			data.save(DataType.YAML);
 		}
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &6Action: &eDisabling plugin, saving configs and stopping runnables..", TheAPI.getConsole());
@@ -1032,7 +1076,7 @@ public class LoaderClass extends JavaPlugin {
 							}
 						}
 						data.setFile(f);
-						data.save(DataType.BYTE);
+						data.save(DataType.YAML);
 					}
 				}.runRepeating(0, 20*StringUtils.timeFromString(config.getString("Options.Cache.User.OfflineNames.AutoSave")));
 				if(config.getBoolean("Options.Cache.User.OfflineNames.AutoClear.Use")) {
