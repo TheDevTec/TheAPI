@@ -406,7 +406,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Collection<Object> items = getList(key);
 		List<Boolean> list=new ArrayList<>(items.size());
 		for (Object o : items)
-			list.add(o == null ? false : o instanceof Boolean ? (Boolean)o: StringUtils.getBoolean(o.toString()));
+			list.add(o != null && (o instanceof Boolean ? (Boolean) o : StringUtils.getBoolean(o.toString())));
 		return list;
 	}
 
@@ -463,8 +463,12 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Collection<Object> items = getList(key);
 		List<Map<K, V>> list=new ArrayList<>(items.size());
 		for (Object o : items) {
-			Object re = Reader.read(o.toString());
-			list.add(o == null ? null : re instanceof Map ? (Map<K, V>)re : new HashMap<>());
+			if(o==null)
+				list.add(null);
+			else {
+				Object re = Reader.read(o.toString());
+				list.add(re instanceof Map ? (Map<K, V>) re : new HashMap<>());
+			}
 		}
 		return list;
 	}
@@ -502,7 +506,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return this;
 	}
 	
-	static Writer wr = new Writer();
+	static final Writer wr = new Writer();
 	
 	private String write(Object w) {
 		if (w instanceof Enum<?>) {
@@ -646,7 +650,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Object o = aw[0];
 		if(list != null)
 			for (String s : list)
-				b.append(space+s+System.lineSeparator());
+				b.append(space).append(s).append(System.lineSeparator());
 		if(o==null)b.append(bab).append(System.lineSeparator());
 		else {
 			if (o instanceof Collection || o instanceof Object[]) {
@@ -655,7 +659,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 					if(!((Collection<?>) o).isEmpty()) {
 						try {
 							if(aw[3]!=null && (int)aw[3]==1) {
-								addQuotes(b,bab,(String)aw[2], o instanceof Comparable && o instanceof String == false);
+								addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
 							}else {
 								b.append(bab).append(System.lineSeparator());
 								for (Object a : (Collection<?>) o) {
@@ -679,7 +683,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 					if(((Object[]) o).length!=0) {
 						try {
 							if(aw[3]!=null && (int)aw[3]==1) {
-								addQuotes(b,bab,(String)aw[2], o instanceof Comparable && o instanceof String == false);
+								addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
 							}else {
 								b.append(bab).append(System.lineSeparator());
 								for (Object a : (Object[]) o) {
@@ -703,7 +707,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			} else {
 				try {
 					if(aw[3]!=null && (int)aw[3]==1) {
-						addQuotes(b,bab,(String)aw[2], o instanceof Comparable && o instanceof String == false);
+						addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
 					}else {
 						if(o instanceof String)
 							addQuotes(b,bab,(String)o, false);
@@ -801,7 +805,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			StringBuilder d = new StringBuilder(size*8);
 			try {
 				for (String h : loader.getHeader())
-					d.append(h + System.lineSeparator());
+					d.append(h).append(System.lineSeparator());
 			} catch (Exception er) {
 			}
 			List<String> done = new ArrayList<>(size);
@@ -809,7 +813,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				preparePath(done,key, key + ":", "", d);
 			try {
 				for (String h : loader.getFooter())
-					d.append(h + System.lineSeparator());
+					d.append(h).append(System.lineSeparator());
 			} catch (Exception er) {
 				Validator.send("Saving Data to YAML", er);
 			}

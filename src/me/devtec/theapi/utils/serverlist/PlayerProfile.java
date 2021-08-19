@@ -3,8 +3,8 @@ package me.devtec.theapi.utils.serverlist;
 import java.util.UUID;
 
 public class PlayerProfile {
-	private static UUID defaultUuid = UUID.randomUUID();
-	private static String defaultName = "";
+	private static final UUID defaultUuid = UUID.randomUUID();
+	private static final String defaultName = "";
 
 	private String name;
 	private UUID uuid;

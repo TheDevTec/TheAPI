@@ -14,10 +14,10 @@ import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.datakeeper.Data;
 
 public class Server {
-	protected Set<Reader> readers = new HashSet<>();
-	protected Map<Socket, ServerClient> sockets = new HashMap<>();
+	protected final Set<Reader> readers = new HashSet<>();
+	protected final Map<Socket, ServerClient> sockets = new HashMap<>();
 	protected ServerSocket server;
-	protected String pas;
+	protected final String pas;
 	private boolean closed;
 	
 	public Server(String password, int port) {

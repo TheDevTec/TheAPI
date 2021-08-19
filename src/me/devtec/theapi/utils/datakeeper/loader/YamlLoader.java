@@ -21,7 +21,7 @@ import me.devtec.theapi.utils.json.Reader;
 public class YamlLoader extends DataLoader {
 	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*?):[ ]*(.*)"),
 			fixedSplitter=Pattern.compile("^\"(.*)(\"([ ]*#?.*?))$|^'(.*)('([ ]*#?.*?))$|(.*)");
-	private Map<String, Object[]> data = new LinkedHashMap<>();
+	private final Map<String, Object[]> data = new LinkedHashMap<>();
 	private List<String> header = new LinkedList<>(), footer = new LinkedList<>();
 	private boolean l;
 
@@ -159,7 +159,7 @@ public class YamlLoader extends DataLoader {
 					if(m.find())
 						split=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
 					if(split==null)split="";
-					String object = null;
+					String object;
 					String fix = null;
 					try {
 						object = sec.group(2);
@@ -318,7 +318,7 @@ public class YamlLoader extends DataLoader {
 						if(m.find())
 							split=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
 						if(split==null)split="";
-						String object = null;
+						String object;
 						String fix = null;
 						try {
 							object = sec.group(2);
@@ -384,7 +384,7 @@ public class YamlLoader extends DataLoader {
 		return footer;
 	}
 
-	private final int c(String s) {
+	private int c(String s) {
 		int i = 0;
 		for (byte c : s.getBytes())
 			if (c == ' ')
@@ -394,7 +394,7 @@ public class YamlLoader extends DataLoader {
 		return i;
 	}
 
-	private final void set(String key, Object o, LinkedList<String> lines) {
+	private void set(String key, Object o, LinkedList<String> lines) {
 		if(key==null)return;
 		Object[] s = data.get(key);
 		if (s!=null) {
@@ -404,7 +404,7 @@ public class YamlLoader extends DataLoader {
 		lines.clear();
 	}
 
-	private final void set(String key, Object o, LinkedList<String> lines, String original) {
+	private void set(String key, Object o, LinkedList<String> lines, String original) {
 		if(key==null)return;
 		Object[] s = data.get(key);
 		if(o instanceof String) {

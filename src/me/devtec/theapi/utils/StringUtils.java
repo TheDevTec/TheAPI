@@ -22,9 +22,9 @@ import me.devtec.theapi.utils.json.Writer;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class StringUtils {
-	private static Random random = new Random();
+	private static final Random random = new Random();
 
-	public static interface ColormaticFactory {
+	public interface ColormaticFactory {
 		public String colorize(String text);
 
 		public String getNextColor();
@@ -173,7 +173,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Split text correctly with colors
+	 * @apiNote Split text correctly with colors
 	 */
 	public static List<String> fixedSplit(String text, int lengthOfSplit) {
 		if(text==null)return null;
@@ -186,9 +186,8 @@ public class StringUtils {
 			if (a.endsWith("§")||a.endsWith("&")) {
 				--length;
 				a = prefix + split.substring(0, length);
-				prefix = getLastColors(a);
-			} else
-				prefix = getLastColors(a);
+			}
+			prefix = getLastColors(a);
 			splitted.add(a);
 			split = split.substring(length);
 		}
@@ -198,7 +197,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Copy matches of String from Iterable<String> Examples:
+	 * @apiNote Copy matches of String from Iterable<String> Examples:
 	 *      StringUtils.copyPartialMatches("hello", Arrays.asList("helloWorld",
 	 *      "hiHouska")) -> helloWorld StringUtils.copyPartialMatches("hello",
 	 *      Arrays.asList("helloWorld", "hiHouska", "this_is_list_of_words",
@@ -208,13 +207,13 @@ public class StringUtils {
 	public static List<String> copyPartialMatches(String prefix, Iterable<String> originals) {
 		List<String> collection = new ArrayList<>();
 		for (String string : originals)
-			if (string!=null && string.length() < prefix.length() ? false : string.regionMatches(true, 0, prefix, 0, prefix.length()))
+			if ((string == null || string.length() >= prefix.length()) && string.regionMatches(true, 0, prefix, 0, prefix.length()))
 				collection.add(string);
 		return collection;
 	}
 
 	/**
-	 * @see see Copy matches of String from Iterable<String> Examples:
+	 * @apiNote Copy matches of String from Iterable<String> Examples:
 	 *      StringUtils.copyPartialMatches("hello", Arrays.asList("helloWorld",
 	 *      "hiHouska")) -> helloWorld StringUtils.copyPartialMatches("hello",
 	 *      Arrays.asList("helloWorld", "hiHouska", "this_is_list_of_words",
@@ -224,14 +223,14 @@ public class StringUtils {
 	public static List<String> copySortedPartialMatches(String prefix, Iterable<String> originals) {
 		List<String> collection = new ArrayList<>();
 		for (String string : originals)
-			if (string!=null && string.length() < prefix.length() ? false : string.regionMatches(true, 0, prefix, 0, prefix.length()))
+			if ((string == null || string.length() >= prefix.length()) && string.regionMatches(true, 0, prefix, 0, prefix.length()))
 				collection.add(string);
 		Collections.sort(collection);
 		return collection;
 	}
 
 	/**
-	 * @see see Transfer Collection to String
+	 * @apiNote Transfer Collection to String
 	 * @return String
 	 */
 	public static String join(Iterable<?> toJoin, String split) {
@@ -242,14 +241,14 @@ public class StringUtils {
 			if (s == null)
 				continue;
 			else
-				r.append(split).append(s.toString());
+				r.append(split).append(s);
 		if(r.length()!=0)
 			r.delete(0,split.length());
 		return r.toString();
 	}
 
 	/**
-	 * @see see Transfer Object[] to String
+	 * @apiNote Transfer Object[] to String
 	 * @return String
 	 */
 	public static String join(Object[] toJoin, String split) {
@@ -260,38 +259,38 @@ public class StringUtils {
 			if (s == null)
 				continue;
 			else
-				r.append(split).append(s.toString());
+				r.append(split).append(s);
 		if(r.length()!=0)
 			r.delete(0,split.length());
 		return r.toString();
 	}
 
 	/**
-	 * @see see Create clickable message
+	 * @apiNote Create clickable message
 	 * @return HoverMessage
 	 */
 	public static HoverMessage getHoverMessage(String... message) {
 		return new HoverMessage(message);
 	}
 
-	private static Pattern getLast = Pattern
+	private static final Pattern getLast = Pattern
 			.compile("(#[A-Fa-f0-9]{6}|[&§][Xx]([&§][A-Fa-f0-9]){6}|[&§][A-Fa-f0-9RrK-Ok-oUuXx])");
 
 	/**
-	 * @see see Get last colors from String (HEX SUPPORT!)
+	 * @apiNote Get last colors from String (HEX SUPPORT!)
 	 * @return String
 	 */
 	public static String getLastColors(String s) {
 		Matcher m = getLast.matcher(s);
-		String colors = "";
+		StringBuilder colors = new StringBuilder();
 		while (m.find()) {
 			String last = m.group(1);
 			if (last.matches("[§][A-Fa-f0-9]|[§][Xx]([§][A-Fa-f0-9]){6}"))
-				colors = last;
+				colors = new StringBuilder(last);
 			else
-				colors += last;
+				colors.append(last);
 		}
-		return colors;
+		return colors.toString();
 	}
 
 	private static final Pattern hex = Pattern.compile("#[a-fA-F0-9]{6}");
@@ -299,10 +298,10 @@ public class StringUtils {
 	static {
 		if (TheAPI.isNewerThan(15)) {
 			color = new ColormaticFactory() {
-				private String d = "abcdef0123456789";
-				private int len = d.length();
-				private char[] a = d.toCharArray();
-				private Random r = new Random();
+				private final String d = "abcdef0123456789";
+				private final int len = d.length();
+				private final char[] a = d.toCharArray();
+				private final Random r = new Random();
 
 				@Override
 				public String colorize(String text) {
@@ -319,7 +318,7 @@ public class StringUtils {
 			};
 		} else
 			color = new ColormaticFactory() {
-				private List<String> list = Arrays.asList("&4", "&c", "&6", "&e", "&5", "&d", "&9", "&3", "&b", "&2",
+				private final List<String> list = Arrays.asList("&4", "&c", "&6", "&e", "&5", "&d", "&9", "&3", "&b", "&2",
 						"&a");
 				private int i = 0;
 
@@ -405,9 +404,9 @@ public class StringUtils {
 			};
 	}
 
-	private static Pattern reg = Pattern.compile("[&§]([Rrk-oK-O])"),
-			colorMatic = Pattern.compile("(<!>)*([&§])<!>([A-Fa-f0-9RrK-Ok-oUu" + (TheAPI.isNewerThan(15) ? "Xx" : "") + "])"),
-			old = Pattern.compile("&((<!>)*)([XxA-Za-zUu0-9Rrk-oK-O])");
+	private static final Pattern reg = Pattern.compile("[&§]([Rrk-oK-O])");
+	private static final Pattern colorMatic = Pattern.compile("(<!>)*([&§])<!>([A-Fa-f0-9RrK-Ok-oUu" + (TheAPI.isNewerThan(15) ? "Xx" : "") + "])");
+	private static final Pattern old = Pattern.compile("&((<!>)*)([XxA-Za-zUu0-9Rrk-oK-O])");
 
 	public static Pattern gradientFinder;
 
@@ -457,8 +456,7 @@ public class StringUtils {
 			finalColor = new Color(red, green, blue);
 			StringBuilder hex = new StringBuilder("§x");
 			char[] c = Integer.toHexString(finalColor.getRGB()).substring(2).toCharArray();
-			for (int i = 0; i < c.length; ++i)
-				hex.append('§').append(c[i]);
+			for (char value : c) hex.append('§').append(value);
 			if (l.containsKey(index))
 				switch (l.get(index)) {
 				case "l":
@@ -507,13 +505,13 @@ public class StringUtils {
 		return legacyMsg;
 	}
 
-	private static boolean neww = TheAPI.isNewerThan(15);
-	private static Pattern fixedSplit = Pattern.compile(
+	private static final boolean neww = TheAPI.isNewerThan(15);
+	private static final Pattern fixedSplit = Pattern.compile(
 			"(#[A-Fa-f0-9]{6}([&§][K-Ok-oRr])*|[&§][Xx]([&§][A-Fa-f0-9]){6}([&§][K-Ok-oRr])*|[&§][A-Fa-f0-9K-ORrk-oUuXx]([&§][K-Ok-oRr])*)");
 
 	/**
-	 * @see see Colorize string with colors (&eHello world -> {YELLOW}Hello world)
-	 * @param string
+	 * @apiNote Colorize string with colors (&eHello world -> {YELLOW}Hello world)
+	 * @param msg
 	 * @return String
 	 */
 	public static String colorize(String msg) {
@@ -547,8 +545,7 @@ public class StringUtils {
 					String color = match.group();
 	                StringBuilder magic = new StringBuilder("§x");
 	                char[] c = color.substring(1).toCharArray();
-	                for(int i = 0; i < c.length; ++i)
-	                    magic.append('§').append(c[i]);
+					for (char value : c) magic.append('§').append(value);
 					msg = msg.replace(color, magic.toString());
 				}
 			}
@@ -589,7 +586,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Build string from String[]
+	 * @apiNote Build string from String[]
 	 * @param args
 	 * @return String
 	 * 
@@ -599,7 +596,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Build string from String[]
+	 * @apiNote Build string from String[]
 	 * @param args
 	 * @return String
 	 * 
@@ -609,7 +606,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Build string from String[]
+	 * @apiNote Build string from String[]
 	 * @param args
 	 * @return String
 	 * 
@@ -624,20 +621,20 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Return random object from list
+	 * @apiNote Return random object from list
 	 */
 	public static <T> T getRandomFromList(List<T> list) {
-		if (list.isEmpty() || list == null)
+		if (list==null ||list.isEmpty())
 			return null;
 		return list.get(random.nextInt(list.size()));
 	}
 
 	/**
-	 * @see see Return random object from collection
+	 * @apiNote Return random object from collection
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getRandomFromCollection(Collection<T> list) {
-		if (list.isEmpty() || list == null)
+		if (list==null ||list.isEmpty())
 			return null;
 		if(list instanceof List)return getRandomFromList((List<T>)list);
 		return (T) list.toArray()[random.nextInt(list.size())];
@@ -646,8 +643,8 @@ public class StringUtils {
 	public static Pattern sec, min, hour, day, week,mon, year;
 
 	/**
-	 * @see see Get long from string
-	 * @param s String
+	 * @apiNote Get long from string
+	 * @param period String
 	 * @return long
 	 */
 	public static long getTimeFromString(String period) {
@@ -655,8 +652,8 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Get long from string
-	 * @param s String
+	 * @apiNote Get long from string
+	 * @param period String
 	 * @return long
 	 */
 	public static long timeFromString(String period) {
@@ -706,7 +703,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Set long to string
+	 * @apiNote Set long to string
 	 * @param period long
 	 * @return String
 	 */
@@ -716,7 +713,7 @@ public class StringUtils {
 	
 	public static String timeFormat = "%time% %format%";
 
-	public static Map<String, List<String>> actions = new HashMap<>();
+	public static final Map<String, List<String>> actions = new HashMap<>();
 
 	static String findCorrectFormat(long i, String string) {
 		String result = i+string;
@@ -736,7 +733,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Set long to string
+	 * @apiNote Set long to string
 	 * @param time long
 	 * @return String
 	 */
@@ -785,7 +782,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Convert Location to String
+	 * @apiNote Convert Location to String
 	 * @return String
 	 */
 	public static String getLocationAsString(Location loc) {
@@ -793,7 +790,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Convert Location to String
+	 * @apiNote Convert Location to String
 	 * @return String
 	 */
 	public static String locationAsString(Location loc) { // New shorter name of method
@@ -801,7 +798,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Create Location from String
+	 * @apiNote Create Location from String
 	 * @return Location
 	 */
 	public static Location getLocationFromString(String savedLocation) {
@@ -809,7 +806,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Create Location from String
+	 * @apiNote Create Location from String
 	 * @return Location
 	 */
 	public static Location locationFromString(String savedLocation) { // New shorter name of method
@@ -817,7 +814,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Get boolean from string
+	 * @apiNote Get boolean from string
 	 * @return boolean
 	 */
 	public static boolean getBoolean(String fromString) {
@@ -829,7 +826,7 @@ public class StringUtils {
 	}
 	
 	/**
-	 * @see see Convert String to Math and Calculate exempt
+	 * @apiNote Convert String to Math and Calculate exempt
 	 * @return double
 	 */
 	public static double calculate(String val) {
@@ -860,32 +857,33 @@ public class StringUtils {
 	}
 
 	private static String splitter(String s) {
-		String i = "", fix = "";
-		
+		StringBuilder i = new StringBuilder();
+		StringBuilder fix = new StringBuilder();
+
 		int count = 0, waiting = 0;
 		for(char c : s.toCharArray()) {
-			i+=""+c;
+			i.append(c);
 			if(c=='(') {
-				fix+=""+c;
+				fix.append(c);
 				waiting=1;
 				++count;
 			}else
 			if(c==')') {
-				fix+=""+c;
+				fix.append(c);
 				if(--count==0) {
 					waiting=0;
-					i=i.replace(fix, ""+simpleCalculate(fix.substring(1, fix.length()-1)));
-					fix="";
+					i = new StringBuilder(i.toString().replace(fix.toString(), "" + simpleCalculate(fix.substring(1, fix.length() - 1))));
+					fix = new StringBuilder();
 				}
 			}else
 			if(waiting==1)
-				fix+=""+c;
+				fix.append(c);
 		}
-		return i;
+		return i.toString();
 	}
 	
-	private static Pattern extra = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([*/])[ ]*(-?[ ]*[0-9.]+)"),
-			normal = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([+-])[ ]*(-?[ ]*[0-9.]+)");
+	private static final Pattern extra = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([*/])[ ]*(-?[ ]*[0-9.]+)");
+	private static final Pattern normal = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([+-])[ ]*(-?[ ]*[0-9.]+)");
 
 	
 	private static double simpleCalculate(String val) {
@@ -915,7 +913,7 @@ public class StringUtils {
 		return getDouble(val.replaceAll("[^0-9+.-]", ""));
 	}
 
-	static Pattern mat = Pattern.compile("\\.([0-9])([0-9])?");
+	static final Pattern mat = Pattern.compile("\\.([0-9])([0-9])?");
 
 	public static String fixedFormatDouble(double val) {
 		String text = String.format(Locale.ENGLISH,"%.2f", val);
@@ -942,7 +940,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Get double from string
+	 * @apiNote Get double from string
 	 * @return double
 	 */
 	public static double getDouble(String fromString) {
@@ -957,7 +955,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Is string, double ?
+	 * @apiNote Is string, double ?
 	 * @return boolean
 	 */
 	public static boolean isDouble(String fromString) {
@@ -970,7 +968,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Get long from string
+	 * @apiNote Get long from string
 	 * @return long
 	 */
 	public static long getLong(String fromString) {
@@ -978,8 +976,8 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Is string, long ?
-	 * @return
+	 * @apiNote Is string, long ?
+	 * @return boolean
 	 */
 	public static boolean isLong(String fromString) {
 		try {
@@ -991,7 +989,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Get int from string
+	 * @apiNote Get int from string
 	 * @return int
 	 */
 	public static int getInt(String fromString) {
@@ -999,7 +997,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Is string, int ?
+	 * @apiNote Is string, int ?
 	 * @return boolean
 	 */
 	public static boolean isInt(String fromString) {
@@ -1012,7 +1010,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Is string, float ?
+	 * @apiNote Is string, float ?
 	 * @return boolean
 	 */
 	public static boolean isFloat(String fromString) {
@@ -1025,7 +1023,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Get float from string
+	 * @apiNote Get float from string
 	 * @return float
 	 */
 	public static float getFloat(String fromString) {
@@ -1040,7 +1038,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Is string, float ?
+	 * @apiNote Is string, float ?
 	 * @return boolean
 	 */
 	public static boolean isByte(String fromString) {
@@ -1053,7 +1051,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Get float from string
+	 * @apiNote Get float from string
 	 * @return float
 	 */
 	public static byte getByte(String fromString) {
@@ -1068,7 +1066,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Is string, float ?
+	 * @apiNote Is string, float ?
 	 * @return boolean
 	 */
 	public static boolean isShort(String fromString) {
@@ -1081,7 +1079,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Get float from string
+	 * @apiNote Get float from string
 	 * @return float
 	 */
 	public static short getShort(String fromString) {
@@ -1096,7 +1094,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Is string, number ?
+	 * @apiNote Is string, number ?
 	 * @return boolean
 	 */
 	public static boolean isNumber(String fromString) {
@@ -1105,7 +1103,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @see see Is string, boolean ?
+	 * @apiNote Is string, boolean ?
 	 * @return boolean
 	 */
 	public static boolean isBoolean(String fromString) {
@@ -1115,7 +1113,7 @@ public class StringUtils {
 				|| fromString.equalsIgnoreCase("yes") || fromString.equalsIgnoreCase("no");
 	}
 
-	private static Pattern special = Pattern.compile("[^A-Z-a-z0-9_]+");
+	private static final Pattern special = Pattern.compile("[^A-Z-a-z0-9_]+");
 
 	public static boolean containsSpecial(String value) {
 		return special.matcher(value).find();

@@ -1,6 +1,7 @@
 package me.devtec.theapi.apis;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Location;
@@ -26,7 +27,7 @@ public class SoundAPI {
 	public static void playSound(Position where, String sound, float volume, float pitch) {
 		Validator.validate(where == null || where.getWorld() == null, "Location is null");
 		Validator.validate(sound == null || getByName(sound) == null, "Sound is null");
-		where.getWorld().playSound(where.toLocation(), getByName(sound), volume, pitch);
+		where.getWorld().playSound(where.toLocation(), getByName(sound.toUpperCase()), volume, pitch);
 	}
 
 	public static void playSound(Player player, Sound sound, float volume, float pitch) {
@@ -62,10 +63,7 @@ public class SoundAPI {
 	}
 
 	public static List<Sound> valuesInList() {
-		List<Sound> a = new ArrayList<Sound>();
-		for (Sound s : values())
-			a.add(s);
-		return a;
+		return Arrays.asList(values());
 	}
 
 	/**

@@ -156,8 +156,8 @@ public class Position implements Cloneable {
 	public Object getIBlockData() {
 		Object sc = ((Object[]) Ref.invoke(getNMSChunk(), get))[getBlockY() >> 4];
 		if (sc == null)return new TheMaterial(Material.AIR, 0);
-		if(TheAPI.isOlderThan(8)) //1.7.10
-			return Ref.invoke(sc, getType, getBlockX() & 15, getBlockY() & 15, getBlockZ() & 15);
+		//1.7.10
+		TheAPI.isOlderThan(8);
 		return Ref.invoke(sc, getType, getBlockX() & 15, getBlockY() & 15, getBlockZ() & 15);
 	}
 	
@@ -276,15 +276,16 @@ public class Position implements Cloneable {
 		return (Chunk) Ref.get(getNMSChunk(), f);
 	}
 
-	private static int wf = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]);
-	private static Field f = Ref.field(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "bukkitChunk"), chunkProv = Ref.field(Ref.nms("World"), "chunkProviderServer");
-	private static Method getOrCreate=Ref.method(Ref.nms("ChunkProviderServer"), "getOrCreateChunk", int.class, int.class),
-			handle=Ref.method(Ref.craft("CraftChunk"), "getHandle");
+	private static final int wf = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]);
+	private static final Field f = Ref.field(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "bukkitChunk");
+	private static final Field chunkProv = Ref.field(Ref.nms("World"), "chunkProviderServer");
+	private static Method getOrCreate=Ref.method(Ref.nms("ChunkProviderServer"), "getOrCreateChunk", int.class, int.class);
+	private static final Method handle=Ref.method(Ref.craft("CraftChunk"), "getHandle");
 	static {
 		if(getOrCreate==null)
 			getOrCreate=Ref.method(Ref.nms("ChunkProviderServer"), "getOrLoadChunkAt", int.class, int.class);
 	}
-	static Class<?> cchunk = Ref.craft("CraftChunk");
+	static final Class<?> cchunk = Ref.craft("CraftChunk");
 	
 	public Object getNMSChunk() {
 		try {
@@ -429,8 +430,9 @@ public class Position implements Cloneable {
 			Ref.newInstance(c, pos.getBlockX(),pos.getBlockY(),pos.getBlockZ(),Ref.world(pos.getWorld())));
 	}
 
-	private static boolean aww = TheAPI.isOlderThan(8);
-	private static Method updateLight = Ref.method(Ref.nmsOrOld("world.level.lighting.LightEngine","LightEngine"), "a", Ref.nmsOrOld("core.BlockPosition","BlockPosition"), int.class),getEngine;
+	private static final boolean aww = TheAPI.isOlderThan(8);
+	private static Method updateLight = Ref.method(Ref.nmsOrOld("world.level.lighting.LightEngine","LightEngine"), "a", Ref.nmsOrOld("core.BlockPosition","BlockPosition"), int.class);
+	private static Method getEngine;
 	static {
 		if(updateLight==null) {
 			updateLight = Ref.method(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "initLighting");
@@ -480,7 +482,7 @@ public class Position implements Cloneable {
 		Position.updateLightAt(this);
 	}
 
-	private static Object air = new TheMaterial(Material.AIR).getIBlockData();
+	private static final Object air = new TheMaterial(Material.AIR).getIBlockData();
 	public long setAir() {
 		if (wf <= 7)
 			setOld(this, 0,0);
@@ -502,8 +504,6 @@ public class Position implements Cloneable {
 	/**
 	 * 
 	 * @param pos Location
-	 * @param id  int id of Material
-	 * @return long ChunkKey
 	 */
 	@SuppressWarnings("unchecked")
 	private static synchronized void setOld(Position pos, Object block, int data) { // Uknown - 1.7.10
@@ -538,9 +538,12 @@ public class Position implements Cloneable {
 		}
 	}
 
-	private static Constructor<?> aw = Ref.constructor(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), int.class),
-			old = Ref.constructor(Ref.nms("ChunkPosition"), double.class, double.class, double.class);
-	private static Method a, get = Ref.method(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "getSections"), setId, setData;
+	private static Constructor<?> aw = Ref.constructor(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), int.class);
+	private static final Constructor<?> old = Ref.constructor(Ref.nms("ChunkPosition"), double.class, double.class, double.class);
+	private static Method a;
+	private static final Method get = Ref.method(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "getSections");
+	private static Method setId;
+	private static Method setData;
 	static {
 		a = Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), "setType", int.class, int.class, int.class, Ref.nmsOrOld("world.level.block.state.IBlockData","IBlockData"), boolean.class);
 		if(a==null)
@@ -552,8 +555,8 @@ public class Position implements Cloneable {
 			setData=Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), "setData", int.class, int.class, int.class, int.class);
 		}
 	}
-	private static Method getBlock = Ref.method(Ref.craft("util.CraftMagicNumbers"), "getBlock", Material.class),
-			fromLegacyData=Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "fromLegacyData", int.class);
+	private static final Method getBlock = Ref.method(Ref.craft("util.CraftMagicNumbers"), "getBlock", Material.class);
+	private static final Method fromLegacyData=Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "fromLegacyData", int.class);
 	
 	public static void setBlockData(Position pos, BlockData data) {
 		if(data==null||!TheAPI.isNewVersion() || pos == null)return;
@@ -566,8 +569,9 @@ public class Position implements Cloneable {
 	}
 	
 
-	private static Class<?>b =  Ref.nmsOrOld("world.level.block.Block","Block");
-	private static Method bgetBlock = Ref.method(Ref.nmsOrOld("world.level.block.state.IBlockData", "IBlockData"), "getBlock"),cgett;
+	private static final Class<?>b =  Ref.nmsOrOld("world.level.block.Block","Block");
+	private static final Method bgetBlock = Ref.method(Ref.nmsOrOld("world.level.block.state.IBlockData", "IBlockData"), "getBlock");
+	private static Method cgett;
 	private static Field ff = Ref.field(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), TheAPI.isNewerThan(16)?"l":"tileEntities");
 	static {
 		if(TheAPI.isOlderThan(8)) {
@@ -581,9 +585,6 @@ public class Position implements Cloneable {
 	 * @param pos   Location
 	 * @param palet Is server version newer than 1.8? 1.9+
 	 * @param neww  Is server version newer than 1.13? 1.14+
-	 * @param id    int id of Material
-	 * @param data  int data of Material
-	 * @return long ChunkKey
 	 */
 	@SuppressWarnings("unchecked")
 	public static synchronized void set(Position pos, boolean palet, boolean neww, Object cr) { // 1.8 - 1.16
@@ -634,7 +635,7 @@ public class Position implements Cloneable {
 	
 	static int ver = 0;
 	private static Method tile;
-	private static Class<?> cont = Ref.nmsOrOld("world.level.block.ITileEntity","ITileEntity") == null ? Ref.nms("IContainer") : Ref.nmsOrOld("world.level.block.ITileEntity","ITileEntity");
+	private static final Class<?> cont = Ref.nmsOrOld("world.level.block.ITileEntity","ITileEntity") == null ? Ref.nms("IContainer") : Ref.nmsOrOld("world.level.block.ITileEntity","ITileEntity");
 	static {
 		if(TheAPI.isNewerThan(8)) {
 			tile = Ref.method(Ref.nmsOrOld("world.level.block.ITileEntity","ITileEntity"), "createTile", Ref.nmsOrOld("world.level.IBlockAccess","IBlockAccess"));

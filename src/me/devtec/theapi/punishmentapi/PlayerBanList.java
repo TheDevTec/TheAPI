@@ -212,7 +212,7 @@ public class PlayerBanList {
 		return r;
 	}
 
-	public static enum PunishmentType {
+	public enum PunishmentType {
 		MUTE, MUTEIP, TEMPMUTE, TEMPMUTEIP, BAN, TEMPBAN, BANIP, TEMPBANIP, JAIL, JAILIP, TEMPJAIL, TEMPJAILIP
 	}
 

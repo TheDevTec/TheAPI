@@ -45,7 +45,7 @@ public class ThePlaceholderAPI {
 	}
 
 	public static Iterator<String> setPlaceholders(Player player, Iterator<String> list) {
-		List<String> edited = new ArrayList<String>();
+		List<String> edited = new ArrayList<>();
 		while (list.hasNext())
 			edited.add(setPlaceholders(player, list.next()));
 		return edited.iterator();
@@ -70,9 +70,9 @@ public class ThePlaceholderAPI {
 			String g = found.group();
 			String find = g.substring(1, g.length() - 1);
 			int v = 0;
-			for (Iterator<ThePlaceholder> r = reg.iterator(); r.hasNext();) {
+			for (ThePlaceholder thePlaceholder : reg) {
 				++v;
-				ThePlaceholder get = r.next();
+				ThePlaceholder get = thePlaceholder;
 				String toReplace = get.onPlaceholderRequest(player, find);
 				if (toReplace != null)
 					text = text.replace(g, toReplace);

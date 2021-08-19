@@ -171,7 +171,6 @@ public class Events implements Listener {
 		if (a.isTempIPBanned()) {
 			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.TEMPBANIP).replace("\\n", "\n")
 					.replace("%time%", StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBANIP)))));
-			return;
 		}
 	}
 	
@@ -246,7 +245,6 @@ public class Events implements Listener {
 					e.setCancelled(true);
 				else
 					e.setDamage(event.getDamage());
-				return;
 			}
 		}
 	}
@@ -316,7 +314,6 @@ public class Events implements Listener {
 		if (b.isIPMuted()||b.isTempIPMuted()||b.isMuted()||b.isTempMuted()) {
 			e.getRecipients().clear();
 			e.getRecipients().add(e.getPlayer());
-			return;
 		}
 	}
 }

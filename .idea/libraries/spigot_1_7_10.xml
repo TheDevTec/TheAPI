@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="spigot-1.7.10">
+    <CLASSES>
+      <root url="jar://D:/EclipseUtils/MC/spigot-1.7.10.jar!/" />
+      <root url="jar://D:/EclipseUtils/MC/spigot-1.17.1.jar!/" />
+      <root url="jar://D:/EclipseUtils/PlaceholderAPI-2.10.9.jar!/" />
+      <root url="jar://D:/EclipseUtils/Vault.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://D:/EclipseUtils/MC/spigot-1.7.10.jar!/" />
+      <root url="jar://D:/EclipseUtils/MC/spigot-1.17.1.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -24,10 +24,11 @@ public class EconomyAPI {
 	}
 
 	/**
-	 * @segetEconomy()segetEconomy()Warning, this FakeEconomyAPI return Economy
-	 *                                       stored in config. Isn't connect to
-	 *                                       thgetEconomy()Vault plugin. Working if
-	 *                                       is EconomyAPI "disabled" too.
+	 * @see EconomyAPI#getEconomy
+	 * Warning, this FakeEconomyAPI return Economy
+	 * stored in config. Isn't connect to
+	 * Vault plugin. Working if
+	 * is EconomyAPI "disabled" too.
 	 * @return FakeEconomyAPI
 	 */
 	public static FakeEconomyAPI getFakeEconomyAPI(String economyName) {
@@ -35,10 +36,11 @@ public class EconomyAPI {
 	}
 
 	/**
-	 * @segetEconomy()segetEconomy()Warning, this FakeEconomyAPI return Economy
-	 *                                       stored in config. Isn't connect to
-	 *                                       thgetEconomy()Vault plugin. Working if
-	 *                                       is EconomyAPI "disabled" too.
+	 * @see EconomyAPI#setEconomy
+	 * Warning, this FakeEconomyAPI return Economy
+	 * stored in config. Isn't connect to
+	 * Vault plugin. Working if
+	 * is EconomyAPI "disabled" too.
 	 * @return FakeEconomyAPI
 	 */
 	@Deprecated
@@ -67,7 +69,7 @@ public class EconomyAPI {
 	public static List<String> getBanks() {
 		if (getEconomy() != null && LoaderClass.plugin.e && hasBankSupport())
 			return getEconomy().getBanks();
-		return new ArrayList<String>();
+		return new ArrayList<>();
 	}
 
 	public static String getName() {

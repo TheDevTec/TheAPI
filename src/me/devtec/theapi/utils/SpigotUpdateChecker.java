@@ -42,7 +42,7 @@ public class SpigotUpdateChecker {
 			String read;
 			while((read=reader.readLine()) != null)
 				s.add(read);
-			readerr=s.toArray(new String[s.size()]);
+			readerr=s.toArray(new String[0]);
 		} catch (Exception e) {
 		}
     	if(readerr==null)return VersionChecker.Version.UKNOWN;

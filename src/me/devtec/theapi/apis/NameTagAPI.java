@@ -10,7 +10,7 @@ import me.devtec.theapi.utils.reflections.Ref;
 
 public class NameTagAPI {
 	private String prefix, suffix;
-	private Player p;
+	private final Player p;
 
 	public NameTagAPI(Player p, String prefix, String suffix) {
 		this.p = p;
@@ -19,7 +19,7 @@ public class NameTagAPI {
 	}
 
 	/**
-	 * @see see Return input Player
+	 * @apiNote Return input Player
 	 * @return Player
 	 */
 	public Player getPlayer() {
@@ -27,21 +27,21 @@ public class NameTagAPI {
 	}
 
 	/**
-	 * @see see Get prefix above player's head
+	 * @apiNote Get prefix above player's head
 	 */
 	public String getPrefix() {
 		return prefix;
 	}
 
 	/**
-	 * @see see Get suffix above player's head
+	 * @apiNote Get suffix above player's head
 	 */
 	public String getSuffix() {
 		return suffix;
 	}
 
 	/**
-	 * @see see Change player's prefix above head
+	 * @apiNote Change player's prefix above head
 	 * @param name New prefix
 	 */
 	public void setPrefix(String name) {
@@ -49,7 +49,7 @@ public class NameTagAPI {
 	}
 
 	/**
-	 * @see see Change player's suffix above head
+	 * @apiNote Change player's suffix above head
 	 * @param name New suffix
 	 */
 	public void setSuffix(String name) {
@@ -57,7 +57,7 @@ public class NameTagAPI {
 	}
 
 	/**
-	 * @see see Warning, this method change whole player name, plugins these
+	 * @apiNote Warning, this method change whole player name, plugins these
 	 *      checking UUID will kick/ban you from server, for ex.: UUIDSpoofFix
 	 * @param name New player name
 	 */
@@ -90,8 +90,8 @@ public class NameTagAPI {
 	}
 
 	/**
-	 * @see see Set player name tag
-	 * @param teamName By teamName you can sort players in tablist -> create sorted
+	 * @apiNote Set player name tag
+	 * @param team By team you can sort players in tablist -> create sorted
 	 *                 tablist
 	 */
 	public void setNameTag(Team team) {
@@ -101,7 +101,7 @@ public class NameTagAPI {
 	/**
 	 * Set player name tag
 	 * 
-	 * @param teamName By teamName you can sort players in tablist -> create sorted
+	 * @param team By teamName you can sort players in tablist -> create sorted
 	 *                 tablist
 	 */
 	public void setNameTag(String team) {
@@ -110,7 +110,7 @@ public class NameTagAPI {
 	}
 
 	/**
-	 * @see see Set player name tag
+	 * @apiNote Set player name tag
 	 * @param teamName By teamName you can sort players in tablist -> create sorted
 	 *                 tablist
 	 */
@@ -170,7 +170,7 @@ public class NameTagAPI {
 	}
 
 	/**
-	 * @see see Reset player name tag to default
+	 * @apiNote Reset player name tag to default
 	 */
 	public void resetNameTag() {
 		for (Team t : p.getScoreboard().getTeams())

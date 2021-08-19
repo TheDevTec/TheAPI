@@ -16,7 +16,7 @@ import me.devtec.theapi.utils.theapiutils.LoaderClass;
 import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
-	protected static Map<UUID, Data> datasByUUID = new HashMap<>();
+	protected static final Map<UUID, Data> datasByUUID = new HashMap<>();
 	
 	private UUID s;
 	private String name;
@@ -24,8 +24,10 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	private boolean autounload;
 
 	public User(String name) {
-		if (name == null)
-			Validator.send("String cannot be null.");
+		if (name == null) {
+			Validator.send("PlayerName cannot be null.");
+			return;
+		}
 		try {
 			s = UUID.fromString(name);
 			this.name=LoaderClass.cache.lookupNameById(s);
@@ -39,32 +41,40 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public User(Player player) {
-		if (player == null)
+		if (player == null) {
 			Validator.send("Player cannot be null.");
+			return;
+		}
 		s = player.getUniqueId();
 		name = player.getName();
 		prepareConfig();
 	}
 
 	public User(UUID player) {
-		if (player == null)
+		if (player == null) {
 			Validator.send("UUID cannot be null.");
+			return;
+		}
 		s = player;
 		this.name=LoaderClass.cache.lookupNameById(s);
 		prepareConfig();
 	}
 
 	public User(String name, UUID player) {
-		if (name == null||player == null)
-			Validator.send("UUID cannot be null.");
+		if (player == null||name==null) {
+			Validator.send("UUID & PlayerName cannot be null.");
+			return;
+		}
 		s = player;
 		this.name = LoaderClass.cache.lookupName(name);
 		prepareConfig();
 	}
 
 	public User(Cache.Query query) {
-		if (query == null || query.name == null || query.uuid == null)
+		if (query == null || query.name == null || query.uuid == null) {
 			Validator.send("Query cannot be null.");
+			return;
+		}
 		s = query.uuid;
 		this.name = query.name;
 		prepareConfig();
@@ -78,7 +88,7 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return autounload;
 	}
 
-	private final void prepareConfig() {
+	private void prepareConfig() {
 		Data d = datasByUUID.get(s);
 		if(d==null)
 			datasByUUID.put(s, d=new Data("plugins/TheAPI/User/" + s + ".yml", true));
@@ -91,8 +101,8 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	public void delete() {
 		a.clear();
-		datasByUUID.remove(s);
 		a.getFile().delete();
+		datasByUUID.remove(s);
 	}
 
 	public boolean isOnline() {
@@ -372,7 +382,7 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	/**
-	 * @see see getBoolean(key) method
+	 * @see User#getBoolean
 	 * @param key Path in config
 	 * @return boolean
 	 */

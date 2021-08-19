@@ -11,8 +11,8 @@ import java.util.Map.Entry;
 import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class HandlerList {
-	protected static Map<String, HandlerList> all = new HashMap<>();
-	protected Map<Integer, List<RegisteredListener>> reg = new HashMap<>();
+	protected static final Map<String, HandlerList> all = new HashMap<>();
+	protected final Map<Integer, List<RegisteredListener>> reg = new HashMap<>();
 
 	protected static HandlerList getOrCreate(String event) {
 		if(all.containsKey(event))return all.get(event);

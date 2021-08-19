@@ -19,21 +19,22 @@ import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class Ref {
-	private static Constructor<?> blockpos = constructor(nmsOrOld("core.BlockPosition", "BlockPosition"), double.class,
-			double.class, double.class),
-			c = Ref.constructor(
+	private static final Constructor<?> blockpos = constructor(nmsOrOld("core.BlockPosition", "BlockPosition"), double.class,
+			double.class, double.class);
+	private static final Constructor<?> c = Ref.constructor(
 					Ref.getClass("com.mojang.authlib.GameProfile") != null
 							? Ref.getClass("com.mojang.authlib.GameProfile")
 							: Ref.getClass("net.minecraft.util.com.mojang.authlib.GameProfile"),
-					UUID.class, String.class),
-			d = Ref.constructor(
+					UUID.class, String.class);
+	private static final Constructor<?> d = Ref.constructor(
 					Ref.getClass("com.mojang.authlib.properties.Property") != null
 							? Ref.getClass("com.mojang.authlib.properties.Property")
 							: Ref.getClass("net.minecraft.util.com.mojang.authlib.properties.Property"),
 					String.class, String.class, String.class);
-	private static Object server = NMSAPI.getServer();
-	private static Class<?> craft = craft("entity.CraftPlayer"), world = craft("CraftWorld"),
-			playerInfoData = Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerInfo$PlayerInfoData",
+	private static final Object server = NMSAPI.getServer();
+	private static final Class<?> craft = craft("entity.CraftPlayer");
+	private static final Class<?> world = craft("CraftWorld");
+	private static final Class<?> playerInfoData = Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerInfo$PlayerInfoData",
 					"PacketPlayOutPlayerInfo$PlayerInfoData");
 	private static Method ichatcon;
 	private static Constructor<?> playerInfo;
@@ -65,11 +66,7 @@ public class Ref {
 					((Object[]) Ref.invokeNulled(
 							Ref.method(Ref.craft("util.CraftChatMessage"), "fromString", String.class),
 							playerName))[0]);
-		return Ref.newInstance(playerInfo, profile, ping,
-				Ref.get(null,
-						Ref.field(Ref.nmsOrOld("world.level.EnumGamemode", "EnumGamemode"), gamemode.toUpperCase())),
-				((Object[]) Ref.invokeNulled(Ref.method(Ref.craft("util.CraftChatMessage"), "fromString", String.class),
-						playerName))[0]);
+		return null;
 	}
 
 	public static Object createProperty(String key, String texture, String signature) {
@@ -196,9 +193,9 @@ public class Ref {
 	public static Object player(Player a) {
 		return handle(cast(craft, a));
 	}
-	static Field playerCon = Ref.field(Ref.nmsOrOld("server.level.EntityPlayer","EntityPlayer"), TheAPI.isNewerThan(16) ? "b" : "playerConnection")
-			, network = Ref.field(Ref.nmsOrOld("server.network.PlayerConnection","PlayerConnection"), TheAPI.isNewerThan(16) ? "a" : "networkManager")
-			, channel = Ref.field(Ref.nmsOrOld("network.NetworkManager","NetworkManager"), TheAPI.isNewerThan(1) ? "k" : TheAPI.isNewerThan(7)?"channel":"k");
+	static final Field playerCon = Ref.field(Ref.nmsOrOld("server.level.EntityPlayer","EntityPlayer"), TheAPI.isNewerThan(16) ? "b" : "playerConnection");
+	static final Field network = Ref.field(Ref.nmsOrOld("server.network.PlayerConnection","PlayerConnection"), TheAPI.isNewerThan(16) ? "a" : "networkManager");
+	static final Field channel = Ref.field(Ref.nmsOrOld("network.NetworkManager","NetworkManager"), TheAPI.isNewerThan(1) ? "k" : TheAPI.isNewerThan(7)?"channel":"k");
 	public static Object playerCon(Player a) {
 		return get(player(a), playerCon);
 	}

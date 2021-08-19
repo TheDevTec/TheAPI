@@ -14,7 +14,7 @@ import me.devtec.theapi.utils.datakeeper.loader.DataLoader;
 import me.devtec.theapi.utils.json.Reader;
 
 public class SchematicLoader extends DataLoader {
-	private Map<String, Object[]> data = new LinkedHashMap<>();
+	private final Map<String, Object[]> data = new LinkedHashMap<>();
 	private boolean l;
 
 	@Override
@@ -33,29 +33,17 @@ public class SchematicLoader extends DataLoader {
 			remove(key);
 			return;
 		}
-		while(paused);
 		data.put(key, holder);
 	}
 
 	public void remove(String key) {
 		if (key == null)
 			return;
-		while(paused);
 		data.remove(key);
 	}
 
 	public void reset() {
-		while(paused);
 		data.clear();
-	}
-	
-	public boolean isReady() {
-		return !paused;
-	}
-	
-	private boolean paused = false;
-	public void setReady(boolean val) {
-		paused=val;
 	}
 
 	@Override
@@ -73,16 +61,17 @@ public class SchematicLoader extends DataLoader {
 					while (run)
 						try {
 							next=bos.readUTF();
-							if(next==null)value+=next;
+							if(next==null) {
+							}
 							else {
 								if(next.equals("1")) {
 									run=false;
 									continue;
 								}
 								next=next.substring(1);
-								value+=next;
 							}
-					}catch(Exception not) {
+							value+=next;
+						}catch(Exception not) {
 						run=false;
 					}
 					data.put(key, new Object[] {value==null?null:Reader.read(value), null, value});
@@ -105,16 +94,17 @@ public class SchematicLoader extends DataLoader {
 						while (run)
 							try {
 								next=bos.readUTF();
-								if(next==null)value+=next;
+								if(next==null) {
+								}
 								else {
 									if(next.equals("1")) {
 										run=false;
 										continue;
 									}
 									next=next.substring(1);
-									value+=next;
 								}
-						}catch(Exception not) {
+								value+=next;
+							}catch(Exception not) {
 							run=false;
 						}
 						data.put(key, new Object[] {value==null?null:Reader.read(value), null, value});

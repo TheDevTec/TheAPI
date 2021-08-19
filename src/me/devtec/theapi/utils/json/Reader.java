@@ -35,13 +35,13 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class Reader implements JsonReader {
 	//Do you want your own JsonParser? Override this one! Ref.set(Reader.class, "reader", <NewReaderJson>)
-	private static JsonReader reader = new Reader();
+	private static final JsonReader reader = new Reader();
 
 	public static Object read(String json) {
 		return reader.deserilize(json);
 	}
 
-	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
 	private static Method fromJson = Ref.method(Ref.getClass("com.google.gson.Gson") != null ? Ref.getClass("com.google.gson.Gson")
 			: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.Gson"), "fromJson", String.class, Class.class);
 	private static Object parser = Ref.invoke(Ref.newInstance(Ref.constructor(
@@ -137,7 +137,7 @@ public class Reader implements JsonReader {
 	@SuppressWarnings("unchecked")
 	private void setObject(Object o, String f, Object v) {
 		if (v == null)
-			Ref.set(o, f, v);
+			Ref.set(o, f, null);
 		Type c = Ref.field(o.getClass(), f).getGenericType();
 		v = cast(v, Ref.getClass(c.getTypeName()));
 		Matcher ma = Pattern.compile("Map<(.*?), (.*?)>").matcher(c.getTypeName());
@@ -230,47 +230,56 @@ public class Reader implements JsonReader {
 					c = true;
 				} else if (s.getKey().toString().startsWith("modifiedClass ")) {
 					String which = s.getKey().toString().replaceFirst("modifiedClass ", "");
-					if (which.equals("org.bukkit.inventory.ItemStack")) {
-						Map<String, Object> values = (Map<String, Object>) s.getValue();
-						ItemStack item = new ItemStack(Material.getMaterial((String) values.get("type")),
-								((Number) values.get("amount")).intValue(),
-								((Number) values.get("durability")).shortValue());
-						item.setData(new MaterialData(item.getType(), ((Number) values.get("data")).byteValue()));
-						if (values.containsKey("nbt"))
-							item=NMSAPI.setNBT(item, values.get("nbt")+"");
-						ItemMeta meta = item.getItemMeta();
-						if (values.containsKey("meta.name"))
-							meta.setDisplayName((String) values.get("meta.name"));
-						try {
-						if (values.containsKey("meta.locName"))
-							meta.setLocalizedName((String) values.get("meta.locName"));
-						}catch(Exception | NoSuchMethodError e) {}
-						if (values.containsKey("meta.lore"))
-							meta.setLore((List<String>) values.get("meta.lore"));
-						if (values.containsKey("meta.enchs")) {
-							for (Entry<String, Double> enchs : ((Map<String, Double>) values.get("meta.enchs")).entrySet())
-								meta.addEnchant(Enchantment.getByName(enchs.getKey()), enchs.getValue().intValue(),
-										true);
+					switch (which) {
+						case "org.bukkit.inventory.ItemStack": {
+							Map<String, Object> values = (Map<String, Object>) s.getValue();
+							ItemStack item = new ItemStack(Material.getMaterial((String) values.get("type")),
+									((Number) values.get("amount")).intValue(),
+									((Number) values.get("durability")).shortValue());
+							item.setData(new MaterialData(item.getType(), ((Number) values.get("data")).byteValue()));
+							if (values.containsKey("nbt"))
+								item = NMSAPI.setNBT(item, values.get("nbt") + "");
+							ItemMeta meta = item.getItemMeta();
+							if (values.containsKey("meta.name"))
+								meta.setDisplayName((String) values.get("meta.name"));
+							try {
+								if (values.containsKey("meta.locName"))
+									meta.setLocalizedName((String) values.get("meta.locName"));
+							} catch (Exception | NoSuchMethodError e) {
+							}
+							if (values.containsKey("meta.lore"))
+								meta.setLore((List<String>) values.get("meta.lore"));
+							if (values.containsKey("meta.enchs")) {
+								for (Entry<String, Double> enchs : ((Map<String, Double>) values.get("meta.enchs")).entrySet())
+									meta.addEnchant(Enchantment.getByName(enchs.getKey()), enchs.getValue().intValue(),
+											true);
+							}
+							item.setItemMeta(meta);
+							a.put(s.getKey(), item);
+							c = true;
+							break;
 						}
-						item.setItemMeta(meta);
-						a.put(s.getKey(), item);
-						c = true;
-					} else if (which.equals("org.bukkit.Location")) {
-						Map<String, Object> values = (Map<String, Object>) s.getValue();
-						a.put(s.getKey(),
-								new Location(Bukkit.getWorld((String)values.get("world")), (double) values.get("x"),
-										(double) values.get("y"), (double) values.get("z"),
-										(float) (double) values.get("yaw"), (float) (double) values.get("pitch")));
-						c = true;
-					} else if (which.equals("me.devtec.theapi.utils.Position")) {
-						Map<String, Object> values = (Map<String, Object>) s.getValue();
-						a.put(s.getKey(),
-								new Position((String) values.get("world"), (double) values.get("x"),
-										(double) values.get("y"), (double) values.get("z"),
-										(float) (double) values.get("yaw"), (float) (double) values.get("pitch")));
-						c = true;
-					} else {
-						a.put(s.getKey(), parseR(s.getValue()));
+						case "org.bukkit.Location": {
+							Map<String, Object> values = (Map<String, Object>) s.getValue();
+							a.put(s.getKey(),
+									new Location(Bukkit.getWorld((String) values.get("world")), (double) values.get("x"),
+											(double) values.get("y"), (double) values.get("z"),
+											(float) (double) values.get("yaw"), (float) (double) values.get("pitch")));
+							c = true;
+							break;
+						}
+						case "me.devtec.theapi.utils.Position": {
+							Map<String, Object> values = (Map<String, Object>) s.getValue();
+							a.put(s.getKey(),
+									new Position((String) values.get("world"), (double) values.get("x"),
+											(double) values.get("y"), (double) values.get("z"),
+											(float) (double) values.get("yaw"), (float) (double) values.get("pitch")));
+							c = true;
+							break;
+						}
+						default:
+							a.put(s.getKey(), parseR(s.getValue()));
+							break;
 					}
 				} else if (s.getKey().toString().startsWith("Map ") && s.getValue() instanceof Map) {
 					Map map = (Map) Ref.newInstance(

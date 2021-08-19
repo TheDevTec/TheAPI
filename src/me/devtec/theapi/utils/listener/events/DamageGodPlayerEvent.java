@@ -7,8 +7,8 @@ import me.devtec.theapi.utils.listener.Cancellable;
 import me.devtec.theapi.utils.listener.Event;
 
 public class DamageGodPlayerEvent extends Event implements Cancellable {
-	private Player s;
-	private DamageCause cause;
+	private final Player s;
+	private final DamageCause cause;
 	private boolean cancel = true;
 
 	public DamageGodPlayerEvent(Player p, double dam, DamageCause cau) {

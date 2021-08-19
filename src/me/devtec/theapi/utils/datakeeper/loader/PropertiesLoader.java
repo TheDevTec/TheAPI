@@ -15,8 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PropertiesLoader extends DataLoader {
-	private Pattern pattern = Pattern.compile("(.*?)=(.*)");
-	private Map<String, Object[]> map = new HashMap<>();
+	private final Pattern pattern = Pattern.compile("(.*?)=(.*)");
+	private final Map<String, Object[]> map = new HashMap<>();
 	private List<String> header=new LinkedList<>(), footer = new LinkedList<>();
 	private boolean loaded;
 	
@@ -29,7 +29,6 @@ public class PropertiesLoader extends DataLoader {
 			while((s=r.readLine())!=null) {
 				String f = s.trim();
 				if(f.isEmpty()||f.startsWith("#")) { //comment
-					comments.add(s);
 				}else {
 					Matcher m = pattern.matcher(s);
 					if(m.find()) {
@@ -38,8 +37,8 @@ public class PropertiesLoader extends DataLoader {
 						continue;
 					}
 					//comment
-					comments.add(s);
 				}
+				comments.add(s);
 			}
 			r.close();
 			if(!comments.isEmpty()) {
@@ -59,7 +58,6 @@ public class PropertiesLoader extends DataLoader {
 		for(String s : d.split(System.lineSeparator())) {
 			String f = s.trim();
 			if(f.isEmpty()||f.startsWith("#")) { //comment
-				comments.add(s);
 			}else {
 				Matcher m = pattern.matcher(s);
 				if(m.find()) {
@@ -68,8 +66,8 @@ public class PropertiesLoader extends DataLoader {
 					continue;
 				}
 				//comment
-				comments.add(s);
 			}
+			comments.add(s);
 		}
 		if(!comments.isEmpty()) {
 			if(map.isEmpty())header=comments;

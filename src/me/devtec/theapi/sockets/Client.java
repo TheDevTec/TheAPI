@@ -16,7 +16,7 @@ public abstract class Client implements SocketClient {
 	private String name,ip,pas;
 	private int port;
 	
-	private Data data = new Data();
+	private final Data data = new Data();
 	
     public Client(String name, String password, String ip, int port) { 
         try {
@@ -125,14 +125,13 @@ public abstract class Client implements SocketClient {
 	    		send.println(data.toString(DataType.BYTE));
 		    	send.flush();
 			} catch (Exception e) {}
-			data.clear();
-    	}else {
+		}else {
     		if(postQueue==null)
     			postQueue = new LinkedList<>();
     		postQueue.add(data.toString(DataType.BYTE));
-    		data.clear();
-    	}
-    }
+		}
+		data.clear();
+	}
 
 	public void exit() {
 		closed=true;

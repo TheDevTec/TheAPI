@@ -17,7 +17,7 @@ import com.google.common.io.ByteStreams;
 import me.devtec.theapi.utils.json.Reader;
 
 public class ByteLoader extends DataLoader {
-	private Map<String, Object[]> data = new LinkedHashMap<>();
+	private final Map<String, Object[]> data = new LinkedHashMap<>();
 	private boolean l;
 
 	@Override
@@ -58,7 +58,7 @@ public class ByteLoader extends DataLoader {
 			String s;
 			while((s=r.readLine())!=null)d.append(s);
 			r.close();
-			load(s);
+			load(d.toString());
 		} catch (Exception e) {
 			reset();
 		}
@@ -71,67 +71,67 @@ public class ByteLoader extends DataLoader {
 			byte[] bb = Base64.getDecoder().decode(input.trim().replace(System.lineSeparator(), ""));
 			ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
 			int version = bos.readInt();
-			if(version==1) {
+			if (version == 1) {
 				while (true)
 					try {
 						String key = bos.readUTF();
 						String value = bos.readUTF();
-						if(!value.equals("null")) {
-							value=value.substring(1);
-						}else value=null;
+						if (!value.equals("null")) {
+							value = value.substring(1);
+						} else value = null;
 						String next;
 						boolean run = true;
 						while (run)
 							try {
-								next=bos.readUTF();
-								if(next.equals("null")) {
-									value+=null;
+								next = bos.readUTF();
+								if (next.equals("null")) {
+									value += null;
 									continue;
 								}
-								if(next.equals("0")) {
-									run=false;
+								if (next.equals("0")) {
+									run = false;
 									continue;
-								}else {
-									next=next.substring(1);
-									value+=next;
+								} else {
+									next = next.substring(1);
+									value += next;
 								}
-							}catch(Exception not) {
-								run=false;
+							} catch (Exception not) {
+								run = false;
 							}
-						data.put(key, new Object[] {value==null?null:Reader.read(value), null, value,1});
+						data.put(key, new Object[]{value == null ? null : Reader.read(value), null, value, 1});
 					} catch (Exception e) {
 						break;
 					}
-			}else {
+			} else {
 				String key = bos.readUTF();
-				while(!key.equals("1"))key = bos.readUTF();
+				while (!key.equals("1")) key = bos.readUTF();
 				while (true)
 					try {
 						key = bos.readUTF();
 						String value = bos.readUTF();
-						if(!value.equals("null")) {
-							value=value.substring(1);
-						}else value=null;
+						if (!value.equals("null")) {
+							value = value.substring(1);
+						} else value = null;
 						String next;
 						boolean run = true;
 						while (run)
 							try {
-								next=bos.readUTF();
-								if(next.equals("null")) {
-									value+=null;
+								next = bos.readUTF();
+								if (next.equals("null")) {
+									value += null;
 									continue;
 								}
-								if(next.equals("0")) {
-									run=false;
+								if (next.equals("0")) {
+									run = false;
 									continue;
-								}else {
-									next=next.substring(1);
-									value+=next;
+								} else {
+									next = next.substring(1);
+									value += next;
 								}
-							}catch(Exception not) {
-								run=false;
+							} catch (Exception not) {
+								run = false;
 							}
-						data.put(key, new Object[] {value==null?null:Reader.read(value), null, value,1});
+						data.put(key, new Object[]{value == null ? null : Reader.read(value), null, value, 1});
 					} catch (Exception e) {
 						break;
 					}
@@ -139,7 +139,7 @@ public class ByteLoader extends DataLoader {
 			if (!data.isEmpty())
 				l = true;
 		} catch (Exception er) {
-			l=false;
+			l = false;
 		}
 	}
 

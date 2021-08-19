@@ -1,11 +1,7 @@
 package me.devtec.theapi.apis;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.bukkit.Color;
@@ -193,11 +189,13 @@ public class ItemCreatorAPI implements Cloneable {
 	private Color c;
 	private boolean unb;
 	private SkullType type;
-	private HashMap<Attribute, AttributeModifier> w = new HashMap<>();
-	private int s = 1, model = -1, dur = -1;
-	private HashMap<PotionEffectType, String> ef = new HashMap<>();
-	private HashMap<Enchantment, Integer> enchs = new HashMap<>();
-	private List<Object> pages = new ArrayList<>(), lore = new ArrayList<>(), map = new ArrayList<>();
+	private final HashMap<Attribute, AttributeModifier> w = new HashMap<>();
+	private int s, model, dur;
+	private final HashMap<PotionEffectType, String> ef = new HashMap<>();
+	private final HashMap<Enchantment, Integer> enchs = new HashMap<>();
+	private final List<Object> pages = new ArrayList<>();
+	private List<Object> lore = new ArrayList<>();
+	private final List<Object> map = new ArrayList<>();
 	private MaterialData data = null;
 	private Generation gen;
 
@@ -234,8 +232,7 @@ public class ItemCreatorAPI implements Cloneable {
 			model = getCustomModelData();
 		type = getSkullType();
 		try {
-			for (ItemFlag s : getItemFlags())
-				map.add(s);
+			map.addAll(getItemFlags());
 		} catch (Exception | NoSuchMethodError er) {
 		}
 		try {
@@ -297,7 +294,7 @@ public class ItemCreatorAPI implements Cloneable {
 	public boolean isItem(boolean canBeLegacy) {
 		String s = a.getType().name();
 		return !s.contains("WALL_") && !isAir() && !s.contains("_STEM") && !s.contains("POTTED_")
-				&& (canBeLegacy ? true : !s.contains("LEGACY_")) && !s.equals("END_PORTAL") && !s.equals("END_GATEWAY")
+				&& (canBeLegacy || !s.contains("LEGACY_")) && !s.equals("END_PORTAL") && !s.equals("END_GATEWAY")
 				&& !s.equals("NETHER_PORTAL") || isVisibleBlock();
 	}
 
@@ -326,7 +323,7 @@ public class ItemCreatorAPI implements Cloneable {
 
 	public void setMaterial(String byName) {
 		try {
-			a.setType(Material.matchMaterial(byName));
+			a.setType(Material.getMaterial(byName.toUpperCase()));
 		} catch (Exception e) {
 			Validator.send("Material doesn't exist", e);
 		}
@@ -336,7 +333,7 @@ public class ItemCreatorAPI implements Cloneable {
 		if (a.hasItemMeta())
 			if (a.getItemMeta() instanceof PotionMeta)
 				return ((PotionMeta) a.getItemMeta()).getCustomEffects();
-		return new ArrayList<PotionEffect>();
+		return new ArrayList<>();
 	}
 
 	public ItemMeta getItemMeta() {
@@ -427,7 +424,7 @@ public class ItemCreatorAPI implements Cloneable {
 	public List<String> getLore() {
 		if (a.hasItemMeta())
 			return a.getItemMeta().getLore();
-		return new ArrayList<String>();
+		return new ArrayList<>();
 	}
 
 	public String getOwner() {
@@ -469,9 +466,10 @@ public class ItemCreatorAPI implements Cloneable {
 
 	public void setLore(List<String> lore) {
 		if (lore != null) {
+			this.lore.clear();
 			for (String s : lore)
 				addLore(s);
-		}else lore =null;
+		}else this.lore =null;
 	}
 
 	public int getCustomModelData() {
@@ -493,7 +491,7 @@ public class ItemCreatorAPI implements Cloneable {
 		} catch (Exception | NoSuchMethodError er) {
 			try {
 			return (boolean) Ref.invoke(Ref.invoke(a.getItemMeta(), "spigot"),"isUnbreakable");
-			} catch (Exception | NoSuchMethodError errr) { //use our own wave
+			} catch (Exception | NoSuchMethodError err) { //use our own wave
 				return new NBTEdit(a).getBoolean("unbreakable");
 			}
 		}
@@ -531,10 +529,9 @@ public class ItemCreatorAPI implements Cloneable {
 
 	public List<ItemFlag> getItemFlags() {
 		try {
-			List<ItemFlag> items = new ArrayList<ItemFlag>();
+			List<ItemFlag> items = new ArrayList<>();
 			if (a.hasItemMeta())
-				for (ItemFlag f : a.getItemMeta().getItemFlags())
-					items.add(f);
+				items.addAll(a.getItemMeta().getItemFlags());
 			return items;
 		} catch (Exception | NoSuchMethodError er) {
 			return null;
@@ -543,8 +540,7 @@ public class ItemCreatorAPI implements Cloneable {
 
 	public void addItemFlag(ItemFlag... itemflag) {
 		if (itemflag != null)
-			for (ItemFlag f : itemflag)
-				map.add(f);
+			map.addAll(Arrays.asList(itemflag));
 	}
 
 	public Map<Attribute, AttributeModifier> getAttributeModifiers() {
@@ -701,7 +697,7 @@ public class ItemCreatorAPI implements Cloneable {
 			if (a.getItemMeta() instanceof BookMeta) {
 				return ((BookMeta) a.getItemMeta()).getPages();
 			}
-		return new ArrayList<String>();
+		return new ArrayList<>();
 	}
 
 	public String getBookPage(int page) {
@@ -908,5 +904,14 @@ public class ItemCreatorAPI implements Cloneable {
 		}
 		a=i;
 		return i;
+	}
+
+	@Override
+	public ItemCreatorAPI clone() {
+		try {
+			return (ItemCreatorAPI) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new AssertionError();
+		}
 	}
 }

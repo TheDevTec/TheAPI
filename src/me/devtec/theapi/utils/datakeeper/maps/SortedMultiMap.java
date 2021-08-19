@@ -11,7 +11,7 @@ import java.util.TreeMap;
 import me.devtec.theapi.utils.json.Writer;
 
 public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
-	private Map<K, Map<T, V>> data = new LinkedHashMap<>();
+	private final Map<K, Map<T, V>> data = new LinkedHashMap<>();
 
 	public SortedMultiMap() {
 	}
@@ -69,10 +69,8 @@ public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 
 	public V put(K key, T thread, V value) {
 		Map<T, V> map = data.get(key);
-		if (map == null) {
-			map = new TreeMap<>();
-			data.put(key, map);
-		}
+		if (map == null)
+			data.put(key, map = new TreeMap<>());
 		map.put(thread, value);
 		return value;
 	}
@@ -106,11 +104,11 @@ public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 	}
 
 	public String toString() {
-		String builder = "";
+		StringBuilder builder = new StringBuilder("{");
 		for (Entry<K, T, V> e : entrySet()) {
-			builder += (builder.isEmpty() ? "" : ", ") + "("+e.toString()+")";
+			builder.append((builder.length() == 0) ? "" : ", ").append('(').append(e.toString()).append(')');
 		}
-		return "{" + builder + "}";
+		return builder.append('}').toString();
 	}
 
 	@Override

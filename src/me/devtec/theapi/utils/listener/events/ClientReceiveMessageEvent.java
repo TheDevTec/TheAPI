@@ -5,8 +5,8 @@ import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.listener.Event;
 
 public class ClientReceiveMessageEvent extends Event {
-	private Data s;
-	private SocketClient c;
+	private final Data s;
+	private final SocketClient c;
 	
 	public ClientReceiveMessageEvent(SocketClient client, Data text) {
 		s=text;

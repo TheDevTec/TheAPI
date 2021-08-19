@@ -15,7 +15,7 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
 public class TheCoder {
 
 	/**
-	 * @see see Create Location from String
+	 * @apiNote Create Location from String
 	 * @return Location
 	 */
 	public static Location locationFromString(String savedLocation) {
@@ -33,18 +33,18 @@ public class TheCoder {
 	}
 
 	/**
-	 * @see see Convert Location to String
+	 * @apiNote Convert Location to String
 	 * @return String
 	 */
 	public static String locationToString(Location loc) {
-		if (loc == null)
+		if (loc == null || loc.getWorld() == null)
 			return null;
-		return (loc.getWorld().getName().replace("_", ":") + "," + loc.getX() + "," + loc.getY() + "," + loc.getBlockZ()
+		return (loc.getWorld().getName().replace("_", ":") + "," + loc.getX() + "," + loc.getY() + "," + loc.getZ()
 				+ "," + loc.getYaw() + "," + loc.getPitch()).replace(".", "_");
 	}
 
 	/**
-	 * @see see Convert Objects to String
+	 * @apiNote Convert Objects to String
 	 * @return String
 	 */
 	public static String toString(Object... objects) {
@@ -62,7 +62,7 @@ public class TheCoder {
 	}
 
 	/**
-	 * @see see Convert Object to String
+	 * @apiNote Convert Object to String
 	 * @return String
 	 */
 	public static String toString(Object object) {
@@ -79,7 +79,7 @@ public class TheCoder {
 	}
 
 	/**
-	 * @see see Convert Objects from String to List<T>
+	 * @apiNote Convert Objects from String to List<T>
 	 * @return List<T>
 	 */
 	public static <T> List<T> getObjectsFromString(String savedObjects) {
@@ -87,12 +87,12 @@ public class TheCoder {
 	}
 
 	/**
-	 * @see see Convert Objects from String to List<T>
+	 * @apiNote Convert Objects from String to List<T>
 	 * @return List<T>
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> List<T> fromStringToList(String savedObjects) {
-		List<T> r = new ArrayList<T>();
+		List<T> r = new ArrayList<>();
 		try {
 			ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(savedObjects));
 			BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
@@ -110,7 +110,7 @@ public class TheCoder {
 	}
 
 	/**
-	 * @see see Convert Object from String to T
+	 * @apiNote Convert Object from String to T
 	 * @return T
 	 */
 	public static <T> T getObjectFromString(String savedObject) {
@@ -118,7 +118,7 @@ public class TheCoder {
 	}
 
 	/**
-	 * @see see Convert Object from String to T
+	 * @apiNote Convert Object from String to T
 	 * @return T
 	 */
 	@SuppressWarnings("unchecked")

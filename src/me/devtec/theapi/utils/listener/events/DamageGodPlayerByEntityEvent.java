@@ -8,9 +8,9 @@ import me.devtec.theapi.utils.listener.Cancellable;
 import me.devtec.theapi.utils.listener.Event;
 
 public class DamageGodPlayerByEntityEvent extends Event implements Cancellable {
-	private Player s;
-	private DamageCause cause;
-	private Entity entity;
+	private final Player s;
+	private final DamageCause cause;
+	private final Entity entity;
 	private double damage;
 
 	public DamageGodPlayerByEntityEvent(Player p, Entity en, double dam, DamageCause ed) {

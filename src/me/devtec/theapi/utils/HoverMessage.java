@@ -24,7 +24,7 @@ public class HoverMessage {
 		SHOW_ITEM, SHOW_ACHIEVEMENT, SHOW_ENTITY, SHOW_TEXT
 	}
 
-	private Maker texts = new Maker();
+	private final Maker texts = new Maker();
 	private HashMap<String, Object> maker = new HashMap<>();
 
 	private boolean isSuper;
@@ -90,7 +90,7 @@ public class HoverMessage {
 			setColor("" + json.get("color"));
 		}
 		if(json.containsKey("extra")) {
-			if(json.get("extra") instanceof Map == false)return;
+			if(!(json.get("extra") instanceof Map))return;
 			Map<String, ?> jsons = (Map<String, ?>) json.get("extra");
 			while(true) {
 				if(jsons==null)break;
@@ -134,7 +134,7 @@ public class HoverMessage {
 					setColor("" + jsons.get("color"));
 				}
 				if(jsons.containsKey("extra")) {
-					if(jsons.get("extra") instanceof Map == false)break;
+					if(!(jsons.get("extra") instanceof Map))break;
 					jsons = (Map<String, ?>) jsons.get("extra");
 					continue;
 				}
@@ -147,7 +147,7 @@ public class HoverMessage {
 	public HoverMessage(Collection<?> texts) {
 		this();
 		for(Object text : texts) {
-			if(text instanceof Map == false) {
+			if(!(text instanceof Map)) {
 				addText(text+"");
 			}else
 			loadFromMap((Map<String, Object>) text);
@@ -254,9 +254,9 @@ public class HoverMessage {
 			if(text instanceof Map) {
 				@SuppressWarnings("unchecked")
 				Map<String, Object> map = (Map<String, Object>) text;
-				b.append(getColor(""+map.getOrDefault("color",""))+map.get("text"));
+				b.append(getColor("" + map.getOrDefault("color", ""))).append(map.get("text"));
 			}else {
-				b.append(text+"");
+				b.append(text);
 			}
 		}
 		return b.toString();

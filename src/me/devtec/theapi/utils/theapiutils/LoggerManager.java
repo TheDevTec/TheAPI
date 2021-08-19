@@ -20,7 +20,7 @@ public class LoggerManager {
 			ConsoleLogEvent e = new ConsoleLogEvent(record.getMessage(), format(record.getLevel().getName()));
 			TheAPI.callEvent(e);
 			record.setMessage(e.getMessage());
-			return e.isCancelled()?false:(e.getMessage()==null?false:true);
+			return !e.isCancelled() && (e.getMessage() != null);
 		}
 	}
 	
@@ -40,7 +40,7 @@ public class LoggerManager {
 			ConsoleLogEvent e = new ConsoleLogEvent(message,format(l.name()));
 			TheAPI.callEvent(e);
 			message=e.getMessage();
-			return e.isCancelled()?Filter.Result.DENY:(e.getMessage()==null?Filter.Result.DENY:Filter.Result.NEUTRAL);
+			return e.isCancelled()?Filter.Result.DENY:(message==null?Filter.Result.DENY:Filter.Result.NEUTRAL);
 		}
 		
 		public Filter.Result filter(LogEvent event) {

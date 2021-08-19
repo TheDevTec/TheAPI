@@ -10,7 +10,7 @@ import java.util.zip.GZIPOutputStream;
 import java.util.zip.Inflater;
 
 public class Compressors {
-	static byte[] buf = new byte[1024];
+	static final byte[] buf = new byte[1024];
 
 	public static byte[] decompress(byte[] in) {
 		Inflater decompressor = new Inflater(true);
@@ -45,7 +45,7 @@ public class Compressors {
 	}
 	
 	public static class Compressor {
-		private ByteArrayOutputStream end = new ByteArrayOutputStream();
+		private final ByteArrayOutputStream end = new ByteArrayOutputStream();
 		private GZIPOutputStream compressor;
 		private ObjectOutputStream get;
 
@@ -179,7 +179,7 @@ public class Compressors {
 
 		public Object readObject() {
 			try {
-				get.readObject();
+				return get.readObject();
 			} catch (Exception e) {
 			}
 			return null;
@@ -187,7 +187,7 @@ public class Compressors {
 
 		public String readString() {
 			try {
-				get.readUTF();
+				return get.readUTF();
 			} catch (Exception e) {
 			}
 			return null;

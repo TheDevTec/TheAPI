@@ -44,7 +44,7 @@ public class PunishmentAPI {
 		if(ip==null)return new ArrayList<>();
 		ip=fixIP(ip);
 		if (!isIP(ip))
-			new Exception("PunishmentAPI error, String must be IP, not player.");
+			new Exception("PunishmentAPI error, String must be IP, not player.").printStackTrace();
 		ip=ip.replace(".", "_");
 		return LoaderClass.data.getStringList("data."+ip);
 	}
@@ -259,10 +259,7 @@ public class PunishmentAPI {
 	}
 
 	public static List<String> getjails() {
-		ArrayList<String> list = new ArrayList<>();
-		for (String s : LoaderClass.data.getKeys("jails"))
-			list.add(s);
-		return list;
+		return new ArrayList<>(LoaderClass.data.getKeys("jails"));
 	}
 
 	public static void unban(String playerOrIP) {

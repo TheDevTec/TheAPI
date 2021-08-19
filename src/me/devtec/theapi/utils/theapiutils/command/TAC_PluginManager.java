@@ -33,9 +33,9 @@ public class TAC_PluginManager {
 			TheAPI.msg("&e/TheAPI PluginManager Info <plugin>", s);
 			TheAPI.msg("&e/TheAPI PluginManager Files", s);
 			List<Plugin> pl = PluginManagerAPI.getPlugins();
-			String sd = "";
+			StringBuilder sd = new StringBuilder();
 			for (Plugin w : pl)
-				sd += (sd.equals("") ? "" : "&7, ") + getPlugin(w) + " &6v" + w.getDescription().getVersion();
+				sd.append(sd.toString().equals("") ? "" : "&7, ").append(getPlugin(w)).append(" &6v").append(w.getDescription().getVersion());
 			TheAPI.msg("&7Plugins (" + pl.size() + "): " + sd, s);
 			return;
 		}
@@ -276,7 +276,7 @@ public class TAC_PluginManager {
 				for (Permission a : PluginManagerAPI.getPermissions(args[2])) {
 					TheAPI.msg("&7 » &e" + a.getName() + "&7:", s);
 					Map<String, Boolean> c = a.getChildren();
-					if (c.isEmpty() == false)
+					if (!c.isEmpty())
 						for (String d : c.keySet())
 							TheAPI.msg("&7   - " + (c.get(d) ? "&a" : "&c") + d, s);
 				}
@@ -309,11 +309,10 @@ public class TAC_PluginManager {
 		TheAPI.msg("&e/TheAPI PluginManager Info <plugin>", s);
 		TheAPI.msg("&e/TheAPI PluginManager Files", s);
 		List<Plugin> pl = PluginManagerAPI.getPlugins();
-		String sd = "";
+		StringBuilder sd = new StringBuilder();
 		for (Plugin w : pl)
-			sd += (sd.equals("") ? "" : "&7, ") + getPlugin(w) + " &6v" + w.getDescription().getVersion();
+			sd.append(sd.toString().equals("") ? "" : "&7, ").append(getPlugin(w)).append(" &6v").append(w.getDescription().getVersion());
 		TheAPI.msg("&7Plugins (" + pl.size() + "): " + sd, s);
-		return;
 	}
 
 	public static String getPlugin(Plugin a) {

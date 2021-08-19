@@ -7,7 +7,10 @@ import me.devtec.theapi.utils.reflections.Ref;
 
 public class DataWatcher {
 	private static final Constructor<?> c = Ref.constructor(Ref.nmsOrOld("network.syncher.DataWatcher","DataWatcher"), Ref.nmsOrOld("world.entity.Entity","Entity"));
-	private static Method get, getC, set, register;
+	private static Method get;
+    private static Method getC;
+    private static final Method set;
+    private static Method register;
 	static {
 		get=Ref.method(Ref.nmsOrOld("network.syncher.DataWatcher","DataWatcher"), "get", Ref.nmsOrOld("network.syncher.DataWatcherObject","DataWatcherObject"));
 		if(get==null) {

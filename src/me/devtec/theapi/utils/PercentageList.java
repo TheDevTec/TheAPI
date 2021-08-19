@@ -10,17 +10,15 @@ import java.util.Random;
 import java.util.Set;
 
 public class PercentageList<T> {
-	private static Random random = new Random();
+	private static final Random random = new Random();
 	private final HashMap<T, Double> a = new HashMap<>();
 
-	public boolean add(T t, double percent) {
+	public void add(T t, double percent) {
 		a.put(t, percent);
-		return true;
 	}
 
-	public boolean remove(T t) {
+	public void remove(T t) {
 		a.remove(t);
-		return true;
 	}
 
 	public boolean contains(T t) {
@@ -58,11 +56,11 @@ public class PercentageList<T> {
 		@SuppressWarnings("unchecked")
 		Entry<K,Double>[] aw = keys.entrySet().toArray(new Entry[0]);
 		Entry<K,Double> found = aw[keys.size()-1];
-		for(int i = 0; i < aw.length; ++i) {
-			Entry<K, Double> e = (Entry<K, Double>) aw[i];
-			if(chance<e.getValue() && chance > nearest) {
-				nearest=e.getValue();
-				found=e;
+		for (Entry<K, Double> kDoubleEntry : aw) {
+			Entry<K, Double> e = (Entry<K, Double>) kDoubleEntry;
+			if (chance < e.getValue() && chance > nearest) {
+				nearest = e.getValue();
+				found = e;
 			}
 		}
 		return found.getKey();

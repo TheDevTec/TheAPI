@@ -87,7 +87,7 @@ public enum EnchantmentAPI {
 
 	private final String s;
 	private final int v;
-	private static Method getByName = Ref.method(Enchantment.class, "getByName", String.class);
+	private static final Method getByName = Ref.method(Enchantment.class, "getByName", String.class);
 
 	EnchantmentAPI(String real) {
 		this(real, 0);
@@ -112,7 +112,7 @@ public enum EnchantmentAPI {
 	}
 
 	/**
-	 * @see see Return enchantment real name
+	 * @apiNote Return enchantment real name
 	 * @return String
 	 */
 	public String getName() {
@@ -132,8 +132,7 @@ public enum EnchantmentAPI {
 	}
 
 	public static List<Enchantment> getEnchantments(ItemStack item) {
-		List<Enchantment> list = new ArrayList<Enchantment>(item.getEnchantments().keySet());
-		return list;
+		return new ArrayList<>(item.getEnchantments().keySet());
 	}
 
 	public static boolean registerEnchantment(org.bukkit.enchantments.Enchantment e) {

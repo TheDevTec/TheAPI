@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 public class MultiThread implements Executor {
-	protected Map<Integer, Thread> threads = new HashMap<>();
+	protected final Map<Integer, Thread> threads = new HashMap<>();
 	protected final AtomicInteger i = new AtomicInteger();
 	
 	public void destroy() {

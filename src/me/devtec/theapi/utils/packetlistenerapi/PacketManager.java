@@ -19,9 +19,9 @@ public class PacketManager {
 			return packet;
 		for (Priority o : list)
 			for (PacketListener w : listeners.get(o)) {
+				if(packet==null)return null;
 				if (type == PacketType.PLAY_OUT ? w.PacketPlayOut(player, packet, channel) : w.PacketPlayIn(player, packet, channel))
 					return null;
-				if(packet==null)return null;
 			}
 		return packet;
 	}

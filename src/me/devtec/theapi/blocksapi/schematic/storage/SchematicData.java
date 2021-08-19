@@ -96,34 +96,60 @@ public class SchematicData extends Data {
 		isSaving=true;
 		if(!requireSave)return;
 		requireSave=false;
-		if (a == null)
+		if (a == null) {
+			isSaving=false;
 			return;
+		}
 		try {
 		OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
-		try {
-			ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
-			for (Entry<String, Object[]> key : loader.get().entrySet())
-				try {
-					bos.writeUTF(key.getKey());
-					if(key.getValue()[0]==null) {
-						bos.writeUTF(null);
-					}else {
-						String write = Writer.write(key.getValue()[0]);
-						while(write.length()>50000) {
-							String wr = write.substring(0, 49999);
-							bos.writeUTF('1'+wr);
-							write=write.substring(49999);
+		ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
+		bos.writeInt(2);
+		bos.writeUTF("1");
+		for (Entry<String, Object[]> key : loader.get().entrySet())
+			try {
+				bos.writeUTF(key.getKey());
+				if(key.getValue()[0]==null) {
+					bos.writeUTF("null");
+					bos.writeUTF("0");
+				}else {
+					if(key.getValue().length >2)
+						if(key.getValue()[2]!=null && key.getValue()[2] instanceof String) {
+							String write = (String)key.getValue()[2];
+							if(write==null) {
+								bos.writeUTF("null");
+								bos.writeUTF("0");
+								continue;
+							}
+							while(write.length()>40000) {
+								String wr = write.substring(0, 39999);
+								bos.writeUTF("0"+wr);
+								write=write.substring(39999);
+							}
+							bos.writeUTF("0"+write);
+							bos.writeUTF("0");
+							continue;
 						}
-						bos.writeUTF('1'+write);
+					Object val = key.getValue()[0];
+					String write = val instanceof String ? (String)val:Writer.write(val);
+					if(write==null) {
+						bos.writeUTF("null");
+						bos.writeUTF("0");
+						continue;
 					}
-					bos.writeUTF("1");
-				} catch (Exception er) {
+					while(write.length()>40000) {
+						String wr = write.substring(0, 39999);
+						bos.writeUTF("0"+wr);
+						write=write.substring(39999);
+					}
+					bos.writeUTF("0"+write);
+					bos.writeUTF("0");
+					continue;
 				}
+			} catch (Exception er) {
+				er.printStackTrace();
+			}
 			w.write(Base64.getEncoder().encodeToString(Compressors.compress(bos.toByteArray())));
 			w.close();
-		} catch (Exception e) {
-			w.close();
-		}
 		}catch(Exception er) {}
 		isSaving=false;
 	}
@@ -141,7 +167,7 @@ public class SchematicData extends Data {
 				try {
 					bos.writeUTF(key.getKey());
 					if(key.getValue()[0]==null) {
-						bos.writeUTF(null);
+						bos.writeUTF("null");
 					}else {
 						String write = Writer.write(key.getValue()[0]);
 						while(write.length()>50000) {

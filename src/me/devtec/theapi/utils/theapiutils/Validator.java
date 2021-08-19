@@ -3,7 +3,7 @@ package me.devtec.theapi.utils.theapiutils;
 import org.bukkit.Bukkit;
 
 public class Validator {
-	public static boolean hideErrors = LoaderClass.config.getBoolean("Options.HideErrors");
+	public static final boolean hideErrors = LoaderClass.config.getBoolean("Options.HideErrors");
 
 	public static void validate(boolean question, String error) {
 		if (question)

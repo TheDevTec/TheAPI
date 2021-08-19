@@ -63,7 +63,7 @@ public class TAC_Worlds {
 			if (args.length == 4) {
 				Player p = Bukkit.getPlayer(args[3]);
 				if (p == null) {
-					TheAPI.msg("&ePlayer " + args[3] + " isn't online", p);
+					TheAPI.msg("&ePlayer " + args[3] + " isn't online", s);
 					return;
 				}
 				try {
@@ -287,7 +287,6 @@ public class TAC_Worlds {
 		TheAPI.msg("&7Worlds:", s);
 		for (World w : Bukkit.getWorlds())
 			TheAPI.msg("&7 - &e" + w.getName(), s);
-		return;
 	}
 
 }

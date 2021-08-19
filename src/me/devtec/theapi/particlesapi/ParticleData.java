@@ -9,7 +9,7 @@ import me.devtec.theapi.utils.reflections.Ref;
 
 public class ParticleData {
 	public static class NoteOptions extends ParticleData {
-		private int note;
+		private final int note;
 
 		public NoteOptions(int note) {
 			if (note < 0) {
@@ -39,7 +39,10 @@ public class ParticleData {
 	}
 
 	public static class RedstoneOptions extends ParticleData {
-		private float red, green, blue, size;
+		private final float red;
+		private final float green;
+		private final float blue;
+		private final float size;
 
 		public RedstoneOptions(float size, float red, float green, float blue) {
 			if (red < 0) {
@@ -104,7 +107,7 @@ public class ParticleData {
 	}
 
 	public static class ItemOptions extends ParticleData {
-		private ItemStack item;
+		private final ItemStack item;
 		private int[] packetData;
 
 		public ItemOptions(ItemStack stack) {
@@ -139,7 +142,7 @@ public class ParticleData {
 	}
 
 	public static class BlockOptions extends ParticleData {
-		private TheMaterial material;
+		private final TheMaterial material;
 		private int[] packetData;
 
 		public BlockOptions(TheMaterial material) {

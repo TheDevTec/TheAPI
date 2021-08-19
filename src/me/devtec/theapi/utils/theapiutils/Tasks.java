@@ -18,10 +18,10 @@ import me.devtec.theapi.utils.serverlist.PlayerProfile;
 
 public class Tasks {
 	private static boolean load;
-	private static Class<?> c = Ref.getClass("com.mojang.authlib.GameProfile") != null
+	private static final Class<?> c = Ref.getClass("com.mojang.authlib.GameProfile") != null
 			? Ref.getClass("com.mojang.authlib.GameProfile")
 			: Ref.getClass("net.minecraft.util.com.mojang.authlib.GameProfile");
-	private static Constructor<?> cc = Ref.constructor(Ref.nmsOrOld("network.protocol.status.ServerPing$ServerPingPlayerSample","ServerPing$ServerPingPlayerSample")!=null?Ref.nmsOrOld("network.protocol.status.ServerPing$ServerPingPlayerSample","ServerPing$ServerPingPlayerSample"):Ref.nms("ServerPingPlayerSample"), int.class,
+	private static final Constructor<?> cc = Ref.constructor(Ref.nmsOrOld("network.protocol.status.ServerPing$ServerPingPlayerSample","ServerPing$ServerPingPlayerSample")!=null?Ref.nmsOrOld("network.protocol.status.ServerPing$ServerPingPlayerSample","ServerPing$ServerPingPlayerSample"):Ref.nms("ServerPingPlayerSample"), int.class,
 			int.class);
 	private static PacketListener l;
 	
@@ -33,13 +33,13 @@ public class Tasks {
 		if(LoaderClass.config.getBoolean("Options.ServerListPingEvent")) {
 			if (l == null)
 				l = new PacketListener() {
-					Class<?> info = Ref.nmsOrOld("network.protocol.status.PacketStatusOutServerInfo","PacketStatusOutServerInfo");
-					Field w = Ref.field(info, "b");
-					Field players = Ref.field(Ref.nmsOrOld("network.protocol.status.ServerPing$ServerPingPlayerSample","ServerPing$ServerPingPlayerSample")!=null?Ref.nmsOrOld("network.protocol.status.ServerPing$ServerPingPlayerSample","ServerPing$ServerPingPlayerSample"):Ref.nms("ServerPingPlayerSample"), "c");
-					Field setp = Ref.field(Ref.nmsOrOld("network.protocol.status.ServerPing", "ServerPing"), TheAPI.isNewerThan(16)?"d":"b");
-					Field setm = Ref.field(Ref.nmsOrOld("network.protocol.status.ServerPing", "ServerPing"), TheAPI.isNewerThan(16)?"c":"a");
-					Field gets = Ref.field(Ref.nmsOrOld("network.protocol.status.ServerPing", "ServerPing"), TheAPI.isNewerThan(16)?"e":"c");
-					Field falv = Ref.field(info, TheAPI.isNewerThan(16)?"f":"d");
+					final Class<?> info = Ref.nmsOrOld("network.protocol.status.PacketStatusOutServerInfo","PacketStatusOutServerInfo");
+					final Field w = Ref.field(info, "b");
+					final Field players = Ref.field(Ref.nmsOrOld("network.protocol.status.ServerPing$ServerPingPlayerSample","ServerPing$ServerPingPlayerSample")!=null?Ref.nmsOrOld("network.protocol.status.ServerPing$ServerPingPlayerSample","ServerPing$ServerPingPlayerSample"):Ref.nms("ServerPingPlayerSample"), "c");
+					final Field setp = Ref.field(Ref.nmsOrOld("network.protocol.status.ServerPing", "ServerPing"), TheAPI.isNewerThan(16)?"d":"b");
+					final Field setm = Ref.field(Ref.nmsOrOld("network.protocol.status.ServerPing", "ServerPing"), TheAPI.isNewerThan(16)?"c":"a");
+					final Field gets = Ref.field(Ref.nmsOrOld("network.protocol.status.ServerPing", "ServerPing"), TheAPI.isNewerThan(16)?"e":"c");
+					final Field falv = Ref.field(info, TheAPI.isNewerThan(16)?"f":"d");
 					public boolean PacketPlayOut(String player, Object packet, Object channel) {
 						if (packet.getClass()==info) {
 							Object w = Ref.get(packet, this.w);

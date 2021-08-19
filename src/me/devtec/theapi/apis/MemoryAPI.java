@@ -8,7 +8,7 @@ import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.StringUtils;
 
 public class MemoryAPI {
-	private static double mb = 1048576;
+	private static final double mb = 1048576;
 
 	public static String clearMemory() {
 		double mem = getRawUsedMemory(false);

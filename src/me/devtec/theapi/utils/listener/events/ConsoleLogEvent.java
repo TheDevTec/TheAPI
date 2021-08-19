@@ -4,7 +4,8 @@ import me.devtec.theapi.utils.listener.Cancellable;
 import me.devtec.theapi.utils.listener.Event;
 
 public class ConsoleLogEvent extends Event implements Cancellable {
-	private String mes, level;
+	private String mes;
+    private final String level;
 	private boolean cancel;
 	
 	public ConsoleLogEvent(String message, String level) {

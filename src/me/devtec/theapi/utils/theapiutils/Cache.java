@@ -14,8 +14,8 @@ import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.json.Reader;
 
 public class Cache {
-	private String USER_FORMAT="https://api.ashcon.app/mojang/v2/user/%s";
-	protected Map<String, Query> values = new HashMap<>();
+	private final String USER_FORMAT="https://api.ashcon.app/mojang/v2/user/%s";
+	protected final Map<String, Query> values = new HashMap<>();
 	
 	public UUID lookupId(String name){
 		Query o = values.get(name.toLowerCase());
@@ -83,7 +83,7 @@ public class Cache {
 	
 	public String lookupName(String name) {
 		Query get = values.get(name.toLowerCase());
-		String result = null;
+		String result;
 		if(get==null) {
 			UUID uuid = Bukkit.getOnlineMode()?lookupIdFromMojang(name):
 				UUID.nameUUIDFromBytes(("OfflinePlayer:"+name).getBytes(StandardCharsets.UTF_8));

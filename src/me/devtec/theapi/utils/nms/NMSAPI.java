@@ -24,19 +24,39 @@ import me.devtec.theapi.utils.reflections.Ref;
 
 public class NMSAPI {
 
-	private static Class<?> enumTitle;
-	private static Constructor<?> pDestroy, pTimes, pTitle, pSub, pAction, pReset, pOutChat, pTab, pBlock,
-			pSpawn, pNSpawn, pLSpawn, pTeleport,
-			metadata = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityMetadata","PacketPlayOutEntityMetadata"), int.class, Ref.nmsOrOld("network.syncher.DataWatcher","DataWatcher"), boolean.class);
-	private static Method entityM, livingentity, post, parseNbt = Ref.method(Ref.nmsOrOld("nbt.MojangsonParser","MojangsonParser"), "parse", String.class),
-	setNbt,
-	asNms=Ref.method(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class), getNbt,
-	asBukkit=Ref.method(Ref.craft("inventory.CraftItemStack"), "asBukkitCopy", Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
+	private static final Class<?> enumTitle;
+	private static Constructor<?> pDestroy;
+	private static Constructor<?> pTimes;
+	private static final Constructor<?> pTitle;
+	private static Constructor<?> pSub;
+	private static Constructor<?> pAction;
+	private static Constructor<?> pReset;
+	private static Constructor<?> pOutChat;
+	private static Constructor<?> pTab;
+	private static Constructor<?> pBlock;
+	private static final Constructor<?> pSpawn;
+	private static final Constructor<?> pNSpawn;
+	private static final Constructor<?> pLSpawn;
+	private static final Constructor<?> pTeleport;
+	private static final Constructor<?> metadata = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityMetadata","PacketPlayOutEntityMetadata"), int.class, Ref.nmsOrOld("network.syncher.DataWatcher","DataWatcher"), boolean.class);
+	private static final Method entityM;
+	private static final Method livingentity;
+	private static Method post;
+	private static final Method parseNbt = Ref.method(Ref.nmsOrOld("nbt.MojangsonParser","MojangsonParser"), "parse", String.class);
+	private static final Method setNbt;
+	private static final Method asNms=Ref.method(Ref.craft("inventory.CraftItemStack"), "asNMSCopy", ItemStack.class);
+	private static final Method getNbt;
+	private static final Method asBukkit=Ref.method(Ref.craft("inventory.CraftItemStack"), "asBukkitCopy", Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
 	
 	private static int old;
-	private static Field tps;
-	private static Object sbremove, sbinteger, sbchange, sbhearts, empty, server;
-	private static Field[] scr = new Field[4];
+	private static final Field tps;
+	private static Object sbremove;
+	private static final Object sbinteger;
+	private static Object sbchange;
+	private static final Object sbhearts;
+	private static final Object empty;
+	private static final Object server;
+	private static final Field[] scr = new Field[4];
 	private static int spec;
 	
 	static {
@@ -112,11 +132,11 @@ public class NMSAPI {
 		empty = Ref.IChatBaseComponent("");
 	}
 
-	public static enum Action {
+	public enum Action {
 		CHANGE, REMOVE
 	}
 
-	public static enum DisplayType {
+	public enum DisplayType {
 		INTEGER, HEARTS
 	}
 	
@@ -172,7 +192,7 @@ public class NMSAPI {
 
 	// Entity
 	public static Object getPacketPlayOutEntityMetadata(Object entity) {
-		return Ref.newInstance(metadata, (int) Ref.invoke(entity, "getId"), Ref.invoke(entity, "getDataWatcher"), true);
+		return Ref.newInstance(metadata, Ref.invoke(entity, "getId"), Ref.invoke(entity, "getDataWatcher"), true);
 	}
 
 	public static Object getPacketPlayOutEntityMetadata(Entity entity, DataWatcher dataWatcher) {
@@ -193,7 +213,7 @@ public class NMSAPI {
 		return Ref.newInstance(metadata, entityId, dataWatcher, bal);
 	}
 
-	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
 	
 	public static Object getPacketPlayOutScoreboardObjective() {
 		try {
@@ -244,7 +264,7 @@ public class NMSAPI {
 		return null;
 	}
 
-	private static Method poost = Ref.method(Ref.nmsOrOld("server.MinecraftServer","MinecraftServer"), "postToMainThread", Runnable.class);
+	private static final Method poost = Ref.method(Ref.nmsOrOld("server.MinecraftServer","MinecraftServer"), "postToMainThread", Runnable.class);
 	
 	@SuppressWarnings("unchecked")
 	public static void postToMainThread(Runnable runnable) {
@@ -274,11 +294,11 @@ public class NMSAPI {
 		return (double[]) Ref.get(getServer(), tps);
 	}
 
-	public static enum TitleAction {
+	public enum TitleAction {
 		ACTIONBAR, CLEAR, RESET, SUBTITLE, TITLE, TIMES
 	}
 
-	public static enum ChatType {
+	public enum ChatType {
 		CHAT, GAME_INFO, SYSTEM
 	}
 
@@ -321,13 +341,12 @@ public class NMSAPI {
 	}
 
 	public static Object getPacketPlayOutChat(ChatType type, Object IChatBaseComponent) {
-		Object o = old == 2 ? Ref.newInstance(pOutChat, IChatBaseComponent, (byte) 1)
+		return old == 2 ? Ref.newInstance(pOutChat, IChatBaseComponent, (byte) 1)
 				: (old == 0
 						? Ref.newInstance(pOutChat, IChatBaseComponent,
 								Ref.getNulled(Ref.field(Ref.nmsOrOld("network.chat.ChatMessageType","ChatMessageType"), TheAPI.isNewerThan(16)?convertNew(type.name()):type.name())))
 						: Ref.newInstance(pOutChat, IChatBaseComponent,
 								Ref.getNulled(Ref.field(Ref.nmsOrOld("network.chat.ChatMessageType","ChatMessageType"), TheAPI.isNewerThan(16)?convertNew(type.name()):type.name())), UUID.randomUUID()));
-		return o;
 	}
 
 	private static String convertNew(String name) {
@@ -426,7 +445,7 @@ public class NMSAPI {
 			if (!((String)Ref.invoke(c, "getText")).isEmpty() || color != null) {
 				if (color != null) {
 					if (Ref.get(color, "format") != null) {
-						out.append(""+Ref.get(color, "format"));
+						out.append("").append(Ref.get(color, "format"));
 						hadFormat = true;
 					} else if(TheAPI.isNewerThan(15)){
 						out.append("§x");
@@ -442,31 +461,31 @@ public class NMSAPI {
 					}else
 					hadFormat = false;
 				} else if (hadFormat) {
-					out.append(""+ChatColor.RESET);
+					out.append("" + ChatColor.RESET);
 					hadFormat = false;
 				}
 			}
 			if ((boolean)Ref.invoke(modi, "isBold")) {
-				out.append(""+ChatColor.BOLD);
+				out.append("" + ChatColor.BOLD);
 				hadFormat = true;
 			}
 			if ((boolean)Ref.invoke(modi, "isItalic")) {
-				out.append(""+ChatColor.ITALIC);
+				out.append("" + ChatColor.ITALIC);
 				hadFormat = true;
 			}
 			if ((boolean)Ref.invoke(modi, "isUnderlined")) {
-				out.append(""+ChatColor.UNDERLINE);
+				out.append("" + ChatColor.UNDERLINE);
 				hadFormat = true;
 			}
 			if ((boolean)Ref.invoke(modi, "isStrikethrough")) {
-				out.append(""+ChatColor.STRIKETHROUGH);
+				out.append("" + ChatColor.STRIKETHROUGH);
 				hadFormat = true;
 			}
 			if ((boolean)Ref.invoke(modi, "isRandom")) {
-				out.append(""+ChatColor.MAGIC);
+				out.append("" + ChatColor.MAGIC);
 				hadFormat = true;
 			}
-			out.append(""+Ref.invoke(c, "getText"));
+			out.append("").append(Ref.invoke(c, "getText"));
 		}
 		return out.toString();
 	}

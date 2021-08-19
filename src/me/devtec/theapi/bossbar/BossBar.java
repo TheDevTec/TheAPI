@@ -16,14 +16,19 @@ import me.devtec.theapi.utils.theapiutils.LoaderClass;
  * 1.8 - 1.17+
  */
 public class BossBar {
-	private static boolean ww = !TheAPI.isOlderThan(9);
-	private static Class<?> c = Ref.nms("EntityWither");
-	private static Constructor<?> barC= Ref.constructor(Ref.nmsOrOld("server.level.BossBattleServer","BossBattleServer"), Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"),
-			Ref.nmsOrOld("world.BossBattle$BarColor","BossBattle$BarColor"), Ref.nmsOrOld("world.BossBattle$BarStyle","BossBattle$BarStyle")), tpC=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityTeleport","PacketPlayOutEntityTeleport")),barOld=Ref.constructor(c, Ref.nmsOrOld("world.level.World","World"));
-	private static Method mSend = Ref.method(Ref.nmsOrOld("server.level.BossBattleServer","BossBattleServer"), "sendUpdate", TheAPI.isNewerThan(16)?Function.class:Ref.nmsOrOld("network.protocol.game.PacketPlayOutBoss$Action","PacketPlayOutBoss$Action")),mAdd=Ref.method(Ref.nmsOrOld("server.level.BossBattleServer","BossBattleServer"), "addPlayer", Ref.nmsOrOld("server.level.EntityPlayer","EntityPlayer")),idM=Ref.method(Ref.nmsOrOld("world.entity.Entity","Entity"), "getId"),
-			mVis=Ref.method(Ref.nmsOrOld("server.level.BossBattleServer","BossBattleServer"), "setVisible", boolean.class),mLoc=Ref.method(Ref.nmsOrOld("world.entity.Entity","Entity"), "setLocation", double.class, double.class, double.class, float.class, float.class);
+	private static final boolean ww = !TheAPI.isOlderThan(9);
+	private static final Class<?> c = Ref.nms("EntityWither");
+	private static final Constructor<?> barC= Ref.constructor(Ref.nmsOrOld("server.level.BossBattleServer","BossBattleServer"), Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"),
+			Ref.nmsOrOld("world.BossBattle$BarColor","BossBattle$BarColor"), Ref.nmsOrOld("world.BossBattle$BarStyle","BossBattle$BarStyle"));
+	private static final Constructor<?> tpC=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityTeleport","PacketPlayOutEntityTeleport"));
+	private static final Constructor<?> barOld=Ref.constructor(c, Ref.nmsOrOld("world.level.World","World"));
+	private static final Method mSend = Ref.method(Ref.nmsOrOld("server.level.BossBattleServer","BossBattleServer"), "sendUpdate", TheAPI.isNewerThan(16)?Function.class:Ref.nmsOrOld("network.protocol.game.PacketPlayOutBoss$Action","PacketPlayOutBoss$Action"));
+	private static final Method mAdd=Ref.method(Ref.nmsOrOld("server.level.BossBattleServer","BossBattleServer"), "addPlayer", Ref.nmsOrOld("server.level.EntityPlayer","EntityPlayer"));
+	private static final Method idM=Ref.method(Ref.nmsOrOld("world.entity.Entity","Entity"), "getId");
+	private static final Method mVis=Ref.method(Ref.nmsOrOld("server.level.BossBattleServer","BossBattleServer"), "setVisible", boolean.class);
+	private static final Method mLoc=Ref.method(Ref.nmsOrOld("world.entity.Entity","Entity"), "setLocation", double.class, double.class, double.class, float.class, float.class);
 	
-	private Player p;
+	private final Player p;
 	private String title;
 	private double progress;
 	private Object bar;

@@ -22,13 +22,13 @@ import net.minecraft.util.io.netty.channel.ChannelInitializer;
 import net.minecraft.util.io.netty.channel.ChannelPromise;
 
 public class PacketHandler_Old implements PacketHandler<Channel> {
-	private static Class<?> login = Ref.nms("PacketLoginInStart");
-	private static Class<?> postlogin = Ref.nms("PacketLoginOutSuccess");
-	static Field f = Ref.field(login, "a");
-	static Field fPost = Ref.field(postlogin, "a");
-	private Map<String, Channel> channelLookup = new HashMap<>();
+	private static final Class<?> login = Ref.nms("PacketLoginInStart");
+	private static final Class<?> postlogin = Ref.nms("PacketLoginOutSuccess");
+	static final Field f = Ref.field(login, "a");
+	static final Field fPost = Ref.field(postlogin, "a");
+	private final Map<String, Channel> channelLookup = new HashMap<>();
 	private List<?> networkManagers;
-	private List<Channel> serverChannels = new ArrayList<>();
+	private final List<Channel> serverChannels = new ArrayList<>();
 	private ChannelInboundHandlerAdapter serverChannelHandler;
 	private Object serverConnection;
 	private ChannelInitializer<Channel> beginInitProtocol, endInitProtocol;
@@ -49,24 +49,18 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 					Thread.sleep(50);
 				} catch (Exception e) {
 				}
-			new Tasker() {
-				public void run() {
-					registerChannelHandler();
-					registerPlayers();
-				}
-			}.runLater(1);
-		}else
-			new Tasker() {
-				public void run() {
-					registerChannelHandler();
-					registerPlayers();
-				}
-			}.runLater(1);
+		}
+		new Tasker() {
+			public void run() {
+				registerChannelHandler();
+				registerPlayers();
+			}
+		}.runLater(1);
 	}
 
 	private void createServerChannelHandler() {
 		endInitProtocol = new ChannelInitializer<Channel>() {
-			protected void initChannel(Channel channel) throws Exception {
+			protected void initChannel(Channel channel) {
 				try {
 					synchronized (networkManagers) {
 						if (!closed) {
@@ -85,14 +79,14 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 
 		};
 		beginInitProtocol = new ChannelInitializer<Channel>() {
-			protected void initChannel(Channel channel) throws Exception {
+			protected void initChannel(Channel channel) {
 				channel.pipeline().addLast(endInitProtocol);
 			}
 
 		};
 
 		serverChannelHandler = new ChannelInboundHandlerAdapter() {
-			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+			public void channelRead(ChannelHandlerContext ctx, Object msg) {
 				Channel channel = (Channel) msg;
 				channel.pipeline().addFirst(beginInitProtocol);
 				ctx.fireChannelRead(channel);

@@ -94,8 +94,11 @@ public class LoaderClass extends JavaPlugin {
 	public final Set<BossBar> bars = new HashSet<>();
 	// TheAPI
 	public static LoaderClass plugin;
-	public static Config config = new Config("TheAPI/Config.yml"), sockets = new Config("TheAPI/Sockets.yml"), tags, data,
-			database=new Config("TheAPI/PunishmentAPI-Database.yml");
+	public static final Config config = new Config("TheAPI/Config.yml");
+	public static final Config sockets = new Config("TheAPI/Sockets.yml");
+	public static Config tags;
+	public static Config data;
+	public static final Config database=new Config("TheAPI/PunishmentAPI-Database.yml");
 	public static SQLAPI banlist;
 	public static Cache cache;
 	
@@ -118,9 +121,12 @@ public class LoaderClass extends JavaPlugin {
 	
 	static int airR = 0;
 	static Field shift,item,slotR,button,a,quickMove;
-	static Method getSlot = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "getSlot", int.class),getItem= Ref.method(Ref.nmsOrOld("world.inventory.Slot","Slot"), "getItem");
+	static final Method getSlot = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "getSlot", int.class);
+	static final Method getItem= Ref.method(Ref.nmsOrOld("world.inventory.Slot","Slot"), "getItem");
 	static Constructor<?> setSlotR = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
-	static Class<?> resource = Ref.nmsOrOld("network.protocol.game.PacketPlayInResourcePackStatus","PacketPlayInResourcePackStatus"), close = Ref.nmsOrOld("network.protocol.game.PacketPlayInCloseWindow","PacketPlayInCloseWindow"), click = Ref.nmsOrOld("network.protocol.game.PacketPlayInWindowClick","PacketPlayInWindowClick");
+	static final Class<?> resource = Ref.nmsOrOld("network.protocol.game.PacketPlayInResourcePackStatus","PacketPlayInResourcePackStatus");
+	static final Class<?> close = Ref.nmsOrOld("network.protocol.game.PacketPlayInCloseWindow","PacketPlayInCloseWindow");
+	static final Class<?> click = Ref.nmsOrOld("network.protocol.game.PacketPlayInWindowClick","PacketPlayInWindowClick");
 	static {
 		if(setSlotR==null) {
 			++airR;
@@ -132,7 +138,7 @@ public class LoaderClass extends JavaPlugin {
 			item=Ref.field(click, TheAPI.isNewerThan(16)?"g":"item");
 			slotR=Ref.field(click, TheAPI.isNewerThan(16)?"d":"slot");
 			button=Ref.field(click, TheAPI.isNewerThan(16)?"e":"button");
-			quickMove=Ref.field(click, TheAPI.isNewerThan(16)?"h":"h");
+			quickMove=Ref.field(click, "h");
 		}else {
 			a=Ref.field(click, "a");
 			shift=Ref.field(click, TheAPI.isNewerThan(16)?"d":"shift");
@@ -142,8 +148,8 @@ public class LoaderClass extends JavaPlugin {
 			if(TheAPI.isNewerThan(16))quickMove=Ref.field(click, "f");
 		}
 	}
-	static Constructor<?> setSlot = setSlotR;
-	static int airplane = airR;
+	static final Constructor<?> setSlot = setSlotR;
+	static final int airplane = airR;
 
 	private String generate() {
 		String d = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -156,8 +162,8 @@ public class LoaderClass extends JavaPlugin {
 		return b.toString();
 	}
 
-	public static enum InventoryClickType {
-		PICKUP, QUICK_MOVE, SWAP, CLONE, THROW, QUICK_CRAFT, PICKUP_ALL;
+	public enum InventoryClickType {
+		PICKUP, QUICK_MOVE, SWAP, CLONE, THROW, QUICK_CRAFT, PICKUP_ALL
 	}
 	
 	@Override
@@ -443,7 +449,7 @@ public class LoaderClass extends JavaPlugin {
 				return false;
 			}
 			
-			Class<?> c = Ref.nmsOrOld("network.protocol.game.PacketPlayOutBlockChange", "PacketPlayOutBlockChange");
+			final Class<?> c = Ref.nmsOrOld("network.protocol.game.PacketPlayOutBlockChange", "PacketPlayOutBlockChange");
 			
 			@Override
 			public boolean PacketPlayOut(String player, Object packet, Object channel) {
@@ -472,8 +478,8 @@ public class LoaderClass extends JavaPlugin {
 			public boolean PacketPlayOut(String player, Object packet, Object channel) {
 				return false;
 			}
-			boolean installedModificationPlugin = PluginManagerAPI.getPlugin("ViaVersion")!=null||PluginManagerAPI.getPlugin("ProtocolSupport")!=null;
-			ItemStack empty = new ItemStack(Material.AIR);
+			final boolean installedModificationPlugin = PluginManagerAPI.getPlugin("ViaVersion")!=null||PluginManagerAPI.getPlugin("ProtocolSupport")!=null;
+			final ItemStack empty = new ItemStack(Material.AIR);
 			public boolean PacketPlayIn(String player, Object packet, Object channel) {
 				if(player==null)return false; //NPC
 				//ResourcePackAPI
@@ -503,7 +509,7 @@ public class LoaderClass extends JavaPlugin {
 					int slot = (int) Ref.get(packet, slotR);
 					int mouseClick = (int) Ref.get(packet, button);
 					Object aw = Ref.get(packet, shift);
-					InventoryClickType type = null;
+					InventoryClickType type;
 					if(aw instanceof Integer) {
 						type=InventoryClickType.values()[(int)aw];
 					}else {
@@ -519,7 +525,6 @@ public class LoaderClass extends JavaPlugin {
 						mouseClick=0;
 					}
 					ItemStack before = p.getItemOnCursor();
-					if(before==null)before=new ItemStack(Material.AIR);
 					if(i==null)i=new ItemStack(Material.AIR);
 					ClickType w = GUIEvents.buildClick(i, type, slot, mouseClick);
 					boolean cancel = GUIEvents.useItem(p, i, d, slot, w);
@@ -698,8 +703,8 @@ public class LoaderClass extends JavaPlugin {
 			 * %theapi_{theapi_placeholder_here}%
 			 */
 			new PlaceholderExpansion() {
-				Pattern math = Pattern.compile("math\\{((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*))\\}");
-				Pattern limiter = Pattern.compile("limiter\\{((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*)),[ ]*((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*)),[ ]*((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*))\\}");
+				final Pattern math = Pattern.compile("math\\{((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*))\\}");
+				final Pattern limiter = Pattern.compile("limiter\\{((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*)),[ ]*((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*)),[ ]*((?:\\{??[^A-Za-z\\{][ 0-9+*/^%()~.-]*))\\}");
 				
 				@Override
 				public String getVersion() {
@@ -728,9 +733,8 @@ public class LoaderClass extends JavaPlugin {
 						text = text.replace(m.group(), limit(StringUtils.getDouble(m.group(1)),StringUtils.getDouble(m.group(2)),StringUtils.getDouble(m.group(3)))+"");
 						m = limiter.matcher(text);
 					}
-					for (Iterator<ThePlaceholder> r = ThePlaceholderAPI.getPlaceholders().iterator(); r.hasNext();) {
-						ThePlaceholder get = r.next();
-						String toReplace = get.onPlaceholderRequest(player==null?null:player.isOnline()?player.getPlayer():null, params);
+					for (ThePlaceholder get : ThePlaceholderAPI.getPlaceholders()) {
+						String toReplace = get.onPlaceholderRequest(player == null ? null : player.isOnline() ? player.getPlayer() : null, params);
 						if (toReplace != null)
 							text = text.replace(params, toReplace);
 					}
@@ -886,43 +890,37 @@ public class LoaderClass extends JavaPlugin {
 		
 		List<String> sec = new ArrayList<>();
 		StringUtils.actions.put("Seconds",sec);
-		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Convertor"))
-			sec.add(action);
+		sec.addAll(LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Convertor"));
 		if(sec.isEmpty())
 			sec.addAll(Arrays.asList("=,1,sec",">,1,secs"));
 		
 		List<String> min = new ArrayList<>();
 		StringUtils.actions.put("Minutes",min);
-		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Minutes.Convertor"))
-			min.add(action);
+		min.addAll(LoaderClass.config.getStringList("Options.TimeConvertor.Minutes.Convertor"));
 		if(min.isEmpty())
 			min.addAll(Arrays.asList("=,1,min",">,1,s"));
 		
 		List<String> hours = new ArrayList<>();
 		StringUtils.actions.put("Hours",hours);
-		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Hours.Convertor"))
-			hours.add(action);
+		hours.addAll(LoaderClass.config.getStringList("Options.TimeConvertor.Hours.Convertor"));
 		if(hours.isEmpty())
 			hours.addAll(Arrays.asList("=,1,hour",">,1,hours"));
 		
 		List<String> days = new ArrayList<>();
 		StringUtils.actions.put("Days",days);
-		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Days.Convertor"))
-			days.add(action);
+		days.addAll(LoaderClass.config.getStringList("Options.TimeConvertor.Days.Convertor"));
 		if(days.isEmpty())
 			days.addAll(Arrays.asList("=,1,day",">,1,days"));
 		
 		List<String> weeks = new ArrayList<>();
 		StringUtils.actions.put("Weeks",weeks);
-		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Weeks.Convertor"))
-			weeks.add(action);
+		weeks.addAll(LoaderClass.config.getStringList("Options.TimeConvertor.Weeks.Convertor"));
 		if(weeks.isEmpty())
 			weeks.addAll(Arrays.asList("=,1,week",">,1,weeks"));
 		
 		List<String> years = new ArrayList<>();
 		StringUtils.actions.put("Years",years);
-		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Years.Convertor"))
-			years.add(action);
+		years.addAll(LoaderClass.config.getStringList("Options.TimeConvertor.Years.Convertor"));
 		if(years.isEmpty())
 			years.addAll(Arrays.asList("=,1,year",">,1,years"));
 
@@ -938,15 +936,14 @@ public class LoaderClass extends JavaPlugin {
 	
 	public void createConfig() {
 		config.addDefault("Options.HideErrors", new Node(false, "",
-				"# If you enable this option, errors from TheAPI will dissapear", "# defaulty: false")); // hide only TheAPI errors
+				"# If you enable this option, errors from TheAPI will disappear", "# default: false")); // hide only TheAPI errors
 		config.addDefault("Options.ConsoleLogEvent", false);
 		config.addDefault("Options.ItemUnbreakable", true);
 		config.addDefault("Options.ServerListPingEvent", true);
-		config.addDefault("Options.AntiFakeBlocks", new Node(false, "# This function can solve problems with \"ghost blocks\", but make anti-xray no longer working", "# defaulty: false"));
-		config.addDefault("Options.Cache.User.Use", new Node(true, "# Cache Users to memory for faster loading", "# defaulty: true")); // Require memory, but loading of User.class is faster (only
-		// from TheAPI.class)
-		config.setComments("Options.Cache", Arrays.asList(""));
-		config.addDefault("Options.Cache.User.RemoveOnQuit", new Node(true, "# Remove cache of User from memory", "# defaulty: true")); // Remove cached player from cache on
+		config.addDefault("Options.AntiFakeBlocks", new Node(false, "# This function can solve problems with \"ghost blocks\", but make anti-xray no longer working", "# default: false"));
+		config.addDefault("Options.Cache.User.Use", new Node(true, "# Cache Users to memory for faster loading", "# default: true")); // Require memory, but loading of User.class is faster (only
+		config.setComments("Options.Cache", Collections.singletonList(""));
+		config.addDefault("Options.Cache.User.RemoveOnQuit", new Node(true, "# Remove cache of User from memory", "# default: true")); // Remove cached player from cache on
 		config.addDefault("Options.Cache.User.DisableSaving.IP", false);
 		config.addDefault("Options.Cache.User.DisableSaving.Quit", false);
 		config.addDefault("Options.Cache.User.OfflineNames.Use", true); // Cache offline-names of players
@@ -954,48 +951,48 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.Cache.User.OfflineNames.AutoClear.Use", false); // Enable automatic clearing of cache
 		config.addDefault("Options.Cache.User.OfflineNames.AutoClear.OfflineTime", "1mon"); // Automatic clear cache after 1mon
 		config.addDefault("Options.Cache.User.OfflineNames.AutoClear.Period", "0"); // 0 means on startup or type time period
-		config.addDefault("Options.User-SavingType", new Node("YAML","", "# Saving type of User data", "# Types: YAML, JSON, BYTE", "# defaulty: YAML"));
+		config.addDefault("Options.User-SavingType", new Node("YAML","", "# Saving type of User data", "# Types: YAML, JSON, BYTE", "# default: YAML"));
 		config.addDefault("Options.AntiBot.Use", new Node(false, "# If you enable this, TheAPI will set time between player can't connect to the server",
-						"# defaulty: false"));
-		config.setComments("Options.AntiBot", Arrays.asList(""));
-		config.addDefault("Options.AntiBot.TimeBetweenPlayer", new Node(10,"# Time between player can't connect to the server", "# defaulty: 10")); // 10 milis
-		config.addDefault("Options.FakeEconomyAPI.Symbol", new Node("$", "# Economy symbol of FakeEconomyAPI", "# defaulty: $"));
-		config.setComments("Options.FakeEconomyAPI", Arrays.asList(""));
-		config.addDefault("Options.FakeEconomyAPI.Format", new Node("$%money%", "# Economy format of FakeEconomyAPI", "# defaulty: $%money%"));
+						"# default: false"));
+		config.setComments("Options.AntiBot", Collections.singletonList(""));
+		config.addDefault("Options.AntiBot.TimeBetweenPlayer", new Node(10,"# Time between player can't connect to the server", "# default: 10")); // 10 milis
+		config.addDefault("Options.FakeEconomyAPI.Symbol", new Node("$", "# Economy symbol of FakeEconomyAPI", "# default: $"));
+		config.setComments("Options.FakeEconomyAPI", Collections.singletonList(""));
+		config.addDefault("Options.FakeEconomyAPI.Format", new Node("$%money%", "# Economy format of FakeEconomyAPI", "# default: $%money%"));
 		
 		//TRANSLATABLE TIME CONVERTOR
 		config.setComments("Options.TimeConvertor", Arrays.asList("","# Convertor Actions:","# action, amount, translation","# = (equals)","# < (lower than)","# > (more than)"));
 		config.addDefault("Options.TimeConvertor.Split", " ");
 		config.addDefault("Options.TimeConvertor.Format", "%time% %format%");
 		config.addDefault("Options.TimeConvertor.Seconds.Convertor", Arrays.asList("=,1,sec",">,1,secs"));
-		if(config.get("Options.TimeConvertor.Seconds.Convertor") instanceof Collection == false)
+		if(!(config.get("Options.TimeConvertor.Seconds.Convertor") instanceof Collection))
 			config.set("Options.TimeConvertor.Seconds.Convertor", Arrays.asList("=,1,sec",">,1,secs"));
 		config.addDefault("Options.TimeConvertor.Seconds.Lookup", Arrays.asList("s","sec","second","seconds"));
 		
 		config.addDefault("Options.TimeConvertor.Minutes.Convertor", Arrays.asList("=,1,min",">,1,mins"));
-		if(config.get("Options.TimeConvertor.Minutes.Convertor") instanceof Collection == false)
+		if(!(config.get("Options.TimeConvertor.Minutes.Convertor") instanceof Collection))
 			config.set("Options.TimeConvertor.Minutes.Convertor", Arrays.asList("=,1,min",">,1,mins"));
 		config.addDefault("Options.TimeConvertor.Minutes.Lookup", Arrays.asList("m","mi","min","minu","minut","minute","minutes"));
 		
-		if(config.get("Options.TimeConvertor.Hours.Convertor") instanceof Collection == false)
+		if(!(config.get("Options.TimeConvertor.Hours.Convertor") instanceof Collection))
 			config.set("Options.TimeConvertor.Hours.Convertor", Arrays.asList("=,1,hour",">,1,hours"));
 		config.addDefault("Options.TimeConvertor.Hours.Convertor", Arrays.asList("=,1,hour",">,1,hours"));
 		config.addDefault("Options.TimeConvertor.Hours.Lookup", Arrays.asList("h","ho","hou","hour","hours"));
 		
 		config.addDefault("Options.TimeConvertor.Days.Convertor", Arrays.asList("=,1,day",">,1,days"));
-		if(config.get("Options.TimeConvertor.Days.Convertor") instanceof Collection == false)
+		if(!(config.get("Options.TimeConvertor.Days.Convertor") instanceof Collection))
 			config.set("Options.TimeConvertor.Days.Convertor", Arrays.asList("=,1,day",">,1,days"));
 		config.addDefault("Options.TimeConvertor.Days.Lookup", Arrays.asList("d","da","day","days"));
 		
 		config.addDefault("Options.TimeConvertor.Weeks.Lookup", Arrays.asList("w","we","wee","week","weeks"));
 		
 		config.addDefault("Options.TimeConvertor.Months.Convertor", Arrays.asList("=,1,month",">,1,months"));
-		if(config.get("Options.TimeConvertor.Months.Convertor") instanceof Collection == false)
+		if(!(config.get("Options.TimeConvertor.Months.Convertor") instanceof Collection))
 			config.set("Options.TimeConvertor.Months.Convertor", Arrays.asList("=,1,month",">,1,months"));
 		config.addDefault("Options.TimeConvertor.Months.Lookup", Arrays.asList("mo","mon","mont","month","months"));
 		
 		config.addDefault("Options.TimeConvertor.Years.Convertor", Arrays.asList("=,1,year",">,1,years"));
-		if(config.get("Options.TimeConvertor.Years.Convertor") instanceof Collection == false)
+		if(!(config.get("Options.TimeConvertor.Years.Convertor") instanceof Collection))
 			config.set("Options.TimeConvertor.Years.Convertor", Arrays.asList("=,1,year",">,1,years"));
 		config.addDefault("Options.TimeConvertor.Years.Lookup", Arrays.asList("y","ye","yea","year","years"));
 		config.save();
@@ -1004,43 +1001,37 @@ public class LoaderClass extends JavaPlugin {
 		
 		List<String> sec = new ArrayList<>();
 		StringUtils.actions.put("Seconds",sec);
-		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Convertor"))
-			sec.add(action);
+		sec.addAll(LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Convertor"));
 		if(sec.isEmpty())
 			sec.addAll(Arrays.asList("=,1,sec",">,1,secs"));
 		
 		List<String> min = new ArrayList<>();
 		StringUtils.actions.put("Minutes",min);
-		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Minutes.Convertor"))
-			min.add(action);
+		min.addAll(LoaderClass.config.getStringList("Options.TimeConvertor.Minutes.Convertor"));
 		if(min.isEmpty())
 			min.addAll(Arrays.asList("=,1,min",">,1,s"));
 		
 		List<String> hours = new ArrayList<>();
 		StringUtils.actions.put("Hours",hours);
-		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Hours.Convertor"))
-			hours.add(action);
+		hours.addAll(LoaderClass.config.getStringList("Options.TimeConvertor.Hours.Convertor"));
 		if(hours.isEmpty())
 			hours.addAll(Arrays.asList("=,1,hour",">,1,hours"));
 		
 		List<String> days = new ArrayList<>();
 		StringUtils.actions.put("Days",days);
-		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Days.Convertor"))
-			days.add(action);
+		days.addAll(LoaderClass.config.getStringList("Options.TimeConvertor.Days.Convertor"));
 		if(days.isEmpty())
 			days.addAll(Arrays.asList("=,1,day",">,1,days"));
 		
 		List<String> weeks = new ArrayList<>();
 		StringUtils.actions.put("Weeks",weeks);
-		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Weeks.Convertor"))
-			weeks.add(action);
+		weeks.addAll(LoaderClass.config.getStringList("Options.TimeConvertor.Weeks.Convertor"));
 		if(weeks.isEmpty())
 			weeks.addAll(Arrays.asList("=,1,week",">,1,weeks"));
 		
 		List<String> years = new ArrayList<>();
 		StringUtils.actions.put("Years",years);
-		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Years.Convertor"))
-			years.add(action);
+		years.addAll(LoaderClass.config.getStringList("Options.TimeConvertor.Years.Convertor"));
 		if(years.isEmpty())
 			years.addAll(Arrays.asList("=,1,year",">,1,years"));
 		

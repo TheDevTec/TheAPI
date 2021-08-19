@@ -29,8 +29,7 @@ public class SortedMap {
 		});
 		result.putAll(map);
 		LinkedHashMap<K, V> resultFix = new LinkedHashMap<>();
-		for(Entry<K, V> entry : result.entrySet())
-			resultFix.put(entry.getKey(), entry.getValue());
+		resultFix.putAll(result);
 		return resultFix;
 	}
 

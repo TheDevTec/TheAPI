@@ -11,7 +11,7 @@ import me.devtec.theapi.punishmentapi.PunishmentAPI;
 
 public class AntiBot {
 	private static long last;
-	private static List<String> c = new ArrayList<>();
+	private static final List<String> c = new ArrayList<>();
 
 	public static boolean hasAccess(UUID e) {
 		boolean s = canJoin();

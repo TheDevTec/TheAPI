@@ -22,7 +22,7 @@ public class WorldsAPI {
 	}
 
 	/**
-	 * @see see This method ReCreate world, working as Import world commmand in
+	 * @apiNote This method ReCreate world, working as Import world commmand in
 	 *      Multiverse
 	 * @param world
 	 * @param generator
@@ -34,7 +34,7 @@ public class WorldsAPI {
 	}
 
 	/**
-	 * @see see Create new world, return boolean if world was created
+	 * @apiNote Create new world, return boolean if world was created
 	 * @param name      Name of world (Required)
 	 * @param generator World generator type (Required)
 	 * @param type      set null to create Void world
@@ -45,7 +45,7 @@ public class WorldsAPI {
 	}
 
 	/**
-	 * @see see Create new world, return boolean if world was created
+	 * @apiNote Create new world, return boolean if world was created
 	 * @param name               Name of world (Required)
 	 * @param generator          World generator type (Required)
 	 * @param type               set null to create Void world
@@ -61,7 +61,7 @@ public class WorldsAPI {
 	}
 
 	/**
-	 * @see see Create new world, return boolean if world was created
+	 * @apiNote Create new world, return boolean if world was created
 	 * @param name               Name of world (Required)
 	 * @param generator          World generator type (Required)
 	 * @param type               Nullable
@@ -136,7 +136,7 @@ public class WorldsAPI {
 		if (Bukkit.getWorld(name) != null) {
 			List<World> w = Bukkit.getWorlds();
 			w.remove(Bukkit.getWorld(name));
-			if (w.isEmpty() == false) {
+			if (!w.isEmpty()) {
 				for (Player p : TheAPI.getOnlinePlayers())
 					if (p.getWorld().getName().equals(name)) {
 						p.setNoDamageTicks(30);

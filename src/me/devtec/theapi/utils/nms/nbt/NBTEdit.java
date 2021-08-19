@@ -11,38 +11,38 @@ import me.devtec.theapi.utils.reflections.Ref;
 
 public class NBTEdit {
 	//setter
-	private static Method set=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "set", String.class, Ref.nmsOrOld("nbt.NBTBase","NBTBase")),
-			setString=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setString", String.class, String.class),
-			setBoolean=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setBoolean", String.class, boolean.class),
-			setByte=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setByte", String.class, byte.class),
-			setByteArray=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setString", String.class, byte[].class),
-			setDouble=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setDouble", String.class, double.class),
-			setFloat=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setFloat", String.class, float.class),
-			setInt=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setInt", String.class, int.class),
-			setIntArray=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setIntArray", String.class, int[].class),
-			setLong=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setLong", String.class, long.class),
-			setShort=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setShort", String.class, short.class)
+	private static final Method set=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "set", String.class, Ref.nmsOrOld("nbt.NBTBase","NBTBase"));
+	private static final Method setString=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setString", String.class, String.class);
+	private static final Method setBoolean=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setBoolean", String.class, boolean.class);
+	private static final Method setByte=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setByte", String.class, byte.class);
+	private static final Method setByteArray=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setString", String.class, byte[].class);
+	private static final Method setDouble=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setDouble", String.class, double.class);
+	private static final Method setFloat=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setFloat", String.class, float.class);
+	private static final Method setInt=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setInt", String.class, int.class);
+	private static final Method setIntArray=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setIntArray", String.class, int[].class);
+	private static final Method setLong=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setLong", String.class, long.class);
+	private static final Method setShort=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setShort", String.class, short.class);
 	//getter
-			,get=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "get", String.class), //NBTEdit or other value
-			getKeys=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getKeys"), //Set<String> of keys
-			getTypeId=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getTypeId"), //byte
-			getCompound=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getCompound", String.class), //NBTEdit
-			getList=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getList", String.class, int.class),
-			getString=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getString", String.class),
-			getBoolean=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getBoolean", String.class),
-			getByte=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getByte", String.class),
-			getByteArray=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getString", String.class),
-			getDouble=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getDouble", String.class),
-			getFloat=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getFloat", String.class),
-			getInt=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getInt", String.class),
-			getIntArray=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getIntArray", String.class),
-			getLong=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getLong", String.class),
-			getShort=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getShort", String.class),
-	//other
-			remove=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "remove", String.class),
-			hasKey=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "hasKey", String.class);
+	private static final Method get=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "get", String.class); //NBTEdit or other value
+			private static final Method getKeys=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getKeys"); //Set<String> of keys
+			private static final Method getTypeId=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getTypeId"); //byte
+			private static final Method getCompound=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getCompound", String.class); //NBTEdit
+			private static final Method getList=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getList", String.class, int.class);
+	private static final Method getString=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getString", String.class);
+	private static final Method getBoolean=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getBoolean", String.class);
+	private static final Method getByte=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getByte", String.class);
+	private static final Method getByteArray=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getString", String.class);
+	private static final Method getDouble=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getDouble", String.class);
+	private static final Method getFloat=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getFloat", String.class);
+	private static final Method getInt=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getInt", String.class);
+	private static final Method getIntArray=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getIntArray", String.class);
+	private static final Method getLong=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getLong", String.class);
+	private static final Method getShort=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getShort", String.class);
+	private static final Method//other
+			remove=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "remove", String.class);
+	private static final Method hasKey=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "hasKey", String.class);
 	
-	private static Constructor<?> cd = Ref.constructor(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"));
+	private static final Constructor<?> cd = Ref.constructor(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"));
 	private Object nbt;
     public NBTEdit(Object nbt) {
         if(nbt instanceof ItemStack)

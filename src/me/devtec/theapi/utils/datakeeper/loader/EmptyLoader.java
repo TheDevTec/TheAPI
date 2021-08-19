@@ -8,8 +8,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class EmptyLoader extends DataLoader {
-	private Map<String, Object[]> data = new LinkedHashMap<>();
-	private List<String> header = new LinkedList<>(), footer = new LinkedList<>();
+	private final Map<String, Object[]> data = new LinkedHashMap<>();
+	private final List<String> header = new LinkedList<>();
+    private final List<String> footer = new LinkedList<>();
 	
 	@Override
 	public Map<String, Object[]> get() {

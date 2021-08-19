@@ -127,7 +127,6 @@ public class TAC_User {
 			else
 				TheAPI.msg("&eUser &6" + args[1] + "&e has these keys: &6"
 						+ StringUtils.join(TheAPI.getUser(args[1]).getKeys(args[3]), ", "), s);
-			return;
 		}
 	}
 

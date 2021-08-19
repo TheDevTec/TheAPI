@@ -6,6 +6,7 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -30,10 +31,10 @@ import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class TheAPICommand implements CommandExecutor, TabCompleter {
-	  String realVersion = (String)Ref.get(Bukkit.getServer(), "serverVersion");
-	  OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
-	  RuntimeMXBean rr = ManagementFactory.getRuntimeMXBean();
-	  File d = new File("plugins");
+	  final String realVersion = (String)Ref.get(Bukkit.getServer(), "serverVersion");
+	  final OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
+	  final RuntimeMXBean rr = ManagementFactory.getRuntimeMXBean();
+	  final File d = new File("plugins");
 	  
 	private boolean perm(CommandSender s, String p) {
 		if (s.hasPermission("TheAPI.Command." + p))
@@ -110,7 +111,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			return true;
 		}
 		if (args[0].equalsIgnoreCase("informations") || args[0].equalsIgnoreCase("info")) {
-			if (s instanceof Player == false || perm(s, "Info")) {
+			if (!(s instanceof Player) || perm(s, "Info")) {
 				new Tasker() {
 		            public void run() {
 		              String load = StringUtils.fixedFormatDouble(TheAPI.getProcessCpuLoad());
@@ -171,10 +172,9 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		                  }
 		                  sdf.send((Player)s);
 		                } else {
-		                  String sdf = "";
+		                  StringBuilder sdf = new StringBuilder();
 		                  for (Plugin w : pl)
-		                    sdf += (sdf.equals("") ? "" : "&7, ") + TAC_PluginManager.getPlugin(w) + " &ev" + 
-		                      w.getDescription().getVersion(); 
+		                    sdf.append(sdf.toString().equals("") ? "" : "&7, ").append(TAC_PluginManager.getPlugin(w)).append(" &ev").append(w.getDescription().getVersion());
 		                  TheAPI.msg(color+"» &7Plugins using TheAPI (" + pl.size() + "): " + sdf, s);
 		                }
 		            }
@@ -206,21 +206,21 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		List<String> c = new ArrayList<>();
 		if (args.length == 1) {
 			if (s.hasPermission("TheAPI.Command.Info"))
-				c.addAll(StringUtils.copyPartialMatches(args[0], Arrays.asList("Info")));
+				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("Info")));
 			if (s.hasPermission("TheAPI.Command.Reload"))
-				c.addAll(StringUtils.copyPartialMatches(args[0], Arrays.asList("Reload")));
+				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("Reload")));
 			if (s.hasPermission("TheAPI.Command.ClearCache"))
-				c.addAll(StringUtils.copyPartialMatches(args[0], Arrays.asList("ClearCache")));
+				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("ClearCache")));
 			if (s.hasPermission("TheAPI.Command.WorldsManager"))
-				c.addAll(StringUtils.copyPartialMatches(args[0], Arrays.asList("WorldsManager")));
+				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("WorldsManager")));
 			if (s.hasPermission("TheAPI.Command.Invsee"))
-				c.addAll(StringUtils.copyPartialMatches(args[0], Arrays.asList("Invsee")));
+				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("Invsee")));
 			if (s.hasPermission("TheAPI.Command.PluginManager"))
-				c.addAll(StringUtils.copyPartialMatches(args[0], Arrays.asList("PluginManager")));
+				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("PluginManager")));
 			if (s.hasPermission("TheAPI.Command.User"))
-				c.addAll(StringUtils.copyPartialMatches(args[0], Arrays.asList("User")));
+				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("User")));
 			if (s.hasPermission("theapi.command.test"))
-				c.addAll(StringUtils.copyPartialMatches(args[0], Arrays.asList("Test")));
+				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("Test")));
 		}
 		if (args[0].equalsIgnoreCase("Test") && s.hasPermission("theapi.command.test")) {
 			if (args.length == 2) {
@@ -243,7 +243,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			}
 			if (args.length >= 5) {
 				if (args[2].equalsIgnoreCase("set")) {
-					c.addAll(StringUtils.copyPartialMatches(args[3], Arrays.asList("?")));
+					c.addAll(StringUtils.copyPartialMatches(args[3], Collections.singletonList("?")));
 				}
 			}
 		}
@@ -278,7 +278,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				if (args.length >= 3) {
 					if (args[1].equalsIgnoreCase("Create") || args[1].equalsIgnoreCase("Load")) {
 						if (args.length == 3)
-							return Arrays.asList("?");
+							return Collections.singletonList("?");
 						if (args.length == 4)
 							c.addAll(StringUtils.copyPartialMatches(args[3],
 									Arrays.asList("Default", "Nether", "The_End", "The_Void", "Flat")));

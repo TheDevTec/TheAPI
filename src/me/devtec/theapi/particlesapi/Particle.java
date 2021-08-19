@@ -20,7 +20,7 @@ import me.devtec.theapi.utils.reflections.Ref;
 
 public class Particle {
 	private static Class<?> a = Ref.nmsOrOld("core.particles.Particles","Particles");
-	private static Map<String, Object> identifier = new HashMap<>();
+	private static final Map<String, Object> identifier = new HashMap<>();
 	static {
 		if (a == null)
 			a = Ref.nms("EnumParticle"); // 1.8 - 1.12.2
@@ -73,9 +73,9 @@ public class Particle {
 		return identifier.get(particle);
 	}
 
-	private Object particle;
-	private String name;
-	private ParticleData data;
+	private final Object particle;
+	private final String name;
+	private final ParticleData data;
 
 	public Particle(String particle) {
 		this(particle, null);
@@ -117,9 +117,13 @@ public class Particle {
 		return createPacket(pos.getX(), pos.getY(), pos.getZ(), speed, amount);
 	}
 	
-	private static Constructor<?> paramRed, paramDust, paramBlock, paramItem, vector=Ref.constructor(Ref.getClass("com.mojang.math.Vector3fa"), float.class, float.class, float.class);
-	private static Class<?> part;
-	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+	private static Constructor<?> paramRed;
+	private static Constructor<?> paramDust;
+	private static Constructor<?> paramBlock;
+	private static Constructor<?> paramItem;
+	private static final Constructor<?> vector=Ref.constructor(Ref.getClass("com.mojang.math.Vector3fa"), float.class, float.class, float.class);
+	private static final Class<?> part;
+	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
 	
 	public Object createPacket(double x, double y, double z, float speed, int amount) {
 		Object packet;

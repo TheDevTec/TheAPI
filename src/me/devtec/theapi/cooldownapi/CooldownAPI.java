@@ -47,7 +47,7 @@ public class CooldownAPI {
 
 	/**
 	 * 
-	 * @return long If return is -1, it mean cooldown isn't exist
+	 * @return long If return is -1, it means cooldown isn't exist
 	 */
 	public long getStart(String cooldown) {
 		return c.exist("cooldown." + cooldown + ".start") ? c.getLong("cooldown." + cooldown + ".start") : -1;
@@ -55,7 +55,7 @@ public class CooldownAPI {
 
 	/**
 	 * 
-	 * @return long If return is -1, it mean cooldown isn't exist
+	 * @return long If return is -1, it means cooldown isn't exist
 	 */
 	public long getTimeToExpire(String cooldown) {
 		return (long) (getStart(cooldown) != -1
@@ -66,7 +66,7 @@ public class CooldownAPI {
 
 	/**
 	 * 
-	 * @return double If return is -1, it mean cooldown isn't exist
+	 * @return double If return is -1, it means cooldown isn't exist
 	 */
 	public double getCooldown(String cooldown) {
 		return c.exist("cooldown." + cooldown + ".time") ? c.getDouble("cooldown." + cooldown + ".time") : -1;

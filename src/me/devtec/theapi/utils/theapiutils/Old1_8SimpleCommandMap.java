@@ -39,15 +39,14 @@ public class Old1_8SimpleCommandMap extends SimpleCommandMap {
 	  private synchronized boolean register(String label, Command command, boolean isAlias, String fallbackPrefix) {
 	   knownCommands.put(fallbackPrefix + ":" + label, command);
 	    if (isAlias && knownCommands.containsKey(label))
-	      return false; 
-	    boolean registered = true;
+	      return false;
 	    Command conflict = knownCommands.get(label);
 	    if (conflict != null && conflict.getLabel().equals(label))
 	      return false;
 	    if (!isAlias)
 	      command.setLabel(label); 
 	    knownCommands.put(label, command);
-	    return registered;
+	    return true;
 	  }
 	  
 	  @Override

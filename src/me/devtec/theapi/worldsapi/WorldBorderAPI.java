@@ -6,7 +6,7 @@ import org.bukkit.World;
 import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class WorldBorderAPI {
-	private World w;
+	private final World w;
 
 	public WorldBorderAPI(World world) {
 		w = world;
@@ -50,7 +50,7 @@ public class WorldBorderAPI {
 		}
 	}
 
-	public static enum DamageType {
+	public enum DamageType {
 		amount, buffer
 	}
 

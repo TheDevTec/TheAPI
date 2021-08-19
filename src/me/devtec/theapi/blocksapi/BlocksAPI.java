@@ -3,11 +3,7 @@ package me.devtec.theapi.blocksapi;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.bukkit.Chunk;
@@ -30,7 +26,7 @@ import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class BlocksAPI {
-	private static interface Blocking {
+	private interface Blocking {
 		public void set(Position pos);
 	}
 	
@@ -39,14 +35,11 @@ public class BlocksAPI {
 		int Xx = where.getBlockX();
 		int Yy = where.getBlockY();
 		int Zz = where.getBlockZ();
-		switch (form) {
-		case SQAURE:
+		if (form == Shape.SQAURE) {
 			for (int x = Xx - radius; x <= Xx + radius; x++)
 				for (int y = Yy - radius; y <= Yy + radius; y++)
 					for (int z = Zz - radius; z <= Zz + radius; z++)
 						task.set(new Position(w, x, y, z));
-			break;
-			default: break;
 		}
 		if(form!=Shape.SQAURE) {
 			for(int x = Xx - radius; x <= Xx + radius; x++)
@@ -83,8 +76,8 @@ public class BlocksAPI {
 		return (Comparable<?>)Ref.invoke(block, getState, state);
 	}
 	
-	private static Method getState = Ref.method(Ref.nmsOrOld("world.level.block.state.IBlockDataHolder","IBlockDataHolder"), "get", Ref.nmsOrOld("world.level.block.state.properties.IBlockState","IBlockState")),
-			setState = Ref.method(Ref.nmsOrOld("world.level.block.state.IBlockDataHolder","IBlockDataHolder"), "set", Ref.nmsOrOld("world.level.block.state.properties.IBlockState","IBlockState"), Comparable.class);
+	private static final Method getState = Ref.method(Ref.nmsOrOld("world.level.block.state.IBlockDataHolder","IBlockDataHolder"), "get", Ref.nmsOrOld("world.level.block.state.properties.IBlockState","IBlockState"));
+	private static final Method setState = Ref.method(Ref.nmsOrOld("world.level.block.state.IBlockDataHolder","IBlockDataHolder"), "set", Ref.nmsOrOld("world.level.block.state.properties.IBlockState","IBlockState"), Comparable.class);
 	
 	public static Object setState(Position pos, String name, Comparable<?> comparable){
 		Object block = pos.getIBlockData();
@@ -98,7 +91,7 @@ public class BlocksAPI {
 			task.set(g.get());
 	}
 
-	public static enum Shape {
+	public enum Shape {
 		HOLLOW_SPHERE, SPHERE, SQAURE
 	}
 
@@ -125,13 +118,12 @@ public class BlocksAPI {
 		}
 		int chunkRadius = radius < 16 ? 1 : (radius - (radius % 16)) / 16;
 		List<Entity> radiusEntities = new ArrayList<>();
-		for (int chX = 0 - chunkRadius; chX <= chunkRadius; chX++)
-			for (int chZ = 0 - chunkRadius; chZ <= chunkRadius; chZ++) {
+		for (int chX = -chunkRadius; chX <= chunkRadius; chX++)
+			for (int chZ = -chunkRadius; chZ <= chunkRadius; chZ++) {
 				Chunk c = new Location(l.getWorld(), l.getX() + (chX * 16), l.getY(), l.getZ() + (chZ * 16)).getChunk();
-				if (c != null)
-					for (Entity e : c.getEntities())
-						if (l.distance(e.getLocation()) <= radius)
-							radiusEntities.add(e);
+				for (Entity e : c.getEntities())
+					if (l.distance(e.getLocation()) <= radius)
+						radiusEntities.add(e);
 			}
 		return radiusEntities;
 	}
@@ -169,7 +161,7 @@ public class BlocksAPI {
 	}
 
 	public static List<Position> get(Position from, Position to, TheMaterial ignore) {
-		return gt(from, to, Arrays.asList(ignore));
+		return gt(from, to, Collections.singletonList(ignore));
 	}
 
 	public static List<Position> get(Position from, Position to, List<TheMaterial> ignore) {
@@ -230,7 +222,7 @@ public class BlocksAPI {
 	}
 
 	public static List<Position> get(Shape form, Position where, int radius, TheMaterial ignore) {
-		return g(form, where, radius, Arrays.asList(ignore));
+		return g(form, where, radius, Collections.singletonList(ignore));
 	}
 
 	private static List<Position> g(Shape form, Position where, int radius, List<TheMaterial> ignore) {
@@ -239,16 +231,13 @@ public class BlocksAPI {
 		int Xx = where.getBlockX();
 		int Yy = where.getBlockY();
 		int Zz = where.getBlockZ();
-		switch (form) {
-		case SQAURE:
+		if (form == Shape.SQAURE) {
 			for (int x = Xx - radius; x <= Xx + radius; x++)
 				for (int y = Yy - radius; y <= Yy + radius; y++)
 					for (int z = Zz - radius; z <= Zz + radius; z++) {
 						Position s = (new Position(w, x, y, z));
-	                	   if (ignore == null || !ignore.contains(s.getType()))blocks.add(s);
+						if (ignore == null || !ignore.contains(s.getType())) blocks.add(s);
 					}
-			break;
-			default: break;
 		}
 		if(form!=Shape.SQAURE) {
 			for(int x = Xx - radius; x <= Xx + radius; x++)
@@ -600,21 +589,21 @@ public class BlocksAPI {
 	}
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with) {
-		asynchronizedSet(a, b, onFinish, Arrays.asList(with), Arrays.asList());
+		asynchronizedSet(a, b, onFinish, Collections.singletonList(with), Collections.emptyList());
 	}
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with,
 			TheMaterial ignore) {
-		asynchronizedSet(a, b, onFinish, Arrays.asList(with), Arrays.asList(ignore));
+		asynchronizedSet(a, b, onFinish, Collections.singletonList(with), Collections.singletonList(ignore));
 	}
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, TheMaterial with,
 			List<TheMaterial> ignore) {
-		asynchronizedSet(a, b, onFinish, Arrays.asList(with), ignore);
+		asynchronizedSet(a, b, onFinish, Collections.singletonList(with), ignore);
 	}
 
-	private static boolean ww = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]) >= 14,
-			palet = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]) >= 9;
+	private static final boolean ww = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]) >= 14;
+	private static final boolean palet = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]) >= 9;
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with,
 			List<TheMaterial> ignore) {
@@ -653,11 +642,11 @@ public class BlocksAPI {
 	}
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with) {
-		asynchronizedSet(a, b, onFinish, with, Arrays.asList());
+		asynchronizedSet(a, b, onFinish, with, Collections.emptyList());
 	}
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> with) {
-		asynchronizedSet(a, b, onFinish, with, Arrays.asList());
+		asynchronizedSet(a, b, onFinish, with, Collections.emptyList());
 	}
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> with,
@@ -698,22 +687,22 @@ public class BlocksAPI {
 
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, PercentageList<TheMaterial> with,
 			TheMaterial ignore) {
-		asynchronizedSet(a, b, onFinish, with, Arrays.asList(ignore));
+		asynchronizedSet(a, b, onFinish, with, Collections.singletonList(ignore));
 	}
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block,
 			TheMaterial with) {
-		asynchronizedReplace(a, b, onFinish, block, Arrays.asList(with));
+		asynchronizedReplace(a, b, onFinish, block, Collections.singletonList(with));
 	}
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, TheMaterial block,
 			TheMaterial with) {
-		asynchronizedReplace(a, b, onFinish, Arrays.asList(block), Arrays.asList(with));
+		asynchronizedReplace(a, b, onFinish, Collections.singletonList(block), Collections.singletonList(with));
 	}
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, TheMaterial block,
 			PercentageList<TheMaterial> with) {
-		asynchronizedReplace(a, b, onFinish, Arrays.asList(block), with);
+		asynchronizedReplace(a, b, onFinish, Collections.singletonList(block), with);
 	}
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block,
@@ -754,7 +743,7 @@ public class BlocksAPI {
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, TheMaterial block,
 			List<TheMaterial> with) {
-		asynchronizedReplace(a, b, onFinish, Arrays.asList(block), with);
+		asynchronizedReplace(a, b, onFinish, Collections.singletonList(block), with);
 	}
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish, List<TheMaterial> block,
@@ -794,8 +783,10 @@ public class BlocksAPI {
 	}
 
 	private static Constructor<?> aw = Ref.constructor(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), int.class);
-	private static Method a, get = Ref.method(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "getSections"),
-			blocks = Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), "getBlocks"), type = Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"),
+	private static Method a;
+	private static final Method get = Ref.method(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "getSections");
+	private static final Method blocks = Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), "getBlocks");
+	private static final Method type = Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"),
 					"setType", int.class, int.class, int.class, Ref.nmsOrOld("world.level.block.state.IBlockData","IBlockData"));
 	static {
 		a = Ref.method(Ref.nmsOrOld("world.level.chunk.DataPaletteBlock","DataPaletteBlock"), "b", int.class, int.class, int.class, Object.class);
@@ -880,7 +871,7 @@ public class BlocksAPI {
 
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish,
 			PercentageList<TheMaterial> block, TheMaterial with) {
-		asynchronizedReplace(a, b, onFinish, block, Arrays.asList(with));
+		asynchronizedReplace(a, b, onFinish, block, Collections.singletonList(with));
 	}
 
 }

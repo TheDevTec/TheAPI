@@ -14,7 +14,7 @@ public class PlaceholderAPI {
 		return PluginManagerAPI.getPlugin("PlaceholderAPI") != null;
 	}
 	
-	private static Method set = Ref.method(Ref.getClass("me.clip.placeholderapi.PlaceholderAPI"),
+	private static final Method set = Ref.method(Ref.getClass("me.clip.placeholderapi.PlaceholderAPI"),
 			"setPlaceholders", Player.class, String.class);
 
 	public static String setPlaceholders(Player player, String where) {
@@ -29,11 +29,10 @@ public class PlaceholderAPI {
 	public static List<String> setPlaceholders(Player player, List<String> where) {
 		if (where == null || where.isEmpty())
 			return where;
-		List<String> e = null;
 		if (isEnabledPlaceholderAPI()) {
 			where=new ArrayList<>(where);
 			where.replaceAll(a -> setPlaceholders(player, a));
 		}
-		return ThePlaceholderAPI.setPlaceholders(player, e == null ? where : e);
+		return ThePlaceholderAPI.setPlaceholders(player, where);
 	}
 }

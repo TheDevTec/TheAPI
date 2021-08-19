@@ -154,7 +154,6 @@ public class TAC_Test {
 			TheAPI.msg("&eResult:", s);
 			for (Entry<String, String> entry : maps.entrySet())
 				TheAPI.msg("&6" + maps.getPosition(entry.getKey()) + ". " + entry.getKey() + ", " + entry.getValue(), s);
-			return;
 		}
 	}
 

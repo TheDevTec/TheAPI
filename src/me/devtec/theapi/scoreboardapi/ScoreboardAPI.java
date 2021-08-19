@@ -27,10 +27,10 @@ import me.devtec.theapi.utils.reflections.Ref;
  *
  */
 public class ScoreboardAPI {
-	protected Data data = new Data();
+	protected final Data data = new Data();
 	protected Player p;
 	protected String player, sbname;
-	protected int slott = -1;
+	protected int slott;
 	protected String name = "";
 	protected boolean destroyed;
 
@@ -41,8 +41,6 @@ public class ScoreboardAPI {
 	/**
 	 * 
 	 * @param player Player - Holder of scoreboard
-	 * @param usePackets Use nms teams?
-	 * @param useTeams Use bukkit teams?
 	 * @param slot -1 to adaptive slot
 	 */
 	public ScoreboardAPI(Player player, int slot) {
@@ -100,7 +98,7 @@ public class ScoreboardAPI {
 	public void addLine(String value) {
 		int i = -1;
 		Set<String> slots = data.getKeys(player);
-		while (!slots.contains(""+(++i)));
+		while(!slots.contains(""+(++i)));
 		setLine(i, value);
 	}
 
@@ -181,8 +179,8 @@ public class ScoreboardAPI {
 		return data.getAs(player+"."+line, Team.class);
 	}
 	
-	private static Constructor<?> cons = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"), Ref.nmsOrOld("server.ScoreboardServer$Action","ScoreboardServer$Action"), String.class, String.class, int.class),
-			display = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardDisplayObjective", "PacketPlayOutScoreboardDisplayObjective"), int.class, Ref.nmsOrOld("world.scores.ScoreboardObjective","ScoreboardObjective"));
+	private static Constructor<?> cons = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"), Ref.nmsOrOld("server.ScoreboardServer$Action","ScoreboardServer$Action"), String.class, String.class, int.class);
+	private static final Constructor<?> display = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardDisplayObjective", "PacketPlayOutScoreboardDisplayObjective"), int.class, Ref.nmsOrOld("world.scores.ScoreboardObjective","ScoreboardObjective"));
 	static {
 		if(cons==null) {
 			cons=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"));
@@ -237,15 +235,15 @@ public class ScoreboardAPI {
 		return o;
 	}
 	
-	private static Class<?> sbTeam = Ref.getClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam$b");
-	private static sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
-	private static Object white = Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class)==null?
+	private static final Class<?> sbTeam = Ref.getClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam$b");
+	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+	private static final Object white = Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class)==null?
 			Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",int.class), -1):
 			Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class), 'f');
-	private static String always = "ALWAYS";
-	
+
 	private Object c(int mode, String prefix, String suffix, String name, String realName) {
 		Object packet = NMSAPI.getPacketPlayOutScoreboardTeam();
+		String always = "ALWAYS";
 		if(TheAPI.isNewerThan(16)) {
 			Ref.set(packet, "i", realName);
 			try {
@@ -268,7 +266,7 @@ public class ScoreboardAPI {
 			Ref.set(packet, "d", TheAPI.isNewerThan(12)?NMSAPI.getFixedIChatBaseComponent(suffix):suffix);
 			if(TheAPI.isNewerThan(7)) {
 				Ref.set(packet, "e", always);
-				Ref.set(packet, "f", TheAPI.isNewerThan(8)?always:-1);
+				Ref.set(packet, "f", TheAPI.isNewerThan(8)? always :-1);
 				if(TheAPI.isNewerThan(8))
 					Ref.set(packet, "g",TheAPI.isNewerThan(12)?white:-1);
 				Ref.set(packet, TheAPI.isNewerThan(8)?"i":"h", mode);
@@ -385,7 +383,7 @@ public class ScoreboardAPI {
 					prefix = d.get(0);
 					d = StringUtils.fixedSplit(a=a.substring(prefix.length()), 17-format.length());
 					setPlayer(d.get(0));
-					d = StringUtils.fixedSplit(a=a.substring(d.get(0).length()), 16);
+					d = StringUtils.fixedSplit(a.substring(d.get(0).length()), 16);
 					if (!suffix.equals(d.get(0)))
 						changed = true;
 					suffix = d.get(0);

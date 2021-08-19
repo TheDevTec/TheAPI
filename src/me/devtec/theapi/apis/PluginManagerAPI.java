@@ -2,12 +2,7 @@ package me.devtec.theapi.apis;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.JarFile;
 
 import org.bukkit.Bukkit;
@@ -27,7 +22,7 @@ import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class PluginManagerAPI {
-	private static PluginManager spm = Bukkit.getPluginManager();
+	private static final PluginManager spm = Bukkit.getPluginManager();
 
 	public static boolean enablePlugin(String plugin) {
 		if (!spm.isPluginEnabled(plugin)) {
@@ -82,10 +77,7 @@ public class PluginManagerAPI {
 	}
 
 	public static List<Plugin> getPlugins() {
-		List<Plugin> a = new ArrayList<>();
-		for (Plugin p : Bukkit.getPluginManager().getPlugins())
-			a.add(p);
-		return a;
+		return Arrays.asList(Bukkit.getPluginManager().getPlugins());
 	}
 
 	public static List<String> getPluginsNames() {
@@ -199,7 +191,7 @@ public class PluginManagerAPI {
 		return !isEnabledPlugin(plugin.getName());
 	}
 	
-	public static enum SearchType {
+	public enum SearchType {
 		PLUGIN_NAME,
 		FILE_NAME
 	}
@@ -366,10 +358,9 @@ public class PluginManagerAPI {
 	public static void reloadPlugin(String plugin, Runnable onReload) {
 		NMSAPI.postToMainThread(new Runnable() {
 			public void run() {
-				String pl = plugin;
-				unloadPlugin(getPlugin(pl), new Runnable() {
+				unloadPlugin(getPlugin(plugin), new Runnable() {
 					public void run() {
-						loadPlugin(pl, onReload);
+						loadPlugin(plugin, onReload);
 					}
 				});
 			}});
@@ -382,10 +373,9 @@ public class PluginManagerAPI {
 	public static void reloadPlugin(String plugin) {
 		NMSAPI.postToMainThread(new Runnable() {
 			public void run() {
-				String pl = plugin;
-				unloadPlugin(getPlugin(pl), new Runnable() {
+				unloadPlugin(getPlugin(plugin), new Runnable() {
 					public void run() {
-						loadPlugin(pl);
+						loadPlugin(plugin);
 					}
 				});
 			}});
@@ -405,10 +395,11 @@ public class PluginManagerAPI {
 		unloadPlugin(pluginName, null);
 	}
 	
-	private static Field fPls = Ref.field(SimplePluginManager.class, "plugins"), lNms = Ref.field(SimplePluginManager.class, "lookupNames");
-	private static SimpleCommandMap commandMap = (SimpleCommandMap)Ref.get(spm, "commandMap");
+	private static final Field fPls = Ref.field(SimplePluginManager.class, "plugins");
+	private static final Field lNms = Ref.field(SimplePluginManager.class, "lookupNames");
+	private static final SimpleCommandMap commandMap = (SimpleCommandMap)Ref.get(spm, "commandMap");
 	@SuppressWarnings("unchecked")
-	private static Map<String, Command> knownCommands = (Map<String, Command>) Ref.get(commandMap, "knownCommands");
+	private static final Map<String, Command> knownCommands = (Map<String, Command>) Ref.get(commandMap, "knownCommands");
 
 	@SuppressWarnings("unchecked")
 	public static void unloadPlugin(String pluginName, Runnable onUnload) {
@@ -442,9 +433,7 @@ public class PluginManagerAPI {
 					}
 				try {
 					List<Permission> permissionlist = pl.getDescription().getPermissions();
-					Iterator<Permission> p = permissionlist.iterator();
-					while (p.hasNext())
-						spm.removePermission(p.next().toString());
+					for (Permission permission : permissionlist) spm.removePermission(permission.toString());
 				} catch (Exception | NoSuchMethodError e) {
 				}
 				if(onUnload!=null)

@@ -57,7 +57,7 @@ public class AnvilGUI implements HolderGUI {
 	}
 	
 	/**
-	 * @see see Set menu insertable for items
+	 * @apiNote Set menu insertable for items
 	 */
 	public final void setInsertable(boolean value) {
 		put = value;
@@ -73,7 +73,7 @@ public class AnvilGUI implements HolderGUI {
 	}
 	
 	/**
-	 * @see see Set item on position to the gui with options
+	 * @apiNote Set item on position to the gui with options
 	 */
 	public final void setItem(int position, ItemGUI item) {
 		items.put(position, item);
@@ -91,7 +91,7 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	/**
-	 * @seee see Remove item from position
+	 * @apiNote Remove item from position
 	 */
 	public final void removeItem(int position) {
 		items.remove(position);
@@ -109,7 +109,7 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	/**
-	 * @see see Remove item from position
+	 * @apiNote Remove item from position
 	 */
 	public final void remove(int slot) {
 		removeItem(slot);
@@ -120,24 +120,24 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	/**
-	 * @see see Return ItemStack from position in gui
+	 * @apiNote Return ItemStack from position in gui
 	 */
 	public final ItemStack getItem(Player target, int slot) {
 		return NMSAPI.asBukkitItem(Ref.invoke(Ref.invoke(containers.get(target), getSlot, slot),"getItem"));
 	}
 
 	/**
-	 * @see see Return ItemGUI from position in gui
+	 * @apiNote Return ItemGUI from position in gui
 	 */
 	public final ItemGUI getItemGUI(int slot) {
 		return getItemGUIs().get(slot);
 	}
 
-	private static Object windowType = Ref.getStatic(Ref.nmsOrOld("world.inventory.Containers","Containers"), TheAPI.isNewerThan(16)?"h":"ANVIL");
+	private static final Object windowType = Ref.getStatic(Ref.nmsOrOld("world.inventory.Containers","Containers"), TheAPI.isNewerThan(16)?"h":"ANVIL");
 	
-	private static Method getAt = Ref.method(Ref.nmsOrOld("world.inventory.ContainerAccess","ContainerAccess"), "at", Ref.nmsOrOld("world.level.World","World"), Ref.nmsOrOld("core.BlockPosition","BlockPosition")),
-			getSlot=Ref.method(Ref.nmsOrOld("world.inventory.ContainerAnvil","Container"), "getSlot", int.class);
-	private static Constructor<?> anvil;
+	private static final Method getAt = Ref.method(Ref.nmsOrOld("world.inventory.ContainerAccess","ContainerAccess"), "at", Ref.nmsOrOld("world.level.World","World"), Ref.nmsOrOld("core.BlockPosition","BlockPosition"));
+	private static final Method getSlot=Ref.method(Ref.nmsOrOld("world.inventory.ContainerAnvil","Container"), "getSlot", int.class);
+	private static final Constructor<?> anvil;
 	static {
 		if(TheAPI.isNewerThan(14)) {
 			anvil=Ref.constructor(Ref.nmsOrOld("world.inventory.ContainerAnvil","ContainerAnvil"), int.class, Ref.nmsOrOld("world.entity.player.PlayerInventory","PlayerInventory"), Ref.nmsOrOld("world.inventory.ContainerAccess","ContainerAccess"));
@@ -150,7 +150,7 @@ public class AnvilGUI implements HolderGUI {
 	}
 	
 	/**
-	 * @see see Open GUI menu to player
+	 * @apiNote Open GUI menu to player
 	 * 
 	 */
 	public final void open(Player... players) {
@@ -280,15 +280,15 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	/**
-	 * @see see Close opened gui for all players
+	 * @apiNote Close opened gui for all players
 	 * 
 	 */
 	public final void close() {
-		close(containers.keySet().toArray(new Player[containers.size()]));
+		close(containers.keySet().toArray(new Player[0]));
 	}
 
 	/**
-	 * @see see Clear all registered informations about gui
+	 * @apiNote Clear all registered information about gui
 	 * 
 	 */
 	public final void clear() {
@@ -297,7 +297,7 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	/**
-	 * @see see Close opened gui for specified player
+	 * @apiNote Close opened gui for specified player
 	 * 
 	 */
 	public final void close(Player... players) {
@@ -337,11 +337,11 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	public final String toString() {
-		String items = "";
+		StringBuilder items = new StringBuilder();
 		for (Integer g : getItemGUIs().keySet()) {
-			items += "/" + g + ":" + getItemGUIs().get(g).toString();
+			items.append('/').append(g).append(':').append(getItemGUIs().get(g).toString());
 		}
-		return "[AnvilGUI:" + title + "/" + put + "/" + 3 + items + "]";
+		return "[AnvilGUI:" + title + "/" + put + "/" + 3 + items.append(']');
 	}
 
 	public int getSize() {

@@ -19,7 +19,9 @@ public abstract class Tasker implements Runnable {
 		return task;
 	}
 
-	//ASYNCHRONOUS
+	/*
+	  ASYNCHRONOUOS PART
+	 */
 	
 	public final int runTask() {
 		if (task == -1)
@@ -53,7 +55,9 @@ public abstract class Tasker implements Runnable {
 		return task;
 	}
 	
-	//SYNCHRONOUS WITH SERVER
+	/*
+	  SYNCHRONOUOS PART WITH SERVER
+	 */
 
 	public final int runTaskSync() {
 		return task = Scheduler.runSync(this);

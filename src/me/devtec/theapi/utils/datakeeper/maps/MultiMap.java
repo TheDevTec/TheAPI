@@ -10,7 +10,7 @@ import me.devtec.theapi.utils.datakeeper.abstracts.Data;
 import me.devtec.theapi.utils.json.Writer;
 
 public class MultiMap<K, T, V> implements Data {
-	private Map<K, Map<T, V>> data = new HashMap<>();
+	private final Map<K, Map<T, V>> data = new HashMap<>();
 
 	public MultiMap() {
 	}
@@ -107,11 +107,11 @@ public class MultiMap<K, T, V> implements Data {
 	}
 
 	public String toString() {
-		String builder = "";
+		StringBuilder builder = new StringBuilder("{");
 		for (Entry<K, T, V> e : entrySet()) {
-			builder += (builder.trim().isEmpty() ? "" : ", ") + "("+e.toString()+")";
+			builder.append(builder.toString().trim().isEmpty() ? "" : ", ").append('(').append(e.toString()).append(')');
 		}
-		return "{" + builder + "}";
+		return builder.append('}').toString();
 	}
 
 	public static class Entry<K, T, V> {

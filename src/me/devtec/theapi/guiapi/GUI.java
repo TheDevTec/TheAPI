@@ -29,7 +29,7 @@ public class GUI implements HolderGUI {
 	public static final int LINES_2 = 18;
 	public static final int LINES_1 = 9;
 	
-	public static enum ClickType {
+	public enum ClickType {
 		MIDDLE_PICKUP, LEFT_DROP, RIGHT_PICKUP, RIGHT_DROP, LEFT_PICKUP, SHIFT_LEFT_DROP, SHIFT_RIGHT_PICKUP, SHIFT_RIGHT_DROP, SHIFT_LEFT_PICKUP
 	}
 	
@@ -115,7 +115,7 @@ public class GUI implements HolderGUI {
 	}
 
 	/**
-	 * @see see Set menu insertable for items
+	 * @apiNote Set menu insertable for items
 	 */
 	public final void setInsertable(boolean value) {
 		put = value;
@@ -126,7 +126,7 @@ public class GUI implements HolderGUI {
 	}
 
 	/**
-	 * @see see Set item on position to the gui with options
+	 * @apiNote Set item on position to the gui with options
 	 */
 	public final void setItem(int position, ItemGUI item) {
 		items.put(position, item);
@@ -137,7 +137,7 @@ public class GUI implements HolderGUI {
 	}
 
 	/**
-	 * @see see Remove item from position
+	 * @apiNote Remove item from position
 	 */
 	public final void removeItem(int slot) {
 		items.remove(slot);
@@ -148,14 +148,14 @@ public class GUI implements HolderGUI {
 	}
 
 	/**
-	 * @see see Remove item from position
+	 * @apiNote Remove item from position
 	 */
 	public final void remove(int slot) {
 		removeItem(slot);
 	}
 
 	/**
-	 * @see see Add item to the first empty slot in gui
+	 * @apiNote Add item to the first empty slot in gui
 	 */
 	public final void addItem(ItemGUI item) {
 		if (getFirstEmpty() != -1)
@@ -163,14 +163,14 @@ public class GUI implements HolderGUI {
 	}
 
 	/**
-	 * @see see Add item to the first empty slot in gui
+	 * @apiNote Add item to the first empty slot in gui
 	 */
 	public final void add(ItemGUI item) {
 		addItem(item);
 	}
 
 	/**
-	 * @see see Return ItemStack from position in gui
+	 * @apiNote Return ItemStack from position in gui
 	 */
 	public final ItemStack getItem(int slot) {
 		try {
@@ -181,7 +181,7 @@ public class GUI implements HolderGUI {
 	}
 
 	/**
-	 * @see see Return ItemGUI from position in gui
+	 * @apiNote Return ItemGUI from position in gui
 	 */
 	public final ItemGUI getItemGUI(int slot) {
 		return getItemGUIs().get(slot);
@@ -196,7 +196,7 @@ public class GUI implements HolderGUI {
 	}
 
 	/**
-	 * @see see -1 mean menu is full
+	 * @apiNote -1 mean menu is full
 	 * @return int return first empty slot (if available)
 	 */
 	public final int getFirstEmpty() {
@@ -204,10 +204,12 @@ public class GUI implements HolderGUI {
 	}
 
 	static int airplane;
-	protected static Constructor<?> openWindow, closeWindow = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutCloseWindow","PacketPlayOutCloseWindow"), int.class), containerClass,
-			setSlot=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
+	protected static Constructor<?> openWindow;
+	protected static final Constructor<?> closeWindow = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutCloseWindow","PacketPlayOutCloseWindow"), int.class);
+	protected static Constructor<?> containerClass;
+	protected static Constructor<?> setSlot=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
 	protected static int type;
-	protected static Method
+	protected static final Method
 	transfer=Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"),"transferTo", Ref.nmsOrOld("world.inventory.Container","Container"), Ref.craft("entity.CraftHumanEntity"));
 	private Object windowType;
 	static {
@@ -230,7 +232,7 @@ public class GUI implements HolderGUI {
 	}
 	
 	/**
-	 * @see see Open GUI menu to player
+	 * @apiNote Open GUI menu to player
 	 * 
 	 */
 	public final void open(Player... players) {
@@ -241,11 +243,12 @@ public class GUI implements HolderGUI {
 				a.onClose(player);
 			}
 			Object f= Ref.player(player);
-			int id = (int) nextCounter(f);
+			int id = nextCounter(f);
 			Object container = type==0?Ref.newInstance(containerClass, inv, f, id):Ref.newInstance(containerClass, inv, player, id);
 			for(int i = 0; i < inv.getSize(); ++i) {
-				if(inv.getItem(i)==null||inv.getItem(i).getType()==Material.AIR)continue;
-				Ref.invoke(Ref.invoke(container, "getSlot", i),"set", NMSAPI.asNMSItem(inv.getItem(i)));
+				ItemStack is = inv.getItem(i);
+				if(is==null||is.getType()==Material.AIR)continue;
+				Ref.invoke(Ref.invoke(container, "getSlot", i),"set", NMSAPI.asNMSItem(is));
 			}
 			if(TheAPI.isOlderThan(8)) {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id,0,title, getSize(), false));
@@ -267,9 +270,9 @@ public class GUI implements HolderGUI {
 		}
 	}
 	
-	static Method next = Ref.method(Ref.nmsOrOld("server.level.EntityPlayer", "EntityPlayer"), "nextContainerCounter"),
-			getItems=Ref.method(Ref.nmsOrOld("world.inventory.Container", "Container"), TheAPI.isNewerThan(16)?"c":TheAPI.isNewerThan(13)?"b":"a");
-	static Field nextF = Ref.field(Ref.nmsOrOld("server.level.EntityPlayer", "EntityPlayer"), TheAPI.isNewerThan(16)?"cY":"containerCounter");
+	static final Method next = Ref.method(Ref.nmsOrOld("server.level.EntityPlayer", "EntityPlayer"), "nextContainerCounter");
+	static final Method getItems=Ref.method(Ref.nmsOrOld("world.inventory.Container", "Container"), TheAPI.isNewerThan(16)?"c":TheAPI.isNewerThan(13)?"b":"a");
+	static final Field nextF = Ref.field(Ref.nmsOrOld("server.level.EntityPlayer", "EntityPlayer"), TheAPI.isNewerThan(16)?"cY":"containerCounter");
 	
 	protected static int nextCounter(Object f) {
 		try {
@@ -281,8 +284,8 @@ public class GUI implements HolderGUI {
 		}
 	}
 
-	protected static Method addListener = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "addSlotListener", Ref.nmsOrOld("world.inventory.ICrafting","ICrafting"));
-	protected static Object empty = Ref.getStatic(Ref.nmsOrOld("world.item.ItemStack","ItemStack"), "b");
+	protected static final Method addListener = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "addSlotListener", Ref.nmsOrOld("world.inventory.ICrafting","ICrafting"));
+	protected static final Object empty = Ref.getStatic(Ref.nmsOrOld("world.item.ItemStack","ItemStack"), "b");
 
 	public final void setTitle(String title) {
 		title=StringUtils.colorize(title);
@@ -341,15 +344,15 @@ public class GUI implements HolderGUI {
 	}
 
 	/**
-	 * @see see Close opened gui for all players
+	 * @apiNote Close opened gui for all players
 	 * 
 	 */
 	public final void close() {
-		close(containers.keySet().toArray(new Player[containers.size()]));
+		close(containers.keySet().toArray(new Player[0]));
 	}
 
 	/**
-	 * @see see Clear all registered informations about gui
+	 * @apiNote Clear all registered information about gui
 	 * 
 	 */
 	public final void clear() {
@@ -358,7 +361,7 @@ public class GUI implements HolderGUI {
 	}
 
 	/**
-	 * @see see Close opened gui for specified player
+	 * @apiNote Close opened gui for specified player
 	 * 
 	 */
 	public final void close(Player... players) {
@@ -368,7 +371,7 @@ public class GUI implements HolderGUI {
 			onPreClose(player);
 			Object ac = containers.remove(player);
 			if(ac!=null) {
-				Ref.sendPacket(player, Ref.newInstance(closeWindow, TheAPI.isOlderThan(17)?(int)Ref.get(ac,"windowId"):(int)Ref.get(ac,"j")));
+				Ref.sendPacket(player, Ref.newInstance(closeWindow, TheAPI.isOlderThan(17)?Ref.get(ac,"windowId"):Ref.get(ac,"j")));
 				Object d = Ref.player(player);
 				Ref.set(Ref.player(player), TheAPI.isNewerThan(16)?"bV":"activeContainer", Ref.get(d, TheAPI.isNewerThan(16)?"bU":"defaultContainer"));
 				Ref.invoke(ac, GUI.transfer, Ref.get(d, TheAPI.isNewerThan(16)?"bU":"defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
@@ -379,11 +382,11 @@ public class GUI implements HolderGUI {
 	}
 
 	public final String toString() {
-		String items = "";
+		StringBuilder items = new StringBuilder();
 		for (Integer g : getItemGUIs().keySet()) {
-			items += "/" + g + ":" + getItemGUIs().get(g).toString();
+			items.append('/').append(g).append(':').append(getItemGUIs().get(g).toString());
 		}
-		return "[GUI:" + title + "/" + put + "/" + inv.getSize() + items + "]";
+		return "[GUI:" + title + "/" + put + "/" + inv.getSize() + items.append(']');
 	}
 
 	public int getSize() {

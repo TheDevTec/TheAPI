@@ -20,9 +20,12 @@ import me.devtec.theapi.utils.json.Reader;
 import me.devtec.theapi.utils.json.Writer;
 
 public class WorldSchematic implements Schematic {
-	private static String pall="pallete.",split=".b.",broken=".", fix = "<!>";
+	private static final String pall="pallete.";
+    private static final String split=".b.";
+    private static final String broken=".";
+    private static final String fix = "<!>";
 	
-	private static String end = ".schem";
+	private static final String end = ".schem";
 	private final String name;
 	protected SchematicData load;
 	
@@ -100,9 +103,9 @@ public class WorldSchematic implements Schematic {
 				Map<String, String> blocks = new HashMap<>();
 				for(String key : load.getKeys()) {
 					if(!key.equals("info") && !key.equals("pallete")) {
-						long c = Long.valueOf(key);
+						long c = Long.parseLong(key);
 							for(String values : load.getKeys(key+".b")) {
-								int val = Integer.valueOf(values);
+								int val = Integer.parseInt(values);
 								String i = pallete.get(val);
 								if(i==null)continue; //invalid entry
 								for(Double d : (List<Double>)Reader.read(load.getString(key+split+values)))
@@ -122,7 +125,7 @@ public class WorldSchematic implements Schematic {
 						int sum = sum(get(aaa[0]), get(aaa[1]), get(aaa[2]));
 						long k = (get(aaa[0]) >> 4 & 0xFFFF0000L) << 16L | (get(aaa[0]) >> 4 & 0xFFFFL) << 0L;
 						k |= (get(aaa[2]) >> 4 & 0xFFFF0000L) << 32L | (get(aaa[2]) >> 4 & 0xFFFFL) << 16L;
-						String path = new StringBuilder(String.valueOf(k)).append(fix).append(String.valueOf(sum)).toString();
+						String path = new StringBuilder(String.valueOf(k)).append(fix).append(sum).toString();
 						String i = blocks.get(path);
 						if(i!=null) {
 							ser.fromString(i).apply(sett);
@@ -137,7 +140,7 @@ public class WorldSchematic implements Schematic {
 						sett.setZ(aaa[2]);
 						//BLOCK
 						int sum = sum(sett.getBlockX(), sett.getBlockY(), sett.getBlockZ());
-						String path = new StringBuilder(String.valueOf(sett.getChunkKey())).append(fix).append(String.valueOf(sum)).toString();
+						String path = new StringBuilder(String.valueOf(sett.getChunkKey())).append(fix).append(sum).toString();
 						String i = blocks.get(path);
 						if(i!=null) {
 							ser.fromString(i).apply(sett);

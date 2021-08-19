@@ -28,7 +28,7 @@ import me.devtec.theapi.utils.reflections.Ref;
 
 public class Writer implements JsonWriter {
 	
-	private static JsonWriter writer = new Writer();
+	private static final JsonWriter writer = new Writer();
 
 	public static String write(Object object) {
 		return writer.serilize(object);
@@ -56,8 +56,8 @@ public class Writer implements JsonWriter {
 			Ref.newInstance(Ref.constructor(
 					Ref.getClass("com.google.gson.GsonBuilder") != null ? Ref.getClass("com.google.gson.GsonBuilder")
 							: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder"))),
-			"setPrettyPrinting"), "create"),
-			simple = Ref.invoke(
+			"setPrettyPrinting"), "create");
+	private static Object simple = Ref.invoke(
 					Ref.newInstance(Ref.constructor(Ref.getClass("com.google.gson.GsonBuilder") != null
 							? Ref.getClass("com.google.gson.GsonBuilder")
 							: Ref.getClass("com.google.gson.org.bukkit.craftbukkit.libs.com.google.gson.GsonBuilder"))),
@@ -108,12 +108,13 @@ public class Writer implements JsonWriter {
 		return (String) Ref.invoke((fancy ? pretty : simple), toJson, object);
 	}
 
-	private static Method from = Ref.method(Ref.craft("util.CraftChatMessage"), "fromComponent",
-			Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent")), isEmpty = Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "isEmpty");
+	private static final Method from = Ref.method(Ref.craft("util.CraftChatMessage"), "fromComponent",
+			Ref.nmsOrOld("network.chat.IChatBaseComponent","IChatBaseComponent"));
+	private static final Method isEmpty = Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "isEmpty");
 
 	/**
 	 * 
-	 * @param object Object to parse to String
+	 * @param w Object to parse to String
 	 * @return String Object converted to String
 	 */
 	public String object(Object w, boolean addNulls, boolean fancy) {
@@ -332,7 +333,8 @@ public class Writer implements JsonWriter {
 		return convert(w, fancy, addNulls);
 	}
 
-	private static List<Class<?>> FORBIDDEN = new ArrayList<>(), SEMI_FORBIDDEN = new ArrayList<>();
+	private static final List<Class<?>> FORBIDDEN = new ArrayList<>();
+	private static final List<Class<?>> SEMI_FORBIDDEN = new ArrayList<>();
 
 	static {
 		SEMI_FORBIDDEN.add(Ref.craft("persistence.CraftPersistentDataAdapterContext"));

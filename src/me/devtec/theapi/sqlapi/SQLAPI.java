@@ -15,8 +15,11 @@ import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class SQLAPI {
 	private Connection connection;
-	private String host, database, username, password;
-	private int port;
+	private final String host;
+    private final String database;
+    private final String username;
+    private final String password;
+	private final int port;
 
 	public SQLAPI(String host, String database, String username, String password, int port) {
 		this.host = host;
@@ -179,11 +182,11 @@ public class SQLAPI {
 	}
 
 	public void insert(String table, String... values) {
-		String items = "";
+		StringBuilder items = new StringBuilder();
 		for (String s : values)
-			items += s!=null?", '" + s + "'":", null";
-		if(!items.trim().isEmpty()) {
-			items = items.substring(2);
+			items.append(s != null ? ", '" + s + "'" : ", null");
+		if(!items.toString().trim().isEmpty()) {
+			items = new StringBuilder(items.substring(2));
 			String command = "INSERT INTO " + table + " VALUES (" + items + ")";
 			execute(command);
 		}

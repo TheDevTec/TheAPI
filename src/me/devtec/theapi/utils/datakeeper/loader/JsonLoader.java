@@ -15,7 +15,7 @@ import me.devtec.theapi.utils.json.Reader;
 
 public class JsonLoader extends DataLoader {
 	private boolean l;
-	private Map<String, Object[]> data = new LinkedHashMap<>();
+	private final Map<String, Object[]> data = new LinkedHashMap<>();
 
 	@Override
 	public Map<String, Object[]> get() {
@@ -55,7 +55,7 @@ public class JsonLoader extends DataLoader {
 			String s;
 			while((s=r.readLine())!=null)d.append(s);
 			r.close();
-			load(s);
+			load(d.toString());
 		} catch (Exception e) {
 			reset();
 		}
@@ -75,15 +75,14 @@ public class JsonLoader extends DataLoader {
 				for (Entry<Object, Object> keyed : ((Map<Object, Object>) read).entrySet()) {
 					data.put((String) keyed.getKey(), new Object[] {keyed.getValue(), null, null});
 				}
-				l = true;
 			} else {
 				for (Object o : (Collection<Object>) read) {
 					for (Entry<Object, Object> keyed : ((Map<Object, Object>) o).entrySet()) {
 						data.put((String) keyed.getKey(), new Object[] {keyed.getValue(), null, null});
 					}
 				}
-				l = true;
 			}
+			l = true;
 		} catch (Exception er) {
 			reset();
 		}

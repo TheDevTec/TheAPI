@@ -19,14 +19,13 @@ import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class ChatMessage {
-	static Pattern url = Pattern.compile("(w{3}\\\\.|[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+:\\/\\/)?[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+\\w\\.[a-zA-Z0-9+&@#/%?=~_|!:,.;-]{2,}\\w"),
+	static final Pattern url = Pattern.compile("(w{3}\\\\.|[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+:\\/\\/)?[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+\\w\\.[a-zA-Z0-9+&@#/%?=~_|!:,.;-]{2,}\\w"),
 			colorOrRegex = Pattern.compile(TheAPI.isNewerThan(15)?"#[A-Fa-f0-9]{6}|[&§][Xx]([&§][A-Fa-f0-9]){6}|[&§][A-Fa-f0-9RrK-Ok-o]"
 					:"[&§][A-Fa-f0-9RrK-Ok-o]");
-	private static String fixedHex  = "[&§][xX][&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])";
 	private String text, color = "";
 	private boolean bold = false, italic = false, obfuscated = false, strike = false, under = false, change = false;
 	
-	private List<Map<String, Object>> join = new ArrayList<>();
+	private final List<Map<String, Object>> join = new ArrayList<>();
 	
 	public ChatMessage(String text) {
 		this.text=text;
@@ -92,21 +91,21 @@ public class ChatMessage {
 		return new ChatMessage(text);
 	}
 	
-	private static Constructor<?> chat = Ref.constructor(Ref.nmsOrOld("network.chat.ChatComponentText", "ChatComponentText"), String.class),
-			clickEvent = Ref.constructor(Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable", "ChatClickable"), Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable$EnumClickAction", "EnumClickAction"), String.class);
-	private static Method addSibling=Ref.findMethodByName(Ref.nmsOrOld("network.chat.ChatComponentText", "ChatComponentText"), "addSibling")
-			, getChatModif=Ref.method(Ref.nmsOrOld("network.chat.IChatBaseComponent", "IChatBaseComponent"), "getChatModifier")
-			, setChatModif=Ref.findMethodByName(Ref.nmsOrOld("network.chat.ChatComponentText", "ChatComponentText"), "setChatModifier"),
-			setBold=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setBold", Boolean.class),
-			setItalic=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setItalic", Boolean.class),
-			setRandom=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setRandom", Boolean.class),
-			setStrikethrough=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setStrikethrough", Boolean.class),
-			setChatClickable=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setChatClickable", Ref.nmsOrOld("network.chat.ChatClickable", "ChatClickable")),
-			setUnderline=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setUnderline", Boolean.class),
-			hex=Ref.method(Ref.nmsOrOld("network.chat.ChatHexColor", "ChatHexColor"), "a", String.class),
-			colors=Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", char.class),
-			setColorHex=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setColor", Ref.nmsOrOld("network.chat.ChatHexColor", "ChatHexColor")),
-			setColorNormal=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setColor", Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"));
+	private static final Constructor<?> chat = Ref.constructor(Ref.nmsOrOld("network.chat.ChatComponentText", "ChatComponentText"), String.class);
+	private static final Constructor<?> clickEvent = Ref.constructor(Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable", "ChatClickable"), Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable$EnumClickAction", "EnumClickAction"), String.class);
+	private static final Method addSibling=Ref.findMethodByName(Ref.nmsOrOld("network.chat.ChatComponentText", "ChatComponentText"), "addSibling");
+	private static final Method getChatModif=Ref.method(Ref.nmsOrOld("network.chat.IChatBaseComponent", "IChatBaseComponent"), "getChatModifier");
+	private static final Method setChatModif=Ref.findMethodByName(Ref.nmsOrOld("network.chat.ChatComponentText", "ChatComponentText"), "setChatModifier");
+	private static final Method setBold=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setBold", Boolean.class);
+	private static final Method setItalic=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setItalic", Boolean.class);
+	private static final Method setRandom=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setRandom", Boolean.class);
+	private static final Method setStrikethrough=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setStrikethrough", Boolean.class);
+	private static final Method setChatClickable=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setChatClickable", Ref.nmsOrOld("network.chat.ChatClickable", "ChatClickable"));
+	private static final Method setUnderline=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setUnderline", Boolean.class);
+	private static final Method hex=Ref.method(Ref.nmsOrOld("network.chat.ChatHexColor", "ChatHexColor"), "a", String.class);
+	private static Method colors=Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", char.class);
+	private static final Method setColorHex=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setColor", Ref.nmsOrOld("network.chat.ChatHexColor", "ChatHexColor"));
+	private static final Method setColorNormal=Ref.method(Ref.nmsOrOld("network.chat.ChatModifier", "ChatModifier"), "setColor", Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"));
 	static int t;
 	static {
 		if(colors==null) {
@@ -115,12 +114,12 @@ public class ChatMessage {
 		}
 	}
 	
-	private static Object open_url = TheAPI.isNewerThan(16)?Ref.getNulled(Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable$EnumClickAction", "EnumClickAction"), "a"):Ref.getNulled(Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable$EnumClickAction", "EnumClickAction"), "OPEN_URL");
+	private static final Object open_url = TheAPI.isNewerThan(16)?Ref.getNulled(Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable$EnumClickAction", "EnumClickAction"), "a"):Ref.getNulled(Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable$EnumClickAction", "EnumClickAction"), "OPEN_URL");
 	
 	public Object toNMS() {
 		boolean first = true;
 		Object main = null;
-		Object ab = main;
+		Object ab = null;
 		if(TheAPI.isNewerThan(15)) {
 		for(Map<String, Object> s : join) {
 			Object a = Ref.newInstance(chat, s.get("text"));
@@ -200,7 +199,7 @@ public class ChatMessage {
 	public String toLegacy() {
 		StringBuilder b = new StringBuilder(join.size()*16);
 		for(Map<String, Object> text : join)
-			b.append(StringUtils.colorize(getColor(""+text.getOrDefault("color","")))+text.get("text"));
+			b.append(StringUtils.colorize(getColor("" + text.getOrDefault("color", "")))).append(text.get("text"));
 		return b.toString();
 	}
 	
@@ -217,11 +216,10 @@ public class ChatMessage {
 	public List<Map<String, Object>> get(){
 		return new ArrayList<>(join);
 	}
-	
-	private static String empty = "{\"text\":\"\"}";
-	
+
 	public String getJson() {
-		return join.isEmpty()?empty:Writer.write(join);
+		String empty = "{\"text\":\"\"}";
+		return join.isEmpty()? empty :Writer.write(join);
 	}
 	
 	private void convert() {
@@ -229,21 +227,22 @@ public class ChatMessage {
 			return;
 		}
 		List<Object[]> colors = parse();
-		for(int i = 0; i < colors.size(); ++i) {
-			if(colors.get(i)[0]==null||colors.get(i)[0].toString().replaceAll("[&§][A-Fa-f0-9K-Ok-oRrXx]|#[A-Fa-f0-9]{6}", "").equals(""))continue;
-			HashMap<String, Object> c=new HashMap<>();
+		for (Object[] objects : colors) {
+			if (objects[0] == null || objects[0].toString().replaceAll("[&§][A-Fa-f0-9K-Ok-oRrXx]|#[A-Fa-f0-9]{6}", "").equals(""))
+				continue;
+			HashMap<String, Object> c = new HashMap<>();
 			join.add(c);
-			if(colors.get(i)[0].toString().equals(""))continue;
-			c.put("text", colors.get(i)[0]+"");
-			if(colors.get(i)[1]!=null && !colors.get(i)[1].equals(""))
-				c.put("color", colors.get(i)[1]+"");
-			for(int is = 2; is < 7; ++is)
-				if(colors.get(i)[is]!=null)
-					c.put(is==2?"bold":(is==3?"italic":(is==4?"obfuscated":(is==5?"strikethrough":"underlined"))), (boolean)colors.get(i)[is]);
+			if (objects[0].toString().equals("")) continue;
+			c.put("text", objects[0] + "");
+			if (objects[1] != null && !objects[1].equals(""))
+				c.put("color", objects[1] + "");
+			for (int is = 2; is < 7; ++is)
+				if (objects[is] != null)
+					c.put(is == 2 ? "bold" : (is == 3 ? "italic" : (is == 4 ? "obfuscated" : (is == 5 ? "strikethrough" : "underlined"))), (boolean) objects[is]);
 				else
-					c.put(is==2?"bold":(is==3?"italic":(is==4?"obfuscated":(is==5?"strikethrough":"underlined"))), false);
-			if(colors.get(i)[7]!=null && !colors.get(i)[7].equals(""))
-				c.put("clickEvent", colors.get(i)[7]);
+					c.put(is == 2 ? "bold" : (is == 3 ? "italic" : (is == 4 ? "obfuscated" : (is == 5 ? "strikethrough" : "underlined"))), false);
+			if (objects[7] != null && !objects[7].equals(""))
+				c.put("clickEvent", objects[7]);
 		}
 	}
 	
@@ -292,19 +291,19 @@ public class ChatMessage {
 					if(color!=null && !color.equals(""))
 						actual[1]=color;
 					if(bold)
-						actual[2]=bold;
+						actual[2]= true;
 					else actual[2]=null;
 					if(italic)
-						actual[3]=italic;
+						actual[3]= true;
 					else actual[3]=null;
 					if(obfuscated)
-						actual[4]=obfuscated;
+						actual[4]= true;
 					else actual[4]=null;
 					if(strike)
-						actual[5]=strike;
+						actual[5]= true;
 					else actual[5]=null;
 					if(under)
-						actual[6]=under;
+						actual[6]= true;
 					else actual[6]=null;
 					actual=new Object[8];
 					colors.add(actual);
@@ -315,19 +314,19 @@ public class ChatMessage {
 				if(color!=null && !color.equals(""))
 					actual[1]=color;
 				if(bold)
-					actual[2]=bold;
+					actual[2]= true;
 				else actual[2]=null;
 				if(italic)
-					actual[3]=italic;
+					actual[3]= true;
 				else actual[3]=null;
 				if(obfuscated)
-					actual[4]=obfuscated;
+					actual[4]= true;
 				else actual[4]=null;
 				if(strike)
-					actual[5]=strike;
+					actual[5]= true;
 				else actual[5]=null;
 				if(under)
-					actual[6]=under;
+					actual[6]= true;
 				else actual[6]=null;
 				url=null;
 				actual=new Object[8];
@@ -362,19 +361,19 @@ public class ChatMessage {
 				actual[1]=color;
 			else actual[1]=null;
 			if(bold)
-				actual[2]=bold;
+				actual[2]= true;
 			else actual[2]=null;
 			if(italic)
-				actual[3]=italic;
+				actual[3]= true;
 			else actual[3]=null;
 			if(obfuscated)
-				actual[4]=obfuscated;
+				actual[4]= true;
 			else actual[4]=null;
 			if(strike)
-				actual[5]=strike;
+				actual[5]= true;
 			else actual[5]=null;
 			if(under)
-				actual[6]=under;
+				actual[6]= true;
 			else actual[6]=null;
 		}
 		if(url!=null) {
@@ -384,19 +383,19 @@ public class ChatMessage {
 				if(color!=null && !color.equals(""))
 					actual[1]=color;
 				if(bold)
-					actual[2]=bold;
+					actual[2]= true;
 				else actual[2]=null;
 				if(italic)
-					actual[3]=italic;
+					actual[3]= true;
 				else actual[3]=null;
 				if(obfuscated)
-					actual[4]=obfuscated;
+					actual[4]= true;
 				else actual[4]=null;
 				if(strike)
-					actual[5]=strike;
+					actual[5]= true;
 				else actual[5]=null;
 				if(under)
-					actual[6]=under;
+					actual[6]= true;
 				else actual[6]=null;
 				actual=new Object[8];
 				colors.add(actual);
@@ -407,19 +406,19 @@ public class ChatMessage {
 			if(color!=null && !color.equals(""))
 				actual[1]=color;
 			if(bold)
-				actual[2]=bold;
+				actual[2]= true;
 			else actual[2]=null;
 			if(italic)
-				actual[3]=italic;
+				actual[3]= true;
 			else actual[3]=null;
 			if(obfuscated)
-				actual[4]=obfuscated;
+				actual[4]= true;
 			else actual[4]=null;
 			if(strike)
-				actual[5]=strike;
+				actual[5]= true;
 			else actual[5]=null;
 			if(under)
-				actual[6]=under;
+				actual[6]= true;
 			else actual[6]=null;
 			url=null;
 			actual=new Object[8];
@@ -428,19 +427,19 @@ public class ChatMessage {
 		}
 		return colors;
 	}
-	private static Pattern getLast = Pattern.compile("(§[Xx](§[A-Fa-f0-9]){6}|§[A-Fa-f0-9RrK-Ok-oUuXx])");
+	private static final Pattern getLast = Pattern.compile("(§[Xx](§[A-Fa-f0-9]){6}|§[A-Fa-f0-9RrK-Ok-oUuXx])");
 
 	static String getLastColors(String s) {
 		Matcher m = getLast.matcher(s);
-		String colors = "";
+		StringBuilder colors = new StringBuilder();
 		while(m.find()) {
 			String last = m.group(1);
 			if(last.matches("§[A-Fa-f0-9]|§[Xx](§[A-Fa-f0-9]){6}"))
-				colors=last;
+				colors = new StringBuilder(last);
 			else
-				colors+=last;
+				colors.append(last);
 		}
-		return colors;
+		return colors.toString();
 	}
 	
 	private void setupUrl(Object[] actual, String url) {
@@ -467,12 +466,12 @@ public class ChatMessage {
 			if(!last.equals(""))
 			apply(actual, last);
 		}
-		return actual[0]==null?ac[1]==null:ac[1]==null?true:actual[0].equals(ac[1]) 
-				&& actual[1]==ac[2] 
-				&& actual[2]==ac[3] 
-				&& actual[3]==ac[4] 
-				&& actual[4]==ac[5]
-				&& actual[5]==ac[6];
+		return actual[0]==null?ac[1]==null: ac[1] == null || actual[0].equals(ac[1])
+				&& actual[1] == ac[2]
+				&& actual[2] == ac[3]
+				&& actual[3] == ac[4]
+				&& actual[4] == ac[5]
+				&& actual[5] == ac[6];
 	}
 
 	private void apply(Object[] actual, String next) {
@@ -563,6 +562,7 @@ public class ChatMessage {
 			return next;
 		}
 		if(next.startsWith("&x")||next.startsWith("§x")) {
+			String fixedHex = "[&§][xX][&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])[&§]([A-Fa-f0-9])";
 			return next.replaceAll(fixedHex, "#$1$2$3$4$5$6");
 		}}
 		switch(next.substring(1)) {

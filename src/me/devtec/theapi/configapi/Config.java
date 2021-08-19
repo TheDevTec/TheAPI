@@ -40,7 +40,7 @@ public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data 
 		}
 		
 		public Object setValue(Object value) {
-			Object old = value;
+			Object old = this.value;
 			this.value=value;
 			return old;
 		}
@@ -50,7 +50,7 @@ public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data 
 		}
 		
 		public List<String> setComments(List<String> comments) {
-			List<String> old = comments;
+			List<String> old = this.comments;
 			this.comments=comments;
 			return old;
 		}
@@ -76,7 +76,7 @@ public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data 
 		return c;
 	}
 	
-	public static String folderName = "plugins/";
+	public static final String folderName = "plugins/";
 	
 	private final Map<String, Node> defaults = new HashMap<>();
 	private final Data f;

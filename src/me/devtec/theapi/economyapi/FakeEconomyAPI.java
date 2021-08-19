@@ -6,7 +6,7 @@ import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class FakeEconomyAPI {
-	private String w;
+	private final String w;
 
 	public FakeEconomyAPI(String economyStore) {
 		w = economyStore;
@@ -110,10 +110,10 @@ public class FakeEconomyAPI {
 	}
 
 	/**
-	 * @param s Available placeholders: %symbol%, $ %money%, %eco%, %balance%
+	 * @param format Available placeholders: %symbol%, $ %money%, %eco%, %balance%
 	 */
-	public void setFormat(String s) {
-		LoaderClass.config.set("Options.FakeEconomyAPI.Format", s);
+	public void setFormat(String format) {
+		LoaderClass.config.set("Options.FakeEconomyAPI.Format", format);
 		LoaderClass.config.save();
 	}
 

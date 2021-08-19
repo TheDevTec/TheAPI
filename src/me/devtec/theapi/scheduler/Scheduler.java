@@ -4,7 +4,7 @@ import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class Scheduler {
-	private static MultiThread thread = new MultiThread();
+	private static final MultiThread thread = new MultiThread();
 
 	public static void cancelAll() {
 		thread.destroy();
@@ -19,23 +19,22 @@ public class Scheduler {
 		return !thread.isAlive(task)&&LoaderClass.plugin.enabled;
 	}
 	
-	//ASYNCHRONOUOS
+	/*
+	  ASYNCHRONOUOS PART
+	 */
 
 	public static int run(Runnable r) {
 		if(r==null||!LoaderClass.plugin.enabled)return -1;
 		int id = thread.incrementAndGet();
-		return thread.executeWithId(id, new Runnable() {
-			public void run() {
-				try {
-					if(!isCancelled(id))
-						r.run();
-					thread.destroy(id);
-				} catch (Exception er) {
-					thread.destroy(id);
-					if (er instanceof InterruptedException == false)
-						er.printStackTrace();
-					return;
-				}
+		return thread.executeWithId(id, () -> {
+			try {
+				if(!isCancelled(id))
+					r.run();
+				thread.destroy(id);
+			} catch (Exception er) {
+				thread.destroy(id);
+				if (!(er instanceof InterruptedException))
+					er.printStackTrace();
 			}
 		});
 	}
@@ -43,20 +42,17 @@ public class Scheduler {
 	public static int later(long delay, Runnable r) {
 		if(r==null||!LoaderClass.plugin.enabled)return -1;
 		int id = thread.incrementAndGet();
-		return thread.executeWithId(id, new Runnable() {
-			public void run() {
-				try {
-					if (delay > 0)
-						Thread.sleep(delay * 50);
-					if(!isCancelled(id))
-						r.run();
-					thread.destroy(id);
-				} catch (Exception er) {
-					thread.destroy(id);
-					if (er instanceof InterruptedException == false)
-						er.printStackTrace();
-					return;
-				}
+		return thread.executeWithId(id, () -> {
+			try {
+				if (delay > 0)
+					Thread.sleep(delay * 50);
+				if(!isCancelled(id))
+					r.run();
+				thread.destroy(id);
+			} catch (Exception er) {
+				thread.destroy(id);
+				if (!(er instanceof InterruptedException))
+					er.printStackTrace();
 			}
 		});
 	}
@@ -64,22 +60,19 @@ public class Scheduler {
 	public static int repeating(long delay, long period, Runnable r) {
 		if(r==null||!LoaderClass.plugin.enabled||period<0)return -1;
 		int id = thread.incrementAndGet();
-		return thread.executeWithId(id, new Runnable() {
-			public void run() {
-				try {
-					if (delay > 0)
-						Thread.sleep(delay * 50);
-					while(!isCancelled(id)) {
-						r.run();
-						Thread.sleep(period * 50);
-					}
-					thread.destroy(id);
-				} catch (Exception er) {
-					thread.destroy(id);
-					if (er instanceof InterruptedException == false)
-						er.printStackTrace();
-					return;
+		return thread.executeWithId(id, () -> {
+			try {
+				if (delay > 0)
+					Thread.sleep(delay * 50);
+				while(!isCancelled(id)) {
+					r.run();
+					Thread.sleep(period * 50);
 				}
+				thread.destroy(id);
+			} catch (Exception er) {
+				thread.destroy(id);
+				if (!(er instanceof InterruptedException))
+					er.printStackTrace();
 			}
 		});
 	}
@@ -112,31 +105,29 @@ public class Scheduler {
 					thread.destroy(id);
 				} catch (Exception er) {
 					thread.destroy(id);
-					if (er instanceof InterruptedException == false)
+					if (!(er instanceof InterruptedException))
 						er.printStackTrace();
-					return;
 				}
 			}
 		});
 	}
 
-	//SYNCHRONOUS WITH SERVER
+	/*
+	  SYNCHRONOUOS PART WITH SERVER
+	 */
 	
 	public static int runSync(Runnable r) {
 		if(r==null||!LoaderClass.plugin.enabled)return -1;
 		int id = thread.incrementAndGet();
-		return thread.executeWithId(id, new Runnable() {
-			public void run() {
-				try {
-					if(!isCancelled(id))
-						NMSAPI.postToMainThread(r);
-					thread.destroy(id);
-				} catch (Exception er) {
-					thread.destroy(id);
-					if (er instanceof InterruptedException == false)
-						er.printStackTrace();
-					return;
-				}
+		return thread.executeWithId(id, () -> {
+			try {
+				if(!isCancelled(id))
+					NMSAPI.postToMainThread(r);
+				thread.destroy(id);
+			} catch (Exception er) {
+				thread.destroy(id);
+				if (!(er instanceof InterruptedException))
+					er.printStackTrace();
 			}
 		});
 	}
@@ -144,20 +135,17 @@ public class Scheduler {
 	public static int laterSync(long delay, Runnable r) {
 		if(r==null||!LoaderClass.plugin.enabled)return -1;
 		int id = thread.incrementAndGet();
-		return thread.executeWithId(id, new Runnable() {
-			public void run() {
-				try {
-					if (delay > 0)
-						Thread.sleep(delay * 50);
-					if(!isCancelled(id))
-						NMSAPI.postToMainThread(r);
-					thread.destroy(id);
-				} catch (Exception er) {
-					thread.destroy(id);
-					if (er instanceof InterruptedException == false)
-						er.printStackTrace();
-					return;
-				}
+		return thread.executeWithId(id, () -> {
+			try {
+				if (delay > 0)
+					Thread.sleep(delay * 50);
+				if(!isCancelled(id))
+					NMSAPI.postToMainThread(r);
+				thread.destroy(id);
+			} catch (Exception er) {
+				thread.destroy(id);
+				if (!(er instanceof InterruptedException))
+					er.printStackTrace();
 			}
 		});
 	}
@@ -165,22 +153,19 @@ public class Scheduler {
 	public static int repeatingSync(long delay, long period, Runnable r) {
 		if(r==null||period<0||!LoaderClass.plugin.enabled)return -1;
 		int id = thread.incrementAndGet();
-		return thread.executeWithId(id, new Runnable() {
-			public void run() {
-				try {
-					if (delay > 0)
-						Thread.sleep(delay * 50);
-					while(!isCancelled(id)) {
-						NMSAPI.postToMainThread(r);
-						Thread.sleep(period * 50);
-					}
-					thread.destroy(id);
-				} catch (Exception er) {
-					thread.destroy(id);
-					if (er instanceof InterruptedException == false)
-						er.printStackTrace();
-					return;
+		return thread.executeWithId(id, () -> {
+			try {
+				if (delay > 0)
+					Thread.sleep(delay * 50);
+				while(!isCancelled(id)) {
+					NMSAPI.postToMainThread(r);
+					Thread.sleep(period * 50);
 				}
+				thread.destroy(id);
+			} catch (Exception er) {
+				thread.destroy(id);
+				if (!(er instanceof InterruptedException))
+					er.printStackTrace();
 			}
 		});
 	}
@@ -213,9 +198,8 @@ public class Scheduler {
 					thread.destroy(id);
 				} catch (Exception er) {
 					thread.destroy(id);
-					if (er instanceof InterruptedException == false)
+					if (!(er instanceof InterruptedException))
 						er.printStackTrace();
-					return;
 				}
 			}
 		});

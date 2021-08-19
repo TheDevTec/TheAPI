@@ -14,8 +14,11 @@ import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class TheMaterial implements Cloneable {
-	static Method mm, mat, create;
-	static Class<?> block = Ref.nmsOrOld("world.level.block.Block","Block"), item = Ref.nmsOrOld("world.item.Item","Item");
+	static Method mm;
+	static Method mat;
+	static final Method create;
+	static final Class<?> block = Ref.nmsOrOld("world.level.block.Block","Block");
+	static final Class<?> item = Ref.nmsOrOld("world.item.Item","Item");
 
 	static {
 		create = Ref.method(Ref.craft("inventory.CraftItemStack"), "asNewCraftStack", Ref.nmsOrOld("world.item.Item","Item"));
@@ -51,7 +54,6 @@ public class TheMaterial implements Cloneable {
 			ItemStack stack = (ItemStack)Ref.invokeNulled(create, Ref.invoke(Ref.invoke(blockData, "getBlock"),"getItem"));
 			m = stack.getType();
 			this.amount = stack.getAmount();
-			return;
 		}else {
 			if(TheAPI.isOlderThan(8)) { //1.7.10
 				if(item.isInstance(blockData)) {
@@ -89,7 +91,7 @@ public class TheMaterial implements Cloneable {
 		}
 	}
 
-	private static Method bb = Ref.method(Ref.craft("util.CraftMagicNumbers"), "getMaterial", Ref.nmsOrOld("world.level.block.Block","Block"));
+	private static final Method bb = Ref.method(Ref.craft("util.CraftMagicNumbers"), "getMaterial", Ref.nmsOrOld("world.level.block.Block","Block"));
 	
 	private TheMaterial(Object blockData) {
 		if(blockData==null)return;
@@ -112,7 +114,6 @@ public class TheMaterial implements Cloneable {
 			m = stack.getType();
 			this.data = stack.getData().getData();
 			this.amount = stack.getAmount();
-			return;
 		}else { //1.7 - 1.12.2
 			if(block.isInstance(blockData)) {
 				ItemStack stack = new ItemStack((Material)Ref.invokeNulled(bb, blockData));
@@ -234,7 +235,8 @@ public class TheMaterial implements Cloneable {
 				getIBlockData());
 	}
 
-	private static Method fromLegacy,id = Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "getByCombinedId", int.class);
+	private static final Method fromLegacy;
+	private static Method id = Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "getByCombinedId", int.class);
 	static {
 		if(id==null)id=Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "getById", int.class);
 		fromLegacy=Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "fromLegacyData", int.class);
@@ -341,8 +343,8 @@ public class TheMaterial implements Cloneable {
 		return new TheMaterial(m, data, amount);
 	}
 
-	private static Class<?> bab = Ref.nmsOrOld("world.level.block.Block", "Block");
-	private static Method getBlock = Ref.method(Ref.nmsOrOld("world.level.block.state.IBlockData", "IBlockData"), "getBlock");
+	private static final Class<?> bab = Ref.nmsOrOld("world.level.block.Block", "Block");
+	private static final Method getBlock = Ref.method(Ref.nmsOrOld("world.level.block.state.IBlockData", "IBlockData"), "getBlock");
 	public Object getBlock() {
 		Object ib = getIBlockData();
 		if(bab.isInstance(ib))return ib;

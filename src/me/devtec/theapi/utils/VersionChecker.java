@@ -1,8 +1,8 @@
 package me.devtec.theapi.utils;
 
 public class VersionChecker {
-	public static enum Version {
-		OLD, NEW, SAME, UKNOWN;
+	public enum Version {
+		OLD, NEW, SAME, UKNOWN
 	}
 	
 	public static Version getVersion(String currentVersion, String version) {

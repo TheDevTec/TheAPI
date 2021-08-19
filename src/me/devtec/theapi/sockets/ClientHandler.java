@@ -55,14 +55,13 @@ public class ClientHandler extends Thread {
 	    		dos.println(data.toString(DataType.BYTE));
 	    		dos.flush();
 			} catch (Exception e) {}
-			data.clear();
-    	}else {
+		}else {
     		if(postQueue==null)
     			postQueue = new LinkedList<>();
     		postQueue.add(data.toString(DataType.BYTE));
-    		data.clear();
-    	}
-    }
+		}
+		data.clear();
+	}
     
     public boolean isConnected() {
     	return !closed;

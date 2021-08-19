@@ -16,7 +16,7 @@ import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class SignAPI {
-	public static enum SignAction {
+	public enum SignAction {
 		CONSOLE_COMMANDS, PLAYER_COMMANDS, BROADCAST, MESSAGES
 	}
 
@@ -41,7 +41,7 @@ public class SignAPI {
 		return l;
 	}
 	
-	private static Class<?> sign = Ref.nmsOrOld("world.level.block.entity.TileEntitySign","TileEntitySign");
+	private static final Class<?> sign = Ref.nmsOrOld("world.level.block.entity.TileEntitySign","TileEntitySign");
 	
 	public static void setLines(Position loc, String... lines) {
 		Object state = SerializedBlock.getState(loc);
@@ -77,31 +77,13 @@ public class SignAPI {
 
 	public static void setActions(Position loc, Map<SignAction, List<String>> options) {
 		String l = loc.toString();
-		for (SignAction s : options.keySet()) {
-			switch (s) {
-			case CONSOLE_COMMANDS:
-				if (options.get(s) instanceof List)
-					LoaderClass.data.set("Sign." + l + ".CONSOLE_COMMANDS", options.get(s));
-				break;
-			case PLAYER_COMMANDS:
-				if (options.get(s) instanceof List)
-					LoaderClass.data.set("Sign." + l + ".PLAYER_COMMANDS", options.get(s));
-				break;
-			case MESSAGES:
-				if (options.get(s) instanceof List)
-					LoaderClass.data.set("Sign." + l + ".MESSAGES", options.get(s));
-				break;
-			case BROADCAST:
-				if (options.get(s) instanceof List)
-					LoaderClass.data.set("Sign." + l + ".BROADCAST", options.get(s));
-				break;
-			}
-		}
+		for (Map.Entry<SignAction, List<String>> s : options.entrySet())
+			LoaderClass.data.set("Sign." + l + "."+s.getKey().name(), s.getValue());
 		LoaderClass.data.save();
 	}
 
 	public static Map<SignAction, List<String>> getSignActions(Position loc) {
-		HashMap<SignAction, List<String>> a = new HashMap<SignAction, List<String>>();
+		HashMap<SignAction, List<String>> a = new HashMap<>();
 		String ff = loc.toString();
 		for (String s : LoaderClass.data.getKeys("Sign." + ff))
 			a.put(SignAction.valueOf(s), LoaderClass.data.getStringList("Sign." + ff + "." + s));

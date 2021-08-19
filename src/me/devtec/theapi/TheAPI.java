@@ -29,14 +29,12 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.spigotmc.SpigotConfig;
 
 import me.devtec.theapi.apis.EnchantmentAPI;
-import me.devtec.theapi.apis.EntityCreatorAPI;
 import me.devtec.theapi.apis.NameTagAPI;
 import me.devtec.theapi.bossbar.BarColor;
 import me.devtec.theapi.bossbar.BarStyle;
@@ -66,9 +64,9 @@ public class TheAPI {
 	private static final HashMap<String, BossBar> bars = new HashMap<>();
 	private static final HashMap<String, Integer> task = new HashMap<>();
 	private static final HashMap<UUID, User> cache = new HashMap<>();
-	private static Constructor<?> constructor = Ref.constructor(PluginCommand.class, String.class, Plugin.class);
-	private static Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
-	private static Random random = new Random();
+	private static final Constructor<?> constructor = Ref.constructor(PluginCommand.class, String.class, Plugin.class);
+	private static final Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
+	private static final Random random = new Random();
 	private static int ver;
 	
 	public static Cache getCache() {
@@ -214,7 +212,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Colorize string with colors
+	 * @apiNote Colorize string with colors
 	 * @param string
 	 * @return Colored String
 	 */
@@ -223,7 +221,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Return is server version 1.13+
+	 * @apiNote Return is server version 1.13+
 	 * @return boolean
 	 */
 	public static boolean isNewVersion() {
@@ -245,7 +243,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Return time in which server start
+	 * @apiNote Return time in which server start
 	 * @return long
 	 */
 	public static long getServerStartTime() {
@@ -253,7 +251,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Build string from String[]
+	 * @apiNote Build string from String[]
 	 * @param args
 	 * @return String
 	 * 
@@ -271,30 +269,21 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Create your own entity with damage, health and more
-	 * @param type
-	 * @return EntityCreatorAPI
-	 */
-	public static EntityCreatorAPI getEntityCreatorAPI(EntityType type) {
-		return new EntityCreatorAPI(type);
-	}
-
-	/**
-	 * @see see Return random object from list
+	 * @apiNote Return random object from list
 	 */
 	public static <T> T getRandomFromList(List<T> list) {
 		return StringUtils.getRandomFromList(list);
 	}
 
 	/**
-	 * @see see Return random object from collection
+	 * @apiNote Return random object from collection
 	 */
 	public static <T> T getRandomFromCollection(Collection<T> list) {
 		return StringUtils.getRandomFromCollection(list);
 	}
 
 	/**
-	 * @see see Set world border size, center and more
+	 * @apiNote Set world border size, center and more
 	 * @param world
 	 * @return WorldBorderAPI
 	 */
@@ -303,27 +292,27 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Generate random int with limit
+	 * @apiNote Generate random int with limit
 	 * @param maxInt
-	 * @return int
+	 * @return Random generated int
 	 */
 	public static int generateRandomInt(int maxInt) {
 		return generateRandomInt(0, maxInt);
 	}
 
 	/**
-	 * @see see Generate random double with limit
+	 * @apiNote Generate random double with limit
 	 * @param maxDouble
-	 * @return double
+	 * @return Random generated double
 	 */
 	public static double generateRandomDouble(double maxDouble) {
 		return generateRandomDouble(0, maxDouble);
 	}
 
 	/**
-	 * @see see Generate random double with limit
+	 * @apiNote Generate random double with limit
 	 * @param maxDouble
-	 * @return double
+	 * @return Random generated double
 	 */
 	public static double generateRandomDouble(double min, double maxDouble) {
 		if (maxDouble == 0)
@@ -340,9 +329,10 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Generate random double with limit
-	 * @param maxDouble
-	 * @return double
+	 * @apiNote Generate random double with limit
+	 * @param min
+	 * @param maxInt
+	 * @return Random generated int
 	 */
 	public static int generateRandomInt(int min, int maxInt) {
 		if (maxInt == 0)
@@ -359,7 +349,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Server up time in long
+	 * @apiNote Server uptime in long
 	 * @return long
 	 */
 	public static long getServerUpTime() {
@@ -367,7 +357,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Get player from List<Player>
+	 * @apiNote Get player from List<Player>
 	 * @return Player
 	 */
 	public static Player getPlayer(int i) {
@@ -379,7 +369,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Get player by name
+	 * @apiNote Get player by name
 	 * @return Player
 	 */
 	public static Player getPlayer(String name) {
@@ -387,7 +377,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Get player by name (Not matching)
+	 * @apiNote Get player by name (Not matching)
 	 * @return Player
 	 */
 	public static Player getPlayerOrNull(String name) {
@@ -396,7 +386,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Get random player from List<Player>
+	 * @apiNote Get random player from List<Player>
 	 * @return Player
 	 */
 	public static Player getRandomPlayer() {
@@ -404,7 +394,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Get random player from List<Player>
+	 * @apiNote Get random player from List<Player>
 	 * @return List<Player>
 	 */
 	@SuppressWarnings("unchecked")
@@ -414,14 +404,11 @@ public class TheAPI {
 		if(o instanceof Collection) {
 			return new ArrayList<>((Collection<Player>)o);
 		}
-		Player[] f = (Player[]) o;
-		List<Player> p = new ArrayList<>(f.length);
-		for(Player s : f)p.add(s);
-		return p;
+		return new ArrayList<>(Arrays.asList((Player[]) o));
 	}
 
 	/**
-	 * @see see Get random player from List<Player>
+	 * @apiNote Get random player from List<Player>
 	 * @return List<Player>
 	 */
 	@SuppressWarnings("unchecked")
@@ -435,7 +422,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Get random player from List<Player>
+	 * @apiNote Get random player from List<Player>
 	 * @return List<Player>
 	 */
 	public static List<Player> getPlayers() {
@@ -463,11 +450,10 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send player bossbar
+	 * @apiNote Send player bossbar
 	 * @param p
 	 * @param text
 	 * @param progress
-	 * @param timeToExpire
 	 */
 	public static BossBar sendBossBar(Player p, String text, double progress) {
 		Validator.validate(p == null, "Player is null");
@@ -495,7 +481,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send player bossbar on time
+	 * @apiNote Send player bossbar on time
 	 * @param p
 	 * @param text
 	 * @param progress
@@ -516,7 +502,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Remove player from all bossbars in which player is in
+	 * @apiNote Remove player from all bossbars in which player is in
 	 * @param p
 	 */
 	public static void removeBossBar(Player p) {
@@ -528,7 +514,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Return list with bossbars in which player is in
+	 * @apiNote Return list with bossbars in which player is in
 	 * @param p
 	 * @return BossBar
 	 */
@@ -539,7 +525,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Remove player action bar instanceof sendActionBar(player, "")
+	 * @apiNote Remove player action bar instanceof sendActionBar(player, "")
 	 * @param p
 	 */
 	public static void removeActionBar(Player p) {
@@ -548,7 +534,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send player action bar
+	 * @apiNote Send player action bar
 	 * @param p
 	 * @param text
 	 */
@@ -559,7 +545,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send player action bar
+	 * @apiNote Send player action bar
 	 * @param p
 	 * @param text
 	 */
@@ -573,12 +559,12 @@ public class TheAPI {
 		Ref.sendPacket(p, NMSAPI.getPacketPlayOutTitle(TitleAction.ACTIONBAR, colorize(text), fadeIn, stay, fadeOut));
 	}
 
-	public static enum SudoType {
+	public enum SudoType {
 		CHAT, COMMAND
 	}
 
 	/**
-	 * @see see Send value as player
+	 * @apiNote Send value as player
 	 * @param target
 	 * @param type
 	 * @param value
@@ -595,7 +581,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send value as console
+	 * @apiNote Send value as console
 	 * @param type
 	 * @param value
 	 */
@@ -611,8 +597,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send command as console
-	 * @param type
+	 * @apiNote Send command as console
 	 * @param value
 	 */
 	public static void sudoConsole(String value) {
@@ -630,7 +615,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see If player have full inventory, item will be dropped on ground or
+	 * @apiNote If player have full inventory, item will be dropped on ground or
 	 *      item will be added to player inventory
 	 * @param p
 	 * @param item
@@ -642,7 +627,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see If player have full inventory, item will be dropped on ground or
+	 * @apiNote If player have full inventory, item will be dropped on ground or
 	 *      item will be added to player inventory
 	 * @param p
 	 * @param item
@@ -655,7 +640,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see If player have full inventory, item will be dropped on ground or
+	 * @apiNote If player have full inventory, item will be dropped on ground or
 	 *      item will be added to player inventory
 	 * @param p
 	 * @param item
@@ -669,7 +654,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send player title
+	 * @apiNote Send player title
 	 * @param p
 	 * @param firstLine
 	 * @param nextLine
@@ -683,7 +668,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send player title
+	 * @apiNote Send player title
 	 * @param p
 	 * @param firstLine
 	 * @param nextLine
@@ -701,7 +686,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send message to all online players
+	 * @apiNote Send message to all online players
 	 * @param message
 	 */
 	public static void broadcastMessage(String message) {
@@ -716,7 +701,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send message to all online players
+	 * @apiNote Send message to all online players
 	 * @param message
 	 */
 	public static void bcMsg(String message) {
@@ -724,24 +709,24 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send message to all online players
-	 * @param message
+	 * @apiNote Send message to all online players
+	 * @param object
 	 */
 	public static void broadcastMessage(Object object) {
 		broadcastMessage(object + "");
 	}
 
 	/**
-	 * @see see Send message to all online players
-	 * @param message
+	 * @apiNote Send message to all online players
+	 * @param object
 	 */
 	public static void bcMsg(Object object) {
 		broadcastMessage(object + "");
 	}
 
 	/**
-	 * @see see Send message to all online players with specified permission
-	 * @param message
+	 * @apiNote Send message to all online players with specified permission
+	 * @param object
 	 * @param permission
 	 */
 	public static void broadcast(Object object, String permission) {
@@ -749,8 +734,8 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send message to all online players with specified permission
-	 * @param message
+	 * @apiNote Send message to all online players with specified permission
+	 * @param object
 	 * @param permission
 	 */
 	public static void bc(Object object, String permission) {
@@ -758,7 +743,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send message to all online players with specified permission
+	 * @apiNote Send message to all online players with specified permission
 	 * @param message
 	 * @param permission
 	 */
@@ -767,7 +752,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Send message to all online players with specified permission
+	 * @apiNote Send message to all online players with specified permission
 	 * @param message
 	 * @param permission
 	 */
@@ -785,15 +770,15 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Set max players on server
-	 * @param int
+	 * @apiNote Set max players on server
+	 * @param max
 	 */
 	public static void setMaxPlayers(int max) {
 		LoaderClass.plugin.max = max;
 	}
 
 	/**
-	 * @see see Return server motd
+	 * @apiNote Return server motd
 	 * @return String
 	 */
 	public static String getMotd() {
@@ -801,7 +786,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Set new server motd
+	 * @apiNote Set new server motd
 	 * @param neww Motd text
 	 */
 	public static void setMotd(String neww) {
@@ -809,7 +794,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Get max players on server
+	 * @apiNote Get max players on server
 	 * @return int
 	 */
 	public static int getMaxPlayers() {
@@ -817,7 +802,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Return console
+	 * @apiNote Return console
 	 * @return CommandSender
 	 */
 	public static CommandSender getConsole() {
@@ -825,7 +810,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Set player name tag
+	 * @apiNote Set player name tag
 	 * @param p
 	 * @param prefix
 	 * @param suffix
@@ -836,8 +821,8 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Manager of player's cooldowns
-	 * @param cooldown
+	 * @apiNote Manager of player's cooldowns
+	 * @param player
 	 * @return CooldownAPI
 	 */
 	public static CooldownAPI getCooldownAPI(String player) {
@@ -845,8 +830,8 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Manager of player's cooldowns
-	 * @param cooldown
+	 * @apiNote Manager of player's cooldowns
+	 * @param player
 	 * @return CooldownAPI
 	 */
 	public static CooldownAPI getCooldownAPI(UUID player) {
@@ -854,8 +839,8 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Manager of player's cooldowns
-	 * @param cooldown
+	 * @apiNote Manager of player's cooldowns
+	 * @param player
 	 * @return CooldownAPI
 	 */
 	public static CooldownAPI getCooldownAPI(Player player) {
@@ -863,8 +848,8 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Manager of player's cooldowns
-	 * @param cooldown
+	 * @apiNote Manager of player's cooldowns
+	 * @param player
 	 * @return CooldownAPI
 	 */
 	public static CooldownAPI getCooldownAPI(User player) {
@@ -872,7 +857,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Get bukkit name of enchantment from string for ex. Sharpness ->
+	 * @apiNote Get bukkit name of enchantment from string for ex. Sharpness ->
 	 *      DAMAGE_ALL
 	 * @return Enchantment
 	 */
@@ -883,7 +868,7 @@ public class TheAPI {
 	private static String version;
 
 	/**
-	 * @see see Return server version, for ex. v1_14_R1
+	 * @apiNote Return server version, for ex. v1_14_R1
 	 * @return String
 	 */
 	public static String getServerVersion() {
@@ -901,19 +886,19 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Return current server TPS
+	 * @apiNote Return current server TPS
 	 * @return double
 	 */
 	public static double getServerTPS() {
 		return getServerTPS(TPSType.ONE_MINUTE);
 	}
 
-	public static enum TPSType {
+	public enum TPSType {
 		ONE_MINUTE, FIVE_MINUTES, FIFTEEN_MINUTES
 	}
 
 	/**
-	 * @see see Return server TPS from 1, 5 or 15 minutes
+	 * @apiNote Return server TPS from 1, 5 or 15 minutes
 	 * @return double
 	 */
 	public static double getServerTPS(TPSType type) {
@@ -928,7 +913,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Return player ping
+	 * @apiNote Return player ping
 	 * @param p
 	 * @return int
 	 */
@@ -941,12 +926,12 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Return boolean exists User's file
+	 * @apiNote Return boolean exists User's file
 	 * @return boolean
 	 */
 	public static boolean existsUser(String name) {
 		if(getPlayerOrNull(name)!=null)return true;
-		String s = null;
+		String s;
 		try {
 			s = UUID.fromString(name).toString();
 		} catch (Exception e) {
@@ -964,7 +949,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Return boolean exists User's file
+	 * @apiNote Return boolean exists User's file
 	 * @return boolean
 	 */
 	public static boolean existsUser(UUID uuid) {
@@ -972,15 +957,15 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Return boolean exists User's file
+	 * @apiNote Return boolean exists User's file
 	 * @return boolean
 	 */
 	public static boolean existsUser(Player player) {
-		return new File("plugins/TheAPI/User/" + player.getUniqueId().toString() + ".yml").exists();
+		return new File("plugins/TheAPI/User/" + player.getUniqueId() + ".yml").exists();
 	}
 
 	/**
-	 * @see see Return List of users (For ex. e74d98f0-a807-3b3d-b53f-93ea27908936)
+	 * @apiNote Return List of users (For ex. e74d98f0-a807-3b3d-b53f-93ea27908936)
 	 * @return List<UUID>
 	 */
 	public static List<UUID> getUsers() {
@@ -1001,7 +986,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see Return List of users names (For ex. Straikerina)
+	 * @apiNote Return List of users names (For ex. Straikerina)
 	 * @return List<String>
 	 */
 	public static List<String> getUsersNames() {
@@ -1020,7 +1005,7 @@ public class TheAPI {
 	}
 	
 	/**
-	 * @see see If the user doesn't exist, his data file is created automatically.
+	 * @apiNote If the user doesn't exist, his data file is created automatically.
 	 * @param nameOrUUID Name of player or UUID in String
 	 * @return User
 	 */
@@ -1043,7 +1028,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see If the user doesn't exist, his data file is created automatically.
+	 * @apiNote If the user doesn't exist, his data file is created automatically.
 	 * @param player Player
 	 * @return User
 	 */
@@ -1054,7 +1039,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see If the user doesn't exist, his data file is created automatically.
+	 * @apiNote If the user doesn't exist, his data file is created automatically.
 	 * @param uuid UUID of player
 	 * @return User
 	 */
@@ -1081,7 +1066,7 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see If the user doesn't exist, his data file is created automatically.
+	 * @apiNote If the user doesn't exist, his data file is created automatically.
 	 * @param uuid UUID of player
 	 * @return User
 	 */
@@ -1102,8 +1087,8 @@ public class TheAPI {
 	}
 
 	/**
-	 * @see see If the user doesn't exist, his data file is created automatically.
-	 * @param uuid UUID of player
+	 * @apiNote If the user doesn't exist, his data file is created automatically.
+	 * @param query UUID of player
 	 * @return User
 	 */
 	public static User getUser(Query query) {
@@ -1145,7 +1130,7 @@ public class TheAPI {
 		return uuid;
 	}
 
-	// Bit of LastLoginAPI
+	// A bit of LastLoginAPI
 	public static User getLastLoggedUserByIP(String ip) {
 		User a = null;
 		long last = 0;
@@ -1161,7 +1146,7 @@ public class TheAPI {
 
 	public static void removeCachedUser(String nameOrUUID) {
 		if (nameOrUUID == null)return;
-		UUID s = null;
+		UUID s;
 		try {
 			s = UUID.fromString(nameOrUUID);
 		} catch (Exception e) {
