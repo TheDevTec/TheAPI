@@ -14,11 +14,7 @@ public class JsonWriter {
         try {
             if (s == null)
                 return null;
-            if (s instanceof String || s instanceof CharSequence)
-                return s;
-            if (s instanceof Boolean)
-                return s;
-            if (s instanceof Number)
+            if (s instanceof String || s instanceof CharSequence || s instanceof Boolean || s instanceof Number || s instanceof Character)
                 return s;
             if (s instanceof Map) {
                 Map<String, Object> object = new HashMap<>();
@@ -87,11 +83,7 @@ public class JsonWriter {
         try {
             if (s == null)
                 return "null";
-            if (s instanceof String || s instanceof CharSequence)
-                return s.toString();
-            if (s instanceof Boolean)
-                return s.toString();
-            if (s instanceof Number)
+            if (s instanceof String || s instanceof CharSequence || s instanceof Boolean || s instanceof Number || s instanceof Character)
                 return s.toString();
             if (s instanceof Collection) {
                 Map<String, Object> object = new HashMap<>();

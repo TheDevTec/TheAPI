@@ -98,13 +98,13 @@ public enum EnchantmentAPI {
 		v = version;
 	}
 
-	public void enchant(ItemStack to, int level) { // 1_15_R0 -> 15
-		if (StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]) >= v)
+	public void enchant(ItemStack to, int level) {
+		if (TheAPI.isNewerThan(v-1))
 			to.addUnsafeEnchantment(getEnchantment(), level);
 	}
 
 	public Enchantment getEnchantment() {
-		if (StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]) >= v) {
+		if (TheAPI.isNewerThan(v-1)) {
 			Object o = Ref.invoke(null, getByName, s);
 			return o == null ? null : (Enchantment) o;
 		}

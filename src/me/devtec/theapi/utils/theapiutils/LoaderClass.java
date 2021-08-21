@@ -236,7 +236,7 @@ public class LoaderClass extends JavaPlugin {
 					}
 				});
 			}
-		}else sockets.getData().clear();
+		}
 		
 		//CONSOLE LOG EVENT
 		if(config.getBoolean("Options.ConsoleLogEvent")) {
@@ -870,7 +870,6 @@ public class LoaderClass extends JavaPlugin {
 				LoaderClass.plugin.servers.clear();
 				LoaderClass.plugin.server=null;
 			}
-			LoaderClass.sockets.getData().clear();
 		}
 		if (TheAPI.isNewerThan(15)) {
 			LoaderClass.tags.reload();
