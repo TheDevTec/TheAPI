@@ -1,5 +1,7 @@
 package me.devtec.theapi.utils.datakeeper.loader;
 
+import me.devtec.theapi.utils.json.JsonReader;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,8 +17,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import me.devtec.theapi.utils.json.Reader;
 
 public class YamlLoader extends DataLoader {
 	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*?):[ ]*(.*)"),
@@ -204,7 +204,7 @@ public class YamlLoader extends DataLoader {
 			if (!items.isEmpty() || c == 2) {
 				set(key, items, lines);
 			} else if (c == 1) {
-				set(key, Reader.read(v.toString()), lines, v.toString());
+				set(key, JsonReader.read(v.toString()), lines, v.toString());
 			} else if (!lines.isEmpty()) {
 				if(data.isEmpty())header=lines;
 				else
@@ -362,7 +362,7 @@ public class YamlLoader extends DataLoader {
 			if (!items.isEmpty() || c == 2) {
 				set(key, items, lines);
 			} else if (c == 1) {
-				set(key, Reader.read(v.toString()), lines, v.toString());
+				set(key, JsonReader.read(v.toString()), lines, v.toString());
 			} else if (!lines.isEmpty()) {
 				if(data.isEmpty())header=lines;
 				else
@@ -408,7 +408,7 @@ public class YamlLoader extends DataLoader {
 		if(key==null)return;
 		Object[] s = data.get(key);
 		if(o instanceof String) {
-			o=Reader.read((String)o);
+			o= JsonReader.read((String)o);
 		}
 		if (s!=null) {
 			s[0]=o;

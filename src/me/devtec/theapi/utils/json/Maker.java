@@ -12,7 +12,7 @@ public class Maker extends ArrayList<Object> {
 
 	@SuppressWarnings("unchecked")
 	public Maker(String json) {
-		addAll((Collection<Object>) Reader.read(json));
+		addAll((Collection<Object>) JsonReader.read(json));
 	}
 
 	public Maker(Collection<Object> obj) {
@@ -20,11 +20,11 @@ public class Maker extends ArrayList<Object> {
 	}
 
 	public void addSerilized(String json) {
-		add(Reader.read(json));
+		add(JsonReader.read(json));
 	}
 
 	public void removeSerilized(String json) {
-		remove(Reader.read(json));
+		remove(JsonReader.read(json));
 	}
 
 	public MakerObject create() {
@@ -32,11 +32,7 @@ public class Maker extends ArrayList<Object> {
 	}
 
 	public String toString() {
-		return Writer.write(this);
-	}
-
-	public String toString(boolean fancy) {
-		return Writer.write(this, fancy);
+		return JsonWriter.write(this);
 	}
 
 	public static class MakerObject extends HashMap<Object, Object> {
@@ -58,7 +54,7 @@ public class Maker extends ArrayList<Object> {
 		}
 
 		public String toString() {
-			return Writer.write(this);
+			return JsonWriter.write(this);
 		}
 	}
 }

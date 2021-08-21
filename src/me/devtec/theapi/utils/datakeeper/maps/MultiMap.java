@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import me.devtec.theapi.utils.datakeeper.abstracts.Data;
-import me.devtec.theapi.utils.json.Writer;
+import me.devtec.theapi.utils.json.JsonWriter;
 
 public class MultiMap<K, T, V> implements Data {
 	private final Map<K, Map<T, V>> data = new HashMap<>();
@@ -161,6 +161,6 @@ public class MultiMap<K, T, V> implements Data {
 		ser.put("sorted", false);
 		ser.put("size", size());
 		ser.put("values", toString());
-		return Writer.write(ser);
+		return JsonWriter.write(ser);
 	}
 }

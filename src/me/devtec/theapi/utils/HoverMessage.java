@@ -4,12 +4,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.devtec.theapi.utils.json.JsonWriter;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.json.Maker;
-import me.devtec.theapi.utils.json.Writer;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.nms.NMSAPI.ChatType;
 import me.devtec.theapi.utils.reflections.Ref;
@@ -241,7 +241,7 @@ public class HoverMessage {
 	public String getJson() {
 		Maker m = (Maker) texts.clone();
 		m.add(0, "");
-		return Writer.write(m);
+		return JsonWriter.write(m);
 	}
 
 	public String toString() {

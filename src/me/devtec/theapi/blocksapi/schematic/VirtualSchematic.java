@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import me.devtec.theapi.utils.json.JsonReader;
+import me.devtec.theapi.utils.json.JsonWriter;
 import org.bukkit.Material;
 
 import me.devtec.theapi.blocksapi.schematic.construct.Schematic;
@@ -17,8 +19,6 @@ import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.BlockMathIterator;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.TheMaterial;
-import me.devtec.theapi.utils.json.Reader;
-import me.devtec.theapi.utils.json.Writer;
 
 public class VirtualSchematic implements Schematic {
 	private static final String pall="pallete.";
@@ -64,7 +64,7 @@ public class VirtualSchematic implements Schematic {
 								int val = Integer.parseInt(values);
 								String i = pallete.get(val);
 								if(i==null)continue; //invalid entry
-								for(Double d : (List<Double>)Reader.read(load.getString(key+split+values)))
+								for(Double d : (List<Double>) JsonReader.read(load.getString(key+split+values)))
 									blocks.put(c+fix+d.intValue(), i.replaceAll("\\.",broken));
 							}
 					}
@@ -79,7 +79,7 @@ public class VirtualSchematic implements Schematic {
 						sett.setZ(aaa[2]+stand.getBlockZ());
 						//BLOCK
 						int sum = sum(get(aaa[0]), get(aaa[1]), get(aaa[2]));
-						long k = (get(aaa[0]) >> 4 & 0xFFFF0000L) << 16L | (get(aaa[0]) >> 4 & 0xFFFFL) << 0L;
+						long k = (get(aaa[0]) >> 4 & 0xFFFF0000L) << 16L | (get(aaa[0]) >> 4 & 0xFFFFL);
 						k |= (get(aaa[2]) >> 4 & 0xFFFF0000L) << 32L | (get(aaa[2]) >> 4 & 0xFFFFL) << 16L;
 						String path = new StringBuilder(String.valueOf(k)).append(fix).append(sum).toString();
 						String i = blocks.get(path);
@@ -153,7 +153,7 @@ public class VirtualSchematic implements Schematic {
 				SchematicData data = new SchematicData();
 				for(Entry<String, Object> key : save.entrySet()) {
 					if(key.getKey().contains(split) && !key.getKey().contains("pallete")) {
-						data.set(key.getKey(), Writer.write((List<Integer>)key.getValue()));
+						data.set(key.getKey(), JsonWriter.write(key.getValue()));
 					}else {
 						data.set(key.getKey(), key.getValue());
 					}

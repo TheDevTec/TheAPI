@@ -24,9 +24,9 @@ import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.loader.DataLoader;
 import me.devtec.theapi.utils.datakeeper.loader.EmptyLoader;
 import me.devtec.theapi.utils.datakeeper.loader.YamlLoader;
+import me.devtec.theapi.utils.json.JsonReader;
+import me.devtec.theapi.utils.json.JsonWriter;
 import me.devtec.theapi.utils.json.Maker;
-import me.devtec.theapi.utils.json.Reader;
-import me.devtec.theapi.utils.json.Writer;
 import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
@@ -380,7 +380,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Object g = get(key);
 		return g != null && g instanceof Collection ? new ArrayList<>((Collection<?>) g) : new ArrayList<>();
 	}
-	
+
 	public synchronized <E> List<E> getListAs(String key, Class<? extends E> clazz) {
 		List<E> list = new ArrayList<>();
 		for (Object o : getList(key))
@@ -466,7 +466,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			if(o==null)
 				list.add(null);
 			else {
-				Object re = Reader.read(o.toString());
+				Object re = JsonReader.read(o.toString());
 				list.add(re instanceof Map ? (Map<K, V>) re : new HashMap<>());
 			}
 		}
@@ -505,18 +505,6 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 		return this;
 	}
-	
-	static final Writer wr = new Writer();
-	
-	private String write(Object w) {
-		if (w instanceof Enum<?>) {
-			Map<String, Object> enumMap = new HashMap<>();
-			enumMap.put("enum " + w.getClass().getName(), w.toString());
-			return wr.map(enumMap, false);
-		}
-		if(w instanceof Comparable<?>)return w.toString();
-		return Writer.write(w);
-	}
 
 	protected synchronized void addQuotesSplit(StringBuilder b, CharSequence split, String aw) {
 		b.append(split);
@@ -528,7 +516,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	
 	protected synchronized void addQuotesSplit(StringBuilder b, CharSequence split, Object aw) {
 		b.append(split);
-		b.append(write(aw));
+		b.append(JsonWriter.write(aw));
 		b.append(System.lineSeparator());
 	}
 	
@@ -546,7 +534,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	
 	protected synchronized void addQuotes(StringBuilder b, CharSequence pathName, Object aw) {
 		b.append(pathName).append(' ');
-		b.append(write(aw));
+		b.append(JsonWriter.write(aw));
 		b.append(System.lineSeparator());
 	}
 	
@@ -772,7 +760,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 									continue;
 								}
 							Object val = key.getValue()[0];
-							String write = val instanceof String ? (String)val:Writer.write(val);
+							String write = val instanceof String ? (String)val:JsonWriter.write(val);
 							if(write==null) {
 								bos.writeUTF("null");
 								bos.writeUTF("0");
@@ -827,7 +815,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		HashMap<String, Object> s = new HashMap<>();
 		if(a!=null)s.put("file", a.getPath()+"/"+a.getName());
 		s.put("loader", loader.getDataName());
-		return Writer.write(s);
+		return JsonWriter.write(s);
 	}
 
 	public synchronized Data clear() {

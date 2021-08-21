@@ -11,7 +11,7 @@ import com.google.common.io.ByteStreams;
 
 import me.devtec.theapi.utils.Compressors;
 import me.devtec.theapi.utils.datakeeper.loader.DataLoader;
-import me.devtec.theapi.utils.json.Reader;
+import me.devtec.theapi.utils.json.JsonReader;
 
 public class SchematicLoader extends DataLoader {
 	private final Map<String, Object[]> data = new LinkedHashMap<>();
@@ -74,7 +74,7 @@ public class SchematicLoader extends DataLoader {
 						}catch(Exception not) {
 						run=false;
 					}
-					data.put(key, new Object[] {value==null?null:Reader.read(value), null, value});
+					data.put(key, new Object[] {value==null?null:JsonReader.read(value), null, value});
 				} catch (Exception e) {
 					break;
 				}
@@ -107,7 +107,7 @@ public class SchematicLoader extends DataLoader {
 							}catch(Exception not) {
 							run=false;
 						}
-						data.put(key, new Object[] {value==null?null:Reader.read(value), null, value});
+						data.put(key, new Object[] {value==null?null: JsonReader.read(value), null, value});
 					} catch (Exception e) {
 						break;
 					}

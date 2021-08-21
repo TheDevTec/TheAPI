@@ -1,17 +1,16 @@
 package me.devtec.theapi.utils.theapiutils;
 
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import me.devtec.theapi.utils.json.JsonReader;
 import org.bukkit.Bukkit;
 
 import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.datakeeper.Data;
-import me.devtec.theapi.utils.json.Reader;
 
 public class Cache {
 	private final String USER_FORMAT="https://api.ashcon.app/mojang/v2/user/%s";
@@ -31,13 +30,7 @@ public class Cache {
 	@SuppressWarnings("unchecked")
 	public String lookupNameFromMojang(String name) {
 		try {
-			HttpURLConnection conn = (HttpURLConnection)new URL(String.format(USER_FORMAT, name)).openConnection();
-			conn.setRequestProperty("User-Agent", "TheAPI-JavaClient");
-			conn.setRequestMethod("GET");
-			conn.setConnectTimeout(20000);
-			conn.setReadTimeout(20000);
-			conn.connect();
-			return (String)((Map<String, Object>) Reader.read(StreamUtils.fromStream(conn.getInputStream()))).get("username");
+			return (String)((Map<String, Object>) JsonReader.read(StreamUtils.fromStream(new URL(String.format(USER_FORMAT, name)).openStream()))).get("username");
 		}catch(Exception error) {}
 		return name;
 	}
@@ -45,13 +38,7 @@ public class Cache {
 	@SuppressWarnings("unchecked")
 	public UUID lookupIdFromMojang(String name) {
 		try {
-			HttpURLConnection conn = (HttpURLConnection)new URL(String.format(USER_FORMAT, name)).openConnection();
-			conn.setRequestProperty("User-Agent", "TheAPI-JavaClient");
-			conn.setRequestMethod("GET");
-			conn.setConnectTimeout(20000);
-			conn.setReadTimeout(20000);
-			conn.connect();
-			return UUID.fromString((String)((Map<String, Object>) Reader.read(StreamUtils.fromStream(conn.getInputStream()))).get("uuid"));
+			return UUID.fromString((String)((Map<String, Object>) JsonReader.read(StreamUtils.fromStream(new URL(String.format(USER_FORMAT, name)).openStream()))).get("uuid"));
 		}catch(Exception error) {}
 		return UUID.nameUUIDFromBytes(("OfflinePlayer:"+name).getBytes(StandardCharsets.UTF_8));
 	}

@@ -11,17 +11,15 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import me.devtec.theapi.utils.json.JsonWriter;
 import org.bukkit.ChatColor;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.utils.json.Writer;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class ChatMessage {
-	static final Pattern url = Pattern.compile("(w{3}\\\\.|[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+:\\/\\/)?[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+\\w\\.[a-zA-Z0-9+&@#/%?=~_|!:,.;-]{2,}\\w"),
-			colorOrRegex = Pattern.compile(TheAPI.isNewerThan(15)?"#[A-Fa-f0-9]{6}|[&§][Xx]([&§][A-Fa-f0-9]){6}|[&§][A-Fa-f0-9RrK-Ok-o]"
-					:"[&§][A-Fa-f0-9RrK-Ok-o]");
+	static final Pattern url = Pattern.compile("(w{3}\\\\.|[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+:\\/\\/)?[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+\\w\\.[a-zA-Z0-9+&@#/%?=~_|!:,.;-]{2,}\\w");
 	private String text, color = "";
 	private boolean bold = false, italic = false, obfuscated = false, strike = false, under = false, change = false;
 	
@@ -219,7 +217,7 @@ public class ChatMessage {
 
 	public String getJson() {
 		String empty = "{\"text\":\"\"}";
-		return join.isEmpty()? empty :Writer.write(join);
+		return join.isEmpty()? empty : JsonWriter.write(join);
 	}
 	
 	private void convert() {

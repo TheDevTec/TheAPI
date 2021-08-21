@@ -1,5 +1,7 @@
 package me.devtec.theapi.utils.datakeeper.loader;
 
+import me.devtec.theapi.utils.json.JsonReader;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,8 +12,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import me.devtec.theapi.utils.json.Reader;
 
 public class JsonLoader extends DataLoader {
 	private boolean l;
@@ -70,7 +70,7 @@ public class JsonLoader extends DataLoader {
 		}
 		reset();
 		try {
-			Object read = Reader.read(input);
+			Object read = JsonReader.read(input);
 			if (read instanceof Map) {
 				for (Entry<Object, Object> keyed : ((Map<Object, Object>) read).entrySet()) {
 					data.put((String) keyed.getKey(), new Object[] {keyed.getValue(), null, null});
