@@ -164,4 +164,8 @@ public class ModernJsonWriter implements JWriter {
             return s.toString();
 		return parser.toJson(s);
 	}
+	
+	public String toString() {
+		return "ModernJsonWriter";
+	}
 }

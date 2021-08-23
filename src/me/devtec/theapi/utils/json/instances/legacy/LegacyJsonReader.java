@@ -239,4 +239,8 @@ public class LegacyJsonReader implements JReader {
         }
 		return read==null?json:read;
 	}
+	
+	public String toString() {
+		return "LegacyJsonReader";
+	}
 }

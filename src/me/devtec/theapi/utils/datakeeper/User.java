@@ -20,7 +20,7 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	
 	private UUID s;
 	private String name;
-	private Data a;
+	private Data data;
 	private boolean autounload;
 
 	public User(String name) {
@@ -92,7 +92,7 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Data d = datasByUUID.get(s);
 		if(d==null)
 			datasByUUID.put(s, d=new Data("plugins/TheAPI/User/" + s + ".yml", true));
-		a = d;
+		data = d;
 	}
 	
 	public Data clearCache() {
@@ -100,8 +100,8 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public void delete() {
-		a.clear();
-		a.getFile().delete();
+	 data.clear();
+	 data.getFile().delete();
 		datasByUUID.remove(s);
 	}
 
@@ -122,27 +122,27 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public Data data() {
-		return a;
+		return data;
 	}
 
 	public Data getData() {
-		return a;
+		return data;
 	}
 
 	public void reload() {
-		a.reload(a.getFile());
+	 data.reload(data.getFile());
 	}
 
 	public boolean exists(String path) {
 		if (path == null)
 			return false;
-		return a.exists(path);
+		return data.exists(path);
 	}
 
 	public void remove(String path) {
 		if (path == null)
 			return;
-		a.remove(path);
+	 data.remove(path);
 		if (!LoaderClass.config.getBoolean("Options.Cache.User.Use"))
 			save();
 	}
@@ -151,132 +151,132 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (path == null)
 			return null;
 		if (path.trim().isEmpty())
-			return a.getKeys();
-		return a.getKeys(path);
+			return data.getKeys();
+		return data.getKeys(path);
 	}
 
 	public Set<String> getKeys() {
-		return a.getKeys();
+		return data.getKeys();
 	}
 
 	public Set<String> getKeys(String path, boolean sub) {
 		if (path == null)
 			return null;
 		if (path.trim().isEmpty())
-			return a.getKeys(sub);
-		return a.getKeys(path, sub);
+			return data.getKeys(sub);
+		return data.getKeys(path, sub);
 	}
 
 	public Set<String> getKeys(boolean sub) {
-		return a.getKeys(sub);
+		return data.getKeys(sub);
 	}
 
 	public Object get(String path) {
 		if (path == null)
 			return null;
-		return a.get(path);
+		return data.get(path);
 	}
 
 	public int getInt(String path) {
 		if (path == null)
 			return 0;
-		return a.getInt(path);
+		return data.getInt(path);
 	}
 
 	public double getDouble(String path) {
 		if (path == null)
 			return 0.0;
-		return a.getDouble(path);
+		return data.getDouble(path);
 	}
 
 	public long getLong(String path) {
 		if (path == null)
 			return 0;
-		return a.getLong(path);
+		return data.getLong(path);
 	}
 
 	public String getString(String path) {
 		if (path == null)
 			return null;
-		return a.getString(path);
+		return data.getString(path);
 	}
 
 	public boolean getBoolean(String path) {
 		if (path == null)
 			return false;
-		return a.getBoolean(path);
+		return data.getBoolean(path);
 	}
 
 	public short getShort(String path) {
 		if (path == null)
 			return 0;
-		return a.getShort(path);
+		return data.getShort(path);
 	}
 
 	public byte getByte(String path) {
 		if (path == null)
 			return 0;
-		return a.getByte(path);
+		return data.getByte(path);
 	}
 
 	public float getFloat(String path) {
 		if (path == null)
 			return 0;
-		return a.getFloat(path);
+		return data.getFloat(path);
 	}
 
 	public Collection<Object> getList(String path) {
 		if (path == null)
 			return null;
-		return a.getList(path);
+		return data.getList(path);
 	}
 
 	public List<String> getStringList(String path) {
 		if (path == null)
 			return null;
-		return a.getStringList(path);
+		return data.getStringList(path);
 	}
 
 	public List<Boolean> getBooleanList(String path) {
 		if (path == null)
 			return null;
-		return a.getBooleanList(path);
+		return data.getBooleanList(path);
 	}
 
 	public List<Byte> getByteList(String path) {
 		if (path == null)
 			return null;
-		return a.getByteList(path);
+		return data.getByteList(path);
 	}
 
 	public List<Integer> getIntegerList(String path) {
 		if (path == null)
 			return null;
-		return a.getIntegerList(path);
+		return data.getIntegerList(path);
 	}
 
 	public List<Float> getFloatList(String path) {
 		if (path == null)
 			return null;
-		return a.getFloatList(path);
+		return data.getFloatList(path);
 	}
 
 	public List<Long> getLongList(String path) {
 		if (path == null)
 			return null;
-		return a.getLongList(path);
+		return data.getLongList(path);
 	}
 
 	public List<Short> getShortList(String path) {
 		if (path == null)
 			return null;
-		return a.getShortList(path);
+		return data.getShortList(path);
 	}
 
 	public <K, V> List<Map<K, V>> getMapList(String path) {
 		if (path == null)
 			return null;
-		return a.getMapList(path);
+		return data.getMapList(path);
 	}
 
 	public boolean isString(String path) {
@@ -328,21 +328,21 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public boolean isSection(String path) {
-		return a.isKey(path);
+		return data.isKey(path);
 	}
 
 	public ItemStack getItemStack(String key) {
-		return a.getAs(key, ItemStack.class);
+		return data.getAs(key, ItemStack.class);
 	}
 
 	public List<ItemStack> getItemStacks(String key) {
-		return a.getListAs(key, ItemStack.class);
+		return data.getListAs(key, ItemStack.class);
 	}
 
 	public void set(String key, Object o) {
 		if (key == null)
 			return;
-		a.set(key, o);
+	 data.set(key, o);
 		if (!LoaderClass.config.getBoolean("Options.Cache.User.Use"))
 			save();
 	}
@@ -359,9 +359,9 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	public void save() {
 		try {
-			a.save(DataType.valueOf(LoaderClass.config.getString("Options.User-SavingType").toUpperCase()));
+		 data.save(DataType.valueOf(LoaderClass.config.getString("Options.User-SavingType").toUpperCase()));
 		} catch (Exception r) {
-			a.save(DataType.YAML);
+		 data.save(DataType.YAML);
 		}
 	}
 

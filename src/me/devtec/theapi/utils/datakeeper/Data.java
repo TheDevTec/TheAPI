@@ -30,12 +30,12 @@ import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	protected DataLoader loader;
-	protected List<String> aw;
-	protected File a;
+	protected List<String> keys;
+	protected File file;
 	
 	public Data() {
 		loader = new EmptyLoader();
-		aw = new LinkedList<>();
+		keys = new LinkedList<>();
 	}
 	
 	public Data(String filePath) {
@@ -46,21 +46,21 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		this(new File(filePath.startsWith("/") ? filePath.substring(1) : filePath), load);
 	}
 	
-	public Data(File f) {
-		this(f, true);
+	public Data(File file) {
+		this(file, true);
 	}
 	
-	public Data(File f, boolean load) {
-		a = f;
-		aw = new LinkedList<>();
+	public Data(File file, boolean load) {
+		this.file = file;
+		keys = new LinkedList<>();
 		if (load)
-			reload(a);
+			reload(file);
 	}
 	
 	// CLONE
 	public Data(Data data) {
-		a = data.a;
-		aw = data.aw;
+		file = data.file;
+		keys = data.keys;
 		loader=data.loader;
 	}
 
@@ -75,8 +75,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return loader.get().containsKey(path);
 	}
 
-	public synchronized Data setFile(File f) {
-		a = f;
+	public synchronized Data setFile(File file) {
+		this.file = file;
 		return this;
 	}
 
@@ -84,8 +84,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Object[] h = loader.get().get(key);
 		if (h == null) {
 			String ss = key.split("\\.")[0];
-			if (!aw.contains(ss))
-				aw.add(ss);
+			if (!keys.contains(ss))
+				keys.add(ss);
 			loader.get().put(key, h = new Object[2]);
 		}
 		return h;
@@ -129,7 +129,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (value == null) {
 			String[] sf = key.split("\\.");
 			if (sf.length <= 1)
-				aw.remove(sf[0]);
+				keys.remove(sf[0]);
 			loader.remove(key);
 			return this;
 		}
@@ -152,7 +152,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			return this;
 		requireSave=true;
 		if (key.split("\\.").length<=1)
-			aw.remove(key.split("\\.")[0]);
+			keys.remove(key.split("\\.")[0]);
 		loader.remove(key);
 		for(String d : new ArrayList<>(loader.get().keySet()))
 			if (d.startsWith(key) && d.substring(key.length()).startsWith("."))
@@ -233,8 +233,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return this;
 	}
 
-	public synchronized File getFile() {
-		return a;
+	public File getFile() {
+		return file;
 	}
 
 	public synchronized Data setHeader(Collection<String> lines) {
@@ -261,12 +261,12 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	public synchronized Data reload(String input) {
 		requireSave=true;
-		aw.clear();
+		keys.clear();
 		loader = DataLoader.findLoaderFor(input); // get & load
 		for (String k : loader.getKeys()) {
 			String g = k.split("\\.")[0];
-			if (!aw.contains(g))
-				aw.add(g);
+			if (!keys.contains(g))
+				keys.add(g);
 		}
 		return this;
 	}
@@ -275,16 +275,16 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (!f.exists()) {
 			requireSave=true;
 			loader=new YamlLoader();
-			aw.clear();
+			keys.clear();
 			return this;
 		}
 		requireSave=true;
-		aw.clear();
+		keys.clear();
 		loader = DataLoader.findLoaderFor(f); // get & load
 		for (String k : loader.getKeys()) {
 			String g = k.split("\\.")[0];
-			if (!aw.contains(g))
-				aw.add(g);
+			if (!keys.contains(g))
+				keys.add(g);
 		}
 		return this;
 	}
@@ -474,17 +474,17 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	protected boolean isSaving, requireSave;
 	public synchronized Data save(DataType type) {
-		if (a == null)
+		if (file == null)
 			return this;
 		if(isSaving)return this;
 		if(!requireSave)return this;
-		if (!a.exists()) {
+		if (!file.exists()) {
 			try {
-				a.getParentFile().mkdirs();
+				file.getParentFile().mkdirs();
 			} catch (Exception e) {
 			}
 			try {
-				a.createNewFile();
+				file.createNewFile();
 			} catch (Exception e) {
 			}
 		}
@@ -493,7 +493,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		try {
 			new Thread(() -> {
 				try {
-					OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
+					OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
 					w.write(toString(type));
 					w.close();
 				} catch (Exception e1) {
@@ -542,13 +542,13 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public synchronized Set<String> getKeys() {
-		return new LinkedHashSet<>(aw);
+		return new LinkedHashSet<>(keys);
 	}
 
 	public synchronized Set<String> getKeys(boolean subkeys) {
 		if (subkeys)
 			return loader.getKeys();
-		return new LinkedHashSet<>(aw);
+		return new LinkedHashSet<>(keys);
 	}
 
 	public synchronized Set<String> getKeys(String key) {
@@ -729,6 +729,26 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	public synchronized String toString(DataType type) {
 		switch(type) {
+		case PROPERTIES: {
+			int size = loader.get().size();
+			StringBuilder d = new StringBuilder(size*8);
+			try {
+				for (String h : loader.getHeader())
+					d.append(h).append(System.lineSeparator());
+			} catch (Exception er) {
+			}
+			for (Entry<String, Object[]> key : loader.get().entrySet()) {
+				if(key.getValue()==null || key.getValue()[0]==null)continue;
+				d.append(key.getKey()+": "+Json.writer().write(key.getValue()[0]));
+			}
+			try {
+				for (String h : loader.getFooter())
+					d.append(h).append(System.lineSeparator());
+			} catch (Exception er) {
+				Validator.send("Saving Data to YAML", er);
+			}
+			return d.toString();
+		}
 		case BYTE:
 			try {
 				ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
@@ -784,7 +804,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			return "";
 		case JSON:
 			Maker main = new Maker();
-			for (String key : Collections.unmodifiableList(aw))
+			for (String key : Collections.unmodifiableList(keys))
 				addKeys(main, key);
 			return main.toString();
 		case YAML:
@@ -796,7 +816,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			} catch (Exception er) {
 			}
 			List<String> done = new ArrayList<>(size);
-			for (String key : Collections.unmodifiableList(aw))
+			for (String key : Collections.unmodifiableList(keys))
 				preparePath(done,key, key + ":", "", d);
 			try {
 				for (String h : loader.getFooter())
@@ -812,19 +832,19 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	@Override
 	public String getDataName() {
 		HashMap<String, Object> s = new HashMap<>();
-		if(a!=null)s.put("file", a.getPath()+"/"+a.getName());
+		if(file!=null)s.put("file", file.getPath()+"/"+file.getName());
 		s.put("loader", loader.getDataName());
 		return Json.writer().write(s);
 	}
 
 	public synchronized Data clear() {
-		aw.clear();
+		keys.clear();
 		loader.get().clear();
 		return this;
 	}
 
 	public synchronized Data reset() {
-		aw.clear();
+		keys.clear();
 		loader.reset();
 		return this;
 	}

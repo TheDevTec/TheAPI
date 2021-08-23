@@ -49,6 +49,7 @@ import me.devtec.theapi.configapi.Config.Node;
 import me.devtec.theapi.economyapi.EconomyAPI;
 import me.devtec.theapi.guiapi.GUI.ClickType;
 import me.devtec.theapi.guiapi.HolderGUI;
+import me.devtec.theapi.guiapi.ItemGUI;
 import me.devtec.theapi.placeholderapi.PlaceholderAPI;
 import me.devtec.theapi.placeholderapi.ThePlaceholder;
 import me.devtec.theapi.placeholderapi.ThePlaceholderAPI;
@@ -149,6 +150,23 @@ public class LoaderClass extends JavaPlugin {
 	}
 	static final Constructor<?> setSlot = setSlotR;
 	static final int airplane = airR;
+	
+	  static boolean useItem(Player player, ItemStack stack, HolderGUI g, int slot, ClickType mouse) {
+		ItemGUI d = g.getItemGUI(slot);
+		boolean stolen = d==null||!d.isUnstealable();
+		if(d!=null) {
+			d.onClick(player, g, mouse);
+		}
+		return !stolen;
+	}
+
+	public static ClickType buildClick(ItemStack stack, InventoryClickType type, int button, int mouse) {
+		String action = stack.getType()==Material.AIR && (type==InventoryClickType.PICKUP||type==InventoryClickType.QUICK_CRAFT)?"DROP":"PICKUP";
+		action=(type==InventoryClickType.CLONE?"MIDDLE_":(mouse==0?"LEFT_":mouse==1?"RIGHT_":"MIDDLE_"))+action;
+		if(type==InventoryClickType.QUICK_MOVE)
+			action="SHIFT_"+action;
+		return ClickType.valueOf(action);
+	}
 
 	private String generate() {
 		String d = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -525,8 +543,8 @@ public class LoaderClass extends JavaPlugin {
 					}
 					ItemStack before = p.getItemOnCursor();
 					if(i==null)i=new ItemStack(Material.AIR);
-					ClickType w = GUIEvents.buildClick(i, type, slot, mouseClick);
-					boolean cancel = GUIEvents.useItem(p, i, d, slot, w);
+					ClickType w = buildClick(i, type, slot, mouseClick);
+					boolean cancel = useItem(p, i, d, slot, w);
 					if(!d.isInsertable())cancel=true;
 					if(!cancel) {
 						cancel=d.onIteractItem(p, i, w, slot>d.size()?slot-d.size()+27:slot, slot<d.size());
@@ -719,7 +737,7 @@ public class LoaderClass extends JavaPlugin {
 				public String getAuthor() {
 					return "DevTec";
 				}
-				  
+				
 				public String onRequest(OfflinePlayer player, String params) {
 					String text = params;
 					Matcher m = math.matcher(text);
@@ -749,7 +767,7 @@ public class LoaderClass extends JavaPlugin {
 					}
 					return text.equals(params) ? null : text;
 				}
-
+				
 				private double limit(double val, double min, double max) {
 					if(val<min)val=min;
 					if(val>max)val=max;
@@ -1298,12 +1316,9 @@ public class LoaderClass extends JavaPlugin {
 
 	private boolean getVaultEconomy() {
 		try {
-			RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager()
-					.getRegistration(net.milkbowl.vault.economy.Economy.class);
-			if (economyProvider != null) {
+			RegisteredServiceProvider<Economy> economyProvider = Bukkit.getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+			if (economyProvider != null)
 				economy = economyProvider.getProvider();
-
-			}
 			return economy != null;
 		} catch (Exception e) {
 			return false;

@@ -22,7 +22,7 @@ public class SchematicData extends Data {
 	
 	public SchematicData() {
 		loader = new EmptyLoader();
-		aw = new LinkedList<>();
+		keys = new LinkedList<>();
 	}
 	
 	
@@ -34,21 +34,21 @@ public class SchematicData extends Data {
 		this(new File(filePath.startsWith("/") ? filePath.substring(1) : filePath), load);
 	}
 	
-	public SchematicData(File f) {
-		this(f, true);
+	public SchematicData(File file) {
+		this(file, true);
 	}
 	
-	public SchematicData(File f, boolean load) {
-		a = f;
-		aw = new LinkedList<>();
+	public SchematicData(File file, boolean load) {
+		this.file = file;
+		keys = new LinkedList<>();
 		if (load)
-			reload(a);
+			reload(file);
 	}
 	
 	// CLONE
 	public SchematicData(SchematicData data) {
-		a = data.a;
-		aw = data.aw;
+		file = data.file;
+		keys = data.keys;
 		loader=data.loader;
 	}
 
@@ -80,12 +80,12 @@ public class SchematicData extends Data {
 
 	public SchematicData reload(String input) {
 		requireSave=true;
-		aw.clear();
+		keys.clear();
 		loader = new SchematicLoader();
 		loader.load(input);
 		for (String k : loader.getKeys())
-			if (!aw.contains(k.split("\\.")[0]))
-				aw.add(k.split("\\.")[0]);
+			if (!keys.contains(k.split("\\.")[0]))
+				keys.add(k.split("\\.")[0]);
 		return this;
 	}
 	
@@ -96,12 +96,12 @@ public class SchematicData extends Data {
 		isSaving=true;
 		if(!requireSave)return;
 		requireSave=false;
-		if (a == null) {
+		if (file == null) {
 			isSaving=false;
 			return;
 		}
 		try {
-		OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(a), StandardCharsets.UTF_8);
+		OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
 		ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
 		bos.writeInt(2);
 		bos.writeUTF("1");
@@ -163,24 +163,52 @@ public class SchematicData extends Data {
 	public String toString() {
 		try {
 			ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
+			bos.writeInt(2);
+			bos.writeUTF("1");
 			for (Entry<String, Object[]> key : loader.get().entrySet())
 				try {
 					bos.writeUTF(key.getKey());
 					if(key.getValue()[0]==null) {
 						bos.writeUTF("null");
+						bos.writeUTF("0");
 					}else {
-						String write = Json.writer().write(key.getValue()[0]);
-						while(write.length()>50000) {
-							String wr = write.substring(0, 49999);
-							bos.writeUTF('1'+wr);
-							write=write.substring(49999);
+						if(key.getValue().length >2)
+							if(key.getValue()[2]!=null && key.getValue()[2] instanceof String) {
+								String write = (String)key.getValue()[2];
+								if(write==null) {
+									bos.writeUTF("null");
+									bos.writeUTF("0");
+									continue;
+								}
+								while(write.length()>40000) {
+									String wr = write.substring(0, 39999);
+									bos.writeUTF("0"+wr);
+									write=write.substring(39999);
+								}
+								bos.writeUTF("0"+write);
+								bos.writeUTF("0");
+								continue;
+							}
+						Object val = key.getValue()[0];
+						String write = val instanceof String ? (String)val:Json.writer().write(val);
+						if(write==null) {
+							bos.writeUTF("null");
+							bos.writeUTF("0");
+							continue;
 						}
-						bos.writeUTF('1'+write);
+						while(write.length()>40000) {
+							String wr = write.substring(0, 39999);
+							bos.writeUTF("0"+wr);
+							write=write.substring(39999);
+						}
+						bos.writeUTF("0"+write);
+						bos.writeUTF("0");
+						continue;
 					}
-					bos.writeUTF("1");
 				} catch (Exception er) {
+					er.printStackTrace();
 				}
-			return Base64.getEncoder().encodeToString(Compressors.compress(bos.toByteArray()));
+				return Base64.getEncoder().encodeToString(Compressors.compress(bos.toByteArray()));
 		} catch (Exception e) {
 		}
 		return "";

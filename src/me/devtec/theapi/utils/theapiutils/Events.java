@@ -42,8 +42,6 @@ import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.User;
-import me.devtec.theapi.utils.listener.events.DamageGodPlayerByEntityEvent;
-import me.devtec.theapi.utils.listener.events.DamageGodPlayerEvent;
 
 public class Events implements Listener {
 	@EventHandler
@@ -239,12 +237,7 @@ public class Events implements Listener {
 				return;
 			}
 			if (TheAPI.getUser(d).getBoolean("God")) {
-				DamageGodPlayerEvent event = new DamageGodPlayerEvent(d, e.getDamage(), e.getCause());
-				TheAPI.callEvent(event);
-				if (event.isCancelled())
-					e.setCancelled(true);
-				else
-					e.setDamage(event.getDamage());
+				e.setCancelled(true);
 			}
 		}
 	}
@@ -265,13 +258,7 @@ public class Events implements Listener {
 		if (e.getEntity() instanceof Player) {
 			Player d = (Player) e.getEntity();
 			if (TheAPI.getUser(d).getBoolean("God")) {
-				DamageGodPlayerByEntityEvent event = new DamageGodPlayerByEntityEvent(d, e.getDamager(), e.getDamage(),
-						e.getCause());
-				TheAPI.callEvent(event);
-				if (event.isCancelled())
-					e.setCancelled(true);
-				else
-					e.setDamage(event.getDamage());
+				e.setCancelled(true);
 				return;
 			}
 		}

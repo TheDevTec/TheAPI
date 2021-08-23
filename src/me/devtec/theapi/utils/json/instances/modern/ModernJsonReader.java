@@ -240,4 +240,8 @@ public class ModernJsonReader implements JReader {
         }
 		return read==null?json:read;
 	}
+	
+	public String toString() {
+		return "ModernJsonReader";
+	}
 }

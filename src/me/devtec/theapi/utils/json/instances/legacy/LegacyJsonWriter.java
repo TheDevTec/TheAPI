@@ -163,4 +163,8 @@ public class LegacyJsonWriter implements JWriter {
             return s.toString();
 		return parser.toJson(s);
 	}
+	
+	public String toString() {
+		return "LegacyJsonWriter";
+	}
 }

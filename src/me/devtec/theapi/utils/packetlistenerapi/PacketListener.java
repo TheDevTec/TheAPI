@@ -5,17 +5,17 @@ public abstract class PacketListener {
 		this(Priority.NORMAL);
 	}
 
-	public PacketListener(Priority prio) {
-		priority = prio;
+	public PacketListener(Priority priority) {
+		this.priority = priority;
 	}
 
 	protected Priority priority;
 
-	public final PacketListener setPriority(Priority prio) {
-		if (prio == null)
+	public final PacketListener setPriority(Priority priority) {
+		if (priority == null)
 			return this;
-		PacketManager.notify(this, priority, prio);
-		priority = prio;
+		PacketManager.notify(this, priority, priority);
+		this.priority = priority;
 		return this;
 	}
 

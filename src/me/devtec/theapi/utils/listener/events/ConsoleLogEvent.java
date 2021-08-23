@@ -4,12 +4,12 @@ import me.devtec.theapi.utils.listener.Cancellable;
 import me.devtec.theapi.utils.listener.Event;
 
 public class ConsoleLogEvent extends Event implements Cancellable {
-	private String mes;
+	private String message;
     private final String level;
 	private boolean cancel;
 	
 	public ConsoleLogEvent(String message, String level) {
-		mes=message;
+		this.message=message;
 		this.level=level;
 	}
 	
@@ -18,11 +18,11 @@ public class ConsoleLogEvent extends Event implements Cancellable {
 	}
 	
 	public String getMessage() {
-		return mes;
+		return message;
 	}
 	
 	public void setMesssage(String message) {
-		mes=message;
+		this.message=message;
 	}
 	
 	@Override
