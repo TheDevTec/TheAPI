@@ -8,7 +8,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public enum EnchantmentAPI {

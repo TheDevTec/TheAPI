@@ -1,17 +1,18 @@
 package me.devtec.theapi.utils.json;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import me.devtec.theapi.Pair;
-import me.devtec.theapi.utils.StringUtils;
-import sun.misc.Unsafe;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import me.devtec.theapi.Pair;
+import me.devtec.theapi.utils.StringUtils;
+import sun.misc.Unsafe;
 
 public class JsonReader {
     private static final Gson parser = new GsonBuilder().create();
@@ -24,6 +25,7 @@ public class JsonReader {
         }catch(Exception err){}
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static Object read(String s) {
         try {
             if (s.equals("null")) return null;
@@ -33,7 +35,7 @@ public class JsonReader {
             if (StringUtils.isNumber(s)) { //is number
                 return StringUtils.getNumber(s);
             }
-            Map<String, Object> map = parser.fromJson(s, Map.class);
+			Map<String, Object> map = parser.fromJson(s, Map.class);
             String className = (String) map.get("c");
             Class<?> c = Class.forName(className);
             String type = (String) map.get("t");
@@ -130,6 +132,7 @@ public class JsonReader {
         return read(value);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static Object read(Object s) {
         try {
             if (s instanceof Map) {
