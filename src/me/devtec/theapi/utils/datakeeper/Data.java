@@ -24,8 +24,7 @@ import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.loader.DataLoader;
 import me.devtec.theapi.utils.datakeeper.loader.EmptyLoader;
 import me.devtec.theapi.utils.datakeeper.loader.YamlLoader;
-import me.devtec.theapi.utils.json.JsonReader;
-import me.devtec.theapi.utils.json.JsonWriter;
+import me.devtec.theapi.utils.json.Json;
 import me.devtec.theapi.utils.json.Maker;
 import me.devtec.theapi.utils.theapiutils.Validator;
 
@@ -466,7 +465,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			if(o==null)
 				list.add(null);
 			else {
-				Object re = JsonReader.read(o.toString());
+				Object re = Json.reader().read(o.toString());
 				list.add(re instanceof Map ? (Map<K, V>) re : new HashMap<>());
 			}
 		}
@@ -516,7 +515,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	
 	protected synchronized void addQuotesSplit(StringBuilder b, CharSequence split, Object aw) {
 		b.append(split);
-		b.append(JsonWriter.write(aw));
+		b.append(Json.writer().write(aw));
 		b.append(System.lineSeparator());
 	}
 	
@@ -534,7 +533,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	
 	protected synchronized void addQuotes(StringBuilder b, CharSequence pathName, Object aw) {
 		b.append(pathName).append(' ');
-		b.append(JsonWriter.write(aw));
+		b.append(Json.writer().write(aw));
 		b.append(System.lineSeparator());
 	}
 	
@@ -760,7 +759,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 									continue;
 								}
 							Object val = key.getValue()[0];
-							String write = val instanceof String ? (String)val:JsonWriter.write(val);
+							String write = val instanceof String ? (String)val:Json.writer().write(val);
 							if(write==null) {
 								bos.writeUTF("null");
 								bos.writeUTF("0");
@@ -815,7 +814,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		HashMap<String, Object> s = new HashMap<>();
 		if(a!=null)s.put("file", a.getPath()+"/"+a.getName());
 		s.put("loader", loader.getDataName());
-		return JsonWriter.write(s);
+		return Json.writer().write(s);
 	}
 
 	public synchronized Data clear() {

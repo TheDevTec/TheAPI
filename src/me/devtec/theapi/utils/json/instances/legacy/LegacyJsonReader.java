@@ -1,4 +1,4 @@
-package me.devtec.theapi.utils.json;
+package me.devtec.theapi.utils.json.instances.legacy;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -7,14 +7,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import me.devtec.theapi.Pair;
 import me.devtec.theapi.utils.StringUtils;
+import me.devtec.theapi.utils.json.instances.JReader;
+import net.minecraft.util.com.google.gson.Gson;
+import net.minecraft.util.com.google.gson.GsonBuilder;
 import sun.misc.Unsafe;
 
-public class JsonReader {
+public class LegacyJsonReader implements JReader {
     private static final Gson parser = new GsonBuilder().create();
     private static Unsafe unsafe;
     static {
@@ -26,16 +26,13 @@ public class JsonReader {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static Object read(String s) {
+    public Object read(String json) {
         try {
-            if (s.equals("null")) return null;
-            if (s.equalsIgnoreCase("true")) return true;
-            if (s.equalsIgnoreCase("false")) return false;
-
-            if (StringUtils.isNumber(s)) { //is number
-                return StringUtils.getNumber(s);
-            }
-			Map<String, Object> map = parser.fromJson(s, Map.class);
+            if (json.equals("null")) return null;
+            if (json.equalsIgnoreCase("true")) return true;
+            if (json.equalsIgnoreCase("false")) return false;
+            if (StringUtils.isNumber(json)) return StringUtils.getNumber(json);
+			Map<String, Object> map = parser.fromJson(json, Map.class);
             String className = (String) map.get("c");
             Class<?> c = Class.forName(className);
             String type = (String) map.get("t");
@@ -110,11 +107,15 @@ public class JsonReader {
                     f.set(object, cast(e.getValue(), f.getType()));
                 }
             return object;
-        }catch(Exception err){}
-        return s;
+        }catch(Exception err){
+        	try {
+        		return parser.fromJson(json, Collection.class);
+        	}catch(Exception er) {}
+        }
+        return json;
     }
 
-    private static Object cast(Object value, Class<?> type) {
+    private Object cast(Object value, Class<?> type) {
         if(value==null)return null;
         if(type.isArray()){
             Collection<?> o = (Collection<?>) value;
@@ -133,7 +134,7 @@ public class JsonReader {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static Object read(Object s) {
+    private Object read(Object s) {
         try {
             if (s instanceof Map) {
                 Map<String, Object> map = (Map<String, Object>) s;
@@ -217,4 +218,25 @@ public class JsonReader {
         }catch(Exception err){}
         return s;
     }
+
+	@Override
+	public Object simpleRead(String json) {
+        if (json.equals("null")) return null;
+        if (json.equalsIgnoreCase("true")) return true;
+        if (json.equalsIgnoreCase("false")) return false;
+        if (StringUtils.isNumber(json)) return StringUtils.getNumber(json);
+        Object read = null;
+        try {
+        	read=parser.fromJson(json, Map.class);
+        	if(read==null)
+            	read=parser.fromJson(json, Collection.class);
+        }catch(Exception er) {
+            try {
+            	read=parser.fromJson(json, Collection.class);
+            }catch(Exception err) {
+            	
+            }
+        }
+		return read==null?json:read;
+	}
 }

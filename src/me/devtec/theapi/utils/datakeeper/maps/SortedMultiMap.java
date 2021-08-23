@@ -1,7 +1,5 @@
 package me.devtec.theapi.utils.datakeeper.maps;
 
-import me.devtec.theapi.utils.json.JsonWriter;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -9,6 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.TreeMap;
+
+import me.devtec.theapi.utils.json.Json;
 
 public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 	private final Map<K, Map<T, V>> data = new LinkedHashMap<>();
@@ -118,6 +118,6 @@ public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 		ser.put("sorted", true);
 		ser.put("size", size());
 		ser.put("values", toString());
-		return JsonWriter.write(ser);
+		return Json.writer().write(ser);
 	}
 }

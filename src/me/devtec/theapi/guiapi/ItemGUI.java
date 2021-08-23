@@ -1,10 +1,10 @@
 package me.devtec.theapi.guiapi;
 
-import me.devtec.theapi.utils.json.JsonWriter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.guiapi.GUI.ClickType;
+import me.devtec.theapi.utils.json.Json;
 
 public abstract class ItemGUI {
 	public abstract void onClick(Player player, HolderGUI gui, ClickType click);
@@ -37,6 +37,6 @@ public abstract class ItemGUI {
 	}
 
 	public final String toString() {
-		return "[ItemGUI:" + unsteal + "/" + JsonWriter.write(s) + "]";
+		return "[ItemGUI:" + unsteal + "/" + Json.writer().write(s) + "]";
 	}
 }

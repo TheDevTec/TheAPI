@@ -10,8 +10,8 @@ import java.nio.charset.StandardCharsets;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import me.devtec.theapi.utils.json.JsonReader;
-import me.devtec.theapi.utils.json.JsonWriter;
+
+import me.devtec.theapi.utils.json.Json;
 
 public class StreamUtils {
 	public static String fromStream(File file) {
@@ -56,13 +56,13 @@ public class StreamUtils {
 	
 	public static InputStream toStreamObject(Object obj) {
 		ByteArrayDataOutput out = ByteStreams.newDataOutput();
-		out.writeUTF(JsonWriter.write(obj));
+		out.writeUTF(Json.writer().write(obj));
 		return new ByteArrayInputStream(out.toByteArray());
 	}
 	
 	public static Object fromStreamObject(InputStream stream) {
 		try {
-			return JsonReader.read(ByteStreams.newDataInput(ByteStreams.toByteArray(stream)).readUTF()); //object
+			return Json.reader().read(ByteStreams.newDataInput(ByteStreams.toByteArray(stream)).readUTF()); //object
 		} catch (Exception e) {
 			return null;
 		}

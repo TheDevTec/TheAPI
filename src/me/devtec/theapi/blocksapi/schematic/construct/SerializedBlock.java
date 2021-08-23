@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.devtec.theapi.utils.json.JsonWriter;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
@@ -32,6 +31,7 @@ import org.bukkit.material.MaterialData;
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.TheMaterial;
+import me.devtec.theapi.utils.json.Json;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public interface SerializedBlock extends Serializable {
@@ -101,7 +101,7 @@ public interface SerializedBlock extends Serializable {
 				for(BlockFace face : dir.getFaces())
 					if(dir.getAllowedFaces().contains(face))map.put(face.name(), true);
 					else map.put(face.name(), false);
-				values.put("mface", JsonWriter.write(map));
+				values.put("mface", Json.writer().simpleWrite(map));
 			}
 			if(d instanceof Openable) {
 				Openable dir = (Openable)d;

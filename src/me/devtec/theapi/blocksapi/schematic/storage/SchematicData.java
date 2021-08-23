@@ -16,7 +16,7 @@ import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.DataType;
 import me.devtec.theapi.utils.datakeeper.loader.EmptyLoader;
-import me.devtec.theapi.utils.json.JsonWriter;
+import me.devtec.theapi.utils.json.Json;
 
 public class SchematicData extends Data {
 	
@@ -130,7 +130,7 @@ public class SchematicData extends Data {
 							continue;
 						}
 					Object val = key.getValue()[0];
-					String write = val instanceof String ? (String)val:JsonWriter.write(val);
+					String write = val instanceof String ? (String)val:Json.writer().write(val);
 					if(write==null) {
 						bos.writeUTF("null");
 						bos.writeUTF("0");
@@ -169,7 +169,7 @@ public class SchematicData extends Data {
 					if(key.getValue()[0]==null) {
 						bos.writeUTF("null");
 					}else {
-						String write = JsonWriter.write(key.getValue()[0]);
+						String write = Json.writer().write(key.getValue()[0]);
 						while(write.length()>50000) {
 							String wr = write.substring(0, 49999);
 							bos.writeUTF('1'+wr);

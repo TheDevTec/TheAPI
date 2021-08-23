@@ -6,11 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import me.devtec.theapi.utils.json.JsonReader;
 import org.bukkit.Bukkit;
 
 import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.datakeeper.Data;
+import me.devtec.theapi.utils.json.Json;
 
 public class Cache {
 	private final String USER_FORMAT="https://api.ashcon.app/mojang/v2/user/%s";
@@ -30,7 +30,7 @@ public class Cache {
 	@SuppressWarnings("unchecked")
 	public String lookupNameFromMojang(String name) {
 		try {
-			return (String)((Map<String, Object>) JsonReader.read(StreamUtils.fromStream(new URL(String.format(USER_FORMAT, name)).openStream()))).get("username");
+			return (String)((Map<String, Object>) Json.reader().simpleRead(StreamUtils.fromStream(new URL(String.format(USER_FORMAT, name)).openStream()))).get("username");
 		}catch(Exception error) {}
 		return name;
 	}
@@ -38,7 +38,7 @@ public class Cache {
 	@SuppressWarnings("unchecked")
 	public UUID lookupIdFromMojang(String name) {
 		try {
-			return UUID.fromString((String)((Map<String, Object>) JsonReader.read(StreamUtils.fromStream(new URL(String.format(USER_FORMAT, name)).openStream()))).get("uuid"));
+			return UUID.fromString((String)((Map<String, Object>) Json.reader().simpleRead(StreamUtils.fromStream(new URL(String.format(USER_FORMAT, name)).openStream()))).get("uuid"));
 		}catch(Exception error) {}
 		return UUID.nameUUIDFromBytes(("OfflinePlayer:"+name).getBytes(StandardCharsets.UTF_8));
 	}

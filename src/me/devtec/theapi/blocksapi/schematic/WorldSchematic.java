@@ -16,8 +16,7 @@ import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.BlockMathIterator;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.TheMaterial;
-import me.devtec.theapi.utils.json.JsonReader;
-import me.devtec.theapi.utils.json.JsonWriter;
+import me.devtec.theapi.utils.json.Json;
 
 public class WorldSchematic implements Schematic {
 	private static final String pall="pallete.";
@@ -108,7 +107,7 @@ public class WorldSchematic implements Schematic {
 								int val = Integer.parseInt(values);
 								String i = pallete.get(val);
 								if(i==null)continue; //invalid entry
-								for(Double d : (List<Double>) JsonReader.read(load.getString(key+split+values)))
+								for(Double d : (List<Double>) Json.reader().simpleRead(load.getString(key+split+values)))
 									blocks.put(c+fix+d.intValue(), i.replaceAll("\\.",broken));
 							}
 					}
@@ -197,7 +196,7 @@ public class WorldSchematic implements Schematic {
 				SchematicData data = new SchematicData();
 				for(Entry<String, Object> key : save.entrySet()) {
 					if(key.getKey().contains(split) && !key.getKey().contains("pallete")) {
-						data.set(key.getKey(), JsonWriter.write((List<Integer>)key.getValue()));
+						data.set(key.getKey(), Json.writer().simpleWrite((List<Integer>)key.getValue()));
 					}else {
 						data.set(key.getKey(), key.getValue());
 					}

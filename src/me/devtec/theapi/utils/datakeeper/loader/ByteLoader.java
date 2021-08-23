@@ -13,7 +13,8 @@ import java.util.Set;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
-import me.devtec.theapi.utils.json.JsonReader;
+
+import me.devtec.theapi.utils.json.Json;
 
 public class ByteLoader extends DataLoader {
 	private final Map<String, Object[]> data = new LinkedHashMap<>();
@@ -97,7 +98,7 @@ public class ByteLoader extends DataLoader {
 							} catch (Exception not) {
 								run = false;
 							}
-						data.put(key, new Object[]{value == null ? null : JsonReader.read(value), null, value, 1});
+						data.put(key, new Object[]{value == null ? null : Json.reader().read(value), null, value, 1});
 					} catch (Exception e) {
 						break;
 					}
@@ -130,7 +131,7 @@ public class ByteLoader extends DataLoader {
 							} catch (Exception not) {
 								run = false;
 							}
-						data.put(key, new Object[]{value == null ? null : JsonReader.read(value), null, value, 1});
+						data.put(key, new Object[]{value == null ? null : Json.reader().read(value), null, value, 1});
 					} catch (Exception e) {
 						break;
 					}

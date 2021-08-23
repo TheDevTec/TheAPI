@@ -14,11 +14,10 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import me.devtec.theapi.utils.json.JsonReader;
-import me.devtec.theapi.utils.json.JsonWriter;
 import org.bukkit.Location;
 
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.utils.json.Json;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class StringUtils {
@@ -32,7 +31,7 @@ public class StringUtils {
 
 	@SuppressWarnings("unchecked")
 	public static String colorizeJson(String json) {
-		return JsonWriter.write(colorizeMap((Map<Object, Object>) JsonReader.read(json)));
+		return Json.writer().simpleWrite(colorizeMap((Map<Object, Object>) Json.reader().simpleRead(json)));
 	}
 
 	@SuppressWarnings("unchecked")

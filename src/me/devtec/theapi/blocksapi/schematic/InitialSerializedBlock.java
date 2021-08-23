@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import me.devtec.theapi.utils.json.JsonReader;
-import me.devtec.theapi.utils.json.JsonWriter;
 import org.bukkit.Axis;
 import org.bukkit.DyeColor;
 import org.bukkit.block.Block;
@@ -40,6 +38,7 @@ import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.blocksapi.schematic.construct.SerializedBlock;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.TheMaterial;
+import me.devtec.theapi.utils.json.Json;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class InitialSerializedBlock implements SerializedBlock {
@@ -61,7 +60,7 @@ public class InitialSerializedBlock implements SerializedBlock {
 		map.put("material", material.toString());
 		if(!extra.isEmpty())
 		map.put("state", extra);
-		return JsonWriter.write(map).replace(System.lineSeparator(), "");
+		return Json.writer().write(map).replace(System.lineSeparator(), "");
 	}
 	
 	public TheMaterial getType() {
@@ -72,7 +71,7 @@ public class InitialSerializedBlock implements SerializedBlock {
 	@Override
 	public SerializedBlock fromString(String string) {
 		values.clear();
-		Map<String, Object> map = (Map<String, Object>) JsonReader.read(string);
+		Map<String, Object> map = (Map<String, Object>) Json.reader().read(string);
 		extra=(Map<String, Object>)map.get("state");
 		material=TheMaterial.fromString((String)map.get("material"));
 		return this;
@@ -137,7 +136,7 @@ public class InitialSerializedBlock implements SerializedBlock {
 					if(d instanceof MultipleFacing && extra.containsKey("mface")) {
 						MultipleFacing dir = (MultipleFacing)d;
 						@SuppressWarnings("unchecked")
-						Map<String, Boolean> map = (Map<String, Boolean>)JsonReader.read((String)extra.get("mface"));
+						Map<String, Boolean> map = (Map<String, Boolean>)Json.reader().simpleRead((String)extra.get("mface"));
 						for(Entry<String, Boolean> face : map.entrySet())
 							dir.setFace(BlockFace.valueOf(face.getKey()), face.getValue());
 					}

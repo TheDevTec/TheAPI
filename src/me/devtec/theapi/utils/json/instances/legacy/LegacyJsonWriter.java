@@ -1,16 +1,22 @@
-package me.devtec.theapi.utils.json;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import me.devtec.theapi.Pair;
+package me.devtec.theapi.utils.json.instances.legacy;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class JsonWriter {
+import me.devtec.theapi.Pair;
+import me.devtec.theapi.utils.json.instances.JWriter;
+import net.minecraft.util.com.google.gson.Gson;
+import net.minecraft.util.com.google.gson.GsonBuilder;
+
+public class LegacyJsonWriter implements JWriter {
     private static final Gson parser = new GsonBuilder().create();
-    public static Object writeWithoutParse(Object s) {
+    
+    public Object writeWithoutParse(Object s) {
         try {
             if (s == null)
                 return null;
@@ -79,7 +85,7 @@ public class JsonWriter {
         return null;
     }
 
-    public static String write(Object s) {
+    public String write(Object s) {
         try {
             if (s == null)
                 return "null";
@@ -147,4 +153,14 @@ public class JsonWriter {
         }catch (Exception err){}
         return null;
     }
+
+	
+    @Override
+	public String simpleWrite(Object s) {
+        if (s == null)
+            return "null";
+        if (s instanceof String || s instanceof CharSequence || s instanceof Boolean || s instanceof Number || s instanceof Character)
+            return s.toString();
+		return parser.toJson(s);
+	}
 }

@@ -11,10 +11,10 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import me.devtec.theapi.utils.json.JsonWriter;
 import org.bukkit.ChatColor;
 
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.utils.json.Json;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 
@@ -217,7 +217,7 @@ public class ChatMessage {
 
 	public String getJson() {
 		String empty = "{\"text\":\"\"}";
-		return join.isEmpty()? empty : JsonWriter.write(join);
+		return join.isEmpty()? empty : Json.writer().simpleWrite(join);
 	}
 	
 	private void convert() {
