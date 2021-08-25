@@ -10,6 +10,9 @@ import me.devtec.theapi.sortedmap.SortedMap.ComparableObject;
 public class RankingAPI<K, V> {
 	private ComparableObject<K, V>[] s;
 
+	public RankingAPI() {
+	}
+
 	public RankingAPI(Map<K, V> map) {
 		load(map);
 	}
@@ -18,9 +21,13 @@ public class RankingAPI<K, V> {
 		if(s.length<=position)return null;
 		return s[position];
 	}
+	
+	public boolean isEmpty() {
+		return s==null || s.length==0;
+	}
 
 	public int size() {
-		return s.length;
+		return s==null ? 0 : s.length;
 	}
 
 	public void clear() {
