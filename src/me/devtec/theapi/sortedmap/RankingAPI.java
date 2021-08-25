@@ -4,75 +4,66 @@ package me.devtec.theapi.sortedmap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+
+import me.devtec.theapi.sortedmap.SortedMap.ComparableObject;
 
 public class RankingAPI<K, V> {
-	private Map<K, V> s;
+	private ComparableObject<K, V>[] s;
 
 	public RankingAPI(Map<K, V> map) {
-		setMap(map);
+		load(map);
 	}
 
-	public K getObject(int position) {
-		if (position <= 0)
-			position = 1;
-		int i = 0;
-		for (Entry<K, V> e : s.entrySet())
-			if (++i >= position)
-				return e.getKey();
-		return null;
+	public ComparableObject<K, V> get(int position) {
+		if(s.length<=position)return null;
+		return s[position];
 	}
 
 	public int size() {
-		return s.size();
+		return s.length;
 	}
 
 	public void clear() {
-		s.clear();
+		s=null;
 	}
 
-	public Set<K> getKeySet() {
-		return s.keySet();
+	public void load(Map<K, V> map) {
+		s = SortedMap.sortByValueArray(map);
 	}
 
-	public Map<K, V> getMap() {
-		return s;
-	}
-
-	public void setMap(Map<K, V> map) {
-		s = SortedMap.sortNonComparableByValue(map);
-	}
-
-	public Set<Entry<K, V>> entrySet() {
-		return s.entrySet();
-	}
-
+	@Deprecated
 	public boolean containsKey(K o) {
-		return s.containsKey(o);
+		for(int i = 0; i < size(); ++i)
+			if(s[i].getKey().equals(o))return true;
+		return false;
 	}
 
-	public V getValue(K o) {
-		return s.get(o);
+	@Deprecated
+	public boolean containsValue(V o) {
+		for(int i = 0; i < size(); ++i)
+			if(o==null? s[i].getValue()==null : o.equals(s[i].getValue()))return true;
+		return false;
 	}
 
+	@Deprecated
 	public int getPosition(K o) {
-		int i = 0;
-		for (Entry<K, V> e : s.entrySet()) {
-			++i;
-			if (e.getKey().equals(o))
-				return i;
-		}
+		for(int i = 0; i < size(); ++i)
+			if(s[i].getKey().equals(o))return i;
 		return 0;
 	}
 	
-	public List<Entry<K, V>> getTop(int size) {
-		List<Entry<K, V>> list = new LinkedList<>();
-		int slot = 1;
-		for (Entry<K, V> e : s.entrySet()) {
-			list.add(e);
-			if(++slot==size)break;
-		}
+	public List<ComparableObject<K, V>> getTop(int end) {
+		return getTop(0, end);
+	}
+	
+	public List<ComparableObject<K, V>> getTop(int start, int end) {
+		List<ComparableObject<K, V>> list = new LinkedList<>();
+		for(int i = start; i < end; ++i)
+			list.add(s[i]);
 		return list;
+	}
+
+	public ComparableObject<K, V>[] all() {
+		return s;
 	}
 }

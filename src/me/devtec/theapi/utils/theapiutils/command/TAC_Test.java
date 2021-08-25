@@ -2,7 +2,6 @@ package me.devtec.theapi.utils.theapiutils.command;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -18,6 +17,7 @@ import me.devtec.theapi.guiapi.HolderGUI;
 import me.devtec.theapi.guiapi.ItemGUI;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.sortedmap.RankingAPI;
+import me.devtec.theapi.sortedmap.SortedMap.ComparableObject;
 
 public class TAC_Test {
 
@@ -138,8 +138,9 @@ public class TAC_Test {
 			Comparable.put("G", 53.11);
 			RankingAPI<String, Double> map = new RankingAPI<>(Comparable);
 			TheAPI.msg("&eResult:", s);
-			for (Entry<String, Double> entry : map.entrySet())
-				TheAPI.msg("&6" + map.getPosition(entry.getKey()) + ". " + entry.getKey() + ", " + entry.getValue(), s);
+			int pos = 0;
+			for (ComparableObject<String, Double> entry : map.all())
+				TheAPI.msg("&6" + (++pos) + ". " + entry.getKey() + ", " + entry.getValue(), s);
 			HashMap<String, String> tops = new HashMap<>();
 			TheAPI.msg("&eInput:", s);
 			TheAPI.msg("&6- A, ABD", s); // 1
@@ -152,8 +153,9 @@ public class TAC_Test {
 			tops.put("D", "OAW");
 			RankingAPI<String, String> maps = new RankingAPI<>(tops);
 			TheAPI.msg("&eResult:", s);
-			for (Entry<String, String> entry : maps.entrySet())
-				TheAPI.msg("&6" + maps.getPosition(entry.getKey()) + ". " + entry.getKey() + ", " + entry.getValue(), s);
+			pos = 0;
+			for (ComparableObject<String, String> entry : maps.all())
+				TheAPI.msg("&6" + (++pos) + ". " + entry.getKey() + ", " + entry.getValue(), s);
 		}
 	}
 
