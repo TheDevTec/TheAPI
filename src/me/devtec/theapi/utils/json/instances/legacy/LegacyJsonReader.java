@@ -10,6 +10,7 @@ import java.util.Map;
 import me.devtec.theapi.Pair;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.json.instances.JReader;
+import me.devtec.theapi.utils.reflections.Ref;
 import net.minecraft.util.com.google.gson.Gson;
 import net.minecraft.util.com.google.gson.GsonBuilder;
 import sun.misc.Unsafe;
@@ -51,6 +52,9 @@ public class LegacyJsonReader implements JReader {
                             o.put(pair.getKey(), pair.getValue());
                         }
                         return o;
+                    }
+                    case "enum": {
+                        return Ref.getNulled(c, map.get("e").toString());
                     }
                     case "array": {
                         Object[] obj = (Object[]) Array.newInstance(c, ((List<?>) map.get("s")).size());
@@ -159,6 +163,9 @@ public class LegacyJsonReader implements JReader {
                                 o.put(pair.getKey(), pair.getValue());
                             }
                             return o;
+                        }
+                        case "enum": {
+                            return Ref.getNulled(c, map.get("e").toString());
                         }
                         case "array": {
                             Object[] obj = (Object[]) Array.newInstance(c, ((List<?>) map.get("s")).size());

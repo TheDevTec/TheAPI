@@ -21,6 +21,13 @@ public class ModernJsonWriter implements JWriter {
         try {
             if (s == null)
                 return null;
+            if (s instanceof Enum){
+                Map<String, Object> object = new HashMap<>();
+                object.put("c", s.getClass().getCanonicalName());
+                object.put("e", ((Enum<?>)s).name());
+                object.put("t", "enum");
+                return object;
+            }
             if (s instanceof String || s instanceof CharSequence || s instanceof Boolean || s instanceof Number || s instanceof Character)
                 return s;
             if (s instanceof Map) {
@@ -90,6 +97,13 @@ public class ModernJsonWriter implements JWriter {
         try {
             if (s == null)
                 return "null";
+            if (s instanceof Enum){
+                Map<String, Object> object = new HashMap<>();
+                object.put("c", s.getClass().getCanonicalName());
+                object.put("e", ((Enum<?>)s).name());
+                object.put("t", "enum");
+                return parser.toJson(object);
+            }
             if (s instanceof String || s instanceof CharSequence || s instanceof Boolean || s instanceof Number || s instanceof Character)
                 return s.toString();
             if (s instanceof Collection) {

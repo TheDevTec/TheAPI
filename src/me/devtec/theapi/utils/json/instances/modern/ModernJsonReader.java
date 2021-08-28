@@ -13,6 +13,7 @@ import com.google.gson.GsonBuilder;
 import me.devtec.theapi.Pair;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.json.instances.JReader;
+import me.devtec.theapi.utils.reflections.Ref;
 import sun.misc.Unsafe;
 
 public class ModernJsonReader implements JReader {
@@ -52,6 +53,9 @@ public class ModernJsonReader implements JReader {
                             o.put(pair.getKey(), pair.getValue());
                         }
                         return o;
+                    }
+                    case "enum": {
+                        return Ref.getNulled(c, map.get("e").toString());
                     }
                     case "array": {
                         Object[] obj = (Object[]) Array.newInstance(c, ((List<?>) map.get("s")).size());
@@ -166,6 +170,9 @@ public class ModernJsonReader implements JReader {
                             int i = 0;
                             for (Object cc : (List<?>) map.get("s")) obj[i++] = read(cc);
                             return obj;
+                        }
+                        case "enum": {
+                            return Ref.getNulled(c, map.get("e").toString());
                         }
                         case "collection": {
                             Object object;
