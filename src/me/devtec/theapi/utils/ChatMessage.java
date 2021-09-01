@@ -352,8 +352,6 @@ public class ChatMessage {
 			for (int is = 2; is < 7; ++is)
 				if (objects[is] != null && (boolean) objects[is])
 					c.put(is == 2 ? "bold" : (is == 3 ? "italic" : (is == 4 ? "obfuscated" : (is == 5 ? "strikethrough" : "underlined"))), (boolean) objects[is]);
-				else
-					c.put(is == 2 ? "bold" : (is == 3 ? "italic" : (is == 4 ? "obfuscated" : (is == 5 ? "strikethrough" : "underlined"))), false);
 			if (objects[7] != null && !objects[7].equals(""))
 				c.put("clickEvent", objects[7]);
 		}
