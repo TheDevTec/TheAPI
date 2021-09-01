@@ -29,6 +29,7 @@ public class ModernJsonReader implements JReader {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Object read(String json) {
+    	if(json==null || json.trim().isEmpty())return json;
         try {
             if (json.equals("null")) return null;
             if (json.equalsIgnoreCase("true")) return true;
@@ -140,6 +141,7 @@ public class ModernJsonReader implements JReader {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private Object read(Object s) {
+    	if(s==null)return s;
         try {
             if (s instanceof Map) {
                 Map<String, Object> map = (Map<String, Object>) s;
@@ -229,6 +231,7 @@ public class ModernJsonReader implements JReader {
 
 	@Override
 	public Object simpleRead(String json) {
+    	if(json==null || json.trim().isEmpty())return json;
         if (json.equals("null")) return null;
         if (json.equalsIgnoreCase("true")) return true;
         if (json.equalsIgnoreCase("false")) return false;

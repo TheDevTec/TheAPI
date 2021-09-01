@@ -3,6 +3,7 @@ package me.devtec.theapi.utils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -23,13 +24,17 @@ public class ChatMessage {
 	private String text, color = "";
 	private boolean bold = false, italic = false, obfuscated = false, strike = false, under = false, change = false;
 	
-	private final List<Map<String, Object>> join = new ArrayList<>();
+	private List<Map<String, Object>> join = new ArrayList<>();
 	
 	public ChatMessage(String text) {
 		this.text=text;
 		convert();
 	}
 	
+	public ChatMessage(List<Map<String, Object>> component) {
+		join=component;
+	}
+
 	public static Object toIChatBaseComponent(String text) {
 		return new ChatMessage(text).toNMS();
 	}
@@ -42,6 +47,10 @@ public class ChatMessage {
 		return new ChatMessage(NMSAPI.fromComponent(component));
 	}
 	
+	public static ChatMessage fromListMap(List<Map<String, Object>> component) {
+		return new ChatMessage(component);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static List<Map<String, Object>> fixListMap(List<Map<String, Object>> lists) {
 		if(lists==null)return null;
@@ -49,6 +58,10 @@ public class ChatMessage {
 		while(it.hasNext()) {
 			Map<String, Object> text = it.next();
 			Map<String, Object> hover=(Map<String, Object>) text.get("hoverEvent"), click=(Map<String, Object>) text.get("clickEvent");
+			if(hover!=null)
+				hover=fix("hoverEvent",hover);
+			if(click!=null)
+				click=fix("clickEvent",click);
 			String interact=(String) text.get("insertion");
 			boolean remove = false;
 			for(Entry<String, Object> s : text.entrySet()) {
@@ -75,7 +88,7 @@ public class ChatMessage {
 						}
 					}
 				}else
-					if(s.getValue()instanceof Map) //hoverEvent
+					if(s.getValue()instanceof Map) //hoverEvent or clickEvent
 						text.put(s.getKey(), s.getValue());
 					else
 						if(s.getValue()instanceof List) //extras
@@ -85,6 +98,39 @@ public class ChatMessage {
 		return lists;
 	}
 	
+	private static Map<String, Object> fix(String key, Map<String, Object> hover) {
+		Object val = hover.getOrDefault("value", hover.getOrDefault("content", hover.getOrDefault("contents", null)));
+		if(val==null)hover.put("value", "");
+		else {
+			if(key.equalsIgnoreCase("hoverEvent")) {
+				if(val instanceof Collection || val instanceof Map) {
+					Object ac = hover.get("action");
+					hover.clear();
+					hover.put("action", ac);
+					hover.put("value", ac);
+				}else {
+					Object ac = hover.get("action");
+					hover.clear();
+					hover.put("action", ac);
+					hover.put("value", fromString(val+"").join);
+				}
+			}else {
+				if(val instanceof Collection || val instanceof Map) {
+					Object ac = hover.get("action");
+					hover.clear();
+					hover.put("action", ac);
+					hover.put("value", ac);
+				}else {
+					Object ac = hover.get("action");
+					hover.clear();
+					hover.put("action", ac);
+					hover.put("value", val+"");
+				}
+			}
+		}
+		return hover;
+	}
+
 	public static ChatMessage fromString(String text) {
 		return new ChatMessage(text);
 	}
@@ -115,59 +161,10 @@ public class ChatMessage {
 	private static final Object open_url = TheAPI.isNewerThan(16)?Ref.getNulled(Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable$EnumClickAction", "EnumClickAction"), "a"):Ref.getNulled(Ref.nmsOrOld("network.chat.ChatClickable.ChatClickable$EnumClickAction", "EnumClickAction"), "OPEN_URL");
 	
 	public Object toNMS() {
-		boolean first = true;
-		Object main = null;
-		Object ab = null;
-		if(TheAPI.isNewerThan(15)) {
-		for(Map<String, Object> s : join) {
-			Object a = Ref.newInstance(chat, s.get("text"));
-			Object mod = Ref.invoke(a, getChatModif);
-			mod=Ref.invoke(mod, setBold, s.getOrDefault("bold",false));
-			mod=Ref.invoke(mod, setItalic, s.getOrDefault("italic",false));
-			mod=Ref.invoke(mod, setRandom, s.getOrDefault("obfuscated",false));
-			mod=Ref.invoke(mod, setStrikethrough, s.getOrDefault("strikethrough",false));
-			mod=Ref.invoke(mod, setUnderline, s.getOrDefault("underlined",false));
-			if(s.get("color")!=null) {
-				if(((String) s.get("color")).startsWith("#")) {
-					mod=Ref.invoke(mod, setColorHex, getColorHex((String) s.get("color")));
-				}else
-					mod=Ref.invoke(mod, setColorNormal, getColorNormal(((String) s.get("color")).toUpperCase()));
-			}
-			if(s.get("clickEvent")!=null) {
-				mod=Ref.invoke(mod, setChatClickable, Ref.newInstance(clickEvent, open_url, s.get("value")));
-			}
-			a=Ref.invoke(a, setChatModif, mod);
-			if(first) {
-				first=false;
-				main=a;
-				ab=main;
-			}else
-				ab=Ref.invoke(ab, addSibling, a);
-		}
-		}else {
-			for(Map<String, Object> s : join) {
-				Object a = Ref.newInstance(chat, (s.get("color")==null?"":""+getColorR(((String)s.get("color")).toUpperCase()))+
-						build((boolean)s.getOrDefault("bold",false),(boolean)s.getOrDefault("italic",false),
-								(boolean)s.getOrDefault("obfuscated",false),(boolean)s.getOrDefault("strikethrough",false)
-								,(boolean)s.getOrDefault("underlined",false))+s.get("text"));
-				Object mod = Ref.invoke(a, getChatModif);
-				if(s.get("clickEvent")!=null) {
-					mod=Ref.invoke(mod, setChatClickable, Ref.newInstance(clickEvent, open_url, s.get("value")));
-				}
-				a=Ref.invoke(a, setChatModif, mod);
-				if(first) {
-					first=false;
-					main=a;
-					ab=main;
-				}else
-					ab=Ref.invoke(ab, addSibling, a);
-			}
-		}
-		if(first)main = Ref.newInstance(chat, "");
-		return main;
+		return toNMSListMap(join);
 	}
 
-	private String build(boolean orDefault, boolean orDefault2, boolean orDefault3, boolean orDefault4, boolean orDefault5) {
+	static String build(boolean orDefault, boolean orDefault2, boolean orDefault3, boolean orDefault4, boolean orDefault5) {
 		StringBuilder b = new StringBuilder();
 		if(orDefault)b.append("§l");
 		if(orDefault2)b.append("§o");
@@ -177,19 +174,19 @@ public class ChatMessage {
 		return b.toString();
 	}
 
-	private Object getColorHex(String object) {
+	static Object getColorHex(String object) {
 		if(object.startsWith("#"))return Ref.invokeStatic(hex, object);
 		return null;
 	}
 	
-	private Object getColorNormal(String object) {
+	static Object getColorNormal(String object) {
 		if(object.startsWith("#"))return null;
 		if(t==0)
 			return Ref.invokeStatic(colors, (char)ChatColor.valueOf(object.toUpperCase()).getChar());
 		return Ref.invokeStatic(colors, ChatColor.valueOf(object.toUpperCase()).ordinal());
 	}
 	
-	private String getColorR(String object) {
+	static String getColorR(String object) {
 		if(object.startsWith("#"))return null;
 		return "§"+ChatColor.valueOf(object.toUpperCase()).getChar();
 	}
@@ -201,7 +198,125 @@ public class ChatMessage {
 		return b.toString();
 	}
 	
-	String getColor(String color) {
+	public static Object toNMSListMap(List<Map<String,Object>> list) {
+		Object main = Ref.newInstance(chat, "");
+		Object ab = main;
+		if(TheAPI.isNewerThan(15)) {
+		for(Map<String,Object> s : list) {
+			Object a = Ref.newInstance(chat, s.get("text"));
+			Object mod = Ref.invoke(a, getChatModif);
+			Object bold = s.get("bold");
+			if(bold!=null)
+			mod=Ref.invoke(mod, setBold, bold);
+			bold = s.get("italic");
+			if(bold!=null)
+			mod=Ref.invoke(mod, setItalic, bold);
+			bold = s.get("obfuscated");
+			if(bold!=null)
+			mod=Ref.invoke(mod, setRandom, bold);
+			bold = s.get("strikethrough");
+			if(bold!=null)
+			mod=Ref.invoke(mod, setStrikethrough, bold);
+			bold = s.get("underlined");
+			if(bold!=null)
+			mod=Ref.invoke(mod, setUnderline, bold);
+			if(s.get("color")!=null) {
+				if(((String) s.get("color")).startsWith("#")) {
+					mod=Ref.invoke(mod, setColorHex, getColorHex((String) s.get("color")));
+				}else
+					mod=Ref.invoke(mod, setColorNormal, getColorNormal(((String) s.get("color")).toUpperCase()));
+			}
+			if(s.get("clickEvent")!=null) {
+				mod=Ref.invoke(mod, setChatClickable, Ref.newInstance(clickEvent, open_url, s.get("value")));
+			}
+			a=Ref.invoke(a, setChatModif, mod);
+			ab=Ref.invoke(ab, addSibling, a);
+		}
+		}else {
+			for(Map<String,Object> s : list) {
+				Object a = Ref.newInstance(chat, (s.get("color")==null?"":""+getColorR(((String)s.get("color")).toUpperCase()))+
+						build((boolean)s.getOrDefault("bold",false),(boolean)s.getOrDefault("italic",false),
+								(boolean)s.getOrDefault("obfuscated",false),(boolean)s.getOrDefault("strikethrough",false)
+								,(boolean)s.getOrDefault("underlined",false))+s.get("text"));
+				Object mod = Ref.invoke(a, getChatModif);
+				if(s.get("clickEvent")!=null)
+					mod=Ref.invoke(mod, setChatClickable, Ref.newInstance(clickEvent, open_url, s.get("value")));
+				a=Ref.invoke(a, setChatModif, mod);
+				ab=Ref.invoke(ab, addSibling, a);
+			}
+		}
+		return main;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static Object toNMS(List<Object> list) {
+		Object main = Ref.newInstance(chat, "");
+		Object ab = main;
+		if(TheAPI.isNewerThan(15)) {
+		for(Object oo : list) {
+			if(oo instanceof Map) {
+				Map<String, Object> s = (Map<String, Object>)oo;
+				Object a = Ref.newInstance(chat, s.get("text"));
+				Object mod = Ref.invoke(a, getChatModif);
+				Object bold = s.get("bold");
+				if(bold!=null)
+				mod=Ref.invoke(mod, setBold, bold);
+				bold = s.get("italic");
+				if(bold!=null)
+				mod=Ref.invoke(mod, setItalic, bold);
+				bold = s.get("obfuscated");
+				if(bold!=null)
+				mod=Ref.invoke(mod, setRandom, bold);
+				bold = s.get("strikethrough");
+				if(bold!=null)
+				mod=Ref.invoke(mod, setStrikethrough, bold);
+				bold = s.get("underlined");
+				if(bold!=null)
+				mod=Ref.invoke(mod, setUnderline, bold);
+				if(s.get("color")!=null) {
+					if(((String) s.get("color")).startsWith("#")) {
+						mod=Ref.invoke(mod, setColorHex, getColorHex((String) s.get("color")));
+					}else
+						mod=Ref.invoke(mod, setColorNormal, getColorNormal(((String) s.get("color")).toUpperCase()));
+				}
+				if(s.get("clickEvent")!=null) {
+					mod=Ref.invoke(mod, setChatClickable, Ref.newInstance(clickEvent, open_url, s.get("value")));
+				}
+				a=Ref.invoke(a, setChatModif, mod);
+				ab=Ref.invoke(ab, addSibling, a);
+			}
+		}
+		}else {
+			for(Object oo : list) {
+				if(oo instanceof Map) {
+						Map<String, Object> s = (Map<String, Object>)oo;
+					Object a = Ref.newInstance(chat, (s.get("color")==null?"":""+getColorR(((String)s.get("color")).toUpperCase()))+
+							build((boolean)s.getOrDefault("bold",false),(boolean)s.getOrDefault("italic",false),
+									(boolean)s.getOrDefault("obfuscated",false),(boolean)s.getOrDefault("strikethrough",false)
+									,(boolean)s.getOrDefault("underlined",false))+s.get("text"));
+					Object mod = Ref.invoke(a, getChatModif);
+					if(s.get("clickEvent")!=null)
+						mod=Ref.invoke(mod, setChatClickable, Ref.newInstance(clickEvent, open_url, s.get("value")));
+					a=Ref.invoke(a, setChatModif, mod);
+					ab=Ref.invoke(ab, addSibling, a);
+				}
+			}
+		}
+		return main;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static String toLegacy(List<Object> list) {
+		StringBuilder b = new StringBuilder(list.size()*16);
+		for(Object text : list)
+			if(text instanceof Map)
+				b.append(StringUtils.colorize(getColor("" + ((Map<String, Object>) text).getOrDefault("color", "")))).append(((Map<String, Object>)text).get("text"));
+			else
+				b.append(StringUtils.colorize(text+""));
+		return b.toString();
+	}
+	
+	static String getColor(String color) {
 		if(color.trim().isEmpty())return "";
 		if(color.startsWith("#"))return color;
 		try {
@@ -235,7 +350,7 @@ public class ChatMessage {
 			if (objects[1] != null && !objects[1].equals(""))
 				c.put("color", objects[1] + "");
 			for (int is = 2; is < 7; ++is)
-				if (objects[is] != null)
+				if (objects[is] != null && (boolean) objects[is])
 					c.put(is == 2 ? "bold" : (is == 3 ? "italic" : (is == 4 ? "obfuscated" : (is == 5 ? "strikethrough" : "underlined"))), (boolean) objects[is]);
 				else
 					c.put(is == 2 ? "bold" : (is == 3 ? "italic" : (is == 4 ? "obfuscated" : (is == 5 ? "strikethrough" : "underlined"))), false);
