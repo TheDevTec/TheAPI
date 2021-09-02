@@ -1213,6 +1213,14 @@ public class LoaderClass extends JavaPlugin {
 						return "" + player.getStatistic(Statistic.KILL_ENTITY);
 					if (placeholder.equalsIgnoreCase("player_statistic_sneak_time"))
 						return "" + player.getStatistic(Statistic.valueOf("SNEAK_TIME"));
+					if (placeholder.startsWith("user:")) {
+						placeholder=placeholder.substring(5);
+						return TheAPI.getUser(player).getString(placeholder);
+					}
+				}
+				if (placeholder.startsWith("user_other:")) {
+					placeholder=placeholder.substring(11);
+					return TheAPI.getUser(placeholder.split(":")[0]).getString(placeholder.substring((placeholder.split(":")[0]+":").length()));
 				}
 				if (placeholder.equalsIgnoreCase("server_time"))
 					return "" + new SimpleDateFormat("HH:mm:ss").format(new Date());
