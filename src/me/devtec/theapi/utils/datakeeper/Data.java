@@ -732,15 +732,18 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		case PROPERTIES: {
 			int size = loader.get().size();
 			StringBuilder d = new StringBuilder(size*8);
+			if(loader.getHeader()!=null)
 			try {
 				for (String h : loader.getHeader())
 					d.append(h).append(System.lineSeparator());
 			} catch (Exception er) {
+				Validator.send("Saving Data to YAML", er);
 			}
 			for (Entry<String, Object[]> key : loader.get().entrySet()) {
 				if(key.getValue()==null || key.getValue()[0]==null)continue;
 				d.append(key.getKey()+": "+Json.writer().write(key.getValue()[0]));
 			}
+			if(loader.getFooter()!=null)
 			try {
 				for (String h : loader.getFooter())
 					d.append(h).append(System.lineSeparator());
@@ -810,14 +813,17 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		case YAML:
 			int size = loader.get().size();
 			StringBuilder d = new StringBuilder(size*8);
+			if(loader.getHeader()!=null)
 			try {
 				for (String h : loader.getHeader())
 					d.append(h).append(System.lineSeparator());
 			} catch (Exception er) {
+				Validator.send("Saving Data to YAML", er);
 			}
 			List<String> done = new ArrayList<>(size);
 			for (String key : Collections.unmodifiableList(keys))
 				preparePath(done,key, key + ":", "", d);
+			if(loader.getFooter()!=null)
 			try {
 				for (String h : loader.getFooter())
 					d.append(h).append(System.lineSeparator());

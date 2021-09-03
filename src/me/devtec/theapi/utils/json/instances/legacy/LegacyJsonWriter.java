@@ -8,8 +8,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
+
 import me.devtec.theapi.Pair;
+import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.json.instances.JWriter;
+import me.devtec.theapi.utils.json.instances.custom.Utils;
 import net.minecraft.util.com.google.gson.Gson;
 import net.minecraft.util.com.google.gson.GsonBuilder;
 
@@ -20,6 +25,9 @@ public class LegacyJsonWriter implements JWriter {
         try {
             if (s == null)
                 return null;
+    		if (s instanceof Location || s instanceof Position || s instanceof ItemStack) {
+    			return Utils.write(s);
+    		}
             if (s instanceof Enum){
                 Map<String, Object> object = new HashMap<>();
                 object.put("c", s.getClass().getCanonicalName());
@@ -65,7 +73,7 @@ public class LegacyJsonWriter implements JWriter {
             object.put("sf", sub_fields);
             Class<?> c = s.getClass();
             for (Field f : c.getDeclaredFields()) {
-                if (Modifier.toString(f.getModifiers()).toLowerCase().contains("static")) continue;
+                if ((f.getModifiers() & Modifier.STATIC) != 0) continue;
                 f.setAccessible(true);
                 Object obj = f.get(s);
                 if (s.equals(obj))
@@ -76,7 +84,7 @@ public class LegacyJsonWriter implements JWriter {
             c = c.getSuperclass();
             while (c != null) {
                 for (Field f : c.getDeclaredFields()) {
-                    if (Modifier.toString(f.getModifiers()).toLowerCase().contains("static")) continue;
+                    if ((f.getModifiers() & Modifier.STATIC) != 0) continue;
                     f.setAccessible(true);
                     Object obj = f.get(s);
                     if (s.equals(obj))
@@ -96,6 +104,9 @@ public class LegacyJsonWriter implements JWriter {
         try {
             if (s == null)
                 return "null";
+    		if (s instanceof Location || s instanceof Position || s instanceof ItemStack) {
+    			return parser.toJson(Utils.write(s));
+    		}
             if (s instanceof Enum){
                 Map<String, Object> object = new HashMap<>();
                 object.put("c", s.getClass().getCanonicalName());
@@ -141,7 +152,7 @@ public class LegacyJsonWriter implements JWriter {
             object.put("sf", sub_fields);
             Class<?> c = s.getClass();
             for (Field f : c.getDeclaredFields()) {
-                if (Modifier.toString(f.getModifiers()).toLowerCase().contains("static")) continue;
+                if ((f.getModifiers() & Modifier.STATIC) != 0) continue;
                 f.setAccessible(true);
                 Object obj = f.get(s);
                 if (s.equals(obj))
@@ -152,7 +163,7 @@ public class LegacyJsonWriter implements JWriter {
             c = c.getSuperclass();
             while (c != null) {
                 for (Field f : c.getDeclaredFields()) {
-                    if (Modifier.toString(f.getModifiers()).toLowerCase().contains("static")) continue;
+                    if ((f.getModifiers() & Modifier.STATIC) != 0) continue;
                     f.setAccessible(true);
                     Object obj = f.get(s);
                     if (s.equals(obj))

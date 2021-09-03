@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -13,6 +14,7 @@ import com.google.gson.GsonBuilder;
 import me.devtec.theapi.Pair;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.json.instances.JReader;
+import me.devtec.theapi.utils.json.instances.custom.Utils;
 import me.devtec.theapi.utils.reflections.Ref;
 import sun.misc.Unsafe;
 
@@ -36,6 +38,11 @@ public class ModernJsonReader implements JReader {
             if (json.equalsIgnoreCase("false")) return false;
             if (StringUtils.isNumber(json)) return StringUtils.getNumber(json);
 			Map<String, Object> map = parser.fromJson(json, Map.class);
+			if(map.size()==1) {
+				Entry<String, Object> key = map.entrySet().iterator().next();
+				Object read = Utils.read(key.getKey(), key.getValue());
+				if(read!=null)return read;
+			}
             String className = (String) map.get("c");
             Class<?> c = Class.forName(className);
             String type = (String) map.get("t");
