@@ -544,11 +544,13 @@ public class Position implements Cloneable {
 	private static final Method get = Ref.method(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "getSections");
 	private static Method setId;
 	private static Method setData;
+	private static int ii;
 	static {
 		a = Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), "setType", int.class, int.class, int.class, Ref.nmsOrOld("world.level.block.state.IBlockData","IBlockData"), boolean.class);
-		if(a==null)
+		if(a==null) {
 			a = Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), "setType", int.class, int.class, int.class, Ref.nmsOrOld("world.level.block.state.IBlockData","IBlockData"));
-		if (aw == null)
+			++ii;
+		}if (aw == null)
 			aw = Ref.constructor(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), int.class, boolean.class);
 		if(TheAPI.isOlderThan(8)) {
 			setId=Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), "setTypeId", int.class, int.class, int.class, Ref.nmsOrOld("world.level.block.Block","Block"));
@@ -603,11 +605,15 @@ public class Position implements Cloneable {
 		Object ww = Ref.world(pos.getWorld());
 		//REMOVE TILE ENTITY FROM CHUNK
 		((Map<?,?>)Ref.get(c, ff)).remove(p);
+		
 		if (palet) {
 			//CHANGE BLOCK IN CHUNKSECTION (PALLETE)
-			Ref.invoke(sc, a, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr, true);
+			if(ii==0)
+				Ref.invoke(sc, a, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr, true);
+			else
+				Ref.invoke(sc, a, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr);
 		}else {
-			//CHANGE BLOCK IN CHUNKSECTION (PALLETE)
+			//CHANGE BLOCK IN CHUNKSECTION
 			Ref.invoke(sc, a, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr);
 		}
 		//ADD TILE ENTITY

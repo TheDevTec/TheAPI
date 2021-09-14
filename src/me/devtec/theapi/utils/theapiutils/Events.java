@@ -21,7 +21,6 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
@@ -121,8 +120,9 @@ public class Events implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.LOWEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLogin(AsyncPlayerPreLoginEvent e) {
+		if(e.getLoginResult()!=Result.ALLOWED)return;
 		if (!AntiBot.hasAccess(e.getUniqueId())) {
 			e.disallow(Result.KICK_OTHER, "");
 			return;
@@ -172,8 +172,8 @@ public class Events implements Listener {
 		}
 	}
 	
-	@EventHandler
-	public void onLogin(PlayerLoginEvent e) {
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onLogin(PlayerJoinEvent e) {
 		if(LoaderClass.cache!=null)
 			LoaderClass.cache.setLookup(e.getPlayer().getUniqueId(),e.getPlayer().getName());
 	}

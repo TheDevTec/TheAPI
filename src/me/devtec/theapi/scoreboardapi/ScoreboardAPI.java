@@ -27,6 +27,8 @@ import me.devtec.theapi.utils.reflections.Ref;
  *
  */
 public class ScoreboardAPI {
+	private static final Data protection = new Data();
+	
 	protected final Data data = new Data();
 	protected Player p;
 	protected String player, sbname;
@@ -188,6 +190,7 @@ public class ScoreboardAPI {
 	}
 	
 	private Object[] create(String prefix, String suffix, String name, String realName, int slot) {
+		protection.set(player+"."+name, true);
 		Object[] o = new Object[2];
 		o[0]=c(0, prefix, suffix, name, realName);
 		if(TheAPI.isNewerThan(12)) {
@@ -220,6 +223,7 @@ public class ScoreboardAPI {
 	}
 	
 	private Object[] remove(String name, String realName) {
+		protection.remove(player+"."+name);
 		Object[] o = new Object[2];
 		o[0]=c(1, "", "", name,realName);
 		if(TheAPI.isNewerThan(12)) {
@@ -300,7 +304,7 @@ public class ScoreboardAPI {
 	
 	public class Team {
 		private String prefix = "", suffix = "", currentPlayer, old;
-		private final String name, format;
+		private String name, format;
 		private boolean changed, first = true;
 		private Team(int slot, int realPos) {
 			currentPlayer = TheCoder.toColor(realPos);
@@ -313,6 +317,9 @@ public class ScoreboardAPI {
 		
 		public synchronized void sendLine(int line) {
 			if (first) {
+				if(protection.getBoolean(player+"."+name)) {
+					name+="s";
+				}
 				Object[] o = create(prefix, suffix, currentPlayer, name, slott==-1?line:slott);
 				Ref.sendPacket(p, o[0]);
 				Ref.sendPacket(p, o[1]);
