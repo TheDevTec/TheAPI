@@ -73,12 +73,12 @@ public class JsonLoader extends DataLoader {
 			Object read = Json.reader().read(input);
 			if (read instanceof Map) {
 				for (Entry<Object, Object> keyed : ((Map<Object, Object>) read).entrySet()) {
-					data.put((String) keyed.getKey(), new Object[] {keyed.getValue(), null, null});
+					data.put((String) keyed.getKey(), new Object[] {Json.reader().read(keyed.getValue().toString()), null, null});
 				}
 			} else {
 				for (Object o : (Collection<Object>) read) {
 					for (Entry<Object, Object> keyed : ((Map<Object, Object>) o).entrySet()) {
-						data.put((String) keyed.getKey(), new Object[] {keyed.getValue(), null, null});
+						data.put((String) keyed.getKey(), new Object[] {Json.reader().read(keyed.getValue().toString()), null, null});
 					}
 				}
 			}

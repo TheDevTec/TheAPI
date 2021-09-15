@@ -182,12 +182,12 @@ public class Events implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLeave(PlayerQuitEvent e) {
 		Player s = e.getPlayer();
-		User u = TheAPI.getUser(s);
-		if(!LoaderClass.config.getBoolean("Options.Cache.User.DisableSaving.Quit"))
-			u.set("quit", System.currentTimeMillis()/1000);
 		ScoreboardAPI a = SimpleScore.scores.remove(s.getName());
 		if(a!=null)a.destroy();
 		TheAPI.removeBossBar(s);
+		User u = TheAPI.getUser(s);
+		if(!LoaderClass.config.getBoolean("Options.Cache.User.DisableSaving.Quit"))
+			u.set("quit", System.currentTimeMillis()/1000);
 		TheAPI.removeCachedUser(u.getUUID());
 		if(LoaderClass.plugin.handler!=null)
 			LoaderClass.plugin.handler.remove(LoaderClass.plugin.handler.get(s));

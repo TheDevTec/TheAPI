@@ -25,7 +25,6 @@ import me.devtec.theapi.utils.datakeeper.loader.DataLoader;
 import me.devtec.theapi.utils.datakeeper.loader.EmptyLoader;
 import me.devtec.theapi.utils.datakeeper.loader.YamlLoader;
 import me.devtec.theapi.utils.json.Json;
-import me.devtec.theapi.utils.json.Maker;
 import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
@@ -589,14 +588,6 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		return toString(DataType.BYTE);
 	}
 
-	protected synchronized void addKeys(Maker main, String key) {
-		Object o = get(key);
-		if (o != null)
-			main.add(main.create().put(key, o));
-		for (String keyer : getKeys(key))
-			addKeys(main, key + "." + keyer);
-	}
-
 	@SuppressWarnings("unchecked")
 	protected synchronized void preparePath(List<String> done, String path, String pathName, String space, StringBuilder b) {
 		StringBuilder bab = new StringBuilder(pathName.length()+space.length()+2);
@@ -727,6 +718,17 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}catch(Exception err) {}
 	}
 
+	protected synchronized void addKeys(List<Map<String, String>> list, String key) {
+		Object o = get(key);
+		if (o != null) {
+			Map<String, String> a = new HashMap<>();
+			a.put(key, Json.writer().write(o));
+			list.add(a);
+		}
+		for (String keyer : getKeys(key))
+			addKeys(list, key + "." + keyer);
+	}
+
 	public synchronized String toString(DataType type) {
 		switch(type) {
 		case PROPERTIES: {
@@ -806,10 +808,10 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			}
 			return "";
 		case JSON:
-			Maker main = new Maker();
+			List<Map<String, String>> list = new ArrayList<>();
 			for (String key : Collections.unmodifiableList(keys))
-				addKeys(main, key);
-			return main.toString();
+				addKeys(list, key);
+			return Json.writer().simpleWrite(list);
 		case YAML:
 			int size = loader.get().size();
 			StringBuilder d = new StringBuilder(size*8);

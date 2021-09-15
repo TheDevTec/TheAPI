@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 
 import org.bukkit.entity.Player;
@@ -27,6 +28,8 @@ import me.devtec.theapi.utils.reflections.Ref;
  *
  */
 public class ScoreboardAPI {
+	private static final String protectId = (new Random().nextLong()+"").substring(0,5);
+	
 	private static final Data protection = new Data();
 	
 	protected final Data data = new Data();
@@ -49,7 +52,7 @@ public class ScoreboardAPI {
 		p = player;
 		slott=slot;
 		this.player = player.getName();
-		sbname="sb:"+this.player;
+		sbname=protectId+this.player;
 		if(sbname.length()>16)sbname=sbname.substring(0,16);
 		Ref.sendPacket(p, createObjectivePacket(0,"§0"));
 		Object packetD = Ref.newInstance(display, 1, null);
@@ -68,7 +71,7 @@ public class ScoreboardAPI {
 	public void destroy() {
 		if(destroyed)return;
 		destroyed = true;
-		Ref.sendPacket(p, createObjectivePacket(1, ""));
+		Ref.sendPacket(p, createObjectivePacket(1, TheAPI.isNewVersion()?null:""));
 		for(String a : data.getKeys(player)){
 			Team team = data.getAs(player+"."+a, Team.class);
 			if(team!=null) {
@@ -112,7 +115,7 @@ public class ScoreboardAPI {
 		Set<String> s = data.getKeys(player);
 		for(String wd : s) {
 			Team t = data.getAs(player+"."+wd, Team.class);
-			if(t.name.equals(""+line)) {
+			if(t.slot==line) {
 				team=t;
 				add=false;
 			}
@@ -305,6 +308,7 @@ public class ScoreboardAPI {
 	public class Team {
 		private String prefix = "", suffix = "", currentPlayer, old;
 		private String name, format;
+		private int slot;
 		private boolean changed, first = true;
 		private Team(int slot, int realPos) {
 			currentPlayer = TheCoder.toColor(realPos);
@@ -312,14 +316,14 @@ public class ScoreboardAPI {
 				currentPlayer+="§f";
 				format=currentPlayer;
 			}else format=null;
+			this.slot=slot;
 			name=""+slot;
 		}
 		
 		public synchronized void sendLine(int line) {
 			if (first) {
-				if(protection.getBoolean(player+"."+name)) {
-					name+="s";
-				}
+				if(protection.getBoolean(player+"."+name))
+					name+=protectId;
 				Object[] o = create(prefix, suffix, currentPlayer, name, slott==-1?line:slott);
 				Ref.sendPacket(p, o[0]);
 				Ref.sendPacket(p, o[1]);
