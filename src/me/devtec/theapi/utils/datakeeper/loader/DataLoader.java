@@ -2,11 +2,13 @@ package me.devtec.theapi.utils.datakeeper.loader;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.datakeeper.abstracts.Data;
+import me.devtec.theapi.utils.json.Json;
 
 public abstract class DataLoader implements Data {
 	public abstract Map<String, Object[]> get();
@@ -80,10 +82,16 @@ public abstract class DataLoader implements Data {
 	}
 	
 	public String toString() {
-		return "{\"Data\":{\"name\":\""+this.getClass().getCanonicalName()+"\",\"size\":"+get().size()+",\"load\":"+isLoaded()+"}}";
+		return getDataName();
 	}
 	
 	public String getDataName() {
-		return toString();
+		HashMap<String, Object> s = new HashMap<>();
+		s.put("name", this.getClass().getCanonicalName());
+		s.put("hasHeader", getHeader()!=null);
+		s.put("hasFooter", getFooter()!=null);
+		s.put("isLoaded", isLoaded());
+		s.put("keys", get().size());
+		return Json.writer().simpleWrite(s);
 	}
 }

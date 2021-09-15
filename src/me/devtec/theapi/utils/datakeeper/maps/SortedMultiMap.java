@@ -113,11 +113,10 @@ public class SortedMultiMap<K, T, V> extends MultiMap<K, T, V> {
 
 	@Override
 	public String getDataName() {
-		Map<String, Object> ser = new HashMap<>();
-		ser.put("name", "MultiMap");
-		ser.put("sorted", true);
-		ser.put("size", size());
-		ser.put("values", toString());
-		return Json.writer().write(ser);
+		HashMap<String, Object> s = new HashMap<>();
+		s.put("name", this.getClass().getCanonicalName());
+		s.put("sorted", true);
+		s.put("size", size());
+		return Json.writer().simpleWrite(s);
 	}
 }

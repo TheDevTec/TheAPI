@@ -503,38 +503,6 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 		return this;
 	}
-
-	protected synchronized void addQuotesSplit(StringBuilder b, CharSequence split, String aw) {
-		b.append(split);
-		b.append('"');
-		b.append(aw);
-		b.append('"');
-		b.append(System.lineSeparator());
-	}
-	
-	protected synchronized void addQuotesSplit(StringBuilder b, CharSequence split, Object aw) {
-		b.append(split);
-		b.append(Json.writer().write(aw));
-		b.append(System.lineSeparator());
-	}
-	
-	protected synchronized void addQuotes(StringBuilder b, CharSequence pathName, String aw, boolean add) {
-		b.append(pathName).append(' ');
-		if(add) {
-			b.append(aw);
-		}else {
-			b.append('"');
-			b.append(aw);
-			b.append('"');
-		}
-		b.append(System.lineSeparator());
-	}
-	
-	protected synchronized void addQuotes(StringBuilder b, CharSequence pathName, Object aw) {
-		b.append(pathName).append(' ');
-		b.append(Json.writer().write(aw));
-		b.append(System.lineSeparator());
-	}
 	
 	public synchronized void save() {
 		save(DataType.YAML);
@@ -586,136 +554,6 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	public synchronized String toString() {
 		return toString(DataType.BYTE);
-	}
-
-	@SuppressWarnings("unchecked")
-	protected synchronized void preparePath(List<String> done, String path, String pathName, String space, StringBuilder b) {
-		StringBuilder bab = new StringBuilder(pathName.length()+space.length()+2);
-		bab.append(space);
-		String split = pathName.substring(0, pathName.length()-1);
-		if(split.length()==1) { //char
-			bab.append('"').append(split).append('"').append(':');
-		}else
-		if(split.contains(":")) {
-			bab.append('"').append(split).append('"').append(':');
-		}else
-		if(split.startsWith("#")) { //starts with comment
-			bab.append('"').append(split).append('"').append(':');
-		}else bab.append(pathName);
-		try {
-		Object[] aw = loader.get().get(path);
-		if(aw==null) {
-			b.append(bab).append(System.lineSeparator());
-			for (String d : loader.get().keySet()) {
-				if (d.startsWith(path)) {
-					String c = d.substring(path.length());
-					if (!c.startsWith("."))
-						continue;
-					c = c.substring(1);
-					c =  c.split("\\.")[0];
-					if (c.trim().isEmpty())
-						continue;
-					String dd = path+"."+c;
-					if(!done.contains(dd)) {
-						done.add(dd);
-						preparePath(done, dd, c+":", space+"  ", b);
-					}
-				}
-			}
-			return;
-		}
-		Collection<String> list = (Collection<String>)aw[1];
-		Object o = aw[0];
-		if(list != null)
-			for (String s : list)
-				b.append(space).append(s).append(System.lineSeparator());
-		if(o==null)b.append(bab).append(System.lineSeparator());
-		else {
-			if (o instanceof Collection || o instanceof Object[]) {
-				String splitted = space+"- ";
-				if (o instanceof Collection) {
-					if(!((Collection<?>) o).isEmpty()) {
-						try {
-							if(aw[3]!=null && (int)aw[3]==1) {
-								addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
-							}else {
-								b.append(bab).append(System.lineSeparator());
-								for (Object a : (Collection<?>) o) {
-									if(a instanceof String)
-										addQuotesSplit(b,splitted,(String)a);
-									else
-										addQuotesSplit(b,splitted,a);
-								}
-							}
-						}catch(Exception er) {
-							b.append(bab).append(System.lineSeparator());
-							for (Object a : (Collection<?>) o) {
-								if(a instanceof String)
-									addQuotesSplit(b,splitted,(String)a);
-								else
-									addQuotesSplit(b,splitted,a);
-							}
-					}}else
-						b.append(bab).append(" []").append(System.lineSeparator());
-				} else {
-					if(((Object[]) o).length!=0) {
-						try {
-							if(aw[3]!=null && (int)aw[3]==1) {
-								addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
-							}else {
-								b.append(bab).append(System.lineSeparator());
-								for (Object a : (Object[]) o) {
-									if(a instanceof String)
-										addQuotesSplit(b,splitted,(String)a);
-									else
-										addQuotesSplit(b,splitted,a);
-								}
-							}
-						}catch(Exception er) {
-							b.append(bab).append(System.lineSeparator());
-							for (Object a : (Object[]) o) {
-								if(a instanceof String)
-									addQuotesSplit(b,splitted,(String)a);
-								else
-									addQuotesSplit(b,splitted,a);
-							}
-					}}else
-						b.append(bab).append(" []").append(System.lineSeparator());
-				}
-			} else {
-				try {
-					if(aw[3]!=null && (int)aw[3]==1) {
-						addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
-					}else {
-						if(o instanceof String)
-							addQuotes(b,bab,(String)o, false);
-						else
-							addQuotes(b,bab,o);
-					}
-				}catch(Exception er) {
-					if(o instanceof String)
-						addQuotes(b,bab,(String)o, false);
-					else
-						addQuotes(b,bab,o);
-				}
-			}
-		}
-		for (String d : loader.getKeys())
-			if (d.startsWith(path)) {
-				String c = d.substring(path.length());
-				if (!c.startsWith("."))
-					continue;
-				c = c.substring(1);
-				c = c.split("\\.")[0];
-				if (c.trim().isEmpty())
-					continue;
-				String dd = path+"."+c;
-				if(!done.contains(dd)) {
-					done.add(dd);
-					preparePath(done, dd, c+":", space+"  ", b);
-				}
-			}
-		}catch(Exception err) {}
 	}
 
 	protected synchronized void addKeys(List<Map<String, String>> list, String key) {
@@ -822,9 +660,11 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			} catch (Exception er) {
 				Validator.send("Saving Data to YAML", er);
 			}
-			List<String> done = new ArrayList<>(size);
-			for (String key : Collections.unmodifiableList(keys))
-				preparePath(done,key, key + ":", "", d);
+			
+			//BUILD KEYS & SECTIONS
+			SectionBuilder builder = new SectionBuilder(keys, loader.get());
+			builder.write(d);
+			
 			if(loader.getFooter()!=null)
 			try {
 				for (String h : loader.getFooter())
@@ -842,7 +682,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		HashMap<String, Object> s = new HashMap<>();
 		if(file!=null)s.put("file", file.getPath()+"/"+file.getName());
 		s.put("loader", loader.getDataName());
-		return Json.writer().write(s);
+		return Json.writer().simpleWrite(s);
 	}
 
 	public synchronized Data clear() {

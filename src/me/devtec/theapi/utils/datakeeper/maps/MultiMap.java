@@ -156,11 +156,10 @@ public class MultiMap<K, T, V> implements Data {
 
 	@Override
 	public String getDataName() {
-		Map<String, Object> ser = new HashMap<>();
-		ser.put("name", "MultiMap");
-		ser.put("sorted", false);
-		ser.put("size", size());
-		ser.put("values", toString());
-		return Json.writer().write(ser);
+		HashMap<String, Object> s = new HashMap<>();
+		s.put("name", this.getClass().getCanonicalName());
+		s.put("sorted", false);
+		s.put("size", size());
+		return Json.writer().simpleWrite(s);
 	}
 }

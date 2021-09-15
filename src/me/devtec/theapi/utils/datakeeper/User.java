@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.utils.json.Json;
 import me.devtec.theapi.utils.theapiutils.Cache;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 import me.devtec.theapi.utils.theapiutils.Validator;
@@ -118,7 +119,11 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public String getDataName() {
-		return "User(" + name + ")";
+		HashMap<String, Object> s = new HashMap<>();
+		s.put("name", name);
+		s.put("uuid", s.toString());
+		s.put("keys", data.loader.getKeys().size());
+		return Json.writer().simpleWrite(s);
 	}
 
 	public Data data() {
