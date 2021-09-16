@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -65,9 +64,8 @@ public class YamlLoader extends DataLoader {
 			String key = "";
 			StringBuilder v = null;
 			int last = 0, f = 0, c = 0;
-			Iterator<String> rr = r.lines().iterator();
-			while(rr.hasNext()) {
-				String text = rr.next();
+			String text;
+			while((text=r.readLine())!=null) {
 				String h = text.trim();
 				if (h.isEmpty()||h.startsWith("#")) {
 					if (!items.isEmpty()) {
@@ -83,7 +81,7 @@ public class YamlLoader extends DataLoader {
 							if(object==null)object="";
 							set(key, object, lines);
 							v = null;
-						} else if (c == 2) {
+						} else {
 							set(key, items, lines);
 							items = new LinkedList<>();
 						}
@@ -114,7 +112,7 @@ public class YamlLoader extends DataLoader {
 					}
 					c = 0;
 				}
-				if (c == 2 || text.substring(c(text)).startsWith("- ") && !key.equals("")) {
+				if (c == 2 || text.substring(c(text)).startsWith("- ") && !key.isEmpty()) {
 					String object = c != 2 ? text.substring(c(text)+2)
 							: text.substring(c(text));
 					Matcher m = fixedSplitter.matcher(object);
@@ -138,14 +136,14 @@ public class YamlLoader extends DataLoader {
 						if (!text.startsWith(" "))
 							key = "";
 						if (sub == last) {
-							String[] ff = key.split("\\.");
+							String[] ff = split(key);
 							String lastr = ff[ff.length - 1] + 1;
 							int remove = key.length() - lastr.length();
 							if (remove > 0)
 								key = key.substring(0, remove);
 						} else {
 							for (int i = 0; i < Math.abs(last - sub) / 2 + 1; ++i) {
-								String[] ff = key.split("\\.");
+								String[] ff = split(key);
 								String lastr = ff[ff.length - 1] + 1;
 								int remove = key.length() - lastr.length();
 								if (remove < 0)
@@ -242,7 +240,7 @@ public class YamlLoader extends DataLoader {
 								if(object==null)object="";
 								set(key, object, lines);
 								v = null;
-							} else if (c == 2) {
+							} else {
 								set(key, items, lines);
 								items = new LinkedList<>();
 							}
@@ -273,7 +271,7 @@ public class YamlLoader extends DataLoader {
 						}
 						c = 0;
 					}
-					if (c == 2 || text.substring(c(text)).startsWith("- ") && !key.equals("")) {
+					if (c == 2 || text.substring(c(text)).startsWith("- ") && !key.isEmpty()) {
 						String object = c != 2 ? text.substring(c(text)+2)
 								: text.substring(c(text));
 						Matcher m = fixedSplitter.matcher(object);
@@ -297,14 +295,14 @@ public class YamlLoader extends DataLoader {
 							if (!text.startsWith(" "))
 								key = "";
 							if (sub == last) {
-								String[] ff = key.split("\\.");
+								String[] ff = split(key);
 								String lastr = ff[ff.length - 1] + 1;
 								int remove = key.length() - lastr.length();
 								if (remove > 0)
 									key = key.substring(0, remove);
 							} else {
 								for (int i = 0; i < Math.abs(last - sub) / 2 + 1; ++i) {
-									String[] ff = key.split("\\.");
+									String[] ff = split(key);
 									String lastr = ff[ff.length - 1] + 1;
 									int remove = key.length() - lastr.length();
 									if (remove < 0)
@@ -374,6 +372,19 @@ public class YamlLoader extends DataLoader {
 		}
 	}
 
+	private static String[] split(String text) {
+        int off = 0, next = 0;
+        ArrayList<String> list = new ArrayList<>();
+        while ((next = text.indexOf('.', off)) != -1) {
+            list.add(text.substring(off, next));
+            off = next + 1;
+        }
+        if (off == 0)
+            return new String[] {text};
+        list.add(text.substring(off, text.length()));
+        return list.toArray(new String[list.size()]);
+	}
+
 	@Override
 	public Collection<String> getHeader() {
 		return header;
@@ -386,11 +397,11 @@ public class YamlLoader extends DataLoader {
 
 	private int c(String s) {
 		int i = 0;
-		for (byte c : s.getBytes())
-			if (c == ' ')
+		for(int d = 0; d < s.length(); ++d) {
+			if(s.charAt(d)==' ') {
 				++i;
-			else
-				break;
+			}else break;
+		}
 		return i;
 	}
 

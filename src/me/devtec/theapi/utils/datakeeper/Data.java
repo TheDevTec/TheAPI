@@ -82,12 +82,17 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public synchronized Object[] getOrCreateData(String key) {
 		Object[] h = loader.get().get(key);
 		if (h == null) {
-			String ss = key.split("\\.")[0];
+			String ss = splitFirst(key);
 			if (!keys.contains(ss))
 				keys.add(ss);
 			loader.get().put(key, h = new Object[2]);
 		}
 		return h;
+	}
+
+	private static String splitFirst(String text) {
+        int next = text.indexOf('.', 0);
+        return next!=-1?text.substring(0, next):text;
 	}
 	
 	public synchronized boolean setIfAbsent(String key, Object value) {
@@ -126,9 +131,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			return this;
 		requireSave=true;
 		if (value == null) {
-			String[] sf = key.split("\\.");
-			if (sf.length <= 1)
-				keys.remove(sf[0]);
+			String sf = splitFirst(key);
+			keys.remove(sf);
 			loader.remove(key);
 			return this;
 		}
@@ -150,8 +154,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (key == null)
 			return this;
 		requireSave=true;
-		if (key.split("\\.").length<=1)
-			keys.remove(key.split("\\.")[0]);
+		String sf = splitFirst(key);
+		keys.remove(sf);
 		loader.remove(key);
 		for(String d : new ArrayList<>(loader.get().keySet()))
 			if (d.startsWith(key) && d.substring(key.length()).startsWith("."))
@@ -263,7 +267,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		keys.clear();
 		loader = DataLoader.findLoaderFor(input); // get & load
 		for (String k : loader.getKeys()) {
-			String g = k.split("\\.")[0];
+			String g = splitFirst(k);
 			if (!keys.contains(g))
 				keys.add(g);
 		}
@@ -281,7 +285,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		keys.clear();
 		loader = DataLoader.findLoaderFor(f); // get & load
 		for (String k : loader.getKeys()) {
-			String g = k.split("\\.")[0];
+			String g = splitFirst(k);
 			if (!keys.contains(g))
 				keys.add(g);
 		}
@@ -543,7 +547,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 					continue;
 				c = c.substring(1);
 				if(!subkeys)
-				c =  c.split("\\.")[0];
+				c =  splitFirst(c);
 				if (c.trim().isEmpty())
 					continue;
 				if (!a.contains(c))
@@ -652,7 +656,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			return Json.writer().simpleWrite(list);
 		case YAML:
 			int size = loader.get().size();
-			StringBuilder d = new StringBuilder(size*8);
+			StringBuilder d = new StringBuilder(size*16);
 			if(loader.getHeader()!=null)
 			try {
 				for (String h : loader.getHeader())

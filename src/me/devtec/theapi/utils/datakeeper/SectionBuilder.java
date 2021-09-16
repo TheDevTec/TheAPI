@@ -1,5 +1,6 @@
 package me.devtec.theapi.utils.datakeeper;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -16,8 +17,24 @@ public class SectionBuilder {
 			name=d;
 		}
 		
+		public SectionHolder find(String name) {
+			if(holders!=null)
+			for(SectionHolder a : holders)
+				if(a.name.equals(name))
+					return a;
+			return null;
+		}
+		
+		public SectionHolder create(String name) {
+			SectionHolder sec = new SectionHolder(name);
+			sec.space=space+' '+' ';
+			if(holders==null)holders=new LinkedList<>();
+			holders.add(sec);
+			return sec;
+		}
+		
 		//PREPARING PART
-		List<SectionHolder> holders = new LinkedList<>();
+		List<SectionHolder> holders;
 		String name;
 		Object[] val;
 		String space;
@@ -33,21 +50,13 @@ public class SectionBuilder {
 		}
 		for(Entry<String, Object[]> e : map.entrySet()) {
 			if(e.getKey().indexOf('.') > -1) {
-				String[] split = e.getKey().split("\\.");
+				String[] split = split(e.getKey());
 				SectionHolder holder = secs.get(split[0]);
 				//DEEP FIND SECTION
 				for(int i = 1; i < split.length; ++i) {
-					SectionHolder f = null;
-					for(SectionHolder a : holder.holders) {
-						if(a.name.equals(split[i])) {
-							f=a;
-							break;
-						}
-					}
-					if(f==null) {
-						holder.holders.add(f=new SectionHolder(split[i]));
-						f.space=holder.space+"  ";
-					}
+					SectionHolder f = holder.find(split[i]);
+					if(f==null)
+						f=holder.create(split[i]);
 					holder=f;
 				}
 				//SET VALUE
@@ -56,6 +65,19 @@ public class SectionBuilder {
 				secs.get(e.getKey()).val=e.getValue();
 			}
 		}
+	}
+
+	private static String[] split(String text) {
+        int off = 0, next = 0;
+        ArrayList<String> list = new ArrayList<>();
+        while ((next = text.indexOf('.', off)) != -1) {
+            list.add(text.substring(off, next));
+            off = next + 1;
+        }
+        if (off == 0)
+            return new String[] {text};
+        list.add(text.substring(off, text.length()));
+        return list.toArray(new String[list.size()]);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -88,7 +110,7 @@ public class SectionBuilder {
 		if(o==null)b.append(bab).append(System.lineSeparator());
 		else {
 			if (o instanceof Collection || o instanceof Object[]) {
-				String splitted = section.space+"- ";
+				String splitted = section.space+'-'+' ';
 				if (o instanceof Collection) {
 					if(!((Collection<?>) o).isEmpty()) {
 						try {
@@ -112,7 +134,7 @@ public class SectionBuilder {
 									addQuotesSplit(b,splitted,a);
 							}
 					}}else
-						b.append(bab).append(" []").append(System.lineSeparator());
+						b.append(bab).append(' ').append('[').append(']').append(System.lineSeparator());
 				} else {
 					if(((Object[]) o).length!=0) {
 						try {
@@ -136,7 +158,7 @@ public class SectionBuilder {
 									addQuotesSplit(b,splitted,a);
 							}
 					}}else
-						b.append(bab).append(" []").append(System.lineSeparator());
+						b.append(bab).append(' ').append('[').append(']').append(System.lineSeparator());
 				}
 			} else {
 				try {
@@ -194,8 +216,7 @@ public class SectionBuilder {
 	}
 
 	public void write(StringBuilder d) {
-		for(SectionHolder c : secs.values()) {
-			start(c,d);
-		}
+		for(Entry<String, SectionHolder> c : secs.entrySet())
+			start(c.getValue(),d);
 	}
 }
