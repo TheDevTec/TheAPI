@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import me.devtec.theapi.Pair;
+import me.devtec.shared.Pair;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.json.instances.JReader;
 import me.devtec.theapi.utils.json.instances.custom.Utils;

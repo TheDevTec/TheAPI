@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import me.devtec.theapi.Pair;
+import me.devtec.shared.Pair;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.json.instances.JReader;
 import me.devtec.theapi.utils.json.instances.custom.Utils;

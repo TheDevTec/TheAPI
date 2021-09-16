@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import me.devtec.theapi.Pair;
+import me.devtec.shared.Pair;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.json.instances.JWriter;
 import me.devtec.theapi.utils.json.instances.custom.Utils;
