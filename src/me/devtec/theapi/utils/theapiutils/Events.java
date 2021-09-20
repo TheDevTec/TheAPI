@@ -11,14 +11,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -30,9 +27,6 @@ import me.devtec.theapi.TheAPI.SudoType;
 import me.devtec.theapi.apis.SignAPI;
 import me.devtec.theapi.apis.SignAPI.SignAction;
 import me.devtec.theapi.configapi.Config;
-import me.devtec.theapi.punishmentapi.PlayerBanList;
-import me.devtec.theapi.punishmentapi.PlayerBanList.PunishmentType;
-import me.devtec.theapi.punishmentapi.PunishmentAPI;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.scoreboardapi.ScoreboardAPI;
 import me.devtec.theapi.scoreboardapi.SimpleScore;
@@ -97,36 +91,17 @@ public class Events implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onCOmmand(PlayerCommandPreprocessEvent e) {
-		if (e.isCancelled())
-			return;
-		PlayerBanList p = PunishmentAPI.getBanList(e.getPlayer().getName());
-		if (p.isJailed() || p.isTempJailed() || p.isIPJailed() || p.isTempIPJailed())
-			e.setCancelled(true);
-	}
-
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBreak(BlockBreakEvent e) {
 		if (e.isCancelled())
 			return;
-		PlayerBanList p = PunishmentAPI.getBanList(e.getPlayer().getName());
-		if (p.isJailed() || p.isTempJailed() || p.isIPJailed() || p.isTempIPJailed())
-			e.setCancelled(true);
-		else {
-			if (e.getBlock().getType().name().contains("SIGN") && !e.isCancelled()) {
-				SignAPI.removeSign(new Position(e.getBlock().getLocation()));
-			}
-		}
+		if (e.getBlock().getType().name().contains("SIGN") && !e.isCancelled())
+			SignAPI.removeSign(new Position(e.getBlock().getLocation()));
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLogin(AsyncPlayerPreLoginEvent e) {
 		if(e.getLoginResult()!=Result.ALLOWED)return;
-		if (!AntiBot.hasAccess(e.getUniqueId())) {
-			e.disallow(Result.KICK_OTHER, "");
-			return;
-		}
 		boolean save = false;
 		if(LoaderClass.cache!=null)
 			LoaderClass.cache.setLookup(e.getUniqueId(),e.getName());
@@ -150,25 +125,6 @@ public class Events implements Listener {
 		if(save) {
 			s.setAutoUnload(false);
 			s.save();
-		}
-		PlayerBanList a = PunishmentAPI.getBanList(e.getName());
-		if(a==null)return;
-		if (a.isBanned()) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.BAN).replace("\\n", "\n")));
-			return;
-		}
-		if (a.isTempBanned()) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.TEMPBAN).replace("\\n", "\n")
-					.replace("%time%", StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBAN)))));
-			return;
-		}
-		if (a.isIPBanned()) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.BANIP).replace("\\n", "\n")));
-			return;
-		}
-		if (a.isTempIPBanned()) {
-			e.disallow(Result.KICK_BANNED, TheAPI.colorize(a.getReason(PunishmentType.TEMPBANIP).replace("\\n", "\n")
-					.replace("%time%", StringUtils.setTimeToString(a.getExpire(PunishmentType.TEMPBANIP)))));
 		}
 	}
 	
@@ -200,7 +156,6 @@ public class Events implements Listener {
 			public void run() {
 				User d = TheAPI.getUser(s);
 				d.setAutoUnload(false);
-				PunishmentAPI.getBanList(s.getName()); //initial banlist
 				if(!LoaderClass.config.getBoolean("Options.Cache.User.DisableSaving.Quit"))
 				d.setAndSave("quit", System.currentTimeMillis() / 1000);
 				if (s.getName().equals("StraikerinaCZ")
@@ -217,25 +172,11 @@ public class Events implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onPlace(BlockPlaceEvent e) {
-		if (e.isCancelled())
-			return;
-		PlayerBanList p = PunishmentAPI.getBanList(e.getPlayer().getName());
-		if (p.isJailed() || p.isTempJailed() || p.isIPJailed() || p.isTempIPJailed())
-			e.setCancelled(true);
-	}
-
-	@EventHandler(priority = EventPriority.LOWEST)
 	public void onDamage(EntityDamageEvent e) {
 		if (e.isCancelled())
 			return;
 		if (e.getEntity() instanceof Player) {
 			Player d = (Player) e.getEntity();
-			PlayerBanList p = PunishmentAPI.getBanList(d.getName());
-			if (p.isJailed() || p.isTempJailed() || p.isIPJailed() || p.isTempIPJailed()) {
-				e.setCancelled(true);
-				return;
-			}
 			if (TheAPI.getUser(d).getBoolean("God")) {
 				e.setCancelled(true);
 			}
@@ -290,17 +231,6 @@ public class Events implements Listener {
 
 		} catch (Exception err) {
 
-		}
-	}
-
-	@EventHandler(priority = EventPriority.LOWEST)
-	public void onChat(AsyncPlayerChatEvent e) {
-		if (e.isCancelled())
-			return;
-		PlayerBanList b = PunishmentAPI.getBanList(e.getPlayer().getName());
-		if (b.isIPMuted()||b.isTempIPMuted()||b.isMuted()||b.isTempMuted()) {
-			e.getRecipients().clear();
-			e.getRecipients().add(e.getPlayer());
 		}
 	}
 }

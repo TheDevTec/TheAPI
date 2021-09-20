@@ -61,6 +61,7 @@ import me.devtec.theapi.utils.theapiutils.Validator;
 import me.devtec.theapi.worldsapi.WorldBorderAPI;
 
 public class TheAPI {
+	private static PunishmentAPI punishmentAPI;
 	private static final HashMap<String, BossBar> bars = new HashMap<>();
 	private static final HashMap<String, Integer> task = new HashMap<>();
 	private static final HashMap<UUID, User> cache = new HashMap<>();
@@ -71,6 +72,14 @@ public class TheAPI {
 	
 	public static Cache getCache() {
 		return LoaderClass.cache;
+	}
+	
+	public static PunishmentAPI getPunishmentAPI() {
+		return punishmentAPI;
+	}
+	
+	public static void setPunishmentAPI(PunishmentAPI api) {
+		punishmentAPI=api;
 	}
 	
 	public static Client getSocketClient(String server) {
@@ -1121,27 +1130,6 @@ public class TheAPI {
 			return;
 		User u = cache.remove(player.getUniqueId());
 		if(u!=null)u.save();
-	}
-
-	public static List<UUID> getUsersByIP(String ip) {
-		List<UUID> uuid = new ArrayList<>();
-		for(String a : PunishmentAPI.getPlayersOnIP(ip))
-			uuid.add(getUser(a).getUUID());
-		return uuid;
-	}
-
-	// A bit of LastLoginAPI
-	public static User getLastLoggedUserByIP(String ip) {
-		User a = null;
-		long last = 0;
-		for (UUID s : getUsersByIP(ip)) {
-			long quit = new User(s).getLong("quit");
-			if (quit <= last) {
-				last = quit;
-				a = getUser(s);
-			}
-		}
-		return a;
 	}
 
 	public static void removeCachedUser(String nameOrUUID) {

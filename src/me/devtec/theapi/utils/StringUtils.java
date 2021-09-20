@@ -946,11 +946,11 @@ public class StringUtils {
 		if (fromString == null)
 			return 0.0D;
 		String a = fromString.replaceAll("[^+0-9E.,-]+", "").replace(",", ".");
-		if (isDouble(a)) {
+		try {
 			return Double.parseDouble(a);
-		} else {
-			return 0.0;
+		} catch (Exception e) {
 		}
+		return 0.0D;
 	}
 
 	/**
@@ -971,7 +971,14 @@ public class StringUtils {
 	 * @return long
 	 */
 	public static long getLong(String fromString) {
-		return (long) getFloat(fromString);
+		if (fromString == null)
+			return 0L;
+		String a = fromString.replaceAll("[^+0-9E.,-]+", "").replace(",", ".");
+		try {
+			return Long.parseLong(a);
+		} catch (Exception e) {
+		}
+		return 0L;
 	}
 
 	/**
@@ -992,7 +999,22 @@ public class StringUtils {
 	 * @return int
 	 */
 	public static int getInt(String fromString) {
-		return (int) (getDouble(fromString) == 0 ? getLong(fromString) : getDouble(fromString));
+		if (fromString == null)
+			return 0;
+		String a = fromString.replaceAll("[^+0-9E.,-]+", "").replace(",", ".");
+		try {
+			return Integer.parseInt(a);
+		} catch (Exception e) {
+		}
+		try {
+			return (int)Long.parseLong(a);
+		} catch (Exception e) {
+		}
+		try {
+			return (int)Double.parseDouble(a);
+		} catch (Exception e) {
+		}
+		return 0;
 	}
 
 	/**
@@ -1029,11 +1051,11 @@ public class StringUtils {
 		if (fromString == null)
 			return 0F;
 		String a = fromString.replaceAll("[^+0-9E.,-]+", "").replace(",", ".");
-		if (isFloat(a)) {
+		try {
 			return Float.parseFloat(a);
-		} else {
-			return 0;
+		} catch (Exception e) {
 		}
+		return 0;
 	}
 
 	/**
@@ -1057,11 +1079,11 @@ public class StringUtils {
 		if (fromString == null)
 			return (byte) 0;
 		String a = fromString.replaceAll("[^+0-9E-]+", "");
-		if (isByte(a)) {
+		try {
 			return Byte.parseByte(a);
-		} else {
-			return (byte) 0;
+		} catch (Exception e) {
 		}
+		return 0;
 	}
 
 	/**
@@ -1085,11 +1107,11 @@ public class StringUtils {
 		if (fromString == null)
 			return (short) 0;
 		String a = fromString.replaceAll("[^+0-9E-]+", "");
-		if (isShort(a)) {
+		try {
 			return Short.parseShort(a);
-		} else {
-			return (short) 0;
+		} catch (Exception e) {
 		}
+		return 0;
 	}
 
 	/**

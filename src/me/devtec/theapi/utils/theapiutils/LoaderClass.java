@@ -60,7 +60,6 @@ import me.devtec.theapi.scoreboardapi.SimpleScore;
 import me.devtec.theapi.sockets.Client;
 import me.devtec.theapi.sockets.Server;
 import me.devtec.theapi.sockets.ServerClient;
-import me.devtec.theapi.sqlapi.SQLAPI;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.SpigotUpdateChecker;
 import me.devtec.theapi.utils.StreamUtils;
@@ -98,8 +97,6 @@ public class LoaderClass extends JavaPlugin {
 	public static final Config sockets = new Config("TheAPI/Sockets.yml");
 	public static Config tags;
 	public static Config data;
-	public static final Config database=new Config("TheAPI/PunishmentAPI-Database.yml");
-	public static SQLAPI banlist;
 	public static Cache cache;
 	
 	public String motd;
@@ -193,35 +190,6 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &6Action: &eLoading plugin..", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
-
-		database.addDefault("Enabled", false);
-		database.addDefault("Host", "localhost");
-		database.addDefault("Database", "banlist");
-		database.addDefault("Username", "admin");
-		database.addDefault("Password", "admin");
-		database.save();
-		if(database.getBoolean("Enabled")) {
-			banlist=new SQLAPI(database.getString("Host"), database.getString("Database"), database.getString("Username"), database.getString("Password"));
-			banlist.connect();
-			if(banlist.isConnected()) {
-				banlist.createTable("ta_banlist_ips", "ip VARCHAR(64), type VARCHAR(32), time LONG(128), reason TEXT");
-				banlist.createTable("ta_banlist", "name VARCHAR(64), type VARCHAR(32), time LONG(128), reason TEXT");
-				new Tasker() {
-					public void run() {
-						banlist.reconnect();
-						if(!banlist.isConnected()) {
-							banlist=new SQLAPI(database.getString("Host"), database.getString("Database"), database.getString("Username"), database.getString("Password"));
-							banlist.connect();
-							if(!banlist.isConnected()) {
-								cancel();
-								banlist=null;
-							}
-						}
-					}
-				}.runRepeating(20*60*10, 20*60*10);
-			}else banlist=null;
-		}
-		
 		//SOCKETS
 		boolean ops = sockets.exists("Options");
 		sockets.addDefault("Options.Enabled", false);
@@ -968,10 +936,6 @@ public class LoaderClass extends JavaPlugin {
 		config.addDefault("Options.Cache.User.OfflineNames.AutoClear.OfflineTime", "1mon"); // Automatic clear cache after 1mon
 		config.addDefault("Options.Cache.User.OfflineNames.AutoClear.Period", "0"); // 0 means on startup or type time period
 		config.addDefault("Options.User-SavingType", new Node("YAML","", "# Saving type of User data", "# Types: YAML, JSON, BYTE", "# default: YAML"));
-		config.addDefault("Options.AntiBot.Use", new Node(false, "# If you enable this, TheAPI will set time between player can't connect to the server",
-						"# default: false"));
-		config.setComments("Options.AntiBot", Collections.singletonList(""));
-		config.addDefault("Options.AntiBot.TimeBetweenPlayer", new Node(10,"# Time between player can't connect to the server", "# default: 10")); // 10 milis
 		config.addDefault("Options.FakeEconomyAPI.Symbol", new Node("$", "# Economy symbol of FakeEconomyAPI", "# default: $"));
 		config.setComments("Options.FakeEconomyAPI", Collections.singletonList(""));
 		config.addDefault("Options.FakeEconomyAPI.Format", new Node("$%money%", "# Economy format of FakeEconomyAPI", "# default: $%money%"));
