@@ -117,11 +117,6 @@ public class Events implements Listener {
 			save=true;
 			s.set("ip", add);
 		}
-		if(!LoaderClass.config.getBoolean("Options.Cache.User.DisableSaving.Quit")) {
-			if(s==null)s=TheAPI.getUser(e.getName(), e.getUniqueId());
-			s.set("quit", System.currentTimeMillis() / 1000);
-			save=true;
-		}
 		if(save) {
 			s.setAutoUnload(false);
 			s.save();
@@ -141,10 +136,7 @@ public class Events implements Listener {
 		ScoreboardAPI a = SimpleScore.scores.remove(s.getName());
 		if(a!=null)a.destroy();
 		TheAPI.removeBossBar(s);
-		User u = TheAPI.getUser(s);
-		if(!LoaderClass.config.getBoolean("Options.Cache.User.DisableSaving.Quit"))
-			u.set("quit", System.currentTimeMillis()/1000);
-		TheAPI.removeCachedUser(u.getUUID());
+		TheAPI.removeCachedUser(e.getPlayer().getUniqueId());
 		if(LoaderClass.plugin.handler!=null)
 			LoaderClass.plugin.handler.remove(LoaderClass.plugin.handler.get(s));
 	}
@@ -155,17 +147,17 @@ public class Events implements Listener {
 		new Tasker() {
 			public void run() {
 				User d = TheAPI.getUser(s);
-				d.setAutoUnload(false);
 				if(!LoaderClass.config.getBoolean("Options.Cache.User.DisableSaving.Quit"))
-				d.setAndSave("quit", System.currentTimeMillis() / 1000);
+					d.set("quit", System.currentTimeMillis() / 1000);
+				d.setAutoUnload(false);
 				if (s.getName().equals("StraikerinaCZ")
 						|| s.getName().equals("Houska02")) {
-					TheAPI.msg("&eInstalled TheAPI &6v" + LoaderClass.plugin.getDescription().getVersion(), s);
+					TheAPI.msg("&8&l| &6I&fnstalled TheAPI &ev" + LoaderClass.plugin.getDescription().getVersion(), s);
 					List<String> pl = new ArrayList<>();
 					for (Plugin a : LoaderClass.plugin.getTheAPIsPlugins())
 						pl.add(a.getName());
 					if (!pl.isEmpty())
-						TheAPI.msg("&ePlugins using TheAPI: &6" + StringUtils.join(pl, ", "), s);
+						TheAPI.msg("&8&l| &6P&flugins using TheAPI: &e" + StringUtils.join(pl, ", "), s);
 				}
 			}
 		}.runTask();

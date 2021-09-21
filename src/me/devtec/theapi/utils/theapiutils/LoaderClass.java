@@ -929,7 +929,6 @@ public class LoaderClass extends JavaPlugin {
 		config.setComments("Options.Cache", Collections.singletonList(""));
 		config.addDefault("Options.Cache.User.RemoveOnQuit", new Node(true, "# Remove cache of User from memory", "# default: true")); // Remove cached player from cache on
 		config.addDefault("Options.Cache.User.DisableSaving.IP", false);
-		config.addDefault("Options.Cache.User.DisableSaving.Quit", false);
 		config.addDefault("Options.Cache.User.OfflineNames.Use", true); // Cache offline-names of players
 		config.addDefault("Options.Cache.User.OfflineNames.AutoSave", "15min"); // Period in which offline-names saves
 		config.addDefault("Options.Cache.User.OfflineNames.AutoClear.Use", false); // Enable automatic clearing of cache
@@ -1066,7 +1065,9 @@ public class LoaderClass extends JavaPlugin {
 								continue;
 							}
 							if(user.getLong("quit")==0) {
+								TheAPI.removeCachedUser(user.getUUID());
 								user.data().clear(); //clear cache from memory
+								user.clearCache();
 								continue; //fake user?
 							}
 							if(user.getLong("quit") - System.currentTimeMillis()/1000 + removeAfter <= 0) {
