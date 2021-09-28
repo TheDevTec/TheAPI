@@ -494,15 +494,14 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		isSaving=true;
 		requireSave=false;
 		try {
-			new Thread(() -> {
-				try {
-					OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
-					w.write(toString(type));
-					w.close();
-				} catch (Exception e1) {
-				}
-				isSaving=false;
-			}).start();
+			try {
+				OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
+				w.write(toString(type));
+				w.close();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			isSaving=false;
 		} catch (Exception e1) {
 		}
 		return this;

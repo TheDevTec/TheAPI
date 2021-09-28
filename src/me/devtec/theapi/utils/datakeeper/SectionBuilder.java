@@ -52,6 +52,8 @@ public class SectionBuilder {
 			if(e.getKey().indexOf('.') > -1) {
 				String[] split = split(e.getKey());
 				SectionHolder holder = secs.get(split[0]);
+				if(holder==null)
+					secs.put(split[0], holder=new SectionHolder(split[0]));
 				//DEEP FIND SECTION
 				for(int i = 1; i < split.length; ++i) {
 					SectionHolder f = holder.find(split[i]);
@@ -84,7 +86,7 @@ public class SectionBuilder {
 	public synchronized void start(SectionHolder section, StringBuilder b) {
 		StringBuilder bab = new StringBuilder(section.name.length()+section.space.length()+2);
 		bab.append(section.space);
-		String split = section.name.substring(0, section.name.length()-1);
+		String split = section.name;
 		if(split.length()==1) { //char
 			bab.append('"').append(split).append('"').append(':');
 		}else
@@ -178,9 +180,10 @@ public class SectionBuilder {
 				}
 			}
 		}
+		}catch(Exception err) {err.printStackTrace();}
+		if(section.holders!=null)
 		for (SectionHolder d : section.holders)
 			start(d, b);
-		}catch(Exception err) {}
 	}
 
 	protected synchronized void addQuotesSplit(StringBuilder b, CharSequence split, String aw) {

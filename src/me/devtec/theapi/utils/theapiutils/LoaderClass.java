@@ -37,6 +37,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.google.common.collect.Lists;
+
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.apis.MemoryAPI;
@@ -771,11 +773,7 @@ public class LoaderClass extends JavaPlugin {
 		
 		//Placeholders
 		main.unregister();
-		
-		//Users
-		for(User u : TheAPI.getCachedUsers())
-			u.save();
-		TheAPI.clearCache();
+		timeUtils.unregister();
 		
 		//Bans
 		data.save();
@@ -813,6 +811,12 @@ public class LoaderClass extends JavaPlugin {
 			data.setFile(f);
 			data.save(DataType.YAML);
 		}
+		
+		//Users
+		for(User u : TheAPI.getCachedUsers())
+			u.save();
+		
+		TheAPI.clearCache();
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &6Action: &eDisabling plugin, saving configs and stopping runnables..", TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
@@ -1014,13 +1018,13 @@ public class LoaderClass extends JavaPlugin {
 		if(years.isEmpty())
 			years.addAll(Arrays.asList("=,1,year",">,1,years"));
 		
-		StringUtils.sec=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
-		StringUtils.min=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Minutes.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
-		StringUtils.hour=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Hours.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
-		StringUtils.day=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Days.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
-		StringUtils.week=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Weeks.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
-		StringUtils.mon=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Months.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
-		StringUtils.year=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(LoaderClass.config.getStringList("Options.TimeConvertor.Years.Lookup"), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.sec=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.min=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(LoaderClass.config.getStringList("Options.TimeConvertor.Minutes.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.hour=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(LoaderClass.config.getStringList("Options.TimeConvertor.Hours.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.day=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(LoaderClass.config.getStringList("Options.TimeConvertor.Days.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.week=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(LoaderClass.config.getStringList("Options.TimeConvertor.Weeks.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.mon=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(LoaderClass.config.getStringList("Options.TimeConvertor.Months.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
+		StringUtils.year=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(LoaderClass.config.getStringList("Options.TimeConvertor.Years.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
 		
 		if(config.getBoolean("Options.Cache.User.OfflineNames.Use")) {
 			if(cache==null) {
@@ -1097,6 +1101,7 @@ public class LoaderClass extends JavaPlugin {
 										++removed;
 										continue;
 									}
+									if(removeAfter==0)continue;
 									if(user.getLong("quit")==0) {
 										user.data().clear(); //clear cache from memory
 										continue; //fake user?
@@ -1123,7 +1128,7 @@ public class LoaderClass extends JavaPlugin {
 		motd = Bukkit.getMotd();
 	}
 
-	private static ThePlaceholder main;
+	private static ThePlaceholder main, timeUtils;
 
 	public void loadPlaceholders() {
 		main = new ThePlaceholder("TheAPI") {
@@ -1142,7 +1147,7 @@ public class LoaderClass extends JavaPlugin {
 						return player.getDisplayName();
 					if (placeholder.equalsIgnoreCase("player_customname"))
 						return player.getCustomName();
-					if (placeholder.equalsIgnoreCase("player_name"))
+					if (placeholder.equalsIgnoreCase("player_name")||placeholder.equalsIgnoreCase("player"))
 						return player.getName();
 					if (placeholder.equalsIgnoreCase("player_gamemode"))
 						return player.getGameMode().name();
@@ -1214,6 +1219,23 @@ public class LoaderClass extends JavaPlugin {
 				return null;
 			}
 		};
+		timeUtils = new ThePlaceholder("TheAPI_TimeUtils") {
+			Pattern fromTime = Pattern.compile("fromTime:\\{(.*?)\\}"),  toTime = Pattern.compile("toTime:\\{(.*?)\\}");
+			public String onRequest(Player player, String placeholder) {
+				if (placeholder.startsWith("fromTime:{")) {
+					Matcher m = fromTime.matcher(placeholder);
+					if(m.find())
+						return ""+StringUtils.timeFromString(m.group(1));
+				}
+				if (placeholder.startsWith("toTime:{")) {
+					Matcher m = toTime.matcher(placeholder);
+					if(m.find())
+						return StringUtils.timeToString((long)StringUtils.calculate(m.group(1)));
+				}
+				return null;
+			}
+		};
+		timeUtils.register();
 		main.register();
 	}
 

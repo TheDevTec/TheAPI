@@ -1,8 +1,10 @@
 package me.devtec.theapi.utils.theapiutils.command;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.User;
 
@@ -39,10 +41,14 @@ public class TAC_User {
 
 		if (args[2].equalsIgnoreCase("reload")) {
 			if (args[1].equals("*")) {
-				TheAPI.msg("&eReloading cached users..", s);
-				for (User u : TheAPI.getCachedUsers())
-					u.getData().reload(u.getData().getFile());
-				TheAPI.msg("&eReload of cached users finished.", s);
+				TheAPI.msg("&eReloading cached users from async thread..", s);
+				new Tasker() {
+					public void run() {
+						for (User u : TheAPI.getCachedUsers())
+							u.getData().reload(u.getData().getFile());
+						TheAPI.msg("&eReload of cached users finished.", s);
+					}
+				}.runTask();
 				return;
 			}
 			TheAPI.msg("&eReloading user &6" + args[1] + "&e..", s);
@@ -53,10 +59,14 @@ public class TAC_User {
 
 		if (args[2].equalsIgnoreCase("save")) {
 			if (args[1].equals("*")) {
-				TheAPI.msg("&eSaving cached users..", s);
-				for (User u : TheAPI.getCachedUsers())
-					u.save();
-				TheAPI.msg("&eSave of cached users finished.", s);
+				TheAPI.msg("&eSaving cached users from async thread..", s);
+				new Tasker() {
+					public void run() {
+						for (User u : TheAPI.getCachedUsers())
+							u.save();
+						TheAPI.msg("&eSave of cached users finished.", s);
+					}
+				}.runTask();
 				return;
 			}
 			TheAPI.msg("&eSaving user &6" + args[1] + "&e..", s);
@@ -97,6 +107,7 @@ public class TAC_User {
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Remove <key>", s);
 			else {
 				TheAPI.getUser(args[1]).remove(args[3]);
+				if(s instanceof Player)
 				TheAPI.msg("&eRemoved path " + args[3] + " from user data of " + args[1], s);
 			}
 			return;
@@ -111,6 +122,7 @@ public class TAC_User {
 				TheAPI.msg("&e/TheAPI User <NAME/UUID> Set <key> <value>", s);
 			else {
 				TheAPI.getUser(args[1]).set(args[3], StringUtils.buildString(4, args));
+				if(s instanceof Player)
 				TheAPI.msg("&eTo user data of &6" + args[1] + " &eset value &6" + args[3] + " &eto &6" + args[4], s);
 			}
 			return;

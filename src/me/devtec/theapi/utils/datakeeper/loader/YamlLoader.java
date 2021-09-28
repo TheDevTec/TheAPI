@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,8 +19,7 @@ import java.util.regex.Pattern;
 import me.devtec.theapi.utils.json.Json;
 
 public class YamlLoader extends DataLoader {
-	private static final Pattern pattern = Pattern.compile("[ ]*(['\"][^'\"]+['\"]|[^\"']?\\w+[^\"']?|.*?):[ ]*(.*)"),
-			fixedSplitter=Pattern.compile("^\"(.*)(\"([ ]*#?.*?))$|^'(.*)('([ ]*#?.*?))$|(.*)");
+	private static final Pattern pattern = Pattern.compile("([ ]*)(['\\\"][^'\\\"]+['\\\"]|[^\\\"']?\\\\w+[^\\\"']?|.*?):[ ]*(.*)");
 	private final Map<String, Object[]> data = new LinkedHashMap<>();
 	private List<String> header = new LinkedList<>(), footer = new LinkedList<>();
 	private boolean l;
@@ -58,82 +58,57 @@ public class YamlLoader extends DataLoader {
 	public void load(File file) {
 		reset();
 		try {
-			BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8), 8192);
-			LinkedList<Object> items = new LinkedList<>();
-			LinkedList<String> lines = new LinkedList<>();
 			String key = "";
-			StringBuilder v = null;
-			int last = 0, f = 0, c = 0;
-			String text;
-			while((text=r.readLine())!=null) {
-				String h = text.trim();
-				if (h.isEmpty()||h.startsWith("#")) {
-					if (!items.isEmpty()) {
-						set(key, items, lines);
-						items = new LinkedList<>();
-					}
-					if (c != 0) {
-						if (c == 1) {
-							String object = v.toString();
-							Matcher m = fixedSplitter.matcher(object);
-							if(m.find())
-							object=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
-							if(object==null)object="";
-							set(key, object, lines);
-							v = null;
-						} else {
-							set(key, items, lines);
-							items = new LinkedList<>();
+			int last = 0;
+			BuilderType type = null;
+			List<Object> items=null;
+			StringBuilder builder=null;
+			boolean wasEmpty = false;
+			LinkedList<String> comments = new LinkedList<>();
+			
+			BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8), 8192);
+			String line;
+			while((line=r.readLine())!=null) {
+				String trim = line.trim();
+				if(trim.isEmpty()||trim.startsWith("#")) {
+					comments.add(line.substring(removeSpaces(line)));
+					continue;
+				}
+
+				String e = line.substring(removeSpaces(line));
+				if(wasEmpty && e.startsWith("- ")) {
+					if(items==null)items=new LinkedList<>();
+					items.add(Json.reader().read(r(e.substring(2))));
+					continue;
+				}
+				
+				Matcher match = pattern.matcher(line);
+				if(match.find()) {
+					if(type!=null) {
+						if(type==BuilderType.LIST) {
+							data.put(key, new Object[] {new LinkedList<>(items), comments.isEmpty()?null:new LinkedList<>(comments)});
+							comments.clear();
+							items=null;
+						}else {
+							data.put(key, new Object[] {builder.toString(), comments.isEmpty()?null:new LinkedList<>(comments)});
+							comments.clear();
+							builder=null;
 						}
-						c = 0;
+						type=null;
+					}else {
+						if(items!=null) {
+							data.put(key, new Object[] {new LinkedList<>(items), comments.isEmpty()?null:new LinkedList<>(comments)});
+							comments.clear();
+							items=null;
+						}
 					}
-					if (f == 0) {
-						header.add(text.substring(c(text)));
-					} else {
-						lines.add(text.substring(c(text)));
-					}
-					continue;
-				}
-				Matcher sec = pattern.matcher(text);
-				boolean find = sec.find();
-				if (c != 0 && find) {
-					if (c == 1) {
-						String object = v.toString();
-						Matcher m = fixedSplitter.matcher(object);
-						if(m.find())
-						object=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
-						if(object==null)object="";
-						set(key, object, lines, object);
-						v = null;
-					}
-					if (c == 2) {
-						set(key, items, lines);
-						items = new LinkedList<>();
-					}
-					c = 0;
-				}
-				if (c == 2 || text.substring(c(text)).startsWith("- ") && !key.isEmpty()) {
-					String object = c != 2 ? text.substring(c(text)+2)
-							: text.substring(c(text));
-					Matcher m = fixedSplitter.matcher(object);
-					if(m.find())
-					object=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
-					if(object==null)object="";
-					items.add(object);
-					continue;
-				}
-				if (find) {
-					if (!items.isEmpty()) {
-						set(key, items, lines);
-						items = new LinkedList<>();
-					}
-					int sub = c(text);
-					if (c == 1) {
-						v.append(text.substring(sub));
-						continue;
-					}
+					
+					int sub = match.group(1).length();
+					String keyr = r(match.group(2));
+					String value = match.group(3);
+					
 					if (sub <= last) {
-						if (!text.startsWith(" "))
+						if (sub==0)
 							key = "";
 						if (sub == last) {
 							String[] ff = split(key);
@@ -152,64 +127,57 @@ public class YamlLoader extends DataLoader {
 							}
 						}
 					}
-					String split = sec.group(1);
-					Matcher m = fixedSplitter.matcher(split);
-					if(m.find())
-						split=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
-					if(split==null)split="";
-					String object;
-					String fix = null;
-					try {
-						object = sec.group(2);
-						fix = object.trim();
-						m=m.reset(object);
-						if(m.find())
-							object=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
-					} catch (Exception er) {
-						object="";
+					
+					last=sub;
+					if(!key.isEmpty())key+=".";
+					key += keyr;
+
+					boolean before = wasEmpty;
+					if(before)comments.clear();
+					if(wasEmpty=value.trim().isEmpty())
+						continue;
+					
+					value=r(value);
+					
+					if (value.equals("|")) {
+						type=BuilderType.STRING;
+						builder=new StringBuilder();
+						continue;
 					}
-					if(!key.equals(""))key+=".";
-					key += split;
-					f = 1;
-					last = sub;
-					if (fix != null) {
-						if (!fix.isEmpty()) {
-							if (fix.equals("|")) {
-								c = 1;
-								if(v==null)
-								v = new StringBuilder();
-								else v=v.delete(0, v.length());
-								continue;
-							}
-							if (fix.equals("|-")) {
-								c = 2;
-								if(v==null)
-								v = new StringBuilder();
-								else v=v.delete(0, v.length());
-								continue;
-							}
-							if (fix.equals("[]")) {
-								set(key, new ArrayList<>(), lines);
-								continue;
-							}
-							set(key, object, lines, object);
-						} else if (!lines.isEmpty())
-							set(key, null, lines);
+					if (value.equals("|-")) {
+						type=BuilderType.LIST;
+						items=new LinkedList<>();
+						continue;
+					}
+					if (value.equals("[]")) {
+						data.put(key, new Object[] {Collections.EMPTY_LIST, comments.isEmpty()?null:new LinkedList<>(comments)});
+						comments.clear();
+						continue;
+					}
+					data.put(key, new Object[] {Json.reader().read(value), comments.isEmpty()?null:new LinkedList<>(comments)});
+					comments.clear();
+				}else {
+					if(type!=null) {
+						if(type==BuilderType.LIST) {
+							items.add(Json.reader().read(r(line.substring(removeSpaces(line)))));
+						}else {
+							builder.append(line.substring(removeSpaces(line)));
+						}
 					}
 				}
 			}
-			r.close();
-			if (!items.isEmpty() || c == 2) {
-				set(key, items, lines);
-			} else if (c == 1) {
-				set(key, Json.reader().read(v.toString()), lines, v.toString());
-			} else if (!lines.isEmpty()) {
-				if(data.isEmpty())header=lines;
-				else
-				footer = lines;
-			}
+			if(type!=null) {
+				if(type==BuilderType.LIST) {
+					data.put(key, new Object[] {items, comments.isEmpty()?null:comments});
+				}else {
+					data.put(key, new Object[] {builder.toString(), comments.isEmpty()?null:comments});
+				}
+			}else if(items!=null)
+				data.put(key, new Object[] {items, comments.isEmpty()?null:comments});
 			l = true;
+			r.close();
 		} catch (Exception e) {
+			e.printStackTrace();
 			reset();
 		}
 	}
@@ -218,171 +186,128 @@ public class YamlLoader extends DataLoader {
 	public void load(String input) {
 		reset();
 		try {
-			LinkedList<Object> items = new LinkedList<>();
-			LinkedList<String> lines = new LinkedList<>();
 			String key = "";
-			StringBuilder v = null;
-			int last = 0, f = 0, c = 0;
-			if (!input.equals(""))
-				for (String text : input.split(System.lineSeparator())) {
-					String h = text.trim();
-					if (h.isEmpty()||h.startsWith("#")) {
-						if (!items.isEmpty()) {
-							set(key, items, lines);
-							items = new LinkedList<>();
+			int last = 0;
+			BuilderType type = null;
+			List<Object> items=null;
+			StringBuilder builder=null;
+			boolean wasEmpty = false;
+			LinkedList<String> comments = new LinkedList<>();
+			
+			for(String line : input.split(System.lineSeparator())) {
+				String trim = line.trim();
+				if(trim.isEmpty()||trim.startsWith("#")) {
+					comments.add(line.substring(removeSpaces(line)));
+					continue;
+				}
+
+				String e = line.substring(removeSpaces(line));
+				if(wasEmpty && e.startsWith("- ")) {
+					if(items==null)items=new LinkedList<>();
+					items.add(Json.reader().read(r(e.substring(2))));
+					continue;
+				}
+				
+				Matcher match = pattern.matcher(line);
+				if(match.find()) {
+					if(type!=null) {
+						if(type==BuilderType.LIST) {
+							data.put(key, new Object[] {new LinkedList<>(items), comments.isEmpty()?null:new LinkedList<>(comments)});
+							comments.clear();
+							items=null;
+						}else {
+							data.put(key, new Object[] {builder.toString(), comments.isEmpty()?null:new LinkedList<>(comments)});
+							comments.clear();
+							builder=null;
 						}
-						if (c != 0) {
-							if (c == 1) {
-								String object = v.toString();
-								Matcher m = fixedSplitter.matcher(object);
-								if(m.find())
-								object=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
-								if(object==null)object="";
-								set(key, object, lines);
-								v = null;
-							} else {
-								set(key, items, lines);
-								items = new LinkedList<>();
-							}
-							c = 0;
+						type=null;
+					}else {
+						if(items!=null) {
+							data.put(key, new Object[] {new LinkedList<>(items), comments.isEmpty()?null:new LinkedList<>(comments)});
+							comments.clear();
+							items=null;
 						}
-						if (f == 0) {
-							header.add(text.substring(c(text)));
+					}
+					
+					int sub = match.group(1).length();
+					String keyr = r(match.group(2));
+					String value = match.group(3);
+					
+					if (sub <= last) {
+						if (sub==0)
+							key = "";
+						if (sub == last) {
+							String[] ff = split(key);
+							String lastr = ff[ff.length - 1] + 1;
+							int remove = key.length() - lastr.length();
+							if (remove > 0)
+								key = key.substring(0, remove);
 						} else {
-							lines.add(text.substring(c(text)));
-						}
-						continue;
-					}
-					Matcher sec = pattern.matcher(text);
-					boolean find = sec.find();
-					if (c != 0 && find) {
-						if (c == 1) {
-							String object = v.toString();
-							Matcher m = fixedSplitter.matcher(object);
-							if(m.find())
-							object=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
-							if(object==null)object="";
-							set(key, object, lines, object);
-							v = null;
-						}
-						if (c == 2) {
-							set(key, items, lines);
-							items = new LinkedList<>();
-						}
-						c = 0;
-					}
-					if (c == 2 || text.substring(c(text)).startsWith("- ") && !key.isEmpty()) {
-						String object = c != 2 ? text.substring(c(text)+2)
-								: text.substring(c(text));
-						Matcher m = fixedSplitter.matcher(object);
-						if(m.find())
-						object=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
-						if(object==null)object="";
-						items.add(object);
-						continue;
-					}
-					if (find) {
-						if (!items.isEmpty()) {
-							set(key, items, lines);
-							items = new LinkedList<>();
-						}
-						int sub = c(text);
-						if (c == 1) {
-							v.append(text.substring(sub));
-							continue;
-						}
-						if (sub <= last) {
-							if (!text.startsWith(" "))
-								key = "";
-							if (sub == last) {
+							for (int i = 0; i < Math.abs(last - sub) / 2 + 1; ++i) {
 								String[] ff = split(key);
 								String lastr = ff[ff.length - 1] + 1;
 								int remove = key.length() - lastr.length();
-								if (remove > 0)
-									key = key.substring(0, remove);
-							} else {
-								for (int i = 0; i < Math.abs(last - sub) / 2 + 1; ++i) {
-									String[] ff = split(key);
-									String lastr = ff[ff.length - 1] + 1;
-									int remove = key.length() - lastr.length();
-									if (remove < 0)
-										break;
-									key = key.substring(0, remove);
-								}
+								if (remove < 0)
+									break;
+								key = key.substring(0, remove);
 							}
 						}
-						String split = sec.group(1);
-						Matcher m = fixedSplitter.matcher(split);
-						if(m.find())
-							split=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
-						if(split==null)split="";
-						String object;
-						String fix = null;
-						try {
-							object = sec.group(2);
-							fix = object.trim();
-							m=m.reset(object);
-							if(m.find())
-								object=m.group(1)==null?(m.group(4)==null?m.group(7):m.group(4)):m.group(1);
-						} catch (Exception er) {
-							object="";
-						}
-						if(!key.equals(""))key+=".";
-						key += split;
-						f = 1;
-						last = sub;
-						if (fix != null) {
-							if (!fix.isEmpty()) {
-								if (fix.equals("|")) {
-									c = 1;
-									if(v==null)
-									v = new StringBuilder();
-									else v=v.delete(0, v.length());
-									continue;
-								}
-								if (fix.equals("|-")) {
-									c = 2;
-									if(v==null)
-									v = new StringBuilder();
-									else v=v.delete(0, v.length());
-									continue;
-								}
-								if (fix.equals("[]")) {
-									set(key, new ArrayList<>(), lines);
-									continue;
-								}
-								set(key, object, lines, object);
-							} else if (!lines.isEmpty())
-								set(key, null, lines);
+					}
+					
+					last=sub;
+					if(!key.isEmpty())key+=".";
+					key += keyr;
+
+					boolean before = wasEmpty;
+					if(before)comments.clear();
+					if(wasEmpty=value.trim().isEmpty())
+						continue;
+					
+					value=r(value);
+					
+					if (value.equals("|")) {
+						type=BuilderType.STRING;
+						builder=new StringBuilder();
+						continue;
+					}
+					if (value.equals("|-")) {
+						type=BuilderType.LIST;
+						items=new LinkedList<>();
+						continue;
+					}
+					if (value.equals("[]")) {
+						data.put(key, new Object[] {Collections.EMPTY_LIST, comments.isEmpty()?null:new LinkedList<>(comments)});
+						comments.clear();
+						continue;
+					}
+					data.put(key, new Object[] {Json.reader().read(value), comments.isEmpty()?null:new LinkedList<>(comments)});
+					comments.clear();
+				}else {
+					if(type!=null) {
+						if(type==BuilderType.LIST) {
+							items.add(Json.reader().read(r(line.substring(removeSpaces(line)))));
+						}else {
+							builder.append(line.substring(removeSpaces(line)));
 						}
 					}
 				}
-			if (!items.isEmpty() || c == 2) {
-				set(key, items, lines);
-			} else if (c == 1) {
-				set(key, Json.reader().read(v.toString()), lines, v.toString());
-			} else if (!lines.isEmpty()) {
-				if(data.isEmpty())header=lines;
-				else
-				footer = lines;
 			}
+			if(type!=null) {
+				if(type==BuilderType.LIST) {
+					data.put(key, new Object[] {items, comments.isEmpty()?null:comments});
+				}else {
+					data.put(key, new Object[] {builder.toString(), comments.isEmpty()?null:comments});
+				}
+			}else if(items!=null)
+				data.put(key, new Object[] {items, comments.isEmpty()?null:comments});
 			l = true;
 		} catch (Exception er) {
 			l = false;
 		}
 	}
-
-	private static String[] split(String text) {
-        int off = 0, next = 0;
-        ArrayList<String> list = new ArrayList<>();
-        while ((next = text.indexOf('.', off)) != -1) {
-            list.add(text.substring(off, next));
-            off = next + 1;
-        }
-        if (off == 0)
-            return new String[] {text};
-        list.add(text.substring(off, text.length()));
-        return list.toArray(new String[list.size()]);
+	
+	public enum BuilderType {
+		STRING, LIST
 	}
 
 	@Override
@@ -395,7 +320,7 @@ public class YamlLoader extends DataLoader {
 		return footer;
 	}
 
-	private int c(String s) {
+	private static int removeSpaces(String s) {
 		int i = 0;
 		for(int d = 0; d < s.length(); ++d) {
 			if(s.charAt(d)==' ') {
@@ -404,28 +329,34 @@ public class YamlLoader extends DataLoader {
 		}
 		return i;
 	}
-
-	private void set(String key, Object o, LinkedList<String> lines) {
-		if(key==null)return;
-		Object[] s = data.get(key);
-		if (s!=null) {
-			s[0]=o;
-		} else
-			set(key, new Object[] {o, lines.isEmpty()?null:new LinkedList<>(lines), null});
-		lines.clear();
+	
+	private static String[] split(String text) {
+        int off = 0, next = text.indexOf('.', off);
+        if(next==-1)
+            return new String[] {text};
+        ArrayList<String> list = new ArrayList<>();
+        while (next != -1) {
+            list.add(text.substring(off, next));
+            off = next + 1;
+            next = text.indexOf('.', off);
+        }
+        list.add(text.substring(off, text.length()));
+        return list.toArray(new String[list.size()]);
 	}
 
-	private void set(String key, Object o, LinkedList<String> lines, String original) {
-		if(key==null)return;
-		Object[] s = data.get(key);
-		if(o instanceof String) {
-			o= Json.reader().read((String)o);
+	private static String r(String key) {
+		String k = key.trim();
+		return k.length() > 1 && (k.startsWith("\"") && k.endsWith("\"")||k.startsWith("'") && k.endsWith("'"))?key.substring(1, key.length()-1-removeLastSpaces(key)):key;
+	}
+
+	private static int removeLastSpaces(String s) {
+		int i = 0;
+		for(int d = s.length()-1; d > 0; --d) {
+			if(s.charAt(d)==' ') {
+				++i;
+			}else break;
 		}
-		if (s!=null) {
-			s[0]=o;
-		} else
-			set(key, new Object[] {o, lines.isEmpty()?null:new LinkedList<>(lines), original, 1});
-		lines.clear();
+		return i;
 	}
 
 	@Override

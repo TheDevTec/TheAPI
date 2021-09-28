@@ -452,6 +452,8 @@ public class Position implements Cloneable {
 		if (wf <= 7)
 			setOld(pos, mat.getBlock(), mat.getData());
 		else
+			if(TheAPI.isNewerThan(16))set(pos, mat.getIBlockData());
+			else
 			set(pos, wf >= 9, wf >= 14, mat.getIBlockData());
 		return pos.getChunkKey();
 	}
@@ -487,6 +489,8 @@ public class Position implements Cloneable {
 		if (wf <= 7)
 			setOld(this, 0,0);
 		else
+			if(TheAPI.isNewerThan(16))set(this, air);
+			else
 			set(this, wf >= 9, wf >= 14, air);
 		return getChunkKey();
 	}
@@ -562,11 +566,15 @@ public class Position implements Cloneable {
 	
 	public static void setBlockData(Position pos, BlockData data) {
 		if(data==null||!TheAPI.isNewVersion() || pos == null)return;
+		if(TheAPI.isNewerThan(16))set(pos, Ref.invoke(data,"getState"));
+		else
 		set(pos, true, wf >= 14, Ref.invoke(data,"getState"));
 	}
 	
 	public static void setState(Position pos, BlockState state) {
 		if(state==null || pos == null)return;
+		if(TheAPI.isNewerThan(16))set(pos, Ref.invoke(Ref.invokeNulled(getBlock, state.getType()),fromLegacyData,(int)state.getRawData()));
+		else
 		set(pos, true, wf >= 14, Ref.invoke(Ref.invokeNulled(getBlock, state.getType()),fromLegacyData,(int)state.getRawData()));
 	}
 	
@@ -628,6 +636,51 @@ public class Position implements Cloneable {
 		setup(ww,p,cr,tt);
 	}
 	
+	static Method getY = Ref.method(Ref.nmsOrOld("world.level.LevelHeightAccessor", "LevelHeightAccessor"), "getSectionIndex", int.class);
+	
+	/**
+	 * 
+	 * @param pos   Location
+	 * @param palet Is server version newer than 1.8? 1.9+
+	 * @param neww  Is server version newer than 1.13? 1.14+
+	 */
+	@SuppressWarnings("unchecked")
+	public static synchronized void set(Position pos, Object cr) { // 1.17+
+		if(pos==null||cr==null)return;
+		Object c = pos.getNMSChunk();
+		int y = pos.getBlockY();
+		
+		int fixedY = (int) Ref.invoke(c, getY, y);
+		//CHECK IF CHUNKSECTION EXISTS
+		Object sc = ((Object[]) Ref.invoke(c, get))[fixedY];
+		if (sc == null) {
+			//CREATE NEW CHUNKSECTION
+			sc = Ref.newInstance(aw, y >> 4 << 4);
+			((Object[]) Ref.invoke(c, get))[fixedY] = sc;
+		}
+		
+		Object p = pos.getBlockPosition();
+		Object ww = Ref.world(pos.getWorld());
+		//REMOVE TILE ENTITY FROM CHUNK
+		((Map<?,?>)Ref.get(c, ff)).remove(p);
+		
+		//CHANGE BLOCK IN CHUNKSECTION (PALLETE)
+		if(ii==0)
+			Ref.invoke(sc, a, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr, true);
+		else
+			Ref.invoke(sc, a, pos.getBlockX() & 0xF, y & 0xF, pos.getBlockZ() & 0xF, cr);
+		//ADD TILE ENTITY
+		Object tt = cr.getClass().isAssignableFrom(b)?cr:Ref.invoke(cr, bgetBlock);
+		if(cont.isInstance(tt)) {
+		if(ver!=-1)
+			tt=ver==0?Ref.invoke(tt, tile, ww):Ref.invoke(tt, tile, ww, 0);
+		else
+			tt=Ref.invoke(tt, tile, ww, 0);
+			((Map<Object, Object>)Ref.get(c, ff)).put(p, tt);
+		}
+		setup(ww,p,cr,tt);
+	}
+		
 	private static void setup(Object ww, Object p, Object cr, Object tt) {
 		Ref.set(tt, "world", ww);
 		Ref.set(tt, "position", p);

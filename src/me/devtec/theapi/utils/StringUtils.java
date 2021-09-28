@@ -948,7 +948,7 @@ public class StringUtils {
 		String a = fromString.replaceAll("[^+0-9E.,-]+", "").replace(",", ".");
 		try {
 			return Double.parseDouble(a);
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
 		}
 		return 0.0D;
 	}
@@ -961,7 +961,7 @@ public class StringUtils {
 		try {
 			Double.parseDouble(fromString);
 			return true;
-		} catch (Exception err) {
+		} catch (NumberFormatException e) {
 			return false;
 		}
 	}
@@ -976,7 +976,7 @@ public class StringUtils {
 		String a = fromString.replaceAll("[^+0-9E.,-]+", "").replace(",", ".");
 		try {
 			return Long.parseLong(a);
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
 		}
 		return 0L;
 	}
@@ -988,7 +988,7 @@ public class StringUtils {
 	public static boolean isLong(String fromString) {
 		try {
 			Long.parseLong(fromString);
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
 			return false;
 		}
 		return true;
@@ -1002,17 +1002,19 @@ public class StringUtils {
 		if (fromString == null)
 			return 0;
 		String a = fromString.replaceAll("[^+0-9E.,-]+", "").replace(",", ".");
-		try {
-			return Integer.parseInt(a);
-		} catch (Exception e) {
-		}
-		try {
-			return (int)Long.parseLong(a);
-		} catch (Exception e) {
+		if(!a.contains(".")) {
+			try {
+				return Integer.parseInt(a);
+			} catch (NumberFormatException e) {
+			}
+			try {
+				return (int)Long.parseLong(a);
+			} catch (NumberFormatException e) {
+			}
 		}
 		try {
 			return (int)Double.parseDouble(a);
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
 		}
 		return 0;
 	}
@@ -1025,7 +1027,7 @@ public class StringUtils {
 		try {
 			Integer.parseInt(fromString);
 			return true;
-		} catch (Exception err) {
+		} catch (NumberFormatException e) {
 			return false;
 		}
 	}
@@ -1037,7 +1039,7 @@ public class StringUtils {
 	public static boolean isFloat(String fromString) {
 		try {
 			Float.parseFloat(fromString);
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
 			return false;
 		}
 		return true;
@@ -1053,7 +1055,7 @@ public class StringUtils {
 		String a = fromString.replaceAll("[^+0-9E.,-]+", "").replace(",", ".");
 		try {
 			return Float.parseFloat(a);
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
 		}
 		return 0;
 	}
@@ -1065,7 +1067,7 @@ public class StringUtils {
 	public static boolean isByte(String fromString) {
 		try {
 			Byte.parseByte(fromString);
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
 			return false;
 		}
 		return true;
@@ -1081,7 +1083,7 @@ public class StringUtils {
 		String a = fromString.replaceAll("[^+0-9E-]+", "");
 		try {
 			return Byte.parseByte(a);
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
 		}
 		return 0;
 	}
@@ -1093,7 +1095,7 @@ public class StringUtils {
 	public static boolean isShort(String fromString) {
 		try {
 			Short.parseShort(fromString);
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
 			return false;
 		}
 		return true;
@@ -1109,7 +1111,7 @@ public class StringUtils {
 		String a = fromString.replaceAll("[^+0-9E-]+", "");
 		try {
 			return Short.parseShort(a);
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
 		}
 		return 0;
 	}
@@ -1141,16 +1143,18 @@ public class StringUtils {
 	}
 
 	public static Number getNumber(String o) {
+		if(!o.contains(".")) {
+			if (isInt(o))
+				return getInt(o);
+			if (isLong(o))
+				return getLong(o);
+			if (isByte(o))
+				return getByte(o);
+			if (isShort(o))
+				return getShort(o);
+		}
 		if (isDouble(o))
 			return getDouble(o);
-		if (isInt(o))
-			return getInt(o);
-		if (isLong(o))
-			return getLong(o);
-		if (isByte(o))
-			return getByte(o);
-		if (isShort(o))
-			return getShort(o);
 		if (isFloat(o))
 			return getFloat(o);
 		return null;
