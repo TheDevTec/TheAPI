@@ -4,14 +4,14 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import me.devtec.theapi.apis.PluginManagerAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 
 public class PlaceholderAPI {
 	public static boolean isEnabledPlaceholderAPI() {
-		return PluginManagerAPI.getPlugin("PlaceholderAPI") != null;
+		return Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
 	}
 	
 	private static final Method set = Ref.method(Ref.getClass("me.clip.placeholderapi.PlaceholderAPI"),

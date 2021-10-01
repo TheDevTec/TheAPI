@@ -1143,6 +1143,7 @@ public class StringUtils {
 	}
 
 	public static Number getNumber(String o) {
+		if(o==null)return null;
 		if(!o.contains(".")) {
 			if (isInt(o))
 				return getInt(o);

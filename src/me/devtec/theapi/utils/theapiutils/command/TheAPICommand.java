@@ -17,14 +17,10 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.apis.MemoryAPI;
-import me.devtec.theapi.apis.PluginManagerAPI;
-import me.devtec.theapi.apis.PluginManagerAPI.SearchType;
 import me.devtec.theapi.scheduler.Tasker;
-import me.devtec.theapi.utils.HoverMessage;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.reflections.Ref;
@@ -48,8 +44,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		if (args.length == 0) {
 			if (s.hasPermission("TheAPI.Command.Info"))
 				TheAPI.msg("&e/TheAPI Info", s);
-			if (s.hasPermission("TheAPI.Command.Invsee"))
-				TheAPI.msg("&e/TheAPI Invsee", s);
 			if (s.hasPermission("TheAPI.Command.Reload"))
 				TheAPI.msg("&e/TheAPI Reload", s);
 			if (s.hasPermission("TheAPI.Command.WorldsManager"))
@@ -58,10 +52,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				TheAPI.msg("&e/TheAPI ClearCache", s);
 			if (s.hasPermission("TheAPI.Command.User"))
 				TheAPI.msg("&e/TheAPI User", s);
-			if (s.hasPermission("TheAPI.Command.PluginManager"))
-				TheAPI.msg("&e/TheAPI PluginManager", s);
-			if (s.hasPermission("theapi.command.test"))
-				TheAPI.msg("&e/TheAPI Test", s);
 			TheAPI.msg("&0[&6TheAPI&0] &7&eCreated by DevTec, StraikerinaCZ", s);
 			return true;
 		}
@@ -69,20 +59,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			if (!perm(s, "User"))
 				return true;
 			new TAC_User(s, args);
-			return true;
-		}
-		if (args[0].equalsIgnoreCase("test")) {
-			if (!perm(s, "Test"))
-				return true;
-			new TAC_Test(s, args);
-			return true;
-		}
-		if (args[0].equalsIgnoreCase("PluginManager") || args[0].equalsIgnoreCase("pm")
-				|| args[0].equalsIgnoreCase("plugin") || args[0].equalsIgnoreCase("pluginm")
-				|| args[0].equalsIgnoreCase("pmanager")) {
-			if (!perm(s, "PluginManager"))
-				return true;
-			new TAC_PluginManager(s, args);
 			return true;
 		}
 		if (args[0].equalsIgnoreCase("cc") || args[0].equalsIgnoreCase("clear")
@@ -154,29 +130,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		              TheAPI.msg(sd + "  Version: &e"+realVersion + " &7&o(" + TheAPI.getServerVersion() + ")", s);
 		              TheAPI.msg(sd + "  Startup-Cmd: &e"+StringUtils.join(TheAPICommand.this.rr.getInputArguments(), " "), s);
 		              TheAPI.msg(sd + "» &7Plugin Version: &e"+ LoaderClass.plugin.getDescription().getVersion(), s);
-		              List<Plugin> pl = LoaderClass.plugin.getTheAPIsPlugins();
-		              if (!pl.isEmpty())
-		                if (s instanceof Player) {
-		                  int c = 0;
-		                  HoverMessage sdf = new HoverMessage(StringUtils.colorize(color + "» &7Plugins using TheAPI (" + pl.size() + "): "));
-		                  for (Plugin w : pl) {
-		                	  if(c++ != 0)
-		                		  sdf.addText(", ").setColor("GRAY");
-		                    sdf.addText(StringUtils.colorize(TAC_PluginManager.getPlugin(w))).setHoverEvent(StringUtils.colorize(
-		                        "&7Author: &e"+ StringUtils.join(w.getDescription().getAuthors(), ", ") + "\n" + 
-		                        		(w.getDescription().getWebsite() != null ?
-		                        "&7Website: &e"+ w.getDescription().getWebsite()+ "\n":"")
-		                        +"&7Version: &e"+ w.getDescription().getVersion()));
-		                    if (w.getDescription().getWebsite() != null)
-		                      sdf.setClickEvent(HoverMessage.ClickAction.OPEN_URL, w.getDescription().getWebsite()); 
-		                  }
-		                  sdf.send((Player)s);
-		                } else {
-		                  StringBuilder sdf = new StringBuilder();
-		                  for (Plugin w : pl)
-		                    sdf.append(sdf.toString().equals("") ? "" : "&7, ").append(TAC_PluginManager.getPlugin(w)).append(" &ev").append(w.getDescription().getVersion());
-		                  TheAPI.msg(color+"» &7Plugins using TheAPI (" + pl.size() + "): " + sdf, s);
-		                }
 		            }
 		          }.runTask();
 				return true;
@@ -213,19 +166,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("ClearCache")));
 			if (s.hasPermission("TheAPI.Command.WorldsManager"))
 				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("WorldsManager")));
-			if (s.hasPermission("TheAPI.Command.Invsee"))
-				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("Invsee")));
-			if (s.hasPermission("TheAPI.Command.PluginManager"))
-				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("PluginManager")));
 			if (s.hasPermission("TheAPI.Command.User"))
 				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("User")));
-			if (s.hasPermission("theapi.command.test"))
-				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("Test")));
-		}
-		if (args[0].equalsIgnoreCase("Test") && s.hasPermission("theapi.command.test")) {
-			if (args.length == 2) {
-				c.addAll(StringUtils.copyPartialMatches(args[1], Arrays.asList("SortedMap", "GUI", "Other")));
-			}
 		}
 		if (args[0].equalsIgnoreCase("User") && s.hasPermission("theapi.command.user")) {
 			if (args.length == 2) {
@@ -247,28 +189,6 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				}
 			}
 		}
-		if (args[0].equalsIgnoreCase("Invsee") && s.hasPermission("TheAPI.Command.Invsee")) {
-			if (args.length == 2)
-				return null;
-		}
-		if (s.hasPermission("TheAPI.Command.PluginManager"))
-			if (args[0].equalsIgnoreCase("PluginManager") || args[0].equalsIgnoreCase("pm")) {
-				if (args.length == 2) {
-					c.addAll(StringUtils.copyPartialMatches(args[1],
-							Arrays.asList("Load", "Unload", "Reload", "Enable", "Disable", "Info", "Files",
-									"DisableAll", "EnableAll", "ReloadAll", "UnloadAll", "LoadAll")));
-				}
-				if (args.length == 3) {
-					if (args[1].equalsIgnoreCase("Load")) {
-						c.addAll(StringUtils.copyPartialMatches(args[2], PluginManagerAPI.getPluginsToLoad(SearchType.PLUGIN_NAME)));
-					}
-					if (args[1].equalsIgnoreCase("Unload") || args[1].equalsIgnoreCase("Enable")
-							|| args[1].equalsIgnoreCase("Disable") || args[1].equalsIgnoreCase("Info")
-							|| args[1].equalsIgnoreCase("Reload")) {
-						c.addAll(StringUtils.copyPartialMatches(args[2], PluginManagerAPI.getPluginsNames()));
-					}
-				}
-			}
 		if (s.hasPermission("TheAPI.Command.WorldsManager"))
 			if (args[0].equalsIgnoreCase("WorldsManager") || args[0].equalsIgnoreCase("mw") || args[0].equalsIgnoreCase("mv") || args[0].equalsIgnoreCase("wm")) {
 				if (args.length == 2) {

@@ -42,7 +42,6 @@ import com.google.common.collect.Lists;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.apis.MemoryAPI;
-import me.devtec.theapi.apis.PluginManagerAPI;
 import me.devtec.theapi.apis.ResourcePackAPI;
 import me.devtec.theapi.apis.ResourcePackAPI.ResourcePackResult;
 import me.devtec.theapi.bossbar.BossBar;
@@ -103,7 +102,7 @@ public class LoaderClass extends JavaPlugin {
 	
 	public String motd;
 	public static String ss;
-	public static String gradientTag, tagG;
+	public static String gradientTagPrefix,gradientTagPrefixL,gradientTagSuffix,gradientTagSuffixL, tagG;
 	public int max;
 	// EconomyAPI
 	public boolean e, tve, tbank;
@@ -242,7 +241,10 @@ public class LoaderClass extends JavaPlugin {
 		if (TheAPI.isNewerThan(15)) {
 			tags = new Config("TheAPI/Tags.yml");
 			tags.addDefault("TagPrefix", "!");
-			tags.addDefault("GradientPrefix", "!");
+			tags.addDefault("Gradient.Prefix.First", "!");
+			tags.addDefault("Gradient.Prefix.Second", "!");
+			tags.addDefault("Gradient.Suffix.First", "");
+			tags.addDefault("Gradient.Suffix.Second", "");
 			if (!tags.exists("Tags")) {
 				tags.addDefault("Tags.baby_blue", "0fd2f6");
 				tags.addDefault("Tags.beige", "ffc8a9");
@@ -271,10 +273,13 @@ public class LoaderClass extends JavaPlugin {
 			}
 			tags.save();
 			tagG = tags.getString("TagPrefix");
-			gradientTag = tags.getString("GradientPrefix");
+			gradientTagPrefix = tags.getString("Gradient.Prefix.First");
+			gradientTagPrefixL = tags.getString("Gradient.Prefix.Second");
+			gradientTagSuffix = tags.getString("Gradient.Suffix.First");
+			gradientTagSuffixL = tags.getString("Gradient.Suffix.Second");
 			for (String tag : tags.getKeys("Tags"))
 				colorMap.put(tag.toLowerCase(), "#"+tags.getString("Tags." + tag));
-			StringUtils.gradientFinder=Pattern.compile(LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})(.*?)"+LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})");
+			StringUtils.gradientFinder=Pattern.compile((LoaderClass.gradientTagPrefix+"(#[A-Fa-f0-9]{6})"+gradientTagSuffix+"(.*?)"+LoaderClass.gradientTagPrefixL+"(#[A-Fa-f0-9]{6})"+gradientTagSuffixL)+"|.*?(?=(?:"+LoaderClass.gradientTagPrefix+"#[A-Fa-f0-9]{6}"+gradientTagSuffix+".*?"+LoaderClass.gradientTagPrefixL+"#[A-Fa-f0-9]{6}"+gradientTagSuffixL+"))");
 		}
 		PluginCommand ca = TheAPI.createCommand("theapi", this);
 		if(Ref.field(Command.class, "timings")!=null && TheAPI.isOlderThan(9)) {
@@ -330,7 +335,7 @@ public class LoaderClass extends JavaPlugin {
 		new Tasker() {
 			public void run() {
 				Tasks.load();
-				if (PluginManagerAPI.getPlugin("Vault") == null) {
+				if (Bukkit.getPluginManager().getPlugin("Vault") == null) {
 					TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7: &ePlugin not found Vault, EconomyAPI is disabled.", TheAPI.getConsole());
 					TheAPI.msg("&cTheAPI&7: &eYou can enabled EconomyAPI by set custom Economy in EconomyAPI.",
@@ -465,7 +470,7 @@ public class LoaderClass extends JavaPlugin {
 			public boolean PacketPlayOut(String player, Object packet, Object channel) {
 				return false;
 			}
-			final boolean installedModificationPlugin = PluginManagerAPI.getPlugin("ViaVersion")!=null||PluginManagerAPI.getPlugin("ProtocolSupport")!=null;
+			final boolean installedModificationPlugin = Bukkit.getPluginManager().getPlugin("ViaVersion")!=null||Bukkit.getPluginManager().getPlugin("ProtocolSupport")!=null;
 			final ItemStack empty = new ItemStack(Material.AIR);
 			public boolean PacketPlayIn(String player, Object packet, Object channel) {
 				if(player==null)return false; //NPC
@@ -824,9 +829,9 @@ public class LoaderClass extends JavaPlugin {
 
 	public List<Plugin> getTheAPIsPlugins() {
 		List<Plugin> a = new ArrayList<>();
-		for (Plugin all : PluginManagerAPI.getPlugins())
-			if (PluginManagerAPI.getDepend(all.getName()).contains("TheAPI")
-					|| PluginManagerAPI.getSoftDepend(all.getName()).contains("TheAPI"))
+		for (Plugin all : Bukkit.getPluginManager().getPlugins())
+			if (Bukkit.getPluginManager().getPlugin(all.getName()).getDescription().getDepend().contains("TheAPI")
+					|| Bukkit.getPluginManager().getPlugin(all.getName()).getDescription().getSoftDepend().contains("TheAPI"))
 				a.add(all);
 		return a;
 	}
@@ -863,11 +868,13 @@ public class LoaderClass extends JavaPlugin {
 		if (TheAPI.isNewerThan(15)) {
 			LoaderClass.tags.reload();
 			LoaderClass.tagG = LoaderClass.tags.getString("TagPrefix");
-			LoaderClass.gradientTag = LoaderClass.tags.getString("GradientPrefix");
-			LoaderClass.colorMap.clear();
-			for (String tag : LoaderClass.tags.getKeys("Tags"))
-				LoaderClass.colorMap.put(tag.toLowerCase(), "#" + LoaderClass.tags.getString("Tags." + tag));
-			StringUtils.gradientFinder=Pattern.compile(LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})(.*?)"+LoaderClass.gradientTag+"(#[A-Fa-f0-9]{6})|.*?(?=(?:"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}.*?"+LoaderClass.gradientTag+"#[A-Fa-f0-9]{6}))");
+			gradientTagPrefix = tags.getString("Gradient.Prefix.First");
+			gradientTagPrefixL = tags.getString("Gradient.Prefix.Second");
+			gradientTagSuffix = tags.getString("Gradient.Suffix.First");
+			gradientTagSuffixL = tags.getString("Gradient.Suffix.Second");
+			for (String tag : tags.getKeys("Tags"))
+				colorMap.put(tag.toLowerCase(), "#"+tags.getString("Tags." + tag));
+			StringUtils.gradientFinder=Pattern.compile((LoaderClass.gradientTagPrefix+"(#[A-Fa-f0-9]{6})"+gradientTagSuffix+"(.*?)"+LoaderClass.gradientTagPrefixL+"(#[A-Fa-f0-9]{6})"+gradientTagSuffixL)+"|.*?(?=(?:"+LoaderClass.gradientTagPrefix+"#[A-Fa-f0-9]{6}"+gradientTagSuffix+".*?"+LoaderClass.gradientTagPrefixL+"#[A-Fa-f0-9]{6}"+gradientTagSuffixL+"))");
 		}
 		for (User u : TheAPI.getCachedUsers())
 			u.getData().reload(u.getData().getFile());
@@ -1274,7 +1281,7 @@ public class LoaderClass extends JavaPlugin {
 						String gen = config.getString("WorldsSetting." + s + ".Generator");
 						ChunkGenerator g = null;
 						if(gen.contains(":")) {
-							g=PluginManagerAPI.getPlugin(gen.split(":")[0]).getDefaultWorldGenerator(s, gen.split(":")[1]);
+							g=Bukkit.getPluginManager().getPlugin(gen.split(":")[0]).getDefaultWorldGenerator(s, gen.split(":")[1]);
 						}else
 							for(Plugin p : Bukkit.getPluginManager().getPlugins())
 								g=p.getDefaultWorldGenerator(s, gen);

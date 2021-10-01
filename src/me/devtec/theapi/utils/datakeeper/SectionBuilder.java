@@ -52,8 +52,11 @@ public class SectionBuilder {
 			if(e.getKey().indexOf('.') > -1) {
 				String[] split = split(e.getKey());
 				SectionHolder holder = secs.get(split[0]);
-				if(holder==null)
-					secs.put(split[0], holder=new SectionHolder(split[0]));
+				if(holder==null) {
+					SectionHolder sec = new SectionHolder(split[0]);
+					sec.space="";
+					secs.put(split[0], holder=sec);
+				}
 				//DEEP FIND SECTION
 				for(int i = 1; i < split.length; ++i) {
 					SectionHolder f = holder.find(split[i]);
