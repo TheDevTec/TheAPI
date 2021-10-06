@@ -17,6 +17,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.apis.MemoryAPI;
@@ -52,7 +53,15 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				TheAPI.msg("&e/TheAPI ClearCache", s);
 			if (s.hasPermission("TheAPI.Command.User"))
 				TheAPI.msg("&e/TheAPI User", s);
+			if (s.hasPermission("TheAPI.Command.Pm"))
+				TheAPI.msg("&e/TheAPI Pm", s);
 			TheAPI.msg("&0[&6TheAPI&0] &7&eCreated by DevTec, StraikerinaCZ", s);
+			return true;
+		}
+		if (args[0].equalsIgnoreCase("Pm")) {
+			if (!perm(s, "Pm"))
+				return true;
+			new TAC_Pm(s, args);
 			return true;
 		}
 		if (args[0].equalsIgnoreCase("user")) {
@@ -158,16 +167,32 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 	public List<String> onTabComplete(CommandSender s, Command arg1, String arg2, String[] args) {
 		List<String> c = new ArrayList<>();
 		if (args.length == 1) {
-			if (s.hasPermission("TheAPI.Command.Info"))
+			if (s.hasPermission("theapi.command.info"))
 				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("Info")));
-			if (s.hasPermission("TheAPI.Command.Reload"))
+			if (s.hasPermission("theapi.command.reload"))
 				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("Reload")));
-			if (s.hasPermission("TheAPI.Command.ClearCache"))
+			if (s.hasPermission("theapi.command.clearcache"))
 				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("ClearCache")));
-			if (s.hasPermission("TheAPI.Command.WorldsManager"))
+			if (s.hasPermission("theapi.command.worldsmanager"))
 				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("WorldsManager")));
-			if (s.hasPermission("TheAPI.Command.User"))
+			if (s.hasPermission("theapi.command.user"))
 				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("User")));
+			if (s.hasPermission("theapi.command.pm"))
+				c.addAll(StringUtils.copyPartialMatches(args[0], Collections.singletonList("Pm")));
+		}
+		if (args[0].equalsIgnoreCase("pm") && s.hasPermission("theapi.command.pm")) {
+			if(args.length==2) {
+				return StringUtils.copyPartialMatches(args[1], Arrays.asList("Load", "Unload", "Reload", "Info"));
+			}
+			if(args.length==3) {
+				if(args[1].equalsIgnoreCase("load"))
+					return StringUtils.copyPartialMatches(args[2], TAC_Pm.getPluginsToLoad().keySet());
+				if(args[1].equalsIgnoreCase("unload")||args[1].equalsIgnoreCase("reload")||args[1].equalsIgnoreCase("info")) {
+					List<String> pl = new ArrayList<>();
+					for(Plugin sp : Bukkit.getPluginManager().getPlugins())pl.add(sp.getName());
+					return StringUtils.copyPartialMatches(args[2], pl);
+				}
+			}
 		}
 		if (args[0].equalsIgnoreCase("User") && s.hasPermission("theapi.command.user")) {
 			if (args.length == 2) {
@@ -189,7 +214,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 				}
 			}
 		}
-		if (s.hasPermission("TheAPI.Command.WorldsManager"))
+		if (s.hasPermission("theapi.command.worldsmanager"))
 			if (args[0].equalsIgnoreCase("WorldsManager") || args[0].equalsIgnoreCase("mw") || args[0].equalsIgnoreCase("mv") || args[0].equalsIgnoreCase("wm")) {
 				if (args.length == 2) {
 					c.addAll(StringUtils.copyPartialMatches(args[1],
@@ -218,5 +243,4 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 			}
 		return c;
 	}
-
 }

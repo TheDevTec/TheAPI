@@ -16,7 +16,7 @@ public class MultiThread implements Executor {
 		for(Thread tht : clone) {
 			if(tht!=null)
 			if(tht.isAlive()) {
-				tht.stop();
+				//tht.stop();
 				tht.interrupt();
 			}
 		}
@@ -37,7 +37,7 @@ public class MultiThread implements Executor {
 	public void destroy(int id) {
 		Thread t = threads.remove(id);
 		if(t==null)return;
-		t.stop(); //destroy loops and whole running code
+		//t.stop(); //destroy loops and whole running code
 		t.interrupt(); //safe destroy of thread
 	}
 	

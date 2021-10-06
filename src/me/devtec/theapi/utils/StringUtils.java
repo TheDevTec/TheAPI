@@ -410,6 +410,7 @@ public class StringUtils {
 	public static Pattern gradientFinder;
 
 	public static String gradient(String msg, String fromHex, String toHex) {
+		if(msg==null||fromHex==null||toHex==null)return msg;
 		Matcher ma = reg.matcher(msg);
 		HashMap<Integer, String> l = new HashMap<>();
 		while (ma.find()) {
@@ -488,18 +489,20 @@ public class StringUtils {
 	}
 
 	public static String gradient(String legacyMsg) {
+		if(legacyMsg==null||gradientFinder == null)
+			return legacyMsg;
 		for (Entry<String, String> code : LoaderClass.colorMap.entrySet()) {
 			String rawCode = LoaderClass.tagG + code.getKey();
 			if (!legacyMsg.toLowerCase().contains(rawCode.toLowerCase()))
 				continue;
 			legacyMsg = legacyMsg.replace(rawCode, code.getValue());
 		}
-		if (gradientFinder == null)
-			return legacyMsg;
 		Matcher matcher = gradientFinder.matcher(legacyMsg);
 		while (matcher.find()) {
-			if (matcher.groupCount() == 0)continue;
-			legacyMsg = legacyMsg.replace(matcher.group(), gradient(matcher.group(2), matcher.group(1), matcher.group(3)));
+			if (matcher.groupCount() == 0||matcher.group().isEmpty())continue;
+			String replace = gradient(matcher.group(2), matcher.group(1), matcher.group(3));
+			if(replace==null)continue;
+			legacyMsg = legacyMsg.replace(matcher.group(), replace);
 		}
 		return legacyMsg;
 	}
