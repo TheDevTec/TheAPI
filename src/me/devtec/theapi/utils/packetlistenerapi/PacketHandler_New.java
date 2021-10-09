@@ -126,28 +126,18 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 			if (!ChannelFuture.class.isInstance(item))continue;
 			Channel serverChannel = ((ChannelFuture) item).channel();
 			serverChannels.add(serverChannel);
-			serverChannel.eventLoop().execute(new Runnable() {
-				public void run() {
-					try {
-						if(serverChannel.pipeline().names().contains("TA_PacketHandler"))
-							serverChannel.pipeline().remove("TA_PacketHandler");
-						serverChannel.pipeline().addFirst("TA_PacketHandler", serverChannelHandler);
-					}catch(Exception err) {}
-				}
-			});
+			serverChannel.pipeline().addFirst(serverChannelHandler);
 		}
 	}
 
 	private void unregisterChannelHandler() {
 		if (serverChannelHandler == null)return;
 		for (Channel serverChannel : serverChannels) 
-			serverChannel.eventLoop().execute(new Runnable() {
-				public void run() {
+			serverChannel.eventLoop().execute(() -> {
 					try {
 					serverChannel.pipeline().remove(serverChannelHandler);
 					}catch(Exception err) {}
-				}
-			});
+				});
 		serverChannels.clear();
 	}
 
