@@ -1,9 +1,20 @@
 package me.devtec.theapi.apis;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.zip.GZIPInputStream;
 
+import javax.imageio.ImageIO;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.SkullType;
@@ -25,9 +36,13 @@ import org.bukkit.potion.PotionEffectType;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.StringUtils;
+import me.devtec.theapi.utils.json.Json;
 import me.devtec.theapi.utils.nms.NMSAPI;
 import me.devtec.theapi.utils.nms.nbt.NBTEdit;
 import me.devtec.theapi.utils.reflections.Ref;
@@ -879,22 +894,43 @@ public class ItemCreatorAPI implements Cloneable {
 				}
 			} else if (type != null && type == SkullType.PLAYER) {
 				SkullMeta m = (SkullMeta) i.getItemMeta();
-				if (owner != null && !owner.trim().isEmpty())
-					m.setOwner(owner);
-				if (url != null || text != null) {
-					try {
-						Object profile = Ref.createGameProfile(null, "TheAPI");
-						byte[] encodedData = null;
-						try {
-							if (url != null)
-								encodedData = Base64.getEncoder()
-										.encode(("{textures:{SKIN:{url:\"" + url + "\"}}}").getBytes());
-						} catch (Exception err) {
+				if (owner != null && !owner.trim().isEmpty() && url == null && text == null) {
+					if(Bukkit.getOfflinePlayer(owner)!=null && Bukkit.getOfflinePlayer(owner).getFirstPlayed()>0)
+						m.setOwningPlayer(Bukkit.getOfflinePlayer(owner));
+					else {
+						SkinData data = generateSkin(owner);
+						if(TheAPI.isOlderThan(8)) {
+							Object profile = Ref.createGameProfile(null, owner!=null && !owner.trim().isEmpty()?owner:"TheAPI");
+							Ref.invoke(Ref.invoke(profile, "getProperties"), set, "textures", Ref.createProperty("textures", data.value, data.signature));
+							Ref.set(m, "profile", profile);
+						}else {
+							GameProfile profile = new GameProfile(UUID.randomUUID(), owner);
+							profile.getProperties().put("textures", new Property("textures", data.value, data.signature));
+							Ref.set(m, "profile", profile);
+							if(TheAPI.isNewerThan(15))
+								Ref.invoke(m, setProfile, profile);
 						}
-						Ref.invoke(Ref.invoke(profile, "getProperties"), set,
-								"textures", Ref.createProperty("textures", encodedData != null ? new String(encodedData) : text));
+					}
+				}
+				if (url != null || text != null) {
+					if(TheAPI.isOlderThan(8)) {
+						Object profile = Ref.createGameProfile(null, owner!=null && !owner.trim().isEmpty()?owner:"TheAPI");
+						if(url!=null) {
+							SkinData data = generateSkin(url);
+							Ref.invoke(Ref.invoke(profile, "getProperties"), set, "textures", Ref.createProperty("textures", data.value, data.signature));
+						}else
+							Ref.invoke(Ref.invoke(profile, "getProperties"), set, "textures", Ref.createProperty("textures", text));
 						Ref.set(m, "profile", profile);
-					} catch (Exception | NoSuchMethodError e) {
+					}else {
+						GameProfile profile = new GameProfile(UUID.randomUUID(), owner!=null && !owner.trim().isEmpty()?owner:"TheAPI");
+						if(url!=null) {
+							SkinData data = generateSkin(url);
+							profile.getProperties().put("textures", new Property("textures", data.value, data.signature));
+						}else
+							profile.getProperties().put("textures", new Property("textures", text));
+						Ref.set(m, "profile", profile);
+						if(TheAPI.isNewerThan(15))
+							Ref.invoke(m, setProfile, profile);
 					}
 				}
 				i.setItemMeta(m);
@@ -905,6 +941,79 @@ public class ItemCreatorAPI implements Cloneable {
 		a=i;
 		return i;
 	}
+	
+	public static class SkinData {
+		public String value;
+		public String signature;
+		
+		public long lastUpdate = System.currentTimeMillis()/1000;
+		
+		public boolean isFinite() {
+			return value != null && signature != null;
+		}
+		
+		public String toString() {
+			HashMap<String, String> data = new HashMap<>();
+			data.put("texture.value", value);
+			data.put("texture.signature", signature);
+			return Json.writer().simpleWrite(data);
+		}
+	}
+
+	private static final String URL_FORMAT = "https://api.mineskin.org/generate/url?url=%s&%s",
+			USER_FORMAT="https://api.ashcon.app/mojang/v2/user/%s";
+	private static String getSkinType(java.awt.image.BufferedImage image) {
+		final byte[] pixels = ((java.awt.image.DataBufferByte) image.getRaster().getDataBuffer()).getData();
+		int argb = ((int) pixels[4002] & 0xff);
+		argb += (((int) pixels[4003] & 0xff) << 8);
+		argb += (((int) pixels[4004] & 0xff) << 16);
+		return argb==2631720?"steve":"alex";
+    }
+	
+	@SuppressWarnings("unchecked")
+	public static synchronized SkinData generateSkin(String urlOrName) {
+		if(urlOrName==null)return null;
+		if(urlOrName.toLowerCase().startsWith("https://")||urlOrName.toLowerCase().startsWith("http://")) {
+			try {
+				java.net.URLConnection connection = new URL(urlOrName).openConnection();
+				connection.setRequestProperty("User-Agent", "ServerControlReloaded-JavaClient");
+				HttpURLConnection conn = (HttpURLConnection)new URL(String.format(URL_FORMAT, urlOrName, "name=DevTec&model="+getSkinType(ImageIO.read(connection.getInputStream()))+"&visibility=1")).openConnection();
+				conn.setRequestProperty("User-Agent", "TheAPI-JavaClient");
+				conn.setRequestProperty("Accept-Encoding", "gzip");
+				conn.setRequestMethod("POST");
+				conn.setConnectTimeout(1000);
+				conn.setReadTimeout(1000);
+				conn.connect();
+				Map<String, Object> text = (Map<String, Object>) Json.reader().simpleRead(StreamUtils.fromStream(new GZIPInputStream(conn.getInputStream())));
+				SkinData data = new SkinData();
+				if(!text.containsKey("error")) {
+					data.signature=(String) ((Map<String, Object>)((Map<String, Object>)text.get("data")).get("texture")).get("signature");
+					data.value=(String) ((Map<String, Object>)((Map<String, Object>)text.get("data")).get("texture")).get("value");
+				}
+				return data;
+			}catch(Exception err) {}
+		}
+		try {
+			HttpURLConnection conn = (HttpURLConnection)new URL(String.format(USER_FORMAT, urlOrName)).openConnection();
+			conn.setRequestProperty("User-Agent", "TheAPI-JavaClient");
+			conn.setRequestMethod("GET");
+			conn.setConnectTimeout(1000);
+			conn.setReadTimeout(1000);
+			conn.connect();
+			Map<String, Object> text = (Map<String, Object>) Json.reader().simpleRead(StreamUtils.fromStream(conn.getInputStream()));
+			SkinData data = new SkinData();
+			if(!text.containsKey("error")) {
+				data.signature=(String) ((Map<String, Object>)((Map<String, Object>)text.get("textures")).get("raw")).get("signature");
+				data.value=(String) ((Map<String, Object>)((Map<String, Object>)text.get("textures")).get("raw")).get("value");
+			}
+			return data;
+		}catch(Exception err) {}
+		return null;
+	}
+	
+	static Method setProfile = Ref.method(Ref.craft("inventory.CraftMetaSkull"), "setProfile", Ref.getClass("com.mojang.authlib.GameProfile") != null
+			? Ref.getClass("com.mojang.authlib.GameProfile")
+			: Ref.getClass("net.minecraft.util.com.mojang.authlib.GameProfile"));
 
 	@Override
 	public ItemCreatorAPI clone() {

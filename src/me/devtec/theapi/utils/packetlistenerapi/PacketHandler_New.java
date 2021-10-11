@@ -14,6 +14,7 @@ import com.mojang.authlib.GameProfile;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
@@ -86,15 +87,16 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 			}
 
 		};
-
-		serverChannelHandler = new ChannelInboundHandlerAdapter() {
-			public void channelRead(ChannelHandlerContext ctx, Object msg) {
-				Channel channel = (Channel) msg;
-				channel.pipeline().addFirst(beginInitProtocol);
-				ctx.fireChannelRead(channel);
-			}
-
-		};
+		serverChannelHandler = new ChannelInHandler();
+	}
+	
+	@Sharable
+	public class ChannelInHandler extends ChannelInboundHandlerAdapter {
+		public void channelRead(ChannelHandlerContext ctx, Object msg) {
+			Channel channel = (Channel) msg;
+			channel.pipeline().addFirst(beginInitProtocol);
+			ctx.fireChannelRead(channel);
+		}
 	}
 
 	private void registerChannelHandler() {

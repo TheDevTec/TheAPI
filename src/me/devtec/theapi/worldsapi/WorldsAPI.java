@@ -72,7 +72,7 @@ public class WorldsAPI {
 	 */
 	public static boolean create(String name, Environment generator, WorldType type, ChunkGenerator Chunkgenerator,
 			boolean generateStructures, long seed) {
-		if (name == null || generator == null)
+		if (name == null ||name.trim().isEmpty()|| generator == null)
 			return false;
 		if (Bukkit.getWorld(name) == null) {
 			boolean createdFolder = new File(name).exists();

@@ -28,17 +28,15 @@ public class PropertiesLoader extends DataLoader {
 			String s;
 			while((s=r.readLine())!=null) {
 				String f = s.trim();
-				if(f.isEmpty()||f.startsWith("#")) { //comment
-				}else {
+				if(!f.isEmpty() && !f.startsWith("#")) {
 					Matcher m = pattern.matcher(s);
 					if(m.find()) {
 						map.put(m.group(1), new Object[] {m.group(2), comments.isEmpty()?null:new LinkedList<>(comments)});
 						comments.clear();
 						continue;
 					}
-					//comment
 				}
-				comments.add(s);
+				comments.add(s.substring(YamlLoader.removeSpaces(s)));
 			}
 			r.close();
 			if(!comments.isEmpty()) {
@@ -57,8 +55,7 @@ public class PropertiesLoader extends DataLoader {
 		List<String> comments = new LinkedList<>();
 		for(String s : d.split(System.lineSeparator())) {
 			String f = s.trim();
-			if(f.isEmpty()||f.startsWith("#")) { //comment
-			}else {
+			if(!f.isEmpty() && !f.startsWith("#")) {
 				Matcher m = pattern.matcher(s);
 				if(m.find()) {
 					map.put(m.group(1), new Object[] {m.group(2), comments.isEmpty()?null:new LinkedList<>(comments)});
@@ -67,7 +64,7 @@ public class PropertiesLoader extends DataLoader {
 				}
 				//comment
 			}
-			comments.add(s);
+			comments.add(s.substring(YamlLoader.removeSpaces(s)));
 		}
 		if(!comments.isEmpty()) {
 			if(map.isEmpty())header=comments;

@@ -314,6 +314,7 @@ public class LoaderClass extends JavaPlugin {
 		TheAPI.msg("&cTheAPI&7: &6Action: &eEnabling plugin, creating config and registering economy..",
 				TheAPI.getConsole());
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
+		loadWorlds();
 		if(new Data("spigot.yml").getBoolean("settings.late-bind")) {
 			new Tasker() {
 				public void run() {
@@ -682,11 +683,6 @@ public class LoaderClass extends JavaPlugin {
 					Config.loadConfig(e, plugin.getString("configs"), folder+"/"+plugin.getString("configs"));
 			}
 		}
-		new Tasker() {
-			public void run() {
-				loadWorlds();
-			}
-		}.runLaterSync(20);
 		if (PlaceholderAPI.isEnabledPlaceholderAPI()) {
 			/*
 			 * TheAPI placeholder extension for PAPI BRIDGE:
@@ -1279,34 +1275,37 @@ public class LoaderClass extends JavaPlugin {
 					WorldType wt = WorldType.NORMAL;
 					if(type==null) {
 						String gen = config.getString("WorldsSetting." + s + ".Generator");
-						ChunkGenerator g = null;
-						if(gen.contains(":")) {
-							g=Bukkit.getPluginManager().getPlugin(gen.split(":")[0]).getDefaultWorldGenerator(s, gen.split(":")[1]);
-						}else
-							for(Plugin p : Bukkit.getPluginManager().getPlugins())
-								g=p.getDefaultWorldGenerator(s, gen);
-						if(g!=null) {
-							boolean f = true;
-							if (config.exists("WorldsSetting." + s + ".GenerateStructures"))
-								f = config.getBoolean("WorldsSetting." + s + ".GenerateStructures");
-							WorldsAPI.create(s, env, wt, g, f, 0);
-							TheAPI.msg("&bTheAPI&7: &eWorld with name '&6" + s + "&e' loaded.", TheAPI.getConsole());
-							continue;
+						if(gen!=null) {
+							ChunkGenerator g = null;
+							if(gen.contains(":")) {
+								g=Bukkit.getPluginManager().getPlugin(gen.split(":")[0]).getDefaultWorldGenerator(s, gen.split(":")[1]);
+							}else
+								for(Plugin p : Bukkit.getPluginManager().getPlugins())
+									g=p.getDefaultWorldGenerator(s, gen);
+							if(g!=null) {
+								boolean f = true;
+								if (config.exists("WorldsSetting." + s + ".GenerateStructures"))
+									f = config.getBoolean("WorldsSetting." + s + ".GenerateStructures");
+								WorldsAPI.create(s, env, wt, g, f, 0);
+								TheAPI.msg("&bTheAPI&7: &eWorld with name '&6" + s + "&e' loaded.", TheAPI.getConsole());
+								continue;
+							}
 						}
-					}
-					if (type.equals("Flat"))
-						wt = WorldType.FLAT;
-					if (type.equals("The_Void"))
-						wt = null;
-					if (type.equals("The_End")) {
-						try {
-							env = Environment.valueOf("THE_END");
-						} catch (Exception e) {
-							env = Environment.valueOf("END");
+					}else {
+						if (type.equals("Flat"))
+							wt = WorldType.FLAT;
+						if (type.equals("The_Void"))
+							wt = null;
+						if (type.equals("The_End")) {
+							try {
+								env = Environment.valueOf("THE_END");
+							} catch (Exception e) {
+								env = Environment.valueOf("END");
+							}
 						}
+						if (type.equals("Nether"))
+							env = Environment.NETHER;
 					}
-					if (type.equals("Nether"))
-						env = Environment.NETHER;
 					boolean f = true;
 					if (config.exists("WorldsSetting." + s + ".GenerateStructures"))
 						f = config.getBoolean("WorldsSetting." + s + ".GenerateStructures");

@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import org.bukkit.entity.Player;
 
+import io.netty.channel.ChannelHandler.Sharable;
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.reflections.Ref;
@@ -84,15 +85,16 @@ public class PacketHandler_Old implements PacketHandler<Channel> {
 			}
 
 		};
-
-		serverChannelHandler = new ChannelInboundHandlerAdapter() {
-			public void channelRead(ChannelHandlerContext ctx, Object msg) {
-				Channel channel = (Channel) msg;
-				channel.pipeline().addFirst(beginInitProtocol);
-				ctx.fireChannelRead(channel);
-			}
-
-		};
+		serverChannelHandler = new ChannelInHandler();
+	}
+	
+	@Sharable
+	public class ChannelInHandler extends ChannelInboundHandlerAdapter {
+		public void channelRead(ChannelHandlerContext ctx, Object msg) {
+			Channel channel = (Channel) msg;
+			channel.pipeline().addFirst(beginInitProtocol);
+			ctx.fireChannelRead(channel);
+		}
 	}
 
 	private void registerChannelHandler() {

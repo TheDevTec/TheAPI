@@ -10,9 +10,11 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -730,8 +732,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			if(s.getValue()[1]!=null && !((List<String>) s.getValue()[1]).isEmpty()) {
 				List<String> cc = (List<String>)o[1];
 	    		if(cc==null || cc.isEmpty()) {
-	    			if(getHeader()!=null && !getHeader().isEmpty() && ((List<String>)s.getValue()[1]).containsAll(getHeader())
-	    					|| getFooter()!=null && !getFooter().isEmpty() && ((List<String>) s.getValue()[1]).containsAll(getFooter()))continue;
+	    			if(getHeader()!=null && !getHeader().isEmpty() && simple((List<String>)s.getValue()[1]).containsAll(simple(getHeader()))
+	    					|| getFooter()!=null && !getFooter().isEmpty() && simple(((List<String>) s.getValue()[1])).containsAll(simple(getFooter())))continue;
 	    			o[1]=(List<String>)s.getValue()[1];
 	    			change = true;
 	    		}
@@ -741,6 +743,28 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if(change)
 			requireSave=true;
 		return change;
+	}
+
+	private static List<String> simple(List<String> list) {
+		ListIterator<String> s = list.listIterator();
+		while(s.hasNext()) {
+			String next = s.next();
+			if(next.trim().isEmpty())s.set("");
+			else s.set(next.substring(YamlLoader.removeSpaces(next)));
+		}
+		return list;
+	}
+
+	private static List<String> simple(Collection<String> list) {
+		if(list instanceof List)return simple((List<String>)list);
+		List<String> fix = new ArrayList<>(list.size());
+		Iterator<String> s = list.iterator();
+		while(s.hasNext()) {
+			String next = s.next();
+			if(next.trim().isEmpty())fix.add("");
+			else fix.add(next.substring(YamlLoader.removeSpaces(next)));
+		}
+		return fix;
 	}
 
 	public DataLoader getDataLoader() {

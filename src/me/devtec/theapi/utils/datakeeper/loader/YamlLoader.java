@@ -70,7 +70,11 @@ public class YamlLoader extends DataLoader {
 			String line;
 			while((line=r.readLine())!=null) {
 				String trim = line.trim();
-				if(trim.isEmpty()||trim.startsWith("#")) {
+				if(trim.isEmpty()) {
+					comments.add("");
+					continue;
+				}
+				if(trim.startsWith("#")) {
 					comments.add(line.substring(removeSpaces(line)));
 					continue;
 				}
@@ -320,7 +324,7 @@ public class YamlLoader extends DataLoader {
 		return footer;
 	}
 
-	private static int removeSpaces(String s) {
+	public static int removeSpaces(String s) {
 		int i = 0;
 		for(int d = 0; d < s.length(); ++d) {
 			if(s.charAt(d)==' ') {
