@@ -2,7 +2,7 @@ name: TheAPI
 main: me.devtec.theapi.utils.theapiutils.LoaderClass
 author: DevTec
 website: https://www.spigotmc.org/resources/72679/
-version: 6.9.8
+version: 7.0
 api-version: 1.13
 loadbefore: [Paintball,WorldGuard,Residence,MobArena,SpecializedCrates,GoldenCrates,RevoltCrates,AdvancedMonthlyCrates,CrazyCrates,CrateReloaded]
 softdepend: [Vault,PlaceholderAPI]
@@ -18,6 +18,4 @@ permissions:
       TheAPI.Command.Reload: true
       TheAPI.Command.ClearCache: true
       TheAPI.Command.WorldsManager: true
-      TheAPI.Command.PluginManager: true
-      TheAPI.Command.Test: true
-      TheAPI.Command.Invsee: true
+      TheAPI.Command.Pm: true
