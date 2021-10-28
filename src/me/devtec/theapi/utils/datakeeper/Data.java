@@ -178,7 +178,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (key == null)
 			return this;
 		requireSave=true;
-		getOrCreateData(key)[1]=value;
+		getOrCreateData(key)[1]=simple(value);
 		return this;
 	}
 
@@ -188,9 +188,9 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			return this;
 		requireSave=true;
 		Object[] g = getOrCreateData(key);
-		if(g[1]==null)g[1]=value;
+		if(g[1]==null)g[1]=simple(value);
 		else
-		((List<String>) g[1]).addAll(value);
+		((List<String>) g[1]).addAll(simple(value));
 		return this;
 	}
 
@@ -201,7 +201,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		requireSave=true;
 		Object[] g = getOrCreateData(key);
 		if(g[0]==null)g[1]=new ArrayList<>();
-		((List<String>) g[1]).add(value);
+		((List<String>) g[1]).add(value.substring(YamlLoader.removeSpaces(value)));
 		return this;
 	}
 
@@ -212,7 +212,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		requireSave=true;
 		Object[] g = getOrCreateData(key);
 		if(g[0]!=null)
-			((List<String>) g[1]).removeAll(value);
+			((List<String>) g[1]).removeAll(simple(value));
 		return this;
 	}
 
@@ -223,7 +223,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		requireSave=true;
 		Object[] g = getOrCreateData(key);
 		if(g[0]!=null)
-			((List<String>) g[1]).remove(value);
+			((List<String>) g[1]).remove(value.substring(YamlLoader.removeSpaces(value)));
 		return this;
 	}
 
@@ -245,14 +245,14 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public synchronized Data setHeader(Collection<String> lines) {
 		requireSave=true;
 		loader.getHeader().clear();
-		loader.getHeader().addAll(lines);
+		loader.getHeader().addAll(simple(lines));
 		return this;
 	}
 
 	public synchronized Data setFooter(Collection<String> lines) {
 		requireSave=true;
 		loader.getFooter().clear();
-		loader.getFooter().addAll(lines);
+		loader.getFooter().addAll(simple(lines));
 		return this;
 	}
 
