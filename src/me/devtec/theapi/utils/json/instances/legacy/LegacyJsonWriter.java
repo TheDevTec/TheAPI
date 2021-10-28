@@ -30,7 +30,7 @@ public class LegacyJsonWriter implements JWriter {
     		}
             if (s instanceof Enum){
                 Map<String, Object> object = new HashMap<>();
-                object.put("c", s.getClass().getCanonicalName());
+                object.put("c", s.getClass().getName());
                 object.put("e", ((Enum<?>)s).name());
                 object.put("t", "enum");
                 return object;
@@ -39,7 +39,7 @@ public class LegacyJsonWriter implements JWriter {
                 return s;
             if (s instanceof Map) {
                 Map<String, Object> object = new HashMap<>();
-                object.put("c", s.getClass().getCanonicalName());
+                object.put("c", s.getClass().getName());
                 object.put("t", "map");
                 List<Object> vals = new ArrayList<>();
                 for (Map.Entry<?, ?> o : ((Map<?, ?>) s).entrySet())
@@ -49,7 +49,7 @@ public class LegacyJsonWriter implements JWriter {
             }
             if (s instanceof Collection) {
                 Map<String, Object> object = new HashMap<>();
-                object.put("c", s.getClass().getCanonicalName());
+                object.put("c", s.getClass().getName());
                 object.put("t", "collection");
                 List<Object> vals = new ArrayList<>();
                 for (Object o : (Collection<?>) s) vals.add(writeWithoutParse(o));
@@ -58,7 +58,7 @@ public class LegacyJsonWriter implements JWriter {
             }
             if (s.getClass().isArray()) {
                 Map<String, Object> object = new HashMap<>();
-                object.put("c", s.getClass().getCanonicalName().replace("[]", ""));
+                object.put("c", s.getClass().getName().startsWith("[")?s.getClass().getName().substring(2,s.getClass().getName().length()-1):s.getClass().getName());
                 object.put("t", "array");
                 List<Object> vals = new ArrayList<>();
                 for (Object o : (Object[]) s) vals.add(writeWithoutParse(o));
@@ -68,7 +68,7 @@ public class LegacyJsonWriter implements JWriter {
             Map<String, Object> object = new HashMap<>();
             Map<String, Object> fields = new HashMap<>();
             Map<String, Object> sub_fields = new HashMap<>();
-            object.put("c", s.getClass().getCanonicalName());
+            object.put("c", s.getClass().getName());
             object.put("f", fields);
             object.put("sf", sub_fields);
             Class<?> c = s.getClass();
@@ -88,9 +88,9 @@ public class LegacyJsonWriter implements JWriter {
                     f.setAccessible(true);
                     Object obj = f.get(s);
                     if (s.equals(obj))
-                        sub_fields.put(c.getCanonicalName() + ":~" + f.getName(), "~");
+                        sub_fields.put(c.getName() + ":~" + f.getName(), "~");
                     else
-                        sub_fields.put(c.getCanonicalName() + ":" + f.getName(), writeWithoutParse(obj));
+                        sub_fields.put(c.getName() + ":" + f.getName(), writeWithoutParse(obj));
                 }
                 c = c.getSuperclass();
             }
@@ -109,7 +109,7 @@ public class LegacyJsonWriter implements JWriter {
     		}
             if (s instanceof Enum){
                 Map<String, Object> object = new HashMap<>();
-                object.put("c", s.getClass().getCanonicalName());
+                object.put("c", s.getClass().getName());
                 object.put("e", ((Enum<?>)s).name());
                 object.put("t", "enum");
                 return parser.toJson(object);
@@ -118,7 +118,7 @@ public class LegacyJsonWriter implements JWriter {
                 return s.toString();
             if (s instanceof Collection) {
                 Map<String, Object> object = new HashMap<>();
-                object.put("c", s.getClass().getCanonicalName());
+                object.put("c", s.getClass().getName());
                 object.put("t", "collection");
                 List<Object> vals = new ArrayList<>();
                 for (Object o : (Collection<?>) s) vals.add(writeWithoutParse(o));
@@ -127,7 +127,7 @@ public class LegacyJsonWriter implements JWriter {
             }
             if (s instanceof Map) {
                 Map<String, Object> object = new HashMap<>();
-                object.put("c", s.getClass().getCanonicalName());
+                object.put("c", s.getClass().getName());
                 object.put("t", "map");
                 List<Object> vals = new ArrayList<>();
                 for (Map.Entry<?, ?> o : ((Map<?, ?>) s).entrySet())
@@ -137,7 +137,7 @@ public class LegacyJsonWriter implements JWriter {
             }
             if (s.getClass().isArray()) {
                 Map<String, Object> object = new HashMap<>();
-                object.put("c", s.getClass().getCanonicalName().replace("[]", ""));
+                object.put("c", s.getClass().getName().startsWith("[")?s.getClass().getName().substring(2,s.getClass().getName().length()-1):s.getClass().getName());
                 object.put("t", "array");
                 List<Object> vals = new ArrayList<>();
                 for (Object o : (Object[]) s) vals.add(writeWithoutParse(o));
@@ -147,7 +147,7 @@ public class LegacyJsonWriter implements JWriter {
             Map<String, Object> object = new HashMap<>();
             Map<String, Object> fields = new HashMap<>();
             Map<String, Object> sub_fields = new HashMap<>();
-            object.put("c", s.getClass().getCanonicalName());
+            object.put("c", s.getClass().getName());
             object.put("f", fields);
             object.put("sf", sub_fields);
             Class<?> c = s.getClass();
@@ -167,9 +167,9 @@ public class LegacyJsonWriter implements JWriter {
                     f.setAccessible(true);
                     Object obj = f.get(s);
                     if (s.equals(obj))
-                        sub_fields.put(c.getCanonicalName() + ":~" + f.getName(), "~");
+                        sub_fields.put(c.getName() + ":~" + f.getName(), "~");
                     else
-                        sub_fields.put(c.getCanonicalName() + ":" + f.getName(), writeWithoutParse(obj));
+                        sub_fields.put(c.getName() + ":" + f.getName(), writeWithoutParse(obj));
                 }
                 c = c.getSuperclass();
             }

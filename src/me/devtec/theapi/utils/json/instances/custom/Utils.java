@@ -94,10 +94,10 @@ public class Utils {
 		Map<String, Object> values = (Map<String, Object>)val;
 		switch(key) {
 			case "org.bukkit.inventory.ItemStack": {
-				ItemStack item = new ItemStack(Material.getMaterial((String) values.get("type")),
-						((Number) values.get("amount")).intValue(),
-						((Number) values.get("durability")).shortValue());
-				item.setData(new MaterialData(item.getType(), ((Number) values.get("data")).byteValue()));
+				ItemStack item = new ItemStack(Material.getMaterial(values.get("type").toString()),
+						(int)(double) values.get("amount"),
+						(short)(double) values.get("durability"));
+				item.setData(new MaterialData(item.getType(), (byte)(double)values.get("data")));
 				if (values.containsKey("nbt"))
 					item = NMSAPI.setNBT(item, values.get("nbt") + "");
 				ItemMeta meta = item.getItemMeta();

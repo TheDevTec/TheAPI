@@ -42,9 +42,9 @@ public class LegacyJsonReader implements JReader {
 				Object read = Utils.read(key.getKey(), key.getValue());
 				if(read!=null)return read;
 			}
-            String className = (String) map.get("c");
+            String className = map.get("c").toString();
+            String type = map.get("t").toString();
             Class<?> c = Class.forName(className);
-            String type = (String) map.get("t");
             if (type != null) { //collection, array or map
                 switch (type) {
                     case "map": {
@@ -126,7 +126,7 @@ public class LegacyJsonReader implements JReader {
         }
         return json;
     }
-
+    
     private Object cast(Object value, Class<?> type) {
         if(value==null)return null;
         if(type.isArray()){
@@ -147,12 +147,16 @@ public class LegacyJsonReader implements JReader {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private Object read(Object s) {
-    	if(s==null)return s;
+    	if(s==null||s.equals("null"))return null;
         try {
             if (s instanceof Map) {
                 Map<String, Object> map = (Map<String, Object>) s;
+    			if(map.size()==1) {
+    				Entry<String, Object> key = map.entrySet().iterator().next();
+    				Object read = Utils.read(key.getKey(), key.getValue());
+    				if(read!=null)return read;
+    			}
                 String className = (String) map.get("c");
-
                 Class<?> c = Class.forName(className);
                 String type = (String) map.get("t");
                 if (type != null) { //collection, array or map
@@ -173,14 +177,14 @@ public class LegacyJsonReader implements JReader {
                             }
                             return o;
                         }
-                        case "enum": {
-                            return Ref.getNulled(c, map.get("e").toString());
-                        }
                         case "array": {
                             Object[] obj = (Object[]) Array.newInstance(c, ((List<?>) map.get("s")).size());
                             int i = 0;
                             for (Object cc : (List<?>) map.get("s")) obj[i++] = read(cc);
                             return obj;
+                        }
+                        case "enum": {
+                            return Ref.getNulled(c, map.get("e").toString());
                         }
                         case "collection": {
                             Object object;
