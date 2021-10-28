@@ -245,10 +245,13 @@ public class GUI implements HolderGUI {
 			Object f= Ref.player(player);
 			int id = nextCounter(f);
 			Object container = type==0?Ref.newInstance(containerClass, inv, f, id):Ref.newInstance(containerClass, inv, player, id);
+			Map<Integer, Object> map = new HashMap<>();
 			for(int i = 0; i < inv.getSize(); ++i) {
 				ItemStack is = inv.getItem(i);
 				if(is==null||is.getType()==Material.AIR)continue;
-				Ref.invoke(Ref.invoke(container, "getSlot", i),"set", NMSAPI.asNMSItem(is));
+				Object item = null;
+				Ref.invoke(Ref.invoke(container, "getSlot", i),"set", item=NMSAPI.asNMSItem(is));
+				map.put(i,  item);
 			}
 			if(TheAPI.isOlderThan(8)) {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id,0,title, getSize(), false));
@@ -257,10 +260,8 @@ public class GUI implements HolderGUI {
 			}else {
 				Ref.sendPacket(player, Ref.newInstance(openWindow,id, windowType, NMSAPI.getFixedIChatBaseComponent(title)));
 			}
-			int slot = 0;
-			for(Object o : (Collection<?>)Ref.invoke(container,getItems)) {
-				Ref.sendPacket(player, airplane==1?Ref.newInstance(setSlot,id,id,slot++, o):Ref.newInstance(setSlot,id,slot++, o));
-			}
+			for(Entry<Integer,Object> o : map.entrySet()) 
+				Ref.sendPacket(player, airplane==1?Ref.newInstance(setSlot,id,id,o.getKey(), o.getValue()):Ref.newInstance(setSlot,id,o.getKey(), o.getValue()));
 			Ref.set(container, "windowId", id);
 			Ref.set(f, TheAPI.isNewerThan(16)?"bV":"activeContainer", container);
 			Ref.invoke(container, addListener, f);

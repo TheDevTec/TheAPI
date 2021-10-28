@@ -1243,8 +1243,7 @@ public class LoaderClass extends JavaPlugin {
 	}
 
 	public void loadWorlds() {
-		if (config.exists("Worlds"))
-			if (!config.getStringList("Worlds").isEmpty()) {
+		if (config.exists("Worlds") && !config.getStringList("Worlds").isEmpty()) {
 				TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 				TheAPI.msg("&cTheAPI&7: &6Action: &eLoading worlds..", TheAPI.getConsole());
 				TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
@@ -1252,24 +1251,22 @@ public class LoaderClass extends JavaPlugin {
 					String type = null;
 					for (String w : Arrays.asList("Default", "Normal", "Nether", "The_End", "End", "The_Void", "Void",
 							"Empty", "Flat")) {
-						if (config.exists("WorldsSetting." + s)) {
-							if(config.exists("WorldsSetting." + s + ".Generator"))
-							if (config.getString("WorldsSetting." + s + ".Generator").equalsIgnoreCase(w)) {
-								if (w.equalsIgnoreCase("Normal")|| w.equalsIgnoreCase("0"))
-									type = "Normal";
-								if (w.equalsIgnoreCase("Flat")|| w.equalsIgnoreCase("3"))
-									type = "Flat";
-								if (w.equalsIgnoreCase("Nether")|| w.equalsIgnoreCase("1"))
-									type = "Nether";
-								if (w.equalsIgnoreCase("The_End") || w.equalsIgnoreCase("End")|| w.equalsIgnoreCase("2"))
-									type = "The_End";
-								if (w.equalsIgnoreCase("The_Void") || w.equalsIgnoreCase("Void")
-										|| w.equalsIgnoreCase("Empty")|| w.equalsIgnoreCase("4"))
-									type = "The_Void";
-								break;
-							}
-						} else
-							break;
+							if(config.exists("WorldsSetting." + s + ".Generator")) {
+								if (config.getString("WorldsSetting." + s + ".Generator").equalsIgnoreCase(w)) {
+									if (w.equalsIgnoreCase("Normal")|| w.equalsIgnoreCase("0"))
+										type = "Normal";
+									if (w.equalsIgnoreCase("Flat")|| w.equalsIgnoreCase("3"))
+										type = "Flat";
+									if (w.equalsIgnoreCase("Nether")|| w.equalsIgnoreCase("1"))
+										type = "Nether";
+									if (w.equalsIgnoreCase("The_End") || w.equalsIgnoreCase("End")|| w.equalsIgnoreCase("2"))
+										type = "The_End";
+									if (w.equalsIgnoreCase("The_Void") || w.equalsIgnoreCase("Void")
+											|| w.equalsIgnoreCase("Empty")|| w.equalsIgnoreCase("4"))
+										type = "The_Void";
+									break;
+								}
+							}else break;
 					}
 					Environment env = Environment.NORMAL;
 					WorldType wt = WorldType.NORMAL;
@@ -1281,13 +1278,18 @@ public class LoaderClass extends JavaPlugin {
 								g=Bukkit.getPluginManager().getPlugin(gen.split(":")[0]).getDefaultWorldGenerator(s, gen.split(":")[1]);
 							}else
 								for(Plugin p : Bukkit.getPluginManager().getPlugins())
+									try {
 									g=p.getDefaultWorldGenerator(s, gen);
+									}catch(Exception err) {}
 							if(g!=null) {
 								boolean f = true;
 								if (config.exists("WorldsSetting." + s + ".GenerateStructures"))
 									f = config.getBoolean("WorldsSetting." + s + ".GenerateStructures");
 								WorldsAPI.create(s, env, wt, g, f, 0);
 								TheAPI.msg("&bTheAPI&7: &eWorld with name '&6" + s + "&e' loaded.", TheAPI.getConsole());
+								continue;
+							}else {
+								TheAPI.msg("&bTheAPI&7: &cFailed to load world with name '&e" + s + "&c'", TheAPI.getConsole());
 								continue;
 							}
 						}
@@ -1310,7 +1312,7 @@ public class LoaderClass extends JavaPlugin {
 					if (config.exists("WorldsSetting." + s + ".GenerateStructures"))
 						f = config.getBoolean("WorldsSetting." + s + ".GenerateStructures");
 					WorldsAPI.create(s, env, wt, f, 0);
-					TheAPI.msg("&bTheAPI&7: &eWorld with name '&6" + s + "&e' loaded.", TheAPI.getConsole());
+					TheAPI.msg("&bTheAPI&7: &eWorld with name '&6" + s + "&e' loaded (Generator: &6"+type+"&e).", TheAPI.getConsole());
 				}
 			}
 	}
