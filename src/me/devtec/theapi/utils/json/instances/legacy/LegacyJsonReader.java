@@ -170,8 +170,6 @@ public class LegacyJsonReader implements JReader {
                             }
                             Map o = (Map) object;
                             for (Object cc : (List<?>) map.get("s")) {
-                                System.out.println(cc);
-                                System.out.println(cc.getClass());
                                 Pair pair = (Pair) read(cc);
                                 o.put(pair.getKey(), pair.getValue());
                             }
