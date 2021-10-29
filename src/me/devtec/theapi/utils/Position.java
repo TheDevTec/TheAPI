@@ -278,8 +278,10 @@ public class Position implements Cloneable {
 
 	private static final int wf = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]);
 	private static final Field f = Ref.field(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "bukkitChunk");
-	private static final Field chunkProv = Ref.field(Ref.nms("World"), "chunkProviderServer");
-	private static Method getOrCreate=Ref.method(Ref.nms("ChunkProviderServer"), "getOrCreateChunk", int.class, int.class);
+	private static final Field chunkProv = Ref.field(Ref.nms("World"), "chunkProvider");
+	private static final Field chunkGen = Ref.field(Ref.nms("ChunkProviderServer"), "chunkGenerator");
+	private static Method getOrCreate=Ref.method(Ref.nms("ChunkGenerator"), "getOrCreateChunk", int.class, int.class);
+	private static Method originalGetChunkAt=Ref.method(Ref.nms("ChunkProviderServer"), "originalGetChunkAt", int.class, int.class);
 	private static final Method handle=Ref.method(Ref.craft("CraftChunk"), "getHandle");
 	static {
 		if(getOrCreate==null)
@@ -290,7 +292,12 @@ public class Position implements Cloneable {
 	public Object getNMSChunk() {
 		try {
 			if(TheAPI.isNewVersion())return Ref.invoke(Ref.cast(cchunk, getWorld().getChunkAt(getBlockX()>>4, getBlockZ()>>4)), handle);
-			return Ref.invoke(Ref.get(Ref.world(getWorld()), chunkProv), getOrCreate, getBlockX() >> 4, getBlockZ() >> 4);
+			Object provider = Ref.get(Ref.world(getWorld()), chunkProv);
+			Object loaded = Ref.invoke(provider,originalGetChunkAt, getBlockX() >> 4, getBlockZ() >> 4);
+			if(loaded==null) { //load chunk
+				loaded=Ref.invoke(Ref.get(provider,chunkGen), getOrCreate, getBlockX() >> 4, getBlockZ() >> 4);
+			}
+			return loaded;
 		} catch (Exception er) {
 		}
 		return null;

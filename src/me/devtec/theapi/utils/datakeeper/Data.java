@@ -178,7 +178,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		if (key == null)
 			return this;
 		requireSave=true;
-		getOrCreateData(key)[1]=simple(value);
+		getOrCreateData(key)[1]=simple(new ArrayList<>(value));
 		return this;
 	}
 
@@ -188,9 +188,9 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			return this;
 		requireSave=true;
 		Object[] g = getOrCreateData(key);
-		if(g[1]==null)g[1]=simple(value);
+		if(g[1]==null)g[1]=simple(new ArrayList<>(value));
 		else
-		((List<String>) g[1]).addAll(simple(value));
+		((List<String>) g[1]).addAll(simple(new ArrayList<>(value)));
 		return this;
 	}
 
@@ -212,7 +212,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		requireSave=true;
 		Object[] g = getOrCreateData(key);
 		if(g[0]!=null)
-			((List<String>) g[1]).removeAll(simple(value));
+			((List<String>) g[1]).removeAll(simple(new ArrayList<>(value)));
 		return this;
 	}
 
@@ -756,7 +756,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	private static List<String> simple(Collection<String> list) {
-		if(list instanceof List)return simple((List<String>)list);
+		if(list instanceof ArrayList)return simple((List<String>)list);
 		List<String> fix = new ArrayList<>(list.size());
 		Iterator<String> s = list.iterator();
 		while(s.hasNext()) {
