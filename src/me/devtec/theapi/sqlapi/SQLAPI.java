@@ -72,11 +72,11 @@ public class SQLAPI {
 		execute("DELETE FROM "+table+" WHERE "+lookingfor+"='"+identifier+"'");
 	}
 
-	public List<Object> getTop(String table, String orderBy, String column, String identifier, int limit) {
+	public List<Object> getTop(String table, String orderBy, String column, String lookingfor, String identifier, int limit) {
 		Validator.validate(!isConnected(), "SQL connection is closed");
 		List<Object> s = new ArrayList<>();
 		try {
-			ResultSet f = query("SELECT TOP "+limit+" "+orderBy+", "+column+" FROM "+table+" WHERE "+column+"='"+identifier+"'");
+			ResultSet f = query("SELECT * FROM "+table+" WHERE "+lookingfor+"='"+identifier+"' ORDER BY '"+orderBy+"' DESC LIMIT "+limit);
 			if(f!=null)
 			while(f.next()) {
 				s.add(f.getObject(column));
@@ -89,7 +89,7 @@ public class SQLAPI {
 		Validator.validate(!isConnected(), "SQL connection is closed");
 		List<Object> s = new ArrayList<>();
 		try {
-			ResultSet f = query("SELECT TOP "+limit+" "+orderBy+", "+column+" FROM "+table);
+			ResultSet f = query("SELECT * FROM "+table+" ORDER BY '"+orderBy+"' DESC LIMIT "+limit);
 			if(f!=null)
 			while(f.next()) {
 				s.add(f.getObject(column));
