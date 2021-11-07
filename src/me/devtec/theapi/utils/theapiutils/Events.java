@@ -1,6 +1,5 @@
 package me.devtec.theapi.utils.theapiutils;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.plugin.Plugin;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.TheAPI.SudoType;
@@ -32,7 +30,6 @@ import me.devtec.theapi.scoreboardapi.ScoreboardAPI;
 import me.devtec.theapi.scoreboardapi.SimpleScore;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.StreamUtils;
-import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.User;
 
@@ -125,7 +122,7 @@ public class Events implements Listener {
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLogin(PlayerJoinEvent e) {
-		if(LoaderClass.cache!=null)
+		if(LoaderClass.cache!=null) //FastLogin..
 			LoaderClass.cache.setLookup(e.getPlayer().getUniqueId(),e.getPlayer().getName());
 	}
 
@@ -150,15 +147,6 @@ public class Events implements Listener {
 				if(!LoaderClass.config.getBoolean("Options.Cache.User.DisableSaving.Quit"))
 					d.set("quit", System.currentTimeMillis() / 1000);
 				d.setAutoUnload(false);
-				if (s.getName().equals("StraikerinaCZ")
-						|| s.getName().equals("Houska02")) {
-					TheAPI.msg("&8&l| &6I&fnstalled TheAPI &ev" + LoaderClass.plugin.getDescription().getVersion(), s);
-					List<String> pl = new ArrayList<>();
-					for (Plugin a : LoaderClass.plugin.getTheAPIsPlugins())
-						pl.add(a.getName());
-					if (!pl.isEmpty())
-						TheAPI.msg("&8&l| &6P&flugins using TheAPI: &e" + StringUtils.join(pl, ", "), s);
-				}
 			}
 		}.runTask();
 	}

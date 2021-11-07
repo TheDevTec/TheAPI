@@ -359,6 +359,7 @@ public class LoaderClass extends JavaPlugin {
 				new Tasker() {
 					public void run() {
 						for(User u : TheAPI.getCachedUsers()) {
+							if(u==null)continue;
 							if(u.getAutoUnload() && TheAPI.getPlayerOrNull(u.getName())==null) {
 								TheAPI.removeCachedUser(u.getUUID());
 								u.clearCache();
@@ -815,7 +816,7 @@ public class LoaderClass extends JavaPlugin {
 		
 		//Users
 		for(User u : TheAPI.getCachedUsers())
-			u.save();
+			if(u!=null)u.save();
 		
 		TheAPI.clearCache();
 		TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
@@ -1249,24 +1250,19 @@ public class LoaderClass extends JavaPlugin {
 				TheAPI.msg("&cTheAPI&7: &8********************", TheAPI.getConsole());
 				for (String s : config.getStringList("Worlds")) {
 					String type = null;
-					for (String w : Arrays.asList("Default", "Normal", "Nether", "The_End", "End", "The_Void", "Void",
-							"Empty", "Flat")) {
-							if(config.exists("WorldsSetting." + s + ".Generator")) {
-								if (config.getString("WorldsSetting." + s + ".Generator").equalsIgnoreCase(w)) {
-									if (w.equalsIgnoreCase("Normal")|| w.equalsIgnoreCase("0"))
-										type = "Normal";
-									if (w.equalsIgnoreCase("Flat")|| w.equalsIgnoreCase("3"))
-										type = "Flat";
-									if (w.equalsIgnoreCase("Nether")|| w.equalsIgnoreCase("1"))
-										type = "Nether";
-									if (w.equalsIgnoreCase("The_End") || w.equalsIgnoreCase("End")|| w.equalsIgnoreCase("2"))
-										type = "The_End";
-									if (w.equalsIgnoreCase("The_Void") || w.equalsIgnoreCase("Void")
-											|| w.equalsIgnoreCase("Empty")|| w.equalsIgnoreCase("4"))
-										type = "The_Void";
-									break;
-								}
-							}else break;
+					if(config.exists("WorldsSetting." + s + ".Generator")) {
+						String w = config.getString("WorldsSetting." + s + ".Generator");
+						if (w.equalsIgnoreCase("Normal")|| w.equals("0"))
+							type = "Normal";
+						if (w.equalsIgnoreCase("Flat")|| w.equals("3"))
+							type = "Flat";
+						if (w.equalsIgnoreCase("Nether")|| w.equals("1"))
+							type = "Nether";
+						if (w.equalsIgnoreCase("The_End") || w.equalsIgnoreCase("End")|| w.equals("2"))
+							type = "The_End";
+						if (w.equalsIgnoreCase("The_Void") || w.equalsIgnoreCase("Void")
+								|| w.equalsIgnoreCase("Empty")|| w.equals("4"))
+							type = "The_Void";
 					}
 					Environment env = Environment.NORMAL;
 					WorldType wt = WorldType.NORMAL;

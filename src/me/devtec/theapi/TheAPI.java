@@ -1086,10 +1086,8 @@ public class TheAPI {
 		getCache().setLookup(uuid, name);
 		if (LoaderClass.config.getBoolean("Options.Cache.User.Use")) {
 			User c = cache.get(uuid);
-			if (c == null) {
-				c = new User(name,uuid);
-				cache.put(uuid, c);
-			}
+			if (c == null)
+				cache.put(uuid, c = new User(name,uuid));
 			return c;
 		}
 		return new User(name,uuid);
@@ -1105,10 +1103,8 @@ public class TheAPI {
 			return null;
 		if (LoaderClass.config.getBoolean("Options.Cache.User.Use")) {
 			User c = cache.get(query.uuid);
-			if (c == null) {
-				c = new User(query);
-				cache.put(query.uuid, c);
-			}
+			if (c == null) 
+				cache.put(query.uuid, c = new User(query));
 			return c;
 		}
 		return new User(query);

@@ -9,7 +9,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 import me.devtec.theapi.utils.theapiutils.Validator;
 
@@ -46,8 +45,6 @@ public class SQLAPI {
 	}
 
 	public void close() {
-		Validator.validate(connection == null, "SQL connection is null");
-		Validator.validate(!isConnected(), "SQL connection is closed");
 		try {
 			connection.close();
 		} catch (Exception e) {
@@ -113,8 +110,13 @@ public class SQLAPI {
 		} catch (Exception e) {
 			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
 				e.printStackTrace();
-			return null;
+			connect();
+			try {
+				return connection.prepareStatement(command);
+			} catch (Exception er) {
+			}
 		}
+		return null;
 	}
 
 	public boolean update(String command) {
@@ -175,8 +177,6 @@ public class SQLAPI {
 				return s.getInt(lookingfor);
 			return 0;
 		} catch (Exception e) {
-			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
-				e.printStackTrace();
 			return 0;
 		}
 	}
@@ -211,8 +211,6 @@ public class SQLAPI {
 				return s.getLong(lookingfor);
 			return 0;
 		} catch (Exception e) {
-			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
-				e.printStackTrace();
 			return 0;
 		}
 	}
@@ -225,8 +223,6 @@ public class SQLAPI {
 				return s.getArray(lookingfor);
 			return null;
 		} catch (Exception e) {
-			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
-				e.printStackTrace();
 			return null;
 		}
 	}
@@ -239,8 +235,6 @@ public class SQLAPI {
 				return s.getBoolean(lookingfor);
 			return false;
 		} catch (Exception e) {
-			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
-				e.printStackTrace();
 			return false;
 		}
 	}
@@ -253,8 +247,6 @@ public class SQLAPI {
 				return s.getByte(lookingfor);
 			return 0;
 		} catch (Exception e) {
-			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
-				e.printStackTrace();
 			return 0;
 		}
 	}
@@ -267,8 +259,6 @@ public class SQLAPI {
 				return s.getObject(lookingfor);
 			return null;
 		} catch (Exception e) {
-			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
-				e.printStackTrace();
 			return null;
 		}
 	}
@@ -281,8 +271,6 @@ public class SQLAPI {
 				return s.getBigDecimal(lookingfor);
 			return new BigDecimal(0);
 		} catch (Exception e) {
-			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
-				e.printStackTrace();
 			return new BigDecimal(0);
 		}
 	}
@@ -295,8 +283,6 @@ public class SQLAPI {
 				return s.getDouble(lookingfor);
 			return 0.0;
 		} catch (Exception e) {
-			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
-				e.printStackTrace();
 			return 0.0;
 		}
 	}
@@ -309,8 +295,6 @@ public class SQLAPI {
 				return s.getString(lookingfor);
 			return null;
 		} catch (Exception e) {
-			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
-				e.printStackTrace();
 			return null;
 		}
 	}
@@ -349,22 +333,19 @@ public class SQLAPI {
 
 	private void openConnection() {
 		try {
-			Validator.validate(connection != null && !connection.isClosed(), "SQL connection is already open");
+			Validator.validate(isConnected(), "SQL connection is already open");
 		} catch (Exception e1) {
 			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
 				e1.printStackTrace();
+			return;
 		}
 		synchronized (LoaderClass.plugin) {
-			if (isConnected())
-				return;
-			if (Ref.getClass("com.mysql.cj.jdbc.Driver")!=null || Ref.getClass("com.mysql.jdbc.Driver") != null)
-				try {
-					connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + at,
-							username, password);
-				} catch (Exception e) {
-					if (!LoaderClass.config.getBoolean("Options.HideErrors"))
-						e.printStackTrace();
-				}
+			try {
+				connection = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + at, username, password);
+			} catch (Exception e) {
+				if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+					e.printStackTrace();
+			}
 		}
 	}
 }

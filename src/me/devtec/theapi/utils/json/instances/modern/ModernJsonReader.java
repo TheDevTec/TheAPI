@@ -38,6 +38,10 @@ public class ModernJsonReader implements JReader {
             if (json.equalsIgnoreCase("false")) return false;
             if (StringUtils.isNumber(json)) return StringUtils.getNumber(json);
 			Map<String, Object> map = parser.fromJson(json, Map.class);
+			if(map==null) {
+				Collection<Object> list = parser.fromJson(json, Collection.class);
+				return list!=null?list:json;
+			}
 			if(map.size()==1) {
 				Entry<String, Object> key = map.entrySet().iterator().next();
 				Object read = Utils.read(key.getKey(), key.getValue());
@@ -122,7 +126,8 @@ public class ModernJsonReader implements JReader {
             return object;
         }catch(Exception err){
         	try {
-        		return parser.fromJson(json, Collection.class);
+				Collection<Object> list = parser.fromJson(json, Collection.class);
+				return list!=null?list:json;
         	}catch(Exception er) {}
         }
         return json;

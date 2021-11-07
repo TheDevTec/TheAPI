@@ -104,9 +104,11 @@ public class NameTagAPI {
 	 * @param team By teamName you can sort players in tablist -> create sorted
 	 *                 tablist
 	 */
-	public void setNameTag(String team) {
+	public void setNameTag(String teamName) {
+		if (teamName == null)teamName = "z";
+		if (teamName.length() > 16)teamName = teamName.substring(0, 15).toLowerCase();
 		for (Player p : TheAPI.getOnlinePlayers())
-			setNameTag(team, p.getScoreboard());
+			setNameTag(teamName, p.getScoreboard());
 	}
 
 	/**
@@ -117,8 +119,8 @@ public class NameTagAPI {
 
 	public void setNameTag(String teamName, Scoreboard sb) {
 		if (teamName == null)teamName = "z";
+		if (teamName.length() > 16)teamName = teamName.substring(0, 15).toLowerCase();
 		if (sb == null)sb = p.getScoreboard();
-		if (teamName.length() > 16)teamName = teamName.substring(0, 15);
 		Team t = sb.getTeam(teamName);
 		if (t == null)t=sb.registerNewTeam(teamName);
 		if (suffix != null) {

@@ -70,11 +70,7 @@ public class YamlLoader extends DataLoader {
 			String line;
 			while((line=r.readLine())!=null) {
 				String trim = line.trim();
-				if(trim.isEmpty()) {
-					comments.add("");
-					continue;
-				}
-				if(trim.startsWith("#")) {
+				if(trim.isEmpty()||trim.charAt(0)=='#') {
 					comments.add(line.substring(removeSpaces(line)));
 					continue;
 				}
@@ -114,20 +110,22 @@ public class YamlLoader extends DataLoader {
 					if (sub <= last) {
 						if (sub==0)
 							key = "";
-						if (sub == last) {
-							String[] ff = split(key);
-							String lastr = ff[ff.length - 1] + 1;
-							int remove = key.length() - lastr.length();
-							if (remove > 0)
-								key = key.substring(0, remove);
-						} else {
-							for (int i = 0; i < Math.abs(last - sub) / 2 + 1; ++i) {
+						else {
+							if (sub == last) {
 								String[] ff = split(key);
 								String lastr = ff[ff.length - 1] + 1;
 								int remove = key.length() - lastr.length();
-								if (remove < 0)
-									break;
-								key = key.substring(0, remove);
+								if (remove > 0)
+									key = key.substring(0, remove);
+							} else {
+								for (int i = 0; i < Math.abs(last - sub) / 2 + 1; ++i) {
+									String[] ff = split(key);
+									String lastr = ff[ff.length - 1] + 1;
+									int remove = key.length() - lastr.length();
+									if (remove < 0)
+										break;
+									key = key.substring(0, remove);
+								}
 							}
 						}
 					}
@@ -136,8 +134,7 @@ public class YamlLoader extends DataLoader {
 					if(!key.isEmpty())key+=".";
 					key += keyr;
 
-					boolean before = wasEmpty;
-					if(before)comments.clear();
+					if(wasEmpty)comments.clear();
 					if(wasEmpty=value.trim().isEmpty())
 						continue;
 					
@@ -200,7 +197,7 @@ public class YamlLoader extends DataLoader {
 			
 			for(String line : input.split(System.lineSeparator())) {
 				String trim = line.trim();
-				if(trim.isEmpty()||trim.startsWith("#")) {
+				if(trim.isEmpty()||trim.charAt(0)=='#') {
 					comments.add(line.substring(removeSpaces(line)));
 					continue;
 				}
@@ -240,20 +237,22 @@ public class YamlLoader extends DataLoader {
 					if (sub <= last) {
 						if (sub==0)
 							key = "";
-						if (sub == last) {
-							String[] ff = split(key);
-							String lastr = ff[ff.length - 1] + 1;
-							int remove = key.length() - lastr.length();
-							if (remove > 0)
-								key = key.substring(0, remove);
-						} else {
-							for (int i = 0; i < Math.abs(last - sub) / 2 + 1; ++i) {
+						else {
+							if (sub == last) {
 								String[] ff = split(key);
 								String lastr = ff[ff.length - 1] + 1;
 								int remove = key.length() - lastr.length();
-								if (remove < 0)
-									break;
-								key = key.substring(0, remove);
+								if (remove > 0)
+									key = key.substring(0, remove);
+							} else {
+								for (int i = 0; i < Math.abs(last - sub) / 2 + 1; ++i) {
+									String[] ff = split(key);
+									String lastr = ff[ff.length - 1] + 1;
+									int remove = key.length() - lastr.length();
+									if (remove < 0)
+										break;
+									key = key.substring(0, remove);
+								}
 							}
 						}
 					}
@@ -262,8 +261,7 @@ public class YamlLoader extends DataLoader {
 					if(!key.isEmpty())key+=".";
 					key += keyr;
 
-					boolean before = wasEmpty;
-					if(before)comments.clear();
+					if(wasEmpty)comments.clear();
 					if(wasEmpty=value.trim().isEmpty())
 						continue;
 					
@@ -353,7 +351,7 @@ public class YamlLoader extends DataLoader {
 		return k.length() > 1 && (k.startsWith("\"") && k.endsWith("\"")||k.startsWith("'") && k.endsWith("'"))?key.substring(1, key.length()-1-removeLastSpaces(key)):key;
 	}
 
-	private static int removeLastSpaces(String s) {
+	public static int removeLastSpaces(String s) {
 		int i = 0;
 		for(int d = s.length()-1; d > 0; --d) {
 			if(s.charAt(d)==' ') {
