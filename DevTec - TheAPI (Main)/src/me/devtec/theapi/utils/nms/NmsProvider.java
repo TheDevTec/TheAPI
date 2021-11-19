@@ -31,7 +31,7 @@ public interface NmsProvider {
 	}
 
 	public enum ChatType {
-1		CHAT(0), SYSTEM(1), GAME_INFO(2);
+		CHAT(0), SYSTEM(1), GAME_INFO(2);
 		
 		byte id;
 		ChatType(int i) {
