@@ -136,6 +136,10 @@ public interface NmsProvider {
 	public Object toIChatBaseComponent(List<Component> components);
 
 	public Object toIChatBaseComponent(Component component);
+
+	public Object toIChatBaseComponents(List<Component> components);
+	
+	public Object toIChatBaseComponents(Component component);
 	
 	public String fromIChatBaseComponent(Object component);
 	

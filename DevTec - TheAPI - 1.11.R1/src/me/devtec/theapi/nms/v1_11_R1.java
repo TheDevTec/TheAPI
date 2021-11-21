@@ -1,6 +1,7 @@
 package me.devtec.theapi.nms;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,6 +36,8 @@ import net.minecraft.server.v1_11_R1.Blocks;
 import net.minecraft.server.v1_11_R1.ChatClickable;
 import net.minecraft.server.v1_11_R1.ChatClickable.EnumClickAction;
 import net.minecraft.server.v1_11_R1.ChatComponentText;
+import net.minecraft.server.v1_11_R1.ChatHoverable;
+import net.minecraft.server.v1_11_R1.ChatHoverable.EnumHoverAction;
 import net.minecraft.server.v1_11_R1.ChatModifier;
 import net.minecraft.server.v1_11_R1.ChunkCoordIntPair;
 import net.minecraft.server.v1_11_R1.ChunkProviderServer;
@@ -254,6 +257,65 @@ public class v1_11_R1 implements NmsProvider {
 	}
 
 	@Override
+	public Object toIChatBaseComponents(List<Component> components) {
+		List<IChatBaseComponent> chat = new ArrayList<>();
+		chat.add(new ChatComponentText(""));
+		for(Component c : components) {
+			if(c.getText()==null||c.getText().isEmpty()) {
+				c=c.getExtra();
+				continue;
+			}
+			ChatComponentText current = new ChatComponentText(c.getText());
+			chat.add(current);
+			ChatModifier modif = current.getChatModifier();
+			if(c.getColor()!=null && !c.getColor().isEmpty()) {
+				modif=modif.setColor(EnumChatFormat.a(c.getColor().charAt(0)));
+			}
+			if(c.getClickEvent()!=null)
+				modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+			if(c.getHoverEvent()!=null)
+				modif.setChatHoverable(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
+			modif.setBold(c.isBold());
+			modif.setItalic(c.isItalic());
+			modif.setRandom(c.isObfuscated());
+			modif.setUnderline(c.isUnderlined());
+			modif.setStrikethrough(c.isStrikethrough());
+			current.setChatModifier(modif);
+		}
+		return chat.toArray(new IChatBaseComponent[0]);
+	}
+
+	@Override
+	public Object toIChatBaseComponents(Component c) {
+		List<IChatBaseComponent> chat = new ArrayList<>();
+		chat.add(new ChatComponentText(""));
+		while(c!=null) {
+			if(c.getText()==null||c.getText().isEmpty()) {
+				c=c.getExtra();
+				continue;
+			}
+			ChatComponentText current = new ChatComponentText(c.getText());
+			chat.add(current);
+			ChatModifier modif = current.getChatModifier();
+			if(c.getColor()!=null && !c.getColor().isEmpty()) {
+				modif=modif.setColor(EnumChatFormat.a(c.getColor().charAt(0)));
+			}
+			if(c.getClickEvent()!=null)
+				modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+			if(c.getHoverEvent()!=null)
+				modif.setChatHoverable(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
+			modif.setBold(c.isBold());
+			modif.setItalic(c.isItalic());
+			modif.setRandom(c.isObfuscated());
+			modif.setUnderline(c.isUnderlined());
+			modif.setStrikethrough(c.isStrikethrough());
+			current.setChatModifier(modif);
+			c=c.getExtra();
+		}
+		return chat.toArray(new IChatBaseComponent[0]);
+	}
+
+	@Override
 	public Object toIChatBaseComponent(Component c) {
 		ChatComponentText main = new ChatComponentText("");
 		while(c!=null) {
@@ -267,8 +329,10 @@ public class v1_11_R1 implements NmsProvider {
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
 				modif=modif.setColor(EnumChatFormat.a(c.getColor().charAt(0)));
 			}
-			if(c.getUrl()!=null)
-				modif.setChatClickable(new ChatClickable(EnumClickAction.OPEN_URL, c.getUrl()));
+			if(c.getClickEvent()!=null)
+				modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+			if(c.getHoverEvent()!=null)
+				modif.setChatHoverable(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
 			modif.setBold(c.isBold());
 			modif.setItalic(c.isItalic());
 			modif.setRandom(c.isObfuscated());
@@ -294,8 +358,10 @@ public class v1_11_R1 implements NmsProvider {
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
 				modif=modif.setColor(EnumChatFormat.a(c.getColor().charAt(0)));
 			}
-			if(c.getUrl()!=null)
-				modif.setChatClickable(new ChatClickable(EnumClickAction.OPEN_URL, c.getUrl()));
+			if(c.getClickEvent()!=null)
+				modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+			if(c.getHoverEvent()!=null)
+				modif.setChatHoverable(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
 			modif.setBold(c.isBold());
 			modif.setItalic(c.isItalic());
 			modif.setRandom(c.isObfuscated());

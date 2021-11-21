@@ -6,9 +6,17 @@ import java.util.Map;
 import org.bukkit.ChatColor;
 
 public class Component {
+	
 	private Component extra;
-	private String text, url, color;
+	private String text;
+	
+	//COLOR & FORMATS
+	private String color;
 	private boolean bold = false, italic = false, obfuscated = false, strike = false, under = false;
+	
+	//ADDITIONAL
+	private ClickEvent clickEvent;
+	private HoverEvent hoverEvent;
 	
 	public Component() {
 		
@@ -46,12 +54,20 @@ public class Component {
 		return getLegacyColor()+getFormats()+text;
 	}
 
-	public String getUrl() {
-		return url;
+	public ClickEvent getClickEvent() {
+		return clickEvent;
 	}
 
-	public void setUrl(String url) {
-		this.url = url;
+	public void setClickEvent(ClickEvent event) {
+		clickEvent = event;
+	}
+
+	public HoverEvent getHoverEvent() {
+		return hoverEvent;
+	}
+
+	public void setHoverEvent(HoverEvent event) {
+		hoverEvent = event;
 	}
 
 	public String getLegacyColor() {
@@ -123,8 +139,10 @@ public class Component {
 		String json = "{\"text\":\""+getText()+"\"";
 		if(color!=null&&!color.isEmpty())
 			json+=",\"color\":\""+color+"\"";
-		if(url!=null)
-			json+=",\"clickEvent\":{\"action\":\"open_url\",\"value\":\""+url+"\"}";
+		if(clickEvent!=null)
+			json+=",\"clickEvent\":"+clickEvent.toJson();
+		if(hoverEvent!=null)
+			json+=",\"hoverEvent\":"+hoverEvent.toJson();
 		if(bold) {
 			json+=",\"bold\":true";
 		}
@@ -151,11 +169,11 @@ public class Component {
 		map.put("text", getText());
 		if(color!=null&&!color.isEmpty())
 		map.put("color", color);
-		if(url!=null) {
-			Map<String, String> event = new LinkedHashMap<>();
-			event.put("action", "open_url");
-			event.put("value", url);
-			map.put("clickEvent", event);
+		if(clickEvent!=null) {
+			map.put("clickEvent", clickEvent.toJsonMap());
+		}
+		if(hoverEvent!=null) {
+			map.put("hoverEvent", hoverEvent.toJsonMap());
 		}
 		if(bold) {
 			map.put("bold", true);

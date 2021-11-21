@@ -14,7 +14,7 @@ import me.devtec.theapi.utils.theapiutils.LoaderClass;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ClickEvent.Action;
+import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class ComponentAPI {
@@ -34,6 +34,16 @@ public class ComponentAPI {
 		if(components==null)return null;
 		return LoaderClass.nmsProvider.toIChatBaseComponent(components);
 	}
+	
+	public static Object toIChatBaseComponents(Component component) {
+		if(component==null)return null;
+		return LoaderClass.nmsProvider.toIChatBaseComponents(component);
+	}
+	
+	public static Object toIChatBaseComponents(List<Component> components) {
+		if(components==null)return null;
+		return LoaderClass.nmsProvider.toIChatBaseComponents(components);
+	}
 
 	public static String fromIChatBaseComponent(Object component) {
 		if(component==null)return null;
@@ -44,25 +54,29 @@ public class ComponentAPI {
 		if(c==null)return null;
 		TextComponent main = new TextComponent(), current = main;
 		while(c!=null) {
+			if(main!=current) {
+				TextComponent next = new TextComponent(c.getText());
+				current.addExtra(next);
+				current=next;
+			}else {
+				current.setText(c.getText());
+			}
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
 				if(c.getColor().startsWith("#"))
 					current.setColor(ChatColor.of(c.getColor()));
 				else
 					current.setColor(ChatColor.getByChar(c.getColor().charAt(0)));
 			}
-			if(c.getUrl()!=null)
-				current.setClickEvent(new ClickEvent(Action.OPEN_URL, c.getUrl()));
+			if(c.getClickEvent()!=null)
+				current.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+			if(c.getHoverEvent()!=null)
+				current.setHoverEvent(new HoverEvent(HoverEvent.Action.valueOf(c.getHoverEvent().getAction().name()), toBaseComponents(c.getHoverEvent().getValue())));
 			current.setBold(c.isBold());
 			current.setItalic(c.isItalic());
 			current.setObfuscated(c.isObfuscated());
 			current.setUnderlined(c.isUnderlined());
 			current.setStrikethrough(c.isStrikethrough());
 			c=c.getExtra();
-			if(c!=null) {
-				TextComponent next = new TextComponent(c.getText());
-				current.addExtra(next);
-				current=next;
-			}
 		}
 		return main;
 	}
@@ -70,29 +84,29 @@ public class ComponentAPI {
 	public static BaseComponent toBaseComponent(List<Component> cc) {
 		if(cc==null)return null;
 		TextComponent main = new TextComponent(), current = main;
-		for(int i = 0; i < cc.size(); ++i) {
-			Component c = cc.get(i);
+		for(Component c : cc) {
+			if(main!=current) {
+				TextComponent next = new TextComponent(c.getText());
+				current.addExtra(next);
+				current=next;
+			}else {
+				current.setText(c.getText());
+			}
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
 				if(c.getColor().startsWith("#"))
 					current.setColor(ChatColor.of(c.getColor()));
 				else
 					current.setColor(ChatColor.getByChar(c.getColor().charAt(0)));
 			}
-			if(c.getUrl()!=null)
-				current.setClickEvent(new ClickEvent(Action.OPEN_URL, c.getUrl()));
+			if(c.getClickEvent()!=null)
+				current.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+			if(c.getHoverEvent()!=null)
+				current.setHoverEvent(new HoverEvent(HoverEvent.Action.valueOf(c.getHoverEvent().getAction().name()), toBaseComponents(c.getHoverEvent().getValue())));
 			current.setBold(c.isBold());
 			current.setItalic(c.isItalic());
 			current.setObfuscated(c.isObfuscated());
 			current.setUnderlined(c.isUnderlined());
 			current.setStrikethrough(c.isStrikethrough());
-			if(i+1<cc.size()) {
-				c=cc.get(i+1);
-				if(c!=null) {
-					TextComponent next = new TextComponent(c.getText());
-					current.addExtra(next);
-					current=next;
-				}
-			}
 		}
 		return main;
 	}
@@ -108,8 +122,10 @@ public class ComponentAPI {
 				else
 					current.setColor(ChatColor.getByChar(c.getColor().charAt(0)));
 			}
-			if(c.getUrl()!=null)
-				current.setClickEvent(new ClickEvent(Action.OPEN_URL, c.getUrl()));
+			if(c.getClickEvent()!=null)
+				current.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+			if(c.getHoverEvent()!=null)
+				current.setHoverEvent(new HoverEvent(HoverEvent.Action.valueOf(c.getHoverEvent().getAction().name()), toBaseComponents(c.getHoverEvent().getValue())));
 			current.setBold(c.isBold());
 			current.setItalic(c.isItalic());
 			current.setObfuscated(c.isObfuscated());
@@ -124,8 +140,7 @@ public class ComponentAPI {
 	public static BaseComponent[] toBaseComponents(List<Component> cc) {
 		if(cc==null)return null;
 		List<TextComponent> chat = new ArrayList<>();
-		for(int i = 0; i < cc.size(); ++i) {
-			Component c = cc.get(i);
+		for(Component c : cc) {
 			TextComponent current = new TextComponent(c.getText());
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
 				if(c.getColor().startsWith("#"))
@@ -133,8 +148,10 @@ public class ComponentAPI {
 				else
 					current.setColor(ChatColor.getByChar(c.getColor().charAt(0)));
 			}
-			if(c.getUrl()!=null)
-				current.setClickEvent(new ClickEvent(Action.OPEN_URL, c.getUrl()));
+			if(c.getClickEvent()!=null)
+				current.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+			if(c.getHoverEvent()!=null)
+				current.setHoverEvent(new HoverEvent(HoverEvent.Action.valueOf(c.getHoverEvent().getAction().name()), toBaseComponents(c.getHoverEvent().getValue())));
 			current.setBold(c.isBold());
 			current.setItalic(c.isItalic());
 			current.setObfuscated(c.isObfuscated());
@@ -263,7 +280,7 @@ public class ComponentAPI {
 					if(!inHexLoop) {
 						if(url==null) {
 							current.setText(builder.toString());
-							current.setUrl(url);
+							current.setClickEvent(new me.devtec.theapi.utils.components.ClickEvent(me.devtec.theapi.utils.components.ClickEvent.Action.OPEN_URL, url));
 							current.setColor(color);
 							builder.delete(0, builder.length());
 							color=null;
@@ -287,7 +304,7 @@ public class ComponentAPI {
 						if(c>=107 && c<=111||c>=75&& c<=79) {
 						if(builder.length()!=0) {
 							current.setText(builder.toString());
-							current.setUrl(url);
+							current.setClickEvent(new me.devtec.theapi.utils.components.ClickEvent(me.devtec.theapi.utils.components.ClickEvent.Action.OPEN_URL, url));
 							current.setColor(color);
 							builder.delete(0, builder.length());
 							color=null;
@@ -346,7 +363,7 @@ public class ComponentAPI {
 						current=next;
 					}
 					current.setText(url);
-					current.setUrl(url);
+					current.setClickEvent(new me.devtec.theapi.utils.components.ClickEvent(me.devtec.theapi.utils.components.ClickEvent.Action.OPEN_URL, url));
 					url=null;
 					current.setColor(color);
 					builder.delete(0, builder.length());
@@ -381,7 +398,7 @@ public class ComponentAPI {
 					current=next;
 				}
 				current.setText(url);
-				current.setUrl(url);
+				current.setClickEvent(new me.devtec.theapi.utils.components.ClickEvent(me.devtec.theapi.utils.components.ClickEvent.Action.OPEN_URL, url));
 				current.setColor(color);
 			}else {
 				current.setText(builder.toString());
