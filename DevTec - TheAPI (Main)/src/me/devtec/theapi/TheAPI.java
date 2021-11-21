@@ -931,7 +931,7 @@ public class TheAPI {
 	 */
 	public static int getPlayerPing(Player p) {
 		try {
-			return (int) Ref.get(Ref.player(p), isNewerThan(16)?"e":"ping");
+			return (int) LoaderClass.nmsProvider.getPing(p);
 		} catch (Exception e) {
 			return -1;
 		}

@@ -1,149 +1,21 @@
 package me.devtec.theapi.utils;
 
-import java.lang.reflect.Method;
-import java.util.Map;
-
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
 
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class TheMaterial implements Cloneable {
-	static Method mm;
-	static Method mat;
-	static final Method create;
-	static final Class<?> block = Ref.nmsOrOld("world.level.block.Block","Block");
-	static final Class<?> item = Ref.nmsOrOld("world.item.Item","Item");
-
-	static {
-		create = Ref.method(Ref.craft("inventory.CraftItemStack"), "asNewCraftStack", Ref.nmsOrOld("world.item.Item","Item"));
-		if(!TheAPI.isNewVersion()) {
-			mm=Ref.method(Ref.craft("util.CraftMagicNumbers"), "getId", Ref.nmsOrOld("world.level.block.Block","Block"));
-			mat=Ref.method(Material.class, "getMaterial", int.class);
-		}
-	}
 
 	public static TheMaterial fromData(Object blockData) {
-		return new TheMaterial(blockData);
+		return LoaderClass.nmsProvider.toMaterial(blockData);
 	}
 
 	public static TheMaterial fromData(Object blockData, int data) {
-		return new TheMaterial(blockData, data);
+		return LoaderClass.nmsProvider.toMaterial(blockData).setData(data);
 	}
 	
-	private TheMaterial(Object blockData, int data) { //1.7.10 support
-		this.data=data;
-		if(TheAPI.isNewVersion()) {
-			if(block.isInstance(blockData)) {
-				ItemStack stack = (ItemStack)Ref.invokeNulled(create, Ref.invoke(blockData,"getItem"));
-				m = stack.getType();
-				this.amount = stack.getAmount();
-				return;
-			}
-			if(item.isInstance(blockData)) {
-				ItemStack stack = (ItemStack)Ref.invokeNulled(create, blockData);
-				m = stack.getType();
-				this.amount = stack.getAmount();
-				return;
-			}
-			ItemStack stack = (ItemStack)Ref.invokeNulled(create, Ref.invoke(Ref.invoke(blockData, "getBlock"),"getItem"));
-			m = stack.getType();
-			this.amount = stack.getAmount();
-		}else {
-			if(TheAPI.isOlderThan(8)) { //1.7.10
-				if(item.isInstance(blockData)) {
-					ItemStack stack = (ItemStack)Ref.invokeNulled(create, blockData);
-					m = stack.getType();
-					this.amount = stack.getAmount();
-					return;
-				}
-				if(block.isInstance(blockData)) {
-					int id = (int)Ref.invokeNulled(mm, blockData);
-					m=(Material) Ref.invokeNulled(mat, id);
-					amount=1;
-					return;
-				}
-				m=Material.AIR;
-				amount=1;
-				return;
-			}
-			if(item.isInstance(blockData)) {
-				ItemStack stack = (ItemStack)Ref.invokeNulled(create, blockData);
-				m = stack.getType();
-				this.data = stack.getData().getData();
-				this.amount = stack.getAmount();
-				return;
-			}
-			if(block.isInstance(blockData)) {
-				int id = (int)Ref.invokeNulled(mm, blockData);
-				m=(Material) Ref.invokeNulled(mat, id);
-				amount=1;
-				return;
-			}
-			int id = (int)Ref.invokeNulled(mm, Ref.invoke(blockData, "getBlock"));
-			m=(Material) Ref.invokeNulled(mat, id);
-			amount=1;
-		}
-	}
-
-	private static final Method bb = Ref.method(Ref.craft("util.CraftMagicNumbers"), "getMaterial", Ref.nmsOrOld("world.level.block.Block","Block"));
-	
-	private TheMaterial(Object blockData) {
-		if(blockData==null)return;
-		if(TheAPI.isNewVersion()) { //1.13+
-			if(block.isInstance(blockData)) {
-				ItemStack stack = new ItemStack((Material)Ref.invokeNulled(bb, blockData));
-				m = stack.getType();
-				this.data = stack.getData().getData();
-				this.amount = stack.getAmount();
-				return;
-			}
-			if(item.isInstance(blockData)) {
-				ItemStack stack = (ItemStack)Ref.invokeNulled(create, blockData);
-				m = stack.getType();
-				this.data = stack.getData().getData();
-				this.amount = stack.getAmount();
-				return;
-			}
-			ItemStack stack = new ItemStack((Material)Ref.invokeNulled(bb, Ref.invoke(blockData,"getBlock")));
-			m = stack.getType();
-			this.data = stack.getData().getData();
-			this.amount = stack.getAmount();
-		}else { //1.7 - 1.12.2
-			if(block.isInstance(blockData)) {
-				ItemStack stack = new ItemStack((Material)Ref.invokeNulled(bb, blockData));
-				m = stack.getType();
-				this.data = stack.getData().getData();
-				if(TheAPI.isNewerThan(7))
-				try {
-					data=(byte)Ref.invoke(blockData, "toLegacyData",Ref.invoke(blockData, "getBlockData"));
-				}catch(Exception | NoSuchMethodError outDated) {
-				}
-				this.amount = stack.getAmount();
-				return;
-			}
-			if(item.isInstance(blockData)) {
-				ItemStack stack = (ItemStack)Ref.invokeNulled(create, blockData);
-				m = stack.getType();
-				this.data = stack.getData().getData();
-				this.amount = stack.getAmount();
-				return;
-			}
-			ItemStack stack = new ItemStack((Material)Ref.invokeNulled(bb, Ref.invoke(blockData,"getBlock")));
-			m = stack.getType();
-			if(TheAPI.isNewerThan(7))
-			try {
-				data=(byte)Ref.invoke(Ref.invoke(blockData,"getBlock"), "toLegacyData",blockData);
-			}catch(Exception | NoSuchMethodError outDated) {
-			}
-			this.amount = stack.getAmount();
-		}
-	}
-
 	public TheMaterial(ItemStack stack) {
 		this(stack.getType(), stack.getData().getData(), stack.getAmount());
 	}
@@ -217,10 +89,6 @@ public class TheMaterial implements Cloneable {
 		return amount;
 	}
 
-	public void setAmount(int amount) {
-		this.amount = amount;
-	}
-
 	public int getData() {
 		return data;
 	}
@@ -228,63 +96,36 @@ public class TheMaterial implements Cloneable {
 	public Material getType() {
 		return m;
 	}
-
-	public int getCombinedId() {
-		return (int) Ref.invokeNulled(Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "getCombinedId", Ref.nmsOrOld("world.level.block.state.IBlockData","IBlockData")),
-				getIBlockData());
+	public TheMaterial setType(Material material) {
+		m = material;
+		return this;
 	}
 
-	private static final Method fromLegacy;
-	private static Method id = Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "getByCombinedId", int.class);
-	static {
-		if(id==null)id=Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "getById", int.class);
-		fromLegacy=Ref.method(Ref.nmsOrOld("world.level.block.Block","Block"), "fromLegacyData", int.class);
+	public TheMaterial setData(int data) {
+		this.data = data;
+		return this;
+	}
+
+	public TheMaterial setAmount(int amount) {
+		this.amount = amount;
+		return this;
+	}
+
+	public int getCombinedId() {
+		return LoaderClass.nmsProvider.getCombinedId(TheAPI.isNewerThan(7)?getIBlockData():getBlock());
 	}
 	
 	public Object getIBlockData() {
-		if(TheAPI.isNewerThan(12))
-			return Ref.get(Bukkit.createBlockData(m), "state");
-		try {
-			if(TheAPI.isOlderThan(8)) {
-				return Ref.invokeNulled(id, (int) m.getId());
-			}
-			Object o = Ref.invokeNulled(id,
-					(int) ((m.getId() + (data >> 4))));
-			if (o == null)
-				o = Ref.invokeNulled(id, (int) m.getId());
-			else
-				o = Ref.invoke(Ref.invoke(o, "getBlock"), fromLegacy, (int) data);
-			return o;
-		} catch (Exception err) {
-			if (m != null) {
-				Map<?, ?> materialToData = (Map<?, ?>) Ref.getNulled(Ref.craft("legacy.CraftLegacy"),
-						"materialToData");
-				Map<?, ?> materialToBlock = (Map<?, ?>) Ref.getNulled(Ref.craft("legacy.CraftLegacy"),
-						"materialToBlock");
-				MaterialData materialData = toItemStack().getData();
-				if (materialData != null) {
-					Object converted = materialToData.get(materialData);
-					if (converted != null)
-						return converted;
-					Object convertedBlock = materialToBlock.get(materialData);
-					if (convertedBlock != null)
-						return Ref.invoke(convertedBlock, "getBlockData");
-				}
-			}
-			return LoaderClass.air;
-		}
+		return LoaderClass.nmsProvider.toBlock(this);
 	}
 
-	public void setType(Material material) {
-		m = material;
-	}
-
-	public void setData(int data) {
-		this.data = data;
-	}
 
 	public Object toNMSItemStack() {
 		return LoaderClass.nmsProvider.asNMSItem(toItemStack());
+	}
+
+	public Object getBlock() {
+		return LoaderClass.nmsProvider.toBlock(this);
 	}
 
 	public ItemStack toItemStack() {
@@ -340,13 +181,5 @@ public class TheMaterial implements Cloneable {
 
 	public TheMaterial clone() {
 		return new TheMaterial(m, data, amount);
-	}
-
-	private static final Class<?> bab = Ref.nmsOrOld("world.level.block.Block", "Block");
-	private static final Method getBlock = Ref.method(Ref.nmsOrOld("world.level.block.state.IBlockData", "IBlockData"), "getBlock");
-	public Object getBlock() {
-		Object ib = getIBlockData();
-		if(bab.isInstance(ib))return ib;
-		return Ref.invoke(ib, getBlock);
 	}
 }

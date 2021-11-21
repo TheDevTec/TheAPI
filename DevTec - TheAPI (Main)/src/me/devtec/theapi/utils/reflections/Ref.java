@@ -13,13 +13,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.components.ComponentAPI;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class Ref {
-	private static final Constructor<?> blockpos = constructor(nmsOrOld("core.BlockPosition", "BlockPosition"), double.class,
-			double.class, double.class);
 	private static final Constructor<?> c = Ref.constructor(
 					Ref.getClass("com.mojang.authlib.GameProfile") != null
 							? Ref.getClass("com.mojang.authlib.GameProfile")
@@ -30,11 +27,8 @@ public class Ref {
 							? Ref.getClass("com.mojang.authlib.properties.Property")
 							: Ref.getClass("net.minecraft.util.com.mojang.authlib.properties.Property"),
 					String.class, String.class, String.class);
-	private static final Class<?> craft = craft("entity.CraftPlayer");
-	private static final Class<?> world = craft("CraftWorld");
 	private static final Class<?> playerInfoData = Ref.nmsOrOld("network.protocol.game.PacketPlayOutPlayerInfo$PlayerInfoData",
 					"PacketPlayOutPlayerInfo$PlayerInfoData");
-	private static Method ichatcon;
 	private static Constructor<?> playerInfo;
 	static {
 		try {
@@ -43,9 +37,6 @@ public class Ref {
 					: null;
 		} catch (Exception err) {
 		}
-		ichatcon = method(nmsOrOld("network.chat.IChatBaseComponent$ChatSerializer", "IChatBaseComponent$ChatSerializer"), "a", String.class);
-		if (ichatcon == null)
-			ichatcon = method(nmsOrOld(null, "ChatSerializer"), "a", String.class);
 	}
 
 	public static Object createGameProfile(UUID id, String name) {
@@ -114,8 +105,8 @@ public class Ref {
 		return a;
 	}
 
-	public static Object blockPos(double x, double y, double z) {
-		return newInstance(blockpos, x, y, z);
+	public static Object blockPos(int x, int y, int z) {
+		return LoaderClass.nmsProvider.blockPosition(x,y,z);
 	}
 
 	public static Object IChatBaseComponent(String text) {
@@ -123,7 +114,7 @@ public class Ref {
 	}
 
 	public static Object IChatBaseComponentJson(String text) {
-		return invokeNulled(ichatcon, text);
+		return LoaderClass.nmsProvider.chatBase(text);
 	}
 
 	public static void sendPacket(Player to, Object packet) {
@@ -189,25 +180,23 @@ public class Ref {
 	}
 
 	public static Object player(Player a) {
-		return handle(cast(craft, a));
+		return LoaderClass.nmsProvider.getPlayer(a);
 	}
-	static final Field playerCon = Ref.field(Ref.nmsOrOld("server.level.EntityPlayer","EntityPlayer"), TheAPI.isNewerThan(16) ? "b" : "playerConnection");
-	static final Field network = Ref.field(Ref.nmsOrOld("server.network.PlayerConnection","PlayerConnection"), TheAPI.isNewerThan(16) ? "a" : "networkManager");
-	static final Field channel = Ref.field(Ref.nmsOrOld("network.NetworkManager","NetworkManager"), TheAPI.isNewerThan(1) ? "k" : TheAPI.isNewerThan(7)?"channel":"k");
+	
 	public static Object playerCon(Player a) {
-		return get(player(a), playerCon);
+		return LoaderClass.nmsProvider.getPlayerConnection(a);
 	}
 
 	public static Object network(Object playercon) {
-		return get(playercon, network);
+		return LoaderClass.nmsProvider.getConnectionNetwork(playercon);
 	}
 
 	public static Object channel(Object network) {
-		return get(network, channel);
+		return LoaderClass.nmsProvider.getNetworkChannel(network);
 	}
 
 	public static Object world(World a) {
-		return handle(cast(world, a));
+		return LoaderClass.nmsProvider.getWorld(a);
 	}
 
 	public static Object cast(Class<?> c, Object item) {

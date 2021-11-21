@@ -1,9 +1,12 @@
 package me.devtec.theapi.blocksapi;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bukkit.Chunk;
@@ -23,6 +26,7 @@ import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.TheMaterial;
 import me.devtec.theapi.utils.reflections.Ref;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
 import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class BlocksAPI {
@@ -601,10 +605,7 @@ public class BlocksAPI {
 			List<TheMaterial> ignore) {
 		asynchronizedSet(a, b, onFinish, Collections.singletonList(with), ignore);
 	}
-
-	private static final boolean ww = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]) >= 14;
-	private static final boolean palet = StringUtils.getInt(TheAPI.getServerVersion().split("_")[1]) >= 9;
-
+	
 	public static void asynchronizedSet(Position a, Position b, Runnable onFinish, List<TheMaterial> with,
 			List<TheMaterial> ignore) {
 		new Tasker() {
@@ -613,24 +614,11 @@ public class BlocksAPI {
 				for(Position pos : get(a, b)) {
 					TheMaterial before = pos.getType();
 					if (!ignore.contains(before)) {
-						Object c = pos.getNMSChunk();
+						Object c = null;
 						if (!chunks.containsKey(pos.getChunkKey()))
-							chunks.put(pos.getChunkKey(), c);
-						Object sc = ((Object[]) Ref.invoke(c, get))[pos.getBlockY() >> 4];
-						if (sc == null) {
-							if (ww)
-								sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4);
-							else
-								sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4, true);
-							((Object[]) Ref.invoke(c, get))[pos.getBlockY() >> 4] = sc;
-						}
-						Object cr = TheAPI.getRandomFromList(with).getIBlockData();
-						if (palet)
-							Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF,
-									pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
-						else
-							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF,
-									cr);
+							chunks.put(pos.getChunkKey(), c=pos.getNMSChunk());
+						else c=chunks.get(pos.getChunkKey());
+						LoaderClass.nmsProvider.setBlock(c,pos.getBlockX(),pos.getBlockY(),pos.getBlockZ(), TheAPI.getRandomFromList(with).getIBlockData());
 						Position.updateBlockAt(pos);
 					}
 				}
@@ -657,24 +645,11 @@ public class BlocksAPI {
 				for(Position pos : get(a, b)) {
 					TheMaterial before = pos.getType();
 					if (!ignore.contains(before)) {
-						Object c = pos.getNMSChunk();
+						Object c = null;
 						if (!chunks.containsKey(pos.getChunkKey()))
-							chunks.put(pos.getChunkKey(), c);
-						Object sc = ((Object[]) Ref.invoke(c, get))[pos.getBlockY() >> 4];
-						if (sc == null) {
-							if (ww)
-								sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4);
-							else
-								sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4, true);
-							((Object[]) Ref.invoke(c, get))[pos.getBlockY() >> 4] = sc;
-						}
-						Object cr = with.getRandom().getIBlockData();
-						if (palet)
-							Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF,
-									pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
-						else
-							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF,
-									cr);
+							chunks.put(pos.getChunkKey(), c=pos.getNMSChunk());
+						else c=chunks.get(pos.getChunkKey());
+						LoaderClass.nmsProvider.setBlock(c,pos.getBlockX(),pos.getBlockY(),pos.getBlockZ(), with.getRandom().getIBlockData());
 						Position.updateBlockAt(pos);
 					}
 				}
@@ -713,24 +688,11 @@ public class BlocksAPI {
 				for(Position pos : get(a, b)) {
 					TheMaterial before = pos.getType();
 					if (block.contains(before)) {
-						Object c = pos.getNMSChunk();
+						Object c = null;
 						if (!chunks.containsKey(pos.getChunkKey()))
-							chunks.put(pos.getChunkKey(), c);
-						Object sc = ((Object[]) Ref.invoke(c, get))[pos.getBlockY() >> 4];
-						if (sc == null) {
-							if (ww)
-								sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4);
-							else
-								sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4, true);
-							((Object[]) Ref.invoke(c, get))[pos.getBlockY() >> 4] = sc;
-						}
-						Object cr = with.getRandom().getIBlockData();
-						if (palet)
-							Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF,
-									pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
-						else
-							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF,
-									cr);
+							chunks.put(pos.getChunkKey(), c=pos.getNMSChunk());
+						else c=chunks.get(pos.getChunkKey());
+						LoaderClass.nmsProvider.setBlock(c,pos.getBlockX(),pos.getBlockY(),pos.getBlockZ(), with.getRandom().getIBlockData());
 						Position.updateBlockAt(pos);
 					}
 				}
@@ -754,24 +716,11 @@ public class BlocksAPI {
 				for(Position pos : get(a, b)) {
 					TheMaterial before = pos.getType();
 					if (block.contains(before)) {
-						Object c = pos.getNMSChunk();
+						Object c = null;
 						if (!chunks.containsKey(pos.getChunkKey()))
-							chunks.put(pos.getChunkKey(), c);
-						Object sc = ((Object[]) Ref.invoke(c, get))[pos.getBlockY() >> 4];
-						if (sc == null) {
-							if (ww)
-								sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4);
-							else
-								sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4, true);
-							((Object[]) Ref.invoke(c, get))[pos.getBlockY() >> 4] = sc;
-						}
-						Object cr = TheAPI.getRandomFromList(with).getIBlockData();
-						if (palet)
-							Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF,
-									pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
-						else
-							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF,
-									cr);
+							chunks.put(pos.getChunkKey(), c=pos.getNMSChunk());
+						else c=chunks.get(pos.getChunkKey());
+						LoaderClass.nmsProvider.setBlock(c,pos.getBlockX(),pos.getBlockY(),pos.getBlockZ(),  TheAPI.getRandomFromList(with).getIBlockData());
 						Position.updateBlockAt(pos);
 					}
 				}
@@ -782,23 +731,6 @@ public class BlocksAPI {
 		}.runTask();
 	}
 
-	private static Constructor<?> aw = Ref.constructor(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), int.class);
-	private static Method a;
-	private static final Method get = Ref.method(Ref.nmsOrOld("world.level.chunk.Chunk","Chunk"), "getSections");
-	private static final Method blocks = Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), "getBlocks");
-	private static final Method type = Ref.method(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"),
-					"setType", int.class, int.class, int.class, Ref.nmsOrOld("world.level.block.state.IBlockData","IBlockData"));
-	static {
-		a = Ref.method(Ref.nmsOrOld("world.level.chunk.DataPaletteBlock","DataPaletteBlock"), "b", int.class, int.class, int.class, Object.class);
-		if (a == null)
-			a = Ref.method(Ref.nmsOrOld("world.level.chunk.DataPaletteBlock","DataPaletteBlock"), "setBlock", int.class, int.class, int.class,
-					Ref.nmsOrOld("world.level.block.state.IBlockData","IBlockData"));
-		if (a == null)
-			a = Ref.method(Ref.nmsOrOld("world.level.chunk.DataPaletteBlock","DataPaletteBlock"), "setBlock", int.class, int.class, int.class, Object.class);
-		if (aw == null)
-			aw = Ref.constructor(Ref.nmsOrOld("world.level.chunk.ChunkSection","ChunkSection"), int.class, boolean.class);
-	}
-
 	public static void asynchronizedReplace(Position a, Position b, Runnable onFinish,
 			PercentageList<TheMaterial> block, List<TheMaterial> with) {
 		new Tasker() {
@@ -807,24 +739,11 @@ public class BlocksAPI {
 				for(Position pos : get(a, b)) {
 					TheMaterial before = pos.getType();
 					if (block.contains(before)) {
-						Object c = pos.getNMSChunk();
+						Object c = null;
 						if (!chunks.containsKey(pos.getChunkKey()))
-							chunks.put(pos.getChunkKey(), c);
-						Object sc = ((Object[]) Ref.invoke(c, get))[pos.getBlockY() >> 4];
-						if (sc == null) {
-							if (ww)
-								sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4);
-							else
-								sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4, true);
-							((Object[]) Ref.invoke(c, get))[pos.getBlockY() >> 4] = sc;
-						}
-						Object cr = TheAPI.getRandomFromList(with).getIBlockData();
-						if (palet)
-							Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF,
-									pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
-						else
-							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF,
-									cr);
+							chunks.put(pos.getChunkKey(), c=pos.getNMSChunk());
+						else c=chunks.get(pos.getChunkKey());
+						LoaderClass.nmsProvider.setBlock(c,pos.getBlockX(),pos.getBlockY(),pos.getBlockZ(),  TheAPI.getRandomFromList(with).getIBlockData());
 						Position.updateBlockAt(pos);
 					}
 				}
@@ -843,22 +762,11 @@ public class BlocksAPI {
 				for(Position pos : get(a, b)) {
 					TheMaterial before = pos.getType();
 					if (block.contains(before)) {
-						Object c = pos.getNMSChunk();
-						chunks.put(pos.getChunkKey(), c);
-						Object sc = ((Object[]) Ref.invoke(c, get))[pos.getBlockY() >> 4];
-						if (sc == null) {
-							if (ww)
-								sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4);
-							else
-								sc = Ref.newInstance(aw, pos.getBlockY() >> 4 << 4, true);
-							((Object[]) Ref.invoke(c, get))[pos.getBlockY() >> 4] = sc;
-						}
-						Object cr = block.getRandom().getIBlockData();
-						if (palet)
-							Ref.invoke(Ref.invoke(sc, blocks), BlocksAPI.a, pos.getBlockX() & 0xF,
-									pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
-						else
-							Ref.invoke(sc, type, pos.getBlockX() & 0xF, pos.getBlockY() & 0xF, pos.getBlockZ() & 0xF, cr);
+						Object c = null;
+						if (!chunks.containsKey(pos.getChunkKey()))
+							chunks.put(pos.getChunkKey(), c=pos.getNMSChunk());
+						else c=chunks.get(pos.getChunkKey());
+						LoaderClass.nmsProvider.setBlock(c,pos.getBlockX(),pos.getBlockY(),pos.getBlockZ(),  with.getRandom().getIBlockData());
 						Position.updateBlockAt(pos);
 					}
 				}

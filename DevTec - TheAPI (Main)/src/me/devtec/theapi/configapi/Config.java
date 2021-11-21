@@ -15,8 +15,8 @@ import me.devtec.theapi.utils.StreamUtils;
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.datakeeper.DataType;
 import me.devtec.theapi.utils.datakeeper.loader.ByteLoader;
+import me.devtec.theapi.utils.datakeeper.loader.DataLoader;
 import me.devtec.theapi.utils.datakeeper.loader.JsonLoader;
-import me.devtec.theapi.utils.reflections.Ref;
 
 public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	
@@ -60,7 +60,7 @@ public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data 
 		Config c = new Config(outputFile);
 		Data load = new Data();
 		load.reload(StreamUtils.fromStream(plugin.getResource(pathToConfig)));
-		Object loader = Ref.get(load, "loader");
+		DataLoader loader = load.getDataLoader();
 		if(loader instanceof JsonLoader)c.t=DataType.JSON;
 		else if(loader instanceof ByteLoader)c.t=DataType.BYTE;
 		else c.t=DataType.YAML;

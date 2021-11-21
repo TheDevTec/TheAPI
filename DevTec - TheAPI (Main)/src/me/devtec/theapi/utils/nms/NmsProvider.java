@@ -4,13 +4,16 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.utils.Position;
+import me.devtec.theapi.utils.TheMaterial;
 import me.devtec.theapi.utils.components.Component;
 import me.devtec.theapi.utils.nms.datawatcher.DataWatcher;
 import me.devtec.theapi.utils.nms.nbt.NBTEdit;
@@ -104,7 +107,7 @@ public interface NmsProvider {
 	public Object packetScoreboardDisplayObjective(int id, Object scoreboardObjective);
 	public Object packetScoreboardTeam();
 	public Object packetScoreboardScore(Action action, String player, String line, int score);
-
+	
 	public Object packetTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut);
 	public default Object packetTitle(TitleAction action, String text) {
 		return packetTitle(action, text, 20, 60, 20);
@@ -137,4 +140,53 @@ public interface NmsProvider {
 	public String fromIChatBaseComponent(Object component);
 	
 	public Object chatBase(String json);
+	
+	// TheMaterial utils
+	public TheMaterial toMaterial(Object blockOrItemOrIBlockData);
+	
+	public Object toIBlockData(TheMaterial material);
+	
+	public Object toItem(TheMaterial material);
+	
+	public Object toBlock(TheMaterial material);
+	
+	public Object toBlock(Material type);
+	
+	public Object toItem(Material type, int data);
+	
+	public Object toIBlockData(Material type, int data);
+	
+	public Object toIBlockData(Object data);
+	
+	public Object toIBlockData(BlockState state);
+	
+	//Position utils
+	public Object getChunk(World world, int x, int z);
+	
+	public Chunk toBukkitChunk(Object nmsChunk);
+
+	public default void setBlock(Object chunk, int x, int y, int z, Object IblockDataOrBlock) {
+		setBlock(chunk,x,y,z,IblockDataOrBlock,0);
+	}
+	
+	public void setBlock(Object chunk, int x, int y, int z, Object block, int data);
+	
+	public Object getBlock(Object chunk, int x, int y, int z);
+	
+	@Deprecated //1.7.10 only
+	public int getData(Object chunk, int x, int y, int z);
+	
+	public void updateLightAt(Object chunk, int x, int y, int z);
+	
+	public int getCombinedId(Object IblockDataOrBlock);
+	
+	public Object blockPosition(int blockX, int blockY, int blockZ);
+	
+	public int getPing(Player player);
+	
+	public Object getPlayerConnection(Player player);
+	
+	public Object getConnectionNetwork(Object playercon);
+	
+	public Object getNetworkChannel(Object network);
 }

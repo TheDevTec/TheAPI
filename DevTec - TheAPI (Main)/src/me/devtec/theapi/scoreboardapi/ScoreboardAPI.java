@@ -238,7 +238,7 @@ public class ScoreboardAPI {
 			Ref.set(packet, "d", TheAPI.isNewerThan(12)?ComponentAPI.toIChatBaseComponent(ComponentAPI.toComponent(suffix, true)):suffix);
 			if(TheAPI.isNewerThan(7)) {
 				Ref.set(packet, "e", always);
-				Ref.set(packet, "f", TheAPI.isNewerThan(8)? always :-1);
+				Ref.set(packet, "f", TheAPI.isNewerThan(8)? always : -1);
 				if(TheAPI.isNewerThan(8))
 					Ref.set(packet, "g",TheAPI.isNewerThan(12)?white:-1);
 				Ref.set(packet, TheAPI.isNewerThan(8)?"i":"h", mode);

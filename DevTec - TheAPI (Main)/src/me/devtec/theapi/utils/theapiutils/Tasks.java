@@ -66,7 +66,7 @@ public class Tasks {
 							Ref.set(w, setp, sd);
 
 							if (event.getMotd() != null)
-								Ref.set(w, setm, ComponentAPI.toBaseComponent(ComponentAPI.toComponent(event.getMotd(), false)));
+								Ref.set(w, setm, ComponentAPI.toBaseComponent(ComponentAPI.toComponent(event.getMotd(), true)));
 							else
 								Ref.set(w, setm, LoaderClass.nmsProvider.chatBase("{\"text\":\"\"}"));
 							if(event.getVersion()!=null)

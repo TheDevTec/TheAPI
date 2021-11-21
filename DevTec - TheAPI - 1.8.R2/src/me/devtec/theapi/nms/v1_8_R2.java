@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.v1_8_R2.CraftChunk;
 import org.bukkit.craftbukkit.v1_8_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R2.entity.CraftEntity;
@@ -13,30 +15,42 @@ import org.bukkit.craftbukkit.v1_8_R2.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_8_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R2.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_8_R2.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_8_R2.util.CraftMagicNumbers;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.utils.Position;
+import me.devtec.theapi.utils.TheMaterial;
 import me.devtec.theapi.utils.components.Component;
 import me.devtec.theapi.utils.components.ComponentAPI;
 import me.devtec.theapi.utils.nms.NmsProvider;
 import me.devtec.theapi.utils.nms.datawatcher.DataWatcher;
 import me.devtec.theapi.utils.reflections.Ref;
+import net.minecraft.server.v1_8_R2.Block;
 import net.minecraft.server.v1_8_R2.BlockPosition;
+import net.minecraft.server.v1_8_R2.Blocks;
 import net.minecraft.server.v1_8_R2.ChatClickable;
 import net.minecraft.server.v1_8_R2.ChatClickable.EnumClickAction;
 import net.minecraft.server.v1_8_R2.ChatComponentText;
 import net.minecraft.server.v1_8_R2.ChatModifier;
+import net.minecraft.server.v1_8_R2.ChunkCoordIntPair;
+import net.minecraft.server.v1_8_R2.ChunkProviderServer;
+import net.minecraft.server.v1_8_R2.ChunkSection;
 import net.minecraft.server.v1_8_R2.EntityHuman;
 import net.minecraft.server.v1_8_R2.EntityLiving;
+import net.minecraft.server.v1_8_R2.EntityPlayer;
 import net.minecraft.server.v1_8_R2.EnumChatFormat;
+import net.minecraft.server.v1_8_R2.IBlockData;
 import net.minecraft.server.v1_8_R2.IChatBaseComponent;
+import net.minecraft.server.v1_8_R2.IContainer;
 import net.minecraft.server.v1_8_R2.IScoreboardCriteria.EnumScoreboardHealthDisplay;
+import net.minecraft.server.v1_8_R2.Item;
 import net.minecraft.server.v1_8_R2.MinecraftServer;
 import net.minecraft.server.v1_8_R2.MojangsonParser;
 import net.minecraft.server.v1_8_R2.NBTTagCompound;
+import net.minecraft.server.v1_8_R2.NetworkManager;
 import net.minecraft.server.v1_8_R2.PacketPlayOutBlockChange;
 import net.minecraft.server.v1_8_R2.PacketPlayOutChat;
 import net.minecraft.server.v1_8_R2.PacketPlayOutEntityDestroy;
@@ -52,7 +66,10 @@ import net.minecraft.server.v1_8_R2.PacketPlayOutSpawnEntity;
 import net.minecraft.server.v1_8_R2.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_8_R2.PacketPlayOutTitle;
 import net.minecraft.server.v1_8_R2.PacketPlayOutTitle.EnumTitleAction;
+import net.minecraft.server.v1_8_R2.PlayerConnection;
 import net.minecraft.server.v1_8_R2.ScoreboardObjective;
+import net.minecraft.server.v1_8_R2.TileEntity;
+import net.minecraft.server.v1_8_R2.WorldServer;
 
 public class v1_8_R2 implements NmsProvider {
 	private MinecraftServer server = MinecraftServer.getServer();
@@ -296,6 +313,157 @@ public class v1_8_R2 implements NmsProvider {
 	@Override
 	public String fromIChatBaseComponent(Object component) {
 		return CraftChatMessage.fromComponent((IChatBaseComponent)component);
+	}
+
+	@Override
+	public TheMaterial toMaterial(Object blockOrItemOrIBlockData) {
+		if(blockOrItemOrIBlockData instanceof Block) {
+			Block b = (Block)blockOrItemOrIBlockData;
+			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(Item.getItemOf(b)));
+		}
+		if(blockOrItemOrIBlockData instanceof Item) {
+			Item b = (Item)blockOrItemOrIBlockData;
+			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(b));
+		}
+		if(blockOrItemOrIBlockData instanceof IBlockData) {
+			IBlockData b = (IBlockData)blockOrItemOrIBlockData;
+			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(Item.getItemOf(b.getBlock())));
+		}
+		return null;
+	}
+
+	@Override
+	public Object toIBlockData(TheMaterial material) {
+		return Block.asBlock(CraftItemStack.asNMSCopy(material.toItemStack()).getItem()).getBlockData();
+	}
+
+	@Override
+	public Object toItem(TheMaterial material) {
+		return CraftItemStack.asNMSCopy(material.toItemStack()).getItem();
+	}
+
+	@Override
+	public Object toBlock(TheMaterial material) {
+		return CraftMagicNumbers.getBlock(material.getType());
+	}
+
+	@Override
+	public Object getChunk(World world, int x, int z) {
+		WorldServer sworld = ((CraftWorld)world).getHandle();
+		net.minecraft.server.v1_8_R2.Chunk loaded = ((ChunkProviderServer)sworld.N()).getChunkIfLoaded(x, z);
+		if(loaded==null) { //load chunk
+			net.minecraft.server.v1_8_R2.Chunk chunk = ((ChunkProviderServer)sworld.N()).loadChunk(x, z);
+			if(chunk!=null) {
+				((ChunkProviderServer)sworld.N()).chunks.put(ChunkCoordIntPair.a(x,z), chunk);
+				chunk.addEntities();
+				loaded=chunk;
+			}
+		}
+		if(loaded==null) { //generate new chunk
+			loaded=((ChunkProviderServer)sworld.N()).chunkProvider.getOrCreateChunk(x,z);
+			((ChunkProviderServer)sworld.N()).chunks.put(ChunkCoordIntPair.a(x,z), loaded);
+		}
+		return loaded;
+	}
+	
+	@Override
+	public void setBlock(Object chunk, int x, int y, int z, Object IblockData, int data) {
+		net.minecraft.server.v1_8_R2.Chunk c = (net.minecraft.server.v1_8_R2.Chunk)chunk;
+		ChunkSection sc = c.getSections()[y>>4];
+		if(sc==null) {
+			c.getSections()[y>>4]=sc=new ChunkSection(y >> 4 << 4, true);
+		}
+		BlockPosition pos = new BlockPosition(x,y,z);
+		//REMOVE TILE ENTITY
+		c.tileEntities.remove(pos);
+
+		sc.setType(x&15, y&15, z&15, (IBlockData)IblockData);
+		
+		//ADD TILE ENTITY
+		if(IblockData instanceof IContainer) {
+			TileEntity ent = ((IContainer)IblockData).a(c.world, 0);
+			c.tileEntities.put(pos,ent);
+			Ref.sendPacket(c.bukkitChunk.getWorld().getPlayers(), ent.getUpdatePacket());
+		}
+	}
+
+	@Override
+	public void updateLightAt(Object chunk, int x, int y, int z) {
+		net.minecraft.server.v1_8_R2.Chunk c = (net.minecraft.server.v1_8_R2.Chunk)chunk;
+		c.initLighting();
+	}
+
+	@Override
+	public Object getBlock(Object chunk, int x, int y, int z) {
+		net.minecraft.server.v1_8_R2.Chunk c = (net.minecraft.server.v1_8_R2.Chunk)chunk;
+		ChunkSection sc = c.getSections()[y>>4];
+		if(sc==null)return Blocks.AIR.getBlockData();
+		return sc.getType(x&15, y&15, z&15);
+	}
+
+	@Override
+	public int getData(Object chunk, int x, int y, int z) {
+		return 0;
+	}
+
+	@Override
+	public int getCombinedId(Object IblockDataOrBlock) {
+		return Block.getCombinedId((IBlockData)IblockDataOrBlock);
+	}
+
+	@Override
+	public Object blockPosition(int blockX, int blockY, int blockZ) {
+		return new BlockPosition(blockX, blockY, blockZ);
+	}
+
+	@Override
+	public Object toIBlockData(BlockState state) {
+		return Block.getByCombinedId(state.getType().getId()+(state.getRawData()<<12));
+	}
+
+	@Override
+	public Object toIBlockData(Object data) {
+		return null;
+	}
+
+	@Override
+	public Object toBlock(Material type) {
+		return CraftMagicNumbers.getBlock(type);
+	}
+
+	@Override
+	public Object toItem(Material type, int data) {
+		return CraftMagicNumbers.getItem(type);
+	}
+
+	@Override
+	public Object toIBlockData(Material type, int data) {
+		return Block.getByCombinedId(type.getId()+(data<<12));
+	}
+
+	@Override
+	public Chunk toBukkitChunk(Object nmsChunk) {
+		return ((net.minecraft.server.v1_8_R2.Chunk)nmsChunk).bukkitChunk;
+	}
+
+	@Override
+	public int getPing(Player player) {
+		return ((EntityPlayer)getPlayer(player)).ping;
+	}
+
+	@Override
+	public Object getPlayerConnection(Player player) {
+		return ((EntityPlayer)getPlayer(player)).playerConnection;
+	}
+
+	@Override
+	public Object getConnectionNetwork(Object playercon) {
+		return ((PlayerConnection)playercon).networkManager;
+	}
+
+	@Override
+	public Object getNetworkChannel(Object network) {
+		return ((NetworkManager)network).k;
 	}
 
 }
