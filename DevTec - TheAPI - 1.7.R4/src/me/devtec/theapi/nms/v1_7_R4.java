@@ -1,17 +1,18 @@
 package me.devtec.theapi.nms;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.UUID;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_13_R1.CraftChunk;
-import org.bukkit.craftbukkit.v1_13_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_13_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_13_R1.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_13_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_13_R1.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_13_R1.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_7_R4.CraftChunk;
+import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
+import org.bukkit.craftbukkit.v1_7_R4.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_7_R4.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -22,40 +23,36 @@ import me.devtec.theapi.utils.components.Component;
 import me.devtec.theapi.utils.components.ComponentAPI;
 import me.devtec.theapi.utils.nms.NmsProvider;
 import me.devtec.theapi.utils.nms.datawatcher.DataWatcher;
-import net.minecraft.server.v1_13_R1.BlockPosition;
-import net.minecraft.server.v1_13_R1.ChatClickable;
-import net.minecraft.server.v1_13_R1.ChatClickable.EnumClickAction;
-import net.minecraft.server.v1_13_R1.ChatComponentText;
-import net.minecraft.server.v1_13_R1.ChatMessageType;
-import net.minecraft.server.v1_13_R1.ChatModifier;
-import net.minecraft.server.v1_13_R1.EntityHuman;
-import net.minecraft.server.v1_13_R1.EntityLiving;
-import net.minecraft.server.v1_13_R1.EnumChatFormat;
-import net.minecraft.server.v1_13_R1.IChatBaseComponent;
-import net.minecraft.server.v1_13_R1.IScoreboardCriteria.EnumScoreboardHealthDisplay;
-import net.minecraft.server.v1_13_R1.MinecraftServer;
-import net.minecraft.server.v1_13_R1.MojangsonParser;
-import net.minecraft.server.v1_13_R1.NBTTagCompound;
-import net.minecraft.server.v1_13_R1.PacketPlayOutBlockChange;
-import net.minecraft.server.v1_13_R1.PacketPlayOutChat;
-import net.minecraft.server.v1_13_R1.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_13_R1.PacketPlayOutEntityMetadata;
-import net.minecraft.server.v1_13_R1.PacketPlayOutNamedEntitySpawn;
-import net.minecraft.server.v1_13_R1.PacketPlayOutPlayerListHeaderFooter;
-import net.minecraft.server.v1_13_R1.PacketPlayOutScoreboardDisplayObjective;
-import net.minecraft.server.v1_13_R1.PacketPlayOutScoreboardObjective;
-import net.minecraft.server.v1_13_R1.PacketPlayOutScoreboardScore;
-import net.minecraft.server.v1_13_R1.PacketPlayOutScoreboardTeam;
-import net.minecraft.server.v1_13_R1.PacketPlayOutSpawnEntity;
-import net.minecraft.server.v1_13_R1.PacketPlayOutSpawnEntityLiving;
-import net.minecraft.server.v1_13_R1.PacketPlayOutTitle;
-import net.minecraft.server.v1_13_R1.PacketPlayOutTitle.EnumTitleAction;
-import net.minecraft.server.v1_13_R1.ScoreboardObjective;
-import net.minecraft.server.v1_13_R1.ScoreboardServer;
+import me.devtec.theapi.utils.reflections.Ref;
+import net.minecraft.server.v1_7_R4.ChatClickable;
+import net.minecraft.server.v1_7_R4.ChatComponentText;
+import net.minecraft.server.v1_7_R4.ChatModifier;
+import net.minecraft.server.v1_7_R4.ChatSerializer;
+import net.minecraft.server.v1_7_R4.EntityHuman;
+import net.minecraft.server.v1_7_R4.EntityLiving;
+import net.minecraft.server.v1_7_R4.EnumChatFormat;
+import net.minecraft.server.v1_7_R4.EnumClickAction;
+import net.minecraft.server.v1_7_R4.IChatBaseComponent;
+import net.minecraft.server.v1_7_R4.MinecraftServer;
+import net.minecraft.server.v1_7_R4.MojangsonParser;
+import net.minecraft.server.v1_7_R4.NBTTagCompound;
+import net.minecraft.server.v1_7_R4.PacketPlayOutBlockChange;
+import net.minecraft.server.v1_7_R4.PacketPlayOutChat;
+import net.minecraft.server.v1_7_R4.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_7_R4.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_7_R4.PacketPlayOutNamedEntitySpawn;
+import net.minecraft.server.v1_7_R4.PacketPlayOutScoreboardDisplayObjective;
+import net.minecraft.server.v1_7_R4.PacketPlayOutScoreboardObjective;
+import net.minecraft.server.v1_7_R4.PacketPlayOutScoreboardScore;
+import net.minecraft.server.v1_7_R4.PacketPlayOutScoreboardTeam;
+import net.minecraft.server.v1_7_R4.PacketPlayOutSpawnEntity;
+import net.minecraft.server.v1_7_R4.PacketPlayOutSpawnEntityLiving;
+import net.minecraft.server.v1_7_R4.ScoreboardObjective;
 
-public class v1_13_R1 implements NmsProvider {
-	private static final MinecraftServer server = MinecraftServer.getServer();
+public class v1_7_R4 implements NmsProvider {
+	private MinecraftServer server = MinecraftServer.getServer();
 	private static final ChatComponentText empty = new ChatComponentText("");
+	private static Field score_a = Ref.field(PacketPlayOutScoreboardScore.class, "a"), score_b = Ref.field(PacketPlayOutScoreboardScore.class, "b"), score_c = Ref.field(PacketPlayOutScoreboardScore.class, "c"), score_d = Ref.field(PacketPlayOutScoreboardScore.class, "d");
 
 	@Override
 	public Object getEntity(Entity entity) {
@@ -84,17 +81,20 @@ public class v1_13_R1 implements NmsProvider {
 
 	@Override
 	public Object getScoreboardAction(Action type) {
-		return ScoreboardServer.Action.valueOf(type.name());
+		return type.getId();
 	}
 
 	@Override
 	public Object getEnumScoreboardHealthDisplay(DisplayType type) {
-		return EnumScoreboardHealthDisplay.valueOf(type.name());
+		return null;
 	}
 
 	@Override
 	public Object getNBT(ItemStack itemStack) {
-		return ((net.minecraft.server.v1_13_R1.ItemStack)asNMSItem(itemStack)).getOrCreateTag();
+		net.minecraft.server.v1_7_R4.ItemStack item = ((net.minecraft.server.v1_7_R4.ItemStack)asNMSItem(itemStack));
+		NBTTagCompound nbt = item.getTag();
+		if(nbt==null)item.setTag(nbt=new NBTTagCompound());
+		return nbt;
 	}
 
 	@Override
@@ -108,7 +108,7 @@ public class v1_13_R1 implements NmsProvider {
 
 	@Override
 	public ItemStack setNBT(ItemStack stack, Object nbt) {
-		net.minecraft.server.v1_13_R1.ItemStack i = (net.minecraft.server.v1_13_R1.ItemStack)asNMSItem(stack);
+		net.minecraft.server.v1_7_R4.ItemStack i = (net.minecraft.server.v1_7_R4.ItemStack)asNMSItem(stack);
 		i.setTag((NBTTagCompound) nbt);
 		return asBukkitItem(stack);
 	}
@@ -120,12 +120,12 @@ public class v1_13_R1 implements NmsProvider {
 
 	@Override
 	public ItemStack asBukkitItem(Object stack) {
-		return CraftItemStack.asBukkitCopy((net.minecraft.server.v1_13_R1.ItemStack) stack);
+		return CraftItemStack.asBukkitCopy((net.minecraft.server.v1_7_R4.ItemStack) stack);
 	}
 
 	@Override
 	public Object packetEntityMetadata(int entityId, DataWatcher dataWatcher, boolean bal) {
-		return new PacketPlayOutEntityMetadata(entityId, (net.minecraft.server.v1_13_R1.DataWatcher) dataWatcher.getDataWatcher(), bal);
+		return new PacketPlayOutEntityMetadata(entityId, (net.minecraft.server.v1_7_R4.DataWatcher) dataWatcher.getDataWatcher(), bal);
 	}
 
 	@Override
@@ -135,7 +135,7 @@ public class v1_13_R1 implements NmsProvider {
 
 	@Override
 	public Object packetSpawnEntity(Object entity, int id) {
-		return new PacketPlayOutSpawnEntity((net.minecraft.server.v1_13_R1.Entity) entity, id);
+		return new PacketPlayOutSpawnEntity((net.minecraft.server.v1_7_R4.Entity) entity, id);
 	}
 
 	@Override
@@ -150,20 +150,17 @@ public class v1_13_R1 implements NmsProvider {
 
 	@Override
 	public Object packetPlayerListHeaderFooter(String header, String footer) {
-		PacketPlayOutPlayerListHeaderFooter packet = new PacketPlayOutPlayerListHeaderFooter();
-		packet.a=(IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(header, true));
-		packet.b=(IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(footer, true));
-		return packet;
+		return null;
 	}
 
 	@Override
 	public Object packetBlockChange(World world, Position position) {
-		return new PacketPlayOutBlockChange((net.minecraft.server.v1_13_R1.World)getWorld(world), (BlockPosition)position.getBlockPosition());
+		return new PacketPlayOutBlockChange(position.getBlockX(),position.getBlockY(),position.getBlockZ(),(net.minecraft.server.v1_7_R4.World)getWorld(world));
 	}
 
 	@Override
 	public Object packetBlockChange(World world, int x, int y, int z) {
-		return new PacketPlayOutBlockChange((net.minecraft.server.v1_13_R1.World)getWorld(world), new BlockPosition(x,y,z));
+		return new PacketPlayOutBlockChange(x,y,z,(net.minecraft.server.v1_7_R4.World)getWorld(world));
 	}
 
 	@Override
@@ -180,20 +177,28 @@ public class v1_13_R1 implements NmsProvider {
 	public Object packetScoreboardTeam() {
 		return new PacketPlayOutScoreboardTeam();
 	}
-
+	
 	@Override
 	public Object packetScoreboardScore(Action action, String player, String line, int score) {
-		return new PacketPlayOutScoreboardScore((ScoreboardServer.Action) getScoreboardAction(action), player, line, score);
+		PacketPlayOutScoreboardScore packet = new PacketPlayOutScoreboardScore();
+		try {
+			score_a.set(packet, line);
+			score_b.set(packet, player);
+			score_c.set(packet, score);
+			score_d.set(packet, getScoreboardAction(action));
+		}catch(Exception err) {}
+		return packet;
 	}
 
 	@Override
 	public Object packetTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut) {
-		return new PacketPlayOutTitle(EnumTitleAction.valueOf(action.name()), (IChatBaseComponent)ComponentAPI.toIChatBaseComponent(ComponentAPI.toComponent(text, true)), fadeIn, stay, fadeOut);
+		if(action==TitleAction.ACTIONBAR)return packetChat(ChatType.GAME_INFO, text, null);
+		return null;
 	}
 
 	@Override
 	public Object packetChat(ChatType type, Object chatBase, UUID uuid) {
-		return new PacketPlayOutChat((IChatBaseComponent)chatBase, ChatMessageType.valueOf(type.name()));
+		return new PacketPlayOutChat((IChatBaseComponent)chatBase, type.toByte());
 	}
 
 	@Override
@@ -203,7 +208,7 @@ public class v1_13_R1 implements NmsProvider {
 
 	@Override
 	public void postToMainThread(Runnable runnable) {
-		server.postToMainThread(runnable);
+		server.processQueue.add(runnable);
 	}
 
 	@Override
@@ -233,7 +238,7 @@ public class v1_13_R1 implements NmsProvider {
 			main.addSibling(current);
 			ChatModifier modif = current.getChatModifier();
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
-				modif=modif.setColor(EnumChatFormat.a(c.getColor().charAt(0)));
+				modif=modif.setColor(EnumChatFormat.valueOf(ChatColor.getByChar(c.getColor().charAt(0)).name()));
 			}
 			if(c.getUrl()!=null)
 				modif.setChatClickable(new ChatClickable(EnumClickAction.OPEN_URL, c.getUrl()));
@@ -260,7 +265,7 @@ public class v1_13_R1 implements NmsProvider {
 			main.addSibling(current);
 			ChatModifier modif = current.getChatModifier();
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
-				modif=modif.setColor(EnumChatFormat.a(c.getColor().charAt(0)));
+				modif=modif.setColor(EnumChatFormat.valueOf(ChatColor.getByChar(c.getColor().charAt(0)).name()));
 			}
 			if(c.getUrl()!=null)
 				modif.setChatClickable(new ChatClickable(EnumClickAction.OPEN_URL, c.getUrl()));
@@ -276,12 +281,44 @@ public class v1_13_R1 implements NmsProvider {
 
 	@Override
 	public Object chatBase(String json) {
-		return IChatBaseComponent.ChatSerializer.a(json);
+		return ChatSerializer.a(json);
 	}
 
 	@Override
 	public String fromIChatBaseComponent(Object component) {
-		return CraftChatMessage.fromComponent((IChatBaseComponent)component);
+		if(component==null)return null;
+		if(component instanceof IChatBaseComponent[]) {
+			IChatBaseComponent[] cchat = (IChatBaseComponent[])component;
+			StringBuilder builder = new StringBuilder();
+			for(IChatBaseComponent chat : cchat) {
+				builder.append(asString(chat.getChatModifier())).append(chat.e());
+				for(Object c : chat.a()) {
+					builder.append(asString(((IChatBaseComponent)c).getChatModifier())).append(((IChatBaseComponent)c).e());
+				}
+			}
+			return builder.toString();
+		}
+		if(component instanceof IChatBaseComponent) {
+			IChatBaseComponent chat = (IChatBaseComponent)component;
+			StringBuilder builder = new StringBuilder();
+			builder.append(asString(chat.getChatModifier())).append(chat.e());
+			for(Object c : chat.a()) {
+				builder.append(asString(((IChatBaseComponent)c).getChatModifier())).append(((IChatBaseComponent)c).e());
+			}
+			return builder.toString();
+		}
+		return component.toString();
+	}
+
+	private StringBuilder asString(ChatModifier chatModifier) {
+		StringBuilder builder = new StringBuilder();
+		if(chatModifier.a()!=null)builder.append('§').append(chatModifier.a().getChar());
+		if(chatModifier.b())builder.append('§').append('l');
+		if(chatModifier.c())builder.append('§').append('o');
+		if(chatModifier.d())builder.append('§').append('m');
+		if(chatModifier.e())builder.append('§').append('n');
+		if(chatModifier.f())builder.append('§').append('k');
+		return builder;
 	}
 
 }

@@ -19,7 +19,16 @@ public interface NmsProvider {
 	
 	static final UUID serverUuid = UUID.randomUUID();
 	public enum Action {
-		CHANGE, REMOVE
+		CHANGE(0), REMOVE(1);
+		
+		int id;
+		Action(int i) {
+			id=i;
+		}
+
+		public int getId() {
+			return id;
+		}
 	}
 
 	public enum DisplayType {
@@ -92,7 +101,7 @@ public interface NmsProvider {
 	public Object packetBlockChange(World world, int x, int y, int z);
 	
 	public Object packetScoreboardObjective();
-	public Object packetScoreboardDisplayObjective();
+	public Object packetScoreboardDisplayObjective(int id, Object scoreboardObjective);
 	public Object packetScoreboardTeam();
 	public Object packetScoreboardScore(Action action, String player, String line, int score);
 

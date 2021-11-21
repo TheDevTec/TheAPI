@@ -1,6 +1,5 @@
 package me.devtec.theapi.scoreboardapi;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -56,9 +55,9 @@ public class ScoreboardAPI {
 		sbname=protectId+this.player;
 		if(sbname.length()>16)sbname=sbname.substring(0,16);
 		Ref.sendPacket(p, createObjectivePacket(0,"§0"));
-		Object packetD = Ref.newInstance(display, 1, null);
-		Ref.set(packetD, "b", sbname);
-		Ref.sendPacket(p, packetD);
+		Object packet = LoaderClass.nmsProvider.packetScoreboardDisplayObjective(1, null);
+		Ref.set(packet, "b", sbname);
+		Ref.sendPacket(p, packet);
 	}
 	
 	public void setSlot(int slot) {
@@ -185,44 +184,18 @@ public class ScoreboardAPI {
 		return data.getAs(player+"."+line, Team.class);
 	}
 	
-	private static Constructor<?> cons = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"), Ref.nmsOrOld("server.ScoreboardServer$Action","ScoreboardServer$Action"), String.class, String.class, int.class);
-	private static final Constructor<?> display = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardDisplayObjective", "PacketPlayOutScoreboardDisplayObjective"), int.class, Ref.nmsOrOld("world.scores.ScoreboardObjective","ScoreboardObjective"));
-	static {
-		if(cons==null) {
-			cons=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutScoreboardScore","PacketPlayOutScoreboardScore"));
-		}
-	}
-	
 	private Object[] create(String prefix, String suffix, String name, String realName, int slot) {
 		protection.set(player+"."+name, true);
 		Object[] o = new Object[2];
 		o[0]=c(0, prefix, suffix, name, realName);
-		if(TheAPI.isNewerThan(12)) {
-			o[1]=Ref.newInstance(cons, LoaderClass.nmsProvider.getScoreboardAction(Action.CHANGE), sbname, name, slot);
-		}else {
-			Object os = Ref.newInstance(cons);
-			Ref.set(os, "a", name);
-			Ref.set(os, "b", sbname);
-			Ref.set(os, "c", slot);
-			Ref.set(os, "d", TheAPI.isOlderThan(8)?0:LoaderClass.nmsProvider.getScoreboardAction(Action.CHANGE));
-			o[1]=os;
-		}
+		o[1]=LoaderClass.nmsProvider.packetScoreboardScore(Action.CHANGE, sbname, name, slot);
 		return o;
 	}
 	
 	private Object[] modify(String prefix, String suffix, String name, String realName, int slot) {
 		Object[] o = new Object[2];
 		o[0]=c(2, prefix, suffix, name, realName);
-		if(TheAPI.isNewerThan(12)) {
-			o[1]=Ref.newInstance(cons, LoaderClass.nmsProvider.getScoreboardAction(Action.CHANGE), sbname, name, slot);
-		}else {
-			Object os = Ref.newInstance(cons);
-			Ref.set(os, "a", name);
-			Ref.set(os, "b", sbname);
-			Ref.set(os, "c", slot);
-			Ref.set(os, "d", TheAPI.isOlderThan(8)?0:LoaderClass.nmsProvider.getScoreboardAction(Action.CHANGE));
-			o[1]=os;
-		}
+		o[1]=LoaderClass.nmsProvider.packetScoreboardScore(Action.CHANGE, sbname, name, slot);
 		return o;
 	}
 	
@@ -230,16 +203,7 @@ public class ScoreboardAPI {
 		protection.remove(player+"."+name);
 		Object[] o = new Object[2];
 		o[0]=c(1, "", "", name,realName);
-		if(TheAPI.isNewerThan(12)) {
-			o[1]=Ref.newInstance(cons, LoaderClass.nmsProvider.getScoreboardAction(Action.REMOVE), sbname, name, 0);
-		}else {
-			Object os = Ref.newInstance(cons);
-			Ref.set(os, "a", name);
-			Ref.set(os, "b", sbname);
-			Ref.set(os, "c", 0);
-			Ref.set(os, "d",TheAPI.isOlderThan(8)?1: LoaderClass.nmsProvider.getScoreboardAction(Action.REMOVE));
-			o[1]=os;
-		}
+		o[1]=LoaderClass.nmsProvider.packetScoreboardScore(Action.REMOVE, sbname, name, 0);
 		return o;
 	}
 	

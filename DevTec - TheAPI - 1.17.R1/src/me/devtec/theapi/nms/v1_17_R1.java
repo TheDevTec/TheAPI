@@ -55,6 +55,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ScoreboardServer;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.player.EntityHuman;
+import net.minecraft.world.scores.ScoreboardObjective;
 import net.minecraft.world.scores.criteria.IScoreboardCriteria.EnumScoreboardHealthDisplay;
 
 public class v1_17_R1 implements NmsProvider {
@@ -177,12 +178,8 @@ public class v1_17_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetScoreboardDisplayObjective() {
-		try {
-			return unsafe.allocateInstance(PacketPlayOutScoreboardDisplayObjective.class);
-		} catch (Exception e) {
-			return null;
-		}
+	public Object packetScoreboardDisplayObjective(int id, Object scoreboardObjective) {
+		return new PacketPlayOutScoreboardDisplayObjective(id, scoreboardObjective==null?null:(ScoreboardObjective)scoreboardObjective);
 	}
 
 	@Override

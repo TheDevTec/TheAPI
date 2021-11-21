@@ -52,6 +52,7 @@ import net.minecraft.server.v1_8_R3.PacketPlayOutSpawnEntity;
 import net.minecraft.server.v1_8_R3.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_8_R3.PacketPlayOutTitle;
 import net.minecraft.server.v1_8_R3.PacketPlayOutTitle.EnumTitleAction;
+import net.minecraft.server.v1_8_R3.ScoreboardObjective;
 
 public class v1_8_R3 implements NmsProvider {
 	private MinecraftServer server = MinecraftServer.getServer();
@@ -176,8 +177,8 @@ public class v1_8_R3 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetScoreboardDisplayObjective() {
-		return new PacketPlayOutScoreboardDisplayObjective();
+	public Object packetScoreboardDisplayObjective(int id, Object scoreboardObjective) {
+		return new PacketPlayOutScoreboardDisplayObjective(id, scoreboardObjective==null?null:(ScoreboardObjective)scoreboardObjective);
 	}
 
 	@Override
