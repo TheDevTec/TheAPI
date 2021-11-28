@@ -133,7 +133,7 @@ public class GUI implements HolderGUI {
 		inv.setItem(position, item.getItem());
 		if(TheAPI.isNewerThan(16))
 			for(Entry<Player, Object> p : containers.entrySet())
-				Ref.sendPacket(p.getKey(), airplane==1?Ref.newInstance(setSlot,Ref.get(p.getValue(),"j"),position,position, LoaderClass.nmsProvider.asNMSItem(item.getItem())):Ref.newInstance(setSlot,Ref.get(p.getValue(),"j"),position, LoaderClass.nmsProvider.asNMSItem(item.getItem())));
+				Ref.sendPacket(p.getKey(),LoaderClass.nmsProvider.packetSetSlot(p.getValue(), position, LoaderClass.nmsProvider.asNMSItem(item.getItem())));
 	}
 
 	/**
@@ -144,7 +144,7 @@ public class GUI implements HolderGUI {
 		inv.setItem(slot, null);
 		if(TheAPI.isNewerThan(16))
 			for(Entry<Player, Object> p : containers.entrySet())
-				Ref.sendPacket(p.getKey(), airplane==1?Ref.newInstance(setSlot,Ref.get(p.getValue(),"j"),slot,slot, LoaderClass.nmsProvider.asNMSItem(new ItemStack(Material.AIR))):Ref.newInstance(setSlot,Ref.get(p.getValue(),"j"),slot, LoaderClass.nmsProvider.asNMSItem(new ItemStack(Material.AIR))));
+				Ref.sendPacket(p.getKey(),LoaderClass.nmsProvider.packetSetSlot(p.getValue(), slot, LoaderClass.nmsProvider.asNMSItem(null)));
 	}
 
 	/**

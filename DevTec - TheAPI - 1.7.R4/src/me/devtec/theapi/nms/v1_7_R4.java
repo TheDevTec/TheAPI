@@ -15,6 +15,7 @@ import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftContainer;
 import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_7_R4.util.CraftMagicNumbers;
 import org.bukkit.entity.Entity;
@@ -61,6 +62,7 @@ import net.minecraft.server.v1_7_R4.PacketPlayOutScoreboardDisplayObjective;
 import net.minecraft.server.v1_7_R4.PacketPlayOutScoreboardObjective;
 import net.minecraft.server.v1_7_R4.PacketPlayOutScoreboardScore;
 import net.minecraft.server.v1_7_R4.PacketPlayOutScoreboardTeam;
+import net.minecraft.server.v1_7_R4.PacketPlayOutSetSlot;
 import net.minecraft.server.v1_7_R4.PacketPlayOutSpawnEntity;
 import net.minecraft.server.v1_7_R4.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_7_R4.PlayerConnection;
@@ -130,17 +132,25 @@ public class v1_7_R4 implements NmsProvider {
 	public ItemStack setNBT(ItemStack stack, Object nbt) {
 		net.minecraft.server.v1_7_R4.ItemStack i = (net.minecraft.server.v1_7_R4.ItemStack)asNMSItem(stack);
 		i.setTag((NBTTagCompound) nbt);
-		return asBukkitItem(stack);
+		return asBukkitItem(i);
 	}
+	
+	private static final net.minecraft.server.v1_7_R4.ItemStack air = CraftItemStack.asNMSCopy(new ItemStack(Material.AIR));
 
 	@Override
 	public Object asNMSItem(ItemStack stack) {
+		if(stack==null)return air;
 		return CraftItemStack.asNMSCopy(stack);
 	}
 
 	@Override
 	public ItemStack asBukkitItem(Object stack) {
 		return CraftItemStack.asBukkitCopy((net.minecraft.server.v1_7_R4.ItemStack) stack);
+	}
+
+	@Override
+	public Object packetSetSlot(Object container, int slot, Object itemStack) {
+		return new PacketPlayOutSetSlot(((CraftContainer)container).windowId, slot, (net.minecraft.server.v1_7_R4.ItemStack)itemStack);
 	}
 
 	@Override
@@ -262,14 +272,14 @@ public class v1_7_R4 implements NmsProvider {
 				modif=modif.setColor(EnumChatFormat.valueOf(ChatColor.getByChar(c.getColor().charAt(0)).name()));
 			}
 			if(c.getClickEvent()!=null)
-				modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
 			if(c.getHoverEvent()!=null)
-				modif.a(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
-			modif.setBold(c.isBold());
-			modif.setItalic(c.isItalic());
-			modif.setRandom(c.isObfuscated());
-			modif.setUnderline(c.isUnderlined());
-			modif.setStrikethrough(c.isStrikethrough());
+				modif=modif.a(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
+			modif=modif.setBold(c.isBold());
+			modif=modif.setItalic(c.isItalic());
+			modif=modif.setRandom(c.isObfuscated());
+			modif=modif.setUnderline(c.isUnderlined());
+			modif=modif.setStrikethrough(c.isStrikethrough());
 			current.setChatModifier(modif);
 		}
 		return chat.toArray(new IChatBaseComponent[0]);
@@ -291,14 +301,14 @@ public class v1_7_R4 implements NmsProvider {
 				modif=modif.setColor(EnumChatFormat.valueOf(ChatColor.getByChar(c.getColor().charAt(0)).name()));
 			}
 			if(c.getClickEvent()!=null)
-				modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
 			if(c.getHoverEvent()!=null)
-				modif.a(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
-			modif.setBold(c.isBold());
-			modif.setItalic(c.isItalic());
-			modif.setRandom(c.isObfuscated());
-			modif.setUnderline(c.isUnderlined());
-			modif.setStrikethrough(c.isStrikethrough());
+				modif=modif.a(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
+			modif=modif.setBold(c.isBold());
+			modif=modif.setItalic(c.isItalic());
+			modif=modif.setRandom(c.isObfuscated());
+			modif=modif.setUnderline(c.isUnderlined());
+			modif=modif.setStrikethrough(c.isStrikethrough());
 			current.setChatModifier(modif);
 			c=c.getExtra();
 		}
@@ -320,14 +330,14 @@ public class v1_7_R4 implements NmsProvider {
 				modif=modif.setColor(EnumChatFormat.valueOf(ChatColor.getByChar(c.getColor().charAt(0)).name()));
 			}
 			if(c.getClickEvent()!=null)
-				modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
 			if(c.getHoverEvent()!=null)
-				modif.a(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
-			modif.setBold(c.isBold());
-			modif.setItalic(c.isItalic());
-			modif.setRandom(c.isObfuscated());
-			modif.setUnderline(c.isUnderlined());
-			modif.setStrikethrough(c.isStrikethrough());
+				modif=modif.a(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
+			modif=modif.setBold(c.isBold());
+			modif=modif.setItalic(c.isItalic());
+			modif=modif.setRandom(c.isObfuscated());
+			modif=modif.setUnderline(c.isUnderlined());
+			modif=modif.setStrikethrough(c.isStrikethrough());
 			current.setChatModifier(modif);
 			c=c.getExtra();
 		}
@@ -349,14 +359,14 @@ public class v1_7_R4 implements NmsProvider {
 				modif=modif.setColor(EnumChatFormat.valueOf(ChatColor.getByChar(c.getColor().charAt(0)).name()));
 			}
 			if(c.getClickEvent()!=null)
-				modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
 			if(c.getHoverEvent()!=null)
-				modif.a(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
-			modif.setBold(c.isBold());
-			modif.setItalic(c.isItalic());
-			modif.setRandom(c.isObfuscated());
-			modif.setUnderline(c.isUnderlined());
-			modif.setStrikethrough(c.isStrikethrough());
+				modif=modif.a(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
+			modif=modif.setBold(c.isBold());
+			modif=modif.setItalic(c.isItalic());
+			modif=modif.setRandom(c.isObfuscated());
+			modif=modif.setUnderline(c.isUnderlined());
+			modif=modif.setStrikethrough(c.isStrikethrough());
 			current.setChatModifier(modif);
 		}
 		return main.a().isEmpty()?empty:main;

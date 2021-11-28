@@ -59,7 +59,7 @@ public class SQLAPI {
 		} catch (Exception e) {
 		}
 		try {
-			if(sql.isClosed()) {
+			if(sql==null||sql.isClosed()) {
 				synchronized (LoaderClass.plugin) {
 					sql = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + at, username, password);
 					connection = sql.createStatement();
@@ -67,8 +67,14 @@ public class SQLAPI {
 			}else
 				connection=sql.createStatement();
 		} catch (Exception e) {
-			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
-				e.printStackTrace();
+			synchronized (LoaderClass.plugin) {
+				try {
+					sql = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + at, username, password);
+					connection = sql.createStatement();
+				} catch (Exception er) {
+					
+				}
+			}
 		}
 	}
 

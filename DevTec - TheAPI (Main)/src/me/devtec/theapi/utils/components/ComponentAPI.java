@@ -178,7 +178,6 @@ public class ComponentAPI {
 		Component start = new Component(), current = start;
 		
 		StringBuilder builder = new StringBuilder();
-		
 		if(ignoreUrls) {
 			String color = "";
 			boolean wasBeforeColorChar = false, inHexLoop = false;
@@ -191,33 +190,44 @@ public class ComponentAPI {
 				if(wasBeforeColorChar) {
 					wasBeforeColorChar=false;
 					if(c>=48 && c<=57||c>=97 && c<=102||c>=65 && c<=70) {
-						if(!inHexLoop) {
+						if(!inHexLoop||color.length()==7) {
 							current.setText(builder.toString());
 							current.setColor(color);
 							builder.delete(0, builder.length());
-							color=null;
 							Component next=new Component();
 							current.setExtra(next);
 							current=next;
 							inHexLoop=false;
 							color=String.valueOf(c);
+							current.setColor(color);
 						}else {
 							color+=c;
 						}
-					}else if(c=='x'||c=='X') {
+					}else if(c==120||c==88) {
+						current.setText(builder.toString());
+						current.setColor(color);
+						builder.delete(0, builder.length());
+						Component next=new Component();
+						current.setExtra(next);
+						current=next;
+						
 						inHexLoop=true;
 						color="#";
 					}else {
 						if(c==114||c==82) {
+							current.setText(builder.toString());
+							builder.delete(0, builder.length());
+							Component next=new Component();
+							next.setColor(color);
+							current.setExtra(next);
+							current=next;
 							current.resetFormats();
-						}else
-						if(c>=107 && c<=111||c>=75&& c<=79) {
+						}else if(c>=107 && c<=111||c>=75&& c<=79) {
 							if(builder.length()!=0) {
 								current.setText(builder.toString());
-								current.setColor(color);
 								builder.delete(0, builder.length());
-								color=null;
 								Component next=new Component();
+								next.setColor(color);
 								next.setBold(current.isBold());
 								next.setItalic(current.isItalic());
 								next.setStrikethrough(current.isStrikethrough());
@@ -225,7 +235,6 @@ public class ComponentAPI {
 								next.setUnderlined(current.isUnderlined());
 								current.setExtra(next);
 								current=next;
-								inHexLoop=false;
 							}
 							switch(c) {
 							case 'k':
@@ -267,7 +276,7 @@ public class ComponentAPI {
 			char c = legacy.charAt(i);
 			if(c=='§') {
 				if((url=doUrlCheck(builder.toString()))!=null) {
-					builder.append(c);
+					builder.append('&'); //fix
 					wasBeforeColorChar=false;
 					continue;
 				}
@@ -275,41 +284,55 @@ public class ComponentAPI {
 				continue;
 			}
 			if(wasBeforeColorChar) {
+				if(url!=null) {
+					builder.append(c);
+					url+='c';
+					inHexLoop=false;
+					continue;
+				}
 				wasBeforeColorChar=false;
 				if(c>=48 && c<=57||c>=97 && c<=102||c>=65 && c<=70) {
-					if(!inHexLoop) {
-						if(url==null) {
-							current.setText(builder.toString());
-							current.setClickEvent(new me.devtec.theapi.utils.components.ClickEvent(me.devtec.theapi.utils.components.ClickEvent.Action.OPEN_URL, url));
-							current.setColor(color);
-							builder.delete(0, builder.length());
-							color=null;
-							url=null;
-							Component next=new Component();
-							current.setExtra(next);
-							current=next;
-							inHexLoop=false;
-						}
+					if(!inHexLoop||color.length()==7) {
+						current.setText(builder.toString());
+						current.setColor(color);
+						builder.delete(0, builder.length());
+						Component next=new Component();
+						current.setExtra(next);
+						current=next;
+						inHexLoop=false;
 						color=String.valueOf(c);
+						current.setColor(color);
 					}else {
 						color+=c;
 					}
-				}else if(c=='x'||c=='X') {
+				}else if(c==120||c==88) {
+					current.setText(builder.toString());
+					current.setClickEvent(new me.devtec.theapi.utils.components.ClickEvent(me.devtec.theapi.utils.components.ClickEvent.Action.OPEN_URL, url));
+					current.setColor(color);
+					builder.delete(0, builder.length());
+					Component next=new Component();
+					current.setExtra(next);
+					current=next;
+					
 					inHexLoop=true;
 					color="#";
 				}else {
 					if(c==114||c==82) {
+						current.setText(builder.toString());
+						current.setClickEvent(new me.devtec.theapi.utils.components.ClickEvent(me.devtec.theapi.utils.components.ClickEvent.Action.OPEN_URL, url));
+						builder.delete(0, builder.length());
+						Component next=new Component();
+						next.setColor(color);
+						current.setExtra(next);
+						current=next;
 						current.resetFormats();
-					}else
-						if(c>=107 && c<=111||c>=75&& c<=79) {
+					}else if(c>=107 && c<=111||c>=75&& c<=79) {
 						if(builder.length()!=0) {
 							current.setText(builder.toString());
 							current.setClickEvent(new me.devtec.theapi.utils.components.ClickEvent(me.devtec.theapi.utils.components.ClickEvent.Action.OPEN_URL, url));
-							current.setColor(color);
 							builder.delete(0, builder.length());
-							color=null;
-							url=null;
 							Component next=new Component();
+							next.setColor(color);
 							next.setBold(current.isBold());
 							next.setItalic(current.isItalic());
 							next.setStrikethrough(current.isStrikethrough());
@@ -317,7 +340,6 @@ public class ComponentAPI {
 							next.setUnderlined(current.isUnderlined());
 							current.setExtra(next);
 							current=next;
-							inHexLoop=false;
 						}
 						switch(c) {
 						case 'k':
@@ -368,6 +390,7 @@ public class ComponentAPI {
 					current.setColor(color);
 					builder.delete(0, builder.length());
 					Component next=new Component();
+					next.setColor(color);
 					next.setBold(current.isBold());
 					next.setItalic(current.isItalic());
 					next.setStrikethrough(current.isStrikethrough());
@@ -407,7 +430,6 @@ public class ComponentAPI {
 		}
 		return start;
 	}
-	
 	private static String doUrlCheck(String string) {
 		return url.matcher(string).find()?string:null;
 	}

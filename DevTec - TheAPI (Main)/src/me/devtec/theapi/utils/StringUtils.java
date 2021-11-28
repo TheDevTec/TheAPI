@@ -662,7 +662,7 @@ public class StringUtils {
 		if (period == null || period.trim().isEmpty())
 			return 0;
 		period = period.trim().toLowerCase(Locale.ENGLISH);
-		if (isFloat(period))
+		if (isFloat(period) && !period.endsWith("d") && !period.endsWith("e"))
 			return (long)getFloat(period);
 		float time = 0;
 
@@ -1042,10 +1042,10 @@ public class StringUtils {
 	public static boolean isFloat(String fromString) {
 		try {
 			Float.parseFloat(fromString);
+			return true;
 		} catch (NumberFormatException e) {
 			return false;
 		}
-		return true;
 	}
 
 	/**

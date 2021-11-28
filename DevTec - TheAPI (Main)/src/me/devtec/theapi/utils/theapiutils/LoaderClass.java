@@ -77,8 +77,6 @@ import me.devtec.theapi.utils.packetlistenerapi.PacketListener;
 import me.devtec.theapi.utils.packetlistenerapi.PacketManager;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.Cache.Query;
-import me.devtec.theapi.utils.theapiutils.LoggerManager.BukkitLogger;
-import me.devtec.theapi.utils.theapiutils.LoggerManager.ConsoleLogger;
 import me.devtec.theapi.utils.theapiutils.command.TheAPICommand;
 import me.devtec.theapi.utils.theapiutils.metrics.Metrics;
 import me.devtec.theapi.worldsapi.WorldsAPI;
@@ -242,19 +240,6 @@ public class LoaderClass extends JavaPlugin {
 			}
 		}
 		
-		//CONSOLE LOG EVENT
-		if(config.getBoolean("Options.ConsoleLogEvent")) {
-			try {
-				Class.forName("org.apache.logging.log4j.core.filter.AbstractFilter");
-				org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger)org.apache.logging.log4j.LogManager.getRootLogger();
-				logger.addFilter(new ConsoleLogger());
-			} catch (ClassNotFoundException e) {
-			}
-			BukkitLogger filter = new BukkitLogger();
-			getLogger().setFilter(filter);
-			Bukkit.getLogger().setFilter(filter);
-			java.util.logging.Logger.getLogger("Minecraft").setFilter(filter);
-		}
 		//TAGS - 1.16+
 		if (TheAPI.isNewerThan(15)) {
 			tags = new Config("TheAPI/Tags.yml");
@@ -928,6 +913,13 @@ public class LoaderClass extends JavaPlugin {
 		if(weeks.isEmpty())
 			weeks.addAll(Arrays.asList("=,1,week",">,1,weeks"));
 		
+		List<String> month = new ArrayList<>();
+		StringUtils.actions.put("Months",month);
+		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Months.Convertor"))
+			month.add(action);
+		if(month.isEmpty())
+			month.addAll(Arrays.asList("=,1,month",">,1,months"));
+		
 		List<String> years = new ArrayList<>();
 		StringUtils.actions.put("Years",years);
 		years.addAll(LoaderClass.config.getStringList("Options.TimeConvertor.Years.Convertor"));
@@ -947,7 +939,6 @@ public class LoaderClass extends JavaPlugin {
 	public void createConfig() {
 		config.addDefault("Options.HideErrors", new Node(false, "",
 				"# If you enable this option, errors from TheAPI will disappear", "# default: false")); // hide only TheAPI errors
-		config.addDefault("Options.ConsoleLogEvent", false);
 		config.addDefault("Options.ItemUnbreakable", true);
 		config.addDefault("Options.ServerListPingEvent", true);
 		config.addDefault("Options.AntiFakeBlocks", new Node(false, "# This function can solve problems with \"ghost blocks\", but make anti-xray no longer working", "# default: false"));
@@ -1033,6 +1024,13 @@ public class LoaderClass extends JavaPlugin {
 		weeks.addAll(LoaderClass.config.getStringList("Options.TimeConvertor.Weeks.Convertor"));
 		if(weeks.isEmpty())
 			weeks.addAll(Arrays.asList("=,1,week",">,1,weeks"));
+
+		List<String> month = new ArrayList<>();
+		StringUtils.actions.put("Months",month);
+		for(String action : LoaderClass.config.getStringList("Options.TimeConvertor.Months.Convertor"))
+			month.add(action);
+		if(month.isEmpty())
+			month.addAll(Arrays.asList("=,1,month",">,1,months"));
 		
 		List<String> years = new ArrayList<>();
 		StringUtils.actions.put("Years",years);

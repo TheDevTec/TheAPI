@@ -193,4 +193,5 @@ public interface NmsProvider {
 	public Object getConnectionNetwork(Object playercon);
 	
 	public Object getNetworkChannel(Object network);
+	public Object packetSetSlot(Object container, int slot, Object itemStack);
 }
