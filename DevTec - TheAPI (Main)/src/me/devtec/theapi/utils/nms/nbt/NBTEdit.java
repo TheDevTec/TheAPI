@@ -1,50 +1,18 @@
 package me.devtec.theapi.utils.nms.nbt;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.Set;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
-import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class NBTEdit {
-	//setter
-	private static final Method set=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "set", String.class, Ref.nmsOrOld("nbt.NBTBase","NBTBase"));
-	private static final Method setString=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setString", String.class, String.class);
-	private static final Method setBoolean=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setBoolean", String.class, boolean.class);
-	private static final Method setByte=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setByte", String.class, byte.class);
-	private static final Method setByteArray=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setString", String.class, byte[].class);
-	private static final Method setDouble=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setDouble", String.class, double.class);
-	private static final Method setFloat=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setFloat", String.class, float.class);
-	private static final Method setInt=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setInt", String.class, int.class);
-	private static final Method setIntArray=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setIntArray", String.class, int[].class);
-	private static final Method setLong=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setLong", String.class, long.class);
-	private static final Method setShort=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "setShort", String.class, short.class);
-	//getter
-	private static final Method get=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "get", String.class); //NBTEdit or other value
-			private static final Method getKeys=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getKeys"); //Set<String> of keys
-			private static final Method getTypeId=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getTypeId"); //byte
-			private static final Method getCompound=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getCompound", String.class); //NBTEdit
-			private static final Method getList=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getList", String.class, int.class);
-	private static final Method getString=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getString", String.class);
-	private static final Method getBoolean=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getBoolean", String.class);
-	private static final Method getByte=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getByte", String.class);
-	private static final Method getByteArray=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getString", String.class);
-	private static final Method getDouble=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getDouble", String.class);
-	private static final Method getFloat=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getFloat", String.class);
-	private static final Method getInt=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getInt", String.class);
-	private static final Method getIntArray=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getIntArray", String.class);
-	private static final Method getLong=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getLong", String.class);
-	private static final Method getShort=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "getShort", String.class);
-	private static final Method//other
-			remove=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "remove", String.class);
-	private static final Method hasKey=Ref.method(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"), "hasKey", String.class);
-	
-	private static final Constructor<?> cd = Ref.constructor(Ref.nmsOrOld("nbt.NBTTagCompound","NBTTagCompound"));
 	private Object nbt;
     public NBTEdit(Object nbt) {
+        if(nbt instanceof Entity)
+            this.nbt=LoaderClass.nmsProvider.getNBT((Entity)nbt);
+        else
         if(nbt instanceof ItemStack)
             this.nbt=LoaderClass.nmsProvider.getNBT((ItemStack)nbt);
         else
@@ -53,7 +21,7 @@ public class NBTEdit {
         else
             this.nbt=nbt;
         if(this.nbt==null) {
-        	this.nbt=Ref.newInstance(cd);
+        	this.nbt=LoaderClass.nmsProvider.parseNBT(null);
         }
     }
 	
@@ -65,120 +33,107 @@ public class NBTEdit {
 		return nbt;
 	}
 	
-	public void set(String path, NBTEdit edit) {
-		Ref.invoke(nbt, set, path, edit.getNBT());
+	public void set(String path, NBTEdit value) {
+		LoaderClass.nmsProvider.setNBTBase(nbt, path, value.getNBT());
 	}
 	
-	public void set(String path, Object nbt) {
-		Ref.invoke(nbt, set, path, nbt);
+	public void set(String path, Object value) {
+		LoaderClass.nmsProvider.setNBTBase(nbt, path, value);
 	}
 	
 	public void setString(String path, String value) {
-		Ref.invoke(nbt, setString, path, value);
+		LoaderClass.nmsProvider.setString(nbt, path, value);
 	}
 	
 	public boolean hasKey(String path) {
-		return (boolean)Ref.invoke(nbt, hasKey, path);
+		return LoaderClass.nmsProvider.hasKey(nbt, path);
 	}
 	
 	public void remove(String path) {
-		Ref.invoke(nbt, remove, path);
+		LoaderClass.nmsProvider.removeKey(nbt, path);
 	}
 	
 	public void setBoolean(String path, boolean value) {
-		Ref.invoke(nbt, setBoolean, path, value);
+		LoaderClass.nmsProvider.setBoolean(nbt, path, value);
 	}
 	
 	public void setByte(String path, byte value) {
-		Ref.invoke(nbt, setByte, path, value);
+		LoaderClass.nmsProvider.setByte(nbt, path, value);
 	}
 	
 	public void setByteArray(String path, byte[] value) {
-		Ref.invoke(nbt, setByteArray, path, value);
+		LoaderClass.nmsProvider.setByteArray(nbt, path, value);
 	}
 	
 	public void setDouble(String path, double value) {
-		Ref.invoke(nbt, setDouble, path, value);
+		LoaderClass.nmsProvider.setDouble(nbt, path, value);
 	}
 	
 	public void setFloat(String path, float value) {
-		Ref.invoke(nbt, setFloat, path, value);
+		LoaderClass.nmsProvider.setFloat(nbt, path, value);
 	}
 	
 	public void setInt(String path, int value) {
-		Ref.invoke(nbt, setInt, path, value);
+		LoaderClass.nmsProvider.setInteger(nbt, path, value);
 	}
 	
 	public void setIntArray(String path, int[] value) {
-		Ref.invoke(nbt, setIntArray, path, value);
+		LoaderClass.nmsProvider.setIntArray(nbt, path, value);
 	}
 	
 	public void setLong(String path, long value) {
-		Ref.invoke(nbt, setLong, path, value);
+		LoaderClass.nmsProvider.setLong(nbt, path, value);
 	}
 	
 	public void setShort(String path, short value) {
-		Ref.invoke(nbt, setShort, path, value);
+		LoaderClass.nmsProvider.setShort(nbt, path, value);
 	}
 	
 	public Object get(String path) {
-		return Ref.invoke(nbt, get, path);
+		return LoaderClass.nmsProvider.getNBTBase(nbt, path);
 	}
 	
-	public Object getList(String path, int size) {
-		return Ref.invoke(nbt, getList, path, size);
-	}
-	
-	public Object getCompound(String path) {
-		return Ref.invoke(nbt, getCompound, path);
-	}
-	
-	public byte getTypeId(String path) {
-		return (byte)Ref.invoke(nbt, getTypeId, path);
-	}
-	
-	@SuppressWarnings("unchecked")
 	public Set<String> getKeys(String path) {
-		return (Set<String>) Ref.invoke(nbt, getKeys, path);
+		return LoaderClass.nmsProvider.getKeys(nbt);
 	}
 	
 	public String getString(String path) {
-		return (String)Ref.invoke(nbt, getString, path);
+		return LoaderClass.nmsProvider.getString(nbt, path);
 	}
 	
 	public boolean getBoolean(String path) {
-		return (boolean)Ref.invoke(nbt, getBoolean, path);
+		return LoaderClass.nmsProvider.getBoolean(nbt, path);
 	}
 	
 	public byte getByte(String path) {
-		return (byte)Ref.invoke(nbt, getByte, path);
+		return LoaderClass.nmsProvider.getByte(nbt, path);
 	}
 	
 	public byte[] getByteArray(String path) {
-		return (byte[])Ref.invoke(nbt, getByteArray, path);
+		return LoaderClass.nmsProvider.getByteArray(nbt, path);
 	}
 	
 	public double getDouble(String path) {
-		return (double)Ref.invoke(nbt, getDouble, path);
+		return LoaderClass.nmsProvider.getDouble(nbt, path);
 	}
 	
 	public float getFloat(String path) {
-		return (float)Ref.invoke(nbt, getFloat, path);
+		return LoaderClass.nmsProvider.getFloat(nbt, path);
 	}
 	
 	public int getInt(String path) {
-		return (int)Ref.invoke(nbt, getInt, path);
+		return LoaderClass.nmsProvider.getInteger(nbt, path);
 	}
 	
 	public int[] getIntArray(String path) {
-		return (int[])Ref.invoke(nbt, getIntArray, path);
+		return LoaderClass.nmsProvider.getIntArray(nbt, path);
 	}
 	
 	public long getLong(String path) {
-		return (long)Ref.invoke(nbt, getLong, path);
+		return LoaderClass.nmsProvider.getLong(nbt, path);
 	}
 	
 	public short getShort(String path) {
-		return (short)Ref.invoke(nbt, getShort, path);
+		return LoaderClass.nmsProvider.getShort(nbt, path);
 	}
 }

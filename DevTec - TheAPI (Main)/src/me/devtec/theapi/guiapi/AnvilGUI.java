@@ -1,7 +1,5 @@
 package me.devtec.theapi.guiapi;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.guiapi.GUI.ClickType;
 import me.devtec.theapi.utils.StringUtils;
-import me.devtec.theapi.utils.components.ComponentAPI;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
@@ -66,11 +63,6 @@ public class AnvilGUI implements HolderGUI {
 	public final boolean isInsertable() {
 		return put;
 	}
-
-	private static Method set = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "setItem", int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
-	static {
-		set = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "setItem", int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
-	}
 	
 	/**
 	 * @apiNote Set item on position to the gui with options
@@ -78,16 +70,8 @@ public class AnvilGUI implements HolderGUI {
 	public final void setItem(int position, ItemGUI item) {
 		items.put(position, item);
 		inv.setItem(position, item.getItem());
-		for(Entry<Player, Object> c : containers.entrySet()) {
-			Object nms = LoaderClass.nmsProvider.asNMSItem(item.getItem());
-			int id = (int)Ref.get(c.getValue(), TheAPI.isOlderThan(17)?"windowId":"j");
-			if(GUI.airplane==0)
-				Ref.invoke(c.getValue(), set, position, nms);
-				else
-				Ref.invoke(c.getValue(), set, position, (int)Ref.invoke(Ref.get(Ref.player(c.getKey()), "bU"),"incrementStateId"), nms);
-			Ref.sendPacket(c.getKey(),GUI.airplane==0?Ref.newInstance(GUI.setSlot,id, position, nms):
-				Ref.newInstance(GUI.setSlot,id,(int)Ref.invoke(Ref.get(Ref.player(c.getKey()), "bU"),"incrementStateId"), position, nms));
-		}
+		for(Entry<Player, Object> p : containers.entrySet())
+			Ref.sendPacket(p.getKey(),LoaderClass.nmsProvider.packetSetSlot(LoaderClass.nmsProvider.getContainerId(p.getValue()), position, LoaderClass.nmsProvider.asNMSItem(item.getItem())));
 	}
 
 	/**
@@ -96,16 +80,8 @@ public class AnvilGUI implements HolderGUI {
 	public final void removeItem(int position) {
 		items.remove(position);
 		inv.setItem(position, new ItemStack(Material.AIR));
-		for(Entry<Player, Object> c : containers.entrySet()) {
-			Object nms = GUI.empty;
-			int id = (int)Ref.get(c.getValue(), TheAPI.isOlderThan(17)?"windowId":"j");
-			if(GUI.airplane==0)
-				Ref.invoke(c.getValue(), set, position, nms);
-				else
-				Ref.invoke(c.getValue(), set, position, (int)Ref.invoke(Ref.get(Ref.player(c.getKey()), "bU"),"incrementStateId"), nms);
-			Ref.sendPacket(c.getKey(),GUI.airplane==0?Ref.newInstance(GUI.setSlot,id, position, nms):
-				Ref.newInstance(GUI.setSlot,id,(int)Ref.invoke(Ref.get(Ref.player(c.getKey()), "bU"),"incrementStateId"), position, nms));
-		}
+		for(Entry<Player, Object> p : containers.entrySet())
+			Ref.sendPacket(p.getKey(),LoaderClass.nmsProvider.packetSetSlot(LoaderClass.nmsProvider.getContainerId(p.getValue()), position, LoaderClass.nmsProvider.asNMSItem(null)));
 	}
 
 	/**
@@ -123,7 +99,7 @@ public class AnvilGUI implements HolderGUI {
 	 * @apiNote Return ItemStack from position in gui
 	 */
 	public final ItemStack getItem(Player target, int slot) {
-		return LoaderClass.nmsProvider.asBukkitItem(Ref.invoke(Ref.invoke(containers.get(target), getSlot, slot),"getItem"));
+		return LoaderClass.nmsProvider.asBukkitItem(LoaderClass.nmsProvider.getSlotItem(containers.get(target), slot));
 	}
 
 	/**
@@ -131,22 +107,6 @@ public class AnvilGUI implements HolderGUI {
 	 */
 	public final ItemGUI getItemGUI(int slot) {
 		return getItemGUIs().get(slot);
-	}
-
-	private static final Object windowType = Ref.getStatic(Ref.nmsOrOld("world.inventory.Containers","Containers"), TheAPI.isNewerThan(16)?"h":"ANVIL");
-	
-	private static final Method getAt = Ref.method(Ref.nmsOrOld("world.inventory.ContainerAccess","ContainerAccess"), "at", Ref.nmsOrOld("world.level.World","World"), Ref.nmsOrOld("core.BlockPosition","BlockPosition"));
-	private static final Method getSlot=Ref.method(Ref.nmsOrOld("world.inventory.ContainerAnvil","Container"), "getSlot", int.class);
-	private static final Constructor<?> anvil;
-	static {
-		if(TheAPI.isNewerThan(14)) {
-			anvil=Ref.constructor(Ref.nmsOrOld("world.inventory.ContainerAnvil","ContainerAnvil"), int.class, Ref.nmsOrOld("world.entity.player.PlayerInventory","PlayerInventory"), Ref.nmsOrOld("world.inventory.ContainerAccess","ContainerAccess"));
-		}else {
-			if(TheAPI.isOlderThan(8))
-				anvil=Ref.constructor(Ref.nmsOrOld("world.inventory.ContainerAnvil","ContainerAnvil"), Ref.nmsOrOld("world.entity.player.PlayerInventory","PlayerInventory"), Ref.nmsOrOld("world.level.World","World"), int.class, int.class, int.class, Ref.nmsOrOld("world.entity.player.EntityHuman","EntityHuman"));
-			else
-			anvil=Ref.constructor(Ref.nmsOrOld("world.inventory.ContainerAnvil","ContainerAnvil"), Ref.nmsOrOld("world.entity.player.PlayerInventory","PlayerInventory"), Ref.nmsOrOld("world.level.World","World"), Ref.nmsOrOld("core.BlockPosition","BlockPosition"), Ref.nmsOrOld("world.entity.player.EntityHuman","EntityHuman"));
-		}
 	}
 	
 	/**
@@ -160,39 +120,16 @@ public class AnvilGUI implements HolderGUI {
 				LoaderClass.plugin.gui.remove(player.getName());
 				a.onClose(player);
 			}
-			Object entityPlayer = Ref.player(player);
-			int id = (int) GUI.nextCounter(entityPlayer);
-			Object inv = Ref.invoke(entityPlayer, "getInventory");
-			if(inv==null)inv=Ref.get(entityPlayer, "inventory");
-			Object g = TheAPI.isNewerThan(14)?Ref.newInstance(anvil, id, inv, Ref.invokeNulled(getAt, Ref.get(entityPlayer, TheAPI.isNewerThan(16)?"t":"world"), Ref.invoke(entityPlayer, "getChunkCoordinates")))
-					:(TheAPI.isOlderThan(8)?Ref.newInstance(anvil, inv, Ref.get(entityPlayer, TheAPI.isNewerThan(16)?"t":"world"), 0, 0, 0, entityPlayer)
-							:Ref.newInstance(anvil, inv, Ref.get(entityPlayer, TheAPI.isNewerThan(16)?"t":"world"), Ref.invoke(entityPlayer, "getChunkCoordinates"), entityPlayer));
-			if(TheAPI.isOlderThan(17))
-			Ref.set(g, "windowId", id);
-			Ref.set(g, "checkReachable", false);
-			Ref.set(entityPlayer, TheAPI.isNewerThan(16)?"bV":"activeContainer", g);
-			if(TheAPI.isOlderThan(15))
-			Ref.set(Ref.get(g, "repairInventory")!=null?Ref.get(g, "repairInventory"):Ref.get(g, "h"),"a", TheAPI.isOlderThan(14)?ComponentAPI.toIChatBaseComponent(title, true):title);
-			if(TheAPI.isOlderThan(8)) {
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,8,title, 0, true));
-			}else if(TheAPI.isOlderThan(14)) {
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,"minecraft:anvil",ComponentAPI.toIChatBaseComponent(title, true), 0));
-			}else {
-				Object obj = ComponentAPI.toIChatBaseComponent(title, true);
-				Ref.set(g, "title", obj);
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id, windowType, obj));
-			}
-			if(TheAPI.isOlderThan(8)) {
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,8,title, 0, false));
-			}else if(TheAPI.isOlderThan(14)) {
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,"minecraft:anvil",ComponentAPI.toIChatBaseComponent(title, true), 0));
-			}else
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id, windowType, ComponentAPI.toIChatBaseComponent(title, true)));
-			Ref.invoke(g, GUI.addListener, entityPlayer);
-			for(int i = 0; i < 3; ++i)
-				if(items.get(i)!=null)
-					Ref.invoke(g, set, i, LoaderClass.nmsProvider.asNMSItem(items.get(i).getItem()));
-			containers.put(player, g);
+			Object container;
+			ItemStack[] item = new ItemStack[3];
+			if(items.get(0)!=null)
+			item[0]=items.get(0).getItem();
+			if(items.get(1)!=null)
+			item[1]=items.get(1).getItem();
+			if(items.get(2)!=null)
+			item[2]=items.get(2).getItem();
+			LoaderClass.nmsProvider.openAnvilGUI(player,container=LoaderClass.nmsProvider.createContainer(inv, player),title,item);
+			containers.put(player, container);
 			LoaderClass.plugin.gui.put(player.getName(), this);
 		}
 	}
@@ -203,9 +140,9 @@ public class AnvilGUI implements HolderGUI {
 	}
 	
 	public String getRenameText(Player player) {
-		Object c = containers.get(player);
-		if(c==null)return null;
-		return (String)Ref.get(c, "renameText");
+		Object anvil = containers.get(player);
+		if(anvil==null)return null;
+		return LoaderClass.nmsProvider.getAnvilRenameText(anvil);
 	}
 	
 	public final void setTitle(String title) {
@@ -217,36 +154,11 @@ public class AnvilGUI implements HolderGUI {
 		}
 		if(title.equals(this.title))return;
 		this.title=title;
-		for(Entry<Player, Object> entry : containers.entrySet()) {
-			Player player = entry.getKey();
-			Object container = entry.getValue();
-			int id = (int)Ref.get(container, TheAPI.isOlderThan(17)?"windowId":"j");
-			if(TheAPI.isOlderThan(15))
-			Ref.set(Ref.get(container, "repairInventory")!=null?Ref.get(container, "repairInventory"):Ref.get(container, "h"),"a", TheAPI.isOlderThan(14)?ComponentAPI.toIChatBaseComponent(title, true):title);
-			if(TheAPI.isOlderThan(8)) {
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,8,title, 0, true));
-			}else if(TheAPI.isOlderThan(14)) {
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,"minecraft:anvil",ComponentAPI.toIChatBaseComponent(title, true), 0));
-			}else {
-				Object obj = ComponentAPI.toIChatBaseComponent(title, true);
-				Ref.set(container, "title", obj);
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id, windowType, obj));
-			}
-			if(TheAPI.isOlderThan(8)) {
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,8,title, 0, false));
-			}else if(TheAPI.isOlderThan(14)) {
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id,"minecraft:anvil",ComponentAPI.toIChatBaseComponent(title, true), 0));
-			}else
-				Ref.sendPacket(player, Ref.newInstance(GUI.openWindow,id, windowType, ComponentAPI.toIChatBaseComponent(title, true)));
+		for(Entry<Player, Object> ec : containers.entrySet()) {
+			LoaderClass.nmsProvider.setGUITitle(ec.getKey(),ec.getValue(), "minecraft:anvil",0,title);
 			for(int i = 0; i < 3; ++i)
 				if(items.get(i)!=null)
-					Ref.invoke(container, set, i, LoaderClass.nmsProvider.asNMSItem(items.get(i).getItem()));
-			Object f = Ref.player(player);
-			Object inv = Ref.invoke(f, "getInventory");
-			if(inv==null)inv=Ref.get(f, "inventory");
-			Object carry = Ref.invoke(inv,"getCarried");
-			if(carry!=GUI.empty) //Don't send useless packets
-				Ref.sendPacket(player, Ref.newInstance(GUI.setSlot, -1, -1, carry));
+					LoaderClass.nmsProvider.setSlot(ec.getValue(), i, LoaderClass.nmsProvider.asNMSItem(items.get(i).getItem()));
 		}
 		
 	}
@@ -306,13 +218,8 @@ public class AnvilGUI implements HolderGUI {
 			if(player==null)continue;
 			onPreClose(player);
 			Object ac = containers.remove(player);
-			if(ac!=null) {
-				Ref.sendPacket(player, Ref.newInstance(GUI.closeWindow, (int)Ref.get(ac, TheAPI.isOlderThan(17)?"windowId":"j")));
-				Object d = Ref.player(player);
-				Ref.invoke(ac, "b", d);
-				Ref.set(Ref.player(player), TheAPI.isNewerThan(16)?"bV":"activeContainer", Ref.get(d, TheAPI.isNewerThan(16)?"bU":"defaultContainer"));
-				Ref.invoke(ac, GUI.transfer, Ref.get(d, TheAPI.isNewerThan(16)?"bU":"defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
-			}
+			if(ac!=null)
+				LoaderClass.nmsProvider.closeGUI(player, ac, true);
 			LoaderClass.plugin.gui.remove(player.getName());
 			onClose(player);
 		}
@@ -325,12 +232,8 @@ public class AnvilGUI implements HolderGUI {
 			if(player==null)continue;
 			onPreClose(player);
 			Object ac = containers.remove(player);
-			if(ac!=null) {
-				Object d = Ref.player(player);
-				Ref.invoke(ac, "b", d);
-				Ref.set(Ref.player(player), TheAPI.isNewerThan(16)?"bV":"activeContainer", Ref.get(d, TheAPI.isNewerThan(16)?"bU":"defaultContainer"));
-				Ref.invoke(ac, GUI.transfer, Ref.get(d, TheAPI.isNewerThan(16)?"bU":"defaultContainer"), Ref.cast(Ref.craft("entity.CraftHumanEntity"), player));
-			}
+			if(ac!=null)
+				LoaderClass.nmsProvider.closeGUI(player, ac, false);
 			LoaderClass.plugin.gui.remove(player.getName());
 			onClose(player);
 		}
@@ -338,8 +241,8 @@ public class AnvilGUI implements HolderGUI {
 
 	public final String toString() {
 		StringBuilder items = new StringBuilder();
-		for (Integer g : getItemGUIs().keySet()) {
-			items.append('/').append(g).append(':').append(getItemGUIs().get(g).toString());
+		for (Entry<Integer, ItemGUI> g : getItemGUIs().entrySet()) {
+			items.append('/').append(g.getKey()).append(':').append(g.getValue().toString());
 		}
 		return "[AnvilGUI:" + title + "/" + put + "/" + 3 + items.append(']');
 	}

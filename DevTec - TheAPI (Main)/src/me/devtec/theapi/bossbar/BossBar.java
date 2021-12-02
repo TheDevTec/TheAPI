@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.components.ComponentAPI;
-import me.devtec.theapi.utils.nms.datawatcher.DataWatcher;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
@@ -187,7 +186,7 @@ public class BossBar {
 		if(cr)
 			Ref.sendPacket(p,LoaderClass.nmsProvider.packetSpawnEntityLiving(bar));
 		else
-			Ref.sendPacket(p, LoaderClass.nmsProvider.packetEntityMetadata(id, new DataWatcher(bar)));
+			Ref.sendPacket(p, LoaderClass.nmsProvider.packetEntityMetadata(id, LoaderClass.nmsProvider.getDataWatcher(bar)));
 	}
 
 	public void remove() {

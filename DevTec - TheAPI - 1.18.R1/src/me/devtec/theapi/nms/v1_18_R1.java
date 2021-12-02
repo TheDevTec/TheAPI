@@ -1,6 +1,5 @@
 package me.devtec.theapi.nms;
 
-import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,16 +10,16 @@ import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.v1_16_R3.CraftChunk;
-import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_16_R3.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftContainer;
-import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_16_R3.util.CraftChatMessage;
-import org.bukkit.craftbukkit.v1_16_R3.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_18_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_18_R1.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftContainer;
+import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_18_R1.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_18_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -44,66 +43,69 @@ import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.serverlist.PlayerProfile;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 import me.devtec.theapi.utils.theapiutils.LoaderClass.InventoryClickType;
-import net.minecraft.server.v1_16_R3.Block;
-import net.minecraft.server.v1_16_R3.BlockPosition;
-import net.minecraft.server.v1_16_R3.Blocks;
-import net.minecraft.server.v1_16_R3.ChatClickable;
-import net.minecraft.server.v1_16_R3.ChatClickable.EnumClickAction;
-import net.minecraft.server.v1_16_R3.ChatComponentText;
-import net.minecraft.server.v1_16_R3.ChatHexColor;
-import net.minecraft.server.v1_16_R3.ChatHoverable.EnumHoverAction;
-import net.minecraft.server.v1_16_R3.ChatMessageType;
-import net.minecraft.server.v1_16_R3.ChatModifier;
-import net.minecraft.server.v1_16_R3.ChunkSection;
-import net.minecraft.server.v1_16_R3.Container;
-import net.minecraft.server.v1_16_R3.ContainerAccess;
-import net.minecraft.server.v1_16_R3.ContainerAnvil;
-import net.minecraft.server.v1_16_R3.Containers;
-import net.minecraft.server.v1_16_R3.EntityHuman;
-import net.minecraft.server.v1_16_R3.EntityLiving;
-import net.minecraft.server.v1_16_R3.EntityPlayer;
-import net.minecraft.server.v1_16_R3.EnumChatFormat;
-import net.minecraft.server.v1_16_R3.IBlockData;
-import net.minecraft.server.v1_16_R3.IChatBaseComponent;
-import net.minecraft.server.v1_16_R3.ICrafting;
-import net.minecraft.server.v1_16_R3.IScoreboardCriteria.EnumScoreboardHealthDisplay;
-import net.minecraft.server.v1_16_R3.ITileEntity;
-import net.minecraft.server.v1_16_R3.Item;
-import net.minecraft.server.v1_16_R3.MinecraftServer;
-import net.minecraft.server.v1_16_R3.MojangsonParser;
-import net.minecraft.server.v1_16_R3.NBTBase;
-import net.minecraft.server.v1_16_R3.NBTTagCompound;
-import net.minecraft.server.v1_16_R3.NetworkManager;
-import net.minecraft.server.v1_16_R3.NonNullList;
-import net.minecraft.server.v1_16_R3.PacketPlayInWindowClick;
-import net.minecraft.server.v1_16_R3.PacketPlayOutBlockChange;
-import net.minecraft.server.v1_16_R3.PacketPlayOutChat;
-import net.minecraft.server.v1_16_R3.PacketPlayOutCloseWindow;
-import net.minecraft.server.v1_16_R3.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_16_R3.PacketPlayOutEntityMetadata;
-import net.minecraft.server.v1_16_R3.PacketPlayOutNamedEntitySpawn;
-import net.minecraft.server.v1_16_R3.PacketPlayOutOpenWindow;
-import net.minecraft.server.v1_16_R3.PacketPlayOutPlayerListHeaderFooter;
-import net.minecraft.server.v1_16_R3.PacketPlayOutScoreboardDisplayObjective;
-import net.minecraft.server.v1_16_R3.PacketPlayOutScoreboardObjective;
-import net.minecraft.server.v1_16_R3.PacketPlayOutScoreboardScore;
-import net.minecraft.server.v1_16_R3.PacketPlayOutScoreboardTeam;
-import net.minecraft.server.v1_16_R3.PacketPlayOutSetSlot;
-import net.minecraft.server.v1_16_R3.PacketPlayOutSpawnEntity;
-import net.minecraft.server.v1_16_R3.PacketPlayOutSpawnEntityLiving;
-import net.minecraft.server.v1_16_R3.PacketPlayOutTitle;
-import net.minecraft.server.v1_16_R3.PacketPlayOutTitle.EnumTitleAction;
-import net.minecraft.server.v1_16_R3.PacketStatusOutServerInfo;
-import net.minecraft.server.v1_16_R3.PlayerConnection;
-import net.minecraft.server.v1_16_R3.ScoreboardObjective;
-import net.minecraft.server.v1_16_R3.ScoreboardServer;
-import net.minecraft.server.v1_16_R3.ServerPing;
-import net.minecraft.server.v1_16_R3.ServerPing.ServerData;
-import net.minecraft.server.v1_16_R3.ServerPing.ServerPingPlayerSample;
-import net.minecraft.server.v1_16_R3.TileEntity;
+import net.minecraft.EnumChatFormat;
+import net.minecraft.core.BlockPosition;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.MojangsonParser;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.chat.ChatClickable;
+import net.minecraft.network.chat.ChatClickable.EnumClickAction;
+import net.minecraft.network.chat.ChatComponentText;
+import net.minecraft.network.chat.ChatHexColor;
+import net.minecraft.network.chat.ChatHoverable.EnumHoverAction;
+import net.minecraft.network.chat.ChatMessageType;
+import net.minecraft.network.chat.ChatModifier;
+import net.minecraft.network.chat.IChatBaseComponent;
+import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
+import net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
+import net.minecraft.network.protocol.game.PacketPlayInWindowClick;
+import net.minecraft.network.protocol.game.PacketPlayOutBlockChange;
+import net.minecraft.network.protocol.game.PacketPlayOutChat;
+import net.minecraft.network.protocol.game.PacketPlayOutCloseWindow;
+import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
+import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
+import net.minecraft.network.protocol.game.PacketPlayOutNamedEntitySpawn;
+import net.minecraft.network.protocol.game.PacketPlayOutOpenWindow;
+import net.minecraft.network.protocol.game.PacketPlayOutPlayerListHeaderFooter;
+import net.minecraft.network.protocol.game.PacketPlayOutScoreboardDisplayObjective;
+import net.minecraft.network.protocol.game.PacketPlayOutScoreboardObjective;
+import net.minecraft.network.protocol.game.PacketPlayOutScoreboardScore;
+import net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam;
+import net.minecraft.network.protocol.game.PacketPlayOutSetSlot;
+import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity;
+import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntityLiving;
+import net.minecraft.network.protocol.status.PacketStatusOutServerInfo;
+import net.minecraft.network.protocol.status.ServerPing;
+import net.minecraft.network.protocol.status.ServerPing.ServerData;
+import net.minecraft.network.protocol.status.ServerPing.ServerPingPlayerSample;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.ScoreboardServer;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.server.network.PlayerConnection;
+import net.minecraft.world.entity.EntityLiving;
+import net.minecraft.world.entity.player.EntityHuman;
+import net.minecraft.world.inventory.Container;
+import net.minecraft.world.inventory.ContainerAccess;
+import net.minecraft.world.inventory.ContainerAnvil;
+import net.minecraft.world.inventory.Containers;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ITileEntity;
+import net.minecraft.world.level.block.entity.TileEntity;
+import net.minecraft.world.level.block.state.IBlockData;
+import net.minecraft.world.level.chunk.ChunkSection;
+import net.minecraft.world.scores.ScoreboardObjective;
+import net.minecraft.world.scores.criteria.IScoreboardCriteria.EnumScoreboardHealthDisplay;
 
-public class v1_16_R3 implements NmsProvider {
+public class v1_18_R1 implements NmsProvider {
 	private static final MinecraftServer server = MinecraftServer.getServer();
+	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
 
 	@Override
 	public Object getEntity(Entity entity) {
@@ -132,90 +134,60 @@ public class v1_16_R3 implements NmsProvider {
 
 	@Override
 	public Object getScoreboardAction(Action type) {
-		return ScoreboardServer.Action.valueOf(type.name());
+		return type==Action.CHANGE?ScoreboardServer.Action.a:ScoreboardServer.Action.b;
 	}
 
 	@Override
 	public Object getEnumScoreboardHealthDisplay(DisplayType type) {
-		return EnumScoreboardHealthDisplay.valueOf(type.name());
+		return type==DisplayType.INTEGER?EnumScoreboardHealthDisplay.a:EnumScoreboardHealthDisplay.b;
 	}
 
 	@Override
 	public Object getNBT(ItemStack itemStack) {
-		return ((net.minecraft.server.v1_16_R3.ItemStack)asNMSItem(itemStack)).getOrCreateTag();
+		return ((net.minecraft.world.item.ItemStack)asNMSItem(itemStack)).t();
 	}
 
 	@Override
 	public Object parseNBT(String json) {
+		if(json==null)
+			return new NBTTagCompound();
 		try {
-			return MojangsonParser.parse(json);
+			return MojangsonParser.a(json);
 		} catch (Exception e) {
-			return null;
+			return new NBTTagCompound();
 		}
 	}
 
 	@Override
 	public ItemStack setNBT(ItemStack stack, Object nbt) {
-		net.minecraft.server.v1_16_R3.ItemStack i = (net.minecraft.server.v1_16_R3.ItemStack)asNMSItem(stack);
-		i.setTag((NBTTagCompound) nbt);
+		net.minecraft.world.item.ItemStack i = (net.minecraft.world.item.ItemStack)asNMSItem(stack);
+		i.c((NBTTagCompound) nbt);
 		return asBukkitItem(i);
 	}
 
 	@Override
 	public Object asNMSItem(ItemStack stack) {
-		if(stack==null)return net.minecraft.server.v1_16_R3.ItemStack.b;
+		if(stack==null)return net.minecraft.world.item.ItemStack.b;
 		return CraftItemStack.asNMSCopy(stack);
-	}
-	
-	@Override
-	public ItemStack asBukkitItem(Object stack) {
-		return CraftItemStack.asBukkitCopy((net.minecraft.server.v1_16_R3.ItemStack) stack);
 	}
 
 	@Override
-	public Object packetOpenWindow(int id, String legacy, int size, String title) {
-		Containers<?> windowType = Containers.GENERIC_9X1;
-		switch (size) {
-		case 0: {
-			windowType = Containers.ANVIL;
-			break;
-		}
-		case 18 : {
-			windowType = Containers.GENERIC_9X2;
-			break;
-		}
-		case 27 : {
-			windowType = Containers.GENERIC_9X3;
-			break;
-		}
-		case 36 : {
-			windowType = Containers.GENERIC_9X4;
-			break;
-		}
-		case 45 : {
-			windowType = Containers.GENERIC_9X5;
-			break;
-		}
-		case 54 : {
-			windowType = Containers.GENERIC_9X6;
-			break;
-		}
-		}
-		return new PacketPlayOutOpenWindow(id, windowType, (IChatBaseComponent)ComponentAPI.toIChatBaseComponent(title, true));
+	public ItemStack asBukkitItem(Object stack) {
+		return CraftItemStack.asBukkitCopy((net.minecraft.world.item.ItemStack) stack);
 	}
 	
 	public int getContainerId(Object container) {
-		return ((CraftContainer)container).windowId;
+		return ((CraftContainer)container).j;
 	}
 
 	@Override
 	public Object packetSetSlot(int container, int slot, Object itemStack) {
-		return new PacketPlayOutSetSlot(container, slot, (net.minecraft.server.v1_16_R3.ItemStack)itemStack);
+		return new PacketPlayOutSetSlot(container, slot, slot, (net.minecraft.world.item.ItemStack)itemStack);
 	}
 
 	@Override
 	public Object packetEntityMetadata(int entityId, Object dataWatcher, boolean bal) {
-		return new PacketPlayOutEntityMetadata(entityId, (net.minecraft.server.v1_16_R3.DataWatcher) dataWatcher, bal);
+		return new PacketPlayOutEntityMetadata(entityId, (net.minecraft.network.syncher.DataWatcher) dataWatcher, bal);
 	}
 
 	@Override
@@ -225,7 +197,7 @@ public class v1_16_R3 implements NmsProvider {
 
 	@Override
 	public Object packetSpawnEntity(Object entity, int id) {
-		return new PacketPlayOutSpawnEntity((net.minecraft.server.v1_16_R3.Entity) entity, id);
+		return new PacketPlayOutSpawnEntity((net.minecraft.world.entity.Entity) entity, id);
 	}
 
 	@Override
@@ -240,25 +212,26 @@ public class v1_16_R3 implements NmsProvider {
 
 	@Override
 	public Object packetPlayerListHeaderFooter(String header, String footer) {
-		PacketPlayOutPlayerListHeaderFooter packet = new PacketPlayOutPlayerListHeaderFooter();
-		packet.header=(IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(header, true));
-		packet.footer=(IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(footer, true));
-		return packet;
+		return new PacketPlayOutPlayerListHeaderFooter((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(header, true)), (IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(footer, true)));
 	}
 
 	@Override
 	public Object packetBlockChange(World world, Position position) {
-		return new PacketPlayOutBlockChange((net.minecraft.server.v1_16_R3.World)getWorld(world), (BlockPosition)position.getBlockPosition());
+		return new PacketPlayOutBlockChange((net.minecraft.world.level.World)getWorld(world), (BlockPosition)position.getBlockPosition());
 	}
 
 	@Override
 	public Object packetBlockChange(World world, int x, int y, int z) {
-		return new PacketPlayOutBlockChange((net.minecraft.server.v1_16_R3.World)getWorld(world), new BlockPosition(x,y,z));
+		return new PacketPlayOutBlockChange((net.minecraft.world.level.World)getWorld(world), new BlockPosition(x,y,z));
 	}
 
 	@Override
 	public Object packetScoreboardObjective() {
-		return new PacketPlayOutScoreboardObjective();
+		try {
+			return unsafe.allocateInstance(PacketPlayOutScoreboardObjective.class);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	@Override
@@ -268,32 +241,57 @@ public class v1_16_R3 implements NmsProvider {
 
 	@Override
 	public Object packetScoreboardTeam() {
-		return new PacketPlayOutScoreboardTeam();
+		try {
+			return unsafe.allocateInstance(PacketPlayOutScoreboardTeam.class);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	@Override
 	public Object packetScoreboardScore(Action action, String player, String line, int score) {
-		return new PacketPlayOutScoreboardScore((ScoreboardServer.Action) getScoreboardAction(action), player, line, score);
+		return new PacketPlayOutScoreboardScore((net.minecraft.server.ScoreboardServer.Action) getScoreboardAction(action), player, line, score);
 	}
 
 	@Override
 	public Object packetTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut) {
-		return new PacketPlayOutTitle(EnumTitleAction.valueOf(action.name()), (IChatBaseComponent)ComponentAPI.toIChatBaseComponent(ComponentAPI.toComponent(text, true)), fadeIn, stay, fadeOut);
+		switch(action) {
+		case ACTIONBAR:
+			return new ClientboundSetActionBarTextPacket((IChatBaseComponent)ComponentAPI.toIChatBaseComponent(ComponentAPI.toComponent(text, true)));
+		case TITLE:
+			return new ClientboundSetTitleTextPacket((IChatBaseComponent)ComponentAPI.toIChatBaseComponent(ComponentAPI.toComponent(text, true)));
+		case SUBTITLE:
+			return new ClientboundSetSubtitleTextPacket((IChatBaseComponent)ComponentAPI.toIChatBaseComponent(ComponentAPI.toComponent(text, true)));
+		case TIMES:
+			return new ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut);
+		case CLEAR:
+		case RESET:
+			return new ClientboundClearTitlesPacket(true);
+		}
+		return null;
 	}
 
 	@Override
 	public Object packetChat(ChatType type, Object chatBase, UUID uuid) {
-		return new PacketPlayOutChat((IChatBaseComponent)chatBase, ChatMessageType.valueOf(type.name()), uuid);
+		switch(type) {
+		case CHAT:
+			return new PacketPlayOutChat((IChatBaseComponent)chatBase, ChatMessageType.a, uuid);
+		case GAME_INFO:
+			return new PacketPlayOutChat((IChatBaseComponent)chatBase, ChatMessageType.c, uuid);
+		case SYSTEM:
+			return new PacketPlayOutChat((IChatBaseComponent)chatBase, ChatMessageType.b, uuid);
+		}
+		return null;
 	}
 
 	@Override
 	public Object packetChat(ChatType type, String text, UUID uuid) {
-		return packetChat(type, ComponentAPI.toIChatBaseComponent(ComponentAPI.toComponent(text, false)), uuid);
+		return packetChat(type, toIChatBaseComponent(ComponentAPI.toComponent(text, false)), uuid);
 	}
 
 	@Override
 	public void postToMainThread(Runnable runnable) {
-		server.executeSync(runnable);
+		server.b(runnable);
 	}
 
 	@Override
@@ -303,7 +301,7 @@ public class v1_16_R3 implements NmsProvider {
 
 	@Override
 	public Thread getServerThread() {
-		return server.serverThread;
+		return server.an;
 	}
 
 	@Override
@@ -322,28 +320,23 @@ public class v1_16_R3 implements NmsProvider {
 			}
 			ChatComponentText current = new ChatComponentText(c.getText());
 			chat.add(current);
-			ChatModifier modif = current.getChatModifier();
+			ChatModifier modif = current.c();
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
 				if(c.getColor().startsWith("#"))
-					modif=modif.setColor(ChatHexColor.a(c.getColor()));
-				else {
-					for(EnumChatFormat e : EnumChatFormat.values())
-						if(e.character==c.getColor().charAt(0)) {
-							modif=modif.setColor(e);
-							break;
-						}
-				}
+					modif=modif.a(ChatHexColor.a(c.getColor()));
+				else
+					modif=modif.a(EnumChatFormat.a(c.getColor().charAt(0)));
 			}
 			if(c.getClickEvent()!=null)
-				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+				modif=modif.a(new ChatClickable(EnumClickAction.a(c.getClickEvent().getAction().name().toLowerCase()), c.getClickEvent().getValue()));
 			if(c.getHoverEvent()!=null)
-				modif=modif.setChatHoverable(EnumHoverAction.a(c.getHoverEvent().getAction().name().toLowerCase()).a((IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
-			modif=modif.setBold(c.isBold());
-			modif=modif.setItalic(c.isItalic());
-			modif=modif.setRandom(c.isObfuscated());
-			modif=modif.setUnderline(c.isUnderlined());
-			modif=modif.setStrikethrough(c.isStrikethrough());
-			current.setChatModifier(modif);
+				modif=modif.a(EnumHoverAction.a(c.getHoverEvent().getAction().name().toLowerCase()).a((IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
+			modif=modif.a(c.isBold());
+			modif=modif.b(c.isItalic());
+			modif=modif.e(c.isObfuscated());
+			modif=modif.c(c.isUnderlined());
+			modif=modif.d(c.isStrikethrough());
+			current.a(modif);
 		}
 		return chat.toArray(new IChatBaseComponent[0]);
 	}
@@ -359,28 +352,23 @@ public class v1_16_R3 implements NmsProvider {
 			}
 			ChatComponentText current = new ChatComponentText(c.getText());
 			chat.add(current);
-			ChatModifier modif = current.getChatModifier();
+			ChatModifier modif = current.c();
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
 				if(c.getColor().startsWith("#"))
-					modif=modif.setColor(ChatHexColor.a(c.getColor()));
-				else {
-					for(EnumChatFormat e : EnumChatFormat.values())
-						if(e.character==c.getColor().charAt(0)) {
-							modif=modif.setColor(e);
-							break;
-						}
-				}
+					modif=modif.a(ChatHexColor.a(c.getColor()));
+				else
+					modif=modif.a(EnumChatFormat.a(c.getColor().charAt(0)));
 			}
 			if(c.getClickEvent()!=null)
-				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+				modif=modif.a(new ChatClickable(EnumClickAction.a(c.getClickEvent().getAction().name().toLowerCase()), c.getClickEvent().getValue()));
 			if(c.getHoverEvent()!=null)
-				modif=modif.setChatHoverable(EnumHoverAction.a(c.getHoverEvent().getAction().name().toLowerCase()).a((IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
-			modif=modif.setBold(c.isBold());
-			modif=modif.setItalic(c.isItalic());
-			modif=modif.setRandom(c.isObfuscated());
-			modif=modif.setUnderline(c.isUnderlined());
-			modif=modif.setStrikethrough(c.isStrikethrough());
-			current.setChatModifier(modif);
+				modif=modif.a(EnumHoverAction.a(c.getHoverEvent().getAction().name().toLowerCase()).a((IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
+			modif=modif.a(c.isBold());
+			modif=modif.b(c.isItalic());
+			modif=modif.e(c.isObfuscated());
+			modif=modif.c(c.isUnderlined());
+			modif=modif.d(c.isStrikethrough());
+			current.a(modif);
 			c=c.getExtra();
 		}
 		return chat.toArray(new IChatBaseComponent[0]);
@@ -395,32 +383,27 @@ public class v1_16_R3 implements NmsProvider {
 				continue;
 			}
 			ChatComponentText current = new ChatComponentText(c.getText());
-			main.addSibling(current);
-			ChatModifier modif = current.getChatModifier();
+			main.a(current);
+			ChatModifier modif = current.c();
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
 				if(c.getColor().startsWith("#"))
-					modif=modif.setColor(ChatHexColor.a(c.getColor()));
-				else {
-					for(EnumChatFormat e : EnumChatFormat.values())
-						if(e.character==c.getColor().charAt(0)) {
-							modif=modif.setColor(e);
-							break;
-						}
-				}
+					modif=modif.a(ChatHexColor.a(c.getColor()));
+				else
+					modif=modif.a(EnumChatFormat.a(c.getColor().charAt(0)));
 			}
 			if(c.getClickEvent()!=null)
-				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+				modif=modif.a(new ChatClickable(EnumClickAction.a(c.getClickEvent().getAction().name().toLowerCase()), c.getClickEvent().getValue()));
 			if(c.getHoverEvent()!=null)
-				modif=modif.setChatHoverable(EnumHoverAction.a(c.getHoverEvent().getAction().name().toLowerCase()).a((IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
-			modif=modif.setBold(c.isBold());
-			modif=modif.setItalic(c.isItalic());
-			modif=modif.setRandom(c.isObfuscated());
-			modif=modif.setUnderline(c.isUnderlined());
-			modif=modif.setStrikethrough(c.isStrikethrough());
-			current.setChatModifier(modif);
+				modif=modif.a(EnumHoverAction.a(c.getHoverEvent().getAction().name().toLowerCase()).a((IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
+			modif=modif.a(c.isBold());
+			modif=modif.b(c.isItalic());
+			modif=modif.e(c.isObfuscated());
+			modif=modif.c(c.isUnderlined());
+			modif=modif.d(c.isStrikethrough());
+			current.a(modif);
 			c=c.getExtra();
 		}
-		return main.getSiblings().isEmpty()?ChatComponentText.d:main;
+		return main.b().isEmpty()?ChatComponentText.d:main;
 	}
 
 	@Override
@@ -432,31 +415,27 @@ public class v1_16_R3 implements NmsProvider {
 				continue;
 			}
 			ChatComponentText current = new ChatComponentText(c.getText());
-			main.addSibling(current);
-			ChatModifier modif = current.getChatModifier();
+			main.a(current);
+			ChatModifier modif = current.c();
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
 				if(c.getColor().startsWith("#"))
-					modif=modif.setColor(ChatHexColor.a(c.getColor()));
-				else {
-					for(EnumChatFormat e : EnumChatFormat.values())
-						if(e.character==c.getColor().charAt(0)) {
-							modif=modif.setColor(e);
-							break;
-						}
-				}
+					modif=modif.a(ChatHexColor.a(c.getColor()));
+				else
+					modif=modif.a(EnumChatFormat.a(c.getColor().charAt(0)));
 			}
-			if(c.getClickEvent()!=null)
-				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+			if(c.getClickEvent()!=null) {
+				modif=modif.a(new ChatClickable(EnumClickAction.a(c.getClickEvent().getAction().name().toLowerCase()), c.getClickEvent().getValue()));
+			}
 			if(c.getHoverEvent()!=null)
-				modif=modif.setChatHoverable(EnumHoverAction.a(c.getHoverEvent().getAction().name().toLowerCase()).a((IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
-			modif=modif.setBold(c.isBold());
-			modif=modif.setItalic(c.isItalic());
-			modif=modif.setRandom(c.isObfuscated());
-			modif=modif.setUnderline(c.isUnderlined());
-			modif=modif.setStrikethrough(c.isStrikethrough());
-			current.setChatModifier(modif);
+				modif=modif.a(EnumHoverAction.a(c.getHoverEvent().getAction().name().toLowerCase()).a((IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
+			modif=modif.a(c.isBold());
+			modif=modif.b(c.isItalic());
+			modif=modif.e(c.isObfuscated());
+			modif=modif.c(c.isUnderlined());
+			modif=modif.d(c.isStrikethrough());
+			current.a(modif);
 		}
-		return main.getSiblings().isEmpty()?ChatComponentText.d:main;
+		return main.b().isEmpty()?ChatComponentText.d:main;
 	}
 
 	@Override
@@ -473,7 +452,7 @@ public class v1_16_R3 implements NmsProvider {
 	public TheMaterial toMaterial(Object blockOrItemOrIBlockData) {
 		if(blockOrItemOrIBlockData instanceof Block) {
 			Block b = (Block)blockOrItemOrIBlockData;
-			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(b.getItem()));
+			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(b.k()));
 		}
 		if(blockOrItemOrIBlockData instanceof Item) {
 			Item b = (Item)blockOrItemOrIBlockData;
@@ -481,7 +460,7 @@ public class v1_16_R3 implements NmsProvider {
 		}
 		if(blockOrItemOrIBlockData instanceof IBlockData) {
 			IBlockData b = (IBlockData)blockOrItemOrIBlockData;
-			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(b.getBlock().getItem()));
+			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(b.b().k()));
 		}
 		return null;
 	}
@@ -493,7 +472,7 @@ public class v1_16_R3 implements NmsProvider {
 
 	@Override
 	public Object toItem(TheMaterial material) {
-		return CraftItemStack.asNMSCopy(material.toItemStack()).getItem();
+		return CraftItemStack.asNMSCopy(material.toItemStack()).c();
 	}
 
 	@Override
@@ -508,37 +487,37 @@ public class v1_16_R3 implements NmsProvider {
 
 	@Override
 	public void setBlock(Object chunk, int x, int y, int z, Object IblockData, int data) {
-		net.minecraft.server.v1_16_R3.Chunk c = (net.minecraft.server.v1_16_R3.Chunk)chunk;
-		ChunkSection sc = c.getSections()[y>>4];
-		if(sc==null) {
-			c.getSections()[y>>4]=sc=new ChunkSection(y >> 4 << 4);
-		}
+		net.minecraft.world.level.chunk.Chunk c = (net.minecraft.world.level.chunk.Chunk)chunk;
+		int yy = c.g(y-1);
+		ChunkSection sc = c.b(yy);
+		if(sc==null)return;
 		BlockPosition pos = new BlockPosition(x,y,z);
 		//REMOVE TILE ENTITY
-		c.tileEntities.remove(pos);
+		c.i.remove(pos);
 		
-		sc.getBlocks().b(x&15, y&15, z&15, (IBlockData)IblockData);
+		sc.i().b(x&15, y&15, z&15, (IBlockData)IblockData);
 		
 		//ADD TILE ENTITY
 		if(IblockData instanceof ITileEntity) {
-			TileEntity ent = ((ITileEntity)IblockData).createTile(c);
-			c.tileEntities.put(pos,ent);
-			Ref.sendPacket(TheAPI.getOnlinePlayers(), ent.getUpdatePacket());
+			TileEntity ent = ((ITileEntity)IblockData).a(pos, (IBlockData)IblockData);
+			c.i.put(pos,ent);
+			Ref.sendPacket(TheAPI.getOnlinePlayers(), ent.h());
 		}
 	}
 
 	@Override
 	public void updateLightAt(Object chunk, int x, int y, int z) {
-		net.minecraft.server.v1_16_R3.Chunk c = (net.minecraft.server.v1_16_R3.Chunk)chunk;
-		c.world.getChunkProvider().getLightEngine().a(new BlockPosition(x,y,z));
+		net.minecraft.world.level.chunk.Chunk c = (net.minecraft.world.level.chunk.Chunk)chunk;
+		c.q.L().m().a(new BlockPosition(x,y,z));
 	}
 
 	@Override
 	public Object getBlock(Object chunk, int x, int y, int z) {
-		net.minecraft.server.v1_16_R3.Chunk c = (net.minecraft.server.v1_16_R3.Chunk)chunk;
-		ChunkSection sc = c.getSections()[y>>4];
-		if(sc==null)return Blocks.AIR.getBlockData();
-		return sc.getBlocks().a(x&15, y&15, z&15);
+		net.minecraft.world.level.chunk.Chunk c = (net.minecraft.world.level.chunk.Chunk)chunk;
+		int yy = c.g(y-1);
+		ChunkSection sc = c.b(yy);
+		if(sc==null)return Blocks.a.n();
+		return sc.i().a(x&15, y&15, z&15);
 	}
 
 	@Override
@@ -548,7 +527,7 @@ public class v1_16_R3 implements NmsProvider {
 
 	@Override
 	public int getCombinedId(Object IblockDataOrBlock) {
-		return Block.getCombinedId((IBlockData)IblockDataOrBlock);
+		return Block.i((IBlockData)IblockDataOrBlock);
 	}
 
 	@Override
@@ -583,27 +562,59 @@ public class v1_16_R3 implements NmsProvider {
 
 	@Override
 	public Chunk toBukkitChunk(Object nmsChunk) {
-		return ((net.minecraft.server.v1_16_R3.Chunk)nmsChunk).bukkitChunk;
+		return ((net.minecraft.world.level.chunk.Chunk)nmsChunk).bukkitChunk;
 	}
 
 	@Override
 	public int getPing(Player player) {
-		return ((EntityPlayer)getPlayer(player)).ping;
+		return ((EntityPlayer)getPlayer(player)).e;
 	}
 
 	@Override
 	public Object getPlayerConnection(Player player) {
-		return ((EntityPlayer)getPlayer(player)).playerConnection;
+		return ((EntityPlayer)getPlayer(player)).b;
 	}
 
 	@Override
 	public Object getConnectionNetwork(Object playercon) {
-		return ((PlayerConnection)playercon).networkManager;
+		return ((PlayerConnection)playercon).a;
 	}
 
 	@Override
 	public Object getNetworkChannel(Object network) {
-		return ((NetworkManager)network).channel;
+		return ((NetworkManager)network).k;
+	}
+
+	@Override
+	public Object packetOpenWindow(int id, String legacy, int size, String title) {
+		Containers<?> windowType = Containers.a;
+		switch (size) {
+		case 0: {
+			windowType = Containers.h;
+			break;
+		}
+		case 18 : {
+			windowType = Containers.b;
+			break;
+		}
+		case 27 : {
+			windowType = Containers.c;
+			break;
+		}
+		case 36 : {
+			windowType = Containers.d;
+			break;
+		}
+		case 45 : {
+			windowType = Containers.e;
+			break;
+		}
+		case 54 : {
+			windowType = Containers.f;
+			break;
+		}
+		}
+		return new PacketPlayOutOpenWindow(id, windowType, (IChatBaseComponent)ComponentAPI.toIChatBaseComponent(title, true));
 	}
 	
 	@Override
@@ -611,47 +622,47 @@ public class v1_16_R3 implements NmsProvider {
 		if(closePacket)
 		Ref.sendPacket(player, new PacketPlayOutCloseWindow(LoaderClass.nmsProvider.getContainerId(container)));
 		EntityPlayer nmsPlayer = (EntityPlayer)getPlayer(player);
-		nmsPlayer.activeContainer=nmsPlayer.defaultContainer;
-		((Container)container).transferTo(nmsPlayer.activeContainer, (CraftPlayer)player);
+		nmsPlayer.bW=nmsPlayer.bV;
+		((Container)container).transferTo(nmsPlayer.bV, (CraftPlayer)player);
 	}
 
 	@Override
 	public void setSlot(Object container, int slot, Object item) {
-		((Container)container).setItem(slot, (net.minecraft.server.v1_16_R3.ItemStack)item);
+		((Container)container).b(slot, (net.minecraft.world.item.ItemStack)item);
 	}
 
 	@Override
 	public void setGUITitle(Player player, Object container, String legacy, int size, String title) {
 		EntityPlayer nmsPlayer = ((CraftPlayer)player).getHandle();
-		int id = ((Container)container).windowId;
-		NonNullList<net.minecraft.server.v1_16_R3.ItemStack> nmsItems = ((Container)container).items;
+		int id = ((Container)container).j;
+		NonNullList<net.minecraft.world.item.ItemStack> nmsItems = ((Container)container).k;
 		Ref.sendPacket(player, packetOpenWindow(id,legacy,size,title));
 		int i = 0;
-		for(net.minecraft.server.v1_16_R3.ItemStack o : nmsItems) 
+		for(net.minecraft.world.item.ItemStack o : nmsItems) 
 			Ref.sendPacket(player, packetSetSlot(id,i++, o));
-		nmsPlayer.activeContainer=(Container)container;
-		((Container)container).addSlotListener(nmsPlayer);
+		nmsPlayer.bW=(Container)container;
+		((Container)container).a(nmsPlayer);
 		((Container)container).checkReachable=false;
 	}
 
 	@Override
 	public void openGUI(Player player, Object container, String legacy, int size, String title, ItemStack[] items) {
 		EntityPlayer nmsPlayer = ((CraftPlayer)player).getHandle();
-		int id = ((Container)container).windowId;
-		net.minecraft.server.v1_16_R3.ItemStack[] nmsItems = new net.minecraft.server.v1_16_R3.ItemStack[items.length];
+		int id = ((Container)container).j;
+		net.minecraft.world.item.ItemStack[] nmsItems = new net.minecraft.world.item.ItemStack[items.length];
 		for(int i = 0; i < items.length; ++i) {
 			ItemStack is = items[i];
 			if(is==null||is.getType()==Material.AIR)continue;
-			net.minecraft.server.v1_16_R3.ItemStack item = null;
-			((Container)container).setItem(i,item=(net.minecraft.server.v1_16_R3.ItemStack) asNMSItem(is));
+			net.minecraft.world.item.ItemStack item = null;
+			((Container)container).b(i,item=(net.minecraft.world.item.ItemStack) asNMSItem(is));
 			nmsItems[i]=item;
 		}
 		Ref.sendPacket(player, packetOpenWindow(id,legacy,size,title));
 		int i = 0;
-		for(net.minecraft.server.v1_16_R3.ItemStack o : nmsItems) 
+		for(net.minecraft.world.item.ItemStack o : nmsItems) 
 			Ref.sendPacket(player, packetSetSlot(id,i++, o));
-		nmsPlayer.activeContainer=(Container)container;
-		((Container)container).addSlotListener((ICrafting) nmsPlayer);
+		nmsPlayer.bW=(Container)container;
+		((Container)container).a(nmsPlayer);
 		((Container)container).checkReachable=false;
 	}
 
@@ -659,21 +670,21 @@ public class v1_16_R3 implements NmsProvider {
 	public void openAnvilGUI(Player player, Object con, String title, ItemStack[] items) {
 		ContainerAnvil container = (ContainerAnvil)con;
 		EntityPlayer nmsPlayer = ((CraftPlayer)player).getHandle();
-		int id = container.windowId;
-		net.minecraft.server.v1_16_R3.ItemStack[] nmsItems = new net.minecraft.server.v1_16_R3.ItemStack[items.length];
+		int id = container.j;
+		net.minecraft.world.item.ItemStack[] nmsItems = new net.minecraft.world.item.ItemStack[items.length];
 		for(int i = 0; i < items.length; ++i) {
 			ItemStack is = items[i];
 			if(is==null||is.getType()==Material.AIR)continue;
-			net.minecraft.server.v1_16_R3.ItemStack item = null;
-			container.setItem(i,item=(net.minecraft.server.v1_16_R3.ItemStack) asNMSItem(is));
+			net.minecraft.world.item.ItemStack item = null;
+			container.b(i,item=(net.minecraft.world.item.ItemStack) asNMSItem(is));
 			nmsItems[i]=item;
 		}
 		Ref.sendPacket(player, packetOpenWindow(id,"minecraft:anvil",0,title));
 		int i = 0;
-		for(net.minecraft.server.v1_16_R3.ItemStack o : nmsItems) 
+		for(net.minecraft.world.item.ItemStack o : nmsItems) 
 			Ref.sendPacket(player, packetSetSlot(id,i++, o));
-		nmsPlayer.activeContainer=container;
-		container.addSlotListener((ICrafting) nmsPlayer);
+		nmsPlayer.bW=container;
+		container.a(nmsPlayer);
 		container.checkReachable=false;
 	}
 
@@ -684,19 +695,19 @@ public class v1_16_R3 implements NmsProvider {
 
 	@Override
 	public Object getSlotItem(Object container, int slot) {
-		return ((Container)container).getSlot(slot).getItem();
+		return ((Container)container).a(slot).e();
 	}
 
 	static BlockPosition zero = new BlockPosition(0,0,0);
 	
 	@Override
 	public Object createAnvilContainer(Player player) {
-		return new ContainerAnvil(((CraftPlayer)player).getHandle().nextContainerCounter(),((CraftPlayer)player).getHandle().inventory,ContainerAccess.at(((CraftPlayer)player).getHandle().world, zero));
+		return new ContainerAnvil(((CraftPlayer)player).getHandle().nextContainerCounter(),((CraftPlayer)player).getHandle().fq(),ContainerAccess.a(((CraftPlayer)player).getHandle().t, zero));
 	}
 
 	@Override
 	public String getAnvilRenameText(Object anvil) {
-		return ((ContainerAnvil)anvil).renameText;
+		return ((ContainerAnvil)anvil).v;
 	}
 	
 	@Override
@@ -707,8 +718,8 @@ public class v1_16_R3 implements NmsProvider {
 		
 		int id = packet.b();
 		int mouseClick = packet.d();
-	    net.minecraft.server.v1_16_R3.InventoryClickType nmsType = packet.g();
-		InventoryClickType type = InventoryClickType.valueOf(nmsType.name());
+		net.minecraft.world.inventory.InventoryClickType nmsType = packet.g();
+		InventoryClickType type = InventoryClickType.values()[nmsType.ordinal()];
 		
 		Object container = gui.getContainer(player);
 		ItemStack item = asBukkitItem(packet.e());
@@ -754,23 +765,16 @@ public class v1_16_R3 implements NmsProvider {
 		return false;
 	}
 
-	static Field field = Ref.field(PacketStatusOutServerInfo.class, "b");
-	
 	@Override
 	public boolean processServerListPing(String player, Object channel, Object packet) {
 		PacketStatusOutServerInfo status = (PacketStatusOutServerInfo)packet;
-		ServerPing ping;
-		try {
-			ping = (ServerPing) field.get(status);
-		} catch (Exception e) {
-			return false;
-		}
+		ServerPing ping = status.b();
 		List<PlayerProfile> players = new ArrayList<>();
 		for (Player p : TheAPI.getOnlinePlayers())
 			players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
 		ServerListPingEvent event = new ServerListPingEvent(TheAPI.getOnlinePlayers().size(),
 				TheAPI.getMaxPlayers(), players, TheAPI.getMotd(), ping.d(),
-				((InetSocketAddress) ((Channel)channel).remoteAddress()).getAddress(), ping.getServerData().a(), ping.getServerData().getProtocolVersion());
+				((InetSocketAddress) ((Channel)channel).remoteAddress()).getAddress(), ping.c().a(), ping.c().b());
 		TheAPI.callEvent(event);
 		if (event.isCancelled())
 			return true;
@@ -783,167 +787,167 @@ public class v1_16_R3 implements NmsProvider {
 			playerSample.a(profiles);
 		} else
 			playerSample.a(new GameProfile[0]);
-		ping.setPlayerSample(playerSample);
+		ping.a(playerSample);
 
 		if (event.getMotd() != null)
-			ping.setMOTD((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(event.getMotd(), true)));
+			ping.a((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(event.getMotd(), true)));
 		else
-			ping.setMOTD((IChatBaseComponent)LoaderClass.nmsProvider.chatBase("{\"text\":\"\"}"));
+			ping.a((IChatBaseComponent)LoaderClass.nmsProvider.chatBase("{\"text\":\"\"}"));
 		if(event.getVersion()!=null)
-			ping.setServerInfo(new ServerData(event.getVersion(), event.getProtocol()));
+			ping.a(new ServerData(event.getVersion(), event.getProtocol()));
 		if (event.getFalvicon() != null)
-			ping.setFavicon(event.getFalvicon());
+			ping.a(event.getFalvicon());
 		return false;
 	}
 	
 	public Object getNBT(Entity entity) {
-		return ((CraftEntity)entity).getHandle().save(new NBTTagCompound());
+		return ((CraftEntity)entity).getHandle().f(new NBTTagCompound());
 	}
 
 	@Override
 	public Object setString(Object nbt, String path, String value) {
-		((NBTTagCompound)nbt).setString(path, value);
+		((NBTTagCompound)nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
 	public Object setInteger(Object nbt, String path, int value) {
-		((NBTTagCompound)nbt).setInt(path, value);
+		((NBTTagCompound)nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
 	public Object setDouble(Object nbt, String path, double value) {
-		((NBTTagCompound)nbt).setDouble(path, value);
+		((NBTTagCompound)nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
 	public Object setLong(Object nbt, String path, long value) {
-		((NBTTagCompound)nbt).setLong(path, value);
+		((NBTTagCompound)nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
 	public Object setShort(Object nbt, String path, short value) {
-		((NBTTagCompound)nbt).setShort(path, value);
+		((NBTTagCompound)nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
 	public Object setFloat(Object nbt, String path, float value) {
-		((NBTTagCompound)nbt).setFloat(path, value);
+		((NBTTagCompound)nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
 	public Object setBoolean(Object nbt, String path, boolean value) {
-		((NBTTagCompound)nbt).setBoolean(path, value);
+		((NBTTagCompound)nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
 	public Object setIntArray(Object nbt, String path, int[] value) {
-		((NBTTagCompound)nbt).setIntArray(path, value);
+		((NBTTagCompound)nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
 	public Object setByteArray(Object nbt, String path, byte[] value) {
-		((NBTTagCompound)nbt).setByteArray(path, value);
+		((NBTTagCompound)nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
 	public Object setNBTBase(Object nbt, String path, Object value) {
-		((NBTTagCompound)nbt).set(path, (NBTBase)value);
+		((NBTTagCompound)nbt).a(path, (NBTBase)value);
 		return nbt;
 	}
 
 	@Override
 	public String getString(Object nbt, String path) {
-		return ((NBTTagCompound)nbt).getString(path);
+		return ((NBTTagCompound)nbt).l(path);
 	}
 
 	@Override
 	public int getInteger(Object nbt, String path) {
-		return ((NBTTagCompound)nbt).getInt(path);
+		return ((NBTTagCompound)nbt).h(path);
 	}
 
 	@Override
 	public double getDouble(Object nbt, String path) {
-		return ((NBTTagCompound)nbt).getDouble(path);
+		return ((NBTTagCompound)nbt).i(path);
 	}
 
 	@Override
 	public long getLong(Object nbt, String path) {
-		return ((NBTTagCompound)nbt).getLong(path);
+		return ((NBTTagCompound)nbt).i(path);
 	}
 
 	@Override
 	public short getShort(Object nbt, String path) {
-		return ((NBTTagCompound)nbt).getShort(path);
+		return ((NBTTagCompound)nbt).g(path);
 	}
 
 	@Override
 	public float getFloat(Object nbt, String path) {
-		return ((NBTTagCompound)nbt).getFloat(path);
+		return ((NBTTagCompound)nbt).j(path);
 	}
 
 	@Override
 	public boolean getBoolean(Object nbt, String path) {
-		return ((NBTTagCompound)nbt).getBoolean(path);
+		return ((NBTTagCompound)nbt).e(path);
 	}
 
 	@Override
 	public int[] getIntArray(Object nbt, String path) {
-		return ((NBTTagCompound)nbt).getIntArray(path);
+		return ((NBTTagCompound)nbt).n(path);
 	}
 
 	@Override
 	public byte[] getByteArray(Object nbt, String path) {
-		return ((NBTTagCompound)nbt).getByteArray(path);
+		return ((NBTTagCompound)nbt).m(path);
 	}
 
 	@Override
 	public Object getNBTBase(Object nbt, String path) {
-		return ((NBTTagCompound)nbt).get(path);
+		return ((NBTTagCompound)nbt).c(path);
 	}
 
 	@Override
 	public Set<String> getKeys(Object nbt) {
-		return ((NBTTagCompound)nbt).getKeys();
+		return ((NBTTagCompound)nbt).d();
 	}
 
 	@Override
 	public boolean hasKey(Object nbt, String path) {
-		return ((NBTTagCompound)nbt).hasKey(path);
+		return ((NBTTagCompound)nbt).e(path);
 	}
 
 	@Override
 	public void removeKey(Object nbt, String path) {
-		((NBTTagCompound)nbt).remove(path);
+		((NBTTagCompound)nbt).r(path);
 	}
 
 	@Override
 	public Object setByte(Object nbt, String path, byte value) {
-		((NBTTagCompound)nbt).setByte(path, value);
+		((NBTTagCompound)nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
 	public byte getByte(Object nbt, String path) {
-		return ((NBTTagCompound)nbt).getByte(path);
+		return ((NBTTagCompound)nbt).f(path);
 	}
 
 	@Override
 	public Object getDataWatcher(Entity entity) {
-		return ((CraftEntity)entity).getHandle().getDataWatcher();
+		return ((CraftEntity)entity).getHandle().ai();
 	}
 
 	@Override
 	public Object getDataWatcher(Object entity) {
-		return ((net.minecraft.server.v1_16_R3.Entity)entity).getDataWatcher();
+		return ((net.minecraft.world.entity.Entity)entity).ai();
 	}
-
+	
 }

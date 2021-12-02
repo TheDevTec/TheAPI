@@ -150,7 +150,7 @@ public class LoaderClass extends JavaPlugin {
 	static final Constructor<?> setSlot = setSlotR;
 	static final int airplane = airR;
 	
-	  static boolean useItem(Player player, ItemStack stack, HolderGUI g, int slot, ClickType mouse) {
+	  public static boolean useItem(Player player, ItemStack stack, HolderGUI g, int slot, ClickType mouse) {
 		ItemGUI d = g.getItemGUI(slot);
 		boolean stolen = d==null||!d.isUnstealable();
 		if(d!=null) {
@@ -179,7 +179,7 @@ public class LoaderClass extends JavaPlugin {
 	}
 
 	public enum InventoryClickType {
-		PICKUP, QUICK_MOVE, SWAP, CLONE, THROW, QUICK_CRAFT, PICKUP_ALL
+		PICKUP, QUICK_MOVE, SWAP, CLONE, THROW, QUICK_CRAFT, PICKUP_ALL;
 	}
 	
 	@Override
@@ -195,7 +195,7 @@ public class LoaderClass extends JavaPlugin {
 				} catch (Exception ss) {
 				}
 			}
-			nmsProvider=(NmsProvider) Class.forName("me.devtec.theapi.nms."+version,true,LoaderClass.class.getClassLoader()).newInstance();
+			nmsProvider=(NmsProvider) Class.forName("me.devtec.theapi.nms."+version,true,getClassLoader()).newInstance();
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -475,198 +475,31 @@ public class LoaderClass extends JavaPlugin {
 			public boolean PacketPlayOut(String player, Object packet, Object channel) {
 				return false;
 			}
-			final boolean installedModificationPlugin = Bukkit.getPluginManager().getPlugin("ViaVersion")!=null||Bukkit.getPluginManager().getPlugin("ProtocolSupport")!=null;
-			final ItemStack empty = new ItemStack(Material.AIR);
-			public boolean PacketPlayIn(String player, Object packet, Object channel) {
-				if(player==null)return false; //NPC
+			
+			public boolean PacketPlayIn(String nick, Object packet, Object channel) {
+				if(nick==null)return false; //NPC
 				//ResourcePackAPI
 				if(resource!=null && packet.getClass()==resource) {
-					Player s = TheAPI.getPlayer(player);
-					if(s==null)return false;
-					if(ResourcePackAPI.getResourcePack(s)==null||ResourcePackAPI.getHandlingPlayer(s)==null)return false;
-					ResourcePackAPI.getHandlingPlayer(s).onHandle(s, ResourcePackAPI.getResourcePack(s), ResourcePackResult.valueOf(Ref.get(packet, TheAPI.isNewerThan(16)?"a":"status").toString()));
+					Player player = TheAPI.getPlayer(nick);
+					if(player==null)return false;
+					if(ResourcePackAPI.getResourcePack(player)==null||ResourcePackAPI.getHandlingPlayer(player)==null)return false;
+					ResourcePackAPI.getHandlingPlayer(player).onHandle(player, ResourcePackAPI.getResourcePack(player), ResourcePackResult.valueOf(Ref.get(packet, TheAPI.isNewerThan(16)?"a":"status").toString()));
 					return false;
 				}
 				//GUIS
 				if(packet.getClass()==close) {
-					Player p = TheAPI.getPlayer(player);
-					if(p==null)return false;
-					HolderGUI d = LoaderClass.plugin.gui.remove(p.getName());
-					if (d == null)
-						return false;
-					d.closeWithoutPacket(p);
+					Player player = TheAPI.getPlayer(nick);
+					if(player==null)return false;
+					HolderGUI gui = LoaderClass.plugin.gui.remove(player.getName());
+					if(gui==null)return false;
+					gui.closeWithoutPacket(player);
 					return true;
 				}
 				if(packet.getClass()==click) {
-					Player p = TheAPI.getPlayer(player);
-					if(p==null)return false;
-					HolderGUI d = LoaderClass.plugin.gui.get(p.getName());
-					if (d == null)return false;
-					int id = (int) Ref.get(packet, a);
-					int slot = (int) Ref.get(packet, slotR);
-					int mouseClick = (int) Ref.get(packet, button);
-					Object aw = Ref.get(packet, shift);
-					InventoryClickType type;
-					if(aw instanceof Integer) {
-						type=InventoryClickType.values()[(int)aw];
-					}else {
-						type=InventoryClickType.valueOf(aw.toString());
-					}
-					if(slot==-999)return false;
-					Object g = d.getContainer(p);
-					ItemStack i = nmsProvider.asBukkitItem(Ref.get(packet, item));
-					if((type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.CLONE||type==InventoryClickType.THROW||i.getType()==Material.AIR) && i.getType()==Material.AIR)
-						i=nmsProvider.asBukkitItem(Ref.invoke(Ref.invoke(g, getSlot, slot),getItem));
-					if(InventoryClickType.SWAP==type) {
-						i=p.getInventory().getItem(mouseClick);
-						mouseClick=0;
-					}
-					ItemStack before = p.getItemOnCursor();
-					if(i==null)i=new ItemStack(Material.AIR);
-					ClickType w = buildClick(i, type, slot, mouseClick);
-					boolean cancel = useItem(p, i, d, slot, w);
-					if(!d.isInsertable())cancel=true;
-					if(!cancel) {
-						cancel=d.onIteractItem(p, i, w, slot>d.size()?slot-d.size()+27:slot, slot<d.size());
-					}
-					if(type==InventoryClickType.QUICK_MOVE && TheAPI.isOlderThan(9))
-						cancel=true;
-					if(cancel) {
-						//MOUSE
-						Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,-1, -1, nmsProvider.asNMSItem(before)):
-							Ref.newInstance(setSlot,-1,-1, -1, nmsProvider.asNMSItem(before)));
-						switch(type) {
-						case CLONE:
-							return true;
-						case SWAP:
-						case QUICK_MOVE:
-							//1.17+ = simplier packet & need viaversion & protocolsupport installed check
-							if(TheAPI.isNewerThan(16)) {
-								if(installedModificationPlugin) {
-									Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)):
-										Ref.newInstance(setSlot,id,(int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId"), slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
-									if(airplane == 0) {
-										//TOP
-										int ic = 0;
-										for(ItemStack o : d.getInventory().getContents()) {
-											if(o==null)o=empty;
-											Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, nmsProvider.asNMSItem(o)));
-										}
-										//BUTTON
-										for(ItemStack o : p.getInventory().getContents()) {
-											if(o==null)o=empty;
-											Ref.sendPacket(p,Ref.newInstance(setSlot,id, p.getInventory().getSize()-ic++, nmsProvider.asNMSItem(o)));
-										}
-									}else {
-										int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
-										//TOP
-										int ic = 0;
-										for(ItemStack o : d.getInventory().getContents()) {
-											if(o==null)o=empty;
-											Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId, ic++, nmsProvider.asNMSItem(o)));
-										}
-										//BUTTON
-										for(ItemStack o : p.getInventory().getContents()) {
-											if(o==null)o=empty;
-											Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId, p.getInventory().getSize()-ic++, nmsProvider.asNMSItem(o)));
-										}
-									}
-								}else { //without check
-									org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMap<?> f = (org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMap<?>) Ref.get(packet, quickMove);
-									if(airplane == 0) {
-										//TOP
-										for(int o : f.keySet()) {
-											Ref.sendPacket(p,Ref.newInstance(setSlot,id, o, Ref.invoke(Ref.invoke(g, getSlot, o),getItem)));
-										}
-									}else {
-										int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
-										//TOP
-										for(int o : f.keySet()) {
-											Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId,o, Ref.invoke(Ref.invoke(g, getSlot, o),getItem)));
-										}
-									}
-								}
-								Ref.invoke(Ref.get(Ref.player(p), TheAPI.isNewerThan(16)?"bU":"inventory"),TheAPI.isNewerThan(16)?"updateInventory":"update");
-								return true;
-							}else {
-								//TOP
-								int ic = 0;
-								for(ItemStack o : d.getInventory().getContents()) {
-									if(o==null)o=empty;
-									Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, nmsProvider.asNMSItem(o)));
-								}
-								//BUTTON
-								for(ItemStack o : p.getInventory().getContents()) {
-									if(o==null)o=empty;
-									Ref.sendPacket(p,Ref.newInstance(setSlot,id, p.getInventory().getSize()-ic++, nmsProvider.asNMSItem(o)));
-								}
-							}
-							return true;
-						case PICKUP_ALL:
-							//IF PICKUP IN TOP
-							if(TheAPI.isNewerThan(16) && !installedModificationPlugin) {
-								org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMap<?> f = (org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.ints.Int2ObjectMap<?>) Ref.get(packet, quickMove);
-								if(airplane == 0) {
-									//TOP
-									for(int o : f.keySet()) {
-										Ref.sendPacket(p,Ref.newInstance(setSlot,id, o, Ref.invoke(Ref.invoke(g, getSlot, o),getItem)));
-									}
-								}else {
-									int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
-									//TOP
-									for(int o : f.keySet()) {
-										Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId,o, Ref.invoke(Ref.invoke(g, getSlot, o),getItem)));
-									}
-								}
-								return true;
-							}
-							if(TheAPI.isNewerThan(16)) {
-								if(airplane == 0) {
-									//TOP
-									int ic = 0;
-									for(ItemStack o : d.getInventory().getContents()) {
-										if(o==null)o=empty;
-										Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, nmsProvider.asNMSItem(o)));
-									}
-									//BUTTON
-									for(ItemStack o : p.getInventory().getContents()) {
-										if(o==null)o=empty;
-										Ref.sendPacket(p,Ref.newInstance(setSlot,id, p.getInventory().getSize()-ic++, nmsProvider.asNMSItem(o)));
-									}
-								}else {
-									int slotId = (int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId");
-									//TOP
-									int ic = 0;
-									for(ItemStack o : d.getInventory().getContents()) {
-										if(o==null)o=empty;
-										Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId, ic++, nmsProvider.asNMSItem(o)));
-									}
-									//BUTTON
-									for(ItemStack o : p.getInventory().getContents()) {
-										if(o==null)o=empty;
-										Ref.sendPacket(p,Ref.newInstance(setSlot,id,slotId, p.getInventory().getSize()-ic++, nmsProvider.asNMSItem(o)));
-									}
-								}
-							}else {
-								//TOP
-								int ic = 0;
-								for(ItemStack o : d.getInventory().getContents()) {
-									if(o==null)o=empty;
-									Ref.sendPacket(p,Ref.newInstance(setSlot,id, ic++, nmsProvider.asNMSItem(o)));
-								}
-								//BUTTON
-								for(ItemStack o : p.getInventory().getContents()) {
-									if(o==null)o=empty;
-									Ref.sendPacket(p,Ref.newInstance(setSlot,id, p.getInventory().getSize()-ic++, nmsProvider.asNMSItem(o)));
-								}
-							}
-							return true;
-						default:
-							Ref.sendPacket(p,airplane==0?Ref.newInstance(setSlot,id, slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)):
-								Ref.newInstance(setSlot,id,(int)Ref.invoke(Ref.get(Ref.player(p), "bU"),"incrementStateId"), slot, Ref.invoke(Ref.invoke(g, getSlot, slot),getItem)));
-							return true;
-						}
-					}
+					Player player = TheAPI.getPlayer(nick);
+					if(player==null)return false;
+					HolderGUI gui = LoaderClass.plugin.gui.get(player.getName());
+					return gui==null?false:LoaderClass.nmsProvider.processInvClickPacket(player, gui, packet);
 				}
 				return false;
 			}

@@ -9,7 +9,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import org.bukkit.entity.Player;
+
 import me.devtec.theapi.utils.StringUtils;
+import me.devtec.theapi.utils.json.Json;
+import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -551,6 +555,30 @@ public class ComponentAPI {
 			else
 				b.append(StringUtils.colorize(text+""));
 		return b.toString();
+	}
+
+	public static void send(Collection<Player> players, Component component) {
+		String json = Json.writer().simpleWrite(toJsonList(component));
+		json="[\"\","+json.substring(1);
+		Ref.sendPacket(players, LoaderClass.nmsProvider.packetChat(me.devtec.theapi.utils.nms.NmsProvider.ChatType.SYSTEM, LoaderClass.nmsProvider.chatBase(json)));
+	}
+
+	public static void send(Player player, Component component) {
+		String json = Json.writer().simpleWrite(toJsonList(component));
+		json="[\"\","+json.substring(1);
+		Ref.sendPacket(player, LoaderClass.nmsProvider.packetChat(me.devtec.theapi.utils.nms.NmsProvider.ChatType.SYSTEM, LoaderClass.nmsProvider.chatBase(json)));
+	}
+
+	public static void send(Collection<Player> players, List<Component> component) {
+		String json = Json.writer().simpleWrite(toJsonList(component));
+		json="[\"\","+json.substring(1);
+		Ref.sendPacket(players, LoaderClass.nmsProvider.packetChat(me.devtec.theapi.utils.nms.NmsProvider.ChatType.SYSTEM, LoaderClass.nmsProvider.chatBase(json)));
+	}
+
+	public static void send(Player player, List<Component> component) {
+		String json = Json.writer().simpleWrite(toJsonList(component));
+		json="[\"\","+json.substring(1);
+		Ref.sendPacket(player, LoaderClass.nmsProvider.packetChat(me.devtec.theapi.utils.nms.NmsProvider.ChatType.SYSTEM, LoaderClass.nmsProvider.chatBase(json)));
 	}
 	
 	static String getColor(String color) {

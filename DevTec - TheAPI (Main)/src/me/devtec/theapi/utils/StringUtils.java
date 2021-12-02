@@ -264,14 +264,6 @@ public class StringUtils {
 		return r.toString();
 	}
 
-	/**
-	 * @apiNote Create clickable message
-	 * @return HoverMessage
-	 */
-	public static HoverMessage getHoverMessage(String... message) {
-		return new HoverMessage(message);
-	}
-
 	private static final Pattern getLast = Pattern
 			.compile("(#[A-Fa-f0-9]{6}|[&§][Xx]([&§][A-Fa-f0-9]){6}|[&§][A-Fa-f0-9RrK-Ok-oUuXx])");
 

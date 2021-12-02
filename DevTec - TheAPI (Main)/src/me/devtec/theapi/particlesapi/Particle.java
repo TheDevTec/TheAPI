@@ -39,9 +39,9 @@ public class Particle {
 					}
 				}else //1.7.10 or older or 1.14+
 					if(TheAPI.isNewerThan(16)) { //1.17
-						Object i = Ref.getStatic(Ref.getClass("net.minecraft.core.IRegistry"),"ab");
-						for(Object k : (Set<?>)Ref.invoke(i, "keySet")) {
-							identifier.put(Ref.invoke(k, "getKey").toString().toUpperCase(), Ref.invoke(i, "get", k));
+						Object i = Ref.getStatic(Ref.getClass("net.minecraft.core.IRegistry"),TheAPI.isNewerThan(17)?"ac":"ab");
+						for(Object k : (Set<?>)Ref.invoke(i, TheAPI.isNewerThan(17)?"d":"keySet")) {
+							identifier.put(TheAPI.isNewerThan(17)?Ref.get(k, "f").toString().toUpperCase():Ref.invoke(k, "getKey").toString().toUpperCase(), Ref.invoke(i, TheAPI.isNewerThan(17)?"a":"get", k));
 						}
 					}else
 				for (Field f : Ref.getFields(a)) {
