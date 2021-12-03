@@ -177,12 +177,12 @@ public class ComponentAPI {
 		return com;
 	}
 	
-	public static Component toComponent(String legacy, boolean ignoreUrls) {
+	public static Component toComponent(String legacy, boolean skipUrls) {
 		if(legacy==null)return null;
 		Component start = new Component(), current = start;
 		
 		StringBuilder builder = new StringBuilder();
-		if(ignoreUrls) {
+		if(skipUrls) {
 			String color = "";
 			boolean wasBeforeColorChar = false, inHexLoop = false;
 			for(int i = 0; i < legacy.length(); ++i) {
