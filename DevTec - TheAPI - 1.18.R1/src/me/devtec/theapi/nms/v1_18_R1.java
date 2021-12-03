@@ -291,7 +291,7 @@ public class v1_18_R1 implements NmsProvider {
 
 	@Override
 	public void postToMainThread(Runnable runnable) {
-		server.b(runnable);
+		server.execute(runnable);
 	}
 
 	@Override
