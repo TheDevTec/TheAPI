@@ -899,16 +899,18 @@ public class ItemCreatorAPI implements Cloneable {
 						m.setOwningPlayer(Bukkit.getOfflinePlayer(owner));
 					else {
 						SkinData data = generateSkin(owner);
-						if(TheAPI.isOlderThan(8)) {
-							Object profile = Ref.createGameProfile(null, owner!=null && !owner.trim().isEmpty()?owner:"TheAPI");
-							Ref.invoke(Ref.invoke(profile, "getProperties"), set, "textures", Ref.createProperty("textures", data.value, data.signature));
-							Ref.set(m, "profile", profile);
-						}else {
-							GameProfile profile = new GameProfile(UUID.randomUUID(), owner);
-							profile.getProperties().put("textures", new Property("textures", data.value, data.signature));
-							Ref.set(m, "profile", profile);
-							if(TheAPI.isNewerThan(15))
-								Ref.invoke(m, setProfile, profile);
+						if(data!=null) {
+							if(TheAPI.isOlderThan(8)) {
+								Object profile = Ref.createGameProfile(null, owner!=null && !owner.trim().isEmpty()?owner:"TheAPI");
+								Ref.invoke(Ref.invoke(profile, "getProperties"), set, "textures", Ref.createProperty("textures", data.value, data.signature));
+								Ref.set(m, "profile", profile);
+							}else {
+								GameProfile profile = new GameProfile(UUID.randomUUID(), owner);
+								profile.getProperties().put("textures", new Property("textures", data.value, data.signature));
+								Ref.set(m, "profile", profile);
+								if(TheAPI.isNewerThan(15))
+									Ref.invoke(m, setProfile, profile);
+							}
 						}
 					}
 				}
@@ -917,6 +919,7 @@ public class ItemCreatorAPI implements Cloneable {
 						Object profile = Ref.createGameProfile(null, owner!=null && !owner.trim().isEmpty()?owner:"TheAPI");
 						if(url!=null) {
 							SkinData data = generateSkin(url);
+							if(data!=null)
 							Ref.invoke(Ref.invoke(profile, "getProperties"), set, "textures", Ref.createProperty("textures", data.value, data.signature));
 						}else
 							Ref.invoke(Ref.invoke(profile, "getProperties"), set, "textures", Ref.createProperty("textures", text));
@@ -925,6 +928,7 @@ public class ItemCreatorAPI implements Cloneable {
 						GameProfile profile = new GameProfile(UUID.randomUUID(), owner!=null && !owner.trim().isEmpty()?owner:"TheAPI");
 						if(url!=null) {
 							SkinData data = generateSkin(url);
+							if(data!=null)
 							profile.getProperties().put("textures", new Property("textures", data.value, data.signature));
 						}else
 							profile.getProperties().put("textures", new Property("textures", text));
@@ -981,8 +985,8 @@ public class ItemCreatorAPI implements Cloneable {
 				conn.setRequestProperty("User-Agent", "TheAPI-JavaClient");
 				conn.setRequestProperty("Accept-Encoding", "gzip");
 				conn.setRequestMethod("POST");
-				conn.setConnectTimeout(1000);
-				conn.setReadTimeout(1000);
+				conn.setConnectTimeout(10000);
+				conn.setReadTimeout(10000);
 				conn.connect();
 				Map<String, Object> text = (Map<String, Object>) Json.reader().simpleRead(StreamUtils.fromStream(new GZIPInputStream(conn.getInputStream())));
 				SkinData data = new SkinData();
@@ -997,8 +1001,8 @@ public class ItemCreatorAPI implements Cloneable {
 			HttpURLConnection conn = (HttpURLConnection)new URL(String.format(USER_FORMAT, urlOrName)).openConnection();
 			conn.setRequestProperty("User-Agent", "TheAPI-JavaClient");
 			conn.setRequestMethod("GET");
-			conn.setConnectTimeout(1000);
-			conn.setReadTimeout(1000);
+			conn.setConnectTimeout(10000);
+			conn.setReadTimeout(10000);
 			conn.connect();
 			Map<String, Object> text = (Map<String, Object>) Json.reader().simpleRead(StreamUtils.fromStream(conn.getInputStream()));
 			SkinData data = new SkinData();
