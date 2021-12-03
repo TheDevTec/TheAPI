@@ -176,7 +176,7 @@ public class v1_7_R4 implements NmsProvider {
 	} 
 	
 	public int getContainerId(Object container) {
-		return ((CraftContainer)container).windowId;
+		return ((Container)container).windowId;
 	}
 
 	@Override

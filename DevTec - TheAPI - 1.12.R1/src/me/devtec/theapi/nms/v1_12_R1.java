@@ -180,7 +180,7 @@ public class v1_12_R1 implements NmsProvider {
 	}
 	
 	public int getContainerId(Object container) {
-		return ((CraftContainer)container).windowId;
+		return ((Container)container).windowId;
 	}
 
 	@Override
