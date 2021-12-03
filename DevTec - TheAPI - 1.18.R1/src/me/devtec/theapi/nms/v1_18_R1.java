@@ -488,7 +488,7 @@ public class v1_18_R1 implements NmsProvider {
 	@Override
 	public void setBlock(Object chunk, int x, int y, int z, Object IblockData, int data) {
 		net.minecraft.world.level.chunk.Chunk c = (net.minecraft.world.level.chunk.Chunk)chunk;
-		int yy = c.g(y-1);
+		int yy = c.e(y);
 		ChunkSection sc = c.b(yy);
 		if(sc==null)return;
 		BlockPosition pos = new BlockPosition(x,y,z);
@@ -514,7 +514,7 @@ public class v1_18_R1 implements NmsProvider {
 	@Override
 	public Object getBlock(Object chunk, int x, int y, int z) {
 		net.minecraft.world.level.chunk.Chunk c = (net.minecraft.world.level.chunk.Chunk)chunk;
-		int yy = c.g(y-1);
+		int yy = c.e(y);
 		ChunkSection sc = c.b(yy);
 		if(sc==null)return Blocks.a.n();
 		return sc.i().a(x&15, y&15, z&15);
