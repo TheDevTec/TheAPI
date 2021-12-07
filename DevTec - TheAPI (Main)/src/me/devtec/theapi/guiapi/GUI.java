@@ -12,7 +12,6 @@ import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.StringUtils;
-import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class GUI implements HolderGUI {
@@ -98,9 +97,6 @@ public class GUI implements HolderGUI {
 	public final void setItem(int position, ItemGUI item) {
 		items.put(position, item);
 		inv.setItem(position, item.getItem());
-		if(TheAPI.isNewerThan(16))
-			for(Entry<Player, Object> p : containers.entrySet())
-				Ref.sendPacket(p.getKey(),LoaderClass.nmsProvider.packetSetSlot(LoaderClass.nmsProvider.getContainerId(p.getValue()), position, LoaderClass.nmsProvider.asNMSItem(item.getItem())));
 	}
 
 	/**
@@ -109,9 +105,6 @@ public class GUI implements HolderGUI {
 	public final void removeItem(int slot) {
 		items.remove(slot);
 		inv.setItem(slot, null);
-		if(TheAPI.isNewerThan(16))
-			for(Entry<Player, Object> p : containers.entrySet())
-				Ref.sendPacket(p.getKey(),LoaderClass.nmsProvider.packetSetSlot(LoaderClass.nmsProvider.getContainerId(p.getValue()), slot, LoaderClass.nmsProvider.asNMSItem(null)));
 	}
 
 	/**

@@ -202,7 +202,9 @@ public interface NmsProvider {
 	
 	public int getContainerId(Object container);
 	
-	public Object packetSetSlot(int id, int slot, Object itemStack);
+	public int incrementStateId(Object container);
+	
+	public Object packetSetSlot(int id, int slot, int changeId, Object itemStack);
 	
 	public Object packetOpenWindow(int id, String legacy, int size, String title);
 	

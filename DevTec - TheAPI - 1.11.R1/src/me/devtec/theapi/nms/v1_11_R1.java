@@ -183,8 +183,12 @@ public class v1_11_R1 implements NmsProvider {
 	}
 
 	@Override
+	public Object packetSetSlot(int container, int slot, int stateId, Object itemStack) {
+		return new PacketPlayOutSetSlot(container, slot, (net.minecraft.server.v1_11_R1.ItemStack)(itemStack==null?asNMSItem(null):itemStack));
+	}
+
 	public Object packetSetSlot(int container, int slot, Object itemStack) {
-		return new PacketPlayOutSetSlot(container, slot, (net.minecraft.server.v1_11_R1.ItemStack)itemStack);
+		return packetSetSlot(container,slot,0,itemStack);
 	}
 
 	@Override
@@ -694,9 +698,7 @@ public class v1_11_R1 implements NmsProvider {
 		ClickType clickType = LoaderClass.buildClick(item, type, slot, mouseClick);
 		boolean cancel = LoaderClass.useItem(player, item, gui, slot, clickType);
 		if(!gui.isInsertable())cancel=true;
-		if(!cancel) {
-			cancel=gui.onIteractItem(player, item, clickType, slot>gui.size()?slot-gui.size()+27:slot, slot<gui.size());
-		}
+		if(!cancel)cancel=gui.onIteractItem(player, item, clickType, slot>gui.size()?slot-gui.size()+27:slot, slot<gui.size());
 		if(type==InventoryClickType.QUICK_MOVE && TheAPI.isOlderThan(9))
 			cancel=true;
 		int position = 0;
@@ -713,8 +715,7 @@ public class v1_11_R1 implements NmsProvider {
 				for(ItemStack cItem : gui.getInventory().getContents())
 					Ref.sendPacket(player,packetSetSlot(id, position++, asNMSItem(cItem)));
 				//BUTTON
-				for(ItemStack cItem : player.getInventory().getContents())
-					Ref.sendPacket(player,packetSetSlot(id, player.getInventory().getSize()-position++, asNMSItem(cItem)));
+				player.updateInventory();
 				return true;
 			default:
 				Ref.sendPacket(player,packetSetSlot(id, slot, getSlotItem(container,slot)));
@@ -914,6 +915,11 @@ public class v1_11_R1 implements NmsProvider {
 	@Override
 	public Object getDataWatcher(Object entity) {
 		return ((net.minecraft.server.v1_11_R1.Entity)entity).getDataWatcher();
+	}
+
+	@Override
+	public int incrementStateId(Object container) {
+		return 0;
 	}
 
 }

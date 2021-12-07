@@ -71,7 +71,7 @@ public class AnvilGUI implements HolderGUI {
 		items.put(position, item);
 		inv.setItem(position, item.getItem());
 		for(Entry<Player, Object> p : containers.entrySet())
-			Ref.sendPacket(p.getKey(),LoaderClass.nmsProvider.packetSetSlot(LoaderClass.nmsProvider.getContainerId(p.getValue()), position, LoaderClass.nmsProvider.asNMSItem(item.getItem())));
+			Ref.sendPacket(p.getKey(),LoaderClass.nmsProvider.packetSetSlot(LoaderClass.nmsProvider.getContainerId(p.getValue()), position, LoaderClass.nmsProvider.incrementStateId(p.getValue()), LoaderClass.nmsProvider.asNMSItem(item.getItem())));
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class AnvilGUI implements HolderGUI {
 		items.remove(position);
 		inv.setItem(position, new ItemStack(Material.AIR));
 		for(Entry<Player, Object> p : containers.entrySet())
-			Ref.sendPacket(p.getKey(),LoaderClass.nmsProvider.packetSetSlot(LoaderClass.nmsProvider.getContainerId(p.getValue()), position, LoaderClass.nmsProvider.asNMSItem(null)));
+			Ref.sendPacket(p.getKey(),LoaderClass.nmsProvider.packetSetSlot(LoaderClass.nmsProvider.getContainerId(p.getValue()), position, LoaderClass.nmsProvider.incrementStateId(p.getValue()), LoaderClass.nmsProvider.asNMSItem(null)));
 	}
 
 	/**
@@ -128,7 +128,7 @@ public class AnvilGUI implements HolderGUI {
 			item[1]=items.get(1).getItem();
 			if(items.get(2)!=null)
 			item[2]=items.get(2).getItem();
-			LoaderClass.nmsProvider.openAnvilGUI(player,container=LoaderClass.nmsProvider.createContainer(inv, player),title,item);
+			LoaderClass.nmsProvider.openAnvilGUI(player,container=LoaderClass.nmsProvider.createAnvilContainer(player),title,item);
 			containers.put(player, container);
 			LoaderClass.plugin.gui.put(player.getName(), this);
 		}

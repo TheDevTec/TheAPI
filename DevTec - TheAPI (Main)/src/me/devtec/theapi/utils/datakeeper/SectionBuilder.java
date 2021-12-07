@@ -185,8 +185,8 @@ public class SectionBuilder {
 		}
 		}catch(Exception err) {err.printStackTrace();}
 		if(section.holders!=null)
-		for (SectionHolder d : section.holders)
-			start(d, b);
+			for (SectionHolder d : section.holders)
+				start(d, b);
 	}
 
 	protected synchronized void addQuotesSplit(StringBuilder b, CharSequence split, String aw) {

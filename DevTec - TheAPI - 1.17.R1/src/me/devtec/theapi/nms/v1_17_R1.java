@@ -180,8 +180,8 @@ public class v1_17_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetSetSlot(int container, int slot, Object itemStack) {
-		return new PacketPlayOutSetSlot(container, slot, slot, (net.minecraft.world.item.ItemStack)itemStack);
+	public Object packetSetSlot(int container, int slot, int changeId, Object itemStack) {
+		return new PacketPlayOutSetSlot(container, changeId, slot, (net.minecraft.world.item.ItemStack)(itemStack==null?asNMSItem(null):itemStack));
 	}
 
 	@Override
@@ -638,8 +638,9 @@ public class v1_17_R1 implements NmsProvider {
 		NonNullList<net.minecraft.world.item.ItemStack> nmsItems = ((Container)container).k;
 		Ref.sendPacket(player, packetOpenWindow(id,legacy,size,title));
 		int i = 0;
+		int statusId = incrementStateId(container);
 		for(net.minecraft.world.item.ItemStack o : nmsItems) 
-			Ref.sendPacket(player, packetSetSlot(id,i++, o));
+			Ref.sendPacket(player, packetSetSlot(id,i++,statusId, o));
 		nmsPlayer.bV=(Container)container;
 		((Container)container).addSlotListener((ICrafting) nmsPlayer);
 		((Container)container).checkReachable=false;
@@ -659,8 +660,9 @@ public class v1_17_R1 implements NmsProvider {
 		}
 		Ref.sendPacket(player, packetOpenWindow(id,legacy,size,title));
 		int i = 0;
+		int statusId = incrementStateId(container);
 		for(net.minecraft.world.item.ItemStack o : nmsItems) 
-			Ref.sendPacket(player, packetSetSlot(id,i++, o));
+			Ref.sendPacket(player, packetSetSlot(id,i++,statusId, o));
 		nmsPlayer.bV=(Container)container;
 		((Container)container).addSlotListener((ICrafting) nmsPlayer);
 		((Container)container).checkReachable=false;
@@ -681,8 +683,9 @@ public class v1_17_R1 implements NmsProvider {
 		}
 		Ref.sendPacket(player, packetOpenWindow(id,"minecraft:anvil",0,title));
 		int i = 0;
+		int statusId = incrementStateId(container);
 		for(net.minecraft.world.item.ItemStack o : nmsItems) 
-			Ref.sendPacket(player, packetSetSlot(id,i++, o));
+			Ref.sendPacket(player, packetSetSlot(id,i++,statusId, o));
 		nmsPlayer.bV=container;
 		container.addSlotListener((ICrafting) nmsPlayer);
 		container.checkReachable=false;
@@ -735,15 +738,14 @@ public class v1_17_R1 implements NmsProvider {
 		ClickType clickType = LoaderClass.buildClick(item, type, slot, mouseClick);
 		boolean cancel = LoaderClass.useItem(player, item, gui, slot, clickType);
 		if(!gui.isInsertable())cancel=true;
-		if(!cancel) {
-			cancel=gui.onIteractItem(player, item, clickType, slot>gui.size()?slot-gui.size()+27:slot, slot<gui.size());
-		}
+		if(!cancel)cancel=gui.onIteractItem(player, item, clickType, slot>gui.size()?slot-gui.size()+27:slot, slot<gui.size());
 		if(type==InventoryClickType.QUICK_MOVE && TheAPI.isOlderThan(9))
 			cancel=true;
 		int position = 0;
 		if(cancel) {
 			//MOUSE
-			Ref.sendPacket(player,packetSetSlot(-1, -1, asNMSItem(before)));
+			int statusId = ((Container)container).getStateId();
+			Ref.sendPacket(player,packetSetSlot(-1, -1, statusId, asNMSItem(before)));
 			switch(type) {
 			case CLONE:
 				return true;
@@ -752,13 +754,12 @@ public class v1_17_R1 implements NmsProvider {
 			case PICKUP_ALL:
 				//TOP
 				for(ItemStack cItem : gui.getInventory().getContents())
-					Ref.sendPacket(player,packetSetSlot(id, position++, asNMSItem(cItem)));
+					Ref.sendPacket(player,packetSetSlot(id, position++, statusId, asNMSItem(cItem)));
 				//BUTTON
-				for(ItemStack cItem : player.getInventory().getContents())
-					Ref.sendPacket(player,packetSetSlot(id, player.getInventory().getSize()-position++, asNMSItem(cItem)));
+				player.updateInventory();
 				return true;
 			default:
-				Ref.sendPacket(player,packetSetSlot(id, slot, getSlotItem(container,slot)));
+				Ref.sendPacket(player,packetSetSlot(id, slot, statusId, getSlotItem(container,slot)));
 				return true;
 			}
 		}
@@ -950,4 +951,8 @@ public class v1_17_R1 implements NmsProvider {
 		return ((net.minecraft.world.entity.Entity)entity).getDataWatcher();
 	}
 
+	@Override
+	public int incrementStateId(Object container) {
+		return ((Container)container).incrementStateId();
+	}
 }
