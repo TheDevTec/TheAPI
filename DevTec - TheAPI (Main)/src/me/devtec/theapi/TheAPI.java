@@ -36,13 +36,8 @@ import org.spigotmc.SpigotConfig;
 
 import me.devtec.theapi.apis.EnchantmentAPI;
 import me.devtec.theapi.apis.NameTagAPI;
-import me.devtec.theapi.bossbar.BarColor;
-import me.devtec.theapi.bossbar.BarStyle;
-import me.devtec.theapi.bossbar.BossBar;
 import me.devtec.theapi.cooldownapi.CooldownAPI;
 import me.devtec.theapi.punishmentapi.PunishmentAPI;
-import me.devtec.theapi.scheduler.Scheduler;
-import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.sockets.Client;
 import me.devtec.theapi.sockets.Server;
 import me.devtec.theapi.sqlapi.SQLAPI;
@@ -61,8 +56,6 @@ import me.devtec.theapi.worldsapi.WorldBorderAPI;
 
 public class TheAPI {
 	private static PunishmentAPI punishmentAPI;
-	private static final HashMap<String, BossBar> bars = new HashMap<>();
-	private static final HashMap<String, Integer> task = new HashMap<>();
 	private static final HashMap<UUID, User> cache = new HashMap<>();
 	private static final Constructor<?> constructor = Ref.constructor(PluginCommand.class, String.class, Plugin.class);
 	private static final Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
@@ -459,81 +452,6 @@ public class TheAPI {
 
 	public static void msg(String message, CommandSender sender) {
 		sendMessage(message, sender);
-	}
-
-	/**
-	 * @apiNote Send player bossbar
-	 * @param p
-	 * @param text
-	 * @param progress
-	 */
-	public static BossBar sendBossBar(Player p, String text, double progress) {
-		Validator.validate(p == null, "Player is null");
-		Validator.validate(text == null, "Text is null");
-		Validator.validate(progress < 0, "Progress is lower than zero");
-		if (task.containsKey(p.getName())) {
-			Scheduler.cancelTask(task.get(p.getName()));
-			task.remove(p.getName());
-		}
-		BossBar a = bars.get(p.getName());
-		if(a==null) {
-			a=new BossBar(p, TheAPI.colorize(text), progress, BarColor.GREEN, BarStyle.PROGRESS);
-			bars.put(p.getName(), a);
-			return a;
-		}
-		if (progress < 0)
-			progress = 0;
-		if (progress > 1)
-			progress = 1;
-		a.setProgress(progress);
-		a.setTitle(colorize(text));
-		if (a.isHidden())
-			a.show();
-		return a;
-	}
-
-	/**
-	 * @apiNote Send player bossbar on time
-	 * @param p
-	 * @param text
-	 * @param progress
-	 * @param timeToExpire
-	 */
-	public static void sendBossBar(Player p, String text, double progress, int timeToExpire) {
-		Validator.validate(p == null, "Player is null");
-		Validator.validate(text == null, "Text is null");
-		Validator.validate(progress < 0, "Progress is lower than zero");
-		Validator.validate(timeToExpire < 0, "Time to expire is lower than zero");
-		BossBar a = sendBossBar(p, text, progress);
-		task.put(p.getName(), new Tasker() {
-			@Override
-			public void run() {
-				a.hide();
-			}
-		}.runLater(timeToExpire));
-	}
-
-	/**
-	 * @apiNote Remove player from all bossbars in which player is in
-	 * @param p
-	 */
-	public static void removeBossBar(Player p) {
-		Validator.validate(p == null, "Player is null");
-		Integer id = task.remove(p.getName());
-		if(id!=null)Scheduler.cancelTask(id);
-		BossBar bar = bars.remove(p.getName());
-		if(bar!=null)bar.remove();
-	}
-
-	/**
-	 * @apiNote Return list with bossbars in which player is in
-	 * @param p
-	 * @return BossBar
-	 */
-	public static BossBar getBossBar(Player p) {
-		Validator.validate(p == null, "Player is null");
-		return bars.get(p.getName());
-
 	}
 
 	/**

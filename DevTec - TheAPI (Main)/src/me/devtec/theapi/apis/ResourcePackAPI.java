@@ -1,13 +1,15 @@
 package me.devtec.theapi.apis;
 
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import org.bukkit.entity.Player;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.reflections.Ref;
+import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class ResourcePackAPI {
 	
@@ -35,17 +37,19 @@ public class ResourcePackAPI {
 	}
 	
 	public static void setResourcePack(Player player, String resourcePack, String sha) {
-		setResourcePack(player, resourcePack, sha, null);
+		setResourcePack(player, resourcePack, sha, false, null, null);
 	}
 	
-	private static final Constructor<?> p = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutResourcePackSend","PacketPlayOutResourcePackSend"), String.class, String.class);
-	
 	public static void setResourcePack(Player player, String resourcePack, String sha, ResourcePackHandler handler) {
+		setResourcePack(player, resourcePack, sha, false, null, handler);
+	}
+	
+	public static void setResourcePack(Player player, String resourcePack, String sha, boolean requireRP, @Nullable String prompt, ResourcePackHandler handler) {
 		if(TheAPI.isOlderThan(8))return; //1.8+ only
 		if(handler!=null)
-		resourcePacksLoading.put(player, handler);
+			resourcePacksLoading.put(player, handler);
 		else resourcePacksLoading.remove(player);
 		resourcePacks.put(player, resourcePack);
-		Ref.sendPacket(player, Ref.newInstance(p, resourcePack, sha));
+		Ref.sendPacket(player, LoaderClass.nmsProvider.packetResourcePackSend(resourcePack, sha, requireRP, prompt));
 	}
 }

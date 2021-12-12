@@ -132,7 +132,6 @@ public class Events implements Listener {
 		Player s = e.getPlayer();
 		ScoreboardAPI a = SimpleScore.scores.remove(s.getName());
 		if(a!=null)a.destroy();
-		TheAPI.removeBossBar(s);
 		TheAPI.removeCachedUser(e.getPlayer().getUniqueId());
 		if(LoaderClass.plugin.handler!=null)
 			LoaderClass.plugin.handler.remove(LoaderClass.plugin.handler.get(s));

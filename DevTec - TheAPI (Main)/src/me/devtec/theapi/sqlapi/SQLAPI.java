@@ -48,8 +48,14 @@ public class SQLAPI {
 	public void close() {
 		try {
 			connection.close();
+		}catch(Exception e) {
+			
+		}
+		try {
+			sql.close();
 		} catch (Exception e) {
 		}
+		sql = null;
 		connection = null;
 	}
 
@@ -314,10 +320,14 @@ public class SQLAPI {
 		}
 	}
 
-	private String at = "";
+	private String at = "?autoReconnect=true&useUnicode=yes"; //default attributes
 
+	public String getConnectAttributes() {
+		return at;
+	}
+	
 	public void setConnectAttributes(String attributes) {
-		at = attributes;
+		at = attributes.startsWith("?")?attributes:"?"+attributes;
 	}
 
 	private void openConnection() {

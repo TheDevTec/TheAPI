@@ -43,6 +43,10 @@ public interface NmsProvider {
 	public enum TitleAction {
 		ACTIONBAR, CLEAR, RESET, SUBTITLE, TITLE, TIMES
 	}
+	
+	public enum PlayerInfoType {
+		ADD_PLAYER, REMOVE_PLAYER, UPDATE_GAME_MODE, UPDATE_LATENCY, UPDATE_DISPLAY_NAME
+	}
 
 	public enum ChatType {
 		CHAT(0), SYSTEM(1), GAME_INFO(2);
@@ -113,6 +117,20 @@ public interface NmsProvider {
 	public Object packetScoreboardDisplayObjective(int id, Object scoreboardObjective);
 	public Object packetScoreboardTeam();
 	public Object packetScoreboardScore(Action action, String player, String line, int score);
+
+	public Object packetEntityHeadRotation(Entity entity);
+
+	public Object packetHeldItemSlot(int slot);
+
+	public Object packetExp(float exp, int total, int toNextLevel);
+
+	public Object packetPlayerInfo(PlayerInfoType type, Player player);
+
+	public Object packetResourcePackSend(String url, String hash, boolean requireRP, String prompt);
+
+	public Object packetPosition(double x, double y, double z, float yaw, float pitch);
+	
+	public Object packetRespawn(Player player);
 	
 	public Object packetTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut);
 	public default Object packetTitle(TitleAction action, String text) {
@@ -257,4 +275,9 @@ public interface NmsProvider {
 	public Set<String> getKeys(Object nbt);
 	public boolean hasKey(Object nbt, String path);
 	public void removeKey(Object nbt, String path);
+	
+	public int getEntityId(Object entity);
+	public default int getEntityId(Entity entity) {
+		return entity.getEntityId();
+	}
 }

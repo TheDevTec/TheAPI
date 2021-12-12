@@ -2,6 +2,7 @@ package me.devtec.theapi.nms;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -39,6 +40,7 @@ import me.devtec.theapi.utils.components.Component;
 import me.devtec.theapi.utils.components.ComponentAPI;
 import me.devtec.theapi.utils.listener.events.ServerListPingEvent;
 import me.devtec.theapi.utils.nms.NmsProvider;
+import me.devtec.theapi.utils.nms.nbt.NBTEdit;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.serverlist.PlayerProfile;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
@@ -67,10 +69,18 @@ import net.minecraft.network.protocol.game.PacketPlayOutBlockChange;
 import net.minecraft.network.protocol.game.PacketPlayOutChat;
 import net.minecraft.network.protocol.game.PacketPlayOutCloseWindow;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
+import net.minecraft.network.protocol.game.PacketPlayOutEntityHeadRotation;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
+import net.minecraft.network.protocol.game.PacketPlayOutExperience;
+import net.minecraft.network.protocol.game.PacketPlayOutHeldItemSlot;
 import net.minecraft.network.protocol.game.PacketPlayOutNamedEntitySpawn;
 import net.minecraft.network.protocol.game.PacketPlayOutOpenWindow;
+import net.minecraft.network.protocol.game.PacketPlayOutPlayerInfo;
+import net.minecraft.network.protocol.game.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
 import net.minecraft.network.protocol.game.PacketPlayOutPlayerListHeaderFooter;
+import net.minecraft.network.protocol.game.PacketPlayOutPosition;
+import net.minecraft.network.protocol.game.PacketPlayOutResourcePackSend;
+import net.minecraft.network.protocol.game.PacketPlayOutRespawn;
 import net.minecraft.network.protocol.game.PacketPlayOutScoreboardDisplayObjective;
 import net.minecraft.network.protocol.game.PacketPlayOutScoreboardObjective;
 import net.minecraft.network.protocol.game.PacketPlayOutScoreboardScore;
@@ -85,6 +95,7 @@ import net.minecraft.network.protocol.status.ServerPing.ServerPingPlayerSample;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ScoreboardServer;
 import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.player.EntityHuman;
@@ -93,6 +104,7 @@ import net.minecraft.world.inventory.ContainerAccess;
 import net.minecraft.world.inventory.ContainerAnvil;
 import net.minecraft.world.inventory.Containers;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ITileEntity;
@@ -132,6 +144,11 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
+	public int getEntityId(Object entity) {
+		return ((net.minecraft.world.entity.Entity)entity).ae();
+	}
+
+	@Override
 	public Object getScoreboardAction(Action type) {
 		return type==Action.CHANGE?ScoreboardServer.Action.a:ScoreboardServer.Action.b;
 	}
@@ -159,6 +176,7 @@ public class v1_18_R1 implements NmsProvider {
 
 	@Override
 	public ItemStack setNBT(ItemStack stack, Object nbt) {
+		if(nbt instanceof NBTEdit)nbt=((NBTEdit) nbt).getNBT();
 		net.minecraft.world.item.ItemStack i = (net.minecraft.world.item.ItemStack)asNMSItem(stack);
 		i.c((NBTTagCompound) nbt);
 		return asBukkitItem(i);
@@ -177,6 +195,11 @@ public class v1_18_R1 implements NmsProvider {
 	
 	public int getContainerId(Object container) {
 		return ((Container)container).j;
+	}
+	
+	@Override
+	public Object packetResourcePackSend(String url, String hash, boolean requireRP, String prompt) {
+		return new PacketPlayOutResourcePackSend(url, hash, requireRP, prompt==null?null:(IChatBaseComponent)ComponentAPI.toIChatBaseComponent(prompt, true));
 	}
 
 	@Override
@@ -955,6 +978,56 @@ public class v1_18_R1 implements NmsProvider {
 	@Override
 	public int incrementStateId(Object container) {
 		return ((Container)container).k();
+	}
+
+	@Override
+	public Object packetEntityHeadRotation(Entity entity) {
+		return new PacketPlayOutEntityHeadRotation((net.minecraft.world.entity.Entity) getEntity(entity), (byte)(entity.getLocation().getYaw()*256F/360F));
+	}
+
+	@Override
+	public Object packetHeldItemSlot(int slot) {
+		return new PacketPlayOutHeldItemSlot(slot);
+	}
+
+	@Override
+	public Object packetExp(float exp, int total, int toNextLevel) {
+		return new PacketPlayOutExperience(exp, total, toNextLevel);
+	}
+
+	@Override
+	public Object packetPlayerInfo(PlayerInfoType type, Player player) {
+		EnumPlayerInfoAction action = null;
+		switch(type) {
+		case ADD_PLAYER:
+			action=EnumPlayerInfoAction.a;
+			break;
+		case REMOVE_PLAYER:
+			action=EnumPlayerInfoAction.e;
+			break;
+		case UPDATE_DISPLAY_NAME:
+			action=EnumPlayerInfoAction.d;
+			break;
+		case UPDATE_GAME_MODE:
+			action=EnumPlayerInfoAction.b;
+			break;
+		case UPDATE_LATENCY:
+			action=EnumPlayerInfoAction.c;
+			break;
+		}
+		return new PacketPlayOutPlayerInfo(action, (EntityPlayer)getPlayer(player));
+	}
+
+	@Override
+	public Object packetPosition(double x, double y, double z, float yaw, float pitch) {
+		return new PacketPlayOutPosition(x, y, z, yaw, pitch, Collections.emptySet(), 0, false);
+	}
+
+	@Override
+	public Object packetRespawn(Player player) {
+		EntityPlayer entityPlayer = (EntityPlayer)getPlayer(player);
+		WorldServer worldserver = entityPlayer.x();
+		return new PacketPlayOutRespawn(worldserver.q_(), worldserver.aa(), BiomeManager.a(worldserver.E()), entityPlayer.d.b(), entityPlayer.d.c(), worldserver.ad(), worldserver.D(), true);
 	}
 	
 }

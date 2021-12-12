@@ -178,7 +178,7 @@ public class Particle {
 			Ref.set(packet, "j", particle);
 			return packet;
 		}
-		if (TheAPI.isOlderThan(8)) { // 1.7.10 and older
+		if (TheAPI.isOlderThan(8)) { // 1.7.10
 			Ref.set(packet, "a", name);
 			Ref.set(packet, "b", (float) x);
 			Ref.set(packet, "c", (float) y);

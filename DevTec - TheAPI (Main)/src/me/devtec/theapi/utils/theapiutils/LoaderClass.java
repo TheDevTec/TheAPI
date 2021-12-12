@@ -1,9 +1,6 @@
 package me.devtec.theapi.utils.theapiutils;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -118,37 +115,10 @@ public class LoaderClass extends JavaPlugin {
 	public Map<String, Client> servers;
 	public Server server;
 	
-	static int airR = 0;
-	static Field shift,item,slotR,button,a,quickMove;
-	static final Method getSlot = Ref.method(Ref.nmsOrOld("world.inventory.Container","Container"), "getSlot", int.class);
-	static final Method getItem= Ref.method(Ref.nmsOrOld("world.inventory.Slot","Slot"), "getItem");
-	static Constructor<?> setSlotR = Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
 	static final Class<?> resource = Ref.nmsOrOld("network.protocol.game.PacketPlayInResourcePackStatus","PacketPlayInResourcePackStatus");
 	static final Class<?> close = Ref.nmsOrOld("network.protocol.game.PacketPlayInCloseWindow","PacketPlayInCloseWindow");
 	static final Class<?> click = Ref.nmsOrOld("network.protocol.game.PacketPlayInWindowClick","PacketPlayInWindowClick");
-	static {
-		if(setSlotR==null) {
-			++airR;
-			setSlotR=Ref.findConstructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutSetSlot","PacketPlayOutSetSlot"), int.class, int.class, Ref.nmsOrOld("world.item.ItemStack","ItemStack"));
-		}
-		if(airR==1) {
-			a=Ref.field(click, "b");
-			shift=Ref.field(click, TheAPI.isNewerThan(16)?"f":"shift");
-			item=Ref.field(click, TheAPI.isNewerThan(16)?"g":"item");
-			slotR=Ref.field(click, TheAPI.isNewerThan(16)?"d":"slot");
-			button=Ref.field(click, TheAPI.isNewerThan(16)?"e":"button");
-			quickMove=Ref.field(click, "h");
-		}else {
-			a=Ref.field(click, "a");
-			shift=Ref.field(click, TheAPI.isNewerThan(16)?"d":"shift");
-			item=Ref.field(click, TheAPI.isNewerThan(16)?"e":"item");
-			slotR=Ref.field(click, TheAPI.isNewerThan(16)?"b":"slot");
-			button=Ref.field(click, TheAPI.isNewerThan(16)?"c":"button");
-			if(TheAPI.isNewerThan(16))quickMove=Ref.field(click, "f");
-		}
-	}
-	static final Constructor<?> setSlot = setSlotR;
-	static final int airplane = airR;
+	
 	
 	  public static boolean useItem(Player player, ItemStack stack, HolderGUI g, int slot, ClickType mouse) {
 		ItemGUI d = g.getItemGUI(slot);
@@ -483,7 +453,7 @@ public class LoaderClass extends JavaPlugin {
 					Player player = TheAPI.getPlayer(nick);
 					if(player==null)return false;
 					if(ResourcePackAPI.getResourcePack(player)==null||ResourcePackAPI.getHandlingPlayer(player)==null)return false;
-					ResourcePackAPI.getHandlingPlayer(player).onHandle(player, ResourcePackAPI.getResourcePack(player), ResourcePackResult.valueOf(Ref.get(packet, TheAPI.isNewerThan(16)?"a":"status").toString()));
+					ResourcePackAPI.getHandlingPlayer(player).onHandle(player, ResourcePackAPI.getResourcePack(player), ResourcePackResult.valueOf(TheAPI.isNewerThan(16)?getLegacyNameOf(Ref.get(packet, TheAPI.isNewerThan(16)?"a":"status").toString()):Ref.get(packet, TheAPI.isNewerThan(16)?"a":"status").toString()));
 					return false;
 				}
 				//GUIS
@@ -502,6 +472,20 @@ public class LoaderClass extends JavaPlugin {
 					return gui==null?false:LoaderClass.nmsProvider.processInvClickPacket(player, gui, packet);
 				}
 				return false;
+			}
+
+			private String getLegacyNameOf(String string) {
+				switch(string.charAt(0)) {
+				case 'a':
+					return "SUCCESSFULLY_LOADED";
+				case 'b':
+					return "DECLINED";
+				case 'c':
+					return "FAILED_DOWNLOAD";
+				case 'd':
+					return "ACCEPTED";
+				}
+				return null;
 			}
 		}.register();
 		Bukkit.getPluginManager().registerEvents(new Events(), LoaderClass.this);
@@ -620,9 +604,8 @@ public class LoaderClass extends JavaPlugin {
 		for(ScoreboardAPI sb : ((Map<String,ScoreboardAPI>)Ref.getStatic(SimpleScore.class, "scores")).values())
 			sb.destroy();
 		
-		//BOSSBAR, ACTION BAR & TITLE
+		//ACTION BAR & TITLE
 		for(Player p : TheAPI.getOnlinePlayers()) {
-			TheAPI.removeBossBar(p);
 			TheAPI.removeActionBar(p);
 			TheAPI.sendTitle(p, "","");
 		}

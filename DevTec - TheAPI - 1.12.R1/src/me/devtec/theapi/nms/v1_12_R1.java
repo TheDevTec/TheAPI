@@ -3,6 +3,7 @@ package me.devtec.theapi.nms;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -38,6 +39,7 @@ import me.devtec.theapi.utils.components.Component;
 import me.devtec.theapi.utils.components.ComponentAPI;
 import me.devtec.theapi.utils.listener.events.ServerListPingEvent;
 import me.devtec.theapi.utils.nms.NmsProvider;
+import me.devtec.theapi.utils.nms.nbt.NBTEdit;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.serverlist.PlayerProfile;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
@@ -78,10 +80,18 @@ import net.minecraft.server.v1_12_R1.PacketPlayOutBlockChange;
 import net.minecraft.server.v1_12_R1.PacketPlayOutChat;
 import net.minecraft.server.v1_12_R1.PacketPlayOutCloseWindow;
 import net.minecraft.server.v1_12_R1.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_12_R1.PacketPlayOutEntityHeadRotation;
 import net.minecraft.server.v1_12_R1.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_12_R1.PacketPlayOutExperience;
+import net.minecraft.server.v1_12_R1.PacketPlayOutHeldItemSlot;
 import net.minecraft.server.v1_12_R1.PacketPlayOutNamedEntitySpawn;
 import net.minecraft.server.v1_12_R1.PacketPlayOutOpenWindow;
+import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerListHeaderFooter;
+import net.minecraft.server.v1_12_R1.PacketPlayOutPosition;
+import net.minecraft.server.v1_12_R1.PacketPlayOutResourcePackSend;
+import net.minecraft.server.v1_12_R1.PacketPlayOutRespawn;
 import net.minecraft.server.v1_12_R1.PacketPlayOutScoreboardDisplayObjective;
 import net.minecraft.server.v1_12_R1.PacketPlayOutScoreboardObjective;
 import net.minecraft.server.v1_12_R1.PacketPlayOutScoreboardScore;
@@ -133,6 +143,11 @@ public class v1_12_R1 implements NmsProvider {
 	}
 
 	@Override
+	public int getEntityId(Object entity) {
+		return ((net.minecraft.server.v1_12_R1.Entity)entity).getId();
+	}
+
+	@Override
 	public Object getScoreboardAction(Action type) {
 		return EnumScoreboardAction.valueOf(type.name());
 	}
@@ -158,6 +173,7 @@ public class v1_12_R1 implements NmsProvider {
 
 	@Override
 	public ItemStack setNBT(ItemStack stack, Object nbt) {
+		if(nbt instanceof NBTEdit)nbt=((NBTEdit) nbt).getNBT();
 		net.minecraft.server.v1_12_R1.ItemStack i = (net.minecraft.server.v1_12_R1.ItemStack)asNMSItem(stack);
 		i.setTag((NBTTagCompound) nbt);
 		return asBukkitItem(i);
@@ -181,6 +197,11 @@ public class v1_12_R1 implements NmsProvider {
 	
 	public int getContainerId(Object container) {
 		return ((Container)container).windowId;
+	}
+	
+	@Override
+	public Object packetResourcePackSend(String url, String hash, boolean requireRP, String prompt) {
+		return new PacketPlayOutResourcePackSend(url, hash);
 	}
 
 	@Override
@@ -921,6 +942,39 @@ public class v1_12_R1 implements NmsProvider {
 	@Override
 	public int incrementStateId(Object container) {
 		return 0;
+	}
+
+	@Override
+	public Object packetEntityHeadRotation(Entity entity) {
+		return new PacketPlayOutEntityHeadRotation((net.minecraft.server.v1_12_R1.Entity) getEntity(entity), (byte)(entity.getLocation().getYaw()*256F/360F));
+	}
+
+	@Override
+	public Object packetHeldItemSlot(int slot) {
+		return new PacketPlayOutHeldItemSlot(slot);
+	}
+
+	@Override
+	public Object packetExp(float exp, int total, int toNextLevel) {
+		return new PacketPlayOutExperience(exp, total, toNextLevel);
+	}
+
+	@Override
+	public Object packetPlayerInfo(PlayerInfoType type, Player player) {
+		return new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.valueOf(type.name()), (EntityPlayer)getPlayer(player));
+	}
+
+	@Override
+	public Object packetPosition(double x, double y, double z, float yaw, float pitch) {
+		return new PacketPlayOutPosition(x, y, z, yaw, pitch, Collections.emptySet(), 0);
+	}
+
+	@Override
+	public Object packetRespawn(Player player) {
+		EntityPlayer entityPlayer = (EntityPlayer)getPlayer(player);
+		WorldServer worldserver = entityPlayer.x();
+		byte actualDimension = (byte)worldserver.getWorld().getEnvironment().getId();
+		return new PacketPlayOutRespawn((byte)((actualDimension >= 0) ? -1 : 0), worldserver.getDifficulty(), worldserver.getWorldData().getType(), entityPlayer.playerInteractManager.getGameMode());
 	}
 
 }
