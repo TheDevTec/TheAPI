@@ -58,13 +58,9 @@ public class ComponentAPI {
 		if(c==null)return null;
 		TextComponent main = new TextComponent(), current = main;
 		while(c!=null) {
-			if(main!=current) {
-				TextComponent next = new TextComponent(c.getText());
-				current.addExtra(next);
-				current=next;
-			}else {
-				current.setText(c.getText());
-			}
+			TextComponent next = new TextComponent(c.getText());
+			main.addExtra(next);
+			current=next;
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
 				if(c.getColor().startsWith("#"))
 					current.setColor(ChatColor.of(c.getColor()));
@@ -89,13 +85,9 @@ public class ComponentAPI {
 		if(cc==null)return null;
 		TextComponent main = new TextComponent(), current = main;
 		for(Component c : cc) {
-			if(main!=current) {
-				TextComponent next = new TextComponent(c.getText());
-				current.addExtra(next);
-				current=next;
-			}else {
-				current.setText(c.getText());
-			}
+			TextComponent next = new TextComponent(c.getText());
+			main.addExtra(next);
+			current=next;
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
 				if(c.getColor().startsWith("#"))
 					current.setColor(ChatColor.of(c.getColor()));
