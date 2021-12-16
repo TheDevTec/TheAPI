@@ -77,6 +77,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public synchronized Data setFile(File file) {
+		requireSave=true;
 		this.file = file;
 		return this;
 	}
@@ -599,53 +600,38 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 		case BYTE:
 			try {
-				ByteArrayDataOutput bos = ByteStreams.newDataOutput(loader.get().size());
-				bos.writeInt(2);
-				bos.writeUTF("1");
-				for (Entry<String, Object[]> key : loader.get().entrySet())
+				ByteArrayDataOutput in = ByteStreams.newDataOutput(loader.get().size());
+				in.writeInt(3);
+				for (Entry<String, Object[]> key : loader.get().entrySet()) {
 					try {
-						bos.writeUTF(key.getKey());
+						in.writeInt(0);
+						in.writeUTF(key.getKey());
 						if(key.getValue()[0]==null) {
-							bos.writeUTF("null");
-							bos.writeUTF("0");
-						}else {
-							if(key.getValue().length >2)
-								if(key.getValue()[2]!=null && key.getValue()[2] instanceof String) {
-									String write = (String)key.getValue()[2];
-									if(write==null) {
-										bos.writeUTF("null");
-										bos.writeUTF("0");
-										continue;
-									}
-									while(write.length()>40000) {
-										String wr = write.substring(0, 39999);
-										bos.writeUTF("0"+wr);
-										write=write.substring(39999);
-									}
-									bos.writeUTF("0"+write);
-									bos.writeUTF("0");
-									continue;
-								}
-							Object val = key.getValue()[0];
-							String write = val instanceof String ? (String)val:Json.writer().write(val);
-							if(write==null) {
-								bos.writeUTF("null");
-								bos.writeUTF("0");
-								continue;
-							}
-							while(write.length()>40000) {
-								String wr = write.substring(0, 39999);
-								bos.writeUTF("0"+wr);
-								write=write.substring(39999);
-							}
-							bos.writeUTF("0"+write);
-							bos.writeUTF("0");
+							in.writeInt(3);
 							continue;
 						}
+						if(key.getValue().length>2)
+							if(key.getValue()[2]!=null && key.getValue()[2] instanceof String) {
+								String write = (String)key.getValue()[2];
+								if(write==null) {
+									in.writeInt(3);
+									continue;
+								}
+								while(write.length()>40000) {
+									String wr = write.substring(0, 39999);
+									in.writeInt(1);
+									in.writeUTF(wr);
+									write=write.substring(39999);
+								}
+								in.writeInt(1);
+								in.writeUTF(write);
+								continue;
+							}
 					} catch (Exception er) {
 						er.printStackTrace();
 					}
-				return Base64.getEncoder().encodeToString(bos.toByteArray());
+				}
+				return Base64.getEncoder().encodeToString(in.toByteArray());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

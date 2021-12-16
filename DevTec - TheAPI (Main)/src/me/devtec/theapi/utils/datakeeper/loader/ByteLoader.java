@@ -64,6 +64,30 @@ public class ByteLoader extends DataLoader {
 		}
 	}
 
+	private static void byteBuilder(ByteArrayDataInput bos, Map<String, Object[]> map) {
+		try{
+			String key=bos.readUTF();
+			String value=null;
+			int result;
+			try{
+				while((result=bos.readInt())==1) { //normal value
+					if(value==null)value=bos.readUTF();
+					else value+=bos.readUTF();
+				}
+				if(result==3) { //null pointer
+					value=null;
+					result=bos.readInt();
+				}
+			}catch(Exception err) {
+				map.put(key, new Object[]{value == null ? null : Json.reader().read(value), null, value, 1});
+				return;
+			}
+			map.put(key, new Object[]{value == null ? null : Json.reader().read(value), null, value, 1});
+			if(result==0)
+				byteBuilder(bos, map);
+		}catch(Exception err) {}
+	}
+
 	@Override
 	public void load(String input) {
 		data.clear();
@@ -71,7 +95,7 @@ public class ByteLoader extends DataLoader {
 			byte[] bb = Base64.getDecoder().decode(input.trim().replace(System.lineSeparator(), ""));
 			ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
 			int version = bos.readInt();
-			if (version == 1) {
+			if (version == 1) { //V1
 				while (true)
 					try {
 						String key = bos.readUTF();
@@ -102,7 +126,7 @@ public class ByteLoader extends DataLoader {
 					} catch (Exception e) {
 						break;
 					}
-			} else {
+			} else if (version == 2) { //V2
 				String key = bos.readUTF();
 				while (!key.equals("1")) key = bos.readUTF();
 				while (true)
@@ -135,6 +159,8 @@ public class ByteLoader extends DataLoader {
 					} catch (Exception e) {
 						break;
 					}
+			}else if (version == 3){ //V3
+				byteBuilder(bos, data);
 			}
 			if (!data.isEmpty())
 				l = true;

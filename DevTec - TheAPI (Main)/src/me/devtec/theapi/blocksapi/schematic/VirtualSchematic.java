@@ -12,11 +12,11 @@ import me.devtec.theapi.blocksapi.schematic.construct.Schematic;
 import me.devtec.theapi.blocksapi.schematic.construct.SchematicCallable;
 import me.devtec.theapi.blocksapi.schematic.construct.SchematicSaveCallable;
 import me.devtec.theapi.blocksapi.schematic.construct.SerializedBlock;
-import me.devtec.theapi.blocksapi.schematic.storage.SchematicData;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.BlockMathIterator;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.TheMaterial;
+import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.json.Json;
 
 public class VirtualSchematic implements Schematic {
@@ -25,14 +25,14 @@ public class VirtualSchematic implements Schematic {
 	private static final String broken=".";
 	private static final String fix = "<!>";
 	
-	protected SchematicData load;
+	protected Data load;
 	
 	@Override
 	public boolean load() {
 		return load != null;
 	}
 	
-	public SchematicData data() {
+	public Data data() {
 		return load;
 	}
 
@@ -149,7 +149,7 @@ public class VirtualSchematic implements Schematic {
 					ids.add(sum);
 				}
 				//SERIALIZE
-				SchematicData data = new SchematicData();
+				Data data = new Data();
 				for(Entry<String, Object> key : save.entrySet()) {
 					if(key.getKey().contains(split) && !key.getKey().contains("pallete")) {
 						data.set(key.getKey(), Json.writer().simpleWrite(key.getValue()));

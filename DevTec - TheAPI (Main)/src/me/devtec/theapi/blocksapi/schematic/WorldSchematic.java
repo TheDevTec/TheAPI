@@ -11,11 +11,11 @@ import me.devtec.theapi.blocksapi.schematic.construct.Schematic;
 import me.devtec.theapi.blocksapi.schematic.construct.SchematicCallable;
 import me.devtec.theapi.blocksapi.schematic.construct.SchematicSaveCallable;
 import me.devtec.theapi.blocksapi.schematic.construct.SerializedBlock;
-import me.devtec.theapi.blocksapi.schematic.storage.SchematicData;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.BlockMathIterator;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.TheMaterial;
+import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.json.Json;
 
 public class WorldSchematic implements Schematic {
@@ -26,7 +26,7 @@ public class WorldSchematic implements Schematic {
 	
 	private static final String end = ".schem";
 	private final String name;
-	protected SchematicData load;
+	protected Data load;
 	
 	public WorldSchematic(String name) {
 		this.name=name;
@@ -34,7 +34,7 @@ public class WorldSchematic implements Schematic {
 	
 	public WorldSchematic(VirtualSchematic schem, String name) {
 		this.name=name;
-		load=new SchematicData(schem.load);
+		load=new Data(schem.load);
 		File f = new File("plugins/TheAPI/Schematic/"+name+end);
 
 		if (!f.exists()) {
@@ -54,12 +54,12 @@ public class WorldSchematic implements Schematic {
 	@Override
 	public boolean load() {
 		if(load==null)
-		load=new SchematicData();
+		load=new Data();
 		load.reload(new File("plugins/TheAPI/Schematic/"+name+end));
 		return !load.getKeys().isEmpty();
 	}
 	
-	public SchematicData data() {
+	public Data data() {
 		return load;
 	}
 
@@ -193,7 +193,7 @@ public class WorldSchematic implements Schematic {
 					ids.add(sum);
 				}
 				//SERIALIZE
-				SchematicData data = new SchematicData();
+				Data data = new Data();
 				for(Entry<String, Object> key : save.entrySet()) {
 					if(key.getKey().contains(split) && !key.getKey().contains("pallete")) {
 						data.set(key.getKey(), Json.writer().simpleWrite((List<Integer>)key.getValue()));

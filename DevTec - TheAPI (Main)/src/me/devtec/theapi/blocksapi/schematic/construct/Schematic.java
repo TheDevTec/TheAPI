@@ -1,12 +1,12 @@
 package me.devtec.theapi.blocksapi.schematic.construct;
 
-import me.devtec.theapi.blocksapi.schematic.storage.SchematicData;
 import me.devtec.theapi.utils.Position;
+import me.devtec.theapi.utils.datakeeper.Data;
 
 public interface Schematic {
 	public boolean load();
 	
-	public SchematicData data();
+	public Data data();
 	
 	public void paste(Position stand, boolean pasteEntities, boolean replaceAir, SchematicCallable callable);
 	
