@@ -686,8 +686,9 @@ public class v1_17_R1 implements NmsProvider {
 		int statusId = incrementStateId(container);
 		for(net.minecraft.world.item.ItemStack o : nmsItems) 
 			Ref.sendPacket(player, packetSetSlot(id,i++,statusId, o));
+		nmsPlayer.bV.transferTo((Container)container, (CraftPlayer) player);
 		nmsPlayer.bV=(Container)container;
-		((Container)container).addSlotListener((ICrafting) nmsPlayer);
+		nmsPlayer.initMenu((Container)container);
 		((Container)container).checkReachable=false;
 	}
 
@@ -709,8 +710,9 @@ public class v1_17_R1 implements NmsProvider {
 		int statusId = incrementStateId(container);
 		for(net.minecraft.world.item.ItemStack o : nmsItems) 
 			Ref.sendPacket(player, packetSetSlot(id,i++,statusId, o));
-		nmsPlayer.bV=container;
-		container.addSlotListener((ICrafting) nmsPlayer);
+		nmsPlayer.bV.transferTo((Container)container, (CraftPlayer) player);
+		nmsPlayer.bV=(Container)container;
+		nmsPlayer.initMenu((Container)container);
 		container.checkReachable=false;
 	}
 

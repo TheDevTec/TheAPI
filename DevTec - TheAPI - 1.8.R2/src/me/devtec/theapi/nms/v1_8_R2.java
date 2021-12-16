@@ -65,7 +65,6 @@ import net.minecraft.server.v1_8_R2.EnumChatFormat;
 import net.minecraft.server.v1_8_R2.IBlockData;
 import net.minecraft.server.v1_8_R2.IChatBaseComponent;
 import net.minecraft.server.v1_8_R2.IContainer;
-import net.minecraft.server.v1_8_R2.ICrafting;
 import net.minecraft.server.v1_8_R2.IScoreboardCriteria.EnumScoreboardHealthDisplay;
 import net.minecraft.server.v1_8_R2.Item;
 import net.minecraft.server.v1_8_R2.MinecraftServer;
@@ -643,8 +642,9 @@ public class v1_8_R2 implements NmsProvider {
 		int i = 0;
 		for(net.minecraft.server.v1_8_R2.ItemStack o : nmsItems) 
 			Ref.sendPacket(player, packetSetSlot(id,i++, o));
+		nmsPlayer.activeContainer.transferTo((Container)container, (CraftPlayer) player);
 		nmsPlayer.activeContainer=(Container)container;
-		((Container)container).addSlotListener((ICrafting) nmsPlayer);
+		((Container)container).addSlotListener(nmsPlayer);
 		((Container)container).checkReachable=false;
 	}
 
@@ -665,8 +665,9 @@ public class v1_8_R2 implements NmsProvider {
 		int i = 0;
 		for(net.minecraft.server.v1_8_R2.ItemStack o : nmsItems) 
 			Ref.sendPacket(player, packetSetSlot(id,i++, o));
-		nmsPlayer.activeContainer=container;
-		container.addSlotListener((ICrafting) nmsPlayer);
+		nmsPlayer.activeContainer.transferTo((Container)container, (CraftPlayer) player);
+		nmsPlayer.activeContainer=(Container)container;
+		((Container)container).addSlotListener(nmsPlayer);
 		container.checkReachable=false;
 	}
 
