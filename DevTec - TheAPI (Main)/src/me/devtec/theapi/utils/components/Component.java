@@ -134,11 +134,12 @@ public class Component {
 
 	public String toJson() {
 		String color = this.color;
-		if(!color.startsWith("#") && !color.isEmpty())
-			color=ChatColor.getByChar(color.charAt(0)).name().toLowerCase();
 		String json = "{\"text\":\""+getText()+"\"";
-		if(color!=null&&!color.isEmpty())
+		if(color!=null&&!color.isEmpty()) {
+			if(!color.startsWith("#"))
+				color=ChatColor.getByChar(color.charAt(0)).name().toLowerCase();
 			json+=",\"color\":\""+color+"\"";
+		}
 		if(clickEvent!=null)
 			json+=",\"clickEvent\":"+clickEvent.toJson();
 		if(hoverEvent!=null)
@@ -164,11 +165,12 @@ public class Component {
 	public Map<String, Object> toJsonMap() {
 		Map<String, Object> map = new LinkedHashMap<>();
 		String color = this.color;
-		if(!color.startsWith("#") && !color.isEmpty())
-			color=ChatColor.getByChar(color.charAt(0)).name().toLowerCase();
 		map.put("text", getText());
-		if(color!=null&&!color.isEmpty())
-		map.put("color", color);
+		if(color!=null&&!color.isEmpty()) {
+			if(!color.startsWith("#"))
+				color=ChatColor.getByChar(color.charAt(0)).name().toLowerCase();
+			map.put("color", color);
+		}
 		if(clickEvent!=null) {
 			map.put("clickEvent", clickEvent.toJsonMap());
 		}
