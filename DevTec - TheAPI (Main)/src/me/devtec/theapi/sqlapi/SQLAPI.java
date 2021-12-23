@@ -320,7 +320,7 @@ public class SQLAPI {
 		}
 	}
 
-	private String at = "?autoReconnect=true&useUnicode=yes"; //default attributes
+	private String at = "?autoReconnect=true&failOverReadOnly=false&maxReconnects=10"; //default attributes
 
 	public String getConnectAttributes() {
 		return at;

@@ -48,6 +48,7 @@ import me.devtec.theapi.economyapi.EconomyAPI;
 import me.devtec.theapi.guiapi.GUI.ClickType;
 import me.devtec.theapi.guiapi.HolderGUI;
 import me.devtec.theapi.guiapi.ItemGUI;
+import me.devtec.theapi.particlesapi.Particle;
 import me.devtec.theapi.placeholderapi.PlaceholderAPI;
 import me.devtec.theapi.placeholderapi.ThePlaceholder;
 import me.devtec.theapi.placeholderapi.ThePlaceholderAPI;
@@ -165,7 +166,25 @@ public class LoaderClass extends JavaPlugin {
 				} catch (Exception ss) {
 				}
 			}
-			nmsProvider=(NmsProvider) Class.forName("me.devtec.theapi.nms."+version,true,getClassLoader()).newInstance();
+			try {
+				nmsProvider=(NmsProvider) Class.forName("me.devtec.theapi.nms."+version,true,getClassLoader()).newInstance();
+				if(TheAPI.isNewerThan(17)) {
+					Object i = Ref.getStatic(Ref.getClass("net.minecraft.core.IRegistry"),"ac");
+					for(Object k : (Set<?>)Ref.invoke(i, "d")) {
+						Ref.get(k, "f").toString().toUpperCase();
+					}
+				}
+				new Particle("HEART");
+			}catch(Exception err) {
+				nmsProvider=(NmsProvider) Class.forName("me.devtec.theapi.nms."+version+"_New",true,getClassLoader()).newInstance();
+				if(TheAPI.isNewerThan(17)) {
+					Object i = Ref.getStatic(Ref.getClass("net.minecraft.core.IRegistry"),"ac");
+					for(Object k : (Set<?>)Ref.invoke(i, "d")) {
+						Ref.get(k, "f").toString().toUpperCase();
+					}
+				}
+				new Particle("HEART");
+			}
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}

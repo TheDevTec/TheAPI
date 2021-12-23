@@ -7,11 +7,6 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/EclipseUtils/spigot-1.18.jar">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/asm-9.2.jar">
 		<attributes>
 			<attribute name="module" value="true"/>
@@ -157,6 +152,7 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/versions/spigot-1.18-R0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/spigot-api-1.18-R0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

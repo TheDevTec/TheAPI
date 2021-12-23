@@ -541,11 +541,13 @@ public class ComponentAPI {
 	@SuppressWarnings("unchecked")
 	public static String toStringJson(List<Object> list) {
 		StringBuilder b = new StringBuilder(list.size()*16);
-		for(Object text : list)
+		for(Object text : list) {
 			if(text instanceof Map)
 				b.append(StringUtils.colorize(getColor("" + ((Map<String, Object>) text).getOrDefault("color", "")))).append(((Map<String, Object>)text).get("text"));
+			else if(text instanceof List)b.append(toStringJson((List<Object>)text));
 			else
 				b.append(StringUtils.colorize(text+""));
+		}
 		return b.toString();
 	}
 
@@ -592,7 +594,7 @@ public class ComponentAPI {
 					Object ac = hover.get("action");
 					hover.clear();
 					hover.put("action", ac);
-					hover.put("value", ac);
+					hover.put("value", val);
 				}else {
 					Object ac = hover.get("action");
 					hover.clear();
@@ -604,7 +606,7 @@ public class ComponentAPI {
 					Object ac = hover.get("action");
 					hover.clear();
 					hover.put("action", ac);
-					hover.put("value", ac);
+					hover.put("value", val);
 				}else {
 					Object ac = hover.get("action");
 					hover.clear();
