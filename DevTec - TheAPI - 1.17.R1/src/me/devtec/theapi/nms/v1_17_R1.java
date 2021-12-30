@@ -1030,4 +1030,9 @@ public class v1_17_R1 implements NmsProvider {
 		WorldServer worldserver = entityPlayer.getWorldServer();
 		return new PacketPlayOutRespawn(worldserver.getDimensionManager(), worldserver.getDimensionKey(), BiomeManager.a(worldserver.getSeed()), entityPlayer.d.getGameMode(), entityPlayer.d.c(), worldserver.isDebugWorld(), worldserver.isFlatWorld(), true);
 	}
+
+	@Override
+	public String getProviderName() {
+		return "1_17_R1 (1.17)";
+	}
 }

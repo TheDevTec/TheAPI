@@ -1029,5 +1029,10 @@ public class v1_18_R1 implements NmsProvider {
 		WorldServer worldserver = entityPlayer.x();
 		return new PacketPlayOutRespawn(worldserver.q_(), worldserver.aa(), BiomeManager.a(worldserver.E()), entityPlayer.d.b(), entityPlayer.d.c(), worldserver.ad(), worldserver.D(), true);
 	}
+
+	@Override
+	public String getProviderName() {
+		return "1_18_R1 (1.18)";
+	}
 	
 }

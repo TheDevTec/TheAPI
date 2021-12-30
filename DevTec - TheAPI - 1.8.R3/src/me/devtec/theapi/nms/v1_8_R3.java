@@ -985,4 +985,9 @@ public class v1_8_R3 implements NmsProvider {
 		return new PacketPlayOutRespawn((byte)((actualDimension >= 0) ? -1 : 0), worldserver.getDifficulty(), worldserver.getWorldData().getType(), entityPlayer.playerInteractManager.getGameMode());
 	}
 
+	@Override
+	public String getProviderName() {
+		return "1_8_R3 (1.8.8)";
+	}
+
 }

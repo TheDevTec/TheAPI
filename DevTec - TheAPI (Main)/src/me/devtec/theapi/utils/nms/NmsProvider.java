@@ -60,6 +60,8 @@ public interface NmsProvider {
 			return id;
 		}
 	}
+	
+	public String getProviderName();
 
 	public Object getEntity(Entity entity);
 	public Object getEntityLiving(LivingEntity entity);

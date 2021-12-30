@@ -988,4 +988,8 @@ public class v1_16_R1 implements NmsProvider {
 		return new PacketPlayOutRespawn(worldserver.getTypeKey(), worldserver.getDimensionKey(), BiomeManager.a(worldserver.getSeed()), entityPlayer.playerInteractManager.getGameMode(), entityPlayer.playerInteractManager.c(), worldserver.isDebugWorld(), worldserver.isFlatWorld(), true);
 	}
 
+	@Override
+	public String getProviderName() {
+		return "1_16_R1 (1.16)";
+	}
 }

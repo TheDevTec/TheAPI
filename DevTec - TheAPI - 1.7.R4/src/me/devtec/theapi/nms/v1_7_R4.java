@@ -1022,5 +1022,10 @@ public class v1_7_R4 implements NmsProvider {
 		byte actualDimension = (byte)worldserver.getWorld().getEnvironment().getId();
 		return new PacketPlayOutRespawn((byte)((actualDimension >= 0) ? -1 : 0), worldserver.difficulty, worldserver.getWorldData().getType(), entityPlayer.playerInteractManager.getGameMode());
 	}
+
+	@Override
+	public String getProviderName() {
+		return "1_7_R4 (1.7.10)";
+	}
 	
 }

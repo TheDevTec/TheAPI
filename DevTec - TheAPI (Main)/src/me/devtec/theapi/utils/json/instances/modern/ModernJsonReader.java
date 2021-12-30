@@ -46,6 +46,7 @@ public class ModernJsonReader implements JReader {
 				Entry<String, Object> key = map.entrySet().iterator().next();
 				Object read = Utils.read(key.getKey(), key.getValue());
 				if(read!=null)return read;
+				return map;
 			}
             String className = map.get("c").toString();
             String type = map.get("t").toString();

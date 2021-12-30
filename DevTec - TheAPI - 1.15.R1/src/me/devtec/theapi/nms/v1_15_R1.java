@@ -977,4 +977,9 @@ public class v1_15_R1 implements NmsProvider {
 		return new PacketPlayOutRespawn(worldserver.worldProvider.getDimensionManager().getType(), WorldData.c(entityPlayer.world.getWorldData().getSeed()), entityPlayer.world.getWorldData().getType(), entityPlayer.playerInteractManager.getGameMode());
 	}
 
+	@Override
+	public String getProviderName() {
+		return "1_15_R1 (1.15)";
+	}
+
 }
