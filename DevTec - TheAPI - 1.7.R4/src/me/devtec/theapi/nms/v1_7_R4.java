@@ -23,10 +23,12 @@ import org.bukkit.craftbukkit.v1_7_R4.util.CraftMagicNumbers;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.guiapi.AnvilGUI;
 import me.devtec.theapi.guiapi.GUI.ClickType;
 import me.devtec.theapi.guiapi.HolderGUI;
 import me.devtec.theapi.utils.Position;
@@ -672,7 +674,7 @@ public class v1_7_R4 implements NmsProvider {
 		((Container)container).addSlotListener(nmsPlayer);
 		((Container)container).checkReachable=false;
 	}
-
+	
 	@Override
 	public void openAnvilGUI(Player player, Object con, String title, ItemStack[] items) {
 		ContainerAnvil container = (ContainerAnvil)con;
@@ -698,7 +700,7 @@ public class v1_7_R4 implements NmsProvider {
 
 	@Override
 	public Object createContainer(Inventory inv, Player player) {
-		return new CraftContainer(inv, player, ((CraftPlayer)player).getHandle().nextContainerCounter());
+		return inv.getType()==InventoryType.ANVIL?createAnvilContainer(inv, player):new CraftContainer(inv, player, ((CraftPlayer)player).getHandle().nextContainerCounter());
 	}
 
 	@Override
@@ -706,11 +708,12 @@ public class v1_7_R4 implements NmsProvider {
 		return ((Container)container).getSlot(slot).getItem();
 	}
 	
-	@Override
-	public Object createAnvilContainer(Player player) {
+	public Object createAnvilContainer(Inventory inv, Player player) {
 		int id = ((CraftPlayer)player).getHandle().nextContainerCounter();
 		ContainerAnvil anvil = new ContainerAnvil(((CraftPlayer)player).getHandle().inventory,((CraftPlayer)player).getHandle().world, 0,0,0,((CraftPlayer)player).getHandle());
 		anvil.windowId=id;
+		for(int i = 0; i < 2; ++i)
+			anvil.setItem(i, (net.minecraft.server.v1_7_R4.ItemStack) asNMSItem(inv.getItem(i)));
 		return anvil;
 	}
 	
@@ -736,7 +739,7 @@ public class v1_7_R4 implements NmsProvider {
 		InventoryClickType type = InventoryClickType.values()[packet.h()];
 		
 		Object container = gui.getContainer(player);
-		ItemStack item = asBukkitItem(packet.e());
+		ItemStack item = asBukkitItem(packet.f());
 		if((type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.CLONE||type==InventoryClickType.THROW||item.getType()==Material.AIR) && item.getType()==Material.AIR)
 			item=asBukkitItem(getSlotItem(container, slot));
 		if(InventoryClickType.SWAP==type) {
@@ -749,9 +752,9 @@ public class v1_7_R4 implements NmsProvider {
 		ClickType clickType = LoaderClass.buildClick(item, type, slot, mouseClick);
 		boolean cancel = LoaderClass.useItem(player, item, gui, slot, clickType);
 		if(!gui.isInsertable())cancel=true;
+		if(type==InventoryClickType.QUICK_MOVE)cancel=true;
 		if(!cancel)cancel=gui.onIteractItem(player, item, clickType, slot>gui.size()?slot-gui.size()+27:slot, slot<gui.size());
-		if(type==InventoryClickType.QUICK_MOVE && TheAPI.isOlderThan(9))
-			cancel=true;
+		else gui.onIteractItem(player, item, clickType, slot>gui.size()?slot-gui.size()+27:slot, slot<gui.size());
 		int position = 0;
 		if(cancel) {
 			//MOUSE
@@ -770,6 +773,9 @@ public class v1_7_R4 implements NmsProvider {
 				return true;
 			default:
 				Ref.sendPacket(player,packetSetSlot(id, slot, getSlotItem(container,slot)));
+				if(gui instanceof AnvilGUI)
+					for(ItemStack cItem : gui.getInventory().getContents())
+						Ref.sendPacket(player,packetSetSlot(id, position++, asNMSItem(cItem)));
 				return true;
 			}
 		}

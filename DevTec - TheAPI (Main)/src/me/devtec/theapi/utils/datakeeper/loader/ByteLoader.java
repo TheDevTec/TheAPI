@@ -79,10 +79,10 @@ public class ByteLoader extends DataLoader {
 					result=bos.readInt();
 				}
 			}catch(Exception err) {
-				map.put(key, new Object[]{value == null ? null : Json.reader().read(value), null, value, 1});
+				map.put(key, new Object[]{Json.reader().read(value), null, value});
 				return;
 			}
-			map.put(key, new Object[]{value == null ? null : Json.reader().read(value), null, value, 1});
+			map.put(key, new Object[]{Json.reader().read(value), null, value});
 			if(result==0)
 				byteBuilder(bos, map);
 		}catch(Exception err) {}
@@ -122,7 +122,7 @@ public class ByteLoader extends DataLoader {
 							} catch (Exception not) {
 								run = false;
 							}
-						data.put(key, new Object[]{value == null ? null : Json.reader().read(value), null, value, 1});
+						data.put(key, new Object[]{Json.reader().read(value), null, value});
 					} catch (Exception e) {
 						break;
 					}
@@ -155,7 +155,7 @@ public class ByteLoader extends DataLoader {
 							} catch (Exception not) {
 								run = false;
 							}
-						data.put(key, new Object[]{value == null ? null : Json.reader().read(value), null, value, 1});
+						data.put(key, new Object[]{Json.reader().read(value), null, value});
 					} catch (Exception e) {
 						break;
 					}

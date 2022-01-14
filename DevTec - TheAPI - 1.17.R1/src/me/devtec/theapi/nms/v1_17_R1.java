@@ -32,6 +32,7 @@ import com.mojang.authlib.GameProfile;
 
 import io.netty.channel.Channel;
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.guiapi.AnvilGUI;
 import me.devtec.theapi.guiapi.GUI.ClickType;
 import me.devtec.theapi.guiapi.HolderGUI;
 import me.devtec.theapi.utils.Position;
@@ -101,7 +102,6 @@ import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.inventory.Container;
-import net.minecraft.world.inventory.ContainerAccess;
 import net.minecraft.world.inventory.ContainerAnvil;
 import net.minecraft.world.inventory.Containers;
 import net.minecraft.world.inventory.ICrafting;
@@ -694,7 +694,7 @@ public class v1_17_R1 implements NmsProvider {
 
 	@Override
 	public void openAnvilGUI(Player player, Object con, String title, ItemStack[] items) {
-		ContainerAnvil container = (ContainerAnvil)con;
+		Container container = (Container)con;
 		EntityPlayer nmsPlayer = ((CraftPlayer)player).getHandle();
 		int id = container.j;
 		net.minecraft.world.item.ItemStack[] nmsItems = new net.minecraft.world.item.ItemStack[items.length];
@@ -725,17 +725,10 @@ public class v1_17_R1 implements NmsProvider {
 	public Object getSlotItem(Object container, int slot) {
 		return ((Container)container).getSlot(slot).getItem();
 	}
-
-	static BlockPosition zero = new BlockPosition(0,0,0);
 	
 	@Override
-	public Object createAnvilContainer(Player player) {
-		return new ContainerAnvil(((CraftPlayer)player).getHandle().nextContainerCounter(),((CraftPlayer)player).getHandle().getInventory(),ContainerAccess.at(((CraftPlayer)player).getHandle().t, zero));
-	}
-
-	@Override
 	public String getAnvilRenameText(Object anvil) {
-		return ((ContainerAnvil)anvil).v;
+		return ((ContainerAnvil)Ref.get(anvil, "delegate")).v;
 	}
 	
 	@Override
@@ -764,8 +757,7 @@ public class v1_17_R1 implements NmsProvider {
 		boolean cancel = LoaderClass.useItem(player, item, gui, slot, clickType);
 		if(!gui.isInsertable())cancel=true;
 		if(!cancel)cancel=gui.onIteractItem(player, item, clickType, slot>gui.size()?slot-gui.size()+27:slot, slot<gui.size());
-		if(type==InventoryClickType.QUICK_MOVE && TheAPI.isOlderThan(9))
-			cancel=true;
+		else gui.onIteractItem(player, item, clickType, slot>gui.size()?slot-gui.size()+27:slot, slot<gui.size());
 		int position = 0;
 		if(cancel) {
 			//MOUSE
@@ -778,14 +770,32 @@ public class v1_17_R1 implements NmsProvider {
 			case QUICK_MOVE:
 			case PICKUP_ALL:
 				//TOP
-				for(ItemStack cItem : gui.getInventory().getContents())
+				for(ItemStack cItem : gui.getInventory().getContents()) {
 					Ref.sendPacket(player,packetSetSlot(id, position++, statusId, asNMSItem(cItem)));
+				}
 				//BUTTON
 				player.updateInventory();
 				return true;
 			default:
 				Ref.sendPacket(player,packetSetSlot(id, slot, statusId, getSlotItem(container,slot)));
+				if(gui instanceof AnvilGUI)
+					for(ItemStack cItem : gui.getInventory().getContents())
+						Ref.sendPacket(player,packetSetSlot(id, position++, statusId, asNMSItem(cItem)));
 				return true;
+			}
+		}else {
+			if(gui instanceof AnvilGUI) {
+				if(slot==2) {
+					postToMainThread(() -> ((ContainerAnvil)Ref.get(container, "delegate")).shiftClick((EntityPlayer)getPlayer(player),slot));
+				}else
+				if(type==InventoryClickType.QUICK_MOVE) {
+					position=0;
+					ContainerAnvil c = (ContainerAnvil) Ref.get((Container)container,"delegate");
+					int state = incrementStateId(c);
+					for(net.minecraft.world.item.ItemStack cItem : c.c()) {
+						Ref.sendPacket(player,packetSetSlot(id, position++, state, cItem));
+					}
+				}
 			}
 		}
 		return false;

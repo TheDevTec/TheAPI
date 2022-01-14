@@ -45,6 +45,7 @@ import me.devtec.theapi.bossbar.BossBar;
 import me.devtec.theapi.configapi.Config;
 import me.devtec.theapi.configapi.Config.Node;
 import me.devtec.theapi.economyapi.EconomyAPI;
+import me.devtec.theapi.guiapi.AnvilGUI;
 import me.devtec.theapi.guiapi.GUI.ClickType;
 import me.devtec.theapi.guiapi.HolderGUI;
 import me.devtec.theapi.guiapi.ItemGUI;
@@ -118,7 +119,8 @@ public class LoaderClass extends JavaPlugin {
 	
 	static final Class<?> resource = Ref.nmsOrOld("network.protocol.game.PacketPlayInResourcePackStatus","PacketPlayInResourcePackStatus");
 	static final Class<?> close = Ref.nmsOrOld("network.protocol.game.PacketPlayInCloseWindow","PacketPlayInCloseWindow");
-	static final Class<?> click = Ref.nmsOrOld("network.protocol.game.PacketPlayInWindowClick","PacketPlayInWindowClick");
+	static final Class<?> click = Ref.nmsOrOld("network.protocol.game.PacketPlayInWindowClick","PacketPlayInWindowClick")
+			,itemname=Ref.nmsOrOld("network.protocol.game.PacketPlayInItemName", "PacketPlayInItemName");
 	
 	
 	  public static boolean useItem(Player player, ItemStack stack, HolderGUI g, int slot, ClickType mouse) {
@@ -166,25 +168,14 @@ public class LoaderClass extends JavaPlugin {
 				} catch (Exception ss) {
 				}
 			}
+			boolean mohist = false;
 			try {
-				nmsProvider=(NmsProvider) Class.forName("me.devtec.theapi.nms."+version,true,getClassLoader()).newInstance();
-				if(TheAPI.isNewerThan(17)) {
-					Object i = Ref.getStatic(Ref.getClass("net.minecraft.core.IRegistry"),"ac");
-					for(Object k : (Set<?>)Ref.invoke(i, "d")) {
-						Ref.get(k, "f").toString().toUpperCase();
-					}
-				}
-				new Particle("HEART");
-			}catch(Exception err) {
-				nmsProvider=(NmsProvider) Class.forName("me.devtec.theapi.nms."+version+"_New",true,getClassLoader()).newInstance();
-				if(TheAPI.isNewerThan(17)) {
-					Object i = Ref.getStatic(Ref.getClass("net.minecraft.core.IRegistry"),"ac");
-					for(Object k : (Set<?>)Ref.invoke(i, "d")) {
-						Ref.get(k, "f").toString().toUpperCase();
-					}
-				}
-				new Particle("HEART");
+				if(Class.forName("com.mohistmc.MohistMC", true, getClassLoader())!=null)mohist=true;
+			}catch(Exception | NoClassDefFoundError err) {
+				
 			}
+			nmsProvider=(NmsProvider) Class.forName("me.devtec.theapi.nms."+version+(mohist?"_Mohist":""),true,getClassLoader()).newInstance();
+			new Particle("HEART");
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -465,6 +456,25 @@ public class LoaderClass extends JavaPlugin {
 			public boolean PacketPlayOut(String player, Object packet, Object channel) {
 				return false;
 			}
+
+			public boolean isAllowedChatCharacter(char var0) {
+				return var0 != 167 && var0 >= ' ' && var0 != 127;
+			}
+
+			public String buildText(String var0) {
+				StringBuilder var1 = new StringBuilder();
+				char[] var2 = var0.toCharArray();
+				int var3 = var2.length;
+
+				for (int var4 = 0; var4 < var3; ++var4) {
+					char var5 = var2[var4];
+					if (isAllowedChatCharacter(var5)) {
+						var1.append(var5);
+					}
+				}
+
+				return var1.toString();
+			}
 			
 			public boolean PacketPlayIn(String nick, Object packet, Object channel) {
 				if(nick==null)return false; //NPC
@@ -477,6 +487,17 @@ public class LoaderClass extends JavaPlugin {
 					return false;
 				}
 				//GUIS
+				if(packet.getClass()==itemname) {
+					Player player = TheAPI.getPlayer(nick);
+					if(player==null)return false;
+					HolderGUI gui = LoaderClass.plugin.gui.get(player.getName());
+					if(gui!=null && gui instanceof AnvilGUI) {
+					    TheAPI.getNmsProvider().postToMainThread(() -> {
+					    	((AnvilGUI)gui).setRepairText(buildText(Ref.get(packet, "a")+""));
+					    });
+						return true;
+					}
+				}
 				if(packet.getClass()==close) {
 					Player player = TheAPI.getPlayer(nick);
 					if(player==null)return false;
@@ -796,7 +817,7 @@ public class LoaderClass extends JavaPlugin {
 		config.setComments("Options.TimeConvertor", Arrays.asList("","# Convertor Actions:","# action, amount, translation","# = (equals)","# < (lower than)","# > (more than)"));
 		config.addDefault("Options.TimeConvertor.Split", " ");
 		config.addDefault("Options.TimeConvertor.Format", "%time% %format%");
-		config.addDefault("Options.TimeConvertor.Seconds.Convertor", Arrays.asList("=,1,sec",">,1,secs"));
+		config.addDefault("Options.TimeConvertor.Seconds.Convertor", Arrays.asList("=,0,sec","=,1,sec",">,1,secs"));
 		if(!(config.get("Options.TimeConvertor.Seconds.Convertor") instanceof Collection))
 			config.set("Options.TimeConvertor.Seconds.Convertor", Arrays.asList("=,1,sec",">,1,secs"));
 		config.addDefault("Options.TimeConvertor.Seconds.Lookup", Arrays.asList("s","sec","second","seconds"));
@@ -835,7 +856,7 @@ public class LoaderClass extends JavaPlugin {
 		StringUtils.actions.put("Seconds",sec);
 		sec.addAll(LoaderClass.config.getStringList("Options.TimeConvertor.Seconds.Convertor"));
 		if(sec.isEmpty())
-			sec.addAll(Arrays.asList("=,1,sec",">,1,secs"));
+			sec.addAll(Arrays.asList("=,0,sec","=,1,sec",">,1,secs"));
 		
 		List<String> min = new ArrayList<>();
 		StringUtils.actions.put("Minutes",min);

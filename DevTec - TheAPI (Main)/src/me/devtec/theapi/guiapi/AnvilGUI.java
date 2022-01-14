@@ -26,6 +26,7 @@ public class AnvilGUI implements HolderGUI {
 	private final Inventory inv;
 	// Defaulty false
 	private boolean put;
+	private String text = "";
 
 	public AnvilGUI(String title, Player... p) {
 		title=StringUtils.colorize(title);
@@ -35,7 +36,7 @@ public class AnvilGUI implements HolderGUI {
 			}
 		}
 		this.title=title;
-		inv=Bukkit.createInventory(null, InventoryType.ANVIL, title);
+		inv=Bukkit.createInventory(null, InventoryType.ANVIL);
 		open(p);
 	}
 
@@ -70,8 +71,11 @@ public class AnvilGUI implements HolderGUI {
 	public final void setItem(int position, ItemGUI item) {
 		items.put(position, item);
 		inv.setItem(position, item.getItem());
-		for(Entry<Player, Object> p : containers.entrySet())
-			Ref.sendPacket(p.getKey(),LoaderClass.nmsProvider.packetSetSlot(LoaderClass.nmsProvider.getContainerId(p.getValue()), position, LoaderClass.nmsProvider.incrementStateId(p.getValue()), LoaderClass.nmsProvider.asNMSItem(item.getItem())));
+		if(TheAPI.isOlderThan(17))
+			for(Entry<Player,Object> container : containers.entrySet()) {
+				TheAPI.getNmsProvider().setSlot(container.getValue(), position, TheAPI.getNmsProvider().asNMSItem(item.getItem()));
+				Ref.sendPacket(container.getKey(), TheAPI.getNmsProvider().packetSetSlot(TheAPI.getNmsProvider().getContainerId(container.getValue()),position, TheAPI.getNmsProvider().incrementStateId(container), TheAPI.getNmsProvider().asNMSItem(item.getItem())));
+			}
 	}
 
 	/**
@@ -80,8 +84,11 @@ public class AnvilGUI implements HolderGUI {
 	public final void removeItem(int position) {
 		items.remove(position);
 		inv.setItem(position, new ItemStack(Material.AIR));
-		for(Entry<Player, Object> p : containers.entrySet())
-			Ref.sendPacket(p.getKey(),LoaderClass.nmsProvider.packetSetSlot(LoaderClass.nmsProvider.getContainerId(p.getValue()), position, LoaderClass.nmsProvider.incrementStateId(p.getValue()), LoaderClass.nmsProvider.asNMSItem(null)));
+		if(TheAPI.isOlderThan(17))
+			for(Entry<Player,Object> container : containers.entrySet()) {
+				TheAPI.getNmsProvider().setSlot(container.getValue(), position, TheAPI.getNmsProvider().asNMSItem(null));
+				Ref.sendPacket(container.getKey(), TheAPI.getNmsProvider().packetSetSlot(TheAPI.getNmsProvider().getContainerId(container.getValue()),position, TheAPI.getNmsProvider().incrementStateId(container), TheAPI.getNmsProvider().asNMSItem(null)));
+			}
 	}
 
 	/**
@@ -99,7 +106,11 @@ public class AnvilGUI implements HolderGUI {
 	 * @apiNote Return ItemStack from position in gui
 	 */
 	public final ItemStack getItem(Player target, int slot) {
-		return LoaderClass.nmsProvider.asBukkitItem(LoaderClass.nmsProvider.getSlotItem(containers.get(target), slot));
+		try {
+			return inv.getItem(slot);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	/**
@@ -128,7 +139,7 @@ public class AnvilGUI implements HolderGUI {
 			item[1]=items.get(1).getItem();
 			if(items.get(2)!=null)
 			item[2]=items.get(2).getItem();
-			LoaderClass.nmsProvider.openAnvilGUI(player,container=LoaderClass.nmsProvider.createAnvilContainer(player),title,item);
+			LoaderClass.nmsProvider.openAnvilGUI(player,container=LoaderClass.nmsProvider.createContainer(inv, player),title,item);
 			containers.put(player, container);
 			LoaderClass.plugin.gui.put(player.getName(), this);
 		}
@@ -139,10 +150,8 @@ public class AnvilGUI implements HolderGUI {
 		return containers.get(player);
 	}
 	
-	public String getRenameText(Player player) {
-		Object anvil = containers.get(player);
-		if(anvil==null)return null;
-		return LoaderClass.nmsProvider.getAnvilRenameText(anvil);
+	public String getRenameText() {
+		return text;
 	}
 	
 	public final void setTitle(String title) {
@@ -246,11 +255,7 @@ public class AnvilGUI implements HolderGUI {
 		}
 		return "[AnvilGUI:" + title + "/" + put + "/" + 3 + items.append(']');
 	}
-
-	public int getSize() {
-		return 2;
-	}
-
+	
 	@Override
 	public int size() {
 		return 2;
@@ -259,5 +264,19 @@ public class AnvilGUI implements HolderGUI {
 	@Override
 	public Inventory getInventory() {
 		return inv;
+	}
+
+	public void setRepairText(String text) {
+		this.text=text;
+		for(Object o : containers.values()) {
+			if(TheAPI.isNewerThan(16)) {
+				Object anvil = Ref.get(o, "delegate");
+				for(int i = 0; i < 2; ++i)
+					TheAPI.getNmsProvider().setSlot(anvil, i, TheAPI.getNmsProvider().getSlotItem(o, i));
+				Ref.invoke(anvil, "a", text);
+			}else {
+				Ref.invoke(o, "a", text);
+			}
+		}
 	}
 }

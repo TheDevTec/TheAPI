@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import me.devtec.theapi.utils.json.Json;
+
 public class PropertiesLoader extends DataLoader {
 	private final Pattern pattern = Pattern.compile("(.*?)=(.*)");
 	private final Map<String, Object[]> map = new HashMap<>();
@@ -28,15 +30,17 @@ public class PropertiesLoader extends DataLoader {
 			String s;
 			while((s=r.readLine())!=null) {
 				String f = s.trim();
-				if(!f.isEmpty() && !f.startsWith("#")) {
+				if(f.isEmpty()||f.startsWith("#")) { //comment
+				}else {
 					Matcher m = pattern.matcher(s);
 					if(m.find()) {
-						map.put(m.group(1), new Object[] {m.group(2), comments.isEmpty()?null:new LinkedList<>(comments)});
+						map.put(m.group(1), new Object[] {Json.reader().read(m.group(2)), comments.isEmpty()?null:new LinkedList<>(comments),m.group(2)});
 						comments.clear();
 						continue;
 					}
+					//comment
 				}
-				comments.add(s.substring(YamlLoader.removeSpaces(s)));
+				comments.add(s);
 			}
 			r.close();
 			if(!comments.isEmpty()) {
@@ -55,16 +59,17 @@ public class PropertiesLoader extends DataLoader {
 		List<String> comments = new LinkedList<>();
 		for(String s : d.split(System.lineSeparator())) {
 			String f = s.trim();
-			if(!f.isEmpty() && !f.startsWith("#")) {
+			if(f.isEmpty()||f.startsWith("#")) { //comment
+			}else {
 				Matcher m = pattern.matcher(s);
 				if(m.find()) {
-					map.put(m.group(1), new Object[] {m.group(2), comments.isEmpty()?null:new LinkedList<>(comments)});
+					map.put(m.group(1), new Object[] {Json.reader().read(m.group(2)), comments.isEmpty()?null:new LinkedList<>(comments),m.group(2)});
 					comments.clear();
 					continue;
 				}
 				//comment
 			}
-			comments.add(s.substring(YamlLoader.removeSpaces(s)));
+			comments.add(s);
 		}
 		if(!comments.isEmpty()) {
 			if(map.isEmpty())header=comments;

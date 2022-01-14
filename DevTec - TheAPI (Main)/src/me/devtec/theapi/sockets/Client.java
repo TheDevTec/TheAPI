@@ -88,6 +88,10 @@ public abstract class Client implements SocketClient {
 							public void run() {
 								while(isConnected()) {
 									try {
+										Thread.sleep(100);
+									} catch (Exception e1) {
+									}
+									try {
 									String read = receive.readLine();
 									if(read==null)continue;
 									if(read.equals("exit")) {

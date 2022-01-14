@@ -240,8 +240,6 @@ public interface NmsProvider {
 	
 	public Object getSlotItem(Object container, int slot);
 	
-	public Object createAnvilContainer(Player player);
-	
 	public void openAnvilGUI(Player player, Object container, String title, ItemStack[] items);
 	
 	public String getAnvilRenameText(Object anvil);

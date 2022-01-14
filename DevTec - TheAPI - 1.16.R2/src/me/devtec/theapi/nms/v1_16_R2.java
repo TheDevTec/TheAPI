@@ -25,6 +25,7 @@ import org.bukkit.craftbukkit.v1_16_R2.util.CraftMagicNumbers;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
@@ -33,6 +34,7 @@ import com.mojang.authlib.GameProfile;
 
 import io.netty.channel.Channel;
 import me.devtec.theapi.TheAPI;
+import me.devtec.theapi.guiapi.AnvilGUI;
 import me.devtec.theapi.guiapi.GUI.ClickType;
 import me.devtec.theapi.guiapi.HolderGUI;
 import me.devtec.theapi.utils.Position;
@@ -59,7 +61,6 @@ import net.minecraft.server.v1_16_R2.ChatMessageType;
 import net.minecraft.server.v1_16_R2.ChatModifier;
 import net.minecraft.server.v1_16_R2.ChunkSection;
 import net.minecraft.server.v1_16_R2.Container;
-import net.minecraft.server.v1_16_R2.ContainerAccess;
 import net.minecraft.server.v1_16_R2.ContainerAnvil;
 import net.minecraft.server.v1_16_R2.Containers;
 import net.minecraft.server.v1_16_R2.EntityHuman;
@@ -110,6 +111,7 @@ import net.minecraft.server.v1_16_R2.ScoreboardServer;
 import net.minecraft.server.v1_16_R2.ServerPing;
 import net.minecraft.server.v1_16_R2.ServerPing.ServerData;
 import net.minecraft.server.v1_16_R2.ServerPing.ServerPingPlayerSample;
+import net.minecraft.server.v1_16_R2.ContainerAccess;
 import net.minecraft.server.v1_16_R2.TileEntity;
 import net.minecraft.server.v1_16_R2.WorldServer;
 
@@ -687,7 +689,7 @@ public class v1_16_R2 implements NmsProvider {
 
 	@Override
 	public Object createContainer(Inventory inv, Player player) {
-		return new CraftContainer(inv, ((CraftPlayer)player).getHandle(), ((CraftPlayer)player).getHandle().nextContainerCounter());
+		return inv.getType()==InventoryType.ANVIL?createAnvilContainer(inv, player):new CraftContainer(inv, ((CraftPlayer)player).getHandle(), ((CraftPlayer)player).getHandle().nextContainerCounter());
 	}
 
 	@Override
@@ -697,9 +699,11 @@ public class v1_16_R2 implements NmsProvider {
 
 	static BlockPosition zero = new BlockPosition(0,0,0);
 	
-	@Override
-	public Object createAnvilContainer(Player player) {
-		return new ContainerAnvil(((CraftPlayer)player).getHandle().nextContainerCounter(),((CraftPlayer)player).getHandle().inventory,ContainerAccess.at(((CraftPlayer)player).getHandle().world, zero));
+	public Object createAnvilContainer(Inventory inv, Player player) {
+		ContainerAnvil container = new ContainerAnvil(((CraftPlayer)player).getHandle().nextContainerCounter(),((CraftPlayer)player).getHandle().inventory,ContainerAccess.at(((CraftPlayer)player).getHandle().world, zero));
+		for(int i = 0; i < 2; ++i)
+			container.setItem(i, (net.minecraft.server.v1_16_R2.ItemStack) asNMSItem(inv.getItem(i)));
+		return container;
 	}
 
 	@Override
@@ -733,8 +737,7 @@ public class v1_16_R2 implements NmsProvider {
 		boolean cancel = LoaderClass.useItem(player, item, gui, slot, clickType);
 		if(!gui.isInsertable())cancel=true;
 		if(!cancel)cancel=gui.onIteractItem(player, item, clickType, slot>gui.size()?slot-gui.size()+27:slot, slot<gui.size());
-		if(type==InventoryClickType.QUICK_MOVE && TheAPI.isOlderThan(9))
-			cancel=true;
+		else gui.onIteractItem(player, item, clickType, slot>gui.size()?slot-gui.size()+27:slot, slot<gui.size());
 		int position = 0;
 		if(cancel) {
 			//MOUSE
@@ -753,6 +756,9 @@ public class v1_16_R2 implements NmsProvider {
 				return true;
 			default:
 				Ref.sendPacket(player,packetSetSlot(id, slot, getSlotItem(container,slot)));
+				if(gui instanceof AnvilGUI)
+					for(ItemStack cItem : gui.getInventory().getContents())
+						Ref.sendPacket(player,packetSetSlot(id, position++, asNMSItem(cItem)));
 				return true;
 			}
 		}

@@ -155,11 +155,11 @@ public class YamlLoader extends DataLoader {
 						continue;
 					}
 					if (value.equals("[]")) {
-						data.put(key, new Object[] {Collections.EMPTY_LIST, comments.isEmpty()?null:new LinkedList<>(comments)});
+						data.put(key, new Object[] {Collections.EMPTY_LIST, comments.isEmpty()?null:new LinkedList<>(comments),value});
 						comments.clear();
 						continue;
 					}
-					data.put(key, new Object[] {Json.reader().read(value), comments.isEmpty()?null:new LinkedList<>(comments)});
+					data.put(key, new Object[] {Json.reader().read(value), comments.isEmpty()?null:new LinkedList<>(comments),value});
 					comments.clear();
 				}else {
 					if(type!=null) {
@@ -286,11 +286,11 @@ public class YamlLoader extends DataLoader {
 						continue;
 					}
 					if (value.equals("[]")) {
-						data.put(key, new Object[] {Collections.EMPTY_LIST, comments.isEmpty()?null:new LinkedList<>(comments)});
+						data.put(key, new Object[] {Collections.EMPTY_LIST, comments.isEmpty()?null:new LinkedList<>(comments),value});
 						comments.clear();
 						continue;
 					}
-					data.put(key, new Object[] {Json.reader().read(value), comments.isEmpty()?null:new LinkedList<>(comments)});
+					data.put(key, new Object[] {Json.reader().read(value), comments.isEmpty()?null:new LinkedList<>(comments),value});
 					comments.clear();
 				}else {
 					if(type!=null) {

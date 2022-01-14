@@ -119,7 +119,7 @@ public class SectionBuilder {
 				if (o instanceof Collection) {
 					if(!((Collection<?>) o).isEmpty()) {
 						try {
-							if(aw[3]!=null && (int)aw[3]==1) {
+							if(aw.length==3 && aw[2]!=null) {
 								addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
 							}else {
 								b.append(bab).append(System.lineSeparator());
@@ -143,7 +143,7 @@ public class SectionBuilder {
 				} else {
 					if(((Object[]) o).length!=0) {
 						try {
-							if(aw[3]!=null && (int)aw[3]==1) {
+							if(aw.length==3 && aw[2]!=null) {
 								addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
 							}else {
 								b.append(bab).append(System.lineSeparator());
@@ -167,7 +167,7 @@ public class SectionBuilder {
 				}
 			} else {
 				try {
-					if(aw[3]!=null && (int)aw[3]==1) {
+					if(aw.length==3 && aw[2]!=null) {
 						addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
 					}else {
 						if(o instanceof String)
