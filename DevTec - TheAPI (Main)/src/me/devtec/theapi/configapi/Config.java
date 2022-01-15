@@ -271,24 +271,22 @@ public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data 
 
 	public void addComment(String path, String... value) {
 		if (path != null && value != null)
-			for (String s : value)
-				getComments(path).add(s);
+			f.addComments(path, Arrays.asList(value));
 	}
 
 	public void addComments(String path, List<String> value) {
 		if (path != null && value != null)
-			getComments(path).addAll(value);
+			f.addComments(path, value);
 	}
 
 	public void removeComment(String path, String... value) {
 		if (path != null && value != null)
-			for (String s : value)
-				getComments(path).remove(s);
+			f.removeComments(path, Arrays.asList(value));
 	}
 
 	public void removeComment(String path, List<String> value) {
 		if (path != null && value != null)
-			getComments(path).removeAll(value);
+			f.removeComments(path, value);
 	}
 
 	public Object get(String path) {
