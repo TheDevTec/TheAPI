@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/DevTec - TheAPI (Main)"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="C:/EclipseUtils/MohistMC Forge Hybrid/1.16.5/mohist-1.16.5-906-universal.jar"/>
+	<classpathentry kind="lib" path="C:/EclipseUtils/MohistMC Forge Hybrid/1.16.5/server-1.16.5-20210115.111550-extra.jar"/>
+	<classpathentry kind="lib" path="C:/EclipseUtils/MohistMC Forge Hybrid/1.16.5/server-1.16.5-20210115.111550-srg.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
