@@ -280,4 +280,6 @@ public interface NmsProvider {
 	public default int getEntityId(Entity entity) {
 		return entity.getEntityId();
 	}
+
+	public int getContainerStateId(Object container);
 }

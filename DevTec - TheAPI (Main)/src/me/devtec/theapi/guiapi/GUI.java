@@ -1,7 +1,9 @@
 package me.devtec.theapi.guiapi;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -286,6 +288,24 @@ public class GUI implements HolderGUI {
 			LoaderClass.plugin.gui.remove(player.getName());
 			onClose(player);
 		}
+	}
+
+	/**
+	 * @apiNote Returns not interable slots via SHIFT click
+	 */
+	@Override
+	public List<Integer> getNotInterableSlots(Player player) {
+		List<Integer> list = new ArrayList<>();
+		if(isInsertable())
+			for(int i = 0; i < size(); ++i) {
+				ItemGUI item = items.get(i);
+				if(item!=null && item.isUnstealable())list.add(i);
+			}else {
+				for(int i = 0; i < size(); ++i) {
+					list.add(i);
+				}
+			}
+		return list;
 	}
 
 	@Override

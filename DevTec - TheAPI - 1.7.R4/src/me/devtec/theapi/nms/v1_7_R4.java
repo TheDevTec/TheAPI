@@ -31,8 +31,10 @@ import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.guiapi.AnvilGUI;
 import me.devtec.theapi.guiapi.GUI.ClickType;
 import me.devtec.theapi.guiapi.HolderGUI;
+import me.devtec.theapi.utils.InventoryUtils;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.TheMaterial;
+import me.devtec.theapi.utils.InventoryUtils.DestinationType;
 import me.devtec.theapi.utils.components.Component;
 import me.devtec.theapi.utils.components.ComponentAPI;
 import me.devtec.theapi.utils.listener.events.ServerListPingEvent;
@@ -752,10 +754,35 @@ public class v1_7_R4 implements NmsProvider {
 		ClickType clickType = LoaderClass.buildClick(item, type, slot, mouseClick);
 		boolean cancel = LoaderClass.useItem(player, item, gui, slot, clickType);
 		if(!gui.isInsertable())cancel=true;
-		if(type==InventoryClickType.QUICK_MOVE)cancel=true;
-		if(!cancel)cancel=gui.onIteractItem(player, item, clickType, slot>gui.size()?slot-gui.size()+27:slot, slot<gui.size());
-		else gui.onIteractItem(player, item, clickType, slot>gui.size()?slot-gui.size()+27:slot, slot<gui.size());
+		int gameSlot = slot>gui.size()-1?InventoryUtils.convertToPlayerInvSlot(slot-gui.size()):slot;
+		if(!cancel)cancel=gui.onIteractItem(player, item, clickType, gameSlot, slot<gui.size());
+		else gui.onIteractItem(player, item, clickType, gameSlot, slot<gui.size());
 		int position = 0;
+		if(!cancel && type==InventoryClickType.QUICK_MOVE) {
+			ItemStack[] contents = slot<gui.size()?player.getInventory().getContents():gui.getInventory().getContents();
+			List<Integer> modified = slot<gui.size()?InventoryUtils.shift(slot,player,gui,clickType,gui instanceof AnvilGUI?DestinationType.PLAYER_INV_ANVIL:DestinationType.PLAYER_INV_CUSTOM_INV,null, contents, item):InventoryUtils.shift(slot,player,gui,clickType,DestinationType.CUSTOM_INV,gui.getNotInterableSlots(player), contents, item);
+			if(!modified.isEmpty()) {
+				if(slot<gui.size()) {
+					boolean canRemove = !modified.contains(-1);
+					player.getInventory().setContents(contents);
+					if(canRemove) {
+						gui.remove(gameSlot);
+					}else {
+						gui.getInventory().setItem(gameSlot, item);
+					}
+				}else {
+					boolean canRemove = !modified.contains(-1);
+					gui.getInventory().setContents(contents);
+					if(canRemove) {
+						player.getInventory().setItem(gameSlot, null);
+					}else {
+						player.getInventory().setItem(gameSlot, item);
+					}
+				}
+			}
+			return true;
+		}else
+			if(type==InventoryClickType.QUICK_MOVE)cancel=true;
 		if(cancel) {
 			//MOUSE
 			Ref.sendPacket(player,packetSetSlot(-1, -1, asNMSItem(before)));
@@ -766,18 +793,28 @@ public class v1_7_R4 implements NmsProvider {
 			case QUICK_MOVE:
 			case PICKUP_ALL:
 				//TOP
-				for(ItemStack cItem : gui.getInventory().getContents())
+				for(ItemStack cItem : gui.getInventory().getContents()) {
 					Ref.sendPacket(player,packetSetSlot(id, position++, asNMSItem(cItem)));
+				}
 				//BUTTON
 				player.updateInventory();
 				return true;
 			default:
 				Ref.sendPacket(player,packetSetSlot(id, slot, getSlotItem(container,slot)));
-				if(gui instanceof AnvilGUI)
-					for(ItemStack cItem : gui.getInventory().getContents())
+				if(gui instanceof AnvilGUI) {
+					//TOP
+					for(ItemStack cItem : gui.getInventory().getContents()) {
+						if(position!=slot)
 						Ref.sendPacket(player,packetSetSlot(id, position++, asNMSItem(cItem)));
+					}
+					//BUTTON
+					player.updateInventory();
+				}
 				return true;
 			}
+		}else {
+			if(gui instanceof AnvilGUI && slot==2)
+				postToMainThread(() -> ((ContainerAnvil)container).b((EntityPlayer)getPlayer(player),slot));
 		}
 		return false;
 	}
@@ -1032,6 +1069,11 @@ public class v1_7_R4 implements NmsProvider {
 	@Override
 	public String getProviderName() {
 		return "1_7_R4 (1.7.10)";
+	}
+
+	@Override
+	public int getContainerStateId(Object container) {
+		return 0;
 	}
 	
 }

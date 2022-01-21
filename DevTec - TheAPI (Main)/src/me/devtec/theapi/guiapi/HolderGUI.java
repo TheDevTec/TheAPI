@@ -1,6 +1,8 @@
 package me.devtec.theapi.guiapi;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -44,4 +46,8 @@ public interface HolderGUI {
 	public void closeWithoutPacket(Player... p);
 
 	public Inventory getInventory();
+
+	public Map<Integer, ItemGUI> getItemGUIs();
+	
+	public List<Integer> getNotInterableSlots(Player player);
 }

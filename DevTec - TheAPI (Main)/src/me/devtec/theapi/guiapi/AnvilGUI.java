@@ -1,12 +1,13 @@
 package me.devtec.theapi.guiapi;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
@@ -36,7 +37,7 @@ public class AnvilGUI implements HolderGUI {
 			}
 		}
 		this.title=title;
-		inv=Bukkit.createInventory(null, InventoryType.ANVIL);
+		inv=Bukkit.createInventory(null, InventoryType.ANVIL, title);
 		open(p);
 	}
 
@@ -71,11 +72,6 @@ public class AnvilGUI implements HolderGUI {
 	public final void setItem(int position, ItemGUI item) {
 		items.put(position, item);
 		inv.setItem(position, item.getItem());
-		if(TheAPI.isOlderThan(17))
-			for(Entry<Player,Object> container : containers.entrySet()) {
-				TheAPI.getNmsProvider().setSlot(container.getValue(), position, TheAPI.getNmsProvider().asNMSItem(item.getItem()));
-				Ref.sendPacket(container.getKey(), TheAPI.getNmsProvider().packetSetSlot(TheAPI.getNmsProvider().getContainerId(container.getValue()),position, TheAPI.getNmsProvider().incrementStateId(container), TheAPI.getNmsProvider().asNMSItem(item.getItem())));
-			}
 	}
 
 	/**
@@ -83,12 +79,7 @@ public class AnvilGUI implements HolderGUI {
 	 */
 	public final void removeItem(int position) {
 		items.remove(position);
-		inv.setItem(position, new ItemStack(Material.AIR));
-		if(TheAPI.isOlderThan(17))
-			for(Entry<Player,Object> container : containers.entrySet()) {
-				TheAPI.getNmsProvider().setSlot(container.getValue(), position, TheAPI.getNmsProvider().asNMSItem(null));
-				Ref.sendPacket(container.getKey(), TheAPI.getNmsProvider().packetSetSlot(TheAPI.getNmsProvider().getContainerId(container.getValue()),position, TheAPI.getNmsProvider().incrementStateId(container), TheAPI.getNmsProvider().asNMSItem(null)));
-			}
+		inv.setItem(position, null);
 	}
 
 	/**
@@ -169,7 +160,6 @@ public class AnvilGUI implements HolderGUI {
 				if(items.get(i)!=null)
 					LoaderClass.nmsProvider.setSlot(ec.getValue(), i, LoaderClass.nmsProvider.asNMSItem(items.get(i).getItem()));
 		}
-		
 	}
 	
 	public final String getTitle() {
@@ -258,7 +248,7 @@ public class AnvilGUI implements HolderGUI {
 	
 	@Override
 	public int size() {
-		return 2;
+		return inv.getSize();
 	}
 
 	@Override
@@ -278,5 +268,25 @@ public class AnvilGUI implements HolderGUI {
 				Ref.invoke(o, "a", text);
 			}
 		}
+	}
+
+	/**
+	 * @apiNote Returns not interable slots via SHIFT click
+	 */
+	@Override
+	public List<Integer> getNotInterableSlots(Player player) {
+		List<Integer> list = new ArrayList<>();
+		if(isInsertable())
+			for(int i = 0; i < size(); ++i) {
+				ItemGUI item = items.get(i);
+				if(item!=null && item.isUnstealable())list.add(i);
+			}else {
+				for(int i = 0; i < size(); ++i) {
+					list.add(i);
+				}
+			}
+		if(!list.contains(2))
+			list.add(2);
+		return list;
 	}
 }
