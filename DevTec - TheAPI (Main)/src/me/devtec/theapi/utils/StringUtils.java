@@ -22,6 +22,134 @@ import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class StringUtils {
 	private static final Random random = new Random();
+	//SPECIAL CHARS
+	private static final Pattern special = Pattern.compile("[^A-Z-a-z0-9_]+");
+	//FORMAT
+	private static final Pattern mat = Pattern.compile("\\.([0-9])([0-9])?");
+	//TIME UTILS
+	public static Pattern sec, min, hour, day, week,mon, year;
+	public static String timeFormat = "%time% %format%";
+	public static final Map<String, List<String>> actions = new HashMap<>();
+	//CALCULATOR
+	private static final Pattern extra = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([*/])[ ]*(-?[ ]*[0-9.]+)");
+	private static final Pattern normal = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([+-])[ ]*(-?[ ]*[0-9.]+)");
+	//COLOR UTILS
+	private static final Pattern getLast = Pattern.compile("[§&][uU]|[§][A-Fa-f0-9K-Ok-oRrXx]");
+	private static final Pattern hex = Pattern.compile("#[a-fA-F0-9]{6}");
+	private static final Pattern reg = Pattern.compile("[&§]([Rrk-oK-O])");
+	private static final Pattern colorMatic = Pattern.compile("(<!>)*([&§])<!>([A-Fa-f0-9RrK-Ok-oUu" + (TheAPI.isNewerThan(15) ? "Xx" : "") + "])");
+	private static final Pattern old = Pattern.compile("&((<!>)*)([XxA-Za-zUu0-9Rrk-oK-O])");
+	public static Pattern gradientFinder;
+	private static final Pattern fixedSplit = Pattern.compile("(#[A-Fa-f0-9]{6}([&§][K-Ok-oRr])*|[&§][Xx]([&§][A-Fa-f0-9]){6}([&§][K-Ok-oRr])*|[&§][A-Fa-f0-9K-ORrk-oUuXx]([&§][K-Ok-oRr])*)");
+	public static ColormaticFactory color;
+	static {
+		if (TheAPI.isNewerThan(15)) {
+			color = new ColormaticFactory() {
+				private final String d = "abcdef0123456789";
+				private final int len = d.length();
+				private final char[] a = d.toCharArray();
+				private final Random r = new Random();
+
+				@Override
+				public String colorize(String text) {
+					return gradient(text, getNextColor(), getNextColor());
+				}
+
+				@Override
+				public String getNextColor() {
+					StringBuilder b = new StringBuilder("#");
+					for (int i = 0; i < 6; ++i)
+						b.append(a[r.nextInt(len)]);
+					return b.toString();
+				}
+			};
+		} else
+			color = new ColormaticFactory() {
+				private final List<String> list = Arrays.asList("&4", "&c", "&6", "&e", "&5", "&d", "&9", "&3", "&b", "&2",
+						"&a");
+				private int i = 0;
+
+				@Override
+				public String colorize(String text) {
+					String ff = text;
+					int length = ff.length();
+					HashMap<Integer, String> l = new HashMap<>();
+					ff = ff.replace("", "<!>");
+					Matcher ma = old.matcher(ff);
+					while (ma.find()) {
+						switch (ma.group(3).toLowerCase()) {
+						case "o":
+						case "l":
+						case "m":
+						case "n":
+						case "k":
+							l.put((ff.indexOf(ma.group()) / 4 + 1), ma.group(3).toLowerCase());
+							break;
+						}
+						ff = ff.replaceFirst(ma.group(), "");
+					}
+					boolean bold = false, strikethrough = false, underlined = false, italic = false, magic = false,
+							br = false;
+					for (int index = 0; index <= length; index++) {
+						String formats = "";
+						if (l.containsKey(index)) {
+							switch (l.get(index)) {
+							case "l":
+								bold = true;
+								break;
+							case "m":
+								strikethrough = true;
+								break;
+							case "n":
+								underlined = true;
+								break;
+							case "o":
+								italic = true;
+								break;
+							case "k":
+								magic = true;
+								break;
+							case "u":
+							case "r":
+								bold = false;
+								strikethrough = false;
+								italic = false;
+								magic = false;
+								underlined = false;
+								break;
+							default:
+								br = true;
+								bold = false;
+								strikethrough = false;
+								italic = false;
+								magic = false;
+								underlined = false;
+								break;
+							}
+						}
+						if (bold)
+							formats += "§l";
+						if (italic)
+							formats += "§o";
+						if (underlined)
+							formats += "§n";
+						if (strikethrough)
+							formats += "§m";
+						if (magic)
+							formats += "§k";
+						ff = ff.replaceFirst("<!>", br ? "&" + l.get(index) + formats : color.getNextColor() + formats);
+					}
+					return ff;
+				}
+
+				@Override
+				public String getNextColor() {
+					if (i >= list.size())
+						i = 0;
+					return list.get(i++);
+				}
+			};
+	}
 
 	public interface ColormaticFactory {
 		public String colorize(String text);
@@ -263,10 +391,7 @@ public class StringUtils {
 			r.delete(0,split.length());
 		return r.toString();
 	}
-
-	private static final Pattern getLast = Pattern
-			.compile("[§&][uU]|[§][A-Fa-f0-9K-Ok-oRrXx]");
-
+	
 	/**
 	 * @apiNote Get last colors from String (HEX SUPPORT!)
 	 * @return String
@@ -283,123 +408,6 @@ public class StringUtils {
 		}
 		return colors.toString();
 	}
-
-	private static final Pattern hex = Pattern.compile("#[a-fA-F0-9]{6}");
-	public static ColormaticFactory color;
-	static {
-		if (TheAPI.isNewerThan(15)) {
-			color = new ColormaticFactory() {
-				private final String d = "abcdef0123456789";
-				private final int len = d.length();
-				private final char[] a = d.toCharArray();
-				private final Random r = new Random();
-
-				@Override
-				public String colorize(String text) {
-					return gradient(text, getNextColor(), getNextColor());
-				}
-
-				@Override
-				public String getNextColor() {
-					StringBuilder b = new StringBuilder("#");
-					for (int i = 0; i < 6; ++i)
-						b.append(a[r.nextInt(len)]);
-					return b.toString();
-				}
-			};
-		} else
-			color = new ColormaticFactory() {
-				private final List<String> list = Arrays.asList("&4", "&c", "&6", "&e", "&5", "&d", "&9", "&3", "&b", "&2",
-						"&a");
-				private int i = 0;
-
-				@Override
-				public String colorize(String text) {
-					String ff = text;
-					int length = ff.length();
-					HashMap<Integer, String> l = new HashMap<>();
-					ff = ff.replace("", "<!>");
-					Matcher ma = old.matcher(ff);
-					while (ma.find()) {
-						switch (ma.group(3).toLowerCase()) {
-						case "o":
-						case "l":
-						case "m":
-						case "n":
-						case "k":
-							l.put((ff.indexOf(ma.group()) / 4 + 1), ma.group(3).toLowerCase());
-							break;
-						}
-						ff = ff.replaceFirst(ma.group(), "");
-					}
-					boolean bold = false, strikethrough = false, underlined = false, italic = false, magic = false,
-							br = false;
-					for (int index = 0; index <= length; index++) {
-						String formats = "";
-						if (l.containsKey(index)) {
-							switch (l.get(index)) {
-							case "l":
-								bold = true;
-								break;
-							case "m":
-								strikethrough = true;
-								break;
-							case "n":
-								underlined = true;
-								break;
-							case "o":
-								italic = true;
-								break;
-							case "k":
-								magic = true;
-								break;
-							case "u":
-							case "r":
-								bold = false;
-								strikethrough = false;
-								italic = false;
-								magic = false;
-								underlined = false;
-								break;
-							default:
-								br = true;
-								bold = false;
-								strikethrough = false;
-								italic = false;
-								magic = false;
-								underlined = false;
-								break;
-							}
-						}
-						if (bold)
-							formats += "§l";
-						if (italic)
-							formats += "§o";
-						if (underlined)
-							formats += "§n";
-						if (strikethrough)
-							formats += "§m";
-						if (magic)
-							formats += "§k";
-						ff = ff.replaceFirst("<!>", br ? "&" + l.get(index) + formats : color.getNextColor() + formats);
-					}
-					return ff;
-				}
-
-				@Override
-				public String getNextColor() {
-					if (i >= list.size())
-						i = 0;
-					return list.get(i++);
-				}
-			};
-	}
-
-	private static final Pattern reg = Pattern.compile("[&§]([Rrk-oK-O])");
-	private static final Pattern colorMatic = Pattern.compile("(<!>)*([&§])<!>([A-Fa-f0-9RrK-Ok-oUu" + (TheAPI.isNewerThan(15) ? "Xx" : "") + "])");
-	private static final Pattern old = Pattern.compile("&((<!>)*)([XxA-Za-zUu0-9Rrk-oK-O])");
-
-	public static Pattern gradientFinder;
 
 	public static String gradient(String msg, String fromHex, String toHex) {
 		if(msg==null||fromHex==null||toHex==null)return msg;
@@ -498,11 +506,7 @@ public class StringUtils {
 		}
 		return legacyMsg;
 	}
-
-	private static final boolean neww = TheAPI.isNewerThan(15);
-	private static final Pattern fixedSplit = Pattern.compile(
-			"(#[A-Fa-f0-9]{6}([&§][K-Ok-oRr])*|[&§][Xx]([&§][A-Fa-f0-9]){6}([&§][K-Ok-oRr])*|[&§][A-Fa-f0-9K-ORrk-oUuXx]([&§][K-Ok-oRr])*)");
-
+	
 	/**
 	 * @apiNote Colorize string with colors (&eHello world -> {YELLOW}Hello world)
 	 * @param msg
@@ -531,7 +535,7 @@ public class StringUtils {
 			}
 			msg = d.toString();
 		}
-		if (neww) {
+		if (TheAPI.isNewerThan(15)) {
 			msg = gradient(msg);
 			if (msg.contains("#")) {
 				Matcher match = hex.matcher(msg);
@@ -556,7 +560,7 @@ public class StringUtils {
 
 	private static boolean has(int c) {
 		return c<=102 && c>=97 || c<=57 && c>=48 || c<=70 && c>=65 || c<=79 && c>=75 || c<=111 && c>=107 || c==114 || c==82 || c==88 || c==120;
-		}
+	}
 
 	private static char lower(int c) {
 		switch(c){
@@ -634,8 +638,6 @@ public class StringUtils {
 		return (T) list.toArray()[random.nextInt(list.size())];
 	}
 
-	public static Pattern sec, min, hour, day, week,mon, year;
-
 	/**
 	 * @apiNote Get long from string
 	 * @param period String
@@ -704,12 +706,8 @@ public class StringUtils {
 	public static String setTimeToString(long period) {
 		return timeToString(period);
 	}
-	
-	public static String timeFormat = "%time% %format%";
 
-	public static final Map<String, List<String>> actions = new HashMap<>();
-
-	static String findCorrectFormat(long i, String string) {
+	private static String findCorrectFormat(long i, String string) {
 		String result = i+string;
 		for(String s : actions.get(string)) {
 			if(s.startsWith("=,"))
@@ -876,10 +874,6 @@ public class StringUtils {
 		return i.toString();
 	}
 	
-	private static final Pattern extra = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([*/])[ ]*(-?[ ]*[0-9.]+)");
-	private static final Pattern normal = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([+-])[ ]*(-?[ ]*[0-9.]+)");
-
-	
 	private static double simpleCalculate(String val) {
 		if(val.contains("(")&&val.contains(")")) {
 			val=splitter(val);
@@ -906,9 +900,7 @@ public class StringUtils {
 		}
 		return getDouble(val.replaceAll("[^0-9+.-]", ""));
 	}
-
-	static final Pattern mat = Pattern.compile("\\.([0-9])([0-9])?");
-
+	
 	public static String fixedFormatDouble(double val) {
 		String text = String.format(Locale.ENGLISH,"%.2f", val);
 		Matcher m = mat.matcher(text);
@@ -1130,9 +1122,7 @@ public class StringUtils {
 		return fromString.equalsIgnoreCase("true") || fromString.equalsIgnoreCase("false")
 				|| fromString.equalsIgnoreCase("yes") || fromString.equalsIgnoreCase("no");
 	}
-
-	private static final Pattern special = Pattern.compile("[^A-Z-a-z0-9_]+");
-
+	
 	public static boolean containsSpecial(String value) {
 		return special.matcher(value).find();
 	}
