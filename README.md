@@ -24,39 +24,39 @@ Including the ability to have comments in the YAML & PROPERTIES configuration ty
 > PacketListenerAPI - Listen to packets (A little bit of ProtocolLib)
 
 ### And lots of other different API classes
-  - StringUtils
-  - Animation
-  - PercentageList
-  - Position
-  - TheMaterial
-  - StreamUtils
-  - SpigotUpdateChecker
-  - Ref (Java Reflections API)
-  - ComponentAPI
-  - SortedMap
-  - RankingAPI
-  - Scheduler (Tasker)
-  - ScoreboardAPI
-  - BossBarAPI (1.7.10 - 1.8.9 only)
-  - ParticlesAPI
-  - PunishmentAPI (Requires another plugin that will extend this - For example our plugin SCR)
-  - EconomyAPI
-  - PlaceholderAPI
-  - CooldownAPI
-  - ConfigAPI
-  - TabListAPI
-  - SoundAPI
-  - SignAPI
-  - ResourcePackAPI
-  - NameTagAPI
-  - MemoryAPI
-  - EnchnamtnetAPI
-  - ItemCreatorAPI
-  - SocketsAPI (Client, SocketServer classes & ClientReceiveMessageEvent theapi event)
+- StringUtils
+- Animation
+- PercentageList
+- Position
+- TheMaterial
+- StreamUtils
+- SpigotUpdateChecker
+- Ref (Java Reflections API)
+- ComponentAPI
+- SortedMap
+- RankingAPI
+- Scheduler (Tasker)
+- ScoreboardAPI
+- BossBarAPI (1.7.10 - 1.8.9 only)
+- ParticlesAPI
+- PunishmentAPI (Requires another plugin that will extend this - For example our plugin SCR)
+- EconomyAPI
+- PlaceholderAPI
+- CooldownAPI
+- ConfigAPI
+- TabListAPI
+- SoundAPI
+- SignAPI
+- ResourcePackAPI
+- NameTagAPI
+- MemoryAPI
+- EnchnamtnetAPI
+- ItemCreatorAPI
+- SocketsAPI (Client, SocketServer classes & ClientReceiveMessageEvent theapi event)
 
 ## Our own async events
-  - ServerListPingEvent (Possibility to adjust max online players & number of online players and much more)
-  - ClientReceiveMessageEvent (SocketsAPI)
+- ServerListPingEvent (Possibility to adjust max online players & number of online players and much more)
+- ClientReceiveMessageEvent (SocketsAPI)
 
 
 ## What is our focus
@@ -65,12 +65,12 @@ No more reflections, no more NMS and no more searching for differences between M
 
 
 ## Requirements
-  - Server version 1.7.10 or newer
-  - Java 1.8 or newer
+- Server version 1.7.10 or newer
+- Java 1.8 or newer
 
 ## Download TheAPI
-  - Spigot (https://www.spigotmc.org/resources/72679/)
-  - Bukkit (https://dev.bukkit.org/projects/theapi)
+- Spigot (https://www.spigotmc.org/resources/72679/)
+- Bukkit (https://dev.bukkit.org/projects/theapi)
 
 [![Spigot Downloads](https://img.shields.io/badge/dynamic/json.svg?url=https://api.spiget.org/v2/resources/72679&label=Spigot-Downloads&query=$.downloads&colorB=ee8a18&style=flat-square&maxAge=3600)](https://www.spigotmc.org/resources/72679/)
 [![Spigot Rating](https://img.shields.io/badge/dynamic/json.svg?url=https://api.spiget.org/v2/resources/72679&label=Rating&query=$.rating.average&colorB=00AB66&style=flat-square&maxAge=3600)](https://www.spigotmc.org/resources/72679/)
