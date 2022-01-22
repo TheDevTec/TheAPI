@@ -84,41 +84,39 @@ public class ModernJsonReader implements JReader {
                 Class<?> c = Class.forName(className);
                 String type = (String) map.get("t");
                 if (type != null) { //collection, array or map
-                    switch (type) {
-                        case "map": {
-                            Object object;
-                            try {
-                                object = c.newInstance();
-                            } catch (Exception e) {
-                                object = Unsafe.getUnsafe().allocateInstance(c);
-                            }
-                            Map o = (Map) object;
-                            for (Object cc : (List<?>) map.get("s")) {
-                                Pair pair = (Pair) read(cc);
-                                o.put(pair.getKey(), pair.getValue());
-                            }
-                            return o;
+                    if(type.equals("map")) {
+                        Object object;
+                        try {
+                            object = c.newInstance();
+                        } catch (Exception e) {
+                            object = Unsafe.getUnsafe().allocateInstance(c);
                         }
-                        case "array": {
-                            Object[] obj = (Object[]) Array.newInstance(c, ((List<?>) map.get("s")).size());
-                            int i = 0;
-                            for (Object cc : (List<?>) map.get("s")) obj[i++] = read(cc);
-                            return obj;
+                        Map o = (Map) object;
+                        for (Object cc : (List<?>) map.get("s")) {
+                            Pair pair = (Pair) read(cc);
+                            o.put(pair.getKey(), pair.getValue());
                         }
-                        case "enum": {
-                            return Ref.getNulled(c, map.get("e").toString());
+                        return o;
+                    }
+                    if(type.equals("array")) {
+                        Object[] obj = (Object[]) Array.newInstance(c, ((List<?>) map.get("s")).size());
+                        int i = 0;
+                        for (Object cc : (List<?>) map.get("s")) obj[i++] = read(cc);
+                        return obj;
+                    }
+                    if(type.equals("enum")) {
+                        return Ref.getNulled(c, map.get("e").toString());
+                    }
+                    if(type.equals("collection")) {
+                        Object object;
+                        try {
+                            object = c.newInstance();
+                        } catch (Exception e) {
+                            object = Unsafe.getUnsafe().allocateInstance(c);
                         }
-                        case "collection": {
-                            Object object;
-                            try {
-                                object = c.newInstance();
-                            } catch (Exception e) {
-                                object = Unsafe.getUnsafe().allocateInstance(c);
-                            }
-                            Collection<Object> o = (Collection<Object>) object;
-                            for (Object cc : (List<?>) map.get("s")) o.add(read(cc));
-                            return o;
-                        }
+                        Collection<Object> o = (Collection<Object>) object;
+                        for (Object cc : (List<?>) map.get("s")) o.add(read(cc));
+                        return o;
                     }
                     return null;
                 }
