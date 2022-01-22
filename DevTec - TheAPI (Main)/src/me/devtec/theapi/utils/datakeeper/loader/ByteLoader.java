@@ -1,67 +1,18 @@
 package me.devtec.theapi.utils.datakeeper.loader;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 
 import me.devtec.theapi.utils.json.Json;
 
-public class ByteLoader extends DataLoader {
-	private final Map<String, Object[]> data = new LinkedHashMap<>();
-	private boolean l;
-
-	@Override
-	public Map<String, Object[]> get() {
-		return data;
-	}
-
-	public Set<String> getKeys() {
-		return data.keySet();
-	}
-
-	public void set(String key, Object[] holder) {
-		if (key == null)
-			return;
-		if (holder == null) {
-			data.remove(key);
-			return;
-		}
-		data.put(key, holder);
-	}
-
-	public void remove(String key) {
-		if (key == null)
-			return;
-		data.remove(key);
-	}
+public class ByteLoader extends EmptyLoader {
 
 	public void reset() {
-		data.clear();
-		l=false;
-	}
-	
-	public void load(File file) {
-		reset();
-		try {
-			BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8), 8192);
-			StringBuilder d = new StringBuilder(128);
-			String s;
-			while((s=r.readLine())!=null)d.append(s);
-			r.close();
-			load(d.toString());
-		} catch (Exception e) {
-			reset();
-		}
+		super.reset();
+		loaded=false;
 	}
 
 	private static void byteBuilder(ByteArrayDataInput bos, Map<String, Object[]> map) {
@@ -90,7 +41,9 @@ public class ByteLoader extends DataLoader {
 
 	@Override
 	public void load(String input) {
-		data.clear();
+		reset();
+		if (input == null)
+			return;
 		try {
 			byte[] bb = Base64.getDecoder().decode(input.trim().replace(System.lineSeparator(), ""));
 			ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
@@ -163,26 +116,9 @@ public class ByteLoader extends DataLoader {
 				byteBuilder(bos, data);
 			}
 			if (!data.isEmpty())
-				l = true;
+				loaded = true;
 		} catch (Exception er) {
-			l = false;
+			loaded = false;
 		}
-	}
-
-	@Override
-	public Collection<String> getHeader() {
-		// NOT SUPPORTED
-		return null;
-	}
-
-	@Override
-	public Collection<String> getFooter() {
-		// NOT SUPPORTED
-		return null;
-	}
-
-	@Override
-	public boolean isLoaded() {
-		return l;
 	}
 }

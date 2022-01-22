@@ -8,9 +8,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class EmptyLoader extends DataLoader {
-	private final Map<String, Object[]> data = new LinkedHashMap<>();
-	private final List<String> header = new LinkedList<>();
-    private final List<String> footer = new LinkedList<>();
+	protected final Map<String, Object[]> data = new LinkedHashMap<>();
+	protected final List<String> header = new LinkedList<>();
+	protected final List<String> footer = new LinkedList<>();
+	protected boolean loaded = true;
 	
 	@Override
 	public Map<String, Object[]> get() {
@@ -60,6 +61,6 @@ public class EmptyLoader extends DataLoader {
 
 	@Override
 	public boolean isLoaded() {
-		return true;
+		return loaded;
 	}
 }

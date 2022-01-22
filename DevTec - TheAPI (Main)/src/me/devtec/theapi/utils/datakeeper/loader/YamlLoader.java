@@ -6,57 +6,25 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.devtec.theapi.utils.json.Json;
 
-public class YamlLoader extends DataLoader {
+public class YamlLoader extends EmptyLoader {
 	private static final Pattern pattern = Pattern.compile("([ ]*)(['\\\"][^'\\\"]+['\\\"]|[^\\\"']?\\\\w+[^\\\"']?|.*?):[ ]*(.*)");
-	private final Map<String, Object[]> data = new LinkedHashMap<>();
-	private List<String> header = new LinkedList<>(), footer = new LinkedList<>();
-	private boolean l;
-
-	public Set<String> getKeys() {
-		return data.keySet();
-	}
-
-	public void set(String key, Object[] holder) {
-		if (key == null)
-			return;
-		if (holder == null) {
-			data.remove(key);
-			return;
-		}
-		data.put(key, holder);
-	}
-
-	public void remove(String key) {
-		if (key == null)
-			return;
-		data.remove(key);
-	}
 
 	public void reset() {
-		data.clear();
-		header.clear();
-		footer.clear();
-	}
-	
-	@Override
-	public Map<String, Object[]> get() {
-		return data;
+		super.reset();
+		loaded=false;
 	}
 	
 	public void load(File file) {
 		reset();
+		if(file==null)return;
 		try {
 			String key = "";
 			int last = 0;
@@ -179,17 +147,17 @@ public class YamlLoader extends DataLoader {
 				}
 			}else if(items!=null)
 				data.put(key, new Object[] {items, comments.isEmpty()?null:comments});
-			l = true;
+			loaded = true;
 			r.close();
 		} catch (Exception e) {
-			e.printStackTrace();
-			reset();
+			loaded = false;
 		}
 	}
 	
 	@Override
 	public void load(String input) {
 		reset();
+		if(input==null)return;
 		try {
 			String key = "";
 			int last = 0;
@@ -310,24 +278,14 @@ public class YamlLoader extends DataLoader {
 				}
 			}else if(items!=null)
 				data.put(key, new Object[] {items, comments.isEmpty()?null:comments});
-			l = true;
+			loaded = true;
 		} catch (Exception er) {
-			l = false;
+			loaded = false;
 		}
 	}
 	
 	public enum BuilderType {
 		STRING, LIST
-	}
-
-	@Override
-	public Collection<String> getHeader() {
-		return header;
-	}
-
-	@Override
-	public Collection<String> getFooter() {
-		return footer;
 	}
 
 	public static int removeSpaces(String s) {
@@ -367,10 +325,5 @@ public class YamlLoader extends DataLoader {
 			}else break;
 		}
 		return i;
-	}
-
-	@Override
-	public boolean isLoaded() {
-		return l;
 	}
 }

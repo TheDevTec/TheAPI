@@ -29,8 +29,10 @@ public abstract class DataLoader implements Data {
 	
 	public abstract boolean isLoaded();
 	
-	public void load(File f) {
-		load(StreamUtils.fromStream(f));
+	public void load(File file) {
+		if (file == null)
+			return;
+		load(StreamUtils.fromStream(file));
 	}
 
 	public static DataLoader findLoaderFor(File input) {
