@@ -10,12 +10,14 @@ import me.devtec.theapi.utils.datakeeper.abstracts.Data;
 import me.devtec.theapi.utils.json.Json;
 
 public class MultiMap<K, T, V> implements Data {
-	private final Map<K, Map<T, V>> data = new HashMap<>();
+	protected Map<K, Map<T, V>> data;
 
 	public MultiMap() {
+		data = new HashMap<>();
 	}
 
 	public MultiMap(MultiMap<K, T, V> map) {
+		this();
 		putAll(map);
 	}
 
@@ -157,7 +159,7 @@ public class MultiMap<K, T, V> implements Data {
 	@Override
 	public String getDataName() {
 		HashMap<String, Object> s = new HashMap<>();
-		s.put("name", this.getClass().getCanonicalName());
+		s.put("name", getClass().getCanonicalName());
 		s.put("sorted", false);
 		s.put("size", size());
 		return Json.writer().simpleWrite(s);
