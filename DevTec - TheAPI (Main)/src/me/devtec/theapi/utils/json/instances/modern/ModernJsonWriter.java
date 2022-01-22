@@ -103,83 +103,12 @@ public class ModernJsonWriter implements JWriter {
 
     public String write(Object s) {
         try {
-            if (s == null)
-                return "null";
-    		if (s instanceof Location || s instanceof Position || s instanceof ItemStack) {
-    			return parser.toJson(Utils.write(s));
-    		}
-            if (s instanceof Enum){
-                Map<String, Object> object = new HashMap<>();
-                object.put("c", s.getClass().getName());
-                object.put("e", ((Enum<?>)s).name());
-                object.put("t", "enum");
-                return parser.toJson(object);
-            }
-            if (s instanceof String || s instanceof CharSequence || s instanceof Boolean || s instanceof Number || s instanceof Character)
-                return s.toString();
-            if (s instanceof Collection) {
-                Map<String, Object> object = new HashMap<>();
-                object.put("c", s.getClass().getName());
-                object.put("t", "collection");
-                List<Object> vals = new ArrayList<>();
-                for (Object o : (Collection<?>) s) vals.add(writeWithoutParse(o));
-                object.put("s", vals);
-                return parser.toJson(object);
-            }
-            if (s instanceof Map) {
-                Map<String, Object> object = new HashMap<>();
-                object.put("c", s.getClass().getName());
-                object.put("t", "map");
-                List<Object> vals = new ArrayList<>();
-                for (Map.Entry<?, ?> o : ((Map<?, ?>) s).entrySet())
-                    vals.add(writeWithoutParse(new Pair(o.getKey(), o.getValue())));
-                object.put("s", vals);
-                return parser.toJson(object);
-            }
-            if (s.getClass().isArray()) {
-                Map<String, Object> object = new HashMap<>();
-                object.put("c", s.getClass().getName().startsWith("[")?s.getClass().getName().substring(2,s.getClass().getName().length()-1):s.getClass().getName());
-                object.put("t", "array");
-                List<Object> vals = new ArrayList<>();
-                for (Object o : (Object[]) s) vals.add(writeWithoutParse(o));
-                object.put("s", vals);
-                return parser.toJson(object);
-            }
-            Map<String, Object> object = new HashMap<>();
-            Map<String, Object> fields = new HashMap<>();
-            Map<String, Object> sub_fields = new HashMap<>();
-            object.put("c", s.getClass().getName());
-            object.put("f", fields);
-            object.put("sf", sub_fields);
-            Class<?> c = s.getClass();
-            for (Field f : c.getDeclaredFields()) {
-                if ((f.getModifiers() & Modifier.STATIC) != 0) continue;
-                f.setAccessible(true);
-                Object obj = f.get(s);
-                if (s.equals(obj) || s == obj)
-                    fields.put("~" + f.getName(), "~");
-                else
-                    fields.put(f.getName(), writeWithoutParse(obj));
-            }
-            c = c.getSuperclass();
-            while (c != null) {
-                for (Field f : c.getDeclaredFields()) {
-                    if ((f.getModifiers() & Modifier.STATIC) != 0) continue;
-                    f.setAccessible(true);
-                    Object obj = f.get(s);
-                    if (s.equals(obj) || s == obj)
-                        sub_fields.put(c.getName() + ":~" + f.getName(), "~");
-                    else
-                        sub_fields.put(c.getName() + ":" + f.getName(), writeWithoutParse(obj));
-                }
-                c = c.getSuperclass();
-            }
-            if (sub_fields.isEmpty()) object.remove("sf");
-            return parser.toJson(object);
+        	Object parsed = writeWithoutParse(s);
+        	if(parsed==null)return "null";
+        	return parser.toJson(parsed);
         }catch (Exception err){}
         return null;
     }
-
 	
     @Override
 	public String simpleWrite(Object s) {

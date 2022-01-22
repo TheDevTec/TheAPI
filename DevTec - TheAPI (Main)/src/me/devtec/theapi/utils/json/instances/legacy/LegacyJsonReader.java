@@ -27,8 +27,7 @@ public class LegacyJsonReader implements JReader {
             unsafe = (Unsafe)f.get(null);
         }catch(Exception err){}
     }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    
     public Object read(String json) {
     	if(json==null || json.trim().isEmpty())return json;
         try {
@@ -36,97 +35,15 @@ public class LegacyJsonReader implements JReader {
             if (json.equalsIgnoreCase("true")) return true;
             if (json.equalsIgnoreCase("false")) return false;
             if (StringUtils.isNumber(json)) return StringUtils.getNumber(json);
-			Map<String, Object> map = parser.fromJson(json, Map.class);
+			Map<?, ?> map = parser.fromJson(json, Map.class);
 			if(map==null) {
-				Collection<Object> list = parser.fromJson(json, Collection.class);
+				Collection<?> list = parser.fromJson(json, Collection.class);
 				return list!=null?list:json;
 			}
-			if(map.size()==1) {
-				Entry<String, Object> key = map.entrySet().iterator().next();
-				Object read = Utils.read(key.getKey(), key.getValue());
-				if(read!=null)return read;
-				return map;
-			}
-            String className = map.get("c").toString();
-            String type = map.get("t").toString();
-            Class<?> c = Class.forName(className);
-            if (type != null) { //collection, array or map
-                switch (type) {
-                    case "map": {
-                        Object object;
-                        try {
-                            object = c.newInstance();
-                        } catch (Exception e) {
-                            object = Unsafe.getUnsafe().allocateInstance(c);
-                        }
-                        Map o = (Map) object;
-                        for (Object cc : (List<?>) map.get("s")) {
-                            Pair pair = (Pair) read(cc);
-                            o.put(pair.getKey(), pair.getValue());
-                        }
-                        return o;
-                    }
-                    case "enum": {
-                        return Ref.getNulled(c, map.get("e").toString());
-                    }
-                    case "array": {
-                        Object[] obj = (Object[]) Array.newInstance(c, ((List<?>) map.get("s")).size());
-                        int i = 0;
-                        for (Object cc : (List<?>) map.get("s")) obj[i++] = read(cc);
-                        return obj;
-                    }
-                    case "collection": {
-                        Object object;
-                        try {
-                            object = c.newInstance();
-                        } catch (Exception e) {
-                            object = Unsafe.getUnsafe().allocateInstance(c);
-                        }
-                        Collection<Object> o = (Collection<Object>) object;
-                        for (Object cc : (List<?>) map.get("s")) o.add(read(cc));
-                        return o;
-                    }
-                }
-                return null;
-            }
-            Object object;
-            try {
-                object = c.newInstance();
-            } catch (Exception e) {
-                object = unsafe.allocateInstance(c);
-            }
-
-            Map<String, Object> fields = (Map<String, Object>) map.get("f");
-            Map<String, Object> sub_fields = (Map<String, Object>) map.get("sf");
-
-            for (Map.Entry<String, Object> e : fields.entrySet()) {
-                if (e.getKey().startsWith("~")) {
-                    Field f = c.getDeclaredField(e.getKey().substring(1));
-                    f.setAccessible(true);
-                    f.set(object, object);
-                    continue;
-                }
-                Field f = c.getDeclaredField(e.getKey());
-                f.setAccessible(true);
-                f.set(object, cast(e.getValue(), f.getType()));
-            }
-            if (sub_fields != null)
-                for (Map.Entry<String, Object> e : sub_fields.entrySet()) {
-                    String field = e.getKey().split(":")[1];
-                    if (field.startsWith("~")) {
-                        Field f = Class.forName(e.getKey().split(":")[0]).getDeclaredField(field.substring(1));
-                        f.setAccessible(true);
-                        f.set(object, object);
-                        continue;
-                    }
-                    Field f = Class.forName(e.getKey().split(":")[0]).getDeclaredField(field);
-                    f.setAccessible(true);
-                    f.set(object, cast(e.getValue(), f.getType()));
-                }
-            return object;
+			return read(map);
         }catch(Exception err){
         	try {
-				Collection<Object> list = parser.fromJson(json, Collection.class);
+				Collection<?> list = parser.fromJson(json, Collection.class);
 				return list!=null?list:json;
         	}catch(Exception er) {}
         }

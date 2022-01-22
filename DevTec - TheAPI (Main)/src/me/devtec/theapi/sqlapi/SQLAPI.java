@@ -5,7 +5,6 @@ import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +13,6 @@ import me.devtec.theapi.utils.theapiutils.Validator;
 
 public class SQLAPI {
 	private Connection sql;
-	private Statement connection;
 	private final String host;
     private final String database;
     private final String username;
@@ -39,7 +37,7 @@ public class SQLAPI {
 
 	public boolean isConnected() {
 		try {
-			return connection != null && !connection.isClosed();
+			return sql != null && !sql.isClosed();
 		} catch (Exception e) {
 			return false;
 		}
@@ -47,36 +45,27 @@ public class SQLAPI {
 
 	public void close() {
 		try {
-			connection.close();
-		}catch(Exception e) {
-			
-		}
-		try {
 			sql.close();
 		} catch (Exception e) {
 		}
 		sql = null;
-		connection = null;
 	}
 
 	public void reconnect() {
 		try {
-			connection.close();
+			sql.close();
 		} catch (Exception e) {
 		}
 		try {
 			if(sql==null||sql.isClosed()) {
 				synchronized (LoaderClass.plugin) {
 					sql = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + at, username, password);
-					connection = sql.createStatement();
 				}
-			}else
-				connection=sql.createStatement();
+			}
 		} catch (Exception e) {
 			synchronized (LoaderClass.plugin) {
 				try {
 					sql = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + at, username, password);
-					connection = sql.createStatement();
 				} catch (Exception er) {
 					
 				}
@@ -134,7 +123,7 @@ public class SQLAPI {
 		Validator.validate(command == null, "Command is null");
 		boolean result = false;
 		try {
-			connection.executeUpdate(command);
+			sql.createStatement().executeUpdate(command);
 			result = true;
 		} catch (Exception e) {
 			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
@@ -147,7 +136,7 @@ public class SQLAPI {
 		Validator.validate(command == null, "Command is null");
 		boolean result = false;
 		try {
-			connection.executeLargeUpdate(command);
+			sql.createStatement().executeLargeUpdate(command);
 			result = true;
 		} catch (Exception e) {
 			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
@@ -160,7 +149,7 @@ public class SQLAPI {
 		Validator.validate(command == null, "Command is null");
 		ResultSet rs = null;
 		try {
-			rs = connection.executeQuery(command);
+			rs = sql.createStatement().executeQuery(command);
 		} catch (Exception e) {
 			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
 				e.printStackTrace();
@@ -311,7 +300,7 @@ public class SQLAPI {
 	public boolean execute(String command) {
 		Validator.validate(command == null, "Command is null");
 		try {
-			connection.execute(command);
+			sql.createStatement().execute(command);
 			return true;
 		} catch (Exception e) {
 			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
@@ -341,7 +330,6 @@ public class SQLAPI {
 		synchronized (LoaderClass.plugin) {
 			try {
 				sql = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + at, username, password);
-				connection = sql.createStatement();
 			} catch (Exception e) {
 				if (!LoaderClass.config.getBoolean("Options.HideErrors"))
 					e.printStackTrace();

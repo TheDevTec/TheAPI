@@ -265,7 +265,7 @@ public class StringUtils {
 	}
 
 	private static final Pattern getLast = Pattern
-			.compile("(#[A-Fa-f0-9]{6}|[&§][Xx]([&§][A-Fa-f0-9]){6}|[&§][A-Fa-f0-9RrK-Ok-oUuXx])");
+			.compile("[§&][uU]|[§][A-Fa-f0-9K-Ok-oRrXx]");
 
 	/**
 	 * @apiNote Get last colors from String (HEX SUPPORT!)
@@ -276,7 +276,7 @@ public class StringUtils {
 		StringBuilder colors = new StringBuilder();
 		while (m.find()) {
 			String last = m.group(1);
-			if (last.matches("[§][A-Fa-f0-9]|[§][Xx]([§][A-Fa-f0-9]){6}"))
+			if (last.matches("[§&][uU]|[§][A-Fa-f0-9]|[§][Xx]([§][A-Fa-f0-9]){6}"))
 				colors = new StringBuilder(last);
 			else
 				colors.append(last);
