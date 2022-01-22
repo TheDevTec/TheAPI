@@ -1,22 +1,23 @@
 package me.devtec.shared;
 
 public class Pair {
-    Object key, value;
+    private Object key;
+    private Object value;
 
-    public Pair(Object o, Object o1) {
-        key=o;
-        value=o1;
+    public Pair(Object key, Object value) {
+        this.key=key;
+        this. value=value;
     }
 
-    public Object getKey(){
+    public Object getKey() {
         return key;
     }
 
-    public Object getValue(){
+    public Object getValue() {
         return value;
     }
 
-    public String toString(){
+    public String toString() {
         return "Pair{"+key+"="+value+"}";
     }
 }
