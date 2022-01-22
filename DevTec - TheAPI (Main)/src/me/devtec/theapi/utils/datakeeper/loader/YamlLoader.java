@@ -32,7 +32,7 @@ public class YamlLoader extends DataLoader {
 		if (key == null)
 			return;
 		if (holder == null) {
-			remove(key);
+			data.remove(key);
 			return;
 		}
 		data.put(key, holder);

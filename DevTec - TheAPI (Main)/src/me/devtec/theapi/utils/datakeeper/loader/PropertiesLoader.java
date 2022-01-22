@@ -98,15 +98,19 @@ public class PropertiesLoader extends DataLoader {
 		return map;
 	}
 
-	@Override
-	public void set(String key, Object[] value) {
-		if(value==null)remove(key);
-		else
-		map.put(key, value);
+	public void set(String key, Object[] holder) {
+		if (key == null)
+			return;
+		if (holder == null) {
+			map.remove(key);
+			return;
+		}
+		map.put(key, holder);
 	}
 
-	@Override
 	public void remove(String key) {
+		if (key == null)
+			return;
 		map.remove(key);
 	}
 
