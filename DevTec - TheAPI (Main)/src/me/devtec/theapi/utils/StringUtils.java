@@ -527,7 +527,6 @@ public class StringUtils {
 	public static long timeFromString(String period) {
 		if (period == null || period.isEmpty())
 			return 0;
-		period = period.toLowerCase(Locale.ENGLISH);
 		if (isFloat(period) && !period.endsWith("d") && !period.endsWith("e"))
 			return (long)getFloat(period);
 		float time = 0;
