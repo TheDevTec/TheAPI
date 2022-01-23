@@ -95,29 +95,33 @@ public class StringUtils {
 						}
 						ff = ff.replaceFirst(ma.group(), "");
 					}
-					boolean bold = false, strikethrough = false, underlined = false, italic = false, magic = false,
-							br = false;
+					boolean bold = false;
+					boolean strikethrough = false;
+					boolean underlined = false;
+					boolean italic = false;
+					boolean magic = false;
+					boolean tag = false;
 					for (int index = 0; index <= length; index++) {
 						String formats = "";
 						if (l.containsKey(index)) {
-							switch (l.get(index)) {
-							case "l":
+							switch (l.get(index).charAt(0)) {
+							case 'l':
 								bold = true;
 								break;
-							case "m":
+							case 'm':
 								strikethrough = true;
 								break;
-							case "n":
+							case 'n':
 								underlined = true;
 								break;
-							case "o":
+							case 'o':
 								italic = true;
 								break;
-							case "k":
+							case 'k':
 								magic = true;
 								break;
-							case "u":
-							case "r":
+							case 'u':
+							case 'r':
 								bold = false;
 								strikethrough = false;
 								italic = false;
@@ -125,7 +129,7 @@ public class StringUtils {
 								underlined = false;
 								break;
 							default:
-								br = true;
+								tag = true;
 								bold = false;
 								strikethrough = false;
 								italic = false;
@@ -144,7 +148,7 @@ public class StringUtils {
 							formats += "§m";
 						if (magic)
 							formats += "§k";
-						ff = ff.replaceFirst("<!>", br ? "&" + l.get(index) + formats : color.getNextColor() + formats);
+						ff = ff.replaceFirst("<!>", tag ? "&" + l.get(index) + formats : color.getNextColor() + formats);
 					}
 					return ff;
 				}
@@ -283,7 +287,8 @@ public class StringUtils {
 			msg = msg.replaceFirst(ma.group(), "");
 		}
 		int length = msg.length();
-		Color fromRGB = Color.decode(fromHex), toRGB = Color.decode(toHex);
+		Color fromRGB = Color.decode(fromHex);
+		Color toRGB = Color.decode(toHex);
 		double rStep = Math.abs((double) (fromRGB.getRed() - toRGB.getRed()) / length);
 		double gStep = Math.abs((double) (fromRGB.getGreen() - toRGB.getGreen()) / length);
 		double bStep = Math.abs((double) (fromRGB.getBlue() - toRGB.getBlue()) / length);
@@ -356,9 +361,10 @@ public class StringUtils {
 	public static String gradient(String legacyMsg) {
 		if(legacyMsg==null||gradientFinder == null)
 			return legacyMsg;
+		String low = legacyMsg.toLowerCase();
 		for (Entry<String, String> code : LoaderClass.colorMap.entrySet()) {
-			String rawCode = LoaderClass.tagG + code.getKey();
-			if (!legacyMsg.toLowerCase().contains(rawCode.toLowerCase()))
+			String rawCode = (LoaderClass.tagG + code.getKey()).toLowerCase();
+			if (!low.contains(rawCode))
 				continue;
 			legacyMsg = legacyMsg.replace(rawCode, code.getValue());
 		}
@@ -394,8 +400,8 @@ public class StringUtils {
 			// colors
 			StringBuilder d = new StringBuilder(msg.length());
 			for (String ff : split) {
-				if (ff.toLowerCase().contains("§u") || ff.toLowerCase().contains("&u"))
-					ff = StringUtils.color.colorize(ff.replaceAll("[§&][uU]", ""));
+				if (ff.contains("&u"))
+					ff = StringUtils.color.colorize(ff.replace("&u", ""));
 				d.append(ff);
 			}
 			msg = d.toString();
@@ -428,7 +434,7 @@ public class StringUtils {
 	}
 
 	private static char lower(int c) {
-		switch(c){
+		switch(c) {
 		case 65:
 		case 66:
 		case 67:
@@ -444,8 +450,9 @@ public class StringUtils {
 			return (char)(c+32);
 		case 120:
 			return (char)88;
+			default:
+				return (char)c;
 		}
-		return (char)c;
 	}
 
 	/**
@@ -518,9 +525,9 @@ public class StringUtils {
 	 * @return long
 	 */
 	public static long timeFromString(String period) {
-		if (period == null || period.trim().isEmpty())
+		if (period == null || (period=period.trim()).isEmpty())
 			return 0;
-		period = period.trim().toLowerCase(Locale.ENGLISH);
+		period = period.toLowerCase(Locale.ENGLISH);
 		if (isFloat(period) && !period.endsWith("d") && !period.endsWith("e"))
 			return (long)getFloat(period);
 		float time = 0;
@@ -576,11 +583,9 @@ public class StringUtils {
 		String result = i+string;
 		for(String s : actions.get(string)) {
 			if(s.startsWith("=,"))
-				if(getInt(s.substring(1).split(",")[1])==i)return s.substring(3+s.substring(1).split(",")[1].length());
-			if(s.startsWith("<,"))
-				if(getInt(s.substring(1).split(",")[1]) > i)return s.substring(3+s.substring(1).split(",")[1].length());
-			if(s.startsWith(">,"))
-				if(getInt(s.substring(1).split(",")[1]) < i)return s.substring(3+s.substring(1).split(",")[1].length());
+				if(s.startsWith("=,") ? getInt(s.substring(1).split(",")[1]) == i :
+					s.startsWith("<,") ? getInt(s.substring(1).split(",")[1]) > i : 
+						s.startsWith(">,") ? getInt(s.substring(1).split(",")[1]) < i : false)return s.substring(3+s.substring(1).split(",")[1].length());
 		}
 		return result;
 	}
@@ -697,7 +702,7 @@ public class StringUtils {
 				String b = s.group(3);
 				double d = getDouble(s.group(4));
 				val=val.replace(s.group(), (a==0||d==0?0:((b.equals("*")?a*d:a/d)))+"");
-				s = extra.matcher(val);
+				s.reset(val);
 			}
 		}
 		if(val.contains("+")||val.contains("-")) {
@@ -707,7 +712,7 @@ public class StringUtils {
 				String b = s.group(3);
 				double d = getDouble(s.group(4));
 				val=val.replace(s.group(), (b.equals("+")?a+d:a-d)+"");
-				s = normal.matcher(val);
+				s.reset(val);
 			}
 		}
 		return getDouble(val.replaceAll("[^0-9+.-]", ""));
@@ -717,7 +722,8 @@ public class StringUtils {
 		StringBuilder i = new StringBuilder();
 		StringBuilder fix = new StringBuilder();
 
-		int count = 0, waiting = 0;
+		int count = 0;
+		int waiting = 0;
 		for(char c : s.toCharArray()) {
 			i.append(c);
 			if(c=='(') {
@@ -729,41 +735,14 @@ public class StringUtils {
 				fix.append(c);
 				if(--count==0) {
 					waiting=0;
-					i = new StringBuilder(i.toString().replace(fix.toString(), "" + simpleCalculate(fix.substring(1, fix.length() - 1))));
-					fix = new StringBuilder();
+					i = new StringBuilder(i.toString().replace(fix.toString(), "" + calculate(fix.substring(1, fix.length() - 1))));
+					fix.delete(0, fix.length());
 				}
 			}else
 			if(waiting==1)
 				fix.append(c);
 		}
 		return i.toString();
-	}
-	
-	private static double simpleCalculate(String val) {
-		if(val.contains("(")&&val.contains(")")) {
-			val=splitter(val);
-		}
-		if(val.contains("*")||val.contains("/")) {
-			Matcher s = extra.matcher(val);
-			while(s.find()) {
-				double a = getDouble(s.group(1));
-				String b = s.group(3);
-				double d = getDouble(s.group(4));
-				val=val.replace(s.group(), (a==0||d==0?0:((b.equals("*")?a*d:a/d)))+"");
-				s = extra.matcher(val);
-			}
-		}
-		if(val.contains("+")||val.contains("-")) {
-			Matcher s = normal.matcher(val);
-			while(s.find()) {
-				double a = getDouble(s.group(1));
-				String b = s.group(3);
-				double d = getDouble(s.group(4));
-				val=val.replace(s.group(), (b.equals("+")?a+d:a-d)+"");
-				s = normal.matcher(val);
-			}
-		}
-		return getDouble(val.replaceAll("[^0-9+.-]", ""));
 	}
 	
 	public static String fixedFormatDouble(double val) {
