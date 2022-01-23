@@ -26,7 +26,13 @@ public class StringUtils {
 	//FORMAT
 	private static final Pattern mat = Pattern.compile("\\.([0-9])([0-9])?");
 	//TIME UTILS
-	public static Pattern sec, min, hour, day, week,mon, year;
+	public static Pattern sec;
+	public static Pattern min;
+	public static Pattern hour;
+	public static Pattern day;
+	public static Pattern week;
+	public static Pattern mon;
+	public static Pattern year;
 	public static String timeFormat = "%time% %format%";
 	public static final Map<String, List<String>> actions = new HashMap<>();
 	//CALCULATOR
@@ -76,13 +82,15 @@ public class StringUtils {
 					ff = ff.replace("", "<!>");
 					Matcher ma = old.matcher(ff);
 					while (ma.find()) {
-						switch (ma.group(3).toLowerCase()) {
-						case "o":
-						case "l":
-						case "m":
-						case "n":
-						case "k":
+						switch (Character.toLowerCase(ma.group(3).charAt(0))) {
+						case 'o':
+						case 'l':
+						case 'm':
+						case 'n':
+						case 'k':
 							l.put((ff.indexOf(ma.group()) / 4 + 1), ma.group(3).toLowerCase());
+							break;
+						default:
 							break;
 						}
 						ff = ff.replaceFirst(ma.group(), "");
@@ -315,24 +323,24 @@ public class StringUtils {
 			char[] c = Integer.toHexString(finalColor.getRGB()).substring(2).toCharArray();
 			for (char value : c) hex.append('§').append(value);
 			if (l.containsKey(index))
-				switch (l.get(index)) {
-				case "l":
+				switch (l.get(index).charAt(0)) {
+				case 'l':
 					if (!formats.contains("§l"))
 						formats += "§l";
 					break;
-				case "m":
+				case 'm':
 					if (!formats.contains("§m"))
 						formats += "§m";
 					break;
-				case "n":
+				case 'n':
 					if (!formats.contains("§n"))
 						formats += "§n";
 					break;
-				case "o":
+				case 'o':
 					if (!formats.contains("§o"))
 						formats += "§o";
 					break;
-				case "k":
+				case 'k':
 					if (!formats.contains("§k"))
 						formats += "§k";
 					break;
