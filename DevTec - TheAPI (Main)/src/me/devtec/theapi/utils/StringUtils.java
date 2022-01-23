@@ -525,13 +525,13 @@ public class StringUtils {
 	 * @return long
 	 */
 	public static long timeFromString(String period) {
-		if (period == null || (period=period.trim()).isEmpty())
+		if (period == null || period.isEmpty())
 			return 0;
-		period = period.toLowerCase(Locale.ENGLISH);
+		period = period.trim().toLowerCase(Locale.ENGLISH);
 		if (isFloat(period) && !period.endsWith("d") && !period.endsWith("e"))
 			return (long)getFloat(period);
 		float time = 0;
-
+		
 		Matcher matcher = sec.matcher(period);
 		while (matcher.find()) {
 			time+=getFloat(matcher.group());
@@ -582,10 +582,9 @@ public class StringUtils {
 	private static String findCorrectFormat(long i, String string) {
 		String result = i+string;
 		for(String s : actions.get(string)) {
-			if(s.startsWith("=,"))
-				if(s.startsWith("=,") ? getInt(s.substring(1).split(",")[1]) == i :
-					s.startsWith("<,") ? getInt(s.substring(1).split(",")[1]) > i : 
-						s.startsWith(">,") ? getInt(s.substring(1).split(",")[1]) < i : false)return s.substring(3+s.substring(1).split(",")[1].length());
+			if(s.startsWith("=,") ? getInt(s.substring(1).split(",")[1]) == i :
+				s.startsWith("<,") ? getInt(s.substring(1).split(",")[1]) > i : 
+					s.startsWith(">,") ? getInt(s.substring(1).split(",")[1]) < i : false)return s.substring(3+s.substring(1).split(",")[1].length());
 		}
 		return result;
 	}
