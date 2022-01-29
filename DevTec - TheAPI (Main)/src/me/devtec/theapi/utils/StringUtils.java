@@ -39,7 +39,7 @@ public class StringUtils {
 	private static final Pattern extra = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([*/])[ ]*(-?[ ]*[0-9.]+)");
 	private static final Pattern normal = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([+-])[ ]*(-?[ ]*[0-9.]+)");
 	//COLOR UTILS
-	private static final Pattern getLast = Pattern.compile("[§&][uU]|[§][A-Fa-f0-9K-Ok-oRrXx]");
+	private static final Pattern getLast = Pattern.compile("[§&]([A-Fa-f0-9K-Ok-oRrXxUu])");
 	private static final Pattern hex = Pattern.compile("#[a-fA-F0-9]{6}");
 	private static final Pattern reg = Pattern.compile("[&§]([Rrk-oK-O])");
 	private static final Pattern colorMatic = Pattern.compile("(<!>)*([&§])<!>([A-Fa-f0-9RrK-Ok-oUu" + (TheAPI.isNewerThan(15) ? "Xx" : "") + "])");
