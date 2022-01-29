@@ -309,7 +309,7 @@ public class SQLAPI {
 		}
 	}
 
-	private String at = "?autoReconnect=true&failOverReadOnly=false&maxReconnects=10"; //default attributes
+	private String at = "?useSSL=false&autoReconnect=true&useUnicode=yes"; //default attributes
 
 	public String getConnectAttributes() {
 		return at;
@@ -322,18 +322,17 @@ public class SQLAPI {
 	private void openConnection() {
 		try {
 			Validator.validate(isConnected(), "SQL connection is already open");
-		} catch (Exception e1) {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (Exception | NoClassDefFoundError e1) {
 			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
 				e1.printStackTrace();
 			return;
 		}
-		synchronized (LoaderClass.plugin) {
-			try {
-				sql = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + at, username, password);
-			} catch (Exception e) {
-				if (!LoaderClass.config.getBoolean("Options.HideErrors"))
-					e.printStackTrace();
-			}
+		try {
+			sql = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database + at, username, password);
+		} catch (Exception e) {
+			if (!LoaderClass.config.getBoolean("Options.HideErrors"))
+				e.printStackTrace();
 		}
 	}
 }

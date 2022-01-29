@@ -116,7 +116,7 @@ public class TheMaterial implements Cloneable {
 	}
 	
 	public Object getIBlockData() {
-		return LoaderClass.nmsProvider.toBlock(this);
+		return LoaderClass.nmsProvider.toIBlockData(this);
 	}
 
 
