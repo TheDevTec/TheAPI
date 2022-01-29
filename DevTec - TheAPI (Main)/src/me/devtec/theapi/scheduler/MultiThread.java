@@ -1,8 +1,6 @@
 package me.devtec.theapi.scheduler;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -11,15 +9,14 @@ public class MultiThread implements Executor {
 	protected final AtomicInteger i = new AtomicInteger();
 	
 	public void destroy() {
-		List<Thread> clone = new ArrayList<>(threads.values());
-		threads.clear();
-		for(Thread tht : clone) {
+		for(Thread tht : threads.values()) {
 			if(tht!=null)
 			if(tht.isAlive()) {
 				//tht.stop();
 				tht.interrupt();
 			}
 		}
+		threads.clear();
 	}
 	
 	public boolean isAlive(int id) {

@@ -15,7 +15,7 @@ public class Scheduler {
 	}
 	
 	public static boolean isCancelled(int task) {
-		return !thread.isAlive(task)&&LoaderClass.plugin.enabled;
+		return !thread.isAlive(task) && LoaderClass.plugin.enabled;
 	}
 	
 	/*

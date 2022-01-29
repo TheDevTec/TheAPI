@@ -615,17 +615,22 @@ public class LoaderClass extends JavaPlugin {
 	@SuppressWarnings("rawtypes")
 	public PacketHandler handler;
 	public boolean enabled=true;
-
-	@SuppressWarnings("unchecked")
+	
 	@Override
 	public void onDisable() {
+		TheAPI.msg("&5The&dAPI&7: &8********************", TheAPI.getConsole());
+		TheAPI.msg("&5The&dAPI&7: &eAction: &fDisabling plugin, saving configs and stopping runnables..", TheAPI.getConsole());
+		TheAPI.msg("&5The&dAPI&7: &8********************", TheAPI.getConsole());
+		
 		enabled=false;
 		//GUI
-		for (Entry<String, HolderGUI> p : gui.entrySet()) {
-			p.getValue().clear();
-			p.getValue().close();
+		if(gui!=null) {
+			for (Entry<String, HolderGUI> p : gui.entrySet()) {
+				p.getValue().clear();
+				p.getValue().close();
+			}
+			gui.clear();
 		}
-		gui.clear();
 		
 		//Scheduler
 		Scheduler.cancelAll();
@@ -635,25 +640,25 @@ public class LoaderClass extends JavaPlugin {
 			server.exit();
 		
 		//Placeholders
-		main.unregister();
-		timeUtils.unregister();
+		if(main!=null)
+			main.unregister();
+		if(timeUtils!=null)
+			timeUtils.unregister();
 		
 		//Bans
 		data.save();
 		
 		//SCOREBOARD
-		for(ScoreboardAPI sb : ((Map<String,ScoreboardAPI>)Ref.getStatic(SimpleScore.class, "scores")).values())
-			sb.destroy();
-		
-		//ACTION BAR & TITLE
-		for(Player p : TheAPI.getOnlinePlayers()) {
-			TheAPI.removeActionBar(p);
-			TheAPI.sendTitle(p, "","");
+		if(SimpleScore.scores!=null) {
+			for(ScoreboardAPI sb : SimpleScore.scores.values())
+				sb.destroy();
+			SimpleScore.scores.clear();
 		}
 		
 		//PacketListener
 		PacketManager.unregisterAll();
-		handler.close();
+		if(handler!=null)
+			handler.close();
 		
 		//users cache
 		if(cache!=null) {
@@ -679,9 +684,6 @@ public class LoaderClass extends JavaPlugin {
 			if(u!=null)u.save();
 		
 		TheAPI.clearCache();
-		TheAPI.msg("&5The&dAPI&7: &8********************", TheAPI.getConsole());
-		TheAPI.msg("&5The&dAPI&7: &eAction: &fDisabling plugin, saving configs and stopping runnables..", TheAPI.getConsole());
-		TheAPI.msg("&5The&dAPI&7: &8********************", TheAPI.getConsole());
 	}
 
 	public List<Plugin> getTheAPIsPlugins() {
