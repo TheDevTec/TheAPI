@@ -155,7 +155,7 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 		return true;
 	}
 
-	List<String> getWorlds() {
+	public List<String> getWorlds() {
 		List<String> list = new ArrayList<>();
 		for (World w : Bukkit.getWorlds())
 			list.add(w.getName());
@@ -207,10 +207,8 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 					c.addAll(StringUtils.copyPartialMatches(args[3], TheAPI.getUser(args[1]).getKeys(true)));
 				}
 			}
-			if (args.length >= 5) {
-				if (args[2].equalsIgnoreCase("set")) {
-					c.addAll(StringUtils.copyPartialMatches(args[3], Collections.singletonList("?")));
-				}
+			if (args.length >= 5 && args[2].equalsIgnoreCase("set")) {
+				c.addAll(StringUtils.copyPartialMatches(args[args.length-1], Collections.singletonList("?")));
 			}
 		}
 		if (s.hasPermission("theapi.command.worldsmanager"))
@@ -233,10 +231,9 @@ public class TheAPICommand implements CommandExecutor, TabCompleter {
 						if (args.length == 4)
 							return null;
 					}
-					if (args[1].equalsIgnoreCase("Unload") || args[1].equalsIgnoreCase("Delete")
-							|| args[1].equalsIgnoreCase("Save")) {
-						if (args.length == 3)
-							c.addAll(StringUtils.copyPartialMatches(args[2], getWorlds()));
+					if ((args[1].equalsIgnoreCase("Unload") || args[1].equalsIgnoreCase("Delete")
+							|| args[1].equalsIgnoreCase("Save")) && args.length == 3) {
+						c.addAll(StringUtils.copyPartialMatches(args[2], getWorlds()));
 					}
 				}
 			}

@@ -121,9 +121,8 @@ public class TAC_Pm {
 			    for (String a : pl.getDescription().getCommands().keySet())
 			        TheAPI.msg("&7 - &e" + a, s);
 			}
-			if(TheAPI.isNewerThan(12))
-				if (pl.getDescription().getAPIVersion() != null)
-				    TheAPI.msg("&7Version: &e" + pl.getDescription().getAPIVersion(), s);
+			if (TheAPI.isNewerThan(12) && pl.getDescription().getAPIVersion() != null)
+				TheAPI.msg("&7Version: &e" + pl.getDescription().getAPIVersion(), s);
 			if (pl.getDescription().getWebsite() != null)
 			    TheAPI.msg("&7Website: &e" + pl.getDescription().getWebsite(), s);
 			TheAPI.msg("&7MainClass: &e" + pl.getDescription().getMain(), s);
