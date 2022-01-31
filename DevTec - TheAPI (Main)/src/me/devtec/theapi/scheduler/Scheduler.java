@@ -30,10 +30,9 @@ public class Scheduler {
 				if(!isCancelled(id))
 					r.run();
 				thread.destroy(id);
-			} catch (Exception er) {
+			} catch (Exception err) {
 				thread.destroy(id);
-				if (!(er instanceof InterruptedException))
-					er.printStackTrace();
+				err.printStackTrace();
 			}
 		});
 	}
@@ -50,8 +49,7 @@ public class Scheduler {
 				thread.destroy(id);
 			} catch (Exception er) {
 				thread.destroy(id);
-				if (!(er instanceof InterruptedException))
-					er.printStackTrace();
+				er.printStackTrace();
 			}
 		});
 	}
@@ -70,8 +68,7 @@ public class Scheduler {
 				thread.destroy(id);
 			} catch (Exception er) {
 				thread.destroy(id);
-				if (!(er instanceof InterruptedException))
-					er.printStackTrace();
+				er.printStackTrace();
 			}
 		});
 	}
@@ -104,8 +101,7 @@ public class Scheduler {
 					thread.destroy(id);
 				} catch (Exception er) {
 					thread.destroy(id);
-					if (!(er instanceof InterruptedException))
-						er.printStackTrace();
+					er.printStackTrace();
 				}
 			}
 		});
@@ -125,8 +121,7 @@ public class Scheduler {
 				thread.destroy(id);
 			} catch (Exception er) {
 				thread.destroy(id);
-				if (!(er instanceof InterruptedException))
-					er.printStackTrace();
+				er.printStackTrace();
 			}
 		});
 	}
@@ -143,8 +138,7 @@ public class Scheduler {
 				thread.destroy(id);
 			} catch (Exception er) {
 				thread.destroy(id);
-				if (!(er instanceof InterruptedException))
-					er.printStackTrace();
+				er.printStackTrace();
 			}
 		});
 	}
@@ -163,8 +157,7 @@ public class Scheduler {
 				thread.destroy(id);
 			} catch (Exception er) {
 				thread.destroy(id);
-				if (!(er instanceof InterruptedException))
-					er.printStackTrace();
+				er.printStackTrace();
 			}
 		});
 	}
@@ -197,8 +190,7 @@ public class Scheduler {
 					thread.destroy(id);
 				} catch (Exception er) {
 					thread.destroy(id);
-					if (!(er instanceof InterruptedException))
-						er.printStackTrace();
+					er.printStackTrace();
 				}
 			}
 		});
