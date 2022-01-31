@@ -10,6 +10,7 @@ import me.devtec.theapi.utils.Position;
 
 public class BlockIterator implements Iterable<Position> {
 	private final BlockMathIterator iterator;
+	private final Position copy;
 
 	public BlockIterator(Position a, Position b) {
 		copy = new Position(a.getWorldName(), 0, 0 ,0);
@@ -37,8 +38,6 @@ public class BlockIterator implements Iterable<Position> {
 	public boolean has() {
 		return iterator.has();
 	}
-
-	final Position copy;
 	
 	public Position get() {
 		double[] get = iterator.get();

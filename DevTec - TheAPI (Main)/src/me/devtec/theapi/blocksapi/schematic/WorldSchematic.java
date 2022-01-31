@@ -91,7 +91,8 @@ public class WorldSchematic implements Schematic {
 			@SuppressWarnings("unchecked")
 			public void run() {
 				SerializedBlock ser = new InitialSerializedBlock();
-				Position aa = Position.fromString(load.getString("info.corner.a")), bb = Position.fromString(load.getString("info.corner.b"));
+				Position aa = Position.fromString(load.getString("info.corner.a"));
+				Position bb = Position.fromString(load.getString("info.corner.b"));
 				aa.setWorld(stand.getWorld());
 				boolean st = load.getBoolean("info.standing");
 				//PALLETE
@@ -167,7 +168,7 @@ public class WorldSchematic implements Schematic {
 				save.put("info.created", System.currentTimeMillis());
 				save.put("info.standing", fromCopy != null);
 				save.put("info.corner.a", fromCopy != null ? cornerA.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).toString() : cornerA.toString());
-				save.put("info.corner.b", fromCopy != null ?cornerB.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).toString() : cornerB.toString());
+				save.put("info.corner.b", fromCopy != null ? cornerB.clone().add(-fromCopy.getBlockX(),-fromCopy.getBlockY(),-fromCopy.getBlockZ()).toString() : cornerB.toString());
 				SerializedBlock ser = new InitialSerializedBlock();
 				int pal = 0;
 				Position pos = new Position(cornerA.getWorld(),0,0,0);

@@ -166,21 +166,17 @@ public class Events implements Listener {
 	public void onFood(FoodLevelChangeEvent e) {
 		if (e.isCancelled())
 			return;
-		if (e.getEntity() instanceof Player)
-			if (TheAPI.getUser(e.getEntity().getUniqueId()).getBoolean("God"))
-				e.setCancelled(true);
+		if (e.getEntity() instanceof Player && TheAPI.getUser((Player)e.getEntity()).getBoolean("God"))
+			e.setCancelled(true);
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onDamage(EntityDamageByEntityEvent e) {
 		if (e.isCancelled())
 			return;
-		if (e.getEntity() instanceof Player) {
-			Player d = (Player) e.getEntity();
-			if (TheAPI.getUser(d).getBoolean("God")) {
-				e.setCancelled(true);
-				return;
-			}
+		if (e.getEntity() instanceof Player && TheAPI.getUser((Player)e.getEntity()).getBoolean("God")) {
+			e.setCancelled(true);
+			return;
 		}
 		try {
 			double set = 0;

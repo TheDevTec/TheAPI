@@ -6,13 +6,14 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class SpigotUpdateChecker {
+	private final String pluginVersion;
+	private final int id;
+    private URL checkURL;
+    
 	public static SpigotUpdateChecker createUpdateChecker(String pluginVersion, int id) {
 		return new SpigotUpdateChecker(pluginVersion, id);
 	}
 	
-	private final String pluginVersion;
-	private final int id;
-    private URL checkURL;
 	public SpigotUpdateChecker(String pluginVersion, int id) {
 		this.id=id;
 		this.pluginVersion=pluginVersion;

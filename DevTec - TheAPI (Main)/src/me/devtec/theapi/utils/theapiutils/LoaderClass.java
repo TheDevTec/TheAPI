@@ -102,7 +102,7 @@ public class LoaderClass extends JavaPlugin {
 	
 	public String motd;
 	public static String ss;
-	public static String gradientTagPrefix,gradientTagPrefixL,gradientTagSuffix,gradientTagSuffixL, tagG;
+	public static String gradientTagPrefix, gradientTagPrefixL, gradientTagSuffix, gradientTagSuffixL, tagG;
 	public int max;
 	// EconomyAPI
 	public boolean e, tve, tbank;
@@ -116,14 +116,20 @@ public class LoaderClass extends JavaPlugin {
 	}
 	public Map<String, Client> servers;
 	public Server server;
+	private static ThePlaceholder main, timeUtils;
+
+	private SpigotUpdateChecker checker;
+
+	@SuppressWarnings("rawtypes")
+	public PacketHandler handler;
+	public boolean enabled=true;
 	
 	static final Class<?> resource = Ref.nmsOrOld("network.protocol.game.PacketPlayInResourcePackStatus","PacketPlayInResourcePackStatus");
 	static final Class<?> close = Ref.nmsOrOld("network.protocol.game.PacketPlayInCloseWindow","PacketPlayInCloseWindow");
-	static final Class<?> click = Ref.nmsOrOld("network.protocol.game.PacketPlayInWindowClick","PacketPlayInWindowClick")
-			,itemname=Ref.nmsOrOld("network.protocol.game.PacketPlayInItemName", "PacketPlayInItemName");
+	static final Class<?> click = Ref.nmsOrOld("network.protocol.game.PacketPlayInWindowClick","PacketPlayInWindowClick");
+	static final Class<?> itemname=Ref.nmsOrOld("network.protocol.game.PacketPlayInItemName", "PacketPlayInItemName");
 	
-	
-	  public static boolean useItem(Player player, ItemStack stack, HolderGUI g, int slot, ClickType mouse) {
+	public static boolean useItem(Player player, ItemStack stack, HolderGUI g, int slot, ClickType mouse) {
 		ItemGUI d = g.getItemGUI(slot);
 		boolean stolen = d==null||!d.isUnstealable();
 		if(d!=null) {
@@ -610,12 +616,6 @@ public class LoaderClass extends JavaPlugin {
 		}
 	}
 
-	private SpigotUpdateChecker checker;
-
-	@SuppressWarnings("rawtypes")
-	public PacketHandler handler;
-	public boolean enabled=true;
-	
 	@Override
 	public void onDisable() {
 		TheAPI.msg("&5The&dAPI&7: &8********************", TheAPI.getConsole());
@@ -1006,8 +1006,6 @@ public class LoaderClass extends JavaPlugin {
 		max = Bukkit.getMaxPlayers();
 		motd = Bukkit.getMotd();
 	}
-
-	private static ThePlaceholder main, timeUtils;
 
 	public void loadPlaceholders() {
 		main = new ThePlaceholder("TheAPI") {

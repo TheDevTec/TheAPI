@@ -139,8 +139,7 @@ public class TheMaterial implements Cloneable {
 
 	public static TheMaterial fromString(String stored) {
 		try {
-			stored = stored.substring(13, stored.length() - 1);
-			String[] s = stored.split("/");
+			String[] s = stored.substring(13, stored.length() - 1).split("/");
 			try {
 				return new TheMaterial(s[0], s[1], s[2]);
 			} catch (Exception | NoSuchMethodError old) {

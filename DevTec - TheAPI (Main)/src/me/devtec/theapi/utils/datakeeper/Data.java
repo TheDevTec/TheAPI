@@ -692,39 +692,37 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public synchronized boolean merge(Data f, boolean addHeader, boolean addFooter) {
 		boolean change = false;
 		try {
-		if(addHeader)
-			if(f.loader.getHeader()==null || f.loader.getHeader()!=null && !f.loader.getHeader().isEmpty() && (loader.getHeader().isEmpty()||!f.loader.getHeader().containsAll(loader.getHeader()))) {
+			if(addHeader && (f.loader.getHeader()==null || f.loader.getHeader()!=null && !f.loader.getHeader().isEmpty() && (loader.getHeader().isEmpty()||!f.loader.getHeader().containsAll(loader.getHeader())))) {
 				loader.getHeader().clear();
 				loader.getHeader().addAll(f.loader.getHeader());
 				change = true;
 			}
-		if(addFooter)
-			if(f.loader.getFooter()==null || f.loader.getFooter()!=null && !f.loader.getFooter().isEmpty() && (loader.getFooter().isEmpty()||!f.loader.getFooter().containsAll(loader.getFooter()))) {
+			if(addFooter && (f.loader.getFooter()==null || f.loader.getFooter()!=null && !f.loader.getFooter().isEmpty() && (loader.getFooter().isEmpty()||!f.loader.getFooter().containsAll(loader.getFooter())))) {
 				loader.getFooter().clear();
 				loader.getFooter().addAll(f.loader.getFooter());
 				change = true;
 			}
 		}catch(Exception nope) {}
 		try {
-		for(Entry<String, Object[]> s : f.loader.get().entrySet()) {
-			Object[] o = getOrCreateData(s.getKey());
-			if(o[0]==null && s.getValue()[0]!=null) {
-				o[0]=s.getValue()[0];
-				try {
-				o[2]=s.getValue()[2];
-				}catch(Exception outOfBoud) {}
-				change = true;
+			for(Entry<String, Object[]> s : f.loader.get().entrySet()) {
+				Object[] o = getOrCreateData(s.getKey());
+				if(o[0]==null && s.getValue()[0]!=null) {
+					o[0]=s.getValue()[0];
+					try {
+					o[2]=s.getValue()[2];
+					}catch(Exception outOfBoud) {}
+					change = true;
+				}
+				if(s.getValue()[1]!=null && !((List<String>) s.getValue()[1]).isEmpty()) {
+					List<String> cc = (List<String>)o[1];
+		    		if(cc==null || cc.isEmpty()) {
+		    			if(getHeader()!=null && !getHeader().isEmpty() && simple((List<String>)s.getValue()[1]).containsAll(simple(getHeader()))
+		    					|| getFooter()!=null && !getFooter().isEmpty() && simple(((List<String>) s.getValue()[1])).containsAll(simple(getFooter())))continue;
+		    			o[1]=(List<String>)s.getValue()[1];
+		    			change = true;
+		    		}
+				}
 			}
-			if(s.getValue()[1]!=null && !((List<String>) s.getValue()[1]).isEmpty()) {
-				List<String> cc = (List<String>)o[1];
-	    		if(cc==null || cc.isEmpty()) {
-	    			if(getHeader()!=null && !getHeader().isEmpty() && simple((List<String>)s.getValue()[1]).containsAll(simple(getHeader()))
-	    					|| getFooter()!=null && !getFooter().isEmpty() && simple(((List<String>) s.getValue()[1])).containsAll(simple(getFooter())))continue;
-	    			o[1]=(List<String>)s.getValue()[1];
-	    			change = true;
-	    		}
-			}
-		}
 		}catch(Exception err) {}
 		if(change)
 			requireSave=true;

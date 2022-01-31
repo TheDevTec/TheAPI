@@ -12,7 +12,8 @@ public class ClientHandler extends Thread {
 	protected final PrintWriter dos; 
 	protected final Socket s;
     protected String name;
-    protected boolean access, accessFull;
+    private boolean access;
+    private boolean accessFull;
     protected final Server ser;
 	protected ServerClient c;
 	protected final Data data = new Data();

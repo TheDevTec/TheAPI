@@ -56,7 +56,8 @@ public class ComponentAPI {
 	
 	public static BaseComponent toBaseComponent(Component c) {
 		if(c==null)return null;
-		TextComponent main = new TextComponent(), current = main;
+		TextComponent main = new TextComponent();
+		TextComponent current = main;
 		while(c!=null) {
 			TextComponent next = new TextComponent(c.getText());
 			main.addExtra(next);
@@ -83,7 +84,8 @@ public class ComponentAPI {
 	
 	public static BaseComponent toBaseComponent(List<Component> cc) {
 		if(cc==null)return null;
-		TextComponent main = new TextComponent(), current = main;
+		TextComponent main = new TextComponent();
+		TextComponent current = main;
 		for(Component c : cc) {
 			TextComponent next = new TextComponent(c.getText());
 			main.addExtra(next);
@@ -171,12 +173,14 @@ public class ComponentAPI {
 	
 	public static Component toComponent(String legacy, boolean skipUrls) {
 		if(legacy==null)return null;
-		Component start = new Component(), current = start;
+		Component start = new Component();
+		Component current = start;
 		
 		StringBuilder builder = new StringBuilder();
 		if(skipUrls) {
 			String color = "";
-			boolean wasBeforeColorChar = false, inHexLoop = false;
+			boolean wasBeforeColorChar = false;
+			boolean inHexLoop = false;
 			for(int i = 0; i < legacy.length(); ++i) {
 				char c = legacy.charAt(i);
 				if(c=='§') {
@@ -266,8 +270,11 @@ public class ComponentAPI {
 			}
 			return start;
 		}
-		String color = "", colorBeforeSpace = null, url = null;
-		boolean wasBeforeColorChar = false, inHexLoop = false;
+		String color = "";
+		String colorBeforeSpace = null;
+		String url = null;
+		boolean wasBeforeColorChar = false;
+		boolean inHexLoop = false;
 		for(int i = 0; i < legacy.length(); ++i) {
 			char c = legacy.charAt(i);
 			if(c=='§') {
@@ -433,7 +440,8 @@ public class ComponentAPI {
 	public static String toString(Component c) {
 		if(c==null)return null;
 		StringBuilder builder = new StringBuilder();
-		String color = null, formats = null;
+		String color = null;
+		String formats = null;
 		while(c!=null) {
 			if(color!=null && formats!=null && (color+formats).equals(c.getLegacyColor()+c.getFormats()))
 				builder.append(c.getText());
@@ -494,7 +502,8 @@ public class ComponentAPI {
 		ListIterator<Map<String, Object>> it = lists.listIterator();
 		while(it.hasNext()) {
 			Map<String, Object> text = it.next();
-			Map<String, Object> hover=(Map<String, Object>) text.get("hoverEvent"), click=(Map<String, Object>) text.get("clickEvent");
+			Map<String, Object> hover=(Map<String, Object>) text.get("hoverEvent");
+			Map<String, Object> click=(Map<String, Object>) text.get("clickEvent");
 			if(hover!=null)
 				hover=ff("hoverEvent",hover);
 			if(click!=null)
@@ -503,7 +512,7 @@ public class ComponentAPI {
 			boolean remove = false;
 			for(Entry<String, Object> s : text.entrySet()) {
 				if(s.getKey().equals("color")||s.getKey().equals("insertion"))continue;
-				if(s.getValue()instanceof String) {
+				if(s.getValue() instanceof String) {
 					Component c = ComponentAPI.toComponent((String) s.getValue(), false);
 					if(c.getText()!=null&&!c.getText().isEmpty()||c.getExtra()!=null) {
 						try {
