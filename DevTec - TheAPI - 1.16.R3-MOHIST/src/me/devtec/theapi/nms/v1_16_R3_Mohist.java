@@ -137,6 +137,10 @@ public class v1_16_R3_Mohist implements NmsProvider {
 		}.runRepeating(0, 20*60);
 	}
 	
+	private static Field repairText = Ref.field(RepairContainer.class, "field_82857_m");
+	private static Field channel = Ref.field(NetworkManager.class, "field_150746_k");
+	private static Field field = Ref.field(SServerInfoPacket.class, "field_149296_b");
+	private static Field tabHeader = Ref.field(SPlayerListHeaderFooterPacket.class, "field_179703_a"), tabFooter = Ref.field(SPlayerListHeaderFooterPacket.class, "field_179702_b");
 	private static final DedicatedServer server = ((CraftServer)Bukkit.getServer()).getServer();
 
 	@Override
@@ -286,23 +290,25 @@ public class v1_16_R3_Mohist implements NmsProvider {
 	public Object packetSpawnEntityLiving(Object entityLiving) {
 		return new SSpawnMobPacket((net.minecraft.entity.LivingEntity)entityLiving);
 	}
-
+	
 	@Override
 	public Object packetPlayerListHeaderFooter(String header, String footer) {
 		SPlayerListHeaderFooterPacket packet = new SPlayerListHeaderFooterPacket();
-		Ref.set(packet, "field_179703_a", toIChatBaseComponent(ComponentAPI.toComponent(header, true)));
-		Ref.set(packet, "field_179702_b", toIChatBaseComponent(ComponentAPI.toComponent(footer, true)));
+		try {
+			tabHeader.set(packet, toIChatBaseComponent(ComponentAPI.toComponent(header, true)));
+			tabFooter.set(packet, toIChatBaseComponent(ComponentAPI.toComponent(footer, true)));
+		}catch(Exception err) {}
 		return packet;
 	}
 
 	@Override
 	public Object packetBlockChange(World world, Position position) {
-		return new SChangeBlockPacket((net.minecraft.world.World)getWorld(world), (BlockPos)position.getBlockPosition());
+		return new SChangeBlockPacket((BlockPos) position.getBlockPosition(), (net.minecraft.block.BlockState) position.getIBlockData());
 	}
 
 	@Override
 	public Object packetBlockChange(World world, int x, int y, int z) {
-		return new SChangeBlockPacket((net.minecraft.world.World)getWorld(world), new BlockPos(x,y,z));
+		return new SChangeBlockPacket(new BlockPos(x,y,z), (net.minecraft.block.BlockState) getBlock(getChunk(world, x>>4, z>>4), x, y, z));
 	}
 
 	@Override
@@ -540,6 +546,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 
 	@Override
 	public TheMaterial toMaterial(Object blockOrItemOrIBlockData) {
+		if(blockOrItemOrIBlockData==null)return new TheMaterial(Material.AIR);
 		if(blockOrItemOrIBlockData instanceof Block) {
 			Block b = (Block)blockOrItemOrIBlockData;
 			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(b.func_199767_j()));
@@ -557,19 +564,22 @@ public class v1_16_R3_Mohist implements NmsProvider {
 
 	@Override
 	public Object toIBlockData(TheMaterial material) {
-		return CraftMagicNumbers.getBlock(material.toItemStack().getData());
+		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Blocks.field_150350_a.func_176223_P();
+		return Block.func_149634_a(CraftItemStack.asNMSCopy(material.toItemStack()).func_77973_b()).func_176223_P();
 	}
 
 	@Override
 	public Object toItem(TheMaterial material) {
+		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Item.func_150898_a(Blocks.field_150350_a);
 		return CraftItemStack.asNMSCopy(material.toItemStack()).func_77973_b();
 	}
-
+	
 	@Override
 	public Object toBlock(TheMaterial material) {
+		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Blocks.field_150350_a;
 		return CraftMagicNumbers.getBlock(new MaterialData(material.getType(),(byte)material.getData()));
 	}
-
+	
 	@Override
 	public Object getChunk(World world, int x, int z) {
 		return ((CraftChunk)world.getChunkAt(x, z)).getHandle();
@@ -670,10 +680,14 @@ public class v1_16_R3_Mohist implements NmsProvider {
 	public Object getConnectionNetwork(Object playercon) {
 		return ((ServerPlayNetHandler)playercon).field_147371_a;
 	}
-
+	
 	@Override
 	public Object getNetworkChannel(Object network) {
-		return Ref.get((NetworkManager)network,"field_150746_k");
+		try {
+			return channel.get(network);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 	
 	@Override
@@ -761,10 +775,14 @@ public class v1_16_R3_Mohist implements NmsProvider {
 			container.func_75139_a(i).func_75215_d((net.minecraft.item.ItemStack) asNMSItem(inv.getItem(i)));
 		return container;
 	}
-
+	
 	@Override
 	public String getAnvilRenameText(Object anvil) {
-		return (String)Ref.get((RepairContainer)anvil,"field_82857_m");
+		try {
+			return (String)repairText.get(anvil);
+		} catch (Exception e) {
+			return "";
+		}
 	}
 	
 	@Override
@@ -855,8 +873,6 @@ public class v1_16_R3_Mohist implements NmsProvider {
 		}
 		return false;
 	}
-
-	static Field field = Ref.field(SServerInfoPacket.class, "field_149296_b");
 	
 	@Override
 	public boolean processServerListPing(String player, Object channel, Object packet) {

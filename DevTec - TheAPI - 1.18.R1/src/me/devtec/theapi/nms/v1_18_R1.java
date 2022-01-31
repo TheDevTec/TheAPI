@@ -241,12 +241,12 @@ public class v1_18_R1 implements NmsProvider {
 
 	@Override
 	public Object packetBlockChange(World world, Position position) {
-		return new PacketPlayOutBlockChange((net.minecraft.world.level.World)getWorld(world), (BlockPosition)position.getBlockPosition());
+		return new PacketPlayOutBlockChange((BlockPosition) position.getBlockPosition(), (IBlockData) position.getIBlockData());
 	}
 
 	@Override
 	public Object packetBlockChange(World world, int x, int y, int z) {
-		return new PacketPlayOutBlockChange((net.minecraft.world.level.World)getWorld(world), new BlockPosition(x,y,z));
+		return new PacketPlayOutBlockChange(new BlockPosition(x,y,z), (IBlockData) getBlock(getChunk(world, x>>4, z>>4), x, y, z));
 	}
 
 	@Override
@@ -474,9 +474,10 @@ public class v1_18_R1 implements NmsProvider {
 
 	@Override
 	public TheMaterial toMaterial(Object blockOrItemOrIBlockData) {
+		if(blockOrItemOrIBlockData==null)return new TheMaterial(Material.AIR);
 		if(blockOrItemOrIBlockData instanceof Block) {
 			Block b = (Block)blockOrItemOrIBlockData;
-			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(b.k()));
+			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(Item.a(b)));
 		}
 		if(blockOrItemOrIBlockData instanceof Item) {
 			Item b = (Item)blockOrItemOrIBlockData;
@@ -484,23 +485,26 @@ public class v1_18_R1 implements NmsProvider {
 		}
 		if(blockOrItemOrIBlockData instanceof IBlockData) {
 			IBlockData b = (IBlockData)blockOrItemOrIBlockData;
-			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(b.b().k()));
+			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(Item.a(b.b())));
 		}
 		return null;
 	}
 
 	@Override
 	public Object toIBlockData(TheMaterial material) {
-		return CraftMagicNumbers.getBlock(material.toItemStack().getData());
+		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Blocks.a.n();
+		return Block.a(CraftItemStack.asNMSCopy(material.toItemStack()).c()).n();
 	}
 
 	@Override
 	public Object toItem(TheMaterial material) {
+		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Item.a(Blocks.a);
 		return CraftItemStack.asNMSCopy(material.toItemStack()).c();
 	}
-
+	
 	@Override
 	public Object toBlock(TheMaterial material) {
+		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Blocks.a;
 		return CraftMagicNumbers.getBlock(new MaterialData(material.getType(),(byte)material.getData()));
 	}
 

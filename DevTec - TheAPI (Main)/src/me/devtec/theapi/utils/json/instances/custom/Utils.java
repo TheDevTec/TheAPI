@@ -99,32 +99,31 @@ public class Utils {
 						(short)(double) values.get("durability"));
 				item.setData(new MaterialData(item.getType(), (byte)(double)values.get("data")));
 				if (values.containsKey("nbt"))
-					item = LoaderClass.nmsProvider.setNBT(item, values.get("nbt") + "");
+					item = LoaderClass.nmsProvider.setNBT(item, values.get("nbt").toString());
 				ItemMeta meta = item.getItemMeta();
 				if (values.containsKey("meta.name"))
-					meta.setDisplayName((String) values.get("meta.name"));
+					meta.setDisplayName(values.get("meta.name").toString());
 				try {
 					if (values.containsKey("meta.locName"))
-						meta.setLocalizedName((String) values.get("meta.locName"));
+						meta.setLocalizedName(values.get("meta.locName").toString());
 				} catch (Exception | NoSuchMethodError e) {
 				}
 				if (values.containsKey("meta.lore"))
 					meta.setLore((List<String>) values.get("meta.lore"));
 				if (values.containsKey("meta.enchs")) {
 					for (Entry<String, Double> enchs : ((Map<String, Double>) values.get("meta.enchs")).entrySet())
-						meta.addEnchant(Enchantment.getByName(enchs.getKey()), enchs.getValue().intValue(),
-								true);
+						meta.addEnchant(Enchantment.getByName(enchs.getKey()), enchs.getValue().intValue(), true);
 				}
 				item.setItemMeta(meta);
 				return item;
 			}
 			case "org.bukkit.Location": {
-				return new Location(Bukkit.getWorld((String) values.get("world")), (double) values.get("x"),
+				return new Location(Bukkit.getWorld(values.get("world").toString()), (double) values.get("x"),
 								(double) values.get("y"), (double) values.get("z"),
 								(float) (double) values.get("yaw"), (float) (double) values.get("pitch"));
 			}
 			case "me.devtec.theapi.utils.Position": {
-				return new Position((String) values.get("world"), (double) values.get("x"),
+				return new Position(values.get("world").toString(), (double) values.get("x"),
 								(double) values.get("y"), (double) values.get("z"),
 								(float) (double) values.get("yaw"), (float) (double) values.get("pitch"));
 			}

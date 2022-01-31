@@ -381,7 +381,7 @@ public class Position implements Cloneable {
 	}
 	
 	public static void updateBlockAt(Position pos) {
-		Ref.sendPacket(pos.getWorld().getPlayers(), LoaderClass.nmsProvider.packetBlockChange(pos.getWorld(), pos.getBlockX(),pos.getBlockY(),pos.getBlockZ()));
+		Ref.sendPacket(pos.getWorld().getPlayers(), LoaderClass.nmsProvider.packetBlockChange(pos.getWorld(), pos));
 	}
 	
 	public static void updateLightAt(Position pos) {
@@ -418,10 +418,9 @@ public class Position implements Cloneable {
 		Position.updateBlockAt(this);
 		Position.updateLightAt(this);
 	}
-
-	private static final Object air = TheAPI.isOlderThan(8)?new TheMaterial(Material.AIR).getBlock():new TheMaterial(Material.AIR).getIBlockData();
+	
 	public long setAir() {
-		LoaderClass.nmsProvider.setBlock(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), air);
+		LoaderClass.nmsProvider.setBlock(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), LoaderClass.air);
 		return getChunkKey();
 	}
 

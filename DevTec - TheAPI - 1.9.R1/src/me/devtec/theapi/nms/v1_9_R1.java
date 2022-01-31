@@ -115,6 +115,7 @@ import net.minecraft.server.v1_9_R1.WorldServer;
 public class v1_9_R1 implements NmsProvider {
 	private MinecraftServer server = MinecraftServer.getServer();
 	private static final ChatComponentText empty = new ChatComponentText("");
+	private static Field pos = Ref.field(PacketPlayOutBlockChange.class, "a");
 	private static Field a = Ref.field(PacketPlayOutPlayerListHeaderFooter.class, "a"), b = Ref.field(PacketPlayOutPlayerListHeaderFooter.class, "b");
 	private static Field score_a = Ref.field(PacketPlayOutScoreboardScore.class, "a"), score_b = Ref.field(PacketPlayOutScoreboardScore.class, "b"), score_c = Ref.field(PacketPlayOutScoreboardScore.class, "c"), score_d = Ref.field(PacketPlayOutScoreboardScore.class, "d");
 
@@ -253,12 +254,24 @@ public class v1_9_R1 implements NmsProvider {
 
 	@Override
 	public Object packetBlockChange(World world, Position position) {
-		return new PacketPlayOutBlockChange((net.minecraft.server.v1_9_R1.World)getWorld(world), (BlockPosition)position.getBlockPosition());
+		PacketPlayOutBlockChange packet =  new PacketPlayOutBlockChange();
+		packet.block=(IBlockData) position.getIBlockData();
+		try {
+			pos.set(packet, position.getBlockPosition());
+		} catch (Exception e) {
+		}
+		return packet;
 	}
 
 	@Override
 	public Object packetBlockChange(World world, int x, int y, int z) {
-		return new PacketPlayOutBlockChange((net.minecraft.server.v1_9_R1.World)getWorld(world), new BlockPosition(x,y,z));
+		PacketPlayOutBlockChange packet =  new PacketPlayOutBlockChange();
+		packet.block=(IBlockData) getBlock(getChunk(world, x>>4, z>>4), x, y, z);
+		try {
+			pos.set(packet, new BlockPosition(x,y,z));
+		} catch (Exception e) {
+		}
+		return packet;
 	}
 
 	@Override
@@ -453,6 +466,7 @@ public class v1_9_R1 implements NmsProvider {
 
 	@Override
 	public TheMaterial toMaterial(Object blockOrItemOrIBlockData) {
+		if(blockOrItemOrIBlockData==null)return new TheMaterial(Material.AIR);
 		if(blockOrItemOrIBlockData instanceof Block) {
 			Block b = (Block)blockOrItemOrIBlockData;
 			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(Item.getItemOf(b)));
@@ -470,16 +484,19 @@ public class v1_9_R1 implements NmsProvider {
 
 	@Override
 	public Object toIBlockData(TheMaterial material) {
+		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Blocks.AIR.getBlockData();
 		return Block.asBlock(CraftItemStack.asNMSCopy(material.toItemStack()).getItem()).getBlockData();
 	}
 
 	@Override
 	public Object toItem(TheMaterial material) {
+		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Item.getItemOf(Blocks.AIR);
 		return CraftItemStack.asNMSCopy(material.toItemStack()).getItem();
 	}
 
 	@Override
 	public Object toBlock(TheMaterial material) {
+		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Blocks.AIR;
 		return CraftMagicNumbers.getBlock(material.getType());
 	}
 

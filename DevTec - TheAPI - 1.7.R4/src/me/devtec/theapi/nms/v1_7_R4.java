@@ -32,9 +32,9 @@ import me.devtec.theapi.guiapi.AnvilGUI;
 import me.devtec.theapi.guiapi.GUI.ClickType;
 import me.devtec.theapi.guiapi.HolderGUI;
 import me.devtec.theapi.utils.InventoryUtils;
+import me.devtec.theapi.utils.InventoryUtils.DestinationType;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.TheMaterial;
-import me.devtec.theapi.utils.InventoryUtils.DestinationType;
 import me.devtec.theapi.utils.components.Component;
 import me.devtec.theapi.utils.components.ComponentAPI;
 import me.devtec.theapi.utils.listener.events.ServerListPingEvent;
@@ -106,6 +106,7 @@ public class v1_7_R4 implements NmsProvider {
 	private MinecraftServer server = MinecraftServer.getServer();
 	private static final ChatComponentText empty = new ChatComponentText("");
 	private static Field channel = Ref.field(NetworkManager.class, "m");
+	private static Field posX = Ref.field(PacketPlayOutBlockChange.class, "a"), posY = Ref.field(PacketPlayOutBlockChange.class, "b"), posZ = Ref.field(PacketPlayOutBlockChange.class, "c");
 	private static Field score_a = Ref.field(PacketPlayOutScoreboardScore.class, "a"), score_b = Ref.field(PacketPlayOutScoreboardScore.class, "b"), score_c = Ref.field(PacketPlayOutScoreboardScore.class, "c"), score_d = Ref.field(PacketPlayOutScoreboardScore.class, "d");
 
 	@Override
@@ -241,12 +242,32 @@ public class v1_7_R4 implements NmsProvider {
 
 	@Override
 	public Object packetBlockChange(World world, Position position) {
-		return new PacketPlayOutBlockChange(position.getBlockX(),position.getBlockY(),position.getBlockZ(),(net.minecraft.server.v1_7_R4.World)getWorld(world));
+		PacketPlayOutBlockChange packet =  new PacketPlayOutBlockChange();
+		Object chunk = getChunk(world, position.getBlockX()>>4, position.getBlockZ()>>4);
+		packet.data=getData(chunk, position.getBlockX(), position.getBlockY(), position.getBlockZ());
+		packet.block=(Block)getBlock(chunk, position.getBlockX(), position.getBlockY(), position.getBlockZ());
+		try {
+			posX.set(packet, position.getBlockX());
+			posY.set(packet, position.getBlockY());
+			posZ.set(packet, position.getBlockZ());
+		} catch (Exception e) {
+		}
+		return packet;
 	}
 
 	@Override
 	public Object packetBlockChange(World world, int x, int y, int z) {
-		return new PacketPlayOutBlockChange(x,y,z,(net.minecraft.server.v1_7_R4.World)getWorld(world));
+		PacketPlayOutBlockChange packet =  new PacketPlayOutBlockChange();
+		Object chunk = getChunk(world, x>>4, z>>4);
+		packet.data=getData(chunk, x, y, z);
+		packet.block=(Block)getBlock(chunk, x, y, z);
+		try {
+			posX.set(packet, x);
+			posY.set(packet, y);
+			posZ.set(packet, z);
+		} catch (Exception e) {
+		}
+		return packet;
 	}
 
 	@Override
@@ -472,6 +493,7 @@ public class v1_7_R4 implements NmsProvider {
 
 	@Override
 	public TheMaterial toMaterial(Object blockOrItemOrIBlockData) {
+		if(blockOrItemOrIBlockData==null)return new TheMaterial(Material.AIR);
 		if(blockOrItemOrIBlockData instanceof Block) {
 			Block b = (Block)blockOrItemOrIBlockData;
 			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(Item.getItemOf(b)));
@@ -490,11 +512,13 @@ public class v1_7_R4 implements NmsProvider {
 
 	@Override
 	public Object toItem(TheMaterial material) {
+		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Item.getItemOf(Blocks.AIR);
 		return CraftItemStack.asNMSCopy(material.toItemStack()).getItem();
 	}
 
 	@Override
 	public Object toBlock(TheMaterial material) {
+		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Blocks.AIR;
 		return CraftMagicNumbers.getBlock(material.getType());
 	}
 
