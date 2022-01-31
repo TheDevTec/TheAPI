@@ -44,19 +44,27 @@ public class Metrics {
     private static final String URL = "https://bStats.org/submitData/bukkit";
 
     // Is bStats enabled on this server?
-    private final boolean enabled;
+    private static final boolean enabled;
 
     // Should failed requests be logged?
-    private static boolean logFailedRequests;
+    private static final boolean logFailedRequests;
 
     // Should the sent data be logged?
-    private static boolean logSentData;
+    private static final boolean logSentData;
 
     // Should the response text be logged?
-    private static boolean logResponseStatusText;
+    private static final boolean logResponseStatusText;
 
     // The uuid of the server
-    private static String serverUUID;
+    private static final String serverUUID;
+    static {
+        Data c = new Data("plugins/bStats/config.yml");
+        enabled = c.getBoolean("enabled");
+        serverUUID = c.getString("serverUuid");
+        logFailedRequests = c.getBoolean("logFailedRequests");
+        logSentData = c.getBoolean("logSentData");
+        logResponseStatusText = c.getBoolean("logResponseStatusText");
+    }
 
     // The plugin
     private final Plugin plugin;
@@ -67,13 +75,7 @@ public class Metrics {
 	public Metrics(Plugin plugin, int pluginId) {
         this.plugin = plugin;
         this.pluginId = pluginId;
-        Data c = new Data("plugins/bStats/config.yml");
         boolean found = false;
-        enabled = c.getBoolean("enabled");
-        serverUUID = c.getString("serverUuid");
-        logFailedRequests = c.getBoolean("logFailedRequests");
-        logSentData = c.getBoolean("logSentData");
-        logResponseStatusText = c.getBoolean("logResponseStatusText");
         if (enabled) {
             for (Class<?> service : Bukkit.getServicesManager().getKnownServices()) {
                 try {
