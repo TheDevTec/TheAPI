@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -26,7 +27,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
 
 import com.mojang.authlib.GameProfile;
 
@@ -492,19 +492,19 @@ public class v1_17_R1 implements NmsProvider {
 	@Override
 	public Object toIBlockData(TheMaterial material) {
 		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Blocks.a.getBlockData();
-		return Block.asBlock(CraftItemStack.asNMSCopy(material.toItemStack()).getItem()).getBlockData();
+		return ((CraftBlockData)Bukkit.createBlockData(material.getType(), material.getData()+"")).getState();
 	}
 
 	@Override
 	public Object toItem(TheMaterial material) {
 		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Item.getItemOf(Blocks.a);
-		return CraftItemStack.asNMSCopy(material.toItemStack()).getItem();
+		return Item.getItemOf(((CraftBlockData)Bukkit.createBlockData(material.getType(), material.getData()+"")).getState().getBlock());
 	}
 	
 	@Override
 	public Object toBlock(TheMaterial material) {
 		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Blocks.a;
-		return CraftMagicNumbers.getBlock(new MaterialData(material.getType(),(byte)material.getData()));
+		return ((CraftBlockData)Bukkit.createBlockData(material.getType(), material.getData()+"")).getState().getBlock();
 	}
 
 	@Override

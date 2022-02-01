@@ -31,7 +31,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
 
 import com.mojang.authlib.GameProfile;
 
@@ -565,19 +564,19 @@ public class v1_16_R3_Mohist implements NmsProvider {
 	@Override
 	public Object toIBlockData(TheMaterial material) {
 		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Blocks.field_150350_a.func_176223_P();
-		return Block.func_149634_a(CraftItemStack.asNMSCopy(material.toItemStack()).func_77973_b()).func_176223_P();
+		return ((CraftBlockData)Bukkit.createBlockData(material.getType(), material.getData()+"")).getState();
 	}
 
 	@Override
 	public Object toItem(TheMaterial material) {
 		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Item.func_150898_a(Blocks.field_150350_a);
-		return CraftItemStack.asNMSCopy(material.toItemStack()).func_77973_b();
+		return Item.func_150898_a(((CraftBlockData)Bukkit.createBlockData(material.getType(), material.getData()+"")).getState().func_177230_c());
 	}
 	
 	@Override
 	public Object toBlock(TheMaterial material) {
 		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Blocks.field_150350_a;
-		return CraftMagicNumbers.getBlock(new MaterialData(material.getType(),(byte)material.getData()));
+		return ((CraftBlockData)Bukkit.createBlockData(material.getType(), material.getData()+"")).getState().func_177230_c();
 	}
 	
 	@Override

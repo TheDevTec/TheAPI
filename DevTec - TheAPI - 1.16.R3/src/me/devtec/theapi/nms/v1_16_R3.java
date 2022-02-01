@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -28,7 +29,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
 
 import com.mojang.authlib.GameProfile;
 
@@ -38,9 +38,9 @@ import me.devtec.theapi.guiapi.AnvilGUI;
 import me.devtec.theapi.guiapi.GUI.ClickType;
 import me.devtec.theapi.guiapi.HolderGUI;
 import me.devtec.theapi.utils.InventoryUtils;
+import me.devtec.theapi.utils.InventoryUtils.DestinationType;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.TheMaterial;
-import me.devtec.theapi.utils.InventoryUtils.DestinationType;
 import me.devtec.theapi.utils.components.Component;
 import me.devtec.theapi.utils.components.ComponentAPI;
 import me.devtec.theapi.utils.listener.events.ServerListPingEvent;
@@ -520,19 +520,19 @@ public class v1_16_R3 implements NmsProvider {
 	@Override
 	public Object toIBlockData(TheMaterial material) {
 		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Blocks.AIR.getBlockData();
-		return Block.asBlock(CraftItemStack.asNMSCopy(material.toItemStack()).getItem()).getBlockData();
+		return ((CraftBlockData)Bukkit.createBlockData(material.getType(), material.getData()+"")).getState();
 	}
 
 	@Override
 	public Object toItem(TheMaterial material) {
 		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Item.getItemOf(Blocks.AIR);
-		return CraftItemStack.asNMSCopy(material.toItemStack()).getItem();
+		return Item.getItemOf(((CraftBlockData)Bukkit.createBlockData(material.getType(), material.getData()+"")).getState().getBlock());
 	}
 	
 	@Override
 	public Object toBlock(TheMaterial material) {
 		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Blocks.AIR;
-		return CraftMagicNumbers.getBlock(new MaterialData(material.getType(),(byte)material.getData()));
+		return ((CraftBlockData)Bukkit.createBlockData(material.getType(), material.getData()+"")).getState().getBlock();
 	}
 
 	@Override

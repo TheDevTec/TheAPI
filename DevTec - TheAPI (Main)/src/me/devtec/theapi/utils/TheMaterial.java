@@ -129,7 +129,7 @@ public class TheMaterial implements Cloneable {
 	}
 
 	public ItemStack toItemStack() {
-		return new ItemStack(m, amount, (byte) data);
+		return new ItemStack(m, amount, (short) 0, (byte) data);
 	}
 
 	@Override

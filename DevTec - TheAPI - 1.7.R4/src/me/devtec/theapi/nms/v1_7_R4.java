@@ -507,7 +507,7 @@ public class v1_7_R4 implements NmsProvider {
 
 	@Override
 	public Object toIBlockData(TheMaterial material) {
-		return toItem(material);
+		return toBlock(material);
 	}
 
 	@Override

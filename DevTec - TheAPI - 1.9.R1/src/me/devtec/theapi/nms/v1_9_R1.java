@@ -485,19 +485,19 @@ public class v1_9_R1 implements NmsProvider {
 	@Override
 	public Object toIBlockData(TheMaterial material) {
 		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Blocks.AIR.getBlockData();
-		return Block.asBlock(CraftItemStack.asNMSCopy(material.toItemStack()).getItem()).getBlockData();
+		return Block.getByCombinedId(material.getType().getId()+(material.getData() << 12));
 	}
 
 	@Override
 	public Object toItem(TheMaterial material) {
 		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Item.getItemOf(Blocks.AIR);
-		return CraftItemStack.asNMSCopy(material.toItemStack()).getItem();
+		return Item.getItemOf(Block.getByCombinedId(material.getType().getId()+(material.getData() << 12)).getBlock());
 	}
 
 	@Override
 	public Object toBlock(TheMaterial material) {
 		if(material==null || material.getType()==null || material.getType()==Material.AIR)return Blocks.AIR;
-		return CraftMagicNumbers.getBlock(material.getType());
+		return Block.getByCombinedId(material.getType().getId()+(material.getData() << 12)).getBlock();
 	}
 
 	@Override
