@@ -175,7 +175,7 @@ public class YamlLoader extends EmptyLoader {
         return list.toArray(new String[list.size()]);
 	}
 
-	private static String r(String key) {
+	protected static String r(String key) {
 		String k = key.trim();
 		return k.length() > 1 && (k.startsWith("\"") && k.endsWith("\"")||k.startsWith("'") && k.endsWith("'"))?key.substring(1, key.length()-1-removeLastSpaces(key)):key;
 	}

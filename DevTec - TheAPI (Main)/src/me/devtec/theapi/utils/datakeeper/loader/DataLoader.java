@@ -30,7 +30,7 @@ public abstract class DataLoader implements Data {
 	public abstract boolean isLoaded();
 	
 	public void load(File file) {
-		if (file == null)
+		if (file == null || !file.exists())
 			return;
 		load(StreamUtils.fromStream(file));
 	}

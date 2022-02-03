@@ -61,6 +61,14 @@ public class Section implements Data {
 			return c.getKeys(s);
 		return c.getKeys(s + "." + path);
 	}
+	
+	public boolean isJson(String path) {
+		if(path==null)
+			return false;
+		if (path.trim().isEmpty())
+			return c.isJson(s);
+		return c.isJson(s + "." + path);
+	}
 
 	public Set<String> getKeys(String path, boolean sub) {
 		if (path == null)

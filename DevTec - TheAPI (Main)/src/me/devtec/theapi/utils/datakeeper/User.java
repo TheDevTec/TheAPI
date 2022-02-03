@@ -91,18 +91,23 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	private void prepareConfig() {
 		Data d = datasByUUID.get(s);
-		if(d==null)
-			datasByUUID.put(s, d=new Data("plugins/TheAPI/User/" + s + ".yml", true));
+		if(d==null)datasByUUID.put(s, d=new Data("plugins/TheAPI/User/" + s + ".yml", true));
 		data = d;
 	}
 	
 	public Data clearCache() {
 		return datasByUUID.remove(s);
 	}
+	
+	public boolean isJson(String path) {
+		if(path==null)
+			return false;
+		return data.isJson(path);
+	}
 
 	public void delete() {
-	 data.clear();
-	 data.getFile().delete();
+		data.clear();
+		data.getFile().delete();
 		datasByUUID.remove(s);
 	}
 
@@ -135,7 +140,7 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	}
 
 	public void reload() {
-	 data.reload(data.getFile());
+		data.reload(data.getFile());
 	}
 
 	public boolean exists(String path) {
@@ -147,7 +152,7 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public void remove(String path) {
 		if (path == null)
 			return;
-	 data.remove(path);
+		data.remove(path);
 		if (!LoaderClass.config.getBoolean("Options.Cache.User.Use"))
 			save();
 	}
@@ -347,7 +352,7 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public void set(String key, Object o) {
 		if (key == null)
 			return;
-	 data.set(key, o);
+		data.set(key, o);
 		if (!LoaderClass.config.getBoolean("Options.Cache.User.Use"))
 			save();
 	}
@@ -364,9 +369,9 @@ public class User implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 
 	public void save() {
 		try {
-		 data.save(DataType.valueOf(LoaderClass.config.getString("Options.User-SavingType").toUpperCase()));
+			data.save(DataType.valueOf(LoaderClass.config.getString("Options.User-SavingType").toUpperCase()));
 		} catch (Exception r) {
-		 data.save(DataType.YAML);
+			data.save(DataType.YAML);
 		}
 	}
 

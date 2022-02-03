@@ -32,7 +32,8 @@ public class Scheduler {
 				thread.destroy(id);
 			} catch (Exception err) {
 				thread.destroy(id);
-				err.printStackTrace();
+				if(!(err.getCause() instanceof InterruptedException))
+					err.printStackTrace();
 			}
 		});
 	}
@@ -47,9 +48,10 @@ public class Scheduler {
 				if(!isCancelled(id))
 					r.run();
 				thread.destroy(id);
-			} catch (Exception er) {
+			} catch (Exception err) {
 				thread.destroy(id);
-				er.printStackTrace();
+				if(!(err.getCause() instanceof InterruptedException))
+					err.printStackTrace();
 			}
 		});
 	}
@@ -66,9 +68,10 @@ public class Scheduler {
 					Thread.sleep(period * 50);
 				}
 				thread.destroy(id);
-			} catch (Exception er) {
+			} catch (Exception err) {
 				thread.destroy(id);
-				er.printStackTrace();
+				if(!(err.getCause() instanceof InterruptedException))
+					err.printStackTrace();
 			}
 		});
 	}
@@ -99,9 +102,10 @@ public class Scheduler {
 							onFinish.run();
 					}
 					thread.destroy(id);
-				} catch (Exception er) {
+				} catch (Exception err) {
 					thread.destroy(id);
-					er.printStackTrace();
+					if(!(err.getCause() instanceof InterruptedException))
+						err.printStackTrace();
 				}
 			}
 		});
@@ -119,9 +123,10 @@ public class Scheduler {
 				if(!isCancelled(id))
 					LoaderClass.nmsProvider.postToMainThread(r);
 				thread.destroy(id);
-			} catch (Exception er) {
+			} catch (Exception err) {
 				thread.destroy(id);
-				er.printStackTrace();
+				if(!(err.getCause() instanceof InterruptedException))
+					err.printStackTrace();
 			}
 		});
 	}
@@ -136,9 +141,10 @@ public class Scheduler {
 				if(!isCancelled(id))
 					LoaderClass.nmsProvider.postToMainThread(r);
 				thread.destroy(id);
-			} catch (Exception er) {
+			} catch (Exception err) {
 				thread.destroy(id);
-				er.printStackTrace();
+				if(!(err.getCause() instanceof InterruptedException))
+					err.printStackTrace();
 			}
 		});
 	}
@@ -155,9 +161,10 @@ public class Scheduler {
 					Thread.sleep(period * 50);
 				}
 				thread.destroy(id);
-			} catch (Exception er) {
+			} catch (Exception err) {
 				thread.destroy(id);
-				er.printStackTrace();
+				if(!(err.getCause() instanceof InterruptedException))
+					err.printStackTrace();
 			}
 		});
 	}
@@ -188,9 +195,10 @@ public class Scheduler {
 							LoaderClass.nmsProvider.postToMainThread(onFinish);
 					}
 					thread.destroy(id);
-				} catch (Exception er) {
+				} catch (Exception err) {
 					thread.destroy(id);
-					er.printStackTrace();
+					if(!(err.getCause() instanceof InterruptedException))
+						err.printStackTrace();
 				}
 			}
 		});

@@ -136,6 +136,12 @@ public class Config implements me.devtec.theapi.utils.datakeeper.abstracts.Data 
 	public void setType(DataType type) {
 		t = type;
 	}
+	
+	public boolean isJson(String path) {
+		if(path==null)
+			return false;
+		return f.isJson(path);
+	}
 
 	public void save() {
 		f.save(t);

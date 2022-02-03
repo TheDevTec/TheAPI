@@ -20,7 +20,7 @@ public class ByteLoader extends EmptyLoader {
 			String key=bos.readUTF();
 			String value=null;
 			int result;
-			try{
+			try {
 				while((result=bos.readInt())==1) { //normal value
 					if(value==null)value=bos.readUTF();
 					else value+=bos.readUTF();
@@ -30,9 +30,11 @@ public class ByteLoader extends EmptyLoader {
 					result=bos.readInt();
 				}
 			}catch(Exception err) {
+				value=YamlLoader.r(value);
 				map.put(key, new Object[]{Json.reader().read(value), null, value});
 				return;
 			}
+			value=YamlLoader.r(value);
 			map.put(key, new Object[]{Json.reader().read(value), null, value});
 			if(result==0)
 				byteBuilder(bos, map);
@@ -45,7 +47,7 @@ public class ByteLoader extends EmptyLoader {
 		if (input == null)
 			return;
 		try {
-			byte[] bb = Base64.getDecoder().decode(input.trim().replace(System.lineSeparator(), ""));
+			byte[] bb = Base64.getDecoder().decode(input.replace(System.lineSeparator(), ""));
 			ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
 			int version = bos.readInt();
 			if (version == 1) { //V1
@@ -113,6 +115,7 @@ public class ByteLoader extends EmptyLoader {
 						break;
 					}
 			}else if (version == 3){ //V3
+				bos.readInt();
 				byteBuilder(bos, data);
 			}
 			if (!data.isEmpty())

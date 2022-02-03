@@ -186,6 +186,7 @@ public class LoaderClass extends JavaPlugin {
 			e1.printStackTrace();
 		}
 		data = new Config("TheAPI/Data.dat", DataType.YAML);
+		
 		//CONFIG
 		createConfig();
 		

@@ -33,6 +33,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	protected DataLoader loader;
 	protected List<String> keys;
 	protected File file;
+	protected boolean isSaving;
+	protected boolean requireSave;
 	
 	public Data() {
 		loader = new EmptyLoader();
@@ -64,7 +66,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		keys = data.keys;
 		loader=data.loader;
 	}
-
+	
 	public synchronized boolean exists(String path) {
 		for (String k : loader.getKeys())
 			if (k.startsWith(path))
@@ -141,15 +143,8 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 		Object[] o = getOrCreateData(key);
 		o[0]=value;
-		switch(o.length) {
-		case 4:
+		if(o.length>=3)
 			o[2]=null;
-			o[3]=null;
-			break;
-		case 3:
-			o[2]=null;
-			break;
-		}
 		return this;
 	}
 
@@ -318,13 +313,21 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 	public synchronized String getString(String key) {
 		Object[] a = loader.get().get(key);
 		if(a==null)return null;
-		if(a.length>=3) {
-			Object s = a[2];
-			if(s!=null)return s+"";
-		}
+		if(a.length>=3 && a[2] != null)
+			return (String)a[2];
 		return a[0] instanceof String ? (String)a[0] : (a[0]==null?null:a[0]+"");
 	}
-
+	
+	public synchronized boolean isJson(String key) {
+		try {
+			Object[] a = loader.get().get(key);
+			if(a.length>=3 && a[2] != null)
+				return ((String)a[2]).charAt(0)=='[' && ((String)a[2]).charAt(((String)a[2]).length()-1)==']' || ((String)a[2]).charAt(0)=='{' && ((String)a[2]).charAt(((String)a[2]).length()-1)=='}';
+		} catch (Exception notNumber) {
+		}
+		return false;
+	}
+	
 	public synchronized int getInt(String key) {
 		try {
 			return ((Number)get(key)).intValue();
@@ -332,7 +335,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			return StringUtils.getInt(getString(key));
 		}
 	}
-
+	
 	public synchronized double getDouble(String key) {
 		try {
 			return ((Number)get(key)).doubleValue();
@@ -340,7 +343,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			return StringUtils.getDouble(getString(key));
 		}
 	}
-
+	
 	public synchronized long getLong(String key) {
 		try {
 			return ((Number)get(key)).longValue();
@@ -356,7 +359,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			return StringUtils.getFloat(getString(key));
 		}
 	}
-
+	
 	public synchronized byte getByte(String key) {
 		try {
 			return ((Number)get(key)).byteValue();
@@ -364,7 +367,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			return StringUtils.getByte(getString(key));
 		}
 	}
-
+	
 	public synchronized boolean getBoolean(String key) {
 		try {
 			return (boolean)get(key);
@@ -372,7 +375,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			return StringUtils.getBoolean(getString(key));
 		}
 	}
-
+	
 	public synchronized short getShort(String key) {
 		try {
 			return ((Number)get(key)).shortValue();
@@ -385,7 +388,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		Object g = get(key);
 		return g != null && g instanceof Collection ? new ArrayList<>((Collection<?>) g) : new ArrayList<>();
 	}
-
+	
 	public synchronized <E> List<E> getListAs(String key, Class<? extends E> clazz) {
 		List<E> list = new ArrayList<>();
 		for (Object o : getList(key))
@@ -395,7 +398,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			}
 		return list;
 	}
-
+	
 	public synchronized List<String> getStringList(String key) {
 		Collection<Object> items = getList(key);
 		List<String> list=new ArrayList<>(items.size());
@@ -406,7 +409,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 				list.add(null);
 		return list;
 	}
-
+	
 	public synchronized List<Boolean> getBooleanList(String key) {
 		Collection<Object> items = getList(key);
 		List<Boolean> list=new ArrayList<>(items.size());
@@ -414,7 +417,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			list.add(o != null && (o instanceof Boolean ? (Boolean) o : StringUtils.getBoolean(o.toString())));
 		return list;
 	}
-
+	
 	public synchronized List<Integer> getIntegerList(String key) {
 		Collection<Object> items = getList(key);
 		List<Integer> list=new ArrayList<>(items.size());
@@ -422,7 +425,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			list.add(o == null ? 0 : o instanceof Number ? ((Number)o).intValue():StringUtils.getInt(o.toString()));
 		return list;
 	}
-
+	
 	public synchronized List<Double> getDoubleList(String key) {
 		Collection<Object> items = getList(key);
 		List<Double> list=new ArrayList<>(items.size());
@@ -430,7 +433,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			list.add(o == null ? 0.0 : o instanceof Number ? ((Number)o).doubleValue():StringUtils.getDouble(o.toString()));
 		return list;
 	}
-
+	
 	public synchronized List<Short> getShortList(String key) {
 		Collection<Object> items = getList(key);
 		List<Short> list=new ArrayList<>(items.size());
@@ -438,7 +441,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			list.add(o == null ? 0 : o instanceof Number ? ((Number)o).shortValue():StringUtils.getShort(o.toString()));
 		return list;
 	}
-
+	
 	public synchronized List<Byte> getByteList(String key) {
 		Collection<Object> items = getList(key);
 		List<Byte> list=new ArrayList<>(items.size());
@@ -446,7 +449,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			list.add(o == null ? 0 : o instanceof Number ? ((Number)o).byteValue():StringUtils.getByte(o.toString()));
 		return list;
 	}
-
+	
 	public synchronized List<Float> getFloatList(String key) {
 		Collection<Object> items = getList(key);
 		List<Float> list=new ArrayList<>(items.size());
@@ -454,7 +457,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			list.add(o == null ? 0 : o instanceof Number ? ((Number)o).floatValue():StringUtils.getFloat(o.toString()));
 		return list;
 	}
-
+	
 	public synchronized List<Long> getLongList(String key) {
 		Collection<Object> items = getList(key);
 		List<Long> list=new ArrayList<>(items.size());
@@ -462,7 +465,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 			list.add(o == null ? 0 : StringUtils.getLong(o.toString()));
 		return list;
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public synchronized <K, V> List<Map<K, V>> getMapList(String key) {
 		Collection<Object> items = getList(key);
@@ -477,8 +480,7 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 		}
 		return list;
 	}
-
-	protected boolean isSaving, requireSave;
+	
 	public synchronized Data save(DataType type) {
 		if (file == null)
 			return this;
@@ -606,27 +608,40 @@ public class Data implements me.devtec.theapi.utils.datakeeper.abstracts.Data {
 					try {
 						in.writeInt(0);
 						in.writeUTF(key.getKey());
-						if(key.getValue()[0]==null) {
+						if(key.getValue()==null||key.getValue()[0]==null) {
 							in.writeInt(3);
 							continue;
 						}
-						if(key.getValue().length>2)
-							if(key.getValue()[2]!=null && key.getValue()[2] instanceof String) {
-								String write = (String)key.getValue()[2];
-								if(write==null) {
-									in.writeInt(3);
-									continue;
-								}
-								while(write.length()>40000) {
-									String wr = write.substring(0, 39999);
-									in.writeInt(1);
-									in.writeUTF(wr);
-									write=write.substring(39999);
-								}
-								in.writeInt(1);
-								in.writeUTF(write);
+						if(key.getValue().length>=3 && key.getValue()[2]!=null) {
+							String write = (String)key.getValue()[2];
+							if(write==null) {
+								in.writeInt(3);
 								continue;
 							}
+							while(write.length()>40000) {
+								String wr = write.substring(0, 39999);
+								in.writeInt(1);
+								in.writeUTF(wr);
+								write=write.substring(39999);
+							}
+							in.writeInt(1);
+							in.writeUTF(write);
+							continue;
+						}else {
+							String write = Json.writer().write(key.getValue()[0]);
+							if(write==null) {
+								in.writeInt(3);
+								continue;
+							}
+							while(write.length()>40000) {
+								String wr = write.substring(0, 39999);
+								in.writeInt(1);
+								in.writeUTF(wr);
+								write=write.substring(39999);
+							}
+							in.writeInt(1);
+							in.writeUTF(write);
+						}
 					} catch (Exception er) {
 						er.printStackTrace();
 					}
