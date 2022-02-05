@@ -1,9 +1,10 @@
 package me.devtec.theapi.apis;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import javax.annotation.Nullable;
+import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -16,16 +17,38 @@ import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class NameTagAPI {
+	public final Player p;
+
 	@SuppressWarnings("unchecked")
 	private static Map<Character, Object> formatMap = (Map<Character, Object>)Ref.getNulled(TheAPI.isNewerThan(11)?Ref.craft("util.CraftChatMessage"):Ref.craft("util.CraftChatMessage$StringMessage"), "formatMap");
-	private final Player p;
-	private String prefix = "", suffix = "";
-	private String name;
+
+	private Object getNMSColor(ChatColor color) {
+		return color==null?white:formatMap.getOrDefault(color.getChar(), white);
+	}
+
+	private List<UUID> canSee = new ArrayList<>();
+	private String prefix = "", suffix = "", currentPlayer;
+	public String name;
 	private ChatColor color;
-	private boolean changed, first = true;
+	private boolean changed;
 	public NameTagAPI(Player player, String teamName) {
 		this.p=player;
-		name=teamName;
+		currentPlayer = player.getName();
+		name=teamName.length()>12?teamName.substring(0, 12):teamName;
+	}
+
+	public void send(Player...players) {
+		for(Player player : players) {
+			if (!canSee.contains(player.getUniqueId())) {
+				canSee.add(player.getUniqueId());
+				Ref.sendPacket(player, create(color, prefix, suffix, currentPlayer, name));
+				continue;
+			}
+			if (changed) {
+				Ref.sendPacket(player, modify(color, prefix, suffix, currentPlayer, name));
+			}
+		}
+		changed=false;
 	}
 	
 	public Player getPlayer() {
@@ -35,24 +58,6 @@ public class NameTagAPI {
 	public String getTeamName() {
 		return name;
 	}
-	
-	private Object getNMSColor(ChatColor color) {
-		return formatMap.get(color.getChar());
-	}
-
-	
-	public void send() {
-		if (first) {
-			Ref.sendPacket(TheAPI.getOnlinePlayers(), create(color,prefix, suffix, name));
-			first = false;
-			changed=false;
-			return;
-		}
-		if (changed) {
-			changed = false;
-			Ref.sendPacket(TheAPI.getOnlinePlayers(), modify(color,prefix, suffix, name));
-		}
-	}
 
 	public String getPrefix() {
 		return prefix;
@@ -61,8 +66,8 @@ public class NameTagAPI {
 	public String getSuffix() {
 		return suffix;
 	}
-	
-	public void set(@Nullable ChatColor color, String prefix, String suffix) {
+
+	public void set(ChatColor color, String prefix, String suffix) {
 		if (this.color!=color)
 			changed = true;
 		this.color=color;
@@ -84,30 +89,32 @@ public class NameTagAPI {
 			this.suffix = suffix;
 		}
 	}
-	
-	private Object create(ChatColor color, String prefix, String suffix, String realName) {
-		return createPacket(0, color, prefix, suffix, realName);
+
+	private Object create(ChatColor color, String prefix, String suffix, String name, String realName) {
+		return c(0, color, prefix, suffix, name, realName);
+	}
+
+	private Object modify(ChatColor color, String prefix, String suffix, String name, String realName) {
+		return c(2, color, prefix, suffix, name, realName);
 	}
 	
-	private Object modify(ChatColor color, String prefix, String suffix, String realName) {
-		return createPacket(2, color, prefix, suffix, realName);
+	public void reset(Player...players) {
+		for(Player player : players)
+			canSee.remove(player.getUniqueId());
+		Ref.sendPacket(players, resetPacket());
 	}
-	
-	public void reset() {
-		Ref.sendPacket(TheAPI.getOnlinePlayers(), resetPacket());
-	}
-	
+
 	private Object resetPacket() {
-		return createPacket(1, null, "", "", name);
+		return c(1, null, "", "", currentPlayer, name);
 	}
-	
+
 	private static final Class<?> sbTeam = Ref.getClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam$b");
 	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
 	private static final Object white = Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class)==null?
 			Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",int.class), -1):
 			Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class), 'f');
 
-	private Object createPacket(int mode, ChatColor color, String prefix, String suffix, String realName) {
+	private Object c(int mode, ChatColor color, String prefix, String suffix, String name, String realName) {
 		Object packet = LoaderClass.nmsProvider.packetScoreboardTeam();
 		String always = "ALWAYS";
 		if(TheAPI.isNewerThan(16)) {
@@ -124,7 +131,7 @@ public class NameTagAPI {
 			} catch (Exception e) {
 			}
 			Ref.set(packet, "h", mode);
-			Ref.set(packet, "j", ImmutableList.copyOf(new String[]{p.getName()}));
+			Ref.set(packet, "j", ImmutableList.copyOf(new String[]{name}));
 		}else {
 			Ref.set(packet, "a", realName);
 			Ref.set(packet, "b", TheAPI.isNewerThan(12)?LoaderClass.nmsProvider.chatBase("{\"text\":\"\"}"):"");
@@ -136,16 +143,18 @@ public class NameTagAPI {
 				if(TheAPI.isNewerThan(8))
 					Ref.set(packet, "g",TheAPI.isNewerThan(12)?(color==null?white:getNMSColor(color)):(color==null?-1:color.ordinal()));
 				Ref.set(packet, TheAPI.isNewerThan(8)?"i":"h", mode);
-				Ref.set(packet, TheAPI.isNewerThan(8)?"h":"g", ImmutableList.copyOf(new String[]{p.getName()}));
+				Ref.set(packet, TheAPI.isNewerThan(8)?"h":"g", ImmutableList.copyOf(new String[]{name}));
 			}else {
 				Ref.set(packet, "f", mode);
-				Ref.set(packet, "e", ImmutableList.copyOf(new String[]{p.getName()}));
+				Ref.set(packet, "e", ImmutableList.copyOf(new String[]{name}));
 			}
 		}
 		return packet;
 	}
 
 	public void setName(String sort) {
+		if(name.equals(sort))return;
 		name=sort;
+		changed=true;
 	}
 }
