@@ -14,8 +14,6 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.Location;
-
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
@@ -639,38 +637,6 @@ public class StringUtils {
 			date.append(format(time % 60, "Seconds"));
 		}
 		return date.toString();
-	}
-
-	/**
-	 * @apiNote Convert Location to String
-	 * @return String
-	 */
-	public static String getLocationAsString(Location loc) {
-		return locationAsString(loc);
-	}
-
-	/**
-	 * @apiNote Convert Location to String
-	 * @return String
-	 */
-	public static String locationAsString(Location loc) { // New shorter name of method
-		return TheCoder.locationToString(loc);
-	}
-
-	/**
-	 * @apiNote Create Location from String
-	 * @return Location
-	 */
-	public static Location getLocationFromString(String savedLocation) {
-		return locationFromString(savedLocation);
-	}
-
-	/**
-	 * @apiNote Create Location from String
-	 * @return Location
-	 */
-	public static Location locationFromString(String savedLocation) { // New shorter name of method
-		return TheCoder.locationFromString(savedLocation);
 	}
 
 	/**

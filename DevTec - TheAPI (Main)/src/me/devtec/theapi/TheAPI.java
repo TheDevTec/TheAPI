@@ -35,7 +35,6 @@ import org.bukkit.plugin.Plugin;
 import org.spigotmc.SpigotConfig;
 
 import me.devtec.theapi.apis.EnchantmentAPI;
-import me.devtec.theapi.apis.NameTagAPI;
 import me.devtec.theapi.cooldownapi.CooldownAPI;
 import me.devtec.theapi.punishmentapi.PunishmentAPI;
 import me.devtec.theapi.sockets.Client;
@@ -737,17 +736,6 @@ public class TheAPI {
 	 */
 	public static CommandSender getConsole() {
 		return Bukkit.getConsoleSender();
-	}
-
-	/**
-	 * @apiNote Set player name tag
-	 * @param p
-	 * @param prefix
-	 * @param suffix
-	 * @return NameTagAPI
-	 */
-	public static NameTagAPI getNameTagAPI(Player p, String prefix, String suffix) {
-		return new NameTagAPI(p, prefix, suffix);
 	}
 
 	/**

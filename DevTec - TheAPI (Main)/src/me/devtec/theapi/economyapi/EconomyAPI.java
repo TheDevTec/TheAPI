@@ -23,31 +23,6 @@ public class EconomyAPI {
 		return LoaderClass.plugin.economy;
 	}
 
-	/**
-	 * @see EconomyAPI#getEconomy
-	 * Warning, this FakeEconomyAPI return Economy
-	 * stored in config. Isn't connect to
-	 * Vault plugin. Working if
-	 * is EconomyAPI "disabled" too.
-	 * @return FakeEconomyAPI
-	 */
-	public static FakeEconomyAPI getFakeEconomyAPI(String economyName) {
-		return new FakeEconomyAPI(economyName);
-	}
-
-	/**
-	 * @see EconomyAPI#setEconomy
-	 * Warning, this FakeEconomyAPI return Economy
-	 * stored in config. Isn't connect to
-	 * Vault plugin. Working if
-	 * is EconomyAPI "disabled" too.
-	 * @return FakeEconomyAPI
-	 */
-	@Deprecated
-	public static FakeEconomyAPI getFakeEconomyAPI() {
-		return new FakeEconomyAPI("Default");
-	}
-
 	public static boolean hasBankSupport() {
 		if (getEconomy() != null && LoaderClass.plugin.e)
 			return getEconomy().hasBankSupport();

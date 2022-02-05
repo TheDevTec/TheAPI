@@ -23,7 +23,6 @@ import me.devtec.theapi.blocksapi.schematic.construct.Schematic;
 import me.devtec.theapi.scheduler.Tasker;
 import me.devtec.theapi.utils.PercentageList;
 import me.devtec.theapi.utils.Position;
-import me.devtec.theapi.utils.StringUtils;
 import me.devtec.theapi.utils.TheMaterial;
 import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
@@ -101,14 +100,6 @@ public class BlocksAPI {
 
 	public static Schematic getSchematic(String name) {
 		return new WorldSchematic(name);
-	}
-
-	public static String getLocationAsString(Location loc) {
-		return StringUtils.getLocationAsString(loc);
-	}
-
-	public static Location getLocationFromString(String saved) {
-		return StringUtils.getLocationFromString(saved);
 	}
 
 	public static List<Entity> getNearbyEntities(Location l, int radius) {

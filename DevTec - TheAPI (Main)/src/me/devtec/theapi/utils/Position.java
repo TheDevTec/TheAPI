@@ -90,9 +90,6 @@ public class Position implements Cloneable {
 			String[] part = stored.replace(":", ".").split("/");
 			return new Position(part[0], StringUtils.getDouble(part[1]), StringUtils.getDouble(part[2]), StringUtils.getDouble(part[3]), StringUtils.getFloat(part[4]), StringUtils.getFloat(part[5]));
 		} catch (Exception notMat) {
-			Location loc = StringUtils.getLocationFromString(stored);
-			if (loc != null)
-				return new Position(loc);
 		}
 		return null;
 	}

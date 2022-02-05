@@ -32,7 +32,7 @@ public class Scheduler {
 				thread.destroy(id);
 			} catch (Exception err) {
 				thread.destroy(id);
-				if(!(err.getCause() instanceof InterruptedException))
+				if(!(err instanceof InterruptedException))
 					err.printStackTrace();
 			}
 		});
@@ -50,7 +50,7 @@ public class Scheduler {
 				thread.destroy(id);
 			} catch (Exception err) {
 				thread.destroy(id);
-				if(!(err.getCause() instanceof InterruptedException))
+				if(!(err instanceof InterruptedException))
 					err.printStackTrace();
 			}
 		});
@@ -70,7 +70,7 @@ public class Scheduler {
 				thread.destroy(id);
 			} catch (Exception err) {
 				thread.destroy(id);
-				if(!(err.getCause() instanceof InterruptedException))
+				if(!(err instanceof InterruptedException))
 					err.printStackTrace();
 			}
 		});
@@ -104,7 +104,7 @@ public class Scheduler {
 					thread.destroy(id);
 				} catch (Exception err) {
 					thread.destroy(id);
-					if(!(err.getCause() instanceof InterruptedException))
+					if(!(err instanceof InterruptedException))
 						err.printStackTrace();
 				}
 			}
@@ -125,7 +125,7 @@ public class Scheduler {
 				thread.destroy(id);
 			} catch (Exception err) {
 				thread.destroy(id);
-				if(!(err.getCause() instanceof InterruptedException))
+				if(!(err instanceof InterruptedException))
 					err.printStackTrace();
 			}
 		});
@@ -143,7 +143,7 @@ public class Scheduler {
 				thread.destroy(id);
 			} catch (Exception err) {
 				thread.destroy(id);
-				if(!(err.getCause() instanceof InterruptedException))
+				if(!(err instanceof InterruptedException))
 					err.printStackTrace();
 			}
 		});
@@ -163,7 +163,7 @@ public class Scheduler {
 				thread.destroy(id);
 			} catch (Exception err) {
 				thread.destroy(id);
-				if(!(err.getCause() instanceof InterruptedException))
+				if(!(err instanceof InterruptedException))
 					err.printStackTrace();
 			}
 		});
@@ -197,7 +197,7 @@ public class Scheduler {
 					thread.destroy(id);
 				} catch (Exception err) {
 					thread.destroy(id);
-					if(!(err.getCause() instanceof InterruptedException))
+					if(!(err instanceof InterruptedException))
 						err.printStackTrace();
 				}
 			}

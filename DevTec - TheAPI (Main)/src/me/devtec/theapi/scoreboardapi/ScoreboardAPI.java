@@ -6,13 +6,13 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import com.google.common.collect.ImmutableList;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.utils.StringUtils;
-import me.devtec.theapi.utils.TheCoder;
 import me.devtec.theapi.utils.components.ComponentAPI;
 import me.devtec.theapi.utils.datakeeper.Data;
 import me.devtec.theapi.utils.nms.NmsProvider.Action;
@@ -276,7 +276,11 @@ public class ScoreboardAPI {
 		private int slot;
 		private boolean changed, first = true;
 		private Team(int slot, int realPos) {
-			currentPlayer = TheCoder.toColor(realPos);
+			String s = "" + realPos;
+			for(int i = ChatColor.values().length-1; i > -1; --i) {
+				s=s.replace(i+"", ChatColor.values()[i]+"");
+			}
+			currentPlayer = s;
 			if(!TheAPI.isNewVersion()) {
 				currentPlayer+="§f";
 				format=currentPlayer;
