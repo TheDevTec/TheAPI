@@ -8,7 +8,7 @@ But as it is already known, nothing is perfect or flawless, that's why we have b
 
 
 ## What does TheAPI include
-> We have been working on our own Configuration (Data & Config classes) for a long time, which includes 3 different types of data retrieval & storage - YAML, PROPERTIES, JSON and BYTE
+> We have been working on our own Configuration (Data & Config classes) for a long time, which includes 4 different types of data retrieval & storage - YAML, PROPERTIES, JSON and BYTE
 Including the ability to have comments in the YAML & PROPERTIES configuration type
 
 > Converting Objects to String and back to the original Object (Json class)
@@ -37,7 +37,7 @@ Including the ability to have comments in the YAML & PROPERTIES configuration ty
 - RankingAPI
 - Scheduler (Tasker)
 - ScoreboardAPI
-- BossBarAPI (1.7.10 - 1.8.9 only)
+- BossBar (1.7.10 - 1.8.9 only)
 - ParticlesAPI
 - PunishmentAPI (Requires another plugin that will extend this - For example our plugin SCR)
 - EconomyAPI
@@ -45,7 +45,6 @@ Including the ability to have comments in the YAML & PROPERTIES configuration ty
 - CooldownAPI
 - ConfigAPI
 - TabListAPI
-- SoundAPI
 - SignAPI
 - ResourcePackAPI
 - NameTagAPI
