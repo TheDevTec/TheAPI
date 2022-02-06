@@ -60,6 +60,7 @@ public class TheAPI {
 	private static final Method m = Ref.method(Bukkit.class, "getOnlinePlayers");
 	private static final Random random = new Random();
 	private static int ver;
+	private static String version;
 	
 	public static Cache getCache() {
 		return LoaderClass.cache;
@@ -782,8 +783,6 @@ public class TheAPI {
 	public static EnchantmentAPI getEnchantmentAPI(String enchantment) {
 		return EnchantmentAPI.byName(enchantment);
 	}
-
-	private static String version;
 
 	/**
 	 * @apiNote Return server version, for ex. v1_14_R1
