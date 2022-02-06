@@ -71,6 +71,26 @@ No more reflections, no more NMS and no more searching for differences between M
 - Spigot (https://www.spigotmc.org/resources/72679/)
 - Bukkit (https://dev.bukkit.org/projects/theapi)
 
+## Gradle:
+```java
+dependencies {
+    compileOnly files('libs/TheAPI.jar')
+}
+```
+
+## Maven:
+```java
+        <dependency>
+            <groupId>me.devtec.theapi</groupId>
+            <artifactId>theapi</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/TheAPI.jar</systemPath>
+            <type>jar</type>
+            <optional>true</optional>
+        </dependency>
+```
+
 [![Spigot Downloads](https://img.shields.io/badge/dynamic/json.svg?url=https://api.spiget.org/v2/resources/72679&label=Spigot-Downloads&query=$.downloads&colorB=ee8a18&style=flat-square&maxAge=3600)](https://www.spigotmc.org/resources/72679/)
 [![Spigot Rating](https://img.shields.io/badge/dynamic/json.svg?url=https://api.spiget.org/v2/resources/72679&label=Rating&query=$.rating.average&colorB=00AB66&style=flat-square&maxAge=3600)](https://www.spigotmc.org/resources/72679/)
 [![](https://discordapp.com/api/guilds/579029317561090078/widget.png)](https://discord.gg/8YtfC234dA)
