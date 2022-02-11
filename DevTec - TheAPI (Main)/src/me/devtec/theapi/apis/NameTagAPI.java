@@ -38,14 +38,18 @@ public class NameTagAPI {
 	}
 
 	public void send(Player...players) {
+		Object created = null;
+		Object modified = null;
 		for(Player player : players) {
 			if (!canSee.contains(player.getUniqueId())) {
+				if(created==null)created=create(color, prefix, suffix, currentPlayer, name);
 				canSee.add(player.getUniqueId());
-				Ref.sendPacket(player, create(color, prefix, suffix, currentPlayer, name));
+				Ref.sendPacket(player, created);
 				continue;
 			}
 			if (changed) {
-				Ref.sendPacket(player, modify(color, prefix, suffix, currentPlayer, name));
+				if(modified==null)modified=modify(color, prefix, suffix, currentPlayer, name);
+				Ref.sendPacket(player, modified);
 			}
 		}
 		changed=false;

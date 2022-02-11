@@ -1,8 +1,6 @@
 package me.devtec.theapi.apis;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -128,10 +126,6 @@ public enum EnchantmentAPI {
 
 	public static EnchantmentAPI fromEnchant(Enchantment enchant) {
 		return byName(enchant.toString());
-	}
-
-	public static List<Enchantment> getEnchantments(ItemStack item) {
-		return new ArrayList<>(item.getEnchantments().keySet());
 	}
 
 	public static boolean registerEnchantment(org.bukkit.enchantments.Enchantment e) {
