@@ -12,11 +12,11 @@ import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_18_R1.CraftChunk;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_18_R1.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftContainer;
 import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
@@ -697,7 +697,7 @@ public class v1_18_R1 implements NmsProvider {
 
 	@Override
 	public void openAnvilGUI(Player player, Object con, String title, ItemStack[] items) {
-		ContainerAnvil container = (ContainerAnvil)con;
+		Container container = (Container)con;
 		EntityPlayer nmsPlayer = ((CraftPlayer)player).getHandle();
 		int id = container.j;
 		net.minecraft.world.item.ItemStack[] nmsItems = new net.minecraft.world.item.ItemStack[items.length];
