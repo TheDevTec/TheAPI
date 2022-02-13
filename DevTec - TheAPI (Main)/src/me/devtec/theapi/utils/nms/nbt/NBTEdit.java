@@ -20,9 +20,8 @@ public class NBTEdit {
             this.nbt=LoaderClass.nmsProvider.parseNBT((String)nbt);
         else
             this.nbt=nbt;
-        if(this.nbt==null) {
-        	this.nbt=LoaderClass.nmsProvider.parseNBT(null);
-        }
+        if(this.nbt==null)
+        	this.nbt=LoaderClass.nmsProvider.parseNBT("{}");
     }
 	
 	public NBTEdit(ItemStack stack) {
