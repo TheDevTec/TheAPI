@@ -37,7 +37,11 @@ public class SQLAPI {
 
 	public boolean isConnected() {
 		try {
-			return sql != null && !sql.isClosed();
+			if(sql != null && !sql.isClosed()) {
+				sql.createStatement();
+				return true;
+			}
+			return false;
 		} catch (Exception e) {
 			return false;
 		}
@@ -74,22 +78,22 @@ public class SQLAPI {
 	}
 
 	public void createTable(String table, String values) {
-		Validator.validate(!isConnected(), "SQL connection is closed");
+		if(!isConnected())connect();
 		execute("CREATE TABLE IF NOT EXISTS "+table+" ("+values+")");
 	}
 
 	public void deleteTable(String table) {
-		Validator.validate(!isConnected(), "SQL connection is closed");
+		if(!isConnected())connect();
 		execute("DROP TABLE "+table);
 	}
 
 	public void remove(String table, String lookingfor, String identifier) {
-		Validator.validate(!isConnected(), "SQL connection is closed");
+		if(!isConnected())connect();
 		execute("DELETE FROM "+table+" WHERE "+lookingfor+"='"+identifier+"'");
 	}
 
 	public List<Object> getTop(String table, String orderBy, String column, String lookingfor, String identifier, int limit) {
-		Validator.validate(!isConnected(), "SQL connection is closed");
+		if(!isConnected())connect();
 		List<Object> s = new ArrayList<>();
 		try {
 			ResultSet f = query("SELECT * FROM "+table+" WHERE "+lookingfor+"='"+identifier+"' ORDER BY "+orderBy+" DESC LIMIT "+limit);
@@ -102,7 +106,7 @@ public class SQLAPI {
 	}
 
 	public List<Object> getTop(String table, String orderBy, String column, int limit) {
-		Validator.validate(!isConnected(), "SQL connection is closed");
+		if(!isConnected())connect();
 		List<Object> s = new ArrayList<>();
 		try {
 			ResultSet f = query("SELECT * FROM "+table+" ORDER BY "+orderBy+" DESC LIMIT "+limit);
@@ -115,12 +119,13 @@ public class SQLAPI {
 	}
 
 	public void clearTable(String table) {
-		Validator.validate(!isConnected(), "SQL connection is closed");
+		if(!isConnected())connect();
 		execute("DELETE FROM "+table);
 	}
 
 	public boolean update(String command) {
 		Validator.validate(command == null, "Command is null");
+		if(!isConnected())connect();
 		boolean result = false;
 		try {
 			sql.createStatement().executeUpdate(command);
@@ -134,6 +139,7 @@ public class SQLAPI {
 
 	public boolean largeUpdate(String command) {
 		Validator.validate(command == null, "Command is null");
+		if(!isConnected())connect();
 		boolean result = false;
 		try {
 			sql.createStatement().executeLargeUpdate(command);
@@ -147,6 +153,7 @@ public class SQLAPI {
 
 	public ResultSet query(String command) {
 		Validator.validate(command == null, "Command is null");
+		if(!isConnected())connect();
 		ResultSet rs = null;
 		try {
 			rs = sql.createStatement().executeQuery(command);
@@ -158,6 +165,7 @@ public class SQLAPI {
 	}
 
 	public int getInt(String table, String lookingfor, String identifier, String idValue) {
+		if(!isConnected())connect();
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
@@ -181,6 +189,7 @@ public class SQLAPI {
 	}
 	
 	public void set(String table, String path, String value, String identifier, String idValue) {
+		if(!isConnected())connect();
 		String command = "UPDATE " + table + " SET " + path + "='" + value + "' WHERE " + identifier + "='" + idValue
 				+ "'";
 		try {
@@ -192,6 +201,7 @@ public class SQLAPI {
 	}
 
 	public long getLong(String table, String lookingfor, String identifier, String idValue) {
+		if(!isConnected())connect();
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
@@ -204,6 +214,7 @@ public class SQLAPI {
 	}
 
 	public Array getArray(String table, String lookingfor, String identifier, String idValue) {
+		if(!isConnected())connect();
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
@@ -216,6 +227,7 @@ public class SQLAPI {
 	}
 
 	public boolean getBoolean(String table, String lookingfor, String identifier, String idValue) {
+		if(!isConnected())connect();
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
@@ -228,6 +240,7 @@ public class SQLAPI {
 	}
 
 	public byte getByte(String table, String lookingfor, String identifier, String idValue) {
+		if(!isConnected())connect();
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
@@ -240,6 +253,7 @@ public class SQLAPI {
 	}
 
 	public Object getObject(String table, String lookingfor, String identifier, String idValue) {
+		if(!isConnected())connect();
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
@@ -252,6 +266,7 @@ public class SQLAPI {
 	}
 
 	public BigDecimal getBigDecimal(String table, String lookingfor, String identifier, String idValue) {
+		if(!isConnected())connect();
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
@@ -264,6 +279,7 @@ public class SQLAPI {
 	}
 
 	public double getDouble(String table, String lookingfor, String identifier, String idValue) {
+		if(!isConnected())connect();
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
@@ -276,6 +292,7 @@ public class SQLAPI {
 	}
 
 	public String getString(String table, String lookingfor, String identifier, String idValue) {
+		if(!isConnected())connect();
 		String command = "SELECT " + lookingfor + " FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet s = query(command);
@@ -288,6 +305,7 @@ public class SQLAPI {
 	}
 
 	public boolean exists(String table, String identifier, String idValue) {
+		if(!isConnected())connect();
 		String command = "SELECT * FROM " + table + " WHERE " + identifier + "='" + idValue + "'";
 		try {
 			ResultSet q = query(command);
@@ -299,6 +317,7 @@ public class SQLAPI {
 
 	public boolean execute(String command) {
 		Validator.validate(command == null, "Command is null");
+		if(!isConnected())connect();
 		try {
 			sql.createStatement().execute(command);
 			return true;
