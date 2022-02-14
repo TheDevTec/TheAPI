@@ -181,6 +181,7 @@ public class LoaderClass extends JavaPlugin {
 				
 			}
 			nmsProvider=(NmsProvider) Class.forName("me.devtec.theapi.nms."+version+(mohist?"_Mohist":""),true,getClassLoader()).newInstance();
+			nmsProvider.loadParticles();
 			new Particle("HEART");
 		} catch (Exception e1) {
 			e1.printStackTrace();

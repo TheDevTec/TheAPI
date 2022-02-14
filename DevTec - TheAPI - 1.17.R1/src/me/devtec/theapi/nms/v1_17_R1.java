@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -50,7 +51,9 @@ import me.devtec.theapi.utils.theapiutils.LoaderClass;
 import me.devtec.theapi.utils.theapiutils.LoaderClass.InventoryClickType;
 import net.minecraft.EnumChatFormat;
 import net.minecraft.core.BlockPosition;
+import net.minecraft.core.IRegistry;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.particles.Particle;
 import net.minecraft.nbt.MojangsonParser;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -96,6 +99,7 @@ import net.minecraft.network.protocol.status.PacketStatusOutServerInfo;
 import net.minecraft.network.protocol.status.ServerPing;
 import net.minecraft.network.protocol.status.ServerPing.ServerData;
 import net.minecraft.network.protocol.status.ServerPing.ServerPingPlayerSample;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ScoreboardServer;
 import net.minecraft.server.level.EntityPlayer;
@@ -1076,5 +1080,11 @@ public class v1_17_R1 implements NmsProvider {
 	@Override
 	public int getContainerStateId(Object container) {
 		return ((Container)container).getStateId();
+	}
+
+	@Override
+	public void loadParticles() {
+		for(Entry<ResourceKey<Particle<?>>, Particle<?>> s : IRegistry.ab.d())
+			me.devtec.theapi.particlesapi.Particle.identifier.put(s.getKey().a().toString(), s.getValue());
 	}
 }

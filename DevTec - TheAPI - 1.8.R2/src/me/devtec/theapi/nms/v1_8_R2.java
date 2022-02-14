@@ -32,13 +32,13 @@ import com.mojang.authlib.GameProfile;
 
 import io.netty.channel.Channel;
 import me.devtec.theapi.TheAPI;
-import me.devtec.theapi.guiapi.GUI.ClickType;
 import me.devtec.theapi.guiapi.AnvilGUI;
+import me.devtec.theapi.guiapi.GUI.ClickType;
 import me.devtec.theapi.guiapi.HolderGUI;
 import me.devtec.theapi.utils.InventoryUtils;
+import me.devtec.theapi.utils.InventoryUtils.DestinationType;
 import me.devtec.theapi.utils.Position;
 import me.devtec.theapi.utils.TheMaterial;
-import me.devtec.theapi.utils.InventoryUtils.DestinationType;
 import me.devtec.theapi.utils.components.Component;
 import me.devtec.theapi.utils.components.ComponentAPI;
 import me.devtec.theapi.utils.listener.events.ServerListPingEvent;
@@ -66,6 +66,7 @@ import net.minecraft.server.v1_8_R2.EntityHuman;
 import net.minecraft.server.v1_8_R2.EntityLiving;
 import net.minecraft.server.v1_8_R2.EntityPlayer;
 import net.minecraft.server.v1_8_R2.EnumChatFormat;
+import net.minecraft.server.v1_8_R2.EnumParticle;
 import net.minecraft.server.v1_8_R2.IBlockData;
 import net.minecraft.server.v1_8_R2.IChatBaseComponent;
 import net.minecraft.server.v1_8_R2.IContainer;
@@ -1053,6 +1054,12 @@ public class v1_8_R2 implements NmsProvider {
 	@Override
 	public int getContainerStateId(Object container) {
 		return 0;
+	}
+
+	@Override
+	public void loadParticles() {
+		for(EnumParticle s : EnumParticle.values())
+			me.devtec.theapi.particlesapi.Particle.identifier.put(s.name(), s);
 	}
 
 }

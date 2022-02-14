@@ -72,9 +72,11 @@ import net.minecraft.server.v1_16_R1.EntityPlayer;
 import net.minecraft.server.v1_16_R1.EnumChatFormat;
 import net.minecraft.server.v1_16_R1.IBlockData;
 import net.minecraft.server.v1_16_R1.IChatBaseComponent;
+import net.minecraft.server.v1_16_R1.IRegistry;
 import net.minecraft.server.v1_16_R1.IScoreboardCriteria.EnumScoreboardHealthDisplay;
 import net.minecraft.server.v1_16_R1.ITileEntity;
 import net.minecraft.server.v1_16_R1.Item;
+import net.minecraft.server.v1_16_R1.MinecraftKey;
 import net.minecraft.server.v1_16_R1.MinecraftServer;
 import net.minecraft.server.v1_16_R1.MojangsonParser;
 import net.minecraft.server.v1_16_R1.NBTBase;
@@ -1057,5 +1059,11 @@ public class v1_16_R1 implements NmsProvider {
 	@Override
 	public int getContainerStateId(Object container) {
 		return 0;
+	}
+
+	@Override
+	public void loadParticles() {
+		for(MinecraftKey s : IRegistry.PARTICLE_TYPE.keySet())
+			me.devtec.theapi.particlesapi.Particle.identifier.put(s.getKey(), IRegistry.PARTICLE_TYPE.get(s));
 	}
 }

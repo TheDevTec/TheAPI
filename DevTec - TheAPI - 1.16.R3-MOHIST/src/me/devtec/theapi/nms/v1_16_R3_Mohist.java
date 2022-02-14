@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
@@ -96,6 +97,7 @@ import net.minecraft.network.play.server.STitlePacket;
 import net.minecraft.network.play.server.STitlePacket.Type;
 import net.minecraft.network.play.server.SUpdateScorePacket;
 import net.minecraft.network.status.server.SServerInfoPacket;
+import net.minecraft.particles.ParticleType;
 import net.minecraft.scoreboard.ScoreCriteria;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ServerScoreboard;
@@ -103,8 +105,10 @@ import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IWorldPosCallable;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.Color;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -1108,6 +1112,12 @@ public class v1_16_R3_Mohist implements NmsProvider {
 	@Override
 	public int getContainerStateId(Object container) {
 		return 0;
+	}
+
+	@Override
+	public void loadParticles() {
+		for(Entry<RegistryKey<ParticleType<?>>, ParticleType<?>> s : Registry.field_212632_u.func_239659_c_())
+			me.devtec.theapi.particlesapi.Particle.identifier.put(s.getKey().func_240901_a_().func_110623_a(), s.getValue());
 	}
 
 }

@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
@@ -1099,5 +1101,11 @@ public class v1_7_R4 implements NmsProvider {
 	public int getContainerStateId(Object container) {
 		return 0;
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void loadParticles() {
+		for(Entry<String,Object> entry : ((Map<String,Object>)Ref.getStatic(Ref.nms("PacketPlayOutWorldParticles$Particle"),"particleMap")).entrySet())
+			me.devtec.theapi.particlesapi.Particle.identifier.put(entry.getKey().toUpperCase(), entry.getValue());
+	}
 }

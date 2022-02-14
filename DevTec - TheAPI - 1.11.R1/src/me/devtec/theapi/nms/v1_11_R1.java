@@ -66,6 +66,7 @@ import net.minecraft.server.v1_11_R1.EntityHuman;
 import net.minecraft.server.v1_11_R1.EntityLiving;
 import net.minecraft.server.v1_11_R1.EntityPlayer;
 import net.minecraft.server.v1_11_R1.EnumChatFormat;
+import net.minecraft.server.v1_11_R1.EnumParticle;
 import net.minecraft.server.v1_11_R1.IBlockData;
 import net.minecraft.server.v1_11_R1.IChatBaseComponent;
 import net.minecraft.server.v1_11_R1.IScoreboardCriteria.EnumScoreboardHealthDisplay;
@@ -1043,6 +1044,12 @@ public class v1_11_R1 implements NmsProvider {
 	@Override
 	public int getContainerStateId(Object container) {
 		return 0;
+	}
+
+	@Override
+	public void loadParticles() {
+		for(EnumParticle s : EnumParticle.values())
+			me.devtec.theapi.particlesapi.Particle.identifier.put(s.name(), s);
 	}
 
 }

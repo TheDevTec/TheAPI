@@ -75,6 +75,7 @@ import net.minecraft.server.v1_13_R1.IChatBaseComponent;
 import net.minecraft.server.v1_13_R1.IScoreboardCriteria.EnumScoreboardHealthDisplay;
 import net.minecraft.server.v1_13_R1.ITileEntity;
 import net.minecraft.server.v1_13_R1.Item;
+import net.minecraft.server.v1_13_R1.MinecraftKey;
 import net.minecraft.server.v1_13_R1.MinecraftServer;
 import net.minecraft.server.v1_13_R1.MojangsonParser;
 import net.minecraft.server.v1_13_R1.NBTBase;
@@ -108,6 +109,7 @@ import net.minecraft.server.v1_13_R1.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_13_R1.PacketPlayOutTitle;
 import net.minecraft.server.v1_13_R1.PacketPlayOutTitle.EnumTitleAction;
 import net.minecraft.server.v1_13_R1.PacketStatusOutServerInfo;
+import net.minecraft.server.v1_13_R1.Particle;
 import net.minecraft.server.v1_13_R1.PlayerConnection;
 import net.minecraft.server.v1_13_R1.ScoreboardObjective;
 import net.minecraft.server.v1_13_R1.ScoreboardServer;
@@ -1029,6 +1031,12 @@ public class v1_13_R1 implements NmsProvider {
 	@Override
 	public int getContainerStateId(Object container) {
 		return 0;
+	}
+
+	@Override
+	public void loadParticles() {
+		for(MinecraftKey s : Particle.REGISTRY.keySet())
+			me.devtec.theapi.particlesapi.Particle.identifier.put(s.getKey(), Particle.REGISTRY.get(s));
 	}
 	
 }

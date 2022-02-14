@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
@@ -12,11 +13,11 @@ import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_18_R1.CraftChunk;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_18_R1.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_18_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftContainer;
 import org.bukkit.craftbukkit.v1_18_R1.inventory.CraftItemStack;
@@ -50,6 +51,8 @@ import me.devtec.theapi.utils.theapiutils.LoaderClass;
 import me.devtec.theapi.utils.theapiutils.LoaderClass.InventoryClickType;
 import net.minecraft.EnumChatFormat;
 import net.minecraft.core.BlockPosition;
+import net.minecraft.core.IRegistry;
+import net.minecraft.core.particles.Particle;
 import net.minecraft.nbt.MojangsonParser;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -95,6 +98,7 @@ import net.minecraft.network.protocol.status.PacketStatusOutServerInfo;
 import net.minecraft.network.protocol.status.ServerPing;
 import net.minecraft.network.protocol.status.ServerPing.ServerData;
 import net.minecraft.network.protocol.status.ServerPing.ServerPingPlayerSample;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ScoreboardServer;
 import net.minecraft.server.level.EntityPlayer;
@@ -1076,6 +1080,12 @@ public class v1_18_R1 implements NmsProvider {
 	@Override
 	public int getContainerStateId(Object container) {
 		return ((Container)container).j();
+	}
+
+	@Override
+	public void loadParticles() {
+		for(Entry<ResourceKey<Particle<?>>, Particle<?>> s : IRegistry.ac.e())
+			me.devtec.theapi.particlesapi.Particle.identifier.put(s.getKey().a().toString(), s.getValue());
 	}
 	
 }

@@ -1,13 +1,8 @@
 package me.devtec.theapi.particlesapi;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-
-import org.bukkit.Effect;
-import org.bukkit.Effect.Type;
 
 import me.devtec.theapi.TheAPI;
 import me.devtec.theapi.particlesapi.ParticleData.BlockOptions;
@@ -19,46 +14,8 @@ import me.devtec.theapi.utils.reflections.Ref;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 
 public class Particle {
-	private static Class<?> a = Ref.nmsOrOld("core.particles.Particles","Particles");
-	private static final Map<String, Object> identifier = new HashMap<>();
+	public static final Map<String, Object> identifier = new HashMap<>();
 	static {
-		if (a == null)
-			a = Ref.nms("EnumParticle"); // 1.8 - 1.12.2
-		if (a == null) {
-			a = Ref.nms("PacketPlayOutWorldParticles$Particle"); // 1.7.10 and older
-		}
-		if(a!=null) {
-			if (a==Ref.nms("EnumParticle")) { // 1.8 - 1.12.2
-				for (Object e : a.getEnumConstants())
-					identifier.put(((String) Ref.invoke(e, "name")).toUpperCase(), e);
-			} else { // 1.13+
-				if(TheAPI.isNewerThan(12)&&TheAPI.isOlderThan(14)) { //1.13
-					for (Field f : Ref.getFields(a)) {
-						Object g = Ref.getStatic(f);
-						identifier.put(((String)Ref.invoke(g, "a")).toUpperCase(), g);
-					}
-				}else //1.7.10 or older or 1.14+
-					if(TheAPI.isNewerThan(16)) { //1.17
-						Object i = Ref.getStatic(Ref.getClass("net.minecraft.core.IRegistry"),TheAPI.isNewerThan(17)?"ac":"ab");
-						for(Object k : (Set<?>)Ref.invoke(i, TheAPI.isNewerThan(17)?"d":"keySet")) {
-							identifier.put(TheAPI.isNewerThan(17)?Ref.get(k, "f").toString().toUpperCase():Ref.invoke(k, "getKey").toString().toUpperCase(), Ref.invoke(i, TheAPI.isNewerThan(17)?"a":"get", k));
-						}
-					}else
-				for (Field f : Ref.getFields(a)) {
-					if (f.getName().equals("au"))
-						continue;
-					identifier.put(f.getName(), TheAPI.isOlderThan(8)?null:Ref.getNulled(f));
-				}
-			}
-		}else { //modded
-			for(Effect e : Effect.values()) {
-				if(e.getType()==Type.VISUAL) {
-					identifier.put(e.name(), null);
-				}
-			}
-			
-		}
-		
 		if(Ref.nmsOrOld("core.particles.ParticleParamRedstone","ParticleParamRedstone")!=null) {
 			paramRed = Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamRedstone","ParticleParamRedstone"))[0];
 			paramBlock=Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamBlock","ParticleParamBlock"))[0];

@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
@@ -72,6 +73,7 @@ import net.minecraft.server.v1_16_R3.EntityPlayer;
 import net.minecraft.server.v1_16_R3.EnumChatFormat;
 import net.minecraft.server.v1_16_R3.IBlockData;
 import net.minecraft.server.v1_16_R3.IChatBaseComponent;
+import net.minecraft.server.v1_16_R3.IRegistry;
 import net.minecraft.server.v1_16_R3.IScoreboardCriteria.EnumScoreboardHealthDisplay;
 import net.minecraft.server.v1_16_R3.ITileEntity;
 import net.minecraft.server.v1_16_R3.Item;
@@ -108,7 +110,9 @@ import net.minecraft.server.v1_16_R3.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_16_R3.PacketPlayOutTitle;
 import net.minecraft.server.v1_16_R3.PacketPlayOutTitle.EnumTitleAction;
 import net.minecraft.server.v1_16_R3.PacketStatusOutServerInfo;
+import net.minecraft.server.v1_16_R3.Particle;
 import net.minecraft.server.v1_16_R3.PlayerConnection;
+import net.minecraft.server.v1_16_R3.ResourceKey;
 import net.minecraft.server.v1_16_R3.ScoreboardObjective;
 import net.minecraft.server.v1_16_R3.ScoreboardServer;
 import net.minecraft.server.v1_16_R3.ServerPing;
@@ -1064,6 +1068,12 @@ public class v1_16_R3 implements NmsProvider {
 	@Override
 	public int getContainerStateId(Object container) {
 		return 0;
+	}
+
+	@Override
+	public void loadParticles() {
+		for(Entry<ResourceKey<Particle<?>>, Particle<?>> s : IRegistry.PARTICLE_TYPE.d())
+			me.devtec.theapi.particlesapi.Particle.identifier.put(s.getKey().a().toString(), s.getValue());
 	}
 
 }

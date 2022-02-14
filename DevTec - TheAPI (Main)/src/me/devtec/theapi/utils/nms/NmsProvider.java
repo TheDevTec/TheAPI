@@ -282,4 +282,6 @@ public interface NmsProvider {
 	}
 
 	public int getContainerStateId(Object container);
+
+	public void loadParticles();
 }
