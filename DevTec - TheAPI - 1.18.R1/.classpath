@@ -2,12 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/DevTec - TheAPI (Main)"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk-17.0.1">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/versions/spigot-1.18-R0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/asm-9.2.jar"/>
 	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/authlib-3.2.38.jar"/>
 	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/brigadier-1.0.18.jar"/>
@@ -40,28 +34,34 @@
 	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/log4j-core-2.14.1.jar"/>
 	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/log4j-iostreams-2.14.1.jar"/>
 	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/log4j-slf4j18-impl-2.14.1.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-artifact-3.8.1.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-builder-support-3.8.1.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-model-3.8.1.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-model-builder-3.8.1.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-repository-metadata-3.8.1.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-resolver-api-1.6.2.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-resolver-connector-basic-1.7.0.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-resolver-impl-1.6.2.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-resolver-provider-3.8.1.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-resolver-spi-1.6.2.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-resolver-transport-http-1.7.0.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-resolver-util-1.6.2.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-artifact-3.8.4.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-builder-support-3.8.4.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-model-3.8.4.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-model-builder-3.8.4.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-repository-metadata-3.8.4.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-resolver-api-1.6.3.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-resolver-connector-basic-1.7.2.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-resolver-impl-1.6.3.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-resolver-provider-3.8.4.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-resolver-spi-1.6.3.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-resolver-transport-http-1.7.2.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/maven-resolver-util-1.6.3.jar"/>
 	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/mysql-connector-java-8.0.27.jar"/>
 	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/netty-all-4.1.68.Final.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/org.eclipse.sisu.inject-0.3.4.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/org.eclipse.sisu.inject-0.3.5.jar"/>
 	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/oshi-core-5.8.2.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/plexus-interpolation-1.25.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/plexus-utils-3.2.1.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/plexus-interpolation-1.26.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/plexus-utils-3.3.0.jar"/>
 	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/protobuf-java-3.11.4.jar"/>
 	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/slf4j-api-1.8.0-beta4.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/snakeyaml-1.28.jar"/>
-	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/spigot-api-1.18-R0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/snakeyaml-1.30.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/spigot-api-1.18.1-R0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/libraries/sqlite-jdbc-3.36.0.3.jar"/>
+	<classpathentry kind="lib" path="D:/TL PROXY UPDATE/Authme/bundler/versions/spigot-1.18.1-R0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

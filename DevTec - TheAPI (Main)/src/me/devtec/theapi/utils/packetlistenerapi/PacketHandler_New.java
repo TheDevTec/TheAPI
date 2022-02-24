@@ -209,8 +209,15 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	public final void close() {
 		if (!closed) {
 			closed = true;
-			for (Channel c : channelLookup.values())
-				remove(c);
+			for (Channel channel : channelLookup.values()){
+				channel.eventLoop().execute(new Runnable() {
+					public void run() {
+						if(channel.pipeline().names().contains("InjectorTA"))
+							channel.pipeline().remove("InjectorTA");
+					}
+				});
+			}
+			channelLookup.clear();
 			unregisterChannelHandler();
 		}
 	}

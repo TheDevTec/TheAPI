@@ -265,10 +265,12 @@ public class TheAPI {
 		return StringUtils.buildString(args);
 	}
 
+	@Deprecated(forRemoval = true)
 	public static SQLAPI getSQLAPI(String host, String database, String username, String password, int port) {
 		return new SQLAPI(host, database, username, password, port);
 	}
 
+	@Deprecated(forRemoval = true)
 	public static SQLAPI getSQLAPI(String host, String database, String username, String password) {
 		return getSQLAPI(host, database, username, password, 3306); // 3306 is default.
 	}
@@ -442,7 +444,9 @@ public class TheAPI {
 		for (String s : colorize(message).replace("\\n", "\n").split("\n")) {
 			s=old+s;
 			sender.sendMessage(s);
-			old = StringUtils.getLastColors(s);
+			old = "";
+			for(char c : StringUtils.getLastColors(s).toCharArray())
+				old+="§"+c;
 		}
 	}
 
@@ -626,7 +630,9 @@ public class TheAPI {
 			for(Player p : TheAPI.getOnlinePlayers())
 				p.sendMessage(s);
 			getConsole().sendMessage(colorize(s));
-			old = StringUtils.getLastColors(s);
+			old = "";
+			for(char c : StringUtils.getLastColors(s).toCharArray())
+				old+="§"+c;
 		}
 	}
 
@@ -695,7 +701,9 @@ public class TheAPI {
 					p.sendMessage(s);
 			if (getConsole().hasPermission(permission))
 				getConsole().sendMessage(colorize(s));
-			old = StringUtils.getLastColors(s);
+			old = "";
+			for(char c : StringUtils.getLastColors(s).toCharArray())
+				old+="§"+c;
 		}
 	}
 

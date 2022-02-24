@@ -49,7 +49,6 @@ import me.devtec.theapi.guiapi.AnvilGUI;
 import me.devtec.theapi.guiapi.GUI.ClickType;
 import me.devtec.theapi.guiapi.HolderGUI;
 import me.devtec.theapi.guiapi.ItemGUI;
-import me.devtec.theapi.particlesapi.Particle;
 import me.devtec.theapi.placeholderapi.PlaceholderAPI;
 import me.devtec.theapi.placeholderapi.ThePlaceholder;
 import me.devtec.theapi.placeholderapi.ThePlaceholderAPI;
@@ -182,10 +181,11 @@ public class LoaderClass extends JavaPlugin {
 			}
 			nmsProvider=(NmsProvider) Class.forName("me.devtec.theapi.nms."+version+(mohist?"_Mohist":""),true,getClassLoader()).newInstance();
 			nmsProvider.loadParticles();
-			new Particle("HEART");
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
+		new LibraryLoader().load(getClassLoader());
+		
 		data = new Config("TheAPI/Data.dat", DataType.YAML);
 		
 		//CONFIG

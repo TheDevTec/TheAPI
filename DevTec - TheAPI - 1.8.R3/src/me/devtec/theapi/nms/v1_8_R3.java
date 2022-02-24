@@ -739,15 +739,18 @@ public class v1_8_R3 implements NmsProvider {
 		ItemStack item = asBukkitItem(packet.e());
 		if((type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.CLONE||type==InventoryClickType.THROW||item.getType()==Material.AIR) && item.getType()==Material.AIR)
 			item=asBukkitItem(getSlotItem(container, slot));
+		boolean cancel = false;
 		if(InventoryClickType.SWAP==type) {
 			item=player.getInventory().getItem(mouseClick);
 			mouseClick=0;
+			cancel=true;
 		}
 		if(item==null)item=new ItemStack(Material.AIR);
 		
 		ItemStack before = player.getItemOnCursor();
 		ClickType clickType = LoaderClass.buildClick(item, type, slot, mouseClick);
-		boolean cancel = LoaderClass.useItem(player, item, gui, slot, clickType);
+		if(!cancel)
+			cancel = LoaderClass.useItem(player, item, gui, slot, clickType);
 		if(!gui.isInsertable())cancel=true;
 		
 		int gameSlot = slot>gui.size()-1?InventoryUtils.convertToPlayerInvSlot(slot-gui.size()):slot;

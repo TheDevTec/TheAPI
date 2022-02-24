@@ -37,7 +37,7 @@ public class StringUtils {
 	private static final Pattern extra = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([*/])[ ]*(-?[ ]*[0-9.]+)");
 	private static final Pattern normal = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([+-])[ ]*(-?[ ]*[0-9.]+)");
 	//COLOR UTILS
-	private static final Pattern getLast = Pattern.compile("[§&][uU]|[§]([A-Fa-f0-9K-Ok-oRrXxUu])");
+	private static final Pattern getLast = Pattern.compile("(§[Xx](§[A-Fa-f0-9k-oK-ORrXxUu]){6}|§[A-Fa-f0-9k-oK-ORrXxUu]|&[Uu])");
 	private static final Pattern hex = Pattern.compile("#[a-fA-F0-9]{6}");
 	private static final Pattern reg = Pattern.compile("[&§]([Rrk-oK-O])");
 	private static final Pattern colorMatic = Pattern.compile("(<!>)*([&§])<!>([A-Fa-f0-9RrK-Ok-oUu" + (TheAPI.isNewerThan(15) ? "Xx" : "") + "])");
@@ -265,15 +265,26 @@ public class StringUtils {
 	 */
 	public static String getLastColors(String s) {
 		Matcher m = getLast.matcher(s);
-		StringBuilder colors = new StringBuilder();
+		String color = null;
+		StringBuilder formats = new StringBuilder();
 		while (m.find()) {
-			String last = m.group(1);
-			if (last.matches("[A-Fa-f0-9K-Ok-oRrXxUu]"))
-				colors = new StringBuilder(last);
-			else
-				colors.append(last);
+			String last = m.group(1).toLowerCase();
+			if(isFormat((int)last.charAt(1))) {
+				if(last.charAt(1)=='r') {
+					formats.delete(0, formats.length());
+					formats.append('r');
+					continue;
+				}
+				formats.append(last.charAt(1));
+				continue;
+			}
+			color = last.replace("§", "").replace("&", "");
 		}
-		return colors.toString();
+		return color==null?formats.toString():color+formats.toString();
+	}
+
+	private static boolean isFormat(int charAt) {
+		return charAt >= 107 && 107 <= 111 || charAt == 114;
 	}
 
 	public static String gradient(String msg, String fromHex, String toHex) {

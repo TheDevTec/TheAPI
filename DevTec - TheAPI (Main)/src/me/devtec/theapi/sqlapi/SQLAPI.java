@@ -11,6 +11,7 @@ import java.util.List;
 import me.devtec.theapi.utils.theapiutils.LoaderClass;
 import me.devtec.theapi.utils.theapiutils.Validator;
 
+@Deprecated(forRemoval = true)
 public class SQLAPI {
 	private Connection sql;
 	private final String host;

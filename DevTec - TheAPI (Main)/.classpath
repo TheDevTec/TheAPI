@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk-17.0.1">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/MC/spigot-1.17.1.jar"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/PlaceholderAPI-2.10.9.jar"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/Vault.jar"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/spigot-1.7.10.jar"/>
+	<classpathentry kind="lib" path="C:/Users/strai/Downloads/sqlserver.jar" sourcepath="C:/Users/strai/AppData/Local/Temp/.org.sf.feeling.decompiler1645125876994/source/mariadb-java-client-3.0.3-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/strai/Downloads/sqlite.jar"/>
+	<classpathentry kind="lib" path="C:/Users/strai/Downloads/mariadb.jar"/>
+	<classpathentry kind="lib" path="C:/Users/strai/Downloads/h2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

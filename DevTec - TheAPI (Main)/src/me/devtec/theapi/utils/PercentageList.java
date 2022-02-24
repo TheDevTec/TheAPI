@@ -47,7 +47,9 @@ public class PercentageList<T> {
 
 	public T getRandom() {
 		if(a.isEmpty())return null;
-		double chance = random.nextInt((int)getTotalChance())+random.nextDouble();
+		int total = (int) getTotalChance();
+		if(total <= 0)return null;
+		double chance = random.nextInt((int)total)+random.nextDouble();
 		return select(a,chance);
 	}
 	
@@ -68,7 +70,7 @@ public class PercentageList<T> {
 	
 	public double getTotalChance() {
 		double d = 0.0;
-		for(double as : a.values())d+=as;
+		for(double as : a.values())d+=as<0?0:as;
 		return d;
 	}
 
