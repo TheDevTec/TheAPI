@@ -5,7 +5,7 @@
 	<classpathentry kind="lib" path="C:/EclipseUtils/MohistMC Forge Hybrid/1.16.5/mohist-1.16.5-906-universal.jar"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/MohistMC Forge Hybrid/1.16.5/server-1.16.5-20210115.111550-extra.jar"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/MohistMC Forge Hybrid/1.16.5/server-1.16.5-20210115.111550-srg.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/A - TheAPI Loader - Bukkit"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/A - TheAPI Shared"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Loader - Bukkit"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

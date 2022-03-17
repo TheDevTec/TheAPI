@@ -62,7 +62,7 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/A - TheAPI Loader - Bukkit"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/A - TheAPI Shared"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Loader - Bukkit"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -2,8 +2,8 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/A - TheAPI BungeeAPI"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/A - TheAPI Shared"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/BungeeAPI"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/BungeeCord.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -2,9 +2,9 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/A - TheAPI BungeeAPI"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/A - TheAPI AdventureAPI"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/A - TheAPI Shared"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/BungeeAPI"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/AdventureAPI"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/spigot-1.17.1.jar"/>
 	<classpathentry kind="lib" path="C:/Users/strai/Downloads/PlaceholderAPI-2.11.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
