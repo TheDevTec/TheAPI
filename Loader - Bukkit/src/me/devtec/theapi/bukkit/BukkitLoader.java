@@ -46,17 +46,17 @@ import me.devtec.shared.scheduler.Tasker;
 import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
-import me.devtec.theapi.bossbar.BossBar;
-import me.devtec.theapi.game.ResourcePackAPI;
-import me.devtec.theapi.game.ResourcePackAPI.ResourcePackResult;
-import me.devtec.theapi.guiapi.AnvilGUI;
-import me.devtec.theapi.guiapi.GUI.ClickType;
-import me.devtec.theapi.guiapi.HolderGUI;
-import me.devtec.theapi.guiapi.ItemGUI;
-import me.devtec.theapi.nms.NmsProvider;
-import me.devtec.theapi.packetlistener.PacketHandler;
-import me.devtec.theapi.packetlistener.PacketHandler_New;
-import me.devtec.theapi.packetlistener.PacketListener;
+import me.devtec.theapi.bukkit.bossbar.BossBar;
+import me.devtec.theapi.bukkit.game.ResourcePackAPI;
+import me.devtec.theapi.bukkit.game.ResourcePackAPI.ResourcePackResult;
+import me.devtec.theapi.bukkit.gui.AnvilGUI;
+import me.devtec.theapi.bukkit.gui.HolderGUI;
+import me.devtec.theapi.bukkit.gui.ItemGUI;
+import me.devtec.theapi.bukkit.gui.GUI.ClickType;
+import me.devtec.theapi.bukkit.nms.NmsProvider;
+import me.devtec.theapi.bukkit.packetlistener.PacketHandler;
+import me.devtec.theapi.bukkit.packetlistener.PacketHandler_New;
+import me.devtec.theapi.bukkit.packetlistener.PacketListener;
 
 public class BukkitLoader extends JavaPlugin {
 	private static Method addUrl;

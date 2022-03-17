@@ -41,17 +41,15 @@ import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.events.HandlerList;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.BukkitLoader.InventoryClickType;
-import me.devtec.theapi.events.ServerListPingEvent;
-import me.devtec.theapi.events.ServerListPingEvent.PlayerProfile;
-import me.devtec.theapi.game.Position;
-import me.devtec.theapi.game.TheMaterial;
-import me.devtec.theapi.guiapi.AnvilGUI;
-import me.devtec.theapi.guiapi.GUI.ClickType;
-import me.devtec.theapi.guiapi.HolderGUI;
-import me.devtec.theapi.nms.NBTEdit;
-import me.devtec.theapi.nms.NmsProvider;
-import me.devtec.theapi.nms.utils.InventoryUtils;
-import me.devtec.theapi.nms.utils.InventoryUtils.DestinationType;
+import me.devtec.theapi.bukkit.events.ServerListPingEvent;
+import me.devtec.theapi.bukkit.events.ServerListPingEvent.PlayerProfile;
+import me.devtec.theapi.bukkit.game.Position;
+import me.devtec.theapi.bukkit.game.TheMaterial;
+import me.devtec.theapi.bukkit.gui.AnvilGUI;
+import me.devtec.theapi.bukkit.gui.HolderGUI;
+import me.devtec.theapi.bukkit.gui.GUI.ClickType;
+import me.devtec.theapi.bukkit.nms.utils.InventoryUtils;
+import me.devtec.theapi.bukkit.nms.utils.InventoryUtils.DestinationType;
 import net.minecraft.server.v1_16_R2.BiomeManager;
 import net.minecraft.server.v1_16_R2.Block;
 import net.minecraft.server.v1_16_R2.BlockPosition;
@@ -1063,7 +1061,7 @@ public class v1_16_R2 implements NmsProvider {
 	@Override
 	public void loadParticles() {
 		for(Entry<ResourceKey<Particle<?>>, Particle<?>> s : IRegistry.PARTICLE_TYPE.d())
-			me.devtec.theapi.game.particles.Particle.identifier.put(s.getKey().a().toString(), s.getValue());
+			me.devtec.theapi.bukkit.game.particles.Particle.identifier.put(s.getKey().a().toString(), s.getValue());
 	}
 
 }
