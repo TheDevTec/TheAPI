@@ -1,0 +1,5 @@
+name: TheAPI
+main: me.devtec.theapi.BungeeLoader
+version: 9.0
+authors: [DevTec,StraikerinaCZ]
+website: https://www.spigotmc.org/resources/72679/

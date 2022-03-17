@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="C:/EclipseUtils/MC/spigot-1.7.10.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/A - TheAPI Loader - Bukkit"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/A - TheAPI Shared"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
