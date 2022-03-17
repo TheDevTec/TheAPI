@@ -50,9 +50,9 @@ import me.devtec.theapi.bukkit.bossbar.BossBar;
 import me.devtec.theapi.bukkit.game.ResourcePackAPI;
 import me.devtec.theapi.bukkit.game.ResourcePackAPI.ResourcePackResult;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
+import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.gui.ItemGUI;
-import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 import me.devtec.theapi.bukkit.nms.NmsProvider;
 import me.devtec.theapi.bukkit.packetlistener.PacketHandler;
 import me.devtec.theapi.bukkit.packetlistener.PacketHandler_New;
@@ -124,34 +124,6 @@ public class BukkitLoader extends JavaPlugin {
 				}
 			}.runRepeating(0, 20);
 		}else bossbars = null;
-		if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI")!=null) {
-			placeholders = new me.devtec.shared.placeholders.PlaceholderExpansion("PAPI Support") {
-				public String apply(String text, UUID player) {
-					return me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(Bukkit.getOfflinePlayer(player), text);
-				}
-			}.register();
-			new PlaceholderExpansion() {
-				@Override
-				public String onRequest(OfflinePlayer player, String params) {
-					return PlaceholderAPI.apply("%"+params+"%", player.getUniqueId());
-				}
-
-				@Override
-				public String getIdentifier() {
-					return "theapi";
-				}
-
-				@Override
-				public String getAuthor() {
-					return "DevTec & StraikerinaCZ";
-				}
-
-				@Override
-				public String getVersion() {
-					return BukkitLoader.this.getDescription().getVersion();
-				}
-			}.register();
-		}
 		new PacketListener() {
 			
 			@Override
@@ -231,6 +203,37 @@ public class BukkitLoader extends JavaPlugin {
 				return null;
 			}
 		}.register();
+	}
+	
+	public void onEnable() {
+		if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI")!=null) {
+			placeholders = new me.devtec.shared.placeholders.PlaceholderExpansion("PAPI Support") {
+				public String apply(String text, UUID player) {
+					return me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(Bukkit.getOfflinePlayer(player), text);
+				}
+			}.register();
+			new PlaceholderExpansion() {
+				@Override
+				public String onRequest(OfflinePlayer player, String params) {
+					return PlaceholderAPI.apply("%"+params+"%", player.getUniqueId());
+				}
+
+				@Override
+				public String getIdentifier() {
+					return "theapi";
+				}
+
+				@Override
+				public String getAuthor() {
+					return "DevTec & StraikerinaCZ";
+				}
+
+				@Override
+				public String getVersion() {
+					return BukkitLoader.this.getDescription().getVersion();
+				}
+			}.register();
+		}
 	}
 	
 	public void onDisable() {
