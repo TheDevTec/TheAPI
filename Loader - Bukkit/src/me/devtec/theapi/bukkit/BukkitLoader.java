@@ -82,7 +82,7 @@ public class BukkitLoader extends JavaPlugin {
 			
 		}
 		try {
-			nmsProvider=(NmsProvider) Class.forName("me.devtec.theapi.nms."+Ref.serverVersion()+(mohist?"_Mohist":""),true,getClassLoader()).newInstance();
+			nmsProvider=(NmsProvider) Class.forName("me.devtec.theapi.bukkit.nms."+Ref.serverVersion()+(mohist?"_Mohist":""),true,getClassLoader()).newInstance();
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -97,13 +97,13 @@ public class BukkitLoader extends JavaPlugin {
 				if (Ref.isNewerThan(7))
 					handler = new PacketHandler_New(true);
 				else
-					handler = (PacketHandler<?>)Ref.newInstanceByClass("me.devtec.theapi.packetlistener.PacketHandler_Legacy", true);
+					handler = (PacketHandler<?>)Ref.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandler_Legacy", true);
 			}).start();
 		}else {
 			if (Ref.isNewerThan(7))
 				handler = new PacketHandler_New(false);
 			else
-				handler = (PacketHandler<?>)Ref.newInstanceByClass("me.devtec.theapi.packetlistener.PacketHandler_Legacy", false);
+				handler = (PacketHandler<?>)Ref.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandler_Legacy", false);
 		}
 		resource = Ref.nmsOrOld("network.protocol.game.PacketPlayInResourcePackStatus","PacketPlayInResourcePackStatus");
 		close = Ref.nmsOrOld("network.protocol.game.PacketPlayInCloseWindow","PacketPlayInCloseWindow");
