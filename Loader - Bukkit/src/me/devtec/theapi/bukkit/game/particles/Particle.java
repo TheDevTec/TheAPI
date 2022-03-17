@@ -3,6 +3,7 @@ package me.devtec.theapi.bukkit.game.particles;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import me.devtec.shared.Ref;
 import me.devtec.theapi.bukkit.BukkitLoader;
@@ -24,9 +25,13 @@ public class Particle {
 			paramDust = Ref.getConstructors(Ref.nmsOrOld("core.particles.DustColorTransitionOptions","DustColorTransitionOptions"))[0];
 		part=Ref.nmsOrOld("network.protocol.game.PacketPlayOutWorldParticles", "PacketPlayOutWorldParticles");
 	}
+	
+	public static Set<String> getParticles() {
+		return identifier.keySet();
+	}
 
 	private static Object toNMS(String particle) {
-		return identifier.get(particle);
+		return identifier.getOrDefault(particle.toLowerCase(), identifier.get("minecraft:"+particle.toLowerCase()));
 	}
 
 	private final Object particle;
@@ -38,7 +43,7 @@ public class Particle {
 	}
 
 	public Particle(String particle, ParticleData data) {
-		name = particle;
+		name = particle.toLowerCase();
 		if(!Ref.isOlderThan(8))
 		this.particle = toNMS(particle);
 		else this.particle=name;
