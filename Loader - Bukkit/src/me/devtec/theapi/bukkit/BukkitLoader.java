@@ -73,6 +73,7 @@ public class BukkitLoader extends JavaPlugin {
 	
 	public void onLoad() {
 		initTheAPI(this);
+		new Metrics(this, 10581);
 		boolean mohist = false;
 		try {
 			if(Class.forName("com.mohistmc.MohistMC", true, getClassLoader())!=null)mohist=true;

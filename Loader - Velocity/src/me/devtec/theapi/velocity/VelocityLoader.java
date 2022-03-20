@@ -1,4 +1,4 @@
-package me.devtec.theapi;
+package me.devtec.theapi.velocity;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -36,6 +36,7 @@ public class VelocityLoader {
     @Inject
     public VelocityLoader(ProxyServer server, Logger logger) {
     	initTheAPI();
+    	new Metrics("TheAPI","9,1",server, logger, 10581);
     }
     
     @Subscribe

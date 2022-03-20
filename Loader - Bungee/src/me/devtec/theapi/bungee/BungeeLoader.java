@@ -1,4 +1,4 @@
-package me.devtec.theapi;
+package me.devtec.theapi.bungee;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -29,6 +29,7 @@ public class BungeeLoader extends Plugin {
 	
 	public void onLoad() {
 		initTheAPI();
+		new Metrics(this, 10581);
 	}
 	
 	public void onDisable() {

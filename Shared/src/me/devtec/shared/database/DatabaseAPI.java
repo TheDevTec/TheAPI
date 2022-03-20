@@ -17,9 +17,13 @@ public class DatabaseAPI {
 	}
 
 	public static class SqlDatabaseSettings implements DatabaseSettings {
-		protected String ip, database, username, password;
-		protected int port;
-		protected String attributes, sqlType;
+		private String ip;
+		private String database;
+		private String username;
+		private String password;
+		private int port;
+		private String attributes;
+		private String sqlType;
 		
 		public SqlDatabaseSettings(DatabaseType sqlType, String ip, int port, String database, String username, String password) {
 			this.ip=ip;
@@ -54,8 +58,10 @@ public class DatabaseAPI {
 	}
 	
 	public static class SqliteDatabaseSettings implements DatabaseSettings {
-		protected String file, username, password;
-		protected String attributes;
+		private String file;
+		private String username;
+		private String password;
+		private String attributes;
 		
 		public SqliteDatabaseSettings(String file, String username, String password) {
 			this.file=file;
@@ -162,6 +168,8 @@ public class DatabaseAPI {
 				e.printStackTrace();
 			}
 			return new SqlHandler(settings.getConnectionString(), settings);
+			default:
+				break;
 		}
 		return null;
 	}

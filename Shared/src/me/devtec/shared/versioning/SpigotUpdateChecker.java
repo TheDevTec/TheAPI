@@ -32,7 +32,7 @@ public class SpigotUpdateChecker {
     //0 == SAME VERSION
     //1 == NEW VERSION
     //2 == BETA VERSION
-    public VersionChecker.Version checkForUpdates() {
+    public VersionUtils.Version checkForUpdates() {
     	if(checkURL==null)
     		reconnect();
     	String[] readerr = null;
@@ -45,7 +45,7 @@ public class SpigotUpdateChecker {
 			readerr=s.toArray(new String[s.size()]);
 		} catch (Exception e) {
 		}
-    	if(readerr==null)return VersionChecker.Version.UKNOWN;
-        return VersionChecker.getVersion(pluginVersion, readerr[0]);
+    	if(readerr==null)return VersionUtils.Version.UKNOWN;
+        return VersionUtils.getVersion(pluginVersion, readerr[0]);
     }
 }
