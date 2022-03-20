@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,9 +23,12 @@ import me.devtec.shared.utility.StringUtils;
 
 public class API {
 	public static LibraryLoader library = null;
-	private static Random random = new Random();
 	private static final Basics basics = new Basics();
-	public static boolean enabled;
+	public static boolean enabled = true;
+	
+	public static void setEnabled(boolean status) {
+		enabled=status;
+	}
 	
 	public static class Basics {
 		Pattern reg = Pattern.compile("[&§]([Rrk-oK-O])"), colorMatic = Pattern.compile("(<!>)*([&§])<!>([A-Fa-f0-9RrK-Ok-oUuXx])");
@@ -314,17 +316,7 @@ public class API {
 	 * @return double
 	 */
 	public static double generateRandomDouble(double min, double maxDouble) {
-		if (maxDouble == 0)
-			return maxDouble;
-		boolean a = maxDouble < 0;
-		if (a)
-			maxDouble *= -1;
-		double i = random.nextInt((int) maxDouble) + random.nextDouble();
-		if (i < (min < 0 ? min * -1 : min))
-			return min;
-		if (i > maxDouble)
-			i = maxDouble;
-		return a ? -1 * i : i;
+		return StringUtils.generateRandomDouble(min, maxDouble);
 	}
 
 	/**
@@ -333,17 +325,7 @@ public class API {
 	 * @return double
 	 */
 	public static int generateRandomInt(int min, int maxInt) {
-		if (maxInt == 0)
-			return maxInt;
-		boolean a = maxInt < 0;
-		if (a)
-			maxInt *= -1;
-		int i = random.nextInt(maxInt);
-		if (i < (min < 0 ? min * -1 : min))
-			return min;
-		if (i > maxInt)
-			i = maxInt;
-		return a ? -1 * i : i;
+		return StringUtils.generateRandomInt(min, maxInt);
 	}
 
 	/**

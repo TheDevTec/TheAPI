@@ -3,6 +3,7 @@ package me.devtec.shared.placeholders;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,7 +43,23 @@ public class PlaceholderAPI {
 		return text;
 	}
 	
-	//Legacy support
+	public static List<String> apply(List<String> text, UUID player) {
+		ListIterator<String> list = text.listIterator();
+		while(list.hasNext()) {
+			String val = list.next();
+			list.set(apply(val, player));
+		}
+		return text;
+	}
+	
+	public static PlaceholderExpansion getExpansion(String extensionName) {
+		Iterator<PlaceholderExpansion> iterator = extensions.iterator();
+		while(iterator.hasNext()) {
+			PlaceholderExpansion reg = iterator.next();
+			if(reg.getName().equalsIgnoreCase(extensionName))return reg;
+		}
+		return null;
+	}
 	
 	public static boolean isRegistered(String extensionName) {
 		Iterator<PlaceholderExpansion> iterator = extensions.iterator();

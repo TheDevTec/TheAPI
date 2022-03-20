@@ -57,6 +57,62 @@ public class StringUtils {
 
 		public String replaceHex(String msg);
 	}
+
+	/**
+	 * @apiNote Generate random int with limit
+	 * @param maxInt
+	 * @return int
+	 */
+	public static int generateRandomInt(int maxInt) {
+		return generateRandomInt(0, maxInt);
+	}
+
+	/**
+	 * @apiNote Generate random double with limit
+	 * @param maxDouble
+	 * @return double
+	 */
+	public static double generateRandomDouble(double maxDouble) {
+		return generateRandomDouble(0, maxDouble);
+	}
+
+	/**
+	 * @apiNote Generate random double with limit
+	 * @param maxDouble
+	 * @return double
+	 */
+	public static double generateRandomDouble(double min, double maxDouble) {
+		if (maxDouble == 0)
+			return maxDouble;
+		boolean a = maxDouble < 0;
+		if (a)
+			maxDouble *= -1;
+		double i = random.nextInt((int) maxDouble) + random.nextDouble();
+		if (i < (min < 0 ? min * -1 : min))
+			return min;
+		if (i > maxDouble)
+			i = maxDouble;
+		return a ? -1 * i : i;
+	}
+
+	/**
+	 * @apiNote Generate random double with limit
+	 * @param maxDouble
+	 * @return double
+	 */
+	public static int generateRandomInt(int min, int maxInt) {
+		if (maxInt == 0)
+			return maxInt;
+		boolean a = maxInt < 0;
+		if (a)
+			maxInt *= -1;
+		int i = random.nextInt(maxInt);
+		if (i < (min < 0 ? min * -1 : min))
+			return min;
+		if (i > maxInt)
+			i = maxInt;
+		return a ? -1 * i : i;
+	}
 	
 	/**
 	 * @apiNote Split text correctly with colors

@@ -3,6 +3,7 @@ package me.devtec.shared.dataholder;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -53,6 +54,19 @@ public class Config {
 	}
 	
 	public Config(File file, boolean load) {
+		if(!file.exists()) {
+			try {
+				if(file.getParentFile()!=null) {
+					file.getParentFile().mkdirs();
+				}
+			}catch(Exception err) {
+			}
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		this.file = file;
 		keys = new LinkedList<>();
 		if (load)
@@ -67,10 +81,7 @@ public class Config {
 	}
 	
 	public synchronized boolean exists(String path) {
-		for (String k : loader.getKeys())
-			if (k.startsWith(path))
-				return true;
-		return false;
+		return isKey(path);
 	}
 
 	public synchronized boolean existsKey(String path) {
@@ -79,6 +90,19 @@ public class Config {
 
 	public synchronized Config setFile(File file) {
 		requireSave=true;
+		if(!file.exists()) {
+			try {
+				if(file.getParentFile()!=null) {
+					file.getParentFile().mkdirs();
+				}
+			}catch(Exception err) {
+			}
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		this.file = file;
 		return this;
 	}
@@ -269,6 +293,10 @@ public class Config {
 				keys.add(g);
 		}
 		return this;
+	}
+
+	public synchronized Config reload() {
+		return reload(getFile());
 	}
 
 	public synchronized Config reload(File f) {

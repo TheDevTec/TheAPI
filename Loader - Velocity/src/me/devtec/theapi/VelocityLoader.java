@@ -12,6 +12,8 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 
 import com.google.inject.Inject;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.proxy.plugin.PluginClassLoader;
@@ -34,6 +36,11 @@ public class VelocityLoader {
     @Inject
     public VelocityLoader(ProxyServer server, Logger logger) {
     	initTheAPI();
+    }
+    
+    @Subscribe
+    public void onProxyInitialization(ProxyShutdownEvent event) {
+    	API.setEnabled(false);
     }
 	
 	public static void initTheAPI() {

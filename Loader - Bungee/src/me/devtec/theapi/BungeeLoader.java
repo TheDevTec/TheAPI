@@ -31,6 +31,10 @@ public class BungeeLoader extends Plugin {
 		initTheAPI();
 	}
 	
+	public void onDisable() {
+		API.setEnabled(false);
+	}
+	
 	public static void initTheAPI() {
 		Ref.init(ServerType.BUNGEECORD, Ref.getClass("io.github.waterfallmc.waterfall.log4j.WaterfallLogger")!=null?"WaterFall":"BungeeCord"); //Server version
 		ComponentAPI.init(new BungeeComponentAPI<>(), null);

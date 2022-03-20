@@ -63,7 +63,6 @@ public class BukkitLoader extends JavaPlugin {
 	private static NmsProvider nmsProvider;
 	
 	public static Map<UUID, HolderGUI> gui = new HashMap<>();
-	public static boolean enabled = true;
 
 	private static PacketHandler<?> handler;
 	public static Object airBlock;
@@ -73,7 +72,6 @@ public class BukkitLoader extends JavaPlugin {
 	private me.devtec.shared.placeholders.PlaceholderExpansion placeholders;
 	
 	public void onLoad() {
-		enabled = true;
 		initTheAPI(this);
 		boolean mohist = false;
 		try {
@@ -237,12 +235,13 @@ public class BukkitLoader extends JavaPlugin {
 	}
 	
 	public void onDisable() {
-		enabled = false;
+		API.setEnabled(false);
 		Scheduler.cancelAll();
 		handler.close();
 		if(placeholders!=null)
 			placeholders.unregister();
-		for(BossBar bar : new ArrayList<>(bossbars))bar.remove();
+		if(bossbars!=null)
+			for(BossBar bar : new ArrayList<>(bossbars))bar.remove();
 	}
 	
 	/**
