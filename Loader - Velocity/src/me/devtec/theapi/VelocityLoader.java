@@ -30,7 +30,7 @@ import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
 
-@Plugin(id = "theapi", name = "TheAPI", version = "9.0", authors = {"DevTec", "StraikerinaCZ"}, url = "https://www.spigotmc.org/resources/72679/")
+@Plugin(id = "theapi", name = "TheAPI", version = "9.1", authors = {"DevTec", "StraikerinaCZ"}, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 
     @Inject
