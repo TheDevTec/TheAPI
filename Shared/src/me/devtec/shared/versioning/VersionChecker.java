@@ -15,11 +15,10 @@ public class VersionChecker {
     	for(String f : version.replaceAll("[^0-9.]+", "").split("\\.")) {
     		int id = StringUtils.getInt(f), bi = StringUtils.getInt(s[d++]);
     		if(id == bi) {
-    			is=Version.SAME_VERSION;
+    			is = Version.SAME_VERSION;
     			continue;
     		}
-    		is=id > bi? Version.NEWER_VERSION : Version.OLDER_VERSION;
-    		break;
+    		return id > bi? Version.NEWER_VERSION : Version.OLDER_VERSION;
     	}
     	return is;
 	}

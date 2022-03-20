@@ -52,14 +52,14 @@ public class AdventureComponentAPI<T> implements Adventure<net.kyori.adventure.t
 		Map<String, Object> value =((Map<String,Object>)val);
 		
 		switch(hoverEvent.getAction()) {
-		case SHOW_ACHIEVEMENT:
-			return null;
 		case SHOW_ENTITY:
 			return net.kyori.adventure.text.event.HoverEvent.showEntity(Key.key("minecraft:"+value.getOrDefault("type","zombie")), UUID.fromString(value.getOrDefault("id",UUID.randomUUID().toString())+""), value.get("name")==null?null:toBaseComponent(ComponentAPI.toComponent(value.get("name")+"", true)));
 		case SHOW_ITEM:
 			return net.kyori.adventure.text.event.HoverEvent.showItem(Key.key("minecraft:"+value.getOrDefault("id","air")), (int)(double)value.getOrDefault("count",1.0), BinaryTagHolder.binaryTagHolder(Json.writer().simpleWrite(value.getOrDefault("tag",new HashMap<>()))));
 		case SHOW_TEXT:
 			return net.kyori.adventure.text.event.HoverEvent.showText(toBaseComponent(hoverEvent.getValue()));
+			default:
+				break;
 		}
 		return null;
 	}

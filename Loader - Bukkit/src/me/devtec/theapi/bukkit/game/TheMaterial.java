@@ -9,6 +9,10 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 
 public class TheMaterial implements Cloneable {
 
+	private Material m;
+	private int data;
+	private int amount;
+
 	public static TheMaterial fromData(Object blockData) {
 		return BukkitLoader.getNmsProvider().toMaterial(blockData);
 	}
@@ -82,9 +86,6 @@ public class TheMaterial implements Cloneable {
 	public TheMaterial(int id, int data) {
 		this(Material.values()[id], data, 1);
 	}
-
-	private Material m;
-	private int data, amount;
 
 	public int getAmount() {
 		return amount;

@@ -17,10 +17,6 @@ public class Scheduler {
 	public static boolean isCancelled(int task) {
 		return !thread.isAlive(task) && API.enabled;
 	}
-	
-	/*
-	  ASYNCHRONOUOS PART
-	 */
 
 	public static int run(Runnable r) {
 		if(r==null||!API.enabled)return -1;
@@ -97,10 +93,8 @@ public class Scheduler {
 						runnable.run();
 						Thread.sleep(period * 50);
 					}
-					if(!isCancelled(id)) {
-						if(onFinish!=null)
-							onFinish.run();
-					}
+					if(onFinish!=null && !isCancelled(id))
+						onFinish.run();
 					thread.destroy(id);
 				} catch (Exception err) {
 					thread.destroy(id);

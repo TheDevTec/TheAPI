@@ -21,11 +21,6 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 public class NameTagAPI {
 	@SuppressWarnings("unchecked")
 	private static Map<Character, Object> formatMap = (Map<Character, Object>)Ref.getNulled(Ref.isNewerThan(11)?Ref.craft("util.CraftChatMessage"):Ref.craft("util.CraftChatMessage$StringMessage"), "formatMap");
-	
-	private Object getNMSColor(ChatColor color) {
-		return color==null?white:formatMap.getOrDefault(color.getChar(), white);
-	}
-	
 	private static Map<UUID, List<NameTagAPI>> teams = new HashMap<>();
 	private final Player p;
 	private List<UUID> canSee = new ArrayList<>();
@@ -33,6 +28,11 @@ public class NameTagAPI {
 	private String name;
 	private ChatColor color;
 	private boolean changed;
+	
+	private Object getNMSColor(ChatColor color) {
+		return color==null?white:formatMap.getOrDefault(color.getChar(), white);
+	}
+	
 	public NameTagAPI(Player player, String teamName) {
 		this.p=player;
 		name=teamName.length()>12?teamName.substring(0, 12):teamName;

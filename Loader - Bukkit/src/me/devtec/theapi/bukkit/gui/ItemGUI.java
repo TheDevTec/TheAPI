@@ -6,8 +6,6 @@ import org.bukkit.inventory.ItemStack;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 
 public abstract class ItemGUI {
-	public abstract void onClick(Player player, HolderGUI gui, ClickType click);
-
 	private ItemStack s;
 	// Defaulty true
 	private boolean unsteal = true;
@@ -15,6 +13,8 @@ public abstract class ItemGUI {
 	public ItemGUI(ItemStack stack) {
 		s = stack;
 	}
+	
+	public abstract void onClick(Player player, HolderGUI gui, ClickType click);
 
 	public final ItemGUI setUnstealable(boolean value) {
 		unsteal = value;

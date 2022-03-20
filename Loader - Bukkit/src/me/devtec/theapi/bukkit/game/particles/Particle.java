@@ -15,7 +15,17 @@ import me.devtec.theapi.bukkit.game.particles.ParticleData.RedstoneOptions;
 
 public class Particle {
 	public static final Map<String, Object> identifier = new HashMap<>();
+	
+	private static Constructor<?> paramRed;
+	private static Constructor<?> paramDust;
+	private static Constructor<?> paramBlock;
+	private static Constructor<?> paramItem;
+	private static final Constructor<?> vector=Ref.constructor(Ref.getClass("com.mojang.math.Vector3fa"), float.class, float.class, float.class);
+	private static final Class<?> part;
+	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+	
 	static {
+		part=Ref.nmsOrOld("network.protocol.game.PacketPlayOutWorldParticles", "PacketPlayOutWorldParticles");
 		if(Ref.nmsOrOld("core.particles.ParticleParamRedstone","ParticleParamRedstone")!=null) {
 			paramRed = Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamRedstone","ParticleParamRedstone"))[0];
 			paramBlock=Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamBlock","ParticleParamBlock"))[0];
@@ -23,7 +33,6 @@ public class Particle {
 		}
 		if(Ref.isNewerThan(16))
 			paramDust = Ref.getConstructors(Ref.nmsOrOld("core.particles.DustColorTransitionOptions","DustColorTransitionOptions"))[0];
-		part=Ref.nmsOrOld("network.protocol.game.PacketPlayOutWorldParticles", "PacketPlayOutWorldParticles");
 	}
 	
 	public static Set<String> getParticles() {
@@ -77,14 +86,6 @@ public class Particle {
 	public Object createPacket(Position pos, float speed, int amount) {
 		return createPacket(pos.getX(), pos.getY(), pos.getZ(), speed, amount);
 	}
-	
-	private static Constructor<?> paramRed;
-	private static Constructor<?> paramDust;
-	private static Constructor<?> paramBlock;
-	private static Constructor<?> paramItem;
-	private static final Constructor<?> vector=Ref.constructor(Ref.getClass("com.mojang.math.Vector3fa"), float.class, float.class, float.class);
-	private static final Class<?> part;
-	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
 	
 	public Object createPacket(double x, double y, double z, float speed, int amount) {
 		Object packet;

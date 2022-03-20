@@ -102,8 +102,8 @@ public class PacketHandler_Legacy implements PacketHandler<Channel> {
 		networkManagers = (List<?>) (Ref.get(serverConnection, "e")!=null?Ref.get(serverConnection, "e"):Ref.get(serverConnection, "f"));
 		if(networkManagers==null) { //modded server
 			for(Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
-				if(java.util.List.class==f.getType()){
-					networkManagers=(java.util.List<?>) Ref.get(serverConnection, f);
+				if(List.class==f.getType()){
+					networkManagers=(List<?>) Ref.get(serverConnection, f);
 					break;
 				}
 			}
@@ -112,8 +112,8 @@ public class PacketHandler_Legacy implements PacketHandler<Channel> {
 			networkManagers = (List<?>) (Ref.get(serverConnection, "f")!=null?Ref.get(serverConnection, "f"):Ref.get(serverConnection, "e"));
 			if(networkManagers==null) { //modded server
 				for(Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
-					if(java.util.List.class==f.getType()){
-						networkManagers=(java.util.List<?>) Ref.get(serverConnection, f);
+					if(List.class==f.getType()){
+						networkManagers=(List<?>) Ref.get(serverConnection, f);
 						break;
 					}
 				}

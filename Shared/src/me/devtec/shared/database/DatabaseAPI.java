@@ -104,8 +104,10 @@ public class DatabaseAPI {
 	public static DatabaseHandler openConnection(DatabaseType type, DatabaseSettings settings) throws SQLException {
 		switch(type) {
 		case H2:
-			API.library.downloadFileFromUrl("https://github.com/TheDevTec/TheAPI/blob/master/h2.jar?raw=true", "plugins/TheAPI/libraries/h2.jar");
-			API.library.load(new File("plugins/TheAPI/libraries/h2.jar"));
+			File file = new File("plugins/TheAPI/libraries/h2.jar");
+			if(!file.exists())
+				API.library.downloadFileFromUrl("https://github.com/TheDevTec/TheAPI/raw/master/h2.jar", file);
+			API.library.load(file);
 			try {
 				Class.forName ("org.h2.Driver"); 
 			} catch (ClassNotFoundException e) {
@@ -113,8 +115,10 @@ public class DatabaseAPI {
 			}
 			return new SqlHandler(settings.getConnectionString(), settings);
 		case MARIADB:
-			API.library.downloadFileFromUrl("https://github.com/TheDevTec/TheAPI/blob/master/mariadb.jar?raw=true", "plugins/TheAPI/libraries/mariadb.jar");
-			API.library.load(new File("plugins/TheAPI/libraries/mariadb.jar"));
+			file = new File("plugins/TheAPI/libraries/mariadb.jar");
+			if(!file.exists())
+				API.library.downloadFileFromUrl("https://github.com/TheDevTec/TheAPI/raw/master/mariadb.jar", file);
+			API.library.load(file);
 			try {
 				Class.forName("org.mariadb.jdbc.Driver");
 			} catch (ClassNotFoundException e) {
@@ -122,10 +126,25 @@ public class DatabaseAPI {
 			}
 			return new SqlHandler(settings.getConnectionString(), settings);
 		case MYSQL:
+			try {
+				Class.forName("com.mysql.cj.jdbc.Driver");
+			} catch (ClassNotFoundException e) {
+				file = new File("plugins/TheAPI/libraries/mysql.jar");
+				if(!file.exists())
+					API.library.downloadFileFromUrl("https://github.com/TheDevTec/TheAPI/raw/master/mysql.jar", file);
+				API.library.load(file);
+			}
+			try {
+				Class.forName("com.mysql.cj.jdbc.Driver");
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 			return new SqlHandler(settings.getConnectionString(), settings);
 		case SQLITE:
-			API.library.downloadFileFromUrl("https://github.com/TheDevTec/TheAPI/blob/master/sqlite.jar?raw=true", "plugins/TheAPI/libraries/sqlite.jar");
-			API.library.load(new File("plugins/TheAPI/libraries/sqlite.jar"));
+			file = new File("plugins/TheAPI/libraries/sqlite.jar");
+			if(!file.exists())
+				API.library.downloadFileFromUrl("https://github.com/TheDevTec/TheAPI/raw/master/sqlite.jar", file);
+			API.library.load(file);
 			try {
 				Class.forName("org.sqlite.JDBC");
 			} catch (ClassNotFoundException e) {
@@ -133,8 +152,10 @@ public class DatabaseAPI {
 			}
 			return new SqlHandler(settings.getConnectionString(), settings);
 		case SQLSERVER:
-			API.library.downloadFileFromUrl("https://github.com/TheDevTec/TheAPI/blob/master/sqlserver.jar?raw=true", "plugins/TheAPI/libraries/sqlserver.jar");
-			API.library.load(new File("plugins/TheAPI/libraries/sqlserver.jar"));
+			file = new File("plugins/TheAPI/libraries/sqlserver.jar");
+			if(!file.exists())
+				API.library.downloadFileFromUrl("https://github.com/TheDevTec/TheAPI/raw/master/sqlserver.jar", file);
+			API.library.load(file);
 			try {
 				Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
 			} catch (ClassNotFoundException e) {

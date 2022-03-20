@@ -37,9 +37,15 @@ public class AnvilGUI implements HolderGUI {
 		open(p);
 	}
 
+	/**
+	 * @apiNote Actions before close gui
+	 */
 	public void onPreClose(Player player) {
 	}
 
+	/**
+	 * @apiNote Actions on close gui
+	 */
 	public void onClose(Player player) {
 	}
 

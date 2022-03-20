@@ -17,6 +17,12 @@ import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 
 public class Position implements Cloneable {
+	private String w;
+	private double x;
+	private double y;
+	private double z;
+	private float yaw;
+	private float pitch;
 
 	public Position() {
 	}
@@ -104,26 +110,6 @@ public class Position implements Cloneable {
 		if (location != null)
 			return new Position(location);
 		return null;
-	}
-
-	private String w;
-	private double x, y, z;
-	private float yaw, pitch;
-
-	@Override
-	public String toString() {
-		return ("[Position:" + w + "/" + x + "/" + y + "/" + z + "/" + yaw + "/" + pitch + ']').replace(".", ":");
-	}
-
-	public int hashCode() {
-		int hashCode = 1;
-		hashCode = 31 * hashCode + w.hashCode();
-		hashCode = (int) (31 * hashCode + x);
-		hashCode = (int) (31 * hashCode + y);
-		hashCode = (int) (31 * hashCode + z);
-		hashCode = (int) (31 * hashCode + yaw);
-		hashCode = (int) (31 * hashCode + pitch);
-		return hashCode;
 	}
 
 	public Biome getBiome() {
@@ -448,5 +434,21 @@ public class Position implements Cloneable {
 	
 	public Position clone() {
 		return new Position(w, x, y, z, yaw, pitch);
+	}
+
+	@Override
+	public String toString() {
+		return ("[Position:" + w + "/" + x + "/" + y + "/" + z + "/" + yaw + "/" + pitch + ']').replace(".", ":");
+	}
+
+	public int hashCode() {
+		int hashCode = 1;
+		hashCode = 31 * hashCode + w.hashCode();
+		hashCode = (int) (31 * hashCode + x);
+		hashCode = (int) (31 * hashCode + y);
+		hashCode = (int) (31 * hashCode + z);
+		hashCode = (int) (31 * hashCode + yaw);
+		hashCode = (int) (31 * hashCode + pitch);
+		return hashCode;
 	}
 }

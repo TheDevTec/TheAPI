@@ -108,7 +108,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 		if(networkManagers==null) { //modded server
 			for(Field f : Ref.getAllFields(Ref.nmsOrOld("server.network.ServerConnection","ServerConnection")))
 				if(java.util.List.class==f.getType()){
-					networkManagers=(java.util.List<ChannelFuture>) Ref.get(serverConnection, f);
+					networkManagers=(List<ChannelFuture>) Ref.get(serverConnection, f);
 					break;
 				}
 			}
@@ -117,8 +117,8 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 			networkManagers = (List<ChannelFuture>) (Ref.get(serverConnection, "f")!=null?Ref.get(serverConnection, "f"):Ref.get(serverConnection, "listeningChannels"));
 			if(networkManagers==null) { //modded server
 				for(Field f : Ref.getAllFields(Ref.nmsOrOld("server.network.ServerConnection","ServerConnection")))
-					if(java.util.List.class==f.getType()){
-						networkManagers=(java.util.List<ChannelFuture>) Ref.get(serverConnection, f);
+					if(List.class==f.getType()){
+						networkManagers=(List<ChannelFuture>) Ref.get(serverConnection, f);
 						break;
 					}
 				}

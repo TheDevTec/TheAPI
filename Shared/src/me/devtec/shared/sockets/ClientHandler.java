@@ -19,6 +19,8 @@ public class ClientHandler extends Thread {
 	protected final Config data = new Config();
 	protected boolean closed;
     
+    private LinkedList<String> postQueue;
+    
     public ClientHandler(Server server, Socket s, BufferedReader dis2, PrintWriter dos2) {
         this.s = s;
         ser=server;
@@ -47,8 +49,6 @@ public class ClientHandler extends Thread {
     public void write(String path, Object object) {
     	data.set(path, object);
     }
-    
-    private LinkedList<String> postQueue;
     
     public void send() {
     	if(accessFull) {

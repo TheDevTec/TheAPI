@@ -31,7 +31,8 @@ public class API {
 	}
 	
 	public static class Basics {
-		Pattern reg = Pattern.compile("[&§]([Rrk-oK-O])"), colorMatic = Pattern.compile("(<!>)*([&§])<!>([A-Fa-f0-9RrK-Ok-oUuXx])");
+		Pattern reg = Pattern.compile("[&§]([Rrk-oK-O])");
+		Pattern colorMatic = Pattern.compile("(<!>)*([&§])<!>([A-Fa-f0-9RrK-Ok-oUuXx])");
 		
 		public void load() {
 			Config tags = new Config("plugins/TheAPI/Tags.yml");
