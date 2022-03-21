@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,12 +21,50 @@ import com.google.common.collect.Lists;
 
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.utility.LibraryLoader;
+import me.devtec.shared.utility.OfflineCache;
 import me.devtec.shared.utility.StringUtils;
 
 public class API {
 	public static LibraryLoader library = null;
+	private static OfflineCache cache;
+	private static Map<UUID, Config> users = new HashMap<>();
 	private static final Basics basics = new Basics();
 	public static boolean enabled = true;
+	
+	public static void initOfflineCache(boolean onlineMode, Config rawData) {
+		cache = new OfflineCache(onlineMode);
+		for(String uuid : rawData.getKeys())
+			  try {
+			    cache.setLookup(UUID.fromString(uuid), rawData.getString(uuid));
+			  }catch(Exception err) {}
+	}
+	
+	public static OfflineCache offlineCache() {
+		return cache;
+	}
+	
+	public static Config getUser(String playerName) {
+		if(cache==null)return null;
+		UUID id = cache.lookupId(playerName);
+		Config cached = users.get(id);
+		if(cached==null) {
+			users.put(id, cached=new Config("plugins/TheAPI/Users/"+id+".yml"));
+		}
+		return cached;
+	}
+	
+	public static Config getUser(UUID id) {
+		if(cache==null)return null;
+		Config cached = users.get(id);
+		if(cached==null) {
+			users.put(id, cached=new Config("plugins/TheAPI/Users/"+id+".yml"));
+		}
+		return cached;
+	}
+	
+	public static Config removeCache(UUID id) {
+		return users.remove(id);
+	}
 	
 	public static void setEnabled(boolean status) {
 		enabled=status;

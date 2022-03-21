@@ -24,6 +24,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -58,7 +64,7 @@ import me.devtec.theapi.bukkit.packetlistener.PacketHandler;
 import me.devtec.theapi.bukkit.packetlistener.PacketHandler_New;
 import me.devtec.theapi.bukkit.packetlistener.PacketListener;
 
-public class BukkitLoader extends JavaPlugin {
+public class BukkitLoader extends JavaPlugin implements Listener {
 	private static Method addUrl;
 	private static NmsProvider nmsProvider;
 	
@@ -205,6 +211,7 @@ public class BukkitLoader extends JavaPlugin {
 	}
 	
 	public void onEnable() {
+		Bukkit.getPluginManager().registerEvents(this, this);
 		if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI")!=null) {
 			placeholders = new me.devtec.shared.placeholders.PlaceholderExpansion("PAPI Support") {
 				public String apply(String text, UUID player) {
@@ -234,6 +241,27 @@ public class BukkitLoader extends JavaPlugin {
 			}.register();
 		}
 	}
+    
+    @EventHandler
+    public void onAsyncPreLoginEvent(AsyncPlayerPreLoginEvent e) {
+    	API.offlineCache().setLookup(e.getUniqueId(), e.getName());
+    }
+    
+    @EventHandler
+    public void onPreLoginEvent(PlayerPreLoginEvent e) { //fix uuid - premium login?
+    	API.offlineCache().setLookup(e.getUniqueId(), e.getName());
+    }
+    
+    @EventHandler
+    public void onLoginEvent(PlayerLoginEvent e) { //fix uuid - premium login?
+    	API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getName());
+    }
+    
+    @EventHandler
+    public void onDisconnect(PlayerQuitEvent e) {
+    	Config cache = API.removeCache(e.getPlayer().getUniqueId());
+    	if(cache!=null)cache.save();
+    }
 	
 	public void onDisable() {
 		API.setEnabled(false);
@@ -243,6 +271,9 @@ public class BukkitLoader extends JavaPlugin {
 			placeholders.unregister();
 		if(bossbars!=null)
 			for(BossBar bar : new ArrayList<>(bossbars))bar.remove();
+    	
+		//OfflineCache support!
+		API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save();
 	}
 	
 	/**
@@ -341,6 +372,9 @@ public class BukkitLoader extends JavaPlugin {
 	}
 	
 	private static void initTheAPI(JavaPlugin plugin) {
+		//OfflineCache support!
+		API.initOfflineCache(Bukkit.getOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));
+		
 		Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor")!=null?
 				(Ref.getClass("net.kyori.adventure.Adventure")!=null?ServerType.PAPER:ServerType.SPIGOT)
 				:ServerType.BUKKIT, Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]); //Server version

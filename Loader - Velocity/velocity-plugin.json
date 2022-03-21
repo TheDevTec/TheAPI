@@ -1,7 +1,7 @@
 {
   "id":"theapi",
   "name":"TheAPI",
-  "version":"9.1",
+  "version":"9.2",
   "authors":["DevTec","StraikerinaCZ"],
   "main":"me.devtec.theapi.velocity.VelocityLoader",
   "url":"https://www.spigotmc.org/resources/72679/",

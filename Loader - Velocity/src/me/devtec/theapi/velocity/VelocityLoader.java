@@ -13,6 +13,9 @@ import org.slf4j.Logger;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.connection.DisconnectEvent;
+import com.velocitypowered.api.event.connection.LoginEvent;
+import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -23,6 +26,7 @@ import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
 import me.devtec.shared.components.AdventureComponentAPI;
 import me.devtec.shared.components.ComponentAPI;
+import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.json.Json;
 import me.devtec.shared.json.modern.ModernJsonReader;
 import me.devtec.shared.json.modern.ModernJsonWriter;
@@ -30,21 +34,43 @@ import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
 
-@Plugin(id = "theapi", name = "TheAPI", version = "9.1", authors = {"DevTec", "StraikerinaCZ"}, url = "https://www.spigotmc.org/resources/72679/")
+@Plugin(id = "theapi", name = "TheAPI", version = "9.2", authors = {"DevTec", "StraikerinaCZ"}, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 
     @Inject
     public VelocityLoader(ProxyServer server, Logger logger) {
-    	initTheAPI();
-    	new Metrics("TheAPI","9,1",server, logger, 10581);
+    	initTheAPI(server);
+    	new Metrics("TheAPI",server.getPluginManager().getPlugin("theapi").get().getDescription().getVersion().get(), server, logger, 10581);
     }
     
     @Subscribe
     public void onProxyInitialization(ProxyShutdownEvent event) {
     	API.setEnabled(false);
+    	
+		//OfflineCache support!
+		API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save();
+    }
+    
+    @Subscribe
+    public void onPreLoginEvent(PreLoginEvent e) {
+    	API.offlineCache().setLookup(API.offlineCache().lookupId(e.getUsername()), e.getUsername());
+    }
+    
+    @Subscribe
+    public void onLoginEvent(LoginEvent e) { //fix uuid - premium login?
+    	API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getUsername());
+    }
+    
+    @Subscribe
+    public void onDisconnect(DisconnectEvent e) {
+    	Config cache = API.removeCache(e.getPlayer().getUniqueId());
+    	if(cache!=null)cache.save();
     }
 	
-	public static void initTheAPI() {
+	public static void initTheAPI(ProxyServer server) {
+		//OfflineCache support!
+		API.initOfflineCache(server.getConfiguration().isOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));
+		
 	    Ref.init(ServerType.VELOCITY, "Velocity"); //Server version
 	    ComponentAPI.init(null, new AdventureComponentAPI<>());
 	    Json.init(new ModernJsonReader(), new ModernJsonWriter()); //Modern version of Guava

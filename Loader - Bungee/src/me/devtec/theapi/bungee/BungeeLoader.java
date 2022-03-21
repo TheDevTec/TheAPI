@@ -15,6 +15,7 @@ import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
 import me.devtec.shared.components.BungeeComponentAPI;
 import me.devtec.shared.components.ComponentAPI;
+import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.json.Json;
 import me.devtec.shared.json.modern.ModernJsonReader;
 import me.devtec.shared.json.modern.ModernJsonWriter;
@@ -22,21 +23,49 @@ import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.event.LoginEvent;
+import net.md_5.bungee.api.event.PlayerDisconnectEvent;
+import net.md_5.bungee.api.event.PreLoginEvent;
+import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginDescription;
+import net.md_5.bungee.event.EventHandler;
 
-public class BungeeLoader extends Plugin {
+public class BungeeLoader extends Plugin implements Listener {
 	
 	public void onLoad() {
 		initTheAPI();
+		getProxy().getPluginManager().registerListener(this, this);
 		new Metrics(this, 10581);
 	}
 	
 	public void onDisable() {
 		API.setEnabled(false);
+    	
+		//OfflineCache support!
+		API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save();
 	}
+    
+    @EventHandler
+    public void onPreLoginEvent(PreLoginEvent e) {
+    	API.offlineCache().setLookup(API.offlineCache().lookupId(e.getConnection().getName()), e.getConnection().getName());
+    }
+    
+    @EventHandler
+    public void onLoginEvent(LoginEvent e) { //fix uuid - premium login?
+    	API.offlineCache().setLookup(e.getConnection().getUniqueId(), e.getConnection().getName());
+    }
+    
+    @EventHandler
+    public void onDisconnect(PlayerDisconnectEvent e) {
+    	Config cache = API.removeCache(e.getPlayer().getUniqueId());
+    	if(cache!=null)cache.save();
+    }
 	
 	public static void initTheAPI() {
+		//OfflineCache support!
+		API.initOfflineCache(ProxyServer.getInstance().getConfig().isOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));
+		
 		Ref.init(ServerType.BUNGEECORD, Ref.getClass("io.github.waterfallmc.waterfall.log4j.WaterfallLogger")!=null?"WaterFall":"BungeeCord"); //Server version
 		ComponentAPI.init(new BungeeComponentAPI<>(), null);
 		Json.init(new ModernJsonReader(), new ModernJsonWriter()); //Modern version of Guava
