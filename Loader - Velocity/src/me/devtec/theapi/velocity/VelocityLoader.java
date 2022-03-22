@@ -34,13 +34,13 @@ import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
 
-@Plugin(id = "theapi", name = "TheAPI", version = "9.2", authors = {"DevTec", "StraikerinaCZ"}, url = "https://www.spigotmc.org/resources/72679/")
+@Plugin(id = "theapi", name = "TheAPI", version = "9.3", authors = {"DevTec", "StraikerinaCZ"}, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 
     @Inject
     public VelocityLoader(ProxyServer server, Logger logger) {
     	initTheAPI(server);
-    	new Metrics("TheAPI",server.getPluginManager().getPlugin("theapi").get().getDescription().getVersion().get(), server, logger, 10581);
+    	new Metrics("TheAPI","9.3", server, logger, 10581);
     }
     
     @Subscribe
