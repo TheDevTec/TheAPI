@@ -136,7 +136,7 @@ public class SqlHandler implements DatabaseHandler {
 
 	@Override
 	public boolean exists(SelectQuery query) throws SQLException {
-		if(sql==null || sql.isClosed())open();
+		tryOpen();
 		ResultSet set = sql.createStatement().executeQuery(buildSelectCommand(query));
 		if(set==null)return false;
 		return set.next();
@@ -144,7 +144,7 @@ public class SqlHandler implements DatabaseHandler {
 
 	@Override
 	public boolean createTable(String name, Row[] values) throws SQLException {
-		if(sql==null || sql.isClosed())open();
+		tryOpen();
 		return sql.createStatement().execute("CREATE TABLE IF NOT EXISTS `"+name+"`("+buildTableValues(values)+")");
 	}
 
@@ -162,13 +162,13 @@ public class SqlHandler implements DatabaseHandler {
 
 	@Override
 	public boolean deleteTable(String name) throws SQLException {
-		if(sql==null || sql.isClosed())open();
+		tryOpen();
 		return sql.createStatement().execute("DROP TABLE "+name);
 	}
 
 	@Override
 	public Result get(SelectQuery query) throws SQLException {
-		if(sql==null || sql.isClosed())open();
+		tryOpen();
 		ResultSet set = sql.createStatement().executeQuery(buildSelectCommand(query));
 		String[] lookup = query.getSearch();
 		if(set !=null && set.next()) {
@@ -214,25 +214,42 @@ public class SqlHandler implements DatabaseHandler {
 
 	@Override
 	public boolean insert(InsertQuery query) throws SQLException {
-		if(sql==null || sql.isClosed())open();
+		tryOpen();
 		return sql.createStatement().executeUpdate(buildInsertCommand(query)) != 0;
 	}
 
 	@Override
 	public boolean update(UpdateQuery query) throws SQLException {
-		if(sql==null || sql.isClosed())open();
+		tryOpen();
 		return sql.createStatement().executeUpdate(buildUpdateCommand(query)) != 0;
+	}
+
+	private void tryOpen() {
+		try {
+			if(sql==null || sql.isClosed())open();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			sql.createStatement();
+		}catch(Exception err) {
+			try {
+				open();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override
 	public boolean remove(RemoveQuery query) throws SQLException {
-		if(sql==null || sql.isClosed())open();
+		tryOpen();
 		return sql.createStatement().executeUpdate(buildRemoveCommand(query)) != 0;
 	}
 
 	@Override
 	public List<String> getTables() throws SQLException {
-		if(sql==null || sql.isClosed())open();
+		tryOpen();
 		ResultSet set = sql.createStatement().executeQuery("SHOW TABLES");
 		if(set!=null && set.next()) {
 			List<String> tables = new ArrayList<>();
@@ -247,7 +264,7 @@ public class SqlHandler implements DatabaseHandler {
 
 	@Override
 	public Row[] getTableValues(String name) throws SQLException {
-		if(sql==null || sql.isClosed())open();
+		tryOpen();
 		ResultSet set = sql.createStatement().executeQuery("DESCRIBE `"+name+"`");
 		if(set==null || !set.next())return null;
 		List<Row> rows = new ArrayList<>();
