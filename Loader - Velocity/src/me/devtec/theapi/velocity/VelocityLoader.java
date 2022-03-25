@@ -40,7 +40,7 @@ public class VelocityLoader {
     @Inject
     public VelocityLoader(ProxyServer server, Logger logger) {
     	initTheAPI(server);
-    	new Metrics("TheAPI","9.3", server, logger, 10581);
+    	new Metrics("TheAPI","9.4", server, logger, 10581);
     }
     
     @Subscribe
