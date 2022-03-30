@@ -13,6 +13,10 @@ public class EmptyLoader extends DataLoader {
 	protected final List<String> footer = new LinkedList<>();
 	protected boolean loaded = true;
 	
+	public boolean loadingFromFile() {
+		return false;
+	}
+	
 	@Override
 	public Map<String, Object[]> get() {
 		return data;

@@ -17,7 +17,7 @@ public class JsonLoader extends EmptyLoader {
 	@Override
 	public void load(String input) {
 		reset();
-		if (input == null)
+		if (input == null || (!input.startsWith("[") && !input.endsWith("]")) && (!input.startsWith("{") && !input.endsWith("}")))
 			return;
 		try {
 			Object read = Json.reader().read(input.replace(System.lineSeparator(), ""));

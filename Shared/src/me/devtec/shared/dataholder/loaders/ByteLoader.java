@@ -47,7 +47,7 @@ public class ByteLoader extends EmptyLoader {
 		if (input == null)
 			return;
 		try {
-			byte[] bb = Base64.getDecoder().decode(input.replace(System.lineSeparator(), ""));
+			byte[] bb = Base64.getDecoder().decode(input.replace(System.lineSeparator(), "").replace(" ", ""));
 			ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
 			int version = bos.readInt();
 			if(version == 3) {
