@@ -2,6 +2,7 @@ package me.devtec.shared.dataholder;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,28 +41,36 @@ class SectionBuilder {
 		String space;
 	}
 	
-	Map<String, SectionHolder> secs = new LinkedHashMap<>();
+	Map<String, SectionHolder> secs;
 	
 	public SectionBuilder(List<String> keys, Map<String, Object[]> map) {
+		secs = new LinkedHashMap<>(map.size()); //correct size of map
+		
+		//Prepare sections in map
 		for(String d : keys) {
 			SectionHolder sec = new SectionHolder(d);
 			sec.space="";
 			secs.put(d, sec);
 		}
+		
+		//Build subkeys
 		for(Entry<String, Object[]> e : map.entrySet()) {
-			if(e.getKey().indexOf('.') > -1) {
-				String[] split = split(e.getKey());
-				SectionHolder holder = secs.get(split[0]);
+			int startPos = e.getKey().indexOf('.');
+			if(startPos > -1) {
+				List<String> split = split(e.getKey(), startPos);
+				String first = split.get(0);
+				SectionHolder holder = secs.get(first);
 				if(holder==null) {
-					SectionHolder sec = new SectionHolder(split[0]);
+					SectionHolder sec = new SectionHolder(first);
 					sec.space="";
-					secs.put(split[0], holder=sec);
+					secs.put(first, holder=sec);
 				}
 				//DEEP FIND SECTION
-				for(int i = 1; i < split.length; ++i) {
-					SectionHolder f = holder.find(split[i]);
+				for(int i = 1; i < split.size(); ++i) {
+					first=split.get(i);
+					SectionHolder f = holder.find(first);
 					if(f==null)
-						f=holder.create(split[i]);
+						f=holder.create(first);
 					holder=f;
 				}
 				//SET VALUE
@@ -71,18 +80,26 @@ class SectionBuilder {
 			}
 		}
 	}
-
-	private static String[] split(String text) {
-        int off = 0, next = 0;
-        ArrayList<String> list = new ArrayList<>();
+	
+	private static List<String> split(String text, int startPos) {
+		if(startPos==-1)return Collections.singletonList(text);
+		
+        int off = 0;
+        int next = startPos;
+        List<String> list = new ArrayList<>();
+        
+        //First known value
+        list.add(text.substring(off, next));
+        off = next + 1;
+        
+        //Continue via loop
         while ((next = text.indexOf('.', off)) != -1) {
             list.add(text.substring(off, next));
             off = next + 1;
         }
-        if (off == 0)
-            return new String[] {text};
+        //Remaining chars
         list.add(text.substring(off, text.length()));
-        return list.toArray(new String[list.size()]);
+        return list;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -91,37 +108,46 @@ class SectionBuilder {
 		bab.append(section.space);
 		String split = section.name;
 		if(split.length()==1) { //char
-			bab.append('"').append(split).append('"').append(':');
+			bab.append('\'').append(split).append('\'').append(':');
 		}else
 		if(split.contains(":")) {
-			bab.append('"').append(split).append('"').append(':');
+			bab.append('\'').append(split).append('\'').append(':');
 		}else
 		if(split.startsWith("#")) { //starts with comment
-			bab.append('"').append(split).append('"').append(':');
+			bab.append('\'').append(split).append('\'').append(':');
 		}else bab.append(section.name).append(':');
 		try {
-		Object[] aw = section.val;
-		if(aw==null) {
-			b.append(bab).append(System.lineSeparator());
-			for (SectionHolder d : section.holders)
-				start(d, b);
-			return;
-		}
-		Collection<String> list = (Collection<String>)aw[1];
-		Object o = aw[0];
-		if(list != null)
-			for (String s : list)
-				b.append(section.space).append(s).append(System.lineSeparator());
-		if(o==null)b.append(bab).append(System.lineSeparator());
-		else {
-			if (o instanceof Collection || o instanceof Object[]) {
-				String splitted = section.space+'-'+' ';
-				if (o instanceof Collection) {
-					if(!((Collection<?>) o).isEmpty()) {
-						try {
-							if(aw.length==3 && aw[2]!=null) {
-								addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
-							}else {
+			Object[] aw = section.val;
+			if(aw==null) {
+				b.append(bab).append(System.lineSeparator());
+				for (SectionHolder d : section.holders)
+					start(d, b);
+				return;
+			}
+			Collection<String> list = (Collection<String>)aw[1];
+			Object o = aw[0];
+			if(list != null)
+				for (String s : list)
+					b.append(section.space).append(s).append(System.lineSeparator());
+			if(o==null)b.append(bab).append(System.lineSeparator());
+			else {
+				if (o instanceof Collection || o instanceof Object[]) {
+					String splitted = section.space+'-'+' ';
+					if (o instanceof Collection) {
+						if(!((Collection<?>) o).isEmpty()) {
+							try {
+								if(aw.length==3 && aw[2]!=null) {
+									addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
+								}else {
+									b.append(bab).append(System.lineSeparator());
+									for (Object a : (Collection<?>) o) {
+										if(a instanceof String)
+											addQuotesSplit(b,splitted,(String)a);
+										else
+											addQuotesSplit(b,splitted,a);
+									}
+								}
+							}catch(Exception er) {
 								b.append(bab).append(System.lineSeparator());
 								for (Object a : (Collection<?>) o) {
 									if(a instanceof String)
@@ -129,23 +155,23 @@ class SectionBuilder {
 									else
 										addQuotesSplit(b,splitted,a);
 								}
-							}
-						}catch(Exception er) {
-							b.append(bab).append(System.lineSeparator());
-							for (Object a : (Collection<?>) o) {
-								if(a instanceof String)
-									addQuotesSplit(b,splitted,(String)a);
-								else
-									addQuotesSplit(b,splitted,a);
-							}
-					}}else
-						b.append(bab).append(' ').append('[').append(']').append(System.lineSeparator());
-				} else {
-					if(((Object[]) o).length!=0) {
-						try {
-							if(aw.length==3 && aw[2]!=null) {
-								addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
-							}else {
+						}}else
+							b.append(bab).append(' ').append('[').append(']').append(System.lineSeparator());
+					} else {
+						if(((Object[]) o).length!=0) {
+							try {
+								if(aw.length==3 && aw[2]!=null) {
+									addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
+								}else {
+									b.append(bab).append(System.lineSeparator());
+									for (Object a : (Object[]) o) {
+										if(a instanceof String)
+											addQuotesSplit(b,splitted,(String)a);
+										else
+											addQuotesSplit(b,splitted,a);
+									}
+								}
+							}catch(Exception er) {
 								b.append(bab).append(System.lineSeparator());
 								for (Object a : (Object[]) o) {
 									if(a instanceof String)
@@ -153,37 +179,30 @@ class SectionBuilder {
 									else
 										addQuotesSplit(b,splitted,a);
 								}
-							}
-						}catch(Exception er) {
-							b.append(bab).append(System.lineSeparator());
-							for (Object a : (Object[]) o) {
-								if(a instanceof String)
-									addQuotesSplit(b,splitted,(String)a);
-								else
-									addQuotesSplit(b,splitted,a);
-							}
-					}}else
-						b.append(bab).append(' ').append('[').append(']').append(System.lineSeparator());
-				}
-			} else {
-				try {
-					if(aw.length==3 && aw[2]!=null) {
-						addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
-					}else {
+						}}else
+							b.append(bab).append(' ').append('[').append(']').append(System.lineSeparator());
+					}
+				} else {
+					try {
+						if(aw.length==3 && aw[2]!=null) {
+							addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
+						}else {
+							if(o instanceof String)
+								addQuotes(b,bab,(String)o, false);
+							else
+								addQuotes(b,bab,o);
+						}
+					}catch(Exception er) {
 						if(o instanceof String)
 							addQuotes(b,bab,(String)o, false);
 						else
 							addQuotes(b,bab,o);
 					}
-				}catch(Exception er) {
-					if(o instanceof String)
-						addQuotes(b,bab,(String)o, false);
-					else
-						addQuotes(b,bab,o);
 				}
 			}
+		}catch(Exception err) {
+			err.printStackTrace();
 		}
-		}catch(Exception err) {err.printStackTrace();}
 		if(section.holders!=null)
 			for (SectionHolder d : section.holders)
 				start(d, b);
@@ -222,7 +241,7 @@ class SectionBuilder {
 	}
 
 	public void write(StringBuilder d) {
-		for(Entry<String, SectionHolder> c : secs.entrySet())
-			start(c.getValue(),d);
+		for(SectionHolder c : secs.values())
+			start(c, d);
 	}
 }

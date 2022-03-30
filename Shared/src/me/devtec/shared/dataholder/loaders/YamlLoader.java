@@ -1,6 +1,5 @@
 package me.devtec.shared.dataholder.loaders;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,7 +39,7 @@ public class YamlLoader extends EmptyLoader {
 					comments.add(line.substring(removeSpaces(line)));
 					continue;
 				}
-
+				
 				String e = line.substring(removeSpaces(line));
 				if(wasEmpty && e.startsWith("- ")) {
 					if(items==null)items=new LinkedList<>();
@@ -78,16 +77,12 @@ public class YamlLoader extends EmptyLoader {
 							key = "";
 						else {
 							if (sub == last) {
-								String[] ff = split(key);
-								String lastr = ff[ff.length - 1] + 1;
-								int remove = key.length() - lastr.length();
+								int remove = key.lastIndexOf('.');
 								if (remove > 0)
 									key = key.substring(0, remove);
 							} else {
 								for (int i = 0; i < Math.abs(last - sub) / 2 + 1; ++i) {
-									String[] ff = split(key);
-									String lastr = ff[ff.length - 1] + 1;
-									int remove = key.length() - lastr.length();
+									int remove = key.lastIndexOf('.');
 									if (remove < 0)
 										break;
 									key = key.substring(0, remove);
@@ -159,20 +154,6 @@ public class YamlLoader extends EmptyLoader {
 			}else break;
 		}
 		return i;
-	}
-	
-	private static String[] split(String text) {
-        int off = 0, next = text.indexOf('.', off);
-        if(next==-1)
-            return new String[] {text};
-        ArrayList<String> list = new ArrayList<>();
-        while (next != -1) {
-            list.add(text.substring(off, next));
-            off = next + 1;
-            next = text.indexOf('.', off);
-        }
-        list.add(text.substring(off, text.length()));
-        return list.toArray(new String[list.size()]);
 	}
 
 	protected static String r(String key) {
