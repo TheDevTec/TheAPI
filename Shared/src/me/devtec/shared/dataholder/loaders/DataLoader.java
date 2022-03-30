@@ -16,8 +16,9 @@ public abstract class DataLoader {
 	
 	//Data loaders hierarchy
 	public static Map<LoaderPriority, Set<DataLoaderConstructor>> dataLoaders = new HashMap<>();
+	static final LoaderPriority[] priorities = new LoaderPriority[] {LoaderPriority.LOWEST, LoaderPriority.LOW, LoaderPriority.NORMAL, LoaderPriority.HIGH, LoaderPriority.HIGHEST};
 	static {
-		for(LoaderPriority priority : new LoaderPriority[] {LoaderPriority.LOWEST, LoaderPriority.LOW, LoaderPriority.NORMAL, LoaderPriority.HIGH, LoaderPriority.HIGHEST})
+		for(LoaderPriority priority : priorities)
 			dataLoaders.put(priority, new HashSet<>());
 		
 		//BUILT-IN LOADERS
@@ -73,7 +74,7 @@ public abstract class DataLoader {
 
 	public static DataLoader findLoaderFor(File input) {
 		String inputString = null;
-		for(LoaderPriority priority : new LoaderPriority[] {LoaderPriority.LOWEST, LoaderPriority.LOW, LoaderPriority.NORMAL, LoaderPriority.HIGH, LoaderPriority.HIGHEST})
+		for(LoaderPriority priority : priorities)
 			for(DataLoaderConstructor constructor : dataLoaders.get(priority)) {
 				DataLoader loader = constructor.construct();
 				if(loader.loadingFromFile()) {
@@ -87,27 +88,13 @@ public abstract class DataLoader {
 		return null;
 	}
 
-	public static DataLoader findLoaderFor(String input) {
-		DataLoader data = new ByteLoader();
-		try {
-		data.load(input);
-		if(data.isLoaded())return data;
-		}catch(Exception err) {}
-		data = new JsonLoader();
-		try {
-		data.load(input);
-		if(data.isLoaded())return data;
-		}catch(Exception err) {}
-		PropertiesLoader data3 = new PropertiesLoader();
-		try {
-		data3.load(input);
-		}catch(Exception err) {}
-		data = new YamlLoader();
-		try {
-		data.load(input);
-		if(data3.isLoaded() && !data3.get().isEmpty() && data3.get().size()>data.get().size())return data3;
-		if(data.isLoaded())return data;
-		}catch(Exception err) {}
-		return new EmptyLoader();
+	public static DataLoader findLoaderFor(String inputString) {
+		for(LoaderPriority priority : priorities)
+			for(DataLoaderConstructor constructor : dataLoaders.get(priority)) {
+				DataLoader loader = constructor.construct();
+				loader.load(inputString);
+				if(loader.isLoaded())return loader;
+			}
+		return null;
 	}
 }
