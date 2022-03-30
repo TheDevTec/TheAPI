@@ -23,6 +23,8 @@ import java.util.zip.ZipEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandMap;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -53,6 +55,7 @@ import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
 import me.devtec.theapi.bukkit.bossbar.BossBar;
+import me.devtec.theapi.bukkit.commands.hooker.Old1_8SimpleCommandMap;
 import me.devtec.theapi.bukkit.game.ResourcePackAPI;
 import me.devtec.theapi.bukkit.game.ResourcePackAPI.ResourcePackResult;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
@@ -77,6 +80,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	public static List<BossBar> bossbars = new ArrayList<>();
 	private me.devtec.shared.placeholders.PlaceholderExpansion placeholders;
 	
+	@SuppressWarnings("unchecked")
 	public void onLoad() {
 		initTheAPI(this);
 		new Metrics(this, 10581);
@@ -97,6 +101,11 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		}
 		if(nmsProvider!=null)
 			nmsProvider.loadParticles();
+		
+		if(Ref.field(Command.class, "timings")!=null && Ref.isOlderThan(9)) {
+			Ref.set(Bukkit.getServer(), "commandMap", new Old1_8SimpleCommandMap(Bukkit.getServer(), (Map<String, Command>) Ref.get(((CommandMap)Ref.get(Bukkit.getPluginManager(), "commandMap")), "knownCommands")));
+		}
+		
 		if(new File("spigot.yml").exists() && new Config("spigot.yml").getBoolean("settings.late-bind")) {
 			new Thread(() -> { //ASYNC
 				if (Ref.isNewerThan(7))
