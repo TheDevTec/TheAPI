@@ -16,17 +16,20 @@ public class PropertiesLoader extends EmptyLoader {
 		List<String> comments = new LinkedList<>();
 		for(String s : input.split(System.lineSeparator())) {
 			String f = s.trim();
-			if(f.isEmpty()||f.startsWith("#")) { //comment
+			if(!f.isEmpty() && !f.startsWith("#")) { //comment
+				comments.add(s);
 			}else {
+				if(s.startsWith(" ")) { // S-s-space?! Maybe.. this is YAML file.
+					data.clear();
+					break;
+				}
 				Matcher m = pattern.matcher(s);
 				if(m.find()) {
 					data.put(m.group(1), new Object[] {Json.reader().read(m.group(2)), comments.isEmpty()?null:new LinkedList<>(comments),m.group(2)});
 					comments.clear();
 					continue;
 				}
-				//comment
 			}
-			comments.add(s);
 		}
 		if(!comments.isEmpty()) {
 			if(data.isEmpty())header.addAll(comments);
