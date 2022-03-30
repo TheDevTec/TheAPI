@@ -67,6 +67,7 @@ public class Utils {
 			case WORLD:
 				for(World world : Bukkit.getWorlds())
 					text.add(world.getName());
+				break;
 			case NUMBER:
 				text.add("{number}");
 				break;
