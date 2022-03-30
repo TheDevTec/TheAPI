@@ -71,6 +71,7 @@ public class Config {
 		keys = new LinkedList<>();
 		if (load)
 			reload(file);
+		requireSave=false;
 	}
 	
 	// CLONE
@@ -89,6 +90,7 @@ public class Config {
 	}
 
 	public synchronized Config setFile(File file) {
+		if(file == this.file)return this;
 		requireSave=true;
 		if(!file.exists()) {
 			try {
@@ -588,7 +590,7 @@ public class Config {
 	}
 
 	public synchronized String toString() {
-		return toString(DataType.BYTE);
+		return toString(DataType.YAML);
 	}
 
 	protected synchronized void addKeys(List<Map<String, String>> list, String key) {

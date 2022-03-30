@@ -1,8 +1,8 @@
 package me.devtec.shared.database;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -126,7 +126,7 @@ public class SqlHandler implements DatabaseHandler {
 	@Override
 	public void open() throws SQLException {
 		sql=DriverManager.getConnection(path, settings.getUser(), settings.getPassword());
-		sql.getMetaData();
+		sql.setAutoCommit(true);
 	}
 
 	@Override
@@ -219,13 +219,17 @@ public class SqlHandler implements DatabaseHandler {
 		return prepareStatement(buildUpdateCommand(query)).executeUpdate() != 0;
 	}
 
-	private CallableStatement prepareStatement(String sqlCommand) throws SQLException {
+	private PreparedStatement prepareStatement(String sqlCommand) throws SQLException {
 		try {
 			if(sql==null || sql.isClosed())open();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return sql.prepareCall(sqlCommand);
+		try {
+			return sql.prepareStatement(sqlCommand);
+		}catch(SQLException err) {
+			return sql.prepareStatement(sqlCommand); //one more time!
+		}
 	}
 
 	@Override

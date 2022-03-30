@@ -18,7 +18,7 @@ public abstract class DataLoader {
 	//Data loaders hierarchy
 	public static Map<LoaderPriority, Set<DataLoaderConstructor>> dataLoaders = new HashMap<>();
 	static {
-		for(LoaderPriority priority : LoaderPriority.values())
+		for(LoaderPriority priority : new LoaderPriority[] {LoaderPriority.LOWEST, LoaderPriority.LOW, LoaderPriority.NORMAL, LoaderPriority.HIGH, LoaderPriority.HIGHEST})
 			dataLoaders.put(priority, new HashSet<>());
 		
 		//BUILT-IN LOADERS
@@ -78,8 +78,8 @@ public abstract class DataLoader {
 
 	public static DataLoader findLoaderFor(File input) {
 		String inputString = null;
-		for(Set<DataLoaderConstructor> constructors : dataLoaders.values()) {
-			for(DataLoaderConstructor constructor : constructors) {
+		for(LoaderPriority priority : new LoaderPriority[] {LoaderPriority.LOWEST, LoaderPriority.LOW, LoaderPriority.NORMAL, LoaderPriority.HIGH, LoaderPriority.HIGHEST})
+			for(DataLoaderConstructor constructor : dataLoaders.get(priority)) {
 				DataLoader loader = constructor.construct();
 				if(loader.loadingFromFile()) {
 					loader.load(input);
@@ -89,7 +89,6 @@ public abstract class DataLoader {
 				}
 				if(loader.isLoaded())return loader;
 			}
-		}
 		return null;
 	}
 
