@@ -1,5 +1,6 @@
 package me.devtec.shared.database;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -136,16 +137,14 @@ public class SqlHandler implements DatabaseHandler {
 
 	@Override
 	public boolean exists(SelectQuery query) throws SQLException {
-		tryOpen();
-		ResultSet set = sql.createStatement().executeQuery(buildSelectCommand(query));
+		ResultSet set = prepareStatement(buildSelectCommand(query)).executeQuery();
 		if(set==null)return false;
 		return set.next();
 	}
 
 	@Override
 	public boolean createTable(String name, Row[] values) throws SQLException {
-		tryOpen();
-		return sql.createStatement().execute("CREATE TABLE IF NOT EXISTS `"+name+"`("+buildTableValues(values)+")");
+		return prepareStatement("CREATE TABLE IF NOT EXISTS `"+name+"`("+buildTableValues(values)+")").execute();
 	}
 
 	public String buildTableValues(Row[] values) {
@@ -162,14 +161,12 @@ public class SqlHandler implements DatabaseHandler {
 
 	@Override
 	public boolean deleteTable(String name) throws SQLException {
-		tryOpen();
-		return sql.createStatement().execute("DROP TABLE "+name);
+		return prepareStatement("DROP TABLE "+name).execute();
 	}
-
+	
 	@Override
 	public Result get(SelectQuery query) throws SQLException {
-		tryOpen();
-		ResultSet set = sql.createStatement().executeQuery(buildSelectCommand(query));
+		ResultSet set = prepareStatement(buildSelectCommand(query)).executeQuery();
 		String[] lookup = query.getSearch();
 		if(set !=null && set.next()) {
 			if(lookup.length==1 && lookup[0].equals("*")) {
@@ -214,43 +211,31 @@ public class SqlHandler implements DatabaseHandler {
 
 	@Override
 	public boolean insert(InsertQuery query) throws SQLException {
-		tryOpen();
-		return sql.createStatement().executeUpdate(buildInsertCommand(query)) != 0;
+		return prepareStatement(buildInsertCommand(query)).executeUpdate() != 0;
 	}
 
 	@Override
 	public boolean update(UpdateQuery query) throws SQLException {
-		tryOpen();
-		return sql.createStatement().executeUpdate(buildUpdateCommand(query)) != 0;
+		return prepareStatement(buildUpdateCommand(query)).executeUpdate() != 0;
 	}
 
-	private void tryOpen() {
+	private CallableStatement prepareStatement(String sqlCommand) throws SQLException {
 		try {
 			if(sql==null || sql.isClosed())open();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		try {
-			sql.createStatement();
-		}catch(Exception err) {
-			try {
-				open();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
+		return sql.prepareCall(sqlCommand);
 	}
 
 	@Override
 	public boolean remove(RemoveQuery query) throws SQLException {
-		tryOpen();
-		return sql.createStatement().executeUpdate(buildRemoveCommand(query)) != 0;
+		return prepareStatement(buildRemoveCommand(query)).executeUpdate() != 0;
 	}
 
 	@Override
 	public List<String> getTables() throws SQLException {
-		tryOpen();
-		ResultSet set = sql.createStatement().executeQuery("SHOW TABLES");
+		ResultSet set = prepareStatement("SHOW TABLES").executeQuery();
 		if(set!=null && set.next()) {
 			List<String> tables = new ArrayList<>();
 			tables.add(set.getString(0));
@@ -264,8 +249,7 @@ public class SqlHandler implements DatabaseHandler {
 
 	@Override
 	public Row[] getTableValues(String name) throws SQLException {
-		tryOpen();
-		ResultSet set = sql.createStatement().executeQuery("DESCRIBE `"+name+"`");
+		ResultSet set = prepareStatement("DESCRIBE `"+name+"`").executeQuery();
 		if(set==null || !set.next())return null;
 		List<Row> rows = new ArrayList<>();
 		while(set.next())

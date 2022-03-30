@@ -244,10 +244,18 @@ public interface DatabaseHandler {
 	public boolean createTable(String name, Row[] values) throws SQLException;
 	
 	public boolean deleteTable(String name) throws SQLException;
+
+	public default Result select(SelectQuery query) throws SQLException {
+		return get(query);
+	}
 	
 	public Result get(SelectQuery query) throws SQLException;
 	
 	public boolean insert(InsertQuery query) throws SQLException;
+
+	public default boolean set(UpdateQuery query) throws SQLException {
+		return set(query);
+	}
 	
 	public boolean update(UpdateQuery query) throws SQLException;
 	
