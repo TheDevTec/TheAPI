@@ -46,6 +46,7 @@ public class EmptyLoader extends DataLoader {
 		data.clear();
 		header.clear();
 		footer.clear();
+		loaded=false;
 	}
 
 	@Override

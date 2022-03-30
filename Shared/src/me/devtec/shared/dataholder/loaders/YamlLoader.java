@@ -10,11 +10,6 @@ import me.devtec.shared.json.Json;
 
 public class YamlLoader extends EmptyLoader {
 	private static final Pattern pattern = Pattern.compile("([ ]*)(['\\\"][^'\\\"]+['\\\"]|[^\\\"']?\\\\w+[^\\\"']?|.*?):[ ]*(.*)");
-
-	public void reset() {
-		super.reset();
-		loaded=false;
-	}
 	
 	@Override
 	public void load(String input) {

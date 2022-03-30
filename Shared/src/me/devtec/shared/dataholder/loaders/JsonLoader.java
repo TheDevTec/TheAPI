@@ -7,11 +7,6 @@ import java.util.Map.Entry;
 import me.devtec.shared.json.Json;
 
 public class JsonLoader extends EmptyLoader {
-
-	public void reset() {
-		super.reset();
-		loaded=false;
-	}
 	
 	@SuppressWarnings("unchecked")
 	@Override

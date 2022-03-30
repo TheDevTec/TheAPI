@@ -38,10 +38,4 @@ public class PropertiesLoader extends EmptyLoader {
 		}
 		loaded=!data.isEmpty();
 	}
-
-	@Override
-	public void reset() {
-		super.reset();
-		loaded=false;
-	}
 }

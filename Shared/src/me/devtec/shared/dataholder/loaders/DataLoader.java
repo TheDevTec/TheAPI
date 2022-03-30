@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import me.devtec.shared.dataholder.loaders.constructor.DataLoaderConstructor;
@@ -12,8 +13,6 @@ import me.devtec.shared.dataholder.loaders.constructor.LoaderPriority;
 import me.devtec.shared.utility.StreamUtils;
 
 public abstract class DataLoader {
-	private DataLoaderConstructor constructor;
-	private LoaderPriority priority;
 	
 	//Data loaders hierarchy
 	public static Map<LoaderPriority, Set<DataLoaderConstructor>> dataLoaders = new HashMap<>();
@@ -29,24 +28,20 @@ public abstract class DataLoader {
 		dataLoaders.get(LoaderPriority.HIGHEST).add(() -> {return new EmptyLoader();});
 	}
 	
-	public void register(LoaderPriority priority, DataLoaderConstructor constructor) {
-		if(constructor==null)return;
-		
-		this.constructor=constructor;
+	public static void register(LoaderPriority priority, DataLoaderConstructor constructor) {
 		dataLoaders.get(priority).add(constructor);
 	}
 	
-	public void unregister() {
+	public void unregister(DataLoaderConstructor constructor) {
+		LoaderPriority priority = null;
+		for(Entry<LoaderPriority, Set<DataLoaderConstructor>> entry : dataLoaders.entrySet()) {
+			if(entry.getValue().contains(constructor)) {
+				priority = entry.getKey();
+				break;
+			}
+		}
 		if(priority!=null)
 			dataLoaders.get(priority).remove(constructor);
-	}
-	
-	public DataLoaderConstructor getConstructor() {
-		return constructor;
-	}
-	
-	public LoaderPriority getPriority() {
-		return priority;
 	}
 	
 	//Does DataLoader have own loader from file?

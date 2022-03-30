@@ -10,11 +10,6 @@ import me.devtec.shared.json.Json;
 
 public class ByteLoader extends EmptyLoader {
 
-	public void reset() {
-		super.reset();
-		loaded=false;
-	}
-
 	private static void byteBuilderV3(ByteArrayDataInput bos, Map<String, Object[]> map) {
 		try{
 			String key=bos.readUTF();
