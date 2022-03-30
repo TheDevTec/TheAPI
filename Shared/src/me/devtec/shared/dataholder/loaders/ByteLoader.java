@@ -15,7 +15,7 @@ public class ByteLoader extends EmptyLoader {
 		loaded=false;
 	}
 
-	private static void byteBuilder(ByteArrayDataInput bos, Map<String, Object[]> map) {
+	private static void byteBuilderV3(ByteArrayDataInput bos, Map<String, Object[]> map) {
 		try{
 			String key=bos.readUTF();
 			String value=null;
@@ -37,7 +37,7 @@ public class ByteLoader extends EmptyLoader {
 			value=YamlLoader.r(value);
 			map.put(key, new Object[]{Json.reader().read(value), null, value});
 			if(result==0)
-				byteBuilder(bos, map);
+				byteBuilderV3(bos, map);
 		}catch(Exception err) {}
 	}
 
@@ -50,73 +50,9 @@ public class ByteLoader extends EmptyLoader {
 			byte[] bb = Base64.getDecoder().decode(input.replace(System.lineSeparator(), ""));
 			ByteArrayDataInput bos = ByteStreams.newDataInput(bb);
 			int version = bos.readInt();
-			if (version == 1) { //V1
-				while (true)
-					try {
-						String key = bos.readUTF();
-						String value = bos.readUTF();
-						if (!value.equals("null")) {
-							value = value.substring(1);
-						} else value = null;
-						String next;
-						boolean run = true;
-						while (run)
-							try {
-								next = bos.readUTF();
-								if (next.equals("null")) {
-									value += null;
-									continue;
-								}
-								if (next.equals("0")) {
-									run = false;
-									continue;
-								} else {
-									next = next.substring(1);
-									value += next;
-								}
-							} catch (Exception not) {
-								run = false;
-							}
-						data.put(key, new Object[]{Json.reader().read(value), null, value});
-					} catch (Exception e) {
-						break;
-					}
-			} else if (version == 2) { //V2
-				String key = bos.readUTF();
-				while (!key.equals("1")) key = bos.readUTF();
-				while (true)
-					try {
-						key = bos.readUTF();
-						String value = bos.readUTF();
-						if (!value.equals("null")) {
-							value = value.substring(1);
-						} else value = null;
-						String next;
-						boolean run = true;
-						while (run)
-							try {
-								next = bos.readUTF();
-								if (next.equals("null")) {
-									value += null;
-									continue;
-								}
-								if (next.equals("0")) {
-									run = false;
-									continue;
-								} else {
-									next = next.substring(1);
-									value += next;
-								}
-							} catch (Exception not) {
-								run = false;
-							}
-						data.put(key, new Object[]{Json.reader().read(value), null, value});
-					} catch (Exception e) {
-						break;
-					}
-			}else if (version == 3){ //V3
+			if(version == 3) {
 				bos.readInt();
-				byteBuilder(bos, data);
+				byteBuilderV3(bos, data);
 			}
 			if (!data.isEmpty())
 				loaded = true;
