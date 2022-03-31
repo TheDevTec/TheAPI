@@ -10,7 +10,11 @@ public class Component {
 	
 	//COLOR & FORMATS
 	private String color;
-	private boolean bold = false, italic = false, obfuscated = false, strike = false, under = false;
+	private boolean bold;
+	private boolean italic;
+	private boolean obfuscated;
+	private boolean strikethrough;
+	private boolean underlined;
 	
 	//ADDITIONAL
 	private ClickEvent clickEvent;
@@ -100,8 +104,8 @@ public class Component {
 	public String getFormats() {
 		StringBuilder b = new StringBuilder();
 		if(bold)b.append("§l");
-		if(under)b.append("§n");
-		if(strike)b.append("§m");
+		if(underlined)b.append("§n");
+		if(strikethrough)b.append("§m");
 		if(italic)b.append("§o");
 		if(obfuscated)b.append("§k");
 		return b.toString();
@@ -111,8 +115,8 @@ public class Component {
 		bold=false;
 		italic=false;
 		obfuscated=false;
-		strike=false;
-		under=false;
+		strikethrough=false;
+		underlined=false;
 		return this;
 	}
 	
@@ -127,7 +131,7 @@ public class Component {
 	}
 	
 	public Component setStrikethrough(boolean status) {
-		strike=status;
+		strikethrough=status;
 		return this;
 	}
 	
@@ -137,7 +141,7 @@ public class Component {
 	}
 	
 	public Component setUnderlined(boolean status) {
-		under=status;
+		underlined=status;
 		return this;
 	}
 	
@@ -150,7 +154,7 @@ public class Component {
 	}
 	
 	public boolean isStrikethrough() {
-		return strike;
+		return strikethrough;
 	}
 	
 	public boolean isObfuscated() {
@@ -158,7 +162,7 @@ public class Component {
 	}
 	
 	public boolean isUnderlined() {
-		return under;
+		return underlined;
 	}
 
 	public String toJson() {
@@ -185,13 +189,13 @@ public class Component {
 		if(italic) {
 			json+=",\"italic\":true";
 		}
-		if(strike) {
+		if(strikethrough) {
 			json+=",\"strikethrough\":true";
 		}
 		if(obfuscated) {
 			json+=",\"obfuscated\":true";
 		}
-		if(under) {
+		if(underlined) {
 			json+=",\"underlined\":true";
 		}
 		return json+'}';
@@ -224,13 +228,13 @@ public class Component {
 		if(italic) {
 			map.put("italic", true);
 		}
-		if(strike) {
+		if(strikethrough) {
 			map.put("strikethrough", true);
 		}
 		if(obfuscated) {
 			map.put("obfuscated", true);
 		}
-		if(under) {
+		if(underlined) {
 			map.put("underlined", true);
 		}
 		return map;

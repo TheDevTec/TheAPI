@@ -47,12 +47,4 @@ public class BungeeComponentAPI<T> implements Bungee<BaseComponent> {
 		}
 		return base;
 	}
-
-	public BaseComponent[] toBaseComponents(Component component) {
-		return new BaseComponent[] {toBaseComponent(component)};
-	}
-
-	public BaseComponent[] toBaseComponents(List<Component> components) {
-		return new BaseComponent[] {toBaseComponent(components)};
-	}
 }

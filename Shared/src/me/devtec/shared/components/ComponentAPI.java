@@ -42,12 +42,14 @@ public class ComponentAPI {
 	
 	public static Component toComponent(String legacy, boolean ignoreUrls) {
 		if(legacy==null)return null;
-		Component start = new Component(), current = start;
+		Component start = new Component();
+		Component current = start;
 		
 		StringBuilder builder = new StringBuilder();
 		if(ignoreUrls) {
 			String color = "";
-			boolean wasBeforeColorChar = false, inHexLoop = false;
+			boolean wasBeforeColorChar = false;
+			boolean inHexLoop = false;
 			for(int i = 0; i < legacy.length(); ++i) {
 				char c = legacy.charAt(i);
 				if(c=='§') {
@@ -137,8 +139,11 @@ public class ComponentAPI {
 			}
 			return start;
 		}
-		String color = "", colorBeforeSpace = null, url = null;
-		boolean wasBeforeColorChar = false, inHexLoop = false;
+		String color = "";
+		String colorBeforeSpace = null;
+		String url = null;
+		boolean wasBeforeColorChar = false;
+		boolean inHexLoop = false;
 		for(int i = 0; i < legacy.length(); ++i) {
 			char c = legacy.charAt(i);
 			if(c=='§') {
@@ -305,7 +310,8 @@ public class ComponentAPI {
 	public static String toString(Component c) {
 		if(c==null)return null;
 		StringBuilder builder = new StringBuilder();
-		String color = null, formats = null;
+		String color = null;
+		String formats = null;
 		while(c!=null) {
 			if(color!=null && formats!=null && (color+formats).equals(c.getLegacyColor()+c.getFormats()))
 				builder.append(c.getText());
@@ -366,11 +372,12 @@ public class ComponentAPI {
 		ListIterator<Map<String, Object>> it = lists.listIterator();
 		while(it.hasNext()) {
 			Map<String, Object> text = it.next();
-			Map<String, Object> hover=(Map<String, Object>) text.get("hoverEvent"), click=(Map<String, Object>) text.get("clickEvent");
+			Map<String, Object> hover=(Map<String, Object>) text.get("hoverEvent");
+			Map<String, Object> click=(Map<String, Object>) text.get("clickEvent");
 			if(hover!=null)
-				hover=ff("hoverEvent",hover);
+				hover=convertMapValues("hoverEvent",hover);
 			if(click!=null)
-				click=ff("clickEvent",click);
+				click=convertMapValues("clickEvent",click);
 			String interact=(String) text.get("insertion");
 			boolean remove = false;
 			for(Entry<String, Object> s : text.entrySet()) {
@@ -467,7 +474,7 @@ public class ComponentAPI {
 		return "§f";
 	}
 	
-	private static Map<String, Object> ff(String key, Map<String, Object> hover) {
+	private static Map<String, Object> convertMapValues(String key, Map<String, Object> hover) {
 		Object val = hover.getOrDefault("value", hover.getOrDefault("content", hover.getOrDefault("contents", null)));
 		if(val==null)hover.put("value", "");
 		else {

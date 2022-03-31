@@ -53,7 +53,7 @@ public class AdventureComponentAPI<T> implements Adventure<net.kyori.adventure.t
 		
 		switch(hoverEvent.getAction()) {
 		case SHOW_ENTITY:
-			return net.kyori.adventure.text.event.HoverEvent.showEntity(Key.key("minecraft:"+value.getOrDefault("type","zombie")), UUID.fromString(value.getOrDefault("id",UUID.randomUUID().toString())+""), value.get("name")==null?null:toBaseComponent(ComponentAPI.toComponent(value.get("name")+"", true)));
+			return net.kyori.adventure.text.event.HoverEvent.showEntity(Key.key("minecraft:"+value.getOrDefault("type","pig")), UUID.fromString(value.getOrDefault("id",UUID.randomUUID().toString())+""), value.get("name")==null?null:toBaseComponent(ComponentAPI.toComponent(value.get("name")+"", true)));
 		case SHOW_ITEM:
 			return net.kyori.adventure.text.event.HoverEvent.showItem(Key.key("minecraft:"+value.getOrDefault("id","air")), (int)(double)value.getOrDefault("count",1.0), BinaryTagHolder.binaryTagHolder(Json.writer().simpleWrite(value.getOrDefault("tag",new HashMap<>()))));
 		case SHOW_TEXT:
@@ -70,13 +70,5 @@ public class AdventureComponentAPI<T> implements Adventure<net.kyori.adventure.t
 			base.append(toBaseComponent(component));
 		}
 		return base;
-	}
-
-	public net.kyori.adventure.text.Component[] toBaseComponents(Component component) {
-		return new net.kyori.adventure.text.Component[] {toBaseComponent(component)};
-	}
-
-	public net.kyori.adventure.text.Component[] toBaseComponents(List<Component> components) {
-		return new net.kyori.adventure.text.Component[] {toBaseComponent(components)};
 	}
 }
