@@ -55,7 +55,7 @@ import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
 import me.devtec.theapi.bukkit.bossbar.BossBar;
-import me.devtec.theapi.bukkit.commands.hooker.Old1_8SimpleCommandMap;
+import me.devtec.theapi.bukkit.commands.hooker.SpigotSimpleCommandMap;
 import me.devtec.theapi.bukkit.game.ResourcePackAPI;
 import me.devtec.theapi.bukkit.game.ResourcePackAPI.ResourcePackResult;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
@@ -103,7 +103,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			nmsProvider.loadParticles();
 		
 		if(Ref.field(Command.class, "timings")!=null && Ref.isOlderThan(9)) {
-			Ref.set(Bukkit.getServer(), "commandMap", new Old1_8SimpleCommandMap(Bukkit.getServer(), (Map<String, Command>) Ref.get(((CommandMap)Ref.get(Bukkit.getPluginManager(), "commandMap")), "knownCommands")));
+			Ref.set(Bukkit.getServer(), "commandMap", new SpigotSimpleCommandMap(Bukkit.getServer(), (Map<String, Command>) Ref.get(((CommandMap)Ref.get(Bukkit.getPluginManager(), "commandMap")), "knownCommands")));
 		}
 		
 		if(new File("spigot.yml").exists() && new Config("spigot.yml").getBoolean("settings.late-bind")) {
