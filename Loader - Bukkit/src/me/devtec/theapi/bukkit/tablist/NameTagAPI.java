@@ -24,7 +24,8 @@ public class NameTagAPI {
 	private static Map<UUID, List<NameTagAPI>> teams = new HashMap<>();
 	private final Player p;
 	private List<UUID> canSee = new ArrayList<>();
-	private String prefix = "", suffix = "";
+	private String prefix = "";
+	private String suffix = "";
 	private String name;
 	private ChatColor color;
 	private boolean changed;
@@ -90,13 +91,20 @@ public class NameTagAPI {
 		return false;
 	}
 
-	public void set(ChatColor color, String prefix, String suffix) {
+	public void set(ChatColor color, String prefixText, String suffixText) {
 		if (this.color!=color)
 			changed = true;
 		this.color=color;
+		String prefix;
+		String suffix;
 		if (Ref.isOlderThan(13)) {
-			if (prefix.length() > 16)prefix=prefix.substring(0,15);
-			if (suffix.length() > 16)suffix=suffix.substring(0,15);
+			if (prefixText.length() > 16)prefix=prefixText.substring(0,15);
+			else prefix = prefixText;
+			if (suffixText.length() > 16)suffix=suffixText.substring(0,15);
+			else suffix=suffixText;
+		}else {
+			prefix=prefixText;
+			suffix=suffixText;
 		}
 		if (!this.prefix.equals(prefix))
 			changed = true;

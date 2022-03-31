@@ -110,67 +110,60 @@ public class DatabaseAPI {
 	public static DatabaseHandler openConnection(DatabaseType type, DatabaseSettings settings) throws SQLException {
 		switch(type) {
 		case H2:
-			File file = new File("plugins/TheAPI/libraries/h2.jar");
-			if(!file.exists())
-				API.library.downloadFileFromUrl("https://github.com/TheDevTec/TheAPI/raw/master/h2.jar", file);
-			API.library.load(file);
+			checkOrDownloadIfNeeded("h2");
 			try {
-				Class.forName ("org.h2.Driver"); 
+				Class.forName("org.h2.Driver"); 
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
-			return new SqlHandler(settings.getConnectionString(), settings);
+			break;
 		case MARIADB:
-			file = new File("plugins/TheAPI/libraries/mariadb.jar");
-			if(!file.exists())
-				API.library.downloadFileFromUrl("https://github.com/TheDevTec/TheAPI/raw/master/mariadb.jar", file);
-			API.library.load(file);
+			checkOrDownloadIfNeeded("mariadb");
 			try {
 				Class.forName("org.mariadb.jdbc.Driver");
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
-			return new SqlHandler(settings.getConnectionString(), settings);
+			break;
 		case MYSQL:
 			try {
 				Class.forName("com.mysql.cj.jdbc.Driver");
 			} catch (ClassNotFoundException e) {
-				file = new File("plugins/TheAPI/libraries/mysql.jar");
-				if(!file.exists())
-					API.library.downloadFileFromUrl("https://github.com/TheDevTec/TheAPI/raw/master/mysql.jar", file);
-				API.library.load(file);
+				//Probably Velocity or custom server
+				checkOrDownloadIfNeeded("mysql");
 			}
 			try {
 				Class.forName("com.mysql.cj.jdbc.Driver");
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
-			return new SqlHandler(settings.getConnectionString(), settings);
+			break;
 		case SQLITE:
-			file = new File("plugins/TheAPI/libraries/sqlite.jar");
-			if(!file.exists())
-				API.library.downloadFileFromUrl("https://github.com/TheDevTec/TheAPI/raw/master/sqlite.jar", file);
-			API.library.load(file);
+			checkOrDownloadIfNeeded("sqlite");
 			try {
 				Class.forName("org.sqlite.JDBC");
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
-			return new SqlHandler(settings.getConnectionString(), settings);
+			break;
 		case SQLSERVER:
-			file = new File("plugins/TheAPI/libraries/sqlserver.jar");
-			if(!file.exists())
-				API.library.downloadFileFromUrl("https://github.com/TheDevTec/TheAPI/raw/master/sqlserver.jar", file);
-			API.library.load(file);
+			checkOrDownloadIfNeeded("sqlserver");
 			try {
 				Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
-			return new SqlHandler(settings.getConnectionString(), settings);
+			break;
 			default:
 				break;
 		}
-		return null;
+		return new SqlHandler(settings.getConnectionString(), settings);
+	}
+
+	private static void checkOrDownloadIfNeeded(String string) {
+		File file = new File("plugins/TheAPI/libraries/"+string+".jar");
+		if(!file.exists())
+			API.library.downloadFileFromUrl("https://github.com/TheDevTec/TheAPI/raw/master/"+string+".jar", file);
+		API.library.load(file);
 	}
 }

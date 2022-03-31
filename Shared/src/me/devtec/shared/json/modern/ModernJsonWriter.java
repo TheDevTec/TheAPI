@@ -73,7 +73,7 @@ public class ModernJsonWriter implements JWriter {
                 if ((f.getModifiers() & Modifier.STATIC) != 0) continue;
                 f.setAccessible(true);
                 Object obj = f.get(s);
-                if (s.equals(obj) || s == obj)
+                if (s.equals(obj))
                     fields.put("~" + f.getName(), "~");
                 else
                     fields.put(f.getName(), writeWithoutParse(obj));
@@ -84,7 +84,7 @@ public class ModernJsonWriter implements JWriter {
                     if ((f.getModifiers() & Modifier.STATIC) != 0) continue;
                     f.setAccessible(true);
                     Object obj = f.get(s);
-                    if (s.equals(obj) || s == obj)
+                    if (s.equals(obj))
                         sub_fields.put(c.getName() + ":~" + f.getName(), "~");
                     else
                         sub_fields.put(c.getName() + ":" + f.getName(), writeWithoutParse(obj));

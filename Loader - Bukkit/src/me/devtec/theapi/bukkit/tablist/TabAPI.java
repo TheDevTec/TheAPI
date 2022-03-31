@@ -18,7 +18,7 @@ public class TabAPI {
 	}
 
 	public static void setHeaderFooter(Player player, String header, String footer) {
-		Object obj = BukkitLoader.getNmsProvider().packetPlayerListHeaderFooter(StringUtils.colorize(header), StringUtils.colorize(footer));
-		if(obj!=null)BukkitLoader.getPacketHandler().send(player,  obj);
+		if(Ref.isOlderThan(8))return;
+		BukkitLoader.getPacketHandler().send(player,  BukkitLoader.getNmsProvider().packetPlayerListHeaderFooter(StringUtils.colorize(header), StringUtils.colorize(footer)));
 	}
 }
