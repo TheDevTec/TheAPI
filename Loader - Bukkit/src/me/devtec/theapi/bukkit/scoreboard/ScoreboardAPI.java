@@ -33,7 +33,8 @@ public class ScoreboardAPI {
 	
 	protected final Config data = new Config();
 	protected Player p;
-	protected String player, sbname;
+	protected String player;
+	protected String sbname;
 	protected int slott;
 	protected String name = "";
 	protected boolean destroyed;
@@ -89,14 +90,14 @@ public class ScoreboardAPI {
 		setDisplayName(name);
 	}
 
-	public void setDisplayName(String a) {
+	public void setDisplayName(String text) {
 		destroyed=false;
 		String displayName = name;
+		name = StringUtils.colorize(text);
 		if (!Ref.isNewerThan(12) && name.length() > 32)
 			name = name.substring(0, 32);
-		name = StringUtils.colorize(a);
 		if(!name.equals(displayName))
-		BukkitLoader.getPacketHandler().send(p, createObjectivePacket(2, name));
+			BukkitLoader.getPacketHandler().send(p, createObjectivePacket(2, name));
 	}
 
 	public void addLine(String value) {
@@ -106,8 +107,8 @@ public class ScoreboardAPI {
 		setLine(i, value);
 	}
 
-	public synchronized void setLine(int line, String value) {
-		value = StringUtils.colorize(value);
+	public synchronized void setLine(int line, String valueText) {
+		String value = StringUtils.colorize(valueText);
 		if(getLine(line)!=null && getLine(line).equals(!Ref.isNewerThan(12)?cut(value):value))return;
 		Team team = null;
 		boolean add = true;
@@ -178,9 +179,10 @@ public class ScoreboardAPI {
 	}
 
 	private Team getTeam(int line, int realPos) {
-		if (data.get(player+"."+line)==null)
-			data.set(player+"."+line, new Team(line, realPos));
-		return data.getAs(player+"."+line, Team.class);
+		Team result = data.getAs(player+"."+line, Team.class);
+		if (result==null)
+			data.set(player+"."+line, result=new Team(line, realPos));
+		return result;
 	}
 	
 	private Object[] create(String prefix, String suffix, String name, String realName, int slot) {
@@ -229,7 +231,7 @@ public class ScoreboardAPI {
 			} catch (Exception e) {
 			}
 			Ref.set(packet, "h", mode);
-			Ref.set(packet, "j", ImmutableList.copyOf(new String[]{name}));
+			Ref.set(packet, "j", ImmutableList.of(name));
 		}else {
 			Ref.set(packet, "a", realName);
 			Ref.set(packet, "b", Ref.isNewerThan(12)?BukkitLoader.getNmsProvider().chatBase("{\"text\":\"\"}"):"");
@@ -241,10 +243,10 @@ public class ScoreboardAPI {
 				if(Ref.isNewerThan(8))
 					Ref.set(packet, "g",Ref.isNewerThan(12)?white:-1);
 				Ref.set(packet, Ref.isNewerThan(8)?"i":"h", mode);
-				Ref.set(packet, Ref.isNewerThan(8)?"h":"g", ImmutableList.copyOf(new String[]{name}));
+				Ref.set(packet, Ref.isNewerThan(8)?"h":"g", ImmutableList.of(name));
 			}else {
 				Ref.set(packet, "f", mode);
-				Ref.set(packet, "e", ImmutableList.copyOf(new String[]{name}));
+				Ref.set(packet, "e", ImmutableList.of(name));
 			}
 		}
 		return packet;
@@ -270,10 +272,15 @@ public class ScoreboardAPI {
 	}
 	
 	public class Team {
-		private String prefix = "", suffix = "", currentPlayer, old;
+		private String prefix = "";
+		private String suffix = "";
+		private String currentPlayer;
+		private String old;
 		private String name, format;
 		private int slot;
-		private boolean changed, first = true;
+		private boolean changed;
+		private boolean first = true;
+		
 		private Team(int slot, int realPos) {
 			String s = "" + realPos;
 			for(int i = ChatColor.values().length-1; i > -1; --i) {
@@ -327,7 +334,16 @@ public class ScoreboardAPI {
 		}
 
 		public synchronized void setValue(String a) {
-			if(a==null)a="";
+			if(a==null) {
+				if (!prefix.equals(""))
+					changed = true;
+				prefix="";
+				if (!suffix.equals(""))
+					changed = true;
+				suffix="";
+				setPlayer("");
+				return;
+			}
 			if (Ref.isOlderThan(13)) {
 				List<String> d = StringUtils.fixedSplit(a, 16);
 				if (a.length() <= 16) {
