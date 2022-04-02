@@ -7,54 +7,39 @@ TheAPI tries to rebuild everything it can, and not uselessly, into Async for the
 But as it is already known, nothing is perfect or flawless, that's why we have been working on the project continuously for years, redesigning different methods or even whole classes to make the performance the best.
 
 
-## What does TheAPI include
+## What does TheAPI include?
 > We have been working on our own Configuration (Data & Config classes) for a long time, which includes 4 different types of data retrieval & storage - YAML, PROPERTIES, JSON and BYTE
-Including the ability to have comments in the YAML & PROPERTIES configuration type
+> Including the ability to have comments in the YAML & PROPERTIES configuration type​
 
 > Converting Objects to String and back to the original Object (Json class)
 
-> Per player user data for easy work with player data (User class - TheAPI.getUser(playerName/playerUUID/query))
+> Asynchronous scheduler
 
-> Custom GUI with actions (GUI & AnvilGUI classes)
+> Huge component api similiar to bungeecord's one with convertors​
 
-> Managing blocks in worlds using the BlocksAPI class
+> Custom GUI with actions (GUI & AnvilGUI classes)​
 
-> Possibility to create your own async events - We have our own Listener & EventHandler classes
-
-> PacketListenerAPI - Listen to packets (A little bit of ProtocolLib)
+> Possibility to create your own async events - We have our own Listener & EventHandler classes​
 
 ### And lots of other different API classes
 - StringUtils
 - Animation
 - PercentageList
-- Position
-- TheMaterial
 - StreamUtils
 - SpigotUpdateChecker
-- Ref (Java Reflections API)
+- Ref (Java reflections helper)
 - ComponentAPI
-- SortedMap
+- SortedAPI
 - RankingAPI
 - Scheduler (Tasker)
-- ScoreboardAPI
-- BossBar (1.7.10 - 1.8.9 only)
-- ParticlesAPI
-- PunishmentAPI (Requires another plugin that will extend this - For example our plugin SCR)
-- EconomyAPI
-- PlaceholderAPI
-- CooldownAPI
-- ConfigAPI
-- TabListAPI
-- SignAPI
-- ResourcePackAPI
-- NameTagAPI
+- PlaceholderAPI (Piece of our work)
+- Config (Our own special configuration api)
 - MemoryAPI
-- EnchnamtnetAPI
-- ItemCreatorAPI
+- DatabaseAPI
 - SocketsAPI (Client, SocketServer classes & ClientReceiveMessageEvent theapi event)
 
 ## Our own async events
-- ServerListPingEvent (Possibility to adjust max online players & number of online players and much more)
+- ServerListPingEvent (Possibility to adjust max online players & number of online players and much more) * Only Bukkit/Spigot side
 - ClientReceiveMessageEvent (SocketsAPI)
 
 
@@ -62,9 +47,17 @@ Including the ability to have comments in the YAML & PROPERTIES configuration ty
 We try to make it as easy as possible for plugin developers to work on plugins.
 No more reflections, no more NMS and no more searching for differences between MC versions in the code!
 
+##  Compatible softwares:
+- CraftBukkit
+- Spigot
+- PaperSpigot (and all Paper's forks)
+- BungeeCord
+- WaterFall (and all WaterFall's forks)
+- Velocity
 
 ## Requirements
-- Server version 1.7.10 or newer
+- Bukkit/Spigot, Velocity or BungeeCord/WaterFall server software (Or implement code (shared section) to your own software)
+- Server version 1.7.10 or newer (Or add your own NmsProvider for support older version/s)
 - Java 1.8 or newer
 
 ## Download TheAPI
@@ -93,5 +86,6 @@ dependencies {
 
 [![Spigot Downloads](https://img.shields.io/badge/dynamic/json.svg?url=https://api.spiget.org/v2/resources/72679&label=Spigot-Downloads&query=$.downloads&colorB=ee8a18&style=flat-square&maxAge=3600)](https://www.spigotmc.org/resources/72679/)
 [![Spigot Rating](https://img.shields.io/badge/dynamic/json.svg?url=https://api.spiget.org/v2/resources/72679&label=Rating&query=$.rating.average&colorB=00AB66&style=flat-square&maxAge=3600)](https://www.spigotmc.org/resources/72679/)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/cc3d8b3c076848dc92cbbc3c074cab79)](https://www.codacy.com/gh/TheDevTec/TheAPI/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TheDevTec/TheAPI&amp;utm_campaign=Badge_Grade)
 [![](https://discordapp.com/api/guilds/579029317561090078/widget.png)](https://discord.gg/8YtfC234dA)
 [![](https://bstats.org/signatures/bukkit/TheAPI.svg)](https://bstats.org/plugin/bukkit/TheAPI/10581)
