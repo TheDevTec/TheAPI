@@ -39,7 +39,11 @@ import me.devtec.theapi.velocity.commands.selectors.VelocitySelectorUtils;
 @Plugin(id = "theapi", name = "TheAPI", version = "9.6", authors = {"DevTec", "StraikerinaCZ"}, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 	
-	public static ProxyServer server;
+	private static ProxyServer server;
+	
+	public static ProxyServer getServer() {
+		return server;
+	}
 
     @Inject
     public VelocityLoader(ProxyServer server, Logger logger) {

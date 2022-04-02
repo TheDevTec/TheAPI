@@ -16,7 +16,7 @@ public class VelocitySelectorUtils implements SelectorUtils {
 		List<String> list = new ArrayList<>();
 		switch(selector) {
 		case SERVER:
-			for(RegisteredServer server : VelocityLoader.server.getAllServers())
+			for(RegisteredServer server : VelocityLoader.getServer().getAllServers())
 				list.add(server.getServerInfo().getName());
 			break;
 		case BOOLEAN:
@@ -30,7 +30,7 @@ public class VelocitySelectorUtils implements SelectorUtils {
 			list.add("@s");
 			list.add("@p");
 		case PLAYER:
-			for(Player player : VelocityLoader.server.getAllPlayers())
+			for(Player player : VelocityLoader.getServer().getAllPlayers())
 				list.add(player.getUsername());
 			break;
 		case INTEGER:
@@ -55,7 +55,7 @@ public class VelocitySelectorUtils implements SelectorUtils {
 			if(match)return true;
 			//Else continue to player
 		case PLAYER:
-			return !VelocityLoader.server.matchPlayer(value).isEmpty();
+			return !VelocityLoader.getServer().matchPlayer(value).isEmpty();
 		case INTEGER:
 			try {
 				Integer.parseInt(value);
@@ -69,7 +69,7 @@ public class VelocitySelectorUtils implements SelectorUtils {
 			}catch(NoSuchFieldError | Exception err) {}
 			break;
 		case SERVER:
-			return VelocityLoader.server.getServer(value).isPresent();
+			return VelocityLoader.getServer().getServer(value).isPresent();
 		default:
 			break;
 		}
