@@ -19,13 +19,15 @@ import javax.management.ObjectName;
 
 import com.google.common.collect.Lists;
 
+import me.devtec.shared.commands.manager.SelectorUtils;
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.OfflineCache;
 import me.devtec.shared.utility.StringUtils;
 
 public class API {
-	public static LibraryLoader library = null;
+	public static SelectorUtils selectorUtils;
+	public static LibraryLoader library;
 	private static OfflineCache cache;
 	private static Map<UUID, Config> users = new HashMap<>();
 	private static final Basics basics = new Basics();

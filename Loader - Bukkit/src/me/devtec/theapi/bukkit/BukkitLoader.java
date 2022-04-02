@@ -39,7 +39,6 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.devtec.shared.API;
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
-import me.devtec.shared.commands.CommandsAPI;
 import me.devtec.shared.components.Adventure;
 import me.devtec.shared.components.Bungee;
 import me.devtec.shared.components.ComponentAPI;
@@ -384,7 +383,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	
 	private static void initTheAPI(JavaPlugin plugin) {
 		//CommandsAPI
-		CommandsAPI.selectorUtils=new BukkitSelectorUtils();
+		API.selectorUtils=new BukkitSelectorUtils();
 		
 		//OfflineCache support!
 		API.initOfflineCache(Bukkit.getOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));

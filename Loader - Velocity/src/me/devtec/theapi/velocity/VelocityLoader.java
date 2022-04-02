@@ -24,7 +24,6 @@ import com.velocitypowered.proxy.plugin.PluginClassLoader;
 import me.devtec.shared.API;
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
-import me.devtec.shared.commands.CommandsAPI;
 import me.devtec.shared.components.AdventureComponentAPI;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.dataholder.Config;
@@ -73,8 +72,8 @@ public class VelocityLoader {
     }
 	
 	public static void initTheAPI(ProxyServer server) {
-		//CommandsAPI
-		CommandsAPI.selectorUtils=new VelocitySelectorUtils();
+		//API
+		API.selectorUtils=new VelocitySelectorUtils();
 		
 		//OfflineCache support!
 		API.initOfflineCache(server.getConfiguration().isOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));

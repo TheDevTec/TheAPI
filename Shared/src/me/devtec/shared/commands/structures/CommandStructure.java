@@ -9,10 +9,6 @@ import me.devtec.shared.commands.holder.CommandTask;
 import me.devtec.shared.commands.selectors.SelectorType;
 
 public class CommandStructure {
-
-	public static EmptyCommandStructure empty() {
-		return new EmptyCommandStructure(null);
-	}
 	
 	private String[] args;
 	private int startArg;
@@ -27,6 +23,10 @@ public class CommandStructure {
 	
 	CommandStructure(String[] values) {
 		args=values;
+	}
+
+	public static EmptyCommandStructure empty() {
+		return new EmptyCommandStructure(null);
 	}
 
 	public static CommandStructure create(String... args) {

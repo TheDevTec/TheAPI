@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 import me.devtec.shared.API;
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
-import me.devtec.shared.commands.CommandsAPI;
 import me.devtec.shared.components.BungeeComponentAPI;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.dataholder.Config;
@@ -65,8 +64,8 @@ public class BungeeLoader extends Plugin implements Listener {
     }
 	
 	public static void initTheAPI() {
-		//CommandsAPI
-		CommandsAPI.selectorUtils=new BungeeSelectorUtils();
+		//API
+		API.selectorUtils=new BungeeSelectorUtils();
 		
 		//OfflineCache support!
 		API.initOfflineCache(ProxyServer.getInstance().getConfig().isOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));

@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutionException;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.RawCommand;
 
-import me.devtec.shared.commands.CommandsAPI;
+import me.devtec.shared.API;
 import me.devtec.shared.commands.holder.CommandTask;
 import me.devtec.shared.commands.selectors.SelectorType;
 import me.devtec.shared.commands.structures.CommandStructure;
@@ -105,7 +105,7 @@ public class VelocityCommandHolder {
 				Map<Integer, String> buildSelectors = new HashMap<>();
 				for(int i = 0; i < s.length-1; ++i) {
 					if(normal.containsKey(i+1)) {
-						if(CommandsAPI.selectorUtils.check(normal.get(i+1), s[i+1])) {
+						if(API.selectorUtils.check(normal.get(i+1), s[i+1])) {
 							buildSelectors.put(i+1, s[i+1]);
 						}else buildSelectors.put(i+1, null);
 					}else {
@@ -113,7 +113,7 @@ public class VelocityCommandHolder {
 							try {
 								boolean foundAny = false;
 								for(CompletableFuture<Iterable<String>> customArgument : custom.get(i+1)) {
-									if(CommandsAPI.selectorUtils.check(customArgument.get(), s[i+1])) {
+									if(API.selectorUtils.check(customArgument.get(), s[i+1])) {
 										buildSelectors.put(i+1, s[i+1]);
 										foundAny=true;
 									}
@@ -235,7 +235,7 @@ public class VelocityCommandHolder {
 				}
 			}
 			if(normal.containsKey(s.length-1)) {
-				return StringUtils.copyPartialMatches(s[s.length-1], CommandsAPI.selectorUtils.buildSelectorKeys(normal.get(s.length-1)));
+				return StringUtils.copyPartialMatches(s[s.length-1], API.selectorUtils.buildSelectorKeys(normal.get(s.length-1)));
 			}
 			if(args!=null) //default fallback
 				return StringUtils.copyPartialMatches(s[s.length-1], Arrays.asList(args));
