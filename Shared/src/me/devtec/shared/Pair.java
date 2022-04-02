@@ -1,7 +1,8 @@
 package me.devtec.shared;
 
 public class Pair {
-    Object key, value;
+    Object key;
+    Object value;
 
     public Pair(Object o, Object o1) {
         key=o;

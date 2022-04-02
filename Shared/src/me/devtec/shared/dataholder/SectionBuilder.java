@@ -13,34 +13,6 @@ import me.devtec.shared.json.Json;
 
 class SectionBuilder {
 	
-	public class SectionHolder {
-		public SectionHolder(String d) {
-			name=d;
-		}
-		
-		public SectionHolder find(String name) {
-			if(holders!=null)
-			for(SectionHolder a : holders)
-				if(a.name.equals(name))
-					return a;
-			return null;
-		}
-		
-		public SectionHolder create(String name) {
-			SectionHolder sec = new SectionHolder(name);
-			sec.space=space+' '+' ';
-			if(holders==null)holders=new LinkedList<>();
-			holders.add(sec);
-			return sec;
-		}
-		
-		//PREPARING PART
-		List<SectionHolder> holders;
-		String name;
-		Object[] val;
-		String space;
-	}
-	
 	Map<String, SectionHolder> secs;
 	
 	public SectionBuilder(List<String> keys, Map<String, Object[]> map) {
@@ -243,5 +215,33 @@ class SectionBuilder {
 	public void write(StringBuilder d) {
 		for(SectionHolder c : secs.values())
 			start(c, d);
+	}
+	
+	public class SectionHolder {
+		
+		List<SectionHolder> holders;
+		String name;
+		Object[] val;
+		String space;
+		
+		public SectionHolder(String d) {
+			name=d;
+		}
+		
+		public SectionHolder find(String name) {
+			if(holders!=null)
+			for(SectionHolder a : holders)
+				if(a.name.equals(name))
+					return a;
+			return null;
+		}
+		
+		public SectionHolder create(String name) {
+			SectionHolder sec = new SectionHolder(name);
+			sec.space=space+' '+' ';
+			if(holders==null)holders=new LinkedList<>();
+			holders.add(sec);
+			return sec;
+		}
 	}
 }

@@ -13,8 +13,14 @@ public abstract class Client implements SocketClient {
 	private BufferedReader receive; 
 	private PrintWriter send; 
 	private Socket s;
-	private String name,ip,pas;
+	private String name;
+	private String ip;
+	private String password;
 	private int port;
+    private boolean logged;
+    private boolean closed = true;
+    
+    private LinkedList<String> postQueue;
 	
 	private final Config data = new Config();
 	
@@ -22,7 +28,7 @@ public abstract class Client implements SocketClient {
         try {
         	this.name=name;
         	this.ip=ip;
-        	pas=password;
+        	this.password=password;
         	this.port=port;
         	reconnect(3000);
         }catch(Exception e){
@@ -41,7 +47,6 @@ public abstract class Client implements SocketClient {
     	return port;
     }
     
-    private boolean logged,closed=true;
     public void reconnect(int trottle) {
 		exit();
 		new Thread(new Runnable() {
@@ -65,7 +70,7 @@ public abstract class Client implements SocketClient {
 					    	send = new PrintWriter(s.getOutputStream(),true);
 					    	send.println("login:"+name);
 					    	send.flush();
-					    	send.println("password:"+pas);
+					    	send.println("password:"+password);
 					    	send.flush();
 					    	if(receive.readLine()!=null) { //logged in
 						    	logged=true;
@@ -120,8 +125,6 @@ public abstract class Client implements SocketClient {
     public void write(String path, Object send) {
     	data.set(path, send);
     }
-    
-    private LinkedList<String> postQueue;
     
     public void send() {
     	if(logged) {

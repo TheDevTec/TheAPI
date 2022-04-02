@@ -19,6 +19,13 @@ import me.devtec.shared.components.ComponentAPI;
 import me.devtec.theapi.bukkit.BukkitLoader;
 
 public class NameTagAPI {
+	
+	private static final Class<?> sbTeam = Ref.getClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam$b");
+	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+	private static final Object white = Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class)==null?
+			Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",int.class), -1):
+			Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class), 'f');
+	
 	@SuppressWarnings("unchecked")
 	private static Map<Character, Object> formatMap = (Map<Character, Object>)Ref.getNulled(Ref.isNewerThan(11)?Ref.craft("util.CraftChatMessage"):Ref.craft("util.CraftChatMessage$StringMessage"), "formatMap");
 	private static Map<UUID, List<NameTagAPI>> teams = new HashMap<>();
@@ -154,24 +161,18 @@ public class NameTagAPI {
 	}
 	
 	private Object create(ChatColor color, String prefix, String suffix, String realName) {
-		return c(0, color, prefix, suffix, p.getName(), realName);
+		return createPacket(0, color, prefix, suffix, p.getName(), realName);
 	}
 
 	private Object modify(ChatColor color, String prefix, String suffix, String realName) {
-		return c(2, color, prefix, suffix, p.getName(), realName);
+		return createPacket(2, color, prefix, suffix, p.getName(), realName);
 	}
 	
 	private Object resetPacket() {
-		return c(1, null, "", "", p.getName(), name);
+		return createPacket(1, null, "", "", p.getName(), name);
 	}
 	
-	private static final Class<?> sbTeam = Ref.getClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam$b");
-	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
-	private static final Object white = Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class)==null?
-			Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",int.class), -1):
-			Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class), 'f');
-	
-	private Object c(int mode, ChatColor color, String prefix, String suffix, String name, String realName) {
+	private Object createPacket(int mode, ChatColor color, String prefix, String suffix, String name, String realName) {
 		Object packet = BukkitLoader.getNmsProvider().packetScoreboardTeam();
 		String always = "ALWAYS";
 		if(Ref.isNewerThan(16)) {

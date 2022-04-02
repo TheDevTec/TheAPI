@@ -78,7 +78,10 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	private static PacketHandler<?> handler;
 	public static Object airBlock;
 
-	static Class<?> resource, close, click, itemname;
+	static Class<?> resource;
+	static Class<?> close;
+	static Class<?> click;
+	static Class<?> itemname;
 	public static List<BossBar> bossbars = new ArrayList<>();
 	private me.devtec.shared.placeholders.PlaceholderExpansion placeholders;
 	
@@ -457,7 +460,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		StringUtils.color = new ColormaticFactory() {
 			char[] characters = "abcdef0123456789".toCharArray();
 			Random random = new Random();
-			Pattern getLast = Pattern.compile("(#[A-Fa-f0-9k-oK-ORrXxUu]{6}|§[Xx](§[A-Fa-f0-9k-oK-ORrXxUu]){6}|§[A-Fa-f0-9k-oK-ORrXxUu]|&[Uu])"), hex = Pattern.compile("(#[a-fA-F0-9]{6})");
+			Pattern getLast = Pattern.compile("(#[A-Fa-f0-9k-oK-ORrXxUu]{6}|§[Xx](§[A-Fa-f0-9k-oK-ORrXxUu]){6}|§[A-Fa-f0-9k-oK-ORrXxUu]|&[Uu])");
+			Pattern hex = Pattern.compile("(#[a-fA-F0-9]{6})");
 			
 			@Override
 			public String gradient(String msg, String fromHex, String toHex) {

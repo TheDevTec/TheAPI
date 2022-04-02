@@ -23,6 +23,10 @@ public class Particle {
 	private static final Constructor<?> vector=Ref.constructor(Ref.getClass("com.mojang.math.Vector3fa"), float.class, float.class, float.class);
 	private static final Class<?> part;
 	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+
+	private final Object particle;
+	private final String name;
+	private final ParticleData data;
 	
 	static {
 		part=Ref.nmsOrOld("network.protocol.game.PacketPlayOutWorldParticles", "PacketPlayOutWorldParticles");
@@ -42,10 +46,6 @@ public class Particle {
 	private static Object toNMS(String particle) {
 		return identifier.getOrDefault(particle.toLowerCase(), identifier.get("minecraft:"+particle.toLowerCase()));
 	}
-
-	private final Object particle;
-	private final String name;
-	private final ParticleData data;
 
 	public Particle(String particle) {
 		this(particle, null);

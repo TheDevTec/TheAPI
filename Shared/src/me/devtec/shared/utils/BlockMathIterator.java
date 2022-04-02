@@ -3,8 +3,15 @@ package me.devtec.shared.utils;
 import java.util.Iterator;
 
 public class BlockMathIterator implements Iterable<double[]> {
-	private final double sizeZ, sizeY, sizeX, baseZ, baseX, baseY;
-	private double x, y, z;
+	private final double sizeZ;
+	private final double sizeY;
+	private final double sizeX;
+	private double baseZ;
+	private double baseX;
+	private double baseY;
+	private double x;
+	private double y;
+	private double z;
 	
 	public BlockMathIterator(double posX, double posY, double posZ, double posX2, double posY2, double posZ2) {
 		baseX = Math.min(posX, posX2);
@@ -13,6 +20,9 @@ public class BlockMathIterator implements Iterable<double[]> {
 		sizeX = Math.abs(Math.max(posX, posX2) - baseX) + 1;
 		sizeY = Math.abs(Math.max(posY, posY2) - baseY) + 1;
 		sizeZ = Math.abs(Math.max(posZ, posZ2) - baseZ) + 1;
+		baseX += x;
+		baseY += y;
+		baseZ += z;
 	}
 
 	public void reset() {
@@ -26,7 +36,7 @@ public class BlockMathIterator implements Iterable<double[]> {
 	}
 
 	public double[] get() {
-		double[] b = new double[] {baseX + x, baseY + y, baseZ + z};
+		double[] b = new double[] {baseX, baseY, baseZ};
 		if (!has())return b;
 		if (++x >= sizeX) {
 			x = 0;

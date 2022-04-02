@@ -168,9 +168,12 @@ public interface DatabaseHandler {
 	}
 
 	public static class Row {
-		private String field, type;
+		private String field;
+		private String type;
 		private boolean nulled;
-		private String key, defaultVal, extra;
+		private String key;
+		private String defaultVal;
+		private String extra;
 		
 		public Row(String fieldName, String fieldType, boolean nulled, String key, String defVal, String extra) {
 			this.field=fieldName;
@@ -179,6 +182,15 @@ public interface DatabaseHandler {
 			this.key=key;
 			this.defaultVal=defVal;
 			this.extra=extra;
+		}
+		
+		public Row(String fieldName, String fieldType, boolean nulled) {
+			this.field=fieldName;
+			this.type=fieldType;
+			this.nulled=nulled;
+			this.key="";
+			this.defaultVal="";
+			this.extra="";
 		}
 		
 		public String getFieldName() {

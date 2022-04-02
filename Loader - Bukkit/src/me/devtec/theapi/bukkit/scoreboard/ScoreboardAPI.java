@@ -27,6 +27,13 @@ import me.devtec.theapi.bukkit.nms.NmsProvider.DisplayType;
  *
  */
 public class ScoreboardAPI {
+	
+	private static final Class<?> sbTeam = Ref.getClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam$b");
+	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+	private static final Object white = Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class)==null?
+			Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",int.class), -1):
+			Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class), 'f');
+	
 	private static final String protectId = (new Random().nextLong()+"").substring(0,5);
 	
 	private static final Config protection = new Config();
@@ -207,12 +214,6 @@ public class ScoreboardAPI {
 		o[1]=BukkitLoader.getNmsProvider().packetScoreboardScore(Action.REMOVE, sbname, name, 0);
 		return o;
 	}
-	
-	private static final Class<?> sbTeam = Ref.getClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam$b");
-	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
-	private static final Object white = Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class)==null?
-			Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",int.class), -1):
-			Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class), 'f');
 
 	private Object createTeamPacket(int mode, String prefix, String suffix, String name, String realName) {
 		Object packet = BukkitLoader.getNmsProvider().packetScoreboardTeam();
@@ -276,7 +277,8 @@ public class ScoreboardAPI {
 		private String suffix = "";
 		private String currentPlayer;
 		private String old;
-		private String name, format;
+		private String name;
+		private String format;
 		private int slot;
 		private boolean changed;
 		private boolean first = true;

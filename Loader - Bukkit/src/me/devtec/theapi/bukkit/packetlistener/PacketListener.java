@@ -1,6 +1,8 @@
 package me.devtec.theapi.bukkit.packetlistener;
 
 public abstract class PacketListener {
+	protected Priority priority;
+	
 	public PacketListener() {
 		this(Priority.NORMAL);
 	}
@@ -8,8 +10,6 @@ public abstract class PacketListener {
 	public PacketListener(Priority priority) {
 		this.priority = priority;
 	}
-
-	protected Priority priority;
 
 	public final PacketListener setPriority(Priority priority) {
 		if (priority == null)

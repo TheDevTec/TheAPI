@@ -108,7 +108,8 @@ public class VelocityLoader {
 	    StringUtils.color = new ColormaticFactory() {
 	        char[] characters = "abcdef0123456789".toCharArray();
 	        Random random = new Random();
-	        Pattern getLast = Pattern.compile("(&?#[A-Fa-f0-9k-oK-ORrXxUu]{6}|§[Xx](§[A-Fa-f0-9k-oK-ORrXxUu]){6}|§[A-Fa-f0-9k-oK-ORrXxUu]|&[Uu])"), hex = Pattern.compile("(&?#[a-fA-F0-9]{6})");
+	        Pattern getLast = Pattern.compile("(&?#[A-Fa-f0-9k-oK-ORrXxUu]{6}|§[Xx](§[A-Fa-f0-9k-oK-ORrXxUu]){6}|§[A-Fa-f0-9k-oK-ORrXxUu]|&[Uu])");
+	        Pattern hex = Pattern.compile("(&?#[a-fA-F0-9]{6})");
 	        
 	        @Override
 	        public String gradient(String msg, String fromHex, String toHex) {

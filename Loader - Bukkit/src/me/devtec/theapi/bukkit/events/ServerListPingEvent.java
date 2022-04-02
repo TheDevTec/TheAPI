@@ -9,9 +9,13 @@ import me.devtec.shared.events.Event;
 
 public class ServerListPingEvent extends Event implements Cancellable {
 	private boolean cancel;
-	private int online, max, protocol;
+	private int online;
+	private int max;
+	private int protocol;
 	private List<PlayerProfile> playersText;
-	private String motd, falvicon, version;
+	private String motd;
+	private String falvicon;
+	private String version;
 	private final InetAddress address;
 
 	public ServerListPingEvent(int online, int max, List<PlayerProfile> playersText, String motd, String falvicon,

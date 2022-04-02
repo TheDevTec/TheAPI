@@ -35,7 +35,8 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	private final List<Channel> serverChannels = new ArrayList<>();
 	private ChannelInboundHandlerAdapter serverChannelHandler;
 	private Object serverConnection;
-	private ChannelInitializer<Channel> beginInitProtocol, endInitProtocol;
+	private ChannelInitializer<Channel> beginInitProtocol;
+	private ChannelInitializer<Channel> endInitProtocol;
 	protected volatile boolean closed;
 	
 	public PacketHandler_New(boolean lateBind) {

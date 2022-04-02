@@ -4,29 +4,28 @@ import java.util.List;
 
 public class Animation {
 	private List<String> lines;
-	private long last = System.currentTimeMillis()/50, tics;
-	private int c;
+	private long last = System.currentTimeMillis()/50;
+	private long ticks;
+	private int pos;
 
 	public Animation(List<String> text, long ticks) {
 		lines = text;
-		tics = ticks;
+		this.ticks = ticks;
 	}
 
 	public long getTicks() {
-		return tics;
+		return ticks;
 	}
 
 	public String get() {
 		if(lines.isEmpty())return null;
-		return lines.get(c);
+		return lines.get(pos);
 	}
 
 	public void next() {
-		if (last - System.currentTimeMillis()/50 + tics <= 0) {
+		if (last - System.currentTimeMillis()/50 + ticks <= 0) {
 			last = System.currentTimeMillis()/50;
-			++c;
-			if (c >= lines.size())
-				c = 0;
+			if (++pos >= lines.size())pos = 0;
 		}
 	}
 	

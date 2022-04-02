@@ -12,14 +12,6 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 
 public class ResourcePackAPI {
 	
-	public enum ResourcePackResult {
-		SUCCESSFULLY_LOADED, DECLINED, FAILED_DOWNLOAD, ACCEPTED
-	}
-	
-	public static interface ResourcePackHandler {
-		public void onHandle(Player player, String resourcePack, ResourcePackResult result);
-	}
-
 	private static final Map<Player, String> resourcePacks = new HashMap<>();
 	private static final Map<Player, ResourcePackHandler> resourcePacksLoading = new HashMap<>();
 	
@@ -50,5 +42,13 @@ public class ResourcePackAPI {
 		else resourcePacksLoading.remove(player);
 		resourcePacks.put(player, resourcePack);
 		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetResourcePackSend(resourcePack, sha, requireRP, prompt));
+	}
+	
+	public enum ResourcePackResult {
+		SUCCESSFULLY_LOADED, DECLINED, FAILED_DOWNLOAD, ACCEPTED
+	}
+	
+	public static interface ResourcePackHandler {
+		public void onHandle(Player player, String resourcePack, ResourcePackResult result);
 	}
 }
