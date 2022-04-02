@@ -27,9 +27,7 @@ public interface LibraryLoader {
 	
 	public default void downloadFileFromUrl(URL url, File file) {
 		try {
-			if(file.exists()) {
-				if(!file.delete())return;
-			}
+			if(file.exists() && !file.delete())return;
 			if(!file.exists()) {
 				file.getParentFile().mkdirs();
 				file.createNewFile();

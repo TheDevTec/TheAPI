@@ -16,4 +16,11 @@ public class SelectorCommandStructure<S> extends CommandStructure<S> {
 	public List<String> tabList() {
 		return API.selectorUtils.build(selector);
 	}
+	
+	/**
+	 * @apiNote Returns selector of this {@link SelectorCommandStructure}
+	 */
+	public Selector getSelector() {
+		return selector;
+	}
 }

@@ -31,9 +31,8 @@ public class BungeeComponentAPI<T> implements Bungee<BaseComponent> {
 				sub.setHoverEvent(new HoverEvent(HoverEvent.Action.valueOf(component.getHoverEvent().getAction().name()), toBaseComponents(component.getHoverEvent().getValue())));
 			if(Ref.serverType()==ServerType.BUNGEECORD || Ref.isNewerThan(8))
 				sub.setInsertion(component.getInsertion());
-			if(component.getFont()!=null)
-				if(Ref.serverType()==ServerType.BUNGEECORD || Ref.isNewerThan(15))
-					sub.setFont(component.getFont());
+			if(component.getFont() != null && (Ref.serverType()==ServerType.BUNGEECORD || Ref.isNewerThan(15)))
+				sub.setFont(component.getFont());
 			base.addExtra(sub);
 			component=component.getExtra();
 		}

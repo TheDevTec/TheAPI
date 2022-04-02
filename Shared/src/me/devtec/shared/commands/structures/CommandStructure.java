@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import me.devtec.shared.API;
 import me.devtec.shared.commands.holder.CommandExecutor;
@@ -177,31 +176,23 @@ public class CommandStructure<S> {
 	
 	public final CommandStructure<S> findStructure(S s, String arg, boolean tablist) {
 		CommandStructure<S> result = null;
-		for(ArgumentCommandStructure<S> sub : arguments) {
-			if((contains(sub.args, arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && result == null || result.priority <= sub.priority) {
+		for(ArgumentCommandStructure<S> sub : arguments)
+			if((contains(sub.args, arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && result == null || result.priority <= sub.priority)
 				result = sub;
-			}
-		}
-		for(Entry<Selector, SelectorCommandStructure<S>> sub : selectors.entrySet()) {
-			if((findAny(sub.getKey(), arg) && (sub.getValue().permission==null ? true : sub.getValue().first().permissionChecker.has(s, sub.getValue().permission, tablist))) && result == null || result.priority <= sub.getValue().priority) {
-				result = sub.getValue();
-			}
-		}
+		for(SelectorCommandStructure<S> sub : selectors.values())
+			if((findAny(sub.getSelector(), arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && result == null || result.priority <= sub.priority)
+				result = sub;
 		return result == null ? null : result;
 	}
 	
 	public final List<CommandStructure<S>> getNextStructures(S s, boolean tablist) {
 		List<CommandStructure<S>> structures = new ArrayList<>();
-		for(ArgumentCommandStructure<S> sub : arguments) {
-			if(sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist)) {
+		for(ArgumentCommandStructure<S> sub : arguments)
+			if(sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))
 				structures.add(sub);
-			}
-		}
-		for(SelectorCommandStructure<S> sub : selectors.values()) {
-			if(sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist)) {
+		for(SelectorCommandStructure<S> sub : selectors.values())
+			if(sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))
 				structures.add(sub);
-			}
-		}
 		return structures;
 	}
 	

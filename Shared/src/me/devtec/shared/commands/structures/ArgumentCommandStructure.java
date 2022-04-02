@@ -17,4 +17,11 @@ public class ArgumentCommandStructure<S> extends CommandStructure<S> {
 	public List<String> tabList() {
 		return args;
 	}
+
+	/**
+	 * @apiNote Returns arguments of this {@link ArgumentCommandStructure}
+	 */
+	public List<String> getArgs() {
+		return args;
+	}
 }
