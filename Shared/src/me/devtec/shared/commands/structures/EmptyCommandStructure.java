@@ -1,9 +1,9 @@
-package me.devtec.theapi.bungee.commands.structures;
+package me.devtec.shared.commands.structures;
 
 import java.util.concurrent.CompletableFuture;
 
-import me.devtec.theapi.bungee.commands.CommandTask;
-import me.devtec.theapi.bungee.commands.selectors.SelectorType;
+import me.devtec.shared.commands.holder.CommandTask;
+import me.devtec.shared.commands.selectors.SelectorType;
 
 public class EmptyCommandStructure extends CommandStructure {
 	EmptyCommandStructure(String[] values) {
@@ -11,22 +11,17 @@ public class EmptyCommandStructure extends CommandStructure {
 	}
 	
 	@Override
-	public CommandStructure onArgs(int pos, CommandTask runnable) {
+	public CommandStructure onArgs(int pos, CommandTask<?> runnable) {
 		return onAnyArg(runnable);
 	}
 	
 	@Override
-	public CommandStructure onAnyArg(CommandTask object) {
-		return super.onAnyArg(object);
-	}
-	
-	@Override
-	public CommandStructure onArgsOrLess(int i, CommandTask runnable) {
+	public CommandStructure onArgsOrLess(int i, CommandTask<?> runnable) {
 		return onAnyArg(runnable);
 	}
 	
 	@Override
-	public CommandStructure onArgsOrMore(int i, CommandTask runnable) {
+	public CommandStructure onArgsOrMore(int i, CommandTask<?> runnable) {
 		return onAnyArg(runnable);
 	}
 	

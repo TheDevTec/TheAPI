@@ -39,6 +39,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.devtec.shared.API;
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
+import me.devtec.shared.commands.CommandsAPI;
 import me.devtec.shared.components.Adventure;
 import me.devtec.shared.components.Bungee;
 import me.devtec.shared.components.ComponentAPI;
@@ -56,6 +57,7 @@ import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
 import me.devtec.theapi.bukkit.bossbar.BossBar;
 import me.devtec.theapi.bukkit.commands.hooker.SpigotSimpleCommandMap;
+import me.devtec.theapi.bukkit.commands.selectors.BukkitSelectorUtils;
 import me.devtec.theapi.bukkit.game.ResourcePackAPI;
 import me.devtec.theapi.bukkit.game.ResourcePackAPI.ResourcePackResult;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
@@ -381,6 +383,9 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	}
 	
 	private static void initTheAPI(JavaPlugin plugin) {
+		//CommandsAPI
+		CommandsAPI.selectorUtils=new BukkitSelectorUtils();
+		
 		//OfflineCache support!
 		API.initOfflineCache(Bukkit.getOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));
 		

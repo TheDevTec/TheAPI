@@ -24,6 +24,7 @@ import com.velocitypowered.proxy.plugin.PluginClassLoader;
 import me.devtec.shared.API;
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
+import me.devtec.shared.commands.CommandsAPI;
 import me.devtec.shared.components.AdventureComponentAPI;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.dataholder.Config;
@@ -33,8 +34,9 @@ import me.devtec.shared.json.modern.ModernJsonWriter;
 import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
+import me.devtec.theapi.velocity.commands.selectors.VelocitySelectorUtils;
 
-@Plugin(id = "theapi", name = "TheAPI", version = "9.5", authors = {"DevTec", "StraikerinaCZ"}, url = "https://www.spigotmc.org/resources/72679/")
+@Plugin(id = "theapi", name = "TheAPI", version = "9.6", authors = {"DevTec", "StraikerinaCZ"}, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 	
 	public static ProxyServer server;
@@ -43,7 +45,7 @@ public class VelocityLoader {
     public VelocityLoader(ProxyServer server, Logger logger) {
     	VelocityLoader.server=server;
     	initTheAPI(server);
-    	new Metrics("TheAPI","9.5", server, logger, 10581);
+    	new Metrics("TheAPI","9.6", server, logger, 10581);
     }
     
     @Subscribe
@@ -71,10 +73,13 @@ public class VelocityLoader {
     }
 	
 	public static void initTheAPI(ProxyServer server) {
+		//CommandsAPI
+		CommandsAPI.selectorUtils=new VelocitySelectorUtils();
+		
 		//OfflineCache support!
 		API.initOfflineCache(server.getConfiguration().isOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));
 		
-	    Ref.init(ServerType.VELOCITY, "Velocity"); //Server version
+	    Ref.init(ServerType.VELOCITY, server.getVersion().getVersion()); //Server version
 	    ComponentAPI.init(null, new AdventureComponentAPI<>());
 	    Json.init(new ModernJsonReader(), new ModernJsonWriter()); //Modern version of Guava
 	    API.library = new LibraryLoader() {

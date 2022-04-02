@@ -1,7 +1,7 @@
-package me.devtec.theapi.velocity.commands;
+package me.devtec.theapi.velocity.commands.holder;
 
 import com.velocitypowered.api.command.CommandSource;
 
-public interface PermissionsChecker {
+public interface VelocityPermissionsChecker {
 	public boolean check(CommandSource sender, String perm);
 }

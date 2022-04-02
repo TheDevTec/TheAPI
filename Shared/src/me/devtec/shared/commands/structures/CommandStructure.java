@@ -1,12 +1,12 @@
-package me.devtec.theapi.velocity.commands.structures;
+package me.devtec.shared.commands.structures;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import me.devtec.theapi.velocity.commands.CommandTask;
-import me.devtec.theapi.velocity.commands.selectors.SelectorType;
+import me.devtec.shared.commands.holder.CommandTask;
+import me.devtec.shared.commands.selectors.SelectorType;
 
 public class CommandStructure {
 
@@ -19,9 +19,9 @@ public class CommandStructure {
 	protected String perm;
 	private Map<Integer, SelectorType[]> selector = new HashMap<>();
 	private Map<Integer, CompletableFuture<Iterable<String>>[]> customSelectors = new HashMap<>();
-	private Map<Integer, CommandTask> arg = new HashMap<>();
-	private Map<Integer, CommandTask> argmore = new HashMap<>();
-	private Map<Integer, CommandTask> argless = new HashMap<>();
+	private Map<Integer, CommandTask<?>> arg = new HashMap<>();
+	private Map<Integer, CommandTask<?>> argmore = new HashMap<>();
+	private Map<Integer, CommandTask<?>> argless = new HashMap<>();
 	
 	private CommandStructure next, prev;
 	
@@ -53,15 +53,15 @@ public class CommandStructure {
 		return selector;
 	}
 	
-	public Map<Integer, CommandTask> getCommandArguments(){
+	public Map<Integer, CommandTask<?>> getCommandArguments(){
 		return arg;
 	}
 	
-	public Map<Integer, CommandTask> getCommandArgumentsMoreThan(){
+	public Map<Integer, CommandTask<?>> getCommandArgumentsMoreThan(){
 		return argmore;
 	}
 	
-	public Map<Integer, CommandTask> getCommandArgumentsLessThan(){
+	public Map<Integer, CommandTask<?>> getCommandArgumentsLessThan(){
 		return argless;
 	}
 
@@ -113,22 +113,22 @@ public class CommandStructure {
 		return customSelector(pos, Arrays.asList(values));
 	}
 
-	public CommandStructure onArgs(int i, CommandTask object) {
+	public CommandStructure onArgs(int i, CommandTask<?> object) {
 		arg.put(startArg+i-(startArg!=0?1:0), object);
 		return this;
 	}
 
-	public CommandStructure onArgsOrMore(int i, CommandTask object) {
+	public CommandStructure onArgsOrMore(int i, CommandTask<?> object) {
 		argmore.put(startArg+i-(startArg!=0?1:0), object);
 		return this;
 	}
 
-	public CommandStructure onArgsOrLess(int i, CommandTask object) {
+	public CommandStructure onArgsOrLess(int i, CommandTask<?> object) {
 		argless.put(startArg+i-(startArg!=0?1:0), object);
 		return this;
 	}
 
-	public CommandStructure onAnyArg(CommandTask object) {
+	public CommandStructure onAnyArg(CommandTask<?> object) {
 		arg.put(-1, object);
 		return this;
 	}

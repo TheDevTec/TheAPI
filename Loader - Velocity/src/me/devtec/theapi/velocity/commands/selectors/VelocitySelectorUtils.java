@@ -6,18 +6,14 @@ import java.util.List;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 
+import me.devtec.shared.commands.manager.SelectorUtils;
+import me.devtec.shared.commands.selectors.SelectorType;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.velocity.VelocityLoader;
 
-public class Utils {
+public class VelocitySelectorUtils implements SelectorUtils {
 
-	public static boolean check(Iterable<String> iterable, String string) {
-		for(String text : iterable)
-			if(text.equalsIgnoreCase(string))return true;
-		return false;
-	}
-
-	public static boolean check(SelectorType[] selectorTypes, String string) {
+	public boolean check(SelectorType[] selectorTypes, String string) {
 		for(SelectorType selectorType : selectorTypes)
 			switch(selectorType) {
 			case PLAYER:
@@ -32,7 +28,7 @@ public class Utils {
 		return false;
 	}
 	
-	public static List<String> buildSelectorKeys(SelectorType[] selectorTypes) {
+	public List<String> buildSelectorKeys(SelectorType[] selectorTypes) {
 		List<String> text = new ArrayList<>();
 		for(SelectorType selectorType : selectorTypes)
 			switch(selectorType) {

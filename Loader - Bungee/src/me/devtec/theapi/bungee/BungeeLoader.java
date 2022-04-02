@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import me.devtec.shared.API;
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
+import me.devtec.shared.commands.CommandsAPI;
 import me.devtec.shared.components.BungeeComponentAPI;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.dataholder.Config;
@@ -22,6 +23,7 @@ import me.devtec.shared.json.modern.ModernJsonWriter;
 import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
+import me.devtec.theapi.bungee.commands.selectors.BungeeSelectorUtils;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
@@ -63,10 +65,13 @@ public class BungeeLoader extends Plugin implements Listener {
     }
 	
 	public static void initTheAPI() {
+		//CommandsAPI
+		CommandsAPI.selectorUtils=new BungeeSelectorUtils();
+		
 		//OfflineCache support!
 		API.initOfflineCache(ProxyServer.getInstance().getConfig().isOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));
 		
-		Ref.init(ServerType.BUNGEECORD, Ref.getClass("io.github.waterfallmc.waterfall.log4j.WaterfallLogger")!=null?"WaterFall":"BungeeCord"); //Server version
+		Ref.init(ServerType.BUNGEECORD, ProxyServer.getInstance().getVersion()); //Server version
 		ComponentAPI.init(new BungeeComponentAPI<>(), null);
 		Json.init(new ModernJsonReader(), new ModernJsonWriter()); //Modern version of Guava
 		API.library = new LibraryLoader() {

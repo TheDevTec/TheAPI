@@ -9,17 +9,13 @@ import org.bukkit.block.Biome;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
+import me.devtec.shared.commands.manager.SelectorUtils;
+import me.devtec.shared.commands.selectors.SelectorType;
 import me.devtec.shared.utility.StringUtils;
 
-public class Utils {
+public class BukkitSelectorUtils implements SelectorUtils {
 
-	public static boolean check(Iterable<String> iterable, String string) {
-		for(String text : iterable)
-			if(text.equalsIgnoreCase(string))return true;
-		return false;
-	}
-
-	public static boolean check(SelectorType[] selectorTypes, String string) {
+	public boolean check(SelectorType[] selectorTypes, String string) {
 		for(SelectorType selectorType : selectorTypes)
 			switch(selectorType) {
 			case ENTITY_TYPE:
@@ -48,7 +44,7 @@ public class Utils {
 		return false;
 	}
 	
-	public static List<String> buildSelectorKeys(SelectorType[] selectorTypes) {
+	public List<String> buildSelectorKeys(SelectorType[] selectorTypes) {
 		List<String> text = new ArrayList<>();
 		for(SelectorType selectorType : selectorTypes)
 			switch(selectorType) {

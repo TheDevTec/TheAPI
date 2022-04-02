@@ -1,4 +1,4 @@
-package me.devtec.theapi.bukkit.commands;
+package me.devtec.theapi.bungee.commands.holder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,36 +10,33 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.TabCompleter;
-import org.bukkit.plugin.Plugin;
-
+import me.devtec.shared.commands.CommandsAPI;
+import me.devtec.shared.commands.holder.CommandTask;
+import me.devtec.shared.commands.selectors.SelectorType;
+import me.devtec.shared.commands.structures.CommandStructure;
+import me.devtec.shared.commands.structures.EmptyCommandStructure;
 import me.devtec.shared.utility.StringUtils;
-import me.devtec.theapi.bukkit.commands.hooker.BukkitCommandManager;
-import me.devtec.theapi.bukkit.commands.selectors.SelectorType;
-import me.devtec.theapi.bukkit.commands.selectors.Utils;
-import me.devtec.theapi.bukkit.commands.structures.CommandStructure;
-import me.devtec.theapi.bukkit.commands.structures.EmptyCommandStructure;
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.command.PlayerCommand;
 
-public class CommandHolder {
+public class BungeeCommandHolder {
 	static final Map<Integer, String> EMPTY_MAP = Collections.unmodifiableMap(new HashMap<>());
-	static final PermissionsChecker DEFAULT_PERMISSIONS_CHECKER = (player, perm) -> {return player.hasPermission(perm);};
+	static final BungeePermissionsChecker DEFAULT_PERMISSIONS_CHECKER = (player, perm) -> {return player.hasPermission(perm);};
 	
 	private CommandStructure[] args;
-	private PermissionsChecker check = DEFAULT_PERMISSIONS_CHECKER;
+	private BungeePermissionsChecker check = DEFAULT_PERMISSIONS_CHECKER;
 	
-	public CommandHolder(CommandStructure[] structure) {
+	public BungeeCommandHolder(CommandStructure[] structure) {
 		for(int i = 0; i < structure.length; ++i) {
 			structure[i]=structure[i].first();
 		}
 		args=structure;
 	}
 
-	public static CommandHolder create(CommandStructure... structure) {
-		return new CommandHolder(structure);
+	public static BungeeCommandHolder create(CommandStructure... structure) {
+		return new BungeeCommandHolder(structure);
 	}
 	
 	public boolean process(CommandSender sender, String[] s) {
@@ -48,7 +45,7 @@ public class CommandHolder {
 				if(str instanceof EmptyCommandStructure) {
 					if(str.getPermission()!=null && !check.check(sender, str.getPermission()))
 						return true;
-					str.getCommandArguments().get(-1).process(sender, EMPTY_MAP);
+					((BungeeCommandTask)str.getCommandArguments().get(-1)).process(sender, EMPTY_MAP);
 					return true;
 				}
 			}
@@ -72,9 +69,9 @@ public class CommandHolder {
 			
 			Map<Integer, CompletableFuture<Iterable<String>>[]> custom = new HashMap<>(str.getCustomSelectors());
 			Map<Integer, SelectorType[]> normal = new HashMap<>(str.getSelectorTypes());
-			Map<Integer, CommandTask> arg = new HashMap<>(str.getCommandArguments());
-			Map<Integer, CommandTask> argmore = new HashMap<>(str.getCommandArgumentsMoreThan());
-			Map<Integer, CommandTask> argless = new HashMap<>(str.getCommandArgumentsLessThan());
+			Map<Integer, CommandTask<?>> arg = new HashMap<>(str.getCommandArguments());
+			Map<Integer, CommandTask<?>> argmore = new HashMap<>(str.getCommandArgumentsMoreThan());
+			Map<Integer, CommandTask<?>> argless = new HashMap<>(str.getCommandArgumentsLessThan());
 			CommandStructure current = str;
 			
 			//Build
@@ -103,20 +100,20 @@ public class CommandHolder {
 			}
 			
 			//Process
-			CommandTask r = find(s.length-1, arg, argmore, argless);
+			CommandTask<?> r = find(s.length-1, arg, argmore, argless);
 			if(r!=null) {
 				Map<Integer, String> buildSelectors = new HashMap<>();
 				for(int i = 0; i < s.length-1; ++i) {
-					if(normal.containsKey(i+1)) { //todo custom check
-						if(Utils.check(normal.get(i+1), s[i+1])) {
+					if(normal.containsKey(i+1)) {
+						if(CommandsAPI.selectorUtils.check(normal.get(i+1), s[i+1])) {
 							buildSelectors.put(i+1, s[i+1]);
 						}else buildSelectors.put(i+1, null);
 					}else {
-						if(custom.containsKey(i+1)) { //todo custom check
+						if(custom.containsKey(i+1)) {
 							try {
 								boolean foundAny = false;
 								for(CompletableFuture<Iterable<String>> customArgument : custom.get(i+1)) {
-									if(Utils.check(customArgument.get(), s[i+1])) {
+									if(CommandsAPI.selectorUtils.check(customArgument.get(), s[i+1])) {
 										buildSelectors.put(i+1, s[i+1]);
 										foundAny=true;
 									}
@@ -127,24 +124,24 @@ public class CommandHolder {
 						}
 					}
 				}
-				if(r!=null)r.process(sender, buildSelectors);
+				if(r!=null)((BungeeCommandTask)r).process(sender, buildSelectors);
 			}
 			return true;
 		}
 		return false;
 	}
 
-	private CommandTask find(int i, Map<Integer, CommandTask> arg, Map<Integer, CommandTask> argmore,
-			Map<Integer, CommandTask> argless) {
-		CommandTask any;
+	private CommandTask<?> find(int i, Map<Integer, CommandTask<?>> arg, Map<Integer, CommandTask<?>> argmore,
+			Map<Integer, CommandTask<?>> argless) {
+		CommandTask<?> any;
 		if((any=arg.get(i))!=null)return any;
 		
 		if((any=argmore.get(i))!=null) {
 			return any;
 		}else {
-			CommandTask nearest = null;
+			CommandTask<?> nearest = null;
 			int val = i;
-			for(Entry<Integer, CommandTask> s : argmore.entrySet()) {
+			for(Entry<Integer, CommandTask<?>> s : argmore.entrySet()) {
 				if(val >= s.getKey()) {
 					val=s.getKey();
 					nearest=s.getValue();
@@ -155,9 +152,9 @@ public class CommandHolder {
 		if((any=argless.get(i))!=null) {
 			return any;
 		}else {
-			CommandTask nearest = null;
+			CommandTask<?> nearest = null;
 			int val = i;
-			for(Entry<Integer, CommandTask> s : argless.entrySet()) {
+			for(Entry<Integer, CommandTask<?>> s : argless.entrySet()) {
 				if(val <= s.getKey()) {
 					val=s.getKey();
 					nearest=s.getValue();
@@ -238,7 +235,7 @@ public class CommandHolder {
 				}
 			}
 			if(normal.containsKey(s.length-1)) {
-				return StringUtils.copyPartialMatches(s[s.length-1], Utils.buildSelectorKeys(normal.get(s.length-1)));
+				return StringUtils.copyPartialMatches(s[s.length-1], CommandsAPI.selectorUtils.buildSelectorKeys(normal.get(s.length-1)));
 			}
 			if(args!=null) //default fallback
 				return StringUtils.copyPartialMatches(s[s.length-1], Arrays.asList(args));
@@ -246,7 +243,7 @@ public class CommandHolder {
 		return Collections.emptyList();
 	}
 	
-	public CommandHolder permsChecker(PermissionsChecker object) {
+	public BungeeCommandHolder permsChecker(BungeePermissionsChecker object) {
 		check=object==null?DEFAULT_PERMISSIONS_CHECKER:object;
 		return this;
 	}
@@ -255,32 +252,28 @@ public class CommandHolder {
 		return args;
 	}
 
-	public CommandHolder addCommandStructure(CommandStructure subcmd) {
+	public BungeeCommandHolder addCommandStructure(CommandStructure subcmd) {
 		args=Arrays.copyOf(args, args.length+1);
 		args[args.length-1]=subcmd;
 		return this;
 	}
 	
-	public CommandHolder register(Plugin plugin, String name, String... aliases) {
-		PluginCommand c = BukkitCommandManager.createCommand(name, plugin);
-		c.setExecutor(new CommandExecutor() {
+	public BungeeCommandHolder register(Plugin plugin, String name, String... aliases) {
+		PlayerCommand command = new PlayerCommand(name, "", aliases) {
 			
 			@Override
-			public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
+			public void execute(CommandSender s, String[] args) {
 				process(s, args);
-				return true;
 			}
-		});
-		c.setAliases(Arrays.asList(aliases));
-		c.setTabCompleter(new TabCompleter() {
-
+			
 			@Override
-			public List<String> onTabComplete(CommandSender s, Command var2, String var3, String[] args) {
+			public Iterable<String> onTabComplete(CommandSender s, String[] args) {
 				return tabCompleter(s, args);
 			}
 			
-		});
-		BukkitCommandManager.registerCommand(c);
+			
+		};
+		ProxyServer.getInstance().getPluginManager().registerCommand(plugin, command);
 		return this;
 	}
 }
