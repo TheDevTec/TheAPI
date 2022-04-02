@@ -11,6 +11,7 @@ import java.util.List;
 import me.devtec.shared.database.DatabaseAPI.DatabaseSettings;
 import me.devtec.shared.database.DatabaseAPI.DatabaseType;
 import me.devtec.shared.database.DatabaseHandler.SelectQuery.Sorting;
+import me.devtec.shared.scheduler.Tasker;
 import me.devtec.shared.utility.StringUtils;
 
 public class SqlHandler implements DatabaseHandler {
@@ -21,6 +22,16 @@ public class SqlHandler implements DatabaseHandler {
 		this.settings = settings;
 		this.path=path;
 		open();
+		new Tasker() {
+			
+			@Override
+			public void run() {
+				try {
+					if(isConnected())
+						sql.prepareStatement("select 1").executeQuery().next();
+				}catch(Exception doNotIddle) {}
+			}
+		}.runRepeating(0, 20*60*3);
 	}
 	
 	public String buildSelectCommand(SelectQuery query) {
