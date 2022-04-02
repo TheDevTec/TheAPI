@@ -304,7 +304,7 @@ public class Config {
 	public synchronized Config reload(File f) {
 		if (!f.exists()) {
 			requireSave=true;
-			loader=new YamlLoader();
+			loader=new EmptyLoader();
 			keys.clear();
 			return this;
 		}

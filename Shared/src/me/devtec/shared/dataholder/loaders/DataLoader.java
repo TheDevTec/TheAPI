@@ -74,7 +74,7 @@ public abstract class DataLoader {
 
 	public static DataLoader findLoaderFor(File input) {
 		String inputString = null;
-		for(LoaderPriority priority : priorities)
+		for(LoaderPriority priority : priorities) {
 			for(DataLoaderConstructor constructor : dataLoaders.get(priority)) {
 				DataLoader loader = constructor.construct();
 				if(loader.loadingFromFile()) {
@@ -85,16 +85,18 @@ public abstract class DataLoader {
 				}
 				if(loader.isLoaded())return loader;
 			}
+		}
 		return null;
 	}
 
 	public static DataLoader findLoaderFor(String inputString) {
-		for(LoaderPriority priority : priorities)
+		for(LoaderPriority priority : priorities) {
 			for(DataLoaderConstructor constructor : dataLoaders.get(priority)) {
 				DataLoader loader = constructor.construct();
 				loader.load(inputString);
 				if(loader.isLoaded())return loader;
 			}
+		}
 		return null;
 	}
 }

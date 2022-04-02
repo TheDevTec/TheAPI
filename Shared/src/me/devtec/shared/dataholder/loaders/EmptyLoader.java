@@ -46,12 +46,13 @@ public class EmptyLoader extends DataLoader {
 		data.clear();
 		header.clear();
 		footer.clear();
-		loaded=false;
+		loaded = false;
 	}
 
 	@Override
 	public void load(String input) {
 		reset();
+		loaded = true;
 	}
 
 	@Override
