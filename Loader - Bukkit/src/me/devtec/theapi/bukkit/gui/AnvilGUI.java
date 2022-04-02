@@ -41,12 +41,14 @@ public class AnvilGUI implements HolderGUI {
 	 * @apiNote Actions before close gui
 	 */
 	public void onPreClose(Player player) {
+		// Before gui is closed actions
 	}
 
 	/**
 	 * @apiNote Actions on close gui
 	 */
 	public void onClose(Player player) {
+		// Closed gui actions
 	}
 
 	public boolean onIteractItem(Player player, ItemStack item, ClickType type, int slot, boolean gui) {
