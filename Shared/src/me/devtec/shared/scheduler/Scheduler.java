@@ -28,8 +28,7 @@ public class Scheduler {
 				thread.destroy(id);
 			} catch (Exception err) {
 				thread.destroy(id);
-				if(!(err instanceof InterruptedException))
-					err.printStackTrace();
+				err.printStackTrace();
 			}
 		});
 	}
@@ -44,10 +43,11 @@ public class Scheduler {
 				if(!isCancelled(id))
 					r.run();
 				thread.destroy(id);
+			} catch (InterruptedException hide) {
+				thread.destroy(id);
 			} catch (Exception err) {
 				thread.destroy(id);
-				if(!(err instanceof InterruptedException))
-					err.printStackTrace();
+				err.printStackTrace();
 			}
 		});
 	}
@@ -64,10 +64,11 @@ public class Scheduler {
 					Thread.sleep(period * 50);
 				}
 				thread.destroy(id);
+			} catch (InterruptedException hide) {
+				thread.destroy(id);
 			} catch (Exception err) {
 				thread.destroy(id);
-				if(!(err instanceof InterruptedException))
-					err.printStackTrace();
+				err.printStackTrace();
 			}
 		});
 	}
@@ -96,10 +97,11 @@ public class Scheduler {
 					if(onFinish!=null && !isCancelled(id))
 						onFinish.run();
 					thread.destroy(id);
+				} catch (InterruptedException hide) {
+					thread.destroy(id);
 				} catch (Exception err) {
 					thread.destroy(id);
-					if(!(err instanceof InterruptedException))
-						err.printStackTrace();
+					err.printStackTrace();
 				}
 			}
 		});
