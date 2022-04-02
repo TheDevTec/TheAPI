@@ -6,6 +6,7 @@ import java.util.List;
 
 import me.devtec.shared.API;
 import me.devtec.shared.commands.structures.CommandStructure;
+import me.devtec.shared.utility.StringUtils;
 
 public class CommandHolder<S> {
 	private CommandStructure<S> structure;
@@ -26,10 +27,10 @@ public class CommandHolder<S> {
 				cmd = next;
 				++pos;
 			}else {
-				return pos == args.length-1 ? toList(cmd.getNextStructures(s, true)) : Collections.emptyList();
+				return pos == args.length-1 ? StringUtils.copyPartialMatches(args[args.length-1], toList(cmd.getNextStructures(s, true))) : Collections.emptyList();
 			}
 		}
-		return toList(cmd.getParent().getNextStructures(s, true));
+		return StringUtils.copyPartialMatches(args[args.length-1], toList(cmd.getParent().getNextStructures(s, true)));
 	}
 
 	private List<String> toList(List<CommandStructure<S>> nextStructures) {
