@@ -188,14 +188,14 @@ public class ScoreboardAPI {
 	private Object[] create(String prefix, String suffix, String name, String realName, int slot) {
 		protection.set(player+"."+name, true);
 		Object[] o = new Object[2];
-		o[0]=c(0, prefix, suffix, name, realName);
+		o[0]=createTeamPacket(0, prefix, suffix, name, realName);
 		o[1]=BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, name, slot);
 		return o;
 	}
 	
 	private Object[] modify(String prefix, String suffix, String name, String realName, int slot) {
 		Object[] o = new Object[2];
-		o[0]=c(2, prefix, suffix, name, realName);
+		o[0]=createTeamPacket(2, prefix, suffix, name, realName);
 		o[1]=BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, name, slot);
 		return o;
 	}
@@ -203,7 +203,7 @@ public class ScoreboardAPI {
 	private Object[] remove(String name, String realName) {
 		protection.remove(player+"."+name);
 		Object[] o = new Object[2];
-		o[0]=c(1, "", "", name,realName);
+		o[0]=createTeamPacket(1, "", "", name,realName);
 		o[1]=BukkitLoader.getNmsProvider().packetScoreboardScore(Action.REMOVE, sbname, name, 0);
 		return o;
 	}
@@ -214,8 +214,9 @@ public class ScoreboardAPI {
 			Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",int.class), -1):
 			Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",char.class), 'f');
 
-	private Object c(int mode, String prefix, String suffix, String name, String realName) {
+	private Object createTeamPacket(int mode, String prefix, String suffix, String name, String realName) {
 		Object packet = BukkitLoader.getNmsProvider().packetScoreboardTeam();
+		Object nameList = ImmutableList.of(name);
 		String always = "ALWAYS";
 		if(Ref.isNewerThan(16)) {
 			Ref.set(packet, "i", realName);
@@ -228,10 +229,9 @@ public class ScoreboardAPI {
 				Ref.set(o, "e", always);
 				Ref.set(o, "f", white);
 				Ref.set(packet, "k", Optional.of(o));
-			} catch (Exception e) {
-			}
+			} catch (Exception e) {}
 			Ref.set(packet, "h", mode);
-			Ref.set(packet, "j", ImmutableList.of(name));
+			Ref.set(packet, "j", nameList);
 		}else {
 			Ref.set(packet, "a", realName);
 			Ref.set(packet, "b", Ref.isNewerThan(12)?BukkitLoader.getNmsProvider().chatBase("{\"text\":\"\"}"):"");
@@ -239,14 +239,14 @@ public class ScoreboardAPI {
 			Ref.set(packet, "d", Ref.isNewerThan(12)?BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.toComponent(suffix, true)):suffix);
 			if(Ref.isNewerThan(7)) {
 				Ref.set(packet, "e", always);
-				Ref.set(packet, "f", Ref.isNewerThan(8)? always : -1);
+				Ref.set(packet, "f", Ref.isNewerThan(8)?always:-1);
 				if(Ref.isNewerThan(8))
 					Ref.set(packet, "g",Ref.isNewerThan(12)?white:-1);
 				Ref.set(packet, Ref.isNewerThan(8)?"i":"h", mode);
-				Ref.set(packet, Ref.isNewerThan(8)?"h":"g", ImmutableList.of(name));
+				Ref.set(packet, Ref.isNewerThan(8)?"h":"g", nameList);
 			}else {
 				Ref.set(packet, "f", mode);
-				Ref.set(packet, "e", ImmutableList.of(name));
+				Ref.set(packet, "e", nameList);
 			}
 		}
 		return packet;
