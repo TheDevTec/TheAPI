@@ -178,15 +178,13 @@ public class CommandStructure<S> {
 	public final CommandStructure<S> findStructure(S s, String arg, boolean tablist) {
 		CommandStructure<S> result = null;
 		for(ArgumentCommandStructure<S> sub : arguments) {
-			if(contains(sub.args, arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) {
-				if(result == null || result.priority <= sub.priority)
-					result = sub;
+			if((contains(sub.args, arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && result == null || result.priority <= sub.priority) {
+				result = sub;
 			}
 		}
 		for(Entry<Selector, SelectorCommandStructure<S>> sub : selectors.entrySet()) {
-			if(findAny(sub.getKey(), arg) && (sub.getValue().permission==null ? true : sub.getValue().first().permissionChecker.has(s, sub.getValue().permission, tablist))) {
-				if(result == null || result.priority <= sub.getValue().priority)
-					result = sub.getValue();
+			if((findAny(sub.getKey(), arg) && (sub.getValue().permission==null ? true : sub.getValue().first().permissionChecker.has(s, sub.getValue().permission, tablist))) && result == null || result.priority <= sub.getValue().priority) {
+				result = sub.getValue();
 			}
 		}
 		return result == null ? null : result;
