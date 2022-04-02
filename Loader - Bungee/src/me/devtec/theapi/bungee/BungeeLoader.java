@@ -22,6 +22,7 @@ import me.devtec.shared.json.modern.ModernJsonWriter;
 import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
+import me.devtec.theapi.bungee.commands.hooker.BungeeCommandManager;
 import me.devtec.theapi.bungee.commands.selectors.BungeeSelectorUtils;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.LoginEvent;
@@ -35,7 +36,7 @@ import net.md_5.bungee.event.EventHandler;
 public class BungeeLoader extends Plugin implements Listener {
 	
 	public void onLoad() {
-		initTheAPI();
+		initTheAPI(this);
 		getProxy().getPluginManager().registerListener(this, this);
 		new Metrics(this, 10581);
 	}
@@ -63,8 +64,9 @@ public class BungeeLoader extends Plugin implements Listener {
     	if(cache!=null)cache.save();
     }
 	
-	public static void initTheAPI() {
-		//API
+	public static void initTheAPI(Plugin plugin) {
+		//Commands api
+		API.commandsRegister=new BungeeCommandManager(plugin);
 		API.selectorUtils=new BungeeSelectorUtils();
 		
 		//OfflineCache support!

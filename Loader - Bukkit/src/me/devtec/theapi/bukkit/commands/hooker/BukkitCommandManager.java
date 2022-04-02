@@ -2,6 +2,7 @@ package me.devtec.theapi.bukkit.commands.hooker;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -14,10 +15,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import me.devtec.shared.Ref;
+import me.devtec.shared.commands.holder.CommandHolder;
+import me.devtec.shared.commands.manager.CommandsRegister;
+import me.devtec.theapi.bukkit.BukkitLoader;
 
-public class BukkitCommandManager {
+public class BukkitCommandManager implements CommandsRegister {
 	protected static CommandMap cmdMap = (CommandMap)Ref.get(Bukkit.getPluginManager(), "commandMap");
 	@SuppressWarnings("unchecked")
 	protected static Map<String, Command> knownCommands = (Map<String, Command>) Ref.get(cmdMap, "knownCommands");
@@ -61,5 +66,28 @@ public class BukkitCommandManager {
 			low.add(label);
 		for (String s : low)
 			knownCommands.put(s, command);
+	}
+
+	@Override
+	public void register(CommandHolder<?> commandHolder, String command, String[] aliases) {
+		PluginCommand cmd = createCommand(command, JavaPlugin.getPlugin(BukkitLoader.class));
+		cmd.setAliases(Arrays.asList(aliases));
+		cmd.setExecutor(new CommandExecutor() {
+			
+			@Override
+			public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
+				commandHolder.execute(s, args);
+				return true;
+			}
+		});
+		cmd.setTabCompleter(new TabCompleter() {
+			
+			@Override
+			public List<String> onTabComplete(CommandSender s, Command arg1, String arg2, String[] args) {
+				return commandHolder.tablist(s, args);
+			}
+		});
+		cmd.setPermission(commandHolder.getStructure().getPermission());
+		registerCommand(cmd);
 	}
 }

@@ -7,45 +7,72 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 
 import me.devtec.shared.commands.manager.SelectorUtils;
-import me.devtec.shared.commands.selectors.SelectorType;
-import me.devtec.shared.utility.StringUtils;
+import me.devtec.shared.commands.selectors.Selector;
 import me.devtec.theapi.velocity.VelocityLoader;
 
 public class VelocitySelectorUtils implements SelectorUtils {
-
-	public boolean check(SelectorType[] selectorTypes, String string) {
-		for(SelectorType selectorType : selectorTypes)
-			switch(selectorType) {
-			case PLAYER:
-				return !VelocityLoader.server.matchPlayer(string).isEmpty();
-			case SERVER:
-				return VelocityLoader.server.getServer(string).isPresent();
-			case NUMBER:
-				return StringUtils.isNumber(string);
-				default:
-					break;
-			}
-		return false;
+	@Override
+	public List<String> build(Selector selector) {
+		List<String> list = new ArrayList<>();
+		switch(selector) {
+		case SERVER:
+			for(RegisteredServer server : VelocityLoader.server.getAllServers())
+				list.add(server.getServerInfo().getName());
+			break;
+		case BOOLEAN:
+			list.add("true");
+			list.add("false");
+			break;
+		case ENTITY_SELECTOR:
+			list.add("@a");
+			list.add("@e");
+			list.add("@r");
+			list.add("@s");
+			list.add("@p");
+		case PLAYER:
+			for(Player player : VelocityLoader.server.getAllPlayers())
+				list.add(player.getUsername());
+			break;
+		case INTEGER:
+			list.add("{integer}");
+			break;
+		case NUMBER:
+			list.add("{number}");
+			break;
+		default:
+			break;
+		}
+		return list;
 	}
-	
-	public List<String> buildSelectorKeys(SelectorType[] selectorTypes) {
-		List<String> text = new ArrayList<>();
-		for(SelectorType selectorType : selectorTypes)
-			switch(selectorType) {
-			case PLAYER:
-				for(Player s : VelocityLoader.server.getAllPlayers())
-					text.add(s.getUsername());
-				break;
-			case SERVER:
-				for(RegisteredServer s : VelocityLoader.server.getAllServers())
-					text.add(s.getServerInfo().getName());
-				break;
-			case NUMBER:
-				text.add("{number}");
-				break;
-				default:
-					break;
-			}
-		return text;
+
+	@Override
+	public boolean check(Selector selector, String value) {
+		switch(selector) {
+		case BOOLEAN:
+			return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");
+		case ENTITY_SELECTOR:
+			boolean match = value.matches("@[AaEeRrSsPp]");
+			if(match)return true;
+			//Else continue to player
+		case PLAYER:
+			return !VelocityLoader.server.matchPlayer(value).isEmpty();
+		case INTEGER:
+			try {
+				Integer.parseInt(value);
+				return true;
+			}catch(NoSuchFieldError | Exception err) {}
+			break;
+		case NUMBER:
+			try {
+				Double.parseDouble(value);
+				return true;
+			}catch(NoSuchFieldError | Exception err) {}
+			break;
+		case SERVER:
+			return VelocityLoader.server.getServer(value).isPresent();
+		default:
+			break;
+		}
+		return false;
 	}
 }

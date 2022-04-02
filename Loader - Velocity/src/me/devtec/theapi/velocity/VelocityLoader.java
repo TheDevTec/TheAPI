@@ -33,6 +33,7 @@ import me.devtec.shared.json.modern.ModernJsonWriter;
 import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
+import me.devtec.theapi.velocity.commands.hooker.VelocityCommandManager;
 import me.devtec.theapi.velocity.commands.selectors.VelocitySelectorUtils;
 
 @Plugin(id = "theapi", name = "TheAPI", version = "9.6", authors = {"DevTec", "StraikerinaCZ"}, url = "https://www.spigotmc.org/resources/72679/")
@@ -72,7 +73,8 @@ public class VelocityLoader {
     }
 	
 	public static void initTheAPI(ProxyServer server) {
-		//API
+		//Commands api
+		API.commandsRegister=new VelocityCommandManager();
 		API.selectorUtils=new VelocitySelectorUtils();
 		
 		//OfflineCache support!

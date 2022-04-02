@@ -2,17 +2,11 @@ package me.devtec.shared.commands.manager;
 
 import java.util.List;
 
-import me.devtec.shared.commands.selectors.SelectorType;
+import me.devtec.shared.commands.selectors.Selector;
 
 public interface SelectorUtils {
-	public default boolean check(Iterable<String> iterable, String string) {
-		for(String text : iterable)
-			if(text.equalsIgnoreCase(string))return true;
-		return false;
-	}
+	public List<String> build(Selector selector);
 	
-	public List<String> buildSelectorKeys(SelectorType[] selectorTypes);
-	
-	public boolean check(SelectorType[] selectorTypes, String value);
+	public boolean check(Selector selector, String value);
 
 }

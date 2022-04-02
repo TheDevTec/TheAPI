@@ -1,151 +1,215 @@
 package me.devtec.shared.commands.structures;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+import java.util.Map.Entry;
 
-import me.devtec.shared.commands.holder.CommandTask;
-import me.devtec.shared.commands.selectors.SelectorType;
+import me.devtec.shared.API;
+import me.devtec.shared.commands.holder.CommandExecutor;
+import me.devtec.shared.commands.holder.CommandHolder;
+import me.devtec.shared.commands.manager.PermissionChecker;
+import me.devtec.shared.commands.selectors.Selector;
 
-public class CommandStructure {
+public class CommandStructure<S> {
+	private CommandExecutor<S> executor;
+	String permission;
+	int priority;
 	
-	private String[] args;
-	private int startArg;
-	protected String perm;
-	private Map<Integer, SelectorType[]> selector = new HashMap<>();
-	private Map<Integer, CompletableFuture<Iterable<String>>[]> customSelectors = new HashMap<>();
-	private Map<Integer, CommandTask<?>> arg = new HashMap<>();
-	private Map<Integer, CommandTask<?>> argmore = new HashMap<>();
-	private Map<Integer, CommandTask<?>> argless = new HashMap<>();
+	PermissionChecker<S> permissionChecker;
+	CommandStructure<S> parent;
 	
-	private CommandStructure next, prev;
+	Map<Selector, SelectorCommandStructure<S>> selectors = new HashMap<>();
+	List<ArgumentCommandStructure<S>> arguments = new ArrayList<>();
+	CommandExecutor<S> fallback;
+	Class<S> senderClass;
 	
-	CommandStructure(String[] values) {
-		args=values;
+	CommandStructure(CommandStructure<S> parent, CommandExecutor<S> executor){
+		this.setExecutor(executor);
+		this.parent=parent;
 	}
 
-	public static EmptyCommandStructure empty() {
-		return new EmptyCommandStructure(null);
+	/**
+	 * @apiNote Creates new {@link CommandStructure}
+	 *
+	 */
+	public static <T> CommandStructure<T> create(Class<T> executorClass, PermissionChecker<T> perm, CommandExecutor<T> executor) {
+		CommandStructure<T> structure = new CommandStructure<T>(null, executor);
+		structure.permissionChecker=perm;
+		structure.senderClass=executorClass;
+		return structure;
 	}
 
-	public static CommandStructure create(String... args) {
-		return new CommandStructure(args);
+	/**
+	 * @apiNote Add selector argument to current {@link CommandStructure}
+	 *
+	 */
+	public SelectorCommandStructure<S> selector(Selector selector, CommandExecutor<S> ex) {
+		SelectorCommandStructure<S> sub = new SelectorCommandStructure<S>(this, selector, ex);
+		selectors.put(sub.selector, sub);
+		return sub;
+	}
+
+	/**
+	 * @apiNote Fallback executor when every try to find selector / argument structure fail
+	 *
+	 */
+	public CommandStructure<S> fallback(CommandExecutor<S> ex) { //Everything failed? Don't worry! This will be executed
+		this.fallback=ex;
+		return this;
+	}
+
+	/**
+	 * @apiNote Returns fallback executor
+	 *
+	 */
+	public CommandExecutor<S> getFallback() {
+		return fallback;
+	}
+
+	/**
+	 * @apiNote Returns command executor
+	 *
+	 */
+	public CommandExecutor<S> getExecutor() {
+		return executor;
+	}
+
+	/**
+	 * @apiNote Override current command executor
+	 *
+	 */
+	public CommandStructure<S> setExecutor(CommandExecutor<S> executor) {
+		this.executor = executor;
+		return this;
 	}
 	
+	/**
+	 * @apiNote Add string/s argument to current {@link CommandStructure}
+	 *
+	 */
+	public ArgumentCommandStructure<S> argument(String argument, CommandExecutor<S> ex, String... aliases) {
+		ArgumentCommandStructure<S> sub = new ArgumentCommandStructure<S>(this, argument, ex, aliases);
+		arguments.add(sub);
+		return sub;
+	}
+	
+	/**
+	 * @apiNote Higher number means higher priority in lookup
+	 */
+	public CommandStructure<S> priority(int level) {
+		this.priority=level;
+		return this;
+	}
+
+	/**
+	 * @apiNote Returns priority
+	 */
+	public int getPriority() {
+		return priority;
+	}
+
+	/**
+	 * @apiNote Permission to use this and other sub-commands
+	 */
+	public CommandStructure<S> permission(String permission) {
+		this.permission=permission;
+		return this;
+	}
+
+	/**
+	 * @apiNote Returns permission
+	 */
 	public String getPermission() {
-		return perm;
-	}
-	
-	public String[] getArgs() {
-		return args;
-	}
-	
-	public int getStartArg() {
-		return startArg;
-	}
-	
-	public Map<Integer, CompletableFuture<Iterable<String>>[]> getCustomSelectors(){
-		return customSelectors;
-	}
-	
-	public Map<Integer, SelectorType[]> getSelectorTypes(){
-		return selector;
-	}
-	
-	public Map<Integer, CommandTask<?>> getCommandArguments(){
-		return arg;
-	}
-	
-	public Map<Integer, CommandTask<?>> getCommandArgumentsMoreThan(){
-		return argmore;
-	}
-	
-	public Map<Integer, CommandTask<?>> getCommandArgumentsLessThan(){
-		return argless;
+		return permission;
 	}
 
-	public CommandStructure requirement(int startArg, String... values) {
-		CommandStructure str = new CommandStructure(values);
-		str.prev=this;
-		next=str;
-		str.perm=perm;
-		str.startArg=startArg;
-		return str;
+	/**
+	 * @apiNote Returns original {@link CommandStructure}
+	 */
+	public CommandStructure<S> first() {
+		return getParent() == null ? this : getParent().first();
+	}
+
+	/**
+	 * @apiNote @Nullable Returns parent of this {@link CommandStructure}
+	 *
+	 */
+	public CommandStructure<S> getParent() {
+		return parent;
+	}
+
+	/**
+	 * @apiNote Returns tab completer values of this {@link CommandStructure}
+	 *
+	 */
+	public List<String> tabList() {
+		return Collections.emptyList();
+	}
+
+	/**
+	 * @apiNote Returns executor's class
+	 *
+	 */
+	public Class<S> getSenderClass() {
+		return first().senderClass;
+	}
+
+	/**
+	 * @apiNote Build and convert to {@link CommandHolder}
+	 *
+	 */
+	public CommandHolder<S> build() {
+		return new CommandHolder<>(first());
 	}
 	
-	public CommandStructure permission(String perm) {
-		CommandStructure str = new CommandStructure(null);
-		str.prev=this;
-		next=str;
-		str.perm=perm;
-		str.startArg=startArg;
-		return str;
+	public String toString() {
+		return getClass().getCanonicalName()+":"+tabList();
 	}
 	
-	public CommandStructure multiSelectors(int argumentPosition, SelectorType[] selectorTypes, CompletableFuture<Iterable<String>>[] customSelectors) {
-		this.selector.put(argumentPosition, selectorTypes);
-		this.customSelectors.put(argumentPosition, customSelectors);
-		return this;
+	//Special utils to make this structure working!
+	
+	protected final boolean findAny(Selector key, String arg) {
+		return API.selectorUtils.check(key, arg);
 	}
 	
-	public CommandStructure selector(int argumentPosition, SelectorType selector) {
-		this.selector.put(argumentPosition, new SelectorType[] {selector});
-		return this;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public CommandStructure customSelector(int argumentPosition, CompletableFuture<Iterable<String>> selector) {
-		this.customSelectors.put(argumentPosition, new CompletableFuture[] {selector});
-		return this;
-	}
-	
-	public CommandStructure customSelector(int argumentPosition, Iterable<String> values) {
-		return customSelector(argumentPosition, new CompletableFuture<Iterable<String>>() {
-			@Override
-			public Iterable<String> get() {
-				return values;
+	public final CommandStructure<S> findStructure(S s, String arg, boolean tablist) {
+		CommandStructure<S> result = null;
+		for(ArgumentCommandStructure<S> sub : arguments) {
+			if(contains(sub.args, arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) {
+				if(result == null || result.priority <= sub.priority)
+					result = sub;
 			}
-		});
+		}
+		for(Entry<Selector, SelectorCommandStructure<S>> sub : selectors.entrySet()) {
+			if(findAny(sub.getKey(), arg) && (sub.getValue().permission==null ? true : sub.getValue().first().permissionChecker.has(s, sub.getValue().permission, tablist))) {
+				if(result == null || result.priority <= sub.getValue().priority)
+					result = sub.getValue();
+			}
+		}
+		return result == null ? null : result;
 	}
 	
-	public CommandStructure customSelector(int pos, String... values) {
-		return customSelector(pos, Arrays.asList(values));
-	}
-
-	public CommandStructure onArgs(int i, CommandTask<?> object) {
-		arg.put(startArg+i-(startArg!=0?1:0), object);
-		return this;
-	}
-
-	public CommandStructure onArgsOrMore(int i, CommandTask<?> object) {
-		argmore.put(startArg+i-(startArg!=0?1:0), object);
-		return this;
-	}
-
-	public CommandStructure onArgsOrLess(int i, CommandTask<?> object) {
-		argless.put(startArg+i-(startArg!=0?1:0), object);
-		return this;
-	}
-
-	public CommandStructure onAnyArg(CommandTask<?> object) {
-		arg.put(-1, object);
-		return this;
+	public final List<CommandStructure<S>> getNextStructures(S s, boolean tablist) {
+		List<CommandStructure<S>> structures = new ArrayList<>();
+		for(ArgumentCommandStructure<S> sub : arguments) {
+			if(sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist)) {
+				structures.add(sub);
+			}
+		}
+		for(SelectorCommandStructure<S> sub : selectors.values()) {
+			if(sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist)) {
+				structures.add(sub);
+			}
+		}
+		return structures;
 	}
 	
-	public CommandStructure first() {
-		return prev==null ? this : prev.first();
-	}
-	
-	public CommandStructure last() {
-		return next==null ? this : next.last();
-	}
-	
-	public CommandStructure getNext() {
-		return next==null ? this : next;
-	}
-	
-	public CommandStructure getPrevious() {
-		return prev==null ? this : prev;
+	protected final boolean contains(List<String> list, String arg) {
+		for(String value : list)
+			if(value.equalsIgnoreCase(arg))return true;
+		return false;
 	}
 }

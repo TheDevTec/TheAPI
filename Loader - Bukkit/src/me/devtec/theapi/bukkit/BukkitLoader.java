@@ -55,6 +55,7 @@ import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
 import me.devtec.theapi.bukkit.bossbar.BossBar;
+import me.devtec.theapi.bukkit.commands.hooker.BukkitCommandManager;
 import me.devtec.theapi.bukkit.commands.hooker.SpigotSimpleCommandMap;
 import me.devtec.theapi.bukkit.commands.selectors.BukkitSelectorUtils;
 import me.devtec.theapi.bukkit.game.ResourcePackAPI;
@@ -382,7 +383,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	}
 	
 	private static void initTheAPI(JavaPlugin plugin) {
-		//CommandsAPI
+		//Commands api
+		API.commandsRegister=new BukkitCommandManager();
 		API.selectorUtils=new BukkitSelectorUtils();
 		
 		//OfflineCache support!

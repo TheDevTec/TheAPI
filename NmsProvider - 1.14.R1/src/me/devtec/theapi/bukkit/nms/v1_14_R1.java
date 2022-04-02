@@ -758,7 +758,7 @@ public class v1_14_R1 implements NmsProvider {
 		if(!cancel)cancel=gui.onIteractItem(player, item, clickType, gameSlot, slot<gui.size());
 		else gui.onIteractItem(player, item, clickType, gameSlot, slot<gui.size());
 		int position = 0;
-		if(!cancel && type==InventoryClickType.QUICK_MOVE) {
+		if(!(gui instanceof AnvilGUI) && !cancel && type==InventoryClickType.QUICK_MOVE) {
 			ItemStack[] contents = slot<gui.size()?player.getInventory().getStorageContents():gui.getInventory().getStorageContents();
 			List<Integer> modified = slot<gui.size()?InventoryUtils.shift(slot,player,gui,clickType,gui instanceof AnvilGUI?DestinationType.PLAYER_INV_ANVIL:DestinationType.PLAYER_INV_CUSTOM_INV,null, contents, item):InventoryUtils.shift(slot,player,gui,clickType,DestinationType.CUSTOM_INV,gui.getNotInterableSlots(player), contents, item);
 			if(!modified.isEmpty()) {
@@ -811,9 +811,6 @@ public class v1_14_R1 implements NmsProvider {
 				}
 				return true;
 			}
-		}else {
-			if(gui instanceof AnvilGUI && slot==2)
-				postToMainThread(() -> ((ContainerAnvil)container).shiftClick((EntityPlayer)getPlayer(player),slot));
 		}
 		return false;
 	}

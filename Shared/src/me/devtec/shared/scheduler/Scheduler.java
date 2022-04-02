@@ -15,11 +15,11 @@ public class Scheduler {
 	}
 	
 	public static boolean isCancelled(int task) {
-		return !thread.isAlive(task) && API.enabled;
+		return !thread.isAlive(task) && API.isEnabled();
 	}
 
 	public static int run(Runnable r) {
-		if(r==null||!API.enabled)return -1;
+		if(r==null||!API.isEnabled())return -1;
 		int id = thread.incrementAndGet();
 		return thread.executeWithId(id, () -> {
 			try {
@@ -34,7 +34,7 @@ public class Scheduler {
 	}
 
 	public static int later(long delay, Runnable r) {
-		if(r==null||!API.enabled)return -1;
+		if(r==null||!API.isEnabled())return -1;
 		int id = thread.incrementAndGet();
 		return thread.executeWithId(id, () -> {
 			try {
@@ -53,7 +53,7 @@ public class Scheduler {
 	}
 
 	public static int repeating(long delay, long period, Runnable r) {
-		if(r==null||!API.enabled||period<0)return -1;
+		if(r==null||!API.isEnabled()||period<0)return -1;
 		int id = thread.incrementAndGet();
 		return thread.executeWithId(id, () -> {
 			try {
@@ -82,7 +82,7 @@ public class Scheduler {
 	}
 
 	public static int repeatingTimes(long delay, long period, long times, Runnable runnable, Runnable onFinish) {
-		if(runnable==null||!API.enabled||period<0||times<0)return -1;
+		if(runnable==null||!API.isEnabled()||period<0||times<0)return -1;
 		int id = thread.incrementAndGet();
 		return thread.executeWithId(id, new Runnable() {
 			int run = 0;

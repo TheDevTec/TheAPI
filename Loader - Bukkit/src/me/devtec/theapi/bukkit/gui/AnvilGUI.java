@@ -264,7 +264,7 @@ public class AnvilGUI implements HolderGUI {
 		this.text=text;
 		for(Object o : containers.values()) {
 			if(Ref.isNewerThan(16)) {
-				Object anvil = Ref.get(o, "delegate");
+				Object anvil = o;
 				for(int i = 0; i < 2; ++i)
 					BukkitLoader.getNmsProvider().setSlot(anvil, i, BukkitLoader.getNmsProvider().getSlotItem(o, i));
 				Ref.invoke(anvil, "a", text);

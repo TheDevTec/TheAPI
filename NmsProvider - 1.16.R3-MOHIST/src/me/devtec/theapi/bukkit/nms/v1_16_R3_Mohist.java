@@ -49,14 +49,13 @@ import me.devtec.theapi.bukkit.events.ServerListPingEvent.PlayerProfile;
 import me.devtec.theapi.bukkit.game.Position;
 import me.devtec.theapi.bukkit.game.TheMaterial;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
-import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
+import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils.DestinationType;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.RepairContainer;
@@ -825,7 +824,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 		if(!cancel)cancel=gui.onIteractItem(player, item, clickType, gameSlot, slot<gui.size());
 		else gui.onIteractItem(player, item, clickType, gameSlot, slot<gui.size());
 		int position = 0;
-		if(!cancel && type==InventoryClickType.QUICK_MOVE) {
+		if(!(gui instanceof AnvilGUI) && !cancel && type==InventoryClickType.QUICK_MOVE) {
 			ItemStack[] contents = slot<gui.size()?player.getInventory().getStorageContents():gui.getInventory().getStorageContents();
 			List<Integer> modified = slot<gui.size()?InventoryUtils.shift(slot,player,gui,clickType,gui instanceof AnvilGUI?DestinationType.PLAYER_INV_ANVIL:DestinationType.PLAYER_INV_CUSTOM_INV,null, contents, item):InventoryUtils.shift(slot,player,gui,clickType,DestinationType.CUSTOM_INV,gui.getNotInterableSlots(player), contents, item);
 			if(!modified.isEmpty()) {
@@ -878,9 +877,6 @@ public class v1_16_R3_Mohist implements NmsProvider {
 				}
 				return true;
 			}
-		}else {
-			if(gui instanceof AnvilGUI && slot==2)
-				postToMainThread(() -> ((RepairContainer)container).func_82846_b((PlayerEntity)getPlayer(player),slot));
 		}
 		return false;
 	}

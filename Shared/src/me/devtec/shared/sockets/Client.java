@@ -47,7 +47,7 @@ public abstract class Client implements SocketClient {
 		new Thread(new Runnable() {
 			int c = 0;
 			public void run() {
-				while(API.enabled && c < trottle) {
+				while(API.isEnabled() && c < trottle) {
 					try {
 						s = new Socket(ip, port);
 						closed=false;

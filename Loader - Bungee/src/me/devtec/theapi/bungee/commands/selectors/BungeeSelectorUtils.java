@@ -4,45 +4,72 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.devtec.shared.commands.manager.SelectorUtils;
-import me.devtec.shared.commands.selectors.SelectorType;
-import me.devtec.shared.utility.StringUtils;
+import me.devtec.shared.commands.selectors.Selector;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class BungeeSelectorUtils implements SelectorUtils {
-
-	public boolean check(SelectorType[] selectorTypes, String string) {
-		for(SelectorType selectorType : selectorTypes)
-			switch(selectorType) {
-			case PLAYER:
-				return !ProxyServer.getInstance().matchPlayer(string).isEmpty();
-			case SERVER:
-				return ProxyServer.getInstance().getServerInfo(string)!=null;
-			case NUMBER:
-				return StringUtils.isNumber(string);
-				default:
-					break;
-			}
-		return false;
+	@Override
+	public List<String> build(Selector selector) {
+		List<String> list = new ArrayList<>();
+		switch(selector) {
+		case SERVER:
+			list.addAll(ProxyServer.getInstance().getServers().keySet());
+			break;
+		case BOOLEAN:
+			list.add("true");
+			list.add("false");
+			break;
+		case ENTITY_SELECTOR:
+			list.add("@a");
+			list.add("@e");
+			list.add("@r");
+			list.add("@s");
+			list.add("@p");
+		case PLAYER:
+			for(ProxiedPlayer player : ProxyServer.getInstance().getPlayers())
+				list.add(player.getName());
+			break;
+		case INTEGER:
+			list.add("{integer}");
+			break;
+		case NUMBER:
+			list.add("{number}");
+			break;
+		default:
+			break;
+		}
+		return list;
 	}
-	
-	public List<String> buildSelectorKeys(SelectorType[] selectorTypes) {
-		List<String> text = new ArrayList<>();
-		for(SelectorType selectorType : selectorTypes)
-			switch(selectorType) {
-			case PLAYER:
-				for(ProxiedPlayer s : ProxyServer.getInstance().getPlayers())
-					text.add(s.getName());
-				break;
-			case SERVER:
-				text.addAll(ProxyServer.getInstance().getServers().keySet());
-				break;
-			case NUMBER:
-				text.add("{number}");
-				break;
-				default:
-					break;
-			}
-		return text;
+
+	@Override
+	public boolean check(Selector selector, String value) {
+		switch(selector) {
+		case BOOLEAN:
+			return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");
+		case ENTITY_SELECTOR:
+			boolean match = value.matches("@[AaEeRrSsPp]");
+			if(match)return true;
+			//Else continue to player
+		case PLAYER:
+			return !ProxyServer.getInstance().matchPlayer(value).isEmpty();
+		case INTEGER:
+			try {
+				Integer.parseInt(value);
+				return true;
+			}catch(NoSuchFieldError | Exception err) {}
+			break;
+		case NUMBER:
+			try {
+				Double.parseDouble(value);
+				return true;
+			}catch(NoSuchFieldError | Exception err) {}
+			break;
+		case SERVER:
+			return ProxyServer.getInstance().getServerInfo(value) != null;
+		default:
+			break;
+		}
+		return false;
 	}
 }

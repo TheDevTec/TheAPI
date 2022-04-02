@@ -19,6 +19,7 @@ import javax.management.ObjectName;
 
 import com.google.common.collect.Lists;
 
+import me.devtec.shared.commands.manager.CommandsRegister;
 import me.devtec.shared.commands.manager.SelectorUtils;
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.utility.LibraryLoader;
@@ -26,12 +27,20 @@ import me.devtec.shared.utility.OfflineCache;
 import me.devtec.shared.utility.StringUtils;
 
 public class API {
+	//Commands api
+	public static CommandsRegister commandsRegister;
 	public static SelectorUtils selectorUtils;
+	
+	//Library
 	public static LibraryLoader library;
+	
+	//Offline users cache
 	private static OfflineCache cache;
 	private static Map<UUID, Config> users = new HashMap<>();
+	
+	//Other cool things
 	private static final Basics basics = new Basics();
-	public static boolean enabled = true;
+	private static boolean enabled = true;
 	
 	public static void initOfflineCache(boolean onlineMode, Config rawData) {
 		cache = new OfflineCache(onlineMode);
@@ -70,6 +79,10 @@ public class API {
 	
 	public static void setEnabled(boolean status) {
 		enabled=status;
+	}
+	
+	public static boolean isEnabled() {
+		return enabled;
 	}
 	
 	public static class Basics {

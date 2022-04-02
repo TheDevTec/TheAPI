@@ -27,6 +27,7 @@ import org.bukkit.craftbukkit.v1_18_R2.util.CraftMagicNumbers;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -44,8 +45,8 @@ import me.devtec.theapi.bukkit.events.ServerListPingEvent.PlayerProfile;
 import me.devtec.theapi.bukkit.game.Position;
 import me.devtec.theapi.bukkit.game.TheMaterial;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
-import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
+import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils.DestinationType;
 import net.minecraft.EnumChatFormat;
@@ -106,6 +107,7 @@ import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.player.EntityHuman;
 import net.minecraft.world.inventory.Container;
+import net.minecraft.world.inventory.ContainerAccess;
 import net.minecraft.world.inventory.ContainerAnvil;
 import net.minecraft.world.inventory.Containers;
 import net.minecraft.world.item.Item;
@@ -707,8 +709,8 @@ public class v1_18_R2 implements NmsProvider {
 	@Override
 	public void openAnvilGUI(Player player, Object con, String title, ItemStack[] items) {
 		Container container = (Container)con;
-		EntityPlayer nmsPlayer = ((CraftPlayer)player).getHandle();
 		int id = container.j;
+		EntityPlayer nmsPlayer = ((CraftPlayer)player).getHandle();
 		net.minecraft.world.item.ItemStack[] nmsItems = new net.minecraft.world.item.ItemStack[items.length];
 		for(int i = 0; i < items.length; ++i) {
 			ItemStack is = items[i];
@@ -733,7 +735,16 @@ public class v1_18_R2 implements NmsProvider {
 
 	@Override
 	public Object createContainer(Inventory inv, Player player) {
-		return new CraftContainer(inv, ((CraftPlayer)player).getHandle(), ((CraftPlayer)player).getHandle().nextContainerCounter());
+		return inv.getType()==InventoryType.ANVIL?createAnvilContainer(inv, player):new CraftContainer(inv, ((CraftPlayer)player).getHandle(), ((CraftPlayer)player).getHandle().nextContainerCounter());
+	}
+
+	static BlockPosition zero = new BlockPosition(0,0,0);
+	
+	public Object createAnvilContainer(Inventory inv, Player player) {
+		ContainerAnvil container = new ContainerAnvil(((CraftPlayer)player).getHandle().nextContainerCounter(), ((CraftPlayer)player).getHandle().fr(), ContainerAccess.a(((CraftPlayer)player).getHandle().s, zero));
+		for(int i = 0; i < 2; ++i)
+			container.a(i, (net.minecraft.world.item.ItemStack) asNMSItem(inv.getItem(i)));
+		return container;
 	}
 
 	@Override
@@ -743,7 +754,7 @@ public class v1_18_R2 implements NmsProvider {
 	
 	@Override
 	public String getAnvilRenameText(Object anvil) {
-		return ((ContainerAnvil)Ref.get(anvil, "delegate")).v;
+		return ((ContainerAnvil)anvil).v;
 	}
 	
 	@Override
@@ -779,7 +790,7 @@ public class v1_18_R2 implements NmsProvider {
 		if(!cancel)cancel=gui.onIteractItem(player, item, clickType, gameSlot, slot<gui.size());
 		else gui.onIteractItem(player, item, clickType, gameSlot, slot<gui.size());
 		int position = 0;
-		if(!cancel && type==InventoryClickType.QUICK_MOVE) {
+		if(!(gui instanceof AnvilGUI) && !cancel && type==InventoryClickType.QUICK_MOVE) {
 			ItemStack[] contents = slot<gui.size()?player.getInventory().getStorageContents():gui.getInventory().getStorageContents();
 			List<Integer> modified = slot<gui.size()?InventoryUtils.shift(slot,player,gui,clickType,gui instanceof AnvilGUI?DestinationType.PLAYER_INV_ANVIL:DestinationType.PLAYER_INV_CUSTOM_INV,null, contents, item):InventoryUtils.shift(slot,player,gui,clickType,DestinationType.CUSTOM_INV,gui.getNotInterableSlots(player), contents, item);
 			if(!modified.isEmpty()) {
@@ -833,9 +844,6 @@ public class v1_18_R2 implements NmsProvider {
 				}
 				return true;
 			}
-		}else {
-			if(gui instanceof AnvilGUI && slot==2)
-				postToMainThread(() -> ((ContainerAnvil)Ref.get(container, "delegate")).b((EntityPlayer)getPlayer(player),slot));
 		}
 		return false;
 	}
