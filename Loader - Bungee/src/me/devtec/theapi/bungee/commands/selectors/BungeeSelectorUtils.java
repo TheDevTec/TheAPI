@@ -21,6 +21,8 @@ public class BungeeSelectorUtils implements SelectorUtils {
 			list.add("false");
 			break;
 		case ENTITY_SELECTOR:
+			if(ProxyServer.getInstance().getOnlineCount()==0)
+				break;
 			list.add("@a");
 			list.add("@e");
 			list.add("@r");

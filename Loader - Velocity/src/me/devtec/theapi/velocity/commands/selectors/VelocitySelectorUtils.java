@@ -24,6 +24,8 @@ public class VelocitySelectorUtils implements SelectorUtils {
 			list.add("false");
 			break;
 		case ENTITY_SELECTOR:
+			if(VelocityLoader.getServer().getPlayerCount()==0)
+				break;
 			list.add("@a");
 			list.add("@e");
 			list.add("@r");

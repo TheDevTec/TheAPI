@@ -27,6 +27,8 @@ public class BukkitSelectorUtils implements SelectorUtils {
 			list.add("false");
 			break;
 		case ENTITY_SELECTOR:
+			if(BukkitLoader.getOnlinePlayers().size()==0)
+				break;
 			list.add("@a");
 			list.add("@e");
 			list.add("@r");
