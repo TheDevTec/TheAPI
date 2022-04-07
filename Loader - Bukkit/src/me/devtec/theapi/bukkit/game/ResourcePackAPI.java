@@ -1,6 +1,6 @@
 package me.devtec.theapi.bukkit.game;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -12,8 +12,8 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 
 public class ResourcePackAPI {
 	
-	private static final Map<Player, String> resourcePacks = new HashMap<>();
-	private static final Map<Player, ResourcePackHandler> resourcePacksLoading = new HashMap<>();
+	private static final Map<Player, String> resourcePacks = new ConcurrentHashMap<>();
+	private static final Map<Player, ResourcePackHandler> resourcePacksLoading = new ConcurrentHashMap<>();
 	
 	public static ResourcePackHandler getHandlingPlayer(Player player) {
 		return resourcePacksLoading.get(player);

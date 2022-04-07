@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -504,7 +504,7 @@ public class Config {
 				list.add(null);
 			else {
 				Object re = Json.reader().read(o.toString());
-				list.add(re instanceof Map ? (Map<K, V>) re : new HashMap<>());
+				list.add(re instanceof Map ? (Map<K, V>) re : new ConcurrentHashMap<>());
 			}
 		}
 		return list;
@@ -596,7 +596,7 @@ public class Config {
 	protected synchronized void addKeys(List<Map<String, String>> list, String key) {
 		Object o = get(key);
 		if (o != null) {
-			Map<String, String> a = new HashMap<>();
+			Map<String, String> a = new ConcurrentHashMap<>();
 			a.put(key, Json.writer().write(o));
 			list.add(a);
 		}

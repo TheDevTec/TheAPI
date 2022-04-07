@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -14,7 +14,7 @@ import me.devtec.shared.scheduler.Tasker;
 
 public class Server {
 	protected final Set<Reader> readers = new HashSet<>();
-	protected final Map<Socket, ServerClient> sockets = new HashMap<>();
+	protected final Map<Socket, ServerClient> sockets = new ConcurrentHashMap<>();
 	protected ServerSocket server;
 	protected final String pas;
 	private boolean closed;

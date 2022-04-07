@@ -2,7 +2,7 @@ package me.devtec.shared.commands.structures;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +20,7 @@ public class CommandStructure<S> {
 	PermissionChecker<S> permissionChecker;
 	CommandStructure<S> parent;
 	
-	Map<Selector, SelectorCommandStructure<S>> selectors = new HashMap<>();
+	Map<Selector, SelectorCommandStructure<S>> selectors = new ConcurrentHashMap<>();
 	List<ArgumentCommandStructure<S>> arguments = new ArrayList<>();
 	CommandExecutor<S> fallback;
 	Class<S> senderClass;
@@ -177,10 +177,10 @@ public class CommandStructure<S> {
 	public final CommandStructure<S> findStructure(S s, String arg, boolean tablist) {
 		CommandStructure<S> result = null;
 		for(ArgumentCommandStructure<S> sub : arguments)
-			if((contains(sub.args, arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && result == null || result.priority <= sub.priority)
+			if((contains(sub.args, arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && result == null || result != null && result.priority <= sub.priority)
 				result = sub;
 		for(SelectorCommandStructure<S> sub : selectors.values())
-			if((findAny(sub.getSelector(), arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && result == null || result.priority <= sub.priority)
+			if((findAny(sub.getSelector(), arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && result == null || result != null && result.priority <= sub.priority)
 				result = sub;
 		return result == null ? null : result;
 	}

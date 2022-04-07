@@ -1,7 +1,7 @@
 package me.devtec.shared.utility;
 
 import java.net.URL;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -10,7 +10,7 @@ import me.devtec.shared.json.Json;
 
 public class OfflineCache {
 	private final String USER_FORMAT="https://api.ashcon.app/mojang/v2/user/%s";
-	protected final Map<String, Query> values = new HashMap<>();
+	protected final Map<String, Query> values = new ConcurrentHashMap<>();
 	
 	private boolean onlineMode;
 	public OfflineCache(boolean onlineMode) {

@@ -3,7 +3,7 @@ package me.devtec.shared.utility;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -26,12 +26,12 @@ public class StringUtils {
 	public static Pattern week;
 	public static Pattern mon;
 	public static Pattern year;
-	public static final Map<String, List<String>> actions = new HashMap<>();
+	public static final Map<String, List<String>> actions = new ConcurrentHashMap<>();
 	//COLOR UTILS
 	public static Pattern gradientFinder;
 	
 	//VARRIABLE INIT
-	public static Map<String, String> colorMap = new HashMap<>();
+	public static Map<String, String> colorMap = new ConcurrentHashMap<>();
 	public static String tagPrefix = "!";
 	public static String timeSplit = ":";
 	public static String timeFormat = "%time% %format%";

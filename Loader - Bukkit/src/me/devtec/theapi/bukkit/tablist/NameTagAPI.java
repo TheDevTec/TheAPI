@@ -1,7 +1,7 @@
 package me.devtec.theapi.bukkit.tablist;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +28,7 @@ public class NameTagAPI {
 	
 	@SuppressWarnings("unchecked")
 	private static Map<Character, Object> formatMap = (Map<Character, Object>)Ref.getNulled(Ref.isNewerThan(11)?Ref.craft("util.CraftChatMessage"):Ref.craft("util.CraftChatMessage$StringMessage"), "formatMap");
-	private static Map<UUID, List<NameTagAPI>> teams = new HashMap<>();
+	private static Map<UUID, List<NameTagAPI>> teams = new ConcurrentHashMap<>();
 	private final Player p;
 	private List<UUID> canSee = new ArrayList<>();
 	private String prefix = "";

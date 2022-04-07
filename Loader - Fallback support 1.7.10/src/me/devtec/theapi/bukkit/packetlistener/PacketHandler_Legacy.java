@@ -2,7 +2,7 @@ package me.devtec.theapi.bukkit.packetlistener;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,7 +28,7 @@ public class PacketHandler_Legacy implements PacketHandler<Channel> {
 	private static final Class<?> postlogin = Ref.nms("PacketLoginOutSuccess");
 	static final Field f = Ref.field(login, "a");
 	static final Field fPost = Ref.field(postlogin, "a");
-	private final Map<String, Channel> channelLookup = new HashMap<>();
+	private final Map<String, Channel> channelLookup = new ConcurrentHashMap<>();
 	private List<?> networkManagers;
 	private final List<Channel> serverChannels = new ArrayList<>();
 	private ChannelInboundHandlerAdapter serverChannelHandler;

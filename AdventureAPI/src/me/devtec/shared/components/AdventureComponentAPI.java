@@ -1,6 +1,6 @@
 package me.devtec.shared.components;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -55,7 +55,7 @@ public class AdventureComponentAPI<T> implements Adventure<net.kyori.adventure.t
 		case SHOW_ENTITY:
 			return net.kyori.adventure.text.event.HoverEvent.showEntity(Key.key("minecraft:"+value.getOrDefault("type","pig")), UUID.fromString(value.getOrDefault("id",UUID.randomUUID().toString())+""), value.get("name")==null?null:toBaseComponent(ComponentAPI.toComponent(value.get("name")+"", true)));
 		case SHOW_ITEM:
-			return net.kyori.adventure.text.event.HoverEvent.showItem(Key.key("minecraft:"+value.getOrDefault("id","air")), (int)(double)value.getOrDefault("count",1.0), BinaryTagHolder.binaryTagHolder(Json.writer().simpleWrite(value.getOrDefault("tag",new HashMap<>()))));
+			return net.kyori.adventure.text.event.HoverEvent.showItem(Key.key("minecraft:"+value.getOrDefault("id","air")), (int)(double)value.getOrDefault("count",1.0), BinaryTagHolder.binaryTagHolder(Json.writer().simpleWrite(value.getOrDefault("tag",new ConcurrentHashMap<>()))));
 		case SHOW_TEXT:
 			return net.kyori.adventure.text.event.HoverEvent.showText(toBaseComponent(hoverEvent.getValue()));
 			default:

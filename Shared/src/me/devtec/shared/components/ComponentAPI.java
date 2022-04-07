@@ -418,7 +418,7 @@ public class ComponentAPI {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static String toStringJson(List<Object> list) {
+	public static String toStringJson(List<?> list) {
 		StringBuilder b = new StringBuilder(list.size()*16);
 		for(Object text : list)
 			if(text instanceof Map)

@@ -3,7 +3,7 @@ package me.devtec.theapi.bukkit.scoreboard;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 
 import org.bukkit.entity.Player;
@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import me.devtec.shared.Ref;
 
 public class SimpleScore {
-	public static final Map<String, ScoreboardAPI> scores = new HashMap<>();
+	public static final Map<String, ScoreboardAPI> scores = new ConcurrentHashMap<>();
 	private String name = "";
 	private final ArrayList<String> lines = new ArrayList<>();
 	

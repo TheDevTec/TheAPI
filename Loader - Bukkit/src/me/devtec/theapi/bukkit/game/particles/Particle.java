@@ -1,7 +1,7 @@
 package me.devtec.theapi.bukkit.game.particles;
 
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,7 +14,7 @@ import me.devtec.theapi.bukkit.game.particles.ParticleData.NoteOptions;
 import me.devtec.theapi.bukkit.game.particles.ParticleData.RedstoneOptions;
 
 public class Particle {
-	public static final Map<String, Object> identifier = new HashMap<>();
+	public static final Map<String, Object> identifier = new ConcurrentHashMap<>();
 	
 	private static Constructor<?> paramRed;
 	private static Constructor<?> paramDust;

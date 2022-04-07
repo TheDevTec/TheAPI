@@ -1,12 +1,12 @@
 package me.devtec.shared.scheduler;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 public class MultiThread implements Executor {
-	protected final Map<Integer, Thread> threads = new HashMap<>();
+	protected final Map<Integer, Thread> threads = new ConcurrentHashMap<>();
 	protected final AtomicInteger i = new AtomicInteger();
 	
 	public void destroy() {

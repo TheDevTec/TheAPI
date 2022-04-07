@@ -3,14 +3,14 @@ package me.devtec.shared.events;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 public class HandlerList {
-	protected static final Map<String, HandlerList> all = new HashMap<>();
-	protected final Map<Integer, List<RegisteredListener>> reg = new HashMap<>();
+	protected static final Map<String, HandlerList> all = new ConcurrentHashMap<>();
+	protected final Map<Integer, List<RegisteredListener>> reg = new ConcurrentHashMap<>();
 
 	protected static HandlerList getOrCreate(String event) {
 		if(all.containsKey(event))return all.get(event);
@@ -25,7 +25,7 @@ public class HandlerList {
 	}
 
 	private static Map<Class<? extends Event>, Collection<RegisteredListener>> create(Listener listener) {
-		Map<Class<? extends Event>, Collection<RegisteredListener>> ret = new HashMap<>();
+		Map<Class<? extends Event>, Collection<RegisteredListener>> ret = new ConcurrentHashMap<>();
 		for (Method method : listener.getClass().getDeclaredMethods()) {
 			EventHandler eh = method.getAnnotation(EventHandler.class);
 			if (eh == null || method.isBridge() || method.isSynthetic())
@@ -58,7 +58,7 @@ public class HandlerList {
 
 	public static void unregister(Listener a) {
 		all.values().forEach(l -> {
-			Map<Integer,RegisteredListener> w = new HashMap<>();
+			Map<Integer,RegisteredListener> w = new ConcurrentHashMap<>();
 			l.reg.forEach((d, s) -> {
 				s.forEach(f -> {
 				if (f.listener.equals(a))

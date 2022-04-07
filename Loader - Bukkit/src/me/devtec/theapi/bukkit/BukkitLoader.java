@@ -9,11 +9,11 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -73,7 +73,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	private static Method addUrl;
 	private static NmsProvider nmsProvider;
 	
-	public static Map<UUID, HolderGUI> gui = new HashMap<>();
+	public static Map<UUID, HolderGUI> gui = new ConcurrentHashMap<>();
 
 	private static PacketHandler<?> handler;
 	public static Object airBlock;

@@ -2,7 +2,7 @@ package me.devtec.shared.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class PercentageList<T> {
 	private static Random random = new Random();
-	private final HashMap<T, Double> a = new HashMap<>();
+	private final ConcurrentHashMap<T, Double> a = new ConcurrentHashMap<>();
 
 	public boolean add(T t, double percent) {
 		a.put(t, percent);

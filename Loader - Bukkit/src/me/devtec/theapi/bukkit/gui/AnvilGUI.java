@@ -2,7 +2,7 @@ package me.devtec.theapi.bukkit.gui;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,8 +21,8 @@ import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 public class AnvilGUI implements HolderGUI {
 	
 	private String title;
-	private final Map<Integer, ItemGUI> items = new HashMap<>();
-	private final Map<Player, Object> containers = new HashMap<>();
+	private final Map<Integer, ItemGUI> items = new ConcurrentHashMap<>();
+	private final Map<Player, Object> containers = new ConcurrentHashMap<>();
 	private final Inventory inv;
 	// Defaulty false
 	private boolean put;

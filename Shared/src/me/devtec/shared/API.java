@@ -5,10 +5,10 @@ import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,7 +36,7 @@ public class API {
 	
 	//Offline users cache
 	private static OfflineCache cache;
-	private static Map<UUID, Config> users = new HashMap<>();
+	private static Map<UUID, Config> users = new ConcurrentHashMap<>();
 	
 	//Other cool things
 	private static final Basics basics = new Basics();
@@ -86,8 +86,6 @@ public class API {
 	}
 	
 	public static class Basics {
-		Pattern reg = Pattern.compile("[&§]([Rrk-oK-O])");
-		Pattern colorMatic = Pattern.compile("(<!>)*([&§])<!>([A-Fa-f0-9RrK-Ok-oUuXx])");
 		
 		public void load() {
 			Config tags = new Config("plugins/TheAPI/Tags.yml");
@@ -244,86 +242,88 @@ public class API {
 		
 		public String gradient(String msg, String fromHex, String toHex) {
 			if(msg==null||fromHex==null||toHex==null)return msg;
-			Matcher ma = reg.matcher(msg);
-			HashMap<Integer, String> l = new HashMap<>();
-			while (ma.find()) {
-				l.put(msg.indexOf(ma.group()), ma.group(1).toLowerCase());
-				msg = msg.replaceFirst(ma.group(), "");
-			}
-			int length = msg.length();
-			Color fromRGB = Color.decode(fromHex);
-			Color toRGB = Color.decode(toHex);
-			double rStep = Math.abs((double) (fromRGB.getRed() - toRGB.getRed()) / length);
-			double gStep = Math.abs((double) (fromRGB.getGreen() - toRGB.getGreen()) / length);
-			double bStep = Math.abs((double) (fromRGB.getBlue() - toRGB.getBlue()) / length);
+			String split = msg.replace("", "<>");
+			String formats = "";
+			
+			StringBuilder builder = new StringBuilder();
+			boolean inRainbow = false;
+			char prev = 0;
+			
+			Color fromRGB = Color.decode(StringUtils.color.generateColor());
+			Color toRGB = Color.decode(StringUtils.color.generateColor());
+			double rStep = Math.abs((double) (fromRGB.getRed() - toRGB.getRed()) / msg.length());
+			double gStep = Math.abs((double) (fromRGB.getGreen() - toRGB.getGreen()) / msg.length());
+			double bStep = Math.abs((double) (fromRGB.getBlue() - toRGB.getBlue()) / msg.length());
 			if (fromRGB.getRed() > toRGB.getRed())
 				rStep = -rStep;
 			if (fromRGB.getGreen() > toRGB.getGreen())
 				gStep = -gStep;
 			if (fromRGB.getBlue() > toRGB.getBlue())
 				bStep = -bStep;
+			
 			Color finalColor = new Color(fromRGB.getRGB());
-			msg = msg.replaceAll("#[A-Fa-f0-9]{6}", "");
-			msg = msg.replace("", "<!>");
-			msg = msg.substring(0, msg.length() - 3);
-			msg = msg.replace("<!> "," ");
-			Matcher fixColors = colorMatic.matcher(msg);
-			String formats = "";
-			while (fixColors.find())
-				msg = msg.replace(fixColors.group(), fixColors.group(2) + fixColors.group(3));
-			for (int index = 0; index <= length; index++) {
-				int red = (int) Math.round(finalColor.getRed() + rStep);
-				int green = (int) Math.round(finalColor.getGreen() + gStep);
-				int blue = (int) Math.round(finalColor.getBlue() + bStep);
-				if (red > 255)
-					red = 255;
-				if (red < 0)
-					red = 0;
-				if (green > 255)
-					green = 255;
-				if (green < 0)
-					green = 0;
-				if (blue > 255)
-					blue = 255;
-				if (blue < 0)
-					blue = 0;
-				finalColor = new Color(red, green, blue);
-				StringBuilder hex = new StringBuilder("#");
-				char[] c = Integer.toHexString(finalColor.getRGB()).substring(2).toCharArray();
-				for (char value : c) hex.append(value);
-				if (l.containsKey(index))
-					switch (l.get(index).charAt(0)) {
-					case 'l':
-						if (!formats.contains("§l"))
-							formats += "§l";
-						break;
-					case 'm':
-						if (!formats.contains("§m"))
-							formats += "§m";
-						break;
-					case 'n':
-						if (!formats.contains("§n"))
-							formats += "§n";
-						break;
-					case 'o':
-						if (!formats.contains("§o"))
-							formats += "§o";
-						break;
-					case 'k':
-						if (!formats.contains("§k"))
-							formats += "§k";
-						break;
-					default:
-						formats = "";
-						break;
+			for(String s : split.split("<>")) {
+				if(s.isEmpty())continue;
+				char c = s.charAt(0);
+				if(prev == '&' || prev == '§') {
+					if(prev == '&' && s.charAt(0)=='u') {
+						builder.deleteCharAt(builder.length()-1); //remove & char
+						inRainbow = true;
+						prev = c;
+						continue;
 					}
-				msg = msg.replaceFirst("<!>", hex.append(formats).toString());
+					if(inRainbow && prev == '§' && (isColor(s.charAt(0))||isFormat(s.charAt(0)))) { //color, destroy rainbow here
+						if(isFormat(s.charAt(0))) {
+							if(s.charAt(0)=='r') {
+								formats="§r";
+							}else
+								formats+="§"+s.charAt(0);
+							prev = c;
+							continue;
+						}else {
+							builder.delete(builder.length()-14, builder.length()); //remove &<random color> string
+							inRainbow = false;
+						}
+					}
+				}
+				if(c!=' ' && inRainbow) {
+					int red = (int) Math.round(finalColor.getRed() + rStep);
+					int green = (int) Math.round(finalColor.getGreen() + gStep);
+					int blue = (int) Math.round(finalColor.getBlue() + bStep);
+					if (red > 255)
+						red = 255;
+					if (red < 0)
+						red = 0;
+					if (green > 255)
+						green = 255;
+					if (green < 0)
+						green = 0;
+					if (blue > 255)
+						blue = 255;
+					if (blue < 0)
+						blue = 0;
+					finalColor = new Color(red, green, blue);
+					if(formats.equals("§r")) {
+						builder.append(formats); //add formats
+						builder.append(StringUtils.color.replaceHex("#"+String.format("%08x", finalColor.getRGB()).substring(2))); //add color
+						formats="";
+					}else {
+						builder.append(StringUtils.color.replaceHex("#"+String.format("%08x", finalColor.getRGB()).substring(2))); //add color
+						builder.append(formats); //add formats
+					}
+				}
+				builder.append(c);
+				prev = c;
 			}
-			return msg;
+			return builder.toString();
+		}
+		
+		private boolean isColor(int charAt) {
+			return charAt >= 97 && charAt <= 102 || charAt >= 65 && charAt <= 70 || charAt >= 48 && charAt <= 57;
 		}
 		
 		private boolean isFormat(int charAt) {
-			return charAt >= 107 && 107 <= 111 || charAt == 114;
+			return charAt >= 107 && charAt <= 111 || charAt == 114;
 		}
 	}
 	

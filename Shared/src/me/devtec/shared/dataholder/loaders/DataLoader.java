@@ -2,7 +2,7 @@ package me.devtec.shared.dataholder.loaders;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,7 +15,7 @@ import me.devtec.shared.utility.StreamUtils;
 public abstract class DataLoader {
 	
 	//Data loaders hierarchy
-	public static Map<LoaderPriority, Set<DataLoaderConstructor>> dataLoaders = new HashMap<>();
+	public static Map<LoaderPriority, Set<DataLoaderConstructor>> dataLoaders = new ConcurrentHashMap<>();
 	static final LoaderPriority[] priorities = new LoaderPriority[] {LoaderPriority.LOWEST, LoaderPriority.LOW, LoaderPriority.NORMAL, LoaderPriority.HIGH, LoaderPriority.HIGHEST};
 	static {
 		for(LoaderPriority priority : priorities)
