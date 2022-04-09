@@ -3,12 +3,12 @@ package me.devtec.shared.utility;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,8 +41,6 @@ public class StringUtils {
 	private static final Random random = new Random();
 	//SPECIAL CHARS
 	private static final Pattern special = Pattern.compile("[^A-Z-a-z0-9_]+");
-	//FORMAT
-	private static final Pattern mat = Pattern.compile("\\.([0-9])([0-9])?");
 	//CALCULATOR
 	private static final Pattern extra = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([*/])[ ]*(-?[ ]*[0-9.]+)");
 	private static final Pattern normal = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([+-])[ ]*(-?[ ]*[0-9.]+)");
@@ -58,6 +56,102 @@ public class StringUtils {
 		public String replaceHex(String msg);
 
 		public String rainbow(String msg, String generateColor, String generateColor2);
+	}
+	
+	public enum FormatType {
+		BASIC, //Basic format - xxx.xx
+		NORMAL, //Improved BASIS format - xxx,xxx.xx
+		COMPLEX //NORMAL format + balance type
+	}
+	
+	public static String formatDouble(FormatType type, double value) {
+		switch(type) {
+		case BASIC: {
+			String formatted = String.format(Locale.ENGLISH, "%.2f", value);
+			if(formatted.endsWith("00"))formatted=formatted.substring(0, formatted.length()-3); //.00
+			if(formatted.endsWith("0"))formatted=formatted.substring(0, formatted.length()-1); //.X0
+			return formatted;
+		}
+		case NORMAL: {
+			String formatted = String.format(Locale.ENGLISH, "%,.2f", value);
+			if(formatted.endsWith("00"))formatted=formatted.substring(0, formatted.length()-3); //.00
+			if(formatted.endsWith("0"))formatted=formatted.substring(0, formatted.length()-1); //.X0
+			return formatted;
+		}
+		case COMPLEX: {
+			String formatted = String.format(Locale.ENGLISH, "%,.2f", value);
+		    String[] s = formatted.split(",");
+		    if (s.length >= 22) { //Why?...
+		      if (formatted.startsWith("-"))
+		        formatted ="-∞";
+		      else
+		      formatted ="∞";
+		    }else
+		    if (s.length >= 21)
+		      formatted = formatDouble(FormatType.NORMAL, value/=1.0E60)+"NOV";
+		    else
+		    if (s.length >= 20)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E57)+"OCT";
+		    	else
+		    if (s.length >= 19)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E54)+"SEP";
+			    else
+			if (s.length >= 18)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E51)+"SED";
+				else
+			if (s.length >= 17)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E48)+"QUI";
+				else
+			if (s.length >= 16)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E45)+"QUA";
+				else
+			if (s.length >= 15)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E42)+"tre";
+				else
+			if (s.length >= 14)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E39)+"duo";
+				else
+			if (s.length >= 13)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E36)+"und";
+				else
+			if (s.length >= 12)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E33)+"dec";
+				else
+			if (s.length >= 11)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E30)+"non";
+				else
+			if (s.length >= 10)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E27)+"oct";
+				else
+			if (s.length >= 9)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E24)+"sep";
+				else
+			if (s.length >= 8) //No, it's not "sex"...
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E21)+"sex";
+				else
+			if (s.length >= 7)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E18)+"qui";
+				else
+			if (s.length >= 6)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E15)+"qua";
+				else
+			if (s.length >= 5)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E12)+"t";
+				else
+			if (s.length >= 4)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E9)+"b";
+				else
+			if (s.length >= 3)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1000000)+"m";
+				else
+			if (s.length >= 2)
+		    	formatted = formatDouble(FormatType.NORMAL, value/=1000)+"k";
+		    return formatted;
+		}
+			default:
+				break;
+		}
+		return value+"";
 	}
 
 	/**
@@ -552,30 +646,6 @@ public class StringUtils {
 				fix.append(c);
 		}
 		return i.toString();
-	}
-	
-	public static String fixedFormatDouble(double val) {
-		String text = String.format(Locale.ENGLISH, "%.2f", val);
-		Matcher m = mat.matcher(text);
-		if (m.find()) {
-			if (m.groupCount() != 2) {
-				if (m.group(1).equals("0")) {
-					return m.replaceFirst("");
-				}
-				return m.replaceFirst(".$1");
-			}
-			if (m.group(1).equals("0")) {
-				if (m.group(2).equals("0")) {
-					return m.replaceFirst("");
-				}
-				return m.replaceFirst(".$1$2");
-			}
-			if (m.group(2).equals("0")) {
-				return m.replaceFirst(".$1");
-			}
-			return m.replaceFirst(".$1$2");
-		}
-		return text;
 	}
 
 	/**
