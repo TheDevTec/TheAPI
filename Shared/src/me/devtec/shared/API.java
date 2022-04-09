@@ -239,6 +239,84 @@ public class API {
 			}
 			return new String[] {color,formats.toString()};
 		}
+
+		public String rainbow(String msg, String fromHex, String toHex) {
+			if(msg==null||fromHex==null||toHex==null)return msg;
+			String split = msg.replace("", "<>");
+			String formats = "";
+			
+			StringBuilder builder = new StringBuilder();
+			boolean inRainbow = false;
+			char prev = 0;
+			
+			Color fromRGB = Color.decode(StringUtils.color.generateColor());
+			Color toRGB = Color.decode(StringUtils.color.generateColor());
+			double rStep = Math.abs((double) (fromRGB.getRed() - toRGB.getRed()) / msg.length());
+			double gStep = Math.abs((double) (fromRGB.getGreen() - toRGB.getGreen()) / msg.length());
+			double bStep = Math.abs((double) (fromRGB.getBlue() - toRGB.getBlue()) / msg.length());
+			if (fromRGB.getRed() > toRGB.getRed())
+				rStep = -rStep;
+			if (fromRGB.getGreen() > toRGB.getGreen())
+				gStep = -gStep;
+			if (fromRGB.getBlue() > toRGB.getBlue())
+				bStep = -bStep;
+			
+			Color finalColor = new Color(fromRGB.getRGB());
+			for(String s : split.split("<>")) {
+				if(s.isEmpty())continue;
+				char c = s.charAt(0);
+				if(prev == '&' || prev == '§') {
+					if(prev == '&' && s.charAt(0)=='u') {
+						builder.deleteCharAt(builder.length()-1); //remove & char
+						inRainbow = true;
+						prev = c;
+						continue;
+					}
+					if(inRainbow && prev == '§' && (isColor(s.charAt(0))||isFormat(s.charAt(0)))) { //color, destroy rainbow here
+						if(isFormat(s.charAt(0))) {
+							if(s.charAt(0)=='r') {
+								formats="§r";
+							}else
+								formats+="§"+s.charAt(0);
+							prev = c;
+							continue;
+						}else {
+							builder.delete(builder.length()-14, builder.length()); //remove &<random color> string
+							inRainbow = false;
+						}
+					}
+				}
+				if(c!=' ' && inRainbow) {
+					int red = (int) Math.round(finalColor.getRed() + rStep);
+					int green = (int) Math.round(finalColor.getGreen() + gStep);
+					int blue = (int) Math.round(finalColor.getBlue() + bStep);
+					if (red > 255)
+						red = 255;
+					if (red < 0)
+						red = 0;
+					if (green > 255)
+						green = 255;
+					if (green < 0)
+						green = 0;
+					if (blue > 255)
+						blue = 255;
+					if (blue < 0)
+						blue = 0;
+					finalColor = new Color(red, green, blue);
+					if(formats.equals("§r")) {
+						builder.append(formats); //add formats
+						builder.append(StringUtils.color.replaceHex("#"+String.format("%08x", finalColor.getRGB()).substring(2))); //add color
+						formats="";
+					}else {
+						builder.append(StringUtils.color.replaceHex("#"+String.format("%08x", finalColor.getRGB()).substring(2))); //add color
+						builder.append(formats); //add formats
+					}
+				}
+				builder.append(c);
+				prev = c;
+			}
+			return builder.toString();
+		}
 		
 		public String gradient(String msg, String fromHex, String toHex) {
 			if(msg==null||fromHex==null||toHex==null)return msg;
@@ -246,7 +324,7 @@ public class API {
 			String formats = "";
 			
 			StringBuilder builder = new StringBuilder();
-			boolean inRainbow = false;
+			boolean inRainbow = true;
 			char prev = 0;
 			
 			Color fromRGB = Color.decode(StringUtils.color.generateColor());

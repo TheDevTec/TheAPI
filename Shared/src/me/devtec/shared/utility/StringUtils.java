@@ -56,6 +56,8 @@ public class StringUtils {
 		public String[] getLastColors(String text);
 
 		public String replaceHex(String msg);
+
+		public String rainbow(String msg, String generateColor, String generateColor2);
 	}
 
 	/**
@@ -252,26 +254,6 @@ public class StringUtils {
 	public static String colorize(String msg) {
 		if (msg == null||msg.trim().isEmpty())
 			return msg;
-		if (msg.toLowerCase().contains("&u")) {
-			String[] split = rainbowSplit.split(msg);
-			// atempt to add colors to split
-			Matcher m = rainbowSplit.matcher(msg);
-			int id = 1;
-			while (m.find()) {
-				try {
-					split[id] = m.group(1) + split[id++];
-				} catch (Exception err) {
-				}
-			}
-			// colors
-			StringBuilder d = new StringBuilder(msg.length());
-			for (String ff : split) {
-				if (ff.contains("&u"))
-					ff = StringUtils.color.gradient(ff.replace("&u", ""), StringUtils.color.generateColor(), StringUtils.color.generateColor());
-				d.append(ff);
-			}
-			msg = d.toString();
-		}
 		msg = gradient(msg);
 		if (msg.contains("#")) {
 			msg = StringUtils.color.replaceHex(msg);
@@ -283,7 +265,11 @@ public class StringUtils {
 	        b[i + 1] = lower(b[i + 1]);
 	      }
 	    }
-	    return new String(b);
+	    msg = new String(b);
+		if (msg.contains("&u")) {
+			msg = StringUtils.color.rainbow(msg, StringUtils.color.generateColor(), StringUtils.color.generateColor());
+		}
+		return msg;
 	}
 
 	private static boolean has(int c) {

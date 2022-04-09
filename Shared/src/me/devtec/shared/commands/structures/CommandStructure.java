@@ -170,17 +170,13 @@ public class CommandStructure<S> {
 	
 	//Special utils to make this structure working!
 	
-	protected final boolean findAny(Selector key, String arg) {
-		return API.selectorUtils.check(key, arg);
-	}
-	
 	public final CommandStructure<S> findStructure(S s, String arg, boolean tablist) {
 		CommandStructure<S> result = null;
 		for(ArgumentCommandStructure<S> sub : arguments)
-			if((contains(sub.args, arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && result == null || result != null && result.priority <= sub.priority)
+			if((contains(sub.args, arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && (result == null || result != null && result.priority <= sub.priority))
 				result = sub;
 		for(SelectorCommandStructure<S> sub : selectors.values())
-			if((findAny(sub.getSelector(), arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && result == null || result != null && result.priority <= sub.priority)
+			if((API.selectorUtils.check(sub.getSelector(), arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && (result == null || result != null && result.priority <= sub.priority))
 				result = sub;
 		return result == null ? null : result;
 	}
@@ -196,7 +192,7 @@ public class CommandStructure<S> {
 		return structures;
 	}
 	
-	protected final boolean contains(List<String> list, String arg) {
+	private static boolean contains(List<String> list, String arg) {
 		for(String value : list)
 			if(value.equalsIgnoreCase(arg))return true;
 		return false;
