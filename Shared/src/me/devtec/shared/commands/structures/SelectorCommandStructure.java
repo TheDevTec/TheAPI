@@ -10,7 +10,7 @@ public class SelectorCommandStructure<S> extends CommandStructure<S> {
 	Selector selector;
 	SelectorCommandStructure(CommandStructure<S> parent, Selector selector, CommandExecutor<S> ex) {
 		super(parent, ex);
-		this.selector=selector;
+		this.selector = selector;
 	}
 	
 	public List<String> tabList() {

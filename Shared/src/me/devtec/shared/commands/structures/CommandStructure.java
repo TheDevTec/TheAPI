@@ -90,7 +90,15 @@ public class CommandStructure<S> {
 	 *
 	 */
 	public ArgumentCommandStructure<S> argument(String argument, CommandExecutor<S> ex, String... aliases) {
-		ArgumentCommandStructure<S> sub = new ArgumentCommandStructure<S>(this, argument, ex, aliases);
+		return argument(argument, 0, ex, aliases);
+	}
+	
+	/**
+	 * @apiNote Add string/s argument to current {@link CommandStructure}
+	 *
+	 */
+	public ArgumentCommandStructure<S> argument(String argument, int length, CommandExecutor<S> ex, String... aliases) {
+		ArgumentCommandStructure<S> sub = new ArgumentCommandStructure<S>(this, argument, length, ex, aliases);
 		arguments.add(sub);
 		return sub;
 	}
@@ -201,6 +209,7 @@ public class CommandStructure<S> {
 	}
 	
 	private static boolean contains(List<String> list, String arg) {
+		if(list.isEmpty())return true;
 		for(String value : list)
 			if(value.equalsIgnoreCase(arg))return true;
 		return false;
