@@ -143,6 +143,11 @@ public class VelocityLoader {
 	            }
 	            return msg;
 	        }
+
+			@Override
+			public String rainbow(String msg, String fromHex, String toHex) {
+				return API.basics().rainbow(msg, fromHex, toHex);
+			}
 	    };
 	}
 }

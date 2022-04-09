@@ -141,6 +141,14 @@ public class CommandStructure<S> {
 	}
 
 	/**
+	 * @apiNote @Nullable Returns parent of this {@link CommandStructure#getParent()}
+	 *
+	 */
+	public CommandStructure<S> parent() {
+		return getParent();
+	}
+
+	/**
 	 * @apiNote Returns tab completer values of this {@link CommandStructure}
 	 *
 	 */
