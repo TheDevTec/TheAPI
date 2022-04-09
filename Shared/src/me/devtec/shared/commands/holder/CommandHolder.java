@@ -6,6 +6,7 @@ import java.util.List;
 
 import me.devtec.shared.API;
 import me.devtec.shared.commands.structures.ArgumentCommandStructure;
+import me.devtec.shared.commands.structures.CallableArgumentCommandStructure;
 import me.devtec.shared.commands.structures.CommandStructure;
 import me.devtec.shared.utility.StringUtils;
 
@@ -30,16 +31,16 @@ public class CommandHolder<S> {
 				cmd = next;
 				++pos;
 			}else {
-				return (pos == args.length-1 || maybeArgs(cmd, argPos - args.length-1)) ? StringUtils.copyPartialMatches(args[args.length-1], toList(cmd.getNextStructures(s, true))) : Collections.emptyList();
+				return (pos == args.length-1 || maybeArgs(s, cmd, args.length - argPos)) ? StringUtils.copyPartialMatches(args[args.length-1], toList(s, cmd.getNextStructures(s))) : Collections.emptyList();
 			}
 		}
-		return StringUtils.copyPartialMatches(args[args.length-1], toList(cmd.getParent().getNextStructures(s, true)));
+		return StringUtils.copyPartialMatches(args[args.length-1], toList(s, cmd.getParent().getNextStructures(s)));
 	}
 
-	private List<String> toList(List<CommandStructure<S>> nextStructures) {
+	private List<String> toList(S sender, List<CommandStructure<S>> nextStructures) {
 		List<String> args = new ArrayList<>();
 		for(CommandStructure<S> structure : nextStructures) {
-			args.addAll(structure.tabList());
+			args.addAll(structure.tabList(sender));
 		}
 		return args;
 	}
@@ -58,7 +59,7 @@ public class CommandHolder<S> {
 				cmd.getFallback().execute(s, cmd, args);
 				return;
 			}
-			if(next == null && maybeArgs(cmd, pos - args.length-1)) {
+			if(next == null && maybeArgs(s, cmd, args.length - pos)) {
 				break;
 			}
 			if(next != null)
@@ -75,9 +76,11 @@ public class CommandHolder<S> {
 		return structure;
 	}
 
-	private boolean maybeArgs(CommandStructure<S> cmd, int i) {
-		if(cmd instanceof ArgumentCommandStructure)
-			return ((ArgumentCommandStructure<S>) cmd).getArgs().isEmpty() && (((ArgumentCommandStructure<S>) cmd).length() == -1 || ((ArgumentCommandStructure<S>) cmd).length() >= i);
+	private boolean maybeArgs(S sender, CommandStructure<S> cmd, int i) {
+		if(cmd instanceof CallableArgumentCommandStructure)
+			return !((CallableArgumentCommandStructure<S>) cmd).getArgs(sender).isEmpty() && i == 0;
+		if(cmd instanceof ArgumentCommandStructure && !(cmd instanceof CallableArgumentCommandStructure))
+			return ((ArgumentCommandStructure<S>) cmd).getArgs(sender).isEmpty() && (((ArgumentCommandStructure<S>) cmd).length() == -1 || ((ArgumentCommandStructure<S>) cmd).length() >= i);
 		return false;
 	}
 }

@@ -2,15 +2,16 @@ package me.devtec.shared.commands.structures;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import me.devtec.shared.API;
 import me.devtec.shared.commands.holder.CommandExecutor;
 import me.devtec.shared.commands.holder.CommandHolder;
 import me.devtec.shared.commands.manager.PermissionChecker;
 import me.devtec.shared.commands.selectors.Selector;
+import me.devtec.shared.commands.structures.CallableArgumentCommandStructure.CallableArgument;
 
 public class CommandStructure<S> {
 	private CommandExecutor<S> executor;
@@ -104,6 +105,24 @@ public class CommandStructure<S> {
 	}
 	
 	/**
+	 * @apiNote Add string/s argument to current {@link CommandStructure}
+	 *
+	 */
+	public CallableArgumentCommandStructure<S> callableArgument(CallableArgument<S> future, CommandExecutor<S> ex) {
+		return callableArgument(future, 0, ex);
+	}
+	
+	/**
+	 * @apiNote Add string/s argument to current {@link CommandStructure}
+	 *
+	 */
+	public CallableArgumentCommandStructure<S> callableArgument(CallableArgument<S> future, int length, CommandExecutor<S> ex) {
+		CallableArgumentCommandStructure<S> sub = new CallableArgumentCommandStructure<S>(this, length, ex, future);
+		arguments.add(sub);
+		return sub;
+	}
+	
+	/**
 	 * @apiNote Higher number means higher priority in lookup
 	 */
 	public CommandStructure<S> priority(int level) {
@@ -160,7 +179,7 @@ public class CommandStructure<S> {
 	 * @apiNote Returns tab completer values of this {@link CommandStructure}
 	 *
 	 */
-	public List<String> tabList() {
+	public List<String> tabList(S sender) {
 		return Collections.emptyList();
 	}
 
@@ -181,7 +200,7 @@ public class CommandStructure<S> {
 	}
 	
 	public String toString() {
-		return getClass().getCanonicalName()+":"+tabList();
+		return getClass().getCanonicalName()+":"+tabList(null);
 	}
 	
 	//Special utils to make this structure working!
@@ -189,7 +208,7 @@ public class CommandStructure<S> {
 	public final CommandStructure<S> findStructure(S s, String arg, boolean tablist) {
 		CommandStructure<S> result = null;
 		for(ArgumentCommandStructure<S> sub : arguments)
-			if((contains(sub.args, arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && (result == null || result != null && result.priority <= sub.priority))
+			if((contains(sub, sub.getArgs(s), arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && (result == null || result != null && result.priority <= sub.priority))
 				result = sub;
 		for(SelectorCommandStructure<S> sub : selectors.values())
 			if((API.selectorUtils.check(sub.getSelector(), arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && (result == null || result != null && result.priority <= sub.priority))
@@ -197,19 +216,19 @@ public class CommandStructure<S> {
 		return result == null ? null : result;
 	}
 	
-	public final List<CommandStructure<S>> getNextStructures(S s, boolean tablist) {
+	public final List<CommandStructure<S>> getNextStructures(S s) {
 		List<CommandStructure<S>> structures = new ArrayList<>();
 		for(ArgumentCommandStructure<S> sub : arguments)
-			if(sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))
+			if(sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, true))
 				structures.add(sub);
 		for(SelectorCommandStructure<S> sub : selectors.values())
-			if(sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))
+			if(sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, true))
 				structures.add(sub);
 		return structures;
 	}
 	
-	private static boolean contains(List<String> list, String arg) {
-		if(list.isEmpty())return true;
+	private static boolean contains(ArgumentCommandStructure<?> sub, List<String> list, String arg) {
+		if(!(sub instanceof CallableArgumentCommandStructure) && list.isEmpty())return true;
 		for(String value : list)
 			if(value.equalsIgnoreCase(arg))return true;
 		return false;
