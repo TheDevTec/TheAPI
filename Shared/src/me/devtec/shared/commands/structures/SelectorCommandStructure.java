@@ -13,7 +13,7 @@ public class SelectorCommandStructure<S> extends CommandStructure<S> {
 		this.selector = selector;
 	}
 	
-	public List<String> tabList(S sender) {
+	public List<String> tabList(S sender, CommandStructure<S> structure, String[] arguments) {
 		return API.selectorUtils.build(selector);
 	}
 	

@@ -205,10 +205,10 @@ public class CommandStructure<S> {
 	
 	//Special utils to make this structure working!
 	
-	public final CommandStructure<S> findStructure(S s, String arg, boolean tablist) {
+	public final CommandStructure<S> findStructure(S s, String arg, String[] args, boolean tablist) {
 		CommandStructure<S> result = null;
 		for(ArgumentCommandStructure<S> sub : arguments)
-			if((contains(sub, sub.getArgs(s), arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && (result == null || result != null && result.priority <= sub.priority))
+			if((contains(sub, sub.getArgs(s, sub, args), arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && (result == null || result != null && result.priority <= sub.priority))
 				result = sub;
 		for(SelectorCommandStructure<S> sub : selectors.values())
 			if((API.selectorUtils.check(sub.getSelector(), arg) && (sub.permission==null ? true : sub.first().permissionChecker.has(s, sub.permission, tablist))) && (result == null || result != null && result.priority <= sub.priority))

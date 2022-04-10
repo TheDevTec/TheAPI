@@ -19,14 +19,14 @@ public class ArgumentCommandStructure<S> extends CommandStructure<S> {
 		this.length = length;
 	}
 	
-	public List<String> tabList(S sender) {
-		return args.isEmpty() ? Arrays.asList("{text}") : args;
+	public List<String> tabList(S sender, CommandStructure<S> structure, String[] arguments) {
+		return args.isEmpty() ? Arrays.asList("<args>") : args;
 	}
 
 	/**
 	 * @apiNote Returns arguments of this {@link ArgumentCommandStructure}
 	 */
-	public List<String> getArgs(S sender) {
+	public List<String> getArgs(S sender, CommandStructure<S> structure, String[] arguments) {
 		return args;
 	}
 

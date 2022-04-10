@@ -14,16 +14,16 @@ public class CallableArgumentCommandStructure<S> extends ArgumentCommandStructur
 		futureArgs = future;
 	}
 	
-	public List<String> tabList(S sender) {
-		return getArgs(sender);
+	public List<String> tabList(S sender, CommandStructure<S> structure, String[] arguments) {
+		return getArgs(sender, structure, arguments);
 	}
 
 	/**
 	 * @apiNote Returns arguments of this {@link ArgumentCommandStructure}
 	 */
-	public List<String> getArgs(S sender) {
+	public List<String> getArgs(S sender, CommandStructure<S> structure, String[] arguments) {
 		try {
-			return futureArgs.call(sender);
+			return futureArgs.call(sender, structure, arguments);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -31,6 +31,6 @@ public class CallableArgumentCommandStructure<S> extends ArgumentCommandStructur
 	}
 	
 	public interface CallableArgument<S> {
-		public List<String> call(S sender);
+		public List<String> call(S sender, CommandStructure<S> structure, String[] args);
 	}
 }

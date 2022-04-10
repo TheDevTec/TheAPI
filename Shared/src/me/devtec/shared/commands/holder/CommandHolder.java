@@ -26,12 +26,12 @@ public class CommandHolder<S> {
 		int argPos = 0;
 		for(String arg : args) {
 			++argPos;
-			CommandStructure<S> next = cmd.findStructure(s, arg, true);
+			CommandStructure<S> next = cmd.findStructure(s, arg, args, true);
 			if(next != null) {
 				cmd = next;
 				++pos;
 			}else {
-				return (pos == args.length-1 || maybeArgs(s, cmd, args.length - argPos)) ? StringUtils.copyPartialMatches(args[args.length-1], toList(s, cmd.getNextStructures(s))) : Collections.emptyList();
+				return (pos == args.length-1 || maybeArgs(s, cmd, args, args.length - argPos)) ? StringUtils.copyPartialMatches(args[args.length-1], toList(s, cmd.getNextStructures(s))) : Collections.emptyList();
 			}
 		}
 		return StringUtils.copyPartialMatches(args[args.length-1], toList(s, cmd.getParent().getNextStructures(s)));
@@ -54,12 +54,12 @@ public class CommandHolder<S> {
 		int pos = 0;
 		for(String arg : args) {
 			++pos;
-			CommandStructure<S> next = cmd.findStructure(s, arg, false);
+			CommandStructure<S> next = cmd.findStructure(s, arg, args, false);
 			if(next == null && cmd.getFallback() != null) {
 				cmd.getFallback().execute(s, cmd, args);
 				return;
 			}
-			if(next == null && maybeArgs(s, cmd, args.length - pos)) {
+			if(next == null && maybeArgs(s, cmd, args, args.length - pos)) {
 				break;
 			}
 			if(next != null)
@@ -76,11 +76,11 @@ public class CommandHolder<S> {
 		return structure;
 	}
 
-	private boolean maybeArgs(S sender, CommandStructure<S> cmd, int i) {
+	private boolean maybeArgs(S sender, CommandStructure<S> cmd, String[] args, int i) {
 		if(cmd instanceof CallableArgumentCommandStructure)
-			return !((CallableArgumentCommandStructure<S>) cmd).getArgs(sender).isEmpty() && i == 0;
+			return !((CallableArgumentCommandStructure<S>) cmd).getArgs(sender, cmd, args).isEmpty() && i == 0;
 		if(cmd instanceof ArgumentCommandStructure && !(cmd instanceof CallableArgumentCommandStructure))
-			return ((ArgumentCommandStructure<S>) cmd).getArgs(sender).isEmpty() && (((ArgumentCommandStructure<S>) cmd).length() == -1 || ((ArgumentCommandStructure<S>) cmd).length() >= i);
+			return ((ArgumentCommandStructure<S>) cmd).getArgs(sender, cmd, args).isEmpty() && (((ArgumentCommandStructure<S>) cmd).length() == -1 || ((ArgumentCommandStructure<S>) cmd).length() >= i);
 		return false;
 	}
 }
