@@ -745,15 +745,16 @@ public class Config {
 				if(o[0]==null && s.getValue()[0]!=null) {
 					o[0]=s.getValue()[0];
 					try {
-					o[2]=s.getValue()[2];
+						o[2]=s.getValue()[2];
 					}catch(Exception outOfBoud) {}
 					change = true;
 				}
 				if(s.getValue()[1]!=null && !((List<String>) s.getValue()[1]).isEmpty()) {
 					List<String> cc = (List<String>)o[1];
 		    		if(cc==null || cc.isEmpty()) {
-		    			if(getHeader()!=null && !getHeader().isEmpty() && simple((List<String>)s.getValue()[1]).containsAll(simple(getHeader()))
-		    					|| getFooter()!=null && !getFooter().isEmpty() && simple(((List<String>) s.getValue()[1])).containsAll(simple(getFooter())))continue;
+		    			List<String> simple = simple((List<String>)s.getValue()[1]);
+		    			if(getHeader()!=null && !getHeader().isEmpty() && simple.containsAll(simple(getHeader()))
+		    					|| getFooter()!=null && !getFooter().isEmpty() && simple.containsAll(simple(getFooter())))continue;
 		    			o[1]=(List<String>)s.getValue()[1];
 		    			change = true;
 		    		}
