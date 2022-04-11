@@ -27,19 +27,24 @@ public class YamlLoader extends EmptyLoader {
 			for(String line : input.split(System.lineSeparator())) {
 				String trim = line.trim();
 				if(trim.isEmpty()) {
-					comments.add(trim);
+					comments.add("");
 					continue;
 				}
+				String e = line.substring(removeSpaces(line));
 				if(trim.charAt(0)=='#') {
-					comments.add(line.substring(removeSpaces(line)));
+					comments.add(e);
 					continue;
 				}
 				
-				String e = line.substring(removeSpaces(line));
 				if(wasEmpty && e.startsWith("- ")) {
 					if(items==null)items=new LinkedList<>();
 					items.add(Json.reader().read(r(e.substring(2))));
 					continue;
+				}
+				
+				if(wasEmpty && !comments.isEmpty() && type == null && items == null) {
+					data.put(key, new Object[] {null, new LinkedList<>(comments), null});
+					comments.clear();
 				}
 				
 				Matcher match = pattern.matcher(line);
@@ -131,6 +136,11 @@ public class YamlLoader extends EmptyLoader {
 				}
 			}else if(items!=null)
 				data.put(key, new Object[] {items, comments.isEmpty()?null:comments});
+			else {
+				if(wasEmpty && !comments.isEmpty()) {
+					data.put(key, new Object[] {null, comments, null});
+				}
+			}
 			loaded = true;
 		} catch (Exception er) {
 			loaded = false;
