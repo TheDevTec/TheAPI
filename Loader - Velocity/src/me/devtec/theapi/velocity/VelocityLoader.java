@@ -49,7 +49,6 @@ public class VelocityLoader {
     public VelocityLoader(ProxyServer server, Logger logger) {
     	VelocityLoader.server=server;
     	initTheAPI(server);
-    	new Metrics("TheAPI","9.8", server, logger, 10581);
     }
     
     @Subscribe

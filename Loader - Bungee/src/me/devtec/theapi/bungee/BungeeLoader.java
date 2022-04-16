@@ -38,7 +38,6 @@ public class BungeeLoader extends Plugin implements Listener {
 	public void onLoad() {
 		initTheAPI(this);
 		getProxy().getPluginManager().registerListener(this, this);
-		new Metrics(this, 10581);
 	}
 	
 	public void onDisable() {
