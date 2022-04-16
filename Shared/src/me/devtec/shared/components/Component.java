@@ -68,7 +68,7 @@ public class Component {
 		return this;
 	}
 	
-	public ClickEvent getClickEventt() {
+	public ClickEvent getClickEvent() {
 		return clickEvent;
 	}
 	
