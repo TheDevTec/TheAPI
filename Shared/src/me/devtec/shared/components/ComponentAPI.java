@@ -152,23 +152,18 @@ public class ComponentAPI {
 		return url.matcher(text).find();
 	}
 	
-	public static List<Map<String, Object>> toJsonList(Component c){
-		List<Map<String, Object>> i = new LinkedList<>();
-		while(c!=null) {
-			i.add(c.toJsonMap());
-			c=c.getExtra();
+	public static List<Map<String, Object>> toJsonList(Component component) {
+		List<Map<String, Object>> list = new LinkedList<>();
+		Component extra = component;
+		while(extra != null) {
+			list.add(extra.toJsonMap());
+			extra = extra.getExtra();
 		}
-		return i;
+		return list;
 	}
 	
-	public static List<Map<String, Object>> toJsonList(String text){
-		List<Map<String, Object>> i = new LinkedList<>();
-		Component c = fromString(text);
-		while(c!=null) {
-			i.add(c.toJsonMap());
-			c=c.getExtra();
-		}
-		return i;
+	public static List<Map<String, Object>> toJsonList(String text) {
+		return toJsonList(fromString(text));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -224,23 +219,19 @@ public class ComponentAPI {
 	
 	@SuppressWarnings("unchecked")
 	public static String listToString(List<?> list) {
-		StringBuilder b = new StringBuilder(list.size()*16);
+		StringBuilder string = new StringBuilder(list.size()*16);
 		for(Object text : list)
 			if(text instanceof Map)
-				b.append(StringUtils.colorize(getColor("" + ((Map<String, Object>) text).getOrDefault("color", "")))).append(((Map<String, Object>)text).get("text"));
+				string.append(getColor(((Map<String, Object>) text).get("color"))).append(((Map<String, Object>)text).get("text"));
 			else
-				b.append(StringUtils.colorize(text+""));
-		return b.toString();
+				string.append(StringUtils.colorize(text+""));
+		return string.toString();
 	}
 	
-	static String getColor(String color) {
-		if(color.trim().isEmpty())return "";
-		if(color.startsWith("#"))return color;
-		try {
-		return "§"+Component.colorToChar(color);
-		}catch(Exception | NoSuchFieldError err) {
-			return "";
-		}
+	private static String getColor(Object color) {
+		if(color == null)return "";
+		if(color.toString().startsWith("#"))return StringUtils.color.replaceHex(color.toString());
+		return "§"+Component.colorToChar(color.toString());
 	}
 	
 	private static Map<String, Object> convertMapValues(String key, Map<String, Object> hover) {
