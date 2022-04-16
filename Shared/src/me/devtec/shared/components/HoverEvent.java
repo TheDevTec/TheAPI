@@ -6,10 +6,6 @@ import java.util.Map;
 import me.devtec.shared.json.Json;
 
 public class HoverEvent {
-	public enum Action {
-		SHOW_ACHIEVEMENT, SHOW_ENTITY, SHOW_ITEM, SHOW_TEXT;
-	}
-	
 	private Action action;
 	private Component value;
 	public HoverEvent(Action action, Component value) {
@@ -44,5 +40,9 @@ public class HoverEvent {
 		map.put("action", action.name().toLowerCase());
 		map.put("value", ComponentAPI.toJsonList(value));
 		return map;
+	}
+	
+	public enum Action {
+		SHOW_ACHIEVEMENT, SHOW_ENTITY, SHOW_ITEM, SHOW_TEXT;
 	}
 }

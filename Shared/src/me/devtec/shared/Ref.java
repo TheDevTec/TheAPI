@@ -12,7 +12,16 @@ import me.devtec.shared.utility.StringUtils;
 public class Ref {
 	
 	public static enum ServerType {
-		BUKKIT, SPIGOT, PAPER, BUNGEECORD, VELOCITY, CUSTOM // Is it minecraft?
+		BUKKIT(true), SPIGOT(true), PAPER(true), BUNGEECORD(false), VELOCITY(false), CUSTOM(false); // Is it minecraft?
+		
+		boolean bukkit;
+		ServerType(boolean bukkit) {
+			this.bukkit=bukkit;
+		}
+
+		public boolean isBukkit() {
+			return bukkit;
+		}
 	}
 	
 	static String ver;

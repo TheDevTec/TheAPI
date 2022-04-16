@@ -4,10 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ClickEvent {
-	public enum Action {
-		CHANGE_PAGE, COPY_TO_CLIPBOARD, OPEN_FILE, OPEN_URL, RUN_COMMAND, SUGGEST_COMMAND;
-	}
-	
 	private Action action;
 	private String value;
 	public ClickEvent(Action action, String value) {
@@ -42,5 +38,9 @@ public class ClickEvent {
 		map.put("action", action.name().toLowerCase());
 		map.put("value", value);
 		return map;
+	}
+	
+	public enum Action {
+		CHANGE_PAGE, COPY_TO_CLIPBOARD, OPEN_FILE, OPEN_URL, RUN_COMMAND, SUGGEST_COMMAND;
 	}
 }

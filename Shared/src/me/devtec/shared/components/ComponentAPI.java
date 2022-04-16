@@ -1,6 +1,5 @@
 package me.devtec.shared.components;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import me.devtec.shared.Ref;
 import me.devtec.shared.utility.StringUtils;
 
 public class ComponentAPI {
@@ -29,314 +29,127 @@ public class ComponentAPI {
 		return adventure;
 	}
 	
-	public static List<Component> toComponents(String legacy, boolean ignoreUrls) {
-		if(legacy==null)return null;
-		Component c = toComponent(legacy,ignoreUrls);
-		List<Component> com = new ArrayList<>();
-		while(c!=null) {
-			com.add(c);
-			c=c.getExtra();
-		}
-		return com;
+	public static String toString(Component input) {
+		return input.toString(); //Are you lazy or stupid?
 	}
 	
-	public static Component toComponent(String legacy, boolean ignoreUrls) {
-		if(legacy==null)return null;
+	public static Component fromString(String input) {
+		return fromString(input, /*Depends on version & software*/ Ref.serverType().isBukkit() && Ref.isNewerThan(15), input.contains("http"));
+	}
+	
+	public static Component fromString(String input, boolean hexMode) {
+		return fromString(input, hexMode, input.contains("http"));
+	}
+	
+	public static Component fromString(String input, boolean hexMode, boolean urlMode) {
 		Component start = new Component();
 		Component current = start;
 		
 		StringBuilder builder = new StringBuilder();
-		if(ignoreUrls) {
-			String color = "";
-			boolean wasBeforeColorChar = false;
-			boolean inHexLoop = false;
-			for(int i = 0; i < legacy.length(); ++i) {
-				char c = legacy.charAt(i);
-				if(c=='§') {
-					wasBeforeColorChar=true;
+		char prev = 0;
+		
+		//REQUIRES hexMode ENABLED
+		String hex = null;
+		
+		for(int i = 0; i < input.length(); ++i) {
+			char c = input.charAt(i);
+			
+			//COLOR or FORMAT
+			if(prev == '§') {
+				prev = c;
+				if(hexMode && c == 'x') {
+					builder.deleteCharAt(builder.length()-1); //Remove §
+					hex = "#";
 					continue;
 				}
-				if(wasBeforeColorChar) {
-					wasBeforeColorChar=false;
-					if(c>=48 && c<=57||c>=97 && c<=102||c>=65 && c<=70) {
-						if(!inHexLoop||color.length()==7) {
-							current.setText(builder.toString());
-							current.setColor(color);
-							builder.delete(0, builder.length());
-							Component next=new Component();
-							current.setExtra(next);
-							current=next;
-							inHexLoop=false;
-							color=String.valueOf(c);
-							current.setColor(color);
-						}else {
-							color+=c;
+				//COLOR
+				if(c >= 97 && c <= 102 || c >= 48 && c <= 57) { // a-f or 0-9
+					if(hex != null) {
+						hex += c;
+						builder.deleteCharAt(builder.length()-1); //Remove §
+						if(hex.length()==7) {
+							current.setText(builder.toString()); //Current builder into text
+							builder.delete(0, builder.length()); //Clear builder
+							current = current.setExtra(new Component()); //Create new component
+							current.setColor(hex); //Set current format component to bold
+							hex = null; //reset hex
 						}
-					}else if(c==120||c==88) {
-						current.setText(builder.toString());
-						current.setColor(color);
-						builder.delete(0, builder.length());
-						Component next=new Component();
-						current.setExtra(next);
-						current=next;
-						
-						inHexLoop=true;
-						color="#";
-					}else {
-						if(c==114||c==82) {
-							current.setText(builder.toString());
-							builder.delete(0, builder.length());
-							Component next=new Component();
-							next.setColor(color);
-							current.setExtra(next);
-							current=next;
-							current.resetFormats();
-						}else if(c>=107 && c<=111||c>=75&& c<=79) {
-							if(builder.length()!=0) {
-								current.setText(builder.toString());
-								builder.delete(0, builder.length());
-								Component next=new Component();
-								next.setColor(color);
-								next.setBold(current.isBold());
-								next.setItalic(current.isItalic());
-								next.setStrikethrough(current.isStrikethrough());
-								next.setObfuscated(current.isObfuscated());
-								next.setUnderlined(current.isUnderlined());
-								current.setExtra(next);
-								current=next;
-							}
-							switch(c) {
-							case 'k':
-							case 'K':
-								current.setObfuscated(true);
-								break;
-							case 'l':
-							case 'L':
-								current.setBold(true);
-								break;
-							case 'm':
-							case 'M':
-								current.setStrikethrough(true);
-								break;
-							case 'n':
-							case 'N':
-								current.setUnderlined(true);
-								break;
-							case 'o':
-							case 'O':
-								current.setItalic(true);
-								break;
-							}
-						}
+						continue;
 					}
-					continue;
-				}
-				builder.append(c);
-			}
-			if(builder.length()!=0) {
-				current.setText(builder.toString());
-				current.setColor(color);
-			}
-			return start;
-		}
-		String color = "";
-		String colorBeforeSpace = null;
-		String url = null;
-		boolean wasBeforeColorChar = false;
-		boolean inHexLoop = false;
-		for(int i = 0; i < legacy.length(); ++i) {
-			char c = legacy.charAt(i);
-			if(c=='§') {
-				if((url=doUrlCheck(builder.toString()))!=null) {
-					builder.append('&'); //fix
-					wasBeforeColorChar=false;
-					continue;
-				}
-				wasBeforeColorChar=true;
-				continue;
-			}
-			if(wasBeforeColorChar) {
-				if(url!=null) {
-					builder.append(c);
-					url+='c';
-					inHexLoop=false;
-					continue;
-				}
-				wasBeforeColorChar=false;
-				if(c>=48 && c<=57||c>=97 && c<=102||c>=65 && c<=70) {
-					if(!inHexLoop||color.length()==7) {
-						current.setText(builder.toString());
-						current.setColor(color);
-						builder.delete(0, builder.length());
-						Component next=new Component();
-						current.setExtra(next);
-						current=next;
-						inHexLoop=false;
-						color=String.valueOf(c);
-						current.setColor(color);
-					}else {
-						color+=c;
+					builder.deleteCharAt(builder.length()-1); //Remove §
+					current.setText(builder.toString()); //Current builder into text
+					if(current.getText().trim().isEmpty()) { //Just space or empty Component.. fast fix
+						current.setColor(null);
+						current.setFormatFromChar('r', false);
 					}
-				}else if(c==120||c==88) {
-					current.setText(builder.toString());
-					current.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
-					current.setColor(color);
-					builder.delete(0, builder.length());
-					Component next=new Component();
-					current.setExtra(next);
-					current=next;
+					builder.delete(0, builder.length()); //Clear builder
+					current = current.setExtra(new Component()); //Create new component
+					current.setColorFromChar(c);
+					continue;
+				}
+				//FORMAT
+				if(c >= 107 && c <= 111 || c == 114) {
+					hex = null;
+					builder.deleteCharAt(builder.length()-1); //Remove §
+					current.setText(builder.toString()); //Current builder into text
+					builder.delete(0, builder.length()); //Clear builder
+					Component before = current;
+					current = before.setExtra(new Component().copyOf(before)); //Create new component
+					current.setFormatFromChar(c, c != 114); //Set current format to 'true' or reset all
+					continue;
+				}
+				//Is this bug?
+			}
+			prev = c;
+			
+			if(urlMode && c == ' ') {
+				//URL
+				
+				String[] split = builder.toString().split(" ");
+				
+				if(checkHttp(split[split.length-1])) {
+					hex = null;
+					current.setText(builder.toString().substring(0, builder.toString().length()-split[split.length-1].length())); //Current builder into text
+					builder.delete(0, builder.length()); //Clear builder
+					Component before = current;
+					if(current.getText().trim().isEmpty()) { //replace current)
+						current.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, split[split.length-1]));
+						current.setText(split[split.length-1]);
+					}else {
+						current = before.setExtra(new Component().copyOf(before)); //Create new component
+						current.setColor(before.getColor());
+						current.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, split[split.length-1]));
+						current.setText(split[split.length-1]);
+					}
 					
-					inHexLoop=true;
-					color="#";
-				}else {
-					if(c==114||c==82) {
-						current.setText(builder.toString());
-						current.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
-						builder.delete(0, builder.length());
-						Component next=new Component();
-						next.setColor(color);
-						current.setExtra(next);
-						current=next;
-						current.resetFormats();
-					}else if(c>=107 && c<=111||c>=75&& c<=79) {
-						if(builder.length()!=0) {
-							current.setText(builder.toString());
-							current.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
-							builder.delete(0, builder.length());
-							Component next=new Component();
-							next.setColor(color);
-							next.setBold(current.isBold());
-							next.setItalic(current.isItalic());
-							next.setStrikethrough(current.isStrikethrough());
-							next.setObfuscated(current.isObfuscated());
-							next.setUnderlined(current.isUnderlined());
-							current.setExtra(next);
-							current=next;
-						}
-						switch(c) {
-						case 'k':
-						case 'K':
-							current.setObfuscated(true);
-							break;
-						case 'l':
-						case 'L':
-							current.setBold(true);
-							break;
-						case 'm':
-						case 'M':
-							current.setStrikethrough(true);
-							break;
-						case 'n':
-						case 'N':
-							current.setUnderlined(true);
-							break;
-						case 'o':
-						case 'O':
-							current.setItalic(true);
-							break;
-						}
-					}
+					current = current.setExtra(new Component().copyOf(before)); //Create new component
+					current.setColor(before.getColor());
+					builder.append(c);
+					continue;
 				}
-				continue;
-			}
-			if(c==' ') {
-				if((url=doUrlCheck(builder.toString()))!=null) {
-					if(url.indexOf(' ')!=-1) {
-						String full = url;
-						String[] split = url.split(" ");
-						full=full.replace(url=split[split.length-1],"");
-						current.setText(full);
-						current.setColor(colorBeforeSpace);
-						Component next=new Component();
-						next.setBold(current.isBold());
-						next.setItalic(current.isItalic());
-						next.setStrikethrough(current.isStrikethrough());
-						next.setObfuscated(current.isObfuscated());
-						next.setUnderlined(current.isUnderlined());
-						current.setExtra(next);
-						current=next;
-					}
-					current.setText(url);
-					current.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
-					url=null;
-					current.setColor(color);
-					builder.delete(0, builder.length());
-					Component next=new Component();
-					next.setColor(color);
-					next.setBold(current.isBold());
-					next.setItalic(current.isItalic());
-					next.setStrikethrough(current.isStrikethrough());
-					next.setObfuscated(current.isObfuscated());
-					next.setUnderlined(current.isUnderlined());
-					current.setExtra(next);
-					current=next;
-				}
-				colorBeforeSpace=color;
 			}
 			builder.append(c);
 		}
-		if(builder.length()!=0) {
-			if((url=doUrlCheck(builder.toString()))!=null) {
-				if(url.indexOf(' ')!=-1) {
-					String full = url;
-					String[] split = url.split(" ");
-					full=full.replace(url=split[split.length-1],"");
-					current.setText(full);
-					current.setColor(colorBeforeSpace);
-					Component next=new Component();
-					next.setBold(current.isBold());
-					next.setItalic(current.isItalic());
-					next.setStrikethrough(current.isStrikethrough());
-					next.setObfuscated(current.isObfuscated());
-					next.setUnderlined(current.isUnderlined());
-					current.setExtra(next);
-					current=next;
-				}
-				current.setText(url);
-				current.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
-				current.setColor(color);
-			}else {
-				current.setText(builder.toString());
-				current.setColor(color);
+		current.setText(builder.toString());
+		if(urlMode) {
+
+			String[] split = builder.toString().split(" ");
+			
+			if(checkHttp(split[split.length-1])) {
+				current.setText(builder.toString().substring(0, builder.toString().length()-split[split.length-1].length())); //Current builder into text
+				builder.delete(0, builder.length()); //Clear builder
+				Component before = current;
+				current = before.setExtra(new Component().copyOf(before)); //Create new component
+				current.setColor(before.getColor());
+				current.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, split[split.length-1]));
+				current.setText(split[split.length-1]);
 			}
 		}
 		return start;
 	}
 	
-	private static String doUrlCheck(String string) {
-		return url.matcher(string).find()?string:null;
-	}
-
-	public static String toString(Component c) {
-		if(c==null)return null;
-		StringBuilder builder = new StringBuilder();
-		String color = null;
-		String formats = null;
-		while(c!=null) {
-			if(color!=null && formats!=null && (color+formats).equals(c.getLegacyColor()+c.getFormats()))
-				builder.append(c.getText());
-			else
-				builder.append(c.toString());
-			color=c.getLegacyColor();
-			formats=c.getFormats();
-			c=c.getExtra();
-		}
-		return builder.toString();
-	}
-
-	public static String toString(List<Component> cc) {
-		if(cc==null)return null;
-		StringBuilder builder = new StringBuilder();
-		String before = null;
-		for(Component c : cc) {
-			if(before!=null && before.equals(c.getLegacyColor()+c.getFormats()))
-				builder.append(c.getText());
-			else
-				builder.append(c.toString());
-			before=c.getLegacyColor()+c.getFormats();
-			c=c.getExtra();
-		}
-		return builder.toString();
+	private static boolean checkHttp(String text) {
+		return url.matcher(text).find();
 	}
 	
 	public static List<Map<String, Object>> toJsonList(Component c){
@@ -348,17 +161,9 @@ public class ComponentAPI {
 		return i;
 	}
 	
-	public static List<Map<String, Object>> toJsonList(List<Component> cc){
+	public static List<Map<String, Object>> toJsonList(String text){
 		List<Map<String, Object>> i = new LinkedList<>();
-		for(Component c : cc) {
-			i.add(c.toJsonMap());
-		}
-		return i;
-	}
-	
-	public static List<Map<String, Object>> toJsonList(String text, boolean ignoreUrls){
-		List<Map<String, Object>> i = new LinkedList<>();
-		Component c = ComponentAPI.toComponent(text, ignoreUrls);
+		Component c = fromString(text);
 		while(c!=null) {
 			i.add(c.toJsonMap());
 			c=c.getExtra();
@@ -383,7 +188,7 @@ public class ComponentAPI {
 			for(Entry<String, Object> s : text.entrySet()) {
 				if(s.getKey().equals("color")||s.getKey().equals("insertion"))continue;
 				if(s.getValue()instanceof String) {
-					Component c = ComponentAPI.toComponent((String) s.getValue(), false);
+					Component c = fromString((String) s.getValue(), false);
 					if(c.getText()!=null&&!c.getText().isEmpty()||c.getExtra()!=null) {
 						try {
 							if(!remove) {
@@ -418,7 +223,7 @@ public class ComponentAPI {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static String toStringJson(List<?> list) {
+	public static String listToString(List<?> list) {
 		StringBuilder b = new StringBuilder(list.size()*16);
 		for(Object text : list)
 			if(text instanceof Map)
@@ -432,46 +237,10 @@ public class ComponentAPI {
 		if(color.trim().isEmpty())return "";
 		if(color.startsWith("#"))return color;
 		try {
-		return colorCode(color.toLowerCase());
+		return "§"+Component.colorToChar(color);
 		}catch(Exception | NoSuchFieldError err) {
 			return "";
 		}
-	}
-
-	static String colorCode(String text) {
-		switch(text) {
-		case "black":
-			return "§0";
-		case "dark_blue":
-			return "§1";
-		case "dark_green":
-			return "§2";
-		case "dark_aqua":
-			return "§3";
-		case "dark_red":
-			return "§4";
-		case "dark_purple":
-			return "§5";
-		case "gold":
-			return "§6";
-		case "gray":
-			return "§7";
-		case "dark_gray":
-			return "§8";
-		case "blue":
-			return "§9";
-		case "green":
-			return "§a";
-		case "aqua":
-			return "§b";
-		case "red":
-			return "§c";
-		case "light_purple":
-			return "§d";
-		case "yellow":
-			return "§e";
-		}
-		return "§f";
 	}
 	
 	private static Map<String, Object> convertMapValues(String key, Map<String, Object> hover) {
@@ -488,7 +257,7 @@ public class ComponentAPI {
 					Object ac = hover.get("action");
 					hover.clear();
 					hover.put("action", ac);
-					hover.put("value", toJsonList(val+"",true));
+					hover.put("value", toJsonList(val+""));
 				}
 			}else {
 				if(val instanceof Collection || val instanceof Map) {
