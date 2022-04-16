@@ -104,45 +104,45 @@ public class StringUtils {
 		      return "∞";
 		    }
 		    if (s.length >= 21)
-		      return formatDouble(FormatType.NORMAL, value/=1.0E60)+"NOV";
+		      return formatDouble(FormatType.NORMAL, value/1.0E60)+"NOV";
 		    if (s.length >= 20)
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E57)+"OCT";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E57)+"OCT";
 		    if (s.length >= 19)
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E54)+"SEP";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E54)+"SEP";
 			if (s.length >= 18)
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E51)+"SED";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E51)+"SED";
 			if (s.length >= 17)
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E48)+"QUI";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E48)+"QUI";
 			if (s.length >= 16)
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E45)+"QUA";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E45)+"QUA";
 			if (s.length >= 15)
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E42)+"tre";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E42)+"tre";
 			if (s.length >= 14)
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E39)+"duo";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E39)+"duo";
 			if (s.length >= 13)
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E36)+"und";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E36)+"und";
 			if (s.length >= 12)
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E33)+"dec";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E33)+"dec";
 			if (s.length >= 11)
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E30)+"non";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E30)+"non";
 			if (s.length >= 10)
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E27)+"oct";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E27)+"oct";
 			if (s.length >= 9)
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E24)+"sep";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E24)+"sep";
 			if (s.length >= 8) //No, it's not "sex"...
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E21)+"sex";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E21)+"sex";
 			if (s.length >= 7)
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E18)+"qui";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E18)+"qui";
 			if (s.length >= 6)
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E15)+"qua";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E15)+"qua";
 			if (s.length >= 5)
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E12)+"t";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E12)+"t";
 			if (s.length >= 4)
-		    	return formatDouble(FormatType.NORMAL, value/=1.0E9)+"b";
+		    	return formatDouble(FormatType.NORMAL, value/1.0E9)+"b";
 			if (s.length >= 3)
-				return formatDouble(FormatType.NORMAL, value/=1000000)+"m";
+				return formatDouble(FormatType.NORMAL, value/1000000)+"m";
 			if (s.length >= 2)
-				return formatDouble(FormatType.NORMAL, value/=1000)+"k";
+				return formatDouble(FormatType.NORMAL, value/1000)+"k";
 			return formatted;
 		}
 			default:
