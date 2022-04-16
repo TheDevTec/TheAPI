@@ -100,70 +100,50 @@ public class StringUtils {
 		    String[] s = formatted.split(",");
 		    if (s.length >= 22) { //Why?...
 		      if (formatted.startsWith("-"))
-		        formatted ="-∞";
-		      else
-		      formatted ="∞";
-		    }else
+		        return "-∞";
+		      return "∞";
+		    }
 		    if (s.length >= 21)
-		      formatted = formatDouble(FormatType.NORMAL, value/=1.0E60)+"NOV";
-		    else
+		      return formatDouble(FormatType.NORMAL, value/=1.0E60)+"NOV";
 		    if (s.length >= 20)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E57)+"OCT";
-		    	else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E57)+"OCT";
 		    if (s.length >= 19)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E54)+"SEP";
-			    else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E54)+"SEP";
 			if (s.length >= 18)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E51)+"SED";
-				else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E51)+"SED";
 			if (s.length >= 17)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E48)+"QUI";
-				else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E48)+"QUI";
 			if (s.length >= 16)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E45)+"QUA";
-				else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E45)+"QUA";
 			if (s.length >= 15)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E42)+"tre";
-				else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E42)+"tre";
 			if (s.length >= 14)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E39)+"duo";
-				else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E39)+"duo";
 			if (s.length >= 13)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E36)+"und";
-				else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E36)+"und";
 			if (s.length >= 12)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E33)+"dec";
-				else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E33)+"dec";
 			if (s.length >= 11)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E30)+"non";
-				else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E30)+"non";
 			if (s.length >= 10)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E27)+"oct";
-				else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E27)+"oct";
 			if (s.length >= 9)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E24)+"sep";
-				else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E24)+"sep";
 			if (s.length >= 8) //No, it's not "sex"...
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E21)+"sex";
-				else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E21)+"sex";
 			if (s.length >= 7)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E18)+"qui";
-				else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E18)+"qui";
 			if (s.length >= 6)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E15)+"qua";
-				else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E15)+"qua";
 			if (s.length >= 5)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E12)+"t";
-				else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E12)+"t";
 			if (s.length >= 4)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1.0E9)+"b";
-				else
+		    	return formatDouble(FormatType.NORMAL, value/=1.0E9)+"b";
 			if (s.length >= 3)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1000000)+"m";
-				else
+				return formatDouble(FormatType.NORMAL, value/=1000000)+"m";
 			if (s.length >= 2)
-		    	formatted = formatDouble(FormatType.NORMAL, value/=1000)+"k";
-		    return formatted;
+				return formatDouble(FormatType.NORMAL, value/=1000)+"k";
+			return formatted;
 		}
 			default:
 				break;
@@ -172,59 +152,57 @@ public class StringUtils {
 	}
 
 	/**
-	 * @apiNote Generate random int with limit
-	 * @param maxInt
+	 * @apiNote Generate random int within limits
+	 * @param max Maximum int (defaulty {@link Integer#MAX_VALUE}
+	 */
+	public static int generateRandomInt(int max) {
+		return generateRandomInt(0, max);
+	}
+
+	/**
+	 * @apiNote Generate random double within limits
+	 * @param max Maximum double (defaulty {@link Double#MAX_VALUE}
+	 */
+	public static double generateRandomDouble(double max) {
+		return generateRandomDouble(0, max);
+	}
+
+	/**
+	 * @apiNote Generate random double within limits
+	 * @param min Minimum double (defaulty 0)
+	 * @param max Maximum double (defaulty {@link Double#MAX_VALUE}
+	 * @return double
+	 */
+	public static double generateRandomDouble(double min, double max) {
+		if (min == 0 && max == 0)return 0;
+		boolean underZero = max < 0;
+		if (underZero) {
+			min *= -1;
+			max *= -1;
+		}
+		double result = random.nextInt((int) max) + random.nextDouble();
+		if (result <= min)return underZero ? min * -1 : min;
+		if (result >= max)return underZero ? max * -1 : max;
+		return underZero ? result * -1 : result;
+	}
+
+	/**
+	 * @apiNote Generate random int within limits
+	 * @param min Minimum int (defaulty 0)
+	 * @param max Maximum int (defaulty {@link Integer#MAX_VALUE}
 	 * @return int
 	 */
-	public static int generateRandomInt(int maxInt) {
-		return generateRandomInt(0, maxInt);
-	}
-
-	/**
-	 * @apiNote Generate random double with limit
-	 * @param maxDouble
-	 * @return double
-	 */
-	public static double generateRandomDouble(double maxDouble) {
-		return generateRandomDouble(0, maxDouble);
-	}
-
-	/**
-	 * @apiNote Generate random double with limit
-	 * @param maxDouble
-	 * @return double
-	 */
-	public static double generateRandomDouble(double min, double maxDouble) {
-		if (maxDouble == 0)
-			return maxDouble;
-		boolean a = maxDouble < 0;
-		if (a)
-			maxDouble *= -1;
-		double i = random.nextInt((int) maxDouble) + random.nextDouble();
-		if (i < (min < 0 ? min * -1 : min))
-			return min;
-		if (i > maxDouble)
-			i = maxDouble;
-		return a ? -1 * i : i;
-	}
-
-	/**
-	 * @apiNote Generate random double with limit
-	 * @param maxDouble
-	 * @return double
-	 */
-	public static int generateRandomInt(int min, int maxInt) {
-		if (maxInt == 0)
-			return maxInt;
-		boolean a = maxInt < 0;
-		if (a)
-			maxInt *= -1;
-		int i = random.nextInt(maxInt);
-		if (i < (min < 0 ? min * -1 : min))
-			return min;
-		if (i > maxInt)
-			i = maxInt;
-		return a ? -1 * i : i;
+	public static int generateRandomInt(int min, int max) {
+		if (min == 0 && max == 0)return 0;
+		boolean underZero = max < 0;
+		if (underZero) {
+			min *= -1;
+			max *= -1;
+		}
+		int result = random.nextInt(max);
+		if (result <= min)return underZero ? min * -1 : min;
+		if (result >= max)return underZero ? max * -1 : max;
+		return underZero ? result * -1 : result;
 	}
 	
 	/**
@@ -252,11 +230,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @apiNote Copy matches of String from Iterable<String> Examples:
-	 *      StringUtils.copyPartialMatches("hello", Arrays.asList("helloWorld",
-	 *      "hiHouska")) -> helloWorld StringUtils.copyPartialMatches("hello",
-	 *      Arrays.asList("helloWorld", "hiHouska", "this_is_list_of_words",
-	 *      "helloDevs", "hell")) -> helloWorld, helloDevs
+	 * @apiNote Copy matches of String from Iterable<String>
 	 * @return List<String>
 	 */
 	public static List<String> copyPartialMatches(String prefix, Iterable<String> originals) {
@@ -268,11 +242,7 @@ public class StringUtils {
 	}
 
 	/**
-	 * @apiNote Copy matches of String from Iterable<String> Examples:
-	 *      StringUtils.copyPartialMatches("hello", Arrays.asList("helloWorld",
-	 *      "hiHouska")) -> helloWorld StringUtils.copyPartialMatches("hello",
-	 *      Arrays.asList("helloWorld", "hiHouska", "this_is_list_of_words",
-	 *      "helloDevs", "hell")) -> helloWorld, helloDevs
+	 * @apiNote Copy matches of String from Iterable<String>
 	 * @return List<String>
 	 */
 	public static List<String> copySortedPartialMatches(String prefix, Iterable<String> originals) {
@@ -381,9 +351,12 @@ public class StringUtils {
 		return StringUtils.color.getLastColors(text);
 	}
 
-	public static String gradient(String legacyMsg) {
-		if(legacyMsg==null||gradientFinder == null)
-			return legacyMsg;
+	public static String gradient(String originalMsg) {
+		if(originalMsg==null || gradientFinder == null)
+			return originalMsg;
+		
+		String legacyMsg = originalMsg;
+		
 		String low = legacyMsg.toLowerCase();
 		for (Entry<String, String> code : colorMap.entrySet()) {
 			String rawCode = (tagPrefix + code.getKey()).toLowerCase();
@@ -402,17 +375,19 @@ public class StringUtils {
 	}
 	
 	/**
-	 * @apiNote Colorize string with colors (&eHello world -> §eHello world)
+	 * @apiNote Colorize string with colors
 	 * @param msg Text to colorize
 	 * @return String
 	 */
-	public static String colorize(String msg) {
-		if (msg == null||msg.trim().isEmpty())
-			return msg;
+	public static String colorize(String original) {
+		if (original == null || original.trim().isEmpty())
+			return original;
+		
+		String msg = original;
+		
 		msg = gradient(msg);
-		if (msg.contains("#")) {
+		if (msg.contains("#"))
 			msg = StringUtils.color.replaceHex(msg);
-		}
 		char[] b = msg.toCharArray();
 	    for (int i = 0; i < b.length - 1; i++) {
 	      if (b[i] == '&' && has(b[i + 1])) {
@@ -520,9 +495,12 @@ public class StringUtils {
 	 * @param period String
 	 * @return long
 	 */
-	public static long timeFromString(String period) {
-		if (period == null || period.isEmpty())
+	public static long timeFromString(String original) {
+		if (original == null || original.isEmpty())
 			return 0;
+		
+		String period = original;
+		
 		if (isFloat(period) && !period.endsWith("d") && !period.endsWith("e"))
 			return (long)getFloat(period);
 		float time = 0;
@@ -653,7 +631,10 @@ public class StringUtils {
 	 * @apiNote Convert String to Math and Calculate exempt
 	 * @return double
 	 */
-	public static double calculate(String val) {
+	public static double calculate(String original) {
+		
+		String val = original;
+		
 		if(val.contains("(")&&val.contains(")")) {
 			val=splitter(val);
 		}
