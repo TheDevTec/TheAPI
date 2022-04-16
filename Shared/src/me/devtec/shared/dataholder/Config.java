@@ -33,7 +33,7 @@ public class Config {
 	protected DataLoader loader;
 	protected List<String> keys;
 	protected File file;
-	protected boolean isSaving;
+	protected boolean isSaving; //LOCK
 	protected boolean requireSave;
 	
 	public Config() {
@@ -71,7 +71,7 @@ public class Config {
 		keys = new LinkedList<>();
 		if (load)
 			reload(file);
-		requireSave=false;
+		markNonModified();
 	}
 	
 	// CLONE
@@ -81,17 +81,29 @@ public class Config {
 		loader=data.loader;
 	}
 	
-	public synchronized boolean exists(String path) {
+	public boolean isModified() {
+		return requireSave;
+	}
+	
+	public void markModified() {
+		requireSave = true;
+	}
+	
+	public void markNonModified() {
+		requireSave = false;
+	}
+	
+	public boolean exists(String path) {
 		return isKey(path);
 	}
 
-	public synchronized boolean existsKey(String path) {
+	public boolean existsKey(String path) {
 		return loader.get().containsKey(path);
 	}
 
-	public synchronized Config setFile(File file) {
+	public Config setFile(File file) {
 		if(file == this.file)return this;
-		requireSave=true;
+		markModified();
 		if(!file.exists()) {
 			try {
 				if(file.getParentFile()!=null) {
@@ -109,27 +121,26 @@ public class Config {
 		return this;
 	}
 
-	public synchronized Object[] getOrCreateData(String key) {
+	public Object[] getOrCreateData(String key) {
 		Object[] h = loader.get().get(key);
 		if (h == null) {
 			String ss = splitFirst(key);
-			if (!keys.contains(ss))
-				keys.add(ss);
+			if (!keys.contains(ss))keys.add(ss);
 			loader.get().put(key, h = new Object[2]);
 		}
 		return h;
 	}
 
 	private static String splitFirst(String text) {
-        int next = text.indexOf('.', 0);
-        return next!=-1?text.substring(0, next):text;
+        int next = text.indexOf('.');
+        return next!=-1 ? text.substring(0, next) : text;
 	}
 	
-	public synchronized boolean setIfAbsent(String key, Object value) {
+	public boolean setIfAbsent(String key, Object value) {
 		if (key == null || value==null)
 			return false;
 		if(!existsKey(key)) {
-			requireSave=true;
+			markModified();
 			Object[] data = getOrCreateData(key);
 			data[0]=value;
 			return true;
@@ -137,11 +148,11 @@ public class Config {
 		return false;
 	}
 
-	public synchronized boolean setIfAbsent(String key, Object value, List<String> comments) {
+	public boolean setIfAbsent(String key, Object value, List<String> comments) {
 		if (key == null || value==null)
 			return false;
 		if(!existsKey(key)) {
-			requireSave=true;
+			markModified();
 			Object[] data = getOrCreateData(key);
 			data[0]=value;
 			data[1]=comments;
@@ -150,7 +161,7 @@ public class Config {
 		Object[] data = getOrCreateData(key);
 		if(data[1]==null && comments!=null && !comments.isEmpty() || data[1]!=null && ((List<?>) data[1]).isEmpty() && comments!=null && !comments.isEmpty()) {
 			data[1]=comments;
-			requireSave=true;
+			markModified();
 			return true;
 		}
 		return false;
@@ -159,7 +170,7 @@ public class Config {
 	public Config set(String key, Object value) {
 		if (key == null)
 			return this;
-		requireSave=true;
+		markModified();
 		if (value == null) {
 			String sf = splitFirst(key);
 			keys.remove(sf);
@@ -173,10 +184,10 @@ public class Config {
 		return this;
 	}
 
-	public synchronized Config remove(String key) {
+	public Config remove(String key) {
 		if (key == null)
 			return this;
-		requireSave=true;
+		markModified();
 		String sf = splitFirst(key);
 		keys.remove(sf);
 		loader.remove(key);
@@ -187,27 +198,27 @@ public class Config {
 	}
 
 	@SuppressWarnings("unchecked")
-	public synchronized List<String> getComments(String key) {
+	public List<String> getComments(String key) {
 		if (key == null)
 			return null;
-		requireSave=true;
+		markModified();
 		Object obj = getOrCreateData(key)[1];
 		return obj==null?null:(List<String>)obj;
 	}
 
-	public synchronized Config setComments(String key, List<String> value) {
+	public Config setComments(String key, List<String> value) {
 		if (key == null)
 			return this;
-		requireSave=true;
+		markModified();
 		getOrCreateData(key)[1]=simple(new ArrayList<>(value));
 		return this;
 	}
 
 	@SuppressWarnings("unchecked")
-	public synchronized Config addComments(String key, List<String> value) {
+	public Config addComments(String key, List<String> value) {
 		if (value == null || key == null)
 			return this;
-		requireSave=true;
+		markModified();
 		Object[] g = getOrCreateData(key);
 		if(g[1]==null)g[1]=simple(new ArrayList<>(value));
 		else
@@ -216,10 +227,10 @@ public class Config {
 	}
 
 	@SuppressWarnings("unchecked")
-	public synchronized Config addComment(String key, String value) {
+	public Config addComment(String key, String value) {
 		if (value == null || key == null)
 			return this;
-		requireSave=true;
+		markModified();
 		Object[] g = getOrCreateData(key);
 		if(g[0]==null)g[1]=new ArrayList<>();
 		((List<String>) g[1]).add(value.substring(YamlLoader.removeSpaces(value)));
@@ -227,10 +238,10 @@ public class Config {
 	}
 
 	@SuppressWarnings("unchecked")
-	public synchronized Config removeComments(String key, List<String> value) {
+	public Config removeComments(String key, List<String> value) {
 		if (value == null || key == null)
 			return this;
-		requireSave=true;
+		markModified();
 		Object[] g = getOrCreateData(key);
 		if(g[0]!=null)
 			((List<String>) g[1]).removeAll(simple(new ArrayList<>(value)));
@@ -238,10 +249,10 @@ public class Config {
 	}
 
 	@SuppressWarnings("unchecked")
-	public synchronized Config removeComment(String key, String value) {
+	public Config removeComment(String key, String value) {
 		if (value == null || key == null)
 			return this;
-		requireSave=true;
+		markModified();
 		Object[] g = getOrCreateData(key);
 		if(g[0]!=null)
 			((List<String>) g[1]).remove(value.substring(YamlLoader.removeSpaces(value)));
@@ -249,10 +260,10 @@ public class Config {
 	}
 
 	@SuppressWarnings("unchecked")
-	public synchronized Config removeComment(String key, int line) {
+	public Config removeComment(String key, int line) {
 		if (line < 0 || key == null)
 			return this;
-		requireSave=true;
+		markModified();
 		Object[] h = getOrCreateData(key);
 		if (h[1] != null)
 			((List<String>) h[1]).remove(line);
@@ -263,30 +274,30 @@ public class Config {
 		return file;
 	}
 
-	public synchronized Config setHeader(Collection<String> lines) {
-		requireSave=true;
+	public Config setHeader(Collection<String> lines) {
+		markModified();
 		loader.getHeader().clear();
 		loader.getHeader().addAll(simple(lines));
 		return this;
 	}
 
-	public synchronized Config setFooter(Collection<String> lines) {
-		requireSave=true;
+	public Config setFooter(Collection<String> lines) {
+		markModified();
 		loader.getFooter().clear();
 		loader.getFooter().addAll(simple(lines));
 		return this;
 	}
 
-	public synchronized Collection<String> getHeader() {
+	public Collection<String> getHeader() {
 		return loader.getHeader();
 	}
 
-	public synchronized Collection<String> getFooter() {
+	public Collection<String> getFooter() {
 		return loader.getFooter();
 	}
 
-	public synchronized Config reload(String input) {
-		requireSave=true;
+	public Config reload(String input) {
+		markModified();
 		keys.clear();
 		loader = DataLoader.findLoaderFor(input); // get & load
 		for (String k : loader.getKeys()) {
@@ -297,18 +308,18 @@ public class Config {
 		return this;
 	}
 
-	public synchronized Config reload() {
+	public Config reload() {
 		return reload(getFile());
 	}
 
-	public synchronized Config reload(File f) {
+	public Config reload(File f) {
 		if (!f.exists()) {
-			requireSave=true;
+			markModified();
 			loader=new EmptyLoader();
 			keys.clear();
 			return this;
 		}
-		requireSave=true;
+		markModified();
 		keys.clear();
 		loader = DataLoader.findLoaderFor(f); // get & load
 		for (String k : loader.getKeys()) {
@@ -319,7 +330,7 @@ public class Config {
 		return this;
 	}
 
-	public synchronized Object get(String key) {
+	public Object get(String key) {
 		try {
 			return loader.get().get(key)[0];
 		} catch (Exception e) {
@@ -327,7 +338,7 @@ public class Config {
 		}
 	}
 
-	public synchronized <E> E getAs(String key, Class<? extends E> clazz) {
+	public <E> E getAs(String key, Class<? extends E> clazz) {
 		try {
 		if(clazz==String.class||clazz==CharSequence.class)return clazz.cast(getString(key));
 		} catch (Exception e) {
@@ -339,7 +350,7 @@ public class Config {
 		return null;
 	}
 
-	public synchronized String getString(String key) {
+	public String getString(String key) {
 		Object[] a = loader.get().get(key);
 		if(a==null)return null;
 		if(a.length>=3 && a[2] != null)
@@ -347,7 +358,7 @@ public class Config {
 		return a[0] instanceof String ? (String)a[0] : (a[0]==null?null:a[0]+"");
 	}
 	
-	public synchronized boolean isJson(String key) {
+	public boolean isJson(String key) {
 		try {
 			Object[] a = loader.get().get(key);
 			if(a.length>=3 && a[2] != null)
@@ -357,7 +368,7 @@ public class Config {
 		return false;
 	}
 	
-	public synchronized int getInt(String key) {
+	public int getInt(String key) {
 		try {
 			return ((Number)get(key)).intValue();
 		} catch (Exception notNumber) {
@@ -365,7 +376,7 @@ public class Config {
 		}
 	}
 	
-	public synchronized double getDouble(String key) {
+	public double getDouble(String key) {
 		try {
 			return ((Number)get(key)).doubleValue();
 		} catch (Exception notNumber) {
@@ -373,7 +384,7 @@ public class Config {
 		}
 	}
 	
-	public synchronized long getLong(String key) {
+	public long getLong(String key) {
 		try {
 			return ((Number)get(key)).longValue();
 		} catch (Exception notNumber) {
@@ -381,7 +392,7 @@ public class Config {
 		}
 	}
 
-	public synchronized float getFloat(String key) {
+	public float getFloat(String key) {
 		try {
 			return ((Number)get(key)).floatValue();
 		} catch (Exception notNumber) {
@@ -389,7 +400,7 @@ public class Config {
 		}
 	}
 	
-	public synchronized byte getByte(String key) {
+	public byte getByte(String key) {
 		try {
 			return ((Number)get(key)).byteValue();
 		} catch (Exception notNumber) {
@@ -397,7 +408,7 @@ public class Config {
 		}
 	}
 	
-	public synchronized boolean getBoolean(String key) {
+	public boolean getBoolean(String key) {
 		try {
 			return (boolean)get(key);
 		} catch (Exception notNumber) {
@@ -405,7 +416,7 @@ public class Config {
 		}
 	}
 	
-	public synchronized short getShort(String key) {
+	public short getShort(String key) {
 		try {
 			return ((Number)get(key)).shortValue();
 		} catch (Exception notNumber) {
@@ -413,12 +424,12 @@ public class Config {
 		}
 	}
 	
-	public synchronized Collection<Object> getList(String key) {
+	public Collection<Object> getList(String key) {
 		Object g = get(key);
 		return g != null && g instanceof Collection ? new ArrayList<>((Collection<?>) g) : new ArrayList<>();
 	}
 	
-	public synchronized <E> List<E> getListAs(String key, Class<? extends E> clazz) {
+	public <E> List<E> getListAs(String key, Class<? extends E> clazz) {
 		List<E> list = new ArrayList<>();
 		for (Object o : getList(key))
 			try {
@@ -428,7 +439,7 @@ public class Config {
 		return list;
 	}
 	
-	public synchronized List<String> getStringList(String key) {
+	public List<String> getStringList(String key) {
 		Collection<Object> items = getList(key);
 		List<String> list=new ArrayList<>(items.size());
 		for (Object o : items)
@@ -439,7 +450,7 @@ public class Config {
 		return list;
 	}
 	
-	public synchronized List<Boolean> getBooleanList(String key) {
+	public List<Boolean> getBooleanList(String key) {
 		Collection<Object> items = getList(key);
 		List<Boolean> list=new ArrayList<>(items.size());
 		for (Object o : items)
@@ -447,7 +458,7 @@ public class Config {
 		return list;
 	}
 	
-	public synchronized List<Integer> getIntegerList(String key) {
+	public List<Integer> getIntegerList(String key) {
 		Collection<Object> items = getList(key);
 		List<Integer> list=new ArrayList<>(items.size());
 		for (Object o : items)
@@ -455,7 +466,7 @@ public class Config {
 		return list;
 	}
 	
-	public synchronized List<Double> getDoubleList(String key) {
+	public List<Double> getDoubleList(String key) {
 		Collection<Object> items = getList(key);
 		List<Double> list=new ArrayList<>(items.size());
 		for (Object o : items)
@@ -463,7 +474,7 @@ public class Config {
 		return list;
 	}
 	
-	public synchronized List<Short> getShortList(String key) {
+	public List<Short> getShortList(String key) {
 		Collection<Object> items = getList(key);
 		List<Short> list=new ArrayList<>(items.size());
 		for (Object o : items)
@@ -471,7 +482,7 @@ public class Config {
 		return list;
 	}
 	
-	public synchronized List<Byte> getByteList(String key) {
+	public List<Byte> getByteList(String key) {
 		Collection<Object> items = getList(key);
 		List<Byte> list=new ArrayList<>(items.size());
 		for (Object o : items)
@@ -479,7 +490,7 @@ public class Config {
 		return list;
 	}
 	
-	public synchronized List<Float> getFloatList(String key) {
+	public List<Float> getFloatList(String key) {
 		Collection<Object> items = getList(key);
 		List<Float> list=new ArrayList<>(items.size());
 		for (Object o : items)
@@ -487,7 +498,7 @@ public class Config {
 		return list;
 	}
 	
-	public synchronized List<Long> getLongList(String key) {
+	public List<Long> getLongList(String key) {
 		Collection<Object> items = getList(key);
 		List<Long> list=new ArrayList<>(items.size());
 		for (Object o : items)
@@ -496,7 +507,7 @@ public class Config {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public synchronized <K, V> List<Map<K, V>> getMapList(String key) {
+	public <K, V> List<Map<K, V>> getMapList(String key) {
 		Collection<Object> items = getList(key);
 		List<Map<K, V>> list=new ArrayList<>(items.size());
 		for (Object o : items) {
@@ -510,11 +521,11 @@ public class Config {
 		return list;
 	}
 	
-	public synchronized Config save(DataType type) {
+	public Config save(DataType type) {
 		if (file == null)
 			return this;
 		if(isSaving)return this;
-		if(!requireSave)return this;
+		if(!isModified())return this;
 		if (!file.exists()) {
 			try {
 				file.getParentFile().mkdirs();
@@ -526,7 +537,7 @@ public class Config {
 			}
 		}
 		isSaving=true;
-		requireSave=false;
+		markNonModified();
 		try {
 			try {
 				OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
@@ -541,25 +552,25 @@ public class Config {
 		return this;
 	}
 	
-	public synchronized void save() {
+	public void save() {
 		save(DataType.YAML);
 	}
 
-	public synchronized Set<String> getKeys() {
+	public Set<String> getKeys() {
 		return new LinkedHashSet<>(keys);
 	}
 
-	public synchronized Set<String> getKeys(boolean subkeys) {
+	public Set<String> getKeys(boolean subkeys) {
 		if (subkeys)
 			return loader.getKeys();
 		return new LinkedHashSet<>(keys);
 	}
 
-	public synchronized Set<String> getKeys(String key) {
+	public Set<String> getKeys(String key) {
 		return getKeys(key, false);
 	}
 
-	public synchronized boolean isKey(String key) {
+	public boolean isKey(String key) {
 		for (String k : loader.getKeys()) {
 			if (k.startsWith(key)) {
 				String r = k.substring(key.length());
@@ -571,7 +582,7 @@ public class Config {
 		return false;
 	}
 
-	public synchronized Set<String> getKeys(String key, boolean subkeys) {
+	public Set<String> getKeys(String key, boolean subkeys) {
 		Set<String> a = new LinkedHashSet<>();
 		for (String d : loader.getKeys())
 			if (d.startsWith(key)) {
@@ -589,11 +600,11 @@ public class Config {
 		return a;
 	}
 
-	public synchronized String toString() {
+	public String toString() {
 		return toString(DataType.YAML);
 	}
 
-	protected synchronized void addKeys(List<Map<String, String>> list, String key) {
+	protected void addKeys(List<Map<String, String>> list, String key) {
 		Object o = get(key);
 		if (o != null) {
 			Map<String, String> a = new ConcurrentHashMap<>();
@@ -604,7 +615,7 @@ public class Config {
 			addKeys(list, key + "." + keyer);
 	}
 
-	public synchronized String toString(DataType type) {
+	public String toString(DataType type) {
 		switch(type) {
 		case PROPERTIES: {
 			int size = loader.get().size();
@@ -712,20 +723,20 @@ public class Config {
 		return null;
 	}
 
-	public synchronized Config clear() {
+	public Config clear() {
 		keys.clear();
 		loader.get().clear();
 		return this;
 	}
 
-	public synchronized Config reset() {
+	public Config reset() {
 		keys.clear();
 		loader.reset();
 		return this;
 	}
 
 	@SuppressWarnings("unchecked")
-	public synchronized boolean merge(Config f, boolean addHeader, boolean addFooter) {
+	public boolean merge(Config f, boolean addHeader, boolean addFooter) {
 		boolean change = false;
 		try {
 			if(addHeader && (f.loader.getHeader()==null || f.loader.getHeader()!=null && !f.loader.getHeader().isEmpty() && (loader.getHeader().isEmpty()||!f.loader.getHeader().containsAll(loader.getHeader())))) {
@@ -762,7 +773,7 @@ public class Config {
 			}
 		}catch(Exception err) {}
 		if(change)
-			requireSave=true;
+			markModified();
 		return change;
 	}
 

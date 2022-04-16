@@ -32,11 +32,13 @@ public class StreamUtils {
 	
 	public static String fromStream(InputStream stream) {
 		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8), 8192);
-			StringBuilder sb = new StringBuilder(512);
+			BufferedReader br = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8), 4096);
+			StringBuilder sb = new StringBuilder(2048);
 			String content;
-			while ((content = br.readLine()) != null)
-				sb.append(content).append(System.lineSeparator());
+			while ((content = br.readLine()) != null) {
+				if(sb.length() != 0)sb.append(System.lineSeparator());
+				sb.append(content);
+			}
 			br.close();
 			return sb.toString();
 		} catch (Exception e) {
@@ -55,16 +57,10 @@ public class StreamUtils {
 	}
 	
 	public static InputStream toStreamObject(Object obj) {
-		ByteArrayDataOutput out = ByteStreams.newDataOutput();
-		out.writeUTF(Json.writer().write(obj));
-		return new ByteArrayInputStream(out.toByteArray());
+		return toStream(Json.writer().write(obj));
 	}
 	
 	public static Object fromStreamObject(InputStream stream) {
-		try {
-			return Json.reader().read(ByteStreams.newDataInput(ByteStreams.toByteArray(stream)).readUTF()); //object
-		} catch (Exception e) {
-			return null;
-		}
+		return Json.reader().read(fromStream(stream));
 	}
 }

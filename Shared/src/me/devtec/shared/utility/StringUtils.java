@@ -2,7 +2,7 @@ package me.devtec.shared.utility;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -11,6 +11,8 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import me.devtec.shared.API;
 
 public class StringUtils {
 	
@@ -45,16 +47,31 @@ public class StringUtils {
 	private static final Pattern extra = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([*/])[ ]*(-?[ ]*[0-9.]+)");
 	private static final Pattern normal = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([+-])[ ]*(-?[ ]*[0-9.]+)");
 	
-
 	public interface ColormaticFactory {
-		public String gradient(String msg, String fromHex, String toHex);
-
+		
+		/**
+		 * @apiNote Generates random color depends on software & version
+		 */
 		public String generateColor();
 		
+		/**
+		 * @apiNote @see {@link API#basics()}
+		 */
 		public String[] getLastColors(String text);
 
+		/**
+		 * @apiNote Replace #RRGGBB hex color depends on software
+		 */
 		public String replaceHex(String msg);
-
+		
+		/**
+		 * @apiNote @see {@link API#basics()}
+		 */
+		public String gradient(String msg, String fromHex, String toHex);
+		
+		/**
+		 * @apiNote @see {@link API#basics()}
+		 */
 		public String rainbow(String msg, String generateColor, String generateColor2);
 	}
 	
@@ -221,7 +238,7 @@ public class StringUtils {
 		while (split.length() > lengthOfSplit) {
 			int length = lengthOfSplit - 1 - prefix.length();
 			String a = prefix + split.substring(0, length);
-			if (a.endsWith("§")||a.endsWith("&")) {
+			if (a.endsWith("§")) {
 				--length;
 				a = prefix + split.substring(0, length);
 			}
@@ -259,52 +276,95 @@ public class StringUtils {
 	 * @return List<String>
 	 */
 	public static List<String> copySortedPartialMatches(String prefix, Iterable<String> originals) {
-		List<String> collection = new ArrayList<>();
-		for (String string : originals)
-			if (string == null || (string.length() >= prefix.length()) && (string.regionMatches(true, 0, prefix, 0, prefix.length())||string.regionMatches(true, 1, prefix, 0, prefix.length())))
-				collection.add(string);
-		Collections.sort(collection);
+		List<String> collection = copyPartialMatches(prefix, originals);
+		collection.sort(null);
 		return collection;
 	}
 
 	/**
-	 * @apiNote Transfer Collection to String
+	 * @apiNote Join Iterable into one String with split {@value split} @see {@link StringUtils#join(Iterable<?>, String, int, int)}
+	 * @param split Split string (defaulty ' ')
+	 * @param args Arguments
 	 * @return String
 	 */
-	public static String join(Iterable<?> toJoin, String split) {
-		if (toJoin == null || split == null)
-			return null;
-		StringBuilder r = new StringBuilder();
-		for (Object s : toJoin)
-			if (s == null)
-				continue;
-			else
-				r.append(split).append(s);
-		if(r.length()!=0)
-			r.delete(0,split.length());
-		return r.toString();
+	public static String join(Iterable<?> args, String split) {
+		return join(args, split, 0, -1);
 	}
 
 	/**
-	 * @apiNote Transfer Object[] to String
+	 * @apiNote Join Iterable into one String with split {@value split} @see {@link StringUtils#join(Iterable<?>, String, int, int)}
+	 * @param split Split string (defaulty ' ')
+	 * @param start Start argument (defaulty 0)
+	 * @param args Arguments
 	 * @return String
 	 */
-	public static String join(Object[] toJoin, String split) {
-		if (toJoin == null || split == null)
+	public static String join(Iterable<?> args, String split, int start) {
+		return join(args, split, start, -1);
+	}
+
+	/**
+	 * @apiNote Join Iterable into one String with split {@value split} @see {@link StringUtils#join(Iterable<?>, String, int, int)}
+	 * @param split Split string (defaulty ' ')
+	 * @param start Start argument (defaulty 0)
+	 * @param end Last argument (defaultly -1)
+	 * @param args Arguments
+	 * @return String
+	 */
+	public static String join(Iterable<?> args, String split, int start, int end) {
+		if (args == null || split == null)
 			return null;
-		StringBuilder r = new StringBuilder();
-		for (Object s : toJoin)
-			if (s == null)
-				continue;
-			else
-				r.append(split).append(s);
-		if(r.length()!=0)
-			r.delete(0,split.length());
-		return r.toString();
+		StringBuilder msg = new StringBuilder();
+		Iterator<?> iterator = args.iterator();
+		for (int i = start; iterator.hasNext() && (end==-1 || i < end); ++i) {
+			if(msg.length() != 0)msg.append(split);
+			msg.append(iterator.next());
+		}
+		return msg.toString();
+	}
+
+	/**
+	 * @apiNote Join objects into one String with split {@value split} @see {@link StringUtils#join(Object[], String, int, int)}
+	 * @param split Split string (defaulty ' ')
+	 * @param args Arguments
+	 * @return String
+	 */
+	public static String join(Object[] args, String split) {
+		return join(args, split, 0, args.length);
+	}
+
+	/**
+	 * @apiNote Join objects into one String with split {@value split} @see {@link StringUtils#join(Object[], String, int, int)}
+	 * @param split Split string (defaulty ' ')
+	 * @param start Start argument (defaulty 0)
+	 * @param args Arguments
+	 * @return String
+	 */
+	public static String join(Object[] args, String split, int start) {
+		return join(args, split, start, args.length);
+	}
+
+	/**
+	 * @apiNote Join objects into one String with split {@value split} @see {@link StringUtils#join(Object[], String, int, int)}
+	 * @param split Split string (defaulty ' ')
+	 * @param start Start argument (defaulty 0)
+	 * @param end Last argument (defaultly args.length)
+	 * @param args Arguments
+	 * @return String
+	 */
+	public static String join(Object[] args, String split, int start, int end) {
+		if (args == null || split == null)
+			return null;
+		StringBuilder msg = new StringBuilder();
+		for (int i = start; i < args.length && i < end; ++i) {
+			if(msg.length() != 0)msg.append(split);
+			msg.append(args[i]);
+		}
+		return msg.toString();
 	}
 	
 	/**
-	 * @apiNote Get last colors from String (HEX SUPPORT!)
+	 * @apiNote Return joined strings ([0] + [1]) from {@link StringUtils#getLastColorsSplitFormats(String)}
+	 * @param text Input string
 	 * @return String
 	 */
 	public static String getLastColors(String text) {
@@ -314,7 +374,8 @@ public class StringUtils {
 	
 	/**
 	 * @apiNote Get last colors from String (HEX SUPPORT!)
-	 * @return String
+	 * @param text Input string
+	 * @return String[]
 	 */
 	public static String[] getLastColorsSplitFormats(String text) {
 		return StringUtils.color.getLastColors(text);
@@ -341,8 +402,8 @@ public class StringUtils {
 	}
 	
 	/**
-	 * @apiNote Colorize string with colors (&eHello world -> {YELLOW}Hello world)
-	 * @param msg
+	 * @apiNote Colorize string with colors (&eHello world -> §eHello world)
+	 * @param msg Text to colorize
 	 * @return String
 	 */
 	public static String colorize(String msg) {
@@ -393,38 +454,36 @@ public class StringUtils {
 	}
 
 	/**
-	 * @apiNote Build string from String[]
-	 * @param args
+	 * @apiNote Join strings to one String with split ' ' @see {@link StringUtils#join(Object[], String, int, int)}
+	 * @param args Arguments
 	 * @return String
 	 * 
 	 */
 	public static String buildString(String[] args) {
-		return buildString(0, args);
+		return join(args, " ", 0, args.length);
 	}
 
 	/**
-	 * @apiNote Build string from String[]
-	 * @param args
+	 * @apiNote Join strings to one String with split ' ' @see {@link StringUtils#join(Object[], String, int, int)}
+	 * @param start Start argument (defaulty 0)
+	 * @param args Arguments
 	 * @return String
 	 * 
 	 */
 	public static String buildString(int start, String[] args) {
-		return buildString(start, args.length, args);
+		return join(args, " ", start, args.length);
 	}
 
 	/**
-	 * @apiNote Build string from String[]
-	 * @param args
+	 * @apiNote Join strings to one String with split ' ' @see {@link StringUtils#join(Object[], String, int, int)}
+	 * @param start Start argument (defaulty 0)
+	 * @param end Last argument (defaultly args.length)
+	 * @param args Arguments
 	 * @return String
 	 * 
 	 */
 	public static String buildString(int start, int end, String[] args) {
-		StringBuilder msg = new StringBuilder();
-		for (int i = start; i < args.length && i < end; ++i)
-			msg.append(' ').append(args[i]);
-		if(msg.length()!=0)
-			msg.delete(0,1);
-		return msg.toString();
+		return join(args, " ", start, end);
 	}
 
 	/**
@@ -584,7 +643,7 @@ public class StringUtils {
 	 */
 	public static boolean getBoolean(String fromString) {
 		try {
-			return fromString.equalsIgnoreCase("true") || fromString.equalsIgnoreCase("yes");
+			return fromString.equalsIgnoreCase("true");
 		} catch (Exception er) {
 			return false;
 		}
@@ -842,8 +901,7 @@ public class StringUtils {
 	public static boolean isBoolean(String fromString) {
 		if (fromString == null)
 			return false;
-		return fromString.equalsIgnoreCase("true") || fromString.equalsIgnoreCase("false")
-				|| fromString.equalsIgnoreCase("yes") || fromString.equalsIgnoreCase("no");
+		return fromString.equalsIgnoreCase("true") || fromString.equalsIgnoreCase("false");
 	}
 	
 	public static boolean containsSpecial(String value) {
