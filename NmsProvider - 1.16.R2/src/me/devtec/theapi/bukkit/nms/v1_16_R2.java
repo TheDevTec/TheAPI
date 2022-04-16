@@ -230,7 +230,7 @@ public class v1_16_R2 implements NmsProvider {
 			break;
 		}
 		}
-		return new PacketPlayOutOpenWindow(id, windowType, (IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(title, true)));
+		return new PacketPlayOutOpenWindow(id, windowType, (IChatBaseComponent)toIChatBaseComponent(ComponentAPI.fromString(title)));
 	}
 	
 	public int getContainerId(Object container) {
@@ -279,8 +279,8 @@ public class v1_16_R2 implements NmsProvider {
 	@Override
 	public Object packetPlayerListHeaderFooter(String header, String footer) {
 		PacketPlayOutPlayerListHeaderFooter packet = new PacketPlayOutPlayerListHeaderFooter();
-		packet.header=(IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(header, true));
-		packet.footer=(IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(footer, true));
+		packet.header=(IChatBaseComponent)toIChatBaseComponent(ComponentAPI.fromString(header));
+		packet.footer=(IChatBaseComponent)toIChatBaseComponent(ComponentAPI.fromString(footer));
 		return packet;
 	}
 
@@ -316,7 +316,7 @@ public class v1_16_R2 implements NmsProvider {
 
 	@Override
 	public Object packetTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut) {
-		return new PacketPlayOutTitle(EnumTitleAction.valueOf(action.name()), (IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(text, true)), fadeIn, stay, fadeOut);
+		return new PacketPlayOutTitle(EnumTitleAction.valueOf(action.name()), (IChatBaseComponent)toIChatBaseComponent(ComponentAPI.fromString(text)), fadeIn, stay, fadeOut);
 	}
 
 	@Override
@@ -326,7 +326,7 @@ public class v1_16_R2 implements NmsProvider {
 
 	@Override
 	public Object packetChat(ChatType type, String text, UUID uuid) {
-		return packetChat(type, toIChatBaseComponent(ComponentAPI.toComponent(text, false)), uuid);
+		return packetChat(type, toIChatBaseComponent(ComponentAPI.fromString(text)), uuid);
 	}
 
 	@Override
@@ -848,7 +848,7 @@ public class v1_16_R2 implements NmsProvider {
 		ping.setPlayerSample(playerSample);
 
 		if (event.getMotd() != null)
-			ping.setMOTD((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(event.getMotd(), true)));
+			ping.setMOTD((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.fromString(event.getMotd())));
 		else
 			ping.setMOTD((IChatBaseComponent)BukkitLoader.getNmsProvider().chatBase("{\"text\":\"\"}"));
 		if(event.getVersion()!=null)

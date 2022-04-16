@@ -13,7 +13,7 @@ import me.devtec.theapi.bukkit.nms.NmsProvider.PlayerInfoType;
 public class TabAPI {
 	public static void setTabListName(Player p, String name) {
 		Object obj = BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.UPDATE_DISPLAY_NAME, p);
-		Ref.set(((List<?>)Ref.get(obj,"b")).get(0), "d", BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.toComponent(StringUtils.colorize(name==null?p.getName():name), true)));
+		Ref.set(((List<?>)Ref.get(obj,"b")).get(0), "d", BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(StringUtils.colorize(name==null?p.getName():name))));
 		BukkitLoader.getNmsProvider().getOnlinePlayers().forEach(player -> BukkitLoader.getPacketHandler().send(player,  obj));
 	}
 

@@ -322,7 +322,7 @@ public class v1_7_R4 implements NmsProvider {
 
 	@Override
 	public Object packetChat(ChatType type, String text, UUID uuid) {
-		return packetChat(type, toIChatBaseComponent(ComponentAPI.toComponent(text, false)), uuid);
+		return packetChat(type, toIChatBaseComponent(ComponentAPI.fromString(text)), uuid);
 	}
 
 	@Override
@@ -910,7 +910,7 @@ public class v1_7_R4 implements NmsProvider {
 		ping.setPlayerSample(playerSample);
 
 		if (event.getMotd() != null)
-			ping.setMOTD((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(event.getMotd(), true)));
+			ping.setMOTD((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.fromString(event.getMotd())));
 		else
 			ping.setMOTD((IChatBaseComponent)BukkitLoader.getNmsProvider().chatBase("{\"text\":\"\"}"));
 		if(event.getVersion()!=null)

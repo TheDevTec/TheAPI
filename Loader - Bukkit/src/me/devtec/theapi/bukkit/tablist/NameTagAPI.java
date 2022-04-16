@@ -180,8 +180,8 @@ public class NameTagAPI {
 			try {
 				Object o = unsafe.allocateInstance(sbTeam);
 				Ref.set(o, "a", BukkitLoader.getNmsProvider().chatBase("{\"text\":\""+name+"\"}"));
-				Ref.set(o, "b", BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.toComponent(prefix, true)));
-				Ref.set(o, "c", BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.toComponent(suffix, true)));
+				Ref.set(o, "b", BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(prefix)));
+				Ref.set(o, "c", BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(suffix)));
 				Ref.set(o, "d", always);
 				Ref.set(o, "e", always);
 				Ref.set(o, "f", color==null?white:getNMSColor(color));
@@ -193,8 +193,8 @@ public class NameTagAPI {
 		}else {
 			Ref.set(packet, "a", realName);
 			Ref.set(packet, "b", Ref.isNewerThan(12)?BukkitLoader.getNmsProvider().chatBase("{\"text\":\""+name+"\"}"):"");
-			Ref.set(packet, "c", Ref.isNewerThan(12)?BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.toComponent(prefix, true)):prefix);
-			Ref.set(packet, "d", Ref.isNewerThan(12)?BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.toComponent(suffix, true)):suffix);
+			Ref.set(packet, "c", Ref.isNewerThan(12)?BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(prefix)):prefix);
+			Ref.set(packet, "d", Ref.isNewerThan(12)?BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(suffix)):suffix);
 			if(Ref.isNewerThan(7)) {
 				Ref.set(packet, "e", always);
 				Ref.set(packet, "f", Ref.isNewerThan(8) ? always : -1);

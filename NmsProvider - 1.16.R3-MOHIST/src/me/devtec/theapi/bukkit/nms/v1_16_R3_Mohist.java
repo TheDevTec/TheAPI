@@ -251,7 +251,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 			break;
 		}
 		}
-		return new SOpenWindowPacket(id, windowType, (ITextComponent)toIChatBaseComponent(ComponentAPI.toComponent(title, true)));
+		return new SOpenWindowPacket(id, windowType, (ITextComponent)toIChatBaseComponent(ComponentAPI.fromString(title)));
 	}
 	
 	public int getContainerId(Object container) {
@@ -301,8 +301,8 @@ public class v1_16_R3_Mohist implements NmsProvider {
 	public Object packetPlayerListHeaderFooter(String header, String footer) {
 		SPlayerListHeaderFooterPacket packet = new SPlayerListHeaderFooterPacket();
 		try {
-			tabHeader.set(packet, toIChatBaseComponent(ComponentAPI.toComponent(header, true)));
-			tabFooter.set(packet, toIChatBaseComponent(ComponentAPI.toComponent(footer, true)));
+			tabHeader.set(packet, toIChatBaseComponent(ComponentAPI.fromString(header)));
+			tabFooter.set(packet, toIChatBaseComponent(ComponentAPI.fromString(footer)));
 		}catch(Exception err) {}
 		return packet;
 	}
@@ -339,7 +339,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 
 	@Override
 	public Object packetTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut) {
-		return new STitlePacket(Type.valueOf(action.name()), (ITextComponent)toIChatBaseComponent(ComponentAPI.toComponent(text, true)), fadeIn, stay, fadeOut);
+		return new STitlePacket(Type.valueOf(action.name()), (ITextComponent)toIChatBaseComponent(ComponentAPI.fromString(text)), fadeIn, stay, fadeOut);
 	}
 
 	@Override
@@ -349,7 +349,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 
 	@Override
 	public Object packetChat(ChatType type, String text, UUID uuid) {
-		return packetChat(type, toIChatBaseComponent(ComponentAPI.toComponent(text, false)), uuid);
+		return packetChat(type, toIChatBaseComponent(ComponentAPI.fromString(text)), uuid);
 	}
 
 	@Override
@@ -911,7 +911,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 		ping.func_151319_a(playerSample);
 
 		if (event.getMotd() != null)
-			ping.func_151315_a((ITextComponent)toIChatBaseComponent(ComponentAPI.toComponent(event.getMotd(), true)));
+			ping.func_151315_a((ITextComponent)toIChatBaseComponent(ComponentAPI.fromString(event.getMotd())));
 		else
 			ping.func_151315_a((ITextComponent)BukkitLoader.getNmsProvider().chatBase("{\"text\":\"\"}"));
 		if(event.getVersion()!=null)

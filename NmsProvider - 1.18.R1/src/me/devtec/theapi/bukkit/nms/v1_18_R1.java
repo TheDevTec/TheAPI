@@ -211,7 +211,7 @@ public class v1_18_R1 implements NmsProvider {
 	
 	@Override
 	public Object packetResourcePackSend(String url, String hash, boolean requireRP, String prompt) {
-		return new PacketPlayOutResourcePackSend(url, hash, requireRP, prompt==null?null:(IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(prompt, true)));
+		return new PacketPlayOutResourcePackSend(url, hash, requireRP, prompt==null?null:(IChatBaseComponent)toIChatBaseComponent(ComponentAPI.fromString(prompt)));
 	}
 
 	@Override
@@ -246,7 +246,7 @@ public class v1_18_R1 implements NmsProvider {
 
 	@Override
 	public Object packetPlayerListHeaderFooter(String header, String footer) {
-		return new PacketPlayOutPlayerListHeaderFooter((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(header, true)), (IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(footer, true)));
+		return new PacketPlayOutPlayerListHeaderFooter((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.fromString(header)), (IChatBaseComponent)toIChatBaseComponent(ComponentAPI.fromString(footer)));
 	}
 
 	@Override
@@ -291,11 +291,11 @@ public class v1_18_R1 implements NmsProvider {
 	public Object packetTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut) {
 		switch(action) {
 		case ACTIONBAR:
-			return new ClientboundSetActionBarTextPacket((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(text, true)));
+			return new ClientboundSetActionBarTextPacket((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.fromString(text)));
 		case TITLE:
-			return new ClientboundSetTitleTextPacket((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(text, true)));
+			return new ClientboundSetTitleTextPacket((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.fromString(text)));
 		case SUBTITLE:
-			return new ClientboundSetSubtitleTextPacket((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(text, true)));
+			return new ClientboundSetSubtitleTextPacket((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.fromString(text)));
 		case TIMES:
 			return new ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut);
 		case CLEAR:
@@ -320,7 +320,7 @@ public class v1_18_R1 implements NmsProvider {
 
 	@Override
 	public Object packetChat(ChatType type, String text, UUID uuid) {
-		return packetChat(type, toIChatBaseComponent(ComponentAPI.toComponent(text, false)), uuid);
+		return packetChat(type, toIChatBaseComponent(ComponentAPI.fromString(text)), uuid);
 	}
 
 	@Override
@@ -653,7 +653,7 @@ public class v1_18_R1 implements NmsProvider {
 			break;
 		}
 		}
-		return new PacketPlayOutOpenWindow(id, windowType, (IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(title, true)));
+		return new PacketPlayOutOpenWindow(id, windowType, (IChatBaseComponent)toIChatBaseComponent(ComponentAPI.fromString(title)));
 	}
 	
 	@Override
@@ -873,7 +873,7 @@ public class v1_18_R1 implements NmsProvider {
 		ping.a(playerSample);
 
 		if (event.getMotd() != null)
-			ping.a((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.toComponent(event.getMotd(), true)));
+			ping.a((IChatBaseComponent)toIChatBaseComponent(ComponentAPI.fromString(event.getMotd())));
 		else
 			ping.a((IChatBaseComponent)BukkitLoader.getNmsProvider().chatBase("{\"text\":\"\"}"));
 		if(event.getVersion()!=null)
