@@ -31,7 +31,7 @@ public class HandlerList {
 			if (eh == null || method.isBridge() || method.isSynthetic())
 				continue;
 			Class<?> checkClass = method.getParameterTypes()[0];
-			if ((method.getParameterTypes()).length != 1 || !Event.class.isAssignableFrom(checkClass))
+			if (method.getParameterTypes().length != 1 || !Event.class.isAssignableFrom(checkClass))
 				continue;
 			Class<? extends Event> eventClass = checkClass.asSubclass(Event.class);
 			method.setAccessible(true);
@@ -87,9 +87,8 @@ public class HandlerList {
 	
 	public static boolean isListening(Event e) {
 		Map<Integer, List<RegisteredListener>> reg2 = getOrCreate(e.getClass().getCanonicalName()).reg;
-		for (int i = 0; i < 6; ++i) {
+		for (int i = 0; i < 6; ++i)
 			if(!reg2.get(i).isEmpty())return true;
-		}
 		return false;
 	}
 
