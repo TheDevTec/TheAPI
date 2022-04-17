@@ -21,14 +21,6 @@ public class StreamUtils {
 			return null;
 		}
 	}
-
-	public static Object fromStreamObject(File file) {
-		try {
-			return fromStreamObject(new FileInputStream(file));
-		} catch (Exception e) {
-			return null;
-		}
-	}
 	
 	public static String fromStream(InputStream stream) {
 		try {
@@ -62,5 +54,9 @@ public class StreamUtils {
 	
 	public static Object fromStreamObject(InputStream stream) {
 		return Json.reader().read(fromStream(stream));
+	}
+
+	public static Object fromStreamObject(File file) {
+		return Json.reader().read(fromStream(file));
 	}
 }
