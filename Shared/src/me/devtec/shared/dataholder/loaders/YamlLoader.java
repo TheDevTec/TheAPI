@@ -97,14 +97,14 @@ public class YamlLoader extends EmptyLoader {
 					if(!key.isEmpty())key+=".";
 					key += keyr;
 					
-					if(value.toString().trim().isEmpty()) {
+					if(value.trim().isEmpty()) {
 						value = null;
 						data.put(key, new Object[] {null, comments.isEmpty()?null:new LinkedList<>(comments)});
 						comments.clear();
 						continue;
 					}
 					
-					value=r(value.toString());
+					value=r(value);
 					
 					if (value.equals("|")) {
 						type=BuilderType.STRING;
@@ -121,7 +121,7 @@ public class YamlLoader extends EmptyLoader {
 						comments.clear();
 						continue;
 					}
-					data.put(key, new Object[] {Json.reader().read(value.toString()), comments.isEmpty()?null:new LinkedList<>(comments),value});
+					data.put(key, new Object[] {Json.reader().read(value), comments.isEmpty()?null:new LinkedList<>(comments),value});
 					comments.clear();
 				}else {
 					if(type!=null) {
