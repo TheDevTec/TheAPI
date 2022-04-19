@@ -33,7 +33,7 @@ public interface LibraryLoader {
 				file.createNewFile();
 			    OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
 			    InputStream in = url.openConnection().getInputStream();
-			    byte[] buf = new byte[1024];
+			    byte[] buf = new byte[4096];
 			    int r;
 			    while ((r = in.read(buf)) != -1)
 			        out.write(buf, 0, r);
