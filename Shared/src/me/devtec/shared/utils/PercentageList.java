@@ -2,15 +2,15 @@ package me.devtec.shared.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import me.devtec.shared.utility.StringUtils;
 
 public class PercentageList<T> {
-	private static Random random = new Random();
 	private final ConcurrentHashMap<T, Double> a = new ConcurrentHashMap<>();
 
 	public boolean add(T t, double percent) {
@@ -49,23 +49,22 @@ public class PercentageList<T> {
 
 	public T getRandom() {
 		if(a.isEmpty())return null;
+		
 		int total = (int) getTotalChance();
 		if(total <= 0)return null;
-		double chance = random.nextInt((int)total)+random.nextDouble();
+		
+		double chance = StringUtils.random.nextInt((int)total)+StringUtils.random.nextDouble();
 		return select(a,chance);
 	}
 	
 	private static <K> K select(Map<K, Double> keys, double chance) {
-		double nearest = 0;
 		@SuppressWarnings("unchecked")
 		Entry<K,Double>[] aw = keys.entrySet().toArray(new Entry[0]);
 		Entry<K,Double> found = aw[keys.size()-1];
 		for (Entry<K, Double> kDoubleEntry : aw) {
 			Entry<K, Double> e = (Entry<K, Double>) kDoubleEntry;
-			if (chance < e.getValue() && chance > nearest) {
-				nearest = e.getValue();
+			if (chance < e.getValue() && chance > found.getValue())
 				found = e;
-			}
 		}
 		return found.getKey();
 	}

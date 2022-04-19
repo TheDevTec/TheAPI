@@ -40,7 +40,7 @@ public class StringUtils {
 	
 	//DO NOT TOUCH
 	
-	private static final Random random = new Random();
+	public static final Random random = new Random();
 	//SPECIAL CHARS
 	private static final Pattern special = Pattern.compile("[^A-Z-a-z0-9_]+");
 	//CALCULATOR
