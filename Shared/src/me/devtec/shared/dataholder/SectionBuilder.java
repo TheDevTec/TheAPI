@@ -78,16 +78,10 @@ class SectionBuilder {
 	public synchronized void start(SectionHolder section, StringBuilder b) {
 		StringBuilder bab = new StringBuilder(section.name.length()+section.space.length()+2);
 		bab.append(section.space);
-		String split = section.name;
-		if(split.length()==1) { //char
-			bab.append('\'').append(split).append('\'').append(':');
-		}else
-		if(split.contains(":")) {
-			bab.append('\'').append(split).append('\'').append(':');
-		}else
-		if(split.startsWith("#")) { //starts with comment
-			bab.append('\'').append(split).append('\'').append(':');
-		}else bab.append(section.name).append(':');
+		if(section.name.length()==1 || section.name.contains(":") || section.name.startsWith("#"))
+			bab.append('\'').append(section.name).append('\'').append(':');
+		else
+			bab.append(section.name).append(':');
 		try {
 			Object[] aw = section.val;
 			if(aw==null) {
@@ -238,7 +232,7 @@ class SectionBuilder {
 		
 		public SectionHolder create(String name) {
 			SectionHolder sec = new SectionHolder(name);
-			sec.space=space+' '+' ';
+			sec.space=space+ "  ";
 			if(holders==null)holders=new LinkedList<>();
 			holders.add(sec);
 			return sec;

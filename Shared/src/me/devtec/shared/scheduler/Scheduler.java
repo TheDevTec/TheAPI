@@ -3,7 +3,7 @@ package me.devtec.shared.scheduler;
 import me.devtec.shared.API;
 
 public class Scheduler {
-	private static final MultiThread thread = new MultiThread();
+	private static final ThreadManager thread = new ThreadManager();
 
 	public static void cancelAll() {
 		thread.destroy();
