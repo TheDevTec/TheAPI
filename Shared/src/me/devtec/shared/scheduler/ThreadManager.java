@@ -41,7 +41,7 @@ public class ThreadManager implements Executor {
 	}
 	
 	public int executeWithId(int id, Runnable command) {
-		Thread t = new Thread(command, "MultiThread-Worker-"+id);
+		Thread t = new Thread(command, "ThreadManager-Worker-"+id);
 		threads.put(id, t);
 		t.start();
 		return id;
