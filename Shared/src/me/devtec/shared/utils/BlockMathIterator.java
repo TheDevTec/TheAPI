@@ -20,9 +20,6 @@ public class BlockMathIterator implements Iterable<double[]> {
 		sizeX = Math.abs(Math.max(posX, posX2) - baseX) + 1;
 		sizeY = Math.abs(Math.max(posY, posY2) - baseY) + 1;
 		sizeZ = Math.abs(Math.max(posZ, posZ2) - baseZ) + 1;
-		baseX += x;
-		baseY += y;
-		baseZ += z;
 	}
 
 	public void reset() {
@@ -36,7 +33,7 @@ public class BlockMathIterator implements Iterable<double[]> {
 	}
 
 	public double[] get() {
-		double[] b = new double[] {baseX, baseY, baseZ};
+		double[] b = new double[] {baseX + x, baseY + y, baseZ + z};
 		if (!has())return b;
 		if (++x >= sizeX) {
 			x = 0;
