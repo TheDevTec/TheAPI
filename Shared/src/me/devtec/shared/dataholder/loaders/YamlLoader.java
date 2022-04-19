@@ -2,7 +2,6 @@ package me.devtec.shared.dataholder.loaders;
 
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,12 +15,21 @@ public class YamlLoader extends EmptyLoader {
 		reset();
 		if(input==null)return;
 		try {
-			String key = "";
+			//SPACES - POSITION
 			int last = 0;
+			
+			//EXTRA BUILDER TYPE
 			BuilderType type = null;
-			List<Object> items=null;
-			StringBuilder builder=null;
-			boolean wasEmpty = false;
+			//LIST OR EXTRA BUILDER
+			LinkedList<Object> items = null;
+			//EXTRA BUILDER
+			StringBuilder builder = null;
+			
+			//BUILDER
+			String key = "";
+			String value = null;
+			
+			//COMMENTS
 			LinkedList<String> comments = new LinkedList<>();
 			
 			for(String line : input.split(System.lineSeparator())) {
@@ -36,15 +44,10 @@ public class YamlLoader extends EmptyLoader {
 					continue;
 				}
 				
-				if(wasEmpty && e.startsWith("- ")) {
+				if(!key.equals("") && e.startsWith("- ")) {
 					if(items==null)items=new LinkedList<>();
 					items.add(Json.reader().read(r(e.substring(2))));
 					continue;
-				}
-				
-				if(wasEmpty && !comments.isEmpty() && type == null && items == null) {
-					data.put(key, new Object[] {null, new LinkedList<>(comments), null});
-					comments.clear();
 				}
 				
 				Matcher match = pattern.matcher(line);
@@ -62,15 +65,14 @@ public class YamlLoader extends EmptyLoader {
 						type=null;
 					}else {
 						if(items!=null) {
-							data.put(key, new Object[] {new LinkedList<>(items), comments.isEmpty()?null:new LinkedList<>(comments)});
-							comments.clear();
+							data.get(key)[0]=new LinkedList<>(items);
 							items=null;
 						}
 					}
 					
 					int sub = match.group(1).length();
 					String keyr = r(match.group(2));
-					String value = match.group(3);
+					value = match.group(3);
 					
 					if (sub <= last) {
 						if (sub==0)
@@ -94,12 +96,15 @@ public class YamlLoader extends EmptyLoader {
 					last=sub;
 					if(!key.isEmpty())key+=".";
 					key += keyr;
-
-					if(wasEmpty)comments.clear();
-					if(wasEmpty=value.trim().isEmpty())
-						continue;
 					
-					value=r(value);
+					if(value.toString().trim().isEmpty()) {
+						value = null;
+						data.put(key, new Object[] {null, comments.isEmpty()?null:new LinkedList<>(comments)});
+						comments.clear();
+						continue;
+					}
+					
+					value=r(value.toString());
 					
 					if (value.equals("|")) {
 						type=BuilderType.STRING;
@@ -112,11 +117,11 @@ public class YamlLoader extends EmptyLoader {
 						continue;
 					}
 					if (value.equals("[]")) {
-						data.put(key, new Object[] {Collections.EMPTY_LIST, comments.isEmpty()?null:new LinkedList<>(comments),value});
+						data.put(key, new Object[] {Collections.emptyList(), comments.isEmpty()?null:new LinkedList<>(comments),value});
 						comments.clear();
 						continue;
 					}
-					data.put(key, new Object[] {Json.reader().read(value), comments.isEmpty()?null:new LinkedList<>(comments),value});
+					data.put(key, new Object[] {Json.reader().read(value.toString()), comments.isEmpty()?null:new LinkedList<>(comments),value});
 					comments.clear();
 				}else {
 					if(type!=null) {
@@ -128,21 +133,23 @@ public class YamlLoader extends EmptyLoader {
 					}
 				}
 			}
+			loaded = true;
 			if(type!=null) {
 				if(type==BuilderType.LIST) {
 					data.put(key, new Object[] {items, comments.isEmpty()?null:comments});
 				}else {
 					data.put(key, new Object[] {builder.toString(), comments.isEmpty()?null:comments});
 				}
-			}else if(items!=null)
+				return;
+			}else if(items!=null) {
 				data.put(key, new Object[] {items, comments.isEmpty()?null:comments});
-			else {
-				if(wasEmpty && !comments.isEmpty()) {
-					data.put(key, new Object[] {null, comments, null});
-				}
+				return;
 			}
-			loaded = true;
+			if(data.isEmpty() && !comments.isEmpty()) {
+				footer.addAll(comments);
+			}
 		} catch (Exception er) {
+			er.printStackTrace();
 			loaded = false;
 		}
 	}
