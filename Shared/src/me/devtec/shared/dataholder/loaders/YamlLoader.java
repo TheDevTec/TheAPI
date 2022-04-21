@@ -121,7 +121,7 @@ public class YamlLoader extends EmptyLoader {
 						comments.clear();
 						continue;
 					}
-					data.put(key, new Object[] {Json.reader().read(value), comments.isEmpty()?null:new LinkedList<>(comments),value});
+					data.put(key, new Object[] {value==null?null:Json.reader().read(value), comments.isEmpty()?null:new LinkedList<>(comments),value});
 					comments.clear();
 				}else {
 					if(type!=null) {
@@ -145,11 +145,10 @@ public class YamlLoader extends EmptyLoader {
 				data.put(key, new Object[] {items, comments.isEmpty()?null:comments});
 				return;
 			}
-			if(data.isEmpty() && !comments.isEmpty()) {
+			if(!comments.isEmpty()) {
 				footer.addAll(comments);
 			}
 		} catch (Exception er) {
-			er.printStackTrace();
 			loaded = false;
 		}
 	}
