@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -462,14 +463,78 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			Random random = new Random();
 			Pattern getLast = Pattern.compile("(#[A-Fa-f0-9k-oK-ORrXxUu]{6}|§[Xx](§[A-Fa-f0-9k-oK-ORrXxUu]){6}|§[A-Fa-f0-9k-oK-ORrXxUu]|&[Uu])");
 			Pattern hex = Pattern.compile("(#[a-fA-F0-9]{6})");
+			String rainbow = "c6ea9b5";
+			
+			char[] chars = rainbow.toCharArray();
+			AtomicInteger position = new AtomicInteger(0);
 			
 			@Override
 			public String gradient(String msg, String fromHex, String toHex) {
-				return API.basics().gradient(msg, fromHex, toHex);
+				if(Ref.isNewerThan(15)) //Hex
+					return API.basics().gradient(msg, fromHex, toHex);
+				else { //Our own rainbow
+					String split = msg.replace("", "<>");
+					
+					StringBuilder builder = new StringBuilder();
+					boolean inRainbow = false;
+					char prev = 0;
+					String formats = "";
+					
+					for(String s : split.split("<>")) {
+						if(s.isEmpty())continue;
+						char c = s.charAt(0);
+						if(prev == '&' || prev == '§') {
+							if(prev == '&' && s.charAt(0)=='u') {
+								builder.deleteCharAt(builder.length()-1); //remove & char
+								inRainbow = true;
+								prev = c;
+								continue;
+							}
+							if(inRainbow && prev == '§' && (isColor(s.charAt(0))||isFormat(s.charAt(0)))) { //color, destroy rainbow here
+								if(isFormat(s.charAt(0))) {
+									if(s.charAt(0)=='r') {
+										formats="§r";
+									}else
+										formats+="§"+s.charAt(0);
+									prev = c;
+									continue;
+								}else {
+									builder.delete(builder.length()-14, builder.length()); //remove &<random color> string
+									inRainbow = false;
+								}
+							}
+						}
+						if(c != ' ' && inRainbow) {
+							if(formats.equals("§r")) {
+								builder.append(formats); //add formats
+								builder.append(generateColor()); //add random color
+								formats="";
+							}else {
+								builder.append(generateColor()); //add random color
+								builder.append(formats); //add formats
+							}
+						}
+						builder.append(c);
+						prev = c;
+					}
+					return builder.toString();
+				}
+			}
+			
+			private boolean isColor(int charAt) {
+				return charAt >= 97 && charAt <= 102 || charAt >= 65 && charAt <= 70 || charAt >= 48 && charAt <= 57;
+			}
+			
+			private boolean isFormat(int charAt) {
+				return charAt >= 107 && charAt <= 111 || charAt == 114;
 			}
 	
 			@Override
 			public String generateColor() {
+				if(!Ref.isNewerThan(15)) {
+					if(position.get()==chars.length)position.set(0);
+					return "§"+chars[position.getAndIncrement()];
+				}
 				StringBuilder b = new StringBuilder("#");
 				for (int i = 0; i < 6; ++i)
 					b.append(characters[random.nextInt(16)]);
@@ -483,6 +548,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	
 			@Override
 			public String replaceHex(String msg) {
+				if(!Ref.isNewerThan(15)) return msg;
 				Matcher match = hex.matcher(msg);
 				while (match.find()) {
 					String color = match.group();
@@ -496,7 +562,11 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 			@Override
 			public String rainbow(String msg, String fromHex, String toHex) {
-				return API.basics().rainbow(msg, fromHex, toHex);
+				if(Ref.isNewerThan(15)) //Hex
+					return API.basics().rainbow(msg, fromHex, toHex);
+				else { //Our own rainbow
+					return gradient(msg, null, null);
+				}
 			}
 		};
 	}
