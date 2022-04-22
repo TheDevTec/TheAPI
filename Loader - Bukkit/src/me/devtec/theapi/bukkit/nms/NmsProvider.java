@@ -21,8 +21,8 @@ import me.devtec.theapi.bukkit.game.TheMaterial;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
 
 public interface NmsProvider {
-	
 	static final UUID serverUuid = UUID.randomUUID();
+	
 	public enum Action {
 		CHANGE(0), REMOVE(1);
 		
@@ -203,7 +203,10 @@ public interface NmsProvider {
 	
 	public Object getBlock(Object chunk, int x, int y, int z);
 	
-	@Deprecated //1.7.10 only
+	/**
+	 * @apiNote 1.7.10 and older support
+	 */
+	@Deprecated
 	public int getData(Object chunk, int x, int y, int z);
 	
 	public void updateLightAt(Object chunk, int x, int y, int z);
