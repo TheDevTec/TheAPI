@@ -422,7 +422,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 						e.printStackTrace();
 					}
 				}else {
-					if(Ref.isNewerThan(16) || Ref.isNewerThan(15) && Ref.serverType()==ServerType.PAPER) { //1.16.X with Paper or 1.17 and newer
+					if(Ref.isNewerThan(16) || Ref.isNewerThan(15) && Ref.serverType()==ServerType.PAPER) { //1.16.X PaperSpigot or 1.17+
 						if(lloader==null) {
 							try {
 								lloader=new SimpleClassLoader(new URL[] {file.toURI().toURL()});
