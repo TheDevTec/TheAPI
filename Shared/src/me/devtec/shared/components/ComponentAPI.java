@@ -38,7 +38,7 @@ public class ComponentAPI {
 	}
 	
 	public static Component fromString(String input, boolean hexMode) {
-		return fromString(input, hexMode, input.contains("http"));
+		return fromString(input, hexMode ? (/*Depends on version & software*/ Ref.serverType().isBukkit() && Ref.isNewerThan(15)) : false, input.contains("http"));
 	}
 	
 	public static Component fromString(String input, boolean hexMode, boolean urlMode) {
