@@ -62,11 +62,13 @@ public class DatabaseAPI {
 		private String username;
 		private String password;
 		private String attributes;
+		private String sqlType;
 		
-		public SqliteDatabaseSettings(String file, String username, String password) {
+		public SqliteDatabaseSettings(DatabaseType sqlType, String file, String username, String password) {
 			this.file=file;
 			this.username=username;
 			this.password=password;
+			this.sqlType=sqlType.getName();
 		}
 		
 		public SqliteDatabaseSettings attributes(String attributes) {
@@ -86,24 +88,30 @@ public class DatabaseAPI {
 
 		@Override
 		public String getConnectionString() {
-			return "jdbc:sqlite://" + file + (attributes==null?"":attributes);
+			return "jdbc:"+sqlType+"://" + file + (attributes==null?"":attributes);
 		}
 	}
 	
 	public enum DatabaseType {
-			MYSQL("mysql"),
-			MARIADB("mariadb"),
-			SQLSERVER("sqlserver"),
-			SQLITE("sqlite"),
-			H2("h2");
+			MYSQL("mysql", false),
+			MARIADB("mariadb", false),
+			SQLSERVER("sqlserver", false),
+			SQLITE("sqlite", true),
+			H2("h2", true);
 		
 			private String name;
-			DatabaseType(String name){
+			private boolean fileBased;
+			DatabaseType(String name, boolean fileBased){
 				this.name=name;
+				this.fileBased=fileBased;
 			}
 
-			String getName() {
+			public String getName() {
 				return name;
+			}
+			
+			public boolean isFileBased() {
+				return fileBased;
 			}
 	}
 
@@ -114,7 +122,7 @@ public class DatabaseAPI {
 			try {
 				Class.forName("org.h2.Driver"); 
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				throw new SQLException("SQL Driver not found.");
 			}
 			break;
 		case MARIADB:
@@ -122,7 +130,7 @@ public class DatabaseAPI {
 			try {
 				Class.forName("org.mariadb.jdbc.Driver");
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				throw new SQLException("SQL Driver not found.");
 			}
 			break;
 		case MYSQL:
@@ -135,7 +143,7 @@ public class DatabaseAPI {
 			try {
 				Class.forName("com.mysql.cj.jdbc.Driver");
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				throw new SQLException("SQL Driver not found.");
 			}
 			break;
 		case SQLITE:
@@ -143,7 +151,7 @@ public class DatabaseAPI {
 			try {
 				Class.forName("org.sqlite.JDBC");
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				throw new SQLException("SQL Driver not found.");
 			}
 			break;
 		case SQLSERVER:
@@ -151,15 +159,17 @@ public class DatabaseAPI {
 			try {
 				Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				throw new SQLException("SQL Driver not found.");
 			}
 			break;
 			default:
 				break;
 		}
-		return new SqlHandler(settings.getConnectionString(), settings);
+		if(!type.isFileBased() && !(settings instanceof SqliteDatabaseSettings) || type.isFileBased() && settings instanceof SqliteDatabaseSettings)
+			return new SqlHandler(settings.getConnectionString(), settings);
+		throw new SQLException("Connection DatabaseSettings are not based on specified DatabaseType.");
 	}
-
+	
 	private static void checkOrDownloadIfNeeded(String string) {
 		File file = new File("plugins/TheAPI/libraries/"+string+".jar");
 		if(!file.exists())
