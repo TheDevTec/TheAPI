@@ -4,6 +4,10 @@ import java.util.List;
 
 @SuppressWarnings("unchecked")
 public interface Bungee<T> {
+	public default T fromString(String string) {
+		return toBaseComponent(ComponentAPI.fromString(string));
+	}
+	
 	public T toBaseComponent(Component component);
 
 	public T toBaseComponent(List<Component> components);
