@@ -350,7 +350,22 @@ public class StringUtils {
 	public static String[] getLastColorsSplitFormats(String text) {
 		return StringUtils.color.getLastColors(text);
 	}
-
+	
+	/**
+	 * @apiNote Replace gradients in the List of strings
+	 * @param list Input list of strings to colorize
+	 * @return List<String>
+	 */
+	public static List<String> gradient(List<String> list) {
+		list.replaceAll(original -> gradient(original));
+		return list;
+	}
+	
+	/**
+	 * @apiNote Replace gradients in the String
+	 * @param originalMsg Input string to colorize
+	 * @return String
+	 */
 	public static String gradient(String originalMsg) {
 		if(originalMsg==null || gradientFinder == null)
 			return originalMsg;
@@ -375,8 +390,18 @@ public class StringUtils {
 	}
 	
 	/**
+	 * @apiNote Colorize List of strings with colors
+	 * @param list Texts to colorize
+	 * @return List<String>
+	 */
+	public static List<String> colorize(List<String> list) {
+		list.replaceAll(original -> colorize(original));
+		return list;
+	}
+	
+	/**
 	 * @apiNote Colorize string with colors
-	 * @param msg Text to colorize
+	 * @param original Text to colorize
 	 * @return String
 	 */
 	public static String colorize(String original) {
