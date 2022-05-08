@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -118,7 +119,7 @@ public class v1_7_R4 implements NmsProvider {
 
 	@Override
 	public Collection<? extends Player> getOnlinePlayers() {
-		return Arrays.asList(Bukkit.getOnlinePlayers());
+		return Bukkit.getOnlinePlayers().length==0 ? Collections.emptyList() : Arrays.asList(Bukkit.getOnlinePlayers());
 	}
 	
 	@Override
