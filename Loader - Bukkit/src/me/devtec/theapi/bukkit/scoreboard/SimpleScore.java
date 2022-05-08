@@ -3,17 +3,19 @@ package me.devtec.theapi.bukkit.scoreboard;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.entity.Player;
 
 import me.devtec.shared.Ref;
 
 public class SimpleScore {
-	public static final Map<String, ScoreboardAPI> scores = new ConcurrentHashMap<>();
+	public static final Map<UUID, ScoreboardAPI> scores = new ConcurrentHashMap<>();
 	private String name = "";
-	private final ArrayList<String> lines = new ArrayList<>();
+	private final List<String> lines = new ArrayList<>();
 	
 	public SimpleScore addLine(String line) {
 		lines.add(line);
@@ -51,9 +53,9 @@ public class SimpleScore {
 	}
 	
 	private ScoreboardAPI getOrCreate(Player player) {
-		ScoreboardAPI a = scores.get(player.getName());
+		ScoreboardAPI a = scores.get(player.getUniqueId());
 		if(a==null)
-			scores.put(player.getName(), a=new ScoreboardAPI(player, Ref.isNewerThan(7)?0:-1));
+			scores.put(player.getUniqueId(), a=new ScoreboardAPI(player, Ref.isNewerThan(7)?0:-1));
 		return a;
 	}
 }
