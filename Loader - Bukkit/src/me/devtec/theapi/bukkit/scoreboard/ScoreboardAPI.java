@@ -74,7 +74,7 @@ public class ScoreboardAPI {
 	public void remove() {
 		destroy();
 	}
-
+	
 	public void destroy() {
 		if(destroyed)return;
 		destroyed = true;
@@ -88,15 +88,15 @@ public class ScoreboardAPI {
 		}
 		data.clear();
 	}
-
+	
 	public void setTitle(String name) {
 		setDisplayName(name);
 	}
-
+	
 	public void setName(String name) {
 		setDisplayName(name);
 	}
-
+	
 	public void setDisplayName(String text) {
 		destroyed=false;
 		String displayName = name;
@@ -106,15 +106,15 @@ public class ScoreboardAPI {
 		if(!name.equals(displayName))
 			BukkitLoader.getPacketHandler().send(p, createObjectivePacket(2, name));
 	}
-
+	
 	public void addLine(String value) {
 		int i = -1;
 		Set<String> slots = data.getKeys(player);
 		while(!slots.contains(""+(++i)));
 		setLine(i, value);
 	}
-
-	public synchronized void setLine(int line, String valueText) {
+	
+	public void setLine(int line, String valueText) {
 		String value = StringUtils.colorize(valueText);
 		if(getLine(line)!=null && getLine(line).equals(!Ref.isNewerThan(12)?cut(value):value))return;
 		Team team = null;
@@ -131,8 +131,9 @@ public class ScoreboardAPI {
 		team.setValue(value);
 		sendLine(team, line, add);
 	}
-
+	
 	private String cut(String a) {
+		if(a.isEmpty())return a;
 		List<String> d = StringUtils.fixedSplit(a, 17);
 		if (a.length() <= 17)return d.get(0);
 		if (a.length() <= 34)return d.get(0)+d.get(1);
@@ -145,8 +146,8 @@ public class ScoreboardAPI {
 		text+=d.get(0);
 		return text;
 	}
-
-	public synchronized void removeLine(int line) {
+	
+	public void removeLine(int line) {
 		if(!data.exists(player+"."+line))return;
 		Team team = getTeam(line, line);
 		for(Object o : remove(team.currentPlayer, team.name))
@@ -154,7 +155,7 @@ public class ScoreboardAPI {
 		data.remove(player+"."+line);
 	}
 	
-	public synchronized void removeUpperLines(int line) {
+	public void removeUpperLines(int line) {
 		for(String a : data.getKeys(player)) {
 			if(Integer.parseInt(a)>line) {
 				Team team = data.getAs(player+"."+a, Team.class);
@@ -164,27 +165,27 @@ public class ScoreboardAPI {
 			}
 		}
 	}
-
+	
 	public String getLine(int line) {
 		if (data.exists(player+"."+line) && data.get(player+"."+line)!=null)
 			return ((Team) data.get(player+"."+line)).getValue();
 		return null;
 	}
-
+	
 	public List<String> getLines() {
 		List<String> lines = new ArrayList<>();
 		for(String line : data.getKeys(player))
 			lines.add(((Team) data.get(player+"."+line)).getValue());
 		return lines;
 	}
-
-	private synchronized void sendLine(Team team, int line, boolean add) {
+	
+	private void sendLine(Team team, int line, boolean add) {
 		destroyed=false;
 		team.sendLine(line);
 		if(add)
 			data.set(player+"."+line, team);
 	}
-
+	
 	private Team getTeam(int line, int realPos) {
 		Team result = data.getAs(player+"."+line, Team.class);
 		if (result==null)
@@ -214,7 +215,7 @@ public class ScoreboardAPI {
 		o[1]=BukkitLoader.getNmsProvider().packetScoreboardScore(Action.REMOVE, sbname, name, 0);
 		return o;
 	}
-
+	
 	private Object createTeamPacket(int mode, String prefix, String suffix, String name, String realName) {
 		Object packet = BukkitLoader.getNmsProvider().packetScoreboardTeam();
 		Object nameList = ImmutableList.of(name);
@@ -252,7 +253,7 @@ public class ScoreboardAPI {
 		}
 		return packet;
 	}
-
+	
 	private Object createObjectivePacket(int mode, String displayName) {
 		Object packet = BukkitLoader.getNmsProvider().packetScoreboardObjective();
 		if(Ref.isNewerThan(16)) {
@@ -297,7 +298,7 @@ public class ScoreboardAPI {
 			name=""+slot;
 		}
 		
-		public synchronized void sendLine(int line) {
+		public void sendLine(int line) {
 			if (first) {
 				if(protection.getBoolean(player+"."+name))
 					name+=protectId;
@@ -335,7 +336,7 @@ public class ScoreboardAPI {
 			}
 		}
 
-		public synchronized void setValue(String a) {
+		public void setValue(String a) {
 			if(a==null) {
 				if (!prefix.equals(""))
 					changed = true;
@@ -347,6 +348,17 @@ public class ScoreboardAPI {
 				return;
 			}
 			if (Ref.isOlderThan(13)) {
+				if(a.isEmpty()) {
+					setPlayer("");
+					if (!prefix.equals(""))
+						changed = true;
+					prefix = "";
+					if (!suffix.equals(""))
+						changed = true;
+					suffix = "";
+					return;
+				}
+				
 				List<String> d = StringUtils.fixedSplit(a, 16);
 				if (a.length() <= 16) {
 					setPlayer("");

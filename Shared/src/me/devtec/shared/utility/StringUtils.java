@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.devtec.shared.API;
+import me.devtec.shared.Ref;
 
 public class StringUtils {
 	
@@ -220,12 +221,13 @@ public class StringUtils {
 				--length;
 				a = prefix + split.substring(0, length);
 			}
-			prefix = getLastColors(a);
+			String[] last = getLastColorsSplitFormats(a);
+			prefix = (!last[0].isEmpty()?"§"+last[0]:"")+(!last[1].isEmpty()?"§"+last[1]:"");
 			splitted.add(a);
 			split = split.substring(length);
 		}
 		if(!(prefix + split).isEmpty())
-		splitted.add(prefix + split);
+			splitted.add(prefix + split);
 		return splitted;
 	}
 
@@ -410,9 +412,11 @@ public class StringUtils {
 		
 		String msg = original;
 		
-		msg = gradient(msg);
-		if (msg.contains("#"))
-			msg = StringUtils.color.replaceHex(msg);
+		if(StringUtils.color != null && /** Fast check for working #RRGGBB symbol **/ (!Ref.serverType().isBukkit() || Ref.isNewerThan(15))) {
+			msg = gradient(msg);
+			if (msg.contains("#"))
+				msg = StringUtils.color.replaceHex(msg);
+		}
 		char[] b = msg.toCharArray();
 	    for (int i = 0; i < b.length - 1; i++) {
 	      if (b[i] == '&' && has(b[i + 1])) {
@@ -421,16 +425,15 @@ public class StringUtils {
 	      }
 	    }
 	    msg = new String(b);
-		if (msg.contains("&u")) {
+		if (msg.contains("&u"))
 			msg = StringUtils.color.rainbow(msg, StringUtils.color.generateColor(), StringUtils.color.generateColor());
-		}
 		return msg;
 	}
-
+	
 	private static boolean has(int c) {
 		return c<=102 && c>=97 || c<=57 && c>=48 || c<=70 && c>=65 || c<=79 && c>=75 || c<=111 && c>=107 || c==114 || c==82 || c==88 || c==120;
 	}
-
+	
 	private static char lower(int c) {
 		switch(c) {
 		case 65:
@@ -452,7 +455,7 @@ public class StringUtils {
 				return (char)c;
 		}
 	}
-
+	
 	/**
 	 * @apiNote Join strings to one String with split ' ' @see {@link StringUtils#join(Object[], String, int, int)}
 	 * @param args Arguments
