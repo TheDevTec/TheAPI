@@ -366,7 +366,7 @@ public class v1_16_R3 implements NmsProvider {
 					modif=modif.setColor(ChatHexColor.a(c.getColor()));
 				else {
 					for(EnumChatFormat e : EnumChatFormat.values())
-						if(e.character==c.getColor().charAt(0)) {
+						if(e.character==c.colorToChar()) {
 							modif=modif.setColor(e);
 							break;
 						}
@@ -403,7 +403,7 @@ public class v1_16_R3 implements NmsProvider {
 					modif=modif.setColor(ChatHexColor.a(c.getColor()));
 				else {
 					for(EnumChatFormat e : EnumChatFormat.values())
-						if(e.character==c.getColor().charAt(0)) {
+						if(e.character==c.colorToChar()) {
 							modif=modif.setColor(e);
 							break;
 						}
@@ -440,7 +440,7 @@ public class v1_16_R3 implements NmsProvider {
 					modif=modif.setColor(ChatHexColor.a(c.getColor()));
 				else {
 					for(EnumChatFormat e : EnumChatFormat.values())
-						if(e.character==c.getColor().charAt(0)) {
+						if(e.character==c.colorToChar()) {
 							modif=modif.setColor(e);
 							break;
 						}
@@ -477,7 +477,7 @@ public class v1_16_R3 implements NmsProvider {
 					modif=modif.setColor(ChatHexColor.a(c.getColor()));
 				else {
 					for(EnumChatFormat e : EnumChatFormat.values())
-						if(e.character==c.getColor().charAt(0)) {
+						if(e.character==c.colorToChar()) {
 							modif=modif.setColor(e);
 							break;
 						}

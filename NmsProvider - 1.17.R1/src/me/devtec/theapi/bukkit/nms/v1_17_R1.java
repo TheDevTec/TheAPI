@@ -359,7 +359,7 @@ public class v1_17_R1 implements NmsProvider {
 				if(c.getColor().startsWith("#"))
 					modif=modif.setColor(ChatHexColor.a(c.getColor()));
 				else
-					modif=modif.setColor(EnumChatFormat.a(c.getColor().charAt(0)));
+					modif=modif.setColor(EnumChatFormat.a(c.colorToChar()));
 			}
 			if(c.getClickEvent()!=null)
 				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
@@ -391,7 +391,7 @@ public class v1_17_R1 implements NmsProvider {
 				if(c.getColor().startsWith("#"))
 					modif=modif.setColor(ChatHexColor.a(c.getColor()));
 				else
-					modif=modif.setColor(EnumChatFormat.a(c.getColor().charAt(0)));
+					modif=modif.setColor(EnumChatFormat.a(c.colorToChar()));
 			}
 			if(c.getClickEvent()!=null)
 				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
@@ -423,7 +423,7 @@ public class v1_17_R1 implements NmsProvider {
 				if(c.getColor().startsWith("#"))
 					modif=modif.setColor(ChatHexColor.a(c.getColor()));
 				else
-					modif=modif.setColor(EnumChatFormat.a(c.getColor().charAt(0)));
+					modif=modif.setColor(EnumChatFormat.a(c.colorToChar()));
 			}
 			if(c.getClickEvent()!=null)
 				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.a(c.getClickEvent().getAction().name().toLowerCase()), c.getClickEvent().getValue()));
@@ -455,7 +455,7 @@ public class v1_17_R1 implements NmsProvider {
 				if(c.getColor().startsWith("#"))
 					modif=modif.setColor(ChatHexColor.a(c.getColor()));
 				else
-					modif=modif.setColor(EnumChatFormat.a(c.getColor().charAt(0)));
+					modif=modif.setColor(EnumChatFormat.a(c.colorToChar()));
 			}
 			if(c.getClickEvent()!=null)
 				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.a(c.getClickEvent().getAction().name().toLowerCase()), c.getClickEvent().getValue()));

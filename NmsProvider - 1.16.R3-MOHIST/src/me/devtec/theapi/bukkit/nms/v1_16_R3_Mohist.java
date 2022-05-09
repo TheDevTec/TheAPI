@@ -389,7 +389,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 					modif=modif.func_240718_a_(Color.func_240745_a_(c.getColor()));
 				else {
 					for(TextFormatting e : TextFormatting.values())
-						if(e.toString().charAt(1)==c.getColor().charAt(0)) {
+						if(e.toString().charAt(1)==c.colorToChar()) {
 							modif=modif.func_240718_a_(Color.func_240744_a_(e));
 							break;
 						}
@@ -431,7 +431,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 					modif=modif.func_240718_a_(Color.func_240745_a_(c.getColor()));
 				else {
 					for(TextFormatting e : TextFormatting.values())
-						if(e.toString().charAt(1)==c.getColor().charAt(0)) {
+						if(e.toString().charAt(1)==c.colorToChar()) {
 							modif=modif.func_240718_a_(Color.func_240744_a_(e));
 							break;
 						}
@@ -473,7 +473,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 					modif=modif.func_240718_a_(Color.func_240745_a_(c.getColor()));
 				else {
 					for(TextFormatting e : TextFormatting.values())
-						if(e.toString().charAt(1)==c.getColor().charAt(0)) {
+						if(e.toString().charAt(1)==c.colorToChar()) {
 							modif=modif.func_240718_a_(Color.func_240744_a_(e));
 							break;
 						}
@@ -515,7 +515,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 					modif=modif.func_240718_a_(Color.func_240745_a_(c.getColor()));
 				else {
 					for(TextFormatting e : TextFormatting.values())
-						if(e.toString().charAt(1)==c.getColor().charAt(0)) {
+						if(e.toString().charAt(1)==c.colorToChar()) {
 							modif=modif.func_240718_a_(Color.func_240744_a_(e));
 							break;
 						}

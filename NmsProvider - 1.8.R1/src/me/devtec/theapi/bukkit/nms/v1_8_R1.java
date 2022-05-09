@@ -362,7 +362,7 @@ public class v1_8_R1 implements NmsProvider {
 			chat.add(current);
 			ChatModifier modif = current.getChatModifier();
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
-				modif=modif.setColor(EnumChatFormat.a(c.getColor().charAt(0)));
+				modif=modif.setColor(EnumChatFormat.a(c.colorToChar()));
 			}
 			if(c.getClickEvent()!=null)
 				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
@@ -391,7 +391,7 @@ public class v1_8_R1 implements NmsProvider {
 			chat.add(current);
 			ChatModifier modif = current.getChatModifier();
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
-				modif=modif.setColor(EnumChatFormat.a(c.getColor().charAt(0)));
+				modif=modif.setColor(EnumChatFormat.a(c.colorToChar()));
 			}
 			if(c.getClickEvent()!=null)
 				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
@@ -420,7 +420,7 @@ public class v1_8_R1 implements NmsProvider {
 			main.addSibling(current);
 			ChatModifier modif = current.getChatModifier();
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
-				modif=modif.setColor(EnumChatFormat.a(c.getColor().charAt(0)));
+				modif=modif.setColor(EnumChatFormat.a(c.colorToChar()));
 			}
 			if(c.getClickEvent()!=null)
 				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
@@ -449,7 +449,7 @@ public class v1_8_R1 implements NmsProvider {
 			main.addSibling(current);
 			ChatModifier modif = current.getChatModifier();
 			if(c.getColor()!=null && !c.getColor().isEmpty()) {
-				modif=modif.setColor(EnumChatFormat.a(c.getColor().charAt(0)));
+				modif=modif.setColor(EnumChatFormat.a(c.colorToChar()));
 			}
 			if(c.getClickEvent()!=null)
 				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
