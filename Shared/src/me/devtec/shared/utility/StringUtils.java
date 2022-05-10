@@ -175,21 +175,10 @@ public class StringUtils {
 	 * @return double
 	 */
 	public static double generateRandomDouble(double min, double max) {
-		if ((int) max == 0 || (int) min == 0 && (int) max == 0)return min;
-		boolean underZero = (int) max < 0;
-		if (underZero) {
-			min *= -1;
-			max *= -1;
-		}
-		double result = random.nextInt((int) max) + random.nextDouble();
-		if(underZero) {
-			min *= -1;
-			max *= -1;
-			result *= -1;
-		}
-		if (result <= min)return min;
-		if (result >= max)return max;
-		return result;
+		if(min == max)return min;
+		double result = generateRandomInt((int)min, (int)max) + random.nextDouble();
+		if(result > max)return max;
+	    return result;
 	}
 
 	/**
@@ -199,21 +188,8 @@ public class StringUtils {
 	 * @return int
 	 */
 	public static int generateRandomInt(int min, int max) {
-		if (max == 0 || min == 0 && max == 0)return min;
-		boolean underZero = max < 0;
-		if (underZero) {
-			min *= -1;
-			max *= -1;
-		}
-		int result = random.nextInt(max);
-		if(underZero) {
-			min *= -1;
-			max *= -1;
-			result *= -1;
-		}
-		if (result <= min)return min;
-		if (result >= max)return max;
-		return result;
+		if(min == max)return min;
+		return random.nextInt(max - min) + min;
 	}
 	
 	/**
