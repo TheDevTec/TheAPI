@@ -21,6 +21,14 @@ public class Component {
 	private String font;
 	private String insertion;
 	
+	public Component() {
+		
+	}
+	
+	public Component(String text) {
+		this.text=text;
+	}
+	
 	public Component setText(String value) {
 		text = value;
 		return this;
@@ -91,8 +99,7 @@ public class Component {
 	}
 	
 	public Component setExtra(Component extra) {
-		if(extra != this)
-			this.extra=extra;
+		this.extra=extra;
 		return extra;
 	}
 	
@@ -316,6 +323,7 @@ public class Component {
 		obfuscated = selectedComp.obfuscated;
 		underlined = selectedComp.underlined;
 		strikethrough = selectedComp.strikethrough;
+		color = selectedComp.color;
 
 		font = selectedComp.font;
 		return this;
