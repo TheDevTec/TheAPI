@@ -371,6 +371,38 @@ public class v1_16_R3_Mohist implements NmsProvider {
 	public double[] getServerTPS() {
 		return new double[] {MathHelper.func_76127_a(server.field_71311_j) * 1.0E-6D, tps[0], tps[1]};
 	}
+	
+	private ITextComponent convert(Component c) {
+		StringTextComponent current = new StringTextComponent(c.getText());
+		Style modif = current.func_150256_b();
+		if(c.getColor()!=null && !c.getColor().isEmpty()) {
+			if(c.getColor().startsWith("#"))
+				modif=modif.func_240718_a_(Color.func_240745_a_(c.getColor()));
+			else {
+				for(TextFormatting e : TextFormatting.values())
+					if(e.toString().charAt(1)==c.colorToChar()) {
+						modif=modif.func_240718_a_(Color.func_240744_a_(e));
+						break;
+					}
+			}
+		}
+		if(c.getClickEvent()!=null)
+			modif=modif.func_240715_a_(new ClickEvent(ClickEvent.Action.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+		if(c.getHoverEvent()!=null)
+			modif=modif.func_240716_a_(HoverEvent.Action.func_150684_a(c.getHoverEvent().getAction().name().toLowerCase()).func_240670_a_((ITextComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
+		if(c.isBold())
+			modif=modif.func_240720_a_(TextFormatting.BOLD);
+		if(c.isItalic())
+			modif=modif.func_240720_a_(TextFormatting.ITALIC);
+		if(c.isObfuscated())
+			modif=modif.func_240720_a_(TextFormatting.OBFUSCATED);
+		if(c.isUnderlined())
+			modif=modif.func_240720_a_(TextFormatting.UNDERLINE);
+		if(c.isStrikethrough())
+			modif=modif.func_240720_a_(TextFormatting.STRIKETHROUGH);
+		current.func_230530_a_(modif);
+		return current;
+	}
 
 	@Override
 	public Object toIChatBaseComponents(List<Component> components) {
@@ -378,165 +410,76 @@ public class v1_16_R3_Mohist implements NmsProvider {
 		chat.add(new StringTextComponent(""));
 		for(Component c : components) {
 			if(c.getText()==null||c.getText().isEmpty()) {
-				c=c.getExtra();
+				if(c.getExtra()!=null)
+					addConverted(chat, c.getExtra());
 				continue;
 			}
-			StringTextComponent current = new StringTextComponent(c.getText());
-			chat.add(current);
-			Style modif = current.func_150256_b();
-			if(c.getColor()!=null && !c.getColor().isEmpty()) {
-				if(c.getColor().startsWith("#"))
-					modif=modif.func_240718_a_(Color.func_240745_a_(c.getColor()));
-				else {
-					for(TextFormatting e : TextFormatting.values())
-						if(e.toString().charAt(1)==c.colorToChar()) {
-							modif=modif.func_240718_a_(Color.func_240744_a_(e));
-							break;
-						}
-				}
-			}
-			if(c.getClickEvent()!=null)
-				modif=modif.func_240715_a_(new ClickEvent(ClickEvent.Action.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
-			if(c.getHoverEvent()!=null)
-				modif=modif.func_240716_a_(HoverEvent.Action.func_150684_a(c.getHoverEvent().getAction().name().toLowerCase()).func_240670_a_((ITextComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
-			if(c.isBold())
-				modif=modif.func_240720_a_(TextFormatting.BOLD);
-			if(c.isItalic())
-				modif=modif.func_240720_a_(TextFormatting.ITALIC);
-			if(c.isObfuscated())
-				modif=modif.func_240720_a_(TextFormatting.OBFUSCATED);
-			if(c.isUnderlined())
-				modif=modif.func_240720_a_(TextFormatting.UNDERLINE);
-			if(c.isStrikethrough())
-				modif=modif.func_240720_a_(TextFormatting.STRIKETHROUGH);
-			current.func_230530_a_(modif);
+			chat.add(convert(c));
+			if(c.getExtra()!=null)
+				addConverted(chat, c.getExtra());
 		}
 		return chat.toArray(new ITextComponent[0]);
 	}
 
+	
+	private void addConverted(List<ITextComponent> chat, List<Component> extra) {
+		for(Component c : extra) {
+			if(c.getText()==null||c.getText().isEmpty()) {
+				if(c.getExtra()!=null)
+					addConverted(chat, c.getExtra());
+				continue;
+			}
+			chat.add(convert(c));
+		}
+	}
+
 	@Override
-	public Object toIChatBaseComponents(Component c) {
+	public Object toIChatBaseComponents(Component co) {
 		List<ITextComponent> chat = new ArrayList<>();
 		chat.add(new StringTextComponent(""));
-		while(c!=null) {
-			if(c.getText()==null||c.getText().isEmpty()) {
-				c=c.getExtra();
-				continue;
-			}
-			StringTextComponent current = new StringTextComponent(c.getText());
-			chat.add(current);
-			Style modif = current.func_150256_b();
-			if(c.getColor()!=null && !c.getColor().isEmpty()) {
-				if(c.getColor().startsWith("#"))
-					modif=modif.func_240718_a_(Color.func_240745_a_(c.getColor()));
-				else {
-					for(TextFormatting e : TextFormatting.values())
-						if(e.toString().charAt(1)==c.colorToChar()) {
-							modif=modif.func_240718_a_(Color.func_240744_a_(e));
-							break;
-						}
+		if(co.getText()!=null && !co.getText().isEmpty())
+			chat.add(convert(co));
+		if(co.getExtra()!=null)
+			for(Component c : co.getExtra()) {
+				if(c.getText()==null||c.getText().isEmpty()) {
+					if(c.getExtra()!=null)
+						addConverted(chat, c.getExtra());
+					continue;
 				}
+				chat.add(convert(c));
+				if(c.getExtra()!=null)
+					addConverted(chat, c.getExtra());
 			}
-			if(c.getClickEvent()!=null)
-				modif=modif.func_240715_a_(new ClickEvent(ClickEvent.Action.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
-			if(c.getHoverEvent()!=null)
-				modif=modif.func_240716_a_(HoverEvent.Action.func_150684_a(c.getHoverEvent().getAction().name().toLowerCase()).func_240670_a_((ITextComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
-			if(c.isBold())
-				modif=modif.func_240720_a_(TextFormatting.BOLD);
-			if(c.isItalic())
-				modif=modif.func_240720_a_(TextFormatting.ITALIC);
-			if(c.isObfuscated())
-				modif=modif.func_240720_a_(TextFormatting.OBFUSCATED);
-			if(c.isUnderlined())
-				modif=modif.func_240720_a_(TextFormatting.UNDERLINE);
-			if(c.isStrikethrough())
-				modif=modif.func_240720_a_(TextFormatting.STRIKETHROUGH);
-			current.func_230530_a_(modif);
-			c=c.getExtra();
-		}
 		return chat.toArray(new ITextComponent[0]);
 	}
 
 	@Override
-	public Object toIChatBaseComponent(Component c) {
+	public Object toIChatBaseComponent(Component co) {
 		StringTextComponent main = new StringTextComponent("");
-		while(c!=null) {
-			if(c.getText()==null||c.getText().isEmpty()) {
-				c=c.getExtra();
-				continue;
-			}
-			StringTextComponent current = new StringTextComponent(c.getText());
-			main.func_230529_a_(current);
-			Style modif = current.func_150256_b();
-			if(c.getColor()!=null && !c.getColor().isEmpty()) {
-				if(c.getColor().startsWith("#"))
-					modif=modif.func_240718_a_(Color.func_240745_a_(c.getColor()));
-				else {
-					for(TextFormatting e : TextFormatting.values())
-						if(e.toString().charAt(1)==c.colorToChar()) {
-							modif=modif.func_240718_a_(Color.func_240744_a_(e));
-							break;
-						}
+		List<ITextComponent> chat = new ArrayList<>();
+		if(co.getText()!=null && !co.getText().isEmpty())
+			chat.add(convert(co));
+		if(co.getExtra()!=null)
+			for(Component c : co.getExtra()) {
+				if(c.getText()==null||c.getText().isEmpty()) {
+					if(c.getExtra()!=null)
+						addConverted(chat, c.getExtra());
+					continue;
 				}
+				chat.add(convert(c));
+				if(c.getExtra()!=null)
+					addConverted(chat, c.getExtra());
 			}
-			if(c.getClickEvent()!=null)
-				modif=modif.func_240715_a_(new ClickEvent(ClickEvent.Action.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
-			if(c.getHoverEvent()!=null)
-				modif=modif.func_240716_a_(HoverEvent.Action.func_150684_a(c.getHoverEvent().getAction().name().toLowerCase()).func_240670_a_((ITextComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
-			if(c.isBold())
-				modif=modif.func_240720_a_(TextFormatting.BOLD);
-			if(c.isItalic())
-				modif=modif.func_240720_a_(TextFormatting.ITALIC);
-			if(c.isObfuscated())
-				modif=modif.func_240720_a_(TextFormatting.OBFUSCATED);
-			if(c.isUnderlined())
-				modif=modif.func_240720_a_(TextFormatting.UNDERLINE);
-			if(c.isStrikethrough())
-				modif=modif.func_240720_a_(TextFormatting.STRIKETHROUGH);
-			current.func_230530_a_(modif);
-			c=c.getExtra();
-		}
+		for(ITextComponent d : chat)
+			main.func_230529_a_(d);
 		return main.func_150253_a().isEmpty()?StringTextComponent.field_240750_d_:main;
 	}
 
 	@Override
 	public Object toIChatBaseComponent(List<Component> cc) {
 		StringTextComponent main = new StringTextComponent("");
-		for(Component c : cc) {
-			if(c.getText()==null||c.getText().isEmpty()) {
-				c=c.getExtra();
-				continue;
-			}
-			StringTextComponent current = new StringTextComponent(c.getText());
-			main.func_230529_a_(current);
-			Style modif = current.func_150256_b();
-			if(c.getColor()!=null && !c.getColor().isEmpty()) {
-				if(c.getColor().startsWith("#"))
-					modif=modif.func_240718_a_(Color.func_240745_a_(c.getColor()));
-				else {
-					for(TextFormatting e : TextFormatting.values())
-						if(e.toString().charAt(1)==c.colorToChar()) {
-							modif=modif.func_240718_a_(Color.func_240744_a_(e));
-							break;
-						}
-				}
-			}
-			if(c.getClickEvent()!=null)
-				modif=modif.func_240715_a_(new ClickEvent(ClickEvent.Action.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
-			if(c.getHoverEvent()!=null)
-				modif=modif.func_240716_a_(HoverEvent.Action.func_150684_a(c.getHoverEvent().getAction().name().toLowerCase()).func_240670_a_((ITextComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
-			if(c.isBold())
-				modif=modif.func_240720_a_(TextFormatting.BOLD);
-			if(c.isItalic())
-				modif=modif.func_240720_a_(TextFormatting.ITALIC);
-			if(c.isObfuscated())
-				modif=modif.func_240720_a_(TextFormatting.OBFUSCATED);
-			if(c.isUnderlined())
-				modif=modif.func_240720_a_(TextFormatting.UNDERLINE);
-			if(c.isStrikethrough())
-				modif=modif.func_240720_a_(TextFormatting.STRIKETHROUGH);
-			current.func_230530_a_(modif);
-		}
+		for(Component c : cc)
+			main.func_230529_a_((ITextComponent)toIChatBaseComponent(c));
 		return main.func_150253_a().isEmpty()?StringTextComponent.field_240750_d_:main;
 	}
 

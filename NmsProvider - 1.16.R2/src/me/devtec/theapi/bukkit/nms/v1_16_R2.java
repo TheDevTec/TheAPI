@@ -46,8 +46,8 @@ import me.devtec.theapi.bukkit.events.ServerListPingEvent.PlayerProfile;
 import me.devtec.theapi.bukkit.game.Position;
 import me.devtec.theapi.bukkit.game.TheMaterial;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
-import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
+import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils.DestinationType;
 import net.minecraft.server.v1_16_R2.BiomeManager;
@@ -348,6 +348,28 @@ public class v1_16_R2 implements NmsProvider {
 	public double[] getServerTPS() {
 		return server.recentTps;
 	}
+	
+	private IChatBaseComponent convert(Component c) {
+		ChatComponentText current = new ChatComponentText(c.getText());
+		ChatModifier modif = current.getChatModifier();
+		if(c.getColor()!=null && !c.getColor().isEmpty()) {
+			if(c.getColor().startsWith("#"))
+				modif=modif.setColor(ChatHexColor.a(c.getColor()));
+			else
+				modif=modif.setColor(EnumChatFormat.a(c.colorToChar()));
+		}
+		if(c.getClickEvent()!=null)
+			modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+		if(c.getHoverEvent()!=null)
+			modif=modif.setChatHoverable(EnumHoverAction.a(c.getHoverEvent().getAction().name().toLowerCase()).a((IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
+		modif=modif.setBold(c.isBold());
+		modif=modif.setItalic(c.isItalic());
+		modif=modif.setRandom(c.isObfuscated());
+		modif=modif.setUnderline(c.isUnderlined());
+		modif=modif.setStrikethrough(c.isStrikethrough());
+		current.setChatModifier(modif);
+		return current;
+	}
 
 	@Override
 	public Object toIChatBaseComponents(List<Component> components) {
@@ -355,125 +377,76 @@ public class v1_16_R2 implements NmsProvider {
 		chat.add(new ChatComponentText(""));
 		for(Component c : components) {
 			if(c.getText()==null||c.getText().isEmpty()) {
-				c=c.getExtra();
+				if(c.getExtra()!=null)
+					addConverted(chat, c.getExtra());
 				continue;
 			}
-			ChatComponentText current = new ChatComponentText(c.getText());
-			chat.add(current);
-			ChatModifier modif = current.getChatModifier();
-			if(c.getColor()!=null && !c.getColor().isEmpty()) {
-				if(c.getColor().startsWith("#"))
-					modif=modif.setColor(ChatHexColor.a(c.getColor()));
-				else
-					modif=modif.setColor(EnumChatFormat.a(c.colorToChar()));
-			}
-			if(c.getClickEvent()!=null)
-				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
-			if(c.getHoverEvent()!=null)
-				modif=modif.setChatHoverable(EnumHoverAction.a(c.getHoverEvent().getAction().name().toLowerCase()).a((IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
-			modif=modif.setBold(c.isBold());
-			modif=modif.setItalic(c.isItalic());
-			modif=modif.setRandom(c.isObfuscated());
-			modif=modif.setUnderline(c.isUnderlined());
-			modif=modif.setStrikethrough(c.isStrikethrough());
-			current.setChatModifier(modif);
+			chat.add(convert(c));
+			if(c.getExtra()!=null)
+				addConverted(chat, c.getExtra());
 		}
 		return chat.toArray(new IChatBaseComponent[0]);
 	}
 
+	
+	private void addConverted(List<IChatBaseComponent> chat, List<Component> extra) {
+		for(Component c : extra) {
+			if(c.getText()==null||c.getText().isEmpty()) {
+				if(c.getExtra()!=null)
+					addConverted(chat, c.getExtra());
+				continue;
+			}
+			chat.add(convert(c));
+		}
+	}
+
 	@Override
-	public Object toIChatBaseComponents(Component c) {
+	public Object toIChatBaseComponents(Component co) {
 		List<IChatBaseComponent> chat = new ArrayList<>();
 		chat.add(new ChatComponentText(""));
-		while(c!=null) {
-			if(c.getText()==null||c.getText().isEmpty()) {
-				c=c.getExtra();
-				continue;
+		if(co.getText()!=null && !co.getText().isEmpty())
+			chat.add(convert(co));
+		if(co.getExtra()!=null)
+			for(Component c : co.getExtra()) {
+				if(c.getText()==null||c.getText().isEmpty()) {
+					if(c.getExtra()!=null)
+						addConverted(chat, c.getExtra());
+					continue;
+				}
+				chat.add(convert(c));
+				if(c.getExtra()!=null)
+					addConverted(chat, c.getExtra());
 			}
-			ChatComponentText current = new ChatComponentText(c.getText());
-			chat.add(current);
-			ChatModifier modif = current.getChatModifier();
-			if(c.getColor()!=null && !c.getColor().isEmpty()) {
-				if(c.getColor().startsWith("#"))
-					modif=modif.setColor(ChatHexColor.a(c.getColor()));
-				else
-					modif=modif.setColor(EnumChatFormat.a(c.colorToChar()));
-			}
-			if(c.getClickEvent()!=null)
-				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
-			if(c.getHoverEvent()!=null)
-				modif=modif.setChatHoverable(EnumHoverAction.a(c.getHoverEvent().getAction().name().toLowerCase()).a((IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
-			modif=modif.setBold(c.isBold());
-			modif=modif.setItalic(c.isItalic());
-			modif=modif.setRandom(c.isObfuscated());
-			modif=modif.setUnderline(c.isUnderlined());
-			modif=modif.setStrikethrough(c.isStrikethrough());
-			current.setChatModifier(modif);
-			c=c.getExtra();
-		}
 		return chat.toArray(new IChatBaseComponent[0]);
 	}
 
 	@Override
-	public Object toIChatBaseComponent(Component c) {
+	public Object toIChatBaseComponent(Component co) {
 		ChatComponentText main = new ChatComponentText("");
-		while(c!=null) {
-			if(c.getText()==null||c.getText().isEmpty()) {
-				c=c.getExtra();
-				continue;
+		List<IChatBaseComponent> chat = new ArrayList<>();
+		if(co.getText()!=null && !co.getText().isEmpty())
+			chat.add(convert(co));
+		if(co.getExtra()!=null)
+			for(Component c : co.getExtra()) {
+				if(c.getText()==null||c.getText().isEmpty()) {
+					if(c.getExtra()!=null)
+						addConverted(chat, c.getExtra());
+					continue;
+				}
+				chat.add(convert(c));
+				if(c.getExtra()!=null)
+					addConverted(chat, c.getExtra());
 			}
-			ChatComponentText current = new ChatComponentText(c.getText());
-			main.addSibling(current);
-			ChatModifier modif = current.getChatModifier();
-			if(c.getColor()!=null && !c.getColor().isEmpty()) {
-				if(c.getColor().startsWith("#"))
-					modif=modif.setColor(ChatHexColor.a(c.getColor()));
-				else
-					modif=modif.setColor(EnumChatFormat.a(c.colorToChar()));
-			}
-			if(c.getClickEvent()!=null)
-				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
-			if(c.getHoverEvent()!=null)
-				modif=modif.setChatHoverable(EnumHoverAction.a(c.getHoverEvent().getAction().name()).a((IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
-			modif=modif.setBold(c.isBold());
-			modif=modif.setItalic(c.isItalic());
-			modif=modif.setRandom(c.isObfuscated());
-			modif=modif.setUnderline(c.isUnderlined());
-			modif=modif.setStrikethrough(c.isStrikethrough());
-			current.setChatModifier(modif);
-			c=c.getExtra();
-		}
+		for(IChatBaseComponent d : chat)
+			main.addSibling(d);
 		return main.getSiblings().isEmpty()?ChatComponentText.d:main;
 	}
 
 	@Override
 	public Object toIChatBaseComponent(List<Component> cc) {
 		ChatComponentText main = new ChatComponentText("");
-		for(Component c : cc) {
-			if(c.getText()==null||c.getText().isEmpty()) {
-				c=c.getExtra();
-				continue;
-			}
-			ChatComponentText current = new ChatComponentText(c.getText());
-			main.addSibling(current);
-			ChatModifier modif = current.getChatModifier();
-			if(c.getColor()!=null && !c.getColor().isEmpty()) {
-				if(c.getColor().startsWith("#"))
-					modif=modif.setColor(ChatHexColor.a(c.getColor()));
-				else
-					modif=modif.setColor(EnumChatFormat.a(c.colorToChar()));
-			}
-			if(c.getClickEvent()!=null)
-				modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
-			if(c.getHoverEvent()!=null)
-				modif=modif.setChatHoverable(EnumHoverAction.a(c.getHoverEvent().getAction().name()).a((IChatBaseComponent)toIChatBaseComponent(c.getHoverEvent().getValue())));
-			modif=modif.setBold(c.isBold());
-			modif=modif.setItalic(c.isItalic());
-			modif=modif.setRandom(c.isObfuscated());
-			modif=modif.setUnderline(c.isUnderlined());
-			modif=modif.setStrikethrough(c.isStrikethrough());
-			current.setChatModifier(modif);
-		}
+		for(Component c : cc)
+			main.addSibling((IChatBaseComponent)toIChatBaseComponent(c));
 		return main.getSiblings().isEmpty()?ChatComponentText.d:main;
 	}
 

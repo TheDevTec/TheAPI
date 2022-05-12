@@ -40,9 +40,8 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.devtec.shared.API;
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
-import me.devtec.shared.components.Adventure;
-import me.devtec.shared.components.Bungee;
 import me.devtec.shared.components.ComponentAPI;
+import me.devtec.shared.components.ComponentTransformer;
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.json.JReader;
 import me.devtec.shared.json.JWriter;
@@ -398,8 +397,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				(Ref.getClass("net.kyori.adventure.Adventure")!=null?ServerType.PAPER:ServerType.SPIGOT)
 				:ServerType.BUKKIT, Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]); //Server version
 		if(Ref.serverType()!=ServerType.BUKKIT)
-			ComponentAPI.init((Bungee<?>)Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.BungeeComponentAPI")), 
-					Ref.serverType()==ServerType.PAPER?(Adventure<?>)Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.AdventureComponentAPI")):null);
+			ComponentAPI.init((ComponentTransformer<?>)Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.BungeeComponentAPI")), 
+					Ref.serverType()==ServerType.PAPER?(ComponentTransformer<?>)Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.AdventureComponentAPI")):null);
 		if(Ref.isNewerThan(7))
 			Json.init(new ModernJsonReader(), new ModernJsonWriter()); //Modern version of Guava
 		else

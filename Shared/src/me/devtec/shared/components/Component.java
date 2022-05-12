@@ -1,11 +1,12 @@
 package me.devtec.shared.components;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Component {
 	private String text;
-	private Component extra;
+	private List<Component> extra;
 
 	//COLOR & FORMATS
 	private String color; //#RRGGBB (1.16+) or COLOR_NAME
@@ -58,6 +59,31 @@ public class Component {
 		return strikethrough;
 	}
 	
+	public Component setBold(boolean status) {
+		bold=status;
+		return this;
+	}
+	
+	public Component setItalic(boolean status) {
+		italic=status;
+		return this;
+	}
+	
+	public Component setObfuscated(boolean status) {
+		obfuscated=status;
+		return this;
+	}
+	
+	public Component setUnderlined(boolean status) {
+		underlined=status;
+		return this;
+	}
+	
+	public Component setStrikethrough(boolean status) {
+		strikethrough=status;
+		return this;
+	}
+	
 	public String getFont() {
 		return font;
 	}
@@ -94,13 +120,12 @@ public class Component {
 		return this;
 	}
 	
-	public Component getExtra() {
+	public List<Component> getExtra() {
 		return extra;
 	}
 	
-	public Component setExtra(Component extra) {
+	public void setExtra(List<Component> extra) {
 		this.extra=extra;
-		return extra;
 	}
 	
 	public String getFormats() {
@@ -134,7 +159,8 @@ public class Component {
 		builder.append(text);
 		
 		if(extra != null) {
-			builder.append(extra.toString(colorBefore, formatsBefore));
+			for(Component c : extra)
+				builder.append(c.toString(colorBefore, formatsBefore));
 		}
 		return builder.toString();
 	}
@@ -164,7 +190,8 @@ public class Component {
 		builder.append(text);
 		
 		if(extra != null) {
-			builder.append(extra.toString(colorBefore, formatsBefore));
+			for(Component c : extra)
+				builder.append(c.toString(colorBefore, formatsBefore));
 		}
 		return builder.toString();
 	}

@@ -1,5 +1,6 @@
 package me.devtec.shared.components;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,19 +14,19 @@ import me.devtec.shared.utility.StringUtils;
 
 public class ComponentAPI {
 	static Pattern url = Pattern.compile("(w{3}\\\\.|[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+:\\/\\/)?[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+\\w\\.[a-zA-Z0-9+&@#/%?=~_|!:,.;-]{1,}\\w");
-	static Bungee<?> bungee;
-	static Adventure<?> adventure;
+	static ComponentTransformer<?> bungee;
+	static ComponentTransformer<?> adventure;
 	
-	public static void init(Bungee<?> spigot, Adventure<?> adventure) {
+	public static void init(ComponentTransformer<?> spigot, ComponentTransformer<?> adventure) {
 		ComponentAPI.bungee=spigot;
 		ComponentAPI.adventure=adventure;
 	}
 
-	public static Bungee<?> bungee() {
+	public static ComponentTransformer<?> bungee() {
 		return bungee;
 	}
 
-	public static Adventure<?> adventure() {
+	public static ComponentTransformer<?> adventure() {
 		return adventure;
 	}
 	
@@ -42,9 +43,10 @@ public class ComponentAPI {
 	}
 	
 	public static Component fromString(String input, boolean hexMode, boolean urlMode) {
-		Component start = new Component();
+		Component start = new Component("");
 		Component current = start;
 		
+		List<Component> extra = new ArrayList<>();
 		StringBuilder builder = new StringBuilder();
 		char prev = 0;
 		
@@ -70,7 +72,8 @@ public class ComponentAPI {
 						if(hex.length()==7) {
 							current.setText(builder.toString()); //Current builder into text
 							builder.delete(0, builder.length()); //Clear builder
-							current = current.setExtra(new Component()); //Create new component
+							current = new Component(); //Create new component
+							extra.add(current);
 							current.setColor(hex); //Set current format component to bold
 							hex = null; //reset hex
 						}
@@ -83,7 +86,8 @@ public class ComponentAPI {
 						current.setFormatFromChar('r', false);
 					}
 					builder.delete(0, builder.length()); //Clear builder
-					current = current.setExtra(new Component()); //Create new component
+					current = new Component(); //Create new component
+					extra.add(current);
 					current.setColorFromChar(c);
 					continue;
 				}
@@ -94,7 +98,8 @@ public class ComponentAPI {
 					current.setText(builder.toString()); //Current builder into text
 					builder.delete(0, builder.length()); //Clear builder
 					Component before = current;
-					current = before.setExtra(new Component().copyOf(before)); //Create new component
+					current = new Component().copyOf(before); //Create new component
+					extra.add(current);
 					current.setFormatFromChar(c, c != 114); //Set current format to 'true' or reset all
 					continue;
 				}
@@ -116,13 +121,15 @@ public class ComponentAPI {
 						current.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, split[split.length-1]));
 						current.setText(split[split.length-1]);
 					}else {
-						current = before.setExtra(new Component().copyOf(before)); //Create new component
+						current = new Component().copyOf(before); //Create new component
+						extra.add(current);
 						current.setColor(before.getColor());
 						current.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, split[split.length-1]));
 						current.setText(split[split.length-1]);
 					}
-					
-					current = current.setExtra(new Component().copyOf(before)); //Create new component
+
+					current = new Component().copyOf(before); //Create new component
+					extra.add(current);
 					current.setColor(before.getColor());
 					builder.append(c);
 					continue;
@@ -139,12 +146,14 @@ public class ComponentAPI {
 				current.setText(builder.toString().substring(0, builder.toString().length()-split[split.length-1].length())); //Current builder into text
 				builder.delete(0, builder.length()); //Clear builder
 				Component before = current;
-				current = before.setExtra(new Component().copyOf(before)); //Create new component
+				current = new Component().copyOf(before); //Create new component
+				extra.add(current);
 				current.setColor(before.getColor());
 				current.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, split[split.length-1]));
 				current.setText(split[split.length-1]);
 			}
 		}
+		start.setExtra(extra);
 		return start;
 	}
 	
@@ -154,14 +163,20 @@ public class ComponentAPI {
 	
 	public static List<Map<String, Object>> toJsonList(Component component) {
 		List<Map<String, Object>> list = new LinkedList<>();
-		Component extra = component;
-		while(extra != null) {
-			list.add(extra.toJsonMap());
-			extra = extra.getExtra();
-		}
+		list.add(component.toJsonMap());
+		if(component.getExtra()!=null)
+			toJsonListAll(list, component.getExtra());
 		return list;
 	}
 	
+	private static void toJsonListAll(List<Map<String, Object>> list, List<Component> extra) {
+		for(Component c : extra) {
+			list.add(c.toJsonMap());
+			if(c.getExtra()!=null)
+				toJsonListAll(list, c.getExtra());
+		}
+	}
+
 	public static List<Map<String, Object>> toJsonList(String text) {
 		return toJsonList(fromString(text));
 	}
@@ -191,19 +206,18 @@ public class ComponentAPI {
 							remove=true;
 							}
 						}catch(Exception err) {}
-						while(c!=null){
-							Map<String, Object> d = c.toJsonMap();
-							if(!d.containsKey("color") && text.containsKey("color"))
-								d.put("color", text.get("color"));
-							if(hover!=null && !d.containsKey("hoverEvent"))
-								d.put("hoverEvent", hover);
-							if(click!=null && !d.containsKey("clickEvent"))
-								d.put("clickEvent", click);
-							if(interact!=null && !d.containsKey("insertation"))
-								d.put("insertion", interact);
-							it.add(d);
-							c=c.getExtra();
-						}
+						Map<String, Object> d = c.toJsonMap();
+						if(!d.containsKey("color") && text.containsKey("color"))
+							d.put("color", text.get("color"));
+						if(hover!=null && !d.containsKey("hoverEvent"))
+							d.put("hoverEvent", hover);
+						if(click!=null && !d.containsKey("clickEvent"))
+							d.put("clickEvent", click);
+						if(interact!=null && !d.containsKey("insertation"))
+							d.put("insertion", interact);
+						it.add(d);
+						if(c.getExtra()!=null)
+							fixJsonListAll(it, c.getExtra());
 					}
 
 				}else
@@ -217,6 +231,14 @@ public class ComponentAPI {
 		return lists;
 	}
 	
+	private static void fixJsonListAll(ListIterator<Map<String, Object>> list, List<Component> extra) {
+		for(Component c : extra) {
+			list.add(c.toJsonMap());
+			if(c.getExtra()!=null)
+				fixJsonListAll(list, c.getExtra());
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	public static String listToString(List<?> list) {
 		StringBuilder string = new StringBuilder(list.size()*16);

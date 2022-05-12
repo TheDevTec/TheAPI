@@ -1,9 +1,10 @@
 package me.devtec.shared.components;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import me.devtec.shared.json.Json;
 import net.kyori.adventure.key.Key;
@@ -12,36 +13,98 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.format.TextDecoration.State;
 
-public class AdventureComponentAPI<T> implements Adventure<net.kyori.adventure.text.Component> {
+public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.adventure.text.Component> {
 	
-	public net.kyori.adventure.text.Component toBaseComponent(Component component) {
-		TextComponent base = net.kyori.adventure.text.Component.text("");
-		while(component!=null) {
-			TextComponent sub = net.kyori.adventure.text.Component.text(component.getText());
-			sub=sub.color(component.getColor().startsWith("#") ? TextColor.fromHexString(component.getColor()) : NamedTextColor.NAMES.value(component.getColor()));
-			if(component.isBold())
-				sub=sub.decorate(TextDecoration.BOLD);
-			if(component.isItalic())
-				sub=sub.decorate(TextDecoration.ITALIC);
-			if(component.isObfuscated())
-				sub=sub.decorate(TextDecoration.OBFUSCATED);
-			if(component.isUnderlined())
-				sub=sub.decorate(TextDecoration.UNDERLINED);
-			if(component.isStrikethrough())
-				sub=sub.decorate(TextDecoration.STRIKETHROUGH);
-			if(component.getClickEvent()!=null)
-				sub=sub.clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.valueOf(component.getClickEvent().getAction().name()), component.getClickEvent().getValue()));
-			if(component.getHoverEvent()!=null)
-				sub=sub.hoverEvent(makeHover(component.getHoverEvent()));
-			sub=sub.insertion(component.getInsertion());
-			sub=(TextComponent) sub.font(Key.key(component.getFont()));
-			base.append(sub);
-			component=component.getExtra();
+	@Override
+	public Component toComponent(net.kyori.adventure.text.Component value) {
+		Component base = new Component("");
+		List<Component> extra = new ArrayList<>();
+		if(!value.toString().isEmpty()) {
+			extra.add(convert(value));
 		}
+		for(net.kyori.adventure.text.Component extras : value.children()) 
+			doMagicLoop(extra, extras);
+		base.setExtra(extra);
+		return base;
+	}
+	
+	private void doMagicLoop(List<Component> sub, net.kyori.adventure.text.Component value) {
+		for(net.kyori.adventure.text.Component extra : value.children())
+			sub.add(convert(extra));
+	}
+	
+	private Component convert(net.kyori.adventure.text.Component value) {
+		Component sub = new Component(value instanceof TextComponent ? ((TextComponent)value).content() : value.toString());
+		if(value.color()!=null)
+			sub.setColor(value.color().asHexString());
+		sub.setFont(value.font().asString());
+		sub.setBold(value.style().decorations().getOrDefault(TextDecoration.BOLD, State.NOT_SET)==State.TRUE);
+		sub.setItalic(value.style().decorations().getOrDefault(TextDecoration.ITALIC, State.NOT_SET)==State.TRUE);
+		sub.setObfuscated(value.style().decorations().getOrDefault(TextDecoration.OBFUSCATED, State.NOT_SET)==State.TRUE);
+		sub.setStrikethrough(value.style().decorations().getOrDefault(TextDecoration.STRIKETHROUGH, State.NOT_SET)==State.TRUE);
+		sub.setUnderlined(value.style().decorations().getOrDefault(TextDecoration.UNDERLINED, State.NOT_SET)==State.TRUE);
+		//HOVEREVENT CONVERSION IS UNSUPPORTED
+		// Help wanted
+		//if(value.hoverEvent()!=null)
+		//	sub.setHoverEvent(new me.devtec.shared.components.HoverEvent(me.devtec.shared.components.HoverEvent.Action.valueOf(value.hoverEvent().action().name()), value.hoverEvent().value()));
+		if(value.clickEvent()!=null)
+			sub.setClickEvent(new me.devtec.shared.components.ClickEvent(me.devtec.shared.components.ClickEvent.Action.valueOf(value.clickEvent().action().name()), value.clickEvent().value()));
+		sub.setInsertion(value.insertion());
+		return sub;
+	}
+
+	@Override
+	public net.kyori.adventure.text.Component fromComponent(Component component) {
+		TextComponent base = net.kyori.adventure.text.Component.text("");
+		List<net.kyori.adventure.text.Component> extra = new ArrayList<>();
+		extra.add(convert(component));
+		if(component.getExtra()!=null)
+			convertAll(extra, component.getExtra());
 		return base;
 	}
 
+	private void convertAll(List<net.kyori.adventure.text.Component> extra, List<Component> extra2) {
+		for(Component c : extra2) {
+			extra.add(convert(c));
+			if(c.getExtra()!=null) {
+				convertAll(extra, c.getExtra());
+			}
+		}
+	}
+
+	private net.kyori.adventure.text.Component convert(Component component) {
+		TextComponent sub = net.kyori.adventure.text.Component.text(component.getText());
+		sub=sub.color(component.getColor().startsWith("#") ? TextColor.fromHexString(component.getColor()) : NamedTextColor.NAMES.value(component.getColor()));
+		if(component.isBold())
+			sub=sub.decorate(TextDecoration.BOLD);
+		if(component.isItalic())
+			sub=sub.decorate(TextDecoration.ITALIC);
+		if(component.isObfuscated())
+			sub=sub.decorate(TextDecoration.OBFUSCATED);
+		if(component.isUnderlined())
+			sub=sub.decorate(TextDecoration.UNDERLINED);
+		if(component.isStrikethrough())
+			sub=sub.decorate(TextDecoration.STRIKETHROUGH);
+		if(component.getClickEvent()!=null)
+			sub=sub.clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.valueOf(component.getClickEvent().getAction().name()), component.getClickEvent().getValue()));
+		if(component.getHoverEvent()!=null)
+			sub=sub.hoverEvent(makeHover(component.getHoverEvent()));
+		sub=sub.insertion(component.getInsertion());
+		sub=(TextComponent) sub.font(Key.key(component.getFont()));
+		return sub;
+	}
+
+	@Override
+	public net.kyori.adventure.text.Component fromComponent(List<Component> components) {
+		TextComponent base = net.kyori.adventure.text.Component.text("");
+		for(Component component : components) {
+			base.append(fromComponent(component));
+		}
+		return base;
+	}
+	
 	@SuppressWarnings("unchecked")
 	private net.kyori.adventure.text.event.HoverEvent<?> makeHover(HoverEvent hoverEvent) {
 		Map<String,Object> map = (Map<String, Object>) Json.reader().simpleRead(hoverEvent.getValue().getText());
@@ -53,22 +116,14 @@ public class AdventureComponentAPI<T> implements Adventure<net.kyori.adventure.t
 		
 		switch(hoverEvent.getAction()) {
 		case SHOW_ENTITY:
-			return net.kyori.adventure.text.event.HoverEvent.showEntity(Key.key("minecraft:"+value.getOrDefault("type","pig")), UUID.fromString(value.getOrDefault("id",UUID.randomUUID().toString())+""), value.get("name")==null?null:toBaseComponent(ComponentAPI.fromString(value.get("name")+"")));
+			return net.kyori.adventure.text.event.HoverEvent.showEntity(Key.key("minecraft:"+value.getOrDefault("type","pig")), UUID.fromString(value.getOrDefault("id",UUID.randomUUID().toString())+""), value.get("name")==null?null:fromComponent(ComponentAPI.fromString(value.get("name")+"")));
 		case SHOW_ITEM:
 			return net.kyori.adventure.text.event.HoverEvent.showItem(Key.key("minecraft:"+value.getOrDefault("id","air")), (int)(double)value.getOrDefault("count",1.0), BinaryTagHolder.binaryTagHolder(Json.writer().simpleWrite(value.getOrDefault("tag",new ConcurrentHashMap<>()))));
 		case SHOW_TEXT:
-			return net.kyori.adventure.text.event.HoverEvent.showText(toBaseComponent(hoverEvent.getValue()));
+			return net.kyori.adventure.text.event.HoverEvent.showText(fromComponent(hoverEvent.getValue()));
 			default:
 				break;
 		}
 		return null;
-	}
-
-	public net.kyori.adventure.text.Component toBaseComponent(List<Component> components) {
-		TextComponent base = net.kyori.adventure.text.Component.text("");
-		for(Component component : components) {
-			base.append(toBaseComponent(component));
-		}
-		return base;
 	}
 }
