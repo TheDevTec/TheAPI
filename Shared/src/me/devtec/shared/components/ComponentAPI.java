@@ -2,6 +2,7 @@ package me.devtec.shared.components;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -14,35 +15,49 @@ import me.devtec.shared.utility.StringUtils;
 
 public class ComponentAPI {
 	static Pattern url = Pattern.compile("(w{3}\\\\.|[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+:\\/\\/)?[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+\\w\\.[a-zA-Z0-9+&@#/%?=~_|!:,.;-]{1,}\\w");
+	static Map<String, ComponentTransformer<?>> transformers = new HashMap<>();
 	static ComponentTransformer<?> bungee;
 	static ComponentTransformer<?> adventure;
 	
-	public static void init(ComponentTransformer<?> spigot, ComponentTransformer<?> adventure) {
-		ComponentAPI.bungee=spigot;
-		ComponentAPI.adventure=adventure;
+	public static ComponentTransformer<?> transformer(String name) {
+		return transformers.get(name.toUpperCase());
+	}
+	
+	public static ComponentTransformer<?> registerTransformer(String name, ComponentTransformer<?> transformer) {
+		if(transformers.put(name.toUpperCase(), transformer)!=null)
+			System.out.println("[TheAPI] Overriding "+name.toUpperCase()+" transformer.");
+		return transformer;
+	}
+	
+	public static ComponentTransformer<?> unregisterTransformer(String name) {
+		return transformers.remove(name.toUpperCase());
 	}
 
 	public static ComponentTransformer<?> bungee() {
-		return bungee;
+		return transformer("BUNGEECORD");
 	}
 
 	public static ComponentTransformer<?> adventure() {
-		return adventure;
+		return transformer("ADVENTURE");
 	}
 	
 	public static String toString(Component input) {
+		if(input==null)return null;
 		return input.toString(); //Are you lazy or stupid?
 	}
 	
 	public static Component fromString(String input) {
+		if(input==null)return null;
 		return fromString(input, /*Depends on version & software*/ Ref.serverType().isBukkit() && Ref.isNewerThan(15), input.contains("http"));
 	}
 	
 	public static Component fromString(String input, boolean hexMode) {
+		if(input==null)return null;
 		return fromString(input, hexMode ? (/*Depends on version & software*/ Ref.serverType().isBukkit() && Ref.isNewerThan(15)) : false, input.contains("http"));
 	}
 	
 	public static Component fromString(String input, boolean hexMode, boolean urlMode) {
+		if(input==null)return null;
 		Component start = new Component("");
 		Component current = start;
 		
