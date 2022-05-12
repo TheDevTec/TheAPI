@@ -396,9 +396,11 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor")!=null?
 				(Ref.getClass("net.kyori.adventure.Adventure")!=null?ServerType.PAPER:ServerType.SPIGOT)
 				:ServerType.BUKKIT, Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]); //Server version
-		if(Ref.serverType()!=ServerType.BUKKIT)
-			ComponentAPI.init((ComponentTransformer<?>)Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.BungeeComponentAPI")), 
-					Ref.serverType()==ServerType.PAPER?(ComponentTransformer<?>)Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.AdventureComponentAPI")):null);
+		if(Ref.serverType()!=ServerType.BUKKIT) {
+			ComponentAPI.registerTransformer("BUNGEECORD", (ComponentTransformer<?>)Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.BungeeComponentAPI")));
+			if(Ref.serverType()==ServerType.PAPER)
+				ComponentAPI.registerTransformer("ADVENTURE", (ComponentTransformer<?>)Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.AdventureComponentAPI")));
+		}
 		if(Ref.isNewerThan(7))
 			Json.init(new ModernJsonReader(), new ModernJsonWriter()); //Modern version of Guava
 		else

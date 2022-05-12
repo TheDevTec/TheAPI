@@ -16,8 +16,6 @@ import me.devtec.shared.utility.StringUtils;
 public class ComponentAPI {
 	static Pattern url = Pattern.compile("(w{3}\\\\.|[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+:\\/\\/)?[a-zA-Z0-9+&@#/%?=~_|!:,.;-]+\\w\\.[a-zA-Z0-9+&@#/%?=~_|!:,.;-]{1,}\\w");
 	static Map<String, ComponentTransformer<?>> transformers = new HashMap<>();
-	static ComponentTransformer<?> bungee;
-	static ComponentTransformer<?> adventure;
 	
 	public static ComponentTransformer<?> transformer(String name) {
 		return transformers.get(name.toUpperCase());

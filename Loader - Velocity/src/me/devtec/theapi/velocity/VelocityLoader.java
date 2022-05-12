@@ -84,7 +84,7 @@ public class VelocityLoader {
 		API.initOfflineCache(server.getConfiguration().isOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));
 		
 	    Ref.init(ServerType.VELOCITY, server.getVersion().getVersion()); //Server version
-	    ComponentAPI.init(null, new AdventureComponentAPI<>());
+	    ComponentAPI.registerTransformer("ADVENTURE", new AdventureComponentAPI<>());
 	    Json.init(new ModernJsonReader(), new ModernJsonWriter()); //Modern version of Guava
 	    API.library = new LibraryLoader() {
 	        List<File> loaded = new ArrayList<>();

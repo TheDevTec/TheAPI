@@ -15,6 +15,7 @@ import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
 import me.devtec.shared.components.BungeeComponentAPI;
 import me.devtec.shared.components.ComponentAPI;
+import me.devtec.shared.components.ComponentTransformer;
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.json.Json;
 import me.devtec.shared.json.modern.ModernJsonReader;
@@ -72,7 +73,9 @@ public class BungeeLoader extends Plugin implements Listener {
 		API.initOfflineCache(ProxyServer.getInstance().getConfig().isOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));
 		
 		Ref.init(ServerType.BUNGEECORD, ProxyServer.getInstance().getVersion()); //Server version
-		ComponentAPI.init(new BungeeComponentAPI<>(), null);
+		ComponentAPI.registerTransformer("BUNGEECORD", new BungeeComponentAPI<>());
+		if(Ref.getClass("net.kyori.adventure.text.Component")!=null)
+			ComponentAPI.registerTransformer("ADVENTURE", (ComponentTransformer<?>)Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.AdventureComponentAPI")));
 		Json.init(new ModernJsonReader(), new ModernJsonWriter()); //Modern version of Guava
 		API.library = new LibraryLoader() {
 			List<File> loaded = new ArrayList<>();
