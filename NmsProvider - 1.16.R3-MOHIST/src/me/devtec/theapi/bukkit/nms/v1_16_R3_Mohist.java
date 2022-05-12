@@ -40,7 +40,7 @@ import io.netty.channel.Channel;
 import me.devtec.shared.Ref;
 import me.devtec.shared.components.Component;
 import me.devtec.shared.components.ComponentAPI;
-import me.devtec.shared.events.HandlerList;
+import me.devtec.shared.events.EventManager;
 import me.devtec.shared.scheduler.Tasker;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.BukkitLoader.InventoryClickType;
@@ -839,7 +839,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 		ServerListPingEvent event = new ServerListPingEvent(Bukkit.getOnlinePlayers().size(),
 				Bukkit.getMaxPlayers(), players, Bukkit.getMotd(), ping.func_151316_d(),
 				((InetSocketAddress) ((Channel)channel).remoteAddress()).getAddress(), ping.func_151322_c().func_151303_a(), ping.func_151322_c().func_151304_b());
-		HandlerList.callEvent(event);
+		EventManager.call(event);
 		if (event.isCancelled())
 			return true;
 		Players playerSample = new Players(event.getMaxPlayers(), event.getOnlinePlayers());

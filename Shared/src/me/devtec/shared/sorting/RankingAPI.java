@@ -35,7 +35,7 @@ public class RankingAPI<K, V> {
 	}
 
 	public void load(Map<K, V> map) {
-		s = SortingAPI.sortByValueArray(map);
+		s = SortingAPI.sortByValueArray(map, true);
 	}
 
 	@Deprecated

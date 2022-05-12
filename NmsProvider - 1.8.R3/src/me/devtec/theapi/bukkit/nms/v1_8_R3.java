@@ -37,7 +37,7 @@ import io.netty.channel.Channel;
 import me.devtec.shared.Ref;
 import me.devtec.shared.components.Component;
 import me.devtec.shared.components.ComponentAPI;
-import me.devtec.shared.events.HandlerList;
+import me.devtec.shared.events.EventManager;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.BukkitLoader.InventoryClickType;
 import me.devtec.theapi.bukkit.events.ServerListPingEvent;
@@ -844,7 +844,7 @@ public class v1_8_R3 implements NmsProvider {
 		ServerListPingEvent event = new ServerListPingEvent(Bukkit.getOnlinePlayers().size(),
 				Bukkit.getMaxPlayers(), players, Bukkit.getMotd(), ping.d(),
 				((InetSocketAddress) ((Channel)channel).remoteAddress()).getAddress(), ping.c().a(), ping.c().b());
-		HandlerList.callEvent(event);
+		EventManager.call(event);
 		if (event.isCancelled())
 			return true;
 		ServerPingPlayerSample playerSample = new ServerPingPlayerSample(event.getMaxPlayers(), event.getOnlinePlayers());
