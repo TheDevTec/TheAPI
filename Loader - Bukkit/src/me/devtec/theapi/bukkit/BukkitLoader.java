@@ -146,7 +146,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		new PacketListener() {
 			
 			@Override
-			public boolean PacketPlayOut(String player, Object packet, Object channel) {
+			public boolean playOut(String player, Object packet, Object channel) {
 				return false;
 			}
 
@@ -169,7 +169,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				return var1.toString();
 			}
 			
-			public boolean PacketPlayIn(String nick, Object packet, Object channel) {
+			public boolean playIn(String nick, Object packet, Object channel) {
 				if(nick==null)return false; //NPC
 				//ResourcePackAPI
 				if(resource!=null && packet.getClass()==resource) {

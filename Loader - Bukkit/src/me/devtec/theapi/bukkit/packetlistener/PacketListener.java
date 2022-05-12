@@ -31,7 +31,7 @@ public abstract class PacketListener {
 		return priority;
 	}
 
-	public abstract boolean PacketPlayOut(String player, Object packet, Object channel);
+	public abstract boolean playOut(String player, Object packet, Object channel);
 
-	public abstract boolean PacketPlayIn(String player, Object packet, Object channel);
+	public abstract boolean playIn(String player, Object packet, Object channel);
 }
