@@ -4,12 +4,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import me.devtec.shared.dataholder.Config;
+import me.devtec.shared.events.EventManager;
+import me.devtec.shared.events.api.ClientReceiveMessageEvent;
 import me.devtec.shared.scheduler.Tasker;
 
 public class Server {
@@ -129,6 +131,7 @@ public class Server {
 	}
 	
 	protected void read(ServerClient client, final Config data) {
+		EventManager.call(new ClientReceiveMessageEvent(client, data));
 		readers.forEach(a -> {
 			a.read(client, data);
 		});
