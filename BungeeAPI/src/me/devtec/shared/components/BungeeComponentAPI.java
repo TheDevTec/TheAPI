@@ -1,4 +1,4 @@
-package me.devtec.shared.components;
+ package me.devtec.shared.components;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ public class BungeeComponentAPI<T> implements ComponentTransformer<BaseComponent
 	private Component convert(BaseComponent value) {
 		Component sub = new Component(value.toPlainText());
 		if(value.getColor()!=null)
-			sub.setColor(value.getColor().getName());
+			sub.setColor(value.getColor().getName().toLowerCase());
 		sub.setFont(value.getFont());
 		sub.setBold(value.isBold());
 		sub.setItalic(value.isItalic());
@@ -53,29 +53,29 @@ public class BungeeComponentAPI<T> implements ComponentTransformer<BaseComponent
 
 	@Override
 	public BaseComponent fromComponent(Component component) {
-		TextComponent base = new TextComponent("");
-		List<TextComponent> extra = new ArrayList<>();
-		extra.add(convert(component));
+		TextComponent base = convert(component);
 		if(component.getExtra()!=null)
-			convertAll(extra, component.getExtra());
+			convertAll(base, component.getExtra());
 		return base;
 	}
 
-	private void convertAll(List<TextComponent> extra, List<Component> extra2) {
+	private void convertAll(TextComponent base, List<Component> extra2) {
 		for(Component c : extra2) {
-			extra.add(convert(c));
+			base.addExtra(convert(c));
 			if(c.getExtra()!=null) {
-				convertAll(extra, c.getExtra());
+				convertAll(base, c.getExtra());
 			}
 		}
 	}
 
 	private TextComponent convert(Component component) {
 		TextComponent sub = new TextComponent(component.getText());
-		if(Ref.serverType()==ServerType.BUNGEECORD || Ref.isNewerThan(15))
-			sub.setColor(ChatColor.of(component.getColor()));
-		else
-			sub.setColor(ChatColor.valueOf(component.getColor()));
+		if(component.getColor()!=null) {
+			if(component.getColor().startsWith("#") && (!Ref.serverType().isBukkit() || Ref.isNewerThan(15)))
+				sub.setColor(ChatColor.of(component.getColor()));
+			else
+				sub.setColor(ChatColor.valueOf(component.getColor().toUpperCase()));
+		}
 		sub.setBold(component.isBold());
 		sub.setItalic(component.isItalic());
 		sub.setObfuscated(component.isObfuscated());
@@ -87,17 +87,32 @@ public class BungeeComponentAPI<T> implements ComponentTransformer<BaseComponent
 			sub.setHoverEvent(new HoverEvent(HoverEvent.Action.valueOf(component.getHoverEvent().getAction().name()), fromComponents(component.getHoverEvent().getValue())));
 		if(Ref.serverType()==ServerType.BUNGEECORD || Ref.isNewerThan(8))
 			sub.setInsertion(component.getInsertion());
-		if(component.getFont() != null && (Ref.serverType()==ServerType.BUNGEECORD || Ref.isNewerThan(15)))
+		if(component.getFont() != null && (!Ref.serverType().isBukkit() || Ref.isNewerThan(15)))
 			sub.setFont(component.getFont());
 		return sub;
 	}
 
 	@Override
 	public BaseComponent fromComponent(List<Component> components) {
-		TextComponent base = new TextComponent("");
+		BaseComponent base = new TextComponent("");
+		boolean first = false;
 		for(Component component : components) {
+			if(first) {
+				first=false;
+				base=fromComponent(component);
+			}else
 			base.addExtra(fromComponent(component));
 		}
 		return base;
+	}
+
+	@Override
+	public BaseComponent[] fromComponents(Component component) {
+		return new BaseComponent[] {fromComponent(component)};
+	}
+
+	@Override
+	public BaseComponent[] fromComponents(List<Component> components) {
+		return new BaseComponent[] {fromComponent(components)};
 	}
 }

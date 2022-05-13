@@ -19,11 +19,8 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 	
 	@Override
 	public Component toComponent(net.kyori.adventure.text.Component value) {
-		Component base = new Component("");
+		Component base = convert(value);
 		List<Component> extra = new ArrayList<>();
-		if(!value.toString().isEmpty()) {
-			extra.add(convert(value));
-		}
 		for(net.kyori.adventure.text.Component extras : value.children()) 
 			doMagicLoop(extra, extras);
 		base.setExtra(extra);
@@ -57,20 +54,17 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 
 	@Override
 	public net.kyori.adventure.text.Component fromComponent(Component component) {
-		TextComponent base = net.kyori.adventure.text.Component.text("");
-		List<net.kyori.adventure.text.Component> extra = new ArrayList<>();
-		extra.add(convert(component));
+		net.kyori.adventure.text.Component base = convert(component);
 		if(component.getExtra()!=null)
-			convertAll(extra, component.getExtra());
+			convertAll(base, component.getExtra());
 		return base;
 	}
 
-	private void convertAll(List<net.kyori.adventure.text.Component> extra, List<Component> extra2) {
+	private void convertAll(net.kyori.adventure.text.Component base, List<Component> extra2) {
 		for(Component c : extra2) {
-			extra.add(convert(c));
-			if(c.getExtra()!=null) {
-				convertAll(extra, c.getExtra());
-			}
+			base.append(convert(c));
+			if(c.getExtra()!=null)
+				convertAll(base, c.getExtra());
 		}
 	}
 
@@ -98,8 +92,13 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 
 	@Override
 	public net.kyori.adventure.text.Component fromComponent(List<Component> components) {
-		TextComponent base = net.kyori.adventure.text.Component.text("");
+		net.kyori.adventure.text.Component base = net.kyori.adventure.text.Component.text("");
+		boolean first = true;
 		for(Component component : components) {
+			if(first) {
+				first=false;
+				base=fromComponent(component);
+			}else
 			base.append(fromComponent(component));
 		}
 		return base;
@@ -125,5 +124,15 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 				break;
 		}
 		return null;
+	}
+
+	@Override
+	public net.kyori.adventure.text.Component[] fromComponents(Component component) {
+		return new net.kyori.adventure.text.Component[] {fromComponent(component)};
+	}
+
+	@Override
+	public net.kyori.adventure.text.Component[] fromComponents(List<Component> components) {
+		return new net.kyori.adventure.text.Component[] {fromComponent(components)};
 	}
 }

@@ -5,7 +5,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/BungeeAPI"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/AdventureAPI"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
-	<classpathentry kind="lib" path="C:/EclipseUtils/spigot-1.17.1.jar"/>
+	<classpathentry kind="lib" path="C:/EclipseUtils/MC/spigot-1.17.jar"/>
 	<classpathentry kind="lib" path="C:/EclipseUtils/PlaceholderAPI-2.11.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

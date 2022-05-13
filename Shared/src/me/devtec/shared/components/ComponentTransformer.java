@@ -3,7 +3,6 @@ package me.devtec.shared.components;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("unchecked")
 public interface ComponentTransformer<T> {
 	public default T fromString(String string) {
 		return fromComponent(ComponentAPI.fromString(string));
@@ -25,11 +24,7 @@ public interface ComponentTransformer<T> {
 
 	public T fromComponent(List<Component> components);
 	
-	public default T[] fromComponents(Component component) {
-		return (T[])new Object[] {fromComponent(component)};
-	}
+	public T[] fromComponents(Component component);
 	
-	public default T[] fromComponents(List<Component> components) {
-		return (T[])new Object[] {fromComponent(components)};
-	}
+	public T[] fromComponents(List<Component> components);
 }

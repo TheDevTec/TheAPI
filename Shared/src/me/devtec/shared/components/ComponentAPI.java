@@ -56,11 +56,11 @@ public class ComponentAPI {
 	
 	public static Component fromString(String input, boolean hexMode, boolean urlMode) {
 		if(input==null)return null;
-		Component start = new Component("");
+		final Component start = new Component("");
 		Component current = start;
 		
-		List<Component> extra = new ArrayList<>();
-		StringBuilder builder = new StringBuilder();
+		final List<Component> extra = new ArrayList<>();
+		final StringBuilder builder = new StringBuilder();
 		char prev = 0;
 		
 		//REQUIRES hexMode ENABLED

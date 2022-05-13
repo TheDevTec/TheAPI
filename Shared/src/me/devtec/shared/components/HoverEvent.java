@@ -12,6 +12,10 @@ public class HoverEvent {
 		this.action=action;
 		this.value=value;
 	}
+
+	public HoverEvent(Action action, String value) {
+		this(action, ComponentAPI.fromString(value));
+	}
 	
 	public HoverEvent setAction(Action action) {
 		this.action=action;
