@@ -295,7 +295,7 @@ public class ItemMaker {
 			if(author!=null)
 				iMeta.setAuthor(author);
 			if(pages!=null) {
-				if(Ref.serverType()==ServerType.BUKKIT) {
+				if(!Ref.isNewerThan(11) || Ref.serverType()==ServerType.BUKKIT) {
 					List<String> page = new ArrayList<>(pages.size());
 					for(Component comp : pages)page.add(comp.toString());
 					iMeta.setPages(page);
