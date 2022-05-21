@@ -4,6 +4,7 @@ package me.devtec.shared.dataholder;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import me.devtec.shared.dataholder.loaders.EmptyLoader;
 import me.devtec.shared.dataholder.loaders.YamlLoader;
 import me.devtec.shared.dataholder.loaders.constructor.DataValue;
 import me.devtec.shared.json.Json;
+import me.devtec.shared.utility.StreamUtils;
 import me.devtec.shared.utility.StringUtils;
 
 public class Config {
@@ -36,6 +38,38 @@ public class Config {
 	protected File file;
 	protected boolean isSaving; //LOCK
 	protected boolean requireSave;
+
+	public static Config loadFromInput(InputStream input, String outputFile) {
+		return Config.loadFromInput(input, new File(outputFile));
+	}
+
+	public static Config loadFromInput(InputStream input, File outputFile) {
+		Config config = new Config(outputFile);
+		Config insideJar = new Config();
+		insideJar.reload(StreamUtils.fromStream(input));
+		config.merge(insideJar, true, true, true, true);
+		return config;
+	}
+
+	public static Config loadFromPlugin(Class<?> mainClass, String pathToFile, File outputFile) {
+		return Config.loadFromInput(mainClass.getClassLoader().getResourceAsStream(pathToFile), outputFile);
+	}
+
+	public static Config loadFromPlugin(Class<?> mainClass, String pathToFile, String outputFile) {
+		return Config.loadFromInput(mainClass.getClassLoader().getResourceAsStream(pathToFile), new File(outputFile));
+	}
+
+	public static Config loadFromFile(File file) {
+		return new Config(file);
+	}
+
+	public static Config loadFromFile(String filePath) {
+		return new Config(filePath);
+	}
+
+	public static Config loadFromString(String input) {
+		return new Config().reload(input);
+	}
 
 	public Config() {
 		loader = new EmptyLoader();
