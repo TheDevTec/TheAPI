@@ -9,27 +9,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import me.devtec.shared.dataholder.loaders.constructor.DataValue;
 import me.devtec.shared.json.Json;
 
 class SectionBuilder {
-	
-	Map<String, SectionHolder> secs;
-	
-	public SectionBuilder(List<String> keys, Map<String, Object[]> map) {
-		secs = new LinkedHashMap<>(map.size()); //correct size of map
-		
+
+	public static void write(StringBuilder builder, List<String> keys, Map<String, DataValue> map) {
+		Map<String, SectionHolder> secs = new LinkedHashMap<>(map.size()); //correct size of map
+
 		//Prepare sections in map
 		for(String d : keys) {
 			SectionHolder sec = new SectionHolder(d);
 			sec.space="";
 			secs.put(d, sec);
 		}
-		
+
 		//Build subkeys
-		for(Entry<String, Object[]> e : map.entrySet()) {
+		for(Entry<String, DataValue> e : map.entrySet()) {
 			int startPos = e.getKey().indexOf('.');
 			if(startPos > -1) {
-				List<String> split = split(e.getKey(), startPos);
+				List<String> split = SectionBuilder.split(e.getKey(), startPos);
 				String first = split.get(0);
 				SectionHolder holder = secs.get(first);
 				if(holder==null) {
@@ -47,189 +46,189 @@ class SectionBuilder {
 				}
 				//SET VALUE
 				holder.val=e.getValue();
-			}else {
+			} else
 				secs.get(e.getKey()).val=e.getValue();
-			}
 		}
-	}
-	
-	private static List<String> split(String text, int startPos) {
-		if(startPos==-1)return Collections.singletonList(text);
-		
-        int off = 0;
-        int next = startPos;
-        List<String> list = new ArrayList<>();
-        
-        //First known value
-        list.add(text.substring(off, next));
-        off = next + 1;
-        
-        //Continue via loop
-        while ((next = text.indexOf('.', off)) != -1) {
-            list.add(text.substring(off, next));
-            off = next + 1;
-        }
-        //Remaining chars
-        list.add(text.substring(off, text.length()));
-        return list;
+		for(SectionHolder section : secs.values())
+			SectionBuilder.start(section, builder);
 	}
 
-	@SuppressWarnings("unchecked")
-	public synchronized void start(SectionHolder section, StringBuilder b) {
-		StringBuilder bab = new StringBuilder(section.name.length()+section.space.length()+2);
-		bab.append(section.space);
+	private static List<String> split(String text, int startPos) {
+		if(startPos==-1)return Collections.singletonList(text);
+
+		int off = 0;
+		int next = startPos;
+		List<String> list = new ArrayList<>();
+
+		//First known value
+		list.add(text.substring(off, next));
+		off = next + 1;
+
+		//Continue via loop
+		while ((next = text.indexOf('.', off)) != -1) {
+			list.add(text.substring(off, next));
+			off = next + 1;
+		}
+		//Remaining chars
+		list.add(text.substring(off));
+		return list;
+	}
+
+	public synchronized static void start(SectionHolder section, StringBuilder b) {
+		StringBuilder sectionLine = new StringBuilder(section.name.length()+section.space.length()+2);
+		//write lines before section
+		sectionLine.append(section.space);
+
+		//write section name
 		if(section.name.length()==1 || section.name.contains(":") || section.name.startsWith("#"))
-			bab.append('\'').append(section.name).append('\'').append(':');
+			sectionLine.append('\'').append(section.name).append('\'').append(':');
 		else
-			bab.append(section.name).append(':');
+			sectionLine.append(section.name).append(':');
 		try {
-			Object[] aw = section.val;
-			if(aw==null) {
-				b.append(bab).append(System.lineSeparator());
+			DataValue dataVal = section.val;
+			if(dataVal==null) {
+				b.append(sectionLine).append(System.lineSeparator());
 				for (SectionHolder d : section.holders)
-					start(d, b);
+					SectionBuilder.start(d, b);
 				return;
 			}
-			Collection<String> list = (Collection<String>)aw[1];
-			Object o = aw[0];
-			if(list != null)
-				for (String s : list)
+			String commentAfterValue = dataVal.commentAfterValue;
+			Collection<String> comments = dataVal.comments;
+			Object value = dataVal.value;
+			//write list values
+			if(comments != null)
+				for (String s : comments)
 					b.append(section.space).append(s).append(System.lineSeparator());
-			if(o==null)b.append(bab).append(System.lineSeparator());
-			else {
-				if (o instanceof Collection || o instanceof Object[]) {
-					String splitted = section.space+'-'+' ';
-					if (o instanceof Collection) {
-						if(!((Collection<?>) o).isEmpty()) {
-							try {
-								if(aw.length==3 && aw[2]!=null) {
-									addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
-								}else {
-									b.append(bab).append(System.lineSeparator());
-									for (Object a : (Collection<?>) o) {
-										if(a instanceof String)
-											addQuotesSplit(b,splitted,(String)a);
-										else
-											addQuotesSplit(b,splitted,a);
-									}
-								}
-							}catch(Exception er) {
-								b.append(bab).append(System.lineSeparator());
-								for (Object a : (Collection<?>) o) {
+			//if value is null, empty key
+			if(value==null)SectionBuilder.addCommentIfAvailable(b.append(sectionLine), commentAfterValue).append(System.lineSeparator());
+			//write collection or array
+			else if (value instanceof Collection || value instanceof Object[]) {
+				String splitted = section.space+'-'+' ';
+				if (value instanceof Collection) {
+					if(!((Collection<?>) value).isEmpty())
+						try {
+							if(dataVal.writtenValue!=null)
+								SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, dataVal.writtenValue, value instanceof Comparable && !(value instanceof String)), commentAfterValue).append(System.lineSeparator());
+							else {
+								SectionBuilder.addCommentIfAvailable(b.append(sectionLine), commentAfterValue).append(System.lineSeparator());
+								for (Object a : (Collection<?>) value)
 									if(a instanceof String)
-										addQuotesSplit(b,splitted,(String)a);
+										SectionBuilder.addQuotesSplit(b, splitted, (String)a);
 									else
-										addQuotesSplit(b,splitted,a);
-								}
-						}}else
-							b.append(bab).append(' ').append('[').append(']').append(System.lineSeparator());
-					} else {
-						if(((Object[]) o).length!=0) {
-							try {
-								if(aw.length==3 && aw[2]!=null) {
-									addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
-								}else {
-									b.append(bab).append(System.lineSeparator());
-									for (Object a : (Object[]) o) {
-										if(a instanceof String)
-											addQuotesSplit(b,splitted,(String)a);
-										else
-											addQuotesSplit(b,splitted,a);
-									}
-								}
-							}catch(Exception er) {
-								b.append(bab).append(System.lineSeparator());
-								for (Object a : (Object[]) o) {
-									if(a instanceof String)
-										addQuotesSplit(b,splitted,(String)a);
-									else
-										addQuotesSplit(b,splitted,a);
-								}
-						}}else
-							b.append(bab).append(' ').append('[').append(']').append(System.lineSeparator());
-					}
-				} else {
+										SectionBuilder.addQuotesSplit(b, splitted, a);
+							}
+						}catch(Exception er) {
+							b.append(sectionLine).append(System.lineSeparator());
+							for (Object a : (Collection<?>) value)
+								if(a instanceof String)
+									SectionBuilder.addQuotesSplit(b, splitted, (String)a);
+								else
+									SectionBuilder.addQuotesSplit(b, splitted, a);
+						}
+					else
+						SectionBuilder.addCommentIfAvailable(b.append(sectionLine).append(' ').append('[').append(']'), commentAfterValue).append(System.lineSeparator());
+				} else if(((Object[]) value).length!=0)
 					try {
-						if(aw.length==3 && aw[2]!=null) {
-							addQuotes(b,bab,(String)aw[2], o instanceof Comparable && !(o instanceof String));
-						}else {
-							if(o instanceof String)
-								addQuotes(b,bab,(String)o, false);
-							else
-								addQuotes(b,bab,o);
+						if(dataVal.writtenValue!=null)
+							SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, dataVal.writtenValue, value instanceof Comparable && !(value instanceof String)), commentAfterValue).append(System.lineSeparator());
+						else {
+							SectionBuilder.addCommentIfAvailable(b.append(sectionLine), commentAfterValue).append(System.lineSeparator());
+							for (Object a : (Object[]) value)
+								if(a instanceof String)
+									SectionBuilder.addQuotesSplit(b, splitted, (String)a);
+								else
+									SectionBuilder.addQuotesSplit(b, splitted, a);
 						}
 					}catch(Exception er) {
-						if(o instanceof String)
-							addQuotes(b,bab,(String)o, false);
-						else
-							addQuotes(b,bab,o);
+						b.append(sectionLine).append(System.lineSeparator());
+						for (Object a : (Object[]) value)
+							if(a instanceof String)
+								SectionBuilder.addQuotesSplit(b,splitted,(String)a);
+							else
+								SectionBuilder.addQuotesSplit(b,splitted,a);
 					}
+				else
+					SectionBuilder.addCommentIfAvailable(b.append(sectionLine).append(' ').append('[').append(']'), commentAfterValue).append(System.lineSeparator());
+			} else //write normal value
+				try {
+					if(dataVal.writtenValue!=null)
+						SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, dataVal.writtenValue, value instanceof Comparable && !(value instanceof String)), commentAfterValue).append(System.lineSeparator());
+					else if(value instanceof String)
+						SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, (String)value, false), commentAfterValue).append(System.lineSeparator());
+					else
+						SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, value), commentAfterValue).append(System.lineSeparator());
+				}catch(Exception er) {
+					if(value instanceof String)
+						SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, (String)value, false), commentAfterValue).append(System.lineSeparator());
+					else
+						SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, value), commentAfterValue).append(System.lineSeparator());
 				}
-			}
 		}catch(Exception err) {
 			err.printStackTrace();
 		}
 		if(section.holders!=null)
 			for (SectionHolder d : section.holders)
-				start(d, b);
+				SectionBuilder.start(d, b);
 	}
 
-	protected synchronized void addQuotesSplit(StringBuilder b, CharSequence split, String aw) {
+	private static StringBuilder addCommentIfAvailable(StringBuilder append, String commentAfterValue) {
+		if(commentAfterValue==null)return append;
+		return append.append(' ').append(commentAfterValue);
+	}
+
+	protected static StringBuilder addQuotesSplit(StringBuilder b, CharSequence split, String value) {
 		b.append(split);
 		b.append('"');
-		b.append(aw);
+		b.append(value);
 		b.append('"');
 		b.append(System.lineSeparator());
+		return b;
 	}
-	
-	protected synchronized void addQuotesSplit(StringBuilder b, CharSequence split, Object aw) {
+
+	protected static StringBuilder addQuotesSplit(StringBuilder b, CharSequence split, Object value) {
 		b.append(split);
-		b.append(Json.writer().write(aw));
+		b.append(Json.writer().write(value));
 		b.append(System.lineSeparator());
+		return b;
 	}
-	
-	protected synchronized void addQuotes(StringBuilder b, CharSequence pathName, String aw, boolean add) {
+
+	protected static StringBuilder addQuotes(StringBuilder b, CharSequence pathName, String value, boolean add) {
 		b.append(pathName).append(' ');
-		if(add) {
-			b.append(aw);
-		}else {
+		if(add)
+			b.append(value);
+		else {
 			b.append('"');
-			b.append(aw);
+			b.append(value);
 			b.append('"');
 		}
-		b.append(System.lineSeparator());
-	}
-	
-	protected synchronized void addQuotes(StringBuilder b, CharSequence pathName, Object aw) {
-		b.append(pathName).append(' ');
-		b.append(Json.writer().write(aw));
-		b.append(System.lineSeparator());
+		return b;
 	}
 
-	public void write(StringBuilder d) {
-		for(SectionHolder c : secs.values())
-			start(c, d);
+	protected static StringBuilder addQuotes(StringBuilder b, CharSequence pathName, Object value) {
+		b.append(pathName).append(' ');
+		b.append(Json.writer().write(value));
+		return b;
 	}
-	
-	public class SectionHolder {
-		
+
+	public static class SectionHolder {
+
 		List<SectionHolder> holders;
 		String name;
-		Object[] val;
+		DataValue val;
 		String space;
-		
+
 		public SectionHolder(String d) {
 			name=d;
 		}
-		
+
 		public SectionHolder find(String name) {
 			if(holders!=null)
-			for(SectionHolder a : holders)
-				if(a.name.equals(name))
-					return a;
+				for(SectionHolder section : holders)
+					if(section.name.equals(name))
+						return section;
 			return null;
 		}
-		
+
 		public SectionHolder create(String name) {
 			SectionHolder sec = new SectionHolder(name);
 			sec.space=space+ "  ";
