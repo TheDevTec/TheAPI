@@ -92,15 +92,15 @@ public class YamlLoader extends EmptyLoader {
 					if(!key.isEmpty())key+=".";
 					key += keyr;
 
-					if(value.trim().isEmpty()) {
+					String[] valueSplit = YamlLoader.splitFromComment(value);
+					if(valueSplit[0].trim().isEmpty()) {
 						value = null;
 						data.put(key, DataValue.of(null, null, null, comments.isEmpty() ? null : new LinkedList<>(comments)));
 						comments.clear();
 						continue;
 					}
 
-					value=YamlLoader.r(value);
-					String[] valueSplit = YamlLoader.splitFromComment(value);
+					value=valueSplit[0];
 
 					if (value.equals("|")) {
 						type=BuilderType.STRING;
@@ -201,6 +201,7 @@ public class YamlLoader extends EmptyLoader {
 				String value = builder.toString();
 				values[0]=value.substring(0, value.length()-spaces);
 				builder.delete(0, builder.length());
+				builder.append(posChar);
 				continue;
 			}
 
