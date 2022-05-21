@@ -11,8 +11,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.theapi.bukkit.BukkitLoader;
-import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
+import me.devtec.theapi.bukkit.gui.HolderGUI;
 
 public class InventoryUtils {
 	

@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/EclipseUtils/MC/spigot-1.16.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
+	<classpathentry kind="lib" path="D:/jars/depends/bungeecord-chat-1.16-R0.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

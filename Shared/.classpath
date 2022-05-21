@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/EclipseUtils/Server/gson-2.8.6.jar"/>
-	<classpathentry kind="lib" path="C:/EclipseUtils/Server/guava-23.0.jar"/>
+	<classpathentry kind="lib" path="D:/jars/google/gson-2.9.0.jar"/>
+	<classpathentry kind="lib" path="D:/jars/google/guava-31.1-jre.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

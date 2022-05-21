@@ -130,7 +130,7 @@ public class v1_12_R1 implements NmsProvider {
 	public Collection<? extends Player> getOnlinePlayers() {
 		return Bukkit.getOnlinePlayers();
 	}
-	
+
 	@Override
 	public Object getEntity(Entity entity) {
 		return ((CraftEntity)entity).getHandle();
@@ -208,11 +208,12 @@ public class v1_12_R1 implements NmsProvider {
 	public Object packetOpenWindow(int id, String legacy, int size, String title) {
 		return new PacketPlayOutOpenWindow(id, legacy, (IChatBaseComponent)toIChatBaseComponent(ComponentAPI.fromString(title)), size);
 	}
-	
+
+	@Override
 	public int getContainerId(Object container) {
 		return ((Container)container).windowId;
 	}
-	
+
 	@Override
 	public Object packetResourcePackSend(String url, String hash, boolean requireRP, String prompt) {
 		return new PacketPlayOutResourcePackSend(url, hash);
@@ -256,8 +257,8 @@ public class v1_12_R1 implements NmsProvider {
 	public Object packetPlayerListHeaderFooter(String header, String footer) {
 		PacketPlayOutPlayerListHeaderFooter packet = new PacketPlayOutPlayerListHeaderFooter();
 		try {
-			a.set(packet, toIChatBaseComponent(ComponentAPI.fromString(header)));
-			b.set(packet, toIChatBaseComponent(ComponentAPI.fromString(footer)));
+			v1_12_R1.a.set(packet, toIChatBaseComponent(ComponentAPI.fromString(header)));
+			v1_12_R1.b.set(packet, toIChatBaseComponent(ComponentAPI.fromString(footer)));
 		}catch(Exception err) {}
 		return packet;
 	}
@@ -267,7 +268,7 @@ public class v1_12_R1 implements NmsProvider {
 		PacketPlayOutBlockChange packet =  new PacketPlayOutBlockChange();
 		packet.block=(IBlockData) position.getIBlockData();
 		try {
-			pos.set(packet, position.getBlockPosition());
+			v1_12_R1.pos.set(packet, position.getBlockPosition());
 		} catch (Exception e) {
 		}
 		return packet;
@@ -278,7 +279,7 @@ public class v1_12_R1 implements NmsProvider {
 		PacketPlayOutBlockChange packet =  new PacketPlayOutBlockChange();
 		packet.block=(IBlockData) getBlock(getChunk(world, x>>4, z>>4), x, y, z);
 		try {
-			pos.set(packet, new BlockPosition(x,y,z));
+			v1_12_R1.pos.set(packet, new BlockPosition(x,y,z));
 		} catch (Exception e) {
 		}
 		return packet;
@@ -298,17 +299,17 @@ public class v1_12_R1 implements NmsProvider {
 	public Object packetScoreboardTeam() {
 		return new PacketPlayOutScoreboardTeam();
 	}
-	
+
 	@Override
 	public Object packetScoreboardScore(Action action, String player, String line, int score) {
 		if(action==Action.REMOVE)
 			return new PacketPlayOutScoreboardScore(line);
 		PacketPlayOutScoreboardScore packet = new PacketPlayOutScoreboardScore();
 		try {
-			score_a.set(packet, line);
-			score_b.set(packet, player);
-			score_c.set(packet, score);
-			score_d.set(packet, EnumScoreboardAction.CHANGE);
+			v1_12_R1.score_a.set(packet, line);
+			v1_12_R1.score_b.set(packet, player);
+			v1_12_R1.score_c.set(packet, score);
+			v1_12_R1.score_d.set(packet, EnumScoreboardAction.CHANGE);
 		}catch(Exception err) {}
 		return packet;
 	}
@@ -347,13 +348,12 @@ public class v1_12_R1 implements NmsProvider {
 	public double[] getServerTPS() {
 		return server.recentTps;
 	}
-	
+
 	private IChatBaseComponent convert(Component c) {
 		ChatComponentText current = new ChatComponentText(c.getText());
 		ChatModifier modif = current.getChatModifier();
-		if(c.getColor()!=null && !c.getColor().isEmpty()) {
+		if(c.getColor()!=null && !c.getColor().isEmpty())
 			modif=modif.setColor(EnumChatFormat.a(c.colorToChar()));
-		}
 		if(c.getClickEvent()!=null)
 			modif=modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
 		if(c.getHoverEvent()!=null)
@@ -384,7 +384,7 @@ public class v1_12_R1 implements NmsProvider {
 		return chat.toArray(new IChatBaseComponent[0]);
 	}
 
-	
+
 	private void addConverted(List<IChatBaseComponent> chat, List<Component> extra) {
 		for(Component c : extra) {
 			if(c.getText()==null||c.getText().isEmpty()) {
@@ -435,7 +435,7 @@ public class v1_12_R1 implements NmsProvider {
 			}
 		for(IChatBaseComponent d : chat)
 			main.addSibling(d);
-		return main.a().isEmpty()?empty:main;
+		return main.a().isEmpty()?v1_12_R1.empty:main;
 	}
 
 	@Override
@@ -443,7 +443,7 @@ public class v1_12_R1 implements NmsProvider {
 		ChatComponentText main = new ChatComponentText("");
 		for(Component c : cc)
 			main.addSibling((IChatBaseComponent)toIChatBaseComponent(c));
-		return main.a().isEmpty()?empty:main;
+		return main.a().isEmpty()?v1_12_R1.empty:main;
 	}
 
 	@Override
@@ -461,15 +461,15 @@ public class v1_12_R1 implements NmsProvider {
 		if(blockOrItemOrIBlockData==null)return new TheMaterial(Material.AIR);
 		if(blockOrItemOrIBlockData instanceof Block) {
 			Block b = (Block)blockOrItemOrIBlockData;
-			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(Item.getItemOf(b)));
+			return new TheMaterial(CraftItemStack.asNewCraftStack(Item.getItemOf(b)));
 		}
 		if(blockOrItemOrIBlockData instanceof Item) {
 			Item b = (Item)blockOrItemOrIBlockData;
-			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(b));
+			return new TheMaterial(CraftItemStack.asNewCraftStack(b));
 		}
 		if(blockOrItemOrIBlockData instanceof IBlockData) {
 			IBlockData b = (IBlockData)blockOrItemOrIBlockData;
-			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(Item.getItemOf(b.getBlock())));
+			return new TheMaterial(CraftItemStack.asNewCraftStack(Item.getItemOf(b.getBlock())));
 		}
 		return null;
 	}
@@ -493,20 +493,19 @@ public class v1_12_R1 implements NmsProvider {
 	}
 
 	Field chunkLoader = Ref.field(ChunkProviderServer.class, "chunkLoader");
-	
+
 	@Override
 	public Object getChunk(World world, int x, int z) {
 		WorldServer sworld = ((CraftWorld)world).getHandle();
 		net.minecraft.server.v1_12_R1.Chunk loaded = ((ChunkProviderServer)sworld.getChunkProvider()).getChunkIfLoaded(x, z);
-		if(loaded==null) { //load
+		if(loaded==null)
 			try {
 				net.minecraft.server.v1_12_R1.Chunk chunk;
-					chunk = ((IChunkLoader)Ref.get(((ChunkProviderServer)sworld.getChunkProvider()), chunkLoader)).a(sworld, x, z);
+				chunk = ((IChunkLoader)Ref.get(sworld.getChunkProvider(), chunkLoader)).a(sworld, x, z);
 				if (chunk != null) {
 					chunk.setLastSaved(sworld.getTime());
-					if (((ChunkProviderServer)sworld.getChunkProvider()).chunkGenerator != null) {
+					if (((ChunkProviderServer)sworld.getChunkProvider()).chunkGenerator != null)
 						((ChunkProviderServer)sworld.getChunkProvider()).chunkGenerator.recreateStructures(chunk, x, z);
-					}
 				}
 				if(chunk!=null) {
 					((ChunkProviderServer)sworld.getChunkProvider()).chunks.put(ChunkCoordIntPair.a(x,z), chunk);
@@ -515,37 +514,33 @@ public class v1_12_R1 implements NmsProvider {
 				}
 			} catch (Exception e) {
 			}
-		}
 		if(loaded==null) { //generate new chunk
 			ChunkRegionLoader loader = null;
-			if ((IChunkLoader)Ref.get(((ChunkProviderServer)sworld.getChunkProvider()), chunkLoader) instanceof ChunkRegionLoader) {
-				loader = (ChunkRegionLoader)Ref.get(((ChunkProviderServer)sworld.getChunkProvider()), chunkLoader);
-			}
+			if ((IChunkLoader)Ref.get(sworld.getChunkProvider(), chunkLoader) instanceof ChunkRegionLoader)
+				loader = (ChunkRegionLoader)Ref.get(sworld.getChunkProvider(), chunkLoader);
 
-			if (loader != null && loader.chunkExists(x, z)) {
+			if (loader != null && loader.chunkExists(x, z))
 				loaded = ChunkIOExecutor.syncChunkLoad(sworld, loader, (ChunkProviderServer)sworld.getChunkProvider(), x, z);
-			} else {
+			else
 				loaded = ((ChunkProviderServer)sworld.getChunkProvider()).originalGetChunkAt(x, z);
-			}
 			loaded=((ChunkProviderServer)sworld.getChunkProvider()).chunkGenerator.getOrCreateChunk(x,z);
 			((ChunkProviderServer)sworld.getChunkProvider()).chunks.put(ChunkCoordIntPair.a(x,z), loaded);
 		}
 		return loaded;
 	}
-	
+
 	@Override
 	public void setBlock(Object chunk, int x, int y, int z, Object IblockData, int data) {
 		net.minecraft.server.v1_12_R1.Chunk c = (net.minecraft.server.v1_12_R1.Chunk)chunk;
 		ChunkSection sc = c.getSections()[y>>4];
-		if(sc==null) {
+		if(sc==null)
 			c.getSections()[y>>4]=sc=new ChunkSection(y >> 4 << 4, true);
-		}
 		BlockPosition pos = new BlockPosition(x,y,z);
 		//REMOVE TILE ENTITY
 		c.tileEntities.remove(pos);
-		
+
 		sc.getBlocks().setBlock(x&15, y&15, z&15, (IBlockData)IblockData);
-		
+
 		//ADD TILE ENTITY
 		if(IblockData instanceof ITileEntity) {
 			TileEntity ent = ((ITileEntity)IblockData).a(c.world, 0);
@@ -633,11 +628,11 @@ public class v1_12_R1 implements NmsProvider {
 	public Object getNetworkChannel(Object network) {
 		return ((NetworkManager)network).channel;
 	}
-	
+
 	@Override
 	public void closeGUI(Player player, Object container, boolean closePacket) {
 		if(closePacket)
-		BukkitLoader.getPacketHandler().send(player, new PacketPlayOutCloseWindow(BukkitLoader.getNmsProvider().getContainerId(container)));
+			BukkitLoader.getPacketHandler().send(player, new PacketPlayOutCloseWindow(BukkitLoader.getNmsProvider().getContainerId(container)));
 		EntityPlayer nmsPlayer = (EntityPlayer)getPlayer(player);
 		nmsPlayer.activeContainer=nmsPlayer.defaultContainer;
 		((Container)container).transferTo(nmsPlayer.activeContainer, (CraftPlayer)player);
@@ -652,10 +647,10 @@ public class v1_12_R1 implements NmsProvider {
 	public void setGUITitle(Player player, Object container, String legacy, int size, String title) {
 		EntityPlayer nmsPlayer = ((CraftPlayer)player).getHandle();
 		int id = ((Container)container).windowId;
-		NonNullList<net.minecraft.server.v1_12_R1.ItemStack> nmsItems = ((Container)container).items;
+		NonNullList<net.minecraft.server.v1_12_R1.ItemStack> nmsItems = ((Container)container).a();
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id,legacy,size,title));
 		int i = 0;
-		for(net.minecraft.server.v1_12_R1.ItemStack o : nmsItems) 
+		for(net.minecraft.server.v1_12_R1.ItemStack o : nmsItems)
 			BukkitLoader.getPacketHandler().send(player, packetSetSlot(id,i++, o));
 		nmsPlayer.activeContainer=(Container)container;
 		((Container)container).addSlotListener(nmsPlayer);
@@ -676,7 +671,7 @@ public class v1_12_R1 implements NmsProvider {
 		}
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id,legacy,size,title));
 		int i = 0;
-		for(net.minecraft.server.v1_12_R1.ItemStack o : nmsItems) 
+		for(net.minecraft.server.v1_12_R1.ItemStack o : nmsItems)
 			BukkitLoader.getPacketHandler().send(player, packetSetSlot(id,i++, o));
 		nmsPlayer.activeContainer.transferTo((Container)container, (CraftPlayer) player);
 		nmsPlayer.activeContainer=(Container)container;
@@ -699,17 +694,17 @@ public class v1_12_R1 implements NmsProvider {
 		}
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id,"minecraft:anvil",0,title));
 		int i = 0;
-		for(net.minecraft.server.v1_12_R1.ItemStack o : nmsItems) 
+		for(net.minecraft.server.v1_12_R1.ItemStack o : nmsItems)
 			BukkitLoader.getPacketHandler().send(player, packetSetSlot(id,i++, o));
 		nmsPlayer.activeContainer.transferTo((Container)container, (CraftPlayer) player);
-		nmsPlayer.activeContainer=(Container)container;
+		nmsPlayer.activeContainer=container;
 		((Container)container).addSlotListener(nmsPlayer);
 		container.checkReachable=false;
 	}
 
 	@Override
 	public Object createContainer(Inventory inv, Player player) {
-		return inv.getType()==InventoryType.ANVIL?createAnvilContainer(inv, player):new CraftContainer(inv, ((CraftPlayer)player).getHandle(), ((CraftPlayer)player).getHandle().nextContainerCounter());
+		return inv.getType()==InventoryType.ANVIL?createAnvilContainer(inv, player):new CraftContainer(inv, player, ((CraftPlayer)player).getHandle().nextContainerCounter());
 	}
 
 	@Override
@@ -718,9 +713,9 @@ public class v1_12_R1 implements NmsProvider {
 	}
 
 	static BlockPosition zero = new BlockPosition(0,0,0);
-	
+
 	public Object createAnvilContainer(Inventory inv, Player player) {
-		ContainerAnvil container = new ContainerAnvil(((CraftPlayer)player).getHandle().inventory, ((CraftPlayer)player).getHandle().world, zero, ((CraftPlayer)player).getHandle());
+		ContainerAnvil container = new ContainerAnvil(((CraftPlayer)player).getHandle().inventory, ((CraftPlayer)player).getHandle().world, v1_12_R1.zero, ((CraftPlayer)player).getHandle());
 		for(int i = 0; i < 2; ++i)
 			container.setItem(i, (net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(inv.getItem(i)));
 		return container;
@@ -730,18 +725,18 @@ public class v1_12_R1 implements NmsProvider {
 	public String getAnvilRenameText(Object anvil) {
 		return ((ContainerAnvil)anvil).renameText;
 	}
-	
+
 	@Override
 	public boolean processInvClickPacket(Player player, HolderGUI gui, Object provPacket) {
 		PacketPlayInWindowClick packet = (PacketPlayInWindowClick)provPacket;
 		int slot = packet.b();
 		if(slot==-999)return false;
-		
+
 		int id = packet.a();
 		int mouseClick = packet.c();
-	    net.minecraft.server.v1_12_R1.InventoryClickType nmsType = packet.f();
+		net.minecraft.server.v1_12_R1.InventoryClickType nmsType = packet.f();
 		InventoryClickType type = InventoryClickType.valueOf(nmsType.name());
-		
+
 		Object container = gui.getContainer(player);
 		ItemStack item = asBukkitItem(packet.e());
 		if((type==InventoryClickType.QUICK_MOVE||type==InventoryClickType.CLONE||type==InventoryClickType.THROW||item.getType()==Material.AIR) && item.getType()==Material.AIR)
@@ -753,13 +748,13 @@ public class v1_12_R1 implements NmsProvider {
 			cancel=true;
 		}
 		if(item==null)item=new ItemStack(Material.AIR);
-		
+
 		ItemStack before = player.getItemOnCursor();
 		ClickType clickType = BukkitLoader.buildClick(item, type, slot, mouseClick);
 		if(!cancel)
 			cancel = BukkitLoader.useItem(player, item, gui, slot, clickType);
 		if(!gui.isInsertable())cancel=true;
-		
+
 		int gameSlot = slot>gui.size()-1?InventoryUtils.convertToPlayerInvSlot(slot-gui.size()):slot;
 		if(!cancel)cancel=gui.onIteractItem(player, item, clickType, gameSlot, slot<gui.size());
 		else gui.onIteractItem(player, item, clickType, gameSlot, slot<gui.size());
@@ -767,25 +762,22 @@ public class v1_12_R1 implements NmsProvider {
 		if(!(gui instanceof AnvilGUI) && !cancel && type==InventoryClickType.QUICK_MOVE) {
 			ItemStack[] contents = slot<gui.size()?player.getInventory().getStorageContents():gui.getInventory().getStorageContents();
 			List<Integer> modified = slot<gui.size()?InventoryUtils.shift(slot,player,gui,clickType,gui instanceof AnvilGUI?DestinationType.PLAYER_INV_ANVIL:DestinationType.PLAYER_INV_CUSTOM_INV,null, contents, item):InventoryUtils.shift(slot,player,gui,clickType,DestinationType.CUSTOM_INV,gui.getNotInterableSlots(player), contents, item);
-			if(!modified.isEmpty()) {
+			if(!modified.isEmpty())
 				if(slot<gui.size()) {
 					boolean canRemove = !modified.contains(-1);
 					player.getInventory().setStorageContents(contents);
-					if(canRemove) {
+					if(canRemove)
 						gui.remove(gameSlot);
-					}else {
+					else
 						gui.getInventory().setItem(gameSlot, item);
-					}
 				}else {
 					boolean canRemove = !modified.contains(-1);
 					gui.getInventory().setStorageContents(contents);
-					if(canRemove) {
+					if(canRemove)
 						player.getInventory().setItem(gameSlot, null);
-					}else {
+					else
 						player.getInventory().setItem(gameSlot, item);
-					}
 				}
-			}
 			return true;
 		}
 		if(cancel) {
@@ -798,9 +790,8 @@ public class v1_12_R1 implements NmsProvider {
 			case QUICK_MOVE:
 			case PICKUP_ALL:
 				//TOP
-				for(ItemStack cItem : gui.getInventory().getContents()) {
+				for(ItemStack cItem : gui.getInventory().getContents())
 					BukkitLoader.getPacketHandler().send(player,packetSetSlot(id, position++, asNMSItem(cItem)));
-				}
 				//BUTTON
 				player.updateInventory();
 				return true;
@@ -808,10 +799,9 @@ public class v1_12_R1 implements NmsProvider {
 				BukkitLoader.getPacketHandler().send(player,packetSetSlot(id, slot, getSlotItem(container,slot)));
 				if(gui instanceof AnvilGUI) {
 					//TOP
-					for(ItemStack cItem : gui.getInventory().getContents()) {
+					for(ItemStack cItem : gui.getInventory().getContents())
 						if(position!=slot)
-						BukkitLoader.getPacketHandler().send(player,packetSetSlot(id, position++, asNMSItem(cItem)));
-					}
+							BukkitLoader.getPacketHandler().send(player,packetSetSlot(id, position++, asNMSItem(cItem)));
 					//BUTTON
 					player.updateInventory();
 				}
@@ -822,13 +812,13 @@ public class v1_12_R1 implements NmsProvider {
 	}
 
 	static Field field = Ref.field(PacketStatusOutServerInfo.class, "b");
-	
+
 	@Override
 	public boolean processServerListPing(String player, Object channel, Object packet) {
 		PacketStatusOutServerInfo status = (PacketStatusOutServerInfo)packet;
 		ServerPing ping;
 		try {
-			ping = (ServerPing) field.get(status);
+			ping = (ServerPing) v1_12_R1.field.get(status);
 		} catch (Exception e) {
 			return false;
 		}
@@ -862,7 +852,8 @@ public class v1_12_R1 implements NmsProvider {
 			ping.setFavicon(event.getFalvicon());
 		return false;
 	}
-	
+
+	@Override
 	public Object getNBT(Entity entity) {
 		return ((CraftEntity)entity).getHandle().save(new NBTTagCompound());
 	}
@@ -1048,7 +1039,7 @@ public class v1_12_R1 implements NmsProvider {
 		EntityPlayer entityPlayer = (EntityPlayer)getPlayer(player);
 		WorldServer worldserver = entityPlayer.x();
 		byte actualDimension = (byte)worldserver.getWorld().getEnvironment().getId();
-		return new PacketPlayOutRespawn((byte)((actualDimension >= 0) ? -1 : 0), worldserver.getDifficulty(), worldserver.getWorldData().getType(), entityPlayer.playerInteractManager.getGameMode());
+		return new PacketPlayOutRespawn((byte)(actualDimension >= 0 ? -1 : 0), worldserver.getDifficulty(), worldserver.getWorldData().getType(), entityPlayer.playerInteractManager.getGameMode());
 	}
 
 	@Override

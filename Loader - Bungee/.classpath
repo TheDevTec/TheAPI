@@ -4,6 +4,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/BungeeAPI"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
-	<classpathentry kind="lib" path="C:/EclipseUtils/BungeeCord.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/BungeeCord.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

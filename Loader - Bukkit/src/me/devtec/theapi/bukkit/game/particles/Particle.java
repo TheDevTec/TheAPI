@@ -1,9 +1,9 @@
 package me.devtec.theapi.bukkit.game.particles;
 
 import java.lang.reflect.Constructor;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import me.devtec.shared.Ref;
 import me.devtec.theapi.bukkit.BukkitLoader;

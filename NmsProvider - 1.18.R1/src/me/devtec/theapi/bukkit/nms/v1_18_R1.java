@@ -45,8 +45,8 @@ import me.devtec.theapi.bukkit.events.ServerListPingEvent.PlayerProfile;
 import me.devtec.theapi.bukkit.game.Position;
 import me.devtec.theapi.bukkit.game.TheMaterial;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
-import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
+import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils.DestinationType;
 import net.minecraft.EnumChatFormat;
@@ -205,6 +205,7 @@ public class v1_18_R1 implements NmsProvider {
 		return CraftItemStack.asBukkitCopy((net.minecraft.world.item.ItemStack) stack);
 	}
 	
+	@Override
 	public int getContainerId(Object container) {
 		return ((Container)container).j;
 	}
@@ -459,15 +460,15 @@ public class v1_18_R1 implements NmsProvider {
 		if(blockOrItemOrIBlockData==null)return new TheMaterial(Material.AIR);
 		if(blockOrItemOrIBlockData instanceof Block) {
 			Block b = (Block)blockOrItemOrIBlockData;
-			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(Item.a(b)));
+			return new TheMaterial(CraftItemStack.asNewCraftStack(Item.a(b)));
 		}
 		if(blockOrItemOrIBlockData instanceof Item) {
 			Item b = (Item)blockOrItemOrIBlockData;
-			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(b));
+			return new TheMaterial(CraftItemStack.asNewCraftStack(b));
 		}
 		if(blockOrItemOrIBlockData instanceof IBlockData) {
 			IBlockData b = (IBlockData)blockOrItemOrIBlockData;
-			return new TheMaterial((ItemStack)CraftItemStack.asNewCraftStack(Item.a(b.b())));
+			return new TheMaterial(CraftItemStack.asNewCraftStack(Item.a(b.b())));
 		}
 		return null;
 	}
@@ -699,9 +700,9 @@ public class v1_18_R1 implements NmsProvider {
 		int statusId = incrementStateId(container);
 		for(net.minecraft.world.item.ItemStack o : nmsItems) 
 			BukkitLoader.getPacketHandler().send(player, packetSetSlot(id,i++, statusId, o));
-		nmsPlayer.bW.transferTo((Container)container, (CraftPlayer) player);
-		nmsPlayer.bW=(Container)container;
-		nmsPlayer.a((Container)container);
+		nmsPlayer.bW.transferTo(container, (CraftPlayer) player);
+		nmsPlayer.bW=container;
+		nmsPlayer.a(container);
 		container.checkReachable=false;
 	}
 

@@ -2,11 +2,11 @@ package me.devtec.shared.dataholder.loaders;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import me.devtec.shared.dataholder.loaders.constructor.DataLoaderConstructor;
 import me.devtec.shared.dataholder.loaders.constructor.LoaderPriority;

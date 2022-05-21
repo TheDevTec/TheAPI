@@ -1,7 +1,7 @@
 package me.devtec.theapi.bukkit.game;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nullable;
 
