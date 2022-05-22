@@ -724,7 +724,7 @@ public class Config {
 				}
 
 			//BUILD KEYS & SECTIONS
-			SectionBuilder.write(builder, keys, loader.get());
+			YamlSectionBuilderHelper.write(builder, keys, loader.get());
 
 			if(loader.getFooter()!=null)
 				try {
@@ -763,18 +763,16 @@ public class Config {
 
 		//header & footer option
 		try {
-			if(addHeader)
-				if(loader.getHeader() != null /** Is header supported? **/ && configToMergeWith.loader.getHeader()!=null && !configToMergeWith.loader.getHeader().isEmpty() && (loader.getHeader().isEmpty() || !loader.getHeader().containsAll(configToMergeWith.loader.getHeader()))) {
-					loader.getHeader().clear();
-					loader.getHeader().addAll(configToMergeWith.loader.getHeader());
-					change = true;
-				}
-			if(addFooter)
-				if(loader.getFooter() != null /** Is footer supported? **/ && configToMergeWith.loader.getFooter()!=null && !configToMergeWith.loader.getFooter().isEmpty() && (loader.getFooter().isEmpty() || !loader.getFooter().containsAll(configToMergeWith.loader.getFooter()))) {
-					loader.getFooter().clear();
-					loader.getFooter().addAll(configToMergeWith.loader.getFooter());
-					change = true;
-				}
+			if(addHeader && loader.getHeader() != null /** Is header supported? **/ && configToMergeWith.loader.getHeader()!=null && !configToMergeWith.loader.getHeader().isEmpty() && (loader.getHeader().isEmpty() || !loader.getHeader().containsAll(configToMergeWith.loader.getHeader()))) {
+				loader.getHeader().clear();
+				loader.getHeader().addAll(configToMergeWith.loader.getHeader());
+				change = true;
+			}
+			if(addFooter && loader.getFooter() != null /** Is footer supported? **/ && configToMergeWith.loader.getFooter()!=null && !configToMergeWith.loader.getFooter().isEmpty() && (loader.getFooter().isEmpty() || !loader.getFooter().containsAll(configToMergeWith.loader.getFooter()))) {
+				loader.getFooter().clear();
+				loader.getFooter().addAll(configToMergeWith.loader.getFooter());
+				change = true;
+			}
 		}catch(Exception error) {}
 
 		//values & comments
@@ -794,8 +792,7 @@ public class Config {
 				if(addComments && s.getValue().comments!=null && !s.getValue().comments.isEmpty()) {
 					List<String> comments = value.comments;
 					if(comments==null || comments.isEmpty()) {
-						List<String> simple = s.getValue().comments;
-						if(first && getHeader()!=null && !getHeader().isEmpty() && getHeader().containsAll(simple))continue;
+						if(first && getHeader()!=null && !getHeader().isEmpty() && getHeader().containsAll(s.getValue().comments))continue;
 						value.comments=s.getValue().comments;
 						change = true;
 					}

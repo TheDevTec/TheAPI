@@ -7,6 +7,11 @@ import java.util.Map;
 import me.devtec.shared.json.Json;
 
 public class DataValue {
+	public Object value;
+	public String writtenValue;
+
+	public String commentAfterValue;
+	public List<String> comments;
 
 	public static DataValue of(String writtenValue, Object value, String commentAfterValue, List<String> comments) {
 		DataValue data = new DataValue();
@@ -45,12 +50,6 @@ public class DataValue {
 	private DataValue() {
 
 	}
-
-	public Object value;
-	public String writtenValue;
-
-	public String commentAfterValue;
-	public List<String> comments;
 
 	@Override
 	public String toString() {
