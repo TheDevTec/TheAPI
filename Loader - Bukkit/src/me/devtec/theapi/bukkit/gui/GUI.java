@@ -23,11 +23,11 @@ public class GUI implements HolderGUI {
 	public static final int LINES_3 = 27;
 	public static final int LINES_2 = 18;
 	public static final int LINES_1 = 9;
-	
+
 	public enum ClickType {
 		MIDDLE_PICKUP, MIDDLE_DROP, LEFT_DROP, RIGHT_PICKUP, RIGHT_DROP, LEFT_PICKUP, SHIFT_LEFT_DROP, SHIFT_RIGHT_PICKUP, SHIFT_RIGHT_DROP, SHIFT_LEFT_PICKUP
 	}
-	
+
 	private String title;
 	private final Map<Integer, ItemGUI> items = new ConcurrentHashMap<>();
 	private final Map<Player, Object> containers = new ConcurrentHashMap<>();
@@ -35,25 +35,40 @@ public class GUI implements HolderGUI {
 	// Defaulty false
 	private boolean put;
 
-	public GUI(String title, int size, Player... p) {
-		this.title = StringUtils.colorize(title);
-		if (size == 17 || size == 18 || size == 19)
+	public GUI(String original, int size, Player... p) {
+		title = StringUtils.colorize(title);
+		switch (size) {
+		case 17:
+		case 18:
+		case 19:
 			size = 18;
-		else if (size == 26 || size == 27 || size == 28)
+			break;
+		case 26:
+		case 27:
+		case 28:
 			size = 27;
-		else if (size == 35 || size == 36 || size == 37)
+			break;
+		case 35:
+		case 36:
+		case 37:
 			size = 36;
-		else if (size == 44 || size == 45 || size == 46)
+			break;
+		case 44:
+		case 45:
+		case 46:
 			size = 45;
-		else if (size == 53 || size == 54 || size > 54)
-			size = 54;
-		else
-			size = 9;
+			break;
+		default:
+			if (size > 46)
+				size = 54;
+			else
+				size = 9;
+			break;
+		}
 		title=StringUtils.colorize(title);
 		if(Ref.isOlderThan(9) && title.length() >= 32)
 			title=title.substring(0, 32);
-		this.title=title;
-		inv = Bukkit.createInventory(null, size, this.title);
+		inv = Bukkit.createInventory(null, size, title);
 		open(p);
 	}
 
@@ -67,10 +82,12 @@ public class GUI implements HolderGUI {
 	/**
 	 * @apiNote Actions on close gui
 	 */
+	@Override
 	public void onClose(Player player) {
 		// Closed gui actions
 	}
 
+	@Override
 	public boolean onIteractItem(Player player, ItemStack item, ClickType type, int slot, boolean gui) {
 		return false;
 	}
@@ -83,6 +100,7 @@ public class GUI implements HolderGUI {
 		return title;
 	}
 
+	@Override
 	public final String getTitle() {
 		return title;
 	}
@@ -90,10 +108,12 @@ public class GUI implements HolderGUI {
 	/**
 	 * @apiNote Set menu insertable for items
 	 */
+	@Override
 	public final void setInsertable(boolean value) {
 		put = value;
 	}
 
+	@Override
 	public final boolean isInsertable() {
 		return put;
 	}
@@ -101,6 +121,7 @@ public class GUI implements HolderGUI {
 	/**
 	 * @apiNote Set item on position to the gui with options
 	 */
+	@Override
 	public final void setItem(int position, ItemGUI item) {
 		items.put(position, item);
 		inv.setItem(position, item.getItem());
@@ -117,6 +138,7 @@ public class GUI implements HolderGUI {
 	/**
 	 * @apiNote Remove item from position
 	 */
+	@Override
 	public final void remove(int slot) {
 		removeItem(slot);
 	}
@@ -139,6 +161,7 @@ public class GUI implements HolderGUI {
 	/**
 	 * @apiNote Return ItemStack from position in gui
 	 */
+	@Override
 	public final ItemStack getItem(int slot) {
 		try {
 			return inv.getItem(slot);
@@ -150,6 +173,7 @@ public class GUI implements HolderGUI {
 	/**
 	 * @apiNote Return ItemGUI from position in gui
 	 */
+	@Override
 	public final ItemGUI getItemGUI(int slot) {
 		return getItemGUIs().get(slot);
 	}
@@ -169,10 +193,10 @@ public class GUI implements HolderGUI {
 	public final int getFirstEmpty() {
 		return inv.firstEmpty();
 	}
-	
+
 	/**
 	 * @apiNote Open GUI menu to player
-	 * 
+	 *
 	 */
 	public final void open(Player... players) {
 		for (Player player : players) {
@@ -187,7 +211,8 @@ public class GUI implements HolderGUI {
 			BukkitLoader.gui.put(player.getUniqueId(), this);
 		}
 	}
-	
+
+	@Override
 	public final void setTitle(String title) {
 		title=StringUtils.colorize(title);
 		if(Ref.isOlderThan(9) && title.length() >= 32)
@@ -197,26 +222,28 @@ public class GUI implements HolderGUI {
 		for(Entry<Player, Object> ec : containers.entrySet())
 			BukkitLoader.getNmsProvider().setGUITitle(ec.getKey(),ec.getValue(), "minecraft:chest",inv.getSize(),title);
 	}
-	
+
 	/**
 	 * @return Map<Slot, Item>
-	 * 
+	 *
 	 */
+	@Override
 	public final Map<Integer, ItemGUI> getItemGUIs() {
 		return items;
 	}
 
 	/**
 	 * @return Collection<Player>
-	 * 
+	 *
 	 */
+	@Override
 	public final Collection<Player> getPlayers() {
 		return containers.keySet();
 	}
 
 	/**
 	 * @return boolean
-	 * 
+	 *
 	 */
 	public final boolean hasOpen(Player player) {
 		return containers.containsKey(player);
@@ -224,16 +251,18 @@ public class GUI implements HolderGUI {
 
 	/**
 	 * @apiNote Close opened gui for all players
-	 * 
+	 *
 	 */
+	@Override
 	public final void close() {
 		close(containers.keySet().toArray(new Player[0]));
 	}
 
 	/**
 	 * @apiNote Clear all registered information about gui
-	 * 
+	 *
 	 */
+	@Override
 	public final void clear() {
 		inv.clear();
 		items.clear();
@@ -241,8 +270,9 @@ public class GUI implements HolderGUI {
 
 	/**
 	 * @apiNote Close opened gui for specified player
-	 * 
+	 *
 	 */
+	@Override
 	public final void close(Player... players) {
 		if(players==null)return;
 		for (Player player : players) {
@@ -256,11 +286,11 @@ public class GUI implements HolderGUI {
 		}
 	}
 
+	@Override
 	public final String toString() {
 		StringBuilder items = new StringBuilder();
-		for (Entry<Integer, ItemGUI> g : getItemGUIs().entrySet()) {
+		for (Entry<Integer, ItemGUI> g : getItemGUIs().entrySet())
 			items.append('/').append(g.getKey()).append(':').append(g.getValue().toString());
-		}
 		return "[GUI:" + title + "/" + put + "/" + inv.getSize() + items.append(']');
 	}
 
@@ -302,11 +332,10 @@ public class GUI implements HolderGUI {
 			for(int i = 0; i < size(); ++i) {
 				ItemGUI item = items.get(i);
 				if(item!=null && item.isUnstealable())list.add(i);
-			}else {
-				for(int i = 0; i < size(); ++i) {
-					list.add(i);
-				}
 			}
+		else
+			for(int i = 0; i < size(); ++i)
+				list.add(i);
 		return list;
 	}
 
