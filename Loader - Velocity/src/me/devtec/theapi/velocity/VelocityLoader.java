@@ -131,7 +131,8 @@ public class VelocityLoader {
 			}
 
 			@Override
-			public String replaceHex(String msg) {
+			public String replaceHex(String original) {
+				String msg = original;
 				Matcher match = hex.matcher(msg);
 				while (match.find()) {
 					String color = match.group();
