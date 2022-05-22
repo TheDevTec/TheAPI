@@ -188,14 +188,16 @@ public class Config {
 			markModified();
 			DataValue data = getOrCreateData(key);
 			data.value=value;
-			data.comments=comments;
+			data.comments=Config.simple(new ArrayList<>(comments));
 			return true;
 		}
-		DataValue data = getOrCreateData(key);
-		if(data.comments==null && comments!=null && !comments.isEmpty() || data.comments!=null && data.comments.isEmpty() && comments!=null && !comments.isEmpty()) {
-			data.comments=comments;
-			markModified();
-			return true;
+		if(comments!=null && !comments.isEmpty()) {
+			DataValue data = getOrCreateData(key);
+			if(data.comments==null || data.comments.isEmpty()) {
+				data.comments=Config.simple(new ArrayList<>(comments));
+				markModified();
+				return true;
+			}
 		}
 		return false;
 	}
@@ -203,29 +205,40 @@ public class Config {
 	public Config set(String key, Object value) {
 		if (key == null)
 			return this;
-		markModified();
 		if (value == null) {
 			String sf = Config.splitFirst(key);
-			keys.remove(sf);
-			loader.remove(key);
+			boolean removeFromkeys = keys.remove(sf);
+			boolean removeFromMap = loader.remove(key);
+			if(removeFromkeys && removeFromMap)
+				markModified();
 			return this;
 		}
 		DataValue o = getOrCreateData(key);
-		o.value=value;
-		o.writtenValue=null;
+		if(o.value == null && value != null || o.value != null && !o.value.equals(value)) {
+			o.value=value;
+			o.writtenValue=null;
+			markModified();
+		}
 		return this;
 	}
 
 	public Config remove(String key) {
 		if (key == null)
 			return this;
-		markModified();
+		boolean removed = false;
 		String sf = Config.splitFirst(key);
-		keys.remove(sf);
-		loader.remove(key);
-		for(String d : new ArrayList<>(loader.get().keySet()))
-			if (d.startsWith(key) && d.substring(key.length()).startsWith("."))
-				loader.get().remove(d);
+		if(keys.remove(sf))removed=true;
+		if(loader.remove(key) && !removed)removed=true;
+		Iterator<Entry<String, DataValue>> iterator = loader.get().entrySet().iterator();
+		while(iterator.hasNext()) {
+			String section = iterator.next().getKey();
+			if (section.startsWith(key) && section.substring(key.length()).startsWith(".")) {
+				iterator.remove();
+				removed=true;
+			}
+		}
+		if(removed)
+			markModified();
 		return this;
 	}
 
@@ -240,8 +253,18 @@ public class Config {
 	public Config setComments(String key, List<String> value) {
 		if (key == null)
 			return this;
-		markModified();
-		getOrCreateData(key).comments=Config.simple(new ArrayList<>(value));
+		if(value==null) {
+			DataValue val = loader.get().get(key);
+			if(val!=null)
+				val.comments=null;
+			return this;
+		}
+		DataValue val = getOrCreateData(key);
+		List<String> simple = Config.simple(new ArrayList<>(value));
+		if(val.comments==null || !simple.containsAll(val.comments)) {
+			markModified();
+			val.comments=simple;
+		}
 		return this;
 	}
 
@@ -257,7 +280,9 @@ public class Config {
 	public Config setCommentAfterValue(String key, String comment) {
 		if (key == null)
 			return null;
-		markModified();
+		DataValue val = getOrCreateData(key);
+		if(comment!=null && !comment.equals(val.commentAfterValue))
+			markModified();
 		getOrCreateData(key).commentAfterValue=comment;
 		return this;
 	}
@@ -269,14 +294,16 @@ public class Config {
 	public Config setHeader(Collection<String> lines) {
 		markModified();
 		loader.getHeader().clear();
-		loader.getHeader().addAll(Config.simple(lines));
+		if(lines!=null)
+			loader.getHeader().addAll(Config.simple(lines));
 		return this;
 	}
 
 	public Config setFooter(Collection<String> lines) {
 		markModified();
 		loader.getFooter().clear();
-		loader.getFooter().addAll(Config.simple(lines));
+		if(lines!=null)
+			loader.getFooter().addAll(Config.simple(lines));
 		return this;
 	}
 
@@ -723,6 +750,14 @@ public class Config {
 		return this;
 	}
 
+	public boolean merge(Config configToMergeWith) {
+		return merge(configToMergeWith, true, true, true, true);
+	}
+
+	public boolean merge(Config configToMergeWith, boolean addHeader, boolean addFooter) {
+		return merge(configToMergeWith, addHeader, addFooter, true, true);
+	}
+
 	public boolean merge(Config configToMergeWith, boolean addHeader, boolean addFooter, boolean addCommentsAfterValue, boolean addComments) {
 		boolean change = false;
 
@@ -742,6 +777,7 @@ public class Config {
 				}
 		}catch(Exception error) {}
 
+		//values & comments
 		try {
 			boolean first = true;
 			for(Entry<String, DataValue> s : configToMergeWith.loader.get().entrySet()) {
@@ -751,28 +787,30 @@ public class Config {
 					value.writtenValue=s.getValue().writtenValue;
 					change = true;
 				}
-				if(addCommentsAfterValue && value.commentAfterValue==null && s.getValue().commentAfterValue!=null) {
+				if(addCommentsAfterValue && value.commentAfterValue==null && s.getValue().commentAfterValue!=null && !s.getValue().commentAfterValue.equals(value.commentAfterValue)) {
 					value.commentAfterValue=s.getValue().commentAfterValue;
 					change = true;
 				}
 				if(addComments && s.getValue().comments!=null && !s.getValue().comments.isEmpty()) {
 					List<String> comments = value.comments;
 					if(comments==null || comments.isEmpty()) {
-						List<String> simple = Config.simple(s.getValue().comments);
-						if(first && getHeader()!=null && !getHeader().isEmpty() && Config.simple(getHeader()).containsAll(simple))continue;
+						List<String> simple = s.getValue().comments;
+						if(first && getHeader()!=null && !getHeader().isEmpty() && getHeader().containsAll(simple))continue;
 						value.comments=s.getValue().comments;
 						change = true;
 					}
 				}
-				first=false;
+				first = false;
 			}
 		}catch(Exception err) {}
+
 		if(change)
 			markModified();
+
 		return change;
 	}
 
-	private static List<String> simple(List<String> list) {
+	public static List<String> simple(List<String> list) {
 		ListIterator<String> s = list.listIterator();
 		while(s.hasNext()) {
 			String next = s.next();

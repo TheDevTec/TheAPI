@@ -30,63 +30,61 @@ public class API {
 	//Commands api
 	public static CommandsRegister commandsRegister;
 	public static SelectorUtils selectorUtils;
-	
+
 	//Library
 	public static LibraryLoader library;
-	
+
 	//Offline users cache
 	private static OfflineCache cache;
 	private static Map<UUID, Config> users = new ConcurrentHashMap<>();
-	
+
 	//Other cool things
 	private static final Basics basics = new Basics();
 	private static boolean enabled = true;
-	
+
 	public static void initOfflineCache(boolean onlineMode, Config rawData) {
-		cache = new OfflineCache(onlineMode);
+		API.cache = new OfflineCache(onlineMode);
 		for(String uuid : rawData.getKeys())
-			  try {
-			    cache.setLookup(UUID.fromString(uuid), rawData.getString(uuid));
-			  }catch(Exception err) {}
+			try {
+				API.cache.setLookup(UUID.fromString(uuid), rawData.getString(uuid));
+			}catch(Exception err) {}
 	}
-	
+
 	public static OfflineCache offlineCache() {
-		return cache;
+		return API.cache;
 	}
-	
+
 	public static Config getUser(String playerName) {
-		if(cache==null)return null;
-		UUID id = cache.lookupId(playerName);
-		Config cached = users.get(id);
-		if(cached==null) {
-			users.put(id, cached=new Config("plugins/TheAPI/Users/"+id+".yml"));
-		}
+		if(API.cache==null)return null;
+		UUID id = API.cache.lookupId(playerName);
+		Config cached = API.users.get(id);
+		if(cached==null)
+			API.users.put(id, cached=new Config("plugins/TheAPI/Users/"+id+".yml"));
 		return cached;
 	}
-	
+
 	public static Config getUser(UUID id) {
-		if(cache==null)return null;
-		Config cached = users.get(id);
-		if(cached==null) {
-			users.put(id, cached=new Config("plugins/TheAPI/Users/"+id+".yml"));
-		}
+		if(API.cache==null)return null;
+		Config cached = API.users.get(id);
+		if(cached==null)
+			API.users.put(id, cached=new Config("plugins/TheAPI/Users/"+id+".yml"));
 		return cached;
 	}
-	
+
 	public static Config removeCache(UUID id) {
-		return users.remove(id);
+		return API.users.remove(id);
 	}
-	
+
 	public static void setEnabled(boolean status) {
-		enabled=status;
+		API.enabled=status;
 	}
-	
+
 	public static boolean isEnabled() {
-		return enabled;
+		return API.enabled;
 	}
-	
+
 	public static class Basics {
-		
+
 		public void load() {
 			Config tags = new Config("plugins/TheAPI/Tags.yml");
 			tags.setIfAbsent("TagPrefix", "!");
@@ -128,7 +126,7 @@ public class API {
 			String gradientTagSuffixL = tags.getString("Gradient.Suffix.Second");
 			for (String tag : tags.getKeys("Tags"))
 				StringUtils.colorMap.put(tag.toLowerCase(), "#"+tags.getString("Tags." + tag));
-			StringUtils.gradientFinder=Pattern.compile((gradientTagPrefix+"(#[A-Fa-f0-9]{6})"+gradientTagSuffix+"(.*?)"+gradientTagPrefixL+"(#[A-Fa-f0-9]{6})"+gradientTagSuffixL)+"|.*?(?=(?:"+gradientTagPrefix+"#[A-Fa-f0-9]{6}"+gradientTagSuffix+".*?"+gradientTagPrefixL+"#[A-Fa-f0-9]{6}"+gradientTagSuffixL+"))");
+			StringUtils.gradientFinder=Pattern.compile(gradientTagPrefix+"(#[A-Fa-f0-9]{6})"+gradientTagSuffix+"(.*?)"+gradientTagPrefixL+"(#[A-Fa-f0-9]{6})"+gradientTagSuffixL+"|.*?(?=(?:"+gradientTagPrefix+"#[A-Fa-f0-9]{6}"+gradientTagSuffix+".*?"+gradientTagPrefixL+"#[A-Fa-f0-9]{6}"+gradientTagSuffixL+"))");
 			Config config = new Config("plugins/TheAPI/Config.yml");
 			config.setComments("Options.TimeConvertor", Arrays.asList("","# Convertor Actions:","# action, amount, translation","# = (equals)","# < (lower than)","# > (more than)"));
 			config.setIfAbsent("Options.TimeConvertor.Split", " ");
@@ -137,29 +135,29 @@ public class API {
 			if(!(config.get("Options.TimeConvertor.Seconds.Convertor") instanceof Collection))
 				config.set("Options.TimeConvertor.Seconds.Convertor", Arrays.asList("=,1,sec",">,1,secs"));
 			config.setIfAbsent("Options.TimeConvertor.Seconds.Lookup", Arrays.asList("s","sec","second","seconds"));
-			
+
 			config.setIfAbsent("Options.TimeConvertor.Minutes.Convertor", Arrays.asList("=,1,min",">,1,mins"));
 			if(!(config.get("Options.TimeConvertor.Minutes.Convertor") instanceof Collection))
 				config.set("Options.TimeConvertor.Minutes.Convertor", Arrays.asList("=,1,min",">,1,mins"));
 			config.setIfAbsent("Options.TimeConvertor.Minutes.Lookup", Arrays.asList("m","mi","min","minu","minut","minute","minutes"));
-			
+
 			if(!(config.get("Options.TimeConvertor.Hours.Convertor") instanceof Collection))
 				config.set("Options.TimeConvertor.Hours.Convertor", Arrays.asList("=,1,hour",">,1,hours"));
 			config.setIfAbsent("Options.TimeConvertor.Hours.Convertor", Arrays.asList("=,1,hour",">,1,hours"));
 			config.setIfAbsent("Options.TimeConvertor.Hours.Lookup", Arrays.asList("h","ho","hou","hour","hours"));
-			
+
 			config.setIfAbsent("Options.TimeConvertor.Days.Convertor", Arrays.asList("=,1,day",">,1,days"));
 			if(!(config.get("Options.TimeConvertor.Days.Convertor") instanceof Collection))
 				config.set("Options.TimeConvertor.Days.Convertor", Arrays.asList("=,1,day",">,1,days"));
 			config.setIfAbsent("Options.TimeConvertor.Days.Lookup", Arrays.asList("d","da","day","days"));
-			
+
 			config.setIfAbsent("Options.TimeConvertor.Weeks.Lookup", Arrays.asList("w","we","wee","week","weeks"));
-			
+
 			config.setIfAbsent("Options.TimeConvertor.Months.Convertor", Arrays.asList("=,1,month",">,1,months"));
 			if(!(config.get("Options.TimeConvertor.Months.Convertor") instanceof Collection))
 				config.set("Options.TimeConvertor.Months.Convertor", Arrays.asList("=,1,month",">,1,months"));
 			config.setIfAbsent("Options.TimeConvertor.Months.Lookup", Arrays.asList("mo","mon","mont","month","months"));
-			
+
 			config.setIfAbsent("Options.TimeConvertor.Years.Convertor", Arrays.asList("=,1,year",">,1,years"));
 			if(!(config.get("Options.TimeConvertor.Years.Convertor") instanceof Collection))
 				config.set("Options.TimeConvertor.Years.Convertor", Arrays.asList("=,1,year",">,1,years"));
@@ -167,31 +165,31 @@ public class API {
 			config.save();
 
 			StringUtils.timeFormat=config.getString("Options.TimeConvertor.Format");
-			
+
 			List<String> sec = new ArrayList<>();
 			StringUtils.actions.put("Seconds",sec);
 			sec.addAll(config.getStringList("Options.TimeConvertor.Seconds.Convertor"));
 			if(sec.isEmpty())
 				sec.addAll(Arrays.asList("=,0,sec","=,1,sec",">,1,secs"));
-			
+
 			List<String> min = new ArrayList<>();
 			StringUtils.actions.put("Minutes",min);
 			min.addAll(config.getStringList("Options.TimeConvertor.Minutes.Convertor"));
 			if(min.isEmpty())
 				min.addAll(Arrays.asList("=,1,min",">,1,s"));
-			
+
 			List<String> hours = new ArrayList<>();
 			StringUtils.actions.put("Hours",hours);
 			hours.addAll(config.getStringList("Options.TimeConvertor.Hours.Convertor"));
 			if(hours.isEmpty())
 				hours.addAll(Arrays.asList("=,1,hour",">,1,hours"));
-			
+
 			List<String> days = new ArrayList<>();
 			StringUtils.actions.put("Days",days);
 			days.addAll(config.getStringList("Options.TimeConvertor.Days.Convertor"));
 			if(days.isEmpty())
 				days.addAll(Arrays.asList("=,1,day",">,1,days"));
-			
+
 			List<String> weeks = new ArrayList<>();
 			StringUtils.actions.put("Weeks",weeks);
 			weeks.addAll(config.getStringList("Options.TimeConvertor.Weeks.Convertor"));
@@ -200,17 +198,16 @@ public class API {
 
 			List<String> month = new ArrayList<>();
 			StringUtils.actions.put("Months",month);
-			for(String action : config.getStringList("Options.TimeConvertor.Months.Convertor"))
-				month.add(action);
+			month.addAll(config.getStringList("Options.TimeConvertor.Months.Convertor"));
 			if(month.isEmpty())
 				month.addAll(Arrays.asList("=,1,month",">,1,months"));
-			
+
 			List<String> years = new ArrayList<>();
 			StringUtils.actions.put("Years",years);
 			years.addAll(config.getStringList("Options.TimeConvertor.Years.Convertor"));
 			if(years.isEmpty())
 				years.addAll(Arrays.asList("=,1,year",">,1,years"));
-			
+
 			StringUtils.sec=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Seconds.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
 			StringUtils.min=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Minutes.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
 			StringUtils.hour=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Hours.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
@@ -219,14 +216,14 @@ public class API {
 			StringUtils.mon=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Months.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
 			StringUtils.year=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Years.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
 		}
-		
+
 		public String[] getLastColors(Pattern pattern, String text) {
 			Matcher m = pattern.matcher(text);
 			String color = null;
 			StringBuilder formats = new StringBuilder();
 			while (m.find()) {
 				String last = m.group(1).toLowerCase();
-				if(last.charAt(1)!='x' && isFormat((int)last.charAt(1))) {
+				if(last.charAt(1)!='x' && isFormat(last.charAt(1))) {
 					if(last.charAt(1)=='r') {
 						formats.delete(0, formats.length());
 						continue;
@@ -244,11 +241,11 @@ public class API {
 			if(msg==null||fromHex==null||toHex==null)return msg;
 			String split = msg.replace("", "<>");
 			String formats = "";
-			
+
 			StringBuilder builder = new StringBuilder();
 			boolean inRainbow = false;
 			char prev = 0;
-			
+
 			Color fromRGB = Color.decode(StringUtils.color.generateColor());
 			Color toRGB = Color.decode(StringUtils.color.generateColor());
 			double rStep = Math.abs((double) (fromRGB.getRed() - toRGB.getRed()) / msg.length());
@@ -260,7 +257,7 @@ public class API {
 				gStep = -gStep;
 			if (fromRGB.getBlue() > toRGB.getBlue())
 				bStep = -bStep;
-			
+
 			Color finalColor = new Color(fromRGB.getRGB());
 			for(String s : split.split("<>")) {
 				if(s.isEmpty())continue;
@@ -274,16 +271,15 @@ public class API {
 					}
 					if(inRainbow && prev == '§' && (isColor(s.charAt(0))||isFormat(s.charAt(0)))) { //color, destroy rainbow here
 						if(isFormat(s.charAt(0))) {
-							if(s.charAt(0)=='r') {
+							if(s.charAt(0)=='r')
 								formats="§r";
-							}else
+							else
 								formats+="§"+s.charAt(0);
 							prev = c;
 							continue;
-						}else {
-							builder.delete(builder.length()-14, builder.length()); //remove &<random color> string
-							inRainbow = false;
 						}
+						builder.delete(builder.length()-14, builder.length()); //remove &<random color> string
+						inRainbow = false;
 					}
 				}
 				if(c!=' ' && inRainbow) {
@@ -317,16 +313,16 @@ public class API {
 			}
 			return builder.toString();
 		}
-		
+
 		public String gradient(String msg, String fromHex, String toHex) {
 			if(msg==null||fromHex==null||toHex==null)return msg;
 			String split = msg.replace("", "<>");
 			String formats = "";
-			
+
 			StringBuilder builder = new StringBuilder();
 			boolean inRainbow = true;
 			char prev = 0;
-			
+
 			Color fromRGB = Color.decode(StringUtils.color.generateColor());
 			Color toRGB = Color.decode(StringUtils.color.generateColor());
 			double rStep = Math.abs((double) (fromRGB.getRed() - toRGB.getRed()) / msg.length());
@@ -338,7 +334,7 @@ public class API {
 				gStep = -gStep;
 			if (fromRGB.getBlue() > toRGB.getBlue())
 				bStep = -bStep;
-			
+
 			Color finalColor = new Color(fromRGB.getRGB());
 			for(String s : split.split("<>")) {
 				if(s.isEmpty())continue;
@@ -352,16 +348,15 @@ public class API {
 					}
 					if(inRainbow && prev == '§' && (isColor(s.charAt(0))||isFormat(s.charAt(0)))) { //color, destroy rainbow here
 						if(isFormat(s.charAt(0))) {
-							if(s.charAt(0)=='r') {
+							if(s.charAt(0)=='r')
 								formats="§r";
-							}else
+							else
 								formats+="§"+s.charAt(0);
 							prev = c;
 							continue;
-						}else {
-							builder.delete(builder.length()-14, builder.length()); //remove &<random color> string
-							inRainbow = false;
 						}
+						builder.delete(builder.length()-14, builder.length()); //remove &<random color> string
+						inRainbow = false;
 					}
 				}
 				if(c!=' ' && inRainbow) {
@@ -395,18 +390,18 @@ public class API {
 			}
 			return builder.toString();
 		}
-		
+
 		private boolean isColor(int charAt) {
 			return charAt >= 97 && charAt <= 102 || charAt >= 65 && charAt <= 70 || charAt >= 48 && charAt <= 57;
 		}
-		
+
 		private boolean isFormat(int charAt) {
 			return charAt >= 107 && charAt <= 111 || charAt == 114;
 		}
 	}
-	
+
 	public static Basics basics() {
-		return basics;
+		return API.basics;
 	}
 
 	public static double getProcessCpuLoad() {
@@ -420,7 +415,7 @@ public class API {
 			Double value = (Double) att.getValue();
 			if (value == -1.0)
 				return 0;
-			return ((value * 1000.0) / 10.0);
+			return value * 1000.0 / 10.0;
 		} catch (Exception e) {
 			return 0;
 		}
@@ -432,7 +427,7 @@ public class API {
 	 * @return int
 	 */
 	public static int generateRandomInt(int maxInt) {
-		return generateRandomInt(0, maxInt);
+		return API.generateRandomInt(0, maxInt);
 	}
 
 	/**
@@ -441,7 +436,7 @@ public class API {
 	 * @return double
 	 */
 	public static double generateRandomDouble(double maxDouble) {
-		return generateRandomDouble(0, maxDouble);
+		return API.generateRandomDouble(0, maxDouble);
 	}
 
 	/**

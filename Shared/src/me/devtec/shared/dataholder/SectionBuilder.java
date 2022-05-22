@@ -108,7 +108,7 @@ class SectionBuilder {
 					if(!((Collection<?>) value).isEmpty())
 						try {
 							if(dataVal.writtenValue!=null)
-								SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, dataVal.writtenValue, value instanceof Comparable && !(value instanceof String)), commentAfterValue).append(System.lineSeparator());
+								SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, dataVal.writtenValue, value instanceof String ? '"' : 0), commentAfterValue).append(System.lineSeparator());
 							else {
 								SectionBuilder.addCommentIfAvailable(b.append(sectionLine), commentAfterValue).append(System.lineSeparator());
 								for (Object a : (Collection<?>) value)
@@ -130,7 +130,7 @@ class SectionBuilder {
 				} else if(((Object[]) value).length!=0)
 					try {
 						if(dataVal.writtenValue!=null)
-							SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, dataVal.writtenValue, value instanceof Comparable && !(value instanceof String)), commentAfterValue).append(System.lineSeparator());
+							SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, dataVal.writtenValue, value instanceof String ? '"' : 0), commentAfterValue).append(System.lineSeparator());
 						else {
 							SectionBuilder.addCommentIfAvailable(b.append(sectionLine), commentAfterValue).append(System.lineSeparator());
 							for (Object a : (Object[]) value)
@@ -152,14 +152,14 @@ class SectionBuilder {
 			} else //write normal value
 				try {
 					if(dataVal.writtenValue!=null)
-						SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, dataVal.writtenValue, value instanceof Comparable && !(value instanceof String)), commentAfterValue).append(System.lineSeparator());
+						SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, dataVal.writtenValue, value instanceof String ? '"' : '\''), commentAfterValue).append(System.lineSeparator());
 					else if(value instanceof String)
-						SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, (String)value, false), commentAfterValue).append(System.lineSeparator());
+						SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, (String)value, '"'), commentAfterValue).append(System.lineSeparator());
 					else
 						SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, value), commentAfterValue).append(System.lineSeparator());
 				}catch(Exception er) {
 					if(value instanceof String)
-						SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, (String)value, false), commentAfterValue).append(System.lineSeparator());
+						SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, (String)value, '"'), commentAfterValue).append(System.lineSeparator());
 					else
 						SectionBuilder.addCommentIfAvailable(SectionBuilder.addQuotes(b, sectionLine, value), commentAfterValue).append(System.lineSeparator());
 				}
@@ -192,14 +192,14 @@ class SectionBuilder {
 		return b;
 	}
 
-	protected static StringBuilder addQuotes(StringBuilder b, CharSequence pathName, String value, boolean add) {
+	protected static StringBuilder addQuotes(StringBuilder b, CharSequence pathName, String value, char add) {
 		b.append(pathName).append(' ');
-		if(add)
+		if(add==0)
 			b.append(value);
 		else {
-			b.append('"');
+			b.append(add);
 			b.append(value);
-			b.append('"');
+			b.append(add);
 		}
 		return b;
 	}

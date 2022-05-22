@@ -1,6 +1,10 @@
 package me.devtec.shared.dataholder.loaders.constructor;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import me.devtec.shared.json.Json;
 
 public class DataValue {
 
@@ -47,4 +51,17 @@ public class DataValue {
 
 	public String commentAfterValue;
 	public List<String> comments;
+
+	@Override
+	public String toString() {
+		Map<String, Object> values = new HashMap<>();
+		values.put("value", value+"");
+		if(writtenValue!=null)
+			values.put("writtenValue", writtenValue);
+		if(commentAfterValue!=null)
+			values.put("commentAfterValue", commentAfterValue);
+		if(comments!=null)
+			values.put("comments", comments);
+		return Json.writer().simpleWrite(values);
+	}
 }

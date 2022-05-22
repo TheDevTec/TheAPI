@@ -52,7 +52,7 @@ public abstract class DataLoader {
 
 	public abstract void set(String key, DataValue value);
 
-	public abstract void remove(String key);
+	public abstract boolean remove(String key);
 
 	public abstract Collection<String> getHeader();
 

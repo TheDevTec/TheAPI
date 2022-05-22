@@ -42,10 +42,10 @@ public class EmptyLoader extends DataLoader {
 	}
 
 	@Override
-	public void remove(String key) {
+	public boolean remove(String key) {
 		if (key == null)
-			return;
-		data.remove(key);
+			return false;
+		return data.remove(key) != null;
 	}
 
 	@Override
