@@ -23,7 +23,7 @@ import net.minecraft.util.io.netty.channel.ChannelInboundHandlerAdapter;
 import net.minecraft.util.io.netty.channel.ChannelInitializer;
 import net.minecraft.util.io.netty.channel.ChannelPromise;
 
-public class PacketHandler_Legacy implements PacketHandler<Channel> {
+public class PacketHandlerLegacy implements PacketHandler<Channel> {
 	private static final Class<?> login = Ref.nms("PacketLoginInStart");
 	private static final Class<?> postlogin = Ref.nms("PacketLoginOutSuccess");
 	static final Field f = Ref.field(login, "a");
@@ -37,7 +37,7 @@ public class PacketHandler_Legacy implements PacketHandler<Channel> {
 	private ChannelInitializer<Channel> endInitProtocol;
 	protected volatile boolean closed;
 
-	public PacketHandler_Legacy(boolean lateBind) {
+	public PacketHandlerLegacy(boolean lateBind) {
 		serverConnection = Ref.invoke(BukkitLoader.getNmsProvider().getMinecraftServer(),"getServerConnection");
 		if(serverConnection==null) //modded server
 		for(Field f : Ref.getAllFields(BukkitLoader.getNmsProvider().getMinecraftServer().getClass()))

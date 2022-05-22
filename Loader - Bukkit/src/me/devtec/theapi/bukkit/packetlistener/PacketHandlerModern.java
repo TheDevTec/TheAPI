@@ -25,7 +25,7 @@ import me.devtec.shared.scheduler.Tasker;
 import me.devtec.theapi.bukkit.BukkitLoader;
 
 @SuppressWarnings("unchecked")
-public class PacketHandler_New implements PacketHandler<Channel> {
+public class PacketHandlerModern implements PacketHandler<Channel> {
 	private static final Class<?> login = Ref.nmsOrOld("network.protocol.login.PacketLoginInStart","PacketLoginInStart");
 	private static final Class<?> postlogin = Ref.nmsOrOld("network.protocol.login.PacketLoginOutSuccess","PacketLoginOutSuccess");
 	static final Field f = Ref.field(login, "a");
@@ -39,7 +39,7 @@ public class PacketHandler_New implements PacketHandler<Channel> {
 	private ChannelInitializer<Channel> endInitProtocol;
 	protected volatile boolean closed;
 	
-	public PacketHandler_New(boolean lateBind) {
+	public PacketHandlerModern(boolean lateBind) {
 		serverConnection = Ref.invoke(BukkitLoader.getNmsProvider().getMinecraftServer(),"getServerConnection");
 		if(serverConnection==null) //modded server
 		for(Field f : Ref.getAllFields(BukkitLoader.getNmsProvider().getMinecraftServer().getClass()))
