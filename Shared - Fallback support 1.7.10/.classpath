@@ -4,5 +4,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="D:/jars/mc/spigot-1.7.10.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Loader - Bukkit"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
