@@ -1,4 +1,5 @@
 package me.devtec.shared.sockets;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -20,63 +21,61 @@ public class Server {
 	protected ServerSocket server;
 	protected final String pas;
 	private boolean closed;
-	
+
 	public Server(String password, int port) {
-		pas=password;
+		this.pas = password;
 		try {
-			server = new ServerSocket(port);
-			server.setSoTimeout(200);
-			new Thread(new Runnable() {
-				public void run() {
-					while(!closed) {
-						Socket receive;
+			this.server = new ServerSocket(port);
+			this.server.setSoTimeout(200);
+			new Thread(() -> {
+				while (!Server.this.closed) {
+					Socket receive;
+					try {
+						receive = Server.this.server.accept();
+					} catch (Exception e2) {
 						try {
-							receive = server.accept();
-						} catch (Exception e) {
-							try {
-								Thread.sleep(7000);
-							} catch (Exception e1) {
-							}
-							continue;
+							Thread.sleep(7000);
+						} catch (Exception e11) {
 						}
-						BufferedReader reader;
-						PrintWriter writer;
-						try {
-							reader = new BufferedReader(new InputStreamReader(receive.getInputStream()));
-							writer = new PrintWriter(receive.getOutputStream(),true);
-						} catch (Exception e) {
-							try {
-								receive.close();
-							} catch (Exception e1) {
-							}
-							try {
-								Thread.sleep(7000);
-							} catch (Exception e1) {
-							}
-							continue;
-						}
-						ClientHandler handler = new ClientHandler(Server.this, receive, reader, writer);
-		                sockets.put(receive, new ServerClient(handler));
-		                handler.start();
+						continue;
 					}
+					BufferedReader reader;
+					PrintWriter writer;
+					try {
+						reader = new BufferedReader(new InputStreamReader(receive.getInputStream()));
+						writer = new PrintWriter(receive.getOutputStream(), true);
+					} catch (Exception e3) {
+						try {
+							receive.close();
+						} catch (Exception e12) {
+						}
+						try {
+							Thread.sleep(7000);
+						} catch (Exception e13) {
+						}
+						continue;
+					}
+					ClientHandler handler = new ClientHandler(Server.this, receive, reader, writer);
+					Server.this.sockets.put(receive, new ServerClient(handler));
+					handler.start();
 				}
 			}).start();
 		} catch (Exception e) {
 			new Tasker() {
+				@Override
 				public void run() {
 					try {
-					server = new ServerSocket(port);
-					server.setSoTimeout(200);
-					new Thread(new Runnable() {
-						public void run() {
-							while(!closed) {
+						Server.this.server = new ServerSocket(port);
+						Server.this.server.setSoTimeout(200);
+						new Thread(() -> {
+							while (!Server.this.closed) {
 								Socket receive;
 								try {
-									receive = server.accept();
-								} catch (Exception e) {
+									receive = Server.this.server.accept();
+								} catch (Exception e2) {
 									try {
 										Thread.sleep(7000);
-									} catch (Exception e1) {
+									} catch (Exception e11) {
 									}
 									continue;
 								}
@@ -84,85 +83,86 @@ public class Server {
 								PrintWriter writer;
 								try {
 									reader = new BufferedReader(new InputStreamReader(receive.getInputStream()));
-									writer = new PrintWriter(receive.getOutputStream(),true);
-								} catch (Exception e) {
+									writer = new PrintWriter(receive.getOutputStream(), true);
+								} catch (Exception e3) {
 									try {
 										receive.close();
-									} catch (Exception e1) {
+									} catch (Exception e12) {
 									}
 									try {
 										Thread.sleep(7000);
-									} catch (Exception e1) {
+									} catch (Exception e13) {
 									}
 									continue;
 								}
 								ClientHandler handler = new ClientHandler(Server.this, receive, reader, writer);
-				                sockets.put(receive, new ServerClient(handler));
-				                handler.start();
+								Server.this.sockets.put(receive, new ServerClient(handler));
+								handler.start();
 							}
-						}
-					}).start();
-					} catch (Exception e) {e.printStackTrace();}
+						}).start();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}.runLater(100);
 		}
-    }
-	
+	}
+
 	public void writeAll(String path, Object object) {
-		for(ServerClient s : sockets.values())
+		for (ServerClient s : this.sockets.values())
 			s.write(path, object);
 	}
-	
+
 	public void write(String client, String path, Object object) {
-		for(ServerClient s : sockets.values())
-			if(s.getName().equals(client))
+		for (ServerClient s : this.sockets.values())
+			if (s.getName().equals(client))
 				s.write(path, object);
 	}
-	
+
 	public void sendAll() {
-		for(ServerClient s : sockets.values())
+		for (ServerClient s : this.sockets.values())
 			s.send();
 	}
-	
+
 	public void send(String client) {
-		for(ServerClient s : sockets.values())
-			if(s.getName().equals(client))
+		for (ServerClient s : this.sockets.values())
+			if (s.getName().equals(client))
 				s.send();
 	}
-	
+
 	protected void read(ServerClient client, final Config data) {
 		EventManager.call(new ClientReceiveMessageEvent(client, data));
-		readers.forEach(a -> {
+		this.readers.forEach(a -> {
 			a.read(client, data);
 		});
 	}
-	
+
 	public void register(Reader reader) {
-		readers.add(reader);
+		this.readers.add(reader);
 	}
-	
+
 	public void unregister(Reader reader) {
-		readers.remove(reader);
+		this.readers.remove(reader);
 	}
-    
+
 	public boolean isClosed() {
-		return closed;
+		return this.closed;
 	}
-	
-    public void exit() {
-		closed=true;
+
+	public void exit() {
+		this.closed = true;
 		try {
-	    	sockets.values().forEach(s -> s.exit());
-	    	sockets.clear();
+			this.sockets.values().forEach(s -> s.exit());
+			this.sockets.clear();
 		} catch (Exception e) {
 		}
 		try {
-			server.getChannel().close();
-		}catch (Exception e) {
+			this.server.getChannel().close();
+		} catch (Exception e) {
 		}
 		try {
-	    	server.close();
-		}catch (Exception e) {
+			this.server.close();
+		} catch (Exception e) {
 		}
-    }
+	}
 }

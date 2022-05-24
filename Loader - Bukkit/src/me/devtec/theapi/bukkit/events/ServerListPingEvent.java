@@ -25,37 +25,37 @@ public class ServerListPingEvent extends Event implements Cancellable {
 		this.playersText = playersText;
 		this.motd = motd;
 		this.falvicon = falvicon;
-		this.protocol=protocol;
+		this.protocol = protocol;
 		this.address = inetAddress;
-		version=ver;
+		this.version = ver;
 	}
 
 	public String getVersion() {
-		return version;
+		return this.version;
 	}
-	
+
 	public void setVersion(String ver) {
-		version=ver;
+		this.version = ver;
 	}
 
 	public int getProtocol() {
-		return protocol;
+		return this.protocol;
 	}
-	
+
 	public void setProtocol(int protocol) {
-		this.protocol=protocol;
+		this.protocol = protocol;
 	}
-	
+
 	public InetAddress getAddress() {
-		return address;
+		return this.address;
 	}
 
 	public int getOnlinePlayers() {
-		return online;
+		return this.online;
 	}
 
 	public int getMaxPlayers() {
-		return max;
+		return this.max;
 	}
 
 	public void setOnlinePlayers(int online) {
@@ -67,7 +67,7 @@ public class ServerListPingEvent extends Event implements Cancellable {
 	}
 
 	public List<PlayerProfile> getPlayersText() {
-		return playersText;
+		return this.playersText;
 	}
 
 	public void setPlayersText(List<PlayerProfile> playersText) {
@@ -75,7 +75,7 @@ public class ServerListPingEvent extends Event implements Cancellable {
 	}
 
 	public String getMotd() {
-		return motd;
+		return this.motd;
 	}
 
 	public void setMotd(String motd) {
@@ -83,71 +83,84 @@ public class ServerListPingEvent extends Event implements Cancellable {
 	}
 
 	public String getFalvicon() {
-		return falvicon;
+		return this.falvicon;
 	}
 
 	public void setFalvicon(String falvicon) {
 		this.falvicon = falvicon;
 	}
 
+	@Override
 	public boolean isCancelled() {
-		return cancel;
+		return this.cancel;
 	}
 
 	@Override
 	public void setCancelled(boolean cancel) {
 		this.cancel = cancel;
 	}
-	
+
 	public static class PlayerProfile {
 		private static final UUID defaultUuid = UUID.randomUUID();
 		private static final String defaultName = "";
 
 		private String name;
 		private UUID uuid;
-		
+
 		public PlayerProfile(String name, UUID u) {
-			if(name==null)this.name=defaultName;
-			else this.name = name;
-			if(u==null)uuid = defaultUuid;
-			else uuid = u;
+			if (name == null)
+				this.name = PlayerProfile.defaultName;
+			else
+				this.name = name;
+			if (u == null)
+				this.uuid = PlayerProfile.defaultUuid;
+			else
+				this.uuid = u;
 		}
-		
+
 		public PlayerProfile(String name) {
-			if(name==null)this.name=defaultName;
-			else this.name = name;
-			uuid = defaultUuid;
+			if (name == null)
+				this.name = PlayerProfile.defaultName;
+			else
+				this.name = name;
+			this.uuid = PlayerProfile.defaultUuid;
 		}
-		
+
 		public PlayerProfile(UUID u) {
-			this.name=defaultName;
-			if(u==null)uuid = defaultUuid;
-			else uuid = u;
+			this.name = PlayerProfile.defaultName;
+			if (u == null)
+				this.uuid = PlayerProfile.defaultUuid;
+			else
+				this.uuid = u;
 		}
-		
+
 		public PlayerProfile() {
-			this.name=defaultName;
-			uuid = defaultUuid;
+			this.name = PlayerProfile.defaultName;
+			this.uuid = PlayerProfile.defaultUuid;
 		}
-		
+
 		public PlayerProfile setName(String name) {
-			if(name==null)this.name=defaultName;
-			else this.name=name;
+			if (name == null)
+				this.name = PlayerProfile.defaultName;
+			else
+				this.name = name;
 			return this;
 		}
-		
+
 		public String getName() {
-			return name;
+			return this.name;
 		}
-		
+
 		public PlayerProfile setUUID(UUID uuid) {
-			if(uuid==null)this.uuid = defaultUuid;
-			else this.uuid = uuid;
+			if (uuid == null)
+				this.uuid = PlayerProfile.defaultUuid;
+			else
+				this.uuid = uuid;
 			return this;
 		}
-		
+
 		public UUID getUUID() {
-			return uuid;
+			return this.uuid;
 		}
 	}
 }

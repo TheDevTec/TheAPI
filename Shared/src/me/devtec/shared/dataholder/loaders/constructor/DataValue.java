@@ -15,31 +15,31 @@ public class DataValue {
 
 	public static DataValue of(String writtenValue, Object value, String commentAfterValue, List<String> comments) {
 		DataValue data = new DataValue();
-		data.value=value;
-		data.writtenValue=writtenValue;
-		data.commentAfterValue=commentAfterValue;
-		data.comments=comments;
+		data.value = value;
+		data.writtenValue = writtenValue;
+		data.commentAfterValue = commentAfterValue;
+		data.comments = comments;
 		return data;
 	}
 
 	public static DataValue of(String writtenValue, Object value, String commentAfterValue) {
 		DataValue data = new DataValue();
-		data.value=value;
-		data.writtenValue=writtenValue;
-		data.commentAfterValue=commentAfterValue;
+		data.value = value;
+		data.writtenValue = writtenValue;
+		data.commentAfterValue = commentAfterValue;
 		return data;
 	}
 
 	public static DataValue of(String writtenValue, Object value) {
 		DataValue data = new DataValue();
-		data.value=value;
-		data.writtenValue=writtenValue;
+		data.value = value;
+		data.writtenValue = writtenValue;
 		return data;
 	}
 
 	public static DataValue of(Object value) {
 		DataValue data = new DataValue();
-		data.value=value;
+		data.value = value;
 		return data;
 	}
 
@@ -54,13 +54,13 @@ public class DataValue {
 	@Override
 	public String toString() {
 		Map<String, Object> values = new HashMap<>();
-		values.put("value", value+"");
-		if(writtenValue!=null)
-			values.put("writtenValue", writtenValue);
-		if(commentAfterValue!=null)
-			values.put("commentAfterValue", commentAfterValue);
-		if(comments!=null)
-			values.put("comments", comments);
+		values.put("value", this.value + "");
+		if (this.writtenValue != null)
+			values.put("writtenValue", this.writtenValue);
+		if (this.commentAfterValue != null)
+			values.put("commentAfterValue", this.commentAfterValue);
+		if (this.comments != null)
+			values.put("comments", this.comments);
 		return Json.writer().simpleWrite(values);
 	}
 }

@@ -15,36 +15,41 @@ import me.devtec.theapi.bukkit.game.particles.ParticleData.RedstoneOptions;
 
 public class Particle {
 	public static final Map<String, Object> identifier = new ConcurrentHashMap<>();
-	
+
 	private static Constructor<?> paramRed;
 	private static Constructor<?> paramDust;
 	private static Constructor<?> paramBlock;
 	private static Constructor<?> paramItem;
-	private static final Constructor<?> vector=Ref.constructor(Ref.getClass("com.mojang.math.Vector3fa"), float.class, float.class, float.class);
+	private static final Constructor<?> vector = Ref.constructor(Ref.getClass("com.mojang.math.Vector3fa"), float.class,
+			float.class, float.class);
 	private static final Class<?> part;
-	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref
+			.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
 
 	private final Object particle;
 	private final String name;
 	private final ParticleData data;
-	
+
 	static {
-		part=Ref.nmsOrOld("network.protocol.game.PacketPlayOutWorldParticles", "PacketPlayOutWorldParticles");
-		if(Ref.nmsOrOld("core.particles.ParticleParamRedstone","ParticleParamRedstone")!=null) {
-			paramRed = Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamRedstone","ParticleParamRedstone"))[0];
-			paramBlock=Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamBlock","ParticleParamBlock"))[0];
-			paramItem=Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamItem","ParticleParamItem"))[0];
+		part = Ref.nmsOrOld("network.protocol.game.PacketPlayOutWorldParticles", "PacketPlayOutWorldParticles");
+		if (Ref.nmsOrOld("core.particles.ParticleParamRedstone", "ParticleParamRedstone") != null) {
+			paramRed = Ref
+					.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamRedstone", "ParticleParamRedstone"))[0];
+			paramBlock = Ref
+					.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamBlock", "ParticleParamBlock"))[0];
+			paramItem = Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamItem", "ParticleParamItem"))[0];
 		}
-		if(Ref.isNewerThan(16))
-			paramDust = Ref.getConstructors(Ref.nmsOrOld("core.particles.DustColorTransitionOptions","DustColorTransitionOptions"))[0];
+		if (Ref.isNewerThan(16))
+			paramDust = Ref.getConstructors(
+					Ref.nmsOrOld("core.particles.DustColorTransitionOptions", "DustColorTransitionOptions"))[0];
 	}
-	
+
 	public static Set<String> getParticles() {
 		return identifier.keySet();
 	}
 
 	private static Object toNMS(String particle) {
-		return identifier.getOrDefault(particle.toLowerCase(), identifier.get("minecraft:"+particle.toLowerCase()));
+		return identifier.getOrDefault(particle.toLowerCase(), identifier.get("minecraft:" + particle.toLowerCase()));
 	}
 
 	public Particle(String particle) {
@@ -53,14 +58,15 @@ public class Particle {
 
 	public Particle(String particle, ParticleData data) {
 		name = particle.toLowerCase();
-		if(!Ref.isOlderThan(8))
-		this.particle = toNMS(particle);
-		else this.particle=name;
+		if (!Ref.isOlderThan(8))
+			this.particle = toNMS(particle);
+		else
+			this.particle = name;
 		this.data = data;
 	}
-	
+
 	public boolean isValid() {
-		return particle!=null;
+		return particle != null;
 	}
 
 	public Object getParticle() {
@@ -86,7 +92,7 @@ public class Particle {
 	public Object createPacket(Position pos, float speed, int amount) {
 		return createPacket(pos.getX(), pos.getY(), pos.getZ(), speed, amount);
 	}
-	
+
 	public Object createPacket(double x, double y, double z, float speed, int amount) {
 		Object packet;
 		try {
@@ -107,16 +113,17 @@ public class Particle {
 					Ref.set(packet, "d", d.getValueX());
 					Ref.set(packet, "e", d.getValueY());
 					Ref.set(packet, "f", d.getValueZ());
-					if(Ref.isNewerThan(16)) {
-						if(name.equalsIgnoreCase("dust_color_transition"))
-						Ref.set(packet, "j", Ref.newInstance(paramDust,
-								Ref.newInstance(vector, d.getValueX(), d.getValueY(), d.getValueZ()), Ref.newInstance(vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize()));
+					if (Ref.isNewerThan(16)) {
+						if (name.equalsIgnoreCase("dust_color_transition"))
+							Ref.set(packet, "j", Ref.newInstance(paramDust,
+									Ref.newInstance(vector, d.getValueX(), d.getValueY(), d.getValueZ()),
+									Ref.newInstance(vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize()));
 						else
-						Ref.set(packet, "j", Ref.newInstance(paramRed,
-							Ref.newInstance(vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize()));
-					}else
-					Ref.set(packet, "j", Ref.newInstance(paramRed,
-							d.getValueX(), d.getValueY(), d.getValueZ(), d.getSize()));
+							Ref.set(packet, "j", Ref.newInstance(paramRed,
+									Ref.newInstance(vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize()));
+					} else
+						Ref.set(packet, "j",
+								Ref.newInstance(paramRed, d.getValueX(), d.getValueY(), d.getValueZ(), d.getSize()));
 					return packet;
 				}
 				if (data instanceof NoteOptions) {
@@ -129,12 +136,12 @@ public class Particle {
 				}
 				if (data instanceof BlockOptions) {
 					BlockOptions a = (BlockOptions) data;
-					Ref.set(packet, "j", Ref.newInstance(paramBlock,
-							particle, a.getType().getIBlockData()));
+					Ref.set(packet, "j", Ref.newInstance(paramBlock, particle, a.getType().getIBlockData()));
 					return packet;
 				}
 				ItemOptions a = (ItemOptions) data;
-				Ref.set(packet, "j", Ref.newInstance(paramItem, particle, BukkitLoader.getNmsProvider().asNMSItem(a.getItem())));
+				Ref.set(packet, "j",
+						Ref.newInstance(paramItem, particle, BukkitLoader.getNmsProvider().asNMSItem(a.getItem())));
 				return packet;
 			}
 			Ref.set(packet, "j", particle);
@@ -184,8 +191,9 @@ public class Particle {
 				int[] packetData = data instanceof BlockOptions ? ((BlockOptions) data).getPacketData()
 						: ((ItemOptions) data).getPacketData();
 				Ref.set(packet, "k",
-						name.equalsIgnoreCase("CRACK_ITEM") || name.equalsIgnoreCase("ITEM_CRACK") || name.equalsIgnoreCase("ITEM") || name.equalsIgnoreCase("ITEM_TAKE") ? packetData
-								: new int[] { packetData[0] | (packetData[1] << 12) });
+						name.equalsIgnoreCase("CRACK_ITEM") || name.equalsIgnoreCase("ITEM_CRACK")
+								|| name.equalsIgnoreCase("ITEM") || name.equalsIgnoreCase("ITEM_TAKE") ? packetData
+										: new int[] { packetData[0] | (packetData[1] << 12) });
 			}
 		}
 		return packet;

@@ -34,7 +34,8 @@ import me.devtec.shared.utility.StringUtils.ColormaticFactory;
 import me.devtec.theapi.velocity.commands.hooker.VelocityCommandManager;
 import me.devtec.theapi.velocity.commands.selectors.VelocitySelectorUtils;
 
-@Plugin(id = "theapi", name = "TheAPI", version = "9.9.5", authors = {"DevTec", "StraikerinaCZ"}, url = "https://www.spigotmc.org/resources/72679/")
+@Plugin(id = "theapi", name = "TheAPI", version = "9.9.5", authors = { "DevTec",
+		"StraikerinaCZ" }, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 
 	private static ProxyServer server;
@@ -45,7 +46,7 @@ public class VelocityLoader {
 
 	@Inject
 	public VelocityLoader(ProxyServer server) {
-		VelocityLoader.server=server;
+		VelocityLoader.server = server;
 		VelocityLoader.initTheAPI(server);
 	}
 
@@ -53,7 +54,7 @@ public class VelocityLoader {
 	public void onProxyInitialization(ProxyShutdownEvent event) {
 		API.setEnabled(false);
 
-		//OfflineCache support!
+		// OfflineCache support!
 		API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save();
 	}
 
@@ -63,37 +64,39 @@ public class VelocityLoader {
 	}
 
 	@Subscribe
-	public void onLoginEvent(LoginEvent e) { //fix uuid - premium login?
+	public void onLoginEvent(LoginEvent e) { // fix uuid - premium login?
 		API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getUsername());
 	}
 
 	@Subscribe
 	public void onDisconnect(DisconnectEvent e) {
 		Config cache = API.removeCache(e.getPlayer().getUniqueId());
-		if(cache!=null)cache.save();
+		if (cache != null)
+			cache.save();
 	}
 
 	public static void initTheAPI(ProxyServer server) {
-		//Commands api
-		API.commandsRegister=new VelocityCommandManager();
-		API.selectorUtils=new VelocitySelectorUtils();
+		// Commands api
+		API.commandsRegister = new VelocityCommandManager();
+		API.selectorUtils = new VelocitySelectorUtils();
 
-		//OfflineCache support!
+		// OfflineCache support!
 		API.initOfflineCache(server.getConfiguration().isOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));
 
-		Ref.init(ServerType.VELOCITY, server.getVersion().getVersion()); //Server version
+		Ref.init(ServerType.VELOCITY, server.getVersion().getVersion()); // Server version
 		ComponentAPI.registerTransformer("ADVENTURE", new AdventureComponentAPI<>());
-		Json.init(new ModernJsonReader(), new ModernJsonWriter()); //Modern version of Guava
+		Json.init(new ModernJsonReader(), new ModernJsonWriter()); // Modern version of Guava
 		API.library = new LibraryLoader() {
 			List<File> loaded = new ArrayList<>();
 
 			@SuppressWarnings("resource")
 			@Override
 			public void load(File file) {
-				if(isLoaded(file) || !file.exists())return;
-				loaded.add(file);
+				if (this.isLoaded(file) || !file.exists())
+					return;
+				this.loaded.add(file);
 				try {
-					new PluginClassLoader(new URL[] {file.toURI().toURL()}).addToClassloaders();
+					new PluginClassLoader(new URL[] { file.toURI().toURL() }).addToClassloaders();
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				}
@@ -101,15 +104,17 @@ public class VelocityLoader {
 
 			@Override
 			public boolean isLoaded(File file) {
-				return loaded.contains(file);
+				return this.loaded.contains(file);
 			}
 		};
 		API.basics().load();
-		StringUtils.rainbowSplit = Pattern.compile("(&?#[A-Fa-f0-9]{6}([&§][K-Ok-oRr])*|[&§][Xx]([&§][A-Fa-f0-9]){6}([&§][K-Ok-oRr])*|[&§][A-Fa-f0-9K-ORrk-oUuXx]([&§][K-Ok-oRr])*)");
+		StringUtils.rainbowSplit = Pattern.compile(
+				"(&?#[A-Fa-f0-9]{6}([&§][K-Ok-oRr])*|[&§][Xx]([&§][A-Fa-f0-9]){6}([&§][K-Ok-oRr])*|[&§][A-Fa-f0-9K-ORrk-oUuXx]([&§][K-Ok-oRr])*)");
 		StringUtils.color = new ColormaticFactory() {
 			char[] characters = "abcdef0123456789".toCharArray();
 			Random random = new Random();
-			Pattern getLast = Pattern.compile("(&?#[A-Fa-f0-9k-oK-ORrXxUu]{6}|§[Xx](§[A-Fa-f0-9k-oK-ORrXxUu]){6}|§[A-Fa-f0-9k-oK-ORrXxUu]|&[Uu])");
+			Pattern getLast = Pattern.compile(
+					"(&?#[A-Fa-f0-9k-oK-ORrXxUu]{6}|§[Xx](§[A-Fa-f0-9k-oK-ORrXxUu]){6}|§[A-Fa-f0-9k-oK-ORrXxUu]|&[Uu])");
 			Pattern hex = Pattern.compile("(&?#[a-fA-F0-9]{6})");
 
 			@Override
@@ -121,23 +126,23 @@ public class VelocityLoader {
 			public String generateColor() {
 				StringBuilder b = new StringBuilder("&#");
 				for (int i = 0; i < 6; ++i)
-					b.append(characters[random.nextInt(16)]);
+					b.append(this.characters[this.random.nextInt(16)]);
 				return b.toString();
 			}
 
 			@Override
 			public String[] getLastColors(String text) {
-				return API.basics().getLastColors(getLast, text);
+				return API.basics().getLastColors(this.getLast, text);
 			}
 
 			@Override
 			public String replaceHex(String original) {
 				String msg = original;
-				Matcher match = hex.matcher(msg);
+				Matcher match = this.hex.matcher(msg);
 				while (match.find()) {
 					String color = match.group();
-					if(!color.startsWith("&"))
-						msg = msg.replace(color, "&"+color);
+					if (!color.startsWith("&"))
+						msg = msg.replace(color, "&" + color);
 				}
 				return msg;
 			}

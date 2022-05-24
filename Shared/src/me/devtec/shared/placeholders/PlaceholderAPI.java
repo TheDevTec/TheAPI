@@ -10,71 +10,75 @@ import java.util.regex.Pattern;
 
 public class PlaceholderAPI {
 	public static Pattern placeholderLookup = Pattern.compile("\\%(.*?)\\%"); // %PLACEHOLDER_NAME%
-	
+
 	private static List<PlaceholderExpansion> extensions = new ArrayList<>();
-	
+
 	public static void register(PlaceholderExpansion ext) {
-		unregister(ext); //Unregister placeholders with same name
-		extensions.add(ext);
+		PlaceholderAPI.unregister(ext); // Unregister placeholders with same name
+		PlaceholderAPI.extensions.add(ext);
 	}
-	
+
 	public static void unregister(PlaceholderExpansion ext) {
-		extensions.remove(ext);
-		//Lookup for same names
-		Iterator<PlaceholderExpansion> iterator = extensions.iterator();
-		while(iterator.hasNext()) {
+		PlaceholderAPI.extensions.remove(ext);
+		// Lookup for same names
+		Iterator<PlaceholderExpansion> iterator = PlaceholderAPI.extensions.iterator();
+		while (iterator.hasNext()) {
 			PlaceholderExpansion reg = iterator.next();
-			if(reg.getName().equalsIgnoreCase(ext.getName()))iterator.remove();
+			if (reg.getName().equalsIgnoreCase(ext.getName()))
+				iterator.remove();
 		}
 	}
-	
+
 	public static String apply(String text, UUID player) {
-		Matcher match = placeholderLookup.matcher(text);
-		while(match.find()) {
+		Matcher match = PlaceholderAPI.placeholderLookup.matcher(text);
+		while (match.find()) {
 			String placeholder = match.group(1);
-			for(PlaceholderExpansion ext : extensions) {
+			for (PlaceholderExpansion ext : PlaceholderAPI.extensions) {
 				String value = ext.apply(placeholder, player);
-				if(value!=null) {
-					text=text.replace(match.group(), value);
+				if (value != null) {
+					text = text.replace(match.group(), value);
 					break;
 				}
 			}
 		}
 		return text;
 	}
-	
+
 	public static List<String> apply(List<String> text, UUID player) {
 		ListIterator<String> list = text.listIterator();
-		while(list.hasNext()) {
+		while (list.hasNext()) {
 			String val = list.next();
-			list.set(apply(val, player));
+			list.set(PlaceholderAPI.apply(val, player));
 		}
 		return text;
 	}
-	
+
 	public static PlaceholderExpansion getExpansion(String extensionName) {
-		Iterator<PlaceholderExpansion> iterator = extensions.iterator();
-		while(iterator.hasNext()) {
+		Iterator<PlaceholderExpansion> iterator = PlaceholderAPI.extensions.iterator();
+		while (iterator.hasNext()) {
 			PlaceholderExpansion reg = iterator.next();
-			if(reg.getName().equalsIgnoreCase(extensionName))return reg;
+			if (reg.getName().equalsIgnoreCase(extensionName))
+				return reg;
 		}
 		return null;
 	}
-	
+
 	public static boolean isRegistered(String extensionName) {
-		Iterator<PlaceholderExpansion> iterator = extensions.iterator();
-		while(iterator.hasNext()) {
+		Iterator<PlaceholderExpansion> iterator = PlaceholderAPI.extensions.iterator();
+		while (iterator.hasNext()) {
 			PlaceholderExpansion reg = iterator.next();
-			if(reg.getName().equalsIgnoreCase(extensionName))return true;
+			if (reg.getName().equalsIgnoreCase(extensionName))
+				return true;
 		}
 		return false;
 	}
-	
+
 	public static void unregister(String extensionName) {
-		Iterator<PlaceholderExpansion> iterator = extensions.iterator();
-		while(iterator.hasNext()) {
+		Iterator<PlaceholderExpansion> iterator = PlaceholderAPI.extensions.iterator();
+		while (iterator.hasNext()) {
 			PlaceholderExpansion reg = iterator.next();
-			if(reg.getName().equalsIgnoreCase(extensionName))iterator.remove();
+			if (reg.getName().equalsIgnoreCase(extensionName))
+				iterator.remove();
 		}
 	}
 }

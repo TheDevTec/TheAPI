@@ -5,53 +5,54 @@ public abstract class Tasker implements Runnable {
 	private int task = -1;
 
 	public final synchronized boolean isCancelled() {
-		return cancel;
+		return this.cancel;
 	}
 
 	public final synchronized void cancel() {
-		if(task==-1)return;
-		cancel = true;
-		Scheduler.cancelTask(task);
-		task=-1;
+		if (this.task == -1)
+			return;
+		this.cancel = true;
+		Scheduler.cancelTask(this.task);
+		this.task = -1;
 	}
 
 	public final synchronized int getId() {
-		return task;
+		return this.task;
 	}
 
 	/*
-	  ASYNCHRONOUOS PART
+	 * ASYNCHRONOUOS PART
 	 */
-	
+
 	public final int runTask() {
-		if (task == -1)
-			return task = Scheduler.run(this);
-		return task;
+		if (this.task == -1)
+			return this.task = Scheduler.run(this);
+		return this.task;
 	}
 
 	public final int runRepeating(long delay, long period) {
-		if (task == -1)
-			return task = Scheduler.repeating(delay, period, this);
-		return task;
+		if (this.task == -1)
+			return this.task = Scheduler.repeating(delay, period, this);
+		return this.task;
 	}
 
 	public final int runTimer(long delay, long period, long times) {
-		return runRepeatingTimes(delay, period, times, null);
+		return this.runRepeatingTimes(delay, period, times, null);
 	}
 
 	public final int runRepeatingTimes(long delay, long period, long times) {
-		return runRepeatingTimes(delay, period, times, null);
+		return this.runRepeatingTimes(delay, period, times, null);
 	}
 
 	public final int runRepeatingTimes(long delay, long period, long times, Runnable onFinish) {
-		if (task == -1)
-			return task = Scheduler.repeatingTimes(delay, period, times, this, onFinish);
-		return task;
+		if (this.task == -1)
+			return this.task = Scheduler.repeatingTimes(delay, period, times, this, onFinish);
+		return this.task;
 	}
 
 	public final int runLater(long delay) {
-		if (task == -1)
-			return task = Scheduler.later(delay, this);
-		return task;
+		if (this.task == -1)
+			return this.task = Scheduler.later(delay, this);
+		return this.task;
 	}
 }

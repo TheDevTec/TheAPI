@@ -12,7 +12,7 @@ public class BungeeSelectorUtils implements SelectorUtils {
 	@Override
 	public List<String> build(Selector selector) {
 		List<String> list = new ArrayList<>();
-		switch(selector) {
+		switch (selector) {
 		case SERVER:
 			list.addAll(ProxyServer.getInstance().getServers().keySet());
 			break;
@@ -21,7 +21,7 @@ public class BungeeSelectorUtils implements SelectorUtils {
 			list.add("false");
 			break;
 		case ENTITY_SELECTOR:
-			if(ProxyServer.getInstance().getOnlineCount()==0)
+			if (ProxyServer.getInstance().getOnlineCount() == 0)
 				break;
 			list.add("*");
 			list.add("@a");
@@ -30,7 +30,7 @@ public class BungeeSelectorUtils implements SelectorUtils {
 			list.add("@s");
 			list.add("@p");
 		case PLAYER:
-			for(ProxiedPlayer player : ProxyServer.getInstance().getPlayers())
+			for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers())
 				list.add(player.getName());
 			break;
 		case INTEGER:
@@ -47,26 +47,29 @@ public class BungeeSelectorUtils implements SelectorUtils {
 
 	@Override
 	public boolean check(Selector selector, String value) {
-		switch(selector) {
+		switch (selector) {
 		case BOOLEAN:
 			return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");
 		case ENTITY_SELECTOR:
 			boolean match = value.matches("\\*|@[AaEeRrSsPp]");
-			if(match)return true;
-			//Else continue to player
+			if (match)
+				return true;
+			// Else continue to player
 		case PLAYER:
 			return !ProxyServer.getInstance().matchPlayer(value).isEmpty();
 		case INTEGER:
 			try {
 				Integer.parseInt(value);
 				return true;
-			}catch(NoSuchFieldError | Exception err) {}
+			} catch (NoSuchFieldError | Exception err) {
+			}
 			break;
 		case NUMBER:
 			try {
 				Double.parseDouble(value);
 				return true;
-			}catch(NoSuchFieldError | Exception err) {}
+			} catch (NoSuchFieldError | Exception err) {
+			}
 			break;
 		case SERVER:
 			return ProxyServer.getInstance().getServerInfo(value) != null;

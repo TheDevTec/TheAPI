@@ -26,8 +26,8 @@ import net.minecraft.util.io.netty.channel.ChannelPromise;
 public class PacketHandlerLegacy implements PacketHandler<Channel> {
 	private static final Class<?> login = Ref.nms("PacketLoginInStart");
 	private static final Class<?> postlogin = Ref.nms("PacketLoginOutSuccess");
-	static final Field f = Ref.field(login, "a");
-	static final Field fPost = Ref.field(postlogin, "a");
+	static final Field f = Ref.field(PacketHandlerLegacy.login, "a");
+	static final Field fPost = Ref.field(PacketHandlerLegacy.postlogin, "a");
 	private final Map<String, Channel> channelLookup = new ConcurrentHashMap<>();
 	private List<?> networkManagers;
 	private final List<Channel> serverChannels = new ArrayList<>();
@@ -38,38 +38,40 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 	protected volatile boolean closed;
 
 	public PacketHandlerLegacy(boolean lateBind) {
-		serverConnection = Ref.invoke(BukkitLoader.getNmsProvider().getMinecraftServer(),"getServerConnection");
-		if(serverConnection==null) //modded server
-		for(Field f : Ref.getAllFields(BukkitLoader.getNmsProvider().getMinecraftServer().getClass()))
-			if(f.getType()==Ref.nmsOrOld("server.network.ServerConnection","ServerConnection")) {
-				serverConnection=Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(), f);
-				break;
-			}
-		if(serverConnection==null)return;
-		if(lateBind) {
-			while(!(boolean)Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(), "Q"))
+		this.serverConnection = Ref.invoke(BukkitLoader.getNmsProvider().getMinecraftServer(), "getServerConnection");
+		if (this.serverConnection == null) // modded server
+			for (Field f : Ref.getAllFields(BukkitLoader.getNmsProvider().getMinecraftServer().getClass()))
+				if (f.getType() == Ref.nmsOrOld("server.network.ServerConnection", "ServerConnection")) {
+					this.serverConnection = Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(), f);
+					break;
+				}
+		if (this.serverConnection == null)
+			return;
+		if (lateBind)
+			while (!(boolean) Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(), "Q"))
 				try {
 					Thread.sleep(20);
 				} catch (Exception e) {
 				}
-		}
 		new Tasker() {
+			@Override
 			public void run() {
-				registerChannelHandler();
-				registerPlayers();
+				PacketHandlerLegacy.this.registerChannelHandler();
+				PacketHandlerLegacy.this.registerPlayers();
 			}
 		}.runLater(1);
 	}
 
 	private void createServerChannelHandler() {
-		endInitProtocol = new ChannelInitializer<Channel>() {
+		this.endInitProtocol = new ChannelInitializer<Channel>() {
+			@Override
 			protected void initChannel(Channel channel) {
 				try {
-					synchronized (networkManagers) {
-						if (!closed) {
+					synchronized (PacketHandlerLegacy.this.networkManagers) {
+						if (!PacketHandlerLegacy.this.closed) {
 							PacketInterceptor interceptor = new PacketInterceptor(null);
 							channel.eventLoop().submit(() -> {
-								if(channel.pipeline().names().contains("InjectorTA"))
+								if (channel.pipeline().names().contains("InjectorTA"))
 									channel.pipeline().remove("InjectorTA");
 								channel.pipeline().addBefore("packet_handler", "InjectorTA", interceptor);
 								return interceptor;
@@ -81,80 +83,91 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 			}
 
 		};
-		beginInitProtocol = new ChannelInitializer<Channel>() {
+		this.beginInitProtocol = new ChannelInitializer<Channel>() {
+			@Override
 			protected void initChannel(Channel channel) {
-				channel.pipeline().addLast(endInitProtocol);
+				channel.pipeline().addLast(PacketHandlerLegacy.this.endInitProtocol);
 			}
 
 		};
-		serverChannelHandler = new ChannelInHandler();
+		this.serverChannelHandler = new ChannelInHandler();
 	}
-	
+
 	@Sharable
 	public class ChannelInHandler extends ChannelInboundHandlerAdapter {
+		@Override
 		public void channelRead(ChannelHandlerContext ctx, Object msg) {
 			Channel channel = (Channel) msg;
-			channel.pipeline().addFirst(beginInitProtocol);
+			channel.pipeline().addFirst(PacketHandlerLegacy.this.beginInitProtocol);
 			ctx.fireChannelRead(channel);
 		}
 	}
 
 	private void registerChannelHandler() {
-		networkManagers = (List<?>) (Ref.get(serverConnection, "e")!=null?Ref.get(serverConnection, "e"):Ref.get(serverConnection, "f"));
-		if(networkManagers==null) { //modded server
-			for(Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
-				if(List.class==f.getType()){
-					networkManagers=(List<?>) Ref.get(serverConnection, f);
+		this.networkManagers = (List<?>) (Ref.get(this.serverConnection, "e") != null
+				? Ref.get(this.serverConnection, "e")
+				: Ref.get(this.serverConnection, "f"));
+		if (this.networkManagers == null)
+			for (Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
+				if (List.class == f.getType()) {
+					this.networkManagers = (List<?>) Ref.get(this.serverConnection, f);
 					break;
 				}
-			}
-		if(networkManagers==null)return;
-		if(networkManagers.isEmpty()) {
-			networkManagers = (List<?>) (Ref.get(serverConnection, "f")!=null?Ref.get(serverConnection, "f"):Ref.get(serverConnection, "e"));
-			if(networkManagers==null) { //modded server
-				for(Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
-					if(List.class==f.getType()){
-						networkManagers=(List<?>) Ref.get(serverConnection, f);
+		if (this.networkManagers == null)
+			return;
+		if (this.networkManagers.isEmpty()) {
+			this.networkManagers = (List<?>) (Ref.get(this.serverConnection, "f") != null
+					? Ref.get(this.serverConnection, "f")
+					: Ref.get(this.serverConnection, "e"));
+			if (this.networkManagers == null)
+				for (Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
+					if (List.class == f.getType()) {
+						this.networkManagers = (List<?>) Ref.get(this.serverConnection, f);
 						break;
 					}
-				}
 		}
-		if(networkManagers==null)return;
-		createServerChannelHandler();
-		for (Object item : networkManagers) {
-			if (!ChannelFuture.class.isInstance(item))continue;
+		if (this.networkManagers == null)
+			return;
+		this.createServerChannelHandler();
+		for (Object item : this.networkManagers) {
+			if (!(item instanceof ChannelFuture))
+				continue;
 			Channel serverChannel = ((ChannelFuture) item).channel();
-			serverChannels.add(serverChannel);
-			serverChannel.pipeline().addFirst(serverChannelHandler);
+			this.serverChannels.add(serverChannel);
+			serverChannel.pipeline().addFirst(this.serverChannelHandler);
 		}
 	}
 
 	private void unregisterChannelHandler() {
-		if (serverChannelHandler == null)return;
-		for (Channel serverChannel : serverChannels) 
+		if (this.serverChannelHandler == null)
+			return;
+		for (Channel serverChannel : this.serverChannels)
 			serverChannel.eventLoop().execute(() -> {
-					try {
-					serverChannel.pipeline().remove(serverChannelHandler);
-					}catch(Exception err) {}
-				});
-		serverChannels.clear();
+				try {
+					serverChannel.pipeline().remove(this.serverChannelHandler);
+				} catch (Exception err) {
+				}
+			});
+		this.serverChannels.clear();
 	}
 
 	private void registerPlayers() {
 		for (Player player : Bukkit.getOnlinePlayers())
-			add(player);
+			this.add(player);
 	}
 
+	@Override
 	public void add(Player player) {
-		injectChannelInternal(player, get(player));
+		this.injectChannelInternal(player, this.get(player));
 	}
 
 	private PacketInterceptor injectChannelInternal(Player a, Channel channel) {
-		if (channel == null)return null;
+		if (channel == null)
+			return null;
 		try {
 			PacketInterceptor interceptor = new PacketInterceptor(a.getName());
 			channel.eventLoop().submit(() -> {
-				if(channel.pipeline().names().contains("InjectorTA"))
+				if (channel.pipeline().names().contains("InjectorTA"))
 					channel.pipeline().remove("InjectorTA");
 				channel.pipeline().addBefore("packet_handler", "InjectorTA", interceptor);
 				return interceptor;
@@ -165,37 +178,40 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 		}
 	}
 
+	@Override
 	public Channel get(Player player) {
-		Channel channel = channelLookup.get(player.getName());
+		Channel channel = this.channelLookup.get(player.getName());
 		if (channel == null) {
-			Object get = BukkitLoader.getNmsProvider().getNetworkChannel(BukkitLoader.getNmsProvider().getConnectionNetwork(BukkitLoader.getNmsProvider().getPlayerConnection(player)));
-			if(get==null)
+			Object get = BukkitLoader.getNmsProvider().getNetworkChannel(BukkitLoader.getNmsProvider()
+					.getConnectionNetwork(BukkitLoader.getNmsProvider().getPlayerConnection(player)));
+			if (get == null)
 				return null;
-			channelLookup.put(player.getName(), channel = (Channel) get);
+			this.channelLookup.put(player.getName(), channel = (Channel) get);
 		}
 		return channel;
 	}
 
+	@Override
 	public void remove(Channel channel) {
-		if (channel == null)return;
-		channel.eventLoop().execute(new Runnable() {
-			@Override
-			public void run() {
-				String owner = null;
-				for(Entry<String, Channel> s : channelLookup.entrySet())
-					if(s.getValue().equals(channel)) {
-						owner=s.getKey();
-						break;
-					}
-				channelLookup.remove(owner);
-				if(channel.pipeline().names().contains("InjectorTA"))
+		if (channel == null)
+			return;
+		channel.eventLoop().execute(() -> {
+			String owner = null;
+			for (Entry<String, Channel> s : PacketHandlerLegacy.this.channelLookup.entrySet())
+				if (s.getValue().equals(channel)) {
+					owner = s.getKey();
+					break;
+				}
+			PacketHandlerLegacy.this.channelLookup.remove(owner);
+			if (channel.pipeline().names().contains("InjectorTA"))
 				channel.pipeline().remove("InjectorTA");
-			}
 		});
 	}
 
+	@Override
 	public boolean has(Channel channel) {
-		if (channel == null)return false;
+		if (channel == null)
+			return false;
 		try {
 			return channel.pipeline().get("InjectorTA") != null;
 		} catch (Exception e) {
@@ -203,19 +219,17 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 		}
 	}
 
+	@Override
 	public final void close() {
-		if (!closed) {
-			closed = true;
-			for (Channel channel : channelLookup.values()){
-				channel.eventLoop().execute(new Runnable() {
-					public void run() {
-						if(channel.pipeline().names().contains("InjectorTA"))
-							channel.pipeline().remove("InjectorTA");
-					}
+		if (!this.closed) {
+			this.closed = true;
+			for (Channel channel : this.channelLookup.values())
+				channel.eventLoop().execute(() -> {
+					if (channel.pipeline().names().contains("InjectorTA"))
+						channel.pipeline().remove("InjectorTA");
 				});
-			}
-			channelLookup.clear();
-			unregisterChannelHandler();
+			this.channelLookup.clear();
+			this.unregisterChannelHandler();
 		}
 	}
 
@@ -223,19 +237,19 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 		String player;
 
 		public PacketInterceptor(String player) {
-			this.player=player;
+			this.player = player;
 		}
-		
+
 		@Override
 		public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 			final Channel channel = ctx.channel();
 			synchronized (msg) {
-				if (msg.getClass()==login) {
-					player=((GameProfile) Ref.get(msg, f)).getName();
-					channelLookup.put(player, channel);
+				if (msg.getClass() == PacketHandlerLegacy.login) {
+					this.player = ((GameProfile) Ref.get(msg, PacketHandlerLegacy.f)).getName();
+					PacketHandlerLegacy.this.channelLookup.put(this.player, channel);
 				}
 				try {
-					msg = PacketManager.call(player, msg, channel, PacketType.PLAY_IN);
+					msg = PacketManager.call(this.player, msg, channel, PacketType.PLAY_IN);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -248,12 +262,13 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 		public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
 			final Channel channel = ctx.channel();
 			synchronized (msg) {
-				if (player==null && msg.getClass()==postlogin) { //ProtocolLib cancelled packets
-					player=((GameProfile) Ref.get(msg, fPost)).getName();
-					channelLookup.put(player, channel);
+				if (this.player == null && msg.getClass() == PacketHandlerLegacy.postlogin) { // ProtocolLib cancelled
+																								// packets
+					this.player = ((GameProfile) Ref.get(msg, PacketHandlerLegacy.fPost)).getName();
+					PacketHandlerLegacy.this.channelLookup.put(this.player, channel);
 				}
 				try {
-					msg = PacketManager.call(player, msg, channel, PacketType.PLAY_OUT);
+					msg = PacketManager.call(this.player, msg, channel, PacketType.PLAY_OUT);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -262,10 +277,11 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 			}
 		}
 	}
-	
+
 	@Override
 	public void send(Channel channel, Object packet) {
-		if(channel==null||packet==null)return;
+		if (channel == null || packet == null)
+			return;
 		channel.writeAndFlush(packet);
 	}
 }

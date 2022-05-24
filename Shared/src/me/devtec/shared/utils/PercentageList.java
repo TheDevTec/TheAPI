@@ -14,68 +14,71 @@ public class PercentageList<T> {
 	private final ConcurrentHashMap<T, Double> a = new ConcurrentHashMap<>();
 
 	public boolean add(T t, double percent) {
-		a.put(t, percent);
+		this.a.put(t, percent);
 		return true;
 	}
 
 	public boolean remove(T t) {
-		a.remove(t);
+		this.a.remove(t);
 		return true;
 	}
 
 	public boolean contains(T t) {
-		return a.containsKey(t);
+		return this.a.containsKey(t);
 	}
 
 	public double getChance(T t) {
-		return a.get(t);
+		return this.a.get(t);
 	}
-	
+
 	public boolean isEmpty() {
-		return a.isEmpty();
+		return this.a.isEmpty();
 	}
-	
+
 	public Set<Entry<T, Double>> entrySet() {
-		return a.entrySet();
+		return this.a.entrySet();
 	}
-	
+
 	public Set<T> keySet() {
-		return a.keySet();
+		return this.a.keySet();
 	}
-	
+
 	public Collection<Double> values() {
-		return a.values();
+		return this.a.values();
 	}
 
 	public T getRandom() {
-		if(a.isEmpty())return null;
-		
-		int total = (int) getTotalChance();
-		if(total <= 0)return null;
-		
-		double chance = StringUtils.random.nextInt((int)total)+StringUtils.random.nextDouble();
-		return select(a,chance);
+		if (this.a.isEmpty())
+			return null;
+
+		int total = (int) this.getTotalChance();
+		if (total <= 0)
+			return null;
+
+		double chance = StringUtils.random.nextInt(total) + StringUtils.random.nextDouble();
+		return PercentageList.select(this.a, chance);
 	}
-	
+
 	private static <K> K select(Map<K, Double> keys, double chance) {
 		@SuppressWarnings("unchecked")
-		Entry<K,Double>[] aw = keys.entrySet().toArray(new Entry[0]);
-		Entry<K,Double> found = aw[keys.size()-1];
+		Entry<K, Double>[] aw = keys.entrySet().toArray(new Entry[0]);
+		Entry<K, Double> found = aw[keys.size() - 1];
 		for (Entry<K, Double> kDoubleEntry : aw) {
-			Entry<K, Double> e = (Entry<K, Double>) kDoubleEntry;
+			Entry<K, Double> e = kDoubleEntry;
 			if (chance < e.getValue() && chance > found.getValue())
 				found = e;
 		}
 		return found.getKey();
 	}
-	
+
 	public double getTotalChance() {
 		double d = 0.0;
-		for(double as : a.values())d+=as<0?0:as;
+		for (double as : this.a.values())
+			d += as < 0 ? 0 : as;
 		return d;
 	}
 
 	public List<T> toList() {
-		return new ArrayList<>(a.keySet());
+		return new ArrayList<>(this.a.keySet());
 	}
 }

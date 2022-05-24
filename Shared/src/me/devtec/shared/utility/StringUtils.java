@@ -22,7 +22,7 @@ public class StringUtils {
 
 	public static ColormaticFactory color;
 	public static Pattern rainbowSplit;
-	//TIME UTILS
+	// TIME UTILS
 	public static Pattern sec;
 	public static Pattern min;
 	public static Pattern hour;
@@ -31,21 +31,21 @@ public class StringUtils {
 	public static Pattern mon;
 	public static Pattern year;
 	public static final Map<String, List<String>> actions = new ConcurrentHashMap<>();
-	//COLOR UTILS
+	// COLOR UTILS
 	public static Pattern gradientFinder;
 
-	//VARRIABLE INIT
+	// VARRIABLE INIT
 	public static Map<String, String> colorMap = new ConcurrentHashMap<>();
 	public static String tagPrefix = "!";
 	public static String timeSplit = ":";
 	public static String timeFormat = "%time% %format%";
 
-	//DO NOT TOUCH
+	// DO NOT TOUCH
 
 	public static final Random random = new Random();
-	//SPECIAL CHARS
+	// SPECIAL CHARS
 	private static final Pattern special = Pattern.compile("[^A-Z-a-z0-9_]+");
-	//CALCULATOR
+	// CALCULATOR
 	private static final Pattern extra = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([*/])[ ]*(-?[ ]*[0-9.]+)");
 	private static final Pattern normal = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([+-])[ ]*(-?[ ]*[0-9.]+)");
 
@@ -78,79 +78,83 @@ public class StringUtils {
 	}
 
 	public enum FormatType {
-		BASIC, //Basic format - xxx.xx
-		NORMAL, //Improved BASIS format - xxx,xxx.xx
-		COMPLEX //NORMAL format + balance type
+		BASIC, // Basic format - xxx.xx
+		NORMAL, // Improved BASIS format - xxx,xxx.xx
+		COMPLEX // NORMAL format + balance type
 	}
 
 	public static String formatDouble(FormatType type, double value) {
-		switch(type) {
+		switch (type) {
 		case BASIC: {
 			String formatted = String.format(Locale.ENGLISH, "%.2f", value);
-			if(formatted.endsWith("00"))formatted=formatted.substring(0, formatted.length()-3); //.00
-			if(formatted.endsWith("0"))formatted=formatted.substring(0, formatted.length()-1); //.X0
+			if (formatted.endsWith("00"))
+				formatted = formatted.substring(0, formatted.length() - 3); // .00
+			if (formatted.endsWith("0"))
+				formatted = formatted.substring(0, formatted.length() - 1); // .X0
 			return formatted;
 		}
 		case NORMAL: {
 			String formatted = String.format(Locale.ENGLISH, "%,.2f", value);
-			if(formatted.endsWith("00"))formatted=formatted.substring(0, formatted.length()-3); //.00
-			if(formatted.endsWith("0"))formatted=formatted.substring(0, formatted.length()-1); //.X0
+			if (formatted.endsWith("00"))
+				formatted = formatted.substring(0, formatted.length() - 3); // .00
+			if (formatted.endsWith("0"))
+				formatted = formatted.substring(0, formatted.length() - 1); // .X0
 			return formatted;
 		}
 		case COMPLEX: {
 			String formatted = String.format(Locale.ENGLISH, "%,.2f", value);
 			String[] s = formatted.split(",");
-			if (s.length >= 22) { //Why?...
+			if (s.length >= 22) { // Why?...
 				if (formatted.startsWith("-"))
 					return "-∞";
 				return "∞";
 			}
 			if (s.length >= 21)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E60)+"NOV";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E60) + "NOV";
 			if (s.length >= 20)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E57)+"OCT";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E57) + "OCT";
 			if (s.length >= 19)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E54)+"SEP";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E54) + "SEP";
 			if (s.length >= 18)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E51)+"SED";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E51) + "SED";
 			if (s.length >= 17)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E48)+"QUI";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E48) + "QUI";
 			if (s.length >= 16)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E45)+"QUA";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E45) + "QUA";
 			if (s.length >= 15)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E42)+"tre";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E42) + "tre";
 			if (s.length >= 14)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E39)+"duo";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E39) + "duo";
 			if (s.length >= 13)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E36)+"und";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E36) + "und";
 			if (s.length >= 12)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E33)+"dec";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E33) + "dec";
 			if (s.length >= 11)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E30)+"non";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E30) + "non";
 			if (s.length >= 10)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E27)+"oct";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E27) + "oct";
 			if (s.length >= 9)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E24)+"sep";
-			if (s.length >= 8) //No, it's not "sex"...
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E21)+"sex";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E24) + "sep";
+			if (s.length >= 8) // No, it's not "sex"...
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E21) + "sex";
 			if (s.length >= 7)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E18)+"qui";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E18) + "qui";
 			if (s.length >= 6)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E15)+"qua";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E15) + "qua";
 			if (s.length >= 5)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E12)+"t";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E12) + "t";
 			if (s.length >= 4)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1.0E9)+"b";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1.0E9) + "b";
 			if (s.length >= 3)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1000000)+"m";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1000000) + "m";
 			if (s.length >= 2)
-				return StringUtils.formatDouble(FormatType.NORMAL, value/1000)+"k";
+				return StringUtils.formatDouble(FormatType.NORMAL, value / 1000) + "k";
 			return formatted;
 		}
 		default:
 			break;
 		}
-		return value+"";
+		return value + "";
 	}
 
 	/**
@@ -176,9 +180,11 @@ public class StringUtils {
 	 * @return double
 	 */
 	public static double generateRandomDouble(double min, double max) {
-		if(min == max)return min;
-		double result = StringUtils.generateRandomInt((int)min, (int)max) + StringUtils.random.nextDouble();
-		if(result > max)return max;
+		if (min == max)
+			return min;
+		double result = StringUtils.generateRandomInt((int) min, (int) max) + StringUtils.random.nextDouble();
+		if (result > max)
+			return max;
 		return result;
 	}
 
@@ -189,7 +195,8 @@ public class StringUtils {
 	 * @return int
 	 */
 	public static int generateRandomInt(int min, int max) {
-		if(min == max)return min;
+		if (min == max)
+			return min;
 		return StringUtils.random.nextInt(max - min) + min;
 	}
 
@@ -197,7 +204,8 @@ public class StringUtils {
 	 * @apiNote Split text correctly with colors
 	 */
 	public static List<String> fixedSplit(String text, int lengthOfSplit) {
-		if(text==null)return null;
+		if (text == null)
+			return null;
 		List<String> splitted = new ArrayList<>();
 		String split = text;
 		String prefix = "";
@@ -209,11 +217,11 @@ public class StringUtils {
 				a = prefix + split.substring(0, length);
 			}
 			String[] last = StringUtils.getLastColorsSplitFormats(a);
-			prefix = (!last[0].isEmpty()?"§"+last[0]:"")+(!last[1].isEmpty()?"§"+last[1]:"");
+			prefix = (!last[0].isEmpty() ? "§" + last[0] : "") + (!last[1].isEmpty() ? "§" + last[1] : "");
 			splitted.add(a);
 			split = split.substring(length);
 		}
-		if(!(prefix + split).isEmpty())
+		if (!(prefix + split).isEmpty())
 			splitted.add(prefix + split);
 		return splitted;
 	}
@@ -225,7 +233,9 @@ public class StringUtils {
 	public static List<String> copyPartialMatches(String prefix, Iterable<String> originals) {
 		List<String> collection = new ArrayList<>();
 		for (String string : originals)
-			if (string == null || string.length() >= prefix.length() && (string.regionMatches(true, 0, prefix, 0, prefix.length())||string.regionMatches(true, 1, prefix, 0, prefix.length())))
+			if (string == null
+					|| string.length() >= prefix.length() && (string.regionMatches(true, 0, prefix, 0, prefix.length())
+							|| string.regionMatches(true, 1, prefix, 0, prefix.length())))
 				collection.add(string);
 		return collection;
 	}
@@ -241,9 +251,10 @@ public class StringUtils {
 	}
 
 	/**
-	 * @apiNote Join Iterable into one String with split {@value split} @see {@link StringUtils#join(Iterable<?>, String, int, int)}
+	 * @apiNote Join Iterable into one String with split {@value split} @see
+	 *          {@link StringUtils#join(Iterable<?>, String, int, int)}
 	 * @param split Split string (defaulty ' ')
-	 * @param args Arguments
+	 * @param args  Arguments
 	 * @return String
 	 */
 	public static String join(Iterable<?> args, String split) {
@@ -251,10 +262,11 @@ public class StringUtils {
 	}
 
 	/**
-	 * @apiNote Join Iterable into one String with split {@value split} @see {@link StringUtils#join(Iterable<?>, String, int, int)}
+	 * @apiNote Join Iterable into one String with split {@value split} @see
+	 *          {@link StringUtils#join(Iterable<?>, String, int, int)}
 	 * @param split Split string (defaulty ' ')
 	 * @param start Start argument (defaulty 0)
-	 * @param args Arguments
+	 * @param args  Arguments
 	 * @return String
 	 */
 	public static String join(Iterable<?> args, String split, int start) {
@@ -262,11 +274,12 @@ public class StringUtils {
 	}
 
 	/**
-	 * @apiNote Join Iterable into one String with split {@value split} @see {@link StringUtils#join(Iterable<?>, String, int, int)}
+	 * @apiNote Join Iterable into one String with split {@value split} @see
+	 *          {@link StringUtils#join(Iterable<?>, String, int, int)}
 	 * @param split Split string (defaulty ' ')
 	 * @param start Start argument (defaulty 0)
-	 * @param end Last argument (defaultly -1)
-	 * @param args Arguments
+	 * @param end   Last argument (defaultly -1)
+	 * @param args  Arguments
 	 * @return String
 	 */
 	public static String join(Iterable<?> args, String split, int start, int end) {
@@ -274,17 +287,19 @@ public class StringUtils {
 			return null;
 		StringBuilder msg = new StringBuilder();
 		Iterator<?> iterator = args.iterator();
-		for (int i = start; iterator.hasNext() && (end==-1 || i < end); ++i) {
-			if(msg.length() != 0)msg.append(split);
+		for (int i = start; iterator.hasNext() && (end == -1 || i < end); ++i) {
+			if (msg.length() != 0)
+				msg.append(split);
 			msg.append(iterator.next());
 		}
 		return msg.toString();
 	}
 
 	/**
-	 * @apiNote Join objects into one String with split {@value split} @see {@link StringUtils#join(Object[], String, int, int)}
+	 * @apiNote Join objects into one String with split {@value split} @see
+	 *          {@link StringUtils#join(Object[], String, int, int)}
 	 * @param split Split string (defaulty ' ')
-	 * @param args Arguments
+	 * @param args  Arguments
 	 * @return String
 	 */
 	public static String join(Object[] args, String split) {
@@ -292,10 +307,11 @@ public class StringUtils {
 	}
 
 	/**
-	 * @apiNote Join objects into one String with split {@value split} @see {@link StringUtils#join(Object[], String, int, int)}
+	 * @apiNote Join objects into one String with split {@value split} @see
+	 *          {@link StringUtils#join(Object[], String, int, int)}
 	 * @param split Split string (defaulty ' ')
 	 * @param start Start argument (defaulty 0)
-	 * @param args Arguments
+	 * @param args  Arguments
 	 * @return String
 	 */
 	public static String join(Object[] args, String split, int start) {
@@ -303,11 +319,12 @@ public class StringUtils {
 	}
 
 	/**
-	 * @apiNote Join objects into one String with split {@value split} @see {@link StringUtils#join(Object[], String, int, int)}
+	 * @apiNote Join objects into one String with split {@value split} @see
+	 *          {@link StringUtils#join(Object[], String, int, int)}
 	 * @param split Split string (defaulty ' ')
 	 * @param start Start argument (defaulty 0)
-	 * @param end Last argument (defaultly args.length)
-	 * @param args Arguments
+	 * @param end   Last argument (defaultly args.length)
+	 * @param args  Arguments
 	 * @return String
 	 */
 	public static String join(Object[] args, String split, int start, int end) {
@@ -315,20 +332,22 @@ public class StringUtils {
 			return null;
 		StringBuilder msg = new StringBuilder();
 		for (int i = start; i < args.length && i < end; ++i) {
-			if(msg.length() != 0)msg.append(split);
+			if (msg.length() != 0)
+				msg.append(split);
 			msg.append(args[i]);
 		}
 		return msg.toString();
 	}
 
 	/**
-	 * @apiNote Return joined strings ([0] + [1]) from {@link StringUtils#getLastColorsSplitFormats(String)}
+	 * @apiNote Return joined strings ([0] + [1]) from
+	 *          {@link StringUtils#getLastColorsSplitFormats(String)}
 	 * @param text Input string
 	 * @return String
 	 */
 	public static String getLastColors(String text) {
 		String[] split = StringUtils.color.getLastColors(text);
-		return split[0]+split[1];
+		return split[0] + split[1];
 	}
 
 	/**
@@ -356,7 +375,7 @@ public class StringUtils {
 	 * @return String
 	 */
 	public static String gradient(String originalMsg) {
-		if(originalMsg==null || StringUtils.gradientFinder == null)
+		if (originalMsg == null || StringUtils.gradientFinder == null)
 			return originalMsg;
 
 		String legacyMsg = originalMsg;
@@ -370,9 +389,11 @@ public class StringUtils {
 		}
 		Matcher matcher = StringUtils.gradientFinder.matcher(legacyMsg);
 		while (matcher.find()) {
-			if (matcher.groupCount() == 0||matcher.group().isEmpty())continue;
+			if (matcher.groupCount() == 0 || matcher.group().isEmpty())
+				continue;
 			String replace = StringUtils.color.gradient(matcher.group(2), matcher.group(1), matcher.group(3));
-			if(replace==null)continue;
+			if (replace == null)
+				continue;
 			legacyMsg = legacyMsg.replace(matcher.group(), replace);
 		}
 		return legacyMsg;
@@ -399,7 +420,8 @@ public class StringUtils {
 
 		String msg = original;
 
-		if(StringUtils.color != null && /** Fast check for working #RRGGBB symbol **/ (!Ref.serverType().isBukkit() || Ref.isNewerThan(15))) {
+		if (StringUtils.color != null && /** Fast check for working #RRGGBB symbol **/
+				(!Ref.serverType().isBukkit() || Ref.isNewerThan(15))) {
 			msg = StringUtils.gradient(msg);
 			if (msg.contains("#"))
 				msg = StringUtils.color.replaceHex(msg);
@@ -417,11 +439,12 @@ public class StringUtils {
 	}
 
 	private static boolean has(int c) {
-		return c<=102 && c>=97 || c<=57 && c>=48 || c<=70 && c>=65 || c<=79 && c>=75 || c<=111 && c>=107 || c==114 || c==82 || c==88 || c==120;
+		return c <= 102 && c >= 97 || c <= 57 && c >= 48 || c <= 70 && c >= 65 || c <= 79 && c >= 75
+				|| c <= 111 && c >= 107 || c == 114 || c == 82 || c == 88 || c == 120;
 	}
 
 	private static char lower(int c) {
-		switch(c) {
+		switch (c) {
 		case 65:
 		case 66:
 		case 67:
@@ -434,16 +457,17 @@ public class StringUtils {
 		case 78:
 		case 79:
 		case 82:
-			return (char)(c+32);
+			return (char) (c + 32);
 		case 120:
-			return (char)88;
+			return (char) 88;
 		default:
-			return (char)c;
+			return (char) c;
 		}
 	}
 
 	/**
-	 * @apiNote Join strings to one String with split ' ' @see {@link StringUtils#join(Object[], String, int, int)}
+	 * @apiNote Join strings to one String with split ' ' @see
+	 *          {@link StringUtils#join(Object[], String, int, int)}
 	 * @param args Arguments
 	 * @return String
 	 *
@@ -453,9 +477,10 @@ public class StringUtils {
 	}
 
 	/**
-	 * @apiNote Join strings to one String with split ' ' @see {@link StringUtils#join(Object[], String, int, int)}
+	 * @apiNote Join strings to one String with split ' ' @see
+	 *          {@link StringUtils#join(Object[], String, int, int)}
 	 * @param start Start argument (defaulty 0)
-	 * @param args Arguments
+	 * @param args  Arguments
 	 * @return String
 	 *
 	 */
@@ -464,10 +489,11 @@ public class StringUtils {
 	}
 
 	/**
-	 * @apiNote Join strings to one String with split ' ' @see {@link StringUtils#join(Object[], String, int, int)}
+	 * @apiNote Join strings to one String with split ' ' @see
+	 *          {@link StringUtils#join(Object[], String, int, int)}
 	 * @param start Start argument (defaulty 0)
-	 * @param end Last argument (defaultly args.length)
-	 * @param args Arguments
+	 * @param end   Last argument (defaultly args.length)
+	 * @param args  Arguments
 	 * @return String
 	 *
 	 */
@@ -479,7 +505,7 @@ public class StringUtils {
 	 * @apiNote Return random object from list
 	 */
 	public static <T> T getRandomFromList(List<T> list) {
-		if (list==null ||list.isEmpty())
+		if (list == null || list.isEmpty())
 			return null;
 		return list.get(StringUtils.random.nextInt(list.size()));
 	}
@@ -489,9 +515,10 @@ public class StringUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getRandomFromCollection(Collection<T> list) {
-		if (list==null ||list.isEmpty())
+		if (list == null || list.isEmpty())
 			return null;
-		if(list instanceof List)return StringUtils.getRandomFromList((List<T>)list);
+		if (list instanceof List)
+			return StringUtils.getRandomFromList((List<T>) list);
 		return (T) list.toArray()[StringUtils.random.nextInt(list.size())];
 	}
 
@@ -516,43 +543,43 @@ public class StringUtils {
 		String period = original;
 
 		if (StringUtils.isFloat(period) && !period.endsWith("d") && !period.endsWith("e"))
-			return (long)StringUtils.getFloat(period);
+			return (long) StringUtils.getFloat(period);
 		float time = 0;
 
 		Matcher matcher = StringUtils.sec.matcher(period);
 		while (matcher.find()) {
-			time+=StringUtils.getFloat(matcher.group());
-			period=period.replace(matcher.group(), "");
+			time += StringUtils.getFloat(matcher.group());
+			period = period.replace(matcher.group(), "");
 		}
 		matcher = StringUtils.min.matcher(period);
 		while (matcher.find()) {
-			time+=StringUtils.getFloat(matcher.group())*60;
-			period=period.replace(matcher.group(), "");
+			time += StringUtils.getFloat(matcher.group()) * 60;
+			period = period.replace(matcher.group(), "");
 		}
 		matcher = StringUtils.hour.matcher(period);
 		while (matcher.find()) {
-			time+=StringUtils.getFloat(matcher.group())*3600;
-			period=period.replace(matcher.group(), "");
+			time += StringUtils.getFloat(matcher.group()) * 3600;
+			period = period.replace(matcher.group(), "");
 		}
 		matcher = StringUtils.day.matcher(period);
 		while (matcher.find()) {
-			time+=StringUtils.getFloat(matcher.group())*86400;
-			period=period.replace(matcher.group(), "");
+			time += StringUtils.getFloat(matcher.group()) * 86400;
+			period = period.replace(matcher.group(), "");
 		}
 		matcher = StringUtils.week.matcher(period);
 		while (matcher.find()) {
-			time+=StringUtils.getFloat(matcher.group())* 86400 * 7;
-			period=period.replace(matcher.group(), "");
+			time += StringUtils.getFloat(matcher.group()) * 86400 * 7;
+			period = period.replace(matcher.group(), "");
 		}
 		matcher = StringUtils.mon.matcher(period);
 		while (matcher.find()) {
-			time+=StringUtils.getFloat(matcher.group())* 86400 * 31;
-			period=period.replace(matcher.group(), "");
+			time += StringUtils.getFloat(matcher.group()) * 86400 * 31;
+			period = period.replace(matcher.group(), "");
 		}
 		matcher = StringUtils.year.matcher(period);
 		while (matcher.find()) {
-			time+=StringUtils.getFloat(matcher.group())* 86400 * 31 * 12;
-			period=period.replace(matcher.group(), "");
+			time += StringUtils.getFloat(matcher.group()) * 86400 * 31 * 12;
+			period = period.replace(matcher.group(), "");
 		}
 		return (long) time;
 	}
@@ -567,16 +594,18 @@ public class StringUtils {
 	}
 
 	private static String findCorrectFormat(int i, String string) {
-		String result = i+string;
-		for(String s : StringUtils.actions.get(string))
-			if(s.startsWith("=,") ? StringUtils.getInt(s.substring(1).split(",")[1]) == i :
-				s.startsWith("<,") ? StringUtils.getInt(s.substring(1).split(",")[1]) >= i :
-					s.startsWith(">,") ? StringUtils.getInt(s.substring(1).split(",")[1]) <= i : false)return s.substring(3+s.substring(1).split(",")[1].length());
+		String result = i + string;
+		for (String s : StringUtils.actions.get(string))
+			if (s.startsWith("=,") ? StringUtils.getInt(s.substring(1).split(",")[1]) == i
+					: s.startsWith("<,") ? StringUtils.getInt(s.substring(1).split(",")[1]) >= i
+							: s.startsWith(">,") ? StringUtils.getInt(s.substring(1).split(",")[1]) <= i : false)
+				return s.substring(3 + s.substring(1).split(",")[1].length());
 		return result;
 	}
 
 	private static String format(int time, String section) {
-		return StringUtils.timeFormat.replace("%time%", ""+time).replace("%format%", StringUtils.findCorrectFormat(time,section));
+		return StringUtils.timeFormat.replace("%time%", "" + time).replace("%format%",
+				StringUtils.findCorrectFormat(time, section));
 	}
 
 	/**
@@ -587,43 +616,43 @@ public class StringUtils {
 	public static String timeToString(long time) {
 		if (time == 0)
 			return StringUtils.format(0, "Seconds");
-		int minutes = (int)(time / 60) % 60;
-		int hours = (int)(time / 3600) % 24;
-		int days = (int)(time / 86400) % 31;
+		int minutes = (int) (time / 60) % 60;
+		int hours = (int) (time / 3600) % 24;
+		int days = (int) (time / 86400) % 31;
 		int month = 0;
 		int year = 0;
 		try {
-			month = (int)(time / 86400 / 31) % 12;
-			year = (int)time / 86400 / 31 / 12;
+			month = (int) (time / 86400 / 31) % 12;
+			year = (int) time / 86400 / 31 / 12;
 		} catch (Exception er) {
 		}
 		StringBuilder date = new StringBuilder(64);
 		if (year > 0)
 			date.append(StringUtils.format(year, "Years"));
 		if (month > 0) {
-			if(date.length()!=0)
+			if (date.length() != 0)
 				date.append(StringUtils.timeSplit);
 			date.append(StringUtils.format(month, "Months"));
 		}
 		if (days > 0) {
-			if(date.length()!=0)
+			if (date.length() != 0)
 				date.append(StringUtils.timeSplit);
 			date.append(StringUtils.format(days, "Days"));
 		}
 		if (hours > 0) {
-			if(date.length()!=0)
+			if (date.length() != 0)
 				date.append(StringUtils.timeSplit);
 			date.append(StringUtils.format(hours, "Hours"));
 		}
 		if (minutes > 0) {
-			if(date.length()!=0)
+			if (date.length() != 0)
 				date.append(StringUtils.timeSplit);
 			date.append(StringUtils.format(minutes, "Minutes"));
 		}
 		if (time % 60 > 0) {
-			if(date.length()!=0)
+			if (date.length() != 0)
 				date.append(StringUtils.timeSplit);
-			date.append(StringUtils.format((int)(time % 60), "Seconds"));
+			date.append(StringUtils.format((int) (time % 60), "Seconds"));
 		}
 		return date.toString();
 	}
@@ -648,25 +677,25 @@ public class StringUtils {
 
 		String val = original;
 
-		if(val.contains("(")&&val.contains(")"))
-			val=StringUtils.splitter(val);
-		if(val.contains("*")||val.contains("/")) {
+		if (val.contains("(") && val.contains(")"))
+			val = StringUtils.splitter(val);
+		if (val.contains("*") || val.contains("/")) {
 			Matcher s = StringUtils.extra.matcher(val);
-			while(s.find()) {
+			while (s.find()) {
 				double a = StringUtils.getDouble(s.group(1));
 				String b = s.group(3);
 				double d = StringUtils.getDouble(s.group(4));
-				val=val.replace(s.group(), (a==0||d==0?0:b.equals("*")?a*d:a/d)+"");
+				val = val.replace(s.group(), (a == 0 || d == 0 ? 0 : b.equals("*") ? a * d : a / d) + "");
 				s.reset(val);
 			}
 		}
-		if(val.contains("+")||val.contains("-")) {
+		if (val.contains("+") || val.contains("-")) {
 			Matcher s = StringUtils.normal.matcher(val);
-			while(s.find()) {
+			while (s.find()) {
 				double a = StringUtils.getDouble(s.group(1));
 				String b = s.group(3);
 				double d = StringUtils.getDouble(s.group(4));
-				val=val.replace(s.group(), (b.equals("+")?a+d:a-d)+"");
+				val = val.replace(s.group(), (b.equals("+") ? a + d : a - d) + "");
 				s.reset(val);
 			}
 		}
@@ -679,23 +708,22 @@ public class StringUtils {
 
 		int count = 0;
 		int waiting = 0;
-		for(char c : s.toCharArray()) {
+		for (char c : s.toCharArray()) {
 			i.append(c);
-			if(c=='(') {
+			if (c == '(') {
 				fix.append(c);
-				waiting=1;
+				waiting = 1;
 				++count;
-			}else
-				if(c==')') {
-					fix.append(c);
-					if(--count==0) {
-						waiting=0;
-						i = new StringBuilder(i.toString().replace(fix.toString(), "" + StringUtils.calculate(fix.substring(1, fix.length() - 1))));
-						fix.delete(0, fix.length());
-					}
-				}else
-					if(waiting==1)
-						fix.append(c);
+			} else if (c == ')') {
+				fix.append(c);
+				if (--count == 0) {
+					waiting = 0;
+					i = new StringBuilder(i.toString().replace(fix.toString(),
+							"" + StringUtils.calculate(fix.substring(1, fix.length() - 1))));
+					fix.delete(0, fix.length());
+				}
+			} else if (waiting == 1)
+				fix.append(c);
 		}
 		return i.toString();
 	}
@@ -764,18 +792,18 @@ public class StringUtils {
 		if (fromString == null)
 			return 0;
 		String a = fromString.replaceAll("[^+0-9E.,-]+", "").replace(",", ".");
-		if(!a.contains(".")) {
+		if (!a.contains(".")) {
 			try {
 				return Integer.parseInt(a);
 			} catch (NumberFormatException e) {
 			}
 			try {
-				return (int)Long.parseLong(a);
+				return (int) Long.parseLong(a);
 			} catch (NumberFormatException e) {
 			}
 		}
 		try {
-			return (int)Double.parseDouble(a);
+			return (int) Double.parseDouble(a);
 		} catch (NumberFormatException e) {
 		}
 		return 0;
@@ -883,8 +911,8 @@ public class StringUtils {
 	 * @return boolean
 	 */
 	public static boolean isNumber(String fromString) {
-		return StringUtils.isInt(fromString) || StringUtils.isDouble(fromString) || StringUtils.isLong(fromString) || StringUtils.isByte(fromString)
-				|| StringUtils.isShort(fromString) || StringUtils.isFloat(fromString);
+		return StringUtils.isInt(fromString) || StringUtils.isDouble(fromString) || StringUtils.isLong(fromString)
+				|| StringUtils.isByte(fromString) || StringUtils.isShort(fromString) || StringUtils.isFloat(fromString);
 	}
 
 	/**
@@ -902,8 +930,9 @@ public class StringUtils {
 	}
 
 	public static Number getNumber(String o) {
-		if(o==null)return null;
-		if(!o.contains(".")) {
+		if (o == null)
+			return null;
+		if (!o.contains(".")) {
 			if (StringUtils.isInt(o))
 				return StringUtils.getInt(o);
 			if (StringUtils.isLong(o))

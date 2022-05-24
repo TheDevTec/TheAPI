@@ -2,29 +2,34 @@ package me.devtec.shared.sockets;
 
 public class ServerClient implements SocketClient {
 	private final ClientHandler c;
-	
+
 	public ServerClient(ClientHandler c) {
-		this.c=c;
-		c.c=this;
+		this.c = c;
+		c.c = this;
 	}
-	
+
+	@Override
 	public String getName() {
-		return c.getUser();
+		return this.c.getUser();
 	}
-	
+
+	@Override
 	public void exit() {
-		c.exit();
+		this.c.exit();
 	}
-	
+
+	@Override
 	public void write(String path, Object value) {
-		c.write(path, value);
+		this.c.write(path, value);
 	}
-	
+
+	@Override
 	public void send() {
-		c.send();
+		this.c.send();
 	}
-	
+
+	@Override
 	public boolean isConnected() {
-		return c.s.isConnected();
+		return this.c.s.isConnected();
 	}
 }

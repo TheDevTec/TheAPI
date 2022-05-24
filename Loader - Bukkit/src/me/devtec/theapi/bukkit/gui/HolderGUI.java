@@ -18,11 +18,11 @@ public interface HolderGUI {
 	public int size();
 
 	public Collection<Player> getPlayers();
-	
+
 	public void setItem(int slot, ItemGUI item);
-	
+
 	public ItemGUI getItemGUI(int slot);
-	
+
 	public ItemStack getItem(int slot);
 
 	public void onClose(Player player);
@@ -35,12 +35,12 @@ public interface HolderGUI {
 
 	public void remove(int slot);
 
-	public void close(Player...players);
+	public void close(Player... players);
 
 	public void close();
 
 	public void clear();
-	
+
 	public Object getContainer(Player player);
 
 	public void closeWithoutPacket(Player... p);
@@ -48,6 +48,6 @@ public interface HolderGUI {
 	public Inventory getInventory();
 
 	public Map<Integer, ItemGUI> getItemGUIs();
-	
+
 	public List<Integer> getNotInterableSlots(Player player);
 }

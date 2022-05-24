@@ -13,12 +13,16 @@ import me.devtec.theapi.bukkit.nms.NmsProvider.PlayerInfoType;
 public class TabAPI {
 	public static void setTabListName(Player p, String name) {
 		Object obj = BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.UPDATE_DISPLAY_NAME, p);
-		Ref.set(((List<?>)Ref.get(obj,"b")).get(0), "d", BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(StringUtils.colorize(name==null?p.getName():name))));
-		BukkitLoader.getNmsProvider().getOnlinePlayers().forEach(player -> BukkitLoader.getPacketHandler().send(player,  obj));
+		Ref.set(((List<?>) Ref.get(obj, "b")).get(0), "d", BukkitLoader.getNmsProvider().toIChatBaseComponent(
+				ComponentAPI.fromString(StringUtils.colorize(name == null ? p.getName() : name))));
+		BukkitLoader.getNmsProvider().getOnlinePlayers()
+				.forEach(player -> BukkitLoader.getPacketHandler().send(player, obj));
 	}
 
 	public static void setHeaderFooter(Player player, String header, String footer) {
-		if(Ref.isOlderThan(8))return;
-		BukkitLoader.getPacketHandler().send(player,  BukkitLoader.getNmsProvider().packetPlayerListHeaderFooter(StringUtils.colorize(header), StringUtils.colorize(footer)));
+		if (Ref.isOlderThan(8))
+			return;
+		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider()
+				.packetPlayerListHeaderFooter(StringUtils.colorize(header), StringUtils.colorize(footer)));
 	}
 }

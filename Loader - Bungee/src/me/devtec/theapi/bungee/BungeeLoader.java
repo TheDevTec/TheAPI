@@ -35,102 +35,112 @@ import net.md_5.bungee.api.plugin.PluginDescription;
 import net.md_5.bungee.event.EventHandler;
 
 public class BungeeLoader extends Plugin implements Listener {
-	
+
+	@Override
 	public void onLoad() {
-		initTheAPI(this);
-		getProxy().getPluginManager().registerListener(this, this);
+		BungeeLoader.initTheAPI(this);
+		this.getProxy().getPluginManager().registerListener(this, this);
 	}
-	
+
+	@Override
 	public void onDisable() {
 		API.setEnabled(false);
-    	
-		//OfflineCache support!
+
+		// OfflineCache support!
 		API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save();
 	}
-    
-    @EventHandler
-    public void onPreLoginEvent(PreLoginEvent e) {
-    	API.offlineCache().setLookup(API.offlineCache().lookupId(e.getConnection().getName()), e.getConnection().getName());
-    }
-    
-    @EventHandler
-    public void onLoginEvent(LoginEvent e) { //fix uuid - premium login?
-    	API.offlineCache().setLookup(e.getConnection().getUniqueId(), e.getConnection().getName());
-    }
-    
-    @EventHandler
-    public void onDisconnect(PlayerDisconnectEvent e) {
-    	Config cache = API.removeCache(e.getPlayer().getUniqueId());
-    	if(cache!=null)cache.save();
-    }
-	
+
+	@EventHandler
+	public void onPreLoginEvent(PreLoginEvent e) {
+		API.offlineCache().setLookup(API.offlineCache().lookupId(e.getConnection().getName()),
+				e.getConnection().getName());
+	}
+
+	@EventHandler
+	public void onLoginEvent(LoginEvent e) { // fix uuid - premium login?
+		API.offlineCache().setLookup(e.getConnection().getUniqueId(), e.getConnection().getName());
+	}
+
+	@EventHandler
+	public void onDisconnect(PlayerDisconnectEvent e) {
+		Config cache = API.removeCache(e.getPlayer().getUniqueId());
+		if (cache != null)
+			cache.save();
+	}
+
 	public static void initTheAPI(Plugin plugin) {
-		//Commands api
-		API.commandsRegister=new BungeeCommandManager(plugin);
-		API.selectorUtils=new BungeeSelectorUtils();
-		
-		//OfflineCache support!
-		API.initOfflineCache(ProxyServer.getInstance().getConfig().isOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));
-		
-		Ref.init(ServerType.BUNGEECORD, ProxyServer.getInstance().getVersion()); //Server version
+		// Commands api
+		API.commandsRegister = new BungeeCommandManager(plugin);
+		API.selectorUtils = new BungeeSelectorUtils();
+
+		// OfflineCache support!
+		API.initOfflineCache(ProxyServer.getInstance().getConfig().isOnlineMode(),
+				new Config("plugins/TheAPI/Cache.dat"));
+
+		Ref.init(ServerType.BUNGEECORD, ProxyServer.getInstance().getVersion()); // Server version
 		ComponentAPI.registerTransformer("BUNGEECORD", new BungeeComponentAPI<>());
-		if(Ref.getClass("net.kyori.adventure.text.Component")!=null)
-			ComponentAPI.registerTransformer("ADVENTURE", (ComponentTransformer<?>)Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.AdventureComponentAPI")));
-		Json.init(new ModernJsonReader(), new ModernJsonWriter()); //Modern version of Guava
+		if (Ref.getClass("net.kyori.adventure.text.Component") != null)
+			ComponentAPI.registerTransformer("ADVENTURE", (ComponentTransformer<?>) Ref
+					.newInstanceByClass(Ref.getClass("me.devtec.shared.components.AdventureComponentAPI")));
+		Json.init(new ModernJsonReader(), new ModernJsonWriter()); // Modern version of Guava
 		API.library = new LibraryLoader() {
 			List<File> loaded = new ArrayList<>();
-			Constructor<?> c = Ref.constructor(Ref.getClass("net.md_5.bungee.api.plugin.PluginClassloader"), ProxyServer.class, PluginDescription.class, URL[].class);
-			
+			Constructor<?> c = Ref.constructor(Ref.getClass("net.md_5.bungee.api.plugin.PluginClassloader"),
+					ProxyServer.class, PluginDescription.class, URL[].class);
+
 			@Override
 			public void load(File file) {
-				if(isLoaded(file) || !file.exists())return;
-				loaded.add(file);
+				if (this.isLoaded(file) || !file.exists())
+					return;
+				this.loaded.add(file);
 				try {
-					Ref.newInstance(c, null, null, new URL[] {file.toURI().toURL()});
+					Ref.newInstance(this.c, null, null, new URL[] { file.toURI().toURL() });
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				}
 			}
-			
+
 			@Override
 			public boolean isLoaded(File file) {
-				return loaded.contains(file);
+				return this.loaded.contains(file);
 			}
 		};
 		API.basics().load();
-		StringUtils.rainbowSplit = Pattern.compile("(#[A-Fa-f0-9]{6}([&§][K-Ok-oRr])*|[&§][Xx]([&§][A-Fa-f0-9]){6}([&§][K-Ok-oRr])*|[&§][A-Fa-f0-9K-ORrk-oUuXx]([&§][K-Ok-oRr])*)");
+		StringUtils.rainbowSplit = Pattern.compile(
+				"(#[A-Fa-f0-9]{6}([&§][K-Ok-oRr])*|[&§][Xx]([&§][A-Fa-f0-9]){6}([&§][K-Ok-oRr])*|[&§][A-Fa-f0-9K-ORrk-oUuXx]([&§][K-Ok-oRr])*)");
 		StringUtils.color = new ColormaticFactory() {
 			char[] characters = "abcdef0123456789".toCharArray();
 			Random random = new Random();
-			Pattern getLast = Pattern.compile("(#[A-Fa-f0-9k-oK-ORrXxUu]{6}|§[Xx](§[A-Fa-f0-9k-oK-ORrXxUu]){6}|§[A-Fa-f0-9k-oK-ORrXxUu]|&[Uu])");
+			Pattern getLast = Pattern.compile(
+					"(#[A-Fa-f0-9k-oK-ORrXxUu]{6}|§[Xx](§[A-Fa-f0-9k-oK-ORrXxUu]){6}|§[A-Fa-f0-9k-oK-ORrXxUu]|&[Uu])");
 			Pattern hex = Pattern.compile("(#[a-fA-F0-9]{6})");
-			
+
 			@Override
 			public String gradient(String msg, String fromHex, String toHex) {
 				return API.basics().gradient(msg, fromHex, toHex);
 			}
-	
+
 			@Override
 			public String generateColor() {
 				StringBuilder b = new StringBuilder("#");
 				for (int i = 0; i < 6; ++i)
-					b.append(characters[random.nextInt(16)]);
+					b.append(this.characters[this.random.nextInt(16)]);
 				return b.toString();
 			}
-	
+
 			@Override
 			public String[] getLastColors(String text) {
-				return API.basics().getLastColors(getLast, text);
+				return API.basics().getLastColors(this.getLast, text);
 			}
-	
+
 			@Override
 			public String replaceHex(String msg) {
-				Matcher match = hex.matcher(msg);
+				Matcher match = this.hex.matcher(msg);
 				while (match.find()) {
 					String color = match.group();
 					String hex = "§x";
-					for(char c : color.substring(1).toCharArray())
-						hex+="§"+c;
+					for (char c : color.substring(1).toCharArray())
+						hex += "§" + c;
 					msg = msg.replace(color, hex);
 				}
 				return msg;

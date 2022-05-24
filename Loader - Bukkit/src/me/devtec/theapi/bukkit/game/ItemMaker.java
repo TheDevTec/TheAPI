@@ -46,12 +46,12 @@ import net.md_5.bungee.api.chat.BaseComponent;
 
 public class ItemMaker {
 	private static Material skull = XMaterial.PLAYER_HEAD.parseMaterial();
-	
+
 	private Material material;
 	private int amount = 1;
 	private short damage;
-	
-	//additional
+
+	// additional
 	private String displayName;
 	private List<String> lore;
 	private Map<Enchantment, Integer> enchants;
@@ -59,148 +59,150 @@ public class ItemMaker {
 	private int customModel;
 	private boolean unbreakable;
 	public byte data;
-	
+
 	protected ItemMaker(Material material) {
-		this.material=material;
+		this.material = material;
 	}
-	
+
 	protected ItemMeta apply(ItemMeta meta) {
-		if(displayName!=null)
-			meta.setDisplayName(displayName);
-		if(lore!=null)
-			meta.setLore(lore);
-		if(enchants!=null)
-			for(Entry<Enchantment, Integer> s : enchants.entrySet())
+		if (this.displayName != null)
+			meta.setDisplayName(this.displayName);
+		if (this.lore != null)
+			meta.setLore(this.lore);
+		if (this.enchants != null)
+			for (Entry<Enchantment, Integer> s : this.enchants.entrySet())
 				meta.addEnchant(s.getKey(), s.getValue(), true);
-		if(itemFlags!=null)
-			for(String flag : itemFlags)
+		if (this.itemFlags != null)
+			for (String flag : this.itemFlags)
 				meta.addItemFlags(ItemFlag.valueOf(flag.toUpperCase()));
-		if(customModel!=0)
-			meta.setCustomModelData(customModel);
-		if(unbreakable)
+		if (this.customModel != 0)
+			meta.setCustomModelData(this.customModel);
+		if (this.unbreakable)
 			try {
-				meta.setUnbreakable(unbreakable);
-			}catch(NoSuchFieldError | Exception e) {
+				meta.setUnbreakable(this.unbreakable);
+			} catch (NoSuchFieldError | Exception e) {
 				try {
-					Ref.invoke(Ref.invoke(meta, "spigot"), "setUnbreakable", unbreakable);
-				}catch(NoSuchFieldError | Exception e2) {
-					//unsupported
+					Ref.invoke(Ref.invoke(meta, "spigot"), "setUnbreakable", this.unbreakable);
+				} catch (NoSuchFieldError | Exception e2) {
+					// unsupported
 				}
 			}
 		return meta;
 	}
 
 	public ItemMaker amount(int amount) {
-		this.amount=amount;
+		this.amount = amount;
 		return this;
 	}
 
 	public ItemMaker damage(int damage) {
-		this.damage=(short)damage;
+		this.damage = (short) damage;
 		return this;
 	}
 
 	public ItemMaker data(int data) {
-		this.data=(byte)data;
+		this.data = (byte) data;
 		return this;
 	}
 
 	public ItemMaker displayName(String name) {
-		displayName = StringUtils.colorize(name);
+		this.displayName = StringUtils.colorize(name);
 		return this;
 	}
 
 	public ItemMaker lore(String... lore) {
-		return lore(Arrays.asList(lore));
+		return this.lore(Arrays.asList(lore));
 	}
 
 	public ItemMaker lore(List<String> lore) {
-		this.lore=StringUtils.colorize(lore);
+		this.lore = StringUtils.colorize(lore);
 		return this;
 	}
 
 	public ItemMaker customModel(int customModel) {
-		this.customModel=customModel;
+		this.customModel = customModel;
 		return this;
 	}
 
 	public ItemMaker unbreakable(boolean unbreakable) {
-		this.unbreakable=unbreakable;
+		this.unbreakable = unbreakable;
 		return this;
 	}
 
 	public ItemMaker itemFlags(String... flag) {
-		return itemFlags(Arrays.asList(flag));
+		return this.itemFlags(Arrays.asList(flag));
 	}
 
 	public ItemMaker itemFlags(List<String> flag) {
-		itemFlags=flag;
+		this.itemFlags = flag;
 		return this;
 	}
 
 	public ItemMaker enchant(Enchantment enchant, int level) {
-		if(enchants==null)enchants=new HashMap<>();
-		enchants.put(enchant, level);
+		if (this.enchants == null)
+			this.enchants = new HashMap<>();
+		this.enchants.put(enchant, level);
 		return this;
 	}
-	
+
 	public ItemStack build() {
-		ItemStack item = data!=0?new ItemStack(material, amount, damage, data):new ItemStack(material, amount, damage);
-		item.setItemMeta(apply(item.getItemMeta()));
+		ItemStack item = this.data != 0 ? new ItemStack(this.material, this.amount, this.damage, this.data)
+				: new ItemStack(this.material, this.amount, this.damage);
+		item.setItemMeta(this.apply(item.getItemMeta()));
 		return item;
 	}
-	
+
 	public static class HeadItemMaker extends ItemMaker {
 		static final String URL_FORMAT = "https://api.mineskin.org/generate/url?url=%s&%s";
 		static final Field profileField = Ref.field(Ref.craft("inventory.CraftMetaSkull"), "profile");
-		
+
 		private String owner;
 		/**
-		 * 0 = offlinePlayer
-		 * 1 = player.values
-		 * 2 = url.png
+		 * 0 = offlinePlayer 1 = player.values 2 = url.png
 		 */
 		private int ownerType;
-		
+
 		protected HeadItemMaker() {
-			super(skull);
+			super(ItemMaker.skull);
 		}
-		
+
 		public HeadItemMaker skinName(String name) {
-			owner=name;
-			ownerType=0;
+			this.owner = name;
+			this.ownerType = 0;
 			return this;
 		}
-		
+
 		public HeadItemMaker skinValues(String name) {
-			owner=name;
-			ownerType=1;
+			this.owner = name;
+			this.ownerType = 1;
 			return this;
 		}
-		
+
 		public HeadItemMaker skinUrl(String name) {
-			owner=name;
-			ownerType=2;
+			this.owner = name;
+			this.ownerType = 2;
 			return this;
 		}
-		
+
+		@Override
 		protected ItemMeta apply(ItemMeta meta) {
-			SkullMeta iMeta = (SkullMeta)meta;
-			if(owner!=null)
-				switch(ownerType) {
+			SkullMeta iMeta = (SkullMeta) meta;
+			if (this.owner != null)
+				switch (this.ownerType) {
 				case 0:
-					iMeta.setOwner(owner);
+					iMeta.setOwner(this.owner);
 					break;
 				case 1: {
 					GameProfile profile = new GameProfile(UUID.randomUUID(), "DevTec");
-					profile.getProperties().put("textures", new Property("textures", owner));
-					Ref.set(iMeta, profileField, profile);
+					profile.getProperties().put("textures", new Property("textures", this.owner));
+					Ref.set(iMeta, HeadItemMaker.profileField, profile);
 					break;
 				}
 				case 2: {
 					GameProfile profile = new GameProfile(UUID.randomUUID(), "DevTec");
-					profile.getProperties().put("textures", new Property("textures", fromUrl(owner)));
-					Ref.set(iMeta, profileField, profile);
+					profile.getProperties().put("textures",
+							new Property("textures", HeadItemMaker.fromUrl(this.owner)));
+					Ref.set(iMeta, HeadItemMaker.profileField, profile);
 					break;
 				}
 				default:
@@ -208,248 +210,265 @@ public class ItemMaker {
 				}
 			return super.apply(iMeta);
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		public static String fromUrl(String url) {
 			try {
 				java.net.URLConnection connection = new URL(url).openConnection();
 				connection.setRequestProperty("User-Agent", "DevTec-JavaClient");
-				HttpURLConnection conn = (HttpURLConnection)new URL(String.format(URL_FORMAT, url, "name=DevTec&model=steve&visibility=1")).openConnection();
+				HttpURLConnection conn = (HttpURLConnection) new URL(
+						String.format(HeadItemMaker.URL_FORMAT, url, "name=DevTec&model=steve&visibility=1"))
+						.openConnection();
 				conn.setRequestProperty("User-Agent", "DevTec-JavaClient");
 				conn.setRequestProperty("Accept-Encoding", "gzip");
 				conn.setRequestMethod("POST");
 				conn.connect();
-				Map<String, Object> text = (Map<String, Object>) Json.reader().simpleRead(StreamUtils.fromStream(new GZIPInputStream(conn.getInputStream())));
-				return (String) ((Map<String, Object>)((Map<String, Object>)text.get("data")).get("texture")).get("value");
-			}catch(Exception err) {}
+				Map<String, Object> text = (Map<String, Object>) Json.reader()
+						.simpleRead(StreamUtils.fromStream(new GZIPInputStream(conn.getInputStream())));
+				return (String) ((Map<String, Object>) ((Map<String, Object>) text.get("data")).get("texture"))
+						.get("value");
+			} catch (Exception err) {
+			}
 			return null;
 		}
-		
+
 	}
-	
+
 	public static class LeatherItemMaker extends ItemMaker {
 		private Color color;
+
 		protected LeatherItemMaker(Material material) {
 			super(material);
 		}
-		
+
 		public LeatherItemMaker color(Color color) {
-			this.color=color;
+			this.color = color;
 			return this;
 		}
-		
+
+		@Override
 		protected ItemMeta apply(ItemMeta meta) {
-			LeatherArmorMeta iMeta = (LeatherArmorMeta)meta;
-			if(color!=null)
-				iMeta.setColor(color);
+			LeatherArmorMeta iMeta = (LeatherArmorMeta) meta;
+			if (this.color != null)
+				iMeta.setColor(this.color);
 			return super.apply(iMeta);
 		}
 	}
-	
+
 	public static class BookItemMaker extends ItemMaker {
 		private String author;
 		private String title;
 		private List<Component> pages;
 		private String generation;
+
 		protected BookItemMaker() {
 			super(Material.WRITTEN_BOOK);
 		}
-		
+
 		public BookItemMaker author(String author) {
-			this.author=StringUtils.colorize(author);
+			this.author = StringUtils.colorize(author);
 			return this;
 		}
-		
+
 		public BookItemMaker title(String title) {
-			this.title=StringUtils.colorize(title);
+			this.title = StringUtils.colorize(title);
 			return this;
 		}
-		
+
 		public BookItemMaker generation(String generation) {
-			this.generation=generation;
+			this.generation = generation;
 			return this;
 		}
-		
+
 		public BookItemMaker pages(String... pages) {
-			return pages(Arrays.asList(pages));
+			return this.pages(Arrays.asList(pages));
 		}
-		
+
 		public BookItemMaker pages(List<String> pages) {
-			this.pages=new ArrayList<>();
-			for(String string : StringUtils.colorize(pages))
+			this.pages = new ArrayList<>();
+			for (String string : StringUtils.colorize(pages))
 				this.pages.add(ComponentAPI.fromString(string));
 			return this;
 		}
-		
+
 		public BookItemMaker pagesComp(Component... pages) {
-			return pagesComp(Arrays.asList(pages));
+			return this.pagesComp(Arrays.asList(pages));
 		}
-		
+
 		public BookItemMaker pagesComp(List<Component> pages) {
-			this.pages=pages;
+			this.pages = pages;
 			return this;
 		}
-		
+
+		@Override
 		protected ItemMeta apply(ItemMeta meta) {
-			BookMeta iMeta = (BookMeta)meta;
-			if(author!=null)
-				iMeta.setAuthor(author);
-			if(pages!=null) {
-				if(!Ref.isNewerThan(11) || Ref.serverType()==ServerType.BUKKIT) {
-					List<String> page = new ArrayList<>(pages.size());
-					for(Component comp : pages)page.add(comp.toString());
+			BookMeta iMeta = (BookMeta) meta;
+			if (this.author != null)
+				iMeta.setAuthor(this.author);
+			if (this.pages != null)
+				if (!Ref.isNewerThan(11) || Ref.serverType() == ServerType.BUKKIT) {
+					List<String> page = new ArrayList<>(this.pages.size());
+					for (Component comp : this.pages)
+						page.add(comp.toString());
 					iMeta.setPages(page);
-				}else {
-					for(Component page : pages)
-						iMeta.spigot().addPage((BaseComponent[])ComponentAPI.bungee().fromComponents(page));
-				}
-			}
-			if(generation!=null)
-				iMeta.setGeneration(Generation.valueOf(generation.toUpperCase()));
-			if(title!=null)
-				iMeta.setTitle(title);
+				} else
+					for (Component page : this.pages)
+						iMeta.spigot().addPage((BaseComponent[]) ComponentAPI.bungee().fromComponents(page));
+			if (this.generation != null)
+				iMeta.setGeneration(Generation.valueOf(this.generation.toUpperCase()));
+			if (this.title != null)
+				iMeta.setTitle(this.title);
 			return super.apply(iMeta);
 		}
 	}
-	
+
 	public static class EnchantedBookItemMaker extends ItemMaker {
 		protected EnchantedBookItemMaker() {
 			super(Material.ENCHANTED_BOOK);
 		}
-		
+
+		@Override
 		protected ItemMeta apply(ItemMeta meta) {
-			EnchantmentStorageMeta iMeta = (EnchantmentStorageMeta)meta;
-			if(super.displayName!=null)
+			EnchantmentStorageMeta iMeta = (EnchantmentStorageMeta) meta;
+			if (super.displayName != null)
 				iMeta.setDisplayName(super.displayName);
-			if(super.lore!=null)
+			if (super.lore != null)
 				iMeta.setLore(super.lore);
-			if(super.enchants!=null)
-				for(Entry<Enchantment, Integer> s : super.enchants.entrySet())
+			if (super.enchants != null)
+				for (Entry<Enchantment, Integer> s : super.enchants.entrySet())
 					iMeta.addStoredEnchant(s.getKey(), s.getValue(), true);
-			if(super.itemFlags!=null)
-				for(String flag : super.itemFlags)
+			if (super.itemFlags != null)
+				for (String flag : super.itemFlags)
 					iMeta.addItemFlags(ItemFlag.valueOf(flag.toUpperCase()));
-			if(super.customModel!=0)
+			if (super.customModel != 0)
 				iMeta.setCustomModelData(super.customModel);
-			if(super.unbreakable)
+			if (super.unbreakable)
 				try {
 					iMeta.setUnbreakable(super.unbreakable);
-				}catch(NoSuchFieldError | Exception e) {
+				} catch (NoSuchFieldError | Exception e) {
 					try {
 						Ref.invoke(Ref.invoke(meta, "spigot"), "setUnbreakable", super.unbreakable);
-					}catch(NoSuchFieldError | Exception e2) {
-						//unsupported
+					} catch (NoSuchFieldError | Exception e2) {
+						// unsupported
 					}
 				}
 			return iMeta;
 		}
 	}
-	
+
 	public static class PotionItemMaker extends ItemMaker {
 		private Color color;
 		private List<PotionEffect> effects;
+
 		protected PotionItemMaker(Material material) {
 			super(material);
 		}
-		
+
 		public PotionItemMaker color(Color color) {
-			this.color=color;
+			this.color = color;
 			return this;
 		}
-		
+
 		public PotionItemMaker potionEffects(PotionEffect... effects) {
-			return potionEffects(Arrays.asList(effects));
+			return this.potionEffects(Arrays.asList(effects));
 		}
-		
+
 		public PotionItemMaker potionEffects(List<PotionEffect> effects) {
-			this.effects=effects;
+			this.effects = effects;
 			return this;
 		}
-		
+
+		@Override
 		protected ItemMeta apply(ItemMeta meta) {
-			PotionMeta iMeta = (PotionMeta)meta;
-			if(color!=null)
-				iMeta.setColor(color);
-			if(effects!=null)
-				for(PotionEffect effect : effects)
+			PotionMeta iMeta = (PotionMeta) meta;
+			if (this.color != null)
+				iMeta.setColor(this.color);
+			if (this.effects != null)
+				for (PotionEffect effect : this.effects)
 					iMeta.addCustomEffect(effect, true);
 			return super.apply(iMeta);
 		}
 	}
-	
+
 	public static class ShulkerBoxItemMaker extends ItemMaker {
 		private String name;
 		private ItemStack[] contents;
+
 		protected ShulkerBoxItemMaker(XMaterial xMaterial) {
 			super(xMaterial.parseMaterial());
-			super.data=xMaterial.getData();
+			super.data = xMaterial.getData();
 		}
-		
+
 		public ShulkerBoxItemMaker name(String name) {
-			this.name=name;
+			this.name = name;
 			return this;
 		}
-		
+
 		public ShulkerBoxItemMaker contents(ItemStack[] contents) {
-			this.contents=contents;
+			this.contents = contents;
 			return this;
 		}
-		
+
+		@Override
 		protected ItemMeta apply(ItemMeta meta) {
-			BlockStateMeta iMeta = (BlockStateMeta)meta;
-			ShulkerBox shulker = (ShulkerBox)iMeta.getBlockState();
-			if(name!=null)
-				shulker.setCustomName(name);
-			if(contents!=null)
-				shulker.getInventory().setContents(contents);
+			BlockStateMeta iMeta = (BlockStateMeta) meta;
+			ShulkerBox shulker = (ShulkerBox) iMeta.getBlockState();
+			if (this.name != null)
+				shulker.setCustomName(this.name);
+			if (this.contents != null)
+				shulker.getInventory().setContents(this.contents);
 			iMeta.setBlockState(shulker);
 			return super.apply(iMeta);
 		}
 	}
-	
+
 	public static class BundleItemMaker extends ItemMaker {
 		private List<ItemStack> contents;
+
 		protected BundleItemMaker() {
 			super(Material.getMaterial("BUNDLE"));
 		}
-		
+
 		public BundleItemMaker contents(ItemStack... contents) {
-			return contents(Arrays.asList(contents));
+			return this.contents(Arrays.asList(contents));
 		}
-		
+
 		public BundleItemMaker contents(List<ItemStack> contents) {
-			this.contents=contents;
+			this.contents = contents;
 			return this;
 		}
-		
+
+		@Override
 		protected ItemMeta apply(ItemMeta meta) {
-			BundleMeta iMeta = (BundleMeta)meta;
-			if(contents!=null)
-				iMeta.setItems(contents);
+			BundleMeta iMeta = (BundleMeta) meta;
+			if (this.contents != null)
+				iMeta.setItems(this.contents);
 			return super.apply(iMeta);
 		}
 	}
-	
+
 	public static class BannerItemMaker extends ItemMaker {
 		private List<Pattern> patterns;
+
 		protected BannerItemMaker(XMaterial xMaterial) {
 			super(xMaterial.parseMaterial());
-			super.data=xMaterial.getData();
+			super.data = xMaterial.getData();
 		}
-		
+
 		public BannerItemMaker patterns(Pattern... contents) {
-			return patterns(Arrays.asList(contents));
+			return this.patterns(Arrays.asList(contents));
 		}
-		
+
 		public BannerItemMaker patterns(List<Pattern> patterns) {
-			this.patterns=patterns;
+			this.patterns = patterns;
 			return this;
 		}
-		
+
+		@Override
 		protected ItemMeta apply(ItemMeta meta) {
-			BannerMeta iMeta = (BannerMeta)meta;
-			if(patterns!=null)
-				iMeta.setPatterns(patterns);
+			BannerMeta iMeta = (BannerMeta) meta;
+			if (this.patterns != null)
+				iMeta.setPatterns(this.patterns);
 			return super.apply(iMeta);
 		}
 	}
@@ -463,7 +482,7 @@ public class ItemMaker {
 	}
 
 	public static LeatherItemMaker ofLeatherArmor(Material material) {
-		return new LeatherItemMaker(skull);
+		return new LeatherItemMaker(ItemMaker.skull);
 	}
 
 	public static BookItemMaker ofBook() {
@@ -473,37 +492,43 @@ public class ItemMaker {
 	public static EnchantedBookItemMaker ofEnchantedBook() {
 		return new EnchantedBookItemMaker();
 	}
-	
+
 	static enum Potion {
-		LINGERING(Material.getMaterial("LINGERING_POTION")), SPLASH(Material.getMaterial("SPLASH_POTION")), POTION(Material.POTION);
+		LINGERING(Material.getMaterial("LINGERING_POTION")), SPLASH(Material.getMaterial("SPLASH_POTION")),
+		POTION(Material.POTION);
 
 		private Material m;
+
 		Potion(Material mat) {
-			m=mat;
+			this.m = mat;
 		}
-		
+
 		public Material toMaterial() {
-			return m;
+			return this.m;
 		}
 	}
-	
+
 	public static PotionItemMaker ofPotion(Potion potionType) {
 		return new PotionItemMaker(potionType.toMaterial());
 	}
-	
+
 	static enum ShulkerBoxColor {
-		NONE(XMaterial.SHULKER_BOX), WHITE(XMaterial.WHITE_SHULKER_BOX), BLACK(XMaterial.BLACK_SHULKER_BOX), BLUE(XMaterial.BLUE_SHULKER_BOX), BROWN(XMaterial.BROWN_SHULKER_BOX),
-		CYAN(XMaterial.CYAN_SHULKER_BOX), GRAY(XMaterial.GRAY_SHULKER_BOX), GREEN(XMaterial.GREEN_SHULKER_BOX), LIGHT_BLUE(XMaterial.LIGHT_BLUE_SHULKER_BOX),
-		LIGHT_GRAY(XMaterial.LIGHT_GRAY_SHULKER_BOX), LIME(XMaterial.LIME_SHULKER_BOX), MAGENTA(XMaterial.MAGENTA_SHULKER_BOX), ORANGE(XMaterial.ORANGE_SHULKER_BOX),
-		YELLOW(XMaterial.YELLOW_SHULKER_BOX), RED(XMaterial.RED_SHULKER_BOX), PURPLE(XMaterial.PURPLE_SHULKER_BOX), PINK(XMaterial.PINK_SHULKER_BOX);
-		
+		NONE(XMaterial.SHULKER_BOX), WHITE(XMaterial.WHITE_SHULKER_BOX), BLACK(XMaterial.BLACK_SHULKER_BOX),
+		BLUE(XMaterial.BLUE_SHULKER_BOX), BROWN(XMaterial.BROWN_SHULKER_BOX), CYAN(XMaterial.CYAN_SHULKER_BOX),
+		GRAY(XMaterial.GRAY_SHULKER_BOX), GREEN(XMaterial.GREEN_SHULKER_BOX),
+		LIGHT_BLUE(XMaterial.LIGHT_BLUE_SHULKER_BOX), LIGHT_GRAY(XMaterial.LIGHT_GRAY_SHULKER_BOX),
+		LIME(XMaterial.LIME_SHULKER_BOX), MAGENTA(XMaterial.MAGENTA_SHULKER_BOX), ORANGE(XMaterial.ORANGE_SHULKER_BOX),
+		YELLOW(XMaterial.YELLOW_SHULKER_BOX), RED(XMaterial.RED_SHULKER_BOX), PURPLE(XMaterial.PURPLE_SHULKER_BOX),
+		PINK(XMaterial.PINK_SHULKER_BOX);
+
 		private XMaterial m;
-		ShulkerBoxColor(XMaterial mat){
-			m=mat;
+
+		ShulkerBoxColor(XMaterial mat) {
+			this.m = mat;
 		}
-		
+
 		public XMaterial toMaterial() {
-			return m;
+			return this.m;
 		}
 	}
 
@@ -514,23 +539,26 @@ public class ItemMaker {
 	public static BundleItemMaker ofBundle() {
 		return new BundleItemMaker();
 	}
-	
+
 	static enum BannerColor {
-		NONE(XMaterial.WHITE_BANNER), WHITE(XMaterial.WHITE_BANNER), BLACK(XMaterial.BLACK_BANNER), BLUE(XMaterial.BLUE_BANNER), BROWN(XMaterial.BROWN_BANNER),
-		CYAN(XMaterial.CYAN_BANNER), GRAY(XMaterial.GRAY_BANNER), GREEN(XMaterial.GREEN_BANNER), LIGHT_BLUE(XMaterial.LIGHT_BLUE_BANNER),
-		LIGHT_GRAY(XMaterial.LIGHT_GRAY_BANNER), LIME(XMaterial.LIME_BANNER), MAGENTA(XMaterial.MAGENTA_BANNER), ORANGE(XMaterial.ORANGE_BANNER),
-		YELLOW(XMaterial.YELLOW_BANNER), RED(XMaterial.RED_BANNER), PURPLE(XMaterial.PURPLE_BANNER), PINK(XMaterial.PINK_BANNER);
-		
+		NONE(XMaterial.WHITE_BANNER), WHITE(XMaterial.WHITE_BANNER), BLACK(XMaterial.BLACK_BANNER),
+		BLUE(XMaterial.BLUE_BANNER), BROWN(XMaterial.BROWN_BANNER), CYAN(XMaterial.CYAN_BANNER),
+		GRAY(XMaterial.GRAY_BANNER), GREEN(XMaterial.GREEN_BANNER), LIGHT_BLUE(XMaterial.LIGHT_BLUE_BANNER),
+		LIGHT_GRAY(XMaterial.LIGHT_GRAY_BANNER), LIME(XMaterial.LIME_BANNER), MAGENTA(XMaterial.MAGENTA_BANNER),
+		ORANGE(XMaterial.ORANGE_BANNER), YELLOW(XMaterial.YELLOW_BANNER), RED(XMaterial.RED_BANNER),
+		PURPLE(XMaterial.PURPLE_BANNER), PINK(XMaterial.PINK_BANNER);
+
 		private XMaterial m;
-		BannerColor(XMaterial mat){
-			m=mat;
+
+		BannerColor(XMaterial mat) {
+			this.m = mat;
 		}
-		
+
 		public XMaterial toMaterial() {
-			return m;
+			return this.m;
 		}
 	}
-	
+
 	public static BannerItemMaker ofBanner(BannerColor color) {
 		return new BannerItemMaker(color.toMaterial());
 	}

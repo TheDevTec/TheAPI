@@ -18,9 +18,11 @@ import me.devtec.theapi.bukkit.BukkitLoader;
  */
 public class BossBar {
 	private static final Class<?> c = Ref.nms("EntityWither");
-	private static final Constructor<?> tpC=Ref.constructor(Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityTeleport","PacketPlayOutEntityTeleport"));
-	private static final Constructor<?> barOld=Ref.constructor(BossBar.c, Ref.nmsOrOld("world.level.World","World"));
-	private static final Method mLoc=Ref.method(Ref.nmsOrOld("world.entity.Entity","Entity"), "setLocation", double.class, double.class, double.class, float.class, float.class);
+	private static final Constructor<?> tpC = Ref.constructor(
+			Ref.nmsOrOld("network.protocol.game.PacketPlayOutEntityTeleport", "PacketPlayOutEntityTeleport"));
+	private static final Constructor<?> barOld = Ref.constructor(BossBar.c, Ref.nmsOrOld("world.level.World", "World"));
+	private static final Method mLoc = Ref.method(Ref.nmsOrOld("world.entity.Entity", "Entity"), "setLocation",
+			double.class, double.class, double.class, float.class, float.class);
 
 	private final Player holder;
 	private boolean hidden;
@@ -33,95 +35,105 @@ public class BossBar {
 
 	public BossBar(Player holder, String text, double progress) {
 		this.holder = holder;
-		if(!Ref.isNewerThan(8)) {
-			Bukkit.getConsoleSender().sendMessage("[TheAPI - BossBar API] §4This class is not supported for versions higher than 1.8.8");
+		if (!Ref.isNewerThan(8)) {
+			Bukkit.getConsoleSender()
+					.sendMessage("[TheAPI - BossBar API] §4This class is not supported for versions higher than 1.8.8");
 			return;
 		}
-		set(text, progress);
+		this.set(text, progress);
 		BukkitLoader.bossbars.add(this);
 	}
 
 	public void move() {
-		if (!holder.isOnline() || (entityBar == null))return;
-		Location loc = holder.getLocation();
+		if (!this.holder.isOnline() || this.entityBar == null)
+			return;
+		Location loc = this.holder.getLocation();
 		Object packet = Ref.newInstance(BossBar.tpC);
-		Ref.set(packet,"a", entityId);
-		Ref.set(packet,"b", (int) ((loc.getX()-30) * 32D));
-		Ref.set(packet,"c", (int) ((loc.getY()-100) * 32D));
-		Ref.set(packet,"d", (int) (loc.getZ() * 32D));
-		Ref.set(packet,"e", (byte) 0);
-		Ref.set(packet,"f", (byte) 0);
-		BukkitLoader.getPacketHandler().send(holder, packet);
+		Ref.set(packet, "a", this.entityId);
+		Ref.set(packet, "b", (int) ((loc.getX() - 30) * 32D));
+		Ref.set(packet, "c", (int) ((loc.getY() - 100) * 32D));
+		Ref.set(packet, "d", (int) (loc.getZ() * 32D));
+		Ref.set(packet, "e", (byte) 0);
+		Ref.set(packet, "f", (byte) 0);
+		BukkitLoader.getPacketHandler().send(this.holder, packet);
 	}
 
 	public boolean isHidden() {
-		return hidden;
+		return this.hidden;
 	}
 
 	public double getProgress() {
-		return progress;
+		return this.progress;
 	}
 
 	public String getTitle() {
-		return title;
+		return this.title;
 	}
 
 	public void hide() {
-		if (hidden)
+		if (this.hidden)
 			return;
 		BukkitLoader.bossbars.remove(this);
-		if (!holder.isOnline())return;
-		hidden = true;
-		BukkitLoader.getPacketHandler().send(holder, BukkitLoader.getNmsProvider().packetEntityDestroy(entityId));
+		if (!this.holder.isOnline())
+			return;
+		this.hidden = true;
+		BukkitLoader.getPacketHandler().send(this.holder,
+				BukkitLoader.getNmsProvider().packetEntityDestroy(this.entityId));
 	}
 
 	public void show() {
-		if (!hidden || !holder.isOnline())return;
-		hidden = false;
-		Location loc = holder.getLocation();
-		Ref.invoke(entityBar,BossBar.mLoc,loc.getX()-25, loc.getY()-100, loc.getZ(), 0, 0);
-		Ref.invoke(entityBar, "setInvisible", true);
-		Ref.invoke(entityBar, "setCustomName", title);
-		Ref.invoke(entityBar, "setHealth", (float)progress);
-		BukkitLoader.getPacketHandler().send(holder, BukkitLoader.getNmsProvider().packetSpawnEntityLiving(entityBar));
-		BukkitLoader.getPacketHandler().send(holder, BukkitLoader.getNmsProvider().packetEntityMetadata(entityId, BukkitLoader.getNmsProvider().getDataWatcher(entityBar)));
+		if (!this.hidden || !this.holder.isOnline())
+			return;
+		this.hidden = false;
+		Location loc = this.holder.getLocation();
+		Ref.invoke(this.entityBar, BossBar.mLoc, loc.getX() - 25, loc.getY() - 100, loc.getZ(), 0, 0);
+		Ref.invoke(this.entityBar, "setInvisible", true);
+		Ref.invoke(this.entityBar, "setCustomName", this.title);
+		Ref.invoke(this.entityBar, "setHealth", (float) this.progress);
+		BukkitLoader.getPacketHandler().send(this.holder,
+				BukkitLoader.getNmsProvider().packetSpawnEntityLiving(this.entityBar));
+		BukkitLoader.getPacketHandler().send(this.holder, BukkitLoader.getNmsProvider()
+				.packetEntityMetadata(this.entityId, BukkitLoader.getNmsProvider().getDataWatcher(this.entityBar)));
 		BukkitLoader.bossbars.add(this);
 	}
 
 	private void set(String text, double progress) {
-		if (!holder.isOnline())return;
+		if (!this.holder.isOnline())
+			return;
 		if (progress != -1)
 			this.progress = progress;
 		if (text != null)
-			title = StringUtils.colorize(text);
+			this.title = StringUtils.colorize(text);
 		boolean cr = false;
-		if (entityBar == null) {
-			Location loc = holder.getLocation();
-			entityBar = Ref.newInstance(BossBar.barOld, BukkitLoader.getNmsProvider().getWorld(loc.getWorld()));
-			Ref.invoke(entityBar,BossBar.mLoc,loc.getX()-25, loc.getY()-100, loc.getZ(), 0, 0);
-			entityId = BukkitLoader.getNmsProvider().getEntityId(entityBar);
+		if (this.entityBar == null) {
+			Location loc = this.holder.getLocation();
+			this.entityBar = Ref.newInstance(BossBar.barOld, BukkitLoader.getNmsProvider().getWorld(loc.getWorld()));
+			Ref.invoke(this.entityBar, BossBar.mLoc, loc.getX() - 25, loc.getY() - 100, loc.getZ(), 0, 0);
+			this.entityId = BukkitLoader.getNmsProvider().getEntityId(this.entityBar);
 			cr = true;
 		}
-		Ref.invoke(entityBar, "setInvisible", true);
-		Ref.invoke(entityBar, "setCustomName", title);
-		Ref.invoke(entityBar, "setHealth", (float)this.progress);
-		if(cr)
-			BukkitLoader.getPacketHandler().send(holder, BukkitLoader.getNmsProvider().packetSpawnEntityLiving(entityBar));
-		BukkitLoader.getPacketHandler().send(holder, BukkitLoader.getNmsProvider().packetEntityMetadata(entityId, BukkitLoader.getNmsProvider().getDataWatcher(entityBar)));
+		Ref.invoke(this.entityBar, "setInvisible", true);
+		Ref.invoke(this.entityBar, "setCustomName", this.title);
+		Ref.invoke(this.entityBar, "setHealth", (float) this.progress);
+		if (cr)
+			BukkitLoader.getPacketHandler().send(this.holder,
+					BukkitLoader.getNmsProvider().packetSpawnEntityLiving(this.entityBar));
+		BukkitLoader.getPacketHandler().send(this.holder, BukkitLoader.getNmsProvider()
+				.packetEntityMetadata(this.entityId, BukkitLoader.getNmsProvider().getDataWatcher(this.entityBar)));
 	}
 
 	public void remove() {
-		hide();
-		hidden = false;
-		entityBar = null;
-		entityId = 0;
+		this.hide();
+		this.hidden = false;
+		this.entityBar = null;
+		this.entityId = 0;
 	}
 
 	public void setTitle(String text) {
-		set(text, -1);
+		this.set(text, -1);
 	}
 
 	public void setProgress(double progress) {
-		set(null, progress);
+		this.set(null, progress);
 	}
 }

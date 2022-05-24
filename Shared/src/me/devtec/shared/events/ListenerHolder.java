@@ -6,22 +6,22 @@ import java.util.List;
 public class ListenerHolder {
 	protected EventListener listener;
 	protected List<Class<? extends Event>> listen;
-	
+
 	public final List<Class<? extends Event>> getEvents() {
-		return listen;
+		return this.listen;
 	}
-	
+
 	public final EventListener getListener() {
-		return listener;
+		return this.listener;
 	}
-	
+
 	@SafeVarargs
 	public final ListenerHolder listen(Class<? extends Event>... events) {
-		return listen(Arrays.asList(events));
+		return this.listen(Arrays.asList(events));
 	}
-	
+
 	public final ListenerHolder listen(List<Class<? extends Event>> events) {
-		listen=events;
+		this.listen = events;
 		return this;
 	}
 }

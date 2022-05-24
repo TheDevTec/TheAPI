@@ -27,27 +27,28 @@ import me.devtec.shared.utility.OfflineCache;
 import me.devtec.shared.utility.StringUtils;
 
 public class API {
-	//Commands api
+	// Commands api
 	public static CommandsRegister commandsRegister;
 	public static SelectorUtils selectorUtils;
 
-	//Library
+	// Library
 	public static LibraryLoader library;
 
-	//Offline users cache
+	// Offline users cache
 	private static OfflineCache cache;
 	private static Map<UUID, Config> users = new ConcurrentHashMap<>();
 
-	//Other cool things
+	// Other cool things
 	private static final Basics basics = new Basics();
 	private static boolean enabled = true;
 
 	public static void initOfflineCache(boolean onlineMode, Config rawData) {
 		API.cache = new OfflineCache(onlineMode);
-		for(String uuid : rawData.getKeys())
+		for (String uuid : rawData.getKeys())
 			try {
 				API.cache.setLookup(UUID.fromString(uuid), rawData.getString(uuid));
-			}catch(Exception err) {}
+			} catch (Exception err) {
+			}
 	}
 
 	public static OfflineCache offlineCache() {
@@ -55,19 +56,21 @@ public class API {
 	}
 
 	public static Config getUser(String playerName) {
-		if(API.cache==null)return null;
+		if (API.cache == null)
+			return null;
 		UUID id = API.cache.lookupId(playerName);
 		Config cached = API.users.get(id);
-		if(cached==null)
-			API.users.put(id, cached=new Config("plugins/TheAPI/Users/"+id+".yml"));
+		if (cached == null)
+			API.users.put(id, cached = new Config("plugins/TheAPI/Users/" + id + ".yml"));
 		return cached;
 	}
 
 	public static Config getUser(UUID id) {
-		if(API.cache==null)return null;
+		if (API.cache == null)
+			return null;
 		Config cached = API.users.get(id);
-		if(cached==null)
-			API.users.put(id, cached=new Config("plugins/TheAPI/Users/"+id+".yml"));
+		if (cached == null)
+			API.users.put(id, cached = new Config("plugins/TheAPI/Users/" + id + ".yml"));
 		return cached;
 	}
 
@@ -76,7 +79,7 @@ public class API {
 	}
 
 	public static void setEnabled(boolean status) {
-		API.enabled=status;
+		API.enabled = status;
 	}
 
 	public static boolean isEnabled() {
@@ -125,96 +128,118 @@ public class API {
 			String gradientTagSuffix = tags.getString("Gradient.Suffix.First");
 			String gradientTagSuffixL = tags.getString("Gradient.Suffix.Second");
 			for (String tag : tags.getKeys("Tags"))
-				StringUtils.colorMap.put(tag.toLowerCase(), "#"+tags.getString("Tags." + tag));
-			StringUtils.gradientFinder=Pattern.compile(gradientTagPrefix+"(#[A-Fa-f0-9]{6})"+gradientTagSuffix+"(.*?)"+gradientTagPrefixL+"(#[A-Fa-f0-9]{6})"+gradientTagSuffixL+"|.*?(?=(?:"+gradientTagPrefix+"#[A-Fa-f0-9]{6}"+gradientTagSuffix+".*?"+gradientTagPrefixL+"#[A-Fa-f0-9]{6}"+gradientTagSuffixL+"))");
+				StringUtils.colorMap.put(tag.toLowerCase(), "#" + tags.getString("Tags." + tag));
+			StringUtils.gradientFinder = Pattern.compile(gradientTagPrefix + "(#[A-Fa-f0-9]{6})" + gradientTagSuffix
+					+ "(.*?)" + gradientTagPrefixL + "(#[A-Fa-f0-9]{6})" + gradientTagSuffixL + "|.*?(?=(?:"
+					+ gradientTagPrefix + "#[A-Fa-f0-9]{6}" + gradientTagSuffix + ".*?" + gradientTagPrefixL
+					+ "#[A-Fa-f0-9]{6}" + gradientTagSuffixL + "))");
 			Config config = new Config("plugins/TheAPI/Config.yml");
-			config.setComments("Options.TimeConvertor", Arrays.asList("","# Convertor Actions:","# action, amount, translation","# = (equals)","# < (lower than)","# > (more than)"));
+			config.setComments("Options.TimeConvertor", Arrays.asList("", "# Convertor Actions:",
+					"# action, amount, translation", "# = (equals)", "# < (lower than)", "# > (more than)"));
 			config.setIfAbsent("Options.TimeConvertor.Split", " ");
 			config.setIfAbsent("Options.TimeConvertor.Format", "%time% %format%");
-			config.setIfAbsent("Options.TimeConvertor.Seconds.Convertor", Arrays.asList("=,0,sec","=,1,sec",">,1,secs"));
-			if(!(config.get("Options.TimeConvertor.Seconds.Convertor") instanceof Collection))
-				config.set("Options.TimeConvertor.Seconds.Convertor", Arrays.asList("=,1,sec",">,1,secs"));
-			config.setIfAbsent("Options.TimeConvertor.Seconds.Lookup", Arrays.asList("s","sec","second","seconds"));
+			config.setIfAbsent("Options.TimeConvertor.Seconds.Convertor",
+					Arrays.asList("=,0,sec", "=,1,sec", ">,1,secs"));
+			if (!(config.get("Options.TimeConvertor.Seconds.Convertor") instanceof Collection))
+				config.set("Options.TimeConvertor.Seconds.Convertor", Arrays.asList("=,1,sec", ">,1,secs"));
+			config.setIfAbsent("Options.TimeConvertor.Seconds.Lookup", Arrays.asList("s", "sec", "second", "seconds"));
 
-			config.setIfAbsent("Options.TimeConvertor.Minutes.Convertor", Arrays.asList("=,1,min",">,1,mins"));
-			if(!(config.get("Options.TimeConvertor.Minutes.Convertor") instanceof Collection))
-				config.set("Options.TimeConvertor.Minutes.Convertor", Arrays.asList("=,1,min",">,1,mins"));
-			config.setIfAbsent("Options.TimeConvertor.Minutes.Lookup", Arrays.asList("m","mi","min","minu","minut","minute","minutes"));
+			config.setIfAbsent("Options.TimeConvertor.Minutes.Convertor", Arrays.asList("=,1,min", ">,1,mins"));
+			if (!(config.get("Options.TimeConvertor.Minutes.Convertor") instanceof Collection))
+				config.set("Options.TimeConvertor.Minutes.Convertor", Arrays.asList("=,1,min", ">,1,mins"));
+			config.setIfAbsent("Options.TimeConvertor.Minutes.Lookup",
+					Arrays.asList("m", "mi", "min", "minu", "minut", "minute", "minutes"));
 
-			if(!(config.get("Options.TimeConvertor.Hours.Convertor") instanceof Collection))
-				config.set("Options.TimeConvertor.Hours.Convertor", Arrays.asList("=,1,hour",">,1,hours"));
-			config.setIfAbsent("Options.TimeConvertor.Hours.Convertor", Arrays.asList("=,1,hour",">,1,hours"));
-			config.setIfAbsent("Options.TimeConvertor.Hours.Lookup", Arrays.asList("h","ho","hou","hour","hours"));
+			if (!(config.get("Options.TimeConvertor.Hours.Convertor") instanceof Collection))
+				config.set("Options.TimeConvertor.Hours.Convertor", Arrays.asList("=,1,hour", ">,1,hours"));
+			config.setIfAbsent("Options.TimeConvertor.Hours.Convertor", Arrays.asList("=,1,hour", ">,1,hours"));
+			config.setIfAbsent("Options.TimeConvertor.Hours.Lookup", Arrays.asList("h", "ho", "hou", "hour", "hours"));
 
-			config.setIfAbsent("Options.TimeConvertor.Days.Convertor", Arrays.asList("=,1,day",">,1,days"));
-			if(!(config.get("Options.TimeConvertor.Days.Convertor") instanceof Collection))
-				config.set("Options.TimeConvertor.Days.Convertor", Arrays.asList("=,1,day",">,1,days"));
-			config.setIfAbsent("Options.TimeConvertor.Days.Lookup", Arrays.asList("d","da","day","days"));
+			config.setIfAbsent("Options.TimeConvertor.Days.Convertor", Arrays.asList("=,1,day", ">,1,days"));
+			if (!(config.get("Options.TimeConvertor.Days.Convertor") instanceof Collection))
+				config.set("Options.TimeConvertor.Days.Convertor", Arrays.asList("=,1,day", ">,1,days"));
+			config.setIfAbsent("Options.TimeConvertor.Days.Lookup", Arrays.asList("d", "da", "day", "days"));
 
-			config.setIfAbsent("Options.TimeConvertor.Weeks.Lookup", Arrays.asList("w","we","wee","week","weeks"));
+			config.setIfAbsent("Options.TimeConvertor.Weeks.Lookup", Arrays.asList("w", "we", "wee", "week", "weeks"));
 
-			config.setIfAbsent("Options.TimeConvertor.Months.Convertor", Arrays.asList("=,1,month",">,1,months"));
-			if(!(config.get("Options.TimeConvertor.Months.Convertor") instanceof Collection))
-				config.set("Options.TimeConvertor.Months.Convertor", Arrays.asList("=,1,month",">,1,months"));
-			config.setIfAbsent("Options.TimeConvertor.Months.Lookup", Arrays.asList("mo","mon","mont","month","months"));
+			config.setIfAbsent("Options.TimeConvertor.Months.Convertor", Arrays.asList("=,1,month", ">,1,months"));
+			if (!(config.get("Options.TimeConvertor.Months.Convertor") instanceof Collection))
+				config.set("Options.TimeConvertor.Months.Convertor", Arrays.asList("=,1,month", ">,1,months"));
+			config.setIfAbsent("Options.TimeConvertor.Months.Lookup",
+					Arrays.asList("mo", "mon", "mont", "month", "months"));
 
-			config.setIfAbsent("Options.TimeConvertor.Years.Convertor", Arrays.asList("=,1,year",">,1,years"));
-			if(!(config.get("Options.TimeConvertor.Years.Convertor") instanceof Collection))
-				config.set("Options.TimeConvertor.Years.Convertor", Arrays.asList("=,1,year",">,1,years"));
-			config.setIfAbsent("Options.TimeConvertor.Years.Lookup", Arrays.asList("y","ye","yea","year","years"));
+			config.setIfAbsent("Options.TimeConvertor.Years.Convertor", Arrays.asList("=,1,year", ">,1,years"));
+			if (!(config.get("Options.TimeConvertor.Years.Convertor") instanceof Collection))
+				config.set("Options.TimeConvertor.Years.Convertor", Arrays.asList("=,1,year", ">,1,years"));
+			config.setIfAbsent("Options.TimeConvertor.Years.Lookup", Arrays.asList("y", "ye", "yea", "year", "years"));
 			config.save();
 
-			StringUtils.timeFormat=config.getString("Options.TimeConvertor.Format");
+			StringUtils.timeFormat = config.getString("Options.TimeConvertor.Format");
 
 			List<String> sec = new ArrayList<>();
-			StringUtils.actions.put("Seconds",sec);
+			StringUtils.actions.put("Seconds", sec);
 			sec.addAll(config.getStringList("Options.TimeConvertor.Seconds.Convertor"));
-			if(sec.isEmpty())
-				sec.addAll(Arrays.asList("=,0,sec","=,1,sec",">,1,secs"));
+			if (sec.isEmpty())
+				sec.addAll(Arrays.asList("=,0,sec", "=,1,sec", ">,1,secs"));
 
 			List<String> min = new ArrayList<>();
-			StringUtils.actions.put("Minutes",min);
+			StringUtils.actions.put("Minutes", min);
 			min.addAll(config.getStringList("Options.TimeConvertor.Minutes.Convertor"));
-			if(min.isEmpty())
-				min.addAll(Arrays.asList("=,1,min",">,1,s"));
+			if (min.isEmpty())
+				min.addAll(Arrays.asList("=,1,min", ">,1,s"));
 
 			List<String> hours = new ArrayList<>();
-			StringUtils.actions.put("Hours",hours);
+			StringUtils.actions.put("Hours", hours);
 			hours.addAll(config.getStringList("Options.TimeConvertor.Hours.Convertor"));
-			if(hours.isEmpty())
-				hours.addAll(Arrays.asList("=,1,hour",">,1,hours"));
+			if (hours.isEmpty())
+				hours.addAll(Arrays.asList("=,1,hour", ">,1,hours"));
 
 			List<String> days = new ArrayList<>();
-			StringUtils.actions.put("Days",days);
+			StringUtils.actions.put("Days", days);
 			days.addAll(config.getStringList("Options.TimeConvertor.Days.Convertor"));
-			if(days.isEmpty())
-				days.addAll(Arrays.asList("=,1,day",">,1,days"));
+			if (days.isEmpty())
+				days.addAll(Arrays.asList("=,1,day", ">,1,days"));
 
 			List<String> weeks = new ArrayList<>();
-			StringUtils.actions.put("Weeks",weeks);
+			StringUtils.actions.put("Weeks", weeks);
 			weeks.addAll(config.getStringList("Options.TimeConvertor.Weeks.Convertor"));
-			if(weeks.isEmpty())
-				weeks.addAll(Arrays.asList("=,1,week",">,1,weeks"));
+			if (weeks.isEmpty())
+				weeks.addAll(Arrays.asList("=,1,week", ">,1,weeks"));
 
 			List<String> month = new ArrayList<>();
-			StringUtils.actions.put("Months",month);
+			StringUtils.actions.put("Months", month);
 			month.addAll(config.getStringList("Options.TimeConvertor.Months.Convertor"));
-			if(month.isEmpty())
-				month.addAll(Arrays.asList("=,1,month",">,1,months"));
+			if (month.isEmpty())
+				month.addAll(Arrays.asList("=,1,month", ">,1,months"));
 
 			List<String> years = new ArrayList<>();
-			StringUtils.actions.put("Years",years);
+			StringUtils.actions.put("Years", years);
 			years.addAll(config.getStringList("Options.TimeConvertor.Years.Convertor"));
-			if(years.isEmpty())
-				years.addAll(Arrays.asList("=,1,year",">,1,years"));
+			if (years.isEmpty())
+				years.addAll(Arrays.asList("=,1,year", ">,1,years"));
 
-			StringUtils.sec=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Seconds.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
-			StringUtils.min=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Minutes.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
-			StringUtils.hour=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Hours.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
-			StringUtils.day=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Days.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
-			StringUtils.week=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Weeks.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
-			StringUtils.mon=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Months.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
-			StringUtils.year=Pattern.compile("([+-]?[0-9]+)("+StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Years.Lookup")), "|")+")",Pattern.CASE_INSENSITIVE);
+			StringUtils.sec = Pattern.compile("([+-]?[0-9]+)("
+					+ StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Seconds.Lookup")), "|")
+					+ ")", Pattern.CASE_INSENSITIVE);
+			StringUtils.min = Pattern.compile("([+-]?[0-9]+)("
+					+ StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Minutes.Lookup")), "|")
+					+ ")", Pattern.CASE_INSENSITIVE);
+			StringUtils.hour = Pattern.compile("([+-]?[0-9]+)("
+					+ StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Hours.Lookup")), "|")
+					+ ")", Pattern.CASE_INSENSITIVE);
+			StringUtils.day = Pattern.compile(
+					"([+-]?[0-9]+)(" + StringUtils
+							.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Days.Lookup")), "|") + ")",
+					Pattern.CASE_INSENSITIVE);
+			StringUtils.week = Pattern.compile("([+-]?[0-9]+)("
+					+ StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Weeks.Lookup")), "|")
+					+ ")", Pattern.CASE_INSENSITIVE);
+			StringUtils.mon = Pattern.compile("([+-]?[0-9]+)("
+					+ StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Months.Lookup")), "|")
+					+ ")", Pattern.CASE_INSENSITIVE);
+			StringUtils.year = Pattern.compile("([+-]?[0-9]+)("
+					+ StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Years.Lookup")), "|")
+					+ ")", Pattern.CASE_INSENSITIVE);
 		}
 
 		public String[] getLastColors(Pattern pattern, String text) {
@@ -223,8 +248,8 @@ public class API {
 			StringBuilder formats = new StringBuilder();
 			while (m.find()) {
 				String last = m.group(1).toLowerCase();
-				if(last.charAt(1)!='x' && isFormat(last.charAt(1))) {
-					if(last.charAt(1)=='r') {
+				if (last.charAt(1) != 'x' && this.isFormat(last.charAt(1))) {
+					if (last.charAt(1) == 'r') {
 						formats.delete(0, formats.length());
 						continue;
 					}
@@ -234,11 +259,12 @@ public class API {
 				color = last.replace("§", "").replace("&", "");
 				formats.delete(0, formats.length());
 			}
-			return new String[] {color,formats.toString()};
+			return new String[] { color, formats.toString() };
 		}
 
 		public String rainbow(String msg, String fromHex, String toHex) {
-			if(msg==null||fromHex==null||toHex==null)return msg;
+			if (msg == null || fromHex == null || toHex == null)
+				return msg;
 			String split = msg.replace("", "<>");
 			String formats = "";
 
@@ -259,30 +285,33 @@ public class API {
 				bStep = -bStep;
 
 			Color finalColor = new Color(fromRGB.getRGB());
-			for(String s : split.split("<>")) {
-				if(s.isEmpty())continue;
+			for (String s : split.split("<>")) {
+				if (s.isEmpty())
+					continue;
 				char c = s.charAt(0);
-				if(prev == '&' || prev == '§') {
-					if(prev == '&' && s.charAt(0)=='u') {
-						builder.deleteCharAt(builder.length()-1); //remove & char
+				if (prev == '&' || prev == '§') {
+					if (prev == '&' && s.charAt(0) == 'u') {
+						builder.deleteCharAt(builder.length() - 1); // remove & char
 						inRainbow = true;
 						prev = c;
 						continue;
 					}
-					if(inRainbow && prev == '§' && (isColor(s.charAt(0))||isFormat(s.charAt(0)))) { //color, destroy rainbow here
-						if(isFormat(s.charAt(0))) {
-							if(s.charAt(0)=='r')
-								formats="§r";
+					if (inRainbow && prev == '§' && (this.isColor(s.charAt(0)) || this.isFormat(s.charAt(0)))) { // color,
+																													// destroy
+						// rainbow here
+						if (this.isFormat(s.charAt(0))) {
+							if (s.charAt(0) == 'r')
+								formats = "§r";
 							else
-								formats+="§"+s.charAt(0);
+								formats += "§" + s.charAt(0);
 							prev = c;
 							continue;
 						}
-						builder.delete(builder.length()-14, builder.length()); //remove &<random color> string
+						builder.delete(builder.length() - 14, builder.length()); // remove &<random color> string
 						inRainbow = false;
 					}
 				}
-				if(c!=' ' && inRainbow) {
+				if (c != ' ' && inRainbow) {
 					int red = (int) Math.round(finalColor.getRed() + rStep);
 					int green = (int) Math.round(finalColor.getGreen() + gStep);
 					int blue = (int) Math.round(finalColor.getBlue() + bStep);
@@ -299,13 +328,17 @@ public class API {
 					if (blue < 0)
 						blue = 0;
 					finalColor = new Color(red, green, blue);
-					if(formats.equals("§r")) {
-						builder.append(formats); //add formats
-						builder.append(StringUtils.color.replaceHex("#"+String.format("%08x", finalColor.getRGB()).substring(2))); //add color
-						formats="";
-					}else {
-						builder.append(StringUtils.color.replaceHex("#"+String.format("%08x", finalColor.getRGB()).substring(2))); //add color
-						builder.append(formats); //add formats
+					if (formats.equals("§r")) {
+						builder.append(formats); // add formats
+						builder.append(StringUtils.color
+								.replaceHex("#" + String.format("%08x", finalColor.getRGB()).substring(2))); // add
+																												// color
+						formats = "";
+					} else {
+						builder.append(StringUtils.color
+								.replaceHex("#" + String.format("%08x", finalColor.getRGB()).substring(2))); // add
+																												// color
+						builder.append(formats); // add formats
 					}
 				}
 				builder.append(c);
@@ -315,7 +348,8 @@ public class API {
 		}
 
 		public String gradient(String msg, String fromHex, String toHex) {
-			if(msg==null||fromHex==null||toHex==null)return msg;
+			if (msg == null || fromHex == null || toHex == null)
+				return msg;
 			String split = msg.replace("", "<>");
 			String formats = "";
 
@@ -336,30 +370,33 @@ public class API {
 				bStep = -bStep;
 
 			Color finalColor = new Color(fromRGB.getRGB());
-			for(String s : split.split("<>")) {
-				if(s.isEmpty())continue;
+			for (String s : split.split("<>")) {
+				if (s.isEmpty())
+					continue;
 				char c = s.charAt(0);
-				if(prev == '&' || prev == '§') {
-					if(prev == '&' && s.charAt(0)=='u') {
-						builder.deleteCharAt(builder.length()-1); //remove & char
+				if (prev == '&' || prev == '§') {
+					if (prev == '&' && s.charAt(0) == 'u') {
+						builder.deleteCharAt(builder.length() - 1); // remove & char
 						inRainbow = true;
 						prev = c;
 						continue;
 					}
-					if(inRainbow && prev == '§' && (isColor(s.charAt(0))||isFormat(s.charAt(0)))) { //color, destroy rainbow here
-						if(isFormat(s.charAt(0))) {
-							if(s.charAt(0)=='r')
-								formats="§r";
+					if (inRainbow && prev == '§' && (this.isColor(s.charAt(0)) || this.isFormat(s.charAt(0)))) { // color,
+																													// destroy
+						// rainbow here
+						if (this.isFormat(s.charAt(0))) {
+							if (s.charAt(0) == 'r')
+								formats = "§r";
 							else
-								formats+="§"+s.charAt(0);
+								formats += "§" + s.charAt(0);
 							prev = c;
 							continue;
 						}
-						builder.delete(builder.length()-14, builder.length()); //remove &<random color> string
+						builder.delete(builder.length() - 14, builder.length()); // remove &<random color> string
 						inRainbow = false;
 					}
 				}
-				if(c!=' ' && inRainbow) {
+				if (c != ' ' && inRainbow) {
 					int red = (int) Math.round(finalColor.getRed() + rStep);
 					int green = (int) Math.round(finalColor.getGreen() + gStep);
 					int blue = (int) Math.round(finalColor.getBlue() + bStep);
@@ -376,13 +413,17 @@ public class API {
 					if (blue < 0)
 						blue = 0;
 					finalColor = new Color(red, green, blue);
-					if(formats.equals("§r")) {
-						builder.append(formats); //add formats
-						builder.append(StringUtils.color.replaceHex("#"+String.format("%08x", finalColor.getRGB()).substring(2))); //add color
-						formats="";
-					}else {
-						builder.append(StringUtils.color.replaceHex("#"+String.format("%08x", finalColor.getRGB()).substring(2))); //add color
-						builder.append(formats); //add formats
+					if (formats.equals("§r")) {
+						builder.append(formats); // add formats
+						builder.append(StringUtils.color
+								.replaceHex("#" + String.format("%08x", finalColor.getRGB()).substring(2))); // add
+																												// color
+						formats = "";
+					} else {
+						builder.append(StringUtils.color
+								.replaceHex("#" + String.format("%08x", finalColor.getRGB()).substring(2))); // add
+																												// color
+						builder.append(formats); // add formats
 					}
 				}
 				builder.append(c);

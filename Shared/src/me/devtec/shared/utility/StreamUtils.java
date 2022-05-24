@@ -16,21 +16,23 @@ import com.google.common.io.ByteStreams;
 import me.devtec.shared.json.Json;
 
 public class StreamUtils {
-	
+
 	/**
-	 * @apiNote Read InputStream and convert into String with {@link System#lineSeparator()} as separator of lines
+	 * @apiNote Read InputStream and convert into String with
+	 *          {@link System#lineSeparator()} as separator of lines
 	 * @return String
 	 */
 	public static String fromStream(File file) {
 		try {
-			return fromStream(new FileInputStream(file));
+			return StreamUtils.fromStream(new FileInputStream(file));
 		} catch (Exception e) {
 			return null;
 		}
 	}
-	
+
 	/**
-	 * @apiNote Read InputStream and convert into String with {@link System#lineSeparator()} as separator of lines
+	 * @apiNote Read InputStream and convert into String with
+	 *          {@link System#lineSeparator()} as separator of lines
 	 * @return String
 	 */
 	public static String fromStream(InputStream stream) {
@@ -39,7 +41,8 @@ public class StreamUtils {
 			StringBuilder sb = new StringBuilder(2048);
 			String content;
 			while ((content = br.readLine()) != null) {
-				if(sb.length() != 0)sb.append(System.lineSeparator());
+				if (sb.length() != 0)
+					sb.append(System.lineSeparator());
 				sb.append(content);
 			}
 			br.close();
@@ -48,9 +51,10 @@ public class StreamUtils {
 			return null;
 		}
 	}
-	
+
 	/**
-	 * @apiNote Read InputStream and convert into List<String> without seperator of lines
+	 * @apiNote Read InputStream and convert into List<String> without seperator of
+	 *          lines
 	 * @return List<String>
 	 */
 	public static List<String> fromStreamToList(InputStream stream) {
@@ -66,7 +70,7 @@ public class StreamUtils {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * @apiNote Write String into created InputStream
 	 * @return InputStream
@@ -80,28 +84,28 @@ public class StreamUtils {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * @apiNote Write String into created InputStream
 	 * @return InputStream
 	 */
 	public static InputStream toStreamObject(Object obj) {
-		return toStream(Json.writer().write(obj));
+		return StreamUtils.toStream(Json.writer().write(obj));
 	}
-	
+
 	/**
 	 * @apiNote Read Object from InputStream
 	 * @return Object
 	 */
 	public static Object fromStreamObject(InputStream stream) {
-		return Json.reader().read(fromStream(stream));
+		return Json.reader().read(StreamUtils.fromStream(stream));
 	}
-	
+
 	/**
 	 * @apiNote Read Object from InputStream
 	 * @return Object
 	 */
 	public static Object fromStreamObject(File file) {
-		return Json.reader().read(fromStream(file));
+		return Json.reader().read(StreamUtils.fromStream(file));
 	}
 }

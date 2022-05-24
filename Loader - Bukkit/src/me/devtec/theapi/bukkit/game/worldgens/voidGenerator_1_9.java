@@ -22,13 +22,13 @@ public class voidGenerator_1_9 extends ChunkGenerator {
 		return data;
 	}
 
-    public boolean canSpawn(World world, int x, int z) {
-    	return true;
-    }
+	public boolean canSpawn(World world, int x, int z) {
+		return true;
+	}
 
-    public Location getFixedSpawnLocation(World world, Random random) {
-    	if(new Location(world, 0, 63, 0).getBlock().getType()==Material.AIR)
-    		new Location(world, 0, 63, 0).getBlock().setType(Material.GLASS);
-    	return new Location(world, 0, 64, 0);
-    }
+	public Location getFixedSpawnLocation(World world, Random random) {
+		if (new Location(world, 0, 63, 0).getBlock().getType() == Material.AIR)
+			new Location(world, 0, 63, 0).getBlock().setType(Material.GLASS);
+		return new Location(world, 0, 64, 0);
+	}
 }

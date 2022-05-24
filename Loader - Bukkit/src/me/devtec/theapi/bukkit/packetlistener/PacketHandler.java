@@ -15,14 +15,14 @@ public interface PacketHandler<C> {
 	public boolean has(C channel);
 
 	public void close();
-	
+
 	public default void send(Player player, Object packet) {
-		send(get(player), packet);
+		this.send(this.get(player), packet);
 	}
-	
+
 	public void send(C channel, Object packet);
 
 	public default void send(Collection<? extends Player> onlinePlayers, Object packet) {
-		onlinePlayers.forEach(player -> send(player, packet));
+		onlinePlayers.forEach(player -> this.send(player, packet));
 	}
 }

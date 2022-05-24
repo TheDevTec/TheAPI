@@ -113,9 +113,10 @@ public class ParticleData {
 		public ItemOptions(ItemStack stack) {
 			this.item = stack;
 			try {
-				packetData = new int[] {(int) Ref.invokeNulled(Ref.nmsOrOld("world.level.block.Block","Block"), "getCombinedId", new TheMaterial(stack).getIBlockData())};
-			}catch(Exception err) {
-				packetData=new int[] {0,0};
+				packetData = new int[] { (int) Ref.invokeNulled(Ref.nmsOrOld("world.level.block.Block", "Block"),
+						"getCombinedId", new TheMaterial(stack).getIBlockData()) };
+			} catch (Exception err) {
+				packetData = new int[] { 0, 0 };
 			}
 		}
 
@@ -126,9 +127,10 @@ public class ParticleData {
 		public ItemOptions(TheMaterial material) {
 			this.item = material.toItemStack();
 			try {
-				packetData = new int[] {(int) Ref.invokeNulled(Ref.nmsOrOld("world.level.block.Block","Block"), "getCombinedId", material.getIBlockData())};
-			}catch(Exception err) {
-				packetData=new int[] {0,0};
+				packetData = new int[] { (int) Ref.invokeNulled(Ref.nmsOrOld("world.level.block.Block", "Block"),
+						"getCombinedId", material.getIBlockData()) };
+			} catch (Exception err) {
+				packetData = new int[] { 0, 0 };
 			}
 		}
 

@@ -2,7 +2,7 @@ package me.devtec.theapi.bukkit.packetlistener;
 
 public abstract class PacketListener {
 	protected Priority priority;
-	
+
 	public PacketListener() {
 		this(Priority.NORMAL);
 	}
@@ -28,7 +28,7 @@ public abstract class PacketListener {
 	}
 
 	public final Priority getPriority() {
-		return priority;
+		return this.priority;
 	}
 
 	public abstract boolean playOut(String player, Object packet, Object channel);

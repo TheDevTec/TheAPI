@@ -12,21 +12,24 @@ public class JsonLoader extends EmptyLoader {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void load(String input) {
-		reset();
-		if (input == null || !input.startsWith("[") && !input.endsWith("]") && !input.startsWith("{") && !input.endsWith("}"))
+		this.reset();
+		if (input == null
+				|| !input.startsWith("[") && !input.endsWith("]") && !input.startsWith("{") && !input.endsWith("}"))
 			return;
 		try {
 			Object read = Json.reader().read(input.replace(System.lineSeparator(), ""));
 			if (read instanceof Map)
 				for (Entry<Object, Object> keyed : ((Map<Object, Object>) read).entrySet())
-					data.put(keyed.getKey()+"", DataValue.of(null, Json.reader().read(keyed.getValue().toString()), null));
+					this.data.put(keyed.getKey() + "",
+							DataValue.of(null, Json.reader().read(keyed.getValue().toString()), null));
 			else
 				for (Object o : (Collection<Object>) read)
 					for (Entry<Object, Object> keyed : ((Map<Object, Object>) o).entrySet())
-						data.put(keyed.getKey()+"", DataValue.of(null, Json.reader().read(keyed.getValue().toString()), null));
-			loaded = true;
+						this.data.put(keyed.getKey() + "",
+								DataValue.of(null, Json.reader().read(keyed.getValue().toString()), null));
+			this.loaded = true;
 		} catch (Exception er) {
-			reset();
+			this.reset();
 		}
 	}
 }

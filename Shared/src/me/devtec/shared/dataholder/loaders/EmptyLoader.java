@@ -22,12 +22,12 @@ public class EmptyLoader extends DataLoader {
 
 	@Override
 	public Map<String, DataValue> get() {
-		return data;
+		return this.data;
 	}
 
 	@Override
 	public Set<String> getKeys() {
-		return data.keySet();
+		return this.data.keySet();
 	}
 
 	@Override
@@ -35,45 +35,45 @@ public class EmptyLoader extends DataLoader {
 		if (key == null)
 			return;
 		if (holder == null) {
-			data.remove(key);
+			this.data.remove(key);
 			return;
 		}
-		data.put(key, holder);
+		this.data.put(key, holder);
 	}
 
 	@Override
 	public boolean remove(String key) {
 		if (key == null)
 			return false;
-		return data.remove(key) != null;
+		return this.data.remove(key) != null;
 	}
 
 	@Override
 	public void reset() {
-		data.clear();
-		header.clear();
-		footer.clear();
-		loaded = false;
+		this.data.clear();
+		this.header.clear();
+		this.footer.clear();
+		this.loaded = false;
 	}
 
 	@Override
 	public void load(String input) {
-		reset();
-		loaded = true;
+		this.reset();
+		this.loaded = true;
 	}
 
 	@Override
 	public Collection<String> getHeader() {
-		return header;
+		return this.header;
 	}
 
 	@Override
 	public Collection<String> getFooter() {
-		return footer;
+		return this.footer;
 	}
 
 	@Override
 	public boolean isLoaded() {
-		return loaded;
+		return this.loaded;
 	}
 }

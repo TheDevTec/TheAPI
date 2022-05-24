@@ -15,14 +15,15 @@ import me.devtec.shared.utility.StreamUtils;
 
 public abstract class DataLoader {
 
-	//Data loaders hierarchy
+	// Data loaders hierarchy
 	public static Map<LoaderPriority, Set<DataLoaderConstructor>> dataLoaders = new ConcurrentHashMap<>();
-	static final LoaderPriority[] priorities = {LoaderPriority.LOWEST, LoaderPriority.LOW, LoaderPriority.NORMAL, LoaderPriority.HIGH, LoaderPriority.HIGHEST};
+	static final LoaderPriority[] priorities = { LoaderPriority.LOWEST, LoaderPriority.LOW, LoaderPriority.NORMAL,
+			LoaderPriority.HIGH, LoaderPriority.HIGHEST };
 	static {
-		for(LoaderPriority priority : DataLoader.priorities)
+		for (LoaderPriority priority : DataLoader.priorities)
 			DataLoader.dataLoaders.put(priority, new HashSet<>());
 
-		//BUILT-IN LOADERS
+		// BUILT-IN LOADERS
 		DataLoader.dataLoaders.get(LoaderPriority.LOW).add(ByteLoader::new);
 		DataLoader.dataLoaders.get(LoaderPriority.NORMAL).add(JsonLoader::new);
 		DataLoader.dataLoaders.get(LoaderPriority.NORMAL).add(PropertiesLoader::new);
@@ -36,16 +37,16 @@ public abstract class DataLoader {
 
 	public void unregister(DataLoaderConstructor constructor) {
 		LoaderPriority priority = null;
-		for(Entry<LoaderPriority, Set<DataLoaderConstructor>> entry : DataLoader.dataLoaders.entrySet())
-			if(entry.getValue().contains(constructor)) {
+		for (Entry<LoaderPriority, Set<DataLoaderConstructor>> entry : DataLoader.dataLoaders.entrySet())
+			if (entry.getValue().contains(constructor)) {
 				priority = entry.getKey();
 				break;
 			}
-		if(priority!=null)
+		if (priority != null)
 			DataLoader.dataLoaders.get(priority).remove(constructor);
 	}
 
-	//Does DataLoader have own loader from file?
+	// Does DataLoader have own loader from file?
 	public abstract boolean loadingFromFile();
 
 	public abstract Map<String, DataValue> get();
@@ -69,31 +70,34 @@ public abstract class DataLoader {
 	public void load(File file) {
 		if (file == null || !file.exists())
 			return;
-		load(StreamUtils.fromStream(file));
+		this.load(StreamUtils.fromStream(file));
 	}
 
 	public static DataLoader findLoaderFor(File input) {
 		String inputString = null;
-		for(LoaderPriority priority : DataLoader.priorities)
-			for(DataLoaderConstructor constructor : DataLoader.dataLoaders.get(priority)) {
+		for (LoaderPriority priority : DataLoader.priorities)
+			for (DataLoaderConstructor constructor : DataLoader.dataLoaders.get(priority)) {
 				DataLoader loader = constructor.construct();
-				if(loader.loadingFromFile())
+				if (loader.loadingFromFile())
 					loader.load(input);
 				else {
-					if(inputString==null)inputString=StreamUtils.fromStream(input);
+					if (inputString == null)
+						inputString = StreamUtils.fromStream(input);
 					loader.load(inputString);
 				}
-				if(loader.isLoaded())return loader;
+				if (loader.isLoaded())
+					return loader;
 			}
 		return null;
 	}
 
 	public static DataLoader findLoaderFor(String inputString) {
-		for(LoaderPriority priority : DataLoader.priorities)
-			for(DataLoaderConstructor constructor : DataLoader.dataLoaders.get(priority)) {
+		for (LoaderPriority priority : DataLoader.priorities)
+			for (DataLoaderConstructor constructor : DataLoader.dataLoaders.get(priority)) {
 				DataLoader loader = constructor.construct();
 				loader.load(inputString);
-				if(loader.isLoaded())return loader;
+				if (loader.isLoaded())
+					return loader;
 			}
 		return null;
 	}

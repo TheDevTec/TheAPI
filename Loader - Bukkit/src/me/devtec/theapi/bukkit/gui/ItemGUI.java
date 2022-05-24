@@ -11,27 +11,27 @@ public abstract class ItemGUI {
 	private boolean unsteal = true;
 
 	public ItemGUI(ItemStack stack) {
-		s = stack;
+		this.s = stack;
 	}
-	
+
 	public abstract void onClick(Player player, HolderGUI gui, ClickType click);
 
 	public final ItemGUI setUnstealable(boolean value) {
-		unsteal = value;
+		this.unsteal = value;
 		return this;
 	}
 
 	public final boolean isUnstealable() {
-		return unsteal;
+		return this.unsteal;
 	}
 
 	public final ItemStack getItem() {
-		return s;
+		return this.s;
 	}
 
 	public final ItemGUI setItem(ItemStack stack) {
 		if (stack != null)
-			s = stack;
+			this.s = stack;
 		return this;
 	}
 }

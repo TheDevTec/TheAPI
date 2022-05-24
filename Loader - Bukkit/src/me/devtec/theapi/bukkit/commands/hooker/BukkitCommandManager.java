@@ -23,12 +23,12 @@ import me.devtec.shared.commands.manager.CommandsRegister;
 import me.devtec.theapi.bukkit.BukkitLoader;
 
 public class BukkitCommandManager implements CommandsRegister {
-	protected static CommandMap cmdMap = (CommandMap)Ref.get(Bukkit.getPluginManager(), "commandMap");
+	protected static CommandMap cmdMap = (CommandMap) Ref.get(Bukkit.getPluginManager(), "commandMap");
 	@SuppressWarnings("unchecked")
 	protected static Map<String, Command> knownCommands = (Map<String, Command>) Ref.get(cmdMap, "knownCommands");
-	
+
 	private static final Constructor<?> constructor = Ref.constructor(PluginCommand.class, String.class, Plugin.class);
-	
+
 	public static PluginCommand createCommand(String name, Plugin plugin) {
 		return (PluginCommand) Ref.newInstance(constructor, name, plugin);
 	}
@@ -60,7 +60,7 @@ public class BukkitCommandManager implements CommandsRegister {
 			low.add(s);
 		}
 		command.setAliases(low);
-		if(command.getPermission()==null)
+		if (command.getPermission() == null)
 			command.setPermission("");
 		if (!low.contains(label))
 			low.add(label);
@@ -73,7 +73,7 @@ public class BukkitCommandManager implements CommandsRegister {
 		PluginCommand cmd = createCommand(command, JavaPlugin.getPlugin(BukkitLoader.class));
 		cmd.setAliases(Arrays.asList(aliases));
 		cmd.setExecutor(new CommandExecutor() {
-			
+
 			@Override
 			public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
 				commandHolder.execute(s, args);
@@ -81,7 +81,7 @@ public class BukkitCommandManager implements CommandsRegister {
 			}
 		});
 		cmd.setTabCompleter(new TabCompleter() {
-			
+
 			@Override
 			public List<String> onTabComplete(CommandSender s, Command arg1, String arg2, String[] args) {
 				return commandHolder.tablist(s, args);

@@ -7,17 +7,17 @@ import me.devtec.shared.sockets.SocketClient;
 public class ClientReceiveMessageEvent extends Event {
 	private final Config data;
 	private final SocketClient client;
-	
+
 	public ClientReceiveMessageEvent(SocketClient client, Config data) {
-		this.data=data;
-		this.client=client;
+		this.data = data;
+		this.client = client;
 	}
-	
+
 	public SocketClient getClient() {
-		return client;
+		return this.client;
 	}
-	
+
 	public Config getInput() {
-		return data;
+		return this.data;
 	}
 }
