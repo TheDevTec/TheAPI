@@ -36,9 +36,10 @@ public class GUI implements HolderGUI {
 	// Defaulty false
 	private boolean put;
 
-	public GUI(String original, int size, Player... p) {
-		this.title = StringUtils.colorize(this.title);
-		switch (size) {
+	public GUI(String original, int originalSize, Player... p) {
+		title = StringUtils.colorize(original);
+		int size;
+		switch (originalSize) {
 		case 17:
 		case 18:
 		case 19:
@@ -60,17 +61,17 @@ public class GUI implements HolderGUI {
 			size = 45;
 			break;
 		default:
-			if (size > 46)
+			if (originalSize > 46)
 				size = 54;
 			else
 				size = 9;
 			break;
 		}
-		this.title = StringUtils.colorize(this.title);
-		if (Ref.isOlderThan(9) && this.title.length() >= 32)
-			this.title = this.title.substring(0, 32);
-		this.inv = Bukkit.createInventory(null, size, this.title);
-		this.open(p);
+		title = StringUtils.colorize(title);
+		if (Ref.isOlderThan(9) && title.length() >= 32)
+			title = title.substring(0, 32);
+		inv = Bukkit.createInventory(null, size, title);
+		open(p);
 	}
 
 	/**
@@ -94,16 +95,16 @@ public class GUI implements HolderGUI {
 	}
 
 	public final ItemStack[] getContents() {
-		return this.inv.getContents();
+		return inv.getContents();
 	}
 
 	public final String getName() {
-		return this.title;
+		return title;
 	}
 
 	@Override
 	public final String getTitle() {
-		return this.title;
+		return title;
 	}
 
 	/**
@@ -111,12 +112,12 @@ public class GUI implements HolderGUI {
 	 */
 	@Override
 	public final void setInsertable(boolean value) {
-		this.put = value;
+		put = value;
 	}
 
 	@Override
 	public final boolean isInsertable() {
-		return this.put;
+		return put;
 	}
 
 	/**
@@ -124,16 +125,16 @@ public class GUI implements HolderGUI {
 	 */
 	@Override
 	public final void setItem(int position, ItemGUI item) {
-		this.items.put(position, item);
-		this.inv.setItem(position, item.getItem());
+		items.put(position, item);
+		inv.setItem(position, item.getItem());
 	}
 
 	/**
 	 * @apiNote Remove item from position
 	 */
 	public final void removeItem(int slot) {
-		this.items.remove(slot);
-		this.inv.setItem(slot, null);
+		items.remove(slot);
+		inv.setItem(slot, null);
 	}
 
 	/**
@@ -141,22 +142,22 @@ public class GUI implements HolderGUI {
 	 */
 	@Override
 	public final void remove(int slot) {
-		this.removeItem(slot);
+		removeItem(slot);
 	}
 
 	/**
 	 * @apiNote Add item to the first empty slot in gui
 	 */
 	public final void addItem(ItemGUI item) {
-		if (this.getFirstEmpty() != -1)
-			this.setItem(this.getFirstEmpty(), item);
+		if (getFirstEmpty() != -1)
+			setItem(getFirstEmpty(), item);
 	}
 
 	/**
 	 * @apiNote Add item to the first empty slot in gui
 	 */
 	public final void add(ItemGUI item) {
-		this.addItem(item);
+		addItem(item);
 	}
 
 	/**
@@ -165,7 +166,7 @@ public class GUI implements HolderGUI {
 	@Override
 	public final ItemStack getItem(int slot) {
 		try {
-			return this.inv.getItem(slot);
+			return inv.getItem(slot);
 		} catch (Exception e) {
 			return null;
 		}
@@ -176,7 +177,7 @@ public class GUI implements HolderGUI {
 	 */
 	@Override
 	public final ItemGUI getItemGUI(int slot) {
-		return this.getItemGUIs().get(slot);
+		return getItemGUIs().get(slot);
 	}
 
 	/**
@@ -184,7 +185,7 @@ public class GUI implements HolderGUI {
 	 * @return boolean is gui full
 	 */
 	public final boolean isFull() {
-		return this.getFirstEmpty() == -1;
+		return getFirstEmpty() == -1;
 	}
 
 	/**
@@ -192,7 +193,7 @@ public class GUI implements HolderGUI {
 	 * @return int return first empty slot (if available)
 	 */
 	public final int getFirstEmpty() {
-		return this.inv.firstEmpty();
+		return inv.firstEmpty();
 	}
 
 	/**
@@ -208,24 +209,22 @@ public class GUI implements HolderGUI {
 			}
 			Object container;
 			BukkitLoader.getNmsProvider().openGUI(player,
-					container = BukkitLoader.getNmsProvider().createContainer(this.inv, player), "minecraft:chest",
-					this.inv.getSize(), this.title, this.inv.getContents());
-			this.containers.put(player, container);
+					container = BukkitLoader.getNmsProvider().createContainer(inv, player), "minecraft:chest",
+					inv.getSize(), title, inv.getContents());
+			containers.put(player, container);
 			BukkitLoader.gui.put(player.getUniqueId(), this);
 		}
 	}
 
 	@Override
-	public final void setTitle(String title) {
-		title = StringUtils.colorize(title);
+	public final void setTitle(String value) {
+		title = StringUtils.colorize(value);
 		if (Ref.isOlderThan(9) && title.length() >= 32)
 			title = title.substring(0, 32);
-		if (title.equals(this.title))
+		if (title.equals(title))
 			return;
-		this.title = title;
-		for (Entry<Player, Object> ec : this.containers.entrySet())
-			BukkitLoader.getNmsProvider().setGUITitle(ec.getKey(), ec.getValue(), "minecraft:chest", this.inv.getSize(),
-					title);
+		for (Entry<Player, Object> ec : containers.entrySet())
+			BukkitLoader.getNmsProvider().setGUITitle(ec.getKey(), ec.getValue(), "minecraft:chest", inv.getSize(), title);
 	}
 
 	/**
@@ -234,7 +233,7 @@ public class GUI implements HolderGUI {
 	 */
 	@Override
 	public final Map<Integer, ItemGUI> getItemGUIs() {
-		return this.items;
+		return items;
 	}
 
 	/**
@@ -243,7 +242,7 @@ public class GUI implements HolderGUI {
 	 */
 	@Override
 	public final Collection<Player> getPlayers() {
-		return this.containers.keySet();
+		return containers.keySet();
 	}
 
 	/**
@@ -251,7 +250,7 @@ public class GUI implements HolderGUI {
 	 *
 	 */
 	public final boolean hasOpen(Player player) {
-		return this.containers.containsKey(player);
+		return containers.containsKey(player);
 	}
 
 	/**
@@ -260,7 +259,7 @@ public class GUI implements HolderGUI {
 	 */
 	@Override
 	public final void close() {
-		this.close(this.containers.keySet().toArray(new Player[0]));
+		this.close(containers.keySet().toArray(new Player[0]));
 	}
 
 	/**
@@ -269,8 +268,8 @@ public class GUI implements HolderGUI {
 	 */
 	@Override
 	public final void clear() {
-		this.inv.clear();
-		this.items.clear();
+		inv.clear();
+		items.clear();
 	}
 
 	/**
@@ -284,35 +283,35 @@ public class GUI implements HolderGUI {
 		for (Player player : players) {
 			if (player == null)
 				continue;
-			this.onPreClose(player);
-			Object container = this.containers.remove(player);
+			onPreClose(player);
+			Object container = containers.remove(player);
 			if (container != null)
 				BukkitLoader.getNmsProvider().closeGUI(player, container, true);
 			BukkitLoader.gui.remove(player.getUniqueId());
-			this.onClose(player);
+			onClose(player);
 		}
 	}
 
 	@Override
 	public final String toString() {
 		StringBuilder items = new StringBuilder();
-		for (Entry<Integer, ItemGUI> g : this.getItemGUIs().entrySet())
+		for (Entry<Integer, ItemGUI> g : getItemGUIs().entrySet())
 			items.append('/').append(g.getKey()).append(':').append(g.getValue().toString());
-		return "[GUI:" + this.title + "/" + this.put + "/" + this.inv.getSize() + items.append(']');
+		return "[GUI:" + title + "/" + put + "/" + inv.getSize() + items.append(']');
 	}
 
 	public int getSize() {
-		return this.inv.getSize();
+		return inv.getSize();
 	}
 
 	@Override
 	public int size() {
-		return this.inv.getSize();
+		return inv.getSize();
 	}
 
 	@Override
 	public Object getContainer(Player player) {
-		return this.containers.get(player);
+		return containers.get(player);
 	}
 
 	@Override
@@ -322,12 +321,12 @@ public class GUI implements HolderGUI {
 		for (Player player : p) {
 			if (player == null)
 				continue;
-			this.onPreClose(player);
-			Object ac = this.containers.remove(player);
+			onPreClose(player);
+			Object ac = containers.remove(player);
 			if (ac != null)
 				BukkitLoader.getNmsProvider().closeGUI(player, ac, false);
 			BukkitLoader.gui.remove(player.getUniqueId());
-			this.onClose(player);
+			onClose(player);
 		}
 	}
 
@@ -337,20 +336,20 @@ public class GUI implements HolderGUI {
 	@Override
 	public List<Integer> getNotInterableSlots(Player player) {
 		List<Integer> list = new ArrayList<>();
-		if (this.isInsertable())
-			for (int i = 0; i < this.size(); ++i) {
-				ItemGUI item = this.items.get(i);
+		if (isInsertable())
+			for (int i = 0; i < size(); ++i) {
+				ItemGUI item = items.get(i);
 				if (item != null && item.isUnstealable())
 					list.add(i);
 			}
 		else
-			for (int i = 0; i < this.size(); ++i)
+			for (int i = 0; i < size(); ++i)
 				list.add(i);
 		return list;
 	}
 
 	@Override
 	public Inventory getInventory() {
-		return this.inv;
+		return inv;
 	}
 }

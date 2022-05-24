@@ -93,9 +93,8 @@ public class InventoryUtils {
 	 **/
 	public static int findFirstEmpty(@Nullable Player whoShift, @Nullable HolderGUI holder,
 			@Nullable ClickType clickType, List<Integer> corruptedSlots, DestinationType type,
-			List<Integer> ignoreSlots, ItemStack[] contents) {
-		if (ignoreSlots == null)
-			ignoreSlots = Collections.emptyList();
+			List<Integer> ignoredSlots, ItemStack[] contents) {
+		List<Integer> ignoreSlots = ignoredSlots == null ? Collections.emptyList() : ignoredSlots;
 		switch (type) {
 		case PLAYER_INV_ANVIL:
 			for (int i = contents.length - 1; i > 8; --i) {

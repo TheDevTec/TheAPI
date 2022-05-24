@@ -29,7 +29,8 @@ public class PlaceholderAPI {
 		}
 	}
 
-	public static String apply(String text, UUID player) {
+	public static String apply(String original, UUID player) {
+		String text = original;
 		Matcher match = PlaceholderAPI.placeholderLookup.matcher(text);
 		while (match.find()) {
 			String placeholder = match.group(1);
