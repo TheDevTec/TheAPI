@@ -39,7 +39,7 @@ public class BungeeLoader extends Plugin implements Listener {
 	@Override
 	public void onLoad() {
 		BungeeLoader.initTheAPI(this);
-		this.getProxy().getPluginManager().registerListener(this, this);
+		getProxy().getPluginManager().registerListener(this, this);
 	}
 
 	@Override
@@ -90,11 +90,11 @@ public class BungeeLoader extends Plugin implements Listener {
 
 			@Override
 			public void load(File file) {
-				if (this.isLoaded(file) || !file.exists())
+				if (isLoaded(file) || !file.exists())
 					return;
-				this.loaded.add(file);
+				loaded.add(file);
 				try {
-					Ref.newInstance(this.c, null, null, new URL[] { file.toURI().toURL() });
+					Ref.newInstance(c, null, null, new URL[] { file.toURI().toURL() });
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				}
@@ -102,7 +102,7 @@ public class BungeeLoader extends Plugin implements Listener {
 
 			@Override
 			public boolean isLoaded(File file) {
-				return this.loaded.contains(file);
+				return loaded.contains(file);
 			}
 		};
 		API.basics().load();
@@ -124,18 +124,19 @@ public class BungeeLoader extends Plugin implements Listener {
 			public String generateColor() {
 				StringBuilder b = new StringBuilder("#");
 				for (int i = 0; i < 6; ++i)
-					b.append(this.characters[this.random.nextInt(16)]);
+					b.append(characters[random.nextInt(16)]);
 				return b.toString();
 			}
 
 			@Override
 			public String[] getLastColors(String text) {
-				return API.basics().getLastColors(this.getLast, text);
+				return API.basics().getLastColors(getLast, text);
 			}
 
 			@Override
-			public String replaceHex(String msg) {
-				Matcher match = this.hex.matcher(msg);
+			public String replaceHex(String text) {
+				String msg = text;
+				Matcher match = hex.matcher(msg);
 				while (match.find()) {
 					String color = match.group();
 					String hex = "§x";

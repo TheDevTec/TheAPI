@@ -158,13 +158,12 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	@Override
-	public final void setTitle(String title) {
-		title = StringUtils.colorize(title);
+	public final void setTitle(String value) {
+		title = StringUtils.colorize(value);
 		if (Ref.isOlderThan(9) && title.length() >= 32)
 			title = title.substring(0, 32);
-		if (title.equals(this.title))
+		if (title.equals(title))
 			return;
-		this.title = title;
 		for (Entry<Player, Object> ec : containers.entrySet()) {
 			BukkitLoader.getNmsProvider().setGUITitle(ec.getKey(), ec.getValue(), "minecraft:anvil", 0, title);
 			for (int i = 0; i < 3; ++i)

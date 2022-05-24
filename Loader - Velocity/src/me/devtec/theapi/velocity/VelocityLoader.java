@@ -35,7 +35,7 @@ import me.devtec.theapi.velocity.commands.hooker.VelocityCommandManager;
 import me.devtec.theapi.velocity.commands.selectors.VelocitySelectorUtils;
 
 @Plugin(id = "theapi", name = "TheAPI", version = "9.9.5", authors = { "DevTec",
-		"StraikerinaCZ" }, url = "https://www.spigotmc.org/resources/72679/")
+"StraikerinaCZ" }, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 
 	private static ProxyServer server;
@@ -92,9 +92,9 @@ public class VelocityLoader {
 			@SuppressWarnings("resource")
 			@Override
 			public void load(File file) {
-				if (this.isLoaded(file) || !file.exists())
+				if (isLoaded(file) || !file.exists())
 					return;
-				this.loaded.add(file);
+				loaded.add(file);
 				try {
 					new PluginClassLoader(new URL[] { file.toURI().toURL() }).addToClassloaders();
 				} catch (MalformedURLException e) {
@@ -104,7 +104,7 @@ public class VelocityLoader {
 
 			@Override
 			public boolean isLoaded(File file) {
-				return this.loaded.contains(file);
+				return loaded.contains(file);
 			}
 		};
 		API.basics().load();
@@ -126,19 +126,19 @@ public class VelocityLoader {
 			public String generateColor() {
 				StringBuilder b = new StringBuilder("&#");
 				for (int i = 0; i < 6; ++i)
-					b.append(this.characters[this.random.nextInt(16)]);
+					b.append(characters[random.nextInt(16)]);
 				return b.toString();
 			}
 
 			@Override
 			public String[] getLastColors(String text) {
-				return API.basics().getLastColors(this.getLast, text);
+				return API.basics().getLastColors(getLast, text);
 			}
 
 			@Override
-			public String replaceHex(String original) {
-				String msg = original;
-				Matcher match = this.hex.matcher(msg);
+			public String replaceHex(String text) {
+				String msg = text;
+				Matcher match = hex.matcher(msg);
 				while (match.find()) {
 					String color = match.group();
 					if (!color.startsWith("&"))

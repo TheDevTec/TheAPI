@@ -91,7 +91,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		new Metrics(this, 10581);
 		boolean mohist = false;
 		try {
-			if (Class.forName("com.mohistmc.MohistMC", true, this.getClassLoader()) != null)
+			if (Class.forName("com.mohistmc.MohistMC", true, getClassLoader()) != null)
 				mohist = true;
 		} catch (Exception | NoClassDefFoundError err) {
 
@@ -99,7 +99,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		try {
 			BukkitLoader.nmsProvider = (NmsProvider) Class
 					.forName("me.devtec.theapi.bukkit.nms." + Ref.serverVersion() + (mohist ? "_Mohist" : ""), true,
-							this.getClassLoader())
+							getClassLoader())
 					.newInstance();
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			e.printStackTrace();
@@ -117,13 +117,13 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 					BukkitLoader.handler = new PacketHandlerModern(true);
 				else
 					BukkitLoader.handler = (PacketHandler<?>) Ref
-							.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy", true);
+					.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy", true);
 			}).start();
 		else if (Ref.isNewerThan(7))
 			BukkitLoader.handler = new PacketHandlerModern(false);
 		else
 			BukkitLoader.handler = (PacketHandler<?>) Ref
-					.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy", false);
+			.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy", false);
 		BukkitLoader.resource = Ref.nmsOrOld("network.protocol.game.PacketPlayInResourcePackStatus",
 				"PacketPlayInResourcePackStatus");
 		BukkitLoader.close = Ref.nmsOrOld("network.protocol.game.PacketPlayInCloseWindow", "PacketPlayInCloseWindow");
@@ -142,12 +142,12 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		// BOSSBAR API: 1.7.10 - 1.8.8
 		if (Ref.isOlderThan(9))
 			new Tasker() {
-				@Override
-				public void run() {
-					for (BossBar s : BukkitLoader.bossbars)
-						s.move();
-				}
-			}.runRepeating(0, 20);
+			@Override
+			public void run() {
+				for (BossBar s : BukkitLoader.bossbars)
+					s.move();
+			}
+		}.runRepeating(0, 20);
 		else
 			BukkitLoader.bossbars = null;
 		new PacketListener() {
@@ -168,7 +168,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 				for (int var4 = 0; var4 < var3; ++var4) {
 					char var5 = var2[var4];
-					if (this.isAllowedChatCharacter(var5))
+					if (isAllowedChatCharacter(var5))
 						var1.append(var5);
 				}
 
@@ -187,9 +187,9 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 						return false;
 					ResourcePackAPI.getHandlingPlayer(player).onHandle(player, ResourcePackAPI.getResourcePack(player),
 							ResourcePackResult.valueOf(Ref.isNewerThan(16)
-									? this.getLegacyNameOf(
+									? getLegacyNameOf(
 											Ref.get(packet, Ref.isNewerThan(16) ? "a" : "status").toString())
-									: Ref.get(packet, Ref.isNewerThan(16) ? "a" : "status").toString()));
+											: Ref.get(packet, Ref.isNewerThan(16) ? "a" : "status").toString()));
 					return false;
 				}
 				// GUIS
@@ -200,7 +200,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 					HolderGUI gui = BukkitLoader.gui.get(player.getUniqueId());
 					if (gui instanceof AnvilGUI) {
 						BukkitLoader.nmsProvider.postToMainThread(() -> {
-							((AnvilGUI) gui).setRepairText(this.buildText(Ref.get(packet, "a") + ""));
+							((AnvilGUI) gui).setRepairText(buildText(Ref.get(packet, "a") + ""));
 						});
 						return true;
 					}
@@ -245,7 +245,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	public void onEnable() {
 		Bukkit.getPluginManager().registerEvents(this, this);
 		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-			this.placeholders = new me.devtec.shared.placeholders.PlaceholderExpansion("PAPI Support") {
+			placeholders = new me.devtec.shared.placeholders.PlaceholderExpansion("PAPI Support") {
 				@Override
 				public String apply(String text, UUID player) {
 					return me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(Bukkit.getOfflinePlayer(player), text);
@@ -302,8 +302,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		API.setEnabled(false);
 		Scheduler.cancelAll();
 		BukkitLoader.handler.close();
-		if (this.placeholders != null)
-			this.placeholders.unregister();
+		if (placeholders != null)
+			placeholders.unregister();
 		if (BukkitLoader.bossbars != null)
 			for (BossBar bar : new ArrayList<>(BukkitLoader.bossbars))
 				bar.remove();
@@ -372,7 +372,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		public JarEntry getJarEntry(String name) {
 			JarEntry find = super.getJarEntry(name);
 			if (find == null)
-				for (JarFile search : this.file) {
+				for (JarFile search : file) {
 					find = search.getJarEntry(name);
 					if (find != null)
 						return find;
@@ -384,7 +384,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		public InputStream getInputStream(ZipEntry name) throws IOException {
 			InputStream find = super.getInputStream(name);
 			if (find == null)
-				for (JarFile search : this.file) {
+				for (JarFile search : file) {
 					find = search.getInputStream(name);
 					if (find != null)
 						return find;
@@ -395,9 +395,9 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		@Override
 		public void close() throws IOException {
 			super.close();
-			for (JarFile f : this.file)
+			for (JarFile f : file)
 				f.close();
-			this.file.clear();
+			file.clear();
 		}
 
 	}
@@ -424,8 +424,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 		Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null
 				? Ref.getClass("net.kyori.adventure.Adventure") != null ? ServerType.PAPER : ServerType.SPIGOT
-				: ServerType.BUKKIT, Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]); // Server
-																											// version
+						: ServerType.BUKKIT, Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]); // Server
+		// version
 		if (Ref.serverType() != ServerType.BUKKIT) {
 			ComponentAPI.registerTransformer("BUNGEECORD", (ComponentTransformer<?>) Ref
 					.newInstanceByClass(Ref.getClass("me.devtec.shared.components.BungeeComponentAPI")));
@@ -438,9 +438,9 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		else
 			Json.init((JReader) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.json.legacy.LegacyJsonReader")),
 					(JWriter) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.json.legacy.LegacyJsonWriter"))); // Old
-																														// version
-																														// of
-																														// Guava
+		// version
+		// of
+		// Guava
 		API.library = new LibraryLoader() {
 			List<File> loaded = new ArrayList<>();
 			ImplementableJar jar;
@@ -448,9 +448,9 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 			@Override
 			public void load(File file) {
-				if (this.isLoaded(file) || !file.exists())
+				if (isLoaded(file) || !file.exists())
 					return;
-				this.loaded.add(file);
+				loaded.add(file);
 				ClassLoader loader = plugin.getClass().getClassLoader();
 				if (BukkitLoader.getJavaVersion() <= 15) {
 					if (BukkitLoader.addUrl == null)
@@ -462,26 +462,26 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 					}
 				} else {
 					if (Ref.isNewerThan(16) || Ref.isNewerThan(15) && Ref.serverType() == ServerType.PAPER)
-						if (this.lloader == null) {
+						if (lloader == null) {
 							try {
-								this.lloader = new SimpleClassLoader(new URL[] { file.toURI().toURL() });
+								lloader = new SimpleClassLoader(new URL[] { file.toURI().toURL() });
 							} catch (MalformedURLException e) {
 								e.printStackTrace();
 							}
-							Ref.set(loader, "library", this.lloader);
+							Ref.set(loader, "library", lloader);
 						} else
 							try {
-								this.lloader.addURL(file.toURI().toURL());
+								lloader.addURL(file.toURI().toURL());
 							} catch (MalformedURLException e) {
 								e.printStackTrace();
 							}
 					try { // Just small hack for modern Java.. - Does not working for files inside jar
-						if (this.jar == null) {
-							this.jar = new ImplementableJar((File) Ref.get(loader, "file"));
-							Ref.set(loader, "manifest", this.jar);
-							Ref.set(loader, "jar", this.jar);
+						if (jar == null) {
+							jar = new ImplementableJar((File) Ref.get(loader, "file"));
+							Ref.set(loader, "manifest", jar);
+							Ref.set(loader, "jar", jar);
 						}
-						this.jar.file.add(new JarFile(file));
+						jar.file.add(new JarFile(file));
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -490,7 +490,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 			@Override
 			public boolean isLoaded(File file) {
-				return this.loaded.contains(file);
+				return loaded.contains(file);
 			}
 		};
 		API.basics().load();
@@ -504,7 +504,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			Pattern hex = Pattern.compile("(#[a-fA-F0-9]{6})");
 			String rainbow = "c6ea9b5";
 
-			char[] chars = this.rainbow.toCharArray();
+			char[] chars = rainbow.toCharArray();
 			AtomicInteger position = new AtomicInteger(0);
 
 			@Override
@@ -529,8 +529,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 							prev = c;
 							continue;
 						}
-						if (inRainbow && prev == '§' && (this.isColor(s.charAt(0)) || this.isFormat(s.charAt(0)))) {
-							if (this.isFormat(s.charAt(0))) {
+						if (inRainbow && prev == '§' && (isColor(s.charAt(0)) || isFormat(s.charAt(0)))) {
+							if (isFormat(s.charAt(0))) {
 								if (s.charAt(0) == 'r')
 									formats = "§r";
 								else
@@ -545,10 +545,10 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 					if (c != ' ' && inRainbow)
 						if (formats.equals("§r")) {
 							builder.append(formats); // add formats
-							builder.append(this.generateColor()); // add random color
+							builder.append(generateColor()); // add random color
 							formats = "";
 						} else {
-							builder.append(this.generateColor()); // add random color
+							builder.append(generateColor()); // add random color
 							builder.append(formats); // add formats
 						}
 					builder.append(c);
@@ -568,26 +568,27 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			@Override
 			public String generateColor() {
 				if (!Ref.isNewerThan(15)) {
-					if (this.position.get() == this.chars.length)
-						this.position.set(0);
-					return "§" + this.chars[this.position.getAndIncrement()];
+					if (position.get() == chars.length)
+						position.set(0);
+					return "§" + chars[position.getAndIncrement()];
 				}
 				StringBuilder b = new StringBuilder("#");
 				for (int i = 0; i < 6; ++i)
-					b.append(this.characters[this.random.nextInt(16)]);
+					b.append(characters[random.nextInt(16)]);
 				return b.toString();
 			}
 
 			@Override
 			public String[] getLastColors(String text) {
-				return API.basics().getLastColors(this.getLast, text);
+				return API.basics().getLastColors(getLast, text);
 			}
 
 			@Override
-			public String replaceHex(String msg) {
+			public String replaceHex(String text) {
 				if (!Ref.isNewerThan(15))
-					return msg;
-				Matcher match = this.hex.matcher(msg);
+					return text;
+				String msg = text;
+				Matcher match = hex.matcher(msg);
 				while (match.find()) {
 					String color = match.group();
 					String hex = "§x";
@@ -602,7 +603,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			public String rainbow(String msg, String fromHex, String toHex) {
 				if (Ref.isNewerThan(15)) // Hex
 					return API.basics().rainbow(msg, fromHex, toHex);
-				return this.gradient(msg, null, null);
+				return gradient(msg, null, null);
 			}
 		};
 	}
