@@ -11,7 +11,7 @@ import org.bukkit.generator.ChunkGenerator;
 import me.devtec.shared.Ref;
 
 //Void generator 1.9+
-public class voidGenerator_1_9 extends ChunkGenerator {
+public class VoidGeneratorModern extends ChunkGenerator {
 	private static final Biome the_void = Ref.isNewerThan(12) ? Biome.valueOf("THE_VOID") : Biome.valueOf("VOID");
 
 	@Override

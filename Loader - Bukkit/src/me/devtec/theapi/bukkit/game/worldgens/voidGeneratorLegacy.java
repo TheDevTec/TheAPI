@@ -8,7 +8,7 @@ import org.bukkit.World;
 import org.bukkit.generator.ChunkGenerator;
 
 //Void generator 1.7.10 - 1.8.8
-public class voidGenerator_1_8 extends ChunkGenerator {
+public class voidGeneratorLegacy extends ChunkGenerator {
 	public byte[][] generateBlockSections(World world, Random random, int chunkX, int chunkZ,
 			ChunkGenerator.BiomeGrid biomeGrid) {
 		return new byte[world.getMaxHeight() / 16][];
