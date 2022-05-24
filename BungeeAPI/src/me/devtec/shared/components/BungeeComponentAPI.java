@@ -5,6 +5,7 @@ import java.util.List;
 
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
+import me.devtec.shared.components.HoverEvent.Action;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -42,9 +43,9 @@ public class BungeeComponentAPI<T> implements ComponentTransformer<BaseComponent
 		sub.setStrikethrough(value.isStrikethrough());
 		sub.setUnderlined(value.isUnderlined());
 		if (value.getHoverEvent() != null)
-			sub.setHoverEvent(new me.devtec.shared.components.HoverEvent(
-					me.devtec.shared.components.HoverEvent.Action.valueOf(value.getHoverEvent().getAction().name()),
-					this.toComponent(value.getHoverEvent().getValue())));
+			sub.setHoverEvent(
+					new me.devtec.shared.components.HoverEvent(Action.valueOf(value.getHoverEvent().getAction().name()),
+							this.toComponent(value.getHoverEvent().getValue())));
 		if (value.getClickEvent() != null)
 			sub.setClickEvent(new me.devtec.shared.components.ClickEvent(
 					me.devtec.shared.components.ClickEvent.Action.valueOf(value.getClickEvent().getAction().name()),

@@ -137,12 +137,10 @@ public class ComponentAPI {
 					hex = null;
 					current.setText(builder.toString().substring(0,
 							builder.toString().length() - split[split.length - 1].length())); // Current builder into
-																								// text
+					// text
 					builder.delete(0, builder.length()); // Clear builder
 					Component before = current;
-					if (current.getText().trim().isEmpty()) { // replace current)
-						
-					} else {
+					if (!current.getText().trim().isEmpty()) {
 						current = new Component().copyOf(before); // Create new component
 						extra.add(current);
 						current.setColor(before.getColor());
@@ -267,7 +265,7 @@ public class ComponentAPI {
 		for (Object text : list)
 			if (text instanceof Map)
 				string.append(ComponentAPI.getColor(((Map<String, Object>) text).get("color")))
-						.append(((Map<String, Object>) text).get("text"));
+				.append(((Map<String, Object>) text).get("text"));
 			else
 				string.append(StringUtils.colorize(text + ""));
 		return string.toString();

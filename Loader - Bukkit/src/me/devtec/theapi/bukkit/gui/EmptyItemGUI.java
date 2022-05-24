@@ -13,5 +13,6 @@ public class EmptyItemGUI extends ItemGUI {
 
 	@Override
 	public void onClick(Player player, HolderGUI gui, ClickType click) {
+		//ItemGUI without action
 	}
 }

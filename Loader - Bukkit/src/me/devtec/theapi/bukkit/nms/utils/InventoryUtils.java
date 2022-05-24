@@ -25,12 +25,11 @@ public class InventoryUtils {
 	 *          modified slots
 	 **/
 	public static List<Integer> shift(int clickedSlot, @Nullable Player whoShift, @Nullable HolderGUI holder,
-			@Nullable ClickType clickType, DestinationType type, List<Integer> ignoreSlots, ItemStack[] contents,
+			@Nullable ClickType clickType, DestinationType type, List<Integer> ignoredSlots, ItemStack[] contents,
 			ItemStack shiftItem) {
 		if (shiftItem == null || shiftItem.getType() == Material.AIR)
 			return Collections.emptyList();
-		if (ignoreSlots == null)
-			ignoreSlots = Collections.emptyList();
+		List<Integer> ignoreSlots = ignoredSlots == null ? Collections.emptyList() : ignoredSlots;
 		List<Integer> modifiedSlots = new ArrayList<>();
 		List<Integer> corruptedSlots = new ArrayList<>();
 		int total = shiftItem.getAmount();
@@ -69,7 +68,7 @@ public class InventoryUtils {
 				return modifiedSlots;
 			}
 		}
-		int firstEmpty = findFirstEmpty(whoShift, holder, clickType, corruptedSlots, type, ignoreSlots, contents);
+		int firstEmpty = InventoryUtils.findFirstEmpty(whoShift, holder, clickType, corruptedSlots, type, ignoreSlots, contents);
 		if (firstEmpty != -1) {
 			contents[firstEmpty] = shiftItem;
 			total = 0;
@@ -102,16 +101,14 @@ public class InventoryUtils {
 			for (int i = contents.length - 1; i > 8; --i) {
 				if (ignoreSlots.contains(i))
 					continue;
-				if (contents[i] == null || contents[i].getType() == Material.AIR) {
+				if (contents[i] == null || contents[i].getType() == Material.AIR)
 					return i;
-				}
 			}
 			for (int i = 8; i > -1; --i) {
 				if (ignoreSlots.contains(i))
 					continue;
-				if (contents[i] == null || contents[i].getType() == Material.AIR) {
+				if (contents[i] == null || contents[i].getType() == Material.AIR)
 					return i;
-				}
 			}
 			return -1;
 		case CUSTOM_INV:
@@ -135,16 +132,14 @@ public class InventoryUtils {
 			for (int i = 8; i > -1; --i) {
 				if (ignoreSlots.contains(i))
 					continue;
-				if (contents[i] == null || contents[i].getType() == Material.AIR) {
+				if (contents[i] == null || contents[i].getType() == Material.AIR)
 					return i;
-				}
 			}
 			for (int i = contents.length - 1; i > -1; --i) {
 				if (ignoreSlots.contains(i))
 					continue;
-				if (contents[i] == null || contents[i].getType() == Material.AIR) {
+				if (contents[i] == null || contents[i].getType() == Material.AIR)
 					return i;
-				}
 			}
 		}
 		return -1;
@@ -210,7 +205,7 @@ public class InventoryUtils {
 			return 34;
 		case 26:
 			return 35;
-		// hotbar
+			// hotbar
 		case 27:
 			return 0;
 		case 28:

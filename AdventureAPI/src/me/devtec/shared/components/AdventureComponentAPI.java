@@ -53,8 +53,7 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 		// me.devtec.shared.components.HoverEvent(me.devtec.shared.components.HoverEvent.Action.valueOf(value.hoverEvent().action().name()),
 		// value.hoverEvent().value()));
 		if (value.clickEvent() != null)
-			sub.setClickEvent(new me.devtec.shared.components.ClickEvent(
-					me.devtec.shared.components.ClickEvent.Action.valueOf(value.clickEvent().action().name()),
+			sub.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(value.clickEvent().action().name()),
 					value.clickEvent().value()));
 		sub.setInsertion(value.insertion());
 		return sub;
@@ -99,7 +98,7 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 		if (component.getHoverEvent() != null)
 			sub = sub.hoverEvent(this.makeHover(component.getHoverEvent()));
 		sub = sub.insertion(component.getInsertion());
-		return (TextComponent) sub.font(Key.key(component.getFont()));
+		return sub.font(Key.key(component.getFont()));
 	}
 
 	@Override

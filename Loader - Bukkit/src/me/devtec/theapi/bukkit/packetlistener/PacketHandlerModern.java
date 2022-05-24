@@ -42,14 +42,14 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 	protected volatile boolean closed;
 
 	public PacketHandlerModern(boolean lateBind) {
-		this.serverConnection = Ref.invoke(BukkitLoader.getNmsProvider().getMinecraftServer(), "getServerConnection");
-		if (this.serverConnection == null) // modded server
+		serverConnection = Ref.invoke(BukkitLoader.getNmsProvider().getMinecraftServer(), "getServerConnection");
+		if (serverConnection == null) // modded server
 			for (Field f : Ref.getAllFields(BukkitLoader.getNmsProvider().getMinecraftServer().getClass()))
 				if (f.getType() == Ref.nmsOrOld("server.network.ServerConnection", "ServerConnection")) {
-					this.serverConnection = Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(), f);
+					serverConnection = Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(), f);
 					break;
 				}
-		if (this.serverConnection == null)
+		if (serverConnection == null)
 			return;
 		if (lateBind)
 			while (!(boolean) Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(),
@@ -71,12 +71,12 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 	}
 
 	private void createServerChannelHandler() {
-		this.endInitProtocol = new ChannelInitializer<Channel>() {
+		endInitProtocol = new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel channel) {
 				try {
-					synchronized (PacketHandlerModern.this.networkManagers) {
-						if (!PacketHandlerModern.this.closed) {
+					synchronized (networkManagers) {
+						if (!closed) {
 							PacketInterceptor interceptor = new PacketInterceptor(null);
 							channel.eventLoop().submit(() -> {
 								if (channel.pipeline().names().contains("InjectorTA"))
@@ -91,14 +91,14 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 			}
 
 		};
-		this.beginInitProtocol = new ChannelInitializer<Channel>() {
+		beginInitProtocol = new ChannelInitializer<Channel>() {
 			@Override
 			protected void initChannel(Channel channel) {
-				channel.pipeline().addLast(PacketHandlerModern.this.endInitProtocol);
+				channel.pipeline().addLast(endInitProtocol);
 			}
 
 		};
-		this.serverChannelHandler = new ChannelInHandler();
+		serverChannelHandler = new ChannelInHandler();
 	}
 
 	@Sharable
@@ -106,70 +106,70 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 		@Override
 		public void channelRead(ChannelHandlerContext ctx, Object msg) {
 			Channel channel = (Channel) msg;
-			channel.pipeline().addFirst(PacketHandlerModern.this.beginInitProtocol);
+			channel.pipeline().addFirst(beginInitProtocol);
 			ctx.fireChannelRead(channel);
 		}
 	}
 
 	private void registerChannelHandler() {
 		if (Ref.isNewerThan(16))
-			this.networkManagers = (List<ChannelFuture>) Ref.get(this.serverConnection, "f");
+			networkManagers = (List<ChannelFuture>) Ref.get(serverConnection, "f");
 		else
-			this.networkManagers = (List<ChannelFuture>) (Ref.get(this.serverConnection, "listeningChannels") != null
-					? Ref.get(this.serverConnection, "listeningChannels")
-					: Ref.get(this.serverConnection, "g"));
-		if (this.networkManagers == null)
+			networkManagers = (List<ChannelFuture>) (Ref.get(serverConnection, "listeningChannels") != null
+			? Ref.get(serverConnection, "listeningChannels")
+					: Ref.get(serverConnection, "g"));
+		if (networkManagers == null)
 			for (Field f : Ref.getAllFields(Ref.nmsOrOld("server.network.ServerConnection", "ServerConnection")))
 				if (java.util.List.class == f.getType()) {
-					this.networkManagers = (List<ChannelFuture>) Ref.get(this.serverConnection, f);
+					networkManagers = (List<ChannelFuture>) Ref.get(serverConnection, f);
 					break;
 				}
-		if (this.networkManagers == null)
+		if (networkManagers == null)
 			return;
-		if (this.networkManagers.isEmpty()) {
-			this.networkManagers = (List<ChannelFuture>) (Ref.get(this.serverConnection, "f") != null
-					? Ref.get(this.serverConnection, "f")
-					: Ref.get(this.serverConnection, "listeningChannels"));
-			if (this.networkManagers == null)
+		if (networkManagers.isEmpty()) {
+			networkManagers = (List<ChannelFuture>) (Ref.get(serverConnection, "f") != null
+					? Ref.get(serverConnection, "f")
+							: Ref.get(serverConnection, "listeningChannels"));
+			if (networkManagers == null)
 				for (Field f : Ref.getAllFields(Ref.nmsOrOld("server.network.ServerConnection", "ServerConnection")))
 					if (List.class == f.getType()) {
-						this.networkManagers = (List<ChannelFuture>) Ref.get(this.serverConnection, f);
+						networkManagers = (List<ChannelFuture>) Ref.get(serverConnection, f);
 						break;
 					}
 		}
-		if (this.networkManagers == null)
+		if (networkManagers == null)
 			return;
-		this.createServerChannelHandler();
-		for (Object item : this.networkManagers) {
+		createServerChannelHandler();
+		for (Object item : networkManagers) {
 			if (!(item instanceof ChannelFuture))
 				continue;
 			Channel serverChannel = ((ChannelFuture) item).channel();
-			this.serverChannels.add(serverChannel);
-			serverChannel.pipeline().addFirst(this.serverChannelHandler);
+			serverChannels.add(serverChannel);
+			serverChannel.pipeline().addFirst(serverChannelHandler);
 		}
 	}
 
 	private void unregisterChannelHandler() {
-		if (this.serverChannelHandler == null)
+		if (serverChannelHandler == null)
 			return;
-		for (Channel serverChannel : this.serverChannels)
+		for (Channel serverChannel : serverChannels)
 			serverChannel.eventLoop().execute(() -> {
 				try {
-					serverChannel.pipeline().remove(this.serverChannelHandler);
+					serverChannel.pipeline().remove(serverChannelHandler);
 				} catch (Exception err) {
 				}
 			});
-		this.serverChannels.clear();
+		serverChannels.clear();
 	}
 
 	private void registerPlayers() {
 		for (Player player : Bukkit.getOnlinePlayers())
-			this.add(player);
+			add(player);
 	}
 
 	@Override
 	public void add(Player player) {
-		this.injectChannelInternal(player, this.get(player));
+		injectChannelInternal(player, get(player));
 	}
 
 	private PacketInterceptor injectChannelInternal(Player a, Channel channel) {
@@ -191,13 +191,13 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 
 	@Override
 	public Channel get(Player player) {
-		Channel channel = this.channelLookup.get(player.getName());
+		Channel channel = channelLookup.get(player.getName());
 		if (channel == null) {
 			Object get = BukkitLoader.getNmsProvider().getNetworkChannel(BukkitLoader.getNmsProvider()
 					.getConnectionNetwork(BukkitLoader.getNmsProvider().getPlayerConnection(player)));
 			if (get == null)
 				return null;
-			this.channelLookup.put(player.getName(), channel = (Channel) get);
+			channelLookup.put(player.getName(), channel = (Channel) get);
 		}
 		return channel;
 	}
@@ -232,15 +232,15 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 
 	@Override
 	public final void close() {
-		if (!this.closed) {
-			this.closed = true;
-			for (Channel channel : this.channelLookup.values())
+		if (!closed) {
+			closed = true;
+			for (Channel channel : channelLookup.values())
 				channel.eventLoop().execute(() -> {
 					if (channel.pipeline().names().contains("InjectorTA"))
 						channel.pipeline().remove("InjectorTA");
 				});
-			this.channelLookup.clear();
-			this.unregisterChannelHandler();
+			channelLookup.clear();
+			unregisterChannelHandler();
 		}
 	}
 
@@ -254,37 +254,39 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 		@Override
 		public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 			final Channel channel = ctx.channel();
-			synchronized (msg) {
-				if (msg.getClass() == PacketHandlerModern.login) {
-					this.player = ((GameProfile) Ref.get(msg, PacketHandlerModern.f)).getName();
-					PacketHandlerModern.this.channelLookup.put(this.player, channel);
+			Object packet = msg;
+			synchronized (packet) {
+				if (packet.getClass() == PacketHandlerModern.login) {
+					player = ((GameProfile) Ref.get(packet, PacketHandlerModern.f)).getName();
+					channelLookup.put(player, channel);
 				}
 				try {
-					msg = PacketManager.call(this.player, msg, channel, PacketType.PLAY_IN);
+					packet = PacketManager.call(player, packet, channel, PacketType.PLAY_IN);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				if (msg != null)
-					super.channelRead(ctx, msg);
+				if (packet != null)
+					super.channelRead(ctx, packet);
 			}
 		}
 
 		@Override
 		public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
 			final Channel channel = ctx.channel();
-			synchronized (msg) {
-				if (this.player == null && msg.getClass() == PacketHandlerModern.postlogin) { // ProtocolLib cancelled
-																								// packets
-					this.player = ((GameProfile) Ref.get(msg, PacketHandlerModern.fPost)).getName();
-					PacketHandlerModern.this.channelLookup.put(this.player, channel);
+			Object packet = msg;
+			synchronized (packet) {
+				if (player == null && packet.getClass() == PacketHandlerModern.postlogin) { // ProtocolLib cancelled
+					// packets
+					player = ((GameProfile) Ref.get(packet, PacketHandlerModern.fPost)).getName();
+					channelLookup.put(player, channel);
 				}
 				try {
-					msg = PacketManager.call(this.player, msg, channel, PacketType.PLAY_OUT);
+					packet = PacketManager.call(player, packet, channel, PacketType.PLAY_OUT);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				if (msg != null)
-					super.write(ctx, msg, promise);
+				if (packet != null)
+					super.write(ctx, packet, promise);
 			}
 		}
 	}

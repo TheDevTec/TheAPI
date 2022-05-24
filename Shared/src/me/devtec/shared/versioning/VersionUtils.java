@@ -18,9 +18,7 @@ public class VersionUtils {
 			int current = StringUtils.getInt(cver[count++]);
 			if (next == current)
 				continue;
-			if (next > current)
-				return Version.NEWER_VERSION;
-			return Version.OLDER_VERSION;
+			return next > current ? Version.NEWER_VERSION : Version.OLDER_VERSION;
 		}
 		return Version.SAME_VERSION;
 	}
