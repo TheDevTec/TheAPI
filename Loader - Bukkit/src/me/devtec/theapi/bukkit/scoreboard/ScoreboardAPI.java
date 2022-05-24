@@ -33,7 +33,7 @@ public class ScoreboardAPI {
 			.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
 	private static final Object white = Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",
 			char.class) == null
-					? Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", int.class), -1)
+			? Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", int.class), -1)
 					: Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", char.class),
 							'f');
 
@@ -59,84 +59,84 @@ public class ScoreboardAPI {
 	 * @param slot   -1 to adaptive slot
 	 */
 	public ScoreboardAPI(Player player, int slot) {
-		this.p = player;
-		this.slott = slot;
+		p = player;
+		slott = slot;
 		this.player = player.getName();
-		this.sbname = ScoreboardAPI.protectId + this.player;
-		if (this.sbname.length() > 16)
-			this.sbname = this.sbname.substring(0, 16);
-		BukkitLoader.getPacketHandler().send(this.p, this.createObjectivePacket(0, "§0"));
+		sbname = ScoreboardAPI.protectId + this.player;
+		if (sbname.length() > 16)
+			sbname = sbname.substring(0, 16);
+		BukkitLoader.getPacketHandler().send(p, createObjectivePacket(0, "§0"));
 		Object packet = BukkitLoader.getNmsProvider().packetScoreboardDisplayObjective(1, null);
-		Ref.set(packet, "b", this.sbname);
-		BukkitLoader.getPacketHandler().send(this.p, packet);
+		Ref.set(packet, "b", sbname);
+		BukkitLoader.getPacketHandler().send(p, packet);
 	}
 
 	public void setSlot(int slot) {
-		this.slott = slot;
+		slott = slot;
 	}
 
 	public void remove() {
-		this.destroy();
+		destroy();
 	}
 
 	public void destroy() {
-		if (this.destroyed)
+		if (destroyed)
 			return;
-		this.destroyed = true;
-		BukkitLoader.getPacketHandler().send(this.p, this.createObjectivePacket(1, Ref.isNewerThan(12) ? null : ""));
-		for (String a : this.data.getKeys(this.player)) {
-			Team team = this.data.getAs(this.player + "." + a, Team.class);
+		destroyed = true;
+		BukkitLoader.getPacketHandler().send(p, createObjectivePacket(1, Ref.isNewerThan(12) ? null : ""));
+		for (String a : data.getKeys(player)) {
+			Team team = data.getAs(player + "." + a, Team.class);
 			if (team != null)
 				for (Object o : this.remove(team.currentPlayer, team.name))
-					BukkitLoader.getPacketHandler().send(this.p, o);
+					BukkitLoader.getPacketHandler().send(p, o);
 		}
-		this.data.clear();
+		data.clear();
 	}
 
 	public void setTitle(String name) {
-		this.setDisplayName(name);
+		setDisplayName(name);
 	}
 
 	public void setName(String name) {
-		this.setDisplayName(name);
+		setDisplayName(name);
 	}
 
 	public void setDisplayName(String text) {
-		this.destroyed = false;
-		String displayName = this.name;
-		this.name = StringUtils.colorize(text);
-		if (!Ref.isNewerThan(12) && this.name.length() > 32)
-			this.name = this.name.substring(0, 32);
-		if (!this.name.equals(displayName))
-			BukkitLoader.getPacketHandler().send(this.p, this.createObjectivePacket(2, this.name));
+		destroyed = false;
+		String displayName = name;
+		name = StringUtils.colorize(text);
+		if (!Ref.isNewerThan(12) && name.length() > 32)
+			name = name.substring(0, 32);
+		if (!name.equals(displayName))
+			BukkitLoader.getPacketHandler().send(p, createObjectivePacket(2, name));
 	}
 
 	public void addLine(String value) {
 		int i = -1;
-		Set<String> slots = this.data.getKeys(this.player);
+		Set<String> slots = data.getKeys(player);
 		while (!slots.contains("" + (++i)))
 			;
-		this.setLine(i, value);
+		setLine(i, value);
 	}
 
 	public void setLine(int line, String valueText) {
 		String value = StringUtils.colorize(valueText);
-		if (this.getLine(line) != null && this.getLine(line).equals(!Ref.isNewerThan(12) ? this.cut(value) : value))
+		if (getLine(line) != null && getLine(line).equals(!Ref.isNewerThan(12) ? cut(value) : value))
 			return;
 		Team team = null;
 		boolean add = true;
-		Set<String> s = this.data.getKeys(this.player);
+		Set<String> s = data.getKeys(player);
 		for (String wd : s) {
-			Team t = this.data.getAs(this.player + "." + wd, Team.class);
+			Team t = data.getAs(player + "." + wd, Team.class);
 			if (t.slot == line) {
 				team = t;
 				add = false;
 			}
 		}
 		if (add)
-			team = this.getTeam(line, line);
+			team = getTeam(line, line);
 		team.setValue(value);
-		this.sendLine(team, line, add);
+		sendLine(team, line, add);
 	}
 
 	private String cut(String original) {
@@ -158,71 +158,71 @@ public class ScoreboardAPI {
 	}
 
 	public void removeLine(int line) {
-		if (!this.data.exists(this.player + "." + line))
+		if (!data.exists(player + "." + line))
 			return;
-		Team team = this.getTeam(line, line);
+		Team team = getTeam(line, line);
 		for (Object o : this.remove(team.currentPlayer, team.name))
-			BukkitLoader.getPacketHandler().send(this.p, o);
-		this.data.remove(this.player + "." + line);
+			BukkitLoader.getPacketHandler().send(p, o);
+		data.remove(player + "." + line);
 	}
 
 	public void removeUpperLines(int line) {
-		for (String a : this.data.getKeys(this.player))
+		for (String a : data.getKeys(player))
 			if (Integer.parseInt(a) > line) {
-				Team team = this.data.getAs(this.player + "." + a, Team.class);
+				Team team = data.getAs(player + "." + a, Team.class);
 				for (Object o : this.remove(team.currentPlayer, team.name))
-					BukkitLoader.getPacketHandler().send(this.p, o);
-				this.data.remove(this.player + "." + line);
+					BukkitLoader.getPacketHandler().send(p, o);
+				data.remove(player + "." + line);
 			}
 	}
 
 	public String getLine(int line) {
-		if (this.data.exists(this.player + "." + line) && this.data.get(this.player + "." + line) != null)
-			return ((Team) this.data.get(this.player + "." + line)).getValue();
+		if (data.exists(player + "." + line) && data.get(player + "." + line) != null)
+			return ((Team) data.get(player + "." + line)).getValue();
 		return null;
 	}
 
 	public List<String> getLines() {
 		List<String> lines = new ArrayList<>();
-		for (String line : this.data.getKeys(this.player))
-			lines.add(((Team) this.data.get(this.player + "." + line)).getValue());
+		for (String line : data.getKeys(player))
+			lines.add(((Team) data.get(player + "." + line)).getValue());
 		return lines;
 	}
 
 	private void sendLine(Team team, int line, boolean add) {
-		this.destroyed = false;
+		destroyed = false;
 		team.sendLine(line);
 		if (add)
-			this.data.set(this.player + "." + line, team);
+			data.set(player + "." + line, team);
 	}
 
 	private Team getTeam(int line, int realPos) {
-		Team result = this.data.getAs(this.player + "." + line, Team.class);
+		Team result = data.getAs(player + "." + line, Team.class);
 		if (result == null)
-			this.data.set(this.player + "." + line, result = new Team(line, realPos));
+			data.set(player + "." + line, result = new Team(line, realPos));
 		return result;
 	}
 
 	private Object[] create(String prefix, String suffix, String name, String realName, int slot) {
-		ScoreboardAPI.protection.set(this.player + "." + name, true);
+		ScoreboardAPI.protection.set(player + "." + name, true);
 		Object[] o = new Object[2];
-		o[0] = this.createTeamPacket(0, prefix, suffix, name, realName);
-		o[1] = BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, this.sbname, name, slot);
+		o[0] = createTeamPacket(0, prefix, suffix, name, realName);
+		o[1] = BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, name, slot);
 		return o;
 	}
 
 	private Object[] modify(String prefix, String suffix, String name, String realName, int slot) {
 		Object[] o = new Object[2];
-		o[0] = this.createTeamPacket(2, prefix, suffix, name, realName);
-		o[1] = BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, this.sbname, name, slot);
+		o[0] = createTeamPacket(2, prefix, suffix, name, realName);
+		o[1] = BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, name, slot);
 		return o;
 	}
 
 	private Object[] remove(String name, String realName) {
-		ScoreboardAPI.protection.remove(this.player + "." + name);
+		ScoreboardAPI.protection.remove(player + "." + name);
 		Object[] o = new Object[2];
-		o[0] = this.createTeamPacket(1, "", "", name, realName);
-		o[1] = BukkitLoader.getNmsProvider().packetScoreboardScore(Action.REMOVE, this.sbname, name, 0);
+		o[0] = createTeamPacket(1, "", "", name, realName);
+		o[1] = BukkitLoader.getNmsProvider().packetScoreboardScore(Action.REMOVE, sbname, name, 0);
 		return o;
 	}
 
@@ -250,11 +250,11 @@ public class ScoreboardAPI {
 			Ref.set(packet, "b", Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().chatBase("{\"text\":\"\"}") : "");
 			Ref.set(packet, "c",
 					Ref.isNewerThan(12)
-							? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(prefix))
+					? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(prefix))
 							: prefix);
 			Ref.set(packet, "d",
 					Ref.isNewerThan(12)
-							? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(suffix))
+					? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(suffix))
 							: suffix);
 			if (Ref.isNewerThan(7)) {
 				Ref.set(packet, "e", always);
@@ -274,16 +274,16 @@ public class ScoreboardAPI {
 	private Object createObjectivePacket(int mode, String displayName) {
 		Object packet = BukkitLoader.getNmsProvider().packetScoreboardObjective();
 		if (Ref.isNewerThan(16)) {
-			Ref.set(packet, "d", this.sbname);
+			Ref.set(packet, "d", sbname);
 			Ref.set(packet, "e",
 					BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(displayName)));
 			Ref.set(packet, "f", BukkitLoader.getNmsProvider().getEnumScoreboardHealthDisplay(DisplayType.INTEGER));
 			Ref.set(packet, "g", mode);
 		} else {
-			Ref.set(packet, "a", this.sbname);
+			Ref.set(packet, "a", sbname);
 			Ref.set(packet, "b",
 					Ref.isNewerThan(12)
-							? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(displayName))
+					? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(displayName))
 							: displayName);
 			if (Ref.isNewerThan(7)) {
 				Ref.set(packet, "c", BukkitLoader.getNmsProvider().getEnumScoreboardHealthDisplay(DisplayType.INTEGER));
@@ -309,140 +309,141 @@ public class ScoreboardAPI {
 			String s = "" + realPos;
 			for (int i = ChatColor.values().length - 1; i > -1; --i)
 				s = s.replace(i + "", ChatColor.values()[i] + "");
-			this.currentPlayer = s;
+			currentPlayer = s;
 			if (Ref.isOlderThan(13)) {
-				this.currentPlayer += "§f";
-				this.format = this.currentPlayer;
+				currentPlayer += "§f";
+				format = currentPlayer;
 			} else
-				this.format = null;
+				format = null;
 			this.slot = slot;
-			this.name = "" + slot;
+			name = "" + slot;
 		}
 
 		public void sendLine(int line) {
-			if (this.first) {
-				if (ScoreboardAPI.protection.getBoolean(ScoreboardAPI.this.player + "." + this.name))
-					this.name += ScoreboardAPI.protectId;
-				Object[] o = ScoreboardAPI.this.create(this.prefix, this.suffix, this.currentPlayer, this.name,
-						ScoreboardAPI.this.slott == -1 ? line : ScoreboardAPI.this.slott);
-				BukkitLoader.getPacketHandler().send(ScoreboardAPI.this.p, o[0]);
-				BukkitLoader.getPacketHandler().send(ScoreboardAPI.this.p, o[1]);
-				this.first = false;
-				this.old = null;
-				this.changed = false;
+			if (first) {
+				if (ScoreboardAPI.protection.getBoolean(player + "." + name))
+					name += ScoreboardAPI.protectId;
+				Object[] o = create(prefix, suffix, currentPlayer, name,
+						slott == -1 ? line : slott);
+				BukkitLoader.getPacketHandler().send(p, o[0]);
+				BukkitLoader.getPacketHandler().send(p, o[1]);
+				first = false;
+				old = null;
+				changed = false;
 				return;
 			}
-			if (this.old != null) {
-				Object[] o = ScoreboardAPI.this.remove(this.old, this.name);
-				BukkitLoader.getPacketHandler().send(ScoreboardAPI.this.p, o[0]);
-				BukkitLoader.getPacketHandler().send(ScoreboardAPI.this.p, o[1]);
-				this.old = null;
+			if (old != null) {
+				Object[] o = ScoreboardAPI.this.remove(old, name);
+				BukkitLoader.getPacketHandler().send(p, o[0]);
+				BukkitLoader.getPacketHandler().send(p, o[1]);
+				old = null;
 			}
-			if (this.changed) {
-				this.changed = false;
-				Object[] o = ScoreboardAPI.this.modify(this.prefix, this.suffix, this.currentPlayer, this.name,
-						ScoreboardAPI.this.slott == -1 ? line : ScoreboardAPI.this.slott);
-				BukkitLoader.getPacketHandler().send(ScoreboardAPI.this.p, o[0]);
-				BukkitLoader.getPacketHandler().send(ScoreboardAPI.this.p, o[1]);
+			if (changed) {
+				changed = false;
+				Object[] o = modify(prefix, suffix, currentPlayer, name,
+						slott == -1 ? line : slott);
+				BukkitLoader.getPacketHandler().send(p, o[0]);
+				BukkitLoader.getPacketHandler().send(p, o[1]);
 			}
 		}
 
 		public String getValue() {
-			return Ref.isOlderThan(13) ? this.prefix + this.currentPlayer.replaceFirst(this.format, "") + this.suffix
-					: this.prefix + this.suffix;
+			return Ref.isOlderThan(13) ? prefix + currentPlayer.replaceFirst(format, "") + suffix
+					: prefix + suffix;
 		}
 
-		private void setPlayer(String a) {
-			a = this.format + a;
-			if (this.currentPlayer == null || !this.currentPlayer.equals(a)) {
-				this.old = this.currentPlayer;
-				this.currentPlayer = a;
+		private void setPlayer(String teamName) {
+			String name = format + teamName;
+			if (currentPlayer == null || !currentPlayer.equals(name)) {
+				old = currentPlayer;
+				currentPlayer = name;
 			}
 		}
 
-		public void setValue(String a) {
+		public void setValue(String value) {
+			String a = value;
 			if (a == null) {
-				if (!this.prefix.equals(""))
-					this.changed = true;
-				this.prefix = "";
-				if (!this.suffix.equals(""))
-					this.changed = true;
-				this.suffix = "";
-				this.setPlayer("");
+				if (!prefix.equals(""))
+					changed = true;
+				prefix = "";
+				if (!suffix.equals(""))
+					changed = true;
+				suffix = "";
+				setPlayer("");
 				return;
 			}
 			if (Ref.isOlderThan(13)) {
 				if (a.isEmpty()) {
-					this.setPlayer("");
-					if (!this.prefix.equals(""))
-						this.changed = true;
-					this.prefix = "";
-					if (!this.suffix.equals(""))
-						this.changed = true;
-					this.suffix = "";
+					setPlayer("");
+					if (!prefix.equals(""))
+						changed = true;
+					prefix = "";
+					if (!suffix.equals(""))
+						changed = true;
+					suffix = "";
 					return;
 				}
 
 				List<String> d = StringUtils.fixedSplit(a, 16);
 				if (a.length() <= 16) {
-					this.setPlayer("");
-					if (!this.prefix.equals(d.get(0)))
-						this.changed = true;
-					this.prefix = d.get(0);
-					if (!this.suffix.equals(""))
-						this.changed = true;
-					this.suffix = "";
+					setPlayer("");
+					if (!prefix.equals(d.get(0)))
+						changed = true;
+					prefix = d.get(0);
+					if (!suffix.equals(""))
+						changed = true;
+					suffix = "";
 					return;
 				}
 				if (a.length() <= 32) {
-					if (!this.prefix.equals(d.get(0)))
-						this.changed = true;
-					this.prefix = d.get(0);
-					this.setPlayer("");
+					if (!prefix.equals(d.get(0)))
+						changed = true;
+					prefix = d.get(0);
+					setPlayer("");
 					if (d.size() > 1) {
-						if (!this.suffix.equals(d.get(1)))
-							this.changed = true;
-						this.suffix = d.get(1);
+						if (!suffix.equals(d.get(1)))
+							changed = true;
+						suffix = d.get(1);
 					} else {
-						if (!this.suffix.equals(""))
-							this.changed = true;
-						this.suffix = "";
+						if (!suffix.equals(""))
+							changed = true;
+						suffix = "";
 					}
 					return;
 				}
 				if (Ref.isOlderThan(8)) {
-					if (!this.prefix.equals(d.get(0)))
-						this.changed = true;
-					this.prefix = d.get(0);
-					d = StringUtils.fixedSplit(a = a.substring(this.prefix.length()), 17 - this.format.length());
-					this.setPlayer(d.get(0));
+					if (!prefix.equals(d.get(0)))
+						changed = true;
+					prefix = d.get(0);
+					d = StringUtils.fixedSplit(a = a.substring(prefix.length()), 17 - format.length());
+					setPlayer(d.get(0));
 					d = StringUtils.fixedSplit(a.substring(d.get(0).length()), 16);
-					if (!this.suffix.equals(d.get(0)))
-						this.changed = true;
-					this.suffix = d.get(0);
+					if (!suffix.equals(d.get(0)))
+						changed = true;
+					suffix = d.get(0);
 					return;
 				}
-				if (!this.prefix.equals(d.get(0)))
-					this.changed = true;
-				this.prefix = d.get(0);
+				if (!prefix.equals(d.get(0)))
+					changed = true;
+				prefix = d.get(0);
 				a = a.substring(d.get(0).length());
 				d = StringUtils.fixedSplit(a, 18);
-				this.setPlayer(StringUtils.getLastColors(this.prefix) + d.get(0));
+				setPlayer(StringUtils.getLastColors(prefix) + d.get(0));
 				a = a.substring(d.get(0).length());
 				d = StringUtils.fixedSplit(a, 17);
 				if (d.isEmpty()) {
-					if (!this.suffix.equals(""))
-						this.changed = true;
-					this.suffix = "";
+					if (!suffix.equals(""))
+						changed = true;
+					suffix = "";
 				} else {
-					if (!this.suffix.equals(d.get(0)))
-						this.changed = true;
-					this.suffix = d.get(0);
+					if (!suffix.equals(d.get(0)))
+						changed = true;
+					suffix = d.get(0);
 				}
 			} else {
-				if (!this.prefix.equals(a))
-					this.changed = true;
-				this.prefix = a;
+				if (!prefix.equals(a))
+					changed = true;
+				prefix = a;
 			}
 		}
 	}

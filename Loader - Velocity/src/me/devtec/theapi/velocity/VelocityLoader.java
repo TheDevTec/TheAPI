@@ -38,15 +38,17 @@ import me.devtec.theapi.velocity.commands.selectors.VelocitySelectorUtils;
 "StraikerinaCZ" }, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 
-	private static ProxyServer server;
+	private final ProxyServer server;
+	private static VelocityLoader plugin;
 
 	public static ProxyServer getServer() {
-		return VelocityLoader.server;
+		return VelocityLoader.plugin.server;
 	}
 
 	@Inject
 	public VelocityLoader(ProxyServer server) {
-		VelocityLoader.server = server;
+		VelocityLoader.plugin=this;
+		this.server = server;
 		VelocityLoader.initTheAPI(server);
 	}
 
