@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -12,23 +11,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import com.google.common.collect.ImmutableList;
-
 import me.devtec.shared.Ref;
-import me.devtec.shared.components.ComponentAPI;
 import me.devtec.theapi.bukkit.BukkitLoader;
+import me.devtec.theapi.bukkit.nms.utils.TeamUtils;
 
 public class NameTagAPI {
-
-	private static final Class<?> sbTeam = Ref
-			.getClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam$b");
-	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref
-			.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
-	private static final Object white = Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",
-			char.class) == null
-					? Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", int.class), -1)
-					: Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", char.class),
-							'f');
 
 	@SuppressWarnings("unchecked")
 	private static Map<Character, Object> formatMap = (Map<Character, Object>) Ref.getNulled(
@@ -44,44 +31,46 @@ public class NameTagAPI {
 	private boolean changed;
 
 	private Object getNMSColor(ChatColor color) {
-		return color == null ? NameTagAPI.white : NameTagAPI.formatMap.getOrDefault(color.getChar(), NameTagAPI.white);
+		Object nmsColor = color==null?TeamUtils.white:NameTagAPI.formatMap.get(color.getChar());
+		if(nmsColor==null)nmsColor=TeamUtils.white;
+		return nmsColor;
 	}
 
 	public NameTagAPI(Player player, String teamName) {
-		this.p = player;
-		this.name = teamName.length() > 12 ? teamName.substring(0, 12) : teamName;
+		p = player;
+		name = teamName.length() > 12 ? teamName.substring(0, 12) : teamName;
 	}
 
 	public Player getPlayer() {
-		return this.p;
+		return p;
 	}
 
 	public String getTeamName() {
-		return this.name;
+		return name;
 	}
 
 	public ChatColor getColor() {
-		return this.color;
+		return color;
 	}
 
 	public String getPrefix() {
-		return this.prefix;
+		return prefix;
 	}
 
 	public String getSuffix() {
-		return this.suffix;
+		return suffix;
 	}
 
 	public List<UUID> getPlayers() {
-		return this.canSee;
+		return canSee;
 	}
 
 	public void setName(String sort) {
-		this.name = sort;
-		if (this.name.equals(sort) || this.canSee.isEmpty())
+		name = sort;
+		if (name.equals(sort) || canSee.isEmpty())
 			return;
-		Object created = this.create(this.color, this.prefix, this.suffix, this.name);
-		Iterator<UUID> uuids = this.canSee.iterator();
+		Object created = create(color, prefix, suffix, name);
+		Iterator<UUID> uuids = canSee.iterator();
 		while (uuids.hasNext()) {
 			UUID see = uuids.next();
 			Player p = Bukkit.getPlayer(see);
@@ -89,7 +78,7 @@ public class NameTagAPI {
 				List<NameTagAPI> team = NameTagAPI.teams.get(p.getUniqueId());
 				if (team == null)
 					NameTagAPI.teams.put(p.getUniqueId(), team = new ArrayList<>());
-				if (!this.contains(team, this.name)) {
+				if (!contains(team, name)) {
 					BukkitLoader.getPacketHandler().send(p, created);
 					team.add(this);
 				}
@@ -107,7 +96,7 @@ public class NameTagAPI {
 
 	public void set(ChatColor color, String prefixText, String suffixText) {
 		if (this.color != color)
-			this.changed = true;
+			changed = true;
 		this.color = color;
 		String prefix;
 		String suffix;
@@ -125,20 +114,20 @@ public class NameTagAPI {
 			suffix = suffixText;
 		}
 		if (!this.prefix.equals(prefix))
-			this.changed = true;
+			changed = true;
 		this.prefix = prefix;
 		if (!this.suffix.equals(suffix))
-			this.changed = true;
+			changed = true;
 		this.suffix = suffix;
 	}
 
 	public void reset(Player... players) {
-		Object reset = this.resetPacket();
+		Object reset = resetPacket();
 		for (Player player : players)
-			if (this.canSee.remove(player.getUniqueId())) {
+			if (canSee.remove(player.getUniqueId())) {
 				List<NameTagAPI> team = NameTagAPI.teams.get(player.getUniqueId());
 				team.remove(this);
-				if (!this.contains(team, this.name))
+				if (!contains(team, name))
 					BukkitLoader.getPacketHandler().send(player, reset);
 			}
 	}
@@ -150,86 +139,39 @@ public class NameTagAPI {
 			List<NameTagAPI> team = NameTagAPI.teams.get(player.getUniqueId());
 			if (team == null)
 				NameTagAPI.teams.put(player.getUniqueId(), team = new ArrayList<>());
-			if (!team.contains(this) || !this.canSee.contains(player.getUniqueId())) {
-				if (!this.contains(team, this.name)) {
+			if (!team.contains(this) || !canSee.contains(player.getUniqueId())) {
+				if (!contains(team, name)) {
 					if (created == null)
-						created = this.create(this.color, this.prefix, this.suffix, this.name);
+						created = create(color, prefix, suffix, name);
 					BukkitLoader.getPacketHandler().send(player, created);
 				} else {
 					if (modified == null)
-						modified = this.modify(this.color, this.prefix, this.suffix, this.name);
+						modified = modify(color, prefix, suffix, name);
 					BukkitLoader.getPacketHandler().send(player, modified);
 				}
-				this.canSee.add(player.getUniqueId());
+				canSee.add(player.getUniqueId());
 				if (!team.contains(this))
 					team.add(this);
 				continue;
 			}
-			if (this.changed) {
+			if (changed) {
 				if (modified == null)
-					modified = this.modify(this.color, this.prefix, this.suffix, this.name);
+					modified = modify(color, prefix, suffix, name);
 				BukkitLoader.getPacketHandler().send(player, modified);
 			}
 		}
-		this.changed = false;
+		changed = false;
 	}
 
 	private Object create(ChatColor color, String prefix, String suffix, String realName) {
-		return this.createPacket(0, color, prefix, suffix, this.p.getName(), realName);
+		return TeamUtils.createTeamPacket(0, getNMSColor(color), prefix, suffix, p.getName(), realName);
 	}
 
 	private Object modify(ChatColor color, String prefix, String suffix, String realName) {
-		return this.createPacket(2, color, prefix, suffix, this.p.getName(), realName);
+		return TeamUtils.createTeamPacket(2, getNMSColor(color), prefix, suffix, p.getName(), realName);
 	}
 
 	private Object resetPacket() {
-		return this.createPacket(1, null, "", "", this.p.getName(), this.name);
-	}
-
-	private Object createPacket(int mode, ChatColor color, String prefix, String suffix, String name, String realName) {
-		Object packet = BukkitLoader.getNmsProvider().packetScoreboardTeam();
-		String always = "ALWAYS";
-		if (Ref.isNewerThan(16)) {
-			Ref.set(packet, "i", realName);
-			try {
-				Object o = NameTagAPI.unsafe.allocateInstance(NameTagAPI.sbTeam);
-				Ref.set(o, "a", BukkitLoader.getNmsProvider().chatBase("{\"text\":\"" + name + "\"}"));
-				Ref.set(o, "b", BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(prefix)));
-				Ref.set(o, "c", BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(suffix)));
-				Ref.set(o, "d", always);
-				Ref.set(o, "e", always);
-				Ref.set(o, "f", color == null ? NameTagAPI.white : this.getNMSColor(color));
-				Ref.set(packet, "k", Optional.of(o));
-			} catch (Exception e) {
-			}
-			Ref.set(packet, "h", mode);
-			Ref.set(packet, "j", ImmutableList.copyOf(new String[] { name }));
-		} else {
-			Ref.set(packet, "a", realName);
-			Ref.set(packet, "b",
-					Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().chatBase("{\"text\":\"" + name + "\"}") : "");
-			Ref.set(packet, "c",
-					Ref.isNewerThan(12)
-							? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(prefix))
-							: prefix);
-			Ref.set(packet, "d",
-					Ref.isNewerThan(12)
-							? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(suffix))
-							: suffix);
-			if (Ref.isNewerThan(7)) {
-				Ref.set(packet, "e", always);
-				Ref.set(packet, "f", Ref.isNewerThan(8) ? always : -1);
-				if (Ref.isNewerThan(8))
-					Ref.set(packet, "g",
-							Ref.isNewerThan(12) ? color == null ? NameTagAPI.white : this.getNMSColor(color)
-									: color == null ? -1 : color.ordinal());
-				Ref.set(packet, Ref.isNewerThan(8) ? "i" : "h", mode);
-				Ref.set(packet, Ref.isNewerThan(8) ? "h" : "g", ImmutableList.copyOf(new String[] { name }));
-			} else {
-				Ref.set(packet, "f", mode);
-				Ref.set(packet, "e", ImmutableList.copyOf(new String[] { name }));
-			}
-		}
-		return packet;
+		return TeamUtils.createTeamPacket(1, getNMSColor(null), "", "", p.getName(), name);
 	}
 }

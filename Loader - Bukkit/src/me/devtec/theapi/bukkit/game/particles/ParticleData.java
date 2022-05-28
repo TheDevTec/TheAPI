@@ -8,16 +8,27 @@ import me.devtec.shared.Ref;
 import me.devtec.theapi.bukkit.game.TheMaterial;
 
 public class ParticleData {
+
+	public float getValueX() {
+		return 0;
+	}
+
+	public float getValueY() {
+		return 0;
+	}
+
+	public float getValueZ() {
+		return 0;
+	}
+
 	public static class NoteOptions extends ParticleData {
 		private final int note;
 
 		public NoteOptions(int note) {
-			if (note < 0) {
+			if (note < 0)
 				throw new IllegalArgumentException("The note value is lower than 0");
-			}
-			if (note > 24) {
+			if (note > 24)
 				throw new IllegalArgumentException("The note value is higher than 24");
-			}
 			this.note = note;
 		}
 
@@ -25,14 +36,17 @@ public class ParticleData {
 			return note;
 		}
 
+		@Override
 		public float getValueX() {
 			return note / 24F;
 		}
 
+		@Override
 		public float getValueY() {
 			return 0;
 		}
 
+		@Override
 		public float getValueZ() {
 			return 0;
 		}
@@ -45,26 +59,20 @@ public class ParticleData {
 		private final float size;
 
 		public RedstoneOptions(float size, float red, float green, float blue) {
-			if (red < 0) {
+			if (red < 0)
 				throw new IllegalArgumentException("The red value is lower than 0");
-			}
-			if (red > 255) {
+			if (red > 255)
 				throw new IllegalArgumentException("The red value is higher than 255");
-			}
 			this.red = red;
-			if (green < 0) {
+			if (green < 0)
 				throw new IllegalArgumentException("The green value is lower than 0");
-			}
-			if (green > 255) {
+			if (green > 255)
 				throw new IllegalArgumentException("The green value is higher than 255");
-			}
 			this.green = green;
-			if (blue < 0) {
+			if (blue < 0)
 				throw new IllegalArgumentException("The blue value is lower than 0");
-			}
-			if (blue > 255) {
+			if (blue > 255)
 				throw new IllegalArgumentException("The blue value is higher than 255");
-			}
 			this.blue = blue;
 			this.size = size;
 		}
@@ -89,14 +97,17 @@ public class ParticleData {
 			return blue;
 		}
 
+		@Override
 		public float getValueX() {
 			return red / 255.0F;
 		}
 
+		@Override
 		public float getValueY() {
 			return green / 255.0F;
 		}
 
+		@Override
 		public float getValueZ() {
 			return blue / 255.0F;
 		}
@@ -111,13 +122,13 @@ public class ParticleData {
 		private int[] packetData;
 
 		public ItemOptions(ItemStack stack) {
-			this.item = stack;
-			try {
-				packetData = new int[] { (int) Ref.invokeNulled(Ref.nmsOrOld("world.level.block.Block", "Block"),
-						"getCombinedId", new TheMaterial(stack).getIBlockData()) };
-			} catch (Exception err) {
-				packetData = new int[] { 0, 0 };
-			}
+			item = stack;
+			if (Ref.isOlderThan(13))
+				try {
+					packetData = new int[] { new TheMaterial(stack).getCombinedId() };
+				} catch (Exception err) {
+					packetData = new int[] { 0 };
+				}
 		}
 
 		public ItemOptions(Material material, byte data) {
@@ -125,19 +136,24 @@ public class ParticleData {
 		}
 
 		public ItemOptions(TheMaterial material) {
-			this.item = material.toItemStack();
-			try {
-				packetData = new int[] { (int) Ref.invokeNulled(Ref.nmsOrOld("world.level.block.Block", "Block"),
-						"getCombinedId", material.getIBlockData()) };
-			} catch (Exception err) {
-				packetData = new int[] { 0, 0 };
-			}
+			item = material.toItemStack();
+			if (Ref.isOlderThan(13))
+				try {
+					packetData = new int[] { material.getCombinedId() };
+				} catch (Exception err) {
+					packetData = new int[] { 0 };
+				}
 		}
 
 		public ItemStack getItem() {
 			return item;
 		}
 
+		@Deprecated
+		/**
+		 * @apiNote 1.12.2 and older only.
+		 * @return packedData of item
+		 */
 		public int[] getPacketData() {
 			return packetData;
 		}
@@ -149,11 +165,12 @@ public class ParticleData {
 
 		public BlockOptions(TheMaterial material) {
 			this.material = material;
-			try {
-				this.packetData = new int[] { material.getType().getId(), material.getData() };
-			} catch (Exception err) {
-				// not supported for 1.13+
-			}
+			if (Ref.isOlderThan(13))
+				try {
+					packetData = new int[] { material.getType().getId(), material.getData() };
+				} catch (Exception err) {
+					packetData = new int[] { 0, 0 };
+				}
 		}
 
 		public BlockOptions(Material material, byte data) {
@@ -168,6 +185,11 @@ public class ParticleData {
 			return material;
 		}
 
+		@Deprecated
+		/**
+		 * @apiNote 1.12.2 and older only.
+		 * @return packedData of item
+		 */
 		public int[] getPacketData() {
 			return packetData;
 		}

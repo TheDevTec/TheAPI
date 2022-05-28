@@ -2,14 +2,11 @@ package me.devtec.theapi.bukkit.scoreboard;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-
-import com.google.common.collect.ImmutableList;
 
 import me.devtec.shared.Ref;
 import me.devtec.shared.components.ComponentAPI;
@@ -18,6 +15,7 @@ import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.nms.NmsProvider.Action;
 import me.devtec.theapi.bukkit.nms.NmsProvider.DisplayType;
+import me.devtec.theapi.bukkit.nms.utils.TeamUtils;
 
 /**
  * https://gist.github.com/MrZalTy/f8895d84979d49af946fbcc108b1bf2b
@@ -26,16 +24,6 @@ import me.devtec.theapi.bukkit.nms.NmsProvider.DisplayType;
  *
  */
 public class ScoreboardAPI {
-
-	private static final Class<?> sbTeam = Ref
-			.getClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam$b");
-	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref
-			.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
-	private static final Object white = Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",
-			char.class) == null
-			? Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", int.class), -1)
-					: Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", char.class),
-							'f');
 
 	private static final String protectId = (new Random().nextLong() + "").substring(0, 5);
 
@@ -206,14 +194,14 @@ public class ScoreboardAPI {
 	private Object[] create(String prefix, String suffix, String name, String realName, int slot) {
 		ScoreboardAPI.protection.set(player + "." + name, true);
 		Object[] o = new Object[2];
-		o[0] = createTeamPacket(0, prefix, suffix, name, realName);
+		o[0] = TeamUtils.createTeamPacket(0, TeamUtils.white, prefix, suffix, name, realName);
 		o[1] = BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, name, slot);
 		return o;
 	}
 
 	private Object[] modify(String prefix, String suffix, String name, String realName, int slot) {
 		Object[] o = new Object[2];
-		o[0] = createTeamPacket(2, prefix, suffix, name, realName);
+		o[0] = TeamUtils.createTeamPacket(2, TeamUtils.white, prefix, suffix, name, realName);
 		o[1] = BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, name, slot);
 		return o;
 	}
@@ -221,54 +209,9 @@ public class ScoreboardAPI {
 	private Object[] remove(String name, String realName) {
 		ScoreboardAPI.protection.remove(player + "." + name);
 		Object[] o = new Object[2];
-		o[0] = createTeamPacket(1, "", "", name, realName);
+		o[0] = TeamUtils.createTeamPacket(1, TeamUtils.white, "", "", name, realName);
 		o[1] = BukkitLoader.getNmsProvider().packetScoreboardScore(Action.REMOVE, sbname, name, 0);
 		return o;
-	}
-
-	private Object createTeamPacket(int mode, String prefix, String suffix, String name, String realName) {
-		Object packet = BukkitLoader.getNmsProvider().packetScoreboardTeam();
-		Object nameList = ImmutableList.of(name);
-		String always = "ALWAYS";
-		if (Ref.isNewerThan(16)) {
-			Ref.set(packet, "i", realName);
-			try {
-				Object o = ScoreboardAPI.unsafe.allocateInstance(ScoreboardAPI.sbTeam);
-				Ref.set(o, "a", BukkitLoader.getNmsProvider().chatBase("{\"text\":\"" + name + "\"}"));
-				Ref.set(o, "b", BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(prefix)));
-				Ref.set(o, "c", BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(suffix)));
-				Ref.set(o, "d", always);
-				Ref.set(o, "e", always);
-				Ref.set(o, "f", ScoreboardAPI.white);
-				Ref.set(packet, "k", Optional.of(o));
-			} catch (Exception e) {
-			}
-			Ref.set(packet, "h", mode);
-			Ref.set(packet, "j", nameList);
-		} else {
-			Ref.set(packet, "a", realName);
-			Ref.set(packet, "b", Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().chatBase("{\"text\":\"\"}") : "");
-			Ref.set(packet, "c",
-					Ref.isNewerThan(12)
-					? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(prefix))
-							: prefix);
-			Ref.set(packet, "d",
-					Ref.isNewerThan(12)
-					? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(suffix))
-							: suffix);
-			if (Ref.isNewerThan(7)) {
-				Ref.set(packet, "e", always);
-				Ref.set(packet, "f", Ref.isNewerThan(8) ? always : -1);
-				if (Ref.isNewerThan(8))
-					Ref.set(packet, "g", Ref.isNewerThan(12) ? ScoreboardAPI.white : -1);
-				Ref.set(packet, Ref.isNewerThan(8) ? "i" : "h", mode);
-				Ref.set(packet, Ref.isNewerThan(8) ? "h" : "g", nameList);
-			} else {
-				Ref.set(packet, "f", mode);
-				Ref.set(packet, "e", nameList);
-			}
-		}
-		return packet;
 	}
 
 	private Object createObjectivePacket(int mode, String displayName) {

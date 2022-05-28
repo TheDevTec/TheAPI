@@ -89,16 +89,18 @@ public class StringUtils {
 			String formatted = String.format(Locale.ENGLISH, "%.2f", value);
 			if (formatted.endsWith("00"))
 				formatted = formatted.substring(0, formatted.length() - 3); // .00
-			if (formatted.endsWith("0"))
-				formatted = formatted.substring(0, formatted.length() - 1); // .X0
+			else
+				if (formatted.endsWith("0"))
+					formatted = formatted.substring(0, formatted.length() - 1); // .X0
 			return formatted;
 		}
 		case NORMAL: {
 			String formatted = String.format(Locale.ENGLISH, "%,.2f", value);
 			if (formatted.endsWith("00"))
 				formatted = formatted.substring(0, formatted.length() - 3); // .00
-			if (formatted.endsWith("0"))
-				formatted = formatted.substring(0, formatted.length() - 1); // .X0
+			else
+				if (formatted.endsWith("0"))
+					formatted = formatted.substring(0, formatted.length() - 1); // .X0
 			return formatted;
 		}
 		case COMPLEX: {
@@ -234,8 +236,8 @@ public class StringUtils {
 		List<String> collection = new ArrayList<>();
 		for (String string : originals)
 			if (string == null
-					|| string.length() >= prefix.length() && (string.regionMatches(true, 0, prefix, 0, prefix.length())
-							|| string.regionMatches(true, 1, prefix, 0, prefix.length())))
+			|| string.length() >= prefix.length() && (string.regionMatches(true, 0, prefix, 0, prefix.length())
+					|| string.regionMatches(true, 1, prefix, 0, prefix.length())))
 				collection.add(string);
 		return collection;
 	}
@@ -597,8 +599,8 @@ public class StringUtils {
 		String result = i + string;
 		for (String s : StringUtils.actions.get(string))
 			if (s.startsWith("=,") ? StringUtils.getInt(s.substring(1).split(",")[1]) == i
-					: s.startsWith("<,") ? StringUtils.getInt(s.substring(1).split(",")[1]) >= i
-							: s.startsWith(">,") ? StringUtils.getInt(s.substring(1).split(",")[1]) <= i : false)
+			: s.startsWith("<,") ? StringUtils.getInt(s.substring(1).split(",")[1]) >= i
+			: s.startsWith(">,") ? StringUtils.getInt(s.substring(1).split(",")[1]) <= i : false)
 				return s.substring(3 + s.substring(1).split(",")[1].length());
 		return result;
 	}

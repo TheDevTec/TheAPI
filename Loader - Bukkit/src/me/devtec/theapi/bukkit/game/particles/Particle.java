@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.bukkit.Location;
+
 import me.devtec.shared.Ref;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.game.Position;
@@ -33,23 +35,23 @@ public class Particle {
 	static {
 		part = Ref.nmsOrOld("network.protocol.game.PacketPlayOutWorldParticles", "PacketPlayOutWorldParticles");
 		if (Ref.nmsOrOld("core.particles.ParticleParamRedstone", "ParticleParamRedstone") != null) {
-			paramRed = Ref
+			Particle.paramRed = Ref
 					.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamRedstone", "ParticleParamRedstone"))[0];
-			paramBlock = Ref
+			Particle.paramBlock = Ref
 					.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamBlock", "ParticleParamBlock"))[0];
-			paramItem = Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamItem", "ParticleParamItem"))[0];
+			Particle.paramItem = Ref.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamItem", "ParticleParamItem"))[0];
 		}
 		if (Ref.isNewerThan(16))
-			paramDust = Ref.getConstructors(
+			Particle.paramDust = Ref.getConstructors(
 					Ref.nmsOrOld("core.particles.DustColorTransitionOptions", "DustColorTransitionOptions"))[0];
 	}
 
 	public static Set<String> getParticles() {
-		return identifier.keySet();
+		return Particle.identifier.keySet();
 	}
 
 	private static Object toNMS(String particle) {
-		return identifier.getOrDefault(particle.toLowerCase(), identifier.get("minecraft:" + particle.toLowerCase()));
+		return Particle.identifier.getOrDefault(particle.toLowerCase(), Particle.identifier.get("minecraft:" + particle.toLowerCase()));
 	}
 
 	public Particle(String particle) {
@@ -59,7 +61,7 @@ public class Particle {
 	public Particle(String particle, ParticleData data) {
 		name = particle.toLowerCase();
 		if (!Ref.isOlderThan(8))
-			this.particle = toNMS(particle);
+			this.particle = Particle.toNMS(particle);
 		else
 			this.particle = name;
 		this.data = data;
@@ -85,6 +87,10 @@ public class Particle {
 		return createPacket(pos.getX(), pos.getY(), pos.getZ(), 1, 1);
 	}
 
+	public Object createPacket(Location pos) {
+		return createPacket(pos.getX(), pos.getY(), pos.getZ(), 1, 1);
+	}
+
 	public Object createPacket(double x, double y, double z) {
 		return createPacket(x, y, z, 1, 1);
 	}
@@ -93,10 +99,14 @@ public class Particle {
 		return createPacket(pos.getX(), pos.getY(), pos.getZ(), speed, amount);
 	}
 
+	public Object createPacket(Location pos, float speed, int amount) {
+		return createPacket(pos.getX(), pos.getY(), pos.getZ(), speed, amount);
+	}
+
 	public Object createPacket(double x, double y, double z, float speed, int amount) {
 		Object packet;
 		try {
-			packet = unsafe.allocateInstance(part);
+			packet = Particle.unsafe.allocateInstance(Particle.part);
 		} catch (Exception e) {
 			return null;
 		}
@@ -107,95 +117,63 @@ public class Particle {
 			Ref.set(packet, "c", z);
 			Ref.set(packet, "g", speed);
 			Ref.set(packet, "h", amount);
+			Object jValue = particle;
 			if (data != null) {
+				if (data instanceof RedstoneOptions || data instanceof NoteOptions) {
+					Ref.set(packet, "d", data.getValueX());
+					Ref.set(packet, "e", data.getValueY());
+					Ref.set(packet, "f", data.getValueZ());
+				}
 				if (data instanceof RedstoneOptions) {
 					RedstoneOptions d = (RedstoneOptions) data;
-					Ref.set(packet, "d", d.getValueX());
-					Ref.set(packet, "e", d.getValueY());
-					Ref.set(packet, "f", d.getValueZ());
-					if (Ref.isNewerThan(16)) {
-						if (name.equalsIgnoreCase("dust_color_transition"))
-							Ref.set(packet, "j", Ref.newInstance(paramDust,
-									Ref.newInstance(vector, d.getValueX(), d.getValueY(), d.getValueZ()),
-									Ref.newInstance(vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize()));
-						else
-							Ref.set(packet, "j", Ref.newInstance(paramRed,
-									Ref.newInstance(vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize()));
-					} else
-						Ref.set(packet, "j",
-								Ref.newInstance(paramRed, d.getValueX(), d.getValueY(), d.getValueZ(), d.getSize()));
-					return packet;
-				}
-				if (data instanceof NoteOptions) {
-					NoteOptions d = (NoteOptions) data;
-					Ref.set(packet, "d", d.getValueX());
-					Ref.set(packet, "e", d.getValueY());
-					Ref.set(packet, "f", d.getValueZ());
-					Ref.set(packet, "j", particle);
-					return packet;
-				}
-				if (data instanceof BlockOptions) {
-					BlockOptions a = (BlockOptions) data;
-					Ref.set(packet, "j", Ref.newInstance(paramBlock, particle, a.getType().getIBlockData()));
-					return packet;
-				}
-				ItemOptions a = (ItemOptions) data;
-				Ref.set(packet, "j",
-						Ref.newInstance(paramItem, particle, BukkitLoader.getNmsProvider().asNMSItem(a.getItem())));
-				return packet;
+					jValue=Ref.isNewerThan(16)?name.equalsIgnoreCase("dust_color_transition")?Ref.newInstance(Particle.paramDust, Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(), d.getValueZ()), Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize()):Ref.newInstance(Particle.paramRed, Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize()):Ref.newInstance(Particle.paramRed, d.getValueX(), d.getValueY(), d.getValueZ(), d.getSize());
+				}else
+					if (data instanceof BlockOptions) {
+						BlockOptions a = (BlockOptions) data;
+						jValue=Ref.newInstance(Particle.paramBlock, particle, a.getType().getIBlockData());
+					}else
+						if (data instanceof ItemOptions) {
+							ItemOptions a = (ItemOptions) data;
+							jValue=Ref.newInstance(Particle.paramItem, particle, BukkitLoader.getNmsProvider().asNMSItem(a.getItem()));
+						}
 			}
-			Ref.set(packet, "j", particle);
+			Ref.set(packet, "j", jValue);
 			return packet;
 		}
-		if (Ref.isOlderThan(8)) { // 1.7.10
-			Ref.set(packet, "a", name);
-			Ref.set(packet, "b", (float) x);
-			Ref.set(packet, "c", (float) y);
-			Ref.set(packet, "d", (float) z);
-			Ref.set(packet, "h", speed);
-			Ref.set(packet, "i", amount);
-			if (data != null) {
-				if (data instanceof NoteOptions || data instanceof RedstoneOptions) {
-					Ref.set(packet, "e", data instanceof NoteOptions ? ((NoteOptions) data).getValueX()
-							: ((RedstoneOptions) data).getValueX());
-					Ref.set(packet, "f", data instanceof NoteOptions ? ((NoteOptions) data).getValueY()
-							: ((RedstoneOptions) data).getValueY());
-					Ref.set(packet, "g", data instanceof NoteOptions ? ((NoteOptions) data).getValueZ()
-							: ((RedstoneOptions) data).getValueZ());
-				} else {
-					int[] packetData = data instanceof BlockOptions ? ((BlockOptions) data).getPacketData()
-							: ((ItemOptions) data).getPacketData();
-					Ref.set(packet, "a", name + "_" + packetData[0] + "_" + packetData[1]);
-				}
-			}
-			return packet;
-		}
-		// 1.8 - 1.12.2
-		Ref.set(packet, "a", particle);
 		Ref.set(packet, "b", (float) x);
 		Ref.set(packet, "c", (float) y);
 		Ref.set(packet, "d", (float) z);
 		Ref.set(packet, "h", speed);
 		Ref.set(packet, "i", amount);
+		if (Ref.isOlderThan(8)) { // 1.7.10
+			Ref.set(packet, "a", name);
+			if (data != null)
+				if (data instanceof NoteOptions || data instanceof RedstoneOptions) {
+					Ref.set(packet, "e", data.getValueX());
+					Ref.set(packet, "f", data.getValueY());
+					Ref.set(packet, "g", data.getValueZ());
+				} else {
+					int[] packetData = data instanceof BlockOptions ? ((BlockOptions) data).getPacketData() : ((ItemOptions) data).getPacketData();
+					Ref.set(packet, "a", name + "_" + packetData[0] + "_" + packetData[1]);
+				}
+			return packet;
+		}
+		// 1.8 - 1.12.2
+		Ref.set(packet, "a", particle);
 		Ref.set(packet, "j", true);
-		Ref.set(packet, "k", new int[0]);
 		if (data != null) {
 			if (data instanceof NoteOptions || data instanceof RedstoneOptions) {
-				Ref.set(packet, "e", data instanceof NoteOptions ? ((NoteOptions) data).getValueX()
-						: ((RedstoneOptions) data).getValueX());
-				Ref.set(packet, "f", data instanceof NoteOptions ? ((NoteOptions) data).getValueY()
-						: ((RedstoneOptions) data).getValueY());
-				Ref.set(packet, "g", data instanceof NoteOptions ? ((NoteOptions) data).getValueZ()
-						: ((RedstoneOptions) data).getValueZ());
+				Ref.set(packet, "e", data.getValueX());
+				Ref.set(packet, "f", data.getValueY());
+				Ref.set(packet, "g", data.getValueZ());
 			} else {
-				int[] packetData = data instanceof BlockOptions ? ((BlockOptions) data).getPacketData()
-						: ((ItemOptions) data).getPacketData();
-				Ref.set(packet, "k",
-						name.equalsIgnoreCase("CRACK_ITEM") || name.equalsIgnoreCase("ITEM_CRACK")
-								|| name.equalsIgnoreCase("ITEM") || name.equalsIgnoreCase("ITEM_TAKE") ? packetData
-										: new int[] { packetData[0] | (packetData[1] << 12) });
+				int[] packetData = data instanceof BlockOptions ? ((BlockOptions) data).getPacketData() : ((ItemOptions) data).getPacketData();
+				Ref.set(packet, "k", name.equalsIgnoreCase("CRACK_ITEM") || name.equalsIgnoreCase("ITEM_CRACK")
+						|| name.equalsIgnoreCase("ITEM") || name.equalsIgnoreCase("ITEM_TAKE") ? packetData
+								: new int[] { packetData[0] | packetData[1] << 12 });
 			}
-		}
+		}else
+			Ref.set(packet, "k", new int[0]);
 		return packet;
 	}
 }
