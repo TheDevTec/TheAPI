@@ -27,12 +27,12 @@ public class Position implements Cloneable {
 	public Position() {
 	}
 
-	public Position(World world) {
-		w = world.getName();
-	}
-
 	public Position(String world) {
 		w = world;
+	}
+
+	public Position(World world) {
+		this(world.getName());
 	}
 
 	public Position(World world, double x, double y, double z) {
@@ -40,12 +40,7 @@ public class Position implements Cloneable {
 	}
 
 	public Position(World world, double x, double y, double z, float yaw, float pitch) {
-		w = world.getName();
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.yaw = yaw;
-		this.pitch = pitch;
+		this(world.getName(), x, y, z, yaw, pitch);
 	}
 
 	public Position(String world, double x, double y, double z) {
@@ -53,12 +48,8 @@ public class Position implements Cloneable {
 	}
 
 	public Position(String world, double x, double y, double z, float yaw, float pitch) {
-		w = world;
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.yaw = yaw;
-		this.pitch = pitch;
+		this(x, y, z, yaw, pitch);
+		w=world;
 	}
 
 	public Position(double x, double y, double z) {
@@ -88,6 +79,15 @@ public class Position implements Cloneable {
 
 	public Position(Entity b) {
 		this(b.getLocation());
+	}
+
+	public Position(Position cloneable) {
+		w = cloneable.getWorldName();
+		x = cloneable.getX();
+		y = cloneable.getY();
+		z = cloneable.getZ();
+		yaw = cloneable.getYaw();
+		pitch = cloneable.getPitch();
 	}
 
 	public static Position fromString(String text) {
