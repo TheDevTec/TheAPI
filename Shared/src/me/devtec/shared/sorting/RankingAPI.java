@@ -8,7 +8,7 @@ import me.devtec.shared.sorting.SortingAPI.ComparableObject;
 
 @Deprecated
 /**
- * @apiNote Scheduler to remove in the 10.1 version. Use directly SortingAPI
+ * @apiNote Scheduler to remove in the 10.0 version. Use directly SortingAPI
  *          instead.
  */
 public class RankingAPI<K, V> {
