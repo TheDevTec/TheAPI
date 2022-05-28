@@ -63,10 +63,20 @@ public class PercentageList<T> {
 		@SuppressWarnings("unchecked")
 		Entry<K, Double>[] aw = keys.entrySet().toArray(new Entry[0]);
 		Entry<K, Double> found = aw[keys.size() - 1];
+		List<Entry<K, Double>> duplicates = new ArrayList<>(3);
 		for (Entry<K, Double> kDoubleEntry : aw) {
 			Entry<K, Double> e = kDoubleEntry;
-			if (chance < e.getValue() && chance > found.getValue())
-				found = e;
+			if (chance == e.getValue() && chance == found.getValue())
+				duplicates.add(e);
+			else
+				if (chance < e.getValue() && chance > found.getValue()) {
+					found = e;
+					duplicates.clear();
+				}
+		}
+		if(!duplicates.isEmpty()) {
+			duplicates.add(found);
+			return StringUtils.getRandomFromList(duplicates).getKey();
 		}
 		return found.getKey();
 	}
