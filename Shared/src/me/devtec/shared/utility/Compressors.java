@@ -1,4 +1,4 @@
-package me.devtec.shared.utils;
+package me.devtec.shared.utility;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

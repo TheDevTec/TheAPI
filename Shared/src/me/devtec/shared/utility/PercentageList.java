@@ -1,4 +1,4 @@
-package me.devtec.shared.utils;
+package me.devtec.shared.utility;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import me.devtec.shared.utility.StringUtils;
 
 public class PercentageList<T> {
 	private final ConcurrentHashMap<T, Double> a = new ConcurrentHashMap<>();

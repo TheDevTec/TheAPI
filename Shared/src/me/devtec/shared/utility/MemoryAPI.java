@@ -1,6 +1,4 @@
-package me.devtec.shared.utils;
-
-import me.devtec.shared.utility.StringUtils;
+package me.devtec.shared.utility;
 
 public class MemoryAPI {
 	private static double mb = 1048576;
