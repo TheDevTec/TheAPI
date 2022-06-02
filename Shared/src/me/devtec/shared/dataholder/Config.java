@@ -71,8 +71,19 @@ public class Config {
 	}
 
 	public Config() {
-		this.loader = new EmptyLoader();
-		this.keys = new LinkedList<>();
+		loader = new EmptyLoader();
+		keys = new LinkedList<>();
+	}
+
+	public Config(DataLoader loaded) {
+		loader = loaded;
+		keys = new LinkedList<>();
+		for (String k : loader.getKeys()) {
+			String g = Config.splitFirst(k);
+			if (!keys.contains(g))
+				keys.add(g);
+		}
+		requireSave=true;
 	}
 
 	public Config(String filePath) {
@@ -101,43 +112,43 @@ public class Config {
 			}
 		}
 		this.file = file;
-		this.keys = new LinkedList<>();
+		keys = new LinkedList<>();
 		if (load)
 			this.reload(file);
-		this.markNonModified();
+		markNonModified();
 	}
 
 	// CLONE
 	public Config(Config data) {
-		this.file = data.file;
-		this.keys = data.keys;
-		this.loader = data.loader;
+		file = data.file;
+		keys = data.keys;
+		loader = data.loader;
 	}
 
 	public boolean isModified() {
-		return this.requireSave;
+		return requireSave;
 	}
 
 	public void markModified() {
-		this.requireSave = true;
+		requireSave = true;
 	}
 
 	public void markNonModified() {
-		this.requireSave = false;
+		requireSave = false;
 	}
 
 	public boolean exists(String path) {
-		return this.isKey(path);
+		return isKey(path);
 	}
 
 	public boolean existsKey(String path) {
-		return this.loader.get().containsKey(path);
+		return loader.get().containsKey(path);
 	}
 
 	public Config setFile(File file) {
 		if (file == this.file)
 			return this;
-		this.markModified();
+		markModified();
 		if (!file.exists()) {
 			try {
 				if (file.getParentFile() != null)
@@ -155,12 +166,12 @@ public class Config {
 	}
 
 	public DataValue getOrCreateData(String key) {
-		DataValue h = this.loader.get().get(key);
+		DataValue h = loader.get().get(key);
 		if (h == null) {
 			String ss = Config.splitFirst(key);
-			if (!this.keys.contains(ss))
-				this.keys.add(ss);
-			this.loader.get().put(key, h = DataValue.empty());
+			if (!keys.contains(ss))
+				keys.add(ss);
+			loader.get().put(key, h = DataValue.empty());
 		}
 		return h;
 	}
@@ -173,9 +184,9 @@ public class Config {
 	public boolean setIfAbsent(String key, Object value) {
 		if (key == null || value == null)
 			return false;
-		if (!this.existsKey(key)) {
-			this.markModified();
-			DataValue data = this.getOrCreateData(key);
+		if (!existsKey(key)) {
+			markModified();
+			DataValue data = getOrCreateData(key);
 			data.value = value;
 			return true;
 		}
@@ -185,18 +196,18 @@ public class Config {
 	public boolean setIfAbsent(String key, Object value, List<String> comments) {
 		if (key == null || value == null)
 			return false;
-		if (!this.existsKey(key)) {
-			this.markModified();
-			DataValue data = this.getOrCreateData(key);
+		if (!existsKey(key)) {
+			markModified();
+			DataValue data = getOrCreateData(key);
 			data.value = value;
 			data.comments = Config.simple(new ArrayList<>(comments));
 			return true;
 		}
 		if (comments != null && !comments.isEmpty()) {
-			DataValue data = this.getOrCreateData(key);
+			DataValue data = getOrCreateData(key);
 			if (data.comments == null || data.comments.isEmpty()) {
 				data.comments = Config.simple(new ArrayList<>(comments));
-				this.markModified();
+				markModified();
 				return true;
 			}
 		}
@@ -208,17 +219,17 @@ public class Config {
 			return this;
 		if (value == null) {
 			String sf = Config.splitFirst(key);
-			boolean removeFromkeys = this.keys.remove(sf);
-			boolean removeFromMap = this.loader.remove(key);
+			boolean removeFromkeys = keys.remove(sf);
+			boolean removeFromMap = loader.remove(key);
 			if (removeFromkeys && removeFromMap)
-				this.markModified();
+				markModified();
 			return this;
 		}
-		DataValue o = this.getOrCreateData(key);
+		DataValue o = getOrCreateData(key);
 		if (o.value == null && value != null || o.value != null && !o.value.equals(value)) {
 			o.value = value;
 			o.writtenValue = null;
-			this.markModified();
+			markModified();
 		}
 		return this;
 	}
@@ -228,11 +239,11 @@ public class Config {
 			return this;
 		boolean removed = false;
 		String sf = Config.splitFirst(key);
-		if (this.keys.remove(sf))
+		if (keys.remove(sf))
 			removed = true;
-		if (this.loader.remove(key) && !removed)
+		if (loader.remove(key) && !removed)
 			removed = true;
-		Iterator<Entry<String, DataValue>> iterator = this.loader.get().entrySet().iterator();
+		Iterator<Entry<String, DataValue>> iterator = loader.get().entrySet().iterator();
 		while (iterator.hasNext()) {
 			String section = iterator.next().getKey();
 			if (section.startsWith(key) && section.substring(key.length()).startsWith(".")) {
@@ -241,14 +252,14 @@ public class Config {
 			}
 		}
 		if (removed)
-			this.markModified();
+			markModified();
 		return this;
 	}
 
 	public List<String> getComments(String key) {
 		if (key == null)
 			return null;
-		DataValue h = this.loader.get().get(key);
+		DataValue h = loader.get().get(key);
 		if (h != null)
 			return h.comments;
 		return null;
@@ -258,15 +269,15 @@ public class Config {
 		if (key == null)
 			return this;
 		if (value == null) {
-			DataValue val = this.loader.get().get(key);
+			DataValue val = loader.get().get(key);
 			if (val != null)
 				val.comments = null;
 			return this;
 		}
-		DataValue val = this.getOrCreateData(key);
+		DataValue val = getOrCreateData(key);
 		List<String> simple = Config.simple(new ArrayList<>(value));
 		if (val.comments == null || !simple.containsAll(val.comments)) {
-			this.markModified();
+			markModified();
 			val.comments = simple;
 		}
 		return this;
@@ -275,7 +286,7 @@ public class Config {
 	public String getCommentAfterValue(String key) {
 		if (key == null)
 			return null;
-		DataValue h = this.loader.get().get(key);
+		DataValue h = loader.get().get(key);
 		if (h != null)
 			return h.commentAfterValue;
 		return null;
@@ -284,78 +295,78 @@ public class Config {
 	public Config setCommentAfterValue(String key, String comment) {
 		if (key == null)
 			return null;
-		DataValue val = this.getOrCreateData(key);
+		DataValue val = getOrCreateData(key);
 		if (comment != null && !comment.equals(val.commentAfterValue))
-			this.markModified();
-		this.getOrCreateData(key).commentAfterValue = comment;
+			markModified();
+		getOrCreateData(key).commentAfterValue = comment;
 		return this;
 	}
 
 	public File getFile() {
-		return this.file;
+		return file;
 	}
 
 	public Config setHeader(Collection<String> lines) {
-		this.markModified();
-		this.loader.getHeader().clear();
+		markModified();
+		loader.getHeader().clear();
 		if (lines != null)
-			this.loader.getHeader().addAll(Config.simple(lines));
+			loader.getHeader().addAll(Config.simple(lines));
 		return this;
 	}
 
 	public Config setFooter(Collection<String> lines) {
-		this.markModified();
-		this.loader.getFooter().clear();
+		markModified();
+		loader.getFooter().clear();
 		if (lines != null)
-			this.loader.getFooter().addAll(Config.simple(lines));
+			loader.getFooter().addAll(Config.simple(lines));
 		return this;
 	}
 
 	public Collection<String> getHeader() {
-		return this.loader.getHeader();
+		return loader.getHeader();
 	}
 
 	public Collection<String> getFooter() {
-		return this.loader.getFooter();
+		return loader.getFooter();
 	}
 
 	public Config reload(String input) {
-		this.markModified();
-		this.keys.clear();
-		this.loader = DataLoader.findLoaderFor(input); // get & load
-		for (String k : this.loader.getKeys()) {
+		markModified();
+		keys.clear();
+		loader = DataLoader.findLoaderFor(input); // get & load
+		for (String k : loader.getKeys()) {
 			String g = Config.splitFirst(k);
-			if (!this.keys.contains(g))
-				this.keys.add(g);
+			if (!keys.contains(g))
+				keys.add(g);
 		}
 		return this;
 	}
 
 	public Config reload() {
-		return this.reload(this.getFile());
+		return this.reload(getFile());
 	}
 
 	public Config reload(File f) {
 		if (!f.exists()) {
-			this.markModified();
-			this.loader = new EmptyLoader();
-			this.keys.clear();
+			markModified();
+			loader = new EmptyLoader();
+			keys.clear();
 			return this;
 		}
-		this.markModified();
-		this.keys.clear();
-		this.loader = DataLoader.findLoaderFor(f); // get & load
-		for (String k : this.loader.getKeys()) {
+		markModified();
+		keys.clear();
+		loader = DataLoader.findLoaderFor(f); // get & load
+		for (String k : loader.getKeys()) {
 			String g = Config.splitFirst(k);
-			if (!this.keys.contains(g))
-				this.keys.add(g);
+			if (!keys.contains(g))
+				keys.add(g);
 		}
 		return this;
 	}
 
 	public Object get(String key) {
 		try {
-			return this.loader.get().get(key).value;
+			return loader.get().get(key).value;
 		} catch (Exception e) {
 			return null;
 		}
@@ -364,18 +375,18 @@ public class Config {
 	public <E> E getAs(String key, Class<? extends E> clazz) {
 		try {
 			if (clazz == String.class || clazz == CharSequence.class)
-				return clazz.cast(this.getString(key));
+				return clazz.cast(getString(key));
 		} catch (Exception e) {
 		}
 		try {
-			return clazz.cast(this.loader.get().get(key).value);
+			return clazz.cast(loader.get().get(key).value);
 		} catch (Exception e) {
 		}
 		return null;
 	}
 
 	public String getString(String key) {
-		DataValue a = this.loader.get().get(key);
+		DataValue a = loader.get().get(key);
 		if (a == null)
 			return null;
 		if (a.writtenValue != null)
@@ -385,10 +396,10 @@ public class Config {
 
 	public boolean isJson(String key) {
 		try {
-			DataValue a = this.loader.get().get(key);
+			DataValue a = loader.get().get(key);
 			if (a.writtenValue != null)
 				return a.writtenValue.charAt(0) == '[' && a.writtenValue.charAt(a.writtenValue.length() - 1) == ']'
-						|| a.writtenValue.charAt(0) == '{' && a.writtenValue.charAt(a.writtenValue.length() - 1) == '}';
+				|| a.writtenValue.charAt(0) == '{' && a.writtenValue.charAt(a.writtenValue.length() - 1) == '}';
 		} catch (Exception notNumber) {
 		}
 		return false;
@@ -396,68 +407,68 @@ public class Config {
 
 	public int getInt(String key) {
 		try {
-			return ((Number) this.get(key)).intValue();
+			return ((Number) get(key)).intValue();
 		} catch (Exception notNumber) {
-			return StringUtils.getInt(this.getString(key));
+			return StringUtils.getInt(getString(key));
 		}
 	}
 
 	public double getDouble(String key) {
 		try {
-			return ((Number) this.get(key)).doubleValue();
+			return ((Number) get(key)).doubleValue();
 		} catch (Exception notNumber) {
-			return StringUtils.getDouble(this.getString(key));
+			return StringUtils.getDouble(getString(key));
 		}
 	}
 
 	public long getLong(String key) {
 		try {
-			return ((Number) this.get(key)).longValue();
+			return ((Number) get(key)).longValue();
 		} catch (Exception notNumber) {
-			return StringUtils.getLong(this.getString(key));
+			return StringUtils.getLong(getString(key));
 		}
 	}
 
 	public float getFloat(String key) {
 		try {
-			return ((Number) this.get(key)).floatValue();
+			return ((Number) get(key)).floatValue();
 		} catch (Exception notNumber) {
-			return StringUtils.getFloat(this.getString(key));
+			return StringUtils.getFloat(getString(key));
 		}
 	}
 
 	public byte getByte(String key) {
 		try {
-			return ((Number) this.get(key)).byteValue();
+			return ((Number) get(key)).byteValue();
 		} catch (Exception notNumber) {
-			return StringUtils.getByte(this.getString(key));
+			return StringUtils.getByte(getString(key));
 		}
 	}
 
 	public boolean getBoolean(String key) {
 		try {
-			return (boolean) this.get(key);
+			return (boolean) get(key);
 		} catch (Exception notNumber) {
-			return StringUtils.getBoolean(this.getString(key));
+			return StringUtils.getBoolean(getString(key));
 		}
 	}
 
 	public short getShort(String key) {
 		try {
-			return ((Number) this.get(key)).shortValue();
+			return ((Number) get(key)).shortValue();
 		} catch (Exception notNumber) {
-			return StringUtils.getShort(this.getString(key));
+			return StringUtils.getShort(getString(key));
 		}
 	}
 
 	public Collection<Object> getList(String key) {
-		Object g = this.get(key);
+		Object g = get(key);
 		return g instanceof Collection ? new ArrayList<>((Collection<?>) g) : new ArrayList<>();
 	}
 
 	public <E> List<E> getListAs(String key, Class<? extends E> clazz) {
 		List<E> list = new ArrayList<>();
-		for (Object o : this.getList(key))
+		for (Object o : getList(key))
 			try {
 				list.add(o == null ? null : clazz.cast(o));
 			} catch (Exception er) {
@@ -466,7 +477,7 @@ public class Config {
 	}
 
 	public List<String> getStringList(String key) {
-		Collection<Object> items = this.getList(key);
+		Collection<Object> items = getList(key);
 		List<String> list = new ArrayList<>(items.size());
 		for (Object o : items)
 			if (o != null)
@@ -477,7 +488,7 @@ public class Config {
 	}
 
 	public List<Boolean> getBooleanList(String key) {
-		Collection<Object> items = this.getList(key);
+		Collection<Object> items = getList(key);
 		List<Boolean> list = new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o != null && (o instanceof Boolean ? (Boolean) o : StringUtils.getBoolean(o.toString())));
@@ -485,7 +496,7 @@ public class Config {
 	}
 
 	public List<Integer> getIntegerList(String key) {
-		Collection<Object> items = this.getList(key);
+		Collection<Object> items = getList(key);
 		List<Integer> list = new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : o instanceof Number ? ((Number) o).intValue() : StringUtils.getInt(o.toString()));
@@ -493,7 +504,7 @@ public class Config {
 	}
 
 	public List<Double> getDoubleList(String key) {
-		Collection<Object> items = this.getList(key);
+		Collection<Object> items = getList(key);
 		List<Double> list = new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0.0
@@ -502,7 +513,7 @@ public class Config {
 	}
 
 	public List<Short> getShortList(String key) {
-		Collection<Object> items = this.getList(key);
+		Collection<Object> items = getList(key);
 		List<Short> list = new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0
@@ -511,7 +522,7 @@ public class Config {
 	}
 
 	public List<Byte> getByteList(String key) {
-		Collection<Object> items = this.getList(key);
+		Collection<Object> items = getList(key);
 		List<Byte> list = new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(
@@ -520,7 +531,7 @@ public class Config {
 	}
 
 	public List<Float> getFloatList(String key) {
-		Collection<Object> items = this.getList(key);
+		Collection<Object> items = getList(key);
 		List<Float> list = new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0
@@ -529,7 +540,7 @@ public class Config {
 	}
 
 	public List<Long> getLongList(String key) {
-		Collection<Object> items = this.getList(key);
+		Collection<Object> items = getList(key);
 		List<Long> list = new ArrayList<>(items.size());
 		for (Object o : items)
 			list.add(o == null ? 0 : StringUtils.getLong(o.toString()));
@@ -538,7 +549,7 @@ public class Config {
 
 	@SuppressWarnings("unchecked")
 	public <K, V> List<Map<K, V>> getMapList(String key) {
-		Collection<Object> items = this.getList(key);
+		Collection<Object> items = getList(key);
 		List<Map<K, V>> list = new ArrayList<>(items.size());
 		for (Object o : items)
 			if (o == null)
@@ -551,29 +562,29 @@ public class Config {
 	}
 
 	public Config save(DataType type) {
-		if (this.file == null || this.isSaving || !this.isModified())
+		if (file == null || isSaving || !isModified())
 			return this;
-		if (!this.file.exists()) {
+		if (!file.exists()) {
 			try {
-				this.file.getParentFile().mkdirs();
+				file.getParentFile().mkdirs();
 			} catch (Exception e) {
 			}
 			try {
-				this.file.createNewFile();
+				file.createNewFile();
 			} catch (Exception e) {
 			}
 		}
-		this.isSaving = true;
-		this.markNonModified();
+		isSaving = true;
+		markNonModified();
 		try {
 			try {
-				OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(this.file), StandardCharsets.UTF_8);
+				OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
 				w.write(this.toString(type));
 				w.close();
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
-			this.isSaving = false;
+			isSaving = false;
 		} catch (Exception e1) {
 		}
 		return this;
@@ -584,13 +595,13 @@ public class Config {
 	}
 
 	public Set<String> getKeys() {
-		return new LinkedHashSet<>(this.keys);
+		return new LinkedHashSet<>(keys);
 	}
 
 	public Set<String> getKeys(boolean subkeys) {
 		if (subkeys)
-			return this.loader.getKeys();
-		return new LinkedHashSet<>(this.keys);
+			return loader.getKeys();
+		return new LinkedHashSet<>(keys);
 	}
 
 	public Set<String> getKeys(String key) {
@@ -598,7 +609,7 @@ public class Config {
 	}
 
 	public boolean isKey(String key) {
-		for (String k : this.loader.getKeys())
+		for (String k : loader.getKeys())
 			if (k.startsWith(key)) {
 				String r = k.substring(key.length());
 				if (r.startsWith(".") || r.trim().isEmpty())
@@ -609,7 +620,7 @@ public class Config {
 
 	public Set<String> getKeys(String key, boolean subkeys) {
 		Set<String> a = new LinkedHashSet<>();
-		for (String d : this.loader.getKeys())
+		for (String d : loader.getKeys())
 			if (d.startsWith(key)) {
 				String c = d.substring(key.length());
 				if (!c.startsWith("."))
@@ -631,29 +642,29 @@ public class Config {
 	}
 
 	protected void addKeys(List<Map<String, String>> list, String key) {
-		Object o = this.get(key);
+		Object o = get(key);
 		if (o != null) {
 			Map<String, String> a = new ConcurrentHashMap<>();
 			a.put(key, Json.writer().write(o));
 			list.add(a);
 		}
 		for (String keyer : this.getKeys(key))
-			this.addKeys(list, key + "." + keyer);
+			addKeys(list, key + "." + keyer);
 	}
 
 	public String toString(DataType type) {
 		switch (type) {
 		case PROPERTIES: {
-			int size = this.loader.get().size();
+			int size = loader.get().size();
 			StringBuilder builder = new StringBuilder(size * 8);
-			if (this.loader.getHeader() != null)
+			if (loader.getHeader() != null)
 				try {
-					for (String h : this.loader.getHeader())
+					for (String h : loader.getHeader())
 						builder.append(h).append(System.lineSeparator());
 				} catch (Exception er) {
 					er.printStackTrace();
 				}
-			for (Entry<String, DataValue> key : this.loader.get().entrySet()) {
+			for (Entry<String, DataValue> key : loader.get().entrySet()) {
 				if (key.getValue() == null)
 					continue;
 				if (key.getValue().value == null) {
@@ -663,9 +674,9 @@ public class Config {
 				}
 				builder.append(key.getKey() + ": " + Json.writer().write(key.getValue().value));
 			}
-			if (this.loader.getFooter() != null)
+			if (loader.getFooter() != null)
 				try {
-					for (String h : this.loader.getFooter())
+					for (String h : loader.getFooter())
 						builder.append(h).append(System.lineSeparator());
 				} catch (Exception er) {
 					er.printStackTrace();
@@ -674,9 +685,9 @@ public class Config {
 		}
 		case BYTE:
 			try {
-				ByteArrayDataOutput in = ByteStreams.newDataOutput(this.loader.get().size());
+				ByteArrayDataOutput in = ByteStreams.newDataOutput(loader.get().size());
 				in.writeInt(3);
-				for (Entry<String, DataValue> key : this.loader.get().entrySet())
+				for (Entry<String, DataValue> key : loader.get().entrySet())
 					try {
 						in.writeInt(0);
 						in.writeUTF(key.getKey());
@@ -723,26 +734,26 @@ public class Config {
 			return "";
 		case JSON:
 			List<Map<String, String>> list = new ArrayList<>();
-			for (String key : Collections.unmodifiableList(this.keys))
-				this.addKeys(list, key);
+			for (String key : Collections.unmodifiableList(keys))
+				addKeys(list, key);
 			return Json.writer().simpleWrite(list);
 		case YAML:
-			int size = this.loader.get().size();
+			int size = loader.get().size();
 			StringBuilder builder = new StringBuilder(size * 16);
-			if (this.loader.getHeader() != null)
+			if (loader.getHeader() != null)
 				try {
-					for (String h : this.loader.getHeader())
+					for (String h : loader.getHeader())
 						builder.append(h).append(System.lineSeparator());
 				} catch (Exception er) {
 					er.printStackTrace();
 				}
 
 			// BUILD KEYS & SECTIONS
-			YamlSectionBuilderHelper.write(builder, this.keys, this.loader.get());
+			YamlSectionBuilderHelper.write(builder, keys, loader.get());
 
-			if (this.loader.getFooter() != null)
+			if (loader.getFooter() != null)
 				try {
-					for (String h : this.loader.getFooter())
+					for (String h : loader.getFooter())
 						builder.append(h).append(System.lineSeparator());
 				} catch (Exception er) {
 					er.printStackTrace();
@@ -752,15 +763,66 @@ public class Config {
 		return null;
 	}
 
+	public byte[] toByteArray() {
+		try {
+			ByteArrayDataOutput in = ByteStreams.newDataOutput(loader.get().size());
+			in.writeInt(3);
+			for (Entry<String, DataValue> key : loader.get().entrySet())
+				try {
+					in.writeInt(0);
+					in.writeUTF(key.getKey());
+					if (key.getValue() == null || key.getValue().value == null) {
+						in.writeInt(3);
+						continue;
+					}
+					if (key.getValue().writtenValue != null) {
+						String write = key.getValue().writtenValue;
+						if (write == null) {
+							in.writeInt(3);
+							continue;
+						}
+						while (write.length() > 40000) {
+							String wr = write.substring(0, 39999);
+							in.writeInt(1);
+							in.writeUTF(wr);
+							write = write.substring(39999);
+						}
+						in.writeInt(1);
+						in.writeUTF(write);
+						continue;
+					}
+					String write = Json.writer().write(key.getValue().value);
+					if (write == null) {
+						in.writeInt(3);
+						continue;
+					}
+					while (write.length() > 40000) {
+						String wr = write.substring(0, 39999);
+						in.writeInt(1);
+						in.writeUTF(wr);
+						write = write.substring(39999);
+					}
+					in.writeInt(1);
+					in.writeUTF(write);
+				} catch (Exception er) {
+					er.printStackTrace();
+				}
+			return in.toByteArray();
+		}catch(Exception error) {
+			error.printStackTrace();
+			return new byte[0];
+		}
+	}
+
 	public Config clear() {
-		this.keys.clear();
-		this.loader.get().clear();
+		keys.clear();
+		loader.get().clear();
 		return this;
 	}
 
 	public Config reset() {
-		this.keys.clear();
-		this.loader.reset();
+		keys.clear();
+		loader.reset();
 		return this;
 	}
 
@@ -778,20 +840,20 @@ public class Config {
 
 		// header & footer option
 		try {
-			if (addHeader && this.loader.getHeader() != null /** Is header supported? **/
+			if (addHeader && loader.getHeader() != null /** Is header supported? **/
 					&& configToMergeWith.loader.getHeader() != null && !configToMergeWith.loader.getHeader().isEmpty()
-					&& (this.loader.getHeader().isEmpty()
-							|| !this.loader.getHeader().containsAll(configToMergeWith.loader.getHeader()))) {
-				this.loader.getHeader().clear();
-				this.loader.getHeader().addAll(configToMergeWith.loader.getHeader());
+					&& (loader.getHeader().isEmpty()
+							|| !loader.getHeader().containsAll(configToMergeWith.loader.getHeader()))) {
+				loader.getHeader().clear();
+				loader.getHeader().addAll(configToMergeWith.loader.getHeader());
 				change = true;
 			}
-			if (addFooter && this.loader.getFooter() != null /** Is footer supported? **/
+			if (addFooter && loader.getFooter() != null /** Is footer supported? **/
 					&& configToMergeWith.loader.getFooter() != null && !configToMergeWith.loader.getFooter().isEmpty()
-					&& (this.loader.getFooter().isEmpty()
-							|| !this.loader.getFooter().containsAll(configToMergeWith.loader.getFooter()))) {
-				this.loader.getFooter().clear();
-				this.loader.getFooter().addAll(configToMergeWith.loader.getFooter());
+					&& (loader.getFooter().isEmpty()
+							|| !loader.getFooter().containsAll(configToMergeWith.loader.getFooter()))) {
+				loader.getFooter().clear();
+				loader.getFooter().addAll(configToMergeWith.loader.getFooter());
 				change = true;
 			}
 		} catch (Exception error) {
@@ -801,7 +863,7 @@ public class Config {
 		try {
 			boolean first = true;
 			for (Entry<String, DataValue> s : configToMergeWith.loader.get().entrySet()) {
-				DataValue value = this.getOrCreateData(s.getKey());
+				DataValue value = getOrCreateData(s.getKey());
 				if (value.value == null && s.getValue().value != null) {
 					value.value = s.getValue().value;
 					value.writtenValue = s.getValue().writtenValue;
@@ -815,8 +877,8 @@ public class Config {
 				if (addComments && s.getValue().comments != null && !s.getValue().comments.isEmpty()) {
 					List<String> comments = value.comments;
 					if (comments == null || comments.isEmpty()) {
-						if (first && this.getHeader() != null && !this.getHeader().isEmpty()
-								&& this.getHeader().containsAll(s.getValue().comments))
+						if (first && getHeader() != null && !getHeader().isEmpty()
+								&& getHeader().containsAll(s.getValue().comments))
 							continue;
 						value.comments = s.getValue().comments;
 						change = true;
@@ -828,7 +890,7 @@ public class Config {
 		}
 
 		if (change)
-			this.markModified();
+			markModified();
 
 		return change;
 	}
@@ -861,6 +923,6 @@ public class Config {
 	}
 
 	public DataLoader getDataLoader() {
-		return this.loader;
+		return loader;
 	}
 }

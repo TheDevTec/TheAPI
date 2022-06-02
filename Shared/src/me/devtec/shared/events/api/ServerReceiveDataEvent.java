@@ -4,20 +4,20 @@ import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.events.Event;
 import me.devtec.shared.sockets.SocketClient;
 
-public class ClientReceiveMessageEvent extends Event {
+public class ServerReceiveDataEvent extends Event {
 	private final Config data;
 	private final SocketClient client;
 
-	public ClientReceiveMessageEvent(SocketClient client, Config data) {
+	public ServerReceiveDataEvent(SocketClient client, Config data) {
 		this.data = data;
 		this.client = client;
 	}
 
 	public SocketClient getClient() {
-		return this.client;
+		return client;
 	}
 
-	public Config getInput() {
-		return this.data;
+	public Config getData() {
+		return data;
 	}
 }

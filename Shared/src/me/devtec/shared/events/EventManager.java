@@ -43,7 +43,11 @@ public class EventManager {
 			for (ListenerHolder handler : cache.getValue())
 				for (Class<? extends Event> clazz : handler.listen)
 					if (clazz.isAssignableFrom(event.getClass())) {
-						handler.listener.listen(event);
+						try {
+							handler.listener.listen(event);
+						}catch(Exception error) {
+							error.printStackTrace();
+						}
 						break;
 					}
 	}

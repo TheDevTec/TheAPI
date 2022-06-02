@@ -41,7 +41,7 @@ public class ByteLoader extends EmptyLoader {
 
 	@Override
 	public void load(String input) {
-		this.reset();
+		reset();
 		if (input == null)
 			return;
 		try {
@@ -50,12 +50,48 @@ public class ByteLoader extends EmptyLoader {
 			int version = bos.readInt();
 			if (version == 3) {
 				bos.readInt();
-				ByteLoader.byteBuilderV3(bos, this.data);
+				ByteLoader.byteBuilderV3(bos, data);
 			}
-			if (!this.data.isEmpty())
-				this.loaded = true;
+			if (!data.isEmpty())
+				loaded = true;
 		} catch (Exception er) {
-			this.loaded = false;
+			loaded = false;
 		}
+	}
+
+	public void load(byte[] byteData) {
+		reset();
+		if (byteData == null)
+			return;
+		try {
+			ByteArrayDataInput bos = ByteStreams.newDataInput(byteData);
+			int version = bos.readInt();
+			if (version == 3) {
+				bos.readInt();
+				ByteLoader.byteBuilderV3(bos, data);
+			}
+			if (!data.isEmpty())
+				loaded = true;
+		} catch (Exception er) {
+			loaded = false;
+		}
+	}
+
+	public static ByteLoader fromBytes(byte[] byteData) {
+		if (byteData == null)
+			return null;
+		ByteLoader loader = new ByteLoader();
+		try {
+			ByteArrayDataInput bos = ByteStreams.newDataInput(byteData);
+			int version = bos.readInt();
+			if (version == 3) {
+				bos.readInt();
+				ByteLoader.byteBuilderV3(bos, loader.data);
+			}
+			loader.loaded = true;
+		} catch (Exception er) {
+			loader.loaded = false;
+		}
+		return loader;
 	}
 }

@@ -1,14 +1,23 @@
 package me.devtec.shared.sockets;
 
+import java.net.Socket;
+
+import me.devtec.shared.dataholder.Config;
+
 public interface SocketClient {
+	public String serverName();
 
-	public String getName();
+	public String ip();
 
-	public void exit();
-
-	public void write(String path, Object value);
-
-	public void send();
+	public int port();
 
 	public boolean isConnected();
+
+	public void write(Config data);
+
+	public void start();
+
+	public void end();
+
+	public Socket getSocket();
 }
