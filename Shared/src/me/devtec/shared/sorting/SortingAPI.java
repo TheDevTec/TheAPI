@@ -56,15 +56,9 @@ public class SortingAPI {
 		boolean asc;
 
 		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
+		@SuppressWarnings({ "rawtypes" })
 		public int compareTo(ComparableObject o) {
-			return this.asc
-					? o.getKey() instanceof Comparable ? ((Comparable) o.getKey()).compareTo(this.key)
-							: o.getKey().toString().compareTo(this.key.toString())
-					: o.getKey() instanceof Comparable
-							? ((Comparable) (this.key instanceof Comparable ? this.key : this.key.toString()))
-									.compareTo(o.getKey())
-							: this.key.toString().compareTo(o.getKey().toString());
+			return SortingAPI.compare(asc, o.getKey(), key);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -91,15 +85,9 @@ public class SortingAPI {
 		boolean asc;
 
 		@Override
-		@SuppressWarnings({ "unchecked", "rawtypes" })
+		@SuppressWarnings({ "rawtypes" })
 		public int compareTo(ComparableObject o) {
-			return this.asc
-					? o.getValue() instanceof Comparable ? ((Comparable) o.getValue()).compareTo(this.value)
-							: o.getValue().toString().compareTo(this.value.toString())
-					: o.getValue() instanceof Comparable
-							? ((Comparable) (this.value instanceof Comparable ? this.value : this.value.toString()))
-									.compareTo(o.getValue())
-							: this.key.toString().compareTo(o.getKey().toString());
+			return SortingAPI.compare(asc, o.getValue(), value);
 		}
 
 		@SuppressWarnings("unchecked")
@@ -118,5 +106,15 @@ public class SortingAPI {
 		public V getValue() {
 			return this.value;
 		}
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static int compare(boolean asc, Object a, Object b) {
+		return asc ? a instanceof Comparable ? ((Comparable) a).compareTo(b)
+				: a.toString().compareTo(b.toString())
+				: b instanceof Comparable
+				? ((Comparable) (b instanceof Comparable ? b : b.toString()))
+						.compareTo(a)
+						: b.toString().compareTo(a.toString());
 	}
 }
