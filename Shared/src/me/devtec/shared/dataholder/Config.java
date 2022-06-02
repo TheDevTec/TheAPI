@@ -664,15 +664,20 @@ public class Config {
 				} catch (Exception er) {
 					er.printStackTrace();
 				}
+			boolean first = true;
 			for (Entry<String, DataValue> key : loader.get().entrySet()) {
-				if (key.getValue() == null)
-					continue;
+				if(first)
+					first=false;
+				else
+					builder.append(System.lineSeparator());
 				if (key.getValue().value == null) {
 					if (key.getValue().commentAfterValue != null)
 						builder.append(key.getKey() + ": " + key.getValue().commentAfterValue);
 					continue;
 				}
 				builder.append(key.getKey() + ": " + Json.writer().write(key.getValue().value));
+				if (key.getValue().commentAfterValue != null)
+					builder.append(' ').append(key.getValue().commentAfterValue);
 			}
 			if (loader.getFooter() != null)
 				try {
@@ -684,54 +689,7 @@ public class Config {
 			return builder.toString();
 		}
 		case BYTE:
-			try {
-				ByteArrayDataOutput in = ByteStreams.newDataOutput(loader.get().size());
-				in.writeInt(3);
-				for (Entry<String, DataValue> key : loader.get().entrySet())
-					try {
-						in.writeInt(0);
-						in.writeUTF(key.getKey());
-						if (key.getValue() == null || key.getValue().value == null) {
-							in.writeInt(3);
-							continue;
-						}
-						if (key.getValue().writtenValue != null) {
-							String write = key.getValue().writtenValue;
-							if (write == null) {
-								in.writeInt(3);
-								continue;
-							}
-							while (write.length() > 40000) {
-								String wr = write.substring(0, 39999);
-								in.writeInt(1);
-								in.writeUTF(wr);
-								write = write.substring(39999);
-							}
-							in.writeInt(1);
-							in.writeUTF(write);
-							continue;
-						}
-						String write = Json.writer().write(key.getValue().value);
-						if (write == null) {
-							in.writeInt(3);
-							continue;
-						}
-						while (write.length() > 40000) {
-							String wr = write.substring(0, 39999);
-							in.writeInt(1);
-							in.writeUTF(wr);
-							write = write.substring(39999);
-						}
-						in.writeInt(1);
-						in.writeUTF(write);
-					} catch (Exception er) {
-						er.printStackTrace();
-					}
-				return Base64.getEncoder().encodeToString(in.toByteArray());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return "";
+			return Base64.getEncoder().encodeToString(toByteArray());
 		case JSON:
 			List<Map<String, String>> list = new ArrayList<>();
 			for (String key : Collections.unmodifiableList(keys))
