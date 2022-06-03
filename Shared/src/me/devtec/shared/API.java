@@ -14,6 +14,7 @@ import javax.management.AttributeList;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import me.devtec.shared.Ref.ServerType;
 import me.devtec.shared.commands.manager.CommandsRegister;
 import me.devtec.shared.commands.manager.SelectorUtils;
 import me.devtec.shared.dataholder.Config;
@@ -86,7 +87,7 @@ public class API {
 	public static class Basics {
 
 		public void load() {
-			String path = Ref.serverType().isBukkit() ? "plugins/TheAPI/" : "TheAPI/";
+			String path = Ref.serverType().isBukkit() || Ref.serverType()==ServerType.BUNGEECORD || Ref.serverType()==ServerType.VELOCITY ? "plugins/TheAPI/" : "TheAPI/";
 
 
 			Config tags = new Config(path+"tags.yml");
