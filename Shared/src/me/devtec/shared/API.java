@@ -2,10 +2,7 @@ package me.devtec.shared;
 
 import java.awt.Color;
 import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,14 +14,14 @@ import javax.management.AttributeList;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import com.google.common.collect.Lists;
-
 import me.devtec.shared.commands.manager.CommandsRegister;
 import me.devtec.shared.commands.manager.SelectorUtils;
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.OfflineCache;
 import me.devtec.shared.utility.StringUtils;
+import me.devtec.shared.utility.StringUtils.TimeFormat;
+import me.devtec.shared.utility.StringUtils.TimeFormatter;
 
 public class API {
 	// Commands api
@@ -89,157 +86,199 @@ public class API {
 	public static class Basics {
 
 		public void load() {
-			Config tags = new Config("plugins/TheAPI/Tags.yml");
-			tags.setIfAbsent("TagPrefix", "!");
-			tags.setIfAbsent("Gradient.Prefix.First", "!");
-			tags.setIfAbsent("Gradient.Prefix.Second", "!");
-			tags.setIfAbsent("Gradient.Suffix.First", "");
-			tags.setIfAbsent("Gradient.Suffix.Second", "");
-			if (!tags.exists("Tags")) {
-				tags.setIfAbsent("Tags.baby_blue", "0fd2f6");
-				tags.setIfAbsent("Tags.beige", "ffc8a9");
-				tags.setIfAbsent("Tags.blush", "e69296");
-				tags.setIfAbsent("Tags.amaranth", "e52b50");
-				tags.setIfAbsent("Tags.brown", "964b00");
-				tags.setIfAbsent("Tags.crimson", "dc143c");
-				tags.setIfAbsent("Tags.dandelion", "ffc31c");
-				tags.setIfAbsent("Tags.eggshell", "f0ecc7");
-				tags.setIfAbsent("Tags.fire", "ff0000");
-				tags.setIfAbsent("Tags.ice", "bddeec");
-				tags.setIfAbsent("Tags.indigo", "726eff");
-				tags.setIfAbsent("Tags.lavender", "4b0082");
-				tags.setIfAbsent("Tags.leaf", "618a3d");
-				tags.setIfAbsent("Tags.lilac", "c8a2c8");
-				tags.setIfAbsent("Tags.lime", "b7ff00");
-				tags.setIfAbsent("Tags.midnight", "007bff");
-				tags.setIfAbsent("Tags.mint", "50c878");
-				tags.setIfAbsent("Tags.olive", "929d40");
-				tags.setIfAbsent("Tags.royal_purple", "7851a9");
-				tags.setIfAbsent("Tags.rust", "b45019");
-				tags.setIfAbsent("Tags.sky", "00c8ff");
-				tags.setIfAbsent("Tags.smoke", "708c98");
-				tags.setIfAbsent("Tags.tangerine", "ef8e38");
-				tags.setIfAbsent("Tags.violet", "9c6eff");
+			String path = Ref.serverType().isBukkit() ? "plugins/TheAPI/" : "TheAPI/";
+
+
+			Config tags = new Config(path+"tags.yml");
+			tags.setIfAbsent("hexTagPrefix", "!", Arrays.asList("# <hexTagPrefix><tagName>","# For ex.: !fire"));
+			tags.setIfAbsent("gradient.firstHex.prefix", "!");
+			tags.setIfAbsent("gradient.firstHex.suffix", "");
+			tags.setIfAbsent("gradient.secondHex.prefix", "!");
+			tags.setIfAbsent("gradient.secondHex.suffix", "");
+			if (!tags.exists("tags")) {
+				tags.setIfAbsent("tags.baby_blue", "0fd2f6");
+				tags.setIfAbsent("tags.beige", "ffc8a9");
+				tags.setIfAbsent("tags.blush", "e69296");
+				tags.setIfAbsent("tags.amaranth", "e52b50");
+				tags.setIfAbsent("tags.brown", "964b00");
+				tags.setIfAbsent("tags.crimson", "dc143c");
+				tags.setIfAbsent("tags.dandelion", "ffc31c");
+				tags.setIfAbsent("tags.eggshell", "f0ecc7");
+				tags.setIfAbsent("tags.fire", "ff0000");
+				tags.setIfAbsent("tags.ice", "bddeec");
+				tags.setIfAbsent("tags.indigo", "726eff");
+				tags.setIfAbsent("tags.lavender", "4b0082");
+				tags.setIfAbsent("tags.leaf", "618a3d");
+				tags.setIfAbsent("tags.lilac", "c8a2c8");
+				tags.setIfAbsent("tags.lime", "b7ff00");
+				tags.setIfAbsent("tags.midnight", "007bff");
+				tags.setIfAbsent("tags.mint", "50c878");
+				tags.setIfAbsent("tags.olive", "929d40");
+				tags.setIfAbsent("tags.royal_purple", "7851a9");
+				tags.setIfAbsent("tags.rust", "b45019");
+				tags.setIfAbsent("tags.sky", "00c8ff");
+				tags.setIfAbsent("tags.smoke", "708c98");
+				tags.setIfAbsent("tags.tangerine", "ef8e38");
+				tags.setIfAbsent("tags.violet", "9c6eff");
 			}
 			tags.save();
-			StringUtils.tagPrefix = tags.getString("TagPrefix");
-			String gradientTagPrefix = tags.getString("Gradient.Prefix.First");
-			String gradientTagPrefixL = tags.getString("Gradient.Prefix.Second");
-			String gradientTagSuffix = tags.getString("Gradient.Suffix.First");
-			String gradientTagSuffixL = tags.getString("Gradient.Suffix.Second");
-			for (String tag : tags.getKeys("Tags"))
-				StringUtils.colorMap.put(tag.toLowerCase(), "#" + tags.getString("Tags." + tag));
+			StringUtils.tagPrefix = tags.getString("hexTagPrefix");
+			String gradientTagPrefix = tags.getString("gradient.firstHex.prefix");
+			String gradientTagPrefixL = tags.getString("gradient.secondHex.prefix");
+			String gradientTagSuffix = tags.getString("gradient.firstHex.suffix");
+			String gradientTagSuffixL = tags.getString("gradient.secondHex.suffix");
+
+			for (String tag : tags.getKeys("tags"))
+				StringUtils.colorMap.put(tag.toLowerCase(), "#" + tags.getString("tags." + tag));
+
 			StringUtils.gradientFinder = Pattern.compile(gradientTagPrefix + "(#[A-Fa-f0-9]{6})" + gradientTagSuffix
 					+ "(.*?)" + gradientTagPrefixL + "(#[A-Fa-f0-9]{6})" + gradientTagSuffixL + "|.*?(?=(?:"
 					+ gradientTagPrefix + "#[A-Fa-f0-9]{6}" + gradientTagSuffix + ".*?" + gradientTagPrefixL
 					+ "#[A-Fa-f0-9]{6}" + gradientTagSuffixL + "))");
-			Config config = new Config("plugins/TheAPI/Config.yml");
-			config.setComments("Options.TimeConvertor", Arrays.asList("", "# Convertor Actions:",
-					"# action, amount, translation", "# = (equals)", "# < (lower than)", "# > (more than)"));
-			config.setIfAbsent("Options.TimeConvertor.Split", " ");
-			config.setIfAbsent("Options.TimeConvertor.Format", "%time% %format%");
-			config.setIfAbsent("Options.TimeConvertor.Seconds.Convertor",
-					Arrays.asList("=,0,sec", "=,1,sec", ">,1,secs"));
-			if (!(config.get("Options.TimeConvertor.Seconds.Convertor") instanceof Collection))
-				config.set("Options.TimeConvertor.Seconds.Convertor", Arrays.asList("=,1,sec", ">,1,secs"));
-			config.setIfAbsent("Options.TimeConvertor.Seconds.Lookup", Arrays.asList("s", "sec", "second", "seconds"));
-
-			config.setIfAbsent("Options.TimeConvertor.Minutes.Convertor", Arrays.asList("=,1,min", ">,1,mins"));
-			if (!(config.get("Options.TimeConvertor.Minutes.Convertor") instanceof Collection))
-				config.set("Options.TimeConvertor.Minutes.Convertor", Arrays.asList("=,1,min", ">,1,mins"));
-			config.setIfAbsent("Options.TimeConvertor.Minutes.Lookup",
-					Arrays.asList("m", "mi", "min", "minu", "minut", "minute", "minutes"));
-
-			if (!(config.get("Options.TimeConvertor.Hours.Convertor") instanceof Collection))
-				config.set("Options.TimeConvertor.Hours.Convertor", Arrays.asList("=,1,hour", ">,1,hours"));
-			config.setIfAbsent("Options.TimeConvertor.Hours.Convertor", Arrays.asList("=,1,hour", ">,1,hours"));
-			config.setIfAbsent("Options.TimeConvertor.Hours.Lookup", Arrays.asList("h", "ho", "hou", "hour", "hours"));
-
-			config.setIfAbsent("Options.TimeConvertor.Days.Convertor", Arrays.asList("=,1,day", ">,1,days"));
-			if (!(config.get("Options.TimeConvertor.Days.Convertor") instanceof Collection))
-				config.set("Options.TimeConvertor.Days.Convertor", Arrays.asList("=,1,day", ">,1,days"));
-			config.setIfAbsent("Options.TimeConvertor.Days.Lookup", Arrays.asList("d", "da", "day", "days"));
-
-			config.setIfAbsent("Options.TimeConvertor.Weeks.Lookup", Arrays.asList("w", "we", "wee", "week", "weeks"));
-
-			config.setIfAbsent("Options.TimeConvertor.Months.Convertor", Arrays.asList("=,1,month", ">,1,months"));
-			if (!(config.get("Options.TimeConvertor.Months.Convertor") instanceof Collection))
-				config.set("Options.TimeConvertor.Months.Convertor", Arrays.asList("=,1,month", ">,1,months"));
-			config.setIfAbsent("Options.TimeConvertor.Months.Lookup",
-					Arrays.asList("mo", "mon", "mont", "month", "months"));
-
-			config.setIfAbsent("Options.TimeConvertor.Years.Convertor", Arrays.asList("=,1,year", ">,1,years"));
-			if (!(config.get("Options.TimeConvertor.Years.Convertor") instanceof Collection))
-				config.set("Options.TimeConvertor.Years.Convertor", Arrays.asList("=,1,year", ">,1,years"));
-			config.setIfAbsent("Options.TimeConvertor.Years.Lookup", Arrays.asList("y", "ye", "yea", "year", "years"));
+			Config config = new Config(path+"config.yml");
+			config.setIfAbsent("timeConvertor.settings.defaultlyDigits", false, Arrays.asList("# If plugin isn't using own split, use defaulty digitals? 300 -> 5:00"));
+			config.setIfAbsent("timeConvertor.settings.defaultSplit", " ", Arrays.asList("# If plugin isn't using own split, api'll use this split"));
+			config.setIfAbsent("timeConvertor.years.matcher", "y|years?", Arrays.asList("# Pattern matcher (regex)"));
+			config.setIfAbsent("timeConvertor.years.convertor", Arrays.asList("<=1 year", ">1 years"), Arrays.asList("# >=X value is higher or equals to X", "# <=X value is lower or equals to X", "# >X value is higher than X", "# <X value is lower than X", "# ==X value equals to X", "# !=X value doesn't equals to X"));
+			config.setIfAbsent("timeConvertor.months.matcher", "mo|mon|months?");
+			config.setIfAbsent("timeConvertor.months.convertor", Arrays.asList("<=1 month", ">1 months"));
+			config.setIfAbsent("timeConvertor.weeks.matcher", "w|weeks?");
+			config.setIfAbsent("timeConvertor.weeks.convertor", Arrays.asList("<=1 week", ">1 weeks"), Arrays.asList("# Api isn't using this convertor anywhere, but other plugins can use this convertor."));
+			config.setIfAbsent("timeConvertor.days.matcher", "d|days?");
+			config.setIfAbsent("timeConvertor.days.convertor", Arrays.asList("<=1 day", ">1 days"));
+			config.setIfAbsent("timeConvertor.hours.matcher", "h|hours?");
+			config.setIfAbsent("timeConvertor.hours.convertor", Arrays.asList("<=1 hour", ">1 hours"));
+			config.setIfAbsent("timeConvertor.minutes.matcher", "m|mi|min|minut|minutes?");
+			config.setIfAbsent("timeConvertor.minutes.convertor", Arrays.asList("<=1 minute", ">1 minutes"));
+			config.setIfAbsent("timeConvertor.seconds.matcher", "s|sec|seconds?");
+			config.setIfAbsent("timeConvertor.seconds.convertor", Arrays.asList("<=1 second", ">1 seconds"));
 			config.save();
 
-			StringUtils.timeFormat = config.getString("Options.TimeConvertor.Format");
+			StringUtils.timeSplit = config.getString("timeConvertor.settings.defaultSplit");
 
-			List<String> sec = new ArrayList<>();
-			StringUtils.actions.put("Seconds", sec);
-			sec.addAll(config.getStringList("Options.TimeConvertor.Seconds.Convertor"));
-			if (sec.isEmpty())
-				sec.addAll(Arrays.asList("=,0,sec", "=,1,sec", ">,1,secs"));
+			StringUtils.timeConvertor.put(TimeFormat.SECONDS, new TimeFormatter() {
+				Pattern pattern = Pattern.compile("[+-]?[ ]*[0-9]+[ ]*("+config.getString("timeConvertor.seconds.matcher")+")");
 
-			List<String> min = new ArrayList<>();
-			StringUtils.actions.put("Minutes", min);
-			min.addAll(config.getStringList("Options.TimeConvertor.Minutes.Convertor"));
-			if (min.isEmpty())
-				min.addAll(Arrays.asList("=,1,min", ">,1,s"));
+				@Override
+				public Matcher matcher(String text) {
+					return pattern.matcher(text);
+				}
 
-			List<String> hours = new ArrayList<>();
-			StringUtils.actions.put("Hours", hours);
-			hours.addAll(config.getStringList("Options.TimeConvertor.Hours.Convertor"));
-			if (hours.isEmpty())
-				hours.addAll(Arrays.asList("=,1,hour", ">,1,hours"));
+				@Override
+				public String toString(long value) {
+					for(String action : config.getStringList("timeConvertor.seconds.convertor"))
+						if(matchAction(action, value))
+							return value + StringUtils.buildString(1, action.split(" "));
+					return value + "s";
+				}
+			});
+			StringUtils.timeConvertor.put(TimeFormat.MINUTES, new TimeFormatter() {
+				Pattern pattern = Pattern.compile("[+-]?[ ]*[0-9]+[ ]*("+config.getString("timeConvertor.minutes.matcher")+")");
 
-			List<String> days = new ArrayList<>();
-			StringUtils.actions.put("Days", days);
-			days.addAll(config.getStringList("Options.TimeConvertor.Days.Convertor"));
-			if (days.isEmpty())
-				days.addAll(Arrays.asList("=,1,day", ">,1,days"));
+				@Override
+				public Matcher matcher(String text) {
+					return pattern.matcher(text);
+				}
 
-			List<String> weeks = new ArrayList<>();
-			StringUtils.actions.put("Weeks", weeks);
-			weeks.addAll(config.getStringList("Options.TimeConvertor.Weeks.Convertor"));
-			if (weeks.isEmpty())
-				weeks.addAll(Arrays.asList("=,1,week", ">,1,weeks"));
+				@Override
+				public String toString(long value) {
+					for(String action : config.getStringList("timeConvertor.minutes.convertor"))
+						if(matchAction(action, value))
+							return value + StringUtils.buildString(1, action.split(" "));
+					return value + "m";
+				}
+			});
+			StringUtils.timeConvertor.put(TimeFormat.HOURS, new TimeFormatter() {
+				Pattern pattern = Pattern.compile("[+-]?[ ]*[0-9]+[ ]*("+config.getString("timeConvertor.hours.matcher")+")");
 
-			List<String> month = new ArrayList<>();
-			StringUtils.actions.put("Months", month);
-			month.addAll(config.getStringList("Options.TimeConvertor.Months.Convertor"));
-			if (month.isEmpty())
-				month.addAll(Arrays.asList("=,1,month", ">,1,months"));
+				@Override
+				public Matcher matcher(String text) {
+					return pattern.matcher(text);
+				}
 
-			List<String> years = new ArrayList<>();
-			StringUtils.actions.put("Years", years);
-			years.addAll(config.getStringList("Options.TimeConvertor.Years.Convertor"));
-			if (years.isEmpty())
-				years.addAll(Arrays.asList("=,1,year", ">,1,years"));
+				@Override
+				public String toString(long value) {
+					for(String action : config.getStringList("timeConvertor.hours.convertor"))
+						if(matchAction(action, value))
+							return value + StringUtils.buildString(1, action.split(" "));
+					return value + "h";
+				}
+			});
+			StringUtils.timeConvertor.put(TimeFormat.DAYS, new TimeFormatter() {
+				Pattern pattern = Pattern.compile("[+-]?[ ]*[0-9]+[ ]*("+config.getString("timeConvertor.days.matcher")+")");
 
-			StringUtils.sec = Pattern.compile("([+-]?[0-9]+)("
-					+ StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Seconds.Lookup")), "|")
-					+ ")", Pattern.CASE_INSENSITIVE);
-			StringUtils.min = Pattern.compile("([+-]?[0-9]+)("
-					+ StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Minutes.Lookup")), "|")
-					+ ")", Pattern.CASE_INSENSITIVE);
-			StringUtils.hour = Pattern.compile("([+-]?[0-9]+)("
-					+ StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Hours.Lookup")), "|")
-					+ ")", Pattern.CASE_INSENSITIVE);
-			StringUtils.day = Pattern.compile(
-					"([+-]?[0-9]+)(" + StringUtils
-					.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Days.Lookup")), "|") + ")",
-					Pattern.CASE_INSENSITIVE);
-			StringUtils.week = Pattern.compile("([+-]?[0-9]+)("
-					+ StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Weeks.Lookup")), "|")
-					+ ")", Pattern.CASE_INSENSITIVE);
-			StringUtils.mon = Pattern.compile("([+-]?[0-9]+)("
-					+ StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Months.Lookup")), "|")
-					+ ")", Pattern.CASE_INSENSITIVE);
-			StringUtils.year = Pattern.compile("([+-]?[0-9]+)("
-					+ StringUtils.join(Lists.reverse(config.getStringList("Options.TimeConvertor.Years.Lookup")), "|")
-					+ ")", Pattern.CASE_INSENSITIVE);
+				@Override
+				public Matcher matcher(String text) {
+					return pattern.matcher(text);
+				}
+
+				@Override
+				public String toString(long value) {
+					for(String action : config.getStringList("timeConvertor.days.convertor"))
+						if(matchAction(action, value))
+							return value + StringUtils.buildString(1, action.split(" "));
+					return value + "d";
+				}
+			});
+			StringUtils.timeConvertor.put(TimeFormat.WEEKS, new TimeFormatter() {
+				Pattern pattern = Pattern.compile("[+-]?[ ]*[0-9]+[ ]*("+config.getString("timeConvertor.weeks.matcher")+")");
+
+				@Override
+				public Matcher matcher(String text) {
+					return pattern.matcher(text);
+				}
+
+				@Override
+				public String toString(long value) {
+					for(String action : config.getStringList("timeConvertor.weeks.convertor"))
+						if(matchAction(action, value))
+							return value + StringUtils.buildString(1, action.split(" "));
+					return value + "w";
+				}
+			});
+			StringUtils.timeConvertor.put(TimeFormat.MONTHS, new TimeFormatter() {
+				Pattern pattern = Pattern.compile("[+-]?[ ]*[0-9]+[ ]*("+config.getString("timeConvertor.months.matcher")+")");
+
+				@Override
+				public Matcher matcher(String text) {
+					return pattern.matcher(text);
+				}
+
+				@Override
+				public String toString(long value) {
+					for(String action : config.getStringList("timeConvertor.months.convertor"))
+						if(matchAction(action, value))
+							return value + StringUtils.buildString(1, action.split(" "));
+					return value + "mo";
+				}
+			});
+			StringUtils.timeConvertor.put(TimeFormat.YEARS, new TimeFormatter() {
+				Pattern pattern = Pattern.compile("[+-]?[ ]*[0-9]+[ ]*("+config.getString("timeConvertor.years.matcher")+")");
+
+				@Override
+				public Matcher matcher(String text) {
+					return pattern.matcher(text);
+				}
+
+				@Override
+				public String toString(long value) {
+					for(String action : config.getStringList("timeConvertor.years.convertor"))
+						if(matchAction(action, value))
+							return value + StringUtils.buildString(1, action.split(" "));
+					return value + "y";
+				}
+			});
+		}
+
+		private boolean matchAction(String action, long value) {
+			String[] split = action.split(" ");
+			if(action.startsWith("=="))return value==StringUtils.getLong(split[0]);
+			if(action.startsWith("!="))return value!=StringUtils.getLong(split[0]);
+			if(action.startsWith(">="))return value>=StringUtils.getLong(split[0]);
+			if(action.startsWith("<="))return value<=StringUtils.getLong(split[0]);
+			if(action.startsWith(">"))return value>StringUtils.getLong(split[0]);
+			if(action.startsWith("<"))return value<StringUtils.getLong(split[0]);
+			return false; //invalid
 		}
 
 		public String[] getLastColors(Pattern pattern, String text) {
@@ -386,42 +425,6 @@ public class API {
 		} catch (Exception e) {
 			return 0;
 		}
-	}
-
-	/**
-	 * @see see Generate random int with limit
-	 * @param maxInt
-	 * @return int
-	 */
-	public static int generateRandomInt(int maxInt) {
-		return API.generateRandomInt(0, maxInt);
-	}
-
-	/**
-	 * @see see Generate random double with limit
-	 * @param maxDouble
-	 * @return double
-	 */
-	public static double generateRandomDouble(double maxDouble) {
-		return API.generateRandomDouble(0, maxDouble);
-	}
-
-	/**
-	 * @see see Generate random double with limit
-	 * @param maxDouble
-	 * @return double
-	 */
-	public static double generateRandomDouble(double min, double maxDouble) {
-		return StringUtils.generateRandomDouble(min, maxDouble);
-	}
-
-	/**
-	 * @see see Generate random double with limit
-	 * @param maxDouble
-	 * @return double
-	 */
-	public static int generateRandomInt(int min, int maxInt) {
-		return StringUtils.generateRandomInt(min, maxInt);
 	}
 
 	/**
