@@ -47,7 +47,7 @@ public class ModernJsonReader implements JReader {
 				Collection<?> list = ModernJsonReader.parser.fromJson(json, Collection.class);
 				return list != null ? list : json;
 			}
-			return this.read(map);
+			return ModernJsonReader.read(map);
 		} catch (Exception err) {
 			try {
 				Collection<?> list = ModernJsonReader.parser.fromJson(json, Collection.class);
@@ -58,14 +58,14 @@ public class ModernJsonReader implements JReader {
 		return json;
 	}
 
-	private Object cast(Object value, Class<?> type) {
+	public static Object cast(Object value, Class<?> type) {
 		if (value == null)
 			return null;
 		if (type.isArray()) {
 			Collection<?> o = (Collection<?>) value;
 			List<Object> c = new ArrayList<>();
 			for (Object a : o)
-				c.add(this.read(a));
+				c.add(ModernJsonReader.read(a));
 			return c.toArray();
 		}
 		if (Double.TYPE == type)
@@ -82,11 +82,11 @@ public class ModernJsonReader implements JReader {
 			return ((Number) value).shortValue();
 		if (Character.TYPE == type)
 			return (value + "").toCharArray()[0];
-		return this.read(value);
+		return ModernJsonReader.read(value);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Object read(Object s) {
+	public static Object read(Object s) {
 		if (s == null || s.equals("null"))
 			return null;
 		try {
@@ -96,7 +96,7 @@ public class ModernJsonReader implements JReader {
 				if (result != null)
 					return result;
 				String className = (String) map.get("c");
-				Class<?> c = tryCastPrimiteClass(className);
+				Class<?> c = ModernJsonReader.tryCastPrimiteClass(className);
 				String type = (String) map.get("t");
 				if (type != null) { // collection, array or map
 					if (type.equals("map")) {
@@ -108,7 +108,7 @@ public class ModernJsonReader implements JReader {
 						}
 						Map o = (Map) object;
 						for (Object cc : (List<?>) map.get("s")) {
-							Pair pair = (Pair) this.read(cc);
+							Pair pair = (Pair) ModernJsonReader.read(cc);
 							o.put(pair.getKey(), pair.getValue());
 						}
 						return o;
@@ -117,7 +117,7 @@ public class ModernJsonReader implements JReader {
 						Object array = Array.newInstance(c, ((List<?>) map.get("s")).size());
 						int i = 0;
 						for (Object cc : (List<?>) map.get("s"))
-							Array.set(array, i++, cast(read(cc), c));
+							Array.set(array, i++, ModernJsonReader.cast(ModernJsonReader.read(cc), c));
 						return array;
 					}
 					if (type.equals("enum"))
@@ -131,7 +131,7 @@ public class ModernJsonReader implements JReader {
 						}
 						Collection<Object> o = (Collection<Object>) object;
 						for (Object cc : (List<?>) map.get("s"))
-							o.add(this.read(cc));
+							o.add(ModernJsonReader.read(cc));
 						return o;
 					}
 					return null;
@@ -154,7 +154,7 @@ public class ModernJsonReader implements JReader {
 					}
 					Field f = c.getDeclaredField(e.getKey());
 					f.setAccessible(true);
-					f.set(object, cast(e.getValue(), f.getType()));
+					f.set(object, ModernJsonReader.cast(e.getValue(), f.getType()));
 				}
 				if (sub_fields != null)
 					for (Map.Entry<String, Object> e : sub_fields.entrySet()) {
@@ -167,7 +167,7 @@ public class ModernJsonReader implements JReader {
 						}
 						Field f = Class.forName(e.getKey().split(":")[0]).getDeclaredField(field);
 						f.setAccessible(true);
-						f.set(object, cast(e.getValue(), f.getType()));
+						f.set(object, ModernJsonReader.cast(e.getValue(), f.getType()));
 					}
 				return object;
 			}
@@ -176,7 +176,7 @@ public class ModernJsonReader implements JReader {
 		return s;
 	}
 
-	private Class<?> tryCastPrimiteClass(String className) throws ClassNotFoundException {
+	public static Class<?> tryCastPrimiteClass(String className) throws ClassNotFoundException {
 		switch(className) {
 		case "int":
 			return int.class;

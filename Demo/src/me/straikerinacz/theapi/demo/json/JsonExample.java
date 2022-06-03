@@ -11,7 +11,7 @@ import me.devtec.shared.utility.PercentageList;
 public class JsonExample {
 
 	@SuppressWarnings("unchecked")
-	public static void main(String[] a) {
+	public static void init() {
 		Json.init(new ModernJsonReader(), new ModernJsonWriter());
 
 		//Parsing map

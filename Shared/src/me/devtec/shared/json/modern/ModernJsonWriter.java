@@ -19,8 +19,7 @@ import me.devtec.shared.json.Json;
 public class ModernJsonWriter implements JWriter {
 	private static final Gson parser = new GsonBuilder().create();
 
-	@Override
-	public Object writeWithoutParse(Object s) {
+	public static Object writeWithoutParseStatic(Object s) {
 		try {
 			if (s == null)
 				return null;
@@ -43,7 +42,7 @@ public class ModernJsonWriter implements JWriter {
 				object.put("t", "map");
 				List<Object> vals = new ArrayList<>();
 				for (Map.Entry<?, ?> o : ((Map<?, ?>) s).entrySet())
-					vals.add(writeWithoutParse(new Pair(o.getKey(), o.getValue())));
+					vals.add(ModernJsonWriter.writeWithoutParseStatic(new Pair(o.getKey(), o.getValue())));
 				object.put("s", vals);
 				return object;
 			}
@@ -53,7 +52,7 @@ public class ModernJsonWriter implements JWriter {
 				object.put("t", "collection");
 				List<Object> vals = new ArrayList<>();
 				for (Object o : (Collection<?>) s)
-					vals.add(writeWithoutParse(o));
+					vals.add(ModernJsonWriter.writeWithoutParseStatic(o));
 				object.put("s", vals);
 				return object;
 			}
@@ -63,7 +62,7 @@ public class ModernJsonWriter implements JWriter {
 				object.put("t", "array");
 				List<Object> vals = new ArrayList<>();
 				for(int i = 0; i < Array.getLength(s); ++i)
-					vals.add(writeWithoutParse(Array.get(s, i)));
+					vals.add(ModernJsonWriter.writeWithoutParseStatic(Array.get(s, i)));
 				object.put("s", vals);
 				return object;
 			}
@@ -72,7 +71,6 @@ public class ModernJsonWriter implements JWriter {
 			Map<String, Object> sub_fields = new ConcurrentHashMap<>();
 			object.put("c", s.getClass().getName());
 			object.put("f", fields);
-			object.put("sf", sub_fields);
 			Class<?> c = s.getClass();
 			for (Field f : c.getDeclaredFields()) {
 				if ((f.getModifiers() & Modifier.STATIC) != 0)
@@ -82,7 +80,7 @@ public class ModernJsonWriter implements JWriter {
 				if (s.equals(obj))
 					fields.put("~" + f.getName(), "~");
 				else
-					fields.put(f.getName(), writeWithoutParse(obj));
+					fields.put(f.getName(), ModernJsonWriter.writeWithoutParseStatic(obj));
 			}
 			c = c.getSuperclass();
 			while (c != null) {
@@ -94,16 +92,21 @@ public class ModernJsonWriter implements JWriter {
 					if (s.equals(obj))
 						sub_fields.put(c.getName() + ":~" + f.getName(), "~");
 					else
-						sub_fields.put(c.getName() + ":" + f.getName(), writeWithoutParse(obj));
+						sub_fields.put(c.getName() + ":" + f.getName(), ModernJsonWriter.writeWithoutParseStatic(obj));
 				}
 				c = c.getSuperclass();
 			}
-			if (sub_fields.isEmpty())
-				object.remove("sf");
+			if (!sub_fields.isEmpty())
+				object.put("sf", sub_fields);
 			return object;
 		} catch (Exception err) {
 		}
 		return null;
+	}
+
+	@Override
+	public Object writeWithoutParse(Object s) {
+		return ModernJsonWriter.writeWithoutParseStatic(s);
 	}
 
 	@Override
