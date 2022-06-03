@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import me.devtec.shared.json.JReader;
-import me.devtec.shared.json.modern.ModernJsonReader;
+import me.devtec.shared.json.JsonUtils;
 import me.devtec.shared.utility.StringUtils;
 import net.minecraft.util.com.google.gson.Gson;
 import net.minecraft.util.com.google.gson.GsonBuilder;
@@ -30,7 +30,7 @@ public class LegacyJsonReader implements JReader {
 				Collection<?> list = LegacyJsonReader.parser.fromJson(json, Collection.class);
 				return list != null ? list : json;
 			}
-			return ModernJsonReader.read(map);
+			return JsonUtils.read(map);
 		} catch (Exception err) {
 			try {
 				Collection<?> list = LegacyJsonReader.parser.fromJson(json, Collection.class);

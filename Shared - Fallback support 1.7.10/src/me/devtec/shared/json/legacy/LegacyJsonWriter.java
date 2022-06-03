@@ -1,7 +1,7 @@
 package me.devtec.shared.json.legacy;
 
 import me.devtec.shared.json.JWriter;
-import me.devtec.shared.json.modern.ModernJsonWriter;
+import me.devtec.shared.json.JsonUtils;
 import net.minecraft.util.com.google.gson.Gson;
 import net.minecraft.util.com.google.gson.GsonBuilder;
 
@@ -10,7 +10,7 @@ public class LegacyJsonWriter implements JWriter {
 
 	@Override
 	public Object writeWithoutParse(Object s) {
-		return ModernJsonWriter.writeWithoutParseStatic(s);
+		return JsonUtils.writeWithoutParseStatic(s);
 	}
 
 	@Override
