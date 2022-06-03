@@ -96,7 +96,7 @@ public class ModernJsonReader implements JReader {
 				if (result != null)
 					return result;
 				String className = (String) map.get("c");
-				Class<?> c = Class.forName(className);
+				Class<?> c = tryCastPrimiteClass(className);
 				String type = (String) map.get("t");
 				if (type != null) { // collection, array or map
 					if (type.equals("map")) {
@@ -114,11 +114,11 @@ public class ModernJsonReader implements JReader {
 						return o;
 					}
 					if (type.equals("array")) {
-						Object[] obj = (Object[]) Array.newInstance(c, ((List<?>) map.get("s")).size());
+						Object array = Array.newInstance(c, ((List<?>) map.get("s")).size());
 						int i = 0;
 						for (Object cc : (List<?>) map.get("s"))
-							obj[i++] = this.read(cc);
-						return obj;
+							Array.set(array, i++, cast(read(cc), c));
+						return array;
 					}
 					if (type.equals("enum"))
 						return Ref.getNulled(c, map.get("e").toString());
@@ -154,7 +154,7 @@ public class ModernJsonReader implements JReader {
 					}
 					Field f = c.getDeclaredField(e.getKey());
 					f.setAccessible(true);
-					f.set(object, this.cast(e.getValue(), f.getType()));
+					f.set(object, cast(e.getValue(), f.getType()));
 				}
 				if (sub_fields != null)
 					for (Map.Entry<String, Object> e : sub_fields.entrySet()) {
@@ -167,13 +167,35 @@ public class ModernJsonReader implements JReader {
 						}
 						Field f = Class.forName(e.getKey().split(":")[0]).getDeclaredField(field);
 						f.setAccessible(true);
-						f.set(object, this.cast(e.getValue(), f.getType()));
+						f.set(object, cast(e.getValue(), f.getType()));
 					}
 				return object;
 			}
 		} catch (Exception err) {
 		}
 		return s;
+	}
+
+	private Class<?> tryCastPrimiteClass(String className) throws ClassNotFoundException {
+		switch(className) {
+		case "int":
+			return int.class;
+		case "double":
+			return double.class;
+		case "float":
+			return float.class;
+		case "long":
+			return long.class;
+		case "char":
+			return char.class;
+		case "byte":
+			return byte.class;
+		case "short":
+			return short.class;
+		case "boolean":
+			return boolean.class;
+		}
+		return Class.forName(className);
 	}
 
 	@Override

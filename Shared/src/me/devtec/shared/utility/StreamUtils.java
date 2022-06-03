@@ -1,7 +1,6 @@
 package me.devtec.shared.utility;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -9,11 +8,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
-
-import me.devtec.shared.json.Json;
 
 public class StreamUtils {
 
@@ -69,43 +63,5 @@ public class StreamUtils {
 		} catch (Exception e) {
 			return null;
 		}
-	}
-
-	/**
-	 * @apiNote Write String into created InputStream
-	 * @return InputStream
-	 */
-	public static InputStream toStream(String text) {
-		try {
-			ByteArrayDataOutput out = ByteStreams.newDataOutput();
-			out.writeUTF(text);
-			return new ByteArrayInputStream(out.toByteArray());
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	/**
-	 * @apiNote Write String into created InputStream
-	 * @return InputStream
-	 */
-	public static InputStream toStreamObject(Object obj) {
-		return StreamUtils.toStream(Json.writer().write(obj));
-	}
-
-	/**
-	 * @apiNote Read Object from InputStream
-	 * @return Object
-	 */
-	public static Object fromStreamObject(InputStream stream) {
-		return Json.reader().read(StreamUtils.fromStream(stream));
-	}
-
-	/**
-	 * @apiNote Read Object from InputStream
-	 * @return Object
-	 */
-	public static Object fromStreamObject(File file) {
-		return Json.reader().read(StreamUtils.fromStream(file));
 	}
 }

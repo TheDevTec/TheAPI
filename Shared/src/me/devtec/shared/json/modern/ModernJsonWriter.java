@@ -1,5 +1,6 @@
 package me.devtec.shared.json.modern;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class ModernJsonWriter implements JWriter {
 				object.put("t", "map");
 				List<Object> vals = new ArrayList<>();
 				for (Map.Entry<?, ?> o : ((Map<?, ?>) s).entrySet())
-					vals.add(this.writeWithoutParse(new Pair(o.getKey(), o.getValue())));
+					vals.add(writeWithoutParse(new Pair(o.getKey(), o.getValue())));
 				object.put("s", vals);
 				return object;
 			}
@@ -52,20 +53,17 @@ public class ModernJsonWriter implements JWriter {
 				object.put("t", "collection");
 				List<Object> vals = new ArrayList<>();
 				for (Object o : (Collection<?>) s)
-					vals.add(this.writeWithoutParse(o));
+					vals.add(writeWithoutParse(o));
 				object.put("s", vals);
 				return object;
 			}
 			if (s.getClass().isArray()) {
 				Map<String, Object> object = new ConcurrentHashMap<>();
-				object.put("c",
-						s.getClass().getName().startsWith("[")
-								? s.getClass().getName().substring(2, s.getClass().getName().length() - 1)
-								: s.getClass().getName());
+				object.put("c", s.getClass().getComponentType().getName());
 				object.put("t", "array");
 				List<Object> vals = new ArrayList<>();
-				for (Object o : (Object[]) s)
-					vals.add(this.writeWithoutParse(o));
+				for(int i = 0; i < Array.getLength(s); ++i)
+					vals.add(writeWithoutParse(Array.get(s, i)));
 				object.put("s", vals);
 				return object;
 			}
@@ -84,7 +82,7 @@ public class ModernJsonWriter implements JWriter {
 				if (s.equals(obj))
 					fields.put("~" + f.getName(), "~");
 				else
-					fields.put(f.getName(), this.writeWithoutParse(obj));
+					fields.put(f.getName(), writeWithoutParse(obj));
 			}
 			c = c.getSuperclass();
 			while (c != null) {
@@ -96,7 +94,7 @@ public class ModernJsonWriter implements JWriter {
 					if (s.equals(obj))
 						sub_fields.put(c.getName() + ":~" + f.getName(), "~");
 					else
-						sub_fields.put(c.getName() + ":" + f.getName(), this.writeWithoutParse(obj));
+						sub_fields.put(c.getName() + ":" + f.getName(), writeWithoutParse(obj));
 				}
 				c = c.getSuperclass();
 			}
@@ -111,7 +109,7 @@ public class ModernJsonWriter implements JWriter {
 	@Override
 	public String write(Object s) {
 		try {
-			Object parsed = this.writeWithoutParse(s);
+			Object parsed = writeWithoutParse(s);
 			if (parsed == null)
 				return "null";
 			return ModernJsonWriter.parser.toJson(parsed);

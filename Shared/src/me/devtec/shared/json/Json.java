@@ -63,7 +63,7 @@ public class Json {
 		Json.readers.remove(reader);
 	}
 
-	public static void registerDatamWriter(DataWriter writer) {
+	public static void registerDataWriter(DataWriter writer) {
 		Json.writers.add(writer);
 	}
 
