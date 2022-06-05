@@ -29,11 +29,11 @@ public interface NmsProvider {
 		int id;
 
 		Action(int i) {
-			this.id = i;
+			id = i;
 		}
 
 		public int getId() {
-			return this.id;
+			return id;
 		}
 	}
 
@@ -55,11 +55,11 @@ public interface NmsProvider {
 		byte id;
 
 		ChatType(int i) {
-			this.id = (byte) i;
+			id = (byte) i;
 		}
 
 		public byte toByte() {
-			return this.id;
+			return id;
 		}
 	}
 
@@ -86,7 +86,7 @@ public interface NmsProvider {
 	public Object parseNBT(String json);
 
 	public default ItemStack setNBT(ItemStack stack, String nbt) {
-		return this.setNBT(stack, this.parseNBT(nbt));
+		return this.setNBT(stack, parseNBT(nbt));
 	}
 
 	public default ItemStack setNBT(ItemStack stack, NBTEdit nbt) {
@@ -337,4 +337,8 @@ public interface NmsProvider {
 	public void loadParticles();
 
 	public Collection<? extends Player> getOnlinePlayers();
+
+	public String getGameProfileValues(Object profile);
+
+	public Object createGameProfile(UUID uuid, String name, String values);
 }

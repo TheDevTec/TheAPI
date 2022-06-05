@@ -35,6 +35,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 
 import io.netty.channel.Channel;
 import me.devtec.shared.Ref;
@@ -119,15 +120,16 @@ import net.minecraft.world.chunk.ChunkSection;
 import net.minecraft.world.server.ServerWorld;
 
 public class v1_16_R3_Mohist implements NmsProvider {
-	private static double[] tps = new double[] { 20, 20 };
+	private static double[] tps = { 20, 20 };
 
 	public v1_16_R3_Mohist() {
 		// init ticker for avarenge TPS
 		new Tasker() {
 			int five = 5, fifteen = 15;
 
+			@Override
 			public void run() {
-				double tps = MathHelper.func_76127_a(server.field_71311_j) * 1.0E-6D;
+				double tps = MathHelper.func_76127_a(v1_16_R3_Mohist.server.field_71311_j) * 1.0E-6D;
 				if (--five == 0) {
 					five = 5;
 					v1_16_R3_Mohist.tps[0] = tps;
@@ -260,6 +262,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 				(ITextComponent) toIChatBaseComponent(ComponentAPI.fromString(title)));
 	}
 
+	@Override
 	public int getContainerId(Object container) {
 		return ((net.minecraft.inventory.container.Container) container).field_75152_c;
 	}
@@ -308,8 +311,8 @@ public class v1_16_R3_Mohist implements NmsProvider {
 	public Object packetPlayerListHeaderFooter(String header, String footer) {
 		SPlayerListHeaderFooterPacket packet = new SPlayerListHeaderFooterPacket();
 		try {
-			tabHeader.set(packet, toIChatBaseComponent(ComponentAPI.fromString(header)));
-			tabFooter.set(packet, toIChatBaseComponent(ComponentAPI.fromString(footer)));
+			v1_16_R3_Mohist.tabHeader.set(packet, toIChatBaseComponent(ComponentAPI.fromString(header)));
+			v1_16_R3_Mohist.tabFooter.set(packet, toIChatBaseComponent(ComponentAPI.fromString(footer)));
 		} catch (Exception err) {
 		}
 		return packet;
@@ -366,45 +369,43 @@ public class v1_16_R3_Mohist implements NmsProvider {
 
 	@Override
 	public void postToMainThread(Runnable runnable) {
-		server.execute(runnable);
+		v1_16_R3_Mohist.server.execute(runnable);
 	}
 
 	@Override
 	public Object getMinecraftServer() {
-		return server;
+		return v1_16_R3_Mohist.server;
 	}
 
 	@Override
 	public Thread getServerThread() {
-		return server.func_213170_ax();
+		return v1_16_R3_Mohist.server.func_213170_ax();
 	}
 
 	@Override
 	public double[] getServerTPS() {
-		return new double[] { MathHelper.func_76127_a(server.field_71311_j) * 1.0E-6D, tps[0], tps[1] };
+		return new double[] { MathHelper.func_76127_a(v1_16_R3_Mohist.server.field_71311_j) * 1.0E-6D, v1_16_R3_Mohist.tps[0], v1_16_R3_Mohist.tps[1] };
 	}
 
 	private ITextComponent convert(Component c) {
 		StringTextComponent current = new StringTextComponent(c.getText());
 		Style modif = current.func_150256_b();
-		if (c.getColor() != null && !c.getColor().isEmpty()) {
+		if (c.getColor() != null && !c.getColor().isEmpty())
 			if (c.getColor().startsWith("#"))
 				modif = modif.func_240718_a_(Color.func_240745_a_(c.getColor()));
-			else {
+			else
 				for (TextFormatting e : TextFormatting.values())
 					if (e.toString().charAt(1) == c.colorToChar()) {
 						modif = modif.func_240718_a_(Color.func_240744_a_(e));
 						break;
 					}
-			}
-		}
 		if (c.getClickEvent() != null)
 			modif = modif.func_240715_a_(new ClickEvent(ClickEvent.Action.valueOf(c.getClickEvent().getAction().name()),
 					c.getClickEvent().getValue()));
 		if (c.getHoverEvent() != null)
 			modif = modif
-					.func_240716_a_(HoverEvent.Action.func_150684_a(c.getHoverEvent().getAction().name().toLowerCase())
-							.func_240670_a_((ITextComponent) toIChatBaseComponent(c.getHoverEvent().getValue())));
+			.func_240716_a_(HoverEvent.Action.func_150684_a(c.getHoverEvent().getAction().name().toLowerCase())
+					.func_240670_a_((ITextComponent) toIChatBaseComponent(c.getHoverEvent().getValue())));
 		if (c.isBold())
 			modif = modif.func_240720_a_(TextFormatting.BOLD);
 		if (c.isItalic())
@@ -513,15 +514,15 @@ public class v1_16_R3_Mohist implements NmsProvider {
 			return new TheMaterial(Material.AIR);
 		if (blockOrItemOrIBlockData instanceof Block) {
 			Block b = (Block) blockOrItemOrIBlockData;
-			return new TheMaterial((ItemStack) CraftItemStack.asNewCraftStack(b.func_199767_j()));
+			return new TheMaterial(CraftItemStack.asNewCraftStack(b.func_199767_j()));
 		}
 		if (blockOrItemOrIBlockData instanceof Item) {
 			Item b = (Item) blockOrItemOrIBlockData;
-			return new TheMaterial((ItemStack) CraftItemStack.asNewCraftStack(b));
+			return new TheMaterial(CraftItemStack.asNewCraftStack(b));
 		}
 		if (blockOrItemOrIBlockData instanceof net.minecraft.block.BlockState) {
 			net.minecraft.block.BlockState b = (net.minecraft.block.BlockState) blockOrItemOrIBlockData;
-			return new TheMaterial((ItemStack) CraftItemStack.asNewCraftStack(b.func_177230_c().func_199767_j()));
+			return new TheMaterial(CraftItemStack.asNewCraftStack(b.func_177230_c().func_199767_j()));
 		}
 		return null;
 	}
@@ -558,9 +559,8 @@ public class v1_16_R3_Mohist implements NmsProvider {
 	public void setBlock(Object chunk, int x, int y, int z, Object IblockData, int data) {
 		net.minecraft.world.chunk.Chunk c = (net.minecraft.world.chunk.Chunk) chunk;
 		ChunkSection sc = c.func_76587_i()[y >> 4];
-		if (sc == null) {
+		if (sc == null)
 			c.func_76587_i()[y >> 4] = sc = new ChunkSection(y >> 4 << 4);
-		}
 		BlockPos pos = new BlockPos(x, y, z);
 		// REMOVE TILE ENTITY
 		c.func_177434_r().remove(pos);
@@ -658,7 +658,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 	@Override
 	public Object getNetworkChannel(Object network) {
 		try {
-			return channel.get(network);
+			return v1_16_R3_Mohist.channel.get(network);
 		} catch (Exception e) {
 			return null;
 		}
@@ -733,8 +733,8 @@ public class v1_16_R3_Mohist implements NmsProvider {
 		int i = 0;
 		for (net.minecraft.item.ItemStack o : nmsItems)
 			BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, i++, o));
-		nmsPlayer.field_71070_bA = (RepairContainer) container;
-		((RepairContainer) container).func_75134_a(nmsPlayer);
+		nmsPlayer.field_71070_bA = container;
+		container.func_75134_a(nmsPlayer);
 	}
 
 	@Override
@@ -754,7 +754,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 	public Object createAnvilContainer(Inventory inv, Player player) {
 		RepairContainer container = new RepairContainer(((CraftPlayer) player).getHandle().func_142013_aG(),
 				((CraftPlayer) player).getHandle().field_71071_by,
-				IWorldPosCallable.func_221488_a(((CraftPlayer) player).getHandle().field_70170_p, zero));
+				IWorldPosCallable.func_221488_a(((CraftPlayer) player).getHandle().field_70170_p, v1_16_R3_Mohist.zero));
 		for (int i = 0; i < 2; ++i)
 			container.func_75139_a(i).func_75215_d((net.minecraft.item.ItemStack) asNMSItem(inv.getItem(i)));
 		return container;
@@ -763,7 +763,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 	@Override
 	public String getAnvilRenameText(Object anvil) {
 		try {
-			return (String) repairText.get(anvil);
+			return (String) v1_16_R3_Mohist.repairText.get(anvil);
 		} catch (Exception e) {
 			return "";
 		}
@@ -814,28 +814,25 @@ public class v1_16_R3_Mohist implements NmsProvider {
 					? InventoryUtils.shift(slot, player, gui, clickType,
 							gui instanceof AnvilGUI ? DestinationType.PLAYER_INV_ANVIL
 									: DestinationType.PLAYER_INV_CUSTOM_INV,
-							null, contents, item)
-					: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.CUSTOM_INV,
-							gui.getNotInterableSlots(player), contents, item);
-			if (!modified.isEmpty()) {
+									null, contents, item)
+							: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.CUSTOM_INV,
+									gui.getNotInterableSlots(player), contents, item);
+			if (!modified.isEmpty())
 				if (slot < gui.size()) {
 					boolean canRemove = !modified.contains(-1);
 					player.getInventory().setStorageContents(contents);
-					if (canRemove) {
+					if (canRemove)
 						gui.remove(gameSlot);
-					} else {
+					else
 						gui.getInventory().setItem(gameSlot, item);
-					}
 				} else {
 					boolean canRemove = !modified.contains(-1);
 					gui.getInventory().setStorageContents(contents);
-					if (canRemove) {
+					if (canRemove)
 						player.getInventory().setItem(gameSlot, null);
-					} else {
+					else
 						player.getInventory().setItem(gameSlot, item);
-					}
 				}
-			}
 			return true;
 		}
 		if (cancel) {
@@ -848,9 +845,8 @@ public class v1_16_R3_Mohist implements NmsProvider {
 			case QUICK_MOVE:
 			case PICKUP_ALL:
 				// TOP
-				for (ItemStack cItem : gui.getInventory().getContents()) {
+				for (ItemStack cItem : gui.getInventory().getContents())
 					BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, position++, asNMSItem(cItem)));
-				}
 				// BUTTON
 				player.updateInventory();
 				return true;
@@ -858,11 +854,10 @@ public class v1_16_R3_Mohist implements NmsProvider {
 				BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, slot, getSlotItem(container, slot)));
 				if (gui instanceof AnvilGUI) {
 					// TOP
-					for (ItemStack cItem : gui.getInventory().getContents()) {
+					for (ItemStack cItem : gui.getInventory().getContents())
 						if (position != slot)
 							BukkitLoader.getPacketHandler().send(player,
 									packetSetSlot(id, position++, asNMSItem(cItem)));
-					}
 					// BUTTON
 					player.updateInventory();
 				}
@@ -877,7 +872,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 		SServerInfoPacket status = (SServerInfoPacket) packet;
 		ServerStatusResponse ping;
 		try {
-			ping = (ServerStatusResponse) field.get(status);
+			ping = (ServerStatusResponse) v1_16_R3_Mohist.field.get(status);
 		} catch (Exception e) {
 			return false;
 		}
@@ -913,6 +908,7 @@ public class v1_16_R3_Mohist implements NmsProvider {
 		return false;
 	}
 
+	@Override
 	public Object getNBT(Entity entity) {
 		return ((CraftEntity) entity).getHandle().func_189511_e(new CompoundNBT());
 	}
@@ -1119,6 +1115,21 @@ public class v1_16_R3_Mohist implements NmsProvider {
 		for (Entry<RegistryKey<ParticleType<?>>, ParticleType<?>> s : Registry.field_212632_u.func_239659_c_())
 			me.devtec.theapi.bukkit.game.particles.Particle.identifier.put(s.getKey().func_240901_a_().func_110623_a(),
 					s.getValue());
+	}
+
+	@Override
+	public String getGameProfileValues(Object profile) {
+		Collection<Property> properties = ((GameProfile)profile).getProperties().get("textures");
+		if(!properties.isEmpty())
+			return properties.iterator().next().getValue();
+		return null;
+	}
+
+	@Override
+	public Object createGameProfile(UUID uuid, String name, String values) {
+		GameProfile profile = new GameProfile(uuid, name);
+		profile.getProperties().put("textures", new Property("textures", values));
+		return profile;
 	}
 
 }

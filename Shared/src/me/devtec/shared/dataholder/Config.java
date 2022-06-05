@@ -365,10 +365,14 @@ public class Config {
 	}
 
 	public Object get(String key) {
+		return get(key, null);
+	}
+
+	public Object get(String key, Object defaultValue) {
 		try {
 			return loader.get().get(key).value;
 		} catch (Exception e) {
-			return null;
+			return defaultValue;
 		}
 	}
 
@@ -386,12 +390,16 @@ public class Config {
 	}
 
 	public String getString(String key) {
+		return getString(key, null);
+	}
+
+	public String getString(String key, String defaultValue) {
 		DataValue a = loader.get().get(key);
 		if (a == null)
-			return null;
+			return defaultValue;
 		if (a.writtenValue != null)
 			return a.writtenValue;
-		return a.value instanceof String ? (String) a.value : a.value == null ? null : a.value + "";
+		return a.value instanceof String ? (String) a.value : a.value == null ? defaultValue : a.value + "";
 	}
 
 	public boolean isJson(String key) {
@@ -406,64 +414,112 @@ public class Config {
 	}
 
 	public int getInt(String key) {
+		return getInt(key, 0);
+	}
+
+	public int getInt(String key, int defaultValue) {
+		Object value = get(key);
+		if(value==null)return defaultValue;
 		try {
-			return ((Number) get(key)).intValue();
+			return ((Number) value).intValue();
 		} catch (Exception notNumber) {
 			return StringUtils.getInt(getString(key));
 		}
 	}
 
 	public double getDouble(String key) {
+		return getDouble(key, 0);
+	}
+
+	public double getDouble(String key, double defaultValue) {
+		Object value = get(key);
+		if(value==null)return defaultValue;
 		try {
-			return ((Number) get(key)).doubleValue();
+			return ((Number) value).doubleValue();
 		} catch (Exception notNumber) {
 			return StringUtils.getDouble(getString(key));
 		}
 	}
 
 	public long getLong(String key) {
+		return getLong(key, 0);
+	}
+
+	public long getLong(String key, long defaultValue) {
+		Object value = get(key);
+		if(value==null)return defaultValue;
 		try {
-			return ((Number) get(key)).longValue();
+			return ((Number) value).longValue();
 		} catch (Exception notNumber) {
 			return StringUtils.getLong(getString(key));
 		}
 	}
 
 	public float getFloat(String key) {
+		return getFloat(key, 0);
+	}
+
+	public float getFloat(String key, float defaultValue) {
+		Object value = get(key);
+		if(value==null)return defaultValue;
 		try {
-			return ((Number) get(key)).floatValue();
+			return ((Number) value).floatValue();
 		} catch (Exception notNumber) {
 			return StringUtils.getFloat(getString(key));
 		}
 	}
 
 	public byte getByte(String key) {
+		return getByte(key, (byte)0);
+	}
+
+	public byte getByte(String key, byte defaultValue) {
+		Object value = get(key);
+		if(value==null)return defaultValue;
 		try {
-			return ((Number) get(key)).byteValue();
+			return ((Number) value).byteValue();
 		} catch (Exception notNumber) {
 			return StringUtils.getByte(getString(key));
 		}
 	}
 
-	public boolean getBoolean(String key) {
+	public short getShort(String key) {
+		return getShort(key, (short)0);
+	}
+
+	public short getShort(String key, short defaultValue) {
+		Object value = get(key);
+		if(value==null)return defaultValue;
 		try {
-			return (boolean) get(key);
+			return ((Number) value).shortValue();
 		} catch (Exception notNumber) {
-			return StringUtils.getBoolean(getString(key));
+			return StringUtils.getShort(getString(key));
 		}
 	}
 
-	public short getShort(String key) {
+	public boolean getBoolean(String key) {
+		return getBoolean(key, false);
+	}
+
+	public boolean getBoolean(String key, boolean defaultValue) {
+		Object value = get(key);
+		if(value==null)return defaultValue;
 		try {
-			return ((Number) get(key)).shortValue();
+			return (Boolean) value;
 		} catch (Exception notNumber) {
-			return StringUtils.getShort(getString(key));
+			return StringUtils.getBoolean(getString(key));
 		}
 	}
 
 	public Collection<Object> getList(String key) {
 		Object g = get(key);
 		return g instanceof Collection ? new ArrayList<>((Collection<?>) g) : new ArrayList<>();
+	}
+
+	public Collection<Object> getList(String key, Collection<Object> defaultValue) {
+		Object value = get(key);
+		if(value==null || !(value instanceof Collection))return defaultValue;
+		return new ArrayList<>((Collection<?>) value);
 	}
 
 	public <E> List<E> getListAs(String key, Class<? extends E> clazz) {
