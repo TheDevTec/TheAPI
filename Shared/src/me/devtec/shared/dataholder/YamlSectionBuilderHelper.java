@@ -8,13 +8,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import me.devtec.shared.dataholder.loaders.constructor.DataValue;
 import me.devtec.shared.json.Json;
 
 class YamlSectionBuilderHelper {
 
-	public static void write(StringBuilder builder, List<String> keys, Map<String, DataValue> map) {
+	public static void write(StringBuilder builder, Set<String> keys, Map<String, DataValue> map) {
 		Map<String, SectionHolder> secs = new LinkedHashMap<>(map.size()); // correct size of map
 
 		// Prepare sections in map
@@ -103,7 +104,7 @@ class YamlSectionBuilderHelper {
 			// if value is null, empty key
 			if (value == null)
 				YamlSectionBuilderHelper.addCommentIfAvailable(b.append(sectionLine), commentAfterValue)
-						.append(System.lineSeparator());
+				.append(System.lineSeparator());
 			// write collection or array
 			else if (value instanceof Collection || value instanceof Object[]) {
 				String splitted = section.space + '-' + ' ';
@@ -116,7 +117,7 @@ class YamlSectionBuilderHelper {
 										commentAfterValue).append(System.lineSeparator());
 							else {
 								YamlSectionBuilderHelper.addCommentIfAvailable(b.append(sectionLine), commentAfterValue)
-										.append(System.lineSeparator());
+								.append(System.lineSeparator());
 								for (Object a : (Collection<?>) value)
 									if (a instanceof String)
 										YamlSectionBuilderHelper.addQuotesSplit(b, splitted, (String) a);
@@ -133,19 +134,19 @@ class YamlSectionBuilderHelper {
 						}
 					else
 						YamlSectionBuilderHelper
-								.addCommentIfAvailable(b.append(sectionLine).append(' ').append('[').append(']'),
-										commentAfterValue)
-								.append(System.lineSeparator());
+						.addCommentIfAvailable(b.append(sectionLine).append(' ').append('[').append(']'),
+								commentAfterValue)
+						.append(System.lineSeparator());
 				} else if (((Object[]) value).length != 0)
 					try {
 						if (dataVal.writtenValue != null)
 							YamlSectionBuilderHelper
-									.addCommentIfAvailable(YamlSectionBuilderHelper.addQuotes(b, sectionLine,
-											dataVal.writtenValue, value instanceof String ? '"' : 0), commentAfterValue)
-									.append(System.lineSeparator());
+							.addCommentIfAvailable(YamlSectionBuilderHelper.addQuotes(b, sectionLine,
+									dataVal.writtenValue, value instanceof String ? '"' : 0), commentAfterValue)
+							.append(System.lineSeparator());
 						else {
 							YamlSectionBuilderHelper.addCommentIfAvailable(b.append(sectionLine), commentAfterValue)
-									.append(System.lineSeparator());
+							.append(System.lineSeparator());
 							for (Object a : (Object[]) value)
 								if (a instanceof String)
 									YamlSectionBuilderHelper.addQuotesSplit(b, splitted, (String) a);
@@ -162,25 +163,25 @@ class YamlSectionBuilderHelper {
 					}
 				else
 					YamlSectionBuilderHelper
-							.addCommentIfAvailable(b.append(sectionLine).append(' ').append('[').append(']'),
-									commentAfterValue)
-							.append(System.lineSeparator());
+					.addCommentIfAvailable(b.append(sectionLine).append(' ').append('[').append(']'),
+							commentAfterValue)
+					.append(System.lineSeparator());
 			} else // write normal value
 				try {
 					if (dataVal.writtenValue != null)
 						YamlSectionBuilderHelper
-								.addCommentIfAvailable(YamlSectionBuilderHelper.addQuotes(b, sectionLine,
-										dataVal.writtenValue, value instanceof String ? '"' : '\''), commentAfterValue)
-								.append(System.lineSeparator());
+						.addCommentIfAvailable(YamlSectionBuilderHelper.addQuotes(b, sectionLine,
+								dataVal.writtenValue, value instanceof String ? '"' : '\''), commentAfterValue)
+						.append(System.lineSeparator());
 					else if (value instanceof String)
 						YamlSectionBuilderHelper.addCommentIfAvailable(
 								YamlSectionBuilderHelper.addQuotes(b, sectionLine, (String) value, '"'),
 								commentAfterValue).append(System.lineSeparator());
 					else
 						YamlSectionBuilderHelper
-								.addCommentIfAvailable(YamlSectionBuilderHelper.addQuotes(b, sectionLine, value),
-										commentAfterValue)
-								.append(System.lineSeparator());
+						.addCommentIfAvailable(YamlSectionBuilderHelper.addQuotes(b, sectionLine, value),
+								commentAfterValue)
+						.append(System.lineSeparator());
 				} catch (Exception er) {
 					if (value instanceof String)
 						YamlSectionBuilderHelper.addCommentIfAvailable(
@@ -188,9 +189,9 @@ class YamlSectionBuilderHelper {
 								commentAfterValue).append(System.lineSeparator());
 					else
 						YamlSectionBuilderHelper
-								.addCommentIfAvailable(YamlSectionBuilderHelper.addQuotes(b, sectionLine, value),
-										commentAfterValue)
-								.append(System.lineSeparator());
+						.addCommentIfAvailable(YamlSectionBuilderHelper.addQuotes(b, sectionLine, value),
+								commentAfterValue)
+						.append(System.lineSeparator());
 				}
 		} catch (Exception err) {
 			err.printStackTrace();
@@ -248,12 +249,12 @@ class YamlSectionBuilderHelper {
 		String space;
 
 		public SectionHolder(String d) {
-			this.name = d;
+			name = d;
 		}
 
 		public SectionHolder find(String name) {
-			if (this.holders != null)
-				for (SectionHolder section : this.holders)
+			if (holders != null)
+				for (SectionHolder section : holders)
 					if (section.name.equals(name))
 						return section;
 			return null;
@@ -261,10 +262,10 @@ class YamlSectionBuilderHelper {
 
 		public SectionHolder create(String name) {
 			SectionHolder sec = new SectionHolder(name);
-			sec.space = this.space + "  ";
-			if (this.holders == null)
-				this.holders = new LinkedList<>();
-			this.holders.add(sec);
+			sec.space = space + "  ";
+			if (holders == null)
+				holders = new LinkedList<>();
+			holders.add(sec);
 			return sec;
 		}
 	}
