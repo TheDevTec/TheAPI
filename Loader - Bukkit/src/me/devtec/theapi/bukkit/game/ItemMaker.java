@@ -47,6 +47,7 @@ import me.devtec.shared.json.Json;
 import me.devtec.shared.utility.StreamUtils;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
+import me.devtec.theapi.bukkit.nms.NBTEdit;
 import me.devtec.theapi.bukkit.xseries.XMaterial;
 import net.md_5.bungee.api.chat.BaseComponent;
 
@@ -637,6 +638,23 @@ public class ItemMaker {
 			if(!book.getPages().isEmpty())
 				config.set(path+".book.pages", book.getPages());
 		}
+
+		NBTEdit nbt = new NBTEdit(stack);
+		//remove unused tags
+		nbt.remove("id");
+		nbt.remove("Count");
+		nbt.remove("lvl");
+		nbt.remove("display");
+		nbt.remove("Name");
+		nbt.remove("Lore");
+		nbt.remove("Damage");
+		nbt.remove("color");
+		nbt.remove("Unbreakable");
+		nbt.remove("HideFlags");
+		nbt.remove("Enchantments");
+		nbt.remove("ench");
+		if(!nbt.getKeys().isEmpty())
+			config.set(path+".nbt", nbt.getNBT()); //save clear nbt
 	}
 
 	@Nullable //Nullable if section is empty / type is invalid
@@ -650,6 +668,10 @@ public class ItemMaker {
 		else
 			type=XMaterial.matchXMaterial(typeSplit[0].toUpperCase()).get();
 		ItemStack stack = type.parseItem();
+
+		String nbt = config.getString(path+".nbt"); //additional nbt
+		if(nbt!=null)
+			stack=BukkitLoader.getNmsProvider().setNBT(stack, BukkitLoader.getNmsProvider().parseNBT(nbt));
 
 		short damage = config.getShort(path+".damage");
 		if(damage!=0)
