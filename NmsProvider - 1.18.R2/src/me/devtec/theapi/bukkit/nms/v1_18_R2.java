@@ -658,7 +658,7 @@ public class v1_18_R2 implements NmsProvider {
 			BukkitLoader.getPacketHandler().send(player,
 					new PacketPlayOutCloseWindow(BukkitLoader.getNmsProvider().getContainerId(container)));
 		EntityPlayer nmsPlayer = (EntityPlayer) getPlayer(player);
-		nmsPlayer.bV = nmsPlayer.bV;
+		nmsPlayer.bV = nmsPlayer.bU;
 		((Container) container).transferTo(nmsPlayer.bV, (CraftPlayer) player);
 	}
 
