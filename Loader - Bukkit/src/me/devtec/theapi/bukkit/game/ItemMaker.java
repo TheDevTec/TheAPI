@@ -574,7 +574,7 @@ public class ItemMaker {
 				config.set(path+".itemFlags", flags);
 		}
 		if(Ref.isNewerThan(13)) { //1.14+
-			int modelData = meta.getCustomModelData();
+			int modelData = meta.hasCustomModelData() ? meta.getCustomModelData() : 0;
 			if(modelData!=0)
 				config.set(path+".itemFlags", modelData);
 		}
