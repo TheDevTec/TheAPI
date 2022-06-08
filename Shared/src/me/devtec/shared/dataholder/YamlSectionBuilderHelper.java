@@ -8,14 +8,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import me.devtec.shared.dataholder.loaders.constructor.DataValue;
 import me.devtec.shared.json.Json;
 
 class YamlSectionBuilderHelper {
 
-	public static void write(StringBuilder builder, Set<String> keys, Map<String, DataValue> map) {
+	public static void write(StringBuilder builder, List<String> keys, Map<String, DataValue> map) {
 		Map<String, SectionHolder> secs = new LinkedHashMap<>(map.size()); // correct size of map
 
 		// Prepare sections in map

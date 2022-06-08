@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -32,7 +34,7 @@ import me.devtec.shared.utility.StringUtils;
 
 public class Config {
 	protected DataLoader loader;
-	protected Set<String> keys;
+	protected List<String> keys;
 	protected File file;
 	protected boolean isSaving; // LOCK
 	protected boolean requireSave;
@@ -71,15 +73,16 @@ public class Config {
 
 	public Config() {
 		loader = new EmptyLoader();
-		keys = new LinkedHashSet<>();
+		keys = new LinkedList<>();
 	}
 
 	public Config(DataLoader loaded) {
 		loader = loaded;
-		keys = new LinkedHashSet<>();
+		keys = new LinkedList<>();
 		for (String k : loader.getKeys()) {
 			String g = Config.splitFirst(k);
-			keys.add(g);
+			if(!keys.contains(g))
+				keys.add(g);
 		}
 		requireSave=true;
 	}
@@ -110,7 +113,7 @@ public class Config {
 			}
 		}
 		this.file = file;
-		keys = new LinkedHashSet<>();
+		keys = new LinkedList<>();
 		if (load)
 			this.reload(file);
 		markNonModified();
@@ -167,7 +170,8 @@ public class Config {
 		DataValue h = loader.get().get(key);
 		if (h == null) {
 			String ss = Config.splitFirst(key);
-			keys.add(ss);
+			if(!keys.contains(ss))
+				keys.add(ss);
 			loader.get().put(key, h = DataValue.empty());
 		}
 		return h;
@@ -333,7 +337,8 @@ public class Config {
 		loader = DataLoader.findLoaderFor(input); // get & load
 		for (String k : loader.getKeys()) {
 			String g = Config.splitFirst(k);
-			keys.add(g);
+			if(!keys.contains(g))
+				keys.add(g);
 		}
 		return this;
 	}
@@ -354,7 +359,8 @@ public class Config {
 		loader = DataLoader.findLoaderFor(f); // get & load
 		for (String k : loader.getKeys()) {
 			String g = Config.splitFirst(k);
-			keys.add(g);
+			if(!keys.contains(g))
+				keys.add(g);
 		}
 		return this;
 	}
@@ -654,7 +660,7 @@ public class Config {
 	}
 
 	public Set<String> getKeys() {
-		return Collections.unmodifiableSet(keys);
+		return new HashSet<>(keys);
 	}
 
 	public Set<String> getKeys(boolean subkeys) {
