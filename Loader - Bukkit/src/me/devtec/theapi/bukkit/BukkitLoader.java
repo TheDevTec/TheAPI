@@ -427,7 +427,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			Json.init(new ModernJsonReader(), new ModernJsonWriter()); // Modern version of Guava
 		else
 			Json.init((JReader) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.json.legacy.LegacyJsonReader")),
-					(JWriter) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.json.legacy.LegacyJsonWriter"))); // Old
+					(JWriter) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.json.legacy.LegacyJsonWriter"))); // 1.7.10
 
 		// Commands api
 		API.commandsRegister = new BukkitCommandManager();
