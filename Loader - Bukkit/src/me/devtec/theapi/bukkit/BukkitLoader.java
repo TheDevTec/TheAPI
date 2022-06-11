@@ -415,16 +415,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	}
 
 	private static void initTheAPI(JavaPlugin plugin) {
-		// Commands api
-		API.commandsRegister = new BukkitCommandManager();
-		API.selectorUtils = new BukkitSelectorUtils();
-
-		// OfflineCache support!
-		API.initOfflineCache(Bukkit.getOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));
-
-		Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null
-				? Ref.getClass("net.kyori.adventure.Adventure") != null ? ServerType.PAPER : ServerType.SPIGOT
-						: ServerType.BUKKIT, Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]); // Server
 		// version
 		if (Ref.serverType() != ServerType.BUKKIT) {
 			ComponentAPI.registerTransformer("BUNGEECORD", (ComponentTransformer<?>) Ref
@@ -438,9 +428,14 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		else
 			Json.init((JReader) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.json.legacy.LegacyJsonReader")),
 					(JWriter) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.json.legacy.LegacyJsonWriter"))); // Old
-		// version
-		// of
-		// Guava
+
+		// Commands api
+		API.commandsRegister = new BukkitCommandManager();
+		API.selectorUtils = new BukkitSelectorUtils();
+
+		// OfflineCache support!
+		API.initOfflineCache(Bukkit.getOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));
+
 		API.library = new LibraryLoader() {
 			List<File> loaded = new ArrayList<>();
 			ImplementableJar jar;

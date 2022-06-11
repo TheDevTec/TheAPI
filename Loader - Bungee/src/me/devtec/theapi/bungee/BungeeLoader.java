@@ -69,6 +69,14 @@ public class BungeeLoader extends Plugin implements Listener {
 	}
 
 	public static void initTheAPI(Plugin plugin) {
+
+		Ref.init(ServerType.BUNGEECORD, ProxyServer.getInstance().getVersion()); // Server version
+		ComponentAPI.registerTransformer("BUNGEECORD", new BungeeComponentAPI<>());
+		if (Ref.getClass("net.kyori.adventure.text.Component") != null)
+			ComponentAPI.registerTransformer("ADVENTURE", (ComponentTransformer<?>) Ref
+					.newInstanceByClass(Ref.getClass("me.devtec.shared.components.AdventureComponentAPI")));
+		Json.init(new ModernJsonReader(), new ModernJsonWriter()); // Modern version of Guava
+
 		// Commands api
 		API.commandsRegister = new BungeeCommandManager(plugin);
 		API.selectorUtils = new BungeeSelectorUtils();
@@ -77,12 +85,6 @@ public class BungeeLoader extends Plugin implements Listener {
 		API.initOfflineCache(ProxyServer.getInstance().getConfig().isOnlineMode(),
 				new Config("plugins/TheAPI/Cache.dat"));
 
-		Ref.init(ServerType.BUNGEECORD, ProxyServer.getInstance().getVersion()); // Server version
-		ComponentAPI.registerTransformer("BUNGEECORD", new BungeeComponentAPI<>());
-		if (Ref.getClass("net.kyori.adventure.text.Component") != null)
-			ComponentAPI.registerTransformer("ADVENTURE", (ComponentTransformer<?>) Ref
-					.newInstanceByClass(Ref.getClass("me.devtec.shared.components.AdventureComponentAPI")));
-		Json.init(new ModernJsonReader(), new ModernJsonWriter()); // Modern version of Guava
 		API.library = new LibraryLoader() {
 			List<File> loaded = new ArrayList<>();
 			Constructor<?> c = Ref.constructor(Ref.getClass("net.md_5.bungee.api.plugin.PluginClassloader"),

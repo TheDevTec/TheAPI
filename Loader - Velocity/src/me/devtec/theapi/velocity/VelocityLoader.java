@@ -78,6 +78,10 @@ public class VelocityLoader {
 	}
 
 	public static void initTheAPI(ProxyServer server) {
+
+		Ref.init(ServerType.VELOCITY, server.getVersion().getVersion()); // Server version
+		ComponentAPI.registerTransformer("ADVENTURE", new AdventureComponentAPI<>());
+		Json.init(new ModernJsonReader(), new ModernJsonWriter()); // Modern version of Guava
 		// Commands api
 		API.commandsRegister = new VelocityCommandManager();
 		API.selectorUtils = new VelocitySelectorUtils();
@@ -85,9 +89,6 @@ public class VelocityLoader {
 		// OfflineCache support!
 		API.initOfflineCache(server.getConfiguration().isOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));
 
-		Ref.init(ServerType.VELOCITY, server.getVersion().getVersion()); // Server version
-		ComponentAPI.registerTransformer("ADVENTURE", new AdventureComponentAPI<>());
-		Json.init(new ModernJsonReader(), new ModernJsonWriter()); // Modern version of Guava
 		API.library = new LibraryLoader() {
 			List<File> loaded = new ArrayList<>();
 
