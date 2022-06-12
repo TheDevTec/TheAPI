@@ -415,6 +415,9 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	}
 
 	private static void initTheAPI(JavaPlugin plugin) {
+		Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null
+				? Ref.getClass("net.kyori.adventure.Adventure") != null ? ServerType.PAPER : ServerType.SPIGOT
+						: ServerType.BUKKIT, Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]); // Server version
 		// version
 		if (Ref.serverType() != ServerType.BUKKIT) {
 			ComponentAPI.registerTransformer("BUNGEECORD", (ComponentTransformer<?>) Ref
