@@ -38,9 +38,6 @@ import java.util.regex.PatternSyntaxException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -618,13 +615,13 @@ public enum XMaterial {
 		this.legacy = legacy;
 
 		Material mat = null;
-		if (!Data.ISFLAT && this.isDuplicated() || (mat = Material.getMaterial(this.name())) == null)
+		if (!Data.ISFLAT && this.isDuplicated() || (mat = Material.getMaterial(name())) == null)
 			for (int i = legacy.length - 1; i >= 0; i--) {
 				mat = Material.getMaterial(legacy[i]);
 				if (mat != null)
 					break;
 			}
-		this.material = mat;
+		material = mat;
 	}
 
 	XMaterial(String... legacy) {
@@ -728,7 +725,6 @@ public enum XMaterial {
 	 */
 	@Nonnull
 	public static Optional<XMaterial> matchXMaterial(@Nonnull String name) {
-		Validate.notEmpty(name, "Cannot match a material with null or empty material name");
 		Optional<XMaterial> oldMatch = XMaterial.matchXMaterialWithData(name);
 		return oldMatch.isPresent() ? oldMatch
 				: XMaterial.matchDefinedXMaterial(XMaterial.format(name), XMaterial.UNKNOWN_DATA_VALUE);
@@ -761,7 +757,7 @@ public enum XMaterial {
 			String mat = XMaterial.format(name.substring(0, index));
 			try {
 				// We don't use Byte.parseByte because we have our own range check.
-				byte data = (byte) Integer.parseInt(StringUtils.deleteWhitespace(name.substring(index + 1)));
+				byte data = me.devtec.shared.utility.StringUtils.getByte(name.substring(index + 1));
 				return data >= 0 && data < XMaterial.MAX_DATA_VALUE ? XMaterial.matchDefinedXMaterial(mat, data)
 						: XMaterial.matchDefinedXMaterial(mat, XMaterial.UNKNOWN_DATA_VALUE);
 			} catch (NumberFormatException ignored) {
@@ -875,9 +871,9 @@ public enum XMaterial {
 			// Special case. Refer to FILLED_MAP for more info.
 			return data >= 0 && isAMap ? Optional.of(FILLED_MAP) : Optional.empty();
 
-		if (!Data.ISFLAT && oldXMaterial.isPlural() && (duplicated == null ? XMaterial.isDuplicated(name) : duplicated))
-			return XMaterial.getIfPresent(name);
-		return Optional.of(oldXMaterial);
+			if (!Data.ISFLAT && oldXMaterial.isPlural() && (duplicated == null ? XMaterial.isDuplicated(name) : duplicated))
+				return XMaterial.getIfPresent(name);
+			return Optional.of(oldXMaterial);
 	}
 
 	/**
@@ -988,7 +984,7 @@ public enum XMaterial {
 	}
 
 	public String[] getLegacy() {
-		return this.legacy;
+		return legacy;
 	}
 
 	/**
@@ -1060,7 +1056,7 @@ public enum XMaterial {
 	public boolean isOneOf(@Nullable Collection<String> materials) {
 		if (materials == null || materials.isEmpty())
 			return false;
-		String name = this.name();
+		String name = name();
 
 		for (String comp : materials) {
 			String checker = comp.toUpperCase(Locale.ENGLISH);
@@ -1107,12 +1103,12 @@ public enum XMaterial {
 	@Nonnull
 	public ItemStack setType(@Nonnull ItemStack item) {
 		Objects.requireNonNull(item, "Cannot set material for null ItemStack");
-		Material material = this.parseMaterial();
-		Objects.requireNonNull(material, () -> "Unsupported material: " + this.name());
+		Material material = parseMaterial();
+		Objects.requireNonNull(material, () -> "Unsupported material: " + name());
 
 		item.setType(material);
 		if (!Data.ISFLAT && material.getMaxDurability() <= 0)
-			item.setDurability(this.data);
+			item.setDurability(data);
 		return item;
 	}
 
@@ -1127,8 +1123,8 @@ public enum XMaterial {
 	 * @since 2.0.0
 	 */
 	private boolean anyMatchLegacy(@Nonnull String name) {
-		for (int i = this.legacy.length - 1; i >= 0; i--)
-			if (name.equals(this.legacy[i]))
+		for (int i = legacy.length - 1; i >= 0; i--)
+			if (name.equals(legacy[i]))
 				return true;
 		return false;
 	}
@@ -1151,7 +1147,30 @@ public enum XMaterial {
 	@Override
 	@Nonnull
 	public String toString() {
-		return WordUtils.capitalize(this.name().replace('_', ' ').toLowerCase(Locale.ENGLISH));
+		return XMaterial.capitalize(name().replace('_', ' ').toLowerCase(Locale.ENGLISH));
+	}
+
+	protected static String capitalize(String str) {
+		int delimLen = -1;
+		if (str == null || str.length() == 0 || delimLen == 0)
+			return str;
+		int strLen = str.length();
+		StringBuilder buffer = new StringBuilder(strLen);
+		boolean capitalizeNext = true;
+
+		for (int i = 0; i < strLen; ++i) {
+			char ch = str.charAt(i);
+			if (Character.isWhitespace(ch)) {
+				buffer.append(ch);
+				capitalizeNext = true;
+			} else if (capitalizeNext) {
+				buffer.append(Character.toTitleCase(ch));
+				capitalizeNext = false;
+			} else
+				buffer.append(ch);
+		}
+
+		return buffer.toString();
 	}
 
 	/**
@@ -1168,7 +1187,7 @@ public enum XMaterial {
 	public int getId() {
 		// https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/diff/src/main/java/org/bukkit/Material.java?until=1cb03826ebde4ef887519ce37b0a2a341494a183
 		// Should start working again in 1.16+
-		Material material = this.parseMaterial();
+		Material material = parseMaterial();
 		if (material == null)
 			return -1;
 		try {
@@ -1190,7 +1209,7 @@ public enum XMaterial {
 	 * @since 1.0.0
 	 */
 	public byte getData() {
-		return this.data;
+		return data;
 	}
 
 	/**
@@ -1203,10 +1222,10 @@ public enum XMaterial {
 	 */
 	@Nullable
 	public ItemStack parseItem() {
-		Material material = this.parseMaterial();
+		Material material = parseMaterial();
 		if (material == null)
 			return null;
-		return Data.ISFLAT ? new ItemStack(material) : new ItemStack(material, 1, this.data);
+		return Data.ISFLAT ? new ItemStack(material) : new ItemStack(material, 1, data);
 	}
 
 	/**
@@ -1217,7 +1236,7 @@ public enum XMaterial {
 	 */
 	@Nullable
 	public Material parseMaterial() {
-		return this.material;
+		return material;
 	}
 
 	/**
@@ -1231,9 +1250,9 @@ public enum XMaterial {
 	 */
 	public boolean isSimilar(@Nonnull ItemStack item) {
 		Objects.requireNonNull(item, "Cannot compare with null ItemStack");
-		if (item.getType() != this.parseMaterial())
+		if (item.getType() != parseMaterial())
 			return false;
-		return Data.ISFLAT || item.getDurability() == this.data || item.getType().getMaxDurability() > 0;
+		return Data.ISFLAT || item.getDurability() == data || item.getType().getMaxDurability() > 0;
 	}
 
 	/**
@@ -1247,7 +1266,7 @@ public enum XMaterial {
 	 * @since 2.0.0
 	 */
 	public boolean isSupported() {
-		return this.material != null;
+		return material != null;
 	}
 
 	/**
@@ -1262,7 +1281,7 @@ public enum XMaterial {
 	 * matching, for matching check {@link #DUPLICATED}
 	 */
 	private boolean isDuplicated() {
-		switch (this.name()) {
+		switch (name()) {
 		case "MELON":
 		case "CARROT":
 		case "POTATO":

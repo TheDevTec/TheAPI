@@ -257,7 +257,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 			Object packet = msg;
 			synchronized (packet) {
 				if (packet.getClass() == PacketHandlerModern.login) {
-					player = ((GameProfile) Ref.get(packet, PacketHandlerModern.f)).getName();
+					player = Ref.isNewerThan(18)?(String)Ref.get(packet, PacketHandlerModern.f):((GameProfile) Ref.get(packet, PacketHandlerModern.f)).getName();
 					channelLookup.put(player, channel);
 				}
 				try {

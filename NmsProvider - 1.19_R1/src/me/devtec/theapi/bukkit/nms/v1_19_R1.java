@@ -1103,7 +1103,7 @@ public class v1_19_R1 implements NmsProvider {
 
 	@Override
 	public String getProviderName() {
-		return "1_18_R2 (1.18.2)";
+		return "1_19_R1 (1.19)";
 	}
 
 	@Override
