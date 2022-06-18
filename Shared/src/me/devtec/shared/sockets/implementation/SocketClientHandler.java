@@ -7,7 +7,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
+import me.devtec.shared.API;
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.dataholder.loaders.ByteLoader;
 import me.devtec.shared.events.EventManager;
@@ -15,6 +17,7 @@ import me.devtec.shared.events.api.ServerClientConnectRespondeEvent;
 import me.devtec.shared.events.api.ServerPreReceiveFileEvent;
 import me.devtec.shared.events.api.ServerReceiveDataEvent;
 import me.devtec.shared.events.api.ServerReceiveFileEvent;
+import me.devtec.shared.scheduler.Tasker;
 import me.devtec.shared.sockets.SocketClient;
 import me.devtec.shared.sockets.SocketServer;
 
@@ -87,14 +90,22 @@ public class SocketClientHandler implements SocketClient {
 		}
 	}
 
+	private void reconnect() {
+		if(!API.isEnabled())return;
+		new Tasker() {
+			@Override
+			public void run() {
+				start();
+			}
+		}.runLater(20*3);
+	}
+
 	@Override
 	public void start() {
 		try {
-			socket=new Socket(ip, port);
-			socket.setReuseAddress(true);
-			socket.setReceiveBufferSize(1024*2);
-			socket.setTcpNoDelay(true);
-			socket.setKeepAlive(true);
+			socket=tryConnect();
+			if(socket==null)
+				reconnect();
 			try {
 				in=new DataInputStream(socket.getInputStream());
 				out=new DataOutputStream(socket.getOutputStream());
@@ -180,12 +191,29 @@ public class SocketClientHandler implements SocketClient {
 								e.printStackTrace();
 							}
 						}
+						reconnect();
 					}).start();
 				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private Socket tryConnect() {
+		try {
+			Socket socket=new Socket(ip, port);
+			socket.setReuseAddress(true);
+			socket.setReceiveBufferSize(1024*2);
+			socket.setTcpNoDelay(true);
+			socket.setKeepAlive(true);
+			return socket;
+		} catch (UnknownHostException e) {
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	@Override

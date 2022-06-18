@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.dataholder.loaders.ByteLoader;
@@ -82,7 +83,9 @@ public class SocketServerClientHandler implements SocketClient {
 							ServerReceiveFileEvent fileEvent = new ServerReceiveFileEvent(SocketServerClientHandler.this, createdFile);
 							EventManager.call(fileEvent);
 						}
-					} catch (IOException e) {
+					}catch(SocketException e) {
+
+					}catch (IOException e) {
 						e.printStackTrace();
 					}
 					try {
