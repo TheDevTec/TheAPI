@@ -60,19 +60,20 @@ public class SocketClientHandler implements SocketClient {
 	}
 
 	@Override
-	public void write(File file) {
+	public void write(String fileName, File file) {
 		try {
 			out.write(SocketServer.RECEIVE_FILE);
-			out.write(file.getName().length());
-			out.write(file.getName().getBytes());
+			out.write(fileName.length());
+			out.write(fileName.getBytes());
 
-			out.writeLong((int)file.length());
+			out.writeLong(file.length());
 			FileInputStream fileInputStream = new FileInputStream(file);
 			int bytes = 0;
 			byte[] buffer = new byte[2*1024];
 			while ((bytes=fileInputStream.read(buffer))!=-1)
 				out.write(buffer,0,bytes);
 			fileInputStream.close();
+			out.flush();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -85,6 +86,7 @@ public class SocketClientHandler implements SocketClient {
 			out.write(SocketServer.RECEIVE_DATA);
 			out.write(path.length);
 			out.write(path);
+			out.flush();
 		}catch(Exception e) {
 			e.printStackTrace();
 		}

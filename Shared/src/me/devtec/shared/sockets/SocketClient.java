@@ -16,7 +16,11 @@ public interface SocketClient {
 
 	public void write(Config data);
 
-	public void write(File file);
+	public default void write(File file) {
+		write(file.getName(), file);
+	}
+
+	public void write(String fileName, File file);
 
 	public void start();
 
