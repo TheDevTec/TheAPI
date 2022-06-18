@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -17,7 +18,6 @@ import me.devtec.shared.events.api.ServerClientConnectRespondeEvent;
 import me.devtec.shared.events.api.ServerPreReceiveFileEvent;
 import me.devtec.shared.events.api.ServerReceiveDataEvent;
 import me.devtec.shared.events.api.ServerReceiveFileEvent;
-import me.devtec.shared.scheduler.Tasker;
 import me.devtec.shared.sockets.SocketClient;
 import me.devtec.shared.sockets.SocketServer;
 
@@ -92,112 +92,112 @@ public class SocketClientHandler implements SocketClient {
 
 	private void reconnect() {
 		if(!API.isEnabled())return;
-		new Tasker() {
-			@Override
-			public void run() {
-				start();
-			}
-		}.runLater(20*3);
+		try {
+			Thread.sleep(3000);
+		} catch (Exception e) {
+		}
+		start();
 	}
 
 	@Override
 	public void start() {
-		try {
-			socket=tryConnect();
-			if(socket==null)
-				reconnect();
+		new Thread(()-> {
 			try {
-				in=new DataInputStream(socket.getInputStream());
-				out=new DataOutputStream(socket.getOutputStream());
-			}catch(Exception err) {
-			}
-			//PROCESS LOGIN
-			if(socket.isConnected() && !socket.isClosed() && in.read()==SocketServer.PROCESS_LOGIN) {
-				out.write(password.length);
-				out.write(password);
-				int result = in.read();
-				if(result==SocketServer.RECEIVE_NAME) {
-					out.write(SocketClientHandler.serverName.length);
-					out.write(SocketClientHandler.serverName);
-					result = in.read(); //await for respond
+				socket=tryConnect();
+				if(socket==null)
+					reconnect();
+				try {
+					in=new DataInputStream(socket.getInputStream());
+					out=new DataOutputStream(socket.getOutputStream());
+				}catch(Exception err) {
 				}
-				ServerClientConnectRespondeEvent respondeEvent = new ServerClientConnectRespondeEvent(this, result);
-				EventManager.call(respondeEvent);
-				if(result==SocketServer.ACCEPTED) {
-					connected=true;
-					//LOGGED IN, START READER
-					DataInputStream stream = new DataInputStream(in);
-					new Thread(()->{
-						while(isConnected()) {
-							try {
-								int task = stream.read();
-								switch (task) {
-								case SocketServer.RECEIVE_DATA: {
-									byte[] path = new byte[stream.read()];
-									stream.read(path);
-									ByteLoader loader = new ByteLoader();
-									loader.load(path);
-									Config data = new Config(loader);
-									ServerReceiveDataEvent event = new ServerReceiveDataEvent(SocketClientHandler.this, data);
-									EventManager.call(event);
-									break;
-								}
-								case SocketServer.RECEIVE_NAME:
-									out.write(SocketClientHandler.serverName.length);
-									out.write(SocketClientHandler.serverName);
-									break;
-								case SocketServer.RECEIVE_FILE: {
-									byte[] fileName = new byte[stream.read()];
-									stream.read(fileName);
-									ServerPreReceiveFileEvent event = new ServerPreReceiveFileEvent(SocketClientHandler.this, new String(fileName));
-									EventManager.call(event);
-									if(event.isCancelled()) {
-										int size = stream.read();
-										byte[] buffer = new byte[2*1024];
-										int bytes;
-										while (size > 0 && (bytes = stream.read(buffer, 0, Math.min(buffer.length, size))) != -1)
-											size -= bytes;
-										continue;
+				//PROCESS LOGIN
+				if(socket.isConnected() && !socket.isClosed() && in.read()==SocketServer.PROCESS_LOGIN) {
+					out.write(password.length);
+					out.write(password);
+					int result = in.read();
+					if(result==SocketServer.RECEIVE_NAME) {
+						out.write(SocketClientHandler.serverName.length);
+						out.write(SocketClientHandler.serverName);
+						result = in.read(); //await for respond
+					}
+					ServerClientConnectRespondeEvent respondeEvent = new ServerClientConnectRespondeEvent(SocketClientHandler.this, result);
+					EventManager.call(respondeEvent);
+					if(result==SocketServer.ACCEPTED) {
+						connected=true;
+						//LOGGED IN, START READER
+						new Thread(()->{
+							while(isConnected()) {
+								try {
+									int task = in.read();
+									switch (task) {
+									case SocketServer.RECEIVE_DATA: {
+										byte[] path = new byte[in.read()];
+										in.read(path);
+										ByteLoader loader = new ByteLoader();
+										loader.load(path);
+										Config data = new Config(loader);
+										ServerReceiveDataEvent event = new ServerReceiveDataEvent(SocketClientHandler.this, data);
+										EventManager.call(event);
+										break;
 									}
-									File createdFile = new File(event.getFileDirectory()+event.getFileName());
-									if(createdFile.exists())createdFile.delete();
-									else {
-										if(createdFile.getParentFile()!=null)
-											createdFile.getParentFile().mkdirs();
-										createdFile.createNewFile();
-									}
-									int bytes = 0;
-									FileOutputStream fileOutputStream = new FileOutputStream(createdFile);
+									case SocketServer.RECEIVE_NAME:
+										out.write(SocketClientHandler.serverName.length);
+										out.write(SocketClientHandler.serverName);
+										break;
+									case SocketServer.RECEIVE_FILE: {
+										byte[] fileName = new byte[in.read()];
+										in.read(fileName);
+										ServerPreReceiveFileEvent event = new ServerPreReceiveFileEvent(SocketClientHandler.this, new String(fileName));
+										EventManager.call(event);
+										if(event.isCancelled()) {
+											int size = in.read();
+											byte[] buffer = new byte[2*1024];
+											int bytes;
+											while (size > 0 && (bytes = in.read(buffer, 0, Math.min(buffer.length, size))) != -1)
+												size -= bytes;
+											continue;
+										}
+										File createdFile = new File(event.getFileDirectory()+event.getFileName());
+										if(createdFile.exists())createdFile.delete();
+										else {
+											if(createdFile.getParentFile()!=null)
+												createdFile.getParentFile().mkdirs();
+											createdFile.createNewFile();
+										}
+										int bytes = 0;
+										FileOutputStream fileOutputStream = new FileOutputStream(createdFile);
 
-									long size = stream.readLong();
-									byte[] buffer = new byte[2*1024];
-									while (size > 0 && (bytes = stream.read(buffer, 0, (int) Math.min(buffer.length, size))) != -1) {
-										fileOutputStream.write(buffer,0,bytes);
-										size -= bytes;
+										long size = in.readLong();
+										byte[] buffer = new byte[2*1024];
+										while (size > 0 && (bytes = in.read(buffer, 0, (int) Math.min(buffer.length, size))) != -1) {
+											fileOutputStream.write(buffer,0,bytes);
+											size -= bytes;
+										}
+										fileOutputStream.close();
+										ServerReceiveFileEvent fileEvent = new ServerReceiveFileEvent(SocketClientHandler.this, createdFile);
+										EventManager.call(fileEvent);
+										break;
 									}
-									fileOutputStream.close();
-									ServerReceiveFileEvent fileEvent = new ServerReceiveFileEvent(SocketClientHandler.this, createdFile);
-									EventManager.call(fileEvent);
-									break;
+									default:
+										break;
+									}
+								} catch (IOException e1) {
 								}
-								default:
-									break;
+								try {
+									Thread.sleep(100);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
 								}
-							} catch (IOException e1) {
 							}
-							try {
-								Thread.sleep(100);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
-						reconnect();
-					}).start();
+							reconnect();
+						}).start();
+					}
 				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		}).start();
 	}
 
 	private Socket tryConnect() {
@@ -208,7 +208,7 @@ public class SocketClientHandler implements SocketClient {
 			socket.setTcpNoDelay(true);
 			socket.setKeepAlive(true);
 			return socket;
-		} catch (UnknownHostException e) {
+		} catch (ConnectException | UnknownHostException e) {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
