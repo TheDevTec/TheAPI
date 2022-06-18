@@ -39,6 +39,12 @@ public class Config {
 	protected boolean isSaving; // LOCK
 	protected boolean requireSave;
 
+	public static Config loadFromInput(InputStream input) {
+		Config insideJar = new Config();
+		insideJar.reload(StreamUtils.fromStream(input));
+		return insideJar;
+	}
+
 	public static Config loadFromInput(InputStream input, String outputFile) {
 		return Config.loadFromInput(input, new File(outputFile));
 	}

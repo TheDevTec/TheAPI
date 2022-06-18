@@ -23,6 +23,6 @@ public class SecondaryServer {
 	}
 
 	public static void stopClient() {
-		SecondaryServer.socketClient.end();
+		SecondaryServer.socketClient.stop();
 	}
 }

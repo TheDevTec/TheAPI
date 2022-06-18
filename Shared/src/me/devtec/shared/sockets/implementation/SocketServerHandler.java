@@ -68,17 +68,17 @@ public class SocketServerHandler implements SocketServer {
 			socket.getOutputStream().write(SocketServer.PROCESS_LOGIN);
 			int size = socket.getInputStream().read();
 			if(size != password.length()) {
-				socket.getOutputStream().write(SocketServer.DECNILED);
+				socket.getOutputStream().write(SocketServer.REJECTED);
 				socket.close();
-				//CLIENT DECNILED EVENT?
+				//CLIENT REJECTED EVENT?
 				return;
 			}
 			byte[] text = new byte[size];
 			socket.getInputStream().read(text);
 			if(!password.equals(new String(text))) {
-				socket.getOutputStream().write(SocketServer.DECNILED);
+				socket.getOutputStream().write(SocketServer.REJECTED);
 				socket.close();
-				//CLIENT DECNILED EVENT?
+				//CLIENT REJECTED EVENT?
 				return;
 			}
 			socket.getOutputStream().write(SocketServer.RECEIVE_NAME);
@@ -89,7 +89,7 @@ public class SocketServerHandler implements SocketServer {
 			ServerClientConnectEvent event = new ServerClientConnectEvent(socket, serverName);
 			EventManager.call(event);
 			if(event.isCancelled()) {
-				socket.getOutputStream().write(SocketServer.DECNILED_PLUGIN);
+				socket.getOutputStream().write(SocketServer.REJECTED_PLUGIN);
 				return;
 			}
 			socket.getOutputStream().write(SocketServer.ACCEPTED);
@@ -108,7 +108,7 @@ public class SocketServerHandler implements SocketServer {
 	@Override
 	public void stop() {
 		try {
-			connected.values().forEach(SocketClient::end);
+			connected.values().forEach(SocketClient::stop);
 			connected.clear();
 			serverSocket.close();
 		} catch (IOException e) {

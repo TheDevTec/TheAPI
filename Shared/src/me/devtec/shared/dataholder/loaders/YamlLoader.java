@@ -15,7 +15,7 @@ public class YamlLoader extends EmptyLoader {
 
 	@Override
 	public void load(String input) {
-		this.reset();
+		reset();
 		if (input == null)
 			return;
 		try {
@@ -36,12 +36,15 @@ public class YamlLoader extends EmptyLoader {
 			// COMMENTS
 			LinkedList<String> comments = new LinkedList<>();
 
+			int linePos = 0;
 			for (String line : input.split(System.lineSeparator())) {
 				String trim = line.trim();
 				if (trim.isEmpty()) {
-					comments.add("");
+					if(linePos!=0)
+						comments.add("");
 					continue;
 				}
+				++linePos;
 				String e = line.substring(YamlLoader.removeSpaces(line));
 				if (trim.charAt(0) == '#') {
 					comments.add(e);
@@ -59,19 +62,19 @@ public class YamlLoader extends EmptyLoader {
 				if (match.find()) {
 					if (type != null) {
 						if (type == BuilderType.LIST) {
-							this.data.put(key, DataValue.of(null, new LinkedList<>(items), null,
+							data.put(key, DataValue.of(null, new LinkedList<>(items), null,
 									comments.isEmpty() ? null : Config.simple(new LinkedList<>(comments))));
 							comments.clear();
 							items = null;
 						} else {
-							this.data.put(key, DataValue.of(null, builder.toString(), null,
+							data.put(key, DataValue.of(null, builder.toString(), null,
 									comments.isEmpty() ? null : Config.simple(new LinkedList<>(comments))));
 							comments.clear();
 							builder = null;
 						}
 						type = null;
 					} else if (items != null) {
-						this.data.get(key).value = new LinkedList<>(items);
+						data.get(key).value = new LinkedList<>(items);
 						items = null;
 					}
 
@@ -102,7 +105,7 @@ public class YamlLoader extends EmptyLoader {
 					String[] valueSplit = YamlLoader.splitFromComment(value);
 					if (valueSplit[0].trim().isEmpty() && !value.contains("\"") && !value.contains("'")) {
 						value = null;
-						this.data.put(key, DataValue.of(null, null, null,
+						data.put(key, DataValue.of(null, null, null,
 								comments.isEmpty() ? null : Config.simple(new LinkedList<>(comments))));
 						comments.clear();
 						continue;
@@ -121,17 +124,17 @@ public class YamlLoader extends EmptyLoader {
 						continue;
 					}
 					if (value.equals("[]")) {
-						this.data.put(key,
+						data.put(key,
 								DataValue.of("[]", Collections.emptyList(),
 										valueSplit.length == 2 ? valueSplit[1] : null,
-										comments.isEmpty() ? null : Config.simple(new LinkedList<>(comments))));
+												comments.isEmpty() ? null : Config.simple(new LinkedList<>(comments))));
 						comments.clear();
 						continue;
 					}
-					this.data.put(key,
+					data.put(key,
 							DataValue.of(value, Json.reader().read(value),
 									valueSplit.length == 2 ? valueSplit[1] : null,
-									comments.isEmpty() ? null : Config.simple(new LinkedList<>(comments))));
+											comments.isEmpty() ? null : Config.simple(new LinkedList<>(comments))));
 					comments.clear();
 				} else if (type != null)
 					if (type == BuilderType.LIST)
@@ -139,28 +142,28 @@ public class YamlLoader extends EmptyLoader {
 					else
 						builder.append(line.substring(YamlLoader.removeSpaces(line)));
 			}
-			this.loaded = true;
+			loaded = true;
 			if (type != null) {
 				if (type == BuilderType.LIST)
-					this.data.put(key,
+					data.put(key,
 							DataValue.of(null, items, null, comments.isEmpty() ? null : Config.simple(comments)));
 				else
-					this.data.put(key, DataValue.of(builder.toString(), builder.toString(), null,
+					data.put(key, DataValue.of(builder.toString(), builder.toString(), null,
 							comments.isEmpty() ? null : Config.simple(comments)));
 				return;
 			}
 			if (items != null) {
-				this.data.put(key,
+				data.put(key,
 						DataValue.of(null, items, null, comments.isEmpty() ? null : Config.simple(comments)));
 				return;
 			}
-			if (this.data.isEmpty())
-				this.header.addAll(Config.simple(comments));
+			if (data.isEmpty())
+				header.addAll(Config.simple(comments));
 			else
-				this.footer.addAll(Config.simple(comments));
+				footer.addAll(Config.simple(comments));
 		} catch (Exception er) {
 			er.printStackTrace();
-			this.loaded = false;
+			loaded = false;
 		}
 	}
 
@@ -182,7 +185,7 @@ public class YamlLoader extends EmptyLoader {
 		String k = key.trim();
 		return k.length() > 1 && (k.startsWith("\"") && k.endsWith("\"") || k.startsWith("'") && k.endsWith("'"))
 				? key.substring(1, key.length() - 1 - YamlLoader.removeLastSpaces(key))
-				: key;
+						: key;
 	}
 
 	public static int removeLastSpaces(String s) {
