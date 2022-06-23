@@ -51,16 +51,38 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 				}
 		if (serverConnection == null)
 			return;
-		if (lateBind)
-			while (!(boolean) Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(),
-					Ref.isOlderThan(9) ? "Q"
-							: Ref.isOlderThan(11) ? "P"
-									: Ref.isOlderThan(13) ? "Q"
-											: Ref.isOlderThan(14) ? "P" : Ref.isOlderThan(17) ? "hasTicked" : "ah"))
+		if (lateBind) {
+			String hasTicked = "ac";
+			switch(Ref.serverVersionInt()) {
+			case 8:
+			case 11:
+			case 12:
+				hasTicked = "Q";
+				break;
+			case 9:
+			case 10:
+			case 13:
+				hasTicked = "P";
+				break;
+			case 14:
+			case 15:
+			case 16:
+				hasTicked = BukkitLoader.isMohist ? "field_71296_Q" : "hasTicked";
+				break;
+			case 17:
+			case 18:
+				hasTicked = "ah";
+				break;
+			case 19:
+				hasTicked = "ac";
+				break;
+			}
+			while (!(boolean) Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(), hasTicked))
 				try {
 					Thread.sleep(20);
 				} catch (Exception e) {
 				}
+		}
 		new Tasker() {
 			@Override
 			public void run() {

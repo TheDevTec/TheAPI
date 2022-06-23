@@ -21,7 +21,7 @@ public class Ref {
 		}
 
 		public boolean isBukkit() {
-			return this.bukkit;
+			return bukkit;
 		}
 	}
 
@@ -38,6 +38,10 @@ public class Ref {
 
 	public static String serverVersion() {
 		return Ref.ver;
+	}
+
+	public static int serverVersionInt() {
+		return Ref.intVer;
 	}
 
 	public static ServerType serverType() {

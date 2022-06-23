@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -33,7 +34,9 @@ public interface LibraryLoader {
 				file.getParentFile().mkdirs();
 				file.createNewFile();
 				OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
-				InputStream in = url.openConnection().getInputStream();
+				HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+				conn.setRequestProperty("User-Agent", "DevTec-JavaClient");
+				InputStream in = conn.getInputStream();
 				byte[] buf = new byte[4096];
 				int r;
 				while ((r = in.read(buf)) != -1)

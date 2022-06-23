@@ -1,10 +1,12 @@
 package me.devtec.shared.sockets.implementation;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import me.devtec.shared.events.EventManager;
 import me.devtec.shared.events.api.ServerClientConnectEvent;
@@ -15,7 +17,7 @@ public class SocketServerHandler implements SocketServer {
 	private final String serverName;
 	private final int port;
 	private ServerSocket serverSocket;
-	private final Map<String, SocketClient> connected = new ConcurrentHashMap<>();
+	private final List<SocketClient> connected = new ArrayList<>();
 	private final String password;
 	public SocketServerHandler(String serverName, int port, String password) {
 		this.serverName=serverName;
@@ -29,7 +31,7 @@ public class SocketServerHandler implements SocketServer {
 	}
 
 	@Override
-	public Map<String, SocketClient> connectedClients() {
+	public List<SocketClient> connectedClients() {
 		return connected;
 	}
 
@@ -53,7 +55,7 @@ public class SocketServerHandler implements SocketServer {
 						//Nothing is connecting
 					}
 					try {
-						Thread.sleep(500);
+						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 					}
 				}
@@ -65,42 +67,45 @@ public class SocketServerHandler implements SocketServer {
 
 	protected void handleConnection(Socket socket) {
 		try {
-			socket.getOutputStream().write(SocketServer.PROCESS_LOGIN);
-			int size = socket.getInputStream().read();
+			if(socket.isInputShutdown() || socket.isOutputShutdown())return;
+			DataInputStream in = new DataInputStream(socket.getInputStream());
+			DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+			out.writeInt(SocketServer.PROCESS_LOGIN);
+			if(socket.isInputShutdown() || socket.isOutputShutdown())return;
+			int size = in.readInt();
 			if(size != password.length()) {
-				socket.getOutputStream().write(SocketServer.REJECTED);
+				out.writeInt(SocketServer.REJECTED);
 				socket.close();
 				//CLIENT REJECTED EVENT?
 				return;
 			}
 			byte[] text = new byte[size];
-			socket.getInputStream().read(text);
+			in.read(text);
 			if(!password.equals(new String(text))) {
-				socket.getOutputStream().write(SocketServer.REJECTED);
+				out.writeInt(SocketServer.REJECTED);
 				socket.close();
 				//CLIENT REJECTED EVENT?
 				return;
 			}
-			socket.getOutputStream().write(SocketServer.RECEIVE_NAME);
-			size = socket.getInputStream().read();
+			out.writeInt(SocketServer.RECEIVE_NAME);
+			size = in.readInt();
 			text = new byte[size];
-			socket.getInputStream().read(text);
+			in.read(text);
 			String serverName = new String(text);
 			ServerClientConnectEvent event = new ServerClientConnectEvent(socket, serverName);
 			EventManager.call(event);
 			if(event.isCancelled()) {
-				socket.getOutputStream().write(SocketServer.REJECTED_PLUGIN);
+				out.writeInt(SocketServer.REJECTED_PLUGIN);
 				return;
 			}
-			socket.getOutputStream().write(SocketServer.ACCEPTED);
-			connected.put(serverName, new SocketServerClientHandler(this, serverName, socket));
-		} catch (IOException e) {
-			e.printStackTrace();
+			out.writeInt(SocketServer.ACCEPTED);
+			connected.add(new SocketServerClientHandler(this, serverName, socket));
+		} catch (Exception e) {
 		}
 	}
 
 	private boolean isAlreadyConnected(Socket socket) {
-		for(SocketClient c : connected.values())
+		for(SocketClient c : connected)
 			if(c.getSocket().equals(socket))return true;
 		return false;
 	}
@@ -108,7 +113,7 @@ public class SocketServerHandler implements SocketServer {
 	@Override
 	public void stop() {
 		try {
-			connected.values().forEach(SocketClient::stop);
+			connected.forEach(SocketClient::stop);
 			connected.clear();
 			serverSocket.close();
 		} catch (IOException e) {

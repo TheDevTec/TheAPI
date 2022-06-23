@@ -2,15 +2,18 @@ package me.devtec.shared.events.api;
 
 import java.io.File;
 
+import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.events.Event;
 import me.devtec.shared.sockets.SocketClient;
 
 public class ServerReceiveFileEvent extends Event {
-	private final File data;
+	private final File file;
+	private final Config data;
 	private final SocketClient client;
 
-	public ServerReceiveFileEvent(SocketClient client, File received) {
-		data = received;
+	public ServerReceiveFileEvent(SocketClient client, Config data, File received) {
+		file = received;
+		this.data = data;
 		this.client = client;
 	}
 
@@ -19,6 +22,14 @@ public class ServerReceiveFileEvent extends Event {
 	}
 
 	public File getFile() {
+		return file;
+	}
+
+	/**
+	 *
+	 * @apiNote Nullable
+	 */
+	public Config getData() {
 		return data;
 	}
 }

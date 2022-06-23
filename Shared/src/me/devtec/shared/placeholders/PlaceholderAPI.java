@@ -1,6 +1,7 @@
 package me.devtec.shared.placeholders;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -12,6 +13,10 @@ public class PlaceholderAPI {
 	public static Pattern placeholderLookup = Pattern.compile("\\%(.*?)\\%"); // %PLACEHOLDER_NAME%
 
 	private static List<PlaceholderExpansion> extensions = new ArrayList<>();
+
+	public static List<PlaceholderExpansion> getPlaceholders() {
+		return Collections.unmodifiableList(PlaceholderAPI.extensions);
+	}
 
 	public static void register(PlaceholderExpansion ext) {
 		PlaceholderAPI.unregister(ext); // Unregister placeholders with same name

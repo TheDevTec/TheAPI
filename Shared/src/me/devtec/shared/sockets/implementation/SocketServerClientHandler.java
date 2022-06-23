@@ -2,21 +2,13 @@ package me.devtec.shared.sockets.implementation;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.Socket;
-import java.net.SocketException;
 
-import me.devtec.shared.dataholder.Config;
-import me.devtec.shared.dataholder.loaders.ByteLoader;
 import me.devtec.shared.events.EventManager;
-import me.devtec.shared.events.api.ServerPreReceiveFileEvent;
-import me.devtec.shared.events.api.ServerReceiveDataEvent;
-import me.devtec.shared.events.api.ServerReceiveFileEvent;
+import me.devtec.shared.events.api.ServerClientConnectRespondeEvent;
 import me.devtec.shared.sockets.SocketClient;
 import me.devtec.shared.sockets.SocketServer;
+import me.devtec.shared.sockets.SocketUtils;
 
 public class SocketServerClientHandler implements SocketClient {
 	private final String serverName;
@@ -40,53 +32,12 @@ public class SocketServerClientHandler implements SocketClient {
 			new Thread(()->{
 				while(isConnected()) {
 					try {
-						int task = stream.read();
-						if(task==SocketServer.RECEIVE_DATA) {
-							byte[] path = new byte[stream.read()];
-							stream.read(path);
-							ByteLoader loader = new ByteLoader();
-							loader.load(path);
-							Config data = new Config(loader);
-							ServerReceiveDataEvent event = new ServerReceiveDataEvent(SocketServerClientHandler.this, data);
-							EventManager.call(event);
-							continue;
-						}
-						if(task==SocketServer.RECEIVE_FILE) {
-							byte[] fileName = new byte[stream.read()];
-							stream.read(fileName);
-							ServerPreReceiveFileEvent event = new ServerPreReceiveFileEvent(SocketServerClientHandler.this, new String(fileName));
-							EventManager.call(event);
-							if(event.isCancelled()) {
-								long size = stream.readLong();
-								byte[] buffer = new byte[2*1024];
-								int bytes;
-								while (size > 0 && (bytes = stream.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1)
-									size -= bytes;
-								continue;
-							}
-							File createdFile = new File(event.getFileDirectory()+event.getFileName());
-							if(createdFile.exists())createdFile.delete();
-							else {
-								if(createdFile.getParentFile()!=null)
-									createdFile.getParentFile().mkdirs();
-								createdFile.createNewFile();
-							}
-							int bytes = 0;
-							FileOutputStream fileOutputStream = new FileOutputStream(createdFile);
-							long size = stream.readLong();
-							byte[] buffer = new byte[2*1024];
-							while (size > 0 && (bytes = stream.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
-								fileOutputStream.write(buffer,0,bytes);
-								size -= bytes;
-							}
-							fileOutputStream.close();
-							ServerReceiveFileEvent fileEvent = new ServerReceiveFileEvent(SocketServerClientHandler.this, createdFile);
-							EventManager.call(fileEvent);
-						}
-					}catch(SocketException e) {
-
-					}catch (IOException e) {
-						e.printStackTrace();
+						int task = stream.readInt();
+						ServerClientConnectRespondeEvent crespondeEvent = new ServerClientConnectRespondeEvent(this, task);
+						EventManager.call(crespondeEvent);
+						SocketUtils.process(this, task);
+					}catch(Exception e) {
+						break;
 					}
 					try {
 						Thread.sleep(100);
@@ -120,39 +71,6 @@ public class SocketServerClientHandler implements SocketClient {
 	}
 
 	@Override
-	public void write(String fileName, File file) {
-		try {
-			out.write(SocketServer.RECEIVE_FILE);
-			out.write(fileName.length());
-			out.write(fileName.getBytes());
-
-			out.writeLong(file.length());
-			FileInputStream fileInputStream = new FileInputStream(file);
-			int bytes = 0;
-			byte[] buffer = new byte[2*1024];
-			while ((bytes=fileInputStream.read(buffer))!=-1)
-				out.write(buffer,0,bytes);
-			fileInputStream.close();
-			out.flush();
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void write(Config data) {
-		try {
-			byte[] path = data.toByteArray();
-			out.write(SocketServer.RECEIVE_DATA);
-			out.write(path.length);
-			out.write(path);
-			out.flush();
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
 	public void start() {
 		throw new RuntimeException("Can't connect a socket that is not from the server side");
 	}
@@ -169,6 +87,16 @@ public class SocketServerClientHandler implements SocketClient {
 	@Override
 	public Socket getSocket() {
 		return socket;
+	}
+
+	@Override
+	public DataInputStream getInputStream() {
+		return in;
+	}
+
+	@Override
+	public DataOutputStream getOutputStream() {
+		return out;
 	}
 
 }

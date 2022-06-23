@@ -83,22 +83,22 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	static Class<?> itemname;
 	public static List<BossBar> bossbars = new ArrayList<>();
 	private me.devtec.shared.placeholders.PlaceholderExpansion placeholders;
+	public static boolean isMohist;
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onLoad() {
 		BukkitLoader.initTheAPI(this);
 		new Metrics(this, 10581);
-		boolean mohist = false;
 		try {
 			if (Class.forName("com.mohistmc.MohistMC", true, getClassLoader()) != null)
-				mohist = true;
+				BukkitLoader.isMohist = true;
 		} catch (Exception | NoClassDefFoundError err) {
 
 		}
 		try {
 			BukkitLoader.nmsProvider = (NmsProvider) Class
-					.forName("me.devtec.theapi.bukkit.nms." + Ref.serverVersion() + (mohist ? "_Mohist" : ""), true,
+					.forName("me.devtec.theapi.bukkit.nms." + Ref.serverVersion() + (BukkitLoader.isMohist ? "_Mohist" : ""), true,
 							getClassLoader())
 					.newInstance();
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
