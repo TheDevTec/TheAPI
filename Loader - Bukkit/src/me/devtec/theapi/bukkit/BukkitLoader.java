@@ -254,7 +254,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			new PlaceholderExpansion() {
 				@Override
 				public String onRequest(OfflinePlayer player, String params) {
-					return PlaceholderAPI.apply("%" + params + "%", player.getUniqueId());
+					return PlaceholderAPI.apply("%" + params + "%", player==null?null:player.getUniqueId());
 				}
 
 				@Override
