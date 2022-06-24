@@ -24,7 +24,8 @@ public class SocketClientHandler implements SocketClient {
 	private DataInputStream in;
 	private  DataOutputStream out;
 	private int task = 0;
-	private long lastPing, lastPong;
+	private long lastPing;
+	private long lastPong;
 
 	public SocketClientHandler(String ip, int port, String password) {
 		this.ip=ip;

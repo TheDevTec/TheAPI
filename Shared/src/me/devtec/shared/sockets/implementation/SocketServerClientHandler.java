@@ -19,7 +19,8 @@ public class SocketServerClientHandler implements SocketClient {
 	private DataOutputStream out;
 	private boolean connected = true;
 	private int task = 0;
-	private long lastPing, lastPong;
+	private long lastPing;
+	private long lastPong;
 
 	public SocketServerClientHandler(SocketServer server, String serverName, Socket socket) {
 		this.socket=socket;
