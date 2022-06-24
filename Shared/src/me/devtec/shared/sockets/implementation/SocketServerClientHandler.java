@@ -4,8 +4,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 
+import me.devtec.shared.API;
 import me.devtec.shared.events.EventManager;
-import me.devtec.shared.events.api.ServerClientConnectRespondeEvent;
+import me.devtec.shared.events.api.ServerClientRespondeEvent;
 import me.devtec.shared.sockets.SocketClient;
 import me.devtec.shared.sockets.SocketServer;
 import me.devtec.shared.sockets.SocketUtils;
@@ -17,6 +18,8 @@ public class SocketServerClientHandler implements SocketClient {
 	private DataInputStream in;
 	private DataOutputStream out;
 	private boolean connected = true;
+	private int task = 0;
+	private long lastPing, lastPong;
 
 	public SocketServerClientHandler(SocketServer server, String serverName, Socket socket) {
 		this.socket=socket;
@@ -26,28 +29,48 @@ public class SocketServerClientHandler implements SocketClient {
 		}catch(Exception err) {
 		}
 		this.serverName=serverName;
-		try {
-			if(!isConnected())return;
-			DataInputStream stream = in;
-			new Thread(()->{
-				while(isConnected()) {
-					try {
-						int task = stream.readInt();
-						ServerClientConnectRespondeEvent crespondeEvent = new ServerClientConnectRespondeEvent(this, task);
-						EventManager.call(crespondeEvent);
-						SocketUtils.process(this, task);
-					}catch(Exception e) {
-						break;
+		//LOGGED IN, START READER
+		lastPing = System.currentTimeMillis()/100;
+		lastPong = System.currentTimeMillis()/100;
+		new Thread(()->{
+			while(isConnected() && API.isEnabled()) {
+				try {
+					task = in.readInt();
+					if(task==20) { //ping
+						out.writeInt(21);
+						continue;
 					}
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
+					if(task==21) { //pong
+						lastPong = System.currentTimeMillis()/100;
+						continue;
 					}
+					ServerClientRespondeEvent crespondeEvent = new ServerClientRespondeEvent(SocketServerClientHandler.this, task);
+					EventManager.call(crespondeEvent);
+					SocketUtils.process(this, task);
+				} catch (Exception e) {
+					connected=false;
+					break;
 				}
-			}).start();
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+				try {
+					Thread.sleep(100);
+				} catch (Exception e) {
+				}
+			}
+			connected=false;
+		}).start();
+		//ping - pong service
+		new Thread(()->{
+			while(isConnected() && API.isEnabled())
+				try {
+					if(lastPing-System.currentTimeMillis()/100 + 5000 <= 0) {
+						lastPing = System.currentTimeMillis()/100;
+						out.writeInt(20);
+					}
+				} catch (Exception e) {
+					connected=false;
+					break;
+				}
+		}).start();
 	}
 
 	@Override
@@ -63,6 +86,11 @@ public class SocketServerClientHandler implements SocketClient {
 	@Override
 	public int port() {
 		return socket.getPort();
+	}
+
+	@Override
+	public int ping() {
+		return (int) (-lastPing + lastPong);
 	}
 
 	@Override

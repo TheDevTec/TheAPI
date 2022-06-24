@@ -10,6 +10,7 @@ import java.util.List;
 
 import me.devtec.shared.events.EventManager;
 import me.devtec.shared.events.api.ServerClientConnectEvent;
+import me.devtec.shared.events.api.ServerClientDisconnectedEvent;
 import me.devtec.shared.sockets.SocketClient;
 import me.devtec.shared.sockets.SocketServer;
 
@@ -38,6 +39,13 @@ public class SocketServerHandler implements SocketServer {
 	@Override
 	public boolean isRunning() {
 		return serverSocket!=null && serverSocket.isBound() && !serverSocket.isClosed();
+	}
+
+	@Override
+	public void notifyDisconnect(SocketClient client) {
+		ServerClientDisconnectedEvent event = new ServerClientDisconnectedEvent(client);
+		EventManager.call(event);
+		connected.remove(client);
 	}
 
 	@Override

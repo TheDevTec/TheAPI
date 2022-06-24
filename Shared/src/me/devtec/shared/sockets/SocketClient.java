@@ -17,6 +17,8 @@ public interface SocketClient {
 
 	public boolean isConnected();
 
+	public int ping();
+
 	public default void write(String fileName, File file) {
 		DataOutputStream out = getOutputStream();
 		try {

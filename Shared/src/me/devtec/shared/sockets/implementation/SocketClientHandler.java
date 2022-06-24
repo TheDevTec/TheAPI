@@ -2,12 +2,12 @@ package me.devtec.shared.sockets.implementation;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.Socket;
 
 import me.devtec.shared.API;
 import me.devtec.shared.events.EventManager;
-import me.devtec.shared.events.api.ServerClientConnectRespondeEvent;
+import me.devtec.shared.events.api.ServerClientDisconnectedEvent;
+import me.devtec.shared.events.api.ServerClientRespondeEvent;
 import me.devtec.shared.sockets.SocketClient;
 import me.devtec.shared.sockets.SocketServer;
 import me.devtec.shared.sockets.SocketUtils;
@@ -23,6 +23,8 @@ public class SocketClientHandler implements SocketClient {
 
 	private DataInputStream in;
 	private  DataOutputStream out;
+	private int task = 0;
+	private long lastPing, lastPong;
 
 	public SocketClientHandler(String ip, int port, String password) {
 		this.ip=ip;
@@ -46,6 +48,11 @@ public class SocketClientHandler implements SocketClient {
 	}
 
 	@Override
+	public int ping() {
+		return (int) (-lastPing + lastPong);
+	}
+
+	@Override
 	public boolean isConnected() {
 		return connected && checkRawConnected();
 	}
@@ -59,7 +66,7 @@ public class SocketClientHandler implements SocketClient {
 		try {
 			while(API.isEnabled() && !checkRawConnected()) {
 				socket=tryConnect();
-				if(socket==null || !checkRawConnected())
+				if(!checkRawConnected())
 					try {
 						Thread.sleep(5000);
 					} catch (Exception e) {
@@ -69,6 +76,7 @@ public class SocketClientHandler implements SocketClient {
 				in=new DataInputStream(socket.getInputStream());
 				out=new DataOutputStream(socket.getOutputStream());
 			}catch(Exception err) {
+				connected=false;
 				if(API.isEnabled())
 					start();
 				return;
@@ -83,33 +91,72 @@ public class SocketClientHandler implements SocketClient {
 					out.write(SocketClientHandler.serverName);
 					result = in.readInt(); //await for respond
 				}
-				ServerClientConnectRespondeEvent respondeEvent = new ServerClientConnectRespondeEvent(SocketClientHandler.this, result);
+				ServerClientRespondeEvent respondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this, result);
 				EventManager.call(respondeEvent);
 				if(result==SocketServer.ACCEPTED) {
 					connected=true;
 					//LOGGED IN, START READER
+					lastPing = System.currentTimeMillis()/100;
+					lastPong = System.currentTimeMillis()/100;
 					new Thread(()->{
 						while(isConnected() && API.isEnabled()) {
 							try {
-								int task = in.readInt();
-								ServerClientConnectRespondeEvent crespondeEvent = new ServerClientConnectRespondeEvent(SocketClientHandler.this, task);
+								task = in.readInt();
+								if(task==20) { //ping
+									out.writeInt(21);
+									continue;
+								}
+								if(task==21) { //pong
+									lastPong = System.currentTimeMillis()/100;
+									continue;
+								}
+								ServerClientRespondeEvent crespondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this, task);
 								EventManager.call(crespondeEvent);
 								SocketUtils.process(this, task);
-							} catch (IOException e1) {
+							} catch (Exception e) {
+								connected=false;
+								break;
 							}
 							try {
 								Thread.sleep(100);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
+							} catch (Exception e) {
 							}
 						}
+						connected=false;
+						try {
+							socket.close();
+						}catch(Exception err) {
+						}
+						ServerClientDisconnectedEvent event = new ServerClientDisconnectedEvent(this);
+						EventManager.call(event);
+						socket=null;
 						if(API.isEnabled())
 							start();
 					}).start();
+					//ping - pong service
+					new Thread(()->{
+						while(isConnected() && API.isEnabled())
+							try {
+								if(lastPing-System.currentTimeMillis()/100 + 5000 <= 0) {
+									lastPing = System.currentTimeMillis()/100;
+									out.writeInt(20);
+								}
+							} catch (Exception e) {
+								connected=false;
+								break;
+							}
+					}).start();
 				}
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			connected=false;
+			if(API.isEnabled()) {
+				try {
+					Thread.sleep(5000);
+				} catch (Exception err) {
+				}
+				start();
+			}
 		}
 	}
 
@@ -121,8 +168,7 @@ public class SocketClientHandler implements SocketClient {
 			socket.setReceiveBufferSize(4*1024);
 			socket.setTcpNoDelay(true);
 			return socket;
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
 		}
 		return null;
 	}

@@ -21,4 +21,6 @@ public interface SocketServer {
 	public void start();
 
 	public void stop();
+
+	public void notifyDisconnect(SocketClient client);
 }

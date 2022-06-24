@@ -48,8 +48,6 @@ public class SocketUtils {
 		DataInputStream in = client.getInputStream();
 		switch(taskId) {
 		case SocketServer.RECEIVE_DATA:{
-			byte[] path = new byte[in.readInt()];
-			in.read(path);
 			ServerReceiveDataEvent event = new ServerReceiveDataEvent(client, SocketUtils.readConfig(in));
 			EventManager.call(event);
 			break;
