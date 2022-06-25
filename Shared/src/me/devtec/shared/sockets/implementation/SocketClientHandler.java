@@ -138,7 +138,8 @@ public class SocketClientHandler implements SocketClient {
 					new Thread(()->{
 						while(isConnected() && API.isEnabled())
 							try {
-								if(lastPing-System.currentTimeMillis()/100 + 5000 <= 0) {
+								Thread.sleep(15000);
+								if(lastPing-System.currentTimeMillis()/100 <= 0) {
 									lastPing = System.currentTimeMillis()/100;
 									out.writeInt(20);
 								}
