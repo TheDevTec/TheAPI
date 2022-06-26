@@ -39,10 +39,18 @@ public class SocketServerClientHandler implements SocketClient {
 					task = in.readInt();
 					if(task==20) { //ping
 						out.writeInt(21);
+						try {
+							Thread.sleep(100);
+						} catch (Exception e) {
+						}
 						continue;
 					}
 					if(task==21) { //pong
 						lastPong = System.currentTimeMillis()/100;
+						try {
+							Thread.sleep(100);
+						} catch (Exception e) {
+						}
 						continue;
 					}
 					ServerClientRespondeEvent crespondeEvent = new ServerClientRespondeEvent(SocketServerClientHandler.this, task);
@@ -64,10 +72,8 @@ public class SocketServerClientHandler implements SocketClient {
 			while(isConnected() && API.isEnabled())
 				try {
 					Thread.sleep(15000);
-					if(lastPing-System.currentTimeMillis()/100 <= 0) {
-						lastPing = System.currentTimeMillis()/100;
-						out.writeInt(20);
-					}
+					lastPing = System.currentTimeMillis()/100;
+					out.writeInt(20);
 				} catch (Exception e) {
 					connected=false;
 					break;
