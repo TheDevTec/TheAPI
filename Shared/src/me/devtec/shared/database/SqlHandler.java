@@ -22,15 +22,20 @@ public class SqlHandler implements DatabaseHandler {
 	public SqlHandler(String path, DatabaseSettings settings) throws SQLException {
 		this.settings = settings;
 		this.path = path;
-		this.open();
+		open();
 		new Tasker() {
 
 			@Override
 			public void run() {
 				try {
 					if (SqlHandler.this.isConnected())
-						SqlHandler.this.sql.prepareStatement("select 1").executeQuery().next();
+						sql.prepareStatement("select 1").executeQuery().next();
 				} catch (Exception doNotIddle) {
+					try {
+						if (SqlHandler.this.isConnected())
+							sql.prepareStatement("select 1").executeQuery().next();
+					} catch (Exception doNotIddle2) {
+					}
 				}
 			}
 		}.runRepeating(0, 20 * 60 * 3);
@@ -57,12 +62,12 @@ public class SqlHandler implements DatabaseHandler {
 			} else
 				builder.append("and");
 			builder.append(' ').append('`').append(pair[0].replace("'", "\\'")).append('`').append('=').append('\'')
-					.append(pair[1].replace("'", "\\'")).append('\'');
+			.append(pair[1].replace("'", "\\'")).append('\'');
 		}
 		if (query.sorting != null)
 			builder.append(' ').append("order").append(' ').append("by").append(' ').append('`')
-					.append(StringUtils.join(query.sortingKey, ",").replace("'", "\\'")).append('`').append(' ')
-					.append(query.sorting == Sorting.UP ? "DESC" : "ASC");
+			.append(StringUtils.join(query.sortingKey, ",").replace("'", "\\'")).append('`').append(' ')
+			.append(query.sorting == Sorting.UP ? "DESC" : "ASC");
 		if (query.limit != null)
 			builder.append(' ').append("limit").append(' ').append(query.limit);
 		return builder.toString();
@@ -94,7 +99,7 @@ public class SqlHandler implements DatabaseHandler {
 			else
 				builder.append(',');
 			builder.append(' ').append('`').append(val[0].replace("'", "\\'")).append('`').append('=').append('\'')
-					.append(val[1].replace("'", "\\'")).append('\'');
+			.append(val[1].replace("'", "\\'")).append('\'');
 		}
 		if (!query.where.isEmpty()) {
 			first = true;
@@ -105,7 +110,7 @@ public class SqlHandler implements DatabaseHandler {
 				} else
 					builder.append(',');
 				builder.append(' ').append('`').append(val[0].replace("'", "\\'")).append('`').append('=').append('\'')
-						.append(val[1].replace("'", "\\'")).append('\'');
+				.append(val[1].replace("'", "\\'")).append('\'');
 			}
 		}
 		if (query.limit != null)
@@ -125,7 +130,7 @@ public class SqlHandler implements DatabaseHandler {
 				builder.append(' ').append("where").append(' ');
 			}
 			builder.append('`').append(val[0].replace("'", "\\'")).append('`').append('=').append('\'')
-					.append(val[1].replace("'", "\\'")).append('\'');
+			.append(val[1].replace("'", "\\'")).append('\'');
 		}
 		if (query.limit != null)
 			builder.append(' ').append("LIMIT").append(' ').append(query.limit);
@@ -134,24 +139,28 @@ public class SqlHandler implements DatabaseHandler {
 
 	@Override
 	public boolean isConnected() throws SQLException {
-		return this.sql != null && !this.sql.isClosed();
+		return sql != null && !sql.isClosed() && sql.isValid(0);
 	}
 
 	@Override
 	public void open() throws SQLException {
-		this.sql = DriverManager.getConnection(this.path, this.settings.getUser(), this.settings.getPassword());
-		this.sql.setAutoCommit(true);
+		if(sql!=null)
+			try {
+				sql.close();
+			}catch(Exception er) {}
+		sql = DriverManager.getConnection(path, settings.getUser(), settings.getPassword());
+		sql.setAutoCommit(true);
 	}
 
 	@Override
 	public void close() throws SQLException {
-		this.sql.close();
-		this.sql = null;
+		sql.close();
+		sql = null;
 	}
 
 	@Override
 	public boolean exists(SelectQuery query) throws SQLException {
-		ResultSet set = this.prepareStatement(this.buildSelectCommand(query)).executeQuery();
+		ResultSet set = prepareStatement(buildSelectCommand(query)).executeQuery();
 		if (set == null)
 			return false;
 		return set.next();
@@ -159,7 +168,7 @@ public class SqlHandler implements DatabaseHandler {
 
 	@Override
 	public boolean createTable(String name, Row[] values) throws SQLException {
-		return this.prepareStatement("CREATE TABLE IF NOT EXISTS `" + name + "`(" + this.buildTableValues(values) + ")")
+		return prepareStatement("CREATE TABLE IF NOT EXISTS `" + name + "`(" + buildTableValues(values) + ")")
 				.execute();
 	}
 
@@ -171,19 +180,19 @@ public class SqlHandler implements DatabaseHandler {
 				builder.append(',');
 			first = false;
 			builder.append('`').append(row.getFieldName().replace("'", "\\'")).append('`').append(' ')
-					.append(row.getFieldType().toLowerCase()).append(' ').append(row.isNulled() ? "NULL" : "NOT NULL");
+			.append(row.getFieldType().toLowerCase()).append(' ').append(row.isNulled() ? "NULL" : "NOT NULL");
 		}
 		return builder.toString();
 	}
 
 	@Override
 	public boolean deleteTable(String name) throws SQLException {
-		return this.prepareStatement("DROP TABLE " + name).execute();
+		return prepareStatement("DROP TABLE " + name).execute();
 	}
 
 	@Override
 	public Result get(SelectQuery query) throws SQLException {
-		ResultSet set = this.prepareStatement(this.buildSelectCommand(query)).executeQuery();
+		ResultSet set = prepareStatement(buildSelectCommand(query)).executeQuery();
 		String[] lookup = query.getSearch();
 		if (set != null && set.next()) {
 			if (lookup.length == 1 && lookup[0].equals("*")) {
@@ -227,36 +236,36 @@ public class SqlHandler implements DatabaseHandler {
 
 	@Override
 	public boolean insert(InsertQuery query) throws SQLException {
-		return this.prepareStatement(this.buildInsertCommand(query)).executeUpdate() != 0;
+		return prepareStatement(buildInsertCommand(query)).executeUpdate() != 0;
 	}
 
 	@Override
 	public boolean update(UpdateQuery query) throws SQLException {
-		return this.prepareStatement(this.buildUpdateCommand(query)).executeUpdate() != 0;
+		return prepareStatement(buildUpdateCommand(query)).executeUpdate() != 0;
 	}
 
 	private PreparedStatement prepareStatement(String sqlCommand) throws SQLException {
 		try {
-			if (this.sql == null || this.sql.isClosed())
-				this.open();
+			if (!isConnected())
+				open();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		try {
-			return this.sql.prepareStatement(sqlCommand);
+			return sql.prepareStatement(sqlCommand);
 		} catch (SQLException err) {
-			return this.sql.prepareStatement(sqlCommand); // one more time!
+			return sql.prepareStatement(sqlCommand); // one more time!
 		}
 	}
 
 	@Override
 	public boolean remove(RemoveQuery query) throws SQLException {
-		return this.prepareStatement(this.buildRemoveCommand(query)).executeUpdate() != 0;
+		return prepareStatement(buildRemoveCommand(query)).executeUpdate() != 0;
 	}
 
 	@Override
 	public List<String> getTables() throws SQLException {
-		ResultSet set = this.prepareStatement("SHOW TABLES").executeQuery();
+		ResultSet set = prepareStatement("SHOW TABLES").executeQuery();
 		if (set != null && set.next()) {
 			List<String> tables = new ArrayList<>();
 			tables.add(set.getString(0));
@@ -269,7 +278,7 @@ public class SqlHandler implements DatabaseHandler {
 
 	@Override
 	public Row[] getTableValues(String name) throws SQLException {
-		ResultSet set = this.prepareStatement("DESCRIBE `" + name + "`").executeQuery();
+		ResultSet set = prepareStatement("DESCRIBE `" + name + "`").executeQuery();
 		if (set == null || !set.next())
 			return null;
 		List<Row> rows = new ArrayList<>();

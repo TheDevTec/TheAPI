@@ -305,13 +305,13 @@ public class API {
 		public String rainbow(String msg, String fromHex, String toHex) {
 			if (msg == null || fromHex == null || toHex == null)
 				return msg;
-			return rawGradient(msg, false);
+			return rawGradient(msg, fromHex, toHex, false);
 		}
 
 		public String gradient(String msg, String fromHex, String toHex) {
 			if (msg == null || fromHex == null || toHex == null)
 				return msg;
-			return rawGradient(msg, true);
+			return rawGradient(msg, fromHex, toHex, true);
 		}
 
 		private boolean isColor(int charAt) {
@@ -322,7 +322,7 @@ public class API {
 			return charAt >= 107 && charAt <= 111 || charAt == 114;
 		}
 
-		private String rawGradient(String msg, boolean defaultRainbow) {
+		private String rawGradient(String msg, String from, String to, boolean defaultRainbow) {
 			String split = msg.replace("", "<>");
 			String formats = "";
 
@@ -330,8 +330,8 @@ public class API {
 			boolean inRainbow = defaultRainbow;
 			char prev = 0;
 
-			Color fromRGB = Color.decode(StringUtils.color.generateColor());
-			Color toRGB = Color.decode(StringUtils.color.generateColor());
+			Color fromRGB = Color.decode(from);
+			Color toRGB = Color.decode(to);
 			double rStep = Math.abs((double) (fromRGB.getRed() - toRGB.getRed()) / msg.length());
 			double gStep = Math.abs((double) (fromRGB.getGreen() - toRGB.getGreen()) / msg.length());
 			double bStep = Math.abs((double) (fromRGB.getBlue() - toRGB.getBlue()) / msg.length());
@@ -348,20 +348,21 @@ public class API {
 					continue;
 				char c = s.charAt(0);
 				if (prev == '&' || prev == '§') {
-					if (prev == '&' && s.charAt(0) == 'u') {
+					char inLower = Character.toLowerCase(s.charAt(0));
+					if (prev == '&' && inLower == 'u') {
 						builder.deleteCharAt(builder.length() - 1); // remove & char
 						inRainbow = true;
 						prev = c;
 						continue;
 					}
-					if (inRainbow && prev == '§' && (isColor(s.charAt(0)) || isFormat(s.charAt(0)))) { // color,
+					if (inRainbow && prev == '§' && (isColor(inLower) || isFormat(inLower))) { // color,
 						// destroy
 						// rainbow here
-						if (isFormat(s.charAt(0))) {
-							if (s.charAt(0) == 'r')
+						if (isFormat(inLower)) {
+							if (inLower == 'r')
 								formats = "§r";
 							else
-								formats += "§" + s.charAt(0);
+								formats += "§" + inLower;
 							prev = c;
 							continue;
 						}
@@ -396,7 +397,8 @@ public class API {
 						builder.append(StringUtils.color
 								.replaceHex("#" + String.format("%08x", finalColor.getRGB()).substring(2))); // add
 						// color
-						builder.append(formats); // add formats
+						if(!formats.isEmpty())
+							builder.append(formats); // add formats
 					}
 				}
 				builder.append(c);

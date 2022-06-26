@@ -444,13 +444,6 @@ public class StringUtils {
 			return original;
 
 		String msg = original;
-
-		if (StringUtils.color != null && /** Fast check for working #RRGGBB symbol **/
-				(!Ref.serverType().isBukkit() || Ref.isNewerThan(15))) {
-			msg = StringUtils.gradient(msg);
-			if (msg.contains("#"))
-				msg = StringUtils.color.replaceHex(msg);
-		}
 		char[] b = msg.toCharArray();
 		for (int i = 0; i < b.length - 1; i++)
 			if (b[i] == '&' && StringUtils.has(b[i + 1])) {
@@ -458,6 +451,12 @@ public class StringUtils {
 				b[i + 1] = StringUtils.lower(b[i + 1]);
 			}
 		msg = new String(b);
+		if (StringUtils.color != null && /** Fast check for working #RRGGBB symbol **/
+				(!Ref.serverType().isBukkit() || Ref.isNewerThan(15))) {
+			msg = StringUtils.gradient(msg);
+			if (msg.contains("#"))
+				msg = StringUtils.color.replaceHex(msg);
+		}
 		if (msg.contains("&u") && StringUtils.color!=null)
 			msg = StringUtils.color.rainbow(msg, StringUtils.color.generateColor(), StringUtils.color.generateColor());
 		return msg;
