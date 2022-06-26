@@ -10,7 +10,7 @@ public abstract class PlaceholderExpansion {
 	}
 
 	public final String getName() {
-		return this.name;
+		return name;
 	}
 
 	public PlaceholderExpansion register() {
@@ -24,9 +24,14 @@ public abstract class PlaceholderExpansion {
 	}
 
 	public boolean isRegistered() {
-		return PlaceholderAPI.isRegistered(this.getName());
+		return PlaceholderAPI.isRegistered(getName());
 	}
 
 	// Nullable return value
 	public abstract String apply(String text, UUID player);
+
+	@Override
+	public String toString() {
+		return "PlaceholderExpansion["+getName()+"]";
+	}
 }

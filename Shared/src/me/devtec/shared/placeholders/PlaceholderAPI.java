@@ -13,6 +13,7 @@ public class PlaceholderAPI {
 	public static Pattern placeholderLookup = Pattern.compile("\\%(.*?)\\%"); // %PLACEHOLDER_NAME%
 
 	private static List<PlaceholderExpansion> extensions = new ArrayList<>();
+	public static PlaceholderExpansion PAPI_BRIDGE;
 
 	public static List<PlaceholderExpansion> getPlaceholders() {
 		return Collections.unmodifiableList(PlaceholderAPI.extensions);
@@ -39,10 +40,22 @@ public class PlaceholderAPI {
 		Matcher match = PlaceholderAPI.placeholderLookup.matcher(text);
 		while (match.find()) {
 			String placeholder = match.group(1);
-			for (PlaceholderExpansion ext : PlaceholderAPI.extensions) {
+			boolean found = false;
+			Iterator<PlaceholderExpansion> iterator = PlaceholderAPI.extensions.iterator();
+			while (iterator.hasNext()) {
+				PlaceholderExpansion ext = iterator.next();
 				String value = ext.apply(placeholder, player);
-				if (value != null) {
+				if (value != null && !value.equals(placeholder)) {
 					text = text.replace(match.group(), value);
+					found=true;
+					break;
+				}
+			}
+			if(!found && PlaceholderAPI.PAPI_BRIDGE!=null) {
+				String value = PlaceholderAPI.PAPI_BRIDGE.apply(placeholder, player);
+				if (value != null && !value.equals(placeholder)) {
+					text = text.replace(match.group(), value);
+					found=true;
 					break;
 				}
 			}

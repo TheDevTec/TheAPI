@@ -358,7 +358,7 @@ public class v1_19_R1 implements NmsProvider {
 	}
 
 	private IChatBaseComponent convert(Component c) {
-		IChatBaseComponent current = IChatBaseComponent.b(c.getText());
+		IChatMutableComponent current = IChatBaseComponent.b(c.getText());
 		ChatModifier modif = current.a();
 		if (c.getColor() != null && !c.getColor().isEmpty())
 			if (c.getColor().startsWith("#"))
@@ -376,7 +376,7 @@ public class v1_19_R1 implements NmsProvider {
 		modif = modif.e(c.isObfuscated());
 		modif = modif.c(c.isUnderlined());
 		modif = modif.d(c.isStrikethrough());
-		current.a(modif);
+		current.b(modif);
 		return current;
 	}
 

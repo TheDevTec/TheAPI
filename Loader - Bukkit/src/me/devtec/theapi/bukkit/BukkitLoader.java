@@ -82,7 +82,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	static Class<?> click;
 	static Class<?> itemname;
 	public static List<BossBar> bossbars = new ArrayList<>();
-	private me.devtec.shared.placeholders.PlaceholderExpansion placeholders;
 	public static boolean isMohist;
 
 	@Override
@@ -245,12 +244,12 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	public void onEnable() {
 		Bukkit.getPluginManager().registerEvents(this, this);
 		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-			placeholders = new me.devtec.shared.placeholders.PlaceholderExpansion("PAPI Support") {
+			PlaceholderAPI.PAPI_BRIDGE = new me.devtec.shared.placeholders.PlaceholderExpansion("PAPI Support") {
 				@Override
 				public String apply(String text, UUID player) {
-					return me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(Bukkit.getOfflinePlayer(player), text);
+					return me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player==null?null:Bukkit.getOfflinePlayer(player), "%"+text+"%");
 				}
-			}.register();
+			};
 			new PlaceholderExpansion() {
 				@Override
 				public String onRequest(OfflinePlayer player, String params) {
@@ -302,8 +301,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		API.setEnabled(false);
 		Scheduler.cancelAll();
 		BukkitLoader.handler.close();
-		if (placeholders != null)
-			placeholders.unregister();
+		PlaceholderAPI.PAPI_BRIDGE=null;
 		if (BukkitLoader.bossbars != null)
 			for (BossBar bar : new ArrayList<>(BukkitLoader.bossbars))
 				bar.remove();
