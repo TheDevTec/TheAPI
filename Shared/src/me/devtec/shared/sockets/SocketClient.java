@@ -8,6 +8,7 @@ import java.net.Socket;
 
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.events.api.ClientResponde;
+import me.devtec.shared.sockets.implementation.SocketClientHandler;
 
 public interface SocketClient {
 	public String serverName();
@@ -110,4 +111,14 @@ public interface SocketClient {
 	public DataOutputStream getOutputStream();
 
 	public Socket getSocket();
+
+	public static void setServerName(String serverName) {
+		SocketClientHandler.serverName=serverName.getBytes();
+	}
+
+	public static SocketClientHandler openConnection(String ip, int port, String password) {
+		SocketClientHandler client = new SocketClientHandler(ip, port, password);
+		client.start();
+		return client;
+	}
 }
