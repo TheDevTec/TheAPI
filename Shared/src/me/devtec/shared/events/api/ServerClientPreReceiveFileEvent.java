@@ -5,14 +5,14 @@ import me.devtec.shared.events.Cancellable;
 import me.devtec.shared.events.Event;
 import me.devtec.shared.sockets.SocketClient;
 
-public class ServerPreReceiveFileEvent extends Event implements Cancellable {
+public class ServerClientPreReceiveFileEvent extends Event implements Cancellable {
 	private String fileName;
 	private String fileDirectory;
 	private final Config data;
 	private final SocketClient client;
 	private boolean cancelled;
 
-	public ServerPreReceiveFileEvent(SocketClient client, Config data, String received) {
+	public ServerClientPreReceiveFileEvent(SocketClient client, Config data, String received) {
 		fileName = received;
 		fileDirectory="downloads/";
 		this.client = client;

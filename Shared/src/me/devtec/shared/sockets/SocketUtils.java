@@ -9,9 +9,9 @@ import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.dataholder.loaders.ByteLoader;
 import me.devtec.shared.events.EventManager;
 import me.devtec.shared.events.api.ClientResponde;
-import me.devtec.shared.events.api.ServerPreReceiveFileEvent;
-import me.devtec.shared.events.api.ServerReceiveDataEvent;
-import me.devtec.shared.events.api.ServerReceiveFileEvent;
+import me.devtec.shared.events.api.ServerClientPreReceiveFileEvent;
+import me.devtec.shared.events.api.ServerClientReceiveDataEvent;
+import me.devtec.shared.events.api.ServerClientReceiveFileEvent;
 
 public class SocketUtils {
 	public static Config readConfig(DataInputStream in) throws IOException {
@@ -49,12 +49,12 @@ public class SocketUtils {
 		DataInputStream in = client.getInputStream();
 		switch(ClientResponde.fromResponde(taskId)) {
 		case RECEIVE_DATA:{
-			ServerReceiveDataEvent event = new ServerReceiveDataEvent(client, SocketUtils.readConfig(in));
+			ServerClientReceiveDataEvent event = new ServerClientReceiveDataEvent(client, SocketUtils.readConfig(in));
 			EventManager.call(event);
 			break;
 		}
 		case RECEIVE_FILE:{
-			ServerPreReceiveFileEvent event = new ServerPreReceiveFileEvent(client, null, SocketUtils.readText(in));
+			ServerClientPreReceiveFileEvent event = new ServerClientPreReceiveFileEvent(client, null, SocketUtils.readText(in));
 			EventManager.call(event);
 			if(event.isCancelled()) {
 				SocketUtils.skipFileBytes(in);
@@ -71,13 +71,13 @@ public class SocketUtils {
 			}
 			FileOutputStream out = new FileOutputStream(createdFile);
 			SocketUtils.readFile(in, out);
-			ServerReceiveFileEvent fileEvent = new ServerReceiveFileEvent(client, null, createdFile);
+			ServerClientReceiveFileEvent fileEvent = new ServerClientReceiveFileEvent(client, null, createdFile);
 			EventManager.call(fileEvent);
 			break;
 		}
 		case RECEIVE_DATA_AND_FILE:{
 			Config data = SocketUtils.readConfig(in);
-			ServerPreReceiveFileEvent event = new ServerPreReceiveFileEvent(client, data, SocketUtils.readText(in));
+			ServerClientPreReceiveFileEvent event = new ServerClientPreReceiveFileEvent(client, data, SocketUtils.readText(in));
 			EventManager.call(event);
 			if(event.isCancelled()) {
 				SocketUtils.skipFileBytes(in);
@@ -94,7 +94,7 @@ public class SocketUtils {
 			}
 			FileOutputStream out = new FileOutputStream(createdFile);
 			SocketUtils.readFile(in, out);
-			ServerReceiveFileEvent fileEvent = new ServerReceiveFileEvent(client, data, createdFile);
+			ServerClientReceiveFileEvent fileEvent = new ServerClientReceiveFileEvent(client, data, createdFile);
 			EventManager.call(fileEvent);
 			break;
 		}

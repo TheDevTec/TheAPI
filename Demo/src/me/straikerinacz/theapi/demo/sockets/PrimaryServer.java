@@ -3,7 +3,7 @@ package me.straikerinacz.theapi.demo.sockets;
 import me.devtec.shared.API;
 import me.devtec.shared.dataholder.DataType;
 import me.devtec.shared.events.EventManager;
-import me.devtec.shared.events.api.ServerReceiveDataEvent;
+import me.devtec.shared.events.api.ServerClientReceiveDataEvent;
 import me.devtec.shared.sockets.SocketServer;
 import me.devtec.shared.sockets.implementation.SocketServerHandler;
 
@@ -15,12 +15,12 @@ public class PrimaryServer {
 
 		PrimaryServer.socketServer = SocketServer.startServer("primary-server", 25567, "theapi-demo-testing-password");
 		EventManager.register(event -> {
-			ServerReceiveDataEvent dataEvent = (ServerReceiveDataEvent)event;
+			ServerClientReceiveDataEvent dataEvent = (ServerClientReceiveDataEvent)event;
 			System.out.println(dataEvent.getData().toString(DataType.JSON));
 
 			API.setEnabled(false);
 			PrimaryServer.stop();
-		}).listen(ServerReceiveDataEvent.class);
+		}).listen(ServerClientReceiveDataEvent.class);
 	}
 
 	public static void stop() {
