@@ -7,7 +7,6 @@ import java.net.Socket;
 import me.devtec.shared.API;
 import me.devtec.shared.events.EventManager;
 import me.devtec.shared.events.api.ServerClientConnectedEvent;
-import me.devtec.shared.events.api.ServerClientDisconnectedEvent;
 import me.devtec.shared.events.api.ServerClientRespondeEvent;
 import me.devtec.shared.sockets.SocketClient;
 import me.devtec.shared.sockets.SocketServer;
@@ -16,6 +15,7 @@ import me.devtec.shared.sockets.SocketUtils;
 public class SocketServerClientHandler implements SocketClient {
 	private final String serverName;
 	private final Socket socket;
+	private final SocketServer socketServer;
 
 	private DataInputStream in;
 	private DataOutputStream out;
@@ -27,6 +27,7 @@ public class SocketServerClientHandler implements SocketClient {
 
 	public SocketServerClientHandler(SocketServer server, String serverName, Socket socket) {
 		this.socket=socket;
+		socketServer=server;
 		try {
 			in=new DataInputStream(socket.getInputStream());
 			out=new DataOutputStream(socket.getOutputStream());
@@ -39,6 +40,10 @@ public class SocketServerClientHandler implements SocketClient {
 		new Thread(()->{
 			ServerClientConnectedEvent connectedEvent = new ServerClientConnectedEvent(SocketServerClientHandler.this);
 			EventManager.call(connectedEvent);
+			try {
+				Thread.sleep(100);
+			} catch (Exception e1) {
+			}
 			while(API.isEnabled() && isConnected()) {
 				try {
 					task = in.readInt();
@@ -117,6 +122,10 @@ public class SocketServerClientHandler implements SocketClient {
 		throw new RuntimeException("Can't connect a socket that is not from the server side");
 	}
 
+	public SocketServer getSocketServer() {
+		return socketServer;
+	}
+
 	@Override
 	public void stop() {
 		manuallyClosed=true;
@@ -125,8 +134,7 @@ public class SocketServerClientHandler implements SocketClient {
 			socket.close();
 		} catch (Exception e) {
 		}
-		ServerClientDisconnectedEvent event = new ServerClientDisconnectedEvent(this);
-		EventManager.call(event);
+		getSocketServer().notifyDisconnect(this);
 	}
 
 	@Override

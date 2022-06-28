@@ -182,6 +182,8 @@ public class SocketClientHandler implements SocketClient {
 			socket.setKeepAlive(true);
 			socket.setReceiveBufferSize(4*1024);
 			socket.setTcpNoDelay(true);
+			socket.setTrafficClass(0x02);
+			socket.setSendBufferSize(4*1024);
 			return socket;
 		} catch (Exception e) {
 		}

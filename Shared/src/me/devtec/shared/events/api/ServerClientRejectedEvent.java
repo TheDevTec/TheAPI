@@ -17,6 +17,9 @@ public class ServerClientRejectedEvent extends Event {
 		return socket;
 	}
 
+	/**
+	 * @apiNote Server name is nullable
+	 */
 	public String getServerName() {
 		return serverName;
 	}

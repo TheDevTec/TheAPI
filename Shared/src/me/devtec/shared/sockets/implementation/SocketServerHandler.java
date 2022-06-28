@@ -16,6 +16,7 @@ import me.devtec.shared.events.api.ServerClientPreConnectEvent;
 import me.devtec.shared.events.api.ServerClientRejectedEvent;
 import me.devtec.shared.sockets.SocketClient;
 import me.devtec.shared.sockets.SocketServer;
+import me.devtec.shared.sockets.SocketUtils;
 
 public class SocketServerHandler implements SocketServer {
 	private final String serverName;
@@ -46,9 +47,10 @@ public class SocketServerHandler implements SocketServer {
 
 	@Override
 	public void notifyDisconnect(SocketClient client) {
-		ServerClientDisconnectedEvent event = new ServerClientDisconnectedEvent(client);
-		EventManager.call(event);
-		connected.remove(client);
+		if(connected.remove(client)) {
+			ServerClientDisconnectedEvent event = new ServerClientDisconnectedEvent(client);
+			EventManager.call(event);
+		}
 	}
 
 	@Override
@@ -56,6 +58,7 @@ public class SocketServerHandler implements SocketServer {
 		try {
 			serverSocket=new ServerSocket(port);
 			serverSocket.setReuseAddress(true);
+			serverSocket.setReceiveBufferSize(4*1024);
 			new Thread(() -> {
 				while(API.isEnabled() && isRunning()) {
 					try {
@@ -81,30 +84,21 @@ public class SocketServerHandler implements SocketServer {
 			if(socket.isInputShutdown() || socket.isOutputShutdown())return;
 			DataInputStream in = new DataInputStream(socket.getInputStream());
 			DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+
 			out.writeInt(ClientResponde.PROCESS_LOGIN.getResponde());
 			if(socket.isInputShutdown() || socket.isOutputShutdown())return;
-			int size = in.readInt();
-			if(size != password.length()) {
+			//Receive client password
+			String pass = SocketUtils.readText(in);
+			if(!password.equals(pass)) {
 				out.writeInt(ClientResponde.REJECTED_PASSWORD.getResponde());
 				socket.close();
-				ServerClientRejectedEvent rejectedEvent = new ServerClientRejectedEvent(socket, serverName);
+				ServerClientRejectedEvent rejectedEvent = new ServerClientRejectedEvent(socket, null);
 				EventManager.call(rejectedEvent);
 				return;
 			}
-			byte[] text = new byte[size];
-			in.read(text);
-			if(!password.equals(new String(text))) {
-				out.writeInt(ClientResponde.REJECTED_PASSWORD.getResponde());
-				socket.close();
-				ServerClientRejectedEvent rejectedEvent = new ServerClientRejectedEvent(socket, serverName);
-				EventManager.call(rejectedEvent);
-				return;
-			}
+			//Receive client name
 			out.writeInt(ClientResponde.RECEIVE_NAME.getResponde());
-			size = in.readInt();
-			text = new byte[size];
-			in.read(text);
-			String serverName = new String(text);
+			String serverName = SocketUtils.readText(in);
 			ServerClientPreConnectEvent event = new ServerClientPreConnectEvent(socket, serverName);
 			EventManager.call(event);
 			if(event.isCancelled()) {
@@ -113,6 +107,7 @@ public class SocketServerHandler implements SocketServer {
 				EventManager.call(rejectedEvent);
 				return;
 			}
+			//Connected
 			out.writeInt(ClientResponde.ACCEPTED.getResponde());
 			connected.add(new SocketServerClientHandler(this, serverName, socket));
 		} catch (Exception e) {
@@ -132,8 +127,7 @@ public class SocketServerHandler implements SocketServer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		connected.forEach(SocketClient::stop);
-		connected.clear();
+		new ArrayList<>(connected).forEach(SocketClient::stop);
 		serverSocket=null;
 	}
 
