@@ -93,7 +93,7 @@ public class SocketClientHandler implements SocketClient {
 			if(checkRawConnected() && in.readInt()==ClientResponde.PROCESS_LOGIN.getResponde()) {
 				out.writeInt(password.length);
 				out.write(password);
-				int result = in.readInt();
+				int result = in.readInt(); // backwards support
 				ServerClientRespondeEvent respondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this, result);
 				EventManager.call(respondeEvent);
 				if(result==ClientResponde.RECEIVE_NAME.getResponde()) {
@@ -102,66 +102,8 @@ public class SocketClientHandler implements SocketClient {
 					result = in.readInt(); //await for respond
 					respondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this, result);
 					EventManager.call(respondeEvent);
-				}
-				if(result==ClientResponde.ACCEPTED.getResponde()) {
-					connected=true;
-					manuallyClosed=false;
-					//LOGGED IN, START READER
-					lastPing = System.currentTimeMillis()/100;
-					lastPong = System.currentTimeMillis()/100;
-					new Thread(()->{
-						ServerClientConnectedEvent connectedEvent = new ServerClientConnectedEvent(SocketClientHandler.this);
-						EventManager.call(connectedEvent);
-						while(API.isEnabled() && isConnected()) {
-							try {
-								task = in.readInt();
-								if(task==20) { //ping
-									out.writeInt(21);
-									try {
-										Thread.sleep(100);
-									} catch (Exception e) {
-									}
-									continue;
-								}
-								if(task==21) { //pong
-									lastPong = System.currentTimeMillis()/100;
-									try {
-										Thread.sleep(100);
-									} catch (Exception e) {
-									}
-									continue;
-								}
-								ServerClientRespondeEvent crespondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this, task);
-								EventManager.call(crespondeEvent);
-								SocketUtils.process(this, task);
-							} catch (Exception e) {
-								break;
-							}
-							try {
-								Thread.sleep(100);
-							} catch (Exception e) {
-							}
-						}
-						if(socket!=null && connected && !manuallyClosed) {
-							stop();
-							start();
-						}
-					}).start();
-					//ping - pong service
-					new Thread(()->{
-						while(API.isEnabled() && isConnected())
-							try {
-								Thread.sleep(15000);
-								lastPing = System.currentTimeMillis()/100;
-								out.writeInt(20);
-							} catch (Exception e) {
-								break;
-							}
-						if(socket!=null && connected && !manuallyClosed) {
-							stop();
-							start();
-						}
-					}).start();
+					if(result==ClientResponde.ACCEPTED.getResponde())
+						openConnection();
 				}
 			}
 		} catch (Exception e) {
@@ -173,6 +115,67 @@ public class SocketClientHandler implements SocketClient {
 			}
 			start();
 		}
+	}
+
+	private void openConnection() {
+		connected=true;
+		manuallyClosed=false;
+		//LOGGED IN, START READER
+		lastPing = System.currentTimeMillis()/100;
+		lastPong = System.currentTimeMillis()/100;
+		new Thread(()->{
+			ServerClientConnectedEvent connectedEvent = new ServerClientConnectedEvent(SocketClientHandler.this);
+			EventManager.call(connectedEvent);
+			while(API.isEnabled() && isConnected()) {
+				try {
+					Thread.sleep(100);
+				} catch (Exception e) {
+				}
+				try {
+					task = in.readInt();
+					if(task==20) { //ping
+						out.writeInt(21);
+						try {
+							Thread.sleep(100);
+						} catch (Exception e) {
+						}
+						continue;
+					}
+					if(task==21) { //pong
+						lastPong = System.currentTimeMillis()/100;
+						try {
+							Thread.sleep(100);
+						} catch (Exception e) {
+						}
+						continue;
+					}
+					ServerClientRespondeEvent crespondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this, task);
+					EventManager.call(crespondeEvent);
+					SocketUtils.process(this, task);
+				} catch (Exception e) {
+					break;
+				}
+			}
+			if(socket!=null && connected && !manuallyClosed) {
+				stop();
+				start();
+			}
+		}).start();
+		//ping - pong service
+		new Thread(()->{
+			while(API.isEnabled() && isConnected())
+				try {
+					Thread.sleep(5000);
+					lastPing = System.currentTimeMillis()/100;
+					out.writeInt(20);
+				} catch (Exception e) {
+					break;
+				}
+			if(socket!=null && connected && !manuallyClosed) {
+				stop();
+				start();
+			}
+		}).start();
 	}
 
 	private Socket tryConnect() {

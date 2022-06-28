@@ -2,6 +2,7 @@ package me.devtec.shared.sockets.implementation;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
 
 import me.devtec.shared.API;
@@ -25,14 +26,15 @@ public class SocketServerClientHandler implements SocketClient {
 	private long lastPing;
 	private long lastPong;
 
-	public SocketServerClientHandler(SocketServer server, String serverName, Socket socket) {
+	public SocketServerClientHandler(SocketServer server, String serverName, Socket socket) throws IOException {
+		this(server, new DataInputStream(socket.getInputStream()), new DataOutputStream(socket.getOutputStream()), serverName, socket);
+	}
+
+	public SocketServerClientHandler(SocketServer server, DataInputStream in, DataOutputStream out, String serverName, Socket socket) {
 		this.socket=socket;
 		socketServer=server;
-		try {
-			in=new DataInputStream(socket.getInputStream());
-			out=new DataOutputStream(socket.getOutputStream());
-		}catch(Exception err) {
-		}
+		this.in=in;
+		this.out=out;
 		this.serverName=serverName;
 		//LOGGED IN, START READER
 		lastPing = System.currentTimeMillis()/100;
@@ -45,6 +47,10 @@ public class SocketServerClientHandler implements SocketClient {
 			} catch (Exception e1) {
 			}
 			while(API.isEnabled() && isConnected()) {
+				try {
+					Thread.sleep(100);
+				} catch (Exception e) {
+				}
 				try {
 					task = in.readInt();
 					if(task==20) { //ping
@@ -69,10 +75,6 @@ public class SocketServerClientHandler implements SocketClient {
 				} catch (Exception e) {
 					break;
 				}
-				try {
-					Thread.sleep(100);
-				} catch (Exception e) {
-				}
 			}
 			if(socket!=null && connected && !manuallyClosed)
 				stop();
@@ -81,7 +83,7 @@ public class SocketServerClientHandler implements SocketClient {
 		new Thread(()->{
 			while(API.isEnabled() && isConnected())
 				try {
-					Thread.sleep(15000);
+					Thread.sleep(5000);
 					lastPing = System.currentTimeMillis()/100;
 					out.writeInt(20);
 				} catch (Exception e) {
