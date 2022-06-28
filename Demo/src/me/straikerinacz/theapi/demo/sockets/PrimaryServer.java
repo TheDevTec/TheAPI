@@ -1,26 +1,29 @@
 package me.straikerinacz.theapi.demo.sockets;
 
-import me.devtec.shared.sockets.implementation.SocketClientHandler;
+import me.devtec.shared.API;
+import me.devtec.shared.dataholder.DataType;
+import me.devtec.shared.events.EventManager;
+import me.devtec.shared.events.api.ServerReceiveDataEvent;
+import me.devtec.shared.sockets.SocketServer;
 import me.devtec.shared.sockets.implementation.SocketServerHandler;
 
 public class PrimaryServer {
 	private static SocketServerHandler socketServer;
 
 	public static void init() {
-		PrimaryServer.setServerName("primary-server");
-		PrimaryServer.startSocketServer(25567, "theapi-demo-testing-password");
+		API.setEnabled(true);
+
+		PrimaryServer.socketServer = SocketServer.startServer("primary-server", 25567, "theapi-demo-testing-password");
+		EventManager.register(event -> {
+			ServerReceiveDataEvent dataEvent = (ServerReceiveDataEvent)event;
+			System.out.println(dataEvent.getData().toString(DataType.JSON));
+
+			API.setEnabled(false);
+			PrimaryServer.stop();
+		}).listen(ServerReceiveDataEvent.class);
 	}
 
-	public static void setServerName(String serverName) {
-		SocketClientHandler.serverName=serverName.getBytes();
-	}
-
-	public static void startSocketServer(int port, String password) {
-		PrimaryServer.socketServer = new SocketServerHandler(new String(SocketClientHandler.serverName), port, password);
-		PrimaryServer.socketServer.start();
-	}
-
-	public static void stopSocketServer() {
+	public static void stop() {
 		PrimaryServer.socketServer.stop();
 	}
 }
