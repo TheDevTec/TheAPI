@@ -5,12 +5,12 @@ import java.net.Socket;
 import me.devtec.shared.events.Cancellable;
 import me.devtec.shared.events.Event;
 
-public class ServerClientConnectEvent extends Event implements Cancellable {
+public class ServerClientPreConnectEvent extends Event implements Cancellable {
 	private final Socket socket;
 	private final String serverName;
 	private boolean cancelled;
 
-	public ServerClientConnectEvent(Socket socket, String serverName) {
+	public ServerClientPreConnectEvent(Socket socket, String serverName) {
 		this.socket = socket;
 		this.serverName = serverName;
 	}

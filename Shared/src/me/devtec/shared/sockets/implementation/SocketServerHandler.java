@@ -8,9 +8,12 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.devtec.shared.API;
 import me.devtec.shared.events.EventManager;
-import me.devtec.shared.events.api.ServerClientConnectEvent;
+import me.devtec.shared.events.api.ClientResponde;
 import me.devtec.shared.events.api.ServerClientDisconnectedEvent;
+import me.devtec.shared.events.api.ServerClientPreConnectEvent;
+import me.devtec.shared.events.api.ServerClientRejectedEvent;
 import me.devtec.shared.sockets.SocketClient;
 import me.devtec.shared.sockets.SocketServer;
 
@@ -54,7 +57,7 @@ public class SocketServerHandler implements SocketServer {
 			serverSocket=new ServerSocket(port);
 			serverSocket.setReuseAddress(true);
 			new Thread(() -> {
-				while(isRunning()) {
+				while(API.isEnabled() && isRunning()) {
 					try {
 						Socket socket = serverSocket.accept();
 						if(socket!=null && !isAlreadyConnected(socket))
@@ -78,35 +81,39 @@ public class SocketServerHandler implements SocketServer {
 			if(socket.isInputShutdown() || socket.isOutputShutdown())return;
 			DataInputStream in = new DataInputStream(socket.getInputStream());
 			DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-			out.writeInt(SocketServer.PROCESS_LOGIN);
+			out.writeInt(ClientResponde.PROCESS_LOGIN.getResponde());
 			if(socket.isInputShutdown() || socket.isOutputShutdown())return;
 			int size = in.readInt();
 			if(size != password.length()) {
-				out.writeInt(SocketServer.REJECTED);
+				out.writeInt(ClientResponde.REJECTED_PASSWORD.getResponde());
 				socket.close();
-				//CLIENT REJECTED EVENT?
+				ServerClientRejectedEvent rejectedEvent = new ServerClientRejectedEvent(socket, serverName);
+				EventManager.call(rejectedEvent);
 				return;
 			}
 			byte[] text = new byte[size];
 			in.read(text);
 			if(!password.equals(new String(text))) {
-				out.writeInt(SocketServer.REJECTED);
+				out.writeInt(ClientResponde.REJECTED_PASSWORD.getResponde());
 				socket.close();
-				//CLIENT REJECTED EVENT?
+				ServerClientRejectedEvent rejectedEvent = new ServerClientRejectedEvent(socket, serverName);
+				EventManager.call(rejectedEvent);
 				return;
 			}
-			out.writeInt(SocketServer.RECEIVE_NAME);
+			out.writeInt(ClientResponde.RECEIVE_NAME.getResponde());
 			size = in.readInt();
 			text = new byte[size];
 			in.read(text);
 			String serverName = new String(text);
-			ServerClientConnectEvent event = new ServerClientConnectEvent(socket, serverName);
+			ServerClientPreConnectEvent event = new ServerClientPreConnectEvent(socket, serverName);
 			EventManager.call(event);
 			if(event.isCancelled()) {
-				out.writeInt(SocketServer.REJECTED_PLUGIN);
+				out.writeInt(ClientResponde.REJECTED_PLUGIN.getResponde());
+				ServerClientRejectedEvent rejectedEvent = new ServerClientRejectedEvent(socket, serverName);
+				EventManager.call(rejectedEvent);
 				return;
 			}
-			out.writeInt(SocketServer.ACCEPTED);
+			out.writeInt(ClientResponde.ACCEPTED.getResponde());
 			connected.add(new SocketServerClientHandler(this, serverName, socket));
 		} catch (Exception e) {
 		}
@@ -121,12 +128,12 @@ public class SocketServerHandler implements SocketServer {
 	@Override
 	public void stop() {
 		try {
-			connected.forEach(SocketClient::stop);
-			connected.clear();
 			serverSocket.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		connected.forEach(SocketClient::stop);
+		connected.clear();
 		serverSocket=null;
 	}
 

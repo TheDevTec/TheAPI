@@ -19,4 +19,8 @@ public class ServerClientRespondeEvent extends Event {
 	public int getResponde() {
 		return responde;
 	}
+
+	public ClientResponde getClientResponde() {
+		return ClientResponde.fromResponde(responde);
+	}
 }

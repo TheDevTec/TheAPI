@@ -6,6 +6,8 @@ import java.net.Socket;
 
 import me.devtec.shared.API;
 import me.devtec.shared.events.EventManager;
+import me.devtec.shared.events.api.ServerClientConnectedEvent;
+import me.devtec.shared.events.api.ServerClientDisconnectedEvent;
 import me.devtec.shared.events.api.ServerClientRespondeEvent;
 import me.devtec.shared.sockets.SocketClient;
 import me.devtec.shared.sockets.SocketServer;
@@ -18,6 +20,7 @@ public class SocketServerClientHandler implements SocketClient {
 	private DataInputStream in;
 	private DataOutputStream out;
 	private boolean connected = true;
+	private boolean manuallyClosed;
 	private int task = 0;
 	private long lastPing;
 	private long lastPong;
@@ -34,7 +37,9 @@ public class SocketServerClientHandler implements SocketClient {
 		lastPing = System.currentTimeMillis()/100;
 		lastPong = System.currentTimeMillis()/100;
 		new Thread(()->{
-			while(isConnected() && API.isEnabled()) {
+			ServerClientConnectedEvent connectedEvent = new ServerClientConnectedEvent(SocketServerClientHandler.this);
+			EventManager.call(connectedEvent);
+			while(API.isEnabled() && isConnected()) {
 				try {
 					task = in.readInt();
 					if(task==20) { //ping
@@ -57,7 +62,6 @@ public class SocketServerClientHandler implements SocketClient {
 					EventManager.call(crespondeEvent);
 					SocketUtils.process(this, task);
 				} catch (Exception e) {
-					connected=false;
 					break;
 				}
 				try {
@@ -65,19 +69,21 @@ public class SocketServerClientHandler implements SocketClient {
 				} catch (Exception e) {
 				}
 			}
-			connected=false;
+			if(socket!=null && connected && !manuallyClosed)
+				stop();
 		}).start();
 		//ping - pong service
 		new Thread(()->{
-			while(isConnected() && API.isEnabled())
+			while(API.isEnabled() && isConnected())
 				try {
 					Thread.sleep(15000);
 					lastPing = System.currentTimeMillis()/100;
 					out.writeInt(20);
 				} catch (Exception e) {
-					connected=false;
 					break;
 				}
+			if(socket!=null && connected && !manuallyClosed)
+				stop();
 		}).start();
 	}
 
@@ -113,11 +119,14 @@ public class SocketServerClientHandler implements SocketClient {
 
 	@Override
 	public void stop() {
+		manuallyClosed=true;
+		connected=false;
 		try {
-			connected=false;
 			socket.close();
 		} catch (Exception e) {
 		}
+		ServerClientDisconnectedEvent event = new ServerClientDisconnectedEvent(this);
+		EventManager.call(event);
 	}
 
 	@Override
@@ -133,6 +142,11 @@ public class SocketServerClientHandler implements SocketClient {
 	@Override
 	public DataOutputStream getOutputStream() {
 		return out;
+	}
+
+	@Override
+	public boolean canReconnect() {
+		return false;
 	}
 
 }

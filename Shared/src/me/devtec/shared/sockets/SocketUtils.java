@@ -8,6 +8,7 @@ import java.io.IOException;
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.dataholder.loaders.ByteLoader;
 import me.devtec.shared.events.EventManager;
+import me.devtec.shared.events.api.ClientResponde;
 import me.devtec.shared.events.api.ServerPreReceiveFileEvent;
 import me.devtec.shared.events.api.ServerReceiveDataEvent;
 import me.devtec.shared.events.api.ServerReceiveFileEvent;
@@ -46,13 +47,13 @@ public class SocketUtils {
 
 	public static void process(SocketClient client, int taskId) throws IOException {
 		DataInputStream in = client.getInputStream();
-		switch(taskId) {
-		case SocketServer.RECEIVE_DATA:{
+		switch(ClientResponde.fromResponde(taskId)) {
+		case RECEIVE_DATA:{
 			ServerReceiveDataEvent event = new ServerReceiveDataEvent(client, SocketUtils.readConfig(in));
 			EventManager.call(event);
 			break;
 		}
-		case SocketServer.RECEIVE_FILE:{
+		case RECEIVE_FILE:{
 			ServerPreReceiveFileEvent event = new ServerPreReceiveFileEvent(client, null, SocketUtils.readText(in));
 			EventManager.call(event);
 			if(event.isCancelled()) {
@@ -74,7 +75,7 @@ public class SocketUtils {
 			EventManager.call(fileEvent);
 			break;
 		}
-		case SocketServer.RECEIVE_DATA_AND_FILE:{
+		case RECEIVE_DATA_AND_FILE:{
 			Config data = SocketUtils.readConfig(in);
 			ServerPreReceiveFileEvent event = new ServerPreReceiveFileEvent(client, data, SocketUtils.readText(in));
 			EventManager.call(event);
@@ -97,6 +98,8 @@ public class SocketUtils {
 			EventManager.call(fileEvent);
 			break;
 		}
+		default:
+			break;
 		}
 	}
 }

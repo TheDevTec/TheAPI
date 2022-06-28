@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.net.Socket;
 
 import me.devtec.shared.dataholder.Config;
+import me.devtec.shared.events.api.ClientResponde;
 
 public interface SocketClient {
 	public String serverName();
@@ -17,12 +18,15 @@ public interface SocketClient {
 
 	public boolean isConnected();
 
+	public boolean canReconnect();
+
 	public int ping();
 
 	public default void write(String fileName, File file) {
+		if(fileName==null || file == null)return;
 		DataOutputStream out = getOutputStream();
 		try {
-			out.writeInt(SocketServer.RECEIVE_FILE);
+			out.writeInt(ClientResponde.RECEIVE_FILE.getResponde());
 			byte[] bytesData = fileName.getBytes();
 			out.writeInt(bytesData.length);
 			out.write(bytesData);
@@ -36,14 +40,17 @@ public interface SocketClient {
 			fileInputStream.close();
 			out.flush();
 		}catch(Exception e) {
-			e.printStackTrace();
+			stop();
+			if(canReconnect())
+				start();
 		}
 	}
 
 	public default void writeWithData(Config data, String fileName, File file) {
+		if(data == null || fileName==null || file == null)return;
 		DataOutputStream out = getOutputStream();
 		try {
-			out.writeInt(SocketServer.RECEIVE_DATA_AND_FILE);
+			out.writeInt(ClientResponde.RECEIVE_DATA_AND_FILE.getResponde());
 			//data
 			byte[] path = data.toByteArray();
 			out.writeInt(path.length);
@@ -62,28 +69,35 @@ public interface SocketClient {
 			fileInputStream.close();
 			out.flush();
 		}catch(Exception e) {
-			e.printStackTrace();
+			stop();
+			if(canReconnect())
+				start();
 		}
 	}
 
 	public default void write(Config data) {
+		if(data == null)return;
 		DataOutputStream out = getOutputStream();
 		try {
 			byte[] path = data.toByteArray();
-			out.writeInt(SocketServer.RECEIVE_DATA);
+			out.writeInt(ClientResponde.RECEIVE_DATA.getResponde());
 			out.writeInt(path.length);
 			out.write(path);
 			out.flush();
 		}catch(Exception e) {
-			e.printStackTrace();
+			stop();
+			if(canReconnect())
+				start();
 		}
 	}
 
 	public default void write(File file) {
+		if(file == null)return;
 		write(file.getName(), file);
 	}
 
 	public default void writeWithData(Config data, File file) {
+		if(data == null || file == null)return;
 		writeWithData(data, file.getName(), file);
 	}
 

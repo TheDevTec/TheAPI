@@ -363,7 +363,8 @@ public class API {
 								formats = "§r";
 							else
 								formats += "§" + inLower;
-							prev = c;
+							prev = inLower;
+							builder.deleteCharAt(builder.length()-1); // remove &<random color> string
 							continue;
 						}
 						builder.delete(builder.length() - 14, builder.length()); // remove &<random color> string

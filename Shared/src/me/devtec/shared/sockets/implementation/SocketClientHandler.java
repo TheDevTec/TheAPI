@@ -6,10 +6,10 @@ import java.net.Socket;
 
 import me.devtec.shared.API;
 import me.devtec.shared.events.EventManager;
-import me.devtec.shared.events.api.ServerClientDisconnectedEvent;
+import me.devtec.shared.events.api.ClientResponde;
+import me.devtec.shared.events.api.ServerClientConnectedEvent;
 import me.devtec.shared.events.api.ServerClientRespondeEvent;
 import me.devtec.shared.sockets.SocketClient;
-import me.devtec.shared.sockets.SocketServer;
 import me.devtec.shared.sockets.SocketUtils;
 
 public class SocketClientHandler implements SocketClient {
@@ -19,6 +19,7 @@ public class SocketClientHandler implements SocketClient {
 	private final int port;
 	private Socket socket;
 	private boolean connected;
+	private boolean manuallyClosed;
 	private byte[] password;
 
 	private DataInputStream in;
@@ -64,6 +65,8 @@ public class SocketClientHandler implements SocketClient {
 
 	@Override
 	public void start() {
+		if(!API.isEnabled())
+			return;
 		try {
 			while(API.isEnabled() && !checkRawConnected()) {
 				socket=tryConnect();
@@ -72,6 +75,10 @@ public class SocketClientHandler implements SocketClient {
 						Thread.sleep(5000);
 					} catch (Exception e) {
 					}
+			}
+			if(!checkRawConnected()) { //What happened? API is disabled?
+				start();
+				return;
 			}
 			try {
 				in=new DataInputStream(socket.getInputStream());
@@ -83,24 +90,29 @@ public class SocketClientHandler implements SocketClient {
 				return;
 			}
 			//PROCESS LOGIN
-			if(checkRawConnected() && in.readInt()==SocketServer.PROCESS_LOGIN) {
+			if(checkRawConnected() && in.readInt()==ClientResponde.PROCESS_LOGIN.getResponde()) {
 				out.writeInt(password.length);
 				out.write(password);
 				int result = in.readInt();
-				if(result==SocketServer.RECEIVE_NAME) {
+				ServerClientRespondeEvent respondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this, result);
+				EventManager.call(respondeEvent);
+				if(result==ClientResponde.RECEIVE_NAME.getResponde()) {
 					out.writeInt(SocketClientHandler.serverName.length);
 					out.write(SocketClientHandler.serverName);
 					result = in.readInt(); //await for respond
+					respondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this, result);
+					EventManager.call(respondeEvent);
 				}
-				ServerClientRespondeEvent respondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this, result);
-				EventManager.call(respondeEvent);
-				if(result==SocketServer.ACCEPTED) {
+				if(result==ClientResponde.ACCEPTED.getResponde()) {
 					connected=true;
+					manuallyClosed=false;
 					//LOGGED IN, START READER
 					lastPing = System.currentTimeMillis()/100;
 					lastPong = System.currentTimeMillis()/100;
 					new Thread(()->{
-						while(isConnected() && API.isEnabled()) {
+						ServerClientConnectedEvent connectedEvent = new ServerClientConnectedEvent(SocketClientHandler.this);
+						EventManager.call(connectedEvent);
+						while(API.isEnabled() && isConnected()) {
 							try {
 								task = in.readInt();
 								if(task==20) { //ping
@@ -123,7 +135,6 @@ public class SocketClientHandler implements SocketClient {
 								EventManager.call(crespondeEvent);
 								SocketUtils.process(this, task);
 							} catch (Exception e) {
-								connected=false;
 								break;
 							}
 							try {
@@ -131,40 +142,36 @@ public class SocketClientHandler implements SocketClient {
 							} catch (Exception e) {
 							}
 						}
-						connected=false;
-						try {
-							socket.close();
-						}catch(Exception err) {
-						}
-						ServerClientDisconnectedEvent event = new ServerClientDisconnectedEvent(this);
-						EventManager.call(event);
-						socket=null;
-						if(API.isEnabled())
+						if(socket!=null && connected && !manuallyClosed) {
+							stop();
 							start();
+						}
 					}).start();
 					//ping - pong service
 					new Thread(()->{
-						while(isConnected() && API.isEnabled())
+						while(API.isEnabled() && isConnected())
 							try {
 								Thread.sleep(15000);
 								lastPing = System.currentTimeMillis()/100;
 								out.writeInt(20);
 							} catch (Exception e) {
-								connected=false;
 								break;
 							}
+						if(socket!=null && connected && !manuallyClosed) {
+							stop();
+							start();
+						}
 					}).start();
 				}
 			}
 		} catch (Exception e) {
+			socket=null;
 			connected=false;
-			if(API.isEnabled()) {
-				try {
-					Thread.sleep(5000);
-				} catch (Exception err) {
-				}
-				start();
+			try {
+				Thread.sleep(5000);
+			} catch (Exception err) {
 			}
+			start();
 		}
 	}
 
@@ -183,11 +190,13 @@ public class SocketClientHandler implements SocketClient {
 
 	@Override
 	public void stop() {
+		manuallyClosed=true;
+		connected=false;
 		try {
-			connected=false;
 			socket.close();
 		} catch (Exception e) {
 		}
+		socket=null;
 	}
 
 	@Override
@@ -203,6 +212,11 @@ public class SocketClientHandler implements SocketClient {
 	@Override
 	public DataOutputStream getOutputStream() {
 		return out;
+	}
+
+	@Override
+	public boolean canReconnect() {
+		return true;
 	}
 
 }
