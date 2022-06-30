@@ -102,8 +102,7 @@ public class ScoreboardAPI {
 	public void addLine(String value) {
 		int i = -1;
 		Set<String> slots = data.getKeys(player);
-		while (!slots.contains("" + (++i)))
-			;
+		while (slots.contains("" + (++i)));
 		setLine(i, value);
 	}
 
