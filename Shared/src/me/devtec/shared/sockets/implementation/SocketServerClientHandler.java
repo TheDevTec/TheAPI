@@ -7,6 +7,7 @@ import java.net.Socket;
 
 import me.devtec.shared.API;
 import me.devtec.shared.events.EventManager;
+import me.devtec.shared.events.api.ClientResponde;
 import me.devtec.shared.events.api.ServerClientConnectedEvent;
 import me.devtec.shared.events.api.ServerClientRespondeEvent;
 import me.devtec.shared.sockets.SocketClient;
@@ -23,8 +24,9 @@ public class SocketServerClientHandler implements SocketClient {
 	private boolean connected = true;
 	private boolean manuallyClosed;
 	private int task = 0;
-	private long lastPing;
-	private long lastPong;
+	private int ping;
+
+	private boolean lock;
 
 	public SocketServerClientHandler(SocketServer server, String serverName, Socket socket) throws IOException {
 		this(server, new DataInputStream(socket.getInputStream()), new DataOutputStream(socket.getOutputStream()), serverName, socket);
@@ -37,8 +39,6 @@ public class SocketServerClientHandler implements SocketClient {
 		this.out=out;
 		this.serverName=serverName;
 		//LOGGED IN, START READER
-		lastPing = System.currentTimeMillis()/100;
-		lastPong = System.currentTimeMillis()/100;
 		new Thread(()->{
 			ServerClientConnectedEvent connectedEvent = new ServerClientConnectedEvent(SocketServerClientHandler.this);
 			EventManager.call(connectedEvent);
@@ -51,30 +51,23 @@ public class SocketServerClientHandler implements SocketClient {
 					Thread.sleep(100);
 				} catch (Exception e) {
 				}
-				try {
-					task = in.readInt();
-					if(task==20) { //ping
-						out.writeInt(21);
-						try {
-							Thread.sleep(100);
-						} catch (Exception e) {
+				if(!isLocked())
+					try {
+						task = in.readInt();
+						if(task==ClientResponde.PONG.getResponde()) {
+							ping = in.readInt();
+							try {
+								Thread.sleep(100);
+							} catch (Exception e) {
+							}
+							continue;
 						}
-						continue;
+						ServerClientRespondeEvent crespondeEvent = new ServerClientRespondeEvent(SocketServerClientHandler.this, task);
+						EventManager.call(crespondeEvent);
+						SocketUtils.process(this, task);
+					} catch (Exception e) {
+						break;
 					}
-					if(task==21) { //pong
-						lastPong = System.currentTimeMillis()/100;
-						try {
-							Thread.sleep(100);
-						} catch (Exception e) {
-						}
-						continue;
-					}
-					ServerClientRespondeEvent crespondeEvent = new ServerClientRespondeEvent(SocketServerClientHandler.this, task);
-					EventManager.call(crespondeEvent);
-					SocketUtils.process(this, task);
-				} catch (Exception e) {
-					break;
-				}
 			}
 			if(socket!=null && connected && !manuallyClosed)
 				stop();
@@ -82,13 +75,14 @@ public class SocketServerClientHandler implements SocketClient {
 		//ping - pong service
 		new Thread(()->{
 			while(API.isEnabled() && isConnected())
-				try {
-					Thread.sleep(5000);
-					lastPing = System.currentTimeMillis()/100;
-					out.writeInt(20);
-				} catch (Exception e) {
-					break;
-				}
+				if(!isLocked())
+					try {
+						Thread.sleep(5000);
+						out.writeInt(ClientResponde.PING.getResponde());
+						out.writeLong(System.currentTimeMillis()/100);
+					} catch (Exception e) {
+						break;
+					}
 			if(socket!=null && connected && !manuallyClosed)
 				stop();
 		}).start();
@@ -111,7 +105,7 @@ public class SocketServerClientHandler implements SocketClient {
 
 	@Override
 	public int ping() {
-		return (int) (-lastPing + lastPong);
+		return ping;
 	}
 
 	@Override
@@ -157,6 +151,21 @@ public class SocketServerClientHandler implements SocketClient {
 	@Override
 	public boolean canReconnect() {
 		return false;
+	}
+
+	@Override
+	public void lock() {
+		lock=true;
+	}
+
+	@Override
+	public void unlock() {
+		lock=false;
+	}
+
+	@Override
+	public boolean isLocked() {
+		return lock;
 	}
 
 }

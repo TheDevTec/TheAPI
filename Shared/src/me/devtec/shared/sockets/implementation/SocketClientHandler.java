@@ -25,8 +25,9 @@ public class SocketClientHandler implements SocketClient {
 	private DataInputStream in;
 	private  DataOutputStream out;
 	private int task = 0;
-	private long lastPing;
-	private long lastPong;
+	private int ping;
+
+	private boolean lock;
 
 	public SocketClientHandler(String ip, int port, String password) {
 		this.ip=ip;
@@ -51,7 +52,7 @@ public class SocketClientHandler implements SocketClient {
 
 	@Override
 	public int ping() {
-		return (int) (-lastPing + lastPong);
+		return ping;
 	}
 
 	@Override
@@ -90,19 +91,19 @@ public class SocketClientHandler implements SocketClient {
 				return;
 			}
 			//PROCESS LOGIN
-			if(checkRawConnected() && in.readInt()==ClientResponde.PROCESS_LOGIN.getResponde()) {
+			if(checkRawConnected() && in.readInt()==ClientResponde.LOGIN.getResponde()) {
 				out.writeInt(password.length);
 				out.write(password);
 				int result = in.readInt(); // backwards support
 				ServerClientRespondeEvent respondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this, result);
 				EventManager.call(respondeEvent);
-				if(result==ClientResponde.RECEIVE_NAME.getResponde()) {
+				if(result==ClientResponde.REQUEST_NAME.getResponde()) {
 					out.writeInt(SocketClientHandler.serverName.length);
 					out.write(SocketClientHandler.serverName);
 					result = in.readInt(); //await for respond
 					respondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this, result);
 					EventManager.call(respondeEvent);
-					if(result==ClientResponde.ACCEPTED.getResponde())
+					if(result==ClientResponde.ACCEPTED_LOGIN.getResponde())
 						openConnection();
 				}
 			}
@@ -121,8 +122,6 @@ public class SocketClientHandler implements SocketClient {
 		connected=true;
 		manuallyClosed=false;
 		//LOGGED IN, START READER
-		lastPing = System.currentTimeMillis()/100;
-		lastPong = System.currentTimeMillis()/100;
 		new Thread(()->{
 			ServerClientConnectedEvent connectedEvent = new ServerClientConnectedEvent(SocketClientHandler.this);
 			EventManager.call(connectedEvent);
@@ -131,46 +130,27 @@ public class SocketClientHandler implements SocketClient {
 					Thread.sleep(100);
 				} catch (Exception e) {
 				}
-				try {
-					task = in.readInt();
-					if(task==20) { //ping
-						out.writeInt(21);
-						try {
-							Thread.sleep(100);
-						} catch (Exception e) {
+				if(!isLocked())
+					try {
+						task = in.readInt();
+						if(task==ClientResponde.PING.getResponde()) {
+							long pingTime = in.readLong();
+							ping = (int)(-pingTime + System.currentTimeMillis()/100);
+							out.writeInt(ClientResponde.PONG.getResponde());
+							out.writeInt(ping);
+							try {
+								Thread.sleep(100);
+							} catch (Exception e) {
+							}
+							continue;
 						}
-						continue;
+						ServerClientRespondeEvent crespondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this, task);
+						EventManager.call(crespondeEvent);
+						SocketUtils.process(this, task);
+					} catch (Exception e) {
+						break;
 					}
-					if(task==21) { //pong
-						lastPong = System.currentTimeMillis()/100;
-						try {
-							Thread.sleep(100);
-						} catch (Exception e) {
-						}
-						continue;
-					}
-					ServerClientRespondeEvent crespondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this, task);
-					EventManager.call(crespondeEvent);
-					SocketUtils.process(this, task);
-				} catch (Exception e) {
-					break;
-				}
 			}
-			if(socket!=null && connected && !manuallyClosed) {
-				stop();
-				start();
-			}
-		}).start();
-		//ping - pong service
-		new Thread(()->{
-			while(API.isEnabled() && isConnected())
-				try {
-					Thread.sleep(5000);
-					lastPing = System.currentTimeMillis()/100;
-					out.writeInt(20);
-				} catch (Exception e) {
-					break;
-				}
 			if(socket!=null && connected && !manuallyClosed) {
 				stop();
 				start();
@@ -222,6 +202,21 @@ public class SocketClientHandler implements SocketClient {
 	@Override
 	public boolean canReconnect() {
 		return true;
+	}
+
+	@Override
+	public void lock() {
+		lock=true;
+	}
+
+	@Override
+	public void unlock() {
+		lock=false;
+	}
+
+	@Override
+	public boolean isLocked() {
+		return lock;
 	}
 
 }

@@ -7,7 +7,9 @@ import java.io.FileInputStream;
 import java.net.Socket;
 
 import me.devtec.shared.dataholder.Config;
+import me.devtec.shared.events.EventManager;
 import me.devtec.shared.events.api.ClientResponde;
+import me.devtec.shared.events.api.ServerClientRespondeEvent;
 import me.devtec.shared.sockets.implementation.SocketClientHandler;
 
 public interface SocketClient {
@@ -23,53 +25,61 @@ public interface SocketClient {
 
 	public int ping();
 
-	public default void write(String fileName, File file) {
-		if(fileName==null || file == null)return;
-		DataOutputStream out = getOutputStream();
-		try {
-			out.writeInt(ClientResponde.RECEIVE_FILE.getResponde());
-			byte[] bytesData = fileName.getBytes();
-			out.writeInt(bytesData.length);
-			out.write(bytesData);
+	public void lock();
 
-			out.writeLong(file.length());
-			FileInputStream fileInputStream = new FileInputStream(file);
-			int bytes = 0;
-			byte[] buffer = new byte[2*1024];
-			while ((bytes=fileInputStream.read(buffer))!=-1)
-				out.write(buffer,0,bytes);
-			fileInputStream.close();
-			out.flush();
-		}catch(Exception e) {
-			stop();
-			if(canReconnect())
-				start();
-		}
+	public void unlock();
+
+	public boolean isLocked();
+
+	public default void write(String fileName, File file) {
+		writeWithData(null, fileName, file);
 	}
 
 	public default void writeWithData(Config data, String fileName, File file) {
-		if(data == null || fileName==null || file == null)return;
+		if(fileName==null || file == null)return;
 		DataOutputStream out = getOutputStream();
 		try {
-			out.writeInt(ClientResponde.RECEIVE_DATA_AND_FILE.getResponde());
-			//data
-			byte[] path = data.toByteArray();
-			out.writeInt(path.length);
-			out.write(path);
+			lock();
+			if(data!=null) {
+				out.writeInt(ClientResponde.RECEIVE_DATA_AND_FILE.getResponde());
+				//data
+				byte[] path = data.toByteArray();
+				out.writeInt(path.length);
+				out.write(path);
+			} else
+				out.writeInt(ClientResponde.RECEIVE_FILE.getResponde());
 			//file
 			byte[] bytesData = fileName.getBytes();
 			out.writeInt(bytesData.length);
 			out.write(bytesData);
 
-			out.writeLong(file.length());
-			FileInputStream fileInputStream = new FileInputStream(file);
-			int bytes = 0;
-			byte[] buffer = new byte[2*1024];
-			while ((bytes=fileInputStream.read(buffer))!=-1)
-				out.write(buffer,0,bytes);
-			fileInputStream.close();
-			out.flush();
+			ClientResponde responde = ClientResponde.fromResponde(getInputStream().readInt());
+			ServerClientRespondeEvent crespondeEvent = new ServerClientRespondeEvent(this, responde.getResponde());
+			EventManager.call(crespondeEvent);
+
+			if(responde==ClientResponde.ACCEPTED_FILE) {
+				out.writeLong(file.length());
+				FileInputStream fileInputStream = new FileInputStream(file);
+				int bytes = 0;
+				byte[] buffer = new byte[2*1024];
+				while ((bytes=fileInputStream.read(buffer))!=-1)
+					out.write(buffer,0,bytes);
+				out.flush();
+				fileInputStream.close();
+				Thread.sleep(200);
+				responde = ClientResponde.fromResponde(getInputStream().readInt());
+				crespondeEvent = new ServerClientRespondeEvent(this, responde.getResponde());
+				EventManager.call(crespondeEvent);
+				unlock();
+				if(responde==ClientResponde.FAILED_DOWNLOAD_FILE)
+					writeWithData(data, fileName, file);
+			}else {
+				out.flush();
+				unlock();
+			}
 		}catch(Exception e) {
+			e.printStackTrace();
+			unlock();
 			stop();
 			if(canReconnect())
 				start();
