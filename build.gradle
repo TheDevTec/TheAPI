@@ -23,37 +23,21 @@ buildscript {
 
 }
 
-group='com.github.jitpack'
-version '1.0-SNAPSHOT'
-
 allprojects {
     group = "me.devtec"
     version = "10.0"
 }
 
-
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId = 'me.devtec'
-            artifactId = 'TheAPI'
-            version = '10.0'
-
-            from components.java
-        }
-    }
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = "sources"
 }
 
 publishing {
-    repositories {
-        maven {
-            url "file://C://Users/strai/.m2/repository/"
-        }
-    }
     publications {
-        testing(MavenPublication) {
+        mavenJava(MavenPublication) {
             from components.java
+            artifact sourceJar
         }
     }
 }
@@ -61,7 +45,7 @@ publishing {
 task makeJar(type: Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     //destinationDirectory.set(file("D:\\build"))
-    archiveName='TheAPI.jar'
+    //archiveName='TheAPI.jar'
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
@@ -93,10 +77,4 @@ dependencies {
 
 build {
     dependsOn publish
-}
-
-publishing {
-    repositories {
-        mavenLocal()
-    }
 }
