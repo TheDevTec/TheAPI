@@ -1,0 +1,9 @@
+{
+  "id":"theapi",
+  "name":"TheAPI",
+  "version":"10.0",
+  "authors":["DevTec","StraikerinaCZ"],
+  "main":"me.devtec.theapi.velocity.VelocityLoader",
+  "url":"https://www.spigotmc.org/resources/72679/",
+  "spigot-id":"72679"
+}
