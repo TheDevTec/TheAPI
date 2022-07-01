@@ -24,6 +24,23 @@ allprojects {
 }
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'maven-publish'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'me.devtec'
+            artifactId = 'TheAPI'
+            version = "10.0"
+            from components.java
+
+            pom {
+                description = 'A description of my library'
+
+            }
+        }
+    }
 }
 
 publishing {
