@@ -1,14 +1,13 @@
 package me.devtec.theapi.velocity.commands.selectors;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
-
 import me.devtec.shared.commands.manager.SelectorUtils;
 import me.devtec.shared.commands.selectors.Selector;
 import me.devtec.theapi.velocity.VelocityLoader;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class VelocitySelectorUtils implements SelectorUtils {
 	@Override

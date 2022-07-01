@@ -1,12 +1,11 @@
 package me.devtec.theapi.velocity.commands.hooker;
 
-import java.util.List;
-
 import com.velocitypowered.api.command.RawCommand;
-
 import me.devtec.shared.commands.holder.CommandHolder;
 import me.devtec.shared.commands.manager.CommandsRegister;
 import me.devtec.theapi.velocity.VelocityLoader;
+
+import java.util.List;
 
 public class VelocityCommandManager implements CommandsRegister {
 
