@@ -18,7 +18,6 @@ import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils.DestinationType;
-import net.minecraft.EnumChatFormat;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.IRegistry;
 import net.minecraft.core.NonNullList;
@@ -77,6 +76,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.Map.Entry;
@@ -316,6 +316,13 @@ public class v1_17_R1 implements NmsProvider {
 		return v1_17_R1.server.recentTps;
 	}
 
+	private static Method getColor = Ref.method(Ref.getClass("net.minecraft.EnumChatFormat"), "a", char.class);
+	private static Method setColor = Ref.method(Ref.getClass("net.minecraft.network.chat.ChatModifier"), "setColor", Ref.getClass("net.minecraft.EnumChatFormat"));
+
+	private Object getColorOf(char c){
+		return Ref.invokeStatic(getColor, c);
+	}
+
 	private IChatBaseComponent convert(Component c) {
 		ChatComponentText current = new ChatComponentText(c.getText());
 		ChatModifier modif = current.getChatModifier();
@@ -323,7 +330,7 @@ public class v1_17_R1 implements NmsProvider {
 			if (c.getColor().startsWith("#"))
 				modif = modif.setColor(ChatHexColor.a(c.getColor()));
 			else
-				modif = modif.setColor(EnumChatFormat.a(c.colorToChar()));
+				modif = (ChatModifier)Ref.invoke(modif, setColor, getColorOf(c.colorToChar()));
 		if (c.getClickEvent() != null)
 			modif = modif.setChatClickable(new ChatClickable(
 					EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
