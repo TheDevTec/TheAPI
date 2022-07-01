@@ -66,7 +66,7 @@ dependencies {
     implementation project(":NmsProvider_1.18.R1")
     implementation project(":NmsProvider_1.17.R1")
     implementation project(":NmsProvider_1.16.R3")
-    implementation project(":NmsProvider_1.16.R3-MOHIST") // modded server support
+   //mplementation project(":NmsProvider_1.16.R3-MOHIST") // modded server support
     implementation project(":NmsProvider_1.14.R1")
     implementation project(":NmsProvider_1.12.R1")
     implementation project(":NmsProvider_1.8.R3")
