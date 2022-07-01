@@ -6,9 +6,9 @@ apply plugin: 'net.kyori.blossom'
 compileJava.options.encoding = "UTF-8"
 compileTestJava.options.encoding = "UTF-8"
 buildscript {
-
     repositories {
         jcenter()
+        mavenLocal()
         maven { url "https://plugins.gradle.org/m2/" }
     }
 
@@ -24,6 +24,14 @@ allprojects {
 }
 subprojects {
     apply plugin: 'java'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
 }
 
 task makeJar(type: Jar) {
