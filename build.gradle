@@ -3,8 +3,13 @@ apply plugin: 'java'
 apply plugin: 'base'
 apply plugin: 'maven-publish'
 apply plugin: 'net.kyori.blossom'
+
 compileJava.options.encoding = "UTF-8"
 compileTestJava.options.encoding = "UTF-8"
+
+group 'me.devtec'
+version '10.0'
+
 buildscript {
     repositories {
         jcenter()
@@ -18,27 +23,24 @@ buildscript {
 
 }
 
+group='com.github.jitpack'
+version '1.0-SNAPSHOT'
+
 allprojects {
     group = "me.devtec"
     version = "10.0"
 }
-subprojects {
-    apply plugin: 'java'
-    apply plugin: 'maven-publish'
-}
+
+
 
 publishing {
     publications {
         maven(MavenPublication) {
             groupId = 'me.devtec'
             artifactId = 'TheAPI'
-            version = "10.0"
+            version = '10.0'
+
             from components.java
-
-            pom {
-                description = 'A description of my library'
-
-            }
         }
     }
 }

@@ -1,6 +1,7 @@
 plugins {
     id 'java'
-    id("net.kyori.blossom")
+    id 'net.kyori.blossom'
+    id 'maven-publish'
 }
 
 compileJava.options.encoding = "UTF-8"
