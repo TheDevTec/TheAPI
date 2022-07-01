@@ -60,7 +60,6 @@ dependencies {
 
 shadowJar {
     dependsOn(jar)
-    destinationDir = file("./target/")
     from sourceSets.getByName("main").output
     configurations = [project.configurations.getByName("runtimeClasspath")]
 }
