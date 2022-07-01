@@ -1,0 +1,38 @@
+plugins {
+    id 'java'
+    id("net.kyori.blossom")
+}
+
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+blossom {
+    replaceToken('${project.version}', project.version)
+}
+
+repositories {
+    maven {
+        url 'https://repo.papermc.io/repository/maven-public/'
+    }
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compileOnly 'com.velocitypowered:velocity-api:3.1.2-SNAPSHOT'
+    compileOnly project(':Shared')
+    compileOnly project(':Adventure')
+}
+jar {
+    processResources {
+        outputs.upToDateWhen { false }
+
+        eachFile { details ->
+            if (details.name.contentEquals('velocity-plugin.json')) {
+                filter { line ->
+                    line.replace('${project.version}', project.version)
+                }
+            }
+        }
+    }
+}

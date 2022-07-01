@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+}
+
+group 'me.devtec'
+
+repositories {
+    maven {
+        url 'https://mvnrepository.com/artifact/'
+    }
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+
+    // compileOnly - Použitie ako libs
+    // implementation - Buildnutie do samotného jarka
+
+    compileOnly 'net.kyori:adventure-api:4.11.0'
+
+    compileOnly project(':Shared')
+}

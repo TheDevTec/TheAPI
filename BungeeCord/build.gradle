@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+}
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+repositories {
+    maven {
+        url 'https://mvnrepository.com/artifact/'
+    }
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compileOnly 'net.md-5:bungeecord-chat:1.16-R0.4'
+    compileOnly project(':Shared')
+}

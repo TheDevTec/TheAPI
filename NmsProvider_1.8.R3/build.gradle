@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+}
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+repositories {
+    maven {
+        url "http://mc.hackerzlair.org:8888/repository/public/"
+        allowInsecureProtocol(true)
+    }
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compileOnly  ("org.spigotmc:spigot-1.8.8:+")
+    compileOnly project(':Shared')
+    compileOnly project(':Bukkit')
+}
