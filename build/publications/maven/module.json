@@ -1,0 +1,181 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "me.devtec",
+    "module": "TheAPI",
+    "version": "10.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.4"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "files": [
+        {
+          "name": "TheAPI-10.0.jar",
+          "url": "TheAPI-10.0.jar",
+          "size": 5354,
+          "sha512": "fc755298cf403f67d5a4e28248def68de66a4ad827a27929d06b496b476f85b41d09a34c6f14d957b518ed1e407a28d1488a90e6e44e32ac11becd50ba4c4228",
+          "sha256": "fe08a8313b111b6d6a79db8e20125d79daa220d6e6a285a349a55359a75f514f",
+          "sha1": "cbce9c999bf183b03af1636202a4f69b5ff6c682",
+          "md5": "78f3c2f482c9605cd105dfff51dfc054"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 17,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "me.devtec",
+          "module": "Shared",
+          "version": {
+            "requires": "10.0"
+          }
+        },
+        {
+          "group": "me.devtec",
+          "module": "BungeeCord",
+          "version": {
+            "requires": "10.0"
+          }
+        },
+        {
+          "group": "me.devtec",
+          "module": "Adventure",
+          "version": {
+            "requires": "10.0"
+          }
+        },
+        {
+          "group": "me.devtec",
+          "module": "Bukkit",
+          "version": {
+            "requires": "10.0"
+          }
+        },
+        {
+          "group": "me.devtec",
+          "module": "BungeeLoader",
+          "version": {
+            "requires": "10.0"
+          }
+        },
+        {
+          "group": "me.devtec",
+          "module": "VelocityLoader",
+          "version": {
+            "requires": "10.0"
+          }
+        },
+        {
+          "group": "me.devtec",
+          "module": "Legacy_1.7.10",
+          "version": {
+            "requires": "10.0"
+          }
+        },
+        {
+          "group": "me.devtec",
+          "module": "NmsProvider_1.19.R1",
+          "version": {
+            "requires": "10.0"
+          }
+        },
+        {
+          "group": "me.devtec",
+          "module": "NmsProvider_1.18.R2",
+          "version": {
+            "requires": "10.0"
+          }
+        },
+        {
+          "group": "me.devtec",
+          "module": "NmsProvider_1.18.R1",
+          "version": {
+            "requires": "10.0"
+          }
+        },
+        {
+          "group": "me.devtec",
+          "module": "NmsProvider_1.17.R1",
+          "version": {
+            "requires": "10.0"
+          }
+        },
+        {
+          "group": "me.devtec",
+          "module": "NmsProvider_1.16.R3",
+          "version": {
+            "requires": "10.0"
+          }
+        },
+        {
+          "group": "me.devtec",
+          "module": "NmsProvider_1.16.R3-MOHIST",
+          "version": {
+            "requires": "10.0"
+          }
+        },
+        {
+          "group": "me.devtec",
+          "module": "NmsProvider_1.14.R1",
+          "version": {
+            "requires": "10.0"
+          }
+        },
+        {
+          "group": "me.devtec",
+          "module": "NmsProvider_1.12.R1",
+          "version": {
+            "requires": "10.0"
+          }
+        },
+        {
+          "group": "me.devtec",
+          "module": "NmsProvider_1.8.R3",
+          "version": {
+            "requires": "10.0"
+          }
+        },
+        {
+          "group": "me.devtec",
+          "module": "NmsProvider_1.7.R4",
+          "version": {
+            "requires": "10.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "TheAPI-10.0.jar",
+          "url": "TheAPI-10.0.jar",
+          "size": 5354,
+          "sha512": "fc755298cf403f67d5a4e28248def68de66a4ad827a27929d06b496b476f85b41d09a34c6f14d957b518ed1e407a28d1488a90e6e44e32ac11becd50ba4c4228",
+          "sha256": "fe08a8313b111b6d6a79db8e20125d79daa220d6e6a285a349a55359a75f514f",
+          "sha1": "cbce9c999bf183b03af1636202a4f69b5ff6c682",
+          "md5": "78f3c2f482c9605cd105dfff51dfc054"
+        }
+      ]
+    }
+  ]
+}
