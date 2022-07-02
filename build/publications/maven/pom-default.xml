@@ -10,6 +10,7 @@
   <groupId>me.devtec</groupId>
   <artifactId>TheAPI</artifactId>
   <version>10.0</version>
+  <description>A description of my library</description>
   <dependencies>
     <dependency>
       <groupId>me.devtec</groupId>
