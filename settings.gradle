@@ -11,7 +11,7 @@ include 'NmsProvider_1.16.R3'
 include 'NmsProvider_1.14.R1'
 include 'NmsProvider_1.12.R1'
 include 'NmsProvider_1.8.R3'
-//include 'NmsProvider_1.16.R3-MOHIST'
+include 'NmsProvider_1.16.R3-MOHIST'
 include 'VelocityLoader'
 include 'BungeeLoader'
 
