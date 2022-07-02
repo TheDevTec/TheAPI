@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="D:/jars/google/gson-2.9.0.jar"/>
+	<classpathentry kind="lib" path="D:/jars/google/guava-31.1-jre.jar" sourcepath="C:/Users/strai/AppData/Local/Temp/.org.sf.feeling.decompiler1654270257660/source/guava-31.1-jre-sources.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/Loader - Bukkit"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.18_R1/authlib-3.2.38.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.18_R1/brigadier-1.0.18.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.18_R1/datafixerupper-4.0.26.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.18_R1/fastutil-8.5.6.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.18_R1/gson-2.8.8.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.18_R1/guava-31.0.1-jre.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.18_R1/jsr305-3.0.2.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.18_R1/log4j-api-2.14.1.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.18_R1/netty-all-4.1.68.Final.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.18_R1/spigot-1.18.1-R0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.18_R1/spigot-api-1.18.1-R0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

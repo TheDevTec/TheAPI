@@ -1,0 +1,8 @@
+name: TheAPI
+main: me.devtec.theapi.bukkit.BukkitLoader
+version: 9.9.9
+author: DevTec, StraikerinaCZ
+website: https://www.spigotmc.org/resources/72679/
+api-version: 1.13
+softdepend: [PlaceholderAPI]
+spigot-id: 72679
