@@ -30,6 +30,7 @@ allprojects {
 
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
+    archiveClassifier = "sources"
 }
 
 publishing {
