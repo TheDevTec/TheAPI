@@ -8,7 +8,7 @@ compileTestJava.options.encoding = "UTF-8"
 buildscript {
     repositories {
         jcenter()
-        mavenCentral()
+        mavenLocal()
         maven { url "https://plugins.gradle.org/m2/" }
     }
 
@@ -44,13 +44,8 @@ publishing {
 }
 
 publishing {
-    repositories {
-        maven {
-            url "file://C://Users/strai/.m2/repository/"
-        }
-    }
     publications {
-        testing(MavenPublication) {
+        mavenJava(MavenPublication) {
             from components.java
         }
     }
@@ -58,7 +53,7 @@ publishing {
 
 task makeJar(type: Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    //destinationDirectory.set(file("D:\\build"))
+    destinationDirectory.set(file("D:\\build"))
     archiveName='TheAPI.jar'
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
