@@ -28,6 +28,7 @@ subprojects {
 }
 
 publishing {
+<<<<<<< HEAD
     publications {
         maven(MavenPublication) {
             groupId = 'me.devtec'
@@ -44,6 +45,8 @@ publishing {
 }
 
 publishing {
+=======
+>>>>>>> parent of 6571e652 (Help me)
     publications {
         mavenJava(MavenPublication) {
             from components.java
