@@ -8,8 +8,11 @@ repositories {
     maven {
         url 'https://repo.codemc.io/repository/nms/'
     }
+    maven {
+        name 'minecraft-repo'
+        url 'https://libraries.minecraft.net/'
+    }
     mavenCentral()
-    mavenLocal()
 }
 
 dependencies {
