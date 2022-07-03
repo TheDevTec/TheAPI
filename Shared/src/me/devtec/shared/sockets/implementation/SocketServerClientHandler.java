@@ -4,6 +4,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Queue;
+
+import com.google.common.collect.Queues;
 
 import me.devtec.shared.API;
 import me.devtec.shared.events.EventManager;
@@ -25,6 +28,7 @@ public class SocketServerClientHandler implements SocketClient {
 	private boolean manuallyClosed;
 	private int task = 0;
 	private int ping;
+	private Queue<SocketAction> actions = Queues.newLinkedBlockingDeque();
 
 	private boolean lock;
 
@@ -166,6 +170,16 @@ public class SocketServerClientHandler implements SocketClient {
 	@Override
 	public boolean isLocked() {
 		return lock;
+	}
+
+	@Override
+	public boolean shouldAddToQueue() {
+		return isLocked();
+	}
+
+	@Override
+	public Queue<SocketAction> actionsAfterUnlock() {
+		return actions;
 	}
 
 }

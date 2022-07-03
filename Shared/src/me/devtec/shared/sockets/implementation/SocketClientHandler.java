@@ -3,6 +3,9 @@ package me.devtec.shared.sockets.implementation;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.util.Queue;
+
+import com.google.common.collect.Queues;
 
 import me.devtec.shared.API;
 import me.devtec.shared.events.EventManager;
@@ -11,6 +14,7 @@ import me.devtec.shared.events.api.ServerClientConnectedEvent;
 import me.devtec.shared.events.api.ServerClientRespondeEvent;
 import me.devtec.shared.sockets.SocketClient;
 import me.devtec.shared.sockets.SocketUtils;
+import me.devtec.shared.sockets.implementation.SocketAction.SocketActionEnum;
 
 public class SocketClientHandler implements SocketClient {
 	public static byte[] serverName;
@@ -26,6 +30,7 @@ public class SocketClientHandler implements SocketClient {
 	private  DataOutputStream out;
 	private int task = 0;
 	private int ping;
+	private Queue<SocketAction> actions = Queues.newLinkedBlockingDeque();
 
 	private boolean lock;
 
@@ -162,11 +167,6 @@ public class SocketClientHandler implements SocketClient {
 		try {
 			Socket socket=new Socket(ip, port);
 			socket.setReuseAddress(true);
-			socket.setKeepAlive(true);
-			socket.setReceiveBufferSize(4*1024);
-			socket.setTcpNoDelay(true);
-			socket.setTrafficClass(0x02);
-			socket.setSendBufferSize(4*1024);
 			return socket;
 		} catch (Exception e) {
 		}
@@ -210,13 +210,30 @@ public class SocketClientHandler implements SocketClient {
 	}
 
 	@Override
+	public boolean shouldAddToQueue() {
+		return !isConnected() || isLocked();
+	}
+
+	@Override
 	public void unlock() {
 		lock=false;
+		while(!actionsAfterUnlock().isEmpty()) {
+			SocketAction value = actionsAfterUnlock().poll();
+			if(value.action==SocketActionEnum.DATA)
+				write(value.config);
+			else
+				writeWithData(value.config, value.fileName, value.file);
+		}
 	}
 
 	@Override
 	public boolean isLocked() {
 		return lock;
+	}
+
+	@Override
+	public Queue<SocketAction> actionsAfterUnlock() {
+		return actions;
 	}
 
 }

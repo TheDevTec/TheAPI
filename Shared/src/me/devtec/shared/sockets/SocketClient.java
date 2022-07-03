@@ -4,15 +4,22 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.Socket;
+import java.util.Queue;
 
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.events.EventManager;
 import me.devtec.shared.events.api.ClientResponde;
 import me.devtec.shared.events.api.ServerClientRespondeEvent;
+import me.devtec.shared.sockets.implementation.SocketAction;
+import me.devtec.shared.sockets.implementation.SocketAction.SocketActionEnum;
 import me.devtec.shared.sockets.implementation.SocketClientHandler;
 
 public interface SocketClient {
+
+	public Queue<SocketAction> actionsAfterUnlock();
+
 	public String serverName();
 
 	public String ip();
@@ -31,12 +38,27 @@ public interface SocketClient {
 
 	public boolean isLocked();
 
+	public boolean shouldAddToQueue();
+
 	public default void write(String fileName, File file) {
 		writeWithData(null, fileName, file);
 	}
 
+	public default ClientResponde readUntilFind(ClientResponde... specified) throws IOException {
+		int task = getInputStream().readInt();
+		ClientResponde responde = ClientResponde.fromResponde(task);
+		for(ClientResponde lookingFor : specified)
+			if(lookingFor == responde)return lookingFor;
+		SocketUtils.process(this, task);
+		return readUntilFind(specified);
+	}
+
 	public default void writeWithData(Config data, String fileName, File file) {
 		if(fileName==null || file == null)return;
+		if(shouldAddToQueue()) {
+			actionsAfterUnlock().add(new SocketAction(SocketActionEnum.FILE, data, fileName, file));
+			return;
+		}
 		DataOutputStream out = getOutputStream();
 		try {
 			lock();
@@ -52,22 +74,25 @@ public interface SocketClient {
 			byte[] bytesData = fileName.getBytes();
 			out.writeInt(bytesData.length);
 			out.write(bytesData);
-
-			ClientResponde responde = ClientResponde.fromResponde(getInputStream().readInt());
+			ClientResponde responde = readUntilFind(ClientResponde.ACCEPTED_FILE, ClientResponde.REJECTED_FILE);
 			ServerClientRespondeEvent crespondeEvent = new ServerClientRespondeEvent(this, responde.getResponde());
 			EventManager.call(crespondeEvent);
 
 			if(responde==ClientResponde.ACCEPTED_FILE) {
-				out.writeLong(file.length());
+				long size = file.length();
+				out.writeLong(size);
+				out.flush();
 				FileInputStream fileInputStream = new FileInputStream(file);
 				int bytes = 0;
-				byte[] buffer = new byte[2*1024];
-				while ((bytes=fileInputStream.read(buffer))!=-1)
-					out.write(buffer,0,bytes);
+				byte[] buffer = new byte[16*1024];
+				long total = 0;
+				while (total < size && (bytes = fileInputStream.read(buffer, 0, size-total > buffer.length ? buffer.length : (int)(size-total))) > 0) {
+					out.write(buffer, 0, bytes);
+					total += bytes;
+				}
 				out.flush();
 				fileInputStream.close();
-				Thread.sleep(200);
-				responde = ClientResponde.fromResponde(getInputStream().readInt());
+				responde =readUntilFind(ClientResponde.SUCCESSFULLY_DOWNLOADED_FILE, ClientResponde.FAILED_DOWNLOAD_FILE);
 				crespondeEvent = new ServerClientRespondeEvent(this, responde.getResponde());
 				EventManager.call(crespondeEvent);
 				unlock();
@@ -81,6 +106,10 @@ public interface SocketClient {
 			e.printStackTrace();
 			unlock();
 			stop();
+			if(shouldAddToQueue()) {
+				actionsAfterUnlock().add(new SocketAction(SocketActionEnum.FILE, data, fileName, file));
+				return;
+			}
 			if(canReconnect())
 				start();
 		}
@@ -88,6 +117,10 @@ public interface SocketClient {
 
 	public default void write(Config data) {
 		if(data == null)return;
+		if(shouldAddToQueue()) {
+			actionsAfterUnlock().add(new SocketAction(SocketActionEnum.DATA, data, null, null));
+			return;
+		}
 		DataOutputStream out = getOutputStream();
 		try {
 			byte[] path = data.toByteArray();
@@ -97,6 +130,10 @@ public interface SocketClient {
 			out.flush();
 		}catch(Exception e) {
 			stop();
+			if(shouldAddToQueue()) {
+				actionsAfterUnlock().add(new SocketAction(SocketActionEnum.DATA, data, null, null));
+				return;
+			}
 			if(canReconnect())
 				start();
 		}
@@ -104,7 +141,7 @@ public interface SocketClient {
 
 	public default void write(File file) {
 		if(file == null)return;
-		write(file.getName(), file);
+		writeWithData(null, file.getName(), file);
 	}
 
 	public default void writeWithData(Config data, File file) {

@@ -26,65 +26,71 @@ public class SocketUtils {
 		return new String(path);
 	}
 
-	public static boolean readFile(DataInputStream in, FileOutputStream out, File file) throws IOException {
+	public static boolean readFile(DataInputStream in, FileOutputStream out, File file) {
 		int bytes;
-		long size = in.readLong();
-		long origin = size;
-		byte[] buffer = new byte[2*1024];
-		while (size > 0 && (bytes = in.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
-			out.write(buffer,0,bytes);
-			size -= bytes;
+		long origin;
+		try {
+			long size = in.readLong();
+			origin = size;
+			byte[] buffer = new byte[16*1024];
+			long total = 0;
+			while (total < size && (bytes = in.read(buffer, 0, size-total > buffer.length ? buffer.length : (int)(size-total))) > 0) {
+				out.write(buffer, 0, bytes);
+				total += bytes;
+			}
+			out.close();
+		}catch(Exception err) {
+			err.printStackTrace();
+			return false;
 		}
-		out.close();
 		return origin == file.length();
 	}
 
-	public static void process(SocketClient client, int taskId) throws IOException {
+	public static boolean process(SocketClient client, int taskId) throws IOException {
 		DataInputStream in = client.getInputStream();
 		Config data = null;
 		switch(ClientResponde.fromResponde(taskId)) {
 		case RECEIVE_DATA:{
 			ServerClientReceiveDataEvent event = new ServerClientReceiveDataEvent(client, SocketUtils.readConfig(in));
 			EventManager.call(event);
-			break;
+			return true;
 		}
 		case RECEIVE_DATA_AND_FILE:
+			client.lock();
 			data = SocketUtils.readConfig(in);
 		case RECEIVE_FILE:
 			client.lock();
-
 			ServerClientPreReceiveFileEvent event = new ServerClientPreReceiveFileEvent(client, data, SocketUtils.readText(in));
 			EventManager.call(event);
 			if(event.isCancelled()) {
 				client.getOutputStream().writeInt(ClientResponde.REJECTED_FILE.getResponde());
 				client.getOutputStream().flush();
 				client.unlock();
-				break;
+				return true;
 			}
-
 			client.getOutputStream().writeInt(ClientResponde.ACCEPTED_FILE.getResponde());
+			client.getOutputStream().flush();
 			String folder = event.getFileDirectory();
 			if(!folder.isEmpty() && !folder.endsWith("/"))folder+="/";
 			File createdFile = SocketUtils.findUsableName(folder+event.getFileName());
 			FileOutputStream out = new FileOutputStream(createdFile);
 			if(!SocketUtils.readFile(in, out, createdFile)) {
-				client.getOutputStream().flush();
 				client.getOutputStream().writeInt(ClientResponde.FAILED_DOWNLOAD_FILE.getResponde());
 				client.getOutputStream().flush();
-				client.unlock();
 				createdFile.delete(); //Failed to download file! Repeat.
-				break;
+				client.unlock();
+				return true;
 			}
-			client.getOutputStream().flush();
 			client.getOutputStream().writeInt(ClientResponde.SUCCESSFULLY_DOWNLOADED_FILE.getResponde());
 			client.getOutputStream().flush();
-			client.unlock();
 			ServerClientReceiveFileEvent fileEvent = new ServerClientReceiveFileEvent(client, data, createdFile);
 			EventManager.call(fileEvent);
-			break;
+			client.unlock();
+			return true;
 		default:
 			break;
 		}
+		return false;
 	}
 
 	private static File findUsableName(String fileName) {
