@@ -16,6 +16,7 @@ import me.devtec.shared.events.api.ServerClientRespondeEvent;
 import me.devtec.shared.sockets.SocketClient;
 import me.devtec.shared.sockets.SocketServer;
 import me.devtec.shared.sockets.SocketUtils;
+import me.devtec.shared.sockets.implementation.SocketAction.SocketActionEnum;
 
 public class SocketServerClientHandler implements SocketClient {
 	private final String serverName;
@@ -46,10 +47,7 @@ public class SocketServerClientHandler implements SocketClient {
 		new Thread(()->{
 			ServerClientConnectedEvent connectedEvent = new ServerClientConnectedEvent(SocketServerClientHandler.this);
 			EventManager.call(connectedEvent);
-			try {
-				Thread.sleep(100);
-			} catch (Exception e1) {
-			}
+			unlock();
 			while(API.isEnabled() && isConnected()) {
 				try {
 					Thread.sleep(100);
@@ -165,6 +163,13 @@ public class SocketServerClientHandler implements SocketClient {
 	@Override
 	public void unlock() {
 		lock=false;
+		while(!actionsAfterUnlock().isEmpty()) {
+			SocketAction value = actionsAfterUnlock().poll();
+			if(value.action==SocketActionEnum.DATA)
+				write(value.config);
+			else
+				writeWithData(value.config, value.fileName, value.file);
+		}
 	}
 
 	@Override

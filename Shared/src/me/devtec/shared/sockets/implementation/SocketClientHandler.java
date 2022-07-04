@@ -130,6 +130,7 @@ public class SocketClientHandler implements SocketClient {
 		new Thread(()->{
 			ServerClientConnectedEvent connectedEvent = new ServerClientConnectedEvent(SocketClientHandler.this);
 			EventManager.call(connectedEvent);
+			unlock();
 			while(API.isEnabled() && isConnected()) {
 				try {
 					Thread.sleep(100);
