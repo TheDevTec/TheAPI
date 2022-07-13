@@ -1,5 +1,6 @@
 package me.devtec.theapi.bukkit.nms;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftChatMessage;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -731,10 +733,19 @@ public class v1_12_R1 implements NmsProvider {
 		container.checkReachable = false;
 	}
 
+	private static Constructor<?> craftContainer = Ref.constructor(CraftContainer.class, Inventory.class, HumanEntity.class, int.class);
+	private static int containerState;
+	static {
+		if(v1_12_R1.craftContainer==null) {
+			v1_12_R1.craftContainer = Ref.constructor(CraftContainer.class, Inventory.class, EntityHuman.class, int.class);
+			++v1_12_R1.containerState;
+		}
+	}
+
 	@Override
 	public Object createContainer(Inventory inv, Player player) {
 		return inv.getType() == InventoryType.ANVIL ? createAnvilContainer(inv, player)
-				: new CraftContainer(inv, player, ((CraftPlayer) player).getHandle().nextContainerCounter());
+				: v1_12_R1.containerState==0?Ref.newInstance(v1_12_R1.craftContainer, inv, player, ((CraftPlayer) player).getHandle().nextContainerCounter()):Ref.newInstance(v1_12_R1.craftContainer, inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter());
 	}
 
 	@Override

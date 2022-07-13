@@ -359,7 +359,7 @@ public class ItemMaker {
 		@Override
 		protected ItemMeta apply(ItemMeta meta) {
 			PotionMeta iMeta = (PotionMeta) meta;
-			if (color != null)
+			if (color != null && Ref.isNewerThan(10))
 				iMeta.setColor(color);
 			if (effects != null)
 				for (PotionEffect effect : effects)
@@ -601,7 +601,7 @@ public class ItemMaker {
 				if(profile!=null) {
 					String value = BukkitLoader.getNmsProvider().getGameProfileValues(profile);
 					if(value!=null) {
-						config.set(path+".head.owner", BukkitLoader.getNmsProvider().getGameProfileValues(profile));
+						config.set(path+".head.owner", value);
 						config.set(path+".head.type", "VALUES");
 					}
 				}
@@ -609,7 +609,8 @@ public class ItemMaker {
 		}
 		if(type.name().contains("POTION")) {
 			PotionMeta potion = (PotionMeta)meta;
-			config.set(path+".potion.type", potion.getBasePotionData().getType().name());
+			if(Ref.isNewerThan(9))
+				config.set(path+".potion.type", potion.getBasePotionData().getType().name());
 			List<String> effects = new ArrayList<>();
 			for(PotionEffect effect : potion.getCustomEffects())
 				effects.add(effect.getType().getName()+":"+effect.getDuration()+":"+effect.getAmplifier()+":"+effect.isAmbient()+":"+effect.hasParticles());
@@ -654,7 +655,7 @@ public class ItemMaker {
 		nbt.remove("Enchantments");
 		nbt.remove("ench");
 		if(!nbt.getKeys().isEmpty())
-			config.set(path+".nbt", nbt.getNBT()); //save clear nbt
+			config.set(path+".nbt", nbt.getNBT()+""); //save clear nbt
 	}
 
 	@Nullable //Nullable if section is empty / type is invalid
@@ -673,12 +674,12 @@ public class ItemMaker {
 		if(nbt!=null)
 			stack=BukkitLoader.getNmsProvider().setNBT(stack, BukkitLoader.getNmsProvider().parseNBT(nbt));
 
-		short damage = config.getShort(path+".damage");
+		short damage = config.getShort(path+".damage", config.getShort(path+".durability"));
 		if(damage!=0)
 			stack.setDurability(damage);
 
 		ItemMeta meta = stack.getItemMeta();
-		String displayName = config.getString(path+".displayName");
+		String displayName = config.getString(path+".displayName",  config.getString(path+".display-name"));
 		if(displayName!=null)
 			meta.setDisplayName(StringUtils.colorize(displayName));
 		List<String> lore = config.getStringList(path+".lore");
@@ -731,7 +732,7 @@ public class ItemMaker {
 		}
 		if(type.name().contains("POTION")) {
 			PotionMeta potion = (PotionMeta)meta;
-			if(config.getString(path+".potion.type")!=null)
+			if(Ref.isNewerThan(9) && config.getString(path+".potion.type")!=null)
 				potion.setBasePotionData(new PotionData(PotionType.valueOf(config.getString(path+".potion.type").toUpperCase())));
 			for(String pattern : config.getStringList(path+".potion.effects")) {
 				String[] split = pattern.split(":");

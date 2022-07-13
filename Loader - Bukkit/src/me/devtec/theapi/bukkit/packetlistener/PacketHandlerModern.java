@@ -42,13 +42,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 	protected volatile boolean closed;
 
 	public PacketHandlerModern(boolean lateBind) {
-		serverConnection = Ref.invoke(BukkitLoader.getNmsProvider().getMinecraftServer(), "getServerConnection");
-		if (serverConnection == null) // modded server
-			for (Field f : Ref.getAllFields(BukkitLoader.getNmsProvider().getMinecraftServer().getClass()))
-				if (f.getType() == Ref.nmsOrOld("server.network.ServerConnection", "ServerConnection")) {
-					serverConnection = Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(), f);
-					break;
-				}
+		serverConnection = Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(), Ref.nmsOrOld("server.network.ServerConnection", "ServerConnection"));
 		if (serverConnection == null)
 			return;
 		if (lateBind) {
@@ -67,7 +61,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 			case 14:
 			case 15:
 			case 16:
-				hasTicked = BukkitLoader.isMohist ? "field_71296_Q" : "hasTicked";
+				hasTicked = "hasTicked";
 				break;
 			case 17:
 			case 18:

@@ -287,6 +287,23 @@ public class Ref {
 		}
 	}
 
+	public static Object get(Object main, Class<?> returnValue) {
+		try {
+			Class<?> mainClass = main.getClass();
+			while(mainClass!=null) {
+				for(Field field : Ref.getDeclaredFields(mainClass))
+					if(field.getType()==returnValue) {
+						field.setAccessible(true);
+						return Ref.get(main, field);
+					}
+				mainClass=mainClass.getSuperclass();
+			}
+			return null;
+		} catch (Exception es) {
+			return null;
+		}
+	}
+
 	public static Object invokeNulled(Class<?> classInMethod, String method, Object... bricks) {
 		try {
 			return Ref.findMethod(classInMethod, method, bricks).invoke(null, bricks);

@@ -82,7 +82,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	static Class<?> click;
 	static Class<?> itemname;
 	public static List<BossBar> bossbars = new ArrayList<>();
-	public static boolean isMohist;
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -90,15 +89,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		BukkitLoader.initTheAPI(this);
 		new Metrics(this, 10581);
 		try {
-			if (Class.forName("com.mohistmc.MohistMC", true, getClassLoader()) != null)
-				BukkitLoader.isMohist = true;
-		} catch (Exception | NoClassDefFoundError err) {
-
-		}
-		try {
 			BukkitLoader.nmsProvider = (NmsProvider) Class
-					.forName("me.devtec.theapi.bukkit.nms." + Ref.serverVersion() + (BukkitLoader.isMohist ? "_Mohist" : ""), true,
-							getClassLoader())
+					.forName("me.devtec.theapi.bukkit.nms." + Ref.serverVersion(), true, getClassLoader())
 					.newInstance();
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 			e.printStackTrace();
