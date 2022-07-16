@@ -14,9 +14,9 @@ public class ServerClientPreReceiveFileEvent extends Event implements Cancellabl
 
 	public ServerClientPreReceiveFileEvent(SocketClient client, Config data, String received) {
 		fileName = received;
-		fileDirectory="downloads/";
+		fileDirectory = "downloads/";
 		this.client = client;
-		this.data=data;
+		this.data = data;
 	}
 
 	public SocketClient getClient() {
@@ -28,7 +28,7 @@ public class ServerClientPreReceiveFileEvent extends Event implements Cancellabl
 	}
 
 	public void setFileName(String name) {
-		fileName=name;
+		fileName = name;
 	}
 
 	public String getFileDirectory() {
@@ -36,7 +36,7 @@ public class ServerClientPreReceiveFileEvent extends Event implements Cancellabl
 	}
 
 	public void setFileDirectory(String directory) {
-		fileDirectory=directory==null?"":directory;
+		fileDirectory = directory == null ? "" : directory;
 	}
 
 	/**
@@ -54,6 +54,6 @@ public class ServerClientPreReceiveFileEvent extends Event implements Cancellabl
 
 	@Override
 	public void setCancelled(boolean cancel) {
-		cancelled=cancel;
+		cancelled = cancel;
 	}
 }

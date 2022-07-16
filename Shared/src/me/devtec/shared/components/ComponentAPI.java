@@ -265,7 +265,7 @@ public class ComponentAPI {
 		for (Object text : list)
 			if (text instanceof Map)
 				string.append(ComponentAPI.getColor(((Map<String, Object>) text).get("color")))
-				.append(((Map<String, Object>) text).get("text"));
+						.append(((Map<String, Object>) text).get("text"));
 			else
 				string.append(StringUtils.colorize(text + ""));
 		return string.toString();

@@ -62,12 +62,12 @@ public class SqlHandler implements DatabaseHandler {
 			} else
 				builder.append("and");
 			builder.append(' ').append('`').append(pair[0].replace("'", "\\'")).append('`').append('=').append('\'')
-			.append(pair[1].replace("'", "\\'")).append('\'');
+					.append(pair[1].replace("'", "\\'")).append('\'');
 		}
 		if (query.sorting != null)
 			builder.append(' ').append("order").append(' ').append("by").append(' ').append('`')
-			.append(StringUtils.join(query.sortingKey, ",").replace("'", "\\'")).append('`').append(' ')
-			.append(query.sorting == Sorting.UP ? "DESC" : "ASC");
+					.append(StringUtils.join(query.sortingKey, ",").replace("'", "\\'")).append('`').append(' ')
+					.append(query.sorting == Sorting.UP ? "DESC" : "ASC");
 		if (query.limit != null)
 			builder.append(' ').append("limit").append(' ').append(query.limit);
 		return builder.toString();
@@ -99,7 +99,7 @@ public class SqlHandler implements DatabaseHandler {
 			else
 				builder.append(',');
 			builder.append(' ').append('`').append(val[0].replace("'", "\\'")).append('`').append('=').append('\'')
-			.append(val[1].replace("'", "\\'")).append('\'');
+					.append(val[1].replace("'", "\\'")).append('\'');
 		}
 		if (!query.where.isEmpty()) {
 			first = true;
@@ -110,7 +110,7 @@ public class SqlHandler implements DatabaseHandler {
 				} else
 					builder.append(',');
 				builder.append(' ').append('`').append(val[0].replace("'", "\\'")).append('`').append('=').append('\'')
-				.append(val[1].replace("'", "\\'")).append('\'');
+						.append(val[1].replace("'", "\\'")).append('\'');
 			}
 		}
 		if (query.limit != null)
@@ -130,7 +130,7 @@ public class SqlHandler implements DatabaseHandler {
 				builder.append(' ').append("where").append(' ');
 			}
 			builder.append('`').append(val[0].replace("'", "\\'")).append('`').append('=').append('\'')
-			.append(val[1].replace("'", "\\'")).append('\'');
+					.append(val[1].replace("'", "\\'")).append('\'');
 		}
 		if (query.limit != null)
 			builder.append(' ').append("LIMIT").append(' ').append(query.limit);
@@ -144,10 +144,11 @@ public class SqlHandler implements DatabaseHandler {
 
 	@Override
 	public void open() throws SQLException {
-		if(sql!=null)
+		if (sql != null)
 			try {
 				sql.close();
-			}catch(Exception er) {}
+			} catch (Exception er) {
+			}
 		sql = DriverManager.getConnection(path, settings.getUser(), settings.getPassword());
 		sql.setAutoCommit(true);
 	}
@@ -180,7 +181,7 @@ public class SqlHandler implements DatabaseHandler {
 				builder.append(',');
 			first = false;
 			builder.append('`').append(row.getFieldName().replace("'", "\\'")).append('`').append(' ')
-			.append(row.getFieldType().toLowerCase()).append(' ').append(row.isNulled() ? "NULL" : "NOT NULL");
+					.append(row.getFieldType().toLowerCase()).append(' ').append(row.isNulled() ? "NULL" : "NOT NULL");
 		}
 		return builder.toString();
 	}

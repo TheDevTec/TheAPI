@@ -30,6 +30,6 @@ public class ServerClientPreConnectEvent extends Event implements Cancellable {
 
 	@Override
 	public void setCancelled(boolean cancel) {
-		cancelled=cancel;
+		cancelled = cancel;
 	}
 }

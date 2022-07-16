@@ -22,7 +22,7 @@ public class PropertiesLoader extends EmptyLoader {
 		for (String s : input.split(System.lineSeparator())) {
 			String trim = s.trim();
 			if (trim.isEmpty()) {
-				if(linePos!=0)
+				if (linePos != 0)
 					comments.add("");
 				continue;
 			}

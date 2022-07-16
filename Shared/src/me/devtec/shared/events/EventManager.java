@@ -45,7 +45,7 @@ public class EventManager {
 					if (clazz.isAssignableFrom(event.getClass())) {
 						try {
 							handler.listener.listen(event);
-						}catch(Exception error) {
+						} catch (Exception error) {
 							error.printStackTrace();
 						}
 						break;

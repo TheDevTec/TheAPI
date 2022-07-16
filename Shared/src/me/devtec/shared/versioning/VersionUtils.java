@@ -15,7 +15,7 @@ public class VersionUtils {
 		String[] cver = currentVersion.replaceAll("[^0-9.]+", "").split("\\.");
 		for (String ver : version.replaceAll("[^0-9.]+", "").split("\\.")) {
 			int next = StringUtils.getInt(ver);
-			int current = cver.length<=count ? 0 : StringUtils.getInt(cver[count++]);
+			int current = cver.length <= count ? 0 : StringUtils.getInt(cver[count++]);
 			if (next != current)
 				return next > current ? Version.NEWER_VERSION : Version.OLDER_VERSION;
 		}

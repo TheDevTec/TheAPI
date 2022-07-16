@@ -34,7 +34,7 @@ public interface LibraryLoader {
 				file.getParentFile().mkdirs();
 				file.createNewFile();
 				OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
-				HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 				conn.setRequestProperty("User-Agent", "DevTec-JavaClient");
 				InputStream in = conn.getInputStream();
 				byte[] buf = new byte[4096];

@@ -40,7 +40,7 @@ public class YamlLoader extends EmptyLoader {
 			for (String line : input.split(System.lineSeparator())) {
 				String trim = line.trim();
 				if (trim.isEmpty()) {
-					if(linePos!=0)
+					if (linePos != 0)
 						comments.add("");
 					continue;
 				}
@@ -127,14 +127,14 @@ public class YamlLoader extends EmptyLoader {
 						data.put(key,
 								DataValue.of("[]", Collections.emptyList(),
 										valueSplit.length == 2 ? valueSplit[1] : null,
-												comments.isEmpty() ? null : Config.simple(new LinkedList<>(comments))));
+										comments.isEmpty() ? null : Config.simple(new LinkedList<>(comments))));
 						comments.clear();
 						continue;
 					}
 					data.put(key,
 							DataValue.of(value, Json.reader().read(value),
 									valueSplit.length == 2 ? valueSplit[1] : null,
-											comments.isEmpty() ? null : Config.simple(new LinkedList<>(comments))));
+									comments.isEmpty() ? null : Config.simple(new LinkedList<>(comments))));
 					comments.clear();
 				} else if (type != null)
 					if (type == BuilderType.LIST)
@@ -145,16 +145,14 @@ public class YamlLoader extends EmptyLoader {
 			loaded = true;
 			if (type != null) {
 				if (type == BuilderType.LIST)
-					data.put(key,
-							DataValue.of(null, items, null, comments.isEmpty() ? null : Config.simple(comments)));
+					data.put(key, DataValue.of(null, items, null, comments.isEmpty() ? null : Config.simple(comments)));
 				else
 					data.put(key, DataValue.of(builder.toString(), builder.toString(), null,
 							comments.isEmpty() ? null : Config.simple(comments)));
 				return;
 			}
 			if (items != null) {
-				data.put(key,
-						DataValue.of(null, items, null, comments.isEmpty() ? null : Config.simple(comments)));
+				data.put(key, DataValue.of(null, items, null, comments.isEmpty() ? null : Config.simple(comments)));
 				return;
 			}
 			if (data.isEmpty())
@@ -185,7 +183,7 @@ public class YamlLoader extends EmptyLoader {
 		String k = key.trim();
 		return k.length() > 1 && (k.startsWith("\"") && k.endsWith("\"") || k.startsWith("'") && k.endsWith("'"))
 				? key.substring(1, key.length() - 1 - YamlLoader.removeLastSpaces(key))
-						: key;
+				: key;
 	}
 
 	public static int removeLastSpaces(String s) {

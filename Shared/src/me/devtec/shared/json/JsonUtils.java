@@ -66,7 +66,7 @@ public class JsonUtils {
 				object.put("c", s.getClass().getComponentType().getName());
 				object.put("t", "array");
 				List<Object> vals = new ArrayList<>();
-				for(int i = 0; i < Array.getLength(s); ++i)
+				for (int i = 0; i < Array.getLength(s); ++i)
 					vals.add(JsonUtils.writeWithoutParseStatic(Array.get(s, i)));
 				object.put("s", vals);
 				return object;
@@ -108,7 +108,6 @@ public class JsonUtils {
 		}
 		return null;
 	}
-
 
 	public static Object cast(Object value, Class<?> type) {
 		if (value == null)
@@ -229,7 +228,7 @@ public class JsonUtils {
 	}
 
 	public static Class<?> tryCastPrimiteClass(String className) throws ClassNotFoundException {
-		switch(className) {
+		switch (className) {
 		case "int":
 			return int.class;
 		case "double":

@@ -34,29 +34,31 @@ public class SocketServerClientHandler implements SocketClient {
 	private boolean lock;
 
 	public SocketServerClientHandler(SocketServer server, String serverName, Socket socket) throws IOException {
-		this(server, new DataInputStream(socket.getInputStream()), new DataOutputStream(socket.getOutputStream()), serverName, socket);
+		this(server, new DataInputStream(socket.getInputStream()), new DataOutputStream(socket.getOutputStream()),
+				serverName, socket);
 	}
 
-	public SocketServerClientHandler(SocketServer server, DataInputStream in, DataOutputStream out, String serverName, Socket socket) {
-		this.socket=socket;
-		socketServer=server;
-		this.in=in;
-		this.out=out;
-		this.serverName=serverName;
-		//LOGGED IN, START READER
-		new Thread(()->{
+	public SocketServerClientHandler(SocketServer server, DataInputStream in, DataOutputStream out, String serverName,
+			Socket socket) {
+		this.socket = socket;
+		socketServer = server;
+		this.in = in;
+		this.out = out;
+		this.serverName = serverName;
+		// LOGGED IN, START READER
+		new Thread(() -> {
 			ServerClientConnectedEvent connectedEvent = new ServerClientConnectedEvent(SocketServerClientHandler.this);
 			EventManager.call(connectedEvent);
 			unlock();
-			while(API.isEnabled() && isConnected()) {
+			while (API.isEnabled() && isConnected()) {
 				try {
 					Thread.sleep(100);
 				} catch (Exception e) {
 				}
-				if(!isLocked())
+				if (!isLocked())
 					try {
 						task = in.readInt();
-						if(task==ClientResponde.PONG.getResponde()) {
+						if (task == ClientResponde.PONG.getResponde()) {
 							ping = in.readInt();
 							try {
 								Thread.sleep(100);
@@ -64,28 +66,29 @@ public class SocketServerClientHandler implements SocketClient {
 							}
 							continue;
 						}
-						ServerClientRespondeEvent crespondeEvent = new ServerClientRespondeEvent(SocketServerClientHandler.this, task);
+						ServerClientRespondeEvent crespondeEvent = new ServerClientRespondeEvent(
+								SocketServerClientHandler.this, task);
 						EventManager.call(crespondeEvent);
 						SocketUtils.process(this, task);
 					} catch (Exception e) {
 						break;
 					}
 			}
-			if(socket!=null && connected && !manuallyClosed)
+			if (socket != null && connected && !manuallyClosed)
 				stop();
 		}).start();
-		//ping - pong service
-		new Thread(()->{
-			while(API.isEnabled() && isConnected())
-				if(!isLocked())
+		// ping - pong service
+		new Thread(() -> {
+			while (API.isEnabled() && isConnected())
+				if (!isLocked())
 					try {
 						Thread.sleep(5000);
 						out.writeInt(ClientResponde.PING.getResponde());
-						out.writeLong(System.currentTimeMillis()/100);
+						out.writeLong(System.currentTimeMillis() / 100);
 					} catch (Exception e) {
 						break;
 					}
-			if(socket!=null && connected && !manuallyClosed)
+			if (socket != null && connected && !manuallyClosed)
 				stop();
 		}).start();
 	}
@@ -112,7 +115,8 @@ public class SocketServerClientHandler implements SocketClient {
 
 	@Override
 	public boolean isConnected() {
-		return connected && socket!=null && !socket.isInputShutdown() && !socket.isOutputShutdown() && !socket.isClosed() && socket.isConnected();
+		return connected && socket != null && !socket.isInputShutdown() && !socket.isOutputShutdown()
+				&& !socket.isClosed() && socket.isConnected();
 	}
 
 	@Override
@@ -126,8 +130,8 @@ public class SocketServerClientHandler implements SocketClient {
 
 	@Override
 	public void stop() {
-		manuallyClosed=true;
-		connected=false;
+		manuallyClosed = true;
+		connected = false;
 		try {
 			socket.close();
 		} catch (Exception e) {
@@ -157,15 +161,15 @@ public class SocketServerClientHandler implements SocketClient {
 
 	@Override
 	public void lock() {
-		lock=true;
+		lock = true;
 	}
 
 	@Override
 	public void unlock() {
-		lock=false;
-		while(!actionsAfterUnlock().isEmpty()) {
+		lock = false;
+		while (!actionsAfterUnlock().isEmpty()) {
 			SocketAction value = actionsAfterUnlock().poll();
-			if(value.action==SocketActionEnum.DATA)
+			if (value.action == SocketActionEnum.DATA)
 				write(value.config);
 			else
 				writeWithData(value.config, value.fileName, value.file);

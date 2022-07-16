@@ -47,15 +47,15 @@ public class PlaceholderAPI {
 				String value = ext.apply(placeholder, player);
 				if (value != null && !value.equals(placeholder)) {
 					text = text.replace(match.group(), value);
-					found=true;
+					found = true;
 					break;
 				}
 			}
-			if(!found && PlaceholderAPI.PAPI_BRIDGE!=null) {
+			if (!found && PlaceholderAPI.PAPI_BRIDGE != null) {
 				String value = PlaceholderAPI.PAPI_BRIDGE.apply(placeholder, player);
 				if (value != null && !value.equals(placeholder)) {
 					text = text.replace(match.group(), value);
-					found=true;
+					found = true;
 					break;
 				}
 			}

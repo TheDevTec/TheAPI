@@ -290,13 +290,13 @@ public class Ref {
 	public static Object get(Object main, Class<?> returnValue) {
 		try {
 			Class<?> mainClass = main.getClass();
-			while(mainClass!=null) {
-				for(Field field : Ref.getDeclaredFields(mainClass))
-					if(field.getType()==returnValue) {
+			while (mainClass != null) {
+				for (Field field : Ref.getDeclaredFields(mainClass))
+					if (field.getType() == returnValue) {
 						field.setAccessible(true);
 						return Ref.get(main, field);
 					}
-				mainClass=mainClass.getSuperclass();
+				mainClass = mainClass.getSuperclass();
 			}
 			return null;
 		} catch (Exception es) {

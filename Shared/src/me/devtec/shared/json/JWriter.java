@@ -21,7 +21,8 @@ public interface JWriter {
 	public default String simpleWrite(Object object) {
 		if (object == null)
 			return "null";
-		if (object instanceof String || object instanceof CharSequence || object instanceof Boolean || object instanceof Number || object instanceof Character)
+		if (object instanceof String || object instanceof CharSequence || object instanceof Boolean
+				|| object instanceof Number || object instanceof Character)
 			return object.toString();
 		return toGson(object);
 	}

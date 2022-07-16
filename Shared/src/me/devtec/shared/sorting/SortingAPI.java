@@ -110,11 +110,8 @@ public class SortingAPI {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static int compare(boolean asc, Object a, Object b) {
-		return asc ? a instanceof Comparable ? ((Comparable) a).compareTo(b)
-				: a.toString().compareTo(b.toString())
-				: b instanceof Comparable
-				? ((Comparable) (b instanceof Comparable ? b : b.toString()))
-						.compareTo(a)
+		return asc ? a instanceof Comparable ? ((Comparable) a).compareTo(b) : a.toString().compareTo(b.toString())
+				: b instanceof Comparable ? ((Comparable) (b instanceof Comparable ? b : b.toString())).compareTo(a)
 						: b.toString().compareTo(a.toString());
 	}
 }

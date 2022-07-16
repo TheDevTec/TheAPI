@@ -66,13 +66,12 @@ public class PercentageList<T> {
 			Entry<K, Double> e = kDoubleEntry;
 			if (chance == e.getValue() && chance == found.getValue())
 				duplicates.add(e);
-			else
-				if (chance < e.getValue() && chance > found.getValue()) {
-					found = e;
-					duplicates.clear();
-				}
+			else if (chance < e.getValue() && chance > found.getValue()) {
+				found = e;
+				duplicates.clear();
+			}
 		}
-		if(!duplicates.isEmpty()) {
+		if (!duplicates.isEmpty()) {
 			duplicates.add(found);
 			return StringUtils.getRandomFromList(duplicates).getKey();
 		}

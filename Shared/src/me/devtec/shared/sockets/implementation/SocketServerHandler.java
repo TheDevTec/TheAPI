@@ -28,9 +28,9 @@ public class SocketServerHandler implements SocketServer {
 	private boolean fastConnection = false; // Defaulty disabled, we want to save CPU usage
 
 	public SocketServerHandler(String serverName, int port, String password) {
-		this.serverName=serverName;
-		this.port=port;
-		this.password=password;
+		this.serverName = serverName;
+		this.port = port;
+		this.password = password;
 	}
 
 	@Override
@@ -44,10 +44,11 @@ public class SocketServerHandler implements SocketServer {
 	}
 
 	/**
-	 * @apiNote Enable fast socket client logins to the server, this can increase CPU usage
+	 * @apiNote Enable fast socket client logins to the server, this can increase
+	 *          CPU usage
 	 */
 	public void setFastConnection(boolean fastConnection) {
-		this.fastConnection=fastConnection;
+		this.fastConnection = fastConnection;
 	}
 
 	public boolean getFastConnection() {
@@ -56,12 +57,12 @@ public class SocketServerHandler implements SocketServer {
 
 	@Override
 	public boolean isRunning() {
-		return serverSocket!=null && serverSocket.isBound() && !serverSocket.isClosed();
+		return serverSocket != null && serverSocket.isBound() && !serverSocket.isClosed();
 	}
 
 	@Override
 	public void notifyDisconnect(SocketClient client) {
-		if(connected.remove(client)) {
+		if (connected.remove(client)) {
 			ServerClientDisconnectedEvent event = new ServerClientDisconnectedEvent(client);
 			EventManager.call(event);
 		}
@@ -70,17 +71,17 @@ public class SocketServerHandler implements SocketServer {
 	@Override
 	public void start() {
 		try {
-			serverSocket=new ServerSocket(port);
+			serverSocket = new ServerSocket(port);
 			serverSocket.setReuseAddress(true);
-			serverSocket.setReceiveBufferSize(4*1024);
+			serverSocket.setReceiveBufferSize(4 * 1024);
 			new Thread(() -> {
-				while(API.isEnabled() && isRunning()) {
+				while (API.isEnabled() && isRunning()) {
 					try {
 						Socket socket = serverSocket.accept();
-						if(socket!=null && !isAlreadyConnected(socket))
+						if (socket != null && !isAlreadyConnected(socket))
 							handleConnection(socket);
 					} catch (Exception e) {
-						//Nothing is connecting
+						// Nothing is connecting
 					}
 					try {
 						Thread.sleep(1000);
@@ -94,56 +95,60 @@ public class SocketServerHandler implements SocketServer {
 	}
 
 	protected void handleConnection(Socket socket) {
-		if(getFastConnection())
+		if (getFastConnection())
 			try {
-				if(socket.isInputShutdown() || socket.isOutputShutdown())return;
+				if (socket.isInputShutdown() || socket.isOutputShutdown())
+					return;
 				DataInputStream in = new DataInputStream(socket.getInputStream());
 				DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
 				out.writeInt(ClientResponde.LOGIN.getResponde());
 
-				if(socket.isInputShutdown() || socket.isOutputShutdown())return;
-				//Receive client password
+				if (socket.isInputShutdown() || socket.isOutputShutdown())
+					return;
+				// Receive client password
 				String pass = SocketUtils.readText(in);
-				if(!password.equals(pass)) {
+				if (!password.equals(pass)) {
 					out.writeInt(ClientResponde.REJECTED_LOGIN_PASSWORD.getResponde());
 					socket.close();
 					ServerClientRejectedEvent rejectedEvent = new ServerClientRejectedEvent(socket, null);
 					EventManager.call(rejectedEvent);
 					return;
 				}
-				//Receive client name
+				// Receive client name
 				out.writeInt(ClientResponde.REQUEST_NAME.getResponde());
 				String serverName = SocketUtils.readText(in);
 				ServerClientPreConnectEvent event = new ServerClientPreConnectEvent(socket, serverName);
 				EventManager.call(event);
-				if(event.isCancelled()) {
+				if (event.isCancelled()) {
 					out.writeInt(ClientResponde.REJECTED_LOGIN_PLUGIN.getResponde());
 					ServerClientRejectedEvent rejectedEvent = new ServerClientRejectedEvent(socket, serverName);
 					EventManager.call(rejectedEvent);
 					return;
 				}
-				//Connected
+				// Connected
 				out.writeInt(ClientResponde.ACCEPTED_LOGIN.getResponde());
 				connected.add(new SocketServerClientHandler(this, in, out, serverName, socket));
 			} catch (Exception e) {
 			}
 		else
 			try {
-				if(socket.isInputShutdown() || socket.isOutputShutdown())return;
+				if (socket.isInputShutdown() || socket.isOutputShutdown())
+					return;
 				DataInputStream in = new DataInputStream(socket.getInputStream());
 				DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
-				if(socket.isInputShutdown() || socket.isOutputShutdown())return;
+				if (socket.isInputShutdown() || socket.isOutputShutdown())
+					return;
 				out.writeInt(ClientResponde.LOGIN.getResponde());
 
-				new Thread(()->{
+				new Thread(() -> {
 					if (API.isEnabled())
 						try {
-							//Receive client password
+							// Receive client password
 							Thread.sleep(100);
 							String pass = SocketUtils.readText(in);
-							if(!password.equals(pass)) {
+							if (!password.equals(pass)) {
 								Thread.sleep(100);
 								out.writeInt(ClientResponde.REJECTED_LOGIN_PASSWORD.getResponde());
 								socket.close();
@@ -151,21 +156,22 @@ public class SocketServerHandler implements SocketServer {
 								EventManager.call(rejectedEvent);
 								return;
 							}
-							//Receive client name
+							// Receive client name
 							out.writeInt(ClientResponde.REQUEST_NAME.getResponde());
 							Thread.sleep(100);
 
 							String serverName = SocketUtils.readText(in);
 							ServerClientPreConnectEvent event = new ServerClientPreConnectEvent(socket, serverName);
 							EventManager.call(event);
-							if(event.isCancelled()) {
+							if (event.isCancelled()) {
 								Thread.sleep(100);
 								out.writeInt(ClientResponde.REJECTED_LOGIN_PLUGIN.getResponde());
-								ServerClientRejectedEvent rejectedEvent = new ServerClientRejectedEvent(socket, serverName);
+								ServerClientRejectedEvent rejectedEvent = new ServerClientRejectedEvent(socket,
+										serverName);
 								EventManager.call(rejectedEvent);
 								return;
 							}
-							//Connected
+							// Connected
 							Thread.sleep(100);
 							out.writeInt(ClientResponde.ACCEPTED_LOGIN.getResponde());
 							connected.add(new SocketServerClientHandler(this, in, out, serverName, socket));
@@ -177,8 +183,9 @@ public class SocketServerHandler implements SocketServer {
 	}
 
 	private boolean isAlreadyConnected(Socket socket) {
-		for(SocketClient c : connected)
-			if(c.getSocket().equals(socket))return true;
+		for (SocketClient c : connected)
+			if (c.getSocket().equals(socket))
+				return true;
 		return false;
 	}
 
@@ -190,7 +197,7 @@ public class SocketServerHandler implements SocketServer {
 			e.printStackTrace();
 		}
 		new ArrayList<>(connected).forEach(SocketClient::stop);
-		serverSocket=null;
+		serverSocket = null;
 	}
 
 }

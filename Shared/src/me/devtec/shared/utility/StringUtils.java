@@ -24,8 +24,8 @@ public class StringUtils {
 	public static ColormaticFactory color;
 	public static Pattern rainbowSplit;
 	// TIME UTILS
-	//string -> time
-	//time -> string
+	// string -> time
+	// time -> string
 	public static final Map<TimeFormat, TimeFormatter> timeConvertor = new ConcurrentHashMap<>();
 	// COLOR UTILS
 	public static Pattern gradientFinder;
@@ -45,13 +45,15 @@ public class StringUtils {
 	private static final Pattern normal = Pattern.compile("((^[-])?[ ]*[0-9.]+)[ ]*([+-])[ ]*(-?[ ]*[0-9.]+)");
 
 	public enum TimeFormat {
-		YEARS(31556926, 0), MONTHS(2629743.83, 12), WEEKS(604800, 4.34812141), DAYS(86400, 30.4368499), HOURS(3600, 24), MINUTES(60, 60), SECONDS(1, 60);
+		YEARS(31556926, 0), MONTHS(2629743.83, 12), WEEKS(604800, 4.34812141), DAYS(86400, 30.4368499), HOURS(3600, 24),
+		MINUTES(60, 60), SECONDS(1, 60);
 
 		private double multiplier;
 		private double cast;
-		TimeFormat(double multiplier, double cast){
-			this.multiplier=multiplier;
-			this.cast=cast;
+
+		TimeFormat(double multiplier, double cast) {
+			this.multiplier = multiplier;
+			this.cast = cast;
 		}
 
 		public double multiplier() {
@@ -112,18 +114,16 @@ public class StringUtils {
 			String formatted = String.format(Locale.ENGLISH, "%.2f", value);
 			if (formatted.endsWith("00"))
 				formatted = formatted.substring(0, formatted.length() - 3); // .00
-			else
-				if (formatted.endsWith("0"))
-					formatted = formatted.substring(0, formatted.length() - 1); // .X0
+			else if (formatted.endsWith("0"))
+				formatted = formatted.substring(0, formatted.length() - 1); // .X0
 			return formatted;
 		}
 		case NORMAL: {
 			String formatted = String.format(Locale.ENGLISH, "%,.2f", value);
 			if (formatted.endsWith("00"))
 				formatted = formatted.substring(0, formatted.length() - 3); // .00
-			else
-				if (formatted.endsWith("0"))
-					formatted = formatted.substring(0, formatted.length() - 1); // .X0
+			else if (formatted.endsWith("0"))
+				formatted = formatted.substring(0, formatted.length() - 1); // .X0
 			return formatted;
 		}
 		case COMPLEX: {
@@ -259,8 +259,8 @@ public class StringUtils {
 		List<String> collection = new ArrayList<>();
 		for (String string : originals)
 			if (string == null
-			|| string.length() >= prefix.length() && (string.regionMatches(true, 0, prefix, 0, prefix.length())
-					|| string.regionMatches(true, 1, prefix, 0, prefix.length())))
+					|| string.length() >= prefix.length() && (string.regionMatches(true, 0, prefix, 0, prefix.length())
+							|| string.regionMatches(true, 1, prefix, 0, prefix.length())))
 				collection.add(string);
 		return collection;
 	}
@@ -457,7 +457,7 @@ public class StringUtils {
 			if (msg.contains("#"))
 				msg = StringUtils.color.replaceHex(msg);
 		}
-		if (msg.contains("&u") && StringUtils.color!=null)
+		if (msg.contains("&u") && StringUtils.color != null)
 			msg = StringUtils.color.rainbow(msg, StringUtils.color.generateColor(), StringUtils.color.generateColor());
 		return msg;
 	}
@@ -557,23 +557,25 @@ public class StringUtils {
 
 	/**
 	 * @apiNote Convert long time to String
-	 * @param period long Time to convert
-	 * @param split String Split between time
+	 * @param period   long Time to convert
+	 * @param split    String Split between time
 	 * @param disabled TimeFormat... disabled time formats
 	 * @return String
 	 */
 	public static String timeToString(long period, String split, TimeFormat... disabled) {
 		boolean digit = split.equals(":");
 
-		if(period==0)
-			return digit?"0":StringUtils.timeConvertor.get(TimeFormat.SECONDS).toString(0);
+		if (period == 0)
+			return digit ? "0" : StringUtils.timeConvertor.get(TimeFormat.SECONDS).toString(0);
 		List<TimeFormat> disabledList = Arrays.asList(disabled);
-		if(disabledList.contains(TimeFormat.YEARS) && disabledList.contains(TimeFormat.MONTHS)
+		if (disabledList.contains(TimeFormat.YEARS) && disabledList.contains(TimeFormat.MONTHS)
 				&& disabledList.contains(TimeFormat.DAYS) && disabledList.contains(TimeFormat.HOURS)
 				&& disabledList.contains(TimeFormat.MINUTES))
-			return digit?period+"":StringUtils.timeConvertor.get(TimeFormat.SECONDS).toString(period); //YOU DISABLED EVERYTHING??
+			return digit ? period + "" : StringUtils.timeConvertor.get(TimeFormat.SECONDS).toString(period); // YOU
+																												// DISABLED
+																												// EVERYTHING??
 
-		double seconds = period%60;
+		double seconds = period % 60;
 		double minutes = period * 0.0166666667;
 		boolean modifMin = false;
 		double hours = period * 0.0002777778;
@@ -584,64 +586,67 @@ public class StringUtils {
 		boolean modifMon = false;
 		double years = period * 3.1688087814029E-8;
 
-		if(disabledList.contains(TimeFormat.YEARS)) {
-			modifMon=true;
-			months=months%12;
-			months+=(long)years*12;
-			years=0;
+		if (disabledList.contains(TimeFormat.YEARS)) {
+			modifMon = true;
+			months = months % 12;
+			months += (long) years * 12;
+			years = 0;
 		}
-		if(disabledList.contains(TimeFormat.MONTHS)) {
-			modifDay=true;
-			days=days%TimeFormat.DAYS.cast();
-			days+=(long)months*TimeFormat.DAYS.cast();
-			months=0;
-		}else
-			if(!modifMon)months=months%12;
-		if(disabledList.contains(TimeFormat.DAYS)) {
-			modifHou=true;
-			hours=hours%24;
-			hours+=(long)days*24;
-			days=0;
-		}else
-			if(!modifDay)days=days%24;
-		if(disabledList.contains(TimeFormat.HOURS)) {
-			modifMin=true;
-			minutes=minutes%60;
-			minutes+=(long)hours*60;
-			hours=0;
-		}else
-			if(!modifHou)hours=hours%24;
-		if(disabledList.contains(TimeFormat.MINUTES)) {
-			seconds+=(long)minutes*60;
-			minutes=0;
-		}else
-			if(!modifMin)minutes=minutes%60;
-		if(disabledList.contains(TimeFormat.SECONDS))seconds=0;
+		if (disabledList.contains(TimeFormat.MONTHS)) {
+			modifDay = true;
+			days = days % TimeFormat.DAYS.cast();
+			days += (long) months * TimeFormat.DAYS.cast();
+			months = 0;
+		} else if (!modifMon)
+			months = months % 12;
+		if (disabledList.contains(TimeFormat.DAYS)) {
+			modifHou = true;
+			hours = hours % 24;
+			hours += (long) days * 24;
+			days = 0;
+		} else if (!modifDay)
+			days = days % 24;
+		if (disabledList.contains(TimeFormat.HOURS)) {
+			modifMin = true;
+			minutes = minutes % 60;
+			minutes += (long) hours * 60;
+			hours = 0;
+		} else if (!modifHou)
+			hours = hours % 24;
+		if (disabledList.contains(TimeFormat.MINUTES)) {
+			seconds += (long) minutes * 60;
+			minutes = 0;
+		} else if (!modifMin)
+			minutes = minutes % 60;
+		if (disabledList.contains(TimeFormat.SECONDS))
+			seconds = 0;
 
 		StringBuilder builder = new StringBuilder();
-		StringUtils.addFormat(builder, split, TimeFormat.YEARS, digit, (long)years);
-		StringUtils.addFormat(builder, split, TimeFormat.MONTHS, digit, (long)months);
-		StringUtils.addFormat(builder, split, TimeFormat.DAYS, digit, (long)days);
-		StringUtils.addFormat(builder, split, TimeFormat.HOURS, digit, (long)hours);
-		StringUtils.addFormat(builder, split, TimeFormat.MINUTES, digit, (long)minutes);
-		StringUtils.addFormat(builder, split, TimeFormat.SECONDS, digit, (long)seconds);
+		StringUtils.addFormat(builder, split, TimeFormat.YEARS, digit, (long) years);
+		StringUtils.addFormat(builder, split, TimeFormat.MONTHS, digit, (long) months);
+		StringUtils.addFormat(builder, split, TimeFormat.DAYS, digit, (long) days);
+		StringUtils.addFormat(builder, split, TimeFormat.HOURS, digit, (long) hours);
+		StringUtils.addFormat(builder, split, TimeFormat.MINUTES, digit, (long) minutes);
+		StringUtils.addFormat(builder, split, TimeFormat.SECONDS, digit, (long) seconds);
 		return builder.toString();
 	}
 
 	private static void addFormat(StringBuilder builder, String split, TimeFormat format, boolean digit, long time) {
-		if(time > 0) {
-			boolean notFirst = builder.length()!=0;
-			if(notFirst)builder.append(split);
-			if(digit) {
-				if(time<10 && notFirst)builder.append('0');
+		if (time > 0) {
+			boolean notFirst = builder.length() != 0;
+			if (notFirst)
+				builder.append(split);
+			if (digit) {
+				if (time < 10 && notFirst)
+					builder.append('0');
 				builder.append(time);
-			}else
+			} else
 				builder.append(StringUtils.timeConvertor.get(format).toString(time));
-		}else
-			if(digit) {
-				boolean notFirst = builder.length()!=0;
-				if(notFirst)builder.append(split).append("00");
-			}
+		} else if (digit) {
+			boolean notFirst = builder.length() != 0;
+			if (notFirst)
+				builder.append(split).append("00");
+		}
 	}
 
 	/**
@@ -660,44 +665,44 @@ public class StringUtils {
 
 		float time = 0;
 
-		if(period.contains(":")) {
+		if (period.contains(":")) {
 			String[] split = period.split(":");
-			switch(split.length) {
-			case 2: //mm:ss
-				time += StringUtils.getFloat(split[0])*TimeFormat.MINUTES.multiplier();
+			switch (split.length) {
+			case 2: // mm:ss
+				time += StringUtils.getFloat(split[0]) * TimeFormat.MINUTES.multiplier();
 				time += StringUtils.getFloat(split[1]);
 				break;
-			case 3: //hh:mm:ss
-				time += StringUtils.getFloat(split[0])*TimeFormat.HOURS.multiplier();
-				time += StringUtils.getFloat(split[1])*TimeFormat.MINUTES.multiplier();
+			case 3: // hh:mm:ss
+				time += StringUtils.getFloat(split[0]) * TimeFormat.HOURS.multiplier();
+				time += StringUtils.getFloat(split[1]) * TimeFormat.MINUTES.multiplier();
 				time += StringUtils.getFloat(split[2]);
 				break;
-			case 4: //dd:hh:mm:ss
-				time += StringUtils.getFloat(split[0])*TimeFormat.DAYS.multiplier();
-				time += StringUtils.getFloat(split[1])*TimeFormat.HOURS.multiplier();
-				time += StringUtils.getFloat(split[2])*TimeFormat.MINUTES.multiplier();
+			case 4: // dd:hh:mm:ss
+				time += StringUtils.getFloat(split[0]) * TimeFormat.DAYS.multiplier();
+				time += StringUtils.getFloat(split[1]) * TimeFormat.HOURS.multiplier();
+				time += StringUtils.getFloat(split[2]) * TimeFormat.MINUTES.multiplier();
 				time += StringUtils.getFloat(split[3]);
 				break;
-			case 5: //mm:dd:hh:mm:ss
-				time += StringUtils.getFloat(split[0])*TimeFormat.MONTHS.multiplier();
-				time += StringUtils.getFloat(split[1])*TimeFormat.DAYS.multiplier();
-				time += StringUtils.getFloat(split[2])*TimeFormat.HOURS.multiplier();
-				time += StringUtils.getFloat(split[3])*TimeFormat.MINUTES.multiplier();
+			case 5: // mm:dd:hh:mm:ss
+				time += StringUtils.getFloat(split[0]) * TimeFormat.MONTHS.multiplier();
+				time += StringUtils.getFloat(split[1]) * TimeFormat.DAYS.multiplier();
+				time += StringUtils.getFloat(split[2]) * TimeFormat.HOURS.multiplier();
+				time += StringUtils.getFloat(split[3]) * TimeFormat.MINUTES.multiplier();
 				time += StringUtils.getFloat(split[4]);
 				break;
-			default: //yy:mm:dd:hh:mm:ss
-				time += StringUtils.getFloat(split[0])*TimeFormat.YEARS.multiplier();
-				time += StringUtils.getFloat(split[1])*TimeFormat.MONTHS.multiplier();
-				time += StringUtils.getFloat(split[2])*TimeFormat.DAYS.multiplier();
-				time += StringUtils.getFloat(split[3])*TimeFormat.HOURS.multiplier();
-				time += StringUtils.getFloat(split[4])*TimeFormat.MINUTES.multiplier();
+			default: // yy:mm:dd:hh:mm:ss
+				time += StringUtils.getFloat(split[0]) * TimeFormat.YEARS.multiplier();
+				time += StringUtils.getFloat(split[1]) * TimeFormat.MONTHS.multiplier();
+				time += StringUtils.getFloat(split[2]) * TimeFormat.DAYS.multiplier();
+				time += StringUtils.getFloat(split[3]) * TimeFormat.HOURS.multiplier();
+				time += StringUtils.getFloat(split[4]) * TimeFormat.MINUTES.multiplier();
 				time += StringUtils.getFloat(split[5]);
 				break;
 			}
-			return (long)time;
+			return (long) time;
 		}
 
-		for(int i = TimeFormat.values().length-1; i > 0; --i) {
+		for (int i = TimeFormat.values().length - 1; i > 0; --i) {
 			Matcher matcher = StringUtils.timeConvertor.get(TimeFormat.values()[i]).matcher(period);
 			while (matcher.find()) {
 				time += StringUtils.getFloat(matcher.group()) * TimeFormat.values()[i].multiplier();

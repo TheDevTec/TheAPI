@@ -27,7 +27,7 @@ public class SocketClientHandler implements SocketClient {
 	private byte[] password;
 
 	private DataInputStream in;
-	private  DataOutputStream out;
+	private DataOutputStream out;
 	private int task = 0;
 	private int ping;
 	private Queue<SocketAction> actions = Queues.newLinkedBlockingDeque();
@@ -35,9 +35,9 @@ public class SocketClientHandler implements SocketClient {
 	private boolean lock;
 
 	public SocketClientHandler(String ip, int port, String password) {
-		this.ip=ip;
-		this.port=port;
-		this.password=password.getBytes();
+		this.ip = ip;
+		this.port = port;
+		this.password = password.getBytes();
 	}
 
 	@Override
@@ -66,55 +66,57 @@ public class SocketClientHandler implements SocketClient {
 	}
 
 	public boolean checkRawConnected() {
-		return socket!=null && !socket.isInputShutdown() && !socket.isOutputShutdown() && !socket.isClosed() && socket.isConnected();
+		return socket != null && !socket.isInputShutdown() && !socket.isOutputShutdown() && !socket.isClosed()
+				&& socket.isConnected();
 	}
 
 	@Override
 	public void start() {
-		if(!API.isEnabled())
+		if (!API.isEnabled())
 			return;
 		try {
-			while(API.isEnabled() && !checkRawConnected()) {
-				socket=tryConnect();
-				if(!checkRawConnected())
+			while (API.isEnabled() && !checkRawConnected()) {
+				socket = tryConnect();
+				if (!checkRawConnected())
 					try {
 						Thread.sleep(5000);
 					} catch (Exception e) {
 					}
 			}
-			if(!checkRawConnected()) { //What happened? API is disabled?
+			if (!checkRawConnected()) { // What happened? API is disabled?
 				start();
 				return;
 			}
 			try {
-				in=new DataInputStream(socket.getInputStream());
-				out=new DataOutputStream(socket.getOutputStream());
-			}catch(Exception err) {
-				connected=false;
-				if(API.isEnabled())
+				in = new DataInputStream(socket.getInputStream());
+				out = new DataOutputStream(socket.getOutputStream());
+			} catch (Exception err) {
+				connected = false;
+				if (API.isEnabled())
 					start();
 				return;
 			}
-			//PROCESS LOGIN
-			if(checkRawConnected() && in.readInt()==ClientResponde.LOGIN.getResponde()) {
+			// PROCESS LOGIN
+			if (checkRawConnected() && in.readInt() == ClientResponde.LOGIN.getResponde()) {
 				out.writeInt(password.length);
 				out.write(password);
 				int result = in.readInt(); // backwards support
-				ServerClientRespondeEvent respondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this, result);
+				ServerClientRespondeEvent respondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this,
+						result);
 				EventManager.call(respondeEvent);
-				if(result==ClientResponde.REQUEST_NAME.getResponde()) {
+				if (result == ClientResponde.REQUEST_NAME.getResponde()) {
 					out.writeInt(SocketClientHandler.serverName.length);
 					out.write(SocketClientHandler.serverName);
-					result = in.readInt(); //await for respond
+					result = in.readInt(); // await for respond
 					respondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this, result);
 					EventManager.call(respondeEvent);
-					if(result==ClientResponde.ACCEPTED_LOGIN.getResponde())
+					if (result == ClientResponde.ACCEPTED_LOGIN.getResponde())
 						openConnection();
 				}
 			}
 		} catch (Exception e) {
-			socket=null;
-			connected=false;
+			socket = null;
+			connected = false;
 			try {
 				Thread.sleep(5000);
 			} catch (Exception err) {
@@ -124,24 +126,24 @@ public class SocketClientHandler implements SocketClient {
 	}
 
 	private void openConnection() {
-		connected=true;
-		manuallyClosed=false;
-		//LOGGED IN, START READER
-		new Thread(()->{
+		connected = true;
+		manuallyClosed = false;
+		// LOGGED IN, START READER
+		new Thread(() -> {
 			ServerClientConnectedEvent connectedEvent = new ServerClientConnectedEvent(SocketClientHandler.this);
 			EventManager.call(connectedEvent);
 			unlock();
-			while(API.isEnabled() && isConnected()) {
+			while (API.isEnabled() && isConnected()) {
 				try {
 					Thread.sleep(100);
 				} catch (Exception e) {
 				}
-				if(!isLocked())
+				if (!isLocked())
 					try {
 						task = in.readInt();
-						if(task==ClientResponde.PING.getResponde()) {
+						if (task == ClientResponde.PING.getResponde()) {
 							long pingTime = in.readLong();
-							ping = (int)(-pingTime + System.currentTimeMillis()/100);
+							ping = (int) (-pingTime + System.currentTimeMillis() / 100);
 							out.writeInt(ClientResponde.PONG.getResponde());
 							out.writeInt(ping);
 							try {
@@ -150,14 +152,15 @@ public class SocketClientHandler implements SocketClient {
 							}
 							continue;
 						}
-						ServerClientRespondeEvent crespondeEvent = new ServerClientRespondeEvent(SocketClientHandler.this, task);
+						ServerClientRespondeEvent crespondeEvent = new ServerClientRespondeEvent(
+								SocketClientHandler.this, task);
 						EventManager.call(crespondeEvent);
 						SocketUtils.process(this, task);
 					} catch (Exception e) {
 						break;
 					}
 			}
-			if(socket!=null && connected && !manuallyClosed) {
+			if (socket != null && connected && !manuallyClosed) {
 				stop();
 				start();
 			}
@@ -166,7 +169,7 @@ public class SocketClientHandler implements SocketClient {
 
 	private Socket tryConnect() {
 		try {
-			Socket socket=new Socket(ip, port);
+			Socket socket = new Socket(ip, port);
 			socket.setReuseAddress(true);
 			return socket;
 		} catch (Exception e) {
@@ -176,13 +179,13 @@ public class SocketClientHandler implements SocketClient {
 
 	@Override
 	public void stop() {
-		manuallyClosed=true;
-		connected=false;
+		manuallyClosed = true;
+		connected = false;
 		try {
 			socket.close();
 		} catch (Exception e) {
 		}
-		socket=null;
+		socket = null;
 	}
 
 	@Override
@@ -207,7 +210,7 @@ public class SocketClientHandler implements SocketClient {
 
 	@Override
 	public void lock() {
-		lock=true;
+		lock = true;
 	}
 
 	@Override
@@ -217,10 +220,10 @@ public class SocketClientHandler implements SocketClient {
 
 	@Override
 	public void unlock() {
-		lock=false;
-		while(!actionsAfterUnlock().isEmpty()) {
+		lock = false;
+		while (!actionsAfterUnlock().isEmpty()) {
 			SocketAction value = actionsAfterUnlock().poll();
-			if(value.action==SocketActionEnum.DATA)
+			if (value.action == SocketActionEnum.DATA)
 				write(value.config);
 			else
 				writeWithData(value.config, value.fileName, value.file);

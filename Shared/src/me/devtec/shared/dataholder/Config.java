@@ -87,10 +87,10 @@ public class Config {
 		keys = new LinkedList<>();
 		for (String k : loader.getKeys()) {
 			String g = Config.splitFirst(k);
-			if(!keys.contains(g))
+			if (!keys.contains(g))
 				keys.add(g);
 		}
-		requireSave=true;
+		requireSave = true;
 	}
 
 	public Config(String filePath) {
@@ -176,7 +176,7 @@ public class Config {
 		DataValue h = loader.get().get(key);
 		if (h == null) {
 			String ss = Config.splitFirst(key);
-			if(!keys.contains(ss))
+			if (!keys.contains(ss))
 				keys.add(ss);
 			loader.get().put(key, h = DataValue.empty());
 		}
@@ -343,7 +343,7 @@ public class Config {
 		loader = DataLoader.findLoaderFor(input); // get & load
 		for (String k : loader.getKeys()) {
 			String g = Config.splitFirst(k);
-			if(!keys.contains(g))
+			if (!keys.contains(g))
 				keys.add(g);
 		}
 		return this;
@@ -365,7 +365,7 @@ public class Config {
 		loader = DataLoader.findLoaderFor(f); // get & load
 		for (String k : loader.getKeys()) {
 			String g = Config.splitFirst(k);
-			if(!keys.contains(g))
+			if (!keys.contains(g))
 				keys.add(g);
 		}
 		return this;
@@ -414,7 +414,7 @@ public class Config {
 			DataValue a = loader.get().get(key);
 			if (a.writtenValue != null)
 				return a.writtenValue.charAt(0) == '[' && a.writtenValue.charAt(a.writtenValue.length() - 1) == ']'
-				|| a.writtenValue.charAt(0) == '{' && a.writtenValue.charAt(a.writtenValue.length() - 1) == '}';
+						|| a.writtenValue.charAt(0) == '{' && a.writtenValue.charAt(a.writtenValue.length() - 1) == '}';
 		} catch (Exception notNumber) {
 		}
 		return false;
@@ -426,7 +426,8 @@ public class Config {
 
 	public int getInt(String key, int defaultValue) {
 		Object value = get(key);
-		if(value==null)return defaultValue;
+		if (value == null)
+			return defaultValue;
 		try {
 			return ((Number) value).intValue();
 		} catch (Exception notNumber) {
@@ -440,7 +441,8 @@ public class Config {
 
 	public double getDouble(String key, double defaultValue) {
 		Object value = get(key);
-		if(value==null)return defaultValue;
+		if (value == null)
+			return defaultValue;
 		try {
 			return ((Number) value).doubleValue();
 		} catch (Exception notNumber) {
@@ -454,7 +456,8 @@ public class Config {
 
 	public long getLong(String key, long defaultValue) {
 		Object value = get(key);
-		if(value==null)return defaultValue;
+		if (value == null)
+			return defaultValue;
 		try {
 			return ((Number) value).longValue();
 		} catch (Exception notNumber) {
@@ -468,7 +471,8 @@ public class Config {
 
 	public float getFloat(String key, float defaultValue) {
 		Object value = get(key);
-		if(value==null)return defaultValue;
+		if (value == null)
+			return defaultValue;
 		try {
 			return ((Number) value).floatValue();
 		} catch (Exception notNumber) {
@@ -477,12 +481,13 @@ public class Config {
 	}
 
 	public byte getByte(String key) {
-		return getByte(key, (byte)0);
+		return getByte(key, (byte) 0);
 	}
 
 	public byte getByte(String key, byte defaultValue) {
 		Object value = get(key);
-		if(value==null)return defaultValue;
+		if (value == null)
+			return defaultValue;
 		try {
 			return ((Number) value).byteValue();
 		} catch (Exception notNumber) {
@@ -491,12 +496,13 @@ public class Config {
 	}
 
 	public short getShort(String key) {
-		return getShort(key, (short)0);
+		return getShort(key, (short) 0);
 	}
 
 	public short getShort(String key, short defaultValue) {
 		Object value = get(key);
-		if(value==null)return defaultValue;
+		if (value == null)
+			return defaultValue;
 		try {
 			return ((Number) value).shortValue();
 		} catch (Exception notNumber) {
@@ -510,7 +516,8 @@ public class Config {
 
 	public boolean getBoolean(String key, boolean defaultValue) {
 		Object value = get(key);
-		if(value==null)return defaultValue;
+		if (value == null)
+			return defaultValue;
 		try {
 			return (Boolean) value;
 		} catch (Exception notNumber) {
@@ -524,13 +531,15 @@ public class Config {
 
 	public Collection<Object> getList(String key, Collection<Object> defaultValue) {
 		Object value = get(key);
-		if(value==null || !(value instanceof Collection))return defaultValue;
+		if (value == null || !(value instanceof Collection))
+			return defaultValue;
 		return new ArrayList<>((Collection<?>) value);
 	}
 
 	public <E> List<E> getListAs(String key, Class<? extends E> clazz) {
 		Collection<Object> collection = getList(key, Collections.emptyList());
-		if(collection.isEmpty())return Collections.emptyList();
+		if (collection.isEmpty())
+			return Collections.emptyList();
 		List<E> list = new ArrayList<>(collection.size());
 		for (Object o : collection)
 			try {
@@ -542,7 +551,8 @@ public class Config {
 
 	public List<String> getStringList(String key) {
 		Collection<Object> collection = getList(key, Collections.emptyList());
-		if(collection.isEmpty())return Collections.emptyList();
+		if (collection.isEmpty())
+			return Collections.emptyList();
 		List<String> list = new ArrayList<>(collection.size());
 		for (Object o : collection)
 			if (o != null)
@@ -554,7 +564,8 @@ public class Config {
 
 	public List<Boolean> getBooleanList(String key) {
 		Collection<Object> collection = getList(key, Collections.emptyList());
-		if(collection.isEmpty())return Collections.emptyList();
+		if (collection.isEmpty())
+			return Collections.emptyList();
 		List<Boolean> list = new ArrayList<>(collection.size());
 		for (Object o : collection)
 			list.add(o != null && (o instanceof Boolean ? (Boolean) o : StringUtils.getBoolean(o.toString())));
@@ -563,7 +574,8 @@ public class Config {
 
 	public List<Integer> getIntegerList(String key) {
 		Collection<Object> collection = getList(key, Collections.emptyList());
-		if(collection.isEmpty())return Collections.emptyList();
+		if (collection.isEmpty())
+			return Collections.emptyList();
 		List<Integer> list = new ArrayList<>(collection.size());
 		for (Object o : collection)
 			list.add(o == null ? 0 : o instanceof Number ? ((Number) o).intValue() : StringUtils.getInt(o.toString()));
@@ -572,43 +584,52 @@ public class Config {
 
 	public List<Double> getDoubleList(String key) {
 		Collection<Object> collection = getList(key, Collections.emptyList());
-		if(collection.isEmpty())return Collections.emptyList();
+		if (collection.isEmpty())
+			return Collections.emptyList();
 		List<Double> list = new ArrayList<>(collection.size());
 		for (Object o : collection)
-			list.add(o == null ? 0.0 : o instanceof Number ? ((Number) o).doubleValue() : StringUtils.getDouble(o.toString()));
+			list.add(o == null ? 0.0
+					: o instanceof Number ? ((Number) o).doubleValue() : StringUtils.getDouble(o.toString()));
 		return list;
 	}
 
 	public List<Short> getShortList(String key) {
 		Collection<Object> collection = getList(key, Collections.emptyList());
-		if(collection.isEmpty())return Collections.emptyList();
+		if (collection.isEmpty())
+			return Collections.emptyList();
 		List<Short> list = new ArrayList<>(collection.size());
 		for (Object o : collection)
-			list.add(o == null ? 0 : o instanceof Number ? ((Number) o).shortValue() : StringUtils.getShort(o.toString()));
+			list.add(o == null ? 0
+					: o instanceof Number ? ((Number) o).shortValue() : StringUtils.getShort(o.toString()));
 		return list;
 	}
 
 	public List<Byte> getByteList(String key) {
 		Collection<Object> collection = getList(key, Collections.emptyList());
-		if(collection.isEmpty())return Collections.emptyList();
+		if (collection.isEmpty())
+			return Collections.emptyList();
 		List<Byte> list = new ArrayList<>(collection.size());
 		for (Object o : collection)
-			list.add(o == null ? 0 : o instanceof Number ? ((Number) o).byteValue() : StringUtils.getByte(o.toString()));
+			list.add(
+					o == null ? 0 : o instanceof Number ? ((Number) o).byteValue() : StringUtils.getByte(o.toString()));
 		return list;
 	}
 
 	public List<Float> getFloatList(String key) {
 		Collection<Object> collection = getList(key, Collections.emptyList());
-		if(collection.isEmpty())return Collections.emptyList();
+		if (collection.isEmpty())
+			return Collections.emptyList();
 		List<Float> list = new ArrayList<>(collection.size());
 		for (Object o : collection)
-			list.add(o == null ? 0 : o instanceof Number ? ((Number) o).floatValue() : StringUtils.getFloat(o.toString()));
+			list.add(o == null ? 0
+					: o instanceof Number ? ((Number) o).floatValue() : StringUtils.getFloat(o.toString()));
 		return list;
 	}
 
 	public List<Long> getLongList(String key) {
 		Collection<Object> collection = getList(key, Collections.emptyList());
-		if(collection.isEmpty())return Collections.emptyList();
+		if (collection.isEmpty())
+			return Collections.emptyList();
 		List<Long> list = new ArrayList<>(collection.size());
 		for (Object o : collection)
 			list.add(o == null ? 0 : StringUtils.getLong(o.toString()));
@@ -618,13 +639,14 @@ public class Config {
 	@SuppressWarnings("unchecked")
 	public <K, V> List<Map<K, V>> getMapList(String key) {
 		Collection<Object> collection = getList(key, Collections.emptyList());
-		if(collection.isEmpty())return Collections.emptyList();
+		if (collection.isEmpty())
+			return Collections.emptyList();
 		List<Map<K, V>> list = new ArrayList<>(collection.size());
 		for (Object o : collection)
 			if (o == null)
 				list.add(null);
-			else if(o instanceof Map)
-				list.add((Map<K, V>)o);
+			else if (o instanceof Map)
+				list.add((Map<K, V>) o);
 			else {
 				Object re = Json.reader().read(o.toString());
 				list.add(re instanceof Map ? (Map<K, V>) re : null);
@@ -735,8 +757,8 @@ public class Config {
 				}
 			boolean first = true;
 			for (Entry<String, DataValue> key : loader.get().entrySet()) {
-				if(first)
-					first=false;
+				if (first)
+					first = false;
 				else
 					builder.append(System.lineSeparator());
 				if (key.getValue().value == null) {
@@ -835,7 +857,7 @@ public class Config {
 					er.printStackTrace();
 				}
 			return in.toByteArray();
-		}catch(Exception error) {
+		} catch (Exception error) {
 			error.printStackTrace();
 			return new byte[0];
 		}

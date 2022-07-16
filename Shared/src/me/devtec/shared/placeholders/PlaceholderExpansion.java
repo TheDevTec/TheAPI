@@ -32,6 +32,6 @@ public abstract class PlaceholderExpansion {
 
 	@Override
 	public String toString() {
-		return "PlaceholderExpansion["+getName()+"]";
+		return "PlaceholderExpansion[" + getName() + "]";
 	}
 }

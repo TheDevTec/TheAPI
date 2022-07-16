@@ -87,11 +87,11 @@ public class API {
 	public static class Basics {
 
 		public void load() {
-			String path = Ref.serverType().isBukkit() || Ref.serverType()==ServerType.BUNGEECORD || Ref.serverType()==ServerType.VELOCITY ? "plugins/TheAPI/" : "TheAPI/";
+			String path = Ref.serverType().isBukkit() || Ref.serverType() == ServerType.BUNGEECORD
+					|| Ref.serverType() == ServerType.VELOCITY ? "plugins/TheAPI/" : "TheAPI/";
 
-
-			Config tags = new Config(path+"tags.yml");
-			tags.setIfAbsent("hexTagPrefix", "!", Arrays.asList("# <hexTagPrefix><tagName>","# For ex.: !fire"));
+			Config tags = new Config(path + "tags.yml");
+			tags.setIfAbsent("hexTagPrefix", "!", Arrays.asList("# <hexTagPrefix><tagName>", "# For ex.: !fire"));
 			tags.setIfAbsent("gradient.firstHex.prefix", "!");
 			tags.setIfAbsent("gradient.firstHex.suffix", "");
 			tags.setIfAbsent("gradient.secondHex.prefix", "!");
@@ -136,15 +136,21 @@ public class API {
 					+ "(.*?)" + gradientTagPrefixL + "(#[A-Fa-f0-9]{6})" + gradientTagSuffixL + "|.*?(?=(?:"
 					+ gradientTagPrefix + "#[A-Fa-f0-9]{6}" + gradientTagSuffix + ".*?" + gradientTagPrefixL
 					+ "#[A-Fa-f0-9]{6}" + gradientTagSuffixL + "))");
-			Config config = new Config(path+"config.yml");
-			config.setIfAbsent("timeConvertor.settings.defaultlyDigits", false, Arrays.asList("# If plugin isn't using own split, use defaulty digitals? 300 -> 5:00"));
-			config.setIfAbsent("timeConvertor.settings.defaultSplit", " ", Arrays.asList("# If plugin isn't using own split, api'll use this split"));
+			Config config = new Config(path + "config.yml");
+			config.setIfAbsent("timeConvertor.settings.defaultlyDigits", false,
+					Arrays.asList("# If plugin isn't using own split, use defaulty digitals? 300 -> 5:00"));
+			config.setIfAbsent("timeConvertor.settings.defaultSplit", " ",
+					Arrays.asList("# If plugin isn't using own split, api'll use this split"));
 			config.setIfAbsent("timeConvertor.years.matcher", "y|years?", Arrays.asList("# Pattern matcher (regex)"));
-			config.setIfAbsent("timeConvertor.years.convertor", Arrays.asList("<=1 year", ">1 years"), Arrays.asList("# >=X value is higher or equals to X", "# <=X value is lower or equals to X", "# >X value is higher than X", "# <X value is lower than X", "# ==X value equals to X", "# !=X value doesn't equals to X"));
+			config.setIfAbsent("timeConvertor.years.convertor", Arrays.asList("<=1 year", ">1 years"),
+					Arrays.asList("# >=X value is higher or equals to X", "# <=X value is lower or equals to X",
+							"# >X value is higher than X", "# <X value is lower than X", "# ==X value equals to X",
+							"# !=X value doesn't equals to X"));
 			config.setIfAbsent("timeConvertor.months.matcher", "mo|mon|months?");
 			config.setIfAbsent("timeConvertor.months.convertor", Arrays.asList("<=1 month", ">1 months"));
 			config.setIfAbsent("timeConvertor.weeks.matcher", "w|weeks?");
-			config.setIfAbsent("timeConvertor.weeks.convertor", Arrays.asList("<=1 week", ">1 weeks"), Arrays.asList("# Api isn't using this convertor anywhere, but other plugins can use this convertor."));
+			config.setIfAbsent("timeConvertor.weeks.convertor", Arrays.asList("<=1 week", ">1 weeks"), Arrays
+					.asList("# Api isn't using this convertor anywhere, but other plugins can use this convertor."));
 			config.setIfAbsent("timeConvertor.days.matcher", "d|days?");
 			config.setIfAbsent("timeConvertor.days.convertor", Arrays.asList("<=1 day", ">1 days"));
 			config.setIfAbsent("timeConvertor.hours.matcher", "h|hours?");
@@ -158,7 +164,8 @@ public class API {
 			StringUtils.timeSplit = config.getString("timeConvertor.settings.defaultSplit");
 
 			StringUtils.timeConvertor.put(TimeFormat.SECONDS, new TimeFormatter() {
-				Pattern pattern = Pattern.compile("[+-]?[ ]*[0-9]+[ ]*("+config.getString("timeConvertor.seconds.matcher")+")");
+				Pattern pattern = Pattern
+						.compile("[+-]?[ ]*[0-9]+[ ]*(" + config.getString("timeConvertor.seconds.matcher") + ")");
 
 				@Override
 				public Matcher matcher(String text) {
@@ -167,14 +174,15 @@ public class API {
 
 				@Override
 				public String toString(long value) {
-					for(String action : config.getStringList("timeConvertor.seconds.convertor"))
-						if(matchAction(action, value))
+					for (String action : config.getStringList("timeConvertor.seconds.convertor"))
+						if (matchAction(action, value))
 							return value + StringUtils.buildString(1, action.split(" "));
 					return value + "s";
 				}
 			});
 			StringUtils.timeConvertor.put(TimeFormat.MINUTES, new TimeFormatter() {
-				Pattern pattern = Pattern.compile("[+-]?[ ]*[0-9]+[ ]*("+config.getString("timeConvertor.minutes.matcher")+")");
+				Pattern pattern = Pattern
+						.compile("[+-]?[ ]*[0-9]+[ ]*(" + config.getString("timeConvertor.minutes.matcher") + ")");
 
 				@Override
 				public Matcher matcher(String text) {
@@ -183,14 +191,15 @@ public class API {
 
 				@Override
 				public String toString(long value) {
-					for(String action : config.getStringList("timeConvertor.minutes.convertor"))
-						if(matchAction(action, value))
+					for (String action : config.getStringList("timeConvertor.minutes.convertor"))
+						if (matchAction(action, value))
 							return value + StringUtils.buildString(1, action.split(" "));
 					return value + "m";
 				}
 			});
 			StringUtils.timeConvertor.put(TimeFormat.HOURS, new TimeFormatter() {
-				Pattern pattern = Pattern.compile("[+-]?[ ]*[0-9]+[ ]*("+config.getString("timeConvertor.hours.matcher")+")");
+				Pattern pattern = Pattern
+						.compile("[+-]?[ ]*[0-9]+[ ]*(" + config.getString("timeConvertor.hours.matcher") + ")");
 
 				@Override
 				public Matcher matcher(String text) {
@@ -199,14 +208,15 @@ public class API {
 
 				@Override
 				public String toString(long value) {
-					for(String action : config.getStringList("timeConvertor.hours.convertor"))
-						if(matchAction(action, value))
+					for (String action : config.getStringList("timeConvertor.hours.convertor"))
+						if (matchAction(action, value))
 							return value + StringUtils.buildString(1, action.split(" "));
 					return value + "h";
 				}
 			});
 			StringUtils.timeConvertor.put(TimeFormat.DAYS, new TimeFormatter() {
-				Pattern pattern = Pattern.compile("[+-]?[ ]*[0-9]+[ ]*("+config.getString("timeConvertor.days.matcher")+")");
+				Pattern pattern = Pattern
+						.compile("[+-]?[ ]*[0-9]+[ ]*(" + config.getString("timeConvertor.days.matcher") + ")");
 
 				@Override
 				public Matcher matcher(String text) {
@@ -215,14 +225,15 @@ public class API {
 
 				@Override
 				public String toString(long value) {
-					for(String action : config.getStringList("timeConvertor.days.convertor"))
-						if(matchAction(action, value))
+					for (String action : config.getStringList("timeConvertor.days.convertor"))
+						if (matchAction(action, value))
 							return value + StringUtils.buildString(1, action.split(" "));
 					return value + "d";
 				}
 			});
 			StringUtils.timeConvertor.put(TimeFormat.WEEKS, new TimeFormatter() {
-				Pattern pattern = Pattern.compile("[+-]?[ ]*[0-9]+[ ]*("+config.getString("timeConvertor.weeks.matcher")+")");
+				Pattern pattern = Pattern
+						.compile("[+-]?[ ]*[0-9]+[ ]*(" + config.getString("timeConvertor.weeks.matcher") + ")");
 
 				@Override
 				public Matcher matcher(String text) {
@@ -231,14 +242,15 @@ public class API {
 
 				@Override
 				public String toString(long value) {
-					for(String action : config.getStringList("timeConvertor.weeks.convertor"))
-						if(matchAction(action, value))
+					for (String action : config.getStringList("timeConvertor.weeks.convertor"))
+						if (matchAction(action, value))
 							return value + StringUtils.buildString(1, action.split(" "));
 					return value + "w";
 				}
 			});
 			StringUtils.timeConvertor.put(TimeFormat.MONTHS, new TimeFormatter() {
-				Pattern pattern = Pattern.compile("[+-]?[ ]*[0-9]+[ ]*("+config.getString("timeConvertor.months.matcher")+")");
+				Pattern pattern = Pattern
+						.compile("[+-]?[ ]*[0-9]+[ ]*(" + config.getString("timeConvertor.months.matcher") + ")");
 
 				@Override
 				public Matcher matcher(String text) {
@@ -247,14 +259,15 @@ public class API {
 
 				@Override
 				public String toString(long value) {
-					for(String action : config.getStringList("timeConvertor.months.convertor"))
-						if(matchAction(action, value))
+					for (String action : config.getStringList("timeConvertor.months.convertor"))
+						if (matchAction(action, value))
 							return value + StringUtils.buildString(1, action.split(" "));
 					return value + "mo";
 				}
 			});
 			StringUtils.timeConvertor.put(TimeFormat.YEARS, new TimeFormatter() {
-				Pattern pattern = Pattern.compile("[+-]?[ ]*[0-9]+[ ]*("+config.getString("timeConvertor.years.matcher")+")");
+				Pattern pattern = Pattern
+						.compile("[+-]?[ ]*[0-9]+[ ]*(" + config.getString("timeConvertor.years.matcher") + ")");
 
 				@Override
 				public Matcher matcher(String text) {
@@ -263,8 +276,8 @@ public class API {
 
 				@Override
 				public String toString(long value) {
-					for(String action : config.getStringList("timeConvertor.years.convertor"))
-						if(matchAction(action, value))
+					for (String action : config.getStringList("timeConvertor.years.convertor"))
+						if (matchAction(action, value))
 							return value + StringUtils.buildString(1, action.split(" "));
 					return value + "y";
 				}
@@ -273,13 +286,19 @@ public class API {
 
 		private boolean matchAction(String action, long value) {
 			String[] split = action.split(" ");
-			if(action.startsWith("=="))return value==StringUtils.getLong(split[0]);
-			if(action.startsWith("!="))return value!=StringUtils.getLong(split[0]);
-			if(action.startsWith(">="))return value>=StringUtils.getLong(split[0]);
-			if(action.startsWith("<="))return value<=StringUtils.getLong(split[0]);
-			if(action.startsWith(">"))return value>StringUtils.getLong(split[0]);
-			if(action.startsWith("<"))return value<StringUtils.getLong(split[0]);
-			return false; //invalid
+			if (action.startsWith("=="))
+				return value == StringUtils.getLong(split[0]);
+			if (action.startsWith("!="))
+				return value != StringUtils.getLong(split[0]);
+			if (action.startsWith(">="))
+				return value >= StringUtils.getLong(split[0]);
+			if (action.startsWith("<="))
+				return value <= StringUtils.getLong(split[0]);
+			if (action.startsWith(">"))
+				return value > StringUtils.getLong(split[0]);
+			if (action.startsWith("<"))
+				return value < StringUtils.getLong(split[0]);
+			return false; // invalid
 		}
 
 		public String[] getLastColors(Pattern pattern, String text) {
@@ -364,7 +383,7 @@ public class API {
 							else
 								formats += "§" + inLower;
 							prev = inLower;
-							builder.deleteCharAt(builder.length()-1); // remove &<random color> string
+							builder.deleteCharAt(builder.length() - 1); // remove &<random color> string
 							continue;
 						}
 						builder.delete(builder.length() - 14, builder.length()); // remove &<random color> string
@@ -398,7 +417,7 @@ public class API {
 						builder.append(StringUtils.color
 								.replaceHex("#" + String.format("%08x", finalColor.getRGB()).substring(2))); // add
 						// color
-						if(!formats.isEmpty())
+						if (!formats.isEmpty())
 							builder.append(formats); // add formats
 					}
 				}

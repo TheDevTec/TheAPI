@@ -103,7 +103,7 @@ class YamlSectionBuilderHelper {
 			// if value is null, empty key
 			if (value == null)
 				YamlSectionBuilderHelper.addCommentIfAvailable(b.append(sectionLine), commentAfterValue)
-				.append(System.lineSeparator());
+						.append(System.lineSeparator());
 			// write collection or array
 			else if (value instanceof Collection || value instanceof Object[]) {
 				String splitted = section.space + '-' + ' ';
@@ -116,7 +116,7 @@ class YamlSectionBuilderHelper {
 										commentAfterValue).append(System.lineSeparator());
 							else {
 								YamlSectionBuilderHelper.addCommentIfAvailable(b.append(sectionLine), commentAfterValue)
-								.append(System.lineSeparator());
+										.append(System.lineSeparator());
 								for (Object a : (Collection<?>) value)
 									if (a instanceof String)
 										YamlSectionBuilderHelper.addQuotesSplit(b, splitted, (String) a);
@@ -133,19 +133,19 @@ class YamlSectionBuilderHelper {
 						}
 					else
 						YamlSectionBuilderHelper
-						.addCommentIfAvailable(b.append(sectionLine).append(' ').append('[').append(']'),
-								commentAfterValue)
-						.append(System.lineSeparator());
+								.addCommentIfAvailable(b.append(sectionLine).append(' ').append('[').append(']'),
+										commentAfterValue)
+								.append(System.lineSeparator());
 				} else if (((Object[]) value).length != 0)
 					try {
 						if (dataVal.writtenValue != null)
 							YamlSectionBuilderHelper
-							.addCommentIfAvailable(YamlSectionBuilderHelper.addQuotes(b, sectionLine,
-									dataVal.writtenValue, value instanceof String ? '"' : 0), commentAfterValue)
-							.append(System.lineSeparator());
+									.addCommentIfAvailable(YamlSectionBuilderHelper.addQuotes(b, sectionLine,
+											dataVal.writtenValue, value instanceof String ? '"' : 0), commentAfterValue)
+									.append(System.lineSeparator());
 						else {
 							YamlSectionBuilderHelper.addCommentIfAvailable(b.append(sectionLine), commentAfterValue)
-							.append(System.lineSeparator());
+									.append(System.lineSeparator());
 							for (Object a : (Object[]) value)
 								if (a instanceof String)
 									YamlSectionBuilderHelper.addQuotesSplit(b, splitted, (String) a);
@@ -162,25 +162,25 @@ class YamlSectionBuilderHelper {
 					}
 				else
 					YamlSectionBuilderHelper
-					.addCommentIfAvailable(b.append(sectionLine).append(' ').append('[').append(']'),
-							commentAfterValue)
-					.append(System.lineSeparator());
+							.addCommentIfAvailable(b.append(sectionLine).append(' ').append('[').append(']'),
+									commentAfterValue)
+							.append(System.lineSeparator());
 			} else // write normal value
 				try {
 					if (dataVal.writtenValue != null)
 						YamlSectionBuilderHelper
-						.addCommentIfAvailable(YamlSectionBuilderHelper.addQuotes(b, sectionLine,
-								dataVal.writtenValue, value instanceof String ? '"' : '\''), commentAfterValue)
-						.append(System.lineSeparator());
+								.addCommentIfAvailable(YamlSectionBuilderHelper.addQuotes(b, sectionLine,
+										dataVal.writtenValue, value instanceof String ? '"' : '\''), commentAfterValue)
+								.append(System.lineSeparator());
 					else if (value instanceof String)
 						YamlSectionBuilderHelper.addCommentIfAvailable(
 								YamlSectionBuilderHelper.addQuotes(b, sectionLine, (String) value, '"'),
 								commentAfterValue).append(System.lineSeparator());
 					else
 						YamlSectionBuilderHelper
-						.addCommentIfAvailable(YamlSectionBuilderHelper.addQuotes(b, sectionLine, value),
-								commentAfterValue)
-						.append(System.lineSeparator());
+								.addCommentIfAvailable(YamlSectionBuilderHelper.addQuotes(b, sectionLine, value),
+										commentAfterValue)
+								.append(System.lineSeparator());
 				} catch (Exception er) {
 					if (value instanceof String)
 						YamlSectionBuilderHelper.addCommentIfAvailable(
@@ -188,9 +188,9 @@ class YamlSectionBuilderHelper {
 								commentAfterValue).append(System.lineSeparator());
 					else
 						YamlSectionBuilderHelper
-						.addCommentIfAvailable(YamlSectionBuilderHelper.addQuotes(b, sectionLine, value),
-								commentAfterValue)
-						.append(System.lineSeparator());
+								.addCommentIfAvailable(YamlSectionBuilderHelper.addQuotes(b, sectionLine, value),
+										commentAfterValue)
+								.append(System.lineSeparator());
 				}
 		} catch (Exception err) {
 			err.printStackTrace();

@@ -13,10 +13,11 @@ public class SocketAction {
 	Config config;
 	String fileName;
 	File file;
+
 	public SocketAction(SocketActionEnum action, Config data, String fileName, File file) {
-		this.action=action;
-		config=data;
-		this.fileName=fileName;
-		this.file=file;
+		this.action = action;
+		config = data;
+		this.fileName = fileName;
+		this.file = file;
 	}
 }

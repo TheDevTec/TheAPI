@@ -47,30 +47,32 @@ public interface SocketClient {
 	public default ClientResponde readUntilFind(ClientResponde... specified) throws IOException {
 		int task = getInputStream().readInt();
 		ClientResponde responde = ClientResponde.fromResponde(task);
-		for(ClientResponde lookingFor : specified)
-			if(lookingFor == responde)return lookingFor;
+		for (ClientResponde lookingFor : specified)
+			if (lookingFor == responde)
+				return lookingFor;
 		SocketUtils.process(this, task);
 		return readUntilFind(specified);
 	}
 
 	public default void writeWithData(Config data, String fileName, File file) {
-		if(fileName==null || file == null)return;
-		if(shouldAddToQueue()) {
+		if (fileName == null || file == null)
+			return;
+		if (shouldAddToQueue()) {
 			actionsAfterUnlock().add(new SocketAction(SocketActionEnum.FILE, data, fileName, file));
 			return;
 		}
 		DataOutputStream out = getOutputStream();
 		try {
 			lock();
-			if(data!=null) {
+			if (data != null) {
 				out.writeInt(ClientResponde.RECEIVE_DATA_AND_FILE.getResponde());
-				//data
+				// data
 				byte[] path = data.toByteArray();
 				out.writeInt(path.length);
 				out.write(path);
 			} else
 				out.writeInt(ClientResponde.RECEIVE_FILE.getResponde());
-			//file
+			// file
 			byte[] bytesData = fileName.getBytes();
 			out.writeInt(bytesData.length);
 			out.write(bytesData);
@@ -78,46 +80,49 @@ public interface SocketClient {
 			ServerClientRespondeEvent crespondeEvent = new ServerClientRespondeEvent(this, responde.getResponde());
 			EventManager.call(crespondeEvent);
 
-			if(responde==ClientResponde.ACCEPTED_FILE) {
+			if (responde == ClientResponde.ACCEPTED_FILE) {
 				long size = file.length();
 				out.writeLong(size);
 				out.flush();
 				FileInputStream fileInputStream = new FileInputStream(file);
 				int bytes = 0;
-				byte[] buffer = new byte[16*1024];
+				byte[] buffer = new byte[16 * 1024];
 				long total = 0;
-				while (total < size && (bytes = fileInputStream.read(buffer, 0, size-total > buffer.length ? buffer.length : (int)(size-total))) > 0) {
+				while (total < size && (bytes = fileInputStream.read(buffer, 0,
+						size - total > buffer.length ? buffer.length : (int) (size - total))) > 0) {
 					out.write(buffer, 0, bytes);
 					total += bytes;
 				}
 				out.flush();
 				fileInputStream.close();
-				responde =readUntilFind(ClientResponde.SUCCESSFULLY_DOWNLOADED_FILE, ClientResponde.FAILED_DOWNLOAD_FILE);
+				responde = readUntilFind(ClientResponde.SUCCESSFULLY_DOWNLOADED_FILE,
+						ClientResponde.FAILED_DOWNLOAD_FILE);
 				crespondeEvent = new ServerClientRespondeEvent(this, responde.getResponde());
 				EventManager.call(crespondeEvent);
 				unlock();
-				if(responde==ClientResponde.FAILED_DOWNLOAD_FILE)
+				if (responde == ClientResponde.FAILED_DOWNLOAD_FILE)
 					writeWithData(data, fileName, file);
-			}else {
+			} else {
 				out.flush();
 				unlock();
 			}
-		}catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			unlock();
 			stop();
-			if(shouldAddToQueue()) {
+			if (shouldAddToQueue()) {
 				actionsAfterUnlock().add(new SocketAction(SocketActionEnum.FILE, data, fileName, file));
 				return;
 			}
-			if(canReconnect())
+			if (canReconnect())
 				start();
 		}
 	}
 
 	public default void write(Config data) {
-		if(data == null)return;
-		if(shouldAddToQueue()) {
+		if (data == null)
+			return;
+		if (shouldAddToQueue()) {
 			actionsAfterUnlock().add(new SocketAction(SocketActionEnum.DATA, data, null, null));
 			return;
 		}
@@ -128,24 +133,26 @@ public interface SocketClient {
 			out.writeInt(path.length);
 			out.write(path);
 			out.flush();
-		}catch(Exception e) {
+		} catch (Exception e) {
 			stop();
-			if(shouldAddToQueue()) {
+			if (shouldAddToQueue()) {
 				actionsAfterUnlock().add(new SocketAction(SocketActionEnum.DATA, data, null, null));
 				return;
 			}
-			if(canReconnect())
+			if (canReconnect())
 				start();
 		}
 	}
 
 	public default void write(File file) {
-		if(file == null)return;
+		if (file == null)
+			return;
 		writeWithData(null, file.getName(), file);
 	}
 
 	public default void writeWithData(Config data, File file) {
-		if(data == null || file == null)return;
+		if (data == null || file == null)
+			return;
 		writeWithData(data, file.getName(), file);
 	}
 
@@ -160,7 +167,7 @@ public interface SocketClient {
 	public Socket getSocket();
 
 	public static void setServerName(String serverName) {
-		SocketClientHandler.serverName=serverName.getBytes();
+		SocketClientHandler.serverName = serverName.getBytes();
 	}
 
 	public static SocketClientHandler openConnection(String ip, int port, String password) {

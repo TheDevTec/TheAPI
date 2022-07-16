@@ -32,14 +32,15 @@ public class SocketUtils {
 		try {
 			long size = in.readLong();
 			origin = size;
-			byte[] buffer = new byte[16*1024];
+			byte[] buffer = new byte[16 * 1024];
 			long total = 0;
-			while (total < size && (bytes = in.read(buffer, 0, size-total > buffer.length ? buffer.length : (int)(size-total))) > 0) {
+			while (total < size && (bytes = in.read(buffer, 0,
+					size - total > buffer.length ? buffer.length : (int) (size - total))) > 0) {
 				out.write(buffer, 0, bytes);
 				total += bytes;
 			}
 			out.close();
-		}catch(Exception err) {
+		} catch (Exception err) {
 			err.printStackTrace();
 			return false;
 		}
@@ -49,8 +50,8 @@ public class SocketUtils {
 	public static boolean process(SocketClient client, int taskId) throws IOException {
 		DataInputStream in = client.getInputStream();
 		Config data = null;
-		switch(ClientResponde.fromResponde(taskId)) {
-		case RECEIVE_DATA:{
+		switch (ClientResponde.fromResponde(taskId)) {
+		case RECEIVE_DATA: {
 			ServerClientReceiveDataEvent event = new ServerClientReceiveDataEvent(client, SocketUtils.readConfig(in));
 			EventManager.call(event);
 			return true;
@@ -60,9 +61,10 @@ public class SocketUtils {
 			data = SocketUtils.readConfig(in);
 		case RECEIVE_FILE:
 			client.lock();
-			ServerClientPreReceiveFileEvent event = new ServerClientPreReceiveFileEvent(client, data, SocketUtils.readText(in));
+			ServerClientPreReceiveFileEvent event = new ServerClientPreReceiveFileEvent(client, data,
+					SocketUtils.readText(in));
 			EventManager.call(event);
-			if(event.isCancelled()) {
+			if (event.isCancelled()) {
 				client.getOutputStream().writeInt(ClientResponde.REJECTED_FILE.getResponde());
 				client.getOutputStream().flush();
 				client.unlock();
@@ -71,13 +73,14 @@ public class SocketUtils {
 			client.getOutputStream().writeInt(ClientResponde.ACCEPTED_FILE.getResponde());
 			client.getOutputStream().flush();
 			String folder = event.getFileDirectory();
-			if(!folder.isEmpty() && !folder.endsWith("/"))folder+="/";
-			File createdFile = SocketUtils.findUsableName(folder+event.getFileName());
+			if (!folder.isEmpty() && !folder.endsWith("/"))
+				folder += "/";
+			File createdFile = SocketUtils.findUsableName(folder + event.getFileName());
 			FileOutputStream out = new FileOutputStream(createdFile);
-			if(!SocketUtils.readFile(in, out, createdFile)) {
+			if (!SocketUtils.readFile(in, out, createdFile)) {
 				client.getOutputStream().writeInt(ClientResponde.FAILED_DOWNLOAD_FILE.getResponde());
 				client.getOutputStream().flush();
-				createdFile.delete(); //Failed to download file! Repeat.
+				createdFile.delete(); // Failed to download file! Repeat.
 				client.unlock();
 				return true;
 			}
@@ -95,11 +98,12 @@ public class SocketUtils {
 
 	private static File findUsableName(String fileName) {
 		File file = new File(fileName);
-		if(file.exists()) {
-			String end = fileName.split("\\.")[fileName.split("\\.").length-1];
-			return SocketUtils.findUsableName(fileName.substring(0, fileName.length()-(end.length()+1))+"-copy."+end);
+		if (file.exists()) {
+			String end = fileName.split("\\.")[fileName.split("\\.").length - 1];
+			return SocketUtils
+					.findUsableName(fileName.substring(0, fileName.length() - (end.length() + 1)) + "-copy." + end);
 		}
-		if(file.getParentFile()!=null)
+		if (file.getParentFile() != null)
 			file.getParentFile().mkdirs();
 		try {
 			file.createNewFile();

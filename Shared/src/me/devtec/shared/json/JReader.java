@@ -11,7 +11,7 @@ public interface JReader {
 		if (json == null || json.trim().isEmpty())
 			return json;
 		Object simpleRead = simpleRead(json);
-		if(simpleRead instanceof Map)
+		if (simpleRead instanceof Map)
 			return JsonUtils.read(simpleRead);
 		return simpleRead;
 	}
@@ -33,7 +33,7 @@ public interface JReader {
 			read = fromGson(json, Map.class);
 		} catch (Exception er) {
 		}
-		if(read==null)
+		if (read == null)
 			try {
 				read = fromGson(json, Collection.class);
 			} catch (Exception err) {
