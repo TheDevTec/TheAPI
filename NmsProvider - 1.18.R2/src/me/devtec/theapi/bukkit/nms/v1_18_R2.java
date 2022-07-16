@@ -804,9 +804,9 @@ public class v1_18_R2 implements NmsProvider {
 					? InventoryUtils.shift(slot, player, gui, clickType,
 							gui instanceof AnvilGUI ? DestinationType.PLAYER_INV_ANVIL
 									: DestinationType.PLAYER_INV_CUSTOM_INV,
-									null, contents, item)
-							: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.CUSTOM_INV,
-									gui.getNotInterableSlots(player), contents, item);
+							null, contents, item)
+					: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.CUSTOM_INV,
+							gui.getNotInterableSlots(player), contents, item);
 			if (!modified.isEmpty())
 				if (slot < gui.size()) {
 					boolean canRemove = !modified.contains(-1);
@@ -1122,8 +1122,8 @@ public class v1_18_R2 implements NmsProvider {
 
 	@Override
 	public String getGameProfileValues(Object profile) {
-		Collection<Property> properties = ((GameProfile)profile).getProperties().get("textures");
-		if(!properties.isEmpty())
+		Collection<Property> properties = ((GameProfile) profile).getProperties().get("textures");
+		if (!properties.isEmpty())
 			return properties.iterator().next().getValue();
 		return null;
 	}

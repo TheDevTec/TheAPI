@@ -42,12 +42,13 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 	protected volatile boolean closed;
 
 	public PacketHandlerModern(boolean lateBind) {
-		serverConnection = Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(), Ref.nmsOrOld("server.network.ServerConnection", "ServerConnection"));
+		serverConnection = Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(),
+				Ref.nmsOrOld("server.network.ServerConnection", "ServerConnection"));
 		if (serverConnection == null)
 			return;
 		if (lateBind) {
 			String hasTicked = "ac";
-			switch(Ref.serverVersionInt()) {
+			switch (Ref.serverVersionInt()) {
 			case 8:
 			case 11:
 			case 12:
@@ -132,7 +133,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 			networkManagers = (List<ChannelFuture>) Ref.get(serverConnection, "f");
 		else
 			networkManagers = (List<ChannelFuture>) (Ref.get(serverConnection, "listeningChannels") != null
-			? Ref.get(serverConnection, "listeningChannels")
+					? Ref.get(serverConnection, "listeningChannels")
 					: Ref.get(serverConnection, "g"));
 		if (networkManagers == null)
 			for (Field f : Ref.getAllFields(Ref.nmsOrOld("server.network.ServerConnection", "ServerConnection")))
@@ -145,7 +146,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 		if (networkManagers.isEmpty()) {
 			networkManagers = (List<ChannelFuture>) (Ref.get(serverConnection, "f") != null
 					? Ref.get(serverConnection, "f")
-							: Ref.get(serverConnection, "listeningChannels"));
+					: Ref.get(serverConnection, "listeningChannels"));
 			if (networkManagers == null)
 				for (Field f : Ref.getAllFields(Ref.nmsOrOld("server.network.ServerConnection", "ServerConnection")))
 					if (List.class == f.getType()) {
@@ -273,7 +274,8 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 			Object packet = msg;
 			synchronized (packet) {
 				if (packet.getClass() == PacketHandlerModern.login) {
-					player = Ref.isNewerThan(18)?(String)Ref.get(packet, PacketHandlerModern.f):((GameProfile) Ref.get(packet, PacketHandlerModern.f)).getName();
+					player = Ref.isNewerThan(18) ? (String) Ref.get(packet, PacketHandlerModern.f)
+							: ((GameProfile) Ref.get(packet, PacketHandlerModern.f)).getName();
 					channelLookup.put(player, channel);
 				}
 				try {

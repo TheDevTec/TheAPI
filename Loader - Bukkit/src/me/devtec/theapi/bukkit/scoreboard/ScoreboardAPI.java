@@ -102,7 +102,8 @@ public class ScoreboardAPI {
 	public void addLine(String value) {
 		int i = -1;
 		Set<String> slots = data.getKeys(player);
-		while (slots.contains("" + (++i)));
+		while (slots.contains("" + (++i)))
+			;
 		setLine(i, value);
 	}
 
@@ -225,7 +226,7 @@ public class ScoreboardAPI {
 			Ref.set(packet, "a", sbname);
 			Ref.set(packet, "b",
 					Ref.isNewerThan(12)
-					? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(displayName))
+							? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(displayName))
 							: displayName);
 			if (Ref.isNewerThan(7)) {
 				Ref.set(packet, "c", BukkitLoader.getNmsProvider().getEnumScoreboardHealthDisplay(DisplayType.INTEGER));
@@ -265,8 +266,7 @@ public class ScoreboardAPI {
 			if (first) {
 				if (ScoreboardAPI.protection.getBoolean(player + "." + name))
 					name += ScoreboardAPI.protectId;
-				Object[] o = create(prefix, suffix, currentPlayer, name,
-						slott == -1 ? line : slott);
+				Object[] o = create(prefix, suffix, currentPlayer, name, slott == -1 ? line : slott);
 				BukkitLoader.getPacketHandler().send(p, o[0]);
 				BukkitLoader.getPacketHandler().send(p, o[1]);
 				first = false;
@@ -282,16 +282,14 @@ public class ScoreboardAPI {
 			}
 			if (changed) {
 				changed = false;
-				Object[] o = modify(prefix, suffix, currentPlayer, name,
-						slott == -1 ? line : slott);
+				Object[] o = modify(prefix, suffix, currentPlayer, name, slott == -1 ? line : slott);
 				BukkitLoader.getPacketHandler().send(p, o[0]);
 				BukkitLoader.getPacketHandler().send(p, o[1]);
 			}
 		}
 
 		public String getValue() {
-			return Ref.isOlderThan(13) ? prefix + currentPlayer.replaceFirst(format, "") + suffix
-					: prefix + suffix;
+			return Ref.isOlderThan(13) ? prefix + currentPlayer.replaceFirst(format, "") + suffix : prefix + suffix;
 		}
 
 		private void setPlayer(String teamName) {

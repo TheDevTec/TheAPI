@@ -320,8 +320,8 @@ public class v1_16_R3 implements NmsProvider {
 
 	@Override
 	public Object packetScoreboardScore(Action action, String player, String line, int score) {
-		return new PacketPlayOutScoreboardScore((ScoreboardServer.Action) getScoreboardAction(action), player,
-				line, score);
+		return new PacketPlayOutScoreboardScore((ScoreboardServer.Action) getScoreboardAction(action), player, line,
+				score);
 	}
 
 	@Override
@@ -769,9 +769,9 @@ public class v1_16_R3 implements NmsProvider {
 					? InventoryUtils.shift(slot, player, gui, clickType,
 							gui instanceof AnvilGUI ? DestinationType.PLAYER_INV_ANVIL
 									: DestinationType.PLAYER_INV_CUSTOM_INV,
-									null, contents, item)
-							: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.CUSTOM_INV,
-									gui.getNotInterableSlots(player), contents, item);
+							null, contents, item)
+					: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.CUSTOM_INV,
+							gui.getNotInterableSlots(player), contents, item);
 			if (!modified.isEmpty())
 				if (slot < gui.size()) {
 					boolean canRemove = !modified.contains(-1);
@@ -801,8 +801,7 @@ public class v1_16_R3 implements NmsProvider {
 			case PICKUP_ALL:
 				// TOP
 				for (ItemStack cItem : gui.getInventory().getContents())
-					BukkitLoader.getPacketHandler().send(player,
-							this.packetSetSlot(id, position++, asNMSItem(cItem)));
+					BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, position++, asNMSItem(cItem)));
 				// BUTTON
 				player.updateInventory();
 				return true;
@@ -1042,8 +1041,7 @@ public class v1_16_R3 implements NmsProvider {
 
 	@Override
 	public Object packetPlayerInfo(PlayerInfoType type, Player player) {
-		return new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.valueOf(type.name()),
-				(EntityPlayer) getPlayer(player));
+		return new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.valueOf(type.name()), (EntityPlayer) getPlayer(player));
 	}
 
 	@Override
@@ -1078,8 +1076,8 @@ public class v1_16_R3 implements NmsProvider {
 
 	@Override
 	public String getGameProfileValues(Object profile) {
-		Collection<Property> properties = ((GameProfile)profile).getProperties().get("textures");
-		if(!properties.isEmpty())
+		Collection<Property> properties = ((GameProfile) profile).getProperties().get("textures");
+		if (!properties.isEmpty())
 			return properties.iterator().next().getValue();
 		return null;
 	}

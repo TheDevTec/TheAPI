@@ -31,8 +31,9 @@ public class NameTagAPI {
 	private boolean changed;
 
 	private Object getNMSColor(ChatColor color) {
-		Object nmsColor = color==null?TeamUtils.white:NameTagAPI.formatMap.get(color.getChar());
-		if(nmsColor==null)nmsColor=TeamUtils.white;
+		Object nmsColor = color == null ? TeamUtils.white : NameTagAPI.formatMap.get(color.getChar());
+		if (nmsColor == null)
+			nmsColor = TeamUtils.white;
 		return nmsColor;
 	}
 

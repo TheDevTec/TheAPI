@@ -374,8 +374,8 @@ public class v1_12_R1 implements NmsProvider {
 					EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
 		if (c.getHoverEvent() != null)
 			modif = modif
-			.setChatHoverable(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()),
-					(IChatBaseComponent) this.toIChatBaseComponent(c.getHoverEvent().getValue())));
+					.setChatHoverable(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()),
+							(IChatBaseComponent) this.toIChatBaseComponent(c.getHoverEvent().getValue())));
 		modif = modif.setBold(c.isBold());
 		modif = modif.setItalic(c.isItalic());
 		modif = modif.setRandom(c.isObfuscated());
@@ -733,11 +733,13 @@ public class v1_12_R1 implements NmsProvider {
 		container.checkReachable = false;
 	}
 
-	private static Constructor<?> craftContainer = Ref.constructor(CraftContainer.class, Inventory.class, HumanEntity.class, int.class);
+	private static Constructor<?> craftContainer = Ref.constructor(CraftContainer.class, Inventory.class,
+			HumanEntity.class, int.class);
 	private static int containerState;
 	static {
-		if(v1_12_R1.craftContainer==null) {
-			v1_12_R1.craftContainer = Ref.constructor(CraftContainer.class, Inventory.class, EntityHuman.class, int.class);
+		if (v1_12_R1.craftContainer == null) {
+			v1_12_R1.craftContainer = Ref.constructor(CraftContainer.class, Inventory.class, EntityHuman.class,
+					int.class);
 			++v1_12_R1.containerState;
 		}
 	}
@@ -745,7 +747,11 @@ public class v1_12_R1 implements NmsProvider {
 	@Override
 	public Object createContainer(Inventory inv, Player player) {
 		return inv.getType() == InventoryType.ANVIL ? createAnvilContainer(inv, player)
-				: v1_12_R1.containerState==0?Ref.newInstance(v1_12_R1.craftContainer, inv, player, ((CraftPlayer) player).getHandle().nextContainerCounter()):Ref.newInstance(v1_12_R1.craftContainer, inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter());
+				: v1_12_R1.containerState == 0
+						? Ref.newInstance(v1_12_R1.craftContainer, inv, player,
+								((CraftPlayer) player).getHandle().nextContainerCounter())
+						: Ref.newInstance(v1_12_R1.craftContainer, inv, ((CraftPlayer) player).getHandle(),
+								((CraftPlayer) player).getHandle().nextContainerCounter());
 	}
 
 	@Override
@@ -815,9 +821,9 @@ public class v1_12_R1 implements NmsProvider {
 					? InventoryUtils.shift(slot, player, gui, clickType,
 							gui instanceof AnvilGUI ? DestinationType.PLAYER_INV_ANVIL
 									: DestinationType.PLAYER_INV_CUSTOM_INV,
-									null, contents, item)
-							: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.CUSTOM_INV,
-									gui.getNotInterableSlots(player), contents, item);
+							null, contents, item)
+					: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.CUSTOM_INV,
+							gui.getNotInterableSlots(player), contents, item);
 			if (!modified.isEmpty())
 				if (slot < gui.size()) {
 					boolean canRemove = !modified.contains(-1);
@@ -847,8 +853,7 @@ public class v1_12_R1 implements NmsProvider {
 			case PICKUP_ALL:
 				// TOP
 				for (ItemStack cItem : gui.getInventory().getContents())
-					BukkitLoader.getPacketHandler().send(player,
-							this.packetSetSlot(id, position++, asNMSItem(cItem)));
+					BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, position++, asNMSItem(cItem)));
 				// BUTTON
 				player.updateInventory();
 				return true;
@@ -1088,8 +1093,7 @@ public class v1_12_R1 implements NmsProvider {
 
 	@Override
 	public Object packetPlayerInfo(PlayerInfoType type, Player player) {
-		return new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.valueOf(type.name()),
-				(EntityPlayer) getPlayer(player));
+		return new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.valueOf(type.name()), (EntityPlayer) getPlayer(player));
 	}
 
 	@Override
@@ -1124,8 +1128,8 @@ public class v1_12_R1 implements NmsProvider {
 
 	@Override
 	public String getGameProfileValues(Object profile) {
-		Collection<Property> properties = ((GameProfile)profile).getProperties().get("textures");
-		if(!properties.isEmpty())
+		Collection<Property> properties = ((GameProfile) profile).getProperties().get("textures");
+		if (!properties.isEmpty())
 			return properties.iterator().next().getValue();
 		return null;
 	}

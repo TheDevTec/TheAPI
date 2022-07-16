@@ -16,12 +16,12 @@ public class TeamUtils {
 			.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
 	public static final Object white = Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",
 			char.class) == null
-			? Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", int.class), -1)
+					? Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", int.class), -1)
 					: Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", char.class),
 							'f');
 
-
-	public static Object createTeamPacket(int mode, Object color, String prefix, String suffix, String name, String realName) {
+	public static Object createTeamPacket(int mode, Object color, String prefix, String suffix, String name,
+			String realName) {
 		Object packet = BukkitLoader.getNmsProvider().packetScoreboardTeam();
 		Object nameList = ImmutableList.of(name);
 		String always = "ALWAYS";
@@ -45,11 +45,11 @@ public class TeamUtils {
 			Ref.set(packet, "b", Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().chatBase("{\"text\":\"\"}") : "");
 			Ref.set(packet, "c",
 					Ref.isNewerThan(12)
-					? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(prefix))
+							? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(prefix))
 							: prefix);
 			Ref.set(packet, "d",
 					Ref.isNewerThan(12)
-					? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(suffix))
+							? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(suffix))
 							: suffix);
 			if (Ref.isNewerThan(7)) {
 				Ref.set(packet, "e", always);

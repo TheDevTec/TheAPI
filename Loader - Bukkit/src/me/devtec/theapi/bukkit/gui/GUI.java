@@ -224,7 +224,8 @@ public class GUI implements HolderGUI {
 		if (title.equals(title))
 			return;
 		for (Entry<Player, Object> ec : containers.entrySet())
-			BukkitLoader.getNmsProvider().setGUITitle(ec.getKey(), ec.getValue(), "minecraft:chest", inv.getSize(), title);
+			BukkitLoader.getNmsProvider().setGUITitle(ec.getKey(), ec.getValue(), "minecraft:chest", inv.getSize(),
+					title);
 	}
 
 	/**

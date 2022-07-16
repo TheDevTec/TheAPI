@@ -871,9 +871,9 @@ public enum XMaterial {
 			// Special case. Refer to FILLED_MAP for more info.
 			return data >= 0 && isAMap ? Optional.of(FILLED_MAP) : Optional.empty();
 
-			if (!Data.ISFLAT && oldXMaterial.isPlural() && (duplicated == null ? XMaterial.isDuplicated(name) : duplicated))
-				return XMaterial.getIfPresent(name);
-			return Optional.of(oldXMaterial);
+		if (!Data.ISFLAT && oldXMaterial.isPlural() && (duplicated == null ? XMaterial.isDuplicated(name) : duplicated))
+			return XMaterial.getIfPresent(name);
+		return Optional.of(oldXMaterial);
 	}
 
 	/**

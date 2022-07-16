@@ -49,7 +49,7 @@ public class Position implements Cloneable {
 
 	public Position(String world, double x, double y, double z, float yaw, float pitch) {
 		this(x, y, z, yaw, pitch);
-		w=world;
+		w = world;
 	}
 
 	public Position(double x, double y, double z) {
@@ -119,9 +119,8 @@ public class Position implements Cloneable {
 
 	public int getData() {
 		return Ref.isOlderThan(8)
-				? (byte) BukkitLoader.getNmsProvider().getData(getNMSChunk(), getBlockX(), getBlockY(),
-						getBlockZ())
-						: getType().getData();
+				? (byte) BukkitLoader.getNmsProvider().getData(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ())
+				: getType().getData();
 	}
 
 	public Material getBukkitType() {
@@ -129,8 +128,7 @@ public class Position implements Cloneable {
 	}
 
 	public Object getIBlockData() {
-		return BukkitLoader.getNmsProvider().getBlock(getNMSChunk(), getBlockX(), getBlockY(),
-				getBlockZ());
+		return BukkitLoader.getNmsProvider().getBlock(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ());
 	}
 
 	public TheMaterial getType() {
@@ -138,10 +136,9 @@ public class Position implements Cloneable {
 		if (Ref.isOlderThan(8)) // 1.7.10
 			return TheMaterial.fromData(
 					BukkitLoader.getNmsProvider().getBlock(chunk, getBlockX(), getBlockY(), getBlockZ()),
-					(byte) BukkitLoader.getNmsProvider().getData(chunk, getBlockX(), getBlockY(),
-							getBlockZ()));
-		return TheMaterial.fromData(
-				BukkitLoader.getNmsProvider().getBlock(chunk, getBlockX(), getBlockY(), getBlockZ()));
+					(byte) BukkitLoader.getNmsProvider().getData(chunk, getBlockX(), getBlockY(), getBlockZ()));
+		return TheMaterial
+				.fromData(BukkitLoader.getNmsProvider().getBlock(chunk, getBlockX(), getBlockY(), getBlockZ()));
 	}
 
 	public Position subtract(double x, double y, double z) {
@@ -230,8 +227,7 @@ public class Position implements Cloneable {
 	}
 
 	public double distanceSquared(Location location) {
-		return square(x - location.getX()) + square(y - location.getY())
-		+ square(z - location.getZ());
+		return square(x - location.getX()) + square(y - location.getY()) + square(z - location.getZ());
 	}
 
 	public double distanceSquared(Position position) {
@@ -250,8 +246,7 @@ public class Position implements Cloneable {
 
 	public Object getNMSChunk() {
 		try {
-			return BukkitLoader.getNmsProvider().getChunk(getWorld(), getBlockX() >> 4,
-					getBlockZ() >> 4);
+			return BukkitLoader.getNmsProvider().getChunk(getWorld(), getBlockX() >> 4, getBlockZ() >> 4);
 		} catch (Exception er) {
 		}
 		return null;
@@ -363,13 +358,13 @@ public class Position implements Cloneable {
 	public boolean equals(Object a) {
 		if (a instanceof Position) {
 			Position s = (Position) a;
-			return w.equals(s.getWorld().getName()) && s.getX() == x && s.getY() == y
-					&& s.getZ() == z && s.getPitch() == pitch && s.getYaw() == yaw;
+			return w.equals(s.getWorld().getName()) && s.getX() == x && s.getY() == y && s.getZ() == z
+					&& s.getPitch() == pitch && s.getYaw() == yaw;
 		}
 		if (a instanceof Location) {
 			Location s = (Location) a;
-			return w.equals(s.getWorld().getName()) && s.getX() == x && s.getY() == y
-					&& s.getZ() == z && s.getPitch() == pitch && s.getYaw() == yaw;
+			return w.equals(s.getWorld().getName()) && s.getX() == x && s.getY() == y && s.getZ() == z
+					&& s.getPitch() == pitch && s.getYaw() == yaw;
 		}
 		return false;
 	}
@@ -457,8 +452,7 @@ public class Position implements Cloneable {
 
 	@Override
 	public String toString() {
-		return ("[Position:" + w + "/" + x + "/" + y + "/" + z + "/" + yaw + "/" + pitch
-				+ ']').replace(".", ":");
+		return ("[Position:" + w + "/" + x + "/" + y + "/" + z + "/" + yaw + "/" + pitch + ']').replace(".", ":");
 	}
 
 	@Override

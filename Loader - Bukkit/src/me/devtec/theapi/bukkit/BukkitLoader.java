@@ -108,13 +108,13 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 					BukkitLoader.handler = new PacketHandlerModern(true);
 				else
 					BukkitLoader.handler = (PacketHandler<?>) Ref
-					.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy", true);
+							.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy", true);
 			}).start();
 		else if (Ref.isNewerThan(7))
 			BukkitLoader.handler = new PacketHandlerModern(false);
 		else
 			BukkitLoader.handler = (PacketHandler<?>) Ref
-			.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy", false);
+					.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy", false);
 		BukkitLoader.resource = Ref.nmsOrOld("network.protocol.game.PacketPlayInResourcePackStatus",
 				"PacketPlayInResourcePackStatus");
 		BukkitLoader.close = Ref.nmsOrOld("network.protocol.game.PacketPlayInCloseWindow", "PacketPlayInCloseWindow");
@@ -133,12 +133,12 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		// BOSSBAR API: 1.7.10 - 1.8.8
 		if (Ref.isOlderThan(9))
 			new Tasker() {
-			@Override
-			public void run() {
-				for (BossBar s : BukkitLoader.bossbars)
-					s.move();
-			}
-		}.runRepeating(0, 20);
+				@Override
+				public void run() {
+					for (BossBar s : BukkitLoader.bossbars)
+						s.move();
+				}
+			}.runRepeating(0, 20);
 		else
 			BukkitLoader.bossbars = null;
 		new PacketListener() {
@@ -178,9 +178,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 						return false;
 					ResourcePackAPI.getHandlingPlayer(player).onHandle(player, ResourcePackAPI.getResourcePack(player),
 							ResourcePackResult.valueOf(Ref.isNewerThan(16)
-									? getLegacyNameOf(
-											Ref.get(packet, Ref.isNewerThan(16) ? "a" : "status").toString())
-											: Ref.get(packet, Ref.isNewerThan(16) ? "a" : "status").toString()));
+									? getLegacyNameOf(Ref.get(packet, Ref.isNewerThan(16) ? "a" : "status").toString())
+									: Ref.get(packet, Ref.isNewerThan(16) ? "a" : "status").toString()));
 					return false;
 				}
 				// GUIS
@@ -239,13 +238,14 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			PlaceholderAPI.PAPI_BRIDGE = new me.devtec.shared.placeholders.PlaceholderExpansion("PAPI Support") {
 				@Override
 				public String apply(String text, UUID player) {
-					return me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player==null?null:Bukkit.getOfflinePlayer(player), "%"+text+"%");
+					return me.clip.placeholderapi.PlaceholderAPI
+							.setPlaceholders(player == null ? null : Bukkit.getOfflinePlayer(player), "%" + text + "%");
 				}
 			};
 			new PlaceholderExpansion() {
 				@Override
 				public String onRequest(OfflinePlayer player, String params) {
-					return PlaceholderAPI.apply("%" + params + "%", player==null?null:player.getUniqueId());
+					return PlaceholderAPI.apply("%" + params + "%", player == null ? null : player.getUniqueId());
 				}
 
 				@Override
@@ -293,7 +293,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		API.setEnabled(false);
 		Scheduler.cancelAll();
 		BukkitLoader.handler.close();
-		PlaceholderAPI.PAPI_BRIDGE=null;
+		PlaceholderAPI.PAPI_BRIDGE = null;
 		if (BukkitLoader.bossbars != null)
 			for (BossBar bar : new ArrayList<>(BukkitLoader.bossbars))
 				bar.remove();
@@ -407,7 +407,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	private static void initTheAPI(JavaPlugin plugin) {
 		Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null
 				? Ref.getClass("net.kyori.adventure.Adventure") != null ? ServerType.PAPER : ServerType.SPIGOT
-						: ServerType.BUKKIT, Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]); // Server version
+				: ServerType.BUKKIT, Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]); // Server
+																											// version
 		// version
 		if (Ref.serverType() != ServerType.BUKKIT) {
 			ComponentAPI.registerTransformer("BUNGEECORD", (ComponentTransformer<?>) Ref

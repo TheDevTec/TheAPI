@@ -68,7 +68,8 @@ public class InventoryUtils {
 				return modifiedSlots;
 			}
 		}
-		int firstEmpty = InventoryUtils.findFirstEmpty(whoShift, holder, clickType, corruptedSlots, type, ignoreSlots, contents);
+		int firstEmpty = InventoryUtils.findFirstEmpty(whoShift, holder, clickType, corruptedSlots, type, ignoreSlots,
+				contents);
 		if (firstEmpty != -1) {
 			contents[firstEmpty] = shiftItem;
 			total = 0;
@@ -204,7 +205,7 @@ public class InventoryUtils {
 			return 34;
 		case 26:
 			return 35;
-			// hotbar
+		// hotbar
 		case 27:
 			return 0;
 		case 28:

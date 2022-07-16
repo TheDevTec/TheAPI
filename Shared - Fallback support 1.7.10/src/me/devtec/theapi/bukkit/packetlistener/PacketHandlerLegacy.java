@@ -104,9 +104,8 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 	}
 
 	private void registerChannelHandler() {
-		networkManagers = (List<?>) (Ref.get(serverConnection, "e") != null
-				? Ref.get(serverConnection, "e")
-						: Ref.get(serverConnection, "f"));
+		networkManagers = (List<?>) (Ref.get(serverConnection, "e") != null ? Ref.get(serverConnection, "e")
+				: Ref.get(serverConnection, "f"));
 		if (networkManagers == null)
 			for (Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
 				if (List.class == f.getType()) {
@@ -116,9 +115,8 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 		if (networkManagers == null)
 			return;
 		if (networkManagers.isEmpty()) {
-			networkManagers = (List<?>) (Ref.get(serverConnection, "f") != null
-					? Ref.get(serverConnection, "f")
-							: Ref.get(serverConnection, "e"));
+			networkManagers = (List<?>) (Ref.get(serverConnection, "f") != null ? Ref.get(serverConnection, "f")
+					: Ref.get(serverConnection, "e"));
 			if (networkManagers == null)
 				for (Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
 					if (List.class == f.getType()) {

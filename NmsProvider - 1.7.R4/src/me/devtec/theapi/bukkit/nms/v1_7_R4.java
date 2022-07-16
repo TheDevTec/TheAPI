@@ -476,7 +476,7 @@ public class v1_7_R4 implements NmsProvider {
 				builder.append(asString(chat.getChatModifier())).append(chat.e());
 				for (Object c : chat.a())
 					builder.append(asString(((IChatBaseComponent) c).getChatModifier()))
-					.append(((IChatBaseComponent) c).e());
+							.append(((IChatBaseComponent) c).e());
 			}
 			return builder.toString();
 		}
@@ -486,7 +486,7 @@ public class v1_7_R4 implements NmsProvider {
 			builder.append(asString(chat.getChatModifier())).append(chat.e());
 			for (Object c : chat.a())
 				builder.append(asString(((IChatBaseComponent) c).getChatModifier()))
-				.append(((IChatBaseComponent) c).e());
+						.append(((IChatBaseComponent) c).e());
 			return builder.toString();
 		}
 		return component.toString();
@@ -848,9 +848,9 @@ public class v1_7_R4 implements NmsProvider {
 					? InventoryUtils.shift(slot, player, gui, clickType,
 							gui instanceof AnvilGUI ? DestinationType.PLAYER_INV_ANVIL
 									: DestinationType.PLAYER_INV_CUSTOM_INV,
-									null, contents, item)
-							: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.CUSTOM_INV,
-									gui.getNotInterableSlots(player), contents, item);
+							null, contents, item)
+					: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.CUSTOM_INV,
+							gui.getNotInterableSlots(player), contents, item);
 			if (!modified.isEmpty())
 				if (slot < gui.size()) {
 					boolean canRemove = !modified.contains(-1);
@@ -882,8 +882,7 @@ public class v1_7_R4 implements NmsProvider {
 			case PICKUP_ALL:
 				// TOP
 				for (ItemStack cItem : gui.getInventory().getContents())
-					BukkitLoader.getPacketHandler().send(player,
-							this.packetSetSlot(id, position++, asNMSItem(cItem)));
+					BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, position++, asNMSItem(cItem)));
 				// BUTTON
 				player.updateInventory();
 				return true;
@@ -1177,8 +1176,8 @@ public class v1_7_R4 implements NmsProvider {
 
 	@Override
 	public String getGameProfileValues(Object profile) {
-		Collection<Property> properties = ((GameProfile)profile).getProperties().get("textures");
-		if(!properties.isEmpty())
+		Collection<Property> properties = ((GameProfile) profile).getProperties().get("textures");
+		if (!properties.isEmpty())
 			return properties.iterator().next().getValue();
 		return null;
 	}

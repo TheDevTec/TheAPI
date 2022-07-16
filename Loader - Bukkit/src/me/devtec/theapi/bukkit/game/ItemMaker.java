@@ -85,7 +85,7 @@ public class ItemMaker {
 		if (Ref.isNewerThan(13) && customModel != 0)
 			meta.setCustomModelData(customModel);
 		if (unbreakable)
-			if(Ref.isNewerThan(10))
+			if (Ref.isNewerThan(10))
 				meta.setUnbreakable(true);
 			else
 				try {
@@ -199,11 +199,13 @@ public class ItemMaker {
 					iMeta.setOwner(owner);
 					break;
 				case 1: {
-					Ref.set(iMeta, HeadItemMaker.profileField, BukkitLoader.getNmsProvider().createGameProfile(UUID.randomUUID(), "DevTec", owner));
+					Ref.set(iMeta, HeadItemMaker.profileField,
+							BukkitLoader.getNmsProvider().createGameProfile(UUID.randomUUID(), "DevTec", owner));
 					break;
 				}
 				case 2: {
-					Ref.set(iMeta, HeadItemMaker.profileField, BukkitLoader.getNmsProvider().createGameProfile(UUID.randomUUID(), "DevTec", ItemMaker.fromUrl(owner)));
+					Ref.set(iMeta, HeadItemMaker.profileField, BukkitLoader.getNmsProvider()
+							.createGameProfile(UUID.randomUUID(), "DevTec", ItemMaker.fromUrl(owner)));
 					break;
 				}
 				default:
@@ -322,7 +324,7 @@ public class ItemMaker {
 			if (Ref.isNewerThan(13) && super.customModel != 0)
 				iMeta.setCustomModelData(super.customModel);
 			if (super.unbreakable)
-				if(Ref.isNewerThan(10))
+				if (Ref.isNewerThan(10))
 					iMeta.setUnbreakable(true);
 				else
 					try {
@@ -541,107 +543,107 @@ public class ItemMaker {
 		return new BannerItemMaker(color.toMaterial());
 	}
 
-
-
 	public static void saveToConfig(Config config, String path, ItemStack stack) {
-		if(stack==null)return; //invalid item
-		config.remove(path); //clear section
+		if (stack == null)
+			return; // invalid item
+		config.remove(path); // clear section
 
 		XMaterial type = XMaterial.matchXMaterial(stack);
-		config.set(path+".type", type.name());
-		if(stack.getDurability()!=0)
-			config.set(path+".damage", stack.getDurability());
+		config.set(path + ".type", type.name());
+		if (stack.getDurability() != 0)
+			config.set(path + ".damage", stack.getDurability());
 		ItemMeta meta = stack.getItemMeta();
-		if(meta.getDisplayName()!=null)
-			config.set(path+".displayName", meta.getDisplayName());
-		if(meta.getLore()!=null && !meta.getLore().isEmpty())
-			config.set(path+".lore", meta.getLore());
+		if (meta.getDisplayName() != null)
+			config.set(path + ".displayName", meta.getDisplayName());
+		if (meta.getLore() != null && !meta.getLore().isEmpty())
+			config.set(path + ".lore", meta.getLore());
 
-		if(Ref.isNewerThan(10)) { //1.11+
-			if(meta.isUnbreakable())
-				config.set(path+".unbreakable", true);
-		} else if((boolean)Ref.invoke(Ref.invoke(meta, "spigot"), "isUnbreakable"))
+		if (Ref.isNewerThan(10)) { // 1.11+
+			if (meta.isUnbreakable())
+				config.set(path + ".unbreakable", true);
+		} else if ((boolean) Ref.invoke(Ref.invoke(meta, "spigot"), "isUnbreakable"))
 			try {
-				config.set(path+".unbreakable", true);
+				config.set(path + ".unbreakable", true);
 			} catch (NoSuchFieldError | Exception e2) {
 				// unsupported
 			}
-		if(Ref.isNewerThan(7)) { //1.8+
+		if (Ref.isNewerThan(7)) { // 1.8+
 			List<String> flags = new ArrayList<>();
-			for(ItemFlag flag : meta.getItemFlags())
+			for (ItemFlag flag : meta.getItemFlags())
 				flags.add(flag.name());
-			if(!flags.isEmpty())
-				config.set(path+".itemFlags", flags);
+			if (!flags.isEmpty())
+				config.set(path + ".itemFlags", flags);
 		}
-		if(Ref.isNewerThan(13)) { //1.14+
+		if (Ref.isNewerThan(13)) { // 1.14+
 			int modelData = meta.hasCustomModelData() ? meta.getCustomModelData() : 0;
-			if(modelData!=0)
-				config.set(path+".itemFlags", modelData);
+			if (modelData != 0)
+				config.set(path + ".itemFlags", modelData);
 		}
 
-		if(type.name().contains("BANNER")) {
-			BannerMeta banner = (BannerMeta)meta;
+		if (type.name().contains("BANNER")) {
+			BannerMeta banner = (BannerMeta) meta;
 			List<String> patterns = new ArrayList<>();
-			for(Pattern pattern : banner.getPatterns())
-				patterns.add(pattern.getColor().name()+":"+pattern.getPattern().name());
-			if(!patterns.isEmpty())
-				config.set(path+".banner.patterns", patterns);
+			for (Pattern pattern : banner.getPatterns())
+				patterns.add(pattern.getColor().name() + ":" + pattern.getPattern().name());
+			if (!patterns.isEmpty())
+				config.set(path + ".banner.patterns", patterns);
 		}
-		if(type.name().contains("LEATHER_")) {
-			LeatherArmorMeta armor = (LeatherArmorMeta)meta;
-			config.set(path+".leather.color", "#"+Integer.toHexString(armor.getColor().asRGB()).substring(2));
+		if (type.name().contains("LEATHER_")) {
+			LeatherArmorMeta armor = (LeatherArmorMeta) meta;
+			config.set(path + ".leather.color", "#" + Integer.toHexString(armor.getColor().asRGB()).substring(2));
 		}
-		if(type==XMaterial.PLAYER_HEAD) {
-			SkullMeta skull = (SkullMeta)meta;
-			if(skull.getOwner()!=null) {
-				config.set(path+".head.owner", skull.getOwner());
-				config.set(path+".head.type", "PLAYER");
-			}else {
+		if (type == XMaterial.PLAYER_HEAD) {
+			SkullMeta skull = (SkullMeta) meta;
+			if (skull.getOwner() != null) {
+				config.set(path + ".head.owner", skull.getOwner());
+				config.set(path + ".head.type", "PLAYER");
+			} else {
 				Object profile = Ref.get(skull, HeadItemMaker.profileField);
-				if(profile!=null) {
+				if (profile != null) {
 					String value = BukkitLoader.getNmsProvider().getGameProfileValues(profile);
-					if(value!=null) {
-						config.set(path+".head.owner", value);
-						config.set(path+".head.type", "VALUES");
+					if (value != null) {
+						config.set(path + ".head.owner", value);
+						config.set(path + ".head.type", "VALUES");
 					}
 				}
 			}
 		}
-		if(type.name().contains("POTION")) {
-			PotionMeta potion = (PotionMeta)meta;
-			if(Ref.isNewerThan(9))
-				config.set(path+".potion.type", potion.getBasePotionData().getType().name());
+		if (type.name().contains("POTION")) {
+			PotionMeta potion = (PotionMeta) meta;
+			if (Ref.isNewerThan(9))
+				config.set(path + ".potion.type", potion.getBasePotionData().getType().name());
 			List<String> effects = new ArrayList<>();
-			for(PotionEffect effect : potion.getCustomEffects())
-				effects.add(effect.getType().getName()+":"+effect.getDuration()+":"+effect.getAmplifier()+":"+effect.isAmbient()+":"+effect.hasParticles());
-			if(!effects.isEmpty())
-				config.set(path+".potion.effects", effects);
-			if(Ref.isNewerThan(10)) //1.11+
-				if(potion.getColor()!=null)
-					config.set(path+".potion.color", Integer.toHexString(potion.getColor().asRGB()));
+			for (PotionEffect effect : potion.getCustomEffects())
+				effects.add(effect.getType().getName() + ":" + effect.getDuration() + ":" + effect.getAmplifier() + ":"
+						+ effect.isAmbient() + ":" + effect.hasParticles());
+			if (!effects.isEmpty())
+				config.set(path + ".potion.effects", effects);
+			if (Ref.isNewerThan(10)) // 1.11+
+				if (potion.getColor() != null)
+					config.set(path + ".potion.color", Integer.toHexString(potion.getColor().asRGB()));
 		}
 		List<String> enchants = new ArrayList<>();
-		if(type==XMaterial.ENCHANTED_BOOK) {
-			EnchantmentStorageMeta book = (EnchantmentStorageMeta)meta;
-			for(Entry<Enchantment, Integer> enchant : book.getStoredEnchants().entrySet())
-				enchants.add(enchant.getKey().getName()+":"+enchant.getValue().toString());
+		if (type == XMaterial.ENCHANTED_BOOK) {
+			EnchantmentStorageMeta book = (EnchantmentStorageMeta) meta;
+			for (Entry<Enchantment, Integer> enchant : book.getStoredEnchants().entrySet())
+				enchants.add(enchant.getKey().getName() + ":" + enchant.getValue().toString());
 		} else
-			for(Entry<Enchantment, Integer> enchant : meta.getEnchants().entrySet())
-				enchants.add(enchant.getKey().getName()+":"+enchant.getValue().toString());
-		if(!enchants.isEmpty())
-			config.set(path+".enchants", enchants);
-		if(type==XMaterial.WRITTEN_BOOK || type==XMaterial.WRITABLE_BOOK) {
-			BookMeta book = (BookMeta)meta;
-			config.set(path+".book.author", book.getAuthor());
-			if(Ref.isNewerThan(9)) //1.10+
-				config.set(path+".book.generation", book.getGeneration().name());
-			config.set(path+".book.title", book.getTitle());
-			if(!book.getPages().isEmpty())
-				config.set(path+".book.pages", book.getPages());
+			for (Entry<Enchantment, Integer> enchant : meta.getEnchants().entrySet())
+				enchants.add(enchant.getKey().getName() + ":" + enchant.getValue().toString());
+		if (!enchants.isEmpty())
+			config.set(path + ".enchants", enchants);
+		if (type == XMaterial.WRITTEN_BOOK || type == XMaterial.WRITABLE_BOOK) {
+			BookMeta book = (BookMeta) meta;
+			config.set(path + ".book.author", book.getAuthor());
+			if (Ref.isNewerThan(9)) // 1.10+
+				config.set(path + ".book.generation", book.getGeneration().name());
+			config.set(path + ".book.title", book.getTitle());
+			if (!book.getPages().isEmpty())
+				config.set(path + ".book.pages", book.getPages());
 		}
 
 		NBTEdit nbt = new NBTEdit(stack);
-		//remove unused tags
+		// remove unused tags
 		nbt.remove("id");
 		nbt.remove("Count");
 		nbt.remove("lvl");
@@ -654,39 +656,41 @@ public class ItemMaker {
 		nbt.remove("HideFlags");
 		nbt.remove("Enchantments");
 		nbt.remove("ench");
-		if(!nbt.getKeys().isEmpty())
-			config.set(path+".nbt", nbt.getNBT()+""); //save clear nbt
+		if (!nbt.getKeys().isEmpty())
+			config.set(path + ".nbt", nbt.getNBT() + ""); // save clear nbt
 	}
 
-	@Nullable //Nullable if section is empty / type is invalid
+	@Nullable // Nullable if section is empty / type is invalid
 	public static ItemStack loadFromConfig(Config config, String path) {
-		if(config.getString(path+".type")==null)return null; //missing type
+		if (config.getString(path + ".type") == null)
+			return null; // missing type
 
-		String[] typeSplit = config.getString(path+".type").split(":");
+		String[] typeSplit = config.getString(path + ".type").split(":");
 		XMaterial type;
-		if(StringUtils.isInt(typeSplit[0]))
-			type=XMaterial.matchXMaterial(StringUtils.getInt(typeSplit[0]), typeSplit.length>=2?StringUtils.getByte(typeSplit[1]):0).get();
+		if (StringUtils.isInt(typeSplit[0]))
+			type = XMaterial.matchXMaterial(StringUtils.getInt(typeSplit[0]),
+					typeSplit.length >= 2 ? StringUtils.getByte(typeSplit[1]) : 0).get();
 		else
-			type=XMaterial.matchXMaterial(typeSplit[0].toUpperCase()).get();
+			type = XMaterial.matchXMaterial(typeSplit[0].toUpperCase()).get();
 		ItemStack stack = type.parseItem();
 
-		String nbt = config.getString(path+".nbt"); //additional nbt
-		if(nbt!=null)
-			stack=BukkitLoader.getNmsProvider().setNBT(stack, BukkitLoader.getNmsProvider().parseNBT(nbt));
+		String nbt = config.getString(path + ".nbt"); // additional nbt
+		if (nbt != null)
+			stack = BukkitLoader.getNmsProvider().setNBT(stack, BukkitLoader.getNmsProvider().parseNBT(nbt));
 
-		short damage = config.getShort(path+".damage", config.getShort(path+".durability"));
-		if(damage!=0)
+		short damage = config.getShort(path + ".damage", config.getShort(path + ".durability"));
+		if (damage != 0)
 			stack.setDurability(damage);
 
 		ItemMeta meta = stack.getItemMeta();
-		String displayName = config.getString(path+".displayName",  config.getString(path+".display-name"));
-		if(displayName!=null)
+		String displayName = config.getString(path + ".displayName", config.getString(path + ".display-name"));
+		if (displayName != null)
 			meta.setDisplayName(StringUtils.colorize(displayName));
-		List<String> lore = config.getStringList(path+".lore");
-		if(!lore.isEmpty())
+		List<String> lore = config.getStringList(path + ".lore");
+		if (!lore.isEmpty())
 			meta.setLore(StringUtils.colorize(lore));
-		if(config.getBoolean(path+".unbreakable"))
-			if(Ref.isNewerThan(10)) //1.11+
+		if (config.getBoolean(path + ".unbreakable"))
+			if (Ref.isNewerThan(10)) // 1.11+
 				meta.setUnbreakable(true);
 			else
 				try {
@@ -694,75 +698,82 @@ public class ItemMaker {
 				} catch (NoSuchFieldError | Exception e2) {
 					// unsupported
 				}
-		if(Ref.isNewerThan(7)) //1.8+
-			for(String flag : config.getStringList(path+".itemFlags"))
+		if (Ref.isNewerThan(7)) // 1.8+
+			for (String flag : config.getStringList(path + ".itemFlags"))
 				meta.addItemFlags(ItemFlag.valueOf(flag.toUpperCase()));
-		if(Ref.isNewerThan(13)) //1.14+
-			meta.setCustomModelData(config.getInt(path+".modelData"));
+		if (Ref.isNewerThan(13)) // 1.14+
+			meta.setCustomModelData(config.getInt(path + ".modelData"));
 
-		if(type.name().contains("BANNER")) {
-			BannerMeta banner = (BannerMeta)meta;
-			//Example: RED:STRIPE_TOP
-			for(String pattern : config.getStringList(path+".banner.patterns")) {
+		if (type.name().contains("BANNER")) {
+			BannerMeta banner = (BannerMeta) meta;
+			// Example: RED:STRIPE_TOP
+			for (String pattern : config.getStringList(path + ".banner.patterns")) {
 				String[] split = pattern.split(":");
-				banner.addPattern(new Pattern(DyeColor.valueOf(split[0].toUpperCase()), PatternType.valueOf(split[1].toUpperCase())));
+				banner.addPattern(new Pattern(DyeColor.valueOf(split[0].toUpperCase()),
+						PatternType.valueOf(split[1].toUpperCase())));
 			}
 		}
-		if(type.name().contains("LEATHER_") && config.getString(path+".leather.color")!=null) {
-			LeatherArmorMeta armor = (LeatherArmorMeta)meta;
-			armor.setColor(Color.fromRGB(Integer.decode(config.getString(path+".leather.color"))));
+		if (type.name().contains("LEATHER_") && config.getString(path + ".leather.color") != null) {
+			LeatherArmorMeta armor = (LeatherArmorMeta) meta;
+			armor.setColor(Color.fromRGB(Integer.decode(config.getString(path + ".leather.color"))));
 		}
-		if(type==XMaterial.PLAYER_HEAD) {
-			SkullMeta skull = (SkullMeta)meta;
-			String headOwner = config.getString(path+".head.owner");
-			if(headOwner!=null) {
+		if (type == XMaterial.PLAYER_HEAD) {
+			SkullMeta skull = (SkullMeta) meta;
+			String headOwner = config.getString(path + ".head.owner");
+			if (headOwner != null) {
 				/*
-				 * PLAYER
-				 * VALUES
-				 * URL
+				 * PLAYER VALUES URL
 				 */
-				String headType = config.getString(path+".head.type", "PLAYER").toUpperCase();
-				if(headType.equals("PLAYER"))
+				String headType = config.getString(path + ".head.type", "PLAYER").toUpperCase();
+				if (headType.equals("PLAYER"))
 					skull.setOwner(headOwner);
-				if(headType.equals("VALUES") || headType.equals("URL")) {
-					if(headType.equals("URL"))headOwner = ItemMaker.fromUrl(headOwner);
-					Ref.set(skull, HeadItemMaker.profileField, BukkitLoader.getNmsProvider().createGameProfile(UUID.randomUUID(), "DevTec", headOwner));
+				if (headType.equals("VALUES") || headType.equals("URL")) {
+					if (headType.equals("URL"))
+						headOwner = ItemMaker.fromUrl(headOwner);
+					Ref.set(skull, HeadItemMaker.profileField,
+							BukkitLoader.getNmsProvider().createGameProfile(UUID.randomUUID(), "DevTec", headOwner));
 				}
 			}
 		}
-		if(type.name().contains("POTION")) {
-			PotionMeta potion = (PotionMeta)meta;
-			if(Ref.isNewerThan(9) && config.getString(path+".potion.type")!=null)
-				potion.setBasePotionData(new PotionData(PotionType.valueOf(config.getString(path+".potion.type").toUpperCase())));
-			for(String pattern : config.getStringList(path+".potion.effects")) {
+		if (type.name().contains("POTION")) {
+			PotionMeta potion = (PotionMeta) meta;
+			if (Ref.isNewerThan(9) && config.getString(path + ".potion.type") != null)
+				potion.setBasePotionData(
+						new PotionData(PotionType.valueOf(config.getString(path + ".potion.type").toUpperCase())));
+			for (String pattern : config.getStringList(path + ".potion.effects")) {
 				String[] split = pattern.split(":");
-				//PotionEffectType type, int duration, int amplifier, boolean ambient, boolean particles
-				potion.addCustomEffect(new PotionEffect(PotionEffectType.getByName(split[0].toUpperCase()), StringUtils.getInt(split[1]), StringUtils.getInt(split[2])
-						, split.length >=4 ? StringUtils.getBoolean(split[3]) : true, split.length >=5 ? StringUtils.getBoolean(split[4]) : true), true);
+				// PotionEffectType type, int duration, int amplifier, boolean ambient, boolean
+				// particles
+				potion.addCustomEffect(new PotionEffect(PotionEffectType.getByName(split[0].toUpperCase()),
+						StringUtils.getInt(split[1]), StringUtils.getInt(split[2]),
+						split.length >= 4 ? StringUtils.getBoolean(split[3]) : true,
+						split.length >= 5 ? StringUtils.getBoolean(split[4]) : true), true);
 			}
-			if(Ref.isNewerThan(10) && config.getString(path+".potion.color")!=null) //1.11+
-				potion.setColor(Color.fromRGB(Integer.decode(config.getString(path+".potion.color"))));
+			if (Ref.isNewerThan(10) && config.getString(path + ".potion.color") != null) // 1.11+
+				potion.setColor(Color.fromRGB(Integer.decode(config.getString(path + ".potion.color"))));
 		}
-		if(type==XMaterial.ENCHANTED_BOOK) {
-			EnchantmentStorageMeta book = (EnchantmentStorageMeta)meta;
-			for(String enchant : config.getStringList(path+".enchants")) {
+		if (type == XMaterial.ENCHANTED_BOOK) {
+			EnchantmentStorageMeta book = (EnchantmentStorageMeta) meta;
+			for (String enchant : config.getStringList(path + ".enchants")) {
 				String[] split = enchant.split(":");
-				book.addStoredEnchant(Enchantment.getByName(split[0].toUpperCase()), split.length>=2?StringUtils.getInt(split[1]):1, true);
+				book.addStoredEnchant(Enchantment.getByName(split[0].toUpperCase()),
+						split.length >= 2 ? StringUtils.getInt(split[1]) : 1, true);
 			}
 		} else
-			for(String enchant : config.getStringList(path+".enchants")) {
+			for (String enchant : config.getStringList(path + ".enchants")) {
 				String[] split = enchant.split(":");
-				meta.addEnchant(Enchantment.getByName(split[0].toUpperCase()), split.length>=2?StringUtils.getInt(split[1]):1, true);
+				meta.addEnchant(Enchantment.getByName(split[0].toUpperCase()),
+						split.length >= 2 ? StringUtils.getInt(split[1]) : 1, true);
 			}
-		if(type==XMaterial.WRITTEN_BOOK || type==XMaterial.WRITABLE_BOOK) {
-			BookMeta book = (BookMeta)meta;
-			if(config.getString(path+".book.author")!=null)
-				book.setAuthor(StringUtils.colorize(config.getString(path+".book.author")));
-			if(Ref.isNewerThan(9) && config.getString(path+".book.generation")!=null) //1.10+
-				book.setGeneration(Generation.valueOf(config.getString(path+".book.generation").toUpperCase()));
-			if(config.getString(path+".book.title")!=null)
-				book.setTitle(StringUtils.colorize(config.getString(path+".book.title")));
-			book.setPages(StringUtils.colorize(config.getStringList(path+".book.pages")));
+		if (type == XMaterial.WRITTEN_BOOK || type == XMaterial.WRITABLE_BOOK) {
+			BookMeta book = (BookMeta) meta;
+			if (config.getString(path + ".book.author") != null)
+				book.setAuthor(StringUtils.colorize(config.getString(path + ".book.author")));
+			if (Ref.isNewerThan(9) && config.getString(path + ".book.generation") != null) // 1.10+
+				book.setGeneration(Generation.valueOf(config.getString(path + ".book.generation").toUpperCase()));
+			if (config.getString(path + ".book.title") != null)
+				book.setTitle(StringUtils.colorize(config.getString(path + ".book.title")));
+			book.setPages(StringUtils.colorize(config.getStringList(path + ".book.pages")));
 		}
 		stack.setItemMeta(meta);
 		return stack;
