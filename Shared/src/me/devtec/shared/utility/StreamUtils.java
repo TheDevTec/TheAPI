@@ -1,12 +1,14 @@
 package me.devtec.shared.utility;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class StreamUtils {
@@ -18,8 +20,20 @@ public class StreamUtils {
 	 */
 	public static String fromStream(File file) {
 		try {
-			return StreamUtils.fromStream(new FileInputStream(file));
-		} catch (Exception e) {
+			FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.READ);
+			StringBuilder out = new StringBuilder();
+
+			int bufferSize = 4096;
+			if (bufferSize > channel.size())
+				bufferSize = (int) channel.size();
+			ByteBuffer buff = ByteBuffer.allocate(bufferSize);
+			while (channel.read(buff) > 0) {
+				for (byte charr : buff.array())
+					out.append((char) charr);
+				buff.clear();
+			}
+			return out.toString();
+		} catch (Exception err) {
 			return null;
 		}
 	}
@@ -31,17 +45,18 @@ public class StreamUtils {
 	 */
 	public static String fromStream(InputStream stream) {
 		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8), 4096);
-			StringBuilder sb = new StringBuilder(2048);
-			String content;
-			while ((content = br.readLine()) != null) {
-				if (sb.length() != 0)
-					sb.append(System.lineSeparator());
-				sb.append(content);
+			ReadableByteChannel channel = Channels.newChannel(stream);
+			StringBuilder out = new StringBuilder();
+
+			int bufferSize = 1024;
+			ByteBuffer buff = ByteBuffer.allocate(bufferSize);
+			while (channel.read(buff) > 0) {
+				for (byte charr : buff.array())
+					out.append((char) charr);
+				buff.clear();
 			}
-			br.close();
-			return sb.toString();
-		} catch (Exception e) {
+			return out.toString();
+		} catch (Exception err) {
 			return null;
 		}
 	}
@@ -52,16 +67,10 @@ public class StreamUtils {
 	 * @return List<String>
 	 */
 	public static List<String> fromStreamToList(InputStream stream) {
-		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8), 4096);
-			List<String> lines = new ArrayList<>();
-			String content;
-			while ((content = br.readLine()) != null)
-				lines.add(content);
-			br.close();
-			return lines;
-		} catch (Exception e) {
-			return null;
-		}
+		String readen = fromStream(stream);
+		String[] splitLines = readen.split(System.lineSeparator());
+		List<String> lines = new ArrayList<>();
+		Collections.addAll(lines, splitLines);
+		return lines;
 	}
 }
