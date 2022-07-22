@@ -1,5 +1,9 @@
 # TheAPI
 
+### Are you looking for **Shared** section of TheAPI
+Shared section moved to "private" repo for easier compile in other programs
+https://github.com/TheDevTec/TheAPI-Shared
+
 ## Our purpose
 Are you tired of looking for different APIs on the internet to create in your projects? Neither do we! And this is why TheAPI is here.
 We bring the most useful and most wanted features directly for developers. From custom configurations with comments feature to Object parsers to String and back. Also, TheAPI offers an extensive Sockets API that will make working with sockets a million times easier! And we have much more, check out the sample code in the Examples section.
