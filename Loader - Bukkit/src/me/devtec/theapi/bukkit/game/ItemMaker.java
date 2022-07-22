@@ -552,6 +552,7 @@ public class ItemMaker {
 		config.set(path + ".type", type.name());
 		if (stack.getDurability() != 0)
 			config.set(path + ".damage", stack.getDurability());
+		config.set(path + ".amount", stack.getAmount());
 		ItemMeta meta = stack.getItemMeta();
 		if (meta.getDisplayName() != null)
 			config.set(path + ".displayName", meta.getDisplayName());
@@ -678,6 +679,7 @@ public class ItemMaker {
 		if (nbt != null)
 			stack = BukkitLoader.getNmsProvider().setNBT(stack, BukkitLoader.getNmsProvider().parseNBT(nbt));
 
+		stack.setAmount(config.getInt(path + ".amount", 1));
 		short damage = config.getShort(path + ".damage", config.getShort(path + ".durability"));
 		if (damage != 0)
 			stack.setDurability(damage);
