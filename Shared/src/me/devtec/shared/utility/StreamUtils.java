@@ -48,7 +48,7 @@ public class StreamUtils {
 			ReadableByteChannel channel = Channels.newChannel(stream);
 			StringBuilder out = new StringBuilder();
 
-			int bufferSize = 1024;
+			int bufferSize = 2048;
 			ByteBuffer buff = ByteBuffer.allocate(bufferSize);
 			while (channel.read(buff) > 0) {
 				for (byte charr : buff.array())
