@@ -1169,7 +1169,7 @@ public class v1_7_R4 implements NmsProvider {
 	@Override
 	public void loadParticles() {
 		for (Entry<String, Object> entry : ((Map<String, Object>) Ref
-				.getStatic(Ref.nms("PacketPlayOutWorldParticles$Particle"), "particleMap")).entrySet())
+				.getStatic(Ref.nms("", "PacketPlayOutWorldParticles$Particle"), "particleMap")).entrySet())
 			me.devtec.theapi.bukkit.game.particles.Particle.identifier.put(entry.getKey().toUpperCase(),
 					entry.getValue());
 	}

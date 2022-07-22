@@ -115,15 +115,14 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		else
 			BukkitLoader.handler = (PacketHandler<?>) Ref
 					.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy", false);
-		BukkitLoader.resource = Ref.nmsOrOld("network.protocol.game.PacketPlayInResourcePackStatus",
-				"PacketPlayInResourcePackStatus");
-		BukkitLoader.close = Ref.nmsOrOld("network.protocol.game.PacketPlayInCloseWindow", "PacketPlayInCloseWindow");
-		BukkitLoader.click = Ref.nmsOrOld("network.protocol.game.PacketPlayInWindowClick", "PacketPlayInWindowClick");
-		BukkitLoader.itemname = Ref.nmsOrOld("network.protocol.game.PacketPlayInItemName", "PacketPlayInItemName");
-		BukkitLoader.airBlock = Ref.invoke(
-				Ref.getNulled(Ref.field(Ref.nmsOrOld("world.level.block.Block", "Block"), "AIR")), "getBlockData");
+		BukkitLoader.resource = Ref.nms("network.protocol.game", "PacketPlayInResourcePackStatus");
+		BukkitLoader.close = Ref.nms("network.protocol.game", "PacketPlayInCloseWindow");
+		BukkitLoader.click = Ref.nms("network.protocol.game", "PacketPlayInWindowClick");
+		BukkitLoader.itemname = Ref.nms("network.protocol.game", "PacketPlayInItemName");
+		BukkitLoader.airBlock = Ref.invoke(Ref.getNulled(Ref.field(Ref.nms("world.level.block", "Block"), "AIR")),
+				"getBlockData");
 		if (BukkitLoader.airBlock == null)
-			BukkitLoader.airBlock = Ref.getNulled(Ref.field(Ref.nmsOrOld("world.level.block.Blocks", "Blocks"), "AIR"));
+			BukkitLoader.airBlock = Ref.getNulled(Ref.field(Ref.nms("world.level.block", "Blocks"), "AIR"));
 		if (BukkitLoader.airBlock == null && Ref.isNewerThan(12))
 			BukkitLoader.airBlock = Ref.invoke(
 					Ref.get(Ref.cast(Ref.craft("block.data.CraftBlockData"), Bukkit.createBlockData(Material.AIR)),
@@ -580,10 +579,10 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				Matcher match = hex.matcher(msg);
 				while (match.find()) {
 					String color = match.group();
-					String hex = "§x";
+					StringBuilder hex = new StringBuilder("§x");
 					for (char c : color.substring(1).toCharArray())
-						hex += "§" + c;
-					msg = msg.replace(color, hex);
+						hex.append("§").append(c);
+					msg = msg.replace(color, hex.toString());
 				}
 				return msg;
 			}

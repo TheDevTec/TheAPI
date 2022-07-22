@@ -14,11 +14,9 @@ public class TeamUtils {
 			.getClass("net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam$b");
 	public static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref
 			.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
-	public static final Object white = Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a",
-			char.class) == null
-					? Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", int.class), -1)
-					: Ref.invokeStatic(Ref.method(Ref.nmsOrOld("EnumChatFormat", "EnumChatFormat"), "a", char.class),
-							'f');
+	public static final Object white = Ref.method(Ref.nms("", "EnumChatFormat"), "a", char.class) == null
+			? Ref.invokeStatic(Ref.method(Ref.nms("", "EnumChatFormat"), "a", int.class), -1)
+			: Ref.invokeStatic(Ref.method(Ref.nms("", "EnumChatFormat"), "a", char.class), 'f');
 
 	public static Object createTeamPacket(int mode, Object color, String prefix, String suffix, String name,
 			String realName) {

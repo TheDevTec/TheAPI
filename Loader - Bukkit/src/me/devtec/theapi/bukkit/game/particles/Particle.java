@@ -33,18 +33,14 @@ public class Particle {
 	private final ParticleData data;
 
 	static {
-		part = Ref.nmsOrOld("network.protocol.game.PacketPlayOutWorldParticles", "PacketPlayOutWorldParticles");
-		if (Ref.nmsOrOld("core.particles.ParticleParamRedstone", "ParticleParamRedstone") != null) {
-			Particle.paramRed = Ref
-					.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamRedstone", "ParticleParamRedstone"))[0];
-			Particle.paramBlock = Ref
-					.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamBlock", "ParticleParamBlock"))[0];
-			Particle.paramItem = Ref
-					.getConstructors(Ref.nmsOrOld("core.particles.ParticleParamItem", "ParticleParamItem"))[0];
+		part = Ref.nms("network.protocol.game", "PacketPlayOutWorldParticles");
+		if (Ref.nms("core.particles", "ParticleParamRedstone") != null) {
+			Particle.paramRed = Ref.getConstructors(Ref.nms("core.particles", "ParticleParamRedstone"))[0];
+			Particle.paramBlock = Ref.getConstructors(Ref.nms("core.particles", "ParticleParamBlock"))[0];
+			Particle.paramItem = Ref.getConstructors(Ref.nms("core.particles", "ParticleParamItem"))[0];
 		}
 		if (Ref.isNewerThan(16))
-			Particle.paramDust = Ref.getConstructors(
-					Ref.nmsOrOld("core.particles.DustColorTransitionOptions", "DustColorTransitionOptions"))[0];
+			Particle.paramDust = Ref.getConstructors(Ref.nms("core.particles", "DustColorTransitionOptions"))[0];
 	}
 
 	public static Set<String> getParticles() {

@@ -26,10 +26,8 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 
 @SuppressWarnings("unchecked")
 public class PacketHandlerModern implements PacketHandler<Channel> {
-	private static final Class<?> login = Ref.nmsOrOld("network.protocol.login.PacketLoginInStart",
-			"PacketLoginInStart");
-	private static final Class<?> postlogin = Ref.nmsOrOld("network.protocol.login.PacketLoginOutSuccess",
-			"PacketLoginOutSuccess");
+	private static final Class<?> login = Ref.nms("network.protocol.login", "PacketLoginInStart");
+	private static final Class<?> postlogin = Ref.nms("network.protocol.login", "PacketLoginOutSuccess");
 	static final Field f = Ref.field(PacketHandlerModern.login, "a");
 	static final Field fPost = Ref.field(PacketHandlerModern.postlogin, "a");
 	private final Map<String, Channel> channelLookup = new ConcurrentHashMap<>();
@@ -43,7 +41,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 
 	public PacketHandlerModern(boolean lateBind) {
 		serverConnection = Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(),
-				Ref.nmsOrOld("server.network.ServerConnection", "ServerConnection"));
+				Ref.nms("server.network", "ServerConnection"));
 		if (serverConnection == null)
 			return;
 		if (lateBind) {
@@ -136,7 +134,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 					? Ref.get(serverConnection, "listeningChannels")
 					: Ref.get(serverConnection, "g"));
 		if (networkManagers == null)
-			for (Field f : Ref.getAllFields(Ref.nmsOrOld("server.network.ServerConnection", "ServerConnection")))
+			for (Field f : Ref.getAllFields(Ref.nms("server.network", "ServerConnection")))
 				if (java.util.List.class == f.getType()) {
 					networkManagers = (List<ChannelFuture>) Ref.get(serverConnection, f);
 					break;
@@ -148,7 +146,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 					? Ref.get(serverConnection, "f")
 					: Ref.get(serverConnection, "listeningChannels"));
 			if (networkManagers == null)
-				for (Field f : Ref.getAllFields(Ref.nmsOrOld("server.network.ServerConnection", "ServerConnection")))
+				for (Field f : Ref.getAllFields(Ref.nms("server.network", "ServerConnection")))
 					if (List.class == f.getType()) {
 						networkManagers = (List<ChannelFuture>) Ref.get(serverConnection, f);
 						break;

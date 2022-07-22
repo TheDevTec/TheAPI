@@ -24,8 +24,8 @@ import net.minecraft.util.io.netty.channel.ChannelInitializer;
 import net.minecraft.util.io.netty.channel.ChannelPromise;
 
 public class PacketHandlerLegacy implements PacketHandler<Channel> {
-	private static final Class<?> login = Ref.nms("PacketLoginInStart");
-	private static final Class<?> postlogin = Ref.nms("PacketLoginOutSuccess");
+	private static final Class<?> login = Ref.nms("", "PacketLoginInStart");
+	private static final Class<?> postlogin = Ref.nms("", "PacketLoginOutSuccess");
 	static final Field f = Ref.field(PacketHandlerLegacy.login, "a");
 	static final Field fPost = Ref.field(PacketHandlerLegacy.postlogin, "a");
 	private final Map<String, Channel> channelLookup = new ConcurrentHashMap<>();
@@ -38,13 +38,7 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 	protected volatile boolean closed;
 
 	public PacketHandlerLegacy(boolean lateBind) {
-		serverConnection = Ref.invoke(BukkitLoader.getNmsProvider().getMinecraftServer(), "getServerConnection");
-		if (serverConnection == null) // modded server
-			for (Field f : Ref.getAllFields(BukkitLoader.getNmsProvider().getMinecraftServer().getClass()))
-				if (f.getType() == Ref.nmsOrOld("server.network.ServerConnection", "ServerConnection")) {
-					serverConnection = Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(), f);
-					break;
-				}
+		serverConnection = Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(), Ref.nms("", "ServerConnection"));
 		if (serverConnection == null)
 			return;
 		if (lateBind)
@@ -107,7 +101,7 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 		networkManagers = (List<?>) (Ref.get(serverConnection, "e") != null ? Ref.get(serverConnection, "e")
 				: Ref.get(serverConnection, "f"));
 		if (networkManagers == null)
-			for (Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
+			for (Field f : Ref.getAllFields(Ref.nms("", "ServerConnection")))
 				if (List.class == f.getType()) {
 					networkManagers = (List<?>) Ref.get(serverConnection, f);
 					break;
@@ -118,7 +112,7 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 			networkManagers = (List<?>) (Ref.get(serverConnection, "f") != null ? Ref.get(serverConnection, "f")
 					: Ref.get(serverConnection, "e"));
 			if (networkManagers == null)
-				for (Field f : Ref.getAllFields(Ref.nms("ServerConnection")))
+				for (Field f : Ref.getAllFields(Ref.nms("", "ServerConnection")))
 					if (List.class == f.getType()) {
 						networkManagers = (List<?>) Ref.get(serverConnection, f);
 						break;
