@@ -29,9 +29,7 @@ We bring the most useful and most wanted features directly for developers. From 
     1.19.X
 
 ## How to setup project in IntelliJ with TheAPI:
-[SPOILER="Intellij Setup"]
-[MEDIA=youtube]v_lzTA2-kAE[/MEDIA]
-[/SPOILER]
+https://www.youtube.com/watch?v=v_lzTA2-kAE
 
 ## Development builds
 We also have development builds that bring various bug fixes or new features!
