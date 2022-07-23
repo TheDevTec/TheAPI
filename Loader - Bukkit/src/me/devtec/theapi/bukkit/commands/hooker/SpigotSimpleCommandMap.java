@@ -21,7 +21,8 @@ public class SpigotSimpleCommandMap extends SimpleCommandMap {
 		BukkitCommandManager.cmdMap = this;
 	}
 
-	public boolean register(String labelText, String fallbackPrefixText, Command command) {
+	public boolean register(String labelText, String fallbackPrefixText, Command command)
+	{
 		String label = labelText.toLowerCase().trim();
 		String fallbackPrefix = fallbackPrefixText.toLowerCase().trim();
 		boolean registered = register(label, command, false, fallbackPrefix);
@@ -36,7 +37,8 @@ public class SpigotSimpleCommandMap extends SimpleCommandMap {
 		return registered;
 	}
 
-	private synchronized boolean register(String label, Command command, boolean isAlias, String fallbackPrefix) {
+	private synchronized boolean register(String label, Command command, boolean isAlias, String fallbackPrefix)
+	{
 		knownCommands.put(fallbackPrefix + ":" + label, command);
 		if (isAlias && knownCommands.containsKey(label))
 			return false;
@@ -50,7 +52,8 @@ public class SpigotSimpleCommandMap extends SimpleCommandMap {
 	}
 
 	@Override
-	public boolean dispatch(CommandSender sender, String commandLine) throws CommandException {
+	public boolean dispatch(CommandSender sender, String commandLine) throws CommandException
+	{
 		String[] args = commandLine.replace("  ", " ").split(" ");
 		if (args.length == 0)
 			return false;

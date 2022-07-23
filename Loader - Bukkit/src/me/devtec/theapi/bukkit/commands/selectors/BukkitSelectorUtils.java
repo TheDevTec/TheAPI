@@ -15,7 +15,8 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 
 public class BukkitSelectorUtils implements SelectorUtils {
 	@Override
-	public List<String> build(Selector selector) {
+	public List<String> build(Selector selector)
+	{
 		List<String> list = new ArrayList<>();
 		switch (selector) {
 		case BIOME_TYPE:
@@ -60,7 +61,8 @@ public class BukkitSelectorUtils implements SelectorUtils {
 	}
 
 	@Override
-	public boolean check(Selector selector, String value) {
+	public boolean check(Selector selector, String value)
+	{
 		switch (selector) {
 		case BIOME_TYPE:
 			try {

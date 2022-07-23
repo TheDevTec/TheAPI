@@ -18,9 +18,7 @@ import me.devtec.theapi.bukkit.nms.utils.TeamUtils;
 public class NameTagAPI {
 
 	@SuppressWarnings("unchecked")
-	private static Map<Character, Object> formatMap = (Map<Character, Object>) Ref.getNulled(
-			Ref.isNewerThan(11) ? Ref.craft("util.CraftChatMessage") : Ref.craft("util.CraftChatMessage$StringMessage"),
-			"formatMap");
+	private static Map<Character, Object> formatMap = (Map<Character, Object>) Ref.getNulled(Ref.isNewerThan(11) ? Ref.craft("util.CraftChatMessage") : Ref.craft("util.CraftChatMessage$StringMessage"), "formatMap");
 	private static Map<UUID, List<NameTagAPI>> teams = new ConcurrentHashMap<>();
 	private final Player p;
 	private List<UUID> canSee = new ArrayList<>();
@@ -30,7 +28,8 @@ public class NameTagAPI {
 	private ChatColor color;
 	private boolean changed;
 
-	private Object getNMSColor(ChatColor color) {
+	private Object getNMSColor(ChatColor color)
+	{
 		Object nmsColor = color == null ? TeamUtils.white : NameTagAPI.formatMap.get(color.getChar());
 		if (nmsColor == null)
 			nmsColor = TeamUtils.white;
@@ -42,31 +41,38 @@ public class NameTagAPI {
 		name = teamName.length() > 12 ? teamName.substring(0, 12) : teamName;
 	}
 
-	public Player getPlayer() {
+	public Player getPlayer()
+	{
 		return p;
 	}
 
-	public String getTeamName() {
+	public String getTeamName()
+	{
 		return name;
 	}
 
-	public ChatColor getColor() {
+	public ChatColor getColor()
+	{
 		return color;
 	}
 
-	public String getPrefix() {
+	public String getPrefix()
+	{
 		return prefix;
 	}
 
-	public String getSuffix() {
+	public String getSuffix()
+	{
 		return suffix;
 	}
 
-	public List<UUID> getPlayers() {
+	public List<UUID> getPlayers()
+	{
 		return canSee;
 	}
 
-	public void setName(String sort) {
+	public void setName(String sort)
+	{
 		name = sort;
 		if (name.equals(sort) || canSee.isEmpty())
 			return;
@@ -88,14 +94,16 @@ public class NameTagAPI {
 		}
 	}
 
-	private boolean contains(List<NameTagAPI> team, String prev) {
+	private boolean contains(List<NameTagAPI> team, String prev)
+	{
 		for (NameTagAPI t : team)
 			if (t.p.isOnline() && t.name.equals(prev))
 				return true;
 		return false;
 	}
 
-	public void set(ChatColor color, String prefixText, String suffixText) {
+	public void set(ChatColor color, String prefixText, String suffixText)
+	{
 		if (this.color != color)
 			changed = true;
 		this.color = color;
@@ -122,7 +130,8 @@ public class NameTagAPI {
 		this.suffix = suffix;
 	}
 
-	public void reset(Player... players) {
+	public void reset(Player... players)
+	{
 		Object reset = resetPacket();
 		for (Player player : players)
 			if (canSee.remove(player.getUniqueId())) {
@@ -133,7 +142,8 @@ public class NameTagAPI {
 			}
 	}
 
-	public void send(Player... players) {
+	public void send(Player... players)
+	{
 		Object created = null;
 		Object modified = null;
 		for (Player player : players) {
@@ -164,15 +174,18 @@ public class NameTagAPI {
 		changed = false;
 	}
 
-	private Object create(ChatColor color, String prefix, String suffix, String realName) {
+	private Object create(ChatColor color, String prefix, String suffix, String realName)
+	{
 		return TeamUtils.createTeamPacket(0, getNMSColor(color), prefix, suffix, p.getName(), realName);
 	}
 
-	private Object modify(ChatColor color, String prefix, String suffix, String realName) {
+	private Object modify(ChatColor color, String prefix, String suffix, String realName)
+	{
 		return TeamUtils.createTeamPacket(2, getNMSColor(color), prefix, suffix, p.getName(), realName);
 	}
 
-	private Object resetPacket() {
+	private Object resetPacket()
+	{
 		return TeamUtils.createTeamPacket(1, getNMSColor(null), "", "", p.getName(), name);
 	}
 }

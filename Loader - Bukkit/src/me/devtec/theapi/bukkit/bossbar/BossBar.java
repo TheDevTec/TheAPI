@@ -20,8 +20,7 @@ public class BossBar {
 	private static final Class<?> c = Ref.nms("", "EntityWither");
 	private static final Constructor<?> tpC = Ref.constructor(Ref.nms("", "PacketPlayOutEntityTeleport"));
 	private static final Constructor<?> barOld = Ref.constructor(BossBar.c, Ref.nms("", "World"));
-	private static final Method mLoc = Ref.method(Ref.nms("", "Entity"), "setLocation", double.class, double.class,
-			double.class, float.class, float.class);
+	private static final Method mLoc = Ref.method(Ref.nms("", "Entity"), "setLocation", double.class, double.class, double.class, float.class, float.class);
 
 	private final Player holder;
 	private boolean hidden;
@@ -35,15 +34,15 @@ public class BossBar {
 	public BossBar(Player holder, String text, double progress) {
 		this.holder = holder;
 		if (!Ref.isNewerThan(8)) {
-			Bukkit.getConsoleSender()
-					.sendMessage("[TheAPI - BossBar API] §4This class is not supported for versions higher than 1.8.8");
+			Bukkit.getConsoleSender().sendMessage("[TheAPI - BossBar API] §4This class is not supported for versions higher than 1.8.8");
 			return;
 		}
 		set(text, progress);
 		BukkitLoader.bossbars.add(this);
 	}
 
-	public void move() {
+	public void move()
+	{
 		if (!holder.isOnline() || entityBar == null)
 			return;
 		Location loc = holder.getLocation();
@@ -57,19 +56,23 @@ public class BossBar {
 		BukkitLoader.getPacketHandler().send(holder, packet);
 	}
 
-	public boolean isHidden() {
+	public boolean isHidden()
+	{
 		return hidden;
 	}
 
-	public double getProgress() {
+	public double getProgress()
+	{
 		return progress;
 	}
 
-	public String getTitle() {
+	public String getTitle()
+	{
 		return title;
 	}
 
-	public void hide() {
+	public void hide()
+	{
 		if (hidden)
 			return;
 		BukkitLoader.bossbars.remove(this);
@@ -79,7 +82,8 @@ public class BossBar {
 		BukkitLoader.getPacketHandler().send(holder, BukkitLoader.getNmsProvider().packetEntityDestroy(entityId));
 	}
 
-	public void show() {
+	public void show()
+	{
 		if (!hidden || !holder.isOnline())
 			return;
 		hidden = false;
@@ -89,12 +93,12 @@ public class BossBar {
 		Ref.invoke(entityBar, "setCustomName", title);
 		Ref.invoke(entityBar, "setHealth", (float) progress);
 		BukkitLoader.getPacketHandler().send(holder, BukkitLoader.getNmsProvider().packetSpawnEntityLiving(entityBar));
-		BukkitLoader.getPacketHandler().send(holder, BukkitLoader.getNmsProvider().packetEntityMetadata(entityId,
-				BukkitLoader.getNmsProvider().getDataWatcher(entityBar)));
+		BukkitLoader.getPacketHandler().send(holder, BukkitLoader.getNmsProvider().packetEntityMetadata(entityId, BukkitLoader.getNmsProvider().getDataWatcher(entityBar)));
 		BukkitLoader.bossbars.add(this);
 	}
 
-	private void set(String text, double progress) {
+	private void set(String text, double progress)
+	{
 		if (!holder.isOnline())
 			return;
 		if (progress != -1)
@@ -113,24 +117,25 @@ public class BossBar {
 		Ref.invoke(entityBar, "setCustomName", title);
 		Ref.invoke(entityBar, "setHealth", (float) this.progress);
 		if (cr)
-			BukkitLoader.getPacketHandler().send(holder,
-					BukkitLoader.getNmsProvider().packetSpawnEntityLiving(entityBar));
-		BukkitLoader.getPacketHandler().send(holder, BukkitLoader.getNmsProvider().packetEntityMetadata(entityId,
-				BukkitLoader.getNmsProvider().getDataWatcher(entityBar)));
+			BukkitLoader.getPacketHandler().send(holder, BukkitLoader.getNmsProvider().packetSpawnEntityLiving(entityBar));
+		BukkitLoader.getPacketHandler().send(holder, BukkitLoader.getNmsProvider().packetEntityMetadata(entityId, BukkitLoader.getNmsProvider().getDataWatcher(entityBar)));
 	}
 
-	public void remove() {
+	public void remove()
+	{
 		hide();
 		hidden = false;
 		entityBar = null;
 		entityId = 0;
 	}
 
-	public void setTitle(String text) {
+	public void setTitle(String text)
+	{
 		set(text, -1);
 	}
 
-	public void setProgress(double progress) {
+	public void setProgress(double progress)
+	{
 		set(null, progress);
 	}
 }

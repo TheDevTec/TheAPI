@@ -32,7 +32,8 @@ public interface NmsProvider {
 			id = i;
 		}
 
-		public int getId() {
+		public int getId()
+		{
 			return id;
 		}
 	}
@@ -58,7 +59,8 @@ public interface NmsProvider {
 			id = (byte) i;
 		}
 
-		public byte toByte() {
+		public byte toByte()
+		{
 			return id;
 		}
 	}
@@ -85,11 +87,13 @@ public interface NmsProvider {
 
 	public Object parseNBT(String json);
 
-	public default ItemStack setNBT(ItemStack stack, String nbt) {
+	public default ItemStack setNBT(ItemStack stack, String nbt)
+	{
 		return this.setNBT(stack, parseNBT(nbt));
 	}
 
-	public default ItemStack setNBT(ItemStack stack, NBTEdit nbt) {
+	public default ItemStack setNBT(ItemStack stack, NBTEdit nbt)
+	{
 		return this.setNBT(stack, nbt.getNBT());
 	}
 
@@ -103,19 +107,23 @@ public interface NmsProvider {
 
 	public Object getDataWatcher(Object entity);
 
-	public default Object packetEntityMetadata(Entity entity) {
+	public default Object packetEntityMetadata(Entity entity)
+	{
 		return this.packetEntityMetadata(entity.getEntityId(), this.getDataWatcher(entity), true);
 	}
 
-	public default Object packetEntityMetadata(Entity entity, Object dataWatcher) {
+	public default Object packetEntityMetadata(Entity entity, Object dataWatcher)
+	{
 		return this.packetEntityMetadata(entity.getEntityId(), dataWatcher, true);
 	}
 
-	public default Object packetEntityMetadata(Entity entity, Object dataWatcher, boolean bal) {
+	public default Object packetEntityMetadata(Entity entity, Object dataWatcher, boolean bal)
+	{
 		return this.packetEntityMetadata(entity.getEntityId(), dataWatcher, bal);
 	}
 
-	public default Object packetEntityMetadata(int entityId, Object dataWatcher) {
+	public default Object packetEntityMetadata(int entityId, Object dataWatcher)
+	{
 		return this.packetEntityMetadata(entityId, dataWatcher, true);
 	}
 
@@ -159,19 +167,22 @@ public interface NmsProvider {
 
 	public Object packetTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut);
 
-	public default Object packetTitle(TitleAction action, String text) {
+	public default Object packetTitle(TitleAction action, String text)
+	{
 		return this.packetTitle(action, text, 20, 60, 20);
 	}
 
 	public Object packetChat(ChatType type, Object chatBase, UUID uuid);
 
-	public default Object packetChat(ChatType type, Object chatBase) {
+	public default Object packetChat(ChatType type, Object chatBase)
+	{
 		return this.packetChat(type, chatBase, NmsProvider.serverUuid);
 	}
 
 	public Object packetChat(ChatType type, String text, UUID uuid);
 
-	public default Object packetChat(ChatType type, String text) {
+	public default Object packetChat(ChatType type, String text)
+	{
 		return this.packetChat(type, text, NmsProvider.serverUuid);
 	}
 
@@ -219,7 +230,8 @@ public interface NmsProvider {
 
 	public Chunk toBukkitChunk(Object nmsChunk);
 
-	public default void setBlock(Object chunk, int x, int y, int z, Object IblockDataOrBlock) {
+	public default void setBlock(Object chunk, int x, int y, int z, Object IblockDataOrBlock)
+	{
 		this.setBlock(chunk, x, y, z, IblockDataOrBlock, 0);
 	}
 
@@ -328,7 +340,8 @@ public interface NmsProvider {
 
 	public int getEntityId(Object entity);
 
-	public default int getEntityId(Entity entity) {
+	public default int getEntityId(Entity entity)
+	{
 		return entity.getEntityId();
 	}
 

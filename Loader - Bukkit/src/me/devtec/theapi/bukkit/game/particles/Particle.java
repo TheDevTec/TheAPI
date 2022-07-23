@@ -22,11 +22,9 @@ public class Particle {
 	private static Constructor<?> paramDust;
 	private static Constructor<?> paramBlock;
 	private static Constructor<?> paramItem;
-	private static final Constructor<?> vector = Ref.constructor(Ref.getClass("com.mojang.math.Vector3fa"), float.class,
-			float.class, float.class);
+	private static final Constructor<?> vector = Ref.constructor(Ref.getClass("com.mojang.math.Vector3fa"), float.class, float.class, float.class);
 	private static final Class<?> part;
-	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref
-			.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
+	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
 
 	private final Object particle;
 	private final String name;
@@ -43,13 +41,14 @@ public class Particle {
 			Particle.paramDust = Ref.getConstructors(Ref.nms("core.particles", "DustColorTransitionOptions"))[0];
 	}
 
-	public static Set<String> getParticles() {
+	public static Set<String> getParticles()
+	{
 		return Particle.identifier.keySet();
 	}
 
-	private static Object toNMS(String particle) {
-		return Particle.identifier.getOrDefault(particle.toLowerCase(),
-				Particle.identifier.get("minecraft:" + particle.toLowerCase()));
+	private static Object toNMS(String particle)
+	{
+		return Particle.identifier.getOrDefault(particle.toLowerCase(), Particle.identifier.get("minecraft:" + particle.toLowerCase()));
 	}
 
 	public Particle(String particle) {
@@ -65,43 +64,53 @@ public class Particle {
 		this.data = data;
 	}
 
-	public boolean isValid() {
+	public boolean isValid()
+	{
 		return particle != null;
 	}
 
-	public Object getParticle() {
+	public Object getParticle()
+	{
 		return particle;
 	}
 
-	public String getParticleName() {
+	public String getParticleName()
+	{
 		return name;
 	}
 
-	public ParticleData getParticleData() {
+	public ParticleData getParticleData()
+	{
 		return data;
 	}
 
-	public Object createPacket(Position pos) {
+	public Object createPacket(Position pos)
+	{
 		return createPacket(pos.getX(), pos.getY(), pos.getZ(), 1, 1);
 	}
 
-	public Object createPacket(Location pos) {
+	public Object createPacket(Location pos)
+	{
 		return createPacket(pos.getX(), pos.getY(), pos.getZ(), 1, 1);
 	}
 
-	public Object createPacket(double x, double y, double z) {
+	public Object createPacket(double x, double y, double z)
+	{
 		return createPacket(x, y, z, 1, 1);
 	}
 
-	public Object createPacket(Position pos, float speed, int amount) {
+	public Object createPacket(Position pos, float speed, int amount)
+	{
 		return createPacket(pos.getX(), pos.getY(), pos.getZ(), speed, amount);
 	}
 
-	public Object createPacket(Location pos, float speed, int amount) {
+	public Object createPacket(Location pos, float speed, int amount)
+	{
 		return createPacket(pos.getX(), pos.getY(), pos.getZ(), speed, amount);
 	}
 
-	public Object createPacket(double x, double y, double z, float speed, int amount) {
+	public Object createPacket(double x, double y, double z, float speed, int amount)
+	{
 		Object packet;
 		try {
 			packet = Particle.unsafe.allocateInstance(Particle.part);
@@ -125,26 +134,15 @@ public class Particle {
 				if (data instanceof RedstoneOptions) {
 					RedstoneOptions d = (RedstoneOptions) data;
 					jValue = Ref.isNewerThan(16)
-							? name.equalsIgnoreCase("dust_color_transition")
-									? Ref.newInstance(Particle.paramDust,
-											Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(),
-													d.getValueZ()),
-											Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(),
-													d.getValueZ()),
-											d.getSize())
-									: Ref.newInstance(Particle.paramRed,
-											Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(),
-													d.getValueZ()),
-											d.getSize())
-							: Ref.newInstance(Particle.paramRed, d.getValueX(), d.getValueY(), d.getValueZ(),
-									d.getSize());
+							? name.equalsIgnoreCase("dust_color_transition") ? Ref.newInstance(Particle.paramDust, Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(), d.getValueZ()), Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize())
+									: Ref.newInstance(Particle.paramRed, Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize())
+							: Ref.newInstance(Particle.paramRed, d.getValueX(), d.getValueY(), d.getValueZ(), d.getSize());
 				} else if (data instanceof BlockOptions) {
 					BlockOptions a = (BlockOptions) data;
 					jValue = Ref.newInstance(Particle.paramBlock, particle, a.getType().getIBlockData());
 				} else if (data instanceof ItemOptions) {
 					ItemOptions a = (ItemOptions) data;
-					jValue = Ref.newInstance(Particle.paramItem, particle,
-							BukkitLoader.getNmsProvider().asNMSItem(a.getItem()));
+					jValue = Ref.newInstance(Particle.paramItem, particle, BukkitLoader.getNmsProvider().asNMSItem(a.getItem()));
 				}
 			}
 			Ref.set(packet, "j", jValue);
@@ -163,8 +161,7 @@ public class Particle {
 					Ref.set(packet, "f", data.getValueY());
 					Ref.set(packet, "g", data.getValueZ());
 				} else {
-					int[] packetData = data instanceof BlockOptions ? ((BlockOptions) data).getPacketData()
-							: ((ItemOptions) data).getPacketData();
+					int[] packetData = data instanceof BlockOptions ? ((BlockOptions) data).getPacketData() : ((ItemOptions) data).getPacketData();
 					Ref.set(packet, "a", name + "_" + packetData[0] + "_" + packetData[1]);
 				}
 			return packet;
@@ -178,12 +175,8 @@ public class Particle {
 				Ref.set(packet, "f", data.getValueY());
 				Ref.set(packet, "g", data.getValueZ());
 			} else {
-				int[] packetData = data instanceof BlockOptions ? ((BlockOptions) data).getPacketData()
-						: ((ItemOptions) data).getPacketData();
-				Ref.set(packet, "k",
-						name.equalsIgnoreCase("CRACK_ITEM") || name.equalsIgnoreCase("ITEM_CRACK")
-								|| name.equalsIgnoreCase("ITEM") || name.equalsIgnoreCase("ITEM_TAKE") ? packetData
-										: new int[] { packetData[0] | packetData[1] << 12 });
+				int[] packetData = data instanceof BlockOptions ? ((BlockOptions) data).getPacketData() : ((ItemOptions) data).getPacketData();
+				Ref.set(packet, "k", name.equalsIgnoreCase("CRACK_ITEM") || name.equalsIgnoreCase("ITEM_CRACK") || name.equalsIgnoreCase("ITEM") || name.equalsIgnoreCase("ITEM_TAKE") ? packetData : new int[] { packetData[0] | packetData[1] << 12 });
 			}
 		} else
 			Ref.set(packet, "k", new int[0]);

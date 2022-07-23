@@ -13,11 +13,13 @@ public class TheMaterial implements Cloneable {
 	private int data;
 	private int amount;
 
-	public static TheMaterial fromData(Object blockData) {
+	public static TheMaterial fromData(Object blockData)
+	{
 		return BukkitLoader.getNmsProvider().toMaterial(blockData);
 	}
 
-	public static TheMaterial fromData(Object blockData, int data) {
+	public static TheMaterial fromData(Object blockData, int data)
+	{
 		return BukkitLoader.getNmsProvider().toMaterial(blockData).setData(data);
 	}
 
@@ -87,59 +89,72 @@ public class TheMaterial implements Cloneable {
 		this(Material.values()[id], data, 1);
 	}
 
-	public int getAmount() {
+	public int getAmount()
+	{
 		return this.amount;
 	}
 
-	public int getData() {
+	public int getData()
+	{
 		return this.data;
 	}
 
-	public Material getType() {
+	public Material getType()
+	{
 		return this.m;
 	}
 
-	public TheMaterial setType(Material material) {
+	public TheMaterial setType(Material material)
+	{
 		this.m = material;
 		return this;
 	}
 
-	public TheMaterial setData(int data) {
+	public TheMaterial setData(int data)
+	{
 		this.data = data;
 		return this;
 	}
 
-	public TheMaterial setAmount(int amount) {
+	public TheMaterial setAmount(int amount)
+	{
 		this.amount = amount;
 		return this;
 	}
 
-	public int getCombinedId() {
+	public int getCombinedId()
+	{
 		return BukkitLoader.getNmsProvider().getCombinedId(Ref.isNewerThan(7) ? this.getIBlockData() : this.getBlock());
 	}
 
-	public Object getIBlockData() {
+	public Object getIBlockData()
+	{
 		return BukkitLoader.getNmsProvider().toIBlockData(this);
 	}
 
-	public Object toNMSItemStack() {
+	public Object toNMSItemStack()
+	{
 		return BukkitLoader.getNmsProvider().asNMSItem(this.toItemStack());
 	}
 
-	public Object getBlock() {
+	public Object getBlock()
+	{
 		return BukkitLoader.getNmsProvider().toBlock(this);
 	}
 
-	public ItemStack toItemStack() {
+	public ItemStack toItemStack()
+	{
 		return new ItemStack(this.m, this.amount, (short) 0, (byte) this.data);
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return "[TheMaterial:" + this.m + '/' + this.data + '/' + this.amount + ']';
 	}
 
-	public static TheMaterial fromString(String stored) {
+	public static TheMaterial fromString(String stored)
+	{
 		try {
 			String[] s = stored.substring(13, stored.length() - 1).split("/");
 			try {
@@ -152,24 +167,29 @@ public class TheMaterial implements Cloneable {
 		}
 	}
 
-	public static TheMaterial fromItemStack(ItemStack stack) {
+	public static TheMaterial fromItemStack(ItemStack stack)
+	{
 		return new TheMaterial(stack);
 	}
 
-	public static TheMaterial fromMaterial(Material material, int amount, int data) {
+	public static TheMaterial fromMaterial(Material material, int amount, int data)
+	{
 		return new TheMaterial(material, amount, data);
 	}
 
-	public static TheMaterial fromMaterial(Material material, int amount) {
+	public static TheMaterial fromMaterial(Material material, int amount)
+	{
 		return new TheMaterial(material, amount);
 	}
 
-	public static TheMaterial fromMaterial(Material material) {
+	public static TheMaterial fromMaterial(Material material)
+	{
 		return new TheMaterial(material);
 	}
 
 	@Override
-	public boolean equals(Object a) {
+	public boolean equals(Object a)
+	{
 		if (a instanceof TheMaterial) {
 			TheMaterial material = (TheMaterial) a;
 			return material.getData() == this.data && material.getType() == this.m;
@@ -180,7 +200,8 @@ public class TheMaterial implements Cloneable {
 	}
 
 	@Override
-	public TheMaterial clone() {
+	public TheMaterial clone()
+	{
 		return new TheMaterial(this.m, this.data, this.amount);
 	}
 }

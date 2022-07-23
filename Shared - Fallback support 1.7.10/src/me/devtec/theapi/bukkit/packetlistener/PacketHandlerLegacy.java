@@ -49,17 +49,20 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 				}
 		new Tasker() {
 			@Override
-			public void run() {
+			public void run()
+			{
 				PacketHandlerLegacy.this.registerChannelHandler();
 				PacketHandlerLegacy.this.registerPlayers();
 			}
 		}.runLater(1);
 	}
 
-	private void createServerChannelHandler() {
+	private void createServerChannelHandler()
+	{
 		endInitProtocol = new ChannelInitializer<Channel>() {
 			@Override
-			protected void initChannel(Channel channel) {
+			protected void initChannel(Channel channel)
+			{
 				try {
 					synchronized (networkManagers) {
 						if (!closed) {
@@ -79,7 +82,8 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 		};
 		beginInitProtocol = new ChannelInitializer<Channel>() {
 			@Override
-			protected void initChannel(Channel channel) {
+			protected void initChannel(Channel channel)
+			{
 				channel.pipeline().addLast(endInitProtocol);
 			}
 
@@ -90,16 +94,17 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 	@Sharable
 	public class ChannelInHandler extends ChannelInboundHandlerAdapter {
 		@Override
-		public void channelRead(ChannelHandlerContext ctx, Object msg) {
+		public void channelRead(ChannelHandlerContext ctx, Object msg)
+		{
 			Channel channel = (Channel) msg;
 			channel.pipeline().addFirst(beginInitProtocol);
 			ctx.fireChannelRead(channel);
 		}
 	}
 
-	private void registerChannelHandler() {
-		networkManagers = (List<?>) (Ref.get(serverConnection, "e") != null ? Ref.get(serverConnection, "e")
-				: Ref.get(serverConnection, "f"));
+	private void registerChannelHandler()
+	{
+		networkManagers = (List<?>) (Ref.get(serverConnection, "e") != null ? Ref.get(serverConnection, "e") : Ref.get(serverConnection, "f"));
 		if (networkManagers == null)
 			for (Field f : Ref.getAllFields(Ref.nms("", "ServerConnection")))
 				if (List.class == f.getType()) {
@@ -109,8 +114,7 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 		if (networkManagers == null)
 			return;
 		if (networkManagers.isEmpty()) {
-			networkManagers = (List<?>) (Ref.get(serverConnection, "f") != null ? Ref.get(serverConnection, "f")
-					: Ref.get(serverConnection, "e"));
+			networkManagers = (List<?>) (Ref.get(serverConnection, "f") != null ? Ref.get(serverConnection, "f") : Ref.get(serverConnection, "e"));
 			if (networkManagers == null)
 				for (Field f : Ref.getAllFields(Ref.nms("", "ServerConnection")))
 					if (List.class == f.getType()) {
@@ -130,7 +134,8 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 		}
 	}
 
-	private void unregisterChannelHandler() {
+	private void unregisterChannelHandler()
+	{
 		if (serverChannelHandler == null)
 			return;
 		for (Channel serverChannel : serverChannels)
@@ -143,17 +148,20 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 		serverChannels.clear();
 	}
 
-	private void registerPlayers() {
+	private void registerPlayers()
+	{
 		for (Player player : Bukkit.getOnlinePlayers())
 			add(player);
 	}
 
 	@Override
-	public void add(Player player) {
+	public void add(Player player)
+	{
 		injectChannelInternal(player, get(player));
 	}
 
-	private PacketInterceptor injectChannelInternal(Player a, Channel channel) {
+	private PacketInterceptor injectChannelInternal(Player a, Channel channel)
+	{
 		if (channel == null)
 			return null;
 		try {
@@ -171,11 +179,11 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 	}
 
 	@Override
-	public Channel get(Player player) {
+	public Channel get(Player player)
+	{
 		Channel channel = channelLookup.get(player.getName());
 		if (channel == null) {
-			Object get = BukkitLoader.getNmsProvider().getNetworkChannel(BukkitLoader.getNmsProvider()
-					.getConnectionNetwork(BukkitLoader.getNmsProvider().getPlayerConnection(player)));
+			Object get = BukkitLoader.getNmsProvider().getNetworkChannel(BukkitLoader.getNmsProvider().getConnectionNetwork(BukkitLoader.getNmsProvider().getPlayerConnection(player)));
 			if (get == null)
 				return null;
 			channelLookup.put(player.getName(), channel = (Channel) get);
@@ -184,7 +192,8 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 	}
 
 	@Override
-	public void remove(Channel channel) {
+	public void remove(Channel channel)
+	{
 		if (channel == null)
 			return;
 		channel.eventLoop().execute(() -> {
@@ -201,7 +210,8 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 	}
 
 	@Override
-	public boolean has(Channel channel) {
+	public boolean has(Channel channel)
+	{
 		if (channel == null)
 			return false;
 		try {
@@ -212,7 +222,8 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 	}
 
 	@Override
-	public final void close() {
+	public final void close()
+	{
 		if (!closed) {
 			closed = true;
 			for (Channel channel : channelLookup.values())
@@ -233,7 +244,8 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 		}
 
 		@Override
-		public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+		public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception
+		{
 			final Channel channel = ctx.channel();
 			Object packet = msg;
 			synchronized (packet) {
@@ -252,7 +264,8 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 		}
 
 		@Override
-		public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+		public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception
+		{
 			final Channel channel = ctx.channel();
 			Object packet = msg;
 			synchronized (packet) {
@@ -273,7 +286,8 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 	}
 
 	@Override
-	public void send(Channel channel, Object packet) {
+	public void send(Channel channel, Object packet)
+	{
 		if (channel == null || packet == null)
 			return;
 		channel.writeAndFlush(packet);

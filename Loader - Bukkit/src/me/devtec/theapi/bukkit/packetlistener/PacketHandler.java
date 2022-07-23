@@ -16,13 +16,15 @@ public interface PacketHandler<C> {
 
 	public void close();
 
-	public default void send(Player player, Object packet) {
+	public default void send(Player player, Object packet)
+	{
 		this.send(this.get(player), packet);
 	}
 
 	public void send(C channel, Object packet);
 
-	public default void send(Collection<? extends Player> onlinePlayers, Object packet) {
+	public default void send(Collection<? extends Player> onlinePlayers, Object packet)
+	{
 		onlinePlayers.forEach(player -> this.send(player, packet));
 	}
 }

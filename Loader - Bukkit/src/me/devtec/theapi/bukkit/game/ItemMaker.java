@@ -71,7 +71,8 @@ public class ItemMaker {
 		this.material = material;
 	}
 
-	protected ItemMeta apply(ItemMeta meta) {
+	protected ItemMeta apply(ItemMeta meta)
+	{
 		if (displayName != null)
 			meta.setDisplayName(displayName);
 		if (lore != null)
@@ -96,64 +97,75 @@ public class ItemMaker {
 		return meta;
 	}
 
-	public ItemMaker amount(int amount) {
+	public ItemMaker amount(int amount)
+	{
 		this.amount = amount;
 		return this;
 	}
 
-	public ItemMaker damage(int damage) {
+	public ItemMaker damage(int damage)
+	{
 		this.damage = (short) damage;
 		return this;
 	}
 
-	public ItemMaker data(int data) {
+	public ItemMaker data(int data)
+	{
 		this.data = (byte) data;
 		return this;
 	}
 
-	public ItemMaker displayName(String name) {
+	public ItemMaker displayName(String name)
+	{
 		displayName = StringUtils.colorize(name);
 		return this;
 	}
 
-	public ItemMaker lore(String... lore) {
+	public ItemMaker lore(String... lore)
+	{
 		return this.lore(Arrays.asList(lore));
 	}
 
-	public ItemMaker lore(List<String> lore) {
+	public ItemMaker lore(List<String> lore)
+	{
 		this.lore = StringUtils.colorize(lore);
 		return this;
 	}
 
-	public ItemMaker customModel(int customModel) {
+	public ItemMaker customModel(int customModel)
+	{
 		this.customModel = customModel;
 		return this;
 	}
 
-	public ItemMaker unbreakable(boolean unbreakable) {
+	public ItemMaker unbreakable(boolean unbreakable)
+	{
 		this.unbreakable = unbreakable;
 		return this;
 	}
 
-	public ItemMaker itemFlags(String... flag) {
+	public ItemMaker itemFlags(String... flag)
+	{
 		return this.itemFlags(Arrays.asList(flag));
 	}
 
-	public ItemMaker itemFlags(List<String> flag) {
+	public ItemMaker itemFlags(List<String> flag)
+	{
 		itemFlags = flag;
 		return this;
 	}
 
-	public ItemMaker enchant(Enchantment enchant, int level) {
+	public ItemMaker enchant(Enchantment enchant, int level)
+	{
 		if (enchants == null)
 			enchants = new HashMap<>();
 		enchants.put(enchant, level);
 		return this;
 	}
 
-	public ItemStack build() {
-		ItemStack item = data != 0 ? new ItemStack(material, amount, damage, data)
-				: new ItemStack(material, amount, damage);
+	public ItemStack build()
+	{
+		ItemStack item = data != 0 ? new ItemStack(material, amount, damage, data) : new ItemStack(material, amount, damage);
 		item.setItemMeta(apply(item.getItemMeta()));
 		return item;
 	}
@@ -172,26 +184,30 @@ public class ItemMaker {
 			super(ItemMaker.skull);
 		}
 
-		public HeadItemMaker skinName(String name) {
+		public HeadItemMaker skinName(String name)
+		{
 			owner = name;
 			ownerType = 0;
 			return this;
 		}
 
-		public HeadItemMaker skinValues(String name) {
+		public HeadItemMaker skinValues(String name)
+		{
 			owner = name;
 			ownerType = 1;
 			return this;
 		}
 
-		public HeadItemMaker skinUrl(String name) {
+		public HeadItemMaker skinUrl(String name)
+		{
 			owner = name;
 			ownerType = 2;
 			return this;
 		}
 
 		@Override
-		protected ItemMeta apply(ItemMeta meta) {
+		protected ItemMeta apply(ItemMeta meta)
+		{
 			SkullMeta iMeta = (SkullMeta) meta;
 			if (owner != null)
 				switch (ownerType) {
@@ -199,13 +215,11 @@ public class ItemMaker {
 					iMeta.setOwner(owner);
 					break;
 				case 1: {
-					Ref.set(iMeta, HeadItemMaker.profileField,
-							BukkitLoader.getNmsProvider().createGameProfile(UUID.randomUUID(), "DevTec", owner));
+					Ref.set(iMeta, HeadItemMaker.profileField, BukkitLoader.getNmsProvider().createGameProfile(UUID.randomUUID(), "DevTec", owner));
 					break;
 				}
 				case 2: {
-					Ref.set(iMeta, HeadItemMaker.profileField, BukkitLoader.getNmsProvider()
-							.createGameProfile(UUID.randomUUID(), "DevTec", ItemMaker.fromUrl(owner)));
+					Ref.set(iMeta, HeadItemMaker.profileField, BukkitLoader.getNmsProvider().createGameProfile(UUID.randomUUID(), "DevTec", ItemMaker.fromUrl(owner)));
 					break;
 				}
 				default:
@@ -222,13 +236,15 @@ public class ItemMaker {
 			super(material);
 		}
 
-		public LeatherItemMaker color(Color color) {
+		public LeatherItemMaker color(Color color)
+		{
 			this.color = color;
 			return this;
 		}
 
 		@Override
-		protected ItemMeta apply(ItemMeta meta) {
+		protected ItemMeta apply(ItemMeta meta)
+		{
 			LeatherArmorMeta iMeta = (LeatherArmorMeta) meta;
 			if (color != null)
 				iMeta.setColor(color);
@@ -246,43 +262,51 @@ public class ItemMaker {
 			super(Material.WRITTEN_BOOK);
 		}
 
-		public BookItemMaker author(String author) {
+		public BookItemMaker author(String author)
+		{
 			this.author = StringUtils.colorize(author);
 			return this;
 		}
 
-		public BookItemMaker title(String title) {
+		public BookItemMaker title(String title)
+		{
 			this.title = StringUtils.colorize(title);
 			return this;
 		}
 
-		public BookItemMaker generation(String generation) {
+		public BookItemMaker generation(String generation)
+		{
 			this.generation = generation;
 			return this;
 		}
 
-		public BookItemMaker pages(String... pages) {
+		public BookItemMaker pages(String... pages)
+		{
 			return this.pages(Arrays.asList(pages));
 		}
 
-		public BookItemMaker pages(List<String> pages) {
+		public BookItemMaker pages(List<String> pages)
+		{
 			this.pages = new ArrayList<>();
 			for (String string : StringUtils.colorize(pages))
 				this.pages.add(ComponentAPI.fromString(string));
 			return this;
 		}
 
-		public BookItemMaker pagesComp(Component... pages) {
+		public BookItemMaker pagesComp(Component... pages)
+		{
 			return this.pagesComp(Arrays.asList(pages));
 		}
 
-		public BookItemMaker pagesComp(List<Component> pages) {
+		public BookItemMaker pagesComp(List<Component> pages)
+		{
 			this.pages = pages;
 			return this;
 		}
 
 		@Override
-		protected ItemMeta apply(ItemMeta meta) {
+		protected ItemMeta apply(ItemMeta meta)
+		{
 			BookMeta iMeta = (BookMeta) meta;
 			if (author != null)
 				iMeta.setAuthor(author);
@@ -309,7 +333,8 @@ public class ItemMaker {
 		}
 
 		@Override
-		protected ItemMeta apply(ItemMeta meta) {
+		protected ItemMeta apply(ItemMeta meta)
+		{
 			EnchantmentStorageMeta iMeta = (EnchantmentStorageMeta) meta;
 			if (super.displayName != null)
 				iMeta.setDisplayName(super.displayName);
@@ -344,22 +369,26 @@ public class ItemMaker {
 			super(material);
 		}
 
-		public PotionItemMaker color(Color color) {
+		public PotionItemMaker color(Color color)
+		{
 			this.color = color;
 			return this;
 		}
 
-		public PotionItemMaker potionEffects(PotionEffect... effects) {
+		public PotionItemMaker potionEffects(PotionEffect... effects)
+		{
 			return this.potionEffects(Arrays.asList(effects));
 		}
 
-		public PotionItemMaker potionEffects(List<PotionEffect> effects) {
+		public PotionItemMaker potionEffects(List<PotionEffect> effects)
+		{
 			this.effects = effects;
 			return this;
 		}
 
 		@Override
-		protected ItemMeta apply(ItemMeta meta) {
+		protected ItemMeta apply(ItemMeta meta)
+		{
 			PotionMeta iMeta = (PotionMeta) meta;
 			if (color != null && Ref.isNewerThan(10))
 				iMeta.setColor(color);
@@ -379,18 +408,21 @@ public class ItemMaker {
 			super.data = xMaterial.getData();
 		}
 
-		public ShulkerBoxItemMaker name(String name) {
+		public ShulkerBoxItemMaker name(String name)
+		{
 			this.name = name;
 			return this;
 		}
 
-		public ShulkerBoxItemMaker contents(ItemStack[] contents) {
+		public ShulkerBoxItemMaker contents(ItemStack[] contents)
+		{
 			this.contents = contents;
 			return this;
 		}
 
 		@Override
-		protected ItemMeta apply(ItemMeta meta) {
+		protected ItemMeta apply(ItemMeta meta)
+		{
 			BlockStateMeta iMeta = (BlockStateMeta) meta;
 			ShulkerBox shulker = (ShulkerBox) iMeta.getBlockState();
 			if (name != null)
@@ -409,17 +441,20 @@ public class ItemMaker {
 			super(Material.getMaterial("BUNDLE"));
 		}
 
-		public BundleItemMaker contents(ItemStack... contents) {
+		public BundleItemMaker contents(ItemStack... contents)
+		{
 			return this.contents(Arrays.asList(contents));
 		}
 
-		public BundleItemMaker contents(List<ItemStack> contents) {
+		public BundleItemMaker contents(List<ItemStack> contents)
+		{
 			this.contents = contents;
 			return this;
 		}
 
 		@Override
-		protected ItemMeta apply(ItemMeta meta) {
+		protected ItemMeta apply(ItemMeta meta)
+		{
 			BundleMeta iMeta = (BundleMeta) meta;
 			if (contents != null)
 				iMeta.setItems(contents);
@@ -435,17 +470,20 @@ public class ItemMaker {
 			super.data = xMaterial.getData();
 		}
 
-		public BannerItemMaker patterns(Pattern... contents) {
+		public BannerItemMaker patterns(Pattern... contents)
+		{
 			return this.patterns(Arrays.asList(contents));
 		}
 
-		public BannerItemMaker patterns(List<Pattern> patterns) {
+		public BannerItemMaker patterns(List<Pattern> patterns)
+		{
 			this.patterns = patterns;
 			return this;
 		}
 
 		@Override
-		protected ItemMeta apply(ItemMeta meta) {
+		protected ItemMeta apply(ItemMeta meta)
+		{
 			BannerMeta iMeta = (BannerMeta) meta;
 			if (patterns != null)
 				iMeta.setPatterns(patterns);
@@ -453,29 +491,33 @@ public class ItemMaker {
 		}
 	}
 
-	public static ItemMaker of(Material material) {
+	public static ItemMaker of(Material material)
+	{
 		return new ItemMaker(material);
 	}
 
-	public static HeadItemMaker ofHead() {
+	public static HeadItemMaker ofHead()
+	{
 		return new HeadItemMaker();
 	}
 
-	public static LeatherItemMaker ofLeatherArmor(Material material) {
+	public static LeatherItemMaker ofLeatherArmor(Material material)
+	{
 		return new LeatherItemMaker(ItemMaker.skull);
 	}
 
-	public static BookItemMaker ofBook() {
+	public static BookItemMaker ofBook()
+	{
 		return new BookItemMaker();
 	}
 
-	public static EnchantedBookItemMaker ofEnchantedBook() {
+	public static EnchantedBookItemMaker ofEnchantedBook()
+	{
 		return new EnchantedBookItemMaker();
 	}
 
 	static enum Potion {
-		LINGERING(Material.getMaterial("LINGERING_POTION")), SPLASH(Material.getMaterial("SPLASH_POTION")),
-		POTION(Material.POTION);
+		LINGERING(Material.getMaterial("LINGERING_POTION")), SPLASH(Material.getMaterial("SPLASH_POTION")), POTION(Material.POTION);
 
 		private Material m;
 
@@ -483,23 +525,21 @@ public class ItemMaker {
 			m = mat;
 		}
 
-		public Material toMaterial() {
+		public Material toMaterial()
+		{
 			return m;
 		}
 	}
 
-	public static PotionItemMaker ofPotion(Potion potionType) {
+	public static PotionItemMaker ofPotion(Potion potionType)
+	{
 		return new PotionItemMaker(potionType.toMaterial());
 	}
 
 	static enum ShulkerBoxColor {
-		NONE(XMaterial.SHULKER_BOX), WHITE(XMaterial.WHITE_SHULKER_BOX), BLACK(XMaterial.BLACK_SHULKER_BOX),
-		BLUE(XMaterial.BLUE_SHULKER_BOX), BROWN(XMaterial.BROWN_SHULKER_BOX), CYAN(XMaterial.CYAN_SHULKER_BOX),
-		GRAY(XMaterial.GRAY_SHULKER_BOX), GREEN(XMaterial.GREEN_SHULKER_BOX),
-		LIGHT_BLUE(XMaterial.LIGHT_BLUE_SHULKER_BOX), LIGHT_GRAY(XMaterial.LIGHT_GRAY_SHULKER_BOX),
-		LIME(XMaterial.LIME_SHULKER_BOX), MAGENTA(XMaterial.MAGENTA_SHULKER_BOX), ORANGE(XMaterial.ORANGE_SHULKER_BOX),
-		YELLOW(XMaterial.YELLOW_SHULKER_BOX), RED(XMaterial.RED_SHULKER_BOX), PURPLE(XMaterial.PURPLE_SHULKER_BOX),
-		PINK(XMaterial.PINK_SHULKER_BOX);
+		NONE(XMaterial.SHULKER_BOX), WHITE(XMaterial.WHITE_SHULKER_BOX), BLACK(XMaterial.BLACK_SHULKER_BOX), BLUE(XMaterial.BLUE_SHULKER_BOX), BROWN(XMaterial.BROWN_SHULKER_BOX), CYAN(XMaterial.CYAN_SHULKER_BOX), GRAY(XMaterial.GRAY_SHULKER_BOX), GREEN(XMaterial.GREEN_SHULKER_BOX),
+		LIGHT_BLUE(XMaterial.LIGHT_BLUE_SHULKER_BOX), LIGHT_GRAY(XMaterial.LIGHT_GRAY_SHULKER_BOX), LIME(XMaterial.LIME_SHULKER_BOX), MAGENTA(XMaterial.MAGENTA_SHULKER_BOX), ORANGE(XMaterial.ORANGE_SHULKER_BOX), YELLOW(XMaterial.YELLOW_SHULKER_BOX), RED(XMaterial.RED_SHULKER_BOX),
+		PURPLE(XMaterial.PURPLE_SHULKER_BOX), PINK(XMaterial.PINK_SHULKER_BOX);
 
 		private XMaterial m;
 
@@ -507,26 +547,25 @@ public class ItemMaker {
 			m = mat;
 		}
 
-		public XMaterial toMaterial() {
+		public XMaterial toMaterial()
+		{
 			return m;
 		}
 	}
 
-	public static ShulkerBoxItemMaker ofShulkerBox(ShulkerBoxColor color) {
+	public static ShulkerBoxItemMaker ofShulkerBox(ShulkerBoxColor color)
+	{
 		return new ShulkerBoxItemMaker(color.toMaterial());
 	}
 
-	public static BundleItemMaker ofBundle() {
+	public static BundleItemMaker ofBundle()
+	{
 		return new BundleItemMaker();
 	}
 
 	static enum BannerColor {
-		NONE(XMaterial.WHITE_BANNER), WHITE(XMaterial.WHITE_BANNER), BLACK(XMaterial.BLACK_BANNER),
-		BLUE(XMaterial.BLUE_BANNER), BROWN(XMaterial.BROWN_BANNER), CYAN(XMaterial.CYAN_BANNER),
-		GRAY(XMaterial.GRAY_BANNER), GREEN(XMaterial.GREEN_BANNER), LIGHT_BLUE(XMaterial.LIGHT_BLUE_BANNER),
-		LIGHT_GRAY(XMaterial.LIGHT_GRAY_BANNER), LIME(XMaterial.LIME_BANNER), MAGENTA(XMaterial.MAGENTA_BANNER),
-		ORANGE(XMaterial.ORANGE_BANNER), YELLOW(XMaterial.YELLOW_BANNER), RED(XMaterial.RED_BANNER),
-		PURPLE(XMaterial.PURPLE_BANNER), PINK(XMaterial.PINK_BANNER);
+		NONE(XMaterial.WHITE_BANNER), WHITE(XMaterial.WHITE_BANNER), BLACK(XMaterial.BLACK_BANNER), BLUE(XMaterial.BLUE_BANNER), BROWN(XMaterial.BROWN_BANNER), CYAN(XMaterial.CYAN_BANNER), GRAY(XMaterial.GRAY_BANNER), GREEN(XMaterial.GREEN_BANNER), LIGHT_BLUE(XMaterial.LIGHT_BLUE_BANNER),
+		LIGHT_GRAY(XMaterial.LIGHT_GRAY_BANNER), LIME(XMaterial.LIME_BANNER), MAGENTA(XMaterial.MAGENTA_BANNER), ORANGE(XMaterial.ORANGE_BANNER), YELLOW(XMaterial.YELLOW_BANNER), RED(XMaterial.RED_BANNER), PURPLE(XMaterial.PURPLE_BANNER), PINK(XMaterial.PINK_BANNER);
 
 		private XMaterial m;
 
@@ -534,16 +573,19 @@ public class ItemMaker {
 			m = mat;
 		}
 
-		public XMaterial toMaterial() {
+		public XMaterial toMaterial()
+		{
 			return m;
 		}
 	}
 
-	public static BannerItemMaker ofBanner(BannerColor color) {
+	public static BannerItemMaker ofBanner(BannerColor color)
+	{
 		return new BannerItemMaker(color.toMaterial());
 	}
 
-	public static void saveToConfig(Config config, String path, ItemStack stack) {
+	public static void saveToConfig(Config config, String path, ItemStack stack)
+	{
 		if (stack == null)
 			return; // invalid item
 		config.remove(path); // clear section
@@ -615,8 +657,7 @@ public class ItemMaker {
 				config.set(path + ".potion.type", potion.getBasePotionData().getType().name());
 			List<String> effects = new ArrayList<>();
 			for (PotionEffect effect : potion.getCustomEffects())
-				effects.add(effect.getType().getName() + ":" + effect.getDuration() + ":" + effect.getAmplifier() + ":"
-						+ effect.isAmbient() + ":" + effect.hasParticles());
+				effects.add(effect.getType().getName() + ":" + effect.getDuration() + ":" + effect.getAmplifier() + ":" + effect.isAmbient() + ":" + effect.hasParticles());
 			if (!effects.isEmpty())
 				config.set(path + ".potion.effects", effects);
 			if (Ref.isNewerThan(10)) // 1.11+
@@ -662,15 +703,15 @@ public class ItemMaker {
 	}
 
 	@Nullable // Nullable if section is empty / type is invalid
-	public static ItemStack loadFromConfig(Config config, String path) {
+	public static ItemStack loadFromConfig(Config config, String path)
+	{
 		if (config.getString(path + ".type") == null)
 			return null; // missing type
 
 		String[] typeSplit = config.getString(path + ".type").split(":");
 		XMaterial type;
 		if (StringUtils.isInt(typeSplit[0]))
-			type = XMaterial.matchXMaterial(StringUtils.getInt(typeSplit[0]),
-					typeSplit.length >= 2 ? StringUtils.getByte(typeSplit[1]) : 0).get();
+			type = XMaterial.matchXMaterial(StringUtils.getInt(typeSplit[0]), typeSplit.length >= 2 ? StringUtils.getByte(typeSplit[1]) : 0).get();
 		else
 			type = XMaterial.matchXMaterial(typeSplit[0].toUpperCase()).get();
 		ItemStack stack = type.parseItem();
@@ -711,8 +752,7 @@ public class ItemMaker {
 			// Example: RED:STRIPE_TOP
 			for (String pattern : config.getStringList(path + ".banner.patterns")) {
 				String[] split = pattern.split(":");
-				banner.addPattern(new Pattern(DyeColor.valueOf(split[0].toUpperCase()),
-						PatternType.valueOf(split[1].toUpperCase())));
+				banner.addPattern(new Pattern(DyeColor.valueOf(split[0].toUpperCase()), PatternType.valueOf(split[1].toUpperCase())));
 			}
 		}
 		if (type.name().contains("LEATHER_") && config.getString(path + ".leather.color") != null) {
@@ -732,24 +772,19 @@ public class ItemMaker {
 				if (headType.equals("VALUES") || headType.equals("URL")) {
 					if (headType.equals("URL"))
 						headOwner = ItemMaker.fromUrl(headOwner);
-					Ref.set(skull, HeadItemMaker.profileField,
-							BukkitLoader.getNmsProvider().createGameProfile(UUID.randomUUID(), "DevTec", headOwner));
+					Ref.set(skull, HeadItemMaker.profileField, BukkitLoader.getNmsProvider().createGameProfile(UUID.randomUUID(), "DevTec", headOwner));
 				}
 			}
 		}
 		if (type.name().contains("POTION")) {
 			PotionMeta potion = (PotionMeta) meta;
 			if (Ref.isNewerThan(9) && config.getString(path + ".potion.type") != null)
-				potion.setBasePotionData(
-						new PotionData(PotionType.valueOf(config.getString(path + ".potion.type").toUpperCase())));
+				potion.setBasePotionData(new PotionData(PotionType.valueOf(config.getString(path + ".potion.type").toUpperCase())));
 			for (String pattern : config.getStringList(path + ".potion.effects")) {
 				String[] split = pattern.split(":");
 				// PotionEffectType type, int duration, int amplifier, boolean ambient, boolean
 				// particles
-				potion.addCustomEffect(new PotionEffect(PotionEffectType.getByName(split[0].toUpperCase()),
-						StringUtils.getInt(split[1]), StringUtils.getInt(split[2]),
-						split.length >= 4 ? StringUtils.getBoolean(split[3]) : true,
-						split.length >= 5 ? StringUtils.getBoolean(split[4]) : true), true);
+				potion.addCustomEffect(new PotionEffect(PotionEffectType.getByName(split[0].toUpperCase()), StringUtils.getInt(split[1]), StringUtils.getInt(split[2]), split.length >= 4 ? StringUtils.getBoolean(split[3]) : true, split.length >= 5 ? StringUtils.getBoolean(split[4]) : true), true);
 			}
 			if (Ref.isNewerThan(10) && config.getString(path + ".potion.color") != null) // 1.11+
 				potion.setColor(Color.fromRGB(Integer.decode(config.getString(path + ".potion.color"))));
@@ -758,14 +793,12 @@ public class ItemMaker {
 			EnchantmentStorageMeta book = (EnchantmentStorageMeta) meta;
 			for (String enchant : config.getStringList(path + ".enchants")) {
 				String[] split = enchant.split(":");
-				book.addStoredEnchant(Enchantment.getByName(split[0].toUpperCase()),
-						split.length >= 2 ? StringUtils.getInt(split[1]) : 1, true);
+				book.addStoredEnchant(Enchantment.getByName(split[0].toUpperCase()), split.length >= 2 ? StringUtils.getInt(split[1]) : 1, true);
 			}
 		} else
 			for (String enchant : config.getStringList(path + ".enchants")) {
 				String[] split = enchant.split(":");
-				meta.addEnchant(Enchantment.getByName(split[0].toUpperCase()),
-						split.length >= 2 ? StringUtils.getInt(split[1]) : 1, true);
+				meta.addEnchant(Enchantment.getByName(split[0].toUpperCase()), split.length >= 2 ? StringUtils.getInt(split[1]) : 1, true);
 			}
 		if (type == XMaterial.WRITTEN_BOOK || type == XMaterial.WRITABLE_BOOK) {
 			BookMeta book = (BookMeta) meta;
@@ -782,21 +815,18 @@ public class ItemMaker {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static String fromUrl(String url) {
+	public static String fromUrl(String url)
+	{
 		try {
 			java.net.URLConnection connection = new URL(url).openConnection();
 			connection.setRequestProperty("User-Agent", "DevTec-JavaClient");
-			HttpURLConnection conn = (HttpURLConnection) new URL(
-					String.format(HeadItemMaker.URL_FORMAT, url, "name=DevTec&model=steve&visibility=1"))
-					.openConnection();
+			HttpURLConnection conn = (HttpURLConnection) new URL(String.format(HeadItemMaker.URL_FORMAT, url, "name=DevTec&model=steve&visibility=1")).openConnection();
 			conn.setRequestProperty("User-Agent", "DevTec-JavaClient");
 			conn.setRequestProperty("Accept-Encoding", "gzip");
 			conn.setRequestMethod("POST");
 			conn.connect();
-			Map<String, Object> text = (Map<String, Object>) Json.reader()
-					.simpleRead(StreamUtils.fromStream(new GZIPInputStream(conn.getInputStream())));
-			return (String) ((Map<String, Object>) ((Map<String, Object>) text.get("data")).get("texture"))
-					.get("value");
+			Map<String, Object> text = (Map<String, Object>) Json.reader().simpleRead(StreamUtils.fromStream(new GZIPInputStream(conn.getInputStream())));
+			return (String) ((Map<String, Object>) ((Map<String, Object>) text.get("data")).get("texture")).get("value");
 		} catch (Exception err) {
 		}
 		return null;

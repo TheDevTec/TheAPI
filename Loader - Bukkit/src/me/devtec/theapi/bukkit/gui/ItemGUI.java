@@ -16,20 +16,24 @@ public abstract class ItemGUI {
 
 	public abstract void onClick(Player player, HolderGUI gui, ClickType click);
 
-	public final ItemGUI setUnstealable(boolean value) {
+	public final ItemGUI setUnstealable(boolean value)
+	{
 		this.unsteal = value;
 		return this;
 	}
 
-	public final boolean isUnstealable() {
+	public final boolean isUnstealable()
+	{
 		return this.unsteal;
 	}
 
-	public final ItemStack getItem() {
+	public final ItemStack getItem()
+	{
 		return this.s;
 	}
 
-	public final ItemGUI setItem(ItemStack stack) {
+	public final ItemGUI setItem(ItemStack stack)
+	{
 		if (stack != null)
 			this.s = stack;
 		return this;

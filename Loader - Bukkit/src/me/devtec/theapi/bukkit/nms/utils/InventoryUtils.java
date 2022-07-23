@@ -24,9 +24,8 @@ public class InventoryUtils {
 	 * @apiNote Modify ItemStacks in the "contents" field and then return list of
 	 *          modified slots
 	 **/
-	public static List<Integer> shift(int clickedSlot, @Nullable Player whoShift, @Nullable HolderGUI holder,
-			@Nullable ClickType clickType, DestinationType type, List<Integer> ignoredSlots, ItemStack[] contents,
-			ItemStack shiftItem) {
+	public static List<Integer> shift(int clickedSlot, @Nullable Player whoShift, @Nullable HolderGUI holder, @Nullable ClickType clickType, DestinationType type, List<Integer> ignoredSlots, ItemStack[] contents, ItemStack shiftItem)
+	{
 		if (shiftItem == null || shiftItem.getType() == Material.AIR)
 			return Collections.emptyList();
 		List<Integer> ignoreSlots = ignoredSlots == null ? Collections.emptyList() : ignoredSlots;
@@ -40,11 +39,8 @@ public class InventoryUtils {
 				continue;
 			if (type == DestinationType.CUSTOM_INV && ignoreSlots.contains(slot))
 				continue;
-			if (i.getAmount() < i.getMaxStackSize() && i.getType() == shiftItem.getType()
-					&& i.getItemMeta().equals(shiftItem.getItemMeta())
-					&& i.getDurability() == shiftItem.getDurability()) {
-				if (holder != null && whoShift != null && clickType != null
-						&& holder.onIteractItem(whoShift, i, clickType, slot, type == DestinationType.CUSTOM_INV)) {
+			if (i.getAmount() < i.getMaxStackSize() && i.getType() == shiftItem.getType() && i.getItemMeta().equals(shiftItem.getItemMeta()) && i.getDurability() == shiftItem.getDurability()) {
+				if (holder != null && whoShift != null && clickType != null && holder.onIteractItem(whoShift, i, clickType, slot, type == DestinationType.CUSTOM_INV)) {
 					corruptedSlots.add(slot);
 					continue;
 				}
@@ -62,14 +58,11 @@ public class InventoryUtils {
 				if (total != 0 && total == shiftItem.getAmount())
 					corruptedSlots.add(clickedSlot);
 				for (int s : corruptedSlots)
-					BukkitLoader.getPacketHandler().send(whoShift, BukkitLoader.getNmsProvider().packetSetSlot(
-							BukkitLoader.getNmsProvider().getContainerId(holder.getContainer(whoShift)), s, state,
-							BukkitLoader.getNmsProvider().getSlotItem(holder.getContainer(whoShift), s)));
+					BukkitLoader.getPacketHandler().send(whoShift, BukkitLoader.getNmsProvider().packetSetSlot(BukkitLoader.getNmsProvider().getContainerId(holder.getContainer(whoShift)), s, state, BukkitLoader.getNmsProvider().getSlotItem(holder.getContainer(whoShift), s)));
 				return modifiedSlots;
 			}
 		}
-		int firstEmpty = InventoryUtils.findFirstEmpty(whoShift, holder, clickType, corruptedSlots, type, ignoreSlots,
-				contents);
+		int firstEmpty = InventoryUtils.findFirstEmpty(whoShift, holder, clickType, corruptedSlots, type, ignoreSlots, contents);
 		if (firstEmpty != -1) {
 			contents[firstEmpty] = shiftItem;
 			total = 0;
@@ -81,10 +74,7 @@ public class InventoryUtils {
 		if (total != 0 && total == shiftItem.getAmount())
 			corruptedSlots.add(clickedSlot);
 		for (int slot : corruptedSlots)
-			BukkitLoader.getPacketHandler().send(whoShift,
-					BukkitLoader.getNmsProvider().packetSetSlot(
-							BukkitLoader.getNmsProvider().getContainerId(holder.getContainer(whoShift)), slot, state,
-							BukkitLoader.getNmsProvider().getSlotItem(holder.getContainer(whoShift), slot)));
+			BukkitLoader.getPacketHandler().send(whoShift, BukkitLoader.getNmsProvider().packetSetSlot(BukkitLoader.getNmsProvider().getContainerId(holder.getContainer(whoShift)), slot, state, BukkitLoader.getNmsProvider().getSlotItem(holder.getContainer(whoShift), slot)));
 		return modifiedSlots;
 	}
 
@@ -92,9 +82,8 @@ public class InventoryUtils {
 	 * @apiNote Find first empty slot in the "contents" field and then return empty
 	 *          slot (air/null slot)
 	 **/
-	public static int findFirstEmpty(@Nullable Player whoShift, @Nullable HolderGUI holder,
-			@Nullable ClickType clickType, List<Integer> corruptedSlots, DestinationType type,
-			List<Integer> ignoredSlots, ItemStack[] contents) {
+	public static int findFirstEmpty(@Nullable Player whoShift, @Nullable HolderGUI holder, @Nullable ClickType clickType, List<Integer> corruptedSlots, DestinationType type, List<Integer> ignoredSlots, ItemStack[] contents)
+	{
 		List<Integer> ignoreSlots = ignoredSlots == null ? Collections.emptyList() : ignoredSlots;
 		switch (type) {
 		case PLAYER_INV_ANVIL:
@@ -119,8 +108,7 @@ public class InventoryUtils {
 					continue;
 				}
 				if (i == null || i.getType() == Material.AIR) {
-					if (holder != null && whoShift != null && clickType != null
-							&& holder.onIteractItem(whoShift, i, clickType, slot - 1, true)) {
+					if (holder != null && whoShift != null && clickType != null && holder.onIteractItem(whoShift, i, clickType, slot - 1, true)) {
 						corruptedSlots.add(slot - 1);
 						continue;
 					}
@@ -149,7 +137,8 @@ public class InventoryUtils {
 	 * @apiNote Not usable for normal users. Only for devs modifying
 	 *          PacketPlayInWindowClick - convert clicked slot into bukkit slot
 	 **/
-	public static int convertToPlayerInvSlot(int slot) {
+	public static int convertToPlayerInvSlot(int slot)
+	{
 		switch (slot) {
 		case 0:
 			return 9;
