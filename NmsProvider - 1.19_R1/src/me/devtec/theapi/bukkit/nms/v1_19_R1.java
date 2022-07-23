@@ -1115,7 +1115,7 @@ public class v1_19_R1 implements NmsProvider {
 	@Override
 	public void loadParticles() {
 		for (Entry<ResourceKey<Particle<?>>, Particle<?>> s : IRegistry.aa.f())
-			me.devtec.theapi.bukkit.game.particles.Particle.identifier.put(s.getKey().a().toString(), s.getValue());
+			me.devtec.theapi.bukkit.game.particles.Particle.identifier.put(s.getKey().a().a(), s.getValue());
 	}
 
 	@Override
