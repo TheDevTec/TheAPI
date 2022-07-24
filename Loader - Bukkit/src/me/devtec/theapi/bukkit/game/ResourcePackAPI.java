@@ -15,33 +15,27 @@ public class ResourcePackAPI {
 	private static final Map<Player, String> resourcePacks = new ConcurrentHashMap<>();
 	private static final Map<Player, ResourcePackHandler> resourcePacksLoading = new ConcurrentHashMap<>();
 
-	public static ResourcePackHandler getHandlingPlayer(Player player)
-	{
+	public static ResourcePackHandler getHandlingPlayer(Player player) {
 		return ResourcePackAPI.resourcePacksLoading.get(player);
 	}
 
-	public static ResourcePackHandler removeHandlingPlayer(Player player)
-	{
+	public static ResourcePackHandler removeHandlingPlayer(Player player) {
 		return ResourcePackAPI.resourcePacksLoading.remove(player);
 	}
 
-	public static String getResourcePack(Player player)
-	{
+	public static String getResourcePack(Player player) {
 		return ResourcePackAPI.resourcePacks.get(player);
 	}
 
-	public static void setResourcePack(Player player, String resourcePack, String sha)
-	{
+	public static void setResourcePack(Player player, String resourcePack, String sha) {
 		ResourcePackAPI.setResourcePack(player, resourcePack, sha, false, null, null);
 	}
 
-	public static void setResourcePack(Player player, String resourcePack, String sha, ResourcePackHandler handler)
-	{
+	public static void setResourcePack(Player player, String resourcePack, String sha, ResourcePackHandler handler) {
 		ResourcePackAPI.setResourcePack(player, resourcePack, sha, false, null, handler);
 	}
 
-	public static void setResourcePack(Player player, String resourcePack, String sha, boolean requireRP, @Nullable String prompt, ResourcePackHandler handler)
-	{
+	public static void setResourcePack(Player player, String resourcePack, String sha, boolean requireRP, @Nullable String prompt, ResourcePackHandler handler) {
 		if (Ref.isOlderThan(8))
 			return; // 1.8+ only
 		if (handler != null)

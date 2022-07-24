@@ -59,18 +59,15 @@ public class ScoreboardAPI {
 		BukkitLoader.getPacketHandler().send(p, packet);
 	}
 
-	public void setSlot(int slot)
-	{
+	public void setSlot(int slot) {
 		slott = slot;
 	}
 
-	public void remove()
-	{
+	public void remove() {
 		destroy();
 	}
 
-	public void destroy()
-	{
+	public void destroy() {
 		if (destroyed)
 			return;
 		destroyed = true;
@@ -84,18 +81,15 @@ public class ScoreboardAPI {
 		data.clear();
 	}
 
-	public void setTitle(String name)
-	{
+	public void setTitle(String name) {
 		setDisplayName(name);
 	}
 
-	public void setName(String name)
-	{
+	public void setName(String name) {
 		setDisplayName(name);
 	}
 
-	public void setDisplayName(String text)
-	{
+	public void setDisplayName(String text) {
 		destroyed = false;
 		String displayName = name;
 		name = StringUtils.colorize(text);
@@ -105,8 +99,7 @@ public class ScoreboardAPI {
 			BukkitLoader.getPacketHandler().send(p, createObjectivePacket(2, name));
 	}
 
-	public void addLine(String value)
-	{
+	public void addLine(String value) {
 		int i = -1;
 		Set<String> slots = data.getKeys(player);
 		while (slots.contains("" + (++i)))
@@ -114,8 +107,7 @@ public class ScoreboardAPI {
 		setLine(i, value);
 	}
 
-	public void setLine(int line, String valueText)
-	{
+	public void setLine(int line, String valueText) {
 		String value = StringUtils.colorize(valueText);
 		if (getLine(line) != null && getLine(line).equals(!Ref.isNewerThan(12) ? cut(value) : value))
 			return;
@@ -135,8 +127,7 @@ public class ScoreboardAPI {
 		sendLine(team, line, add);
 	}
 
-	private String cut(String original)
-	{
+	private String cut(String original) {
 		if (original.isEmpty())
 			return original;
 		List<String> d = StringUtils.fixedSplit(original, 17);
@@ -154,8 +145,7 @@ public class ScoreboardAPI {
 		return text;
 	}
 
-	public void removeLine(int line)
-	{
+	public void removeLine(int line) {
 		if (!data.exists(player + "." + line))
 			return;
 		Team team = getTeam(line, line);
@@ -164,8 +154,7 @@ public class ScoreboardAPI {
 		data.remove(player + "." + line);
 	}
 
-	public void removeUpperLines(int line)
-	{
+	public void removeUpperLines(int line) {
 		for (String a : data.getKeys(player))
 			if (Integer.parseInt(a) > line) {
 				Team team = data.getAs(player + "." + a, Team.class);
@@ -175,39 +164,34 @@ public class ScoreboardAPI {
 			}
 	}
 
-	public String getLine(int line)
-	{
+	public String getLine(int line) {
 		if (data.exists(player + "." + line) && data.get(player + "." + line) != null)
 			return ((Team) data.get(player + "." + line)).getValue();
 		return null;
 	}
 
-	public List<String> getLines()
-	{
+	public List<String> getLines() {
 		List<String> lines = new ArrayList<>();
 		for (String line : data.getKeys(player))
 			lines.add(((Team) data.get(player + "." + line)).getValue());
 		return lines;
 	}
 
-	private void sendLine(Team team, int line, boolean add)
-	{
+	private void sendLine(Team team, int line, boolean add) {
 		destroyed = false;
 		team.sendLine(line);
 		if (add)
 			data.set(player + "." + line, team);
 	}
 
-	private Team getTeam(int line, int realPos)
-	{
+	private Team getTeam(int line, int realPos) {
 		Team result = data.getAs(player + "." + line, Team.class);
 		if (result == null)
 			data.set(player + "." + line, result = new Team(line, realPos));
 		return result;
 	}
 
-	private Object[] create(String prefix, String suffix, String name, String realName, int slot)
-	{
+	private Object[] create(String prefix, String suffix, String name, String realName, int slot) {
 		ScoreboardAPI.protection.set(player + "." + name, true);
 		Object[] o = new Object[2];
 		o[0] = TeamUtils.createTeamPacket(0, TeamUtils.white, prefix, suffix, name, realName);
@@ -215,16 +199,14 @@ public class ScoreboardAPI {
 		return o;
 	}
 
-	private Object[] modify(String prefix, String suffix, String name, String realName, int slot)
-	{
+	private Object[] modify(String prefix, String suffix, String name, String realName, int slot) {
 		Object[] o = new Object[2];
 		o[0] = TeamUtils.createTeamPacket(2, TeamUtils.white, prefix, suffix, name, realName);
 		o[1] = BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, name, slot);
 		return o;
 	}
 
-	private Object[] remove(String name, String realName)
-	{
+	private Object[] remove(String name, String realName) {
 		ScoreboardAPI.protection.remove(player + "." + name);
 		Object[] o = new Object[2];
 		o[0] = TeamUtils.createTeamPacket(1, TeamUtils.white, "", "", name, realName);
@@ -232,8 +214,7 @@ public class ScoreboardAPI {
 		return o;
 	}
 
-	private Object createObjectivePacket(int mode, String displayName)
-	{
+	private Object createObjectivePacket(int mode, String displayName) {
 		Object packet = BukkitLoader.getNmsProvider().packetScoreboardObjective();
 		if (Ref.isNewerThan(16)) {
 			Ref.set(packet, "d", sbname);
@@ -277,8 +258,7 @@ public class ScoreboardAPI {
 			name = "" + slot;
 		}
 
-		public void sendLine(int line)
-		{
+		public void sendLine(int line) {
 			if (first) {
 				if (ScoreboardAPI.protection.getBoolean(player + "." + name))
 					name += ScoreboardAPI.protectId;
@@ -304,13 +284,11 @@ public class ScoreboardAPI {
 			}
 		}
 
-		public String getValue()
-		{
+		public String getValue() {
 			return Ref.isOlderThan(13) ? prefix + currentPlayer.replaceFirst(format, "") + suffix : prefix + suffix;
 		}
 
-		private void setPlayer(String teamName)
-		{
+		private void setPlayer(String teamName) {
 			String name = format + teamName;
 			if (currentPlayer == null || !currentPlayer.equals(name)) {
 				old = currentPlayer;
@@ -318,8 +296,7 @@ public class ScoreboardAPI {
 			}
 		}
 
-		public void setValue(String value)
-		{
+		public void setValue(String value) {
 			String a = value;
 			if (a == null) {
 				if (!prefix.equals(""))

@@ -15,8 +15,7 @@ public class PacketManager {
 			PacketManager.listeners.put(l, new ArrayList<>());
 	}
 
-	public static Object call(String player, Object packet, Object channel, PacketType type)
-	{
+	public static Object call(String player, Object packet, Object channel, PacketType type) {
 		if (packet == null || channel == null)
 			return packet;
 		for (Priority o : PacketManager.list)
@@ -27,37 +26,31 @@ public class PacketManager {
 		return packet;
 	}
 
-	public static void register(PacketListener listener)
-	{
+	public static void register(PacketListener listener) {
 		PacketManager.notify(listener, null, listener.getPriority());
 	}
 
-	public static void unregister(PacketListener listener)
-	{
+	public static void unregister(PacketListener listener) {
 		PacketManager.listeners.get(listener.getPriority()).remove(listener);
 	}
 
-	public static void setPriority(PacketListener listener, Priority priority)
-	{
+	public static void setPriority(PacketListener listener, Priority priority) {
 		PacketManager.notify(listener, listener.getPriority(), priority);
 		listener.priority = priority;
 	}
 
-	public static Priority getPriority(PacketListener listener)
-	{
+	public static Priority getPriority(PacketListener listener) {
 		return listener.getPriority();
 	}
 
-	public static boolean isRegistered(PacketListener listener)
-	{
+	public static boolean isRegistered(PacketListener listener) {
 		for (Priority p : PacketManager.list)
 			if (PacketManager.listeners.get(p).contains(listener))
 				return true;
 		return false;
 	}
 
-	protected static void notify(PacketListener listener, Priority old, Priority neww)
-	{
+	protected static void notify(PacketListener listener, Priority old, Priority neww) {
 		if (listener == null || neww == null)
 			return;
 		if (old != null)
@@ -65,8 +58,7 @@ public class PacketManager {
 		PacketManager.listeners.get(neww).add(listener);
 	}
 
-	public static void unregisterAll()
-	{
+	public static void unregisterAll() {
 		for (List<PacketListener> l : PacketManager.listeners.values())
 			l.clear();
 	}

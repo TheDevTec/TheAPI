@@ -12,8 +12,7 @@ import me.devtec.theapi.velocity.VelocityLoader;
 
 public class VelocitySelectorUtils implements SelectorUtils {
 	@Override
-	public List<String> build(Selector selector)
-	{
+	public List<String> build(Selector selector) {
 		List<String> list = new ArrayList<>();
 		switch (selector) {
 		case SERVER:
@@ -50,8 +49,7 @@ public class VelocitySelectorUtils implements SelectorUtils {
 	}
 
 	@Override
-	public boolean check(Selector selector, String value)
-	{
+	public boolean check(Selector selector, String value) {
 		switch (selector) {
 		case BOOLEAN:
 			return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");

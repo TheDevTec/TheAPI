@@ -14,8 +14,7 @@ public class TeamUtils {
 	public static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
 	public static final Object white = Ref.method(Ref.nms("", "EnumChatFormat"), "a", char.class) == null ? Ref.invokeStatic(Ref.method(Ref.nms("", "EnumChatFormat"), "a", int.class), -1) : Ref.invokeStatic(Ref.method(Ref.nms("", "EnumChatFormat"), "a", char.class), 'f');
 
-	public static Object createTeamPacket(int mode, Object color, String prefix, String suffix, String name, String realName)
-	{
+	public static Object createTeamPacket(int mode, Object color, String prefix, String suffix, String name, String realName) {
 		Object packet = BukkitLoader.getNmsProvider().packetScoreboardTeam();
 		Object nameList = ImmutableList.of(name);
 		String always = "ALWAYS";

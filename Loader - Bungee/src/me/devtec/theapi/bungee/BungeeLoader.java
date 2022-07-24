@@ -37,15 +37,13 @@ import net.md_5.bungee.event.EventHandler;
 public class BungeeLoader extends Plugin implements Listener {
 
 	@Override
-	public void onLoad()
-	{
+	public void onLoad() {
 		BungeeLoader.initTheAPI(this);
 		getProxy().getPluginManager().registerListener(this, this);
 	}
 
 	@Override
-	public void onDisable()
-	{
+	public void onDisable() {
 		API.setEnabled(false);
 
 		// OfflineCache support!
@@ -53,27 +51,23 @@ public class BungeeLoader extends Plugin implements Listener {
 	}
 
 	@EventHandler
-	public void onPreLoginEvent(PreLoginEvent e)
-	{
+	public void onPreLoginEvent(PreLoginEvent e) {
 		API.offlineCache().setLookup(API.offlineCache().lookupId(e.getConnection().getName()), e.getConnection().getName());
 	}
 
 	@EventHandler
-	public void onLoginEvent(LoginEvent e)
-	{ // fix uuid - premium login?
+	public void onLoginEvent(LoginEvent e) { // fix uuid - premium login?
 		API.offlineCache().setLookup(e.getConnection().getUniqueId(), e.getConnection().getName());
 	}
 
 	@EventHandler
-	public void onDisconnect(PlayerDisconnectEvent e)
-	{
+	public void onDisconnect(PlayerDisconnectEvent e) {
 		Config cache = API.removeCache(e.getPlayer().getUniqueId());
 		if (cache != null)
 			cache.save();
 	}
 
-	public static void initTheAPI(Plugin plugin)
-	{
+	public static void initTheAPI(Plugin plugin) {
 
 		Ref.init(ServerType.BUNGEECORD, ProxyServer.getInstance().getVersion()); // Server version
 		ComponentAPI.registerTransformer("BUNGEECORD", new BungeeComponentAPI<>());
@@ -93,8 +87,7 @@ public class BungeeLoader extends Plugin implements Listener {
 			Constructor<?> c = Ref.constructor(Ref.getClass("net.md_5.bungee.api.plugin.PluginClassloader"), ProxyServer.class, PluginDescription.class, URL[].class);
 
 			@Override
-			public void load(File file)
-			{
+			public void load(File file) {
 				if (isLoaded(file) || !file.exists())
 					return;
 				loaded.add(file);
@@ -106,8 +99,7 @@ public class BungeeLoader extends Plugin implements Listener {
 			}
 
 			@Override
-			public boolean isLoaded(File file)
-			{
+			public boolean isLoaded(File file) {
 				return loaded.contains(file);
 			}
 		};
@@ -120,14 +112,12 @@ public class BungeeLoader extends Plugin implements Listener {
 			Pattern hex = Pattern.compile("(#[a-fA-F0-9]{6})");
 
 			@Override
-			public String gradient(String msg, String fromHex, String toHex)
-			{
+			public String gradient(String msg, String fromHex, String toHex) {
 				return API.basics().gradient(msg, fromHex, toHex);
 			}
 
 			@Override
-			public String generateColor()
-			{
+			public String generateColor() {
 				StringBuilder b = new StringBuilder("#");
 				for (int i = 0; i < 6; ++i)
 					b.append(characters[random.nextInt(16)]);
@@ -135,14 +125,12 @@ public class BungeeLoader extends Plugin implements Listener {
 			}
 
 			@Override
-			public String[] getLastColors(String text)
-			{
+			public String[] getLastColors(String text) {
 				return API.basics().getLastColors(getLast, text);
 			}
 
 			@Override
-			public String replaceHex(String text)
-			{
+			public String replaceHex(String text) {
 				String msg = text;
 				Matcher match = hex.matcher(msg);
 				while (match.find()) {
@@ -156,8 +144,7 @@ public class BungeeLoader extends Plugin implements Listener {
 			}
 
 			@Override
-			public String rainbow(String msg, String fromHex, String toHex)
-			{
+			public String rainbow(String msg, String fromHex, String toHex) {
 				return API.basics().rainbow(msg, fromHex, toHex);
 			}
 		};

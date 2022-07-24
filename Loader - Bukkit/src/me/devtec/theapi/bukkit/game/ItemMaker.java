@@ -71,8 +71,7 @@ public class ItemMaker {
 		this.material = material;
 	}
 
-	protected ItemMeta apply(ItemMeta meta)
-	{
+	protected ItemMeta apply(ItemMeta meta) {
 		if (displayName != null)
 			meta.setDisplayName(displayName);
 		if (lore != null)
@@ -97,74 +96,62 @@ public class ItemMaker {
 		return meta;
 	}
 
-	public ItemMaker amount(int amount)
-	{
+	public ItemMaker amount(int amount) {
 		this.amount = amount;
 		return this;
 	}
 
-	public ItemMaker damage(int damage)
-	{
+	public ItemMaker damage(int damage) {
 		this.damage = (short) damage;
 		return this;
 	}
 
-	public ItemMaker data(int data)
-	{
+	public ItemMaker data(int data) {
 		this.data = (byte) data;
 		return this;
 	}
 
-	public ItemMaker displayName(String name)
-	{
+	public ItemMaker displayName(String name) {
 		displayName = StringUtils.colorize(name);
 		return this;
 	}
 
-	public ItemMaker lore(String... lore)
-	{
+	public ItemMaker lore(String... lore) {
 		return this.lore(Arrays.asList(lore));
 	}
 
-	public ItemMaker lore(List<String> lore)
-	{
+	public ItemMaker lore(List<String> lore) {
 		this.lore = StringUtils.colorize(lore);
 		return this;
 	}
 
-	public ItemMaker customModel(int customModel)
-	{
+	public ItemMaker customModel(int customModel) {
 		this.customModel = customModel;
 		return this;
 	}
 
-	public ItemMaker unbreakable(boolean unbreakable)
-	{
+	public ItemMaker unbreakable(boolean unbreakable) {
 		this.unbreakable = unbreakable;
 		return this;
 	}
 
-	public ItemMaker itemFlags(String... flag)
-	{
+	public ItemMaker itemFlags(String... flag) {
 		return this.itemFlags(Arrays.asList(flag));
 	}
 
-	public ItemMaker itemFlags(List<String> flag)
-	{
+	public ItemMaker itemFlags(List<String> flag) {
 		itemFlags = flag;
 		return this;
 	}
 
-	public ItemMaker enchant(Enchantment enchant, int level)
-	{
+	public ItemMaker enchant(Enchantment enchant, int level) {
 		if (enchants == null)
 			enchants = new HashMap<>();
 		enchants.put(enchant, level);
 		return this;
 	}
 
-	public ItemStack build()
-	{
+	public ItemStack build() {
 		ItemStack item = data != 0 ? new ItemStack(material, amount, damage, data) : new ItemStack(material, amount, damage);
 		item.setItemMeta(apply(item.getItemMeta()));
 		return item;
@@ -184,30 +171,26 @@ public class ItemMaker {
 			super(ItemMaker.skull);
 		}
 
-		public HeadItemMaker skinName(String name)
-		{
+		public HeadItemMaker skinName(String name) {
 			owner = name;
 			ownerType = 0;
 			return this;
 		}
 
-		public HeadItemMaker skinValues(String name)
-		{
+		public HeadItemMaker skinValues(String name) {
 			owner = name;
 			ownerType = 1;
 			return this;
 		}
 
-		public HeadItemMaker skinUrl(String name)
-		{
+		public HeadItemMaker skinUrl(String name) {
 			owner = name;
 			ownerType = 2;
 			return this;
 		}
 
 		@Override
-		protected ItemMeta apply(ItemMeta meta)
-		{
+		protected ItemMeta apply(ItemMeta meta) {
 			SkullMeta iMeta = (SkullMeta) meta;
 			if (owner != null)
 				switch (ownerType) {
@@ -236,15 +219,13 @@ public class ItemMaker {
 			super(material);
 		}
 
-		public LeatherItemMaker color(Color color)
-		{
+		public LeatherItemMaker color(Color color) {
 			this.color = color;
 			return this;
 		}
 
 		@Override
-		protected ItemMeta apply(ItemMeta meta)
-		{
+		protected ItemMeta apply(ItemMeta meta) {
 			LeatherArmorMeta iMeta = (LeatherArmorMeta) meta;
 			if (color != null)
 				iMeta.setColor(color);
@@ -262,51 +243,43 @@ public class ItemMaker {
 			super(Material.WRITTEN_BOOK);
 		}
 
-		public BookItemMaker author(String author)
-		{
+		public BookItemMaker author(String author) {
 			this.author = StringUtils.colorize(author);
 			return this;
 		}
 
-		public BookItemMaker title(String title)
-		{
+		public BookItemMaker title(String title) {
 			this.title = StringUtils.colorize(title);
 			return this;
 		}
 
-		public BookItemMaker generation(String generation)
-		{
+		public BookItemMaker generation(String generation) {
 			this.generation = generation;
 			return this;
 		}
 
-		public BookItemMaker pages(String... pages)
-		{
+		public BookItemMaker pages(String... pages) {
 			return this.pages(Arrays.asList(pages));
 		}
 
-		public BookItemMaker pages(List<String> pages)
-		{
+		public BookItemMaker pages(List<String> pages) {
 			this.pages = new ArrayList<>();
 			for (String string : StringUtils.colorize(pages))
 				this.pages.add(ComponentAPI.fromString(string));
 			return this;
 		}
 
-		public BookItemMaker pagesComp(Component... pages)
-		{
+		public BookItemMaker pagesComp(Component... pages) {
 			return this.pagesComp(Arrays.asList(pages));
 		}
 
-		public BookItemMaker pagesComp(List<Component> pages)
-		{
+		public BookItemMaker pagesComp(List<Component> pages) {
 			this.pages = pages;
 			return this;
 		}
 
 		@Override
-		protected ItemMeta apply(ItemMeta meta)
-		{
+		protected ItemMeta apply(ItemMeta meta) {
 			BookMeta iMeta = (BookMeta) meta;
 			if (author != null)
 				iMeta.setAuthor(author);
@@ -333,8 +306,7 @@ public class ItemMaker {
 		}
 
 		@Override
-		protected ItemMeta apply(ItemMeta meta)
-		{
+		protected ItemMeta apply(ItemMeta meta) {
 			EnchantmentStorageMeta iMeta = (EnchantmentStorageMeta) meta;
 			if (super.displayName != null)
 				iMeta.setDisplayName(super.displayName);
@@ -369,26 +341,22 @@ public class ItemMaker {
 			super(material);
 		}
 
-		public PotionItemMaker color(Color color)
-		{
+		public PotionItemMaker color(Color color) {
 			this.color = color;
 			return this;
 		}
 
-		public PotionItemMaker potionEffects(PotionEffect... effects)
-		{
+		public PotionItemMaker potionEffects(PotionEffect... effects) {
 			return this.potionEffects(Arrays.asList(effects));
 		}
 
-		public PotionItemMaker potionEffects(List<PotionEffect> effects)
-		{
+		public PotionItemMaker potionEffects(List<PotionEffect> effects) {
 			this.effects = effects;
 			return this;
 		}
 
 		@Override
-		protected ItemMeta apply(ItemMeta meta)
-		{
+		protected ItemMeta apply(ItemMeta meta) {
 			PotionMeta iMeta = (PotionMeta) meta;
 			if (color != null && Ref.isNewerThan(10))
 				iMeta.setColor(color);
@@ -408,21 +376,18 @@ public class ItemMaker {
 			super.data = xMaterial.getData();
 		}
 
-		public ShulkerBoxItemMaker name(String name)
-		{
+		public ShulkerBoxItemMaker name(String name) {
 			this.name = name;
 			return this;
 		}
 
-		public ShulkerBoxItemMaker contents(ItemStack[] contents)
-		{
+		public ShulkerBoxItemMaker contents(ItemStack[] contents) {
 			this.contents = contents;
 			return this;
 		}
 
 		@Override
-		protected ItemMeta apply(ItemMeta meta)
-		{
+		protected ItemMeta apply(ItemMeta meta) {
 			BlockStateMeta iMeta = (BlockStateMeta) meta;
 			ShulkerBox shulker = (ShulkerBox) iMeta.getBlockState();
 			if (name != null)
@@ -441,20 +406,17 @@ public class ItemMaker {
 			super(Material.getMaterial("BUNDLE"));
 		}
 
-		public BundleItemMaker contents(ItemStack... contents)
-		{
+		public BundleItemMaker contents(ItemStack... contents) {
 			return this.contents(Arrays.asList(contents));
 		}
 
-		public BundleItemMaker contents(List<ItemStack> contents)
-		{
+		public BundleItemMaker contents(List<ItemStack> contents) {
 			this.contents = contents;
 			return this;
 		}
 
 		@Override
-		protected ItemMeta apply(ItemMeta meta)
-		{
+		protected ItemMeta apply(ItemMeta meta) {
 			BundleMeta iMeta = (BundleMeta) meta;
 			if (contents != null)
 				iMeta.setItems(contents);
@@ -470,20 +432,17 @@ public class ItemMaker {
 			super.data = xMaterial.getData();
 		}
 
-		public BannerItemMaker patterns(Pattern... contents)
-		{
+		public BannerItemMaker patterns(Pattern... contents) {
 			return this.patterns(Arrays.asList(contents));
 		}
 
-		public BannerItemMaker patterns(List<Pattern> patterns)
-		{
+		public BannerItemMaker patterns(List<Pattern> patterns) {
 			this.patterns = patterns;
 			return this;
 		}
 
 		@Override
-		protected ItemMeta apply(ItemMeta meta)
-		{
+		protected ItemMeta apply(ItemMeta meta) {
 			BannerMeta iMeta = (BannerMeta) meta;
 			if (patterns != null)
 				iMeta.setPatterns(patterns);
@@ -491,28 +450,23 @@ public class ItemMaker {
 		}
 	}
 
-	public static ItemMaker of(Material material)
-	{
+	public static ItemMaker of(Material material) {
 		return new ItemMaker(material);
 	}
 
-	public static HeadItemMaker ofHead()
-	{
+	public static HeadItemMaker ofHead() {
 		return new HeadItemMaker();
 	}
 
-	public static LeatherItemMaker ofLeatherArmor(Material material)
-	{
+	public static LeatherItemMaker ofLeatherArmor(Material material) {
 		return new LeatherItemMaker(ItemMaker.skull);
 	}
 
-	public static BookItemMaker ofBook()
-	{
+	public static BookItemMaker ofBook() {
 		return new BookItemMaker();
 	}
 
-	public static EnchantedBookItemMaker ofEnchantedBook()
-	{
+	public static EnchantedBookItemMaker ofEnchantedBook() {
 		return new EnchantedBookItemMaker();
 	}
 
@@ -525,14 +479,12 @@ public class ItemMaker {
 			m = mat;
 		}
 
-		public Material toMaterial()
-		{
+		public Material toMaterial() {
 			return m;
 		}
 	}
 
-	public static PotionItemMaker ofPotion(Potion potionType)
-	{
+	public static PotionItemMaker ofPotion(Potion potionType) {
 		return new PotionItemMaker(potionType.toMaterial());
 	}
 
@@ -547,19 +499,16 @@ public class ItemMaker {
 			m = mat;
 		}
 
-		public XMaterial toMaterial()
-		{
+		public XMaterial toMaterial() {
 			return m;
 		}
 	}
 
-	public static ShulkerBoxItemMaker ofShulkerBox(ShulkerBoxColor color)
-	{
+	public static ShulkerBoxItemMaker ofShulkerBox(ShulkerBoxColor color) {
 		return new ShulkerBoxItemMaker(color.toMaterial());
 	}
 
-	public static BundleItemMaker ofBundle()
-	{
+	public static BundleItemMaker ofBundle() {
 		return new BundleItemMaker();
 	}
 
@@ -573,19 +522,16 @@ public class ItemMaker {
 			m = mat;
 		}
 
-		public XMaterial toMaterial()
-		{
+		public XMaterial toMaterial() {
 			return m;
 		}
 	}
 
-	public static BannerItemMaker ofBanner(BannerColor color)
-	{
+	public static BannerItemMaker ofBanner(BannerColor color) {
 		return new BannerItemMaker(color.toMaterial());
 	}
 
-	public static void saveToConfig(Config config, String path, ItemStack stack)
-	{
+	public static void saveToConfig(Config config, String path, ItemStack stack) {
 		if (stack == null)
 			return; // invalid item
 		config.remove(path); // clear section
@@ -703,8 +649,7 @@ public class ItemMaker {
 	}
 
 	@Nullable // Nullable if section is empty / type is invalid
-	public static ItemStack loadFromConfig(Config config, String path)
-	{
+	public static ItemStack loadFromConfig(Config config, String path) {
 		if (config.getString(path + ".type") == null)
 			return null; // missing type
 
@@ -815,8 +760,7 @@ public class ItemMaker {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static String fromUrl(String url)
-	{
+	public static String fromUrl(String url) {
 		try {
 			java.net.URLConnection connection = new URL(url).openConnection();
 			connection.setRequestProperty("User-Agent", "DevTec-JavaClient");

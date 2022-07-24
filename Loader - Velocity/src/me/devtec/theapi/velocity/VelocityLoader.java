@@ -40,8 +40,7 @@ public class VelocityLoader {
 	private final ProxyServer server;
 	private static VelocityLoader plugin;
 
-	public static ProxyServer getServer()
-	{
+	public static ProxyServer getServer() {
 		return VelocityLoader.plugin.server;
 	}
 
@@ -53,8 +52,7 @@ public class VelocityLoader {
 	}
 
 	@Subscribe
-	public void onProxyInitialization(ProxyShutdownEvent event)
-	{
+	public void onProxyInitialization(ProxyShutdownEvent event) {
 		API.setEnabled(false);
 
 		// OfflineCache support!
@@ -62,27 +60,23 @@ public class VelocityLoader {
 	}
 
 	@Subscribe
-	public void onPreLoginEvent(PreLoginEvent e)
-	{
+	public void onPreLoginEvent(PreLoginEvent e) {
 		API.offlineCache().setLookup(API.offlineCache().lookupId(e.getUsername()), e.getUsername());
 	}
 
 	@Subscribe
-	public void onLoginEvent(LoginEvent e)
-	{ // fix uuid - premium login?
+	public void onLoginEvent(LoginEvent e) { // fix uuid - premium login?
 		API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getUsername());
 	}
 
 	@Subscribe
-	public void onDisconnect(DisconnectEvent e)
-	{
+	public void onDisconnect(DisconnectEvent e) {
 		Config cache = API.removeCache(e.getPlayer().getUniqueId());
 		if (cache != null)
 			cache.save();
 	}
 
-	public static void initTheAPI(ProxyServer server)
-	{
+	public static void initTheAPI(ProxyServer server) {
 
 		Ref.init(ServerType.VELOCITY, server.getVersion().getVersion()); // Server version
 		ComponentAPI.registerTransformer("ADVENTURE", new AdventureComponentAPI<>());
@@ -99,8 +93,7 @@ public class VelocityLoader {
 
 			@SuppressWarnings("resource")
 			@Override
-			public void load(File file)
-			{
+			public void load(File file) {
 				if (isLoaded(file) || !file.exists())
 					return;
 				loaded.add(file);
@@ -112,8 +105,7 @@ public class VelocityLoader {
 			}
 
 			@Override
-			public boolean isLoaded(File file)
-			{
+			public boolean isLoaded(File file) {
 				return loaded.contains(file);
 			}
 		};
@@ -126,14 +118,12 @@ public class VelocityLoader {
 			Pattern hex = Pattern.compile("(&?#[a-fA-F0-9]{6})");
 
 			@Override
-			public String gradient(String msg, String fromHex, String toHex)
-			{
+			public String gradient(String msg, String fromHex, String toHex) {
 				return API.basics().gradient(msg, fromHex, toHex);
 			}
 
 			@Override
-			public String generateColor()
-			{
+			public String generateColor() {
 				StringBuilder b = new StringBuilder("&#");
 				for (int i = 0; i < 6; ++i)
 					b.append(characters[random.nextInt(16)]);
@@ -141,14 +131,12 @@ public class VelocityLoader {
 			}
 
 			@Override
-			public String[] getLastColors(String text)
-			{
+			public String[] getLastColors(String text) {
 				return API.basics().getLastColors(getLast, text);
 			}
 
 			@Override
-			public String replaceHex(String text)
-			{
+			public String replaceHex(String text) {
 				String msg = text;
 				Matcher match = hex.matcher(msg);
 				while (match.find()) {
@@ -160,8 +148,7 @@ public class VelocityLoader {
 			}
 
 			@Override
-			public String rainbow(String msg, String fromHex, String toHex)
-			{
+			public String rainbow(String msg, String fromHex, String toHex) {
 				return API.basics().rainbow(msg, fromHex, toHex);
 			}
 		};

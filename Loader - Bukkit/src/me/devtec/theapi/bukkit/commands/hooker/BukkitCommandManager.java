@@ -29,13 +29,11 @@ public class BukkitCommandManager implements CommandsRegister {
 
 	private static final Constructor<?> constructor = Ref.constructor(PluginCommand.class, String.class, Plugin.class);
 
-	public static PluginCommand createCommand(String name, Plugin plugin)
-	{
+	public static PluginCommand createCommand(String name, Plugin plugin) {
 		return (PluginCommand) Ref.newInstance(constructor, name, plugin);
 	}
 
-	public static void registerCommand(PluginCommand command)
-	{
+	public static void registerCommand(PluginCommand command) {
 		String label = command.getName().toLowerCase(Locale.ENGLISH).trim();
 		String sd = command.getPlugin().getName().toLowerCase(Locale.ENGLISH).trim();
 		command.setLabel(sd + ":" + label);
@@ -45,8 +43,7 @@ public class BukkitCommandManager implements CommandsRegister {
 				command.setTabCompleter((TabCompleter) command.getExecutor());
 			} else
 				command.setTabCompleter(new TabCompleter() {
-					public List<String> onTabComplete(CommandSender arg0, Command arg1, String arg2, String[] arg3)
-					{
+					public List<String> onTabComplete(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 						return null;
 					}
 				});
@@ -72,15 +69,13 @@ public class BukkitCommandManager implements CommandsRegister {
 	}
 
 	@Override
-	public void register(CommandHolder<?> commandHolder, String command, String[] aliases)
-	{
+	public void register(CommandHolder<?> commandHolder, String command, String[] aliases) {
 		PluginCommand cmd = createCommand(command, JavaPlugin.getPlugin(BukkitLoader.class));
 		cmd.setAliases(Arrays.asList(aliases));
 		cmd.setExecutor(new CommandExecutor() {
 
 			@Override
-			public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args)
-			{
+			public boolean onCommand(CommandSender s, Command arg1, String arg2, String[] args) {
 				commandHolder.execute(s, args);
 				return true;
 			}
@@ -88,8 +83,7 @@ public class BukkitCommandManager implements CommandsRegister {
 		cmd.setTabCompleter(new TabCompleter() {
 
 			@Override
-			public List<String> onTabComplete(CommandSender s, Command arg1, String arg2, String[] args)
-			{
+			public List<String> onTabComplete(CommandSender s, Command arg1, String arg2, String[] args) {
 				return commandHolder.tablist(s, args);
 			}
 		});

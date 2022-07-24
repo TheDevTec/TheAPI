@@ -90,8 +90,7 @@ public class Position implements Cloneable {
 		pitch = cloneable.getPitch();
 	}
 
-	public static Position fromString(String text)
-	{
+	public static Position fromString(String text) {
 		try {
 			String stored = text.substring(10, text.length() - 1);
 			String[] part = stored.replace(":", ".").split("/");
@@ -101,173 +100,145 @@ public class Position implements Cloneable {
 		return null;
 	}
 
-	public static Position fromBlock(Block block)
-	{
+	public static Position fromBlock(Block block) {
 		if (block != null)
 			return new Position(block.getLocation());
 		return null;
 	}
 
-	public static Position fromLocation(Location location)
-	{
+	public static Position fromLocation(Location location) {
 		if (location != null)
 			return new Position(location);
 		return null;
 	}
 
-	public Biome getBiome()
-	{
+	public Biome getBiome() {
 		return getBlock().getBiome();
 	}
 
-	public int getData()
-	{
+	public int getData() {
 		return Ref.isOlderThan(8) ? (byte) BukkitLoader.getNmsProvider().getData(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ()) : getType().getData();
 	}
 
-	public Material getBukkitType()
-	{
+	public Material getBukkitType() {
 		return getType().getType();
 	}
 
-	public Object getIBlockData()
-	{
+	public Object getIBlockData() {
 		return BukkitLoader.getNmsProvider().getBlock(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ());
 	}
 
-	public TheMaterial getType()
-	{
+	public TheMaterial getType() {
 		Object chunk = getNMSChunk();
 		if (Ref.isOlderThan(8)) // 1.7.10
 			return TheMaterial.fromData(BukkitLoader.getNmsProvider().getBlock(chunk, getBlockX(), getBlockY(), getBlockZ()), (byte) BukkitLoader.getNmsProvider().getData(chunk, getBlockX(), getBlockY(), getBlockZ()));
 		return TheMaterial.fromData(BukkitLoader.getNmsProvider().getBlock(chunk, getBlockX(), getBlockY(), getBlockZ()));
 	}
 
-	public Position subtract(double x, double y, double z)
-	{
+	public Position subtract(double x, double y, double z) {
 		this.x -= x;
 		this.y -= y;
 		this.z -= z;
 		return this;
 	}
 
-	public Position subtract(Position position)
-	{
+	public Position subtract(Position position) {
 		x -= position.getX();
 		y -= position.getY();
 		z -= position.getZ();
 		return this;
 	}
 
-	public Position subtract(Location location)
-	{
+	public Position subtract(Location location) {
 		x -= location.getX();
 		y -= location.getY();
 		z -= location.getZ();
 		return this;
 	}
 
-	public String getWorldName()
-	{
+	public String getWorldName() {
 		return w;
 	}
 
-	public Position setWorld(World world)
-	{
+	public Position setWorld(World world) {
 		w = world.getName();
 		return this;
 	}
 
-	public Position setX(double x)
-	{
+	public Position setX(double x) {
 		this.x = x;
 		return this;
 	}
 
-	public Position setY(double y)
-	{
+	public Position setY(double y) {
 		this.y = y;
 		return this;
 	}
 
-	public Position setZ(double z)
-	{
+	public Position setZ(double z) {
 		this.z = z;
 		return this;
 	}
 
-	public Position setYaw(float yaw)
-	{
+	public Position setYaw(float yaw) {
 		this.yaw = yaw;
 		return this;
 	}
 
-	public Position setPitch(float pitch)
-	{
+	public Position setPitch(float pitch) {
 		this.pitch = pitch;
 		return this;
 	}
 
-	public double distance(Location location)
-	{
+	public double distance(Location location) {
 		return Math.sqrt(this.distanceSquared(location));
 	}
 
-	public double distance(Position position)
-	{
+	public double distance(Position position) {
 		return Math.sqrt(this.distanceSquared(position));
 	}
 
-	public Position multiply(double m)
-	{
+	public Position multiply(double m) {
 		x *= m;
 		y *= m;
 		z *= m;
 		return this;
 	}
 
-	public Position zero()
-	{
+	public Position zero() {
 		x = 0;
 		y = 0;
 		z = 0;
 		return this;
 	}
 
-	public double length()
-	{
+	public double length() {
 		return Math.sqrt(lengthSquared());
 	}
 
-	public double lengthSquared()
-	{
+	public double lengthSquared() {
 		return square(x) + square(y) + square(z);
 	}
 
-	public double distanceSquared(Location location)
-	{
+	public double distanceSquared(Location location) {
 		return square(x - location.getX()) + square(y - location.getY()) + square(z - location.getZ());
 	}
 
-	public double distanceSquared(Position position)
-	{
+	public double distanceSquared(Position position) {
 		return square(x - position.x) + square(y - position.y) + square(z - position.z);
 	}
 
-	private double square(double d)
-	{
+	private double square(double d) {
 		return d * d;
 	}
 
-	public Chunk getChunk()
-	{
+	public Chunk getChunk() {
 		if (Ref.isNewerThan(12))
 			return getWorld().getChunkAt(getBlockX() >> 4, getBlockZ() >> 4);
 		return BukkitLoader.getNmsProvider().toBukkitChunk(getNMSChunk());
 	}
 
-	public Object getNMSChunk()
-	{
+	public Object getNMSChunk() {
 		try {
 			return BukkitLoader.getNmsProvider().getChunk(getWorld(), getBlockX() >> 4, getBlockZ() >> 4);
 		} catch (Exception er) {
@@ -275,133 +246,110 @@ public class Position implements Cloneable {
 		return null;
 	}
 
-	public Object getBlockPosition()
-	{
+	public Object getBlockPosition() {
 		return BukkitLoader.getNmsProvider().blockPosition(getBlockX(), getBlockY(), getBlockZ());
 	}
 
-	public ChunkSnapshot getChunkSnapshot()
-	{
+	public ChunkSnapshot getChunkSnapshot() {
 		return getChunk().getChunkSnapshot();
 	}
 
-	public Block getBlock()
-	{
+	public Block getBlock() {
 		return getWorld().getBlockAt(getBlockX(), getBlockY(), getBlockZ());
 	}
 
-	public World getWorld()
-	{
+	public World getWorld() {
 		return Bukkit.getWorld(w);
 	}
 
-	public Position add(double x, double y, double z)
-	{
+	public Position add(double x, double y, double z) {
 		this.x += x;
 		this.y += y;
 		this.z += z;
 		return this;
 	}
 
-	public Position add(Position position)
-	{
+	public Position add(Position position) {
 		x += position.getX();
 		y += position.getY();
 		z += position.getZ();
 		return this;
 	}
 
-	public Position add(Location location)
-	{
+	public Position add(Location location) {
 		x += location.getX();
 		y += location.getY();
 		z += location.getZ();
 		return this;
 	}
 
-	public double getX()
-	{
+	public double getX() {
 		return x;
 	}
 
-	public double getY()
-	{
+	public double getY() {
 		return y;
 	}
 
-	public double getZ()
-	{
+	public double getZ() {
 		return z;
 	}
 
-	public int getBlockX()
-	{
+	public int getBlockX() {
 		int floor = (int) x;
 		return floor == x ? floor : floor - (int) (Double.doubleToRawLongBits(x) >>> 63);
 	}
 
-	public int getBlockY()
-	{
+	public int getBlockY() {
 		int floor = (int) y;
 		return floor == y ? floor : floor - (int) (Double.doubleToRawLongBits(y) >>> 63);
 	}
 
-	public int getBlockZ()
-	{
+	public int getBlockZ() {
 		int floor = (int) z;
 		return floor == z ? floor : floor - (int) (Double.doubleToRawLongBits(z) >>> 63);
 	}
 
-	public float getYaw()
-	{
+	public float getYaw() {
 		return yaw;
 	}
 
-	public float getPitch()
-	{
+	public float getPitch() {
 		return pitch;
 	}
 
-	public Location toLocation()
-	{
+	public Location toLocation() {
 		return new Location(Bukkit.getWorld(w), x, y, z, yaw, pitch);
 	}
 
-	public long setType(Material with)
-	{
+	public long setType(Material with) {
 		return this.setType(new TheMaterial(with));
 	}
 
-	public long setType(Material with, int data)
-	{
+	public long setType(Material with, int data) {
 		return this.setType(new TheMaterial(with, data));
 	}
 
-	public long setType(TheMaterial with)
-	{
+	public long setType(TheMaterial with) {
 		return Position.set(this, with);
 	}
 
-	public void setTypeAndUpdate(Material with)
-	{
+	public void setTypeAndUpdate(Material with) {
 		this.setTypeAndUpdate(new TheMaterial(with));
 	}
 
-	public void setTypeAndUpdate(Material with, int data)
-	{
+	public void setTypeAndUpdate(Material with, int data) {
 		this.setTypeAndUpdate(new TheMaterial(with, data));
 	}
 
-	public void setTypeAndUpdate(TheMaterial with)
-	{
+	public void setTypeAndUpdate(TheMaterial with) {
 		this.setType(with);
 		Position.updateBlockAt(this);
 		Position.updateLightAt(this);
 	}
 
 	@Override
-	public boolean equals(Object a)
-	{
+	public boolean equals(Object a) {
 		if (a instanceof Position) {
 			Position s = (Position) a;
 			return w.equals(s.getWorld().getName()) && s.getX() == x && s.getY() == y && s.getZ() == z && s.getPitch() == pitch && s.getYaw() == yaw;
@@ -413,81 +361,68 @@ public class Position implements Cloneable {
 		return false;
 	}
 
-	public static void updateBlockAt(Position pos)
-	{
+	public static void updateBlockAt(Position pos) {
 		Object packet = BukkitLoader.getNmsProvider().packetBlockChange(pos.getWorld(), pos);
 		pos.getWorld().getPlayers().forEach(player -> BukkitLoader.getPacketHandler().send(player, packet));
 	}
 
-	public static void updateLightAt(Position pos)
-	{
+	public static void updateLightAt(Position pos) {
 		BukkitLoader.getNmsProvider().updateLightAt(pos.getNMSChunk(), pos.getBlockX(), pos.getBlockY(), pos.getBlockZ());
 	}
 
-	public static long set(Position pos, TheMaterial mat)
-	{
+	public static long set(Position pos, TheMaterial mat) {
 		BukkitLoader.getNmsProvider().setBlock(pos.getNMSChunk(), pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.isOlderThan(8) ? mat.getBlock() : mat.getIBlockData(), mat.getData());
 		return pos.getChunkKey();
 	}
 
-	public long getChunkKey()
-	{
+	public long getChunkKey() {
 		long k = (getBlockX() >> 4 & 0xFFFF0000L) << 16L | getBlockX() >> 4 & 0xFFFFL;
 		k |= (getBlockZ() >> 4 & 0xFFFF0000L) << 32L | (getBlockZ() >> 4 & 0xFFFFL) << 16L;
 		return k;
 	}
 
-	public void setState(BlockState state)
-	{
+	public void setState(BlockState state) {
 		Position.setState(this, state);
 	}
 
-	public void setBlockData(BlockData state)
-	{
+	public void setBlockData(BlockData state) {
 		Position.setBlockData(this, state);
 	}
 
-	public void setStateAndUpdate(BlockState state)
-	{
+	public void setStateAndUpdate(BlockState state) {
 		Position.setState(this, state);
 		Position.updateBlockAt(this);
 		Position.updateLightAt(this);
 	}
 
-	public void setBlockDataAndUpdate(BlockData state)
-	{
+	public void setBlockDataAndUpdate(BlockData state) {
 		Position.setBlockData(this, state);
 		Position.updateBlockAt(this);
 		Position.updateLightAt(this);
 	}
 
-	public long setAir()
-	{
+	public long setAir() {
 		BukkitLoader.getNmsProvider().setBlock(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), BukkitLoader.airBlock);
 		return getChunkKey();
 	}
 
-	public void setAirAndUpdate()
-	{
+	public void setAirAndUpdate() {
 		setAir();
 		Position.updateBlockAt(this);
 		Position.updateLightAt(this);
 	}
 
-	public static long set(Location pos, int id, int data)
-	{
+	public static long set(Location pos, int id, int data) {
 		return Position.set(new Position(pos), new TheMaterial(id, data));
 	}
 
-	public static void setBlockData(Position pos, BlockData data)
-	{
+	public static void setBlockData(Position pos, BlockData data) {
 		if (data == null || Ref.isOlderThan(13) || pos == null)
 			return;
 		BukkitLoader.getNmsProvider().setBlock(pos.getNMSChunk(), pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), BukkitLoader.getNmsProvider().toIBlockData(data));
 	}
 
-	public static void setState(Position pos, BlockState state)
-	{
+	public static void setState(Position pos, BlockState state) {
 		if (state == null || pos == null)
 			return;
 		if (Ref.isNewerThan(7))
@@ -497,20 +432,17 @@ public class Position implements Cloneable {
 	}
 
 	@Override
-	public Position clone()
-	{
+	public Position clone() {
 		return new Position(w, x, y, z, yaw, pitch);
 	}
 
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return ("[Position:" + w + "/" + x + "/" + y + "/" + z + "/" + yaw + "/" + pitch + ']').replace(".", ":");
 	}
 
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		int hashCode = 1;
 		hashCode = 31 * hashCode + w.hashCode();
 		hashCode = (int) (31 * hashCode + x);

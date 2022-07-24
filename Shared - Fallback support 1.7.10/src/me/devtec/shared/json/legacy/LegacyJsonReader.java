@@ -8,14 +8,12 @@ public class LegacyJsonReader implements JReader {
 	private static final Gson parser = new GsonBuilder().create();
 
 	@Override
-	public Object fromGson(String json, Class<?> clazz)
-	{
+	public Object fromGson(String json, Class<?> clazz) {
 		return LegacyJsonReader.parser.fromJson(json, clazz);
 	}
 
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return "LegacyJsonReader";
 	}
 }

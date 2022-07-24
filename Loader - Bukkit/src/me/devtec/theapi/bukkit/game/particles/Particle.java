@@ -41,13 +41,11 @@ public class Particle {
 			Particle.paramDust = Ref.getConstructors(Ref.nms("core.particles", "DustColorTransitionOptions"))[0];
 	}
 
-	public static Set<String> getParticles()
-	{
+	public static Set<String> getParticles() {
 		return Particle.identifier.keySet();
 	}
 
-	private static Object toNMS(String particle)
-	{
+	private static Object toNMS(String particle) {
 		return Particle.identifier.getOrDefault(particle.toLowerCase(), Particle.identifier.get("minecraft:" + particle.toLowerCase()));
 	}
 
@@ -64,53 +62,43 @@ public class Particle {
 		this.data = data;
 	}
 
-	public boolean isValid()
-	{
+	public boolean isValid() {
 		return particle != null;
 	}
 
-	public Object getParticle()
-	{
+	public Object getParticle() {
 		return particle;
 	}
 
-	public String getParticleName()
-	{
+	public String getParticleName() {
 		return name;
 	}
 
-	public ParticleData getParticleData()
-	{
+	public ParticleData getParticleData() {
 		return data;
 	}
 
-	public Object createPacket(Position pos)
-	{
+	public Object createPacket(Position pos) {
 		return createPacket(pos.getX(), pos.getY(), pos.getZ(), 1, 1);
 	}
 
-	public Object createPacket(Location pos)
-	{
+	public Object createPacket(Location pos) {
 		return createPacket(pos.getX(), pos.getY(), pos.getZ(), 1, 1);
 	}
 
-	public Object createPacket(double x, double y, double z)
-	{
+	public Object createPacket(double x, double y, double z) {
 		return createPacket(x, y, z, 1, 1);
 	}
 
-	public Object createPacket(Position pos, float speed, int amount)
-	{
+	public Object createPacket(Position pos, float speed, int amount) {
 		return createPacket(pos.getX(), pos.getY(), pos.getZ(), speed, amount);
 	}
 
-	public Object createPacket(Location pos, float speed, int amount)
-	{
+	public Object createPacket(Location pos, float speed, int amount) {
 		return createPacket(pos.getX(), pos.getY(), pos.getZ(), speed, amount);
 	}
 
-	public Object createPacket(double x, double y, double z, float speed, int amount)
-	{
+	public Object createPacket(double x, double y, double z, float speed, int amount) {
 		Object packet;
 		try {
 			packet = Particle.unsafe.allocateInstance(Particle.part);

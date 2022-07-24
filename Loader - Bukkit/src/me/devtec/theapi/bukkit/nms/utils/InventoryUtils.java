@@ -24,8 +24,7 @@ public class InventoryUtils {
 	 * @apiNote Modify ItemStacks in the "contents" field and then return list of
 	 *          modified slots
 	 **/
-	public static List<Integer> shift(int clickedSlot, @Nullable Player whoShift, @Nullable HolderGUI holder, @Nullable ClickType clickType, DestinationType type, List<Integer> ignoredSlots, ItemStack[] contents, ItemStack shiftItem)
-	{
+	public static List<Integer> shift(int clickedSlot, @Nullable Player whoShift, @Nullable HolderGUI holder, @Nullable ClickType clickType, DestinationType type, List<Integer> ignoredSlots, ItemStack[] contents, ItemStack shiftItem) {
 		if (shiftItem == null || shiftItem.getType() == Material.AIR)
 			return Collections.emptyList();
 		List<Integer> ignoreSlots = ignoredSlots == null ? Collections.emptyList() : ignoredSlots;
@@ -82,8 +81,7 @@ public class InventoryUtils {
 	 * @apiNote Find first empty slot in the "contents" field and then return empty
 	 *          slot (air/null slot)
 	 **/
-	public static int findFirstEmpty(@Nullable Player whoShift, @Nullable HolderGUI holder, @Nullable ClickType clickType, List<Integer> corruptedSlots, DestinationType type, List<Integer> ignoredSlots, ItemStack[] contents)
-	{
+	public static int findFirstEmpty(@Nullable Player whoShift, @Nullable HolderGUI holder, @Nullable ClickType clickType, List<Integer> corruptedSlots, DestinationType type, List<Integer> ignoredSlots, ItemStack[] contents) {
 		List<Integer> ignoreSlots = ignoredSlots == null ? Collections.emptyList() : ignoredSlots;
 		switch (type) {
 		case PLAYER_INV_ANVIL:
@@ -137,8 +135,7 @@ public class InventoryUtils {
 	 * @apiNote Not usable for normal users. Only for devs modifying
 	 *          PacketPlayInWindowClick - convert clicked slot into bukkit slot
 	 **/
-	public static int convertToPlayerInvSlot(int slot)
-	{
+	public static int convertToPlayerInvSlot(int slot) {
 		switch (slot) {
 		case 0:
 			return 9;

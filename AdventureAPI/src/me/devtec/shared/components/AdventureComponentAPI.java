@@ -18,8 +18,7 @@ import net.kyori.adventure.text.format.TextDecoration.State;
 public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.adventure.text.Component> {
 
 	@Override
-	public Component toComponent(net.kyori.adventure.text.Component value)
-	{
+	public Component toComponent(net.kyori.adventure.text.Component value) {
 		Component base = this.convert(value);
 		List<Component> extra = new ArrayList<>();
 		for (net.kyori.adventure.text.Component extras : value.children())
@@ -28,14 +27,12 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 		return base;
 	}
 
-	private void doMagicLoop(List<Component> sub, net.kyori.adventure.text.Component value)
-	{
+	private void doMagicLoop(List<Component> sub, net.kyori.adventure.text.Component value) {
 		for (net.kyori.adventure.text.Component extra : value.children())
 			sub.add(this.convert(extra));
 	}
 
-	private Component convert(net.kyori.adventure.text.Component value)
-	{
+	private Component convert(net.kyori.adventure.text.Component value) {
 		Component sub = new Component(value instanceof TextComponent ? ((TextComponent) value).content() : value.toString());
 		if (value.color() != null)
 			sub.setColor(value.color().asHexString());
@@ -58,16 +55,14 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 	}
 
 	@Override
-	public net.kyori.adventure.text.Component fromComponent(Component component)
-	{
+	public net.kyori.adventure.text.Component fromComponent(Component component) {
 		net.kyori.adventure.text.Component base = this.convert(component);
 		if (component.getExtra() != null)
 			this.convertAll(base, component.getExtra());
 		return base;
 	}
 
-	private void convertAll(net.kyori.adventure.text.Component base, List<Component> extra2)
-	{
+	private void convertAll(net.kyori.adventure.text.Component base, List<Component> extra2) {
 		for (Component c : extra2) {
 			base.append(this.convert(c));
 			if (c.getExtra() != null)
@@ -75,8 +70,7 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 		}
 	}
 
-	private net.kyori.adventure.text.Component convert(Component component)
-	{
+	private net.kyori.adventure.text.Component convert(Component component) {
 		TextComponent sub = net.kyori.adventure.text.Component.text(component.getText());
 		sub = sub.color(component.getColor().startsWith("#") ? TextColor.fromHexString(component.getColor()) : NamedTextColor.NAMES.value(component.getColor()));
 		if (component.isBold())
@@ -98,8 +92,7 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 	}
 
 	@Override
-	public net.kyori.adventure.text.Component fromComponent(List<Component> components)
-	{
+	public net.kyori.adventure.text.Component fromComponent(List<Component> components) {
 		net.kyori.adventure.text.Component base = net.kyori.adventure.text.Component.text("");
 		boolean first = true;
 		for (Component component : components)
@@ -112,8 +105,7 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 	}
 
 	@SuppressWarnings("unchecked")
-	private net.kyori.adventure.text.event.HoverEvent<?> makeHover(HoverEvent hoverEvent)
-	{
+	private net.kyori.adventure.text.event.HoverEvent<?> makeHover(HoverEvent hoverEvent) {
 		Map<String, Object> map = (Map<String, Object>) Json.reader().simpleRead(hoverEvent.getValue().getText());
 		Map<String, Object> hover = (Map<String, Object>) map.get("hoverEvent");
 
@@ -137,14 +129,12 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 	}
 
 	@Override
-	public net.kyori.adventure.text.Component[] fromComponents(Component component)
-	{
+	public net.kyori.adventure.text.Component[] fromComponents(Component component) {
 		return new net.kyori.adventure.text.Component[] { this.fromComponent(component) };
 	}
 
 	@Override
-	public net.kyori.adventure.text.Component[] fromComponents(List<Component> components)
-	{
+	public net.kyori.adventure.text.Component[] fromComponents(List<Component> components) {
 		return new net.kyori.adventure.text.Component[] { this.fromComponent(components) };
 	}
 }

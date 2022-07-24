@@ -29,90 +29,73 @@ public class ServerListPingEvent extends Event implements Cancellable {
 		this.version = ver;
 	}
 
-	public String getVersion()
-	{
+	public String getVersion() {
 		return this.version;
 	}
 
-	public void setVersion(String ver)
-	{
+	public void setVersion(String ver) {
 		this.version = ver;
 	}
 
-	public int getProtocol()
-	{
+	public int getProtocol() {
 		return this.protocol;
 	}
 
-	public void setProtocol(int protocol)
-	{
+	public void setProtocol(int protocol) {
 		this.protocol = protocol;
 	}
 
-	public InetAddress getAddress()
-	{
+	public InetAddress getAddress() {
 		return this.address;
 	}
 
-	public int getOnlinePlayers()
-	{
+	public int getOnlinePlayers() {
 		return this.online;
 	}
 
-	public int getMaxPlayers()
-	{
+	public int getMaxPlayers() {
 		return this.max;
 	}
 
-	public void setOnlinePlayers(int online)
-	{
+	public void setOnlinePlayers(int online) {
 		this.online = online;
 	}
 
-	public void setMaxPlayers(int max)
-	{
+	public void setMaxPlayers(int max) {
 		this.max = max;
 	}
 
-	public List<PlayerProfile> getPlayersText()
-	{
+	public List<PlayerProfile> getPlayersText() {
 		return this.playersText;
 	}
 
-	public void setPlayersText(List<PlayerProfile> playersText)
-	{
+	public void setPlayersText(List<PlayerProfile> playersText) {
 		this.playersText = playersText;
 	}
 
-	public String getMotd()
-	{
+	public String getMotd() {
 		return this.motd;
 	}
 
-	public void setMotd(String motd)
-	{
+	public void setMotd(String motd) {
 		this.motd = motd;
 	}
 
-	public String getFalvicon()
-	{
+	public String getFalvicon() {
 		return this.falvicon;
 	}
 
-	public void setFalvicon(String falvicon)
-	{
+	public void setFalvicon(String falvicon) {
 		this.falvicon = falvicon;
 	}
 
 	@Override
-	public boolean isCancelled()
-	{
+	public boolean isCancelled() {
 		return this.cancel;
 	}
 
 	@Override
-	public void setCancelled(boolean cancel)
-	{
+	public void setCancelled(boolean cancel) {
 		this.cancel = cancel;
 	}
 
@@ -155,8 +138,7 @@ public class ServerListPingEvent extends Event implements Cancellable {
 			this.uuid = PlayerProfile.defaultUuid;
 		}
 
-		public PlayerProfile setName(String name)
-		{
+		public PlayerProfile setName(String name) {
 			if (name == null)
 				this.name = PlayerProfile.defaultName;
 			else
@@ -164,13 +146,11 @@ public class ServerListPingEvent extends Event implements Cancellable {
 			return this;
 		}
 
-		public String getName()
-		{
+		public String getName() {
 			return this.name;
 		}
 
-		public PlayerProfile setUUID(UUID uuid)
-		{
+		public PlayerProfile setUUID(UUID uuid) {
 			if (uuid == null)
 				this.uuid = PlayerProfile.defaultUuid;
 			else
@@ -178,8 +158,7 @@ public class ServerListPingEvent extends Event implements Cancellable {
 			return this;
 		}
 
-		public UUID getUUID()
-		{
+		public UUID getUUID() {
 			return this.uuid;
 		}
 	}

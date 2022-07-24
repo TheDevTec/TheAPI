@@ -15,25 +15,21 @@ public class BungeeCommandManager implements CommandsRegister {
 	}
 
 	@Override
-	public void register(CommandHolder<?> commandHolder, String command, String[] aliases)
-	{
+	public void register(CommandHolder<?> commandHolder, String command, String[] aliases) {
 		PlayerCommand cmd = new PlayerCommand(command, null, aliases) {
 
 			@Override
-			public void execute(CommandSender s, String[] args)
-			{
+			public void execute(CommandSender s, String[] args) {
 				commandHolder.execute(s, args);
 			}
 
 			@Override
-			public boolean hasPermission(CommandSender sender)
-			{
+			public boolean hasPermission(CommandSender sender) {
 				return commandHolder.getStructure().getPermission() == null ? true : sender.hasPermission(commandHolder.getStructure().getPermission());
 			}
 
 			@Override
-			public Iterable<String> onTabComplete(CommandSender s, String[] args)
-			{
+			public Iterable<String> onTabComplete(CommandSender s, String[] args) {
 				return commandHolder.tablist(s, args);
 			}
 		};

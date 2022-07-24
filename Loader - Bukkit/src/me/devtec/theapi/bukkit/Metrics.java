@@ -89,13 +89,11 @@ public class Metrics {
 		}
 	}
 
-	public boolean isEnabled()
-	{
+	public boolean isEnabled() {
 		return Metrics.enabled;
 	}
 
-	private void startSubmitting()
-	{
+	private void startSubmitting() {
 		final Runnable submitTask = () -> {
 			if (!this.plugin.isEnabled()) {
 				this.scheduler.shutdown();
@@ -106,8 +104,7 @@ public class Metrics {
 		this.scheduler.scheduleAtFixedRate(submitTask, 15, 15, TimeUnit.MINUTES);
 	}
 
-	public JSONObject getPluginData()
-	{
+	public JSONObject getPluginData() {
 		JSONObject data = new JSONObject();
 		data.put("pluginName", this.plugin.getDescription().getName());
 		data.put("id", this.pluginId);
@@ -116,8 +113,7 @@ public class Metrics {
 		return data;
 	}
 
-	private JSONObject getServerData()
-	{
+	private JSONObject getServerData() {
 		// Minecraft specific data
 		int playerAmount = BukkitLoader.getOnlinePlayers().size();
 		int onlineMode = Bukkit.getOnlineMode() ? 1 : 0;
@@ -145,8 +141,7 @@ public class Metrics {
 		return data;
 	}
 
-	private void submitData()
-	{
+	private void submitData() {
 		final JSONObject data = this.getServerData();
 		JSONArray pluginData = new JSONArray();
 		for (Class<?> service : Bukkit.getServicesManager().getKnownServices())
@@ -180,8 +175,7 @@ public class Metrics {
 		}).start();
 	}
 
-	private static void sendData(Plugin plugin, JSONObject data) throws Exception
-	{
+	private static void sendData(Plugin plugin, JSONObject data) throws Exception {
 		if (Metrics.logSentData)
 			plugin.getLogger().info("Sending data to bStats: " + data);
 		HttpsURLConnection connection = (HttpsURLConnection) new URL(Metrics.URL).openConnection();
@@ -208,8 +202,7 @@ public class Metrics {
 		}
 	}
 
-	private static byte[] compress(final String str) throws IOException
-	{
+	private static byte[] compress(final String str) throws IOException {
 		if (str == null)
 			return null;
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

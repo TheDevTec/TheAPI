@@ -85,8 +85,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void onLoad()
-	{
+	public void onLoad() {
 		BukkitLoader.initTheAPI(this);
 		new Metrics(this, 10581);
 		try {
@@ -125,8 +124,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		if (Ref.isOlderThan(9))
 			new Tasker() {
 				@Override
-				public void run()
-				{
+				public void run() {
 					for (BossBar s : BukkitLoader.bossbars)
 						s.move();
 				}
@@ -136,18 +134,15 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		new PacketListener() {
 
 			@Override
-			public boolean playOut(String player, Object packet, Object channel)
-			{
+			public boolean playOut(String player, Object packet, Object channel) {
 				return false;
 			}
 
-			public boolean isAllowedChatCharacter(char var0)
-			{
+			public boolean isAllowedChatCharacter(char var0) {
 				return var0 != 167 && var0 >= ' ' && var0 != 127;
 			}
 
-			public String buildText(String var0)
-			{
+			public String buildText(String var0) {
 				StringBuilder var1 = new StringBuilder();
 				char[] var2 = var0.toCharArray();
 				int var3 = var2.length;
@@ -162,8 +157,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			}
 
 			@Override
-			public boolean playIn(String nick, Object packet, Object channel)
-			{
+			public boolean playIn(String nick, Object packet, Object channel) {
 				if (nick == null)
 					return false; // NPC
 				// ResourcePackAPI
@@ -208,8 +202,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				return false;
 			}
 
-			private String getLegacyNameOf(String string)
-			{
+			private String getLegacyNameOf(String string) {
 				switch (string.charAt(0)) {
 				case 'a':
 					return "SUCCESSFULLY_LOADED";
@@ -226,39 +219,33 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	}
 
 	@Override
-	public void onEnable()
-	{
+	public void onEnable() {
 		Bukkit.getPluginManager().registerEvents(this, this);
 		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
 			PlaceholderAPI.PAPI_BRIDGE = new me.devtec.shared.placeholders.PlaceholderExpansion("PAPI Support") {
 				@Override
-				public String apply(String text, UUID player)
-				{
+				public String apply(String text, UUID player) {
 					return me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player == null ? null : Bukkit.getOfflinePlayer(player), "%" + text + "%");
 				}
 			};
 			new PlaceholderExpansion() {
 				@Override
-				public String onRequest(OfflinePlayer player, String params)
-				{
+				public String onRequest(OfflinePlayer player, String params) {
 					return PlaceholderAPI.apply("%" + params + "%", player == null ? null : player.getUniqueId());
 				}
 
 				@Override
-				public String getIdentifier()
-				{
+				public String getIdentifier() {
 					return "theapi";
 				}
 
 				@Override
-				public String getAuthor()
-				{
+				public String getAuthor() {
 					return "DevTec & StraikerinaCZ";
 				}
 
 				@Override
-				public String getVersion()
-				{
+				public String getVersion() {
 					return BukkitLoader.this.getDescription().getVersion();
 				}
 			}.register();
@@ -266,34 +253,29 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	}
 
 	@EventHandler
-	public void onAsyncPreLoginEvent(AsyncPlayerPreLoginEvent e)
-	{
+	public void onAsyncPreLoginEvent(AsyncPlayerPreLoginEvent e) {
 		API.offlineCache().setLookup(e.getUniqueId(), e.getName());
 	}
 
 	@EventHandler
-	public void onPreLoginEvent(PlayerPreLoginEvent e)
-	{ // fix uuid - premium login?
+	public void onPreLoginEvent(PlayerPreLoginEvent e) { // fix uuid - premium login?
 		API.offlineCache().setLookup(e.getUniqueId(), e.getName());
 	}
 
 	@EventHandler
-	public void onLoginEvent(PlayerLoginEvent e)
-	{ // fix uuid - premium login?
+	public void onLoginEvent(PlayerLoginEvent e) { // fix uuid - premium login?
 		API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getName());
 	}
 
 	@EventHandler
-	public void onDisconnect(PlayerQuitEvent e)
-	{
+	public void onDisconnect(PlayerQuitEvent e) {
 		Config cache = API.removeCache(e.getPlayer().getUniqueId());
 		if (cache != null)
 			cache.save();
 	}
 
 	@Override
-	public void onDisable()
-	{
+	public void onDisable() {
 		API.setEnabled(false);
 		Scheduler.cancelAll();
 		BukkitLoader.handler.close();
@@ -309,23 +291,19 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	/**
 	 * @apiNote Support for 1.7.10 - Latest {@link NmsProvider#getOnlinePlayers()}
 	 */
-	public static Collection<? extends Player> getOnlinePlayers()
-	{
+	public static Collection<? extends Player> getOnlinePlayers() {
 		return BukkitLoader.nmsProvider.getOnlinePlayers();
 	}
 
-	public static NmsProvider getNmsProvider()
-	{
+	public static NmsProvider getNmsProvider() {
 		return BukkitLoader.nmsProvider;
 	}
 
-	public static PacketHandler<?> getPacketHandler()
-	{
+	public static PacketHandler<?> getPacketHandler() {
 		return BukkitLoader.handler;
 	}
 
-	public static boolean useItem(Player player, ItemStack stack, HolderGUI g, int slot, ClickType mouse)
-	{
+	public static boolean useItem(Player player, ItemStack stack, HolderGUI g, int slot, ClickType mouse) {
 		ItemGUI d = g.getItemGUI(slot);
 		boolean stolen = d == null || !d.isUnstealable();
 		if (d != null)
@@ -333,8 +311,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		return !stolen;
 	}
 
-	public static ClickType buildClick(ItemStack stack, InventoryClickType type, int button, int mouse)
-	{
+	public static ClickType buildClick(ItemStack stack, InventoryClickType type, int button, int mouse) {
 		String action = stack.getType() == Material.AIR && (type == InventoryClickType.PICKUP || type == InventoryClickType.QUICK_CRAFT) ? "DROP" : "PICKUP";
 		action = (type == InventoryClickType.CLONE ? "MIDDLE_" : mouse == 0 ? "LEFT_" : mouse == 1 ? "RIGHT_" : "MIDDLE_") + action;
 		if (type == InventoryClickType.QUICK_MOVE)
@@ -353,8 +330,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		}
 
 		@Override
-		public void addURL(URL url)
-		{
+		public void addURL(URL url) {
 			super.addURL(url);
 		}
 	}
@@ -367,8 +343,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		}
 
 		@Override
-		public JarEntry getJarEntry(String name)
-		{
+		public JarEntry getJarEntry(String name) {
 			JarEntry find = super.getJarEntry(name);
 			if (find == null)
 				for (JarFile search : file) {
@@ -380,8 +355,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		}
 
 		@Override
-		public InputStream getInputStream(ZipEntry name) throws IOException
-		{
+		public InputStream getInputStream(ZipEntry name) throws IOException {
 			InputStream find = super.getInputStream(name);
 			if (find == null)
 				for (JarFile search : file) {
@@ -393,8 +367,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		}
 
 		@Override
-		public void close() throws IOException
-		{
+		public void close() throws IOException {
 			super.close();
 			for (JarFile f : file)
 				f.close();
@@ -403,8 +376,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 	}
 
-	private static int getJavaVersion()
-	{
+	private static int getJavaVersion() {
 		String version = System.getProperty("java.version");
 		if (version.startsWith("1."))
 			version = version.substring(2, 3);
@@ -416,8 +388,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		return StringUtils.getInt(version);
 	}
 
-	private static void initTheAPI(JavaPlugin plugin)
-	{
+	private static void initTheAPI(JavaPlugin plugin) {
 		Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null ? Ref.getClass("net.kyori.adventure.Adventure") != null ? ServerType.PAPER : ServerType.SPIGOT : ServerType.BUKKIT, Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]); // Server
 																																																																	// version
 		// version
@@ -444,8 +415,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			SimpleClassLoader lloader;
 
 			@Override
-			public void load(File file)
-			{
+			public void load(File file) {
 				if (isLoaded(file) || !file.exists())
 					return;
 				loaded.add(file);
@@ -487,8 +457,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			}
 
 			@Override
-			public boolean isLoaded(File file)
-			{
+			public boolean isLoaded(File file) {
 				return loaded.contains(file);
 			}
 		};
@@ -505,8 +474,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			AtomicInteger position = new AtomicInteger(0);
 
 			@Override
-			public String gradient(String msg, String fromHex, String toHex)
-			{
+			public String gradient(String msg, String fromHex, String toHex) {
 				if (Ref.isNewerThan(15)) // Hex
 					return API.basics().gradient(msg, fromHex, toHex);
 				String split = msg.replace("", "<>");
@@ -555,19 +523,16 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				return builder.toString();
 			}
 
-			private boolean isColor(int charAt)
-			{
+			private boolean isColor(int charAt) {
 				return charAt >= 97 && charAt <= 102 || charAt >= 65 && charAt <= 70 || charAt >= 48 && charAt <= 57;
 			}
 
-			private boolean isFormat(int charAt)
-			{
+			private boolean isFormat(int charAt) {
 				return charAt >= 107 && charAt <= 111 || charAt == 114;
 			}
 
 			@Override
-			public String generateColor()
-			{
+			public String generateColor() {
 				if (!Ref.isNewerThan(15)) {
 					if (position.get() == chars.length)
 						position.set(0);
@@ -580,14 +545,12 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			}
 
 			@Override
-			public String[] getLastColors(String text)
-			{
+			public String[] getLastColors(String text) {
 				return API.basics().getLastColors(getLast, text);
 			}
 
 			@Override
-			public String replaceHex(String text)
-			{
+			public String replaceHex(String text) {
 				if (!Ref.isNewerThan(15))
 					return text;
 				String msg = text;
@@ -603,8 +566,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			}
 
 			@Override
-			public String rainbow(String msg, String fromHex, String toHex)
-			{
+			public String rainbow(String msg, String fromHex, String toHex) {
 				if (Ref.isNewerThan(15)) // Hex
 					return API.basics().rainbow(msg, fromHex, toHex);
 				return gradient(msg, null, null);

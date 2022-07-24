@@ -127,68 +127,57 @@ public class v1_18_R1 implements NmsProvider {
 	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
 
 	@Override
-	public Collection<? extends Player> getOnlinePlayers()
-	{
+	public Collection<? extends Player> getOnlinePlayers() {
 		return Bukkit.getOnlinePlayers();
 	}
 
 	@Override
-	public Object getEntity(Entity entity)
-	{
+	public Object getEntity(Entity entity) {
 		return ((CraftEntity) entity).getHandle();
 	}
 
 	@Override
-	public Object getEntityLiving(LivingEntity entity)
-	{
+	public Object getEntityLiving(LivingEntity entity) {
 		return ((CraftLivingEntity) entity).getHandle();
 	}
 
 	@Override
-	public Object getPlayer(Player player)
-	{
+	public Object getPlayer(Player player) {
 		return ((CraftPlayer) player).getHandle();
 	}
 
 	@Override
-	public Object getWorld(World world)
-	{
+	public Object getWorld(World world) {
 		return ((CraftWorld) world).getHandle();
 	}
 
 	@Override
-	public Object getChunk(Chunk chunk)
-	{
+	public Object getChunk(Chunk chunk) {
 		return ((CraftChunk) chunk).getHandle();
 	}
 
 	@Override
-	public int getEntityId(Object entity)
-	{
+	public int getEntityId(Object entity) {
 		return ((net.minecraft.world.entity.Entity) entity).ae();
 	}
 
 	@Override
-	public Object getScoreboardAction(Action type)
-	{
+	public Object getScoreboardAction(Action type) {
 		return type == Action.CHANGE ? ScoreboardServer.Action.a : ScoreboardServer.Action.b;
 	}
 
 	@Override
-	public Object getEnumScoreboardHealthDisplay(DisplayType type)
-	{
+	public Object getEnumScoreboardHealthDisplay(DisplayType type) {
 		return type == DisplayType.INTEGER ? EnumScoreboardHealthDisplay.a : EnumScoreboardHealthDisplay.b;
 	}
 
 	@Override
-	public Object getNBT(ItemStack itemStack)
-	{
+	public Object getNBT(ItemStack itemStack) {
 		return ((net.minecraft.world.item.ItemStack) asNMSItem(itemStack)).t();
 	}
 
 	@Override
-	public Object parseNBT(String json)
-	{
+	public Object parseNBT(String json) {
 		if (json == null)
 			return new NBTTagCompound();
 		try {
@@ -199,8 +188,7 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public ItemStack setNBT(ItemStack stack, Object nbt)
-	{
+	public ItemStack setNBT(ItemStack stack, Object nbt) {
 		if (nbt instanceof NBTEdit)
 			nbt = ((NBTEdit) nbt).getNBT();
 		net.minecraft.world.item.ItemStack i = (net.minecraft.world.item.ItemStack) asNMSItem(stack);
@@ -209,88 +197,74 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object asNMSItem(ItemStack stack)
-	{
+	public Object asNMSItem(ItemStack stack) {
 		if (stack == null)
 			return net.minecraft.world.item.ItemStack.b;
 		return CraftItemStack.asNMSCopy(stack);
 	}
 
 	@Override
-	public ItemStack asBukkitItem(Object stack)
-	{
+	public ItemStack asBukkitItem(Object stack) {
 		return CraftItemStack.asBukkitCopy((net.minecraft.world.item.ItemStack) stack);
 	}
 
 	@Override
-	public int getContainerId(Object container)
-	{
+	public int getContainerId(Object container) {
 		return ((Container) container).j;
 	}
 
 	@Override
-	public Object packetResourcePackSend(String url, String hash, boolean requireRP, String prompt)
-	{
+	public Object packetResourcePackSend(String url, String hash, boolean requireRP, String prompt) {
 		return new PacketPlayOutResourcePackSend(url, hash, requireRP, prompt == null ? null : (IChatBaseComponent) this.toIChatBaseComponent(ComponentAPI.fromString(prompt)));
 	}
 
 	@Override
-	public Object packetSetSlot(int container, int slot, int changeId, Object itemStack)
-	{
+	public Object packetSetSlot(int container, int slot, int changeId, Object itemStack) {
 		return new PacketPlayOutSetSlot(container, changeId, slot, (net.minecraft.world.item.ItemStack) (itemStack == null ? asNMSItem(null) : itemStack));
 	}
 
 	@Override
-	public Object packetEntityMetadata(int entityId, Object dataWatcher, boolean bal)
-	{
+	public Object packetEntityMetadata(int entityId, Object dataWatcher, boolean bal) {
 		return new PacketPlayOutEntityMetadata(entityId, (net.minecraft.network.syncher.DataWatcher) dataWatcher, bal);
 	}
 
 	@Override
-	public Object packetEntityDestroy(int... ids)
-	{
+	public Object packetEntityDestroy(int... ids) {
 		return new PacketPlayOutEntityDestroy(ids);
 	}
 
 	@Override
-	public Object packetSpawnEntity(Object entity, int id)
-	{
+	public Object packetSpawnEntity(Object entity, int id) {
 		return new PacketPlayOutSpawnEntity((net.minecraft.world.entity.Entity) entity, id);
 	}
 
 	@Override
-	public Object packetNamedEntitySpawn(Object player)
-	{
+	public Object packetNamedEntitySpawn(Object player) {
 		return new PacketPlayOutNamedEntitySpawn((EntityHuman) player);
 	}
 
 	@Override
-	public Object packetSpawnEntityLiving(Object entityLiving)
-	{
+	public Object packetSpawnEntityLiving(Object entityLiving) {
 		return new PacketPlayOutSpawnEntityLiving((EntityLiving) entityLiving);
 	}
 
 	@Override
-	public Object packetPlayerListHeaderFooter(String header, String footer)
-	{
+	public Object packetPlayerListHeaderFooter(String header, String footer) {
 		return new PacketPlayOutPlayerListHeaderFooter((IChatBaseComponent) this.toIChatBaseComponent(ComponentAPI.fromString(header)), (IChatBaseComponent) this.toIChatBaseComponent(ComponentAPI.fromString(footer)));
 	}
 
 	@Override
-	public Object packetBlockChange(World world, Position position)
-	{
+	public Object packetBlockChange(World world, Position position) {
 		return new PacketPlayOutBlockChange((BlockPosition) position.getBlockPosition(), (IBlockData) position.getIBlockData());
 	}
 
 	@Override
-	public Object packetBlockChange(World world, int x, int y, int z)
-	{
+	public Object packetBlockChange(World world, int x, int y, int z) {
 		return new PacketPlayOutBlockChange(new BlockPosition(x, y, z), (IBlockData) getBlock(this.getChunk(world, x >> 4, z >> 4), x, y, z));
 	}
 
 	@Override
-	public Object packetScoreboardObjective()
-	{
+	public Object packetScoreboardObjective() {
 		try {
 			return v1_18_R1.unsafe.allocateInstance(PacketPlayOutScoreboardObjective.class);
 		} catch (Exception e) {
@@ -299,14 +273,12 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetScoreboardDisplayObjective(int id, Object scoreboardObjective)
-	{
+	public Object packetScoreboardDisplayObjective(int id, Object scoreboardObjective) {
 		return new PacketPlayOutScoreboardDisplayObjective(id, scoreboardObjective == null ? null : (ScoreboardObjective) scoreboardObjective);
 	}
 
 	@Override
-	public Object packetScoreboardTeam()
-	{
+	public Object packetScoreboardTeam() {
 		try {
 			return v1_18_R1.unsafe.allocateInstance(PacketPlayOutScoreboardTeam.class);
 		} catch (Exception e) {
@@ -315,14 +287,12 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetScoreboardScore(Action action, String player, String line, int score)
-	{
+	public Object packetScoreboardScore(Action action, String player, String line, int score) {
 		return new PacketPlayOutScoreboardScore((net.minecraft.server.ScoreboardServer.Action) getScoreboardAction(action), player, line, score);
 	}
 
 	@Override
-	public Object packetTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut)
-	{
+	public Object packetTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut) {
 		switch (action) {
 		case ACTIONBAR:
 			return new ClientboundSetActionBarTextPacket((IChatBaseComponent) this.toIChatBaseComponent(ComponentAPI.fromString(text)));
@@ -340,8 +310,7 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetChat(ChatType type, Object chatBase, UUID uuid)
-	{
+	public Object packetChat(ChatType type, Object chatBase, UUID uuid) {
 		switch (type) {
 		case CHAT:
 			return new PacketPlayOutChat((IChatBaseComponent) chatBase, ChatMessageType.a, uuid);
@@ -354,37 +323,31 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetChat(ChatType type, String text, UUID uuid)
-	{
+	public Object packetChat(ChatType type, String text, UUID uuid) {
 		return this.packetChat(type, this.toIChatBaseComponent(ComponentAPI.fromString(text)), uuid);
 	}
 
 	@Override
-	public void postToMainThread(Runnable runnable)
-	{
+	public void postToMainThread(Runnable runnable) {
 		v1_18_R1.server.execute(runnable);
 	}
 
 	@Override
-	public Object getMinecraftServer()
-	{
+	public Object getMinecraftServer() {
 		return v1_18_R1.server;
 	}
 
 	@Override
-	public Thread getServerThread()
-	{
+	public Thread getServerThread() {
 		return v1_18_R1.server.an;
 	}
 
 	@Override
-	public double[] getServerTPS()
-	{
+	public double[] getServerTPS() {
 		return v1_18_R1.server.recentTps;
 	}
 
-	private IChatBaseComponent convert(Component c)
-	{
+	private IChatBaseComponent convert(Component c) {
 		ChatComponentText current = new ChatComponentText(c.getText());
 		ChatModifier modif = current.c();
 		if (c.getColor() != null && !c.getColor().isEmpty())
@@ -406,8 +369,7 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object toIChatBaseComponents(List<Component> components)
-	{
+	public Object toIChatBaseComponents(List<Component> components) {
 		List<IChatBaseComponent> chat = new ArrayList<>();
 		chat.add(new ChatComponentText(""));
 		for (Component c : components) {
@@ -423,8 +385,7 @@ public class v1_18_R1 implements NmsProvider {
 		return chat.toArray(new IChatBaseComponent[0]);
 	}
 
-	private void addConverted(List<IChatBaseComponent> chat, List<Component> extra)
-	{
+	private void addConverted(List<IChatBaseComponent> chat, List<Component> extra) {
 		for (Component c : extra) {
 			if (c.getText() == null || c.getText().isEmpty()) {
 				if (c.getExtra() != null)
@@ -436,8 +397,7 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object toIChatBaseComponents(Component co)
-	{
+	public Object toIChatBaseComponents(Component co) {
 		List<IChatBaseComponent> chat = new ArrayList<>();
 		chat.add(new ChatComponentText(""));
 		if (co.getText() != null && !co.getText().isEmpty())
@@ -457,8 +417,7 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object toIChatBaseComponent(Component co)
-	{
+	public Object toIChatBaseComponent(Component co) {
 		ChatComponentText main = new ChatComponentText("");
 		List<IChatBaseComponent> chat = new ArrayList<>();
 		if (co.getText() != null && !co.getText().isEmpty())
@@ -480,8 +439,7 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object toIChatBaseComponent(List<Component> cc)
-	{
+	public Object toIChatBaseComponent(List<Component> cc) {
 		ChatComponentText main = new ChatComponentText("");
 		for (Component c : cc)
 			main.a((IChatBaseComponent) this.toIChatBaseComponent(c));
@@ -489,20 +447,17 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object chatBase(String json)
-	{
+	public Object chatBase(String json) {
 		return IChatBaseComponent.ChatSerializer.a(json);
 	}
 
 	@Override
-	public String fromIChatBaseComponent(Object component)
-	{
+	public String fromIChatBaseComponent(Object component) {
 		return CraftChatMessage.fromComponent((IChatBaseComponent) component);
 	}
 
 	@Override
-	public TheMaterial toMaterial(Object blockOrItemOrIBlockData)
-	{
+	public TheMaterial toMaterial(Object blockOrItemOrIBlockData) {
 		if (blockOrItemOrIBlockData == null)
 			return new TheMaterial(Material.AIR);
 		if (blockOrItemOrIBlockData instanceof Block) {
@@ -521,38 +476,33 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object toIBlockData(TheMaterial material)
-	{
+	public Object toIBlockData(TheMaterial material) {
 		if (material == null || material.getType() == null || material.getType() == Material.AIR)
 			return Blocks.a.n();
 		return ((CraftBlockData) Bukkit.createBlockData(material.getType(), material.getData() + "")).getState();
 	}
 
 	@Override
-	public Object toItem(TheMaterial material)
-	{
+	public Object toItem(TheMaterial material) {
 		if (material == null || material.getType() == null || material.getType() == Material.AIR)
 			return Item.a(Blocks.a);
 		return Item.a(((CraftBlockData) Bukkit.createBlockData(material.getType(), material.getData() + "")).getState().b());
 	}
 
 	@Override
-	public Object toBlock(TheMaterial material)
-	{
+	public Object toBlock(TheMaterial material) {
 		if (material == null || material.getType() == null || material.getType() == Material.AIR)
 			return Blocks.a;
 		return ((CraftBlockData) Bukkit.createBlockData(material.getType(), material.getData() + "")).getState().b();
 	}
 
 	@Override
-	public Object getChunk(World world, int x, int z)
-	{
+	public Object getChunk(World world, int x, int z) {
 		return ((CraftChunk) world.getChunkAt(x, z)).getHandle();
 	}
 
 	@Override
-	public void setBlock(Object chunk, int x, int y, int z, Object IblockData, int data)
-	{
+	public void setBlock(Object chunk, int x, int y, int z, Object IblockData, int data) {
 		net.minecraft.world.level.chunk.Chunk c = (net.minecraft.world.level.chunk.Chunk) chunk;
 		int yy = c.e(y);
 		ChunkSection sc = c.b(yy);
@@ -574,15 +524,13 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public void updateLightAt(Object chunk, int x, int y, int z)
-	{
+	public void updateLightAt(Object chunk, int x, int y, int z) {
 		net.minecraft.world.level.chunk.Chunk c = (net.minecraft.world.level.chunk.Chunk) chunk;
 		c.q.L().m().a(new BlockPosition(x, y, z));
 	}
 
 	@Override
-	public Object getBlock(Object chunk, int x, int y, int z)
-	{
+	public Object getBlock(Object chunk, int x, int y, int z) {
 		net.minecraft.world.level.chunk.Chunk c = (net.minecraft.world.level.chunk.Chunk) chunk;
 		int yy = c.e(y);
 		ChunkSection sc = c.b(yy);
@@ -592,86 +540,72 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public int getData(Object chunk, int x, int y, int z)
-	{
+	public int getData(Object chunk, int x, int y, int z) {
 		return 0;
 	}
 
 	@Override
-	public int getCombinedId(Object IblockDataOrBlock)
-	{
+	public int getCombinedId(Object IblockDataOrBlock) {
 		return Block.i((IBlockData) IblockDataOrBlock);
 	}
 
 	@Override
-	public Object blockPosition(int blockX, int blockY, int blockZ)
-	{
+	public Object blockPosition(int blockX, int blockY, int blockZ) {
 		return new BlockPosition(blockX, blockY, blockZ);
 	}
 
 	@Override
-	public Object toIBlockData(Object data)
-	{
+	public Object toIBlockData(Object data) {
 		return ((CraftBlockData) data).getState();
 	}
 
 	@Override
-	public Object toIBlockData(BlockState state)
-	{
+	public Object toIBlockData(BlockState state) {
 		return CraftMagicNumbers.getBlock(state.getType(), state.getRawData());
 	}
 
 	@Override
-	public Object toBlock(Material type)
-	{
+	public Object toBlock(Material type) {
 		return CraftMagicNumbers.getBlock(type);
 	}
 
 	@Override
-	public Object toItem(Material type, int data)
-	{
+	public Object toItem(Material type, int data) {
 		return CraftMagicNumbers.getItem(type, (short) data);
 	}
 
 	@Override
-	public Object toIBlockData(Material type, int data)
-	{
+	public Object toIBlockData(Material type, int data) {
 		return CraftMagicNumbers.getBlock(type, (byte) data);
 	}
 
 	@Override
-	public Chunk toBukkitChunk(Object nmsChunk)
-	{
+	public Chunk toBukkitChunk(Object nmsChunk) {
 		return ((net.minecraft.world.level.chunk.Chunk) nmsChunk).bukkitChunk;
 	}
 
 	@Override
-	public int getPing(Player player)
-	{
+	public int getPing(Player player) {
 		return ((EntityPlayer) getPlayer(player)).e;
 	}
 
 	@Override
-	public Object getPlayerConnection(Player player)
-	{
+	public Object getPlayerConnection(Player player) {
 		return ((EntityPlayer) getPlayer(player)).b;
 	}
 
 	@Override
-	public Object getConnectionNetwork(Object playercon)
-	{
+	public Object getConnectionNetwork(Object playercon) {
 		return ((PlayerConnection) playercon).a;
 	}
 
 	@Override
-	public Object getNetworkChannel(Object network)
-	{
+	public Object getNetworkChannel(Object network) {
 		return ((NetworkManager) network).k;
 	}
 
 	@Override
-	public Object packetOpenWindow(int id, String legacy, int size, String title)
-	{
+	public Object packetOpenWindow(int id, String legacy, int size, String title) {
 		Containers<?> windowType = Containers.a;
 		switch (size) {
 		case 0: {
@@ -703,8 +637,7 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public void closeGUI(Player player, Object container, boolean closePacket)
-	{
+	public void closeGUI(Player player, Object container, boolean closePacket) {
 		if (closePacket)
 			BukkitLoader.getPacketHandler().send(player, new PacketPlayOutCloseWindow(BukkitLoader.getNmsProvider().getContainerId(container)));
 		EntityPlayer nmsPlayer = (EntityPlayer) getPlayer(player);
@@ -713,14 +646,12 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public void setSlot(Object container, int slot, Object item)
-	{
+	public void setSlot(Object container, int slot, Object item) {
 		((Container) container).b(slot, (net.minecraft.world.item.ItemStack) item);
 	}
 
 	@Override
-	public void setGUITitle(Player player, Object container, String legacy, int size, String title)
-	{
+	public void setGUITitle(Player player, Object container, String legacy, int size, String title) {
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = ((Container) container).j;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
@@ -730,8 +661,7 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public void openGUI(Player player, Object container, String legacy, int size, String title, ItemStack[] items)
-	{
+	public void openGUI(Player player, Object container, String legacy, int size, String title, ItemStack[] items) {
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = ((Container) container).j;
 		net.minecraft.world.item.ItemStack[] nmsItems = new net.minecraft.world.item.ItemStack[items.length];
@@ -757,8 +687,7 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public void openAnvilGUI(Player player, Object con, String title, ItemStack[] items)
-	{
+	public void openAnvilGUI(Player player, Object con, String title, ItemStack[] items) {
 		Container container = (Container) con;
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = container.j;
@@ -785,15 +714,13 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object createContainer(Inventory inv, Player player)
-	{
+	public Object createContainer(Inventory inv, Player player) {
 		return inv.getType() == InventoryType.ANVIL ? createAnvilContainer(inv, player) : new CraftContainer(inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter());
 	}
 
 	static BlockPosition zero = new BlockPosition(0, 0, 0);
 
-	public Object createAnvilContainer(Inventory inv, Player player)
-	{
+	public Object createAnvilContainer(Inventory inv, Player player) {
 		ContainerAnvil container = new ContainerAnvil(((CraftPlayer) player).getHandle().nextContainerCounter(), ((CraftPlayer) player).getHandle().fq(), ContainerAccess.a(((CraftPlayer) player).getHandle().t, v1_18_R1.zero));
 		for (int i = 0; i < 2; ++i)
 			container.a(i, (net.minecraft.world.item.ItemStack) asNMSItem(inv.getItem(i)));
@@ -801,20 +728,17 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object getSlotItem(Object container, int slot)
-	{
+	public Object getSlotItem(Object container, int slot) {
 		return ((Container) container).a(slot).e();
 	}
 
 	@Override
-	public String getAnvilRenameText(Object anvil)
-	{
+	public String getAnvilRenameText(Object anvil) {
 		return ((ContainerAnvil) anvil).v;
 	}
 
 	@Override
-	public boolean processInvClickPacket(Player player, HolderGUI gui, Object provPacket)
-	{
+	public boolean processInvClickPacket(Player player, HolderGUI gui, Object provPacket) {
 		PacketPlayInWindowClick packet = (PacketPlayInWindowClick) provPacket;
 		int slot = packet.c();
 		if (slot == -999)
@@ -906,8 +830,7 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public boolean processServerListPing(String player, Object channel, Object packet)
-	{
+	public boolean processServerListPing(String player, Object channel, Object packet) {
 		PacketStatusOutServerInfo status = (PacketStatusOutServerInfo) packet;
 		ServerPing ping = status.b();
 		List<PlayerProfile> players = new ArrayList<>();
@@ -940,211 +863,178 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object getNBT(Entity entity)
-	{
+	public Object getNBT(Entity entity) {
 		return ((CraftEntity) entity).getHandle().f(new NBTTagCompound());
 	}
 
 	@Override
-	public Object setString(Object nbt, String path, String value)
-	{
+	public Object setString(Object nbt, String path, String value) {
 		((NBTTagCompound) nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
-	public Object setInteger(Object nbt, String path, int value)
-	{
+	public Object setInteger(Object nbt, String path, int value) {
 		((NBTTagCompound) nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
-	public Object setDouble(Object nbt, String path, double value)
-	{
+	public Object setDouble(Object nbt, String path, double value) {
 		((NBTTagCompound) nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
-	public Object setLong(Object nbt, String path, long value)
-	{
+	public Object setLong(Object nbt, String path, long value) {
 		((NBTTagCompound) nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
-	public Object setShort(Object nbt, String path, short value)
-	{
+	public Object setShort(Object nbt, String path, short value) {
 		((NBTTagCompound) nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
-	public Object setFloat(Object nbt, String path, float value)
-	{
+	public Object setFloat(Object nbt, String path, float value) {
 		((NBTTagCompound) nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
-	public Object setBoolean(Object nbt, String path, boolean value)
-	{
+	public Object setBoolean(Object nbt, String path, boolean value) {
 		((NBTTagCompound) nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
-	public Object setIntArray(Object nbt, String path, int[] value)
-	{
+	public Object setIntArray(Object nbt, String path, int[] value) {
 		((NBTTagCompound) nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
-	public Object setByteArray(Object nbt, String path, byte[] value)
-	{
+	public Object setByteArray(Object nbt, String path, byte[] value) {
 		((NBTTagCompound) nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
-	public Object setNBTBase(Object nbt, String path, Object value)
-	{
+	public Object setNBTBase(Object nbt, String path, Object value) {
 		((NBTTagCompound) nbt).a(path, (NBTBase) value);
 		return nbt;
 	}
 
 	@Override
-	public String getString(Object nbt, String path)
-	{
+	public String getString(Object nbt, String path) {
 		return ((NBTTagCompound) nbt).l(path);
 	}
 
 	@Override
-	public int getInteger(Object nbt, String path)
-	{
+	public int getInteger(Object nbt, String path) {
 		return ((NBTTagCompound) nbt).h(path);
 	}
 
 	@Override
-	public double getDouble(Object nbt, String path)
-	{
+	public double getDouble(Object nbt, String path) {
 		return ((NBTTagCompound) nbt).i(path);
 	}
 
 	@Override
-	public long getLong(Object nbt, String path)
-	{
+	public long getLong(Object nbt, String path) {
 		return ((NBTTagCompound) nbt).i(path);
 	}
 
 	@Override
-	public short getShort(Object nbt, String path)
-	{
+	public short getShort(Object nbt, String path) {
 		return ((NBTTagCompound) nbt).g(path);
 	}
 
 	@Override
-	public float getFloat(Object nbt, String path)
-	{
+	public float getFloat(Object nbt, String path) {
 		return ((NBTTagCompound) nbt).j(path);
 	}
 
 	@Override
-	public boolean getBoolean(Object nbt, String path)
-	{
+	public boolean getBoolean(Object nbt, String path) {
 		return ((NBTTagCompound) nbt).e(path);
 	}
 
 	@Override
-	public int[] getIntArray(Object nbt, String path)
-	{
+	public int[] getIntArray(Object nbt, String path) {
 		return ((NBTTagCompound) nbt).n(path);
 	}
 
 	@Override
-	public byte[] getByteArray(Object nbt, String path)
-	{
+	public byte[] getByteArray(Object nbt, String path) {
 		return ((NBTTagCompound) nbt).m(path);
 	}
 
 	@Override
-	public Object getNBTBase(Object nbt, String path)
-	{
+	public Object getNBTBase(Object nbt, String path) {
 		return ((NBTTagCompound) nbt).c(path);
 	}
 
 	@Override
-	public Set<String> getKeys(Object nbt)
-	{
+	public Set<String> getKeys(Object nbt) {
 		return ((NBTTagCompound) nbt).d();
 	}
 
 	@Override
-	public boolean hasKey(Object nbt, String path)
-	{
+	public boolean hasKey(Object nbt, String path) {
 		return ((NBTTagCompound) nbt).e(path);
 	}
 
 	@Override
-	public void removeKey(Object nbt, String path)
-	{
+	public void removeKey(Object nbt, String path) {
 		((NBTTagCompound) nbt).r(path);
 	}
 
 	@Override
-	public Object setByte(Object nbt, String path, byte value)
-	{
+	public Object setByte(Object nbt, String path, byte value) {
 		((NBTTagCompound) nbt).a(path, value);
 		return nbt;
 	}
 
 	@Override
-	public byte getByte(Object nbt, String path)
-	{
+	public byte getByte(Object nbt, String path) {
 		return ((NBTTagCompound) nbt).f(path);
 	}
 
 	@Override
-	public Object getDataWatcher(Entity entity)
-	{
+	public Object getDataWatcher(Entity entity) {
 		return ((CraftEntity) entity).getHandle().ai();
 	}
 
 	@Override
-	public Object getDataWatcher(Object entity)
-	{
+	public Object getDataWatcher(Object entity) {
 		return ((net.minecraft.world.entity.Entity) entity).ai();
 	}
 
 	@Override
-	public int incrementStateId(Object container)
-	{
+	public int incrementStateId(Object container) {
 		return ((Container) container).k();
 	}
 
 	@Override
-	public Object packetEntityHeadRotation(Entity entity)
-	{
+	public Object packetEntityHeadRotation(Entity entity) {
 		return new PacketPlayOutEntityHeadRotation((net.minecraft.world.entity.Entity) getEntity(entity), (byte) (entity.getLocation().getYaw() * 256F / 360F));
 	}
 
 	@Override
-	public Object packetHeldItemSlot(int slot)
-	{
+	public Object packetHeldItemSlot(int slot) {
 		return new PacketPlayOutHeldItemSlot(slot);
 	}
 
 	@Override
-	public Object packetExp(float exp, int total, int toNextLevel)
-	{
+	public Object packetExp(float exp, int total, int toNextLevel) {
 		return new PacketPlayOutExperience(exp, total, toNextLevel);
 	}
 
 	@Override
-	public Object packetPlayerInfo(PlayerInfoType type, Player player)
-	{
+	public Object packetPlayerInfo(PlayerInfoType type, Player player) {
 		EnumPlayerInfoAction action = null;
 		switch (type) {
 		case ADD_PLAYER:
@@ -1167,41 +1057,35 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetPosition(double x, double y, double z, float yaw, float pitch)
-	{
+	public Object packetPosition(double x, double y, double z, float yaw, float pitch) {
 		return new PacketPlayOutPosition(x, y, z, yaw, pitch, Collections.emptySet(), 0, false);
 	}
 
 	@Override
-	public Object packetRespawn(Player player)
-	{
+	public Object packetRespawn(Player player) {
 		EntityPlayer entityPlayer = (EntityPlayer) getPlayer(player);
 		WorldServer worldserver = entityPlayer.x();
 		return new PacketPlayOutRespawn(worldserver.q_(), worldserver.aa(), BiomeManager.a(worldserver.E()), entityPlayer.d.b(), entityPlayer.d.c(), worldserver.ad(), worldserver.D(), true);
 	}
 
 	@Override
-	public String getProviderName()
-	{
+	public String getProviderName() {
 		return "1_18_R1 (1.18)";
 	}
 
 	@Override
-	public int getContainerStateId(Object container)
-	{
+	public int getContainerStateId(Object container) {
 		return ((Container) container).j();
 	}
 
 	@Override
-	public void loadParticles()
-	{
+	public void loadParticles() {
 		for (Entry<ResourceKey<Particle<?>>, Particle<?>> s : IRegistry.ac.e())
 			me.devtec.theapi.bukkit.game.particles.Particle.identifier.put(s.getKey().a().a(), s.getValue());
 	}
 
 	@Override
-	public String getGameProfileValues(Object profile)
-	{
+	public String getGameProfileValues(Object profile) {
 		Collection<Property> properties = ((GameProfile) profile).getProperties().get("textures");
 		if (!properties.isEmpty())
 			return properties.iterator().next().getValue();
@@ -1209,8 +1093,7 @@ public class v1_18_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object createGameProfile(UUID uuid, String name, String values)
-	{
+	public Object createGameProfile(UUID uuid, String name, String values) {
 		GameProfile profile = new GameProfile(uuid, name);
 		profile.getProperties().put("textures", new Property("textures", values));
 		return profile;

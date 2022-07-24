@@ -9,18 +9,15 @@ import me.devtec.theapi.bukkit.game.TheMaterial;
 
 public class ParticleData {
 
-	public float getValueX()
-	{
+	public float getValueX() {
 		return 0;
 	}
 
-	public float getValueY()
-	{
+	public float getValueY() {
 		return 0;
 	}
 
-	public float getValueZ()
-	{
+	public float getValueZ() {
 		return 0;
 	}
 
@@ -35,26 +32,22 @@ public class ParticleData {
 			this.note = note;
 		}
 
-		public int getNote()
-		{
+		public int getNote() {
 			return note;
 		}
 
 		@Override
-		public float getValueX()
-		{
+		public float getValueX() {
 			return note / 24F;
 		}
 
 		@Override
-		public float getValueY()
-		{
+		public float getValueY() {
 			return 0;
 		}
 
 		@Override
-		public float getValueZ()
-		{
+		public float getValueZ() {
 			return 0;
 		}
 	}
@@ -92,41 +85,34 @@ public class ParticleData {
 			this(1, red, green, blue);
 		}
 
-		public float getRed()
-		{
+		public float getRed() {
 			return red;
 		}
 
-		public float getGreen()
-		{
+		public float getGreen() {
 			return green;
 		}
 
-		public float getBlue()
-		{
+		public float getBlue() {
 			return blue;
 		}
 
 		@Override
-		public float getValueX()
-		{
+		public float getValueX() {
 			return red / 255.0F;
 		}
 
 		@Override
-		public float getValueY()
-		{
+		public float getValueY() {
 			return green / 255.0F;
 		}
 
 		@Override
-		public float getValueZ()
-		{
+		public float getValueZ() {
 			return blue / 255.0F;
 		}
 
-		public float getSize()
-		{
+		public float getSize() {
 			return size;
 		}
 	}
@@ -159,8 +145,7 @@ public class ParticleData {
 				}
 		}
 
-		public ItemStack getItem()
-		{
+		public ItemStack getItem() {
 			return item;
 		}
 
@@ -169,8 +154,7 @@ public class ParticleData {
 		 * @apiNote 1.12.2 and older only.
 		 * @return packedData of item
 		 */
-		public int[] getPacketData()
-		{
+		public int[] getPacketData() {
 			return packetData;
 		}
 	}
@@ -197,8 +181,7 @@ public class ParticleData {
 			this(new TheMaterial(stack));
 		}
 
-		public TheMaterial getType()
-		{
+		public TheMaterial getType() {
 			return material;
 		}
 
@@ -207,13 +190,11 @@ public class ParticleData {
 		 * @apiNote 1.12.2 and older only.
 		 * @return packedData of item
 		 */
-		public int[] getPacketData()
-		{
+		public int[] getPacketData() {
 			return packetData;
 		}
 
-		public String getPacketDataString()
-		{
+		public String getPacketDataString() {
 			return "_" + packetData[0] + "_" + packetData[1];
 		}
 	}

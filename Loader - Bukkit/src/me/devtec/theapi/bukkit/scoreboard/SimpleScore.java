@@ -17,26 +17,22 @@ public class SimpleScore {
 	private String name = "";
 	private final List<String> lines = new ArrayList<>();
 
-	public SimpleScore addLine(String line)
-	{
+	public SimpleScore addLine(String line) {
 		this.lines.add(line);
 		return this;
 	}
 
-	public SimpleScore addLines(Collection<String> lines)
-	{
+	public SimpleScore addLines(Collection<String> lines) {
 		this.lines.addAll(lines);
 		return this;
 	}
 
-	public SimpleScore setTitle(String title)
-	{
+	public SimpleScore setTitle(String title) {
 		this.name = title;
 		return this;
 	}
 
-	public void send(Player... players)
-	{
+	public void send(Player... players) {
 		for (Player a : players) {
 			ScoreboardAPI sb = this.getOrCreate(a);
 			sb.setTitle(this.name);
@@ -55,8 +51,7 @@ public class SimpleScore {
 		this.lines.clear();
 	}
 
-	private ScoreboardAPI getOrCreate(Player player)
-	{
+	private ScoreboardAPI getOrCreate(Player player) {
 		ScoreboardAPI a = SimpleScore.scores.get(player.getUniqueId());
 		if (a == null)
 			SimpleScore.scores.put(player.getUniqueId(), a = new ScoreboardAPI(player, Ref.isNewerThan(7) ? 0 : -1));

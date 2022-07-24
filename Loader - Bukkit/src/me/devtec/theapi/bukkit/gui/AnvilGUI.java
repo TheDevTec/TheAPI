@@ -39,8 +39,7 @@ public class AnvilGUI implements HolderGUI {
 	/**
 	 * @apiNote Actions before close gui
 	 */
-	public void onPreClose(Player player)
-	{
+	public void onPreClose(Player player) {
 		// Before gui is closed actions
 	}
 
@@ -48,19 +47,16 @@ public class AnvilGUI implements HolderGUI {
 	 * @apiNote Actions on close gui
 	 */
 	@Override
-	public void onClose(Player player)
-	{
+	public void onClose(Player player) {
 		// Closed gui actions
 	}
 
 	@Override
-	public boolean onIteractItem(Player player, ItemStack item, ClickType type, int slot, boolean gui)
-	{
+	public boolean onIteractItem(Player player, ItemStack item, ClickType type, int slot, boolean gui) {
 		return false;
 	}
 
-	public final String getName()
-	{
+	public final String getName() {
 		return title;
 	}
 
@@ -68,14 +64,12 @@ public class AnvilGUI implements HolderGUI {
 	 * @apiNote Set menu insertable for items
 	 */
 	@Override
-	public final void setInsertable(boolean value)
-	{
+	public final void setInsertable(boolean value) {
 		put = value;
 	}
 
 	@Override
-	public final boolean isInsertable()
-	{
+	public final boolean isInsertable() {
 		return put;
 	}
 
@@ -83,8 +77,7 @@ public class AnvilGUI implements HolderGUI {
 	 * @apiNote Set item on position to the gui with options
 	 */
 	@Override
-	public final void setItem(int position, ItemGUI item)
-	{
+	public final void setItem(int position, ItemGUI item) {
 		items.put(position, item);
 		inv.setItem(position, item.getItem());
 	}
@@ -92,8 +85,7 @@ public class AnvilGUI implements HolderGUI {
 	/**
 	 * @apiNote Remove item from position
 	 */
-	public final void removeItem(int position)
-	{
+	public final void removeItem(int position) {
 		items.remove(position);
 		inv.setItem(position, null);
 	}
@@ -102,22 +94,19 @@ public class AnvilGUI implements HolderGUI {
 	 * @apiNote Remove item from position
 	 */
 	@Override
-	public final void remove(int slot)
-	{
+	public final void remove(int slot) {
 		removeItem(slot);
 	}
 
 	@Override
-	public final ItemStack getItem(int slot)
-	{
+	public final ItemStack getItem(int slot) {
 		return inv.getItem(slot);
 	}
 
 	/**
 	 * @apiNote Return ItemStack from position in gui
 	 */
-	public final ItemStack getItem(Player target, int slot)
-	{
+	public final ItemStack getItem(Player target, int slot) {
 		try {
 			return inv.getItem(slot);
 		} catch (Exception e) {
@@ -129,8 +118,7 @@ public class AnvilGUI implements HolderGUI {
 	 * @apiNote Return ItemGUI from position in gui
 	 */
 	@Override
-	public final ItemGUI getItemGUI(int slot)
-	{
+	public final ItemGUI getItemGUI(int slot) {
 		return getItemGUIs().get(slot);
 	}
 
@@ -138,8 +126,7 @@ public class AnvilGUI implements HolderGUI {
 	 * @apiNote Open GUI menu to player
 	 *
 	 */
-	public final void open(Player... players)
-	{
+	public final void open(Player... players) {
 		for (Player player : players) {
 			if (BukkitLoader.gui.containsKey(player.getUniqueId())) {
 				HolderGUI a = BukkitLoader.gui.get(player.getUniqueId());
@@ -161,19 +148,16 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	@Override
-	public Object getContainer(Player player)
-	{
+	public Object getContainer(Player player) {
 		return containers.get(player);
 	}
 
-	public String getRenameText()
-	{
+	public String getRenameText() {
 		return text;
 	}
 
 	@Override
-	public final void setTitle(String value)
-	{
+	public final void setTitle(String value) {
 		title = StringUtils.colorize(value);
 		if (Ref.isOlderThan(9) && title.length() >= 32)
 			title = title.substring(0, 32);
@@ -188,8 +172,7 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	@Override
-	public final String getTitle()
-	{
+	public final String getTitle() {
 		return title;
 	}
 
@@ -198,8 +181,7 @@ public class AnvilGUI implements HolderGUI {
 	 *
 	 */
 	@Override
-	public final Map<Integer, ItemGUI> getItemGUIs()
-	{
+	public final Map<Integer, ItemGUI> getItemGUIs() {
 		return items;
 	}
 
@@ -208,8 +190,7 @@ public class AnvilGUI implements HolderGUI {
 	 *
 	 */
 	@Override
-	public final Collection<Player> getPlayers()
-	{
+	public final Collection<Player> getPlayers() {
 		return containers.keySet();
 	}
 
@@ -217,8 +198,7 @@ public class AnvilGUI implements HolderGUI {
 	 * @return boolean
 	 *
 	 */
-	public final boolean hasOpen(Player player)
-	{
+	public final boolean hasOpen(Player player) {
 		return containers.containsKey(player);
 	}
 
@@ -227,8 +207,7 @@ public class AnvilGUI implements HolderGUI {
 	 *
 	 */
 	@Override
-	public final void close()
-	{
+	public final void close() {
 		this.close(containers.keySet().toArray(new Player[0]));
 	}
 
@@ -237,8 +216,7 @@ public class AnvilGUI implements HolderGUI {
 	 *
 	 */
 	@Override
-	public final void clear()
-	{
+	public final void clear() {
 		items.clear();
 		inv.clear();
 	}
@@ -248,8 +226,7 @@ public class AnvilGUI implements HolderGUI {
 	 *
 	 */
 	@Override
-	public final void close(Player... players)
-	{
+	public final void close(Player... players) {
 		if (players == null)
 			return;
 		for (Player player : players) {
@@ -265,8 +242,7 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	@Override
-	public void closeWithoutPacket(Player... p)
-	{
+	public void closeWithoutPacket(Player... p) {
 		if (p == null)
 			return;
 		for (Player player : p) {
@@ -282,8 +258,7 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	@Override
-	public final String toString()
-	{
+	public final String toString() {
 		StringBuilder items = new StringBuilder();
 		for (Entry<Integer, ItemGUI> g : getItemGUIs().entrySet())
 			items.append('/').append(g.getKey()).append(':').append(g.getValue().toString());
@@ -291,19 +266,16 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	@Override
-	public int size()
-	{
+	public int size() {
 		return inv.getSize();
 	}
 
 	@Override
-	public Inventory getInventory()
-	{
+	public Inventory getInventory() {
 		return inv;
 	}
 
-	public void setRepairText(String text)
-	{
+	public void setRepairText(String text) {
 		this.text = text;
 		for (Object o : containers.values())
 			if (Ref.isNewerThan(16)) {
@@ -319,8 +291,7 @@ public class AnvilGUI implements HolderGUI {
 	 * @apiNote Returns not interable slots via SHIFT click
 	 */
 	@Override
-	public List<Integer> getNotInterableSlots(Player player)
-	{
+	public List<Integer> getNotInterableSlots(Player player) {
 		List<Integer> list = new ArrayList<>();
 		if (isInsertable())
 			for (int i = 0; i < size(); ++i) {
