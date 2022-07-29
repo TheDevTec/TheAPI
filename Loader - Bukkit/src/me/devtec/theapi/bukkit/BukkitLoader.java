@@ -87,7 +87,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	@SuppressWarnings("unchecked")
 	public void onLoad() {
 		BukkitLoader.initTheAPI(this);
-		new Metrics(this, 10581);
 		try {
 			BukkitLoader.nmsProvider = (NmsProvider) Class.forName("me.devtec.theapi.bukkit.nms." + Ref.serverVersion(), true, getClassLoader()).newInstance();
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
@@ -106,6 +105,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				else
 					BukkitLoader.handler = (PacketHandler<?>) Ref.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy", true);
 			}).start();
+
 		else if (Ref.isNewerThan(7))
 			BukkitLoader.handler = new PacketHandlerModern(false);
 		else
@@ -216,6 +216,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				return null;
 			}
 		}.register();
+
+		new Metrics(this, 10581);
 	}
 
 	@Override
@@ -489,18 +491,18 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 						continue;
 					char c = s.charAt(0);
 					if (prev == '&' || prev == '§') {
-						if (prev == '&' && s.charAt(0) == 'u') {
+						if (prev == '&' && c == 'u') {
 							builder.deleteCharAt(builder.length() - 1); // remove & char
 							inRainbow = true;
 							prev = c;
 							continue;
 						}
-						if (inRainbow && prev == '§' && (isColor(s.charAt(0)) || isFormat(s.charAt(0)))) {
-							if (isFormat(s.charAt(0))) {
-								if (s.charAt(0) == 'r')
+						if (inRainbow && prev == '§' && (isColor(c) || isFormat(c))) {
+							if (isFormat(c)) {
+								if (c == 'r')
 									formats = "§r";
 								else
-									formats += "§" + s.charAt(0);
+									formats += "§" + c;
 								prev = c;
 								continue;
 							}
