@@ -33,6 +33,12 @@ public class BungeeCommandManager implements CommandsRegister {
 				return commandHolder.tablist(s, args);
 			}
 		};
-		ProxyServer.getInstance().getPluginManager().registerCommand(this.plugin, cmd);
+		commandHolder.setRegisteredCommand(cmd, command, aliases);
+		ProxyServer.getInstance().getPluginManager().registerCommand(plugin, cmd);
+	}
+
+	@Override
+	public void unregister(CommandHolder<?> commandHolder) {
+		ProxyServer.getInstance().getPluginManager().unregisterCommand((PlayerCommand) commandHolder.getRegisteredCommand());
 	}
 }

@@ -29,6 +29,14 @@ public class VelocityCommandManager implements CommandsRegister {
 				return commandHolder.getStructure().getPermission() == null ? true : invocation.source().hasPermission(commandHolder.getStructure().getPermission());
 			}
 		};
+		commandHolder.setRegisteredCommand(cmd, command, aliases);
 		VelocityLoader.getServer().getCommandManager().register(command, cmd, aliases);
+	}
+
+	@Override
+	public void unregister(CommandHolder<?> commandHolder) {
+		VelocityLoader.getServer().getCommandManager().unregister(commandHolder.getCommandName());
+		for (String alias : commandHolder.getCommandAliases())
+			VelocityLoader.getServer().getCommandManager().unregister(alias);
 	}
 }

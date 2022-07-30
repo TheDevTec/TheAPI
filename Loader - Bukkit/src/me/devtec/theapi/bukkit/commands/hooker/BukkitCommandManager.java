@@ -77,6 +77,14 @@ public class BukkitCommandManager implements CommandsRegister {
 		});
 		cmd.setTabCompleter((s, arg1, arg2, args) -> commandHolder.tablist(s, args));
 		cmd.setPermission(commandHolder.getStructure().getPermission());
+		commandHolder.setRegisteredCommand(cmd, command, aliases);
 		registerCommand(cmd);
+	}
+
+	@Override
+	public void unregister(CommandHolder<?> commandHolder) {
+		knownCommands.remove(commandHolder.getCommandName().toLowerCase(Locale.ENGLISH).trim());
+		for (String alias : commandHolder.getCommandAliases())
+			knownCommands.remove(alias.toLowerCase(Locale.ENGLISH).trim());
 	}
 }
