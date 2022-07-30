@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.command.CommandSender;
@@ -15,6 +14,7 @@ import org.bukkit.entity.Player;
 import me.devtec.shared.commands.manager.SelectorUtils;
 import me.devtec.shared.commands.selectors.Selector;
 import me.devtec.theapi.bukkit.BukkitLoader;
+import me.devtec.theapi.bukkit.xseries.XMaterial;
 
 public class BukkitSelectorUtils implements SelectorUtils<CommandSender> {
 	@Override
@@ -26,8 +26,9 @@ public class BukkitSelectorUtils implements SelectorUtils<CommandSender> {
 				list.add(biome.name());
 			break;
 		case MATERIAL:
-			for (Material material : Material.values())
-				list.add(material.name());
+			for (XMaterial material : XMaterial.values())
+				if (material.isSupported() && material.parseMaterial().isItem() && material != XMaterial.AIR)
+					list.add(material.name());
 			break;
 		case BOOLEAN:
 			list.add("true");
@@ -84,6 +85,8 @@ public class BukkitSelectorUtils implements SelectorUtils<CommandSender> {
 			} catch (NoSuchFieldError | Exception err) {
 			}
 			break;
+		case MATERIAL:
+			return XMaterial.matchXMaterial(value).isPresent() && XMaterial.matchXMaterial(value).get().isSupported();
 		case BOOLEAN:
 			return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");
 		case ENTITY_SELECTOR:
