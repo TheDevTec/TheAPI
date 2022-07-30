@@ -3,6 +3,7 @@ package me.devtec.theapi.velocity.commands.selectors;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 
@@ -10,9 +11,9 @@ import me.devtec.shared.commands.manager.SelectorUtils;
 import me.devtec.shared.commands.selectors.Selector;
 import me.devtec.theapi.velocity.VelocityLoader;
 
-public class VelocitySelectorUtils implements SelectorUtils {
+public class VelocitySelectorUtils implements SelectorUtils<CommandSource> {
 	@Override
-	public List<String> build(Selector selector) {
+	public List<String> build(CommandSource s, Selector selector) {
 		List<String> list = new ArrayList<>();
 		switch (selector) {
 		case SERVER:
@@ -49,7 +50,7 @@ public class VelocitySelectorUtils implements SelectorUtils {
 	}
 
 	@Override
-	public boolean check(Selector selector, String value) {
+	public boolean check(CommandSource s, Selector selector, String value) {
 		switch (selector) {
 		case BOOLEAN:
 			return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");

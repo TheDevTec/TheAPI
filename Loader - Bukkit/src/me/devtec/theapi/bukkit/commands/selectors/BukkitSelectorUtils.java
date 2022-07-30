@@ -1,11 +1,14 @@
 package me.devtec.theapi.bukkit.commands.selectors;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
@@ -13,21 +16,25 @@ import me.devtec.shared.commands.manager.SelectorUtils;
 import me.devtec.shared.commands.selectors.Selector;
 import me.devtec.theapi.bukkit.BukkitLoader;
 
-public class BukkitSelectorUtils implements SelectorUtils {
+public class BukkitSelectorUtils implements SelectorUtils<CommandSender> {
 	@Override
-	public List<String> build(Selector selector) {
+	public List<String> build(CommandSender s, Selector selector) {
 		List<String> list = new ArrayList<>();
 		switch (selector) {
 		case BIOME_TYPE:
 			for (Biome biome : Biome.values())
 				list.add(biome.name());
 			break;
+		case MATERIAL:
+			for (Material material : Material.values())
+				list.add(material.name());
+			break;
 		case BOOLEAN:
 			list.add("true");
 			list.add("false");
 			break;
 		case ENTITY_SELECTOR:
-			if (BukkitLoader.getOnlinePlayers().size() == 0)
+			if ((s instanceof Player ? getPlayers(s) : BukkitLoader.getOnlinePlayers()).size() == 0)
 				break;
 			list.add("*");
 			list.add("@a");
@@ -36,7 +43,7 @@ public class BukkitSelectorUtils implements SelectorUtils {
 			list.add("@s");
 			list.add("@p");
 		case PLAYER:
-			for (Player player : BukkitLoader.getOnlinePlayers())
+			for (Player player : s instanceof Player ? getPlayers(s) : BukkitLoader.getOnlinePlayers())
 				list.add(player.getName());
 			break;
 		case ENTITY_TYPE:
@@ -59,8 +66,16 @@ public class BukkitSelectorUtils implements SelectorUtils {
 		return list;
 	}
 
+	private Collection<? extends Player> getPlayers(CommandSender s) {
+		List<Player> players = new ArrayList<>();
+		for (Player p : BukkitLoader.getOnlinePlayers())
+			if (((Player) s).canSee(p))
+				players.add(p);
+		return players;
+	}
+
 	@Override
-	public boolean check(Selector selector, String value) {
+	public boolean check(CommandSender s, Selector selector, String value) {
 		switch (selector) {
 		case BIOME_TYPE:
 			try {
@@ -77,7 +92,12 @@ public class BukkitSelectorUtils implements SelectorUtils {
 				return true;
 			// Else continue to player
 		case PLAYER:
-			return Bukkit.getPlayer(value) != null;
+			Player player = Bukkit.getPlayer(value);
+			if (player == null)
+				return false;
+			if (s instanceof Player && ((Player) s).canSee(player))
+				return true;
+			return true;
 		case ENTITY_TYPE:
 			try {
 				EntityType.valueOf(value.toUpperCase());
