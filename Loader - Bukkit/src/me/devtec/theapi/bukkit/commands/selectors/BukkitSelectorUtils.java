@@ -86,7 +86,7 @@ public class BukkitSelectorUtils implements SelectorUtils<CommandSender> {
 			}
 			break;
 		case MATERIAL:
-			return XMaterial.matchXMaterial(value).isPresent() && XMaterial.matchXMaterial(value).get().isSupported();
+			return value != null && !value.isEmpty() && XMaterial.matchXMaterial(value).isPresent() && XMaterial.matchXMaterial(value).get().isSupported();
 		case BOOLEAN:
 			return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");
 		case ENTITY_SELECTOR:
