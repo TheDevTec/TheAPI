@@ -71,7 +71,7 @@ public class ScoreboardAPI {
 		if (destroyed)
 			return;
 		destroyed = true;
-		BukkitLoader.getPacketHandler().send(p, createObjectivePacket(1, Ref.isNewerThan(12) ? null : ""));
+		BukkitLoader.getPacketHandler().send(p, createObjectivePacket(1, ""));
 		for (String a : data.getKeys(player)) {
 			Team team = data.getAs(player + "." + a, Team.class);
 			if (team != null)
