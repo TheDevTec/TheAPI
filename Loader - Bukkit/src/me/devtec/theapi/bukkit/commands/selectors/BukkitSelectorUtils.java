@@ -90,11 +90,13 @@ public class BukkitSelectorUtils implements SelectorUtils<CommandSender> {
 		case BOOLEAN:
 			return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");
 		case ENTITY_SELECTOR:
-			boolean match = value.matches("@[AaEeRrSsPp]|[*]");
+			boolean match = value.matches("@[AaEeRrSsPp]|\\*");
 			if (match)
 				return true;
 			// Else continue to player
 		case PLAYER:
+			if (value.isEmpty())
+				return false;
 			Player player = Bukkit.getPlayer(value);
 			if (player == null)
 				return false;

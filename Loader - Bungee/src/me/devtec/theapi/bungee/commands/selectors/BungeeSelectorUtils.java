@@ -52,11 +52,13 @@ public class BungeeSelectorUtils implements SelectorUtils<CommandSender> {
 		case BOOLEAN:
 			return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");
 		case ENTITY_SELECTOR:
-			boolean match = value.matches("\\*|@[AaEeRrSsPp]");
+			boolean match = value.matches("@[AaEeRrSsPp]|\\*");
 			if (match)
 				return true;
 			// Else continue to player
 		case PLAYER:
+			if (value.isEmpty())
+				return false;
 			return !ProxyServer.getInstance().matchPlayer(value).isEmpty();
 		case INTEGER:
 			try {
@@ -73,6 +75,8 @@ public class BungeeSelectorUtils implements SelectorUtils<CommandSender> {
 			}
 			break;
 		case SERVER:
+			if (value.isEmpty())
+				return false;
 			return ProxyServer.getInstance().getServerInfo(value) != null;
 		default:
 			break;

@@ -55,11 +55,13 @@ public class VelocitySelectorUtils implements SelectorUtils<CommandSource> {
 		case BOOLEAN:
 			return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");
 		case ENTITY_SELECTOR:
-			boolean match = value.matches("\\*|@[AaEeRrSsPp]");
+			boolean match = value.matches("@[AaEeRrSsPp]|\\*");
 			if (match)
 				return true;
 			// Else continue to player
 		case PLAYER:
+			if (value.isEmpty())
+				return false;
 			return !VelocityLoader.getServer().matchPlayer(value).isEmpty();
 		case INTEGER:
 			try {
@@ -76,6 +78,8 @@ public class VelocitySelectorUtils implements SelectorUtils<CommandSource> {
 			}
 			break;
 		case SERVER:
+			if (value.isEmpty())
+				return false;
 			return VelocityLoader.getServer().getServer(value).isPresent();
 		default:
 			break;
