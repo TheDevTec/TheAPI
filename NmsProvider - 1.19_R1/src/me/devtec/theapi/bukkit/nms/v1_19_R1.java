@@ -417,6 +417,8 @@ public class v1_19_R1 implements NmsProvider {
 
 	@Override
 	public Object toIChatBaseComponent(Component co) {
+		if (co == null)
+			return IChatBaseComponent.b("");
 		IChatMutableComponent main = IChatBaseComponent.b("");
 		List<IChatBaseComponent> chat = new ArrayList<>();
 		if (co.getText() != null && !co.getText().isEmpty())
