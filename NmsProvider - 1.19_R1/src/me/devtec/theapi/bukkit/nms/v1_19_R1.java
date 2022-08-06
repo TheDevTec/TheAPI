@@ -433,7 +433,7 @@ public class v1_19_R1 implements NmsProvider {
 					addConverted(chat, c.getExtra());
 			}
 		for (IChatBaseComponent d : chat)
-			main.a(d);
+			main.c().add(d);
 		return main.c().isEmpty() ? IChatBaseComponent.b("") : main;
 	}
 
@@ -441,7 +441,7 @@ public class v1_19_R1 implements NmsProvider {
 	public Object toIChatBaseComponent(List<Component> cc) {
 		IChatMutableComponent main = IChatBaseComponent.b("");
 		for (Component c : cc)
-			main.a((IChatBaseComponent) this.toIChatBaseComponent(c));
+			main.c().add((IChatBaseComponent) this.toIChatBaseComponent(c));
 		return main.c().isEmpty() ? IChatBaseComponent.b("") : main;
 	}
 
