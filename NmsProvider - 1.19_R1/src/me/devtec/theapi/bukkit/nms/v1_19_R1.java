@@ -989,7 +989,7 @@ public class v1_19_R1 implements NmsProvider {
 
 	@Override
 	public boolean hasKey(Object nbt, String path) {
-		return ((NBTTagCompound) nbt).e(path);
+		return ((NBTTagCompound) nbt).d().contains(path);
 	}
 
 	@Override
