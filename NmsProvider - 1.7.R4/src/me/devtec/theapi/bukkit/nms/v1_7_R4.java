@@ -116,7 +116,8 @@ public class v1_7_R4 implements NmsProvider {
 	private static final ChatComponentText empty = new ChatComponentText("");
 	private static Field channel = Ref.field(NetworkManager.class, "m");
 	private static Field posX = Ref.field(PacketPlayOutBlockChange.class, "a"), posY = Ref.field(PacketPlayOutBlockChange.class, "b"), posZ = Ref.field(PacketPlayOutBlockChange.class, "c");
-	private static Field score_a = Ref.field(PacketPlayOutScoreboardScore.class, "a"), score_b = Ref.field(PacketPlayOutScoreboardScore.class, "b"), score_c = Ref.field(PacketPlayOutScoreboardScore.class, "c"), score_d = Ref.field(PacketPlayOutScoreboardScore.class, "d");
+	private static Field score_a = Ref.field(PacketPlayOutScoreboardScore.class, "a"), score_b = Ref.field(PacketPlayOutScoreboardScore.class, "b"),
+			score_c = Ref.field(PacketPlayOutScoreboardScore.class, "c"), score_d = Ref.field(PacketPlayOutScoreboardScore.class, "d");
 
 	@Override
 	public Collection<? extends Player> getOnlinePlayers() {
@@ -588,7 +589,7 @@ public class v1_7_R4 implements NmsProvider {
 			TileEntity ent = ((IContainer) block).a(c.world, 0);
 			c.tileEntities.put(pos, ent);
 			Object packet = ent.getUpdatePacket();
-			for (Player player : Bukkit.getOnlinePlayers())
+			for (Player player : getOnlinePlayers())
 				BukkitLoader.getPacketHandler().send(player, packet);
 		}
 	}
@@ -825,7 +826,8 @@ public class v1_7_R4 implements NmsProvider {
 		int position = 0;
 		if (!(gui instanceof AnvilGUI) && !cancel && type == InventoryClickType.QUICK_MOVE) {
 			ItemStack[] contents = slot < gui.size() ? player.getInventory().getContents() : gui.getInventory().getContents();
-			List<Integer> modified = slot < gui.size() ? InventoryUtils.shift(slot, player, gui, clickType, gui instanceof AnvilGUI ? DestinationType.PLAYER_INV_ANVIL : DestinationType.PLAYER_INV_CUSTOM_INV, null, contents, item)
+			List<Integer> modified = slot < gui.size()
+					? InventoryUtils.shift(slot, player, gui, clickType, gui instanceof AnvilGUI ? DestinationType.PLAYER_INV_ANVIL : DestinationType.PLAYER_INV_CUSTOM_INV, null, contents, item)
 					: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.CUSTOM_INV, gui.getNotInterableSlots(player), contents, item);
 			if (!modified.isEmpty())
 				if (slot < gui.size()) {
@@ -890,9 +892,10 @@ public class v1_7_R4 implements NmsProvider {
 			return false;
 		}
 		List<PlayerProfile> players = new ArrayList<>();
-		for (Player p : Bukkit.getOnlinePlayers())
+		for (Player p : getOnlinePlayers())
 			players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
-		ServerListPingEvent event = new ServerListPingEvent(Bukkit.getOnlinePlayers().length, Bukkit.getMaxPlayers(), players, Bukkit.getMotd(), ping.d(), ((InetSocketAddress) ((Channel) channel).remoteAddress()).getAddress(), ping.c().a(), ping.c().b());
+		ServerListPingEvent event = new ServerListPingEvent(getOnlinePlayers().size(), Bukkit.getMaxPlayers(), players, Bukkit.getMotd(), ping.d(),
+				((InetSocketAddress) ((Channel) channel).remoteAddress()).getAddress(), ping.c().a(), ping.c().b());
 		EventManager.call(event);
 		if (event.isCancelled())
 			return true;

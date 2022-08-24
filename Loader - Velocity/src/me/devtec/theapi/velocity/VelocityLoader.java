@@ -25,6 +25,7 @@ import me.devtec.shared.Ref.ServerType;
 import me.devtec.shared.components.AdventureComponentAPI;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.dataholder.Config;
+import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.json.Json;
 import me.devtec.shared.json.modern.ModernJsonReader;
 import me.devtec.shared.json.modern.ModernJsonWriter;
@@ -118,13 +119,13 @@ public class VelocityLoader {
 			Pattern hex = Pattern.compile("(&?#[a-fA-F0-9]{6})");
 
 			@Override
-			public String gradient(String msg, String fromHex, String toHex) {
-				return API.basics().gradient(msg, fromHex, toHex);
+			public String gradient(String msg, String fromHex, String toHex, List<String> protectedStrings) {
+				return API.basics().gradient(msg, fromHex, toHex, protectedStrings);
 			}
 
 			@Override
 			public String generateColor() {
-				StringBuilder b = new StringBuilder("&#");
+				StringContainer b = new StringContainer(8).append("&#");
 				for (int i = 0; i < 6; ++i)
 					b.append(characters[random.nextInt(16)]);
 				return b.toString();
@@ -148,8 +149,8 @@ public class VelocityLoader {
 			}
 
 			@Override
-			public String rainbow(String msg, String fromHex, String toHex) {
-				return API.basics().rainbow(msg, fromHex, toHex);
+			public String rainbow(String msg, String fromHex, String toHex, List<String> protectedStrings) {
+				return API.basics().rainbow(msg, fromHex, toHex, protectedStrings);
 			}
 		};
 	}

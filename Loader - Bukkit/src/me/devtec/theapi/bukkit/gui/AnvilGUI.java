@@ -14,6 +14,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.shared.Ref;
+import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
@@ -259,7 +260,7 @@ public class AnvilGUI implements HolderGUI {
 
 	@Override
 	public final String toString() {
-		StringBuilder items = new StringBuilder();
+		StringContainer items = new StringContainer(128);
 		for (Entry<Integer, ItemGUI> g : getItemGUIs().entrySet())
 			items.append('/').append(g.getKey()).append(':').append(g.getValue().toString());
 		return "[AnvilGUI:" + title + "/" + put + "/" + 3 + items.append(']');

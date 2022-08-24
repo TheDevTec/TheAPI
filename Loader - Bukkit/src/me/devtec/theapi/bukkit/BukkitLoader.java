@@ -35,13 +35,13 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.devtec.shared.API;
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.components.ComponentTransformer;
 import me.devtec.shared.dataholder.Config;
+import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.json.JReader;
 import me.devtec.shared.json.JWriter;
 import me.devtec.shared.json.Json;
@@ -77,6 +77,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	private static PacketHandler<?> handler;
 	public static Object airBlock;
 
+	static Class<?> serverPing;
 	static Class<?> resource;
 	static Class<?> close;
 	static Class<?> click;
@@ -96,7 +97,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			BukkitLoader.nmsProvider.loadParticles();
 
 		if (Ref.field(Command.class, "timings") != null && Ref.isOlderThan(9))
-			Ref.set(Bukkit.getServer(), "commandMap", new SpigotSimpleCommandMap(Bukkit.getServer(), (Map<String, Command>) Ref.get(Ref.get(Bukkit.getPluginManager(), "commandMap"), "knownCommands")));
+			Ref.set(Bukkit.getServer(), "commandMap",
+					new SpigotSimpleCommandMap(Bukkit.getServer(), (Map<String, Command>) Ref.get(Ref.get(Bukkit.getPluginManager(), "commandMap"), "knownCommands")));
 
 		if (new File("spigot.yml").exists() && new Config("spigot.yml").getBoolean("settings.late-bind"))
 			new Thread(() -> { // ASYNC
@@ -112,6 +114,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			BukkitLoader.handler = (PacketHandler<?>) Ref.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy", false);
 		BukkitLoader.resource = Ref.nms("network.protocol.game", "PacketPlayInResourcePackStatus");
 		BukkitLoader.close = Ref.nms("network.protocol.game", "PacketPlayInCloseWindow");
+		serverPing = Ref.nms("network.protocol.status", "PacketStatusOutServerInfo");
 		BukkitLoader.click = Ref.nms("network.protocol.game", "PacketPlayInWindowClick");
 		BukkitLoader.itemname = Ref.nms("network.protocol.game", "PacketPlayInItemName");
 		BukkitLoader.airBlock = Ref.invoke(Ref.getNulled(Ref.field(Ref.nms("world.level.block", "Block"), "AIR")), "getBlockData");
@@ -134,7 +137,9 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		new PacketListener() {
 
 			@Override
-			public boolean playOut(String player, Object packet, Object channel) {
+			public boolean playOut(String nick, Object packet, Object channel) {
+				if (packet.getClass() == serverPing)
+					return nmsProvider.processServerListPing(nick, channel, packet);
 				return false;
 			}
 
@@ -143,7 +148,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			}
 
 			public String buildText(String var0) {
-				StringBuilder var1 = new StringBuilder();
+				StringContainer var1 = new StringContainer(var0.length());
 				char[] var2 = var0.toCharArray();
 				int var3 = var2.length;
 
@@ -166,7 +171,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 					if (player == null || ResourcePackAPI.getResourcePack(player) == null || ResourcePackAPI.getHandlingPlayer(player) == null)
 						return false;
 					ResourcePackAPI.getHandlingPlayer(player).onHandle(player, ResourcePackAPI.getResourcePack(player),
-							ResourcePackResult.valueOf(Ref.isNewerThan(16) ? getLegacyNameOf(Ref.get(packet, Ref.isNewerThan(16) ? "a" : "status").toString()) : Ref.get(packet, Ref.isNewerThan(16) ? "a" : "status").toString()));
+							ResourcePackResult.valueOf(Ref.isNewerThan(16) ? getLegacyNameOf(Ref.get(packet, Ref.isNewerThan(16) ? "a" : "status").toString())
+									: Ref.get(packet, Ref.isNewerThan(16) ? "a" : "status").toString()));
 					return false;
 				}
 				// GUIS
@@ -230,7 +236,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 					return me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player == null ? null : Bukkit.getOfflinePlayer(player), "%" + text + "%");
 				}
 			};
-			new PlaceholderExpansion() {
+			new me.clip.placeholderapi.expansion.PlaceholderExpansion() {
 				@Override
 				public String onRequest(OfflinePlayer player, String params) {
 					return PlaceholderAPI.apply("%" + params + "%", player == null ? null : player.getUniqueId());
@@ -391,8 +397,9 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	}
 
 	private static void initTheAPI(JavaPlugin plugin) {
-		Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null ? Ref.getClass("net.kyori.adventure.Adventure") != null ? ServerType.PAPER : ServerType.SPIGOT : ServerType.BUKKIT, Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]); // Server
-																																																																	// version
+		Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null ? Ref.getClass("net.kyori.adventure.Adventure") != null ? ServerType.PAPER : ServerType.SPIGOT : ServerType.BUKKIT,
+				Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]); // Server
+																						// version
 		// version
 		if (Ref.serverType() != ServerType.BUKKIT) {
 			ComponentAPI.registerTransformer("BUNGEECORD", (ComponentTransformer<?>) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.BungeeComponentAPI")));
@@ -402,7 +409,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		if (Ref.isNewerThan(7))
 			Json.init(new ModernJsonReader(), new ModernJsonWriter()); // Modern version of Guava
 		else
-			Json.init((JReader) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.json.legacy.LegacyJsonReader")), (JWriter) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.json.legacy.LegacyJsonWriter"))); // 1.7.10
+			Json.init((JReader) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.json.legacy.LegacyJsonReader")),
+					(JWriter) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.json.legacy.LegacyJsonWriter"))); // 1.7.10
 
 		// Commands api
 		API.commandsRegister = new BukkitCommandManager();
@@ -476,19 +484,28 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			AtomicInteger position = new AtomicInteger(0);
 
 			@Override
-			public String gradient(String msg, String fromHex, String toHex) {
+			public String gradient(String msg, String fromHex, String toHex, List<String> protectedStrings) {
 				if (Ref.isNewerThan(15)) // Hex
-					return API.basics().gradient(msg, fromHex, toHex);
-				String split = msg.replace("", "<>");
+					return API.basics().gradient(msg, fromHex, toHex, protectedStrings);
 
-				StringBuilder builder = new StringBuilder();
+				String split = msg.replace("", "");
+
+				if (protectedStrings != null)
+					for (String protect : protectedStrings)
+						split = split.replace(protect.replace("", ""), protect);
+
+				StringContainer builder = new StringContainer((int) ((msg.length() + 1) * 1.25));
 				boolean inRainbow = false;
 				char prev = 0;
 				String formats = "";
 
-				for (String s : split.split("<>")) {
+				for (String s : split.split("")) {
 					if (s.isEmpty())
 						continue;
+					if (s.length() > 1) {
+						builder.append(s);
+						continue;
+					}
 					char c = s.charAt(0);
 					if (prev == '&' || prev == '§') {
 						if (prev == '&' && c == 'u') {
@@ -540,7 +557,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 						position.set(0);
 					return "§" + chars[position.getAndIncrement()];
 				}
-				StringBuilder b = new StringBuilder("#");
+				StringContainer b = new StringContainer(7).append("#");
 				for (int i = 0; i < 6; ++i)
 					b.append(characters[random.nextInt(16)]);
 				return b.toString();
@@ -559,19 +576,19 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				Matcher match = hex.matcher(msg);
 				while (match.find()) {
 					String color = match.group();
-					StringBuilder hex = new StringBuilder("§x");
+					StringContainer hex = new StringContainer(14).append("§x");
 					for (char c : color.substring(1).toCharArray())
-						hex.append("§").append(c);
+						hex.append('§').append(Character.toLowerCase(c));
 					msg = msg.replace(color, hex.toString());
 				}
 				return msg;
 			}
 
 			@Override
-			public String rainbow(String msg, String fromHex, String toHex) {
+			public String rainbow(String msg, String fromHex, String toHex, List<String> protectedStrings) {
 				if (Ref.isNewerThan(15)) // Hex
-					return API.basics().rainbow(msg, fromHex, toHex);
-				return gradient(msg, null, null);
+					return API.basics().rainbow(msg, fromHex, toHex, protectedStrings);
+				return gradient(msg, null, null, protectedStrings);
 			}
 		};
 	}

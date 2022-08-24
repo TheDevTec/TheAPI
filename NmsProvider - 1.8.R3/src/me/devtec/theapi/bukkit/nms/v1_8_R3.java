@@ -122,7 +122,8 @@ public class v1_8_R3 implements NmsProvider {
 	private static final ChatComponentText empty = new ChatComponentText("");
 	private static Field a = Ref.field(PacketPlayOutPlayerListHeaderFooter.class, "a"), b = Ref.field(PacketPlayOutPlayerListHeaderFooter.class, "b");
 	private static Field pos = Ref.field(PacketPlayOutBlockChange.class, "a");
-	private static Field score_a = Ref.field(PacketPlayOutScoreboardScore.class, "a"), score_b = Ref.field(PacketPlayOutScoreboardScore.class, "b"), score_c = Ref.field(PacketPlayOutScoreboardScore.class, "c"), score_d = Ref.field(PacketPlayOutScoreboardScore.class, "d");
+	private static Field score_a = Ref.field(PacketPlayOutScoreboardScore.class, "a"), score_b = Ref.field(PacketPlayOutScoreboardScore.class, "b"),
+			score_c = Ref.field(PacketPlayOutScoreboardScore.class, "c"), score_d = Ref.field(PacketPlayOutScoreboardScore.class, "d");
 
 	@Override
 	public Collection<? extends Player> getOnlinePlayers() {
@@ -361,7 +362,8 @@ public class v1_8_R3 implements NmsProvider {
 		if (c.getClickEvent() != null)
 			modif = modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
 		if (c.getHoverEvent() != null)
-			modif = modif.setChatHoverable(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent) this.toIChatBaseComponent(c.getHoverEvent().getValue())));
+			modif = modif
+					.setChatHoverable(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent) this.toIChatBaseComponent(c.getHoverEvent().getValue())));
 		modif = modif.setBold(c.isBold());
 		modif = modif.setItalic(c.isItalic());
 		modif = modif.setRandom(c.isObfuscated());
@@ -555,7 +557,7 @@ public class v1_8_R3 implements NmsProvider {
 			TileEntity ent = ((IContainer) IblockData).a(c.world, 0);
 			c.tileEntities.put(pos, ent);
 			Object packet = ent.getUpdatePacket();
-			Bukkit.getOnlinePlayers().forEach(player -> BukkitLoader.getPacketHandler().send(player, packet));
+			getOnlinePlayers().forEach(player -> BukkitLoader.getPacketHandler().send(player, packet));
 		}
 	}
 
@@ -785,7 +787,8 @@ public class v1_8_R3 implements NmsProvider {
 		int position = 0;
 		if (!(gui instanceof AnvilGUI) && !cancel && type == InventoryClickType.QUICK_MOVE) {
 			ItemStack[] contents = slot < gui.size() ? player.getInventory().getContents() : gui.getInventory().getContents();
-			List<Integer> modified = slot < gui.size() ? InventoryUtils.shift(slot, player, gui, clickType, gui instanceof AnvilGUI ? DestinationType.PLAYER_INV_ANVIL : DestinationType.PLAYER_INV_CUSTOM_INV, null, contents, item)
+			List<Integer> modified = slot < gui.size()
+					? InventoryUtils.shift(slot, player, gui, clickType, gui instanceof AnvilGUI ? DestinationType.PLAYER_INV_ANVIL : DestinationType.PLAYER_INV_CUSTOM_INV, null, contents, item)
 					: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.CUSTOM_INV, gui.getNotInterableSlots(player), contents, item);
 			if (!modified.isEmpty())
 				if (slot < gui.size()) {
@@ -848,9 +851,10 @@ public class v1_8_R3 implements NmsProvider {
 			return false;
 		}
 		List<PlayerProfile> players = new ArrayList<>();
-		for (Player p : Bukkit.getOnlinePlayers())
+		for (Player p : getOnlinePlayers())
 			players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
-		ServerListPingEvent event = new ServerListPingEvent(Bukkit.getOnlinePlayers().size(), Bukkit.getMaxPlayers(), players, Bukkit.getMotd(), ping.d(), ((InetSocketAddress) ((Channel) channel).remoteAddress()).getAddress(), ping.c().a(), ping.c().b());
+		ServerListPingEvent event = new ServerListPingEvent(getOnlinePlayers().size(), Bukkit.getMaxPlayers(), players, Bukkit.getMotd(), ping.d(),
+				((InetSocketAddress) ((Channel) channel).remoteAddress()).getAddress(), ping.c().a(), ping.c().b());
 		EventManager.call(event);
 		if (event.isCancelled())
 			return true;

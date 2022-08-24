@@ -489,9 +489,10 @@ public class ItemMaker {
 	}
 
 	static enum ShulkerBoxColor {
-		NONE(XMaterial.SHULKER_BOX), WHITE(XMaterial.WHITE_SHULKER_BOX), BLACK(XMaterial.BLACK_SHULKER_BOX), BLUE(XMaterial.BLUE_SHULKER_BOX), BROWN(XMaterial.BROWN_SHULKER_BOX), CYAN(XMaterial.CYAN_SHULKER_BOX), GRAY(XMaterial.GRAY_SHULKER_BOX), GREEN(XMaterial.GREEN_SHULKER_BOX),
-		LIGHT_BLUE(XMaterial.LIGHT_BLUE_SHULKER_BOX), LIGHT_GRAY(XMaterial.LIGHT_GRAY_SHULKER_BOX), LIME(XMaterial.LIME_SHULKER_BOX), MAGENTA(XMaterial.MAGENTA_SHULKER_BOX), ORANGE(XMaterial.ORANGE_SHULKER_BOX), YELLOW(XMaterial.YELLOW_SHULKER_BOX), RED(XMaterial.RED_SHULKER_BOX),
-		PURPLE(XMaterial.PURPLE_SHULKER_BOX), PINK(XMaterial.PINK_SHULKER_BOX);
+		NONE(XMaterial.SHULKER_BOX), WHITE(XMaterial.WHITE_SHULKER_BOX), BLACK(XMaterial.BLACK_SHULKER_BOX), BLUE(XMaterial.BLUE_SHULKER_BOX), BROWN(XMaterial.BROWN_SHULKER_BOX),
+		CYAN(XMaterial.CYAN_SHULKER_BOX), GRAY(XMaterial.GRAY_SHULKER_BOX), GREEN(XMaterial.GREEN_SHULKER_BOX), LIGHT_BLUE(XMaterial.LIGHT_BLUE_SHULKER_BOX),
+		LIGHT_GRAY(XMaterial.LIGHT_GRAY_SHULKER_BOX), LIME(XMaterial.LIME_SHULKER_BOX), MAGENTA(XMaterial.MAGENTA_SHULKER_BOX), ORANGE(XMaterial.ORANGE_SHULKER_BOX),
+		YELLOW(XMaterial.YELLOW_SHULKER_BOX), RED(XMaterial.RED_SHULKER_BOX), PURPLE(XMaterial.PURPLE_SHULKER_BOX), PINK(XMaterial.PINK_SHULKER_BOX);
 
 		private XMaterial m;
 
@@ -513,8 +514,9 @@ public class ItemMaker {
 	}
 
 	static enum BannerColor {
-		NONE(XMaterial.WHITE_BANNER), WHITE(XMaterial.WHITE_BANNER), BLACK(XMaterial.BLACK_BANNER), BLUE(XMaterial.BLUE_BANNER), BROWN(XMaterial.BROWN_BANNER), CYAN(XMaterial.CYAN_BANNER), GRAY(XMaterial.GRAY_BANNER), GREEN(XMaterial.GREEN_BANNER), LIGHT_BLUE(XMaterial.LIGHT_BLUE_BANNER),
-		LIGHT_GRAY(XMaterial.LIGHT_GRAY_BANNER), LIME(XMaterial.LIME_BANNER), MAGENTA(XMaterial.MAGENTA_BANNER), ORANGE(XMaterial.ORANGE_BANNER), YELLOW(XMaterial.YELLOW_BANNER), RED(XMaterial.RED_BANNER), PURPLE(XMaterial.PURPLE_BANNER), PINK(XMaterial.PINK_BANNER);
+		NONE(XMaterial.WHITE_BANNER), WHITE(XMaterial.WHITE_BANNER), BLACK(XMaterial.BLACK_BANNER), BLUE(XMaterial.BLUE_BANNER), BROWN(XMaterial.BROWN_BANNER), CYAN(XMaterial.CYAN_BANNER),
+		GRAY(XMaterial.GRAY_BANNER), GREEN(XMaterial.GREEN_BANNER), LIGHT_BLUE(XMaterial.LIGHT_BLUE_BANNER), LIGHT_GRAY(XMaterial.LIGHT_GRAY_BANNER), LIME(XMaterial.LIME_BANNER),
+		MAGENTA(XMaterial.MAGENTA_BANNER), ORANGE(XMaterial.ORANGE_BANNER), YELLOW(XMaterial.YELLOW_BANNER), RED(XMaterial.RED_BANNER), PURPLE(XMaterial.PURPLE_BANNER), PINK(XMaterial.PINK_BANNER);
 
 		private XMaterial m;
 
@@ -566,7 +568,7 @@ public class ItemMaker {
 		if (Ref.isNewerThan(13)) { // 1.14+
 			int modelData = meta.hasCustomModelData() ? meta.getCustomModelData() : 0;
 			if (modelData != 0)
-				config.set(path + ".itemFlags", modelData);
+				config.set(path + ".modelData", modelData);
 		}
 
 		if (type.name().contains("BANNER")) {
@@ -643,6 +645,7 @@ public class ItemMaker {
 		nbt.remove("Unbreakable");
 		nbt.remove("HideFlags");
 		nbt.remove("Enchantments");
+		nbt.remove("CustomModelData");
 		nbt.remove("ench");
 		if (!nbt.getKeys().isEmpty())
 			config.set(path + ".nbt", nbt.getNBT() + ""); // save clear nbt
@@ -689,8 +692,10 @@ public class ItemMaker {
 		if (Ref.isNewerThan(7)) // 1.8+
 			for (String flag : config.getStringList(path + ".itemFlags"))
 				meta.addItemFlags(ItemFlag.valueOf(flag.toUpperCase()));
-		if (Ref.isNewerThan(13)) // 1.14+
-			meta.setCustomModelData(config.getInt(path + ".modelData"));
+
+		int modelData = config.getInt(path + ".modelData");
+		if (Ref.isNewerThan(13) && modelData != 0) // 1.14+
+			meta.setCustomModelData(modelData);
 
 		if (type.name().contains("BANNER")) {
 			BannerMeta banner = (BannerMeta) meta;
@@ -729,7 +734,8 @@ public class ItemMaker {
 				String[] split = pattern.split(":");
 				// PotionEffectType type, int duration, int amplifier, boolean ambient, boolean
 				// particles
-				potion.addCustomEffect(new PotionEffect(PotionEffectType.getByName(split[0].toUpperCase()), StringUtils.getInt(split[1]), StringUtils.getInt(split[2]), split.length >= 4 ? StringUtils.getBoolean(split[3]) : true, split.length >= 5 ? StringUtils.getBoolean(split[4]) : true), true);
+				potion.addCustomEffect(new PotionEffect(PotionEffectType.getByName(split[0].toUpperCase()), StringUtils.getInt(split[1]), StringUtils.getInt(split[2]),
+						split.length >= 4 ? StringUtils.getBoolean(split[3]) : true, split.length >= 5 ? StringUtils.getBoolean(split[4]) : true), true);
 			}
 			if (Ref.isNewerThan(10) && config.getString(path + ".potion.color") != null) // 1.11+
 				potion.setColor(Color.fromRGB(Integer.decode(config.getString(path + ".potion.color"))));

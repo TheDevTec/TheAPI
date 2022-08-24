@@ -17,6 +17,7 @@ import me.devtec.shared.components.BungeeComponentAPI;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.components.ComponentTransformer;
 import me.devtec.shared.dataholder.Config;
+import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.json.Json;
 import me.devtec.shared.json.modern.ModernJsonReader;
 import me.devtec.shared.json.modern.ModernJsonWriter;
@@ -112,13 +113,13 @@ public class BungeeLoader extends Plugin implements Listener {
 			Pattern hex = Pattern.compile("(#[a-fA-F0-9]{6})");
 
 			@Override
-			public String gradient(String msg, String fromHex, String toHex) {
-				return API.basics().gradient(msg, fromHex, toHex);
+			public String gradient(String msg, String fromHex, String toHex, List<String> protectedStrings) {
+				return API.basics().gradient(msg, fromHex, toHex, protectedStrings);
 			}
 
 			@Override
 			public String generateColor() {
-				StringBuilder b = new StringBuilder("#");
+				StringContainer b = new StringContainer(7).append("#");
 				for (int i = 0; i < 6; ++i)
 					b.append(characters[random.nextInt(16)]);
 				return b.toString();
@@ -135,17 +136,17 @@ public class BungeeLoader extends Plugin implements Listener {
 				Matcher match = hex.matcher(msg);
 				while (match.find()) {
 					String color = match.group();
-					String hex = "§x";
+					StringContainer hex = new StringContainer(14).append("§x");
 					for (char c : color.substring(1).toCharArray())
-						hex += "§" + c;
-					msg = msg.replace(color, hex);
+						hex.append('§').append(Character.toLowerCase(c));
+					msg = msg.replace(color, hex.toString());
 				}
 				return msg;
 			}
 
 			@Override
-			public String rainbow(String msg, String fromHex, String toHex) {
-				return API.basics().rainbow(msg, fromHex, toHex);
+			public String rainbow(String msg, String fromHex, String toHex, List<String> protectedStrings) {
+				return API.basics().rainbow(msg, fromHex, toHex, protectedStrings);
 			}
 		};
 	}

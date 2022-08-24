@@ -519,7 +519,7 @@ public class v1_18_R2 implements NmsProvider {
 			TileEntity ent = ((ITileEntity) IblockData).a(pos, (IBlockData) IblockData);
 			c.i.put(pos, ent);
 			Object packet = ent.h();
-			Bukkit.getOnlinePlayers().forEach(player -> BukkitLoader.getPacketHandler().send(player, packet));
+			getOnlinePlayers().forEach(player -> BukkitLoader.getPacketHandler().send(player, packet));
 		}
 	}
 
@@ -834,9 +834,9 @@ public class v1_18_R2 implements NmsProvider {
 		PacketStatusOutServerInfo status = (PacketStatusOutServerInfo) packet;
 		ServerPing ping = status.b();
 		List<PlayerProfile> players = new ArrayList<>();
-		for (Player p : Bukkit.getOnlinePlayers())
+		for (Player p : getOnlinePlayers())
 			players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
-		ServerListPingEvent event = new ServerListPingEvent(Bukkit.getOnlinePlayers().size(), Bukkit.getMaxPlayers(), players, Bukkit.getMotd(), ping.d(), ((InetSocketAddress) ((Channel) channel).remoteAddress()).getAddress(), ping.c().a(), ping.c().b());
+		ServerListPingEvent event = new ServerListPingEvent(getOnlinePlayers().size(), Bukkit.getMaxPlayers(), players, Bukkit.getMotd(), ping.d(), ((InetSocketAddress) ((Channel) channel).remoteAddress()).getAddress(), ping.c().a(), ping.c().b());
 		EventManager.call(event);
 		if (event.isCancelled())
 			return true;
