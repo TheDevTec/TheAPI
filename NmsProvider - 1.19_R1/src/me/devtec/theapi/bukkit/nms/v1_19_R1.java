@@ -310,20 +310,20 @@ public class v1_19_R1 implements NmsProvider {
 
 	@Override
 	public Object packetChat(ChatType type, Object chatBase, UUID uuid) {
-		switch (type) {
-		case CHAT:
-			return new ClientboundSystemChatPacket((IChatBaseComponent) chatBase, 0);
-		case GAME_INFO:
-			return new ClientboundSystemChatPacket((IChatBaseComponent) chatBase, 1);
-		case SYSTEM:
-			return new ClientboundSystemChatPacket((IChatBaseComponent) chatBase, 2);
-		}
-		return null;
+		return packetChat(type, fromIChatBaseComponent(chatBase), uuid);
 	}
 
 	@Override
 	public Object packetChat(ChatType type, String text, UUID uuid) {
-		return this.packetChat(type, this.toIChatBaseComponent(ComponentAPI.fromString(text)), uuid);
+		switch (type) {
+		case CHAT:
+			return new ClientboundSystemChatPacket(text, 0);
+		case SYSTEM:
+			return new ClientboundSystemChatPacket(text, 1);
+		case GAME_INFO:
+			return new ClientboundSystemChatPacket(text, 2);
+		}
+		return null;
 	}
 
 	@Override
@@ -434,8 +434,7 @@ public class v1_19_R1 implements NmsProvider {
 				if (c.getExtra() != null)
 					addConverted(chat, c.getExtra());
 			}
-		for (IChatBaseComponent d : chat)
-			main.c().add(d);
+		main.c().addAll(chat);
 		return main.c().isEmpty() ? IChatBaseComponent.b("") : main;
 	}
 
@@ -989,7 +988,7 @@ public class v1_19_R1 implements NmsProvider {
 
 	@Override
 	public boolean hasKey(Object nbt, String path) {
-		return ((NBTTagCompound) nbt).d().contains(path);
+		return ((NBTTagCompound) nbt).e(path);
 	}
 
 	@Override
