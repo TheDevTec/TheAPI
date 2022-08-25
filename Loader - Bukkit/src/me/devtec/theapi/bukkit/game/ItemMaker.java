@@ -80,8 +80,11 @@ public class ItemMaker {
 			for (Entry<Enchantment, Integer> s : enchants.entrySet())
 				meta.addEnchant(s.getKey(), s.getValue(), true);
 		if (Ref.isNewerThan(7) && itemFlags != null)
-			for (String flag : itemFlags)
-				meta.addItemFlags(ItemFlag.valueOf(flag.toUpperCase()));
+			for (String flag : itemFlags) {
+				ItemFlag iFlag = ItemFlag.valueOf(flag.toUpperCase());
+				if (iFlag != null)
+					meta.addItemFlags(iFlag);
+			}
 		if (Ref.isNewerThan(13) && customModel != 0)
 			meta.setCustomModelData(customModel);
 		if (unbreakable)
@@ -101,9 +104,17 @@ public class ItemMaker {
 		return this;
 	}
 
+	public int getAmount() {
+		return amount;
+	}
+
 	public ItemMaker damage(int damage) {
 		this.damage = (short) damage;
 		return this;
+	}
+
+	public short getDamage() {
+		return damage;
 	}
 
 	public ItemMaker data(int data) {
@@ -111,9 +122,18 @@ public class ItemMaker {
 		return this;
 	}
 
+	public byte getData() {
+		return data;
+	}
+
 	public ItemMaker displayName(String name) {
 		displayName = StringUtils.colorize(name);
 		return this;
+	}
+
+	@Nullable
+	public String getDisplayName() {
+		return displayName;
 	}
 
 	public ItemMaker lore(String... lore) {
@@ -125,14 +145,27 @@ public class ItemMaker {
 		return this;
 	}
 
+	@Nullable
+	public List<String> getLore() {
+		return lore;
+	}
+
 	public ItemMaker customModel(int customModel) {
 		this.customModel = customModel;
 		return this;
 	}
 
+	public int getCustomModel() {
+		return customModel;
+	}
+
 	public ItemMaker unbreakable(boolean unbreakable) {
 		this.unbreakable = unbreakable;
 		return this;
+	}
+
+	public boolean isUnbreakable() {
+		return unbreakable;
 	}
 
 	public ItemMaker itemFlags(String... flag) {
@@ -144,11 +177,21 @@ public class ItemMaker {
 		return this;
 	}
 
+	@Nullable
+	public List<String> getItemFlags() {
+		return itemFlags;
+	}
+
 	public ItemMaker enchant(Enchantment enchant, int level) {
 		if (enchants == null)
 			enchants = new HashMap<>();
 		enchants.put(enchant, level);
 		return this;
+	}
+
+	@Nullable
+	public Map<Enchantment, Integer> getEnchants() {
+		return enchants;
 	}
 
 	public ItemStack build() {
@@ -189,6 +232,19 @@ public class ItemMaker {
 			return this;
 		}
 
+		@Nullable
+		public String getHeadOwner() {
+			return owner;
+		}
+
+		/**
+		 * @apiNote Return's head owner type. 0 = Name 1 = Values 2 = Url
+		 * @return int Head owner type
+		 */
+		public int getHeadOwnerType() {
+			return ownerType;
+		}
+
 		@Override
 		protected ItemMeta apply(ItemMeta meta) {
 			SkullMeta iMeta = (SkullMeta) meta;
@@ -224,6 +280,11 @@ public class ItemMaker {
 			return this;
 		}
 
+		@Nullable
+		public Color getColor() {
+			return color;
+		}
+
 		@Override
 		protected ItemMeta apply(ItemMeta meta) {
 			LeatherArmorMeta iMeta = (LeatherArmorMeta) meta;
@@ -248,9 +309,19 @@ public class ItemMaker {
 			return this;
 		}
 
+		@Nullable
+		public String getAuthor() {
+			return author;
+		}
+
 		public BookItemMaker title(String title) {
 			this.title = StringUtils.colorize(title);
 			return this;
+		}
+
+		@Nullable
+		public String getTitle() {
+			return title;
 		}
 
 		public BookItemMaker generation(String generation) {
@@ -260,6 +331,11 @@ public class ItemMaker {
 
 		public BookItemMaker pages(String... pages) {
 			return this.pages(Arrays.asList(pages));
+		}
+
+		@Nullable
+		public String getGeneration() {
+			return generation;
 		}
 
 		public BookItemMaker pages(List<String> pages) {
@@ -276,6 +352,11 @@ public class ItemMaker {
 		public BookItemMaker pagesComp(List<Component> pages) {
 			this.pages = pages;
 			return this;
+		}
+
+		@Nullable
+		public List<Component> getPages() {
+			return pages;
 		}
 
 		@Override
@@ -316,8 +397,11 @@ public class ItemMaker {
 				for (Entry<Enchantment, Integer> s : super.enchants.entrySet())
 					iMeta.addStoredEnchant(s.getKey(), s.getValue(), true);
 			if (Ref.isNewerThan(7) && super.itemFlags != null)
-				for (String flag : super.itemFlags)
-					iMeta.addItemFlags(ItemFlag.valueOf(flag.toUpperCase()));
+				for (String flag : super.itemFlags) {
+					ItemFlag iFlag = ItemFlag.valueOf(flag.toUpperCase());
+					if (iFlag != null)
+						meta.addItemFlags(iFlag);
+				}
 			if (Ref.isNewerThan(13) && super.customModel != 0)
 				iMeta.setCustomModelData(super.customModel);
 			if (super.unbreakable)
@@ -346,6 +430,11 @@ public class ItemMaker {
 			return this;
 		}
 
+		@Nullable
+		public Color getColor() {
+			return color;
+		}
+
 		public PotionItemMaker potionEffects(PotionEffect... effects) {
 			return this.potionEffects(Arrays.asList(effects));
 		}
@@ -353,6 +442,11 @@ public class ItemMaker {
 		public PotionItemMaker potionEffects(List<PotionEffect> effects) {
 			this.effects = effects;
 			return this;
+		}
+
+		@Nullable
+		public List<PotionEffect> getPotionEffects() {
+			return effects;
 		}
 
 		@Override
@@ -381,9 +475,19 @@ public class ItemMaker {
 			return this;
 		}
 
+		@Nullable
+		public String getName() {
+			return name;
+		}
+
 		public ShulkerBoxItemMaker contents(ItemStack[] contents) {
 			this.contents = contents;
 			return this;
+		}
+
+		@Nullable
+		public ItemStack[] getContents() {
+			return contents;
 		}
 
 		@Override
@@ -415,6 +519,11 @@ public class ItemMaker {
 			return this;
 		}
 
+		@Nullable
+		public List<ItemStack> getContents() {
+			return contents;
+		}
+
 		@Override
 		protected ItemMeta apply(ItemMeta meta) {
 			BundleMeta iMeta = (BundleMeta) meta;
@@ -439,6 +548,11 @@ public class ItemMaker {
 		public BannerItemMaker patterns(List<Pattern> patterns) {
 			this.patterns = patterns;
 			return this;
+		}
+
+		@Nullable
+		public List<Pattern> getPatterns() {
+			return patterns;
 		}
 
 		@Override
