@@ -1,5 +1,7 @@
 package me.devtec.theapi.bukkit.nms;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -105,6 +107,7 @@ import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.player.EntityHuman;
+import net.minecraft.world.entity.player.PlayerInventory;
 import net.minecraft.world.inventory.Container;
 import net.minecraft.world.inventory.ContainerAccess;
 import net.minecraft.world.inventory.ContainerAnvil;
@@ -308,20 +311,28 @@ public class v1_19_R1 implements NmsProvider {
 		return null;
 	}
 
+	static boolean modernChatPacket = Ref.constructor(ClientboundSystemChatPacket.class, IChatBaseComponent.class, boolean.class) != null;
+	static Constructor<?> chatPacket = modernChatPacket ? Ref.constructor(ClientboundSystemChatPacket.class, IChatBaseComponent.class, boolean.class)
+			: Ref.constructor(ClientboundSystemChatPacket.class, String.class, int.class);
+
 	@Override
 	public Object packetChat(ChatType type, Object chatBase, UUID uuid) {
-		return packetChat(type, fromIChatBaseComponent(chatBase), uuid);
+		if (!modernChatPacket)
+			return packetChat(type, fromIChatBaseComponent(chatBase), uuid);
+		return Ref.newInstance(chatPacket, chatBase, false);
 	}
 
 	@Override
 	public Object packetChat(ChatType type, String text, UUID uuid) {
+		if (modernChatPacket)
+			return packetChat(type, toIChatBaseComponent(ComponentAPI.fromString(text)), uuid);
 		switch (type) {
 		case CHAT:
-			return new ClientboundSystemChatPacket(text, 0);
+			return Ref.newInstance(chatPacket, text, 0);
 		case SYSTEM:
-			return new ClientboundSystemChatPacket(text, 1);
+			return Ref.newInstance(chatPacket, text, 1);
 		case GAME_INFO:
-			return new ClientboundSystemChatPacket(text, 2);
+			return Ref.newInstance(chatPacket, text, 2);
 		}
 		return null;
 	}
@@ -720,9 +731,10 @@ public class v1_19_R1 implements NmsProvider {
 	}
 
 	static BlockPosition zero = new BlockPosition(0, 0, 0);
+	static Method getPlayerInventory = Ref.method(EntityHuman.class, "fA").getReturnType() == PlayerInventory.class ? Ref.method(EntityHuman.class, "fA") : Ref.method(EntityHuman.class, "fB");
 
 	public Object createAnvilContainer(Inventory inv, Player player) {
-		ContainerAnvil container = new ContainerAnvil(((CraftPlayer) player).getHandle().nextContainerCounter(), ((CraftPlayer) player).getHandle().fB(),
+		ContainerAnvil container = new ContainerAnvil(((CraftPlayer) player).getHandle().nextContainerCounter(), (PlayerInventory) Ref.invoke(((CraftPlayer) player).getHandle(), getPlayerInventory),
 				ContainerAccess.a(((CraftPlayer) player).getHandle().s, v1_19_R1.zero));
 		for (int i = 0; i < 2; ++i)
 			container.a(i, (net.minecraft.world.item.ItemStack) asNMSItem(inv.getItem(i)));
