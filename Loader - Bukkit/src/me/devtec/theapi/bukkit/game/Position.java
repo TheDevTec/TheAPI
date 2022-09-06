@@ -11,13 +11,10 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 
 import me.devtec.shared.Ref;
 import me.devtec.shared.json.Json;
-import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 
 public class Position implements Cloneable {
@@ -108,12 +105,18 @@ public class Position implements Cloneable {
 		return null;
 	}
 
+	public static Position fromEntity(Entity entity) {
+		if (entity != null)
+			return new Position(entity);
+		return null;
+	}
+
 	public Biome getBiome() {
 		return getBlock().getBiome();
 	}
 
 	public int getData() {
-		return Ref.isOlderThan(8) ? (byte) BukkitLoader.getNmsProvider().getData(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ()) : StringUtils.getByte(getType().getData());
+		return Ref.isOlderThan(8) ? BukkitLoader.getNmsProvider().getData(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ()) : (int) getType().getIBlockData();
 	}
 
 	public Material getBukkitType() {
@@ -185,13 +188,11 @@ public class Position implements Cloneable {
 
 	public Position setYaw(float yaw) {
 		this.yaw = yaw;
-		cachedChunk = null;
 		return this;
 	}
 
 	public Position setPitch(float pitch) {
 		this.pitch = pitch;
-		cachedChunk = null;
 		return this;
 	}
 
@@ -330,32 +331,32 @@ public class Position implements Cloneable {
 		return new Location(Bukkit.getWorld(world), x, y, z, yaw, pitch);
 	}
 
-	public long setType(Material with) {
-		return this.setType(new BlockDataStorage(with));
+	public long setType(Material type) {
+		return this.setType(new BlockDataStorage(type));
 	}
 
-	public long setType(BlockDataStorage with) {
-		return Position.set(this, with);
+	public long setType(BlockDataStorage type) {
+		return Position.set(this, type);
 	}
 
-	public void setTypeAndUpdate(Material with) {
-		this.setTypeAndUpdate(new BlockDataStorage(with), true);
+	public void setTypeAndUpdate(Material type) {
+		this.setTypeAndUpdate(new BlockDataStorage(type), true);
 	}
 
-	public void setTypeAndUpdate(Material with, boolean updatePhysics) {
-		this.setTypeAndUpdate(new BlockDataStorage(with), updatePhysics);
+	public void setTypeAndUpdate(Material type, boolean updatePhysics) {
+		this.setTypeAndUpdate(new BlockDataStorage(type), updatePhysics);
 	}
 
-	public void setTypeAndUpdate(BlockDataStorage with) {
-		setTypeAndUpdate(with, true);
+	public void setTypeAndUpdate(BlockDataStorage type) {
+		setTypeAndUpdate(type, true);
 	}
 
-	public void setTypeAndUpdate(BlockDataStorage with, boolean updatePhysics) {
+	public void setTypeAndUpdate(BlockDataStorage type, boolean updatePhysics) {
 		Object prev = updatePhysics ? getIBlockData() : null;
-		this.setType(with);
+		this.setType(type);
 		Position.updateBlockAt(this);
-		if (with.getNBT() != null && BukkitLoader.getNmsProvider().isTileEntity(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ()))
-			BukkitLoader.getNmsProvider().setNBTToTile(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), with.getNBT());
+		if (type.getNBT() != null && BukkitLoader.getNmsProvider().isTileEntity(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ()))
+			BukkitLoader.getNmsProvider().setNBTToTile(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), type.getNBT());
 		Position.updateLightAt(this);
 		if (updatePhysics)
 			BukkitLoader.getNmsProvider().updatePhysics(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), prev);
@@ -394,35 +395,13 @@ public class Position implements Cloneable {
 		return k;
 	}
 
-	public void setState(BlockState state) {
-		Position.setState(this, state);
-	}
-
-	public void setBlockData(BlockData state) {
-		Position.setBlockData(this, state);
-	}
-
-	public void setStateAndUpdate(BlockState state, boolean updatePhysics) {
-		Object prev = updatePhysics ? getIBlockData() : null;
-		Position.setState(this, state);
-		Position.updateBlockAt(this);
-		Position.updateLightAt(this);
-		if (updatePhysics)
-			BukkitLoader.getNmsProvider().updatePhysics(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), prev);
-	}
-
-	public void setBlockDataAndUpdate(BlockData state, boolean updatePhysics) {
-		Object prev = updatePhysics ? getIBlockData() : null;
-		Position.setBlockData(this, state);
-		Position.updateBlockAt(this);
-		Position.updateLightAt(this);
-		if (updatePhysics)
-			BukkitLoader.getNmsProvider().updatePhysics(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), prev);
-	}
-
 	public long setAir() {
 		BukkitLoader.getNmsProvider().setBlock(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), null);
 		return getChunkKey();
+	}
+
+	public void setAirAndUpdate() {
+		setAirAndUpdate(true);
 	}
 
 	public void setAirAndUpdate(boolean updatePhysics) {
@@ -436,22 +415,6 @@ public class Position implements Cloneable {
 
 	public void updatePhysics() {
 		BukkitLoader.getNmsProvider().updatePhysics(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), getIBlockData());
-	}
-
-	public static void setBlockData(Position pos, BlockData data) {
-		if (data == null || Ref.isOlderThan(13) || pos == null)
-			return;
-		BukkitLoader.getNmsProvider().setBlock(pos.getNMSChunk(), pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), BukkitLoader.getNmsProvider().toIBlockData(data));
-	}
-
-	public static void setState(Position pos, BlockState state) {
-		if (state == null || pos == null)
-			return;
-		if (Ref.isNewerThan(7))
-			BukkitLoader.getNmsProvider().setBlock(pos.getNMSChunk(), pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), BukkitLoader.getNmsProvider().toIBlockData(state));
-		else
-			BukkitLoader.getNmsProvider().setBlock(pos.getNMSChunk(), pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(),
-					BukkitLoader.getNmsProvider().toBlock(BlockDataStorage.fromData(state.getType(), state.getRawData())));
 	}
 
 	@Override
