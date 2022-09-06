@@ -28,10 +28,24 @@ public abstract class PacketListener {
 	}
 
 	public final Priority getPriority() {
-		return this.priority;
+		return priority;
 	}
 
+	/**
+	 * 
+	 * @param player  Player name
+	 * @param packet  Packet
+	 * @param channel Channel
+	 * @return packet cancel status
+	 */
 	public abstract boolean playOut(String player, Object packet, Object channel);
 
+	/**
+	 * 
+	 * @param player  Player name
+	 * @param packet  Packet
+	 * @param channel Channel
+	 * @return packet cancel status
+	 */
 	public abstract boolean playIn(String player, Object packet, Object channel);
 }

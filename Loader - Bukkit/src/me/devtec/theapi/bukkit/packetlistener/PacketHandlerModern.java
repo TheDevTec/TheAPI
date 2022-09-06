@@ -304,6 +304,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 	public void send(Channel channel, Object packet) {
 		if (channel == null || packet == null)
 			return;
-		channel.writeAndFlush(packet);
+		if (channel.isRegistered())
+			channel.writeAndFlush(packet);
 	}
 }

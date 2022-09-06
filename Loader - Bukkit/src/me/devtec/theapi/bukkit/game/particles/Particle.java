@@ -122,7 +122,9 @@ public class Particle {
 				if (data instanceof RedstoneOptions) {
 					RedstoneOptions d = (RedstoneOptions) data;
 					jValue = Ref.isNewerThan(16)
-							? name.equalsIgnoreCase("dust_color_transition") ? Ref.newInstance(Particle.paramDust, Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(), d.getValueZ()), Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize())
+							? name.equalsIgnoreCase("dust_color_transition")
+									? Ref.newInstance(Particle.paramDust, Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(), d.getValueZ()),
+											Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize())
 									: Ref.newInstance(Particle.paramRed, Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize())
 							: Ref.newInstance(Particle.paramRed, d.getValueX(), d.getValueY(), d.getValueZ(), d.getSize());
 				} else if (data instanceof BlockOptions) {
@@ -164,7 +166,8 @@ public class Particle {
 				Ref.set(packet, "g", data.getValueZ());
 			} else {
 				int[] packetData = data instanceof BlockOptions ? ((BlockOptions) data).getPacketData() : ((ItemOptions) data).getPacketData();
-				Ref.set(packet, "k", name.equalsIgnoreCase("CRACK_ITEM") || name.equalsIgnoreCase("ITEM_CRACK") || name.equalsIgnoreCase("ITEM") || name.equalsIgnoreCase("ITEM_TAKE") ? packetData : new int[] { packetData[0] | packetData[1] << 12 });
+				Ref.set(packet, "k", name.equalsIgnoreCase("CRACK_ITEM") || name.equalsIgnoreCase("ITEM_CRACK") || name.equalsIgnoreCase("ITEM") || name.equalsIgnoreCase("ITEM_TAKE") ? packetData
+						: new int[] { packetData[0] | packetData[1] << 12 });
 			}
 		} else
 			Ref.set(packet, "k", new int[0]);

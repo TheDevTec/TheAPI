@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Chunk;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
@@ -16,8 +15,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.shared.components.Component;
+import me.devtec.theapi.bukkit.game.BlockDataStorage;
 import me.devtec.theapi.bukkit.game.Position;
-import me.devtec.theapi.bukkit.game.TheMaterial;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
 
 public interface NmsProvider {
@@ -196,23 +195,23 @@ public interface NmsProvider {
 	public Object chatBase(String json);
 
 	// TheMaterial utils
-	public TheMaterial toMaterial(Object blockOrItemOrIBlockData);
+	public BlockDataStorage toMaterial(Object blockOrItemOrIBlockData);
 
-	public Object toIBlockData(TheMaterial material);
+	public boolean isTileEntity(Object chunk, int x, int y, int z);
 
-	public Object toItem(TheMaterial material);
+	public String getNBTOfTile(Object chunk, int x, int y, int z);
 
-	public Object toBlock(TheMaterial material);
+	public void setNBTToTile(Object chunk, int x, int y, int z, String nbt);
 
-	public Object toBlock(Material type);
+	public Object toIBlockData(BlockDataStorage material);
 
-	public Object toItem(Material type, int data);
-
-	public Object toIBlockData(Material type, int data);
+	public Object toBlock(BlockDataStorage material);
 
 	public Object toIBlockData(Object data);
 
 	public Object toIBlockData(BlockState state);
+
+	public ItemStack toItemStack(BlockDataStorage material);
 
 	// Position utils
 	public Object getChunk(World world, int x, int z);
@@ -231,9 +230,11 @@ public interface NmsProvider {
 	 * @apiNote 1.7.10 and older support
 	 */
 	@Deprecated
-	public int getData(Object chunk, int x, int y, int z);
+	public byte getData(Object chunk, int x, int y, int z);
 
 	public void updateLightAt(Object chunk, int x, int y, int z);
+
+	public void updatePhysics(Object objChunk, int x, int y, int z, Object IblockDataOrBlock);
 
 	public int getCombinedId(Object IblockDataOrBlock);
 

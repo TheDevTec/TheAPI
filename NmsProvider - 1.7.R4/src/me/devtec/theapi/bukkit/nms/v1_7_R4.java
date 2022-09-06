@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,6 +18,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.v1_7_R4.CraftChunk;
 import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
@@ -42,14 +44,15 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.BukkitLoader.InventoryClickType;
 import me.devtec.theapi.bukkit.events.ServerListPingEvent;
 import me.devtec.theapi.bukkit.events.ServerListPingEvent.PlayerProfile;
+import me.devtec.theapi.bukkit.game.BlockDataStorage;
 import me.devtec.theapi.bukkit.game.Position;
-import me.devtec.theapi.bukkit.game.TheMaterial;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils.DestinationType;
 import net.minecraft.server.v1_7_R4.Block;
+import net.minecraft.server.v1_7_R4.BlockFalling;
 import net.minecraft.server.v1_7_R4.Blocks;
 import net.minecraft.server.v1_7_R4.ChatClickable;
 import net.minecraft.server.v1_7_R4.ChatComponentText;
@@ -498,40 +501,35 @@ public class v1_7_R4 implements NmsProvider {
 	}
 
 	@Override
-	public TheMaterial toMaterial(Object blockOrItemOrIBlockData) {
-		if (blockOrItemOrIBlockData == null)
-			return new TheMaterial(Material.AIR);
-		if (blockOrItemOrIBlockData instanceof Block) {
-			Block b = (Block) blockOrItemOrIBlockData;
-			return new TheMaterial(CraftItemStack.asNewCraftStack(Item.getItemOf(b)));
-		}
-		if (blockOrItemOrIBlockData instanceof Item) {
-			Item b = (Item) blockOrItemOrIBlockData;
-			return new TheMaterial(CraftItemStack.asNewCraftStack(b));
-		}
-		return null;
+	public BlockDataStorage toMaterial(Object block) {
+		if (block instanceof Block)
+			return new BlockDataStorage(CraftMagicNumbers.getMaterial((Block) block));
+		return new BlockDataStorage(Material.AIR);
 	}
 
 	@Override
-	public Object toIBlockData(TheMaterial material) {
-		return this.toBlock(material);
-	}
-
-	@Override
-	public Object toItem(TheMaterial material) {
-		if (material == null || material.getType() == null || material.getType() == Material.AIR)
-			return Item.getItemOf(Blocks.AIR);
-		return CraftItemStack.asNMSCopy(material.toItemStack()).getItem();
-	}
-
-	@Override
-	public Object toBlock(TheMaterial material) {
+	public Object toIBlockData(BlockDataStorage material) {
 		if (material == null || material.getType() == null || material.getType() == Material.AIR)
 			return Blocks.AIR;
 		return CraftMagicNumbers.getBlock(material.getType());
 	}
 
-	Field chunkLoader = Ref.field(ChunkProviderServer.class, "f");
+	@Override
+	public Object toBlock(BlockDataStorage material) {
+		if (material == null || material.getType() == null || material.getType() == Material.AIR)
+			return Blocks.AIR;
+		return CraftMagicNumbers.getBlock(material.getType());
+	}
+
+	@Override
+	public ItemStack toItemStack(BlockDataStorage material) {
+		Item item = CraftMagicNumbers.getItem(material.getType());
+		ItemStack itemStack = CraftItemStack.asBukkitCopy(new net.minecraft.server.v1_7_R4.ItemStack(item));
+		itemStack.getData().setData(material.getItemData());
+		return itemStack;
+	}
+
+	private static Field chunkLoader = Ref.field(ChunkProviderServer.class, "f");
 
 	@Override
 	public Object getChunk(World world, int x, int z) {
@@ -570,28 +568,69 @@ public class v1_7_R4 implements NmsProvider {
 		return loaded;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public void setBlock(Object chunk, int x, int y, int z, Object block, int data) {
-		net.minecraft.server.v1_7_R4.Chunk c = (net.minecraft.server.v1_7_R4.Chunk) chunk;
-		ChunkSection sc = c.getSections()[y >> 4];
+	public void setBlock(Object objChunk, int x, int y, int z, Object block, int data) {
+		net.minecraft.server.v1_7_R4.Chunk chunk = (net.minecraft.server.v1_7_R4.Chunk) objChunk;
+		if (y < 0)
+			return;
+		ChunkSection sc = chunk.getSections()[y >> 4];
 		if (sc == null)
-			c.getSections()[y >> 4] = sc = new ChunkSection(y >> 4 << 4, true);
-		ChunkPosition pos = new ChunkPosition(x & 15, y & 15, z & 15);
-		// REMOVE TILE ENTITY
-		c.tileEntities.remove(pos);
+			return;
 
-		sc.setTypeId(x & 15, y & 15, z & 15, (Block) block);
+		ChunkPosition pos = new ChunkPosition(x & 15, y & 15, z & 15);
+		Block iblock = block == null ? Blocks.AIR : (Block) block;
+
+		// REMOVE TILE ENTITY
+		TileEntity ent = (TileEntity) chunk.tileEntities.remove(pos);
+		if (ent != null)
+			ent.s();
+
+		Iterator<BlockState> iterator = chunk.world.capturedBlockStates.iterator();
+		while (iterator.hasNext()) {
+			BlockState state = iterator.next();
+			if (state.getX() == x && state.getY() == y && state.getZ() == z)
+				iterator.remove();
+		}
+		sc.setTypeId(x & 15, y & 15, z & 15, iblock);
 		sc.setData(x & 15, y & 15, z & 15, data);
 
 		// ADD TILE ENTITY
-		if (block instanceof IContainer) {
-			TileEntity ent = ((IContainer) block).a(c.world, 0);
-			c.tileEntities.put(pos, ent);
+		if (iblock instanceof IContainer) {
+			ent = ((IContainer) iblock).a(chunk.world, 0);
+			ent.a(chunk.world);
+			ent.x = x;
+			ent.y = y;
+			ent.z = z;
+			Ref.set(ent, "h", iblock);
 			Object packet = ent.getUpdatePacket();
-			for (Player player : getOnlinePlayers())
-				BukkitLoader.getPacketHandler().send(player, packet);
+			BukkitLoader.getPacketHandler().send(chunk.bukkitChunk.getWorld().getPlayers(), packet);
 		}
+
+		// MARK CHUNK TO SAVE
+		chunk.mustSave = true;
+	}
+
+	@Override
+	public void updatePhysics(Object objChunk, int x, int y, int z, Object iblockdata) {
+		net.minecraft.server.v1_7_R4.Chunk chunk = (net.minecraft.server.v1_7_R4.Chunk) objChunk;
+
+		doPhysicsAround((WorldServer) chunk.world, x, y, z, (Block) iblockdata);
+	}
+
+	private void doPhysicsAround(WorldServer world, int x, int y, int z, Block block) {
+		doPhysics(world, x + BlockFace.WEST.getModX(), y, z + BlockFace.WEST.getModZ(), block);
+		doPhysics(world, x + BlockFace.EAST.getModX(), y, z + BlockFace.EAST.getModZ(), block);
+		doPhysics(world, x, y - 1, z, block);
+		doPhysics(world, x, y + 1, z, block);
+		doPhysics(world, x + BlockFace.NORTH.getModX(), y, z + BlockFace.NORTH.getModZ(), block);
+		doPhysics(world, x + BlockFace.SOUTH.getModX(), y, z + BlockFace.SOUTH.getModZ(), block);
+	}
+
+	private void doPhysics(WorldServer world, int x, int y, int z, Block block) {
+		Block state = world.getType(x, y, z);
+		state.doPhysics(world, x, y, z, block);
+		if (state instanceof BlockFalling)
+			((BlockFalling) state).onPlace(world, x, y, z);
 	}
 
 	@Override
@@ -603,6 +642,8 @@ public class v1_7_R4 implements NmsProvider {
 	@Override
 	public Object getBlock(Object chunk, int x, int y, int z) {
 		net.minecraft.server.v1_7_R4.Chunk c = (net.minecraft.server.v1_7_R4.Chunk) chunk;
+		if (y < 0)
+			return Blocks.AIR;
 		ChunkSection sc = c.getSections()[y >> 4];
 		if (sc == null)
 			return Blocks.AIR;
@@ -610,12 +651,41 @@ public class v1_7_R4 implements NmsProvider {
 	}
 
 	@Override
-	public int getData(Object chunk, int x, int y, int z) {
+	public byte getData(Object chunk, int x, int y, int z) {
 		net.minecraft.server.v1_7_R4.Chunk c = (net.minecraft.server.v1_7_R4.Chunk) chunk;
+		if (y < 0)
+			return 0;
 		ChunkSection sc = c.getSections()[y >> 4];
 		if (sc == null)
 			return 0;
-		return sc.getData(x & 15, y & 15, z & 15);
+		return (byte) sc.getData(x & 15, y & 15, z & 15);
+	}
+
+	@Override
+	public String getNBTOfTile(Object objChunk, int x, int y, int z) {
+		net.minecraft.server.v1_7_R4.Chunk chunk = (net.minecraft.server.v1_7_R4.Chunk) objChunk;
+		NBTTagCompound tag = new NBTTagCompound();
+		chunk.e(x & 15, y & 15, z & 15).b(tag);
+		return tag.toString();
+	}
+
+	@Override
+	public void setNBTToTile(Object objChunk, int x, int y, int z, String nbt) {
+		net.minecraft.server.v1_7_R4.Chunk chunk = (net.minecraft.server.v1_7_R4.Chunk) objChunk;
+		TileEntity ent = chunk.e(x & 15, y & 15, z & 15);
+		NBTTagCompound parsedNbt = (NBTTagCompound) parseNBT(nbt);
+		parsedNbt.setInt("x", x);
+		parsedNbt.setInt("y", y);
+		parsedNbt.setInt("z", z);
+		ent.a(parsedNbt);
+		Object packet = ent.getUpdatePacket();
+		BukkitLoader.getPacketHandler().send(chunk.bukkitChunk.getWorld().getPlayers(), packet);
+	}
+
+	@Override
+	public boolean isTileEntity(Object objChunk, int x, int y, int z) {
+		net.minecraft.server.v1_7_R4.Chunk chunk = (net.minecraft.server.v1_7_R4.Chunk) objChunk;
+		return chunk.e(x & 15, y & 15, z & 15) != null;
 	}
 
 	@Override
@@ -636,21 +706,6 @@ public class v1_7_R4 implements NmsProvider {
 	@Override
 	public Object toIBlockData(Object data) {
 		return null;
-	}
-
-	@Override
-	public Object toBlock(Material type) {
-		return CraftMagicNumbers.getBlock(type);
-	}
-
-	@Override
-	public Object toItem(Material type, int data) {
-		return CraftMagicNumbers.getItem(type);
-	}
-
-	@Override
-	public Object toIBlockData(Material type, int data) {
-		return CraftMagicNumbers.getBlock(type);
 	}
 
 	@Override

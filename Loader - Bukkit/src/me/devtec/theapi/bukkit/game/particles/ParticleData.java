@@ -5,7 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.shared.Ref;
-import me.devtec.theapi.bukkit.game.TheMaterial;
+import me.devtec.theapi.bukkit.game.BlockDataStorage;
 
 public class ParticleData {
 
@@ -125,17 +125,21 @@ public class ParticleData {
 			item = stack;
 			if (Ref.isOlderThan(13))
 				try {
-					packetData = new int[] { new TheMaterial(stack).getCombinedId() };
+					packetData = new int[] { BlockDataStorage.fromItemStack(stack).getCombinedId() };
 				} catch (Exception err) {
 					packetData = new int[] { 0 };
 				}
 		}
 
-		public ItemOptions(Material material, byte data) {
-			this(new TheMaterial(material, data));
+		public ItemOptions(Material material) {
+			this(new BlockDataStorage(material));
 		}
 
-		public ItemOptions(TheMaterial material) {
+		public ItemOptions(Material material, byte data) {
+			this(new BlockDataStorage(material, data));
+		}
+
+		public ItemOptions(BlockDataStorage material) {
 			item = material.toItemStack();
 			if (Ref.isOlderThan(13))
 				try {
@@ -160,28 +164,32 @@ public class ParticleData {
 	}
 
 	public static class BlockOptions extends ParticleData {
-		private final TheMaterial material;
+		private final BlockDataStorage material;
 		private int[] packetData;
 
-		public BlockOptions(TheMaterial material) {
+		public BlockOptions(BlockDataStorage material) {
 			this.material = material;
 			if (Ref.isOlderThan(13))
 				try {
-					packetData = new int[] { material.getType().getId(), material.getData() };
+					packetData = new int[] { material.getType().getId(), material.getItemData() };
 				} catch (Exception err) {
 					packetData = new int[] { 0, 0 };
 				}
 		}
 
+		public BlockOptions(Material material) {
+			this(new BlockDataStorage(material));
+		}
+
 		public BlockOptions(Material material, byte data) {
-			this(new TheMaterial(material, data));
+			this(new BlockDataStorage(material, data));
 		}
 
 		public BlockOptions(ItemStack stack) {
-			this(new TheMaterial(stack));
+			this(BlockDataStorage.fromItemStack(stack));
 		}
 
-		public TheMaterial getType() {
+		public BlockDataStorage getType() {
 			return material;
 		}
 

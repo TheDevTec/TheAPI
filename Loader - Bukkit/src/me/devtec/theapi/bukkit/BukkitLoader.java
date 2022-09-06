@@ -70,12 +70,11 @@ import me.devtec.theapi.bukkit.packetlistener.PacketListener;
 
 public class BukkitLoader extends JavaPlugin implements Listener {
 	private static Method addUrl;
-	private static NmsProvider nmsProvider;
+	public static NmsProvider nmsProvider;
 
 	public static Map<UUID, HolderGUI> gui = new ConcurrentHashMap<>();
 
-	private static PacketHandler<?> handler;
-	public static Object airBlock;
+	public static PacketHandler<?> handler;
 
 	static Class<?> serverPing;
 	static Class<?> resource;
@@ -117,11 +116,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		serverPing = Ref.nms("network.protocol.status", "PacketStatusOutServerInfo");
 		BukkitLoader.click = Ref.nms("network.protocol.game", "PacketPlayInWindowClick");
 		BukkitLoader.itemname = Ref.nms("network.protocol.game", "PacketPlayInItemName");
-		BukkitLoader.airBlock = Ref.invoke(Ref.getNulled(Ref.field(Ref.nms("world.level.block", "Block"), "AIR")), "getBlockData");
-		if (BukkitLoader.airBlock == null)
-			BukkitLoader.airBlock = Ref.getNulled(Ref.field(Ref.nms("world.level.block", "Blocks"), "AIR"));
-		if (BukkitLoader.airBlock == null && Ref.isNewerThan(12))
-			BukkitLoader.airBlock = Ref.invoke(Ref.get(Ref.cast(Ref.craft("block.data.CraftBlockData"), Bukkit.createBlockData(Material.AIR)), "state"), "getBlock");
 
 		// BOSSBAR API: 1.7.10 - 1.8.8
 		if (Ref.isOlderThan(9))
@@ -273,6 +267,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onLoginEvent(PlayerLoginEvent e) { // fix uuid - premium login?
 		API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getName());
+		handler.add(e.getPlayer());
 	}
 
 	@EventHandler

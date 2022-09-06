@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -39,12 +42,13 @@ import me.devtec.shared.Ref;
 import me.devtec.shared.components.Component;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.events.EventManager;
+import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.BukkitLoader.InventoryClickType;
 import me.devtec.theapi.bukkit.events.ServerListPingEvent;
 import me.devtec.theapi.bukkit.events.ServerListPingEvent.PlayerProfile;
+import me.devtec.theapi.bukkit.game.BlockDataStorage;
 import me.devtec.theapi.bukkit.game.Position;
-import me.devtec.theapi.bukkit.game.TheMaterial;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
@@ -114,10 +118,15 @@ import net.minecraft.world.inventory.Containers;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BlockFalling;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ITileEntity;
 import net.minecraft.world.level.block.entity.TileEntity;
+import net.minecraft.world.level.block.state.BlockStateList;
 import net.minecraft.world.level.block.state.IBlockData;
+import net.minecraft.world.level.block.state.IBlockDataHolder;
+import net.minecraft.world.level.block.state.properties.IBlockState;
+import net.minecraft.world.level.chunk.Chunk.EnumTileEntityState;
 import net.minecraft.world.level.chunk.ChunkSection;
 import net.minecraft.world.scores.ScoreboardObjective;
 import net.minecraft.world.scores.criteria.IScoreboardCriteria.EnumScoreboardHealthDisplay;
@@ -250,7 +259,8 @@ public class v1_18_R2 implements NmsProvider {
 
 	@Override
 	public Object packetPlayerListHeaderFooter(String header, String footer) {
-		return new PacketPlayOutPlayerListHeaderFooter((IChatBaseComponent) this.toIChatBaseComponent(ComponentAPI.fromString(header)), (IChatBaseComponent) this.toIChatBaseComponent(ComponentAPI.fromString(footer)));
+		return new PacketPlayOutPlayerListHeaderFooter((IChatBaseComponent) this.toIChatBaseComponent(ComponentAPI.fromString(header)),
+				(IChatBaseComponent) this.toIChatBaseComponent(ComponentAPI.fromString(footer)));
 	}
 
 	@Override
@@ -457,43 +467,96 @@ public class v1_18_R2 implements NmsProvider {
 	}
 
 	@Override
-	public TheMaterial toMaterial(Object blockOrItemOrIBlockData) {
-		if (blockOrItemOrIBlockData == null)
-			return new TheMaterial(Material.AIR);
-		if (blockOrItemOrIBlockData instanceof Block) {
-			Block b = (Block) blockOrItemOrIBlockData;
-			return new TheMaterial(CraftItemStack.asNewCraftStack(Item.a(b)));
+	public BlockDataStorage toMaterial(Object blockOrIBlockData) {
+		if (blockOrIBlockData instanceof Block) {
+			IBlockData data = ((Block) blockOrIBlockData).n();
+			return new BlockDataStorage(CraftMagicNumbers.getMaterial(data.b()), (byte) 0, asString(data));
 		}
-		if (blockOrItemOrIBlockData instanceof Item) {
-			Item b = (Item) blockOrItemOrIBlockData;
-			return new TheMaterial(CraftItemStack.asNewCraftStack(b));
+		if (blockOrIBlockData instanceof IBlockData) {
+			IBlockData data = (IBlockData) blockOrIBlockData;
+			return new BlockDataStorage(CraftMagicNumbers.getMaterial(data.b()), (byte) 0, asString(data));
 		}
-		if (blockOrItemOrIBlockData instanceof IBlockData) {
-			IBlockData b = (IBlockData) blockOrItemOrIBlockData;
-			return new TheMaterial(CraftItemStack.asNewCraftStack(Item.a(b.b())));
+		return new BlockDataStorage(Material.AIR);
+	}
+
+	private String asString(IBlockData data) {
+		StringBuilder stateString = new StringBuilder();
+		if (!data.u().isEmpty()) {
+			stateString.append('[');
+			stateString.append(data.u().entrySet().stream().map(IBlockDataHolder.a).collect(Collectors.joining(",")));
+			stateString.append(']');
 		}
-		return null;
+		return stateString.toString();
 	}
 
 	@Override
-	public Object toIBlockData(TheMaterial material) {
+	public Object toIBlockData(BlockDataStorage material) {
 		if (material == null || material.getType() == null || material.getType() == Material.AIR)
 			return Blocks.a.n();
-		return ((CraftBlockData) Bukkit.createBlockData(material.getType(), material.getData() + "")).getState();
+		Block block = CraftMagicNumbers.getBlock(material.getType());
+		return readArgument(block, material);
 	}
 
 	@Override
-	public Object toItem(TheMaterial material) {
-		if (material == null || material.getType() == null || material.getType() == Material.AIR)
-			return Item.a(Blocks.a);
-		return Item.a(((CraftBlockData) Bukkit.createBlockData(material.getType(), material.getData() + "")).getState().b());
-	}
-
-	@Override
-	public Object toBlock(TheMaterial material) {
+	public Object toBlock(BlockDataStorage material) {
 		if (material == null || material.getType() == null || material.getType() == Material.AIR)
 			return Blocks.a;
-		return ((CraftBlockData) Bukkit.createBlockData(material.getType(), material.getData() + "")).getState().b();
+		Block block = CraftMagicNumbers.getBlock(material.getType());
+		return readArgument(block, material).b();
+	}
+
+	private IBlockData readArgument(Block block, BlockDataStorage material) {
+		IBlockData ib = block.n();
+		return writeData(ib, ib.b().m(), material.getData());
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static IBlockData writeData(IBlockData ib, BlockStateList blockStateList, String string) {
+		if (string == null || string.trim().isEmpty())
+			return ib;
+
+		String key = "";
+		String value = "";
+		int set = 0;
+
+		for (int i = 1; i < string.length() - 1; ++i) {
+			char c = string.charAt(i);
+			if (c == ',') {
+				IBlockState ibj = blockStateList.a(key);
+				if (ibj != null) {
+					Optional optional = ibj.b(value);
+					if (optional.isPresent())
+						ib = ib.a(ibj, (Comparable) optional.get());
+				}
+				key = "";
+				value = "";
+				set = 0;
+				continue;
+			}
+			if (c == '=') {
+				set = 1;
+				continue;
+			}
+			if (set == 0)
+				key += c;
+			else
+				value += c;
+		}
+		if (set == 1) {
+			IBlockState ibj = blockStateList.a(key);
+			if (ibj != null) {
+				Optional optional = ibj.b(value);
+				if (optional.isPresent())
+					ib = ib.a(ibj, (Comparable) optional.get());
+			}
+		}
+		return ib;
+	}
+
+	@Override
+	public ItemStack toItemStack(BlockDataStorage material) {
+		Item item = CraftMagicNumbers.getItem(material.getType(), StringUtils.getShort(material.getData()));
+		return CraftItemStack.asBukkitCopy(item.P_());
 	}
 
 	@Override
@@ -502,25 +565,69 @@ public class v1_18_R2 implements NmsProvider {
 	}
 
 	@Override
-	public void setBlock(Object chunk, int x, int y, int z, Object IblockData, int data) {
-		net.minecraft.world.level.chunk.Chunk c = (net.minecraft.world.level.chunk.Chunk) chunk;
-		int yy = c.e(y);
-		ChunkSection sc = c.b(yy);
+	public void setBlock(Object objChunk, int x, int y, int z, Object IblockData, int data) {
+		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
+		int highY = chunk.e(y);
+		if (highY < 0)
+			return;
+		ChunkSection sc = chunk.b(highY);
 		if (sc == null)
 			return;
 		BlockPosition pos = new BlockPosition(x, y, z);
-		// REMOVE TILE ENTITY
-		c.i.remove(pos);
 
-		sc.i().b(x & 15, y & 15, z & 15, (IBlockData) IblockData);
+		IBlockData iblock = IblockData == null ? Blocks.a.n() : (IBlockData) IblockData;
+
+		// REMOVE TILE ENTITY
+		TileEntity ent = chunk.i.remove(pos);
+		if (ent != null)
+			ent.ab_();
+		@SuppressWarnings("unchecked")
+		Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, "h");
+		h.remove(pos);
+		chunk.q.capturedTileEntities.remove(pos);
+
+		chunk.q.capturedBlockStates.remove(pos);
+		IBlockData old = sc.a(x & 15, y & 15, z & 15, iblock, false);
 
 		// ADD TILE ENTITY
-		if (IblockData instanceof ITileEntity) {
-			TileEntity ent = ((ITileEntity) IblockData).a(pos, (IBlockData) IblockData);
-			c.i.put(pos, ent);
+		if (iblock.b() instanceof ITileEntity) {
+			ent = ((ITileEntity) iblock.b()).a(pos, iblock);
+			ent.a(chunk.q);
 			Object packet = ent.h();
-			getOnlinePlayers().forEach(player -> BukkitLoader.getPacketHandler().send(player, packet));
+			BukkitLoader.getPacketHandler().send(chunk.getBukkitChunk().getWorld().getPlayers(), packet);
 		}
+
+		// MARK CHUNK TO SAVE
+		chunk.a(true);
+
+		// POI
+		if (!chunk.q.preventPoiUpdated)
+			chunk.q.a(pos, old, iblock);
+	}
+
+	@Override
+	public void updatePhysics(Object objChunk, int x, int y, int z, Object iblockdata) {
+		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
+
+		BlockPosition blockPos = new BlockPosition(x, y, z);
+
+		doPhysicsAround(chunk.q, blockPos, ((IBlockData) iblockdata).b());
+	}
+
+	private void doPhysicsAround(WorldServer world, BlockPosition blockposition, Block block) {
+		doPhysics(world, blockposition.f(), block, blockposition); // west
+		doPhysics(world, blockposition.g(), block, blockposition); // east
+		doPhysics(world, blockposition.c(), block, blockposition); // down
+		doPhysics(world, blockposition.b(), block, blockposition); // up
+		doPhysics(world, blockposition.d(), block, blockposition); // north
+		doPhysics(world, blockposition.e(), block, blockposition); // south
+	}
+
+	private void doPhysics(WorldServer world, BlockPosition blockposition, Block block, BlockPosition blockposition1) {
+		IBlockData state = world.a_(blockposition);
+		state.a(world, blockposition, block, blockposition1, false);
+		if (state.b() instanceof BlockFalling)
+			((BlockFalling) state.b()).b(state, world, blockposition, block.n(), false);
 	}
 
 	@Override
@@ -530,18 +637,45 @@ public class v1_18_R2 implements NmsProvider {
 	}
 
 	@Override
-	public Object getBlock(Object chunk, int x, int y, int z) {
-		net.minecraft.world.level.chunk.Chunk c = (net.minecraft.world.level.chunk.Chunk) chunk;
-		int yy = c.e(y);
-		ChunkSection sc = c.b(yy);
+	public Object getBlock(Object objChunk, int x, int y, int z) {
+		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
+		int highY = chunk.e(y);
+		if (highY < 0)
+			return Blocks.a.n();
+		ChunkSection sc = chunk.b(highY);
 		if (sc == null)
 			return Blocks.a.n();
 		return sc.i().a(x & 15, y & 15, z & 15);
 	}
 
 	@Override
-	public int getData(Object chunk, int x, int y, int z) {
+	public byte getData(Object chunk, int x, int y, int z) {
 		return 0;
+	}
+
+	@Override
+	public String getNBTOfTile(Object objChunk, int x, int y, int z) {
+		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
+		return chunk.a(new BlockPosition(x, y, z), EnumTileEntityState.a).o().toString();
+	}
+
+	@Override
+	public void setNBTToTile(Object objChunk, int x, int y, int z, String nbt) {
+		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
+		TileEntity ent = chunk.a(new BlockPosition(x, y, z), EnumTileEntityState.a);
+		NBTTagCompound parsedNbt = (NBTTagCompound) parseNBT(nbt);
+		parsedNbt.a("x", x);
+		parsedNbt.a("y", y);
+		parsedNbt.a("z", z);
+		ent.a(parsedNbt);
+		Object packet = ent.h();
+		BukkitLoader.getPacketHandler().send(chunk.getBukkitChunk().getWorld().getPlayers(), packet);
+	}
+
+	@Override
+	public boolean isTileEntity(Object objChunk, int x, int y, int z) {
+		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
+		return chunk.a(new BlockPosition(x, y, z), EnumTileEntityState.a) != null;
 	}
 
 	@Override
@@ -562,21 +696,6 @@ public class v1_18_R2 implements NmsProvider {
 	@Override
 	public Object toIBlockData(BlockState state) {
 		return CraftMagicNumbers.getBlock(state.getType(), state.getRawData());
-	}
-
-	@Override
-	public Object toBlock(Material type) {
-		return CraftMagicNumbers.getBlock(type);
-	}
-
-	@Override
-	public Object toItem(Material type, int data) {
-		return CraftMagicNumbers.getItem(type, (short) data);
-	}
-
-	@Override
-	public Object toIBlockData(Material type, int data) {
-		return CraftMagicNumbers.getBlock(type, (byte) data);
 	}
 
 	@Override
@@ -715,13 +834,15 @@ public class v1_18_R2 implements NmsProvider {
 
 	@Override
 	public Object createContainer(Inventory inv, Player player) {
-		return inv.getType() == InventoryType.ANVIL ? createAnvilContainer(inv, player) : new CraftContainer(inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter());
+		return inv.getType() == InventoryType.ANVIL ? createAnvilContainer(inv, player)
+				: new CraftContainer(inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter());
 	}
 
 	static BlockPosition zero = new BlockPosition(0, 0, 0);
 
 	public Object createAnvilContainer(Inventory inv, Player player) {
-		ContainerAnvil container = new ContainerAnvil(((CraftPlayer) player).getHandle().nextContainerCounter(), ((CraftPlayer) player).getHandle().fr(), ContainerAccess.a(((CraftPlayer) player).getHandle().s, v1_18_R2.zero));
+		ContainerAnvil container = new ContainerAnvil(((CraftPlayer) player).getHandle().nextContainerCounter(), ((CraftPlayer) player).getHandle().fr(),
+				ContainerAccess.a(((CraftPlayer) player).getHandle().s, v1_18_R2.zero));
 		for (int i = 0; i < 2; ++i)
 			container.a(i, (net.minecraft.world.item.ItemStack) asNMSItem(inv.getItem(i)));
 		return container;
@@ -777,7 +898,8 @@ public class v1_18_R2 implements NmsProvider {
 		int position = 0;
 		if (!(gui instanceof AnvilGUI) && !cancel && type == InventoryClickType.QUICK_MOVE) {
 			ItemStack[] contents = slot < gui.size() ? player.getInventory().getStorageContents() : gui.getInventory().getStorageContents();
-			List<Integer> modified = slot < gui.size() ? InventoryUtils.shift(slot, player, gui, clickType, gui instanceof AnvilGUI ? DestinationType.PLAYER_INV_ANVIL : DestinationType.PLAYER_INV_CUSTOM_INV, null, contents, item)
+			List<Integer> modified = slot < gui.size()
+					? InventoryUtils.shift(slot, player, gui, clickType, gui instanceof AnvilGUI ? DestinationType.PLAYER_INV_ANVIL : DestinationType.PLAYER_INV_CUSTOM_INV, null, contents, item)
 					: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.CUSTOM_INV, gui.getNotInterableSlots(player), contents, item);
 			if (!modified.isEmpty())
 				if (slot < gui.size()) {
@@ -836,7 +958,8 @@ public class v1_18_R2 implements NmsProvider {
 		List<PlayerProfile> players = new ArrayList<>();
 		for (Player p : getOnlinePlayers())
 			players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
-		ServerListPingEvent event = new ServerListPingEvent(getOnlinePlayers().size(), Bukkit.getMaxPlayers(), players, Bukkit.getMotd(), ping.d(), ((InetSocketAddress) ((Channel) channel).remoteAddress()).getAddress(), ping.c().a(), ping.c().b());
+		ServerListPingEvent event = new ServerListPingEvent(getOnlinePlayers().size(), Bukkit.getMaxPlayers(), players, Bukkit.getMotd(), ping.d(),
+				((InetSocketAddress) ((Channel) channel).remoteAddress()).getAddress(), ping.c().a(), ping.c().b());
 		EventManager.call(event);
 		if (event.isCancelled())
 			return true;

@@ -5,9 +5,15 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -16,6 +22,7 @@ import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.v1_14_R1.CraftChunk;
 import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_14_R1.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_14_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftLivingEntity;
@@ -39,19 +46,22 @@ import me.devtec.shared.Ref;
 import me.devtec.shared.components.Component;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.events.EventManager;
+import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.BukkitLoader.InventoryClickType;
 import me.devtec.theapi.bukkit.events.ServerListPingEvent;
 import me.devtec.theapi.bukkit.events.ServerListPingEvent.PlayerProfile;
+import me.devtec.theapi.bukkit.game.BlockDataStorage;
 import me.devtec.theapi.bukkit.game.Position;
-import me.devtec.theapi.bukkit.game.TheMaterial;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils.DestinationType;
 import net.minecraft.server.v1_14_R1.Block;
+import net.minecraft.server.v1_14_R1.BlockFalling;
 import net.minecraft.server.v1_14_R1.BlockPosition;
+import net.minecraft.server.v1_14_R1.BlockStateList;
 import net.minecraft.server.v1_14_R1.Blocks;
 import net.minecraft.server.v1_14_R1.ChatClickable;
 import net.minecraft.server.v1_14_R1.ChatClickable.EnumClickAction;
@@ -60,6 +70,7 @@ import net.minecraft.server.v1_14_R1.ChatHoverable;
 import net.minecraft.server.v1_14_R1.ChatHoverable.EnumHoverAction;
 import net.minecraft.server.v1_14_R1.ChatMessageType;
 import net.minecraft.server.v1_14_R1.ChatModifier;
+import net.minecraft.server.v1_14_R1.Chunk.EnumTileEntityState;
 import net.minecraft.server.v1_14_R1.ChunkSection;
 import net.minecraft.server.v1_14_R1.Container;
 import net.minecraft.server.v1_14_R1.ContainerAccess;
@@ -70,6 +81,7 @@ import net.minecraft.server.v1_14_R1.EntityLiving;
 import net.minecraft.server.v1_14_R1.EntityPlayer;
 import net.minecraft.server.v1_14_R1.EnumChatFormat;
 import net.minecraft.server.v1_14_R1.IBlockData;
+import net.minecraft.server.v1_14_R1.IBlockState;
 import net.minecraft.server.v1_14_R1.IChatBaseComponent;
 import net.minecraft.server.v1_14_R1.IRegistry;
 import net.minecraft.server.v1_14_R1.IScoreboardCriteria.EnumScoreboardHealthDisplay;
@@ -372,7 +384,8 @@ public class v1_14_R1 implements NmsProvider {
 		if (c.getClickEvent() != null)
 			modif = modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
 		if (c.getHoverEvent() != null)
-			modif = modif.setChatHoverable(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent) this.toIChatBaseComponent(c.getHoverEvent().getValue())));
+			modif = modif
+					.setChatHoverable(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent) this.toIChatBaseComponent(c.getHoverEvent().getValue())));
 		modif = modif.setBold(c.isBold());
 		modif = modif.setItalic(c.isItalic());
 		modif = modif.setRandom(c.isObfuscated());
@@ -471,43 +484,111 @@ public class v1_14_R1 implements NmsProvider {
 	}
 
 	@Override
-	public TheMaterial toMaterial(Object blockOrItemOrIBlockData) {
-		if (blockOrItemOrIBlockData == null)
-			return new TheMaterial(Material.AIR);
-		if (blockOrItemOrIBlockData instanceof Block) {
-			Block b = (Block) blockOrItemOrIBlockData;
-			return new TheMaterial(CraftItemStack.asNewCraftStack(Item.getItemOf(b)));
+	public BlockDataStorage toMaterial(Object blockOrIBlockData) {
+		if (blockOrIBlockData instanceof Block) {
+			IBlockData data = ((Block) blockOrIBlockData).getBlockData();
+			return new BlockDataStorage(CraftMagicNumbers.getMaterial(data.getBlock()), (byte) 0, asString(data));
 		}
-		if (blockOrItemOrIBlockData instanceof Item) {
-			Item b = (Item) blockOrItemOrIBlockData;
-			return new TheMaterial(CraftItemStack.asNewCraftStack(b));
+		if (blockOrIBlockData instanceof IBlockData) {
+			IBlockData data = (IBlockData) blockOrIBlockData;
+			return new BlockDataStorage(CraftMagicNumbers.getMaterial(data.getBlock()), (byte) 0, asString(data));
 		}
-		if (blockOrItemOrIBlockData instanceof IBlockData) {
-			IBlockData b = (IBlockData) blockOrItemOrIBlockData;
-			return new TheMaterial(CraftItemStack.asNewCraftStack(Item.getItemOf(b.getBlock())));
+		return new BlockDataStorage(Material.AIR);
+	}
+
+	private static Function<Entry<IBlockState<?>, Comparable<?>>, String> STATE_TO_VALUE = new Function<Entry<IBlockState<?>, Comparable<?>>, String>() {
+		@Override
+		public String apply(Entry<IBlockState<?>, Comparable<?>> var0) {
+			if (var0 == null)
+				return "<NULL>";
+			IBlockState<?> var1 = var0.getKey();
+			return var1.a() + "=" + a(var1, var0.getValue());
 		}
-		return null;
+
+		@SuppressWarnings("unchecked")
+		private <T extends Comparable<T>> String a(IBlockState<T> var0, Comparable<?> var1) {
+			return var0.a((T) var1);
+		}
+	};
+
+	private String asString(IBlockData data) {
+		StringBuilder stateString = new StringBuilder();
+		if (!data.getStateMap().isEmpty()) {
+			stateString.append('[');
+			stateString.append(data.getStateMap().entrySet().stream().map(STATE_TO_VALUE).collect(Collectors.joining(",")));
+			stateString.append(']');
+		}
+		return stateString.toString();
 	}
 
 	@Override
-	public Object toIBlockData(TheMaterial material) {
+	public Object toIBlockData(BlockDataStorage material) {
 		if (material == null || material.getType() == null || material.getType() == Material.AIR)
 			return Blocks.AIR.getBlockData();
-		return ((CraftBlockData) Bukkit.createBlockData(material.getType(), material.getData() + "")).getState();
+		Block block = CraftMagicNumbers.getBlock(material.getType());
+		return readArgument(block, material);
 	}
 
 	@Override
-	public Object toItem(TheMaterial material) {
-		if (material == null || material.getType() == null || material.getType() == Material.AIR)
-			return Item.getItemOf(Blocks.AIR);
-		return Item.getItemOf(((CraftBlockData) Bukkit.createBlockData(material.getType(), material.getData() + "")).getState().getBlock());
-	}
-
-	@Override
-	public Object toBlock(TheMaterial material) {
+	public Object toBlock(BlockDataStorage material) {
 		if (material == null || material.getType() == null || material.getType() == Material.AIR)
 			return Blocks.AIR;
-		return ((CraftBlockData) Bukkit.createBlockData(material.getType(), material.getData() + "")).getState().getBlock();
+		Block block = CraftMagicNumbers.getBlock(material.getType());
+		return readArgument(block, material).getBlock();
+	}
+
+	private IBlockData readArgument(Block block, BlockDataStorage material) {
+		IBlockData ib = block.getBlockData();
+		return writeData(ib, ib.getBlock().getStates(), material.getData());
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static IBlockData writeData(IBlockData ib, BlockStateList blockStateList, String string) {
+		if (string == null || string.trim().isEmpty())
+			return ib;
+
+		String key = "";
+		String value = "";
+		int set = 0;
+
+		for (int i = 1; i < string.length() - 1; ++i) {
+			char c = string.charAt(i);
+			if (c == ',') {
+				IBlockState ibj = blockStateList.a(key);
+				if (ibj != null) {
+					Optional optional = ibj.b(value);
+					if (optional.isPresent())
+						ib = ib.set(ibj, (Comparable) optional.get());
+				}
+				key = "";
+				value = "";
+				set = 0;
+				continue;
+			}
+			if (c == '=') {
+				set = 1;
+				continue;
+			}
+			if (set == 0)
+				key += c;
+			else
+				value += c;
+		}
+		if (set == 1) {
+			IBlockState ibj = blockStateList.a(key);
+			if (ibj != null) {
+				Optional optional = ibj.b(value);
+				if (optional.isPresent())
+					ib = ib.set(ibj, (Comparable) optional.get());
+			}
+		}
+		return ib;
+	}
+
+	@Override
+	public ItemStack toItemStack(BlockDataStorage material) {
+		Item item = CraftMagicNumbers.getItem(material.getType(), StringUtils.getShort(material.getData()));
+		return CraftItemStack.asBukkitCopy(new net.minecraft.server.v1_14_R1.ItemStack(item));
 	}
 
 	@Override
@@ -516,24 +597,75 @@ public class v1_14_R1 implements NmsProvider {
 	}
 
 	@Override
-	public void setBlock(Object chunk, int x, int y, int z, Object IblockData, int data) {
-		net.minecraft.server.v1_14_R1.Chunk c = (net.minecraft.server.v1_14_R1.Chunk) chunk;
-		ChunkSection sc = c.getSections()[y >> 4];
+	public void setBlock(Object objChunk, int x, int y, int z, Object IblockData, int data) {
+		net.minecraft.server.v1_14_R1.Chunk chunk = (net.minecraft.server.v1_14_R1.Chunk) objChunk;
+		if (y < 0)
+			return;
+		ChunkSection sc = chunk.getSections()[y >> 4];
 		if (sc == null)
-			c.getSections()[y >> 4] = sc = new ChunkSection(y >> 4 << 4);
+			return;
 		BlockPosition pos = new BlockPosition(x, y, z);
-		// REMOVE TILE ENTITY
-		c.tileEntities.remove(pos);
 
-		sc.getBlocks().b(x & 15, y & 15, z & 15, (IBlockData) IblockData);
+		IBlockData iblock = IblockData == null ? Blocks.AIR.getBlockData() : (IBlockData) IblockData;
+
+		// REMOVE TILE ENTITY
+		TileEntity ent = chunk.tileEntities.remove(pos);
+		if (ent != null)
+			ent.V_();
+		@SuppressWarnings("unchecked")
+		Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, "e");
+		h.remove(pos);
+		chunk.world.capturedTileEntities.remove(pos);
+
+		Iterator<CraftBlockState> iterator = chunk.world.capturedBlockStates.iterator();
+		while (iterator.hasNext()) {
+			CraftBlockState state = iterator.next();
+			if (state.getPosition() == pos)
+				iterator.remove();
+		}
+		IBlockData old = sc.setType(x & 15, y & 15, z & 15, iblock, false);
 
 		// ADD TILE ENTITY
-		if (IblockData instanceof ITileEntity) {
-			TileEntity ent = ((ITileEntity) IblockData).createTile(c);
-			c.tileEntities.put(pos, ent);
+		if (iblock.getBlock() instanceof ITileEntity) {
+			ent = ((ITileEntity) iblock.getBlock()).createTile(chunk);
+			ent.setWorld(chunk.world);
+			ent.setPosition(pos);
+			Ref.set(ent, "c", iblock);
 			Object packet = ent.getUpdatePacket();
-			getOnlinePlayers().forEach(player -> BukkitLoader.getPacketHandler().send(player, packet));
+			BukkitLoader.getPacketHandler().send(chunk.getBukkitChunk().getWorld().getPlayers(), packet);
 		}
+
+		// MARK CHUNK TO SAVE
+		chunk.setNeedsSaving(true);
+
+		// POI
+		chunk.world.a(pos, old, iblock);
+	}
+
+	@Override
+	public void updatePhysics(Object objChunk, int x, int y, int z, Object iblockdata) {
+		net.minecraft.server.v1_14_R1.Chunk chunk = (net.minecraft.server.v1_14_R1.Chunk) objChunk;
+
+		BlockPosition blockPos = new BlockPosition(x, y, z);
+
+		doPhysicsAround((WorldServer) chunk.world, blockPos, ((IBlockData) iblockdata).getBlock());
+	}
+
+	private void doPhysicsAround(WorldServer world, BlockPosition blockposition, Block block) {
+		doPhysics(world, blockposition.west(), block, blockposition);
+		doPhysics(world, blockposition.east(), block, blockposition);
+		doPhysics(world, blockposition.down(), block, blockposition);
+		doPhysics(world, blockposition.up(), block, blockposition);
+		doPhysics(world, blockposition.north(), block, blockposition);
+		doPhysics(world, blockposition.south(), block, blockposition);
+	}
+
+	private void doPhysics(WorldServer world, BlockPosition blockposition, Block block, BlockPosition blockposition1) {
+		world.getType(blockposition).doPhysics(world, blockposition, block, blockposition1, false);
+		IBlockData state = world.getType(blockposition);
+		state.doPhysics(world, blockposition, block, blockposition1, false);
+		if (state.getBlock() instanceof BlockFalling)
+			((BlockFalling) state.getBlock()).onPlace(state, world, blockposition, block.getBlockData(), false);
 	}
 
 	@Override
@@ -543,17 +675,44 @@ public class v1_14_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object getBlock(Object chunk, int x, int y, int z) {
-		net.minecraft.server.v1_14_R1.Chunk c = (net.minecraft.server.v1_14_R1.Chunk) chunk;
-		ChunkSection sc = c.getSections()[y >> 4];
+	public Object getBlock(Object objChunk, int x, int y, int z) {
+		net.minecraft.server.v1_14_R1.Chunk chunk = (net.minecraft.server.v1_14_R1.Chunk) objChunk;
+		if (y < 0)
+			return Blocks.AIR.getBlockData();
+		ChunkSection sc = chunk.getSections()[y >> 4];
 		if (sc == null)
 			return Blocks.AIR.getBlockData();
 		return sc.getBlocks().a(x & 15, y & 15, z & 15);
 	}
 
 	@Override
-	public int getData(Object chunk, int x, int y, int z) {
+	public byte getData(Object chunk, int x, int y, int z) {
 		return 0;
+	}
+
+	@Override
+	public String getNBTOfTile(Object objChunk, int x, int y, int z) {
+		net.minecraft.server.v1_14_R1.Chunk chunk = (net.minecraft.server.v1_14_R1.Chunk) objChunk;
+		return chunk.a(new BlockPosition(x, y, z), EnumTileEntityState.IMMEDIATE).save(new NBTTagCompound()).toString();
+	}
+
+	@Override
+	public void setNBTToTile(Object objChunk, int x, int y, int z, String nbt) {
+		net.minecraft.server.v1_14_R1.Chunk chunk = (net.minecraft.server.v1_14_R1.Chunk) objChunk;
+		TileEntity ent = chunk.a(new BlockPosition(x, y, z), EnumTileEntityState.IMMEDIATE);
+		NBTTagCompound parsedNbt = (NBTTagCompound) parseNBT(nbt);
+		parsedNbt.setInt("x", x);
+		parsedNbt.setInt("y", y);
+		parsedNbt.setInt("z", z);
+		ent.load(parsedNbt);
+		Object packet = ent.getUpdatePacket();
+		BukkitLoader.getPacketHandler().send(chunk.getBukkitChunk().getWorld().getPlayers(), packet);
+	}
+
+	@Override
+	public boolean isTileEntity(Object objChunk, int x, int y, int z) {
+		net.minecraft.server.v1_14_R1.Chunk chunk = (net.minecraft.server.v1_14_R1.Chunk) objChunk;
+		return chunk.a(new BlockPosition(x, y, z), EnumTileEntityState.IMMEDIATE) != null;
 	}
 
 	@Override
@@ -574,21 +733,6 @@ public class v1_14_R1 implements NmsProvider {
 	@Override
 	public Object toIBlockData(BlockState state) {
 		return CraftMagicNumbers.getBlock(state.getType(), state.getRawData());
-	}
-
-	@Override
-	public Object toBlock(Material type) {
-		return CraftMagicNumbers.getBlock(type);
-	}
-
-	@Override
-	public Object toItem(Material type, int data) {
-		return CraftMagicNumbers.getItem(type, (short) data);
-	}
-
-	@Override
-	public Object toIBlockData(Material type, int data) {
-		return CraftMagicNumbers.getBlock(type, (byte) data);
 	}
 
 	@Override
@@ -693,7 +837,8 @@ public class v1_14_R1 implements NmsProvider {
 
 	@Override
 	public Object createContainer(Inventory inv, Player player) {
-		return inv.getType() == InventoryType.ANVIL ? createAnvilContainer(inv, player) : new CraftContainer(inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter());
+		return inv.getType() == InventoryType.ANVIL ? createAnvilContainer(inv, player)
+				: new CraftContainer(inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter());
 	}
 
 	@Override
@@ -704,7 +849,8 @@ public class v1_14_R1 implements NmsProvider {
 	static BlockPosition zero = new BlockPosition(0, 0, 0);
 
 	public Object createAnvilContainer(Inventory inv, Player player) {
-		ContainerAnvil container = new ContainerAnvil(((CraftPlayer) player).getHandle().nextContainerCounter(), ((CraftPlayer) player).getHandle().inventory, ContainerAccess.at(((CraftPlayer) player).getHandle().world, v1_14_R1.zero));
+		ContainerAnvil container = new ContainerAnvil(((CraftPlayer) player).getHandle().nextContainerCounter(), ((CraftPlayer) player).getHandle().inventory,
+				ContainerAccess.at(((CraftPlayer) player).getHandle().world, v1_14_R1.zero));
 		for (int i = 0; i < 2; ++i)
 			container.setItem(i, (net.minecraft.server.v1_14_R1.ItemStack) asNMSItem(inv.getItem(i)));
 		return container;
@@ -729,7 +875,8 @@ public class v1_14_R1 implements NmsProvider {
 
 		Object container = gui.getContainer(player);
 		ItemStack item = asBukkitItem(packet.f());
-		if ((type == InventoryClickType.QUICK_MOVE || type == InventoryClickType.CLONE || type == InventoryClickType.THROW || item.getType() == Material.AIR || item.getType() == Material.CAVE_AIR) && (item.getType() == Material.AIR || item.getType() == Material.CAVE_AIR))
+		if ((type == InventoryClickType.QUICK_MOVE || type == InventoryClickType.CLONE || type == InventoryClickType.THROW || item.getType() == Material.AIR || item.getType() == Material.CAVE_AIR)
+				&& (item.getType() == Material.AIR || item.getType() == Material.CAVE_AIR))
 			item = asBukkitItem(getSlotItem(container, slot));
 		boolean cancel = false;
 		if (InventoryClickType.SWAP == type) {
@@ -755,7 +902,8 @@ public class v1_14_R1 implements NmsProvider {
 		int position = 0;
 		if (!(gui instanceof AnvilGUI) && !cancel && type == InventoryClickType.QUICK_MOVE) {
 			ItemStack[] contents = slot < gui.size() ? player.getInventory().getStorageContents() : gui.getInventory().getStorageContents();
-			List<Integer> modified = slot < gui.size() ? InventoryUtils.shift(slot, player, gui, clickType, gui instanceof AnvilGUI ? DestinationType.PLAYER_INV_ANVIL : DestinationType.PLAYER_INV_CUSTOM_INV, null, contents, item)
+			List<Integer> modified = slot < gui.size()
+					? InventoryUtils.shift(slot, player, gui, clickType, gui instanceof AnvilGUI ? DestinationType.PLAYER_INV_ANVIL : DestinationType.PLAYER_INV_CUSTOM_INV, null, contents, item)
 					: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.CUSTOM_INV, gui.getNotInterableSlots(player), contents, item);
 			if (!modified.isEmpty())
 				if (slot < gui.size()) {
@@ -820,7 +968,8 @@ public class v1_14_R1 implements NmsProvider {
 		List<PlayerProfile> players = new ArrayList<>();
 		for (Player p : getOnlinePlayers())
 			players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
-		ServerListPingEvent event = new ServerListPingEvent(getOnlinePlayers().size(), Bukkit.getMaxPlayers(), players, Bukkit.getMotd(), ping.d(), ((InetSocketAddress) ((Channel) channel).remoteAddress()).getAddress(), ping.getServerData().a(), ping.getServerData().getProtocolVersion());
+		ServerListPingEvent event = new ServerListPingEvent(getOnlinePlayers().size(), Bukkit.getMaxPlayers(), players, Bukkit.getMotd(), ping.d(),
+				((InetSocketAddress) ((Channel) channel).remoteAddress()).getAddress(), ping.getServerData().a(), ping.getServerData().getProtocolVersion());
 		EventManager.call(event);
 		if (event.isCancelled())
 			return true;
