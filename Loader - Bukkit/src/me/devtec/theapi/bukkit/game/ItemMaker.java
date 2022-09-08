@@ -5,7 +5,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -710,9 +709,9 @@ public class ItemMaker {
 				Object profile = Ref.get(skull, HeadItemMaker.profileField);
 				if (profile != null) {
 
-					Collection<PropertyHandler> properties = BukkitLoader.getNmsProvider().fromGameProfile(profile).getProperties().get("textures");
+					PropertyHandler properties = BukkitLoader.getNmsProvider().fromGameProfile(profile).getProperties().get("textures");
 
-					String value = properties.isEmpty() ? null : properties.iterator().next().getValues();
+					String value = properties == null ? null : properties.getValues();
 					if (value != null) {
 						config.set(path + ".head.owner", value);
 						config.set(path + ".head.type", "VALUES");
