@@ -1,5 +1,6 @@
 package me.devtec.theapi.bukkit.nms;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -8,7 +9,7 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 public class GameProfileHandler {
 	private String username;
 	private UUID uuid;
-	private Map<String, PropertyHandler> properties;
+	private Map<String, PropertyHandler> properties = new HashMap<>();
 
 	public static GameProfileHandler of(String username, UUID uuid) {
 		GameProfileHandler profile = new GameProfileHandler();
