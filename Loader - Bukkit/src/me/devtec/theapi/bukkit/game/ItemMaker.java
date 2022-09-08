@@ -5,6 +5,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,8 @@ import me.devtec.shared.json.Json;
 import me.devtec.shared.utility.StreamUtils;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
+import me.devtec.theapi.bukkit.nms.GameProfileHandler;
+import me.devtec.theapi.bukkit.nms.GameProfileHandler.PropertyHandler;
 import me.devtec.theapi.bukkit.nms.NBTEdit;
 import me.devtec.theapi.bukkit.xseries.XMaterial;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -254,11 +257,12 @@ public class ItemMaker {
 					iMeta.setOwner(owner);
 					break;
 				case 1: {
-					Ref.set(iMeta, HeadItemMaker.profileField, BukkitLoader.getNmsProvider().createGameProfile(UUID.randomUUID(), "DevTec", owner));
+					Ref.set(iMeta, HeadItemMaker.profileField, BukkitLoader.getNmsProvider().toGameProfile(GameProfileHandler.of("TheAPI", UUID.randomUUID(), PropertyHandler.of("textures", owner))));
 					break;
 				}
 				case 2: {
-					Ref.set(iMeta, HeadItemMaker.profileField, BukkitLoader.getNmsProvider().createGameProfile(UUID.randomUUID(), "DevTec", ItemMaker.fromUrl(owner)));
+					Ref.set(iMeta, HeadItemMaker.profileField,
+							BukkitLoader.getNmsProvider().toGameProfile(GameProfileHandler.of("TheAPI", UUID.randomUUID(), PropertyHandler.of("textures", ItemMaker.fromUrl(owner)))));
 					break;
 				}
 				default:
@@ -705,7 +709,10 @@ public class ItemMaker {
 			} else {
 				Object profile = Ref.get(skull, HeadItemMaker.profileField);
 				if (profile != null) {
-					String value = BukkitLoader.getNmsProvider().getGameProfileValues(profile);
+
+					Collection<PropertyHandler> properties = BukkitLoader.getNmsProvider().fromGameProfile(profile).getProperties().get("textures");
+
+					String value = properties.isEmpty() ? null : properties.iterator().next().getValues();
 					if (value != null) {
 						config.set(path + ".head.owner", value);
 						config.set(path + ".head.type", "VALUES");
@@ -836,7 +843,8 @@ public class ItemMaker {
 				if (headType.equals("VALUES") || headType.equals("URL")) {
 					if (headType.equals("URL"))
 						headOwner = ItemMaker.fromUrl(headOwner);
-					Ref.set(skull, HeadItemMaker.profileField, BukkitLoader.getNmsProvider().createGameProfile(UUID.randomUUID(), "DevTec", headOwner));
+					Ref.set(skull, HeadItemMaker.profileField,
+							BukkitLoader.getNmsProvider().toGameProfile(GameProfileHandler.of("TheAPI", UUID.randomUUID(), PropertyHandler.of("textures", headOwner))));
 				}
 			}
 		}

@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Chunk;
+import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
@@ -62,44 +63,100 @@ public interface NmsProvider {
 		}
 	}
 
+	/**
+	 * @return NmsProvider name (class instance name)
+	 */
 	public String getProviderName();
 
+	/**
+	 * @return Convert Bukkit Entity to NMS Entity
+	 */
 	public Object getEntity(Entity entity);
 
+	/**
+	 * @return Convert Bukkit LivingEntity to NMS EntityLiving
+	 */
 	public Object getEntityLiving(LivingEntity entity);
 
+	/**
+	 * @return Convert Bukkit Player to NMS EntityPlayer
+	 */
 	public Object getPlayer(Player player);
 
+	/**
+	 * @return Convert Bukkit World to NMS World
+	 */
 	public Object getWorld(World world);
 
+	/**
+	 * @return Convert Bukkit Chunk to NMS Chunk
+	 */
 	public Object getChunk(Chunk chunk);
 
+	/**
+	 * @return Convert Action to NMS ScoreboardAction
+	 */
 	public Object getScoreboardAction(Action type);
 
+	/**
+	 * @return Convert DisplayType to NMS EnumScoreboardHealthDisplay
+	 */
 	public Object getEnumScoreboardHealthDisplay(DisplayType type);
 
+	/**
+	 * @return Get Entity's NMS NBT
+	 */
 	public Object getNBT(Entity entity);
 
+	/**
+	 * @return Get ItemStack NMS NBT
+	 */
 	public Object getNBT(ItemStack itemStack);
 
+	/**
+	 * @return Parse json nbt to the NMS NBT
+	 */
 	public Object parseNBT(String json);
 
+	/**
+	 * @return Parse json NBT and set to ItemStack, returns new ItemStack with new
+	 *         NBT
+	 */
 	public default ItemStack setNBT(ItemStack stack, String nbt) {
 		return this.setNBT(stack, parseNBT(nbt));
 	}
 
+	/**
+	 * @return Get NBT from NBTEdit and set to ItemStack, returns new ItemStack with
+	 *         new NBT
+	 */
 	public default ItemStack setNBT(ItemStack stack, NBTEdit nbt) {
 		return this.setNBT(stack, nbt.getNBT());
 	}
 
+	/**
+	 * @return Set NBT to ItemStack, returns new ItemStack with new NBT
+	 */
 	public ItemStack setNBT(ItemStack stack, Object nbt);
 
+	/**
+	 * @return Convert Bukkit ItemStack to NMS ItemStack
+	 */
 	public Object asNMSItem(ItemStack stack);
 
+	/**
+	 * @return Convert NMS ItemStack to Bukkit ItemStack
+	 */
 	public ItemStack asBukkitItem(Object stack);
 
+	/**
+	 * @return Get DataWatcher of Bukkit Entity
+	 */
 	public Object getDataWatcher(Entity entity);
 
+	/**
+	 * @return Get DataWatcher of NMS Entity
+	 */
 	public Object getDataWatcher(Object entity);
 
 	public default Object packetEntityMetadata(Entity entity) {
@@ -149,6 +206,8 @@ public interface NmsProvider {
 	public Object packetExp(float exp, int total, int toNextLevel);
 
 	public Object packetPlayerInfo(PlayerInfoType type, Player player);
+
+	public Object packetPlayerInfo(PlayerInfoType type, GameProfileHandler gameProfile, int latency, GameMode gameMode, Component playerName);
 
 	public Object packetResourcePackSend(String url, String hash, boolean requireRP, String prompt);
 
@@ -339,7 +398,13 @@ public interface NmsProvider {
 
 	public Collection<? extends Player> getOnlinePlayers();
 
-	public String getGameProfileValues(Object profile);
+	public default Object getGameProfile(Player player) {
+		return getGameProfile(getPlayer(player));
+	}
 
-	public Object createGameProfile(UUID uuid, String name, String values);
+	public Object getGameProfile(Object nmsPlayer);
+
+	public Object toGameProfile(GameProfileHandler gameProfileHandler);
+
+	public GameProfileHandler fromGameProfile(Object gameProfile);
 }

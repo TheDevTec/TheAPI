@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
@@ -47,12 +48,12 @@ import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.BukkitLoader.InventoryClickType;
 import me.devtec.theapi.bukkit.events.ServerListPingEvent;
-import me.devtec.theapi.bukkit.events.ServerListPingEvent.PlayerProfile;
 import me.devtec.theapi.bukkit.game.BlockDataStorage;
 import me.devtec.theapi.bukkit.game.Position;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
+import me.devtec.theapi.bukkit.nms.GameProfileHandler.PropertyHandler;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils.DestinationType;
 import net.minecraft.server.v1_16_R3.BiomeManager;
@@ -78,6 +79,7 @@ import net.minecraft.server.v1_16_R3.EntityHuman;
 import net.minecraft.server.v1_16_R3.EntityLiving;
 import net.minecraft.server.v1_16_R3.EntityPlayer;
 import net.minecraft.server.v1_16_R3.EnumChatFormat;
+import net.minecraft.server.v1_16_R3.EnumGamemode;
 import net.minecraft.server.v1_16_R3.IBlockData;
 import net.minecraft.server.v1_16_R3.IBlockDataHolder;
 import net.minecraft.server.v1_16_R3.IBlockState;
@@ -105,6 +107,7 @@ import net.minecraft.server.v1_16_R3.PacketPlayOutNamedEntitySpawn;
 import net.minecraft.server.v1_16_R3.PacketPlayOutOpenWindow;
 import net.minecraft.server.v1_16_R3.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_16_R3.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
+import net.minecraft.server.v1_16_R3.PacketPlayOutPlayerInfo.PlayerInfoData;
 import net.minecraft.server.v1_16_R3.PacketPlayOutPlayerListHeaderFooter;
 import net.minecraft.server.v1_16_R3.PacketPlayOutPosition;
 import net.minecraft.server.v1_16_R3.PacketPlayOutResourcePackSend;
@@ -931,9 +934,9 @@ public class v1_16_R3 implements NmsProvider {
 		} catch (Exception e) {
 			return false;
 		}
-		List<PlayerProfile> players = new ArrayList<>();
+		List<GameProfileHandler> players = new ArrayList<>();
 		for (Player p : getOnlinePlayers())
-			players.add(new PlayerProfile(p.getName(), p.getUniqueId()));
+			players.add(GameProfileHandler.of(p.getName(), p.getUniqueId()));
 		ServerListPingEvent event = new ServerListPingEvent(getOnlinePlayers().size(), Bukkit.getMaxPlayers(), players, Bukkit.getMotd(), ping.d(),
 				((InetSocketAddress) ((Channel) channel).remoteAddress()).getAddress(), ping.getServerData().a(), ping.getServerData().getProtocolVersion());
 		EventManager.call(event);
@@ -943,8 +946,8 @@ public class v1_16_R3 implements NmsProvider {
 		if (event.getPlayersText() != null) {
 			GameProfile[] profiles = new GameProfile[event.getPlayersText().size()];
 			int i = -1;
-			for (PlayerProfile s : event.getPlayersText())
-				profiles[++i] = new GameProfile(s.getUUID(), s.getName());
+			for (GameProfileHandler s : event.getPlayersText())
+				profiles[++i] = new GameProfile(s.getUUID(), s.getUsername());
 			playerSample.a(profiles);
 		} else
 			playerSample.a(new GameProfile[0]);
@@ -1137,6 +1140,17 @@ public class v1_16_R3 implements NmsProvider {
 		return new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.valueOf(type.name()), (EntityPlayer) getPlayer(player));
 	}
 
+	private static Field playerInfo = Ref.field(PacketPlayOutPlayerInfo.class, "b");
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Object packetPlayerInfo(PlayerInfoType type, GameProfileHandler gameProfile, int latency, GameMode gameMode, Component playerName) {
+		PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.valueOf(type.name()), Collections.emptyList());
+		((List<PlayerInfoData>) Ref.get(packet, playerInfo))
+				.add(packet.new PlayerInfoData((GameProfile) toGameProfile(gameProfile), latency, EnumGamemode.valueOf(gameMode.name()), (IChatBaseComponent) toIChatBaseComponent(playerName)));
+		return packet;
+	}
+
 	@Override
 	public Object packetPosition(double x, double y, double z, float yaw, float pitch) {
 		return new PacketPlayOutPosition(x, y, z, yaw, pitch, Collections.emptySet(), 0);
@@ -1167,18 +1181,24 @@ public class v1_16_R3 implements NmsProvider {
 	}
 
 	@Override
-	public String getGameProfileValues(Object profile) {
-		Collection<Property> properties = ((GameProfile) profile).getProperties().get("textures");
-		if (!properties.isEmpty())
-			return properties.iterator().next().getValue();
-		return null;
-	}
-
-	@Override
-	public Object createGameProfile(UUID uuid, String name, String values) {
-		GameProfile profile = new GameProfile(uuid, name);
-		profile.getProperties().put("textures", new Property("textures", values));
+	public Object toGameProfile(GameProfileHandler gameProfileHandler) {
+		GameProfile profile = new GameProfile(gameProfileHandler.getUUID(), gameProfileHandler.getUsername());
+		for (Entry<String, PropertyHandler> entry : gameProfileHandler.getProperties().entries())
+			profile.getProperties().put(entry.getKey(), new Property(entry.getValue().getName(), entry.getValue().getValues(), entry.getValue().getSignature()));
 		return profile;
 	}
 
+	@Override
+	public GameProfileHandler fromGameProfile(Object gameProfile) {
+		GameProfile profile = (GameProfile) gameProfile;
+		GameProfileHandler handler = GameProfileHandler.of(profile.getName(), profile.getId());
+		for (Entry<String, Property> entry : profile.getProperties().entries())
+			handler.getProperties().put(entry.getKey(), PropertyHandler.of(entry.getValue().getName(), entry.getValue().getValue(), entry.getValue().getSignature()));
+		return handler;
+	}
+
+	@Override
+	public Object getGameProfile(Object nmsPlayer) {
+		return ((EntityPlayer) nmsPlayer).getProfile();
+	}
 }
