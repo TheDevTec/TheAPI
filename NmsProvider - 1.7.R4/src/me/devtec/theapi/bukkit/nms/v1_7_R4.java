@@ -1239,7 +1239,7 @@ public class v1_7_R4 implements NmsProvider {
 	@Override
 	public Object toGameProfile(GameProfileHandler gameProfileHandler) {
 		GameProfile profile = new GameProfile(gameProfileHandler.getUUID(), gameProfileHandler.getUsername());
-		for (Entry<String, PropertyHandler> entry : gameProfileHandler.getProperties().entries())
+		for (Entry<String, PropertyHandler> entry : gameProfileHandler.getProperties().entrySet())
 			profile.getProperties().put(entry.getKey(), new Property(entry.getValue().getName(), entry.getValue().getValues(), entry.getValue().getSignature()));
 		return profile;
 	}

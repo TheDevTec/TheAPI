@@ -1,15 +1,14 @@
 package me.devtec.theapi.bukkit.nms;
 
+import java.util.Map;
 import java.util.UUID;
-
-import com.google.common.collect.Multimap;
 
 import me.devtec.theapi.bukkit.BukkitLoader;
 
 public class GameProfileHandler {
 	private String username;
 	private UUID uuid;
-	private Multimap<String, PropertyHandler> properties;
+	private Map<String, PropertyHandler> properties;
 
 	public static GameProfileHandler of(String username, UUID uuid) {
 		GameProfileHandler profile = new GameProfileHandler();
@@ -44,12 +43,11 @@ public class GameProfileHandler {
 		return this;
 	}
 
-	public Multimap<String, PropertyHandler> getProperties() {
+	public Map<String, PropertyHandler> getProperties() {
 		return properties;
 	}
 
 	public GameProfileHandler setTextures(PropertyHandler textures) {
-		properties.removeAll("textures");
 		properties.put("textures", textures);
 		return this;
 	}
