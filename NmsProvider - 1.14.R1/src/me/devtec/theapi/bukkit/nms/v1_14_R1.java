@@ -846,7 +846,7 @@ public class v1_14_R1 implements NmsProvider {
 
 	@Override
 	public Object getSlotItem(Object container, int slot) {
-		return ((Container) container).getSlot(slot).getItem();
+		return slot < 0 ? null : ((Container) container).getSlot(slot).getItem();
 	}
 
 	static BlockPosition zero = new BlockPosition(0, 0, 0);

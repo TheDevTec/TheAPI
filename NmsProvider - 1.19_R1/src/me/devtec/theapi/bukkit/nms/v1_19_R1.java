@@ -863,7 +863,7 @@ public class v1_19_R1 implements NmsProvider {
 
 	@Override
 	public Object getSlotItem(Object container, int slot) {
-		return ((Container) container).b(slot).e();
+		return slot < 0 ? null : ((Container) container).b(slot).e();
 	}
 
 	@Override

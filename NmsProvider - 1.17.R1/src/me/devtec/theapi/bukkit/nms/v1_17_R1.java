@@ -855,7 +855,7 @@ public class v1_17_R1 implements NmsProvider {
 
 	@Override
 	public Object getSlotItem(Object container, int slot) {
-		return ((Container) container).getSlot(slot).getItem();
+		return slot < 0 ? null : ((Container) container).getSlot(slot).getItem();
 	}
 
 	@Override

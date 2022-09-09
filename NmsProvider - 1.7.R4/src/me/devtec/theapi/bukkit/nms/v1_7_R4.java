@@ -821,7 +821,7 @@ public class v1_7_R4 implements NmsProvider {
 
 	@Override
 	public Object getSlotItem(Object container, int slot) {
-		return ((Container) container).getSlot(slot).getItem();
+		return slot < 0 ? null : ((Container) container).getSlot(slot).getItem();
 	}
 
 	public Object createAnvilContainer(Inventory inv, Player player) {
