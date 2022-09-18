@@ -58,21 +58,22 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 	public net.kyori.adventure.text.Component fromComponent(Component component) {
 		net.kyori.adventure.text.Component base = this.convert(component);
 		if (component.getExtra() != null)
-			this.convertAll(base, component.getExtra());
+			base = this.convertAll(base, component.getExtra());
 		return base;
 	}
 
-	private void convertAll(net.kyori.adventure.text.Component base, List<Component> extra2) {
+	private net.kyori.adventure.text.Component convertAll(net.kyori.adventure.text.Component base, List<Component> extra2) {
 		for (Component c : extra2) {
-			base.append(this.convert(c));
+			base = base.append(this.convert(c));
 			if (c.getExtra() != null)
-				this.convertAll(base, c.getExtra());
+				base = this.convertAll(base, c.getExtra());
 		}
+		return base;
 	}
 
 	private net.kyori.adventure.text.Component convert(Component component) {
 		TextComponent sub = net.kyori.adventure.text.Component.text(component.getText());
-		sub = sub.color(component.getColor().startsWith("#") ? TextColor.fromHexString(component.getColor()) : NamedTextColor.NAMES.value(component.getColor()));
+		sub = sub.color(component.getColor() != null ? component.getColor().startsWith("#") ? TextColor.fromHexString(component.getColor()) : NamedTextColor.NAMES.value(component.getColor()) : null);
 		if (component.isBold())
 			sub = sub.decorate(TextDecoration.BOLD);
 		if (component.isItalic())
@@ -84,11 +85,12 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 		if (component.isStrikethrough())
 			sub = sub.decorate(TextDecoration.STRIKETHROUGH);
 		if (component.getClickEvent() != null)
-			sub = sub.clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.valueOf(component.getClickEvent().getAction().name()), component.getClickEvent().getValue()));
+			sub = sub.clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.valueOf(component.getClickEvent().getAction().name()),
+					component.getClickEvent().getValue()));
 		if (component.getHoverEvent() != null)
 			sub = sub.hoverEvent(this.makeHover(component.getHoverEvent()));
 		sub = sub.insertion(component.getInsertion());
-		return sub.font(Key.key(component.getFont()));
+		return component.getFont() == null ? sub : sub.font(Key.key(component.getFont()));
 	}
 
 	@Override
@@ -116,10 +118,12 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 
 		switch (hoverEvent.getAction()) {
 		case SHOW_ENTITY:
-			return net.kyori.adventure.text.event.HoverEvent.showEntity(Key.key("minecraft:" + value.getOrDefault("type", "pig")), UUID.fromString(value.getOrDefault("id", UUID.randomUUID().toString()) + ""),
+			return net.kyori.adventure.text.event.HoverEvent.showEntity(Key.key("minecraft:" + value.getOrDefault("type", "pig")),
+					UUID.fromString(value.getOrDefault("id", UUID.randomUUID().toString()) + ""),
 					value.get("name") == null ? null : this.fromComponent(ComponentAPI.fromString(value.get("name") + "")));
 		case SHOW_ITEM:
-			return net.kyori.adventure.text.event.HoverEvent.showItem(Key.key("minecraft:" + value.getOrDefault("id", "air")), (int) (double) value.getOrDefault("count", 1.0), BinaryTagHolder.binaryTagHolder(Json.writer().simpleWrite(value.getOrDefault("tag", new ConcurrentHashMap<>()))));
+			return net.kyori.adventure.text.event.HoverEvent.showItem(Key.key("minecraft:" + value.getOrDefault("id", "air")), (int) (double) value.getOrDefault("count", 1.0),
+					BinaryTagHolder.binaryTagHolder(Json.writer().simpleWrite(value.getOrDefault("tag", new ConcurrentHashMap<>()))));
 		case SHOW_TEXT:
 			return net.kyori.adventure.text.event.HoverEvent.showText(this.fromComponent(hoverEvent.getValue()));
 		default:

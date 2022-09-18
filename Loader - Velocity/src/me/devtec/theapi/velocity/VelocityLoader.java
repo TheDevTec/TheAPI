@@ -125,7 +125,7 @@ public class VelocityLoader {
 
 			@Override
 			public String generateColor() {
-				StringContainer b = new StringContainer(8).append("&#");
+				StringContainer b = new StringContainer(7).append("#");
 				for (int i = 0; i < 6; ++i)
 					b.append(characters[random.nextInt(16)]);
 				return b.toString();
@@ -142,8 +142,10 @@ public class VelocityLoader {
 				Matcher match = hex.matcher(msg);
 				while (match.find()) {
 					String color = match.group();
-					if (!color.startsWith("&"))
-						msg = msg.replace(color, "&" + color);
+					StringContainer hex = new StringContainer(14).append("§x");
+					for (char c : color.substring(1).toCharArray())
+						hex.append('§').append(Character.toLowerCase(c));
+					msg = msg.replace(color, hex.toString());
 				}
 				return msg;
 			}
