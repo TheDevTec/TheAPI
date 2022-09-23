@@ -68,7 +68,9 @@ public class ItemMaker {
 	private int customModel;
 	private boolean unbreakable;
 	public byte data;
-
+	private ItemMeta itemMeta;
+	NBTEdit nbt;
+	
 	protected ItemMaker(Material material) {
 		this.material = material;
 	}
@@ -195,9 +197,155 @@ public class ItemMaker {
 	public Map<Enchantment, Integer> getEnchants() {
 		return enchants;
 	}
+	
+	public ItemMaker nbt(NBTEdit nbtEdit) {
+		// remove unused tags
+		nbtEdit.remove("id");
+		nbtEdit.remove("Count");
+		nbtEdit.remove("lvl");
+		nbtEdit.remove("display");
+		nbtEdit.remove("Name");
+		nbtEdit.remove("Lore");
+		nbtEdit.remove("Damage");
+		nbtEdit.remove("color");
+		nbtEdit.remove("Unbreakable");
+		nbtEdit.remove("HideFlags");
+		nbtEdit.remove("Enchantments");
+		nbtEdit.remove("CustomModelData");
+		nbtEdit.remove("ench");
+		
+		if (!nbt.getKeys().isEmpty())
+			this.nbt=nbtEdit;
+		
+		return this;
+	}
+	public NBTEdit getNbt() {
+		if(nbt == null)
+			return new NBTEdit(new ItemStack(material));
+		return nbt;
+	}
+	
+	public ItemMaker setMeta(ItemMeta meta) {
+		
+		XMaterial xmaterial = XMaterial.matchXMaterial(material);
+		
+		if (meta.getDisplayName() != null)
+			displayName(meta.getDisplayName());
+		if (meta.getLore() != null && !meta.getLore().isEmpty())
+			lore(meta.getLore());
+		//Unbreakable
+		if (Ref.isNewerThan(10)) { // 1.11+
+			if (meta.isUnbreakable())
+				unbreakable(true);
+		} else if ((boolean) Ref.invoke(Ref.invoke(meta, "spigot"), "isUnbreakable"))
+			try {
+				unbreakable(true);
+			} catch (NoSuchFieldError | Exception e2) {
+				// unsupported
+			}
+		//ItemFlags
+		if (Ref.isNewerThan(7)) { // 1.8+
+			List<String> flags = new ArrayList<>();
+			for (ItemFlag flag : meta.getItemFlags())
+				flags.add(flag.name());
+			if (!flags.isEmpty())
+				itemFlags(flags);
+		}
+		//Modeldata
+		if (Ref.isNewerThan(13)) { // 1.14+
+			int modelData = meta.hasCustomModelData() ? meta.getCustomModelData() : 0;
+			if (modelData != 0)
+				customModel(modelData);
+		}
+		
+		if (material.name().contains("BANNER")) {
+			BannerMeta banner = (BannerMeta) meta;
+			BannerItemMaker ban = ofBanner(BannerColor.valueOf(banner.getBaseColor()!=null ? banner.getBaseColor().toString().toUpperCase() : "NONE"));
+			List<Pattern> patternlist = new ArrayList<>();
+			for (Pattern pattern : banner.getPatterns())
+				patternlist.add(pattern);
+			if (!patternlist.isEmpty())
+				ban.patterns = patternlist;
+		}
+		
+		if (material.name().contains("LEATHER_")) {
+			LeatherArmorMeta armor = (LeatherArmorMeta) meta;
+			LeatherItemMaker maker = ofLeatherArmor(material);
+			maker.color(Color.fromRGB(armor.getColor().asRGB()));
+		}
+		
+		if (xmaterial == XMaterial.PLAYER_HEAD) {
+			SkullMeta skull = (SkullMeta) meta;
+			HeadItemMaker maker = ofHead();
+			if (skull.getOwner() != null) {
+				maker.skinName(skull.getOwner());
+			} else {
+				Object profile = Ref.get(skull, HeadItemMaker.profileField);
+				if (profile != null) {
 
+					PropertyHandler properties = BukkitLoader.getNmsProvider().fromGameProfile(profile).getProperties().get("textures");
+
+					String value = properties == null ? null : properties.getValues();
+					if (value != null) {
+						maker.skinValues(value);
+					}
+				}
+			}
+		}
+		
+		if (material.name().contains("POTION")) {
+			PotionMeta potion = (PotionMeta) meta;
+			
+			PotionItemMaker maker = ofPotion(Potion.POTION);
+			if(material.name().equalsIgnoreCase("LINGERING_POTIO"))
+				maker = ofPotion(Potion.LINGERING);
+			if(material.name().equalsIgnoreCase("SPLASH_POTION"))
+				maker = ofPotion(Potion.SPLASH);
+
+			List<PotionEffect> effects = new ArrayList<>();
+			
+			//if (Ref.isNewerThan(9)) TODO - older version support :(
+			//	potion.getBasePotionData().getType().name();
+			
+			for (PotionEffect effect : potion.getCustomEffects())
+				effects.add(effect);
+			if (!effects.isEmpty())
+				maker.potionEffects(effects);
+			if (Ref.isNewerThan(10)) // 1.11+
+				if (potion.getColor() != null)
+					maker.color(potion.getColor());
+		}
+		
+		if (xmaterial == XMaterial.ENCHANTED_BOOK) {
+			EnchantmentStorageMeta book = (EnchantmentStorageMeta) meta;
+			ofEnchantedBook();
+			for (Entry<Enchantment, Integer> enchant : book.getStoredEnchants().entrySet())
+				//enchants.add(enchant.getKey().getName() + ":" + enchant.getValue().toString());
+				enchant(enchant.getKey(), enchant.getValue());
+		} else
+			for (Entry<Enchantment, Integer> enchant : meta.getEnchants().entrySet())
+				enchant(enchant.getKey(), enchant.getValue());
+				//enchants.add(enchant.getKey().getName() + ":" + enchant.getValue().toString());
+
+		if (xmaterial == XMaterial.WRITTEN_BOOK || xmaterial == XMaterial.WRITABLE_BOOK) {
+			BookMeta book = (BookMeta) meta;
+			BookItemMaker maker = ofBook();
+			if(book.getAuthor() != null)
+				maker.author(book.getAuthor());
+			if (Ref.isNewerThan(9)) // 1.10+
+				book.setGeneration(book.getGeneration());
+			book.setTitle(book.getTitle());
+			if (!book.getPages().isEmpty())
+				book.setPages(book.getPages());
+		}
+		
+		return this;
+	}
+	
 	public ItemStack build() {
 		ItemStack item = data != 0 ? new ItemStack(material, amount, damage, data) : new ItemStack(material, amount, damage);
+		if (nbt != null)
+			item = BukkitLoader.getNmsProvider().setNBT(item, BukkitLoader.getNmsProvider().parseNBT(nbt.toString()));
 		item.setItemMeta(apply(item.getItemMeta()));
 		return item;
 	}
@@ -890,6 +1038,42 @@ public class ItemMaker {
 		return stack;
 	}
 
+	public static ItemMaker convertToItemMaker(ItemStack stack) {
+		if (stack == null)
+			return null; // invalid item
+		
+		XMaterial type = XMaterial.matchXMaterial(stack);
+		ItemMaker maker = of(type.parseMaterial());
+		
+		if (stack.getDurability() != 0)
+			maker.damage(stack.getDurability());
+		
+		maker.amount(stack.getAmount());
+		
+		ItemMeta meta = stack.getItemMeta();
+		
+		maker.setMeta(meta);
+
+		NBTEdit nbt = new NBTEdit(stack);
+		// remove unused tags
+		nbt.remove("id");
+		nbt.remove("Count");
+		nbt.remove("lvl");
+		nbt.remove("display");
+		nbt.remove("Name");
+		nbt.remove("Lore");
+		nbt.remove("Damage");
+		nbt.remove("color");
+		nbt.remove("Unbreakable");
+		nbt.remove("HideFlags");
+		nbt.remove("Enchantments");
+		nbt.remove("CustomModelData");
+		nbt.remove("ench");
+		if (!nbt.getKeys().isEmpty())
+			maker.nbt(nbt);
+		return maker;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static String fromUrl(String url) {
 		try {
