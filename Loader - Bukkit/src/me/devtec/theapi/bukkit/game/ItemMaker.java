@@ -226,9 +226,7 @@ public class ItemMaker {
 	}
 	
 	public ItemMaker setMeta(ItemMeta meta) {
-		
 		XMaterial xmaterial = XMaterial.matchXMaterial(material);
-		
 		if (meta.getDisplayName() != null)
 			displayName(meta.getDisplayName());
 		if (meta.getLore() != null && !meta.getLore().isEmpty())
@@ -1047,11 +1045,9 @@ public class ItemMaker {
 		
 		if (stack.getDurability() != 0)
 			maker.damage(stack.getDurability());
-		
 		maker.amount(stack.getAmount());
 		
 		ItemMeta meta = stack.getItemMeta();
-		
 		maker.setMeta(meta);
 
 		NBTEdit nbt = new NBTEdit(stack);
