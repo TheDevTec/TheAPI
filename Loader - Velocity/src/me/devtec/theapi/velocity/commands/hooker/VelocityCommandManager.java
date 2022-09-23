@@ -1,11 +1,13 @@
 package me.devtec.theapi.velocity.commands.hooker;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.velocitypowered.api.command.RawCommand;
 
 import me.devtec.shared.commands.holder.CommandHolder;
 import me.devtec.shared.commands.manager.CommandsRegister;
+import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.theapi.velocity.VelocityLoader;
 
 public class VelocityCommandManager implements CommandsRegister {
@@ -21,7 +23,23 @@ public class VelocityCommandManager implements CommandsRegister {
 
 			@Override
 			public List<String> suggest(Invocation invocation) {
-				return commandHolder.tablist(invocation.source(), invocation.arguments().split(" "));
+				return commandHolder.tablist(invocation.source(), split(invocation.arguments()));
+			}
+
+			// Hotfix for velocity tab completer
+			private String[] split(String arguments) {
+				List<String> strings = new ArrayList<>();
+				StringContainer container = new StringContainer(8);
+				for (char c : arguments.toCharArray()) {
+					if (c == ' ') {
+						strings.add(container.length() == 0 ? "" : container.toString());
+						container.clear();
+						continue;
+					}
+					container.append(c);
+				}
+				strings.add("");
+				return strings.toArray(new String[0]);
 			}
 
 			@Override
