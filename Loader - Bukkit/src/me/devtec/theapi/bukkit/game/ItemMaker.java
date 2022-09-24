@@ -227,56 +227,29 @@ public class ItemMaker {
 	
 	public ItemMaker setMeta(ItemMeta meta) {
 		XMaterial xmaterial = XMaterial.matchXMaterial(material);
-		if (meta.getDisplayName() != null)
-			displayName(meta.getDisplayName());
-		if (meta.getLore() != null && !meta.getLore().isEmpty())
-			lore(meta.getLore());
-		//Unbreakable
-		if (Ref.isNewerThan(10)) { // 1.11+
-			if (meta.isUnbreakable())
-				unbreakable(true);
-		} else if ((boolean) Ref.invoke(Ref.invoke(meta, "spigot"), "isUnbreakable"))
-			try {
-				unbreakable(true);
-			} catch (NoSuchFieldError | Exception e2) {
-				// unsupported
-			}
-		//ItemFlags
-		if (Ref.isNewerThan(7)) { // 1.8+
-			List<String> flags = new ArrayList<>();
-			for (ItemFlag flag : meta.getItemFlags())
-				flags.add(flag.name());
-			if (!flags.isEmpty())
-				itemFlags(flags);
-		}
-		//Modeldata
-		if (Ref.isNewerThan(13)) { // 1.14+
-			int modelData = meta.hasCustomModelData() ? meta.getCustomModelData() : 0;
-			if (modelData != 0)
-				customModel(modelData);
-		}
+		ItemMaker maker = this;
 		
 		if (material.name().contains("BANNER")) {
 			BannerMeta banner = (BannerMeta) meta;
-			BannerItemMaker ban = ofBanner(BannerColor.valueOf(banner.getBaseColor()!=null ? banner.getBaseColor().toString().toUpperCase() : "NONE"));
+			maker = ofBanner(BannerColor.valueOf(banner.getBaseColor()!=null ? banner.getBaseColor().toString().toUpperCase() : "NONE"));
 			List<Pattern> patternlist = new ArrayList<>();
 			for (Pattern pattern : banner.getPatterns())
 				patternlist.add(pattern);
 			if (!patternlist.isEmpty())
-				ban.patterns = patternlist;
+				((BannerItemMaker)maker).patterns = patternlist;
 		}
 		
 		if (material.name().contains("LEATHER_")) {
 			LeatherArmorMeta armor = (LeatherArmorMeta) meta;
-			LeatherItemMaker maker = ofLeatherArmor(material);
-			maker.color(Color.fromRGB(armor.getColor().asRGB()));
+			maker = ofLeatherArmor(material);
+			((LeatherItemMaker)maker).color(Color.fromRGB(armor.getColor().asRGB()));
 		}
 		
 		if (xmaterial == XMaterial.PLAYER_HEAD) {
 			SkullMeta skull = (SkullMeta) meta;
-			HeadItemMaker maker = ofHead();
+			maker = ofHead();
 			if (skull.getOwner() != null) {
-				maker.skinName(skull.getOwner());
+				((HeadItemMaker)maker).skinName(skull.getOwner());
 			} else {
 				Object profile = Ref.get(skull, HeadItemMaker.profileField);
 				if (profile != null) {
@@ -285,7 +258,7 @@ public class ItemMaker {
 
 					String value = properties == null ? null : properties.getValues();
 					if (value != null) {
-						maker.skinValues(value);
+						((HeadItemMaker)maker).skinValues(value);
 					}
 				}
 			}
@@ -294,7 +267,7 @@ public class ItemMaker {
 		if (material.name().contains("POTION")) {
 			PotionMeta potion = (PotionMeta) meta;
 			
-			PotionItemMaker maker = ofPotion(Potion.POTION);
+			maker = ofPotion(Potion.POTION);
 			if(material.name().equalsIgnoreCase("LINGERING_POTIO"))
 				maker = ofPotion(Potion.LINGERING);
 			if(material.name().equalsIgnoreCase("SPLASH_POTION"))
@@ -302,21 +275,21 @@ public class ItemMaker {
 
 			List<PotionEffect> effects = new ArrayList<>();
 			
-			//if (Ref.isNewerThan(9)) TODO - older version support :(
-			//	potion.getBasePotionData().getType().name();
+			//if (Ref.isNewerThan(9)) //TODO - older version support :(
+			//	effects.add(potion.getBasePotionData().getType().getEffectType().createEffect(1, 1));
 			
 			for (PotionEffect effect : potion.getCustomEffects())
 				effects.add(effect);
 			if (!effects.isEmpty())
-				maker.potionEffects(effects);
+				((PotionItemMaker)maker).potionEffects(effects);
 			if (Ref.isNewerThan(10)) // 1.11+
 				if (potion.getColor() != null)
-					maker.color(potion.getColor());
+					((PotionItemMaker)maker).color(potion.getColor());
 		}
 		
 		if (xmaterial == XMaterial.ENCHANTED_BOOK) {
 			EnchantmentStorageMeta book = (EnchantmentStorageMeta) meta;
-			ofEnchantedBook();
+			maker = ofEnchantedBook();
 			for (Entry<Enchantment, Integer> enchant : book.getStoredEnchants().entrySet())
 				//enchants.add(enchant.getKey().getName() + ":" + enchant.getValue().toString());
 				enchant(enchant.getKey(), enchant.getValue());
@@ -327,17 +300,46 @@ public class ItemMaker {
 
 		if (xmaterial == XMaterial.WRITTEN_BOOK || xmaterial == XMaterial.WRITABLE_BOOK) {
 			BookMeta book = (BookMeta) meta;
-			BookItemMaker maker = ofBook();
+			maker = ofBook();
 			if(book.getAuthor() != null)
-				maker.author(book.getAuthor());
+				((BookItemMaker)maker).author(book.getAuthor());
 			if (Ref.isNewerThan(9)) // 1.10+
-				book.setGeneration(book.getGeneration());
-			book.setTitle(book.getTitle());
+				((BookItemMaker)maker).generation(book.getGeneration().name());
+			((BookItemMaker)maker).title(book.getTitle());
 			if (!book.getPages().isEmpty())
-				book.setPages(book.getPages());
+				((BookItemMaker)maker).pages(book.getPages());
 		}
 		
-		return this;
+		if (meta.getDisplayName() != null)
+			maker.displayName(meta.getDisplayName());
+		if (meta.getLore() != null && !meta.getLore().isEmpty())
+			maker.lore(meta.getLore());
+		//Unbreakable
+		if (Ref.isNewerThan(10)) { // 1.11+
+			if (meta.isUnbreakable())
+				maker.unbreakable(true);
+		} else if ((boolean) Ref.invoke(Ref.invoke(meta, "spigot"), "isUnbreakable"))
+			try {
+				maker.unbreakable(true);
+			} catch (NoSuchFieldError | Exception e2) {
+				// unsupported
+			}
+		//ItemFlags
+		if (Ref.isNewerThan(7)) { // 1.8+
+			List<String> flags = new ArrayList<>();
+			for (ItemFlag flag : meta.getItemFlags())
+				flags.add(flag.name());
+			if (!flags.isEmpty())
+				maker.itemFlags(flags);
+		}
+		//Modeldata
+		if (Ref.isNewerThan(13)) { // 1.14+
+			int modelData = meta.hasCustomModelData() ? meta.getCustomModelData() : 0;
+			if (modelData != 0)
+				maker.customModel(modelData);
+		}
+		
+		return maker;
 	}
 	
 	public ItemStack build() {
@@ -1042,13 +1044,14 @@ public class ItemMaker {
 		
 		XMaterial type = XMaterial.matchXMaterial(stack);
 		ItemMaker maker = of(type.parseMaterial());
+
+		ItemMeta meta = stack.getItemMeta();
+		maker = maker.setMeta(meta);
 		
 		if (stack.getDurability() != 0)
 			maker.damage(stack.getDurability());
 		maker.amount(stack.getAmount());
 		
-		ItemMeta meta = stack.getItemMeta();
-		maker.setMeta(meta);
 
 		NBTEdit nbt = new NBTEdit(stack);
 		// remove unused tags
