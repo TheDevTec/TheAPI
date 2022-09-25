@@ -218,6 +218,7 @@ public class ItemMaker {
 		return this;
 	}
 
+	@Nullable
 	public NBTEdit getNbt() {
 		if (nbt == null)
 			return new NBTEdit(new ItemStack(material));
