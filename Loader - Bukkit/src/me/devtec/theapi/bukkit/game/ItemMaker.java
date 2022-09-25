@@ -225,7 +225,7 @@ public class ItemMaker {
 		return nbt;
 	}
 
-	public ItemMaker setMeta(ItemMeta meta) {
+	public ItemMaker itemMeta(ItemMeta meta) {
 		XMaterial xmaterial = XMaterial.matchXMaterial(material);
 		ItemMaker maker = this;
 
@@ -1031,7 +1031,7 @@ public class ItemMaker {
 		return stack;
 	}
 
-	public static ItemMaker convertToItemMaker(ItemStack stack) {
+	public static ItemMaker of(ItemStack stack) {
 		if (stack == null)
 			return null; // invalid item
 
@@ -1039,7 +1039,7 @@ public class ItemMaker {
 		ItemMaker maker = of(type.parseMaterial());
 
 		ItemMeta meta = stack.getItemMeta();
-		maker = maker.setMeta(meta);
+		maker = maker.itemMeta(meta);
 
 		if (stack.getDurability() != 0)
 			maker.damage(stack.getDurability());
