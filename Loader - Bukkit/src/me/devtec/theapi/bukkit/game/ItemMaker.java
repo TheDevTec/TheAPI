@@ -278,7 +278,7 @@ public class ItemMaker {
 				if (potion.getColor() != null)
 					((PotionItemMaker) maker).color(potion.getColor());
 		}
-
+		
 		if (xmaterial == XMaterial.ENCHANTED_BOOK) {
 			EnchantmentStorageMeta book = (EnchantmentStorageMeta) meta;
 			maker = ofEnchantedBook();
@@ -287,6 +287,7 @@ public class ItemMaker {
 				// enchant.getValue().toString());
 				enchant(enchant.getKey(), enchant.getValue());
 		} else
+			if(meta.getEnchants()!=null)
 			for (Entry<Enchantment, Integer> enchant : meta.getEnchants().entrySet())
 				enchant(enchant.getKey(), enchant.getValue());
 		// enchants.add(enchant.getKey().getName() + ":" +
