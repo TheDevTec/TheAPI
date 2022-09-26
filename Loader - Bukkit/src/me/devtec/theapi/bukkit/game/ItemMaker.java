@@ -282,6 +282,7 @@ public class ItemMaker {
 		if (xmaterial == XMaterial.ENCHANTED_BOOK) {
 			EnchantmentStorageMeta book = (EnchantmentStorageMeta) meta;
 			maker = ofEnchantedBook();
+			if(book.getStoredEnchants()!=null)
 			for (Entry<Enchantment, Integer> enchant : book.getStoredEnchants().entrySet())
 				// enchants.add(enchant.getKey().getName() + ":" +
 				// enchant.getValue().toString());
