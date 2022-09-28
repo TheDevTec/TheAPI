@@ -332,6 +332,8 @@ public class v1_8_R3 implements NmsProvider {
 
 	@Override
 	public Object packetTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut) {
+		if (action == TitleAction.ACTIONBAR)
+			return new PacketPlayOutChat((IChatBaseComponent) this.toIChatBaseComponent(ComponentAPI.fromString(text)), (byte) 2);
 		return new PacketPlayOutTitle(EnumTitleAction.valueOf(action.name()), (IChatBaseComponent) this.toIChatBaseComponent(ComponentAPI.fromString(text)), fadeIn, stay, fadeOut);
 	}
 

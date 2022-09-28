@@ -49,7 +49,6 @@ import me.devtec.shared.json.modern.ModernJsonReader;
 import me.devtec.shared.json.modern.ModernJsonWriter;
 import me.devtec.shared.placeholders.PlaceholderAPI;
 import me.devtec.shared.scheduler.Scheduler;
-import me.devtec.shared.scheduler.Tasker;
 import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
@@ -118,16 +117,9 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		BukkitLoader.itemname = Ref.nms("network.protocol.game", "PacketPlayInItemName");
 
 		// BOSSBAR API: 1.7.10 - 1.8.8
-		if (Ref.isOlderThan(9))
-			new Tasker() {
-				@Override
-				public void run() {
-					for (BossBar s : BukkitLoader.bossbars)
-						s.move();
-				}
-			}.runRepeating(0, 20);
-		else
+		if (!Ref.isOlderThan(9))
 			BukkitLoader.bossbars = null;
+
 		new PacketListener() {
 
 			@Override

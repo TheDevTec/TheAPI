@@ -35,7 +35,7 @@ import me.devtec.shared.utility.StringUtils.ColormaticFactory;
 import me.devtec.theapi.velocity.commands.hooker.VelocityCommandManager;
 import me.devtec.theapi.velocity.commands.selectors.VelocitySelectorUtils;
 
-@Plugin(id = "theapi", name = "TheAPI", version = "10.4", authors = { "DevTec", "StraikerinaCZ" }, url = "https://www.spigotmc.org/resources/72679/")
+@Plugin(id = "theapi", name = "TheAPI", version = "10.5", authors = { "DevTec", "StraikerinaCZ" }, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 
 	private final ProxyServer server;
