@@ -651,6 +651,8 @@ public class v1_19_R1 implements NmsProvider {
 	@Override
 	public Object getBlock(Object objChunk, int x, int y, int z) {
 		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
+		if (Ref.getClass("io.papermc.paper.chunk.system.scheduling.ChunkHolderManager") != null)
+			return chunk.getBlockStateFinal(x, y, z); // Modern getting of blocks, Thx PaperSpigot!
 		int highY = chunk.e(y);
 		if (highY < 0)
 			return Blocks.a.m();
