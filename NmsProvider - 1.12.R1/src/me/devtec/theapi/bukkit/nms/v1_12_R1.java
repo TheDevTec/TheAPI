@@ -825,7 +825,8 @@ public class v1_12_R1 implements NmsProvider {
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
 		int i = 0;
 		for (net.minecraft.server.v1_12_R1.ItemStack o : nmsItems)
-			BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, i++, o));
+			if (o != net.minecraft.server.v1_12_R1.ItemStack.a)
+				BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, i++, o));
 		nmsPlayer.activeContainer.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.activeContainer = (Container) container;
 		((Container) container).addSlotListener(nmsPlayer);
@@ -849,7 +850,8 @@ public class v1_12_R1 implements NmsProvider {
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, "minecraft:anvil", 0, title));
 		int i = 0;
 		for (net.minecraft.server.v1_12_R1.ItemStack o : nmsItems)
-			BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, i++, o));
+			if (o != net.minecraft.server.v1_12_R1.ItemStack.a)
+				BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, i++, o));
 		nmsPlayer.activeContainer.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.activeContainer = container;
 		((Container) container).addSlotListener(nmsPlayer);
@@ -867,9 +869,11 @@ public class v1_12_R1 implements NmsProvider {
 
 	@Override
 	public Object createContainer(Inventory inv, Player player) {
-		return inv.getType() == InventoryType.ANVIL ? createAnvilContainer(inv, player)
-				: v1_12_R1.containerState == 0 ? Ref.newInstance(v1_12_R1.craftContainer, inv, player, ((CraftPlayer) player).getHandle().nextContainerCounter())
-						: Ref.newInstance(v1_12_R1.craftContainer, inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter());
+		CraftContainer container = (CraftContainer) (v1_12_R1.containerState == 0 ? Ref.newInstance(v1_12_R1.craftContainer, inv, player, ((CraftPlayer) player).getHandle().nextContainerCounter())
+				: Ref.newInstance(v1_12_R1.craftContainer, inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter()));
+		if (inv.getType() == InventoryType.ANVIL)
+			Ref.set(container, "delegate", createAnvilContainer(inv, player));
+		return container;
 	}
 
 	@Override

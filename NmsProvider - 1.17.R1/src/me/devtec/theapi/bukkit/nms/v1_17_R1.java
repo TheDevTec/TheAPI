@@ -805,7 +805,8 @@ public class v1_17_R1 implements NmsProvider {
 		int i = 0;
 		int statusId = incrementStateId(container);
 		for (net.minecraft.world.item.ItemStack o : nmsItems)
-			BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, i++, statusId, o));
+			if (o != net.minecraft.world.item.ItemStack.b)
+				BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, i++, statusId, o));
 		nmsPlayer.bV.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.bV = (Container) container;
 		nmsPlayer.initMenu((Container) container);
@@ -830,7 +831,8 @@ public class v1_17_R1 implements NmsProvider {
 		int i = 0;
 		int statusId = incrementStateId(container);
 		for (net.minecraft.world.item.ItemStack o : nmsItems)
-			BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, i++, statusId, o));
+			if (o != net.minecraft.world.item.ItemStack.b)
+				BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, i++, statusId, o));
 		nmsPlayer.bV.transferTo(container, (CraftPlayer) player);
 		nmsPlayer.bV = container;
 		nmsPlayer.initMenu(container);
@@ -839,8 +841,10 @@ public class v1_17_R1 implements NmsProvider {
 
 	@Override
 	public Object createContainer(Inventory inv, Player player) {
-		return inv.getType() == InventoryType.ANVIL ? createAnvilContainer(inv, player)
-				: new CraftContainer(inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter());
+		CraftContainer container = new CraftContainer(inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter());
+		if (inv.getType() == InventoryType.ANVIL)
+			Ref.set(container, "delegate", createAnvilContainer(inv, player));
+		return container;
 	}
 
 	static BlockPosition zero = new BlockPosition(0, 0, 0);

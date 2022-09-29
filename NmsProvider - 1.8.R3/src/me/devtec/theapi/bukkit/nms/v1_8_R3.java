@@ -841,7 +841,8 @@ public class v1_8_R3 implements NmsProvider {
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
 		int i = 0;
 		for (net.minecraft.server.v1_8_R3.ItemStack o : nmsItems)
-			BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, i++, o));
+			if (o != asNMSItem(null))
+				BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, i++, o));
 		nmsPlayer.activeContainer.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.activeContainer = (Container) container;
 		((Container) container).addSlotListener(nmsPlayer);
@@ -865,7 +866,8 @@ public class v1_8_R3 implements NmsProvider {
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, "minecraft:anvil", 0, title));
 		int i = 0;
 		for (net.minecraft.server.v1_8_R3.ItemStack o : nmsItems)
-			BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, i++, o));
+			if (o != asNMSItem(null))
+				BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, i++, o));
 		nmsPlayer.activeContainer.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.activeContainer = container;
 		((Container) container).addSlotListener(nmsPlayer);
@@ -874,7 +876,10 @@ public class v1_8_R3 implements NmsProvider {
 
 	@Override
 	public Object createContainer(Inventory inv, Player player) {
-		return inv.getType() == InventoryType.ANVIL ? createAnvilContainer(inv, player) : new CraftContainer(inv, player, ((CraftPlayer) player).getHandle().nextContainerCounter());
+		CraftContainer container = new CraftContainer(inv, player, ((CraftPlayer) player).getHandle().nextContainerCounter());
+		if (inv.getType() == InventoryType.ANVIL)
+			Ref.set(container, "delegate", createAnvilContainer(inv, player));
+		return container;
 	}
 
 	@Override
