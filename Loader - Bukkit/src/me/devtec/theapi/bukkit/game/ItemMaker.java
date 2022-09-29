@@ -278,17 +278,16 @@ public class ItemMaker {
 				if (potion.getColor() != null)
 					((PotionItemMaker) maker).color(potion.getColor());
 		}
-		
+
 		if (xmaterial == XMaterial.ENCHANTED_BOOK) {
 			EnchantmentStorageMeta book = (EnchantmentStorageMeta) meta;
 			maker = ofEnchantedBook();
-			if(book.getStoredEnchants()!=null)
-			for (Entry<Enchantment, Integer> enchant : book.getStoredEnchants().entrySet())
-				// enchants.add(enchant.getKey().getName() + ":" +
-				// enchant.getValue().toString());
-				enchant(enchant.getKey(), enchant.getValue());
-		} else
-			if(meta.getEnchants()!=null)
+			if (book.getStoredEnchants() != null)
+				for (Entry<Enchantment, Integer> enchant : book.getStoredEnchants().entrySet())
+					// enchants.add(enchant.getKey().getName() + ":" +
+					// enchant.getValue().toString());
+					enchant(enchant.getKey(), enchant.getValue());
+		} else if (meta.getEnchants() != null)
 			for (Entry<Enchantment, Integer> enchant : meta.getEnchants().entrySet())
 				enchant(enchant.getKey(), enchant.getValue());
 		// enchants.add(enchant.getKey().getName() + ":" +
@@ -338,9 +337,13 @@ public class ItemMaker {
 	}
 
 	public ItemStack build() {
+		if (material == null)
+			throw new IllegalArgumentException("Material cannot be null");
 		ItemStack item = data != 0 ? new ItemStack(material, amount, damage, data) : new ItemStack(material, amount, damage);
 		if (nbt != null)
 			item = BukkitLoader.getNmsProvider().setNBT(item, nbt.getNBT());
+		if (item.getItemMeta() == null)
+			throw new IllegalArgumentException("Cannot create ItemMeta for material type " + material);
 		item.setItemMeta(apply(item.getItemMeta()));
 		return item;
 	}
