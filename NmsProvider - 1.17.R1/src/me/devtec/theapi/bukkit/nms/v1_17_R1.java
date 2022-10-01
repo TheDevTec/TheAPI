@@ -142,6 +142,7 @@ public class v1_17_R1 implements NmsProvider {
 
 	@Override
 	public Collection<? extends Player> getOnlinePlayers() {
+		// Additional text
 		return Bukkit.getOnlinePlayers();
 	}
 
