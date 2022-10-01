@@ -266,10 +266,11 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			fixedPath = file.getParentFile().getName() + "/" + fixedPath;
 			file = file.getParentFile();
 		}
-		MemoryCompiler.allJars += ";./" + fixedPath;
+		MemoryCompiler.allJars += (System.getProperty("os.name").toLowerCase().contains("win") ? ";" : ":") + "./" + fixedPath;
 		addAllJarFiles(args, new File("plugins"), false); // Plugins
 		addAllJarFiles(args, new File("libraries"), true); // Libraries
 		MemoryCompiler.allJars += args.toString();
+		System.out.println(MemoryCompiler.allJars);
 	}
 
 	private void addAllJarFiles(StringContainer args, File folder, boolean sub) {
@@ -281,7 +282,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				if (file.isDirectory() && sub)
 					addAllJarFiles(args, file, sub);
 				else if (file.getName().endsWith(".jar"))
-					args.append(';').append('.').append('/').append(file.getPath());
+					args.append(System.getProperty("os.name").toLowerCase().contains("win") ? ';' : ':').append('.').append('/').append(file.getPath());
 	}
 
 	@Override
