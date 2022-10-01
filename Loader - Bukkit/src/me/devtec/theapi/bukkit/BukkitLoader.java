@@ -55,7 +55,6 @@ import me.devtec.shared.placeholders.PlaceholderAPI;
 import me.devtec.shared.scheduler.Scheduler;
 import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.MemoryCompiler;
-import me.devtec.shared.utility.StreamUtils;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
 import me.devtec.shared.versioning.VersionUtils;
@@ -231,13 +230,11 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			Config gitVersion = Config.loadFromInput(
 					new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + Ref.serverVersion().substring(1).replace("_", ".") + "/version.yml").openStream());
 
-			System.out.println(StreamUtils.fromStream(
-					new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + Ref.serverVersion().substring(1).replace("_", ".") + "/version.yml").openStream()));
 			Config localVersion = new Config("plugins/TheAPI/version.yml");
 
 			String jarRelease = Config.loadFromInput(getResource("release.yml")).getString("release");
-			localVersion.setIfAbsent("release", jarRelease);
-			localVersion.setComments("release", Arrays.asList("# DO NOT MODIFY THIS VALUE"));
+			localVersion.setIfAbsent("build", 1);
+			localVersion.setComments("build", Arrays.asList("# DO NOT MODIFY THIS VALUE"));
 
 			Version ver = VersionUtils.getVersion(gitVersion.getString("release"), jarRelease);
 
