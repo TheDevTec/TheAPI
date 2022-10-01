@@ -258,8 +258,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	}
 
 	private void getAllJarFiles() throws URISyntaxException {
-		StringContainer args = new StringContainer(128);
-
+		StringContainer args = new StringContainer(1024);
 		File file = new File(Bukkit.getServer().getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
 		String fixedPath = file.getName();
 		while (!isInsidePath(file.getParentFile().toPath(), new File(System.getProperty("java.class.path")).toPath())) {
@@ -270,7 +269,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		addAllJarFiles(args, new File("plugins"), false); // Plugins
 		addAllJarFiles(args, new File("libraries"), true); // Libraries
 		MemoryCompiler.allJars += args.toString();
-		System.out.println(MemoryCompiler.allJars);
 	}
 
 	private void addAllJarFiles(StringContainer args, File folder, boolean sub) {
