@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import me.devtec.shared.Ref.ServerType;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.components.ComponentTransformer;
 import me.devtec.shared.dataholder.Config;
+import me.devtec.shared.dataholder.DataType;
 import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.json.JReader;
 import me.devtec.shared.json.JWriter;
@@ -50,8 +52,12 @@ import me.devtec.shared.json.modern.ModernJsonWriter;
 import me.devtec.shared.placeholders.PlaceholderAPI;
 import me.devtec.shared.scheduler.Scheduler;
 import me.devtec.shared.utility.LibraryLoader;
+import me.devtec.shared.utility.MemoryCompiler;
+import me.devtec.shared.utility.StreamUtils;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
+import me.devtec.shared.versioning.VersionUtils;
+import me.devtec.shared.versioning.VersionUtils.Version;
 import me.devtec.theapi.bukkit.bossbar.BossBar;
 import me.devtec.theapi.bukkit.commands.hooker.BukkitCommandManager;
 import me.devtec.theapi.bukkit.commands.hooker.SpigotSimpleCommandMap;
@@ -87,9 +93,10 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	public void onLoad() {
 		BukkitLoader.initTheAPI(this);
 		try {
-			BukkitLoader.nmsProvider = (NmsProvider) Class.forName("me.devtec.theapi.bukkit.nms." + Ref.serverVersion(), true, getClassLoader()).newInstance();
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			e.printStackTrace();
+			checkForUpdateAndDownload();
+			BukkitLoader.nmsProvider = (NmsProvider) new MemoryCompiler("me.devtec.theapi.bukkit.nms." + Ref.serverVersion(), new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java"))
+					.buildClass().newInstance();
+		} catch (Exception e) {
 		}
 		if (BukkitLoader.nmsProvider != null)
 			BukkitLoader.nmsProvider.loadParticles();
@@ -210,6 +217,35 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		}.register();
 
 		new Metrics(this, 10581);
+	}
+
+	private void checkForUpdateAndDownload() {
+		try {
+			Config gitVersion = new Config(StreamUtils.fromStream(
+					new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + Ref.serverVersion().substring(1).replace("_", ".") + "/version.yml").openStream()));
+
+			Config localVersion = new Config("plugins/TheAPI/version.yml");
+			localVersion.setComments("release", Arrays.asList("# DO NOT MODIFY THIS VALUE"));
+
+			String jarRelease = Config.loadFromInput(getResource("release.yml")).getString("release");
+
+			Version ver = VersionUtils.getVersion(gitVersion.getString("release"), jarRelease);
+
+			if (ver != Version.OLDER_VERSION && ver != Version.SAME_VERSION) {
+				localVersion.save(DataType.YAML);
+				return;
+			}
+			if (localVersion.getInt("build") < gitVersion.getInt("build") || !new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java").exists()) {
+				localVersion.set("build", gitVersion.getInt("build"));
+				localVersion.save(DataType.YAML);
+
+				URL url = new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + Ref.serverVersion().substring(1).replace("_", ".")
+						+ "/src/me/devtec/theapi/bukkit/nms/" + Ref.serverVersion() + ".java");
+				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] Downloading update!");
+				API.library.downloadFileFromUrl(url, new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java"));
+			}
+		} catch (Exception e) {
+		}
 	}
 
 	@Override
