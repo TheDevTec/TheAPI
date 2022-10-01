@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -87,11 +89,16 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	static Class<?> itemname;
 	public static List<BossBar> bossbars = new ArrayList<>();
 
+	private boolean isInsidePath(Path current, Path file) {
+		return current.equals(file.toAbsolutePath().getParent());
+	}
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onLoad() {
 		BukkitLoader.initTheAPI(this);
 		try {
+			getAllJarFiles();
 			checkForUpdateAndDownload();
 			BukkitLoader.nmsProvider = (NmsProvider) new MemoryCompiler("me.devtec.theapi.bukkit.nms." + Ref.serverVersion(), new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java"))
 					.buildClass().newInstance();
@@ -246,8 +253,35 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				API.library.downloadFileFromUrl(url, new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java"));
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §eNot found NmsProvider for your server version, do you have your own?");
 		}
+	}
+
+	private void getAllJarFiles() throws URISyntaxException {
+		StringContainer args = new StringContainer(128);
+
+		File file = new File(Bukkit.getServer().getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+		String fixedPath = file.getName();
+		while (!isInsidePath(file.getParentFile().toPath(), new File(System.getProperty("java.class.path")).toPath())) {
+			fixedPath = file.getParentFile().getName() + "/" + fixedPath;
+			file = file.getParentFile();
+		}
+		MemoryCompiler.allJars += ";./" + fixedPath;
+		addAllJarFiles(args, new File("plugins"), false); // Plugins
+		addAllJarFiles(args, new File("libraries"), true); // Libraries
+		MemoryCompiler.allJars += args.toString();
+	}
+
+	private void addAllJarFiles(StringContainer args, File folder, boolean sub) {
+		if (!folder.exists())
+			return;
+		File[] files = folder.listFiles();
+		if (files != null)
+			for (File file : files)
+				if (file.isDirectory() && sub)
+					addAllJarFiles(args, file, sub);
+				else if (file.getName().endsWith(".jar"))
+					args.append(';').append('.').append('/').append(file.getPath());
 	}
 
 	@Override
