@@ -186,6 +186,8 @@ public class ItemMaker {
 	}
 
 	public ItemMaker enchant(Enchantment enchant, int level) {
+		if (enchant == null)
+			return this;
 		if (enchants == null)
 			enchants = new HashMap<>();
 		enchants.put(enchant, level);
@@ -282,16 +284,12 @@ public class ItemMaker {
 		if (xmaterial == XMaterial.ENCHANTED_BOOK) {
 			EnchantmentStorageMeta book = (EnchantmentStorageMeta) meta;
 			maker = ofEnchantedBook();
-			if (book.getStoredEnchants() != null)
+			if (book.hasStoredEnchants() && book.getStoredEnchants() != null)
 				for (Entry<Enchantment, Integer> enchant : book.getStoredEnchants().entrySet())
-					// enchants.add(enchant.getKey().getName() + ":" +
-					// enchant.getValue().toString());
 					enchant(enchant.getKey(), enchant.getValue());
 		} else if (meta.getEnchants() != null)
 			for (Entry<Enchantment, Integer> enchant : meta.getEnchants().entrySet())
 				enchant(enchant.getKey(), enchant.getValue());
-		// enchants.add(enchant.getKey().getName() + ":" +
-		// enchant.getValue().toString());
 
 		if (xmaterial == XMaterial.WRITTEN_BOOK || xmaterial == XMaterial.WRITABLE_BOOK) {
 			BookMeta book = (BookMeta) meta;
@@ -923,15 +921,10 @@ public class ItemMaker {
 	public static ItemStack loadFromConfig(Config config, String path) {
 		if (!path.isEmpty() && !path.endsWith("."))
 			path += ".";
-		if (config.getString(path + "type") == null)
+		if (config.getString(path + "type", config.getString(path + "icon")) == null)
 			return null; // missing type
 
-		String[] typeSplit = config.getString(path + "type").split(":");
-		XMaterial type;
-		if (StringUtils.isInt(typeSplit[0]))
-			type = XMaterial.matchXMaterial(StringUtils.getInt(typeSplit[0]), typeSplit.length >= 2 ? StringUtils.getByte(typeSplit[1]) : 0).get();
-		else
-			type = XMaterial.matchXMaterial(typeSplit[0].toUpperCase()).get();
+		XMaterial type = XMaterial.matchXMaterial(config.getString(path + "type", config.getString(path + "icon")).toUpperCase()).orElse(XMaterial.STONE);
 		ItemStack stack = type.parseItem();
 
 		String nbt = config.getString(path + "nbt"); // additional nbt
@@ -1041,6 +1034,7 @@ public class ItemMaker {
 			return null; // invalid item
 
 		XMaterial type = XMaterial.matchXMaterial(stack);
+
 		ItemMaker maker = of(type.parseMaterial());
 
 		ItemMeta meta = stack.getItemMeta();
