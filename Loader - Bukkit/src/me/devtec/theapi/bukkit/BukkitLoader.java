@@ -28,6 +28,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -41,6 +42,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import me.devtec.shared.API;
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
+import me.devtec.shared.commands.structures.CommandStructure;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.components.ComponentTransformer;
 import me.devtec.shared.dataholder.Config;
@@ -315,6 +317,18 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				}
 			}.register();
 		}
+
+		// Command to reload NmsProvider
+		CommandStructure.create(CommandSender.class, (sender, perm, isTablist) -> sender.hasPermission(perm), (sender, structure, args) -> {
+			try {
+				BukkitLoader.nmsProvider = (NmsProvider) new MemoryCompiler("me.devtec.theapi.bukkit.nms." + Ref.serverVersion(),
+						new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java")).buildClass().newInstance();
+				sender.sendMessage(StringUtils.colorize("&5TheAPI &8» &7NmsProvider &asuccesfully &7reloaded."));
+			} catch (Exception e) {
+				sender.sendMessage(StringUtils.colorize("&5TheAPI &8» &7An &cerror &7occurred when reloading NmsProvider."));
+				sender.sendMessage(StringUtils.colorize("&5TheAPI &8» &7&nDO NOT MODIFY THIS FILE IF YOU DON'T KNOW WHAT ARE YOU DOING!"));
+			}
+		}).permission("theapireload.command").build().register("theapireload");
 	}
 
 	@EventHandler

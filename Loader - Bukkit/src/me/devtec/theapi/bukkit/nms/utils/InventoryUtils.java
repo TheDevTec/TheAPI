@@ -24,7 +24,8 @@ public class InventoryUtils {
 	 * @apiNote Modify ItemStacks in the "contents" field and then return list of
 	 *          modified slots
 	 **/
-	public static List<Integer> shift(int clickedSlot, @Nullable Player whoShift, @Nullable HolderGUI holder, @Nullable ClickType clickType, DestinationType type, List<Integer> ignoredSlots, ItemStack[] contents, ItemStack shiftItem) {
+	public static List<Integer> shift(int clickedSlot, @Nullable Player whoShift, @Nullable HolderGUI holder, @Nullable ClickType clickType, DestinationType type, List<Integer> ignoredSlots,
+			ItemStack[] contents, ItemStack shiftItem) {
 		if (shiftItem == null || shiftItem.getType() == Material.AIR)
 			return Collections.emptyList();
 		List<Integer> ignoreSlots = ignoredSlots == null ? Collections.emptyList() : ignoredSlots;
@@ -57,7 +58,8 @@ public class InventoryUtils {
 				if (total != 0 && total == shiftItem.getAmount())
 					corruptedSlots.add(clickedSlot);
 				for (int s : corruptedSlots)
-					BukkitLoader.getPacketHandler().send(whoShift, BukkitLoader.getNmsProvider().packetSetSlot(BukkitLoader.getNmsProvider().getContainerId(holder.getContainer(whoShift)), s, state, BukkitLoader.getNmsProvider().getSlotItem(holder.getContainer(whoShift), s)));
+					BukkitLoader.getPacketHandler().send(whoShift, BukkitLoader.getNmsProvider().packetSetSlot(BukkitLoader.getNmsProvider().getContainerId(holder.getContainer(whoShift)), s, state,
+							BukkitLoader.getNmsProvider().getSlotItem(holder.getContainer(whoShift), s)));
 				return modifiedSlots;
 			}
 		}
@@ -73,7 +75,8 @@ public class InventoryUtils {
 		if (total != 0 && total == shiftItem.getAmount())
 			corruptedSlots.add(clickedSlot);
 		for (int slot : corruptedSlots)
-			BukkitLoader.getPacketHandler().send(whoShift, BukkitLoader.getNmsProvider().packetSetSlot(BukkitLoader.getNmsProvider().getContainerId(holder.getContainer(whoShift)), slot, state, BukkitLoader.getNmsProvider().getSlotItem(holder.getContainer(whoShift), slot)));
+			BukkitLoader.getPacketHandler().send(whoShift, BukkitLoader.getNmsProvider().packetSetSlot(BukkitLoader.getNmsProvider().getContainerId(holder.getContainer(whoShift)), slot, state,
+					BukkitLoader.getNmsProvider().getSlotItem(holder.getContainer(whoShift), slot)));
 		return modifiedSlots;
 	}
 
@@ -81,17 +84,18 @@ public class InventoryUtils {
 	 * @apiNote Find first empty slot in the "contents" field and then return empty
 	 *          slot (air/null slot)
 	 **/
-	public static int findFirstEmpty(@Nullable Player whoShift, @Nullable HolderGUI holder, @Nullable ClickType clickType, List<Integer> corruptedSlots, DestinationType type, List<Integer> ignoredSlots, ItemStack[] contents) {
+	public static int findFirstEmpty(@Nullable Player whoShift, @Nullable HolderGUI holder, @Nullable ClickType clickType, List<Integer> corruptedSlots, DestinationType type,
+			List<Integer> ignoredSlots, ItemStack[] contents) {
 		List<Integer> ignoreSlots = ignoredSlots == null ? Collections.emptyList() : ignoredSlots;
 		switch (type) {
 		case PLAYER_INV_ANVIL:
-			for (int i = contents.length - 1; i > 8; --i) {
+			for (int i = 9; i < contents.length - 1; ++i) {
 				if (ignoreSlots.contains(i))
 					continue;
 				if (contents[i] == null || contents[i].getType() == Material.AIR)
 					return i;
 			}
-			for (int i = 8; i > -1; --i) {
+			for (int i = 0; i < 9; ++i) {
 				if (ignoreSlots.contains(i))
 					continue;
 				if (contents[i] == null || contents[i].getType() == Material.AIR)

@@ -1,5 +1,6 @@
 package me.devtec.theapi.bukkit.nms;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -107,7 +108,6 @@ import net.minecraft.server.v1_16_R3.PacketPlayOutNamedEntitySpawn;
 import net.minecraft.server.v1_16_R3.PacketPlayOutOpenWindow;
 import net.minecraft.server.v1_16_R3.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_16_R3.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
-import net.minecraft.server.v1_16_R3.PacketPlayOutPlayerInfo.PlayerInfoData;
 import net.minecraft.server.v1_16_R3.PacketPlayOutPlayerListHeaderFooter;
 import net.minecraft.server.v1_16_R3.PacketPlayOutPosition;
 import net.minecraft.server.v1_16_R3.PacketPlayOutResourcePackSend;
@@ -809,10 +809,8 @@ public class v1_16_R3 implements NmsProvider {
 
 	@Override
 	public Object createContainer(Inventory inv, Player player) {
-		CraftContainer container = new CraftContainer(inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter());
-		if (inv.getType() == InventoryType.ANVIL)
-			Ref.set(container, "delegate", createAnvilContainer(inv, player));
-		return container;
+		return inv.getType() == InventoryType.ANVIL ? createAnvilContainer(inv, player)
+				: new CraftContainer(inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter());
 	}
 
 	@Override
@@ -872,6 +870,7 @@ public class v1_16_R3 implements NmsProvider {
 			cancel = gui.onIteractItem(player, item, clickType, gameSlot, slot < gui.size());
 		else
 			gui.onIteractItem(player, item, clickType, gameSlot, slot < gui.size());
+
 		int position = 0;
 		if (!(gui instanceof AnvilGUI) && !cancel && type == InventoryClickType.QUICK_MOVE) {
 			ItemStack[] contents = slot < gui.size() ? player.getInventory().getStorageContents() : gui.getInventory().getStorageContents();
@@ -898,7 +897,8 @@ public class v1_16_R3 implements NmsProvider {
 		}
 		if (cancel) {
 			// MOUSE
-			BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(-1, -1, asNMSItem(before)));
+			if (!(gui instanceof AnvilGUI) || gui instanceof AnvilGUI && slot != 2)
+				BukkitLoader.getPacketHandler().send(player, packetSetSlot(-1, -1, 0, asNMSItem(before)));
 			switch (type) {
 			case CLONE:
 				return true;
@@ -907,20 +907,12 @@ public class v1_16_R3 implements NmsProvider {
 			case PICKUP_ALL:
 				// TOP
 				for (ItemStack cItem : gui.getInventory().getContents())
-					BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, position++, asNMSItem(cItem)));
+					BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, position++, 0, asNMSItem(cItem)));
 				// BUTTON
 				player.updateInventory();
 				return true;
 			default:
-				BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, slot, getSlotItem(container, slot)));
-				if (gui instanceof AnvilGUI) {
-					// TOP
-					for (ItemStack cItem : gui.getInventory().getContents())
-						if (position != slot)
-							BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, position++, asNMSItem(cItem)));
-					// BUTTON
-					player.updateInventory();
-				}
+				BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, slot, 0, getSlotItem(container, slot)));
 				return true;
 			}
 		}
@@ -1146,12 +1138,15 @@ public class v1_16_R3 implements NmsProvider {
 
 	private static Field playerInfo = Ref.field(PacketPlayOutPlayerInfo.class, "b");
 
+	private static Constructor<?> infoData = Ref.constructor(Ref.nms("", "PacketPlayOutPlayerInfo$PlayerInfoData"), PacketPlayOutPlayerInfo.class, GameProfile.class, int.class, EnumGamemode.class,
+			IChatBaseComponent.class);
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object packetPlayerInfo(PlayerInfoType type, GameProfileHandler gameProfile, int latency, GameMode gameMode, Component playerName) {
 		PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.valueOf(type.name()), Collections.emptyList());
-		((List<PlayerInfoData>) Ref.get(packet, playerInfo))
-				.add(packet.new PlayerInfoData((GameProfile) toGameProfile(gameProfile), latency, EnumGamemode.valueOf(gameMode.name()), (IChatBaseComponent) toIChatBaseComponent(playerName)));
+		((List<Object>) Ref.get(packet, playerInfo))
+				.add(Ref.newInstance(infoData, packet, toGameProfile(gameProfile), latency, EnumGamemode.valueOf(gameMode.name()), toIChatBaseComponent(playerName)));
 		return packet;
 	}
 

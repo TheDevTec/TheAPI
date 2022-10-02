@@ -28,7 +28,7 @@ public class TeamUtils {
 				Ref.set(o, "c", BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(suffix)));
 				Ref.set(o, "d", always);
 				Ref.set(o, "e", always);
-				Ref.set(o, "f", TeamUtils.white);
+				Ref.set(o, "f", color);
 				Ref.set(packet, "k", Optional.of(o));
 			} catch (Exception e) {
 			}
@@ -43,7 +43,7 @@ public class TeamUtils {
 				Ref.set(packet, "e", always);
 				Ref.set(packet, "f", Ref.isNewerThan(8) ? always : -1);
 				if (Ref.isNewerThan(8))
-					Ref.set(packet, "g", Ref.isNewerThan(12) ? TeamUtils.white : -1);
+					Ref.set(packet, "g", Ref.isNewerThan(12) ? color : -1);
 				Ref.set(packet, Ref.isNewerThan(8) ? "i" : "h", mode);
 				Ref.set(packet, Ref.isNewerThan(8) ? "h" : "g", nameList);
 			} else {

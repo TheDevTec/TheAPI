@@ -110,7 +110,6 @@ import net.minecraft.server.v1_12_R1.PacketPlayOutNamedEntitySpawn;
 import net.minecraft.server.v1_12_R1.PacketPlayOutOpenWindow;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
-import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo.PlayerInfoData;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerListHeaderFooter;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPosition;
 import net.minecraft.server.v1_12_R1.PacketPlayOutResourcePackSend;
@@ -855,7 +854,7 @@ public class v1_12_R1 implements NmsProvider {
 		nmsPlayer.activeContainer.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.activeContainer = container;
 		((Container) container).addSlotListener(nmsPlayer);
-		container.checkReachable = false;
+		((Container) container).checkReachable = false;
 	}
 
 	private static Constructor<?> craftContainer = Ref.constructor(CraftContainer.class, Inventory.class, HumanEntity.class, int.class);
@@ -869,11 +868,9 @@ public class v1_12_R1 implements NmsProvider {
 
 	@Override
 	public Object createContainer(Inventory inv, Player player) {
-		CraftContainer container = (CraftContainer) (v1_12_R1.containerState == 0 ? Ref.newInstance(v1_12_R1.craftContainer, inv, player, ((CraftPlayer) player).getHandle().nextContainerCounter())
-				: Ref.newInstance(v1_12_R1.craftContainer, inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter()));
-		if (inv.getType() == InventoryType.ANVIL)
-			Ref.set(container, "delegate", createAnvilContainer(inv, player));
-		return container;
+		return inv.getType() == InventoryType.ANVIL ? createAnvilContainer(inv, player)
+				: (CraftContainer) (v1_12_R1.containerState == 0 ? Ref.newInstance(v1_12_R1.craftContainer, inv, player, ((CraftPlayer) player).getHandle().nextContainerCounter())
+						: Ref.newInstance(v1_12_R1.craftContainer, inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter()));
 	}
 
 	@Override
@@ -884,7 +881,9 @@ public class v1_12_R1 implements NmsProvider {
 	static BlockPosition zero = new BlockPosition(0, 0, 0);
 
 	public Object createAnvilContainer(Inventory inv, Player player) {
-		ContainerAnvil container = new ContainerAnvil(((CraftPlayer) player).getHandle().inventory, ((CraftPlayer) player).getHandle().world, v1_12_R1.zero, ((CraftPlayer) player).getHandle());
+		int id = ((CraftPlayer) player).getHandle().nextContainerCounter();
+		ContainerAnvil container = new ContainerAnvil(((CraftPlayer) player).getHandle().inventory, ((CraftPlayer) player).getHandle().world, zero, ((CraftPlayer) player).getHandle());
+		container.windowId = id;
 		for (int i = 0; i < 2; ++i)
 			container.setItem(i, (net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(inv.getItem(i)));
 		return container;
@@ -932,6 +931,7 @@ public class v1_12_R1 implements NmsProvider {
 			cancel = gui.onIteractItem(player, item, clickType, gameSlot, slot < gui.size());
 		else
 			gui.onIteractItem(player, item, clickType, gameSlot, slot < gui.size());
+
 		int position = 0;
 		if (!(gui instanceof AnvilGUI) && !cancel && type == InventoryClickType.QUICK_MOVE) {
 			ItemStack[] contents = slot < gui.size() ? player.getInventory().getStorageContents() : gui.getInventory().getStorageContents();
@@ -958,7 +958,8 @@ public class v1_12_R1 implements NmsProvider {
 		}
 		if (cancel) {
 			// MOUSE
-			BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(-1, -1, asNMSItem(before)));
+			if (!(gui instanceof AnvilGUI) || gui instanceof AnvilGUI && slot != 2)
+				BukkitLoader.getPacketHandler().send(player, packetSetSlot(-1, -1, 0, asNMSItem(before)));
 			switch (type) {
 			case CLONE:
 				return true;
@@ -967,20 +968,12 @@ public class v1_12_R1 implements NmsProvider {
 			case PICKUP_ALL:
 				// TOP
 				for (ItemStack cItem : gui.getInventory().getContents())
-					BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, position++, asNMSItem(cItem)));
+					BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, position++, 0, asNMSItem(cItem)));
 				// BUTTON
 				player.updateInventory();
 				return true;
 			default:
-				BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, slot, getSlotItem(container, slot)));
-				if (gui instanceof AnvilGUI) {
-					// TOP
-					for (ItemStack cItem : gui.getInventory().getContents())
-						if (position != slot)
-							BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, position++, asNMSItem(cItem)));
-					// BUTTON
-					player.updateInventory();
-				}
+				BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, slot, 0, getSlotItem(container, slot)));
 				return true;
 			}
 		}
@@ -1206,12 +1199,15 @@ public class v1_12_R1 implements NmsProvider {
 
 	private static Field playerInfo = Ref.field(PacketPlayOutPlayerInfo.class, "b");
 
+	private static Constructor<?> infoData = Ref.constructor(Ref.nms("", "PacketPlayOutPlayerInfo$PlayerInfoData"), PacketPlayOutPlayerInfo.class, GameProfile.class, int.class, EnumGamemode.class,
+			IChatBaseComponent.class);
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object packetPlayerInfo(PlayerInfoType type, GameProfileHandler gameProfile, int latency, GameMode gameMode, Component playerName) {
 		PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.valueOf(type.name()), Collections.emptyList());
-		((List<PlayerInfoData>) Ref.get(packet, playerInfo))
-				.add(packet.new PlayerInfoData((GameProfile) toGameProfile(gameProfile), latency, EnumGamemode.valueOf(gameMode.name()), (IChatBaseComponent) toIChatBaseComponent(playerName)));
+		((List<Object>) Ref.get(packet, playerInfo))
+				.add(Ref.newInstance(infoData, packet, toGameProfile(gameProfile), latency, EnumGamemode.valueOf(gameMode.name()), toIChatBaseComponent(playerName)));
 		return packet;
 	}
 

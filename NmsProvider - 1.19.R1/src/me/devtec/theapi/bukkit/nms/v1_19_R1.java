@@ -1,7 +1,6 @@
 package me.devtec.theapi.bukkit.nms;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +32,6 @@ import org.bukkit.craftbukkit.v1_19_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -113,9 +111,7 @@ import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.PlayerConnection;
 import net.minecraft.world.entity.EntityLiving;
 import net.minecraft.world.entity.player.EntityHuman;
-import net.minecraft.world.entity.player.PlayerInventory;
 import net.minecraft.world.inventory.Container;
-import net.minecraft.world.inventory.ContainerAccess;
 import net.minecraft.world.inventory.ContainerAnvil;
 import net.minecraft.world.inventory.Containers;
 import net.minecraft.world.item.Item;
@@ -821,10 +817,9 @@ public class v1_19_R1 implements NmsProvider {
 	}
 
 	@Override
-	public void openAnvilGUI(Player player, Object con, String title, ItemStack[] items) {
-		Container container = (Container) con;
-		int id = container.j;
+	public void openAnvilGUI(Player player, Object container, String title, ItemStack[] items) {
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
+		int id = ((Container) container).j;
 		net.minecraft.world.item.ItemStack[] nmsItems = new net.minecraft.world.item.ItemStack[items.length];
 		for (int i = 0; i < items.length; ++i) {
 			ItemStack is = items[i];
@@ -833,38 +828,24 @@ public class v1_19_R1 implements NmsProvider {
 				continue;
 			}
 			net.minecraft.world.item.ItemStack item = null;
-			container.b(i, item = (net.minecraft.world.item.ItemStack) asNMSItem(is));
+			((Container) container).b(i, item = (net.minecraft.world.item.ItemStack) asNMSItem(is));
 			nmsItems[i] = item;
 		}
-		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, "minecraft:anvil", 0, title));
 		int i = 0;
-		int statusId = getContainerStateId(container);
+		int statusId = incrementStateId(container);
+		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, "minecraft:anvil", 0, title));
 		for (net.minecraft.world.item.ItemStack o : nmsItems)
 			if (o != net.minecraft.world.item.ItemStack.b)
 				BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, i++, statusId, o));
-		nmsPlayer.bU.transferTo(container, (CraftPlayer) player);
-		nmsPlayer.bU = container;
-		nmsPlayer.a(container);
-		container.checkReachable = false;
+		nmsPlayer.bU.transferTo((Container) container, (CraftPlayer) player);
+		nmsPlayer.bU = (Container) container;
+		nmsPlayer.a((Container) container);
+		((Container) container).checkReachable = false;
 	}
 
 	@Override
 	public Object createContainer(Inventory inv, Player player) {
-		CraftContainer container = new CraftContainer(inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter());
-		if (inv.getType() == InventoryType.ANVIL)
-			Ref.set(container, "delegate", createAnvilContainer(inv, player));
-		return container;
-	}
-
-	static BlockPosition zero = new BlockPosition(0, 0, 0);
-	static Method getPlayerInventory = Ref.method(EntityHuman.class, "fA").getReturnType() == PlayerInventory.class ? Ref.method(EntityHuman.class, "fA") : Ref.method(EntityHuman.class, "fB");
-
-	public Object createAnvilContainer(Inventory inv, Player player) {
-		ContainerAnvil container = new ContainerAnvil(((CraftPlayer) player).getHandle().nextContainerCounter(), (PlayerInventory) Ref.invoke(((CraftPlayer) player).getHandle(), getPlayerInventory),
-				ContainerAccess.a(((CraftPlayer) player).getHandle().s, v1_19_R1.zero));
-		for (int i = 0; i < 2; ++i)
-			container.a(i, (net.minecraft.world.item.ItemStack) asNMSItem(inv.getItem(i)));
-		return container;
+		return new CraftContainer(inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter());
 	}
 
 	@Override
@@ -914,8 +895,9 @@ public class v1_19_R1 implements NmsProvider {
 			cancel = gui.onIteractItem(player, item, clickType, gameSlot, slot < gui.size());
 		else
 			gui.onIteractItem(player, item, clickType, gameSlot, slot < gui.size());
+
 		int position = 0;
-		if (!(gui instanceof AnvilGUI) && !cancel && type == InventoryClickType.QUICK_MOVE) {
+		if (!cancel && type == InventoryClickType.QUICK_MOVE) {
 			ItemStack[] contents = slot < gui.size() ? player.getInventory().getStorageContents() : gui.getInventory().getStorageContents();
 			List<Integer> modified = slot < gui.size()
 					? InventoryUtils.shift(slot, player, gui, clickType, gui instanceof AnvilGUI ? DestinationType.PLAYER_INV_ANVIL : DestinationType.PLAYER_INV_CUSTOM_INV, null, contents, item)
@@ -941,7 +923,8 @@ public class v1_19_R1 implements NmsProvider {
 		if (cancel) {
 			// MOUSE
 			int statusId = ((Container) container).j();
-			BukkitLoader.getPacketHandler().send(player, packetSetSlot(-1, -1, statusId, asNMSItem(before)));
+			if (!(gui instanceof AnvilGUI) || gui instanceof AnvilGUI && slot != 2)
+				BukkitLoader.getPacketHandler().send(player, packetSetSlot(-1, -1, statusId, asNMSItem(before)));
 			switch (type) {
 			case CLONE:
 				return true;
@@ -956,14 +939,6 @@ public class v1_19_R1 implements NmsProvider {
 				return true;
 			default:
 				BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, slot, statusId, getSlotItem(container, slot)));
-				if (gui instanceof AnvilGUI) {
-					// TOP
-					for (ItemStack cItem : gui.getInventory().getContents())
-						if (position != slot)
-							BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, position++, statusId, asNMSItem(cItem)));
-					// BUTTON
-					player.updateInventory();
-				}
 				return true;
 			}
 		}

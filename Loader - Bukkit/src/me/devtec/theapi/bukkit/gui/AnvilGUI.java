@@ -81,6 +81,11 @@ public class AnvilGUI implements HolderGUI {
 	public final void setItem(int position, ItemGUI item) {
 		items.put(position, item);
 		inv.setItem(position, item.getItem());
+		if (position == 0) {
+			text = item.getItem().getItemMeta().getDisplayName();
+			if (text == null)
+				text = "";
+		}
 	}
 
 	/**
@@ -102,17 +107,6 @@ public class AnvilGUI implements HolderGUI {
 	@Override
 	public final ItemStack getItem(int slot) {
 		return inv.getItem(slot);
-	}
-
-	/**
-	 * @apiNote Return ItemStack from position in gui
-	 */
-	public final ItemStack getItem(Player target, int slot) {
-		try {
-			return inv.getItem(slot);
-		} catch (Exception e) {
-			return null;
-		}
 	}
 
 	/**
