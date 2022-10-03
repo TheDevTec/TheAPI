@@ -1008,12 +1008,12 @@ public class ItemMaker {
 			EnchantmentStorageMeta book = (EnchantmentStorageMeta) meta;
 			for (String enchant : config.getStringList(path + "enchants")) {
 				String[] split = enchant.split(":");
-				book.addStoredEnchant(Enchantment.getByName(split[0].toUpperCase()), split.length >= 2 ? StringUtils.getInt(split[1]) : 1, true);
+				book.addStoredEnchant(EnchantmentAPI.byName(split[0].toUpperCase()).getEnchantment(), split.length >= 2 ? StringUtils.getInt(split[1]) : 1, true);
 			}
 		} else
 			for (String enchant : config.getStringList(path + "enchants")) {
 				String[] split = enchant.split(":");
-				meta.addEnchant(Enchantment.getByName(split[0].toUpperCase()), split.length >= 2 ? StringUtils.getInt(split[1]) : 1, true);
+				meta.addEnchant(EnchantmentAPI.byName(split[0].toUpperCase()).getEnchantment(), split.length >= 2 ? StringUtils.getInt(split[1]) : 1, true);
 			}
 		if (type == XMaterial.WRITTEN_BOOK || type == XMaterial.WRITABLE_BOOK) {
 			BookMeta book = (BookMeta) meta;
