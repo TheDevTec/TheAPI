@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -51,6 +52,8 @@ import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.json.JReader;
 import me.devtec.shared.json.JWriter;
 import me.devtec.shared.json.Json;
+import me.devtec.shared.json.Json.DataReader;
+import me.devtec.shared.json.Json.DataWriter;
 import me.devtec.shared.json.modern.ModernJsonReader;
 import me.devtec.shared.json.modern.ModernJsonWriter;
 import me.devtec.shared.placeholders.PlaceholderAPI;
@@ -65,6 +68,7 @@ import me.devtec.theapi.bukkit.bossbar.BossBar;
 import me.devtec.theapi.bukkit.commands.hooker.BukkitCommandManager;
 import me.devtec.theapi.bukkit.commands.hooker.SpigotSimpleCommandMap;
 import me.devtec.theapi.bukkit.commands.selectors.BukkitSelectorUtils;
+import me.devtec.theapi.bukkit.game.Position;
 import me.devtec.theapi.bukkit.game.ResourcePackAPI;
 import me.devtec.theapi.bukkit.game.ResourcePackAPI.ResourcePackResult;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
@@ -472,6 +476,43 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null ? Ref.getClass("net.kyori.adventure.Adventure") != null ? ServerType.PAPER : ServerType.SPIGOT : ServerType.BUKKIT,
 				Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]); // Server
 																						// version
+
+		// Init json parsers
+		Json.registerDataWriter(new DataWriter() {
+
+			@Override
+			public Map<String, Object> write(Object object) {
+				Map<String, Object> map = new HashMap<>();
+				Position pos = (Position) object;
+				map.put("classType", "Position");
+				map.put("world", pos.getWorldName());
+				map.put("x", pos.getX());
+				map.put("y", pos.getY());
+				map.put("z", pos.getZ());
+				map.put("yaw", pos.getYaw());
+				map.put("pitch", pos.getPitch());
+				return map;
+			}
+
+			@Override
+			public boolean isAllowed(Object object) {
+				return object instanceof Position;
+			}
+		});
+		Json.registerDataReader(new DataReader() {
+
+			@Override
+			public boolean isAllowed(Map<String, Object> map) {
+				return map.get("classType") != null && map.get("classType").equals("Position");
+			}
+
+			@Override
+			public Object read(Map<String, Object> map) {
+				return new Position(map.get("world").toString(), (double) map.get("x"), (double) map.get("y"), (double) map.get("z"), (float) (double) map.get("yaw"),
+						(float) (double) map.get("pitch"));
+			}
+		});
+
 		// version
 		if (Ref.serverType() != ServerType.BUKKIT) {
 			ComponentAPI.registerTransformer("BUNGEECORD", (ComponentTransformer<?>) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.BungeeComponentAPI")));

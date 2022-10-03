@@ -372,7 +372,7 @@ public class v1_16_R3 implements NmsProvider {
 			if (c.getColor().startsWith("#"))
 				modif = modif.setColor(ChatHexColor.a(c.getColor()));
 			else
-				modif = modif.setColor(EnumChatFormat.a(c.colorToChar()));
+				modif = modif.setColor(EnumChatFormat.b(c.getColor()));
 		if (c.getClickEvent() != null)
 			modif = modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
 		if (c.getHoverEvent() != null)

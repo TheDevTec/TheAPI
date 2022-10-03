@@ -382,20 +382,18 @@ public class v1_14_R1 implements NmsProvider {
 	private IChatBaseComponent convert(Component c) {
 		ChatComponentText current = new ChatComponentText(c.getText());
 		ChatModifier modif = current.getChatModifier();
-		if (c.getColor() != null && !c.getColor().isEmpty())
-			modif = modif.setColor(EnumChatFormat.a(c.colorToChar()));
+		if (c.getColor() != null)
+			modif.setColor(EnumChatFormat.c(c.getColor()));
 		if (c.getClickEvent() != null)
-			modif = modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+			modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
 		if (c.getHoverEvent() != null)
-			modif = modif
-					.setChatHoverable(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent) this.toIChatBaseComponent(c.getHoverEvent().getValue())));
-		modif = modif.setBold(c.isBold());
-		modif = modif.setItalic(c.isItalic());
-		modif = modif.setRandom(c.isObfuscated());
-		modif = modif.setUnderline(c.isUnderlined());
-		modif = modif.setStrikethrough(c.isStrikethrough());
-		current.setChatModifier(modif);
-		return current;
+			modif.setChatHoverable(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent) this.toIChatBaseComponent(c.getHoverEvent().getValue())));
+		modif.setBold(c.isBold());
+		modif.setItalic(c.isItalic());
+		modif.setRandom(c.isObfuscated());
+		modif.setUnderline(c.isUnderlined());
+		modif.setStrikethrough(c.isStrikethrough());
+		return current.setChatModifier(modif);
 	}
 
 	@Override
@@ -454,17 +452,11 @@ public class v1_14_R1 implements NmsProvider {
 			chat.add(convert(co));
 		if (co.getExtra() != null)
 			for (Component c : co.getExtra()) {
-				if (c.getText() == null || c.getText().isEmpty()) {
-					if (c.getExtra() != null)
-						addConverted(chat, c.getExtra());
-					continue;
-				}
 				chat.add(convert(c));
 				if (c.getExtra() != null)
 					addConverted(chat, c.getExtra());
 			}
-		for (IChatBaseComponent d : chat)
-			main.addSibling(d);
+		main.getSiblings().addAll(chat);
 		return main.getSiblings().isEmpty() ? v1_14_R1.empty : main;
 	}
 
@@ -472,7 +464,7 @@ public class v1_14_R1 implements NmsProvider {
 	public Object toIChatBaseComponent(List<Component> cc) {
 		ChatComponentText main = new ChatComponentText("");
 		for (Component c : cc)
-			main.addSibling((IChatBaseComponent) this.toIChatBaseComponent(c));
+			main.getSiblings().add((IChatBaseComponent) this.toIChatBaseComponent(c));
 		return main.getSiblings().isEmpty() ? v1_14_R1.empty : main;
 	}
 

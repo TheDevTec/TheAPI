@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -361,19 +360,18 @@ public class v1_7_R4 implements NmsProvider {
 	private IChatBaseComponent convert(Component c) {
 		ChatComponentText current = new ChatComponentText(c.getText());
 		ChatModifier modif = current.getChatModifier();
-		if (c.getColor() != null && !c.getColor().isEmpty())
-			modif = modif.setColor(EnumChatFormat.valueOf(ChatColor.getByChar(c.colorToChar()).name()));
+		if (c.getColor() != null)
+			modif.setColor(EnumChatFormat.b(c.getColor()));
 		if (c.getClickEvent() != null)
-			modif = modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+			modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
 		if (c.getHoverEvent() != null)
-			modif = modif.a(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent) this.toIChatBaseComponent(c.getHoverEvent().getValue())));
-		modif = modif.setBold(c.isBold());
-		modif = modif.setItalic(c.isItalic());
-		modif = modif.setRandom(c.isObfuscated());
-		modif = modif.setUnderline(c.isUnderlined());
-		modif = modif.setStrikethrough(c.isStrikethrough());
-		current.setChatModifier(modif);
-		return current;
+			modif.a(new ChatHoverable(EnumHoverAction.valueOf(c.getHoverEvent().getAction().name()), (IChatBaseComponent) this.toIChatBaseComponent(c.getHoverEvent().getValue())));
+		modif.setBold(c.isBold());
+		modif.setItalic(c.isItalic());
+		modif.setRandom(c.isObfuscated());
+		modif.setUnderline(c.isUnderlined());
+		modif.setStrikethrough(c.isStrikethrough());
+		return current.setChatModifier(modif);
 	}
 
 	@Override
@@ -424,6 +422,7 @@ public class v1_7_R4 implements NmsProvider {
 		return chat.toArray(new IChatBaseComponent[0]);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object toIChatBaseComponent(Component co) {
 		ChatComponentText main = new ChatComponentText("");
@@ -432,17 +431,11 @@ public class v1_7_R4 implements NmsProvider {
 			chat.add(convert(co));
 		if (co.getExtra() != null)
 			for (Component c : co.getExtra()) {
-				if (c.getText() == null || c.getText().isEmpty()) {
-					if (c.getExtra() != null)
-						addConverted(chat, c.getExtra());
-					continue;
-				}
 				chat.add(convert(c));
 				if (c.getExtra() != null)
 					addConverted(chat, c.getExtra());
 			}
-		for (IChatBaseComponent d : chat)
-			main.addSibling(d);
+		main.a().addAll(chat);
 		return main.a().isEmpty() ? v1_7_R4.empty : main;
 	}
 
