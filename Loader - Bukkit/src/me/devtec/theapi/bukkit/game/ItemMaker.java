@@ -200,6 +200,10 @@ public class ItemMaker {
 	}
 
 	public ItemMaker nbt(NBTEdit nbtEdit) {
+		if (nbtEdit == null) {
+			nbt = null;
+			return this;
+		}
 		// remove unused tags
 		nbtEdit.remove("id");
 		nbtEdit.remove("Count");
@@ -215,7 +219,7 @@ public class ItemMaker {
 		nbtEdit.remove("CustomModelData");
 		nbtEdit.remove("ench");
 
-		if (!nbt.getKeys().isEmpty())
+		if (!nbtEdit.getKeys().isEmpty())
 			nbt = nbtEdit;
 		return this;
 	}
