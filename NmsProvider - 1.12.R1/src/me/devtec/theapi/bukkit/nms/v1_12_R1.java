@@ -124,6 +124,7 @@ import net.minecraft.server.v1_12_R1.PacketPlayOutSpawnEntity;
 import net.minecraft.server.v1_12_R1.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_12_R1.PacketPlayOutTitle;
 import net.minecraft.server.v1_12_R1.PacketPlayOutTitle.EnumTitleAction;
+import net.minecraft.server.v1_12_R1.PacketPlayOutWindowItems;
 import net.minecraft.server.v1_12_R1.PacketStatusOutServerInfo;
 import net.minecraft.server.v1_12_R1.PlayerConnection;
 import net.minecraft.server.v1_12_R1.ScoreboardObjective;
@@ -804,20 +805,17 @@ public class v1_12_R1 implements NmsProvider {
 	public void openGUI(Player player, Object container, String legacy, int size, String title, ItemStack[] items) {
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = ((Container) container).windowId;
-		net.minecraft.server.v1_12_R1.ItemStack[] nmsItems = new net.minecraft.server.v1_12_R1.ItemStack[items.length];
+		NonNullList<net.minecraft.server.v1_12_R1.ItemStack> nmsItems = NonNullList.a(items.length, net.minecraft.server.v1_12_R1.ItemStack.a);
 		for (int i = 0; i < items.length; ++i) {
 			ItemStack is = items[i];
-			if (is == null || is.getType() == Material.AIR)
-				continue;
-			net.minecraft.server.v1_12_R1.ItemStack item = null;
-			((Container) container).setItem(i, item = (net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(is));
-			nmsItems[i] = item;
+			if (is != null && is.getType() != Material.AIR) {
+				net.minecraft.server.v1_12_R1.ItemStack item = null;
+				((Container) container).setItem(i, item = (net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(is));
+				nmsItems.set(i, item);
+			}
 		}
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
-		int i = 0;
-		for (net.minecraft.server.v1_12_R1.ItemStack o : nmsItems)
-			if (o != net.minecraft.server.v1_12_R1.ItemStack.a)
-				BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, i++, o));
+		BukkitLoader.getPacketHandler().send(player, new PacketPlayOutWindowItems(id, nmsItems));
 		nmsPlayer.activeContainer.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.activeContainer = (Container) container;
 		((Container) container).addSlotListener(nmsPlayer);
@@ -829,20 +827,17 @@ public class v1_12_R1 implements NmsProvider {
 		ContainerAnvil container = (ContainerAnvil) con;
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = container.windowId;
-		net.minecraft.server.v1_12_R1.ItemStack[] nmsItems = new net.minecraft.server.v1_12_R1.ItemStack[items.length];
+		NonNullList<net.minecraft.server.v1_12_R1.ItemStack> nmsItems = NonNullList.a(items.length, net.minecraft.server.v1_12_R1.ItemStack.a);
 		for (int i = 0; i < items.length; ++i) {
 			ItemStack is = items[i];
-			if (is == null || is.getType() == Material.AIR)
-				continue;
-			net.minecraft.server.v1_12_R1.ItemStack item = null;
-			container.setItem(i, item = (net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(is));
-			nmsItems[i] = item;
+			if (is != null && is.getType() != Material.AIR) {
+				net.minecraft.server.v1_12_R1.ItemStack item = null;
+				((Container) container).setItem(i, item = (net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(is));
+				nmsItems.set(i, item);
+			}
 		}
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, "minecraft:anvil", 0, title));
-		int i = 0;
-		for (net.minecraft.server.v1_12_R1.ItemStack o : nmsItems)
-			if (o != net.minecraft.server.v1_12_R1.ItemStack.a)
-				BukkitLoader.getPacketHandler().send(player, this.packetSetSlot(id, i++, o));
+		BukkitLoader.getPacketHandler().send(player, new PacketPlayOutWindowItems(id, nmsItems));
 		nmsPlayer.activeContainer.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.activeContainer = container;
 		((Container) container).addSlotListener(nmsPlayer);

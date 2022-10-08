@@ -341,7 +341,7 @@ public class ItemMaker {
 	public ItemStack build() {
 		if (material == null)
 			throw new IllegalArgumentException("Material cannot be null");
-		ItemStack item = data != 0 ? new ItemStack(material, amount, damage, data) : new ItemStack(material, amount, damage);
+		ItemStack item = data != 0 && Ref.isOlderThan(13) ? new ItemStack(material, amount, damage, data) : new ItemStack(material, amount, damage);
 		if (nbt != null)
 			item = BukkitLoader.getNmsProvider().setNBT(item, nbt.getNBT());
 		if (item.getItemMeta() == null)
@@ -713,6 +713,10 @@ public class ItemMaker {
 				iMeta.setPatterns(patterns);
 			return super.apply(iMeta);
 		}
+	}
+
+	public static ItemMaker of(XMaterial material) {
+		return new ItemMaker(material.parseMaterial()).data(material.getData());
 	}
 
 	public static ItemMaker of(Material material) {

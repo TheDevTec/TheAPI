@@ -58,6 +58,7 @@ import me.devtec.theapi.bukkit.nms.utils.InventoryUtils.DestinationType;
 import net.minecraft.EnumChatFormat;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.IRegistry;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.Particle;
 import net.minecraft.nbt.MojangsonParser;
 import net.minecraft.nbt.NBTBase;
@@ -99,6 +100,7 @@ import net.minecraft.network.protocol.game.PacketPlayOutScoreboardScore;
 import net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam;
 import net.minecraft.network.protocol.game.PacketPlayOutSetSlot;
 import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity;
+import net.minecraft.network.protocol.game.PacketPlayOutWindowItems;
 import net.minecraft.network.protocol.status.PacketStatusOutServerInfo;
 import net.minecraft.network.protocol.status.ServerPing;
 import net.minecraft.network.protocol.status.ServerPing.ServerData;
@@ -793,23 +795,18 @@ public class v1_19_R1 implements NmsProvider {
 	public void openGUI(Player player, Object container, String legacy, int size, String title, ItemStack[] items) {
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = ((Container) container).j;
-		net.minecraft.world.item.ItemStack[] nmsItems = new net.minecraft.world.item.ItemStack[items.length];
+		NonNullList<net.minecraft.world.item.ItemStack> nmsItems = NonNullList.a(items.length, net.minecraft.world.item.ItemStack.b);
 		for (int i = 0; i < items.length; ++i) {
 			ItemStack is = items[i];
-			if (is == null || is.getType() == Material.AIR) {
-				nmsItems[i] = (net.minecraft.world.item.ItemStack) asNMSItem(null);
-				continue;
+			if (is != null && !is.getType().isAir()) {
+				net.minecraft.world.item.ItemStack item = null;
+				((Container) container).b(i, item = (net.minecraft.world.item.ItemStack) asNMSItem(is));
+				nmsItems.set(i, item);
 			}
-			net.minecraft.world.item.ItemStack item = null;
-			((Container) container).b(i, item = (net.minecraft.world.item.ItemStack) asNMSItem(is));
-			nmsItems[i] = item;
 		}
-		int i = 0;
 		int statusId = incrementStateId(container);
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
-		for (net.minecraft.world.item.ItemStack o : nmsItems)
-			if (o != net.minecraft.world.item.ItemStack.b)
-				BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, i++, statusId, o));
+		BukkitLoader.getPacketHandler().send(player, new PacketPlayOutWindowItems(id, statusId, nmsItems, (net.minecraft.world.item.ItemStack) asNMSItem(player.getItemOnCursor())));
 		nmsPlayer.bU.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.bU = (Container) container;
 		nmsPlayer.a((Container) container);
@@ -818,29 +815,7 @@ public class v1_19_R1 implements NmsProvider {
 
 	@Override
 	public void openAnvilGUI(Player player, Object container, String title, ItemStack[] items) {
-		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
-		int id = ((Container) container).j;
-		net.minecraft.world.item.ItemStack[] nmsItems = new net.minecraft.world.item.ItemStack[items.length];
-		for (int i = 0; i < items.length; ++i) {
-			ItemStack is = items[i];
-			if (is == null || is.getType() == Material.AIR) {
-				nmsItems[i] = (net.minecraft.world.item.ItemStack) asNMSItem(null);
-				continue;
-			}
-			net.minecraft.world.item.ItemStack item = null;
-			((Container) container).b(i, item = (net.minecraft.world.item.ItemStack) asNMSItem(is));
-			nmsItems[i] = item;
-		}
-		int i = 0;
-		int statusId = incrementStateId(container);
-		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, "minecraft:anvil", 0, title));
-		for (net.minecraft.world.item.ItemStack o : nmsItems)
-			if (o != net.minecraft.world.item.ItemStack.b)
-				BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, i++, statusId, o));
-		nmsPlayer.bU.transferTo((Container) container, (CraftPlayer) player);
-		nmsPlayer.bU = (Container) container;
-		nmsPlayer.a((Container) container);
-		((Container) container).checkReachable = false;
+		openGUI(player, container, "minecraft:anvil", 0, title, items);
 	}
 
 	@Override

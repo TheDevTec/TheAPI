@@ -48,6 +48,8 @@ import com.google.common.base.Enums;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import me.devtec.shared.dataholder.StringContainer;
+
 /**
  * <b>XMaterial</b> - Data Values/Pre-flattening<br>
  * 1.13 and above as priority.
@@ -535,6 +537,23 @@ public enum XMaterial {
 	 */
 	private static Optional<XMaterial> getIfPresent(String name) {
 		return Optional.ofNullable(NAMES.get(name));
+	}
+
+	public String getFormattedName() {
+		StringContainer container = new StringContainer(name().length());
+		boolean first = true;
+		for (String split : name().split("_")) {
+			if (first) {
+				container.append(split.charAt(0)).append(split.substring(1).toLowerCase());
+				first = false;
+				continue;
+			}
+			if (split.equals("OF") || split.equals("THE"))
+				container.append(split.toLowerCase());
+			else
+				container.append(split.charAt(0)).append(split.substring(1).toLowerCase());
+		}
+		return container.toString();
 	}
 
 	/**

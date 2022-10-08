@@ -101,6 +101,7 @@ import net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam;
 import net.minecraft.network.protocol.game.PacketPlayOutSetSlot;
 import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity;
 import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntityLiving;
+import net.minecraft.network.protocol.game.PacketPlayOutWindowItems;
 import net.minecraft.network.protocol.status.PacketStatusOutServerInfo;
 import net.minecraft.network.protocol.status.ServerPing;
 import net.minecraft.network.protocol.status.ServerPing.ServerData;
@@ -790,21 +791,18 @@ public class v1_17_R1 implements NmsProvider {
 	public void openGUI(Player player, Object container, String legacy, int size, String title, ItemStack[] items) {
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = ((Container) container).j;
-		net.minecraft.world.item.ItemStack[] nmsItems = new net.minecraft.world.item.ItemStack[items.length];
+		NonNullList<net.minecraft.world.item.ItemStack> nmsItems = NonNullList.a(items.length, net.minecraft.world.item.ItemStack.b);
 		for (int i = 0; i < items.length; ++i) {
 			ItemStack is = items[i];
-			if (is == null || is.getType() == Material.AIR)
-				continue;
-			net.minecraft.world.item.ItemStack item = null;
-			((Container) container).b(i, item = (net.minecraft.world.item.ItemStack) asNMSItem(is));
-			nmsItems[i] = item;
+			if (is != null && !is.getType().isAir()) {
+				net.minecraft.world.item.ItemStack item = null;
+				((Container) container).b(i, item = (net.minecraft.world.item.ItemStack) asNMSItem(is));
+				nmsItems.set(i, item);
+			}
 		}
-		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
-		int i = 0;
 		int statusId = incrementStateId(container);
-		for (net.minecraft.world.item.ItemStack o : nmsItems)
-			if (o != net.minecraft.world.item.ItemStack.b)
-				BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, i++, statusId, o));
+		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
+		BukkitLoader.getPacketHandler().send(player, new PacketPlayOutWindowItems(id, statusId, nmsItems, (net.minecraft.world.item.ItemStack) asNMSItem(player.getItemOnCursor())));
 		nmsPlayer.bV.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.bV = (Container) container;
 		nmsPlayer.initMenu((Container) container);
@@ -812,29 +810,8 @@ public class v1_17_R1 implements NmsProvider {
 	}
 
 	@Override
-	public void openAnvilGUI(Player player, Object con, String title, ItemStack[] items) {
-		Container container = (Container) con;
-		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
-		int id = container.j;
-		net.minecraft.world.item.ItemStack[] nmsItems = new net.minecraft.world.item.ItemStack[items.length];
-		for (int i = 0; i < items.length; ++i) {
-			ItemStack is = items[i];
-			if (is == null || is.getType() == Material.AIR)
-				continue;
-			net.minecraft.world.item.ItemStack item = null;
-			container.b(i, item = (net.minecraft.world.item.ItemStack) asNMSItem(is));
-			nmsItems[i] = item;
-		}
-		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, "minecraft:anvil", 0, title));
-		int i = 0;
-		int statusId = incrementStateId(container);
-		for (net.minecraft.world.item.ItemStack o : nmsItems)
-			if (o != net.minecraft.world.item.ItemStack.b)
-				BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, i++, statusId, o));
-		nmsPlayer.bV.transferTo(container, (CraftPlayer) player);
-		nmsPlayer.bV = container;
-		nmsPlayer.initMenu(container);
-		container.checkReachable = false;
+	public void openAnvilGUI(Player player, Object container, String title, ItemStack[] items) {
+		openGUI(player, container, "minecraft:anvil", 0, title, items);
 	}
 
 	@Override
