@@ -126,7 +126,7 @@ public enum EnchantmentAPI {
 		return byName(enchant.toString());
 	}
 
-	public static boolean registerEnchantment(org.bukkit.enchantments.Enchantment e) {
+	public static boolean registerEnchantment(Enchantment e) {
 		boolean registered = false;
 		Ref.set(null, Ref.field(Enchantment.class, "acceptingNew"), true);
 		try {

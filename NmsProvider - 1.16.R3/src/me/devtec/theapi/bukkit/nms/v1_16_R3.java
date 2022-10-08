@@ -301,8 +301,8 @@ public class v1_16_R3 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetBlockChange(World world, Position position) {
-		return new PacketPlayOutBlockChange((BlockPosition) position.getBlockPosition(), (IBlockData) position.getIBlockData());
+	public Object packetBlockChange(World world, Position position, Object iblockdata, int data) {
+		return new PacketPlayOutBlockChange((BlockPosition) position.getBlockPosition(), iblockdata == null ? Blocks.AIR.getBlockData() : (IBlockData) iblockdata);
 	}
 
 	@Override

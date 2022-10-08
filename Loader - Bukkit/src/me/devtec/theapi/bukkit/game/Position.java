@@ -91,6 +91,7 @@ public class Position implements Cloneable {
 		z = cloneable.getZ();
 		yaw = cloneable.getYaw();
 		pitch = cloneable.getPitch();
+		cachedChunk = cloneable.cachedChunk;
 	}
 
 	public static Position fromBlock(Block block) {
@@ -269,27 +270,24 @@ public class Position implements Cloneable {
 	}
 
 	public Position add(double x, double y, double z) {
+		int prevChunkX = (int) this.x >> 4;
+		int prevChunkZ = (int) this.z >> 4;
+
 		this.x += x;
 		this.y += y;
 		this.z += z;
-		cachedChunk = null;
+
+		if (prevChunkX != (int) this.x >> 4 || prevChunkZ != (int) this.z >> 4)
+			cachedChunk = null;
 		return this;
 	}
 
 	public Position add(Position position) {
-		x += position.getX();
-		y += position.getY();
-		z += position.getZ();
-		cachedChunk = null;
-		return this;
+		return add(position.getX(), position.getY(), position.getZ());
 	}
 
 	public Position add(Location location) {
-		x += location.getX();
-		y += location.getY();
-		z += location.getZ();
-		cachedChunk = null;
-		return this;
+		return add(location.getX(), location.getY(), location.getZ());
 	}
 
 	public double getX() {
@@ -354,7 +352,7 @@ public class Position implements Cloneable {
 	public void setTypeAndUpdate(BlockDataStorage type, boolean updatePhysics) {
 		Object prev = updatePhysics ? getIBlockData() : null;
 		this.setType(type);
-		Position.updateBlockAt(this);
+		Position.updateBlockAt(this, type);
 		if (type.getNBT() != null && BukkitLoader.getNmsProvider().isTileEntity(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ()))
 			BukkitLoader.getNmsProvider().setNBTToTile(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), type.getNBT());
 		Position.updateLightAt(this);
@@ -377,6 +375,11 @@ public class Position implements Cloneable {
 
 	public static void updateBlockAt(Position pos) {
 		Object packet = BukkitLoader.getNmsProvider().packetBlockChange(pos.getWorld(), pos);
+		BukkitLoader.getPacketHandler().send(pos.getWorld().getPlayers(), packet);
+	}
+
+	public static void updateBlockAt(Position pos, BlockDataStorage blockData) {
+		Object packet = BukkitLoader.getNmsProvider().packetBlockChange(pos.getWorld(), pos, blockData.getIBlockData(), blockData.getItemData());
 		BukkitLoader.getPacketHandler().send(pos.getWorld().getPlayers(), packet);
 	}
 
@@ -407,7 +410,8 @@ public class Position implements Cloneable {
 	public void setAirAndUpdate(boolean updatePhysics) {
 		Object prev = updatePhysics ? getIBlockData() : null;
 		setAir();
-		Position.updateBlockAt(this);
+		Object packet = BukkitLoader.getNmsProvider().packetBlockChange(getWorld(), this, null, 0);
+		BukkitLoader.getPacketHandler().send(getWorld().getPlayers(), packet);
 		Position.updateLightAt(this);
 		if (updatePhysics)
 			BukkitLoader.getNmsProvider().updatePhysics(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), prev);

@@ -263,8 +263,8 @@ public class v1_19_R1 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetBlockChange(World world, Position position) {
-		return new PacketPlayOutBlockChange((BlockPosition) position.getBlockPosition(), (IBlockData) position.getIBlockData());
+	public Object packetBlockChange(World world, Position position, Object iblockdata, int data) {
+		return new PacketPlayOutBlockChange((BlockPosition) position.getBlockPosition(), iblockdata == null ? Blocks.a.m() : (IBlockData) iblockdata);
 	}
 
 	@Override
@@ -500,7 +500,7 @@ public class v1_19_R1 implements NmsProvider {
 	@Override
 	public Object toIBlockData(BlockDataStorage material) {
 		if (material == null || material.getType() == null || material.getType() == Material.AIR)
-			return Blocks.a.n();
+			return Blocks.a.m();
 		Block block = CraftMagicNumbers.getBlock(material.getType());
 		return readArgument(block, material);
 	}

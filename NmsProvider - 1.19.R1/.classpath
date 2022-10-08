@@ -20,6 +20,6 @@
 	<classpathentry kind="lib" path="D:/jars/mc/1.18_R2/slf4j-api-1.8.0-beta4.jar"/>
 	<classpathentry kind="lib" path="D:/jars/depends/bungeecord-chat-1.16-R0.4.jar" sourcepath="C:/Users/strai/AppData/Local/Temp/.org.sf.feeling.decompiler1661462265166/source/bungeecord-chat-1.16-R0.4-sources.jar"/>
 	<classpathentry kind="lib" path="D:/jars/mc/1.19_R1/spigot-api-1.19-R0.1-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="C:/Users/strai/Downloads/purpur-1.19.2.jar"/>
+	<classpathentry kind="lib" path="D:/mc-servers/server/versions/1.19.2/purpur-1.19.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

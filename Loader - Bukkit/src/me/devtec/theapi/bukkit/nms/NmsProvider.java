@@ -187,7 +187,11 @@ public interface NmsProvider {
 
 	public Object packetPlayerListHeaderFooter(String header, String footer);
 
-	public Object packetBlockChange(World world, Position position);
+	public Object packetBlockChange(World world, Position position, Object iblockdata, int data);
+
+	public default Object packetBlockChange(World world, Position position) {
+		return packetBlockChange(world, position, position.getIBlockData(), position.getData());
+	}
 
 	public Object packetBlockChange(World world, int x, int y, int z);
 
@@ -281,7 +285,7 @@ public interface NmsProvider {
 		this.setBlock(chunk, x, y, z, IblockDataOrBlock, 0);
 	}
 
-	public void setBlock(Object chunk, int x, int y, int z, Object block, int data);
+	public void setBlock(Object chunk, int x, int y, int z, Object IblockDataOrBlock, int data);
 
 	public Object getBlock(Object chunk, int x, int y, int z);
 

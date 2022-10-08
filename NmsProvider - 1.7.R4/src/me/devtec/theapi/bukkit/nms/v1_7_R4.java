@@ -263,11 +263,10 @@ public class v1_7_R4 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetBlockChange(World world, Position position) {
+	public Object packetBlockChange(World world, Position position, Object iblockdata, int data) {
 		PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange();
-		Object chunk = this.getChunk(world, position.getBlockX() >> 4, position.getBlockZ() >> 4);
-		packet.data = getData(chunk, position.getBlockX(), position.getBlockY(), position.getBlockZ());
-		packet.block = (Block) getBlock(chunk, position.getBlockX(), position.getBlockY(), position.getBlockZ());
+		packet.data = data;
+		packet.block = iblockdata == null ? Blocks.AIR : (Block) iblockdata;
 		try {
 			v1_7_R4.posX.set(packet, position.getBlockX());
 			v1_7_R4.posY.set(packet, position.getBlockY());

@@ -279,9 +279,9 @@ public class v1_8_R3 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetBlockChange(World world, Position position) {
+	public Object packetBlockChange(World world, Position position, Object iblockdata, int data) {
 		PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange();
-		packet.block = (IBlockData) position.getIBlockData();
+		packet.block = iblockdata == null ? Blocks.AIR.getBlockData() : (IBlockData) iblockdata;
 		try {
 			v1_8_R3.pos.set(packet, position.getBlockPosition());
 		} catch (Exception e) {
