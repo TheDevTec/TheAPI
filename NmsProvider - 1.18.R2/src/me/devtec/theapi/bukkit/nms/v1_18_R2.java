@@ -837,6 +837,8 @@ public class v1_18_R2 implements NmsProvider {
 		InventoryClickType type = InventoryClickType.values()[nmsType.ordinal()];
 
 		Object container = gui.getContainer(player);
+		if (container == null)
+			return false;
 		ItemStack item = asBukkitItem(packet.e());
 		if ((type == InventoryClickType.QUICK_MOVE || type == InventoryClickType.CLONE || type == InventoryClickType.THROW || item.getType().isAir()) && item.getType().isAir())
 			item = asBukkitItem(getSlotItem(container, slot));
