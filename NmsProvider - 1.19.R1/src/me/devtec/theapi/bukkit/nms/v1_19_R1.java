@@ -789,6 +789,7 @@ public class v1_19_R1 implements NmsProvider {
 		nmsPlayer.bU = (Container) container;
 		((Container) container).a(nmsPlayer);
 		((Container) container).checkReachable = false;
+		nmsPlayer.bU.b();
 	}
 
 	@Override
