@@ -38,6 +38,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
+import me.arcaniax.hdb.api.HeadDatabaseAPI;
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
 import me.devtec.shared.components.Component;
@@ -52,9 +53,23 @@ import me.devtec.theapi.bukkit.nms.GameProfileHandler.PropertyHandler;
 import me.devtec.theapi.bukkit.nms.NBTEdit;
 import me.devtec.theapi.bukkit.xseries.XMaterial;
 import net.md_5.bungee.api.chat.BaseComponent;
+import tsp.headdb.api.HeadAPI;
+import tsp.headdb.implementation.HeadDatabase;
 
 public class ItemMaker {
 	private static Material skull = XMaterial.PLAYER_HEAD.parseMaterial();
+	static Object hdbApi;
+	static int HDB_TYPE;
+	static {
+		if (Ref.getClass("me.arcaniax.hdb.api.HeadDatabaseAPI.HeadDatabaseAPI") != null) {
+			hdbApi = new HeadDatabaseAPI();
+			HDB_TYPE = 1; // paid
+		} else if (Ref.getClass("tsp.headdb.api.HeadAPI") != null) {
+			hdbApi = HeadAPI.getDatabase();
+			HDB_TYPE = 2; // free
+		}
+
+	}
 
 	private Material material;
 	private int amount = 1;
@@ -379,6 +394,17 @@ public class ItemMaker {
 		public HeadItemMaker skinUrl(String name) {
 			owner = name;
 			ownerType = 2;
+			return this;
+		}
+
+		public HeadItemMaker skinHDB(String id) {
+			if (hdbApi != null) {
+				owner = getBase64OfId(id);
+				ownerType = 1;
+			} else {
+				owner = id;
+				ownerType = 0;
+			}
 			return this;
 		}
 
@@ -988,14 +1014,21 @@ public class ItemMaker {
 				 * PLAYER VALUES URL
 				 */
 				String headType = config.getString(path + "head.type", "PLAYER").toUpperCase();
-				if (headType.equals("PLAYER"))
+				if (headType.equalsIgnoreCase("PLAYER"))
 					skull.setOwner(headOwner);
-				if (headType.equals("VALUES") || headType.equals("URL")) {
-					if (headType.equals("URL"))
+				if (headType.equalsIgnoreCase("VALUES") || headType.equalsIgnoreCase("URL")) {
+					if (headType.equalsIgnoreCase("URL"))
 						headOwner = ItemMaker.fromUrl(headOwner);
 					Ref.set(skull, HeadItemMaker.profileField,
 							BukkitLoader.getNmsProvider().toGameProfile(GameProfileHandler.of("TheAPI", UUID.randomUUID(), PropertyHandler.of("textures", headOwner))));
 				}
+				if (headType.equalsIgnoreCase("HDB"))
+					if (hdbApi != null) {
+						headOwner = getBase64OfId(headOwner);
+						Ref.set(skull, HeadItemMaker.profileField,
+								BukkitLoader.getNmsProvider().toGameProfile(GameProfileHandler.of("TheAPI", UUID.randomUUID(), PropertyHandler.of("textures", headOwner))));
+					} else
+						skull.setOwner(headOwner);
 			}
 		}
 		if (type.name().contains("POTION")) {
@@ -1035,6 +1068,14 @@ public class ItemMaker {
 		}
 		stack.setItemMeta(meta);
 		return stack;
+	}
+
+	private static String getBase64OfId(String headOwner) {
+		if (HDB_TYPE == 1)
+			return ((HeadDatabaseAPI) hdbApi).getBase64(headOwner);
+		if (HDB_TYPE == 2)
+			return ((HeadDatabase) hdbApi).getHeadByID(StringUtils.getInt(headOwner)).getValue();
+		return null;
 	}
 
 	public static ItemMaker of(ItemStack stack) {
