@@ -218,9 +218,9 @@ public class GUI implements HolderGUI {
 		String title = StringUtils.colorize(value);
 		if (Ref.isOlderThan(9) && title.length() >= 32)
 			title = title.substring(0, 32);
-		if (title.equals(title))
+		if (title.equals(this.title))
 			return;
-		this.title=title;
+		this.title = title;
 		for (Entry<Player, Object> ec : containers.entrySet())
 			BukkitLoader.getNmsProvider().setGUITitle(ec.getKey(), ec.getValue(), "minecraft:chest", inv.getSize(), title);
 	}
