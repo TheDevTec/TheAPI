@@ -25,6 +25,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 
+import javax.tools.ToolProvider;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -104,11 +106,22 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	public void onLoad() {
 		BukkitLoader.initTheAPI(this);
 		try {
-			getAllJarFiles();
-			checkForUpdateAndDownload();
-			BukkitLoader.nmsProvider = (NmsProvider) new MemoryCompiler("me.devtec.theapi.bukkit.nms." + Ref.serverVersion(), new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java"))
-					.buildClass().newInstance();
+			if (ToolProvider.getSystemJavaCompiler() != null) { // JDK
+				getAllJarFiles();
+				checkForUpdateAndDownload();
+				BukkitLoader.nmsProvider = (NmsProvider) new MemoryCompiler("me.devtec.theapi.bukkit.nms." + Ref.serverVersion(),
+						new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java")).buildClass().newInstance();
+			} else { // JRE
+				checkForUpdateAndDownloadCompiled();
+				try (URLClassLoader cl = new URLClassLoader(new URL[] { new URL("jar:file:" + "plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar" + "!/") }, getClassLoader())) {
+					Class<?> c = cl.loadClass("me.devtec.theapi.bukkit.nms." + Ref.serverVersion());
+					BukkitLoader.nmsProvider = (NmsProvider) c.newInstance();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		if (BukkitLoader.nmsProvider != null)
 			BukkitLoader.nmsProvider.loadParticles();
@@ -129,6 +142,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			BukkitLoader.handler = new PacketHandlerModern(false);
 		else
 			BukkitLoader.handler = (PacketHandler<?>) Ref.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy", false);
+
 		BukkitLoader.resource = Ref.nms("network.protocol.game", "PacketPlayInResourcePackStatus");
 		BukkitLoader.close = Ref.nms("network.protocol.game", "PacketPlayInCloseWindow");
 		serverPing = Ref.nms("network.protocol.status", "PacketStatusOutServerInfo");
@@ -229,6 +243,38 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		}.register();
 
 		new Metrics(this, 10581);
+	}
+
+	private void checkForUpdateAndDownloadCompiled() {
+		try {
+			Config gitVersion = Config.loadFromInput(
+					new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + Ref.serverVersion().substring(1).replace("_", ".") + "/version.yml").openStream());
+
+			Config localVersion = new Config("plugins/TheAPI/version.yml");
+
+			String jarRelease = Config.loadFromInput(getResource("release.yml")).getString("release");
+			localVersion.setIfAbsent("build", 1);
+			localVersion.setComments("build", Arrays.asList("# DO NOT MODIFY THIS VALUE"));
+
+			Version ver = VersionUtils.getVersion(gitVersion.getString("release"), jarRelease);
+
+			if (ver != Version.OLDER_VERSION && ver != Version.SAME_VERSION && new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar").exists()) {
+				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Can't download new NmsProvider, please update TheAPI.");
+				localVersion.save(DataType.YAML);
+				return;
+			}
+			if (localVersion.getInt("build") < gitVersion.getInt("build") || !new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar").exists()) {
+				localVersion.set("build", gitVersion.getInt("build"));
+				localVersion.save(DataType.YAML);
+
+				URL url = new URL(
+						"https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + Ref.serverVersion().substring(1).replace("_", ".") + "/" + Ref.serverVersion() + ".jar");
+				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §aDownloading update!");
+				API.library.downloadFileFromUrl(url, new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar"));
+			}
+		} catch (Exception e) {
+			Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §eNot found NmsProvider for your server version, do you have your own?");
+		}
 	}
 
 	private void checkForUpdateAndDownload() {

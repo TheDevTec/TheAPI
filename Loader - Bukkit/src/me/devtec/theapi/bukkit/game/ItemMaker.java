@@ -53,8 +53,6 @@ import me.devtec.theapi.bukkit.nms.GameProfileHandler.PropertyHandler;
 import me.devtec.theapi.bukkit.nms.NBTEdit;
 import me.devtec.theapi.bukkit.xseries.XMaterial;
 import net.md_5.bungee.api.chat.BaseComponent;
-import tsp.headdb.api.HeadAPI;
-import tsp.headdb.implementation.HeadDatabase;
 
 public class ItemMaker {
 	private static Material skull = XMaterial.PLAYER_HEAD.parseMaterial();
@@ -64,9 +62,6 @@ public class ItemMaker {
 		if (Ref.getClass("me.arcaniax.hdb.api.HeadDatabaseAPI.HeadDatabaseAPI") != null) {
 			hdbApi = new HeadDatabaseAPI();
 			HDB_TYPE = 1; // paid
-		} else if (Ref.getClass("tsp.headdb.api.HeadAPI") != null) {
-			hdbApi = HeadAPI.getDatabase();
-			HDB_TYPE = 2; // free
 		}
 
 	}
@@ -1073,8 +1068,6 @@ public class ItemMaker {
 	private static String getBase64OfId(String headOwner) {
 		if (HDB_TYPE == 1)
 			return ((HeadDatabaseAPI) hdbApi).getBase64(headOwner);
-		if (HDB_TYPE == 2)
-			return ((HeadDatabase) hdbApi).getHeadByID(StringUtils.getInt(headOwner)).getValue();
 		return null;
 	}
 
