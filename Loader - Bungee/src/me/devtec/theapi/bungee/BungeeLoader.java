@@ -21,6 +21,7 @@ import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.json.Json;
 import me.devtec.shared.json.modern.ModernJsonReader;
 import me.devtec.shared.json.modern.ModernJsonWriter;
+import me.devtec.shared.scheduler.Scheduler;
 import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
@@ -46,6 +47,7 @@ public class BungeeLoader extends Plugin implements Listener {
 	@Override
 	public void onDisable() {
 		API.setEnabled(false);
+		Scheduler.cancelAll();
 
 		// OfflineCache support!
 		API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save();

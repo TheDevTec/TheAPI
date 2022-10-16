@@ -100,7 +100,6 @@ import net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam;
 import net.minecraft.network.protocol.game.PacketPlayOutSetSlot;
 import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity;
 import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntityLiving;
-import net.minecraft.network.protocol.game.PacketPlayOutWindowItems;
 import net.minecraft.network.protocol.status.PacketStatusOutServerInfo;
 import net.minecraft.network.protocol.status.ServerPing;
 import net.minecraft.network.protocol.status.ServerPing.ServerData;
@@ -775,7 +774,16 @@ public class v1_18_R2 implements NmsProvider {
 	public void setGUITitle(Player player, Object container, String legacy, int size, String title) {
 		int id = ((Container) container).j;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
-		BukkitLoader.getPacketHandler().send(player, new PacketPlayOutWindowItems(id, getContainerStateId(container), ((Container) container).o, ((Container) container).g()));
+		if (IRegistry.X.b(((Container) container).g().c()) != null)
+			BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, getContainerStateId(container), -1, ((Container) container).g()));
+		int slot = 0;
+		for (net.minecraft.world.item.ItemStack item : ((Container) container).o) {
+			if (slot == size)
+				break;
+			if (IRegistry.X.b(item.c()) != null)
+				BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, getContainerStateId(container), slot, item));
+			++slot;
+		}
 	}
 
 	@Override
@@ -783,7 +791,14 @@ public class v1_18_R2 implements NmsProvider {
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = ((Container) container).j;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
-		BukkitLoader.getPacketHandler().send(player, new PacketPlayOutWindowItems(id, incrementStateId(container), ((Container) container).o, ((Container) container).g()));
+		int slot = 0;
+		for (net.minecraft.world.item.ItemStack item : ((Container) container).o) {
+			if (slot == size)
+				break;
+			if (IRegistry.X.b(item.c()) != null)
+				BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, getContainerStateId(container), slot, item));
+			++slot;
+		}
 		nmsPlayer.bV.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.bV = (Container) container;
 		nmsPlayer.a((Container) container);

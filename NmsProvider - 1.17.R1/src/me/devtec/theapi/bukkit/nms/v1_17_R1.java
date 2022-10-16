@@ -100,7 +100,6 @@ import net.minecraft.network.protocol.game.PacketPlayOutScoreboardTeam;
 import net.minecraft.network.protocol.game.PacketPlayOutSetSlot;
 import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity;
 import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntityLiving;
-import net.minecraft.network.protocol.game.PacketPlayOutWindowItems;
 import net.minecraft.network.protocol.status.PacketStatusOutServerInfo;
 import net.minecraft.network.protocol.status.ServerPing;
 import net.minecraft.network.protocol.status.ServerPing.ServerData;
@@ -774,7 +773,16 @@ public class v1_17_R1 implements NmsProvider {
 	public void setGUITitle(Player player, Object container, String legacy, int size, String title) {
 		int id = ((Container) container).j;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
-		BukkitLoader.getPacketHandler().send(player, new PacketPlayOutWindowItems(id, getContainerStateId(container), ((Container) container).n, ((Container) container).getCarried()));
+		if (IRegistry.Z.getKey(((Container) container).getCarried().getItem()) != null)
+			BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, getContainerStateId(container), -1, ((Container) container).getCarried()));
+		int slot = 0;
+		for (net.minecraft.world.item.ItemStack item : ((Container) container).n) {
+			if (slot == size)
+				break;
+			if (IRegistry.Z.getKey(item.getItem()) != null)
+				BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, getContainerStateId(container), slot, item));
+			++slot;
+		}
 	}
 
 	@Override
@@ -782,7 +790,14 @@ public class v1_17_R1 implements NmsProvider {
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = ((Container) container).j;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
-		BukkitLoader.getPacketHandler().send(player, new PacketPlayOutWindowItems(id, incrementStateId(container), ((Container) container).n, ((Container) container).getCarried()));
+		int slot = 0;
+		for (net.minecraft.world.item.ItemStack item : ((Container) container).n) {
+			if (slot == size)
+				break;
+			if (IRegistry.Z.getKey(item.getItem()) != null)
+				BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, getContainerStateId(container), slot, item));
+			++slot;
+		}
 		nmsPlayer.bV.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.bV = (Container) container;
 		nmsPlayer.initMenu((Container) container);

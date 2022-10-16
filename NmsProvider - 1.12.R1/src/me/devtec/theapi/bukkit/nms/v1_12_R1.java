@@ -31,7 +31,6 @@ import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftChatMessage;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -123,7 +122,6 @@ import net.minecraft.server.v1_12_R1.PacketPlayOutSpawnEntity;
 import net.minecraft.server.v1_12_R1.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_12_R1.PacketPlayOutTitle;
 import net.minecraft.server.v1_12_R1.PacketPlayOutTitle.EnumTitleAction;
-import net.minecraft.server.v1_12_R1.PacketPlayOutWindowItems;
 import net.minecraft.server.v1_12_R1.PacketStatusOutServerInfo;
 import net.minecraft.server.v1_12_R1.PlayerConnection;
 import net.minecraft.server.v1_12_R1.ScoreboardObjective;
@@ -790,8 +788,17 @@ public class v1_12_R1 implements NmsProvider {
 	public void setGUITitle(Player player, Object container, String legacy, int size, String title) {
 		int id = ((Container) container).windowId;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
-		BukkitLoader.getPacketHandler().send(player, new PacketPlayOutWindowItems(id, ((Container) container).items));
-		((CraftPlayer) player).getHandle().broadcastCarriedItem();
+		if (((CraftPlayer) player).getHandle().inventory.getCarried() != net.minecraft.server.v1_12_R1.ItemStack.a
+				&& ((CraftPlayer) player).getHandle().inventory.getCarried().getItem() != Item.getItemOf(Blocks.AIR))
+			BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, -1, ((CraftPlayer) player).getHandle().inventory.getCarried()));
+		int slot = 0;
+		for (net.minecraft.server.v1_12_R1.ItemStack item : ((Container) container).items) {
+			if (slot == size)
+				break;
+			if (Item.REGISTRY.b(item.getItem()) != null)
+				BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, slot, item));
+			++slot;
+		}
 	}
 
 	@Override
@@ -799,7 +806,14 @@ public class v1_12_R1 implements NmsProvider {
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = ((Container) container).windowId;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
-		BukkitLoader.getPacketHandler().send(player, new PacketPlayOutWindowItems(id, ((Container) container).items));
+		int slot = 0;
+		for (net.minecraft.server.v1_12_R1.ItemStack item : ((Container) container).items) {
+			if (slot == size)
+				break;
+			if (Item.REGISTRY.b(item.getItem()) != null)
+				BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, slot, item));
+			++slot;
+		}
 		nmsPlayer.activeContainer.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.activeContainer = (Container) container;
 		((Container) container).addSlotListener(nmsPlayer);
@@ -812,27 +826,24 @@ public class v1_12_R1 implements NmsProvider {
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = container.windowId;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, "minecraft:anvil", 0, title));
-		BukkitLoader.getPacketHandler().send(player, new PacketPlayOutWindowItems(id, ((Container) container).items));
+		int slot = 0;
+		for (net.minecraft.server.v1_12_R1.ItemStack item : ((Container) container).items) {
+			if (slot == 3)
+				break;
+			if (Item.REGISTRY.b(item.getItem()) != null)
+				BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, slot, item));
+			++slot;
+		}
 		nmsPlayer.activeContainer.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.activeContainer = container;
 		((Container) container).addSlotListener(nmsPlayer);
 		((Container) container).checkReachable = false;
 	}
 
-	private static Constructor<?> craftContainer = Ref.constructor(CraftContainer.class, Inventory.class, HumanEntity.class, int.class);
-	private static int containerState;
-	static {
-		if (v1_12_R1.craftContainer == null) {
-			v1_12_R1.craftContainer = Ref.constructor(CraftContainer.class, Inventory.class, EntityHuman.class, int.class);
-			++v1_12_R1.containerState;
-		}
-	}
-
 	@Override
 	public Object createContainer(Inventory inv, Player player) {
 		return inv.getType() == InventoryType.ANVIL ? createAnvilContainer(inv, player)
-				: (CraftContainer) (v1_12_R1.containerState == 0 ? Ref.newInstance(v1_12_R1.craftContainer, inv, player, ((CraftPlayer) player).getHandle().nextContainerCounter())
-						: Ref.newInstance(v1_12_R1.craftContainer, inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter()));
+				: new CraftContainer(inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter());
 	}
 
 	@Override
