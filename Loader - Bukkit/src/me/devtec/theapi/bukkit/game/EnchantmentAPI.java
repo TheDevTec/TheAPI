@@ -1,5 +1,7 @@
 package me.devtec.theapi.bukkit.game;
 
+import java.lang.reflect.Field;
+
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -82,6 +84,7 @@ public enum EnchantmentAPI {
 
 	private final String bukkitName;
 	private final int version;
+	private static Field acceptingNew = Ref.field(Enchantment.class, "acceptingNew");
 
 	EnchantmentAPI(String bukkitName) {
 		this(bukkitName, 0);
@@ -92,6 +95,9 @@ public enum EnchantmentAPI {
 		this.version = version;
 	}
 
+	/**
+	 * @apiNote Enchant ItemStack with this Enchantment if supported
+	 */
 	public void enchant(ItemStack item, int level) {
 		if (isSupported())
 			if (item.getType() == Material.ENCHANTED_BOOK) {
@@ -102,24 +108,36 @@ public enum EnchantmentAPI {
 				item.addUnsafeEnchantment(getEnchantment(), level);
 	}
 
+	/**
+	 * @apiNote Get Enchantment by bukkitName if supported
+	 * @return boolean
+	 */
 	public Enchantment getEnchantment() {
 		if (isSupported())
 			return Enchantment.getByName(bukkitName);
 		return null;
 	}
 
+	/**
+	 * @apiNote Does server have this enchant
+	 * @return boolean
+	 */
 	public boolean isSupported() {
-		return Ref.isNewerThan(version - 1);
+		return version == 0 ? true : Ref.isNewerThan(version - 1);
 	}
 
 	/**
-	 * @apiNote Return enchantment real name
+	 * @apiNote Return enchantment bukkit name
 	 * @return String
 	 */
 	public String getName() {
 		return bukkitName;
 	}
 
+	/**
+	 * @apiNote Get EnchantmentAPI from bukkit or vanilla name
+	 * @return EnchantmentAPI
+	 */
 	public static EnchantmentAPI byName(String name) {
 		try {
 			return valueOf(name.toUpperCase());
@@ -128,13 +146,21 @@ public enum EnchantmentAPI {
 		}
 	}
 
+	/**
+	 * @apiNote Conventor Enchantment to EnchantmentAPI
+	 * @return EnchantmentAPI
+	 */
 	public static EnchantmentAPI fromEnchant(Enchantment enchant) {
 		return byName(enchant.getName());
 	}
 
+	/**
+	 * @apiNote Register enchantment to the bukkit
+	 * @return boolean state of success
+	 */
 	public static boolean registerEnchantment(Enchantment e) {
 		boolean registered = false;
-		Ref.set(null, Ref.field(Enchantment.class, "acceptingNew"), true);
+		Ref.set(null, acceptingNew, true);
 		try {
 			Enchantment.registerEnchantment(e);
 			registered = true;
