@@ -788,14 +788,14 @@ public class v1_12_R1 implements NmsProvider {
 	public void setGUITitle(Player player, Object container, String legacy, int size, String title) {
 		int id = ((Container) container).windowId;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
-		if (((CraftPlayer) player).getHandle().inventory.getCarried() != net.minecraft.server.v1_12_R1.ItemStack.a
-				&& ((CraftPlayer) player).getHandle().inventory.getCarried().getItem() != Item.getItemOf(Blocks.AIR))
-			BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, -1, ((CraftPlayer) player).getHandle().inventory.getCarried()));
+		net.minecraft.server.v1_12_R1.ItemStack carried = ((CraftPlayer) player).getHandle().inventory.getCarried();
+		if (!Item.REGISTRY.b(carried.getItem()).getKey().equals("air"))
+			BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, -1, carried));
 		int slot = 0;
-		for (net.minecraft.server.v1_12_R1.ItemStack item : ((Container) container).items) {
+		for (net.minecraft.server.v1_12_R1.ItemStack item : ((Container) container).a()) {
 			if (slot == size)
 				break;
-			if (Item.REGISTRY.b(item.getItem()) != null)
+			if (!Item.REGISTRY.b(item.getItem()).getKey().equals("air"))
 				BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, slot, item));
 			++slot;
 		}
@@ -806,14 +806,6 @@ public class v1_12_R1 implements NmsProvider {
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = ((Container) container).windowId;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
-		int slot = 0;
-		for (net.minecraft.server.v1_12_R1.ItemStack item : ((Container) container).items) {
-			if (slot == size)
-				break;
-			if (Item.REGISTRY.b(item.getItem()) != null)
-				BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, slot, item));
-			++slot;
-		}
 		nmsPlayer.activeContainer.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.activeContainer = (Container) container;
 		((Container) container).addSlotListener(nmsPlayer);
@@ -827,10 +819,10 @@ public class v1_12_R1 implements NmsProvider {
 		int id = container.windowId;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, "minecraft:anvil", 0, title));
 		int slot = 0;
-		for (net.minecraft.server.v1_12_R1.ItemStack item : ((Container) container).items) {
+		for (net.minecraft.server.v1_12_R1.ItemStack item : ((Container) container).a()) {
 			if (slot == 3)
 				break;
-			if (Item.REGISTRY.b(item.getItem()) != null)
+			if (!Item.REGISTRY.b(item.getItem()).getKey().equals("air"))
 				BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, slot, item));
 			++slot;
 		}

@@ -783,13 +783,14 @@ public class v1_19_R1 implements NmsProvider {
 	public void setGUITitle(Player player, Object container, String legacy, int size, String title) {
 		int id = ((Container) container).j;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
-		if (IRegistry.Y.b(((Container) container).g().c()) != null)
-			BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, getContainerStateId(container), -1, ((Container) container).g()));
+		net.minecraft.world.item.ItemStack carried = ((Container) container).g();
+		if (!IRegistry.Y.b(carried.c()).a().equals("air"))
+			BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, getContainerStateId(container), -1, carried));
 		int slot = 0;
-		for (net.minecraft.world.item.ItemStack item : ((Container) container).o) {
+		for (net.minecraft.world.item.ItemStack item : ((Container) container).c()) {
 			if (slot == size)
 				break;
-			if (IRegistry.Y.b(item.c()) != null)
+			if (!IRegistry.Y.b(item.c()).a().equals("air"))
 				BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, getContainerStateId(container), slot, item));
 			++slot;
 		}
@@ -800,14 +801,6 @@ public class v1_19_R1 implements NmsProvider {
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = ((Container) container).j;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
-		int slot = 0;
-		for (net.minecraft.world.item.ItemStack item : ((Container) container).o) {
-			if (slot == size)
-				break;
-			if (IRegistry.Y.b(item.c()) != null)
-				BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, getContainerStateId(container), slot, item));
-			++slot;
-		}
 		nmsPlayer.bU.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.bU = (Container) container;
 		nmsPlayer.a((Container) container);

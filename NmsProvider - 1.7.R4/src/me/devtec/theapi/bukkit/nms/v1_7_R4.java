@@ -748,14 +748,15 @@ public class v1_7_R4 implements NmsProvider {
 	public void setGUITitle(Player player, Object container, String legacy, int size, String title) {
 		int id = ((Container) container).windowId;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
-		if (Item.REGISTRY.c(((CraftPlayer) player).getHandle().inventory.getCarried().getItem()) != null)
-			BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, -1, ((CraftPlayer) player).getHandle().inventory.getCarried()));
+		net.minecraft.server.v1_7_R4.ItemStack carried = ((CraftPlayer) player).getHandle().inventory.getCarried();
+		if (!Item.REGISTRY.c(carried.getItem()).equals("air"))
+			BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, -1, carried));
 		int slot = 0;
-		for (Object objItem : ((Container) container).b) {
+		for (Object objItem : ((Container) container).a()) {
 			if (slot == size)
 				break;
 			net.minecraft.server.v1_7_R4.ItemStack item = (net.minecraft.server.v1_7_R4.ItemStack) objItem;
-			if (Item.REGISTRY.c(item.getItem()) != null)
+			if (!Item.REGISTRY.c(item.getItem()).equals("air"))
 				BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, slot, item));
 			++slot;
 		}
@@ -766,15 +767,6 @@ public class v1_7_R4 implements NmsProvider {
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = ((Container) container).windowId;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
-		int slot = 0;
-		for (Object objItem : ((Container) container).b) {
-			if (slot == size)
-				break;
-			net.minecraft.server.v1_7_R4.ItemStack item = (net.minecraft.server.v1_7_R4.ItemStack) objItem;
-			if (Item.REGISTRY.c(item.getItem()) != null)
-				BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, slot, item));
-			++slot;
-		}
 		nmsPlayer.activeContainer.transferTo((Container) container, (CraftPlayer) player);
 		nmsPlayer.activeContainer = (Container) container;
 		((Container) container).addSlotListener(nmsPlayer);
@@ -792,7 +784,7 @@ public class v1_7_R4 implements NmsProvider {
 			if (slot == 3)
 				break;
 			net.minecraft.server.v1_7_R4.ItemStack item = (net.minecraft.server.v1_7_R4.ItemStack) objItem;
-			if (Item.REGISTRY.c(item.getItem()) != null)
+			if (!Item.REGISTRY.c(item.getItem()).equals("air"))
 				BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, slot, item));
 			++slot;
 		}
