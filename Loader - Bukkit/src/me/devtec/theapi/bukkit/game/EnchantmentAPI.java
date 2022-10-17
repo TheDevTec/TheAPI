@@ -1,9 +1,9 @@
 package me.devtec.theapi.bukkit.game;
 
-import java.lang.reflect.Method;
-
+import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import me.devtec.shared.Ref;
 
@@ -80,30 +80,36 @@ public enum EnchantmentAPI {
 
 	LOOTMOBS("LOOT_BONUS_MOBS"), LOOTBONUSMOBS("LOOT_BONUS_MOBS"), LOOT_BONUS_MOBS("LOOT_BONUS_MOBS"), LOOTING("LOOT_BONUS_MOBS");
 
-	private final String s;
-	private final int v;
-	private static final Method getByName = Ref.method(Enchantment.class, "getByName", String.class);
+	private final String bukkitName;
+	private final int version;
 
-	EnchantmentAPI(String real) {
-		this(real, 0);
+	EnchantmentAPI(String bukkitName) {
+		this(bukkitName, 0);
 	}
 
-	EnchantmentAPI(String real, int version) {
-		s = real;
-		v = version;
+	EnchantmentAPI(String bukkitName, int version) {
+		this.bukkitName = bukkitName;
+		this.version = version;
 	}
 
-	public void enchant(ItemStack to, int level) {
-		if (Ref.isNewerThan(v - 1))
-			to.addUnsafeEnchantment(getEnchantment(), level);
+	public void enchant(ItemStack item, int level) {
+		if (isSupported())
+			if (item.getType() == Material.ENCHANTED_BOOK) {
+				EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
+				meta.addStoredEnchant(getEnchantment(), level, true);
+				item.setItemMeta(meta);
+			} else
+				item.addUnsafeEnchantment(getEnchantment(), level);
 	}
 
 	public Enchantment getEnchantment() {
-		if (Ref.isNewerThan(v - 1)) {
-			Object o = Ref.invoke(null, getByName, s);
-			return o == null ? null : (Enchantment) o;
-		}
+		if (isSupported())
+			return Enchantment.getByName(bukkitName);
 		return null;
+	}
+
+	public boolean isSupported() {
+		return Ref.isNewerThan(version - 1);
 	}
 
 	/**
@@ -111,7 +117,7 @@ public enum EnchantmentAPI {
 	 * @return String
 	 */
 	public String getName() {
-		return s;
+		return bukkitName;
 	}
 
 	public static EnchantmentAPI byName(String name) {
@@ -123,7 +129,7 @@ public enum EnchantmentAPI {
 	}
 
 	public static EnchantmentAPI fromEnchant(Enchantment enchant) {
-		return byName(enchant.toString());
+		return byName(enchant.getName());
 	}
 
 	public static boolean registerEnchantment(Enchantment e) {
