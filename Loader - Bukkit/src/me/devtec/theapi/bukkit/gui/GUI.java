@@ -66,7 +66,6 @@ public class GUI implements HolderGUI {
 				size = 9;
 			break;
 		}
-		title = StringUtils.colorize(title);
 		if (Ref.isOlderThan(9) && title.length() >= 32)
 			title = title.substring(0, 32);
 		inv = Bukkit.createInventory(null, size, title);
