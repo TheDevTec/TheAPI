@@ -367,10 +367,10 @@ public class v1_12_R1 implements NmsProvider {
 	}
 
 	private IChatBaseComponent convert(Component c) {
-		ChatComponentText current = new ChatComponentText(c.getText());
+		ChatComponentText current = new ChatComponentText(c.toString()); // legacy
 		ChatModifier modif = current.getChatModifier();
 		if (c.getColor() != null)
-			modif.setColor(EnumChatFormat.b(c.getColor()));
+			modif.setColor(EnumChatFormat.valueOf(c.getColor().toUpperCase()));
 		if (c.getClickEvent() != null)
 			modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
 		if (c.getHoverEvent() != null)
@@ -408,6 +408,8 @@ public class v1_12_R1 implements NmsProvider {
 				continue;
 			}
 			chat.add(convert(c));
+			if (c.getExtra() != null)
+				addConverted(chat, c.getExtra());
 		}
 	}
 
