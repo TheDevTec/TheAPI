@@ -17,7 +17,7 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 /**
  * 1.7.10 - 1.8.8
  *
- * Updated by StraikerinaCZ 29.09. 2022
+ * Updated by StraikerinaCZ 20.10. 2022
  */
 public class BossBar {
 	private static final Class<?> c = Ref.nms("", "EntityWither");
@@ -66,19 +66,7 @@ public class BossBar {
 		if (loc.getY() < 1)
 			loc.setY(1);
 		if (!before.equals(loc.getWorld())) { // Switch world, respawn entity
-			before = loc.getWorld();
-			entityBar = Ref.newInstance(BossBar.barOld, BukkitLoader.getNmsProvider().getWorld(loc.getWorld()));
-			Ref.invoke(entityBar, BossBar.mLoc, loc.getX(), loc.getY(), loc.getZ(), 0, 0);
-			entityId = BukkitLoader.getNmsProvider().getEntityId(entityBar);
-			Object watcher = Ref.newInstance(Ref.constructor(Ref.nms("", "DataWatcher"), Ref.nms("", "Entity")), (Object) null);
-			Ref.invoke(watcher, set, 0, (byte) 0x20);
-			Ref.invoke(watcher, set, 3, (byte) 1);
-			Ref.invoke(watcher, set, 6, (float) progress);
-			Ref.invoke(watcher, set, 2, title);
-			Ref.invoke(watcher, set, 20, 200000);
-			Object packet = BukkitLoader.getNmsProvider().packetSpawnEntityLiving(entityBar);
-			Ref.set(packet, t, watcher);
-			BukkitLoader.getPacketHandler().send(holder, packet);
+			spawnBar(loc);
 			return;
 		}
 		Object packet = Ref.newInstance(BossBar.tpC);
@@ -121,31 +109,12 @@ public class BossBar {
 		if (loc.getY() < 1)
 			loc.setY(1);
 		if (!before.equals(loc.getWorld())) { // Switch world, respawn entity
-			before = loc.getWorld();
-			entityBar = Ref.newInstance(BossBar.barOld, BukkitLoader.getNmsProvider().getWorld(loc.getWorld()));
-			Ref.invoke(entityBar, BossBar.mLoc, loc.getX(), loc.getY(), loc.getZ(), 0, 0);
-			entityId = BukkitLoader.getNmsProvider().getEntityId(entityBar);
-			Object watcher = Ref.newInstance(Ref.constructor(Ref.nms("", "DataWatcher"), Ref.nms("", "Entity")), (Object) null);
-			Ref.invoke(watcher, set, 0, (byte) 0x20);
-			Ref.invoke(watcher, set, 3, (byte) 1);
-			Ref.invoke(watcher, set, 6, (float) progress);
-			Ref.invoke(watcher, set, 2, title);
-			Ref.invoke(watcher, set, 20, 200000);
-			Object packet = BukkitLoader.getNmsProvider().packetSpawnEntityLiving(entityBar);
-			Ref.set(packet, t, watcher);
-			BukkitLoader.getPacketHandler().send(holder, packet);
+			spawnBar(loc);
 			BukkitLoader.bossbars.add(this);
 			return;
 		}
-		Ref.invoke(entityBar, BossBar.mLoc, loc.getX(), loc.getY(), loc.getZ(), 0, 0);
-		Object watcher = Ref.newInstance(Ref.constructor(Ref.nms("", "DataWatcher"), Ref.nms("", "Entity")), (Object) null);
-		Ref.invoke(watcher, set, 0, (byte) 0x20);
-		Ref.invoke(watcher, set, 3, (byte) 1);
-		Ref.invoke(watcher, set, 6, (float) progress);
-		Ref.invoke(watcher, set, 2, title);
-		Ref.invoke(watcher, set, 20, 200000);
 		Object packet = BukkitLoader.getNmsProvider().packetSpawnEntityLiving(entityBar);
-		Ref.set(packet, t, watcher);
+		Ref.set(packet, t, setupDataWatcher());
 		BukkitLoader.getPacketHandler().send(holder, packet);
 		BukkitLoader.bossbars.add(this);
 	}
@@ -162,30 +131,31 @@ public class BossBar {
 			Location loc = holder.getEyeLocation().add(holder.getEyeLocation().getDirection().normalize().multiply(60));
 			if (loc.getY() < 1)
 				loc.setY(1);
-			before = loc.getWorld();
-			entityBar = Ref.newInstance(BossBar.barOld, BukkitLoader.getNmsProvider().getWorld(loc.getWorld()));
-			Ref.invoke(entityBar, BossBar.mLoc, loc.getX(), loc.getY(), loc.getZ(), 0, 0);
-			entityId = BukkitLoader.getNmsProvider().getEntityId(entityBar);
-
-			Object watcher = Ref.newInstance(Ref.constructor(Ref.nms("", "DataWatcher"), Ref.nms("", "Entity")), (Object) null);
-			Ref.invoke(watcher, set, 0, (byte) 0x20);
-			Ref.invoke(watcher, set, 3, (byte) 1);
-			Ref.invoke(watcher, set, 6, (float) this.progress);
-			Ref.invoke(watcher, set, 2, title);
-			Ref.invoke(watcher, set, 20, 200000);
-			Object packet = BukkitLoader.getNmsProvider().packetSpawnEntityLiving(entityBar);
-			Ref.set(packet, t, watcher);
-			BukkitLoader.getPacketHandler().send(holder, packet);
+			spawnBar(loc);
 			return;
 		}
+		BukkitLoader.getPacketHandler().send(holder, BukkitLoader.getNmsProvider().packetEntityMetadata(entityId, setupDataWatcher()));
+	}
 
+	private void spawnBar(Location loc) {
+		before = loc.getWorld();
+		entityBar = Ref.newInstance(BossBar.barOld, BukkitLoader.getNmsProvider().getWorld(loc.getWorld()));
+		Ref.invoke(entityBar, BossBar.mLoc, loc.getX(), loc.getY(), loc.getZ(), 0, 0);
+		entityId = BukkitLoader.getNmsProvider().getEntityId(entityBar);
+		Object packet = BukkitLoader.getNmsProvider().packetSpawnEntityLiving(entityBar);
+		Ref.set(packet, t, setupDataWatcher());
+		BukkitLoader.getPacketHandler().send(holder, packet);
+	}
+
+	private Object setupDataWatcher() {
 		Object watcher = Ref.newInstance(Ref.constructor(Ref.nms("", "DataWatcher"), Ref.nms("", "Entity")), (Object) null);
 		Ref.invoke(watcher, set, 0, (byte) 0x20);
 		Ref.invoke(watcher, set, 3, (byte) 1);
-		Ref.invoke(watcher, set, 6, (float) this.progress);
+		Ref.invoke(watcher, set, 6, (float) progress);
+		Ref.invoke(watcher, set, 2, title);
 		Ref.invoke(watcher, set, 10, title);
 		Ref.invoke(watcher, set, 20, 200000);
-		BukkitLoader.getPacketHandler().send(holder, BukkitLoader.getNmsProvider().packetEntityMetadata(entityId, watcher));
+		return watcher;
 	}
 
 	public void remove() {

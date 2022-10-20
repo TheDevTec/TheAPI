@@ -5,8 +5,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.inject.Inject;
@@ -25,7 +23,6 @@ import me.devtec.shared.Ref.ServerType;
 import me.devtec.shared.components.AdventureComponentAPI;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.dataholder.Config;
-import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.json.Json;
 import me.devtec.shared.json.modern.ModernJsonReader;
 import me.devtec.shared.json.modern.ModernJsonWriter;
@@ -115,47 +112,7 @@ public class VelocityLoader {
 		API.basics().load();
 		StringUtils.rainbowSplit = Pattern.compile("(&?#[A-Fa-f0-9]{6}([&§][K-Ok-oRr])*|[&§][Xx]([&§][A-Fa-f0-9]){6}([&§][K-Ok-oRr])*|[&§][A-Fa-f0-9K-ORrk-oUuXx]([&§][K-Ok-oRr])*)");
 		StringUtils.color = new ColormaticFactory() {
-			char[] characters = "abcdef0123456789".toCharArray();
-			Random random = new Random();
-			Pattern getLast = Pattern.compile("(&?#[A-Fa-f0-9k-oK-ORrXxUu]{6}|§[Xx](§[A-Fa-f0-9k-oK-ORrXxUu]){6}|§[A-Fa-f0-9k-oK-ORrXxUu]|&[Uu])");
-			Pattern hex = Pattern.compile("(&?#[a-fA-F0-9]{6})");
-
-			@Override
-			public String gradient(String msg, String fromHex, String toHex, List<String> protectedStrings) {
-				return API.basics().gradient(msg, fromHex, toHex, protectedStrings);
-			}
-
-			@Override
-			public String generateColor() {
-				StringContainer b = new StringContainer(7).append("#");
-				for (int i = 0; i < 6; ++i)
-					b.append(characters[random.nextInt(16)]);
-				return b.toString();
-			}
-
-			@Override
-			public String[] getLastColors(String text) {
-				return API.basics().getLastColors(getLast, text);
-			}
-
-			@Override
-			public String replaceHex(String text) {
-				String msg = text;
-				Matcher match = hex.matcher(msg);
-				while (match.find()) {
-					String color = match.group();
-					StringContainer hex = new StringContainer(14).append("§x");
-					for (char c : color.substring(1).toCharArray())
-						hex.append('§').append(Character.toLowerCase(c));
-					msg = msg.replace(color, hex.toString());
-				}
-				return msg;
-			}
-
-			@Override
-			public String rainbow(String msg, String fromHex, String toHex, List<String> protectedStrings) {
-				return API.basics().rainbow(msg, fromHex, toHex, protectedStrings);
-			}
+			// Defaults
 		};
 	}
 }

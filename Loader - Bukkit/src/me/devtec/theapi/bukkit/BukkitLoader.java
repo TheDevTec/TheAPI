@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -633,12 +632,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		API.basics().load();
 		StringUtils.rainbowSplit = Pattern.compile("(#[A-Fa-f0-9]{6}([&§][K-Ok-oRr])*|[&§][Xx]([&§][A-Fa-f0-9]){6}([&§][K-Ok-oRr])*|[&§][A-Fa-f0-9K-ORrk-oUuXx]([&§][K-Ok-oRr])*)");
 		StringUtils.color = new ColormaticFactory() {
-			char[] characters = "abcdef0123456789".toCharArray();
-			Random random = new Random();
-			Pattern getLast = Pattern.compile("(#[A-Fa-f0-9k-oK-ORrXxUu]{6}|§[Xx](§[A-Fa-f0-9k-oK-ORrXxUu]){6}|§[A-Fa-f0-9k-oK-ORrXxUu]|&[Uu])");
-			Pattern hex = Pattern.compile("(#[a-fA-F0-9]{6})");
 			String rainbow = "c6ea9b5";
-
 			char[] chars = rainbow.toCharArray();
 			AtomicInteger position = new AtomicInteger(0);
 
@@ -718,13 +712,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				}
 				StringContainer b = new StringContainer(7).append("#");
 				for (int i = 0; i < 6; ++i)
-					b.append(characters[random.nextInt(16)]);
+					b.append(characters[StringUtils.random.nextInt(16)]);
 				return b.toString();
-			}
-
-			@Override
-			public String[] getLastColors(String text) {
-				return API.basics().getLastColors(getLast, text);
 			}
 
 			@Override
