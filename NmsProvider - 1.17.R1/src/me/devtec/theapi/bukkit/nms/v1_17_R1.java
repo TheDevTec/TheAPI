@@ -591,6 +591,7 @@ public class v1_17_R1 implements NmsProvider {
 		// ADD TILE ENTITY
 		if (iblock.getBlock() instanceof ITileEntity) {
 			ent = ((ITileEntity) iblock.getBlock()).createTile(pos, iblock);
+			chunk.l.put(pos, ent);
 			ent.setWorld(chunk.i);
 			Object packet = ent.getUpdatePacket();
 			BukkitLoader.getPacketHandler().send(chunk.getBukkitChunk().getWorld().getPlayers(), packet);

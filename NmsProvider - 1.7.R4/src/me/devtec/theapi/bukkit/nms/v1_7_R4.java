@@ -561,6 +561,7 @@ public class v1_7_R4 implements NmsProvider {
 		return loaded;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void setBlock(Object objChunk, int x, int y, int z, Object block, int data) {
 		net.minecraft.server.v1_7_R4.Chunk chunk = (net.minecraft.server.v1_7_R4.Chunk) objChunk;
@@ -590,6 +591,7 @@ public class v1_7_R4 implements NmsProvider {
 		// ADD TILE ENTITY
 		if (iblock instanceof IContainer) {
 			ent = ((IContainer) iblock).a(chunk.world, 0);
+			chunk.tileEntities.put(pos, ent);
 			ent.a(chunk.world);
 			ent.x = x;
 			ent.y = y;

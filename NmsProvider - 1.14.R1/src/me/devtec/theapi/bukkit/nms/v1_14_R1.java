@@ -622,6 +622,7 @@ public class v1_14_R1 implements NmsProvider {
 		// ADD TILE ENTITY
 		if (iblock.getBlock() instanceof ITileEntity) {
 			ent = ((ITileEntity) iblock.getBlock()).createTile(chunk);
+			chunk.tileEntities.put(pos, ent);
 			ent.setWorld(chunk.world);
 			ent.setPosition(pos);
 			Ref.set(ent, "c", iblock);
