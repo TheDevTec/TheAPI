@@ -421,6 +421,10 @@ public class Position implements Cloneable {
 		BukkitLoader.getNmsProvider().updatePhysics(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), getIBlockData());
 	}
 
+	public void updatePhysics(Object blockData) {
+		BukkitLoader.getNmsProvider().updatePhysics(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), blockData);
+	}
+
 	@Override
 	public Position clone() {
 		return new Position(this);

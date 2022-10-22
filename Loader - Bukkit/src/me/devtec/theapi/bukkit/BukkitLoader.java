@@ -58,6 +58,7 @@ import me.devtec.shared.json.Json.DataWriter;
 import me.devtec.shared.json.modern.ModernJsonReader;
 import me.devtec.shared.json.modern.ModernJsonWriter;
 import me.devtec.shared.placeholders.PlaceholderAPI;
+import me.devtec.shared.placeholders.PlaceholderExpansion;
 import me.devtec.shared.scheduler.Scheduler;
 import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.shared.utility.MemoryCompiler;
@@ -338,33 +339,70 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	public void onEnable() {
 		Bukkit.getPluginManager().registerEvents(this, this);
 		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-			PlaceholderAPI.PAPI_BRIDGE = new me.devtec.shared.placeholders.PlaceholderExpansion("PAPI Support") {
+			PlaceholderAPI.PAPI_BRIDGE = new PlaceholderExpansion("PAPI Support") {
 				@Override
 				public String apply(String text, UUID player) {
 					return me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player == null ? null : Bukkit.getOfflinePlayer(player), "%" + text + "%");
 				}
 			};
-			new me.clip.placeholderapi.expansion.PlaceholderExpansion() {
-				@Override
-				public String onRequest(OfflinePlayer player, String params) {
-					return PlaceholderAPI.apply("%" + params + "%", player == null ? null : player.getUniqueId());
-				}
+			for (PlaceholderExpansion exp : PlaceholderAPI.getPlaceholders())
+				((me.clip.placeholderapi.expansion.PlaceholderExpansion) exp.setPapiInstance(new me.clip.placeholderapi.expansion.PlaceholderExpansion() {
+					@Override
+					public String onRequest(OfflinePlayer player, String params) {
+						return exp.apply(params, player == null ? null : player.getUniqueId());
+					}
 
-				@Override
-				public String getIdentifier() {
-					return "theapi";
-				}
+					@Override
+					public String getName() {
+						return exp.getName();
+					}
 
-				@Override
-				public String getAuthor() {
-					return "DevTec & StraikerinaCZ";
-				}
+					@Override
+					public String getIdentifier() {
+						return exp.getName().toLowerCase();
+					}
 
-				@Override
-				public String getVersion() {
-					return BukkitLoader.this.getDescription().getVersion();
-				}
-			}.register();
+					@Override
+					public String getAuthor() {
+						return "(Unknown) TheAPI Provided Placeholder";
+					}
+
+					@Override
+					public String getVersion() {
+						return BukkitLoader.this.getDescription().getVersion();
+					}
+				}).getPapiInstance()).register();
+			PlaceholderAPI.registerConsumer = exp -> {
+				((me.clip.placeholderapi.expansion.PlaceholderExpansion) exp.setPapiInstance(new me.clip.placeholderapi.expansion.PlaceholderExpansion() {
+					@Override
+					public String onRequest(OfflinePlayer player, String params) {
+						return exp.apply(params, player == null ? null : player.getUniqueId());
+					}
+
+					@Override
+					public String getName() {
+						return exp.getName();
+					}
+
+					@Override
+					public String getIdentifier() {
+						return exp.getName().toLowerCase();
+					}
+
+					@Override
+					public String getAuthor() {
+						return "(Unknown) TheAPI Provided Placeholder";
+					}
+
+					@Override
+					public String getVersion() {
+						return BukkitLoader.this.getDescription().getVersion();
+					}
+				}).getPapiInstance()).register();
+			};
+			PlaceholderAPI.unregisterConsumer = exp -> {
+				((me.clip.placeholderapi.expansion.PlaceholderExpansion) exp.getPapiInstance()).unregister();
+			};
 		}
 
 		// Command to reload NmsProvider
