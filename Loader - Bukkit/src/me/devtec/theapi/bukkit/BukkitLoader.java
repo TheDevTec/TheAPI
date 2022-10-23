@@ -100,10 +100,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	public List<BossBar> bossbars = new ArrayList<>();
 	public Map<UUID, ResourcePackHandler> resourcePackHandler = new ConcurrentHashMap<>();
 
-	private boolean isInsidePath(Path current, Path file) {
-		return current.equals(file.toAbsolutePath().getParent());
-	}
-
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onLoad() {
@@ -246,98 +242,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		}.register();
 
 		new Metrics(this, 10581);
-	}
-
-	private void checkForUpdateAndDownloadCompiled() {
-		try {
-			Config gitVersion = Config.loadFromInput(
-					new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + Ref.serverVersion().substring(1).replace("_", ".") + "/version.yml").openStream());
-
-			Config localVersion = new Config("plugins/TheAPI/version.yml");
-
-			String jarRelease = Config.loadFromInput(getResource("release.yml")).getString("release");
-			localVersion.setIfAbsent("build", 1);
-			localVersion.setComments("build", Arrays.asList("# DO NOT MODIFY THIS VALUE"));
-
-			Version ver = VersionUtils.getVersion(gitVersion.getString("release"), jarRelease);
-
-			if (ver != Version.OLDER_VERSION && ver != Version.SAME_VERSION && new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar").exists()) {
-				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Can't download new NmsProvider, please update TheAPI.");
-				localVersion.save(DataType.YAML);
-				return;
-			}
-			if (localVersion.getInt("build") < gitVersion.getInt("build") || !new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar").exists()) {
-				localVersion.set("build", gitVersion.getInt("build"));
-				localVersion.save(DataType.YAML);
-
-				URL url = new URL(
-						"https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + Ref.serverVersion().substring(1).replace("_", ".") + "/" + Ref.serverVersion() + ".jar");
-				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §aDownloading update!");
-				API.library.downloadFileFromUrl(url, new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar"));
-			}
-		} catch (Exception e) {
-			Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §eNot found NmsProvider for your server version, do you have your own?");
-		}
-	}
-
-	private void checkForUpdateAndDownload() {
-		try {
-			Config gitVersion = Config.loadFromInput(
-					new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + Ref.serverVersion().substring(1).replace("_", ".") + "/version.yml").openStream());
-
-			Config localVersion = new Config("plugins/TheAPI/version.yml");
-
-			String jarRelease = Config.loadFromInput(getResource("release.yml")).getString("release");
-			localVersion.setIfAbsent("build", 1);
-			localVersion.setComments("build", Arrays.asList("# DO NOT MODIFY THIS VALUE"));
-
-			Version ver = VersionUtils.getVersion(gitVersion.getString("release"), jarRelease);
-
-			if (ver != Version.OLDER_VERSION && ver != Version.SAME_VERSION && new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java").exists()) {
-				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Can't download new NmsProvider, please update TheAPI.");
-				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Current release: " + jarRelease);
-				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Required release: " + gitVersion.getString("release"));
-				localVersion.save(DataType.YAML);
-				return;
-			}
-			if (localVersion.getInt("build") < gitVersion.getInt("build") || !new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java").exists()) {
-				localVersion.set("build", gitVersion.getInt("build"));
-				localVersion.save(DataType.YAML);
-
-				URL url = new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + Ref.serverVersion().substring(1).replace("_", ".")
-						+ "/src/me/devtec/theapi/bukkit/nms/" + Ref.serverVersion() + ".java");
-				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §aDownloading update!");
-				API.library.downloadFileFromUrl(url, new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java"));
-			}
-		} catch (Exception e) {
-			Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §eNot found NmsProvider for your server version, do you have your own?");
-		}
-	}
-
-	private void getAllJarFiles() throws URISyntaxException {
-		StringContainer args = new StringContainer(1024);
-		File file = new File(Bukkit.getServer().getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-		String fixedPath = file.getName();
-		while (!isInsidePath(file.getParentFile().toPath(), new File(System.getProperty("java.class.path")).toPath())) {
-			fixedPath = file.getParentFile().getName() + "/" + fixedPath;
-			file = file.getParentFile();
-		}
-		MemoryCompiler.allJars += (System.getProperty("os.name").toLowerCase().contains("win") ? ";" : ":") + "./" + fixedPath;
-		addAllJarFiles(args, new File("plugins"), false); // Plugins
-		addAllJarFiles(args, new File("libraries"), true); // Libraries
-		MemoryCompiler.allJars += args.toString();
-	}
-
-	private void addAllJarFiles(StringContainer args, File folder, boolean sub) {
-		if (!folder.exists())
-			return;
-		File[] files = folder.listFiles();
-		if (files != null)
-			for (File file : files)
-				if (file.isDirectory() && sub)
-					addAllJarFiles(args, file, sub);
-				else if (file.getName().endsWith(".jar"))
-					args.append(System.getProperty("os.name").toLowerCase().contains("win") ? ';' : ':').append('.').append('/').append(file.getPath());
 	}
 
 	@Override
@@ -782,5 +686,101 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				return gradient(msg, null, null, protectedStrings);
 			}
 		};
+	}
+
+	private void checkForUpdateAndDownloadCompiled() {
+		try {
+			Config gitVersion = Config.loadFromInput(
+					new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + Ref.serverVersion().substring(1).replace("_", ".") + "/version.yml").openStream());
+
+			Config localVersion = new Config("plugins/TheAPI/version.yml");
+
+			String jarRelease = Config.loadFromInput(getResource("release.yml")).getString("release");
+			localVersion.setIfAbsent("build", 1);
+			localVersion.setComments("build", Arrays.asList("# DO NOT MODIFY THIS VALUE"));
+
+			Version ver = VersionUtils.getVersion(gitVersion.getString("release"), jarRelease);
+
+			if (ver != Version.OLDER_VERSION && ver != Version.SAME_VERSION && new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar").exists()) {
+				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Can't download new NmsProvider, please update TheAPI.");
+				localVersion.save(DataType.YAML);
+				return;
+			}
+			if (localVersion.getInt("build") < gitVersion.getInt("build") || !new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar").exists()) {
+				localVersion.set("build", gitVersion.getInt("build"));
+				localVersion.save(DataType.YAML);
+
+				URL url = new URL(
+						"https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + Ref.serverVersion().substring(1).replace("_", ".") + "/" + Ref.serverVersion() + ".jar");
+				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §aDownloading update!");
+				API.library.downloadFileFromUrl(url, new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar"));
+			}
+		} catch (Exception e) {
+			Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §eNot found NmsProvider for your server version, do you have your own?");
+		}
+	}
+
+	private void checkForUpdateAndDownload() {
+		try {
+			Config gitVersion = Config.loadFromInput(
+					new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + Ref.serverVersion().substring(1).replace("_", ".") + "/version.yml").openStream());
+
+			Config localVersion = new Config("plugins/TheAPI/version.yml");
+
+			String jarRelease = Config.loadFromInput(getResource("release.yml")).getString("release");
+			localVersion.setIfAbsent("build", 1);
+			localVersion.setComments("build", Arrays.asList("# DO NOT MODIFY THIS VALUE"));
+
+			Version ver = VersionUtils.getVersion(gitVersion.getString("release"), jarRelease);
+
+			if (ver != Version.OLDER_VERSION && ver != Version.SAME_VERSION && new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java").exists()) {
+				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Can't download new NmsProvider, please update TheAPI.");
+				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Current release: " + jarRelease);
+				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Required release: " + gitVersion.getString("release"));
+				localVersion.save(DataType.YAML);
+				return;
+			}
+			if (localVersion.getInt("build") < gitVersion.getInt("build") || !new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java").exists()) {
+				localVersion.set("build", gitVersion.getInt("build"));
+				localVersion.save(DataType.YAML);
+
+				URL url = new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + Ref.serverVersion().substring(1).replace("_", ".")
+						+ "/src/me/devtec/theapi/bukkit/nms/" + Ref.serverVersion() + ".java");
+				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §aDownloading update!");
+				API.library.downloadFileFromUrl(url, new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java"));
+			}
+		} catch (Exception e) {
+			Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §eNot found NmsProvider for your server version, do you have your own?");
+		}
+	}
+
+	private void getAllJarFiles() throws URISyntaxException {
+		StringContainer args = new StringContainer(1024);
+		File file = new File(Bukkit.getServer().getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+		String fixedPath = file.getName();
+		while (!isInsidePath(file.getParentFile().toPath(), new File(System.getProperty("java.class.path")).toPath())) {
+			fixedPath = file.getParentFile().getName() + "/" + fixedPath;
+			file = file.getParentFile();
+		}
+		MemoryCompiler.allJars += (System.getProperty("os.name").toLowerCase().contains("win") ? ";" : ":") + "./" + fixedPath;
+		addAllJarFiles(args, new File("plugins"), false); // Plugins
+		addAllJarFiles(args, new File("libraries"), true); // Libraries
+		MemoryCompiler.allJars += args.toString();
+	}
+
+	private boolean isInsidePath(Path current, Path file) {
+		return current.equals(file.toAbsolutePath().getParent());
+	}
+
+	private void addAllJarFiles(StringContainer args, File folder, boolean sub) {
+		if (!folder.exists())
+			return;
+		File[] files = folder.listFiles();
+		if (files != null)
+			for (File file : files)
+				if (file.isDirectory() && sub)
+					addAllJarFiles(args, file, sub);
+				else if (file.getName().endsWith(".jar"))
+					args.append(System.getProperty("os.name").toLowerCase().contains("win") ? ';' : ':').append('.').append('/').append(file.getPath());
 	}
 }
