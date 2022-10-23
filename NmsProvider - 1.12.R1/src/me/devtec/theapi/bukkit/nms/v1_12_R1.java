@@ -637,7 +637,7 @@ public class v1_12_R1 implements NmsProvider {
 			ent.setPosition(pos);
 			Ref.set(ent, "e", iblock.getBlock());
 			Object packet = ent.getUpdatePacket();
-			BukkitLoader.getPacketHandler().send(chunk.bukkitChunk.getWorld().getPlayers(), packet);
+			BukkitLoader.getPacketHandler().send(chunk.world.getWorld().getPlayers(), packet);
 		}
 
 		// MARK CHUNK TO SAVE
@@ -707,7 +707,7 @@ public class v1_12_R1 implements NmsProvider {
 		parsedNbt.setInt("z", z);
 		ent.load(parsedNbt);
 		Object packet = ent.getUpdatePacket();
-		BukkitLoader.getPacketHandler().send(chunk.bukkitChunk.getWorld().getPlayers(), packet);
+		BukkitLoader.getPacketHandler().send(chunk.world.getWorld().getPlayers(), packet);
 	}
 
 	@Override

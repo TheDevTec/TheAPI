@@ -618,6 +618,8 @@ public class v1_8_R3 implements NmsProvider {
 		return loaded;
 	}
 
+	private static Field tileEntityBlock = Ref.field(TileEntity.class, "e");
+
 	@Override
 	public void setBlock(Object objChunk, int x, int y, int z, Object IblockData, int data) {
 		net.minecraft.server.v1_8_R3.Chunk chunk = (net.minecraft.server.v1_8_R3.Chunk) objChunk;
@@ -650,9 +652,9 @@ public class v1_8_R3 implements NmsProvider {
 			chunk.tileEntities.put(pos, ent);
 			ent.a(chunk.world);
 			ent.a(pos);
-			Ref.set(ent, "e", iblock.getBlock());
+			Ref.set(ent, tileEntityBlock, iblock.getBlock());
 			Object packet = ent.getUpdatePacket();
-			BukkitLoader.getPacketHandler().send(chunk.bukkitChunk.getWorld().getPlayers(), packet);
+			BukkitLoader.getPacketHandler().send(chunk.world.getWorld().getPlayers(), packet);
 		}
 
 		// MARK CHUNK TO SAVE
@@ -724,7 +726,7 @@ public class v1_8_R3 implements NmsProvider {
 		parsedNbt.setInt("z", z);
 		ent.a(parsedNbt);
 		Object packet = ent.getUpdatePacket();
-		BukkitLoader.getPacketHandler().send(chunk.bukkitChunk.getWorld().getPlayers(), packet);
+		BukkitLoader.getPacketHandler().send(chunk.world.getWorld().getPlayers(), packet);
 	}
 
 	@Override

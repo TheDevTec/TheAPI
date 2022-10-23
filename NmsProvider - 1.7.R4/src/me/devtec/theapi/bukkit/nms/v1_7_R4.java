@@ -545,6 +545,8 @@ public class v1_7_R4 implements NmsProvider {
 		return loaded;
 	}
 
+	private static Field tileEntityBlock = Ref.field(TileEntity.class, "h");
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void setBlock(Object objChunk, int x, int y, int z, Object block, int data) {
@@ -580,9 +582,9 @@ public class v1_7_R4 implements NmsProvider {
 			ent.x = x;
 			ent.y = y;
 			ent.z = z;
-			Ref.set(ent, "h", iblock);
+			Ref.set(ent, tileEntityBlock, iblock);
 			Object packet = ent.getUpdatePacket();
-			BukkitLoader.getPacketHandler().send(chunk.bukkitChunk.getWorld().getPlayers(), packet);
+			BukkitLoader.getPacketHandler().send(chunk.world.getWorld().getPlayers(), packet);
 		}
 
 		// MARK CHUNK TO SAVE
@@ -658,7 +660,7 @@ public class v1_7_R4 implements NmsProvider {
 		parsedNbt.setInt("z", z);
 		ent.a(parsedNbt);
 		Object packet = ent.getUpdatePacket();
-		BukkitLoader.getPacketHandler().send(chunk.bukkitChunk.getWorld().getPlayers(), packet);
+		BukkitLoader.getPacketHandler().send(chunk.world.getWorld().getPlayers(), packet);
 	}
 
 	@Override

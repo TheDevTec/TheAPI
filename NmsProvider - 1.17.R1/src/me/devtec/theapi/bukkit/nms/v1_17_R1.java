@@ -1,5 +1,6 @@
 package me.devtec.theapi.bukkit.nms;
 
+import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -557,6 +558,8 @@ public class v1_17_R1 implements NmsProvider {
 		return ((CraftChunk) world.getChunkAt(x, z)).getHandle();
 	}
 
+	static Field blockNbt = Ref.field(net.minecraft.world.level.chunk.Chunk.class, "f");
+
 	@Override
 	public void setBlock(Object objChunk, int x, int y, int z, Object IblockData, int data) {
 		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
@@ -575,7 +578,7 @@ public class v1_17_R1 implements NmsProvider {
 		if (ent != null)
 			ent.aa_();
 		@SuppressWarnings("unchecked")
-		Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, "f");
+		Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, blockNbt);
 		h.remove(pos);
 		chunk.i.capturedTileEntities.remove(pos);
 
@@ -588,7 +591,7 @@ public class v1_17_R1 implements NmsProvider {
 			chunk.l.put(pos, ent);
 			ent.setWorld(chunk.i);
 			Object packet = ent.getUpdatePacket();
-			BukkitLoader.getPacketHandler().send(chunk.getBukkitChunk().getWorld().getPlayers(), packet);
+			BukkitLoader.getPacketHandler().send(chunk.i.getWorld().getPlayers(), packet);
 		}
 
 		// MARK CHUNK TO SAVE
@@ -664,7 +667,7 @@ public class v1_17_R1 implements NmsProvider {
 		parsedNbt.setInt("z", z);
 		ent.load(parsedNbt);
 		Object packet = ent.getUpdatePacket();
-		BukkitLoader.getPacketHandler().send(chunk.getBukkitChunk().getWorld().getPlayers(), packet);
+		BukkitLoader.getPacketHandler().send(chunk.i.getWorld().getPlayers(), packet);
 	}
 
 	@Override

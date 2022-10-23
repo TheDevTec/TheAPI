@@ -1,6 +1,7 @@
 package me.devtec.theapi.bukkit.nms;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -566,6 +567,8 @@ public class v1_19_R1 implements NmsProvider {
 		return ((CraftChunk) world.getChunkAt(x, z)).getHandle();
 	}
 
+	static Field blockNbt = Ref.field(net.minecraft.world.level.chunk.Chunk.class, "h");
+
 	@Override
 	public void setBlock(Object objChunk, int x, int y, int z, Object IblockData, int data) {
 		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
@@ -584,7 +587,7 @@ public class v1_19_R1 implements NmsProvider {
 		if (ent != null)
 			ent.ab_();
 		@SuppressWarnings("unchecked")
-		Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, "h");
+		Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, blockNbt);
 		h.remove(pos);
 		chunk.q.capturedTileEntities.remove(pos);
 
@@ -597,7 +600,7 @@ public class v1_19_R1 implements NmsProvider {
 			chunk.i.put(pos, ent);
 			ent.a(chunk.q);
 			Object packet = ent.h();
-			BukkitLoader.getPacketHandler().send(chunk.getBukkitChunk().getWorld().getPlayers(), packet);
+			BukkitLoader.getPacketHandler().send(chunk.q.getWorld().getPlayers(), packet);
 		}
 
 		// MARK CHUNK TO SAVE
@@ -639,10 +642,12 @@ public class v1_19_R1 implements NmsProvider {
 		chunk.q.k().a().a(new BlockPosition(x, y, z));
 	}
 
+	private static boolean isPaperChunkRework = Ref.getClass("io.papermc.paper.chunk.system.scheduling.ChunkHolderManager") != null;
+
 	@Override
 	public Object getBlock(Object objChunk, int x, int y, int z) {
 		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
-		if (Ref.getClass("io.papermc.paper.chunk.system.scheduling.ChunkHolderManager") != null)
+		if (isPaperChunkRework)
 			return chunk.getBlockStateFinal(x, y, z); // Modern getting of blocks, Thx PaperSpigot!
 		int highY = chunk.e(y);
 		if (highY < 0)
@@ -674,7 +679,7 @@ public class v1_19_R1 implements NmsProvider {
 		parsedNbt.a("z", z);
 		ent.a(parsedNbt);
 		Object packet = ent.h();
-		BukkitLoader.getPacketHandler().send(chunk.getBukkitChunk().getWorld().getPlayers(), packet);
+		BukkitLoader.getPacketHandler().send(chunk.q.getWorld().getPlayers(), packet);
 	}
 
 	@Override
