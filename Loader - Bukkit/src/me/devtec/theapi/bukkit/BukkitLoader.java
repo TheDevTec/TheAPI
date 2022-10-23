@@ -73,6 +73,30 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	public List<BossBar> bossbars = new ArrayList<>();
 	public Map<UUID, ResourcePackHandler> resourcePackHandler = new ConcurrentHashMap<>();
 
+	/**
+	 * @apiNote Get online players on the server
+	 *          {@link NmsProvider#getOnlinePlayers()}
+	 */
+	public static Collection<? extends Player> getOnlinePlayers() {
+		return BukkitLoader.nmsProvider.getOnlinePlayers();
+	}
+
+	/**
+	 * @apiNote Get NmsProvider @see {@link BukkitLoader#nmsProvider} - Can be null
+	 *          if NmsProvider failed load or isn't loaded yet
+	 */
+	public static NmsProvider getNmsProvider() {
+		return BukkitLoader.nmsProvider;
+	}
+
+	/**
+	 * @apiNote Get PacketHandler @see {@link BukkitLoader#handler} - Can be null if
+	 *          PacketHandler isn't loaded yet
+	 */
+	public static PacketHandler<?> getPacketHandler() {
+		return BukkitLoader.handler;
+	}
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onLoad() {
@@ -336,21 +360,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 		// OfflineCache support!
 		API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save();
-	}
-
-	/**
-	 * @apiNote Support for 1.7.10 - Latest {@link NmsProvider#getOnlinePlayers()}
-	 */
-	public static Collection<? extends Player> getOnlinePlayers() {
-		return BukkitLoader.nmsProvider.getOnlinePlayers();
-	}
-
-	public static NmsProvider getNmsProvider() {
-		return BukkitLoader.nmsProvider;
-	}
-
-	public static PacketHandler<?> getPacketHandler() {
-		return BukkitLoader.handler;
 	}
 
 	public static boolean useItem(Player player, ItemStack stack, HolderGUI g, int slot, ClickType mouse) {
