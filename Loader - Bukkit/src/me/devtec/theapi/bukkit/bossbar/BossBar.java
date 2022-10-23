@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import me.devtec.shared.Ref;
 import me.devtec.shared.scheduler.Tasker;
@@ -43,7 +44,7 @@ public class BossBar {
 
 				@Override
 				public void run() {
-					for (BossBar bar : BukkitLoader.bossbars)
+					for (BossBar bar : JavaPlugin.getPlugin(BukkitLoader.class).bossbars)
 						bar.move();
 				}
 			}.runRepeating(1, 1);
@@ -56,7 +57,7 @@ public class BossBar {
 			return;
 		}
 		set(text, progress);
-		BukkitLoader.bossbars.add(this);
+		JavaPlugin.getPlugin(BukkitLoader.class).bossbars.add(this);
 	}
 
 	public void move() {
@@ -94,7 +95,7 @@ public class BossBar {
 	public void hide() {
 		if (hidden)
 			return;
-		BukkitLoader.bossbars.remove(this);
+		JavaPlugin.getPlugin(BukkitLoader.class).bossbars.remove(this);
 		if (!holder.isOnline())
 			return;
 		hidden = true;
@@ -110,13 +111,13 @@ public class BossBar {
 			loc.setY(1);
 		if (!before.equals(loc.getWorld())) { // Switch world, respawn entity
 			spawnBar(loc);
-			BukkitLoader.bossbars.add(this);
+			JavaPlugin.getPlugin(BukkitLoader.class).bossbars.add(this);
 			return;
 		}
 		Object packet = BukkitLoader.getNmsProvider().packetSpawnEntityLiving(entityBar);
 		Ref.set(packet, t, setupDataWatcher());
 		BukkitLoader.getPacketHandler().send(holder, packet);
-		BukkitLoader.bossbars.add(this);
+		JavaPlugin.getPlugin(BukkitLoader.class).bossbars.add(this);
 	}
 
 	private void set(String text, double progress) {

@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import me.devtec.shared.Ref;
 import me.devtec.shared.dataholder.StringContainer;
@@ -123,9 +124,9 @@ public class AnvilGUI implements HolderGUI {
 	 */
 	public final void open(Player... players) {
 		for (Player player : players) {
-			if (BukkitLoader.gui.containsKey(player.getUniqueId())) {
-				HolderGUI a = BukkitLoader.gui.get(player.getUniqueId());
-				BukkitLoader.gui.remove(player.getUniqueId());
+			if (JavaPlugin.getPlugin(BukkitLoader.class).gui.containsKey(player.getUniqueId())) {
+				HolderGUI a = JavaPlugin.getPlugin(BukkitLoader.class).gui.get(player.getUniqueId());
+				JavaPlugin.getPlugin(BukkitLoader.class).gui.remove(player.getUniqueId());
 				a.onClose(player);
 			}
 			Object container;
@@ -138,7 +139,7 @@ public class AnvilGUI implements HolderGUI {
 				item[2] = items.get(2).getItem();
 			BukkitLoader.getNmsProvider().openAnvilGUI(player, container = BukkitLoader.getNmsProvider().createContainer(inv, player), title, item);
 			containers.put(player, container);
-			BukkitLoader.gui.put(player.getUniqueId(), this);
+			JavaPlugin.getPlugin(BukkitLoader.class).gui.put(player.getUniqueId(), this);
 		}
 	}
 
@@ -231,7 +232,7 @@ public class AnvilGUI implements HolderGUI {
 			Object ac = containers.remove(player);
 			if (ac != null)
 				BukkitLoader.getNmsProvider().closeGUI(player, ac, true);
-			BukkitLoader.gui.remove(player.getUniqueId());
+			JavaPlugin.getPlugin(BukkitLoader.class).gui.remove(player.getUniqueId());
 			onClose(player);
 		}
 	}
@@ -247,7 +248,7 @@ public class AnvilGUI implements HolderGUI {
 			Object ac = containers.remove(player);
 			if (ac != null)
 				BukkitLoader.getNmsProvider().closeGUI(player, ac, false);
-			BukkitLoader.gui.remove(player.getUniqueId());
+			JavaPlugin.getPlugin(BukkitLoader.class).gui.remove(player.getUniqueId());
 			onClose(player);
 		}
 	}

@@ -231,7 +231,7 @@ public interface NmsProvider {
 
 	public Object packetPlayerInfo(PlayerInfoType type, GameProfileHandler gameProfile, int latency, GameMode gameMode, Component playerName);
 
-	public Object packetResourcePackSend(String url, String hash, boolean requireRP, String prompt);
+	public Object packetResourcePackSend(String url, String hash, boolean shouldForce, String prompt);
 
 	public Object packetPosition(double x, double y, double z, float yaw, float pitch);
 

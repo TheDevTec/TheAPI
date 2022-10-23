@@ -71,8 +71,8 @@ import me.devtec.theapi.bukkit.commands.hooker.BukkitCommandManager;
 import me.devtec.theapi.bukkit.commands.hooker.SpigotSimpleCommandMap;
 import me.devtec.theapi.bukkit.commands.selectors.BukkitSelectorUtils;
 import me.devtec.theapi.bukkit.game.Position;
-import me.devtec.theapi.bukkit.game.ResourcePackAPI;
-import me.devtec.theapi.bukkit.game.ResourcePackAPI.ResourcePackResult;
+import me.devtec.theapi.bukkit.game.resourcepack.ResourcePackHandler;
+import me.devtec.theapi.bukkit.game.resourcepack.ResourcePackResult;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
@@ -83,19 +83,22 @@ import me.devtec.theapi.bukkit.packetlistener.PacketHandlerModern;
 import me.devtec.theapi.bukkit.packetlistener.PacketListener;
 
 public class BukkitLoader extends JavaPlugin implements Listener {
-	private static Method addUrl;
+	// public APIs
 	public static NmsProvider nmsProvider;
-
-	public static Map<UUID, HolderGUI> gui = new ConcurrentHashMap<>();
-
 	public static PacketHandler<?> handler;
 
-	static Class<?> serverPing;
-	static Class<?> resource;
-	static Class<?> close;
-	static Class<?> click;
-	static Class<?> itemname;
-	public static List<BossBar> bossbars = new ArrayList<>();
+	// private fields
+	private static Method addUrl;
+	private static Class<?> serverPing;
+	private static Class<?> resource;
+	private static Class<?> close;
+	private static Class<?> click;
+	private static Class<?> itemname;
+
+	// public plugin fields
+	public Map<UUID, HolderGUI> gui = new ConcurrentHashMap<>();
+	public List<BossBar> bossbars = new ArrayList<>();
+	public Map<UUID, ResourcePackHandler> resourcePackHandler = new ConcurrentHashMap<>();
 
 	private boolean isInsidePath(Path current, Path file) {
 		return current.equals(file.toAbsolutePath().getParent());
@@ -151,7 +154,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 		// BOSSBAR API: 1.7.10 - 1.8.8
 		if (!Ref.isOlderThan(9))
-			BukkitLoader.bossbars = null;
+			bossbars = null;
 
 		new PacketListener() {
 
@@ -185,13 +188,13 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				if (nick == null)
 					return false; // NPC
 				// ResourcePackAPI
-				if (BukkitLoader.resource != null && packet.getClass() == BukkitLoader.resource) {
+				if (packet.getClass() == BukkitLoader.resource) {
 					Player player = Bukkit.getPlayer(nick);
-					if (player == null || ResourcePackAPI.getResourcePack(player) == null || ResourcePackAPI.getHandlingPlayer(player) == null)
+					ResourcePackHandler handler;
+					if (player == null || (handler = resourcePackHandler.remove(player.getUniqueId())) == null)
 						return false;
-					ResourcePackAPI.getHandlingPlayer(player).onHandle(player, ResourcePackAPI.getResourcePack(player),
-							ResourcePackResult.valueOf(Ref.isNewerThan(16) ? getLegacyNameOf(Ref.get(packet, Ref.isNewerThan(16) ? "a" : "status").toString())
-									: Ref.get(packet, Ref.isNewerThan(16) ? "a" : "status").toString()));
+					handler.call(player, ResourcePackResult.valueOf(Ref.isNewerThan(16) ? getLegacyNameOf(Ref.get(packet, Ref.isNewerThan(16) ? "a" : "status").toString())
+							: Ref.get(packet, Ref.isNewerThan(16) ? "a" : "status").toString()));
 					return false;
 				}
 				// GUIS
@@ -199,7 +202,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 					Player player = Bukkit.getPlayer(nick);
 					if (player == null)
 						return false;
-					HolderGUI gui = BukkitLoader.gui.get(player.getUniqueId());
+					HolderGUI gui = BukkitLoader.this.gui.get(player.getUniqueId());
 					if (gui instanceof AnvilGUI) {
 						BukkitLoader.nmsProvider.postToMainThread(() -> {
 							((AnvilGUI) gui).setRepairText(buildText(Ref.get(packet, "a") + ""));
@@ -211,7 +214,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 					Player player = Bukkit.getPlayer(nick);
 					if (player == null)
 						return false;
-					HolderGUI gui = BukkitLoader.gui.remove(player.getUniqueId());
+					HolderGUI gui = BukkitLoader.this.gui.remove(player.getUniqueId());
 					if (gui == null)
 						return false;
 					gui.closeWithoutPacket(player);
@@ -221,7 +224,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 					Player player = Bukkit.getPlayer(nick);
 					if (player == null)
 						return false;
-					HolderGUI gui = BukkitLoader.gui.get(player.getUniqueId());
+					HolderGUI gui = BukkitLoader.this.gui.get(player.getUniqueId());
 					return gui == null ? false : BukkitLoader.nmsProvider.processInvClickPacket(player, gui, packet);
 				}
 				return false;
@@ -449,8 +452,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		Scheduler.cancelAll();
 		BukkitLoader.handler.close();
 		PlaceholderAPI.PAPI_BRIDGE = null;
-		if (BukkitLoader.bossbars != null)
-			for (BossBar bar : new ArrayList<>(BukkitLoader.bossbars))
+		if (bossbars != null)
+			for (BossBar bar : new ArrayList<>(bossbars))
 				bar.remove();
 
 		// OfflineCache support!

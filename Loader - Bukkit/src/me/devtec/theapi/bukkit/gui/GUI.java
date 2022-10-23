@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import me.devtec.shared.Ref;
 import me.devtec.shared.utility.StringUtils;
@@ -200,15 +201,15 @@ public class GUI implements HolderGUI {
 	 */
 	public final void open(Player... players) {
 		for (Player player : players) {
-			if (BukkitLoader.gui.containsKey(player.getUniqueId())) {
-				HolderGUI a = BukkitLoader.gui.get(player.getUniqueId());
-				BukkitLoader.gui.remove(player.getUniqueId());
+			if (JavaPlugin.getPlugin(BukkitLoader.class).gui.containsKey(player.getUniqueId())) {
+				HolderGUI a = JavaPlugin.getPlugin(BukkitLoader.class).gui.get(player.getUniqueId());
+				JavaPlugin.getPlugin(BukkitLoader.class).gui.remove(player.getUniqueId());
 				a.onClose(player);
 			}
 			Object container;
 			BukkitLoader.getNmsProvider().openGUI(player, container = BukkitLoader.getNmsProvider().createContainer(inv, player), "minecraft:chest", inv.getSize(), title, inv.getContents());
 			containers.put(player, container);
-			BukkitLoader.gui.put(player.getUniqueId(), this);
+			JavaPlugin.getPlugin(BukkitLoader.class).gui.put(player.getUniqueId(), this);
 		}
 	}
 
@@ -284,7 +285,7 @@ public class GUI implements HolderGUI {
 			Object container = containers.remove(player);
 			if (container != null)
 				BukkitLoader.getNmsProvider().closeGUI(player, container, true);
-			BukkitLoader.gui.remove(player.getUniqueId());
+			JavaPlugin.getPlugin(BukkitLoader.class).gui.remove(player.getUniqueId());
 			onClose(player);
 		}
 	}
@@ -322,7 +323,7 @@ public class GUI implements HolderGUI {
 			Object ac = containers.remove(player);
 			if (ac != null)
 				BukkitLoader.getNmsProvider().closeGUI(player, ac, false);
-			BukkitLoader.gui.remove(player.getUniqueId());
+			JavaPlugin.getPlugin(BukkitLoader.class).gui.remove(player.getUniqueId());
 			onClose(player);
 		}
 	}
