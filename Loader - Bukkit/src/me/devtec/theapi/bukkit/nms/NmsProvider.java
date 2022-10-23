@@ -187,13 +187,59 @@ public interface NmsProvider {
 
 	public Object packetPlayerListHeaderFooter(String header, String footer);
 
-	public Object packetBlockChange(World world, Position position, Object iblockdata, int data);
-
-	public default Object packetBlockChange(World world, Position position) {
-		return packetBlockChange(world, position, position.getIBlockData(), position.getData());
+	/**
+	 * @apiNote Deprecated method, @see
+	 *          {@link NmsProvider#packetBlockChange(int, int, int, Object, int)}
+	 */
+	@Deprecated
+	public default Object packetBlockChange(World world, Position position, Object iblockdata, int data) {
+		return packetBlockChange(position.getBlockX(), position.getBlockY(), position.getBlockZ(), iblockdata, data);
 	}
 
-	public Object packetBlockChange(World world, int x, int y, int z);
+	/**
+	 * @apiNote Deprecated method, @see
+	 *          {@link NmsProvider#packetBlockChange(int, int, int, Object, int)}
+	 */
+	@Deprecated
+	public default Object packetBlockChange(World world, Position position) {
+		return packetBlockChange(world, position.getBlockX(), position.getBlockY(), position.getBlockZ());
+	}
+
+	/**
+	 * @apiNote Deprecated method, @see
+	 *          {@link NmsProvider#packetBlockChange(int, int, int, Object, int)}
+	 */
+	@Deprecated
+	public default Object packetBlockChange(World world, int x, int y, int z) {
+		Object chunk = getChunk(world, x >> 4, z >> 4);
+		return packetBlockChange(x, y, z, getBlock(chunk, x, y, z), getData(chunk, x, y, z));
+	}
+
+	/**
+	 * @apiNote @see
+	 *          {@link NmsProvider#packetBlockChange(int, int, int, Object, int)}
+	 */
+	public default Object packetBlockChange(Position pos, Object iblockdata) {
+		return packetBlockChange(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), iblockdata, 0);
+	}
+
+	/**
+	 * @apiNote @see
+	 *          {@link NmsProvider#packetBlockChange(int, int, int, Object, int)}
+	 */
+	public default Object packetBlockChange(int x, int y, int z, Object iblockdata) {
+		return packetBlockChange(x, y, z, iblockdata, 0);
+	}
+
+	/**
+	 * @apiNote @see
+	 *          {@link NmsProvider#packetBlockChange(int, int, int, Object, int)}
+	 */
+	public default Object packetBlockChange(Position pos, Object iblockdata, int data) {
+		return packetBlockChange(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), iblockdata, data);
+	}
+
+	public Object packetBlockChange(int x, int y, int z, Object iblockdata, int data);
 
 	public Object packetScoreboardObjective();
 

@@ -44,7 +44,6 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.BukkitLoader.InventoryClickType;
 import me.devtec.theapi.bukkit.events.ServerListPingEvent;
 import me.devtec.theapi.bukkit.game.BlockDataStorage;
-import me.devtec.theapi.bukkit.game.Position;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
@@ -263,25 +262,10 @@ public class v1_7_R4 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetBlockChange(World world, Position position, Object iblockdata, int data) {
+	public Object packetBlockChange(int x, int y, int z, Object iblockdata, int data) {
 		PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange();
 		packet.data = data;
 		packet.block = iblockdata == null ? Blocks.AIR : (Block) iblockdata;
-		try {
-			v1_7_R4.posX.set(packet, position.getBlockX());
-			v1_7_R4.posY.set(packet, position.getBlockY());
-			v1_7_R4.posZ.set(packet, position.getBlockZ());
-		} catch (Exception e) {
-		}
-		return packet;
-	}
-
-	@Override
-	public Object packetBlockChange(World world, int x, int y, int z) {
-		PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange();
-		Object chunk = this.getChunk(world, x >> 4, z >> 4);
-		packet.data = getData(chunk, x, y, z);
-		packet.block = (Block) getBlock(chunk, x, y, z);
 		try {
 			v1_7_R4.posX.set(packet, x);
 			v1_7_R4.posY.set(packet, y);

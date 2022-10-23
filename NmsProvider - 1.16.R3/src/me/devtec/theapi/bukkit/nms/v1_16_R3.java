@@ -50,7 +50,6 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.BukkitLoader.InventoryClickType;
 import me.devtec.theapi.bukkit.events.ServerListPingEvent;
 import me.devtec.theapi.bukkit.game.BlockDataStorage;
-import me.devtec.theapi.bukkit.game.Position;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
@@ -300,13 +299,8 @@ public class v1_16_R3 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetBlockChange(World world, Position position, Object iblockdata, int data) {
-		return new PacketPlayOutBlockChange((BlockPosition) position.getBlockPosition(), iblockdata == null ? Blocks.AIR.getBlockData() : (IBlockData) iblockdata);
-	}
-
-	@Override
-	public Object packetBlockChange(World world, int x, int y, int z) {
-		return new PacketPlayOutBlockChange(new BlockPosition(x, y, z), (IBlockData) getBlock(this.getChunk(world, x >> 4, z >> 4), x, y, z));
+	public Object packetBlockChange(int x, int y, int z, Object iblockdata, int data) {
+		return new PacketPlayOutBlockChange(new BlockPosition(x, y, z), iblockdata == null ? Blocks.AIR.getBlockData() : (IBlockData) iblockdata);
 	}
 
 	@Override

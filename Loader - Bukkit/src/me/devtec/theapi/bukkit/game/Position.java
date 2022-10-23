@@ -410,7 +410,7 @@ public class Position implements Cloneable {
 	public void setAirAndUpdate(boolean updatePhysics) {
 		Object prev = updatePhysics ? getIBlockData() : null;
 		setAir();
-		Object packet = BukkitLoader.getNmsProvider().packetBlockChange(getWorld(), this, null, 0);
+		Object packet = BukkitLoader.getNmsProvider().packetBlockChange(this, null, 0);
 		BukkitLoader.getPacketHandler().send(getWorld().getPlayers(), packet);
 		Position.updateLightAt(this);
 		if (updatePhysics)
