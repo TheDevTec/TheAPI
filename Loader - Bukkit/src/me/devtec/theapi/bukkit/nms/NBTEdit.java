@@ -5,6 +5,7 @@ import java.util.Set;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
+import me.devtec.shared.Ref;
 import me.devtec.theapi.bukkit.BukkitLoader;
 
 public class NBTEdit {
@@ -17,10 +18,20 @@ public class NBTEdit {
 			this.nbt = BukkitLoader.getNmsProvider().getNBT((ItemStack) nbt);
 		else if (nbt instanceof String)
 			this.nbt = BukkitLoader.getNmsProvider().parseNBT((String) nbt);
-		else
+		else if (nbt instanceof NBTEdit)
+			this.nbt = ((NBTEdit) nbt).nbt;
+		else if (nbt.getClass() == Ref.nms("nbt", "NBTTagCompound"))
 			this.nbt = nbt;
 		if (this.nbt == null)
 			this.nbt = BukkitLoader.getNmsProvider().parseNBT("{}");
+	}
+
+	public NBTEdit(Entity entity) {
+		nbt = BukkitLoader.getNmsProvider().getNBT((Entity) nbt);
+	}
+
+	public NBTEdit(String nbt) {
+		this.nbt = BukkitLoader.getNmsProvider().parseNBT(nbt);
 	}
 
 	public NBTEdit(ItemStack stack) {
