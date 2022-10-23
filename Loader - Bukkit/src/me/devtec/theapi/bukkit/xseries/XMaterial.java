@@ -548,6 +548,7 @@ public enum XMaterial {
 				first = false;
 				continue;
 			}
+			container.append(' ');
 			if (split.equals("OF") || split.equals("THE"))
 				container.append(split.toLowerCase());
 			else
