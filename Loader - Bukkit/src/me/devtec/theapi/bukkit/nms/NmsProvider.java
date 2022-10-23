@@ -188,34 +188,6 @@ public interface NmsProvider {
 	public Object packetPlayerListHeaderFooter(String header, String footer);
 
 	/**
-	 * @apiNote Deprecated method, @see
-	 *          {@link NmsProvider#packetBlockChange(int, int, int, Object, int)}
-	 */
-	@Deprecated
-	public default Object packetBlockChange(World world, Position position, Object iblockdata, int data) {
-		return packetBlockChange(position.getBlockX(), position.getBlockY(), position.getBlockZ(), iblockdata, data);
-	}
-
-	/**
-	 * @apiNote Deprecated method, @see
-	 *          {@link NmsProvider#packetBlockChange(int, int, int, Object, int)}
-	 */
-	@Deprecated
-	public default Object packetBlockChange(World world, Position position) {
-		return packetBlockChange(world, position.getBlockX(), position.getBlockY(), position.getBlockZ());
-	}
-
-	/**
-	 * @apiNote Deprecated method, @see
-	 *          {@link NmsProvider#packetBlockChange(int, int, int, Object, int)}
-	 */
-	@Deprecated
-	public default Object packetBlockChange(World world, int x, int y, int z) {
-		Object chunk = getChunk(world, x >> 4, z >> 4);
-		return packetBlockChange(x, y, z, getBlock(chunk, x, y, z), getData(chunk, x, y, z));
-	}
-
-	/**
 	 * @apiNote @see
 	 *          {@link NmsProvider#packetBlockChange(int, int, int, Object, int)}
 	 */

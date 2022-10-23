@@ -374,12 +374,12 @@ public class Position implements Cloneable {
 	}
 
 	public static void updateBlockAt(Position pos) {
-		Object packet = BukkitLoader.getNmsProvider().packetBlockChange(pos.getWorld(), pos);
+		Object packet = BukkitLoader.getNmsProvider().packetBlockChange(pos, pos.getIBlockData(), pos.getData());
 		BukkitLoader.getPacketHandler().send(pos.getWorld().getPlayers(), packet);
 	}
 
 	public static void updateBlockAt(Position pos, BlockDataStorage blockData) {
-		Object packet = BukkitLoader.getNmsProvider().packetBlockChange(pos.getWorld(), pos, blockData.getIBlockData(), blockData.getItemData());
+		Object packet = BukkitLoader.getNmsProvider().packetBlockChange(pos, blockData.getIBlockData(), blockData.getItemData());
 		BukkitLoader.getPacketHandler().send(pos.getWorld().getPlayers(), packet);
 	}
 
