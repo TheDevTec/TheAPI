@@ -292,6 +292,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 			if (ver != Version.OLDER_VERSION && ver != Version.SAME_VERSION && new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java").exists()) {
 				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Can't download new NmsProvider, please update TheAPI.");
+				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Current release: " + jarRelease);
+				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Required release: " + gitVersion.getString("release"));
 				localVersion.save(DataType.YAML);
 				return;
 			}
