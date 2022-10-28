@@ -452,7 +452,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		StringContainer args = new StringContainer(1024);
 		File file = new File(Bukkit.getServer().getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
 		String fixedPath = file.getName();
-		while (!isInsidePath(file.getParentFile().toPath(), new File(System.getProperty("java.class.path")).toPath())) {
+		while (file.getParentFile() != null && !isInsidePath(file.getParentFile().toPath(), new File(System.getProperty("java.class.path")).toPath())) {
 			fixedPath = file.getParentFile().getName() + "/" + fixedPath;
 			file = file.getParentFile();
 		}
