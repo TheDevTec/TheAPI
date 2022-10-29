@@ -1,17 +1,15 @@
 package me.devtec.theapi.bukkit;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
+import java.util.UUID;
 import java.util.zip.GZIPOutputStream;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -20,36 +18,26 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 import me.devtec.shared.dataholder.Config;
+import me.devtec.shared.dataholder.DataType;
+import me.devtec.shared.json.Json;
 import me.devtec.shared.scheduler.Tasker;
 
 public class Metrics {
+
+	private static List<String> plugins = new ArrayList<>();
+
 	// The version of this bStats class
 	public static final int B_STATS_VERSION = 1;
 
 	// The url to which the data is sent
 	private static final String URL = "https://bStats.org/submitData/bukkit";
 
-	// Is bStats enabled on this server?
-	private static final boolean enabled;
-
-	// Should failed requests be logged?
-	private static final boolean logFailedRequests;
-
-	// Should the sent data be logged?
-	private static final boolean logSentData;
-
-	// Should the response text be logged?
-	private static final boolean logResponseStatusText;
-
 	// The uuid of the server
 	private static final String serverUUID;
 	static {
 		Config c = new Config("plugins/bStats/config.yml");
-		enabled = c.getBoolean("enabled");
-		serverUUID = c.getString("serverUuid");
-		logFailedRequests = c.getBoolean("logFailedRequests");
-		logSentData = c.getBoolean("logSentData");
-		logResponseStatusText = c.getBoolean("logResponseStatusText");
+		serverUUID = c.getString("serverUuid", UUID.randomUUID().toString());
+		c.set("serverUuid", serverUUID).save(DataType.YAML);
 	}
 
 	// The plugin
@@ -59,9 +47,10 @@ public class Metrics {
 	private final int pluginId;
 
 	public Metrics(Plugin plugin, int pluginId) {
+		plugins.add(plugin.getName());
 		this.plugin = plugin;
 		this.pluginId = pluginId;
-		if (Metrics.enabled)
+		if (plugins.size() == 1)
 			new Tasker() {
 
 				@Override
@@ -69,10 +58,6 @@ public class Metrics {
 					submitData();
 				}
 			}.runRepeating(15 * 60 * 20, 15 * 60 * 20);
-	}
-
-	public boolean isEnabled() {
-		return Metrics.enabled;
 	}
 
 	public Map<String, Object> getPluginData() {
@@ -114,39 +99,26 @@ public class Metrics {
 
 	private void submitData() {
 		final Map<String, Object> data = getServerData();
-		data.put("plugins", Arrays.asList("TheAPI"));
+		data.put("plugins", plugins);
 		try {
 			Metrics.sendData(plugin, data);
 		} catch (Exception e) {
-			if (Metrics.logFailedRequests)
-				plugin.getLogger().log(Level.WARNING, "Could not submit plugin stats of " + plugin.getName(), e);
 		}
 	}
 
 	private static void sendData(Plugin plugin, Map<String, Object> data) throws Exception {
-		if (Metrics.logSentData)
-			plugin.getLogger().info("Sending data to bStats: " + data);
 		HttpsURLConnection connection = (HttpsURLConnection) new URL(Metrics.URL).openConnection();
-		byte[] compressedData = Metrics.compress(data.toString());
+		byte[] compressedData = Metrics.compress(Json.writer().simpleWrite(data));
 		connection.setRequestMethod("POST");
 		connection.addRequestProperty("Accept", "application/json");
 		connection.addRequestProperty("Connection", "close");
-		connection.addRequestProperty("Content-Encoding", "gzip");
+		connection.addRequestProperty("Content-Encoding", "gzip"); // We gzip our request
 		connection.addRequestProperty("Content-Length", String.valueOf(compressedData.length));
-		connection.setRequestProperty("Content-Type", "application/json");
-		connection.setRequestProperty("User-Agent", "MC-Server/" + Metrics.B_STATS_VERSION);
+		connection.setRequestProperty("Content-Type", "application/json"); // We send our data in JSON format
+		connection.setRequestProperty("User-Agent", "MC-Server/" + B_STATS_VERSION);
 		connection.setDoOutput(true);
 		try (DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream())) {
 			outputStream.write(compressedData);
-		}
-		if (Metrics.logResponseStatusText) {
-			StringBuilder builder = new StringBuilder();
-			try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-				String line;
-				while ((line = bufferedReader.readLine()) != null)
-					builder.append(line);
-			}
-			plugin.getLogger().info("Sent data to bStats and received response: " + builder);
 		}
 	}
 
