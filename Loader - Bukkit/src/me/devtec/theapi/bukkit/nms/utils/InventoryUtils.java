@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
+import me.devtec.theapi.bukkit.gui.ItemGUI;
 
 public class InventoryUtils {
 
@@ -40,7 +41,7 @@ public class InventoryUtils {
 			if (type == DestinationType.CUSTOM_INV && ignoreSlots.contains(slot))
 				continue;
 			if (i.getAmount() < i.getMaxStackSize() && i.getType() == shiftItem.getType() && i.getItemMeta().equals(shiftItem.getItemMeta()) && i.getDurability() == shiftItem.getDurability()) {
-				if (holder != null && whoShift != null && clickType != null && holder.onIteractItem(whoShift, i, clickType, slot, type == DestinationType.CUSTOM_INV)) {
+				if (holder != null && whoShift != null && clickType != null && holder.onInteractItem(whoShift, i, i, clickType, slot, type == DestinationType.CUSTOM_INV)) {
 					corruptedSlots.add(slot);
 					continue;
 				}
@@ -110,7 +111,7 @@ public class InventoryUtils {
 					continue;
 				}
 				if (i == null || i.getType() == Material.AIR) {
-					if (holder != null && whoShift != null && clickType != null && holder.onIteractItem(whoShift, i, clickType, slot - 1, true)) {
+					if (holder != null && whoShift != null && clickType != null && holder.onInteractItem(whoShift, i, i, clickType, slot - 1, true)) {
 						corruptedSlots.add(slot - 1);
 						continue;
 					}
@@ -140,82 +141,68 @@ public class InventoryUtils {
 	 *          PacketPlayInWindowClick - convert clicked slot into bukkit slot
 	 **/
 	public static int convertToPlayerInvSlot(int slot) {
-		switch (slot) {
-		case 0:
-			return 9;
-		case 1:
-			return 10;
-		case 2:
-			return 11;
-		case 3:
-			return 12;
-		case 4:
-			return 13;
-		case 5:
-			return 14;
-		case 6:
-			return 15;
-		case 7:
-			return 16;
-		case 8:
-			return 17;
-		case 9:
-			return 18;
-		case 10:
-			return 19;
-		case 11:
-			return 20;
-		case 12:
-			return 21;
-		case 13:
-			return 22;
-		case 14:
-			return 23;
-		case 15:
-			return 24;
-		case 16:
-			return 25;
-		case 17:
-			return 26;
-		case 18:
-			return 27;
-		case 19:
-			return 28;
-		case 20:
-			return 29;
-		case 21:
-			return 30;
-		case 22:
-			return 31;
-		case 23:
-			return 32;
-		case 24:
-			return 33;
-		case 25:
-			return 34;
-		case 26:
-			return 35;
-		// hotbar
-		case 27:
-			return 0;
-		case 28:
-			return 1;
-		case 29:
-			return 2;
-		case 30:
-			return 3;
-		case 31:
-			return 4;
-		case 32:
-			return 5;
-		case 33:
-			return 6;
-		case 34:
-			return 7;
-		case 35:
-			return 8;
-		default:
-			return 0;
+		if (slot <= 26)
+			return slot + 9;
+		return slot - 27;
+	}
+
+	public static ClickType buildClick(ItemStack mouseItem, int type, int mouse) {
+		boolean shift = type == 2; // QUICK_MOVE
+		boolean pickup = false;
+
+		if (type == 1) { // QUICK_CRAFT
+			if (mouse == 1)
+				mouse = 0;
+			if (mouse == 5)
+				mouse = 1;
+			if (mouse == 9)
+				mouse = 2;
 		}
+
+		if (shift) {
+			if (pickup)
+				switch (mouse) {
+				case 0:
+					return ClickType.SHIFT_LEFT_PICKUP;
+				case 1:
+					return ClickType.SHIFT_RIGHT_PICKUP;
+				default:
+					throw new NoSuchFieldError("Doesn't exist ClickType for shift middle click");
+				}
+			else
+				switch (mouse) {
+				case 0:
+					return ClickType.SHIFT_LEFT_DROP;
+				case 1:
+					return ClickType.SHIFT_RIGHT_DROP;
+				default:
+					throw new NoSuchFieldError("Doesn't exist ClickType for shift middle click");
+				}
+		} else if (pickup)
+			switch (mouse) {
+			case 0:
+				return ClickType.LEFT_PICKUP;
+			case 1:
+				return ClickType.RIGHT_PICKUP;
+			default:
+				return ClickType.MIDDLE_PICKUP;
+			}
+		else
+			switch (mouse) {
+			case 0:
+				return ClickType.LEFT_DROP;
+			case 1:
+				return ClickType.RIGHT_DROP;
+			default:
+				return ClickType.MIDDLE_DROP;
+			}
+	}
+
+	public static boolean useItem(Player player, HolderGUI gui, int slot, ClickType mouse) {
+		ItemGUI itemGui = gui.getItemGUI(slot);
+		boolean stolen = itemGui == null || !itemGui.isUnstealable();
+		if (itemGui != null)
+			itemGui.onClick(player, gui, mouse);
+		return !stolen;
 	}
 }

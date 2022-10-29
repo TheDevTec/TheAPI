@@ -16,7 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.tools.ToolProvider;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -27,7 +26,6 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.devtec.shared.API;
@@ -48,9 +46,7 @@ import me.devtec.theapi.bukkit.commands.hooker.SpigotSimpleCommandMap;
 import me.devtec.theapi.bukkit.game.resourcepack.ResourcePackHandler;
 import me.devtec.theapi.bukkit.game.resourcepack.ResourcePackResult;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
-import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
-import me.devtec.theapi.bukkit.gui.ItemGUI;
 import me.devtec.theapi.bukkit.nms.NmsProvider;
 import me.devtec.theapi.bukkit.packetlistener.PacketHandler;
 import me.devtec.theapi.bukkit.packetlistener.PacketHandlerModern;
@@ -67,6 +63,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	private static Class<?> close;
 	private static Class<?> click;
 	private static Class<?> itemname;
+	private static double release;
 
 	// public plugin fields
 	public Map<UUID, HolderGUI> gui = new ConcurrentHashMap<>();
@@ -97,10 +94,19 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		return BukkitLoader.handler;
 	}
 
+	/**
+	 * @apiNote Get Api release version
+	 */
+	public static double getApiRelease() {
+		return release;
+	}
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onLoad() {
 		BukkitLibInit.initTheAPI(this);
+		release = Config.loadFromInput(getResource("release.yml")).getDouble("release");
+
 		try {
 			loadProvider();
 		} catch (Exception e) {
@@ -362,26 +368,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save();
 	}
 
-	public static boolean useItem(Player player, ItemStack stack, HolderGUI g, int slot, ClickType mouse) {
-		ItemGUI d = g.getItemGUI(slot);
-		boolean stolen = d == null || !d.isUnstealable();
-		if (d != null)
-			d.onClick(player, g, mouse);
-		return !stolen;
-	}
-
-	public static ClickType buildClick(ItemStack stack, InventoryClickType type, int button, int mouse) {
-		String action = stack.getType() == Material.AIR && (type == InventoryClickType.PICKUP || type == InventoryClickType.QUICK_CRAFT) ? "DROP" : "PICKUP";
-		action = (type == InventoryClickType.CLONE ? "MIDDLE_" : mouse == 0 ? "LEFT_" : mouse == 1 ? "RIGHT_" : "MIDDLE_") + action;
-		if (type == InventoryClickType.QUICK_MOVE)
-			action = "SHIFT_" + action;
-		return ClickType.valueOf(action);
-	}
-
-	public enum InventoryClickType {
-		PICKUP, QUICK_MOVE, SWAP, CLONE, THROW, QUICK_CRAFT, PICKUP_ALL;
-	}
-
 	private void checkForUpdateAndDownloadCompiled() {
 		try {
 			Config gitVersion = Config.loadFromInput(
@@ -389,11 +375,10 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 			Config localVersion = new Config("plugins/TheAPI/version.yml");
 
-			String jarRelease = Config.loadFromInput(getResource("release.yml")).getString("release");
 			localVersion.setIfAbsent("build", 1);
 			localVersion.setComments("build", Arrays.asList("# DO NOT MODIFY THIS VALUE"));
 
-			Version ver = VersionUtils.getVersion(gitVersion.getString("release"), jarRelease);
+			Version ver = VersionUtils.getVersion(gitVersion.getString("release"), "" + release);
 
 			if (ver != Version.OLDER_VERSION && ver != Version.SAME_VERSION && new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar").exists()) {
 				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Can't download new NmsProvider, please update TheAPI.");
@@ -421,15 +406,14 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 			Config localVersion = new Config("plugins/TheAPI/version.yml");
 
-			String jarRelease = Config.loadFromInput(getResource("release.yml")).getString("release");
 			localVersion.setIfAbsent("build", 1);
 			localVersion.setComments("build", Arrays.asList("# DO NOT MODIFY THIS VALUE"));
 
-			Version ver = VersionUtils.getVersion(gitVersion.getString("release"), jarRelease);
+			Version ver = VersionUtils.getVersion(gitVersion.getString("release"), "" + release);
 
 			if (ver != Version.OLDER_VERSION && ver != Version.SAME_VERSION && new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java").exists()) {
 				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Can't download new NmsProvider, please update TheAPI.");
-				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Current release: " + jarRelease);
+				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Current release: " + release);
 				Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Required release: " + gitVersion.getString("release"));
 				localVersion.save(DataType.YAML);
 				return;

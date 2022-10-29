@@ -17,6 +17,10 @@ import me.devtec.shared.Ref;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 
+/**
+ * @apiNote Chest GUI menu; Size can be custom within 9 slots (1 line) and 54
+ *          slots (6 lines)
+ */
 public class GUI implements HolderGUI {
 	public static final int LINES_6 = 54;
 	public static final int LINES_5 = 45;
@@ -26,7 +30,25 @@ public class GUI implements HolderGUI {
 	public static final int LINES_1 = 9;
 
 	public enum ClickType {
-		MIDDLE_PICKUP, MIDDLE_DROP, LEFT_DROP, RIGHT_PICKUP, RIGHT_DROP, LEFT_PICKUP, SHIFT_LEFT_DROP, SHIFT_RIGHT_PICKUP, SHIFT_RIGHT_DROP, SHIFT_LEFT_PICKUP
+		MIDDLE_PICKUP(true), MIDDLE_DROP, LEFT_DROP, RIGHT_PICKUP(true), RIGHT_DROP, LEFT_PICKUP(true), SHIFT_LEFT_DROP, SHIFT_RIGHT_PICKUP(true), SHIFT_RIGHT_DROP, SHIFT_LEFT_PICKUP(true);
+
+		private boolean pickup;
+
+		ClickType(boolean isPickup) {
+			pickup = isPickup;
+		}
+
+		ClickType() {
+			this(false);
+		}
+
+		public boolean isPickupClick() {
+			return pickup;
+		}
+
+		public boolean isDropClick() {
+			return !pickup;
+		}
 	}
 
 	private String title;
@@ -76,6 +98,7 @@ public class GUI implements HolderGUI {
 	/**
 	 * @apiNote Actions before close gui
 	 */
+	@Override
 	public void onPreClose(Player player) {
 		// Before gui is closed actions
 	}
@@ -89,7 +112,7 @@ public class GUI implements HolderGUI {
 	}
 
 	@Override
-	public boolean onIteractItem(Player player, ItemStack item, ClickType type, int slot, boolean gui) {
+	public boolean onInteractItem(Player player, ItemStack newItem, ItemStack oldItem, ClickType type, int slot, boolean gui) {
 		return false;
 	}
 
@@ -125,7 +148,8 @@ public class GUI implements HolderGUI {
 	@Override
 	public final void setItem(int position, ItemGUI item) {
 		items.put(position, item);
-		inv.setItem(position, item.getItem());
+		if (position < size())
+			inv.setItem(position, item.getItem());
 	}
 
 	/**
@@ -133,7 +157,8 @@ public class GUI implements HolderGUI {
 	 */
 	public final void removeItem(int slot) {
 		items.remove(slot);
-		inv.setItem(slot, null);
+		if (slot < size())
+			inv.setItem(slot, null);
 	}
 
 	/**

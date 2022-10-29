@@ -20,6 +20,10 @@ import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 
+/**
+ * @apiNote Anvil GUI menu
+ * 
+ */
 public class AnvilGUI implements HolderGUI {
 
 	private String title;
@@ -41,6 +45,7 @@ public class AnvilGUI implements HolderGUI {
 	/**
 	 * @apiNote Actions before close gui
 	 */
+	@Override
 	public void onPreClose(Player player) {
 		// Before gui is closed actions
 	}
@@ -54,7 +59,7 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	@Override
-	public boolean onIteractItem(Player player, ItemStack item, ClickType type, int slot, boolean gui) {
+	public boolean onInteractItem(Player player, ItemStack newItem, ItemStack oldItem, ClickType type, int slot, boolean gui) {
 		return false;
 	}
 
@@ -81,12 +86,10 @@ public class AnvilGUI implements HolderGUI {
 	@Override
 	public final void setItem(int position, ItemGUI item) {
 		items.put(position, item);
-		inv.setItem(position, item.getItem());
-		if (position == 0) {
-			text = item.getItem().getItemMeta().getDisplayName();
-			if (text == null)
-				text = "";
-		}
+		if (position < size())
+			inv.setItem(position, item.getItem());
+		if (position == 0)
+			text = item.getItem() != null && item.getItem().hasItemMeta() ? item.getItem().getItemMeta().getDisplayName() : "";
 	}
 
 	/**
@@ -94,7 +97,8 @@ public class AnvilGUI implements HolderGUI {
 	 */
 	public final void removeItem(int position) {
 		items.remove(position);
-		inv.setItem(position, null);
+		if (position < size())
+			inv.setItem(position, null);
 	}
 
 	/**

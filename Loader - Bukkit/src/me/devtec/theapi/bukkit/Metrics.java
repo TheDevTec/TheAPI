@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.zip.GZIPOutputStream;
 
@@ -18,25 +18,11 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.ServicePriority;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 import me.devtec.shared.dataholder.Config;
+import me.devtec.shared.scheduler.Tasker;
 
-@SuppressWarnings("unchecked")
 public class Metrics {
-
-	// This ThreadFactory enforces the naming convention for our Threads
-	private final ThreadFactory threadFactory = task -> new Thread(task, "bStats-Metrics");
-
-	// Executor service for requests
-	// We use an executor service because the Bukkit scheduler is affected by server
-	// lags
-	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1, this.threadFactory);
-
 	// The version of this bStats class
 	public static final int B_STATS_VERSION = 1;
 
@@ -75,45 +61,30 @@ public class Metrics {
 	public Metrics(Plugin plugin, int pluginId) {
 		this.plugin = plugin;
 		this.pluginId = pluginId;
-		boolean found = false;
-		if (Metrics.enabled) {
-			for (Class<?> service : Bukkit.getServicesManager().getKnownServices())
-				try {
-					service.getField("B_STATS_VERSION");
-					found = true;
-				} catch (Exception ignored) {
+		if (Metrics.enabled)
+			new Tasker() {
+
+				@Override
+				public void run() {
+					submitData();
 				}
-			Bukkit.getServicesManager().register(Metrics.class, this, plugin, ServicePriority.Normal);
-			if (!found)
-				this.startSubmitting();
-		}
+			}.runRepeating(15 * 60 * 20, 15 * 60 * 20);
 	}
 
 	public boolean isEnabled() {
 		return Metrics.enabled;
 	}
 
-	private void startSubmitting() {
-		final Runnable submitTask = () -> {
-			if (!this.plugin.isEnabled()) {
-				this.scheduler.shutdown();
-				return;
-			}
-			Bukkit.getScheduler().runTask(this.plugin, this::submitData);
-		};
-		this.scheduler.scheduleAtFixedRate(submitTask, 15, 15, TimeUnit.MINUTES);
-	}
-
-	public JSONObject getPluginData() {
-		JSONObject data = new JSONObject();
-		data.put("pluginName", this.plugin.getDescription().getName());
-		data.put("id", this.pluginId);
-		data.put("pluginVersion", this.plugin.getDescription().getVersion());
-		data.put("customCharts", new JSONArray());
+	public Map<String, Object> getPluginData() {
+		Map<String, Object> data = new HashMap<>();
+		data.put("pluginName", plugin.getDescription().getName());
+		data.put("id", pluginId);
+		data.put("pluginVersion", plugin.getDescription().getVersion());
+		data.put("customCharts", new ArrayList<>());
 		return data;
 	}
 
-	private JSONObject getServerData() {
+	private Map<String, Object> getServerData() {
 		// Minecraft specific data
 		int playerAmount = BukkitLoader.getOnlinePlayers().size();
 		int onlineMode = Bukkit.getOnlineMode() ? 1 : 0;
@@ -127,7 +98,7 @@ public class Metrics {
 		String osVersion = System.getProperty("os.version");
 		int coreCount = Runtime.getRuntime().availableProcessors();
 
-		JSONObject data = new JSONObject();
+		Map<String, Object> data = new HashMap<>();
 		data.put("serverUUID", Metrics.serverUUID);
 		data.put("playerAmount", playerAmount);
 		data.put("onlineMode", onlineMode);
@@ -142,40 +113,17 @@ public class Metrics {
 	}
 
 	private void submitData() {
-		final JSONObject data = this.getServerData();
-		JSONArray pluginData = new JSONArray();
-		for (Class<?> service : Bukkit.getServicesManager().getKnownServices())
-			try {
-				service.getField("B_STATS_VERSION"); // Our identifier :)
-				for (RegisteredServiceProvider<?> provider : Bukkit.getServicesManager().getRegistrations(service))
-					try {
-						Object plugin = provider.getService().getMethod("getPluginData").invoke(provider.getProvider());
-						if (plugin instanceof JSONObject)
-							pluginData.add(plugin);
-						else
-							try {
-								JSONObject object = (JSONObject) new JSONParser().parse(plugin.toString());
-								pluginData.add(object);
-							} catch (Exception e) {
-								if (Metrics.logFailedRequests)
-									this.plugin.getLogger().log(Level.SEVERE, "Encountered unexpected exception", e);
-							}
-					} catch (Exception | NoSuchFieldError ignored) {
-					}
-			} catch (Exception | NoSuchFieldError ignored) {
-			}
-		data.put("plugins", pluginData);
-		new Thread(() -> {
-			try {
-				Metrics.sendData(this.plugin, data);
-			} catch (Exception e) {
-				if (Metrics.logFailedRequests)
-					this.plugin.getLogger().log(Level.WARNING, "Could not submit plugin stats of " + this.plugin.getName(), e);
-			}
-		}).start();
+		final Map<String, Object> data = getServerData();
+		data.put("plugins", Arrays.asList("TheAPI"));
+		try {
+			Metrics.sendData(plugin, data);
+		} catch (Exception e) {
+			if (Metrics.logFailedRequests)
+				plugin.getLogger().log(Level.WARNING, "Could not submit plugin stats of " + plugin.getName(), e);
+		}
 	}
 
-	private static void sendData(Plugin plugin, JSONObject data) throws Exception {
+	private static void sendData(Plugin plugin, Map<String, Object> data) throws Exception {
 		if (Metrics.logSentData)
 			plugin.getLogger().info("Sending data to bStats: " + data);
 		HttpsURLConnection connection = (HttpsURLConnection) new URL(Metrics.URL).openConnection();

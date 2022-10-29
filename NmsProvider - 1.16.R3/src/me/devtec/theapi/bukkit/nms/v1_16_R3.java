@@ -47,7 +47,6 @@ import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.events.EventManager;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
-import me.devtec.theapi.bukkit.BukkitLoader.InventoryClickType;
 import me.devtec.theapi.bukkit.events.ServerListPingEvent;
 import me.devtec.theapi.bukkit.game.BlockDataStorage;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
@@ -87,6 +86,7 @@ import net.minecraft.server.v1_16_R3.IChatBaseComponent;
 import net.minecraft.server.v1_16_R3.IRegistry;
 import net.minecraft.server.v1_16_R3.IScoreboardCriteria.EnumScoreboardHealthDisplay;
 import net.minecraft.server.v1_16_R3.ITileEntity;
+import net.minecraft.server.v1_16_R3.InventoryClickType;
 import net.minecraft.server.v1_16_R3.Item;
 import net.minecraft.server.v1_16_R3.MinecraftServer;
 import net.minecraft.server.v1_16_R3.MojangsonParser;
@@ -823,17 +823,16 @@ public class v1_16_R3 implements NmsProvider {
 
 		int id = packet.b();
 		int mouseClick = packet.d();
-		net.minecraft.server.v1_16_R3.InventoryClickType nmsType = packet.g();
-		InventoryClickType type = InventoryClickType.valueOf(nmsType.name());
+		InventoryClickType type = packet.g();
 
 		Object container = gui.getContainer(player);
 		if (container == null)
 			return false;
 		ItemStack item = asBukkitItem(packet.f());
-		if ((type == InventoryClickType.QUICK_MOVE || type == InventoryClickType.CLONE || type == InventoryClickType.THROW || item.getType().isAir()) && item.getType().isAir())
+		if ((type == InventoryClickType.QUICK_MOVE || type == InventoryClickType.CLONE || type == InventoryClickType.THROW || item.getType() == Material.AIR) && item.getType() == Material.AIR)
 			item = asBukkitItem(getSlotItem(container, slot));
 		boolean cancel = false;
-		if (InventoryClickType.SWAP == type) {
+		if (type == InventoryClickType.SWAP) {
 			item = player.getInventory().getItem(mouseClick);
 			mouseClick = 0;
 			cancel = true;
@@ -842,20 +841,20 @@ public class v1_16_R3 implements NmsProvider {
 			item = new ItemStack(Material.AIR);
 
 		ItemStack before = player.getItemOnCursor();
-		ClickType clickType = BukkitLoader.buildClick(item, type, slot, mouseClick);
+		ClickType clickType = InventoryUtils.buildClick(item, type == InventoryClickType.QUICK_CRAFT ? 1 : type == InventoryClickType.QUICK_MOVE ? 2 : 0, mouseClick);
+		int gameSlot = slot > gui.size() - 1 ? InventoryUtils.convertToPlayerInvSlot(slot - gui.size()) : slot;
 		if (!cancel)
-			cancel = BukkitLoader.useItem(player, item, gui, slot, clickType);
+			cancel = InventoryUtils.useItem(player, gui, slot, clickType);
 		if (!gui.isInsertable())
 			cancel = true;
 
-		int gameSlot = slot > gui.size() - 1 ? InventoryUtils.convertToPlayerInvSlot(slot - gui.size()) : slot;
 		if (!cancel)
-			cancel = gui.onIteractItem(player, item, clickType, gameSlot, slot < gui.size());
+			cancel = gui.onInteractItem(player, item, before, clickType, gameSlot, slot < gui.size());
 		else
-			gui.onIteractItem(player, item, clickType, gameSlot, slot < gui.size());
+			gui.onInteractItem(player, item, before, clickType, gameSlot, slot < gui.size());
 
 		int position = 0;
-		if (!(gui instanceof AnvilGUI) && !cancel && type == InventoryClickType.QUICK_MOVE) {
+		if (!cancel && type == InventoryClickType.QUICK_MOVE) {
 			ItemStack[] contents = slot < gui.size() ? player.getInventory().getStorageContents() : gui.getInventory().getStorageContents();
 			List<Integer> modified = slot < gui.size()
 					? InventoryUtils.shift(slot, player, gui, clickType, gui instanceof AnvilGUI ? DestinationType.PLAYER_INV_ANVIL : DestinationType.PLAYER_INV_CUSTOM_INV, null, contents, item)

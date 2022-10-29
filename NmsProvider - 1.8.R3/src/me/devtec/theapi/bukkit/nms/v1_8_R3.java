@@ -46,7 +46,6 @@ import me.devtec.shared.components.Component;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.events.EventManager;
 import me.devtec.theapi.bukkit.BukkitLoader;
-import me.devtec.theapi.bukkit.BukkitLoader.InventoryClickType;
 import me.devtec.theapi.bukkit.events.ServerListPingEvent;
 import me.devtec.theapi.bukkit.game.BlockDataStorage;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
@@ -883,16 +882,16 @@ public class v1_8_R3 implements NmsProvider {
 
 		int id = packet.a();
 		int mouseClick = packet.c();
-		InventoryClickType type = InventoryClickType.values()[packet.f()];
+		int type = packet.f();
 
 		Object container = gui.getContainer(player);
 		if (container == null)
 			return false;
 		ItemStack item = asBukkitItem(packet.e());
-		if ((type == InventoryClickType.QUICK_MOVE || type == InventoryClickType.CLONE || type == InventoryClickType.THROW || item.getType() == Material.AIR) && item.getType() == Material.AIR)
+		if ((type == 1 || type == 3 || type == 4 || item.getType() == Material.AIR) && item.getType() == Material.AIR)
 			item = asBukkitItem(getSlotItem(container, slot));
 		boolean cancel = false;
-		if (InventoryClickType.SWAP == type) {
+		if (type == 3) {
 			item = player.getInventory().getItem(mouseClick);
 			mouseClick = 0;
 			cancel = true;
@@ -901,20 +900,20 @@ public class v1_8_R3 implements NmsProvider {
 			item = new ItemStack(Material.AIR);
 
 		ItemStack before = player.getItemOnCursor();
-		ClickType clickType = BukkitLoader.buildClick(item, type, slot, mouseClick);
+		ClickType clickType = InventoryUtils.buildClick(item, type == 5 ? 1 : type == 1 ? 2 : 0, mouseClick);
+		int gameSlot = slot > gui.size() - 1 ? InventoryUtils.convertToPlayerInvSlot(slot - gui.size()) : slot;
 		if (!cancel)
-			cancel = BukkitLoader.useItem(player, item, gui, slot, clickType);
+			cancel = InventoryUtils.useItem(player, gui, slot, clickType);
 		if (!gui.isInsertable())
 			cancel = true;
 
-		int gameSlot = slot > gui.size() - 1 ? InventoryUtils.convertToPlayerInvSlot(slot - gui.size()) : slot;
 		if (!cancel)
-			cancel = gui.onIteractItem(player, item, clickType, gameSlot, slot < gui.size());
+			cancel = gui.onInteractItem(player, item, before, clickType, gameSlot, slot < gui.size());
 		else
-			gui.onIteractItem(player, item, clickType, gameSlot, slot < gui.size());
+			gui.onInteractItem(player, item, before, clickType, gameSlot, slot < gui.size());
 
 		int position = 0;
-		if (!(gui instanceof AnvilGUI) && !cancel && type == InventoryClickType.QUICK_MOVE) {
+		if (!cancel && type == 1) {
 			ItemStack[] contents = slot < gui.size() ? player.getInventory().getContents() : gui.getInventory().getContents();
 			List<Integer> modified = slot < gui.size()
 					? InventoryUtils.shift(slot, player, gui, clickType, gui instanceof AnvilGUI ? DestinationType.PLAYER_INV_ANVIL : DestinationType.PLAYER_INV_CUSTOM_INV, null, contents, item)
@@ -942,11 +941,11 @@ public class v1_8_R3 implements NmsProvider {
 			if (!(gui instanceof AnvilGUI) || gui instanceof AnvilGUI && slot != 2)
 				BukkitLoader.getPacketHandler().send(player, packetSetSlot(-1, -1, 0, asNMSItem(before)));
 			switch (type) {
-			case CLONE:
+			case 4:
 				return true;
-			case SWAP:
-			case QUICK_MOVE:
-			case PICKUP_ALL:
+			case 3:
+			case 2:
+			case 6:
 				// TOP
 				for (ItemStack cItem : gui.getInventory().getContents())
 					BukkitLoader.getPacketHandler().send(player, packetSetSlot(id, position++, 0, asNMSItem(cItem)));
