@@ -354,8 +354,8 @@ public class BukkitLibInit {
 				while (match.find()) {
 					String color = match.group();
 					StringContainer hex = new StringContainer(14).append("§x");
-					for (char c : color.substring(1).toCharArray())
-						hex.append('§').append(Character.toLowerCase(c));
+					for (int i = 1; i < color.length(); ++i)
+						hex.append('§').append(Character.toLowerCase(color.charAt(i)));
 					msg = msg.replace(color, hex.toString());
 				}
 				return msg;

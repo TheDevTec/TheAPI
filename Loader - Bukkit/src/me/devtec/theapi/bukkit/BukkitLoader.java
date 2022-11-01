@@ -153,18 +153,14 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				return var0 != 167 && var0 >= ' ' && var0 != 127;
 			}
 
-			public String buildText(String var0) {
-				StringContainer var1 = new StringContainer(var0.length());
-				char[] var2 = var0.toCharArray();
-				int var3 = var2.length;
-
-				for (int var4 = 0; var4 < var3; ++var4) {
-					char var5 = var2[var4];
-					if (isAllowedChatCharacter(var5))
-						var1.append(var5);
+			public String buildText(String text) {
+				StringContainer builder = new StringContainer(text.length());
+				for (int i = 0; i < text.length(); ++i) {
+					char c = text.charAt(i);
+					if (isAllowedChatCharacter(c))
+						builder.append(c);
 				}
-
-				return var1.toString();
+				return builder.toString();
 			}
 
 			@Override
