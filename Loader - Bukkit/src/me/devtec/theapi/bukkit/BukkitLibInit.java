@@ -253,16 +253,18 @@ public class BukkitLibInit {
 
 						int num = 0;
 						while (true) {
-							int position = msg.indexOf(protect, num++);
+							int position = msg.indexOf(protect, num);
 							if (position == -1)
 								break;
-							if (allocated == skipRegions.length) {
-								int[][] copy = new int[allocated << 1 + 1][2];
-								System.arraycopy(skipRegions, 0, copy, 0, skipRegions.length);
+							num = position + size;
+							if (allocated == 0 || allocated >= skipRegions.length - 1) {
+								int[][] copy = new int[(allocated << 1) + 1][];
+								if (allocated > 0)
+									System.arraycopy(skipRegions, 0, copy, 0, skipRegions.length);
 								skipRegions = copy;
 							}
+							fixedSize -= size * 2;
 							skipRegions[allocated++] = new int[] { position, size };
-							fixedSize -= size;
 						}
 					}
 					if (allocated > 0)
@@ -284,7 +286,8 @@ public class BukkitLibInit {
 					}
 
 					if (currentSkipAt == i) {
-						skipForChars = skipId + 1 == allocated ? -1 : skipRegions[skipId++][1];
+						skipForChars = skipRegions[skipId++][1] - 1;
+						currentSkipAt = skipId == allocated ? -1 : skipRegions[skipId][0];
 						builder.append(c);
 						continue;
 					}
