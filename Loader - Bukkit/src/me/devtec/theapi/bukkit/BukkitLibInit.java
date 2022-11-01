@@ -229,30 +229,66 @@ public class BukkitLibInit {
 			char[] chars = rainbow.toCharArray();
 			AtomicInteger position = new AtomicInteger(0);
 
+			int[][] EMPTY_ARRAY = {};
+
 			@Override
 			public String gradient(String msg, String fromHex, String toHex, List<String> protectedStrings) {
 				if (Ref.isNewerThan(15)) // Hex
 					return API.basics().gradient(msg, fromHex, toHex, protectedStrings);
 
-				String split = msg.replace("", "");
-
-				if (protectedStrings != null)
-					for (String protect : protectedStrings)
-						split = split.replace(protect.replace("", ""), protect);
-
-				StringContainer builder = new StringContainer((int) ((msg.length() + 1) * 1.25));
 				boolean inRainbow = false;
 				char prev = 0;
 				String formats = "";
 
-				for (String s : split.split("")) {
-					if (s.isEmpty())
+				int[][] skipRegions = EMPTY_ARRAY;
+				int allocated = 0;
+
+				int currentSkipAt = -1;
+				int skipId = 0;
+
+				int fixedSize = msg.length() * 2;
+				if (protectedStrings != null) {
+					for (String protect : protectedStrings) {
+						int size = protect.length();
+
+						int num = 0;
+						while (true) {
+							int position = msg.indexOf(protect, num++);
+							if (position == -1)
+								break;
+							if (allocated == skipRegions.length) {
+								int[][] copy = new int[allocated << 1 + 1][2];
+								System.arraycopy(skipRegions, 0, copy, 0, skipRegions.length);
+								skipRegions = copy;
+							}
+							skipRegions[allocated++] = new int[] { position, size };
+							fixedSize -= size;
+						}
+					}
+					if (allocated > 0)
+						currentSkipAt = skipRegions[0][0];
+				}
+
+				StringContainer builder = new StringContainer(fixedSize);
+
+				int skipForChars = 0;
+				for (int i = 0; i < msg.length(); ++i) {
+					char c = msg.charAt(i);
+					if (c == 0)
 						continue;
-					if (s.length() > 1) {
-						builder.append(s);
+
+					if (skipForChars > 0) {
+						builder.append(c);
+						--skipForChars;
 						continue;
 					}
-					char c = s.charAt(0);
+
+					if (currentSkipAt == i) {
+						skipForChars = skipId + 1 == allocated ? -1 : skipRegions[skipId++][1];
+						builder.append(c);
+						continue;
+					}
+
 					if (prev == '&' || prev == '§') {
 						if (prev == '&' && c == 'u') {
 							builder.deleteCharAt(builder.length() - 1); // remove & char
