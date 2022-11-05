@@ -37,8 +37,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.shared.Ref;
+import me.devtec.shared.components.ClickEvent;
 import me.devtec.shared.components.Component;
 import me.devtec.shared.components.ComponentAPI;
+import me.devtec.shared.components.HoverEvent;
 import me.devtec.shared.events.EventManager;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.events.ServerListPingEvent;
@@ -49,6 +51,8 @@ import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.nms.GameProfileHandler.PropertyHandler;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils.DestinationType;
+import me.devtec.theapi.bukkit.tablist.TabEntry;
+import me.devtec.theapi.bukkit.tablist.Tablist;
 import net.minecraft.server.v1_7_R4.Block;
 import net.minecraft.server.v1_7_R4.BlockFalling;
 import net.minecraft.server.v1_7_R4.Blocks;
@@ -207,8 +211,8 @@ public class v1_7_R4 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetOpenWindow(int id, String legacy, int size, String title) {
-		return new PacketPlayOutOpenWindow(id, legacy.equals("minecraft:chest") ? 0 : 8, title, size, false);
+	public Object packetOpenWindow(int id, String legacy, int size, Component title) {
+		return new PacketPlayOutOpenWindow(id, legacy.equals("minecraft:chest") ? 0 : 8, title.toString(), size, false);
 	}
 
 	@Override
@@ -217,7 +221,7 @@ public class v1_7_R4 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetResourcePackSend(String url, String hash, boolean requireRP, String prompt) {
+	public Object packetResourcePackSend(String url, String hash, boolean requireRP, Component prompt) {
 		return null;
 	}
 
@@ -256,7 +260,7 @@ public class v1_7_R4 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetPlayerListHeaderFooter(String header, String footer) {
+	public Object packetPlayerListHeaderFooter(Component header, Component footer) {
 		return null;
 	}
 
@@ -303,7 +307,7 @@ public class v1_7_R4 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut) {
+	public Object packetTitle(TitleAction action, Component text, int fadeIn, int stay, int fadeOut) {
 		if (action == TitleAction.ACTIONBAR)
 			return this.packetChat(ChatType.GAME_INFO, text, null);
 		return null;
@@ -315,8 +319,8 @@ public class v1_7_R4 implements NmsProvider {
 	}
 
 	@Override
-	public Object packetChat(ChatType type, String text, UUID uuid) {
-		return this.packetChat(type, this.toIChatBaseComponent(ComponentAPI.fromString(text)), uuid);
+	public Object packetChat(ChatType type, Component text, UUID uuid) {
+		return this.packetChat(type, this.toIChatBaseComponent(text), uuid);
 	}
 
 	@Override
@@ -357,7 +361,7 @@ public class v1_7_R4 implements NmsProvider {
 	}
 
 	@Override
-	public Object toIChatBaseComponents(List<Component> components) {
+	public Object[] toIChatBaseComponents(List<Component> components) {
 		List<IChatBaseComponent> chat = new ArrayList<>();
 		chat.add(new ChatComponentText(""));
 		for (Component c : components) {
@@ -385,7 +389,7 @@ public class v1_7_R4 implements NmsProvider {
 	}
 
 	@Override
-	public Object toIChatBaseComponents(Component co) {
+	public Object[] toIChatBaseComponents(Component co) {
 		List<IChatBaseComponent> chat = new ArrayList<>();
 		chat.add(new ChatComponentText(""));
 		if (co.getText() != null && !co.getText().isEmpty())
@@ -435,45 +439,42 @@ public class v1_7_R4 implements NmsProvider {
 	}
 
 	@Override
-	public String fromIChatBaseComponent(Object component) {
-		if (component == null)
-			return null;
-		if (component instanceof IChatBaseComponent[]) {
-			IChatBaseComponent[] cchat = (IChatBaseComponent[]) component;
-			StringBuilder builder = new StringBuilder();
-			for (IChatBaseComponent chat : cchat) {
-				builder.append(asString(chat.getChatModifier())).append(chat.e());
-				for (Object c : chat.a())
-					builder.append(asString(((IChatBaseComponent) c).getChatModifier())).append(((IChatBaseComponent) c).e());
+	public Component fromIChatBaseComponent(Object componentObject) {
+		IChatBaseComponent component = (IChatBaseComponent) componentObject;
+		if (component.e().isEmpty()) {
+			Component comp = new Component("");
+			if (!component.e().isEmpty()) {
+				List<Component> extra = new ArrayList<>();
+				for (Object base : component.a())
+					extra.add(fromIChatBaseComponent(base));
+				comp.setExtra(extra);
 			}
-			return builder.toString();
+			return comp;
 		}
-		if (component instanceof IChatBaseComponent) {
-			IChatBaseComponent chat = (IChatBaseComponent) component;
-			StringBuilder builder = new StringBuilder();
-			builder.append(asString(chat.getChatModifier())).append(chat.e());
-			for (Object c : chat.a())
-				builder.append(asString(((IChatBaseComponent) c).getChatModifier())).append(((IChatBaseComponent) c).e());
-			return builder.toString();
-		}
-		return component.toString();
-	}
+		Component comp = new Component(component.e().replaceAll("§[A-Fa-f0-9K-Ok-oRr]", ""));
+		ChatModifier modif = component.getChatModifier();
+		if (modif.a() != null)
+			comp.setColor(modif.a().name().toLowerCase());
 
-	private StringBuilder asString(ChatModifier chatModifier) {
-		StringBuilder builder = new StringBuilder();
-		if (chatModifier.a() != null)
-			builder.append('§').append(chatModifier.a().getChar());
-		if (chatModifier.b())
-			builder.append('§').append('l');
-		if (chatModifier.c())
-			builder.append('§').append('o');
-		if (chatModifier.d())
-			builder.append('§').append('m');
-		if (chatModifier.e())
-			builder.append('§').append('n');
-		if (chatModifier.f())
-			builder.append('§').append('k');
-		return builder;
+		if (modif.h() != null)
+			comp.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(modif.h().a().name()), modif.h().b()));
+
+		if (modif.i() != null)
+			comp.setHoverEvent(new HoverEvent(HoverEvent.Action.valueOf(modif.i().a().b()), fromIChatBaseComponent(modif.i().b())));
+
+		comp.setBold(modif.b());
+		comp.setItalic(modif.c());
+		comp.setObfuscated(modif.d());
+		comp.setUnderlined(modif.e());
+		comp.setStrikethrough(modif.f());
+
+		if (!component.e().isEmpty()) {
+			List<Component> extra = new ArrayList<>();
+			for (Object base : component.a())
+				extra.add(fromIChatBaseComponent(base));
+			comp.setExtra(extra);
+		}
+		return comp;
 	}
 
 	@Override
@@ -732,7 +733,7 @@ public class v1_7_R4 implements NmsProvider {
 	}
 
 	@Override
-	public void setGUITitle(Player player, Object container, String legacy, int size, String title) {
+	public void setGUITitle(Player player, Object container, String legacy, int size, Component title) {
 		int id = ((Container) container).windowId;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
 		net.minecraft.server.v1_7_R4.ItemStack carried = ((CraftPlayer) player).getHandle().inventory.getCarried();
@@ -750,7 +751,7 @@ public class v1_7_R4 implements NmsProvider {
 	}
 
 	@Override
-	public void openGUI(Player player, Object container, String legacy, int size, String title, ItemStack[] items) {
+	public void openGUI(Player player, Object container, String legacy, int size, Component title) {
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = ((Container) container).windowId;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
@@ -761,7 +762,7 @@ public class v1_7_R4 implements NmsProvider {
 	}
 
 	@Override
-	public void openAnvilGUI(Player player, Object con, String title, ItemStack[] items) {
+	public void openAnvilGUI(Player player, Object con, Component title) {
 		ContainerAnvil container = (ContainerAnvil) con;
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = container.windowId;
@@ -838,7 +839,7 @@ public class v1_7_R4 implements NmsProvider {
 			item = new ItemStack(Material.AIR);
 
 		ItemStack before = player.getItemOnCursor();
-		ClickType clickType = InventoryUtils.buildClick(item, type == 5 ? 1 : type == 1 ? 2 : 0, mouseClick);
+		ClickType clickType = InventoryUtils.buildClick(type == 5 ? 1 : type == 1 ? 2 : 0, mouseClick);
 		int gameSlot = slot > gui.size() - 1 ? InventoryUtils.convertToPlayerInvSlot(slot - gui.size()) : slot;
 		if (!cancel)
 			cancel = InventoryUtils.useItem(player, gui, slot, clickType);
@@ -937,6 +938,31 @@ public class v1_7_R4 implements NmsProvider {
 		if (event.getFalvicon() != null)
 			ping.setFavicon(event.getFalvicon());
 		return false;
+	}
+
+	@Override
+	public void processPlayerInfo(Player player, Object channel, Object packet, Tablist tablist) {
+		UUID id = ((GameProfile) Ref.get(packet, "d")).getId();
+		if (id.equals(player.getUniqueId())) {
+			Ref.set(packet, "player", toGameProfile(tablist.getGameProfile()));
+			if (tablist.getLatency().isPresent())
+				Ref.set(packet, "ping", tablist.getLatency().get());
+			if (tablist.getGameMode().isPresent())
+				Ref.set(packet, "gamemode", tablist.getGameMode().get().ordinal());
+			if (tablist.getPlayerListName().isPresent())
+				Ref.set(packet, "username", tablist.getPlayerListName().get().toString());
+		} else {
+			TabEntry entry = tablist.getEntryById(id);
+			if (entry == null)
+				return;
+			Ref.set(packet, "player", toGameProfile(entry.getGameProfile()));
+			if (entry.getLatency().isPresent())
+				Ref.set(packet, "ping", entry.getLatency().get());
+			if (entry.getGameMode().isPresent())
+				Ref.set(packet, "gamemode", entry.getGameMode().get().ordinal());
+			if (entry.getPlayerListName().isPresent())
+				Ref.set(packet, "username", entry.getPlayerListName().get().toString());
+		}
 	}
 
 	@Override

@@ -194,14 +194,14 @@ public class ScoreboardAPI {
 	private Object[] create(String prefix, String suffix, String name, String realName, int slot) {
 		ScoreboardAPI.protection.set(player + "." + name, true);
 		Object[] o = new Object[2];
-		o[0] = TeamUtils.createTeamPacket(0, TeamUtils.white, prefix, suffix, name, realName);
+		o[0] = TeamUtils.createTeamPacket(0, TeamUtils.white, ComponentAPI.fromString(prefix), ComponentAPI.fromString(suffix), name, realName);
 		o[1] = BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, name, slot);
 		return o;
 	}
 
 	private Object[] modify(String prefix, String suffix, String name, String realName, int slot) {
 		Object[] o = new Object[2];
-		o[0] = TeamUtils.createTeamPacket(2, TeamUtils.white, prefix, suffix, name, realName);
+		o[0] = TeamUtils.createTeamPacket(2, TeamUtils.white, ComponentAPI.fromString(prefix), ComponentAPI.fromString(suffix), name, realName);
 		o[1] = BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, name, slot);
 		return o;
 	}
@@ -209,7 +209,7 @@ public class ScoreboardAPI {
 	private Object[] remove(String name, String realName) {
 		ScoreboardAPI.protection.remove(player + "." + name);
 		Object[] o = new Object[2];
-		o[0] = TeamUtils.createTeamPacket(1, TeamUtils.white, "", "", name, realName);
+		o[0] = TeamUtils.createTeamPacket(1, TeamUtils.white, ComponentAPI.fromString(""), ComponentAPI.fromString(""), name, realName);
 		o[1] = BukkitLoader.getNmsProvider().packetScoreboardScore(Action.REMOVE, sbname, name, 0);
 		return o;
 	}

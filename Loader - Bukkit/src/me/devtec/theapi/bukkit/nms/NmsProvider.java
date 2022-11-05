@@ -16,9 +16,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import me.devtec.shared.components.Component;
+import me.devtec.shared.components.ComponentAPI;
 import me.devtec.theapi.bukkit.game.BlockDataStorage;
 import me.devtec.theapi.bukkit.game.Position;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
+import me.devtec.theapi.bukkit.tablist.Tablist;
 
 public interface NmsProvider {
 	static final UUID serverUuid = UUID.randomUUID();
@@ -185,7 +187,11 @@ public interface NmsProvider {
 
 	public Object packetSpawnEntityLiving(Object entityLiving);
 
-	public Object packetPlayerListHeaderFooter(String header, String footer);
+	public default Object packetPlayerListHeaderFooter(String header, String footer) {
+		return packetPlayerListHeaderFooter(ComponentAPI.fromString(header), ComponentAPI.fromString(footer));
+	}
+
+	public Object packetPlayerListHeaderFooter(Component header, Component footer);
 
 	/**
 	 * @apiNote @see
@@ -231,15 +237,15 @@ public interface NmsProvider {
 
 	public Object packetPlayerInfo(PlayerInfoType type, GameProfileHandler gameProfile, int latency, GameMode gameMode, Component playerName);
 
-	public Object packetResourcePackSend(String url, String hash, boolean shouldForce, String prompt);
+	public Object packetResourcePackSend(String url, String hash, boolean shouldForce, Component prompt);
 
 	public Object packetPosition(double x, double y, double z, float yaw, float pitch);
 
 	public Object packetRespawn(Player player);
 
-	public Object packetTitle(TitleAction action, String text, int fadeIn, int stay, int fadeOut);
+	public Object packetTitle(TitleAction action, Component text, int fadeIn, int stay, int fadeOut);
 
-	public default Object packetTitle(TitleAction action, String text) {
+	public default Object packetTitle(TitleAction action, Component text) {
 		return this.packetTitle(action, text, 20, 60, 20);
 	}
 
@@ -249,9 +255,9 @@ public interface NmsProvider {
 		return this.packetChat(type, chatBase, NmsProvider.serverUuid);
 	}
 
-	public Object packetChat(ChatType type, String text, UUID uuid);
+	public Object packetChat(ChatType type, Component text, UUID uuid);
 
-	public default Object packetChat(ChatType type, String text) {
+	public default Object packetChat(ChatType type, Component text) {
 		return this.packetChat(type, text, NmsProvider.serverUuid);
 	}
 
@@ -267,11 +273,11 @@ public interface NmsProvider {
 
 	public Object toIChatBaseComponent(Component component);
 
-	public Object toIChatBaseComponents(List<Component> components);
+	public Object[] toIChatBaseComponents(List<Component> components);
 
-	public Object toIChatBaseComponents(Component component);
+	public Object[] toIChatBaseComponents(Component component);
 
-	public String fromIChatBaseComponent(Object component);
+	public Component fromIChatBaseComponent(Object component);
 
 	public Object chatBase(String json);
 
@@ -335,27 +341,29 @@ public interface NmsProvider {
 
 	public Object packetSetSlot(int id, int slot, int changeId, Object itemStack);
 
-	public Object packetOpenWindow(int id, String legacy, int size, String title);
+	public Object packetOpenWindow(int id, String legacy, int size, Component title);
 
 	public void closeGUI(Player player, Object container, boolean closePacket);
 
 	public void setSlot(Object container, int slot, Object item);
 
-	public void setGUITitle(Player player, Object container, String legacy, int size, String title);
+	public void setGUITitle(Player player, Object container, String legacy, int size, Component title);
 
-	public void openGUI(Player player, Object container, String legacy, int size, String title, ItemStack[] items);
+	public void openGUI(Player player, Object container, String legacy, int size, Component title);
 
 	public Object createContainer(Inventory inv, Player player);
 
 	public Object getSlotItem(Object container, int slot);
 
-	public void openAnvilGUI(Player player, Object container, String title, ItemStack[] items);
+	public void openAnvilGUI(Player player, Object container, Component title);
 
 	public String getAnvilRenameText(Object anvil);
 
-	public boolean processInvClickPacket(Player player, HolderGUI gui, Object provPacket);
+	public boolean processInvClickPacket(Player player, HolderGUI gui, Object packet);
 
 	public boolean processServerListPing(String player, Object channel, Object packet);
+
+	public void processPlayerInfo(Player player, Object channel, Object packet, Tablist tablist);
 
 	// NBT Utils
 	public Object setString(Object nbt, String path, String value);

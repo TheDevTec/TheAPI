@@ -18,7 +18,7 @@ import javax.tools.ToolProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -51,6 +51,7 @@ import me.devtec.theapi.bukkit.nms.NmsProvider;
 import me.devtec.theapi.bukkit.packetlistener.PacketHandler;
 import me.devtec.theapi.bukkit.packetlistener.PacketHandlerModern;
 import me.devtec.theapi.bukkit.packetlistener.PacketListener;
+import me.devtec.theapi.bukkit.tablist.Tablist;
 
 public class BukkitLoader extends JavaPlugin implements Listener {
 	// public APIs
@@ -59,6 +60,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 	// private fields
 	private static Class<?> serverPing;
+	private static Class<?> playerInfo;
 	private static Class<?> resource;
 	private static Class<?> close;
 	private static Class<?> click;
@@ -105,6 +107,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	@SuppressWarnings("unchecked")
 	public void onLoad() {
 		BukkitLibInit.initTheAPI(this);
+
 		release = Config.loadFromInput(getResource("release.yml")).getDouble("release");
 
 		try {
@@ -133,6 +136,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		resource = Ref.nms("network.protocol.game", "PacketPlayInResourcePackStatus");
 		close = Ref.nms("network.protocol.game", "PacketPlayInCloseWindow");
 		serverPing = Ref.nms("network.protocol.status", "PacketStatusOutServerInfo");
+		playerInfo = Ref.nms("network.protocol.status", "PacketPlayOutPlayerInfo");
 		click = Ref.nms("network.protocol.game", "PacketPlayInWindowClick");
 		itemname = Ref.nms("network.protocol.game", "PacketPlayInItemName");
 
@@ -146,6 +150,11 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			public boolean playOut(String nick, Object packet, Object channel) {
 				if (packet.getClass() == serverPing)
 					return nmsProvider.processServerListPing(nick, channel, packet);
+				if (packet.getClass() == playerInfo) {
+					Player player = Bukkit.getPlayer(nick);
+					if (player != null)
+						nmsProvider.processPlayerInfo(player, channel, packet, Tablist.of(player));
+				}
 				return false;
 			}
 
@@ -316,7 +325,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		}
 
 		// Command to reload NmsProvider
-		CommandStructure.create(CommandSender.class, (sender, perm, isTablist) -> sender.hasPermission(perm), (sender, structure, args) -> {
+		CommandStructure.create(ConsoleCommandSender.class, (sender, perm, isTablist) -> sender.hasPermission(perm), (sender, structure, args) -> {
 			try {
 				loadProvider();
 				sender.sendMessage(StringUtils.colorize("&5TheAPI &8» &7NmsProvider &asuccesfully &7reloaded."));
@@ -341,6 +350,10 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	public void onLoginEvent(PlayerLoginEvent e) { // fix uuid - premium login?
 		API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getName());
 		handler.add(e.getPlayer());
+		Tablist tab = Tablist.of(e.getPlayer());
+		for (Player player : BukkitLoader.getOnlinePlayers())
+			if (!player.getUniqueId().equals(e.getPlayer().getUniqueId()))
+				Tablist.of(player).addEntry(tab.asEntry(tab));
 	}
 
 	@EventHandler

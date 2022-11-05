@@ -14,6 +14,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.devtec.shared.Ref;
+import me.devtec.shared.components.Component;
+import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 
@@ -225,6 +227,7 @@ public class GUI implements HolderGUI {
 	 *
 	 */
 	public final void open(Player... players) {
+		Component titleComp = ComponentAPI.fromString(title);
 		for (Player player : players) {
 			if (JavaPlugin.getPlugin(BukkitLoader.class).gui.containsKey(player.getUniqueId())) {
 				HolderGUI a = JavaPlugin.getPlugin(BukkitLoader.class).gui.get(player.getUniqueId());
@@ -232,7 +235,7 @@ public class GUI implements HolderGUI {
 				a.onClose(player);
 			}
 			Object container;
-			BukkitLoader.getNmsProvider().openGUI(player, container = BukkitLoader.getNmsProvider().createContainer(inv, player), "minecraft:chest", inv.getSize(), title, inv.getContents());
+			BukkitLoader.getNmsProvider().openGUI(player, container = BukkitLoader.getNmsProvider().createContainer(inv, player), "minecraft:chest", inv.getSize(), titleComp);
 			containers.put(player, container);
 			JavaPlugin.getPlugin(BukkitLoader.class).gui.put(player.getUniqueId(), this);
 		}
@@ -246,8 +249,9 @@ public class GUI implements HolderGUI {
 		if (title.equals(this.title))
 			return;
 		this.title = title;
+		Component titleComp = ComponentAPI.fromString(title);
 		for (Entry<Player, Object> ec : containers.entrySet())
-			BukkitLoader.getNmsProvider().setGUITitle(ec.getKey(), ec.getValue(), "minecraft:chest", inv.getSize(), title);
+			BukkitLoader.getNmsProvider().setGUITitle(ec.getKey(), ec.getValue(), "minecraft:chest", inv.getSize(), titleComp);
 	}
 
 	/**

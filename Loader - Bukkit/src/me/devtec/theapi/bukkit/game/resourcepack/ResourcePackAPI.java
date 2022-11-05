@@ -14,6 +14,6 @@ public class ResourcePackAPI {
 			return;
 		if (result != null)
 			JavaPlugin.getPlugin(BukkitLoader.class).resourcePackHandler.put(player.getUniqueId(), result);
-		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetResourcePackSend(offer.getUrl(), offer.getHash(), offer.isShouldForce(), offer.getPrompt()));
+		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetResourcePackSend(offer.getUrl(), offer.getHash(), offer.isShouldForce(), offer.getPrompt().orElse(null)));
 	}
 }

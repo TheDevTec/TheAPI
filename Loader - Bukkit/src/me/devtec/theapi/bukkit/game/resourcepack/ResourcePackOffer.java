@@ -3,14 +3,16 @@ package me.devtec.theapi.bukkit.game.resourcepack;
 import java.io.InputStream;
 import java.net.URL;
 import java.security.MessageDigest;
+import java.util.Optional;
 
 import io.netty.buffer.ByteBufUtil;
+import me.devtec.shared.components.Component;
 
 public class ResourcePackOffer {
 
 	private String url;
 	private String sha1;
-	private String prompt;
+	private Optional<Component> prompt;
 	private boolean force;
 
 	public static ResourcePackOffer url(String url) {
@@ -44,12 +46,12 @@ public class ResourcePackOffer {
 		return sha1;
 	}
 
-	public ResourcePackOffer setPrompt(String prompt) {
-		this.prompt = prompt;
+	public ResourcePackOffer setPrompt(Component prompt) {
+		this.prompt = Optional.ofNullable(prompt);
 		return this;
 	}
 
-	public String getPrompt() {
+	public Optional<Component> getPrompt() {
 		return prompt;
 	}
 

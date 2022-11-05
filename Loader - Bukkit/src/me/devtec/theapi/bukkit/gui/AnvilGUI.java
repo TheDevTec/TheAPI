@@ -15,6 +15,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.devtec.shared.Ref;
+import me.devtec.shared.components.Component;
+import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
@@ -127,6 +129,7 @@ public class AnvilGUI implements HolderGUI {
 	 *
 	 */
 	public final void open(Player... players) {
+		Component titleComp = ComponentAPI.fromString(title);
 		for (Player player : players) {
 			if (JavaPlugin.getPlugin(BukkitLoader.class).gui.containsKey(player.getUniqueId())) {
 				HolderGUI a = JavaPlugin.getPlugin(BukkitLoader.class).gui.get(player.getUniqueId());
@@ -134,14 +137,7 @@ public class AnvilGUI implements HolderGUI {
 				a.onClose(player);
 			}
 			Object container;
-			ItemStack[] item = new ItemStack[3];
-			if (items.get(0) != null)
-				item[0] = items.get(0).getItem();
-			if (items.get(1) != null)
-				item[1] = items.get(1).getItem();
-			if (items.get(2) != null)
-				item[2] = items.get(2).getItem();
-			BukkitLoader.getNmsProvider().openAnvilGUI(player, container = BukkitLoader.getNmsProvider().createContainer(inv, player), title, item);
+			BukkitLoader.getNmsProvider().openAnvilGUI(player, container = BukkitLoader.getNmsProvider().createContainer(inv, player), titleComp);
 			containers.put(player, container);
 			JavaPlugin.getPlugin(BukkitLoader.class).gui.put(player.getUniqueId(), this);
 		}
@@ -163,8 +159,9 @@ public class AnvilGUI implements HolderGUI {
 			title = title.substring(0, 32);
 		if (title.equals(title))
 			return;
+		Component titleComp = ComponentAPI.fromString(title);
 		for (Entry<Player, Object> ec : containers.entrySet()) {
-			BukkitLoader.getNmsProvider().setGUITitle(ec.getKey(), ec.getValue(), "minecraft:anvil", 0, title);
+			BukkitLoader.getNmsProvider().setGUITitle(ec.getKey(), ec.getValue(), "minecraft:anvil", 0, titleComp);
 			for (int i = 0; i < 3; ++i)
 				if (items.get(i) != null)
 					BukkitLoader.getNmsProvider().setSlot(ec.getValue(), i, BukkitLoader.getNmsProvider().asNMSItem(items.get(i).getItem()));

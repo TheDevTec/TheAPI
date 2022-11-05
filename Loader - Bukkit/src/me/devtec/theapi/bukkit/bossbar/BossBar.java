@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -52,10 +51,8 @@ public class BossBar {
 
 	public BossBar(Player holder, String text, double progress) {
 		this.holder = holder;
-		if (!Ref.isOlderThan(9)) {
-			Bukkit.getConsoleSender().sendMessage("[TheAPI - BossBar API] §4This class is not supported for versions higher than 1.8.9");
-			return;
-		}
+		if (!Ref.isOlderThan(9))
+			throw new UnsupportedClassVersionError("This class is not supported for versions higher than 1.8.9");
 		set(text, progress);
 		JavaPlugin.getPlugin(BukkitLoader.class).bossbars.add(this);
 	}

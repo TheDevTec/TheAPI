@@ -146,7 +146,11 @@ public class InventoryUtils {
 		return slot - 27;
 	}
 
-	public static ClickType buildClick(ItemStack mouseItem, int type, int mouse) {
+	/**
+	 * @apiNote Not usable for normal users. Only for devs modifying
+	 *          PacketPlayInWindowClick - build ClickType by mouse & shift click
+	 **/
+	public static ClickType buildClick(int type, int mouse) {
 		boolean shift = type == 2; // QUICK_MOVE
 		boolean pickup = false;
 
