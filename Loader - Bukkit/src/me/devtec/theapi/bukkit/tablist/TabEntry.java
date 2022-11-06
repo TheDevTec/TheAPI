@@ -23,7 +23,7 @@ public class TabEntry implements TabView {
 	private Optional<Component> playerlistName;
 	private Optional<GameMode> gameMode;
 	private int yellowNumberValue;
-	private Optional<Integer> latency;
+	private Optional<Integer> latency = Optional.empty();
 
 	public static TabEntry of(GameProfileHandler gameProfile, Tablist tablistHolder) {
 		return new TabEntry(null, gameProfile, tablistHolder);
@@ -35,6 +35,7 @@ public class TabEntry implements TabView {
 
 	protected TabEntry(@Nullable Player tagOwner, GameProfileHandler gameProfile, Tablist tablist) {
 		this.tablist = tablist;
+		this.tagOwner = Optional.ofNullable(tagOwner);
 		yellowNumberValue = tablist.getYellowNumberValue();
 		gameMode = tablist.getGameMode();
 		this.gameProfile = gameProfile;
