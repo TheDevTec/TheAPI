@@ -1168,6 +1168,13 @@ public class v1_7_R4 implements NmsProvider {
 	@Override
 	public Object packetPlayerInfo(PlayerInfoType type, GameProfileHandler gameProfile, int latency, GameMode gameMode, Component playerName) {
 		PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo();
+
+		if (playerName == null)
+			playerName = new Component(gameProfile.getUsername());
+
+		if (gameMode == null)
+			gameMode = GameMode.SURVIVAL;
+
 		switch (type) {
 		case ADD_PLAYER:
 			Ref.set(packet, username, playerName.toString());

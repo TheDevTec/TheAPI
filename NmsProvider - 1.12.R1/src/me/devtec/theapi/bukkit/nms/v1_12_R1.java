@@ -1209,7 +1209,8 @@ public class v1_12_R1 implements NmsProvider {
 	public Object packetPlayerInfo(PlayerInfoType type, GameProfileHandler gameProfile, int latency, GameMode gameMode, Component playerName) {
 		PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.valueOf(type.name()), Collections.emptyList());
 		((List<Object>) Ref.get(packet, playerInfo))
-				.add(Ref.newInstance(infoData, packet, toGameProfile(gameProfile), latency, EnumGamemode.valueOf(gameMode.name()), toIChatBaseComponent(playerName)));
+				.add(Ref.newInstance(infoData, packet, toGameProfile(gameProfile), latency, gameMode == null ? EnumGamemode.SURVIVAL : EnumGamemode.valueOf(gameMode.name()),
+						playerName == null ? toIChatBaseComponent(new Component(gameProfile.getUsername())) : toIChatBaseComponent(playerName)));
 		return packet;
 	}
 

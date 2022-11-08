@@ -30,21 +30,18 @@ public class Tablist implements TabView {
 	private final Nametag nametag;
 
 	private GameProfileHandler gameProfile;
-	private Optional<Component> playerlistName;
-	private Optional<Component> header;
-	private Optional<Component> footer;
-	private Optional<YellowNumberDisplay> yellowNumberDisplay;
-	private Optional<GameMode> gameMode;
+	private Optional<Component> playerlistName = Optional.empty();
+	private Optional<Component> header = Optional.empty();
+	private Optional<Component> footer = Optional.empty();
+	private Optional<YellowNumberDisplay> yellowNumberDisplay = Optional.empty();
+	private Optional<GameMode> gameMode = Optional.empty();
 	private int yellowNumberValue;
-	private Optional<Integer> latency;
+	private Optional<Integer> latency = Optional.empty();
 
 	private Tablist(Player player) {
 		this.player = player;
 		gameProfile = GameProfileHandler.of(player.getName(), player.getUniqueId());
-		playerlistName = Optional.of(new Component(player.getName()));
 		nametag = new Nametag(player, player.getName());
-		gameMode = Optional.of(player.getGameMode());
-		latency = Optional.empty();
 	}
 
 	public Player getPlayer() {
@@ -112,8 +109,8 @@ public class Tablist implements TabView {
 	@Override
 	public Tablist setPlayerListName(Component name) {
 		playerlistName = Optional.ofNullable(name);
-		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.UPDATE_DISPLAY_NAME, getGameProfile(), getLatency().orElse(null),
-				getGameMode().orElse(null), getPlayerListName().orElse(new Component(getGameProfile().getUsername()))));
+		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.UPDATE_DISPLAY_NAME, getGameProfile(),
+				getLatency().orElse(BukkitLoader.getNmsProvider().getPing(getPlayer())), getGameMode().orElse(null), getPlayerListName().orElse(null)));
 		return this;
 	}
 
@@ -173,8 +170,8 @@ public class Tablist implements TabView {
 	@Override
 	public Tablist setLatency(Integer latency) {
 		this.latency = Optional.ofNullable(latency);
-		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.UPDATE_LATENCY, getGameProfile(), getLatency().orElse(null),
-				getGameMode().orElse(null), getPlayerListName().orElse(new Component(getGameProfile().getUsername()))));
+		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.UPDATE_LATENCY, getGameProfile(),
+				getLatency().orElse(BukkitLoader.getNmsProvider().getPing(getPlayer())), getGameMode().orElse(null), getPlayerListName().orElse(null)));
 		return this;
 	}
 
@@ -182,18 +179,18 @@ public class Tablist implements TabView {
 	public Tablist setGameProfile(GameProfileHandler gameProfile) {
 		GameProfileHandler previous = gameProfile;
 		this.gameProfile = gameProfile;
-		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.REMOVE_PLAYER, previous, getLatency().orElse(null), getGameMode().orElse(null),
-				getPlayerListName().orElse(new Component(getGameProfile().getUsername()))));
-		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.ADD_PLAYER, getGameProfile(), getLatency().orElse(null), getGameMode().orElse(null),
-				getPlayerListName().orElse(new Component(getGameProfile().getUsername()))));
+		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.REMOVE_PLAYER, previous,
+				getLatency().orElse(BukkitLoader.getNmsProvider().getPing(getPlayer())), getGameMode().orElse(null), getPlayerListName().orElse(null)));
+		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.ADD_PLAYER, getGameProfile(),
+				getLatency().orElse(BukkitLoader.getNmsProvider().getPing(getPlayer())), getGameMode().orElse(null), getPlayerListName().orElse(null)));
 		return this;
 	}
 
 	@Override
 	public Tablist setGameMode(GameMode gameMode) {
 		this.gameMode = Optional.ofNullable(gameMode);
-		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.UPDATE_GAME_MODE, getGameProfile(), getLatency().orElse(null),
-				getGameMode().orElse(null), getPlayerListName().orElse(new Component(getGameProfile().getUsername()))));
+		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.UPDATE_GAME_MODE, getGameProfile(),
+				getLatency().orElse(BukkitLoader.getNmsProvider().getPing(getPlayer())), getGameMode().orElse(null), getPlayerListName().orElse(null)));
 		return this;
 	}
 

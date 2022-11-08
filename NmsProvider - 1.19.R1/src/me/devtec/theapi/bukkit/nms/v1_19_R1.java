@@ -1220,7 +1220,8 @@ public class v1_19_R1 implements NmsProvider {
 			break;
 		}
 		PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(action, Collections.emptyList());
-		packet.b().add(new PlayerInfoData((GameProfile) toGameProfile(gameProfile), latency, EnumGamemode.valueOf(gameMode.name()), (IChatBaseComponent) toIChatBaseComponent(playerName), null));
+		packet.b().add(new PlayerInfoData((GameProfile) toGameProfile(gameProfile), latency, gameMode == null ? EnumGamemode.a : EnumGamemode.a(gameMode.name().toLowerCase()),
+				(IChatBaseComponent) (playerName == null ? toIChatBaseComponent(new Component(gameProfile.getUsername())) : toIChatBaseComponent(playerName)), null));
 		return packet;
 	}
 
