@@ -54,6 +54,7 @@ import me.devtec.theapi.bukkit.packetlistener.PacketListener;
 import me.devtec.theapi.bukkit.tablist.Tablist;
 
 public class BukkitLoader extends JavaPlugin implements Listener {
+
 	// public APIs
 	public static NmsProvider nmsProvider;
 	public static PacketHandler<?> handler;
@@ -379,8 +380,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 	private void checkForUpdateAndDownloadCompiled() {
 		try {
-			Config gitVersion = Config.loadFromInput(
-					new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + Ref.serverVersion().substring(1).replace("_", ".") + "/version.yml").openStream());
+			Config gitVersion = Config.loadFromInput(new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/version.yml").openStream());
 
 			Config localVersion = new Config("plugins/TheAPI/version.yml");
 

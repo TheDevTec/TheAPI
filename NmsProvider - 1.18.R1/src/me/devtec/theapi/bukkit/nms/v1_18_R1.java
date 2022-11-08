@@ -401,6 +401,8 @@ public class v1_18_R1 implements NmsProvider {
 				continue;
 			}
 			chat.add(convert(c));
+			if (c.getExtra() != null)
+				addConverted(chat, c.getExtra());
 		}
 	}
 

@@ -44,6 +44,7 @@ public class Tablist implements TabView {
 		playerlistName = Optional.of(new Component(player.getName()));
 		nametag = new Nametag(player, player.getName());
 		gameMode = Optional.of(player.getGameMode());
+		latency = Optional.empty();
 	}
 
 	public Player getPlayer() {
