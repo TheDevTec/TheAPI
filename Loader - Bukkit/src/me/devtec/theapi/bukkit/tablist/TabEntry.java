@@ -74,7 +74,7 @@ public class TabEntry implements TabView {
 	@Override
 	public TabEntry setYellowNumber(YellowNumberDisplay display, int value) {
 		yellowNumberValue = value;
-		if (getTablist().getYellowNumberDisplay() == null)
+		if (!getTablist().getYellowNumberDisplay().isPresent())
 			return this;
 		BukkitLoader.getPacketHandler().send(getTablist().getPlayer(), BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE,
 				getTablist().getYellowNumberDisplay().get().name().toLowerCase(), getGameProfile().getUsername(), yellowNumberValue));
