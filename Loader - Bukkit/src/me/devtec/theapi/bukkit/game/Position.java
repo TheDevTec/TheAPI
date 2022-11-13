@@ -11,7 +11,9 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
+import org.bukkit.util.Vector;
 
 import me.devtec.shared.Ref;
 import me.devtec.shared.json.Json;
@@ -282,12 +284,36 @@ public class Position implements Cloneable {
 		return this;
 	}
 
+	public Position remove(double x, double y, double z) {
+		return add(-x, -y, -z);
+	}
+
 	public Position add(Position position) {
 		return add(position.getX(), position.getY(), position.getZ());
 	}
 
 	public Position add(Location location) {
 		return add(location.getX(), location.getY(), location.getZ());
+	}
+
+	public Position add(BlockFace face) {
+		return add(face.getModX(), face.getModY(), face.getModZ());
+	}
+
+	public Position add(Vector vector) {
+		return add(vector.getX(), vector.getY(), vector.getZ());
+	}
+
+	public Position remove(Location location) {
+		return remove(location.getX(), location.getY(), location.getZ());
+	}
+
+	public Position remove(BlockFace face) {
+		return remove(face.getModX(), face.getModY(), face.getModZ());
+	}
+
+	public Position remove(Vector vector) {
+		return remove(vector.getX(), vector.getY(), vector.getZ());
 	}
 
 	public double getX() {
