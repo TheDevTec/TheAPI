@@ -613,10 +613,15 @@ public class v1_18_R1 implements NmsProvider {
 
 		IBlockData iblock = IblockData == null ? Blocks.a.n() : (IBlockData) IblockData;
 
-		// REMOVE TILE ENTITY
-		TileEntity ent = chunk.i.remove(pos);
-		if (ent != null)
+		boolean onlyModifyState = iblock.b() instanceof ITileEntity;
+
+		// REMOVE TILE ENTITY IF NOT SAME TYPE
+		TileEntity ent = onlyModifyState ? chunk.i.get(pos) : chunk.i.remove(pos);
+		if (ent != null && onlyModifyState && !ent.q().b().getClass().equals(iblock.b().getClass())) {
+			onlyModifyState = false;
+			chunk.i.remove(pos);
 			ent.aa_();
+		}
 		@SuppressWarnings("unchecked")
 		Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, blockNbt);
 		h.remove(pos);
@@ -626,7 +631,7 @@ public class v1_18_R1 implements NmsProvider {
 		IBlockData old = sc.a(x & 15, y & 15, z & 15, iblock, false);
 
 		// ADD TILE ENTITY
-		if (iblock.b() instanceof ITileEntity) {
+		if (iblock.b() instanceof ITileEntity && !onlyModifyState) {
 			ent = ((ITileEntity) iblock.b()).a(pos, iblock);
 			chunk.i.put(pos, ent);
 			ent.a(chunk.q);

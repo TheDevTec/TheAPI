@@ -659,10 +659,15 @@ public class v1_12_R1 implements NmsProvider {
 
 		IBlockData iblock = IblockData == null ? Blocks.AIR.getBlockData() : (IBlockData) IblockData;
 
-		// REMOVE TILE ENTITY
-		TileEntity ent = chunk.tileEntities.remove(pos);
-		if (ent != null)
+		boolean onlyModifyState = iblock.getBlock() instanceof ITileEntity;
+
+		// REMOVE TILE ENTITY IF NOT SAME TYPE
+		TileEntity ent = onlyModifyState ? chunk.tileEntities.get(pos) : chunk.tileEntities.remove(pos);
+		if (ent != null && onlyModifyState && !ent.getBlock().getClass().equals(iblock.getBlock().getClass())) {
+			onlyModifyState = false;
+			chunk.tileEntities.remove(pos);
 			ent.z();
+		}
 		chunk.world.capturedTileEntities.remove(pos);
 
 		Iterator<BlockState> iterator = chunk.world.capturedBlockStates.iterator();
@@ -675,7 +680,7 @@ public class v1_12_R1 implements NmsProvider {
 		sc.setType(x & 15, y & 15, z & 15, iblock);
 
 		// ADD TILE ENTITY
-		if (iblock.getBlock() instanceof ITileEntity) {
+		if (iblock.getBlock() instanceof ITileEntity && !onlyModifyState) {
 			ent = ((ITileEntity) iblock.getBlock()).a(chunk.world, 0);
 			chunk.tileEntities.put(pos, ent);
 			ent.a(chunk.world);
