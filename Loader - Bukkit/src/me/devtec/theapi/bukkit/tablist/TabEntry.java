@@ -19,7 +19,8 @@ public class TabEntry implements TabView {
 	private final Nametag nametag;
 	private Optional<Player> tagOwner;
 
-	private GameProfileHandler gameProfile;
+	private Object gameProfile;
+	private boolean modifiedGameProfile;
 	private Optional<Component> playerlistName = Optional.empty();
 	private Optional<GameMode> gameMode = Optional.empty();
 	private int yellowNumberValue;
@@ -29,17 +30,17 @@ public class TabEntry implements TabView {
 		return new TabEntry(null, gameProfile, tablistHolder);
 	}
 
-	public static TabEntry of(@Nullable Player tagOwner, GameProfileHandler gameProfile, Tablist tablistHolder) {
+	public static TabEntry of(@Nullable Player tagOwner, Object gameProfile, Tablist tablistHolder) {
 		return new TabEntry(tagOwner, gameProfile, tablistHolder);
 	}
 
-	protected TabEntry(@Nullable Player tagOwner, GameProfileHandler gameProfile, Tablist tablist) {
+	protected TabEntry(@Nullable Player tagOwner, Object gameProfile, Tablist tablist) {
 		this.tablist = tablist;
 		this.tagOwner = Optional.ofNullable(tagOwner);
 		this.gameProfile = gameProfile;
-		nametag = new Nametag(tablist.getPlayer(), gameProfile.getUsername());
+		nametag = new Nametag(tablist.getPlayer(), BukkitLoader.getNmsProvider().fromGameProfile(gameProfile).getUsername());
 		if (tagOwner == null) {
-			playerlistName = Optional.of(new Component(gameProfile.getUsername()));
+			playerlistName = Optional.of(new Component(BukkitLoader.getNmsProvider().fromGameProfile(gameProfile).getUsername()));
 			gameMode = tablist.getGameMode();
 			BukkitLoader.getPacketHandler().send(getTablist().getPlayer(), BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.ADD_PLAYER, getGameProfile(),
 					getLatency().orElse(getPlayer().isPresent() ? BukkitLoader.getNmsProvider().getPing(getPlayer().get()) : 0), getGameMode().orElse(null), getPlayerListName().orElse(null)));
@@ -119,16 +120,18 @@ public class TabEntry implements TabView {
 
 	@Override
 	public GameProfileHandler getGameProfile() {
-		return gameProfile;
+		return BukkitLoader.getNmsProvider().fromGameProfile(gameProfile);
 	}
 
 	@Override
 	public TabView setGameProfile(GameProfileHandler gameProfile) {
-		GameProfileHandler previous = gameProfile;
-		this.gameProfile = gameProfile;
-		BukkitLoader.getPacketHandler().send(getTablist().getPlayer(), BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.REMOVE_PLAYER, previous,
-				getLatency().orElse(getPlayer().isPresent() ? BukkitLoader.getNmsProvider().getPing(getPlayer().get()) : 0), getGameMode().orElse(null), getPlayerListName().orElse(null)));
-		BukkitLoader.getPacketHandler().send(getTablist().getPlayer(), BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.ADD_PLAYER, getGameProfile(),
+		Object previous = this.gameProfile;
+		modifiedGameProfile = true;
+		this.gameProfile = BukkitLoader.getNmsProvider().toGameProfile(gameProfile);
+		BukkitLoader.getPacketHandler().send(getTablist().getPlayer(),
+				BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.REMOVE_PLAYER, BukkitLoader.getNmsProvider().fromGameProfile(previous),
+						getLatency().orElse(getPlayer().isPresent() ? BukkitLoader.getNmsProvider().getPing(getPlayer().get()) : 0), getGameMode().orElse(null), getPlayerListName().orElse(null)));
+		BukkitLoader.getPacketHandler().send(getTablist().getPlayer(), BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.ADD_PLAYER, gameProfile,
 				getLatency().orElse(getPlayer().isPresent() ? BukkitLoader.getNmsProvider().getPing(getPlayer().get()) : 0), getGameMode().orElse(null), getPlayerListName().orElse(null)));
 		return this;
 	}
@@ -136,6 +139,11 @@ public class TabEntry implements TabView {
 	public void remove() {
 		BukkitLoader.getPacketHandler().send(getTablist().getPlayer(), BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.REMOVE_PLAYER, getGameProfile(),
 				getLatency().orElse(getPlayer().isPresent() ? BukkitLoader.getNmsProvider().getPing(getPlayer().get()) : 0), getGameMode().orElse(null), getPlayerListName().orElse(null)));
+	}
+
+	@Override
+	public boolean isGameProfileModified() {
+		return modifiedGameProfile;
 	}
 
 }

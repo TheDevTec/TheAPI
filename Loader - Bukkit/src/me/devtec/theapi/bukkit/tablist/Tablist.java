@@ -29,7 +29,8 @@ public class Tablist implements TabView {
 	private final List<TabEntry> entries = new ArrayList<>();
 	private final Nametag nametag;
 
-	private GameProfileHandler gameProfile;
+	private Object gameProfile;
+	private boolean modifiedGameProfile;
 	private Optional<Component> playerlistName = Optional.empty();
 	private Optional<Component> header = Optional.empty();
 	private Optional<Component> footer = Optional.empty();
@@ -40,7 +41,7 @@ public class Tablist implements TabView {
 
 	private Tablist(Player player) {
 		this.player = player;
-		gameProfile = GameProfileHandler.of(player.getName(), player.getUniqueId());
+		gameProfile = BukkitLoader.getNmsProvider().getGameProfile(player);
 		nametag = new Nametag(player, player.getName());
 	}
 
@@ -159,7 +160,12 @@ public class Tablist implements TabView {
 
 	@Override
 	public GameProfileHandler getGameProfile() {
-		return gameProfile;
+		return BukkitLoader.getNmsProvider().fromGameProfile(gameProfile);
+	}
+
+	@Override
+	public boolean isGameProfileModified() {
+		return modifiedGameProfile;
 	}
 
 	@Override
@@ -177,11 +183,12 @@ public class Tablist implements TabView {
 
 	@Override
 	public Tablist setGameProfile(GameProfileHandler gameProfile) {
-		GameProfileHandler previous = gameProfile;
-		this.gameProfile = gameProfile;
-		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.REMOVE_PLAYER, previous,
+		Object previous = this.gameProfile;
+		modifiedGameProfile = true;
+		this.gameProfile = BukkitLoader.getNmsProvider().toGameProfile(gameProfile);
+		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.REMOVE_PLAYER, BukkitLoader.getNmsProvider().fromGameProfile(previous),
 				getLatency().orElse(BukkitLoader.getNmsProvider().getPing(getPlayer())), getGameMode().orElse(null), getPlayerListName().orElse(null)));
-		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.ADD_PLAYER, getGameProfile(),
+		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetPlayerInfo(PlayerInfoType.ADD_PLAYER, gameProfile,
 				getLatency().orElse(BukkitLoader.getNmsProvider().getPing(getPlayer())), getGameMode().orElse(null), getPlayerListName().orElse(null)));
 		return this;
 	}

@@ -988,7 +988,8 @@ public class v1_19_R1 implements NmsProvider {
 		for (PlayerInfoData data : ((PacketPlayOutPlayerInfo) packet).b()) {
 			UUID id = data.a().getId();
 			if (id.equals(player.getUniqueId())) {
-				Ref.set(data, "c", toGameProfile(tablist.getGameProfile()));
+				if (tablist.isGameProfileModified())
+					Ref.set(data, "c", toGameProfile(tablist.getGameProfile()));
 				if (tablist.getLatency().isPresent())
 					Ref.set(data, "a", tablist.getLatency().get());
 				if (tablist.getGameMode().isPresent())
@@ -999,7 +1000,8 @@ public class v1_19_R1 implements NmsProvider {
 				TabEntry entry = tablist.getEntryById(id);
 				if (entry == null)
 					continue; // not registered yet / removed from entries, skip
-				Ref.set(data, "c", toGameProfile(entry.getGameProfile()));
+				if (entry.isGameProfileModified())
+					Ref.set(data, "c", toGameProfile(entry.getGameProfile()));
 				if (entry.getLatency().isPresent())
 					Ref.set(data, "a", entry.getLatency().get());
 				if (entry.getGameMode().isPresent())

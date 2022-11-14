@@ -38,4 +38,6 @@ public interface TabView {
 	public TabView setGameMode(@Nullable GameMode gameMode);
 
 	public Optional<GameMode> getGameMode();
+
+	public boolean isGameProfileModified();
 }

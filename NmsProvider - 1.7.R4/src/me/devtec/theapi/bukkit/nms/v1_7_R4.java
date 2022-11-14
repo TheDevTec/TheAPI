@@ -951,7 +951,8 @@ public class v1_7_R4 implements NmsProvider {
 	public void processPlayerInfo(Player player, Object channel, Object packet, Tablist tablist) {
 		UUID id = ((GameProfile) Ref.get(packet, "d")).getId();
 		if (id.equals(player.getUniqueId())) {
-			Ref.set(packet, "player", toGameProfile(tablist.getGameProfile()));
+			if (tablist.isGameProfileModified())
+				Ref.set(packet, "player", toGameProfile(tablist.getGameProfile()));
 			if (tablist.getLatency().isPresent())
 				Ref.set(packet, "ping", tablist.getLatency().get());
 			if (tablist.getGameMode().isPresent())
@@ -962,7 +963,8 @@ public class v1_7_R4 implements NmsProvider {
 			TabEntry entry = tablist.getEntryById(id);
 			if (entry == null)
 				return;
-			Ref.set(packet, "player", toGameProfile(entry.getGameProfile()));
+			if (entry.isGameProfileModified())
+				Ref.set(packet, "player", toGameProfile(entry.getGameProfile()));
 			if (entry.getLatency().isPresent())
 				Ref.set(packet, "ping", entry.getLatency().get());
 			if (entry.getGameMode().isPresent())
