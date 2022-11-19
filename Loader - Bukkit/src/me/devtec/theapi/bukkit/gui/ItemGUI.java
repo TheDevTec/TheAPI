@@ -8,30 +8,30 @@ import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 public abstract class ItemGUI {
 	private ItemStack s;
 	// Defaulty true
-	private boolean unsteal = true;
+	private boolean steal;
 
 	public ItemGUI(ItemStack stack) {
-		this.s = stack;
+		s = stack;
 	}
 
 	public abstract void onClick(Player player, HolderGUI gui, ClickType click);
 
 	public final ItemGUI setUnstealable(boolean value) {
-		this.unsteal = value;
+		steal = !value;
 		return this;
 	}
 
 	public final boolean isUnstealable() {
-		return this.unsteal;
+		return !steal;
 	}
 
 	public final ItemStack getItem() {
-		return this.s;
+		return s;
 	}
 
 	public final ItemGUI setItem(ItemStack stack) {
 		if (stack != null)
-			this.s = stack;
+			s = stack;
 		return this;
 	}
 }
