@@ -207,7 +207,6 @@ public class Tablist implements TabView {
 
 	public TabEntry asEntry(Tablist holder) {
 		TabEntry entry = TabEntry.of(player, gameProfile, holder);
-		entry.setPlayerListName(entry.getPlayerListName().orElse(new Component(getPlayer().getName())));
 		entry.setYellowNumber(entry.getYellowNumberValue());
 		entry.getNametag().clone(getNametag()).update();
 		return entry;
