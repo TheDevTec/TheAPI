@@ -6,7 +6,19 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/AdventureAPI"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
 	<classpathentry kind="lib" path="D:/jars/depends/PlaceholderAPI-2.11.1.jar"/>
-	<classpathentry kind="lib" path="D:/jars/mc/spigot-1.17.1.jar"/>
 	<classpathentry kind="lib" path="D:/jars/depends/HeadDatabase-4.17.0.jar" sourcepath="C:/Users/strai/AppData/Local/Temp/.org.sf.feeling.decompiler1665499674978/source/XSeries-8.7.1-sources.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.19_R1/authlib-3.3.39.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.19_R1/brigadier-1.0.18.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.19_R1/datafixerupper-4.1.27.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.19_R1/fastutil-8.5.6.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.19_R1/gson-2.8.9.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.19_R1/guava-31.0.1-jre.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.19_R1/jsr305-3.0.2.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.19_R1/log4j-api-2.17.0.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.19_R1/netty-all-4.1.68.Final.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.19_R1/slf4j-api-1.8.0-beta4.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.19_R1/paper-1.19.2.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.19_R1/spigot-api-1.19-R0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="D:/jars/depends/bungeecord-chat-1.16-R0.4.jar" sourcepath="C:/Users/strai/AppData/Local/Temp/.org.sf.feeling.decompiler1661462265166/source/bungeecord-chat-1.16-R0.4-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
