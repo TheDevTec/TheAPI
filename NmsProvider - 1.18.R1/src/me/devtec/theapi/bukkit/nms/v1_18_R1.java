@@ -621,13 +621,13 @@ public class v1_18_R1 implements NmsProvider {
 			onlyModifyState = false;
 			chunk.i.remove(pos);
 			ent.aa_();
-		}
-		@SuppressWarnings("unchecked")
-		Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, blockNbt);
-		h.remove(pos);
-		chunk.q.capturedTileEntities.remove(pos);
+			@SuppressWarnings("unchecked")
+			Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, blockNbt);
+			h.remove(pos);
+			chunk.q.capturedTileEntities.remove(pos);
 
-		chunk.q.capturedBlockStates.remove(pos);
+			chunk.q.capturedBlockStates.remove(pos);
+		}
 		IBlockData old = sc.a(x & 15, y & 15, z & 15, iblock, false);
 
 		// ADD TILE ENTITY

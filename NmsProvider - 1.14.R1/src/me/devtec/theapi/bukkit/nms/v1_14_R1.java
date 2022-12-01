@@ -639,18 +639,18 @@ public class v1_14_R1 implements NmsProvider {
 			onlyModifyState = false;
 			chunk.tileEntities.remove(pos);
 			ent.V_();
+			@SuppressWarnings("unchecked")
+			Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, blockNbt);
+			h.remove(pos);
+			chunk.world.capturedTileEntities.remove(pos);
+			Iterator<CraftBlockState> iterator = chunk.world.capturedBlockStates.iterator();
+			while (iterator.hasNext()) {
+				CraftBlockState state = iterator.next();
+				if (state.getPosition() == pos)
+					iterator.remove();
+			}
 		}
-		@SuppressWarnings("unchecked")
-		Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, blockNbt);
-		h.remove(pos);
-		chunk.world.capturedTileEntities.remove(pos);
 
-		Iterator<CraftBlockState> iterator = chunk.world.capturedBlockStates.iterator();
-		while (iterator.hasNext()) {
-			CraftBlockState state = iterator.next();
-			if (state.getPosition() == pos)
-				iterator.remove();
-		}
 		IBlockData old = sc.setType(x & 15, y & 15, z & 15, iblock, false);
 
 		// ADD TILE ENTITY

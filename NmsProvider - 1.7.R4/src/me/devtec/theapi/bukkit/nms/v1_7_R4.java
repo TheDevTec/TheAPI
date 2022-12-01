@@ -570,13 +570,12 @@ public class v1_7_R4 implements NmsProvider {
 			onlyModifyState = false;
 			chunk.tileEntities.remove(pos);
 			ent.s();
-		}
-
-		Iterator<BlockState> iterator = chunk.world.capturedBlockStates.iterator();
-		while (iterator.hasNext()) {
-			BlockState state = iterator.next();
-			if (state.getX() == x && state.getY() == y && state.getZ() == z)
-				iterator.remove();
+			Iterator<BlockState> iterator = chunk.world.capturedBlockStates.iterator();
+			while (iterator.hasNext()) {
+				BlockState state = iterator.next();
+				if (state.getX() == x && state.getY() == y && state.getZ() == z)
+					iterator.remove();
+			}
 		}
 		sc.setTypeId(x & 15, y & 15, z & 15, iblock);
 		sc.setData(x & 15, y & 15, z & 15, data);
