@@ -293,14 +293,20 @@ public class BukkitLibInit {
 							inRainbow = false;
 						}
 					}
-					if (c != ' ' && inRainbow)
-						if (formats.equals("§r")) {
+					if (inRainbow)
+						if (c != ' ') {
+							if (formats.equals("§r")) {
+								builder.append(formats); // add formats
+								builder.append(generateColor()); // add random color
+								formats = "";
+							} else {
+								builder.append(generateColor()); // add random color
+								builder.append(formats); // add formats
+							}
+						} else if (formats.equals("§r")) {
 							builder.append(formats); // add formats
 							builder.append(generateColor()); // add random color
 							formats = "";
-						} else {
-							builder.append(generateColor()); // add random color
-							builder.append(formats); // add formats
 						}
 					builder.append(c);
 					prev = c;
@@ -337,10 +343,10 @@ public class BukkitLibInit {
 				Matcher match = hex.matcher(msg);
 				while (match.find()) {
 					String color = match.group();
-					StringContainer hex = new StringContainer(14).append("§x");
+					StringContainer hex = new StringContainer(14).append('§').append('x');
 					for (int i = 1; i < color.length(); ++i)
 						hex.append('§').append(Character.toLowerCase(color.charAt(i)));
-					msg = msg.replace(color, hex.toString());
+					msg = match.replaceAll(hex.toString());
 				}
 				return msg;
 			}
