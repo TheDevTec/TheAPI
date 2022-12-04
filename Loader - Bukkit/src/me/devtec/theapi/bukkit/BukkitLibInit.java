@@ -353,20 +353,20 @@ public class BukkitLibInit {
 						continue;
 					}
 					if (HEX_CHAR) {
-						if (c >= 97 && c <= 102 || c >= 48 && c <= 57) { // color
+						if (c >= 64 && c <= 70 || c >= 97 && c <= 102 || c >= 48 && c <= 57) { // color
 							hex.append(c);
 							if (hex.length() == 6) {
+								HEX_CHAR = false;
 								container.append('§').append('x');
 								for (int hexPos = 0; hexPos < 6; ++hexPos)
 									container.append('§').append(hex.charAt(hexPos));
 								hex.clear();
-								HEX_CHAR = false;
 							}
 							continue;
 						}
+						HEX_CHAR = false;
 						container.append('#').append(hex);
 						hex.clear();
-						HEX_CHAR = false;
 					}
 					container.append(c);
 				}
