@@ -366,6 +366,7 @@ public class BukkitLibInit {
 						}
 						container.append('#').append(hex);
 						hex.clear();
+						HEX_CHAR = false;
 					}
 					container.append(c);
 				}
