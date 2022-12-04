@@ -18,7 +18,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 
@@ -127,6 +126,7 @@ public class BukkitLibInit {
 		Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null ? Ref.getClass("net.kyori.adventure.Adventure") != null ? ServerType.PAPER : ServerType.SPIGOT : ServerType.BUKKIT,
 				Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]); // Server
 																						// version
+
 		// Init json parsers
 		registerWriterAndReaders();
 
@@ -337,16 +337,39 @@ public class BukkitLibInit {
 			public String replaceHex(String text) {
 				if (!Ref.isNewerThan(15))
 					return text;
-				String msg = text;
-				Matcher match = hex.matcher(msg);
-				while (match.find()) {
-					String color = match.group();
-					StringContainer hex = new StringContainer(14).append('§').append('x');
-					for (int i = 1; i < color.length(); ++i)
-						hex.append('§').append(Character.toLowerCase(color.charAt(i)));
-					msg = match.replaceAll(hex.toString());
+				StringContainer container = new StringContainer(text.length() + 14 * 6);
+
+				boolean HEX_CHAR = false;
+				StringContainer hex = new StringContainer(6);
+				for (int i = 0; i < text.length(); ++i) {
+					char c = text.charAt(i);
+					if (c == '#') {
+						if (HEX_CHAR) {
+							container.append('#').append(hex);
+							hex.clear();
+							continue;
+						}
+						HEX_CHAR = true;
+						continue;
+					}
+					if (HEX_CHAR) {
+						if (c >= 97 && c <= 102 || c >= 48 && c <= 57) { // color
+							hex.append(c);
+							if (hex.length() == 6) {
+								container.append('§').append('x');
+								for (int hexPos = 0; hexPos < 6; ++hexPos)
+									container.append('§').append(hex.charAt(hexPos));
+								hex.clear();
+								HEX_CHAR = false;
+							}
+							continue;
+						}
+						container.append('#').append(hex);
+						hex.clear();
+					}
+					container.append(c);
 				}
-				return msg;
+				return container.toString();
 			}
 
 			@Override
