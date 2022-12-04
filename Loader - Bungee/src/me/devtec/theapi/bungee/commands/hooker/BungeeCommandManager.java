@@ -2,16 +2,14 @@ package me.devtec.theapi.bungee.commands.hooker;
 
 import me.devtec.shared.commands.holder.CommandHolder;
 import me.devtec.shared.commands.manager.CommandsRegister;
+import me.devtec.theapi.bungee.BungeeLoader;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.command.PlayerCommand;
 
 public class BungeeCommandManager implements CommandsRegister {
-	private Plugin plugin;
 
-	public BungeeCommandManager(Plugin plugin) {
-		this.plugin = plugin;
+	public BungeeCommandManager() {
 	}
 
 	@Override
@@ -34,7 +32,7 @@ public class BungeeCommandManager implements CommandsRegister {
 			}
 		};
 		commandHolder.setRegisteredCommand(cmd, command, aliases);
-		ProxyServer.getInstance().getPluginManager().registerCommand(plugin, cmd);
+		ProxyServer.getInstance().getPluginManager().registerCommand(BungeeLoader.plugin, cmd);
 	}
 
 	@Override

@@ -29,7 +29,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import me.devtec.shared.API;
 import me.devtec.shared.Ref;
@@ -124,11 +123,10 @@ public class BukkitLibInit {
 		return StringUtils.getInt(version);
 	}
 
-	public static void initTheAPI(JavaPlugin plugin) {
+	public static void initTheAPI() {
 		Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null ? Ref.getClass("net.kyori.adventure.Adventure") != null ? ServerType.PAPER : ServerType.SPIGOT : ServerType.BUKKIT,
 				Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]); // Server
 																						// version
-
 		// Init json parsers
 		registerWriterAndReaders();
 
@@ -161,7 +159,7 @@ public class BukkitLibInit {
 				if (isLoaded(file) || !file.exists())
 					return;
 				loaded.add(file);
-				ClassLoader loader = plugin.getClass().getClassLoader();
+				ClassLoader loader = BukkitLoader.class.getClassLoader();
 				if (getJavaVersion() <= 15) {
 					if (addUrl == null)
 						addUrl = Ref.method(URLClassLoader.class, "addURL", URL.class);

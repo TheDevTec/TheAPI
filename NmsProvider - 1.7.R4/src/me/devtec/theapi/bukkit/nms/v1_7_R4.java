@@ -442,6 +442,8 @@ public class v1_7_R4 implements NmsProvider {
 
 	@Override
 	public Component fromIChatBaseComponent(Object componentObject) {
+		if (componentObject == null)
+			return Component.EMPTY_COMPONENT;
 		IChatBaseComponent component = (IChatBaseComponent) componentObject;
 		if (component.e().isEmpty()) {
 			Component comp = new Component("");
@@ -548,6 +550,8 @@ public class v1_7_R4 implements NmsProvider {
 	}
 
 	private static Field tileEntityBlock = Ref.field(TileEntity.class, "h");
+	private static Field isCachedInWorld = Ref.field(net.minecraft.server.v1_7_R4.World.class, "M");
+	private static Field tileEntityWorld = Ref.field(net.minecraft.server.v1_7_R4.World.class, "a");
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -566,17 +570,37 @@ public class v1_7_R4 implements NmsProvider {
 
 		// REMOVE TILE ENTITY IF NOT SAME TYPE
 		TileEntity ent = onlyModifyState ? (TileEntity) chunk.tileEntities.get(pos) : (TileEntity) chunk.tileEntities.remove(pos);
-		if (ent != null && onlyModifyState && !ent.q().getClass().equals(iblock.getClass())) {
-			onlyModifyState = false;
-			chunk.tileEntities.remove(pos);
-			ent.s();
-			Iterator<BlockState> iterator = chunk.world.capturedBlockStates.iterator();
-			while (iterator.hasNext()) {
-				BlockState state = iterator.next();
-				if (state.getX() == x && state.getY() == y && state.getZ() == z)
-					iterator.remove();
+		if (ent != null) {
+			boolean shouldSkip = true;
+			if (!onlyModifyState) {
+				shouldSkip = false;
+				chunk.tileEntities.remove(pos);
+			} else if (onlyModifyState && ent.q().getClass().equals(iblock.getClass())) {
+				shouldSkip = false;
+				onlyModifyState = false;
+			}
+			if (!shouldSkip) {
+				ent.s();
+				if ((boolean) Ref.get(chunk.world, isCachedInWorld)) {
+					@SuppressWarnings("rawtypes")
+					List list = (List) Ref.get(chunk.world, tileEntityWorld);
+					for (int l = 0; l < list.size(); ++l) {
+						TileEntity state = (TileEntity) list.get(l);
+						if (!state.r() && state.x == x && state.y == y && state.z == z) {
+							list.remove(l);
+							break;
+						}
+					}
+				}
+				Iterator<BlockState> iterator = chunk.world.capturedBlockStates.iterator();
+				while (iterator.hasNext()) {
+					BlockState state = iterator.next();
+					if (state.getX() == x && state.getY() == y && state.getZ() == z)
+						iterator.remove();
+				}
 			}
 		}
+
 		sc.setTypeId(x & 15, y & 15, z & 15, iblock);
 		sc.setData(x & 15, y & 15, z & 15, data);
 

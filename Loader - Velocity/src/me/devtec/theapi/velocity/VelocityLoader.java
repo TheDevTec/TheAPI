@@ -1,8 +1,10 @@
 package me.devtec.theapi.velocity;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -15,6 +17,8 @@ import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.proxy.VelocityServer;
+import com.velocitypowered.proxy.config.VelocityConfiguration;
 import com.velocitypowered.proxy.plugin.PluginClassLoader;
 
 import me.devtec.shared.API;
@@ -36,6 +40,11 @@ import me.devtec.theapi.velocity.commands.selectors.VelocitySelectorUtils;
 @Plugin(id = "theapi", name = "TheAPI", version = "10.6", authors = { "DevTec", "StraikerinaCZ" }, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 
+	// Init static APIs
+	static {
+		VelocityLoader.initTheAPI();
+	}
+
 	private final ProxyServer server;
 	private static VelocityLoader plugin;
 
@@ -47,7 +56,6 @@ public class VelocityLoader {
 	public VelocityLoader(ProxyServer server) {
 		VelocityLoader.plugin = this;
 		this.server = server;
-		VelocityLoader.initTheAPI(server);
 	}
 
 	@Subscribe
@@ -76,9 +84,8 @@ public class VelocityLoader {
 			cache.save();
 	}
 
-	public static void initTheAPI(ProxyServer server) {
-
-		Ref.init(ServerType.VELOCITY, server.getVersion().getVersion()); // Server version
+	public static void initTheAPI() {
+		Ref.init(ServerType.VELOCITY, VelocityServer.class.getPackage().getImplementationVersion()); // Server version
 		ComponentAPI.registerTransformer("ADVENTURE", new AdventureComponentAPI<>());
 		Json.init(new ModernJsonReader(), new ModernJsonWriter()); // Modern version of Guava
 		// Commands api
@@ -86,7 +93,13 @@ public class VelocityLoader {
 		API.selectorUtils = new VelocitySelectorUtils();
 
 		// OfflineCache support!
-		API.initOfflineCache(server.getConfiguration().isOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));
+		Path configPath = new File("velocity.toml").toPath();
+		try {
+			VelocityConfiguration configuration = VelocityConfiguration.read(configPath);
+			API.initOfflineCache(configuration.isOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));
+		} catch (IOException e1) {
+			API.initOfflineCache(false, new Config("plugins/TheAPI/Cache.dat"));
+		}
 
 		API.library = new LibraryLoader() {
 			List<File> loaded = new ArrayList<>();

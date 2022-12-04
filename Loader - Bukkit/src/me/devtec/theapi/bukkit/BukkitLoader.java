@@ -55,6 +55,11 @@ import me.devtec.theapi.bukkit.tablist.Tablist;
 
 public class BukkitLoader extends JavaPlugin implements Listener {
 
+	// Init static APIs
+	static {
+		BukkitLibInit.initTheAPI();
+	}
+
 	// public APIs
 	public static NmsProvider nmsProvider;
 	public static PacketHandler<?> handler;
@@ -107,8 +112,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void onLoad() {
-		BukkitLibInit.initTheAPI(this);
-
 		release = Config.loadFromInput(getResource("release.yml")).getDouble("release");
 
 		try {

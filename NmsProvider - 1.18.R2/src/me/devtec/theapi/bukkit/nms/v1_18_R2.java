@@ -463,6 +463,8 @@ public class v1_18_R2 implements NmsProvider {
 
 	@Override
 	public Component fromIChatBaseComponent(Object componentObject) {
+		if (componentObject == null)
+			return Component.EMPTY_COMPONENT;
 		IChatBaseComponent component = (IChatBaseComponent) componentObject;
 		if (component.a().isEmpty()) {
 			Component comp = new Component("");
@@ -617,17 +619,25 @@ public class v1_18_R2 implements NmsProvider {
 
 		// REMOVE TILE ENTITY IF NOT SAME TYPE
 		TileEntity ent = onlyModifyState ? chunk.i.get(pos) : chunk.i.remove(pos);
-		if (ent != null && onlyModifyState && !ent.q().b().getClass().equals(iblock.b().getClass())) {
-			onlyModifyState = false;
-			chunk.i.remove(pos);
-			ent.ab_();
-			@SuppressWarnings("unchecked")
-			Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, blockNbt);
-			h.remove(pos);
-			chunk.q.capturedTileEntities.remove(pos);
-
-			chunk.q.capturedBlockStates.remove(pos);
+		if (ent != null) {
+			boolean shouldSkip = true;
+			if (!onlyModifyState) {
+				shouldSkip = false;
+				chunk.i.remove(pos);
+			} else if (onlyModifyState && ent.q().b().getClass().equals(iblock.b().getClass())) {
+				shouldSkip = false;
+				onlyModifyState = false;
+			}
+			if (!shouldSkip) {
+				ent.ab_();
+				@SuppressWarnings("unchecked")
+				Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, blockNbt);
+				h.remove(pos);
+				chunk.q.capturedTileEntities.remove(pos);
+				chunk.q.capturedBlockStates.remove(pos);
+			}
 		}
+
 		IBlockData old = sc.a(x & 15, y & 15, z & 15, iblock, false);
 
 		// ADD TILE ENTITY

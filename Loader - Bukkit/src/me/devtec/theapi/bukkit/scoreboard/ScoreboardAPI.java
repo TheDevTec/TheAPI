@@ -1,16 +1,18 @@
 package me.devtec.theapi.bukkit.scoreboard;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import me.devtec.shared.Ref;
+import me.devtec.shared.components.Component;
 import me.devtec.shared.components.ComponentAPI;
-import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.nms.NmsProvider.Action;
@@ -24,12 +26,7 @@ import me.devtec.theapi.bukkit.nms.utils.TeamUtils;
  *
  */
 public class ScoreboardAPI {
-
-	private static final String protectId = (new Random().nextLong() + "").substring(0, 5);
-
-	private static final Config protection = new Config();
-
-	protected final Config data = new Config();
+	protected final Map<Integer, Team> data = new ConcurrentHashMap<>();
 	protected Player p;
 	protected String player;
 	protected String sbname;
@@ -50,7 +47,7 @@ public class ScoreboardAPI {
 		p = player;
 		slott = slot;
 		this.player = player.getName();
-		sbname = ScoreboardAPI.protectId + this.player;
+		sbname = this.player;
 		if (sbname.length() > 16)
 			sbname = sbname.substring(0, 16);
 		BukkitLoader.getPacketHandler().send(p, createObjectivePacket(0, "§0"));
@@ -72,12 +69,9 @@ public class ScoreboardAPI {
 			return;
 		destroyed = true;
 		BukkitLoader.getPacketHandler().send(p, createObjectivePacket(1, ""));
-		for (String a : data.getKeys(player)) {
-			Team team = data.getAs(player + "." + a, Team.class);
+		for (Team team : data.values())
 			if (team != null)
-				for (Object o : this.remove(team.currentPlayer, team.name))
-					BukkitLoader.getPacketHandler().send(p, o);
-		}
+				this.remove(p, team.currentPlayer, team.name);
 		data.clear();
 	}
 
@@ -101,8 +95,7 @@ public class ScoreboardAPI {
 
 	public void addLine(String value) {
 		int i = -1;
-		Set<String> slots = data.getKeys(player);
-		while (slots.contains("" + (++i)))
+		while (data.containsKey(++i))
 			;
 		setLine(i, value);
 	}
@@ -113,14 +106,11 @@ public class ScoreboardAPI {
 			return;
 		Team team = null;
 		boolean add = true;
-		Set<String> s = data.getKeys(player);
-		for (String wd : s) {
-			Team t = data.getAs(player + "." + wd, Team.class);
+		for (Team t : data.values())
 			if (t.slot == line) {
 				team = t;
 				add = false;
 			}
-		}
 		if (add)
 			team = getTeam(line, line);
 		team.setValue(value);
@@ -146,34 +136,32 @@ public class ScoreboardAPI {
 	}
 
 	public void removeLine(int line) {
-		if (!data.exists(player + "." + line))
+		if (!data.containsKey(line))
 			return;
 		Team team = getTeam(line, line);
-		for (Object o : this.remove(team.currentPlayer, team.name))
-			BukkitLoader.getPacketHandler().send(p, o);
-		data.remove(player + "." + line);
+		this.remove(p, team.currentPlayer, team.name);
+		data.remove(line);
 	}
 
 	public void removeUpperLines(int line) {
-		for (String a : data.getKeys(player))
-			if (Integer.parseInt(a) > line) {
-				Team team = data.getAs(player + "." + a, Team.class);
-				for (Object o : this.remove(team.currentPlayer, team.name))
-					BukkitLoader.getPacketHandler().send(p, o);
-				data.remove(player + "." + line);
+		for (Entry<Integer, Team> lineName : new HashSet<>(data.entrySet()))
+			if (lineName.getKey() > line) {
+				Team team = lineName.getValue();
+				this.remove(p, team.currentPlayer, team.name);
+				data.remove(line);
 			}
 	}
 
 	public String getLine(int line) {
-		if (data.exists(player + "." + line) && data.get(player + "." + line) != null)
-			return ((Team) data.get(player + "." + line)).getValue();
+		if (data.get(line) != null)
+			return data.get(line).getValue();
 		return null;
 	}
 
 	public List<String> getLines() {
 		List<String> lines = new ArrayList<>();
-		for (String line : data.getKeys(player))
-			lines.add(((Team) data.get(player + "." + line)).getValue());
+		for (Team line : data.values())
+			lines.add(line.getValue());
 		return lines;
 	}
 
@@ -181,37 +169,29 @@ public class ScoreboardAPI {
 		destroyed = false;
 		team.sendLine(line);
 		if (add)
-			data.set(player + "." + line, team);
+			data.put(line, team);
 	}
 
 	private Team getTeam(int line, int realPos) {
-		Team result = data.getAs(player + "." + line, Team.class);
+		Team result = data.get(line);
 		if (result == null)
-			data.set(player + "." + line, result = new Team(line, realPos));
+			data.put(line, result = new Team(line, realPos));
 		return result;
 	}
 
-	private Object[] create(String prefix, String suffix, String name, String realName, int slot) {
-		ScoreboardAPI.protection.set(player + "." + name, true);
-		Object[] o = new Object[2];
-		o[0] = TeamUtils.createTeamPacket(0, TeamUtils.white, ComponentAPI.fromString(prefix), ComponentAPI.fromString(suffix), name, realName);
-		o[1] = BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, name, slot);
-		return o;
+	private void create(Player sendTo, String prefix, String suffix, String name, String realName, int slot) {
+		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(0, TeamUtils.white, ComponentAPI.fromString(prefix), ComponentAPI.fromString(suffix), name, realName));
+		BukkitLoader.getPacketHandler().send(p, BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, name, slot));
 	}
 
-	private Object[] modify(String prefix, String suffix, String name, String realName, int slot) {
-		Object[] o = new Object[2];
-		o[0] = TeamUtils.createTeamPacket(2, TeamUtils.white, ComponentAPI.fromString(prefix), ComponentAPI.fromString(suffix), name, realName);
-		o[1] = BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, name, slot);
-		return o;
+	private void modify(Player sendTo, String prefix, String suffix, String name, String realName, int slot) {
+		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(2, TeamUtils.white, ComponentAPI.fromString(prefix), ComponentAPI.fromString(suffix), name, realName));
+		BukkitLoader.getPacketHandler().send(p, BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, name, slot));
 	}
 
-	private Object[] remove(String name, String realName) {
-		ScoreboardAPI.protection.remove(player + "." + name);
-		Object[] o = new Object[2];
-		o[0] = TeamUtils.createTeamPacket(1, TeamUtils.white, ComponentAPI.fromString(""), ComponentAPI.fromString(""), name, realName);
-		o[1] = BukkitLoader.getNmsProvider().packetScoreboardScore(Action.REMOVE, sbname, name, 0);
-		return o;
+	private void remove(Player sendTo, String name, String realName) {
+		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(1, TeamUtils.white, Component.EMPTY_COMPONENT, Component.EMPTY_COMPONENT, name, realName));
+		BukkitLoader.getPacketHandler().send(p, BukkitLoader.getNmsProvider().packetScoreboardScore(Action.REMOVE, sbname, name, 0));
 	}
 
 	private Object createObjectivePacket(int mode, String displayName) {
@@ -260,27 +240,19 @@ public class ScoreboardAPI {
 
 		public void sendLine(int line) {
 			if (first) {
-				if (ScoreboardAPI.protection.getBoolean(player + "." + name))
-					name += ScoreboardAPI.protectId;
-				Object[] o = create(prefix, suffix, currentPlayer, name, slott == -1 ? line : slott);
-				BukkitLoader.getPacketHandler().send(p, o[0]);
-				BukkitLoader.getPacketHandler().send(p, o[1]);
+				create(p, prefix, suffix, currentPlayer, name, slott == -1 ? line : slott);
 				first = false;
 				old = null;
 				changed = false;
 				return;
 			}
 			if (old != null) {
-				Object[] o = ScoreboardAPI.this.remove(old, name);
-				BukkitLoader.getPacketHandler().send(p, o[0]);
-				BukkitLoader.getPacketHandler().send(p, o[1]);
+				ScoreboardAPI.this.remove(p, old, name);
 				old = null;
 			}
 			if (changed) {
 				changed = false;
-				Object[] o = modify(prefix, suffix, currentPlayer, name, slott == -1 ? line : slott);
-				BukkitLoader.getPacketHandler().send(p, o[0]);
-				BukkitLoader.getPacketHandler().send(p, o[1]);
+				modify(p, prefix, suffix, currentPlayer, name, slott == -1 ? line : slott);
 			}
 		}
 

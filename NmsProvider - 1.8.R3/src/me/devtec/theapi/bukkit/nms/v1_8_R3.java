@@ -455,6 +455,8 @@ public class v1_8_R3 implements NmsProvider {
 
 	@Override
 	public Component fromIChatBaseComponent(Object componentObject) {
+		if (componentObject == null)
+			return Component.EMPTY_COMPONENT;
 		IChatBaseComponent component = (IChatBaseComponent) componentObject;
 		if (component.getText().isEmpty()) {
 			Component comp = new Component("");
@@ -674,19 +676,27 @@ public class v1_8_R3 implements NmsProvider {
 
 		// REMOVE TILE ENTITY IF NOT SAME TYPE
 		TileEntity ent = onlyModifyState ? chunk.tileEntities.get(pos) : chunk.tileEntities.remove(pos);
-		if (ent != null && onlyModifyState && !ent.w().getClass().equals(iblock.getBlock().getClass())) {
-			onlyModifyState = false;
-			chunk.tileEntities.remove(pos);
-			ent.y();
-			chunk.world.capturedTileEntities.remove(pos);
-
-			Iterator<BlockState> iterator = chunk.world.capturedBlockStates.iterator();
-			while (iterator.hasNext()) {
-				BlockState state = iterator.next();
-				if (state.getX() == pos.getX() && state.getY() == pos.getY() && state.getZ() == pos.getZ())
-					iterator.remove();
+		if (ent != null) {
+			boolean shouldSkip = true;
+			if (!onlyModifyState) {
+				shouldSkip = false;
+				chunk.tileEntities.remove(pos);
+			} else if (onlyModifyState && ent.w().getClass().equals(iblock.getBlock().getClass())) {
+				shouldSkip = false;
+				onlyModifyState = false;
+			}
+			if (!shouldSkip) {
+				ent.y();
+				chunk.world.capturedTileEntities.remove(pos);
+				Iterator<BlockState> iterator = chunk.world.capturedBlockStates.iterator();
+				while (iterator.hasNext()) {
+					BlockState state = iterator.next();
+					if (state.getX() == pos.getX() && state.getY() == pos.getY() && state.getZ() == pos.getZ())
+						iterator.remove();
+				}
 			}
 		}
+
 		sc.setType(x & 15, y & 15, z & 15, iblock);
 
 		// ADD TILE ENTITY

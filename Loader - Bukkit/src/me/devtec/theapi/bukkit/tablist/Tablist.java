@@ -22,7 +22,6 @@ import me.devtec.theapi.bukkit.nms.utils.TeamUtils;
 
 public class Tablist implements TabView {
 	private static Map<UUID, Tablist> cachedTab = new HashMap<>();
-	private static final Component EMPTY_COMPONENT = new Component("");
 
 	private final Player player;
 
@@ -77,7 +76,8 @@ public class Tablist implements TabView {
 	@Deprecated
 	public Tablist setHeader(Component header) {
 		this.header = Optional.ofNullable(header);
-		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetPlayerListHeaderFooter(this.header.orElse(EMPTY_COMPONENT), footer.orElse(EMPTY_COMPONENT)));
+		BukkitLoader.getPacketHandler().send(player,
+				BukkitLoader.getNmsProvider().packetPlayerListHeaderFooter(this.header.orElse(Component.EMPTY_COMPONENT), footer.orElse(Component.EMPTY_COMPONENT)));
 		return this;
 	}
 
@@ -91,7 +91,8 @@ public class Tablist implements TabView {
 	@Deprecated
 	public Tablist setFooter(Component footer) {
 		this.footer = Optional.ofNullable(footer);
-		BukkitLoader.getPacketHandler().send(player, BukkitLoader.getNmsProvider().packetPlayerListHeaderFooter(header.orElse(EMPTY_COMPONENT), this.footer.orElse(EMPTY_COMPONENT)));
+		BukkitLoader.getPacketHandler().send(player,
+				BukkitLoader.getNmsProvider().packetPlayerListHeaderFooter(header.orElse(Component.EMPTY_COMPONENT), this.footer.orElse(Component.EMPTY_COMPONENT)));
 		return this;
 	}
 

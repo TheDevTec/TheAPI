@@ -35,9 +35,16 @@ import net.md_5.bungee.event.EventHandler;
 
 public class BungeeLoader extends Plugin implements Listener {
 
+	// Init static APIs
+	static {
+		BungeeLoader.initTheAPI();
+	}
+
+	public static Plugin plugin;
+
 	@Override
 	public void onLoad() {
-		BungeeLoader.initTheAPI(this);
+		plugin = this;
 		getProxy().getPluginManager().registerListener(this, this);
 	}
 
@@ -67,8 +74,7 @@ public class BungeeLoader extends Plugin implements Listener {
 			cache.save();
 	}
 
-	public static void initTheAPI(Plugin plugin) {
-
+	public static void initTheAPI() {
 		Ref.init(ServerType.BUNGEECORD, ProxyServer.getInstance().getVersion()); // Server version
 		ComponentAPI.registerTransformer("BUNGEECORD", new BungeeComponentAPI<>());
 		if (Ref.getClass("net.kyori.adventure.text.Component") != null)
@@ -76,7 +82,7 @@ public class BungeeLoader extends Plugin implements Listener {
 		Json.init(new ModernJsonReader(), new ModernJsonWriter()); // Modern version of Guava
 
 		// Commands api
-		API.commandsRegister = new BungeeCommandManager(plugin);
+		API.commandsRegister = new BungeeCommandManager();
 		API.selectorUtils = new BungeeSelectorUtils();
 
 		// OfflineCache support!
