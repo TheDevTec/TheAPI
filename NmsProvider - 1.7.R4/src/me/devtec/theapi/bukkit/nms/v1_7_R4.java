@@ -575,7 +575,7 @@ public class v1_7_R4 implements NmsProvider {
 			if (!onlyModifyState) {
 				shouldSkip = false;
 				chunk.tileEntities.remove(pos);
-			} else if (onlyModifyState && ent.q().getClass().equals(iblock.getClass())) {
+			} else if (onlyModifyState && !ent.q().getClass().equals(iblock.getClass())) {
 				shouldSkip = false;
 				onlyModifyState = false;
 			}
