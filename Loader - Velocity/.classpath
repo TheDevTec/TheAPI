@@ -4,6 +4,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/AdventureAPI"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Shared"/>
-	<classpathentry kind="lib" path="D:/jars/mc/velocity-3.1.2-SNAPSHOT-183.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/velocity.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
