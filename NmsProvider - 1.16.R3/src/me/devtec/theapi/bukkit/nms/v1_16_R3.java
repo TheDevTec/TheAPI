@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
@@ -606,8 +605,6 @@ public class v1_16_R3 implements NmsProvider {
 		return ((CraftChunk) world.getChunkAt(x, z)).getHandle();
 	}
 
-	static Field blockNbt = Ref.field(net.minecraft.server.v1_16_R3.Chunk.class, "e");
-
 	@Override
 	public void setBlock(Object objChunk, int x, int y, int z, Object IblockData, int data) {
 		net.minecraft.server.v1_16_R3.Chunk chunk = (net.minecraft.server.v1_16_R3.Chunk) objChunk;
@@ -623,24 +620,17 @@ public class v1_16_R3 implements NmsProvider {
 		boolean onlyModifyState = iblock.getBlock() instanceof ITileEntity;
 
 		// REMOVE TILE ENTITY IF NOT SAME TYPE
-		TileEntity ent = onlyModifyState ? chunk.tileEntities.get(pos) : chunk.tileEntities.remove(pos);
+		TileEntity ent = chunk.tileEntities.get(pos);
 		if (ent != null) {
 			boolean shouldSkip = true;
-			if (!onlyModifyState) {
+			if (!onlyModifyState)
 				shouldSkip = false;
-				chunk.tileEntities.remove(pos);
-			} else if (onlyModifyState && !ent.getBlock().getBlock().getClass().equals(iblock.getBlock().getClass())) {
+			else if (onlyModifyState && !ent.getBlock().getBlock().getClass().equals(iblock.getBlock().getClass())) {
 				shouldSkip = false;
 				onlyModifyState = false;
 			}
-			if (!shouldSkip) {
-				ent.al_();
-				@SuppressWarnings("unchecked")
-				Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, blockNbt);
-				h.remove(pos);
-				chunk.world.capturedTileEntities.remove(pos);
-				chunk.world.capturedBlockStates.remove(pos);
-			}
+			if (!shouldSkip)
+				chunk.removeTileEntity(pos);
 		}
 
 		IBlockData old = sc.setType(x & 15, y & 15, z & 15, iblock, false);

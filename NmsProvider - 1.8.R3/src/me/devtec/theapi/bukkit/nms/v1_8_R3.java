@@ -688,11 +688,13 @@ public class v1_8_R3 implements NmsProvider {
 			if (!shouldSkip) {
 				ent.y();
 				chunk.world.capturedTileEntities.remove(pos);
-				Iterator<BlockState> iterator = chunk.world.capturedBlockStates.iterator();
-				while (iterator.hasNext()) {
-					BlockState state = iterator.next();
-					if (state.getX() == pos.getX() && state.getY() == pos.getY() && state.getZ() == pos.getZ())
-						iterator.remove();
+				if (chunk.world.captureBlockStates) {
+					Iterator<BlockState> iterator = chunk.world.capturedBlockStates.iterator();
+					while (iterator.hasNext()) {
+						BlockState state = iterator.next();
+						if (state.getX() == pos.getX() && state.getY() == pos.getY() && state.getZ() == pos.getZ())
+							iterator.remove();
+					}
 				}
 			}
 		}

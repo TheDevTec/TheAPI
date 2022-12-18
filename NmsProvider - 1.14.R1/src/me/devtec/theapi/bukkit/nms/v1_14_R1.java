@@ -6,9 +6,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
@@ -24,7 +22,6 @@ import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.v1_14_R1.CraftChunk;
 import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_14_R1.block.CraftBlockState;
 import org.bukkit.craftbukkit.v1_14_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftLivingEntity;
@@ -636,29 +633,17 @@ public class v1_14_R1 implements NmsProvider {
 		boolean onlyModifyState = iblock.getBlock() instanceof ITileEntity;
 
 		// REMOVE TILE ENTITY IF NOT SAME TYPE
-		TileEntity ent = onlyModifyState ? chunk.tileEntities.get(pos) : chunk.tileEntities.remove(pos);
+		TileEntity ent = chunk.tileEntities.get(pos);
 		if (ent != null) {
 			boolean shouldSkip = true;
-			if (!onlyModifyState) {
+			if (!onlyModifyState)
 				shouldSkip = false;
-				chunk.tileEntities.remove(pos);
-			} else if (onlyModifyState && !ent.getBlock().getBlock().getClass().equals(iblock.getBlock().getClass())) {
+			else if (onlyModifyState && !ent.getBlock().getBlock().getClass().equals(iblock.getBlock().getClass())) {
 				shouldSkip = false;
 				onlyModifyState = false;
 			}
-			if (!shouldSkip) {
-				ent.V_();
-				@SuppressWarnings("unchecked")
-				Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, blockNbt);
-				h.remove(pos);
-				chunk.world.capturedTileEntities.remove(pos);
-				Iterator<CraftBlockState> iterator = chunk.world.capturedBlockStates.iterator();
-				while (iterator.hasNext()) {
-					CraftBlockState state = iterator.next();
-					if (state.getX() == pos.getX() && state.getY() == pos.getY() && state.getZ() == pos.getZ())
-						iterator.remove();
-				}
-			}
+			if (!shouldSkip)
+				chunk.removeTileEntity(pos);
 		}
 
 		IBlockData old = sc.setType(x & 15, y & 15, z & 15, iblock, false);

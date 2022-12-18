@@ -1,12 +1,10 @@
 package me.devtec.theapi.bukkit.nms;
 
-import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
@@ -600,8 +598,6 @@ public class v1_18_R2 implements NmsProvider {
 		return ((CraftChunk) world.getChunkAt(x, z)).getHandle();
 	}
 
-	static Field blockNbt = Ref.field(net.minecraft.world.level.chunk.Chunk.class, "h");
-
 	@Override
 	public void setBlock(Object objChunk, int x, int y, int z, Object IblockData, int data) {
 		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
@@ -618,24 +614,17 @@ public class v1_18_R2 implements NmsProvider {
 		boolean onlyModifyState = iblock.b() instanceof ITileEntity;
 
 		// REMOVE TILE ENTITY IF NOT SAME TYPE
-		TileEntity ent = onlyModifyState ? chunk.i.get(pos) : chunk.i.remove(pos);
+		TileEntity ent = chunk.i.get(pos);
 		if (ent != null) {
 			boolean shouldSkip = true;
-			if (!onlyModifyState) {
+			if (!onlyModifyState)
 				shouldSkip = false;
-				chunk.i.remove(pos);
-			} else if (onlyModifyState && !ent.q().b().getClass().equals(iblock.b().getClass())) {
+			else if (onlyModifyState && !ent.q().b().getClass().equals(iblock.b().getClass())) {
 				shouldSkip = false;
 				onlyModifyState = false;
 			}
-			if (!shouldSkip) {
-				ent.ab_();
-				@SuppressWarnings("unchecked")
-				Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, blockNbt);
-				h.remove(pos);
-				chunk.q.capturedTileEntities.remove(pos);
-				chunk.q.capturedBlockStates.remove(pos);
-			}
+			if (!shouldSkip)
+				chunk.d(pos);
 		}
 
 		IBlockData old = sc.a(x & 15, y & 15, z & 15, iblock, false);

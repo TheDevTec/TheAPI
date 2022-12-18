@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
@@ -616,24 +615,17 @@ public class v1_17_R1 implements NmsProvider {
 		boolean onlyModifyState = iblock.getBlock() instanceof ITileEntity;
 
 		// REMOVE TILE ENTITY IF NOT SAME TYPE
-		TileEntity ent = onlyModifyState ? chunk.l.get(pos) : chunk.l.remove(pos);
+		TileEntity ent = chunk.l.get(pos);
 		if (ent != null) {
 			boolean shouldSkip = true;
-			if (!onlyModifyState) {
+			if (!onlyModifyState)
 				shouldSkip = false;
-				chunk.l.remove(pos);
-			} else if (onlyModifyState && !ent.getBlock().getBlock().getClass().equals(iblock.getBlock().getClass())) {
+			else if (onlyModifyState && !ent.getBlock().getBlock().getClass().equals(iblock.getBlock().getClass())) {
 				shouldSkip = false;
 				onlyModifyState = false;
 			}
-			if (!shouldSkip) {
-				ent.aa_();
-				@SuppressWarnings("unchecked")
-				Map<BlockPosition, NBTTagCompound> h = (Map<BlockPosition, NBTTagCompound>) Ref.get(chunk, blockNbt);
-				h.remove(pos);
-				chunk.i.capturedTileEntities.remove(pos);
-				chunk.i.capturedBlockStates.remove(pos);
-			}
+			if (!shouldSkip)
+				chunk.removeTileEntity(pos);
 		}
 
 		IBlockData old = sc.setType(x & 15, y & 15, z & 15, iblock, false);
