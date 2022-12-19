@@ -11,7 +11,7 @@
 	<classpathentry kind="lib" path="D:/jars/mc/1.18_R2/authlib-3.3.39.jar"/>
 	<classpathentry kind="lib" path="D:/jars/mc/1.18_R2/brigadier-1.0.18.jar"/>
 	<classpathentry kind="lib" path="D:/jars/mc/1.18_R2/datafixerupper-4.1.27.jar"/>
-	<classpathentry kind="lib" path="D:/jars/mc/1.18_R2/fastutil-8.5.6.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.18_R2/fastutil-8.5.6.jar" sourcepath="C:/Users/strai/AppData/Local/Temp/.org.sf.feeling.decompiler1671463126902/source/fastutil-8.5.6-sources.jar"/>
 	<classpathentry kind="lib" path="D:/jars/mc/1.18_R2/gson-2.8.9.jar"/>
 	<classpathentry kind="lib" path="D:/jars/mc/1.18_R2/guava-31.0.1-jre.jar"/>
 	<classpathentry kind="lib" path="D:/jars/mc/1.18_R2/jsr305-3.0.2.jar"/>
