@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -20,6 +22,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPromise;
+import me.devtec.shared.API;
 import me.devtec.shared.Ref;
 import me.devtec.shared.scheduler.Tasker;
 import me.devtec.theapi.bukkit.BukkitLoader;
@@ -200,15 +203,64 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 	}
 
 	@Override
-	public Channel get(Player player) {
+	public Future<Channel> getFuture(Player player) {
 		Channel channel = channelLookup.get(player.getName());
 		if (channel == null) {
-			Object get = BukkitLoader.getNmsProvider().getNetworkChannel(BukkitLoader.getNmsProvider().getConnectionNetwork(BukkitLoader.getNmsProvider().getPlayerConnection(player)));
-			if (get == null)
-				return null;
-			channelLookup.put(player.getName(), channel = (Channel) get);
+			Object connection = BukkitLoader.getNmsProvider().getPlayerConnection(player); // Still connecting
+			if (connection == null) {
+				CompletableFuture<Channel> future = new CompletableFuture<>();
+				new Tasker() {
+
+					@Override
+					public void run() {
+						while (API.isEnabled()) {
+							try {
+								Thread.sleep(25);
+							} catch (InterruptedException e) {
+								break;
+							}
+							Object connection = BukkitLoader.getNmsProvider().getPlayerConnection(player);
+							if (connection == null)
+								continue;
+							Object get = BukkitLoader.getNmsProvider().getNetworkChannel(BukkitLoader.getNmsProvider().getConnectionNetwork(connection));
+							if (get == null)
+								continue;
+							channelLookup.put(player.getName(), (Channel) get);
+							future.complete((Channel) get);
+							break;
+						}
+					}
+				}.runTask();
+				return future;
+			}
+			Object get = BukkitLoader.getNmsProvider().getNetworkChannel(BukkitLoader.getNmsProvider().getConnectionNetwork(connection)); // Channel still not set
+			if (get == null) {
+				CompletableFuture<Channel> future = new CompletableFuture<>();
+				new Tasker() {
+
+					@Override
+					public void run() {
+						while (API.isEnabled()) {
+							try {
+								Thread.sleep(25);
+							} catch (InterruptedException e) {
+								break;
+							}
+							Object get = BukkitLoader.getNmsProvider().getNetworkChannel(BukkitLoader.getNmsProvider().getConnectionNetwork(BukkitLoader.getNmsProvider().getPlayerConnection(player)));
+							if (get == null)
+								continue;
+							channelLookup.put(player.getName(), (Channel) get);
+							future.complete((Channel) get);
+							break;
+						}
+					}
+				}.runTask();
+				return future;
+			}
+			channelLookup.put(player.getName(), (Channel) get);
+			return CompletableFuture.completedFuture((Channel) get);
 		}
-		return channel;
+		return CompletableFuture.completedFuture(channel);
 	}
 
 	@Override
@@ -286,7 +338,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 			synchronized (packet) {
 				if (player == null && packet.getClass() == PacketHandlerModern.postlogin) { // ProtocolLib cancelled
 					// packets
-					player = ((GameProfile) Ref.get(packet, PacketHandlerModern.fPost)).getName();
+					player = Ref.isNewerThan(18) ? (String) Ref.get(packet, PacketHandlerModern.f) : ((GameProfile) Ref.get(packet, PacketHandlerModern.f)).getName();
 					channelLookup.put(player, channel);
 				}
 				try {

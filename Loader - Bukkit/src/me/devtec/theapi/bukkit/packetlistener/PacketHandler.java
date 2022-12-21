@@ -1,12 +1,23 @@
 package me.devtec.theapi.bukkit.packetlistener;
 
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.bukkit.entity.Player;
 
 public interface PacketHandler<C> {
 
-	public C get(Player player);
+	public Future<C> getFuture(Player player);
+
+	public default C get(Player player) {
+		try {
+			return getFuture(player).get();
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	public void add(Player player);
 
