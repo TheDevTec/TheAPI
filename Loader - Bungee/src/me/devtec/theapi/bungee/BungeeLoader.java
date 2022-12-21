@@ -59,12 +59,14 @@ public class BungeeLoader extends Plugin implements Listener {
 
 	@EventHandler
 	public void onPreLoginEvent(PreLoginEvent e) {
-		API.offlineCache().setLookup(API.offlineCache().lookupId(e.getConnection().getName()), e.getConnection().getName());
+		if (!e.isCancelled())
+			API.offlineCache().setLookup(API.offlineCache().lookupId(e.getConnection().getName()), e.getConnection().getName());
 	}
 
 	@EventHandler
 	public void onLoginEvent(LoginEvent e) { // fix uuid - premium login?
-		API.offlineCache().setLookup(e.getConnection().getUniqueId(), e.getConnection().getName());
+		if (!e.isCancelled())
+			API.offlineCache().setLookup(e.getConnection().getUniqueId(), e.getConnection().getName());
 	}
 
 	@EventHandler

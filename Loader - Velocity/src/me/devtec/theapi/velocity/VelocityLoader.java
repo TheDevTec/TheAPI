@@ -69,12 +69,14 @@ public class VelocityLoader {
 
 	@Subscribe
 	public void onPreLoginEvent(PreLoginEvent e) {
-		API.offlineCache().setLookup(API.offlineCache().lookupId(e.getUsername()), e.getUsername());
+		if (e.getResult().isAllowed())
+			API.offlineCache().setLookup(API.offlineCache().lookupId(e.getUsername()), e.getUsername());
 	}
 
 	@Subscribe
 	public void onLoginEvent(LoginEvent e) { // fix uuid - premium login?
-		API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getUsername());
+		if (e.getResult().isAllowed())
+			API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getUsername());
 	}
 
 	@Subscribe

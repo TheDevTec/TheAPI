@@ -21,9 +21,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -340,24 +342,28 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		}).permission("theapireload.command").build().register("theapireload");
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.NORMAL)
 	public void onAsyncPreLoginEvent(AsyncPlayerPreLoginEvent e) {
-		API.offlineCache().setLookup(e.getUniqueId(), e.getName());
+		if (e.getLoginResult() == org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result.ALLOWED)
+			API.offlineCache().setLookup(e.getUniqueId(), e.getName());
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPreLoginEvent(PlayerPreLoginEvent e) { // fix uuid - premium login?
-		API.offlineCache().setLookup(e.getUniqueId(), e.getName());
+		if (e.getResult() == org.bukkit.event.player.PlayerPreLoginEvent.Result.ALLOWED)
+			API.offlineCache().setLookup(e.getUniqueId(), e.getName());
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.NORMAL)
 	public void onLoginEvent(PlayerLoginEvent e) { // fix uuid - premium login?
-		API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getName());
-		handler.add(e.getPlayer());
-		Tablist tab = Tablist.of(e.getPlayer());
-		for (Player player : BukkitLoader.getOnlinePlayers())
-			if (!player.getUniqueId().equals(e.getPlayer().getUniqueId()))
-				Tablist.of(player).addEntry(tab.asEntry(tab));
+		if (e.getResult() == Result.ALLOWED) {
+			API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getName());
+			handler.add(e.getPlayer());
+			Tablist tab = Tablist.of(e.getPlayer());
+			for (Player player : BukkitLoader.getOnlinePlayers())
+				if (!player.getUniqueId().equals(e.getPlayer().getUniqueId()))
+					Tablist.of(player).addEntry(tab.asEntry(tab));
+		}
 	}
 
 	@EventHandler
