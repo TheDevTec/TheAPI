@@ -69,7 +69,7 @@ public class BukkitCommandManager implements CommandsRegister {
 
 	@Override
 	public void register(CommandHolder<?> commandHolder, String command, String[] aliases) {
-		PluginCommand cmd = createCommand(command, JavaPlugin.getPlugin(BukkitLoader.class));
+		CustomPluginCommand cmd = new CustomPluginCommand(command, JavaPlugin.getPlugin(BukkitLoader.class), commandHolder);
 		cmd.setAliases(Arrays.asList(aliases));
 		cmd.setExecutor((s, arg1, arg2, args) -> {
 			commandHolder.execute(s, args);
@@ -78,7 +78,23 @@ public class BukkitCommandManager implements CommandsRegister {
 		cmd.setTabCompleter((s, arg1, arg2, args) -> commandHolder.tablist(s, args));
 		cmd.setPermission(commandHolder.getStructure().getPermission());
 		commandHolder.setRegisteredCommand(cmd, command, aliases);
-		registerCommand(cmd);
+
+		String label = cmd.getName().toLowerCase(Locale.ENGLISH).trim();
+		String sd = cmd.getPlugin().getName().toLowerCase(Locale.ENGLISH).trim();
+		cmd.setLabel(sd + ":" + label);
+
+		List<String> low = new ArrayList<>();
+		for (String s : cmd.getAliases()) {
+			s = s.toLowerCase(Locale.ENGLISH).trim();
+			low.add(s);
+		}
+		cmd.setAliases(low);
+		if (cmd.getPermission() == null)
+			cmd.setPermission("");
+		if (!low.contains(label))
+			low.add(label);
+		for (String s : low)
+			knownCommands.put(s, cmd);
 	}
 
 	@Override

@@ -23,7 +23,8 @@ public class BungeeCommandManager implements CommandsRegister {
 
 			@Override
 			public boolean hasPermission(CommandSender sender) {
-				return commandHolder.getStructure().getPermission() == null ? true : sender.hasPermission(commandHolder.getStructure().getPermission());
+				return !commandHolder.getStructure().getSenderClass().isAssignableFrom(sender.getClass()) ? false
+						: commandHolder.getStructure().getPermission() == null ? true : sender.hasPermission(commandHolder.getStructure().getPermission());
 			}
 
 			@Override

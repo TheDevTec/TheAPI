@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.tools.ToolProvider;
+
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
@@ -16,6 +18,7 @@ import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.proxy.ConsoleCommandSource;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.proxy.VelocityServer;
 import com.velocitypowered.proxy.config.VelocityConfiguration;
@@ -36,8 +39,9 @@ import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.ColormaticFactory;
 import me.devtec.theapi.velocity.commands.hooker.VelocityCommandManager;
 import me.devtec.theapi.velocity.commands.selectors.VelocitySelectorUtils;
+import net.kyori.adventure.text.Component;
 
-@Plugin(id = "theapi", name = "TheAPI", version = "10.6", authors = { "DevTec", "StraikerinaCZ" }, url = "https://www.spigotmc.org/resources/72679/")
+@Plugin(id = "theapi", name = "TheAPI", version = "10.7", authors = { "DevTec", "StraikerinaCZ" }, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 
 	// Init static APIs
@@ -56,6 +60,21 @@ public class VelocityLoader {
 	public VelocityLoader(ProxyServer server) {
 		VelocityLoader.plugin = this;
 		this.server = server;
+		broadcastSystemInfo();
+	}
+
+	private void broadcastSystemInfo() {
+		ConsoleCommandSource console = server.getConsoleCommandSource();
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(StringUtils.colorize("&7>")));
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(StringUtils.colorize("&7> &5TheAPI &dv" + VelocityLoader.class.getAnnotation(Plugin.class).version())));
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(StringUtils.colorize("&7>")));
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(StringUtils.colorize("&7> &5System info&7:")));
+		console.sendMessage((Component) ComponentAPI.adventure()
+				.fromString(StringUtils.colorize("&7> &dJava&7: &e" + System.getProperty("java.version") + " &7(" + (ToolProvider.getSystemJavaCompiler() != null ? "&aJDK" : "&aJRE") + "&7)")));
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(StringUtils.colorize("&7> &dServer type&7: &e" + Ref.serverType())));
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(StringUtils.colorize("&7>")));
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(StringUtils.colorize("&7> &dSupport&7: &ehttps://discord.gg/pZsDpKXFDf")));
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(StringUtils.colorize("&7>")));
 	}
 
 	@Subscribe

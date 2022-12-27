@@ -13,8 +13,8 @@ import org.bukkit.command.SimpleCommandMap;
 import me.devtec.shared.Ref;
 
 //1.7.10 - 1.8.8 PaperSpigot
-public class SpigotSimpleCommandMap extends SimpleCommandMap {
-	public SpigotSimpleCommandMap(Server server, Map<String, Command> map) {
+public class LegacySimpleCommandMap extends SimpleCommandMap {
+	public LegacySimpleCommandMap(Server server, Map<String, Command> map) {
 		super(server);
 		Ref.set(this, "knownCommands", map);
 		BukkitCommandManager.knownCommands = map;

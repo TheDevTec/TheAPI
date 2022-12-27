@@ -18,6 +18,7 @@ import javax.tools.ToolProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -44,7 +45,7 @@ import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.versioning.VersionUtils;
 import me.devtec.shared.versioning.VersionUtils.Version;
 import me.devtec.theapi.bukkit.bossbar.BossBar;
-import me.devtec.theapi.bukkit.commands.hooker.SpigotSimpleCommandMap;
+import me.devtec.theapi.bukkit.commands.hooker.LegacySimpleCommandMap;
 import me.devtec.theapi.bukkit.game.resourcepack.ResourcePackHandler;
 import me.devtec.theapi.bukkit.game.resourcepack.ResourcePackResult;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
@@ -122,9 +123,11 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			e.printStackTrace();
 		}
 
+		broadcastSystemInfo();
+
 		if (Ref.field(Command.class, "timings") != null && Ref.isOlderThan(9))
 			Ref.set(Bukkit.getServer(), "commandMap",
-					new SpigotSimpleCommandMap(Bukkit.getServer(), (Map<String, Command>) Ref.get(Ref.get(Bukkit.getPluginManager(), "commandMap"), "knownCommands")));
+					new LegacySimpleCommandMap(Bukkit.getServer(), (Map<String, Command>) Ref.get(Ref.get(Bukkit.getPluginManager(), "commandMap"), "knownCommands")));
 
 		if (new File("spigot.yml").exists() && new Config("spigot.yml").getBoolean("settings.late-bind"))
 			new Thread(() -> { // ASYNC
@@ -243,24 +246,41 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		new Metrics(this, 10581);
 	}
 
+	private void broadcastSystemInfo() {
+		CommandSender console = Bukkit.getConsoleSender();
+		console.sendMessage(StringUtils.colorize("&7>"));
+		console.sendMessage(StringUtils.colorize("&7> &5TheAPI &dv" + getDescription().getVersion()));
+		console.sendMessage(StringUtils.colorize("&7>"));
+		console.sendMessage(StringUtils.colorize("&7> &5System info&7:"));
+		console.sendMessage(StringUtils.colorize("&7> &dJava&7: &e" + System.getProperty("java.version") + " &7(" + (ToolProvider.getSystemJavaCompiler() != null ? "&aJDK" : "&aJRE") + "&7)"));
+		console.sendMessage(StringUtils.colorize("&7> &dNms-Provider&7: " + (nmsProvider == null ? "&cNot provided &7(&e" + Ref.serverVersion() + "&7)" : "&e" + nmsProvider.getProviderName())));
+		console.sendMessage(StringUtils.colorize("&7> &dServer type&7: &e" + Ref.serverType()));
+		console.sendMessage(StringUtils.colorize("&7>"));
+		console.sendMessage(StringUtils.colorize("&7> &dSupport&7: &ehttps://discord.gg/pZsDpKXFDf"));
+		console.sendMessage(StringUtils.colorize("&7>"));
+	}
+
 	private void loadProvider() throws Exception {
 		if (ToolProvider.getSystemJavaCompiler() != null) { // JDK
 			getAllJarFiles();
 			checkForUpdateAndDownload();
-			nmsProvider = (NmsProvider) new MemoryCompiler("me.devtec.theapi.bukkit.nms." + Ref.serverVersion(), new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java")).buildClass()
-					.newInstance();
-			if (nmsProvider != null)
-				nmsProvider.loadParticles();
-		} else { // JRE
-			checkForUpdateAndDownloadCompiled();
-			try (URLClassLoader cl = new URLClassLoader(new URL[] { new URL("jar:file:" + "plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar" + "!/") }, getClassLoader())) {
-				Class<?> c = cl.loadClass("me.devtec.theapi.bukkit.nms." + Ref.serverVersion());
-				nmsProvider = (NmsProvider) c.newInstance();
+			if (new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java").exists()) {
+				nmsProvider = (NmsProvider) new MemoryCompiler("me.devtec.theapi.bukkit.nms." + Ref.serverVersion(), new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java"))
+						.buildClass().newInstance();
 				if (nmsProvider != null)
 					nmsProvider.loadParticles();
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
+		} else { // JRE
+			checkForUpdateAndDownloadCompiled();
+			if (new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar").exists())
+				try (URLClassLoader cl = new URLClassLoader(new URL[] { new URL("jar:file:" + "plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar" + "!/") }, getClassLoader())) {
+					Class<?> c = cl.loadClass("me.devtec.theapi.bukkit.nms." + Ref.serverVersion());
+					nmsProvider = (NmsProvider) c.newInstance();
+					if (nmsProvider != null)
+						nmsProvider.loadParticles();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 		}
 	}
 
@@ -471,11 +491,14 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		if (!folder.exists())
 			return;
 		File[] files = folder.listFiles();
+
+		char splitChar = System.getProperty("os.name").toLowerCase().contains("win") ? ';' : ':';
+
 		if (files != null)
 			for (File file : files)
 				if (file.isDirectory() && sub)
 					addAllJarFiles(args, file, sub);
 				else if (file.getName().endsWith(".jar"))
-					args.append(System.getProperty("os.name").toLowerCase().contains("win") ? ';' : ':').append('.').append('/').append(file.getPath());
+					args.append(splitChar).append('.').append('/').append(file.getPath());
 	}
 }

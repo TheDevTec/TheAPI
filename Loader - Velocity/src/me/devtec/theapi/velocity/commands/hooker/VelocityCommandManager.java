@@ -26,7 +26,8 @@ public class VelocityCommandManager implements CommandsRegister {
 
 			@Override
 			public boolean hasPermission(Invocation invocation) {
-				return commandHolder.getStructure().getPermission() == null ? true : invocation.source().hasPermission(commandHolder.getStructure().getPermission());
+				return !commandHolder.getStructure().getSenderClass().isAssignableFrom(invocation.getClass()) ? false
+						: commandHolder.getStructure().getPermission() == null ? true : invocation.source().hasPermission(commandHolder.getStructure().getPermission());
 			}
 		};
 		commandHolder.setRegisteredCommand(cmd, command, aliases);
