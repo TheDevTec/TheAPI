@@ -1,13 +1,17 @@
 package me.devtec.theapi.bukkit.events;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
 
 import me.devtec.shared.events.Cancellable;
 import me.devtec.shared.events.Event;
+import me.devtec.shared.events.ListenerHolder;
 import me.devtec.theapi.bukkit.nms.GameProfileHandler;
 
 public class ServerListPingEvent extends Event implements Cancellable {
+	static List<ListenerHolder> handlers = new ArrayList<>();
+
 	private boolean cancel;
 	private int online;
 	private int max;
@@ -97,5 +101,14 @@ public class ServerListPingEvent extends Event implements Cancellable {
 	@Override
 	public void setCancelled(boolean cancel) {
 		this.cancel = cancel;
+	}
+
+	@Override
+	public List<ListenerHolder> getHandlers() {
+		return handlers;
+	}
+
+	public static List<ListenerHolder> getHandlerList() {
+		return handlers;
 	}
 }

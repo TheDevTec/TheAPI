@@ -54,7 +54,7 @@ import me.devtec.theapi.bukkit.nms.NBTEdit;
 import me.devtec.theapi.bukkit.xseries.XMaterial;
 import net.md_5.bungee.api.chat.BaseComponent;
 
-public class ItemMaker {
+public class ItemMaker implements Cloneable {
 	private static Material skull = XMaterial.PLAYER_HEAD.parseMaterial();
 	static Object hdbApi;
 	static int HDB_TYPE;
@@ -82,6 +82,16 @@ public class ItemMaker {
 
 	protected ItemMaker(Material material) {
 		this.material = material;
+	}
+
+	@Override
+	public ItemMaker clone() {
+		try {
+			return (ItemMaker) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	protected ItemMeta apply(ItemMeta meta) {
@@ -760,7 +770,7 @@ public class ItemMaker {
 		return new EnchantedBookItemMaker();
 	}
 
-	static enum Potion {
+	public static enum Potion {
 		LINGERING(Material.getMaterial("LINGERING_POTION")), SPLASH(Material.getMaterial("SPLASH_POTION")), POTION(Material.POTION);
 
 		private Material m;
@@ -778,7 +788,7 @@ public class ItemMaker {
 		return new PotionItemMaker(potionType.toMaterial());
 	}
 
-	static enum ShulkerBoxColor {
+	public static enum ShulkerBoxColor {
 		NONE(XMaterial.SHULKER_BOX), WHITE(XMaterial.WHITE_SHULKER_BOX), BLACK(XMaterial.BLACK_SHULKER_BOX), BLUE(XMaterial.BLUE_SHULKER_BOX), BROWN(XMaterial.BROWN_SHULKER_BOX),
 		CYAN(XMaterial.CYAN_SHULKER_BOX), GRAY(XMaterial.GRAY_SHULKER_BOX), GREEN(XMaterial.GREEN_SHULKER_BOX), LIGHT_BLUE(XMaterial.LIGHT_BLUE_SHULKER_BOX),
 		LIGHT_GRAY(XMaterial.LIGHT_GRAY_SHULKER_BOX), LIME(XMaterial.LIME_SHULKER_BOX), MAGENTA(XMaterial.MAGENTA_SHULKER_BOX), ORANGE(XMaterial.ORANGE_SHULKER_BOX),
@@ -803,7 +813,7 @@ public class ItemMaker {
 		return new BundleItemMaker();
 	}
 
-	static enum BannerColor {
+	public static enum BannerColor {
 		NONE(XMaterial.WHITE_BANNER), WHITE(XMaterial.WHITE_BANNER), BLACK(XMaterial.BLACK_BANNER), BLUE(XMaterial.BLUE_BANNER), BROWN(XMaterial.BROWN_BANNER), CYAN(XMaterial.CYAN_BANNER),
 		GRAY(XMaterial.GRAY_BANNER), GREEN(XMaterial.GREEN_BANNER), LIGHT_BLUE(XMaterial.LIGHT_BLUE_BANNER), LIGHT_GRAY(XMaterial.LIGHT_GRAY_BANNER), LIME(XMaterial.LIME_BANNER),
 		MAGENTA(XMaterial.MAGENTA_BANNER), ORANGE(XMaterial.ORANGE_BANNER), YELLOW(XMaterial.YELLOW_BANNER), RED(XMaterial.RED_BANNER), PURPLE(XMaterial.PURPLE_BANNER), PINK(XMaterial.PINK_BANNER);

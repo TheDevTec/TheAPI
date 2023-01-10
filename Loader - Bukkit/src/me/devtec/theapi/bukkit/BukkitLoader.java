@@ -46,6 +46,7 @@ import me.devtec.shared.versioning.VersionUtils;
 import me.devtec.shared.versioning.VersionUtils.Version;
 import me.devtec.theapi.bukkit.bossbar.BossBar;
 import me.devtec.theapi.bukkit.commands.hooker.LegacySimpleCommandMap;
+import me.devtec.theapi.bukkit.events.ServerListPingEvent;
 import me.devtec.theapi.bukkit.game.resourcepack.ResourcePackHandler;
 import me.devtec.theapi.bukkit.game.resourcepack.ResourcePackResult;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
@@ -157,8 +158,11 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 			@Override
 			public boolean playOut(String nick, Object packet, Object channel) {
-				if (packet.getClass() == serverPing)
+				if (packet.getClass() == serverPing) {
+					if (ServerListPingEvent.getHandlerList().isEmpty())
+						return false; // Do not process if event isn't used by any plugin
 					return nmsProvider.processServerListPing(nick, channel, packet);
+				}
 				if (packet.getClass() == playerInfo) {
 					Player player = Bukkit.getPlayer(nick);
 					if (player != null)
