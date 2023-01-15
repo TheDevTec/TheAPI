@@ -51,6 +51,56 @@ public class GUI implements HolderGUI {
 		public boolean isDropClick() {
 			return !pickup;
 		}
+
+		public boolean isLeftClick() {
+			switch (this) {
+			case LEFT_DROP:
+			case LEFT_PICKUP:
+			case SHIFT_LEFT_DROP:
+			case SHIFT_LEFT_PICKUP:
+				return true;
+			default:
+				break;
+			}
+			return false;
+		}
+
+		public boolean isRightClick() {
+			switch (this) {
+			case RIGHT_DROP:
+			case RIGHT_PICKUP:
+			case SHIFT_RIGHT_DROP:
+			case SHIFT_RIGHT_PICKUP:
+				return true;
+			default:
+				break;
+			}
+			return false;
+		}
+
+		public boolean isMiddleClick() {
+			switch (this) {
+			case MIDDLE_DROP:
+			case MIDDLE_PICKUP:
+				return true;
+			default:
+				break;
+			}
+			return false;
+		}
+
+		public boolean isShiftClick() {
+			switch (this) {
+			case SHIFT_LEFT_DROP:
+			case SHIFT_RIGHT_DROP:
+			case SHIFT_LEFT_PICKUP:
+			case SHIFT_RIGHT_PICKUP:
+				return true;
+			default:
+				break;
+			}
+			return false;
+		}
 	}
 
 	private String title;

@@ -122,6 +122,15 @@ public class ItemMaker implements Cloneable {
 		return meta;
 	}
 
+	public ItemMaker enchanted() {
+		if (itemFlags != null) {
+			itemFlags.add("HIDE_ENCHANTS");
+			itemFlags.add("HIDE_ATTRIBUTES");
+		} else
+			itemFlags("HIDE_ENCHANTS", "HIDE_ATTRIBUTES");
+		return enchant(Enchantment.DURABILITY, 1);
+	}
+
 	public ItemMaker amount(int amount) {
 		this.amount = amount;
 		return this;
