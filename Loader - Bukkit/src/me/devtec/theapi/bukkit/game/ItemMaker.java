@@ -103,11 +103,14 @@ public class ItemMaker implements Cloneable {
 			for (Entry<Enchantment, Integer> s : enchants.entrySet())
 				meta.addEnchant(s.getKey(), s.getValue(), true);
 		if (Ref.isNewerThan(7) && itemFlags != null)
-			for (String flag : itemFlags) {
-				ItemFlag iFlag = ItemFlag.valueOf(flag.toUpperCase());
-				if (iFlag != null)
-					meta.addItemFlags(iFlag);
-			}
+			for (String flag : itemFlags)
+				try {
+					ItemFlag iFlag = ItemFlag.valueOf(flag.toUpperCase());
+					if (iFlag != null)
+						meta.addItemFlags(iFlag);
+				} catch (NoSuchFieldError | Exception err) {
+
+				}
 		if (Ref.isNewerThan(13) && customModel != 0)
 			meta.setCustomModelData(customModel);
 		if (unbreakable)
@@ -588,11 +591,14 @@ public class ItemMaker implements Cloneable {
 				for (Entry<Enchantment, Integer> s : super.enchants.entrySet())
 					iMeta.addStoredEnchant(s.getKey(), s.getValue(), true);
 			if (Ref.isNewerThan(7) && super.itemFlags != null)
-				for (String flag : super.itemFlags) {
-					ItemFlag iFlag = ItemFlag.valueOf(flag.toUpperCase());
-					if (iFlag != null)
-						meta.addItemFlags(iFlag);
-				}
+				for (String flag : super.itemFlags)
+					try {
+						ItemFlag iFlag = ItemFlag.valueOf(flag.toUpperCase());
+						if (iFlag != null)
+							iMeta.addItemFlags(iFlag);
+					} catch (NoSuchFieldError | Exception err) {
+
+					}
 			if (Ref.isNewerThan(13) && super.customModel != 0)
 				iMeta.setCustomModelData(super.customModel);
 			if (super.unbreakable)
