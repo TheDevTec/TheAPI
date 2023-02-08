@@ -138,27 +138,15 @@ public class Position implements Cloneable {
 	}
 
 	public Position subtract(double x, double y, double z) {
-		this.x -= x;
-		this.y -= y;
-		this.z -= z;
-		cachedChunk = null;
-		return this;
+		return add(-x, -y, -z);
 	}
 
 	public Position subtract(Position position) {
-		x -= position.getX();
-		y -= position.getY();
-		z -= position.getZ();
-		cachedChunk = null;
-		return this;
+		return add(-position.getX(), -position.getY(), -position.getZ());
 	}
 
 	public Position subtract(Location location) {
-		x -= location.getX();
-		y -= location.getY();
-		z -= location.getZ();
-		cachedChunk = null;
-		return this;
+		return add(-location.getX(), -location.getY(), -location.getZ());
 	}
 
 	public String getWorldName() {
@@ -172,20 +160,23 @@ public class Position implements Cloneable {
 	}
 
 	public Position setX(double x) {
+		int prevChunkX = (int) this.x >> 4;
 		this.x = x;
-		cachedChunk = null;
+		if (prevChunkX != (int) this.x >> 4)
+			cachedChunk = null;
 		return this;
 	}
 
 	public Position setY(double y) {
 		this.y = y;
-		cachedChunk = null;
 		return this;
 	}
 
 	public Position setZ(double z) {
+		int prevChunkZ = (int) this.z >> 4;
 		this.z = z;
-		cachedChunk = null;
+		if (prevChunkZ != (int) this.z >> 4)
+			cachedChunk = null;
 		return this;
 	}
 
@@ -256,6 +247,10 @@ public class Position implements Cloneable {
 	}
 
 	public Object getBlockPosition() {
+		return toBlockPosition();
+	}
+
+	public Object toBlockPosition() {
 		return BukkitLoader.getNmsProvider().blockPosition(getBlockX(), getBlockY(), getBlockZ());
 	}
 
@@ -278,6 +273,19 @@ public class Position implements Cloneable {
 		this.x += x;
 		this.y += y;
 		this.z += z;
+
+		if (prevChunkX != (int) this.x >> 4 || prevChunkZ != (int) this.z >> 4)
+			cachedChunk = null;
+		return this;
+	}
+
+	public Position set(double x, double y, double z) {
+		int prevChunkX = (int) this.x >> 4;
+		int prevChunkZ = (int) this.z >> 4;
+
+		this.x = x;
+		this.y = y;
+		this.z = z;
 
 		if (prevChunkX != (int) this.x >> 4 || prevChunkZ != (int) this.z >> 4)
 			cachedChunk = null;
@@ -355,12 +363,12 @@ public class Position implements Cloneable {
 		return new Location(Bukkit.getWorld(world), x, y, z, yaw, pitch);
 	}
 
-	public long setType(Material type) {
-		return this.setType(new BlockDataStorage(type));
+	public void setType(Material type) {
+		this.setType(new BlockDataStorage(type));
 	}
 
-	public long setType(BlockDataStorage type) {
-		return Position.set(this, type);
+	public void setType(BlockDataStorage type) {
+		Position.set(this, type);
 	}
 
 	public void setTypeAndUpdate(Material type) {
@@ -413,9 +421,8 @@ public class Position implements Cloneable {
 		BukkitLoader.getNmsProvider().updateLightAt(pos.getNMSChunk(), pos.getBlockX(), pos.getBlockY(), pos.getBlockZ());
 	}
 
-	public static long set(Position pos, BlockDataStorage mat) {
+	public static void set(Position pos, BlockDataStorage mat) {
 		BukkitLoader.getNmsProvider().setBlock(pos.getNMSChunk(), pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(), Ref.isOlderThan(8) ? mat.getBlock() : mat.getIBlockData(), mat.getItemData());
-		return pos.getChunkKey();
 	}
 
 	public long getChunkKey() {
@@ -424,9 +431,8 @@ public class Position implements Cloneable {
 		return k;
 	}
 
-	public long setAir() {
+	public void setAir() {
 		BukkitLoader.getNmsProvider().setBlock(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), null);
-		return getChunkKey();
 	}
 
 	public void setAirAndUpdate() {
