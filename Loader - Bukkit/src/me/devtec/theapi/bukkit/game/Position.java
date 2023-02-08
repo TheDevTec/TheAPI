@@ -119,7 +119,7 @@ public class Position implements Cloneable {
 	}
 
 	public int getData() {
-		return Ref.isOlderThan(8) ? BukkitLoader.getNmsProvider().getData(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ()) : (int) getType().getIBlockData();
+		return Ref.isOlderThan(8) ? BukkitLoader.getNmsProvider().getData(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ()) : (int) getType().getItemData();
 	}
 
 	public Material getBukkitType() {
@@ -154,8 +154,18 @@ public class Position implements Cloneable {
 	}
 
 	public Position setWorld(World world) {
-		this.world = world.getName();
-		cachedChunk = null;
+		if (!world.getName().equals(this.world)) {
+			this.world = world.getName();
+			cachedChunk = null;
+		}
+		return this;
+	}
+
+	public Position setWorld(String worldName) {
+		if (worldName == null ? world != null : !worldName.equals(world)) {
+			world = worldName;
+			cachedChunk = null;
+		}
 		return this;
 	}
 
