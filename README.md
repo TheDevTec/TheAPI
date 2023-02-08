@@ -48,7 +48,7 @@ https://github.com/TheDevTec/TheAPI/tree/master/Demo/src/me/straikerinacz/theapi
 ## Gradle:
 ```java
 dependencies {
-    compileOnly files('libs/TheAPI.jar')
+    implementation(files("TheAPI/TheAPI.jar"))
 }
 ```
 
