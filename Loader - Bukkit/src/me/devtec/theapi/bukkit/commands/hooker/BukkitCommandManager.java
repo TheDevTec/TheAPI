@@ -1,6 +1,7 @@
 package me.devtec.theapi.bukkit.commands.hooker;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +24,7 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 
 @SuppressWarnings("unchecked")
 public class BukkitCommandManager implements CommandsRegister {
+	private static Method syncCommands = Ref.isNewerThan(12) ? Ref.method(Ref.craft("CraftServer"), "syncCommands") : null;
 	protected static CommandMap cmdMap;
 	protected static Map<String, Command> knownCommands;
 
@@ -65,6 +67,8 @@ public class BukkitCommandManager implements CommandsRegister {
 			low.add(label);
 		for (String s : low)
 			knownCommands.put(s, command);
+		if (syncCommands != null)
+			Ref.invoke(Bukkit.getServer(), syncCommands);
 	}
 
 	@Override
@@ -95,6 +99,8 @@ public class BukkitCommandManager implements CommandsRegister {
 			low.add(label);
 		for (String s : low)
 			knownCommands.put(s, cmd);
+		if (syncCommands != null)
+			Ref.invoke(Bukkit.getServer(), syncCommands);
 	}
 
 	@Override
@@ -102,5 +108,7 @@ public class BukkitCommandManager implements CommandsRegister {
 		knownCommands.remove(commandHolder.getCommandName().toLowerCase(Locale.ENGLISH).trim());
 		for (String alias : commandHolder.getCommandAliases())
 			knownCommands.remove(alias.toLowerCase(Locale.ENGLISH).trim());
+		if (syncCommands != null)
+			Ref.invoke(Bukkit.getServer(), syncCommands);
 	}
 }
