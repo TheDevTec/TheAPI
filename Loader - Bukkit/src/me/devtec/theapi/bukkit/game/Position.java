@@ -408,7 +408,7 @@ public class Position implements Cloneable {
 	public boolean equals(Object a) {
 		if (a instanceof Position) {
 			Position s = (Position) a;
-			return world.equals(s.getWorld().getName()) && s.getX() == x && s.getY() == y && s.getZ() == z && s.getPitch() == pitch && s.getYaw() == yaw;
+			return world.equals(s.getWorldName()) && s.getX() == x && s.getY() == y && s.getZ() == z && s.getPitch() == pitch && s.getYaw() == yaw;
 		}
 		if (a instanceof Location) {
 			Location s = (Location) a;
