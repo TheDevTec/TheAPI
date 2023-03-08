@@ -370,6 +370,29 @@ public class ItemMaker implements Cloneable {
 		return maker;
 	}
 
+	@Override
+	public int hashCode() {
+		int hash = 1;
+		if (material != null)
+			hash = hash * 33 + material.hashCode();
+		hash = hash * 33 + amount;
+		hash = hash * 33 + damage;
+		if (displayName != null)
+			hash = hash * 33 + displayName.hashCode();
+		if (lore != null)
+			hash = hash * 33 + lore.hashCode();
+		if (enchants != null)
+			hash = hash * 33 + enchants.hashCode();
+		if (itemFlags != null)
+			hash = hash * 33 + itemFlags.hashCode();
+		hash = hash * 33 + customModel;
+		hash = hash * 33 + (unbreakable ? 1 : 0);
+		hash = hash * 33 + data;
+		if (nbt != null && nbt.getNBT() != null)
+			hash = hash * 33 + nbt.getNBT().hashCode();
+		return hash;
+	}
+
 	public ItemStack build() {
 		if (material == null)
 			throw new IllegalArgumentException("Material cannot be null");
@@ -460,6 +483,14 @@ public class ItemMaker implements Cloneable {
 				}
 			return super.apply(iMeta);
 		}
+
+		@Override
+		public int hashCode() {
+			int hash = super.hashCode();
+			if (owner != null)
+				hash = hash * 33 + owner.hashCode();
+			return hash * 33 + ownerType;
+		}
 	}
 
 	public static class LeatherItemMaker extends ItemMaker {
@@ -485,6 +516,14 @@ public class ItemMaker implements Cloneable {
 			if (color != null)
 				iMeta.setColor(color);
 			return super.apply(iMeta);
+		}
+
+		@Override
+		public int hashCode() {
+			int hash = super.hashCode();
+			if (color != null)
+				hash = hash * 33 + color.hashCode();
+			return hash;
 		}
 	}
 
@@ -573,6 +612,20 @@ public class ItemMaker implements Cloneable {
 				iMeta.setTitle(title);
 			return super.apply(iMeta);
 		}
+
+		@Override
+		public int hashCode() {
+			int hash = super.hashCode();
+			if (author != null)
+				hash = hash * 33 + author.hashCode();
+			if (title != null)
+				hash = hash * 33 + title.hashCode();
+			if (pages != null)
+				hash = hash * 33 + pages.hashCode();
+			if (generation != null)
+				hash = hash * 33 + generation.hashCode();
+			return hash;
+		}
 	}
 
 	public static class EnchantedBookItemMaker extends ItemMaker {
@@ -656,6 +709,16 @@ public class ItemMaker implements Cloneable {
 					iMeta.addCustomEffect(effect, true);
 			return super.apply(iMeta);
 		}
+
+		@Override
+		public int hashCode() {
+			int hash = super.hashCode();
+			if (color != null)
+				hash = hash * 33 + color.hashCode();
+			if (effects != null)
+				hash = hash * 33 + effects.hashCode();
+			return hash;
+		}
 	}
 
 	public static class ShulkerBoxItemMaker extends ItemMaker {
@@ -698,6 +761,16 @@ public class ItemMaker implements Cloneable {
 			iMeta.setBlockState(shulker);
 			return super.apply(iMeta);
 		}
+
+		@Override
+		public int hashCode() {
+			int hash = super.hashCode();
+			if (name != null)
+				hash = hash * 33 + name.hashCode();
+			if (contents != null)
+				hash = hash * 33 + contents.hashCode();
+			return hash;
+		}
 	}
 
 	public static class BundleItemMaker extends ItemMaker {
@@ -727,6 +800,14 @@ public class ItemMaker implements Cloneable {
 			if (contents != null)
 				iMeta.setItems(contents);
 			return super.apply(iMeta);
+		}
+
+		@Override
+		public int hashCode() {
+			int hash = super.hashCode();
+			if (contents != null)
+				hash = hash * 33 + contents.hashCode();
+			return hash;
 		}
 	}
 
@@ -758,6 +839,14 @@ public class ItemMaker implements Cloneable {
 			if (patterns != null)
 				iMeta.setPatterns(patterns);
 			return super.apply(iMeta);
+		}
+
+		@Override
+		public int hashCode() {
+			int hash = super.hashCode();
+			if (patterns != null)
+				hash = hash * 33 + patterns.hashCode();
+			return hash;
 		}
 	}
 

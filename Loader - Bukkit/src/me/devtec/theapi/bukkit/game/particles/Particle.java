@@ -173,4 +173,13 @@ public class Particle {
 			Ref.set(packet, "k", new int[0]);
 		return packet;
 	}
+
+	@Override
+	public int hashCode() {
+		int hash = 22;
+		hash = hash * 22 + particle.hashCode();
+		if (data != null)
+			hash = hash * 22 + data.hashCode();
+		return hash * 22 + name.hashCode();
+	}
 }

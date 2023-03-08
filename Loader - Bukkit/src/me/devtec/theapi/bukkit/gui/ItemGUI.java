@@ -34,4 +34,11 @@ public abstract class ItemGUI {
 			s = stack;
 		return this;
 	}
+
+	@Override
+	public int hashCode() {
+		int hash = 1;
+		hash = hash * 18 + s.hashCode();
+		return hash * 18 + (steal ? 1 : 0);
+	}
 }

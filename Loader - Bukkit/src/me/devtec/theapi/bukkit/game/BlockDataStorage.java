@@ -141,6 +141,16 @@ public class BlockDataStorage implements Cloneable {
 	}
 
 	@Override
+	public int hashCode() {
+		int hash = 40 + type.hashCode();
+		hash = hash * 40 + data.hashCode();
+		hash = hash * 40 + itemData;
+		if (nbt != null)
+			hash = hash * 40 + nbt.hashCode();
+		return hash;
+	}
+
+	@Override
 	public BlockDataStorage clone() {
 		return new BlockDataStorage(type, itemData, data, nbt);
 	}

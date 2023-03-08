@@ -486,12 +486,11 @@ public class Position implements Cloneable {
 
 	@Override
 	public int hashCode() {
-		int hashCode = 1;
-		hashCode = 31 * hashCode + world.hashCode();
-		hashCode = (int) (31 * hashCode + x);
-		hashCode = (int) (31 * hashCode + y);
-		hashCode = (int) (31 * hashCode + z);
-		hashCode = (int) (31 * hashCode + yaw);
-		return (int) (31 * hashCode + pitch);
+		int hash = 17 + (world != null ? world.hashCode() : 0);
+		hash = 17 * hash + (int) (Double.doubleToLongBits(x) ^ Double.doubleToLongBits(x) >>> 32);
+		hash = 17 * hash + (int) (Double.doubleToLongBits(y) ^ Double.doubleToLongBits(y) >>> 32);
+		hash = 17 * hash + (int) (Double.doubleToLongBits(z) ^ Double.doubleToLongBits(z) >>> 32);
+		hash = 17 * hash + Float.floatToIntBits(pitch);
+		return 17 * hash + Float.floatToIntBits(yaw);
 	}
 }

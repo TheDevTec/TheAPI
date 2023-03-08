@@ -429,4 +429,13 @@ public class GUI implements HolderGUI {
 	public Inventory getInventory() {
 		return inv;
 	}
+
+	@Override
+	public int hashCode() {
+		int hash = 1;
+		hash = hash * 38 + title.hashCode();
+		hash = hash * 38 + containers.hashCode();
+		hash = hash * 38 + inv.hashCode();
+		return hash * 38 + (put ? 1 : 0);
+	}
 }

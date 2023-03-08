@@ -50,6 +50,12 @@ public class ParticleData {
 		public float getValueZ() {
 			return 0;
 		}
+
+		@Override
+		public int hashCode() {
+			int hash = 1;
+			return hash * 11 + note;
+		}
 	}
 
 	public static class RedstoneOptions extends ParticleData {
@@ -115,6 +121,15 @@ public class ParticleData {
 		public float getSize() {
 			return size;
 		}
+
+		@Override
+		public int hashCode() {
+			int hash = 1;
+			hash = hash * 11 + Float.floatToIntBits(red);
+			hash = hash * 11 + Float.floatToIntBits(green);
+			hash = hash * 11 + Float.floatToIntBits(blue);
+			return hash * 11 + Float.floatToIntBits(size);
+		}
 	}
 
 	public static class ItemOptions extends ParticleData {
@@ -161,6 +176,13 @@ public class ParticleData {
 		public int[] getPacketData() {
 			return packetData;
 		}
+
+		@Override
+		public int hashCode() {
+			int hash = 1;
+			hash = hash * 11 + item.hashCode();
+			return hash * 11 + packetData.hashCode();
+		}
 	}
 
 	public static class BlockOptions extends ParticleData {
@@ -204,6 +226,13 @@ public class ParticleData {
 
 		public String getPacketDataString() {
 			return "_" + packetData[0] + "_" + packetData[1];
+		}
+
+		@Override
+		public int hashCode() {
+			int hash = 1;
+			hash = hash * 11 + material.hashCode();
+			return hash * 11 + packetData.hashCode();
 		}
 	}
 }
