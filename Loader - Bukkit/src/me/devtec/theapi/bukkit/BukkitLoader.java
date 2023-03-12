@@ -41,6 +41,7 @@ import me.devtec.shared.placeholders.PlaceholderAPI;
 import me.devtec.shared.placeholders.PlaceholderExpansion;
 import me.devtec.shared.scheduler.Scheduler;
 import me.devtec.shared.utility.MemoryCompiler;
+import me.devtec.shared.utility.StreamUtils;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.versioning.VersionUtils;
 import me.devtec.shared.versioning.VersionUtils.Version;
@@ -130,7 +131,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			Ref.set(Bukkit.getServer(), "commandMap",
 					new LegacySimpleCommandMap(Bukkit.getServer(), (Map<String, Command>) Ref.get(Ref.get(Bukkit.getPluginManager(), "commandMap"), "knownCommands")));
 
-		if (new File("spigot.yml").exists() && new Config("spigot.yml").getBoolean("settings.late-bind"))
+		if (new File("spigot.yml").exists() && Config.loadFromString(StreamUtils.fromStream(new File("spigot.yml"))).getBoolean("settings.late-bind"))
 			new Thread(() -> { // ASYNC
 				if (Ref.isNewerThan(7))
 					handler = new PacketHandlerModern(true);
