@@ -26,8 +26,8 @@ public class BukkitSelectorUtils implements SelectorUtils<CommandSender> {
 				list.add(biome.name());
 			break;
 		case MATERIAL:
-			for (XMaterial material : XMaterial.values())
-				if (material.isSupported() && material.parseMaterial().isItem() && material != XMaterial.AIR)
+			for (XMaterial material : XMaterial.VALUES)
+				if (material.isSupported() && material.parseMaterial().isItem() && !material.isAir())
 					list.add(material.name());
 			break;
 		case BOOLEAN:
