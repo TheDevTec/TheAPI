@@ -25,6 +25,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerPreLoginEvent;
@@ -393,6 +394,13 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onDisconnect(PlayerQuitEvent e) {
+		Config cache = API.removeCache(e.getPlayer().getUniqueId());
+		if (cache != null)
+			cache.save();
+	}
+
+	@EventHandler
+	public void onDisconnect(PlayerKickEvent e) {
 		Config cache = API.removeCache(e.getPlayer().getUniqueId());
 		if (cache != null)
 			cache.save();

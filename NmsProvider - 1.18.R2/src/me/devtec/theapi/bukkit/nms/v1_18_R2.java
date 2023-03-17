@@ -950,10 +950,12 @@ public class v1_18_R2 implements NmsProvider {
 	public boolean processServerListPing(String player, Object channel, Object packet) {
 		PacketStatusOutServerInfo status = (PacketStatusOutServerInfo) packet;
 		ServerPing ping = status.b();
+
 		List<GameProfileHandler> players = new ArrayList<>();
-		for (Player p : getOnlinePlayers())
-			if (p.isAllowingServerListings())
-				players.add(GameProfileHandler.of(p.getName(), p.getUniqueId()));
+		if (ping.b().c() != null)
+			for (GameProfile profile : ping.b().c())
+				players.add(fromGameProfile(profile));
+
 		ServerListPingEvent event = new ServerListPingEvent(getOnlinePlayers().size(), Bukkit.getMaxPlayers(), players, Bukkit.getMotd(), ping.d(),
 				((InetSocketAddress) ((Channel) channel).remoteAddress()).getAddress(), ping.c().a(), ping.c().b());
 		EventManager.call(event);
