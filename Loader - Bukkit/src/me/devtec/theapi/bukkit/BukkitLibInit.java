@@ -216,7 +216,6 @@ public class BukkitLibInit {
 					return API.basics().gradient(msg, fromHex, toHex, protectedStrings);
 
 				boolean inRainbow = false;
-				char prev = 0;
 				String formats = "";
 
 				int[][] skipRegions = EMPTY_ARRAY;
@@ -271,25 +270,29 @@ public class BukkitLibInit {
 						continue;
 					}
 
-					if (prev == '&' || prev == '§') {
-						if (prev == '&' && c == 'u') {
-							builder.deleteCharAt(builder.length() - 1); // remove & char
+					if (c == '&' && i + 1 < msg.length()) {
+						c = msg.charAt(++i);
+						if (c == 'u')
 							inRainbow = true;
-							prev = c;
+						else
+							builder.append('&').append(c);
+						continue;
+					}
+					if (inRainbow && c == '§' && i + 1 < msg.length()) {
+						c = msg.charAt(++i);
+						if (isFormat(c)) {
+							if (c == 'r')
+								formats = "§r";
+							else
+								formats += "§" + c;
 							continue;
 						}
-						if (inRainbow && prev == '§' && (isColor(c) || isFormat(c))) {
-							if (isFormat(c)) {
-								if (c == 'r')
-									formats = "§r";
-								else
-									formats += "§" + c;
-								prev = c;
-								continue;
-							}
-							builder.delete(builder.length() - 14, builder.length()); // remove &<random color> string
+						if (isColor(c)) {
 							inRainbow = false;
+							continue;
 						}
+						builder.append('§').append(c);
+						continue;
 					}
 					if (inRainbow)
 						if (c != ' ') {
@@ -307,7 +310,6 @@ public class BukkitLibInit {
 							formats = "";
 						}
 					builder.append(c);
-					prev = c;
 				}
 				return builder.toString();
 			}
@@ -327,7 +329,7 @@ public class BukkitLibInit {
 						position.set(0);
 					return "§" + chars[position.getAndIncrement()];
 				}
-				StringContainer b = new StringContainer(7).append("#");
+				StringContainer b = new StringContainer(7).append('#');
 				for (int i = 0; i < 6; ++i)
 					b.append(characters[StringUtils.random.nextInt(16)]);
 				return b.toString();
@@ -337,41 +339,30 @@ public class BukkitLibInit {
 			public String replaceHex(String text) {
 				if (!Ref.isNewerThan(15))
 					return text;
-				StringContainer container = new StringContainer(text.length() + 14 * 6);
-
-				boolean HEX_CHAR = false;
-				StringContainer hex = new StringContainer(6);
+				StringContainer container = new StringContainer(text.length() + 14 * 2);
 				for (int i = 0; i < text.length(); ++i) {
 					char c = text.charAt(i);
-					if (c == '#') {
-						if (HEX_CHAR) {
-							container.append('#').append(hex);
-							hex.clear();
-							continue;
+					if (c == '#' && i + 6 < text.length()) {
+						boolean isHex = true;
+						for (int ic = 1; ic < 7; ++ic) {
+							char cn = text.charAt(i + ic);
+							if (cn >= 64 && cn <= 70 || cn >= 97 && cn <= 102 || cn >= 48 && cn <= 57)
+								continue;
+							isHex = false;
+							break;
 						}
-						HEX_CHAR = true;
-						continue;
-					}
-					if (HEX_CHAR) {
-						if (c >= 64 && c <= 70 || c >= 97 && c <= 102 || c >= 48 && c <= 57) { // color
-							hex.append(c);
-							if (hex.length() == 6) {
-								HEX_CHAR = false;
-								container.append('§').append('x');
-								for (int hexPos = 0; hexPos < 6; ++hexPos)
-									container.append('§').append(hex.charAt(hexPos));
-								hex.clear();
+						if (isHex) {
+							container.append('§').append('x');
+							for (int ic = 1; ic < 7; ++ic) {
+								char cn = text.charAt(i + ic);
+								container.append('§').append(cn);
 							}
+							i += 6;
 							continue;
 						}
-						HEX_CHAR = false;
-						container.append('#').append(hex);
-						hex.clear();
 					}
 					container.append(c);
 				}
-				if (HEX_CHAR)
-					container.append('#').append(hex);
 				return container.toString();
 			}
 
