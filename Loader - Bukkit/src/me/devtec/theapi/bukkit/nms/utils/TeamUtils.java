@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 
 import me.devtec.shared.Ref;
 import me.devtec.shared.components.Component;
+import me.devtec.shared.components.ComponentAPI;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.nms.NmsProvider.DisplayType;
 
@@ -26,7 +27,7 @@ public class TeamUtils {
 				Object o = TeamUtils.unsafe.allocateInstance(TeamUtils.sbTeam);
 				Ref.set(o, "a", BukkitLoader.getNmsProvider().chatBase("{\"text\":\"" + holderName + "\"}"));
 				Ref.set(o, "b", BukkitLoader.getNmsProvider().toIChatBaseComponent(prefix));
-				Ref.set(o, "c", BukkitLoader.getNmsProvider().toIChatBaseComponent(suffix));
+				Ref.set(o, "c", BukkitLoader.getNmsProvider().toIChatBaseComponent(prefix));
 				Ref.set(o, "d", always);
 				Ref.set(o, "e", always);
 				Ref.set(o, "f", color);
@@ -38,8 +39,49 @@ public class TeamUtils {
 		} else {
 			Ref.set(packet, "a", teamName);
 			Ref.set(packet, "b", Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().chatBase("{\"text\":\"\"}") : "");
-			Ref.set(packet, "c", Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().toIChatBaseComponent(prefix) : prefix == null ? "" : prefix.toString());
-			Ref.set(packet, "d", Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().toIChatBaseComponent(suffix) : suffix == null ? "" : suffix.toString());
+			Ref.set(packet, "c", Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().toIChatBaseComponent(prefix) : prefix == null ? "" : prefix);
+			Ref.set(packet, "d", Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().toIChatBaseComponent(suffix) : suffix == null ? "" : suffix);
+			if (Ref.isNewerThan(7)) {
+				Ref.set(packet, "e", always);
+				Ref.set(packet, "f", Ref.isNewerThan(8) ? always : -1);
+				if (Ref.isNewerThan(8))
+					Ref.set(packet, "g", Ref.isNewerThan(12) ? color : -1);
+				Ref.set(packet, Ref.isNewerThan(8) ? "i" : "h", mode);
+				Ref.set(packet, Ref.isNewerThan(8) ? "h" : "g", nameList);
+			} else {
+				Ref.set(packet, "f", mode);
+				Ref.set(packet, "e", nameList);
+			}
+		}
+		return packet;
+	}
+
+	public static Object createTeamPacket(int mode, Object color, String prefix, String suffix, String holderName, String teamName) {
+		Object packet = BukkitLoader.getNmsProvider().packetScoreboardTeam();
+		Object nameList = ImmutableList.of(holderName);
+		String always = "ALWAYS";
+		if (Ref.isNewerThan(16)) {
+			Ref.set(packet, "i", teamName);
+			try {
+				Object o = TeamUtils.unsafe.allocateInstance(TeamUtils.sbTeam);
+				Ref.set(o, "a", BukkitLoader.getNmsProvider().chatBase("{\"text\":\"" + holderName + "\"}"));
+				Ref.set(o, "b", BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(prefix, prefix.indexOf('#') != 0, false)));
+				Ref.set(o, "c", BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(suffix, suffix.indexOf('#') != 0, false)));
+				Ref.set(o, "d", always);
+				Ref.set(o, "e", always);
+				Ref.set(o, "f", color);
+				Ref.set(packet, "k", Optional.of(o));
+			} catch (Exception e) {
+			}
+			Ref.set(packet, "h", mode);
+			Ref.set(packet, "j", nameList);
+		} else {
+			Ref.set(packet, "a", teamName);
+			Ref.set(packet, "b", Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().chatBase("{\"text\":\"\"}") : "");
+			Ref.set(packet, "c",
+					Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(prefix, prefix.indexOf('#') != 0, false)) : prefix == null ? "" : prefix);
+			Ref.set(packet, "d",
+					Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().toIChatBaseComponent(ComponentAPI.fromString(suffix, suffix.indexOf('#') != 0, false)) : suffix == null ? "" : suffix);
 			if (Ref.isNewerThan(7)) {
 				Ref.set(packet, "e", always);
 				Ref.set(packet, "f", Ref.isNewerThan(8) ? always : -1);
