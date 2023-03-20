@@ -306,7 +306,6 @@ public class ScoreboardAPI {
 				splitted = StringUtils.fixedSplit(text, 16 - format.length());
 
 				if (splitted.size() != 1) {
-					splitted = StringUtils.fixedSplit(text, 40 - format.length());
 					boolean someChange = setPlayer(text);
 					resultLine += lastColors.length() == 0 ? text : text.substring(lastColors.length() * 2);
 					if (!suffix.equals(""))
