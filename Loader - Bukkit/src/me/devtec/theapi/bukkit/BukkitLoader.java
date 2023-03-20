@@ -391,23 +391,20 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			handler.add(e.getPlayer());
 			Tablist tab = Tablist.of(e.getPlayer());
 			for (Player player : BukkitLoader.getOnlinePlayers())
-				if (!player.getUniqueId().equals(e.getPlayer().getUniqueId()))
-					Tablist.of(player).addEntry(tab.asEntry(tab));
+				if (e.getPlayer().canSee(player))
+					if (!player.getUniqueId().equals(e.getPlayer().getUniqueId()))
+						Tablist.of(player).addEntry(tab.asEntry(tab));
 		}
 	}
 
 	@EventHandler
 	public void onDisconnect(PlayerQuitEvent e) {
-		Config cache = API.removeCache(e.getPlayer().getUniqueId());
-		if (cache != null)
-			cache.save();
+		API.removeCache(e.getPlayer().getUniqueId());
 	}
 
 	@EventHandler
 	public void onDisconnect(PlayerKickEvent e) {
-		Config cache = API.removeCache(e.getPlayer().getUniqueId());
-		if (cache != null)
-			cache.save();
+		API.removeCache(e.getPlayer().getUniqueId());
 	}
 
 	@Override
@@ -421,7 +418,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				bar.remove();
 
 		// OfflineCache support!
-		API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save();
+		API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save("properties");
 	}
 
 	private void checkForUpdateAndDownloadCompiled() {
@@ -440,7 +437,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				localVersion.save(DataType.YAML);
 				return;
 			}
-			if (localVersion.getInt("build") < gitVersion.getInt("build") || !new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar").exists()) {
+			if (localVersion.getInt("build") < gitVersion.getInt("build") || !new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar").exists()
+					|| new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".jar").length() == 0) {
 				localVersion.set("build", gitVersion.getInt("build"));
 				localVersion.save(DataType.YAML);
 
