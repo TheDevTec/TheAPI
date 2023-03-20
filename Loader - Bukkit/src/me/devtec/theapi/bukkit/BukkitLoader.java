@@ -57,6 +57,7 @@ import me.devtec.theapi.bukkit.nms.NmsProvider;
 import me.devtec.theapi.bukkit.packetlistener.PacketHandler;
 import me.devtec.theapi.bukkit.packetlistener.PacketHandlerModern;
 import me.devtec.theapi.bukkit.packetlistener.PacketListener;
+import me.devtec.theapi.bukkit.scoreboard.ScoreboardAPI;
 import me.devtec.theapi.bukkit.tablist.Tablist;
 
 public class BukkitLoader extends JavaPlugin implements Listener {
@@ -125,6 +126,9 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		if (Ref.isNewerThan(12))
+			ScoreboardAPI.SPLIT_MODERN_LINES = new Config("plugins/TheAPI/config.yml").getBoolean("fallback-scoreboard-support");
 
 		broadcastSystemInfo();
 
