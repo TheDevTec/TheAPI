@@ -83,7 +83,7 @@ public class VelocityLoader {
 		Scheduler.cancelAll();
 
 		// OfflineCache support!
-		API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save();
+		API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save("properties");
 	}
 
 	@Subscribe
@@ -100,9 +100,7 @@ public class VelocityLoader {
 
 	@Subscribe
 	public void onDisconnect(DisconnectEvent e) {
-		Config cache = API.removeCache(e.getPlayer().getUniqueId());
-		if (cache != null)
-			cache.save();
+		API.removeCache(e.getPlayer().getUniqueId());
 	}
 
 	public static void initTheAPI() {

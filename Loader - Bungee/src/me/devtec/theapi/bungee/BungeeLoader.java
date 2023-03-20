@@ -71,7 +71,7 @@ public class BungeeLoader extends Plugin implements Listener {
 		Scheduler.cancelAll();
 
 		// OfflineCache support!
-		API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save();
+		API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save("properties");
 	}
 
 	@EventHandler
@@ -88,9 +88,7 @@ public class BungeeLoader extends Plugin implements Listener {
 
 	@EventHandler
 	public void onDisconnect(PlayerDisconnectEvent e) {
-		Config cache = API.removeCache(e.getPlayer().getUniqueId());
-		if (cache != null)
-			cache.save();
+		API.removeCache(e.getPlayer().getUniqueId());
 	}
 
 	public static void initTheAPI() {
