@@ -11,7 +11,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import me.devtec.shared.Ref;
-import me.devtec.shared.components.Component;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
@@ -22,10 +21,12 @@ import me.devtec.theapi.bukkit.nms.utils.TeamUtils;
 /**
  * https://gist.github.com/MrZalTy/f8895d84979d49af946fbcc108b1bf2b
  *
- * @author MrZalTy Forked by StraikerinaCZ
+ * @author MrZalTy Forked by Straikerinos
  *
  */
 public class ScoreboardAPI {
+	public static boolean SPLIT_MODERN_LINES;
+
 	protected final Map<Integer, Team> data = new ConcurrentHashMap<>();
 	protected Player p;
 	protected String player;
@@ -70,8 +71,10 @@ public class ScoreboardAPI {
 		destroyed = true;
 		BukkitLoader.getPacketHandler().send(p, createObjectivePacket(1, ""));
 		for (Team team : data.values())
-			if (team != null)
-				this.remove(p, team.currentPlayer, team.name);
+			if (team != null) {
+				removeTeam(p, team.currentPlayer, team.name);
+				BukkitLoader.getPacketHandler().send(p, BukkitLoader.getNmsProvider().packetScoreboardScore(Action.REMOVE, sbname, team.currentPlayer, 0));
+			}
 		data.clear();
 	}
 
@@ -102,7 +105,7 @@ public class ScoreboardAPI {
 
 	public void setLine(int line, String valueText) {
 		String value = StringUtils.colorize(valueText);
-		if (getLine(line) != null && getLine(line).equals(!Ref.isNewerThan(12) ? cut(value) : value))
+		if (getLine(line) != null && getLine(line).equals(value))
 			return;
 		Team team = null;
 		boolean add = true;
@@ -113,33 +116,16 @@ public class ScoreboardAPI {
 			}
 		if (add)
 			team = getTeam(line, line);
-		team.setValue(value);
-		sendLine(team, line, add);
-	}
-
-	private String cut(String original) {
-		if (original.isEmpty())
-			return original;
-		List<String> d = StringUtils.fixedSplit(original, 17);
-		if (original.length() <= 17)
-			return d.get(0);
-		if (original.length() <= 34)
-			return d.get(0) + d.get(1);
-		String text = d.get(0);
-		String modified = original.substring(d.get(0).length());
-		d = StringUtils.fixedSplit(modified, 18);
-		text += StringUtils.getLastColors(text) + d.get(0);
-		modified = modified.substring(d.get(0).length());
-		d = StringUtils.fixedSplit(modified, 17);
-		text += d.get(0);
-		return text;
+		if (team.setValue(value) || add)
+			sendLine(team, line, add);
 	}
 
 	public void removeLine(int line) {
 		if (!data.containsKey(line))
 			return;
 		Team team = getTeam(line, line);
-		this.remove(p, team.currentPlayer, team.name);
+		removeTeam(p, team.currentPlayer, team.name);
+		BukkitLoader.getPacketHandler().send(p, BukkitLoader.getNmsProvider().packetScoreboardScore(Action.REMOVE, sbname, team.currentPlayer, 0));
 		data.remove(line);
 	}
 
@@ -147,7 +133,8 @@ public class ScoreboardAPI {
 		for (Entry<Integer, Team> lineName : new HashSet<>(data.entrySet()))
 			if (lineName.getKey() > line) {
 				Team team = lineName.getValue();
-				this.remove(p, team.currentPlayer, team.name);
+				removeTeam(p, team.currentPlayer, team.name);
+				BukkitLoader.getPacketHandler().send(p, BukkitLoader.getNmsProvider().packetScoreboardScore(Action.REMOVE, sbname, team.currentPlayer, 0));
 				data.remove(line);
 			}
 	}
@@ -167,7 +154,10 @@ public class ScoreboardAPI {
 
 	private void sendLine(Team team, int line, boolean add) {
 		destroyed = false;
+		if (team.old != null && !team.first)
+			BukkitLoader.getPacketHandler().send(p, BukkitLoader.getNmsProvider().packetScoreboardScore(Action.REMOVE, sbname, team.old, 0));
 		team.sendLine(line);
+		BukkitLoader.getPacketHandler().send(p, BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, team.currentPlayer, 0));
 		if (add)
 			data.put(line, team);
 	}
@@ -179,19 +169,24 @@ public class ScoreboardAPI {
 		return result;
 	}
 
-	private void create(Player sendTo, String prefix, String suffix, String name, String realName, int slot) {
-		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(0, TeamUtils.white, ComponentAPI.fromString(prefix), ComponentAPI.fromString(suffix), name, realName));
-		BukkitLoader.getPacketHandler().send(p, BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, name, slot));
+	private void createTeam(Player sendTo, String prefix, String suffix, String name, String realName, int slot) {
+		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(0, TeamUtils.white, prefix, suffix, name, realName));
 	}
 
-	private void modify(Player sendTo, String prefix, String suffix, String name, String realName, int slot) {
-		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(2, TeamUtils.white, ComponentAPI.fromString(prefix), ComponentAPI.fromString(suffix), name, realName));
-		BukkitLoader.getPacketHandler().send(p, BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, name, slot));
+	private void modifyTeam(Player sendTo, String prefix, String suffix, String name, String realName, int slot) {
+		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(2, TeamUtils.white, prefix, suffix, name, realName));
 	}
 
-	private void remove(Player sendTo, String name, String realName) {
-		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(1, TeamUtils.white, Component.EMPTY_COMPONENT, Component.EMPTY_COMPONENT, name, realName));
-		BukkitLoader.getPacketHandler().send(p, BukkitLoader.getNmsProvider().packetScoreboardScore(Action.REMOVE, sbname, name, 0));
+	private void removeTeam(Player sendTo, String name, String realName) {
+		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(1, TeamUtils.white, "", "", name, realName));
+	}
+
+	private void removeTeamName(Player sendTo, String name, String realName) {
+		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(4, TeamUtils.white, "", "", name, realName));
+	}
+
+	private void changeTeamName(Player sendTo, String name, String realName) {
+		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(3, TeamUtils.white, "", "", name, realName));
 	}
 
 	private Object createObjectivePacket(int mode, String displayName) {
@@ -216,143 +211,148 @@ public class ScoreboardAPI {
 	public class Team {
 		private String prefix = "";
 		private String suffix = "";
-		private String currentPlayer;
+		private String currentPlayer = "";
 		private String old;
 		private String name;
 		private String format;
+		private String resultLine = "";
 		private int slot;
 		private boolean changed;
 		private boolean first = true;
 
 		private Team(int slot, int realPos) {
-			String s = "" + realPos;
-			for (int i = ChatColor.values().length - 1; i > -1; --i)
-				s = s.replace(i + "", ChatColor.values()[i] + "");
-			currentPlayer = s;
-			if (Ref.isOlderThan(13)) {
-				currentPlayer += "§f";
-				format = currentPlayer;
-			} else
-				format = null;
+			String integerInString = "" + realPos;
+			for (int i = 0; i < integerInString.length(); ++i)
+				currentPlayer += ChatColor.values()[integerInString.charAt(i) - '0'];
+			currentPlayer += "§f";
+			format = currentPlayer + "";
 			this.slot = slot;
 			name = "" + slot;
 		}
 
 		public void sendLine(int line) {
 			if (first) {
-				create(p, prefix, suffix, currentPlayer, name, slott == -1 ? line : slott);
+				createTeam(p, prefix, suffix, currentPlayer, name, slott == -1 ? line : slott);
+				changed = false;
+			} else if (changed) {
+				changed = false;
+				modifyTeam(p, prefix, suffix, currentPlayer, name, slott == -1 ? line : slott);
+			}
+			if (first || old != null) {
+				if (old != null)
+					removeTeamName(p, old, name);
+				changeTeamName(p, currentPlayer, name);
+				old = null;
 				first = false;
-				old = null;
-				changed = false;
-				return;
-			}
-			if (old != null) {
-				ScoreboardAPI.this.remove(p, old, name);
-				old = null;
-			}
-			if (changed) {
-				changed = false;
-				modify(p, prefix, suffix, currentPlayer, name, slott == -1 ? line : slott);
 			}
 		}
 
 		public String getValue() {
-			return Ref.isOlderThan(13) ? prefix + currentPlayer.replaceFirst(format, "") + suffix : prefix + suffix;
+			return resultLine;
 		}
 
-		private void setPlayer(String teamName) {
+		private boolean setPlayer(String teamName) {
 			String name = format + teamName;
-			if (currentPlayer == null || !currentPlayer.equals(name)) {
+			if (!currentPlayer.equals(name)) {
 				old = currentPlayer;
 				currentPlayer = name;
+				return true;
 			}
+			return false;
 		}
 
-		public void setValue(String value) {
-			String a = value;
-			if (a == null) {
+		public boolean setValue(String value) {
+			if (old != null)
+				return true; // require update!
+			String text = value;
+			if (text == null || text.isEmpty()) {
+				resultLine = "";
 				if (!prefix.equals(""))
 					changed = true;
 				prefix = "";
 				if (!suffix.equals(""))
 					changed = true;
 				suffix = "";
-				setPlayer("");
-				return;
+				return setPlayer("") || changed;
 			}
-			if (Ref.isOlderThan(13)) {
-				if (a.isEmpty()) {
-					setPlayer("");
-					if (!prefix.equals(""))
-						changed = true;
-					prefix = "";
-					if (!suffix.equals(""))
-						changed = true;
-					suffix = "";
-					return;
-				}
+			if (Ref.isNewerThan(12) && !SPLIT_MODERN_LINES) { // 1.13+ only
+				if (!prefix.equals(text))
+					changed = true;
+				prefix = text;
+				resultLine = prefix;
+				return changed;
+			}
+			List<String> splitted = StringUtils.fixedSplit(text, 16);
+			if (splitted.size() == 1) {
+				if (!prefix.equals(splitted.get(0)))
+					changed = true;
+				prefix = splitted.get(0);
+				if (!suffix.equals(""))
+					changed = true;
+				suffix = "";
+				resultLine = prefix;
+				return setPlayer("") || changed;
+			}
+			if (splitted.size() == 2 && text.length() <= 32) {
+				if (!prefix.equals(splitted.get(0)))
+					changed = true;
+				prefix = splitted.get(0);
 
-				List<String> d = StringUtils.fixedSplit(a, 16);
-				if (a.length() <= 16) {
-					setPlayer("");
-					if (!prefix.equals(d.get(0)))
-						changed = true;
-					prefix = d.get(0);
+				text = text.substring(prefix.length());
+				String lastColors = StringUtils.getLastColors(prefix);
+				if (lastColors.length() != 0)
+					for (int i = lastColors.length() - 1; i > -1; --i)
+						text = "§" + lastColors.charAt(i) + text;
+				splitted = StringUtils.fixedSplit(text, 16 - format.length());
+
+				if (splitted.size() != 1) {
+					splitted = StringUtils.fixedSplit(text, 40 - format.length());
+					boolean someChange = setPlayer(text);
+					resultLine += lastColors.length() == 0 ? text : text.substring(lastColors.length() * 2);
 					if (!suffix.equals(""))
 						changed = true;
 					suffix = "";
-					return;
+					return changed || someChange;
 				}
-				if (a.length() <= 32) {
-					if (!prefix.equals(d.get(0)))
-						changed = true;
-					prefix = d.get(0);
-					setPlayer("");
-					if (d.size() > 1) {
-						if (!suffix.equals(d.get(1)))
-							changed = true;
-						suffix = d.get(1);
-					} else {
-						if (!suffix.equals(""))
-							changed = true;
-						suffix = "";
-					}
-					return;
-				}
-				if (Ref.isOlderThan(8)) {
-					if (!prefix.equals(d.get(0)))
-						changed = true;
-					prefix = d.get(0);
-					d = StringUtils.fixedSplit(a = a.substring(prefix.length()), 17 - format.length());
-					setPlayer(d.get(0));
-					d = StringUtils.fixedSplit(a.substring(d.get(0).length()), 16);
-					if (!suffix.equals(d.get(0)))
-						changed = true;
-					suffix = d.get(0);
-					return;
-				}
-				if (!prefix.equals(d.get(0)))
+				setPlayer("");
+				if (!suffix.equals(splitted.get(0)))
 					changed = true;
-				prefix = d.get(0);
-				a = a.substring(d.get(0).length());
-				d = StringUtils.fixedSplit(a, 18);
-				setPlayer(StringUtils.getLastColors(prefix) + d.get(0));
-				a = a.substring(d.get(0).length());
-				d = StringUtils.fixedSplit(a, 17);
-				if (d.isEmpty()) {
-					if (!suffix.equals(""))
-						changed = true;
-					suffix = "";
-				} else {
-					if (!suffix.equals(d.get(0)))
-						changed = true;
-					suffix = d.get(0);
-				}
-			} else {
-				if (!prefix.equals(a))
-					changed = true;
-				prefix = a;
+				suffix = splitted.get(0);
+				resultLine = prefix + suffix;
+				return changed;
 			}
+			if (!prefix.equals(splitted.get(0)))
+				changed = true;
+			prefix = splitted.get(0);
+
+			resultLine = prefix;
+
+			text = text.substring(prefix.length());
+
+			String lastColors = StringUtils.getLastColors(prefix);
+			if (lastColors.length() != 0)
+				for (int i = lastColors.length() - 1; i > -1; --i)
+					text = "§" + lastColors.charAt(i) + text;
+			splitted = StringUtils.fixedSplit(text, 40 - format.length());
+			boolean someChange = setPlayer(splitted.get(0));
+			resultLine += lastColors.length() == 0 ? splitted.get(0) : splitted.get(0).substring(lastColors.length() * 2);
+
+			text = text.substring(splitted.get(0).length());
+			lastColors = StringUtils.getLastColors(splitted.get(0));
+			if (lastColors.length() != 0)
+				for (int i = lastColors.length() - 1; i > -1; --i)
+					text = "§" + lastColors.charAt(i) + text;
+
+			String result;
+			if (Ref.isNewerThan(12))
+				result = text;
+			else
+				result = StringUtils.fixedSplit(text, 16).get(0);
+			if (!suffix.equals(result))
+				changed = true;
+			suffix = result;
+			resultLine += lastColors.length() == 0 ? suffix : suffix.substring(lastColors.length() * 2);
+			return changed || someChange;
 		}
 	}
 }
