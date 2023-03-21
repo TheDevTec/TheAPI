@@ -689,7 +689,7 @@ public enum XMaterial {
 		int index = name.indexOf(':');
 		if (index != -1) {
 			String mat = format(name.substring(0, index));
-			byte data = StringUtils.getByte(name.substring(index + 1).replace(" ", ""));
+			byte data = StringUtils.getByte(name.substring(index + 1));
 			return data >= 0 && data < MAX_DATA_VALUE ? matchDefinedXMaterial(mat, data) : matchDefinedXMaterial(mat, UNKNOWN_DATA_VALUE);
 		}
 
