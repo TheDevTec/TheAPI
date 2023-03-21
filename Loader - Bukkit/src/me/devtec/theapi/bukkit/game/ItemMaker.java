@@ -396,7 +396,9 @@ public class ItemMaker implements Cloneable {
 	public ItemStack build() {
 		if (material == null)
 			throw new IllegalArgumentException("Material cannot be null");
-		ItemStack item = data != 0 && Ref.isOlderThan(13) ? new ItemStack(material, amount, damage, data) : new ItemStack(material, amount, damage);
+		ItemStack item = data != 0 && Ref.isOlderThan(13) ? new ItemStack(material, amount, (short) 0, data) : new ItemStack(material, amount);
+		if (damage != 0)
+			item.setDurability(damage);
 		if (nbt != null)
 			item = BukkitLoader.getNmsProvider().setNBT(item, nbt.getNBT());
 		if (item.getItemMeta() == null)
