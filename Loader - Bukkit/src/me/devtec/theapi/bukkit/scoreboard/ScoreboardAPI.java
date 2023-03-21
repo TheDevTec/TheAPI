@@ -31,7 +31,7 @@ public class ScoreboardAPI {
 	protected Player p;
 	protected String player;
 	protected String sbname;
-	protected int slott;
+	protected int staticScoreboardScore;
 	protected String name = "";
 	protected boolean destroyed;
 
@@ -46,7 +46,7 @@ public class ScoreboardAPI {
 	 */
 	public ScoreboardAPI(Player player, int slot) {
 		p = player;
-		slott = slot;
+		staticScoreboardScore = slot;
 		this.player = player.getName();
 		sbname = this.player;
 		if (sbname.length() > 16)
@@ -58,7 +58,7 @@ public class ScoreboardAPI {
 	}
 
 	public void setSlot(int slot) {
-		slott = slot;
+		staticScoreboardScore = slot;
 	}
 
 	public void remove() {
@@ -156,8 +156,9 @@ public class ScoreboardAPI {
 		destroyed = false;
 		if (team.old != null && !team.first)
 			BukkitLoader.getPacketHandler().send(p, BukkitLoader.getNmsProvider().packetScoreboardScore(Action.REMOVE, sbname, team.old, 0));
-		team.sendLine(line);
-		BukkitLoader.getPacketHandler().send(p, BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, team.currentPlayer, 0));
+		team.sendLine();
+		BukkitLoader.getPacketHandler().send(p,
+				BukkitLoader.getNmsProvider().packetScoreboardScore(Action.CHANGE, sbname, team.currentPlayer, staticScoreboardScore == -1 ? line : staticScoreboardScore));
 		if (add)
 			data.put(line, team);
 	}
@@ -169,11 +170,11 @@ public class ScoreboardAPI {
 		return result;
 	}
 
-	private void createTeam(Player sendTo, String prefix, String suffix, String name, String realName, int slot) {
+	private void createTeam(Player sendTo, String prefix, String suffix, String name, String realName) {
 		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(0, TeamUtils.white, prefix, suffix, name, realName));
 	}
 
-	private void modifyTeam(Player sendTo, String prefix, String suffix, String name, String realName, int slot) {
+	private void modifyTeam(Player sendTo, String prefix, String suffix, String name, String realName) {
 		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(2, TeamUtils.white, prefix, suffix, name, realName));
 	}
 
@@ -222,21 +223,21 @@ public class ScoreboardAPI {
 
 		private Team(int slot, int realPos) {
 			String integerInString = "" + realPos;
-			for (int i = 0; i < integerInString.length(); ++i)
-				currentPlayer += ChatColor.values()[integerInString.charAt(i) - '0'];
-			currentPlayer += "§f";
-			format = currentPlayer + "";
+			for (int i = ChatColor.values().length - 1; i > -1; --i)
+				integerInString = integerInString.replace(i + "", ChatColor.values()[i] + "");
+			currentPlayer = integerInString + "§f";
+			format = currentPlayer;
 			this.slot = slot;
 			name = "" + slot;
 		}
 
-		public void sendLine(int line) {
+		public void sendLine() {
 			if (first) {
-				createTeam(p, prefix, suffix, currentPlayer, name, slott == -1 ? line : slott);
+				createTeam(p, prefix, suffix, currentPlayer, name);
 				changed = false;
 			} else if (changed) {
 				changed = false;
-				modifyTeam(p, prefix, suffix, currentPlayer, name, slott == -1 ? line : slott);
+				modifyTeam(p, prefix, suffix, currentPlayer, name);
 			}
 			if (first || old != null) {
 				if (old != null)
