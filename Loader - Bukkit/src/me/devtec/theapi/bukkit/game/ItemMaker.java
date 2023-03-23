@@ -131,7 +131,9 @@ public class ItemMaker implements Cloneable {
 			itemFlags.add("HIDE_ATTRIBUTES");
 		} else
 			itemFlags("HIDE_ENCHANTS", "HIDE_ATTRIBUTES");
-		return enchant(Enchantment.DURABILITY, 1);
+		if (enchants == null || enchants != null && enchants.isEmpty())
+			return enchant(Enchantment.DURABILITY, 1);
+		return this;
 	}
 
 	public ItemMaker amount(int amount) {
