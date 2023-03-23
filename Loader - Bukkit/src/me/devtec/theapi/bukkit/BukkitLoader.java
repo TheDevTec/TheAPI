@@ -40,7 +40,6 @@ import me.devtec.shared.dataholder.DataType;
 import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.placeholders.PlaceholderAPI;
 import me.devtec.shared.placeholders.PlaceholderExpansion;
-import me.devtec.shared.scheduler.Scheduler;
 import me.devtec.shared.utility.MemoryCompiler;
 import me.devtec.shared.utility.StreamUtils;
 import me.devtec.shared.utility.StringUtils;
@@ -410,7 +409,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	@Override
 	public void onDisable() {
 		API.setEnabled(false);
-		Scheduler.cancelAll();
 		BukkitLoader.handler.close();
 		PlaceholderAPI.PAPI_BRIDGE = null;
 		if (bossbars != null)
