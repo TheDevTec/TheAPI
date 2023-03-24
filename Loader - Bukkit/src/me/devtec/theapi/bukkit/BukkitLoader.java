@@ -40,9 +40,9 @@ import me.devtec.shared.dataholder.DataType;
 import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.placeholders.PlaceholderAPI;
 import me.devtec.shared.placeholders.PlaceholderExpansion;
+import me.devtec.shared.utility.ColorUtils;
 import me.devtec.shared.utility.MemoryCompiler;
 import me.devtec.shared.utility.StreamUtils;
-import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.versioning.VersionUtils;
 import me.devtec.shared.versioning.VersionUtils.Version;
 import me.devtec.theapi.bukkit.bossbar.BossBar;
@@ -257,16 +257,16 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 	private void broadcastSystemInfo() {
 		CommandSender console = Bukkit.getConsoleSender();
-		console.sendMessage(StringUtils.colorize("&7>"));
-		console.sendMessage(StringUtils.colorize("&7> &5TheAPI &dv" + getDescription().getVersion()));
-		console.sendMessage(StringUtils.colorize("&7>"));
-		console.sendMessage(StringUtils.colorize("&7> &5System info&7:"));
-		console.sendMessage(StringUtils.colorize("&7> &dJava&7: &e" + System.getProperty("java.version") + " &7(" + (ToolProvider.getSystemJavaCompiler() != null ? "&aJDK" : "&aJRE") + "&7)"));
-		console.sendMessage(StringUtils.colorize("&7> &dNms-Provider&7: " + (nmsProvider == null ? "&cNot provided &7(&e" + Ref.serverVersion() + "&7)" : "&e" + nmsProvider.getProviderName())));
-		console.sendMessage(StringUtils.colorize("&7> &dServer type&7: &e" + Ref.serverType()));
-		console.sendMessage(StringUtils.colorize("&7>"));
-		console.sendMessage(StringUtils.colorize("&7> &dSupport&7: &ehttps://discord.gg/pZsDpKXFDf"));
-		console.sendMessage(StringUtils.colorize("&7>"));
+		console.sendMessage(ColorUtils.colorize("&7>"));
+		console.sendMessage(ColorUtils.colorize("&7> &5TheAPI &dv" + getDescription().getVersion()));
+		console.sendMessage(ColorUtils.colorize("&7>"));
+		console.sendMessage(ColorUtils.colorize("&7> &5System info&7:"));
+		console.sendMessage(ColorUtils.colorize("&7> &dJava&7: &e" + System.getProperty("java.version") + " &7(" + (ToolProvider.getSystemJavaCompiler() != null ? "&aJDK" : "&aJRE") + "&7)"));
+		console.sendMessage(ColorUtils.colorize("&7> &dNms-Provider&7: " + (nmsProvider == null ? "&cNot provided &7(&e" + Ref.serverVersion() + "&7)" : "&e" + nmsProvider.getProviderName())));
+		console.sendMessage(ColorUtils.colorize("&7> &dServer type&7: &e" + Ref.serverType()));
+		console.sendMessage(ColorUtils.colorize("&7>"));
+		console.sendMessage(ColorUtils.colorize("&7> &dSupport&7: &ehttps://discord.gg/pZsDpKXFDf"));
+		console.sendMessage(ColorUtils.colorize("&7>"));
 	}
 
 	private void loadProvider() throws Exception {
@@ -363,10 +363,10 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		CommandStructure.create(ConsoleCommandSender.class, (sender, perm, isTablist) -> sender.hasPermission(perm), (sender, structure, args) -> {
 			try {
 				loadProvider();
-				sender.sendMessage(StringUtils.colorize("&5TheAPI &8» &7NmsProvider &asuccesfully &7reloaded."));
+				sender.sendMessage(ColorUtils.colorize("&5TheAPI &8» &7NmsProvider &asuccesfully &7reloaded."));
 			} catch (Exception e) {
-				sender.sendMessage(StringUtils.colorize("&5TheAPI &8» &7An &cerror &7occurred when reloading NmsProvider."));
-				sender.sendMessage(StringUtils.colorize("&5TheAPI &8» &7&nDO NOT MODIFY THIS FILE IF YOU DON'T KNOW WHAT ARE YOU DOING!"));
+				sender.sendMessage(ColorUtils.colorize("&5TheAPI &8» &7An &cerror &7occurred when reloading NmsProvider."));
+				sender.sendMessage(ColorUtils.colorize("&5TheAPI &8» &7&nDO NOT MODIFY THIS FILE IF YOU DON'T KNOW WHAT ARE YOU DOING!"));
 			}
 		}).permission("theapireload.command").build().register("theapireload");
 	}

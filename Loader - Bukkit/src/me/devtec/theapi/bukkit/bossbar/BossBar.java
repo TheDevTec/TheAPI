@@ -11,7 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import me.devtec.shared.Ref;
 import me.devtec.shared.scheduler.Tasker;
-import me.devtec.shared.utility.StringUtils;
+import me.devtec.shared.utility.ColorUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 
 /**
@@ -123,7 +123,7 @@ public class BossBar {
 		if (progress != -1)
 			this.progress = progress * 200 / 100;
 		if (text != null)
-			title = StringUtils.colorize(text);
+			title = ColorUtils.colorize(text);
 
 		if (entityBar == null) {
 			Location loc = holder.getEyeLocation().add(holder.getEyeLocation().getDirection().normalize().multiply(60));

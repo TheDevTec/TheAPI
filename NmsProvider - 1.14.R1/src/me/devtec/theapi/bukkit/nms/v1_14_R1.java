@@ -46,7 +46,7 @@ import me.devtec.shared.components.Component;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.components.HoverEvent;
 import me.devtec.shared.events.EventManager;
-import me.devtec.shared.utility.StringUtils;
+import me.devtec.shared.utility.ParseUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.events.ServerListPingEvent;
 import me.devtec.theapi.bukkit.game.BlockDataStorage;
@@ -607,7 +607,7 @@ public class v1_14_R1 implements NmsProvider {
 
 	@Override
 	public ItemStack toItemStack(BlockDataStorage material) {
-		Item item = CraftMagicNumbers.getItem(material.getType(), StringUtils.getShort(material.getData()));
+		Item item = CraftMagicNumbers.getItem(material.getType(), ParseUtils.getShort(material.getData()));
 		return CraftItemStack.asBukkitCopy(new net.minecraft.server.v1_14_R1.ItemStack(item));
 	}
 

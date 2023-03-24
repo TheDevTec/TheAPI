@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 
 import me.devtec.shared.Ref;
 import me.devtec.shared.components.ComponentAPI;
+import me.devtec.shared.utility.ColorUtils;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.nms.NmsProvider.Action;
@@ -89,7 +90,7 @@ public class ScoreboardAPI {
 	public void setDisplayName(String text) {
 		destroyed = false;
 		String displayName = name;
-		name = StringUtils.colorize(text);
+		name = ColorUtils.colorize(text);
 		if (!Ref.isNewerThan(12) && name.length() > 32)
 			name = name.substring(0, 32);
 		if (!name.equals(displayName))
@@ -104,7 +105,7 @@ public class ScoreboardAPI {
 	}
 
 	public void setLine(int line, String valueText) {
-		String value = StringUtils.colorize(valueText);
+		String value = ColorUtils.colorize(valueText);
 		if (getLine(line) != null && getLine(line).equals(value))
 			return;
 		Team team = null;
@@ -300,7 +301,7 @@ public class ScoreboardAPI {
 				prefix = splitted.get(0);
 
 				text = text.substring(prefix.length());
-				String lastColors = StringUtils.getLastColors(prefix);
+				String lastColors = ColorUtils.getLastColors(prefix);
 				if (lastColors.length() != 0)
 					for (int i = lastColors.length() - 1; i > -1; --i)
 						text = "§" + lastColors.charAt(i) + text;
@@ -329,7 +330,7 @@ public class ScoreboardAPI {
 
 			text = text.substring(prefix.length());
 
-			String lastColors = StringUtils.getLastColors(prefix);
+			String lastColors = ColorUtils.getLastColors(prefix);
 			if (lastColors.length() != 0)
 				for (int i = lastColors.length() - 1; i > -1; --i)
 					text = "§" + lastColors.charAt(i) + text;
@@ -338,7 +339,7 @@ public class ScoreboardAPI {
 			resultLine += lastColors.length() == 0 ? splitted.get(0) : splitted.get(0).substring(lastColors.length() * 2);
 
 			text = text.substring(splitted.get(0).length());
-			lastColors = StringUtils.getLastColors(splitted.get(0));
+			lastColors = ColorUtils.getLastColors(splitted.get(0));
 			if (lastColors.length() != 0)
 				for (int i = lastColors.length() - 1; i > -1; --i)
 					text = "§" + lastColors.charAt(i) + text;

@@ -33,9 +33,9 @@ import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.json.Json;
 import me.devtec.shared.json.modern.ModernJsonReader;
 import me.devtec.shared.json.modern.ModernJsonWriter;
+import me.devtec.shared.utility.ColorUtils;
+import me.devtec.shared.utility.ColorUtils.ColormaticFactory;
 import me.devtec.shared.utility.LibraryLoader;
-import me.devtec.shared.utility.StringUtils;
-import me.devtec.shared.utility.StringUtils.ColormaticFactory;
 import me.devtec.theapi.velocity.commands.hooker.VelocityCommandManager;
 import me.devtec.theapi.velocity.commands.selectors.VelocitySelectorUtils;
 import net.kyori.adventure.text.Component;
@@ -64,16 +64,16 @@ public class VelocityLoader {
 
 	private void broadcastSystemInfo() {
 		ConsoleCommandSource console = server.getConsoleCommandSource();
-		console.sendMessage((Component) ComponentAPI.adventure().fromString(StringUtils.colorize("&7>")));
-		console.sendMessage((Component) ComponentAPI.adventure().fromString(StringUtils.colorize("&7> &5TheAPI &dv" + VelocityLoader.class.getAnnotation(Plugin.class).version())));
-		console.sendMessage((Component) ComponentAPI.adventure().fromString(StringUtils.colorize("&7>")));
-		console.sendMessage((Component) ComponentAPI.adventure().fromString(StringUtils.colorize("&7> &5System info&7:")));
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7>")));
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7> &5TheAPI &dv" + VelocityLoader.class.getAnnotation(Plugin.class).version())));
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7>")));
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7> &5System info&7:")));
 		console.sendMessage((Component) ComponentAPI.adventure()
-				.fromString(StringUtils.colorize("&7> &dJava&7: &e" + System.getProperty("java.version") + " &7(" + (ToolProvider.getSystemJavaCompiler() != null ? "&aJDK" : "&aJRE") + "&7)")));
-		console.sendMessage((Component) ComponentAPI.adventure().fromString(StringUtils.colorize("&7> &dServer type&7: &e" + Ref.serverType())));
-		console.sendMessage((Component) ComponentAPI.adventure().fromString(StringUtils.colorize("&7>")));
-		console.sendMessage((Component) ComponentAPI.adventure().fromString(StringUtils.colorize("&7> &dSupport&7: &ehttps://discord.gg/pZsDpKXFDf")));
-		console.sendMessage((Component) ComponentAPI.adventure().fromString(StringUtils.colorize("&7>")));
+				.fromString(ColorUtils.colorize("&7> &dJava&7: &e" + System.getProperty("java.version") + " &7(" + (ToolProvider.getSystemJavaCompiler() != null ? "&aJDK" : "&aJRE") + "&7)")));
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7> &dServer type&7: &e" + Ref.serverType())));
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7>")));
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7> &dSupport&7: &ehttps://discord.gg/pZsDpKXFDf")));
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7>")));
 	}
 
 	@Subscribe
@@ -140,8 +140,8 @@ public class VelocityLoader {
 			}
 		};
 		API.basics().load();
-		StringUtils.rainbowSplit = Pattern.compile("(&?#[A-Fa-f0-9]{6}([&§][K-Ok-oRr])*|[&§][Xx]([&§][A-Fa-f0-9]){6}([&§][K-Ok-oRr])*|[&§][A-Fa-f0-9K-ORrk-oUuXx]([&§][K-Ok-oRr])*)");
-		StringUtils.color = new ColormaticFactory() {
+		ColorUtils.rainbowSplit = Pattern.compile("(&?#[A-Fa-f0-9]{6}([&§][K-Ok-oRr])*|[&§][Xx]([&§][A-Fa-f0-9]){6}([&§][K-Ok-oRr])*|[&§][A-Fa-f0-9K-ORrk-oUuXx]([&§][K-Ok-oRr])*)");
+		ColorUtils.color = new ColormaticFactory() {
 			// Defaults
 		};
 	}

@@ -45,8 +45,9 @@ import me.devtec.shared.components.Component;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.json.Json;
+import me.devtec.shared.utility.ColorUtils;
+import me.devtec.shared.utility.ParseUtils;
 import me.devtec.shared.utility.StreamUtils;
-import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.nms.GameProfileHandler;
 import me.devtec.theapi.bukkit.nms.GameProfileHandler.PropertyHandler;
@@ -164,7 +165,7 @@ public class ItemMaker implements Cloneable {
 	}
 
 	public ItemMaker displayName(String name) {
-		displayName = StringUtils.colorize(name);
+		displayName = ColorUtils.colorize(name);
 		return this;
 	}
 
@@ -178,7 +179,7 @@ public class ItemMaker implements Cloneable {
 	}
 
 	public ItemMaker lore(List<String> lore) {
-		this.lore = StringUtils.colorize(lore);
+		this.lore = ColorUtils.colorize(lore);
 		return this;
 	}
 
@@ -542,7 +543,7 @@ public class ItemMaker implements Cloneable {
 		}
 
 		public BookItemMaker author(String author) {
-			this.author = StringUtils.colorize(author);
+			this.author = ColorUtils.colorize(author);
 			return this;
 		}
 
@@ -552,7 +553,7 @@ public class ItemMaker implements Cloneable {
 		}
 
 		public BookItemMaker title(String title) {
-			this.title = StringUtils.colorize(title);
+			this.title = ColorUtils.colorize(title);
 			return this;
 		}
 
@@ -577,7 +578,7 @@ public class ItemMaker implements Cloneable {
 
 		public BookItemMaker pages(List<String> pages) {
 			this.pages = new ArrayList<>();
-			for (String string : StringUtils.colorize(pages))
+			for (String string : ColorUtils.colorize(pages))
 				this.pages.add(ComponentAPI.fromString(string));
 			return this;
 		}
@@ -1086,10 +1087,10 @@ public class ItemMaker implements Cloneable {
 		ItemMeta meta = stack.getItemMeta();
 		String displayName = config.getString(path + "displayName", config.getString(path + "display-name"));
 		if (displayName != null)
-			meta.setDisplayName(StringUtils.colorize(displayName));
+			meta.setDisplayName(ColorUtils.colorize(displayName));
 		List<String> lore = config.getStringList(path + "lore");
 		if (!lore.isEmpty())
-			meta.setLore(StringUtils.colorize(lore));
+			meta.setLore(ColorUtils.colorize(lore));
 		if (config.getBoolean(path + "unbreakable"))
 			if (Ref.isNewerThan(10)) // 1.11+
 				meta.setUnbreakable(true);
@@ -1152,8 +1153,8 @@ public class ItemMaker implements Cloneable {
 				String[] split = pattern.split(":");
 				// PotionEffectType type, int duration, int amplifier, boolean ambient, boolean
 				// particles
-				potion.addCustomEffect(new PotionEffect(PotionEffectType.getByName(split[0].toUpperCase()), StringUtils.getInt(split[1]), StringUtils.getInt(split[2]),
-						split.length >= 4 ? StringUtils.getBoolean(split[3]) : true, split.length >= 5 ? StringUtils.getBoolean(split[4]) : true), true);
+				potion.addCustomEffect(new PotionEffect(PotionEffectType.getByName(split[0].toUpperCase()), ParseUtils.getInt(split[1]), ParseUtils.getInt(split[2]),
+						split.length >= 4 ? ParseUtils.getBoolean(split[3]) : true, split.length >= 5 ? ParseUtils.getBoolean(split[4]) : true), true);
 			}
 			if (Ref.isNewerThan(10) && config.getString(path + "potion.color") != null) // 1.11+
 				potion.setColor(Color.fromRGB(Integer.decode(config.getString(path + "potion.color"))));
@@ -1162,22 +1163,22 @@ public class ItemMaker implements Cloneable {
 			EnchantmentStorageMeta book = (EnchantmentStorageMeta) meta;
 			for (String enchant : config.getStringList(path + "enchants")) {
 				String[] split = enchant.split(":");
-				book.addStoredEnchant(EnchantmentAPI.byName(split[0].toUpperCase()).getEnchantment(), split.length >= 2 ? StringUtils.getInt(split[1]) : 1, true);
+				book.addStoredEnchant(EnchantmentAPI.byName(split[0].toUpperCase()).getEnchantment(), split.length >= 2 ? ParseUtils.getInt(split[1]) : 1, true);
 			}
 		} else
 			for (String enchant : config.getStringList(path + "enchants")) {
 				String[] split = enchant.split(":");
-				meta.addEnchant(EnchantmentAPI.byName(split[0].toUpperCase()).getEnchantment(), split.length >= 2 ? StringUtils.getInt(split[1]) : 1, true);
+				meta.addEnchant(EnchantmentAPI.byName(split[0].toUpperCase()).getEnchantment(), split.length >= 2 ? ParseUtils.getInt(split[1]) : 1, true);
 			}
 		if (type == XMaterial.WRITTEN_BOOK || type == XMaterial.WRITABLE_BOOK) {
 			BookMeta book = (BookMeta) meta;
 			if (config.getString(path + "book.author") != null)
-				book.setAuthor(StringUtils.colorize(config.getString(path + "book.author")));
+				book.setAuthor(ColorUtils.colorize(config.getString(path + "book.author")));
 			if (Ref.isNewerThan(9) && config.getString(path + "book.generation") != null) // 1.10+
 				book.setGeneration(Generation.valueOf(config.getString(path + "book.generation").toUpperCase()));
 			if (config.getString(path + "book.title") != null)
-				book.setTitle(StringUtils.colorize(config.getString(path + "book.title")));
-			book.setPages(StringUtils.colorize(config.getStringList(path + "book.pages")));
+				book.setTitle(ColorUtils.colorize(config.getString(path + "book.title")));
+			book.setPages(ColorUtils.colorize(config.getStringList(path + "book.pages")));
 		}
 		stack.setItemMeta(meta);
 		return stack;

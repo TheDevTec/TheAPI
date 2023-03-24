@@ -16,7 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import me.devtec.shared.Ref;
 import me.devtec.shared.components.Component;
 import me.devtec.shared.components.ComponentAPI;
-import me.devtec.shared.utility.StringUtils;
+import me.devtec.shared.utility.ColorUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 
 /**
@@ -111,7 +111,7 @@ public class GUI implements HolderGUI {
 	private boolean put;
 
 	public GUI(String original, int originalSize, Player... p) {
-		title = StringUtils.colorize(original);
+		title = ColorUtils.colorize(original);
 		int size;
 		switch (originalSize) {
 		case 17:
@@ -293,7 +293,7 @@ public class GUI implements HolderGUI {
 
 	@Override
 	public final void setTitle(String value) {
-		String title = StringUtils.colorize(value);
+		String title = ColorUtils.colorize(value);
 		if (Ref.isOlderThan(9) && title.length() >= 32)
 			title = title.substring(0, 32);
 		if (title.equals(this.title))

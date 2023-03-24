@@ -43,9 +43,11 @@ import me.devtec.shared.json.Json.DataReader;
 import me.devtec.shared.json.Json.DataWriter;
 import me.devtec.shared.json.modern.ModernJsonReader;
 import me.devtec.shared.json.modern.ModernJsonWriter;
+import me.devtec.shared.utility.ColorUtils;
+import me.devtec.shared.utility.ColorUtils.ColormaticFactory;
 import me.devtec.shared.utility.LibraryLoader;
+import me.devtec.shared.utility.ParseUtils;
 import me.devtec.shared.utility.StringUtils;
-import me.devtec.shared.utility.StringUtils.ColormaticFactory;
 import me.devtec.theapi.bukkit.commands.hooker.BukkitCommandManager;
 import me.devtec.theapi.bukkit.commands.selectors.BukkitSelectorUtils;
 import me.devtec.theapi.bukkit.game.EnchantmentAPI;
@@ -119,7 +121,7 @@ public class BukkitLibInit {
 			if (dot != -1)
 				version = version.substring(0, dot);
 		}
-		return StringUtils.getInt(version);
+		return ParseUtils.getInt(version);
 	}
 
 	public static void initTheAPI() {
@@ -202,8 +204,8 @@ public class BukkitLibInit {
 			}
 		};
 		API.basics().load();
-		StringUtils.rainbowSplit = Pattern.compile("(#[A-Fa-f0-9]{6}([&§][K-Ok-oRr])*|[&§][Xx]([&§][A-Fa-f0-9]){6}([&§][K-Ok-oRr])*|[&§][A-Fa-f0-9K-ORrk-oUuXx]([&§][K-Ok-oRr])*)");
-		StringUtils.color = new ColormaticFactory() {
+		ColorUtils.rainbowSplit = Pattern.compile("(#[A-Fa-f0-9]{6}([&§][K-Ok-oRr])*|[&§][Xx]([&§][A-Fa-f0-9]){6}([&§][K-Ok-oRr])*|[&§][A-Fa-f0-9K-ORrk-oUuXx]([&§][K-Ok-oRr])*)");
+		ColorUtils.color = new ColormaticFactory() {
 			String rainbow = "c6ea9b5";
 			char[] chars = rainbow.toCharArray();
 			AtomicInteger position = new AtomicInteger(0);

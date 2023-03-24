@@ -18,7 +18,7 @@ import me.devtec.shared.Ref;
 import me.devtec.shared.components.Component;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.dataholder.StringContainer;
-import me.devtec.shared.utility.StringUtils;
+import me.devtec.shared.utility.ColorUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 
@@ -37,7 +37,7 @@ public class AnvilGUI implements HolderGUI {
 	private String text = "";
 
 	public AnvilGUI(String original, Player... p) {
-		title = StringUtils.colorize(original);
+		title = ColorUtils.colorize(original);
 		if (Ref.isOlderThan(9) && title.length() >= 32)
 			title = title.substring(0, 32);
 		inv = Bukkit.createInventory(null, InventoryType.ANVIL, title);
@@ -154,7 +154,7 @@ public class AnvilGUI implements HolderGUI {
 
 	@Override
 	public final void setTitle(String value) {
-		title = StringUtils.colorize(value);
+		title = ColorUtils.colorize(value);
 		if (Ref.isOlderThan(9) && title.length() >= 32)
 			title = title.substring(0, 32);
 		if (title.equals(title))
