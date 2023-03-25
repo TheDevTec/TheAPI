@@ -186,6 +186,7 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 							try {
 								Thread.sleep(50);
 							} catch (InterruptedException e) {
+								future.completeExceptionally(e);
 								break;
 							}
 							Object connection = BukkitLoader.getNmsProvider().getPlayerConnection(player);
@@ -213,6 +214,7 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 							try {
 								Thread.sleep(50);
 							} catch (InterruptedException e) {
+								future.completeExceptionally(e);
 								break;
 							}
 							Object get = BukkitLoader.getNmsProvider().getNetworkChannel(BukkitLoader.getNmsProvider().getConnectionNetwork(BukkitLoader.getNmsProvider().getPlayerConnection(player)));

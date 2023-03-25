@@ -217,6 +217,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 							try {
 								Thread.sleep(25);
 							} catch (InterruptedException e) {
+								future.completeExceptionally(e);
 								break;
 							}
 							Object connection = BukkitLoader.getNmsProvider().getPlayerConnection(player);
@@ -244,6 +245,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 							try {
 								Thread.sleep(25);
 							} catch (InterruptedException e) {
+								future.completeExceptionally(e);
 								break;
 							}
 							Object get = BukkitLoader.getNmsProvider().getNetworkChannel(BukkitLoader.getNmsProvider().getConnectionNetwork(BukkitLoader.getNmsProvider().getPlayerConnection(player)));
