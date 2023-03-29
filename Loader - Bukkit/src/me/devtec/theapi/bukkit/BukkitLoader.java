@@ -487,7 +487,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	private void getAllJarFiles() throws URISyntaxException {
 		StringContainer args = new StringContainer(1024);
 		CodeSource source = Bukkit.getServer().getClass().getProtectionDomain().getCodeSource();
-		if (source == null)
+		if (source == null || source.getLocation() == null)
 			source = Ref.nms("server.dedicated", "DedicatedServer").getProtectionDomain().getCodeSource();
 		File file = new File(source.getLocation().toURI());
 		String fixedPath = file.getName();
