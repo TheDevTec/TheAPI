@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
+import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -135,18 +136,19 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			Ref.set(Bukkit.getServer(), "commandMap",
 					new LegacySimpleCommandMap(Bukkit.getServer(), (Map<String, Command>) Ref.get(Ref.get(Bukkit.getPluginManager(), "commandMap"), "knownCommands")));
 
-		if (new File("spigot.yml").exists() && Config.loadFromString(StreamUtils.fromStream(new File("spigot.yml"))).getBoolean("settings.late-bind"))
-			new Thread(() -> { // ASYNC
-				if (Ref.isNewerThan(7))
-					handler = new PacketHandlerModern(true);
-				else
-					handler = (PacketHandler<?>) Ref.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy", true);
-			}).start();
+		if (nmsProvider != null)
+			if (new File("spigot.yml").exists() && Config.loadFromString(StreamUtils.fromStream(new File("spigot.yml"))).getBoolean("settings.late-bind"))
+				new Thread(() -> { // ASYNC
+					if (Ref.isNewerThan(7))
+						handler = new PacketHandlerModern(true);
+					else
+						handler = (PacketHandler<?>) Ref.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy", true);
+				}).start();
 
-		else if (Ref.isNewerThan(7))
-			handler = new PacketHandlerModern(false);
-		else
-			handler = (PacketHandler<?>) Ref.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy", false);
+			else if (Ref.isNewerThan(7))
+				handler = new PacketHandlerModern(false);
+			else
+				handler = (PacketHandler<?>) Ref.newInstanceByClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy", false);
 
 		resource = Ref.nms("network.protocol.game", "PacketPlayInResourcePackStatus");
 		close = Ref.nms("network.protocol.game", "PacketPlayInCloseWindow");
@@ -484,7 +486,10 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 	private void getAllJarFiles() throws URISyntaxException {
 		StringContainer args = new StringContainer(1024);
-		File file = new File(Bukkit.getServer().getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+		CodeSource source = Bukkit.getServer().getClass().getProtectionDomain().getCodeSource();
+		if (source == null)
+			source = Ref.nms("server.dedicated", "DedicatedServer").getProtectionDomain().getCodeSource();
+		File file = new File(source.getLocation().toURI());
 		String fixedPath = file.getName();
 		while (file.getParentFile() != null && !isInsidePath(file.getParentFile().toPath(), new File(System.getProperty("java.class.path")).toPath())) {
 			fixedPath = file.getParentFile().getName() + "/" + fixedPath;
