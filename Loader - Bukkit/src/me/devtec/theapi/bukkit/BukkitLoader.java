@@ -29,7 +29,6 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
-import org.bukkit.event.player.PlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -272,7 +271,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	}
 
 	private void loadProvider() throws Exception {
-		if (ToolProvider.getSystemJavaCompiler() != null) { // JDK
+		if (ToolProvider.getSystemJavaCompiler() == null) { // JDK
 			getAllJarFiles();
 			checkForUpdateAndDownload();
 			if (new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java").exists()) {
@@ -380,12 +379,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
-	public void onPreLoginEvent(PlayerPreLoginEvent e) { // fix uuid - premium login?
-		if (e.getResult() == org.bukkit.event.player.PlayerPreLoginEvent.Result.ALLOWED)
-			API.offlineCache().setLookup(e.getUniqueId(), e.getName());
-	}
-
-	@EventHandler(priority = EventPriority.NORMAL)
 	public void onLoginEvent(PlayerLoginEvent e) { // fix uuid - premium login?
 		if (e.getResult() == Result.ALLOWED) {
 			API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getName());
@@ -487,7 +480,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	private void getAllJarFiles() throws URISyntaxException {
 		StringContainer args = new StringContainer(1024);
 		CodeSource source = Bukkit.getServer().getClass().getProtectionDomain().getCodeSource();
-		if(source!=null){
+		if (source != null) {
 			File file = new File(source.getLocation().toURI());
 			String fixedPath = file.getName();
 			while (file.getParentFile() != null && !isInsidePath(file.getParentFile().toPath(), new File(System.getProperty("java.class.path")).toPath())) {
