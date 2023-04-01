@@ -1,11 +1,8 @@
 package me.devtec.theapi.bukkit;
 
 import java.io.File;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Path;
-import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -272,7 +269,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 	private void loadProvider() throws Exception {
 		if (ToolProvider.getSystemJavaCompiler() == null) { // JDK
-			getAllJarFiles();
 			checkForUpdateAndDownload();
 			if (new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java").exists()) {
 				nmsProvider = (NmsProvider) new MemoryCompiler("me.devtec.theapi.bukkit.nms." + Ref.serverVersion(), new File("plugins/TheAPI/NmsProviders/" + Ref.serverVersion() + ".java"))
@@ -475,41 +471,5 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		} catch (Exception e) {
 			Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §eNot found NmsProvider for your server version, do you have your own?");
 		}
-	}
-
-	private void getAllJarFiles() throws URISyntaxException {
-		StringContainer args = new StringContainer(1024);
-		CodeSource source = Bukkit.getServer().getClass().getProtectionDomain().getCodeSource();
-		if (source != null) {
-			File file = new File(source.getLocation().toURI());
-			String fixedPath = file.getName();
-			while (file.getParentFile() != null && !isInsidePath(file.getParentFile().toPath(), new File(System.getProperty("java.class.path")).toPath())) {
-				fixedPath = file.getParentFile().getName() + "/" + fixedPath;
-				file = file.getParentFile();
-			}
-			MemoryCompiler.allJars += (System.getProperty("os.name").toLowerCase().contains("win") ? ";" : ":") + "./" + fixedPath;
-		}
-		addAllJarFiles(args, new File("plugins"), false); // Plugins
-		addAllJarFiles(args, new File("libraries"), true); // Libraries
-		MemoryCompiler.allJars += args.toString();
-	}
-
-	private boolean isInsidePath(Path current, Path file) {
-		return current.equals(file.toAbsolutePath().getParent());
-	}
-
-	private void addAllJarFiles(StringContainer args, File folder, boolean sub) {
-		if (!folder.exists())
-			return;
-		File[] files = folder.listFiles();
-
-		char splitChar = System.getProperty("os.name").toLowerCase().contains("win") ? ';' : ':';
-
-		if (files != null)
-			for (File file : files)
-				if (file.isDirectory() && sub)
-					addAllJarFiles(args, file, sub);
-				else if (file.getName().endsWith(".jar"))
-					args.append(splitChar).append('.').append('/').append(file.getPath());
 	}
 }
