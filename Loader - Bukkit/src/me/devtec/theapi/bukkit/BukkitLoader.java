@@ -487,15 +487,15 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	private void getAllJarFiles() throws URISyntaxException {
 		StringContainer args = new StringContainer(1024);
 		CodeSource source = Bukkit.getServer().getClass().getProtectionDomain().getCodeSource();
-		if (source == null || source.getLocation() == null)
-			source = Ref.nms("server.dedicated", "DedicatedServer").getProtectionDomain().getCodeSource();
-		File file = new File(source.getLocation().toURI());
-		String fixedPath = file.getName();
-		while (file.getParentFile() != null && !isInsidePath(file.getParentFile().toPath(), new File(System.getProperty("java.class.path")).toPath())) {
-			fixedPath = file.getParentFile().getName() + "/" + fixedPath;
-			file = file.getParentFile();
+		if(source!=null){
+			File file = new File(source.getLocation().toURI());
+			String fixedPath = file.getName();
+			while (file.getParentFile() != null && !isInsidePath(file.getParentFile().toPath(), new File(System.getProperty("java.class.path")).toPath())) {
+				fixedPath = file.getParentFile().getName() + "/" + fixedPath;
+				file = file.getParentFile();
+			}
+			MemoryCompiler.allJars += (System.getProperty("os.name").toLowerCase().contains("win") ? ";" : ":") + "./" + fixedPath;
 		}
-		MemoryCompiler.allJars += (System.getProperty("os.name").toLowerCase().contains("win") ? ";" : ":") + "./" + fixedPath;
 		addAllJarFiles(args, new File("plugins"), false); // Plugins
 		addAllJarFiles(args, new File("libraries"), true); // Libraries
 		MemoryCompiler.allJars += args.toString();
