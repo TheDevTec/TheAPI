@@ -44,17 +44,19 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 		sub.setStrikethrough(value.style().decorations().getOrDefault(TextDecoration.STRIKETHROUGH, State.NOT_SET) == State.TRUE);
 		sub.setUnderlined(value.style().decorations().getOrDefault(TextDecoration.UNDERLINED, State.NOT_SET) == State.TRUE);
 
-		if (value.hoverEvent() != null) {
-			if (value.hoverEvent().action() == Action.SHOW_TEXT)
-				sub.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, toComponent((net.kyori.adventure.text.Component) value.hoverEvent().value())));
+		if (value.hoverEvent() != null && value.hoverEvent().action() == Action.SHOW_TEXT)
+			sub.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, toComponent((net.kyori.adventure.text.Component) value.hoverEvent().value())));
 
-			//Actually unsupported
-			//if (value.hoverEvent().action() == Action.SHOW_ITEM)
-			//	sub.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, toComponent((net.kyori.adventure.text.Component) value.hoverEvent().value())));
+		// Actually unsupported
+		// if (value.hoverEvent().action() == Action.SHOW_ITEM)
+		// sub.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM,
+		// toComponent((net.kyori.adventure.text.Component)
+		// value.hoverEvent().value())));
 
-			//if (value.hoverEvent().action() == Action.SHOW_ENTITY)
-			//	sub.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ENTITY, toComponent((net.kyori.adventure.text.Component) value.hoverEvent().value())));
-		}
+		// if (value.hoverEvent().action() == Action.SHOW_ENTITY)
+		// sub.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ENTITY,
+		// toComponent((net.kyori.adventure.text.Component)
+		// value.hoverEvent().value())));
 		if (value.clickEvent() != null)
 			sub.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(value.clickEvent().action().name()), value.clickEvent().value()));
 		sub.setInsertion(value.insertion());
