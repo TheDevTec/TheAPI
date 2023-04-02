@@ -3,6 +3,7 @@ package me.devtec.theapi.bukkit.commands.selectors;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -13,6 +14,7 @@ import org.bukkit.entity.Player;
 
 import me.devtec.shared.commands.manager.SelectorUtils;
 import me.devtec.shared.commands.selectors.Selector;
+import me.devtec.shared.utility.ParseUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.xseries.XMaterial;
 
@@ -35,7 +37,7 @@ public class BukkitSelectorUtils implements SelectorUtils<CommandSender> {
 			list.add("false");
 			break;
 		case ENTITY_SELECTOR:
-			if ((s instanceof Player ? getPlayers(s) : BukkitLoader.getOnlinePlayers()).size() == 0)
+			if (getPlayers(s).size() == 0)
 				break;
 			list.add("*");
 			list.add("@a");
@@ -44,7 +46,7 @@ public class BukkitSelectorUtils implements SelectorUtils<CommandSender> {
 			list.add("@s");
 			list.add("@p");
 		case PLAYER:
-			for (Player player : s instanceof Player ? getPlayers(s) : BukkitLoader.getOnlinePlayers())
+			for (Player player : getPlayers(s))
 				list.add(player.getName());
 			break;
 		case ENTITY_TYPE:
@@ -68,15 +70,20 @@ public class BukkitSelectorUtils implements SelectorUtils<CommandSender> {
 	}
 
 	private Collection<? extends Player> getPlayers(CommandSender s) {
-		List<Player> players = new ArrayList<>();
-		for (Player p : BukkitLoader.getOnlinePlayers())
-			if (((Player) s).canSee(p))
-				players.add(p);
-		return players;
+		if (s instanceof Player) {
+			List<Player> players = new ArrayList<>();
+			for (Player p : BukkitLoader.getOnlinePlayers())
+				if (((Player) s).canSee(p))
+					players.add(p);
+			return players;
+		}
+		return BukkitLoader.getOnlinePlayers();
 	}
 
 	@Override
 	public boolean check(CommandSender s, Selector selector, String value) {
+		if (value == null || value.isEmpty())
+			return false;
 		switch (selector) {
 		case BIOME_TYPE:
 			try {
@@ -86,23 +93,21 @@ public class BukkitSelectorUtils implements SelectorUtils<CommandSender> {
 			}
 			break;
 		case MATERIAL:
-			return value != null && !value.isEmpty() && XMaterial.matchXMaterial(value).isPresent() && XMaterial.matchXMaterial(value).get().isSupported();
+			Optional<XMaterial> material = XMaterial.matchXMaterial(value);
+			return material.isPresent() && material.get().isSupported();
 		case BOOLEAN:
 			return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");
 		case ENTITY_SELECTOR:
-			boolean match = value.matches("@[AaEeRrSsPp]|\\*");
-			if (match)
+			char first = value.charAt(0);
+			char second = value.length() > 1 ? toLowerCase(value.charAt(1)) : 0;
+			if (first == '@' && (second == 'a' || second == 'e' || second == 'r' || second == 's' || second == 'p' && value.length() == 2) || first == '*' && value.length() == 1)
 				return true;
 			// Else continue to player
 		case PLAYER:
-			if (value.isEmpty())
-				return false;
 			Player player = Bukkit.getPlayer(value);
 			if (player == null)
 				return false;
-			if (s instanceof Player && ((Player) s).canSee(player))
-				return true;
-			return true;
+			return s instanceof Player ? ((Player) s).canSee(player) : true;
 		case ENTITY_TYPE:
 			try {
 				EntityType.valueOf(value.toUpperCase());
@@ -111,24 +116,18 @@ public class BukkitSelectorUtils implements SelectorUtils<CommandSender> {
 			}
 			break;
 		case INTEGER:
-			try {
-				Integer.parseInt(value);
-				return true;
-			} catch (NoSuchFieldError | Exception err) {
-			}
-			break;
+			return ParseUtils.isInt(value);
 		case NUMBER:
-			try {
-				Double.parseDouble(value);
-				return true;
-			} catch (NoSuchFieldError | Exception err) {
-			}
-			break;
+			return ParseUtils.isNumber(value);
 		case WORLD:
 			return Bukkit.getWorld(value) != null;
 		default:
 			break;
 		}
 		return false;
+	}
+
+	private char toLowerCase(int charAt) {
+		return (char) (charAt > 100 ? charAt + 32 : charAt);
 	}
 }

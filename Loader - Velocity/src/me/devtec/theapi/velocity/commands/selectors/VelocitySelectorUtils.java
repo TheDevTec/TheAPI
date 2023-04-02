@@ -9,6 +9,7 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 
 import me.devtec.shared.commands.manager.SelectorUtils;
 import me.devtec.shared.commands.selectors.Selector;
+import me.devtec.shared.utility.ParseUtils;
 import me.devtec.theapi.velocity.VelocityLoader;
 
 public class VelocitySelectorUtils implements SelectorUtils<CommandSource> {
@@ -51,39 +52,32 @@ public class VelocitySelectorUtils implements SelectorUtils<CommandSource> {
 
 	@Override
 	public boolean check(CommandSource s, Selector selector, String value) {
+		if (value == null || value.isEmpty())
+			return false;
 		switch (selector) {
 		case BOOLEAN:
 			return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");
 		case ENTITY_SELECTOR:
-			boolean match = value.matches("@[AaEeRrSsPp]|\\*");
-			if (match)
+			char first = value.charAt(0);
+			char second = value.length() > 1 ? toLowerCase(value.charAt(1)) : 0;
+			if (first == '@' && (second == 'a' || second == 'e' || second == 'r' || second == 's' || second == 'p' && value.length() == 2) || first == '*' && value.length() == 1)
 				return true;
 			// Else continue to player
 		case PLAYER:
-			if (value.isEmpty())
-				return false;
 			return !VelocityLoader.getServer().matchPlayer(value).isEmpty();
 		case INTEGER:
-			try {
-				Integer.parseInt(value);
-				return true;
-			} catch (NoSuchFieldError | Exception err) {
-			}
-			break;
+			return ParseUtils.isInt(value);
 		case NUMBER:
-			try {
-				Double.parseDouble(value);
-				return true;
-			} catch (NoSuchFieldError | Exception err) {
-			}
-			break;
+			return ParseUtils.isNumber(value);
 		case SERVER:
-			if (value.isEmpty())
-				return false;
 			return VelocityLoader.getServer().getServer(value).isPresent();
 		default:
 			break;
 		}
 		return false;
+	}
+
+	private char toLowerCase(int charAt) {
+		return (char) (charAt > 100 ? charAt + 32 : charAt);
 	}
 }
