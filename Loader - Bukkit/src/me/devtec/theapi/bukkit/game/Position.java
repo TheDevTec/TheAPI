@@ -17,6 +17,7 @@ import org.bukkit.util.Vector;
 
 import me.devtec.shared.Ref;
 import me.devtec.shared.json.Json;
+import me.devtec.shared.utility.MathUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 
 public class Position implements Cloneable {
@@ -347,18 +348,15 @@ public class Position implements Cloneable {
 	}
 
 	public int getBlockX() {
-		int floor = (int) x;
-		return floor == x ? floor : floor - (int) (Double.doubleToRawLongBits(x) >>> 63);
+		return MathUtils.floor(x);
 	}
 
 	public int getBlockY() {
-		int floor = (int) y;
-		return floor == y ? floor : floor - (int) (Double.doubleToRawLongBits(y) >>> 63);
+		return MathUtils.floor(y);
 	}
 
 	public int getBlockZ() {
-		int floor = (int) z;
-		return floor == z ? floor : floor - (int) (Double.doubleToRawLongBits(z) >>> 63);
+		return MathUtils.floor(z);
 	}
 
 	public float getYaw() {
