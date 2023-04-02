@@ -348,10 +348,10 @@ public class BukkitLibInit {
 						boolean isHex = true;
 						for (int ic = 1; ic < 7; ++ic) {
 							char cn = text.charAt(i + ic);
-							if (cn >= 64 && cn <= 70 || cn >= 97 && cn <= 102 || cn >= 48 && cn <= 57)
-								continue;
-							isHex = false;
-							break;
+							if (!(cn >= 64 && cn <= 70 || cn >= 97 && cn <= 102 || cn >= 48 && cn <= 57)) {
+								isHex = false;
+								break;
+							}
 						}
 						if (isHex) {
 							container.append('§').append('x');

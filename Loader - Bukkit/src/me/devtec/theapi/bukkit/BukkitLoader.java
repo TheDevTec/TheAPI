@@ -421,9 +421,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			handler.add(e.getPlayer());
 			Tablist tab = Tablist.of(e.getPlayer());
 			for (Player player : BukkitLoader.getOnlinePlayers())
-				if (e.getPlayer().canSee(player))
-					if (!player.getUniqueId().equals(e.getPlayer().getUniqueId()))
-						Tablist.of(player).addEntry(tab.asEntry(tab));
+				if (!player.getUniqueId().equals(e.getPlayer().getUniqueId()) && e.getPlayer().canSee(player))
+					Tablist.of(player).addEntry(tab.asEntry(tab));
 		}
 	}
 
