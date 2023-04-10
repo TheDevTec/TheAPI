@@ -23,6 +23,7 @@ import java.util.zip.ZipEntry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -50,6 +51,7 @@ import me.devtec.shared.utility.ParseUtils;
 import me.devtec.shared.utility.StringUtils;
 import me.devtec.theapi.bukkit.commands.hooker.BukkitCommandManager;
 import me.devtec.theapi.bukkit.commands.selectors.BukkitSelectorUtils;
+import me.devtec.theapi.bukkit.game.BlockDataStorage;
 import me.devtec.theapi.bukkit.game.EnchantmentAPI;
 import me.devtec.theapi.bukkit.game.ItemMaker;
 import me.devtec.theapi.bukkit.game.Position;
@@ -583,6 +585,41 @@ public class BukkitLibInit {
 				for (Entry<String, Double> enchant : map.entrySet())
 					nbt.enchant(EnchantmentAPI.byName(enchant.getKey()).getEnchantment(), (int) (double) enchant.getValue());
 				return nbt;
+			}
+		});
+
+		Json.registerDataReader(new DataReader() {
+
+			@Override
+			public Object read(Map<String, Object> json) {
+				Object nbt = json.get("nbt");
+				return new BlockDataStorage(Material.getMaterial(json.get("material").toString()), (byte) (double) json.get("itemData"), json.get("data").toString(),
+						nbt == null ? null : nbt.toString());
+			}
+
+			@Override
+			public boolean isAllowed(Map<String, Object> json) {
+				return "BlockDataStorage".equals(json.get("type"));
+			}
+		});
+		Json.registerDataWriter(new DataWriter() {
+
+			@Override
+			public boolean isAllowed(Object obj) {
+				return obj instanceof BlockDataStorage;
+			}
+
+			@Override
+			public Map<String, Object> write(Object obj) {
+				BlockDataStorage data = (BlockDataStorage) obj;
+				Map<String, Object> map = new HashMap<>();
+				map.put("type", "BlockDataStorage");
+				map.put("material", data.getType().name());
+				map.put("itemData", data.getItemData());
+				map.put("data", data.getData() == null ? "" : data.getData());
+				if (data.getNBT() != null)
+					map.put("nbt", data.getNBT());
+				return map;
 			}
 		});
 	}
