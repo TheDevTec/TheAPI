@@ -346,7 +346,25 @@ public class BukkitLibInit {
 				StringContainer container = new StringContainer(text.length() + 14 * 2);
 				for (int i = 0; i < text.length(); ++i) {
 					char c = text.charAt(i);
-					if (c == '#' && i + 6 < text.length()) {
+					if (c == '&' && i + 7 < text.length() && text.charAt(i + 1) == '#') {
+						boolean isHex = true;
+						for (int ic = 2; ic < 8; ++ic) {
+							char cn = text.charAt(i + ic);
+							if (!(cn >= 64 && cn <= 70 || cn >= 97 && cn <= 102 || cn >= 48 && cn <= 57)) {
+								isHex = false;
+								break;
+							}
+						}
+						if (isHex) {
+							container.append('§').append('x');
+							for (int ic = 1; ic < 7; ++ic) {
+								char cn = text.charAt(i + ic);
+								container.append('§').append(cn);
+							}
+							i += 6;
+							continue;
+						}
+					} else if (c == '#' && i + 6 < text.length()) {
 						boolean isHex = true;
 						for (int ic = 1; ic < 7; ++ic) {
 							char cn = text.charAt(i + ic);
