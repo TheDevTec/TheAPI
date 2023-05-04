@@ -357,11 +357,11 @@ public class BukkitLibInit {
 						}
 						if (isHex) {
 							container.append('§').append('x');
-							for (int ic = 1; ic < 7; ++ic) {
+							for (int ic = 2; ic < 8; ++ic) {
 								char cn = text.charAt(i + ic);
 								container.append('§').append(cn);
 							}
-							i += 6;
+							i += 7;
 							continue;
 						}
 					} else if (c == '#' && i + 6 < text.length()) {

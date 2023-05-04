@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -182,7 +183,34 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 
 	@Override
 	public void add(Player player) {
-		injectChannelInternal(player, get(player));
+		Future<Channel> future = getFuture(player);
+		try {
+			Channel result = future.get(3, TimeUnit.SECONDS);
+			if (result != null)
+				injectChannelInternal(player, result);
+			else
+				new Tasker() {
+					@Override
+					public void run() {
+						try {
+							Channel result = future.get();
+							injectChannelInternal(player, result);
+						} catch (Exception errr) {
+						}
+					}
+				}.runTask();
+		} catch (Exception err) {
+			new Tasker() {
+				@Override
+				public void run() {
+					try {
+						Channel result = future.get();
+						injectChannelInternal(player, result);
+					} catch (Exception errr) {
+					}
+				}
+			}.runTask();
+		}
 	}
 
 	private PacketInterceptor injectChannelInternal(Player a, Channel channel) {
