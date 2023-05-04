@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -140,6 +141,7 @@ import net.minecraft.world.level.block.state.IBlockDataHolder;
 import net.minecraft.world.level.block.state.properties.IBlockState;
 import net.minecraft.world.level.chunk.Chunk.EnumTileEntityState;
 import net.minecraft.world.level.chunk.ChunkSection;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.scores.ScoreboardObjective;
 import net.minecraft.world.scores.criteria.IScoreboardCriteria.EnumScoreboardHealthDisplay;
 
@@ -174,7 +176,9 @@ public class v1_19_R3 implements NmsProvider {
 
 	@Override
 	public Object getChunk(Chunk chunk) {
-		return ((CraftChunk) chunk).getHandle();
+		if (isPaperChunkRework)
+			return ((CraftChunk) chunk).getHandle(ChunkStatus.o);
+		return Ref.invoke(chunk, getNmsChunkHandle);
 	}
 
 	@Override
@@ -602,9 +606,13 @@ public class v1_19_R3 implements NmsProvider {
 		return CraftItemStack.asBukkitCopy(item.ad_());
 	}
 
+	static Method getNmsChunkHandle = Ref.method(CraftChunk.class, "getHandle");
+
 	@Override
 	public Object getChunk(World world, int x, int z) {
-		return ((CraftChunk) world.getChunkAt(x, z)).getHandle();
+		if (isPaperChunkRework)
+			return ((CraftChunk) world.getChunkAt(x, z)).getHandle(ChunkStatus.o);
+		return Ref.invoke(world.getChunkAt(x, z), getNmsChunkHandle);
 	}
 
 	@Override
@@ -753,9 +761,13 @@ public class v1_19_R3 implements NmsProvider {
 		return CraftMagicNumbers.getBlock(state.getType(), state.getRawData());
 	}
 
+	static Field bukkitChunk = Ref.field(net.minecraft.world.level.chunk.Chunk.class, "bukkitChunk");
+
 	@Override
 	public Chunk toBukkitChunk(Object nmsChunk) {
-		return ((net.minecraft.world.level.chunk.Chunk) nmsChunk).bukkitChunk;
+		if (isPaperChunkRework)
+			return new CraftChunk((net.minecraft.world.level.chunk.Chunk) nmsChunk);
+		return (Chunk) Ref.get(nmsChunk, bukkitChunk);
 	}
 
 	@Override

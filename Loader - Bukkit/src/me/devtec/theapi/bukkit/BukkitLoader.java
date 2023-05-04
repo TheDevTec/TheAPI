@@ -263,11 +263,15 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		console.sendMessage(ColorUtils.colorize("&7>"));
 		console.sendMessage(ColorUtils.colorize("&7> &5System info&7:"));
 		console.sendMessage(ColorUtils.colorize("&7> &dJava&7: &e" + System.getProperty("java.version") + " &7(" + (ToolProvider.getSystemJavaCompiler() != null ? "&aJDK" : "&aJRE") + "&7)"));
-		console.sendMessage(ColorUtils.colorize("&7> &dNms-Provider&7: " + (nmsProvider == null ? "&cNot provided &7(&e" + Ref.serverVersion() + "&7)" : "&e" + nmsProvider.getProviderName())));
+		console.sendMessage(ColorUtils.colorize("&7> &dNmsProvider&7: " + (nmsProvider == null ? "&cNot provided &7(&e" + Ref.serverVersion() + "&7)" : "&e" + nmsProvider.getProviderName())));
 		console.sendMessage(ColorUtils.colorize("&7> &dServer type&7: &e" + Ref.serverType()));
 		console.sendMessage(ColorUtils.colorize("&7>"));
 		console.sendMessage(ColorUtils.colorize("&7> &dSupport&7: &ehttps://discord.gg/pZsDpKXFDf"));
 		console.sendMessage(ColorUtils.colorize("&7>"));
+		if (nmsProvider == null) {
+			console.sendMessage(ColorUtils.colorize("&7>"));
+			console.sendMessage(ColorUtils.colorize("&7> &cWarning! Because NmsProvider isn't provided, PacketHandler is disabled."));
+		}
 	}
 
 	private void loadProvider() throws Exception {
@@ -418,11 +422,13 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	public void onLoginEvent(PlayerLoginEvent e) { // fix uuid - premium login?
 		if (e.getResult() == Result.ALLOWED) {
 			API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getName());
-			handler.add(e.getPlayer());
-			Tablist tab = Tablist.of(e.getPlayer());
-			for (Player player : BukkitLoader.getOnlinePlayers())
-				if (!player.getUniqueId().equals(e.getPlayer().getUniqueId()) && e.getPlayer().canSee(player))
-					Tablist.of(player).addEntry(tab.asEntry(tab));
+			if (handler != null) {
+				handler.add(e.getPlayer());
+				Tablist tab = Tablist.of(e.getPlayer());
+				for (Player player : BukkitLoader.getOnlinePlayers())
+					if (!player.getUniqueId().equals(e.getPlayer().getUniqueId()) && e.getPlayer().canSee(player))
+						Tablist.of(player).addEntry(tab.asEntry(tab));
+			}
 		}
 	}
 
@@ -439,12 +445,13 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	@Override
 	public void onDisable() {
 		API.setEnabled(false);
-		BukkitLoader.handler.close();
+		if (handler != null) {
+			BukkitLoader.handler.close();
+			if (bossbars != null)
+				for (BossBar bar : new ArrayList<>(bossbars))
+					bar.remove();
+		}
 		PlaceholderAPI.PAPI_BRIDGE = null;
-		if (bossbars != null)
-			for (BossBar bar : new ArrayList<>(bossbars))
-				bar.remove();
-
 		// OfflineCache support!
 		API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save("properties");
 	}
