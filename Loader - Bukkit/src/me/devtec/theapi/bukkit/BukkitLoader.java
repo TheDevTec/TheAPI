@@ -38,6 +38,7 @@ import me.devtec.shared.commands.structures.CommandStructure;
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.dataholder.DataType;
 import me.devtec.shared.dataholder.StringContainer;
+import me.devtec.shared.json.Json;
 import me.devtec.shared.placeholders.PlaceholderAPI;
 import me.devtec.shared.placeholders.PlaceholderExpansion;
 import me.devtec.shared.utility.ColorUtils;
@@ -271,6 +272,10 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		if (nmsProvider == null) {
 			console.sendMessage(ColorUtils.colorize("&7>"));
 			console.sendMessage(ColorUtils.colorize("&7> &cWarning! Because NmsProvider isn't provided, PacketHandler is disabled."));
+		}
+		if (Json.reader().toString().equals("CustomJsonReader") || Json.writer().toString().equals("CustomJsonWriter")) {
+			console.sendMessage(ColorUtils.colorize("&7>"));
+			console.sendMessage(ColorUtils.colorize("&7> &cWarning! &eUsing experimental Json reader & writer."));
 		}
 	}
 

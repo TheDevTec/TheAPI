@@ -64,6 +64,10 @@ public class BungeeLoader extends Plugin implements Listener {
 		console.sendMessage((BaseComponent) ComponentAPI.bungee().fromString(ColorUtils.colorize("&7>")));
 		console.sendMessage((BaseComponent) ComponentAPI.bungee().fromString(ColorUtils.colorize("&7> &dSupport&7: &ehttps://discord.gg/pZsDpKXFDf")));
 		console.sendMessage((BaseComponent) ComponentAPI.bungee().fromString(ColorUtils.colorize("&7>")));
+		if (Json.reader().toString().equals("CustomJsonReader") || Json.writer().toString().equals("CustomJsonWriter")) {
+			console.sendMessage((BaseComponent) ComponentAPI.bungee().fromString(ColorUtils.colorize("&7>")));
+			console.sendMessage((BaseComponent) ComponentAPI.bungee().fromString(ColorUtils.colorize("&7> &cWarning! &eUsing experimental Json reader & writer.")));
+		}
 	}
 
 	@Override
@@ -96,7 +100,9 @@ public class BungeeLoader extends Plugin implements Listener {
 		ComponentAPI.registerTransformer("BUNGEECORD", new BungeeComponentAPI<>());
 		if (Ref.getClass("net.kyori.adventure.text.Component") != null)
 			ComponentAPI.registerTransformer("ADVENTURE", (ComponentTransformer<?>) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.AdventureComponentAPI")));
-		Json.init(new ModernJsonReader(), new ModernJsonWriter()); // Modern version of Guava
+		Config config = new Config("plugins/TheAPI/config.yml");
+		if (!config.getString("default-json-handler", "Guava").equalsIgnoreCase("TheAPI"))
+			Json.init(new ModernJsonReader(), new ModernJsonWriter()); // Modern version of Guava
 
 		// Commands api
 		API.commandsRegister = new BungeeCommandManager();

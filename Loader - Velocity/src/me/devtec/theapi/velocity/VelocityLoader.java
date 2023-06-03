@@ -40,7 +40,7 @@ import me.devtec.theapi.velocity.commands.hooker.VelocityCommandManager;
 import me.devtec.theapi.velocity.commands.selectors.VelocitySelectorUtils;
 import net.kyori.adventure.text.Component;
 
-@Plugin(id = "theapi", name = "TheAPI", version = "10.9", authors = { "DevTec", "StraikerinaCZ" }, url = "https://www.spigotmc.org/resources/72679/")
+@Plugin(id = "theapi", name = "TheAPI", version = "11.0-dev", authors = { "DevTec", "StraikerinaCZ" }, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 
 	// Init static APIs
@@ -74,6 +74,10 @@ public class VelocityLoader {
 		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7>")));
 		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7> &dSupport&7: &ehttps://discord.gg/pZsDpKXFDf")));
 		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7>")));
+		if (Json.reader().toString().equals("CustomJsonReader") || Json.writer().toString().equals("CustomJsonWriter")) {
+			console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7>")));
+			console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7> &cWarning! &eUsing experimental Json reader & writer.")));
+		}
 	}
 
 	@Subscribe
@@ -104,7 +108,9 @@ public class VelocityLoader {
 	public static void initTheAPI() {
 		Ref.init(ServerType.VELOCITY, VelocityServer.class.getPackage().getImplementationVersion()); // Server version
 		ComponentAPI.registerTransformer("ADVENTURE", new AdventureComponentAPI<>());
-		Json.init(new ModernJsonReader(), new ModernJsonWriter()); // Modern version of Guava
+		Config config = new Config("plugins/TheAPI/config.yml");
+		if (!config.getString("default-json-handler", "Guava").equalsIgnoreCase("TheAPI"))
+			Json.init(new ModernJsonReader(), new ModernJsonWriter()); // Modern version of Guava
 		// Commands api
 		API.commandsRegister = new VelocityCommandManager();
 		API.selectorUtils = new VelocitySelectorUtils();

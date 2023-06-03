@@ -140,11 +140,13 @@ public class BukkitLibInit {
 			if (Ref.serverType() == ServerType.PAPER)
 				ComponentAPI.registerTransformer("ADVENTURE", (ComponentTransformer<?>) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.AdventureComponentAPI")));
 		}
-		if (Ref.isNewerThan(7))
-			Json.init(new ModernJsonReader(), new ModernJsonWriter()); // Modern version of Guava
-		else
-			Json.init((JReader) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.json.legacy.LegacyJsonReader")),
-					(JWriter) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.json.legacy.LegacyJsonWriter"))); // 1.7.10
+		Config config = new Config("plugins/TheAPI/config.yml");
+		if (!config.getString("default-json-handler", "Guava").equalsIgnoreCase("TheAPI"))
+			if (Ref.isNewerThan(7))
+				Json.init(new ModernJsonReader(), new ModernJsonWriter()); // Modern version of Guava
+			else
+				Json.init((JReader) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.json.legacy.LegacyJsonReader")),
+						(JWriter) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.json.legacy.LegacyJsonWriter"))); // 1.7.10
 
 		// Commands api
 		API.commandsRegister = new BukkitCommandManager();
@@ -426,7 +428,7 @@ public class BukkitLibInit {
 
 			@Override
 			public Object read(Map<String, Object> map) {
-				return Bukkit.getWorld((UUID) map.get("uuid"));
+				return Bukkit.getWorld(UUID.fromString(map.get("uuid").toString()));
 			}
 		});
 		// location

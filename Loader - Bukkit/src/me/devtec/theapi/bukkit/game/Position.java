@@ -1,6 +1,9 @@
 package me.devtec.theapi.bukkit.game;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
@@ -13,6 +16,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import me.devtec.shared.Ref;
@@ -155,8 +159,8 @@ public class Position implements Cloneable {
 	}
 
 	public Position setWorld(World world) {
-		if (!world.getName().equals(this.world)) {
-			this.world = world.getName();
+		if (world == null ? this.world != null : !world.getName().equals(this.world)) {
+			this.world = world == null ? null : world.getName();
 			cachedChunk = null;
 		}
 		return this;
@@ -451,7 +455,14 @@ public class Position implements Cloneable {
 		Object prev = updatePhysics ? getIBlockData() : null;
 		setAir();
 		Object packet = BukkitLoader.getNmsProvider().packetBlockChange(this, null, 0);
-		BukkitLoader.getPacketHandler().send(getWorld().getPlayers(), packet);
+		Iterator<? extends Player> itr = BukkitLoader.getOnlinePlayers().iterator();
+		List<Player> players = new ArrayList<>();
+		while (itr.hasNext()) {
+			Player player = itr.next();
+			if (player.getWorld().getName().equals(getWorldName()))
+				players.add(player);
+		}
+		BukkitLoader.getPacketHandler().send(players, packet);
 		Position.updateLightAt(this);
 		if (updatePhysics)
 			BukkitLoader.getNmsProvider().updatePhysics(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), prev);
