@@ -421,12 +421,26 @@ public class Position implements Cloneable {
 
 	public static void updateBlockAt(Position pos) {
 		Object packet = BukkitLoader.getNmsProvider().packetBlockChange(pos, pos.getIBlockData(), pos.getData());
-		BukkitLoader.getPacketHandler().send(pos.getWorld().getPlayers(), packet);
+		List<Player> players = new ArrayList<>();
+		Iterator<? extends Player> itr = BukkitLoader.getOnlinePlayers().iterator();
+		while (itr.hasNext()) {
+			Player player = itr.next();
+			if (player.getWorld().getName().equals(pos.getWorldName()))
+				players.add(player);
+		}
+		BukkitLoader.getPacketHandler().send(players, packet);
 	}
 
 	public static void updateBlockAt(Position pos, BlockDataStorage blockData) {
 		Object packet = BukkitLoader.getNmsProvider().packetBlockChange(pos, blockData.getIBlockData(), blockData.getItemData());
-		BukkitLoader.getPacketHandler().send(pos.getWorld().getPlayers(), packet);
+		List<Player> players = new ArrayList<>();
+		Iterator<? extends Player> itr = BukkitLoader.getOnlinePlayers().iterator();
+		while (itr.hasNext()) {
+			Player player = itr.next();
+			if (player.getWorld().getName().equals(pos.getWorldName()))
+				players.add(player);
+		}
+		BukkitLoader.getPacketHandler().send(players, packet);
 	}
 
 	public static void updateLightAt(Position pos) {
@@ -455,8 +469,8 @@ public class Position implements Cloneable {
 		Object prev = updatePhysics ? getIBlockData() : null;
 		setAir();
 		Object packet = BukkitLoader.getNmsProvider().packetBlockChange(this, null, 0);
-		Iterator<? extends Player> itr = BukkitLoader.getOnlinePlayers().iterator();
 		List<Player> players = new ArrayList<>();
+		Iterator<? extends Player> itr = BukkitLoader.getOnlinePlayers().iterator();
 		while (itr.hasNext()) {
 			Player player = itr.next();
 			if (player.getWorld().getName().equals(getWorldName()))
