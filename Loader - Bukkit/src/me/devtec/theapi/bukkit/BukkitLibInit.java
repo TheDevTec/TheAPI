@@ -463,8 +463,8 @@ public class BukkitLibInit {
 
 			@Override
 			public Object read(Map<String, Object> map) {
-				return new Location(Bukkit.getWorld(map.get("world").toString()), (double) (Number) map.get("x"), (double) (Number) map.get("y"), (double) (Number) map.get("z"),
-						(float) (Number) map.get("yaw"), (float) (Number) map.get("pitch"));
+				return new Location(Bukkit.getWorld(map.get("world").toString()), ((Number) map.get("x")).doubleValue(), ((Number) map.get("y")).doubleValue(), ((Number) map.get("z")).doubleValue(),
+						((Number) map.get("yaw")).floatValue(), ((Number) map.get("pitch")).floatValue());
 			}
 		});
 		// position
@@ -499,8 +499,8 @@ public class BukkitLibInit {
 
 			@Override
 			public Object read(Map<String, Object> map) {
-				return new Position(map.get("world").toString(), (double) (Number) map.get("x"), (double) (Number) map.get("y"), (double) (Number) map.get("z"), (float) (Number) map.get("yaw"),
-						(float) (Number) map.get("pitch"));
+				return new Position(map.get("world").toString(), ((Number) map.get("x")).doubleValue(), ((Number) map.get("y")).doubleValue(), ((Number) map.get("z")).doubleValue(),
+						((Number) map.get("yaw")).floatValue(), ((Number) map.get("pitch")).floatValue());
 			}
 		});
 		// itemstack
@@ -583,11 +583,11 @@ public class BukkitLibInit {
 			public Object read(Map<String, Object> map) {
 				ItemMaker maker = ItemMaker.of(XMaterial.matchXMaterial(map.get("type").toString()).orElse(XMaterial.STONE));
 				if (map.containsKey("amount"))
-					maker.amount((int) (Number) map.get("amount"));
+					maker.amount(((Number) map.get("amount")).intValue());
 				if (map.containsKey("durability"))
-					maker.damage((int) (Number) map.get("durability"));
+					maker.damage(((Number) map.get("durability")).intValue());
 				if (map.containsKey("meta.customModelData"))
-					maker.customModel((int) (Number) map.get("meta.customModelData"));
+					maker.customModel(((Number) map.get("meta.customModelData")).intValue());
 				if (map.containsKey("meta.displayName"))
 					maker.displayName(map.get("meta.displayName").toString());
 				if (map.containsKey("meta.itemFlags"))
@@ -597,13 +597,14 @@ public class BukkitLibInit {
 				if (map.containsKey("meta.nbt"))
 					maker.nbt(new NBTEdit(map.get("meta.nbt").toString()));
 				if (map.containsKey("enchants"))
-					enchants(maker, (Map<String, Double>) map.get("enchants"));
+					enchants(maker, (Map<String, Object>) map.get("enchants"));
 				return maker.build();
 			}
 
-			private ItemMaker enchants(ItemMaker nbt, Map<String, Double> map) {
-				for (Entry<String, Double> enchant : map.entrySet())
-					nbt.enchant(EnchantmentAPI.byName(enchant.getKey()).getEnchantment(), (int) (Number) enchant.getValue());
+			private ItemMaker enchants(ItemMaker nbt, Map<String, Object> map) {
+				for (Entry<String, Object> enchant : map.entrySet())
+					if (enchant.getValue() instanceof Number)
+						nbt.enchant(EnchantmentAPI.byName(enchant.getKey()).getEnchantment(), ((Number) enchant.getValue()).intValue());
 				return nbt;
 			}
 		});
@@ -613,7 +614,7 @@ public class BukkitLibInit {
 			@Override
 			public Object read(Map<String, Object> json) {
 				Object nbt = json.get("nbt");
-				return new BlockDataStorage(Material.getMaterial(json.get("material").toString()), (byte) (Number) json.get("itemData"), json.get("data").toString(),
+				return new BlockDataStorage(Material.getMaterial(json.get("material").toString()), ((Number) json.get("itemData")).byteValue(), json.get("data").toString(),
 						nbt == null ? null : nbt.toString());
 			}
 
