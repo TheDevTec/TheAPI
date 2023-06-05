@@ -11,7 +11,7 @@ We bring the most useful and most wanted features directly for developers. From 
 ## Requirements
 
     Java 1.8 or newer
-    Guava & Gson libraries
+    (Optional - No longer required) Guava & Gson libraries
 
 
 ## Built-in loaders:
