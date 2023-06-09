@@ -27,15 +27,15 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
-import org.bukkit.craftbukkit.v1_19_R3.CraftChunk;
-import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R3.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftContainer;
-import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_19_R3.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.v1_20_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R1.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftContainer;
+import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -144,7 +144,7 @@ import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.scores.ScoreboardObjective;
 import net.minecraft.world.scores.criteria.IScoreboardCriteria.EnumScoreboardHealthDisplay;
 
-public class v1_19_R3 implements NmsProvider {
+public class v1_20_R1 implements NmsProvider {
 	private static final MinecraftServer server = MinecraftServer.getServer();
 	private static final sun.misc.Unsafe unsafe = (sun.misc.Unsafe) Ref.getNulled(Ref.field(sun.misc.Unsafe.class, "theUnsafe"));
 
@@ -176,7 +176,7 @@ public class v1_19_R3 implements NmsProvider {
 	@Override
 	public Object getChunk(Chunk chunk) {
 		if (isPaperChunkRework)
-			return ((CraftChunk) chunk).getHandle(ChunkStatus.o);
+			return ((CraftChunk) chunk).getHandle(ChunkStatus.n);
 		return Ref.invoke(chunk, getNmsChunkHandle);
 	}
 
@@ -197,7 +197,7 @@ public class v1_19_R3 implements NmsProvider {
 
 	@Override
 	public Object getNBT(ItemStack itemStack) {
-		return ((net.minecraft.world.item.ItemStack) asNMSItem(itemStack)).u();
+		return ((net.minecraft.world.item.ItemStack) asNMSItem(itemStack)).v();
 	}
 
 	@Override
@@ -279,13 +279,13 @@ public class v1_19_R3 implements NmsProvider {
 
 	@Override
 	public Object packetBlockChange(int x, int y, int z, Object iblockdata, int data) {
-		return new PacketPlayOutBlockChange(new BlockPosition(x, y, z), iblockdata == null ? Blocks.a.o() : (IBlockData) iblockdata);
+		return new PacketPlayOutBlockChange(new BlockPosition(x, y, z), iblockdata == null ? Blocks.a.n() : (IBlockData) iblockdata);
 	}
 
 	@Override
 	public Object packetScoreboardObjective() {
 		try {
-			return v1_19_R3.unsafe.allocateInstance(PacketPlayOutScoreboardObjective.class);
+			return v1_20_R1.unsafe.allocateInstance(PacketPlayOutScoreboardObjective.class);
 		} catch (Exception e) {
 			return null;
 		}
@@ -299,7 +299,7 @@ public class v1_19_R3 implements NmsProvider {
 	@Override
 	public Object packetScoreboardTeam() {
 		try {
-			return v1_19_R3.unsafe.allocateInstance(PacketPlayOutScoreboardTeam.class);
+			return v1_20_R1.unsafe.allocateInstance(PacketPlayOutScoreboardTeam.class);
 		} catch (Exception e) {
 			return null;
 		}
@@ -340,22 +340,22 @@ public class v1_19_R3 implements NmsProvider {
 
 	@Override
 	public void postToMainThread(Runnable runnable) {
-		v1_19_R3.server.execute(runnable);
+		v1_20_R1.server.execute(runnable);
 	}
 
 	@Override
 	public Object getMinecraftServer() {
-		return v1_19_R3.server;
+		return v1_20_R1.server;
 	}
 
 	@Override
 	public Thread getServerThread() {
-		return v1_19_R3.server.ag;
+		return v1_20_R1.server.ag;
 	}
 
 	@Override
 	public double[] getServerTPS() {
-		return v1_19_R3.server.recentTps;
+		return v1_20_R1.server.recentTps;
 	}
 
 	private IChatBaseComponent convert(Component c) {
@@ -499,7 +499,7 @@ public class v1_19_R3 implements NmsProvider {
 	@Override
 	public BlockDataStorage toMaterial(Object blockOrIBlockData) {
 		if (blockOrIBlockData instanceof Block) {
-			IBlockData data = ((Block) blockOrIBlockData).o();
+			IBlockData data = ((Block) blockOrIBlockData).n();
 			return new BlockDataStorage(CraftMagicNumbers.getMaterial(data.b()), (byte) 0, asString(data));
 		}
 		if (blockOrIBlockData instanceof IBlockData) {
@@ -511,9 +511,9 @@ public class v1_19_R3 implements NmsProvider {
 
 	private String asString(IBlockData data) {
 		StringBuilder stateString = new StringBuilder();
-		if (!data.y().isEmpty()) {
+		if (!data.C().isEmpty()) {
 			stateString.append('[');
-			stateString.append(data.y().entrySet().stream().map(IBlockDataHolder.a).collect(Collectors.joining(",")));
+			stateString.append(data.C().entrySet().stream().map(IBlockDataHolder.a).collect(Collectors.joining(",")));
 			stateString.append(']');
 		}
 		return stateString.toString();
@@ -536,8 +536,8 @@ public class v1_19_R3 implements NmsProvider {
 	}
 
 	private IBlockData readArgument(Block block, BlockDataStorage material) {
-		IBlockData ib = block.o();
-		return writeData(ib, ib.b().n(), material.getData());
+		IBlockData ib = block.n();
+		return writeData(ib, ib.b().l(), material.getData());
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -586,7 +586,7 @@ public class v1_19_R3 implements NmsProvider {
 	@Override
 	public ItemStack toItemStack(BlockDataStorage material) {
 		Item item = CraftMagicNumbers.getItem(material.getType(), ParseUtils.getShort(material.getData()));
-		return CraftItemStack.asBukkitCopy(item.ad_());
+		return CraftItemStack.asBukkitCopy(item.ae_());
 	}
 
 	static Method getNmsChunkHandle = Ref.method(CraftChunk.class, "getHandle");
@@ -594,14 +594,14 @@ public class v1_19_R3 implements NmsProvider {
 	@Override
 	public Object getChunk(World world, int x, int z) {
 		if (isPaperChunkRework)
-			return ((CraftChunk) world.getChunkAt(x, z)).getHandle(ChunkStatus.o);
+			return ((CraftChunk) world.getChunkAt(x, z)).getHandle(ChunkStatus.n);
 		return Ref.invoke(world.getChunkAt(x, z), getNmsChunkHandle);
 	}
 
 	@Override
 	public void setBlock(Object objChunk, int x, int y, int z, Object IblockData, int data) {
 		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
-		WorldServer world = chunk.q;
+		WorldServer world = chunk.r;
 		int highY = chunk.e(y);
 		if (highY < 0)
 			return;
@@ -610,12 +610,12 @@ public class v1_19_R3 implements NmsProvider {
 			return;
 		BlockPosition pos = new BlockPosition(x, y, z);
 
-		IBlockData iblock = IblockData == null ? Blocks.a.o() : (IBlockData) IblockData;
+		IBlockData iblock = IblockData == null ? Blocks.a.n() : (IBlockData) IblockData;
 
 		boolean onlyModifyState = iblock.b() instanceof ITileEntity;
 
 		// REMOVE TILE ENTITY IF NOT SAME TYPE
-		TileEntity ent = chunk.i.get(pos);
+		TileEntity ent = chunk.k.get(pos);
 		if (ent != null) {
 			boolean shouldSkip = true;
 			if (!onlyModifyState)
@@ -633,10 +633,10 @@ public class v1_19_R3 implements NmsProvider {
 		// ADD TILE ENTITY
 		if (iblock.b() instanceof ITileEntity && !onlyModifyState) {
 			ent = ((ITileEntity) iblock.b()).a(pos, iblock);
-			chunk.i.put(pos, ent);
-			ent.a(chunk.q);
+			chunk.k.put(pos, ent);
+			ent.a(chunk.r);
 			Object packet = ent.h();
-			BukkitLoader.getPacketHandler().send(chunk.q.getWorld().getPlayers(), packet);
+			BukkitLoader.getPacketHandler().send(chunk.r.getWorld().getPlayers(), packet);
 		}
 
 		// MARK CHUNK TO SAVE
@@ -653,7 +653,7 @@ public class v1_19_R3 implements NmsProvider {
 
 		BlockPosition blockPos = new BlockPosition(x, y, z);
 
-		doPhysicsAround(chunk.q, blockPos, ((IBlockData) iblockdata).b());
+		doPhysicsAround(chunk.r, blockPos, ((IBlockData) iblockdata).b());
 	}
 
 	private void doPhysicsAround(WorldServer world, BlockPosition blockposition, Block block) {
@@ -669,13 +669,13 @@ public class v1_19_R3 implements NmsProvider {
 		IBlockData state = world.a_(blockposition);
 		state.a(world, blockposition, block, blockposition1, false);
 		if (state.b() instanceof BlockFalling)
-			((BlockFalling) state.b()).b(state, world, blockposition, block.o(), false);
+			((BlockFalling) state.b()).b(state, world, blockposition, block.n(), false);
 	}
 
 	@Override
 	public void updateLightAt(Object objChunk, int x, int y, int z) {
 		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
-		chunk.q.k().a().a(new BlockPosition(x, y, z));
+		chunk.r.k().a().a(new BlockPosition(x, y, z));
 	}
 
 	private static boolean isPaperChunkRework = Ref.getClass("io.papermc.paper.chunk.system.scheduling.ChunkHolderManager") != null;
@@ -683,15 +683,17 @@ public class v1_19_R3 implements NmsProvider {
 	@Override
 	public Object getBlock(Object objChunk, int x, int y, int z) {
 		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
-		if (isPaperChunkRework)
-			return chunk.getBlockStateFinal(x, y, z); // Modern getting of blocks, Thx PaperSpigot!
+		// Not available RN - TODO
+		// if (isPaperChunkRework)
+		// return chunk.getBlockStateFinal(x, y, z); // Modern getting of blocks, Thx
+		// PaperSpigot!
 		int highY = chunk.e(y);
 		if (highY < 0)
-			return Blocks.a.o();
+			return Blocks.a.n();
 		ChunkSection sc = chunk.b(highY);
 		if (sc == null)
-			return Blocks.a.o();
-		return sc.i().a(x & 15, y & 15, z & 15);
+			return Blocks.a.n();
+		return sc.h().a(x & 15, y & 15, z & 15);
 	}
 
 	@Override
@@ -715,7 +717,7 @@ public class v1_19_R3 implements NmsProvider {
 		parsedNbt.a("z", z);
 		ent.a(parsedNbt);
 		Object packet = ent.h();
-		BukkitLoader.getPacketHandler().send(chunk.q.getWorld().getPlayers(), packet);
+		BukkitLoader.getPacketHandler().send(chunk.r.getWorld().getPlayers(), packet);
 	}
 
 	@Override
@@ -755,12 +757,12 @@ public class v1_19_R3 implements NmsProvider {
 
 	@Override
 	public int getPing(Player player) {
-		return ((EntityPlayer) getPlayer(player)).e;
+		return ((EntityPlayer) getPlayer(player)).f;
 	}
 
 	@Override
 	public Object getPlayerConnection(Player player) {
-		return ((EntityPlayer) getPlayer(player)).b;
+		return ((EntityPlayer) getPlayer(player)).c;
 	}
 
 	private Field playerNetwork = Ref.field(PlayerConnection.class, "h");
@@ -812,8 +814,8 @@ public class v1_19_R3 implements NmsProvider {
 		if (closePacket)
 			BukkitLoader.getPacketHandler().send(player, new PacketPlayOutCloseWindow(BukkitLoader.getNmsProvider().getContainerId(container)));
 		EntityPlayer nmsPlayer = (EntityPlayer) getPlayer(player);
-		nmsPlayer.bP = nmsPlayer.bO;
-		((Container) container).transferTo(nmsPlayer.bP, (CraftPlayer) player);
+		nmsPlayer.bR = nmsPlayer.bQ;
+		((Container) container).transferTo(nmsPlayer.bR, (CraftPlayer) player);
 	}
 
 	@Override
@@ -826,13 +828,13 @@ public class v1_19_R3 implements NmsProvider {
 		int id = ((Container) container).j;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
 		net.minecraft.world.item.ItemStack carried = ((Container) container).g();
-		if (!BuiltInRegistries.i.b(carried.c()).a().equals("air"))
+		if (!BuiltInRegistries.i.b(carried.d()).a().equals("air"))
 			BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, getContainerStateId(container), -1, carried));
 		int slot = 0;
 		for (net.minecraft.world.item.ItemStack item : ((Container) container).c()) {
 			if (slot == size)
 				break;
-			if (!BuiltInRegistries.i.b(item.c()).a().equals("air"))
+			if (!BuiltInRegistries.i.b(item.d()).a().equals("air"))
 				BukkitLoader.getPacketHandler().send(player, new PacketPlayOutSetSlot(id, getContainerStateId(container), slot, item));
 			++slot;
 		}
@@ -843,8 +845,8 @@ public class v1_19_R3 implements NmsProvider {
 		EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
 		int id = ((Container) container).j;
 		BukkitLoader.getPacketHandler().send(player, packetOpenWindow(id, legacy, size, title));
-		nmsPlayer.bP.transferTo((Container) container, (CraftPlayer) player);
-		nmsPlayer.bP = (Container) container;
+		nmsPlayer.bR.transferTo((Container) container, (CraftPlayer) player);
+		nmsPlayer.bR = (Container) container;
 		nmsPlayer.a((Container) container);
 		((Container) container).checkReachable = false;
 	}
@@ -1264,13 +1266,13 @@ public class v1_19_R3 implements NmsProvider {
 		EntityPlayer entityPlayer = (EntityPlayer) getPlayer(player);
 
 		WorldServer worldserver = entityPlayer.x();
-		return new PacketPlayOutRespawn(worldserver.Z(), worldserver.ab(), BiomeManager.a(worldserver.A()), entityPlayer.d.b(), entityPlayer.d.c(), worldserver.ae(), worldserver.z(), (byte) 1,
-				entityPlayer.gi());
+		return new PacketPlayOutRespawn(worldserver.aa(), worldserver.ac(), BiomeManager.a(worldserver.A()), entityPlayer.e.b(), entityPlayer.e.c(), worldserver.af(), worldserver.z(), (byte) 1,
+				entityPlayer.gm(), entityPlayer.ar());
 	}
 
 	@Override
 	public String getProviderName() {
-		return "1_19_R3 (1.19.4)";
+		return "1_20_R1 (1.20)";
 	}
 
 	@Override
@@ -1303,7 +1305,7 @@ public class v1_19_R3 implements NmsProvider {
 
 	@Override
 	public Object getGameProfile(Object nmsPlayer) {
-		return ((EntityPlayer) nmsPlayer).fI();
+		return ((EntityPlayer) nmsPlayer).fM();
 	}
 
 }

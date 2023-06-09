@@ -463,8 +463,9 @@ public class BukkitLibInit {
 
 			@Override
 			public Object read(Map<String, Object> map) {
+				Object result = map.get("yaw");
 				return new Location(Bukkit.getWorld(map.get("world").toString()), ((Number) map.get("x")).doubleValue(), ((Number) map.get("y")).doubleValue(), ((Number) map.get("z")).doubleValue(),
-						((Number) map.get("yaw")).floatValue(), ((Number) map.get("pitch")).floatValue());
+						((Number) (result == null ? 0f : result)).floatValue(), ((Number) ((result = map.get("pitch")) == null ? 0f : result)).floatValue());
 			}
 		});
 		// position
@@ -499,8 +500,9 @@ public class BukkitLibInit {
 
 			@Override
 			public Object read(Map<String, Object> map) {
+				Object result = map.get("yaw");
 				return new Position(map.get("world").toString(), ((Number) map.get("x")).doubleValue(), ((Number) map.get("y")).doubleValue(), ((Number) map.get("z")).doubleValue(),
-						((Number) map.get("yaw")).floatValue(), ((Number) map.get("pitch")).floatValue());
+						((Number) (result == null ? 0f : result)).floatValue(), ((Number) ((result = map.get("pitch")) == null ? 0f : result)).floatValue());
 			}
 		});
 		// itemstack
@@ -581,7 +583,7 @@ public class BukkitLibInit {
 			@SuppressWarnings("unchecked")
 			@Override
 			public Object read(Map<String, Object> map) {
-				ItemMaker maker = ItemMaker.of(XMaterial.matchXMaterial(map.get("type").toString()).orElse(XMaterial.STONE));
+				ItemMaker maker = ItemMaker.of(XMaterial.matchXMaterial(map.get("type").toString().toUpperCase()).orElse(XMaterial.STONE));
 				if (map.containsKey("amount"))
 					maker.amount(((Number) map.get("amount")).intValue());
 				if (map.containsKey("durability"))
@@ -592,11 +594,11 @@ public class BukkitLibInit {
 					maker.displayName(map.get("meta.displayName").toString());
 				if (map.containsKey("meta.itemFlags"))
 					maker.itemFlags((List<String>) map.get("meta.itemFlags"));
-				if (map.containsKey("meta.lore"))
+				if (map.containsKey("meta.lore") && map.get("meta.lore") instanceof List)
 					maker.lore((List<String>) map.get("meta.lore"));
 				if (map.containsKey("meta.nbt"))
 					maker.nbt(new NBTEdit(map.get("meta.nbt").toString()));
-				if (map.containsKey("enchants"))
+				if (map.containsKey("enchants") && map.get("enchants") instanceof Map)
 					enchants(maker, (Map<String, Object>) map.get("enchants"));
 				return maker.build();
 			}
@@ -614,7 +616,7 @@ public class BukkitLibInit {
 			@Override
 			public Object read(Map<String, Object> json) {
 				Object nbt = json.get("nbt");
-				return new BlockDataStorage(Material.getMaterial(json.get("material").toString()), ((Number) json.get("itemData")).byteValue(), json.get("data").toString(),
+				return new BlockDataStorage(Material.getMaterial(json.get("material").toString()), ((Number) json.get("itemData")).byteValue(), json.get("data").toString().replace("\\u003d", "="),
 						nbt == null ? null : nbt.toString());
 			}
 

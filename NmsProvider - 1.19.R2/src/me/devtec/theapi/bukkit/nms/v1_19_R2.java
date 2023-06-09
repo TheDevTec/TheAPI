@@ -1,6 +1,5 @@
 package me.devtec.theapi.bukkit.nms;
 
-import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -317,30 +316,14 @@ public class v1_19_R2 implements NmsProvider {
 		return null;
 	}
 
-	static boolean modernChatPacket = Ref.constructor(ClientboundSystemChatPacket.class, IChatBaseComponent.class, boolean.class) != null;
-	static Constructor<?> chatPacket = modernChatPacket ? Ref.constructor(ClientboundSystemChatPacket.class, IChatBaseComponent.class, boolean.class)
-			: Ref.constructor(ClientboundSystemChatPacket.class, String.class, int.class);
-
 	@Override
 	public Object packetChat(ChatType type, Object chatBase, UUID uuid) {
-		if (!modernChatPacket)
-			return packetChat(type, fromIChatBaseComponent(chatBase), uuid);
-		return Ref.newInstance(chatPacket, chatBase, false);
+		return new ClientboundSystemChatPacket((IChatBaseComponent) chatBase, true);
 	}
 
 	@Override
 	public Object packetChat(ChatType type, Component text, UUID uuid) {
-		if (modernChatPacket)
-			return packetChat(type, toIChatBaseComponent(text), uuid);
-		switch (type) {
-		case CHAT:
-			return Ref.newInstance(chatPacket, text.toString(), 0);
-		case SYSTEM:
-			return Ref.newInstance(chatPacket, text.toString(), 1);
-		case GAME_INFO:
-			return Ref.newInstance(chatPacket, text.toString(), 2);
-		}
-		return null;
+		return new ClientboundSystemChatPacket((IChatBaseComponent) this.toIChatBaseComponent(text), true);
 	}
 
 	@Override
