@@ -522,7 +522,7 @@ public class v1_20_R1 implements NmsProvider {
 	@Override
 	public Object toIBlockData(BlockDataStorage material) {
 		if (material == null || material.getType() == null || material.getType() == Material.AIR)
-			return Blocks.a.o();
+			return Blocks.a.n();
 		Block block = CraftMagicNumbers.getBlock(material.getType());
 		return readArgument(block, material);
 	}
@@ -683,9 +683,8 @@ public class v1_20_R1 implements NmsProvider {
 	@Override
 	public Object getBlock(Object objChunk, int x, int y, int z) {
 		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
-		// Not available RN - TODO
-		// if (isPaperChunkRework)
-		// return chunk.getBlockStateFinal(x, y, z); // Modern getting of blocks, Thx
+		if (isPaperChunkRework)
+			return chunk.getBlockStateFinal(x, y, z); // Modern getting of blocks, Thx
 		// PaperSpigot!
 		int highY = chunk.e(y);
 		if (highY < 0)
@@ -704,7 +703,7 @@ public class v1_20_R1 implements NmsProvider {
 	@Override
 	public String getNBTOfTile(Object objChunk, int x, int y, int z) {
 		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
-		return chunk.a(new BlockPosition(x, y, z), EnumTileEntityState.a).o().toString();
+		return chunk.a(new BlockPosition(x, y, z), EnumTileEntityState.a).n().toString();
 	}
 
 	@Override
