@@ -530,7 +530,9 @@ public class BukkitLibInit {
 						if (meta.hasCustomModelData())
 							map.put("meta.customModelData", meta.getCustomModelData());
 
+					System.out.println(item.getItemMeta());
 					NBTEdit nbt = new NBTEdit(item);
+					System.out.println(nbt.getNBT());
 					// remove unused tags
 					nbt.remove("id");
 					nbt.remove("Count");
@@ -592,10 +594,10 @@ public class BukkitLibInit {
 					maker.itemFlags((List<String>) map.get("meta.itemFlags"));
 				if (map.containsKey("meta.lore") && map.get("meta.lore") instanceof List)
 					maker.lore((List<String>) map.get("meta.lore"));
-				if (map.containsKey("meta.nbt"))
-					maker.nbt(new NBTEdit(map.get("meta.nbt").toString()));
 				if (map.containsKey("enchants") && map.get("enchants") instanceof Map)
 					enchants(maker, (Map<Object, Object>) map.get("enchants"));
+				if (map.containsKey("meta.nbt"))
+					maker.nbt(new NBTEdit(map.get("meta.nbt").toString()));
 				return maker.build();
 			}
 
@@ -613,7 +615,7 @@ public class BukkitLibInit {
 			@Override
 			public Object read(Map<String, Object> json) {
 				Object nbt = json.get("nbt");
-				return new BlockDataStorage(Material.getMaterial(json.get("material").toString()), ((Number) json.get("itemData")).byteValue(), json.get("data").toString().replace("\\u003d", "="),
+				return new BlockDataStorage(Material.getMaterial(json.get("material").toString()), ((Number) json.get("itemData")).byteValue(), json.get("data").toString(),
 						nbt == null ? null : nbt.toString());
 			}
 
