@@ -422,8 +422,7 @@ public class BukkitLibInit {
 
 			@Override
 			public boolean isAllowed(Map<String, Object> map) {
-				Object result = map.get("classType");
-				return result != null && result.equals("org.bukkit.World");
+				return "org.bukkit.World".equals(map.get("classType"));
 			}
 
 			@Override
@@ -457,8 +456,7 @@ public class BukkitLibInit {
 
 			@Override
 			public boolean isAllowed(Map<String, Object> map) {
-				Object result = map.get("classType");
-				return result != null && result.equals("org.bukkit.Location");
+				return "org.bukkit.Location".equals(map.get("classType"));
 			}
 
 			@Override
@@ -494,8 +492,7 @@ public class BukkitLibInit {
 
 			@Override
 			public boolean isAllowed(Map<String, Object> map) {
-				Object result = map.get("classType");
-				return result != null && result.equals("Position");
+				return "Position".equals(map.get("classType"));
 			}
 
 			@Override
@@ -576,8 +573,7 @@ public class BukkitLibInit {
 
 			@Override
 			public boolean isAllowed(Map<String, Object> map) {
-				Object result = map.get("classType");
-				return result != null && result.equals("ItemStack");
+				return "ItemStack".equals(map.get("classType"));
 			}
 
 			@SuppressWarnings("unchecked")
@@ -592,25 +588,26 @@ public class BukkitLibInit {
 					maker.customModel(((Number) map.get("meta.customModelData")).intValue());
 				if (map.containsKey("meta.displayName"))
 					maker.displayName(map.get("meta.displayName").toString());
-				if (map.containsKey("meta.itemFlags"))
+				if (map.containsKey("meta.itemFlags") && map.get("meta.itemFlags") instanceof List)
 					maker.itemFlags((List<String>) map.get("meta.itemFlags"));
 				if (map.containsKey("meta.lore") && map.get("meta.lore") instanceof List)
 					maker.lore((List<String>) map.get("meta.lore"));
 				if (map.containsKey("meta.nbt"))
 					maker.nbt(new NBTEdit(map.get("meta.nbt").toString()));
 				if (map.containsKey("enchants") && map.get("enchants") instanceof Map)
-					enchants(maker, (Map<String, Object>) map.get("enchants"));
+					enchants(maker, (Map<Object, Object>) map.get("enchants"));
 				return maker.build();
 			}
 
-			private ItemMaker enchants(ItemMaker nbt, Map<String, Object> map) {
-				for (Entry<String, Object> enchant : map.entrySet())
+			private ItemMaker enchants(ItemMaker nbt, Map<Object, Object> map) {
+				for (Entry<Object, Object> enchant : map.entrySet())
 					if (enchant.getValue() instanceof Number)
-						nbt.enchant(EnchantmentAPI.byName(enchant.getKey()).getEnchantment(), ((Number) enchant.getValue()).intValue());
+						nbt.enchant(EnchantmentAPI.byName(enchant.getKey().toString().toUpperCase()).getEnchantment(), ((Number) enchant.getValue()).intValue());
 				return nbt;
 			}
 		});
 
+		// blockdatastorage
 		Json.registerDataReader(new DataReader() {
 
 			@Override
@@ -622,7 +619,7 @@ public class BukkitLibInit {
 
 			@Override
 			public boolean isAllowed(Map<String, Object> json) {
-				return "BlockDataStorage".equals(json.get("type"));
+				return "BlockDataStorage".equals(json.get("classType"));
 			}
 		});
 		Json.registerDataWriter(new DataWriter() {
@@ -636,7 +633,7 @@ public class BukkitLibInit {
 			public Map<String, Object> write(Object obj) {
 				BlockDataStorage data = (BlockDataStorage) obj;
 				Map<String, Object> map = new HashMap<>();
-				map.put("type", "BlockDataStorage");
+				map.put("classType", "BlockDataStorage");
 				map.put("material", data.getType().name());
 				map.put("itemData", data.getItemData());
 				map.put("data", data.getData() == null ? "" : data.getData());
