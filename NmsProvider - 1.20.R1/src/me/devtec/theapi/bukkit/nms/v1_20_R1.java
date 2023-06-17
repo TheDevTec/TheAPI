@@ -330,12 +330,12 @@ public class v1_20_R1 implements NmsProvider {
 
 	@Override
 	public Object packetChat(ChatType type, Object chatBase, UUID uuid) {
-		return new ClientboundSystemChatPacket((IChatBaseComponent) chatBase, true);
+		return new ClientboundSystemChatPacket((IChatBaseComponent) chatBase, false);
 	}
 
 	@Override
 	public Object packetChat(ChatType type, Component text, UUID uuid) {
-		return new ClientboundSystemChatPacket((IChatBaseComponent) this.toIChatBaseComponent(text), true);
+		return new ClientboundSystemChatPacket((IChatBaseComponent) this.toIChatBaseComponent(text), false);
 	}
 
 	@Override
