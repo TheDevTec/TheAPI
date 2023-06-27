@@ -28,6 +28,7 @@ import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import me.devtec.shared.API;
@@ -512,13 +513,13 @@ public class BukkitLibInit {
 				map.put("classType", "ItemStack");
 				map.put("type", XMaterial.matchXMaterial(item.getType()).name());
 				map.put("amount", item.getAmount());
-				if (item.getDurability() != 0)
-					map.put("durability", item.getDurability());
-				if (!item.getEnchantments().isEmpty())
-					map.put("enchants", writeEnchants(item.getEnchantments()));
-
 				if (item.hasItemMeta()) {
 					ItemMeta meta = item.getItemMeta();
+					if (meta instanceof Damageable)
+						if (((Damageable) meta).getDamage() != 0)
+							map.put("durability", ((Damageable) meta).getDamage());
+					if (!meta.getEnchants().isEmpty())
+						map.put("enchants", writeEnchants(meta.getEnchants()));
 					if (meta.hasDisplayName())
 						map.put("meta.displayName", meta.getDisplayName());
 					if (meta.hasLore())
@@ -546,9 +547,8 @@ public class BukkitLibInit {
 					nbt.remove("CustomModelData");
 					nbt.remove("ench");
 					if (!nbt.getKeys().isEmpty())
-						map.put("meta.nbt", nbt.getNBT() + ""); // save clear nbt
+						map.put("meta.nbt", String.valueOf(nbt.getNBT())); // save clear nbt
 				}
-
 				return map;
 			}
 
