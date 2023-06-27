@@ -28,6 +28,7 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.BookMeta.Generation;
 import org.bukkit.inventory.meta.BundleMeta;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
@@ -951,10 +952,10 @@ public class ItemMaker implements Cloneable {
 
 		XMaterial type = XMaterial.matchXMaterial(stack);
 		config.set(path + "type", type.name());
-		if (stack.getDurability() != 0)
-			config.set(path + "damage", stack.getDurability());
 		config.set(path + "amount", stack.getAmount());
 		ItemMeta meta = stack.getItemMeta();
+		if (meta instanceof Damageable && ((Damageable) meta).getDamage() > 0)
+			config.set(path + "damage", ((Damageable) meta).getDamage());
 		if (meta.getDisplayName() != null)
 			config.set(path + "displayName", meta.getDisplayName());
 		if (meta.getLore() != null && !meta.getLore().isEmpty())
@@ -981,8 +982,7 @@ public class ItemMaker implements Cloneable {
 			if (modelData != 0)
 				config.set(path + "modelData", modelData);
 		}
-
-		if (type.name().contains("BANNER")) {
+		if (type.name().endsWith("_BANNER") && meta instanceof BannerMeta) {
 			BannerMeta banner = (BannerMeta) meta;
 			List<String> patterns = new ArrayList<>();
 			for (Pattern pattern : banner.getPatterns())
@@ -990,11 +990,11 @@ public class ItemMaker implements Cloneable {
 			if (!patterns.isEmpty())
 				config.set(path + "banner.patterns", patterns);
 		}
-		if (type.name().contains("LEATHER_")) {
+		if (type.name().startsWith("LEATHER_") && meta instanceof LeatherArmorMeta) {
 			LeatherArmorMeta armor = (LeatherArmorMeta) meta;
 			config.set(path + "leather.color", "#" + Integer.toHexString(armor.getColor().asRGB()).substring(2));
 		}
-		if (type == XMaterial.PLAYER_HEAD) {
+		if (type == XMaterial.PLAYER_HEAD && meta instanceof SkullMeta) {
 			SkullMeta skull = (SkullMeta) meta;
 			if (skull.getOwner() != null) {
 				config.set(path + "head.owner", skull.getOwner());
@@ -1013,7 +1013,7 @@ public class ItemMaker implements Cloneable {
 				}
 			}
 		}
-		if (type.name().contains("POTION")) {
+		if (type.name().contains("POTION") && meta instanceof PotionMeta) {
 			PotionMeta potion = (PotionMeta) meta;
 			if (Ref.isNewerThan(9))
 				config.set(path + "potion.type", potion.getBasePotionData().getType().name());
@@ -1027,7 +1027,7 @@ public class ItemMaker implements Cloneable {
 					config.set(path + "potion.color", Integer.toHexString(potion.getColor().asRGB()));
 		}
 		List<String> enchants = new ArrayList<>();
-		if (type == XMaterial.ENCHANTED_BOOK) {
+		if (type == XMaterial.ENCHANTED_BOOK && meta instanceof EnchantmentStorageMeta) {
 			EnchantmentStorageMeta book = (EnchantmentStorageMeta) meta;
 			for (Entry<Enchantment, Integer> enchant : book.getStoredEnchants().entrySet())
 				enchants.add(enchant.getKey().getName() + ":" + enchant.getValue().toString());
@@ -1036,7 +1036,7 @@ public class ItemMaker implements Cloneable {
 				enchants.add(enchant.getKey().getName() + ":" + enchant.getValue().toString());
 		if (!enchants.isEmpty())
 			config.set(path + "enchants", enchants);
-		if (type == XMaterial.WRITTEN_BOOK || type == XMaterial.WRITABLE_BOOK) {
+		if ((type == XMaterial.WRITTEN_BOOK || type == XMaterial.WRITABLE_BOOK) && meta instanceof BookMeta) {
 			BookMeta book = (BookMeta) meta;
 			config.set(path + "book.author", book.getAuthor());
 			if (Ref.isNewerThan(9)) // 1.10+
@@ -1182,6 +1182,106 @@ public class ItemMaker implements Cloneable {
 		}
 		stack.setItemMeta(meta);
 		return stack;
+	}
+
+	@Nullable // Nullable if section is empty / type is invalid
+	public static ItemMaker loadMakerFromConfig(Config config, String path) {
+		if (!path.isEmpty() && !path.endsWith("."))
+			path += ".";
+		if (config.getString(path + "type", config.getString(path + "icon")) == null)
+			return null; // missing type
+
+		XMaterial type = XMaterial.matchXMaterial(config.getString(path + "type", config.getString(path + "icon")).toUpperCase()).orElse(XMaterial.STONE);
+		ItemMaker maker;
+
+		if (type.name().contains("BANNER")) {
+			maker = ItemMaker.ofBanner(BannerColor.valueOf(type.name().substring(0, type.name().indexOf('_'))));
+			// Example: RED:STRIPE_TOP
+			List<Pattern> patterns = new ArrayList<>();
+			for (String pattern : config.getStringList(path + "banner.patterns")) {
+				String[] split = pattern.split(":");
+				patterns.add(new Pattern(DyeColor.valueOf(split[0].toUpperCase()), PatternType.valueOf(split[1].toUpperCase())));
+			}
+			((BannerItemMaker) maker).patterns(patterns);
+		} else
+
+		if (type.name().contains("LEATHER_") && config.getString(path + "leather.color") != null)
+			maker = ItemMaker.ofLeatherArmor(type.parseMaterial()).color(Color.fromRGB(Integer.decode(config.getString(path + "leather.color"))));
+		else if (type == XMaterial.PLAYER_HEAD) {
+			maker = ItemMaker.ofHead();
+			String headOwner = config.getString(path + "head.owner");
+			if (headOwner != null) {
+				/*
+				 * PLAYER VALUES URL
+				 */
+				String headType = config.getString(path + "head.type", "PLAYER").toUpperCase();
+				if (headType.equalsIgnoreCase("PLAYER"))
+					((HeadItemMaker) maker).skinName(headOwner);
+				else if (headType.equalsIgnoreCase("VALUES") || headType.equalsIgnoreCase("URL")) {
+					if (headType.equalsIgnoreCase("URL"))
+						headOwner = ItemMaker.fromUrl(headOwner);
+					((HeadItemMaker) maker).skinValues(headOwner);
+				} else if (headType.equalsIgnoreCase("HDB")) {
+					if (hdbApi != null)
+						headOwner = getBase64OfId(headOwner);
+					((HeadItemMaker) maker).skinValues(headOwner);
+				}
+			}
+		} else if (type == XMaterial.POTION || type == XMaterial.LINGERING_POTION || type == XMaterial.SPLASH_POTION) {
+			maker = ItemMaker.ofPotion(type == XMaterial.POTION ? Potion.POTION : type == XMaterial.LINGERING_POTION ? Potion.LINGERING : Potion.SPLASH);
+			List<PotionEffect> effects = new ArrayList<>();
+			for (String pattern : config.getStringList(path + "potion.effects")) {
+				String[] split = pattern.split(":");
+				// PotionEffectType type, int duration, int amplifier, boolean ambient, boolean
+				// particles
+				effects.add(new PotionEffect(PotionEffectType.getByName(split[0].toUpperCase()), ParseUtils.getInt(split[1]), ParseUtils.getInt(split[2]),
+						split.length >= 4 ? ParseUtils.getBoolean(split[3]) : true, split.length >= 5 ? ParseUtils.getBoolean(split[4]) : true));
+			}
+			((PotionItemMaker) maker).potionEffects(effects);
+			if (config.getString(path + "potion.color") != null) // 1.11+
+				((PotionItemMaker) maker).color(Color.fromRGB(Integer.decode(config.getString(path + "potion.color"))));
+		}
+		if (type == XMaterial.ENCHANTED_BOOK)
+			maker = ItemMaker.ofEnchantedBook();
+		else if (type == XMaterial.WRITTEN_BOOK || type == XMaterial.WRITABLE_BOOK) {
+			maker = ItemMaker.ofBook();
+			if (config.getString(path + "book.author") != null)
+				((BookItemMaker) maker).author(ColorUtils.colorize(config.getString(path + "book.author")));
+			if (config.getString(path + "book.generation") != null) // 1.10+
+				((BookItemMaker) maker).generation(config.getString(path + "book.generation").toUpperCase());
+			if (config.getString(path + "book.title") != null)
+				((BookItemMaker) maker).title(ColorUtils.colorize(config.getString(path + "book.title")));
+			((BookItemMaker) maker).pages(ColorUtils.colorize(config.getStringList(path + "book.pages")));
+		} else
+			maker = ItemMaker.of(type);
+
+		String nbt = config.getString(path + "nbt"); // additional nbt
+		if (nbt != null)
+			maker.nbt(new NBTEdit(nbt));
+
+		maker.amount(config.getInt(path + "amount", 1));
+		short damage = config.getShort(path + "damage", config.getShort(path + "durability"));
+		if (damage != 0)
+			maker.damage(damage);
+
+		String displayName = config.getString(path + "displayName", config.getString(path + "display-name"));
+		if (displayName != null)
+			maker.displayName(ColorUtils.colorize(displayName));
+		List<String> lore = config.getStringList(path + "lore");
+		if (!lore.isEmpty())
+			maker.lore(ColorUtils.colorize(lore));
+		if (config.getBoolean(path + "unbreakable"))
+			maker.unbreakable(true);
+		if (Ref.isNewerThan(7)) // 1.8+
+			maker.itemFlags(config.getStringList(path + "itemFlags"));
+		int modelData = config.getInt(path + "modelData");
+		maker.customModel(modelData);
+
+		for (String enchant : config.getStringList(path + "enchants")) {
+			String[] split = enchant.split(":");
+			maker.enchant(EnchantmentAPI.byName(split[0].toUpperCase()).getEnchantment(), split.length >= 2 ? ParseUtils.getInt(split[1]) : 1);
+		}
+		return maker;
 	}
 
 	private static String getBase64OfId(String headOwner) {
