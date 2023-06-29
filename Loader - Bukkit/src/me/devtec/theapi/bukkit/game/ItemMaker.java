@@ -86,6 +86,15 @@ public class ItemMaker implements Cloneable {
 		this.material = material;
 	}
 
+	public ItemMaker type(Material material) {
+		this.material = material;
+		return this;
+	}
+
+	public ItemMaker type(XMaterial material) {
+		return type(material.parseMaterial());
+	}
+
 	@Override
 	public ItemMaker clone() {
 		try {
@@ -469,6 +478,8 @@ public class ItemMaker implements Cloneable {
 
 		@Override
 		protected ItemMeta apply(ItemMeta meta) {
+			if (!(meta instanceof SkullMeta))
+				return super.apply(meta);
 			SkullMeta iMeta = (SkullMeta) meta;
 			if (owner != null)
 				switch (ownerType) {
@@ -518,6 +529,8 @@ public class ItemMaker implements Cloneable {
 
 		@Override
 		protected ItemMeta apply(ItemMeta meta) {
+			if (!(meta instanceof LeatherArmorMeta))
+				return super.apply(meta);
 			LeatherArmorMeta iMeta = (LeatherArmorMeta) meta;
 			if (color != null)
 				iMeta.setColor(color);
@@ -600,6 +613,8 @@ public class ItemMaker implements Cloneable {
 
 		@Override
 		protected ItemMeta apply(ItemMeta meta) {
+			if (!(meta instanceof BookMeta))
+				return super.apply(meta);
 			BookMeta iMeta = (BookMeta) meta;
 			if (author != null)
 				iMeta.setAuthor(author);
@@ -641,6 +656,8 @@ public class ItemMaker implements Cloneable {
 
 		@Override
 		protected ItemMeta apply(ItemMeta meta) {
+			if (!(meta instanceof EnchantmentStorageMeta))
+				return super.apply(meta);
 			EnchantmentStorageMeta iMeta = (EnchantmentStorageMeta) meta;
 			if (super.displayName != null)
 				iMeta.setDisplayName(super.displayName);
@@ -707,6 +724,8 @@ public class ItemMaker implements Cloneable {
 
 		@Override
 		protected ItemMeta apply(ItemMeta meta) {
+			if (!(meta instanceof PotionMeta))
+				return super.apply(meta);
 			PotionMeta iMeta = (PotionMeta) meta;
 			if (color != null && Ref.isNewerThan(10))
 				iMeta.setColor(color);
@@ -758,6 +777,8 @@ public class ItemMaker implements Cloneable {
 
 		@Override
 		protected ItemMeta apply(ItemMeta meta) {
+			if (!(meta instanceof BlockStateMeta))
+				return super.apply(meta);
 			BlockStateMeta iMeta = (BlockStateMeta) meta;
 			ShulkerBox shulker = (ShulkerBox) iMeta.getBlockState();
 			if (name != null)
@@ -802,6 +823,8 @@ public class ItemMaker implements Cloneable {
 
 		@Override
 		protected ItemMeta apply(ItemMeta meta) {
+			if (!(meta instanceof BundleMeta))
+				return super.apply(meta);
 			BundleMeta iMeta = (BundleMeta) meta;
 			if (contents != null)
 				iMeta.setItems(contents);
@@ -841,6 +864,8 @@ public class ItemMaker implements Cloneable {
 
 		@Override
 		protected ItemMeta apply(ItemMeta meta) {
+			if (!(meta instanceof BannerMeta))
+				return super.apply(meta);
 			BannerMeta iMeta = (BannerMeta) meta;
 			if (patterns != null)
 				iMeta.setPatterns(patterns);
@@ -857,11 +882,53 @@ public class ItemMaker implements Cloneable {
 	}
 
 	public static ItemMaker of(XMaterial material) {
+		switch (material) {
+		case WRITABLE_BOOK:
+		case WRITTEN_BOOK:
+			return ofBook();
+		case LEATHER_HELMET:
+		case LEATHER_CHESTPLATE:
+		case LEATHER_LEGGINGS:
+		case LEATHER_BOOTS:
+			return ofLeatherArmor(material.parseMaterial());
+		case ENCHANTED_BOOK:
+			return ofEnchantedBook();
+		case POTION:
+		case LINGERING_POTION:
+		case SPLASH_POTION:
+			return ofPotion(Potion.fromType(material));
+		case BLACK_SHULKER_BOX:
+		case BLUE_SHULKER_BOX:
+		case BROWN_SHULKER_BOX:
+		case CYAN_SHULKER_BOX:
+		case GRAY_SHULKER_BOX:
+		case GREEN_SHULKER_BOX:
+		case LIGHT_BLUE_SHULKER_BOX:
+		case LIGHT_GRAY_SHULKER_BOX:
+		case ORANGE_SHULKER_BOX:
+		case LIME_SHULKER_BOX:
+		case MAGENTA_SHULKER_BOX:
+		case PINK_SHULKER_BOX:
+		case PURPLE_SHULKER_BOX:
+		case RED_SHULKER_BOX:
+		case WHITE_SHULKER_BOX:
+		case YELLOW_SHULKER_BOX:
+		case SHULKER_BOX:
+			return ofShulkerBox(ShulkerBoxColor.fromType(material));
+		case BUNDLE:
+			return ofBundle();
+		case PLAYER_HEAD:
+			return ofHead();
+		default:
+			break;
+		}
+		if (material.getId() == 425 || material.getId() == 177)
+			return ofBanner(BannerColor.fromType(material));
 		return new ItemMaker(material.parseMaterial()).data(material.getData());
 	}
 
 	public static ItemMaker of(Material material) {
-		return new ItemMaker(material);
+		return of(XMaterial.matchXMaterial(material));
 	}
 
 	public static HeadItemMaker ofHead() {
@@ -869,7 +936,7 @@ public class ItemMaker implements Cloneable {
 	}
 
 	public static LeatherItemMaker ofLeatherArmor(Material material) {
-		return new LeatherItemMaker(ItemMaker.skull);
+		return new LeatherItemMaker(material);
 	}
 
 	public static BookItemMaker ofBook() {
@@ -887,6 +954,20 @@ public class ItemMaker implements Cloneable {
 
 		Potion(Material mat) {
 			m = mat;
+		}
+
+		public static Potion fromType(XMaterial material) {
+			switch (material) {
+			case POTION:
+				return POTION;
+			case LINGERING_POTION:
+				return LINGERING;
+			case SPLASH_POTION:
+				return SPLASH;
+			default:
+				break;
+			}
+			return POTION;
 		}
 
 		public Material toMaterial() {
@@ -908,6 +989,46 @@ public class ItemMaker implements Cloneable {
 
 		ShulkerBoxColor(XMaterial mat) {
 			m = mat;
+		}
+
+		public static ShulkerBoxColor fromType(XMaterial material) {
+			switch (material) {
+			case BLACK_SHULKER_BOX:
+				return BLACK;
+			case BLUE_SHULKER_BOX:
+				return BLUE;
+			case BROWN_SHULKER_BOX:
+				return BROWN;
+			case CYAN_SHULKER_BOX:
+				return CYAN;
+			case GRAY_SHULKER_BOX:
+				return GRAY;
+			case GREEN_SHULKER_BOX:
+				return GREEN;
+			case LIGHT_BLUE_SHULKER_BOX:
+				return LIGHT_BLUE;
+			case LIGHT_GRAY_SHULKER_BOX:
+				return LIGHT_GRAY;
+			case ORANGE_SHULKER_BOX:
+				return ORANGE;
+			case LIME_SHULKER_BOX:
+				return LIME;
+			case MAGENTA_SHULKER_BOX:
+				return MAGENTA;
+			case PINK_SHULKER_BOX:
+				return PINK;
+			case PURPLE_SHULKER_BOX:
+				return PURPLE;
+			case RED_SHULKER_BOX:
+				return RED;
+			case WHITE_SHULKER_BOX:
+				return WHITE;
+			case YELLOW_SHULKER_BOX:
+				return YELLOW;
+			default:
+				break;
+			}
+			return NONE;
 		}
 
 		public XMaterial toMaterial() {
@@ -934,6 +1055,62 @@ public class ItemMaker implements Cloneable {
 			m = mat;
 		}
 
+		public static BannerColor fromType(XMaterial material) {
+			switch (material) {
+			case BLACK_BANNER:
+			case BLACK_WALL_BANNER:
+				return BLACK;
+			case BLUE_BANNER:
+			case BLUE_WALL_BANNER:
+				return BLUE;
+			case BROWN_BANNER:
+			case BROWN_WALL_BANNER:
+				return BROWN;
+			case CYAN_BANNER:
+			case CYAN_WALL_BANNER:
+				return CYAN;
+			case GRAY_BANNER:
+			case GRAY_WALL_BANNER:
+				return GRAY;
+			case GREEN_BANNER:
+			case GREEN_WALL_BANNER:
+				return GREEN;
+			case LIGHT_BLUE_BANNER:
+			case LIGHT_BLUE_WALL_BANNER:
+				return LIGHT_BLUE;
+			case LIGHT_GRAY_BANNER:
+			case LIGHT_GRAY_WALL_BANNER:
+				return LIGHT_GRAY;
+			case ORANGE_BANNER:
+			case ORANGE_WALL_BANNER:
+				return ORANGE;
+			case LIME_BANNER:
+			case LIME_WALL_BANNER:
+				return LIME;
+			case MAGENTA_BANNER:
+			case MAGENTA_WALL_BANNER:
+				return MAGENTA;
+			case PINK_BANNER:
+			case PINK_WALL_BANNER:
+				return PINK;
+			case PURPLE_BANNER:
+			case PURPLE_WALL_BANNER:
+				return PURPLE;
+			case RED_BANNER:
+			case RED_WALL_BANNER:
+				return RED;
+			case WHITE_BANNER:
+			case WHITE_WALL_BANNER:
+				return WHITE;
+			case YELLOW_BANNER:
+			case YELLOW_WALL_BANNER:
+				return YELLOW;
+			default:
+				break;
+			}
+			return NONE;
+		}
+
 		public XMaterial toMaterial() {
 			return m;
 		}
@@ -947,8 +1124,8 @@ public class ItemMaker implements Cloneable {
 		if (stack == null)
 			return; // invalid item
 		config.remove(path); // clear section
-		if (!path.isEmpty() && !path.endsWith("."))
-			path += ".";
+		if (!path.isEmpty() && path.charAt(path.length() - 1) != '.')
+			path = path + '.';
 
 		XMaterial type = XMaterial.matchXMaterial(stack);
 		config.set(path + "type", type.name());
@@ -992,7 +1169,8 @@ public class ItemMaker implements Cloneable {
 		}
 		if (type.name().startsWith("LEATHER_") && meta instanceof LeatherArmorMeta) {
 			LeatherArmorMeta armor = (LeatherArmorMeta) meta;
-			config.set(path + "leather.color", "#" + Integer.toHexString(armor.getColor().asRGB()).substring(2));
+			String hex = Integer.toHexString(armor.getColor().asRGB());
+			config.set(path + "leather.color", "#" + (hex.length() > 6 ? hex.substring(2) : hex));
 		}
 		if (type == XMaterial.PLAYER_HEAD && meta instanceof SkullMeta) {
 			SkullMeta skull = (SkullMeta) meta;
@@ -1067,8 +1245,8 @@ public class ItemMaker implements Cloneable {
 
 	@Nullable // Nullable if section is empty / type is invalid
 	public static ItemStack loadFromConfig(Config config, String path) {
-		if (!path.isEmpty() && !path.endsWith("."))
-			path += ".";
+		if (!path.isEmpty() && path.charAt(path.length() - 1) != '.')
+			path = path + '.';
 		if (config.getString(path + "type", config.getString(path + "icon")) == null)
 			return null; // missing type
 
@@ -1186,8 +1364,8 @@ public class ItemMaker implements Cloneable {
 
 	@Nullable // Nullable if section is empty / type is invalid
 	public static ItemMaker loadMakerFromConfig(Config config, String path) {
-		if (!path.isEmpty() && !path.endsWith("."))
-			path += ".";
+		if (!path.isEmpty() && path.charAt(path.length() - 1) != '.')
+			path = path + '.';
 		if (config.getString(path + "type", config.getString(path + "icon")) == null)
 			return null; // missing type
 
