@@ -304,20 +304,16 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	}
 
 	private void getAllJarFiles() throws URISyntaxException {
-
-		System.out.println(System.getProperty("java.class.path"));
-		System.out.println(new File(System.getProperty("java.class.path")).getPath());
-
 		StringContainer args = new StringContainer(1024);
 		CodeSource source = Bukkit.getServer().getClass().getProtectionDomain().getCodeSource();
 		if (source != null) {
 			File file = new File(source.getLocation().toURI());
 			String fixedPath = file.getName();
 			while (file.getParentFile() != null && !isInsidePath(file.getParentFile().toPath(), new File(System.getProperty("java.class.path")).toPath())) {
-				fixedPath = file.getParentFile().getName() + (fixedPath.charAt(0) == '/' ? fixedPath : '/' + fixedPath);
+				fixedPath = file.getParentFile().getName() + '/' + fixedPath;
 				file = file.getParentFile();
 			}
-			MemoryCompiler.allJars += (System.getProperty("os.name").toLowerCase().contains("win") ? ";" : ":") + (fixedPath.charAt(0) == '/' ? fixedPath : '/' + fixedPath);
+			MemoryCompiler.allJars += (System.getProperty("os.name").toLowerCase().contains("win") ? ";" : ":") + (fixedPath.charAt(0) == '/' ? fixedPath : "./" + fixedPath);
 		}
 		addAllJarFiles(args, new File("plugins"), false); // Plugins
 		addAllJarFiles(args, new File("libraries"), true); // Libraries
@@ -340,10 +336,10 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				if (file.isDirectory() && sub)
 					addAllJarFiles(args, file, sub);
 				else if (file.getName().endsWith(".jar"))
-					if (!file.getPath().startsWith("/"))
-						args.append(splitChar).append('.').append('/').append(file.getPath());
+					if (file.getPath().charAt(0) == '/')
+						args.append(splitChar).append(file.getPath());
 					else
-						args.append(splitChar).append('.').append(file.getPath());
+						args.append(splitChar).append('.').append('/').append(file.getPath());
 	}
 
 	@Override
