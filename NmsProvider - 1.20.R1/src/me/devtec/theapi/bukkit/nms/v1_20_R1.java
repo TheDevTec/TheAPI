@@ -679,13 +679,13 @@ public class v1_20_R1 implements NmsProvider {
 	}
 
 	private static boolean isPaperChunkRework = Ref.getClass("io.papermc.paper.chunk.system.scheduling.ChunkHolderManager") != null;
+	private static Method getBlockStateFinal = Ref.method(net.minecraft.world.level.chunk.Chunk.class, "getBlockStateFinal", int.class, int.class, int.class);
 
 	@Override
 	public Object getBlock(Object objChunk, int x, int y, int z) {
 		net.minecraft.world.level.chunk.Chunk chunk = (net.minecraft.world.level.chunk.Chunk) objChunk;
 		if (isPaperChunkRework)
-			return chunk.getBlockStateFinal(x, y, z); // Modern getting of blocks, Thx
-		// PaperSpigot!
+			return Ref.invoke(chunk, getBlockStateFinal, x, y, z); // Modern getting of blocks, Thx PaperSpigot!
 		int highY = chunk.e(y);
 		if (highY < 0)
 			return Blocks.a.n();
