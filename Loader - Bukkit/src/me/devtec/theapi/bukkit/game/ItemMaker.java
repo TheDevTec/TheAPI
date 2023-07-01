@@ -487,19 +487,19 @@ public class ItemMaker implements Cloneable {
 			SkullMeta iMeta = (SkullMeta) meta;
 			if (owner != null)
 				switch (ownerType) {
-				case 0:
+				case 0: // Player
 					iMeta.setOwner(owner);
 					break;
-				case 1: {
+				case 1: { // Values
 					Ref.set(iMeta, HeadItemMaker.profileField, BukkitLoader.getNmsProvider().toGameProfile(GameProfileHandler.of("TheAPI", UUID.randomUUID(), PropertyHandler.of("textures", owner))));
 					break;
 				}
-				case 2: {
+				case 2: { // Url
 					Ref.set(iMeta, HeadItemMaker.profileField,
 							BukkitLoader.getNmsProvider().toGameProfile(GameProfileHandler.of("TheAPI", UUID.randomUUID(), PropertyHandler.of("textures", ItemMaker.fromUrl(owner)))));
 					break;
 				}
-				default:
+				default: // New dimension
 					break;
 				}
 			return super.apply(iMeta);
@@ -1312,7 +1312,7 @@ public class ItemMaker implements Cloneable {
 				String headType = config.getString(path + "head.type", "PLAYER").toUpperCase();
 				if (headType.equalsIgnoreCase("PLAYER"))
 					skull.setOwner(headOwner);
-				if (headType.equalsIgnoreCase("VALUES") || headType.equalsIgnoreCase("URL")) {
+				if (headType.equalsIgnoreCase("VALUES") || headType.equalsIgnoreCase("VALUE") || headType.equalsIgnoreCase("URL")) {
 					if (headType.equalsIgnoreCase("URL"))
 						headOwner = ItemMaker.fromUrl(headOwner);
 					Ref.set(skull, HeadItemMaker.profileField,
@@ -1399,7 +1399,7 @@ public class ItemMaker implements Cloneable {
 				String headType = config.getString(path + "head.type", "PLAYER").toUpperCase();
 				if (headType.equalsIgnoreCase("PLAYER"))
 					((HeadItemMaker) maker).skinName(headOwner);
-				else if (headType.equalsIgnoreCase("VALUES") || headType.equalsIgnoreCase("URL")) {
+				else if (headType.equalsIgnoreCase("VALUES") || headType.equalsIgnoreCase("VALUE") || headType.equalsIgnoreCase("URL")) {
 					if (headType.equalsIgnoreCase("URL"))
 						headOwner = ItemMaker.fromUrl(headOwner);
 					((HeadItemMaker) maker).skinValues(headOwner);
