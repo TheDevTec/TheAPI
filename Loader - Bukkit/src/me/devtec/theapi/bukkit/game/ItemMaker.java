@@ -86,15 +86,6 @@ public class ItemMaker implements Cloneable {
 		this.material = material;
 	}
 
-	public ItemMaker type(Material material) {
-		this.material = material;
-		return this;
-	}
-
-	public ItemMaker type(XMaterial material) {
-		return type(material.parseMaterial());
-	}
-
 	@Override
 	public ItemMaker clone() {
 		try {
@@ -136,15 +127,17 @@ public class ItemMaker implements Cloneable {
 		return meta;
 	}
 
-	public ItemMaker enchanted() {
-		if (itemFlags != null) {
-			itemFlags.add("HIDE_ENCHANTS");
-			itemFlags.add("HIDE_ATTRIBUTES");
-		} else
-			itemFlags("HIDE_ENCHANTS", "HIDE_ATTRIBUTES");
-		if (enchants == null || enchants != null && enchants.isEmpty())
-			return enchant(Enchantment.DURABILITY, 1);
+	public ItemMaker type(Material material) {
+		this.material = material;
 		return this;
+	}
+
+	public ItemMaker type(XMaterial material) {
+		return type(material.parseMaterial());
+	}
+
+	public Material getMaterial() {
+		return material;
 	}
 
 	public ItemMaker amount(int amount) {
@@ -274,6 +267,17 @@ public class ItemMaker implements Cloneable {
 		if (nbt == null)
 			return new NBTEdit(new ItemStack(material));
 		return nbt;
+	}
+
+	public ItemMaker enchanted() {
+		if (itemFlags != null) {
+			itemFlags.add("HIDE_ENCHANTS");
+			itemFlags.add("HIDE_ATTRIBUTES");
+		} else
+			itemFlags("HIDE_ENCHANTS", "HIDE_ATTRIBUTES");
+		if (enchants == null || enchants != null && enchants.isEmpty())
+			return enchant(Enchantment.DURABILITY, 1);
+		return this;
 	}
 
 	public ItemMaker itemMeta(ItemMeta meta) {
