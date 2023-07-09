@@ -29,6 +29,6 @@
 	<classpathentry kind="lib" path="D:/jars/mc/1.20_R1/netty-transport-native-unix-common-4.1.82.Final.jar"/>
 	<classpathentry kind="lib" path="D:/jars/mc/1.20_R1/slf4j-api-2.0.1.jar"/>
 	<classpathentry kind="lib" path="D:/jars/mc/1.20_R1/spigot-api-1.20-R0.1-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="C:/Users/strai/Downloads/spigot-1.20.1-R0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="D:/jars/mc/1.20_R1/paper-1.20.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

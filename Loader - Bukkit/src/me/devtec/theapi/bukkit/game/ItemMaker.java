@@ -931,8 +931,57 @@ public class ItemMaker implements Cloneable {
 		return new ItemMaker(material.parseMaterial()).data(material.getData());
 	}
 
-	public static ItemMaker of(Material material) {
-		return of(XMaterial.matchXMaterial(material));
+	public static ItemMaker of(Material bukkitMaterial) {
+		try {
+			XMaterial material = XMaterial.matchXMaterial(bukkitMaterial);
+			if (material != null) {
+				switch (material) {
+				case WRITABLE_BOOK:
+				case WRITTEN_BOOK:
+					return ofBook();
+				case LEATHER_HELMET:
+				case LEATHER_CHESTPLATE:
+				case LEATHER_LEGGINGS:
+				case LEATHER_BOOTS:
+					return ofLeatherArmor(material.parseMaterial());
+				case ENCHANTED_BOOK:
+					return ofEnchantedBook();
+				case POTION:
+				case LINGERING_POTION:
+				case SPLASH_POTION:
+					return ofPotion(Potion.fromType(material));
+				case BLACK_SHULKER_BOX:
+				case BLUE_SHULKER_BOX:
+				case BROWN_SHULKER_BOX:
+				case CYAN_SHULKER_BOX:
+				case GRAY_SHULKER_BOX:
+				case GREEN_SHULKER_BOX:
+				case LIGHT_BLUE_SHULKER_BOX:
+				case LIGHT_GRAY_SHULKER_BOX:
+				case ORANGE_SHULKER_BOX:
+				case LIME_SHULKER_BOX:
+				case MAGENTA_SHULKER_BOX:
+				case PINK_SHULKER_BOX:
+				case PURPLE_SHULKER_BOX:
+				case RED_SHULKER_BOX:
+				case WHITE_SHULKER_BOX:
+				case YELLOW_SHULKER_BOX:
+				case SHULKER_BOX:
+					return ofShulkerBox(ShulkerBoxColor.fromType(material));
+				case BUNDLE:
+					return ofBundle();
+				case PLAYER_HEAD:
+					return ofHead();
+				default:
+					break;
+				}
+				if (material.getId() == 425 || material.getId() == 177)
+					return ofBanner(BannerColor.fromType(material));
+				return new ItemMaker(material.parseMaterial()).data(material.getData());
+			}
+		} catch (IllegalArgumentException error) { // Modded item or null
+		}
+		return new ItemMaker(bukkitMaterial);
 	}
 
 	public static HeadItemMaker ofHead() {
@@ -1131,8 +1180,18 @@ public class ItemMaker implements Cloneable {
 		if (!path.isEmpty() && path.charAt(path.length() - 1) != '.')
 			path = path + '.';
 
-		XMaterial type = XMaterial.matchXMaterial(stack);
-		config.set(path + "type", type.name());
+		XMaterial type;
+		try {
+			type = XMaterial.matchXMaterial(stack);
+			if (type == null) {
+				type = XMaterial.STONE;
+				config.set(path + "type", stack.getType().name()); // Modded item
+			} else
+				config.set(path + "type", type.name());
+		} catch (IllegalArgumentException error) {
+			type = XMaterial.STONE;
+			config.set(path + "type", stack.getType().name()); // Modded item
+		}
 		config.set(path + "amount", stack.getAmount());
 		ItemMeta meta = stack.getItemMeta();
 		if (meta instanceof Damageable && ((Damageable) meta).getDamage() > 0)
@@ -1254,8 +1313,11 @@ public class ItemMaker implements Cloneable {
 		if (config.getString(path + "type", config.getString(path + "icon")) == null)
 			return null; // missing type
 
-		XMaterial type = XMaterial.matchXMaterial(config.getString(path + "type", config.getString(path + "icon")).toUpperCase()).orElse(XMaterial.STONE);
-		ItemStack stack = type.parseItem();
+		String materialTypeName = config.getString(path + "type", config.getString(path + "icon")).toUpperCase();
+		XMaterial type = XMaterial.matchXMaterial(materialTypeName).orElse(XMaterial.STONE);
+
+		Material bukkitType; // Modded server support
+		ItemStack stack = type == XMaterial.STONE && !materialTypeName.equals("STONE") && (bukkitType = Material.getMaterial(materialTypeName)) != null ? new ItemStack(bukkitType) : type.parseItem();
 
 		String nbt = config.getString(path + "nbt"); // additional nbt
 		if (nbt != null)
@@ -1373,7 +1435,8 @@ public class ItemMaker implements Cloneable {
 		if (config.getString(path + "type", config.getString(path + "icon")) == null)
 			return null; // missing type
 
-		XMaterial type = XMaterial.matchXMaterial(config.getString(path + "type", config.getString(path + "icon")).toUpperCase()).orElse(XMaterial.STONE);
+		String materialTypeName = config.getString(path + "type", config.getString(path + "icon")).toUpperCase();
+		XMaterial type = XMaterial.matchXMaterial(materialTypeName).orElse(XMaterial.STONE);
 		ItemMaker maker;
 
 		if (type.name().contains("BANNER")) {
@@ -1434,8 +1497,10 @@ public class ItemMaker implements Cloneable {
 			if (config.getString(path + "book.title") != null)
 				((BookItemMaker) maker).title(ColorUtils.colorize(config.getString(path + "book.title")));
 			((BookItemMaker) maker).pages(ColorUtils.colorize(config.getStringList(path + "book.pages")));
-		} else
-			maker = ItemMaker.of(type);
+		} else {
+			Material bukkitType; // Modded server support
+			maker = type == XMaterial.STONE && !materialTypeName.equals("STONE") && (bukkitType = Material.getMaterial(materialTypeName)) != null ? ItemMaker.of(bukkitType) : ItemMaker.of(type);
+		}
 
 		String nbt = config.getString(path + "nbt"); // additional nbt
 		if (nbt != null)
@@ -1476,9 +1541,10 @@ public class ItemMaker implements Cloneable {
 		if (stack == null)
 			return null; // invalid item
 
-		XMaterial type = XMaterial.matchXMaterial(stack);
+		ItemMaker maker = of(stack.getType());
 
-		ItemMaker maker = of(type.parseMaterial());
+		if (stack.getData() != null)
+			maker.data(stack.getData().getData());
 
 		ItemMeta meta = stack.getItemMeta();
 		maker = maker.itemMeta(meta);
