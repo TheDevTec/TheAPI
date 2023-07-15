@@ -733,6 +733,7 @@ public enum XMaterial {
 	 * @see #matchXMaterial(Material)
 	 * @since 2.0.0
 	 */
+	@SuppressWarnings("removal")
 	public static XMaterial matchXMaterial(ItemStack item) {
 		Objects.requireNonNull(item, "Cannot match null ItemStack");
 		String material = item.getType().name();
