@@ -511,7 +511,11 @@ public class BukkitLibInit {
 				Map<String, Object> map = new HashMap<>();
 				ItemStack item = (ItemStack) object;
 				map.put("classType", "ItemStack");
-				map.put("type", XMaterial.matchXMaterial(item.getType()).name());
+				try {
+					map.put("type", XMaterial.matchXMaterial(item.getType()).name());
+				} catch (IllegalArgumentException err) {
+					map.put("type", item.getType().name()); // Modded item
+				}
 				map.put("amount", item.getAmount());
 				if (item.hasItemMeta()) {
 					ItemMeta meta = item.getItemMeta();
@@ -581,7 +585,17 @@ public class BukkitLibInit {
 			@SuppressWarnings("unchecked")
 			@Override
 			public Object read(Map<String, Object> map) {
-				ItemMaker maker = ItemMaker.of(XMaterial.matchXMaterial(map.get("type").toString().toUpperCase()).orElse(XMaterial.STONE));
+				ItemMaker maker;
+				XMaterial material = XMaterial.matchXMaterial(map.get("type").toString().toUpperCase()).orElse(XMaterial.STONE);
+				if (material == XMaterial.STONE && !map.get("type").toString().toUpperCase().equals("STONE")) {
+					Material bukkitMaterial = Material.getMaterial(map.get("type").toString());
+					if (bukkitMaterial != null)
+						maker = ItemMaker.of(bukkitMaterial);
+					else
+						maker = ItemMaker.of(material);
+				} else
+					maker = ItemMaker.of(material);
+
 				if (map.containsKey("amount"))
 					maker.amount(((Number) map.get("amount")).intValue());
 				if (map.containsKey("durability"))
