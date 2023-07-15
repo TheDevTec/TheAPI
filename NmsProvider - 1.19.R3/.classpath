@@ -19,8 +19,8 @@
 	<classpathentry kind="lib" path="D:/jars/mc/1.18_R2/netty-all-4.1.68.Final.jar"/>
 	<classpathentry kind="lib" path="D:/jars/mc/1.18_R2/slf4j-api-1.8.0-beta4.jar"/>
 	<classpathentry kind="lib" path="D:/jars/depends/bungeecord-chat-1.16-R0.4.jar" sourcepath="C:/Users/strai/AppData/Local/Temp/.org.sf.feeling.decompiler1661462265166/source/bungeecord-chat-1.16-R0.4-sources.jar"/>
-	<classpathentry kind="lib" path="D:/jars/depends/adventure-api-4.11.0.jar"/>
-	<classpathentry kind="lib" path="D:/jars/depends/adventure-key-4.11.0.jar"/>
+	<classpathentry kind="lib" path="D:/jars/depends/adventure-api-4.14.0.jar"/>
+	<classpathentry kind="lib" path="D:/jars/depends/adventure-key-4.14.0.jar"/>
 	<classpathentry kind="lib" path="D:/jars/depends/examination-api-1.3.1.jar" sourcepath="C:/Users/strai/AppData/Local/Temp/.org.sf.feeling.decompiler1667427608572/source/examination-api-1.3.0-sources.jar"/>
 	<classpathentry kind="lib" path="D:/jars/mc/1.19_R3/paper-1.19.4.jar"/>
 	<classpathentry kind="lib" path="D:/jars/mc/1.19_R3/paper-api-1.19.4-R0.1-SNAPSHOT.jar"/>
