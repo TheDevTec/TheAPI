@@ -27,13 +27,13 @@ public interface NmsProvider {
     enum Action {
         CHANGE(0), REMOVE(1);
 
-        int id;
+        private final int id;
 
         Action(int i) {
             id = i;
         }
 
-        int getId() {
+        public int getId() {
             return id;
         }
     }
@@ -53,13 +53,13 @@ public interface NmsProvider {
     enum ChatType {
         CHAT(0), SYSTEM(1), GAME_INFO(2);
 
-        byte id;
+        private final byte id;
 
         ChatType(int i) {
             id = (byte) i;
         }
 
-        byte toByte() {
+        public byte toByte() {
             return id;
         }
     }
