@@ -112,6 +112,8 @@ public class ItemMaker implements Cloneable {
         return map;
     }
 
+    protected static Method setEnchantmentGlintOverride = Ref.method(ItemMeta.class,"setEnchantmentGlintOverride",boolean.class);
+
     protected ItemMeta apply(ItemMeta meta) {
         if (displayName != null)
             meta.setDisplayName(displayName);
@@ -119,7 +121,7 @@ public class ItemMaker implements Cloneable {
             meta.setLore(lore);
         if (enchantedGlow)
             if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 4)
-                meta.setEnchantmentGlintOverride(true);
+                Ref.invoke(meta,setEnchantmentGlintOverride,true);
             else {
                 if (itemFlags != null) {
                     itemFlags.add("HIDE_ENCHANTS");
