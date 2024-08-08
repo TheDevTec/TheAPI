@@ -44,7 +44,7 @@
         <dependency>
             <groupId>com.mojang</groupId>
             <artifactId>authlib</artifactId>
-            <version>6.0.54</version>
+            <version>3.11.50</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
