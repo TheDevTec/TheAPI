@@ -1,12 +1,12 @@
 package me.devtec.theapi.bukkit.game.itemmakers;
 
+import me.devtec.shared.annotations.Nullable;
 import me.devtec.theapi.bukkit.game.ItemMaker;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
-import javax.annotation.Nullable;
 import java.util.Map;
 
 public class LeatherItemMaker extends ItemMaker {

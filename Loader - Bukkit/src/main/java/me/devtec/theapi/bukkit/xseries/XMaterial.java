@@ -22,7 +22,6 @@
  */
 package me.devtec.theapi.bukkit.xseries;
 
-import com.google.common.base.Enums;
 import me.devtec.shared.Ref;
 import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.dataholder.cache.TempMap;
@@ -405,8 +404,6 @@ public enum XMaterial {
     public static final XMaterial[] VALUES = values();
 
     /**
-     * We don't want to use {@link Enums#getIfPresent(Class, String)} to avoid a few
-     * checks.
      *
      * @since 5.1.0
      */

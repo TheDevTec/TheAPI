@@ -1,6 +1,5 @@
 package me.devtec.theapi.bukkit.nms.utils;
 
-import com.google.common.collect.ImmutableList;
 import me.devtec.shared.Ref;
 import me.devtec.shared.annotations.Nullable;
 import me.devtec.shared.components.Component;
@@ -8,6 +7,8 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.nms.NmsProvider.DisplayType;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public class TeamUtils {
@@ -131,7 +132,7 @@ public class TeamUtils {
 
     public static Object createTeamPacket(int mode, Object color, Component prefix, Component suffix, String holderName, String teamName) {
         Object packet = BukkitLoader.getNmsProvider().packetScoreboardTeam();
-        ImmutableList<String> nameList = ImmutableList.of(holderName);
+        List<String> nameList = Collections.singletonList(holderName);
         String always = "ALWAYS";
         if (BukkitLoader.NO_OBFUSCATED_NMS_MODE || Ref.isNewerThan(16)) {
             Object o = Ref.newUnsafeInstance(TeamUtils.sbTeam);

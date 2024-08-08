@@ -1,11 +1,10 @@
 package me.devtec.theapi.bukkit.game.resourcepack;
 
 import me.devtec.shared.Ref;
+import me.devtec.shared.annotations.Nullable;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import javax.annotation.Nullable;
 
 public class ResourcePackAPI {
     public static void sendOffer(Player player, ResourcePackOffer offer, @Nullable ResourcePackHandler result) {

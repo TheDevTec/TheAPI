@@ -1,9 +1,9 @@
 package me.devtec.theapi.bukkit.game;
 
-import com.destroystokyo.paper.profile.ProfileProperty;
 import com.google.common.collect.Multimap;
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
+import me.devtec.shared.annotations.Nullable;
 import me.devtec.shared.components.Component;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.dataholder.Config;
@@ -30,9 +30,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.profile.PlayerProfile;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -43,6 +41,14 @@ public class ItemMaker implements Cloneable {
     protected static final Field SKIN_PROPERTIES = Ref.field(Ref.craft("profile.CraftPlayerProfile"), "properties");
     protected static final Field SKIN_VALUE = Ref.field(Ref.getClass("com.mojang.authlib.properties.Property"), "value");
     protected static final Field PROFILE_FIELD = Ref.field(Ref.craft("inventory.CraftMetaSkull"), "profile");
+    protected static Method getBaseColor = Ref.method(BannerMeta.class, "getBaseColor");
+    protected static Method getPlayerProfile = Ref.method(SkullMeta.class,"getPlayerProfile");
+    protected static Method getOwnerProfile = Ref.method(SkullMeta.class,"getOwnerProfile");
+    protected static Method getProperties = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.PlayerProfile"),"getProperties");
+    protected static Method getName = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"),"getName");
+    protected static Method getValue = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"),"getValue");
+    protected static Method getItems = Ref.method(Ref.getClass("org.bukkit.inventory.meta.BundleMeta"),"getItems");
+    protected static Method setEnchantmentGlintOverride = Ref.method(ItemMeta.class,"setEnchantmentGlintOverride",boolean.class);
 
     protected Material material;
     protected int amount = 1;
@@ -111,8 +117,6 @@ public class ItemMaker implements Cloneable {
             map.put("nbt", nbt.getNBT().toString());
         return map;
     }
-
-    protected static Method setEnchantmentGlintOverride = Ref.method(ItemMeta.class,"setEnchantmentGlintOverride",boolean.class);
 
     protected ItemMeta apply(ItemMeta meta) {
         if (displayName != null)
@@ -327,8 +331,6 @@ public class ItemMaker implements Cloneable {
         return this;
     }
 
-    private Method getBaseColor = Ref.method(BannerMeta.class, "getBaseColor");
-
     public ItemMaker itemMeta(ItemMeta meta) {
         XMaterial xmaterial = XMaterial.matchXMaterial(material);
         ItemMaker maker = this;
@@ -358,14 +360,15 @@ public class ItemMaker implements Cloneable {
             SkullMeta skull = (SkullMeta) meta;
             maker = ofHead();
             if (Ref.isNewerThan(16) && Ref.serverType() == ServerType.PAPER) {
-                com.destroystokyo.paper.profile.PlayerProfile profile = skull.getPlayerProfile();
-                for (ProfileProperty property : profile.getProperties())
-                    if (property.getName().equals("textures")) {
-                        ((HeadItemMaker) maker).skinValues(property.getValue());
+                Object profile = Ref.invoke(skull,getPlayerProfile);
+                Collection<?> properties = (Collection<?>) Ref.invoke(profile,getProperties);
+                for (Object property : properties)
+                    if (Ref.invoke(property,getName).equals("textures")) {
+                        ((HeadItemMaker) maker).skinValues((String)Ref.invoke(property,getValue));
                         break;
                     }
             } else if (Ref.isNewerThan(17)) {
-                PlayerProfile profile = skull.getOwnerProfile();
+                Object profile = Ref.invoke(skull,getOwnerProfile);
                 @SuppressWarnings("unchecked")
                 Multimap<String, Object> props = (Multimap<String, Object>) Ref.get(profile, SKIN_PROPERTIES);
                 Collection<Object> coll = props.get("textures");
@@ -653,9 +656,8 @@ public class ItemMaker implements Cloneable {
                     config.set(path + "modelData", modelData);
             }
             if (type == XMaterial.BUNDLE) {
-                BundleMeta iMeta = (BundleMeta) meta;
                 List<String> contents = new ArrayList<>();
-                for (ItemStack itemStack : iMeta.getItems())
+                for (ItemStack itemStack : (List<ItemStack>) Ref.invoke(meta,getItems))
                     if (itemStack != null && itemStack.getType() != Material.AIR)
                         contents.add(Json.writer().simpleWrite(ItemMaker.of(itemStack).serializeToMap()));
                 if (!contents.isEmpty())
@@ -684,15 +686,16 @@ public class ItemMaker implements Cloneable {
             } else if (type == XMaterial.PLAYER_HEAD && meta instanceof SkullMeta) {
                 SkullMeta skull = (SkullMeta) meta;
                 if (Ref.isNewerThan(16) && Ref.serverType() == ServerType.PAPER) {
-                    com.destroystokyo.paper.profile.PlayerProfile profile = skull.getPlayerProfile();
-                    for (ProfileProperty property : profile.getProperties())
-                        if (property.getName().equals("textures")) {
-                            config.set(path + "head.owner", property.getValue());
+                    Object profile = Ref.invoke(skull,getPlayerProfile);
+                    Collection<?> properties = (Collection<?>) Ref.invoke(profile,getProperties);
+                    for (Object property : properties)
+                        if (Ref.invoke(property,getName).equals("textures")) {
+                            config.set(path + "head.owner", (String)Ref.invoke(property,getValue));
                             config.set(path + "head.type", "VALUES");
                             break;
                         }
                 } else if (Ref.isNewerThan(17)) {
-                    PlayerProfile profile = skull.getOwnerProfile();
+                    Object profile = Ref.invoke(skull,getOwnerProfile);
                     @SuppressWarnings("unchecked")
                     Multimap<String, Object> props = (Multimap<String, Object>) Ref.get(profile, SKIN_PROPERTIES);
                     Collection<Object> coll = props.get("textures");

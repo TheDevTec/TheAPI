@@ -1,6 +1,7 @@
 package me.devtec.theapi.bukkit.game.itemmakers;
 
 import me.devtec.shared.Ref;
+import me.devtec.shared.annotations.Nullable;
 import me.devtec.theapi.bukkit.game.ItemMaker;
 import me.devtec.theapi.bukkit.xseries.XMaterial;
 import org.bukkit.Color;
@@ -9,7 +10,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

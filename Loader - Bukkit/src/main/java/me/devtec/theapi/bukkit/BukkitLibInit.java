@@ -166,10 +166,11 @@ public class BukkitLibInit {
                     Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]);
         } catch (Exception e) {
             // Paper 1.20.5+
-            Version ver = VersionUtils.getVersion(Bukkit.getServer().getMinecraftVersion(), "1.20.5");
+            String version = (String) Ref.invoke(Bukkit.getServer(),"getMinecraftVersion");
+            Version ver = VersionUtils.getVersion(version, "1.20.5");
             if (ver == Version.SAME_VERSION || ver == Version.NEWER_VERSION)
                 Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null ? Ref.getClass("net.kyori.adventure.Adventure") != null ? ServerType.PAPER : ServerType.SPIGOT : ServerType.BUKKIT,
-                        Bukkit.getServer().getMinecraftVersion());
+                        version);
         }
 
         Metrics.gatheringInfoManager = new GatheringInfoManager() {

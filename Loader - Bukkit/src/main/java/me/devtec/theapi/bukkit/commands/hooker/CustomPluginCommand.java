@@ -1,11 +1,10 @@
 package me.devtec.theapi.bukkit.commands.hooker;
 
-import com.google.common.base.Preconditions;
 import me.devtec.shared.commands.holder.CommandHolder;
 import org.bukkit.command.*;
 import org.bukkit.plugin.Plugin;
 
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 import java.util.List;
 
 public class CustomPluginCommand extends Command implements PluginIdentifiableCommand {
@@ -15,7 +14,7 @@ public class CustomPluginCommand extends Command implements PluginIdentifiableCo
     private TabCompleter completer;
     private final CommandHolder<?> commandHolder;
 
-    protected CustomPluginCommand(String name, Plugin owner, @Nullable CommandHolder<?> commandHolder) {
+    protected CustomPluginCommand(String name, Plugin owner, CommandHolder<?> commandHolder) {
         super(name);
         executor = owner;
         owningPlugin = owner;
@@ -45,7 +44,7 @@ public class CustomPluginCommand extends Command implements PluginIdentifiableCo
         return success;
     }
 
-    public void setExecutor(@Nullable CommandExecutor executor) {
+    public void setExecutor(CommandExecutor executor) {
         this.executor = executor == null ? owningPlugin : executor;
     }
 
@@ -53,11 +52,10 @@ public class CustomPluginCommand extends Command implements PluginIdentifiableCo
         return executor;
     }
 
-    public void setTabCompleter(@Nullable TabCompleter completer) {
+    public void setTabCompleter(TabCompleter completer) {
         this.completer = completer;
     }
 
-    @Nullable
     public TabCompleter getTabCompleter() {
         return completer;
     }
@@ -67,7 +65,6 @@ public class CustomPluginCommand extends Command implements PluginIdentifiableCo
         return owningPlugin;
     }
 
-    @Nullable
     public CommandHolder<?> getCommandHolder() {
         return commandHolder;
     }
@@ -84,11 +81,17 @@ public class CustomPluginCommand extends Command implements PluginIdentifiableCo
         return false;
     }
 
+    private static void checkArgument(boolean expression, Object errorMessage) {
+        if (!expression) {
+            throw new IllegalArgumentException(String.valueOf(errorMessage));
+        }
+    }
+
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws CommandException, IllegalArgumentException {
-        Preconditions.checkArgument(sender != null, "Sender cannot be null");
-        Preconditions.checkArgument(args != null, "Arguments cannot be null");
-        Preconditions.checkArgument(alias != null, "Alias cannot be null");
+        checkArgument(sender != null, "Sender cannot be null");
+        checkArgument(args != null, "Arguments cannot be null");
+        checkArgument(alias != null, "Alias cannot be null");
         List<String> completions = null;
 
         try {

@@ -1,10 +1,10 @@
 package me.devtec.theapi.bukkit.game.itemmakers;
 
-import com.destroystokyo.paper.profile.ProfileProperty;
 import com.google.common.collect.Multimap;
 import me.arcaniax.hdb.api.HeadDatabaseAPI;
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
+import me.devtec.shared.annotations.Nullable;
 import me.devtec.shared.json.Json;
 import me.devtec.shared.utility.StreamUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
@@ -16,9 +16,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.profile.PlayerProfile;
 
-import javax.annotation.Nullable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
@@ -38,6 +38,12 @@ public class HeadItemMaker extends ItemMaker {
 
     private static final Material skull = XMaterial.PLAYER_HEAD.parseMaterial();
     private static final String URL_FORMAT = "https://api.mineskin.org/generate/url?url=%s&%s";
+    private static final Method createProfile = Ref.method(Bukkit.class,"createProfile",UUID.class);
+    private static final Method setProperty = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.PlayerProfile"),"setProperty",Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"));
+    private static final Method setPlayerProfile = Ref.method(SkullMeta.class,"setPlayerProfile",Ref.getClass("com.destroystokyo.paper.profile.PlayerProfile"));
+    private static final Constructor<?> profileProperty= Ref.constructor(Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"),String.class,String.class);
+    private static final Method setOwnerProfile = Ref.method(SkullMeta.class,"setOwnerProfile",Ref.getClass("org.bukkit.profile.PlayerProfile"));
+    private static final Method createPlayerProfile = Ref.method(Bukkit.class,"createPlayerProfile",UUID.class, String.class);
 
     private String owner;
     /**
@@ -145,17 +151,17 @@ public class HeadItemMaker extends ItemMaker {
                         leastSignificant = leastSignificant << 8 | decodedBytes[i] & 0xff;
                     UUID uuid = new UUID(mostSignificant, leastSignificant);
                     if (Ref.isNewerThan(16) && Ref.serverType() == ServerType.PAPER) {
-                        com.destroystokyo.paper.profile.PlayerProfile profile = Bukkit.createProfile(uuid);
-                        profile.setProperty(new ProfileProperty("textures", finalValue));
-                        iMeta.setPlayerProfile(profile);
+                        Object profile = Ref.invokeStatic(createProfile,uuid);
+                        Ref.invoke(profile,setProperty,Ref.newInstance(profileProperty,"textures", finalValue));
+                        Ref.invoke(iMeta,setPlayerProfile,profile);
                     } else if (Ref.isNewerThan(17)) {
-                        PlayerProfile profile = Bukkit.createPlayerProfile(uuid, "");
+                        Object profile = Ref.invokeStatic(createPlayerProfile,uuid, "");
                         @SuppressWarnings("unchecked")
                         Multimap<String, Object> props = (Multimap<String, Object>) Ref.get(profile, SKIN_PROPERTIES);
                         props.removeAll("textures");
                         Object property = Ref.newInstance(Ref.constructor(Ref.getClass("com.mojang.authlib.properties.Property"), String.class, String.class, String.class), "textures", finalValue, null);
                         props.put("textures", property);
-                        iMeta.setOwnerProfile(profile);
+                        Ref.invoke(iMeta, setOwnerProfile,profile);
                     } else
                         Ref.set(iMeta, PROFILE_FIELD, BukkitLoader.getNmsProvider().toGameProfile(GameProfileHandler.of("", uuid, PropertyHandler.of("textures", finalValue))));
                     break;

@@ -1,6 +1,7 @@
 package me.devtec.theapi.bukkit.nms.utils;
 
 import me.devtec.shared.Pair;
+import me.devtec.shared.annotations.Nullable;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.gui.ItemGUI;
@@ -8,7 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import javax.annotation.Nullable;
 import java.util.*;
 
 public class InventoryUtils {

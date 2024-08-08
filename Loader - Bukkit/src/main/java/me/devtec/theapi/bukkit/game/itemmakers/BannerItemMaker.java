@@ -1,12 +1,12 @@
 package me.devtec.theapi.bukkit.game.itemmakers;
 
+import me.devtec.shared.annotations.Nullable;
 import me.devtec.theapi.bukkit.game.ItemMaker;
 import me.devtec.theapi.bukkit.xseries.XMaterial;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
