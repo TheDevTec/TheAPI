@@ -319,8 +319,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
                 getAllJarFiles();
                 checkForUpdateAndDownload();
                 if (new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".java").exists()) {
-                    nmsProvider = (NmsProvider) new MemoryCompiler(NO_OBFUSCATED_NMS_MODE ? getClassLoader() : Bukkit.getServer().getClass().getClassLoader(),
-                            "me.devtec.theapi.bukkit.nms." + serverVersion, new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".java")).buildClass().newInstance();
+                    nmsProvider = (NmsProvider) new MemoryCompiler(NO_OBFUSCATED_NMS_MODE ? getClassLoader() : Bukkit.getServer().getClass().getClassLoader(), serverVersion, new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".java")).buildClass().newInstance();
                     nmsProvider.loadParticles();
                 }
             } catch (Exception err) {
@@ -329,7 +328,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
                 checkForUpdateAndDownloadCompiled();
                 if (new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".jar").exists())
                     try (URLClassLoader cl = new URLClassLoader(new URL[]{new URL("jar:file:" + "plugins/TheAPI/NmsProviders/" + serverVersion + ".jar" + "!/")}, getClassLoader())) {
-                        Class<?> c = cl.loadClass("me.devtec.theapi.bukkit.nms." + serverVersion);
+                        Class<?> c = cl.loadClass(serverVersion);
                         nmsProvider = (NmsProvider) c.newInstance();
                         nmsProvider.loadParticles();
                     } catch (Exception e) {
@@ -340,7 +339,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
             checkForUpdateAndDownloadCompiled();
             if (new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".jar").exists())
                 try (URLClassLoader cl = new URLClassLoader(new URL[]{new URL("jar:file:" + "plugins/TheAPI/NmsProviders/" + serverVersion + ".jar" + "!/")}, getClassLoader())) {
-                    Class<?> c = cl.loadClass("me.devtec.theapi.bukkit.nms." + serverVersion);
+                    Class<?> c = cl.loadClass(serverVersion);
                     nmsProvider = (NmsProvider) c.newInstance();
                     nmsProvider.loadParticles();
                 } catch (Exception e) {
@@ -517,7 +516,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
         if (!serverVersion.startsWith("v"))
             serverVersion = 'v' + serverVersion;
         try {
-            Config gitVersion = Config.loadFromInput(new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/version.yml").openStream());
+            Config gitVersion = Config.loadFromInput(new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/main/version.yml").openStream());
 
             Config localVersion = new Config("plugins/TheAPI/version.yml");
 
@@ -536,7 +535,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
                 localVersion.set("build", gitVersion.getInt("build"));
                 localVersion.save(DataType.YAML);
 
-                URL url = new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + serverVersion.substring(1).replace('_', '.') + "/" + serverVersion + ".jar");
+                URL url = new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/main/NmsProvider%20-%20" + serverVersion.substring(1).replace('_', '.') + "/build/NmsProvider.jar");
                 Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §aDownloading update!");
                 API.library.downloadFileFromUrl(url, new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".jar"));
             }
@@ -550,7 +549,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
         if (!serverVersion.startsWith("v"))
             serverVersion = 'v' + serverVersion;
         try {
-            Config gitVersion = Config.loadFromInput(new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/version.yml").openStream());
+            Config gitVersion = Config.loadFromInput(new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/main/version.yml").openStream());
 
             Config localVersion = new Config("plugins/TheAPI/version.yml");
 
@@ -570,7 +569,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
                 localVersion.set("build", gitVersion.getInt("build"));
                 localVersion.save(DataType.YAML);
 
-                URL url = new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/master/NmsProvider%20-%20" + serverVersion.substring(1).replace('_', '.') + "/src/me/devtec/theapi/bukkit/nms/"
+                URL url = new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/main/NmsProvider%20-%20" + serverVersion.substring(1).replace('_', '.') + "/src/main/java/"
                         + serverVersion + ".java");
                 Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §aDownloading update!");
                 API.library.downloadFileFromUrl(url, new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".java"));
