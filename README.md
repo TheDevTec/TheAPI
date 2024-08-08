@@ -27,8 +27,8 @@ We bring the most useful and most wanted features directly for developers. From 
 </repositories>
 <dependencies>
     <dependency>
-        <groupId>com.github.TheDevTec.TheAPI</groupId>
-        <artifactId>Loader-Bukkit</artifactId>
+        <groupId>com.github.TheDevTec</groupId>
+        <artifactId>TheAPI</artifactId>
         <version>12.9.6</version>
         <scope>provided</scope>
     </dependency>
@@ -42,7 +42,7 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 dependencies {
-    compileOnly "com.github.TheDevTec.TheAPI:Loader-Bukkit:12.9.6"
+    compileOnly "com.github.TheDevTec:TheAPI:12.9.6"
 }
 ```
 
