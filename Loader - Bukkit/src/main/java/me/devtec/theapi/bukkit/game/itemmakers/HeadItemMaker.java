@@ -16,6 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.profile.PlayerProfile;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -39,11 +40,10 @@ public class HeadItemMaker extends ItemMaker {
     private static final Material skull = XMaterial.PLAYER_HEAD.parseMaterial();
     private static final String URL_FORMAT = "https://api.mineskin.org/generate/url?url=%s&%s";
     private static final Method createProfile = Ref.method(Bukkit.class,"createProfile",UUID.class);
+    private static Constructor<?> constructor = Ref.constructor(Ref.getClass("com.mojang.authlib.properties.Property"), String.class, String.class, String.class);
     private static final Method setProperty = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.PlayerProfile"),"setProperty",Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"));
     private static final Method setPlayerProfile = Ref.method(SkullMeta.class,"setPlayerProfile",Ref.getClass("com.destroystokyo.paper.profile.PlayerProfile"));
     private static final Constructor<?> profileProperty= Ref.constructor(Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"),String.class,String.class);
-    private static final Method setOwnerProfile = Ref.method(SkullMeta.class,"setOwnerProfile",Ref.getClass("org.bukkit.profile.PlayerProfile"));
-    private static final Method createPlayerProfile = Ref.method(Bukkit.class,"createPlayerProfile",UUID.class, String.class);
 
     private String owner;
     /**
@@ -155,13 +155,13 @@ public class HeadItemMaker extends ItemMaker {
                         Ref.invoke(profile,setProperty,Ref.newInstance(profileProperty,"textures", finalValue));
                         Ref.invoke(iMeta,setPlayerProfile,profile);
                     } else if (Ref.isNewerThan(17)) {
-                        Object profile = Ref.invokeStatic(createPlayerProfile,uuid, "");
+                        PlayerProfile profile = Bukkit.createPlayerProfile(uuid,"");
                         @SuppressWarnings("unchecked")
                         Multimap<String, Object> props = (Multimap<String, Object>) Ref.get(profile, SKIN_PROPERTIES);
                         props.removeAll("textures");
-                        Object property = Ref.newInstance(Ref.constructor(Ref.getClass("com.mojang.authlib.properties.Property"), String.class, String.class, String.class), "textures", finalValue, null);
+                        Object property = Ref.newInstance(constructor, "textures", finalValue, null);
                         props.put("textures", property);
-                        Ref.invoke(iMeta, setOwnerProfile,profile);
+                        iMeta.setOwnerProfile(profile);
                     } else
                         Ref.set(iMeta, PROFILE_FIELD, BukkitLoader.getNmsProvider().toGameProfile(GameProfileHandler.of("", uuid, PropertyHandler.of("textures", finalValue))));
                     break;

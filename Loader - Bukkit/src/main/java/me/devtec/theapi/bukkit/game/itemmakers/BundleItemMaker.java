@@ -5,6 +5,7 @@ import me.devtec.shared.annotations.Nullable;
 import me.devtec.theapi.bukkit.game.ItemMaker;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BundleMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.lang.reflect.Method;
@@ -56,14 +57,12 @@ public class BundleItemMaker extends ItemMaker {
         BundleItemMaker maker = (BundleItemMaker) super.clone();
         return maker.contents(contents);
     }
-    private static final Class<?> bundleMeta = Ref.getClass("org.bukkit.inventory.meta.BundleMeta");
-    private static final Method setItems = Ref.method(bundleMeta, "setItems",List.class);
 
     @Override
     protected ItemMeta apply(ItemMeta meta) {
-        if (!meta.getClass().isAssignableFrom(bundleMeta))
+        if (!(meta instanceof BundleMeta))
             return super.apply(meta);
-        Ref.invoke(meta, setItems, contents);
+        ((BundleMeta)meta).setItems(contents);
         return super.apply(meta);
     }
 

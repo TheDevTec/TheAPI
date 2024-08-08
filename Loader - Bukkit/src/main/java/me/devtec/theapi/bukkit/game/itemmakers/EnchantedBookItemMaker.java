@@ -26,7 +26,7 @@ public class EnchantedBookItemMaker extends ItemMaker {
         if (super.lore != null)
             iMeta.setLore(super.lore);
         if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 4)
-            Ref.invoke(meta,setEnchantmentGlintOverride,true);
+            meta.setEnchantmentGlintOverride(true);
         else {
             if (itemFlags != null) {
                 itemFlags.add("HIDE_ENCHANTS");
