@@ -1,5 +1,6 @@
 package me.devtec.theapi.bukkit.game.resourcepack;
 
+import lombok.Getter;
 import me.devtec.shared.components.Component;
 
 import java.io.InputStream;
@@ -18,8 +19,10 @@ public class ResourcePackOffer {
         }
     }
 
+    @Getter
     private String url;
     private String sha1;
+    @Getter
     private Optional<Component> prompt;
     private boolean force;
 
@@ -30,10 +33,6 @@ public class ResourcePackOffer {
     private ResourcePackOffer(String url) {
         this.url = url;
         prompt = Optional.empty();
-    }
-
-    public String getUrl() {
-        return url;
     }
 
     public ResourcePackOffer setHash​(String sha1) {
@@ -77,10 +76,6 @@ public class ResourcePackOffer {
     public ResourcePackOffer setPrompt(Component prompt) {
         this.prompt = Optional.ofNullable(prompt);
         return this;
-    }
-
-    public Optional<Component> getPrompt() {
-        return prompt;
     }
 
     public ResourcePackOffer setShouldForce​(boolean force) {

@@ -157,7 +157,7 @@ public class Position implements Cloneable {
     }
 
     public Position setWorld(String worldName) {
-        if (worldName == null ? world != null : !worldName.equals(world)) {
+        if (!Objects.equals(worldName, world)) {
             world = worldName;
             cachedChunk = null;
         }
@@ -412,9 +412,7 @@ public class Position implements Cloneable {
     public static void updateBlockAt(Position pos) {
         Object packet = BukkitLoader.getNmsProvider().packetBlockChange(pos, pos.getIBlockData(), pos.getData());
         List<Player> players = new ArrayList<>();
-        Iterator<? extends Player> itr = BukkitLoader.getOnlinePlayers().iterator();
-        while (itr.hasNext()) {
-            Player player = itr.next();
+        for (Player player : BukkitLoader.getOnlinePlayers()) {
             if (player.getWorld().getName().equals(pos.getWorldName()))
                 players.add(player);
         }
@@ -424,9 +422,7 @@ public class Position implements Cloneable {
     public static void updateBlockAt(Position pos, BlockDataStorage blockData) {
         Object packet = BukkitLoader.getNmsProvider().packetBlockChange(pos, blockData.getIBlockData(), blockData.getItemData());
         List<Player> players = new ArrayList<>();
-        Iterator<? extends Player> itr = BukkitLoader.getOnlinePlayers().iterator();
-        while (itr.hasNext()) {
-            Player player = itr.next();
+        for (Player player : BukkitLoader.getOnlinePlayers()) {
             if (player.getWorld().getName().equals(pos.getWorldName()))
                 players.add(player);
         }
@@ -460,9 +456,7 @@ public class Position implements Cloneable {
         setAir();
         Object packet = BukkitLoader.getNmsProvider().packetBlockChange(this, null, 0);
         List<Player> players = new ArrayList<>();
-        Iterator<? extends Player> itr = BukkitLoader.getOnlinePlayers().iterator();
-        while (itr.hasNext()) {
-            Player player = itr.next();
+        for (Player player : BukkitLoader.getOnlinePlayers()) {
             if (player.getWorld().getName().equals(getWorldName()))
                 players.add(player);
         }

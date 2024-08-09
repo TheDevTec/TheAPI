@@ -1,6 +1,5 @@
 package me.devtec.theapi.bukkit.game.itemmakers;
 
-import me.devtec.shared.Ref;
 import me.devtec.shared.annotations.Nullable;
 import me.devtec.theapi.bukkit.game.ItemMaker;
 import org.bukkit.Material;
@@ -8,7 +7,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BundleMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

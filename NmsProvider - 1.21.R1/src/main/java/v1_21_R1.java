@@ -2,22 +2,11 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -270,7 +259,7 @@ public class v1_21_R1 implements NmsProvider {
 	@Override
 	public Object packetResourcePackSend(String url, String hash, boolean requireRP, Component prompt) {
 		return new ClientboundResourcePackPushPacket(UUID.randomUUID(), url, hash, requireRP,
-				prompt == null ? null : prompt == null ? Optional.empty() : Optional.of((IChatBaseComponent) this.toIChatBaseComponent(prompt)));
+                prompt == null ? null : Optional.of((IChatBaseComponent) this.toIChatBaseComponent(prompt)));
 	}
 
 	@Override
@@ -338,21 +327,15 @@ public class v1_21_R1 implements NmsProvider {
 
 	@Override
 	public Object packetTitle(TitleAction action, Component text, int fadeIn, int stay, int fadeOut) {
-		switch (action) {
-		case ACTIONBAR:
-			return new ClientboundSetActionBarTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
-		case TITLE:
-			return new ClientboundSetTitleTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
-		case SUBTITLE:
-			return new ClientboundSetSubtitleTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
-		case TIMES:
-			return new ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut);
-		case CLEAR:
-		case RESET:
-			return new ClientboundClearTitlesPacket(true);
-		}
-		return null;
-	}
+        return switch (action) {
+            case ACTIONBAR ->
+                    new ClientboundSetActionBarTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
+            case TITLE -> new ClientboundSetTitleTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
+            case SUBTITLE -> new ClientboundSetSubtitleTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
+            case TIMES -> new ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut);
+            case CLEAR, RESET -> new ClientboundClearTitlesPacket(true);
+        };
+    }
 
 	@Override
 	public Object packetChat(ChatType type, Object chatBase, UUID uuid) {
@@ -442,20 +425,15 @@ public class v1_21_R1 implements NmsProvider {
 	public Object[] toIChatBaseComponents(List<Component> components) {
 		List<IChatBaseComponent> chat = new ArrayList<>();
 		chat.add(IChatBaseComponent.b(""));
-		for (Component c : components) {
-			if (c.getText() == null || c.getText().isEmpty()) {
-				if (c.getExtra() != null)
-					addConverted(chat, c.getExtra());
-				continue;
-			}
-			chat.add(convert(c));
-			if (c.getExtra() != null)
-				addConverted(chat, c.getExtra());
-		}
+		convertComponents(chat, components);
 		return chat.toArray(new IChatBaseComponent[0]);
 	}
 
 	private void addConverted(List<IChatBaseComponent> chat, List<Component> extra) {
+		convertComponents(chat, extra);
+	}
+
+	private void convertComponents(List<IChatBaseComponent> chat, List<Component> extra) {
 		for (Component c : extra) {
 			if (c.getText() == null || c.getText().isEmpty()) {
 				if (c.getExtra() != null)
@@ -549,8 +527,7 @@ public class v1_21_R1 implements NmsProvider {
 			case SHOW_ENTITY: {
 				net.minecraft.network.chat.ChatHoverable.b hover = modif.i().a(EnumHoverAction.c);
 				ComponentEntity compEntity = new ComponentEntity(hover.b.toString(), hover.c);
-				if (hover.d.isPresent())
-					compEntity.setName(fromIChatBaseComponent(hover.d.get()));
+                hover.d.ifPresent(iChatBaseComponent -> compEntity.setName(fromIChatBaseComponent(iChatBaseComponent)));
 				comp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ENTITY, compEntity));
 				break;
 			}
@@ -702,7 +679,7 @@ public class v1_21_R1 implements NmsProvider {
 			boolean shouldSkip = true;
 			if (!onlyModifyState)
 				shouldSkip = false;
-			else if (onlyModifyState && !ent.r().a(iblock)) {
+			else if (!ent.r().a(iblock)) {
 				shouldSkip = false;
 				onlyModifyState = false;
 			}
@@ -839,7 +816,7 @@ public class v1_21_R1 implements NmsProvider {
 		return ((EntityPlayer) getPlayer(player)).c;
 	}
 
-	private static Field networkManagerField = Ref.field(ServerCommonPacketListenerImpl.class, NetworkManager.class);
+	private static final Field networkManagerField = Ref.field(ServerCommonPacketListenerImpl.class, NetworkManager.class);
 
 	@Override
 	public Object getConnectionNetwork(Object playercon) {
@@ -1101,55 +1078,52 @@ public class v1_21_R1 implements NmsProvider {
 	private void processEvent(Container c, InventoryClickType type, HolderGUI gui, Player player, int slot, int gameSlot, ItemStack newItem, ItemStack oldItem, PacketPlayInWindowClick packet,
 			int mouseClick, ClickType clickType, EntityHuman nPlayer) {
 		c.h();
-		switch (type) {
-		case b: {
-			ItemStack[] contents = slot < gui.size() ? player.getInventory().getStorageContents() : gui.getInventory().getStorageContents();
-			boolean interactWithResultSlot = false;
-			if (gui instanceof AnvilGUI && slot < gui.size() && slot == 2)
-				if (c.b(2).a(nPlayer))
-					interactWithResultSlot = true;
-				else
-					return;
-			Pair result = slot < gui.size()
-					? InventoryUtils.shift(slot, player, gui, clickType, gui instanceof AnvilGUI && slot != 2 ? DestinationType.PLAYER_FROM_ANVIL : DestinationType.PLAYER, null, contents, oldItem)
-					: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.GUI, gui.getNotInterableSlots(player), contents, oldItem);
-			@SuppressWarnings("unchecked")
-			Map<Integer, ItemStack> modified = (Map<Integer, ItemStack>) result.getValue();
-			int remaining = (int) result.getKey();
+        if (Objects.requireNonNull(type) == InventoryClickType.b) {
+            ItemStack[] contents = slot < gui.size() ? player.getInventory().getStorageContents() : gui.getInventory().getStorageContents();
+            boolean interactWithResultSlot = false;
+            if (gui instanceof AnvilGUI && slot < gui.size() && slot == 2)
+                if (c.b(2).a(nPlayer))
+                    interactWithResultSlot = true;
+                else
+                    return;
+            Pair result = slot < gui.size()
+                    ? InventoryUtils.shift(slot, player, gui, clickType, gui instanceof AnvilGUI && slot != 2 ? DestinationType.PLAYER_FROM_ANVIL : DestinationType.PLAYER, null, contents, oldItem)
+                    : InventoryUtils.shift(slot, player, gui, clickType, DestinationType.GUI, gui.getNotInterableSlots(player), contents, oldItem);
+            @SuppressWarnings("unchecked")
+            Map<Integer, ItemStack> modified = (Map<Integer, ItemStack>) result.getValue();
+            int remaining = (int) result.getKey();
 
-			if (!modified.isEmpty())
-				if (slot < gui.size()) {
-					for (Entry<Integer, ItemStack> modif : modified.entrySet())
-						nPlayer.fY().a(modif.getKey(), (net.minecraft.world.item.ItemStack) asNMSItem(modif.getValue()));
-					if (remaining == 0) {
-						c.b(gameSlot).d((net.minecraft.world.item.ItemStack) asNMSItem(null));
-						if (interactWithResultSlot) {
-							c.b(0).d((net.minecraft.world.item.ItemStack) asNMSItem(null));
-							c.b(1).d((net.minecraft.world.item.ItemStack) asNMSItem(null));
-						}
-					} else {
-						newItem.setAmount(remaining);
-						c.b(gameSlot).d((net.minecraft.world.item.ItemStack) asNMSItem(newItem));
-					}
-				} else {
-					for (Entry<Integer, ItemStack> modif : modified.entrySet())
-						c.b(modif.getKey()).d((net.minecraft.world.item.ItemStack) asNMSItem(modif.getValue())); // Visual & Nms side
-					// Plugin & Bukkit side
-					gui.getInventory().setStorageContents(contents);
-					if (remaining == 0)
-						nPlayer.fY().a(gameSlot, (net.minecraft.world.item.ItemStack) asNMSItem(null));
-					else {
-						newItem.setAmount(remaining);
-						nPlayer.fY().a(gameSlot, (net.minecraft.world.item.ItemStack) asNMSItem(newItem));
-					}
-				}
-			c.i();
-			return;
-		}
-		default:
-			processClick(gui, gui.getNotInterableSlots(player), c, slot, mouseClick, type, nPlayer);
-			break;
-		}
+            if (!modified.isEmpty())
+                if (slot < gui.size()) {
+                    for (Entry<Integer, ItemStack> modif : modified.entrySet())
+                        nPlayer.fY().a(modif.getKey(), (net.minecraft.world.item.ItemStack) asNMSItem(modif.getValue()));
+                    if (remaining == 0) {
+                        c.b(gameSlot).d((net.minecraft.world.item.ItemStack) asNMSItem(null));
+                        if (interactWithResultSlot) {
+                            c.b(0).d((net.minecraft.world.item.ItemStack) asNMSItem(null));
+                            c.b(1).d((net.minecraft.world.item.ItemStack) asNMSItem(null));
+                        }
+                    } else {
+                        newItem.setAmount(remaining);
+                        c.b(gameSlot).d((net.minecraft.world.item.ItemStack) asNMSItem(newItem));
+                    }
+                } else {
+                    for (Entry<Integer, ItemStack> modif : modified.entrySet())
+                        c.b(modif.getKey()).d((net.minecraft.world.item.ItemStack) asNMSItem(modif.getValue())); // Visual & Nms side
+                    // Plugin & Bukkit side
+                    gui.getInventory().setStorageContents(contents);
+                    if (remaining == 0)
+                        nPlayer.fY().a(gameSlot, (net.minecraft.world.item.ItemStack) asNMSItem(null));
+                    else {
+                        newItem.setAmount(remaining);
+                        nPlayer.fY().a(gameSlot, (net.minecraft.world.item.ItemStack) asNMSItem(newItem));
+                    }
+                }
+            c.i();
+            return;
+        } else {
+            processClick(gui, gui.getNotInterableSlots(player), c, slot, mouseClick, type, nPlayer);
+        }
 		postToMainThread(() -> {
 			if (type != InventoryClickType.f && (c.a().equals(Containers.i) || c.a().equals(Containers.v)))
 				c.b();
@@ -1164,8 +1138,8 @@ public class v1_21_R1 implements NmsProvider {
 		});
 	}
 
-	private Method addAmount = Ref.method(Slot.class, "b", int.class);
-	private Method checkItem = Ref.method(Container.class, "a", EntityHuman.class, ClickAction.class, Slot.class, net.minecraft.world.item.ItemStack.class, net.minecraft.world.item.ItemStack.class);
+	private final Method addAmount = Ref.method(Slot.class, "b", int.class);
+	private final Method checkItem = Ref.method(Container.class, "a", EntityHuman.class, ClickAction.class, Slot.class, net.minecraft.world.item.ItemStack.class, net.minecraft.world.item.ItemStack.class);
 
 	@SuppressWarnings("unchecked")
 	private void processClick(HolderGUI gui, List<Integer> ignoredSlots, Container container, int slotIndex, int button, InventoryClickType actionType, EntityHuman player) {
@@ -1326,7 +1300,7 @@ public class v1_21_R1 implements NmsProvider {
 		}
 	}
 
-	private Field containerU = Ref.field(Container.class, "u"), containerV = Ref.field(Container.class, "v"), containerT = Ref.field(Container.class, "t");
+	private final Field containerU = Ref.field(Container.class, "u"), containerV = Ref.field(Container.class, "v"), containerT = Ref.field(Container.class, "t");
 
 	@SuppressWarnings("unchecked")
 	private void processDragMove(HolderGUI gui, Container container, EntityHuman player, int slot, int mouseClick) {
@@ -1668,7 +1642,6 @@ public class v1_21_R1 implements NmsProvider {
 	}
 
 	static Field setField, listField;
-	static Constructor<?> clientboundConstructor;
 
 	static {
 		setField = Ref.field(ClientboundPlayerInfoUpdatePacket.class, "b");
@@ -1740,7 +1713,7 @@ public class v1_21_R1 implements NmsProvider {
 		return profile;
 	}
 
-	private Field name = Ref.field(Property.class, "name"), value = Ref.field(Property.class, "value"), signature = Ref.field(Property.class, "signature");
+	private final Field name = Ref.field(Property.class, "name"), value = Ref.field(Property.class, "value"), signature = Ref.field(Property.class, "signature");
 
 	@Override
 	public GameProfileHandler fromGameProfile(Object gameProfile) {
