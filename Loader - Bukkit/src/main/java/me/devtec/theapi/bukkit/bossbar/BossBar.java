@@ -1,5 +1,6 @@
 package me.devtec.theapi.bukkit.bossbar;
 
+import lombok.Getter;
 import me.devtec.shared.Ref;
 import me.devtec.shared.scheduler.Tasker;
 import me.devtec.shared.utility.ColorUtils;
@@ -29,9 +30,12 @@ public class BossBar {
 
     private final Player holder;
     private World before;
+    @Getter
     private boolean hidden;
 
+    @Getter
     private String title;
+    @Getter
     private double progress;
 
     private Object entityBar;
@@ -83,18 +87,6 @@ public class BossBar {
         Ref.set(packet, "e", (byte) 0);
         Ref.set(packet, "f", (byte) 0);
         BukkitLoader.getPacketHandler().send(holder, packet);
-    }
-
-    public boolean isHidden() {
-        return hidden;
-    }
-
-    public double getProgress() {
-        return progress;
-    }
-
-    public String getTitle() {
-        return title;
     }
 
     public void hide() {

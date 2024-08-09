@@ -157,7 +157,6 @@ public class VelocityLoader {
             final Method addToClassloaders = Ref.method(Ref.getClass("com.velocitypowered.proxy.plugin.PluginClassLoader"), "addToClassloaders");
             final List<File> loaded = new ArrayList<>();
 
-            @SuppressWarnings("resource")
             @Override
             public void load(File file) {
                 if (isLoaded(file) || !file.exists())

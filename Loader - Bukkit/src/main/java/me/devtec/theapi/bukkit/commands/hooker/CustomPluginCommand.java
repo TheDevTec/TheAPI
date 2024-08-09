@@ -1,17 +1,19 @@
 package me.devtec.theapi.bukkit.commands.hooker;
 
+import lombok.Getter;
 import me.devtec.shared.commands.holder.CommandHolder;
 import org.bukkit.command.*;
 import org.bukkit.plugin.Plugin;
 
-import javax.annotation.CheckForNull;
 import java.util.List;
 
 public class CustomPluginCommand extends Command implements PluginIdentifiableCommand {
 
     private final Plugin owningPlugin;
+    @Getter
     private CommandExecutor executor;
     private TabCompleter completer;
+    @Getter
     private final CommandHolder<?> commandHolder;
 
     protected CustomPluginCommand(String name, Plugin owner, CommandHolder<?> commandHolder) {
@@ -48,10 +50,6 @@ public class CustomPluginCommand extends Command implements PluginIdentifiableCo
         this.executor = executor == null ? owningPlugin : executor;
     }
 
-    public CommandExecutor getExecutor() {
-        return executor;
-    }
-
     public void setTabCompleter(TabCompleter completer) {
         this.completer = completer;
     }
@@ -63,10 +61,6 @@ public class CustomPluginCommand extends Command implements PluginIdentifiableCo
     @Override
     public Plugin getPlugin() {
         return owningPlugin;
-    }
-
-    public CommandHolder<?> getCommandHolder() {
-        return commandHolder;
     }
 
     @Override

@@ -30,6 +30,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,7 +72,7 @@ public class BukkitLibInit {
         }
 
         @Override
-        public Enumeration<JarEntry> entries() {
+        public @NotNull Enumeration<JarEntry> entries() {
             List<Enumeration<JarEntry>> totalEntries = new ArrayList<>();
             totalEntries.add(super.entries());
             for (JarFile search : file)
@@ -438,6 +439,16 @@ public class BukkitLibInit {
             };
     }
 
+    private static void getDataFromPosition(Location pos,Map<String,Object> map){
+        map.put("classType", "org.bukkit.Location");
+        map.put("world", pos.getWorld().getName());
+        map.put("x", pos.getX());
+        map.put("y", pos.getY());
+        map.put("z", pos.getZ());
+        map.put("yaw", pos.getYaw());
+        map.put("pitch", pos.getPitch());
+    }
+
     private static void registerWriterAndReaders() {
         // world
         Json.registerDataWriter(new DataWriter() {
@@ -476,13 +487,7 @@ public class BukkitLibInit {
             public Map<String, Object> write(Object object) {
                 Map<String, Object> map = new HashMap<>();
                 Location pos = (Location) object;
-                map.put("classType", "org.bukkit.Location");
-                map.put("world", pos.getWorld().getName());
-                map.put("x", pos.getX());
-                map.put("y", pos.getY());
-                map.put("z", pos.getZ());
-                map.put("yaw", pos.getYaw());
-                map.put("pitch", pos.getPitch());
+                getDataFromPosition(pos,map);
                 return map;
             }
 
@@ -512,13 +517,7 @@ public class BukkitLibInit {
             public Map<String, Object> write(Object object) {
                 Map<String, Object> map = new HashMap<>();
                 Position pos = (Position) object;
-                map.put("classType", "Position");
-                map.put("world", pos.getWorldName());
-                map.put("x", pos.getX());
-                map.put("y", pos.getY());
-                map.put("z", pos.getZ());
-                map.put("yaw", pos.getYaw());
-                map.put("pitch", pos.getPitch());
+                getDataFromPosition(pos.toLocation(),map);
                 return map;
             }
 

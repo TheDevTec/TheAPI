@@ -287,13 +287,10 @@ public class v1_7_R4 implements NmsProvider {
         if (c.getClickEvent() != null)
             modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
         if (c.getHoverEvent() != null)
-            switch (c.getHoverEvent().getAction()) {
-                case SHOW_ITEM:
-                    modif = modif.a(new ChatHoverable(EnumHoverAction.SHOW_ITEM, ChatSerializer.a(Json.writer().simpleWrite(c.getHoverEvent().getValue().toJsonMap()))));
-                    break;
-                default:
-                    modif = modif.a(new ChatHoverable(EnumHoverAction.SHOW_TEXT, (IChatBaseComponent) this.toIChatBaseComponent(c.getHoverEvent().getValue())));
-                    break;
+            if (Objects.requireNonNull(c.getHoverEvent().getAction()) == HoverEvent.Action.SHOW_ITEM) {
+                modif = modif.a(new ChatHoverable(EnumHoverAction.SHOW_ITEM, ChatSerializer.a(Json.writer().simpleWrite(c.getHoverEvent().getValue().toJsonMap()))));
+            } else {
+                modif = modif.a(new ChatHoverable(EnumHoverAction.SHOW_TEXT, (IChatBaseComponent) this.toIChatBaseComponent(c.getHoverEvent().getValue())));
             }
         modif.setBold(c.isBold());
         modif.setItalic(c.isItalic());
@@ -415,15 +412,12 @@ public class v1_7_R4 implements NmsProvider {
             comp.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(modif.h().a().name()), modif.h().b()));
 
         if (modif.i() != null)
-            switch (HoverEvent.Action.valueOf(modif.i().a().b().toUpperCase())) {
-                case SHOW_ITEM:
-                    ComponentItem compEntity = ComponentItem.fromJson(modif.i().b().e());
-                    if (compEntity != null)
-                        comp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, ComponentItem.fromJson(modif.i().b().e())));
-                    break;
-                default:
-                    comp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, fromIChatBaseComponent(modif.i().b())));
-                    break;
+            if (HoverEvent.Action.valueOf(modif.i().a().b().toUpperCase()) == HoverEvent.Action.SHOW_ITEM) {
+                ComponentItem compEntity = ComponentItem.fromJson(modif.i().b().e());
+                if (compEntity != null)
+                    comp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, ComponentItem.fromJson(modif.i().b().e())));
+            } else {
+                comp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, fromIChatBaseComponent(modif.i().b())));
             }
         comp.setBold(modif.b());
         comp.setItalic(modif.c());
@@ -469,7 +463,7 @@ public class v1_7_R4 implements NmsProvider {
         return itemStack;
     }
 
-    private static Field chunkLoader = Ref.field(ChunkProviderServer.class, "f");
+    private static final Field chunkLoader = Ref.field(ChunkProviderServer.class, "f");
 
     @Override
     public Object getChunk(World world, int x, int z) {
@@ -486,16 +480,14 @@ public class v1_7_R4 implements NmsProvider {
                 }
                 if (chunk != null) {
                     ((ChunkProviderServer) sworld.L()).chunks.put(ChunkCoordIntPair.a(x, z), chunk);
-                    postToMainThread(() -> {
-                        chunk.addEntities();
-                    });
+                    postToMainThread(chunk::addEntities);
                     loaded = chunk;
                 }
             } catch (Exception e) {
             }
         if (loaded == null) { // generate new chunk
             ChunkRegionLoader loader = null;
-            if ((IChunkLoader) Ref.get(sworld.L(), chunkLoader) instanceof ChunkRegionLoader)
+            if (Ref.get(sworld.L(), chunkLoader) instanceof ChunkRegionLoader)
                 loader = (ChunkRegionLoader) Ref.get(sworld.L(), chunkLoader);
 
             if (loader != null && loader.chunkExists(sworld, x, z))
@@ -508,9 +500,9 @@ public class v1_7_R4 implements NmsProvider {
         return loaded;
     }
 
-    private static Field tileEntityBlock = Ref.field(TileEntity.class, "h");
-    private static Field isCachedInWorld = Ref.field(net.minecraft.server.v1_7_R4.World.class, "M");
-    private static Field tileEntityWorld = Ref.field(net.minecraft.server.v1_7_R4.World.class, "a");
+    private static final Field tileEntityBlock = Ref.field(TileEntity.class, "h");
+    private static final Field isCachedInWorld = Ref.field(net.minecraft.server.v1_7_R4.World.class, "M");
+    private static final Field tileEntityWorld = Ref.field(net.minecraft.server.v1_7_R4.World.class, "a");
 
     @SuppressWarnings("unchecked")
     @Override
