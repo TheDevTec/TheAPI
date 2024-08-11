@@ -8,19 +8,10 @@ import java.util.Map;
 import java.util.UUID;
 
 public class GameProfileHandler {
-    /**
-     * -- GETTER --
-     *
-     * @return GameProfile's Username
-     *
-     */
     @Getter
     private String username;
     private UUID uuid;
-    /**
-     * -- GETTER --
-     *
-     */
+
     @Getter
     private final Map<String, PropertyHandler> properties = new HashMap<>();
 
@@ -78,20 +69,8 @@ public class GameProfileHandler {
 
     @Getter
     public static class PropertyHandler {
-        /**
-         * -- GETTER --
-         *
-         */
         private String name;
-        /**
-         * -- GETTER --
-         *
-         */
         private String values;
-        /**
-         * -- GETTER --
-         *
-         */
         private String signature;
 
         public static PropertyHandler of(String name, String values) {

@@ -327,14 +327,20 @@ public class v1_21_R1 implements NmsProvider {
 
 	@Override
 	public Object packetTitle(TitleAction action, Component text, int fadeIn, int stay, int fadeOut) {
-        return switch (action) {
-            case ACTIONBAR ->
-                    new ClientboundSetActionBarTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
-            case TITLE -> new ClientboundSetTitleTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
-            case SUBTITLE -> new ClientboundSetSubtitleTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
-            case TIMES -> new ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut);
-            case CLEAR, RESET -> new ClientboundClearTitlesPacket(true);
-        };
+		switch (action) {
+			case ACTIONBAR:
+				return new ClientboundSetActionBarTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
+			case TITLE:
+				return new ClientboundSetTitleTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
+			case SUBTITLE:
+				return new ClientboundSetSubtitleTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
+			case TIMES:
+				return new ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut);
+			case CLEAR:
+			case RESET:
+				return new ClientboundClearTitlesPacket(true);
+		}
+		return null;
     }
 
 	@Override

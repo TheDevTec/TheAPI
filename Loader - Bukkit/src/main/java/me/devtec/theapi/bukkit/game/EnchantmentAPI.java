@@ -209,7 +209,7 @@ public enum EnchantmentAPI {
             if (Ref.isNewerThan(12))
                 unregistered = ((Map<?, ?>) Ref.get(null, byKey)).remove(Ref.get(enchantment, key)) != null;
             else
-                unregistered = ((Map<Integer, Enchantment>) Ref.get(null, byId)).remove(Ref.get(enchantment, id)) != null;
+                unregistered = ((Map<Integer, Enchantment>) Ref.get(null, byId)).remove((Integer)Ref.get(enchantment, id)) != null;
         } catch (Exception ignored) {
         }
         return unregistered;

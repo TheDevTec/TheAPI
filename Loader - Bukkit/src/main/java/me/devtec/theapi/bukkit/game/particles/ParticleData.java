@@ -46,12 +46,12 @@ public class ParticleData {
 
         @Override
         public float getValueY() {
-            return super.getValueY();
+            return 0;
         }
 
         @Override
         public float getValueZ() {
-            return super.getValueZ();
+            return 0;
         }
 
         @Override

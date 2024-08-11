@@ -439,16 +439,6 @@ public class BukkitLibInit {
             };
     }
 
-    private static void getDataFromPosition(Location pos,Map<String,Object> map){
-        map.put("classType", "org.bukkit.Location");
-        map.put("world", pos.getWorld().getName());
-        map.put("x", pos.getX());
-        map.put("y", pos.getY());
-        map.put("z", pos.getZ());
-        map.put("yaw", pos.getYaw());
-        map.put("pitch", pos.getPitch());
-    }
-
     private static void registerWriterAndReaders() {
         // world
         Json.registerDataWriter(new DataWriter() {
@@ -487,7 +477,13 @@ public class BukkitLibInit {
             public Map<String, Object> write(Object object) {
                 Map<String, Object> map = new HashMap<>();
                 Location pos = (Location) object;
-                getDataFromPosition(pos,map);
+                map.put("classType", "org.bukkit.Location");
+                map.put("world", pos.getWorld().getName());
+                map.put("x", pos.getX());
+                map.put("y", pos.getY());
+                map.put("z", pos.getZ());
+                map.put("yaw", pos.getYaw());
+                map.put("pitch", pos.getPitch());
                 return map;
             }
 
@@ -517,7 +513,13 @@ public class BukkitLibInit {
             public Map<String, Object> write(Object object) {
                 Map<String, Object> map = new HashMap<>();
                 Position pos = (Position) object;
-                getDataFromPosition(pos.toLocation(),map);
+                map.put("classType", "org.bukkit.Location");
+                map.put("world", pos.getWorld().getName());
+                map.put("x", pos.getX());
+                map.put("y", pos.getY());
+                map.put("z", pos.getZ());
+                map.put("yaw", pos.getYaw());
+                map.put("pitch", pos.getPitch());
                 return map;
             }
 
