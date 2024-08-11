@@ -3,12 +3,12 @@
   <parent>
     <artifactId>TheAPI</artifactId>
     <groupId>me.devtec.theapi.loaders</groupId>
-    <version>12.9.6</version>
+    <version>12.9.7</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>AdventureAPI</artifactId>
   <name>AdventureAPI</name>
-  <version>12.9.6</version>
+  <version>12.9.7</version>
   <dependencies>
     <dependency>
       <groupId>net.kyori</groupId>

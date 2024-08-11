@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-@Plugin(id = "theapi", name = "TheAPI", version = "12.9.6", authors = {"DevTec", "Straikerinos"}, url = "https://www.spigotmc.org/resources/72679/")
+@Plugin(id = "theapi", name = "TheAPI", version = "12.9.7", authors = {"DevTec", "Straikerinos"}, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 
     // Init static APIs
@@ -153,7 +153,7 @@ public class VelocityLoader {
         API.initOfflineCache(new Config("velocity.toml").getBoolean("online-mode"), new Config("plugins/TheAPI/Cache.dat"));
 
         API.library = new LibraryLoader() {
-            final Constructor<?> constructor = Ref.constructor(Ref.getClass("com.velocitypowered.proxy.plugin.PluginClassLoader"), URL[].class);
+            final Constructor<?> constructor = Ref.getConstructors(Ref.getClass("com.velocitypowered.proxy.plugin.PluginClassLoader"))[0];
             final Method addToClassloaders = Ref.method(Ref.getClass("com.velocitypowered.proxy.plugin.PluginClassLoader"), "addToClassloaders");
             final List<File> loaded = new ArrayList<>();
 
@@ -163,7 +163,8 @@ public class VelocityLoader {
                     return;
                 loaded.add(file);
                 try {
-                    Ref.invoke(Ref.newInstance(constructor, new URL[]{file.toURI().toURL()}), addToClassloaders);
+                    URL[] urls = new URL[]{file.toURI().toURL()};
+                    Ref.invoke(Ref.newInstance(constructor, (Object)urls), addToClassloaders);
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
