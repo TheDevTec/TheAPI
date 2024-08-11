@@ -6,11 +6,11 @@
     <parent>
         <groupId>me.devtec.theapi.loaders</groupId>
         <artifactId>TheAPI</artifactId>
-        <version>12.9.6</version>
+        <version>12.9.7</version>
     </parent>
 
     <artifactId>NmsProvider-1.19.R1</artifactId>
-    <version>12.9.6</version>
+    <version>12.9.7</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -54,7 +54,7 @@
         <dependency>
             <groupId>me.devtec.theapi.loaders</groupId>
             <artifactId>Loader-Bukkit</artifactId>
-            <version>12.9.6</version>
+            <version>12.9.7</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
