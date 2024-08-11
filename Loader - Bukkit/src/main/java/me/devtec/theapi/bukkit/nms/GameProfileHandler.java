@@ -1,5 +1,6 @@
 package me.devtec.theapi.bukkit.nms;
 
+import lombok.Getter;
 import me.devtec.theapi.bukkit.BukkitLoader;
 
 import java.util.HashMap;
@@ -7,8 +8,11 @@ import java.util.Map;
 import java.util.UUID;
 
 public class GameProfileHandler {
+    @Getter
     private String username;
     private UUID uuid;
+
+    @Getter
     private final Map<String, PropertyHandler> properties = new HashMap<>();
 
     public static GameProfileHandler of(String username, UUID uuid) {
@@ -22,14 +26,6 @@ public class GameProfileHandler {
         GameProfileHandler profile = of(username,uuid);
         profile.properties.put("textures", textures);
         return profile;
-    }
-
-    /**
-     * @return GameProfile's Username
-     * @apiNote Get username of GameProfile
-     */
-    public String getUsername() {
-        return username;
     }
 
     /**
@@ -57,13 +53,6 @@ public class GameProfileHandler {
     }
 
     /**
-     * @apiNote Get skin properties
-     */
-    public Map<String, PropertyHandler> getProperties() {
-        return properties;
-    }
-
-    /**
      * @apiNote Set skin textures properties
      */
     public GameProfileHandler setTextures(PropertyHandler textures) {
@@ -78,6 +67,7 @@ public class GameProfileHandler {
         return BukkitLoader.getNmsProvider().toGameProfile(this);
     }
 
+    @Getter
     public static class PropertyHandler {
         private String name;
         private String values;
@@ -96,32 +86,11 @@ public class GameProfileHandler {
         }
 
         /**
-         * @apiNote Get property name
-         */
-        public String getName() {
-            return name;
-        }
-
-        /**
-         * @apiNote Get property values
-         */
-        public String getValues() {
-            return values;
-        }
-
-        /**
          * @apiNote Set property values
          */
         public PropertyHandler setValues(String value) {
             values = value;
             return this;
-        }
-
-        /**
-         * @apiNote Get property signature
-         */
-        public String getSignature() {
-            return signature;
         }
 
         /**

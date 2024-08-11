@@ -43,6 +43,7 @@ import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import javax.tools.ToolProvider;
 import java.io.File;
@@ -400,60 +401,33 @@ public class BukkitLoader extends JavaPlugin implements Listener {
                     return me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player == null ? null : Bukkit.getOfflinePlayer(player), "%" + text + "%");
                 }
             };
-            for (PlaceholderExpansion exp : PlaceholderAPI.getPlaceholders())
-                ((me.clip.placeholderapi.expansion.PlaceholderExpansion) exp.setPapiInstance(new me.clip.placeholderapi.expansion.PlaceholderExpansion() {
-                    @Override
-                    public String onRequest(OfflinePlayer player, String params) {
-                        return exp.apply(params, player == null ? null : player.getUniqueId());
-                    }
-
-                    @Override
-                    public String getName() {
-                        return exp.getName();
-                    }
-
-                    @Override
-                    public String getIdentifier() {
-                        return exp.getName().toLowerCase();
-                    }
-
-                    @Override
-                    public String getAuthor() {
-                        return "(Unknown) TheAPI Provided Placeholder";
-                    }
-
-                    @Override
-                    public String getVersion() {
-                        return BukkitLoader.this.getDescription().getVersion();
-                    }
-                }).getPapiInstance()).register();
+            PlaceholderAPI.unregisterConsumer = exp -> ((me.clip.placeholderapi.expansion.PlaceholderExpansion) exp.getPapiInstance()).unregister();
             PlaceholderAPI.registerConsumer = exp -> ((me.clip.placeholderapi.expansion.PlaceholderExpansion) exp.setPapiInstance(new me.clip.placeholderapi.expansion.PlaceholderExpansion() {
                 @Override
-                public String onRequest(OfflinePlayer player, String params) {
+                public String onRequest(OfflinePlayer player, @NotNull String params) {
                     return exp.apply(params, player == null ? null : player.getUniqueId());
                 }
 
                 @Override
-                public String getName() {
+                public @NotNull String getName() {
                     return exp.getName();
                 }
 
                 @Override
-                public String getIdentifier() {
+                public @NotNull String getIdentifier() {
                     return exp.getName().toLowerCase();
                 }
 
                 @Override
-                public String getAuthor() {
+                public @NotNull String getAuthor() {
                     return "(Unknown) TheAPI Provided Placeholder";
                 }
 
                 @Override
-                public String getVersion() {
+                public @NotNull String getVersion() {
                     return BukkitLoader.this.getDescription().getVersion();
                 }
             }).getPapiInstance()).register();
-            PlaceholderAPI.unregisterConsumer = exp -> ((me.clip.placeholderapi.expansion.PlaceholderExpansion) exp.getPapiInstance()).unregister();
         }
 
         // Command to reload NmsProvider
@@ -517,13 +491,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
             serverVersion = 'v' + serverVersion;
         try {
             Config gitVersion = Config.loadFromInput(new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/main/version.yml").openStream());
-
             Config localVersion = new Config("plugins/TheAPI/version.yml");
-
-            localVersion.setIfAbsent("build", 1);
-            localVersion.setComments("build", Arrays.asList("# DO NOT MODIFY THIS VALUE"));
-
-            Version ver = VersionUtils.getVersion(gitVersion.getString("release"), "" + release);
+            Version ver = getGitVersion(localVersion, gitVersion);
 
             if (ver != Version.OLDER_VERSION && ver != Version.SAME_VERSION && new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".jar").exists()) {
                 Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Can't download new NmsProvider, please update TheAPI.");
@@ -544,19 +513,20 @@ public class BukkitLoader extends JavaPlugin implements Listener {
         }
     }
 
+    private Version getGitVersion(Config localVersion, Config gitVersion) {
+        localVersion.setIfAbsent("build", 1);
+        localVersion.setComments("build", Collections.singletonList("# DO NOT MODIFY THIS VALUE"));
+        return VersionUtils.getVersion(gitVersion.getString("release"), "" + release);
+    }
+
     private void checkForUpdateAndDownload() {
         String serverVersion = Ref.serverVersion().replace('.', '_');
         if (!serverVersion.startsWith("v"))
             serverVersion = 'v' + serverVersion;
         try {
             Config gitVersion = Config.loadFromInput(new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/main/version.yml").openStream());
-
             Config localVersion = new Config("plugins/TheAPI/version.yml");
-
-            localVersion.setIfAbsent("build", 1);
-            localVersion.setComments("build", Arrays.asList("# DO NOT MODIFY THIS VALUE"));
-
-            Version ver = VersionUtils.getVersion(gitVersion.getString("release"), "" + release);
+            Version ver = getGitVersion(localVersion, gitVersion);
 
             if (ver != Version.OLDER_VERSION && ver != Version.SAME_VERSION && new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".java").exists()) {
                 Bukkit.getConsoleSender().sendMessage("[TheAPI NmsProvider Updater] §cERROR! Can't download new NmsProvider, please update TheAPI.");

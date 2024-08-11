@@ -1,5 +1,7 @@
 package me.devtec.theapi.bukkit.events;
 
+import lombok.Getter;
+import lombok.Setter;
 import me.devtec.shared.events.Cancellable;
 import me.devtec.shared.events.Event;
 import me.devtec.shared.events.ListenerHolder;
@@ -15,11 +17,21 @@ public class ServerListPingEvent extends Event implements Cancellable {
     private boolean cancel;
     private int online;
     private int max;
+    @Setter
+    @Getter
     private int protocol;
+    @Getter
     private List<GameProfileHandler> slots;
+    @Setter
+    @Getter
     private String motd;
+    @Setter
+    @Getter
     private String favicon;
+    @Setter
+    @Getter
     private String version;
+    @Getter
     private final InetAddress address;
 
     public ServerListPingEvent(int online, int max, List<GameProfileHandler> slots, String motd, String favicon, InetAddress inetAddress, String ver, int protocol) {
@@ -31,26 +43,6 @@ public class ServerListPingEvent extends Event implements Cancellable {
         this.protocol = protocol;
         address = inetAddress;
         version = ver;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String ver) {
-        version = ver;
-    }
-
-    public int getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(int protocol) {
-        this.protocol = protocol;
-    }
-
-    public InetAddress getAddress() {
-        return address;
     }
 
     public int getOnlinePlayers() {
@@ -69,28 +61,8 @@ public class ServerListPingEvent extends Event implements Cancellable {
         this.max = max;
     }
 
-    public List<GameProfileHandler> getSlots() {
-        return slots;
-    }
-
     public void setPlayersText(List<GameProfileHandler> slots) {
         this.slots = slots;
-    }
-
-    public String getMotd() {
-        return motd;
-    }
-
-    public void setMotd(String motd) {
-        this.motd = motd;
-    }
-
-    public String getFavicon() {
-        return favicon;
-    }
-
-    public void setFavicon(String falvicon) {
-        favicon = falvicon;
     }
 
     @Override

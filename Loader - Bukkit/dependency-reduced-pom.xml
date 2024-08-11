@@ -45,6 +45,12 @@
       <version>12.9.7</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.34</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

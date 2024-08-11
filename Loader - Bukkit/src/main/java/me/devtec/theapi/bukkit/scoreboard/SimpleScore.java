@@ -32,9 +32,9 @@ public class SimpleScore {
             sb.setTitle(name);
             if (!Ref.isNewerThan(7)) {
                 Collections.reverse(lines);
-                if (lines.size() > 15)
-                    for (int i = 15; i < lines.size(); ++i)
-                        lines.remove(i);
+                if (lines.size() > 15){
+                    lines.subList(15,lines.size()).clear();
+                }
             }
             if (sb.getLines().size() > lines.size())
                 sb.removeUpperLines(lines.size() - 1);

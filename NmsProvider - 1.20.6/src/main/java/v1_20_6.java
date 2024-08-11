@@ -209,7 +209,7 @@ public class v1_20_6 implements NmsProvider {
     @Override
     public Object packetResourcePackSend(String url, String hash, boolean requireRP, Component prompt) {
         return new ClientboundResourcePackPushPacket(UUID.randomUUID(), url, hash, requireRP,
-                prompt == null ? null : prompt == null ? Optional.empty() : Optional.of((net.minecraft.network.chat.Component) this.toIChatBaseComponent(prompt)));
+                prompt == null ? Optional.empty() : Optional.of((net.minecraft.network.chat.Component) this.toIChatBaseComponent(prompt)));
     }
 
     @Override

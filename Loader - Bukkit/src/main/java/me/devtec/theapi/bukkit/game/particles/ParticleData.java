@@ -1,5 +1,6 @@
 package me.devtec.theapi.bukkit.game.particles;
 
+import lombok.Getter;
 import me.devtec.shared.Ref;
 import me.devtec.theapi.bukkit.game.BlockDataStorage;
 import me.devtec.theapi.bukkit.xseries.XMaterial;
@@ -60,6 +61,7 @@ public class ParticleData {
         }
     }
 
+    @Getter
     public static class RedstoneOptions extends ParticleData {
         private final float red;
         private final float green;
@@ -93,18 +95,6 @@ public class ParticleData {
             this(1, red, green, blue);
         }
 
-        public float getRed() {
-            return red;
-        }
-
-        public float getGreen() {
-            return green;
-        }
-
-        public float getBlue() {
-            return blue;
-        }
-
         @Override
         public float getValueX() {
             return red / 255.0F;
@@ -120,10 +110,6 @@ public class ParticleData {
             return blue / 255.0F;
         }
 
-        public float getSize() {
-            return size;
-        }
-
         @Override
         public int hashCode() {
             int hash = 1;
@@ -135,6 +121,7 @@ public class ParticleData {
     }
 
     public static class ItemOptions extends ParticleData {
+        @Getter
         private final ItemStack item;
         private int[] packetData;
 
@@ -166,15 +153,11 @@ public class ParticleData {
                 }
         }
 
-        public ItemStack getItem() {
-            return item;
-        }
-
         @Deprecated
         /**
          * @apiNote 1.12.2 and older only.
          * @return packedData of item
-         */
+         **/
         public int[] getPacketData() {
             return packetData;
         }
