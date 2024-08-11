@@ -270,7 +270,7 @@ public class v1_20_R4 implements NmsProvider {
 	@Override
 	public Object packetResourcePackSend(String url, String hash, boolean requireRP, Component prompt) {
 		return new ClientboundResourcePackPushPacket(UUID.randomUUID(), url, hash, requireRP,
-				prompt == null ? null : prompt == null ? Optional.empty() : Optional.of((IChatBaseComponent) this.toIChatBaseComponent(prompt)));
+				prompt == null ? Optional.empty() : Optional.of((IChatBaseComponent) this.toIChatBaseComponent(prompt)));
 	}
 
 	@Override

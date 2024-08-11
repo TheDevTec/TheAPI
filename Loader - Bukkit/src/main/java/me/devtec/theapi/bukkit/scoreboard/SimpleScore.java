@@ -33,9 +33,7 @@ public class SimpleScore {
             if (!Ref.isNewerThan(7)) {
                 Collections.reverse(lines);
                 if (lines.size() > 15){
-                    List<String> newList = lines.subList(0,15);
-                    lines.clear();
-                    lines.addAll(newList);
+                    lines.subList(15,lines.size()).clear();
                 }
             }
             if (sb.getLines().size() > lines.size())
