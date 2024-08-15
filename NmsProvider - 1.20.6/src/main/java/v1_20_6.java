@@ -229,17 +229,17 @@ public class v1_20_6 implements NmsProvider {
 
     @Override
     public Object packetSpawnEntity(Object entity, int id) {
-        return new ClientboundAddEntityPacket((net.minecraft.world.entity.Entity) entity, id);
+        return new ClientboundAddEntityPacket((net.minecraft.world.entity.Entity) entity, id, ((net.minecraft.world.entity.Entity) entity).blockPosition());
     }
 
     @Override
     public Object packetNamedEntitySpawn(Object player) {
-        return new ClientboundAddEntityPacket((net.minecraft.world.entity.player.Player) player);
+        return new ClientboundAddEntityPacket((net.minecraft.world.entity.player.Player) player,0, ((net.minecraft.world.entity.Entity) player).blockPosition());
     }
 
     @Override
     public Object packetSpawnEntityLiving(Object entityLiving) {
-        return new ClientboundAddEntityPacket((net.minecraft.world.entity.LivingEntity) entityLiving);
+        return new ClientboundAddEntityPacket((net.minecraft.world.entity.LivingEntity) entityLiving, 0, ((net.minecraft.world.entity.LivingEntity) entityLiving).blockPosition());
     }
 
     @Override
@@ -340,7 +340,7 @@ public class v1_20_6 implements NmsProvider {
                     try {
                         ComponentEntity compoundTag = (ComponentEntity) c.getHoverEvent().getValue();
                         net.minecraft.network.chat.Component component = compoundTag.getName() == null ? null : (net.minecraft.network.chat.Component) toIChatBaseComponent(compoundTag.getName());
-                        EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(new ResourceLocation(compoundTag.getType()));
+                        EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.tryParse(compoundTag.getType()));
                         modif = modif.withHoverEvent(new net.minecraft.network.chat.HoverEvent(net.minecraft.network.chat.HoverEvent.Action.SHOW_ENTITY,
                                 new net.minecraft.network.chat.HoverEvent.EntityTooltipInfo(entityType, compoundTag.getId(), component)));
                     } catch (Exception commandSyntaxException) {
@@ -1402,8 +1402,8 @@ public class v1_20_6 implements NmsProvider {
                     BufferedImage var1;
                     try {
                         var1 = ImageIO.read(new File(event.getFavicon()));
-                        Preconditions.checkState(var1.getWidth() == 64, "Must be 64 pixels wide");
-                        Preconditions.checkState(var1.getHeight() == 64, "Must be 64 pixels high");
+                        if (var1.getWidth() != 64) throw new IOException("Must be 64 pixels wide");
+                        if (var1.getHeight() != 64) throw new IOException("Must be 64 pixels high");
                         ByteArrayOutputStream var2 = new ByteArrayOutputStream();
                         ImageIO.write(var1, "PNG", var2);
                         serverIcon = Optional.of(new Favicon(var2.toByteArray()));
@@ -1652,7 +1652,7 @@ public class v1_20_6 implements NmsProvider {
 
     @Override
     public String getProviderName() {
-        return "PaperMC 1.20.6";
+        return "PaperMC (1.20.6) "+Bukkit.getMinecraftVersion();
     }
 
     @Override

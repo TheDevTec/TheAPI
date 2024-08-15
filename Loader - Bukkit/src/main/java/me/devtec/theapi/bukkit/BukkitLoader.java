@@ -313,12 +313,21 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
     private void loadProvider(boolean canUseJavaFile) throws Exception {
         String serverVersion = Ref.serverVersion().replace('.', '_');
-        if (!serverVersion.startsWith("v"))
+        if (!serverVersion.startsWith("v")) {
+            if(Ref.serverType()==ServerType.PAPER && (Ref.isNewerThan(20)||Ref.isNewerThan(19) && Ref.serverVersionRelease()>=6)) {
+                try {
+                    Config mappings = Config.loadFromInput(new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/main/paper-mappings.yml").openStream());
+                    serverVersion = mappings.getString(serverVersion);
+                }catch(Exception noInternetConnection){
+
+                }
+            }
             serverVersion = 'v' + serverVersion;
+        }
         if (ToolProvider.getSystemJavaCompiler() != null && !canUseJavaFile)
             try {
                 getAllJarFiles();
-                checkForUpdateAndDownload();
+                checkForUpdateAndDownload(serverVersion);
                 if (new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".java").exists()) {
                     nmsProvider = (NmsProvider) new MemoryCompiler(NO_OBFUSCATED_NMS_MODE ? getClassLoader() : Bukkit.getServer().getClass().getClassLoader(), serverVersion, new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".java")).buildClass().newInstance();
                     nmsProvider.loadParticles();
@@ -326,7 +335,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
             } catch (Exception err) {
                 err.printStackTrace();
                 Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize("&7> &4Error! Failed to load NmsProvider from .java file, loading from .jar."));
-                checkForUpdateAndDownloadCompiled();
+                checkForUpdateAndDownloadCompiled(serverVersion);
                 if (new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".jar").exists())
                     try (URLClassLoader cl = new URLClassLoader(new URL[]{new URL("jar:file:" + "plugins/TheAPI/NmsProviders/" + serverVersion + ".jar" + "!/")}, getClassLoader())) {
                         Class<?> c = cl.loadClass(serverVersion);
@@ -337,7 +346,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
                     }
             }
         else { // JRE
-            checkForUpdateAndDownloadCompiled();
+            checkForUpdateAndDownloadCompiled(serverVersion);
             if (new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".jar").exists())
                 try (URLClassLoader cl = new URLClassLoader(new URL[]{new URL("jar:file:" + "plugins/TheAPI/NmsProviders/" + serverVersion + ".jar" + "!/")}, getClassLoader())) {
                     Class<?> c = cl.loadClass(serverVersion);
@@ -485,10 +494,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
         API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save("properties");
     }
 
-    private void checkForUpdateAndDownloadCompiled() {
-        String serverVersion = Ref.serverVersion().replace('.', '_');
-        if (!serverVersion.startsWith("v"))
-            serverVersion = 'v' + serverVersion;
+    private void checkForUpdateAndDownloadCompiled(String serverVersion) {
         try {
             Config gitVersion = Config.loadFromInput(new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/main/version.yml").openStream());
             Config localVersion = new Config("plugins/TheAPI/version.yml");
@@ -519,10 +525,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
         return VersionUtils.getVersion(gitVersion.getString("release"), "" + release);
     }
 
-    private void checkForUpdateAndDownload() {
-        String serverVersion = Ref.serverVersion().replace('.', '_');
-        if (!serverVersion.startsWith("v"))
-            serverVersion = 'v' + serverVersion;
+    private void checkForUpdateAndDownload(String serverVersion) {
         try {
             Config gitVersion = Config.loadFromInput(new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/main/version.yml").openStream());
             Config localVersion = new Config("plugins/TheAPI/version.yml");
