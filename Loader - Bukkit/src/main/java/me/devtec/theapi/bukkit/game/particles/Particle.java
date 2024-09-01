@@ -1,5 +1,6 @@
 package me.devtec.theapi.bukkit.game.particles;
 
+import lombok.Getter;
 import me.devtec.shared.Ref;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.game.Position;
@@ -18,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Particle {
     public static final Map<String, Object> identifier = new ConcurrentHashMap<>();
 
-    private static Field particleType, x, y, z, xDist, yDist, zDist, maxSpeed, count, overrideLimiter, particleOptions;
+    private static final Field particleType, x, y, z, xDist, yDist, zDist, maxSpeed, count, overrideLimiter, particleOptions;
     private static Constructor<?> paramRed;
     private static Constructor<?> paramDust;
     private static Constructor<?> paramBlock;
@@ -27,6 +28,7 @@ public class Particle {
             float.class);
     private static final Class<?> particlePacket;
 
+    @Getter
     private final Object particle;
     private final String name;
     private final ParticleData data;
@@ -60,6 +62,7 @@ public class Particle {
             count = Ref.field(particlePacket, "count");
             overrideLimiter = Ref.field(particlePacket, "overrideLimiter");
             particleOptions = Ref.field(particlePacket, "particle");
+            particleType=null;
         } else if (Ref.isNewerThan(12)) {
             if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 4) {
                 x = Ref.field(particlePacket, "b");
@@ -84,6 +87,7 @@ public class Particle {
                 overrideLimiter = Ref.field(particlePacket, "i");
                 particleOptions = Ref.field(particlePacket, "j");
             }
+            particleType=null;
         } else {
             particleType = Ref.field(particlePacket, "a");
             x = Ref.field(particlePacket, "b");
@@ -122,10 +126,6 @@ public class Particle {
 
     public boolean isValid() {
         return particle != null;
-    }
-
-    public Object getParticle() {
-        return particle;
     }
 
     public String getParticleName() {

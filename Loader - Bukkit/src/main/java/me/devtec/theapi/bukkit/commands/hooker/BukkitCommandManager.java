@@ -15,11 +15,11 @@ import java.util.*;
 
 @SuppressWarnings("unchecked")
 public class BukkitCommandManager implements CommandsRegister {
-    private static Method syncCommands = Ref.isNewerThan(12) ? Ref.method(Ref.craft("CraftServer"), "syncCommands") : null;
+    private static final Method syncCommands = Ref.isNewerThan(12) ? Ref.method(Ref.craft("CraftServer"), "syncCommands") : null;
     public static CommandMap cmdMap;
     public static Map<String, Command> knownCommands;
 
-    private static Constructor<?> constructor;
+    private static final Constructor<?> constructor;
 
     static {
         if (Bukkit.getPluginManager().getClass().getSimpleName().equals("PaperPluginManagerImpl")) // For future updates from paper side
@@ -49,6 +49,10 @@ public class BukkitCommandManager implements CommandsRegister {
                 command.setExecutor((CommandExecutor) command.getTabCompleter());
             else
                 return; // exectutor can't be null
+        registerCommandAliases(command, label);
+    }
+
+    private static void registerCommandAliases(Command command, String label){
         List<String> low = new ArrayList<>();
         for (String s : command.getAliases()) {
             s = s.toLowerCase(Locale.ENGLISH).trim();
@@ -85,21 +89,7 @@ public class BukkitCommandManager implements CommandsRegister {
         String label = cmd.getName().toLowerCase(Locale.ENGLISH).trim();
         String sd = cmd.getPlugin().getName().toLowerCase(Locale.ENGLISH).trim();
         cmd.setLabel(sd + ":" + label);
-
-        List<String> low = new ArrayList<>();
-        for (String s : cmd.getAliases()) {
-            s = s.toLowerCase(Locale.ENGLISH).trim();
-            low.add(s);
-        }
-        cmd.setAliases(low);
-        if (cmd.getPermission() == null)
-            cmd.setPermission("");
-        if (!low.contains(label))
-            low.add(label);
-        for (String s : low)
-            knownCommands.put(s, cmd);
-        if (syncCommands != null)
-            Ref.invoke(Bukkit.getServer(), syncCommands);
+        registerCommandAliases(cmd, label);
     }
 
     @Override

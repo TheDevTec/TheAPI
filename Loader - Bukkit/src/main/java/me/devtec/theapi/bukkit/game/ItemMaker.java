@@ -1,8 +1,10 @@
 package me.devtec.theapi.bukkit.game;
 
 import com.google.common.collect.Multimap;
+import lombok.Getter;
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
+import me.devtec.shared.annotations.Nonnull;
 import me.devtec.shared.annotations.Nullable;
 import me.devtec.shared.components.Component;
 import me.devtec.shared.components.ComponentAPI;
@@ -41,14 +43,17 @@ public class ItemMaker implements Cloneable {
     protected static final Field SKIN_PROPERTIES = Ref.field(Ref.craft("profile.CraftPlayerProfile"), "properties");
     protected static final Field SKIN_VALUE = Ref.field(Ref.getClass("com.mojang.authlib.properties.Property"), "value");
     protected static final Field PROFILE_FIELD = Ref.field(Ref.craft("inventory.CraftMetaSkull"), "profile");
-    protected static Method getBaseColor = Ref.method(BannerMeta.class, "getBaseColor");
-    protected static Method getPlayerProfile = Ref.method(SkullMeta.class,"getPlayerProfile");
-    protected static Method getProperties = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.PlayerProfile"),"getProperties");
-    protected static Method getName = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"),"getName");
-    protected static Method getValue = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"),"getValue");
+    protected static final Method getBaseColor = Ref.method(BannerMeta.class, "getBaseColor");
+    protected static final Method getPlayerProfile = Ref.method(SkullMeta.class,"getPlayerProfile");
+    protected static final Method getProperties = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.PlayerProfile"),"getProperties");
+    protected static final Method getName = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"),"getName");
+    protected static final Method getValue = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"),"getValue");
 
+    @Getter
     protected Material material;
+    @Getter
     protected int amount = 1;
+    @Getter
     protected short damage;
 
     // additional
@@ -56,8 +61,11 @@ public class ItemMaker implements Cloneable {
     protected List<String> lore;
     protected Map<Enchantment, Integer> enchants;
     protected List<String> itemFlags;
+    @Getter
     protected int customModel;
+    @Getter
     protected boolean unbreakable;
+    @Getter
     protected byte data;
     protected NBTEdit nbt;
     protected boolean enchantedGlow;
@@ -135,14 +143,17 @@ public class ItemMaker implements Cloneable {
         if (enchants != null)
             for (Entry<Enchantment, Integer> s : enchants.entrySet())
                 meta.addEnchant(s.getKey(), s.getValue(), true);
-        if (Ref.isNewerThan(7) && itemFlags != null)
+        if (Ref.isNewerThan(7) && itemFlags != null) {
+            List<ItemFlag> flags = new ArrayList<>();
             for (String flag : itemFlags)
                 try {
                     ItemFlag iFlag = ItemFlag.valueOf(flag.toUpperCase());
-                    meta.addItemFlags(iFlag);
+                    flags.add(iFlag);
                 } catch (NoSuchFieldError | Exception ignored) {
-
+                    BukkitLoader.getPlugin(BukkitLoader.class).getLogger().warning("ItemFlag '"+flag+"' is not a valid item flag. Valid item flags are: "+ Arrays.asList(ItemFlag.values()));
                 }
+            meta.addItemFlags(flags.toArray(new ItemFlag[0]));
+        }
         if (Ref.isNewerThan(13) && customModel != 0)
             meta.setCustomModelData(customModel);
         if (unbreakable)
@@ -166,17 +177,9 @@ public class ItemMaker implements Cloneable {
         return type(material.parseMaterial());
     }
 
-    public Material getMaterial() {
-        return material;
-    }
-
     public ItemMaker amount(int amount) {
         this.amount = amount;
         return this;
-    }
-
-    public int getAmount() {
-        return amount;
     }
 
     public ItemMaker damage(int damage) {
@@ -184,17 +187,9 @@ public class ItemMaker implements Cloneable {
         return this;
     }
 
-    public short getDamage() {
-        return damage;
-    }
-
     public ItemMaker data(int data) {
         this.data = (byte) data;
         return this;
-    }
-
-    public byte getData() {
-        return data;
     }
 
     public ItemMaker displayName(String name) {
@@ -240,17 +235,9 @@ public class ItemMaker implements Cloneable {
         return this;
     }
 
-    public int getCustomModel() {
-        return customModel;
-    }
-
     public ItemMaker unbreakable(boolean unbreakable) {
         this.unbreakable = unbreakable;
         return this;
-    }
-
-    public boolean isUnbreakable() {
-        return unbreakable;
     }
 
     public ItemMaker itemFlags(String... flag) {
@@ -287,34 +274,7 @@ public class ItemMaker implements Cloneable {
             return this;
         }
         // remove unused tags
-        nbtEdit.remove("id");
-        nbtEdit.remove("Count");
-        nbtEdit.remove("lvl");
-        nbtEdit.remove("display");
-        nbtEdit.remove("Name");
-        nbtEdit.remove("Lore");
-        nbtEdit.remove("Damage");
-        nbtEdit.remove("color");
-        nbtEdit.remove("Unbreakable");
-        nbtEdit.remove("HideFlags");
-        nbtEdit.remove("Enchantments");
-        nbtEdit.remove("CustomModelData");
-        nbtEdit.remove("ench");
-        nbtEdit.remove("SkullOwner");
-        nbtEdit.remove("BlockEntityTag");
-        // book
-        nbtEdit.remove("author");
-        nbtEdit.remove("title");
-        nbtEdit.remove("filtered_title");
-        nbtEdit.remove("pages");
-        nbtEdit.remove("resolved");
-        nbtEdit.remove("generation");
-        // banner
-        nbtEdit.remove("base-color");
-        nbtEdit.remove("patterns");
-        nbtEdit.remove("pattern");
-
-        nbt = nbtEdit;
+        nbt =  removeUnusedStringsFromNbt(nbtEdit);
         return this;
     }
 
@@ -687,7 +647,7 @@ public class ItemMaker implements Cloneable {
                     Collection<?> properties = (Collection<?>) Ref.invoke(profile,getProperties);
                     for (Object property : properties)
                         if (Ref.invoke(property,getName).equals("textures")) {
-                            config.set(path + "head.owner", (String)Ref.invoke(property,getValue));
+                            config.set(path + "head.owner", Ref.invoke(property,getValue));
                             config.set(path + "head.type", "VALUES");
                             break;
                         }
@@ -747,37 +707,42 @@ public class ItemMaker implements Cloneable {
                     config.set(path + "book.pages", book.getPages());
             }
 
-            NBTEdit nbtEdit = new NBTEdit(stack);
-            // remove unused tags
-            nbtEdit.remove("id");
-            nbtEdit.remove("Count");
-            nbtEdit.remove("lvl");
-            nbtEdit.remove("display");
-            nbtEdit.remove("Name");
-            nbtEdit.remove("Lore");
-            nbtEdit.remove("Damage");
-            nbtEdit.remove("color");
-            nbtEdit.remove("Unbreakable");
-            nbtEdit.remove("HideFlags");
-            nbtEdit.remove("Enchantments");
-            nbtEdit.remove("CustomModelData");
-            nbtEdit.remove("ench");
-            nbtEdit.remove("SkullOwner");
-            nbtEdit.remove("BlockEntityTag");
-            // book
-            nbtEdit.remove("author");
-            nbtEdit.remove("title");
-            nbtEdit.remove("filtered_title");
-            nbtEdit.remove("pages");
-            nbtEdit.remove("resolved");
-            nbtEdit.remove("generation");
-            // banner
-            nbtEdit.remove("base-color");
-            nbtEdit.remove("patterns");
-            nbtEdit.remove("pattern");
+            NBTEdit nbtEdit = removeUnusedStringsFromNbt(new NBTEdit(stack));
             if (!nbtEdit.getKeys().isEmpty())
                 config.set(path + "nbt", nbtEdit.getNBT() + ""); // save clear nbt
         }
+    }
+
+    @Nonnull
+    private static NBTEdit removeUnusedStringsFromNbt(NBTEdit nbtEdit) {
+        // remove unused tags
+        nbtEdit.remove("id");
+        nbtEdit.remove("Count");
+        nbtEdit.remove("lvl");
+        nbtEdit.remove("display");
+        nbtEdit.remove("Name");
+        nbtEdit.remove("Lore");
+        nbtEdit.remove("Damage");
+        nbtEdit.remove("color");
+        nbtEdit.remove("Unbreakable");
+        nbtEdit.remove("HideFlags");
+        nbtEdit.remove("Enchantments");
+        nbtEdit.remove("CustomModelData");
+        nbtEdit.remove("ench");
+        nbtEdit.remove("SkullOwner");
+        nbtEdit.remove("BlockEntityTag");
+        // book
+        nbtEdit.remove("author");
+        nbtEdit.remove("title");
+        nbtEdit.remove("filtered_title");
+        nbtEdit.remove("pages");
+        nbtEdit.remove("resolved");
+        nbtEdit.remove("generation");
+        // banner
+        nbtEdit.remove("base-color");
+        nbtEdit.remove("patterns");
+        nbtEdit.remove("pattern");
+        return nbtEdit;
     }
 
     @Nullable // Nullable if map is empty / type is invalid
@@ -863,17 +828,7 @@ public class ItemMaker implements Cloneable {
                  * PLAYER VALUES URL
                  */
                 String headType = serializedItem.getOrDefault("head.type", "PLAYER").toString().toUpperCase();
-                if (headType.equalsIgnoreCase("PLAYER") || headType.equalsIgnoreCase("PLAYER_NAME") || headType.equalsIgnoreCase("NAME"))
-                    ((HeadItemMaker) maker).skinName(replacer.apply(headOwner));
-                else if (headType.equalsIgnoreCase("VALUES") || headType.equalsIgnoreCase("VALUE") || headType.equalsIgnoreCase("URL")) {
-                    if (headType.equalsIgnoreCase("URL"))
-                        headOwner = HeadItemMaker.fromUrl(replacer.apply(headOwner));
-                    ((HeadItemMaker) maker).skinValues(headOwner);
-                } else if (headType.equalsIgnoreCase("HDB")) {
-                    if (HeadItemMaker.hasHDB())
-                        headOwner = HeadItemMaker.getBase64OfId(replacer.apply(headOwner));
-                    ((HeadItemMaker) maker).skinValues(headOwner);
-                }
+                applyHeadOwner(replacer, (HeadItemMaker) maker, headOwner, headType);
             }
         } else if (type == XMaterial.POTION || type == XMaterial.LINGERING_POTION || type == XMaterial.SPLASH_POTION) {
             maker = ItemMaker.ofPotion(type == XMaterial.POTION ? Potion.POTION : type == XMaterial.LINGERING_POTION ? Potion.LINGERING : Potion.SPLASH);
@@ -966,6 +921,20 @@ public class ItemMaker implements Cloneable {
         return maker;
     }
 
+    private static void applyHeadOwner(Function<String, String> replacer, HeadItemMaker maker, String headOwner, String headType) {
+        if (headType.equalsIgnoreCase("PLAYER") || headType.equalsIgnoreCase("PLAYER_NAME") || headType.equalsIgnoreCase("NAME"))
+            maker.skinName(replacer.apply(headOwner));
+        else if (headType.equalsIgnoreCase("VALUES") || headType.equalsIgnoreCase("VALUE") || headType.equalsIgnoreCase("URL")) {
+            if (headType.equalsIgnoreCase("URL"))
+                headOwner = HeadItemMaker.fromUrl(replacer.apply(headOwner));
+            maker.skinValues(headOwner);
+        } else if (headType.equalsIgnoreCase("HDB")) {
+            if (HeadItemMaker.hasHDB())
+                headOwner = HeadItemMaker.getBase64OfId(replacer.apply(headOwner));
+            maker.skinValues(headOwner);
+        }
+    }
+
     @Nullable // Nullable if section is empty / type is invalid
     public static ItemStack loadFromConfig(Config config, String path) {
         return loadFromConfig(config, path, true);
@@ -1050,17 +1019,7 @@ public class ItemMaker implements Cloneable {
                  * PLAYER VALUES URL
                  */
                 String headType = config.getString(path + "head.type", "PLAYER").toUpperCase();
-                if (headType.equalsIgnoreCase("PLAYER") || headType.equalsIgnoreCase("PLAYER_NAME") || headType.equalsIgnoreCase("NAME"))
-                    ((HeadItemMaker) maker).skinName(replacer.apply(headOwner));
-                else if (headType.equalsIgnoreCase("VALUES") || headType.equalsIgnoreCase("VALUE") || headType.equalsIgnoreCase("URL")) {
-                    if (headType.equalsIgnoreCase("URL"))
-                        headOwner = HeadItemMaker.fromUrl(replacer.apply(headOwner));
-                    ((HeadItemMaker) maker).skinValues(headOwner);
-                } else if (headType.equalsIgnoreCase("HDB")) {
-                    if (HeadItemMaker.hasHDB())
-                        headOwner = HeadItemMaker.getBase64OfId(replacer.apply(headOwner));
-                    ((HeadItemMaker) maker).skinValues(headOwner);
-                }
+                applyHeadOwner(replacer, (HeadItemMaker) maker, headOwner, headType);
             }
         } else if (type == XMaterial.POTION || type == XMaterial.LINGERING_POTION || type == XMaterial.SPLASH_POTION) {
             maker = ItemMaker.ofPotion(type == XMaterial.POTION ? Potion.POTION : type == XMaterial.LINGERING_POTION ? Potion.LINGERING : Potion.SPLASH);
@@ -1128,7 +1087,7 @@ public class ItemMaker implements Cloneable {
                 maker.lore(lore);
             else
                 maker.rawLore(lore);
-            maker.getLore().replaceAll(line -> replacer.apply(line));
+            maker.getLore().replaceAll(replacer::apply);
         }
         if (config.getBoolean(path + "unbreakable"))
             maker.unbreakable(true);

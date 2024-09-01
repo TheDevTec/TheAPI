@@ -35,7 +35,7 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 	private List<?> networkManagers;
 	private final List<Channel> serverChannels = new ArrayList<>();
 	private ChannelInboundHandlerAdapter serverChannelHandler;
-	private Object serverConnection;
+	private final Object serverConnection;
 	private ChannelInitializer<Channel> beginInitProtocol;
 	private ChannelInitializer<Channel> endInitProtocol;
 	protected volatile boolean closed;
@@ -154,9 +154,9 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 		injectChannelInternal(player, get(player));
 	}
 
-	private PacketInterceptor injectChannelInternal(Player a, Channel channel) {
+	private void injectChannelInternal(Player a, Channel channel) {
 		if (channel == null)
-			return null;
+			return;
 		try {
 			PacketInterceptor interceptor = new PacketInterceptor(a.getName());
 			channel.eventLoop().submit(() -> {
@@ -165,9 +165,7 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 				channel.pipeline().addBefore("packet_handler", "InjectorTA", interceptor);
 				return interceptor;
 			});
-			return interceptor;
-		} catch (Exception e) {
-			return null;
+		} catch (Exception ignored) {
 		}
 	}
 

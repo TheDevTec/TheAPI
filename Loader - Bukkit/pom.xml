@@ -6,10 +6,10 @@
     <parent>
         <groupId>me.devtec.theapi.loaders</groupId>
         <artifactId>TheAPI</artifactId>
-        <version>12.9.7</version>
+        <version>12.9.8</version>
     </parent>
     <artifactId>Loader-Bukkit</artifactId>
-    <version>12.9.7</version>
+    <version>12.9.8</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -38,7 +38,7 @@
         <dependency>
             <groupId>me.devtec.theapi.loaders</groupId>
             <artifactId>Loader-Bukkit-Legacy-Fallback</artifactId>
-            <version>12.9.7</version>
+            <version>12.9.8</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

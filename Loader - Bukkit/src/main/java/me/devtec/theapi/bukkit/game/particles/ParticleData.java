@@ -24,6 +24,7 @@ public class ParticleData {
         return 0;
     }
 
+    @Getter
     public static class NoteOptions extends ParticleData {
         private final int note;
 
@@ -35,23 +36,9 @@ public class ParticleData {
             this.note = note;
         }
 
-        public int getNote() {
-            return note;
-        }
-
         @Override
         public float getValueX() {
             return note / 24F;
-        }
-
-        @Override
-        public float getValueY() {
-            return 0;
-        }
-
-        @Override
-        public float getValueZ() {
-            return 0;
         }
 
         @Override
@@ -154,7 +141,7 @@ public class ParticleData {
         }
 
         @Deprecated
-        /**
+        /*
          * @apiNote 1.12.2 and older only.
          * @return packedData of item
          **/
@@ -201,8 +188,8 @@ public class ParticleData {
         }
 
         @Deprecated
-        /**
-         * @apiNote 1.12.2 and older only.
+        /*
+          @apiNote 1.12.2 and older only.
          * @return packedData of item
          */
         public int[] getPacketData() {

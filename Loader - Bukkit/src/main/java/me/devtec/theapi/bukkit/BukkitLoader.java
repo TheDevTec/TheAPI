@@ -1,5 +1,6 @@
 package me.devtec.theapi.bukkit;
 
+import com.mojang.authlib.GameProfile;
 import me.devtec.shared.API;
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
@@ -24,10 +25,12 @@ import me.devtec.theapi.bukkit.game.resourcepack.ResourcePackResult;
 import me.devtec.theapi.bukkit.game.worldgens.VoidGeneratorHelper;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
+import me.devtec.theapi.bukkit.nms.GameProfileHandler;
 import me.devtec.theapi.bukkit.nms.NmsProvider;
 import me.devtec.theapi.bukkit.packetlistener.*;
 import me.devtec.theapi.bukkit.scoreboard.ScoreboardAPI;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -54,6 +57,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.security.CodeSource;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BukkitLoader extends JavaPlugin implements Listener {
@@ -75,9 +79,9 @@ public class BukkitLoader extends JavaPlugin implements Listener {
     private Metrics metrics;
 
     // public plugin fields
-    public Map<UUID, HolderGUI> gui = new ConcurrentHashMap<>();
+    public final Map<UUID, HolderGUI> gui = new ConcurrentHashMap<>();
     public List<BossBar> bossbars = new ArrayList<>();
-    public Map<UUID, ResourcePackHandler> resourcePackHandler = new ConcurrentHashMap<>();
+    public final Map<UUID, ResourcePackHandler> resourcePackHandler = new ConcurrentHashMap<>();
 
     /**
      * @apiNote Get online players on the server
@@ -200,7 +204,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
                     return;
 
                 Object packet = packetContainer.getPacket();
-
                 if (packet.getClass() == serverPing) {
                     if (ServerListPingEvent.getHandlerList().isEmpty())
                         return; // Do not process if event isn't used by any plugin
@@ -230,7 +233,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
                     return;
 
                 Object packet = packetContainer.getPacket();
-
                 // ResourcePackAPI
                 if (packet.getClass() == resource) {
                     Player player = Bukkit.getPlayer(nick);
@@ -248,9 +250,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
                     HolderGUI gui = BukkitLoader.this.gui.get(player.getUniqueId());
                     if (gui instanceof AnvilGUI) {
                         String text = (String) Ref.get(packet, anvilText);
-                        BukkitLoader.nmsProvider.postToMainThread(() -> {
-                            ((AnvilGUI) gui).setRepairText(buildText(text));
-                        });
+                        BukkitLoader.nmsProvider.postToMainThread(() -> ((AnvilGUI) gui).setRepairText(buildText(text)));
                         packetContainer.setCancelled(true);
                     }
                     return;
@@ -318,7 +318,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
                 try {
                     Config mappings = Config.loadFromInput(new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/main/paper-mappings.yml").openStream());
                     serverVersion = mappings.getString(serverVersion);
-                }catch(Exception noInternetConnection){
+                }catch(Exception ignored){
 
                 }
             }
@@ -336,25 +336,21 @@ public class BukkitLoader extends JavaPlugin implements Listener {
                 err.printStackTrace();
                 Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize("&7> &4Error! Failed to load NmsProvider from .java file, loading from .jar."));
                 checkForUpdateAndDownloadCompiled(serverVersion);
-                if (new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".jar").exists())
-                    try (URLClassLoader cl = new URLClassLoader(new URL[]{new URL("jar:file:" + "plugins/TheAPI/NmsProviders/" + serverVersion + ".jar" + "!/")}, getClassLoader())) {
-                        Class<?> c = cl.loadClass(serverVersion);
-                        nmsProvider = (NmsProvider) c.newInstance();
-                        nmsProvider.loadParticles();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-            }
-        else { // JRE
-            checkForUpdateAndDownloadCompiled(serverVersion);
-            if (new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".jar").exists())
-                try (URLClassLoader cl = new URLClassLoader(new URL[]{new URL("jar:file:" + "plugins/TheAPI/NmsProviders/" + serverVersion + ".jar" + "!/")}, getClassLoader())) {
+                if (new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".jar").exists()){
+                    URLClassLoader cl = new URLClassLoader(new URL[]{new URL("jar:file:" + "plugins/TheAPI/NmsProviders/" + serverVersion + ".jar" + "!/")}, getClassLoader());
                     Class<?> c = cl.loadClass(serverVersion);
                     nmsProvider = (NmsProvider) c.newInstance();
                     nmsProvider.loadParticles();
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
+            }
+        else { // JRE
+            checkForUpdateAndDownloadCompiled(serverVersion);
+            if (new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".jar").exists()) {
+                URLClassLoader cl = new URLClassLoader(new URL[]{new URL("jar:file:" + "plugins/TheAPI/NmsProviders/" + serverVersion + ".jar" + "!/")}, getClassLoader());
+                Class<?> c = cl.loadClass(serverVersion);
+                nmsProvider = (NmsProvider) c.newInstance();
+                nmsProvider.loadParticles();
+            }
         }
     }
 

@@ -22,6 +22,7 @@
  */
 package me.devtec.theapi.bukkit.xseries;
 
+import lombok.Getter;
 import me.devtec.shared.Ref;
 import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.dataholder.cache.TempMap;
@@ -487,24 +488,48 @@ public enum XMaterial {
      * The id value of this material
      * https://www.digminecraft.com/lists/item_id_list_pc.php Can be a negative
      * number if ID doesn't exist for this material.
+     * <p>
      *
-     * @see #getId()
+     * -- GETTER --
+     *  Gets the ID (Magic value) of the material.
+     *  https://www.minecraftinfo.com/idlist.htm
+     *  <p>
+     *  Spigot added material ID support back in 1.16+
+     *
+     @see #getId()
+     *
      */
+    @Getter
     private final int id;
 
     /**
      * The data value of this material
      * https://minecraft.gamepedia.com/Java_Edition_data_values/Pre-flattening It's
      * never a negative number.
+     * <p>
      *
-     * @see #getData()
+     * -- GETTER --
+     *  The data value of this material <a href=
+     *  "https://minecraft.gamepedia.com/Java_Edition_data_values/Pre-flattening">pre-flattening</a>.
+     *  <p>
+     *  Can be accessed with
+     *  then
+     * <p>
+     *  or
+     *  if not
+     *  damageable.
+     *
+     @see #getData()
+     *
      */
+    @Getter
     private final byte data;
     /**
      * A list of material names that was being used for older verions.
      *
      * @see #getLegacy()
      */
+    @Getter
     private final String[] legacy;
     /**
      * The cached Bukkit parsed material.
@@ -703,7 +728,6 @@ public enum XMaterial {
      * @see #matchXMaterial(Material)
      * @since 2.0.0
      */
-    @SuppressWarnings("removal")
     public static XMaterial matchXMaterial(ItemStack item) {
         Objects.requireNonNull(item, "Cannot match null ItemStack");
         String material = item.getType().name();
@@ -759,10 +783,7 @@ public enum XMaterial {
      * @see #matchXMaterial(ItemStack)
      * @since 3.0.0
      */
-    protected static Optional<XMaterial> matchDefinedXMaterial(String name, byte data) {
-        // if
-        // (!Boolean.valueOf(Boolean.getBoolean(Boolean.TRUE.toString())).equals(Boolean.FALSE.booleanValue()))
-        // return null;
+    private static Optional<XMaterial> matchDefinedXMaterial(String name, byte data) {
         Boolean duplicated = null;
         boolean isAMap = name.equalsIgnoreCase("MAP");
 
@@ -826,7 +847,7 @@ public enum XMaterial {
         if (id < 0 || id > MAX_ID || data < 0)
             return Optional.empty();
         for (XMaterial materials : VALUES)
-            if (materials.data == data && materials.getId() == id)
+            if (materials.data == data && materials.id == id)
                 return Optional.of(materials);
         return Optional.empty();
     }
@@ -842,7 +863,7 @@ public enum XMaterial {
      * @return an enum name.
      * @since 2.0.0
      */
-    protected static String format(String name) {
+    private static String format(String name) {
         int len = name.length();
         char[] chs = new char[len];
         int count = 0;
@@ -884,10 +905,6 @@ public enum XMaterial {
      */
     public static boolean supports(int version) {
         return Data.VERSION >= version;
-    }
-
-    public String[] getLegacy() {
-        return legacy;
     }
 
     /**
@@ -1049,36 +1066,6 @@ public enum XMaterial {
     @Override
     public String toString() {
         return Arrays.stream(name().split("_")).map(t -> t.charAt(0) + t.substring(1).toLowerCase()).collect(Collectors.joining(" "));
-    }
-
-    /**
-     * Gets the ID (Magic value) of the material.
-     * https://www.minecraftinfo.com/idlist.htm
-     * <p>
-     * Spigot added material ID support back in 1.16+
-     *
-     * @return the ID of the material or <b>-1</b> if it's not a legacy material or
-     * the server doesn't support the material.
-     * @see #matchXMaterial(int, byte)
-     * @since 2.2.0
-     */
-    public int getId() {
-        return id;
-    }
-
-    /**
-     * The data value of this material <a href=
-     * "https://minecraft.gamepedia.com/Java_Edition_data_values/Pre-flattening">pre-flattening</a>.
-     * <p>
-     * Can be accessed with {@link ItemStack#getData()} then
-     * {@code MaterialData#getData()} or {@link ItemStack#getDurability()} if not
-     * damageable.
-     *
-     * @return data of this material, or 0 if none.
-     * @since 1.0.0
-     */
-    public byte getData() {
-        return data;
     }
 
     /**

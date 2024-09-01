@@ -8,7 +8,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Map;
 
 //1.7.10 - 1.8.8 PaperSpigot

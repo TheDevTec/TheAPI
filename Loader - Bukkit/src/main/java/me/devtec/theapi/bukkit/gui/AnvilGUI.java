@@ -30,7 +30,7 @@ public class AnvilGUI implements HolderGUI {
     private final Map<Integer, ItemGUI> items = new ConcurrentHashMap<>();
     private final Map<Player, Object> containers = new ConcurrentHashMap<>();
     private final Inventory inv;
-    // Defaulty false
+    // Default false
     private boolean put;
     private String text = "";
 
@@ -94,7 +94,7 @@ public class AnvilGUI implements HolderGUI {
         if (position < size())
             inv.setItem(position, item.getItem());
         if (position == 0)
-            text = item.getItem() != null && item.getItem().hasItemMeta() ? item.getItem().getItemMeta().getDisplayName() : "";
+            text = item.getItem() != null && item.getItem().hasItemMeta() && item.getItem().getItemMeta().hasDisplayName() ? item.getItem().getItemMeta().getDisplayName() : "";
     }
 
     /**
@@ -227,9 +227,9 @@ public class AnvilGUI implements HolderGUI {
             if (player == null)
                 continue;
             onPreClose(player);
-            Object ac = containers.remove(player);
-            if (ac != null)
-                BukkitLoader.getNmsProvider().closeGUI(player, ac, true);
+            Object container = containers.remove(player);
+            if (container != null)
+                BukkitLoader.getNmsProvider().closeGUI(player, container, true);
             JavaPlugin.getPlugin(BukkitLoader.class).gui.remove(player.getUniqueId());
             onClose(player);
         }
@@ -273,16 +273,15 @@ public class AnvilGUI implements HolderGUI {
         this.text = text;
         for (Object o : containers.values())
             if (Ref.isNewerThan(16)) {
-                Object anvil = o;
                 for (int i = 0; i < 2; ++i)
-                    BukkitLoader.getNmsProvider().setSlot(anvil, i, BukkitLoader.getNmsProvider().getSlotItem(o, i));
-                Ref.invoke(anvil, BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "setItemName" : "a", text);
+                    BukkitLoader.getNmsProvider().setSlot(o, i, BukkitLoader.getNmsProvider().getSlotItem(o, i));
+                Ref.invoke(o, BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "setItemName" : "a", text);
             } else
                 Ref.invoke(o, "a", text);
     }
 
     /**
-     * @apiNote Returns not interable slots via SHIFT click
+     * @apiNote Returns not interactable slots via SHIFT click
      */
     @Override
     public List<Integer> getNotInterableSlots(Player player) {

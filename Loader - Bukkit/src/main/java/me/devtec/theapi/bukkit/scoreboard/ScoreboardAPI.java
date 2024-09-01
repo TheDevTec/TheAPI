@@ -17,7 +17,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * https://gist.github.com/f8895d84979d49af946fbcc108b1bf2b
+ * <a href="https://gist.github.com/f8895d84979d49af946fbcc108b1bf2b">Original source</a>
  *
  * @author zyuiop Forked by Straikerinos
  */
@@ -25,8 +25,8 @@ public class ScoreboardAPI {
     public static boolean SPLIT_MODERN_LINES;
 
     protected final Map<Integer, Team> data = new ConcurrentHashMap<>();
-    protected Player p;
-    protected String player;
+    protected final Player p;
+    protected final String player;
     protected String sbname;
     protected int staticScoreboardScore;
     protected String name = "";
@@ -197,10 +197,10 @@ public class ScoreboardAPI {
         private String suffix = "";
         private String currentPlayer;
         private String old;
-        private String name;
-        private String format;
+        private final String name;
+        private final String format;
         private String resultLine = "";
-        private int slot;
+        private final int slot;
         private boolean changed;
         private boolean first = true;
 

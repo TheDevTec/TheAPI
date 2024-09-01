@@ -1,5 +1,7 @@
 package me.devtec.theapi.bukkit.game;
 
+import lombok.Getter;
+import lombok.Setter;
 import me.devtec.shared.Ref;
 import me.devtec.shared.json.Json;
 import me.devtec.theapi.bukkit.BukkitLoader;
@@ -14,8 +16,11 @@ import java.util.Map;
 public class BlockDataStorage implements Cloneable {
     private static final Class<?> blockDataClass = Ref.getClass("org.bukkit.block.data.BlockData");
 
+    @Getter
     private Material type;
+    @Getter
     private byte itemData;
+    @Getter
     private String data;
     private String nbt;
 
@@ -53,22 +58,6 @@ public class BlockDataStorage implements Cloneable {
         this.nbt = nbt;
     }
 
-    public Material getType() {
-        return type;
-    }
-
-    public byte getItemData() {
-        return itemData;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public String getNBT() {
-        return nbt;
-    }
-
     public BlockDataStorage setType(Material material) {
         type = material;
         return this;
@@ -87,6 +76,10 @@ public class BlockDataStorage implements Cloneable {
     public BlockDataStorage setNBT(String nbt) {
         this.nbt = nbt;
         return this;
+    }
+
+    public String getNBT() {
+        return nbt;
     }
 
     public ItemStack toItemStack() {

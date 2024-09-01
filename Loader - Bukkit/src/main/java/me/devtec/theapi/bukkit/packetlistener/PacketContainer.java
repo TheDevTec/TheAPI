@@ -1,15 +1,16 @@
 package me.devtec.theapi.bukkit.packetlistener;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
 public class PacketContainer {
     private Object packet;
+    @Setter
     private boolean cancelled;
 
     public PacketContainer(Object packet) {
         this.packet = packet;
-    }
-
-    public Object getPacket() {
-        return packet;
     }
 
     public void setPacket(Object newPacket) {
@@ -17,11 +18,4 @@ public class PacketContainer {
         packet = newPacket;
     }
 
-    public void setCancelled(boolean cancel) {
-        cancelled = cancel;
-    }
-
-    public boolean isCancelled() {
-        return cancelled;
-    }
 }

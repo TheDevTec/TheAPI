@@ -33,7 +33,7 @@ public class GUI implements HolderGUI {
     public enum ClickType {
         MIDDLE_PICKUP(true), MIDDLE_DROP, LEFT_DROP, RIGHT_PICKUP(true), RIGHT_DROP, LEFT_PICKUP(true), SHIFT_LEFT_DROP, SHIFT_RIGHT_PICKUP(true), SHIFT_RIGHT_DROP, SHIFT_LEFT_PICKUP(true);
 
-        private boolean pickup;
+        private final boolean pickup;
 
         ClickType(boolean isPickup) {
             pickup = isPickup;

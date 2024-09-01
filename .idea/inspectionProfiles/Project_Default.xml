@@ -1,10 +1,211 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0">
     <option name="myName" value="Project Default" />
+    <inspection_tool class="AutoCloseableResource" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="METHOD_MATCHER_CONFIG" value="java.util.Formatter,format,java.io.Writer,append,com.google.common.base.Preconditions,checkNotNull,org.hibernate.Session,close,java.io.PrintWriter,printf,java.io.PrintStream,printf,io.netty.channel.Channel,eventLoop,net.minecraft.server.level.EntityPlayer,x|y|z,net.minecraft.util.io.netty.channel.Channel,eventLoop" />
+    </inspection_tool>
     <inspection_tool class="DuplicatedCode" enabled="true" level="WEAK WARNING" enabled_by_default="true">
       <Languages>
         <language minSize="60" name="Java" />
       </Languages>
+    </inspection_tool>
+    <inspection_tool class="VulnerableLibrariesLocal" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="isIgnoringEnabled" value="true" />
+      <option name="ignoredModules">
+        <list>
+          <option value="Loader-Bukkit-Legacy-Fallback" />
+          <option value="Loader-Bukkit-Legacy-Fallback" />
+          <option value="Loader-Bukkit-Legacy-Fallback" />
+          <option value="Loader-Bukkit-Legacy-Fallback" />
+          <option value="Loader-Bungee" />
+          <option value="Loader-Velocity" />
+          <option value="Loader-Velocity" />
+          <option value="NmsProvider-1.18.R1" />
+          <option value="NmsProvider-1.18.R1" />
+          <option value="NmsProvider-1.18.R1" />
+          <option value="NmsProvider-1.18.R1" />
+          <option value="NmsProvider-1.18.R1" />
+          <option value="NmsProvider-1.18.R1" />
+          <option value="NmsProvider-1.18.R1" />
+          <option value="NmsProvider-1.18.R1" />
+          <option value="NmsProvider-1.18.R1" />
+          <option value="NmsProvider-1.18.R1" />
+          <option value="NmsProvider-1.18.R2" />
+          <option value="NmsProvider-1.18.R2" />
+          <option value="NmsProvider-1.18.R2" />
+          <option value="NmsProvider-1.18.R2" />
+          <option value="NmsProvider-1.18.R2" />
+          <option value="NmsProvider-1.18.R2" />
+          <option value="NmsProvider-1.18.R2" />
+          <option value="NmsProvider-1.18.R2" />
+          <option value="NmsProvider-1.18.R2" />
+          <option value="NmsProvider-1.19.R1" />
+          <option value="NmsProvider-1.19.R1" />
+          <option value="NmsProvider-1.19.R1" />
+          <option value="NmsProvider-1.19.R1" />
+          <option value="NmsProvider-1.19.R1" />
+          <option value="NmsProvider-1.19.R1" />
+          <option value="NmsProvider-1.19.R1" />
+          <option value="NmsProvider-1.19.R1" />
+          <option value="NmsProvider-1.19.R1" />
+          <option value="NmsProvider-1.19.R2" />
+          <option value="NmsProvider-1.19.R2" />
+          <option value="NmsProvider-1.19.R2" />
+          <option value="NmsProvider-1.19.R2" />
+          <option value="NmsProvider-1.19.R2" />
+          <option value="NmsProvider-1.19.R2" />
+          <option value="NmsProvider-1.19.R2" />
+          <option value="NmsProvider-1.19.R2" />
+          <option value="NmsProvider-1.19.R3" />
+          <option value="NmsProvider-1.19.R3" />
+          <option value="NmsProvider-1.19.R3" />
+          <option value="NmsProvider-1.19.R3" />
+          <option value="NmsProvider-1.19.R3" />
+          <option value="NmsProvider-1.19.R3" />
+          <option value="NmsProvider-1.19.R3" />
+          <option value="NmsProvider-1.19.R3" />
+          <option value="NmsProvider-1.20.R1" />
+          <option value="NmsProvider-1.20.R1" />
+          <option value="NmsProvider-1.20.R1" />
+          <option value="NmsProvider-1.20.R1" />
+          <option value="NmsProvider-1.20.R1" />
+          <option value="NmsProvider-1.20.R1" />
+          <option value="NmsProvider-1.20.R2" />
+          <option value="NmsProvider-1.20.R2" />
+          <option value="NmsProvider-1.20.R3" />
+          <option value="NmsProvider-1.20.R3" />
+        </list>
+      </option>
+      <option name="ignoredPackages">
+        <list>
+          <option value="com.google.code.gson:gson:2.2.4" />
+          <option value="com.google.guava:guava:17.0" />
+          <option value="junit:junit:4.10" />
+          <option value="org.yaml:snakeyaml:1.15" />
+          <option value="com.google.guava:guava:31.1-jre" />
+          <option value="com.google.guava:guava:25.1-jre" />
+          <option value="org.yaml:snakeyaml:1.33" />
+          <option value="com.google.code.gson:gson:2.8.8" />
+          <option value="com.google.guava:guava:31.0.1-jre" />
+          <option value="com.google.protobuf:protobuf-java:3.11.4" />
+          <option value="commons-codec:commons-codec:1.11" />
+          <option value="io.netty:netty-all:4.1.68.Final" />
+          <option value="junit:junit:4.10" />
+          <option value="mysql:mysql-connector-java:8.0.27" />
+          <option value="org.apache.logging.log4j:log4j-core:2.14.1" />
+          <option value="org.xerial:sqlite-jdbc:3.36.0.3" />
+          <option value="org.yaml:snakeyaml:1.30" />
+          <option value="org.yaml:snakeyaml:1.30" />
+          <option value="com.google.guava:guava:31.0.1-jre" />
+          <option value="com.google.protobuf:protobuf-java:3.11.4" />
+          <option value="commons-codec:commons-codec:1.11" />
+          <option value="io.netty:netty-all:4.1.68.Final" />
+          <option value="junit:junit:4.10" />
+          <option value="mysql:mysql-connector-java:8.0.27" />
+          <option value="org.apache.logging.log4j:log4j-core:2.17.0" />
+          <option value="org.xerial:sqlite-jdbc:3.36.0.3" />
+          <option value="com.google.guava:guava:31.0.1-jre" />
+          <option value="com.google.protobuf:protobuf-java:3.19.4" />
+          <option value="commons-codec:commons-codec:1.11" />
+          <option value="io.netty:netty-codec:4.1.77.Final" />
+          <option value="io.netty:netty-handler:4.1.77.Final" />
+          <option value="junit:junit:4.10" />
+          <option value="org.apache.logging.log4j:log4j-core:2.17.0" />
+          <option value="org.xerial:sqlite-jdbc:3.36.0.3" />
+          <option value="org.yaml:snakeyaml:1.30" />
+          <option value="com.google.guava:guava:31.1-jre" />
+          <option value="com.google.protobuf:protobuf-java:3.19.4" />
+          <option value="commons-codec:commons-codec:1.11" />
+          <option value="io.netty:netty-codec:4.1.82.Final" />
+          <option value="io.netty:netty-handler:4.1.82.Final" />
+          <option value="junit:junit:4.10" />
+          <option value="org.xerial:sqlite-jdbc:3.36.0.3" />
+          <option value="org.yaml:snakeyaml:1.33" />
+          <option value="com.google.guava:guava:31.1-jre" />
+          <option value="com.mysql:mysql-connector-j:8.0.32" />
+          <option value="commons-codec:commons-codec:1.11" />
+          <option value="io.netty:netty-codec:4.1.82.Final" />
+          <option value="io.netty:netty-handler:4.1.82.Final" />
+          <option value="junit:junit:4.10" />
+          <option value="org.xerial:sqlite-jdbc:3.41.0.0" />
+          <option value="org.yaml:snakeyaml:1.33" />
+          <option value="com.google.guava:guava:31.1-jre" />
+          <option value="com.mysql:mysql-connector-j:8.0.33" />
+          <option value="commons-codec:commons-codec:1.11" />
+          <option value="io.netty:netty-codec:4.1.82.Final" />
+          <option value="io.netty:netty-handler:4.1.82.Final" />
+          <option value="junit:junit:4.10" />
+          <option value="com.mysql:mysql-connector-j:8.1.0" />
+          <option value="commons-codec:commons-codec:1.11" />
+          <option value="com.mysql:mysql-connector-j:8.1.0" />
+          <option value="commons-codec:commons-codec:1.11" />
+        </list>
+      </option>
+      <option name="ignoredReasons">
+        <list>
+          <option value="Not exploitable" />
+          <option value="Fixed in branch" />
+          <option value="Fixed in branch" />
+          <option value="Fixed in branch" />
+          <option value="Fixed in branch" />
+          <option value="Fixed in branch" />
+          <option value="Fixed in branch" />
+          <option value="Fixed in branch" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+        </list>
+      </option>
     </inspection_tool>
   </profile>
 </component>

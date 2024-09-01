@@ -1,5 +1,8 @@
 package me.devtec.theapi.bukkit.packetlistener;
 
+import lombok.Getter;
+
+@Getter
 public class ChannelContainer {
     private final Object channel;
 
@@ -7,7 +10,4 @@ public class ChannelContainer {
         this.channel = channel;
     }
 
-    public Object getChannel() {
-        return channel;
-    }
 }

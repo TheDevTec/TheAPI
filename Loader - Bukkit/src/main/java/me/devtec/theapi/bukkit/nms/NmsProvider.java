@@ -1,5 +1,6 @@
 package me.devtec.theapi.bukkit.nms;
 
+import lombok.Getter;
 import me.devtec.shared.annotations.Comment;
 import me.devtec.shared.components.Component;
 import me.devtec.shared.components.ComponentAPI;
@@ -24,6 +25,7 @@ import java.util.UUID;
 public interface NmsProvider {
     UUID serverUuid = UUID.randomUUID();
 
+    @Getter
     enum Action {
         CHANGE(0), REMOVE(1);
 
@@ -33,9 +35,6 @@ public interface NmsProvider {
             id = i;
         }
 
-        public int getId() {
-            return id;
-        }
     }
 
     enum DisplayType {

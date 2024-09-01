@@ -1,5 +1,6 @@
 package me.devtec.theapi.bukkit.game;
 
+import lombok.Getter;
 import me.devtec.shared.Ref;
 import me.devtec.shared.json.Json;
 import me.devtec.shared.utility.MathUtils;
@@ -16,10 +17,15 @@ import java.util.*;
 
 public class Position implements Cloneable {
     private String world;
+    @Getter
     private double x;
+    @Getter
     private double y;
+    @Getter
     private double z;
+    @Getter
     private float yaw;
+    @Getter
     private float pitch;
 
     private Object cachedChunk;
@@ -329,18 +335,6 @@ public class Position implements Cloneable {
         return remove(vector.getX(), vector.getY(), vector.getZ());
     }
 
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public double getZ() {
-        return z;
-    }
-
     public int getBlockX() {
         return MathUtils.floor(x);
     }
@@ -351,14 +345,6 @@ public class Position implements Cloneable {
 
     public int getBlockZ() {
         return MathUtils.floor(z);
-    }
-
-    public float getYaw() {
-        return yaw;
-    }
-
-    public float getPitch() {
-        return pitch;
     }
 
     public Location toLocation() {

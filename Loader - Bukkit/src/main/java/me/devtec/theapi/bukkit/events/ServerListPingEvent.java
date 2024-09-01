@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ServerListPingEvent extends Event implements Cancellable {
-    static List<ListenerHolder> handlers = new ArrayList<>();
+    static final List<ListenerHolder> handlers = new ArrayList<>();
 
     private boolean cancel;
     private int online;

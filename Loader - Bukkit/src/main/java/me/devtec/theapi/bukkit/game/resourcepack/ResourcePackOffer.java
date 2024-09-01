@@ -20,7 +20,7 @@ public class ResourcePackOffer {
     }
 
     @Getter
-    private String url;
+    private final String url;
     private String sha1;
     @Getter
     private Optional<Component> prompt;

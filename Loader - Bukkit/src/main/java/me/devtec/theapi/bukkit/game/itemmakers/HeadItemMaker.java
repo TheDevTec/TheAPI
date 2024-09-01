@@ -40,7 +40,7 @@ public class HeadItemMaker extends ItemMaker {
     private static final Material skull = XMaterial.PLAYER_HEAD.parseMaterial();
     private static final String URL_FORMAT = "https://api.mineskin.org/generate/url?url=%s&%s";
     private static final Method createProfile = Ref.method(Bukkit.class,"createProfile",UUID.class);
-    private static Constructor<?> constructor = Ref.constructor(Ref.getClass("com.mojang.authlib.properties.Property"), String.class, String.class, String.class);
+    private static final Constructor<?> constructor = Ref.constructor(Ref.getClass("com.mojang.authlib.properties.Property"), String.class, String.class, String.class);
     private static final Method setProperty = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.PlayerProfile"),"setProperty",Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"));
     private static final Method setPlayerProfile = Ref.method(SkullMeta.class,"setPlayerProfile",Ref.getClass("com.destroystokyo.paper.profile.PlayerProfile"));
     private static final Constructor<?> profileProperty= Ref.constructor(Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"),String.class,String.class);

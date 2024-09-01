@@ -65,7 +65,7 @@ public class BukkitLibInit {
     }
 
     private static class ImplementableJar extends JarFile {
-        public List<JarFile> file = new ArrayList<>();
+        public final List<JarFile> file = new ArrayList<>();
 
         public ImplementableJar(File file) throws IOException {
             super(file);
@@ -273,7 +273,7 @@ public class BukkitLibInit {
                             e.printStackTrace();
                         }
                 } else
-                    try { // Just small hack for modern Java.. - Does not working for files inside jar
+                    try { // Just small hack for modern Java. - Does not working for files inside jar
                         if (jar == null) {
                             jar = new ImplementableJar((File) Ref.get(loader, "file"));
                             Ref.set(loader, "manifest", jar);
@@ -513,8 +513,8 @@ public class BukkitLibInit {
             public Map<String, Object> write(Object object) {
                 Map<String, Object> map = new HashMap<>();
                 Position pos = (Position) object;
-                map.put("classType", "org.bukkit.Location");
-                map.put("world", pos.getWorld().getName());
+                map.put("classType", "Position");
+                map.put("world", pos.getWorldName());
                 map.put("x", pos.getX());
                 map.put("y", pos.getY());
                 map.put("z", pos.getZ());
@@ -570,7 +570,7 @@ public class BukkitLibInit {
             }
         });
 
-        // ïtemmaker
+        // itemmaker
         Json.registerDataWriter(new DataWriter() {
 
             @Override

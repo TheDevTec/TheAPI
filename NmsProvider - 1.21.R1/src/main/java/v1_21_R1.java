@@ -15,6 +15,9 @@ import javax.imageio.ImageIO;
 import me.devtec.theapi.bukkit.nms.GameProfileHandler;
 import me.devtec.theapi.bukkit.nms.NBTEdit;
 import me.devtec.theapi.bukkit.nms.NmsProvider;
+import net.minecraft.network.protocol.BundleDelimiterPacket;
+import net.minecraft.network.protocol.BundlePacket;
+import net.minecraft.util.RegistryID;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
@@ -322,25 +325,19 @@ public class v1_21_R1 implements NmsProvider {
 
 	@Override
 	public Object packetScoreboardScore(Action action, String player, String line, int score) {
-		return new PacketPlayOutScoreboardScore(line, player, score, Optional.ofNullable(null), Optional.ofNullable(null));
+		return new PacketPlayOutScoreboardScore(line, player, score, Optional.empty(), Optional.empty());
 	}
 
 	@Override
 	public Object packetTitle(TitleAction action, Component text, int fadeIn, int stay, int fadeOut) {
-		switch (action) {
-			case ACTIONBAR:
-				return new ClientboundSetActionBarTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
-			case TITLE:
-				return new ClientboundSetTitleTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
-			case SUBTITLE:
-				return new ClientboundSetSubtitleTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
-			case TIMES:
-				return new ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut);
-			case CLEAR:
-			case RESET:
-				return new ClientboundClearTitlesPacket(true);
-		}
-		return null;
+        return switch (action) {
+            case ACTIONBAR ->
+                    new ClientboundSetActionBarTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
+            case TITLE -> new ClientboundSetTitleTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
+            case SUBTITLE -> new ClientboundSetSubtitleTextPacket((IChatBaseComponent) this.toIChatBaseComponent(text));
+            case TIMES -> new ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut);
+            case CLEAR, RESET -> new ClientboundClearTitlesPacket(true);
+        };
     }
 
 	@Override
@@ -393,7 +390,7 @@ public class v1_21_R1 implements NmsProvider {
 					IChatBaseComponent component = compoundTag.getName() == null ? null : (IChatBaseComponent) toIChatBaseComponent(compoundTag.getName());
 					EntityTypes<?> entityType = BuiltInRegistries.f.a(MinecraftKey.a(compoundTag.getType()));
 					modif = modif.a(new ChatHoverable(EnumHoverAction.c, new ChatHoverable.b(entityType, compoundTag.getId(), component)));
-				} catch (Exception commandSyntaxException) {
+				} catch (Exception ignored) {
 				}
 				break;
 			case SHOW_ITEM:
@@ -411,7 +408,7 @@ public class v1_21_R1 implements NmsProvider {
 						stack = net.minecraft.world.item.ItemStack.a(CommandDispatcher.a(VanillaRegistries.a()), nbt);
 					}
 					modif = modif.a(new ChatHoverable(EnumHoverAction.b, new ChatHoverable.c(stack)));
-				} catch (Exception commandSyntaxException) {
+				} catch (Exception ignored) {
 				}
 				break;
 			default:
@@ -567,13 +564,12 @@ public class v1_21_R1 implements NmsProvider {
 
 	@Override
 	public BlockDataStorage toMaterial(Object blockOrIBlockData) {
-		if (blockOrIBlockData instanceof Block) {
-			IBlockData data = ((Block) blockOrIBlockData).o();
+		if (blockOrIBlockData instanceof Block block) {
+			IBlockData data = block.o();
 			return new BlockDataStorage(CraftMagicNumbers.getMaterial(data.b()), (byte) 0, asString(data));
 		}
-		if (blockOrIBlockData instanceof IBlockData) {
-			IBlockData data = (IBlockData) blockOrIBlockData;
-			return new BlockDataStorage(CraftMagicNumbers.getMaterial(data.b()), (byte) 0, asString(data));
+		if (blockOrIBlockData instanceof IBlockData data) {
+            return new BlockDataStorage(CraftMagicNumbers.getMaterial(data.b()), (byte) 0, asString(data));
 		}
 		return new BlockDataStorage(Material.AIR);
 	}
@@ -614,21 +610,21 @@ public class v1_21_R1 implements NmsProvider {
 		if (string == null || string.trim().isEmpty())
 			return ib;
 
-		String key = "";
-		String value = "";
+		StringBuilder key = new StringBuilder();
+		StringBuilder value = new StringBuilder();
 		int set = 0;
 
 		for (int i = 1; i < string.length() - 1; ++i) {
 			char c = string.charAt(i);
 			if (c == ',') {
-				IBlockState ibj = blockStateList.a(key);
+				IBlockState ibj = blockStateList.a(key.toString());
 				if (ibj != null) {
-					Optional optional = ibj.b(value);
+					Optional optional = ibj.b(value.toString());
 					if (optional.isPresent())
 						ib = ib.a(ibj, (Comparable) optional.get());
 				}
-				key = "";
-				value = "";
+				key = new StringBuilder();
+				value = new StringBuilder();
 				set = 0;
 				continue;
 			}
@@ -637,14 +633,14 @@ public class v1_21_R1 implements NmsProvider {
 				continue;
 			}
 			if (set == 0)
-				key += c;
+				key.append(c);
 			else
-				value += c;
+				value.append(c);
 		}
 		if (set == 1) {
-			IBlockState ibj = blockStateList.a(key);
+			IBlockState ibj = blockStateList.a(key.toString());
 			if (ibj != null) {
-				Optional optional = ibj.b(value);
+				Optional optional = ibj.b(value.toString());
 				if (optional.isPresent())
 					ib = ib.a(ibj, (Comparable) optional.get());
 			}
@@ -993,7 +989,7 @@ public class v1_21_R1 implements NmsProvider {
 				// drop
 				if (oldItem.isSimilar(newItem) || oldItem.getType() == Material.AIR)
 					newItem.setAmount(oldItem.getType() == Material.AIR ? 1 : oldItem.getAmount() + 1);
-			} else if (slot > 0 && mouseClick == 0) // drop
+			} else if (slot > 0) // drop
 				if (oldItem.isSimilar(newItem))
 					newItem.setAmount(Math.min(newItem.getAmount() + oldItem.getAmount(), newItem.getMaxStackSize()));
 			break;
@@ -1043,8 +1039,7 @@ public class v1_21_R1 implements NmsProvider {
 
 		ClickType clickType = InventoryUtils.buildClick(type == InventoryClickType.f ? 1 : type == InventoryClickType.b ? 2 : 0, mouseClick);
 		if (slot > -1) {
-			if (!cancel)
-				cancel = InventoryUtils.useItem(player, gui, slot, clickType);
+            cancel = InventoryUtils.useItem(player, gui, slot, clickType);
 			if (!gui.isInsertable())
 				cancel = true;
 
@@ -1056,9 +1051,7 @@ public class v1_21_R1 implements NmsProvider {
 		if (!cancel) {
 			if (gui instanceof AnvilGUI) { // Event
 				final ItemStack newItemFinal = newItem;
-				postToMainThread(() -> {
-					processEvent(c, type, gui, player, slot, gameSlot, newItemFinal, oldItem, packet, mouseClick, clickType, nPlayer);
-				});
+				postToMainThread(() -> processEvent(c, type, gui, player, slot, gameSlot, newItemFinal, oldItem, packet, mouseClick, clickType, nPlayer));
 			} else
 				processEvent(c, type, gui, player, slot, gameSlot, newItem, oldItem, packet, mouseClick, clickType, nPlayer);
 			return true;
@@ -1156,7 +1149,7 @@ public class v1_21_R1 implements NmsProvider {
 			int j = getContainerStateId(container);
 			Set<Slot> mod = (Set<Slot>) Ref.get(container, containerV);
 			if (u != 0) {
-				Ref.set(container, containerU, u = 0);
+				Ref.set(container, containerU, 0);
 				mod.clear();
 			} else if (actionType == InventoryClickType.a && (button == 0 || button == 1)) {
 				ClickAction clickaction = button == 0 ? ClickAction.a : ClickAction.b;
@@ -1296,8 +1289,7 @@ public class v1_21_R1 implements NmsProvider {
 						modifiedSlots.put(slotIndex, new ItemStack(Material.AIR));
 					else
 						modifiedSlotsPlayerInv.put(InventoryUtils.convertToPlayerInvSlot(slotIndex - gui.size()), new ItemStack(Material.AIR));
-					if (!modifiedSlots.isEmpty() || !modifiedSlotsPlayerInv.isEmpty())
-						gui.onMultipleIteract((Player) player.getBukkitEntity(), modifiedSlots, modifiedSlotsPlayerInv);
+                    gui.onMultipleIteract((Player) player.getBukkitEntity(), modifiedSlots, modifiedSlotsPlayerInv);
 					for (int s : corruptedSlots)
 						BukkitLoader.getPacketHandler().send((Player) player.getBukkitEntity(), BukkitLoader.getNmsProvider().packetSetSlot(BukkitLoader.getNmsProvider().getContainerId(container), s,
 								getContainerStateId(container), BukkitLoader.getNmsProvider().getSlotItem(container, s)));
@@ -1326,8 +1318,7 @@ public class v1_21_R1 implements NmsProvider {
 					mod.clear();
 				} else {
 					mod.clear();
-					u = 0;
-				}
+                }
 				break;
 			}
 			case 1: {
@@ -1388,8 +1379,7 @@ public class v1_21_R1 implements NmsProvider {
 						container.b();
 				}
 				mod.clear();
-				u = 0;
-			default:
+                default:
 				mod.clear();
 				u = 0;
 				break;
@@ -1399,9 +1389,8 @@ public class v1_21_R1 implements NmsProvider {
 
 	@Override
 	public boolean processServerListPing(String player, Object channel, Object packet) {
-		if (packet instanceof PacketContainer) {
-			PacketContainer container = (PacketContainer) packet;
-			PacketStatusOutServerInfo status = (PacketStatusOutServerInfo) container.getPacket();
+		if (packet instanceof PacketContainer container) {
+            PacketStatusOutServerInfo status = (PacketStatusOutServerInfo) container.getPacket();
 			ServerPing ping = status.b();
 
 			List<GameProfileHandler> gameProfiles = new ArrayList<>();
@@ -1409,7 +1398,7 @@ public class v1_21_R1 implements NmsProvider {
 				gameProfiles.add(fromGameProfile(profile));
 
 			IChatBaseComponent motd = IChatBaseComponent.a("");
-			Optional<ServerPingPlayerSample> players = Optional.empty();
+			Optional<ServerPingPlayerSample> players;
 			Optional<ServerData> onlineCount = Optional.empty();
 			Optional<ServerPing.a> serverIcon = Optional.empty();
 			boolean enforceSecureProfile = ping.e();
@@ -1625,29 +1614,25 @@ public class v1_21_R1 implements NmsProvider {
 		return new PacketPlayOutExperience(exp, total, toNextLevel);
 	}
 
-	@Override
-	public Object packetPlayerInfo(PlayerInfoType type, Player player) {
-		a action = null;
-		switch (type) {
-		case ADD_PLAYER:
-			action = a.a;
-			break;
-		case REMOVE_PLAYER:
-			return new ClientboundPlayerInfoRemovePacket(Arrays.asList(player.getUniqueId()));
-		case UPDATE_DISPLAY_NAME:
-			action = a.f;
-			break;
-		case UPDATE_GAME_MODE:
-			action = a.c;
-			break;
-		case UPDATE_LATENCY:
-			action = a.e;
-			break;
-		}
-		return new ClientboundPlayerInfoUpdatePacket(action, (EntityPlayer) getPlayer(player));
+	private a fromBukkit(PlayerInfoType type){
+		return switch (type) {
+			case ADD_PLAYER -> a.a;
+			case UPDATE_DISPLAY_NAME -> a.f;
+			case UPDATE_GAME_MODE -> a.c;
+			case UPDATE_LATENCY -> a.e;
+			default -> null;
+		};
 	}
 
-	static Field setField, listField;
+	@Override
+	public Object packetPlayerInfo(PlayerInfoType type, Player player) {
+		if(type==PlayerInfoType.REMOVE_PLAYER)
+			return new ClientboundPlayerInfoRemovePacket(List.of(player.getUniqueId()));
+		return new ClientboundPlayerInfoUpdatePacket(fromBukkit(type), (EntityPlayer) getPlayer(player));
+	}
+
+	static final Field setField;
+	static final Field listField;
 
 	static {
 		setField = Ref.field(ClientboundPlayerInfoUpdatePacket.class, "b");
@@ -1656,25 +1641,10 @@ public class v1_21_R1 implements NmsProvider {
 
 	@Override
 	public Object packetPlayerInfo(PlayerInfoType type, GameProfileHandler gameProfile, int latency, GameMode gameMode, Component playerName) {
-		a action = null;
-		switch (type) {
-		case ADD_PLAYER:
-			action = a.a;
-			break;
-		case REMOVE_PLAYER:
-			return new ClientboundPlayerInfoRemovePacket(Arrays.asList(gameProfile.getUUID()));
-		case UPDATE_DISPLAY_NAME:
-			action = a.f;
-			break;
-		case UPDATE_GAME_MODE:
-			action = a.c;
-			break;
-		case UPDATE_LATENCY:
-			action = a.e;
-			break;
-		}
-		EnumSet<a> set = EnumSet.of(action);
-		List<ClientboundPlayerInfoUpdatePacket.b> list = Arrays.asList(new ClientboundPlayerInfoUpdatePacket.b(gameProfile.getUUID(), (GameProfile) toGameProfile(gameProfile), true, latency,
+		if(type==PlayerInfoType.REMOVE_PLAYER)
+			return new ClientboundPlayerInfoRemovePacket(List.of(gameProfile.getUUID()));
+		EnumSet<a> set = EnumSet.of(fromBukkit(type));
+		List<ClientboundPlayerInfoUpdatePacket.b> list = Collections.singletonList(new ClientboundPlayerInfoUpdatePacket.b(gameProfile.getUUID(), (GameProfile) toGameProfile(gameProfile), true, latency,
 				gameMode == null ? EnumGamemode.a : EnumGamemode.a(gameMode.name().toLowerCase()),
 				(IChatBaseComponent) (playerName == null ? toIChatBaseComponent(new Component(gameProfile.getUsername())) : toIChatBaseComponent(playerName)), null));
 		ClientboundPlayerInfoUpdatePacket packet = (ClientboundPlayerInfoUpdatePacket) Ref.newUnsafeInstance(ClientboundPlayerInfoUpdatePacket.class);
