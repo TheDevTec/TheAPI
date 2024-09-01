@@ -29,7 +29,7 @@
             <includeModuleDirectory>false</includeModuleDirectory>
             <fileSets>
               <fileSet>
-                <outputDirectory>/</outputDirectory>
+      			<outputDirectory>test</outputDirectory>
                 <excludes>
                   <exclude>${project.build.directory}/**</exclude>
                 </excludes>
