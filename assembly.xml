@@ -1,3 +1,4 @@
+<!DOCTYPE assembly SYSTEM "assembly.dtd">
 <assembly>
       <id>all</id>
       <formats>
@@ -29,7 +30,7 @@
             <includeModuleDirectory>false</includeModuleDirectory>
             <fileSets>
               <fileSet>
-      			<outputDirectory>test</outputDirectory>
+                <outputDirectory>/</outputDirectory>
                 <excludes>
                   <exclude>${project.build.directory}/**</exclude>
                 </excludes>

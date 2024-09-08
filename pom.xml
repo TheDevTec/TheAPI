@@ -21,6 +21,19 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+    <dependencies>
+        <dependency>
+            <groupId>com.github.TheDevTec</groupId>
+            <artifactId>TheAPI-Shared</artifactId>
+            <version>12.9.8</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

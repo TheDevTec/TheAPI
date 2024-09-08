@@ -1,4 +1,5 @@
 @echo off
+call mvn clean compile verify
 cd NmsProvider - 1.7.R4
 call mvn clean package clean
 cd ..

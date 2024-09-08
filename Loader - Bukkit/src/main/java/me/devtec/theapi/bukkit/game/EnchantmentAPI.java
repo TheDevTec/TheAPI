@@ -1,15 +1,16 @@
 package me.devtec.theapi.bukkit.game;
 
-import me.devtec.shared.Ref;
-import me.devtec.shared.annotations.Nonnull;
-import me.devtec.shared.annotations.Nullable;
+import java.lang.reflect.Field;
+import java.util.Map;
+
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
-import java.lang.reflect.Field;
-import java.util.Map;
+import me.devtec.shared.Ref;
+import me.devtec.shared.annotations.Nonnull;
+import me.devtec.shared.annotations.Nullable;
 
 public enum EnchantmentAPI {
     SHARPNESS("DAMAGE_ALL", "SHARPNESS"), DAMAGEALL("DAMAGE_ALL", "SHARPNESS"), ALLDAMAGE("DAMAGE_ALL", "SHARPNESS"), DAMAGE_ALL("DAMAGE_ALL", "SHARPNESS"),
@@ -179,12 +180,22 @@ public enum EnchantmentAPI {
      * @return boolean state of success
      * @apiNote Register enchantment to the bukkit
      */
-    public static boolean registerEnchantment(Enchantment enchantment) {
+    @SuppressWarnings("unchecked")
+	public static boolean registerEnchantment(Enchantment enchantment) {
         boolean registered = false;
         if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 3) {
-            @SuppressWarnings("unchecked")
             Map<Object, Object> map = (Map<Object, Object>) Ref.get(Ref.getStatic(Ref.getClass("org.bukkit.Registry"), "ENCHANTMENT"), "map");
-            map.put(Ref.invoke(enchantment, "getKey"), enchantment);
+            if(map==null) {
+            	//Then we get "cache" and "byValue"
+            	Object key = Ref.invoke(enchantment, "getKey");
+            	//NamespacedKey, Instance
+                Map<Object, Object> cache = (Map<Object, Object>) Ref.get(Ref.getStatic(Ref.getClass("org.bukkit.Registry"), "ENCHANTMENT"), "cache");
+            	//Instance, NamespacedKey
+                Map<Object, Object> byValue = (Map<Object, Object>) Ref.get(Ref.getStatic(Ref.getClass("org.bukkit.Registry"), "ENCHANTMENT"), "byValue");
+                cache.put(key, enchantment);
+                byValue.put(enchantment, key);
+            }else
+            	map.put(Ref.invoke(enchantment, "getKey"), enchantment);
             registered = true;
         } else {
             Ref.set(null, acceptingNew, true);

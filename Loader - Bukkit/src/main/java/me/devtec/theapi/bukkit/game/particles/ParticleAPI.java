@@ -1,21 +1,15 @@
 package me.devtec.theapi.bukkit.game.particles;
 
-import me.devtec.shared.utility.MathUtils;
-import me.devtec.shared.utility.StringUtils;
-import me.devtec.theapi.bukkit.BukkitLoader;
-import me.devtec.theapi.bukkit.game.Position;
+import java.util.Collection;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Callable;
+import me.devtec.theapi.bukkit.BukkitLoader;
+import me.devtec.theapi.bukkit.game.Position;
 
 /**
- * @author StraikerinaCZ, M3II0
+ * @author Straikerinos
  */
 public class ParticleAPI {
     public static void spawnParticle(Player target, Particle particle, Position pos) {

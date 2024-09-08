@@ -1,17 +1,17 @@
 package me.devtec.theapi.bukkit.game;
 
-import lombok.Getter;
-import lombok.Setter;
-import me.devtec.shared.Ref;
-import me.devtec.shared.json.Json;
-import me.devtec.theapi.bukkit.BukkitLoader;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.Map;
+import lombok.Getter;
+import me.devtec.shared.Ref;
+import me.devtec.shared.json.Json;
+import me.devtec.theapi.bukkit.BukkitLoader;
 
 public class BlockDataStorage implements Cloneable {
     private static final Class<?> blockDataClass = Ref.getClass("org.bukkit.block.data.BlockData");
