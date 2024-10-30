@@ -6,7 +6,7 @@
     <parent>
         <groupId>me.devtec.theapi.loaders</groupId>
         <artifactId>TheAPI</artifactId>
-        <version>13.0</version>
+        <version>13.1</version>
     </parent>
 
     <artifactId>BungeeAPI</artifactId>
@@ -27,11 +27,6 @@
         </repository>
     </repositories>
     <dependencies>
-        <dependency>
-            <groupId>com.github.TheDevTec</groupId>
-            <artifactId>TheAPI-Shared</artifactId>
-            <version>13.0</version>
-        </dependency>
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-chat</artifactId>

@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-@Plugin(id = "theapi", name = "TheAPI", version = "13.0", authors = {"DevTec", "Straikerinos"}, url = "https://www.spigotmc.org/resources/72679/")
+@Plugin(id = "theapi", name = "TheAPI", version = "13.1", authors = {"DevTec", "Straikerinos"}, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 
     // Init static APIs
