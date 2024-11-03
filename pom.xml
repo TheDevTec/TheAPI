@@ -31,7 +31,7 @@
         <dependency>
             <groupId>com.github.TheDevTec</groupId>
             <artifactId>TheAPI-Shared</artifactId>
-            <version>-SNAPSHOT</version>
+            <version>21edf8d778</version>
         </dependency>
     </dependencies>
 
