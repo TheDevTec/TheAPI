@@ -1,6 +1,6 @@
 name: TheAPI
 main: me.devtec.theapi.bukkit.BukkitLoader
-version: 13.1
+version: 13.2
 author: DevTec, Straikerinos
 website: https://www.spigotmc.org/resources/72679/
 api-version: 1.13
