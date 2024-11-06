@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>NmsProvider-1.8.R3</artifactId>
 	<groupId>me.devtec.theapi.nmsproviders</groupId>
-    <version>13.2</version>
+    <version>13.3</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -24,7 +24,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.2</version>
+                <version>3.13.3</version>
                 <configuration>
                     <release>8</release>
                 </configuration>
@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>com.github.TheDevTec.TheAPI</groupId>
 			<artifactId>Loader-Bukkit</artifactId>
-			<version>13.2</version>
+			<version>13.3</version>
             <scope>provided</scope>
 		</dependency>
     </dependencies>
