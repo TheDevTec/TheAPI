@@ -484,7 +484,6 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	@Override
 	public void onDisable() {
 		metrics.shutdown();
-		API.setEnabled(false);
 		for (HolderGUI gui : new ArrayList<>(this.gui.values()))
 			gui.close();
 		if (handler != null) {
@@ -496,6 +495,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		PlaceholderAPI.PAPI_BRIDGE = null;
 		// OfflineCache support!
 		API.offlineCache().saveToConfig().setFile(new File("plugins/TheAPI/Cache.dat")).save("properties");
+		API.setEnabled(false);
 	}
 
 	private void checkForUpdateAndDownloadCompiled(String serverVersion) {
