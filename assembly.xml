@@ -21,7 +21,7 @@
                 <include>me.devtec.theapi.loaders:AdventureAPI</include>
                 <include>me.devtec.theapi.loaders:BungeeAPI</include>
                 <include>me.devtec.theapi.loaders:Shared-Fallback</include>
-                <include>me.devtec.theapi.loaders:Loader-Bukkit-Old-Fallback</include>
+                <include>me.devtec.theapi.loaders:Loader-Bukkit-Legacy-Fallback</include>
                 <include>me.devtec.theapi.loaders:Loader-Bukkit</include>
                 <include>me.devtec.theapi.loaders:Loader-Bungee</include>
                 <include>me.devtec.theapi.loaders:Loader-Velocity</include>
