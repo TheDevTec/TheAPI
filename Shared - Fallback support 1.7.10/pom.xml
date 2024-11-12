@@ -6,7 +6,7 @@
     <parent>
         <groupId>me.devtec.theapi.loaders</groupId>
         <artifactId>TheAPI</artifactId>
-        <version>13.3</version>
+        <version>13.4</version>
     </parent>
 
     <artifactId>Shared-Fallback</artifactId>
@@ -43,7 +43,7 @@
         <dependency>
             <groupId>me.devtec.theapi.loaders</groupId>
             <artifactId>Loader-Bukkit</artifactId>
-            <version>13.3</version>
+            <version>13.4</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

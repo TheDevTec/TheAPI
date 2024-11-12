@@ -6,7 +6,7 @@
 
     <artifactId>NmsProvider-1.7.R4</artifactId>
 	<groupId>me.devtec.theapi.nmsproviders</groupId>
-    <version>13.3</version>
+    <version>13.4</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>com.github.TheDevTec.TheAPI</groupId>
 			<artifactId>Loader-Bukkit</artifactId>
-			<version>13.3</version>
+			<version>13.4</version>
 		</dependency>
     </dependencies>
 </project>
