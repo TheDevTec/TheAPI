@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.github.TheDevTec</groupId>
             <artifactId>TheAPI-Shared</artifactId>
-            <version>72138817e6</version>
+            <version>13.4</version>
         </dependency>
     </dependencies>
 
