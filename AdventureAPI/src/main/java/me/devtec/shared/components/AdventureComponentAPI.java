@@ -73,12 +73,13 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 	}
 
 	private net.kyori.adventure.text.Component convertAll(net.kyori.adventure.text.Component base, List<Component> extra2) {
+		net.kyori.adventure.text.Component result = base;
 		for (Component c : extra2) {
-			base = base.append(this.convert(c));
+			result = result.append(this.convert(c));
 			if (c.getExtra() != null)
-				base = this.convertAll(base, c.getExtra());
+				result = this.convertAll(result, c.getExtra());
 		}
-		return base;
+		return result;
 	}
 
 	private net.kyori.adventure.text.Component convert(Component component) {

@@ -168,7 +168,7 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 		} catch (Exception ignored) {
 		}
 	}
-
+	
 	@Override
 	public Future<Channel> getFuture(Player player) {
 		Channel channel = channelLookup.get(player.getName());
@@ -182,7 +182,7 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 					public void run() {
 						while (API.isEnabled()) {
 							try {
-								Thread.sleep(50);
+								Thread.sleep(25);
 							} catch (InterruptedException e) {
 								future.completeExceptionally(e);
 								break;
@@ -210,7 +210,7 @@ public class PacketHandlerLegacy implements PacketHandler<Channel> {
 					public void run() {
 						while (API.isEnabled()) {
 							try {
-								Thread.sleep(50);
+								Thread.sleep(25);
 							} catch (InterruptedException e) {
 								future.completeExceptionally(e);
 								break;
