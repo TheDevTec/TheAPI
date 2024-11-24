@@ -1,7 +1,12 @@
 plugins {
     id 'java'
 }
-
+if (project.hasProperty('version')) {
+    def versionValue = project.version
+    println "Verze je: $versionValue"
+} else {
+    println "Parametr version nebyl zadán"
+}
 group = 'me.devtec.theapi.loaders'
 version = '13.4'
 
