@@ -48,12 +48,6 @@ subprojects {
         from sourceSets.main.output
         archiveBaseName.set(project.name)
     }
-
-    task buildSourcesJar(type: Jar) {
-        from sourceSets.main.allSource
-        archiveClassifier.set('sources')
-        archiveBaseName.set(project.name)
-    }
 }
 
 task buildJar(type: Jar) {
@@ -61,16 +55,9 @@ task buildJar(type: Jar) {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     from subprojects.collect { it.sourceSets.main.output }
-	destinationDirectory = file("$buildDir")
+	destinationDirectory = file(".")
     archiveBaseName.set(project.name)
     archiveVersion.set(versionValue)
 }
 
-task buildSourcesJar(type: Jar) {
-    from subprojects.collect { it.sourceSets.main.allSource }
-	destinationDirectory = file("$buildDir")
-    archiveClassifier.set('sources')
-    archiveVersion.set(versionValue)
-}
-
-build.dependsOn buildJar, buildSourcesJar
+build.dependsOn buildJar
