@@ -45,19 +45,15 @@ subprojects {
         archiveVersion.set(project.version)
     }
 }
+
 task fatJar(type: Jar) {
+	destinationDirectory = file(".")
     archiveBaseName.set(project.name)
     archiveVersion.set(project.version)
-
-    // Seznam všech runtime závislostí
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
-
-    // Přidejte třídy ze všech modulů
     from subprojects.collect { it.sourceSets.main.output }
-    println 'Jar sestaven!'
 }
 
-// Spustí 'fatJar' po úspěšném buildu
 build.dependsOn fatJar
