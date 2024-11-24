@@ -1,11 +1,11 @@
 plugins {
     id 'java'
 }
+def versionValue;
 if (project.hasProperty('version')) {
-    def versionValue = project.version
-    println "Verze je: $versionValue"
+	versionValue = project.version
 } else {
-    println "Parametr version nebyl zadán"
+    versionValue='13.4';
 }
 group = 'me.devtec.theapi.loaders'
 version = '13.4'
@@ -53,16 +53,11 @@ subprojects {
 
 task fatJar(type: Jar) {
     archiveBaseName.set(project.name)
-    archiveVersion.set(${git.branch})
+    archiveVersion.set(versionValue)
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     from subprojects.collect { it.sourceSets.main.output }
-    println archiveFile.get().asFile.path
-    println GIT_BRANCH
-    println {GIT_BRANCH}
-    println ${GIT_BRANCH}
-    println ${git.branch}
 }
 
 build.dependsOn fatJar
