@@ -47,7 +47,6 @@ subprojects {
 }
 
 task fatJar(type: Jar) {
-	destinationDirectory = file(".")
     archiveBaseName.set(project.name)
     archiveVersion.set(project.version)
     from {
