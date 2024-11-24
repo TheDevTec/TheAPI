@@ -10,12 +10,6 @@ repositories {
     maven { url = 'https://jitpack.io' }
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
-
 allprojects {
     repositories {
         maven {
