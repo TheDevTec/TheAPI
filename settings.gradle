@@ -1,0 +1,4 @@
+rootProject.name = 'TheAPI'
+
+// Definování subprojektů (moduly)
+include 'AdventureAPI', 'BungeeAPI', 'Loader-Bukkit-Legacy', 'Loader-Bukkit', 'Shared-Fallback', 'Loader-Bungee', 'Loader-Velocity'

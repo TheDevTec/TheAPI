@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+}
+
+group = 'me.devtec.theapi.loaders'
+version = '13.4'
+
+sourceCompatibility = '17'
+targetCompatibility = '17'
+
+repositories {
+    maven {
+        url = 'https://repo.papermc.io/repository/maven-public/'
+    }
+}
+
+dependencies {
+    implementation 'com.velocitypowered:velocity-api:3.4.0-SNAPSHOT'
+    implementation project(':AdventureAPI')
+}

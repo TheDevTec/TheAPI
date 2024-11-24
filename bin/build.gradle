@@ -1,0 +1,64 @@
+plugins {
+    id 'java'
+}
+
+group = 'me.devtec.theapi.loaders'
+version = '13.4'
+
+repositories {
+	mavenCentral()
+    maven { url = 'https://jitpack.io' }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+allprojects {
+    repositories {
+        maven {
+            url = 'https://jitpack.io'
+        }
+    }
+}
+dependencies {
+    implementation 'com.github.TheDevTec:TheAPI-Shared:13.4'
+}
+subprojects {
+    apply plugin: 'java'
+
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+
+    dependencies {
+        compileOnly 'org.projectlombok:lombok:1.18.24'
+   		annotationProcessor 'org.projectlombok:lombok:1.18.24'
+        implementation 'com.github.TheDevTec:TheAPI-Shared:13.4'
+    }
+    
+    tasks.withType(JavaCompile) {
+    	options.annotationProcessorPath = configurations.annotationProcessor
+	}
+	task buildJar(type: Jar) {
+        from sourceSets.main.output
+        archiveBaseName.set(project.name)
+        archiveVersion.set(project.version)
+    }
+}
+task fatJar(type: Jar) {
+    archiveBaseName.set(project.name)
+    archiveVersion.set(project.version)
+
+    // Seznam všech runtime závislostí
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    // Přidejte třídy ze všech modulů
+    from subprojects.collect { it.sourceSets.main.output }
+}
+
+// Spustí 'fatJar' po úspěšném buildu
+build.dependsOn fatJar

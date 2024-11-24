@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+}
+
+group = 'me.devtec.theapi.loaders'
+version = '13.4'
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+repositories {
+	mavenCentral()
+    maven {
+        url = 'https://maven.elmakers.com/repository/'
+    }
+}
+
+dependencies {
+    implementation 'org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT'
+}
