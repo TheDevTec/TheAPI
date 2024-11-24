@@ -43,6 +43,7 @@ subprojects {
         from sourceSets.main.output
         archiveBaseName.set(project.name)
         archiveVersion.set(project.version)
+    	println archiveFile.get().asFile.path
     }
 }
 
@@ -53,7 +54,7 @@ task fatJar(type: Jar) {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     from subprojects.collect { it.sourceSets.main.output }
-    println 'BUILD DOKONČEN!'
+    println archiveFile.get().asFile.path
 }
 
 build.dependsOn fatJar
