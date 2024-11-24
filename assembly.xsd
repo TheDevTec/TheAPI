@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="assembly">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="id" type="xs:string" />
+				<xs:element name="formats">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="format" type="xs:string" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="includeBaseDirectory" type="xs:string" />
+				<xs:element name="dependencySets">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="dependencySet">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="outputDirectory" type="xs:string" />
+										<xs:element name="includes">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="include" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="unpack" type="xs:string" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="moduleSets">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="moduleSet">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="useAllReactorProjects" type="xs:string" />
+										<xs:element name="includes">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="include" maxOccurs="unbounded" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="sources">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="includeModuleDirectory" type="xs:string" />
+													<xs:element name="fileSets">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="fileSet">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="outputDirectory" type="xs:string" />
+																			<xs:element name="excludes">
+																				<xs:complexType>
+																					<xs:sequence>
+																						<xs:element name="exclude" type="xs:string" />
+																					</xs:sequence>
+																				</xs:complexType>
+																			</xs:element>
+																			<xs:element name="directory" type="xs:string" />
+																			<xs:element name="includes">
+																				<xs:complexType>
+																					<xs:sequence>
+																						<xs:element name="include" maxOccurs="unbounded" type="xs:string" />
+																					</xs:sequence>
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
