@@ -73,4 +73,3 @@ task buildJar(type: Jar) {
 }
 
 build.dependsOn buildJar // Ujistíme se, že buildJar je proveden při build
-install.dependsOn buildJar // Ujistíme se, že buildJar je proveden při build
