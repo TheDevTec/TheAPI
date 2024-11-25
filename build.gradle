@@ -3,12 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-def versionValue;
-if (System.getenv('VERSION') != null) {
-    versionValue = System.getenv("VERSION");
-} else {
-    versionValue = '13.4';
-}
+def versionValue = System.getenv('VERSION') ?: '13.4'
 group = 'me.devtec.theapi.loaders'
 version = versionValue
 
@@ -59,6 +54,17 @@ subprojects {
         archiveBaseName.set(project.name)
         archiveVersion.set(versionValue)
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+	            groupId = 'com.github.TheDevTec'
+	            artifactId = project.name
+	            version = versionValue
+                from components.java
+            }
+        }
     }
 }
 
