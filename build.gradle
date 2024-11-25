@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+     id 'java-library'
     id 'maven-publish'
 }
 
@@ -25,7 +25,7 @@ dependencies {
 }
 
 subprojects {
-    apply plugin: 'java'
+    apply plugin: 'java-library'
     apply plugin: 'maven-publish'
 
     sourceCompatibility = '1.8'
@@ -59,7 +59,6 @@ subprojects {
     publishing {
         publications {
             mavenJava(MavenPublication) {
-	            groupId = 'com.github.TheDevTec'
 	            artifactId = project.name
 	            version = versionValue
                 from components.java
@@ -76,6 +75,21 @@ task buildJar(type: Jar) {
     from subprojects.collect { it.sourceSets.main.output }
     archiveBaseName.set(project.name)
     archiveVersion.set(versionValue)
+}
+publishing {
+    publications {
+        jar(MavenPublication) {
+            from components.java
+            artifactId = 'TheAPI'
+            version = versionValue
+            publishJarPublicationToMavenLocal.dependsOn buildJar
+
+        }
+    }
+}
+
+tasks.withType(GenerateModuleMetadata) {
+    enabled = false
 }
 
 build.dependsOn buildJar // Ujistíme se, že buildJar je proveden při build

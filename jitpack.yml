@@ -2,5 +2,4 @@ jdk:
   - openjdk17
 install:
   - chmod +x ./gradlew
-  - ./gradlew tasks --all
   - ./gradlew build -Pgroup=com.github.TheDevTec publishToMavenLocal
