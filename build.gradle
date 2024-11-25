@@ -12,7 +12,6 @@ version = '13.4'
 
 repositories {
 	mavenCentral()
-    maven { url = 'https://jitpack.io' }
 }
 
 allprojects {
@@ -55,9 +54,13 @@ task buildJar(type: Jar) {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     from subprojects.collect { it.sourceSets.main.output }
-	destinationDirectory = file(".")
     archiveBaseName.set(project.name)
     archiveVersion.set(versionValue)
+      doLast {
+        File jarFile = archiveFile.get().asFile
+        println("JAR file name: ${jarFile.name}") // Získání názvu
+        println("JAR file size: ${jarFile.length() / (1024 * 1024)} MB") // Získání velikosti v MB
+    }
 }
 
 build.dependsOn buildJar

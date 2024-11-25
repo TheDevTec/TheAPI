@@ -1,0 +1,34 @@
+plugins {
+    id 'java'
+}
+
+group = 'me.devtec.theapi.loaders'
+version = '13.4'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+    maven { url 'https://maven.elmakers.com/repository/' }
+}
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT'
+    compileOnly 'com.github.TheDevTec:TheAPI-Loader-Bukkit:13.4'
+}
+
+java {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+task buildJar(type: Jar) {
+    from sourceSets.main.output
+    archiveBaseName.set('NmsProvider')
+    destinationDirectory.set(file("/build"))
+}
+
+tasks.build.dependsOn buildJar
