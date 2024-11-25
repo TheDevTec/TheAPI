@@ -29,13 +29,14 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'maven-publish'
     
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                from components.java
-            }
+   publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            // Odstraňte 'from components.java', pokud chcete použít pouze buildJar
+            artifact tasks.buildJar // Publikujte pouze vlastní JAR soubor
         }
     }
+}
 
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
@@ -74,8 +75,8 @@ build.dependsOn buildJar
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            from components.java
-            artifact tasks.buildJar // Připojí vlastní JAR úlohu jako artefakt
+            // Odstraňte 'from components.java', pokud chcete použít pouze buildJar
+            artifact tasks.buildJar // Publikujte pouze vlastní JAR soubor
         }
     }
 }
