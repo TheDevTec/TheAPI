@@ -61,30 +61,3 @@ task buildJar(type: Jar) {
 }
 
 build.dependsOn buildJar
-
-// Definice publikování do Maven Local
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            // Odstranění standardní komponenty, pokud existuje
-            // Zabrání duplikaci artefaktů
-            artifacts.clear()
-
-            // Přidání vlastního JAR souboru
-            artifact tasks.buildJar.archiveFile.get()
-
-            // Skupina, artefakt a verze
-            groupId = 'me.devtec.theapi.loaders'
-            artifactId = project.name
-            version = versionValue
-        }
-    }
-    repositories {
-        mavenLocal() // Publikování do Maven Local
-    }
-}
-
-// Zajištění, že `publishToMavenLocal` závisí na buildu
-tasks.publishToMavenLocal {
-    dependsOn buildJar
-}
