@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group = 'me.devtec.theapi.loaders'
+group = 'com.github.TheDevTec'
 version = '13.4'
 
 repositories {
