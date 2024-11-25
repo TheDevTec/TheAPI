@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 def versionValue;
-if (project.hasProperty('GIT_COMMIT')) {
+if (System.getenv('GIT_COMMIT') != null) {
 	versionValue = System.getenv("GIT_COMMIT");
 } else {
     versionValue='13.4';
