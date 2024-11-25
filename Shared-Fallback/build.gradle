@@ -16,6 +16,9 @@ repositories {
     maven {
         url 'https://maven.elmakers.com/repository/'
     }
+    maven {
+        url = 'https://repo.helpch.at/releases'
+    }
 }
 
 dependencies {
