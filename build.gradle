@@ -3,18 +3,18 @@ plugins {
     id 'maven-publish'
 }
 
-def versionValue
+def versionValue;
 if (System.getenv('VERSION') != null) {
-    versionValue = System.getenv("VERSION")
+    versionValue = System.getenv("VERSION");
 } else {
-    versionValue = '13.4'
+    versionValue = '13.4';
 }
-
-group = 'com.github.TheDevTec'
+group = 'me.devtec.theapi.loaders'
 version = versionValue
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 allprojects {
@@ -50,19 +50,26 @@ subprojects {
         options.annotationProcessorPath = configurations.annotationProcessor
     }
 
+    // Definice úkolu pro generování JAR souboru
     task buildJar(type: Jar) {
+        from {
+            configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        }
         from sourceSets.main.output
         archiveBaseName.set(project.name)
         archiveVersion.set(versionValue)
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
-
-	// Publikování artefaktů na MavenLocal
-	tasks.named('publishToMavenLocal') {
-	    finalizedBy build // zajistí, že publishMavenJavaPublicationToMavenLocal běží až po dokončení build
-	}
 }
 
-// Publikování artefaktů na MavenLocal
-tasks.named('publishToMavenLocal') {
-    finalizedBy build // zajistí, že publishMavenJavaPublicationToMavenLocal běží až po dokončení build
+// V hlavním projektu musíme definovat buildJar, pokud to není v subprojektech
+task buildJar(type: Jar) {
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    from subprojects.collect { it.sourceSets.main.output }
+    archiveBaseName.set(project.name)
+    archiveVersion.set(versionValue)
 }
+
+build.dependsOn buildJar // Ujistíme se, že buildJar je proveden při build
