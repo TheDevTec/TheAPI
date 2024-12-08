@@ -1,72 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>me.devtec.theapi.loaders</groupId>
-        <artifactId>TheAPI</artifactId>
-        <version>13.4</version>
-    </parent>
+plugins {
+    id 'java'
+}
 
-    <artifactId>NmsProvider-1.19.R1</artifactId>
-    <version>13.4</version>
+group = 'me.devtec.theapi.loaders'
+version = '13.4'
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-    <build>
-        <sourceDirectory>src/main/java</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>resources</directory>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                </excludes>
-            </resource>
-        </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
-                <configuration>
-                    <release>17</release>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.4.2</version>
-                <configuration>
-                    <outputDirectory>${project.basedir}/build/</outputDirectory>
-                    <finalName>NmsProvider</finalName>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-        <repository>
-            <id>elmakers-repo</id>
-            <url>https://maven.elmakers.com/repository/</url>
-        </repository>
-    </repositories>
-    <dependencies>
-        <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.19.1-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-		<dependency>
-			<groupId>com.github.TheDevTec.TheAPI</groupId>
-			<artifactId>Loader-Bukkit</artifactId>
-			<version>13.4</version>
-            <scope>provided</scope>
-		</dependency>
-    </dependencies>
-</project>
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+    maven { url 'https://maven.elmakers.com/repository/' }
+}
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot:1.19.1-R0.1-SNAPSHOT'
+    compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.4'
+}
+
+java {
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+// Vytvoření JAR souboru
+task buildJar(type: Jar) {
+    from sourceSets.main.output
+    archiveBaseName.set('NmsProvider')
+    destinationDirectory.set(file("/build"))
+}
+
+tasks.build.dependsOn buildJar
