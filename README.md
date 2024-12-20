@@ -10,7 +10,6 @@ We bring the most useful and most wanted features directly for developers. From 
 
 ## Requirements
 - **Java 1.8** or newer
-- (Used only in the Bukkit side) **Guava** & **Gson** libraries
 
 ## Built-in loaders:
 - CraftBukkit, Spigot and all forks
@@ -29,7 +28,7 @@ We bring the most useful and most wanted features directly for developers. From 
     <dependency>
         <groupId>com.github.TheDevTec</groupId>
         <artifactId>TheAPI</artifactId>
-        <version>13.4</version>
+        <version>13.5</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
@@ -42,7 +41,7 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 dependencies {
-    compileOnly "com.github.TheDevTec:TheAPI:13.4"
+    compileOnly "com.github.TheDevTec:TheAPI:13.5"
 }
 ```
 
