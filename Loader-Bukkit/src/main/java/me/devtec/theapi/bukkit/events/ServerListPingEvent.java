@@ -1,15 +1,15 @@
 package me.devtec.theapi.bukkit.events;
 
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 import me.devtec.shared.events.Cancellable;
 import me.devtec.shared.events.Event;
 import me.devtec.shared.events.ListenerHolder;
 import me.devtec.theapi.bukkit.nms.GameProfileHandler;
-
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ServerListPingEvent extends Event implements Cancellable {
     static final List<ListenerHolder> handlers = new ArrayList<>();

@@ -1,13 +1,14 @@
 package me.devtec.theapi.bukkit.gui;
 
-import me.devtec.theapi.bukkit.gui.GUI.ClickType;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 
 public interface HolderGUI {
     /**

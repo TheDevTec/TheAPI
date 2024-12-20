@@ -1,19 +1,20 @@
 package me.devtec.theapi.bukkit.game.itemmakers;
 
-import me.devtec.shared.Ref;
-import me.devtec.shared.annotations.Nullable;
-import me.devtec.theapi.bukkit.game.ItemMaker;
-import me.devtec.theapi.bukkit.xseries.XMaterial;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffect;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import me.devtec.shared.Ref;
+import me.devtec.shared.annotations.Nullable;
+import me.devtec.theapi.bukkit.game.ItemMaker;
+import me.devtec.theapi.bukkit.xseries.XMaterial;
 
 public class PotionItemMaker extends ItemMaker {
     protected Color color;
@@ -32,8 +33,9 @@ public class PotionItemMaker extends ItemMaker {
         }
         if (effects != null) {
             List<String> serialized = new ArrayList<>(effects.size());
-            for (PotionEffect effect : effects)
-                serialized.add(effect.getType().getName() + ":" + effect.getDuration() + ":" + effect.getAmplifier() + ":" + effect.isAmbient() + ":" + effect.hasParticles());
+            for (PotionEffect effect : effects) {
+				serialized.add(effect.getType().getName() + ":" + effect.getDuration() + ":" + effect.getAmplifier() + ":" + effect.isAmbient() + ":" + effect.hasParticles());
+			}
             map.put("potion.effects", serialized);
         }
         return map;
@@ -71,24 +73,30 @@ public class PotionItemMaker extends ItemMaker {
 
     @Override
     protected ItemMeta apply(ItemMeta meta) {
-        if (!(meta instanceof PotionMeta))
-            return super.apply(meta);
+        if (!(meta instanceof PotionMeta)) {
+			return super.apply(meta);
+		}
         PotionMeta iMeta = (PotionMeta) meta;
-        if (color != null && Ref.isNewerThan(10))
-            iMeta.setColor(color);
-        if (effects != null)
-            for (PotionEffect effect : effects)
-                iMeta.addCustomEffect(effect, true);
+        if (color != null && Ref.isNewerThan(10)) {
+			iMeta.setColor(color);
+		}
+        if (effects != null) {
+			for (PotionEffect effect : effects) {
+				iMeta.addCustomEffect(effect, true);
+			}
+		}
         return super.apply(iMeta);
     }
 
     @Override
     public int hashCode() {
         int hash = super.hashCode();
-        if (color != null)
-            hash = hash * 33 + color.hashCode();
-        if (effects != null)
-            hash = hash * 33 + effects.hashCode();
+        if (color != null) {
+			hash = hash * 33 + color.hashCode();
+		}
+        if (effects != null) {
+			hash = hash * 33 + effects.hashCode();
+		}
         return hash;
     }
 

@@ -1,10 +1,16 @@
 package me.devtec.theapi.bukkit.scoreboard;
 
-import me.devtec.shared.Ref;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.bukkit.entity.Player;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import me.devtec.shared.Ref;
 
 public class SimpleScore {
     public static final Map<UUID, ScoreboardAPI> scores = new ConcurrentHashMap<>();
@@ -36,19 +42,22 @@ public class SimpleScore {
                     lines.subList(15,lines.size()).clear();
                 }
             }
-            if (sb.getLines().size() > lines.size())
-                sb.removeUpperLines(lines.size() - 1);
+            if (sb.getLines().size() > lines.size()) {
+				sb.removeUpperLines(lines.size() - 1);
+			}
             int i = 0;
-            for (String line : lines)
-                sb.setLine(++i, line);
+            for (String line : lines) {
+				sb.setLine(++i, line);
+			}
         }
         lines.clear();
     }
 
     private ScoreboardAPI getOrCreate(Player player) {
         ScoreboardAPI a = SimpleScore.scores.get(player.getUniqueId());
-        if (a == null)
-            SimpleScore.scores.put(player.getUniqueId(), a = new ScoreboardAPI(player, Ref.isNewerThan(7) ? 0 : -1));
+        if (a == null) {
+			SimpleScore.scores.put(player.getUniqueId(), a = new ScoreboardAPI(player, Ref.isNewerThan(7) ? 0 : -1));
+		}
         return a;
     }
 }

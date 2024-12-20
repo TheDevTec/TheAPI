@@ -22,22 +22,31 @@
  */
 package me.devtec.theapi.bukkit.xseries;
 
-import lombok.Getter;
-import me.devtec.shared.Ref;
-import me.devtec.shared.dataholder.StringContainer;
-import me.devtec.shared.dataholder.cache.TempMap;
-import me.devtec.shared.utility.ParseUtils;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SpawnEggMeta;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
+import lombok.Getter;
+import me.devtec.shared.Ref;
+import me.devtec.shared.dataholder.StringContainer;
+import me.devtec.shared.dataholder.cache.TempMap;
+import me.devtec.shared.utility.ParseUtils;
 
 /**
  * @author Crypto Morin
@@ -463,15 +472,16 @@ public enum XMaterial {
     private static final Set<String> DUPLICATED;
 
     static {
-        for (XMaterial material : VALUES)
-            NAMES.put(material.name(), material);
+        for (XMaterial material : VALUES) {
+			NAMES.put(material.name(), material);
+		}
     }
 
     static {
-        if (Data.ISFLAT)
-            // It's not needed at all if it's the newer version. We can save some memory.
+        if (Data.ISFLAT) {
+			// It's not needed at all if it's the newer version. We can save some memory.
             DUPLICATED = null;
-        else {
+		} else {
             // MELON_SLICE, CARROTS, POTATOES, BEETROOTS, GRASS_BLOCK, BRICKS,
             // NETHER_BRICKS, BROWN_MUSHROOM
             // Using the constructor to add elements will decide to allocate more size which
@@ -545,12 +555,14 @@ public enum XMaterial {
         this.legacy = legacy;
 
         Material mat = null;
-        if (!Data.ISFLAT && this.isDuplicated() || (mat = Material.getMaterial(name())) == null)
-            for (int i = legacy.length - 1; i >= 0; i--) {
+        if (!Data.ISFLAT && this.isDuplicated() || (mat = Material.getMaterial(name())) == null) {
+			for (int i = legacy.length - 1; i >= 0; i--) {
                 mat = Material.getMaterial(legacy[i]);
-                if (mat != null)
-                    break;
+                if (mat != null) {
+					break;
+				}
             }
+		}
         material = mat;
     }
 
@@ -617,10 +629,11 @@ public enum XMaterial {
                 continue;
             }
             container.append(' ');
-            if (split.equals("OF") || split.equals("THE"))
-                container.append(split.toLowerCase());
-            else
-                container.append(split.charAt(0)).append(split.substring(1).toLowerCase());
+            if (split.equals("OF") || split.equals("THE")) {
+				container.append(split.toLowerCase());
+			} else {
+				container.append(split.charAt(0)).append(split.substring(1).toLowerCase());
+			}
         }
         return container.toString();
     }
@@ -646,15 +659,17 @@ public enum XMaterial {
     private static XMaterial requestOldXMaterial(String name, byte data) {
         String holder = name + data;
         XMaterial cache = NAME_CACHE.get(holder);
-        if (cache != null)
-            return cache;
+        if (cache != null) {
+			return cache;
+		}
 
-        for (XMaterial material : VALUES)
-            // Not using material.name().equals(name) check is intended.
+        for (XMaterial material : VALUES) {
+			// Not using material.name().equals(name) check is intended.
             if ((data == UNKNOWN_DATA_VALUE || data == material.data) && material.anyMatchLegacy(name)) {
                 NAME_CACHE.put(holder, material);
                 return material;
             }
+		}
 
         return null;
     }
@@ -669,8 +684,9 @@ public enum XMaterial {
      * @since 2.0.0
      */
     public static Optional<XMaterial> matchXMaterial(String name) {
-        if (name == null || name.isEmpty())
-            throw new IllegalArgumentException("Cannot match a material with null or empty material name");
+        if (name == null || name.isEmpty()) {
+			throw new IllegalArgumentException("Cannot match a material with null or empty material name");
+		}
         Optional<XMaterial> oldMatch = matchXMaterialWithData(name);
         return oldMatch.isPresent() ? oldMatch : matchDefinedXMaterial(format(name), UNKNOWN_DATA_VALUE);
     }
@@ -755,8 +771,9 @@ public enum XMaterial {
         // that has been renamed after the flattening update.
         // If this happens to more materials in the future,
         // I might have to change then system.
-        if (Data.ISFLAT && !supports(14) && material.equals("CACTUS_GREEN"))
-            return GREEN_DYE;
+        if (Data.ISFLAT && !supports(14) && material.equals("CACTUS_GREEN")) {
+			return GREEN_DYE;
+		}
 
         // Check FILLED_MAP enum for more info.
         // if (!Data.ISFLAT && item.hasItemMeta() && item.getItemMeta() instanceof
@@ -764,8 +781,9 @@ public enum XMaterial {
 
         // No orElseThrow, I don't want to deal with Java's final variable bullshit.
         Optional<XMaterial> result = matchDefinedXMaterial(material, data);
-        if (result.isPresent())
-            return result.get();
+        if (result.isPresent()) {
+			return result.get();
+		}
         throw new IllegalArgumentException("Unsupported material from item: " + material + " (" + data + ')');
     }
 
@@ -790,19 +808,22 @@ public enum XMaterial {
         // Do basic number and boolean checks before accessing more complex enum stuff.
         if (Data.ISFLAT || !isAMap && data <= 0 && !(duplicated = isDuplicated(name))) {
             Optional<XMaterial> xMaterial = getIfPresent(name);
-            if (xMaterial.isPresent())
-                return xMaterial;
+            if (xMaterial.isPresent()) {
+				return xMaterial;
+			}
         }
         // Usually flat versions wouldn't pass this point, but some special materials
         // do.
 
         XMaterial oldXMaterial = requestOldXMaterial(name, data);
-        if (oldXMaterial == null)
-            // Special case. Refer to FILLED_MAP for more info.
+        if (oldXMaterial == null) {
+			// Special case. Refer to FILLED_MAP for more info.
             return data >= 0 && isAMap ? Optional.of(FILLED_MAP) : Optional.empty();
+		}
 
-        if (!Data.ISFLAT && oldXMaterial.isPlural() && (duplicated == null ? isDuplicated(name) : duplicated))
-            return getIfPresent(name);
+        if (!Data.ISFLAT && oldXMaterial.isPlural() && (duplicated == null ? isDuplicated(name) : duplicated)) {
+			return getIfPresent(name);
+		}
         return Optional.of(oldXMaterial);
     }
 
@@ -844,11 +865,14 @@ public enum XMaterial {
      */
     @Deprecated
     public static Optional<XMaterial> matchXMaterial(int id, byte data) {
-        if (id < 0 || id > MAX_ID || data < 0)
-            return Optional.empty();
-        for (XMaterial materials : VALUES)
-            if (materials.data == data && materials.id == id)
-                return Optional.of(materials);
+        if (id < 0 || id > MAX_ID || data < 0) {
+			return Optional.empty();
+		}
+        for (XMaterial materials : VALUES) {
+			if (materials.data == data && materials.id == id) {
+				return Optional.of(materials);
+			}
+		}
         return Optional.empty();
     }
 
@@ -872,9 +896,9 @@ public enum XMaterial {
         for (int i = 0; i < len; i++) {
             char ch = name.charAt(i);
 
-            if (!appendUnderline && count != 0 && (ch == '-' || ch == ' ' || ch == '_') && chs[count] != '_')
-                appendUnderline = true;
-            else {
+            if (!appendUnderline && count != 0 && (ch == '-' || ch == ' ' || ch == '_') && chs[count] != '_') {
+				appendUnderline = true;
+			} else {
                 boolean number = false;
                 // Old materials have numbers in them.
                 if (ch >= 'A' && ch <= 'Z' || ch >= 'a' && ch <= 'z' || (number = ch >= '0' && ch <= '9')) {
@@ -883,10 +907,11 @@ public enum XMaterial {
                         appendUnderline = false;
                     }
 
-                    if (number)
-                        chs[count++] = ch;
-                    else
-                        chs[count++] = (char) (ch & 0x5f);
+                    if (number) {
+						chs[count++] = ch;
+					} else {
+						chs[count++] = (char) (ch & 0x5f);
+					}
                 }
             }
         }
@@ -973,37 +998,42 @@ public enum XMaterial {
      * @since 3.1.1
      */
     public boolean isOneOf(Collection<String> materials) {
-        if (materials == null || materials.isEmpty())
-            return false;
+        if (materials == null || materials.isEmpty()) {
+			return false;
+		}
         String name = name();
 
         for (String comp : materials) {
             String checker = comp.toUpperCase(Locale.ENGLISH);
             if (checker.startsWith("CONTAINS:")) {
                 comp = format(checker.substring(9));
-                if (name.contains(comp))
-                    return true;
+                if (name.contains(comp)) {
+					return true;
+				}
                 continue;
             }
             if (checker.startsWith("REGEX:")) {
                 comp = comp.substring(6);
                 Pattern pattern = CACHED_REGEX.get(comp);
-                if (pattern == null)
-                    try {
+                if (pattern == null) {
+					try {
                         pattern = Pattern.compile(comp);
                         CACHED_REGEX.put(comp, pattern);
                     } catch (PatternSyntaxException ex) {
                         ex.printStackTrace();
                     }
-                if (pattern != null && pattern.matcher(name).matches())
-                    return true;
+				}
+                if (pattern != null && pattern.matcher(name).matches()) {
+					return true;
+				}
                 continue;
             }
 
             // Direct Object Equals
             Optional<XMaterial> xMat = matchXMaterial(comp);
-            if (xMat.isPresent() && xMat.get() == this)
-                return true;
+            if (xMat.isPresent() && xMat.get() == this) {
+				return true;
+			}
         }
         return false;
     }
@@ -1024,11 +1054,14 @@ public enum XMaterial {
         Objects.requireNonNull(material, () -> "Unsupported material: " + name());
 
         item.setType(material);
-        if (!Data.ISFLAT && material.getMaxDurability() <= 0)
-            item.setDurability(data);
+        if (!Data.ISFLAT && material.getMaxDurability() <= 0) {
+			item.setDurability(data);
+		}
         // Splash Potions weren't an official material pre-flattening.
         if (!Data.ISFLAT && this == SPLASH_POTION)
-            item.setDurability((short) 16384); // Hard-coded as 'data' is only a byte.
+		 {
+			item.setDurability((short) 16384); // Hard-coded as 'data' is only a byte.
+		}
         return item;
     }
 
@@ -1042,9 +1075,11 @@ public enum XMaterial {
      * @since 2.0.0
      */
     private boolean anyMatchLegacy(String name) {
-        for (int i = legacy.length - 1; i >= 0; i--)
-            if (name.equals(legacy[i]))
-                return true;
+        for (int i = legacy.length - 1; i >= 0; i--) {
+			if (name.equals(legacy[i])) {
+				return true;
+			}
+		}
         return false;
     }
 
@@ -1078,12 +1113,15 @@ public enum XMaterial {
      */
     public ItemStack parseItem() {
         Material material = parseMaterial();
-        if (material == null)
-            return null;
+        if (material == null) {
+			return null;
+		}
         ItemStack base = Data.ISFLAT ? new ItemStack(material) : new ItemStack(material, 1, data);
         // Splash Potions weren't an official material pre-flattening.
         if (!Data.ISFLAT && this == SPLASH_POTION)
-            base.setDurability((short) 16384); // Hard-coded as 'data' is only a byte.
+		 {
+			base.setDurability((short) 16384); // Hard-coded as 'data' is only a byte.
+		}
         return base;
     }
 
@@ -1120,11 +1158,13 @@ public enum XMaterial {
      */
     public boolean isSimilar(ItemStack item) {
         Objects.requireNonNull(item, "Cannot compare with null ItemStack");
-        if (item.getType() != parseMaterial())
-            return false;
+        if (item.getType() != parseMaterial()) {
+			return false;
+		}
         // Special case for splash potions.
-        if (this == SPLASH_POTION)
-            return Data.ISFLAT || item.getDurability() == (short) 16384;
+        if (this == SPLASH_POTION) {
+			return Data.ISFLAT || item.getDurability() == (short) 16384;
+		}
         return Data.ISFLAT || item.getDurability() == data || item.getType().getMaxDurability() > 0;
     }
 
@@ -1203,8 +1243,9 @@ public enum XMaterial {
             String version = Bukkit.getVersion();
             Matcher matcher = Pattern.compile("MC: \\d\\.(\\d+)").matcher(version);
 
-            if (!matcher.find())
-                throw new IllegalArgumentException("Failed to parse server version from: " + version);
+            if (!matcher.find()) {
+				throw new IllegalArgumentException("Failed to parse server version from: " + version);
+			}
             VERSION = Integer.parseInt(matcher.group(1));
         }
 

@@ -85,14 +85,16 @@ public class VelocityLoader {
 
 	@Subscribe(priority = -64)
 	public void onPreLoginEvent(PreLoginEvent e) {
-		if (e.getResult().isAllowed())
+		if (e.getResult().isAllowed()) {
 			API.offlineCache().setLookup(API.offlineCache().lookupId(e.getUsername()), e.getUsername());
+		}
 	}
 
 	@Subscribe(priority = 64)
 	public void onLoginEvent(LoginEvent e) { // fix uuid - premium login?
-		if (e.getResult().isAllowed())
+		if (e.getResult().isAllowed()) {
 			API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getUsername());
+		}
 	}
 
 	@Subscribe(priority = 4)
@@ -161,8 +163,9 @@ public class VelocityLoader {
 
 			@Override
 			public void load(File file) {
-				if (isLoaded(file) || !file.exists())
+				if (isLoaded(file) || !file.exists()) {
 					return;
+				}
 				loaded.add(file);
 				try {
 					URL[] urls = { file.toURI().toURL() };

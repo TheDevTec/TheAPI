@@ -28,16 +28,18 @@ public class InventoryUtils {
 	 **/
 	public static Pair shift(int clickedSlot, @Nullable Player whoShift, @Nullable HolderGUI holder, @Nullable ClickType clickType, DestinationType type, List<Integer> ignoredSlots,
 			ItemStack[] contents, ItemStack shiftItem) {
-		if (shiftItem == null || shiftItem.getType() == Material.AIR)
+		if (shiftItem == null || shiftItem.getType() == Material.AIR) {
 			return Pair.of(0, Collections.emptyMap());
+		}
 		List<Integer> ignoreSlots = ignoredSlots == null ? Collections.emptyList() : ignoredSlots;
 		Map<Integer, ItemStack> modifiedSlots = new HashMap<>();
 		List<Integer> corruptedSlots = new ArrayList<>();
 		int total = shiftItem.getAmount();
 		for (int slot = 0; slot < contents.length; ++slot) {
 			ItemStack i = contents[slot];
-			if (i == null || i.getType() == Material.AIR || i.getAmount() >= i.getMaxStackSize())
+			if (i == null || i.getType() == Material.AIR || i.getAmount() >= i.getMaxStackSize()) {
 				continue;
+			}
 			if (type == DestinationType.GUI && ignoreSlots.contains(slot)) {
 				corruptedSlots.add(slot);
 				continue;
@@ -58,8 +60,9 @@ public class InventoryUtils {
 				total = 0;
 				i.setAmount(size);
 				modifiedSlots.put(slot, i);
-				if (holder != null)
+				if (holder != null) {
 					holder.onMultipleIteract(whoShift, type == DestinationType.GUI ? modifiedSlots : Collections.emptyMap(), type == DestinationType.GUI ? Collections.emptyMap() : modifiedSlots);
+				}
 				return Pair.of(total, modifiedSlots);
 			}
 		}
@@ -68,12 +71,15 @@ public class InventoryUtils {
 			contents[firstEmpty] = shiftItem;
 			total = 0;
 			modifiedSlots.put(firstEmpty, shiftItem);
-		} else if (total != 0)
+		} else if (total != 0) {
 			shiftItem.setAmount(total);
-		if (total != 0 && total == shiftItem.getAmount())
+		}
+		if (total != 0 && total == shiftItem.getAmount()) {
 			corruptedSlots.add(clickedSlot);
-		if (holder != null && !modifiedSlots.isEmpty())
+		}
+		if (holder != null && !modifiedSlots.isEmpty()) {
 			holder.onMultipleIteract(whoShift, type == DestinationType.GUI ? modifiedSlots : Collections.emptyMap(), type == DestinationType.GUI ? Collections.emptyMap() : modifiedSlots);
+		}
 		return Pair.of(total, modifiedSlots);
 	}
 
@@ -103,31 +109,39 @@ public class InventoryUtils {
 			return -1;
 		case PLAYER:
 			for (int i = 8; i > -1; --i) {
-				if (ignoreSlots.contains(i))
+				if (ignoreSlots.contains(i)) {
 					continue;
-				if (contents[i] == null || contents[i].getType() == Material.AIR)
+				}
+				if (contents[i] == null || contents[i].getType() == Material.AIR) {
 					return i;
+				}
 			}
 			for (int i = contents.length - 1; i > 8; --i) {
-				if (ignoreSlots.contains(i))
+				if (ignoreSlots.contains(i)) {
 					continue;
-				if (contents[i] == null || contents[i].getType() == Material.AIR)
+				}
+				if (contents[i] == null || contents[i].getType() == Material.AIR) {
 					return i;
+				}
 			}
 			return -1;
 
 		case PLAYER_FROM_ANVIL:
 			for (int i = 9; i < contents.length - 1; ++i) {
-				if (ignoreSlots.contains(i))
+				if (ignoreSlots.contains(i)) {
 					continue;
-				if (contents[i] == null || contents[i].getType() == Material.AIR)
+				}
+				if (contents[i] == null || contents[i].getType() == Material.AIR) {
 					return i;
+				}
 			}
 			for (int i = 0; i < 9; ++i) {
-				if (ignoreSlots.contains(i))
+				if (ignoreSlots.contains(i)) {
 					continue;
-				if (contents[i] == null || contents[i].getType() == Material.AIR)
+				}
+				if (contents[i] == null || contents[i].getType() == Material.AIR) {
 					return i;
+				}
 			}
 		}
 		return -1;
@@ -142,8 +156,9 @@ public class InventoryUtils {
 	 *          PacketPlayInWindowClick - convert clicked slot into bukkit slot
 	 **/
 	public static int convertToPlayerInvSlot(int slot) {
-		if (slot <= 26)
+		if (slot <= 26) {
 			return slot + 9;
+		}
 		return slot - 27;
 	}
 
@@ -155,15 +170,18 @@ public class InventoryUtils {
 		boolean shift = type == 2; // QUICK_MOVE
 
 		if (type == 1) { // QUICK_CRAFT
-			if (mouse == 1)
+			if (mouse == 1) {
 				mouse = 0;
-			if (mouse == 5)
+			}
+			if (mouse == 5) {
 				mouse = 1;
-			if (mouse == 9)
+			}
+			if (mouse == 9) {
 				mouse = 2;
+			}
 		}
 
-		if (shift)
+		if (shift) {
 			switch (mouse) {
 			case 0:
 				return ClickType.SHIFT_LEFT_DROP;
@@ -172,7 +190,7 @@ public class InventoryUtils {
 			default:
 				throw new NoSuchFieldError("Doesn't exist ClickType for shift middle click");
 			}
-		else
+		} else {
 			switch (mouse) {
 			case 0:
 				return ClickType.LEFT_DROP;
@@ -181,13 +199,15 @@ public class InventoryUtils {
 			default:
 				return ClickType.MIDDLE_DROP;
 			}
+		}
 	}
 
 	public static boolean useItem(Player player, HolderGUI gui, int slot, ClickType mouse) {
 		ItemGUI itemGui = gui.getItemGUI(slot);
 		boolean stolen = itemGui == null || !itemGui.isUnstealable();
-		if (itemGui != null)
+		if (itemGui != null) {
 			itemGui.onClick(player, gui, mouse);
+		}
 		return !stolen;
 	}
 }

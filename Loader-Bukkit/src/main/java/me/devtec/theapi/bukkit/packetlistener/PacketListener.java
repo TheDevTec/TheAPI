@@ -12,8 +12,9 @@ public abstract class PacketListener {
     }
 
     public final PacketListener setPriority(Priority priority) {
-        if (priority == null)
-            return this;
+        if (priority == null) {
+			return this;
+		}
         PacketManager.notify(this, priority, priority);
         this.priority = priority;
         return this;

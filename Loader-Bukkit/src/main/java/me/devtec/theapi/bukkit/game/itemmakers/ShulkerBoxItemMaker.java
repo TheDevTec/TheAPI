@@ -1,18 +1,19 @@
 package me.devtec.theapi.bukkit.game.itemmakers;
 
-import me.devtec.shared.annotations.Nullable;
-import me.devtec.theapi.bukkit.game.ItemMaker;
-import me.devtec.theapi.bukkit.xseries.XMaterial;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import org.bukkit.Material;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import me.devtec.shared.annotations.Nullable;
+import me.devtec.theapi.bukkit.game.ItemMaker;
+import me.devtec.theapi.bukkit.xseries.XMaterial;
 
 public class ShulkerBoxItemMaker extends ItemMaker {
     protected String name;
@@ -26,15 +27,18 @@ public class ShulkerBoxItemMaker extends ItemMaker {
     @Override
     public Map<String, Object> serializeToMap() {
         Map<String, Object> map = super.serializeToMap();
-        if (name != null)
-            map.put("shulker.name", name);
+        if (name != null) {
+			map.put("shulker.name", name);
+		}
         if (contents != null) {
             List<Map<String, Object>> serialized = new ArrayList<>(contents.length);
-            for (ItemStack content : contents)
-                if (content == null || content.getType() == Material.AIR)
-                    serialized.add(null);
-                else
-                    serialized.add(ItemMaker.of(content).serializeToMap());
+            for (ItemStack content : contents) {
+				if (content == null || content.getType() == Material.AIR) {
+					serialized.add(null);
+				} else {
+					serialized.add(ItemMaker.of(content).serializeToMap());
+				}
+			}
             map.put("shulker.contents", serialized);
         }
         return map;
@@ -52,9 +56,11 @@ public class ShulkerBoxItemMaker extends ItemMaker {
 
     public ShulkerBoxItemMaker contents(ItemStack[] contents) {
         ItemStack[] copy = new ItemStack[27];
-        if (contents != null)
-            for (int i = 0; i < 27 && i < contents.length; ++i)
-                copy[i] = contents[i];
+        if (contents != null) {
+			for (int i = 0; i < 27 && i < contents.length; ++i) {
+				copy[i] = contents[i];
+			}
+		}
         this.contents = copy;
         return this;
     }
@@ -72,14 +78,17 @@ public class ShulkerBoxItemMaker extends ItemMaker {
 
     @Override
     protected ItemMeta apply(ItemMeta meta) {
-        if (!(meta instanceof BlockStateMeta))
-            return super.apply(meta);
+        if (!(meta instanceof BlockStateMeta)) {
+			return super.apply(meta);
+		}
         BlockStateMeta iMeta = (BlockStateMeta) meta;
         ShulkerBox shulker = (ShulkerBox) iMeta.getBlockState();
-        if (name != null)
-            shulker.setCustomName(name);
-        if (contents != null)
-            shulker.getInventory().setContents(contents);
+        if (name != null) {
+			shulker.setCustomName(name);
+		}
+        if (contents != null) {
+			shulker.getInventory().setContents(contents);
+		}
         iMeta.setBlockState(shulker);
         return super.apply(iMeta);
     }
@@ -87,10 +96,12 @@ public class ShulkerBoxItemMaker extends ItemMaker {
     @Override
     public int hashCode() {
         int hash = super.hashCode();
-        if (name != null)
-            hash = hash * 33 + name.hashCode();
-        if (contents != null)
-            hash = hash * 33 + Arrays.hashCode(contents);
+        if (name != null) {
+			hash = hash * 33 + name.hashCode();
+		}
+        if (contents != null) {
+			hash = hash * 33 + Arrays.hashCode(contents);
+		}
         return hash;
     }
 

@@ -23,8 +23,9 @@ public class BungeeSelectorUtils implements SelectorUtils<CommandSender> {
 			list.add("false");
 			break;
 		case ENTITY_SELECTOR:
-			if (ProxyServer.getInstance().getOnlineCount() == 0)
+			if (ProxyServer.getInstance().getOnlineCount() == 0) {
 				break;
+			}
 			list.add("*");
 			list.add("@a");
 			list.add("@e");
@@ -32,8 +33,9 @@ public class BungeeSelectorUtils implements SelectorUtils<CommandSender> {
 			list.add("@s");
 			list.add("@p");
 		case PLAYER:
-			for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers())
+			for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
 				list.add(player.getName());
+			}
 			break;
 		case INTEGER:
 			list.add("{integer}");
@@ -49,16 +51,18 @@ public class BungeeSelectorUtils implements SelectorUtils<CommandSender> {
 
 	@Override
 	public boolean check(CommandSender s, Selector selector, String value) {
-		if (value == null || value.isEmpty())
+		if (value == null || value.isEmpty()) {
 			return false;
+		}
 		switch (selector) {
 		case BOOLEAN:
 			return "true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value);
 		case ENTITY_SELECTOR:
 			char first = value.charAt(0);
 			char second = value.length() == 2 ? toLowerCase(value.charAt(1)) : 0;
-			if (first == '@' && (second == 'a' || second == 'e' || second == 'r' || second == 's' || second == 'p') || first == '*' && value.length() == 1)
+			if (first == '@' && (second == 'a' || second == 'e' || second == 'r' || second == 's' || second == 'p') || first == '*' && value.length() == 1) {
 				return true;
+			}
 			// Else continue to player
 		case PLAYER:
 			return !ProxyServer.getInstance().matchPlayer(value).isEmpty();

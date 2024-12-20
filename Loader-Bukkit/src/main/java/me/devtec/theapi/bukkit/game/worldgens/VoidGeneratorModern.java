@@ -1,13 +1,14 @@
 package me.devtec.theapi.bukkit.game.worldgens;
 
-import me.devtec.shared.Ref;
+import java.util.Random;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
 
-import java.util.Random;
+import me.devtec.shared.Ref;
 
 //Void generator 1.9+
 public class VoidGeneratorModern extends ChunkGenerator {
@@ -20,13 +21,16 @@ public class VoidGeneratorModern extends ChunkGenerator {
         return data;
     }
 
-    public boolean canSpawn(World world, int x, int z) {
+    @Override
+	public boolean canSpawn(World world, int x, int z) {
         return true;
     }
 
-    public Location getFixedSpawnLocation(World world, Random random) {
-        if (new Location(world, 0, 63, 0).getBlock().getType() == Material.AIR)
-            new Location(world, 0, 63, 0).getBlock().setType(Material.GLASS);
+    @Override
+	public Location getFixedSpawnLocation(World world, Random random) {
+        if (new Location(world, 0, 63, 0).getBlock().getType() == Material.AIR) {
+			new Location(world, 0, 63, 0).getBlock().setType(Material.GLASS);
+		}
         return new Location(world, 0, 64, 0);
     }
 }

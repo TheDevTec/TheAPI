@@ -1,8 +1,9 @@
 package me.devtec.theapi.bukkit.gui;
 
-import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 
 public abstract class ItemGUI {
     private ItemStack s;
@@ -29,8 +30,9 @@ public abstract class ItemGUI {
     }
 
     public final ItemGUI setItem(ItemStack stack) {
-        if (stack != null)
-            s = stack;
+        if (stack != null) {
+			s = stack;
+		}
         return this;
     }
 

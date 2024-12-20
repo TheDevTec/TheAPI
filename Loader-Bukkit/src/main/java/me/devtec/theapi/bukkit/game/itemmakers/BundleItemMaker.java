@@ -1,16 +1,17 @@
 package me.devtec.theapi.bukkit.game.itemmakers;
 
-import me.devtec.shared.annotations.Nullable;
-import me.devtec.theapi.bukkit.game.ItemMaker;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BundleMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import me.devtec.shared.annotations.Nullable;
+import me.devtec.theapi.bukkit.game.ItemMaker;
 
 public class BundleItemMaker extends ItemMaker {
     protected List<ItemStack> contents;
@@ -24,8 +25,9 @@ public class BundleItemMaker extends ItemMaker {
         Map<String, Object> map = super.serializeToMap();
         if (contents != null) {
             List<Map<String, Object>> serialized = new ArrayList<>(contents.size());
-            for (ItemStack content : contents)
-                serialized.add(ItemMaker.of(content).serializeToMap());
+            for (ItemStack content : contents) {
+				serialized.add(ItemMaker.of(content).serializeToMap());
+			}
             map.put("bundle.contents", serialized);
         }
         return map;
@@ -37,10 +39,13 @@ public class BundleItemMaker extends ItemMaker {
 
     public BundleItemMaker contents(List<ItemStack> contents) {
         List<ItemStack> items = new ArrayList<>();
-        if (contents != null)
-            for (ItemStack stack : contents)
-                if (stack != null && stack.getType() != Material.AIR)
-                    items.add(stack);
+        if (contents != null) {
+			for (ItemStack stack : contents) {
+				if (stack != null && stack.getType() != Material.AIR) {
+					items.add(stack);
+				}
+			}
+		}
         this.contents = items;
         return this;
     }
@@ -58,8 +63,9 @@ public class BundleItemMaker extends ItemMaker {
 
     @Override
     protected ItemMeta apply(ItemMeta meta) {
-        if (!(meta instanceof BundleMeta))
-            return super.apply(meta);
+        if (!(meta instanceof BundleMeta)) {
+			return super.apply(meta);
+		}
         ((BundleMeta)meta).setItems(contents);
         return super.apply(meta);
     }
@@ -67,8 +73,9 @@ public class BundleItemMaker extends ItemMaker {
     @Override
     public int hashCode() {
         int hash = super.hashCode();
-        if (contents != null)
-            hash = hash * 33 + contents.hashCode();
+        if (contents != null) {
+			hash = hash * 33 + contents.hashCode();
+		}
         return hash;
     }
 }

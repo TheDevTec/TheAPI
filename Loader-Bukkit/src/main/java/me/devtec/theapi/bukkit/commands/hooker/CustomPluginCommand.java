@@ -1,11 +1,17 @@
 package me.devtec.theapi.bukkit.commands.hooker;
 
-import lombok.Getter;
-import me.devtec.shared.commands.holder.CommandHolder;
-import org.bukkit.command.*;
+import java.util.List;
+
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandException;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginIdentifiableCommand;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.Plugin;
 
-import java.util.List;
+import lombok.Getter;
+import me.devtec.shared.commands.holder.CommandHolder;
 
 public class CustomPluginCommand extends Command implements PluginIdentifiableCommand {
 
@@ -26,11 +32,13 @@ public class CustomPluginCommand extends Command implements PluginIdentifiableCo
 
     @Override
     public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-        if (!owningPlugin.isEnabled())
-            throw new CommandException("Cannot execute command '" + commandLabel + "' in plugin " + owningPlugin.getDescription().getFullName() + " - plugin is disabled.");
+        if (!owningPlugin.isEnabled()) {
+			throw new CommandException("Cannot execute command '" + commandLabel + "' in plugin " + owningPlugin.getDescription().getFullName() + " - plugin is disabled.");
+		}
 
-        if (!testPermission(sender))
-            return true;
+        if (!testPermission(sender)) {
+			return true;
+		}
 
         boolean success;
         try {
@@ -39,9 +47,11 @@ public class CustomPluginCommand extends Command implements PluginIdentifiableCo
             throw new CommandException("Unhandled exception executing command '" + commandLabel + "' in plugin " + owningPlugin.getDescription().getFullName(), error);
         }
 
-        if (!success && !usageMessage.isEmpty())
-            for (String line : usageMessage.replace("<command>", commandLabel).split("\n"))
-                sender.sendMessage(line);
+        if (!success && !usageMessage.isEmpty()) {
+			for (String line : usageMessage.replace("<command>", commandLabel).split("\n")) {
+				sender.sendMessage(line);
+			}
+		}
 
         return success;
     }
@@ -65,13 +75,17 @@ public class CustomPluginCommand extends Command implements PluginIdentifiableCo
 
     @Override
     public boolean testPermissionSilent(CommandSender target) {
-        if (commandHolder != null && !commandHolder.getStructure().getSenderClass().isAssignableFrom(target.getClass()))
-            return false;
-        if (getPermission() == null || getPermission().isEmpty())
-            return true;
-        for (String perm : getPermission().split(";"))
-            if (target.hasPermission(perm))
-                return true;
+        if (commandHolder != null && !commandHolder.getStructure().getSenderClass().isAssignableFrom(target.getClass())) {
+			return false;
+		}
+        if (getPermission() == null || getPermission().isEmpty()) {
+			return true;
+		}
+        for (String perm : getPermission().split(";")) {
+			if (target.hasPermission(perm)) {
+				return true;
+			}
+		}
         return false;
     }
 
@@ -89,15 +103,18 @@ public class CustomPluginCommand extends Command implements PluginIdentifiableCo
         List<String> completions = null;
 
         try {
-            if (completer != null)
-                completions = completer.onTabComplete(sender, this, alias, args);
-            if (completions == null && executor instanceof TabCompleter)
-                completions = ((TabCompleter) executor).onTabComplete(sender, this, alias, args);
+            if (completer != null) {
+				completions = completer.onTabComplete(sender, this, alias, args);
+			}
+            if (completions == null && executor instanceof TabCompleter) {
+				completions = ((TabCompleter) executor).onTabComplete(sender, this, alias, args);
+			}
         } catch (Throwable error) {
             StringBuilder message = new StringBuilder();
             message.append("Unhandled exception during tab completion for command '/").append(alias).append(' ');
-            for (String arg : args)
-                message.append(arg).append(' ');
+            for (String arg : args) {
+				message.append(arg).append(' ');
+			}
             message.deleteCharAt(message.length() - 1).append("' in plugin ").append(owningPlugin.getDescription().getFullName());
             throw new CommandException(message.toString(), error);
         }

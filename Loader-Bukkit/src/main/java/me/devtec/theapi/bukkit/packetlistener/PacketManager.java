@@ -11,25 +11,32 @@ public class PacketManager {
     private static final Map<Priority, List<PacketListener>> listeners = new HashMap<>();
 
     static {
-        for (Priority priority : PRIORITIES)
-            PacketManager.listeners.put(priority, new ArrayList<>());
+        for (Priority priority : PRIORITIES) {
+			PacketManager.listeners.put(priority, new ArrayList<>());
+		}
     }
 
     public static Object call(String player, final Object packet, final Object channel, PacketType type) {
-        if (packet == null || channel == null)
-            return packet;
+        if (packet == null || channel == null) {
+			return packet;
+		}
 
         PacketContainer pContainer = new PacketContainer(packet);
         ChannelContainer cContainer = new ChannelContainer(channel);
 
-        if (type == PacketType.PLAY_OUT)
-            for (Priority o : PRIORITIES)
-                for (PacketListener w : PacketManager.listeners.get(o))
-                    w.playOut(player, pContainer, cContainer);
-        else
-            for (Priority o : PRIORITIES)
-                for (PacketListener w : PacketManager.listeners.get(o))
-                    w.playIn(player, pContainer, cContainer);
+        if (type == PacketType.PLAY_OUT) {
+			for (Priority o : PRIORITIES) {
+				for (PacketListener w : PacketManager.listeners.get(o)) {
+					w.playOut(player, pContainer, cContainer);
+				}
+			}
+		} else {
+			for (Priority o : PRIORITIES) {
+				for (PacketListener w : PacketManager.listeners.get(o)) {
+					w.playIn(player, pContainer, cContainer);
+				}
+			}
+		}
         return pContainer.isCancelled() ? null : pContainer.getPacket();
     }
 
@@ -51,22 +58,27 @@ public class PacketManager {
     }
 
     public static boolean isRegistered(PacketListener listener) {
-        for (Priority priority : PRIORITIES)
-            if (PacketManager.listeners.get(priority).contains(listener))
-                return true;
+        for (Priority priority : PRIORITIES) {
+			if (PacketManager.listeners.get(priority).contains(listener)) {
+				return true;
+			}
+		}
         return false;
     }
 
     protected static void notify(PacketListener listener, Priority oldPriority, Priority newPriority) {
-        if (listener == null || newPriority == null)
-            return;
-        if (oldPriority != null)
-            PacketManager.listeners.get(oldPriority).remove(listener);
+        if (listener == null || newPriority == null) {
+			return;
+		}
+        if (oldPriority != null) {
+			PacketManager.listeners.get(oldPriority).remove(listener);
+		}
         PacketManager.listeners.get(newPriority).add(listener);
     }
 
     public static void unregisterAll() {
-        for (List<PacketListener> l : PacketManager.listeners.values())
-            l.clear();
+        for (List<PacketListener> l : PacketManager.listeners.values()) {
+			l.clear();
+		}
     }
 }

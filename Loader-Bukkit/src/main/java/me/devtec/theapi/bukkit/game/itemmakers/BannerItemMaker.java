@@ -1,16 +1,17 @@
 package me.devtec.theapi.bukkit.game.itemmakers;
 
-import me.devtec.shared.annotations.Nullable;
-import me.devtec.theapi.bukkit.game.ItemMaker;
-import me.devtec.theapi.bukkit.xseries.XMaterial;
-import org.bukkit.block.banner.Pattern;
-import org.bukkit.inventory.meta.BannerMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import org.bukkit.block.banner.Pattern;
+import org.bukkit.inventory.meta.BannerMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import me.devtec.shared.annotations.Nullable;
+import me.devtec.theapi.bukkit.game.ItemMaker;
+import me.devtec.theapi.bukkit.xseries.XMaterial;
 
 public class BannerItemMaker extends ItemMaker {
     protected List<Pattern> patterns;
@@ -25,8 +26,9 @@ public class BannerItemMaker extends ItemMaker {
         Map<String, Object> map = super.serializeToMap();
         if (patterns != null) {
             List<String> serialized = new ArrayList<>(patterns.size());
-            for (Pattern pattern : patterns)
-                serialized.add(pattern.getColor().name() + ":" + pattern.getPattern().name());
+            for (Pattern pattern : patterns) {
+				serialized.add(pattern.getColor().name() + ":" + pattern.getPattern().name());
+			}
             map.put("banner.patterns", serialized);
         }
         return map;
@@ -54,19 +56,22 @@ public class BannerItemMaker extends ItemMaker {
 
     @Override
     protected ItemMeta apply(ItemMeta meta) {
-        if (!(meta instanceof BannerMeta))
-            return super.apply(meta);
+        if (!(meta instanceof BannerMeta)) {
+			return super.apply(meta);
+		}
         BannerMeta iMeta = (BannerMeta) meta;
-        if (patterns != null)
-            iMeta.setPatterns(patterns);
+        if (patterns != null) {
+			iMeta.setPatterns(patterns);
+		}
         return super.apply(iMeta);
     }
 
     @Override
     public int hashCode() {
         int hash = super.hashCode();
-        if (patterns != null)
-            hash = hash * 33 + patterns.hashCode();
+        if (patterns != null) {
+			hash = hash * 33 + patterns.hashCode();
+		}
         return hash;
     }
 

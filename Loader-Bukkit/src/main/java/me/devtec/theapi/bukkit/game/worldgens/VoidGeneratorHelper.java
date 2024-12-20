@@ -1,7 +1,8 @@
 package me.devtec.theapi.bukkit.game.worldgens;
 
-import me.devtec.shared.Ref;
 import org.bukkit.generator.ChunkGenerator;
+
+import me.devtec.shared.Ref;
 
 public class VoidGeneratorHelper {
     public static ChunkGenerator get() {

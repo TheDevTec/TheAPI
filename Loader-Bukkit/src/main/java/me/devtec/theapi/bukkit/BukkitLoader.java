@@ -123,8 +123,9 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 	@Override
 	public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
-		if (id == null || "void".equalsIgnoreCase(id) || "voidgen".equalsIgnoreCase(id))
+		if (id == null || "void".equalsIgnoreCase(id) || "voidgen".equalsIgnoreCase(id)) {
 			return VoidGeneratorHelper.get();
+		}
 		return null;
 	}
 
@@ -141,8 +142,9 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			e.printStackTrace();
 		}
 
-		if (Ref.isNewerThan(12))
+		if (Ref.isNewerThan(12)) {
 			ScoreboardAPI.SPLIT_MODERN_LINES = config.getBoolean("fallback-scoreboard-support");
+		}
 
 		broadcastSystemInfo();
 
@@ -156,19 +158,21 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			BukkitCommandManager.cmdMap = simpleCommandMap;
 		}
 
-		if (nmsProvider != null)
-			if (new File("spigot.yml").exists() && Config.loadFromString(StreamUtils.fromStream(new File("spigot.yml"))).getBoolean("settings.late-bind"))
+		if (nmsProvider != null) {
+			if (new File("spigot.yml").exists() && Config.loadFromString(StreamUtils.fromStream(new File("spigot.yml"))).getBoolean("settings.late-bind")) {
 				new Thread(() -> { // ASYNC
-					if (Ref.isNewerThan(7))
+					if (Ref.isNewerThan(7)) {
 						handler = new PacketHandlerModern(true);
-					else
+					} else {
 						handler = (PacketHandler<?>) Ref.newInstance(Ref.constructor(Ref.getClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy"), boolean.class), true);
+					}
 				}).start();
-
-			else if (Ref.isNewerThan(7))
+			} else if (Ref.isNewerThan(7)) {
 				handler = new PacketHandlerModern(false);
-			else
+			} else {
 				handler = (PacketHandler<?>) Ref.newInstance(Ref.constructor(Ref.getClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy"), boolean.class), false);
+			}
+		}
 		if (handler == null) {
 			Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize("&7>"));
 			Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize("&7> &4Error! &eFailed to load PacketHandler."));
@@ -200,23 +204,28 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		}
 
 		// BOSSBAR API: 1.7.10 - 1.8.8
-		if (!Ref.isOlderThan(9))
+		if (!Ref.isOlderThan(9)) {
 			bossbars = null;
+		}
 
 		new PacketListener() {
 
 			@Override
 			public void playOut(String nick, PacketContainer packetContainer, ChannelContainer channel) {
-				if (packetContainer.isCancelled())
+				if (packetContainer.isCancelled()) {
 					return;
+				}
 
 				Object packet = packetContainer.getPacket();
 				if (packet.getClass() == serverPing) {
 					if (ServerListPingEvent.getHandlerList().isEmpty())
+					 {
 						return; // Do not process if event isn't used by any plugin
+					}
 					if (nmsProvider.processServerListPing(nick, channel.getChannel(),
-							Ref.isNewerThan(19) || Ref.serverVersionInt() == 19 && Ref.serverVersionRelease() == 3 ? packetContainer : packetContainer.getPacket()))
+							Ref.isNewerThan(19) || Ref.serverVersionInt() == 19 && Ref.serverVersionRelease() == 3 ? packetContainer : packetContainer.getPacket())) {
 						packetContainer.setCancelled(true);
+					}
 				}
 			}
 
@@ -228,32 +237,36 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				StringContainer builder = new StringContainer(text.length());
 				for (int i = 0; i < text.length(); ++i) {
 					char c = text.charAt(i);
-					if (isAllowedChatCharacter(c))
+					if (isAllowedChatCharacter(c)) {
 						builder.append(c);
+					}
 				}
 				return builder.toString();
 			}
 
 			@Override
 			public void playIn(String nick, PacketContainer packetContainer, ChannelContainer channel) {
-				if (nick == null || packetContainer.isCancelled())
+				if (nick == null || packetContainer.isCancelled()) {
 					return;
+				}
 
 				Object packet = packetContainer.getPacket();
 				// ResourcePackAPI
 				if (packet.getClass() == resource) {
 					Player player = Bukkit.getPlayer(nick);
 					ResourcePackHandler handler;
-					if (player == null || (handler = resourcePackHandler.remove(player.getUniqueId())) == null)
+					if (player == null || (handler = resourcePackHandler.remove(player.getUniqueId())) == null) {
 						return;
+					}
 					handler.call(player, ResourcePackResult.valueOf(getLegacyNameOf(rpStatusField.toString())));
 					return;
 				}
 				// GUIS
 				if (packet.getClass() == itemname) {
 					Player player = Bukkit.getPlayer(nick);
-					if (player == null)
+					if (player == null) {
 						return;
+					}
 					HolderGUI gui = BukkitLoader.this.gui.get(player.getUniqueId());
 					if (gui instanceof AnvilGUI) {
 						String text = (String) Ref.get(packet, anvilText);
@@ -264,19 +277,22 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				}
 				if (packet.getClass() == close) {
 					Player player = Bukkit.getPlayer(nick);
-					if (player == null)
+					if (player == null) {
 						return;
+					}
 					HolderGUI gui = BukkitLoader.this.gui.remove(player.getUniqueId());
-					if (gui == null)
+					if (gui == null) {
 						return;
+					}
 					gui.closeWithoutPacket(player);
 					packetContainer.setCancelled(true);
 					return;
 				}
 				if (packet.getClass() == click) {
 					Player player = Bukkit.getPlayer(nick);
-					if (player == null)
+					if (player == null) {
 						return;
+					}
 					HolderGUI gui = BukkitLoader.this.gui.get(player.getUniqueId());
 					packetContainer.setCancelled(gui != null && BukkitLoader.nmsProvider.processInvClickPacket(player, gui, packet));
 				}
@@ -322,16 +338,17 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	private void loadProvider(boolean canUseJavaFile) throws Exception {
 		String serverVersion = Ref.serverVersion().replace('.', '_');
 		if (!serverVersion.startsWith("v")) {
-			if (Ref.serverType() == ServerType.PAPER && (Ref.isNewerThan(20) || Ref.isNewerThan(19) && Ref.serverVersionRelease() >= 6))
+			if (Ref.serverType() == ServerType.PAPER && (Ref.isNewerThan(20) || Ref.isNewerThan(19) && Ref.serverVersionRelease() >= 6)) {
 				try {
 					Config mappings = Config.loadFromInput(new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/main/paper-mappings.yml").openStream());
 					serverVersion = mappings.getString(serverVersion);
 				} catch (Exception ignored) {
 
 				}
+			}
 			serverVersion = 'v' + serverVersion;
 		}
-		if (ToolProvider.getSystemJavaCompiler() != null && !canUseJavaFile)
+		if (ToolProvider.getSystemJavaCompiler() != null && !canUseJavaFile) {
 			try {
 				getAllJarFiles();
 				checkForUpdateAndDownload(serverVersion);
@@ -351,7 +368,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 					nmsProvider.loadParticles();
 				}
 			}
-		else { // JRE
+		} else { // JRE
 			checkForUpdateAndDownloadCompiled(serverVersion);
 			if (new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".jar").exists()) {
 				URLClassLoader cl = new URLClassLoader(new URL[] { new URL("jar:file:" + "plugins/TheAPI/NmsProviders/" + serverVersion + ".jar" + "!/") }, getClassLoader());
@@ -375,10 +392,12 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			MemoryCompiler.allJars += (System.getProperty("os.name").toLowerCase().contains("win") ? ";" : ":") + (fixedPath.charAt(0) == '/' ? fixedPath : "./" + fixedPath);
 		}
 		addAllJarFiles(args, new File("plugins"), false); // Plugins
-		if (Ref.serverType() == ServerType.PAPER)
+		if (Ref.serverType() == ServerType.PAPER) {
 			addAllJarFiles(args, new File("libraries"), true); // Libraries
-		else
+		}
+		else {
 			addAllJarFiles(args, new File("bundler/libraries"), true); // Libraries
+		}
 		MemoryCompiler.allJars += args.toString();
 	}
 
@@ -387,21 +406,26 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	}
 
 	private void addAllJarFiles(StringContainer args, File folder, boolean sub) {
-		if (!folder.exists())
+		if (!folder.exists()) {
 			return;
+		}
 		File[] files = folder.listFiles();
 
 		char splitChar = System.getProperty("os.name").toLowerCase().contains("win") ? ';' : ':';
 
-		if (files != null)
-			for (File file : files)
-				if (file.isDirectory() && sub)
+		if (files != null) {
+			for (File file : files) {
+				if (file.isDirectory() && sub) {
 					addAllJarFiles(args, file, true);
-				else if (file.getName().endsWith(".jar"))
-					if (file.getPath().charAt(0) == '/')
+				} else if (file.getName().endsWith(".jar")) {
+					if (file.getPath().charAt(0) == '/') {
 						args.append(splitChar).append(file.getPath());
-					else
+					} else {
 						args.append(splitChar).append('.').append('/').append(file.getPath());
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -457,23 +481,27 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onAsyncPreLoginEvent(AsyncPlayerPreLoginEvent e) {
-		if (e.getLoginResult() == org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result.ALLOWED)
+		if (e.getLoginResult() == org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result.ALLOWED) {
 			API.offlineCache().setLookup(e.getUniqueId(), e.getName());
+		}
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onLoginEvent(PlayerLoginEvent e) { // fix uuid - premium login?
 		if (e.getResult() == Result.ALLOWED) {
 			API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getName());
-			if (handler != null)
+			if (handler != null) {
 				handler.add(e.getPlayer());
+			}
 		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLoginEvent(PlayerJoinEvent e) {
 		if (handler != null)
+		 {
 			handler.add(e.getPlayer()); // Move to the first position
+		}
 	}
 
 	@EventHandler
@@ -484,13 +512,16 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	@Override
 	public void onDisable() {
 		metrics.shutdown();
-		for (HolderGUI gui : new ArrayList<>(this.gui.values()))
+		for (HolderGUI gui : new ArrayList<>(this.gui.values())) {
 			gui.close();
+		}
 		if (handler != null) {
 			BukkitLoader.handler.close();
-			if (bossbars != null)
-				for (BossBar bar : new ArrayList<>(bossbars))
+			if (bossbars != null) {
+				for (BossBar bar : new ArrayList<>(bossbars)) {
 					bar.remove();
+				}
+			}
 		}
 		PlaceholderAPI.PAPI_BRIDGE = null;
 		// OfflineCache support!

@@ -1,10 +1,10 @@
 package me.devtec.theapi.bukkit.packetlistener;
 
-import org.bukkit.entity.Player;
-
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
+import org.bukkit.entity.Player;
 
 public interface PacketHandler<C> {
 

@@ -63,12 +63,14 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 	}
 
 	public PacketHandlerModern(boolean lateBind) {
-		if (BukkitLoader.NO_OBFUSCATED_NMS_MODE)
+		if (BukkitLoader.NO_OBFUSCATED_NMS_MODE) {
 			serverConnection = Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(), Ref.nms("server.network", "ServerConnectionListener"));
-		else
+		} else {
 			serverConnection = Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(), Ref.nms("server.network", "ServerConnection"));
-		if (serverConnection == null)
+		}
+		if (serverConnection == null) {
 			return;
+		}
 		if (lateBind) {
 			String hasTicked = "ac";
 			switch (Ref.serverVersionInt()) {
@@ -109,13 +111,15 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 				}
 				break;
 			}
-			if (BukkitLoader.NO_OBFUSCATED_NMS_MODE)
+			if (BukkitLoader.NO_OBFUSCATED_NMS_MODE) {
 				hasTicked = "isReady";
-			while (!(boolean) Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(), hasTicked))
+			}
+			while (!(boolean) Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(), hasTicked)) {
 				try {
 					Thread.sleep(20);
 				} catch (Exception ignored) {
 				}
+			}
 		}
 		new Tasker() {
 			@Override
@@ -135,8 +139,9 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 						if (!closed) {
 							PacketInterceptor interceptor = new PacketInterceptor(null);
 							channel.eventLoop().submit(() -> {
-								if (channel.pipeline().names().contains("InjectorTA"))
+								if (channel.pipeline().names().contains("InjectorTA")) {
 									channel.pipeline().remove("InjectorTA");
+								}
 								channel.pipeline().addBefore("packet_handler", "InjectorTA", interceptor);
 								return interceptor;
 							});
@@ -168,35 +173,43 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 	}
 
 	private void registerChannelHandler() {
-		if (BukkitLoader.NO_OBFUSCATED_NMS_MODE)
+		if (BukkitLoader.NO_OBFUSCATED_NMS_MODE) {
 			networkManagers = (List<ChannelFuture>) Ref.get(serverConnection, "channels");
-		else if (Ref.isNewerThan(16))
+		} else if (Ref.isNewerThan(16)) {
 			networkManagers = (List<ChannelFuture>) Ref.get(serverConnection, "f");
-		else
+		} else {
 			networkManagers = (List<ChannelFuture>) (Ref.get(serverConnection, "listeningChannels") != null ? Ref.get(serverConnection, "listeningChannels") : Ref.get(serverConnection, "g"));
-		if (networkManagers == null)
-			for (Field f : Ref.getAllFields(Ref.nms("server.network", "ServerConnection")))
+		}
+		if (networkManagers == null) {
+			for (Field f : Ref.getAllFields(Ref.nms("server.network", "ServerConnection"))) {
 				if (List.class == f.getType()) {
 					networkManagers = (List<ChannelFuture>) Ref.get(serverConnection, f);
 					break;
 				}
-		if (networkManagers == null)
+			}
+		}
+		if (networkManagers == null) {
 			return;
+		}
 		if (networkManagers.isEmpty()) {
 			networkManagers = (List<ChannelFuture>) (Ref.get(serverConnection, "f") != null ? Ref.get(serverConnection, "f") : Ref.get(serverConnection, "listeningChannels"));
-			if (networkManagers == null)
-				for (Field f : Ref.getAllFields(Ref.nms("server.network", "ServerConnection")))
+			if (networkManagers == null) {
+				for (Field f : Ref.getAllFields(Ref.nms("server.network", "ServerConnection"))) {
 					if (List.class == f.getType()) {
 						networkManagers = (List<ChannelFuture>) Ref.get(serverConnection, f);
 						break;
 					}
+				}
+			}
 		}
-		if (networkManagers == null)
+		if (networkManagers == null) {
 			return;
+		}
 		createServerChannelHandler();
 		for (Object item : networkManagers) {
-			if (!(item instanceof ChannelFuture))
+			if (!(item instanceof ChannelFuture)) {
 				continue;
+			}
 			Channel serverChannel = ((ChannelFuture) item).channel();
 			serverChannels.add(serverChannel);
 			serverChannel.pipeline().addFirst(serverChannelHandler);
@@ -204,21 +217,24 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 	}
 
 	private void unregisterChannelHandler() {
-		if (serverChannelHandler == null)
+		if (serverChannelHandler == null) {
 			return;
-		for (Channel serverChannel : serverChannels)
+		}
+		for (Channel serverChannel : serverChannels) {
 			serverChannel.eventLoop().execute(() -> {
 				try {
 					serverChannel.pipeline().remove(serverChannelHandler);
 				} catch (Exception ignored) {
 				}
 			});
+		}
 		serverChannels.clear();
 	}
 
 	private void registerPlayers() {
-		for (Player player : Bukkit.getOnlinePlayers())
+		for (Player player : Bukkit.getOnlinePlayers()) {
 			add(player);
+		}
 	}
 
 	@Override
@@ -226,9 +242,9 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 		Future<Channel> future = getFuture(player);
 		try {
 			Channel result = future.get(3, TimeUnit.SECONDS);
-			if (result != null)
+			if (result != null) {
 				injectChannelInternal(player, result);
-			else
+			} else {
 				new Tasker() {
 					@Override
 					public void run() {
@@ -239,6 +255,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 						}
 					}
 				}.runTask();
+			}
 		} catch (Exception err) {
 			new Tasker() {
 				@Override
@@ -254,13 +271,15 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 	}
 
 	private void injectChannelInternal(Player a, Channel channel) {
-		if (channel == null)
+		if (channel == null) {
 			return;
+		}
 		try {
 			PacketInterceptor interceptor = new PacketInterceptor(a.getName());
 			channel.eventLoop().submit(() -> {
-				if (channel.pipeline().names().contains("InjectorTA"))
+				if (channel.pipeline().names().contains("InjectorTA")) {
 					channel.pipeline().remove("InjectorTA");
+				}
 				channel.pipeline().addBefore("packet_handler", "InjectorTA", interceptor);
 				return interceptor;
 			});
@@ -287,11 +306,13 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 								break;
 							}
 							Object connection = BukkitLoader.getNmsProvider().getPlayerConnection(player);
-							if (connection == null)
+							if (connection == null) {
 								continue;
+							}
 							Object get = BukkitLoader.getNmsProvider().getNetworkChannel(BukkitLoader.getNmsProvider().getConnectionNetwork(connection));
-							if (get == null)
+							if (get == null) {
 								continue;
+							}
 							channelLookup.put(player.getName(), (Channel) get);
 							future.complete((Channel) get);
 							break;
@@ -315,8 +336,9 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 								break;
 							}
 							Object get = BukkitLoader.getNmsProvider().getNetworkChannel(BukkitLoader.getNmsProvider().getConnectionNetwork(connection));
-							if (get == null)
+							if (get == null) {
 								continue;
+							}
 							channelLookup.put(player.getName(), (Channel) get);
 							future.complete((Channel) get);
 							break;
@@ -333,25 +355,29 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 
 	@Override
 	public void remove(Channel channel) {
-		if (channel == null)
+		if (channel == null) {
 			return;
+		}
 		channel.eventLoop().execute(() -> {
 			String owner = null;
-			for (Entry<String, Channel> s : PacketHandlerModern.this.channelLookup.entrySet())
+			for (Entry<String, Channel> s : PacketHandlerModern.this.channelLookup.entrySet()) {
 				if (s.getValue().equals(channel)) {
 					owner = s.getKey();
 					break;
 				}
+			}
 			PacketHandlerModern.this.channelLookup.remove(owner);
-			if (channel.pipeline().names().contains("InjectorTA"))
+			if (channel.pipeline().names().contains("InjectorTA")) {
 				channel.pipeline().remove("InjectorTA");
+			}
 		});
 	}
 
 	@Override
 	public boolean has(Channel channel) {
-		if (channel == null)
+		if (channel == null) {
 			return false;
+		}
 		try {
 			return channel.pipeline().get("InjectorTA") != null;
 		} catch (Exception e) {
@@ -363,15 +389,17 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 	public final void close() {
 		if (!closed) {
 			closed = true;
-			for (Channel channel : channelLookup.values())
+			for (Channel channel : channelLookup.values()) {
 				try {
 					channel.eventLoop().execute(() -> {
-						if (channel.pipeline().names().contains("InjectorTA"))
+						if (channel.pipeline().names().contains("InjectorTA")) {
 							channel.pipeline().remove("InjectorTA");
+						}
 					});
 				} catch (IllegalStateException ignored) {
 
 				}
+			}
 			channelLookup.clear();
 			unregisterChannelHandler();
 		}
@@ -398,8 +426,9 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 				e.printStackTrace();
 				modifiedPacket = packet;
 			}
-			if (modifiedPacket != null)
+			if (modifiedPacket != null) {
 				super.channelRead(ctx, modifiedPacket);
+			}
 		}
 
 		@Override
@@ -417,16 +446,19 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 				e.printStackTrace();
 				modifiedPacket = packet;
 			}
-			if (modifiedPacket != null)
+			if (modifiedPacket != null) {
 				super.write(ctx, modifiedPacket, promise);
+			}
 		}
 	}
 
 	@Override
 	public void send(Channel channel, Object packet) {
-		if (channel == null || packet == null)
+		if (channel == null || packet == null) {
 			return;
-		if (channel.isRegistered())
+		}
+		if (channel.isRegistered()) {
 			channel.writeAndFlush(packet);
+		}
 	}
 }

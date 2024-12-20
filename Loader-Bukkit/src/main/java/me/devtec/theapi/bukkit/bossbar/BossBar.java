@@ -1,18 +1,19 @@
 package me.devtec.theapi.bukkit.bossbar;
 
-import lombok.Getter;
-import me.devtec.shared.Ref;
-import me.devtec.shared.scheduler.Tasker;
-import me.devtec.shared.utility.ColorUtils;
-import me.devtec.theapi.bukkit.BukkitLoader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import lombok.Getter;
+import me.devtec.shared.Ref;
+import me.devtec.shared.scheduler.Tasker;
+import me.devtec.shared.utility.ColorUtils;
+import me.devtec.theapi.bukkit.BukkitLoader;
 
 /**
  * 1.7.10 - 1.8.8
@@ -54,8 +55,9 @@ public class BossBar {
 
                 @Override
                 public void run() {
-                    for (BossBar bar : JavaPlugin.getPlugin(BukkitLoader.class).bossbars)
-                        bar.move();
+                    for (BossBar bar : JavaPlugin.getPlugin(BukkitLoader.class).bossbars) {
+						bar.move();
+					}
                 }
             }.runRepeating(1, 1);
         }
@@ -63,18 +65,21 @@ public class BossBar {
 
     public BossBar(Player holder, String text, double progress) {
         this.holder = holder;
-        if (!Ref.isOlderThan(9))
-            throw new UnsupportedClassVersionError("This class is not supported for versions higher than 1.8.9");
+        if (!Ref.isOlderThan(9)) {
+			throw new UnsupportedClassVersionError("This class is not supported for versions higher than 1.8.9");
+		}
         set(text, progress);
         JavaPlugin.getPlugin(BukkitLoader.class).bossbars.add(this);
     }
 
     public void move() {
-        if (!holder.isOnline() || entityBar == null || hidden)
-            return;
+        if (!holder.isOnline() || entityBar == null || hidden) {
+			return;
+		}
         Location loc = holder.getEyeLocation().add(holder.getEyeLocation().getDirection().normalize().multiply(60));
-        if (loc.getY() < 1)
-            loc.setY(1);
+        if (loc.getY() < 1) {
+			loc.setY(1);
+		}
         if (!before.equals(loc.getWorld())) { // Switch world, respawn entity
             spawnBar(loc);
             return;
@@ -90,22 +95,26 @@ public class BossBar {
     }
 
     public void hide() {
-        if (hidden)
-            return;
+        if (hidden) {
+			return;
+		}
         JavaPlugin.getPlugin(BukkitLoader.class).bossbars.remove(this);
-        if (!holder.isOnline())
-            return;
+        if (!holder.isOnline()) {
+			return;
+		}
         hidden = true;
         BukkitLoader.getPacketHandler().send(holder, BukkitLoader.getNmsProvider().packetEntityDestroy(entityId));
     }
 
     public void show() {
-        if (!hidden || !holder.isOnline())
-            return;
+        if (!hidden || !holder.isOnline()) {
+			return;
+		}
         hidden = false;
         Location loc = holder.getEyeLocation().add(holder.getEyeLocation().getDirection().normalize().multiply(60));
-        if (loc.getY() < 1)
-            loc.setY(1);
+        if (loc.getY() < 1) {
+			loc.setY(1);
+		}
         if (!before.equals(loc.getWorld())) { // Switch world, respawn entity
             spawnBar(loc);
             JavaPlugin.getPlugin(BukkitLoader.class).bossbars.add(this);
@@ -118,17 +127,21 @@ public class BossBar {
     }
 
     private void set(String text, double progress) {
-        if (!holder.isOnline())
-            return;
-        if (progress != -1)
-            this.progress = progress * 200 / 100;
-        if (text != null)
-            title = ColorUtils.colorize(text);
+        if (!holder.isOnline()) {
+			return;
+		}
+        if (progress != -1) {
+			this.progress = progress * 200 / 100;
+		}
+        if (text != null) {
+			title = ColorUtils.colorize(text);
+		}
 
         if (entityBar == null) {
             Location loc = holder.getEyeLocation().add(holder.getEyeLocation().getDirection().normalize().multiply(60));
-            if (loc.getY() < 1)
-                loc.setY(1);
+            if (loc.getY() < 1) {
+				loc.setY(1);
+			}
             spawnBar(loc);
             return;
         }

@@ -75,14 +75,16 @@ public class BungeeLoader extends Plugin implements Listener {
 
 	@EventHandler
 	public void onPreLoginEvent(PreLoginEvent e) {
-		if (!e.isCancelled())
+		if (!e.isCancelled()) {
 			API.offlineCache().setLookup(API.offlineCache().lookupId(e.getConnection().getName()), e.getConnection().getName());
+		}
 	}
 
 	@EventHandler
 	public void onLoginEvent(LoginEvent e) { // fix uuid - premium login?
-		if (!e.isCancelled())
+		if (!e.isCancelled()) {
 			API.offlineCache().setLookup(e.getConnection().getUniqueId(), e.getConnection().getName());
+		}
 	}
 
 	@EventHandler
@@ -137,8 +139,9 @@ public class BungeeLoader extends Plugin implements Listener {
 		};
 
 		ComponentAPI.registerTransformer("BUNGEECORD", new BungeeComponentAPI<>());
-		if (Ref.getClass("net.kyori.adventure.text.Component") != null)
+		if (Ref.getClass("net.kyori.adventure.text.Component") != null) {
 			ComponentAPI.registerTransformer("ADVENTURE", (ComponentTransformer<?>) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.AdventureComponentAPI")));
+		}
 
 		// Commands api
 		API.commandsRegister = new BungeeCommandManager();
@@ -153,8 +156,9 @@ public class BungeeLoader extends Plugin implements Listener {
 
 			@Override
 			public void load(File file) {
-				if (isLoaded(file) || !file.exists())
+				if (isLoaded(file) || !file.exists()) {
 					return;
+				}
 				loaded.add(file);
 				try {
 					Ref.newInstance(constructor, null, null, new URL[] { file.toURI().toURL() });

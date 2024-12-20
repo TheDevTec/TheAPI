@@ -1,11 +1,11 @@
 package me.devtec.theapi.bukkit.nms;
 
-import lombok.Getter;
-import me.devtec.theapi.bukkit.BukkitLoader;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import lombok.Getter;
+import me.devtec.theapi.bukkit.BukkitLoader;
 
 public class GameProfileHandler {
     @Getter

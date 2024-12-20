@@ -38,73 +38,85 @@ public class ParticleAPI {
 
     public static void spawnParticle(Player[] target, Particle particle, Position pos) {
         Object packet = particle.createPacket(pos);
-        for (Player p : target)
-            BukkitLoader.getPacketHandler().send(p, packet);
+        for (Player p : target) {
+			BukkitLoader.getPacketHandler().send(p, packet);
+		}
     }
 
     public static void spawnParticle(Player[] target, Particle particle, Location pos) {
         Object packet = particle.createPacket(pos);
-        for (Player p : target)
-            BukkitLoader.getPacketHandler().send(p, packet);
+        for (Player p : target) {
+			BukkitLoader.getPacketHandler().send(p, packet);
+		}
     }
 
     public static void spawnParticle(Player[] target, Particle particle, double x, double y, double z) {
         Object packet = particle.createPacket(x, y, z);
-        for (Player p : target)
-            BukkitLoader.getPacketHandler().send(p, packet);
+        for (Player p : target) {
+			BukkitLoader.getPacketHandler().send(p, packet);
+		}
     }
 
     public static void spawnParticle(Player[] target, Particle particle, Position pos, float speed, int amount) {
         Object packet = particle.createPacket(pos, speed, amount);
-        for (Player p : target)
-            BukkitLoader.getPacketHandler().send(p, packet);
+        for (Player p : target) {
+			BukkitLoader.getPacketHandler().send(p, packet);
+		}
     }
 
     public static void spawnParticle(Player[] target, Particle particle, Location pos, float speed, int amount) {
         Object packet = particle.createPacket(pos, speed, amount);
-        for (Player p : target)
-            BukkitLoader.getPacketHandler().send(p, packet);
+        for (Player p : target) {
+			BukkitLoader.getPacketHandler().send(p, packet);
+		}
     }
 
     public static void spawnParticle(Player[] target, Particle particle, double x, double y, double z, float speed, int amount) {
         Object packet = particle.createPacket(x, y, z, speed, amount);
-        for (Player p : target)
-            BukkitLoader.getPacketHandler().send(p, packet);
+        for (Player p : target) {
+			BukkitLoader.getPacketHandler().send(p, packet);
+		}
     }
 
     public static void spawnParticle(Collection<? extends Player> target, Particle particle, Position pos) {
         Object packet = particle.createPacket(pos);
-        for (Player p : target)
-            BukkitLoader.getPacketHandler().send(p, packet);
+        for (Player p : target) {
+			BukkitLoader.getPacketHandler().send(p, packet);
+		}
     }
 
     public static void spawnParticle(Collection<? extends Player> target, Particle particle, Location pos) {
         Object packet = particle.createPacket(pos);
-        for (Player p : target)
-            BukkitLoader.getPacketHandler().send(p, packet);
+        for (Player p : target) {
+			BukkitLoader.getPacketHandler().send(p, packet);
+		}
     }
 
     public static void spawnParticle(Collection<? extends Player> target, Particle particle, double x, double y, double z) {
         Object packet = particle.createPacket(x, y, z);
-        for (Player p : target)
-            BukkitLoader.getPacketHandler().send(p, packet);
+        for (Player p : target) {
+			BukkitLoader.getPacketHandler().send(p, packet);
+		}
     }
 
     public static void spawnParticle(Collection<? extends Player> target, Particle particle, Position pos, float speed, int amount) {
         Object packet = particle.createPacket(pos, speed, amount);
-        for (Player p : target)
-            BukkitLoader.getPacketHandler().send(p, packet);
+        for (Player p : target) {
+			BukkitLoader.getPacketHandler().send(p, packet);
+		}
     }
 
     public static void spawnParticle(Collection<? extends Player> target, Particle particle, Location pos, float speed, int amount) {
         Object packet = particle.createPacket(pos, speed, amount);
-        for (Player p : target)
-            BukkitLoader.getPacketHandler().send(p, packet);
+        for (Player p : target) {
+			BukkitLoader.getPacketHandler().send(p, packet);
+		}
     }
 
     public static void spawnParticle(Collection<? extends Player> target, Particle particle, double x, double y, double z, float speed, int amount) {
         Object packet = particle.createPacket(x, y, z, speed, amount);
-        for (Player p : target)
-            BukkitLoader.getPacketHandler().send(p, packet);
+        for (Player p : target) {
+			BukkitLoader.getPacketHandler().send(p, packet);
+		}
     }
 }

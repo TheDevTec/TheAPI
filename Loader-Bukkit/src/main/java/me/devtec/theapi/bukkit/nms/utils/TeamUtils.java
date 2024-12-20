@@ -1,15 +1,15 @@
 package me.devtec.theapi.bukkit.nms.utils;
 
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import me.devtec.shared.Ref;
 import me.devtec.shared.annotations.Nullable;
 import me.devtec.shared.components.Component;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.nms.NmsProvider.DisplayType;
-
-import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 public class TeamUtils {
 
@@ -93,10 +93,11 @@ public class TeamUtils {
                 if (Ref.isNewerThan(7)) {
                     collisionRule = Ref.field(sb, "e");
                     color = Ref.field(sb, "f");
-                    if (Ref.isNewerThan(8))
-                        options = Ref.field(sb, "g");
-                    else
-                        options = null;
+                    if (Ref.isNewerThan(8)) {
+						options = Ref.field(sb, "g");
+					} else {
+						options = null;
+					}
                 } else {
                     collisionRule = null;
                     color = null;
@@ -153,8 +154,9 @@ public class TeamUtils {
             if (Ref.isNewerThan(7)) {
                 Ref.set(packet, nametagVisibility, always);
                 Ref.set(packet, collisionRule, Ref.isNewerThan(8) ? always : -1);
-                if (Ref.isNewerThan(8))
-                    Ref.set(packet, TeamUtils.color, Ref.isNewerThan(12) ? color : -1);
+                if (Ref.isNewerThan(8)) {
+					Ref.set(packet, TeamUtils.color, Ref.isNewerThan(12) ? color : -1);
+				}
             }
         }
         Ref.set(packet, name, teamName);
@@ -168,12 +170,14 @@ public class TeamUtils {
         Ref.set(packet, objectiveDisplayName,
                 Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().toIChatBaseComponent(displayName == null ? Component.EMPTY_COMPONENT : displayName) : displayName.toString());
         Ref.set(packet, objectiveName, name);
-        if (Ref.isNewerThan(7))
-            Ref.set(packet, renderType, BukkitLoader.getNmsProvider().getEnumScoreboardHealthDisplay(type));
-        if (Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() == 3)
-            Ref.set(packet, TeamUtils.numberFormat, numberFormat == null ? null : numberFormat.orElse(null));
-        else if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() > 3)
-            Ref.set(packet, TeamUtils.numberFormat, numberFormat);
+        if (Ref.isNewerThan(7)) {
+			Ref.set(packet, renderType, BukkitLoader.getNmsProvider().getEnumScoreboardHealthDisplay(type));
+		}
+        if (Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() == 3) {
+			Ref.set(packet, TeamUtils.numberFormat, numberFormat == null ? null : numberFormat.orElse(null));
+		} else if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() > 3) {
+			Ref.set(packet, TeamUtils.numberFormat, numberFormat);
+		}
         Ref.set(packet, objectiveMethod, mode);
         return packet;
     }

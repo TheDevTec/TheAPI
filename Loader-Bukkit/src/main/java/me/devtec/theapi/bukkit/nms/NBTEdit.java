@@ -1,11 +1,12 @@
 package me.devtec.theapi.bukkit.nms;
 
-import me.devtec.shared.Ref;
-import me.devtec.theapi.bukkit.BukkitLoader;
+import java.util.Set;
+
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Set;
+import me.devtec.shared.Ref;
+import me.devtec.theapi.bukkit.BukkitLoader;
 
 public class NBTEdit {
     private Object nbt;
@@ -16,19 +17,21 @@ public class NBTEdit {
             return;
         }
 
-        if (nbt instanceof Entity)
-            this.nbt = BukkitLoader.getNmsProvider().getNBT((Entity) nbt);
-        else if (nbt instanceof ItemStack)
-            this.nbt = BukkitLoader.getNmsProvider().getNBT((ItemStack) nbt);
-        else if (nbt instanceof String)
-            this.nbt = BukkitLoader.getNmsProvider().parseNBT((String) nbt);
-        else if (nbt instanceof NBTEdit)
-            this.nbt = ((NBTEdit) nbt).nbt;
-        else if (nbt.getClass() == Ref.nms("nbt", BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "Tag" : "NBTTagCompound"))
-            this.nbt = nbt;
+        if (nbt instanceof Entity) {
+			this.nbt = BukkitLoader.getNmsProvider().getNBT((Entity) nbt);
+		} else if (nbt instanceof ItemStack) {
+			this.nbt = BukkitLoader.getNmsProvider().getNBT((ItemStack) nbt);
+		} else if (nbt instanceof String) {
+			this.nbt = BukkitLoader.getNmsProvider().parseNBT((String) nbt);
+		} else if (nbt instanceof NBTEdit) {
+			this.nbt = ((NBTEdit) nbt).nbt;
+		} else if (nbt.getClass() == Ref.nms("nbt", BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "Tag" : "NBTTagCompound")) {
+			this.nbt = nbt;
+		}
 
-        if (this.nbt == null)
-            this.nbt = BukkitLoader.getNmsProvider().parseNBT("{}");
+        if (this.nbt == null) {
+			this.nbt = BukkitLoader.getNmsProvider().parseNBT("{}");
+		}
     }
 
     public NBTEdit(Entity entity) {
@@ -38,8 +41,9 @@ public class NBTEdit {
         }
 
         nbt = BukkitLoader.getNmsProvider().getNBT(entity);
-        if (nbt == null)
-            nbt = BukkitLoader.getNmsProvider().parseNBT("{}");
+        if (nbt == null) {
+			nbt = BukkitLoader.getNmsProvider().parseNBT("{}");
+		}
     }
 
     public NBTEdit(String nbt) {
@@ -49,8 +53,9 @@ public class NBTEdit {
         }
 
         this.nbt = BukkitLoader.getNmsProvider().parseNBT(nbt);
-        if (this.nbt == null)
-            this.nbt = BukkitLoader.getNmsProvider().parseNBT("{}");
+        if (this.nbt == null) {
+			this.nbt = BukkitLoader.getNmsProvider().parseNBT("{}");
+		}
     }
 
     public NBTEdit(ItemStack stack) {
@@ -60,8 +65,9 @@ public class NBTEdit {
         }
 
         nbt = BukkitLoader.getNmsProvider().getNBT(stack);
-        if (nbt == null)
-            nbt = BukkitLoader.getNmsProvider().parseNBT("{}");
+        if (nbt == null) {
+			nbt = BukkitLoader.getNmsProvider().parseNBT("{}");
+		}
     }
 
     public Object getNBT() {
@@ -73,19 +79,21 @@ public class NBTEdit {
             this.nbt = BukkitLoader.getNmsProvider().parseNBT("{}");
             return this;
         }
-        if (nbt instanceof Entity)
-            this.nbt = BukkitLoader.getNmsProvider().getNBT((Entity) nbt);
-        else if (nbt instanceof ItemStack)
-            this.nbt = BukkitLoader.getNmsProvider().getNBT((ItemStack) nbt);
-        else if (nbt instanceof String)
-            this.nbt = BukkitLoader.getNmsProvider().parseNBT((String) nbt);
-        else if (nbt instanceof NBTEdit)
-            this.nbt = ((NBTEdit) nbt).nbt;
-        else if (nbt.getClass() == Ref.nms("nbt", BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "Tag" : "NBTTagCompound"))
-            this.nbt = nbt;
+        if (nbt instanceof Entity) {
+			this.nbt = BukkitLoader.getNmsProvider().getNBT((Entity) nbt);
+		} else if (nbt instanceof ItemStack) {
+			this.nbt = BukkitLoader.getNmsProvider().getNBT((ItemStack) nbt);
+		} else if (nbt instanceof String) {
+			this.nbt = BukkitLoader.getNmsProvider().parseNBT((String) nbt);
+		} else if (nbt instanceof NBTEdit) {
+			this.nbt = ((NBTEdit) nbt).nbt;
+		} else if (nbt.getClass() == Ref.nms("nbt", BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "Tag" : "NBTTagCompound")) {
+			this.nbt = nbt;
+		}
 
-        if (this.nbt == null)
-            this.nbt = BukkitLoader.getNmsProvider().parseNBT("{}");
+        if (this.nbt == null) {
+			this.nbt = BukkitLoader.getNmsProvider().parseNBT("{}");
+		}
         return this;
     }
 

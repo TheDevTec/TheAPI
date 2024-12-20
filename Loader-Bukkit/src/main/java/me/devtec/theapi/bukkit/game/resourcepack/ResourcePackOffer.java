@@ -1,12 +1,12 @@
 package me.devtec.theapi.bukkit.game.resourcepack;
 
-import lombok.Getter;
-import me.devtec.shared.components.Component;
-
 import java.io.InputStream;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.util.Optional;
+
+import lombok.Getter;
+import me.devtec.shared.components.Component;
 
 public class ResourcePackOffer {
     private static final char[] HEXDUMP_TABLE = new char[256 * 4];
@@ -94,8 +94,9 @@ public class ResourcePackOffer {
         byte[] buffer = new byte[8192];
         while (n != -1) {
             n = fis.read(buffer);
-            if (n > 0)
-                digest.update(buffer, 0, n);
+            if (n > 0) {
+				digest.update(buffer, 0, n);
+			}
         }
         fis.close();
         return digest.digest();

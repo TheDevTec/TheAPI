@@ -21,26 +21,31 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 	public Component toComponent(net.kyori.adventure.text.Component value) {
 		Component base = this.convert(value);
 		List<Component> extra = new ArrayList<>();
-		for (net.kyori.adventure.text.Component extras : value.children())
+		for (net.kyori.adventure.text.Component extras : value.children()) {
 			this.doMagicLoop(extra, extras);
+		}
 		base.setExtra(extra);
 		return base;
 	}
 
 	private void doMagicLoop(List<Component> sub, net.kyori.adventure.text.Component value) {
 		Component comp = this.convert(value);
-		if (comp.getText() != null && !comp.getText().isEmpty())
+		if (comp.getText() != null && !comp.getText().isEmpty()) {
 			sub.add(this.convert(value));
-		for (net.kyori.adventure.text.Component extra : value.children())
+		}
+		for (net.kyori.adventure.text.Component extra : value.children()) {
 			this.doMagicLoop(sub, extra);
+		}
 	}
 
 	private Component convert(net.kyori.adventure.text.Component value) {
 		Component sub = new Component(value instanceof TextComponent ? ((TextComponent) value).content() : value.toString());
-		if (value.color() != null)
+		if (value.color() != null) {
 			sub.setColor(value.color().asHexString());
-		if (value.font() != null)
+		}
+		if (value.font() != null) {
 			sub.setFont(value.font().asString());
+		}
 		Map<TextDecoration, State> decorations = value.style().decorations();
 		sub.setBold(decorations.getOrDefault(TextDecoration.BOLD, State.NOT_SET) == State.TRUE);
 		sub.setItalic(decorations.getOrDefault(TextDecoration.ITALIC, State.NOT_SET) == State.TRUE);
@@ -48,18 +53,20 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 		sub.setStrikethrough(decorations.getOrDefault(TextDecoration.STRIKETHROUGH, State.NOT_SET) == State.TRUE);
 		sub.setUnderlined(decorations.getOrDefault(TextDecoration.UNDERLINED, State.NOT_SET) == State.TRUE);
 
-		if (value.hoverEvent() != null)
-			if (value.hoverEvent().action() == Action.SHOW_TEXT || value.hoverEvent().action() == Action.SHOW_ACHIEVEMENT)
+		if (value.hoverEvent() != null) {
+			if (value.hoverEvent().action() == Action.SHOW_TEXT || value.hoverEvent().action() == Action.SHOW_ACHIEVEMENT) {
 				sub.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, toComponent((net.kyori.adventure.text.Component) value.hoverEvent().value())));
-			else if (value.hoverEvent().action() == Action.SHOW_ENTITY) {
+			} else if (value.hoverEvent().action() == Action.SHOW_ENTITY) {
 				ShowEntity show = (ShowEntity) value.hoverEvent().value();
 				sub.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ENTITY, new ComponentEntity(show.type().asString(), show.id()).setName(show.name() == null ? null : convert(show.name()))));
 			} else if (value.hoverEvent().action() == Action.SHOW_ITEM) {
 				ShowItem show = (ShowItem) value.hoverEvent().value();
 				sub.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new ComponentItem(show.item().asString(), show.count()).setNbt(show.nbt() == null ? null : show.nbt().string())));
 			}
-		if (value.clickEvent() != null)
+		}
+		if (value.clickEvent() != null) {
 			sub.setClickEvent(new ClickEvent(ClickEvent.Action.valueOf(value.clickEvent().action().name()), value.clickEvent().value()));
+		}
 		sub.setInsertion(value.insertion());
 		return sub;
 	}
@@ -67,8 +74,9 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 	@Override
 	public net.kyori.adventure.text.Component fromComponent(Component component) {
 		net.kyori.adventure.text.Component base = this.convert(component);
-		if (component.getExtra() != null)
+		if (component.getExtra() != null) {
 			base = this.convertAll(base, component.getExtra());
+		}
 		return base;
 	}
 
@@ -76,8 +84,9 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 		net.kyori.adventure.text.Component result = base;
 		for (Component c : extra2) {
 			result = result.append(this.convert(c));
-			if (c.getExtra() != null)
+			if (c.getExtra() != null) {
 				result = this.convertAll(result, c.getExtra());
+			}
 		}
 		return result;
 	}
@@ -85,33 +94,43 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 	private net.kyori.adventure.text.Component convert(Component component) {
 		TextComponent sub = net.kyori.adventure.text.Component.text(component.getText());
 		sub = sub.color(component.getColor() != null ? component.getColor().startsWith("#") ? TextColor.fromHexString(component.getColor()) : NamedTextColor.NAMES.value(component.getColor()) : null);
-		if (component.isBold())
+		if (component.isBold()) {
 			sub = sub.decorate(TextDecoration.BOLD);
-		if (component.isItalic())
+		}
+		if (component.isItalic()) {
 			sub = sub.decorate(TextDecoration.ITALIC);
-		if (component.isObfuscated())
+		}
+		if (component.isObfuscated()) {
 			sub = sub.decorate(TextDecoration.OBFUSCATED);
-		if (component.isUnderlined())
+		}
+		if (component.isUnderlined()) {
 			sub = sub.decorate(TextDecoration.UNDERLINED);
-		if (component.isStrikethrough())
+		}
+		if (component.isStrikethrough()) {
 			sub = sub.decorate(TextDecoration.STRIKETHROUGH);
-		if (component.getClickEvent() != null)
+		}
+		if (component.getClickEvent() != null) {
 			sub = sub.clickEvent(net.kyori.adventure.text.event.ClickEvent.clickEvent(net.kyori.adventure.text.event.ClickEvent.Action.valueOf(component.getClickEvent().getAction().name()),
 					component.getClickEvent().getValue()));
-		if (component.getHoverEvent() != null)
+		}
+		if (component.getHoverEvent() != null) {
 			sub = sub.hoverEvent(this.makeHover(component.getHoverEvent()));
-		if (component.getInsertion() != null)
+		}
+		if (component.getInsertion() != null) {
 			sub = sub.insertion(component.getInsertion());
+		}
 		return component.getFont() == null ? sub : sub.font(Key.key(component.getFont()));
 	}
 
 	@Override
 	public net.kyori.adventure.text.Component fromComponent(List<Component> components) {
-		if (components.isEmpty())
+		if (components.isEmpty()) {
 			return net.kyori.adventure.text.Component.empty();
+		}
 		net.kyori.adventure.text.Component base = this.fromComponent(components.get(0));
-		for (int i = 1; i < components.size(); ++i)
+		for (int i = 1; i < components.size(); ++i) {
 			base = base.append(this.fromComponent(components.get(i)));
+		}
 		return base;
 	}
 

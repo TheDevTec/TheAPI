@@ -114,13 +114,16 @@ public enum EnchantmentAPI {
     public void enchant(ItemStack item, int level) {
         if (isSupported()) {
             Enchantment enchant = getEnchantment();
-            if (enchant == null) return;
+            if (enchant == null) {
+				return;
+			}
             if (item.getType() == Material.ENCHANTED_BOOK) {
                 EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();
                 meta.addStoredEnchant(enchant, level, true);
                 item.setItemMeta(meta);
-            } else
-                item.addUnsafeEnchantment(enchant, level);
+            } else {
+				item.addUnsafeEnchantment(enchant, level);
+			}
         }
     }
 
@@ -130,8 +133,9 @@ public enum EnchantmentAPI {
      */
     @Nullable
     public Enchantment getEnchantment() {
-        if (isSupported())
-            return Enchantment.getByName(Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() > 3 ? paperName : bukkitName);
+        if (isSupported()) {
+			return Enchantment.getByName(Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() > 3 ? paperName : bukkitName);
+		}
         return null;
     }
 
@@ -161,8 +165,9 @@ public enum EnchantmentAPI {
         try {
             return valueOf(name.toUpperCase());
         } catch (Exception e) {
-            if (Enchantment.getByName(name.toUpperCase()) != null)
-                return UKNOWN;
+            if (Enchantment.getByName(name.toUpperCase()) != null) {
+				return UKNOWN;
+			}
             return null;
         }
     }
@@ -194,8 +199,9 @@ public enum EnchantmentAPI {
                 Map<Object, Object> byValue = (Map<Object, Object>) Ref.get(Ref.getStatic(Ref.getClass("org.bukkit.Registry"), "ENCHANTMENT"), "byValue");
                 cache.put(key, enchantment);
                 byValue.put(enchantment, key);
-            }else
-            	map.put(Ref.invoke(enchantment, "getKey"), enchantment);
+            } else {
+				map.put(Ref.invoke(enchantment, "getKey"), enchantment);
+			}
             registered = true;
         } else {
             Ref.set(null, acceptingNew, true);
@@ -217,10 +223,11 @@ public enum EnchantmentAPI {
         boolean unregistered = false;
         try {
             ((Map<String, Enchantment>) Ref.get(null, byName)).remove(enchantment.getName());
-            if (Ref.isNewerThan(12))
-                unregistered = ((Map<?, ?>) Ref.get(null, byKey)).remove(Ref.get(enchantment, key)) != null;
-            else
-                unregistered = ((Map<Integer, Enchantment>) Ref.get(null, byId)).remove((Integer)Ref.get(enchantment, id)) != null;
+            if (Ref.isNewerThan(12)) {
+				unregistered = ((Map<?, ?>) Ref.get(null, byKey)).remove(Ref.get(enchantment, key)) != null;
+			} else {
+				unregistered = ((Map<Integer, Enchantment>) Ref.get(null, byId)).remove(Ref.get(enchantment, id)) != null;
+			}
         } catch (Exception ignored) {
         }
         return unregistered;

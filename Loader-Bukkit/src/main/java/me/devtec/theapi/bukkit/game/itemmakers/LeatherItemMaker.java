@@ -1,13 +1,14 @@
 package me.devtec.theapi.bukkit.game.itemmakers;
 
-import me.devtec.shared.annotations.Nullable;
-import me.devtec.theapi.bukkit.game.ItemMaker;
+import java.util.Map;
+
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
-import java.util.Map;
+import me.devtec.shared.annotations.Nullable;
+import me.devtec.theapi.bukkit.game.ItemMaker;
 
 public class LeatherItemMaker extends ItemMaker {
     protected Color color;
@@ -45,19 +46,22 @@ public class LeatherItemMaker extends ItemMaker {
 
     @Override
     protected ItemMeta apply(ItemMeta meta) {
-        if (!(meta instanceof LeatherArmorMeta))
-            return super.apply(meta);
+        if (!(meta instanceof LeatherArmorMeta)) {
+			return super.apply(meta);
+		}
         LeatherArmorMeta iMeta = (LeatherArmorMeta) meta;
-        if (color != null)
-            iMeta.setColor(color);
+        if (color != null) {
+			iMeta.setColor(color);
+		}
         return super.apply(iMeta);
     }
 
     @Override
     public int hashCode() {
         int hash = super.hashCode();
-        if (color != null)
-            hash = hash * 33 + color.hashCode();
+        if (color != null) {
+			hash = hash * 33 + color.hashCode();
+		}
         return hash;
     }
 }

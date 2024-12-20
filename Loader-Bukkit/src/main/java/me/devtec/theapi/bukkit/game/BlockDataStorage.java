@@ -102,12 +102,15 @@ public class BlockDataStorage implements Cloneable {
     public String toString() {
         Map<String, Object> map = new HashMap<>();
         map.put("type", type.name());
-        if (itemData != 0)
-            map.put("itemData", itemData);
-        if (!data.isEmpty())
-            map.put("data", data);
-        if (nbt != null && !nbt.isEmpty())
-            map.put("nbt", nbt);
+        if (itemData != 0) {
+			map.put("itemData", itemData);
+		}
+        if (!data.isEmpty()) {
+			map.put("data", data);
+		}
+        if (nbt != null && !nbt.isEmpty()) {
+			map.put("nbt", nbt);
+		}
         return Json.writer().simpleWrite(map);
     }
 
@@ -124,10 +127,11 @@ public class BlockDataStorage implements Cloneable {
         if (obj.getClass().equals(blockDataClass)) {
             BlockData blockData = (BlockData) obj;
             String asString = blockData.getAsString();
-            if (asString.contains("["))
-                asString = asString.substring(asString.indexOf('[') - 1);
-            else
-                asString = "";
+            if (asString.contains("[")) {
+				asString = asString.substring(asString.indexOf('[') - 1);
+			} else {
+				asString = "";
+			}
             return type == blockData.getMaterial() && asString.equals(data);
         }
         return false;
@@ -138,8 +142,9 @@ public class BlockDataStorage implements Cloneable {
         int hash = 40 + type.hashCode();
         hash = hash * 40 + data.hashCode();
         hash = hash * 40 + itemData;
-        if (nbt != null)
-            hash = hash * 40 + nbt.hashCode();
+        if (nbt != null) {
+			hash = hash * 40 + nbt.hashCode();
+		}
         return hash;
     }
 

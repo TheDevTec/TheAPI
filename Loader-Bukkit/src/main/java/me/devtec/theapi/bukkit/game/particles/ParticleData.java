@@ -1,14 +1,15 @@
 package me.devtec.theapi.bukkit.game.particles;
 
-import lombok.Getter;
-import me.devtec.shared.Ref;
-import me.devtec.theapi.bukkit.game.BlockDataStorage;
-import me.devtec.theapi.bukkit.xseries.XMaterial;
+import java.util.Arrays;
+
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Arrays;
+import lombok.Getter;
+import me.devtec.shared.Ref;
+import me.devtec.theapi.bukkit.game.BlockDataStorage;
+import me.devtec.theapi.bukkit.xseries.XMaterial;
 
 public class ParticleData {
 
@@ -29,10 +30,12 @@ public class ParticleData {
         private final int note;
 
         public NoteOptions(int note) {
-            if (note < 0)
-                throw new IllegalArgumentException("The note value is lower than 0");
-            if (note > 24)
-                throw new IllegalArgumentException("The note value is higher than 24");
+            if (note < 0) {
+				throw new IllegalArgumentException("The note value is lower than 0");
+			}
+            if (note > 24) {
+				throw new IllegalArgumentException("The note value is higher than 24");
+			}
             this.note = note;
         }
 
@@ -56,20 +59,26 @@ public class ParticleData {
         private final float size;
 
         public RedstoneOptions(float size, float red, float green, float blue) {
-            if (red < 0)
-                throw new IllegalArgumentException("The red value is lower than 0");
-            if (red > 255)
-                throw new IllegalArgumentException("The red value is higher than 255");
+            if (red < 0) {
+				throw new IllegalArgumentException("The red value is lower than 0");
+			}
+            if (red > 255) {
+				throw new IllegalArgumentException("The red value is higher than 255");
+			}
             this.red = red;
-            if (green < 0)
-                throw new IllegalArgumentException("The green value is lower than 0");
-            if (green > 255)
-                throw new IllegalArgumentException("The green value is higher than 255");
+            if (green < 0) {
+				throw new IllegalArgumentException("The green value is lower than 0");
+			}
+            if (green > 255) {
+				throw new IllegalArgumentException("The green value is higher than 255");
+			}
             this.green = green;
-            if (blue < 0)
-                throw new IllegalArgumentException("The blue value is lower than 0");
-            if (blue > 255)
-                throw new IllegalArgumentException("The blue value is higher than 255");
+            if (blue < 0) {
+				throw new IllegalArgumentException("The blue value is lower than 0");
+			}
+            if (blue > 255) {
+				throw new IllegalArgumentException("The blue value is higher than 255");
+			}
             this.blue = blue;
             this.size = size;
         }
@@ -114,12 +123,13 @@ public class ParticleData {
 
         public ItemOptions(ItemStack stack) {
             item = stack;
-            if (Ref.isOlderThan(13))
-                try {
+            if (Ref.isOlderThan(13)) {
+				try {
                     packetData = new int[]{BlockDataStorage.fromItemStack(stack).getCombinedId()};
                 } catch (Exception err) {
                     packetData = new int[]{0};
                 }
+			}
         }
 
         public ItemOptions(Material material) {
@@ -132,12 +142,13 @@ public class ParticleData {
 
         public ItemOptions(BlockDataStorage material) {
             item = material.toItemStack();
-            if (Ref.isOlderThan(13))
-                try {
+            if (Ref.isOlderThan(13)) {
+				try {
                     packetData = new int[]{material.getCombinedId()};
                 } catch (Exception err) {
                     packetData = new int[]{0};
                 }
+			}
         }
 
         @Deprecated
@@ -163,12 +174,13 @@ public class ParticleData {
 
         public BlockOptions(BlockDataStorage material) {
             this.material = material;
-            if (Ref.isOlderThan(13))
-                try {
+            if (Ref.isOlderThan(13)) {
+				try {
                     packetData = new int[]{XMaterial.matchXMaterial(material.getType()).getId(), material.getItemData()};
                 } catch (Exception err) {
                     packetData = new int[]{0, 0};
                 }
+			}
         }
 
         public BlockOptions(Material material) {

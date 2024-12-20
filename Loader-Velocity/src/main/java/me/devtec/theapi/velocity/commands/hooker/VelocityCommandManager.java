@@ -25,8 +25,9 @@ public class VelocityCommandManager implements CommandsRegister {
 			@Override
 			public List<String> suggest(Invocation invocation) {
 				Collection<String> tablist = commandHolder.tablist(invocation.source(), invocation.arguments());
-				if (tablist.isEmpty())
+				if (tablist.isEmpty()) {
 					return Collections.emptyList();
+				}
 				return tablist instanceof List ? (List<String>) tablist : new ArrayList<>(tablist);
 			}
 
@@ -43,7 +44,8 @@ public class VelocityCommandManager implements CommandsRegister {
 	@Override
 	public void unregister(CommandHolder<?> commandHolder) {
 		VelocityLoader.getServer().getCommandManager().unregister(commandHolder.getCommandName());
-		for (String alias : commandHolder.getCommandAliases())
+		for (String alias : commandHolder.getCommandAliases()) {
 			VelocityLoader.getServer().getCommandManager().unregister(alias);
+		}
 	}
 }
