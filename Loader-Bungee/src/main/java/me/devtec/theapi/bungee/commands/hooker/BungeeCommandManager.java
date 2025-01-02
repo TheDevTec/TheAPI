@@ -18,12 +18,14 @@ public class BungeeCommandManager implements CommandsRegister {
 				commandHolder.execute(s, args);
 			}
 
+			@SuppressWarnings({ "rawtypes", "unchecked" })
 			@Override
 			public boolean hasPermission(CommandSender sender) {
 				return commandHolder.getStructure().getSenderClass().isAssignableFrom(sender.getClass())
-						&& (commandHolder.getStructure().getPermission() == null || sender.hasPermission(commandHolder.getStructure().getPermission()));
+						
+						&& (commandHolder.getStructure().getPermission() == null || ((CommandHolder)commandHolder).getStructure().getPermissionChecker().has(sender, commandHolder.getStructure().getPermission(), false));
 			}
-
+			
 			@Override
 			public Iterable<String> onTabComplete(CommandSender s, String[] args) {
 				return commandHolder.tablist(s, args);

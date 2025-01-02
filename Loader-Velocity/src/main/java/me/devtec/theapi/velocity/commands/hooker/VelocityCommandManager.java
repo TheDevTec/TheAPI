@@ -31,10 +31,11 @@ public class VelocityCommandManager implements CommandsRegister {
 				return tablist instanceof List ? (List<String>) tablist : new ArrayList<>(tablist);
 			}
 
+			@SuppressWarnings({ "rawtypes", "unchecked" })
 			@Override
 			public boolean hasPermission(Invocation invocation) {
 				return commandHolder.getStructure().getSenderClass().isAssignableFrom(invocation.source().getClass())
-						&& (commandHolder.getStructure().getPermission() == null || invocation.source().hasPermission(commandHolder.getStructure().getPermission()));
+							&& (commandHolder.getStructure().getPermission() == null || ((CommandHolder)commandHolder).getStructure().getPermissionChecker().has(invocation.source(), commandHolder.getStructure().getPermission(), false));
 			}
 		};
 		commandHolder.setRegisteredCommand(cmd, command, aliases);
