@@ -38,7 +38,8 @@ import me.devtec.theapi.velocity.commands.hooker.VelocityCommandManager;
 import me.devtec.theapi.velocity.commands.selectors.VelocitySelectorUtils;
 import net.kyori.adventure.text.Component;
 
-@Plugin(id = "theapi", name = "TheAPI", version = "13.4", authors = { "DevTec", "Straikerinos" }, url = "https://www.spigotmc.org/resources/72679/")
+@Plugin(id = "theapi", name = "TheAPI", version = "13.5.4", authors = { "DevTec",
+		"Straikerinos" }, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 
 	// Init static APIs
@@ -65,14 +66,19 @@ public class VelocityLoader {
 	private void broadcastSystemInfo() {
 		ConsoleCommandSource console = server.getConsoleCommandSource();
 		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7>")));
-		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7> &5TheAPI &dv" + VelocityLoader.class.getAnnotation(Plugin.class).version())));
+		console.sendMessage((Component) ComponentAPI.adventure().fromString(
+				ColorUtils.colorize("&7> &5TheAPI &dv" + VelocityLoader.class.getAnnotation(Plugin.class).version())));
 		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7>")));
-		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7> &5System info&7:")));
+		console.sendMessage(
+				(Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7> &5System info&7:")));
 		console.sendMessage((Component) ComponentAPI.adventure()
-				.fromString(ColorUtils.colorize("&7> &dJava&7: &e" + System.getProperty("java.version") + " &7(" + (ToolProvider.getSystemJavaCompiler() != null ? "&aJDK" : "&aJRE") + "&7)")));
-		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7> &dServer type&7: &e" + Ref.serverType())));
+				.fromString(ColorUtils.colorize("&7> &dJava&7: &e" + System.getProperty("java.version") + " &7("
+						+ (ToolProvider.getSystemJavaCompiler() != null ? "&aJDK" : "&aJRE") + "&7)")));
+		console.sendMessage((Component) ComponentAPI.adventure()
+				.fromString(ColorUtils.colorize("&7> &dServer type&7: &e" + Ref.serverType())));
 		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7>")));
-		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7> &dSupport&7: &ehttps://discord.gg/APwYKQRxby")));
+		console.sendMessage((Component) ComponentAPI.adventure()
+				.fromString(ColorUtils.colorize("&7> &dSupport&7: &ehttps://discord.gg/APwYKQRxby")));
 		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7>")));
 	}
 
@@ -85,16 +91,14 @@ public class VelocityLoader {
 
 	@Subscribe(priority = -64)
 	public void onPreLoginEvent(PreLoginEvent e) {
-		if (e.getResult().isAllowed()) {
+		if (e.getResult().isAllowed())
 			API.offlineCache().setLookup(API.offlineCache().lookupId(e.getUsername()), e.getUsername());
-		}
 	}
 
 	@Subscribe(priority = 64)
 	public void onLoginEvent(LoginEvent e) { // fix uuid - premium login?
-		if (e.getResult().isAllowed()) {
+		if (e.getResult().isAllowed())
 			API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getUsername());
-		}
 	}
 
 	@Subscribe(priority = 4)
@@ -103,7 +107,9 @@ public class VelocityLoader {
 	}
 
 	public static void initTheAPI() {
-		Ref.init(ServerType.VELOCITY, Ref.getClass("com.velocitypowered.proxy.VelocityServer").getPackage().getImplementationVersion()); // Server version
+		Ref.init(ServerType.VELOCITY,
+				Ref.getClass("com.velocitypowered.proxy.VelocityServer").getPackage().getImplementationVersion()); // Server
+																													// version
 
 		Metrics.gatheringInfoManager = new GatheringInfoManager() {
 
@@ -154,18 +160,20 @@ public class VelocityLoader {
 		API.selectorUtils = new VelocitySelectorUtils();
 
 		// OfflineCache support!
-		API.initOfflineCache(new Config("velocity.toml").getBoolean("online-mode"), new Config("plugins/TheAPI/Cache.dat"));
+		API.initOfflineCache(new Config("velocity.toml").getBoolean("online-mode"),
+				new Config("plugins/TheAPI/Cache.dat"));
 
 		API.library = new LibraryLoader() {
-			final Constructor<?> constructor = Ref.getConstructors(Ref.getClass("com.velocitypowered.proxy.plugin.PluginClassLoader"))[0];
-			final Method addToClassloaders = Ref.method(Ref.getClass("com.velocitypowered.proxy.plugin.PluginClassLoader"), "addToClassloaders");
+			final Constructor<?> constructor = Ref
+					.getConstructors(Ref.getClass("com.velocitypowered.proxy.plugin.PluginClassLoader"))[0];
+			final Method addToClassloaders = Ref
+					.method(Ref.getClass("com.velocitypowered.proxy.plugin.PluginClassLoader"), "addToClassloaders");
 			final List<File> loaded = new ArrayList<>();
 
 			@Override
 			public void load(File file) {
-				if (isLoaded(file) || !file.exists()) {
+				if (isLoaded(file) || !file.exists())
 					return;
-				}
 				loaded.add(file);
 				try {
 					URL[] urls = { file.toURI().toURL() };
