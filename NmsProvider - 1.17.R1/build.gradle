@@ -2,8 +2,8 @@ plugins {
     id 'java'
 }
 
-group = 'me.devtec.theapi.loaders'
-version = '13.4'
+group = 'me.devtec.theapi.nmsproviders'
+version = '13.5.4'
 
 repositories {
     mavenCentral()
@@ -13,7 +13,8 @@ repositories {
 
 dependencies {
     compileOnly 'org.spigotmc:spigot:1.17.1-R0.1-SNAPSHOT'
-    compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.4'
+    compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.5.4'
+    compileOnly 'com.github.TheDevTec:TheAPI-Shared:13.5.4'
 }
 
 java {
@@ -25,10 +26,9 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-// Vytvoření JAR souboru
 task buildJar(type: Jar) {
     from sourceSets.main.output
-    archiveBaseName.set('NmsProvider')
+    archiveFileName = "NmsProvider.jar"
     destinationDirectory.set(file("/build"))
 }
 

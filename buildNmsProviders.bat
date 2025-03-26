@@ -9,7 +9,6 @@ call gradlew -b "NmsProvider - 1.18.R1/build.gradle" clean build
 call gradlew -b "NmsProvider - 1.18.R2/build.gradle" clean build
 call gradlew -b "NmsProvider - 1.19.R1/build.gradle" clean build
 call gradlew -b "NmsProvider - 1.19.R2/build.gradle" clean build
-call gradlew -b "NmsProvider - 1.19.R3/build.gradle" clean build
 call gradlew -b "NmsProvider - 1.20.R1/build.gradle" clean build
 call gradlew -b "NmsProvider - 1.20.R2/build.gradle" clean build
 call gradlew -b "NmsProvider - 1.20.R3/build.gradle" clean build

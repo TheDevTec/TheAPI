@@ -2,29 +2,24 @@ plugins {
     id 'java'
 }
 
-group = 'me.devtec.theapi.loaders'
-version = '13.4'
+group = 'me.devtec.theapi.nmsproviders'
+version = '13.5.4'
 
 repositories {
     mavenCentral()
-    maven {
-        url = 'https://jitpack.io'
-    }
-    maven {
-        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
-    }
-    maven {
-        url = 'https://repo.papermc.io/repository/maven-public/'
-    }
+    maven { url 'https://jitpack.io' }
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url = 'https://repo.papermc.io/repository/maven-public/' }
 }
 
 dependencies {
-    implementation files("$projectDir/lib/paper-1.21.jar")
+    compileOnly files("$projectDir/lib/paper-1.21.jar")
 
     compileOnly 'net.kyori:adventure-api:4.17.0'
     compileOnly 'org.spigotmc:spigot-api:1.21-R0.1-SNAPSHOT'
-    compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.5.1'
-    implementation 'it.unimi.dsi:fastutil:8.5.12'
+    compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.5.4'
+    compileOnly 'com.github.TheDevTec:TheAPI-Shared:13.5.4'
+    compileOnly 'it.unimi.dsi:fastutil:8.5.12'
 
     compileOnly 'com.google.guava:guava:33.2.1-jre'
     compileOnly 'com.mojang:authlib:6.0.54'
@@ -44,7 +39,7 @@ tasks.withType(JavaCompile) {
 
 task buildJar(type: Jar) {
     from sourceSets.main.output
-    archiveBaseName.set('NmsProvider')
+    archiveFileName = "NmsProvider.jar"
     destinationDirectory.set(file("/build"))
 }
 

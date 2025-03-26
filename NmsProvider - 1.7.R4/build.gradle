@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'me.devtec.theapi.nmsproviders'
-version = '13.4'
+version = '13.5.4'
 
 repositories {
     mavenCentral()
@@ -11,11 +11,9 @@ repositories {
 }
 
 dependencies {
-    // Závislost na CraftBukkit pro verzi 1.7.10 (scope 'system')
-    compileOnly files('lib/spigot-1.7.10.jar')
-
-    // Závislost na TheAPI-Loader-Bukkit
-    implementation 'com.github.TheDevTec:TheAPI-Loader-Bukkit:13.4'
+    implementation files('lib/spigot-1.7.10.jar')
+    compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.5.4'
+    compileOnly 'com.github.TheDevTec:TheAPI-Shared:13.5.4'
 }
 
 java {
@@ -27,10 +25,9 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-// Vytvoření JAR souboru
 task buildJar(type: Jar) {
     from sourceSets.main.output
-    archiveBaseName.set('NmsProvider')
+    archiveFileName = "NmsProvider.jar"
     destinationDirectory.set(file("/build"))
 }
 

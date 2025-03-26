@@ -2,21 +2,20 @@ plugins {
     id 'java'
 }
 
-group = 'me.devtec.theapi.loaders'
-version = '13.4'
+group = 'me.devtec.theapi.nmsproviders'
+version = '13.5.4'
 
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
     maven { url 'https://maven.elmakers.com/repository/' }
+    maven { url 'https://repo.loohpjames.com/repository/' }
 }
 
 dependencies {
-    // Závislost na Spigot pro verzi 1.20.5
     compileOnly 'org.spigotmc:spigot:1.20.5-R0.1-SNAPSHOT'
-
-    // Závislost na TheAPI-Loader-Bukkit pro verzi 13.4
-    compileOnly 'com.github.TheDevTec:TheAPI-Loader-Bukkit:13.4'
+    compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.5.4'
+    compileOnly 'com.github.TheDevTec:TheAPI-Shared:13.5.4'
 }
 
 java {
@@ -28,10 +27,9 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
-// Vytvoření JAR souboru
 task buildJar(type: Jar) {
     from sourceSets.main.output
-    archiveBaseName.set('NmsProvider')
+    archiveFileName = "NmsProvider.jar"
     destinationDirectory.set(file("/build"))
 }
 
