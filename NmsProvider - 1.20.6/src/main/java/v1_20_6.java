@@ -126,6 +126,7 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.scores.DisplaySlot;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
+import net.minecraft.world.level.LevelHeightAccessor;
 
 public class v1_20_6 implements NmsProvider {
 	private static final MinecraftServer server = MinecraftServer.getServer();
@@ -672,14 +673,17 @@ public class v1_20_6 implements NmsProvider {
 	}
 
 	static Method markUnsaved = Ref.method(ChunkAccess.class, "setUnsaved", boolean.class);
-	static Method getMaxSection = Ref.method(ChunkAccess.class, "getMaxSection");
-	static boolean modernPaper = false;
+	static Method getMaxSection = Ref.method(LevelHeightAccessor.class, "getMaxSection");
+	static boolean modernPaper = false, maxY = false;
 	static {
 		if (markUnsaved == null) {
 			modernPaper = true;
 			markUnsaved = Ref.method(ChunkAccess.class, "markUnsaved");
-			getMaxSection = Ref.method(ChunkAccess.class, "getMaxY");
 		}
+        if(getMaxSection==null){
+        	maxY = true;
+			getMaxSection = Ref.method(LevelHeightAccessor.class, "getMaxY");
+        }
 	}
 
 	
@@ -689,7 +693,7 @@ public class v1_20_6 implements NmsProvider {
 		LevelChunk chunk = (LevelChunk) objChunk;
 		ServerLevel world = chunk.level;
 		int highY = chunk.getSectionIndex(y);
-		if (highY < 0 || highY > (modernPaper ? ((int)Ref.invoke(chunk, getMaxSection)) >> 4 : (int)Ref.invoke(chunk, getMaxSection)))
+		if (highY < 0 || highY > (maxY ? ((int)Ref.invoke(chunk, getMaxSection)) >> 4 : (int)Ref.invoke(chunk, getMaxSection)))
 			return;
 		LevelChunkSection sc = chunk.getSection(highY);
 		BlockPos pos = new BlockPos(x, y, z);

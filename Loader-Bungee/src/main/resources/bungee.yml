@@ -1,6 +1,6 @@
 name: TheAPI
 main: me.devtec.theapi.bungee.BungeeLoader
-version: 13.5.4
+version: $version
 authors: [DevTec,Straikerinos]
 website: https://www.spigotmc.org/resources/72679/
 spigot-id: 72679

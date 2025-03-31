@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-def versionValue = System.getenv('VERSION') ?: '13.5.4'
+def versionValue = System.getenv('VERSION') ?: '13.5.5'
 group = 'me.devtec.theapi.loaders'
 version = versionValue
 
@@ -21,7 +21,7 @@ allprojects {
 }
 
 dependencies {
-    implementation 'com.github.TheDevTec:TheAPI-Shared:13.5.4'
+    implementation 'com.github.TheDevTec:TheAPI-Shared:13.5.5'
 }
 
 subprojects {
@@ -34,11 +34,21 @@ subprojects {
     tasks.withType(JavaCompile).configureEach {
         options.encoding = 'UTF-8'
     }
-
+    
+    tasks.processResources {
+    filesMatching("plugin.yml") {
+        expand(["version": versionValue])
+    }
+    filesMatching("bungee.yml") {
+        expand(["version": versionValue])
+    }
+    filesMatching("velocity-plugin.json") {
+        expand(["version": versionValue])
+    }}
     dependencies {
         compileOnly 'org.projectlombok:lombok:1.18.36'
         annotationProcessor 'org.projectlombok:lombok:1.18.36'
-        implementation 'com.github.TheDevTec:TheAPI-Shared:13.5.4'
+        implementation 'com.github.TheDevTec:TheAPI-Shared:13.5.5'
     }
 
     tasks.withType(JavaCompile) {
