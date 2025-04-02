@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'me.devtec.theapi.nmsproviders'
-version = '13.5.5'
+version = '13.5.6'
 
 repositories {
     mavenCentral()
@@ -15,7 +15,7 @@ repositories {
 dependencies {
     compileOnly 'org.spigotmc:spigot:1.19.3-R0.1-SNAPSHOT'
     compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.5.4'
-    compileOnly 'com.github.TheDevTec:TheAPI-Shared:13.5.5'
+    compileOnly 'com.github.TheDevTec:TheAPI-Shared:13.5.6'
 }
 
 java {
