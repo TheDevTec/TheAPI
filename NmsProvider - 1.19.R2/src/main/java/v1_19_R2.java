@@ -1069,13 +1069,21 @@ public class v1_19_R2 implements NmsProvider {
                         nPlayer.fE().a(modif.getKey(), (net.minecraft.world.item.ItemStack) asNMSItem(modif.getValue()));
                     if (remaining == 0) {
                         c.b(gameSlot).d((net.minecraft.world.item.ItemStack) asNMSItem(null));
+						if(gui instanceof AnvilGUI)
+							gui.getInventory().setItem(gameSlot, null);
                         if (interactWithResultSlot) {
                             c.b(0).d((net.minecraft.world.item.ItemStack) asNMSItem(null));
                             c.b(1).d((net.minecraft.world.item.ItemStack) asNMSItem(null));
+							if(gui instanceof AnvilGUI) {
+								gui.getInventory().setItem(0, null);
+								gui.getInventory().setItem(1, null);
+							}
                         }
                     } else {
                         newItem.setAmount(remaining);
                         c.b(gameSlot).d((net.minecraft.world.item.ItemStack) asNMSItem(newItem));
+						if(gui instanceof AnvilGUI)
+							gui.getInventory().setItem(gameSlot, newItem);
                     }
                 } else {
                     for (Entry<Integer, ItemStack> modif : modified.entrySet())
@@ -1097,8 +1105,14 @@ public class v1_19_R2 implements NmsProvider {
 		postToMainThread(() -> {
 			if (type != InventoryClickType.f && (c.a().equals(Containers.h) || c.a().equals(Containers.u)))
 				c.b();
-			for (final it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry<net.minecraft.world.item.ItemStack> entry : Int2ObjectMaps.fastIterable(packet.f()))
+			for (final it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry<net.minecraft.world.item.ItemStack> entry : Int2ObjectMaps.fastIterable(packet.f())) {
 				c.b(entry.getIntKey(), entry.getValue());
+				if(gui instanceof AnvilGUI) {
+					if (entry.getIntKey() < gui.size()) {
+						gui.getInventory().setItem(entry.getIntKey(), asBukkitItem(entry.getValue()));
+					}
+				}
+			}
 			c.a(packet.e());
 			c.i();
 			if (packet.h() != c.j())

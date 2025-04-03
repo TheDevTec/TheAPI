@@ -938,13 +938,21 @@ public class v1_7_R4 implements NmsProvider {
                         nPlayer.inventory.setItem(modif.getKey(), (net.minecraft.server.v1_7_R4.ItemStack) asNMSItem(modif.getValue()));
                     if (remaining == 0) {
                         c.getSlot(gameSlot).set((net.minecraft.server.v1_7_R4.ItemStack) asNMSItem(null));
+						if(gui instanceof AnvilGUI)
+							gui.getInventory().setItem(gameSlot, null);
                         if (interactWithResultSlot) {
                             c.getSlot(0).set((net.minecraft.server.v1_7_R4.ItemStack) asNMSItem(null));
                             c.getSlot(1).set((net.minecraft.server.v1_7_R4.ItemStack) asNMSItem(null));
+							if(gui instanceof AnvilGUI) {
+								gui.getInventory().setItem(0, null);
+								gui.getInventory().setItem(1, null);
+							}
                         }
                     } else {
                         newItem.setAmount(remaining);
                         c.getSlot(gameSlot).set((net.minecraft.server.v1_7_R4.ItemStack) asNMSItem(newItem));
+						if(gui instanceof AnvilGUI)
+							gui.getInventory().setItem(gameSlot, newItem);
                     }
                 } else {
                     for (Entry<Integer, ItemStack> modif : modified.entrySet())
@@ -1084,6 +1092,8 @@ public class v1_7_R4 implements NmsProvider {
                                 BukkitLoader.getPacketHandler().send(player.getBukkitEntity(), BukkitLoader.getNmsProvider().packetSetSlot(container.windowId, 0, 0, container.getSlot(0).getItem()));
                         }
                     }
+					if(gui instanceof AnvilGUI && slotIndex < gui.size())
+						gui.getInventory().setItem(slotIndex, asBukkitItem(slot2.getItem()));
                 }
             } else if (actionType == InventoryClickType.SWAP) {
                 if (slotIndex < 0)
@@ -1119,6 +1129,8 @@ public class v1_7_R4 implements NmsProvider {
                         slot2.set(itemstack1);
                     }
                 }
+				if(gui instanceof AnvilGUI && slotIndex < gui.size())
+					gui.getInventory().setItem(slotIndex, asBukkitItem(slot2.getItem()));
             } else if (actionType == InventoryClickType.CLONE && player.abilities.canInstantlyBuild && player.inventory.getCarried() == null && slotIndex >= 0) {
                 Slot slot3 = container.getSlot(slotIndex);
                 if (slot3 != null && slot3.hasItem()) {
@@ -1131,6 +1143,8 @@ public class v1_7_R4 implements NmsProvider {
                 if (slot2 != null && slot2.hasItem() && slot2.isAllowed(player)) {
                     net.minecraft.server.v1_7_R4.ItemStack itemstack2 = slot2.a(button == 0 ? 1 : slot2.getItem().count);
                     slot2.a(player, itemstack2);
+					if(gui instanceof AnvilGUI && slotIndex < gui.size())
+						gui.getInventory().setItem(slotIndex, asBukkitItem(itemstack2));
                     postToMainThread(() -> player.drop(itemstack2, true));
                 }
             } else if (actionType == InventoryClickType.PICKUP_ALL && slotIndex >= 0) {
@@ -1162,10 +1176,13 @@ public class v1_7_R4 implements NmsProvider {
                                         slot3.set(null);
                                     slot3.a(player, itemstack6);
                                     int gameSlot = j2 > gui.size() - 1 ? InventoryUtils.convertToPlayerInvSlot(j2 - gui.size()) : j2;
-                                    if (j2 < gui.size())
-                                        modifiedSlots.put(gameSlot, asBukkitItem(slot3.getItem()));
-                                    else
-                                        modifiedSlotsPlayerInv.put(gameSlot, asBukkitItem(slot3.getItem()));
+									ItemStack bukkitStack = asBukkitItem(slot3.getItem());
+									if (j2 < gui.size()) {
+										modifiedSlots.put(gameSlot, bukkitStack);
+										if(gui instanceof AnvilGUI)
+											gui.getInventory().setItem(gameSlot, bukkitStack);
+									} else
+										modifiedSlotsPlayerInv.put(gameSlot, bukkitStack);
                                 }
                             }
                         }

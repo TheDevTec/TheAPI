@@ -1080,10 +1080,10 @@ public class v1_20_6 implements NmsProvider {
 			if (gui instanceof AnvilGUI) { // Event
 				final ItemStack newItemFinal = newItem;
 				postToMainThread(() -> processEvent(c, type, gui, player, slot, gameSlot, newItemFinal, oldItem, packet,
-						mouseClick, clickType, nPlayer));
+						mouseClick, clickType, nPlayer,true));
 			} else
 				processEvent(c, type, gui, player, slot, gameSlot, newItem, oldItem, packet, mouseClick, clickType,
-						nPlayer);
+						nPlayer,false);
 			return true;
 		}
 		// MOUSE
@@ -1107,12 +1107,13 @@ public class v1_20_6 implements NmsProvider {
 	private void processEvent(AbstractContainerMenu c, net.minecraft.world.inventory.ClickType type, HolderGUI gui,
 			Player player, int slot, int gameSlot, ItemStack newItem, ItemStack oldItem,
 			ServerboundContainerClickPacket packet, int mouseClick, ClickType clickType,
-			net.minecraft.world.entity.player.Player nPlayer) {
+			net.minecraft.world.entity.player.Player nPlayer, boolean isAnvilGui) {
 		c.suppressRemoteUpdates();
 		if (type == net.minecraft.world.inventory.ClickType.QUICK_MOVE) {
 			ItemStack[] contents = slot < gui.size() ? player.getInventory().getStorageContents()
 					: gui.getInventory().getStorageContents();
 			boolean interactWithResultSlot = false;
+			System.out.println((gui instanceof AnvilGUI && slot <= gui.size() && slot == 2) + ":"+c.getSlot(2).allowModification(nPlayer)+":"+c);
 			if (gui instanceof AnvilGUI && slot < gui.size() && slot == 2)
 				if (c.getSlot(2).allowModification(nPlayer))
 					interactWithResultSlot = true;
@@ -1128,6 +1129,7 @@ public class v1_20_6 implements NmsProvider {
 			@SuppressWarnings("unchecked")
 			Map<Integer, ItemStack> modified = (Map<Integer, ItemStack>) result.getValue();
 			int remaining = (int) result.getKey();
+			System.out.println("rem "+remaining+"|"+interactWithResultSlot+"/"+slot);
 
 			if (!modified.isEmpty())
 				if (slot < gui.size()) {
@@ -1136,13 +1138,26 @@ public class v1_20_6 implements NmsProvider {
 								(net.minecraft.world.item.ItemStack) asNMSItem(modif.getValue()));
 					if (remaining == 0) {
 						c.getSlot(gameSlot).set((net.minecraft.world.item.ItemStack) asNMSItem(null));
+						if(isAnvilGui) {
+						gui.getInventory().setItem(gameSlot, null);
+						System.out.println("remove "+gameSlot);
+						}
 						if (interactWithResultSlot) {
 							c.getSlot(0).set((net.minecraft.world.item.ItemStack) asNMSItem(null));
 							c.getSlot(1).set((net.minecraft.world.item.ItemStack) asNMSItem(null));
+							if(isAnvilGui) {
+							gui.getInventory().setItem(0, null);
+							gui.getInventory().setItem(1, null);
+							System.out.println("remove items");
+							}
 						}
 					} else {
 						newItem.setAmount(remaining);
 						c.getSlot(gameSlot).set((net.minecraft.world.item.ItemStack) asNMSItem(newItem));
+						if(isAnvilGui) {
+						gui.getInventory().setItem(gameSlot, newItem);
+						System.out.println("modify "+gameSlot);
+						}
 					}
 				} else {
 					for (Entry<Integer, ItemStack> modif : modified.entrySet())

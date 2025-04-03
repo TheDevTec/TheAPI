@@ -38,9 +38,8 @@ public class AnvilGUI implements HolderGUI {
 
 	public AnvilGUI(String original, Player... p) {
 		title = ColorUtils.colorize(original);
-		if (Ref.isOlderThan(9) && title.length() >= 32) {
+		if (Ref.isOlderThan(9) && title.length() >= 32)
 			title = title.substring(0, 32);
-		}
 		titleComp = Component.fromString(title);
 		inv = Bukkit.createInventory(null, InventoryType.ANVIL, title);
 		open(p);
@@ -63,13 +62,15 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	@Override
-	public boolean onInteractItem(Player player, ItemStack newItem, ItemStack oldItem, ClickType type, int slot, boolean gui) {
+	public boolean onInteractItem(Player player, ItemStack newItem, ItemStack oldItem, ClickType type, int slot,
+			boolean gui) {
 		// When player move item
 		return false;
 	}
 
 	@Override
-	public void onMultipleIteract(Player player, Map<Integer, ItemStack> guiSlots, Map<Integer, ItemStack> playerSlots) {
+	public void onMultipleIteract(Player player, Map<Integer, ItemStack> guiSlots,
+			Map<Integer, ItemStack> playerSlots) {
 		// When player moves items using SHIFT key or holds an item and drags it across
 		// slots
 	}
@@ -97,12 +98,12 @@ public class AnvilGUI implements HolderGUI {
 	@Override
 	public final void setItem(int position, ItemGUI item) {
 		items.put(position, item);
-		if (position < size()) {
+		if (position < size())
 			inv.setItem(position, item.getItem());
-		}
-		if (position == 0) {
-			text = item.getItem() != null && item.getItem().hasItemMeta() && item.getItem().getItemMeta().hasDisplayName() ? item.getItem().getItemMeta().getDisplayName() : "";
-		}
+		if (position == 0)
+			text = item.getItem() != null && item.getItem().hasItemMeta()
+					&& item.getItem().getItemMeta().hasDisplayName() ? item.getItem().getItemMeta().getDisplayName()
+							: "";
 	}
 
 	/**
@@ -110,9 +111,8 @@ public class AnvilGUI implements HolderGUI {
 	 */
 	public final void removeItem(int position) {
 		items.remove(position);
-		if (position < size()) {
+		if (position < size())
 			inv.setItem(position, null);
-		}
 	}
 
 	/**
@@ -148,7 +148,8 @@ public class AnvilGUI implements HolderGUI {
 				menu.onClose(player);
 			}
 			Object container;
-			BukkitLoader.getNmsProvider().openAnvilGUI(player, container = BukkitLoader.getNmsProvider().createContainer(inv, player), titleComp);
+			BukkitLoader.getNmsProvider().openAnvilGUI(player,
+					container = BukkitLoader.getNmsProvider().createContainer(inv, player), titleComp);
 			containers.put(player, container);
 			JavaPlugin.getPlugin(BukkitLoader.class).gui.put(player.getUniqueId(), this);
 		}
@@ -166,21 +167,19 @@ public class AnvilGUI implements HolderGUI {
 	@Override
 	public final void setTitle(String newTitle) {
 		String value = ColorUtils.colorize(newTitle);
-		if (Ref.isOlderThan(9) && value.length() >= 32) {
+		if (Ref.isOlderThan(9) && value.length() >= 32)
 			value = value.substring(0, 32);
-		}
-		if (title.equals(value)) {
+		if (title.equals(value))
 			return;
-		}
 		title = value;
 		titleComp = Component.fromString(title);
 		for (Entry<Player, Object> entry : containers.entrySet()) {
-			BukkitLoader.getNmsProvider().setGUITitle(entry.getKey(), entry.getValue(), "minecraft:anvil", 0, titleComp);
-			for (int i = 0; i < 3; ++i) {
-				if (items.get(i) != null) {
-					BukkitLoader.getNmsProvider().setSlot(entry.getValue(), i, BukkitLoader.getNmsProvider().asNMSItem(items.get(i).getItem()));
-				}
-			}
+			BukkitLoader.getNmsProvider().setGUITitle(entry.getKey(), entry.getValue(), "minecraft:anvil", 0,
+					titleComp);
+			for (int i = 0; i < 3; ++i)
+				if (items.get(i) != null)
+					BukkitLoader.getNmsProvider().setSlot(entry.getValue(), i,
+							BukkitLoader.getNmsProvider().asNMSItem(items.get(i).getItem()));
 		}
 	}
 
@@ -234,18 +233,15 @@ public class AnvilGUI implements HolderGUI {
 	 */
 	@Override
 	public final void close(Player... players) {
-		if (players == null) {
+		if (players == null)
 			return;
-		}
 		for (Player player : players) {
-			if (player == null) {
+			if (player == null)
 				continue;
-			}
 			onPreClose(player);
 			Object container = containers.remove(player);
-			if (container != null) {
+			if (container != null)
 				BukkitLoader.getNmsProvider().closeGUI(player, container, true);
-			}
 			JavaPlugin.getPlugin(BukkitLoader.class).gui.remove(player.getUniqueId());
 			onClose(player);
 		}
@@ -253,18 +249,15 @@ public class AnvilGUI implements HolderGUI {
 
 	@Override
 	public void closeWithoutPacket(Player... p) {
-		if (p == null) {
+		if (p == null)
 			return;
-		}
 		for (Player player : p) {
-			if (player == null) {
+			if (player == null)
 				continue;
-			}
 			onPreClose(player);
 			Object ac = containers.remove(player);
-			if (ac != null) {
+			if (ac != null)
 				BukkitLoader.getNmsProvider().closeGUI(player, ac, false);
-			}
 			JavaPlugin.getPlugin(BukkitLoader.class).gui.remove(player.getUniqueId());
 			onClose(player);
 		}
@@ -273,10 +266,10 @@ public class AnvilGUI implements HolderGUI {
 	@Override
 	public final String toString() {
 		StringContainer items = new StringContainer(128);
-		items.append("[AnvilGUI:Title:").append(title).append('/').append("Insertable:").append(put + "").append('/').append("Size:").append(3);
-		for (Entry<Integer, ItemGUI> g : getItemGUIs().entrySet()) {
+		items.append("[AnvilGUI:Title:").append(title).append('/').append("Insertable:").append(put + "").append('/')
+				.append("Size:").append(3);
+		for (Entry<Integer, ItemGUI> g : getItemGUIs().entrySet())
 			items.append('/').append(g.getKey()).append(':').append(g.getValue().toString());
-		}
 		return items.append(']').toString();
 	}
 
@@ -292,16 +285,14 @@ public class AnvilGUI implements HolderGUI {
 
 	public void setRepairText(String text) {
 		this.text = text;
-		for (Object container : containers.values()) {
+		for (Object container : containers.values())
 			if (Ref.isNewerThan(16)) {
-				for (int i = 0; i < 2; ++i) {
-					BukkitLoader.getNmsProvider().setSlot(container, i, BukkitLoader.getNmsProvider().getSlotItem(container, i));
-				}
+				for (int i = 0; i < 2; ++i)
+					BukkitLoader.getNmsProvider().setSlot(container, i,
+							BukkitLoader.getNmsProvider().getSlotItem(container, i));
 				Ref.invoke(container, BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "setItemName" : "a", text);
-			} else {
+			} else
 				Ref.invoke(container, "a", text);
-			}
-		}
 	}
 
 	/**
@@ -310,21 +301,17 @@ public class AnvilGUI implements HolderGUI {
 	@Override
 	public List<Integer> getNotInterableSlots(Player player) {
 		List<Integer> list = new ArrayList<>();
-		if (isInsertable()) {
+		if (isInsertable())
 			for (int i = 0; i < size(); ++i) {
 				ItemGUI item = items.get(i);
-				if (item != null && item.isUnstealable()) {
+				if (item != null && item.isUnstealable())
 					list.add(i);
-				}
 			}
-		} else {
-			for (int i = 0; i < size(); ++i) {
+		else
+			for (int i = 0; i < size(); ++i)
 				list.add(i);
-			}
-		}
-		if (!list.contains(2)) {
+		if (!list.contains(2))
 			list.add(2);
-		}
 		return list;
 	}
 }
