@@ -67,7 +67,6 @@ import me.devtec.theapi.bukkit.nms.utils.InventoryUtils.DestinationType;
 import me.devtec.theapi.bukkit.packetlistener.PacketContainer;
 import me.devtec.theapi.bukkit.xseries.XMaterial;
 import net.minecraft.ChatFormatting;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder.Reference;
@@ -127,12 +126,12 @@ import net.minecraft.world.scores.DisplaySlot;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.core.RegistryAccess;
 
 public class v1_20_6 implements NmsProvider {
 	private static final MinecraftServer server = MinecraftServer.getServer();
 	private static final net.minecraft.network.chat.Component empty = net.minecraft.network.chat.Component.literal("");
-	private static final CommandBuildContext dispatcher = Commands
-			.createValidationContext(VanillaRegistries.createLookup());
+	private static final RegistryAccess dispatcher = server.registryAccess();
 
 	@Override
 	public Collection<? extends Player> getOnlinePlayers() {
@@ -700,6 +699,7 @@ public class v1_20_6 implements NmsProvider {
 
 		net.minecraft.world.level.block.state.BlockState iblock = IblockData == null ? Blocks.AIR.defaultBlockState()
 				: (net.minecraft.world.level.block.state.BlockState) IblockData;
+        if (sc.hasOnlyAir() && iblock.isAir())return;
 
 		boolean onlyModifyState = iblock.getBlock() instanceof EntityBlock;
 
@@ -716,27 +716,30 @@ public class v1_20_6 implements NmsProvider {
 			if (!shouldSkip)
 				chunk.removeBlockEntity(pos);
 		}
-
+        
+        
 		net.minecraft.world.level.block.state.BlockState old = sc.setBlockState(x & 15, y & 15, z & 15, iblock, false);
+        
+    	if(!old.equals(iblock)){
+            // ADD TILE ENTITY
+            if (iblock.getBlock() instanceof EntityBlock && !onlyModifyState) {
+                ent = ((EntityBlock) iblock.getBlock()).newBlockEntity(pos, iblock);
+                chunk.blockEntities.put(pos, ent);
+                ent.setLevel(world);
+                Object packet = ent.getUpdatePacket();
+                BukkitLoader.getPacketHandler().send(chunk.level.getWorld().getPlayers(), packet);
+            }
 
-		// ADD TILE ENTITY
-		if (iblock.getBlock() instanceof EntityBlock && !onlyModifyState) {
-			ent = ((EntityBlock) iblock.getBlock()).newBlockEntity(pos, iblock);
-			chunk.blockEntities.put(pos, ent);
-			ent.setLevel(world);
-			Object packet = ent.getUpdatePacket();
-			BukkitLoader.getPacketHandler().send(chunk.level.getWorld().getPlayers(), packet);
-		}
+            // MARK CHUNK TO SAVE
+            if (modernPaper)
+                Ref.invoke(chunk, markUnsaved);
+            else
+                Ref.invoke(chunk, markUnsaved, true);
 
-		// MARK CHUNK TO SAVE
-		if (modernPaper)
-			Ref.invoke(chunk, markUnsaved);
-		else
-			Ref.invoke(chunk, markUnsaved, true);
-
-		// POI
-		if (!world.preventPoiUpdated)
-			world.onBlockStateChange(pos, old, iblock);
+            // POI
+            if (!world.preventPoiUpdated)
+                world.onBlockStateChange(pos, old, iblock);
+        }
 	}
 
 	@Override

@@ -71,8 +71,10 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 		else
 			serverConnection = Ref.get(BukkitLoader.getNmsProvider().getMinecraftServer(),
 					Ref.nms("server.network", "ServerConnection"));
-		if (serverConnection == null)
+		if (serverConnection == null) {
+			System.out.println("Not found server con");
 			return;
+		}
 		if (lateBind) {
 			String hasTicked = "ac";
 			switch (Ref.serverVersionInt()) {
@@ -199,8 +201,10 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 						break;
 					}
 		}
-		if (networkManagers == null)
+		if (networkManagers == null) {
+			System.out.println("Not found network man");
 			return;
+		}
 		createServerChannelHandler();
 		for (Object item : networkManagers) {
 			if (!(item instanceof ChannelFuture))
