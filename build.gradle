@@ -21,7 +21,7 @@ allprojects {
 }
 
 dependencies {
-    implementation 'com.github.TheDevTec:TheAPI-Shared:a6723b97c6'
+    implementation 'com.github.TheDevTec:TheAPI-Shared:1f6f5e9b1d'
 }
 
 subprojects {
