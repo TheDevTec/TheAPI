@@ -928,6 +928,7 @@ public class v1_20_2 implements NmsProvider {
 						new ClientboundContainerSetSlotPacket(id, getContainerStateId(container), slot, item));
 			++slot;
 		}
+	    BukkitLoader.getPacketHandler().send(player, new ClientboundContainerSetContentPacket(id, getContainerStateId(container), ((AbstractContainerMenu) container).remoteSlots, ((AbstractContainerMenu) container).getCarried()));
 	}
 
 	@Override
@@ -1082,6 +1083,8 @@ public class v1_20_2 implements NmsProvider {
 		// MOUSE
 		int statusId = c.getStateId();
 		BukkitLoader.getPacketHandler().send(player, packetSetSlot(-1, -1, statusId, c.getCarried()));
+		BukkitLoader.getPacketHandler().send(player,
+				new ClientboundContainerSetContentPacket(id, statusId, c.remoteSlots, c.getCarried()));
 		switch (type) {
 		case CLONE:
 			break;

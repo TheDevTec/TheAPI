@@ -925,6 +925,7 @@ public class v1_20_6 implements NmsProvider {
 						new ClientboundContainerSetSlotPacket(id, getContainerStateId(container), slot, item));
 			++slot;
 		}
+        BukkitLoader.getPacketHandler().send(player, new ClientboundContainerSetContentPacket(id, getContainerStateId(container), ((AbstractContainerMenu) container).remoteSlots, ((AbstractContainerMenu) container).getCarried()));
 	}
 
 	@Override
@@ -1047,6 +1048,7 @@ public class v1_20_6 implements NmsProvider {
 			oldItem = slot <= -1 ? new ItemStack(Material.AIR) : asBukkitItem(packet.getCarriedItem());
 			break;
 		}
+		int statusId = c.getStateId();
 
 		if (oldItem.getType() == Material.AIR && newItem.getType() == Material.AIR)
 			return true;
@@ -1077,8 +1079,9 @@ public class v1_20_6 implements NmsProvider {
 			return true;
 		}
 		// MOUSE
-		int statusId = c.getStateId();
-		BukkitLoader.getPacketHandler().send(player, packetSetSlot(-1, -1, statusId, c.getCarried()));
+        BukkitLoader.getPacketHandler().send(player, new ClientboundContainerSetSlotPacket(-1, statusId, -1, c.getCarried()));
+        BukkitLoader.getPacketHandler().send(player, new ClientboundContainerSetContentPacket(id, statusId, c.remoteSlots, c.getCarried()));
+                    
 		switch (type) {
 		case CLONE:
 			break;
@@ -1158,7 +1161,6 @@ public class v1_20_6 implements NmsProvider {
 								(net.minecraft.world.item.ItemStack) asNMSItem(newItem));
 					}
 				}
-			c.resumeRemoteUpdates();
 			if (gui instanceof AnvilGUI) {
 				int index = 0;
 				for (int i = 0; i < 3; ++i) {
@@ -1168,10 +1170,10 @@ public class v1_20_6 implements NmsProvider {
 				}
 			}
 			nPlayer.inventoryMenu.setCarried(c.getCarried());
+			c.resumeRemoteUpdates();
 			return;
 		}
 		processClick(gui, gui.getNotInterableSlots(player), c, slot, mouseClick, type, nPlayer);
-		c.resumeRemoteUpdates();
 		if (gui instanceof AnvilGUI) {
 			int index = 0;
 			for (int i = 0; i < 3; ++i) {
@@ -1181,6 +1183,7 @@ public class v1_20_6 implements NmsProvider {
 			}
 			nPlayer.inventoryMenu.setCarried(c.getCarried());
 		}
+		c.resumeRemoteUpdates();
 	}
 
 	private final Method onSwap = Ref.method(Slot.class, "onSwapCraft", int.class);
