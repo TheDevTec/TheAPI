@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+}
+
+group = 'me.devtec.theapi.nmsproviders'
+version = '13.5.8'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url = 'https://repo.papermc.io/repository/maven-public/' }
+}
+
+dependencies {
+    compileOnly files("$projectDir/lib/paper-1.20.4.jar")
+
+    compileOnly 'net.kyori:adventure-api:4.17.0'
+    compileOnly 'org.spigotmc:spigot-api:1.21-R0.1-SNAPSHOT'
+    compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.5.8'
+    compileOnly 'com.github.TheDevTec:TheAPI-Shared:13.5.8'
+    compileOnly 'it.unimi.dsi:fastutil:8.5.12'
+
+    compileOnly 'com.google.guava:guava:33.2.1-jre'
+    compileOnly 'com.mojang:authlib:6.0.54'
+    compileOnly 'com.mojang:brigadier:1.2.9'
+    compileOnly 'com.mojang:datafixerupper:8.0.16'
+    compileOnly 'io.netty:netty-transport:4.1.112.Final'
+}
+
+java {
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+task buildJar(type: Jar) {
+    from sourceSets.main.output
+    archiveFileName = "NmsProvider.jar"
+    destinationDirectory.set(file("/build"))
+}
+
+tasks.build.dependsOn buildJar

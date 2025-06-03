@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'me.devtec.theapi.nmsproviders'
-version = '13.5.7'
+version = '13.5.8'
 
 repositories {
     mavenCentral()
@@ -17,8 +17,8 @@ dependencies {
 
     compileOnly 'net.kyori:adventure-api:4.17.0'
     compileOnly 'org.spigotmc:spigot-api:1.21-R0.1-SNAPSHOT'
-    compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.5.5'
-    compileOnly 'com.github.TheDevTec:TheAPI-Shared:13.5.7'
+    compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.5.8'
+    compileOnly 'com.github.TheDevTec:TheAPI-Shared:13.5.8'
     compileOnly 'it.unimi.dsi:fastutil:8.5.12'
 
     compileOnly 'com.google.guava:guava:33.2.1-jre'
