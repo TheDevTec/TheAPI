@@ -163,20 +163,10 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			if (new File("spigot.yml").exists() && Config.loadFromString(StreamUtils.fromStream(new File("spigot.yml")))
 					.getBoolean("settings.late-bind"))
 				new Thread(() -> { // ASYNC
-					if (Ref.isNewerThan(7))
-						handler = new PacketHandlerModern(true);
-					else
-						handler = (PacketHandler<?>) Ref.newInstance(Ref.constructor(
-								Ref.getClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy"),
-								boolean.class), true);
+					handler = new PacketHandlerModern(false);
 				}).start();
-			else if (Ref.isNewerThan(7))
-				handler = new PacketHandlerModern(false);
 			else
-				handler = (PacketHandler<?>) Ref.newInstance(
-						Ref.constructor(Ref.getClass("me.devtec.theapi.bukkit.packetlistener.PacketHandlerLegacy"),
-								boolean.class),
-						false);
+				handler = new PacketHandlerModern(false);
 		if (handler == null) {
 			Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize("&7>"));
 			Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize("&7> &4Error! &eFailed to load PacketHandler."));

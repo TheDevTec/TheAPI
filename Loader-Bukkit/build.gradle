@@ -29,5 +29,4 @@ dependencies {
     implementation 'io.netty:netty-transport:4.1.112.Final'
     implementation 'com.google.guava:guava:33.2.1-jre'
     implementation 'org.projectlombok:lombok:1.18.36'
-    implementation project(':Loader-Bukkit-Legacy')
 }
