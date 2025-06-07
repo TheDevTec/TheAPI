@@ -2,7 +2,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
@@ -927,7 +926,6 @@ public class v1_20 implements NmsProvider {
 						new ClientboundContainerSetSlotPacket(id, getContainerStateId(container), slot, item));
 			++slot;
 		}
-	    BukkitLoader.getPacketHandler().send(player, new ClientboundContainerSetContentPacket(id, getContainerStateId(container), ((AbstractContainerMenu) container).remoteSlots, ((AbstractContainerMenu) container).getCarried()));
 	}
 
 	@Override
@@ -1807,21 +1805,9 @@ public class v1_20 implements NmsProvider {
 		return packet;
 	}
 
-	static Constructor<?> packetPos = Ref.constructor(ServerboundMovePlayerPacket.PosRot.class, double.class,
-			double.class, double.class, float.class, float.class, boolean.class);
-	static boolean packetPosPaper;
-	static {
-		if (packetPos == null) {
-			packetPosPaper = true;
-			packetPos = Ref.constructor(ServerboundMovePlayerPacket.PosRot.class, double.class, double.class,
-					double.class, float.class, float.class, boolean.class, boolean.class);
-		}
-	}
-
 	@Override
 	public Object packetPosition(double x, double y, double z, float yaw, float pitch) {
-		return packetPosPaper ? Ref.newInstance(packetPos, x, y, z, yaw, pitch, true, false)
-				: Ref.newInstance(packetPos, x, y, z, yaw, pitch, true);
+		return new ServerboundMovePlayerPacket.PosRot(x, y, z, yaw, pitch, true);
 	}
 
 	@Override
@@ -1836,7 +1822,7 @@ public class v1_20 implements NmsProvider {
 
 	@Override
 	public String getProviderName() {
-		return "PaperMC (1.20) " + Ref.invoke(Bukkit.getServer(), "getMinecraftVersion");
+		return "PaperMC (1.20) " + Bukkit.getServer().getMinecraftVersion();
 	}
 
 	@Override

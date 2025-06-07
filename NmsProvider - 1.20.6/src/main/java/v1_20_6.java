@@ -1826,21 +1826,9 @@ public class v1_20_6 implements NmsProvider {
 		return new ClientboundPlayerInfoUpdatePacket(set, list);
 	}
 
-	static Constructor<?> packetPos = Ref.constructor(ServerboundMovePlayerPacket.PosRot.class, double.class,
-			double.class, double.class, float.class, float.class, boolean.class);
-	static boolean packetPosPaper;
-	static {
-		if (packetPos == null) {
-			packetPosPaper = true;
-			packetPos = Ref.constructor(ServerboundMovePlayerPacket.PosRot.class, double.class, double.class,
-					double.class, float.class, float.class, boolean.class, boolean.class);
-		}
-	}
-
 	@Override
 	public Object packetPosition(double x, double y, double z, float yaw, float pitch) {
-		return packetPosPaper ? Ref.newInstance(packetPos, x, y, z, yaw, pitch, true, false)
-				: Ref.newInstance(packetPos, x, y, z, yaw, pitch, true);
+		return new ServerboundMovePlayerPacket.PosRot(x, y, z, yaw, pitch, true);
 	}
 
 	@Override
@@ -1851,7 +1839,7 @@ public class v1_20_6 implements NmsProvider {
 
 	@Override
 	public String getProviderName() {
-		return "PaperMC (1.20.6) " + Ref.invoke(Bukkit.getServer(), "getMinecraftVersion");
+		return "PaperMC (1.20.6) " + Bukkit.getServer().getMinecraftVersion();
 	}
 
 	@Override

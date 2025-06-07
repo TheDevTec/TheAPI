@@ -1,0 +1,35 @@
+plugins {
+    id 'java'
+}
+
+group = 'me.devtec.theapi.nmsproviders'
+version = '13.5.8'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    compileOnly files("$projectDir/lib/paper-1.17.1.jar")
+
+    compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.5.8'
+    compileOnly 'com.github.TheDevTec:TheAPI-Shared:13.5.8'
+}
+
+java {
+    sourceCompatibility = '16'
+    targetCompatibility = '16'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+task buildJar(type: Jar) {
+    from sourceSets.main.output
+    archiveFileName = "NmsProvider.jar"
+    destinationDirectory.set(file("/build"))
+}
+
+tasks.build.dependsOn buildJar

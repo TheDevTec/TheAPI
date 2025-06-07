@@ -2,14 +2,18 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import me.devtec.theapi.bukkit.nms.GameProfileHandler;
-import me.devtec.theapi.bukkit.nms.NBTEdit;
-import me.devtec.theapi.bukkit.nms.NmsProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
@@ -55,98 +59,32 @@ import me.devtec.theapi.bukkit.game.particles.Particle;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
+import me.devtec.theapi.bukkit.nms.GameProfileHandler;
 import me.devtec.theapi.bukkit.nms.GameProfileHandler.PropertyHandler;
+import me.devtec.theapi.bukkit.nms.NBTEdit;
+import me.devtec.theapi.bukkit.nms.NmsProvider;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils;
 import me.devtec.theapi.bukkit.nms.utils.InventoryUtils.DestinationType;
-import net.minecraft.server.v1_12_R1.Block;
-import net.minecraft.server.v1_12_R1.BlockFalling;
-import net.minecraft.server.v1_12_R1.BlockPosition;
-import net.minecraft.server.v1_12_R1.BlockStateList;
-import net.minecraft.server.v1_12_R1.Blocks;
-import net.minecraft.server.v1_12_R1.ChatClickable;
+import net.minecraft.server.v1_12_R1.*;
 import net.minecraft.server.v1_12_R1.ChatClickable.EnumClickAction;
-import net.minecraft.server.v1_12_R1.ChatComponentText;
-import net.minecraft.server.v1_12_R1.ChatHoverable;
 import net.minecraft.server.v1_12_R1.ChatHoverable.EnumHoverAction;
-import net.minecraft.server.v1_12_R1.ChatMessageType;
-import net.minecraft.server.v1_12_R1.ChatModifier;
 import net.minecraft.server.v1_12_R1.Chunk.EnumTileEntityState;
-import net.minecraft.server.v1_12_R1.ChunkCoordIntPair;
-import net.minecraft.server.v1_12_R1.ChunkProviderServer;
-import net.minecraft.server.v1_12_R1.ChunkRegionLoader;
-import net.minecraft.server.v1_12_R1.ChunkSection;
-import net.minecraft.server.v1_12_R1.Container;
-import net.minecraft.server.v1_12_R1.ContainerAnvil;
-import net.minecraft.server.v1_12_R1.EntityHuman;
-import net.minecraft.server.v1_12_R1.EntityLiving;
-import net.minecraft.server.v1_12_R1.EntityPlayer;
-import net.minecraft.server.v1_12_R1.EnumChatFormat;
-import net.minecraft.server.v1_12_R1.EnumGamemode;
-import net.minecraft.server.v1_12_R1.EnumParticle;
-import net.minecraft.server.v1_12_R1.IBlockData;
-import net.minecraft.server.v1_12_R1.IBlockState;
-import net.minecraft.server.v1_12_R1.IChatBaseComponent;
-import net.minecraft.server.v1_12_R1.IChunkLoader;
 import net.minecraft.server.v1_12_R1.IScoreboardCriteria.EnumScoreboardHealthDisplay;
-import net.minecraft.server.v1_12_R1.ITileEntity;
-import net.minecraft.server.v1_12_R1.IntHashMap;
-import net.minecraft.server.v1_12_R1.InventoryClickType;
-import net.minecraft.server.v1_12_R1.Item;
-import net.minecraft.server.v1_12_R1.MathHelper;
-import net.minecraft.server.v1_12_R1.MinecraftServer;
-import net.minecraft.server.v1_12_R1.MojangsonParser;
-import net.minecraft.server.v1_12_R1.NBTBase;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
-import net.minecraft.server.v1_12_R1.NetworkManager;
-import net.minecraft.server.v1_12_R1.NonNullList;
-import net.minecraft.server.v1_12_R1.PacketPlayInWindowClick;
-import net.minecraft.server.v1_12_R1.PacketPlayOutBlockChange;
-import net.minecraft.server.v1_12_R1.PacketPlayOutChat;
-import net.minecraft.server.v1_12_R1.PacketPlayOutCloseWindow;
-import net.minecraft.server.v1_12_R1.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_12_R1.PacketPlayOutEntityHeadRotation;
-import net.minecraft.server.v1_12_R1.PacketPlayOutEntityMetadata;
-import net.minecraft.server.v1_12_R1.PacketPlayOutExperience;
-import net.minecraft.server.v1_12_R1.PacketPlayOutHeldItemSlot;
-import net.minecraft.server.v1_12_R1.PacketPlayOutNamedEntitySpawn;
-import net.minecraft.server.v1_12_R1.PacketPlayOutOpenWindow;
-import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo;
 import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo.EnumPlayerInfoAction;
-import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerListHeaderFooter;
-import net.minecraft.server.v1_12_R1.PacketPlayOutPosition;
-import net.minecraft.server.v1_12_R1.PacketPlayOutResourcePackSend;
-import net.minecraft.server.v1_12_R1.PacketPlayOutRespawn;
-import net.minecraft.server.v1_12_R1.PacketPlayOutScoreboardDisplayObjective;
-import net.minecraft.server.v1_12_R1.PacketPlayOutScoreboardObjective;
-import net.minecraft.server.v1_12_R1.PacketPlayOutScoreboardScore;
 import net.minecraft.server.v1_12_R1.PacketPlayOutScoreboardScore.EnumScoreboardAction;
-import net.minecraft.server.v1_12_R1.PacketPlayOutScoreboardTeam;
-import net.minecraft.server.v1_12_R1.PacketPlayOutSetSlot;
-import net.minecraft.server.v1_12_R1.PacketPlayOutSpawnEntity;
-import net.minecraft.server.v1_12_R1.PacketPlayOutSpawnEntityLiving;
-import net.minecraft.server.v1_12_R1.PacketPlayOutTitle;
 import net.minecraft.server.v1_12_R1.PacketPlayOutTitle.EnumTitleAction;
-import net.minecraft.server.v1_12_R1.PacketPlayOutTransaction;
-import net.minecraft.server.v1_12_R1.PacketStatusOutServerInfo;
-import net.minecraft.server.v1_12_R1.PlayerConnection;
-import net.minecraft.server.v1_12_R1.PlayerInventory;
-import net.minecraft.server.v1_12_R1.ScoreboardObjective;
-import net.minecraft.server.v1_12_R1.ServerPing;
 import net.minecraft.server.v1_12_R1.ServerPing.ServerData;
 import net.minecraft.server.v1_12_R1.ServerPing.ServerPingPlayerSample;
-import net.minecraft.server.v1_12_R1.Slot;
-import net.minecraft.server.v1_12_R1.TileEntity;
-import net.minecraft.server.v1_12_R1.WorldServer;
 
 public class v1_12_R1 implements NmsProvider {
 	private final MinecraftServer server = MinecraftServer.getServer();
 	private static final Field pos = Ref.field(PacketPlayOutBlockChange.class, "a");
 	private static final Field a = Ref.field(PacketPlayOutPlayerListHeaderFooter.class, "a");
-    private static final Field b = Ref.field(PacketPlayOutPlayerListHeaderFooter.class, "b");
+	private static final Field b = Ref.field(PacketPlayOutPlayerListHeaderFooter.class, "b");
 	private static final Field score_a = Ref.field(PacketPlayOutScoreboardScore.class, "a");
-    private static final Field score_b = Ref.field(PacketPlayOutScoreboardScore.class, "b");
-    private static final Field score_c = Ref.field(PacketPlayOutScoreboardScore.class, "c");
-    private static final Field score_d = Ref.field(PacketPlayOutScoreboardScore.class, "d");
+	private static final Field score_b = Ref.field(PacketPlayOutScoreboardScore.class, "b");
+	private static final Field score_c = Ref.field(PacketPlayOutScoreboardScore.class, "c");
+	private static final Field score_d = Ref.field(PacketPlayOutScoreboardScore.class, "d");
 	private static final IChatBaseComponent empty = new ChatComponentText("");
 
 	@Override
@@ -226,7 +164,8 @@ public class v1_12_R1 implements NmsProvider {
 
 	@Override
 	public ItemStack asBukkitItem(Object stack) {
-		return CraftItemStack.asBukkitCopy(stack == null ? net.minecraft.server.v1_12_R1.ItemStack.a : (net.minecraft.server.v1_12_R1.ItemStack) stack);
+		return CraftItemStack.asBukkitCopy(stack == null ? net.minecraft.server.v1_12_R1.ItemStack.a
+				: (net.minecraft.server.v1_12_R1.ItemStack) stack);
 	}
 
 	@Override
@@ -246,7 +185,8 @@ public class v1_12_R1 implements NmsProvider {
 
 	@Override
 	public Object packetSetSlot(int container, int slot, int stateId, Object itemStack) {
-		return new PacketPlayOutSetSlot(container, slot, (net.minecraft.server.v1_12_R1.ItemStack) (itemStack == null ? asNMSItem(null) : itemStack));
+		return new PacketPlayOutSetSlot(container, slot,
+				(net.minecraft.server.v1_12_R1.ItemStack) (itemStack == null ? asNMSItem(null) : itemStack));
 	}
 
 	public Object packetSetSlot(int container, int slot, Object itemStack) {
@@ -307,7 +247,8 @@ public class v1_12_R1 implements NmsProvider {
 
 	@Override
 	public Object packetScoreboardDisplayObjective(int id, Object scoreboardObjective) {
-		return new PacketPlayOutScoreboardDisplayObjective(id, scoreboardObjective == null ? null : (ScoreboardObjective) scoreboardObjective);
+		return new PacketPlayOutScoreboardDisplayObjective(id,
+				scoreboardObjective == null ? null : (ScoreboardObjective) scoreboardObjective);
 	}
 
 	@Override
@@ -332,7 +273,8 @@ public class v1_12_R1 implements NmsProvider {
 
 	@Override
 	public Object packetTitle(TitleAction action, Component text, int fadeIn, int stay, int fadeOut) {
-		return new PacketPlayOutTitle(EnumTitleAction.valueOf(action.name()), (IChatBaseComponent) this.toIChatBaseComponent(text), fadeIn, stay, fadeOut);
+		return new PacketPlayOutTitle(EnumTitleAction.valueOf(action.name()),
+				(IChatBaseComponent) this.toIChatBaseComponent(text), fadeIn, stay, fadeOut);
 	}
 
 	@Override
@@ -371,16 +313,19 @@ public class v1_12_R1 implements NmsProvider {
 		if (c.getColor() != null)
 			modif.setColor(EnumChatFormat.valueOf(c.getColor().toUpperCase()));
 		if (c.getClickEvent() != null)
-			modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()), c.getClickEvent().getValue()));
+			modif.setChatClickable(new ChatClickable(EnumClickAction.valueOf(c.getClickEvent().getAction().name()),
+					c.getClickEvent().getValue()));
 		if (c.getHoverEvent() != null)
 			switch (c.getHoverEvent().getAction()) {
 			case SHOW_ITEM:
 			case SHOW_ENTITY:
-				modif = modif
-						.setChatHoverable(new ChatHoverable(EnumHoverAction.SHOW_ENTITY, IChatBaseComponent.ChatSerializer.b(Json.writer().simpleWrite(c.getHoverEvent().getValue().toJsonMap()))));
+				modif = modif.setChatHoverable(
+						new ChatHoverable(EnumHoverAction.SHOW_ENTITY, IChatBaseComponent.ChatSerializer
+								.b(Json.writer().simpleWrite(c.getHoverEvent().getValue().toJsonMap()))));
 				break;
 			default:
-				modif = modif.setChatHoverable(new ChatHoverable(EnumHoverAction.SHOW_TEXT, (IChatBaseComponent) this.toIChatBaseComponent(c.getHoverEvent().getValue())));
+				modif = modif.setChatHoverable(new ChatHoverable(EnumHoverAction.SHOW_TEXT,
+						(IChatBaseComponent) this.toIChatBaseComponent(c.getHoverEvent().getValue())));
 				break;
 			}
 		modif.setBold(c.isBold());
@@ -426,7 +371,8 @@ public class v1_12_R1 implements NmsProvider {
 		if (co == null)
 			return new IChatBaseComponent[] { empty };
 		if (co instanceof ComponentItem || co instanceof ComponentEntity)
-			return new IChatBaseComponent[] { IChatBaseComponent.ChatSerializer.b(Json.writer().simpleWrite(co.toJsonMap())) };
+			return new IChatBaseComponent[] {
+					IChatBaseComponent.ChatSerializer.b(Json.writer().simpleWrite(co.toJsonMap())) };
 		List<IChatBaseComponent> chat = new ArrayList<>();
 		chat.add(new ChatComponentText(""));
 		if (co.getText() != null && !co.getText().isEmpty())
@@ -506,13 +452,15 @@ public class v1_12_R1 implements NmsProvider {
 			case SHOW_ENTITY: {
 				ComponentEntity compEntity = ComponentEntity.fromJson(modif.i().b().getText());
 				if (compEntity != null)
-					comp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ENTITY, ComponentItem.fromJson(modif.i().b().getText())));
+					comp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ENTITY,
+							ComponentItem.fromJson(modif.i().b().getText())));
 				break;
 			}
 			case SHOW_ITEM:
 				ComponentItem compEntity = ComponentItem.fromJson(modif.i().b().getText());
 				if (compEntity != null)
-					comp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, ComponentItem.fromJson(modif.i().b().getText())));
+					comp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM,
+							ComponentItem.fromJson(modif.i().b().getText())));
 				break;
 			default:
 				comp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, fromIChatBaseComponent(modif.i().b())));
@@ -646,7 +594,8 @@ public class v1_12_R1 implements NmsProvider {
 	@Override
 	public Object getChunk(World world, int x, int z) {
 		WorldServer sworld = ((CraftWorld) world).getHandle();
-		net.minecraft.server.v1_12_R1.Chunk loaded = ((ChunkProviderServer) sworld.getChunkProvider()).getChunkIfLoaded(x, z);
+		net.minecraft.server.v1_12_R1.Chunk loaded = ((ChunkProviderServer) sworld.getChunkProvider())
+				.getChunkIfLoaded(x, z);
 		if (loaded == null)
 			try {
 				net.minecraft.server.v1_12_R1.Chunk chunk;
@@ -654,7 +603,8 @@ public class v1_12_R1 implements NmsProvider {
 				if (chunk != null) {
 					chunk.setLastSaved(sworld.getTime());
 					if (((ChunkProviderServer) sworld.getChunkProvider()).chunkGenerator != null)
-						((ChunkProviderServer) sworld.getChunkProvider()).chunkGenerator.recreateStructures(chunk, x, z);
+						((ChunkProviderServer) sworld.getChunkProvider()).chunkGenerator.recreateStructures(chunk, x,
+								z);
 				}
 				if (chunk != null) {
 					((ChunkProviderServer) sworld.getChunkProvider()).chunks.put(ChunkCoordIntPair.a(x, z), chunk);
@@ -669,10 +619,11 @@ public class v1_12_R1 implements NmsProvider {
 				loader = (ChunkRegionLoader) Ref.get(sworld.getChunkProvider(), chunkLoader);
 
 			if (loader != null && loader.chunkExists(x, z))
-				loaded = ChunkIOExecutor.syncChunkLoad(sworld, loader, (ChunkProviderServer) sworld.getChunkProvider(), x, z);
+				loaded = ChunkIOExecutor.syncChunkLoad(sworld, loader, (ChunkProviderServer) sworld.getChunkProvider(),
+						x, z);
 			else
 				loaded = ((ChunkProviderServer) sworld.getChunkProvider()).originalGetChunkAt(x, z);
-			if(loaded==null)
+			if (loaded == null)
 				loaded = ((ChunkProviderServer) sworld.getChunkProvider()).chunkGenerator.getOrCreateChunk(x, z);
 			((ChunkProviderServer) sworld.getChunkProvider()).chunks.put(ChunkCoordIntPair.a(x, z), loaded);
 		}
@@ -707,9 +658,9 @@ public class v1_12_R1 implements NmsProvider {
 			if (!shouldSkip) {
 				ent.z();
 				chunk.world.capturedTileEntities.remove(pos);
-				if (chunk.world.captureBlockStates) {
-                    chunk.world.capturedBlockStates.removeIf(state -> state.getX() == pos.getX() && state.getY() == pos.getY() && state.getZ() == pos.getZ());
-				}
+				if (chunk.world.captureBlockStates)
+					chunk.world.capturedBlockStates.removeIf(state -> state.getX() == pos.getX()
+							&& state.getY() == pos.getY() && state.getZ() == pos.getZ());
 			}
 		}
 
@@ -850,7 +801,8 @@ public class v1_12_R1 implements NmsProvider {
 	@Override
 	public void closeGUI(Player player, Object container, boolean closePacket) {
 		if (closePacket)
-			BukkitLoader.getPacketHandler().send(player, new PacketPlayOutCloseWindow(BukkitLoader.getNmsProvider().getContainerId(container)));
+			BukkitLoader.getPacketHandler().send(player,
+					new PacketPlayOutCloseWindow(BukkitLoader.getNmsProvider().getContainerId(container)));
 		EntityPlayer nmsPlayer = (EntityPlayer) getPlayer(player);
 		nmsPlayer.activeContainer = nmsPlayer.defaultContainer;
 		((Container) container).transferTo(nmsPlayer.activeContainer, (CraftPlayer) player);
@@ -898,7 +850,8 @@ public class v1_12_R1 implements NmsProvider {
 	public Object createContainer(Inventory inv, Player player) {
 		if (inv.getType() == InventoryType.ANVIL) {
 			int id = ((CraftPlayer) player).getHandle().nextContainerCounter();
-			ContainerAnvil container = new ContainerAnvil(((CraftPlayer) player).getHandle().inventory, ((CraftWorld) player.getWorld()).getHandle(), zero, ((CraftPlayer) player).getHandle());
+			ContainerAnvil container = new ContainerAnvil(((CraftPlayer) player).getHandle().inventory,
+					((CraftWorld) player.getWorld()).getHandle(), zero, ((CraftPlayer) player).getHandle());
 			container.windowId = id;
 			postToMainThread(() -> {
 				int slot = 0;
@@ -908,7 +861,8 @@ public class v1_12_R1 implements NmsProvider {
 			container.checkReachable = false;
 			return container;
 		}
-		return new CraftContainer(inv, ((CraftPlayer) player).getHandle(), ((CraftPlayer) player).getHandle().nextContainerCounter());
+		return new CraftContainer(inv, ((CraftPlayer) player).getHandle(),
+				((CraftPlayer) player).getHandle().nextContainerCounter());
 	}
 
 	@Override
@@ -920,7 +874,8 @@ public class v1_12_R1 implements NmsProvider {
 
 	public Object createAnvilContainer(Inventory inv, Player player) {
 		int id = ((CraftPlayer) player).getHandle().nextContainerCounter();
-		ContainerAnvil container = new ContainerAnvil(((CraftPlayer) player).getHandle().inventory, ((CraftPlayer) player).getHandle().world, zero, ((CraftPlayer) player).getHandle());
+		ContainerAnvil container = new ContainerAnvil(((CraftPlayer) player).getHandle().inventory,
+				((CraftPlayer) player).getHandle().world, zero, ((CraftPlayer) player).getHandle());
 		container.windowId = id;
 		for (int i = 0; i < 2; ++i)
 			container.setItem(i, (net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(inv.getItem(i)));
@@ -930,14 +885,6 @@ public class v1_12_R1 implements NmsProvider {
 	@Override
 	public String getAnvilRenameText(Object anvil) {
 		return ((ContainerAnvil) anvil).renameText;
-	}
-
-	public static int c(final int quickCraftData) {
-		return quickCraftData >> 2 & 3;
-	}
-
-	public static int d(final int quickCraftData) {
-		return quickCraftData & 3;
 	}
 
 	@Override
@@ -952,12 +899,12 @@ public class v1_12_R1 implements NmsProvider {
 		int id = packet.a();
 		int mouseClick = packet.c();
 		InventoryClickType type = packet.f();
+		Container c = (Container) container;
 
 		if (slot < -1 && slot != -999)
 			return true;
 
-		Container c = (Container) container;
-		EntityPlayer nPlayer = ((CraftPlayer) player).getHandle();
+		net.minecraft.server.v1_12_R1.EntityPlayer nPlayer = ((CraftPlayer) player).getHandle();
 
 		ItemStack newItem;
 		ItemStack oldItem;
@@ -1024,9 +971,10 @@ public class v1_12_R1 implements NmsProvider {
 		boolean cancel = false;
 		int gameSlot = slot > gui.size() - 1 ? InventoryUtils.convertToPlayerInvSlot(slot - gui.size()) : slot;
 
-		ClickType clickType = InventoryUtils.buildClick(type == InventoryClickType.QUICK_CRAFT ? 1 : type == InventoryClickType.QUICK_MOVE ? 2 : 0, mouseClick);
+		ClickType clickType = InventoryUtils.buildClick(
+				type == InventoryClickType.QUICK_CRAFT ? 1 : type == InventoryClickType.QUICK_MOVE ? 2 : 0, mouseClick);
 		if (slot > -1) {
-            cancel = InventoryUtils.useItem(player, gui, slot, clickType);
+			cancel = InventoryUtils.useItem(player, gui, slot, clickType);
 			if (!gui.isInsertable())
 				cancel = true;
 
@@ -1038,9 +986,11 @@ public class v1_12_R1 implements NmsProvider {
 		if (!cancel) {
 			if (gui instanceof AnvilGUI) { // Event
 				final ItemStack newItemFinal = newItem;
-				postToMainThread(() -> processEvent(c, type, gui, player, slot, gameSlot, newItemFinal, oldItem, packet, mouseClick, clickType, nPlayer));
+				postToMainThread(() -> processEvent(c, type, gui, player, slot, gameSlot, newItemFinal, oldItem, packet,
+						mouseClick, clickType, nPlayer, true));
 			} else
-				processEvent(c, type, gui, player, slot, gameSlot, newItem, oldItem, packet, mouseClick, clickType, nPlayer);
+				processEvent(c, type, gui, player, slot, gameSlot, newItem, oldItem, packet, mouseClick, clickType,
+						nPlayer, false);
 			return true;
 		}
 		// MOUSE
@@ -1060,356 +1010,413 @@ public class v1_12_R1 implements NmsProvider {
 		return true;
 	}
 
-	@SuppressWarnings("unchecked")
-	private void processEvent(Container c, InventoryClickType type, HolderGUI gui, Player player, int slot, int gameSlot, ItemStack newItem, ItemStack oldItem, PacketPlayInWindowClick packet,
-			int mouseClick, ClickType clickType, EntityPlayer nPlayer) {
-		net.minecraft.server.v1_12_R1.ItemStack result;
-        if (type == InventoryClickType.QUICK_MOVE) {
-            ItemStack[] contents = slot < gui.size() ? player.getInventory().getStorageContents() : gui.getInventory().getStorageContents();
-            boolean interactWithResultSlot = false;
-            if (gui instanceof AnvilGUI && slot < gui.size() && slot == 2)
-                if (c.getSlot(2).isAllowed(nPlayer))
-                    interactWithResultSlot = true;
-                else
-                    return;
-            Pair pairResult = slot < gui.size()
-                    ? InventoryUtils.shift(slot, player, gui, clickType, gui instanceof AnvilGUI && slot != 2 ? DestinationType.PLAYER_FROM_ANVIL : DestinationType.PLAYER, null, contents, oldItem)
-                    : InventoryUtils.shift(slot, player, gui, clickType, DestinationType.GUI, gui.getNotInterableSlots(player), contents, oldItem);
-            Map<Integer, ItemStack> modified = (Map<Integer, ItemStack>) pairResult.getValue();
-            int remaining = (int) pairResult.getKey();
+	private void processEvent(Container c, InventoryClickType type, HolderGUI gui, Player player, int slot,
+			int gameSlot, ItemStack newItem, ItemStack oldItem, PacketPlayInWindowClick packet, int mouseClick,
+			ClickType clickType, net.minecraft.server.v1_12_R1.EntityHuman nPlayer, boolean isAnvilGui) {
+		if (type == InventoryClickType.QUICK_MOVE) {
+			ItemStack[] contents = slot < gui.size() ? player.getInventory().getStorageContents()
+					: gui.getInventory().getStorageContents();
+			boolean interactWithResultSlot = false;
+			if (gui instanceof AnvilGUI && slot < gui.size() && slot == 2)
+				if (c.getSlot(2).isAllowed(nPlayer))
+					interactWithResultSlot = true;
+				else
+					return;
+			Pair result = slot < gui.size()
+					? InventoryUtils.shift(slot, player, gui, clickType,
+							gui instanceof AnvilGUI && slot != 2 ? DestinationType.PLAYER_FROM_ANVIL
+									: DestinationType.PLAYER,
+							null, contents, oldItem)
+					: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.GUI,
+							gui.getNotInterableSlots(player), contents, oldItem);
+			@SuppressWarnings("unchecked")
+			Map<Integer, ItemStack> modified = (Map<Integer, ItemStack>) result.getValue();
+			int remaining = (int) result.getKey();
 
-            if (!modified.isEmpty())
-                if (slot < gui.size()) {
-                    for (Entry<Integer, ItemStack> modif : modified.entrySet())
-                        nPlayer.inventory.setItem(modif.getKey(), (net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(modif.getValue()));
-                    if (remaining == 0) {
-                        c.getSlot(gameSlot).set((net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(null));
-						if(gui instanceof AnvilGUI)
+			if (!modified.isEmpty())
+				if (slot < gui.size()) {
+					for (Entry<Integer, ItemStack> modif : modified.entrySet())
+						nPlayer.inventory.setItem(modif.getKey(),
+								(net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(modif.getValue()));
+					if (remaining == 0) {
+						c.getSlot(gameSlot).set((net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(null));
+						if (isAnvilGui)
 							gui.getInventory().setItem(gameSlot, null);
-                        if (interactWithResultSlot) {
-                            c.getSlot(0).set((net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(null));
-                            c.getSlot(1).set((net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(null));
-							if(gui instanceof AnvilGUI) {
+						if (interactWithResultSlot) {
+							c.getSlot(0).set((net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(null));
+							c.getSlot(1).set((net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(null));
+							if (isAnvilGui) {
 								gui.getInventory().setItem(0, null);
 								gui.getInventory().setItem(1, null);
 							}
-                        }
-                    } else {
-                        newItem.setAmount(remaining);
-                        c.getSlot(gameSlot).set((net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(newItem));
-						if(gui instanceof AnvilGUI)
+						}
+					} else {
+						newItem.setAmount(remaining);
+						c.getSlot(gameSlot).set((net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(newItem));
+						if (isAnvilGui)
 							gui.getInventory().setItem(gameSlot, newItem);
-                    }
-                } else {
-                    for (Entry<Integer, ItemStack> modif : modified.entrySet())
-                        c.getSlot(modif.getKey()).set((net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(modif.getValue())); // Visual & Nms side
-                    // Plugin & Bukkit side
-                    gui.getInventory().setStorageContents(contents);
-                    if (remaining == 0)
-                        nPlayer.inventory.setItem(gameSlot, (net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(null));
-                    else {
-                        newItem.setAmount(remaining);
-                        nPlayer.inventory.setItem(gameSlot, (net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(newItem));
-                    }
-                }
-            return;
-        } else {
-            result = processClick(gui, gui.getNotInterableSlots(player), c, slot, mouseClick, type, nPlayer);
-        }
-		postToMainThread(() -> {
-			if (net.minecraft.server.v1_12_R1.ItemStack.matches(packet.e(), result)) {
-				nPlayer.playerConnection.sendPacket(new PacketPlayOutTransaction(packet.a(), packet.d(), true));
-				nPlayer.f = true;
-				c.b();
-				nPlayer.broadcastCarriedItem();
-				nPlayer.f = false;
-			} else {
-				((IntHashMap<Short>) Ref.get(nPlayer.playerConnection, "k")).a(c.windowId, packet.d());
-				nPlayer.playerConnection.sendPacket(new PacketPlayOutTransaction(packet.a(), packet.d(), false));
-				c.a(nPlayer, false);
-				NonNullList<net.minecraft.server.v1_12_R1.ItemStack> nonnulllist1 = NonNullList.a();
-				for (Slot element : c.slots) {
-					net.minecraft.server.v1_12_R1.ItemStack cursor = element.getItem();
-					net.minecraft.server.v1_12_R1.ItemStack itemstack2 = cursor.isEmpty() ? net.minecraft.server.v1_12_R1.ItemStack.a : cursor;
-					nonnulllist1.add(itemstack2);
+					}
+				} else {
+					for (Entry<Integer, ItemStack> modif : modified.entrySet())
+						c.getSlot(modif.getKey())
+								.set((net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(modif.getValue())); // Visual
+																												// &
+																												// Nms
+																												// side
+					// Plugin & Bukkit side
+					gui.getInventory().setStorageContents(contents);
+					if (remaining == 0)
+						nPlayer.inventory.setItem(gameSlot, (net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(null));
+					else {
+						newItem.setAmount(remaining);
+						nPlayer.inventory.setItem(gameSlot,
+								(net.minecraft.server.v1_12_R1.ItemStack) asNMSItem(newItem));
+					}
 				}
-				nPlayer.a(c, nonnulllist1);
+			if (gui instanceof AnvilGUI) {
+				int index = 0;
+				for (int i = 0; i < 3; ++i) {
+					gui.getInventory().setItem(index++, asBukkitItem(c.getSlot(i).getItem()));
+					if (index == 3)
+						break;
+				}
 			}
-		});
+			nPlayer.inventory.setCarried(nPlayer.inventory.getCarried());
+			return;
+		}
+		processClick(gui, gui.getNotInterableSlots(player), c, slot, mouseClick, type, nPlayer);
+		if (gui instanceof AnvilGUI) {
+			int index = 0;
+			for (int i = 0; i < 3; ++i) {
+				gui.getInventory().setItem(index++, asBukkitItem(c.getSlot(i).getItem()));
+				if (index == 3)
+					break;
+			}
+			nPlayer.inventory.setCarried(nPlayer.inventory.getCarried());
+		}
 	}
 
-	private final Method addAmount = Ref.method(Slot.class, "b", int.class);
+	private final Method onSwap = Ref.method(Slot.class, "b", int.class);
+	private final Field quickcraftStatus = Ref.field(Container.class, "g");
+	private final Field quickcraftTypeField = Ref.field(Container.class, "dragType");
+	private final Field quickcraftSlotsField = Ref.field(Container.class, "h");
+	private final Method resetQuickCraft = Ref.method(Container.class, "d");
 
-	@SuppressWarnings("unchecked")
-	private net.minecraft.server.v1_12_R1.ItemStack processClick(HolderGUI gui, List<Integer> ignoredSlots, Container container, int slotIndex, int button, InventoryClickType actionType,
-			EntityPlayer player) {
-		net.minecraft.server.v1_12_R1.ItemStack result = net.minecraft.server.v1_12_R1.ItemStack.a;
-
+	private void processClick(HolderGUI gui, List<Integer> ignoredSlots, Container container, int slotIndex, int button,
+			InventoryClickType actionType, EntityHuman player) {
+		PlayerInventory playerinventory = player.inventory;
+		Slot slot;
+		net.minecraft.server.v1_12_R1.ItemStack itemstack;
 		if (actionType == InventoryClickType.QUICK_CRAFT)
-			processDragMove(gui, container, player, slotIndex, button);
+			processDragMove(gui, ignoredSlots, container, player, slotIndex, button);
+		else if ((int) Ref.get(container, quickcraftStatus) != 0)
+			Ref.invoke(container, resetQuickCraft);
 		else {
-			int u = (int) Ref.get(container, containerU);
-			Set<Slot> mod = (Set<Slot>) Ref.get(container, containerV);
-			if (u != 0) {
-				Ref.set(container, containerU, 0);
-				mod.clear();
-			} else if (actionType == InventoryClickType.PICKUP && (button == 0 || button == 1)) {
+			int count;
+
+			if ((actionType == InventoryClickType.PICKUP || actionType == InventoryClickType.QUICK_MOVE)
+					&& (button == 0 || button == 1)) {
+				boolean isPrimary = button == 0;
+
 				if (slotIndex == -999) {
-					if (!player.inventory.getCarried().isEmpty())
-						if (button == 0) {
-							net.minecraft.server.v1_12_R1.ItemStack carried = player.inventory.getCarried();
-							player.inventory.setCarried(net.minecraft.server.v1_12_R1.ItemStack.a);
+					if (!playerinventory.getCarried().isEmpty())
+						if (isPrimary) {
+							// CraftBukkit start
+							net.minecraft.server.v1_12_R1.ItemStack carried = playerinventory.getCarried();
+							playerinventory.setCarried(net.minecraft.server.v1_12_R1.ItemStack.a);
 							postToMainThread(() -> player.drop(carried, true));
+							// CraftBukkit start
 						} else
-							postToMainThread(() -> player.drop(player.inventory.getCarried().cloneAndSubtract(1), true));
+							postToMainThread(() -> player.drop(playerinventory.getCarried().cloneAndSubtract(1), true));
+				} else if (actionType == InventoryClickType.QUICK_MOVE) {
+					if (slotIndex < 0)
+						return;
+
+					slot = container.slots.get(slotIndex);
+					if (slot != null && slot.isAllowed(player))
+						for (itemstack = container.shiftClick(player, slotIndex); !itemstack.isEmpty()
+								&& net.minecraft.server.v1_12_R1.ItemStack.c(slot.getItem(),
+										itemstack); itemstack = container.shiftClick(player, slotIndex))
+							itemstack = itemstack.cloneItemStack();
 				} else {
 					if (slotIndex < 0)
-						return net.minecraft.server.v1_12_R1.ItemStack.a;
+						return;
 
-					PlayerInventory playerinventory = player.inventory;
+					slot = container.slots.get(slotIndex);
+					itemstack = slot.getItem();
+					net.minecraft.server.v1_12_R1.ItemStack carried = playerinventory.getCarried();
 
-					int k1;
-					net.minecraft.server.v1_12_R1.ItemStack itemstack1;
-					net.minecraft.server.v1_12_R1.ItemStack itemstack2;
-					Slot slot2 = container.slots.get(slotIndex);
-					if (slot2 != null) {
-						itemstack2 = slot2.getItem();
-						itemstack1 = playerinventory.getCarried();
-						if (!itemstack2.isEmpty())
-							result = itemstack2.cloneItemStack();
-						if (itemstack2.isEmpty()) {
-							if (!itemstack1.isEmpty() && slot2.isAllowed(itemstack1)) {
-								k1 = button == 0 ? itemstack1.getCount() : 1;
-								if (k1 > slot2.getMaxStackSize(itemstack1))
-									k1 = slot2.getMaxStackSize(itemstack1);
-
-								slot2.set(itemstack1.cloneAndSubtract(k1));
+					if (slot.isAllowed(itemstack))
+						if (itemstack.isEmpty()) {
+							if (!carried.isEmpty()) {
+								count = isPrimary ? carried.getCount() : 1;
+								slot.set(itemstack.cloneAndSubtract(count));
 							}
-						} else if (slot2.isAllowed(player))
-							if (itemstack1.isEmpty()) {
-								if (itemstack2.isEmpty()) {
-									slot2.set(net.minecraft.server.v1_12_R1.ItemStack.a);
-									playerinventory.setCarried(net.minecraft.server.v1_12_R1.ItemStack.a);
-								} else {
-									k1 = button == 0 ? itemstack2.getCount() : (itemstack2.getCount() + 1) / 2;
-									playerinventory.setCarried(slot2.a(k1));
-									if (itemstack2.isEmpty())
-										slot2.set(net.minecraft.server.v1_12_R1.ItemStack.a);
+						} else if (slot.isAllowed(player))
+							if (carried.isEmpty()) {
+								count = isPrimary ? itemstack.getCount() : (itemstack.getCount() + 1) / 2;
+								playerinventory.setCarried(slot.a(count));
+								if (itemstack.isEmpty())
+									slot.set(net.minecraft.server.v1_12_R1.ItemStack.a);
 
-									slot2.a(player, playerinventory.getCarried());
+								slot.a(player, playerinventory.getCarried());
+							} else if (slot.isAllowed(carried)) {
+								if (areSame(itemstack, carried)) {
+									count = isPrimary ? carried.getCount() : 1;
+									carried.subtract(count);
+									itemstack.add(count);
+								} else if (carried.getCount() <= slot.getMaxStackSize(carried)) {
+									playerinventory.setCarried(itemstack);
+									slot.set(carried);
 								}
-							} else if (slot2.isAllowed(itemstack1)) {
-								if (itemstack2.getItem() == itemstack1.getItem() && itemstack2.getData() == itemstack1.getData()
-										&& net.minecraft.server.v1_12_R1.ItemStack.equals(itemstack2, itemstack1)) {
-									k1 = button == 0 ? itemstack1.getCount() : 1;
-									if (k1 > slot2.getMaxStackSize(itemstack1) - itemstack2.getCount())
-										k1 = slot2.getMaxStackSize(itemstack1) - itemstack2.getCount();
+							} else if (carried.getMaxStackSize() > 1 && areSame(itemstack, carried)
+									&& !itemstack.isEmpty()) {
+								count = itemstack.getCount();
+								if (count + carried.getCount() <= carried.getMaxStackSize()) {
+									carried.add(count);
+									itemstack = slot.a(count);
+									if (itemstack.isEmpty())
+										slot.set(net.minecraft.server.v1_12_R1.ItemStack.a);
 
-									if (k1 > itemstack1.getMaxStackSize() - itemstack2.getCount())
-										k1 = itemstack1.getMaxStackSize() - itemstack2.getCount();
-
-									itemstack1.subtract(k1);
-									itemstack2.add(k1);
-								} else if (itemstack1.getCount() <= slot2.getMaxStackSize(itemstack1)) {
-									slot2.set(itemstack1);
-									playerinventory.setCarried(itemstack2);
-								}
-							} else if (itemstack1.getMaxStackSize() > 1 && itemstack2.getItem() == itemstack1.getItem() && itemstack2.getData() == itemstack1.getData()
-									&& net.minecraft.server.v1_12_R1.ItemStack.equals(itemstack2, itemstack1) && !itemstack2.isEmpty()) {
-								k1 = itemstack2.getCount();
-								if (k1 + itemstack1.getCount() <= itemstack1.getMaxStackSize()) {
-									itemstack1.add(k1);
-									itemstack2 = slot2.a(k1);
-									if (itemstack2.isEmpty())
-										slot2.set(net.minecraft.server.v1_12_R1.ItemStack.a);
-
-									slot2.a(player, playerinventory.getCarried());
+									slot.a(player, playerinventory.getCarried());
 								}
 							}
 
-						slot2.f();
-						if (slot2.getMaxStackSize() != 64) {
-							BukkitLoader.getPacketHandler().send(player.getBukkitEntity(), BukkitLoader.getNmsProvider().packetSetSlot(container.windowId, slot2.rawSlotIndex, 0, slot2.getItem()));
-							if (container.getBukkitView().getType() == InventoryType.WORKBENCH || container.getBukkitView().getType() == InventoryType.CRAFTING)
-								BukkitLoader.getPacketHandler().send(player.getBukkitEntity(), BukkitLoader.getNmsProvider().packetSetSlot(container.windowId, 0, 0, container.getSlot(0).getItem()));
-						}
+					slot.f();
+					// CraftBukkit start - Make sure the client has the right slot contents
+					if (player instanceof EntityPlayer && slot.getMaxStackSize() != 64) {
+						((EntityPlayer) player).playerConnection
+								.sendPacket(new PacketPlayOutSetSlot(container.windowId, slot.index, slot.getItem()));
+						// Updating a crafting inventory makes the client reset the result slot, have to
+						// send it again
+						if (container.getBukkitView().getType() == InventoryType.WORKBENCH
+								|| container.getBukkitView().getType() == InventoryType.CRAFTING)
+							((EntityPlayer) player).playerConnection.sendPacket(
+									new PacketPlayOutSetSlot(container.windowId, 0, container.getSlot(0).getItem()));
 					}
-					if(gui instanceof AnvilGUI && slotIndex < gui.size())
-						gui.getInventory().setItem(slotIndex, asBukkitItem(slot2.getItem()));
+					// CraftBukkit end
 				}
-			} else if (actionType == InventoryClickType.SWAP) {
-				if (slotIndex < 0)
-					return result;
-				PlayerInventory playerinventory = player.inventory;
-				Slot slot3 = container.getSlot(slotIndex);
-				net.minecraft.server.v1_12_R1.ItemStack itemstack2 = playerinventory.getItem(button);
-				net.minecraft.server.v1_12_R1.ItemStack itemstack = slot3.getItem();
-				if (!itemstack2.isEmpty() || !itemstack.isEmpty())
-					if (itemstack2.isEmpty()) {
-						if (slot3.isAllowed(player)) {
-							playerinventory.setItem(button, itemstack);
-							Ref.invoke(slot3, addAmount, itemstack.getCount());
-							slot3.set(net.minecraft.server.v1_12_R1.ItemStack.a);
-							slot3.a(player, itemstack);
-						}
-					} else if (itemstack.isEmpty()) {
-						if (slot3.isAllowed(itemstack2)) {
-							int j2 = slot3.getMaxStackSize(itemstack2);
-							if (itemstack2.getCount() > j2)
-								slot3.set(itemstack2.cloneAndSubtract(j2));
-							else {
-								slot3.set(itemstack2);
-								playerinventory.setItem(button, net.minecraft.server.v1_12_R1.ItemStack.a);
+			} else {
+				int maxStackSize;
+
+				if (actionType == InventoryClickType.SWAP && (button >= 0 && button < 9 || button == 40)) {
+					if (slotIndex < 0)
+						return; // Paper - Add slot sanity checks to container clicks
+					net.minecraft.server.v1_12_R1.ItemStack swapItem = playerinventory.getItem(button);
+
+					slot = container.slots.get(slotIndex);
+					itemstack = slot.getItem();
+					if (!swapItem.isEmpty() || !itemstack.isEmpty())
+						if (swapItem.isEmpty()) {
+							if (slot.isAllowed(player)) {
+								playerinventory.setItem(button, itemstack);
+								Ref.invoke(slot, onSwap, itemstack.getCount());
+								slot.set(net.minecraft.server.v1_12_R1.ItemStack.a);
+								slot.a(player, itemstack);
+							}
+						} else if (itemstack.isEmpty()) {
+							if (slot.isAllowed(swapItem)) {
+								maxStackSize = slot.getMaxStackSize(swapItem);
+								if (swapItem.getCount() > maxStackSize)
+									slot.set(swapItem.cloneAndSubtract(maxStackSize));
+								else {
+									playerinventory.setItem(button, net.minecraft.server.v1_12_R1.ItemStack.a);
+									slot.set(swapItem);
+								}
+							}
+						} else if (slot.isAllowed(player) && slot.isAllowed(swapItem)) {
+							maxStackSize = slot.getMaxStackSize(swapItem);
+							if (swapItem.getCount() > maxStackSize) {
+								slot.set(swapItem.cloneAndSubtract(maxStackSize));
+								slot.a(player, itemstack);
+								if (!playerinventory.pickup(itemstack)) {
+									net.minecraft.server.v1_12_R1.ItemStack finalItemstack = itemstack;
+									postToMainThread(() -> player.drop(finalItemstack, true));
+								}
+							} else {
+								playerinventory.setItem(button, itemstack);
+								slot.set(swapItem);
+								slot.a(player, itemstack);
 							}
 						}
-					} else if (slot3.isAllowed(player) && slot3.isAllowed(itemstack2)) {
-						int j2 = slot3.getMaxStackSize(itemstack2);
-						if (itemstack2.getCount() > j2) {
-							slot3.set(itemstack2.cloneAndSubtract(j2));
-							slot3.a(player, itemstack);
-							if (!playerinventory.pickup(itemstack))
-								postToMainThread(() -> player.drop(itemstack, true));
-						} else {
-							slot3.set(itemstack2);
-							playerinventory.setItem(button, itemstack);
-							slot3.a(player, itemstack);
-						}
+				} else if (actionType == InventoryClickType.CLONE && player.abilities.canInstantlyBuild
+						&& playerinventory.getCarried().isEmpty() && slotIndex >= 0) {
+					slot = container.slots.get(slotIndex);
+					if (slot.hasItem()) {
+						itemstack = slot.getItem().cloneItemStack();
+						itemstack.setCount(itemstack.getMaxStackSize());
+						playerinventory.setCarried(itemstack);
 					}
-				if(gui instanceof AnvilGUI && slotIndex < gui.size())
-					gui.getInventory().setItem(slotIndex, asBukkitItem(slot3.getItem()));
-			} else if (actionType == InventoryClickType.CLONE && player.abilities.canInstantlyBuild && player.inventory.getCarried().isEmpty() && slotIndex >= 0) {
-				Slot slot3 = container.getSlot(slotIndex);
-				if (slot3 != null && slot3.hasItem()) {
-					net.minecraft.server.v1_12_R1.ItemStack itemstack2 = slot3.getItem().cloneItemStack();
-					itemstack2.setCount(itemstack2.getMaxStackSize());
-					player.inventory.setCarried(itemstack2);
-				}
-			} else if (actionType == InventoryClickType.THROW && player.inventory.getCarried().isEmpty() && slotIndex >= 0) {
-				Slot slot2 = container.getSlot(slotIndex);
-				if (slot2 != null && slot2.hasItem() && slot2.isAllowed(player)) {
-					net.minecraft.server.v1_12_R1.ItemStack itemstack2 = slot2.a(button == 0 ? 1 : slot2.getItem().getCount());
-					slot2.a(player, itemstack2);
-					if(gui instanceof AnvilGUI && slotIndex < gui.size())
-						gui.getInventory().setItem(slotIndex, asBukkitItem(itemstack2));
-					postToMainThread(() -> player.drop(itemstack2, true));
-				}
-			} else if (actionType == InventoryClickType.PICKUP_ALL && slotIndex >= 0) {
-				Slot slot2 = container.slots.get(slotIndex);
-				net.minecraft.server.v1_12_R1.ItemStack itemstack1 = player.inventory.getCarried();
-				if (!itemstack1.isEmpty() && (!slot2.hasItem() || !slot2.isAllowed(player))) {
-					List<Integer> ignoreSlots = ignoredSlots == null ? Collections.emptyList() : ignoredSlots;
-					List<Integer> corruptedSlots = ignoredSlots == null ? Collections.emptyList() : new ArrayList<>();
-					Map<Integer, ItemStack> modifiedSlots = new HashMap<>();
-					Map<Integer, ItemStack> modifiedSlotsPlayerInv = new HashMap<>();
+				} else if (actionType == InventoryClickType.THROW && playerinventory.getCarried().isEmpty()
+						&& slotIndex >= 0) {
+					slot = container.slots.get(slotIndex);
+					if (slot != null && slot.hasItem() && slot.isAllowed(player)) {
+						count = button == 0 ? 1 : slot.getItem().getCount();
+						itemstack = slot.a(count);
+						slot.a(player, itemstack);
+						net.minecraft.server.v1_12_R1.ItemStack finalItemstack = itemstack;
+						postToMainThread(() -> player.drop(finalItemstack, true));
+					}
+				} else if (actionType == InventoryClickType.PICKUP_ALL && slotIndex >= 0) {
+					slot = container.slots.get(slotIndex);
+					itemstack = playerinventory.getCarried();
+					if (!itemstack.isEmpty() && (!slot.hasItem() || !slot.isAllowed(player))) {
+						int size = button == 0 ? 0 : container.slots.size() - 1;
+						maxStackSize = button == 0 ? 1 : -1;
+						List<Integer> ignoreSlots = ignoredSlots == null ? Collections.emptyList() : ignoredSlots;
+						List<Integer> corruptedSlots = ignoredSlots == null ? Collections.emptyList()
+								: new ArrayList<>();
+						Map<Integer, ItemStack> modifiedSlots = new HashMap<>();
+						Map<Integer, ItemStack> modifiedSlotsPlayerInv = new HashMap<>();
 
-					int l = button == 0 ? 0 : container.slots.size() - 1;
-					int i2 = button == 0 ? 1 : -1;
+						for (count = 0; count < 2; ++count)
+							for (int index = size; index >= 0 && index < container.slots.size()
+									&& itemstack.getCount() < itemstack.getMaxStackSize(); index += maxStackSize) {
+								Slot targetSlot = container.slots.get(index);
 
-					for (int l1 = 0; l1 < 2; ++l1)
-						for (int j2 = l; j2 >= 0 && j2 < container.slots.size() && itemstack1.getCount() < itemstack1.getMaxStackSize(); j2 += i2) {
-							Slot slot3 = container.slots.get(j2);
-							if (slot3.hasItem() && Container.a(slot3, itemstack1, true) && slot3.isAllowed(player) && container.a(itemstack1, slot3)) {
-								net.minecraft.server.v1_12_R1.ItemStack itemstack3 = slot3.getItem();
-								if (l1 != 0 || itemstack3.getCount() != itemstack3.getMaxStackSize()) {
-									if (j2 < gui.size() && ignoreSlots.contains(j2)) {
-										corruptedSlots.add(j2);
-										continue;
+								if (targetSlot.hasItem() && Container.a(targetSlot, itemstack, true)
+										&& targetSlot.isAllowed(player) && container.a(itemstack, targetSlot)) {
+									net.minecraft.server.v1_12_R1.ItemStack targetItem = targetSlot.getItem();
+
+									if (count != 0 || targetItem.getCount() != targetItem.getMaxStackSize()) {
+										if (index < gui.size() && ignoreSlots.contains(index)) {
+											corruptedSlots.add(index);
+											continue;
+										}
+										int resultCount = Math.min(itemstack.getMaxStackSize() - itemstack.getCount(),
+												targetItem.getCount());
+										net.minecraft.server.v1_12_R1.ItemStack resultItem = targetSlot.a(resultCount);
+										itemstack.add(resultCount);
+										if (resultItem.isEmpty())
+											targetSlot.set(net.minecraft.server.v1_12_R1.ItemStack.a);
+										targetSlot.a(player, resultItem);
+										int gameSlot = index > gui.size() - 1
+												? InventoryUtils.convertToPlayerInvSlot(index - gui.size())
+												: index;
+										if (index < gui.size())
+											modifiedSlots.put(gameSlot, asBukkitItem(targetSlot.getItem()));
+										else
+											modifiedSlotsPlayerInv.put(gameSlot, asBukkitItem(targetSlot.getItem()));
 									}
-									int count = Math.min(itemstack1.getMaxStackSize() - itemstack1.getCount(), itemstack3.getCount());
-									net.minecraft.server.v1_12_R1.ItemStack itemstack6 = slot3.a(count);
-									itemstack1.add(count);
-									if (itemstack6.isEmpty())
-										slot3.set(net.minecraft.server.v1_12_R1.ItemStack.a);
-									slot3.a(player, itemstack6);
-									int gameSlot = j2 > gui.size() - 1 ? InventoryUtils.convertToPlayerInvSlot(j2 - gui.size()) : j2;
-									ItemStack bukkitStack = asBukkitItem(slot3.getItem());
-									if (j2 < gui.size()) {
-										modifiedSlots.put(gameSlot, bukkitStack);
-										if(gui instanceof AnvilGUI)
-											gui.getInventory().setItem(gameSlot, bukkitStack);
-									} else
-										modifiedSlotsPlayerInv.put(gameSlot, bukkitStack);
 								}
 							}
-						}
-					if (slotIndex < gui.size())
-						modifiedSlots.put(slotIndex, new ItemStack(Material.AIR));
-					else
-						modifiedSlotsPlayerInv.put(InventoryUtils.convertToPlayerInvSlot(slotIndex - gui.size()), new ItemStack(Material.AIR));
-                    gui.onMultipleIteract(player.getBukkitEntity(), modifiedSlots, modifiedSlotsPlayerInv);
-					for (int s : corruptedSlots)
-						BukkitLoader.getPacketHandler().send(player.getBukkitEntity(), BukkitLoader.getNmsProvider().packetSetSlot(BukkitLoader.getNmsProvider().getContainerId(container), s,
-								getContainerStateId(container), BukkitLoader.getNmsProvider().getSlotItem(container, s)));
+						if (slotIndex < gui.size())
+							modifiedSlots.put(slotIndex, new ItemStack(Material.AIR));
+						else
+							modifiedSlotsPlayerInv.put(InventoryUtils.convertToPlayerInvSlot(slotIndex - gui.size()),
+									new ItemStack(Material.AIR));
+						gui.onMultipleIteract((Player) player.getBukkitEntity(), modifiedSlots, modifiedSlotsPlayerInv);
+						for (int s : corruptedSlots)
+							BukkitLoader.getPacketHandler().send((Player) player.getBukkitEntity(),
+									BukkitLoader.getNmsProvider().packetSetSlot(0, s, getContainerStateId(container),
+											BukkitLoader.getNmsProvider().getSlotItem(container, s)));
+					}
 				}
 			}
 		}
-		return result;
 	}
 
-	private final Field containerU = Ref.field(Container.class, "g");
-    private final Field containerV = Ref.field(Container.class, "h");
-    private final Field containerT = Ref.field(Container.class, "dragType");
+	private boolean areSame(net.minecraft.server.v1_12_R1.ItemStack itemstack1,
+			net.minecraft.server.v1_12_R1.ItemStack itemstack2) {
+		return (!itemstack2.usesData() || itemstack2.getData() == itemstack1.getData())
+				&& net.minecraft.server.v1_12_R1.ItemStack.equals(itemstack2, itemstack1);
+	}
 
 	@SuppressWarnings("unchecked")
-	private void processDragMove(HolderGUI gui, Container container, EntityPlayer player, int slot, int mouseClick) {
-		int previous = (int) Ref.get(container, containerU);
-		int u = d(mouseClick);
-		Set<Slot> mod = (Set<Slot>) Ref.get(container, containerV);
-		if ((previous != 1 || u != 2) && previous != u || player.inventory.getCarried().isEmpty()) {
-			mod.clear();
-			u = 0;
-		} else
-			switch (u) {
-			case 0: {
-				int t = c(mouseClick);
-				Ref.set(container, containerT, t);
-				if (Container.a(t, player)) {
-					u = 1;
-					mod.clear();
-				} else {
-					mod.clear();
-                }
+	private void processDragMove(HolderGUI gui, List<Integer> ignoredSlots, Container container, EntityHuman player,
+			int slotIndex, int button) {
+		PlayerInventory playerinventory = player.inventory;
+		Slot slot;
+		net.minecraft.server.v1_12_R1.ItemStack itemstack;
+		int k;
+		int count;
+		int quickcraftType = (int) Ref.get(container, quickcraftTypeField);
+		int quickcraftStat = (int) Ref.get(container, quickcraftStatus);
+		int quickcraftStatNew = Container.c(button);
+		Set<Slot> quickcraftSlots = (Set<Slot>) Ref.get(container, quickcraftSlotsField);
+		Ref.set(container, quickcraftStatus, quickcraftStatNew);
+		if ((quickcraftStat != 1 || quickcraftStatNew != 2) && quickcraftStat != quickcraftStatNew
+				|| playerinventory.getCarried().isEmpty())
+			Ref.invoke(container, resetQuickCraft);
+		else
+			switch (quickcraftStatNew) {
+			case 0:
+				if (Container.a(quickcraftStatNew, player)) {
+					Ref.set(container, quickcraftStatus, 1);
+					quickcraftSlots.clear();
+				} else
+					Ref.invoke(container, resetQuickCraft);
 				break;
-			}
-			case 1: {
-				if (slot < 0) {
-					Ref.set(container, containerU, u);
-					return; // nothing
-				}
-				int t = (int) Ref.get(container, containerT);
-				final Slot bslot = container.getSlot(slot);
-				final net.minecraft.server.v1_12_R1.ItemStack itemstack = player.inventory.getCarried();
-				if (Container.a(bslot, itemstack, true) && bslot.isAllowed(itemstack) && (t == 2 || itemstack.getCount() > mod.size()) && container.b(bslot))
-					mod.add(bslot);
+			case 1:
+				if (slotIndex < 0)
+					return; // Paper - Add slot sanity checks to container clicks
+				slot = container.slots.get(slotIndex);
+				itemstack = playerinventory.getCarried();
+				if (Container.a(slot, itemstack, true) && slot.isAllowed(itemstack)
+						&& (quickcraftType == 2 || itemstack.getCount() > quickcraftSlots.size()) && container.b(slot))
+					quickcraftSlots.add(slot);
 				break;
-			}
 			case 2:
-				if (!mod.isEmpty()) {
-					final net.minecraft.server.v1_12_R1.ItemStack itemstack2 = player.inventory.getCarried().cloneItemStack();
-					if (itemstack2.isEmpty()) {
-						mod.clear();
-						Ref.set(container, containerU, 0);
+				if (!quickcraftSlots.isEmpty()) {
+					if (quickcraftSlots.size() == 1) { // Paper - Fix CraftBukkit drag system
+						k = quickcraftSlots.iterator().next().index;
+						Ref.invoke(container, resetQuickCraft);
+						processClick(gui, ignoredSlots, container, k, quickcraftType, InventoryClickType.PICKUP,
+								player);
 						return;
 					}
-					int t = (int) Ref.get(container, containerT);
-					int l = player.inventory.getCarried().getCount();
-					final Map<Integer, net.minecraft.server.v1_12_R1.ItemStack> draggedSlots = new HashMap<>();
-					for (Slot slot2 : mod) {
-						final net.minecraft.server.v1_12_R1.ItemStack itemstack3 = player.inventory.getCarried();
-						if (slot2 != null && Container.a(slot2, itemstack3, true) && slot2.isAllowed(itemstack3) && (t == 2 || itemstack3.getCount() >= mod.size()) && container.b(slot2)) {
 
-							final int j1 = slot2.hasItem() ? slot2.getItem().getCount() : 0;
-							final int k1 = Math.min(itemstack2.getMaxStackSize(), slot2.getMaxStackSize(itemstack2));
-							final int l2 = Math.min(a(mod, t, itemstack2) + j1, k1);
-							l -= l2 - j1;
-							net.minecraft.server.v1_12_R1.ItemStack stack = itemstack2.cloneItemStack();
-							stack.setCount(l2);
-							draggedSlots.put(slot2.rawSlotIndex, stack);
+					itemstack = playerinventory.getCarried().cloneItemStack();
+					if (itemstack.isEmpty()) {
+						Ref.invoke(container, resetQuickCraft);
+						return;
+					}
+
+					count = playerinventory.getCarried().getCount();
+					Map<Integer, net.minecraft.server.v1_12_R1.ItemStack> draggedSlots = new HashMap<>(); // CraftBukkit
+																											// -
+																											// Store
+																											// slots
+																											// from drag
+																											// in
+																											// map (raw
+																											// slot
+																											// id -> new
+																											// stack)
+					for (Slot slot1 : quickcraftSlots) {
+						net.minecraft.server.v1_12_R1.ItemStack itemstack2 = playerinventory.getCarried();
+
+						if (slot1 != null && Container.a(slot1, itemstack2, true) && slot1.isAllowed(itemstack2)
+								&& (quickcraftType == 2 || itemstack2.getCount() >= quickcraftSlots.size())
+								&& container.b(slot1)) {
+							int j1 = slot1.hasItem() ? slot1.getItem().getCount() : 0;
+							int k1 = Math.min(itemstack.getMaxStackSize(), slot1.getMaxStackSize(itemstack));
+							int l1 = Math.min(getQuickCraftPlaceCount(quickcraftSlots, quickcraftType, itemstack) + j1,
+									k1);
+
+							count -= l1 - j1;
+							// slot1.setByPlayer(itemstack1.copyWithCount(l1));
+							net.minecraft.server.v1_12_R1.ItemStack clone = itemstack.cloneItemStack();
+							clone.setCount(l1);
+							draggedSlots.put(slot1.index, clone); // CraftBukkit - Put in map
+																	// instead of setting
 						}
 					}
-					final InventoryView view = container.getBukkitView();
-					final org.bukkit.inventory.ItemStack newcursor = CraftItemStack.asCraftMirror(itemstack2);
-					newcursor.setAmount(l);
+
+					// CraftBukkit start - InventoryDragEvent
+					InventoryView view = container.getBukkitView();
+					org.bukkit.inventory.ItemStack newcursor = CraftItemStack.asCraftMirror(itemstack);
+					newcursor.setAmount(count);
+					Map<Integer, org.bukkit.inventory.ItemStack> eventmap = new HashMap<>();
+					for (Map.Entry<Integer, net.minecraft.server.v1_12_R1.ItemStack> ditem : draggedSlots.entrySet())
+						eventmap.put(ditem.getKey(), CraftItemStack.asBukkitCopy(ditem.getValue()));
+
+					// It's essential that we set the cursor to the new value here to prevent item
+					// duplication if a plugin closes the inventory.
+					playerinventory.setCarried(CraftItemStack.asNMSCopy(newcursor));
+
+					boolean needsUpdate = false;
+
 					final Map<Integer, org.bukkit.inventory.ItemStack> guiSlots = new HashMap<>();
 					final Map<Integer, org.bukkit.inventory.ItemStack> playerSlots = new HashMap<>();
 					for (final Entry<Integer, net.minecraft.server.v1_12_R1.ItemStack> ditem : draggedSlots.entrySet())
@@ -1423,34 +1430,43 @@ public class v1_12_R1 implements NmsProvider {
 								finalSlot += 9;
 							playerSlots.put(finalSlot, CraftItemStack.asBukkitCopy(ditem.getValue()));
 						}
-					player.inventory.setCarried(CraftItemStack.asNMSCopy(newcursor));
 					if (!guiSlots.isEmpty() || !playerSlots.isEmpty())
-						gui.onMultipleIteract(player.getBukkitEntity(), guiSlots, playerSlots);
-					for (final Entry<Integer, net.minecraft.server.v1_12_R1.ItemStack> dslot : draggedSlots.entrySet())
+						gui.onMultipleIteract((Player) player.getBukkitEntity(), guiSlots, playerSlots);
+
+					for (Map.Entry<Integer, net.minecraft.server.v1_12_R1.ItemStack> dslot : draggedSlots.entrySet())
 						view.setItem(dslot.getKey(), CraftItemStack.asBukkitCopy(dslot.getValue()));
-					if (player.inventory.getCarried() != null)
-						player.updateInventory(container);
+					// The only time the carried item will be set to null is if the inventory is
+					// closed by the server.
+					// If the inventory is closed by the server, then the cursor items are dropped.
+					// This is why we change the cursor early.
+					if (playerinventory.getCarried() != null) {
+						playerinventory.setCarried(CraftItemStack.asNMSCopy(newcursor));
+						needsUpdate = true;
+					}
+
+					if (needsUpdate && player instanceof EntityPlayer)
+						((EntityPlayer) player).updateInventory(container);
 				}
-				mod.clear();
-                default:
-				mod.clear();
-				u = 0;
+				Ref.invoke(container, resetQuickCraft);
+				break;
+			default:
+				Ref.invoke(container, resetQuickCraft);
 				break;
 			}
-		Ref.set(container, containerU, u);
 	}
 
-	public static int a(Set<Slot> slots, int mode, net.minecraft.server.v1_12_R1.ItemStack stack) {
+	public static int getQuickCraftPlaceCount(Set<Slot> slots, int mode,
+			net.minecraft.server.v1_12_R1.ItemStack stack) {
 		int j;
 		switch (mode) {
 		case 0:
-			j = MathHelper.d((float) stack.getCount() / (float) slots.size());
+			j = MathHelper.floor((float) stack.getCount() / (float) slots.size());
 			break;
 		case 1:
 			j = 1;
 			break;
 		case 2:
-			j = stack.getItem().getMaxStackSize();
+			j = stack.getMaxStackSize();
 			break;
 		default:
 			j = stack.getCount();
@@ -1476,12 +1492,14 @@ public class v1_12_R1 implements NmsProvider {
 			for (GameProfile profile : ping.b().c())
 				players.add(fromGameProfile(profile));
 
-		ServerListPingEvent event = new ServerListPingEvent(getOnlinePlayers().size(), Bukkit.getMaxPlayers(), players, Bukkit.getMotd(), ping.d(),
-				((InetSocketAddress) ((Channel) channel).remoteAddress()).getAddress(), ping.getServerData().a(), ping.getServerData().getProtocolVersion());
+		ServerListPingEvent event = new ServerListPingEvent(getOnlinePlayers().size(), Bukkit.getMaxPlayers(), players,
+				Bukkit.getMotd(), ping.d(), ((InetSocketAddress) ((Channel) channel).remoteAddress()).getAddress(),
+				ping.getServerData().a(), ping.getServerData().getProtocolVersion());
 		EventManager.call(event);
 		if (event.isCancelled())
 			return true;
-		ServerPingPlayerSample playerSample = new ServerPingPlayerSample(event.getMaxPlayers(), event.getOnlinePlayers());
+		ServerPingPlayerSample playerSample = new ServerPingPlayerSample(event.getMaxPlayers(),
+				event.getOnlinePlayers());
 		if (event.getSlots() != null) {
 			GameProfile[] profiles = new GameProfile[event.getSlots().size()];
 			int i = -1;
@@ -1661,7 +1679,8 @@ public class v1_12_R1 implements NmsProvider {
 
 	@Override
 	public Object packetEntityHeadRotation(Entity entity) {
-		return new PacketPlayOutEntityHeadRotation((net.minecraft.server.v1_12_R1.Entity) getEntity(entity), (byte) (entity.getLocation().getYaw() * 256F / 360F));
+		return new PacketPlayOutEntityHeadRotation((net.minecraft.server.v1_12_R1.Entity) getEntity(entity),
+				(byte) (entity.getLocation().getYaw() * 256F / 360F));
 	}
 
 	@Override
@@ -1681,16 +1700,20 @@ public class v1_12_R1 implements NmsProvider {
 
 	private static final Field playerInfo = Ref.field(PacketPlayOutPlayerInfo.class, "b");
 
-	private static final Constructor<?> infoData = Ref.constructor(Ref.nms("", "PacketPlayOutPlayerInfo$PlayerInfoData"), PacketPlayOutPlayerInfo.class, GameProfile.class, int.class, EnumGamemode.class,
-			IChatBaseComponent.class);
+	private static final Constructor<?> infoData = Ref.constructor(
+			Ref.nms("", "PacketPlayOutPlayerInfo$PlayerInfoData"), PacketPlayOutPlayerInfo.class, GameProfile.class,
+			int.class, EnumGamemode.class, IChatBaseComponent.class);
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Object packetPlayerInfo(PlayerInfoType type, GameProfileHandler gameProfile, int latency, GameMode gameMode, Component playerName) {
-		PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.valueOf(type.name()), Collections.emptyList());
-		((List<Object>) Ref.get(packet, playerInfo))
-				.add(Ref.newInstance(infoData, packet, toGameProfile(gameProfile), latency, gameMode == null ? EnumGamemode.SURVIVAL : EnumGamemode.valueOf(gameMode.name()),
-						playerName == null ? toIChatBaseComponent(new Component(gameProfile.getUsername())) : toIChatBaseComponent(playerName)));
+	public Object packetPlayerInfo(PlayerInfoType type, GameProfileHandler gameProfile, int latency, GameMode gameMode,
+			Component playerName) {
+		PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.valueOf(type.name()),
+				Collections.emptyList());
+		((List<Object>) Ref.get(packet, playerInfo)).add(Ref.newInstance(infoData, packet, toGameProfile(gameProfile),
+				latency, gameMode == null ? EnumGamemode.SURVIVAL : EnumGamemode.valueOf(gameMode.name()),
+				playerName == null ? toIChatBaseComponent(new Component(gameProfile.getUsername()))
+						: toIChatBaseComponent(playerName)));
 		return packet;
 	}
 
@@ -1704,7 +1727,8 @@ public class v1_12_R1 implements NmsProvider {
 		EntityPlayer entityPlayer = (EntityPlayer) getPlayer(player);
 		WorldServer worldserver = entityPlayer.x();
 		byte actualDimension = (byte) worldserver.getWorld().getEnvironment().getId();
-		return new PacketPlayOutRespawn((byte) (actualDimension >= 0 ? -1 : 0), worldserver.getDifficulty(), worldserver.getWorldData().getType(), entityPlayer.playerInteractManager.getGameMode());
+		return new PacketPlayOutRespawn((byte) (actualDimension >= 0 ? -1 : 0), worldserver.getDifficulty(),
+				worldserver.getWorldData().getType(), entityPlayer.playerInteractManager.getGameMode());
 	}
 
 	@Override
@@ -1727,7 +1751,8 @@ public class v1_12_R1 implements NmsProvider {
 	public Object toGameProfile(GameProfileHandler gameProfileHandler) {
 		GameProfile profile = new GameProfile(gameProfileHandler.getUUID(), gameProfileHandler.getUsername());
 		for (Entry<String, PropertyHandler> entry : gameProfileHandler.getProperties().entrySet())
-			profile.getProperties().put(entry.getKey(), new Property(entry.getValue().getName(), entry.getValue().getValues(), entry.getValue().getSignature()));
+			profile.getProperties().put(entry.getKey(), new Property(entry.getValue().getName(),
+					entry.getValue().getValues(), entry.getValue().getSignature()));
 		return profile;
 	}
 
@@ -1736,7 +1761,8 @@ public class v1_12_R1 implements NmsProvider {
 		GameProfile profile = (GameProfile) gameProfile;
 		GameProfileHandler handler = GameProfileHandler.of(profile.getName(), profile.getId());
 		for (Entry<String, Property> entry : profile.getProperties().entries())
-			handler.getProperties().put(entry.getKey(), PropertyHandler.of(entry.getValue().getName(), entry.getValue().getValue(), entry.getValue().getSignature()));
+			handler.getProperties().put(entry.getKey(), PropertyHandler.of(entry.getValue().getName(),
+					entry.getValue().getValue(), entry.getValue().getSignature()));
 		return handler;
 	}
 

@@ -14,9 +14,8 @@ repositories {
 
 dependencies {
     compileOnly files("$projectDir/lib/paper-1.20.jar")
-
+	compileOnly("io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT")
     compileOnly 'net.kyori:adventure-api:4.17.0'
-    compileOnly 'org.spigotmc:spigot-api:1.21-R0.1-SNAPSHOT'
     compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.5.8'
     compileOnly 'com.github.TheDevTec:TheAPI-Shared:13.5.8'
     compileOnly 'it.unimi.dsi:fastutil:8.5.12'

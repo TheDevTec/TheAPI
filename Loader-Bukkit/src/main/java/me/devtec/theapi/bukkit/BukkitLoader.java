@@ -336,20 +336,33 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 	@SuppressWarnings("resource")
 	private void loadProvider(boolean canUseJavaFile) throws Exception {
-		String serverVersion = Ref.serverVersion().replace('.', '_');
-		if (!serverVersion.startsWith("v")) {
-			if (Ref.serverType() == ServerType.PAPER
-					&& (Ref.isNewerThan(20) || Ref.isNewerThan(19) && Ref.serverVersionRelease() >= 6))
-				try {
-					Config mappings = Config.loadFromInput(
-							new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/main/paper-mappings.yml")
-									.openStream());
-					serverVersion = mappings.getString(serverVersion);
-				} catch (Exception ignored) {
-
-				}
-			serverVersion = 'v' + serverVersion;
+		String serverVersion;
+		try {
+			serverVersion = ((String) Ref.invoke(Bukkit.getServer(), "getMinecraftVersion")).replace('.', '_');
+			if (serverVersion == null)
+				serverVersion = Ref.serverVersion().replace('.', '_');
+		} catch (Exception e) {
+			serverVersion = Ref.serverVersion().replace('.', '_');
 		}
+		boolean shouldDownloadFromGit = true;
+		if (Ref.isNewerThan(8) && Ref.serverType() != ServerType.PAPER) {
+			shouldDownloadFromGit = false;
+			CommandSender console = Bukkit.getConsoleSender();
+			console.sendMessage(ColorUtils.colorize("&7>"));
+			console.sendMessage(ColorUtils.colorize(
+					"&7> &cWarning! TheAPI no longer supports clear Spigot. Use PaperMC instead. NmsProvider will not be downloaded from github."));
+		}
+		if (shouldDownloadFromGit)
+			try {
+				Config mappings = Config.loadFromInput(
+						new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/main/paper-mappings.yml")
+								.openStream());
+				serverVersion = mappings.getString(serverVersion);
+			} catch (Exception ignored) {
+
+			}
+		if (!serverVersion.startsWith("v"))
+			serverVersion = 'v' + serverVersion;
 		if (ToolProvider.getSystemJavaCompiler() != null && !canUseJavaFile)
 			try {
 				getAllJarFiles();
@@ -365,7 +378,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				err.printStackTrace();
 				Bukkit.getConsoleSender().sendMessage(ColorUtils
 						.colorize("&7> &4Error! Failed to load NmsProvider from .java file, loading from .jar."));
-				checkForUpdateAndDownloadCompiled(serverVersion);
+				if (shouldDownloadFromGit)
+					checkForUpdateAndDownloadCompiled(serverVersion);
 				if (new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".jar").exists()) {
 					URLClassLoader cl = new URLClassLoader(
 							new URL[] { new URL(
@@ -377,7 +391,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				}
 			}
 		else { // JRE
-			checkForUpdateAndDownloadCompiled(serverVersion);
+			if (shouldDownloadFromGit)
+				checkForUpdateAndDownloadCompiled(serverVersion);
 			if (new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".jar").exists()) {
 				URLClassLoader cl = new URLClassLoader(
 						new URL[] {

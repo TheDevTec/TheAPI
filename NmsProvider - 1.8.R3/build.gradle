@@ -3,18 +3,18 @@ plugins {
 }
 
 group = 'me.devtec.theapi.nmsproviders'
-version = '13.5.7'
+version = '13.5.8'
 
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
-    maven { url 'https://maven.elmakers.com/repository/' }
 }
 
 dependencies {
-    compileOnly 'org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT'
-    compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.5.4'
-    compileOnly 'com.github.TheDevTec:TheAPI-Shared:13.5.7'
+    compileOnly files("$projectDir/lib/paper-1.8.8.jar")
+
+    compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.5.8'
+    compileOnly 'com.github.TheDevTec:TheAPI-Shared:13.5.8'
 }
 
 java {
