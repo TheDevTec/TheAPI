@@ -21,3 +21,5 @@
 !.gitignore
 !README.md
 !*/
+/bin/
+/gradle/
