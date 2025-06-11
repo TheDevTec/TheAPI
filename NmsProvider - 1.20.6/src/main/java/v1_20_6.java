@@ -32,7 +32,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -1484,7 +1483,6 @@ public class v1_20_6 implements NmsProvider {
 					}
 
 					// CraftBukkit start - InventoryDragEvent
-					InventoryView view = container.getBukkitView();
 					org.bukkit.inventory.ItemStack newcursor = CraftItemStack.asCraftMirror(itemstack);
 					newcursor.setAmount(count);
 					Map<Integer, org.bukkit.inventory.ItemStack> eventmap = new HashMap<>();
@@ -1514,7 +1512,7 @@ public class v1_20_6 implements NmsProvider {
 						gui.onMultipleIteract((Player) player.getBukkitEntity(), guiSlots, playerSlots);
 
 					for (Map.Entry<Integer, net.minecraft.world.item.ItemStack> dslot : draggedSlots.entrySet())
-						view.setItem(dslot.getKey(), CraftItemStack.asBukkitCopy(dslot.getValue()));
+						container.getBukkitView().setItem(dslot.getKey(), CraftItemStack.asBukkitCopy(dslot.getValue()));
 					// The only time the carried item will be set to null is if the inventory is
 					// closed by the server.
 					// If the inventory is closed by the server, then the cursor items are dropped.
