@@ -21,15 +21,10 @@ import org.bukkit.block.banner.PatternType;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BannerMeta;
-import org.bukkit.inventory.meta.BlockStateMeta;
-import org.bukkit.inventory.meta.BookMeta;
-import org.bukkit.inventory.meta.BundleMeta;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.inventory.meta.*;
+import org.bukkit.inventory.meta.trim.ArmorTrim;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -65,13 +60,17 @@ import me.devtec.theapi.bukkit.xseries.XMaterial;
 
 public class ItemMaker implements Cloneable {
 	protected static final Field SKIN_PROPERTIES = Ref.field(Ref.craft("profile.CraftPlayerProfile"), "properties");
-	protected static final Field SKIN_VALUE = Ref.field(Ref.getClass("com.mojang.authlib.properties.Property"), "value");
+	protected static final Field SKIN_VALUE = Ref.field(Ref.getClass("com.mojang.authlib.properties.Property"),
+			"value");
 	protected static final Field PROFILE_FIELD = Ref.field(Ref.craft("inventory.CraftMetaSkull"), "profile");
 	protected static final Method getBaseColor = Ref.method(BannerMeta.class, "getBaseColor");
 	protected static final Method getPlayerProfile = Ref.method(SkullMeta.class, "getPlayerProfile");
-	protected static final Method getProperties = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.PlayerProfile"), "getProperties");
-	protected static final Method getName = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"), "getName");
-	protected static final Method getValue = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"), "getValue");
+	protected static final Method getProperties = Ref
+			.method(Ref.getClass("com.destroystokyo.paper.profile.PlayerProfile"), "getProperties");
+	protected static final Method getName = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"),
+			"getName");
+	protected static final Method getValue = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"),
+			"getValue");
 
 	@Getter
 	protected Material material;
@@ -93,6 +92,10 @@ public class ItemMaker implements Cloneable {
 	protected byte data;
 	protected NBTEdit nbt;
 	protected boolean enchantedGlow;
+	@Getter
+	protected String trimMaterial;
+	@Getter
+	protected String trimPattern;
 
 	protected ItemMaker(Material material) {
 		this.material = material;
@@ -100,14 +103,15 @@ public class ItemMaker implements Cloneable {
 
 	@Override
 	public ItemMaker clone() {
-		ItemMaker maker = of(material).amount(amount).damage(damage).rawDisplayName(displayName).rawLore(lore).customModel(customModel).data(data).unbreakable(unbreakable).itemFlags(itemFlags);
+		ItemMaker maker = of(material).amount(amount).damage(damage).rawDisplayName(displayName).rawLore(lore)
+				.customModel(customModel).data(data).unbreakable(unbreakable).itemFlags(itemFlags)
+				.trimMaterial(trimMaterial).trimPattern(trimPattern);
 		if (enchants != null) {
 			maker.enchants = new HashMap<>();
 			maker.enchants.putAll(enchants);
 		}
-		if (nbt != null && nbt.getNBT() != null && !nbt.getKeys().isEmpty()) {
+		if (nbt != null && nbt.getNBT() != null && !nbt.getKeys().isEmpty())
 			maker.nbt(new NBTEdit(nbt.getNBT().toString()));
-		}
 		return maker;
 	}
 
@@ -115,103 +119,107 @@ public class ItemMaker implements Cloneable {
 		Map<String, Object> map = new HashMap<>();
 		try {
 			XMaterial type = XMaterial.matchXMaterial(material);
-			if (type == null) {
+			if (type == null)
 				map.put("type", material.name()); // Modded item
-			} else {
+			else
 				map.put("type", type.name());
-			}
 		} catch (IllegalArgumentException error) {
 			map.put("type", material.name()); // Modded item
 		}
 		map.put("amount", amount);
-		if (damage != 0) {
+		if (damage != 0)
 			map.put("durability", damage);
-		}
-		if (customModel != 0) {
+		if (customModel != 0)
 			map.put("customModel", customModel);
-		}
-		if (data != 0) {
+		if (data != 0)
 			map.put("data", data);
-		}
-		if (unbreakable) {
+		if (unbreakable)
 			map.put("unbreakable", true);
-		}
-		if (displayName != null && !displayName.isEmpty()) {
+		if (displayName != null && !displayName.isEmpty())
 			map.put("displayName", displayName);
-		}
-		if (lore != null && !lore.isEmpty()) {
+		if (lore != null && !lore.isEmpty())
 			map.put("lore", lore);
-		}
+		if (trimMaterial != null)
+			map.put("trimMaterial", trimMaterial);
+		if (trimPattern != null)
+			map.put("trimPattern", trimPattern);
 		if (enchants != null) {
 			Map<String, Integer> serialized = new HashMap<>(enchants.size());
-			for (Entry<Enchantment, Integer> s : enchants.entrySet()) {
+			for (Entry<Enchantment, Integer> s : enchants.entrySet())
 				serialized.put(s.getKey().getName(), s.getValue());
-			}
 			map.put("enchants", serialized);
 		}
-		if (itemFlags != null) {
+		if (itemFlags != null)
 			map.put("itemFlags", itemFlags);
-		}
-		if (nbt != null && nbt.getNBT() != null && !nbt.getKeys().isEmpty()) {
+		if (nbt != null && nbt.getNBT() != null && !nbt.getKeys().isEmpty())
 			map.put("nbt", nbt.getNBT().toString());
-		}
 		return map;
 	}
 
 	protected ItemMeta apply(ItemMeta meta) {
-		if (displayName != null) {
+		if (displayName != null)
 			meta.setDisplayName(displayName);
-		}
-		if (lore != null) {
+		if (lore != null)
 			meta.setLore(lore);
+
+		if (Ref.isNewerThan(19) && trimMaterial != null && trimPattern != null && meta instanceof ArmorMeta) {
+			ArmorMeta armorMeta = (ArmorMeta) meta;
+			TrimMaterial trimMaterial = (TrimMaterial) Ref.getStatic(TrimMaterial.class,
+					this.trimMaterial.toUpperCase());
+			TrimPattern trimPattern = (TrimPattern) Ref.getStatic(TrimPattern.class, this.trimPattern.toUpperCase());
+			if (trimMaterial != null && trimPattern != null)
+				armorMeta.setTrim(new ArmorTrim(trimMaterial, trimPattern));
 		}
-		if (enchantedGlow) {
-			if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 4) {
+
+		if (enchantedGlow)
+			if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 4)
 				meta.setEnchantmentGlintOverride(true);
-			} else {
+			else {
 				if (itemFlags != null) {
 					itemFlags.add("HIDE_ENCHANTS");
 					itemFlags.add("HIDE_ATTRIBUTES");
-				} else {
+				} else
 					itemFlags("HIDE_ENCHANTS", "HIDE_ATTRIBUTES");
-				}
-				if (enchants == null || enchants.isEmpty()) {
+				if (enchants == null || enchants.isEmpty())
 					enchant(EnchantmentAPI.DURABILITY.getEnchantment(), 1);
-				}
 			}
-		}
-		if (enchants != null) {
-			for (Entry<Enchantment, Integer> s : enchants.entrySet()) {
+		if (enchants != null)
+			for (Entry<Enchantment, Integer> s : enchants.entrySet())
 				meta.addEnchant(s.getKey(), s.getValue(), true);
-			}
-		}
 		if (Ref.isNewerThan(7) && itemFlags != null) {
 			List<ItemFlag> flags = new ArrayList<>();
-			for (String flag : itemFlags) {
+			for (String flag : itemFlags)
 				try {
 					ItemFlag iFlag = ItemFlag.valueOf(flag.toUpperCase());
 					flags.add(iFlag);
 				} catch (NoSuchFieldError | Exception ignored) {
-					JavaPlugin.getPlugin(BukkitLoader.class).getLogger().warning("ItemFlag '" + flag + "' is not a valid item flag. Valid item flags are: " + Arrays.asList(ItemFlag.values()));
+					JavaPlugin.getPlugin(BukkitLoader.class).getLogger().warning("ItemFlag '" + flag
+							+ "' is not a valid item flag. Valid item flags are: " + Arrays.asList(ItemFlag.values()));
 				}
-			}
 			meta.addItemFlags(flags.toArray(new ItemFlag[0]));
 		}
-		if (Ref.isNewerThan(13) && customModel != 0) {
+		if (Ref.isNewerThan(13) && customModel != 0)
 			meta.setCustomModelData(customModel);
-		}
-		if (unbreakable) {
-			if (Ref.isNewerThan(10)) {
+		if (unbreakable)
+			if (Ref.isNewerThan(10))
 				meta.setUnbreakable(true);
-			} else {
+			else
 				try {
 					Ref.invoke(Ref.invoke(meta, "spigot"), "setUnbreakable", true);
 				} catch (NoSuchFieldError | Exception e2) {
 					// unsupported
 				}
-			}
-		}
 		return meta;
+	}
+
+	public ItemMaker trimMaterial(String material) {
+		this.trimMaterial = material;
+		return this;
+	}
+
+	public ItemMaker trimPattern(String pattern) {
+		this.trimPattern = pattern;
+		return this;
 	}
 
 	public ItemMaker type(Material material) {
@@ -301,12 +309,10 @@ public class ItemMaker implements Cloneable {
 	}
 
 	public ItemMaker enchant(Enchantment enchant, int level) {
-		if (enchant == null) {
+		if (enchant == null)
 			return this;
-		}
-		if (enchants == null) {
+		if (enchants == null)
 			enchants = new HashMap<>();
-		}
 		enchants.put(enchant, level);
 		return this;
 	}
@@ -342,16 +348,16 @@ public class ItemMaker implements Cloneable {
 
 		if (material.name().contains("BANNER")) {
 			BannerMeta banner = (BannerMeta) meta;
-			if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 4) {
+			if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 4)
 				maker = ofBanner(BannerColor.fromType(xmaterial));
-			} else {
+			else {
 				Object color = Ref.invoke(banner, getBaseColor);
-				maker = ofBanner(color != null ? BannerColor.valueOf(color.toString().toUpperCase()) : BannerColor.NONE);
+				maker = ofBanner(
+						color != null ? BannerColor.valueOf(color.toString().toUpperCase()) : BannerColor.NONE);
 			}
 			List<Pattern> patternlist = banner.getPatterns();
-			if (!patternlist.isEmpty()) {
+			if (!patternlist.isEmpty())
 				((BannerItemMaker) maker).patterns(patternlist);
-			}
 		} else if (material.name().contains("SHULKER_BOX")) {
 			BlockStateMeta iMeta = (BlockStateMeta) meta;
 			ShulkerBox shulker = (ShulkerBox) iMeta.getBlockState();
@@ -368,116 +374,102 @@ public class ItemMaker implements Cloneable {
 			if (Ref.isNewerThan(16) && Ref.serverType() == ServerType.PAPER) {
 				Object profile = Ref.invoke(skull, getPlayerProfile);
 				Collection<?> properties = (Collection<?>) Ref.invoke(profile, getProperties);
-				for (Object property : properties) {
+				for (Object property : properties)
 					if ("textures".equals(Ref.invoke(property, getName))) {
 						((HeadItemMaker) maker).skinValues((String) Ref.invoke(property, getValue));
 						break;
 					}
-				}
 			} else if (Ref.isNewerThan(17)) {
 				Object profile = skull.getOwnerProfile();
 				@SuppressWarnings("unchecked")
 				Multimap<String, Object> props = (Multimap<String, Object>) Ref.get(profile, SKIN_PROPERTIES);
 				Collection<Object> coll = props.get("textures");
 				String value = coll.isEmpty() ? null : (String) Ref.get(coll.iterator().next(), SKIN_VALUE);
-				if (value != null) {
+				if (value != null)
 					((HeadItemMaker) maker).skinValues(value);
-				}
-			} else if (skull.getOwner() != null && !skull.getOwner().isEmpty()) {
+			} else if (skull.getOwner() != null && !skull.getOwner().isEmpty())
 				((HeadItemMaker) maker).skinName(skull.getOwner());
-			} else {
+			else {
 				Object profile = Ref.get(skull, PROFILE_FIELD);
 				if (profile != null) {
-					PropertyHandler properties = BukkitLoader.getNmsProvider().fromGameProfile(profile).getProperties().get("textures");
+					PropertyHandler properties = BukkitLoader.getNmsProvider().fromGameProfile(profile).getProperties()
+							.get("textures");
 					String value = properties == null ? null : properties.getValues();
-					if (value != null) {
+					if (value != null)
 						((HeadItemMaker) maker).skinValues(value);
-					}
 				}
 			}
 		} else if (material.name().contains("POTION")) {
 			PotionMeta potion = (PotionMeta) meta;
 
 			maker = ofPotion(Potion.POTION);
-			if ("LINGERING_POTIO".equalsIgnoreCase(material.name())) {
+			if ("LINGERING_POTIO".equalsIgnoreCase(material.name()))
 				maker = ofPotion(Potion.LINGERING);
-			}
-			if ("SPLASH_POTION".equalsIgnoreCase(material.name())) {
+			if ("SPLASH_POTION".equalsIgnoreCase(material.name()))
 				maker = ofPotion(Potion.SPLASH);
-			}
 
 			List<PotionEffect> effects = new ArrayList<>(potion.getCustomEffects());
 
-			if (!effects.isEmpty()) {
+			if (!effects.isEmpty())
 				((PotionItemMaker) maker).potionEffects(effects);
-			}
-			if (Ref.isNewerThan(10)) { // 1.11+
+			if (Ref.isNewerThan(10))
 				if (potion.getColor() != null)
-				((PotionItemMaker) maker).color(potion.getColor());
-			}
+					((PotionItemMaker) maker).color(potion.getColor());
 		} else if (xmaterial == XMaterial.WRITTEN_BOOK || xmaterial == XMaterial.WRITABLE_BOOK) {
 			BookMeta book = (BookMeta) meta;
 			maker = xmaterial == XMaterial.WRITTEN_BOOK ? ofBook() : ofWritableBook();
-			if (book.getAuthor() != null) {
+			if (book.getAuthor() != null)
 				((BookItemMaker) maker).rawAuthor(book.getAuthor());
-			}
-			if (Ref.isNewerThan(9)) { // 1.10+
+			if (Ref.isNewerThan(9))
 				((BookItemMaker) maker).generation(book.getGeneration() == null ? null : book.getGeneration().name());
-			}
 			((BookItemMaker) maker).rawTitle(book.getTitle());
-			if (!book.getPages().isEmpty()) {
+			if (!book.getPages().isEmpty())
 				((BookItemMaker) maker).rawPages(book.getPages());
-			}
 		}
 
 		if (xmaterial == XMaterial.ENCHANTED_BOOK) {
 			EnchantmentStorageMeta book = (EnchantmentStorageMeta) meta;
 			maker = ofEnchantedBook();
-			if (book.hasStoredEnchants()) {
-				for (Entry<Enchantment, Integer> enchant : book.getStoredEnchants().entrySet()) {
+			if (book.hasStoredEnchants())
+				for (Entry<Enchantment, Integer> enchant : book.getStoredEnchants().entrySet())
 					enchant(enchant.getKey(), enchant.getValue());
-				}
-			}
-		} else if (meta.hasEnchants()) {
-			for (Entry<Enchantment, Integer> enchant : meta.getEnchants().entrySet()) {
+		} else if (meta.hasEnchants())
+			for (Entry<Enchantment, Integer> enchant : meta.getEnchants().entrySet())
 				enchant(enchant.getKey(), enchant.getValue());
+		if (Ref.isNewerThan(19) && (meta instanceof ArmorMeta)) {
+			ArmorMeta armorMeta = (ArmorMeta) meta;
+			if (armorMeta.hasTrim()) {
+				trimMaterial(armorMeta.getTrim().getMaterial().getKey().getKey());
+				trimPattern(armorMeta.getTrim().getPattern().getKey().getKey());
 			}
 		}
-
-		if (meta.hasDisplayName()) {
+		if (meta.hasDisplayName())
 			maker.rawDisplayName(meta.getDisplayName());
-		}
-		if (meta.hasLore() && !meta.getLore().isEmpty()) {
+		if (meta.hasLore() && !meta.getLore().isEmpty())
 			maker.rawLore(meta.getLore());
-		}
 		// Unbreakable
 		if (Ref.isNewerThan(10)) { // 1.11+
-			if (meta.isUnbreakable()) {
+			if (meta.isUnbreakable())
 				maker.unbreakable(true);
-			}
-		} else if ((boolean) Ref.invoke(Ref.invoke(meta, "spigot"), "isUnbreakable")) {
+		} else if ((boolean) Ref.invoke(Ref.invoke(meta, "spigot"), "isUnbreakable"))
 			try {
 				maker.unbreakable(true);
 			} catch (NoSuchFieldError | Exception e2) {
 				// unsupported
 			}
-		}
 		// ItemFlags
 		if (Ref.isNewerThan(7)) { // 1.8+
 			List<String> flags = new ArrayList<>();
-			for (ItemFlag flag : meta.getItemFlags()) {
+			for (ItemFlag flag : meta.getItemFlags())
 				flags.add(flag.name());
-			}
-			if (!flags.isEmpty()) {
+			if (!flags.isEmpty())
 				maker.itemFlags(flags);
-			}
 		}
 		// Modeldata
 		if (Ref.isNewerThan(13)) { // 1.14+
 			int modelData = meta.hasCustomModelData() ? meta.getCustomModelData() : 0;
-			if (modelData != 0) {
+			if (modelData != 0)
 				maker.customModel(modelData);
-			}
 		}
 		return maker;
 	}
@@ -485,46 +477,37 @@ public class ItemMaker implements Cloneable {
 	@Override
 	public int hashCode() {
 		int hash = 1;
-		if (material != null) {
+		if (material != null)
 			hash = hash * 33 + material.hashCode();
-		}
 		hash = hash * 33 + amount;
 		hash = hash * 33 + damage;
-		if (displayName != null) {
+		if (displayName != null)
 			hash = hash * 33 + displayName.hashCode();
-		}
-		if (lore != null) {
+		if (lore != null)
 			hash = hash * 33 + lore.hashCode();
-		}
-		if (enchants != null) {
+		if (enchants != null)
 			hash = hash * 33 + enchants.hashCode();
-		}
-		if (itemFlags != null) {
+		if (itemFlags != null)
 			hash = hash * 33 + itemFlags.hashCode();
-		}
 		hash = hash * 33 + customModel;
 		hash = hash * 33 + (unbreakable ? 1 : 0);
 		hash = hash * 33 + data;
-		if (nbt != null && nbt.getNBT() != null && !nbt.getKeys().isEmpty()) {
+		if (nbt != null && nbt.getNBT() != null && !nbt.getKeys().isEmpty())
 			hash = hash * 33 + nbt.getNBT().hashCode();
-		}
 		return hash;
 	}
 
 	public ItemStack build() {
-		if (material == null) {
+		if (material == null)
 			throw new IllegalArgumentException("Material cannot be null");
-		}
-		ItemStack item = data != 0 && Ref.isOlderThan(13) ? new ItemStack(material, amount, (short) 0, data) : new ItemStack(material, amount);
-		if (damage != 0) {
+		ItemStack item = data != 0 && Ref.isOlderThan(13) ? new ItemStack(material, amount, (short) 0, data)
+				: new ItemStack(material, amount);
+		if (damage != 0)
 			item.setDurability(damage);
-		}
-		if (nbt != null && !nbt.getKeys().isEmpty()) {
+		if (nbt != null && !nbt.getKeys().isEmpty())
 			item = BukkitLoader.getNmsProvider().setNBT(item, nbt.getNBT());
-		}
-		if (item.getItemMeta() == null) {
+		if (item.getItemMeta() == null)
 			throw new IllegalArgumentException("Cannot create ItemMeta for material type " + material);
-		}
 		item.setItemMeta(apply(item.getItemMeta()));
 		return item;
 	}
@@ -571,18 +554,16 @@ public class ItemMaker implements Cloneable {
 		default:
 			break;
 		}
-		if (material.getId() == 425 || material.getId() == 177) {
+		if (material.getId() == 425 || material.getId() == 177)
 			return ofBanner(BannerColor.fromType(material));
-		}
 		return new ItemMaker(material.parseMaterial()).data(material.getData());
 	}
 
 	public static ItemMaker of(Material bukkitMaterial) {
 		try {
 			XMaterial material = XMaterial.matchXMaterial(bukkitMaterial);
-			if (material != null) {
+			if (material != null)
 				return of(material);
-			}
 		} catch (IllegalArgumentException error) { // Modded item or null
 		}
 		return new ItemMaker(bukkitMaterial);
@@ -590,21 +571,17 @@ public class ItemMaker implements Cloneable {
 
 	public static ItemMaker of(ItemStack stack) {
 		if (stack == null)
-		 {
 			return null; // invalid item
-		}
 		ItemMaker maker = of(stack.getType());
 
-		if (Ref.isOlderThan(13) && stack.getData() != null) {
+		if (Ref.isOlderThan(13) && stack.getData() != null)
 			maker.data(stack.getData().getData());
-		}
 
 		ItemMeta meta = stack.getItemMeta();
 		maker = maker.itemMeta(meta);
 
-		if (stack.getDurability() != 0) {
+		if (stack.getDurability() != 0)
 			maker.damage(stack.getDurability());
-		}
 		maker.amount(stack.getAmount());
 
 		maker.nbt(new NBTEdit(stack));
@@ -649,23 +626,19 @@ public class ItemMaker implements Cloneable {
 
 	public static void saveToConfig(Config config, String section, ItemStack stack) {
 		if (stack == null || section == null)
-		 {
 			return; // invalid item
-		}
 		config.remove(section); // clear section
 		String path = section;
-		if (!path.isEmpty() && path.charAt(path.length() - 1) != '.') {
+		if (!path.isEmpty() && path.charAt(path.length() - 1) != '.')
 			path = path + '.';
-		}
 		XMaterial type;
 		try {
 			type = XMaterial.matchXMaterial(stack);
 			if (type == null) {
 				type = XMaterial.STONE;
 				config.set(path + "type", stack.getType().name()); // Modded item
-			} else {
+			} else
 				config.set(path + "type", type.name());
-			}
 		} catch (IllegalArgumentException error) {
 			type = XMaterial.STONE;
 			config.set(path + "type", stack.getType().name()); // Modded item
@@ -673,74 +646,66 @@ public class ItemMaker implements Cloneable {
 		config.set(path + "amount", stack.getAmount());
 		if (stack.hasItemMeta()) {
 			ItemMeta meta = stack.getItemMeta();
-			if (stack.getDurability() != 0) {
+			if (stack.getDurability() != 0)
 				config.set(path + "damage", stack.getDurability());
-			}
-			if (meta.getDisplayName() != null) {
+			if (meta.getDisplayName() != null)
 				config.set(path + "displayName", meta.getDisplayName());
-			}
-			if (meta.getLore() != null && !meta.getLore().isEmpty()) {
+			if (meta.getLore() != null && !meta.getLore().isEmpty())
 				config.set(path + "lore", meta.getLore());
-			}
 
 			if (Ref.isNewerThan(10)) { // 1.11+
-				if (meta.isUnbreakable()) {
+				if (meta.isUnbreakable())
 					config.set(path + "unbreakable", true);
-				}
-			} else if ((boolean) Ref.invoke(Ref.invoke(meta, "spigot"), "isUnbreakable")) {
+			} else if ((boolean) Ref.invoke(Ref.invoke(meta, "spigot"), "isUnbreakable"))
 				try {
 					config.set(path + "unbreakable", true);
 				} catch (NoSuchFieldError | Exception e2) {
 					// unsupported
 				}
-			}
 			if (Ref.isNewerThan(7)) { // 1.8+
 				List<String> flags = new ArrayList<>();
-				for (ItemFlag flag : meta.getItemFlags()) {
+				for (ItemFlag flag : meta.getItemFlags())
 					flags.add(flag.name());
-				}
-				if (!flags.isEmpty()) {
+				if (!flags.isEmpty())
 					config.set(path + "itemFlags", flags);
-				}
 			}
 			if (Ref.isNewerThan(13)) { // 1.14+
 				int modelData = meta.hasCustomModelData() ? meta.getCustomModelData() : 0;
-				if (modelData != 0) {
+				if (modelData != 0)
 					config.set(path + "modelData", modelData);
+			}
+			if (Ref.isNewerThan(19) && (meta instanceof ArmorMeta)) {
+				ArmorMeta armorMeta = (ArmorMeta) meta;
+				if (armorMeta.hasTrim()) {
+					config.set(path + "trimMaterial", armorMeta.getTrim().getMaterial().getKey().getKey());
+					config.set(path + "trimPattern", armorMeta.getTrim().getPattern().getKey().getKey());
 				}
 			}
 			if (type == XMaterial.BUNDLE) {
 				List<String> contents = new ArrayList<>();
-				for (ItemStack itemStack : ((BundleMeta) meta).getItems()) {
-					if (itemStack != null && itemStack.getType() != Material.AIR) {
+				for (ItemStack itemStack : ((BundleMeta) meta).getItems())
+					if (itemStack != null && itemStack.getType() != Material.AIR)
 						contents.add(Json.writer().simpleWrite(ItemMaker.of(itemStack).serializeToMap()));
-					}
-				}
-				if (!contents.isEmpty()) {
+				if (!contents.isEmpty())
 					config.set(path + "bundle.contents", contents);
-				}
 			} else if (type.name().contains("SHULKER_BOX")) {
 				BlockStateMeta iMeta = (BlockStateMeta) meta;
 				ShulkerBox shulker = (ShulkerBox) iMeta.getBlockState();
-				if (shulker.getCustomName() != null) {
+				if (shulker.getCustomName() != null)
 					config.set(path + "shulker.name", shulker.getCustomName());
-				}
 				List<String> contents = new ArrayList<>();
-				for (ItemStack itemStack : shulker.getInventory().getContents()) {
-					contents.add(itemStack == null || itemStack.getType() == Material.AIR ? null : Json.writer().simpleWrite(ItemMaker.of(itemStack).serializeToMap()));
-				}
-				if (!contents.isEmpty()) {
+				for (ItemStack itemStack : shulker.getInventory().getContents())
+					contents.add(itemStack == null || itemStack.getType() == Material.AIR ? null
+							: Json.writer().simpleWrite(ItemMaker.of(itemStack).serializeToMap()));
+				if (!contents.isEmpty())
 					config.set(path + "shulker.contents", contents);
-				}
 			} else if (type.name().endsWith("_BANNER") && meta instanceof BannerMeta) {
 				BannerMeta banner = (BannerMeta) meta;
 				List<String> patterns = new ArrayList<>();
-				for (Pattern pattern : banner.getPatterns()) {
+				for (Pattern pattern : banner.getPatterns())
 					patterns.add(pattern.getColor().name() + ":" + pattern.getPattern().name());
-				}
-				if (!patterns.isEmpty()) {
+				if (!patterns.isEmpty())
 					config.set(path + "banner.patterns", patterns);
-				}
 			} else if (type.name().startsWith("LEATHER_") && meta instanceof LeatherArmorMeta) {
 				LeatherArmorMeta armor = (LeatherArmorMeta) meta;
 				String hex = Integer.toHexString(armor.getColor().asRGB());
@@ -750,13 +715,12 @@ public class ItemMaker implements Cloneable {
 				if (Ref.isNewerThan(16) && Ref.serverType() == ServerType.PAPER) {
 					Object profile = Ref.invoke(skull, getPlayerProfile);
 					Collection<?> properties = (Collection<?>) Ref.invoke(profile, getProperties);
-					for (Object property : properties) {
+					for (Object property : properties)
 						if ("textures".equals(Ref.invoke(property, getName))) {
 							config.set(path + "head.owner", Ref.invoke(property, getValue));
 							config.set(path + "head.type", "VALUES");
 							break;
 						}
-					}
 				} else if (Ref.isNewerThan(17)) {
 					Object profile = skull.getOwnerProfile();
 					@SuppressWarnings("unchecked")
@@ -773,7 +737,8 @@ public class ItemMaker implements Cloneable {
 				} else {
 					Object profile = Ref.get(skull, PROFILE_FIELD);
 					if (profile != null) {
-						PropertyHandler properties = BukkitLoader.getNmsProvider().fromGameProfile(profile).getProperties().get("textures");
+						PropertyHandler properties = BukkitLoader.getNmsProvider().fromGameProfile(profile)
+								.getProperties().get("textures");
 						String value = properties == null ? null : properties.getValues();
 						if (value != null) {
 							config.set(path + "head.owner", value);
@@ -784,12 +749,11 @@ public class ItemMaker implements Cloneable {
 			} else if (type.name().contains("POTION") && meta instanceof PotionMeta) {
 				PotionMeta potion = (PotionMeta) meta;
 				List<String> effects = new ArrayList<>();
-				for (PotionEffect effect : potion.getCustomEffects()) {
-					effects.add(effect.getType().getName() + ":" + effect.getDuration() + ":" + effect.getAmplifier() + ":" + effect.isAmbient() + ":" + effect.hasParticles());
-				}
-				if (!effects.isEmpty()) {
+				for (PotionEffect effect : potion.getCustomEffects())
+					effects.add(effect.getType().getName() + ":" + effect.getDuration() + ":" + effect.getAmplifier()
+							+ ":" + effect.isAmbient() + ":" + effect.hasParticles());
+				if (!effects.isEmpty())
 					config.set(path + "potion.effects", effects);
-				}
 				if (Ref.isNewerThan(10) && potion.getColor() != null) {
 					String hex = Integer.toHexString(potion.getColor().asRGB());
 					config.set(path + "potion.color", "#" + (hex.length() > 6 ? hex.substring(2) : hex));
@@ -798,34 +762,27 @@ public class ItemMaker implements Cloneable {
 			List<String> enchants = new ArrayList<>();
 			if (type == XMaterial.ENCHANTED_BOOK && meta instanceof EnchantmentStorageMeta) {
 				EnchantmentStorageMeta book = (EnchantmentStorageMeta) meta;
-				for (Entry<Enchantment, Integer> enchant : book.getStoredEnchants().entrySet()) {
+				for (Entry<Enchantment, Integer> enchant : book.getStoredEnchants().entrySet())
 					enchants.add(enchant.getKey().getName() + ":" + enchant.getValue().toString());
-				}
-			} else {
-				for (Entry<Enchantment, Integer> enchant : meta.getEnchants().entrySet()) {
+			} else
+				for (Entry<Enchantment, Integer> enchant : meta.getEnchants().entrySet())
 					enchants.add(enchant.getKey().getName() + ":" + enchant.getValue().toString());
-				}
-			}
-			if (!enchants.isEmpty()) {
+			if (!enchants.isEmpty())
 				config.set(path + "enchants", enchants);
-			}
 			if ((type == XMaterial.WRITTEN_BOOK || type == XMaterial.WRITABLE_BOOK) && meta instanceof BookMeta) {
 				BookMeta book = (BookMeta) meta;
 				config.set(path + "book.author", book.getAuthor());
-				if (Ref.isNewerThan(9)) { // 1.10+
-					config.set(path + "book.generation", book.getGeneration() == null ? null : book.getGeneration().name());
-				}
+				if (Ref.isNewerThan(9))
+					config.set(path + "book.generation",
+							book.getGeneration() == null ? null : book.getGeneration().name());
 				config.set(path + "book.title", book.getTitle());
-				if (!book.getPages().isEmpty()) {
+				if (!book.getPages().isEmpty())
 					config.set(path + "book.pages", book.getPages());
-				}
 			}
 
 			NBTEdit nbtEdit = removeUnusedStringsFromNbt(new NBTEdit(stack));
 			if (!nbtEdit.getKeys().isEmpty())
-			 {
 				config.set(path + "nbt", nbtEdit.getNBT() + ""); // save clear nbt
-			}
 		}
 	}
 
@@ -872,7 +829,8 @@ public class ItemMaker implements Cloneable {
 	}
 
 	@Nullable // Nullable if map is empty / type is invalid
-	public static ItemStack loadFromJson(Map<String, Object> serializedItem, boolean colorize, Function<String, String> replacer) {
+	public static ItemStack loadFromJson(Map<String, Object> serializedItem, boolean colorize,
+			Function<String, String> replacer) {
 		ItemMaker maker = loadMakerFromJson(serializedItem, colorize, replacer);
 		return maker == null ? null : maker.build();
 	}
@@ -889,187 +847,195 @@ public class ItemMaker implements Cloneable {
 
 	@SuppressWarnings("unchecked")
 	@Nullable // Nullable if section is empty / type is invalid
-	public static ItemMaker loadMakerFromJson(Map<String, Object> serializedItem, boolean colorize, Function<String, String> replacer) {
-		if (serializedItem.isEmpty() || !serializedItem.containsKey("type")) {
+	public static ItemMaker loadMakerFromJson(Map<String, Object> serializedItem, boolean colorize,
+			Function<String, String> replacer) {
+		if (serializedItem.isEmpty() || !serializedItem.containsKey("type"))
 			return null;
-		}
 		String materialTypeName = serializedItem.get("type").toString();
 		XMaterial type = XMaterial.matchXMaterial(materialTypeName.toUpperCase()).orElse(XMaterial.STONE);
-		if (!type.isSupported()) {
+		if (!type.isSupported())
 			return null;
-		}
 		ItemMaker maker;
 		if (type == XMaterial.BUNDLE) {
 			maker = ItemMaker.ofBundle();
 			List<ItemStack> contents = new ArrayList<>();
-			List<Map<String, Object>> serializedContents = (List<Map<String, Object>>) serializedItem.get("bundle.contents");
+			List<Map<String, Object>> serializedContents = (List<Map<String, Object>>) serializedItem
+					.get("bundle.contents");
 			for (Map<String, Object> pattern : serializedContents) {
-				if (pattern == null) {
+				if (pattern == null)
 					continue;
-				}
 				ItemMaker itemMaker = ItemMaker.loadMakerFromJson(pattern, colorize, replacer);
-				if (itemMaker != null && itemMaker.getMaterial() != Material.AIR) {
+				if (itemMaker != null && itemMaker.getMaterial() != Material.AIR)
 					contents.add(itemMaker.build());
-				}
 			}
 			((BundleItemMaker) maker).contents(contents);
 		} else if (type.name().contains("SHULKER_BOX")) {
 			maker = ItemMaker.ofShulkerBox(ShulkerBoxColor.fromType(type));
 			String name = (String) serializedItem.get("shulker.name");
-			if (name != null) {
+			if (name != null)
 				((ShulkerBoxItemMaker) maker).name(name);
-			}
 			List<ItemStack> contents = new ArrayList<>(27);
-			List<Map<String, Object>> serializedContents = (List<Map<String, Object>>) serializedItem.get("shulker.contents");
-			for (Map<String, Object> pattern : serializedContents) {
-				if (pattern == null) {
+			List<Map<String, Object>> serializedContents = (List<Map<String, Object>>) serializedItem
+					.get("shulker.contents");
+			for (Map<String, Object> pattern : serializedContents)
+				if (pattern == null)
 					contents.add(null);
-				} else {
+				else {
 					ItemMaker itemMaker = ItemMaker.loadMakerFromJson(pattern, colorize, replacer);
 					contents.add(itemMaker == null ? null : itemMaker.build());
 				}
-			}
 			((ShulkerBoxItemMaker) maker).contents(contents.toArray(new ItemStack[27]));
 		} else if (type.name().contains("BANNER")) {
 			maker = ItemMaker.ofBanner(BannerColor.valueOf(type.name().substring(0, type.name().indexOf('_'))));
 			// Example: RED:STRIPE_TOP
 			List<Pattern> patterns = new ArrayList<>();
-			if (serializedItem.containsKey("banner.patterns")) {
+			if (serializedItem.containsKey("banner.patterns"))
 				for (String pattern : (List<String>) serializedItem.get("banner.patterns")) {
 					String[] split = pattern.split(":");
-					patterns.add(new Pattern(DyeColor.valueOf(split[0].toUpperCase()), PatternType.valueOf(split[1].toUpperCase())));
+					patterns.add(new Pattern(DyeColor.valueOf(split[0].toUpperCase()),
+							PatternType.valueOf(split[1].toUpperCase())));
 				}
-			}
 			((BannerItemMaker) maker).patterns(patterns);
-		} else if (type.name().contains("LEATHER_") && serializedItem.containsKey("leather.color")) {
-			maker = ItemMaker.ofLeatherArmor(type.parseMaterial()).color(Color.fromRGB(Integer.decode(serializedItem.get("leather.color").toString())));
-		} else if (type == XMaterial.PLAYER_HEAD) {
-			maker = ItemMaker.ofHead();
-			String headOwner = (String) serializedItem.get("head.owner");
-			if (headOwner != null) {
-				/*
-				 * PLAYER VALUES URL
-				 */
-				String headType = serializedItem.getOrDefault("head.type", "PLAYER").toString().toUpperCase();
-				applyHeadOwner(replacer, (HeadItemMaker) maker, headOwner, headType);
-			}
-		} else if (type == XMaterial.POTION || type == XMaterial.LINGERING_POTION || type == XMaterial.SPLASH_POTION) {
-			maker = ItemMaker.ofPotion(type == XMaterial.POTION ? Potion.POTION : type == XMaterial.LINGERING_POTION ? Potion.LINGERING : Potion.SPLASH);
-			List<PotionEffect> effects = new ArrayList<>();
-			if (serializedItem.containsKey("potion.effects")) {
-				for (String pattern : (List<String>) serializedItem.get("potion.effects")) {
-					String[] split = pattern.split(":");
-					// PotionEffectType type, int duration, int amplifier, boolean ambient, boolean
-					// particles
-					effects.add(new PotionEffect(Objects.requireNonNull(PotionEffectType.getByName(split[0].toUpperCase())), ParseUtils.getInt(split[1]), ParseUtils.getInt(split[2]),
-							split.length < 4 || ParseUtils.getBoolean(split[3]), split.length < 5 || ParseUtils.getBoolean(split[4])));
+		} else if (type.name().contains("LEATHER_") && serializedItem.containsKey("leather.color"))
+			maker = ItemMaker.ofLeatherArmor(type.parseMaterial())
+					.color(Color.fromRGB(Integer.decode(serializedItem.get("leather.color").toString())));
+		else
+			switch (type) {
+			case PLAYER_HEAD: {
+				maker = ItemMaker.ofHead();
+				String headOwner = (String) serializedItem.get("head.owner");
+				if (headOwner != null) {
+					/*
+					 * PLAYER VALUES URL
+					 */
+					String headType = serializedItem.getOrDefault("head.type", "PLAYER").toString().toUpperCase();
+					applyHeadOwner(replacer, (HeadItemMaker) maker, headOwner, headType);
 				}
+				break;
 			}
-			((PotionItemMaker) maker).potionEffects(effects);
-			if (serializedItem.containsKey("potion.color")) { // 1.11+
-				((PotionItemMaker) maker).color(Color.fromRGB(Integer.decode(serializedItem.get("potion.color").toString())));
+			case POTION:
+			case LINGERING_POTION:
+			case SPLASH_POTION: {
+				maker = ItemMaker.ofPotion(type == XMaterial.POTION ? Potion.POTION
+						: type == XMaterial.LINGERING_POTION ? Potion.LINGERING : Potion.SPLASH);
+				List<PotionEffect> effects = new ArrayList<>();
+				if (serializedItem.containsKey("potion.effects"))
+					for (String pattern : (List<String>) serializedItem.get("potion.effects")) {
+						String[] split = pattern.split(":");
+						// PotionEffectType type, int duration, int amplifier, boolean ambient, boolean
+						// particles
+						effects.add(new PotionEffect(
+								Objects.requireNonNull(PotionEffectType.getByName(split[0].toUpperCase())),
+								ParseUtils.getInt(split[1]), ParseUtils.getInt(split[2]),
+								split.length < 4 || ParseUtils.getBoolean(split[3]),
+								split.length < 5 || ParseUtils.getBoolean(split[4])));
+					}
+				((PotionItemMaker) maker).potionEffects(effects);
+				if (serializedItem.containsKey("potion.color"))
+					((PotionItemMaker) maker)
+							.color(Color.fromRGB(Integer.decode(serializedItem.get("potion.color").toString())));
+				break;
 			}
-		} else if (type == XMaterial.ENCHANTED_BOOK) {
-			maker = ItemMaker.ofEnchantedBook();
-		} else if (type == XMaterial.WRITTEN_BOOK || type == XMaterial.WRITABLE_BOOK) {
-			maker = type == XMaterial.WRITTEN_BOOK ? ItemMaker.ofBook() : ItemMaker.ofWritableBook();
-			if (serializedItem.containsKey("book.author")) {
-				if (colorize) {
-					((BookItemMaker) maker).author(replacer.apply(serializedItem.get("book.author").toString()));
-				} else {
-					((BookItemMaker) maker).rawAuthor(replacer.apply(serializedItem.get("book.author").toString()));
+			case ENCHANTED_BOOK:
+				maker = ItemMaker.ofEnchantedBook();
+				break;
+			case WRITTEN_BOOK:
+			case WRITABLE_BOOK:
+				maker = type == XMaterial.WRITTEN_BOOK ? ItemMaker.ofBook() : ItemMaker.ofWritableBook();
+				if (serializedItem.containsKey("book.author"))
+					if (colorize)
+						((BookItemMaker) maker).author(replacer.apply(serializedItem.get("book.author").toString()));
+					else
+						((BookItemMaker) maker).rawAuthor(replacer.apply(serializedItem.get("book.author").toString()));
+				if (serializedItem.containsKey("book.generation"))
+					((BookItemMaker) maker).generation(serializedItem.get("book.generation").toString().toUpperCase());
+				if (serializedItem.containsKey("book.title"))
+					if (colorize)
+						((BookItemMaker) maker).title(replacer.apply(serializedItem.get("book.title").toString()));
+					else
+						((BookItemMaker) maker).rawTitle(replacer.apply(serializedItem.get("book.title").toString()));
+				if (serializedItem.containsKey("book.pages")) {
+					List<String> inJson = (List<String>) serializedItem.get("book.pages");
+					List<Component> components = new ArrayList<>(inJson.size());
+					for (String json : inJson)
+						components.add(ComponentAPI.fromJson(replacer.apply(json)));
+					((BookItemMaker) maker).pagesComp(components);
 				}
+				break;
+			default: {
+				Material bukkitType; // Modded server support
+				maker = type == XMaterial.STONE && !"STONE".equals(materialTypeName)
+						&& (bukkitType = Material.getMaterial(materialTypeName)) != null ? ItemMaker.of(bukkitType)
+								: ItemMaker.of(type);
+				break;
 			}
-			if (serializedItem.containsKey("book.generation")) { // 1.10+
-				((BookItemMaker) maker).generation(serializedItem.get("book.generation").toString().toUpperCase());
 			}
-			if (serializedItem.containsKey("book.title")) {
-				if (colorize) {
-					((BookItemMaker) maker).title(replacer.apply(serializedItem.get("book.title").toString()));
-				} else {
-					((BookItemMaker) maker).rawTitle(replacer.apply(serializedItem.get("book.title").toString()));
-				}
-			}
-
-			if (serializedItem.containsKey("book.pages")) {
-				List<String> inJson = (List<String>) serializedItem.get("book.pages");
-				List<Component> components = new ArrayList<>(inJson.size());
-				for (String json : inJson) {
-					components.add(ComponentAPI.fromJson(replacer.apply(json)));
-				}
-				((BookItemMaker) maker).pagesComp(components);
-			}
-		} else {
-			Material bukkitType; // Modded server support
-			maker = type == XMaterial.STONE && !"STONE".equals(materialTypeName) && (bukkitType = Material.getMaterial(materialTypeName)) != null ? ItemMaker.of(bukkitType) : ItemMaker.of(type);
-		}
 
 		String nbt = (String) serializedItem.get("nbt"); // additional nbt
-		if (nbt != null) {
+		if (nbt != null)
 			maker.nbt(new NBTEdit(replacer.apply(nbt)));
-		}
 
-		if (serializedItem.containsKey("amount")) {
+		if (serializedItem.containsKey("amount"))
 			maker.amount(((Number) serializedItem.getOrDefault("amount", 1)).intValue());
-		}
 		if (serializedItem.containsKey("durability")) {
 			short damage = ((Number) serializedItem.get("durability")).shortValue();
-			if (damage != 0) {
+			if (damage != 0)
 				maker.damage(damage);
-			}
 		}
 
 		String displayName = (String) serializedItem.get("displayName");
-		if (displayName != null) {
-			if (colorize) {
+		if (displayName != null)
+			if (colorize)
 				maker.displayName(replacer.apply(displayName));
-			} else {
+			else
 				maker.rawDisplayName(replacer.apply(displayName));
-			}
-		}
 		if (serializedItem.containsKey("lore")) {
 			List<String> lore = (List<String>) serializedItem.get("lore");
 			if (!lore.isEmpty()) {
-				if (colorize) {
+				if (colorize)
 					maker.lore(lore);
-				} else {
+				else
 					maker.rawLore(lore);
-				}
 				maker.getLore().replaceAll(replacer::apply);
 			}
 		}
-		if (serializedItem.containsKey("unbreakable") && (boolean) serializedItem.get("unbreakable")) {
+		if (serializedItem.containsKey("trimMaterial"))
+			maker.trimMaterial(serializedItem.get("trimMaterial").toString());
+		if (serializedItem.containsKey("trimPattern"))
+			maker.trimPattern(serializedItem.get("trimPattern").toString());
+		if (serializedItem.containsKey("unbreakable") && (boolean) serializedItem.get("unbreakable"))
 			maker.unbreakable(true);
-		}
-		if (Ref.isNewerThan(7)) { // 1.8+
-			if (serializedItem.containsKey("itemFlags"))
+		if (serializedItem.containsKey("itemFlags"))
 			maker.itemFlags((List<String>) serializedItem.get("itemFlags"));
-		}
 		if (serializedItem.containsKey("customModel")) {
 			int modelData = ((Number) serializedItem.get("customModel")).intValue();
 			maker.customModel(modelData);
 		}
 
-		if (serializedItem.containsKey("enchants")) {
+		if (serializedItem.containsKey("enchants"))
 			for (Entry<String, Object> enchant : ((Map<String, Object>) serializedItem.get("enchants")).entrySet()) {
 				EnchantmentAPI enchantment = EnchantmentAPI.byName(enchant.getKey().toUpperCase());
-				if (enchantment != null) {
-					maker.enchant(enchantment == EnchantmentAPI.UKNOWN ? Enchantment.getByName(enchant.getKey().toUpperCase()) : enchantment.getEnchantment(),
+				if (enchantment != null)
+					maker.enchant(
+							enchantment == EnchantmentAPI.UKNOWN ? Enchantment.getByName(enchant.getKey().toUpperCase())
+									: enchantment.getEnchantment(),
 							((Number) enchant.getValue()).intValue());
-				}
 			}
-		}
 		return maker;
 	}
 
-	private static void applyHeadOwner(Function<String, String> replacer, HeadItemMaker maker, String headOwner, String headType) {
-		if ("PLAYER".equalsIgnoreCase(headType) || "PLAYER_NAME".equalsIgnoreCase(headType) || "NAME".equalsIgnoreCase(headType)) {
+	private static void applyHeadOwner(Function<String, String> replacer, HeadItemMaker maker, String headOwner,
+			String headType) {
+		if ("PLAYER".equalsIgnoreCase(headType) || "PLAYER_NAME".equalsIgnoreCase(headType)
+				|| "NAME".equalsIgnoreCase(headType))
 			maker.skinName(replacer.apply(headOwner));
-		} else if ("VALUES".equalsIgnoreCase(headType) || "VALUE".equalsIgnoreCase(headType) || "URL".equalsIgnoreCase(headType)) {
-			maker.skinValues("URL".equalsIgnoreCase(headType) ? HeadItemMaker.fromUrl(replacer.apply(headOwner)) : headOwner);
-		} else if ("HDB".equalsIgnoreCase(headType)) {
-			maker.skinValues(HeadItemMaker.hasHDB() ? HeadItemMaker.getBase64OfId(replacer.apply(headOwner)) : headOwner);
-		}
+		else if ("VALUES".equalsIgnoreCase(headType) || "VALUE".equalsIgnoreCase(headType)
+				|| "URL".equalsIgnoreCase(headType))
+			maker.skinValues(
+					"URL".equalsIgnoreCase(headType) ? HeadItemMaker.fromUrl(replacer.apply(headOwner)) : headOwner);
+		else if ("HDB".equalsIgnoreCase(headType))
+			maker.skinValues(
+					HeadItemMaker.hasHDB() ? HeadItemMaker.getBase64OfId(replacer.apply(headOwner)) : headOwner);
 	}
 
 	@Nullable // Nullable if section is empty / type is invalid
@@ -1083,7 +1049,8 @@ public class ItemMaker implements Cloneable {
 	}
 
 	@Nullable // Nullable if section is empty / type is invalid
-	public static ItemStack loadFromConfig(Config config, String path, boolean colorize, Function<String, String> replacer) {
+	public static ItemStack loadFromConfig(Config config, String path, boolean colorize,
+			Function<String, String> replacer) {
 		ItemMaker maker = loadMakerFromConfig(config, path, colorize, replacer);
 		return maker == null ? null : maker.build();
 	}
@@ -1099,52 +1066,45 @@ public class ItemMaker implements Cloneable {
 	}
 
 	@Nullable // Nullable if section is empty / type is invalid
-	public static ItemMaker loadMakerFromConfig(Config config, String section, boolean colorize, Function<String, String> replacer) {
+	public static ItemMaker loadMakerFromConfig(Config config, String section, boolean colorize,
+			Function<String, String> replacer) {
 		String path = section;
-		if (!path.isEmpty() && path.charAt(path.length() - 1) != '.') {
+		if (!path.isEmpty() && path.charAt(path.length() - 1) != '.')
 			path = path + '.';
-		}
 		if (config.getString(path + "type", config.getString(path + "icon")) == null)
-		 {
 			return null; // missing type
-		}
 
 		String materialTypeName = config.getString(path + "type", config.getString(path + "icon"));
 		XMaterial type = XMaterial.matchXMaterial(materialTypeName.toUpperCase()).orElse(XMaterial.STONE);
-		if (!type.isSupported()) {
+		if (!type.isSupported())
 			return null;
-		}
 		ItemMaker maker;
 		if (type == XMaterial.BUNDLE) {
 			maker = ItemMaker.ofBundle();
 			List<ItemStack> contents = new ArrayList<>();
 			List<Map<String, Object>> serializedContents = config.getMapList(path + "bundle.contents");
 			for (Map<String, Object> pattern : serializedContents) {
-				if (pattern == null) {
+				if (pattern == null)
 					continue;
-				}
 				ItemMaker itemMaker = ItemMaker.loadMakerFromJson(pattern, colorize, replacer);
-				if (itemMaker != null && itemMaker.getMaterial() != Material.AIR) {
+				if (itemMaker != null && itemMaker.getMaterial() != Material.AIR)
 					contents.add(itemMaker.build());
-				}
 			}
 			((BundleItemMaker) maker).contents(contents);
 		} else if (type.name().contains("SHULKER_BOX")) {
 			maker = ItemMaker.ofShulkerBox(ShulkerBoxColor.fromType(type));
 			String name = config.getString(path + "shulker.name");
-			if (name != null) {
+			if (name != null)
 				((ShulkerBoxItemMaker) maker).name(name);
-			}
 			List<ItemStack> contents = new ArrayList<>(27);
 			List<Map<String, Object>> serializedContents = config.getMapList(path + "shulker.contents");
-			for (Map<String, Object> pattern : serializedContents) {
-				if (pattern == null) {
+			for (Map<String, Object> pattern : serializedContents)
+				if (pattern == null)
 					contents.add(null);
-				} else {
+				else {
 					ItemMaker itemMaker = ItemMaker.loadMakerFromJson(pattern, colorize, replacer);
 					contents.add(itemMaker == null ? null : itemMaker.build());
 				}
-			}
 			((ShulkerBoxItemMaker) maker).contents(contents.toArray(new ItemStack[27]));
 		} else if (type.name().contains("BANNER")) {
 			maker = ItemMaker.ofBanner(BannerColor.valueOf(type.name().substring(0, type.name().indexOf('_'))));
@@ -1152,117 +1112,125 @@ public class ItemMaker implements Cloneable {
 			List<Pattern> patterns = new ArrayList<>();
 			for (String pattern : config.getStringList(path + "banner.patterns")) {
 				String[] split = pattern.split(":");
-				patterns.add(new Pattern(DyeColor.valueOf(split[0].toUpperCase()), PatternType.valueOf(split[1].toUpperCase())));
+				patterns.add(new Pattern(DyeColor.valueOf(split[0].toUpperCase()),
+						PatternType.valueOf(split[1].toUpperCase())));
 			}
 			((BannerItemMaker) maker).patterns(patterns);
-		} else if (type.name().contains("LEATHER_") && config.getString(path + "leather.color") != null) {
-			maker = ItemMaker.ofLeatherArmor(type.parseMaterial()).color(Color.fromRGB(Integer.decode(config.getString(path + "leather.color"))));
-		} else if (type == XMaterial.PLAYER_HEAD) {
-			maker = ItemMaker.ofHead();
-			String headOwner = config.getString(path + "head.owner");
-			if (headOwner != null) {
-				/*
-				 * PLAYER VALUES URL
-				 */
-				String headType = config.getString(path + "head.type", "PLAYER").toUpperCase();
-				applyHeadOwner(replacer, (HeadItemMaker) maker, headOwner, headType);
-			}
-		} else if (type == XMaterial.POTION || type == XMaterial.LINGERING_POTION || type == XMaterial.SPLASH_POTION) {
-			maker = ItemMaker.ofPotion(type == XMaterial.POTION ? Potion.POTION : type == XMaterial.LINGERING_POTION ? Potion.LINGERING : Potion.SPLASH);
-			List<PotionEffect> effects = new ArrayList<>();
-			for (String pattern : config.getStringList(path + "potion.effects")) {
-				String[] split = pattern.split(":");
-				// PotionEffectType type, int duration, int amplifier, boolean ambient, boolean
-				// particles
-				effects.add(new PotionEffect(Objects.requireNonNull(PotionEffectType.getByName(split[0].toUpperCase())), ParseUtils.getInt(split[1]), ParseUtils.getInt(split[2]),
-						split.length < 4 || ParseUtils.getBoolean(split[3]), split.length < 5 || ParseUtils.getBoolean(split[4])));
-			}
-			((PotionItemMaker) maker).potionEffects(effects);
-			if (config.getString(path + "potion.color") != null) { // 1.11+
-				((PotionItemMaker) maker).color(Color.fromRGB(Integer.decode(config.getString(path + "potion.color"))));
-			}
-		} else if (type == XMaterial.ENCHANTED_BOOK) {
-			maker = ItemMaker.ofEnchantedBook();
-		} else if (type == XMaterial.WRITTEN_BOOK || type == XMaterial.WRITABLE_BOOK) {
-			maker = type == XMaterial.WRITTEN_BOOK ? ItemMaker.ofBook() : ItemMaker.ofWritableBook();
-			if (config.getString(path + "book.author") != null) {
-				if (colorize) {
-					((BookItemMaker) maker).author(replacer.apply(config.getString(path + "book.author")));
-				} else {
-					((BookItemMaker) maker).rawAuthor(replacer.apply(config.getString(path + "book.author")));
+		} else if (type.name().contains("LEATHER_") && config.getString(path + "leather.color") != null)
+			maker = ItemMaker.ofLeatherArmor(type.parseMaterial())
+					.color(Color.fromRGB(Integer.decode(config.getString(path + "leather.color"))));
+		else
+			switch (type) {
+			case PLAYER_HEAD: {
+				maker = ItemMaker.ofHead();
+				String headOwner = config.getString(path + "head.owner");
+				if (headOwner != null) {
+					/*
+					 * PLAYER VALUES URL
+					 */
+					String headType = config.getString(path + "head.type", "PLAYER").toUpperCase();
+					applyHeadOwner(replacer, (HeadItemMaker) maker, headOwner, headType);
 				}
+				break;
 			}
-			if (config.getString(path + "book.generation") != null) { // 1.10+
-				((BookItemMaker) maker).generation(config.getString(path + "book.generation").toUpperCase());
-			}
-			if (config.getString(path + "book.title") != null) {
-				if (colorize) {
-					((BookItemMaker) maker).title(replacer.apply(config.getString(path + "book.title")));
-				} else {
-					((BookItemMaker) maker).rawTitle(replacer.apply(config.getString(path + "book.title")));
+			case POTION:
+			case LINGERING_POTION:
+			case SPLASH_POTION: {
+				maker = ItemMaker.ofPotion(type == XMaterial.POTION ? Potion.POTION
+						: type == XMaterial.LINGERING_POTION ? Potion.LINGERING : Potion.SPLASH);
+				List<PotionEffect> effects = new ArrayList<>();
+				for (String pattern : config.getStringList(path + "potion.effects")) {
+					String[] split = pattern.split(":");
+					// PotionEffectType type, int duration, int amplifier, boolean ambient, boolean
+					// particles
+					effects.add(
+							new PotionEffect(Objects.requireNonNull(PotionEffectType.getByName(split[0].toUpperCase())),
+									ParseUtils.getInt(split[1]), ParseUtils.getInt(split[2]),
+									split.length < 4 || ParseUtils.getBoolean(split[3]),
+									split.length < 5 || ParseUtils.getBoolean(split[4])));
 				}
+				((PotionItemMaker) maker).potionEffects(effects);
+				if (config.getString(path + "potion.color") != null)
+					((PotionItemMaker) maker)
+							.color(Color.fromRGB(Integer.decode(config.getString(path + "potion.color"))));
+				break;
 			}
-			if (!config.getStringList(path + "book.pages").isEmpty()) {
-				List<String> pages = config.getStringList(path + "book.pages");
-				pages.replaceAll(replacer::apply);
-				if (colorize) {
-					((BookItemMaker) maker).pages(pages);
-				} else {
-					((BookItemMaker) maker).rawPages(pages);
+			case ENCHANTED_BOOK:
+				maker = ItemMaker.ofEnchantedBook();
+				break;
+			case WRITTEN_BOOK:
+			case WRITABLE_BOOK:
+				maker = type == XMaterial.WRITTEN_BOOK ? ItemMaker.ofBook() : ItemMaker.ofWritableBook();
+				if (config.getString(path + "book.author") != null)
+					if (colorize)
+						((BookItemMaker) maker).author(replacer.apply(config.getString(path + "book.author")));
+					else
+						((BookItemMaker) maker).rawAuthor(replacer.apply(config.getString(path + "book.author")));
+				if (config.getString(path + "book.generation") != null)
+					((BookItemMaker) maker).generation(config.getString(path + "book.generation").toUpperCase());
+				if (config.getString(path + "book.title") != null)
+					if (colorize)
+						((BookItemMaker) maker).title(replacer.apply(config.getString(path + "book.title")));
+					else
+						((BookItemMaker) maker).rawTitle(replacer.apply(config.getString(path + "book.title")));
+				if (!config.getStringList(path + "book.pages").isEmpty()) {
+					List<String> pages = config.getStringList(path + "book.pages");
+					pages.replaceAll(replacer::apply);
+					if (colorize)
+						((BookItemMaker) maker).pages(pages);
+					else
+						((BookItemMaker) maker).rawPages(pages);
 				}
+				break;
+			default: {
+				Material bukkitType; // Modded server support
+				maker = type == XMaterial.STONE && !"STONE".equals(materialTypeName)
+						&& (bukkitType = Material.getMaterial(materialTypeName)) != null ? ItemMaker.of(bukkitType)
+								: ItemMaker.of(type);
+				break;
 			}
-		} else {
-			Material bukkitType; // Modded server support
-			maker = type == XMaterial.STONE && !"STONE".equals(materialTypeName) && (bukkitType = Material.getMaterial(materialTypeName)) != null ? ItemMaker.of(bukkitType) : ItemMaker.of(type);
-		}
+			}
 
 		String nbt = config.getString(path + "nbt"); // additional nbt
-		if (nbt != null) {
+		if (nbt != null)
 			maker.nbt(new NBTEdit(replacer.apply(nbt)));
-		}
 
 		maker.amount(config.getInt(path + "amount", 1));
 		short damage = config.getShort(path + "damage", config.getShort(path + "durability"));
-		if (damage != 0) {
+		if (damage != 0)
 			maker.damage(damage);
-		}
 
-		if (config.getBoolean(path + "enchanted")) {
+		if (config.getBoolean(path + "enchanted"))
 			maker.enchanted();
-		}
 
 		String displayName = config.getString(path + "displayName", config.getString(path + "display-name"));
-		if (displayName != null) {
-			if (colorize) {
+		if (displayName != null)
+			if (colorize)
 				maker.displayName(replacer.apply(displayName));
-			} else {
+			else
 				maker.rawDisplayName(replacer.apply(displayName));
-			}
-		}
 		List<String> lore = config.getStringList(path + "lore");
 		if (!lore.isEmpty()) {
-			if (colorize) {
+			if (colorize)
 				maker.lore(lore);
-			} else {
+			else
 				maker.rawLore(lore);
-			}
 			maker.getLore().replaceAll(replacer::apply);
 		}
-		if (config.getBoolean(path + "unbreakable")) {
+		maker.trimMaterial(config.getString(path + "trimMaterial"));
+		maker.trimPattern(config.getString(path + "trimPattern"));
+		if (config.getBoolean(path + "unbreakable"))
 			maker.unbreakable(true);
-		}
-		if (Ref.isNewerThan(7)) { // 1.8+
-			maker.itemFlags(config.getStringList(path + "itemFlags"));
-		}
+		maker.itemFlags(config.getStringList(path + "itemFlags"));
 		int modelData = config.getInt(path + "modelData");
 		maker.customModel(modelData);
 
 		for (String enchant : config.getStringList(path + "enchants")) {
 			String[] split = enchant.split(":");
 			EnchantmentAPI enchantment = EnchantmentAPI.byName(split[0].toUpperCase());
-			if (enchantment != null) {
-				maker.enchant(enchantment == EnchantmentAPI.UKNOWN ? Enchantment.getByName(split[0].toUpperCase()) : enchantment.getEnchantment(), split.length >= 2 ? ParseUtils.getInt(split[1]) : 1);
-			}
+			if (enchantment != null)
+				maker.enchant(enchantment == EnchantmentAPI.UKNOWN ? Enchantment.getByName(split[0].toUpperCase())
+						: enchantment.getEnchantment(), split.length >= 2 ? ParseUtils.getInt(split[1]) : 1);
 		}
 		return maker;
 	}
