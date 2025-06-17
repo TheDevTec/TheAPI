@@ -1,5 +1,5 @@
 *
-!main/resources/*.java
+!*.java
 !NmsProvider.jar
 !build.gradle
 !settings.gradle
