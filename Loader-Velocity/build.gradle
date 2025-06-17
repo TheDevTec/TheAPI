@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'me.devtec.theapi.loaders'
-version = '13.5.8'
+version = '13.5.9'
 
 sourceCompatibility = '17'
 targetCompatibility = '17'

@@ -91,6 +91,7 @@ public class ItemMaker implements Cloneable {
 	@Getter
 	protected byte data;
 	protected NBTEdit nbt;
+	@Getter
 	protected boolean enchantedGlow;
 	@Getter
 	protected String trimMaterial;
@@ -110,6 +111,8 @@ public class ItemMaker implements Cloneable {
 			maker.enchants = new HashMap<>();
 			maker.enchants.putAll(enchants);
 		}
+		if (enchantedGlow)
+			maker.enchanted();
 		if (nbt != null && nbt.getNBT() != null && !nbt.getKeys().isEmpty())
 			maker.nbt(new NBTEdit(nbt.getNBT().toString()));
 		return maker;
@@ -126,6 +129,8 @@ public class ItemMaker implements Cloneable {
 		} catch (IllegalArgumentException error) {
 			map.put("type", material.name()); // Modded item
 		}
+		if (enchantedGlow)
+			map.put("enchanted", enchantedGlow);
 		map.put("amount", amount);
 		if (damage != 0)
 			map.put("durability", damage);
@@ -186,7 +191,7 @@ public class ItemMaker implements Cloneable {
 		if (enchants != null)
 			for (Entry<Enchantment, Integer> s : enchants.entrySet())
 				meta.addEnchant(s.getKey(), s.getValue(), true);
-		if (Ref.isNewerThan(7) && itemFlags != null) {
+		if (itemFlags != null) {
 			List<ItemFlag> flags = new ArrayList<>();
 			for (String flag : itemFlags)
 				try {
@@ -436,13 +441,16 @@ public class ItemMaker implements Cloneable {
 		} else if (meta.hasEnchants())
 			for (Entry<Enchantment, Integer> enchant : meta.getEnchants().entrySet())
 				enchant(enchant.getKey(), enchant.getValue());
-		if (Ref.isNewerThan(19) && (meta instanceof ArmorMeta)) {
+		if (Ref.isNewerThan(19) && meta instanceof ArmorMeta) {
 			ArmorMeta armorMeta = (ArmorMeta) meta;
 			if (armorMeta.hasTrim()) {
 				trimMaterial(armorMeta.getTrim().getMaterial().getKey().getKey());
 				trimPattern(armorMeta.getTrim().getPattern().getKey().getKey());
 			}
 		}
+		if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 4)
+			if (meta.hasEnchantmentGlintOverride())
+				maker.enchanted();
 		if (meta.hasDisplayName())
 			maker.rawDisplayName(meta.getDisplayName());
 		if (meta.hasLore() && !meta.getLore().isEmpty())
@@ -458,13 +466,11 @@ public class ItemMaker implements Cloneable {
 				// unsupported
 			}
 		// ItemFlags
-		if (Ref.isNewerThan(7)) { // 1.8+
-			List<String> flags = new ArrayList<>();
-			for (ItemFlag flag : meta.getItemFlags())
-				flags.add(flag.name());
-			if (!flags.isEmpty())
-				maker.itemFlags(flags);
-		}
+		List<String> flags = new ArrayList<>();
+		for (ItemFlag flag : meta.getItemFlags())
+			flags.add(flag.name());
+		if (!flags.isEmpty())
+			maker.itemFlags(flags);
 		// Modeldata
 		if (Ref.isNewerThan(13)) { // 1.14+
 			int modelData = meta.hasCustomModelData() ? meta.getCustomModelData() : 0;
@@ -662,19 +668,20 @@ public class ItemMaker implements Cloneable {
 				} catch (NoSuchFieldError | Exception e2) {
 					// unsupported
 				}
-			if (Ref.isNewerThan(7)) { // 1.8+
-				List<String> flags = new ArrayList<>();
-				for (ItemFlag flag : meta.getItemFlags())
-					flags.add(flag.name());
-				if (!flags.isEmpty())
-					config.set(path + "itemFlags", flags);
-			}
+			if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 4)
+				if (meta.hasEnchantmentGlintOverride())
+					config.set(path + "enchanted", true);
+			List<String> flags = new ArrayList<>();
+			for (ItemFlag flag : meta.getItemFlags())
+				flags.add(flag.name());
+			if (!flags.isEmpty())
+				config.set(path + "itemFlags", flags);
 			if (Ref.isNewerThan(13)) { // 1.14+
 				int modelData = meta.hasCustomModelData() ? meta.getCustomModelData() : 0;
 				if (modelData != 0)
 					config.set(path + "modelData", modelData);
 			}
-			if (Ref.isNewerThan(19) && (meta instanceof ArmorMeta)) {
+			if (Ref.isNewerThan(19) && meta instanceof ArmorMeta) {
 				ArmorMeta armorMeta = (ArmorMeta) meta;
 				if (armorMeta.hasTrim()) {
 					config.set(path + "trimMaterial", armorMeta.getTrim().getMaterial().getKey().getKey());
@@ -1011,7 +1018,8 @@ public class ItemMaker implements Cloneable {
 			int modelData = ((Number) serializedItem.get("customModel")).intValue();
 			maker.customModel(modelData);
 		}
-
+		if ((serializedItem.get("enchanted") + "").equals("true"))
+			maker.enchanted();
 		if (serializedItem.containsKey("enchants"))
 			for (Entry<String, Object> enchant : ((Map<String, Object>) serializedItem.get("enchants")).entrySet()) {
 				EnchantmentAPI enchantment = EnchantmentAPI.byName(enchant.getKey().toUpperCase());
