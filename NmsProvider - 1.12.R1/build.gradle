@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'me.devtec.theapi.nmsproviders'
-version = '13.6'
+version = '13.6.1'
 
 repositories {
     mavenCentral()
@@ -13,8 +13,8 @@ repositories {
 dependencies {
     compileOnly files("$projectDir/lib/paper-1.12.2.jar")
 
-    compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.6'
-    compileOnly 'com.github.TheDevTec:TheAPI-Shared:13.6'
+    compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:13.6.1'
+    compileOnly 'com.github.TheDevTec:TheAPI-Shared:13.6.1'
 }
 
 java {
