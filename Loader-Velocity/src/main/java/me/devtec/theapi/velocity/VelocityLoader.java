@@ -38,7 +38,7 @@ import me.devtec.theapi.velocity.commands.hooker.VelocityCommandManager;
 import me.devtec.theapi.velocity.commands.selectors.VelocitySelectorUtils;
 import net.kyori.adventure.text.Component;
 
-@Plugin(id = "theapi", name = "TheAPI", version = "13.6.2", authors = { "DevTec",
+@Plugin(id = "theapi", name = "TheAPI", version = "13.6.3", authors = { "DevTec",
 		"Straikerinos" }, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 
