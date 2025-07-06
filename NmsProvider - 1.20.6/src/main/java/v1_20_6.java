@@ -1824,9 +1824,18 @@ public class v1_20_6 implements NmsProvider {
 		return new ClientboundPlayerInfoUpdatePacket(set, list);
 	}
 
+	private static Constructor<?> posRot = Ref.constructor(ServerboundMovePlayerPacket.PosRot.class, double.class, double.class, double.class, float.class, float.class, boolean.class);
+	private static boolean is1_21_4 = false;
+	static {
+		if(posRot==null) {
+			is1_21_4=true;
+			posRot = Ref.constructor(ServerboundMovePlayerPacket.PosRot.class, double.class, double.class, double.class, float.class, float.class, boolean.class, boolean.class);
+		}
+	}
+	
 	@Override
 	public Object packetPosition(double x, double y, double z, float yaw, float pitch) {
-		return new ServerboundMovePlayerPacket.PosRot(x, y, z, yaw, pitch, true);
+		return is1_21_4 ? Ref.newInstance(posRot, x, y, z, yaw, pitch, true, false) : Ref.newInstance(posRot, x, y, z, yaw, pitch, true);
 	}
 
 	@Override
