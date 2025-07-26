@@ -284,13 +284,14 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	public void setRepairText(String text) {
+		if (this.text.equals(text))
+			return;
 		this.text = text;
 		for (Object container : containers.values())
 			if (Ref.isNewerThan(16)) {
-				for (int i = 0; i < 2; ++i)
-					BukkitLoader.getNmsProvider().setSlot(container, i,
-							BukkitLoader.getNmsProvider().getSlotItem(container, i));
+				Object itemStack = BukkitLoader.getNmsProvider().getSlotItem(container, 2);
 				Ref.invoke(container, BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "setItemName" : "a", text);
+				BukkitLoader.getNmsProvider().setSlot(container, 2, itemStack);
 			} else
 				Ref.invoke(container, "a", text);
 	}
