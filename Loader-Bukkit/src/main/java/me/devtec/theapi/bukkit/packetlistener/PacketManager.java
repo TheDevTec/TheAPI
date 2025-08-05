@@ -24,21 +24,21 @@ public class PacketManager {
 		ChannelContainer cContainer = new ChannelContainer(channel);
 
 		if (type == PacketType.PLAY_OUT)
-			for (Priority o : PRIORITIES) {
-				List<PacketListener> listeners = PacketManager.listeners.get(o);
-				if (listeners.size() > 0) {
-					int pos = 0;
-					for (PacketListener w = listeners.get(pos); pos < listeners.size(); ++pos)
-						w.playOut(player, pContainer, cContainer);
+			for (Priority priority : PRIORITIES) {
+				List<PacketListener> listeners = PacketManager.listeners.get(priority);
+				if (!listeners.isEmpty()) {
+					PacketListener[] array = listeners.toArray(new PacketListener[0]);
+					for (PacketListener listener : array)
+						listener.playOut(player, pContainer, cContainer);
 				}
 			}
 		else
-			for (Priority o : PRIORITIES) {
-				List<PacketListener> listeners = PacketManager.listeners.get(o);
-				if (listeners.size() > 0) {
-					int pos = 0;
-					for (PacketListener w = listeners.get(pos); pos < listeners.size(); ++pos)
-						w.playIn(player, pContainer, cContainer);
+			for (Priority priority : PRIORITIES) {
+				List<PacketListener> listeners = PacketManager.listeners.get(priority);
+				if (!listeners.isEmpty()) {
+					PacketListener[] array = listeners.toArray(new PacketListener[0]);
+					for (PacketListener listener : array)
+						listener.playIn(player, pContainer, cContainer);
 				}
 			}
 		return pContainer.isCancelled() ? null : pContainer.getPacket();

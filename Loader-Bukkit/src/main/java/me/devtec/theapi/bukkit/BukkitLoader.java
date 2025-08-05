@@ -35,6 +35,8 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import lombok.Getter;
+import lombok.Setter;
 import me.devtec.shared.API;
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
@@ -48,6 +50,8 @@ import me.devtec.shared.placeholders.PlaceholderExpansion;
 import me.devtec.shared.utility.ColorUtils;
 import me.devtec.shared.utility.MemoryCompiler;
 import me.devtec.shared.utility.StreamUtils;
+import me.devtec.shared.utility.StringUtils;
+import me.devtec.shared.utility.StringUtils.FormatType;
 import me.devtec.shared.versioning.VersionUtils;
 import me.devtec.shared.versioning.VersionUtils.Version;
 import me.devtec.theapi.bukkit.bossbar.BossBar;
@@ -59,6 +63,8 @@ import me.devtec.theapi.bukkit.game.resourcepack.ResourcePackResult;
 import me.devtec.theapi.bukkit.game.worldgens.VoidGeneratorHelper;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
+import me.devtec.theapi.bukkit.gui.expansion.utils.EconomyHook;
+import me.devtec.theapi.bukkit.gui.expansion.utils.VaultEconomyHook;
 import me.devtec.theapi.bukkit.nms.NmsProvider;
 import me.devtec.theapi.bukkit.packetlistener.ChannelContainer;
 import me.devtec.theapi.bukkit.packetlistener.PacketContainer;
@@ -76,7 +82,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		BukkitLibInit.initTheAPI();
 		NO_OBFUSCATED_NMS_MODE = Ref.isNewerThan(20) && Ref.serverType() == ServerType.PAPER
 				|| Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 5
-						&& Ref.serverType() == ServerType.PAPER;
+				&& Ref.serverType() == ServerType.PAPER;
 	}
 
 	// public APIs
@@ -91,6 +97,31 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	public final Map<UUID, HolderGUI> gui = new ConcurrentHashMap<>();
 	public List<BossBar> bossbars = new ArrayList<>();
 	public final Map<UUID, ResourcePackHandler> resourcePackHandler = new ConcurrentHashMap<>();
+	@Getter
+	@Setter
+	private static EconomyHook economyHook = new EconomyHook() {
+
+		@Override
+		public double getBalance(String name, String world) {
+			return 0;
+		}
+
+		@Override
+		public void deposit(String name, String world, double balance) {
+
+		}
+
+		@Override
+		public void withdraw(String name, String world, double balance) {
+
+		}
+
+		@Override
+		public String format(Double value) {
+			return StringUtils.formatDouble(FormatType.COMPLEX, value);
+		}
+
+	};
 
 	/**
 	 * @apiNote Get online players on the server
@@ -153,7 +184,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			Map<String, Command> map;
 			Ref.set(Bukkit.getServer(), "commandMap",
 					simpleCommandMap = new LegacySimpleCommandMap(Bukkit.getServer(), map = (Map<String, Command>) Ref
-							.get(Ref.get(Bukkit.getPluginManager(), "commandMap"), "knownCommands")));
+					.get(Ref.get(Bukkit.getPluginManager(), "commandMap"), "knownCommands")));
 
 			BukkitCommandManager.knownCommands = map;
 			BukkitCommandManager.cmdMap = simpleCommandMap;
@@ -214,7 +245,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 						return; // Do not process if event isn't used by any plugin
 					if (nmsProvider.processServerListPing(nick, channel.getChannel(),
 							Ref.isNewerThan(19) || Ref.serverVersionInt() == 19 && Ref.serverVersionRelease() == 3
-									? packetContainer
+							? packetContainer
 									: packetContainer.getPacket()))
 						packetContainer.setCancelled(true);
 				}
@@ -258,7 +289,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 					if (gui instanceof AnvilGUI) {
 						String text = (String) Ref.get(packet, anvilText);
 						BukkitLoader.nmsProvider
-								.postToMainThread(() -> ((AnvilGUI) gui).setRepairText(buildText(text)));
+						.postToMainThread(() -> ((AnvilGUI) gui).setRepairText(buildText(text)));
 						packetContainer.setCancelled(true);
 					}
 					return;
@@ -300,6 +331,9 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		}.register();
 
 		metrics = new Metrics(getDescription().getVersion(), 20203);
+
+		if(Bukkit.getPluginManager().getPlugin("Vault") != null)
+			economyHook=new VaultEconomyHook();
 	}
 
 	private void broadcastSystemInfo() {
@@ -346,7 +380,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			try {
 				Config mappings = Config.loadFromInput(
 						new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/main/paper-mappings.yml")
-								.openStream());
+						.openStream());
 				serverVersion = mappings.getString(serverVersion);
 			} catch (Exception ignored) {
 
@@ -360,7 +394,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				if (new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".java").exists()) {
 					nmsProvider = (NmsProvider) new MemoryCompiler(
 							NO_OBFUSCATED_NMS_MODE ? getClassLoader() : Bukkit.getServer().getClass().getClassLoader(),
-							serverVersion, new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".java"))
+									serverVersion, new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".java"))
 							.buildClass().newInstance();
 					nmsProvider.loadParticles();
 				}
@@ -589,7 +623,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				Bukkit.getConsoleSender().sendMessage(
 						"[TheAPI NmsProvider Updater] §cERROR! Can't download new NmsProvider, please update TheAPI.");
 				Bukkit.getConsoleSender()
-						.sendMessage("[TheAPI NmsProvider Updater] §cERROR! Current release: " + release);
+				.sendMessage("[TheAPI NmsProvider Updater] §cERROR! Current release: " + release);
 				Bukkit.getConsoleSender().sendMessage(
 						"[TheAPI NmsProvider Updater] §cERROR! Required release: " + gitVersion.getString("release"));
 				localVersion.save(DataType.YAML);
