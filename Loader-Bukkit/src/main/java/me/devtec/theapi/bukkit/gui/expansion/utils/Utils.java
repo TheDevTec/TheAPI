@@ -14,6 +14,7 @@ import me.devtec.shared.API;
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.placeholders.PlaceholderAPI;
+import me.devtec.shared.utility.ColorUtils;
 import me.devtec.shared.utility.MathUtils;
 import me.devtec.shared.utility.ParseUtils;
 import me.devtec.shared.utility.StringUtils;
@@ -296,14 +297,15 @@ public class Utils {
 										: ParseUtils.getNumber(entry.getValue() + "")).doubleValue())
 								: entry.getValue() + "");
 		Config data = GuiCreator.sharedData.get(playerId);
-		for (String key : data.getKeys(true))
-			input = input
-			.replace('[' + key + ']',
-					ParseUtils.isNumber(data.getString(key))
-					? StringUtils.formatDouble(FormatType.BASIC,
-							ParseUtils.getNumber(data.getString(key)).doubleValue())
-							: data.getString(key));
-		return Utils.replaceMath(playerId, PlaceholderAPI.apply(input, playerId));
+		if(data!=null)
+			for (String key : data.getKeys(true))
+				input = input
+				.replace('[' + key + ']',
+						ParseUtils.isNumber(data.getString(key))
+						? StringUtils.formatDouble(FormatType.BASIC,
+								ParseUtils.getNumber(data.getString(key)).doubleValue())
+								: data.getString(key));
+		return ColorUtils.colorize(Utils.replaceMath(playerId, PlaceholderAPI.apply(input, playerId)));
 	}
 
 	public static boolean checkForPlaceholders(String line) {

@@ -758,7 +758,7 @@ public class ItemMaker implements Cloneable {
 				List<String> effects = new ArrayList<>();
 				for (PotionEffect effect : potion.getCustomEffects())
 					effects.add(effect.getType().getName() + ":" + effect.getDuration() + ":" + effect.getAmplifier()
-							+ ":" + effect.isAmbient() + ":" + effect.hasParticles());
+					+ ":" + effect.isAmbient() + ":" + effect.hasParticles());
 				if (!effects.isEmpty())
 					config.set(path + "potion.effects", effects);
 				if (Ref.isNewerThan(10) && potion.getColor() != null) {
@@ -905,7 +905,7 @@ public class ItemMaker implements Cloneable {
 			((BannerItemMaker) maker).patterns(patterns);
 		} else if (type.name().contains("LEATHER_") && serializedItem.containsKey("leather.color"))
 			maker = ItemMaker.ofLeatherArmor(type.parseMaterial())
-					.color(Color.fromRGB(Integer.decode(serializedItem.get("leather.color").toString())));
+			.color(Color.fromRGB(Integer.decode(serializedItem.get("leather.color").toString())));
 		else
 			switch (type) {
 			case PLAYER_HEAD: {
@@ -940,7 +940,7 @@ public class ItemMaker implements Cloneable {
 				((PotionItemMaker) maker).potionEffects(effects);
 				if (serializedItem.containsKey("potion.color"))
 					((PotionItemMaker) maker)
-							.color(Color.fromRGB(Integer.decode(serializedItem.get("potion.color").toString())));
+					.color(Color.fromRGB(Integer.decode(serializedItem.get("potion.color").toString())));
 				break;
 			}
 			case ENCHANTED_BOOK:
@@ -1027,7 +1027,7 @@ public class ItemMaker implements Cloneable {
 					maker.enchant(
 							enchantment == EnchantmentAPI.UKNOWN ? Enchantment.getByName(enchant.getKey().toUpperCase())
 									: enchantment.getEnchantment(),
-							((Number) enchant.getValue()).intValue());
+									((Number) enchant.getValue()).intValue());
 			}
 		return maker;
 	}
@@ -1042,8 +1042,8 @@ public class ItemMaker implements Cloneable {
 			maker.skinValues(
 					"URL".equalsIgnoreCase(headType) ? HeadItemMaker.fromUrl(replacer.apply(headOwner)) : headOwner);
 		else if ("HDB".equalsIgnoreCase(headType))
-			maker.skinValues(
-					HeadItemMaker.hasHDB() ? HeadItemMaker.getBase64OfId(replacer.apply(headOwner)) : headOwner);
+			maker.skinHDB(
+					HeadItemMaker.hasHDB() ? replacer.apply(headOwner) : headOwner);
 	}
 
 	@Nullable // Nullable if section is empty / type is invalid
@@ -1126,7 +1126,7 @@ public class ItemMaker implements Cloneable {
 			((BannerItemMaker) maker).patterns(patterns);
 		} else if (type.name().contains("LEATHER_") && config.getString(path + "leather.color") != null)
 			maker = ItemMaker.ofLeatherArmor(type.parseMaterial())
-					.color(Color.fromRGB(Integer.decode(config.getString(path + "leather.color"))));
+			.color(Color.fromRGB(Integer.decode(config.getString(path + "leather.color"))));
 		else
 			switch (type) {
 			case PLAYER_HEAD: {
@@ -1160,7 +1160,7 @@ public class ItemMaker implements Cloneable {
 				((PotionItemMaker) maker).potionEffects(effects);
 				if (config.getString(path + "potion.color") != null)
 					((PotionItemMaker) maker)
-							.color(Color.fromRGB(Integer.decode(config.getString(path + "potion.color"))));
+					.color(Color.fromRGB(Integer.decode(config.getString(path + "potion.color"))));
 				break;
 			}
 			case ENCHANTED_BOOK:

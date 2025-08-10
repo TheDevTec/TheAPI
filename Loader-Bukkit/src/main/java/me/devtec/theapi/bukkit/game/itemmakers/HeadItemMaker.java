@@ -31,8 +31,7 @@ import me.devtec.theapi.bukkit.xseries.XMaterial;
 public class HeadItemMaker extends ItemMaker {
 	private static Object hdbApi;
 	private static int HDB_TYPE;
-
-	static {
+	private static void checkHdb() {
 		if (Ref.getClass("me.arcaniax.hdb.api.HeadDatabaseAPI") != null) {
 			hdbApi = new HeadDatabaseAPI();
 			HDB_TYPE = 1; // paid
@@ -87,6 +86,7 @@ public class HeadItemMaker extends ItemMaker {
 	}
 
 	public HeadItemMaker skinHDB(String id) {
+		checkHdb();
 		if (hdbApi != null) {
 			owner = getBase64OfId(id);
 			ownerType = 1;
@@ -132,12 +132,11 @@ public class HeadItemMaker extends ItemMaker {
 
 	@Override
 	protected ItemMeta apply(ItemMeta meta) {
-		if (!(meta instanceof SkullMeta)) {
+		if (!(meta instanceof SkullMeta))
 			return super.apply(meta);
-		}
 		SkullMeta iMeta = (SkullMeta) meta;
 		String finalValue = owner;
-		if (finalValue != null) {
+		if (finalValue != null)
 			switch (ownerType) {
 			case 0: // Player
 				iMeta.setOwner(finalValue);
@@ -145,18 +144,15 @@ public class HeadItemMaker extends ItemMaker {
 			case 2: // Url
 				finalValue = fromUrl(owner);
 			case 1: { // Values
-				if (finalValue == null) {
+				if (finalValue == null)
 					break;
-				}
 				byte[] decodedBytes = decode(finalValue);
 				long mostSignificant = 0;
 				long leastSignificant = 0;
-				for (int i = 0; i < 8; ++i) {
+				for (int i = 0; i < 8; ++i)
 					mostSignificant = mostSignificant << 8 | decodedBytes[i] & 0xff;
-				}
-				for (int i = 8; i < 16; ++i) {
+				for (int i = 8; i < 16; ++i)
 					leastSignificant = leastSignificant << 8 | decodedBytes[i] & 0xff;
-				}
 				UUID uuid = new UUID(mostSignificant, leastSignificant);
 				if (Ref.isNewerThan(16) && Ref.serverType() == ServerType.PAPER) {
 					Object profile = Ref.invokeStatic(createProfile, uuid);
@@ -170,24 +166,21 @@ public class HeadItemMaker extends ItemMaker {
 					Object property = Ref.newInstance(constructor, "textures", finalValue, null);
 					props.put("textures", property);
 					iMeta.setOwnerProfile(profile);
-				} else {
+				} else
 					Ref.set(iMeta, PROFILE_FIELD, BukkitLoader.getNmsProvider().toGameProfile(GameProfileHandler.of("", uuid, PropertyHandler.of("textures", finalValue))));
-				}
 				break;
 			}
 			default: // New dimension
 				break;
 			}
-		}
 		return super.apply(iMeta);
 	}
 
 	@Override
 	public int hashCode() {
 		int hash = super.hashCode();
-		if (owner != null) {
+		if (owner != null)
 			hash = hash * 33 + owner.hashCode();
-		}
 		return hash * 33 + ownerType;
 	}
 
@@ -205,13 +198,10 @@ public class HeadItemMaker extends ItemMaker {
 		for (int i = 0; i < input.length(); ++i) {
 			char c = input.charAt(i);
 			if (c == '=')
-			 {
 				break; // Padding detected, end of input
-			}
 			int value = BASE64_ALPHABET.indexOf(c);
-			if (value == -1) {
+			if (value == -1)
 				throw new IllegalArgumentException("Invalid Base64 character: " + c);
-			}
 
 			buffer = buffer << 6 | value;
 			bufferLength += 6;
@@ -222,9 +212,8 @@ public class HeadItemMaker extends ItemMaker {
 			}
 		}
 
-		if (index != outputLength) {
+		if (index != outputLength)
 			throw new IllegalArgumentException("Input length is not a multiple of 4.");
-		}
 
 		return output;
 	}
@@ -232,13 +221,11 @@ public class HeadItemMaker extends ItemMaker {
 	private static int countPaddingChars(String input) {
 		int count = 0;
 		int length = input.length();
-		for (int i = length - 1; i >= 0; i--) {
-			if (input.charAt(i) == '=') {
+		for (int i = length - 1; i >= 0; i--)
+			if (input.charAt(i) == '=')
 				count++;
-			} else {
+			else
 				break;
-			}
-		}
 		return count;
 	}
 
@@ -260,13 +247,14 @@ public class HeadItemMaker extends ItemMaker {
 	}
 
 	public static String getBase64OfId(String headOwner) {
-		if (HDB_TYPE == 1) {
+		checkHdb();
+		if (HDB_TYPE == 1)
 			return ((HeadDatabaseAPI) hdbApi).getBase64(headOwner);
-		}
 		return null;
 	}
 
 	public static boolean hasHDB() {
+		checkHdb();
 		return hdbApi != null;
 	}
 }

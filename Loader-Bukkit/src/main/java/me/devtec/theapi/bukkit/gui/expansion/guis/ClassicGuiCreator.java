@@ -284,14 +284,14 @@ public class ClassicGuiCreator implements GuiCreator {
 					}
 				});
 			if (!messages.isEmpty())
-				actions.add((gui, player, placeholders) -> {
+				actions.add(0,(gui, player, placeholders) -> {
 					for (String message : messages)
 						player.sendMessage(ColorUtils
 								.colorize(Utils.replacePlaceholders(message, placeholders, player.getUniqueId())));
 				});
 			if (economyDeposit != null && !economyDeposit.isEmpty()
 					|| economyWithdraw != null && !economyWithdraw.isEmpty())
-				actions.add((gui, player, placeholders) -> {
+				actions.add(0,(gui, player, placeholders) -> {
 					if (economyDeposit != null && !economyDeposit.isEmpty())
 						BukkitLoader.getEconomyHook().deposit(player.getName(), player.getWorld().getName(), ParseUtils.getDouble(
 								Utils.replacePlaceholders(economyDeposit, placeholders, player.getUniqueId())));
@@ -348,7 +348,7 @@ public class ClassicGuiCreator implements GuiCreator {
 										}
 									});
 								if (!messages.isEmpty())
-									actions.add((gui, player, placeholders) -> {
+									actions.add(0,(gui, player, placeholders) -> {
 										for (String message : messages)
 											player.sendMessage(ColorUtils.colorize(Utils.replacePlaceholders(message,
 													placeholders, player.getUniqueId())));
@@ -400,7 +400,7 @@ public class ClassicGuiCreator implements GuiCreator {
 										}
 									});
 								if (!messages.isEmpty())
-									actions.add((gui, player, placeholders) -> {
+									actions.add(0,(gui, player, placeholders) -> {
 										for (String message : messages)
 											player.sendMessage(ColorUtils.colorize(Utils.replacePlaceholders(message,
 													placeholders, player.getUniqueId())));
@@ -460,7 +460,7 @@ public class ClassicGuiCreator implements GuiCreator {
 								}
 							});
 						if (!messages.isEmpty())
-							actions.add((gui, player, placeholders) -> {
+							actions.add(0,(gui, player, placeholders) -> {
 								for (String message : messages)
 									player.sendMessage(ColorUtils.colorize(
 											Utils.replacePlaceholders(message, placeholders, player.getUniqueId())));

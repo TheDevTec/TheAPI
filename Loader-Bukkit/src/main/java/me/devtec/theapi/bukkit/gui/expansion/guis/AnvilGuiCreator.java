@@ -304,7 +304,7 @@ public class AnvilGuiCreator implements GuiCreator {
 					}
 				});
 			if (!messages.isEmpty())
-				actions.add((gui, player, placeholder) -> {
+				actions.add(0,(gui, player, placeholder) -> {
 					Map<String, Object> placeholders = placeholder == null || placeholder.isEmpty() ? new HashMap<>()
 							: placeholder;
 					placeholders.put("renameText", ((AnvilGUI) gui).getRenameText());
@@ -314,7 +314,7 @@ public class AnvilGuiCreator implements GuiCreator {
 				});
 			if (economyDeposit != null && !economyDeposit.isEmpty()
 					|| economyWithdraw != null && !economyWithdraw.isEmpty())
-				actions.add((gui, player, placeholder) -> {
+				actions.add(0,(gui, player, placeholder) -> {
 					Map<String, Object> placeholders = placeholder == null || placeholder.isEmpty() ? new HashMap<>()
 							: placeholder;
 					placeholders.put("renameText", ((AnvilGUI) gui).getRenameText());
@@ -376,7 +376,7 @@ public class AnvilGuiCreator implements GuiCreator {
 									}
 								});
 							if (!messages.isEmpty())
-								actions.add((gui, player, placeholder) -> {
+								actions.add(0,(gui, player, placeholder) -> {
 									Map<String, Object> placeholders = placeholder == null || placeholder.isEmpty()
 											? new HashMap<>()
 													: placeholder;
@@ -437,7 +437,7 @@ public class AnvilGuiCreator implements GuiCreator {
 									}
 								});
 							if (!messages.isEmpty())
-								actions.add((gui, player, placeholder) -> {
+								actions.add(0,(gui, player, placeholder) -> {
 									Map<String, Object> placeholders = placeholder == null || placeholder.isEmpty()
 											? new HashMap<>()
 													: placeholder;
@@ -506,7 +506,7 @@ public class AnvilGuiCreator implements GuiCreator {
 							}
 						});
 					if (!messages.isEmpty())
-						actions.add((gui, player, placeholder) -> {
+						actions.add(0,(gui, player, placeholder) -> {
 							Map<String, Object> placeholders = placeholder == null || placeholder.isEmpty()
 									? new HashMap<>()
 											: placeholder;

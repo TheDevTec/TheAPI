@@ -203,6 +203,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			Bukkit.getConsoleSender().sendMessage(ColorUtils.colorize("&7> &4Error! &eFailed to load PacketHandler."));
 		}
 
+		Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+
 		Class<?> serverPing;
 		Class<?> resource;
 		Class<?> close;

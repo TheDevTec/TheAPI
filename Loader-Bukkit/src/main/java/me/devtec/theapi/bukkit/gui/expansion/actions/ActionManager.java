@@ -4,6 +4,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+
 import me.devtec.shared.API;
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.json.Json;
@@ -111,6 +114,15 @@ public class ActionManager {
 			String path = values.substring(0, values.indexOf(':'));
 			return (gui, player, placeholders) -> {
 				GuiCreator.sharedData.get(player.getUniqueId()).remove(path);
+			};
+		});
+		register("server", (holder, values) -> {
+			ByteArrayDataOutput output = ByteStreams.newDataOutput();
+			output.writeUTF("Connect");
+			output.writeUTF(values);
+			byte[] data = output.toByteArray();
+			return (gui, player, placeholders) -> {
+				player.sendPluginMessage(BukkitLoader.getPlugin(BukkitLoader.class), "BungeeCord", data);
 			};
 		});
 		register("clear_cache", (holder, values) -> (gui, player, placeholders) -> {
