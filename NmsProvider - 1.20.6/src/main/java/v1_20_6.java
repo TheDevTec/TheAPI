@@ -1846,7 +1846,7 @@ public class v1_20_6 implements NmsProvider {
 
 	@Override
 	public String getProviderName() {
-		return "PaperMC (1.20.6) " + Bukkit.getServer().getMinecraftVersion();
+		return "PaperMC (1.20.6) " + Ref.invoke(Bukkit.getServer(),"getMinecraftVersion");
 	}
 
 	@Override
