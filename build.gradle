@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-def versionValue = System.getenv('VERSION') ?: '13.6.5'
+def versionValue = System.getenv('VERSION') ?: '13.6.7'
 group = 'me.devtec.theapi.loaders'
 version = versionValue
 
@@ -21,7 +21,7 @@ allprojects {
 }
 
 dependencies {
-    implementation 'com.github.TheDevTec:TheAPI-Shared:13.6.5'
+    implementation 'com.github.TheDevTec:TheAPI-Shared:13.6.7'
 }
 
 subprojects {
@@ -48,7 +48,7 @@ subprojects {
     dependencies {
         compileOnly 'org.projectlombok:lombok:1.18.36'
         annotationProcessor 'org.projectlombok:lombok:1.18.36'
-        implementation 'com.github.TheDevTec:TheAPI-Shared:13.6.5'
+        implementation 'com.github.TheDevTec:TheAPI-Shared:13.6.7'
     }
 
     tasks.withType(JavaCompile) {
