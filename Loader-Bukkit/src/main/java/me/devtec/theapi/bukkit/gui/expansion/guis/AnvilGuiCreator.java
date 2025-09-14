@@ -63,10 +63,10 @@ public class AnvilGuiCreator implements GuiCreator {
 			int pos = 0;
 			for (Action action : actions) {
 				if (action.shouldSync()) {
-					action.runSync(++pos, actions, staticGui, player, Collections.emptyMap());
+					action.runSync(++pos, actions, staticGui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 					break;
 				}
-				action.run(staticGui, player, Collections.emptyMap());
+				action.run(staticGui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 				++pos;
 			}
 		}
@@ -77,10 +77,10 @@ public class AnvilGuiCreator implements GuiCreator {
 				int pos = 0;
 				for (Action action : actions) {
 					if (action.shouldSync()) {
-						action.runSync(++pos, actions, staticGui, player, Collections.emptyMap());
+						action.runSync(++pos, actions, staticGui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 						break;
 					}
-					action.run(staticGui, player, Collections.emptyMap());
+					action.run(staticGui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 					++pos;
 				}
 			}
@@ -108,10 +108,10 @@ public class AnvilGuiCreator implements GuiCreator {
 					int pos = 0;
 					for (Action action : actions) {
 						if (action.shouldSync()) {
-							action.runSync(++pos, actions, this, player, placeholder);
+							action.runSync(++pos, actions, this, player, sharedData.get(player.getUniqueId()), placeholder);
 							break;
 						}
-						action.run(this, player, placeholder);
+						action.run(this, player, sharedData.get(player.getUniqueId()), placeholder);
 						++pos;
 					}
 				}
@@ -129,10 +129,10 @@ public class AnvilGuiCreator implements GuiCreator {
 					placeholder.put("renameText", gui.getRenameText());
 					for (Action action : task.getActions()) {
 						if (action.shouldSync()) {
-							action.runSync(++pos, task.getActions(), gui, player, placeholder);
+							action.runSync(++pos, task.getActions(), gui, player, sharedData.get(player.getUniqueId()), placeholder);
 							break;
 						}
-						action.run(gui, player, placeholder);
+						action.run(gui, player, sharedData.get(player.getUniqueId()), placeholder);
 						++pos;
 					}
 				}
@@ -147,14 +147,14 @@ public class AnvilGuiCreator implements GuiCreator {
 				public void onClick(Player player, HolderGUI gui, ClickType click) {
 					Map<String, Object> placeholder = new HashMap<>();
 					placeholder.put("renameText", ((AnvilGUI) gui).getRenameText());
-					dynamicItem.getValue().runActions(gui, player, placeholder);
+					dynamicItem.getValue().runActions(gui, player, sharedData.get(player.getUniqueId()), placeholder);
 				}
 			};
 			for (int slot : dynamicItem.getValue().getSlots())
 				gui.setItem(slot, item);
 		}
 		for (Entry<Character, ConditionItem> conditionItem : conditionItems.entrySet()) {
-			ItemPackage itemPackage = conditionItem.getValue().test(player, Collections.emptyMap());
+			ItemPackage itemPackage = conditionItem.getValue().test(player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 			if (itemPackage.getItem() != null) {
 				if (itemPackage instanceof StaticItemPackage) {
 					StaticItemPackage staticPackage = (StaticItemPackage) itemPackage;
@@ -169,7 +169,7 @@ public class AnvilGuiCreator implements GuiCreator {
 					public void onClick(Player player, HolderGUI gui, ClickType click) {
 						Map<String, Object> placeholder = new HashMap<>();
 						placeholder.put("renameText", ((AnvilGUI) gui).getRenameText());
-						itemPackage.runActions(gui, player, placeholder);
+						itemPackage.runActions(gui, player, sharedData.get(player.getUniqueId()), placeholder);
 					}
 				};
 				for (int slot : conditionItem.getValue().getSlots())
@@ -186,10 +186,10 @@ public class AnvilGuiCreator implements GuiCreator {
 			int pos = 0;
 			for (Action action : actions) {
 				if (action.shouldSync()) {
-					action.runSync(++pos, actions, gui, player, placeholder);
+					action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), placeholder);
 					break;
 				}
-				action.run(gui, player, placeholder);
+				action.run(gui, player, sharedData.get(player.getUniqueId()), placeholder);
 				++pos;
 			}
 		}
@@ -208,7 +208,7 @@ public class AnvilGuiCreator implements GuiCreator {
 		}
 		ConditionItem conditionItem = conditionItems.get(itemId);
 		if (conditionItem != null) {
-			ItemPackage packageItem = conditionItem.test(player, Collections.emptyMap());
+			ItemPackage packageItem = conditionItem.test(player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 			if (packageItem.getItem() == null)
 				for (int slot : conditionItem.getSlots())
 					gui.remove(slot);
@@ -231,7 +231,7 @@ public class AnvilGuiCreator implements GuiCreator {
 					public void onClick(Player player, HolderGUI gui, ClickType click) {
 						Map<String, Object> placeholder = new HashMap<>();
 						placeholder.put("renameText", ((AnvilGUI) gui).getRenameText());
-						packageItem.runActions(gui, player, placeholder);
+						packageItem.runActions(gui, player, sharedData.get(player.getUniqueId()), placeholder);
 					}
 				};
 				else
@@ -286,7 +286,7 @@ public class AnvilGuiCreator implements GuiCreator {
 			if (!commands.isEmpty())
 				actions.add(0, new Action() {
 					@Override
-					public void run(HolderGUI gui, Player player, java.util.Map<String, Object> placeholder) {
+					public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholder) {
 						Map<String, Object> placeholders = placeholder == null || placeholder.isEmpty()
 								? new HashMap<>()
 										: placeholder;
@@ -304,7 +304,7 @@ public class AnvilGuiCreator implements GuiCreator {
 					}
 				});
 			if (!messages.isEmpty())
-				actions.add(0,(gui, player, placeholder) -> {
+				actions.add(0,(gui, player, sharedData, placeholder) -> {
 					Map<String, Object> placeholders = placeholder == null || placeholder.isEmpty() ? new HashMap<>()
 							: placeholder;
 					placeholders.put("renameText", ((AnvilGUI) gui).getRenameText());
@@ -314,7 +314,7 @@ public class AnvilGuiCreator implements GuiCreator {
 				});
 			if (economyDeposit != null && !economyDeposit.isEmpty()
 					|| economyWithdraw != null && !economyWithdraw.isEmpty())
-				actions.add(0,(gui, player, placeholder) -> {
+				actions.add(0,(gui, player, sharedData, placeholder) -> {
 					Map<String, Object> placeholders = placeholder == null || placeholder.isEmpty() ? new HashMap<>()
 							: placeholder;
 					placeholders.put("renameText", ((AnvilGUI) gui).getRenameText());
@@ -356,8 +356,7 @@ public class AnvilGuiCreator implements GuiCreator {
 							if (!commands.isEmpty())
 								actions.add(0, new Action() {
 									@Override
-									public void run(HolderGUI gui, Player player,
-											java.util.Map<String, Object> placeholder) {
+									public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholder) {
 										Map<String, Object> placeholders = placeholder == null || placeholder.isEmpty()
 												? new HashMap<>()
 														: placeholder;
@@ -376,7 +375,7 @@ public class AnvilGuiCreator implements GuiCreator {
 									}
 								});
 							if (!messages.isEmpty())
-								actions.add(0,(gui, player, placeholder) -> {
+								actions.add(0,(gui, player, sharedData, placeholder) -> {
 									Map<String, Object> placeholders = placeholder == null || placeholder.isEmpty()
 											? new HashMap<>()
 													: placeholder;
@@ -398,10 +397,10 @@ public class AnvilGuiCreator implements GuiCreator {
 										int pos = 0;
 										for (Action action : actions) {
 											if (action.shouldSync()) {
-												action.runSync(++pos, actions, gui, player, placeholders);
+												action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), placeholders);
 												break;
 											}
-											action.run(gui, player, placeholders);
+											action.run(gui, player, sharedData.get(player.getUniqueId()), placeholders);
 											++pos;
 										}
 									}
@@ -417,8 +416,7 @@ public class AnvilGuiCreator implements GuiCreator {
 							if (!commands.isEmpty())
 								actions.add(0, new Action() {
 									@Override
-									public void run(HolderGUI gui, Player player,
-											java.util.Map<String, Object> placeholder) {
+									public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholder) {
 										Map<String, Object> placeholders = placeholder == null || placeholder.isEmpty()
 												? new HashMap<>()
 														: placeholder;
@@ -437,7 +435,7 @@ public class AnvilGuiCreator implements GuiCreator {
 									}
 								});
 							if (!messages.isEmpty())
-								actions.add(0,(gui, player, placeholder) -> {
+								actions.add(0,(gui, player, sharedData, placeholder) -> {
 									Map<String, Object> placeholders = placeholder == null || placeholder.isEmpty()
 											? new HashMap<>()
 													: placeholder;
@@ -459,18 +457,17 @@ public class AnvilGuiCreator implements GuiCreator {
 										int pos = 0;
 										for (Action action : actions) {
 											if (action.shouldSync()) {
-												action.runSync(++pos, actions, gui, player, placeholders);
+												action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), placeholders);
 												break;
 											}
-											action.run(gui, player, placeholders);
+											action.run(gui, player, sharedData.get(player.getUniqueId()), placeholders);
 											++pos;
 										}
 									}
 								}, maker, pos, actions);
 						} else
 							not = new ItemPackage(null, null, pos, Collections.emptyList());
-						List<Condition> conditions = Utils
-								.createConditions(config.getStringList("items." + c + ".conditions"));
+						List<Condition> conditions = Utils.createConditions(config.getStringList("items." + c + ".conditions"));
 						conditionItems.put(c, new ConditionItem(conditions, pos, has, not));
 						continue;
 					}
@@ -487,7 +484,7 @@ public class AnvilGuiCreator implements GuiCreator {
 					if (!commands.isEmpty())
 						actions.add(0, new Action() {
 							@Override
-							public void run(HolderGUI gui, Player player, java.util.Map<String, Object> placeholder) {
+							public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholder) {
 								Map<String, Object> placeholders = placeholder == null || placeholder.isEmpty()
 										? new HashMap<>()
 												: placeholder;
@@ -506,7 +503,7 @@ public class AnvilGuiCreator implements GuiCreator {
 							}
 						});
 					if (!messages.isEmpty())
-						actions.add(0,(gui, player, placeholder) -> {
+						actions.add(0,(gui, player, sharedData, placeholder) -> {
 							Map<String, Object> placeholders = placeholder == null || placeholder.isEmpty()
 									? new HashMap<>()
 											: placeholder;
@@ -528,10 +525,10 @@ public class AnvilGuiCreator implements GuiCreator {
 								int pos = 0;
 								for (Action action : actions) {
 									if (action.shouldSync()) {
-										action.runSync(++pos, actions, gui, player, placeholders);
+										action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), placeholders);
 										break;
 									}
-									action.run(gui, player, placeholders);
+									action.run(gui, player, sharedData.get(player.getUniqueId()), placeholders);
 									++pos;
 								}
 							}

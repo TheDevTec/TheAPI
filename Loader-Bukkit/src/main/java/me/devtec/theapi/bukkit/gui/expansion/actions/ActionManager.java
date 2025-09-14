@@ -14,6 +14,7 @@ import me.devtec.shared.utility.ParseUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.gui.AnvilGUI;
 import me.devtec.theapi.bukkit.gui.expansion.GuiCreator;
+import me.devtec.theapi.bukkit.gui.expansion.guis.LoopGuiCreator;
 import me.devtec.theapi.bukkit.gui.expansion.utils.Utils;
 
 public class ActionManager {
@@ -35,19 +36,25 @@ public class ActionManager {
 	public static void registerDefaults() {
 		register("open_menu", (holder, values) -> {
 			String id = values;
-			return (gui, player, placeholders) -> {
+			return (gui, player, sharedData, placeholders) -> {
 				GuiCreator creator = GuiCreator.guis.get(id);
-				if (creator != null)
-					creator.open(player);
+				if (creator != null) {
+					if(creator instanceof LoopGuiCreator && placeholders.containsKey("page")) {
+						LoopGuiCreator loop = (LoopGuiCreator) creator;
+						Object page = placeholders.get("page");
+						loop.open(player, page instanceof Number ? ((Number)page).intValue() : 1);
+					}else
+						creator.open(player);
+				}
 				else
 					BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
 					.warning("[GUiExpansion] Not found menu with id " + id + "!");
 			};
 		});
-		register("close_menu", (holder, values) -> (gui, player, placeholders) -> {
+		register("close_menu", (holder, values) -> (gui, player, sharedData, placeholders) -> {
 			gui.close();
 		});
-		register("set_rename_text", (holder, values) -> (gui, player, placeholders) -> {
+		register("set_rename_text", (holder, values) -> (gui, player, sharedData, placeholders) -> {
 			if (gui instanceof AnvilGUI)
 				BukkitLoader.getNmsProvider().postToMainThread(() -> ((AnvilGUI) gui).setRepairText(values));
 		});
@@ -56,7 +63,7 @@ public class ActionManager {
 			String path = values.substring(0, values.indexOf(':'));
 			String value = values.substring(values.indexOf(':') + 1);
 			boolean hasPlaceholders = Utils.checkForPlaceholders(value);
-			return (gui, player, placeholders) -> {
+			return (gui, player, sharedData, placeholders) -> {
 				String input = value;
 				if (hasPlaceholders) {
 					if (gui instanceof AnvilGUI)
@@ -70,7 +77,7 @@ public class ActionManager {
 			String path = values.substring(0, values.indexOf(':'));
 			String value = values.substring(values.indexOf(':') + 1);
 			boolean hasPlaceholders = Utils.checkForPlaceholders(value);
-			return (gui, player, placeholders) -> {
+			return (gui, player, sharedData, placeholders) -> {
 				String input = value;
 				if (hasPlaceholders) {
 					if (gui instanceof AnvilGUI)
@@ -84,7 +91,7 @@ public class ActionManager {
 			String path = values.substring(0, values.indexOf(':'));
 			String value = values.substring(values.indexOf(':') + 1);
 			boolean hasPlaceholders = Utils.checkForPlaceholders(value);
-			return (gui, player, placeholders) -> {
+			return (gui, player, sharedData, placeholders) -> {
 				String input = value;
 				if (hasPlaceholders) {
 					if (gui instanceof AnvilGUI)
@@ -99,7 +106,7 @@ public class ActionManager {
 			String path = values.substring(0, values.indexOf(':'));
 			String value = values.substring(values.indexOf(':') + 1);
 			boolean hasPlaceholders = Utils.checkForPlaceholders(value);
-			return (gui, player, placeholders) -> {
+			return (gui, player, sharedData, placeholders) -> {
 				String input = value;
 				if (hasPlaceholders) {
 					if (gui instanceof AnvilGUI)
@@ -112,7 +119,7 @@ public class ActionManager {
 		});
 		register("remove_cache", (holder, values) -> {
 			String path = values.substring(0, values.indexOf(':'));
-			return (gui, player, placeholders) -> {
+			return (gui, player, sharedData, placeholders) -> {
 				GuiCreator.sharedData.get(player.getUniqueId()).remove(path);
 			};
 		});
@@ -121,16 +128,16 @@ public class ActionManager {
 			output.writeUTF("Connect");
 			output.writeUTF(values);
 			byte[] data = output.toByteArray();
-			return (gui, player, placeholders) -> {
+			return (gui, player, sharedData, placeholders) -> {
 				player.sendPluginMessage(BukkitLoader.getPlugin(BukkitLoader.class), "BungeeCord", data);
 			};
 		});
-		register("clear_cache", (holder, values) -> (gui, player, placeholders) -> {
+		register("clear_cache", (holder, values) -> (gui, player, sharedData, placeholders) -> {
 			GuiCreator.sharedData.get(player.getUniqueId()).reset();
 		});
 		register("update_item", (holder, values) -> {
 			char itemId = values.charAt(0);
-			return (gui, player, placeholders) -> {
+			return (gui, player, sharedData, placeholders) -> {
 				holder.updateItem(gui, player, itemId);
 			};
 		});
@@ -139,7 +146,7 @@ public class ActionManager {
 			String path = values.substring(0, values.indexOf(':'));
 			String value = values.substring(values.indexOf(':') + 1);
 			boolean hasPlaceholders = Utils.checkForPlaceholders(value);
-			return (gui, player, placeholders) -> {
+			return (gui, player, sharedData, placeholders) -> {
 				String input = value;
 				if (hasPlaceholders) {
 					if (gui instanceof AnvilGUI)
@@ -153,7 +160,7 @@ public class ActionManager {
 			String path = values.substring(0, values.indexOf(':'));
 			String value = values.substring(values.indexOf(':') + 1);
 			boolean hasPlaceholders = Utils.checkForPlaceholders(value);
-			return (gui, player, placeholders) -> {
+			return (gui, player, sharedData, placeholders) -> {
 				String input = value;
 				if (hasPlaceholders) {
 					if (gui instanceof AnvilGUI)
@@ -167,7 +174,7 @@ public class ActionManager {
 			String path = values.substring(0, values.indexOf(':'));
 			String value = values.substring(values.indexOf(':') + 1);
 			boolean hasPlaceholders = Utils.checkForPlaceholders(value);
-			return (gui, player, placeholders) -> {
+			return (gui, player, sharedData, placeholders) -> {
 				String input = value;
 				if (hasPlaceholders) {
 					if (gui instanceof AnvilGUI)
@@ -182,7 +189,7 @@ public class ActionManager {
 			String path = values.substring(0, values.indexOf(':'));
 			String value = values.substring(values.indexOf(':') + 1);
 			boolean hasPlaceholders = Utils.checkForPlaceholders(value);
-			return (gui, player, placeholders) -> {
+			return (gui, player, sharedData, placeholders) -> {
 				String input = value;
 				if (hasPlaceholders) {
 					if (gui instanceof AnvilGUI)
@@ -195,7 +202,7 @@ public class ActionManager {
 		});
 		register("remove_user", (holder, values) -> {
 			String path = values.substring(0, values.indexOf(':'));
-			return (gui, player, placeholders) -> {
+			return (gui, player, sharedData, placeholders) -> {
 				API.getUser(player.getUniqueId()).remove(path);
 			};
 		});
@@ -209,7 +216,7 @@ public class ActionManager {
 			String noName = no.indexOf('{') == -1 ? no : no.substring(0, no.indexOf('{'));
 			String noJson = no.indexOf('{') == -1 ? null : no.substring(no.indexOf('{'));
 			boolean hasPlaceholders = Utils.checkForPlaceholders(balance);
-			return (gui, player, placeholders) -> {
+			return (gui, player, sharedData, placeholders) -> {
 				String input = balance;
 				if (hasPlaceholders) {
 					if (gui instanceof AnvilGUI)
@@ -227,7 +234,7 @@ public class ActionManager {
 							BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
 							.warning("[GUiExpansion] [Action] This is not json! " + yesJson);
 					}
-					Utils.processActions(holder, gui, player, innerPlaceholders, yesName);
+					Utils.processActions(holder, gui, player, sharedData, innerPlaceholders, yesName);
 				} else {
 					Map<String, Object> innerPlaceholders = Collections.emptyMap();
 					if (noJson != null) {
@@ -238,7 +245,7 @@ public class ActionManager {
 							BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
 							.warning("[GUiExpansion] [Action] This is not json! " + noJson);
 					}
-					Utils.processActions(holder, gui, player, innerPlaceholders, noName);
+					Utils.processActions(holder, gui, player, sharedData, innerPlaceholders, noName);
 				}
 			};
 		});
@@ -252,7 +259,7 @@ public class ActionManager {
 			String noName = no.indexOf('{') == -1 ? no : no.substring(0, no.indexOf('{'));
 			String noJson = no.indexOf('{') == -1 ? null : no.substring(no.indexOf('{'));
 			boolean hasPlaceholders = Utils.checkForPlaceholders(permission);
-			return (gui, player, placeholders) -> {
+			return (gui, player, sharedData, placeholders) -> {
 				String input = permission;
 				if (hasPlaceholders) {
 					if (gui instanceof AnvilGUI)
@@ -269,7 +276,7 @@ public class ActionManager {
 							BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
 							.warning("[GUiExpansion] [Action] This is not json! " + yesJson);
 					}
-					Utils.processActions(holder, gui, player, innerPlaceholders, yesName);
+					Utils.processActions(holder, gui, player, sharedData, innerPlaceholders, yesName);
 				} else {
 					Map<String, Object> innerPlaceholders = Collections.emptyMap();
 					if (noJson != null) {
@@ -280,7 +287,7 @@ public class ActionManager {
 							BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
 							.warning("[GUiExpansion] [Action] This is not json! " + noJson);
 					}
-					Utils.processActions(holder, gui, player, innerPlaceholders, noName);
+					Utils.processActions(holder, gui, player, sharedData, innerPlaceholders, noName);
 				}
 			};
 		});
@@ -331,14 +338,14 @@ public class ActionManager {
 					BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
 					.warning("[GUiExpansion] Action check_placeholder in the action with values '" + values
 							+ "' doesn't contain check type (X==Z, X!=Z...)");
-					return (gui, player, placeholders) -> {
+					return (gui, player, sharedData, placeholders) -> {
 					};
 				}
 			else {
 				BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
 				.warning("[GUiExpansion] Action check_placeholder in the action with values '" + values
 						+ "' doesn't contain check type (X==Z, X!=Z...)");
-				return (gui, player, placeholders) -> {
+				return (gui, player, sharedData, placeholders) -> {
 				};
 			}
 			String value = v;
@@ -352,7 +359,7 @@ public class ActionManager {
 			String noJson = no.indexOf('{') == -1 ? null : no.substring(no.indexOf('{'));
 			boolean hasPlaceholdersValue = Utils.checkForPlaceholders(value);
 			boolean hasPlaceholdersResult = Utils.checkForPlaceholders(resultValue);
-			return (gui, player, placeholders) -> {
+			return (gui, player, sharedData, placeholders) -> {
 				String input = value;
 				String result = resultValue;
 				if (hasPlaceholdersValue) {
@@ -375,7 +382,7 @@ public class ActionManager {
 							BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
 							.warning("[GUiExpansion] [Action] This is not json! " + yesJson);
 					}
-					Utils.processActions(holder, gui, player, innerPlaceholders, yesName);
+					Utils.processActions(holder, gui, player, sharedData, innerPlaceholders, yesName);
 				} else {
 					Map<String, Object> innerPlaceholders = Collections.emptyMap();
 					if (noJson != null) {
@@ -386,7 +393,7 @@ public class ActionManager {
 							BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
 							.warning("[GUiExpansion] [Action] This is not json! " + noJson);
 					}
-					Utils.processActions(holder, gui, player, innerPlaceholders, noName);
+					Utils.processActions(holder, gui, player, sharedData, innerPlaceholders, noName);
 				}
 			};
 		});

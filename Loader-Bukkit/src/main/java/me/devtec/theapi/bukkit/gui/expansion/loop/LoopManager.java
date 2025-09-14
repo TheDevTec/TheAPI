@@ -11,13 +11,13 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 
-import me.devtec.theapi.bukkit.gui.expansion.items.ConditionItem;
-import me.devtec.theapi.bukkit.gui.expansion.items.ItemPackage;
-import me.devtec.theapi.bukkit.gui.expansion.utils.Utils;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.gui.GUI.ClickType;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.gui.ItemGUI;
+import me.devtec.theapi.bukkit.gui.expansion.items.ConditionItem;
+import me.devtec.theapi.bukkit.gui.expansion.items.ItemPackage;
+import me.devtec.theapi.bukkit.gui.expansion.utils.Utils;
 import me.devtec.theapi.bukkit.xseries.XMaterial;
 
 public class LoopManager {
@@ -41,7 +41,7 @@ public class LoopManager {
 	}
 
 	public static void registerDefaults() {
-		register("player", () -> (holder, player, slotItemWithConditions, defaultSlotItem) -> {
+		register("player", () -> (holder, player, sharedData, slotItemWithConditions, defaultSlotItem) -> {
 			List<ItemGUI> items = new ArrayList<>();
 			playerLoop: for (Player online : BukkitLoader.getOnlinePlayers())
 				if (player.canSee(online)) {
@@ -51,14 +51,14 @@ public class LoopManager {
 					placeholders.put("target_max_health", online.getMaxHealth());
 					placeholders.put("target_world", online.getWorld().getName());
 					for (ConditionItem condition : slotItemWithConditions) {
-						ItemPackage result = condition.test(online, placeholders);
+						ItemPackage result = condition.test(online, sharedData, placeholders);
 						if (result != null && result.getItem() != null) {
 							items.add(new ItemGUI(Utils.applyPlaceholders(result.getTypePlaceholder(), result.getItem(),
 									placeholders, online)) {
 
 								@Override
 								public void onClick(Player player, HolderGUI gui, ClickType click) {
-									result.runActions(gui, player, placeholders);
+									result.runActions(gui, player, sharedData, placeholders);
 								}
 							});
 							continue playerLoop;
@@ -70,26 +70,26 @@ public class LoopManager {
 
 							@Override
 							public void onClick(Player player, HolderGUI gui, ClickType click) {
-								defaultSlotItem.runActions(gui, player, placeholders);
+								defaultSlotItem.runActions(gui, player, sharedData, placeholders);
 							}
 						});
 				}
 			return items;
 		});
-		register("world", () -> (holder, player, slotItemWithConditions, defaultSlotItem) -> {
+		register("world", () -> (holder, player, sharedData, slotItemWithConditions, defaultSlotItem) -> {
 			List<ItemGUI> items = new ArrayList<>();
 			worldLoop: for (World world : Bukkit.getWorlds()) {
 				Map<String, Object> placeholders = new HashMap<>();
 				placeholders.put("world", world.getName());
 				for (ConditionItem condition : slotItemWithConditions) {
-					ItemPackage result = condition.test(player, placeholders);
+					ItemPackage result = condition.test(player, sharedData, placeholders);
 					if (result != null && result.getItem() != null) {
 						items.add(new ItemGUI(Utils.applyPlaceholders(result.getTypePlaceholder(), result.getItem(),
 								placeholders, player)) {
 
 							@Override
 							public void onClick(Player player, HolderGUI gui, ClickType click) {
-								result.runActions(gui, player, placeholders);
+								result.runActions(gui, player, sharedData, placeholders);
 							}
 						});
 						continue worldLoop;
@@ -101,26 +101,26 @@ public class LoopManager {
 
 						@Override
 						public void onClick(Player player, HolderGUI gui, ClickType click) {
-							defaultSlotItem.runActions(gui, player, placeholders);
+							defaultSlotItem.runActions(gui, player, sharedData, placeholders);
 						}
 					});
 			}
 			return items;
 		});
-		register("biome", () -> (holder, player, slotItemWithConditions, defaultSlotItem) -> {
+		register("biome", () -> (holder, player, sharedData, slotItemWithConditions, defaultSlotItem) -> {
 			List<ItemGUI> items = new ArrayList<>();
 			worldLoop: for (Biome biome : Biome.values()) {
 				Map<String, Object> placeholders = new HashMap<>();
 				placeholders.put("biome", biome.name());
 				for (ConditionItem condition : slotItemWithConditions) {
-					ItemPackage result = condition.test(player, placeholders);
+					ItemPackage result = condition.test(player, sharedData, placeholders);
 					if (result != null && result.getItem() != null) {
 						items.add(new ItemGUI(Utils.applyPlaceholders(result.getTypePlaceholder(), result.getItem(),
 								placeholders, player)) {
 
 							@Override
 							public void onClick(Player player, HolderGUI gui, ClickType click) {
-								result.runActions(gui, player, placeholders);
+								result.runActions(gui, player, sharedData, placeholders);
 							}
 						});
 						continue worldLoop;
@@ -132,13 +132,13 @@ public class LoopManager {
 
 						@Override
 						public void onClick(Player player, HolderGUI gui, ClickType click) {
-							defaultSlotItem.runActions(gui, player, placeholders);
+							defaultSlotItem.runActions(gui, player, sharedData, placeholders);
 						}
 					});
 			}
 			return items;
 		});
-		register("material", () -> (holder, player, slotItemWithConditions, defaultSlotItem) -> {
+		register("material", () -> (holder, player, sharedData, slotItemWithConditions, defaultSlotItem) -> {
 			List<ItemGUI> items = new ArrayList<>();
 			worldLoop: for (XMaterial material : XMaterial.VALUES) {
 				if (!material.isSupported() || material.isAir() || !material.parseMaterial().isItem())
@@ -148,14 +148,14 @@ public class LoopManager {
 				placeholders.put("bukkitMaterial", material.parseMaterial().name().toLowerCase());
 				placeholders.put("materialName", material.getFormattedName());
 				for (ConditionItem condition : slotItemWithConditions) {
-					ItemPackage result = condition.test(player, placeholders);
+					ItemPackage result = condition.test(player, sharedData, placeholders);
 					if (result != null && result.getItem() != null) {
 						items.add(new ItemGUI(Utils.applyPlaceholders(result.getTypePlaceholder(), result.getItem(),
 								placeholders, player)) {
 
 							@Override
 							public void onClick(Player player, HolderGUI gui, ClickType click) {
-								result.runActions(gui, player, placeholders);
+								result.runActions(gui, player, sharedData, placeholders);
 							}
 						});
 						continue worldLoop;
@@ -167,7 +167,7 @@ public class LoopManager {
 
 						@Override
 						public void onClick(Player player, HolderGUI gui, ClickType click) {
-							defaultSlotItem.runActions(gui, player, placeholders);
+							defaultSlotItem.runActions(gui, player, sharedData, placeholders);
 						}
 					});
 			}

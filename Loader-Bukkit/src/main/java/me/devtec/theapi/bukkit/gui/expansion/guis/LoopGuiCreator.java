@@ -76,23 +76,53 @@ public class LoopGuiCreator implements GuiCreator {
 			int pos = 0;
 			for (Action action : actions) {
 				if (action.shouldSync()) {
-					action.runSync(++pos, actions, null, player, Collections.emptyMap());
+					action.runSync(++pos, actions, null, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 					break;
 				}
-				action.run(null, player, Collections.emptyMap());
+				action.run(null, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 				++pos;
 			}
 		}
-		GUI gui = open(player, 1, callable.callLoop(this, player, slotItemWithConditions, defaultSlotItem));
+		GUI gui = open(player, 1, callable.callLoop(this, player, sharedData.get(player.getUniqueId()), slotItemWithConditions, defaultSlotItem));
 		actions = eventActions.get(EventType.OPEN_MENU);
 		if (actions != null) {
 			int pos = 0;
 			for (Action action : actions) {
 				if (action.shouldSync()) {
-					action.runSync(++pos, actions, gui, player, Collections.emptyMap());
+					action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 					break;
 				}
-				action.run(gui, player, Collections.emptyMap());
+				action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
+				++pos;
+			}
+		}
+		return gui;
+	}
+
+	public HolderGUI open(Player player, int page) {
+		sharedData.computeIfAbsent(player.getUniqueId(), i -> new Config()).set("page", page).set("totalPages", page);
+		List<Action> actions = eventActions.get(EventType.BEFORE_OPEN_MENU);
+		if (actions != null) {
+			int pos = 0;
+			for (Action action : actions) {
+				if (action.shouldSync()) {
+					action.runSync(++pos, actions, null, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
+					break;
+				}
+				action.run(null, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
+				++pos;
+			}
+		}
+		GUI gui = open(player, page, callable.callLoop(this, player, sharedData.get(player.getUniqueId()), slotItemWithConditions, defaultSlotItem));
+		actions = eventActions.get(EventType.OPEN_MENU);
+		if (actions != null) {
+			int pos = 0;
+			for (Action action : actions) {
+				if (action.shouldSync()) {
+					action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
+					break;
+				}
+				action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 				++pos;
 			}
 		}
@@ -104,9 +134,11 @@ public class LoopGuiCreator implements GuiCreator {
 				.replace("{previousPage}", page - 1 + "").replace("{nextPage}", page + 1 + "");
 	}
 
-	private GUI open(Player player, int page, List<ItemGUI> itemGuis) {
+	private GUI open(Player player, int requiredPage, List<ItemGUI> itemGuis) {
 		int totalPages = Math.max(1,
 				itemGuis.size() / insertSlots.size() + (itemGuis.size() % insertSlots.size() == 0 ? 0 : 1));
+		int page = requiredPage>totalPages ? totalPages : requiredPage < 1 ? 1 : requiredPage;
+
 		sharedData.computeIfAbsent(player.getUniqueId(), i -> new Config()).set("page", page).set("totalPages",
 				totalPages);
 		List<Integer> schedulersIds = schedulers.isEmpty() ? Collections.emptyList() : new ArrayList<>();
@@ -129,10 +161,10 @@ public class LoopGuiCreator implements GuiCreator {
 					int pos = 0;
 					for (Action action : actions) {
 						if (action.shouldSync()) {
-							action.runSync(++pos, actions, this, player, Collections.emptyMap());
+							action.runSync(++pos, actions, this, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 							break;
 						}
-						action.run(this, player, Collections.emptyMap());
+						action.run(this, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 						++pos;
 					}
 				}
@@ -148,10 +180,10 @@ public class LoopGuiCreator implements GuiCreator {
 					int pos = 0;
 					for (Action action : task.getActions()) {
 						if (action.shouldSync()) {
-							action.runSync(++pos, task.getActions(), gui, player, Collections.emptyMap());
+							action.runSync(++pos, task.getActions(), gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 							break;
 						}
-						action.run(gui, player, Collections.emptyMap());
+						action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 						++pos;
 					}
 				}
@@ -164,14 +196,14 @@ public class LoopGuiCreator implements GuiCreator {
 
 				@Override
 				public void onClick(Player player, HolderGUI gui, ClickType click) {
-					dynamicItem.getValue().runActions(gui, player, Collections.emptyMap());
+					dynamicItem.getValue().runActions(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 				}
 			};
 			for (int slot : dynamicItem.getValue().getSlots())
 				gui.setItem(slot, item);
 		}
 		for (Entry<Character, ConditionItem> conditionItem : conditionItems.entrySet()) {
-			ItemPackage itemPackage = conditionItem.getValue().test(player, Collections.emptyMap());
+			ItemPackage itemPackage = conditionItem.getValue().test(player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 			if (itemPackage.getItem() != null) {
 				if (itemPackage instanceof StaticItemPackage) {
 					StaticItemPackage staticPackage = (StaticItemPackage) itemPackage;
@@ -184,7 +216,7 @@ public class LoopGuiCreator implements GuiCreator {
 
 					@Override
 					public void onClick(Player player, HolderGUI gui, ClickType click) {
-						itemPackage.runActions(gui, player, Collections.emptyMap());
+						itemPackage.runActions(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 					}
 				};
 				for (int slot : conditionItem.getValue().getSlots())
@@ -204,7 +236,7 @@ public class LoopGuiCreator implements GuiCreator {
 
 					@Override
 					public void onClick(Player player, HolderGUI gui, ClickType click) {
-						previousButton.getHas().runActions(gui, player, Collections.emptyMap());
+						previousButton.getHas().runActions(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 						open(player, page - 1, itemGuis);
 					}
 				};
@@ -217,7 +249,7 @@ public class LoopGuiCreator implements GuiCreator {
 
 				@Override
 				public void onClick(Player player, HolderGUI gui, ClickType click) {
-					previousButton.getNot().runActions(gui, player, Collections.emptyMap());
+					previousButton.getNot().runActions(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 				}
 			};
 			for (int slot : previousButton.getSlots())
@@ -231,7 +263,7 @@ public class LoopGuiCreator implements GuiCreator {
 
 					@Override
 					public void onClick(Player player, HolderGUI gui, ClickType click) {
-						nextButton.getHas().runActions(gui, player, Collections.emptyMap());
+						nextButton.getHas().runActions(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 						open(player, page + 1, itemGuis);
 					}
 				};
@@ -244,7 +276,7 @@ public class LoopGuiCreator implements GuiCreator {
 
 				@Override
 				public void onClick(Player player, HolderGUI gui, ClickType click) {
-					nextButton.getNot().runActions(gui, player, Collections.emptyMap());
+					nextButton.getNot().runActions(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 				}
 			};
 			for (int slot : nextButton.getSlots())
@@ -257,7 +289,7 @@ public class LoopGuiCreator implements GuiCreator {
 	@Override
 	public void updateItem(HolderGUI gui, Player player, char itemId) {
 		if (itemId == '#') {
-			List<ItemGUI> itemGuis = callable.callLoop(this, player, slotItemWithConditions, defaultSlotItem);
+			List<ItemGUI> itemGuis = callable.callLoop(this, player, sharedData.get(player.getUniqueId()), slotItemWithConditions, defaultSlotItem);
 			Config data = sharedData.computeIfAbsent(player.getUniqueId(), i -> new Config());
 			int totalPages = Math.max(1,
 					itemGuis.size() / insertSlots.size() + (itemGuis.size() % insertSlots.size() == 0 ? 0 : 1));
@@ -287,7 +319,7 @@ public class LoopGuiCreator implements GuiCreator {
 		}
 		ConditionItem conditionItem = conditionItems.get(itemId);
 		if (conditionItem != null) {
-			ItemPackage packageItem = conditionItem.test(player, Collections.emptyMap());
+			ItemPackage packageItem = conditionItem.test(player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 			if (packageItem.getItem() == null)
 				for (int slot : conditionItem.getSlots())
 					gui.remove(slot);
@@ -308,7 +340,7 @@ public class LoopGuiCreator implements GuiCreator {
 
 					@Override
 					public void onClick(Player player, HolderGUI gui, ClickType click) {
-						packageItem.runActions(gui, player, Collections.emptyMap());
+						packageItem.runActions(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 					}
 				};
 				else
@@ -372,9 +404,9 @@ public class LoopGuiCreator implements GuiCreator {
 			if (!commands.isEmpty())
 				actions.add(0, new Action() {
 					@Override
-					public void run(HolderGUI gui, Player player, java.util.Map<String, Object> placeholders) {
+					public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
 						for (String command : commands) {
-							String finalCommand = Utils.replacePlaceholders(command, placeholders, player.getUniqueId())
+							String finalCommand = Utils.replacePlaceholders(command, Collections.emptyMap(), player.getUniqueId())
 									.replace("{player}", player.getName());
 							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCommand);
 						}
@@ -386,14 +418,14 @@ public class LoopGuiCreator implements GuiCreator {
 					}
 				});
 			if (!messages.isEmpty())
-				actions.add(0,(gui, player, placeholders) -> {
+				actions.add(0,(gui, player, sharedData, placeholders) -> {
 					for (String message : messages)
 						player.sendMessage(ColorUtils
 								.colorize(Utils.replacePlaceholders(message, placeholders, player.getUniqueId())));
 				});
 			if (economyDeposit != null && !economyDeposit.isEmpty()
 					|| economyWithdraw != null && !economyWithdraw.isEmpty())
-				actions.add(0,(gui, player, placeholders) -> {
+				actions.add(0,(gui, player, sharedData, placeholders) -> {
 					if (economyDeposit != null && !economyDeposit.isEmpty())
 						BukkitLoader.getEconomyHook().deposit(player.getName(), player.getWorld().getName(), ParseUtils.getDouble(
 								Utils.replacePlaceholders(economyDeposit, placeholders, player.getUniqueId())));
@@ -412,7 +444,7 @@ public class LoopGuiCreator implements GuiCreator {
 			if (!commands.isEmpty())
 				actions.add(0, new Action() {
 					@Override
-					public void run(HolderGUI gui, Player player, java.util.Map<String, Object> placeholders) {
+					public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
 						for (String command : commands) {
 							String finalCommand = Utils.replacePlaceholders(command, placeholders, player.getUniqueId())
 									.replace("{player}", player.getName());
@@ -426,7 +458,7 @@ public class LoopGuiCreator implements GuiCreator {
 					}
 				});
 			if (!messages.isEmpty())
-				actions.add(0,(gui, player, placeholders) -> {
+				actions.add(0,(gui, player, sharedData, placeholders) -> {
 					for (String message : messages)
 						player.sendMessage(ColorUtils
 								.colorize(Utils.replacePlaceholders(message, placeholders, player.getUniqueId())));
@@ -443,10 +475,10 @@ public class LoopGuiCreator implements GuiCreator {
 						int pos = 0;
 						for (Action action : actions) {
 							if (action.shouldSync()) {
-								action.runSync(++pos, actions, gui, player, Collections.emptyMap());
+								action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 								break;
 							}
-							action.run(gui, player, Collections.emptyMap());
+							action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 							++pos;
 						}
 					}
@@ -463,7 +495,7 @@ public class LoopGuiCreator implements GuiCreator {
 			if (!commands.isEmpty())
 				actions.add(0, new Action() {
 					@Override
-					public void run(HolderGUI gui, Player player, java.util.Map<String, Object> placeholders) {
+					public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
 						for (String command : commands) {
 							String finalCommand = Utils.replacePlaceholders(command, placeholders, player.getUniqueId())
 									.replace("{player}", player.getName());
@@ -477,7 +509,7 @@ public class LoopGuiCreator implements GuiCreator {
 					}
 				});
 			if (!messages.isEmpty())
-				actions.add(0,(gui, player, placeholders) -> {
+				actions.add(0,(gui, player, sharedData, placeholders) -> {
 					for (String message : messages)
 						player.sendMessage(ColorUtils
 								.colorize(Utils.replacePlaceholders(message, placeholders, player.getUniqueId())));
@@ -494,10 +526,10 @@ public class LoopGuiCreator implements GuiCreator {
 						int pos = 0;
 						for (Action action : actions) {
 							if (action.shouldSync()) {
-								action.runSync(++pos, actions, gui, player, Collections.emptyMap());
+								action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 								break;
 							}
-							action.run(gui, player, Collections.emptyMap());
+							action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 							++pos;
 						}
 					}
@@ -546,8 +578,7 @@ public class LoopGuiCreator implements GuiCreator {
 								if (!commands.isEmpty())
 									actions.add(0, new Action() {
 										@Override
-										public void run(HolderGUI gui, Player player,
-												java.util.Map<String, Object> placeholders) {
+										public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
 											for (String command : commands) {
 												String finalCommand = Utils
 														.replacePlaceholders(command, placeholders,
@@ -563,7 +594,7 @@ public class LoopGuiCreator implements GuiCreator {
 										}
 									});
 								if (!messages.isEmpty())
-									actions.add(0,(gui, player, placeholders) -> {
+									actions.add(0,(gui, player, sharedData, placeholders) -> {
 										for (String message : messages)
 											player.sendMessage(ColorUtils.colorize(Utils.replacePlaceholders(message,
 													placeholders, player.getUniqueId())));
@@ -579,10 +610,10 @@ public class LoopGuiCreator implements GuiCreator {
 											int pos = 0;
 											for (Action action : actions) {
 												if (action.shouldSync()) {
-													action.runSync(++pos, actions, gui, player, Collections.emptyMap());
+													action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 													break;
 												}
-												action.run(gui, player, Collections.emptyMap());
+												action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 												++pos;
 											}
 										}
@@ -598,8 +629,7 @@ public class LoopGuiCreator implements GuiCreator {
 								if (!commands.isEmpty())
 									actions.add(0, new Action() {
 										@Override
-										public void run(HolderGUI gui, Player player,
-												java.util.Map<String, Object> placeholders) {
+										public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
 											for (String command : commands) {
 												String finalCommand = Utils
 														.replacePlaceholders(command, placeholders,
@@ -615,7 +645,7 @@ public class LoopGuiCreator implements GuiCreator {
 										}
 									});
 								if (!messages.isEmpty())
-									actions.add(0,(gui, player, placeholders) -> {
+									actions.add(0,(gui, player, sharedData, placeholders) -> {
 										for (String message : messages)
 											player.sendMessage(ColorUtils.colorize(Utils.replacePlaceholders(message,
 													placeholders, player.getUniqueId())));
@@ -631,10 +661,10 @@ public class LoopGuiCreator implements GuiCreator {
 											int pos = 0;
 											for (Action action : actions) {
 												if (action.shouldSync()) {
-													action.runSync(++pos, actions, gui, player, Collections.emptyMap());
+													action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 													break;
 												}
-												action.run(gui, player, Collections.emptyMap());
+												action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 												++pos;
 											}
 										}
@@ -660,8 +690,7 @@ public class LoopGuiCreator implements GuiCreator {
 								if (!commands.isEmpty())
 									actions.add(0, new Action() {
 										@Override
-										public void run(HolderGUI gui, Player player,
-												java.util.Map<String, Object> placeholders) {
+										public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
 											for (String command : commands) {
 												String finalCommand = Utils
 														.replacePlaceholders(command, placeholders,
@@ -677,7 +706,7 @@ public class LoopGuiCreator implements GuiCreator {
 										}
 									});
 								if (!messages.isEmpty())
-									actions.add(0,(gui, player, placeholders) -> {
+									actions.add(0,(gui, player, sharedData, placeholders) -> {
 										for (String message : messages)
 											player.sendMessage(ColorUtils.colorize(Utils.replacePlaceholders(message,
 													placeholders, player.getUniqueId())));
@@ -693,10 +722,10 @@ public class LoopGuiCreator implements GuiCreator {
 											int pos = 0;
 											for (Action action : actions) {
 												if (action.shouldSync()) {
-													action.runSync(++pos, actions, gui, player, Collections.emptyMap());
+													action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 													break;
 												}
-												action.run(gui, player, Collections.emptyMap());
+												action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 												++pos;
 											}
 										}
@@ -715,8 +744,7 @@ public class LoopGuiCreator implements GuiCreator {
 								if (!commands.isEmpty())
 									actions.add(0, new Action() {
 										@Override
-										public void run(HolderGUI gui, Player player,
-												java.util.Map<String, Object> placeholders) {
+										public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
 											for (String command : commands) {
 												String finalCommand = Utils
 														.replacePlaceholders(command, placeholders,
@@ -732,7 +760,7 @@ public class LoopGuiCreator implements GuiCreator {
 										}
 									});
 								if (!messages.isEmpty())
-									actions.add(0,(gui, player, placeholders) -> {
+									actions.add(0,(gui, player, sharedData, placeholders) -> {
 										for (String message : messages)
 											player.sendMessage(ColorUtils.colorize(Utils.replacePlaceholders(message,
 													placeholders, player.getUniqueId())));
@@ -748,14 +776,14 @@ public class LoopGuiCreator implements GuiCreator {
 											int pos = 0;
 											for (Action action : actions) {
 												if (action.shouldSync()) {
-													action.runSync(++pos, actions, gui, player, Collections.emptyMap());
+													action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 													break;
 												}
-												action.run(gui, player, Collections.emptyMap());
+												action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 												++pos;
 											}
 											for (Action action : actions)
-												action.run(gui, player, Collections.emptyMap());
+												action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 										}
 									}, maker, pos, actions);
 							} else
@@ -785,8 +813,7 @@ public class LoopGuiCreator implements GuiCreator {
 						if (!commands.isEmpty())
 							actions.add(0, new Action() {
 								@Override
-								public void run(HolderGUI gui, Player player,
-										java.util.Map<String, Object> placeholders) {
+								public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
 									for (String command : commands) {
 										String finalCommand = Utils
 												.replacePlaceholders(command, placeholders, player.getUniqueId())
@@ -801,7 +828,7 @@ public class LoopGuiCreator implements GuiCreator {
 								}
 							});
 						if (!messages.isEmpty())
-							actions.add(0,(gui, player, placeholders) -> {
+							actions.add(0,(gui, player, sharedData, placeholders) -> {
 								for (String message : messages)
 									player.sendMessage(ColorUtils.colorize(
 											Utils.replacePlaceholders(message, placeholders, player.getUniqueId())));
@@ -817,10 +844,10 @@ public class LoopGuiCreator implements GuiCreator {
 									int pos = 0;
 									for (Action action : actions) {
 										if (action.shouldSync()) {
-											action.runSync(++pos, actions, gui, player, Collections.emptyMap());
+											action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 											break;
 										}
-										action.run(gui, player, Collections.emptyMap());
+										action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 										++pos;
 									}
 								}

@@ -210,9 +210,53 @@ public class Utils {
 					continue;
 				}
 			}
+			if (c == 'f' && i + 6 < input.length() && input.charAt(i + 1) == 'o' && input.charAt(i + 2) == 'r'
+					&& input.charAt(i + 3) == 'm' && input.charAt(i + 4) == 'a'&& input.charAt(i + 5) == 't'&& input.charAt(i + 6) == '(') {
+				int times = 0;
+				int d = i + 6;
+				for (; d < input.length(); ++d) {
+					char e = input.charAt(d);
+					if (e == '(')
+						++times;
+					if (e == ')')
+						if (--times == -1)
+							break;
+				}
+				if (times == -1) {
+					String value = formatText(input.substring(i + 6, d));
+					result.append(ParseUtils.isNumber(value)
+							? StringUtils.formatDouble(FormatType.BASIC, ParseUtils.getNumber(value).doubleValue())
+									: value);
+					i = d;
+					continue;
+				}
+			}
 			result.append(c);
 		}
 		return result.toString();
+	}
+
+	private static String formatText(String name) {
+		StringContainer container = new StringContainer(name.length());
+		boolean first = true;
+		String[] var3 = name.split("_");
+		int var4 = var3.length;
+
+		for (int var5 = 0; var5 < var4; ++var5) {
+			String split = var3[var5];
+			if (first) {
+				container.append(split.charAt(0)).append(split.substring(1).toLowerCase());
+				first = false;
+			} else {
+				container.append(' ');
+				if (!"OF".equals(split) && !"THE".equals(split))
+					container.append(split.charAt(0)).append(split.substring(1).toLowerCase());
+				else
+					container.append(split.toLowerCase());
+			}
+		}
+
+		return container.toString();
 	}
 
 	private static boolean find(String input, char c, int start, int end) {
@@ -242,8 +286,7 @@ public class Utils {
 		return actions;
 	}
 
-	public static void processActions(GuiCreator holder, HolderGUI gui, Player player, Map<String, Object> placeholders,
-			String actionName) {
+	public static void processActions(GuiCreator holder, HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders, String actionName) {
 		if (actionName.isEmpty() || "none".equals(actionName))
 			return;
 		List<Action> actions = holder.getCustomActions().get(actionName);
@@ -253,10 +296,10 @@ public class Utils {
 			int pos = 0;
 			for (Action action : actions) {
 				if (action.shouldSync()) {
-					action.runSync(++pos, actions, gui, player, placeholders);
+					action.runSync(++pos, actions, gui, player, sharedData, placeholders);
 					break;
 				}
-				action.run(gui, player, placeholders);
+				action.run(gui, player, sharedData, placeholders);
 				++pos;
 			}
 		}

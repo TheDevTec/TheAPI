@@ -27,7 +27,7 @@ public class ConditionManager {
 	public static void registerDefaults() {
 		register("check_balance", values -> {
 			boolean hasPlaceholders = Utils.checkForPlaceholders(values);
-			return (player, placeholders) -> {
+			return (player, sharedData, placeholders) -> {
 				String input = values;
 				if (hasPlaceholders)
 					input = Utils.replacePlaceholders(input, placeholders, player.getUniqueId());
@@ -37,7 +37,7 @@ public class ConditionManager {
 		});
 		register("check_permission", values -> {
 			boolean hasPlaceholders = Utils.checkForPlaceholders(values);
-			return (player, placeholders) -> {
+			return (player, sharedData, placeholders) -> {
 				String input = values;
 				if (hasPlaceholders)
 					input = Utils.replacePlaceholders(input, placeholders, player.getUniqueId());
@@ -89,19 +89,19 @@ public class ConditionManager {
 					BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
 					.warning("[GUiExpansion] Condition check_placeholder in the condition with values '" + values
 							+ "' doesn't contain check type (X==Z, X!=Z...)");
-					return (player, placeholders) -> false;
+					return (player, sharedData, placeholders) -> false;
 				}
 			else {
 				BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
 				.warning("[GUiExpansion] Condition check_placeholder in the condition with values '" + values
 						+ "' doesn't contain check type (X==Z, X!=Z...)");
-				return (player, placeholders) -> false;
+				return (player, sharedData, placeholders) -> false;
 			}
 			String value = v.trim();
 			String resultValue = r.trim();
 			boolean hasPlaceholdersValue = Utils.checkForPlaceholders(value);
 			boolean hasPlaceholdersResult = Utils.checkForPlaceholders(resultValue);
-			return (player, placeholders) -> {
+			return (player, sharedData, placeholders) -> {
 				String input = value;
 				String result = resultValue;
 				if (hasPlaceholdersValue)

@@ -6,9 +6,10 @@ import java.util.Map;
 
 import org.bukkit.entity.Player;
 
-import me.devtec.theapi.bukkit.gui.expansion.actions.Action;
+import me.devtec.shared.dataholder.Config;
 import me.devtec.theapi.bukkit.game.ItemMaker;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
+import me.devtec.theapi.bukkit.gui.expansion.actions.Action;
 
 public class ItemPackage {
 	private final String typePlaceholder;
@@ -43,14 +44,14 @@ public class ItemPackage {
 		return actions;
 	}
 
-	public void runActions(HolderGUI gui, Player player, Map<String, Object> placeholders) {
+	public void runActions(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
 		int pos = 0;
 		for (Action action : getActions()) {
 			if (action.shouldSync()) {
-				action.runSync(++pos, getActions(), gui, player, placeholders);
+				action.runSync(++pos, getActions(), gui, player, sharedData, placeholders);
 				break;
 			}
-			action.run(gui, player, placeholders);
+			action.run(gui, player, sharedData, placeholders);
 			++pos;
 		}
 	}

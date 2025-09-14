@@ -63,10 +63,10 @@ public class ClassicGuiCreator implements GuiCreator {
 			int pos = 0;
 			for (Action action : actions) {
 				if (action.shouldSync()) {
-					action.runSync(++pos, actions, staticGui, player, Collections.emptyMap());
+					action.runSync(++pos, actions, staticGui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 					break;
 				}
-				action.run(staticGui, player, Collections.emptyMap());
+				action.run(staticGui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 				++pos;
 			}
 		}
@@ -77,10 +77,10 @@ public class ClassicGuiCreator implements GuiCreator {
 				int pos = 0;
 				for (Action action : actions) {
 					if (action.shouldSync()) {
-						action.runSync(++pos, actions, staticGui, player, Collections.emptyMap());
+						action.runSync(++pos, actions, staticGui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 						break;
 					}
-					action.run(staticGui, player, Collections.emptyMap());
+					action.run(staticGui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 					++pos;
 				}
 			}
@@ -106,10 +106,10 @@ public class ClassicGuiCreator implements GuiCreator {
 					int pos = 0;
 					for (Action action : actions) {
 						if (action.shouldSync()) {
-							action.runSync(++pos, actions, this, player, Collections.emptyMap());
+							action.runSync(++pos, actions, this, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 							break;
 						}
-						action.run(this, player, Collections.emptyMap());
+						action.run(this, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 						++pos;
 					}
 				}
@@ -125,10 +125,10 @@ public class ClassicGuiCreator implements GuiCreator {
 					int pos = 0;
 					for (Action action : task.getActions()) {
 						if (action.shouldSync()) {
-							action.runSync(++pos, task.getActions(), gui, player, Collections.emptyMap());
+							action.runSync(++pos, task.getActions(), gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 							break;
 						}
-						action.run(gui, player, Collections.emptyMap());
+						action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 						++pos;
 					}
 				}
@@ -141,14 +141,14 @@ public class ClassicGuiCreator implements GuiCreator {
 
 				@Override
 				public void onClick(Player player, HolderGUI gui, ClickType click) {
-					dynamicItem.getValue().runActions(gui, player, Collections.emptyMap());
+					dynamicItem.getValue().runActions(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 				}
 			};
 			for (int slot : dynamicItem.getValue().getSlots())
 				gui.setItem(slot, item);
 		}
 		for (Entry<Character, ConditionItem> conditionItem : conditionItems.entrySet()) {
-			ItemPackage itemPackage = conditionItem.getValue().test(player, Collections.emptyMap());
+			ItemPackage itemPackage = conditionItem.getValue().test(player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 			if (itemPackage.getItem() != null) {
 				if (itemPackage instanceof StaticItemPackage) {
 					StaticItemPackage staticPackage = (StaticItemPackage) itemPackage;
@@ -161,7 +161,7 @@ public class ClassicGuiCreator implements GuiCreator {
 
 					@Override
 					public void onClick(Player player, HolderGUI gui, ClickType click) {
-						itemPackage.runActions(gui, player, Collections.emptyMap());
+						itemPackage.runActions(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 					}
 				};
 				for (int slot : conditionItem.getValue().getSlots())
@@ -176,10 +176,10 @@ public class ClassicGuiCreator implements GuiCreator {
 			int pos = 0;
 			for (Action action : actions) {
 				if (action.shouldSync()) {
-					action.runSync(++pos, actions, gui, player, Collections.emptyMap());
+					action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 					break;
 				}
-				action.run(gui, player, Collections.emptyMap());
+				action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 				++pos;
 			}
 		}
@@ -198,7 +198,7 @@ public class ClassicGuiCreator implements GuiCreator {
 		}
 		ConditionItem conditionItem = conditionItems.get(itemId);
 		if (conditionItem != null) {
-			ItemPackage packageItem = conditionItem.test(player, Collections.emptyMap());
+			ItemPackage packageItem = conditionItem.test(player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 			if (packageItem.getItem() == null)
 				for (int slot : conditionItem.getSlots())
 					gui.remove(slot);
@@ -219,7 +219,7 @@ public class ClassicGuiCreator implements GuiCreator {
 
 					@Override
 					public void onClick(Player player, HolderGUI gui, ClickType click) {
-						packageItem.runActions(gui, player, Collections.emptyMap());
+						packageItem.runActions(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 					}
 				};
 				else
@@ -270,7 +270,7 @@ public class ClassicGuiCreator implements GuiCreator {
 			if (!commands.isEmpty())
 				actions.add(0, new Action() {
 					@Override
-					public void run(HolderGUI gui, Player player, java.util.Map<String, Object> placeholders) {
+					public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
 						for (String command : commands) {
 							String finalCommand = Utils.replacePlaceholders(command, placeholders, player.getUniqueId())
 									.replace("{player}", player.getName());
@@ -284,14 +284,14 @@ public class ClassicGuiCreator implements GuiCreator {
 					}
 				});
 			if (!messages.isEmpty())
-				actions.add(0,(gui, player, placeholders) -> {
+				actions.add(0,(gui, player, sharedData, placeholders) -> {
 					for (String message : messages)
 						player.sendMessage(ColorUtils
 								.colorize(Utils.replacePlaceholders(message, placeholders, player.getUniqueId())));
 				});
 			if (economyDeposit != null && !economyDeposit.isEmpty()
 					|| economyWithdraw != null && !economyWithdraw.isEmpty())
-				actions.add(0,(gui, player, placeholders) -> {
+				actions.add(0,(gui, player, sharedData, placeholders) -> {
 					if (economyDeposit != null && !economyDeposit.isEmpty())
 						BukkitLoader.getEconomyHook().deposit(player.getName(), player.getWorld().getName(), ParseUtils.getDouble(
 								Utils.replacePlaceholders(economyDeposit, placeholders, player.getUniqueId())));
@@ -331,8 +331,7 @@ public class ClassicGuiCreator implements GuiCreator {
 								if (!commands.isEmpty())
 									actions.add(0, new Action() {
 										@Override
-										public void run(HolderGUI gui, Player player,
-												java.util.Map<String, Object> placeholders) {
+										public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
 											for (String command : commands) {
 												String finalCommand = Utils
 														.replacePlaceholders(command, placeholders,
@@ -348,7 +347,7 @@ public class ClassicGuiCreator implements GuiCreator {
 										}
 									});
 								if (!messages.isEmpty())
-									actions.add(0,(gui, player, placeholders) -> {
+									actions.add(0,(gui, player, sharedData, placeholders) -> {
 										for (String message : messages)
 											player.sendMessage(ColorUtils.colorize(Utils.replacePlaceholders(message,
 													placeholders, player.getUniqueId())));
@@ -364,10 +363,10 @@ public class ClassicGuiCreator implements GuiCreator {
 											int pos = 0;
 											for (Action action : actions) {
 												if (action.shouldSync()) {
-													action.runSync(++pos, actions, gui, player, Collections.emptyMap());
+													action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 													break;
 												}
-												action.run(gui, player, Collections.emptyMap());
+												action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 												++pos;
 											}
 										}
@@ -383,8 +382,7 @@ public class ClassicGuiCreator implements GuiCreator {
 								if (!commands.isEmpty())
 									actions.add(0, new Action() {
 										@Override
-										public void run(HolderGUI gui, Player player,
-												java.util.Map<String, Object> placeholders) {
+										public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
 											for (String command : commands) {
 												String finalCommand = Utils
 														.replacePlaceholders(command, placeholders,
@@ -400,7 +398,7 @@ public class ClassicGuiCreator implements GuiCreator {
 										}
 									});
 								if (!messages.isEmpty())
-									actions.add(0,(gui, player, placeholders) -> {
+									actions.add(0,(gui, player, sharedData, placeholders) -> {
 										for (String message : messages)
 											player.sendMessage(ColorUtils.colorize(Utils.replacePlaceholders(message,
 													placeholders, player.getUniqueId())));
@@ -416,10 +414,10 @@ public class ClassicGuiCreator implements GuiCreator {
 											int pos = 0;
 											for (Action action : actions) {
 												if (action.shouldSync()) {
-													action.runSync(++pos, actions, gui, player, Collections.emptyMap());
+													action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 													break;
 												}
-												action.run(gui, player, Collections.emptyMap());
+												action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 												++pos;
 											}
 										}
@@ -444,8 +442,7 @@ public class ClassicGuiCreator implements GuiCreator {
 						if (!commands.isEmpty())
 							actions.add(0, new Action() {
 								@Override
-								public void run(HolderGUI gui, Player player,
-										java.util.Map<String, Object> placeholders) {
+								public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
 									for (String command : commands) {
 										String finalCommand = Utils
 												.replacePlaceholders(command, placeholders, player.getUniqueId())
@@ -460,7 +457,7 @@ public class ClassicGuiCreator implements GuiCreator {
 								}
 							});
 						if (!messages.isEmpty())
-							actions.add(0,(gui, player, placeholders) -> {
+							actions.add(0,(gui, player, sharedData, placeholders) -> {
 								for (String message : messages)
 									player.sendMessage(ColorUtils.colorize(
 											Utils.replacePlaceholders(message, placeholders, player.getUniqueId())));
@@ -476,10 +473,10 @@ public class ClassicGuiCreator implements GuiCreator {
 									int pos = 0;
 									for (Action action : actions) {
 										if (action.shouldSync()) {
-											action.runSync(++pos, actions, gui, player, Collections.emptyMap());
+											action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 											break;
 										}
-										action.run(gui, player, Collections.emptyMap());
+										action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
 										++pos;
 									}
 								}

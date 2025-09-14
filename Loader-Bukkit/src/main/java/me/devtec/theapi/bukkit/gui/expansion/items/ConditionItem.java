@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.bukkit.entity.Player;
 
+import me.devtec.shared.dataholder.Config;
 import me.devtec.theapi.bukkit.gui.expansion.conditions.Condition;
 
 public class ConditionItem {
@@ -22,9 +23,9 @@ public class ConditionItem {
 		slots.add(slot);
 	}
 
-	public ItemPackage test(Player player, Map<String, Object> placeholders) {
+	public ItemPackage test(Player player, Config sharedData, Map<String, Object> placeholders) {
 		for (Condition condition : conditions)
-			if (!condition.has(player, placeholders))
+			if (!condition.has(player, sharedData, placeholders))
 				return not;
 		return has;
 	}

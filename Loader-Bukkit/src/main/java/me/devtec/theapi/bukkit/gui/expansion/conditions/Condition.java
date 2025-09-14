@@ -4,8 +4,10 @@ import java.util.Map;
 
 import org.bukkit.entity.Player;
 
+import me.devtec.shared.dataholder.Config;
+
 public interface Condition {
 
-	boolean has(Player player, Map<String, Object> placeholders);
+	boolean has(Player player, Config sharedData, Map<String, Object> placeholders);
 
 }
