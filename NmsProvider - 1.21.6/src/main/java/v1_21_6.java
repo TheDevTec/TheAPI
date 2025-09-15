@@ -517,9 +517,9 @@ public class v1_21_6 implements NmsProvider {
 		if (co == null)
 			return empty;
 		if (co instanceof ComponentItem || co instanceof ComponentEntity)
-			return new net.minecraft.network.chat.Component[] { ComponentSerialization.CODEC
+			return ComponentSerialization.CODEC
 					.parse(dispatcher.createSerializationContext(JsonOps.INSTANCE), JsonParser.parseString(Json.writer().simpleWrite(co.toJsonMap())))
-					.getOrThrow(JsonParseException::new) };
+					.getOrThrow(JsonParseException::new);
 		MutableComponent main = net.minecraft.network.chat.Component.literal("");
 		List<net.minecraft.network.chat.Component> chat = new ArrayList<>();
 		if (co.getText() != null && !co.getText().isEmpty())
@@ -549,9 +549,9 @@ public class v1_21_6 implements NmsProvider {
 
 	@Override
 	public Object chatBase(String json) {
-		return new net.minecraft.network.chat.Component[] { ComponentSerialization.CODEC
+		return ComponentSerialization.CODEC
 				.parse(dispatcher.createSerializationContext(JsonOps.INSTANCE), JsonParser.parseString(json))
-				.getOrThrow(JsonParseException::new) };
+				.getOrThrow(JsonParseException::new);
 	}
 
 	@Override
