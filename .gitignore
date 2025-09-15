@@ -16,6 +16,7 @@
 !h2.jar
 !sqlite.jar
 !sqlserver.jar
+!paper-*.jar
 !settings.gradle
 !buildNmsProviders.bat
 !.gitignore
