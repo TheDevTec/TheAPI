@@ -266,22 +266,28 @@ public class Utils {
 
 	public static List<Condition> createConditions(List<String> stringConditions) {
 		List<Condition> conditions = new ArrayList<>();
-		for (String action : stringConditions) {
-			int splitAt = action.indexOf(':');
-			conditions.add(
-					ConditionManager.createByName((splitAt == -1 ? action : action.substring(0, splitAt)).toLowerCase(),
-							splitAt == -1 ? "" : action.substring(splitAt + 1)));
+		for (String value : stringConditions) {
+			int splitAt = value.indexOf(':');
+			String conditionName = (splitAt == -1 ? value : value.substring(0, splitAt)).toLowerCase();
+			Condition condition = ConditionManager.createByName(conditionName, splitAt == -1 ? "" : value.substring(splitAt + 1));
+			if(condition!=null)
+				conditions.add(condition);
+			else
+				BukkitLoader.getPlugin(BukkitLoader.class).getLogger().warning("[GuiExpansion] Not found condition " + conditionName);
 		}
 		return conditions;
 	}
 
 	public static List<Action> createActions(GuiCreator holder, List<String> stringActions) {
 		List<Action> actions = new ArrayList<>();
-		for (String action : stringActions) {
-			int splitAt = action.indexOf(':');
-			actions.add(
-					ActionManager.createByName((splitAt == -1 ? action : action.substring(0, splitAt)).toLowerCase(),
-							holder, splitAt == -1 ? "" : action.substring(splitAt + 1)));
+		for (String value : stringActions) {
+			int splitAt = value.indexOf(':');
+			String actionName = (splitAt == -1 ? value : value.substring(0, splitAt)).toLowerCase();
+			Action action = ActionManager.createByName(actionName, holder, splitAt == -1 ? "" : value.substring(splitAt + 1));
+			if(action!=null)
+				actions.add(action);
+			else
+				BukkitLoader.getPlugin(BukkitLoader.class).getLogger().warning("[GuiExpansion] Not found action " + actionName);
 		}
 		return actions;
 	}

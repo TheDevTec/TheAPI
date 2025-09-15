@@ -21,7 +21,8 @@ public class ActionManager {
 	private static final Map<String, ActionConstructor> actions = new HashMap<>();
 
 	public static Action createByName(String name, GuiCreator holder, String values) {
-		return actions.get(name.toLowerCase()).create(holder, values);
+		ActionConstructor constructor = actions.get(name.toLowerCase());
+		return constructor==null ? null : constructor.create(holder, values);
 	}
 
 	public static void register(String name, ActionConstructor actionCreator) {

@@ -13,7 +13,8 @@ public class ConditionManager {
 	private static final Map<String, Function<String, Condition>> conditions = new HashMap<>();
 
 	public static Condition createByName(String name, String values) {
-		return conditions.get(name.toLowerCase()).apply(values);
+		Function<String, Condition> constructor = conditions.get(name.toLowerCase());
+		return constructor == null ? null : constructor.apply(values);
 	}
 
 	public static void register(String name, Function<String, Condition> conditionCreator) {
