@@ -21,7 +21,7 @@ allprojects {
 }
 
 dependencies {
-    implementation 'com.github.TheDevTec:TheAPI-Shared:13.6.8'
+    implementation 'com.github.TheDevTec:TheAPI-Shared:13.6.9'
 }
 
 subprojects {
@@ -48,7 +48,7 @@ subprojects {
     dependencies {
         compileOnly 'org.projectlombok:lombok:1.18.36'
         annotationProcessor 'org.projectlombok:lombok:1.18.36'
-        implementation 'com.github.TheDevTec:TheAPI-Shared:13.6.8'
+        implementation 'com.github.TheDevTec:TheAPI-Shared:13.6.9'
     }
 
     tasks.withType(JavaCompile) {
