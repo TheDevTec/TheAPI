@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import lombok.Getter;
 import me.devtec.shared.Ref;
 import me.devtec.shared.annotations.Nullable;
 import me.devtec.shared.components.Component;
@@ -42,28 +41,40 @@ public class TeamUtils {
 	public static final Field objectiveMethod; // int
 
 	public enum Visibility {
-		ALWAYS(Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("net.minecraft.world.scores", "Team$Visibility"), "ALWAYS") : "always"),
-		NEVER(Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("net.minecraft.world.scores", "Team$Visibility"), "NEVER") : "never"),
-		HIDE_FOR_OTHER_TEAMS(Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("net.minecraft.world.scores", "Team$Visibility"), "HIDE_FOR_OTHER_TEAMS") : "hideForOtherTeams"),
-		HIDE_FOR_OWN_TEAM(Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("net.minecraft.world.scores", "Team$Visibility"), "HIDE_FOR_OWN_TEAM") : "hideForOwnTeam");
+		ALWAYS("always"),
+		NEVER( "never"),
+		HIDE_FOR_OTHER_TEAMS("hideForOtherTeams"),
+		HIDE_FOR_OWN_TEAM("hideForOwnTeam");
 
-		@Getter
-		private final Object value;
-		Visibility(Object value) {
-			this.value = value;
+		private final String name;
+		private Object value;
+		Visibility(String name) {
+			this.name = name;
+		}
+
+		public Object getValue() {
+			if(value==null)
+				value = Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("world.scores", "Team$Visibility"), name()) : name;
+				return value;
 		}
 	}
 
 	public enum CollisionRule {
-		ALWAYS(Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("net.minecraft.world.scores", "Team$CollisionRule"), "ALWAYS") : "always"),
-		NEVER(Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("net.minecraft.world.scores", "Team$CollisionRule"), "NEVER") : "never"),
-		PUSH_OTHER_TEAMS(Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("net.minecraft.world.scores", "Team$CollisionRule"), "PUSH_OTHER_TEAMS") : "pushOtherTeams"),
-		PUSH_OWN_TEAM(Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("net.minecraft.world.scores", "Team$CollisionRule"), "PUSH_OWN_TEAM") : "pushOwnTeam");
+		ALWAYS("always"),
+		NEVER("never"),
+		PUSH_OTHER_TEAMS("pushOtherTeams"),
+		PUSH_OWN_TEAM("pushOwnTeam");
 
-		@Getter
-		private final Object value;
-		CollisionRule(Object value) {
-			this.value = value;
+		private final String name;
+		private Object value;
+		CollisionRule(String name) {
+			this.name = name;
+		}
+
+		public Object getValue() {
+			if(value==null)
+				value = Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("world.scores", "Team$CollisionRule"), name()) : name;
+				return value;
 		}
 	}
 
