@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.Getter;
 import me.devtec.shared.Ref;
 import me.devtec.shared.annotations.Nullable;
 import me.devtec.shared.components.Component;
@@ -40,6 +41,32 @@ public class TeamUtils {
 	public static final Field numberFormat; // Optional(NumberFormat)
 	public static final Field objectiveMethod; // int
 
+	public enum Visibility {
+		ALWAYS(Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("net.minecraft.world.scores", "Team$Visibility"), "ALWAYS") : "always"),
+		NEVER(Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("net.minecraft.world.scores", "Team$Visibility"), "NEVER") : "never"),
+		HIDE_FOR_OTHER_TEAMS(Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("net.minecraft.world.scores", "Team$Visibility"), "HIDE_FOR_OTHER_TEAMS") : "hideForOtherTeams"),
+		HIDE_FOR_OWN_TEAM(Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("net.minecraft.world.scores", "Team$Visibility"), "HIDE_FOR_OWN_TEAM") : "hideForOwnTeam");
+
+		@Getter
+		private final Object value;
+		Visibility(Object value) {
+			this.value = value;
+		}
+	}
+
+	public enum CollisionRule {
+		ALWAYS(Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("net.minecraft.world.scores", "Team$CollisionRule"), "ALWAYS") : "always"),
+		NEVER(Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("net.minecraft.world.scores", "Team$CollisionRule"), "NEVER") : "never"),
+		PUSH_OTHER_TEAMS(Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("net.minecraft.world.scores", "Team$CollisionRule"), "PUSH_OTHER_TEAMS") : "pushOtherTeams"),
+		PUSH_OWN_TEAM(Ref.isNewerThan(21) || Ref.isNewerThan(20) && Ref.serverVersionRelease()>4 ? Ref.getStatic(Ref.nms("net.minecraft.world.scores", "Team$CollisionRule"), "PUSH_OWN_TEAM") : "pushOwnTeam");
+
+		@Getter
+		private final Object value;
+		CollisionRule(Object value) {
+			this.value = value;
+		}
+	}
+
 	static {
 		Class<?> sb;
 		Class<?> so;
@@ -69,7 +96,7 @@ public class TeamUtils {
 			sbTeam = Ref.nms("network.protocol.game", "PacketPlayOutScoreboardTeam$b");
 			white = Ref.method(Ref.nms("", "EnumChatFormat"), "a", int.class) != null
 					? Ref.invokeStatic(Ref.method(Ref.nms("", "EnumChatFormat"), "a", int.class), 15)
-					: Ref.invokeStatic(Ref.method(Ref.nms("", "EnumChatFormat"), "a", char.class), 'f');
+							: Ref.invokeStatic(Ref.method(Ref.nms("", "EnumChatFormat"), "a", char.class), 'f');
 			if (Ref.isNewerThan(16)) {
 				name = Ref.field(sb, "i");
 				teamMethod = Ref.field(sb, "h");
@@ -84,25 +111,19 @@ public class TeamUtils {
 				options = Ref.field(sbTeam, "g");
 			} else {
 				name = Ref.field(sb, "a");
-				teamMethod = Ref.field(sb, Ref.isNewerThan(7) ? Ref.isNewerThan(8) ? "i" : "h" : "f");
-				players = Ref.field(sb, Ref.isNewerThan(7) ? Ref.isNewerThan(8) ? "h" : "g" : "e");
+				teamMethod = Ref.field(sb, Ref.isNewerThan(8) ? "i" : "h");
+				players = Ref.field(sb, Ref.isNewerThan(8) ? "h" : "g");
 				parameters = null;
 				teamDisplayName = Ref.field(sb, "b");
 				playerPrefix = Ref.field(sb, "c");
 				playerSuffix = Ref.field(sb, "d");
 				nametagVisibility = Ref.field(sb, "d");
-				if (Ref.isNewerThan(7)) {
-					collisionRule = Ref.field(sb, "e");
-					color = Ref.field(sb, "f");
-					if (Ref.isNewerThan(8))
-						options = Ref.field(sb, "g");
-					else
-						options = null;
-				} else {
-					collisionRule = null;
-					color = null;
+				collisionRule = Ref.field(sb, "e");
+				color = Ref.field(sb, "f");
+				if (Ref.isNewerThan(8))
+					options = Ref.field(sb, "g");
+				else
 					options = null;
-				}
 			}
 			so = Ref.nms("network.protocol.game", "PacketPlayOutScoreboardObjective");
 			if (Ref.isNewerThan(16)) {
@@ -120,22 +141,15 @@ public class TeamUtils {
 				objectiveName = Ref.field(so, "a");
 				objectiveDisplayName = Ref.field(so, "b");
 				numberFormat = null;
-				if (Ref.isNewerThan(7)) {
-					renderType = Ref.field(so, "c");
-					objectiveMethod = Ref.field(so, "d");
-				} else {
-					renderType = null;
-					objectiveMethod = Ref.field(so, "c");
-				}
+				renderType = Ref.field(so, "c");
+				objectiveMethod = Ref.field(so, "d");
 			}
 		}
 	}
 
-	public static Object createTeamPacket(int mode, Object color, Component prefix, Component suffix, String holderName,
-			String teamName) {
+	public static Object createTeamPacket(int mode, Object color, Component prefix, Component suffix, String holderName, String teamName, Visibility visibility, CollisionRule collision) {
 		Object packet = BukkitLoader.getNmsProvider().packetScoreboardTeam();
 		List<String> nameList = Collections.singletonList(holderName);
-		String always = "always";
 		if (BukkitLoader.NO_OBFUSCATED_NMS_MODE || Ref.isNewerThan(16)) {
 			Object o = Ref.newUnsafeInstance(TeamUtils.sbTeam);
 			Ref.set(o, teamDisplayName, BukkitLoader.getNmsProvider().chatBase("{\"text\":\"" + holderName + "\"}"));
@@ -143,8 +157,8 @@ public class TeamUtils {
 					.toIChatBaseComponent(prefix == null ? Component.EMPTY_COMPONENT : prefix));
 			Ref.set(o, playerSuffix, BukkitLoader.getNmsProvider()
 					.toIChatBaseComponent(suffix == null ? Component.EMPTY_COMPONENT : suffix));
-			Ref.set(o, nametagVisibility, always);
-			Ref.set(o, collisionRule, always);
+			Ref.set(o, nametagVisibility, visibility.getValue());
+			Ref.set(o, collisionRule, collision.getValue());
 			Ref.set(o, TeamUtils.color, color);
 			Ref.set(o, options, 0);
 			Ref.set(packet, parameters, Optional.of(o));
@@ -153,20 +167,18 @@ public class TeamUtils {
 					Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().chatBase("{\"text\":\"\"}") : "");
 			Ref.set(packet, playerPrefix,
 					Ref.isNewerThan(12)
-							? BukkitLoader.getNmsProvider()
-									.toIChatBaseComponent(prefix == null ? Component.EMPTY_COMPONENT : prefix)
+					? BukkitLoader.getNmsProvider()
+							.toIChatBaseComponent(prefix == null ? Component.EMPTY_COMPONENT : prefix)
 							: prefix == null ? "" : prefix.toString());
 			Ref.set(packet, playerSuffix,
 					Ref.isNewerThan(12)
-							? BukkitLoader.getNmsProvider()
-									.toIChatBaseComponent(suffix == null ? Component.EMPTY_COMPONENT : suffix)
+					? BukkitLoader.getNmsProvider()
+							.toIChatBaseComponent(suffix == null ? Component.EMPTY_COMPONENT : suffix)
 							: suffix == null ? "" : suffix.toString());
-			if (Ref.isNewerThan(7)) {
-				Ref.set(packet, nametagVisibility, always);
-				Ref.set(packet, collisionRule, Ref.isNewerThan(8) ? always : -1);
-				if (Ref.isNewerThan(8))
-					Ref.set(packet, TeamUtils.color, Ref.isNewerThan(12) ? color : -1);
-			}
+			Ref.set(packet, nametagVisibility, visibility.getValue());
+			Ref.set(packet, collisionRule, collision.getValue());
+			if (Ref.isNewerThan(8))
+				Ref.set(packet, TeamUtils.color, Ref.isNewerThan(12) ? color : -1);
 		}
 		Ref.set(packet, name, teamName);
 		Ref.set(packet, teamMethod, mode);
@@ -174,17 +186,20 @@ public class TeamUtils {
 		return packet;
 	}
 
+	public static Object createTeamPacket(int mode, Object color, Component prefix, Component suffix, String holderName, String teamName) {
+		return createTeamPacket(mode, color, prefix, suffix, holderName, teamName, Visibility.ALWAYS, CollisionRule.ALWAYS);
+	}
+
 	public static Object createObjectivePacket(int mode, String name, Component displayName,
 			@Nullable Optional<?> numberFormat, DisplayType type) {
 		Object packet = BukkitLoader.getNmsProvider().packetScoreboardObjective();
 		Ref.set(packet, objectiveDisplayName,
 				Ref.isNewerThan(12)
-						? BukkitLoader.getNmsProvider()
-								.toIChatBaseComponent(displayName == null ? Component.EMPTY_COMPONENT : displayName)
+				? BukkitLoader.getNmsProvider()
+						.toIChatBaseComponent(displayName == null ? Component.EMPTY_COMPONENT : displayName)
 						: displayName.toString());
 		Ref.set(packet, objectiveName, name);
-		if (Ref.isNewerThan(7))
-			Ref.set(packet, renderType, BukkitLoader.getNmsProvider().getEnumScoreboardHealthDisplay(type));
+		Ref.set(packet, renderType, BukkitLoader.getNmsProvider().getEnumScoreboardHealthDisplay(type));
 		if (Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() == 3)
 			Ref.set(packet, TeamUtils.numberFormat, numberFormat == null ? null : numberFormat.orElse(null));
 		else if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() > 3)
