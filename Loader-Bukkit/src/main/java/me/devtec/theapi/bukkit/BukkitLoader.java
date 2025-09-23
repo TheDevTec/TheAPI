@@ -28,8 +28,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -540,16 +538,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onLoginEvent(PlayerLoginEvent e) { // fix uuid - premium login?
-		if (e.getResult() == Result.ALLOWED) {
-			API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getName());
-			if (handler != null)
-				handler.add(e.getPlayer());
-		}
-	}
-
-	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLoginEvent(PlayerJoinEvent e) {
+		API.offlineCache().setLookup(e.getPlayer().getUniqueId(), e.getPlayer().getName());
 		if (handler != null)
 			handler.add(e.getPlayer()); // Move to the first position
 	}
@@ -562,12 +552,12 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	@Override
 	public void onDisable() {
 		metrics.shutdown();
-		for (HolderGUI gui : new ArrayList<>(this.gui.values()))
+		for (HolderGUI gui : this.gui.values().toArray(new HolderGUI[0]))
 			gui.close();
 		if (handler != null) {
 			BukkitLoader.handler.close();
 			if (bossbars != null)
-				for (BossBar bar : new ArrayList<>(bossbars))
+				for (BossBar bar : bossbars.toArray(new BossBar[0]))
 					bar.remove();
 		}
 		PlaceholderAPI.PAPI_BRIDGE = null;
