@@ -41,6 +41,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
 
 import io.netty.channel.Channel;
@@ -73,11 +74,15 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder.Reference;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.Connection;
@@ -111,7 +116,6 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -183,15 +187,61 @@ public class v1_21_6 implements NmsProvider {
 		return type == DisplayType.INTEGER ? ObjectiveCriteria.RenderType.INTEGER : ObjectiveCriteria.RenderType.HEARTS;
 	}
 
+
+	static DynamicOps<Tag> ops= dispatcher.createSerializationContext(NbtOps.INSTANCE);
+
+	public CompoundTag mapToTag(DataComponentMap map) {
+		return (CompoundTag) DataComponentMap.CODEC.encodeStart(ops, map)
+				.result()
+				.orElseGet(CompoundTag::new);
+	}
+
+	public CompoundTag patchToTag(DataComponentPatch patch) {
+		return (CompoundTag) DataComponentPatch.CODEC.encodeStart(ops, patch)
+				.result()
+				.orElseGet(CompoundTag::new);
+	}
+
+	public static CompoundTag fixBooleans(CompoundTag tag) {
+		CompoundTag copy = tag.copy();
+		fixTag(copy);
+		return copy;
+	}
+
+	private static void fixTag(Tag tag) {
+		if (tag instanceof CompoundTag compound)
+			for (String key : compound.keySet()) {
+				Tag child = compound.get(key);
+				if (child != null)
+					if (child instanceof StringTag stringTag) {
+						String value = stringTag.asString().get();
+						if ("0b".equals(value))
+							compound.putByte(key, (byte) 0);
+						else if ("1b".equals(value))
+							compound.putByte(key, (byte) 1);
+					} else
+						fixTag(child); // rekurze
+			}
+		else if (tag instanceof ListTag list)
+			for (int i = 0; i < list.size(); i++) {
+				Tag element = list.get(i);
+				if (element instanceof StringTag stringTag) {
+					String value = stringTag.asString().get();
+					if ("0b".equals(value))
+						list.set(i, ByteTag.valueOf((byte) 0));
+					else if ("1b".equals(value))
+						list.set(i, ByteTag.valueOf((byte) 1));
+				} else
+					fixTag(element); // rekurze
+			}
+	}
+
 	@Override
 	public Object getNBT(ItemStack itemStack) {
 		net.minecraft.world.item.ItemStack item = (net.minecraft.world.item.ItemStack) asNMSItem(itemStack);
 		if (item.isEmpty())
 			return new CompoundTag();
-		CustomData data = item.get(DataComponents.CUSTOM_DATA);
-		if (data != null)
-			return data.copyTag();
-		return null;
+		return patchToTag(item.getComponentsPatch());
 	}
 
 	@Override
@@ -210,7 +260,8 @@ public class v1_21_6 implements NmsProvider {
 		if (nbt instanceof NBTEdit)
 			nbt = ((NBTEdit) nbt).getNBT();
 		net.minecraft.world.item.ItemStack item = (net.minecraft.world.item.ItemStack) asNMSItem(stack);
-		item.set(DataComponents.CUSTOM_DATA, CustomData.of((CompoundTag) nbt));
+		DataComponentMap map = DataComponentMap.CODEC.parse(ops, fixBooleans((CompoundTag)nbt)).result().orElse(DataComponentMap.EMPTY);
+		item.applyComponents(map);
 		return asBukkitItem(item);
 	}
 
@@ -223,8 +274,7 @@ public class v1_21_6 implements NmsProvider {
 
 	@Override
 	public ItemStack asBukkitItem(Object stack) {
-		return CraftItemStack.asBukkitCopy(
-				stack == null ? net.minecraft.world.item.ItemStack.EMPTY : (net.minecraft.world.item.ItemStack) stack);
+		return CraftItemStack.asBukkitCopy(stack == null ? net.minecraft.world.item.ItemStack.EMPTY : (net.minecraft.world.item.ItemStack) stack);
 	}
 
 	@Override
@@ -235,14 +285,12 @@ public class v1_21_6 implements NmsProvider {
 	@Override
 	public Object packetResourcePackSend(String url, String hash, boolean requireRP, Component prompt) {
 		return new ClientboundResourcePackPushPacket(UUID.randomUUID(), url, hash, requireRP,
-				prompt == null ? Optional.empty()
-						: Optional.of((net.minecraft.network.chat.Component) this.toIChatBaseComponent(prompt)));
+				prompt == null ? Optional.empty() : Optional.of((net.minecraft.network.chat.Component) this.toIChatBaseComponent(prompt)));
 	}
 
 	@Override
 	public Object packetSetSlot(int container, int slot, int changeId, Object itemStack) {
-		return new ClientboundContainerSetSlotPacket(container, changeId, slot,
-				(net.minecraft.world.item.ItemStack) (itemStack == null ? asNMSItem(null) : itemStack));
+		return new ClientboundContainerSetSlotPacket(container, changeId, slot, (net.minecraft.world.item.ItemStack) (itemStack == null ? asNMSItem(null) : itemStack));
 	}
 
 	@Override
@@ -417,22 +465,14 @@ public class v1_21_6 implements NmsProvider {
 				break;
 			case SHOW_ITEM:
 				try {
-
 					ComponentItem compoundTag = (ComponentItem) c.getHoverEvent().getValue();
 					net.minecraft.world.item.ItemStack stack = new net.minecraft.world.item.ItemStack(
 							CraftMagicNumbers.getItem(XMaterial.matchXMaterial(compoundTag.getId())
 									.orElse(XMaterial.AIR).parseMaterial()),
 							compoundTag.getCount());
 					if (compoundTag.getNbt() != null) {
-						CompoundTag nbt = (CompoundTag) parseNBT(compoundTag.getNbt());
-						if (!nbt.contains("id"))
-							nbt.putString("id",
-									BuiltInRegistries.ITEM.getKey(CraftMagicNumbers.getItem(XMaterial
-											.matchXMaterial(compoundTag.getId()).orElse(XMaterial.AIR).parseMaterial()))
-									.toString());
-						if (!nbt.contains("count"))
-							nbt.putInt("count", compoundTag.getCount());
-						stack = net.minecraft.world.item.ItemStack.CODEC.parse(dispatcher.createSerializationContext(net.minecraft.nbt.NbtOps.INSTANCE), nbt)
+						CompoundTag nbt = (CompoundTag) parseNBT(Json.writer().simpleWrite(compoundTag.toJsonMap()));
+						stack = net.minecraft.world.item.ItemStack.CODEC.parse(ops,  fixBooleans(nbt))
 								.resultOrPartial(itemId -> {
 									BukkitLoader.getPlugin(BukkitLoader.class).getLogger().severe("Tried to load invalid item: "+itemId);
 								}).orElse(net.minecraft.world.item.ItemStack.EMPTY);
@@ -609,7 +649,9 @@ public class v1_21_6 implements NmsProvider {
 						.getHoverEvent()).item();
 				ComponentItem compEntity = new ComponentItem(CraftMagicNumbers.getMaterial(hover.getItem()).name(),
 						hover.getCount());
-				compEntity.setNbt(net.minecraft.world.item.ItemStack.CODEC.encodeStart(dispatcher.createSerializationContext(NbtOps.INSTANCE), hover).getOrThrow().toString());
+				compEntity.setNbt(DataComponentMap.CODEC.encodeStart(NbtOps.INSTANCE, hover.getItem().components())
+						.result()
+						.orElseGet(CompoundTag::new).toString());
 				comp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, compEntity));
 				break;
 			}
@@ -1882,7 +1924,7 @@ public class v1_21_6 implements NmsProvider {
 
 	@Override
 	public String getProviderName() {
-		return "PaperMC (1.21.5) " + Bukkit.getServer().getMinecraftVersion();
+		return "PaperMC (1.21.6) " + Bukkit.getServer().getMinecraftVersion();
 	}
 
 	@Override

@@ -369,7 +369,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			serverVersion = Ref.serverVersion().replace('.', '_');
 		}
 		boolean shouldDownloadFromGit = true;
-		if (Ref.isNewerThan(8) && Ref.serverType() != ServerType.PAPER) {
+		if (Ref.serverType() == ServerType.BUKKIT || Ref.serverType()==ServerType.SPIGOT) {
 			shouldDownloadFromGit = false;
 			CommandSender console = Bukkit.getConsoleSender();
 			console.sendMessage(ColorUtils.colorize("&7>"));

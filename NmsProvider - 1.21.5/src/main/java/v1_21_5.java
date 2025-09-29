@@ -37,8 +37,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.JsonOps;
 
 import io.netty.channel.Channel;
 import me.devtec.shared.Pair;
@@ -70,13 +74,19 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder.Reference;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.Connection;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.HoverEvent.EntityTooltipInfo;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.RemoteChatSession;
@@ -105,7 +115,6 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -174,15 +183,61 @@ public class v1_21_5 implements NmsProvider {
 		return type == DisplayType.INTEGER ? ObjectiveCriteria.RenderType.INTEGER : ObjectiveCriteria.RenderType.HEARTS;
 	}
 
+
+	static DynamicOps<Tag> ops= dispatcher.createSerializationContext(NbtOps.INSTANCE);
+
+	public CompoundTag mapToTag(DataComponentMap map) {
+		return (CompoundTag) DataComponentMap.CODEC.encodeStart(ops, map)
+				.result()
+				.orElseGet(CompoundTag::new);
+	}
+
+	public CompoundTag patchToTag(DataComponentPatch patch) {
+		return (CompoundTag) DataComponentPatch.CODEC.encodeStart(ops, patch)
+				.result()
+				.orElseGet(CompoundTag::new);
+	}
+
+	public static CompoundTag fixBooleans(CompoundTag tag) {
+		CompoundTag copy = tag.copy();
+		fixTag(copy);
+		return copy;
+	}
+
+	private static void fixTag(Tag tag) {
+		if (tag instanceof CompoundTag compound)
+			for (String key : compound.keySet()) {
+				Tag child = compound.get(key);
+				if (child != null)
+					if (child instanceof StringTag stringTag) {
+						String value = stringTag.asString().get();
+						if ("0b".equals(value))
+							compound.putByte(key, (byte) 0);
+						else if ("1b".equals(value))
+							compound.putByte(key, (byte) 1);
+					} else
+						fixTag(child); // rekurze
+			}
+		else if (tag instanceof ListTag list)
+			for (int i = 0; i < list.size(); i++) {
+				Tag element = list.get(i);
+				if (element instanceof StringTag stringTag) {
+					String value = stringTag.asString().get();
+					if ("0b".equals(value))
+						list.set(i, ByteTag.valueOf((byte) 0));
+					else if ("1b".equals(value))
+						list.set(i, ByteTag.valueOf((byte) 1));
+				} else
+					fixTag(element); // rekurze
+			}
+	}
+
 	@Override
 	public Object getNBT(ItemStack itemStack) {
 		net.minecraft.world.item.ItemStack item = (net.minecraft.world.item.ItemStack) asNMSItem(itemStack);
 		if (item.isEmpty())
 			return new CompoundTag();
-		CustomData data = item.get(DataComponents.CUSTOM_DATA);
-		if (data != null)
-			return data.copyTag();
-		return null;
+		return patchToTag(item.getComponentsPatch());
 	}
 
 	@Override
@@ -201,7 +256,8 @@ public class v1_21_5 implements NmsProvider {
 		if (nbt instanceof NBTEdit)
 			nbt = ((NBTEdit) nbt).getNBT();
 		net.minecraft.world.item.ItemStack item = (net.minecraft.world.item.ItemStack) asNMSItem(stack);
-		item.set(DataComponents.CUSTOM_DATA, CustomData.of((CompoundTag) nbt));
+		DataComponentMap map = DataComponentMap.CODEC.parse(ops, fixBooleans((CompoundTag)nbt)).result().orElse(DataComponentMap.EMPTY);
+		item.applyComponents(map);
 		return asBukkitItem(item);
 	}
 
@@ -214,8 +270,7 @@ public class v1_21_5 implements NmsProvider {
 
 	@Override
 	public ItemStack asBukkitItem(Object stack) {
-		return CraftItemStack.asBukkitCopy(
-				stack == null ? net.minecraft.world.item.ItemStack.EMPTY : (net.minecraft.world.item.ItemStack) stack);
+		return CraftItemStack.asBukkitCopy(stack == null ? net.minecraft.world.item.ItemStack.EMPTY : (net.minecraft.world.item.ItemStack) stack);
 	}
 
 	@Override
@@ -226,14 +281,12 @@ public class v1_21_5 implements NmsProvider {
 	@Override
 	public Object packetResourcePackSend(String url, String hash, boolean requireRP, Component prompt) {
 		return new ClientboundResourcePackPushPacket(UUID.randomUUID(), url, hash, requireRP,
-				prompt == null ? Optional.empty()
-						: Optional.of((net.minecraft.network.chat.Component) this.toIChatBaseComponent(prompt)));
+				prompt == null ? Optional.empty() : Optional.of((net.minecraft.network.chat.Component) this.toIChatBaseComponent(prompt)));
 	}
 
 	@Override
 	public Object packetSetSlot(int container, int slot, int changeId, Object itemStack) {
-		return new ClientboundContainerSetSlotPacket(container, changeId, slot,
-				(net.minecraft.world.item.ItemStack) (itemStack == null ? asNMSItem(null) : itemStack));
+		return new ClientboundContainerSetSlotPacket(container, changeId, slot, (net.minecraft.world.item.ItemStack) (itemStack == null ? asNMSItem(null) : itemStack));
 	}
 
 	@Override
@@ -304,7 +357,7 @@ public class v1_21_5 implements NmsProvider {
 		case ACTIONBAR -> new ClientboundSetActionBarTextPacket(
 				(net.minecraft.network.chat.Component) this.toIChatBaseComponent(text));
 		case TITLE ->
-			new ClientboundSetTitleTextPacket((net.minecraft.network.chat.Component) this.toIChatBaseComponent(text));
+		new ClientboundSetTitleTextPacket((net.minecraft.network.chat.Component) this.toIChatBaseComponent(text));
 		case SUBTITLE -> new ClientboundSetSubtitleTextPacket(
 				(net.minecraft.network.chat.Component) this.toIChatBaseComponent(text));
 		case TIMES -> new ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut);
@@ -346,8 +399,9 @@ public class v1_21_5 implements NmsProvider {
 
 	private net.minecraft.network.chat.Component convert(Component c) {
 		if (c instanceof ComponentItem || c instanceof ComponentEntity)
-			return net.minecraft.network.chat.Component.Serializer.fromJson(Json.writer().simpleWrite(c.toJsonMap()),
-					dispatcher);
+			return ComponentSerialization.CODEC
+					.parse(dispatcher.createSerializationContext(JsonOps.INSTANCE), JsonParser.parseString(Json.writer().simpleWrite(c.toJsonMap())))
+					.getOrThrow(JsonParseException::new);
 		MutableComponent current = net.minecraft.network.chat.Component.literal(c.getText());
 		Style modif = current.getStyle();
 		if (c.getColor() != null && !c.getColor().isEmpty())
@@ -407,23 +461,17 @@ public class v1_21_5 implements NmsProvider {
 				break;
 			case SHOW_ITEM:
 				try {
-
 					ComponentItem compoundTag = (ComponentItem) c.getHoverEvent().getValue();
 					net.minecraft.world.item.ItemStack stack = new net.minecraft.world.item.ItemStack(
 							CraftMagicNumbers.getItem(XMaterial.matchXMaterial(compoundTag.getId())
 									.orElse(XMaterial.AIR).parseMaterial()),
 							compoundTag.getCount());
 					if (compoundTag.getNbt() != null) {
-						CompoundTag nbt = (CompoundTag) parseNBT(compoundTag.getNbt());
-						if (!nbt.contains("id"))
-							nbt.putString("id",
-									BuiltInRegistries.ITEM.getKey(CraftMagicNumbers.getItem(XMaterial
-											.matchXMaterial(compoundTag.getId()).orElse(XMaterial.AIR).parseMaterial()))
-											.toString());
-						if (!nbt.contains("count"))
-							nbt.putInt("count", compoundTag.getCount());
-						stack = net.minecraft.world.item.ItemStack.parse(dispatcher, nbt)
-								.orElse(net.minecraft.world.item.ItemStack.EMPTY);
+						CompoundTag nbt = (CompoundTag) parseNBT(Json.writer().simpleWrite(compoundTag.toJsonMap()));
+						stack = net.minecraft.world.item.ItemStack.CODEC.parse(ops,  fixBooleans(nbt))
+								.resultOrPartial(itemId -> {
+									BukkitLoader.getPlugin(BukkitLoader.class).getLogger().severe("Tried to load invalid item: "+itemId);
+								}).orElse(net.minecraft.world.item.ItemStack.EMPTY);
 					}
 					modif = modif.withHoverEvent(new net.minecraft.network.chat.HoverEvent.ShowItem(stack));
 				} catch (Exception ignored) {
@@ -479,8 +527,9 @@ public class v1_21_5 implements NmsProvider {
 		if (co == null)
 			return new net.minecraft.network.chat.Component[] { empty };
 		if (co instanceof ComponentItem || co instanceof ComponentEntity)
-			return new net.minecraft.network.chat.Component[] { net.minecraft.network.chat.Component.Serializer
-					.fromJson(Json.writer().simpleWrite(co.toJsonMap()), dispatcher) };
+			return new net.minecraft.network.chat.Component[] { ComponentSerialization.CODEC
+					.parse(dispatcher.createSerializationContext(JsonOps.INSTANCE), JsonParser.parseString(Json.writer().simpleWrite(co.toJsonMap())))
+					.getOrThrow(JsonParseException::new) };
 		List<net.minecraft.network.chat.Component> chat = new ArrayList<>();
 		chat.add(net.minecraft.network.chat.Component.literal(""));
 		if (co.getText() != null && !co.getText().isEmpty())
@@ -504,8 +553,9 @@ public class v1_21_5 implements NmsProvider {
 		if (co == null)
 			return empty;
 		if (co instanceof ComponentItem || co instanceof ComponentEntity)
-			return net.minecraft.network.chat.Component.Serializer.fromJson(Json.writer().simpleWrite(co.toJsonMap()),
-					dispatcher);
+			return ComponentSerialization.CODEC
+					.parse(dispatcher.createSerializationContext(JsonOps.INSTANCE), JsonParser.parseString(Json.writer().simpleWrite(co.toJsonMap())))
+					.getOrThrow(JsonParseException::new);
 		MutableComponent main = net.minecraft.network.chat.Component.literal("");
 		List<net.minecraft.network.chat.Component> chat = new ArrayList<>();
 		if (co.getText() != null && !co.getText().isEmpty())
@@ -535,7 +585,9 @@ public class v1_21_5 implements NmsProvider {
 
 	@Override
 	public Object chatBase(String json) {
-		return net.minecraft.network.chat.Component.Serializer.fromJson(json, dispatcher);
+		return ComponentSerialization.CODEC
+				.parse(dispatcher.createSerializationContext(JsonOps.INSTANCE), JsonParser.parseString(json))
+				.getOrThrow(JsonParseException::new);
 	}
 
 	@Override
@@ -593,7 +645,9 @@ public class v1_21_5 implements NmsProvider {
 						.getHoverEvent()).item();
 				ComponentItem compEntity = new ComponentItem(CraftMagicNumbers.getMaterial(hover.getItem()).name(),
 						hover.getCount());
-				compEntity.setNbt(hover.save(dispatcher).toString());
+				compEntity.setNbt(DataComponentMap.CODEC.encodeStart(NbtOps.INSTANCE, hover.getItem().components())
+						.result()
+						.orElseGet(CompoundTag::new).toString());
 				comp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, compEntity));
 				break;
 			}
@@ -856,7 +910,6 @@ public class v1_21_5 implements NmsProvider {
 		return ((CraftBlockData) data).getState();
 	}
 
-	@SuppressWarnings("removal")
 	@Override
 	public Object toIBlockData(BlockState state) {
 		return CraftMagicNumbers.getBlock(state.getType(), state.getRawData());
@@ -1040,9 +1093,9 @@ public class v1_21_5 implements NmsProvider {
 					else
 						newItem.setAmount(Math.max(1, oldItem.getAmount() / 2));
 				} else
-				// drop
-				if (oldItem.isSimilar(newItem) || oldItem.getType() == Material.AIR)
-					newItem.setAmount(oldItem.getType() == Material.AIR ? 1 : oldItem.getAmount() + 1);
+					// drop
+					if (oldItem.isSimilar(newItem) || oldItem.getType() == Material.AIR)
+						newItem.setAmount(oldItem.getType() == Material.AIR ? 1 : oldItem.getAmount() + 1);
 			} else if (slot > 0) // drop
 				if (oldItem.isSimilar(newItem))
 					newItem.setAmount(Math.min(newItem.getAmount() + oldItem.getAmount(), newItem.getMaxStackSize()));
@@ -1153,9 +1206,9 @@ public class v1_21_5 implements NmsProvider {
 					? InventoryUtils.shift(slot, player, gui, clickType,
 							gui instanceof AnvilGUI && slot != 2 ? DestinationType.PLAYER_FROM_ANVIL
 									: DestinationType.PLAYER,
-							null, contents, oldItem)
-					: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.GUI,
-							gui.getNotInterableSlots(player), contents, oldItem);
+									null, contents, oldItem)
+							: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.GUI,
+									gui.getNotInterableSlots(player), contents, oldItem);
 			@SuppressWarnings("unchecked")
 			Map<Integer, ItemStack> modified = (Map<Integer, ItemStack>) result.getValue();
 			int remaining = (int) result.getKey();
@@ -1186,9 +1239,9 @@ public class v1_21_5 implements NmsProvider {
 				} else {
 					for (Entry<Integer, ItemStack> modif : modified.entrySet())
 						c.getSlot(modif.getKey()).set((net.minecraft.world.item.ItemStack) asNMSItem(modif.getValue())); // Visual
-																															// &
-																															// Nms
-																															// side
+					// &
+					// Nms
+					// side
 					// Plugin & Bukkit side
 					gui.getInventory().setStorageContents(contents);
 					if (remaining == 0)
@@ -1317,8 +1370,8 @@ public class v1_21_5 implements NmsProvider {
 						if (container.getBukkitView().getType() == InventoryType.WORKBENCH
 								|| container.getBukkitView().getType() == InventoryType.CRAFTING)
 							((ServerPlayer) player).connection
-									.send(new ClientboundContainerSetSlotPacket(container.containerId,
-											container.incrementStateId(), 0, container.getSlot(0).getItem()));
+							.send(new ClientboundContainerSetSlotPacket(container.containerId,
+									container.incrementStateId(), 0, container.getSlot(0).getItem()));
 					}
 					// CraftBukkit end
 				}
@@ -1394,7 +1447,7 @@ public class v1_21_5 implements NmsProvider {
 
 						for (count = 0; count < 2; ++count)
 							for (int index = size; index >= 0 && index < container.slots.size()
-									&& itemstack.getCount() < itemstack.getMaxStackSize(); index += maxStackSize) {
+							&& itemstack.getCount() < itemstack.getMaxStackSize(); index += maxStackSize) {
 								Slot targetSlot = container.slots.get(index);
 
 								if (targetSlot.hasItem()
@@ -1416,7 +1469,7 @@ public class v1_21_5 implements NmsProvider {
 										itemstack.grow(resultItem.getCount());
 										int gameSlot = index > gui.size() - 1
 												? InventoryUtils.convertToPlayerInvSlot(index - gui.size())
-												: index;
+														: index;
 										if (index < gui.size())
 											modifiedSlots.put(gameSlot, asBukkitItem(targetSlot.getItem()));
 										else
@@ -1492,11 +1545,11 @@ public class v1_21_5 implements NmsProvider {
 
 					count = container.getCarried().getCount();
 					Map<Integer, net.minecraft.world.item.ItemStack> draggedSlots = new HashMap<>(); // CraftBukkit -
-																										// Store slots
-																										// from drag in
-																										// map (raw slot
-																										// id -> new
-																										// stack)
+					// Store slots
+					// from drag in
+					// map (raw slot
+					// id -> new
+					// stack)
 					for (Slot slot1 : quickcraftSlots) {
 						net.minecraft.world.item.ItemStack itemstack2 = container.getCarried();
 
@@ -1512,7 +1565,7 @@ public class v1_21_5 implements NmsProvider {
 							count -= l1 - j1;
 							// slot1.setByPlayer(itemstack1.copyWithCount(l1));
 							draggedSlots.put(slot1.index, itemstack.copyWithCount(l1)); // CraftBukkit - Put in map
-																						// instead of setting
+							// instead of setting
 						}
 					}
 
@@ -1602,7 +1655,7 @@ public class v1_21_5 implements NmsProvider {
 
 			if (event.getMotd() != null)
 				motd = (net.minecraft.network.chat.Component) this
-						.toIChatBaseComponent(ComponentAPI.fromString(event.getMotd()));
+				.toIChatBaseComponent(ComponentAPI.fromString(event.getMotd()));
 			if (event.getVersion() != null)
 				version = Optional.of(new Version(event.getVersion(), event.getProtocol()));
 			if (event.getFavicon() != null)
@@ -1627,13 +1680,15 @@ public class v1_21_5 implements NmsProvider {
 			return false;
 		}
 		JavaPlugin.getPlugin(BukkitLoader.class).getLogger()
-				.warning("You are using outdated version of TheAPI, please update TheAPI to the latest version!");
+		.warning("You are using outdated version of TheAPI, please update TheAPI to the latest version!");
 		return false;
 	}
 
 	@Override
 	public Object getNBT(Entity entity) {
-		return ((CraftEntity) entity).getHandle().saveWithoutId(new CompoundTag());
+		CompoundTag output = new  CompoundTag();
+		((CraftEntity) entity).getHandle().saveWithoutId(output);
+		return output;
 	}
 
 	@Override
@@ -1843,11 +1898,11 @@ public class v1_21_5 implements NmsProvider {
 				.singletonList(new ClientboundPlayerInfoUpdatePacket.Entry(gameProfile.getUUID(),
 						(GameProfile) toGameProfile(gameProfile), true, latency,
 						gameMode == null ? GameType.SURVIVAL : GameType.byName(gameMode.name().toLowerCase()),
-						playerName == null
+								playerName == null
 								? (net.minecraft.network.chat.Component) toIChatBaseComponent(
 										new Component(gameProfile.getUsername()))
-								: (net.minecraft.network.chat.Component) toIChatBaseComponent(playerName),
-						true, 0, null));
+										: (net.minecraft.network.chat.Component) toIChatBaseComponent(playerName),
+										true, 0, null));
 		return new ClientboundPlayerInfoUpdatePacket(set, list);
 	}
 
