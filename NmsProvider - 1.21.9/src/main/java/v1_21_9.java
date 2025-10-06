@@ -1924,7 +1924,7 @@ public class v1_21_9 implements NmsProvider {
 
 	@Override
 	public String getProviderName() {
-		return "PaperMC (1.21.6) " + Bukkit.getServer().getMinecraftVersion();
+		return "PaperMC (1.21.9) " + Bukkit.getServer().getMinecraftVersion();
 	}
 
 	@Override
@@ -1943,22 +1943,18 @@ public class v1_21_9 implements NmsProvider {
 	public Object toGameProfile(GameProfileHandler gameProfileHandler) {
 		GameProfile profile = new GameProfile(gameProfileHandler.getUUID(), gameProfileHandler.getUsername());
 		for (Entry<String, PropertyHandler> entry : gameProfileHandler.getProperties().entrySet())
-			profile.getProperties().put(entry.getKey(), new Property(entry.getValue().getName(),
+			profile.properties().put(entry.getKey(), new Property(entry.getValue().getName(),
 					entry.getValue().getValues(), entry.getValue().getSignature()));
 		return profile;
 	}
 
-	private final Field name = Ref.field(Property.class, "name");
-	private final Field value = Ref.field(Property.class, "value");
-	private final Field signature = Ref.field(Property.class, "signature");
-
 	@Override
 	public GameProfileHandler fromGameProfile(Object gameProfile) {
 		GameProfile profile = (GameProfile) gameProfile;
-		GameProfileHandler handler = GameProfileHandler.of(profile.getName(), profile.getId());
-		for (Entry<String, Property> entry : profile.getProperties().entries())
-			handler.getProperties().put(entry.getKey(), PropertyHandler.of((String) Ref.get(entry.getValue(), name),
-					(String) Ref.get(entry.getValue(), value), (String) Ref.get(entry.getValue(), signature)));
+		GameProfileHandler handler = GameProfileHandler.of(profile.name(), profile.id());
+		for (Entry<String, Property> entry : profile.properties().entries())
+			handler.getProperties().put(entry.getKey(), PropertyHandler.of(entry.getValue().name(),
+					entry.getValue().value(), entry.getValue().signature()));
 		return handler;
 	}
 
