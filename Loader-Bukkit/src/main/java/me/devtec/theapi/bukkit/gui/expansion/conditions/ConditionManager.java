@@ -32,8 +32,7 @@ public class ConditionManager {
 				String input = values;
 				if (hasPlaceholders)
 					input = Utils.replacePlaceholders(input, placeholders, player.getUniqueId());
-				return BukkitLoader.getEconomyHook().getBalance(player.getName(), player.getWorld().getName()) >= ParseUtils
-						.getDouble(input);
+				return BukkitLoader.getEconomyHook().getBalance(player.getName(), player.getWorld().getName()) >= ParseUtils.getDouble(input);
 			};
 		});
 		register("check_permission", values -> {
