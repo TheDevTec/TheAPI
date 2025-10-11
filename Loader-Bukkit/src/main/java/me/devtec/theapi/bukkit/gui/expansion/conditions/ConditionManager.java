@@ -87,13 +87,13 @@ public class ConditionManager {
 					break;
 				default:
 					BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-					.warning("[GUiExpansion] Condition check_placeholder in the condition with values '" + values
+					.warning("[GuiExpansion] Condition check_placeholder in the condition with values '" + values
 							+ "' doesn't contain check type (X==Z, X!=Z...)");
 					return (player, sharedData, placeholders) -> false;
 				}
 			else {
 				BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-				.warning("[GUiExpansion] Condition check_placeholder in the condition with values '" + values
+				.warning("[GuiExpansion] Condition check_placeholder in the condition with values '" + values
 						+ "' doesn't contain check type (X==Z, X!=Z...)");
 				return (player, sharedData, placeholders) -> false;
 			}

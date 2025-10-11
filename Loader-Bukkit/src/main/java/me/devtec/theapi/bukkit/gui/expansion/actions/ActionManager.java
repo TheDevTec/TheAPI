@@ -49,7 +49,7 @@ public class ActionManager {
 				}
 				else
 					BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-					.warning("[GUiExpansion] Not found menu with id " + id + "!");
+					.warning("[GuiExpansion] Not found menu with id " + id + "!");
 			};
 		});
 		register("close_menu", (holder, values) -> (gui, player, sharedData, placeholders) -> {
@@ -233,7 +233,7 @@ public class ActionManager {
 							innerPlaceholders = (Map<String, Object>) json;
 						else
 							BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-							.warning("[GUiExpansion] [Action] This is not json! " + yesJson);
+							.warning("[GuiExpansion] [Action] This is not json! " + yesJson);
 					}
 					Utils.processActions(holder, gui, player, sharedData, innerPlaceholders, yesName);
 				} else {
@@ -244,7 +244,7 @@ public class ActionManager {
 							innerPlaceholders = (Map<String, Object>) json;
 						else
 							BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-							.warning("[GUiExpansion] [Action] This is not json! " + noJson);
+							.warning("[GuiExpansion] [Action] This is not json! " + noJson);
 					}
 					Utils.processActions(holder, gui, player, sharedData, innerPlaceholders, noName);
 				}
@@ -275,7 +275,7 @@ public class ActionManager {
 							innerPlaceholders = (Map<String, Object>) json;
 						else
 							BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-							.warning("[GUiExpansion] [Action] This is not json! " + yesJson);
+							.warning("[GuiExpansion] [Action] This is not json! " + yesJson);
 					}
 					Utils.processActions(holder, gui, player, sharedData, innerPlaceholders, yesName);
 				} else {
@@ -286,7 +286,7 @@ public class ActionManager {
 							innerPlaceholders = (Map<String, Object>) json;
 						else
 							BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-							.warning("[GUiExpansion] [Action] This is not json! " + noJson);
+							.warning("[GuiExpansion] [Action] This is not json! " + noJson);
 					}
 					Utils.processActions(holder, gui, player, sharedData, innerPlaceholders, noName);
 				}
@@ -337,14 +337,14 @@ public class ActionManager {
 					break;
 				default:
 					BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-					.warning("[GUiExpansion] Action check_placeholder in the action with values '" + values
+					.warning("[GuiExpansion] Action check_placeholder in the action with values '" + values
 							+ "' doesn't contain check type (X==Z, X!=Z...)");
 					return (gui, player, sharedData, placeholders) -> {
 					};
 				}
 			else {
 				BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-				.warning("[GUiExpansion] Action check_placeholder in the action with values '" + values
+				.warning("[GuiExpansion] Action check_placeholder in the action with values '" + values
 						+ "' doesn't contain check type (X==Z, X!=Z...)");
 				return (gui, player, sharedData, placeholders) -> {
 				};
@@ -381,7 +381,7 @@ public class ActionManager {
 							innerPlaceholders = (Map<String, Object>) json;
 						else
 							BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-							.warning("[GUiExpansion] [Action] This is not json! " + yesJson);
+							.warning("[GuiExpansion] [Action] This is not json! " + yesJson);
 					}
 					Utils.processActions(holder, gui, player, sharedData, innerPlaceholders, yesName);
 				} else {
@@ -392,7 +392,7 @@ public class ActionManager {
 							innerPlaceholders = (Map<String, Object>) json;
 						else
 							BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-							.warning("[GUiExpansion] [Action] This is not json! " + noJson);
+							.warning("[GuiExpansion] [Action] This is not json! " + noJson);
 					}
 					Utils.processActions(holder, gui, player, sharedData, innerPlaceholders, noName);
 				}

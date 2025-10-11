@@ -803,7 +803,7 @@ public class LoopGuiCreator implements GuiCreator {
 						ItemMaker maker = ItemMaker.loadMakerFromConfig(config, "items." + c);
 						if (maker == null) {
 							BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-							.warning("[GUiExpansion] Failed to find item " + c + " in the gui " + config.getFile().getName());
+							.warning("[GuiExpansion] Failed to find item " + c + " in the gui " + config.getFile().getName());
 							continue;
 						}
 						List<String> messages = config.getStringList("items." + c + ".click.messages");
