@@ -176,24 +176,24 @@ public class ScoreboardAPI {
 		return result;
 	}
 
-	private void createTeam(Component prefix, Component suffix, String teamName, Component displayName) {
-		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(TeamUtils.METHOD_ADD, teamName, ChatColor.WHITE, prefix, suffix, displayName, Visibility.ALWAYS, CollisionRule.ALWAYS, Collections.emptyList()));
+	private void createTeam(Component prefix, Component suffix, Component displayName, String teamName) {
+		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(TeamUtils.METHOD_ADD, teamName, ChatColor.WHITE, prefix, suffix, displayName, Visibility.ALWAYS, CollisionRule.ALWAYS, 0, Collections.emptyList()));
 	}
 
-	private void modifyTeam(Component prefix, Component suffix, String teamName, Component displayName) {
-		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(TeamUtils.METHOD_CHANGE, teamName, ChatColor.WHITE, prefix, suffix, displayName, Visibility.ALWAYS, CollisionRule.ALWAYS, Collections.emptyList()));
+	private void modifyTeam(Component prefix, Component suffix, Component displayName, String teamName) {
+		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(TeamUtils.METHOD_CHANGE, teamName, ChatColor.WHITE, prefix, suffix, displayName, Visibility.ALWAYS, CollisionRule.ALWAYS, 0, Collections.emptyList()));
 	}
 
 	private void removeTeam(String playerName, String teamName) {
-		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(TeamUtils.METHOD_REMOVE, teamName, ChatColor.WHITE, Component.EMPTY_COMPONENT, Component.EMPTY_COMPONENT, Component.EMPTY_COMPONENT, Visibility.ALWAYS, CollisionRule.ALWAYS, Collections.singleton(playerName)));
+		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(TeamUtils.METHOD_REMOVE, teamName, null, null, null, null, null, null, 0, Collections.singleton(playerName)));
 	}
 
 	private void leaveTeam(String playerName, String teamName) {
-		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(TeamUtils.METHOD_LEAVE, teamName, ChatColor.WHITE, Component.EMPTY_COMPONENT, Component.EMPTY_COMPONENT, Component.EMPTY_COMPONENT, Visibility.ALWAYS, CollisionRule.ALWAYS, Collections.singleton(playerName)));
+		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(TeamUtils.METHOD_LEAVE, teamName, null, null, null, null, null, null, 0, Collections.singleton(playerName)));
 	}
 
 	private void joinTeam(String playerName, String teamName) {
-		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(TeamUtils.METHOD_JOIN, teamName, ChatColor.WHITE, Component.EMPTY_COMPONENT, Component.EMPTY_COMPONENT, Component.EMPTY_COMPONENT, Visibility.ALWAYS, CollisionRule.ALWAYS, Collections.singleton(playerName)));
+		BukkitLoader.getPacketHandler().send(p, TeamUtils.createTeamPacket(TeamUtils.METHOD_JOIN, teamName, null, null, null, null, null, null, 0, Collections.singleton(playerName)));
 	}
 
 	private Object createObjectivePacket(int mode, Component displayName) {
@@ -224,11 +224,11 @@ public class ScoreboardAPI {
 
 		public void sendLine() {
 			if (first) {
-				createTeam(Component.fromString(prefix), Component.fromString(suffix), name, Component.fromString(currentPlayer));
+				createTeam(Component.fromString(prefix), Component.fromString(suffix), Component.fromString(currentPlayer), name);
 				changed = false;
 			} else if (changed) {
 				changed = false;
-				modifyTeam(Component.fromString(prefix), Component.fromString(suffix), name, Component.fromString(currentPlayer));
+				modifyTeam(Component.fromString(prefix), Component.fromString(suffix), Component.fromString(currentPlayer), name);
 			}
 			if (first || old != null) {
 				if (old != null)
