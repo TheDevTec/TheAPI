@@ -1,9 +1,10 @@
 package me.devtec.theapi.bukkit.nms.utils;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
+
+import org.bukkit.ChatColor;
 
 import me.devtec.shared.Ref;
 import me.devtec.shared.annotations.Nullable;
@@ -12,6 +13,11 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.nms.NmsProvider.DisplayType;
 
 public class TeamUtils {
+	public static final int METHOD_ADD = 0;
+	public static final int METHOD_REMOVE = 1;
+	public static final int METHOD_CHANGE = 2;
+	public static final int METHOD_JOIN = 3;
+	public static final int METHOD_LEAVE = 4;
 
 	@Nullable
 	public static final Class<?> sbTeam;// class of PacketPlayOutScoreboardTeam$b
@@ -158,47 +164,40 @@ public class TeamUtils {
 		}
 	}
 
-	public static Object createTeamPacket(int mode, Object color, Component prefix, Component suffix, String holderName, String teamName, Visibility visibility, CollisionRule collision) {
+	public static Object parseColor(ChatColor color) {
+		if(color==ChatColor.WHITE||color==null)return white;
+		if (BukkitLoader.NO_OBFUSCATED_NMS_MODE || Ref.isNewerThan(16))
+			return Ref.getStatic(Ref.field(Ref.nms("", "ChatFormatting"), color.name()));
+		return Ref.method(Ref.nms("", "EnumChatFormat"), "a", int.class) != null
+				? Ref.invokeStatic(Ref.method(Ref.nms("", "EnumChatFormat"), "a", int.class), color.ordinal())
+						: Ref.invokeStatic(Ref.method(Ref.nms("", "EnumChatFormat"), "a", char.class), color.getChar());
+	}
+
+	public static Object createTeamPacket(int mode, String teamName, ChatColor color, Component prefix, Component suffix, Component displayName, Visibility visibility, CollisionRule collision, Collection<String> players) {
 		Object packet = BukkitLoader.getNmsProvider().packetScoreboardTeam();
-		List<String> nameList = Collections.singletonList(holderName);
 		if (BukkitLoader.NO_OBFUSCATED_NMS_MODE || Ref.isNewerThan(16)) {
 			Object o = Ref.newUnsafeInstance(TeamUtils.sbTeam);
-			Ref.set(o, teamDisplayName, BukkitLoader.getNmsProvider().chatBase("{\"text\":\"" + holderName + "\"}"));
-			Ref.set(o, playerPrefix, BukkitLoader.getNmsProvider()
-					.toIChatBaseComponent(prefix == null ? Component.EMPTY_COMPONENT : prefix));
-			Ref.set(o, playerSuffix, BukkitLoader.getNmsProvider()
-					.toIChatBaseComponent(suffix == null ? Component.EMPTY_COMPONENT : suffix));
+			Ref.set(o, teamDisplayName, BukkitLoader.getNmsProvider().toIChatBaseComponent(displayName == null ? Component.EMPTY_COMPONENT : displayName));
+			Ref.set(o, playerPrefix, BukkitLoader.getNmsProvider().toIChatBaseComponent(prefix == null ? Component.EMPTY_COMPONENT : prefix));
+			Ref.set(o, playerSuffix, BukkitLoader.getNmsProvider().toIChatBaseComponent(suffix == null ? Component.EMPTY_COMPONENT : suffix));
 			Ref.set(o, nametagVisibility, visibility.getValue());
 			Ref.set(o, collisionRule, collision.getValue());
-			Ref.set(o, TeamUtils.color, color);
+			Ref.set(o, TeamUtils.color, parseColor(color));
 			Ref.set(o, options, 0);
 			Ref.set(packet, parameters, Optional.of(o));
 		} else {
-			Ref.set(packet, teamDisplayName,
-					Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().chatBase("{\"text\":\"\"}") : "");
-			Ref.set(packet, playerPrefix,
-					Ref.isNewerThan(12)
-					? BukkitLoader.getNmsProvider()
-							.toIChatBaseComponent(prefix == null ? Component.EMPTY_COMPONENT : prefix)
-							: prefix == null ? "" : prefix.toString());
-			Ref.set(packet, playerSuffix,
-					Ref.isNewerThan(12)
-					? BukkitLoader.getNmsProvider()
-							.toIChatBaseComponent(suffix == null ? Component.EMPTY_COMPONENT : suffix)
-							: suffix == null ? "" : suffix.toString());
+			Ref.set(packet, teamDisplayName, Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().toIChatBaseComponent(displayName == null ? Component.EMPTY_COMPONENT : displayName) : displayName.toString());
+			Ref.set(packet, playerPrefix, Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().toIChatBaseComponent(prefix == null ? Component.EMPTY_COMPONENT : prefix) : prefix == null ? "" : prefix.toString());
+			Ref.set(packet, playerSuffix, Ref.isNewerThan(12) ? BukkitLoader.getNmsProvider().toIChatBaseComponent(suffix == null ? Component.EMPTY_COMPONENT : suffix) : suffix == null ? "" : suffix.toString());
 			Ref.set(packet, nametagVisibility, visibility.getValue());
 			Ref.set(packet, collisionRule, collision.getValue());
 			if (Ref.isNewerThan(8))
-				Ref.set(packet, TeamUtils.color, Ref.isNewerThan(12) ? color : -1);
+				Ref.set(packet, TeamUtils.color, Ref.isNewerThan(12) ? parseColor(color) : color.ordinal());
 		}
 		Ref.set(packet, name, teamName);
 		Ref.set(packet, teamMethod, mode);
-		Ref.set(packet, players, nameList);
+		Ref.set(packet, TeamUtils.players, players);
 		return packet;
-	}
-
-	public static Object createTeamPacket(int mode, Object color, Component prefix, Component suffix, String holderName, String teamName) {
-		return createTeamPacket(mode, color, prefix, suffix, holderName, teamName, Visibility.ALWAYS, CollisionRule.ALWAYS);
 	}
 
 	public static Object createObjectivePacket(int mode, String name, Component displayName,
