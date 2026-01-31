@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-def versionValue = System.getenv('VERSION') ?: '13.8'
+def versionValue = System.getenv('VERSION') ?: '13.8.1'
 group = 'me.devtec.theapi.loaders'
 version = versionValue
 

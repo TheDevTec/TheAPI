@@ -38,8 +38,8 @@ import me.devtec.theapi.velocity.commands.hooker.VelocityCommandManager;
 import me.devtec.theapi.velocity.commands.selectors.VelocitySelectorUtils;
 import net.kyori.adventure.text.Component;
 
-@Plugin(id = "theapi", name = "TheAPI", version = "13.8", authors = { "DevTec",
-		"Straikerinos" }, url = "https://www.spigotmc.org/resources/72679/")
+@Plugin(id = "theapi", name = "TheAPI", version = "13.8.1", authors = { "DevTec",
+"Straikerinos" }, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 
 	// Init static APIs
@@ -109,7 +109,7 @@ public class VelocityLoader {
 	public static void initTheAPI() {
 		Ref.init(ServerType.VELOCITY,
 				Ref.getClass("com.velocitypowered.proxy.VelocityServer").getPackage().getImplementationVersion()); // Server
-																													// version
+		// version
 
 		Metrics.gatheringInfoManager = new GatheringInfoManager() {
 
