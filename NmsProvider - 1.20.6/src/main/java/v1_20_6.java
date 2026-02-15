@@ -305,7 +305,7 @@ public class v1_20_6 implements NmsProvider {
 		case ACTIONBAR -> new ClientboundSetActionBarTextPacket(
 				(net.minecraft.network.chat.Component) this.toIChatBaseComponent(text));
 		case TITLE ->
-			new ClientboundSetTitleTextPacket((net.minecraft.network.chat.Component) this.toIChatBaseComponent(text));
+		new ClientboundSetTitleTextPacket((net.minecraft.network.chat.Component) this.toIChatBaseComponent(text));
 		case SUBTITLE -> new ClientboundSetSubtitleTextPacket(
 				(net.minecraft.network.chat.Component) this.toIChatBaseComponent(text));
 		case TIMES -> new ClientboundSetTitlesAnimationPacket(fadeIn, stay, fadeOut);
@@ -392,7 +392,7 @@ public class v1_20_6 implements NmsProvider {
 							nbt.putString("id",
 									BuiltInRegistries.ITEM.getKey(CraftMagicNumbers.getItem(XMaterial
 											.matchXMaterial(compoundTag.getId()).orElse(XMaterial.AIR).parseMaterial()))
-											.toString());
+									.toString());
 						if (!nbt.contains("count"))
 							nbt.putInt("count", compoundTag.getCount());
 						stack = net.minecraft.world.item.ItemStack.parseOptional(dispatcher, nbt);
@@ -407,7 +407,7 @@ public class v1_20_6 implements NmsProvider {
 				modif = modif.withHoverEvent(new net.minecraft.network.chat.HoverEvent(
 						net.minecraft.network.chat.HoverEvent.Action.SHOW_TEXT,
 						(net.minecraft.network.chat.Component) this
-								.toIChatBaseComponent(c.getHoverEvent().getValue())));
+						.toIChatBaseComponent(c.getHoverEvent().getValue())));
 				break;
 			}
 		modif = modif.withBold(c.isBold());
@@ -549,7 +549,7 @@ public class v1_20_6 implements NmsProvider {
 			}
 			default:
 				net.minecraft.network.chat.Component hover = modif.getHoverEvent()
-						.getValue(net.minecraft.network.chat.HoverEvent.Action.SHOW_TEXT);
+				.getValue(net.minecraft.network.chat.HoverEvent.Action.SHOW_TEXT);
 				comp.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, fromIChatBaseComponent(hover)));
 				break;
 			}
@@ -924,7 +924,7 @@ public class v1_20_6 implements NmsProvider {
 						new ClientboundContainerSetSlotPacket(id, getContainerStateId(container), slot, item));
 			++slot;
 		}
-        BukkitLoader.getPacketHandler().send(player, new ClientboundContainerSetContentPacket(id, getContainerStateId(container), ((AbstractContainerMenu) container).remoteSlots, ((AbstractContainerMenu) container).getCarried()));
+		BukkitLoader.getPacketHandler().send(player, new ClientboundContainerSetContentPacket(id, getContainerStateId(container), ((AbstractContainerMenu) container).remoteSlots, ((AbstractContainerMenu) container).getCarried()));
 	}
 
 	@Override
@@ -1003,9 +1003,9 @@ public class v1_20_6 implements NmsProvider {
 					else
 						newItem.setAmount(Math.max(1, oldItem.getAmount() / 2));
 				} else
-				// drop
-				if (oldItem.isSimilar(newItem) || oldItem.getType() == Material.AIR)
-					newItem.setAmount(oldItem.getType() == Material.AIR ? 1 : oldItem.getAmount() + 1);
+					// drop
+					if (oldItem.isSimilar(newItem) || oldItem.getType() == Material.AIR)
+						newItem.setAmount(oldItem.getType() == Material.AIR ? 1 : oldItem.getAmount() + 1);
 			} else if (slot > 0) // drop
 				if (oldItem.isSimilar(newItem))
 					newItem.setAmount(Math.min(newItem.getAmount() + oldItem.getAmount(), newItem.getMaxStackSize()));
@@ -1078,9 +1078,9 @@ public class v1_20_6 implements NmsProvider {
 			return true;
 		}
 		// MOUSE
-        BukkitLoader.getPacketHandler().send(player, new ClientboundContainerSetSlotPacket(-1, statusId, -1, c.getCarried()));
-        BukkitLoader.getPacketHandler().send(player, new ClientboundContainerSetContentPacket(id, statusId, c.remoteSlots, c.getCarried()));
-                    
+		BukkitLoader.getPacketHandler().send(player, new ClientboundContainerSetSlotPacket(-1, statusId, -1, c.getCarried()));
+		BukkitLoader.getPacketHandler().send(player, new ClientboundContainerSetContentPacket(id, statusId, c.remoteSlots, c.getCarried()));
+
 		switch (type) {
 		case CLONE:
 			break;
@@ -1114,9 +1114,9 @@ public class v1_20_6 implements NmsProvider {
 					? InventoryUtils.shift(slot, player, gui, clickType,
 							gui instanceof AnvilGUI && slot != 2 ? DestinationType.PLAYER_FROM_ANVIL
 									: DestinationType.PLAYER,
-							null, contents, oldItem)
-					: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.GUI,
-							gui.getNotInterableSlots(player), contents, oldItem);
+									null, contents, oldItem)
+							: InventoryUtils.shift(slot, player, gui, clickType, DestinationType.GUI,
+									gui.getNotInterableSlots(player), contents, oldItem);
 			@SuppressWarnings("unchecked")
 			Map<Integer, ItemStack> modified = (Map<Integer, ItemStack>) result.getValue();
 			int remaining = (int) result.getKey();
@@ -1147,9 +1147,9 @@ public class v1_20_6 implements NmsProvider {
 				} else {
 					for (Entry<Integer, ItemStack> modif : modified.entrySet())
 						c.getSlot(modif.getKey()).set((net.minecraft.world.item.ItemStack) asNMSItem(modif.getValue())); // Visual
-																															// &
-																															// Nms
-																															// side
+					// &
+					// Nms
+					// side
 					// Plugin & Bukkit side
 					gui.getInventory().setStorageContents(contents);
 					if (remaining == 0)
@@ -1282,8 +1282,8 @@ public class v1_20_6 implements NmsProvider {
 						if (container.getBukkitView().getType() == InventoryType.WORKBENCH
 								|| container.getBukkitView().getType() == InventoryType.CRAFTING)
 							((ServerPlayer) player).connection
-									.send(new ClientboundContainerSetSlotPacket(container.containerId,
-											container.incrementStateId(), 0, container.getSlot(0).getItem()));
+							.send(new ClientboundContainerSetSlotPacket(container.containerId,
+									container.incrementStateId(), 0, container.getSlot(0).getItem()));
 					}
 					// CraftBukkit end
 				}
@@ -1359,7 +1359,7 @@ public class v1_20_6 implements NmsProvider {
 
 						for (count = 0; count < 2; ++count)
 							for (int index = size; index >= 0 && index < container.slots.size()
-									&& itemstack.getCount() < itemstack.getMaxStackSize(); index += maxStackSize) {
+							&& itemstack.getCount() < itemstack.getMaxStackSize(); index += maxStackSize) {
 								Slot targetSlot = container.slots.get(index);
 
 								if (targetSlot.hasItem()
@@ -1381,7 +1381,7 @@ public class v1_20_6 implements NmsProvider {
 										itemstack.grow(resultItem.getCount());
 										int gameSlot = index > gui.size() - 1
 												? InventoryUtils.convertToPlayerInvSlot(index - gui.size())
-												: index;
+														: index;
 										if (index < gui.size())
 											modifiedSlots.put(gameSlot, asBukkitItem(targetSlot.getItem()));
 										else
@@ -1458,11 +1458,11 @@ public class v1_20_6 implements NmsProvider {
 
 					count = container.getCarried().getCount();
 					Map<Integer, net.minecraft.world.item.ItemStack> draggedSlots = new HashMap<>(); // CraftBukkit -
-																										// Store slots
-																										// from drag in
-																										// map (raw slot
-																										// id -> new
-																										// stack)
+					// Store slots
+					// from drag in
+					// map (raw slot
+					// id -> new
+					// stack)
 					for (Slot slot1 : quickcraftSlots) {
 						net.minecraft.world.item.ItemStack itemstack2 = container.getCarried();
 
@@ -1478,7 +1478,7 @@ public class v1_20_6 implements NmsProvider {
 							count -= l1 - j1;
 							// slot1.setByPlayer(itemstack1.copyWithCount(l1));
 							draggedSlots.put(slot1.index, itemstack.copyWithCount(l1)); // CraftBukkit - Put in map
-																						// instead of setting
+							// instead of setting
 						}
 					}
 
@@ -1567,7 +1567,7 @@ public class v1_20_6 implements NmsProvider {
 
 			if (event.getMotd() != null)
 				motd = (net.minecraft.network.chat.Component) this
-						.toIChatBaseComponent(ComponentAPI.fromString(event.getMotd()));
+				.toIChatBaseComponent(ComponentAPI.fromString(event.getMotd()));
 			if (event.getVersion() != null)
 				version = Optional.of(new Version(event.getVersion(), event.getProtocol()));
 			if (event.getFavicon() != null)
@@ -1592,7 +1592,7 @@ public class v1_20_6 implements NmsProvider {
 			return false;
 		}
 		JavaPlugin.getPlugin(BukkitLoader.class).getLogger()
-				.warning("You are using outdated version of TheAPI, please update TheAPI to the latest version!");
+		.warning("You are using outdated version of TheAPI, please update TheAPI to the latest version!");
 		return false;
 	}
 
@@ -1760,7 +1760,7 @@ public class v1_20_6 implements NmsProvider {
 
 	Constructor<?> heldItemSlot = Ref
 			.constructor(Ref.nms("network.protocol.game", "ClientboundSetHeldSlotPacket") == null
-					? Ref.nms("network.protocol.game", "ClientboundSetCarriedItemPacket")
+			? Ref.nms("network.protocol.game", "ClientboundSetCarriedItemPacket")
 					: Ref.nms("network.protocol.game", "ClientboundSetHeldSlotPacket"), int.class);
 
 	@Override
@@ -1813,14 +1813,14 @@ public class v1_20_6 implements NmsProvider {
 				.singletonList((ClientboundPlayerInfoUpdatePacket.Entry) (packetEntryPaper
 						? Ref.newInstance(packetEntry, gameProfile.getUUID(), toGameProfile(gameProfile), true, latency,
 								gameMode == null ? GameType.SURVIVAL : GameType.byName(gameMode.name().toLowerCase()),
-								playerName == null ? toIChatBaseComponent(new Component(gameProfile.getUsername()))
-										: toIChatBaseComponent(playerName),
-								true, 0, null)
-						: Ref.newInstance(packetEntry, gameProfile.getUUID(), toGameProfile(gameProfile), true, latency,
-								gameMode == null ? GameType.SURVIVAL : GameType.byName(gameMode.name().toLowerCase()),
-								playerName == null ? toIChatBaseComponent(new Component(gameProfile.getUsername()))
-										: toIChatBaseComponent(playerName),
-								null)));
+										playerName == null ? toIChatBaseComponent(new Component(gameProfile.getUsername()))
+												: toIChatBaseComponent(playerName),
+												true, 0, null)
+								: Ref.newInstance(packetEntry, gameProfile.getUUID(), toGameProfile(gameProfile), true, latency,
+										gameMode == null ? GameType.SURVIVAL : GameType.byName(gameMode.name().toLowerCase()),
+												playerName == null ? toIChatBaseComponent(new Component(gameProfile.getUsername()))
+														: toIChatBaseComponent(playerName),
+														null)));
 		return new ClientboundPlayerInfoUpdatePacket(set, list);
 	}
 
@@ -1832,7 +1832,7 @@ public class v1_20_6 implements NmsProvider {
 			posRot = Ref.constructor(ServerboundMovePlayerPacket.PosRot.class, double.class, double.class, double.class, float.class, float.class, boolean.class, boolean.class);
 		}
 	}
-	
+
 	@Override
 	public Object packetPosition(double x, double y, double z, float yaw, float pitch) {
 		return is1_21_4 ? Ref.newInstance(posRot, x, y, z, yaw, pitch, true, false) : Ref.newInstance(posRot, x, y, z, yaw, pitch, true);
@@ -1861,11 +1861,20 @@ public class v1_20_6 implements NmsProvider {
 					s.getValue());
 	}
 
+	static Method getProperties = Ref.method(GameProfile.class, "getProperties");
+	static Method getName = Ref.method(GameProfile.class, "getName");
+	static Method getId = Ref.method(GameProfile.class, "getId");
+	static {
+		if(getProperties==null)getProperties=Ref.method(GameProfile.class, "properties");
+		if(getName==null)getName=Ref.method(GameProfile.class, "name");
+		if(getId==null)getId=Ref.method(GameProfile.class, "id");
+	}
+
 	@Override
 	public Object toGameProfile(GameProfileHandler gameProfileHandler) {
 		GameProfile profile = new GameProfile(gameProfileHandler.getUUID(), gameProfileHandler.getUsername());
 		for (Entry<String, PropertyHandler> entry : gameProfileHandler.getProperties().entrySet())
-			profile.getProperties().put(entry.getKey(), new Property(entry.getValue().getName(),
+			((com.mojang.authlib.properties.PropertyMap)Ref.invoke(profile, getProperties)).put(entry.getKey(), new Property(entry.getValue().getName(),
 					entry.getValue().getValues(), entry.getValue().getSignature()));
 		return profile;
 	}
@@ -1877,8 +1886,8 @@ public class v1_20_6 implements NmsProvider {
 	@Override
 	public GameProfileHandler fromGameProfile(Object gameProfile) {
 		GameProfile profile = (GameProfile) gameProfile;
-		GameProfileHandler handler = GameProfileHandler.of(profile.getName(), profile.getId());
-		for (Entry<String, Property> entry : profile.getProperties().entries())
+		GameProfileHandler handler = GameProfileHandler.of((String)Ref.invoke(profile,getName), (UUID)Ref.invoke(profile,getId));
+		for (Entry<String, Property> entry : ((com.mojang.authlib.properties.PropertyMap)Ref.invoke(profile, getProperties)).entries())
 			handler.getProperties().put(entry.getKey(), PropertyHandler.of((String) Ref.get(entry.getValue(), name),
 					(String) Ref.get(entry.getValue(), value), (String) Ref.get(entry.getValue(), signature)));
 		return handler;
