@@ -12,7 +12,7 @@ We bring the most useful and most wanted features directly for developers. From 
 - **Java 1.8** or newer
 
 ## Built-in loaders:
-- CraftBukkit, Spigot and all forks
+- Paper and all forks
 - BungeeCord and all forks
 - Velocity
 
