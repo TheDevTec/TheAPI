@@ -680,10 +680,6 @@ public class v1_17_1 implements NmsProvider {
 
 		// MARK CHUNK TO SAVE
 		chunk.setNeedsSaving(true);
-
-		// POI
-		if (!chunk.i.preventPoiUpdated)
-			chunk.i.a(pos, old, iblock);
 	}
 
 	@Override
@@ -705,8 +701,9 @@ public class v1_17_1 implements NmsProvider {
 	}
 
 	private void doPhysics(WorldServer world, BlockPosition blockposition, Block block, BlockPosition blockposition1) {
-		world.getType(blockposition).doPhysics(world, blockposition, block, blockposition1, false);
 		IBlockData state = world.getType(blockposition);
+		if (state.getBlock().isAir())
+			return;
 		state.doPhysics(world, blockposition, block, blockposition1, false);
 		if (state.getBlock() instanceof BlockFalling)
 			((BlockFalling) state.getBlock()).onPlace(state, world, blockposition, block.getBlockData(), false);

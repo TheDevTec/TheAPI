@@ -672,10 +672,6 @@ public class v1_20 implements NmsProvider {
 
 		// MARK CHUNK TO SAVE
 		chunk.a(true);
-
-		// POI
-		if (!world.preventPoiUpdated)
-			world.a(pos, old, iblock);
 	}
 
 	@Override
@@ -698,6 +694,8 @@ public class v1_20 implements NmsProvider {
 
 	private void doPhysics(WorldServer world, BlockPosition blockposition, Block block, BlockPosition blockposition1) {
 		IBlockData state = world.a_(blockposition);
+		if (state.b().isAir())
+			return;
 		state.a(world, blockposition, block, blockposition1, false);
 		if (state.b() instanceof BlockFalling)
 			((BlockFalling) state.b()).b(state, world, blockposition, block.n(), false);

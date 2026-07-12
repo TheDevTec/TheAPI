@@ -701,6 +701,8 @@ public class v1_12_R1 implements NmsProvider {
 
 	private void doPhysics(WorldServer world, BlockPosition blockposition, Block block, BlockPosition blockposition1) {
 		IBlockData state = world.getType(blockposition);
+		if (state.getBlock().isAir())
+			return;
 		state.doPhysics(world, blockposition, block, blockposition1);
 		if (state.getBlock() instanceof BlockFalling)
 			state.getBlock().onPlace(world, blockposition, block.getBlockData());

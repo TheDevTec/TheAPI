@@ -398,7 +398,8 @@ public class Position implements Cloneable {
 			BukkitLoader.getNmsProvider().setNBTToTile(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(),
 					type.getNBT());
 		Position.updateLightAt(this);
-		if (updatePhysics)
+		boolean shouldUpdatePhysics = updatePhysics && (prev == null || !BlockDataStorage.fromData(prev).equals(type));
+		if (shouldUpdatePhysics)
 			BukkitLoader.getNmsProvider().updatePhysics(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ(), prev);
 	}
 

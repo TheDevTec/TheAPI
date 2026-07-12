@@ -717,7 +717,7 @@ public class v1_19_4 implements NmsProvider {
 				chunk.removeBlockEntity(pos);
 		}
 
-		net.minecraft.world.level.block.state.BlockState old = sc.setBlockState(x & 15, y & 15, z & 15, iblock, false);
+		net.minecraft.world.level.block.state.BlockState old = chunk.setBlockState(pos, iblock, false);
 
 		if (!old.equals(iblock)) {
 			// ADD TILE ENTITY
@@ -734,10 +734,6 @@ public class v1_19_4 implements NmsProvider {
 				Ref.invoke(chunk, markUnsaved);
 			else
 				Ref.invoke(chunk, markUnsaved, true);
-
-			// POI
-			if (!world.preventPoiUpdated)
-				world.onBlockStateChange(pos, old, iblock);
 		}
 	}
 
@@ -765,6 +761,8 @@ public class v1_19_4 implements NmsProvider {
 	private void doPhysics(ServerLevel world, BlockPos BlockPos, Block block, BlockPos BlockPos1) {
 
 		net.minecraft.world.level.block.state.BlockState state = world.getBlockState(BlockPos);
+		if (state.isAir())
+			return;
 		state.neighborChanged(world, BlockPos, block, null, false);
 		if (state.getBlock() instanceof FallingBlock)
 			Ref.invoke(state.getBlock(), callPhysics, state, world, BlockPos, block.defaultBlockState(), false);

@@ -720,6 +720,8 @@ public class v1_8_R3 implements NmsProvider {
 
 	private void doPhysics(WorldServer world, BlockPosition blockposition, Block block) {
 		IBlockData state = world.getType(blockposition);
+		if (state.getBlock().isAir())
+			return;
 		state.getBlock().doPhysics(world, blockposition, state, block);
 		if (state.getBlock() instanceof BlockFalling)
 			state.getBlock().onPlace(world, blockposition, block.getBlockData());
