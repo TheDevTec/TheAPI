@@ -783,7 +783,7 @@ public class v1_21_5 implements NmsProvider {
 
 		net.minecraft.world.level.block.state.BlockState iblock = IblockData == null ? Blocks.AIR.defaultBlockState()
 				: (net.minecraft.world.level.block.state.BlockState) IblockData;
-		if (sc.hasOnlyAir() && iblock.isAir())
+		if (sc.hasOnlyAir() && iblock.getBlock() == Blocks.AIR)
 			return;
 
 		boolean onlyModifyState = iblock.getBlock() instanceof EntityBlock;
@@ -802,9 +802,9 @@ public class v1_21_5 implements NmsProvider {
 				chunk.removeBlockEntity(pos);
 		}
 
-		net.minecraft.world.level.block.state.BlockState old = chunk.setBlockState(pos, iblock, false);
+		chunk.setBlockState(pos, iblock, 0);
 
-		if (!old.equals(iblock)) {
+		{
 			// ADD TILE ENTITY
 			if (iblock.getBlock() instanceof EntityBlock && !onlyModifyState) {
 				ent = ((EntityBlock) iblock.getBlock()).newBlockEntity(pos, iblock);
@@ -843,7 +843,7 @@ public class v1_21_5 implements NmsProvider {
 	private void doPhysics(ServerLevel world, BlockPos BlockPos, Block block, BlockPos BlockPos1) {
 
 		net.minecraft.world.level.block.state.BlockState state = world.getBlockState(BlockPos);
-		if (state.isAir())
+		if (state.getBlock() == Blocks.AIR)
 			return;
 		state.handleNeighborChanged(world, BlockPos, block, null, false);
 		if (state.getBlock() instanceof FallingBlock)

@@ -694,7 +694,7 @@ public class v1_20 implements NmsProvider {
 
 	private void doPhysics(WorldServer world, BlockPosition blockposition, Block block, BlockPosition blockposition1) {
 		IBlockData state = world.a_(blockposition);
-		if (state.b().isAir())
+		if (state.b() == Blocks.a)
 			return;
 		state.a(world, blockposition, block, blockposition1, false);
 		if (state.b() instanceof BlockFalling)

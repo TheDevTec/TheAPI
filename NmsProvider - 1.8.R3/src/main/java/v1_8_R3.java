@@ -685,19 +685,21 @@ public class v1_8_R3 implements NmsProvider {
 
 		sc.setType(x & 15, y & 15, z & 15, iblock);
 
-		// ADD TILE ENTITY
-		if (iblock.getBlock() instanceof IContainer && !onlyModifyState) {
-			ent = ((IContainer) iblock.getBlock()).a(chunk.world, 0);
-			chunk.tileEntities.put(pos, ent);
-			ent.a(chunk.world);
-			ent.a(pos);
-			Ref.set(ent, tileEntityBlock, iblock.getBlock());
-			Object packet = ent.getUpdatePacket();
-			BukkitLoader.getPacketHandler().send(chunk.world.getWorld().getPlayers(), packet);
-		}
+		{
+			// ADD TILE ENTITY
+			if (iblock.getBlock() instanceof IContainer && !onlyModifyState) {
+				ent = ((IContainer) iblock.getBlock()).a(chunk.world, 0);
+				chunk.tileEntities.put(pos, ent);
+				ent.a(chunk.world);
+				ent.a(pos);
+				Ref.set(ent, tileEntityBlock, iblock.getBlock());
+				Object packet = ent.getUpdatePacket();
+				BukkitLoader.getPacketHandler().send(chunk.world.getWorld().getPlayers(), packet);
+			}
 
-		// MARK CHUNK TO SAVE
-		chunk.mustSave = true;
+			// MARK CHUNK TO SAVE
+			chunk.mustSave = true;
+		}
 	}
 
 	@Override
@@ -720,7 +722,7 @@ public class v1_8_R3 implements NmsProvider {
 
 	private void doPhysics(WorldServer world, BlockPosition blockposition, Block block) {
 		IBlockData state = world.getType(blockposition);
-		if (state.getBlock().isAir())
+		if (state.getBlock()==Blocks.AIR)
 			return;
 		state.getBlock().doPhysics(world, blockposition, state, block);
 		if (state.getBlock() instanceof BlockFalling)
