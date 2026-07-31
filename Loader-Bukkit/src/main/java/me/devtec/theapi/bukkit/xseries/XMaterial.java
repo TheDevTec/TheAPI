@@ -44,7 +44,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SpawnEggMeta;
 
 import lombok.Getter;
-import me.devtec.shared.Ref;
 import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.dataholder.cache.TempMap;
 import me.devtec.shared.utility.ParseUtils;
@@ -99,7 +98,7 @@ public enum XMaterial {
 	BIRCH_WALL_HANGING_SIGN(105, -1), BIRCH_WALL_SIGN(106, -1, "WALL_SIGN"),
 	BIRCH_WOOD(107, -1, 2, "LOG"), BLACKSTONE(108, -1), BLACKSTONE_SLAB(109, -1),
 	BLACKSTONE_STAIRS(110, -1), BLACKSTONE_WALL(111, -1), BLACK_BANNER(112, 425, "STANDING_BANNER", "BANNER"),
-	BLACK_BED(113, 355, supports(12) ? 15 : 0, "BED_BLOCK", "BED"),
+	BLACK_BED(113, 355, supports(1, 12) ? 15 : 0, "BED_BLOCK", "BED"),
 	BLACK_CANDLE(114, -1), BLACK_CANDLE_CAKE(115, -1), BLACK_CARPET(116, 171, 15, "CARPET"),
 	BLACK_CONCRETE(117, 251, 15, "CONCRETE"), BLACK_CONCRETE_POWDER(118, 252, 15, "CONCRETE_POWDER"),
 	BLACK_DYE(119, -1, 0, "INK_SACK", "INK_SAC"), BLACK_GLAZED_TERRACOTTA(120, 250),
@@ -109,7 +108,7 @@ public enum XMaterial {
 	BLACK_WOOL(127, 35, 15, "WOOL"), BLADE_POTTERY_SHERD(128, -1),
 	BLAST_FURNACE(129, -1), BLAZE_POWDER(130, 377), BLAZE_ROD(131, 369),
 	BLAZE_SPAWN_EGG(132, 383, 61, "MONSTER_EGG"), BLUE_BANNER(133, 425, 4, "STANDING_BANNER", "BANNER"),
-	BLUE_BED(134, 355, supports(12) ? 11 : 0, "BED_BLOCK", "BED"),
+	BLUE_BED(134, 355, supports(1, 12) ? 11 : 0, "BED_BLOCK", "BED"),
 	BLUE_BUNDLE(135, -1), BLUE_CANDLE(136, -1), BLUE_CANDLE_CAKE(137, -1),
 	BLUE_CARPET(138, 171, 11, "CARPET"), BLUE_CONCRETE(139, 251, 11, "CONCRETE"),
 	BLUE_CONCRETE_POWDER(140, 252, 11, "CONCRETE_POWDER"), BLUE_DYE(141, 351, 4, "INK_SACK", "LAPIS_LAZULI"),
@@ -126,7 +125,7 @@ public enum XMaterial {
 	BREWING_STAND(171, 379, "BREWING_STAND", "BREWING_STAND_ITEM"),
 	BRICK(172, 336, "CLAY_BRICK"), BRICKS(173, 45, "BRICKS", "BRICK"),
 	BRICK_SLAB(174, 44, 4, "STEP"), BRICK_STAIRS(175, 108), BRICK_WALL(176, -1),
-	BROWN_BANNER(177, 425, 3, "STANDING_BANNER", "BANNER"), BROWN_BED(178, 355, supports(12) ? 12 : 0, "BED_BLOCK", "BED"),
+	BROWN_BANNER(177, 425, 3, "STANDING_BANNER", "BANNER"), BROWN_BED(178, 355, supports(1, 12) ? 12 : 0, "BED_BLOCK", "BED"),
 	BROWN_BUNDLE(179, -1), BROWN_CANDLE(180, -1), BROWN_CANDLE_CAKE(181, -1),
 	BROWN_CARPET(182, 171, 12, "CARPET"), BROWN_CONCRETE(183, 251, 12, "CONCRETE"),
 	BROWN_CONCRETE_POWDER(184, 252, 12, "CONCRETE_POWDER"), BROWN_DYE(185, 351, 3, "INK_SACK", "DYE", "COCOA_BEANS"),
@@ -148,7 +147,7 @@ public enum XMaterial {
 	CAVE_AIR(224, -1, "AIR"), CAVE_SPIDER_SPAWN_EGG(225, 383, 59, "MONSTER_EGG"),
 	CAVE_VINES(226, -1), CAVE_VINES_PLANT(227, -1), CHAINMAIL_BOOTS(228, 305),
 	CHAINMAIL_CHESTPLATE(229, 303), CHAINMAIL_HELMET(230, 302),
-	CHAINMAIL_LEGGINGS(231, 304), CHAIN_COMMAND_BLOCK(232, Ref.isNewerThan(8) ? 211 : -1, "COMMAND", "COMMAND_CHAIN"),
+	CHAINMAIL_LEGGINGS(231, 304), CHAIN_COMMAND_BLOCK(232, supports(1, 9) ? 211 : -1, "COMMAND", "COMMAND_CHAIN"),
 	CHARCOAL(233, 263, 1, "COAL"), CHERRY_BOAT(234, -1), CHERRY_BUTTON(235, -1),
 	CHERRY_CHEST_BOAT(236, -1), CHERRY_DOOR(237, -1), CHERRY_FENCE(238, -1),
 	CHERRY_FENCE_GATE(239, -1), CHERRY_HANGING_SIGN(240, -1), CHERRY_LEAVES(241, -1),
@@ -206,7 +205,7 @@ public enum XMaterial {
 	CRYING_OBSIDIAN(371, -1), CUT_COPPER(372, -1), CUT_COPPER_SLAB(373, -1),
 	CUT_COPPER_STAIRS(374, -1), CUT_RED_SANDSTONE(375, -1), CUT_RED_SANDSTONE_SLAB(376, -1, "STONE_SLAB2"),
 	CUT_SANDSTONE(377, -1), CUT_SANDSTONE_SLAB(378, 44, 1, "STEP"),
-	CYAN_BANNER(379, 425, 6, "STANDING_BANNER", "BANNER"), CYAN_BED(380, 355, supports(12) ? 9 : 0, "BED_BLOCK", "BED"),
+	CYAN_BANNER(379, 425, 6, "STANDING_BANNER", "BANNER"), CYAN_BED(380, 355, supports(1, 12) ? 9 : 0, "BED_BLOCK", "BED"),
 	CYAN_BUNDLE(381, -1), CYAN_CANDLE(382, -1), CYAN_CANDLE_CAKE(383, -1),
 	CYAN_CARPET(384, 171, 9, "CARPET"), CYAN_CONCRETE(385, 251, 9, "CONCRETE"),
 	CYAN_CONCRETE_POWDER(386, 252, 9, "CONCRETE_POWDER"), CYAN_DYE(387, 351, 6, "INK_SACK"),
@@ -305,7 +304,7 @@ public enum XMaterial {
 	GOLD_NUGGET(607, 371), GOLD_ORE(608, 14), GRANITE(609, 1, 1, "STONE"),
 	GRANITE_SLAB(610, -1), GRANITE_STAIRS(611, -1), GRANITE_WALL(612, -1),
 	GRASS_BLOCK(613, 2, "GRASS"), GRAVEL(614, 13), GRAY_BANNER(615, 425, 28, "STANDING_BANNER", "BANNER"),
-	GRAY_BED(616, 355, supports(12) ? 7 : 0, "BED_BLOCK", "BED"),
+	GRAY_BED(616, 355, supports(1, 12) ? 7 : 0, "BED_BLOCK", "BED"),
 	GRAY_BUNDLE(617, -1), GRAY_CANDLE(618, -1), GRAY_CANDLE_CAKE(619, -1),
 	GRAY_CARPET(620, 171, 7, "CARPET"), GRAY_CONCRETE(621, 251, 7, "CONCRETE"),
 	GRAY_CONCRETE_POWDER(622, 252, 7, "CONCRETE_POWDER"), GRAY_DYE(623, 351, 8, "INK_SACK"),
@@ -313,7 +312,7 @@ public enum XMaterial {
 	GRAY_STAINED_GLASS(627, 95, 7, "STAINED_GLASS"), GRAY_STAINED_GLASS_PANE(628, 160, 7, "THIN_GLASS", "STAINED_GLASS_PANE"),
 	GRAY_TERRACOTTA(629, 159, 7, "STAINED_CLAY"), GRAY_WALL_BANNER(630, 177, 8, "WALL_BANNER"),
 	GRAY_WOOL(631, 35, 7, "WOOL"), GREEN_BANNER(632, 425, 2, "STANDING_BANNER", "BANNER"),
-	GREEN_BED(633, 355, supports(12) ? 13 : 0, "BED_BLOCK", "BED"),
+	GREEN_BED(633, 355, supports(1, 12) ? 13 : 0, "BED_BLOCK", "BED"),
 	GREEN_BUNDLE(634, -1), GREEN_CANDLE(635, -1), GREEN_CANDLE_CAKE(636, -1),
 	GREEN_CARPET(637, 171, 13, "CARPET"), GREEN_CONCRETE(638, 251, 13, "CONCRETE"),
 	GREEN_CONCRETE_POWDER(639, 252, 13, "CONCRETE_POWDER"), GREEN_DYE(640, 351, 2, "INK_SACK", "CACTUS_GREEN"),
@@ -354,7 +353,7 @@ public enum XMaterial {
 	JUNGLE_STAIRS(724, 136, "JUNGLE_WOOD_STAIRS"), JUNGLE_TRAPDOOR(725, -1, "TRAP_DOOR"),
 	JUNGLE_WALL_HANGING_SIGN(726, -1), JUNGLE_WALL_SIGN(727, -1, "WALL_SIGN"),
 	JUNGLE_WOOD(728, -1, 3, "LOG"), KELP(729, -1), KELP_PLANT(730, -1),
-	KNOWLEDGE_BOOK(731, Ref.isNewerThan(11) ? 453 : -1, "BOOK"),
+	KNOWLEDGE_BOOK(731, supports(1, 12) ? 453 : -1, "BOOK"),
 	LADDER(732, 65), LANTERN(733, -1), LAPIS_BLOCK(734, 22), LAPIS_LAZULI(735, 351, 4, "INK_SACK"),
 	LAPIS_ORE(736, 21), LARGE_AMETHYST_BUD(737, -1), LARGE_FERN(738, 175, 3, "DOUBLE_PLANT"),
 	LAVA(739, 10, "STATIONARY_LAVA"), LAVA_BUCKET(740, 327), LAVA_CAULDRON(741, -1),
@@ -363,7 +362,7 @@ public enum XMaterial {
 	LEATHER_HORSE_ARMOR(748, -1, "IRON_HORSE_ARMOR"), LEATHER_LEGGINGS(749, 300),
 	LECTERN(750, -1), LEVER(751, 69), LIGHT(752, -1), LIGHTNING_ROD(753, -1),
 	LIGHT_BLUE_BANNER(754, 425, 12, "STANDING_BANNER", "BANNER"),
-	LIGHT_BLUE_BED(755, 355, supports(12) ? 3 : 0, "BED_BLOCK", "BED"),
+	LIGHT_BLUE_BED(755, 355, supports(1, 12) ? 3 : 0, "BED_BLOCK", "BED"),
 	LIGHT_BLUE_BUNDLE(756, -1), LIGHT_BLUE_CANDLE(757, -1), LIGHT_BLUE_CANDLE_CAKE(758, -1),
 	LIGHT_BLUE_CARPET(759, 171, 3, "CARPET"), LIGHT_BLUE_CONCRETE(760, 251, 3, "CONCRETE"),
 	LIGHT_BLUE_CONCRETE_POWDER(761, 252, 3, "CONCRETE_POWDER"),
@@ -372,7 +371,7 @@ public enum XMaterial {
 	LIGHT_BLUE_STAINED_GLASS(766, 95, 3, "STAINED_GLASS"), LIGHT_BLUE_STAINED_GLASS_PANE(767, 160, 3, "THIN_GLASS", "STAINED_GLASS_PANE"),
 	LIGHT_BLUE_TERRACOTTA(768, 159, 3, "STAINED_CLAY"), LIGHT_BLUE_WALL_BANNER(769, 425, 12, "WALL_BANNER", "STANDING_BANNER", "BANNER"),
 	LIGHT_BLUE_WOOL(770, 35, 3, "WOOL"), LIGHT_GRAY_BANNER(771, 425, 7, "STANDING_BANNER", "BANNER"),
-	LIGHT_GRAY_BED(772, 355, supports(12) ? 8 : 0, "BED_BLOCK", "BED"),
+	LIGHT_GRAY_BED(772, 355, supports(1, 12) ? 8 : 0, "BED_BLOCK", "BED"),
 	LIGHT_GRAY_BUNDLE(773, -1), LIGHT_GRAY_CANDLE(774, -1), LIGHT_GRAY_CANDLE_CAKE(775, -1),
 	LIGHT_GRAY_CARPET(776, 171, 8, "CARPET"), LIGHT_GRAY_CONCRETE(777, 251, 8, "CONCRETE"),
 	LIGHT_GRAY_CONCRETE_POWDER(778, 252, 8, "CONCRETE_POWDER"),
@@ -383,7 +382,7 @@ public enum XMaterial {
 	LIGHT_GRAY_WOOL(787, 35, 8, "WOOL"), LIGHT_WEIGHTED_PRESSURE_PLATE(788, 147, "GOLD_PLATE"),
 	LILAC(789, 175, 1, "DOUBLE_PLANT"), LILY_OF_THE_VALLEY(790, -1),
 	LILY_PAD(791, 111, "WATER_LILY"), LIME_BANNER(792, 425, 10, "STANDING_BANNER", "BANNER"),
-	LIME_BED(793, 355, supports(12) ? 5 : 0, "BED_BLOCK", "BED"),
+	LIME_BED(793, 355, supports(1, 12) ? 5 : 0, "BED_BLOCK", "BED"),
 	LIME_BUNDLE(794, -1), LIME_CANDLE(795, -1), LIME_CANDLE_CAKE(796, -1),
 	LIME_CARPET(797, 171, 5, "CARPET"), LIME_CONCRETE(798, 251, 5, "CONCRETE"),
 	LIME_CONCRETE_POWDER(799, 252, 5, "CONCRETE_POWDER"), LIME_DYE(800, 351, 10, "INK_SACK"),
@@ -392,7 +391,7 @@ public enum XMaterial {
 	LIME_TERRACOTTA(806, 159, 5, "STAINED_CLAY"), LIME_WALL_BANNER(807, 177, 10, "WALL_BANNER"),
 	LIME_WOOL(808, 35, 5, "WOOL"), LINGERING_POTION(809, 441), LLAMA_SPAWN_EGG(810, 383, 103, "MONSTER_EGG"),
 	LODESTONE(811, -1), LOOM(812, -1), MACE(813, -1), MAGENTA_BANNER(814, 425, 13, "STANDING_BANNER", "BANNER"),
-	MAGENTA_BED(815, 355, supports(12) ? 2 : 0, "BED_BLOCK", "BED"),
+	MAGENTA_BED(815, 355, supports(1, 12) ? 2 : 0, "BED_BLOCK", "BED"),
 	MAGENTA_BUNDLE(816, -1), MAGENTA_CANDLE(817, -1), MAGENTA_CANDLE_CAKE(818, -1),
 	MAGENTA_CARPET(819, 171, 2, "CARPET"), MAGENTA_CONCRETE(820, 251, 2, "CONCRETE"),
 	MAGENTA_CONCRETE_POWDER(821, 252, 2, "CONCRETE_POWDER"), MAGENTA_DYE(822, 351, 13, "INK_SACK"),
@@ -458,7 +457,7 @@ public enum XMaterial {
 	OAK_WOOD(959, -1, "LOG"), OBSERVER(960, 218), OBSIDIAN(961, 49),
 	OCELOT_SPAWN_EGG(962, 383, 98, "MONSTER_EGG"), OCHRE_FROGLIGHT(963, -1),
 	OMINOUS_BOTTLE(964, -1), OMINOUS_TRIAL_KEY(965, -1), OPEN_EYEBLOSSOM(966, -1),
-	ORANGE_BANNER(967, 425, 14, "STANDING_BANNER", "BANNER"), ORANGE_BED(968, 355, supports(12) ? 1 : 0, "BED_BLOCK", "BED"),
+	ORANGE_BANNER(967, 425, 14, "STANDING_BANNER", "BANNER"), ORANGE_BED(968, 355, supports(1, 12) ? 1 : 0, "BED_BLOCK", "BED"),
 	ORANGE_BUNDLE(969, -1), ORANGE_CANDLE(970, -1), ORANGE_CANDLE_CAKE(971, -1),
 	ORANGE_CARPET(972, 171, 1, "CARPET"), ORANGE_CONCRETE(973, 251, 1, "CONCRETE"),
 	ORANGE_CONCRETE_POWDER(974, 252, 1, "CONCRETE_POWDER"), ORANGE_DYE(975, 351, 14, "INK_SACK"),
@@ -491,7 +490,7 @@ public enum XMaterial {
 	PIGLIN_BRUTE_SPAWN_EGG(1036, -1), PIGLIN_HEAD(1037, -1), PIGLIN_SPAWN_EGG(1038, -1, 57, "MONSTER_EGG"),
 	PIGLIN_WALL_HEAD(1039, -1), PIG_SPAWN_EGG(1040, 383, 90, "MONSTER_EGG"),
 	PILLAGER_SPAWN_EGG(1041, -1), PINK_BANNER(1042, 425, 9, "STANDING_BANNER", "BANNER"),
-	PINK_BED(1043, 355, supports(12) ? 6 : 0, "BED_BLOCK", "BED"),
+	PINK_BED(1043, 355, supports(1, 12) ? 6 : 0, "BED_BLOCK", "BED"),
 	PINK_BUNDLE(1044, -1), PINK_CANDLE(1045, -1), PINK_CANDLE_CAKE(1046, -1),
 	PINK_CARPET(1047, 171, 6, "CARPET"), PINK_CONCRETE(1048, 251, 6, "CONCRETE"),
 	PINK_CONCRETE_POWDER(1049, 252, 6, "CONCRETE_POWDER"), PINK_DYE(1050, 351, 9, "INK_SACK"),
@@ -550,7 +549,7 @@ public enum XMaterial {
 	PUFFERFISH_BUCKET(1163, -1), PUFFERFISH_SPAWN_EGG(1164, -1),
 	PUMPKIN(1165, 86), PUMPKIN_PIE(1166, 400), PUMPKIN_SEEDS(1167, 361),
 	PUMPKIN_STEM(1168, 104), PURPLE_BANNER(1169, 425, 5, "STANDING_BANNER", "BANNER"),
-	PURPLE_BED(1170, 355, supports(12) ? 10 : 0, "BED_BLOCK", "BED"),
+	PURPLE_BED(1170, 355, supports(1, 12) ? 10 : 0, "BED_BLOCK", "BED"),
 	PURPLE_BUNDLE(1171, -1), PURPLE_CANDLE(1172, -1), PURPLE_CANDLE_CAKE(1173, -1),
 	PURPLE_CARPET(1174, 171, 10, "CARPET"), PURPLE_CONCRETE(1175, 251, 10, "CONCRETE"),
 	PURPLE_CONCRETE_POWDER(1176, 252, 10, "CONCRETE_POWDER"), PURPLE_DYE(1177, 351, 5, "INK_SACK"),
@@ -572,7 +571,7 @@ public enum XMaterial {
 	REDSTONE_BLOCK(1212, 152), REDSTONE_LAMP(1213, 123, "REDSTONE_LAMP_ON", "REDSTONE_LAMP_OFF"),
 	REDSTONE_ORE(1214, 73, "GLOWING_REDSTONE_ORE"), REDSTONE_TORCH(1215, 76, "REDSTONE_TORCH_OFF", "REDSTONE_TORCH_ON"),
 	REDSTONE_WALL_TORCH(1216, -1), REDSTONE_WIRE(1217, 55), RED_BANNER(1218, 425, 1, "STANDING_BANNER", "BANNER"),
-	RED_BED(1219, 355, supports(12) ? 14 : 0, "BED_BLOCK", "BED"),
+	RED_BED(1219, 355, supports(1, 12) ? 14 : 0, "BED_BLOCK", "BED"),
 	RED_BUNDLE(1220, -1), RED_CANDLE(1221, -1), RED_CANDLE_CAKE(1222, -1),
 	RED_CARPET(1223, 171, 14, "CARPET"), RED_CONCRETE(1224, 251, 14, "CONCRETE"),
 	RED_CONCRETE_POWDER(1225, 252, 14, "CONCRETE_POWDER"), RED_DYE(1226, 351, 1, "INK_SACK", "ROSE_RED"),
@@ -587,7 +586,7 @@ public enum XMaterial {
 	RED_TERRACOTTA(1243, 159, 14, "STAINED_CLAY"), RED_TULIP(1244, 38, 4, "RED_ROSE"),
 	RED_WALL_BANNER(1245, 177, 1, "WALL_BANNER"), RED_WOOL(1246, 35, 14, "WOOL"),
 	REINFORCED_DEEPSLATE(1247, -1), REPEATER(1248, 356, "DIODE_BLOCK_ON", "DIODE_BLOCK_OFF", "DIODE"),
-	REPEATING_COMMAND_BLOCK(1249, Ref.isNewerThan(8) ? 210 : -1, "COMMAND", "COMMAND_REPEATING"),
+	REPEATING_COMMAND_BLOCK(1249, supports (1, 9) ? 210 : -1, "COMMAND", "COMMAND_REPEATING"),
 	RESIN_BLOCK(1250, -1), RESIN_BRICK(1251, -1), RESIN_BRICKS(1252, -1),
 	RESIN_BRICK_SLAB(1253, -1), RESIN_BRICK_STAIRS(1254, -1), RESIN_BRICK_WALL(1255, -1),
 	RESIN_CLUMP(1256, -1), RESPAWN_ANCHOR(1257, -1), RIB_ARMOR_TRIM_SMITHING_TEMPLATE(1258, -1),
@@ -624,7 +623,7 @@ public enum XMaterial {
 	SOUL_SAND(1333, 88), SOUL_SOIL(1334, -1), SOUL_TORCH(1335, -1),
 	SOUL_WALL_TORCH(1336, -1), SPAWNER(1337, 52, "MOB_SPAWNER"),
 	SPECTRAL_ARROW(1338, 439), SPIDER_EYE(1339, 375), SPIDER_SPAWN_EGG(1340, 383, 52, "MONSTER_EGG"),
-	SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE(1341, -1), SPLASH_POTION(1342, Ref.isNewerThan(8) ? 438 : -1, "POTION"),
+	SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE(1341, -1), SPLASH_POTION(1342, supports (1, 9) ? 438 : -1, "POTION"),
 	SPONGE(1343, 19), SPORE_BLOSSOM(1344, -1), SPRUCE_BOAT(1345, 444, "BOAT_SPRUCE"),
 	SPRUCE_BUTTON(1346, -1, "WOOD_BUTTON"), SPRUCE_CHEST_BOAT(1347, -1),
 	SPRUCE_DOOR(1348, 427, "SPRUCE_DOOR", "SPRUCE_DOOR_ITEM"), SPRUCE_FENCE(1349, 188),
@@ -656,7 +655,7 @@ public enum XMaterial {
 	STRIPPED_PALE_OAK_WOOD(1405, -1), STRIPPED_SPRUCE_LOG(1406, -1),
 	STRIPPED_SPRUCE_WOOD(1407, -1), STRIPPED_WARPED_HYPHAE(1408, -1),
 	STRIPPED_WARPED_STEM(1409, -1), STRUCTURE_BLOCK(1410, 255),
-	STRUCTURE_VOID(1411, Ref.isNewerThan(9) ? 217 : -1, 10, "BARRIER"),
+	STRUCTURE_VOID(1411, supports (1, 10) ? 217 : -1, 10, "BARRIER"),
 	SUGAR(1412, 353), SUGAR_CANE(1413, 338, "SUGAR_CANE_BLOCK"),
 	SUNFLOWER(1414, 175, "DOUBLE_PLANT"), SUSPICIOUS_GRAVEL(1415, -1),
 	SUSPICIOUS_SAND(1416, -1), SUSPICIOUS_STEW(1417, -1), SWEET_BERRIES(1418, -1),
@@ -749,7 +748,7 @@ public enum XMaterial {
 	WOODEN_PICKAXE(1615, 270, "WOOD_PICKAXE"), WOODEN_SHOVEL(1616, 269, "WOOD_SPADE"),
 	WOODEN_SWORD(1617, 268, "WOOD_SWORD"), WRITABLE_BOOK(1618, 386, "BOOK_AND_QUILL"),
 	WRITTEN_BOOK(1619, 387), YELLOW_BANNER(1620, 425, 11, "STANDING_BANNER", "BANNER"),
-	YELLOW_BED(1621, 355, supports(12) ? 4 : 0, "BED_BLOCK", "BED"),
+	YELLOW_BED(1621, 355, supports(1, 12) ? 4 : 0, "BED_BLOCK", "BED"),
 	YELLOW_BUNDLE(1622, -1), YELLOW_CANDLE(1623, -1), YELLOW_CANDLE_CAKE(1624, -1),
 	YELLOW_CARPET(1625, 171, 4, "CARPET"), YELLOW_CONCRETE(1626, 251, 4, "CONCRETE"),
 	YELLOW_CONCRETE_POWDER(1627, 252, 4, "CONCRETE_POWDER"), YELLOW_DYE(1628, 351, 11, "INK_SACK", "DANDELION_YELLOW"),
@@ -760,7 +759,58 @@ public enum XMaterial {
 	YELLOW_WOOL(1636, 35, 4, "WOOL"), ZOGLIN_SPAWN_EGG(1637, -1),
 	ZOMBIE_HEAD(1638, 397, 2, "SKULL", "SKULL_ITEM"), ZOMBIE_HORSE_SPAWN_EGG(1639, 383, 29, "MONSTER_EGG"),
 	ZOMBIE_SPAWN_EGG(1640, 383, 54, "MONSTER_EGG"), ZOMBIE_VILLAGER_SPAWN_EGG(1641, 383, 27, "MONSTER_EGG"),
-	ZOMBIE_WALL_HEAD(1642, -1, 2, "SKULL", "SKULL_ITEM"), ZOMBIFIED_PIGLIN_SPAWN_EGG(1643, 383, 57, "MONSTER_EGG", "ZOMBIE_PIGMAN_SPAWN_EGG");
+	ZOMBIE_WALL_HEAD(1642, -1, 2, "SKULL", "SKULL_ITEM"), ZOMBIFIED_PIGLIN_SPAWN_EGG(1643, 383, 57, "MONSTER_EGG", "ZOMBIE_PIGMAN_SPAWN_EGG"),
+	NAUTILUS_SPAWN_EGG(1643,-1),
+	CAMEL_HUSK_SPAWN_EGG(1644,-1),
+	PARCHED_SPAWN_EGG(1645,-1),
+	ZOMBIE_NAUTILUS_SPAWN_EGG(1646,-1),
+	NETHERITE_HORSE_ARMOR(1647,-1),
+	WOODEN_SPEAR(1648,-1),
+	STONE_SPEAR(1649,-1),
+	COPPER_SPEAR(1650,-1),
+	IRON_SPEAR(1651,-1),
+	GOLDEN_SPEAR(1652,-1),
+	DIAMOND_SPEAR(1653,-1),
+	NETHERITE_SPEAR(1654,-1),
+	IRON_NAUTILUS_ARMOR(1655,-1),
+	GOLDEN_NAUTILUS_ARMOR(1656,-1),
+	DIAMOND_NAUTILUS_ARMOR(1657,-1),
+	NETHERITE_NAUTILUS_ARMOR(1658,-1),
+	COPPER_NAUTILUS_ARMOR(1659,-1),
+	GOLDEN_DANDELION(1660,-1),
+	POTTED_GOLDEN_DANDELION(1661,-1),
+	SULFUR(1662,-1),
+	POTENT_SULFUR(1663,-1),
+	SULFUR_SLAB(1664,-1),
+	SULFUR_STAIRS(1665,-1),
+	SULFUR_WALL(1666,-1),
+	POLISHED_SULFUR(1667,-1),
+	POLISHED_SULFUR_SLAB(1668,-1),
+	POLISHED_SULFUR_STAIRS(1669,-1),
+	POLISHED_SULFUR_WALL(1670,-1),
+	SULFUR_BRICKS(1671,-1),
+	SULFUR_BRICK_SLAB(1672,-1),
+	SULFUR_BRICK_STAIRS(1673,-1),
+	SULFUR_BRICK_WALL(1674,-1),
+	CHISELED_SULFUR(1675,-1),
+	CINNABAR(1676,-1),
+	CINNABAR_SLAB(1677,-1),
+	CINNABAR_STAIRS(1678,-1),
+	CINNABAR_WALL(1679,-1),
+	POLISHED_CINNABAR(1680,-1),
+	POLISHED_CINNABAR_SLAB(1681,-1),
+	POLISHED_CINNABAR_STAIRS(1682,-1),
+	POLISHED_CINNABAR_WALL(1683,-1),
+	CINNABAR_BRICKS(1684,-1),
+	CINNABAR_BRICK_SLAB(1685,-1),
+	CINNABAR_BRICK_STAIRS(1686,-1),
+	CINNABAR_BRICK_WALL(1687,-1),
+	CHISELED_CINNABAR(1688,-1),
+	SULFUR_CUBE_BUCKET(1689,-1),
+	SULFUR_CUBE_SPAWN_EGG(1690,-1),
+	MUSIC_DISC_BOUNCE(1691,-1),
+	SULFUR_SPIKE(1692,-1)
+	;
 
 	/**
 	 * Cached array of {@link XMaterial#values()} to avoid allocating memory for
@@ -973,7 +1023,7 @@ public enum XMaterial {
 	 */
 	@Deprecated
 	public static boolean isOneEight() {
-		return !supports(9);
+		return !supports(1, 9);
 	}
 
 	/**
@@ -987,6 +1037,27 @@ public enum XMaterial {
 	private static Optional<XMaterial> getIfPresent(String name) {
 		return Optional.ofNullable(NAMES.get(name));
 	}
+
+	/**
+	 * The current major version of the server.
+	 *
+	 * @return the current server major minor number.
+	 * @see #supports(int, int)
+	 */
+	public static int getVersionMajor() {
+		return Data.VERSION_MAJOR;
+	}
+
+	/**
+	 * The current minor version of the server.
+	 *
+	 * @return the current server version minor number.
+	 * @see #supports(int, int)
+	 */
+	public static int getVersionMinor() {
+		return Data.VERSION_MINOR;
+	}
+
 
 	public String getFormattedName() {
 		StringContainer container = new StringContainer(name().length());
@@ -1014,7 +1085,7 @@ public enum XMaterial {
 	 * @since 2.0.0
 	 */
 	public static int getVersion() {
-		return Data.VERSION;
+		return Data.VERSION_MINOR;
 	}
 
 	/**
@@ -1117,7 +1188,7 @@ public enum XMaterial {
 		byte data = (byte) (Data.ISFLAT || item.getType().getMaxDurability() > 0 ? 0 : item.getDurability());
 
 		// Versions 1.9-1.12 didn't really use the items data value.
-		if (SUPPORTS_SpawnEggMeta && !supports(13) && item.hasItemMeta() && "MONSTER_EGG".equals(material)) {
+		if (SUPPORTS_SpawnEggMeta && !supports(1, 13) && item.hasItemMeta() && "MONSTER_EGG".equals(material)) {
 			ItemMeta meta = item.getItemMeta();
 			if (meta instanceof SpawnEggMeta) {
 				SpawnEggMeta egg = (SpawnEggMeta) meta;
@@ -1131,7 +1202,7 @@ public enum XMaterial {
 
 		// Potions used the items data value to store
 		// information about the type of potion in 1.8
-		if (!supports(9) && "POTION".equals(material)) {
+		if (!supports(1, 9) && "POTION".equals(material)) {
 			// Source: v1.8.8 org.bukkit.potion.Potion.fromDamage(int damage)
 			int damage = item.getDurability();
 			return (damage & 16384) > 0 ? SPLASH_POTION : POTION;
@@ -1142,7 +1213,7 @@ public enum XMaterial {
 		// that has been renamed after the flattening update.
 		// If this happens to more materials in the future,
 		// I might have to change then system.
-		if (Data.ISFLAT && !supports(14) && "CACTUS_GREEN".equals(material))
+		if (Data.ISFLAT && !supports(1, 14) && "CACTUS_GREEN".equals(material))
 			return GREEN_DYE;
 
 		// Check FILLED_MAP enum for more info.
@@ -1285,13 +1356,13 @@ public enum XMaterial {
 	 * Checks if the specified version is the same version or higher than the
 	 * current server version.
 	 *
-	 * @param version the major version to be checked. "1." is ignored. E.g. 1.12 =
-	 *                12 | 1.9 = 9
+	 * @param major the major version to be checked. E.g. 26 for 26.
+	 * @param minor the minor version to be checked. E.g. 1 for 26.1
 	 * @return true of the version is equal or higher than the current version.
 	 * @since 2.0.0
 	 */
-	public static boolean supports(int version) {
-		return Data.VERSION >= version;
+	public static boolean supports(int major, int minor) {
+		return Data.VERSION_MAJOR > major || Data.VERSION_MAJOR == major && Data.VERSION_MINOR >= minor;
 	}
 
 	/**
@@ -1472,7 +1543,7 @@ public enum XMaterial {
 		// Splash Potions weren't an official material pre-flattening.
 		if (!Data.ISFLAT && this == SPLASH_POTION)
 			base.setDurability((short) 16384); // Hard-coded as 'data' is only a byte.
-		if (supports(9) && !supports(13) && base.hasItemMeta() && this.name().endsWith("_SPAWN_EGG")) {
+		if (supports(1, 9) && !supports(1, 13) && base.hasItemMeta() && this.name().endsWith("_SPAWN_EGG")) {
 			ItemMeta meta = base.getItemMeta();
 			if (meta instanceof SpawnEggMeta) {
 				SpawnEggMeta egg = (SpawnEggMeta) meta;
@@ -1595,15 +1666,18 @@ public enum XMaterial {
 		 *
 		 * @since 1.0.0
 		 */
-		private static final int VERSION;
+		private static final int VERSION_MAJOR, VERSION_MINOR;
 
 		static { // This needs to be right below VERSION because of initialization order.
 			String version = Bukkit.getVersion();
-			Matcher matcher = Pattern.compile("MC: \\d\\.(\\d+)").matcher(version);
+			Matcher matcher = Pattern.compile("MC: (\\d+)\\.(\\d+)").matcher(version);
 
 			if (!matcher.find())
 				throw new IllegalArgumentException("Failed to parse server version from: " + version);
-			VERSION = Integer.parseInt(matcher.group(1));
+			if (matcher.find()) {
+				VERSION_MAJOR = Integer.parseInt(matcher.group(1));
+				VERSION_MINOR = Integer.parseInt(matcher.group(2));
+			}
 		}
 
 		/**
@@ -1611,6 +1685,6 @@ public enum XMaterial {
 		 *
 		 * @since 3.0.0
 		 */
-		private static final boolean ISFLAT = supports(13);
+		private static final boolean ISFLAT = supports(1, 13);
 	}
 }
