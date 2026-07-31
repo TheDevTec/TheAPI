@@ -1677,6 +1677,9 @@ public enum XMaterial {
 			if (matcher.find()) {
 				VERSION_MAJOR = Integer.parseInt(matcher.group(1));
 				VERSION_MINOR = Integer.parseInt(matcher.group(2));
+			}else {
+				VERSION_MAJOR = 1;
+				VERSION_MINOR = 21;
 			}
 		}
 
