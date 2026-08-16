@@ -85,6 +85,16 @@ public class ConditionManager {
 					v = values.substring(0, locate);
 					r = values.substring(locate + 2);
 					break;
+				case NOT_CONTAINS:
+					locate = values.indexOf("?!");
+					v = values.substring(0, locate);
+					r = values.substring(locate + 2);
+					break;
+				case REGEX:
+					locate = values.indexOf("??");
+					v = values.substring(0, locate);
+					r = values.substring(locate + 2);
+					break;
 				default:
 					BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
 					.warning("[GuiExpansion] Condition check_placeholder in the condition with values '" + values

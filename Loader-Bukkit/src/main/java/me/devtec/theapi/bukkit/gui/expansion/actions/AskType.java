@@ -1,19 +1,25 @@
 package me.devtec.theapi.bukkit.gui.expansion.actions;
 
+import java.util.regex.Pattern;
+
 import me.devtec.shared.utility.ParseUtils;
 
 public enum AskType {
-	EQUALS, MORE_OR_EQUALS, MORE, LOWER, LOWER_OR_EQUALS, NOT_SAME, CONTAINS;
+	EQUALS, MORE_OR_EQUALS, MORE, LOWER, LOWER_OR_EQUALS, NOT_SAME, CONTAINS, NOT_CONTAINS, REGEX;
 
 	public static AskType parseType(String text) {
 		for (int i = 0; i < text.length(); ++i) {
 			char c = text.charAt(i);
 			if (c == '?' && text.charAt(i + 1) == '=')
 				return CONTAINS;
+			if (c == '?' && text.charAt(i + 1) == '!')
+				return NOT_CONTAINS;
 			if (c == '=' && text.charAt(i + 1) == '=')
 				return EQUALS;
 			if (c == '!' && text.charAt(i + 1) == '=')
 				return NOT_SAME;
+			if (c == '?' && text.charAt(i + 1) == '?')
+				return REGEX;
 			if (c == '>') {
 				if (text.charAt(i + 1) == '=')
 					return MORE_OR_EQUALS;
@@ -39,6 +45,8 @@ public enum AskType {
 			return status;
 		case NOT_SAME:
 			return !first.equals(second);
+		case REGEX:
+			return Pattern.compile(second).matcher(first).find();
 		case CONTAINS:
 			status = false;
 			for (String value : second.split("\\|\\|")) {
@@ -52,6 +60,19 @@ public enum AskType {
 					status |= value.isEmpty() ? true : first.contains(value);
 			}
 			return status;
+		case NOT_CONTAINS:
+			status = false;
+			for (String value : second.split("\\|\\|")) {
+				int star = value.indexOf('*');
+				if (star != -1) {
+					String prefix = second.substring(0, star);
+					String suffix = second.substring(star + 1);
+					status |= (prefix.isEmpty() ? true : first.startsWith(prefix))
+							&& (suffix.isEmpty() ? true : first.endsWith(suffix));
+				} else
+					status |= value.isEmpty() ? true : first.contains(value);
+			}
+			return !status;
 		case LOWER:
 			double firstNumber = ParseUtils.getDouble(first);
 			double secondNumber = ParseUtils.getDouble(second);

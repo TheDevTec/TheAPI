@@ -256,7 +256,7 @@ public class LoopGuiCreator implements GuiCreator {
 				gui.setItem(slot, item);
 		}
 		maker = null;
-		if (page + 1 < totalPages) {
+		if (page + 1 <= totalPages) {
 			if ((maker = nextButton.getHas().getItem()) != null) {
 				ItemGUI item = new ItemGUI(Utils.applyPlaceholders(nextButton.getHas().getTypePlaceholder(),
 						replacePage(maker, page, totalPages), player)) {

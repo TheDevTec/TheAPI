@@ -335,6 +335,16 @@ public class ActionManager {
 					v = valueWithResult.substring(0, locate);
 					r = valueWithResult.substring(locate + 2);
 					break;
+				case NOT_CONTAINS:
+					locate = valueWithResult.indexOf("?!");
+					v = valueWithResult.substring(0, locate);
+					r = valueWithResult.substring(locate + 2);
+					break;
+				case REGEX:
+					locate = valueWithResult.indexOf("??");
+					v = valueWithResult.substring(0, locate);
+					r = valueWithResult.substring(locate + 2);
+					break;
 				default:
 					BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
 					.warning("[GuiExpansion] Action check_placeholder in the action with values '" + values

@@ -777,47 +777,51 @@ public class v26_2 implements NmsProvider {
 	@Override
 	public void setBlock(Object objChunk, int x, int y, int z, Object IblockData, int data) {
 		LevelChunk chunk = (LevelChunk) objChunk;
-		Level world = chunk.getLevel();
-		int highY = chunk.getSectionIndex(y);
-		if (highY < 0 || highY > chunk.getMaxSectionY())
+		int sectionIndex = chunk.getSectionIndex(y);
+		if (sectionIndex < 0 || sectionIndex > chunk.getMaxSectionY())
 			return;
-		LevelChunkSection sc = chunk.getSection(highY);
+
 		BlockPos pos = new BlockPos(x, y, z);
-
-		net.minecraft.world.level.block.state.BlockState iblock = IblockData == null ? Blocks.AIR.defaultBlockState()
+		net.minecraft.world.level.block.state.BlockState blockState = IblockData == null
+				? Blocks.AIR.defaultBlockState()
 				: (net.minecraft.world.level.block.state.BlockState) IblockData;
-		if (sc.hasOnlyAir() && iblock.getBlock() == Blocks.AIR)
-			return;
 
-		boolean onlyModifyState = iblock.getBlock() instanceof EntityBlock;
+		/*
+		 * Raw async path for a chunk exclusively owned by the caller. The section's
+		 * PalettedContainer is synchronized; locking the chunk also serializes its
+		 * counters and block-entity maps across our workers. This intentionally
+		 * skips LevelChunk#setBlockState, onPlace, physics, lighting and packets.
+		 *
+		 * Never use this for a chunk being ticked, saved or sent to a player. The
+		 * caller must route those chunks to the main-thread placement path.
+		 */
+		synchronized (chunk) {
+			LevelChunkSection section = chunk.getSection(sectionIndex);
+			if (section.hasOnlyAir() && blockState.isAir())
+				return;
 
-		// REMOVE TILE ENTITY IF NOT SAME TYPE
-		BlockEntity ent = chunk.blockEntities.get(pos);
-		if (ent != null) {
-			boolean shouldSkip = true;
-			if (!onlyModifyState)
-				shouldSkip = false;
-			else if (!ent.getType().isValid(iblock)) {
-				shouldSkip = false;
-				onlyModifyState = false;
-			}
-			if (!shouldSkip)
+			net.minecraft.world.level.block.state.BlockState previous = section.setBlockState(x & 15, y & 15, z & 15,
+					blockState, true);
+			if (previous == blockState)
+				return;
+
+			BlockEntity entity = chunk.blockEntities.get(pos);
+			boolean keepEntity = entity != null && blockState.shouldChangedStateKeepBlockEntity(previous)
+					&& entity.isValidBlockState(blockState);
+			if (entity != null && !keepEntity) {
 				chunk.removeBlockEntity(pos);
-		}
-
-		chunk.setBlockState(pos, iblock, 0);
-
-		{
-			// ADD TILE ENTITY
-			if (iblock.getBlock() instanceof EntityBlock && !onlyModifyState) {
-				ent = ((EntityBlock) iblock.getBlock()).newBlockEntity(pos, iblock);
-				chunk.blockEntities.put(pos, ent);
-				ent.setLevel(world);
-				Object packet = ent.getUpdatePacket();
-				BukkitLoader.getPacketHandler().send(chunk.getLevel().getWorld().getPlayers(), packet);
+				entity = null;
 			}
 
-			// MARK CHUNK TO SAVE
+			if (blockState.hasBlockEntity()) {
+				if (entity == null) {
+					BlockEntity created = ((EntityBlock) blockState.getBlock()).newBlockEntity(pos, blockState);
+					if (created != null)
+						chunk.addAndRegisterBlockEntity(created);
+				} else {
+					entity.setBlockState(blockState);
+				}
+			}
 			chunk.markUnsaved();
 		}
 	}
@@ -880,15 +884,20 @@ public class v26_2 implements NmsProvider {
 	@Override
 	public void setNBTToTile(Object objChunk, int x, int y, int z, String nbt) {
 		LevelChunk chunk = (LevelChunk) objChunk;
-		BlockEntity ent = chunk.getBlockEntity(new BlockPos(x, y, z), EntityCreationType.IMMEDIATE);
+		BlockPos pos = new BlockPos(x, y, z);
 		CompoundTag parsedNbt = (CompoundTag) parseNBT(nbt);
 		parsedNbt.putInt("x", x);
 		parsedNbt.putInt("y", y);
 		parsedNbt.putInt("z", z);
-		ValueInput input = TagValueInput.create(new ProblemReporter.Collector(), dispatcher, parsedNbt);
-		ent.loadWithComponents(input);
-		Object packet = ent.getUpdatePacket();
-		BukkitLoader.getPacketHandler().send(chunk.getLevel().getWorld().getPlayers(), packet);
+
+		synchronized (chunk) {
+			BlockEntity ent = chunk.getBlockEntity(pos, EntityCreationType.IMMEDIATE);
+			if (ent == null)
+				return;
+			ent.loadWithComponents(TagValueInput.create(new ProblemReporter.Collector(), dispatcher, parsedNbt));
+			ent.setChanged();
+			chunk.markUnsaved();
+		}
 	}
 
 	@Override
