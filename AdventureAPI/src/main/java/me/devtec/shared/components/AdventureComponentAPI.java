@@ -55,37 +55,37 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 
 		if (value.hoverEvent() != null)
 			if (value.hoverEvent().action() == Action.SHOW_TEXT
-					|| value.hoverEvent().action() == Action.SHOW_ACHIEVEMENT)
+			|| value.hoverEvent().action() == Action.SHOW_ACHIEVEMENT)
 				sub.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
 						toComponent((net.kyori.adventure.text.Component) value.hoverEvent().value())));
 			else if (value.hoverEvent().action() == Action.SHOW_ENTITY) {
 				ShowEntity show = (ShowEntity) value.hoverEvent().value();
 				sub.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ENTITY,
 						new ComponentEntity(show.type().asString(), show.id())
-								.setName(show.name() == null ? null : convert(show.name()))));
+						.setName(show.name() == null ? null : convert(show.name()))));
 			} else if (value.hoverEvent().action() == Action.SHOW_ITEM) {
 				ShowItem show = (ShowItem) value.hoverEvent().value();
 				sub.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM,
 						new ComponentItem(show.item().asString(), show.count())
-								.setNbt(show.nbt() == null ? null : show.nbt().string())));
+						.setNbt(show.nbt() == null ? null : show.nbt().string())));
 			}
 		if (value.clickEvent() != null){
 			me.devtec.shared.components.ClickEvent.Action event = ClickEvent.Action.valueOf(value.clickEvent().action().name());
 			switch(event){
-				case CHANGE_PAGE:
-					sub.setClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE,
+			case CHANGE_PAGE:
+				sub.setClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE,
 						useLegacy ? (String)Ref.invoke(value.clickEvent(), getValue) : Ref.invoke(Ref.invoke(value.clickEvent(), getPayload), getInteger)+""));
-					break;
-				default:
-					sub.setClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE,
+				break;
+			default:
+				sub.setClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE,
 						useLegacy ? (String)Ref.invoke(value.clickEvent(), getValue) : (String)Ref.invoke(Ref.invoke(value.clickEvent(), getPayload), getTextValue)));
-					break;
+				break;
 			}
 		}
 		sub.setInsertion(value.insertion());
 		return sub;
 	}
-	
+
 	private static Method getPayload = Ref.method(net.kyori.adventure.text.event.ClickEvent.class, "payload");
 	private static Method getValue = Ref.method(net.kyori.adventure.text.event.ClickEvent.class, "value");
 	private static boolean useLegacy = getPayload==null;
@@ -94,7 +94,7 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 	private static Method createIntegerPayload = Ref.method(Ref.getClass("net.kyori.adventure.text.event.ClickEvent$Payload"), "integer", int.class);
 	private static Method createTextPayload = Ref.method(Ref.getClass("net.kyori.adventure.text.event.ClickEvent$Payload"), "string", String.class);
 	private static Method createClickEvent = useLegacy ? Ref.method(net.kyori.adventure.text.event.ClickEvent.class, "clickEvent", net.kyori.adventure.text.event.ClickEvent.Action.class, String.class)
-	: Ref.method(net.kyori.adventure.text.event.ClickEvent.class, "clickEvent", net.kyori.adventure.text.event.ClickEvent.Action.class, Object.class);
+			: Ref.method(net.kyori.adventure.text.event.ClickEvent.class, "clickEvent", net.kyori.adventure.text.event.ClickEvent.Action.class, Object.class);
 
 	@Override
 	public net.kyori.adventure.text.Component fromComponent(Component component) {
@@ -129,16 +129,16 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 			style = style.decorate(TextDecoration.STRIKETHROUGH);
 		if (component.getClickEvent() != null)
 			switch(component.getClickEvent().getAction()){
-				case CHANGE_PAGE:
-					style = style
-							.clickEvent((net.kyori.adventure.text.event.ClickEvent)Ref.invokeStatic(createClickEvent, net.kyori.adventure.text.event.ClickEvent.Action.CHANGE_PAGE,
-									useLegacy ? component.getClickEvent().getValue() : Ref.invokeStatic(createIntegerPayload, ParseUtils.getInt(component.getClickEvent().getValue()))));
-					break;
-				default:
-					style = style
-							.clickEvent((net.kyori.adventure.text.event.ClickEvent)Ref.invokeStatic(createClickEvent, net.kyori.adventure.text.event.ClickEvent.Action.NAMES.value(component.getClickEvent().getAction().name()),
-									useLegacy ? component.getClickEvent().getValue() : Ref.invokeStatic(createTextPayload, component.getClickEvent().getValue())));
-					break;
+			case CHANGE_PAGE:
+				style = style
+				.clickEvent((net.kyori.adventure.text.event.ClickEvent)Ref.invokeStatic(createClickEvent, net.kyori.adventure.text.event.ClickEvent.Action.CHANGE_PAGE,
+						useLegacy ? component.getClickEvent().getValue() : Ref.invokeStatic(createIntegerPayload, ParseUtils.getInt(component.getClickEvent().getValue()))));
+				break;
+			default:
+				style = style
+				.clickEvent((net.kyori.adventure.text.event.ClickEvent)Ref.invokeStatic(createClickEvent, net.kyori.adventure.text.event.ClickEvent.Action.NAMES.value(component.getClickEvent().getAction().name()),
+						useLegacy ? component.getClickEvent().getValue() : Ref.invokeStatic(createTextPayload, component.getClickEvent().getValue())));
+				break;
 			}
 		if (component.getHoverEvent() != null)
 			style = style.hoverEvent(this.makeHover(component.getHoverEvent()));
@@ -149,8 +149,8 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 		style = style.color(component.getColor() != null
 				? component.getColor().startsWith("#") ? TextColor.fromHexString(component.getColor())
 						: NamedTextColor.NAMES.value(component.getColor().toLowerCase())
-				: null);
-		return net.kyori.adventure.text.Component.text(component.getText(), style);
+						: null);
+		return net.kyori.adventure.text.Component.text(component.getText() == null ? "" : component.getText(), style);
 	}
 
 	@Override
