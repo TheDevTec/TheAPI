@@ -93,8 +93,7 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 	private static Method getTextValue = Ref.method(Ref.getClass("net.kyori.adventure.text.event.ClickEvent$Payload.Text"), "value");
 	private static Method createIntegerPayload = Ref.method(Ref.getClass("net.kyori.adventure.text.event.ClickEvent$Payload"), "integer", int.class);
 	private static Method createTextPayload = Ref.method(Ref.getClass("net.kyori.adventure.text.event.ClickEvent$Payload"), "string", String.class);
-	private static Method createClickEvent = useLegacy ? Ref.method(net.kyori.adventure.text.event.ClickEvent.class, "clickEvent", net.kyori.adventure.text.event.ClickEvent.Action.class, String.class)
-			: Ref.method(net.kyori.adventure.text.event.ClickEvent.class, "clickEvent", net.kyori.adventure.text.event.ClickEvent.Action.class, Object.class);
+	private static Method createClickEvent = Ref.findMethodByName(net.kyori.adventure.text.event.ClickEvent.class, "clickEvent");
 
 	@Override
 	public net.kyori.adventure.text.Component fromComponent(Component component) {
@@ -136,7 +135,7 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 				break;
 			default:
 				style = style
-				.clickEvent((net.kyori.adventure.text.event.ClickEvent)Ref.invokeStatic(createClickEvent, net.kyori.adventure.text.event.ClickEvent.Action.NAMES.value(component.getClickEvent().getAction().name()),
+				.clickEvent((net.kyori.adventure.text.event.ClickEvent)Ref.invokeStatic(createClickEvent, net.kyori.adventure.text.event.ClickEvent.Action.NAMES.value(component.getClickEvent().getAction().name().toLowerCase()),
 						useLegacy ? component.getClickEvent().getValue() : Ref.invokeStatic(createTextPayload, component.getClickEvent().getValue())));
 				break;
 			}

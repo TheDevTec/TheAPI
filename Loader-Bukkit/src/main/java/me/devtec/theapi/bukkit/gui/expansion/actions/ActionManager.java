@@ -212,17 +212,30 @@ public class ActionManager {
 			int yesEndAt = Utils.findEndOfPossibleJson(values, values.indexOf('?') + 1);
 			String yes = values.substring(values.indexOf('?') + 1, yesEndAt);
 			String yesName = yes.indexOf('{') == -1 ? yes : yes.substring(0, yes.indexOf('{'));
-			String yesJson = yes.indexOf('{') == -1 ? null : yes.substring(yes.indexOf('{'));
+			String originalyesJson = yes.indexOf('{') == -1 ? null : yes.substring(yes.indexOf('{'));
 			String no = values.substring(yesEndAt + 1);
 			String noName = no.indexOf('{') == -1 ? no : no.substring(0, no.indexOf('{'));
-			String noJson = no.indexOf('{') == -1 ? null : no.substring(no.indexOf('{'));
+			String originalnoJson = no.indexOf('{') == -1 ? null : no.substring(no.indexOf('{'));
 			boolean hasPlaceholders = Utils.checkForPlaceholders(balance);
 			return (gui, player, sharedData, placeholders) -> {
 				String input = balance;
+				String yesJson = originalyesJson;
+				String noJson = originalnoJson;
 				if (hasPlaceholders) {
 					if (gui instanceof AnvilGUI)
 						input = input.replace("{renameText}", ((AnvilGUI) gui).getRenameText());
 					input = Utils.replacePlaceholders(input, placeholders, player.getUniqueId());
+
+					if(noJson!=null) {
+						if (gui instanceof AnvilGUI)
+							noJson = noJson.replace("{renameText}", ((AnvilGUI) gui).getRenameText());
+						noJson = Utils.replacePlaceholders(noJson, placeholders, player.getUniqueId());
+					}
+					if(yesJson!=null) {
+						if (gui instanceof AnvilGUI)
+							yesJson = yesJson.replace("{renameText}", ((AnvilGUI) gui).getRenameText());
+						yesJson = Utils.replacePlaceholders(yesJson, placeholders, player.getUniqueId());
+					}
 				}
 				if (BukkitLoader.getEconomyHook().getBalance(player.getName(), player.getWorld().getName()) >= ParseUtils
 						.getDouble(input)) {
@@ -255,17 +268,30 @@ public class ActionManager {
 			int yesEndAt = Utils.findEndOfPossibleJson(values, values.indexOf('?') + 1);
 			String yes = values.substring(values.indexOf('?') + 1, yesEndAt);
 			String yesName = yes.indexOf('{') == -1 ? yes : yes.substring(0, yes.indexOf('{'));
-			String yesJson = yes.indexOf('{') == -1 ? null : yes.substring(yes.indexOf('{'));
+			String originalyesJson = yes.indexOf('{') == -1 ? null : yes.substring(yes.indexOf('{'));
 			String no = values.substring(yesEndAt + 1);
 			String noName = no.indexOf('{') == -1 ? no : no.substring(0, no.indexOf('{'));
-			String noJson = no.indexOf('{') == -1 ? null : no.substring(no.indexOf('{'));
+			String originalnoJson = no.indexOf('{') == -1 ? null : no.substring(no.indexOf('{'));
 			boolean hasPlaceholders = Utils.checkForPlaceholders(permission);
 			return (gui, player, sharedData, placeholders) -> {
 				String input = permission;
+				String yesJson = originalyesJson;
+				String noJson = originalnoJson;
 				if (hasPlaceholders) {
 					if (gui instanceof AnvilGUI)
 						input = input.replace("{renameText}", ((AnvilGUI) gui).getRenameText());
 					input = Utils.replacePlaceholders(input, placeholders, player.getUniqueId());
+
+					if(noJson!=null) {
+						if (gui instanceof AnvilGUI)
+							noJson = noJson.replace("{renameText}", ((AnvilGUI) gui).getRenameText());
+						noJson = Utils.replacePlaceholders(noJson, placeholders, player.getUniqueId());
+					}
+					if(yesJson!=null) {
+						if (gui instanceof AnvilGUI)
+							yesJson = yesJson.replace("{renameText}", ((AnvilGUI) gui).getRenameText());
+						yesJson = Utils.replacePlaceholders(yesJson, placeholders, player.getUniqueId());
+					}
 				}
 				if (player.hasPermission(input)) {
 					Map<String, Object> innerPlaceholders = Collections.emptyMap();
