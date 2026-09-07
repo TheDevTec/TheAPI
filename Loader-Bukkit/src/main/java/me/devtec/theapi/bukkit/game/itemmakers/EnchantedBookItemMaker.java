@@ -31,7 +31,7 @@ public class EnchantedBookItemMaker extends ItemMaker {
 			iMeta.setDisplayName(super.displayName);
 		if (super.lore != null)
 			iMeta.setLore(super.lore);
-		if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 4)
+		if (Ref.isAtLeast(21, 0) || Ref.version() == 20 && Ref.release() >= 4)
 			meta.setEnchantmentGlintOverride(true);
 		else {
 			if (super.itemFlags != null) {
@@ -56,10 +56,10 @@ public class EnchantedBookItemMaker extends ItemMaker {
 				}
 			meta.addItemFlags(flags.toArray(new ItemFlag[0]));
 		}
-		if (Ref.isNewerThan(13) && super.customModel != 0)
+		if (Ref.isAtLeast(14, 0) && super.customModel != 0)
 			iMeta.setCustomModelData(super.customModel);
 		if (super.unbreakable)
-			if (Ref.isNewerThan(10))
+			if (Ref.isAtLeast(11, 0))
 				iMeta.setUnbreakable(true);
 			else
 				try {

@@ -74,9 +74,12 @@ public class CustomPluginCommand extends Command implements PluginIdentifiableCo
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public boolean testPermissionSilent(CommandSender sender) {
-		return commandHolder!=null && commandHolder.getStructure().getSenderClass().isAssignableFrom(sender.getClass())
-				
-				&& (commandHolder.getStructure().getPermission() == null || ((CommandHolder)commandHolder).getStructure().getPermissionChecker().has(sender, commandHolder.getStructure().getPermission(), false));
+		return commandHolder != null
+				&& commandHolder.getStructure().getSenderClass().isAssignableFrom(sender.getClass())
+				&& (commandHolder.getStructure().getPermission() == null
+						|| ((me.devtec.shared.commands.manager.PermissionChecker) commandHolder.getStructure()
+								.getPermissionChecker())
+								.has(sender, commandHolder.getStructure().getPermission(), false));
 	}
 
 	private static void checkArgument(boolean expression, Object errorMessage) {

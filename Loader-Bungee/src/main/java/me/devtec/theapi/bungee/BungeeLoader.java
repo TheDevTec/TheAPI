@@ -21,6 +21,7 @@ import me.devtec.shared.components.ComponentTransformer;
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.mcmetrics.GatheringInfoManager;
 import me.devtec.shared.mcmetrics.Metrics;
+import me.devtec.shared.messaging.Messenger;
 import me.devtec.shared.utility.ColorUtils;
 import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.theapi.bungee.commands.hooker.BungeeCommandManager;
@@ -55,14 +56,19 @@ public class BungeeLoader extends Plugin implements Listener {
 	private void broadcastSystemInfo() {
 		CommandSender console = ProxyServer.getInstance().getConsole();
 		console.sendMessage((BaseComponent) ComponentAPI.bungee().fromString(ColorUtils.colorize("&7>")));
-		console.sendMessage((BaseComponent) ComponentAPI.bungee().fromString(ColorUtils.colorize("&7> &5TheAPI &dv" + getDescription().getVersion())));
-		console.sendMessage((BaseComponent) ComponentAPI.bungee().fromString(ColorUtils.colorize("&7>")));
-		console.sendMessage((BaseComponent) ComponentAPI.bungee().fromString(ColorUtils.colorize("&7> &5System info&7:")));
 		console.sendMessage((BaseComponent) ComponentAPI.bungee()
-				.fromString(ColorUtils.colorize("&7> &dJava&7: &e" + System.getProperty("java.version") + " &7(" + (ToolProvider.getSystemJavaCompiler() != null ? "&aJDK" : "&aJRE") + "&7)")));
-		console.sendMessage((BaseComponent) ComponentAPI.bungee().fromString(ColorUtils.colorize("&7> &dServer type&7: &e" + Ref.serverType())));
+				.fromString(ColorUtils.colorize("&7> &5TheAPI &dv" + getDescription().getVersion())));
 		console.sendMessage((BaseComponent) ComponentAPI.bungee().fromString(ColorUtils.colorize("&7>")));
-		console.sendMessage((BaseComponent) ComponentAPI.bungee().fromString(ColorUtils.colorize("&7> &dSupport&7: &ehttps://discord.gg/APwYKQRxby")));
+		console.sendMessage(
+				(BaseComponent) ComponentAPI.bungee().fromString(ColorUtils.colorize("&7> &5System info&7:")));
+		console.sendMessage((BaseComponent) ComponentAPI.bungee()
+				.fromString(ColorUtils.colorize("&7> &dJava&7: &e" + System.getProperty("java.version") + " &7("
+						+ (ToolProvider.getSystemJavaCompiler() != null ? "&aJDK" : "&aJRE") + "&7)")));
+		console.sendMessage((BaseComponent) ComponentAPI.bungee()
+				.fromString(ColorUtils.colorize("&7> &dServer type&7: &e" + Ref.type())));
+		console.sendMessage((BaseComponent) ComponentAPI.bungee().fromString(ColorUtils.colorize("&7>")));
+		console.sendMessage((BaseComponent) ComponentAPI.bungee()
+				.fromString(ColorUtils.colorize("&7> &dSupport&7: &ehttps://discord.gg/APwYKQRxby")));
 		console.sendMessage((BaseComponent) ComponentAPI.bungee().fromString(ColorUtils.colorize("&7>")));
 	}
 
@@ -75,16 +81,15 @@ public class BungeeLoader extends Plugin implements Listener {
 
 	@EventHandler
 	public void onPreLoginEvent(PreLoginEvent e) {
-		if (!e.isCancelled()) {
-			API.offlineCache().setLookup(API.offlineCache().lookupId(e.getConnection().getName()), e.getConnection().getName());
-		}
+		if (!e.isCancelled())
+			API.offlineCache().setLookup(API.offlineCache().lookupId(e.getConnection().getName()),
+					e.getConnection().getName());
 	}
 
 	@EventHandler
 	public void onLoginEvent(LoginEvent e) { // fix uuid - premium login?
-		if (!e.isCancelled()) {
+		if (!e.isCancelled())
 			API.offlineCache().setLookup(e.getConnection().getUniqueId(), e.getConnection().getName());
-		}
 	}
 
 	@EventHandler
@@ -139,26 +144,29 @@ public class BungeeLoader extends Plugin implements Listener {
 		};
 
 		ComponentAPI.registerTransformer("BUNGEECORD", new BungeeComponentAPI<>());
-		if (Ref.getClass("net.kyori.adventure.text.Component") != null) {
-			ComponentAPI.registerTransformer("ADVENTURE", (ComponentTransformer<?>) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.AdventureComponentAPI")));
-		}
+		Messenger.init(new BungeeMessengerProvider());
+		if (Ref.getClass("net.kyori.adventure.text.Component") != null)
+			ComponentAPI.registerTransformer("ADVENTURE", (ComponentTransformer<?>) Ref
+					.newInstanceByClass(Ref.getClass("me.devtec.shared.components.AdventureComponentAPI")));
 
 		// Commands api
 		API.commandsRegister = new BungeeCommandManager();
 		API.selectorUtils = new BungeeSelectorUtils();
 
 		// OfflineCache support!
-		API.initOfflineCache(ProxyServer.getInstance().getConfig().isOnlineMode(), new Config("plugins/TheAPI/Cache.dat"));
+		API.initOfflineCache(ProxyServer.getInstance().getConfig().isOnlineMode(),
+				new Config("plugins/TheAPI/Cache.dat"));
 
 		API.library = new LibraryLoader() {
 			final List<File> loaded = new ArrayList<>();
-			final Constructor<?> constructor = Ref.constructor(Ref.getClass("net.md_5.bungee.api.plugin.PluginClassloader"), ProxyServer.class, PluginDescription.class, URL[].class);
+			final Constructor<?> constructor = Ref.constructor(
+					Ref.getClass("net.md_5.bungee.api.plugin.PluginClassloader"), ProxyServer.class,
+					PluginDescription.class, URL[].class);
 
 			@Override
 			public void load(File file) {
-				if (isLoaded(file) || !file.exists()) {
+				if (isLoaded(file) || !file.exists())
 					return;
-				}
 				loaded.add(file);
 				try {
 					Ref.newInstance(constructor, null, null, new URL[] { file.toURI().toURL() });

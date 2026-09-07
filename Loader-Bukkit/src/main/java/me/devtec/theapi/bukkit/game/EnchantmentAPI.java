@@ -134,7 +134,7 @@ public enum EnchantmentAPI {
     @Nullable
     public Enchantment getEnchantment() {
         if (isSupported()) {
-			return Enchantment.getByName(Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() > 3 ? paperName : bukkitName);
+			return Enchantment.getByName(Ref.isAtLeast(21, 0) || Ref.version() == 20 && Ref.release() > 3 ? paperName : bukkitName);
 		}
         return null;
     }
@@ -144,7 +144,7 @@ public enum EnchantmentAPI {
      * @apiNote Does server have this enchant
      */
     public boolean isSupported() {
-        return version == 0 || Ref.isNewerThan(version - 1);
+        return version == 0 || Ref.isAtLeast(version, 0);
     }
 
     /**
@@ -153,7 +153,7 @@ public enum EnchantmentAPI {
      */
     @Nonnull
     public String getName() {
-        return Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() > 3 ? paperName : bukkitName;
+        return Ref.isAtLeast(21, 0) || Ref.version() == 20 && Ref.release() > 3 ? paperName : bukkitName;
     }
 
     /**
@@ -188,7 +188,7 @@ public enum EnchantmentAPI {
     @SuppressWarnings("unchecked")
 	public static boolean registerEnchantment(Enchantment enchantment) {
         boolean registered = false;
-        if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 3) {
+        if (Ref.isAtLeast(21, 0) || Ref.version() == 20 && Ref.release() >= 3) {
             Map<Object, Object> map = (Map<Object, Object>) Ref.get(Ref.getStatic(Ref.getClass("org.bukkit.Registry"), "ENCHANTMENT"), "map");
             if(map==null) {
             	//Then we get "cache" and "byValue"
@@ -223,7 +223,7 @@ public enum EnchantmentAPI {
         boolean unregistered = false;
         try {
             ((Map<String, Enchantment>) Ref.get(null, byName)).remove(enchantment.getName());
-            if (Ref.isNewerThan(12)) {
+            if (Ref.isAtLeast(13, 0)) {
 				unregistered = ((Map<?, ?>) Ref.get(null, byKey)).remove(Ref.get(enchantment, key)) != null;
 			} else {
 				unregistered = ((Map<Integer, Enchantment>) Ref.get(null, byId)).remove(Ref.get(enchantment, id)) != null;

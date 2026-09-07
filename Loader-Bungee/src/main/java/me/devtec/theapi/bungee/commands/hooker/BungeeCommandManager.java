@@ -2,6 +2,7 @@ package me.devtec.theapi.bungee.commands.hooker;
 
 import me.devtec.shared.commands.holder.CommandHolder;
 import me.devtec.shared.commands.manager.CommandsRegister;
+import me.devtec.shared.commands.manager.PermissionChecker;
 import me.devtec.theapi.bungee.BungeeLoader;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -22,10 +23,11 @@ public class BungeeCommandManager implements CommandsRegister {
 			@Override
 			public boolean hasPermission(CommandSender sender) {
 				return commandHolder.getStructure().getSenderClass().isAssignableFrom(sender.getClass())
-						
-						&& (commandHolder.getStructure().getPermission() == null || ((CommandHolder)commandHolder).getStructure().getPermissionChecker().has(sender, commandHolder.getStructure().getPermission(), false));
+						&& (commandHolder.getStructure().getPermission() == null
+								|| ((PermissionChecker) commandHolder.getStructure().getPermissionChecker()).has(sender,
+										commandHolder.getStructure().getPermission(), false));
 			}
-			
+
 			@Override
 			public Iterable<String> onTabComplete(CommandSender s, String[] args) {
 				return commandHolder.tablist(s, args);
@@ -37,6 +39,7 @@ public class BungeeCommandManager implements CommandsRegister {
 
 	@Override
 	public void unregister(CommandHolder<?> commandHolder) {
-		ProxyServer.getInstance().getPluginManager().unregisterCommand((PlayerCommand) commandHolder.getRegisteredCommand());
+		ProxyServer.getInstance().getPluginManager()
+				.unregisterCommand((PlayerCommand) commandHolder.getRegisteredCommand());
 	}
 }

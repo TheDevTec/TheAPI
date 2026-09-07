@@ -78,9 +78,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 	static {
 		BukkitLibInit.initTheAPI();
-		NO_OBFUSCATED_NMS_MODE = Ref.isNewerThan(20) && Ref.serverType() == ServerType.PAPER
-				|| Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 5
-				&& Ref.serverType() == ServerType.PAPER;
+		NO_OBFUSCATED_NMS_MODE = Ref.isAtLeast(21, 0) && Ref.type() == ServerType.PAPER
+				|| Ref.version() == 20 && Ref.release() >= 5 && Ref.type() == ServerType.PAPER;
 	}
 
 	// public APIs
@@ -164,25 +163,25 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 	public void onLoad() {
 		release = Config.loadFromInput(getResource("release.yml")).getDouble("release");
 
-		Config config = new Config("plugins/TheAPI/config.yml");
+		try (Config config = new Config("plugins/TheAPI/config.yml")) {
+			try {
+				loadProvider(config.getBoolean("nmsProvider-use-directly-jar"));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
-		try {
-			loadProvider(config.getBoolean("nmsProvider-use-directly-jar"));
-		} catch (Exception e) {
-			e.printStackTrace();
+			if (Ref.isAtLeast(13, 0))
+				ScoreboardAPI.SPLIT_MODERN_LINES = config.getBoolean("fallback-scoreboard-support");
 		}
-
-		if (Ref.isNewerThan(12))
-			ScoreboardAPI.SPLIT_MODERN_LINES = config.getBoolean("fallback-scoreboard-support");
 
 		broadcastSystemInfo();
 
-		if (Ref.field(Command.class, "timings") != null && Ref.isOlderThan(9)) {
+		if (Ref.field(Command.class, "timings") != null && Ref.isBefore(9, 0)) {
 			LegacySimpleCommandMap simpleCommandMap;
 			Map<String, Command> map;
 			Ref.set(Bukkit.getServer(), "commandMap",
 					simpleCommandMap = new LegacySimpleCommandMap(Bukkit.getServer(), map = (Map<String, Command>) Ref
-					.get(Ref.get(Bukkit.getPluginManager(), "commandMap"), "knownCommands")));
+							.get(Ref.get(Bukkit.getPluginManager(), "commandMap"), "knownCommands")));
 
 			BukkitCommandManager.knownCommands = map;
 			BukkitCommandManager.cmdMap = simpleCommandMap;
@@ -224,12 +223,12 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			serverPing = Ref.nms("network.protocol.status", "PacketStatusOutServerInfo");
 			click = Ref.nms("network.protocol.game", "PacketPlayInWindowClick");
 			itemname = Ref.nms("network.protocol.game", "PacketPlayInItemName");
-			rpStatusField = Ref.field(resource, Ref.isNewerThan(16) ? "a" : "status");
+			rpStatusField = Ref.field(resource, Ref.isAtLeast(17, 0) ? "a" : "status");
 			anvilText = Ref.field(itemname, "a");
 		}
 
 		// BOSSBAR API: 1.7.10 - 1.8.8
-		if (!Ref.isOlderThan(9))
+		if (!Ref.isBefore(9, 0))
 			bossbars = null;
 
 		new PacketListener() {
@@ -244,8 +243,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 					if (ServerListPingEvent.getHandlerList().isEmpty())
 						return; // Do not process if event isn't used by any plugin
 					if (nmsProvider.processServerListPing(nick, channel.getChannel(),
-							Ref.isNewerThan(19) || Ref.serverVersionInt() == 19 && Ref.serverVersionRelease() == 3
-							? packetContainer
+							Ref.isAtLeast(20, 0) || Ref.version() == 19 && Ref.release() == 3 ? packetContainer
 									: packetContainer.getPacket()))
 						packetContainer.setCancelled(true);
 				}
@@ -289,7 +287,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 					if (gui instanceof AnvilGUI) {
 						String text = (String) Ref.get(packet, anvilText);
 						BukkitLoader.nmsProvider
-						.postToMainThread(() -> ((AnvilGUI) gui).setRepairText(buildText(text)));
+								.postToMainThread(() -> ((AnvilGUI) gui).setRepairText(buildText(text)));
 						packetContainer.setCancelled(true);
 					}
 					return;
@@ -332,8 +330,8 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 
 		metrics = new Metrics(getDescription().getVersion(), 20203);
 
-		if(Bukkit.getPluginManager().getPlugin("Vault") != null)
-			economyHook=new VaultEconomyHook();
+		if (Bukkit.getPluginManager().getPlugin("Vault") != null)
+			economyHook = new VaultEconomyHook();
 	}
 
 	private void broadcastSystemInfo() {
@@ -345,9 +343,9 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		console.sendMessage(ColorUtils.colorize("&7> &dJava&7: &e" + System.getProperty("java.version") + " &7("
 				+ (ToolProvider.getSystemJavaCompiler() != null ? "&aJDK" : "&aJRE") + "&7)"));
 		console.sendMessage(ColorUtils.colorize(
-				"&7> &dNmsProvider&7: " + (nmsProvider == null ? "&cNot provided &7(&e" + Ref.serverVersion() + "&7)"
+				"&7> &dNmsProvider&7: " + (nmsProvider == null ? "&cNot provided &7(&e" + Ref.versionString() + "&7)"
 						: "&e" + nmsProvider.getProviderName())));
-		console.sendMessage(ColorUtils.colorize("&7> &dServer type&7: &e" + Ref.serverType()));
+		console.sendMessage(ColorUtils.colorize("&7> &dServer type&7: &e" + Ref.type()));
 		console.sendMessage(ColorUtils.colorize("&7>"));
 		console.sendMessage(ColorUtils.colorize("&7> &dSupport&7: &ehttps://discord.gg/APwYKQRxby"));
 		console.sendMessage(ColorUtils.colorize("&7>"));
@@ -364,12 +362,12 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 		try {
 			serverVersion = ((String) Ref.invoke(Bukkit.getServer(), "getMinecraftVersion")).replace('.', '_');
 			if (serverVersion == null)
-				serverVersion = Ref.serverVersion().replace('.', '_');
+				serverVersion = Ref.versionString().replace('.', '_');
 		} catch (Exception e) {
-			serverVersion = Ref.serverVersion().replace('.', '_');
+			serverVersion = Ref.versionString().replace('.', '_');
 		}
 		boolean shouldDownloadFromGit = true;
-		if (Ref.serverType() == ServerType.BUKKIT || Ref.serverType()==ServerType.SPIGOT) {
+		if (Ref.type() == ServerType.BUKKIT || Ref.type() == ServerType.SPIGOT) {
 			shouldDownloadFromGit = false;
 			CommandSender console = Bukkit.getConsoleSender();
 			console.sendMessage(ColorUtils.colorize("&7>"));
@@ -380,7 +378,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 			try {
 				Config mappings = Config.loadFromInput(
 						new URL("https://raw.githubusercontent.com/TheDevTec/TheAPI/main/paper-mappings.yml")
-						.openStream());
+								.openStream());
 				serverVersion = mappings.getString(serverVersion);
 			} catch (Exception ignored) {
 
@@ -394,7 +392,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				if (new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".java").exists()) {
 					nmsProvider = (NmsProvider) new MemoryCompiler(
 							NO_OBFUSCATED_NMS_MODE ? getClassLoader() : Bukkit.getServer().getClass().getClassLoader(),
-									serverVersion, new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".java"))
+							serverVersion, new File("plugins/TheAPI/NmsProviders/" + serverVersion + ".java"))
 							.buildClass().newInstance();
 					nmsProvider.loadParticles();
 				}
@@ -444,7 +442,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 					+ (fixedPath.charAt(0) == '/' ? fixedPath : "./" + fixedPath);
 		}
 		addAllJarFiles(args, new File("plugins"), false); // Plugins
-		if (Ref.serverType() == ServerType.PAPER)
+		if (Ref.type() == ServerType.PAPER)
 			addAllJarFiles(args, new File("libraries"), true); // Libraries
 		else
 			addAllJarFiles(args, new File("bundler/libraries"), true); // Libraries
@@ -473,6 +471,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 						args.append(splitChar).append('.').append('/').append(file.getPath());
 	}
 
+	@SuppressWarnings("resource")
 	@Override
 	public void onEnable() {
 		Bukkit.getPluginManager().registerEvents(this, this);
@@ -615,7 +614,7 @@ public class BukkitLoader extends JavaPlugin implements Listener {
 				Bukkit.getConsoleSender().sendMessage(
 						"[TheAPI NmsProvider Updater] §cERROR! Can't download new NmsProvider, please update TheAPI.");
 				Bukkit.getConsoleSender()
-				.sendMessage("[TheAPI NmsProvider Updater] §cERROR! Current release: " + release);
+						.sendMessage("[TheAPI NmsProvider Updater] §cERROR! Current release: " + release);
 				Bukkit.getConsoleSender().sendMessage(
 						"[TheAPI NmsProvider Updater] §cERROR! Required release: " + gitVersion.getString("release"));
 				localVersion.save(DataType.YAML);

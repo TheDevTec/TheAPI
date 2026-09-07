@@ -42,12 +42,13 @@ import com.mojang.authlib.properties.Property;
 import io.netty.channel.Channel;
 import me.devtec.shared.Pair;
 import me.devtec.shared.Ref;
-import me.devtec.shared.components.ClickEvent;
-import me.devtec.shared.components.Component;
+import me.devtec.theapi.bukkit.nms.NmsReflection;
+import me.devtec.shared.components.decorations.ClickEvent;
+import me.devtec.shared.components.base.Component;
 import me.devtec.shared.components.ComponentAPI;
-import me.devtec.shared.components.ComponentEntity;
-import me.devtec.shared.components.ComponentItem;
-import me.devtec.shared.components.HoverEvent;
+import me.devtec.shared.components.base.ComponentEntity;
+import me.devtec.shared.components.base.ComponentItem;
+import me.devtec.shared.components.decorations.HoverEvent;
 import me.devtec.shared.events.EventManager;
 import me.devtec.shared.json.Json;
 import me.devtec.shared.utility.ParseUtils;
@@ -1759,9 +1760,9 @@ public class v1_20_4 implements NmsProvider {
 	}
 
 	Constructor<?> heldItemSlot = Ref
-			.constructor(Ref.nms("network.protocol.game", "ClientboundSetHeldSlotPacket") == null
-					? Ref.nms("network.protocol.game", "ClientboundSetCarriedItemPacket")
-					: Ref.nms("network.protocol.game", "ClientboundSetHeldSlotPacket"), int.class);
+			.constructor(NmsReflection.nms("network.protocol.game", "ClientboundSetHeldSlotPacket") == null
+					? NmsReflection.nms("network.protocol.game", "ClientboundSetCarriedItemPacket")
+					: NmsReflection.nms("network.protocol.game", "ClientboundSetHeldSlotPacket"), int.class);
 
 	@Override
 	public Object packetHeldItemSlot(int slot) {

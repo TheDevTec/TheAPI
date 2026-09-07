@@ -123,7 +123,7 @@ public class ParticleData {
 
         public ItemOptions(ItemStack stack) {
             item = stack;
-            if (Ref.isOlderThan(13)) {
+            if (Ref.isBefore(13, 0)) {
 				try {
                     packetData = new int[]{BlockDataStorage.fromItemStack(stack).getCombinedId()};
                 } catch (Exception err) {
@@ -142,7 +142,7 @@ public class ParticleData {
 
         public ItemOptions(BlockDataStorage material) {
             item = material.toItemStack();
-            if (Ref.isOlderThan(13)) {
+            if (Ref.isBefore(13, 0)) {
 				try {
                     packetData = new int[]{material.getCombinedId()};
                 } catch (Exception err) {
@@ -174,7 +174,7 @@ public class ParticleData {
 
         public BlockOptions(BlockDataStorage material) {
             this.material = material;
-            if (Ref.isOlderThan(13)) {
+            if (Ref.isBefore(13, 0)) {
 				try {
                     packetData = new int[]{XMaterial.matchXMaterial(material.getType()).getId(), material.getItemData()};
                 } catch (Exception err) {

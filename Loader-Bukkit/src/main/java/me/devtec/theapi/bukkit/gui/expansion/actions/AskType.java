@@ -8,90 +8,181 @@ public enum AskType {
 	EQUALS, MORE_OR_EQUALS, MORE, LOWER, LOWER_OR_EQUALS, NOT_SAME, CONTAINS, NOT_CONTAINS, REGEX;
 
 	public static AskType parseType(String text) {
-		for (int i = 0; i < text.length(); ++i) {
+		for (int i = 0, max = text.length() - 1; i < text.length(); ++i) {
 			char c = text.charAt(i);
-			if (c == '?' && text.charAt(i + 1) == '=')
-				return CONTAINS;
-			if (c == '?' && text.charAt(i + 1) == '!')
-				return NOT_CONTAINS;
-			if (c == '=' && text.charAt(i + 1) == '=')
-				return EQUALS;
-			if (c == '!' && text.charAt(i + 1) == '=')
-				return NOT_SAME;
-			if (c == '?' && text.charAt(i + 1) == '?')
-				return REGEX;
-			if (c == '>') {
-				if (text.charAt(i + 1) == '=')
-					return MORE_OR_EQUALS;
-				return MORE;
-			}
-			if (c == '<') {
-				if (text.charAt(i + 1) == '=')
-					return LOWER_OR_EQUALS;
-				return LOWER;
+
+			if (i < max) {
+				char next = text.charAt(i + 1);
+
+				if (c == '?')
+					switch (next) {
+					case '=':
+						return CONTAINS;
+					case '!':
+						return NOT_CONTAINS;
+					case '?':
+						return REGEX;
+					default:
+						break;
+					}
+
+				if (c == '=')
+					if (next == '=') return EQUALS;
+
+				if (c == '!')
+					if (next == '=') return NOT_SAME;
+
+				if (c == '>') return next == '=' ? MORE_OR_EQUALS : MORE;
+				if (c == '<') return next == '=' ? LOWER_OR_EQUALS : LOWER;
+			} else {
+				if (c == '>') return MORE;
+				if (c == '<') return LOWER;
 			}
 		}
 		return null;
 	}
 
 	public boolean compare(String first, String second) {
-		first = first.toLowerCase();
-		second = second.toLowerCase();
 		switch (this) {
 		case EQUALS:
-			boolean status = false;
-			for (String value : second.split("\\|\\|"))
-				status |= first.equals(value);
-			return status;
+			return equalsAnyIgnoreCase(first, second);
+
 		case NOT_SAME:
-			return !first.equals(second);
+			return !equalsAnyIgnoreCase(first, second);
+
 		case REGEX:
-			return Pattern.compile(second).matcher(first).find();
+			return Pattern.compile(second, Pattern.CASE_INSENSITIVE).matcher(first).find();
+
 		case CONTAINS:
-			status = false;
-			for (String value : second.split("\\|\\|")) {
-				int star = value.indexOf('*');
-				if (star != -1) {
-					String prefix = second.substring(0, star);
-					String suffix = second.substring(star + 1);
-					status |= (prefix.isEmpty() ? true : first.startsWith(prefix))
-							&& (suffix.isEmpty() ? true : first.endsWith(suffix));
-				} else
-					status |= value.isEmpty() ? true : first.contains(value);
-			}
-			return status;
+			return containsAnyIgnoreCase(first, second);
+
 		case NOT_CONTAINS:
-			status = false;
-			for (String value : second.split("\\|\\|")) {
-				int star = value.indexOf('*');
-				if (star != -1) {
-					String prefix = second.substring(0, star);
-					String suffix = second.substring(star + 1);
-					status |= (prefix.isEmpty() ? true : first.startsWith(prefix))
-							&& (suffix.isEmpty() ? true : first.endsWith(suffix));
-				} else
-					status |= value.isEmpty() ? true : first.contains(value);
-			}
-			return !status;
+			return !containsAnyIgnoreCase(first, second);
+
 		case LOWER:
-			double firstNumber = ParseUtils.getDouble(first);
-			double secondNumber = ParseUtils.getDouble(second);
-			return firstNumber < secondNumber;
+			return ParseUtils.getDouble(first) < ParseUtils.getDouble(second);
+
 		case LOWER_OR_EQUALS:
-			firstNumber = ParseUtils.getDouble(first);
-			secondNumber = ParseUtils.getDouble(second);
-			return firstNumber <= secondNumber;
+			return ParseUtils.getDouble(first) <= ParseUtils.getDouble(second);
+
 		case MORE:
-			firstNumber = ParseUtils.getDouble(first);
-			secondNumber = ParseUtils.getDouble(second);
-			return firstNumber > secondNumber;
+			return ParseUtils.getDouble(first) > ParseUtils.getDouble(second);
+
 		case MORE_OR_EQUALS:
-			firstNumber = ParseUtils.getDouble(first);
-			secondNumber = ParseUtils.getDouble(second);
-			return firstNumber >= secondNumber;
+			return ParseUtils.getDouble(first) >= ParseUtils.getDouble(second);
+
 		default:
-			break;
+			return false;
 		}
-		return false;
+	}
+
+	private static boolean equalsAnyIgnoreCase(String first, String values) {
+		int from = 0;
+
+		while (true) {
+			int at = values.indexOf("||", from);
+			int end = at == -1 ? values.length() : at;
+
+			if (regionEqualsIgnoreCase(first, values, from, end))
+				return true;
+
+			if (at == -1)
+				return false;
+
+			from = at + 2;
+		}
+	}
+
+	private static boolean containsAnyIgnoreCase(String first, String values) {
+		int from = 0;
+
+		while (true) {
+			int at = values.indexOf("||", from);
+			int end = at == -1 ? values.length() : at;
+
+			if (containsValueIgnoreCase(first, values, from, end))
+				return true;
+
+			if (at == -1)
+				return false;
+
+			from = at + 2;
+		}
+	}
+
+	private static boolean containsValueIgnoreCase(String input, String source, int from, int to) {
+		if (from == to)
+			return true;
+
+		int star = source.indexOf('*', from);
+
+		if (star < 0 || star >= to)
+			return indexOfIgnoreCase(input, source, from, to) != -1;
+
+		int inputAt = 0;
+
+		if (star > from) {
+			int prefixLength = star - from;
+
+			if (input.length() < prefixLength || !input.regionMatches(true, 0, source, from, prefixLength))
+				return false;
+
+			inputAt = prefixLength;
+		}
+
+		int patternAt = star + 1;
+
+		while (true) {
+			star = source.indexOf('*', patternAt);
+
+			if (star < 0 || star >= to) {
+				int suffixLength = to - patternAt;
+
+				if (suffixLength == 0)
+					return true;
+
+				int suffixAt = input.length() - suffixLength;
+
+				return suffixAt >= inputAt
+						&& input.regionMatches(true, suffixAt, source, patternAt, suffixLength);
+			}
+
+			int partLength = star - patternAt;
+
+			if (partLength != 0) {
+				int found = indexOfIgnoreCase(input, source, patternAt, star, inputAt);
+
+				if (found == -1)
+					return false;
+
+				inputAt = found + partLength;
+			}
+
+			patternAt = star + 1;
+		}
+	}
+
+	private static boolean regionEqualsIgnoreCase(String value, String source, int from, int to) {
+		int length = to - from;
+		return value.length() == length && value.regionMatches(true, 0, source, from, length);
+	}
+
+	private static int indexOfIgnoreCase(String value, String source, int sourceFrom, int sourceTo) {
+		return indexOfIgnoreCase(value, source, sourceFrom, sourceTo, 0);
+	}
+
+	private static int indexOfIgnoreCase(String value, String source, int sourceFrom, int sourceTo, int fromIndex) {
+		int length = sourceTo - sourceFrom;
+
+		if (length == 0)
+			return fromIndex;
+
+		int max = value.length() - length;
+
+		for (int i = fromIndex; i <= max; ++i)
+			if (value.regionMatches(true, i, source, sourceFrom, length))
+				return i;
+
+		return -1;
 	}
 }

@@ -12,7 +12,7 @@ import me.devtec.shared.Ref;
 
 //Void generator 1.9+
 public class VoidGeneratorModern extends ChunkGenerator {
-    private static final Biome the_void = Ref.isNewerThan(12) ? Biome.valueOf("THE_VOID") : Biome.valueOf("VOID");
+    private static final Biome the_void = Ref.isAtLeast(13, 0) ? Biome.valueOf("THE_VOID") : Biome.valueOf("VOID");
 
     @Override
     public ChunkGenerator.ChunkData generateChunkData(World world, Random random, int chunkx, int chunkz, ChunkGenerator.BiomeGrid biome) {

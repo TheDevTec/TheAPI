@@ -13,7 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
 import me.devtec.shared.annotations.Nullable;
-import me.devtec.shared.components.Component;
+import me.devtec.shared.components.base.Component;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.json.Json;
 import me.devtec.shared.utility.ColorUtils;
@@ -147,7 +147,7 @@ public class BookItemMaker extends ItemMaker {
 			iMeta.setAuthor(author);
 		}
         if (pages != null) {
-			if (!Ref.isNewerThan(11) || Ref.serverType() == ServerType.BUKKIT) {
+			if (!Ref.isAtLeast(12, 0) || Ref.type() == ServerType.BUKKIT) {
                 List<String> page = new ArrayList<>(pages.size());
                 for (Component comp : pages) {
 					page.add(comp.toString());
@@ -159,7 +159,7 @@ public class BookItemMaker extends ItemMaker {
 				}
 			}
 		}
-        if (Ref.isNewerThan(9) && generation != null) {
+        if (Ref.isAtLeast(10, 0) && generation != null) {
 			iMeta.setGeneration(Generation.valueOf(generation.toUpperCase()));
 		}
         if (title != null) {

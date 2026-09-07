@@ -2,10 +2,12 @@ package me.devtec.theapi.bukkit.gui.expansion.guis;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -34,459 +36,430 @@ import me.devtec.theapi.bukkit.gui.expansion.items.StaticItemPackage;
 import me.devtec.theapi.bukkit.gui.expansion.utils.Utils;
 
 public class ClassicGuiCreator implements GuiCreator {
+
+	private static final Map<String, Object> EMPTY = Collections.emptyMap();
+
 	@Getter
 	final String id;
 	@Getter
 	final Config config;
-	String title;
-	int size;
-	Map<Integer, ItemGUI> staticItems = new HashMap<>();
-	Map<Character, ItemPackage> dynamicItems = new HashMap<>();
-	Map<Character, ConditionItem> conditionItems = new HashMap<>();
 
-	Map<EventType, List<Action>> eventActions = new HashMap<>();
-	Map<String, List<Action>> customActions = new HashMap<>();
-	List<Task> schedulers = new ArrayList<>();
+	String title;
+	String staticTitle;
+	int size;
+	boolean dynamicTitle;
+
+	final Map<Integer, ItemGUI> staticItems = new HashMap<>();
+	final Map<Character, ItemPackage> dynamicItems = new HashMap<>();
+	final Map<Character, ConditionItem> conditionItems = new HashMap<>();
+
+	final Map<EventType, List<Action>> eventActions = new EnumMap<>(EventType.class);
+	final Map<String, List<Action>> customActions = new HashMap<>();
+	final List<Task> schedulers = new ArrayList<>();
+
 	GUI staticGui;
 
 	public ClassicGuiCreator(String id, Config config) {
-		this.id=id;
+		this.id = id;
 		this.config = config;
 		reload();
 	}
 
 	@Override
 	public HolderGUI open(Player player) {
-		sharedData.computeIfAbsent(player.getUniqueId(), i -> new Config());
-		List<Action> actions = eventActions.get(EventType.BEFORE_OPEN_MENU);
-		if (actions != null) {
-			int pos = 0;
-			for (Action action : actions) {
-				if (action.shouldSync()) {
-					action.runSync(++pos, actions, staticGui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-					break;
-				}
-				action.run(staticGui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-				++pos;
-			}
-		}
+		final UUID uuid = player.getUniqueId();
+		final Config data = sharedData.computeIfAbsent(uuid, key -> new Config());
+
+		runActions(eventActions.get(EventType.BEFORE_OPEN_MENU), staticGui, player, data, EMPTY);
+
 		if (staticGui != null) {
 			staticGui.open(player);
-			actions = eventActions.get(EventType.OPEN_MENU);
-			if (actions != null) {
-				int pos = 0;
-				for (Action action : actions) {
-					if (action.shouldSync()) {
-						action.runSync(++pos, actions, staticGui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-						break;
-					}
-					action.run(staticGui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-					++pos;
-				}
-			}
+			runActions(eventActions.get(EventType.OPEN_MENU), staticGui, player, data, EMPTY);
 			return staticGui;
 		}
-		List<Integer> schedulersIds = schedulers.isEmpty() ? Collections.emptyList() : new ArrayList<>();
-		GUI gui = new GUI(Utils.replacePlaceholders(title, null, player.getUniqueId()), size) {
+
+		final List<Integer> schedulerIds = schedulers.isEmpty()
+				? Collections.<Integer>emptyList()
+						: new ArrayList<>(schedulers.size());
+
+		GUI gui = new GUI(dynamicTitle ? Utils.replacePlaceholders(title, null, uuid) : staticTitle, size) {
+
+			private boolean schedulersCancelled;
+
+			private void cancelSchedulers() {
+				if (schedulersCancelled) return;
+				schedulersCancelled = true;
+
+				for (int id : schedulerIds)
+					Scheduler.cancelTask(id);
+			}
+
 			@Override
 			public void onPreClose(Player player) {
-				sharedData.remove(player.getUniqueId());
-				if (staticGui == null)
-					for (int i : schedulersIds)
-						Scheduler.cancelTask(i);
+				cancelSchedulers();
 			}
 
 			@Override
 			public void onClose(Player player) {
-				if (staticGui == null)
-					for (int i : schedulersIds)
-						Scheduler.cancelTask(i);
-				List<Action> actions = eventActions.get(EventType.CLOSE_MENU);
-				if (actions != null) {
-					int pos = 0;
-					for (Action action : actions) {
-						if (action.shouldSync()) {
-							action.runSync(++pos, actions, this, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-							break;
-						}
-						action.run(this, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-						++pos;
-					}
-				}
+				cancelSchedulers();
+
+				Config data = sharedData.remove(player.getUniqueId());
+				runActions(eventActions.get(EventType.CLOSE_MENU), this, player, data, EMPTY);
 			}
 		};
-		for (Task task : schedulers)
-			schedulersIds.add(new Tasker() {
 
+		for (final Task task : schedulers) {
+			final List<Action> taskActions = task.getActions();
+
+			schedulerIds.add(new Tasker() {
 				@Override
 				public void run() {
 					for (char itemId : task.getItems())
 						updateItem(gui, player, itemId);
-					int pos = 0;
-					for (Action action : task.getActions()) {
-						if (action.shouldSync()) {
-							action.runSync(++pos, task.getActions(), gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-							break;
-						}
-						action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-						++pos;
-					}
+
+					runActions(taskActions, gui, player, data, EMPTY);
 				}
 			}.runRepeating(task.getTime(), task.getTime()));
-		for (Entry<Integer, ItemGUI> staticItem : staticItems.entrySet())
-			gui.setItem(staticItem.getKey(), staticItem.getValue());
-		for (Entry<Character, ItemPackage> dynamicItem : dynamicItems.entrySet()) {
-			ItemGUI item = new ItemGUI(Utils.applyPlaceholders(dynamicItem.getValue().getTypePlaceholder(),
-					dynamicItem.getValue().getItem(), player)) {
+		}
 
-				@Override
-				public void onClick(Player player, HolderGUI gui, ClickType click) {
-					dynamicItem.getValue().runActions(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-				}
-			};
-			for (int slot : dynamicItem.getValue().getSlots())
+		for (Entry<Integer, ItemGUI> entry : staticItems.entrySet())
+			gui.setItem(entry.getKey(), entry.getValue());
+
+		for (Entry<Character, ItemPackage> entry : dynamicItems.entrySet()) {
+			final ItemPackage itemPackage = entry.getValue();
+			ItemGUI item = createDynamicItem(itemPackage, player);
+
+			for (int slot : itemPackage.getSlots())
 				gui.setItem(slot, item);
 		}
-		for (Entry<Character, ConditionItem> conditionItem : conditionItems.entrySet()) {
-			ItemPackage itemPackage = conditionItem.getValue().test(player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-			if (itemPackage.getItem() != null) {
-				if (itemPackage instanceof StaticItemPackage) {
-					StaticItemPackage staticPackage = (StaticItemPackage) itemPackage;
-					for (int slot : conditionItem.getValue().getSlots())
-						gui.setItem(slot, staticPackage.getItemGui());
-					continue;
-				}
-				ItemGUI item = new ItemGUI(
-						Utils.applyPlaceholders(itemPackage.getTypePlaceholder(), itemPackage.getItem(), player)) {
 
-					@Override
-					public void onClick(Player player, HolderGUI gui, ClickType click) {
-						itemPackage.runActions(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-					}
-				};
-				for (int slot : conditionItem.getValue().getSlots())
-					gui.setItem(slot, item);
-			}
+		for (Entry<Character, ConditionItem> entry : conditionItems.entrySet()) {
+			ConditionItem conditionItem = entry.getValue();
+			ItemPackage itemPackage = conditionItem.test(player, data, EMPTY);
+
+			if (itemPackage == null || itemPackage.getItem() == null)
+				continue;
+
+			ItemGUI item;
+
+			if (itemPackage instanceof StaticItemPackage)
+				item = ((StaticItemPackage) itemPackage).getItemGui();
+			else
+				item = createDynamicItem(itemPackage, player);
+
+			for (int slot : conditionItem.getSlots())
+				gui.setItem(slot, item);
 		}
+
 		gui.open(player);
-		if (schedulersIds.isEmpty() && conditionItems.isEmpty() && dynamicItems.isEmpty())
-			this.staticGui = gui;
-		actions = eventActions.get(EventType.OPEN_MENU);
-		if (actions != null) {
-			int pos = 0;
-			for (Action action : actions) {
-				if (action.shouldSync()) {
-					action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-					break;
-				}
-				action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-				++pos;
-			}
-		}
+
+		if (!dynamicTitle && schedulerIds.isEmpty() && conditionItems.isEmpty() && dynamicItems.isEmpty())
+			staticGui = gui;
+
+		runActions(eventActions.get(EventType.OPEN_MENU), gui, player, data, EMPTY);
 		return gui;
 	}
 
 	@Override
 	public void updateItem(HolderGUI gui, Player player, char itemId) {
-		ItemPackage item = dynamicItems.get(itemId);
-		if (item != null) {
-			ItemStack newItem = Utils.applyPlaceholders(item.getTypePlaceholder(), item.getItem(), player);
-			ItemGUI iGui = gui.getItemGUI(item.getSlots().get(0));
-			iGui.setItem(newItem);
-			for (int slot : item.getSlots())
-				gui.setItem(slot, iGui);
-		}
-		ConditionItem conditionItem = conditionItems.get(itemId);
-		if (conditionItem != null) {
-			ItemPackage packageItem = conditionItem.test(player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-			if (packageItem.getItem() == null)
-				for (int slot : conditionItem.getSlots())
-					gui.remove(slot);
-			else {
-				// We have to create new itemgui
-				if (packageItem instanceof StaticItemPackage) {
-					StaticItemPackage staticPackage = (StaticItemPackage) packageItem;
-					for (int slot : conditionItem.getSlots())
-						gui.setItem(slot, staticPackage.getItemGui());
-					return;
-				}
-				ItemStack newItem = Utils.applyPlaceholders(packageItem.getTypePlaceholder(), packageItem.getItem(),
-						player);
-				ItemGUI iGui = gui.getItemGUI(conditionItem.getSlots().get(0));
-				if (iGui == null)
-					// We have to create new itemgui
-					iGui = new ItemGUI(newItem) {
+		Config data = sharedData.get(player.getUniqueId());
 
-					@Override
-					public void onClick(Player player, HolderGUI gui, ClickType click) {
-						packageItem.runActions(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-					}
-				};
-				else
-					iGui.setItem(newItem);
-				for (int slot : conditionItem.getSlots())
-					gui.setItem(slot, iGui);
-			}
+		ItemPackage item = dynamicItems.get(itemId);
+
+		if (item != null && !item.getSlots().isEmpty()) {
+			ItemStack newItem = Utils.applyPlaceholders(item.getTypePlaceholder(), item.getItem(), player);
+			ItemGUI itemGui = gui.getItemGUI(item.getSlots().get(0));
+
+			if (itemGui == null)
+				itemGui = createDynamicItem(item, newItem);
+			else
+				itemGui.setItem(newItem);
+
+			for (int slot : item.getSlots())
+				gui.setItem(slot, itemGui);
 		}
+
+		final ConditionItem conditionItem = conditionItems.get(itemId);
+
+		if (conditionItem == null || conditionItem.getSlots().isEmpty())
+			return;
+
+		final ItemPackage packageItem = conditionItem.test(player, data, EMPTY);
+
+		if (packageItem == null || packageItem.getItem() == null) {
+			for (int slot : conditionItem.getSlots())
+				gui.remove(slot);
+			return;
+		}
+
+		if (packageItem instanceof StaticItemPackage) {
+			ItemGUI itemGui = ((StaticItemPackage) packageItem).getItemGui();
+
+			for (int slot : conditionItem.getSlots())
+				gui.setItem(slot, itemGui);
+
+			return;
+		}
+
+		ItemGUI itemGui = createDynamicItem(packageItem, player);
+
+		for (int slot : conditionItem.getSlots())
+			gui.setItem(slot, itemGui);
 	}
 
 	@Override
 	public void reload() {
 		eventActions.clear();
 		customActions.clear();
-		this.staticItems.clear();
-		this.dynamicItems.clear();
+		staticItems.clear();
+		dynamicItems.clear();
+		conditionItems.clear();
+		schedulers.clear();
+		staticGui = null;
+
 		List<String> lines = config.getStringList("lines");
+
 		size = Math.min(54, Math.max(9, lines.size() * 9));
 		title = config.getString("title", "NOT_SET");
+		dynamicTitle = Utils.checkForPlaceholders(title);
+		staticTitle = dynamicTitle ? null : ColorUtils.colorize(title);
+
 		if (config.exists("events")) {
-			if (config.existsKey("events.before_open_menu"))
-				eventActions.put(EventType.BEFORE_OPEN_MENU,
-						Utils.createActions(this, config.getStringList("events.before_open_menu")));
-			if (config.existsKey("events.open_menu"))
-				eventActions.put(EventType.OPEN_MENU,
-						Utils.createActions(this, config.getStringList("events.open_menu")));
-			if (config.existsKey("events.close_menu"))
-				eventActions.put(EventType.CLOSE_MENU,
-						Utils.createActions(this, config.getStringList("events.close_menu")));
+			loadEvent(EventType.BEFORE_OPEN_MENU, "events.before_open_menu");
+			loadEvent(EventType.OPEN_MENU, "events.open_menu");
+			loadEvent(EventType.CLOSE_MENU, "events.close_menu");
 		}
+
 		for (String scheduler : config.getKeys("scheduler")) {
-			List<Character> items = new ArrayList<>();
-			for (String item : config.getStringList("scheduler." + scheduler + ".items"))
-				items.add(item.charAt(0));
+			List<String> configuredItems = config.getStringList("scheduler." + scheduler + ".items");
+
+			if (configuredItems.isEmpty())
+				continue;
+
+			List<Character> items = new ArrayList<>(configuredItems.size());
+
+			for (String item : configuredItems)
+				if (item != null && !item.isEmpty())
+					items.add(item.charAt(0));
+
 			if (items.isEmpty())
 				continue;
-			schedulers.add(new Task(items,
+
+			schedulers.add(new Task(
+					items,
 					Utils.createActions(this, config.getStringList("scheduler." + scheduler + ".actions")),
 					config.getLong("scheduler." + scheduler + ".time")));
 		}
-		for (String actionName : config.getKeys("customActions")) {
-			List<Action> actions = Utils.createActions(this,
-					config.getStringList("customActions." + actionName + ".actions"));
-			List<String> messages = config.getStringList("customActions." + actionName + ".messages");
-			List<String> commands = config.getStringList("customActions." + actionName + ".commands");
-			String economyDeposit = config.getString("customActions." + actionName + ".economy.deposit");
-			String economyWithdraw = config.getString("customActions." + actionName + ".economy.withdraw");
-			if (!commands.isEmpty())
-				actions.add(0, new Action() {
-					@Override
-					public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
-						for (String command : commands) {
-							String finalCommand = Utils.replacePlaceholders(command, placeholders, player.getUniqueId())
-									.replace("{player}", player.getName());
-							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCommand);
-						}
-					}
 
-					@Override
-					public boolean shouldSync() {
-						return true;
-					}
-				});
-			if (!messages.isEmpty())
-				actions.add(0,(gui, player, sharedData, placeholders) -> {
-					for (String message : messages)
-						player.sendMessage(ColorUtils
-								.colorize(Utils.replacePlaceholders(message, placeholders, player.getUniqueId())));
-				});
-			if (economyDeposit != null && !economyDeposit.isEmpty()
-					|| economyWithdraw != null && !economyWithdraw.isEmpty())
-				actions.add(0,(gui, player, sharedData, placeholders) -> {
-					if (economyDeposit != null && !economyDeposit.isEmpty())
-						BukkitLoader.getEconomyHook().deposit(player.getName(), player.getWorld().getName(), ParseUtils.getDouble(
-								Utils.replacePlaceholders(economyDeposit, placeholders, player.getUniqueId())));
-					if (economyWithdraw != null && !economyWithdraw.isEmpty())
-						BukkitLoader.getEconomyHook().withdraw(player.getName(), player.getWorld().getName(), ParseUtils.getDouble(
-								Utils.replacePlaceholders(economyWithdraw, placeholders, player.getUniqueId())));
-				});
-			customActions.put(actionName, actions);
-		}
-		Map<Character, ItemGUI> staticItems = new HashMap<>();
+		for (String actionName : config.getKeys("customActions"))
+			customActions.put(actionName, createConfiguredActions("customActions." + actionName, true));
+
+		Map<Character, ItemGUI> staticCache = new HashMap<>();
 		int pos = -1;
-		for (String line : lines)
-			for (char c : line.toCharArray()) {
-				++pos;
-				if (c == ' ')
-					continue;
-				ItemGUI cached = staticItems.get(c);
-				if (cached != null)
-					this.staticItems.put(pos, cached);
-				else {
+
+		layout:
+			for (String line : lines)
+				for (int i = 0; i < line.length(); ++i) {
+					if (++pos >= size)
+						break layout;
+
+					char c = line.charAt(i);
+
+					if (c == ' ')
+						continue;
+
+					ItemGUI cached = staticCache.get(c);
+
+					if (cached != null) {
+						staticItems.put(pos, cached);
+						continue;
+					}
+
 					ItemPackage dynamic = dynamicItems.get(c);
-					if (dynamic != null)
+
+					if (dynamic != null) {
 						dynamic.addSlot(pos);
-					else {
-						ConditionItem conditionItem = conditionItems.get(c);
-						if (conditionItem != null)
-							conditionItem.addSlot(pos);
-						else if (config.existsKey("items." + c + ".conditions")) {
-							ItemPackage has;
-							ItemPackage not;
-							if (config.exists("items." + c + ".has")) {
-								ItemMaker maker = ItemMaker.loadMakerFromConfig(config, "items." + c + ".has");
-								List<String> messages = config.getStringList("items." + c + ".has.click.messages");
-								List<String> commands = config.getStringList("items." + c + ".has.click.commands");
-								List<Action> actions = Utils.createActions(this,
-										config.getStringList("items." + c + ".has.click.actions"));
-								if (!commands.isEmpty())
-									actions.add(0, new Action() {
-										@Override
-										public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
-											for (String command : commands) {
-												String finalCommand = Utils
-														.replacePlaceholders(command, placeholders,
-																player.getUniqueId())
-														.replace("{player}", player.getName());
-												Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCommand);
-											}
-										}
+						continue;
+					}
 
-										@Override
-										public boolean shouldSync() {
-											return true;
-										}
-									});
-								if (!messages.isEmpty())
-									actions.add(0,(gui, player, sharedData, placeholders) -> {
-										for (String message : messages)
-											player.sendMessage(ColorUtils.colorize(Utils.replacePlaceholders(message,
-													placeholders, player.getUniqueId())));
-									});
-								String typePlaceholder = config.getString("items." + c + ".has.type");
-								if (Utils.checkForPlaceholders(maker) || Utils.checkForPlaceholders(typePlaceholder))
-									has = new ItemPackage(typePlaceholder, maker, pos, actions);
-								else
-									has = new StaticItemPackage(typePlaceholder, new ItemGUI(maker.build()) {
+					ConditionItem condition = conditionItems.get(c);
 
-										@Override
-										public void onClick(Player player, HolderGUI gui, ClickType click) {
-											int pos = 0;
-											for (Action action : actions) {
-												if (action.shouldSync()) {
-													action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-													break;
-												}
-												action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-												++pos;
-											}
-										}
-									}, maker, pos, actions);
-							} else
-								has = new ItemPackage(null, null, pos, Collections.emptyList());
-							if (config.exists("items." + c + ".not")) {
-								ItemMaker maker = ItemMaker.loadMakerFromConfig(config, "items." + c + ".not");
-								List<String> messages = config.getStringList("items." + c + ".not.click.messages");
-								List<String> commands = config.getStringList("items." + c + ".not.click.commands");
-								List<Action> actions = Utils.createActions(this,
-										config.getStringList("items." + c + ".not.click.actions"));
-								if (!commands.isEmpty())
-									actions.add(0, new Action() {
-										@Override
-										public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
-											for (String command : commands) {
-												String finalCommand = Utils
-														.replacePlaceholders(command, placeholders,
-																player.getUniqueId())
-														.replace("{player}", player.getName());
-												Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCommand);
-											}
-										}
+					if (condition != null) {
+						condition.addSlot(pos);
+						continue;
+					}
 
-										@Override
-										public boolean shouldSync() {
-											return true;
-										}
-									});
-								if (!messages.isEmpty())
-									actions.add(0,(gui, player, sharedData, placeholders) -> {
-										for (String message : messages)
-											player.sendMessage(ColorUtils.colorize(Utils.replacePlaceholders(message,
-													placeholders, player.getUniqueId())));
-									});
-								String typePlaceholder = config.getString("items." + c + ".not.type");
-								if (Utils.checkForPlaceholders(maker) || Utils.checkForPlaceholders(typePlaceholder))
-									not = new ItemPackage(typePlaceholder, maker, pos, actions);
-								else
-									not = new StaticItemPackage(typePlaceholder, new ItemGUI(maker.build()) {
+					String path = "items." + c;
 
-										@Override
-										public void onClick(Player player, HolderGUI gui, ClickType click) {
-											int pos = 0;
-											for (Action action : actions) {
-												if (action.shouldSync()) {
-													action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-													break;
-												}
-												action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-												++pos;
-											}
-										}
-									}, maker, pos, actions);
-							} else
-								not = new ItemPackage(null, null, pos, Collections.emptyList());
-							List<Condition> conditions = Utils
-									.createConditions(config.getStringList("items." + c + ".conditions"));
-							conditionItems.put(c, new ConditionItem(conditions, pos, has, not));
-							continue;
-						}
-						ItemMaker maker = ItemMaker.loadMakerFromConfig(config, "items." + c);
-						if (maker == null) {
-							BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-							.warning("[GuiExpansion] Failed to find item " + c + " in the gui " + config.getFile().getName());
-							continue;
-						}
-						List<String> messages = config.getStringList("items." + c + ".click.messages");
-						List<String> commands = config.getStringList("items." + c + ".click.commands");
-						List<Action> actions = Utils.createActions(this,
-								config.getStringList("items." + c + ".click.actions"));
-						if (!commands.isEmpty())
-							actions.add(0, new Action() {
-								@Override
-								public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
-									for (String command : commands) {
-										String finalCommand = Utils
-												.replacePlaceholders(command, placeholders, player.getUniqueId())
-												.replace("{player}", player.getName());
-										Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCommand);
-									}
-								}
+					if (config.existsKey(path + ".conditions")) {
+						ItemPackage has = config.exists(path + ".has")
+								? createItemPackage(path + ".has", pos)
+										: emptyPackage(pos);
 
-								@Override
-								public boolean shouldSync() {
-									return true;
-								}
-							});
-						if (!messages.isEmpty())
-							actions.add(0,(gui, player, sharedData, placeholders) -> {
-								for (String message : messages)
-									player.sendMessage(ColorUtils.colorize(
-											Utils.replacePlaceholders(message, placeholders, player.getUniqueId())));
-							});
-						String typePlaceholder = config.getString("items." + c + ".type");
-						if (Utils.checkForPlaceholders(maker) || Utils.checkForPlaceholders(typePlaceholder))
-							dynamicItems.put(c, new ItemPackage(typePlaceholder, maker, pos, actions));
-						else {
-							ItemGUI item = new ItemGUI(maker.build()) {
+						ItemPackage not = config.exists(path + ".not")
+								? createItemPackage(path + ".not", pos)
+										: emptyPackage(pos);
 
-								@Override
-								public void onClick(Player player, HolderGUI gui, ClickType click) {
-									int pos = 0;
-									for (Action action : actions) {
-										if (action.shouldSync()) {
-											action.runSync(++pos, actions, gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-											break;
-										}
-										action.run(gui, player, sharedData.get(player.getUniqueId()), Collections.emptyMap());
-										++pos;
-									}
-								}
-							};
-							staticItems.put(c, item);
-							this.staticItems.put(pos, item);
-						}
+						List<Condition> conditions = Utils.createConditions(config.getStringList(path + ".conditions"));
+						conditionItems.put(c, new ConditionItem(conditions, pos, has == null ? emptyPackage(pos) : has,
+								not == null ? emptyPackage(pos) : not));
+						continue;
+					}
+
+					ItemPackage itemPackage = createItemPackage(path, pos);
+
+					if (itemPackage == null) {
+						BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
+						.warning("[GuiExpansion] Failed to find item " + c + " in the gui " + config.getFile().getName());
+						continue;
+					}
+
+					if (itemPackage instanceof StaticItemPackage) {
+						ItemGUI itemGui = ((StaticItemPackage) itemPackage).getItemGui();
+						staticCache.put(c, itemGui);
+						staticItems.put(pos, itemGui);
+					} else
+						dynamicItems.put(c, itemPackage);
+				}
+	}
+
+	private void loadEvent(EventType type, String path) {
+		if (config.existsKey(path))
+			eventActions.put(type, Utils.createActions(this, config.getStringList(path)));
+	}
+
+	private ItemPackage createItemPackage(String path, int pos) {
+		ItemMaker maker = ItemMaker.loadMakerFromConfig(config, path);
+
+		if (maker == null) {
+			BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
+			.warning("[GuiExpansion] Failed to load item at " + path + " in " + config.getFile().getName());
+			return null;
+		}
+
+		List<Action> actions = createConfiguredActions(path + ".click", false);
+		String typePlaceholder = config.getString(path + ".type");
+
+		if (Utils.checkForPlaceholders(maker)
+				|| typePlaceholder != null && Utils.checkForPlaceholders(typePlaceholder))
+			return new ItemPackage(typePlaceholder, maker, pos, actions);
+
+		ItemGUI itemGui = new ItemGUI(maker.build()) {
+			@Override
+			public void onClick(Player player, HolderGUI gui, ClickType click) {
+				runActions(actions, gui, player, sharedData.get(player.getUniqueId()), EMPTY);
+			}
+		};
+
+		return new StaticItemPackage(typePlaceholder, itemGui, maker, pos, actions);
+	}
+
+	private List<Action> createConfiguredActions(String path, boolean economy) {
+		final List<Action> actions = Utils.createActions(this, config.getStringList(path + ".actions"));
+		final List<String> messages = config.getStringList(path + ".messages");
+		final List<String> commands = config.getStringList(path + ".commands");
+
+		if (!commands.isEmpty())
+			actions.add(0, new Action() {
+				@Override
+				public void run(HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders) {
+					String playerName = player.getName();
+					UUID uuid = player.getUniqueId();
+
+					for (String command : commands) {
+						String value = Utils.replacePlaceholders(command, placeholders, uuid);
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), Utils.replaceLiteral(value, "{player}", playerName));
 					}
 				}
+
+				@Override
+				public boolean shouldSync() {
+					return true;
+				}
+			});
+
+		if (!messages.isEmpty())
+			actions.add(0, (gui, player, sharedData, placeholders) -> {
+				UUID uuid = player.getUniqueId();
+
+				for (String message : messages)
+					player.sendMessage(Utils.replacePlaceholders(message, placeholders, uuid));
+			});
+
+		if (economy) {
+			final String deposit = config.getString(path + ".economy.deposit");
+			final String withdraw = config.getString(path + ".economy.withdraw");
+
+			final boolean hasDeposit = deposit != null && !deposit.isEmpty();
+			final boolean hasWithdraw = withdraw != null && !withdraw.isEmpty();
+
+			if (hasDeposit || hasWithdraw) {
+				final boolean dynamicDeposit = hasDeposit && Utils.checkForPlaceholders(deposit);
+				final boolean dynamicWithdraw = hasWithdraw && Utils.checkForPlaceholders(withdraw);
+
+				final double staticDeposit = hasDeposit && !dynamicDeposit ? ParseUtils.getDouble(deposit) : 0;
+				final double staticWithdraw = hasWithdraw && !dynamicWithdraw ? ParseUtils.getDouble(withdraw) : 0;
+
+				actions.add(0, (gui, player, sharedData, placeholders) -> {
+					UUID uuid = player.getUniqueId();
+					String playerName = player.getName();
+					String worldName = player.getWorld().getName();
+
+					if (hasDeposit) {
+						double value = dynamicDeposit
+								? ParseUtils.getDouble(Utils.replacePlaceholders(deposit, placeholders, uuid))
+										: staticDeposit;
+
+						BukkitLoader.getEconomyHook().deposit(playerName, worldName, value);
+					}
+
+					if (hasWithdraw) {
+						double value = dynamicWithdraw
+								? ParseUtils.getDouble(Utils.replacePlaceholders(withdraw, placeholders, uuid))
+										: staticWithdraw;
+
+						BukkitLoader.getEconomyHook().withdraw(playerName, worldName, value);
+					}
+				});
 			}
+		}
+
+		return actions;
+	}
+
+	private ItemGUI createDynamicItem(final ItemPackage itemPackage, Player player) {
+		return createDynamicItem(itemPackage,
+				Utils.applyPlaceholders(itemPackage.getTypePlaceholder(), itemPackage.getItem(), player));
+	}
+
+	private ItemGUI createDynamicItem(final ItemPackage itemPackage, ItemStack item) {
+		return new ItemGUI(item) {
+			@Override
+			public void onClick(Player player, HolderGUI gui, ClickType click) {
+				itemPackage.runActions(gui, player, sharedData.get(player.getUniqueId()), EMPTY);
+			}
+		};
+	}
+
+	private static ItemPackage emptyPackage(int pos) {
+		return new ItemPackage(null, null, pos, Collections.<Action>emptyList());
+	}
+
+	private static void runActions(List<Action> actions, HolderGUI gui, Player player, Config data,
+			Map<String, Object> placeholders) {
+		if (actions == null || actions.isEmpty())
+			return;
+
+		for (int i = 0; i < actions.size(); ++i) {
+			Action action = actions.get(i);
+
+			if (action.shouldSync()) {
+				action.runSync(i + 1, actions, gui, player, data, placeholders);
+				return;
+			}
+
+			action.run(gui, player, data, placeholders);
+		}
 	}
 
 	@Override

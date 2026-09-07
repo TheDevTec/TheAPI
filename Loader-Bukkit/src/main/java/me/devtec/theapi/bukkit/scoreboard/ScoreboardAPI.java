@@ -13,7 +13,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import me.devtec.shared.Ref;
-import me.devtec.shared.components.Component;
+import me.devtec.shared.components.base.Component;
 import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.utility.ColorUtils;
 import me.devtec.shared.utility.StringUtils;
@@ -94,7 +94,7 @@ public class ScoreboardAPI {
 		destroyed = false;
 		String displayName = name;
 		name = ColorUtils.colorize(text);
-		if (!Ref.isNewerThan(12) && name.length() > 32)
+		if (!Ref.isAtLeast(13, 0) && name.length() > 32)
 			name = name.substring(0, 32);
 		if (!name.equals(displayName))
 			BukkitLoader.getPacketHandler().send(p, createObjectivePacket(2, Component.fromString(name)));
@@ -120,6 +120,7 @@ public class ScoreboardAPI {
 			}
 		if (add)
 			team = getTeam(line, line);
+		if(team==null)return;
 		if (team.setValue(value) || add)
 			sendLine(team, line, add);
 	}
@@ -267,7 +268,7 @@ public class ScoreboardAPI {
 				suffix = "";
 				return setPlayer("") || changed;
 			}
-			if (Ref.isNewerThan(12) && !SPLIT_MODERN_LINES) { // 1.13+ only
+			if (Ref.isAtLeast(13, 0) && !SPLIT_MODERN_LINES) { // 1.13+ only
 				if (!prefix.equals(text))
 					changed = true;
 				prefix = text;
@@ -345,7 +346,7 @@ public class ScoreboardAPI {
 			}
 
 			String result;
-			if (Ref.isNewerThan(12))
+			if (Ref.isAtLeast(13, 0))
 				result = text;
 			else
 				result = StringUtils.fixedSplit(text, 16).get(0);

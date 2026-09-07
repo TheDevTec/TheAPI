@@ -133,7 +133,7 @@ public class Position implements Cloneable {
 	}
 
 	public int getData() {
-		return Ref.isOlderThan(8)
+		return Ref.isBefore(8, 0)
 				? BukkitLoader.getNmsProvider().getData(getNMSChunk(), getBlockX(), getBlockY(), getBlockZ())
 				: (int) getType().getItemData();
 	}
@@ -263,7 +263,7 @@ public class Position implements Cloneable {
 	}
 
 	public Chunk getChunk() {
-		if (Ref.isNewerThan(12))
+		if (Ref.isAtLeast(13, 0))
 			return getWorld().getChunkAt(getBlockX() >> 4, getBlockZ() >> 4);
 		return BukkitLoader.getNmsProvider().toBukkitChunk(getNMSChunk());
 	}
@@ -444,7 +444,7 @@ public class Position implements Cloneable {
 
 	public static void set(Position pos, BlockDataStorage mat) {
 		BukkitLoader.getNmsProvider().setBlock(pos.getNMSChunk(), pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(),
-				Ref.isOlderThan(8) ? mat.getBlock() : mat.getIBlockData(), mat.getItemData());
+				Ref.isBefore(8, 0) ? mat.getBlock() : mat.getIBlockData(), mat.getItemData());
 	}
 
 	public long getChunkKey() {

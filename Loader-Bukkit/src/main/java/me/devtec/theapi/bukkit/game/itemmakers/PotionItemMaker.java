@@ -27,7 +27,7 @@ public class PotionItemMaker extends ItemMaker {
     @Override
     public Map<String, Object> serializeToMap() {
         Map<String, Object> map = super.serializeToMap();
-        if (Ref.isNewerThan(10) && color != null) {
+        if (Ref.isAtLeast(11, 0) && color != null) {
             String hex = Integer.toHexString(color.asRGB());
             map.put("potion.color", "#" + (hex.length() > 6 ? hex.substring(2) : hex));
         }
@@ -77,7 +77,7 @@ public class PotionItemMaker extends ItemMaker {
 			return super.apply(meta);
 		}
         PotionMeta iMeta = (PotionMeta) meta;
-        if (color != null && Ref.isNewerThan(10)) {
+        if (color != null && Ref.isAtLeast(11, 0)) {
 			iMeta.setColor(color);
 		}
         if (effects != null) {

@@ -1,1 +1,7 @@
 rootProject.name = 'NmsProvider'
+// Compile against the loader source from this checkout.
+includeBuild('..') {
+    dependencySubstitution {
+        substitute module('com.github.TheDevTec.TheAPI:Loader-Bukkit') using project(':Loader-Bukkit')
+    }
+}

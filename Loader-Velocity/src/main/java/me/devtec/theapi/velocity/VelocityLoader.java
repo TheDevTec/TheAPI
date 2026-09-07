@@ -32,14 +32,15 @@ import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.mcmetrics.GatheringInfoManager;
 import me.devtec.shared.mcmetrics.Metrics;
+import me.devtec.shared.messaging.Messenger;
 import me.devtec.shared.utility.ColorUtils;
 import me.devtec.shared.utility.LibraryLoader;
 import me.devtec.theapi.velocity.commands.hooker.VelocityCommandManager;
 import me.devtec.theapi.velocity.commands.selectors.VelocitySelectorUtils;
 import net.kyori.adventure.text.Component;
 
-@Plugin(id = "theapi", name = "TheAPI", version = "13.8.5", authors = { "DevTec",
-"Straikerinos" }, url = "https://www.spigotmc.org/resources/72679/")
+@Plugin(id = "theapi", name = "TheAPI", version = "14.0", authors = { "DevTec",
+		"Straikerinos" }, url = "https://www.spigotmc.org/resources/72679/")
 public class VelocityLoader {
 
 	// Init static APIs
@@ -75,7 +76,7 @@ public class VelocityLoader {
 				.fromString(ColorUtils.colorize("&7> &dJava&7: &e" + System.getProperty("java.version") + " &7("
 						+ (ToolProvider.getSystemJavaCompiler() != null ? "&aJDK" : "&aJRE") + "&7)")));
 		console.sendMessage((Component) ComponentAPI.adventure()
-				.fromString(ColorUtils.colorize("&7> &dServer type&7: &e" + Ref.serverType())));
+				.fromString(ColorUtils.colorize("&7> &dServer type&7: &e" + Ref.type())));
 		console.sendMessage((Component) ComponentAPI.adventure().fromString(ColorUtils.colorize("&7>")));
 		console.sendMessage((Component) ComponentAPI.adventure()
 				.fromString(ColorUtils.colorize("&7> &dSupport&7: &ehttps://discord.gg/APwYKQRxby")));
@@ -106,6 +107,7 @@ public class VelocityLoader {
 		API.removeCache(e.getPlayer().getUniqueId());
 	}
 
+	@SuppressWarnings("resource")
 	public static void initTheAPI() {
 		Ref.init(ServerType.VELOCITY,
 				Ref.getClass("com.velocitypowered.proxy.VelocityServer").getPackage().getImplementationVersion()); // Server
@@ -155,6 +157,7 @@ public class VelocityLoader {
 		};
 
 		ComponentAPI.registerTransformer("ADVENTURE", new AdventureComponentAPI<>());
+		Messenger.init(new VelocityMessengerProvider());
 		// Commands api
 		API.commandsRegister = new VelocityCommandManager();
 		API.selectorUtils = new VelocitySelectorUtils();
@@ -165,7 +168,7 @@ public class VelocityLoader {
 
 		API.library = new LibraryLoader() {
 			final Constructor<?> constructor = Ref
-					.getConstructors(Ref.getClass("com.velocitypowered.proxy.plugin.PluginClassLoader"))[0];
+					.constructors(Ref.getClass("com.velocitypowered.proxy.plugin.PluginClassLoader")).get(0);
 			final Method addToClassloaders = Ref
 					.method(Ref.getClass("com.velocitypowered.proxy.plugin.PluginClassLoader"), "addToClassloaders");
 			final List<File> loaded = new ArrayList<>();

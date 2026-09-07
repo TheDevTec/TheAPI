@@ -1,11 +1,15 @@
 package me.devtec.theapi.bukkit.commands.selectors;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.command.CommandSender;
@@ -19,133 +23,257 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.xseries.XMaterial;
 
 public class BukkitSelectorUtils implements SelectorUtils<CommandSender> {
-    @Override
-    public List<String> build(CommandSender s, Selector selector) {
-        List<String> list = new ArrayList<>();
-        switch (selector) {
-            case BIOME_TYPE:
-                for (Biome biome : Biome.values()) {
-					list.add(biome.name());
-				}
-                break;
-            case MATERIAL:
-                for (XMaterial material : XMaterial.VALUES) {
-					if (material.isSupported() && material.parseMaterial().isItem() && !material.isAir()) {
-						list.add(material.name());
-					}
-				}
-                break;
-            case BOOLEAN:
-                list.add("true");
-                list.add("false");
-                break;
-            case ENTITY_SELECTOR:
-                if (getPlayers(s).isEmpty()) {
-					break;
-				}
-                list.add("*");
-                list.add("@a");
-                list.add("@e");
-                list.add("@r");
-                list.add("@s");
-                list.add("@p");
-            case PLAYER:
-                for (Player player : getPlayers(s)) {
-					list.add(player.getName());
-				}
-                break;
-            case ENTITY_TYPE:
-                for (EntityType biome : EntityType.values()) {
-					list.add(biome.name());
-				}
-                break;
-            case INTEGER:
-                list.add("{integer}");
-                break;
-            case NUMBER:
-                list.add("{number}");
-                break;
-            case WORLD:
-                for (World world : Bukkit.getWorlds()) {
-					list.add(world.getName());
-				}
-                break;
-            case POSITION:
-                list.add("~");
-                list.add("{number}");
-                break;
-            default:
-                break;
-        }
-        return list;
-    }
 
-    private Collection<? extends Player> getPlayers(CommandSender s) {
-        if (s instanceof Player) {
-            List<Player> players = new ArrayList<>();
-            for (Player p : BukkitLoader.getOnlinePlayers()) {
-				if (((Player) s).canSee(p)) {
-					players.add(p);
-				}
+	private static final List<String> BOOLEAN = immutable("true", "false");
+	private static final List<String> INTEGER = Collections.singletonList("{integer}");
+	private static final List<String> NUMBER = Collections.singletonList("{number}");
+	private static final List<String> POSITION = immutable("~", "{number}");
+	private static final List<String> ENTITY_SELECTORS = immutable("*", "@a", "@e", "@r", "@s", "@p");
+
+	@Override
+	public List<String> build(CommandSender sender, Selector selector) {
+		switch (selector) {
+		case BIOME_TYPE:
+			return StaticValues.BIOMES;
+
+		case MATERIAL:
+			return StaticValues.MATERIALS;
+
+		case BOOLEAN:
+			return BOOLEAN;
+
+		case ENTITY_SELECTOR: {
+			Collection<? extends Player> players = getPlayers(sender);
+
+			if (players.isEmpty())
+				return Collections.emptyList();
+
+			List<String> result = new ArrayList<>(players.size() + ENTITY_SELECTORS.size());
+			result.addAll(ENTITY_SELECTORS);
+
+			for (Player player : players)
+				result.add(player.getName());
+
+			return result;
+		}
+
+		case PLAYER: {
+			Collection<? extends Player> players = getPlayers(sender);
+
+			if (players.isEmpty())
+				return Collections.emptyList();
+
+			List<String> result = new ArrayList<>(players.size());
+
+			for (Player player : players)
+				result.add(player.getName());
+
+			return result;
+		}
+
+		case ENTITY_TYPE:
+			return StaticValues.ENTITY_TYPES;
+
+		case INTEGER:
+			return INTEGER;
+
+		case NUMBER:
+			return NUMBER;
+
+		case WORLD: {
+			List<World> worlds = Bukkit.getWorlds();
+
+			if (worlds.isEmpty())
+				return Collections.emptyList();
+
+			List<String> result = new ArrayList<>(worlds.size());
+
+			for (World world : worlds)
+				result.add(world.getName());
+
+			return result;
+		}
+
+		case POSITION:
+			return POSITION;
+
+		default:
+			return Collections.emptyList();
+		}
+	}
+
+	private Collection<? extends Player> getPlayers(CommandSender sender) {
+		Collection<? extends Player> online = BukkitLoader.getOnlinePlayers();
+
+		if (!(sender instanceof Player))
+			return online;
+
+		Player player = (Player) sender;
+		List<Player> visible = new ArrayList<>(online.size());
+
+		for (Player target : online)
+			if (player.canSee(target))
+				visible.add(target);
+
+		return visible;
+	}
+
+	@Override
+	public boolean check(CommandSender sender, Selector selector, String value) {
+		if (value == null || value.isEmpty())
+			return false;
+
+		switch (selector) {
+		case BIOME_TYPE:
+			try {
+				Biome.valueOf(value.toUpperCase(Locale.ROOT));
+				return true;
+			} catch (IllegalArgumentException ignored) {
+				return false;
 			}
-            return players;
-        }
-        return BukkitLoader.getOnlinePlayers();
-    }
 
-    @Override
-    public boolean check(CommandSender s, Selector selector, String value) {
-        if (value == null || value.isEmpty()) {
+		case MATERIAL: {
+			Optional<XMaterial> material = XMaterial.matchXMaterial(value);
+
+			if (!material.isPresent())
+				return false;
+
+			XMaterial result = material.get();
+
+			if (!result.isSupported() || result.isAir())
+				return false;
+
+			Material bukkit = result.parseMaterial();
+			return bukkit != null && isItem(bukkit);
+		}
+
+		case BOOLEAN:
+			return "true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value);
+
+		case ENTITY_SELECTOR:
+			if (isEntitySelector(value))
+				return true;
+
+		case PLAYER: {
+			Player player = Bukkit.getPlayer(value);
+
+			if (player == null)
+				return false;
+
+			return !(sender instanceof Player) || ((Player) sender).canSee(player);
+		}
+
+		case ENTITY_TYPE:
+			try {
+				EntityType.valueOf(value.toUpperCase(Locale.ROOT));
+				return true;
+			} catch (IllegalArgumentException ignored) {
+				return false;
+			}
+
+		case INTEGER:
+			return ParseUtils.isInt(value);
+
+		case NUMBER:
+			return ParseUtils.isNumber(value);
+
+		case WORLD:
+			return Bukkit.getWorld(value) != null;
+
+		case POSITION:
+			return ParseUtils.isNumber(value)
+					|| value.indexOf('~') != -1
+					|| value.indexOf('+') != -1
+					|| value.indexOf('-') != -1;
+
+		default:
 			return false;
 		}
-        switch (selector) {
-            case BIOME_TYPE:
-                try {
-                    Biome.valueOf(value.toUpperCase());
-                    return true;
-                } catch (NoSuchFieldError | Exception ignored) {
-                }
-                break;
-            case MATERIAL:
-                Optional<XMaterial> material = XMaterial.matchXMaterial(value);
-                return material.isPresent() && material.get().isSupported();
-            case BOOLEAN:
-                return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");
-            case ENTITY_SELECTOR:
-                char first = value.charAt(0);
-                char second = value.length() == 2 ? toLowerCase(value.charAt(1)) : 0;
-                if (first == '@' && (second == 'a' || second == 'e' || second == 'r' || second == 's' || second == 'p') || first == '*' && value.length() == 1) {
-					return true;
-				}
-                // Else continue to player
-            case PLAYER:
-                Player player = Bukkit.getPlayer(value);
-                if (player == null) {
-					return false;
-				}
-                return !(s instanceof Player) || ((Player) s).canSee(player);
-            case ENTITY_TYPE:
-                try {
-                    EntityType.valueOf(value.toUpperCase());
-                    return true;
-                } catch (NoSuchFieldError | Exception ignored) {
-                }
-                break;
-            case INTEGER:
-                return ParseUtils.isInt(value);
-            case NUMBER:
-                return ParseUtils.isNumber(value);
-            case WORLD:
-                return Bukkit.getWorld(value) != null;
-            case POSITION:
-                return ParseUtils.isNumber(value) || value.indexOf('~') != -1 || value.indexOf('+') != -1 || value.indexOf('-') != -1;
-            default:
-                break;
-        }
-        return false;
-    }
+	}
 
-    private char toLowerCase(int charAt) {
-        return (char) (charAt <= 90 ? charAt + 32 : charAt);
-    }
+	private static boolean isEntitySelector(String value) {
+		if (value.length() == 1)
+			return value.charAt(0) == '*';
+
+		if (value.length() != 2 || value.charAt(0) != '@')
+			return false;
+
+		char c = value.charAt(1);
+
+		if (c >= 'A' && c <= 'Z')
+			c = (char) (c + 32);
+
+		return c == 'a' || c == 'e' || c == 'r' || c == 's' || c == 'p';
+	}
+
+	private static boolean isItem(Material material) {
+		Method method = StaticValues.MATERIAL_IS_ITEM;
+
+		if (method == null)
+			return true;
+
+		try {
+			return Boolean.TRUE.equals(method.invoke(material));
+		} catch (Exception ignored) {
+			return true;
+		}
+	}
+
+	private static List<String> immutable(String... values) {
+		List<String> result = new ArrayList<>(values.length);
+		Collections.addAll(result, values);
+		return Collections.unmodifiableList(result);
+	}
+
+	private static final class StaticValues {
+
+		private static final Method MATERIAL_IS_ITEM = findMaterialIsItem();
+		private static final List<String> BIOMES = loadBiomes();
+		private static final List<String> ENTITY_TYPES = loadEntityTypes();
+		private static final List<String> MATERIALS = loadMaterials();
+
+		private static Method findMaterialIsItem() {
+			try {
+				return Material.class.getMethod("isItem");
+			} catch (Exception ignored) {
+				return null;
+			}
+		}
+
+		private static List<String> loadBiomes() {
+			Biome[] values = Biome.values();
+			List<String> result = new ArrayList<>(values.length);
+
+			for (Biome biome : values)
+				result.add(biome.name());
+
+			return Collections.unmodifiableList(result);
+		}
+
+		private static List<String> loadEntityTypes() {
+			EntityType[] values = EntityType.values();
+			List<String> result = new ArrayList<>(values.length);
+
+			for (EntityType type : values)
+				result.add(type.name());
+
+			return Collections.unmodifiableList(result);
+		}
+
+		private static List<String> loadMaterials() {
+			List<String> result = new ArrayList<>(XMaterial.VALUES.length);
+
+			for (XMaterial material : XMaterial.VALUES) {
+				if (!material.isSupported() || material.isAir())
+					continue;
+
+				Material bukkit = material.parseMaterial();
+
+				if (bukkit != null && isItem(bukkit))
+					result.add(material.name());
+			}
+
+			return Collections.unmodifiableList(result);
+		}
+	}
 }

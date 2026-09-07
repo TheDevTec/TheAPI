@@ -35,17 +35,22 @@ public class Utils {
 		return applyPlaceholders(typePlaceholder, item, null, player);
 	}
 
-	public static ItemStack applyPlaceholders(String typePlaceholder, ItemMaker item, Map<String, Object> placeholders,
-			Player player) {
+	public static ItemStack applyPlaceholders(String typePlaceholder, ItemMaker item, Map<String, Object> placeholders, Player player) {
+		ReplaceContext context = new ReplaceContext(placeholders, player.getUniqueId());
+
 		if (item.getMaterial() == Material.STONE && typePlaceholder != null)
-			// Probably there's placeholder in the name of type
-			item.type(XMaterial
-					.matchXMaterial(Utils.replacePlaceholders(typePlaceholder, placeholders, player.getUniqueId()))
-					.orElse(XMaterial.STONE));
+			item.type(XMaterial.matchXMaterial(context.replace(typePlaceholder)).orElse(XMaterial.STONE));
+
 		if (item.getDisplayName() != null)
-			item.displayName(Utils.replacePlaceholders(item.getDisplayName(), placeholders, player.getUniqueId()));
-		if (item.getLore() != null)
-			item.getLore().replaceAll(input -> Utils.replacePlaceholders(input, placeholders, player.getUniqueId()));
+			item.displayName(context.replace(item.getDisplayName()));
+
+		if (item.getLore() != null) {
+			List<String> lore = item.getLore();
+
+			for (int i = 0; i < lore.size(); ++i)
+				lore.set(i, context.replace(lore.get(i)));
+		}
+
 		return item.build();
 	}
 
@@ -54,312 +59,435 @@ public class Utils {
 	}
 
 	private static String replaceMath(UUID playerId, String input, int start, int end) {
-		StringContainer result = new StringContainer(input.length());
+		StringContainer result = new StringContainer(end - start);
 		Config user = null;
-		for (int i = start; i < input.length() && i < end; ++i) {
+
+		for (int i = start; i < end; ++i) {
 			char c = input.charAt(i);
-			if (c == 'm' && i + 4 < input.length() && input.charAt(i + 1) == 'i' && input.charAt(i + 2) == 'n'
-					&& input.charAt(i + 3) == '(') {
+
+			if (c == 'm' && (input.startsWith("min(", i) || input.startsWith("max(", i))) {
+				boolean min = input.charAt(i + 1) == 'i';
+
 				int times = 0;
 				int splitPos = 0;
 				int d = i + 4;
 				boolean innerMath = false;
-				for (; d < input.length(); ++d) {
+
+				for (; d < end; ++d) {
 					char e = input.charAt(d);
+
 					if (e == '(') {
 						innerMath = true;
 						++times;
-					}
-					if (e == ',' && times == 0)
+					} else if (e == ',' && times == 0)
 						splitPos = d;
-					if (e == ')')
-						if (--times == -1)
-							break;
+					else if (e == ')' && --times == -1)
+						break;
 				}
+
 				if (splitPos != 0 && times == -1) {
+					Number first;
+					Number second;
+
 					if (innerMath) {
-						String firstPart = null;
-						if (find(input,'(', i + 4, splitPos))
-							firstPart = replaceMath(playerId, input, i + 4, splitPos);
-						String secondPart = null;
-						if (find(input,'(', splitPos + 1, d))
-							secondPart = replaceMath(playerId, input, splitPos + 1, d);
-						Number first = firstPart == null ? ParseUtils.getNumber(input, i + 4, splitPos)
-								: ParseUtils.getNumber(firstPart);
-						Number second = secondPart == null ? ParseUtils.getNumber(input, splitPos + 1, d)
-								: ParseUtils.getNumber(secondPart);
-						if (first instanceof Double || first instanceof Float || second instanceof Double
-								|| second instanceof Float)
-							result.append(StringUtils.formatDouble(FormatType.BASIC,
-									Math.min(first.doubleValue(), second.doubleValue())));
-						else
-							result.append(StringUtils.formatDouble(FormatType.BASIC,
-									Math.min(first.longValue(), second.longValue())));
+						String firstPart = find(input, '(', i + 4, splitPos) ? replaceMath(playerId, input, i + 4, splitPos) : null;
+						String secondPart = find(input, '(', splitPos + 1, d) ? replaceMath(playerId, input, splitPos + 1, d) : null;
+
+						first = firstPart == null ? ParseUtils.getNumber(input, i + 4, splitPos) : ParseUtils.getNumber(firstPart);
+						second = secondPart == null ? ParseUtils.getNumber(input, splitPos + 1, d) : ParseUtils.getNumber(secondPart);
 					} else {
-						Number first = ParseUtils.getNumber(input, i + 4, splitPos);
-						Number second = ParseUtils.getNumber(input, splitPos + 1, d);
-						if (first instanceof Double || first instanceof Float || second instanceof Double
-								|| second instanceof Float)
-							result.append(StringUtils.formatDouble(FormatType.BASIC,
-									Math.min(first.doubleValue(), second.doubleValue())));
-						else
-							result.append(StringUtils.formatDouble(FormatType.BASIC,
-									Math.min(first.longValue(), second.longValue())));
+						first = ParseUtils.getNumber(input, i + 4, splitPos);
+						second = ParseUtils.getNumber(input, splitPos + 1, d);
 					}
+
+					appendMinMax(result, first, second, min);
 					i = d;
 					continue;
 				}
 			}
-			if (c == 'm' && i + 4 < input.length() && input.charAt(i + 1) == 'a' && input.charAt(i + 2) == 'x'
-					&& input.charAt(i + 3) == '(') {
-				int times = 0;
-				int splitPos = 0;
-				int d = i + 4;
-				boolean innerMath = false;
-				for (; d < input.length(); ++d) {
-					char e = input.charAt(d);
-					if (e == '(') {
-						innerMath = true;
-						++times;
-					}
-					if (e == ',' && times == 0)
-						splitPos = d;
-					if (e == ')')
-						if (--times == -1)
-							break;
-				}
-				if (splitPos != 0 && times == -1) {
-					if (innerMath) {
-						String firstPart = null;
-						if (find(input,'(', i + 4, splitPos))
-							firstPart = replaceMath(playerId, input, i + 4, splitPos);
-						String secondPart = null;
-						if (find(input,'(', splitPos + 1, d))
-							secondPart = replaceMath(playerId, input, splitPos + 1, d);
-						Number first = firstPart == null ? ParseUtils.getNumber(input, i + 4, splitPos)
-								: ParseUtils.getNumber(firstPart);
-						Number second = secondPart == null ? ParseUtils.getNumber(input, splitPos + 1, d)
-								: ParseUtils.getNumber(secondPart);
-						if (first instanceof Double || first instanceof Float || second instanceof Double
-								|| second instanceof Float)
-							result.append(StringUtils.formatDouble(FormatType.BASIC,
-									Math.max(first.doubleValue(), second.doubleValue())));
-						else
-							result.append(StringUtils.formatDouble(FormatType.BASIC,
-									Math.max(first.longValue(), second.longValue())));
-					} else {
-						Number first = ParseUtils.getNumber(input, i + 4, splitPos);
-						Number second = ParseUtils.getNumber(input, splitPos + 1, d);
-						if (first instanceof Double || first instanceof Float || second instanceof Double
-								|| second instanceof Float)
-							result.append(StringUtils.formatDouble(FormatType.BASIC,
-									Math.max(first.doubleValue(), second.doubleValue())));
-						else
-							result.append(StringUtils.formatDouble(FormatType.BASIC,
-									Math.max(first.longValue(), second.longValue())));
-					}
-					i = d;
-					continue;
-				}
-			}
-			if (c == 'c' && i + 5 < input.length() && input.charAt(i + 1) == 'a' && input.charAt(i + 2) == 'l'
-					&& input.charAt(i + 3) == 'c' && input.charAt(i + 4) == '(') {
+
+			if (c == 'c' && input.startsWith("calc(", i)) {
 				int times = 0;
 				int d = i + 5;
 				boolean innerMath = false;
-				for (; d < input.length(); ++d) {
+
+				for (; d < end; ++d) {
 					char e = input.charAt(d);
+
 					if (e == '(') {
 						innerMath = true;
 						++times;
-					}
-					if (e == ')')
-						if (--times == -1)
-							break;
+					} else if (e == ')' && --times == -1)
+						break;
 				}
+
 				if (times == -1) {
-					if (innerMath)
-						result.append(StringUtils.formatDouble(FormatType.BASIC,
-								MathUtils.calculate(replaceMath(playerId, input, i + 5, d))));
-					else
-						result.append(StringUtils.formatDouble(FormatType.BASIC, MathUtils.calculate(input, i + 5, d)));
+					double value = innerMath
+							? MathUtils.calculate(replaceMath(playerId, input, i + 5, d))
+									: MathUtils.calculate(input, i + 5, d);
+
+					result.append(StringUtils.formatDouble(FormatType.BASIC, value));
 					i = d;
 					continue;
 				}
 			}
-			if (c == 'u' && i + 4 < input.length() && input.charAt(i + 1) == 's' && input.charAt(i + 2) == 'e'
-					&& input.charAt(i + 3) == 'r' && input.charAt(i + 4) == '(') {
+
+			if (c == 'u' && input.startsWith("user(", i)) {
 				int times = 0;
 				int d = i + 5;
-				for (; d < input.length(); ++d) {
+
+				for (; d < end; ++d) {
 					char e = input.charAt(d);
+
 					if (e == '(')
 						++times;
-					if (e == ')')
-						if (--times == -1)
-							break;
+					else if (e == ')' && --times == -1)
+						break;
 				}
+
 				if (times == -1) {
 					if (user == null)
 						user = API.getUser(playerId);
-					String value = "" + user.getString(input.substring(i + 5, d));
-					result.append(ParseUtils.isNumber(value)
-							? StringUtils.formatDouble(FormatType.BASIC, ParseUtils.getNumber(value).doubleValue())
-									: value);
+
+					String value = String.valueOf(user.getString(input.substring(i + 5, d)));
+					result.append(formatValue(value));
+
 					i = d;
 					continue;
 				}
 			}
-			if (c == 'f' && i + 6 < input.length() && input.charAt(i + 1) == 'o' && input.charAt(i + 2) == 'r'
-					&& input.charAt(i + 3) == 'm' && input.charAt(i + 4) == 'a'&& input.charAt(i + 5) == 't'&& input.charAt(i + 6) == '(') {
+
+			if (c == 'f' && input.startsWith("format(", i)) {
 				int times = 0;
-				int d = i + 6;
-				for (; d < input.length(); ++d) {
+				int d = i + 7;
+
+				for (; d < end; ++d) {
 					char e = input.charAt(d);
+
 					if (e == '(')
 						++times;
-					if (e == ')')
-						if (--times == -1)
-							break;
+					else if (e == ')' && --times == -1)
+						break;
 				}
+
 				if (times == -1) {
-					String value = formatText(input.substring(i + 6, d));
-					result.append(ParseUtils.isNumber(value)
-							? StringUtils.formatDouble(FormatType.BASIC, ParseUtils.getNumber(value).doubleValue())
-									: value);
+					result.append(formatValue(formatText(input.substring(i + 7, d))));
 					i = d;
 					continue;
 				}
 			}
+
 			result.append(c);
 		}
+
 		return result.toString();
 	}
 
-	private static String formatText(String name) {
-		StringContainer container = new StringContainer(name.length());
-		boolean first = true;
-		String[] var3 = name.split("_");
-		int var4 = var3.length;
+	private static void appendMinMax(StringContainer result, Number first, Number second, boolean min) {
+		if (first instanceof Double || first instanceof Float || second instanceof Double || second instanceof Float)
+			result.append(StringUtils.formatDouble(FormatType.BASIC,
+					min ? Math.min(first.doubleValue(), second.doubleValue()) : Math.max(first.doubleValue(), second.doubleValue())));
+		else
+			result.append(StringUtils.formatDouble(FormatType.BASIC,
+					min ? Math.min(first.longValue(), second.longValue()) : Math.max(first.longValue(), second.longValue())));
+	}
 
-		for (int var5 = 0; var5 < var4; ++var5) {
-			String split = var3[var5];
-			if (first) {
-				container.append(split.charAt(0)).append(split.substring(1).toLowerCase());
-				first = false;
-			} else {
-				container.append(' ');
-				if (!"OF".equals(split) && !"THE".equals(split))
-					container.append(split.charAt(0)).append(split.substring(1).toLowerCase());
-				else
-					container.append(split.toLowerCase());
+	private static String formatText(String name) {
+		StringContainer result = new StringContainer(name.length());
+		int start = 0;
+		boolean first = true;
+
+		for (int i = 0; i <= name.length(); ++i) {
+			if (i != name.length() && name.charAt(i) != '_')
+				continue;
+
+			if (i == start) {
+				start = i + 1;
+				continue;
 			}
+
+			if (!first)
+				result.append(' ');
+
+			boolean lower = !first && (equalsRegion(name, start, i, "OF") || equalsRegion(name, start, i, "THE"));
+
+			if (lower)
+				for (int j = start; j < i; ++j)
+					result.append(Character.toLowerCase(name.charAt(j)));
+			else {
+				result.append(name.charAt(start));
+
+				for (int j = start + 1; j < i; ++j)
+					result.append(Character.toLowerCase(name.charAt(j)));
+			}
+
+			first = false;
+			start = i + 1;
 		}
 
-		return container.toString();
+		return result.toString();
+	}
+
+	private static boolean equalsRegion(String input, int start, int end, String value) {
+		return end - start == value.length() && input.regionMatches(start, value, 0, value.length());
 	}
 
 	private static boolean find(String input, char c, int start, int end) {
 		int result = input.indexOf(c, start);
-		return result!=-1 && result<end;
+		return result != -1 && result < end;
 	}
 
 	public static List<Condition> createConditions(List<String> stringConditions) {
-		List<Condition> conditions = new ArrayList<>();
+		List<Condition> conditions = new ArrayList<>(stringConditions.size());
+
 		for (String value : stringConditions) {
 			int splitAt = value.indexOf(':');
-			String conditionName = (splitAt == -1 ? value : value.substring(0, splitAt)).toLowerCase();
-			Condition condition = ConditionManager.createByName(conditionName, splitAt == -1 ? "" : value.substring(splitAt + 1));
-			if(condition!=null)
+			String name = splitAt == -1 ? value : value.substring(0, splitAt);
+			Condition condition = ConditionManager.createByName(name, splitAt == -1 ? "" : value.substring(splitAt + 1));
+
+			if (condition != null)
 				conditions.add(condition);
 			else
-				BukkitLoader.getPlugin(BukkitLoader.class).getLogger().warning("[GuiExpansion] Not found condition " + conditionName);
+				BukkitLoader.getPlugin(BukkitLoader.class).getLogger().warning("[GuiExpansion] Not found condition " + name);
 		}
+
 		return conditions;
 	}
 
 	public static List<Action> createActions(GuiCreator holder, List<String> stringActions) {
-		List<Action> actions = new ArrayList<>();
+		List<Action> actions = new ArrayList<>(stringActions.size());
+
 		for (String value : stringActions) {
 			int splitAt = value.indexOf(':');
-			String actionName = (splitAt == -1 ? value : value.substring(0, splitAt)).toLowerCase();
-			Action action = ActionManager.createByName(actionName, holder, splitAt == -1 ? "" : value.substring(splitAt + 1));
-			if(action!=null)
+			String name = splitAt == -1 ? value : value.substring(0, splitAt);
+			Action action = ActionManager.createByName(name, holder, splitAt == -1 ? "" : value.substring(splitAt + 1));
+
+			if (action != null)
 				actions.add(action);
 			else
-				BukkitLoader.getPlugin(BukkitLoader.class).getLogger().warning("[GuiExpansion] Not found action " + actionName);
+				BukkitLoader.getPlugin(BukkitLoader.class).getLogger().warning("[GuiExpansion] Not found action " + name);
 		}
+
 		return actions;
 	}
 
-	public static void processActions(GuiCreator holder, HolderGUI gui, Player player, Config sharedData, Map<String, Object> placeholders, String actionName) {
+	public static void processActions(GuiCreator holder, HolderGUI gui, Player player, Config sharedData,
+			Map<String, Object> placeholders, String actionName) {
+
 		if (actionName.isEmpty() || "none".equals(actionName))
 			return;
+
 		List<Action> actions = holder.getCustomActions().get(actionName);
-		if (actions == null)
+
+		if (actions == null) {
 			BukkitLoader.getPlugin(BukkitLoader.class).getLogger().warning("[GuiExpansion] Not found customAction " + actionName);
-		else {
-			int pos = 0;
-			for (Action action : actions) {
-				if (action.shouldSync()) {
-					action.runSync(++pos, actions, gui, player, sharedData, placeholders);
-					break;
-				}
-				action.run(gui, player, sharedData, placeholders);
-				++pos;
+			return;
+		}
+
+		for (int i = 0; i < actions.size(); ++i) {
+			Action action = actions.get(i);
+
+			if (action.shouldSync()) {
+				action.runSync(i + 1, actions, gui, player, sharedData, placeholders);
+				return;
 			}
+
+			action.run(gui, player, sharedData, placeholders);
 		}
 	}
 
 	public static int findEndOfPossibleJson(String action, int start) {
-		int times = 0;
-		int i = start;
-		for (; i < action.length(); ++i) {
+		int depth = 0;
+		boolean quoted = false;
+		boolean escaped = false;
+
+		for (int i = start; i < action.length(); ++i) {
 			char c = action.charAt(i);
+
+			if (escaped) {
+				escaped = false;
+				continue;
+			}
+
+			if (quoted && c == '\\') {
+				escaped = true;
+				continue;
+			}
+
+			if (c == '"') {
+				quoted = !quoted;
+				continue;
+			}
+
+			if (quoted)
+				continue;
+
 			if (c == '{')
-				++times;
-			if (c == '}')
-				--times;
-			if (c == ':' && times == 0)
-				break;
+				++depth;
+			else if (c == '}')
+				--depth;
+			else if (c == ':' && depth == 0)
+				return i;
 		}
-		return i;
+
+		return action.length();
 	}
 
 	public static boolean checkForPlaceholders(ItemMaker maker) {
-		boolean placeholders = false;
-		if (maker.getDisplayName() != null)
-			placeholders |= checkForPlaceholders(maker.getDisplayName());
+		if (maker.getDisplayName() != null && checkForPlaceholders(maker.getDisplayName()))
+			return true;
+
 		if (maker.getLore() != null)
 			for (String line : maker.getLore())
-				placeholders |= checkForPlaceholders(line);
-		return placeholders;
+				if (checkForPlaceholders(line))
+					return true;
+
+		return false;
 	}
 
 	public static String replacePlaceholders(String input, Map<String, Object> placeholders, UUID playerId) {
-		if (placeholders != null)
-			for (Entry<String, Object> entry : placeholders.entrySet())
-				input = input.replace('{' + entry.getKey() + '}',
-						entry.getValue() instanceof Number || ParseUtils.isNumber(entry.getValue() + "")
-						? StringUtils.formatDouble(FormatType.BASIC,
-								(entry.getValue() instanceof Number ? (Number) entry.getValue()
-										: ParseUtils.getNumber(entry.getValue() + "")).doubleValue())
-								: entry.getValue() + "");
-		Config data = GuiCreator.sharedData.get(playerId);
-		if(data!=null)
-			for (String key : data.getKeys(true))
-				input = input
-				.replace('[' + key + ']',
-						ParseUtils.isNumber(data.getString(key))
-						? StringUtils.formatDouble(FormatType.BASIC,
-								ParseUtils.getNumber(data.getString(key)).doubleValue())
-								: data.getString(key));
-		return ColorUtils.colorize(Utils.replaceMath(playerId, PlaceholderAPI.apply(input, playerId)));
+		return new ReplaceContext(placeholders, playerId).replace(input);
 	}
 
 	public static boolean checkForPlaceholders(String line) {
-		return line.indexOf('[') != -1 && line.indexOf(']') != -1 || line.indexOf('{') != -1 && line.indexOf('}') != -1
-				|| line.indexOf('(') != -1 && line.indexOf(')') != -1
-				|| line.indexOf('%') != -1 && line.indexOf('%', line.indexOf('%') + 1) != -1;
+		if (line == null)
+			return false;
+
+		if (hasPair(line, '[', ']') || hasPair(line, '{', '}') || hasPercentPlaceholder(line))
+			return true;
+
+		return hasMath(line);
+	}
+
+	public static String replaceLiteral(String input, String target, String replacement) {
+		int at = input.indexOf(target);
+
+		if (at == -1)
+			return input;
+
+		int from = 0;
+		StringBuilder result = new StringBuilder(input.length() + Math.max(0, replacement.length() - target.length()));
+
+		do {
+			result.append(input, from, at).append(replacement);
+			from = at + target.length();
+			at = input.indexOf(target, from);
+		} while (at != -1);
+
+		return result.append(input, from, input.length()).toString();
+	}
+
+	private static boolean hasPair(String input, char start, char end) {
+		int at = input.indexOf(start);
+		return at != -1 && input.indexOf(end, at + 1) != -1;
+	}
+
+	private static boolean hasPercentPlaceholder(String input) {
+		int at = input.indexOf('%');
+		return at != -1 && input.indexOf('%', at + 1) != -1;
+	}
+
+	private static boolean hasMath(String input) {
+		return input.indexOf("min(") != -1 || input.indexOf("max(") != -1
+				|| input.indexOf("calc(") != -1 || input.indexOf("user(") != -1
+				|| input.indexOf("format(") != -1;
+	}
+
+	private static String formatValue(Object value) {
+		String text = String.valueOf(value);
+
+		if (value instanceof Number)
+			return StringUtils.formatDouble(FormatType.BASIC, ((Number) value).doubleValue());
+
+		if (ParseUtils.isNumber(text))
+			return StringUtils.formatDouble(FormatType.BASIC, ParseUtils.getNumber(text).doubleValue());
+
+		return text;
+	}
+
+	private static final class ReplaceContext {
+
+		private final Map<String, Object> placeholders;
+		private final UUID playerId;
+		private final Config data;
+
+		private String[] placeholderKeys;
+		private String[] placeholderValues;
+
+		private String[] dataKeys;
+		private String[] dataValues;
+
+		private boolean placeholdersLoaded;
+		private boolean dataLoaded;
+
+		private ReplaceContext(Map<String, Object> placeholders, UUID playerId) {
+			this.placeholders = placeholders;
+			this.playerId = playerId;
+			this.data = GuiCreator.sharedData.get(playerId);
+		}
+
+		private String replace(String input) {
+			if (input == null)
+				return null;
+
+			if (placeholders != null && hasPair(input, '{', '}')) {
+				loadPlaceholders();
+
+				for (int i = 0; i < placeholderKeys.length; ++i)
+					input = replaceLiteral(input, placeholderKeys[i], placeholderValues[i]);
+			}
+
+			if (data != null && hasPair(input, '[', ']')) {
+				loadData();
+
+				for (int i = 0; i < dataKeys.length; ++i)
+					input = replaceLiteral(input, dataKeys[i], dataValues[i]);
+			}
+
+			if (hasPercentPlaceholder(input))
+				input = PlaceholderAPI.apply(input, playerId);
+
+			if (hasMath(input))
+				input = replaceMath(playerId, input);
+
+			return ColorUtils.colorize(input);
+		}
+
+		private void loadPlaceholders() {
+			if (placeholdersLoaded)
+				return;
+
+			placeholdersLoaded = true;
+
+			int size = placeholders.size();
+			placeholderKeys = new String[size];
+			placeholderValues = new String[size];
+
+			int i = 0;
+
+			for (Entry<String, Object> entry : placeholders.entrySet()) {
+				placeholderKeys[i] = '{' + entry.getKey() + '}';
+				placeholderValues[i] = formatValue(entry.getValue());
+				++i;
+			}
+		}
+
+		private void loadData() {
+			if (dataLoaded)
+				return;
+
+			dataLoaded = true;
+
+			List<String> keys = new ArrayList<>();
+			List<String> values = new ArrayList<>();
+
+			for (String key : data.getKeys(true)) {
+				keys.add('[' + key + ']');
+				values.add(formatValue(data.getString(key)));
+			}
+
+			dataKeys = keys.toArray(new String[keys.size()]);
+			dataValues = values.toArray(new String[values.size()]);
+		}
 	}
 }

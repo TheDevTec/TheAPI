@@ -47,7 +47,7 @@ public class SimpleScore {
 	private ScoreboardAPI getOrCreate(Player player) {
 		ScoreboardAPI a = SimpleScore.scores.get(player.getUniqueId());
 		if (a == null)
-			SimpleScore.scores.put(player.getUniqueId(), a = new ScoreboardAPI(player, Ref.isNewerThan(7) ? 0 : -1));
+			SimpleScore.scores.put(player.getUniqueId(), a = new ScoreboardAPI(player, Ref.isAtLeast(8, 0) ? 0 : -1));
 		return a;
 	}
 }

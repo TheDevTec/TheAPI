@@ -36,7 +36,7 @@ import me.devtec.shared.Ref;
 import me.devtec.shared.Ref.ServerType;
 import me.devtec.shared.annotations.Nonnull;
 import me.devtec.shared.annotations.Nullable;
-import me.devtec.shared.components.Component;
+import me.devtec.shared.components.base.Component;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.dataholder.Config;
 import me.devtec.shared.json.Json;
@@ -167,7 +167,7 @@ public class ItemMaker implements Cloneable {
 		if (lore != null)
 			meta.setLore(lore);
 
-		if (Ref.isNewerThan(19) && trimMaterial != null && trimPattern != null && meta instanceof ArmorMeta) {
+		if (Ref.isAtLeast(20, 0) && trimMaterial != null && trimPattern != null && meta instanceof ArmorMeta) {
 			ArmorMeta armorMeta = (ArmorMeta) meta;
 			TrimMaterial trimMaterial = (TrimMaterial) Ref.getStatic(TrimMaterial.class,
 					this.trimMaterial.toUpperCase());
@@ -177,7 +177,7 @@ public class ItemMaker implements Cloneable {
 		}
 
 		if (enchantedGlow)
-			if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 4)
+			if (Ref.isAtLeast(21, 0) || Ref.version() == 20 && Ref.release() >= 4)
 				meta.setEnchantmentGlintOverride(true);
 			else {
 				if (itemFlags != null) {
@@ -203,10 +203,10 @@ public class ItemMaker implements Cloneable {
 				}
 			meta.addItemFlags(flags.toArray(new ItemFlag[0]));
 		}
-		if (Ref.isNewerThan(13) && customModel != 0)
+		if (Ref.isAtLeast(14, 0) && customModel != 0)
 			meta.setCustomModelData(customModel);
 		if (unbreakable)
-			if (Ref.isNewerThan(10))
+			if (Ref.isAtLeast(11, 0))
 				meta.setUnbreakable(true);
 			else
 				try {
@@ -353,7 +353,7 @@ public class ItemMaker implements Cloneable {
 
 		if (material.name().contains("BANNER")) {
 			BannerMeta banner = (BannerMeta) meta;
-			if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 4)
+			if (Ref.isAtLeast(21, 0) || Ref.version() == 20 && Ref.release() >= 4)
 				maker = ofBanner(BannerColor.fromType(xmaterial));
 			else {
 				Object color = Ref.invoke(banner, getBaseColor);
@@ -376,7 +376,7 @@ public class ItemMaker implements Cloneable {
 		} else if (xmaterial == XMaterial.PLAYER_HEAD) {
 			SkullMeta skull = (SkullMeta) meta;
 			maker = ofHead();
-			if (Ref.isNewerThan(16) && Ref.serverType() == ServerType.PAPER) {
+			if (Ref.isAtLeast(17, 0) && Ref.type() == ServerType.PAPER) {
 				Object profile = Ref.invoke(skull, getPlayerProfile);
 				Collection<?> properties = (Collection<?>) Ref.invoke(profile, getProperties);
 				for (Object property : properties)
@@ -384,7 +384,7 @@ public class ItemMaker implements Cloneable {
 						((HeadItemMaker) maker).skinValues((String) Ref.invoke(property, getValue));
 						break;
 					}
-			} else if (Ref.isNewerThan(17)) {
+			} else if (Ref.isAtLeast(18, 0)) {
 				Object profile = skull.getOwnerProfile();
 				@SuppressWarnings("unchecked")
 				Multimap<String, Object> props = (Multimap<String, Object>) Ref.get(profile, SKIN_PROPERTIES);
@@ -417,7 +417,7 @@ public class ItemMaker implements Cloneable {
 
 			if (!effects.isEmpty())
 				((PotionItemMaker) maker).potionEffects(effects);
-			if (Ref.isNewerThan(10))
+			if (Ref.isAtLeast(11, 0))
 				if (potion.getColor() != null)
 					((PotionItemMaker) maker).color(potion.getColor());
 		} else if (xmaterial == XMaterial.WRITTEN_BOOK || xmaterial == XMaterial.WRITABLE_BOOK) {
@@ -425,7 +425,7 @@ public class ItemMaker implements Cloneable {
 			maker = xmaterial == XMaterial.WRITTEN_BOOK ? ofBook() : ofWritableBook();
 			if (book.getAuthor() != null)
 				((BookItemMaker) maker).rawAuthor(book.getAuthor());
-			if (Ref.isNewerThan(9))
+			if (Ref.isAtLeast(10, 0))
 				((BookItemMaker) maker).generation(book.getGeneration() == null ? null : book.getGeneration().name());
 			((BookItemMaker) maker).rawTitle(book.getTitle());
 			if (!book.getPages().isEmpty())
@@ -441,14 +441,14 @@ public class ItemMaker implements Cloneable {
 		} else if (meta.hasEnchants())
 			for (Entry<Enchantment, Integer> enchant : meta.getEnchants().entrySet())
 				enchant(enchant.getKey(), enchant.getValue());
-		if (Ref.isNewerThan(19) && meta instanceof ArmorMeta) {
+		if (Ref.isAtLeast(20, 0) && meta instanceof ArmorMeta) {
 			ArmorMeta armorMeta = (ArmorMeta) meta;
 			if (armorMeta.hasTrim()) {
 				trimMaterial(armorMeta.getTrim().getMaterial().getKey().getKey());
 				trimPattern(armorMeta.getTrim().getPattern().getKey().getKey());
 			}
 		}
-		if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 4)
+		if (Ref.isAtLeast(21, 0) || Ref.version() == 20 && Ref.release() >= 4)
 			if (meta.hasEnchantmentGlintOverride())
 				maker.enchanted();
 		if (meta.hasDisplayName())
@@ -456,7 +456,7 @@ public class ItemMaker implements Cloneable {
 		if (meta.hasLore() && !meta.getLore().isEmpty())
 			maker.rawLore(meta.getLore());
 		// Unbreakable
-		if (Ref.isNewerThan(10)) { // 1.11+
+		if (Ref.isAtLeast(11, 0)) { // 1.11+
 			if (meta.isUnbreakable())
 				maker.unbreakable(true);
 		} else if ((boolean) Ref.invoke(Ref.invoke(meta, "spigot"), "isUnbreakable"))
@@ -472,7 +472,7 @@ public class ItemMaker implements Cloneable {
 		if (!flags.isEmpty())
 			maker.itemFlags(flags);
 		// Modeldata
-		if (Ref.isNewerThan(13)) { // 1.14+
+		if (Ref.isAtLeast(14, 0)) { // 1.14+
 			int modelData = meta.hasCustomModelData() ? meta.getCustomModelData() : 0;
 			if (modelData != 0)
 				maker.customModel(modelData);
@@ -506,7 +506,7 @@ public class ItemMaker implements Cloneable {
 	public ItemStack build() {
 		if (material == null)
 			throw new IllegalArgumentException("Material cannot be null");
-		ItemStack item = data != 0 && Ref.isOlderThan(13) ? new ItemStack(material, amount, (short) 0, data)
+		ItemStack item = data != 0 && Ref.isBefore(13, 0) ? new ItemStack(material, amount, (short) 0, data)
 				: new ItemStack(material, amount);
 		if (damage != 0)
 			item.setDurability(damage);
@@ -580,7 +580,7 @@ public class ItemMaker implements Cloneable {
 			return null; // invalid item
 		ItemMaker maker = of(stack.getType());
 
-		if (Ref.isOlderThan(13) && stack.getData() != null)
+		if (Ref.isBefore(13, 0) && stack.getData() != null)
 			maker.data(stack.getData().getData());
 
 		ItemMeta meta = stack.getItemMeta();
@@ -659,7 +659,7 @@ public class ItemMaker implements Cloneable {
 			if (meta.getLore() != null && !meta.getLore().isEmpty())
 				config.set(path + "lore", meta.getLore());
 
-			if (Ref.isNewerThan(10)) { // 1.11+
+			if (Ref.isAtLeast(11, 0)) { // 1.11+
 				if (meta.isUnbreakable())
 					config.set(path + "unbreakable", true);
 			} else if ((boolean) Ref.invoke(Ref.invoke(meta, "spigot"), "isUnbreakable"))
@@ -668,7 +668,7 @@ public class ItemMaker implements Cloneable {
 				} catch (NoSuchFieldError | Exception e2) {
 					// unsupported
 				}
-			if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 4)
+			if (Ref.isAtLeast(21, 0) || Ref.version() == 20 && Ref.release() >= 4)
 				if (meta.hasEnchantmentGlintOverride())
 					config.set(path + "enchanted", true);
 			List<String> flags = new ArrayList<>();
@@ -676,12 +676,12 @@ public class ItemMaker implements Cloneable {
 				flags.add(flag.name());
 			if (!flags.isEmpty())
 				config.set(path + "itemFlags", flags);
-			if (Ref.isNewerThan(13)) { // 1.14+
+			if (Ref.isAtLeast(14, 0)) { // 1.14+
 				int modelData = meta.hasCustomModelData() ? meta.getCustomModelData() : 0;
 				if (modelData != 0)
 					config.set(path + "modelData", modelData);
 			}
-			if (Ref.isNewerThan(19) && meta instanceof ArmorMeta) {
+			if (Ref.isAtLeast(20, 0) && meta instanceof ArmorMeta) {
 				ArmorMeta armorMeta = (ArmorMeta) meta;
 				if (armorMeta.hasTrim()) {
 					config.set(path + "trimMaterial", armorMeta.getTrim().getMaterial().getKey().getKey());
@@ -719,7 +719,7 @@ public class ItemMaker implements Cloneable {
 				config.set(path + "leather.color", "#" + (hex.length() > 6 ? hex.substring(2) : hex));
 			} else if (type == XMaterial.PLAYER_HEAD && meta instanceof SkullMeta) {
 				SkullMeta skull = (SkullMeta) meta;
-				if (Ref.isNewerThan(16) && Ref.serverType() == ServerType.PAPER) {
+				if (Ref.isAtLeast(17, 0) && Ref.type() == ServerType.PAPER) {
 					Object profile = Ref.invoke(skull, getPlayerProfile);
 					Collection<?> properties = (Collection<?>) Ref.invoke(profile, getProperties);
 					for (Object property : properties)
@@ -728,7 +728,7 @@ public class ItemMaker implements Cloneable {
 							config.set(path + "head.type", "VALUES");
 							break;
 						}
-				} else if (Ref.isNewerThan(17)) {
+				} else if (Ref.isAtLeast(18, 0)) {
 					Object profile = skull.getOwnerProfile();
 					@SuppressWarnings("unchecked")
 					Multimap<String, Object> props = (Multimap<String, Object>) Ref.get(profile, SKIN_PROPERTIES);
@@ -761,7 +761,7 @@ public class ItemMaker implements Cloneable {
 					+ ":" + effect.isAmbient() + ":" + effect.hasParticles());
 				if (!effects.isEmpty())
 					config.set(path + "potion.effects", effects);
-				if (Ref.isNewerThan(10) && potion.getColor() != null) {
+				if (Ref.isAtLeast(11, 0) && potion.getColor() != null) {
 					String hex = Integer.toHexString(potion.getColor().asRGB());
 					config.set(path + "potion.color", "#" + (hex.length() > 6 ? hex.substring(2) : hex));
 				}
@@ -779,7 +779,7 @@ public class ItemMaker implements Cloneable {
 			if ((type == XMaterial.WRITTEN_BOOK || type == XMaterial.WRITABLE_BOOK) && meta instanceof BookMeta) {
 				BookMeta book = (BookMeta) meta;
 				config.set(path + "book.author", book.getAuthor());
-				if (Ref.isNewerThan(9))
+				if (Ref.isAtLeast(10, 0))
 					config.set(path + "book.generation",
 							book.getGeneration() == null ? null : book.getGeneration().name());
 				config.set(path + "book.title", book.getTitle());

@@ -2,6 +2,7 @@ package me.devtec.theapi.bukkit.game.particles;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,8 +36,9 @@ public class Particle {
 	private static Constructor<?> paramDust;
 	private static Constructor<?> paramBlock;
 	private static Constructor<?> paramItem;
-	private static final Constructor<?> vector = Ref.constructor(Ref.getClass(BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "org.joml.Vector3f" : "com.mojang.math.Vector3fa"), float.class, float.class,
-			float.class);
+	private static final Constructor<?> vector = Ref.constructor(
+			Ref.getClass(BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "org.joml.Vector3f" : "com.mojang.math.Vector3fa"),
+			float.class, float.class, float.class);
 	private static final Class<?> particlePacket;
 
 	@Getter
@@ -45,27 +47,23 @@ public class Particle {
 	private final ParticleData data;
 
 	static {
-		particlePacket = Ref.nms("network.protocol.game", BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "ClientboundLevelParticlesPacket" : "PacketPlayOutWorldParticles");
-		if (Ref.nms("core.particles", BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "ColorParticleOption" : "ParticleParamRedstone") != null) {
-			Constructor<?>[] constructors = Ref.getDeclaredConstructors(Ref.nms("core.particles", BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "ColorParticleOption" : "ParticleParamRedstone"));
-			if (constructors.length == 0) {
-				constructors = Ref.getConstructors(Ref.nms("core.particles", BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "ColorParticleOption" : "ParticleParamRedstone"));
-			}
-			Particle.paramRed = constructors[0];
-			constructors = Ref.getDeclaredConstructors(Ref.nms("core.particles", BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "BlockParticleOption" : "ParticleParamBlock"));
-			if (constructors.length == 0) {
-				constructors = Ref.getConstructors(Ref.nms("core.particles", BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "BlockParticleOption" : "ParticleParamBlock"));
-			}
-			Particle.paramBlock = constructors[0];
-			constructors = Ref.getDeclaredConstructors(Ref.nms("core.particles", BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "ItemParticleOption" : "ParticleParamItem"));
-			if (constructors.length == 0) {
-				constructors = Ref.getConstructors(Ref.nms("core.particles", BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "ItemParticleOption" : "ParticleParamItem"));
-			}
-			Particle.paramItem = constructors[0];
+		particlePacket = Ref.nms("network.protocol.game",
+				BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "ClientboundLevelParticlesPacket"
+						: "PacketPlayOutWorldParticles");
+		if (Ref.nms("core.particles",
+				BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "ColorParticleOption" : "ParticleParamRedstone") != null) {
+			List<Constructor<?>> constructors = Ref.constructors(Ref.nms("core.particles",
+					BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "ColorParticleOption" : "ParticleParamRedstone"));
+			Particle.paramRed = constructors.get(0);
+			constructors = Ref.constructors(Ref.nms("core.particles",
+					BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "BlockParticleOption" : "ParticleParamBlock"));
+			Particle.paramBlock = constructors.get(0);
+			constructors = Ref.constructors(Ref.nms("core.particles",
+					BukkitLoader.NO_OBFUSCATED_NMS_MODE ? "ItemParticleOption" : "ParticleParamItem"));
+			Particle.paramItem = constructors.get(0);
 		}
-		if (Ref.isNewerThan(16)) {
-			Particle.paramDust = Ref.getConstructors(Ref.nms("core.particles", "DustColorTransitionOptions"))[0];
-		}
+		if (Ref.isAtLeast(17, 0))
+			Particle.paramDust = Ref.constructors(Ref.nms("core.particles", "DustColorTransitionOptions")).get(0);
 		if (BukkitLoader.NO_OBFUSCATED_NMS_MODE) {
 			x = Ref.field(particlePacket, "x");
 			y = Ref.field(particlePacket, "y");
@@ -78,8 +76,8 @@ public class Particle {
 			overrideLimiter = Ref.field(particlePacket, "overrideLimiter");
 			particleOptions = Ref.field(particlePacket, "particle");
 			particleType = null;
-		} else if (Ref.isNewerThan(12)) {
-			if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 4) {
+		} else if (Ref.isAtLeast(13, 0)) {
+			if (Ref.isAtLeast(21, 0) || Ref.version() == 20 && Ref.release() >= 4) {
 				x = Ref.field(particlePacket, "b");
 				y = Ref.field(particlePacket, "c");
 				z = Ref.field(particlePacket, "d");
@@ -123,7 +121,8 @@ public class Particle {
 	}
 
 	private static Object toNMS(String particle) {
-		return Particle.identifier.getOrDefault(particle.toLowerCase(), Particle.identifier.get("minecraft:" + particle.toLowerCase()));
+		return Particle.identifier.getOrDefault(particle.toLowerCase(),
+				Particle.identifier.get("minecraft:" + particle.toLowerCase()));
 	}
 
 	public Particle(String particle) {
@@ -132,11 +131,10 @@ public class Particle {
 
 	public Particle(String particle, ParticleData data) {
 		name = particle.toLowerCase();
-		if (!Ref.isOlderThan(8)) {
+		if (!Ref.isBefore(8, 0))
 			this.particle = Particle.toNMS(particle);
-		} else {
+		else
 			this.particle = name;
-		}
 		this.data = data;
 	}
 
@@ -180,7 +178,7 @@ public class Particle {
 		Ref.set(packet, Particle.z, z);
 		Ref.set(packet, Particle.maxSpeed, speed);
 		Ref.set(packet, Particle.count, amount);
-		if (Ref.isOlderThan(8)) { // 1.7.10
+		if (Ref.isBefore(8, 0)) { // 1.7.10
 			if (data != null) {
 				if (data instanceof RedstoneOptions || data instanceof NoteOptions) {
 					Ref.set(packet, Particle.xDist, data.getValueX());
@@ -188,13 +186,13 @@ public class Particle {
 					Ref.set(packet, Particle.zDist, data.getValueZ());
 					Ref.set(packet, particleType, name);
 				} else {
-					int[] packetData = data instanceof BlockOptions ? ((BlockOptions) data).getPacketData() : ((ItemOptions) data).getPacketData();
+					int[] packetData = data instanceof BlockOptions ? ((BlockOptions) data).getPacketData()
+							: ((ItemOptions) data).getPacketData();
 					Ref.set(packet, particleType, name + "_" + packetData[0] + "_" + packetData[1]);
 				}
-			} else {
+			} else
 				Ref.set(packet, particleType, name);
-			}
-		} else if (Ref.isOlderThan(13)) { // 1.8 - 1.12.2
+		} else if (Ref.isBefore(13, 0)) { // 1.8 - 1.12.2
 			Ref.set(packet, particleType, particle);
 			if (data != null) {
 				if (data instanceof NoteOptions || data instanceof RedstoneOptions) {
@@ -202,14 +200,15 @@ public class Particle {
 					Ref.set(packet, Particle.yDist, data.getValueY());
 					Ref.set(packet, Particle.zDist, data.getValueZ());
 				} else {
-					int[] packetData = data instanceof BlockOptions ? ((BlockOptions) data).getPacketData() : ((ItemOptions) data).getPacketData();
+					int[] packetData = data instanceof BlockOptions ? ((BlockOptions) data).getPacketData()
+							: ((ItemOptions) data).getPacketData();
 					Ref.set(packet, Particle.particleOptions,
-							"CRACK_ITEM".equalsIgnoreCase(name) || "ITEM_CRACK".equalsIgnoreCase(name) || "ITEM".equalsIgnoreCase(name) || "ITEM_TAKE".equalsIgnoreCase(name) ? packetData
-									: new int[] { packetData[0] | packetData[1] << 12 });
+							"CRACK_ITEM".equalsIgnoreCase(name) || "ITEM_CRACK".equalsIgnoreCase(name)
+									|| "ITEM".equalsIgnoreCase(name) || "ITEM_TAKE".equalsIgnoreCase(name) ? packetData
+											: new int[] { packetData[0] | packetData[1] << 12 });
 				}
-			} else {
+			} else
 				Ref.set(packet, Particle.particleOptions, new int[0]);
-			}
 		} else {
 
 			Object jValue = particle;
@@ -221,18 +220,27 @@ public class Particle {
 				}
 				if (data instanceof RedstoneOptions) {
 					RedstoneOptions d = (RedstoneOptions) data;
-					jValue = Ref.isNewerThan(16)
+					jValue = Ref.isAtLeast(17, 0)
 							? "dust_color_transition".equalsIgnoreCase(name)
-									? Ref.newInstance(Particle.paramDust, Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(), d.getValueZ()),
-											Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize())
-									: Ref.newInstance(Particle.paramRed, Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(), d.getValueZ()), d.getSize())
-							: Ref.newInstance(Particle.paramRed, d.getValueX(), d.getValueY(), d.getValueZ(), d.getSize());
+									? Ref.newInstance(Particle.paramDust,
+											Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(),
+													d.getValueZ()),
+											Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(),
+													d.getValueZ()),
+											d.getSize())
+									: Ref.newInstance(Particle.paramRed,
+											Ref.newInstance(Particle.vector, d.getValueX(), d.getValueY(),
+													d.getValueZ()),
+											d.getSize())
+							: Ref.newInstance(Particle.paramRed, d.getValueX(), d.getValueY(), d.getValueZ(),
+									d.getSize());
 				} else if (data instanceof BlockOptions) {
 					BlockOptions a = (BlockOptions) data;
 					jValue = Ref.newInstance(Particle.paramBlock, particle, a.getType().getIBlockData());
 				} else if (data instanceof ItemOptions) {
 					ItemOptions a = (ItemOptions) data;
-					jValue = Ref.newInstance(Particle.paramItem, particle, BukkitLoader.getNmsProvider().asNMSItem(a.getItem()));
+					jValue = Ref.newInstance(Particle.paramItem, particle,
+							BukkitLoader.getNmsProvider().asNMSItem(a.getItem()));
 				}
 			}
 			Ref.set(packet, Particle.particleOptions, jValue);
@@ -244,9 +252,8 @@ public class Particle {
 	public int hashCode() {
 		int hash = 22;
 		hash = hash * 22 + particle.hashCode();
-		if (data != null) {
+		if (data != null)
 			hash = hash * 22 + data.hashCode();
-		}
 		return hash * 22 + name.hashCode();
 	}
 }

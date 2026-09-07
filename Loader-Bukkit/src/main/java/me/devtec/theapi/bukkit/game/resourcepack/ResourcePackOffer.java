@@ -6,7 +6,7 @@ import java.security.MessageDigest;
 import java.util.Optional;
 
 import lombok.Getter;
-import me.devtec.shared.components.Component;
+import me.devtec.shared.components.base.Component;
 
 public class ResourcePackOffer {
     private static final char[] HEXDUMP_TABLE = new char[256 * 4];

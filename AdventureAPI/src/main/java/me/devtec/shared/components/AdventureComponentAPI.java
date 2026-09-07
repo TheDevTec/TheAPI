@@ -6,6 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import me.devtec.shared.Ref;
+import me.devtec.shared.components.base.Component;
+import me.devtec.shared.components.base.ComponentEntity;
+import me.devtec.shared.components.base.ComponentItem;
+import me.devtec.shared.components.decorations.ClickEvent;
+import me.devtec.shared.components.decorations.HoverEvent;
 import me.devtec.shared.utility.ParseUtils;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.api.BinaryTagHolder;
@@ -55,30 +60,32 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 
 		if (value.hoverEvent() != null)
 			if (value.hoverEvent().action() == Action.SHOW_TEXT
-			|| value.hoverEvent().action() == Action.SHOW_ACHIEVEMENT)
+					|| value.hoverEvent().action() == Action.SHOW_ACHIEVEMENT)
 				sub.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
 						toComponent((net.kyori.adventure.text.Component) value.hoverEvent().value())));
 			else if (value.hoverEvent().action() == Action.SHOW_ENTITY) {
 				ShowEntity show = (ShowEntity) value.hoverEvent().value();
 				sub.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ENTITY,
 						new ComponentEntity(show.type().asString(), show.id())
-						.setName(show.name() == null ? null : convert(show.name()))));
+								.setName(show.name() == null ? null : convert(show.name()))));
 			} else if (value.hoverEvent().action() == Action.SHOW_ITEM) {
 				ShowItem show = (ShowItem) value.hoverEvent().value();
 				sub.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM,
 						new ComponentItem(show.item().asString(), show.count())
-						.setNbt(show.nbt() == null ? null : show.nbt().string())));
+								.setNbt(show.nbt() == null ? null : show.nbt().string())));
 			}
-		if (value.clickEvent() != null){
-			me.devtec.shared.components.ClickEvent.Action event = ClickEvent.Action.valueOf(value.clickEvent().action().name());
-			switch(event){
+		if (value.clickEvent() != null) {
+			ClickEvent.Action event = ClickEvent.Action.valueOf(value.clickEvent().action().name());
+			switch (event) {
 			case CHANGE_PAGE:
 				sub.setClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE,
-						useLegacy ? (String)Ref.invoke(value.clickEvent(), getValue) : Ref.invoke(Ref.invoke(value.clickEvent(), getPayload), getInteger)+""));
+						useLegacy ? (String) Ref.invoke(value.clickEvent(), getValue)
+								: Ref.invoke(Ref.invoke(value.clickEvent(), getPayload), getInteger) + ""));
 				break;
 			default:
 				sub.setClickEvent(new ClickEvent(ClickEvent.Action.CHANGE_PAGE,
-						useLegacy ? (String)Ref.invoke(value.clickEvent(), getValue) : (String)Ref.invoke(Ref.invoke(value.clickEvent(), getPayload), getTextValue)));
+						useLegacy ? (String) Ref.invoke(value.clickEvent(), getValue)
+								: (String) Ref.invoke(Ref.invoke(value.clickEvent(), getPayload), getTextValue)));
 				break;
 			}
 		}
@@ -88,12 +95,17 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 
 	private static Method getPayload = Ref.method(net.kyori.adventure.text.event.ClickEvent.class, "payload");
 	private static Method getValue = Ref.method(net.kyori.adventure.text.event.ClickEvent.class, "value");
-	private static boolean useLegacy = getPayload==null;
-	private static Method getInteger = Ref.method(Ref.getClass("net.kyori.adventure.text.event.ClickEvent$Payload.Int"), "integer");
-	private static Method getTextValue = Ref.method(Ref.getClass("net.kyori.adventure.text.event.ClickEvent$Payload.Text"), "value");
-	private static Method createIntegerPayload = Ref.method(Ref.getClass("net.kyori.adventure.text.event.ClickEvent$Payload"), "integer", int.class);
-	private static Method createTextPayload = Ref.method(Ref.getClass("net.kyori.adventure.text.event.ClickEvent$Payload"), "string", String.class);
-	private static Method createClickEvent = Ref.findMethodByName(net.kyori.adventure.text.event.ClickEvent.class, "clickEvent");
+	private static boolean useLegacy = getPayload == null;
+	private static Method getInteger = Ref.method(Ref.getClass("net.kyori.adventure.text.event.ClickEvent$Payload.Int"),
+			"integer");
+	private static Method getTextValue = Ref
+			.method(Ref.getClass("net.kyori.adventure.text.event.ClickEvent$Payload.Text"), "value");
+	private static Method createIntegerPayload = Ref
+			.method(Ref.getClass("net.kyori.adventure.text.event.ClickEvent$Payload"), "integer", int.class);
+	private static Method createTextPayload = Ref
+			.method(Ref.getClass("net.kyori.adventure.text.event.ClickEvent$Payload"), "string", String.class);
+	private static Method createClickEvent = Ref.findMethodByName(net.kyori.adventure.text.event.ClickEvent.class,
+			"clickEvent");
 
 	@Override
 	public net.kyori.adventure.text.Component fromComponent(Component component) {
@@ -127,16 +139,20 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 		if (component.isStrikethrough())
 			style = style.decorate(TextDecoration.STRIKETHROUGH);
 		if (component.getClickEvent() != null)
-			switch(component.getClickEvent().getAction()){
+			switch (component.getClickEvent().getAction()) {
 			case CHANGE_PAGE:
-				style = style
-				.clickEvent((net.kyori.adventure.text.event.ClickEvent)Ref.invokeStatic(createClickEvent, net.kyori.adventure.text.event.ClickEvent.Action.CHANGE_PAGE,
-						useLegacy ? component.getClickEvent().getValue() : Ref.invokeStatic(createIntegerPayload, ParseUtils.getInt(component.getClickEvent().getValue()))));
+				style = style.clickEvent((net.kyori.adventure.text.event.ClickEvent) Ref.invokeStatic(createClickEvent,
+						net.kyori.adventure.text.event.ClickEvent.Action.CHANGE_PAGE,
+						useLegacy ? component.getClickEvent().getValue()
+								: Ref.invokeStatic(createIntegerPayload,
+										ParseUtils.getInt(component.getClickEvent().getValue()))));
 				break;
 			default:
-				style = style
-				.clickEvent((net.kyori.adventure.text.event.ClickEvent)Ref.invokeStatic(createClickEvent, net.kyori.adventure.text.event.ClickEvent.Action.NAMES.value(component.getClickEvent().getAction().name().toLowerCase()),
-						useLegacy ? component.getClickEvent().getValue() : Ref.invokeStatic(createTextPayload, component.getClickEvent().getValue())));
+				style = style.clickEvent((net.kyori.adventure.text.event.ClickEvent) Ref.invokeStatic(createClickEvent,
+						net.kyori.adventure.text.event.ClickEvent.Action.NAMES
+								.value(component.getClickEvent().getAction().name().toLowerCase()),
+						useLegacy ? component.getClickEvent().getValue()
+								: Ref.invokeStatic(createTextPayload, component.getClickEvent().getValue())));
 				break;
 			}
 		if (component.getHoverEvent() != null)
@@ -148,7 +164,7 @@ public class AdventureComponentAPI<T> implements ComponentTransformer<net.kyori.
 		style = style.color(component.getColor() != null
 				? component.getColor().startsWith("#") ? TextColor.fromHexString(component.getColor())
 						: NamedTextColor.NAMES.value(component.getColor().toLowerCase())
-						: null);
+				: null);
 		return net.kyori.adventure.text.Component.text(component.getText() == null ? "" : component.getText(), style);
 	}
 

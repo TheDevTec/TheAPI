@@ -44,12 +44,13 @@ import com.mojang.authlib.properties.Property;
 import io.netty.channel.Channel;
 import me.devtec.shared.Pair;
 import me.devtec.shared.Ref;
-import me.devtec.shared.components.ClickEvent;
-import me.devtec.shared.components.Component;
+import me.devtec.theapi.bukkit.nms.NmsReflection;
+import me.devtec.shared.components.decorations.ClickEvent;
+import me.devtec.shared.components.base.Component;
 import me.devtec.shared.components.ComponentAPI;
-import me.devtec.shared.components.ComponentEntity;
-import me.devtec.shared.components.ComponentItem;
-import me.devtec.shared.components.HoverEvent;
+import me.devtec.shared.components.base.ComponentEntity;
+import me.devtec.shared.components.base.ComponentItem;
+import me.devtec.shared.components.decorations.HoverEvent;
 import me.devtec.shared.events.EventManager;
 import me.devtec.shared.json.Json;
 import me.devtec.theapi.bukkit.BukkitLoader;
@@ -1705,7 +1706,7 @@ public class v1_12_R1 implements NmsProvider {
 	private static final Field playerInfo = Ref.field(PacketPlayOutPlayerInfo.class, "b");
 
 	private static final Constructor<?> infoData = Ref.constructor(
-			Ref.nms("", "PacketPlayOutPlayerInfo$PlayerInfoData"), PacketPlayOutPlayerInfo.class, GameProfile.class,
+			NmsReflection.nms("", "PacketPlayOutPlayerInfo$PlayerInfoData"), PacketPlayOutPlayerInfo.class, GameProfile.class,
 			int.class, EnumGamemode.class, IChatBaseComponent.class);
 
 	@SuppressWarnings("unchecked")

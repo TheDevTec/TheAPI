@@ -26,7 +26,7 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 
 @SuppressWarnings("unchecked")
 public class BukkitCommandManager implements CommandsRegister {
-    private static final Method syncCommands = Ref.isNewerThan(12) ? Ref.method(Ref.craft("CraftServer"), "syncCommands") : null;
+    private static final Method syncCommands = Ref.isAtLeast(13, 0) ? Ref.method(Ref.craft("CraftServer"), "syncCommands") : null;
     public static CommandMap cmdMap;
     public static Map<String, Command> knownCommands;
 

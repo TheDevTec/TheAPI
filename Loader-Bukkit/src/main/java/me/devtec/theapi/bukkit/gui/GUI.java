@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.devtec.shared.Ref;
-import me.devtec.shared.components.Component;
+import me.devtec.shared.components.base.Component;
 import me.devtec.shared.components.ComponentAPI;
 import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.utility.ColorUtils;
@@ -114,7 +114,7 @@ public class GUI implements HolderGUI {
 
 	public GUI(String original, int originalSize, Player... p) {
 		title = ColorUtils.colorize(original);
-		if (Ref.isOlderThan(9) && title.length() >= 32) {
+		if (Ref.isBefore(9, 0) && title.length() >= 32) {
 			title = title.substring(0, 32);
 		}
 		titleComp = Component.fromString(title);
@@ -306,7 +306,7 @@ public class GUI implements HolderGUI {
 	@Override
 	public final void setTitle(String newTitle) {
 		String value = ColorUtils.colorize(newTitle);
-		if (Ref.isOlderThan(9) && value.length() >= 32) {
+		if (Ref.isBefore(9, 0) && value.length() >= 32) {
 			value = value.substring(0, 32);
 		}
 		if (title.equals(value)) {

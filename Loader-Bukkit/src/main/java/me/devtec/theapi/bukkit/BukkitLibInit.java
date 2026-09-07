@@ -43,6 +43,7 @@ import me.devtec.shared.json.Json.DataReader;
 import me.devtec.shared.json.Json.DataWriter;
 import me.devtec.shared.mcmetrics.GatheringInfoManager;
 import me.devtec.shared.mcmetrics.Metrics;
+import me.devtec.shared.messaging.Messenger;
 import me.devtec.shared.utility.ColorUtils;
 import me.devtec.shared.utility.ColorUtils.ColormaticFactory;
 import me.devtec.shared.utility.LibraryLoader;
@@ -172,16 +173,20 @@ public class BukkitLibInit {
 
 	public static void initTheAPI() {
 		try {
-			Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null ? Ref.getClass("net.kyori.adventure.Adventure") != null ? ServerType.PAPER : ServerType.SPIGOT : ServerType.BUKKIT,
-					Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]);
+			Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null
+					? Ref.getClass("net.kyori.adventure.Adventure") != null ? ServerType.PAPER : ServerType.SPIGOT
+					: ServerType.BUKKIT, Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]);
 		} catch (Exception e) {
 			// Paper 1.20.5+
-			String version = (String) Ref.invoke(Bukkit.getServer(),"getMinecraftVersion");
+			String version = (String) Ref.invoke(Bukkit.getServer(), "getMinecraftVersion");
 			Version ver = VersionUtils.getVersion(version, "1.20.5");
 			if (ver == Version.SAME_VERSION || ver == Version.NEWER_VERSION)
-				Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null ? Ref.getClass("net.kyori.adventure.Adventure") != null ? ServerType.PAPER : ServerType.SPIGOT : ServerType.BUKKIT,
-						version);
+				Ref.init(Ref.getClass("net.md_5.bungee.api.ChatColor") != null
+						? Ref.getClass("net.kyori.adventure.Adventure") != null ? ServerType.PAPER : ServerType.SPIGOT
+						: ServerType.BUKKIT, version);
 		}
+
+		Messenger.init(new BukkitMessengerProvider());
 
 		Metrics.gatheringInfoManager = new GatheringInfoManager() {
 
@@ -222,7 +227,8 @@ public class BukkitLibInit {
 
 			@Override
 			public BiConsumer<String, Throwable> getErrorLogger() {
-				return (msg, error) -> JavaPlugin.getPlugin(BukkitLoader.class).getLogger().log(Level.WARNING, msg, error);
+				return (msg, error) -> JavaPlugin.getPlugin(BukkitLoader.class).getLogger().log(Level.WARNING, msg,
+						error);
 			}
 		};
 
@@ -230,10 +236,12 @@ public class BukkitLibInit {
 		registerWriterAndReaders();
 
 		// version
-		if (Ref.serverType() != ServerType.BUKKIT) {
-			ComponentAPI.registerTransformer("BUNGEECORD", (ComponentTransformer<?>) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.BungeeComponentAPI")));
-			if (Ref.serverType() == ServerType.PAPER)
-				ComponentAPI.registerTransformer("ADVENTURE", (ComponentTransformer<?>) Ref.newInstanceByClass(Ref.getClass("me.devtec.shared.components.AdventureComponentAPI")));
+		if (Ref.type() != ServerType.BUKKIT) {
+			ComponentAPI.registerTransformer("BUNGEECORD", (ComponentTransformer<?>) Ref
+					.newInstanceByClass(Ref.getClass("me.devtec.shared.components.BungeeComponentAPI")));
+			if (Ref.type() == ServerType.PAPER)
+				ComponentAPI.registerTransformer("ADVENTURE", (ComponentTransformer<?>) Ref
+						.newInstanceByClass(Ref.getClass("me.devtec.shared.components.AdventureComponentAPI")));
 		}
 		// Commands api
 		API.commandsRegister = new BukkitCommandManager();
@@ -262,10 +270,10 @@ public class BukkitLibInit {
 					} catch (MalformedURLException e) {
 						e.printStackTrace();
 					}
-				} else if (Ref.isNewerThan(16) || Ref.isNewerThan(15) && Ref.serverType() == ServerType.PAPER) {
+				} else if (Ref.isAtLeast(17, 0) || Ref.isAtLeast(16, 0) && Ref.type() == ServerType.PAPER) {
 					if (libraryLoader == null) {
 						try {
-							libraryLoader = new SimpleClassLoader(new URL[]{file.toURI().toURL()});
+							libraryLoader = new SimpleClassLoader(new URL[] { file.toURI().toURL() });
 						} catch (MalformedURLException e) {
 							e.printStackTrace();
 						}
@@ -300,152 +308,156 @@ public class BukkitLibInit {
 			}
 		};
 		API.basics().load();
-		if (Ref.isOlderThan(16))
+		if (Ref.isBefore(16, 0))
 			ColorUtils.color = new ColormaticFactory() {
-			final String rainbow = "c6ea9b5";
-			final char[] chars = rainbow.toCharArray();
-			final AtomicInteger position = new AtomicInteger(0);
+				final String rainbow = "c6ea9b5";
+				final char[] chars = rainbow.toCharArray();
+				final AtomicInteger position = new AtomicInteger(0);
 
-			final int[][] EMPTY_ARRAY = {};
-			final char[] EMPTY_CHAR_ARRAY = {};
-			final char[] RESET_CHAR_ARRAY = {'§', 'r'};
+				final int[][] EMPTY_ARRAY = {};
+				final char[] EMPTY_CHAR_ARRAY = {};
+				final char[] RESET_CHAR_ARRAY = { '§', 'r' };
 
-			@Override
-			public StringContainer gradient(StringContainer container, int start, int end, @Nullable String firstHex, @Nullable String secondHex, @Nullable List<String> protectedStrings) {
-				boolean inRainbow = false;
-				char[] formats = EMPTY_CHAR_ARRAY;
+				@Override
+				public StringContainer gradient(StringContainer container, int start, int end,
+						@Nullable String firstHex, @Nullable String secondHex,
+						@Nullable List<String> protectedStrings) {
+					boolean inRainbow = false;
+					char[] formats = EMPTY_CHAR_ARRAY;
 
-				// Skip regions
-				int[][] skipRegions = EMPTY_ARRAY;
-				byte allocated = 0;
-				int currentSkipAt = -1;
-				byte skipId = 0;
+					// Skip regions
+					int[][] skipRegions = EMPTY_ARRAY;
+					byte allocated = 0;
+					int currentSkipAt = -1;
+					byte skipId = 0;
 
-				if (protectedStrings != null) {
-					for (String protect : protectedStrings) {
-						int size = protect.length();
+					if (protectedStrings != null) {
+						for (String protect : protectedStrings) {
+							int size = protect.length();
 
-						int num = 0;
-						while (true) {
-							int position = container.indexOf(protect, num);
-							if (position == -1)
-								break;
-							num = position + size;
-							if (allocated == 0 || allocated >= skipRegions.length - 1) {
-								int[][] copy = new int[(allocated << 1) + 1][];
-								if (allocated > 0)
-									System.arraycopy(skipRegions, 0, copy, 0, skipRegions.length);
-								skipRegions = copy;
+							int num = 0;
+							while (true) {
+								int position = container.indexOf(protect, num);
+								if (position == -1)
+									break;
+								num = position + size;
+								if (allocated == 0 || allocated >= skipRegions.length - 1) {
+									int[][] copy = new int[(allocated << 1) + 1][];
+									if (allocated > 0)
+										System.arraycopy(skipRegions, 0, copy, 0, skipRegions.length);
+									skipRegions = copy;
+								}
+								skipRegions[allocated++] = new int[] { position, size };
 							}
-							skipRegions[allocated++] = new int[]{position, size};
 						}
-					}
-					if (allocated > 0)
-						currentSkipAt = skipRegions[0][0];
-				}
-
-				int i = start - 1;
-				for (int step = 0; step < end - start; ++step) {
-					char c = container.charAt(++i);
-
-					if (currentSkipAt == i) {
-						int skipForChars = skipRegions[skipId++][1] - 1;
-						currentSkipAt = skipId == allocated ? -1 : skipRegions[skipId][0];
-						i += skipForChars;
-						step += skipForChars;
-						continue;
+						if (allocated > 0)
+							currentSkipAt = skipRegions[0][0];
 					}
 
-					if (c == '&' && i + 1 < container.length() && container.charAt(i + 1) == 'u') {
-						container.delete(i, i + 2);
-						--i;
-						++step;
-						inRainbow = true;
-						continue;
-					}
+					int i = start - 1;
+					for (int step = 0; step < end - start; ++step) {
+						char c = container.charAt(++i);
 
-					if (inRainbow)
-						switch (c) {
-						case ' ':
-							if (formats.length == 2 && formats[1] == 'r') {
-								container.insertMultipleChars(i, formats);
-								formats = EMPTY_CHAR_ARRAY;
-								i += 2;
-								container.insert(i, generateColor());
-								i += 2;
-							}
+						if (currentSkipAt == i) {
+							int skipForChars = skipRegions[skipId++][1] - 1;
+							currentSkipAt = skipId == allocated ? -1 : skipRegions[skipId][0];
+							i += skipForChars;
+							step += skipForChars;
 							continue;
-						case '§':
-							if (i + 1 < container.length()) {
-								c = container.charAt(++i);
-								++step;
-								if (isFormat(c)) {
-									container.delete(i - 1, i + 1);
-									i -= 2;
-									if (c == 'r')
-										formats = RESET_CHAR_ARRAY;
-									else if (formats.length == 0)
-										formats = new char[]{'§', c};
-									else {
-										char[] copy = new char[formats.length + 2];
-										System.arraycopy(formats, 0, copy, 0, formats.length);
-										formats = copy;
-										formats[formats.length - 2] = '§';
-										formats[formats.length - 1] = c;
+						}
+
+						if (c == '&' && i + 1 < container.length() && container.charAt(i + 1) == 'u') {
+							container.delete(i, i + 2);
+							--i;
+							++step;
+							inRainbow = true;
+							continue;
+						}
+
+						if (inRainbow)
+							switch (c) {
+							case ' ':
+								if (formats.length == 2 && formats[1] == 'r') {
+									container.insertMultipleChars(i, formats);
+									formats = EMPTY_CHAR_ARRAY;
+									i += 2;
+									container.insert(i, generateColor());
+									i += 2;
+								}
+								continue;
+							case '§':
+								if (i + 1 < container.length()) {
+									c = container.charAt(++i);
+									++step;
+									if (isFormat(c)) {
+										container.delete(i - 1, i + 1);
+										i -= 2;
+										if (c == 'r')
+											formats = RESET_CHAR_ARRAY;
+										else if (formats.length == 0)
+											formats = new char[] { '§', c };
+										else {
+											char[] copy = new char[formats.length + 2];
+											System.arraycopy(formats, 0, copy, 0, formats.length);
+											formats = copy;
+											formats[formats.length - 2] = '§';
+											formats[formats.length - 1] = c;
+										}
+										break;
 									}
+									if (isColor(c))
+										inRainbow = false;
 									break;
 								}
-								if (isColor(c))
-									inRainbow = false;
+							default:
+								if (formats.length == 2 && formats[1] == 'r') {
+									container.insertMultipleChars(i, formats);
+									formats = EMPTY_CHAR_ARRAY;
+									i += 2;
+									container.insert(i, generateColor());
+									i += 2;
+								} else {
+									container.insert(i, generateColor());
+									i += 2;
+									if (formats.length != 0) {
+										container.insertMultipleChars(i, formats);
+										i += formats.length;
+									}
+								}
 								break;
 							}
-						default:
-							if (formats.length == 2 && formats[1] == 'r') {
-								container.insertMultipleChars(i, formats);
-								formats = EMPTY_CHAR_ARRAY;
-								i += 2;
-								container.insert(i, generateColor());
-								i += 2;
-							} else {
-								container.insert(i, generateColor());
-								i += 2;
-								if (formats.length != 0) {
-									container.insertMultipleChars(i, formats);
-									i += formats.length;
-								}
-							}
-							break;
-						}
+					}
+					return container;
 				}
-				return container;
-			}
 
-			private boolean isColor(int charAt) {
-				return charAt >= 97 && charAt <= 102 || charAt >= 65 && charAt <= 70 || charAt >= 48 && charAt <= 57;
-			}
+				private boolean isColor(int charAt) {
+					return charAt >= 97 && charAt <= 102 || charAt >= 65 && charAt <= 70
+							|| charAt >= 48 && charAt <= 57;
+				}
 
-			private boolean isFormat(int charAt) {
-				return charAt >= 107 && charAt <= 111 || charAt == 114;
-			}
+				private boolean isFormat(int charAt) {
+					return charAt >= 107 && charAt <= 111 || charAt == 114;
+				}
 
-			@Override
-			public String generateColor() {
-				if (position.get() == chars.length)
-					position.set(0);
-				return new String(new char[]{'§', chars[position.getAndIncrement()]});
-			}
+				@Override
+				public String generateColor() {
+					if (position.get() == chars.length)
+						position.set(0);
+					return new String(new char[] { '§', chars[position.getAndIncrement()] });
+				}
 
-			@Override
-			public StringContainer replaceHex(StringContainer text) {
-				return text;
-			}
+				@Override
+				public StringContainer replaceHex(StringContainer text) {
+					return text;
+				}
 
-			@Override
-			public StringContainer rainbow(StringContainer container, int start, int end, @Nullable String firstHex, @Nullable String secondHex, @Nullable List<String> protectedStrings) {
-				gradient(container, start, end, null, null, protectedStrings);
-				return container;
-			}
-		};
+				@Override
+				public StringContainer rainbow(StringContainer container, int start, int end, @Nullable String firstHex,
+						@Nullable String secondHex, @Nullable List<String> protectedStrings) {
+					gradient(container, start, end, null, null, protectedStrings);
+					return container;
+				}
+			};
 		LoopManager.registerDefaults();
 		ActionManager.registerDefaults();
 		ConditionManager.registerDefaults();
@@ -514,8 +526,10 @@ public class BukkitLibInit {
 			@Override
 			public Object read(Map<String, Object> map) {
 				Object result = map.get("yaw");
-				return new Location(Bukkit.getWorld(map.get("world").toString()), ((Number) map.get("x")).doubleValue(), ((Number) map.get("y")).doubleValue(), ((Number) map.get("z")).doubleValue(),
-						((Number) (result == null ? 0f : result)).floatValue(), ((Number) ((result = map.get("pitch")) == null ? 0f : result)).floatValue());
+				return new Location(Bukkit.getWorld(map.get("world").toString()), ((Number) map.get("x")).doubleValue(),
+						((Number) map.get("y")).doubleValue(), ((Number) map.get("z")).doubleValue(),
+						((Number) (result == null ? 0f : result)).floatValue(),
+						((Number) ((result = map.get("pitch")) == null ? 0f : result)).floatValue());
 			}
 		});
 		// position
@@ -550,8 +564,10 @@ public class BukkitLibInit {
 			@Override
 			public Object read(Map<String, Object> map) {
 				Object result = map.get("yaw");
-				return new Position(map.get("world").toString(), ((Number) map.get("x")).doubleValue(), ((Number) map.get("y")).doubleValue(), ((Number) map.get("z")).doubleValue(),
-						((Number) (result == null ? 0f : result)).floatValue(), ((Number) ((result = map.get("pitch")) == null ? 0f : result)).floatValue());
+				return new Position(map.get("world").toString(), ((Number) map.get("x")).doubleValue(),
+						((Number) map.get("y")).doubleValue(), ((Number) map.get("z")).doubleValue(),
+						((Number) (result == null ? 0f : result)).floatValue(),
+						((Number) ((result = map.get("pitch")) == null ? 0f : result)).floatValue());
 			}
 		});
 		// itemstack
@@ -616,7 +632,8 @@ public class BukkitLibInit {
 			@Override
 			public Object read(Map<String, Object> json) {
 				Object nbt = json.get("nbt");
-				return new BlockDataStorage(Material.getMaterial(json.get("material").toString()), ((Number) json.get("itemData")).byteValue(), json.get("data").toString(),
+				return new BlockDataStorage(Material.getMaterial(json.get("material").toString()),
+						((Number) json.get("itemData")).byteValue(), json.get("data").toString(),
 						nbt == null ? null : nbt.toString());
 			}
 

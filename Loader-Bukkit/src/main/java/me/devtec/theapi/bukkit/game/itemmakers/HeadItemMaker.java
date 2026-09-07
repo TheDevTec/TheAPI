@@ -31,6 +31,7 @@ import me.devtec.theapi.bukkit.xseries.XMaterial;
 public class HeadItemMaker extends ItemMaker {
 	private static Object hdbApi;
 	private static int HDB_TYPE;
+
 	private static void checkHdb() {
 		if (Ref.getClass("me.arcaniax.hdb.api.HeadDatabaseAPI") != null) {
 			hdbApi = new HeadDatabaseAPI();
@@ -41,10 +42,14 @@ public class HeadItemMaker extends ItemMaker {
 	private static final Material skull = XMaterial.PLAYER_HEAD.parseMaterial();
 	private static final String URL_FORMAT = "https://api.mineskin.org/generate/url?url=%s&%s";
 	private static final Method createProfile = Ref.method(Bukkit.class, "createProfile", UUID.class);
-	private static final Constructor<?> constructor = Ref.constructor(Ref.getClass("com.mojang.authlib.properties.Property"), String.class, String.class, String.class);
-	private static final Method setProperty = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.PlayerProfile"), "setProperty", Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"));
-	private static final Method setPlayerProfile = Ref.method(SkullMeta.class, "setPlayerProfile", Ref.getClass("com.destroystokyo.paper.profile.PlayerProfile"));
-	private static final Constructor<?> profileProperty = Ref.constructor(Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"), String.class, String.class);
+	private static final Constructor<?> constructor = Ref.constructor(
+			Ref.getClass("com.mojang.authlib.properties.Property"), String.class, String.class, String.class);
+	private static final Method setProperty = Ref.method(Ref.getClass("com.destroystokyo.paper.profile.PlayerProfile"),
+			"setProperty", Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"));
+	private static final Method setPlayerProfile = Ref.method(SkullMeta.class, "setPlayerProfile",
+			Ref.getClass("com.destroystokyo.paper.profile.PlayerProfile"));
+	private static final Constructor<?> profileProperty = Ref
+			.constructor(Ref.getClass("com.destroystokyo.paper.profile.ProfileProperty"), String.class, String.class);
 	private static final String BASE64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 	private String owner;
@@ -154,11 +159,11 @@ public class HeadItemMaker extends ItemMaker {
 				for (int i = 8; i < 16; ++i)
 					leastSignificant = leastSignificant << 8 | decodedBytes[i] & 0xff;
 				UUID uuid = new UUID(mostSignificant, leastSignificant);
-				if (Ref.isNewerThan(16) && Ref.serverType() == ServerType.PAPER) {
+				if (Ref.isAtLeast(17, 0) && Ref.type() == ServerType.PAPER) {
 					Object profile = Ref.invokeStatic(createProfile, uuid);
 					Ref.invoke(profile, setProperty, Ref.newInstance(profileProperty, "textures", finalValue));
 					Ref.invoke(iMeta, setPlayerProfile, profile);
-				} else if (Ref.isNewerThan(17)) {
+				} else if (Ref.isAtLeast(18, 0)) {
 					PlayerProfile profile = Bukkit.createPlayerProfile(uuid, "");
 					@SuppressWarnings("unchecked")
 					Multimap<String, Object> props = (Multimap<String, Object>) Ref.get(profile, SKIN_PROPERTIES);
@@ -167,7 +172,8 @@ public class HeadItemMaker extends ItemMaker {
 					props.put("textures", property);
 					iMeta.setOwnerProfile(profile);
 				} else
-					Ref.set(iMeta, PROFILE_FIELD, BukkitLoader.getNmsProvider().toGameProfile(GameProfileHandler.of("", uuid, PropertyHandler.of("textures", finalValue))));
+					Ref.set(iMeta, PROFILE_FIELD, BukkitLoader.getNmsProvider().toGameProfile(
+							GameProfileHandler.of("", uuid, PropertyHandler.of("textures", finalValue))));
 				break;
 			}
 			default: // New dimension
@@ -234,13 +240,16 @@ public class HeadItemMaker extends ItemMaker {
 		try {
 			java.net.URLConnection connection = new URL(url).openConnection();
 			connection.setRequestProperty("User-Agent", "DevTec-JavaClient");
-			HttpURLConnection conn = (HttpURLConnection) new URL(String.format(URL_FORMAT, url, "name=DevTec&model=steve&visibility=1")).openConnection();
+			HttpURLConnection conn = (HttpURLConnection) new URL(
+					String.format(URL_FORMAT, url, "name=DevTec&model=steve&visibility=1")).openConnection();
 			conn.setRequestProperty("User-Agent", "DevTec-JavaClient");
 			conn.setRequestProperty("Accept-Encoding", "gzip");
 			conn.setRequestMethod("POST");
 			conn.connect();
-			Map<String, Object> text = (Map<String, Object>) Json.reader().simpleRead(StreamUtils.fromStream(new GZIPInputStream(conn.getInputStream())));
-			return (String) ((Map<String, Object>) ((Map<String, Object>) text.get("data")).get("texture")).get("value");
+			Map<String, Object> text = (Map<String, Object>) Json.reader()
+					.simpleRead(StreamUtils.fromStream(new GZIPInputStream(conn.getInputStream())));
+			return (String) ((Map<String, Object>) ((Map<String, Object>) text.get("data")).get("texture"))
+					.get("value");
 		} catch (Exception ignored) {
 		}
 		return null;

@@ -54,7 +54,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 		} else {
 			login = Ref.nms("network.protocol.login", "PacketLoginInStart");
 			postlogin = Ref.nms("network.protocol.login", "PacketLoginOutSuccess");
-			if (Ref.isNewerThan(20) || Ref.serverVersionInt() == 20 && Ref.serverVersionRelease() >= 4) {
+			if (Ref.isAtLeast(21, 0) || Ref.version() == 20 && Ref.release() >= 4) {
 				name = Ref.field(login, "b");
 				gameprofile = Ref.field(postlogin, "b");
 			} else {
@@ -77,7 +77,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 		}
 		if (lateBind) {
 			String hasTicked = "ac";
-			switch (Ref.serverVersionInt()) {
+			switch (Ref.version()) {
 			case 8:
 			case 11:
 			case 12:
@@ -101,7 +101,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 				hasTicked = "ac";
 				break;
 			case 20:
-				switch (Ref.serverVersionRelease()) {
+				switch (Ref.release()) {
 				case 1:
 				case 2:
 					hasTicked = "ad";
@@ -176,7 +176,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 	private void registerChannelHandler() {
 		if (BukkitLoader.NO_OBFUSCATED_NMS_MODE)
 			networkManagers = (List<ChannelFuture>) Ref.get(serverConnection, "channels");
-		else if (Ref.isNewerThan(16))
+		else if (Ref.isAtLeast(17, 0))
 			networkManagers = (List<ChannelFuture>) Ref.get(serverConnection, "f");
 		else
 			networkManagers = (List<ChannelFuture>) (Ref.get(serverConnection, "listeningChannels") != null
@@ -404,7 +404,7 @@ public class PacketHandlerModern implements PacketHandler<Channel> {
 		public void channelRead(ChannelHandlerContext ctx, Object packet) throws Exception {
 			final Channel channel = ctx.channel();
 			if (packet.getClass() == PacketHandlerModern.login) {
-				player = Ref.isNewerThan(18) ? (String) Ref.get(packet, PacketHandlerModern.name)
+				player = Ref.isAtLeast(19, 0) ? (String) Ref.get(packet, PacketHandlerModern.name)
 						: ((GameProfile) Ref.get(packet, PacketHandlerModern.name)).getName();
 				channelLookup.put(player, channel);
 			}

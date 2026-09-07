@@ -9,7 +9,7 @@ import me.devtec.theapi.bukkit.BukkitLoader;
 
 public class ResourcePackAPI {
     public static void sendOffer(Player player, ResourcePackOffer offer, @Nullable ResourcePackHandler result) {
-        if (Ref.isOlderThan(8)) {
+        if (Ref.isBefore(8, 0)) {
 			return;
 		}
         if (result != null) {

@@ -1,6 +1,8 @@
 package me.devtec.theapi.bungee.commands.selectors;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import me.devtec.shared.commands.manager.SelectorUtils;
@@ -11,74 +13,122 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class BungeeSelectorUtils implements SelectorUtils<CommandSender> {
+
+	private static final List<String> BOOLEAN = immutable("true", "false");
+	private static final List<String> INTEGER = Collections.singletonList("{integer}");
+	private static final List<String> NUMBER = Collections.singletonList("{number}");
+	private static final List<String> POSITION = immutable("~", "{number}");
+	private static final List<String> ENTITY_SELECTORS = immutable("*", "@a", "@e", "@r", "@s", "@p");
+
 	@Override
-	public List<String> build(CommandSender s, Selector selector) {
-		List<String> list = new ArrayList<>();
+	public List<String> build(CommandSender sender, Selector selector) {
 		switch (selector) {
-		case SERVER:
-			list.addAll(ProxyServer.getInstance().getServers().keySet());
-			break;
 		case BOOLEAN:
-			list.add("true");
-			list.add("false");
-			break;
-		case ENTITY_SELECTOR:
-			if (ProxyServer.getInstance().getOnlineCount() == 0) {
-				break;
-			}
-			list.add("*");
-			list.add("@a");
-			list.add("@e");
-			list.add("@r");
-			list.add("@s");
-			list.add("@p");
-		case PLAYER:
-			for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
-				list.add(player.getName());
-			}
-			break;
-		case INTEGER:
-			list.add("{integer}");
-			break;
-		case NUMBER:
-			list.add("{number}");
-			break;
-		default:
-			break;
+			return BOOLEAN;
+
+		case ENTITY_SELECTOR: {
+			Collection<ProxiedPlayer> players = getPlayers(sender);
+
+			if (players.isEmpty())
+				return Collections.emptyList();
+
+			List<String> result = new ArrayList<>(players.size() + ENTITY_SELECTORS.size());
+			result.addAll(ENTITY_SELECTORS);
+
+			for (ProxiedPlayer player : players)
+				result.add(player.getName());
+
+			return result;
 		}
-		return list;
+
+		case PLAYER: {
+			Collection<ProxiedPlayer> players = getPlayers(sender);
+
+			if (players.isEmpty())
+				return Collections.emptyList();
+
+			List<String> result = new ArrayList<>(players.size());
+
+			for (ProxiedPlayer player : players)
+				result.add(player.getName());
+
+			return result;
+		}
+
+		case INTEGER:
+			return INTEGER;
+
+		case NUMBER:
+			return NUMBER;
+
+		case POSITION:
+			return POSITION;
+
+		case SERVER:
+			return new ArrayList<>(ProxyServer.getInstance().getServers().keySet());
+
+		default:
+			return Collections.emptyList();
+		}
+	}
+
+	private Collection<ProxiedPlayer> getPlayers(CommandSender sender) {
+		return ProxyServer.getInstance().getPlayers();
 	}
 
 	@Override
-	public boolean check(CommandSender s, Selector selector, String value) {
-		if (value == null || value.isEmpty()) {
+	public boolean check(CommandSender sender, Selector selector, String value) {
+		if (value == null || value.isEmpty())
 			return false;
-		}
+
 		switch (selector) {
 		case BOOLEAN:
 			return "true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value);
+
 		case ENTITY_SELECTOR:
-			char first = value.charAt(0);
-			char second = value.length() == 2 ? toLowerCase(value.charAt(1)) : 0;
-			if (first == '@' && (second == 'a' || second == 'e' || second == 'r' || second == 's' || second == 'p') || first == '*' && value.length() == 1) {
+			if (isEntitySelector(value))
 				return true;
-			}
-			// Else continue to player
-		case PLAYER:
+
+		case PLAYER: {
 			return !ProxyServer.getInstance().matchPlayer(value).isEmpty();
+		}
+
 		case INTEGER:
 			return ParseUtils.isInt(value);
+
 		case NUMBER:
 			return ParseUtils.isNumber(value);
+
+		case POSITION:
+			return ParseUtils.isNumber(value) || value.indexOf('~') != -1 || value.indexOf('+') != -1
+					|| value.indexOf('-') != -1;
+
 		case SERVER:
 			return ProxyServer.getInstance().getServerInfo(value) != null;
+
 		default:
-			break;
+			return false;
 		}
-		return false;
 	}
 
-	private char toLowerCase(int charAt) {
-		return (char) (charAt <= 90 ? charAt + 32 : charAt);
+	private static boolean isEntitySelector(String value) {
+		if (value.length() == 1)
+			return value.charAt(0) == '*';
+
+		if (value.length() != 2 || value.charAt(0) != '@')
+			return false;
+
+		char c = value.charAt(1);
+
+		if (c >= 'A' && c <= 'Z')
+			c = (char) (c + 32);
+
+		return c == 'a' || c == 'e' || c == 'r' || c == 's' || c == 'p';
+	}
+
+	private static List<String> immutable(String... values) {
+		List<String> result = new ArrayList<>(values.length);
+		Collections.addAll(result, values);
+		return Collections.unmodifiableList(result);
 	}
 }
