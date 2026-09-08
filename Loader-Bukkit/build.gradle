@@ -5,9 +5,6 @@ plugins {
 group = 'me.devtec.theapi.loaders'
 version = '14.0'
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
-
 repositories {
 	mavenCentral()
     maven {
@@ -28,7 +25,7 @@ dependencies {
     compileOnly 'com.mojang:authlib:1.5.21'
     compileOnly 'io.netty:netty-transport:4.1.112.Final'
     compileOnly 'com.google.guava:guava:33.2.1-jre'
-    compileOnly 'org.projectlombok:lombok:1.18.36'
+    compileOnly 'org.projectlombok:lombok:1.18.48'
 	compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
     implementation project(':Loader-Bukkit-Legacy')
 }

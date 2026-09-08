@@ -5,8 +5,14 @@ plugins {
 group = 'me.devtec.theapi.loaders'
 version = '14.0'
 
-sourceCompatibility = '17'
-targetCompatibility = '17'
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+}
 
 repositories {
     maven {
