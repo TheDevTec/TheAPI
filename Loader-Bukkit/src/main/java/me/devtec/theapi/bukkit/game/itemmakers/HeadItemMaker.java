@@ -161,7 +161,8 @@ public class HeadItemMaker extends ItemMaker {
 				UUID uuid = new UUID(mostSignificant, leastSignificant);
 				if (Ref.isAtLeast(17, 0) && Ref.type() == ServerType.PAPER) {
 					Object profile = Ref.invokeStatic(createProfile, uuid);
-					Ref.invoke(profile, setProperty, Ref.newInstance(profileProperty, "textures", finalValue));
+					Object property = Ref.newInstance(profileProperty, "textures", finalValue);
+					Ref.invoke(profile, setProperty, property);
 					Ref.invoke(iMeta, setPlayerProfile, profile);
 				} else if (Ref.isAtLeast(18, 0)) {
 					PlayerProfile profile = Bukkit.createPlayerProfile(uuid, "");

@@ -35,7 +35,8 @@ public class Utils {
 		return applyPlaceholders(typePlaceholder, item, null, player);
 	}
 
-	public static ItemStack applyPlaceholders(String typePlaceholder, ItemMaker item, Map<String, Object> placeholders, Player player) {
+	public static ItemStack applyPlaceholders(String typePlaceholder, ItemMaker item, Map<String, Object> placeholders,
+			Player player) {
 		ReplaceContext context = new ReplaceContext(placeholders, player.getUniqueId());
 
 		if (item.getMaterial() == Material.STONE && typePlaceholder != null)
@@ -90,17 +91,74 @@ public class Utils {
 					Number second;
 
 					if (innerMath) {
-						String firstPart = find(input, '(', i + 4, splitPos) ? replaceMath(playerId, input, i + 4, splitPos) : null;
-						String secondPart = find(input, '(', splitPos + 1, d) ? replaceMath(playerId, input, splitPos + 1, d) : null;
+						String firstPart = find(input, '(', i + 4, splitPos)
+								? replaceMath(playerId, input, i + 4, splitPos)
+								: null;
+						String secondPart = find(input, '(', splitPos + 1, d)
+								? replaceMath(playerId, input, splitPos + 1, d)
+								: null;
 
-						first = firstPart == null ? ParseUtils.getNumber(input, i + 4, splitPos) : ParseUtils.getNumber(firstPart);
-						second = secondPart == null ? ParseUtils.getNumber(input, splitPos + 1, d) : ParseUtils.getNumber(secondPart);
+						first = firstPart == null ? ParseUtils.getNumber(input, i + 4, splitPos)
+								: ParseUtils.getNumber(firstPart);
+						second = secondPart == null ? ParseUtils.getNumber(input, splitPos + 1, d)
+								: ParseUtils.getNumber(secondPart);
 					} else {
 						first = ParseUtils.getNumber(input, i + 4, splitPos);
 						second = ParseUtils.getNumber(input, splitPos + 1, d);
 					}
 
-					appendMinMax(result, first, second, min);
+					if (first != null && second != null)
+						appendMinMax(result, first, second, min);
+					i = d;
+					continue;
+				}
+			}
+
+			if (c == 'r' && input.startsWith("random(", i)) {
+				int times = 0;
+				int splitPos = 0;
+				int d = i + 7;
+				boolean innerMath = false;
+
+				for (; d < end; ++d) {
+					char e = input.charAt(d);
+
+					if (e == '(') {
+						innerMath = true;
+						++times;
+					} else if (e == ',' && times == 0)
+						splitPos = d;
+					else if (e == ')' && --times == -1)
+						break;
+				}
+
+				if (splitPos != 0 && times == -1) {
+					Number first;
+					Number second;
+
+					if (innerMath) {
+						String firstPart = find(input, '(', i + 7, splitPos)
+								? replaceMath(playerId, input, i + 7, splitPos)
+								: null;
+
+						String secondPart = find(input, '(', splitPos + 1, d)
+								? replaceMath(playerId, input, splitPos + 1, d)
+								: null;
+
+						first = firstPart == null ? ParseUtils.getNumber(input, i + 7, splitPos)
+								: ParseUtils.getNumber(firstPart);
+
+						second = secondPart == null ? ParseUtils.getNumber(input, splitPos + 1, d)
+								: ParseUtils.getNumber(secondPart);
+					} else {
+						first = ParseUtils.getNumber(input, i + 7, splitPos);
+						second = ParseUtils.getNumber(input, splitPos + 1, d);
+					}
+
+					if (first != null && second != null)
+						result.append(StringUtils.formatDouble(FormatType.BASIC,
+								MathUtils.randomDouble(first.doubleValue(), second.doubleValue())));
+
 					i = d;
 					continue;
 				}
@@ -122,9 +180,8 @@ public class Utils {
 				}
 
 				if (times == -1) {
-					double value = innerMath
-							? MathUtils.calculate(replaceMath(playerId, input, i + 5, d))
-									: MathUtils.calculate(input, i + 5, d);
+					double value = innerMath ? MathUtils.calculate(replaceMath(playerId, input, i + 5, d))
+							: MathUtils.calculate(input, i + 5, d);
 
 					result.append(StringUtils.formatDouble(FormatType.BASIC, value));
 					i = d;
@@ -185,11 +242,13 @@ public class Utils {
 
 	private static void appendMinMax(StringContainer result, Number first, Number second, boolean min) {
 		if (first instanceof Double || first instanceof Float || second instanceof Double || second instanceof Float)
-			result.append(StringUtils.formatDouble(FormatType.BASIC,
-					min ? Math.min(first.doubleValue(), second.doubleValue()) : Math.max(first.doubleValue(), second.doubleValue())));
+			result.append(
+					StringUtils.formatDouble(FormatType.BASIC, min ? Math.min(first.doubleValue(), second.doubleValue())
+							: Math.max(first.doubleValue(), second.doubleValue())));
 		else
-			result.append(StringUtils.formatDouble(FormatType.BASIC,
-					min ? Math.min(first.longValue(), second.longValue()) : Math.max(first.longValue(), second.longValue())));
+			result.append(
+					StringUtils.formatDouble(FormatType.BASIC, min ? Math.min(first.longValue(), second.longValue())
+							: Math.max(first.longValue(), second.longValue())));
 	}
 
 	private static String formatText(String name) {
@@ -243,12 +302,14 @@ public class Utils {
 		for (String value : stringConditions) {
 			int splitAt = value.indexOf(':');
 			String name = splitAt == -1 ? value : value.substring(0, splitAt);
-			Condition condition = ConditionManager.createByName(name, splitAt == -1 ? "" : value.substring(splitAt + 1));
+			Condition condition = ConditionManager.createByName(name,
+					splitAt == -1 ? "" : value.substring(splitAt + 1));
 
 			if (condition != null)
 				conditions.add(condition);
 			else
-				BukkitLoader.getPlugin(BukkitLoader.class).getLogger().warning("[GuiExpansion] Not found condition " + name);
+				BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
+						.warning("[GuiExpansion] Not found condition " + name);
 		}
 
 		return conditions;
@@ -265,7 +326,8 @@ public class Utils {
 			if (action != null)
 				actions.add(action);
 			else
-				BukkitLoader.getPlugin(BukkitLoader.class).getLogger().warning("[GuiExpansion] Not found action " + name);
+				BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
+						.warning("[GuiExpansion] Not found action " + name);
 		}
 
 		return actions;
@@ -280,7 +342,8 @@ public class Utils {
 		List<Action> actions = holder.getCustomActions().get(actionName);
 
 		if (actions == null) {
-			BukkitLoader.getPlugin(BukkitLoader.class).getLogger().warning("[GuiExpansion] Not found customAction " + actionName);
+			BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
+					.warning("[GuiExpansion] Not found customAction " + actionName);
 			return;
 		}
 
@@ -388,9 +451,8 @@ public class Utils {
 	}
 
 	private static boolean hasMath(String input) {
-		return input.indexOf("min(") != -1 || input.indexOf("max(") != -1
-				|| input.indexOf("calc(") != -1 || input.indexOf("user(") != -1
-				|| input.indexOf("format(") != -1;
+		return input.indexOf("min(") != -1 || input.indexOf("max(") != -1 || input.indexOf("random(") != -1
+				|| input.indexOf("calc(") != -1 || input.indexOf("user(") != -1 || input.indexOf("format(") != -1;
 	}
 
 	private static String formatValue(Object value) {
