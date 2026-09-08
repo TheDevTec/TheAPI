@@ -77,7 +77,9 @@ public class ActionManager {
 		registerDataActions("user", true);
 
 		register("clear_cache", (holder, values) -> (gui, player, sharedData, placeholders) -> {
-			GuiCreator.sharedData.get(player.getUniqueId()).reset();
+			Config config = GuiCreator.sharedData.get(player.getUniqueId());
+			if (config != null)
+				config.reset();
 		});
 
 		register("server", (holder, values) -> {
@@ -152,7 +154,7 @@ public class ActionManager {
 
 			return (gui, player, sharedData, placeholders) -> {
 				Config data = user ? API.getUser(player.getUniqueId())
-						: GuiCreator.sharedData.get(player.getUniqueId());
+						: GuiCreator.sharedData.computeIfAbsent(player.getUniqueId(), t -> new Config());
 
 				if (operation == REMOVE) {
 					data.remove(path);

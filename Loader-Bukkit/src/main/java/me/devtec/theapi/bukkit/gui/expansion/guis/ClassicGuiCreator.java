@@ -78,16 +78,16 @@ public class ClassicGuiCreator implements GuiCreator {
 			return staticGui;
 		}
 
-		final List<Integer> schedulerIds = schedulers.isEmpty()
-				? Collections.<Integer>emptyList()
-						: new ArrayList<>(schedulers.size());
+		final List<Integer> schedulerIds = schedulers.isEmpty() ? Collections.<Integer>emptyList()
+				: new ArrayList<>(schedulers.size());
 
 		GUI gui = new GUI(dynamicTitle ? Utils.replacePlaceholders(title, null, uuid) : staticTitle, size) {
 
 			private boolean schedulersCancelled;
 
 			private void cancelSchedulers() {
-				if (schedulersCancelled) return;
+				if (schedulersCancelled)
+					return;
 				schedulersCancelled = true;
 
 				for (int id : schedulerIds)
@@ -95,16 +95,15 @@ public class ClassicGuiCreator implements GuiCreator {
 			}
 
 			@Override
-			public void onPreClose(Player player) {
-				cancelSchedulers();
-			}
-
-			@Override
-			public void onClose(Player player) {
+			public void onClose(Player player, CloseReason reason) {
 				cancelSchedulers();
 
-				Config data = sharedData.remove(player.getUniqueId());
-				runActions(eventActions.get(EventType.CLOSE_MENU), this, player, data, EMPTY);
+				if (reason != CloseReason.CHANGING_MENU) {
+					Config data = sharedData.get(player.getUniqueId());
+					runActions(eventActions.get(EventType.CLOSE_MENU), this, player, data, EMPTY);
+
+					sharedData.remove(player.getUniqueId());
+				}
 			}
 		};
 
@@ -245,8 +244,7 @@ public class ClassicGuiCreator implements GuiCreator {
 			if (items.isEmpty())
 				continue;
 
-			schedulers.add(new Task(
-					items,
+			schedulers.add(new Task(items,
 					Utils.createActions(this, config.getStringList("scheduler." + scheduler + ".actions")),
 					config.getLong("scheduler." + scheduler + ".time")));
 		}
@@ -257,70 +255,67 @@ public class ClassicGuiCreator implements GuiCreator {
 		Map<Character, ItemGUI> staticCache = new HashMap<>();
 		int pos = -1;
 
-		layout:
-			for (String line : lines)
-				for (int i = 0; i < line.length(); ++i) {
-					if (++pos >= size)
-						break layout;
+		layout: for (String line : lines)
+			for (int i = 0; i < line.length(); ++i) {
+				if (++pos >= size)
+					break layout;
 
-					char c = line.charAt(i);
+				char c = line.charAt(i);
 
-					if (c == ' ')
-						continue;
+				if (c == ' ')
+					continue;
 
-					ItemGUI cached = staticCache.get(c);
+				ItemGUI cached = staticCache.get(c);
 
-					if (cached != null) {
-						staticItems.put(pos, cached);
-						continue;
-					}
-
-					ItemPackage dynamic = dynamicItems.get(c);
-
-					if (dynamic != null) {
-						dynamic.addSlot(pos);
-						continue;
-					}
-
-					ConditionItem condition = conditionItems.get(c);
-
-					if (condition != null) {
-						condition.addSlot(pos);
-						continue;
-					}
-
-					String path = "items." + c;
-
-					if (config.existsKey(path + ".conditions")) {
-						ItemPackage has = config.exists(path + ".has")
-								? createItemPackage(path + ".has", pos)
-										: emptyPackage(pos);
-
-						ItemPackage not = config.exists(path + ".not")
-								? createItemPackage(path + ".not", pos)
-										: emptyPackage(pos);
-
-						List<Condition> conditions = Utils.createConditions(config.getStringList(path + ".conditions"));
-						conditionItems.put(c, new ConditionItem(conditions, pos, has == null ? emptyPackage(pos) : has,
-								not == null ? emptyPackage(pos) : not));
-						continue;
-					}
-
-					ItemPackage itemPackage = createItemPackage(path, pos);
-
-					if (itemPackage == null) {
-						BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-						.warning("[GuiExpansion] Failed to find item " + c + " in the gui " + config.getFile().getName());
-						continue;
-					}
-
-					if (itemPackage instanceof StaticItemPackage) {
-						ItemGUI itemGui = ((StaticItemPackage) itemPackage).getItemGui();
-						staticCache.put(c, itemGui);
-						staticItems.put(pos, itemGui);
-					} else
-						dynamicItems.put(c, itemPackage);
+				if (cached != null) {
+					staticItems.put(pos, cached);
+					continue;
 				}
+
+				ItemPackage dynamic = dynamicItems.get(c);
+
+				if (dynamic != null) {
+					dynamic.addSlot(pos);
+					continue;
+				}
+
+				ConditionItem condition = conditionItems.get(c);
+
+				if (condition != null) {
+					condition.addSlot(pos);
+					continue;
+				}
+
+				String path = "items." + c;
+
+				if (config.existsKey(path + ".conditions")) {
+					ItemPackage has = config.exists(path + ".has") ? createItemPackage(path + ".has", pos)
+							: emptyPackage(pos);
+
+					ItemPackage not = config.exists(path + ".not") ? createItemPackage(path + ".not", pos)
+							: emptyPackage(pos);
+
+					List<Condition> conditions = Utils.createConditions(config.getStringList(path + ".conditions"));
+					conditionItems.put(c, new ConditionItem(conditions, pos, has == null ? emptyPackage(pos) : has,
+							not == null ? emptyPackage(pos) : not));
+					continue;
+				}
+
+				ItemPackage itemPackage = createItemPackage(path, pos);
+
+				if (itemPackage == null) {
+					BukkitLoader.getPlugin(BukkitLoader.class).getLogger().warning(
+							"[GuiExpansion] Failed to find item " + c + " in the gui " + config.getFile().getName());
+					continue;
+				}
+
+				if (itemPackage instanceof StaticItemPackage) {
+					ItemGUI itemGui = ((StaticItemPackage) itemPackage).getItemGui();
+					staticCache.put(c, itemGui);
+					staticItems.put(pos, itemGui);
+				} else
+					dynamicItems.put(c, itemPackage);
+			}
 	}
 
 	private void loadEvent(EventType type, String path) {
@@ -333,15 +328,14 @@ public class ClassicGuiCreator implements GuiCreator {
 
 		if (maker == null) {
 			BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-			.warning("[GuiExpansion] Failed to load item at " + path + " in " + config.getFile().getName());
+					.warning("[GuiExpansion] Failed to load item at " + path + " in " + config.getFile().getName());
 			return null;
 		}
 
 		List<Action> actions = createConfiguredActions(path + ".click", false);
 		String typePlaceholder = config.getString(path + ".type");
 
-		if (Utils.checkForPlaceholders(maker)
-				|| typePlaceholder != null && Utils.checkForPlaceholders(typePlaceholder))
+		if (Utils.checkForPlaceholders(maker) || typePlaceholder != null && Utils.checkForPlaceholders(typePlaceholder))
 			return new ItemPackage(typePlaceholder, maker, pos, actions);
 
 		ItemGUI itemGui = new ItemGUI(maker.build()) {
@@ -368,7 +362,8 @@ public class ClassicGuiCreator implements GuiCreator {
 
 					for (String command : commands) {
 						String value = Utils.replacePlaceholders(command, placeholders, uuid);
-						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), Utils.replaceLiteral(value, "{player}", playerName));
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+								Utils.replaceLiteral(value, "{player}", playerName));
 					}
 				}
 
@@ -408,7 +403,7 @@ public class ClassicGuiCreator implements GuiCreator {
 					if (hasDeposit) {
 						double value = dynamicDeposit
 								? ParseUtils.getDouble(Utils.replacePlaceholders(deposit, placeholders, uuid))
-										: staticDeposit;
+								: staticDeposit;
 
 						BukkitLoader.getEconomyHook().deposit(playerName, worldName, value);
 					}
@@ -416,7 +411,7 @@ public class ClassicGuiCreator implements GuiCreator {
 					if (hasWithdraw) {
 						double value = dynamicWithdraw
 								? ParseUtils.getDouble(Utils.replacePlaceholders(withdraw, placeholders, uuid))
-										: staticWithdraw;
+								: staticWithdraw;
 
 						BukkitLoader.getEconomyHook().withdraw(playerName, worldName, value);
 					}

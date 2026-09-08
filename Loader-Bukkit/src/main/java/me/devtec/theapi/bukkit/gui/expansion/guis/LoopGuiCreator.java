@@ -111,9 +111,8 @@ public class LoopGuiCreator implements GuiCreator {
 
 		data.set("page", page).set("totalPages", totalPages);
 
-		final List<Integer> schedulerIds = schedulers.isEmpty()
-				? Collections.<Integer>emptyList()
-						: new ArrayList<>(schedulers.size());
+		final List<Integer> schedulerIds = schedulers.isEmpty() ? Collections.<Integer>emptyList()
+				: new ArrayList<>(schedulers.size());
 
 		final GUI gui = new GUI(buildTitle(player, page, totalPages), size) {
 
@@ -130,23 +129,15 @@ public class LoopGuiCreator implements GuiCreator {
 			}
 
 			@Override
-			public void onPreClose(Player player) {
-				cancelSchedulers();
-			}
-
-			@Override
-			public void onClose(Player player) {
+			public void onClose(Player player, CloseReason reason) {
 				cancelSchedulers();
 
-				if (activeGuis.get(uuid) != this)
-					return;
+				if (reason != CloseReason.CHANGING_MENU) {
+					Config data = sharedData.get(player.getUniqueId());
+					runActions(eventActions.get(EventType.CLOSE_MENU), this, player, data, EMPTY);
 
-				runActions(eventActions.get(EventType.CLOSE_MENU), this, player, data, EMPTY);
-
-				activeGuis.remove(uuid);
-
-				if (sharedData.get(uuid) == data)
-					sharedData.remove(uuid);
+					sharedData.remove(player.getUniqueId());
+				}
 			}
 		};
 
@@ -311,9 +302,11 @@ public class LoopGuiCreator implements GuiCreator {
 
 		if (previousButton != null)
 			if (page > 1)
-				setPageButton(gui, player, data, previousButton, previousButton.getHas(), page, totalPages, page - 1, itemGuis);
+				setPageButton(gui, player, data, previousButton, previousButton.getHas(), page, totalPages, page - 1,
+						itemGuis);
 			else
-				setPageButton(gui, player, data, previousButton, previousButton.getNot(), page, totalPages, -1, itemGuis);
+				setPageButton(gui, player, data, previousButton, previousButton.getNot(), page, totalPages, -1,
+						itemGuis);
 
 		if (nextButton != null)
 			if (page < totalPages)
@@ -451,8 +444,7 @@ public class LoopGuiCreator implements GuiCreator {
 			if (items.isEmpty())
 				continue;
 
-			schedulers.add(new Task(
-					items,
+			schedulers.add(new Task(items,
 					Utils.createActions(this, config.getStringList("scheduler." + scheduler + ".actions")),
 					config.getLong("scheduler." + scheduler + ".time")));
 		}
@@ -467,9 +459,8 @@ public class LoopGuiCreator implements GuiCreator {
 			if (has == null)
 				continue;
 
-			slotItemWithConditions.add(new ConditionItem(
-					Utils.createConditions(config.getStringList(path + ".check")),
-					0, has, null));
+			slotItemWithConditions.add(
+					new ConditionItem(Utils.createConditions(config.getStringList(path + ".check")), 0, has, null));
 		}
 
 		if (config.existsKey("loop.item.result.type"))
@@ -478,130 +469,127 @@ public class LoopGuiCreator implements GuiCreator {
 		Map<Character, ItemGUI> staticCache = new HashMap<>();
 		int pos = -1;
 
-		layout:
-			for (String line : lines)
-				for (int i = 0; i < line.length(); ++i) {
-					if (++pos >= size)
-						break layout;
+		layout: for (String line : lines)
+			for (int i = 0; i < line.length(); ++i) {
+				if (++pos >= size)
+					break layout;
 
-					char c = line.charAt(i);
+				char c = line.charAt(i);
 
-					if (c == ' ')
-						continue;
+				if (c == ' ')
+					continue;
 
-					if (c == '#') {
-						insertSlots.add(pos);
-						continue;
-					}
-
-					if (nextButtonChar != 0 && nextButtonChar == c) {
-						nextButton.addSlot(pos);
-						continue;
-					}
-
-					if (previousButtonChar != 0 && previousButtonChar == c) {
-						previousButton.addSlot(pos);
-						continue;
-					}
-
-					ItemGUI cached = staticCache.get(c);
-
-					if (cached != null) {
-						staticItems.put(pos, cached);
-						continue;
-					}
-
-					ItemPackage dynamic = dynamicItems.get(c);
-
-					if (dynamic != null) {
-						dynamic.addSlot(pos);
-						continue;
-					}
-
-					ConditionItem conditionItem = conditionItems.get(c);
-
-					if (conditionItem != null) {
-						conditionItem.addSlot(pos);
-						continue;
-					}
-
-					String itemPath = "items." + c;
-
-					if (config.existsKey(itemPath + ".conditions")) {
-						ItemPackage has = config.exists(itemPath + ".has")
-								? createItemPackage(itemPath + ".has", pos)
-										: emptyPackage(pos);
-
-						ItemPackage not = config.exists(itemPath + ".not")
-								? createItemPackage(itemPath + ".not", pos)
-										: emptyPackage(pos);
-
-						if (has == null)
-							has = emptyPackage(pos);
-
-						if (not == null)
-							not = emptyPackage(pos);
-
-						List<Condition> conditions = Utils.createConditions(config.getStringList(itemPath + ".conditions"));
-						conditionItems.put(c, new ConditionItem(conditions, pos, has, not));
-						continue;
-					}
-
-					String loopItemPath = "loop.item." + c;
-
-					if (config.existsKey(loopItemPath + ".action")) {
-						ItemPackage has = config.exists(loopItemPath + ".available")
-								? createItemPackage(loopItemPath + ".available", pos)
-										: emptyPackage(pos);
-
-						ItemPackage not = config.exists(loopItemPath + ".unavailable")
-								? createItemPackage(loopItemPath + ".unavailable", pos)
-										: emptyPackage(pos);
-
-						if (has == null)
-							has = emptyPackage(pos);
-
-						if (not == null)
-							not = emptyPackage(pos);
-
-						String action = config.getString(loopItemPath + ".action");
-
-						if (action != null)
-							switch (action.toLowerCase(Locale.ROOT)) {
-							case "next_page":
-								nextButtonChar = c;
-								nextButton = new ConditionItem(Collections.<Condition>emptyList(), pos, has, not);
-								break;
-
-							case "previous_page":
-								previousButtonChar = c;
-								previousButton = new ConditionItem(Collections.<Condition>emptyList(), pos, has, not);
-								break;
-
-							default:
-								warn("Unknown loop action '" + action + "' for item " + c + " in gui "
-										+ config.getFile().getName());
-								break;
-							}
-
-						continue;
-					}
-
-					ItemPackage itemPackage = createItemPackage(itemPath, pos);
-
-					if (itemPackage == null) {
-						warn("Failed to find item " + c + " in the gui " + config.getFile().getName());
-						continue;
-					}
-
-					if (itemPackage instanceof StaticItemPackage) {
-						ItemGUI itemGui = ((StaticItemPackage) itemPackage).getItemGui();
-
-						staticCache.put(c, itemGui);
-						staticItems.put(pos, itemGui);
-					} else
-						dynamicItems.put(c, itemPackage);
+				if (c == '#') {
+					insertSlots.add(pos);
+					continue;
 				}
+
+				if (nextButtonChar != 0 && nextButtonChar == c) {
+					nextButton.addSlot(pos);
+					continue;
+				}
+
+				if (previousButtonChar != 0 && previousButtonChar == c) {
+					previousButton.addSlot(pos);
+					continue;
+				}
+
+				ItemGUI cached = staticCache.get(c);
+
+				if (cached != null) {
+					staticItems.put(pos, cached);
+					continue;
+				}
+
+				ItemPackage dynamic = dynamicItems.get(c);
+
+				if (dynamic != null) {
+					dynamic.addSlot(pos);
+					continue;
+				}
+
+				ConditionItem conditionItem = conditionItems.get(c);
+
+				if (conditionItem != null) {
+					conditionItem.addSlot(pos);
+					continue;
+				}
+
+				String itemPath = "items." + c;
+
+				if (config.existsKey(itemPath + ".conditions")) {
+					ItemPackage has = config.exists(itemPath + ".has") ? createItemPackage(itemPath + ".has", pos)
+							: emptyPackage(pos);
+
+					ItemPackage not = config.exists(itemPath + ".not") ? createItemPackage(itemPath + ".not", pos)
+							: emptyPackage(pos);
+
+					if (has == null)
+						has = emptyPackage(pos);
+
+					if (not == null)
+						not = emptyPackage(pos);
+
+					List<Condition> conditions = Utils.createConditions(config.getStringList(itemPath + ".conditions"));
+					conditionItems.put(c, new ConditionItem(conditions, pos, has, not));
+					continue;
+				}
+
+				String loopItemPath = "loop.item." + c;
+
+				if (config.existsKey(loopItemPath + ".action")) {
+					ItemPackage has = config.exists(loopItemPath + ".available")
+							? createItemPackage(loopItemPath + ".available", pos)
+							: emptyPackage(pos);
+
+					ItemPackage not = config.exists(loopItemPath + ".unavailable")
+							? createItemPackage(loopItemPath + ".unavailable", pos)
+							: emptyPackage(pos);
+
+					if (has == null)
+						has = emptyPackage(pos);
+
+					if (not == null)
+						not = emptyPackage(pos);
+
+					String action = config.getString(loopItemPath + ".action");
+
+					if (action != null)
+						switch (action.toLowerCase(Locale.ROOT)) {
+						case "next_page":
+							nextButtonChar = c;
+							nextButton = new ConditionItem(Collections.<Condition>emptyList(), pos, has, not);
+							break;
+
+						case "previous_page":
+							previousButtonChar = c;
+							previousButton = new ConditionItem(Collections.<Condition>emptyList(), pos, has, not);
+							break;
+
+						default:
+							warn("Unknown loop action '" + action + "' for item " + c + " in gui "
+									+ config.getFile().getName());
+							break;
+						}
+
+					continue;
+				}
+
+				ItemPackage itemPackage = createItemPackage(itemPath, pos);
+
+				if (itemPackage == null) {
+					warn("Failed to find item " + c + " in the gui " + config.getFile().getName());
+					continue;
+				}
+
+				if (itemPackage instanceof StaticItemPackage) {
+					ItemGUI itemGui = ((StaticItemPackage) itemPackage).getItemGui();
+
+					staticCache.put(c, itemGui);
+					staticItems.put(pos, itemGui);
+				} else
+					dynamicItems.put(c, itemPackage);
+			}
 
 		if (insertSlots.isEmpty())
 			warn("Loop gui " + config.getFile().getName() + " doesn't contain any '#' insert slots");
@@ -623,8 +611,7 @@ public class LoopGuiCreator implements GuiCreator {
 		final List<Action> actions = createConfiguredActions(path + ".click", false);
 		String typePlaceholder = config.getString(path + ".type");
 
-		if (Utils.checkForPlaceholders(maker)
-				|| typePlaceholder != null && Utils.checkForPlaceholders(typePlaceholder))
+		if (Utils.checkForPlaceholders(maker) || typePlaceholder != null && Utils.checkForPlaceholders(typePlaceholder))
 			return new ItemPackage(typePlaceholder, maker, pos, actions);
 
 		ItemGUI itemGui = new ItemGUI(maker.build()) {
@@ -692,7 +679,7 @@ public class LoopGuiCreator implements GuiCreator {
 					if (hasDeposit) {
 						double value = dynamicDeposit
 								? ParseUtils.getDouble(Utils.replacePlaceholders(deposit, placeholders, uuid))
-										: staticDeposit;
+								: staticDeposit;
 
 						BukkitLoader.getEconomyHook().deposit(playerName, worldName, value);
 					}
@@ -700,7 +687,7 @@ public class LoopGuiCreator implements GuiCreator {
 					if (hasWithdraw) {
 						double value = dynamicWithdraw
 								? ParseUtils.getDouble(Utils.replacePlaceholders(withdraw, placeholders, uuid))
-										: staticWithdraw;
+								: staticWithdraw;
 
 						BukkitLoader.getEconomyHook().withdraw(playerName, worldName, value);
 					}
@@ -712,10 +699,8 @@ public class LoopGuiCreator implements GuiCreator {
 	}
 
 	private ItemGUI createDynamicItem(final ItemPackage itemPackage, Player player, final Config data) {
-		return createDynamicItem(
-				itemPackage,
-				Utils.applyPlaceholders(itemPackage.getTypePlaceholder(), itemPackage.getItem(), player),
-				data);
+		return createDynamicItem(itemPackage,
+				Utils.applyPlaceholders(itemPackage.getTypePlaceholder(), itemPackage.getItem(), player), data);
 	}
 
 	private ItemGUI createDynamicItem(final ItemPackage itemPackage, ItemStack item, final Config data) {

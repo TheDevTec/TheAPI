@@ -70,16 +70,16 @@ public class AnvilGuiCreator implements GuiCreator {
 
 		runActions(eventActions.get(EventType.BEFORE_OPEN_MENU), null, player, data, EMPTY);
 
-		final List<Integer> schedulerIds = schedulers.isEmpty()
-				? Collections.<Integer>emptyList()
-						: new ArrayList<>(schedulers.size());
+		final List<Integer> schedulerIds = schedulers.isEmpty() ? Collections.<Integer>emptyList()
+				: new ArrayList<>(schedulers.size());
 
 		final AnvilGUI gui = new AnvilGUI(dynamicTitle ? Utils.replacePlaceholders(title, null, uuid) : staticTitle) {
 
 			private boolean schedulersCancelled;
 
 			private void cancelSchedulers() {
-				if (schedulersCancelled) return;
+				if (schedulersCancelled)
+					return;
 				schedulersCancelled = true;
 
 				for (int id : schedulerIds)
@@ -87,18 +87,15 @@ public class AnvilGuiCreator implements GuiCreator {
 			}
 
 			@Override
-			public void onPreClose(Player player) {
-				cancelSchedulers();
-			}
-
-			@Override
-			public void onClose(Player player) {
+			public void onClose(Player player, CloseReason reason) {
 				cancelSchedulers();
 
-				Config data = sharedData.get(player.getUniqueId());
-				runActions(eventActions.get(EventType.CLOSE_MENU), this, player, data, renamePlaceholders(this));
+				if (reason != CloseReason.CHANGING_MENU) {
+					Config data = sharedData.get(player.getUniqueId());
+					runActions(eventActions.get(EventType.CLOSE_MENU), this, player, data, renamePlaceholders(this));
 
-				sharedData.remove(player.getUniqueId());
+					sharedData.remove(player.getUniqueId());
+				}
 			}
 		};
 
@@ -168,7 +165,8 @@ public class AnvilGuiCreator implements GuiCreator {
 		ItemPackage item = dynamicItems.get(itemId);
 
 		if (item != null && !item.getSlots().isEmpty()) {
-			ItemStack newItem = Utils.applyPlaceholders(item.getTypePlaceholder(), item.getItem(), placeholders, player);
+			ItemStack newItem = Utils.applyPlaceholders(item.getTypePlaceholder(), item.getItem(), placeholders,
+					player);
 			ItemGUI itemGui = gui.getItemGUI(item.getSlots().get(0));
 
 			if (itemGui == null)
@@ -202,11 +200,12 @@ public class AnvilGuiCreator implements GuiCreator {
 			return;
 		}
 
-		ItemStack newItem = Utils.applyPlaceholders(packageItem.getTypePlaceholder(), packageItem.getItem(), placeholders, player);
+		ItemStack newItem = Utils.applyPlaceholders(packageItem.getTypePlaceholder(), packageItem.getItem(),
+				placeholders, player);
 
 		/*
-		 * Musí vzniknout nový ItemGUI.
-		 * Jinak by po přepnutí HAS <-> NOT zůstal starý onClick callback.
+		 * Musí vzniknout nový ItemGUI. Jinak by po přepnutí HAS <-> NOT zůstal starý
+		 * onClick callback.
 		 */
 		ItemGUI itemGui = createDynamicItem(packageItem, newItem, data);
 
@@ -228,9 +227,9 @@ public class AnvilGuiCreator implements GuiCreator {
 		staticTitle = dynamicTitle ? null : ColorUtils.colorize(title);
 
 		if (config.getString("lines") == null || config.get("lines") instanceof Collection) {
-			BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-			.warning("[GuiExpansion] Failed to load Anvil Gui; Anvil accepts only 3 items, use String, not List, file: "
-					+ config.getFile().getName());
+			BukkitLoader.getPlugin(BukkitLoader.class).getLogger().warning(
+					"[GuiExpansion] Failed to load Anvil Gui; Anvil accepts only 3 items, use String, not List, file: "
+							+ config.getFile().getName());
 			return;
 		}
 
@@ -255,8 +254,7 @@ public class AnvilGuiCreator implements GuiCreator {
 			if (items.isEmpty())
 				continue;
 
-			schedulers.add(new Task(
-					items,
+			schedulers.add(new Task(items,
 					Utils.createActions(this, config.getStringList("scheduler." + scheduler + ".actions")),
 					config.getLong("scheduler." + scheduler + ".time")));
 		}
@@ -269,8 +267,8 @@ public class AnvilGuiCreator implements GuiCreator {
 
 		if (line.length() > 3)
 			BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-			.warning("[GuiExpansion] Anvil Gui accepts only 3 items, ignoring slots after 3, file: "
-					+ config.getFile().getName());
+					.warning("[GuiExpansion] Anvil Gui accepts only 3 items, ignoring slots after 3, file: "
+							+ config.getFile().getName());
 
 		int length = Math.min(3, line.length());
 
@@ -304,16 +302,16 @@ public class AnvilGuiCreator implements GuiCreator {
 			String path = "items." + c;
 
 			if (config.existsKey(path + ".conditions")) {
-				ItemPackage has = config.exists(path + ".has")
-						? createItemPackage(path + ".has", pos)
-								: emptyPackage(pos);
+				ItemPackage has = config.exists(path + ".has") ? createItemPackage(path + ".has", pos)
+						: emptyPackage(pos);
 
-				ItemPackage not = config.exists(path + ".not")
-						? createItemPackage(path + ".not", pos)
-								: emptyPackage(pos);
+				ItemPackage not = config.exists(path + ".not") ? createItemPackage(path + ".not", pos)
+						: emptyPackage(pos);
 
-				if (has == null) has = emptyPackage(pos);
-				if (not == null) not = emptyPackage(pos);
+				if (has == null)
+					has = emptyPackage(pos);
+				if (not == null)
+					not = emptyPackage(pos);
 
 				List<Condition> conditions = Utils.createConditions(config.getStringList(path + ".conditions"));
 				conditionItems.put(c, new ConditionItem(conditions, pos, has, not));
@@ -345,15 +343,14 @@ public class AnvilGuiCreator implements GuiCreator {
 
 		if (maker == null) {
 			BukkitLoader.getPlugin(BukkitLoader.class).getLogger()
-			.warning("[GuiExpansion] Failed to load item at " + path + " in " + config.getFile().getName());
+					.warning("[GuiExpansion] Failed to load item at " + path + " in " + config.getFile().getName());
 			return null;
 		}
 
 		List<Action> actions = createConfiguredActions(path + ".click", false);
 		String typePlaceholder = config.getString(path + ".type");
 
-		if (Utils.checkForPlaceholders(maker)
-				|| typePlaceholder != null && Utils.checkForPlaceholders(typePlaceholder))
+		if (Utils.checkForPlaceholders(maker) || typePlaceholder != null && Utils.checkForPlaceholders(typePlaceholder))
 			return new ItemPackage(typePlaceholder, maker, pos, actions);
 
 		final List<Action> itemActions = actions;
@@ -384,7 +381,8 @@ public class AnvilGuiCreator implements GuiCreator {
 
 					for (String command : commands) {
 						String value = Utils.replacePlaceholders(command, values, uuid);
-						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), Utils.replaceLiteral(value, "{player}", playerName));
+						Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+								Utils.replaceLiteral(value, "{player}", playerName));
 					}
 				}
 
@@ -426,7 +424,7 @@ public class AnvilGuiCreator implements GuiCreator {
 					if (hasDeposit) {
 						double value = dynamicDeposit
 								? ParseUtils.getDouble(Utils.replacePlaceholders(deposit, values, uuid))
-										: staticDeposit;
+								: staticDeposit;
 
 						BukkitLoader.getEconomyHook().deposit(playerName, worldName, value);
 					}
@@ -434,7 +432,7 @@ public class AnvilGuiCreator implements GuiCreator {
 					if (hasWithdraw) {
 						double value = dynamicWithdraw
 								? ParseUtils.getDouble(Utils.replacePlaceholders(withdraw, values, uuid))
-										: staticWithdraw;
+								: staticWithdraw;
 
 						BukkitLoader.getEconomyHook().withdraw(playerName, worldName, value);
 					}
@@ -447,7 +445,8 @@ public class AnvilGuiCreator implements GuiCreator {
 
 	private ItemGUI createDynamicItem(final ItemPackage itemPackage, final AnvilGUI gui, Player player, Config data) {
 		Map<String, Object> placeholders = renamePlaceholders(gui);
-		ItemStack item = Utils.applyPlaceholders(itemPackage.getTypePlaceholder(), itemPackage.getItem(), placeholders, player);
+		ItemStack item = Utils.applyPlaceholders(itemPackage.getTypePlaceholder(), itemPackage.getItem(), placeholders,
+				player);
 
 		return createDynamicItem(itemPackage, item, data);
 	}
@@ -478,8 +477,7 @@ public class AnvilGuiCreator implements GuiCreator {
 		if (placeholders != null && renameText.equals(placeholders.get("renameText")))
 			return placeholders;
 
-		Map<String, Object> result = new HashMap<>(
-				placeholders == null ? 2 : Math.max(2, placeholders.size() + 1));
+		Map<String, Object> result = new HashMap<>(placeholders == null ? 2 : Math.max(2, placeholders.size() + 1));
 
 		if (placeholders != null && !placeholders.isEmpty())
 			result.putAll(placeholders);

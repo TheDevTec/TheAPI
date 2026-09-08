@@ -15,8 +15,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.devtec.shared.Ref;
-import me.devtec.shared.components.base.Component;
 import me.devtec.shared.components.ComponentAPI;
+import me.devtec.shared.components.base.Component;
 import me.devtec.shared.dataholder.StringContainer;
 import me.devtec.shared.utility.ColorUtils;
 import me.devtec.theapi.bukkit.BukkitLoader;
@@ -46,18 +46,10 @@ public class AnvilGUI implements HolderGUI {
 	}
 
 	/**
-	 * @apiNote Actions before close gui
-	 */
-	@Override
-	public void onPreClose(Player player) {
-		// Before gui is closed actions
-	}
-
-	/**
 	 * @apiNote Actions on close gui
 	 */
 	@Override
-	public void onClose(Player player) {
+	public void onClose(Player player, CloseReason reason) {
 		// Closed gui actions
 	}
 
@@ -145,7 +137,7 @@ public class AnvilGUI implements HolderGUI {
 			if (JavaPlugin.getPlugin(BukkitLoader.class).gui.containsKey(player.getUniqueId())) {
 				HolderGUI menu = JavaPlugin.getPlugin(BukkitLoader.class).gui.get(player.getUniqueId());
 				JavaPlugin.getPlugin(BukkitLoader.class).gui.remove(player.getUniqueId());
-				menu.onClose(player);
+				menu.onClose(player, CloseReason.CHANGING_MENU);
 			}
 			Object container;
 			BukkitLoader.getNmsProvider().openAnvilGUI(player,
@@ -238,12 +230,11 @@ public class AnvilGUI implements HolderGUI {
 		for (Player player : players) {
 			if (player == null)
 				continue;
-			onPreClose(player);
+			onClose(player, CloseReason.BY_PLUGIN);
 			Object container = containers.remove(player);
 			if (container != null)
 				BukkitLoader.getNmsProvider().closeGUI(player, container, true);
 			JavaPlugin.getPlugin(BukkitLoader.class).gui.remove(player.getUniqueId());
-			onClose(player);
 		}
 	}
 
@@ -254,12 +245,11 @@ public class AnvilGUI implements HolderGUI {
 		for (Player player : p) {
 			if (player == null)
 				continue;
-			onPreClose(player);
+			onClose(player, CloseReason.BY_CLIENT);
 			Object ac = containers.remove(player);
 			if (ac != null)
 				BukkitLoader.getNmsProvider().closeGUI(player, ac, false);
 			JavaPlugin.getPlugin(BukkitLoader.class).gui.remove(player.getUniqueId());
-			onClose(player);
 		}
 	}
 
