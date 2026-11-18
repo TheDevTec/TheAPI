@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     compileOnly files("$projectDir/lib/paper-26.2.jar")
-	compileOnly("io.papermc.paper:paper-api:26.2.build.+")
+	compileOnly("io.papermc.paper:paper-api:26.2.build.135-stable")
     compileOnly 'net.kyori:adventure-api:5.2.0'
     compileOnly 'com.github.TheDevTec.TheAPI:Loader-Bukkit:14.2'
     compileOnly 'com.github.TheDevTec:TheAPI-Shared:14.2'
