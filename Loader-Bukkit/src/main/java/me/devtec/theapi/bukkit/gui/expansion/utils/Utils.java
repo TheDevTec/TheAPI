@@ -21,6 +21,7 @@ import me.devtec.shared.utility.StringUtils;
 import me.devtec.shared.utility.StringUtils.FormatType;
 import me.devtec.theapi.bukkit.BukkitLoader;
 import me.devtec.theapi.bukkit.game.ItemMaker;
+import me.devtec.theapi.bukkit.game.itemmakers.HeadItemMaker;
 import me.devtec.theapi.bukkit.gui.HolderGUI;
 import me.devtec.theapi.bukkit.gui.expansion.GuiCreator;
 import me.devtec.theapi.bukkit.gui.expansion.actions.Action;
@@ -50,6 +51,21 @@ public class Utils {
 
 			for (int i = 0; i < lore.size(); ++i)
 				lore.set(i, context.replace(lore.get(i)));
+		}
+
+		if(item instanceof HeadItemMaker){
+			HeadItemMaker maker = (HeadItemMaker)item;
+			switch(maker.getHeadOwnerType()){
+				case 0:
+				maker.skinName(context.replace(maker.getHeadOwner()));
+				break;
+				case 1:
+				maker.skinValues(context.replace(maker.getHeadOwner()));
+				break;
+				case 2:
+				maker.skinUrl(context.replace(maker.getHeadOwner()));
+				break;
+			}
 		}
 
 		return item.build();

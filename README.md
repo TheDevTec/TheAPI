@@ -28,7 +28,7 @@ We bring the most useful and most wanted features directly for developers. From 
     <dependency>
         <groupId>com.github.TheDevTec</groupId>
         <artifactId>TheAPI</artifactId>
-        <version>14.0</version>
+        <version>14.2</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
@@ -41,7 +41,7 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 dependencies {
-    compileOnly "com.github.TheDevTec:TheAPI:14.0"
+    compileOnly "com.github.TheDevTec:TheAPI:14.2"
 }
 ```
 

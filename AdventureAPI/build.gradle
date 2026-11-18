@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'me.devtec.theapi.loaders'
-version = '14.0'
+version = '14.2'
 
 repositories {
     mavenCentral()

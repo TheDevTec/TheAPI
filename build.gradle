@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-def versionValue = System.getenv('VERSION') ?: '14.0'
+def versionValue = System.getenv('VERSION') ?: '14.2'
 group = 'me.devtec.theapi.loaders'
 version = versionValue
 
@@ -21,7 +21,7 @@ allprojects {
 }
 
 dependencies {
-    implementation 'com.github.TheDevTec:TheAPI-Shared:14.0'
+    implementation 'com.github.TheDevTec:TheAPI-Shared:14.2'
 }
 
 subprojects {
@@ -54,7 +54,7 @@ subprojects {
     dependencies {
         compileOnly 'org.projectlombok:lombok:1.18.48'
         annotationProcessor 'org.projectlombok:lombok:1.18.48'
-        implementation 'com.github.TheDevTec:TheAPI-Shared:14.0'
+        implementation 'com.github.TheDevTec:TheAPI-Shared:14.2'
     }
 
     task buildJar(type: Jar) {
