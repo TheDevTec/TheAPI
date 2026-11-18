@@ -45,7 +45,6 @@ import com.mojang.authlib.properties.Property;
 import io.netty.channel.Channel;
 import me.devtec.shared.Pair;
 import me.devtec.shared.Ref;
-import me.devtec.theapi.bukkit.nms.NmsReflection;
 import me.devtec.shared.components.decorations.ClickEvent;
 import me.devtec.shared.components.base.Component;
 import me.devtec.shared.components.ComponentAPI;
@@ -1697,7 +1696,7 @@ public class v1_16_R3 implements NmsProvider {
 	private static final Field playerInfo = Ref.field(PacketPlayOutPlayerInfo.class, "b");
 
 	private static final Constructor<?> infoData = Ref.constructor(
-			NmsReflection.nms("", "PacketPlayOutPlayerInfo$PlayerInfoData"), PacketPlayOutPlayerInfo.class, GameProfile.class,
+			Ref.nms("", "PacketPlayOutPlayerInfo$PlayerInfoData"), PacketPlayOutPlayerInfo.class, GameProfile.class,
 			int.class, EnumGamemode.class, IChatBaseComponent.class);
 
 	@SuppressWarnings("unchecked")

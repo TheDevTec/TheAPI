@@ -39,7 +39,7 @@ tasks.withType(JavaCompile) {
 task buildJar(type: Jar) {
     from sourceSets.main.output
     archiveFileName = "NmsProvider.jar"
-    destinationDirectory.set(file("/build"))
+    destinationDirectory.set(layout.buildDirectory)
 }
 
 tasks.build.dependsOn buildJar

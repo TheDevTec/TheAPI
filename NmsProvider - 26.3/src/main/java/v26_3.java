@@ -107,7 +107,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.players.NameAndId;
+import net.minecraft.util.Prediction;
 import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.AnvilMenu;
@@ -1318,10 +1320,11 @@ public class v26_3 implements NmsProvider {
 							// CraftBukkit start
 							net.minecraft.world.item.ItemStack carried = container.getCarried();
 							container.setCarried(net.minecraft.world.item.ItemStack.EMPTY);
-							postToMainThread(() -> player.drop(carried, true));
+							postToMainThread(() -> player.drop(carried, true, Prediction.PREDICTED));
 							// CraftBukkit start
+							
 						} else
-							postToMainThread(() -> player.drop(container.getCarried().split(1), true));
+							postToMainThread(() -> player.drop(container.getCarried().split(1), true, Prediction.PREDICTED));
 				} else if (actionType == net.minecraft.world.inventory.ContainerInput.QUICK_MOVE) {
 					if (slotIndex < 0)
 						return;
@@ -1423,7 +1426,7 @@ public class v26_3 implements NmsProvider {
 								slot.onTake(player, itemstack);
 								if (!playerinventory.add(itemstack)) {
 									net.minecraft.world.item.ItemStack finalItemstack = itemstack;
-									postToMainThread(() -> player.drop(finalItemstack, true));
+									postToMainThread(() -> player.drop(finalItemstack, true, Prediction.PREDICTED));
 								}
 							} else {
 								playerinventory.setItem(button, itemstack);
@@ -1444,7 +1447,7 @@ public class v26_3 implements NmsProvider {
 					count = button == 0 ? 1 : slot.getItem().getCount();
 					itemstack = slot.safeTake(count, Integer.MAX_VALUE, player);
 					net.minecraft.world.item.ItemStack finalItemstack = itemstack;
-					postToMainThread(() -> player.drop(finalItemstack, true));
+					postToMainThread(() -> player.drop(finalItemstack, true, Prediction.PREDICTED));
 				} else if (actionType == net.minecraft.world.inventory.ContainerInput.PICKUP_ALL && slotIndex >= 0) {
 					slot = container.slots.get(slotIndex);
 					itemstack = container.getCarried();
@@ -1581,7 +1584,7 @@ public class v26_3 implements NmsProvider {
 					}
 
 					// CraftBukkit start - InventoryDragEvent
-					org.bukkit.inventory.ItemStack newcursor = CraftItemStack.asCraftMirror(itemstack);
+					org.bukkit.inventory.ItemStack newcursor = CraftItemStack.asBukkitMirror(itemstack);
 					newcursor.setAmount(count);
 					Map<Integer, org.bukkit.inventory.ItemStack> eventmap = new HashMap<>();
 					for (Map.Entry<Integer, net.minecraft.world.item.ItemStack> ditem : draggedSlots.entrySet())

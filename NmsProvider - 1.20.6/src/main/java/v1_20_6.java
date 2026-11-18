@@ -41,7 +41,6 @@ import com.mojang.authlib.properties.Property;
 import io.netty.channel.Channel;
 import me.devtec.shared.Pair;
 import me.devtec.shared.Ref;
-import me.devtec.theapi.bukkit.nms.NmsReflection;
 import me.devtec.shared.components.decorations.ClickEvent;
 import me.devtec.shared.components.base.Component;
 import me.devtec.shared.components.ComponentAPI;
@@ -1758,9 +1757,9 @@ public class v1_20_6 implements NmsProvider {
 	}
 
 	Constructor<?> heldItemSlot = Ref
-			.constructor(NmsReflection.nms("network.protocol.game", "ClientboundSetHeldSlotPacket") == null
-			? NmsReflection.nms("network.protocol.game", "ClientboundSetCarriedItemPacket")
-					: NmsReflection.nms("network.protocol.game", "ClientboundSetHeldSlotPacket"), int.class);
+			.constructor(Ref.nms("network.protocol.game", "ClientboundSetHeldSlotPacket") == null
+			? Ref.nms("network.protocol.game", "ClientboundSetCarriedItemPacket")
+					: Ref.nms("network.protocol.game", "ClientboundSetHeldSlotPacket"), int.class);
 
 	@Override
 	public Object packetHeldItemSlot(int slot) {

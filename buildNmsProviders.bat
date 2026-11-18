@@ -14,4 +14,4 @@ call gradlew -b "NmsProvider - 1.21.9/build.gradle" clean build
 call gradlew -b "NmsProvider - 1.21.11/build.gradle" clean build
 call gradlew -b "NmsProvider - 26.1.2/build.gradle" clean build
 call gradlew -b "NmsProvider - 26.2/build.gradle" clean build
-pause
+call gradlew -b "NmsProvider - 26.3/build.gradle" clean build
